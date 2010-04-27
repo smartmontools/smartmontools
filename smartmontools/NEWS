@@ -13,6 +13,7 @@ Summary: smartmontools release 5.40
 - configure: New default value for '--with-docdir'.
 - Drive database is in a separate source file 'drivedb.h'
   which can be downloaded from SVN.
+- USB ID info is now included in 'drivedb.h'.
 - New script 'update-smart-drivedb'.
 - smartd libcap-ng support, option '-C, --capabilities'.
 - smartctl option '-l scterc[,...]' to get/set the

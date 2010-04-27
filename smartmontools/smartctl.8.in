@@ -1339,6 +1339,14 @@ Example:
     "",                // No warning.
     ""                 // No options preset.
   },
+  /* USB ID entry: */
+  {
+    "USB: Device; Bridge", // Info about USB device and bridge name.
+    "0x1234:0xabcd",   // Regular expression to match vendor:product ID.
+    "0x0101",          // Regular expression to match bcdDevice.
+    "",                // Not used.
+    "\-d sat"           // String with device type option.
+  },
   /* ... */
 .fi
 

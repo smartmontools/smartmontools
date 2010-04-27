@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Read USB ID info from drivedb.h (ticket #44).
+
   [CF] Create branch RELEASE_5_39_DRIVEDB with last drivedb.h file
        compatible with smartmontools 5.39[.1].
 

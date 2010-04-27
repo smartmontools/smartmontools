@@ -32,7 +32,7 @@
  *  modelfamily     Informal string about the model family/series of a
  *                  device. Set to "" if no info (apart from device id)
  *                  known.  The entry is ignored if this string starts with
- *                  a dollar sign.
+ *                  a dollar sign.  Must not start with "USB:", see below.
  *  modelregexp     POSIX extended regular expression to match the model of
  *                  a device.  This should never be "".
  *  firmwareregexp  POSIX extended regular expression to match a devices's
@@ -53,6 +53,23 @@
  * The table will be searched from the start to end or until the first match,
  * so the order in the table is important for distinct entries that could match
  * the same drive.
+ *
+ *
+ * Format for USB ID entries:
+ *
+ *  modelfamily     String with format "USB: DEVICE; BRIDGE" where
+ *                  DEVICE is the name of the device and BRIDGE is
+ *                  the name of the USB bridge.  Both may be empty
+ *                  if no info known.
+ *  modelregexp     POSIX extended regular expression to match the USB
+ *                  vendor:product ID in hex notation ("0x1234:0xabcd").
+ *                  This should never be "".
+ *  firmwareregexp  POSIX extended regular expression to match the USB
+ *                  bcdDevice info.  Only compared during search if other
+ *                  entries with same USB vendor:product ID exist.
+ *  warningmsg      Not used yet.
+ *  presets         String with one device type ('-d') option.
+ *
  */
 
 /*
@@ -1498,6 +1515,350 @@ const drive_settings builtin_knowndrives[] = {
   { "Quantum Fireball Plus KA series",
     "QUANTUM FIREBALLP KA(9|10).1",
     "", "", ""
+  },
+
+  ////////////////////////////////////////////////////
+  // USB ID entries
+  ////////////////////////////////////////////////////
+
+  // Cypress
+  { "USB: ; Cypress CY7C68300A (AT2)",
+    "0x04b4:0x6830",
+    "0x0001",
+    "",
+    ""
+  },
+  { "USB: ; Cypress CY7C68300B/C (AT2LP)",
+    "0x04b4:0x6830",
+    "0x0240",
+    "",
+    "-d usbcypress"
+  },
+  // Myson Century
+  { "USB: ; Myson Century CS8818",
+    "0x04cf:0x8818",
+    "0xb007",
+    "",
+    ""
+  },
+  // Samsung
+  { "USB: Samsung Story Station; ",
+    "0x04e8:0x5f06",
+    "",
+    "",
+    "-d sat"
+  },
+  // Sunplus
+  { "USB: ; SunPlus SPDIF215",
+    "0x04fc:0x0c15",
+    "0xf615",
+    "",
+    "-d usbsunplus"
+  },
+  { "USB: ; SunPlus SPDIF225", // USB+SATA->SATA
+    "0x04fc:0x0c25",
+    "0x0103",
+    "",
+    "-d usbsunplus"
+  },
+  // Iomega
+  { "USB: Iomega LPHD080-0; ",
+    "0x059b:0x0272",
+    "",
+    "",
+    "-d usbcypress"
+  },
+  { "USB: Iomega MDHD500-U; ",
+    "0x059b:0x0275",
+    "0x0001",
+    "",
+    ""
+  },
+  // LaCie
+  { "USB: LaCie hard disk (FA Porsche design); ",
+    "0x059f:0x0651",
+    "",
+    "",
+    ""
+  },
+  { "USB: LaCie hard disk (Neil Poulton design); ",
+    "0x059f:0x1018",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: LaCie Desktop Hard Drive; JMicron",
+    "0x059f:0x1019",
+    "",
+    "",
+    "-d usbjmicron"
+  },
+  // In-System Design
+  { "USB: ; In-System/Cypress ISD-300A1",
+    "0x05ab:0x0060",
+    "0x1101",
+    "",
+    "-d usbcypress"
+  },
+  // Genesys Logic
+  { "USB: ; Genesys Logic GL881E",
+    "0x05e3:0x0702",
+    "",
+    "",
+    ""
+  },
+  { "USB: ; Genesys Logic", // TODO: requires '-T permissive'
+    "0x05e3:0x0718",
+    "0x0041",
+    "",
+    "-d sat"
+  },
+  // Prolific
+  { "USB: ; Prolific PL2507", // USB->PATA
+    "0x067b:0x2507",
+    "",
+    "",
+    ""
+  },
+  { "USB: ; Prolific PL3507", // USB+IEE1394->PATA
+    "0x067b:0x3507",
+    "0x0001",
+    "",
+    ""
+  },
+  // Freecom
+  { "USB: Freecom Hard Drive XS; Sunplus",
+    "0x07ab:0xfc8e",
+    "0x010f",
+    "",
+    "-d usbsunplus"
+  },
+  // Toshiba
+  { "USB: Toshiba PX1270E-1G16; Sunplus",
+    "0x0930:0x0b03",
+    "",
+    "",
+    "-d usbsunplus"
+  },
+  { "USB: Toshiba PX1396E-3T01; Sunplus", // similar to Dura Micro 501
+    "0x0930:0x0b09",
+    "",
+    "",
+    "-d usbsunplus"
+  },
+  { "USB: Seagate FreeAgent Go; ",
+    "0x0bc2:0x2(000|100|101)",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate FreeAgent Go FW; ",
+    "0x0bc2:0x2200",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate Expansion Portable; ",
+    "0x0bc2:0x2300",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate FreeAgent Desktop; ",
+    "0x0bc2:0x3000",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate FreeAgent Desk; ",
+    "0x0bc2:0x3001",
+    "",
+    "",
+    "-d sat"
+  },
+  // Dura Micro
+  { "USB: Dura Micro 509; Sunplus",
+    "0x0c0b:0xb159",
+    "0x0103",
+    "",
+    "-d usbsunplus"
+  },
+  // Maxtor
+  { "USB: Maxtor OneTouch 4; ",
+    "0x0d49:0x7310",
+    "0x0125",
+    "",
+    "-d sat"
+  },
+  { "USB: Maxtor OneTouch 4 Mini; ",
+    "0x0d49:0x7350",
+    "0x0125",
+    "",
+    "-d sat"
+  },
+  { "USB: Maxtor Basics Desktop; ",
+    "0x0d49:0x7410",
+    "0x0122",
+    "",
+    "-d sat"
+  },
+  { "USB: Maxtor Basics Portable; ",
+    "0x0d49:0x7450",
+    "0x0122",
+    "",
+    "-d sat"
+  },
+  // Western Digital
+  { "USB: WD My Passport (IDE); Cypress",
+    "0x1058:0x0701",
+    "0x0240",
+    "",
+    "-d usbcypress"
+  },
+  { "USB: WD My Passport Portable; ",
+    "0x1058:0x0702",
+    "0x0102",
+    "",
+    "-d sat"
+  },
+  { "USB: WD My Passport Essential; ",
+    "0x1058:0x0704",
+    "0x0175",
+    "",
+    "-d sat"
+  },
+  { "USB: WD My Passport Elite; ",
+    "0x1058:0x0705",
+    "0x0175",
+    "",
+    "-d sat"
+  },
+  { "USB: WD My Passport 070A; ",
+    "0x1058:0x070a",
+    "0x1028",
+    "",
+    "-d sat"
+  },
+  { "USB: WD My Book ES; ",
+    "0x1058:0x0906",
+    "0x0012",
+    "",
+    "-d sat"
+  },
+  { "USB: WD Elements Desktop; ",
+    "0x1058:0x1001",
+    "0x0104",
+    "",
+    "-d sat"
+  },
+  { "USB: WD Elements Desktop WDE1UBK...; ",
+    "0x1058:0x1003",
+    "0x0175",
+    "",
+    "-d sat"
+  },
+  { "USB: WD Elements; ",
+    "0x1058:0x1010",
+    "0x0105",
+    "",
+    "-d sat"
+  },
+  { "USB: WD My Book Essential; ",
+    "0x1058:0x1100",
+    "0x0165",
+    "",
+    "-d sat"
+  },
+  { "USB: WD My Book; ",
+    "0x1058:0x1102",
+    "0x1028",
+    "",
+    "-d sat"
+  },
+  { "USB: WD My Book Essential; ",
+    "0x1058:0x1110",
+    "0x1030",
+    "",
+    "-d sat"
+  },
+  // A-DATA
+  { "USB: A-DATA SH93; ",
+    "0x125f:0xa93a",
+    "0x0150",
+    "",
+    "-d usbcypress"
+  },
+  // Initio
+  { "USB: ; Initio 316000",
+    "0x13fd:0x0540",
+    "",
+    "",
+    ""
+  },
+  { "USB: ; Initio", // USB->SATA
+    "0x13fd:0x1240",
+    "0x0104",
+    "",
+    "-d sat"
+  },
+  { "USB: ; Initio", // USB+SATA->SATA
+    "0x13fd:0x1340",
+    "0x0208",
+    "",
+    "-d sat"
+  },
+  // JMicron
+  { "USB: ; JMicron JM20329", // USB->SATA
+    "0x152d:0x2329",
+    "0x0100",
+    "",
+    "-d usbjmicron"
+  },
+  { "USB: ; JMicron JM20336", // USB+SATA->SATA, USB->2xSATA
+    "0x152d:0x2336",
+    "0x0100",
+    "",
+    "-d usbjmicron,x"
+  },
+  { "USB: ; JMicron JM20337/8", // USB->SATA+PATA, USB+SATA->PATA
+    "0x152d:0x2338",
+    "0x0100",
+    "",
+    "-d usbjmicron"
+  },
+  { "USB: ; JMicron JM20339", // USB->SATA
+    "0x152d:0x2339",
+    "0x0100",
+    "",
+    "-d usbjmicron,x"
+  },
+  // Verbatim
+  { "USB: Verbatim FW/USB160; Oxford OXUF934SSA-LQAG", // USB+IEE1394->SATA
+    "0x18a5:0x0215",
+    "0x0001",
+    "",
+    "-d sat"
+  },
+  // SunplusIT
+  { "USB: ; SunplusIT",
+    "0x1bcf:0x0c31",
+    "",
+    "",
+    "-d usbsunplus"
+  },
+  // Hitachi/SimpleTech
+  { "USB: Hitachi/SimpleTech; JMicron", // 1TB
+    "0x4971:0xce17",
+    "",
+    "",
+    "-d usbjmicron"
+  },
+  // OnSpec
+  { "USB: ; OnSpec", // USB->PATA
+    "0x55aa:0x2b00",
+    "0x0100",
+    "",
+    ""
   },
 /*
 }; // builtin_knowndrives[]

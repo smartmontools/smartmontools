@@ -4,8 +4,8 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-9 Philip Williams, Bruce Allen
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-10 Philip Williams, Bruce Allen
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -140,6 +140,18 @@ const char * drive_database::copy_string(const char * src)
 static drive_database knowndrives;
 
 
+// Return true if modelfamily string describes entry for USB ID
+static bool is_usb_modelfamily(const char * modelfamily)
+{
+  return !strncmp(modelfamily, "USB:", 4);
+}
+
+// Return true if entry for USB ID
+static inline bool is_usb_entry(const drive_settings * dbentry)
+{
+  return is_usb_modelfamily(dbentry->modelfamily);
+}
+
 // Compile regular expression, print message on failure.
 static bool compile(regular_expression & regex, const char *pattern)
 {
@@ -173,6 +185,10 @@ const drive_settings * lookup_drive(const char * model, const char * firmware)
     firmware = "";
 
   for (unsigned i = 0; i < knowndrives.size(); i++) {
+    // Skip USB entries
+    if (is_usb_entry(&knowndrives[i]))
+      continue;
+
     // Check whether model matches the regular expression in knowndrives[i].
     if (!match(knowndrives[i].modelregexp, model))
       continue;
@@ -190,9 +206,10 @@ const drive_settings * lookup_drive(const char * model, const char * firmware)
   return 0;
 }
 
-// Parse '-v' and '-F' options in preset string, return false on error.
-static bool parse_presets(const char * presets, ata_vendor_attr_defs & defs,
-                          unsigned char & fix_firmwarebug)
+
+// Parse drive or USB options in preset string, return false on error.
+static bool parse_db_presets(const char * presets, ata_vendor_attr_defs * defs,
+                             unsigned char * fix_firmwarebug, std::string * type)
 {
   for (int i = 0; ; ) {
     i += strspn(presets+i, " \t");
@@ -201,12 +218,12 @@ static bool parse_presets(const char * presets, ata_vendor_attr_defs & defs,
     char opt, arg[40+1+13]; int len = -1;
     if (!(sscanf(presets+i, "-%c %40[^ ]%n", &opt, arg, &len) >= 2 && len > 0))
       return false;
-    if (opt == 'v') {
+    if (opt == 'v' && defs) {
       // Parse "-v N,format[,name]"
-      if (!parse_attribute_def(arg, defs, PRIOR_DATABASE))
+      if (!parse_attribute_def(arg, *defs, PRIOR_DATABASE))
         return false;
     }
-    else if (opt == 'F') {
+    else if (opt == 'F' && fix_firmwarebug) {
       unsigned char fix;
       if (!strcmp(arg, "samsung"))
         fix = FIX_SAMSUNG;
@@ -217,8 +234,12 @@ static bool parse_presets(const char * presets, ata_vendor_attr_defs & defs,
       else
         return false;
       // Set only if not set by user
-      if (fix_firmwarebug == FIX_NOTSPECIFIED)
-        fix_firmwarebug = fix;
+      if (*fix_firmwarebug == FIX_NOTSPECIFIED)
+        *fix_firmwarebug = fix;
+    }
+    else if (opt == 'd' && type) {
+        // TODO: Check valid types
+        *type = arg;
     }
     else
       return false;
@@ -226,6 +247,83 @@ static bool parse_presets(const char * presets, ata_vendor_attr_defs & defs,
     i += len;
   }
   return true;
+}
+
+// Parse '-v' and '-F' options in preset string, return false on error.
+static inline bool parse_presets(const char * presets,
+                                 ata_vendor_attr_defs & defs,
+                                 unsigned char & fix_firmwarebug)
+{
+  return parse_db_presets(presets, &defs, &fix_firmwarebug, 0);
+}
+
+// Parse '-d' option in preset string, return false on error.
+static inline bool parse_usb_type(const char * presets, std::string & type)
+{
+  return parse_db_presets(presets, 0, 0, &type);
+}
+
+// Parse "USB: [DEVICE] ; [BRIDGE]" string
+static void parse_usb_names(const char * names, usb_dev_info & info)
+{
+  int n1 = -1, n2 = -1, n3 = -1;
+  sscanf(names, "USB: %n%*[^;]%n; %n", &n1, &n2, &n3);
+  if (0 < n1 && n1 < n2)
+    info.usb_device.assign(names+n1, n2-n1);
+  else
+    sscanf(names, "USB: ; %n", &n3);
+  if (0 < n3)
+    info.usb_bridge = names+n3;
+}
+
+// Search drivedb for USB device with vendor:product ID.
+int lookup_usb_device(int vendor_id, int product_id, int bcd_device,
+                      usb_dev_info & info, usb_dev_info & info2)
+{
+  // Format strings to match
+  char usb_id_str[16], bcd_dev_str[16];
+  snprintf(usb_id_str, sizeof(usb_id_str), "0x%04x:0x%04x", vendor_id, product_id);
+  if (bcd_device >= 0)
+    snprintf(bcd_dev_str, sizeof(bcd_dev_str), "0x%04x", bcd_device);
+  else
+    bcd_dev_str[0] = 0;
+
+  int found = 0;
+  bool bcd_match = false;
+  for (unsigned i = 0; i < knowndrives.size(); i++) {
+    const drive_settings & dbentry = knowndrives[i];
+
+    // Skip drive entries
+    if (!is_usb_entry(&dbentry))
+      continue;
+
+    // Check whether USB vendor:product ID matches
+    if (!match(dbentry.modelregexp, usb_id_str))
+      continue;
+
+    // Parse '-d type'
+    usb_dev_info d;
+    if (!parse_usb_type(dbentry.presets, d.usb_type))
+      return 0; // Syntax error
+    parse_usb_names(dbentry.modelfamily, d);
+
+    // If two entries with same vendor:product ID have different
+    // types, use bcd_device (if provided by OS) to select entry.
+    bool bm = (   *bcd_dev_str && *dbentry.firmwareregexp
+               && match(dbentry.firmwareregexp, bcd_dev_str));
+
+    if (found == 0 || bm > bcd_match) {
+      info = d; found = 1;
+      bcd_match = bm;
+    }
+    else if (info.usb_type != d.usb_type && bm == bcd_match) {
+      // two different entries found
+      info2 = d; found = 2;
+      break;
+    }
+  }
+
+  return found;
 }
 
 // Shows one entry of knowndrives[], returns #errors.
@@ -242,60 +340,80 @@ static int showonepreset(const drive_settings * dbentry)
          "this error to smartmontools developers at " PACKAGE_BUGREPORT ".\n");
     return 1;
   }
-  
+
+  bool usb = is_usb_entry(dbentry);
+
   // print and check model and firmware regular expressions
   int errcnt = 0;
   regular_expression regex;
-  pout("%-*s %s\n", TABLEPRINTWIDTH, "MODEL REGEXP:", dbentry->modelregexp);
+  pout("%-*s %s\n", TABLEPRINTWIDTH, (!usb ? "MODEL REGEXP:" : "USB Vendor:Product:"),
+       dbentry->modelregexp);
   if (!compile(regex, dbentry->modelregexp))
     errcnt++;
 
-  pout("%-*s %s\n", TABLEPRINTWIDTH, "FIRMWARE REGEXP:", *dbentry->firmwareregexp ?
-    dbentry->firmwareregexp : ".*"); // preserve old output (TODO: Change)
+  pout("%-*s %s\n", TABLEPRINTWIDTH, (!usb ? "FIRMWARE REGEXP:" : "USB bcdDevice:"),
+       *dbentry->firmwareregexp ? dbentry->firmwareregexp : ".*"); // preserve old output (TODO: Change)
   if (*dbentry->firmwareregexp && !compile(regex, dbentry->firmwareregexp))
     errcnt++;
 
-  pout("%-*s %s\n", TABLEPRINTWIDTH, "MODEL FAMILY:", dbentry->modelfamily);
+  if (!usb) {
+    pout("%-*s %s\n", TABLEPRINTWIDTH, "MODEL FAMILY:", dbentry->modelfamily);
 
-  // if there are any presets, then show them
-  unsigned char fix_firmwarebug = 0;
-  bool first_preset = true;
-  if (*dbentry->presets) {
-    ata_vendor_attr_defs defs;
-    if (!parse_presets(dbentry->presets, defs, fix_firmwarebug)) {
-      pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
-      errcnt++;
-    }
-    for (int i = 0; i < MAX_ATTRIBUTE_NUM; i++) {
-      if (defs[i].priority != PRIOR_DEFAULT) {
-        // Use leading zeros instead of spaces so that everything lines up.
-        pout("%-*s %03d %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "",
-             i, ata_get_smart_attr_name(i, defs).c_str());
-        first_preset = false;
+    // if there are any presets, then show them
+    unsigned char fix_firmwarebug = 0;
+    bool first_preset = true;
+    if (*dbentry->presets) {
+      ata_vendor_attr_defs defs;
+      if (!parse_presets(dbentry->presets, defs, fix_firmwarebug)) {
+        pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
+        errcnt++;
+      }
+      for (int i = 0; i < MAX_ATTRIBUTE_NUM; i++) {
+        if (defs[i].priority != PRIOR_DEFAULT) {
+          // Use leading zeros instead of spaces so that everything lines up.
+          pout("%-*s %03d %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "",
+               i, ata_get_smart_attr_name(i, defs).c_str());
+          first_preset = false;
+        }
       }
     }
-  }
-  if (first_preset)
-    pout("%-*s %s\n", TABLEPRINTWIDTH, "ATTRIBUTE OPTIONS:", "None preset; no -v options are required.");
+    if (first_preset)
+      pout("%-*s %s\n", TABLEPRINTWIDTH, "ATTRIBUTE OPTIONS:", "None preset; no -v options are required.");
 
-  // describe firmwarefix
-  if (fix_firmwarebug) {
-    const char * fixdesc;
-    switch (fix_firmwarebug) {
-      case FIX_SAMSUNG:
-        fixdesc = "Fixes byte order in some SMART data (same as -F samsung)";
-        break;
-      case FIX_SAMSUNG2:
-        fixdesc = "Fixes byte order in some SMART data (same as -F samsung2)";
-        break;
-      case FIX_SAMSUNG3:
-        fixdesc = "Fixes completed self-test reported as in progress (same as -F samsung3)";
-        break;
-      default:
-        fixdesc = "UNKNOWN"; errcnt++;
-        break;
+    // describe firmwarefix
+    if (fix_firmwarebug) {
+      const char * fixdesc;
+      switch (fix_firmwarebug) {
+        case FIX_SAMSUNG:
+          fixdesc = "Fixes byte order in some SMART data (same as -F samsung)";
+          break;
+        case FIX_SAMSUNG2:
+          fixdesc = "Fixes byte order in some SMART data (same as -F samsung2)";
+          break;
+        case FIX_SAMSUNG3:
+          fixdesc = "Fixes completed self-test reported as in progress (same as -F samsung3)";
+          break;
+        default:
+          fixdesc = "UNKNOWN"; errcnt++;
+          break;
+      }
+      pout("%-*s %s\n", TABLEPRINTWIDTH, "OTHER PRESETS:", fixdesc);
     }
-    pout("%-*s %s\n", TABLEPRINTWIDTH, "OTHER PRESETS:", fixdesc);
+  }
+  else {
+    // Print USB info
+    usb_dev_info info; parse_usb_names(dbentry->modelfamily, info);
+    pout("%-*s %s\n", TABLEPRINTWIDTH, "USB Device:",
+      (!info.usb_device.empty() ? info.usb_device.c_str() : "[unknown]"));
+    pout("%-*s %s\n", TABLEPRINTWIDTH, "USB Bridge:",
+      (!info.usb_bridge.empty() ? info.usb_bridge.c_str() : "[unknown]"));
+
+    if (*dbentry->presets && !parse_usb_type(dbentry->presets, info.usb_type)) {
+      pout("Syntax error in USB type string \"%s\"\n", dbentry->presets);
+      errcnt++;
+    }
+    pout("%-*s %s\n", TABLEPRINTWIDTH, "USB Type",
+      (!info.usb_type.empty() ? info.usb_type.c_str() : "[unsupported]"));
   }
 
   // Print any special warnings
@@ -633,10 +751,19 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
             break;
           case 4:
             if (!token.value.empty()) {
-              ata_vendor_attr_defs defs; unsigned char fix = 0;
-              if (!parse_presets(token.value.c_str(), defs, fix)) {
-                pout("%s(%d): Syntax error in preset option string\n", path, token.line);
-                ok = false;
+              if (!is_usb_modelfamily(values[0].c_str())) {
+                ata_vendor_attr_defs defs; unsigned char fix = 0;
+                if (!parse_presets(token.value.c_str(), defs, fix)) {
+                  pout("%s(%d): Syntax error in preset option string\n", path, token.line);
+                  ok = false;
+                }
+              }
+              else {
+                std::string type;
+                if (!parse_usb_type(token.value.c_str(), type)) {
+                  pout("%s(%d): Syntax error in USB type string\n", path, token.line);
+                  ok = false;
+                }
               }
             }
             break;

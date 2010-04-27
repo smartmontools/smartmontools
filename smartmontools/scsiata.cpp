@@ -56,6 +56,7 @@
 #include "extern.h"
 #include "scsicmds.h"
 #include "atacmds.h" // ataReadHDIdentity()
+#include "knowndrives.h" // lookup_usb_device()
 #include "utility.h"
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
@@ -1321,103 +1322,6 @@ ata_device * smart_interface::autodetect_sat_device(scsi_device * scsidev,
 /////////////////////////////////////////////////////////////////////////////
 // USB device type detection
 
-struct usb_id_entry {
-  int vendor_id, product_id, version;
-  const char * type;
-};
-
-const char d_sat[]       = "sat";
-const char d_cypress[]   = "usbcypress";
-const char d_jmicron[]   = "usbjmicron";
-const char d_jmicron_x[] = "usbjmicron,x";
-const char d_sunplus[]   = "usbsunplus";
-const char d_unsup[]     = "unsupported";
-
-// Map USB IDs -> '-d type' string
-const usb_id_entry usb_ids[] = {
-  // Cypress
-  { 0x04b4, 0x6830, 0x0001, d_unsup   }, // Cypress CY7C68300A (AT2)
-  { 0x04b4, 0x6830, 0x0240, d_cypress }, // Cypress CY7C68300B/C (AT2LP)
-//{ 0x04b4, 0x6831,     -1, d_cypress }, // Cypress CY7C68310 (ISD-300LP)
-  // Myson Century
-  { 0x04cf, 0x8818, 0xb007, d_unsup   }, // Myson Century CS8818
-  // Samsung
-  { 0x04e8, 0x5f06,     -1, d_sat     }, // Samsung Story Station
-  // Sunplus
-  { 0x04fc, 0x0c15, 0xf615, d_sunplus }, // SunPlus SPDIF215
-  { 0x04fc, 0x0c25, 0x0103, d_sunplus }, // SunPlus SPDIF225 (USB+SATA->SATA)
-  // Iomega
-  { 0x059b, 0x0272,     -1, d_cypress }, // Iomega LPHD080-0
-  { 0x059b, 0x0275, 0x0001, d_unsup   }, // Iomega MDHD500-U
-  // LaCie
-  { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
-  { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
-  { 0x059f, 0x1019,     -1, d_jmicron }, // LaCie Desktop Hard Drive
-  // In-System Design
-  { 0x05ab, 0x0060, 0x1101, d_cypress }, // In-System/Cypress ISD-300A1
-  // Genesys Logic
-  { 0x05e3, 0x0702,     -1, d_unsup   }, // Genesys Logic GL881E
-  { 0x05e3, 0x0718, 0x0041, d_sat     }, // Genesys Logic ? (TODO: requires '-T permissive')
-  // Prolific
-  { 0x067b, 0x2507,     -1, d_unsup   }, // Prolific PL2507 (USB->PATA)
-  { 0x067b, 0x3507, 0x0001, d_unsup   }, // Prolific PL3507 (USB+IEE1394->PATA)
-  // Freecom
-  { 0x07ab, 0xfc8e, 0x010f, d_sunplus }, // Freecom Hard Drive XS
-  // Toshiba
-  { 0x0930, 0x0b03,     -1, d_sunplus }, // Toshiba PX1270E-1G16
-  { 0x0930, 0x0b09,     -1, d_sunplus }, // Toshiba PX1396E-3T01 (similar to Dura Micro 501)
-  // Seagate
-  { 0x0bc2, 0x2000,     -1, d_sat     }, // Seagate FreeAgent Go
-  { 0x0bc2, 0x2100,     -1, d_sat     }, // Seagate FreeAgent Go
-  { 0x0bc2, 0x2101,     -1, d_sat     }, // Seagate FreeAgent Go
-  { 0x0bc2, 0x2200,     -1, d_sat     }, // Seagate FreeAgent Go FW
-  { 0x0bc2, 0x2300,     -1, d_sat     }, // Seagate Expansion Portable
-  { 0x0bc2, 0x3000,     -1, d_sat     }, // Seagate FreeAgent Desktop
-  { 0x0bc2, 0x3001,     -1, d_sat     }, // Seagate FreeAgent Desk
-  // Dura Micro
-  { 0x0c0b, 0xb159, 0x0103, d_sunplus }, // Dura Micro 509
-  // Maxtor
-  { 0x0d49, 0x7310, 0x0125, d_sat     }, // Maxtor OneTouch 4
-  { 0x0d49, 0x7350, 0x0125, d_sat     }, // Maxtor OneTouch 4 Mini
-  { 0x0d49, 0x7410, 0x0122, d_sat     }, // Maxtor Basics Desktop
-  { 0x0d49, 0x7450, 0x0122, d_sat     }, // Maxtor Basics Portable
-  // Western Digital
-  { 0x1058, 0x0701, 0x0240, d_cypress }, // WD My Passport (IDE)
-  { 0x1058, 0x0702, 0x0102, d_sat     }, // WD My Passport Portable
-  { 0x1058, 0x0704, 0x0175, d_sat     }, // WD My Passport Essential
-  { 0x1058, 0x0705, 0x0175, d_sat     }, // WD My Passport Elite
-  { 0x1058, 0x070a, 0x1028, d_sat     }, // WD My Passport 070A
-  { 0x1058, 0x0906, 0x0012, d_sat     }, // WD My Book ES
-  { 0x1058, 0x1001, 0x0104, d_sat     }, // WD Elements Desktop
-  { 0x1058, 0x1003, 0x0175, d_sat     }, // WD Elements Desktop WDE1UBK...
-  { 0x1058, 0x1010, 0x0105, d_sat     }, // WD Elements
-  { 0x1058, 0x1100, 0x0165, d_sat     }, // WD My Book Essential
-  { 0x1058, 0x1102, 0x1028, d_sat     }, // WD My Book
-  { 0x1058, 0x1110, 0x1030, d_sat     }, // WD My Book Essential
-  // A-DATA
-  { 0x125f, 0xa93a, 0x0150, d_cypress }, // A-DATA SH93
-  // Initio
-  { 0x13fd, 0x0540,     -1, d_unsup   }, // Initio 316000
-  { 0x13fd, 0x1240, 0x0104, d_sat     }, // Initio ? (USB->SATA)
-  { 0x13fd, 0x1340, 0x0208, d_sat     }, // Initio ? (USB+SATA->SATA)
-  // JMicron
-  { 0x152d, 0x2329, 0x0100, d_jmicron }, // JMicron JM20329 (USB->SATA)
-  { 0x152d, 0x2336, 0x0100, d_jmicron_x},// JMicron JM20336 (USB+SATA->SATA, USB->2xSATA)
-  { 0x152d, 0x2338, 0x0100, d_jmicron }, // JMicron JM20337/8 (USB->SATA+PATA, USB+SATA->PATA)
-  { 0x152d, 0x2339, 0x0100, d_jmicron_x},// JMicron JM20339 (USB->SATA)
-  // Verbatim
-  { 0x18a5, 0x0215, 0x0001, d_sat     }, // Verbatim FW/USB160 - Oxford OXUF934SSA-LQAG (USB+IEE1394->SATA)
-  // SunplusIT
-  { 0x1bcf, 0x0c31,     -1, d_sunplus }, // SunplusIT
-  // Hitachi/SimpleTech
-  { 0x4971, 0xce17,     -1, d_jmicron }, // Hitachi/SimpleTech 1TB
-  // OnSpec
-  { 0x55aa, 0x2b00, 0x0100, d_unsup   }  // OnSpec ? (USB->PATA)
-};
-
-const unsigned num_usb_ids = sizeof(usb_ids)/sizeof(usb_ids[0]);
-
-
 // Format USB ID for error messages
 static std::string format_usb_id(int vendor_id, int product_id, int version)
 {
@@ -1431,41 +1335,31 @@ static std::string format_usb_id(int vendor_id, int product_id, int version)
 const char * smart_interface::get_usb_dev_type_by_id(int vendor_id, int product_id,
                                                      int version /*= -1*/)
 {
-  const usb_id_entry * entry = 0;
-  bool state = false;
+  usb_dev_info info, info2;
+  int n = lookup_usb_device(vendor_id, product_id, version, info, info2);
 
-  for (unsigned i = 0; i < num_usb_ids; i++) {
-    const usb_id_entry & e = usb_ids[i];
-    if (!(vendor_id == e.vendor_id && product_id == e.product_id))
-      continue;
-
-    // If two entries with same vendor:product ID have different
-    // types, use version (if provided by OS) to select entry.
-    bool s = (version >= 0 && version == e.version);
-    if (entry) {
-      if (s <= state) {
-        if (s == state && e.type != entry->type) {
-          set_err(EINVAL, "USB bridge %s type is ambiguous: '%s' or '%s'",
-                  format_usb_id(vendor_id, product_id, version).c_str(),
-                  e.type, entry->type);
-          return 0;
-        }
-        continue;
-      }
-    }
-    state = s;
-    entry = &e;
-  }
-
-  if (!entry) {
+  if (n <= 0) {
     set_err(EINVAL, "Unknown USB bridge %s",
             format_usb_id(vendor_id, product_id, version).c_str());
     return 0;
   }
-  if (entry->type == d_unsup) {
+
+  if (n > 1) {
+    set_err(EINVAL, "USB bridge %s type is ambiguous: '%s' or '%s'",
+            format_usb_id(vendor_id, product_id, version).c_str(),
+            (!info.usb_type.empty()  ? info.usb_type.c_str()  : "[unsupported]"),
+            (!info2.usb_type.empty() ? info2.usb_type.c_str() : "[unsupported]"));
+    return 0;
+  }
+
+  if (info.usb_type.empty()) {
     set_err(ENOSYS, "Unsupported USB bridge %s",
             format_usb_id(vendor_id, product_id, version).c_str());
     return 0;
   }
-  return entry->type;
+
+  // TODO: change return type to std::string
+  static std::string type;
+  type = info.usb_type;
+  return type.c_str();
 }
