@@ -4,8 +4,8 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-9 Philip Williams, Bruce Allen
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-10 Philip Williams, Bruce Allen
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h 2998 2009-12-11 22:51:04Z chrfranke $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h 3087 2010-04-27 20:31:47Z chrfranke $\n"
 
 // Structure to store drive database entries, see drivedb.h for a description.
 struct drive_settings {
@@ -35,6 +35,18 @@ struct drive_settings {
 // Searches knowndrives[] for a drive with the given model number and firmware
 // string.
 const drive_settings * lookup_drive(const char * model, const char * firmware);
+
+// info returned by lookup_usb_device()
+struct usb_dev_info
+{
+  std::string usb_device; // Device name, empty if unknown
+  std::string usb_bridge; // USB bridge name, empty if unknown
+  std::string usb_type;   // Type string ('-d' option).
+};
+
+// Search drivedb for USB device with vendor:product ID.
+int lookup_usb_device(int vendor_id, int product_id, int bcd_device,
+                      usb_dev_info & info, usb_dev_info & info2);
 
 // Shows the presets (if any) that are available for the given drive.
 void show_presets(const ata_identify_device * drive, bool fix_swapped_id);

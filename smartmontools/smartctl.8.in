@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3072 2010-03-04 21:56:41Z chrfranke $
+ $Id: smartctl.8.in 3087 2010-04-27 20:31:47Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1339,6 +1339,14 @@ Example:
     "",                // No warning.
     ""                 // No options preset.
   },
+  /* USB ID entry: */
+  {
+    "USB: Device; Bridge", // Info about USB device and bridge name.
+    "0x1234:0xabcd",   // Regular expression to match vendor:product ID.
+    "0x0101",          // Regular expression to match bcdDevice.
+    "",                // Not used.
+    "\-d sat"           // String with device type option.
+  },
   /* ... */
 .fi
 
@@ -1853,7 +1861,7 @@ these documents may be found in the References section of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3072 2010-03-04 21:56:41Z chrfranke $
+$Id: smartctl.8.in 3087 2010-04-27 20:31:47Z chrfranke $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
