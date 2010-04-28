@@ -519,6 +519,12 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HM((061|080)G|(121|160)H|250J)I",
     "", "", ""
   },
+  { "SAMSUNG SpinPoint M series", // tested with MP0402H/UC100-11
+    "SAMSUNG MP0(302|402|603|804)H",
+    "",
+    "",
+    "-v 9,halfminutes"
+  },
 /*
   // TODO: Make the entries below more specific.
   // These entries produce misleading results, because newer
