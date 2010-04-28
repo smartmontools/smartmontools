@@ -1521,12 +1521,19 @@ const drive_settings builtin_knowndrives[] = {
   // USB ID entries
   ////////////////////////////////////////////////////
 
+  // ALi
+  { "USB: ; ALi M5621", // USB->PATA
+    "0x0402:0x5621",
+    "",
+    "",
+    "" // unsupported
+  },
   // Cypress
   { "USB: ; Cypress CY7C68300A (AT2)",
     "0x04b4:0x6830",
     "0x0001",
     "",
-    ""
+    "" // unsupported
   },
   { "USB: ; Cypress CY7C68300B/C (AT2LP)",
     "0x04b4:0x6830",
@@ -1539,7 +1546,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x04cf:0x8818",
     "0xb007",
     "",
-    ""
+    "" // unsupported
   },
   // Samsung
   { "USB: Samsung Story Station; ",
@@ -1572,16 +1579,22 @@ const drive_settings builtin_knowndrives[] = {
     "0x059b:0x0275",
     "0x0001",
     "",
-    ""
+    "" // unsupported
   },
   // LaCie
-  { "USB: LaCie hard disk (FA Porsche design); ",
+  { "USB: LaCie hard disk (FA Porsche design);",
     "0x059f:0x0651",
     "",
     "",
-    ""
+    "" // unsupported
   },
-  { "USB: LaCie hard disk (Neil Poulton design); ",
+  { "USB: LaCie hard disk; JMicron",
+    "0x059f:0x0951",
+    "",
+    "",
+    "-d usbjmicron"
+  },
+  { "USB: LaCie hard disk (Neil Poulton design);",
     "0x059f:0x1018",
     "",
     "",
@@ -1605,7 +1618,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x05e3:0x0702",
     "",
     "",
-    ""
+    "" // unsupported
   },
   { "USB: ; Genesys Logic", // TODO: requires '-T permissive'
     "0x05e3:0x0718",
@@ -1618,13 +1631,13 @@ const drive_settings builtin_knowndrives[] = {
     "0x067b:0x2507",
     "",
     "",
-    ""
+    "" // unsupported
   },
   { "USB: ; Prolific PL3507", // USB+IEE1394->PATA
     "0x067b:0x3507",
     "0x0001",
     "",
-    ""
+    "" // unsupported
   },
   // Freecom
   { "USB: Freecom Hard Drive XS; Sunplus",
@@ -1793,7 +1806,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x13fd:0x0540",
     "",
     "",
-    ""
+    "" // unsupported
   },
   { "USB: ; Initio", // USB->SATA
     "0x13fd:0x1240",
@@ -1832,6 +1845,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: ; JMicron", // USB->SATA
+    "0x152d:0x2352",
+    "0x0100",
+    "",
+    "-d usbjmicron,x"
+  },
   // Verbatim
   { "USB: Verbatim FW/USB160; Oxford OXUF934SSA-LQAG", // USB+IEE1394->SATA
     "0x18a5:0x0215",
@@ -1851,14 +1870,14 @@ const drive_settings builtin_knowndrives[] = {
     "0x4971:0xce17",
     "",
     "",
-    "-d usbjmicron"
+    "-d usbjmicron,x"
   },
   // OnSpec
   { "USB: ; OnSpec", // USB->PATA
     "0x55aa:0x2b00",
     "0x0100",
     "",
-    ""
+    "" // unsupported
   },
 /*
 }; // builtin_knowndrives[]

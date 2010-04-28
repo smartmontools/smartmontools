@@ -43,6 +43,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - ALi M5621 (unsupported)
+       - LaCie with JMicron (ticket #69)
+       - JMicron (0x2352)
+       - Enable 48-bit commands for Hitachi drive
+
   [CF] Read USB ID info from drivedb.h (ticket #44).
 
   [CF] Create branch RELEASE_5_39_DRIVEDB with last drivedb.h file
