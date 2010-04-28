@@ -144,8 +144,19 @@ inline T * CheckFree(T * address, int whatline, const char* file)
 // appropriate.]
 void PrintOut(int priority, const char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
 
-// run time, determine byte ordering
-int isbigendian();
+// Compile time check of byte ordering
+// (inline const function allows compiler to remove dead code)
+inline bool isbigendian()
+{
+#ifdef WORDS_BIGENDIAN
+  return true;
+#else
+  return false;
+#endif
+}
+
+// Runtime check of byte ordering, throws if different from isbigendian().
+void check_endianness();
 
 // This value follows the peripheral device type value as defined in
 // SCSI Primary Commands, ANSI INCITS 301:1997.  It is also used in

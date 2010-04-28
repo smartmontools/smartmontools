@@ -122,6 +122,9 @@ AC_CHECK_FUNCS([sigset])
 AC_CHECK_FUNCS([strtoull])
 AC_CHECK_FUNCS([uname])
 
+# Check byte ordering (defines WORDS_BIGENDIAN)
+AC_C_BIGENDIAN
+
 # Check whether snprintf appends null char and returns expected length on overflow
 AH_TEMPLATE(HAVE_WORKING_SNPRINTF, [Define to 1 if the `snprintf' function is sane])
 AC_MSG_CHECKING([for working snprintf])

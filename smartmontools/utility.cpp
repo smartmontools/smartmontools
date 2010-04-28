@@ -259,15 +259,23 @@ const char *packetdevicetype(int type){
   return "Unknown";
 }
 
+// Runtime check of byte ordering, throws if different from isbigendian().
+void check_endianness()
+{
+  union {
+    // Force compile error if int type is not 32bit.
+    unsigned char c[sizeof(unsigned) == 4 ? 4 : -1];
+    unsigned i;
+  } x = {{1,2,3,4}};
 
-// Returns 1 if machine is big endian, else zero.  This is a run-time
-// rather than a compile-time function.  We could do it at
-// compile-time but in principle there are architectures that can run
-// with either byte-ordering.
-int isbigendian(){
-  short i=0x0100;
-  char *tmp=(char *)&i;
-  return *tmp;
+  int big = -1;
+  switch (x.i) {
+    case 0x01020304: big = 1; break;
+    case 0x04030201: big = 0; break;
+  }
+
+  if (big != (isbigendian() ? 1 : 0))
+    throw std::logic_error("CPU endianness does not match compile time test");
 }
 
 // Utility function prints date and time and timezone into a character

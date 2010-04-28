@@ -887,6 +887,9 @@ static const char * get_protocol_info(const smart_device * dev)
 // Main program without exception handling
 int main_worker(int argc, char **argv)
 {
+  // Throw if CPU endianess does not match compile time test.
+  check_endianness();
+
   // Initialize interface
   smart_interface::init();
   if (!smi())
