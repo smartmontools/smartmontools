@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3088 2010-04-28 09:26:04Z chrfranke $
+$Id: CHANGELOG 3090 2010-04-28 11:03:11Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Replace runtime check of byte ordering by compile time check.
 
   [CF] drivedb.h USB updates:
        - ALi M5621 (unsupported)

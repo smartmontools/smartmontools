@@ -26,7 +26,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 3020 2009-12-31 01:11:51Z dlukes $"
+#define UTILITY_H_CVSID "$Id: utility.h 3090 2010-04-28 11:03:11Z chrfranke $"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -144,8 +144,19 @@ inline T * CheckFree(T * address, int whatline, const char* file)
 // appropriate.]
 void PrintOut(int priority, const char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
 
-// run time, determine byte ordering
-int isbigendian();
+// Compile time check of byte ordering
+// (inline const function allows compiler to remove dead code)
+inline bool isbigendian()
+{
+#ifdef WORDS_BIGENDIAN
+  return true;
+#else
+  return false;
+#endif
+}
+
+// Runtime check of byte ordering, throws if different from isbigendian().
+void check_endianness();
 
 // This value follows the peripheral device type value as defined in
 // SCSI Primary Commands, ANSI INCITS 301:1997.  It is also used in

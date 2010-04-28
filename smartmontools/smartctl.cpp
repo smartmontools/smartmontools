@@ -56,7 +56,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3065 2010-02-10 22:16:50Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3090 2010-04-28 11:03:11Z chrfranke $"
                                   CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -887,6 +887,9 @@ static const char * get_protocol_info(const smart_device * dev)
 // Main program without exception handling
 int main_worker(int argc, char **argv)
 {
+  // Throw if CPU endianess does not match compile time test.
+  check_endianness();
+
   // Initialize interface
   smart_interface::init();
   if (!smi())
