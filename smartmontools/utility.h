@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 3090 2010-04-28 11:03:11Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 3093 2010-04-30 09:57:36Z chrfranke $"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -326,6 +326,13 @@ private:
 // macros to control printing
 #define PRINT_ON(control)  {if (control->printing_switchable) control->dont_print=false;}
 #define PRINT_OFF(control) {if (control->printing_switchable) control->dont_print=true;}
+
+#ifdef _WIN32
+// Get exe directory
+//(implemented in os_win32.cpp)
+std::string get_exe_dir();
+#endif
+
 
 #ifdef OLD_INTERFACE
 // possible values for controller_type in extern.h

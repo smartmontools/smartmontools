@@ -56,7 +56,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3090 2010-04-28 11:03:11Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3093 2010-04-30 09:57:36Z chrfranke $"
                                   CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -138,12 +138,18 @@ void Usage (void){
 "        Drive-specific presets: use, ignore, show, showall\n\n"
 "  -B [+]FILE, --drivedb=[+]FILE                                       (ATA)\n"
 "        Read and replace [add] drive database from FILE\n"
-#ifdef SMARTMONTOOLS_DRIVEDBDIR
-"        [default is "SMARTMONTOOLS_DRIVEDBDIR"/drivedb.h]\n"
-#endif
-"\n"
+"        [default is +%s",
+    get_drivedb_path_add()
   );
+#ifdef SMARTMONTOOLS_DRIVEDBDIR
   printf(
+                      "\n"
+"         and then    %s",
+    get_drivedb_path_default()
+  );
+#endif
+  printf(
+         "]\n\n"
 "============================================ DEVICE SELF-TEST OPTIONS =====\n\n"
 "  -t TEST, --test=TEST\n"
 "        Run test. TEST: offline short long conveyance select,M-N\n"

@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3087 2010-04-27 20:31:47Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3093 2010-04-30 09:57:36Z chrfranke $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -814,23 +814,45 @@ bool read_drive_database(const char * path)
   return parse_drive_database(parse_ptr(f), knowndrives, path);
 }
 
+// Get path for additional database file
+const char * get_drivedb_path_add()
+{
+#ifndef _WIN32
+  return SMARTMONTOOLS_SYSCONFDIR"/smart_drivedb.h";
+#else
+  static std::string path = get_exe_dir() + "/drivedb-add.h";
+  return path.c_str();
+#endif
+}
+
+#ifdef SMARTMONTOOLS_DRIVEDBDIR
+
+// Get path for default database file
+const char * get_drivedb_path_default()
+{
+#ifndef _WIN32
+  return SMARTMONTOOLS_DRIVEDBDIR"/drivedb.h";
+#else
+  static std::string path = get_exe_dir() + "/drivedb.h";
+  return path.c_str();
+#endif
+}
+
+#endif
+
 // Read drive databases from standard places.
 bool read_default_drive_databases()
 {
-#ifndef _WIN32
   // Read file for local additions: /{,usr/local/}etc/smart_drivedb.h
-  static const char db1[] = SMARTMONTOOLS_SYSCONFDIR"/smart_drivedb.h";
-#else
-  static const char db1[] = "./smart_drivedb.h";
-#endif
+  const char * db1 = get_drivedb_path_add();
   if (!access(db1, 0)) {
     if (!read_drive_database(db1))
       return false;
   }
 
 #ifdef SMARTMONTOOLS_DRIVEDBDIR
-  // Read file from package: // /usr/{,local/}share/smartmontools/drivedb.h
-  static const char db2[] = SMARTMONTOOLS_DRIVEDBDIR"/drivedb.h";
+  // Read file from package: /usr/{,local/}share/smartmontools/drivedb.h
+  const char * db2 = get_drivedb_path_default();
   if (!access(db2, 0)) {
     if (!read_drive_database(db2))
       return false;

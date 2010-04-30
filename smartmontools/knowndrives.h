@@ -21,7 +21,7 @@
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h 3087 2010-04-27 20:31:47Z chrfranke $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h 3093 2010-04-30 09:57:36Z chrfranke $\n"
 
 // Structure to store drive database entries, see drivedb.h for a description.
 struct drive_settings {
@@ -65,6 +65,14 @@ int showmatchingpresets(const char *model, const char *firmware);
 // con.  Returns false if drive not recognized.
 bool apply_presets(const ata_identify_device * drive, ata_vendor_attr_defs & defs,
                    unsigned char & fix_firmwarebug, bool fix_swapped_id);
+
+// Get path for additional database file
+const char * get_drivedb_path_add();
+
+#ifdef SMARTMONTOOLS_DRIVEDBDIR
+// Get path for default database file
+const char * get_drivedb_path_default();
+#endif
 
 // Read drive database from file.
 bool read_drive_database(const char * path);

@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3090 2010-04-28 11:03:11Z chrfranke $
+# $Id: configure.in 3093 2010-04-30 09:57:36Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.40, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3090 2010-04-28 11:03:11Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3093 2010-04-30 09:57:36Z chrfranke $'`
 smartmontools_release_date=2009-12-09
 smartmontools_release_time="21:00:32 UTC"
 
@@ -423,7 +423,9 @@ echo "linker flags:           $LDFLAGS" >&AS_MESSAGE_FD
 case "$host_os" in
   mingw*)
     if test -n "$drivedbdir"; then
-      echo "drive database file:    `eval eval eval echo $drivedbdir`/drivedb.h" >&AS_MESSAGE_FD
+      echo "drive database file:    EXEDIR/drivedb.h" >&AS_MESSAGE_FD
+    else
+      echo "drive database file:    [[disabled]]" >&AS_MESSAGE_FD
     fi
     if test -n "$savestates"; then
       echo "smartd save files:      `eval eval eval echo $savestates`MODEL-SERIAL.TYPE.state" >&AS_MESSAGE_FD
