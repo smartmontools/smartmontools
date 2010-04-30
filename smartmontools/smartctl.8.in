@@ -18,7 +18,7 @@
  California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
-.TH SMARTCTL 8 CURRENT_CVS_DATE CURRENT_CVS_VERSION CURRENT_CVS_DATE
+.TH SMARTCTL 8 CURRENT_SVN_DATE CURRENT_SVN_VERSION CURRENT_SVN_DATE
 .SH NAME
 \fBsmartctl\fP \- Control and Monitor Utility for SMART Disks
 
@@ -29,7 +29,7 @@
 .B /usr/local/sbin/smartctl
 
 .SH PACKAGE VERSION
-CURRENT_CVS_VERSION released CURRENT_CVS_DATE at CURRENT_CVS_TIME
+CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
 .SH DESCRIPTION
 \fBsmartctl\fP controls the Self\-Monitoring, Analysis and Reporting

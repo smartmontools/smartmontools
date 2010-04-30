@@ -17,7 +17,7 @@ Cornwell at the Concurrent Systems Laboratory (now part of the Storage
 Systems Research Center), Jack Baskin School of Engineering,
 University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 ..
-.TH SMARTD 8 CURRENT_CVS_DATE CURRENT_CVS_VERSION CURRENT_CVS_DATE
+.TH SMARTD 8 CURRENT_SVN_DATE CURRENT_SVN_VERSION CURRENT_SVN_DATE
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
 
@@ -28,7 +28,7 @@ University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .B /usr/local/sbin/smartd
 
 .SH PACKAGE VERSION
-CURRENT_CVS_VERSION released CURRENT_CVS_DATE at CURRENT_CVS_TIME
+CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
 .SH DESCRIPTION
 \fBsmartd\fP is a daemon that monitors the Self-Monitoring, Analysis
@@ -535,7 +535,7 @@ This file contains a list of devices to monitor, with one device per
 line.  An example file is included with the
 .B smartmontools
 distribution. You will find this sample configuration file in
-\fB/usr/local/share/doc/smartmontools-5.1/\fP. For security, the configuration file
+\fB/usr/local/share/doc/smartmontools/\fP. For security, the configuration file
 should not be writable by anyone but root. The syntax of the file is as
 follows:
 .IP \(bu 4
@@ -1243,7 +1243,7 @@ to all logged-in users, etc.)  But please be careful. \fBsmartd\fP
 will \fBblock\fP until the executable PATH returns, so if your
 executable hangs, then \fBsmartd\fP will also hang. Some sample
 scripts are included in
-/usr/local/share/doc/smartmontools-5.1/examplescripts/.
+/usr/local/share/doc/smartmontools/examplescripts/.
 
 The return status of the executable is recorded by \fBsmartd\fP in
 SYSLOG. The executable is not expected to write to STDOUT or
@@ -1395,7 +1395,7 @@ discarded.
 
 Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
-/usr/local/share/doc/smartmontools-5.1/examplescripts/.
+/usr/local/share/doc/smartmontools/examplescripts/.
 
 .TP
 .B \-f
@@ -1780,7 +1780,7 @@ sleep 30
 .fi
 
 Some example scripts are distributed with the smartmontools package,
-in /usr/local/share/doc/smartmontools-5.1/examplescripts/.
+in /usr/local/share/doc/smartmontools/examplescripts/.
 
 Please note that these scripts typically run as root, so any files
 that they read/write should not be writable by ordinary users or
