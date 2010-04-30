@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -639,8 +639,8 @@ smart_device * legacy_smart_interface::get_custom_smart_device(const char * name
       set_err(EINVAL, "Option -d cciss,N requires N to be a non-negative integer");
       return 0;
     }
-    if (!(0 <= disknum && disknum <= 15)) {
-      set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 15", disknum);
+    if (!(0 <= disknum && disknum <= 127)) {
+      set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 127", disknum);
       return 0;
     }
     return new legacy_cciss_device(this, name, disknum);

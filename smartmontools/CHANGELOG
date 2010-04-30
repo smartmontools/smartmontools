@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Fix max number of cciss devices, 128 devices are supported
+       again (ticket #49). Regression was introduced during migration
+       to new interface.
+
   [CF] Update man pages (include Debian patch
        60_remove-redhatism.diff and Debian Bug 570892).
 
