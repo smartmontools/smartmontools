@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3099 2010-04-30 21:00:31Z chrfranke $
+$Id: CHANGELOG 3100 2010-04-30 22:38:08Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Fix initialization of values missing in smartd '.state' files.
 
   [CF] Add smartd directive '-l xerror' to check error count from
        the Extended Comprehensive SMART Error Log (ticket #34).
