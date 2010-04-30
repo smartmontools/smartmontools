@@ -589,13 +589,14 @@ static bool read_dev_state(const char * path, persistent_dev_state & state)
   setmode(fileno(f), O_TEXT); // Allow files with \r\n
 #endif
 
+  persistent_dev_state new_state;
   int good = 0, bad = 0;
   char line[256];
   while (fgets(line, sizeof(line), f)) {
     const char * s = line + strspn(line, " \t");
     if (!*s || *s == '#')
       continue;
-    if (!parse_dev_state_line(line, state))
+    if (!parse_dev_state_line(line, new_state))
       bad++;
     else
       good++;
@@ -608,6 +609,9 @@ static bool read_dev_state(const char * path, persistent_dev_state & state)
     }
     pout("%s: %d invalid line(s) ignored\n", path, bad);
   }
+
+  // This sets the values missing in the file to 0.
+  state = new_state;
   return true;
 }
 

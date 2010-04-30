@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Fix initialization of values missing in smartd '.state' files.
+
   [CF] Add smartd directive '-l xerror' to check error count from
        the Extended Comprehensive SMART Error Log (ticket #34).
 
