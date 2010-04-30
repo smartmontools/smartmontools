@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2003-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-10 Doug Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-10 Doug Gilbert <dgilbert@interlog.com>
  * Copyright (C) 2008    Hank Wu <hank@areca.com.tw>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3076 2010-03-12 22:23:08Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3095 2010-04-30 12:33:27Z dpgilbert $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */

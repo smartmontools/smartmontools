@@ -7,7 +7,7 @@
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-9 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-10 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 2861 2009-07-24 16:47:03Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3095 2010-04-30 12:33:27Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 // control block which points to external global control variables

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2006-10 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2006-10 Douglas Gilbert <dgilbert@interlog.com>
  * Copyright (C) 2009-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -62,7 +62,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3087 2010-04-27 20:31:47Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3095 2010-04-30 12:33:27Z dpgilbert $";
 
 /* for passing global control variables */
 extern smartmonctrl *con;

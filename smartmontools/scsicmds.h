@@ -7,7 +7,7 @@
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-8 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-10 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 2924 2009-09-26 20:38:40Z chrfranke $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3095 2010-04-30 12:33:27Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
