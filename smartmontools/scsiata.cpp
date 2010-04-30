@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2006-10 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2006-10 Douglas Gilbert <dgilbert@interlog.com>
  * Copyright (C) 2009-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify

@@ -7,7 +7,7 @@
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-8 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-10 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
