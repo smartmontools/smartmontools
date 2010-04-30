@@ -423,7 +423,9 @@ echo "linker flags:           $LDFLAGS" >&AS_MESSAGE_FD
 case "$host_os" in
   mingw*)
     if test -n "$drivedbdir"; then
-      echo "drive database file:    `eval eval eval echo $drivedbdir`/drivedb.h" >&AS_MESSAGE_FD
+      echo "drive database file:    EXEDIR/drivedb.h" >&AS_MESSAGE_FD
+    else
+      echo "drive database file:    [[disabled]]" >&AS_MESSAGE_FD
     fi
     if test -n "$savestates"; then
       echo "smartd save files:      `eval eval eval echo $savestates`MODEL-SERIAL.TYPE.state" >&AS_MESSAGE_FD

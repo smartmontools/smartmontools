@@ -171,13 +171,7 @@ static std::string attrlog_path_prefix
                                     ;
 
 // configuration file name
-#define CONFIGFILENAME "smartd.conf"
-
-#ifndef _WIN32
-static const char *configfile = SMARTMONTOOLS_SYSCONFDIR "/" CONFIGFILENAME ;
-#else
-static const char *configfile = "./" CONFIGFILENAME ;
-#endif
+static const char * configfile;
 // configuration file "name" if read from stdin
 static const char * const configfile_stdin = "<stdin>";
 // path of alternate configuration file
@@ -1475,12 +1469,15 @@ void Usage (void){
   PrintOut(LOG_INFO,"\n");
   PrintOut(LOG_INFO,"  -B [+]FILE, --drivedb=[+]FILE\n");
   PrintOut(LOG_INFO,"        Read and replace [add] drive database from FILE\n");
+  PrintOut(LOG_INFO,"        [default is +%s", get_drivedb_path_add());
 #ifdef SMARTMONTOOLS_DRIVEDBDIR
-  PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_DRIVEDBDIR"/drivedb.h]\n");
-#endif
   PrintOut(LOG_INFO,"\n");
+  PrintOut(LOG_INFO,"         and then    %s", get_drivedb_path_default());
+#endif
+  PrintOut(LOG_INFO,"]\n\n");
   PrintOut(LOG_INFO,"  -c NAME|-, --configfile=NAME|-\n");
-  PrintOut(LOG_INFO,"        Read configuration file NAME or stdin [default is %s]\n\n", configfile);
+  PrintOut(LOG_INFO,"        Read configuration file NAME or stdin\n");
+  PrintOut(LOG_INFO,"        [default is %s]\n\n", configfile);
 #ifdef HAVE_LIBCAP_NG
   PrintOut(LOG_INFO,"  -C, --capabilities\n");
   PrintOut(LOG_INFO,"        Use capabilities (EXPERIMENTAL).\n"
@@ -3726,17 +3723,22 @@ static bool is_abs_path(const char * path)
 
 // Parses input line, prints usage message and
 // version/license/copyright messages
-void ParseOpts(int argc, char **argv){
-  int optchar;
-  char *tailptr;
-  long lchecktime;
+void ParseOpts(int argc, char **argv)
+{
+  // Init default configfile path
+#ifndef _WIN32
+  configfile = SMARTMONTOOLS_SYSCONFDIR"/smartd.conf";
+#else
+  static std::string configfile_str = get_exe_dir() + "/smartd.conf";
+  configfile = configfile_str.c_str();
+#endif
+
   // Please update GetValidArgList() if you edit shortopts
   static const char shortopts[] = "c:l:q:dDni:p:r:s:A:B:Vh?"
 #ifdef HAVE_LIBCAP_NG
                                                           "C"
 #endif
                                                              ;
-  char *arg;
   // Please update GetValidArgList() if you edit longopts
   struct option longopts[] = {
     { "configfile",     required_argument, 0, 'c' },
@@ -3771,12 +3773,13 @@ void ParseOpts(int argc, char **argv){
   bool badarg = false;
   bool no_defaultdb = false; // set true on '-B FILE'
 
-  // Parse input options.  This horrible construction is so that emacs
-  // indents properly.  Sorry.
-  while (-1 != (optchar = 
-                getopt_long(argc, argv, shortopts, longopts, NULL)
-                )) {
-    
+  // Parse input options.
+  int optchar;
+  while ((optchar = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
+    char *arg;
+    char *tailptr;
+    long lchecktime;
+
     switch(optchar) {
     case 'q':
       // when to quit

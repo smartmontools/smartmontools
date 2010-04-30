@@ -1,5 +1,5 @@
 .ig
- Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
  $Id$
  
@@ -1309,9 +1309,10 @@ FILE.  The new database replaces the built in database by default. If \'+\' is
 specified, then the new entries prepend the built in entries.
 
 If this option is not specified, optional entries are read from the file
-\fB/usr/local/etc/smart_drivedb.h\fP (Windows: \fB./smart_drivedb.conf\fP).
+\fB/usr/local/etc/smart_drivedb.h\fP (Windows: \fBEXEDIR/drivedb-add.h\fP).
 .\" BEGIN ENABLE_DRIVEDB
-If \fB/usr/local/share/smartmontools/drivedb.h\fP is present, the
+If \fB/usr/local/share/smartmontools/drivedb.h\fP
+(Windows: \fBEXEDIR/drivedb.h\fP) is present, the
 contents of this file is used instead of the built in table.
 
 Run the script \fB/usr/local/sbin/update-smart-drivedb\fP to update this

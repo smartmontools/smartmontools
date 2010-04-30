@@ -138,12 +138,18 @@ void Usage (void){
 "        Drive-specific presets: use, ignore, show, showall\n\n"
 "  -B [+]FILE, --drivedb=[+]FILE                                       (ATA)\n"
 "        Read and replace [add] drive database from FILE\n"
-#ifdef SMARTMONTOOLS_DRIVEDBDIR
-"        [default is "SMARTMONTOOLS_DRIVEDBDIR"/drivedb.h]\n"
-#endif
-"\n"
+"        [default is +%s",
+    get_drivedb_path_add()
   );
+#ifdef SMARTMONTOOLS_DRIVEDBDIR
   printf(
+                      "\n"
+"         and then    %s",
+    get_drivedb_path_default()
+  );
+#endif
+  printf(
+         "]\n\n"
 "============================================ DEVICE SELF-TEST OPTIONS =====\n\n"
 "  -t TEST, --test=TEST\n"
 "        Run test. TEST: offline short long conveyance select,M-N\n"

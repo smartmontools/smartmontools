@@ -3580,3 +3580,27 @@ void smart_interface::init()
   }
 }
 
+
+#ifndef __CYGWIN__
+
+// Get exe directory
+// (prototype in utiliy.h)
+std::string get_exe_dir()
+{
+  char path[MAX_PATH];
+  // Get path of this exe
+  if (!GetModuleFileNameA(GetModuleHandleA(0), path, sizeof(path)))
+    throw std::runtime_error("GetModuleFileName() failed");
+  // Replace backslash by slash
+  int sl = -1;
+  for (int i = 0; path[i]; i++)
+    if (path[i] == '\\') {
+      path[i] = '/'; sl = i;
+    }
+  // Remove filename
+  if (sl >= 0)
+    path[sl] = 0;
+  return path;
+}
+
+#endif

@@ -1,5 +1,5 @@
 .ig
-Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
 $Id$
 
@@ -61,7 +61,7 @@ every 30 minutes. See the \fB\'\-i\'\fP option below for additional
 details.
 
 \fBsmartd\fP can be configured at start-up using the configuration
-file \fB/usr/local/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
+file \fB/usr/local/etc/smartd.conf\fP (Windows: \fBEXEDIR/smartd.conf\fP).
 If the configuration file is subsequently modified, \fBsmartd\fP
 can be told to re-read the configuration file by sending it a
 \fBHUP\fP signal, for example with the command:
@@ -163,7 +163,7 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 .TP
 .B \-c FILE, \-\-configfile=FILE
 Read \fBsmartd\fP configuration Directives from FILE, instead of from
-the default location \fB/usr/local/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
+the default location \fB/usr/local/etc/smartd.conf\fP (Windows: \fBEXEDIR/smartd.conf\fP).
 If FILE does \fBnot\fP exist, then \fBsmartd\fP will print an error
 message and exit with nonzero status.  Thus, \'\-c /usr/local/etc/smartd.conf\'
 can be used to verify the existence of the default configuration file.

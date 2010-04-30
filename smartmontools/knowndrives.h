@@ -66,6 +66,14 @@ int showmatchingpresets(const char *model, const char *firmware);
 bool apply_presets(const ata_identify_device * drive, ata_vendor_attr_defs & defs,
                    unsigned char & fix_firmwarebug, bool fix_swapped_id);
 
+// Get path for additional database file
+const char * get_drivedb_path_add();
+
+#ifdef SMARTMONTOOLS_DRIVEDBDIR
+// Get path for default database file
+const char * get_drivedb_path_default();
+#endif
+
 // Read drive database from file.
 bool read_drive_database(const char * path);
 

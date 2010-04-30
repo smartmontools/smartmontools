@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Read default drivedb.h and smartd.conf from exe
+       directory instead of current directory.
+
   [CF] drivedb.h update:
        - SAMSUNG SpinPoint M series
 
