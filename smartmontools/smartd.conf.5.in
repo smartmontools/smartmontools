@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3097 2010-04-30 14:54:38Z chrfranke $
+$Id: smartd.conf.5.in 3099 2010-04-30 21:00:31Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -523,12 +523,22 @@ will be logged to syslog.  [Please see the
 command-line option.]
 .TP
 .B \-l TYPE
-Reports increases in the number of errors in one of the two SMART logs.  The
+Reports increases in the number of errors in one of three SMART logs.  The
 valid arguments to this Directive are:
 
 .I error
-\- report if the number of ATA errors reported in the ATA Error Log
+\- report if the number of ATA errors reported in the Summary SMART error log
 has increased since the last check.
+
+.I xerror
+\- [NEW EXPERIMENTAL SMARTD FEATURE] report if the number of ATA errors
+reported in the Extended Comprehensive SMART error log has increased since
+the last check.
+
+If both \'\-l error\' and \'\-l xerror\' are specified, smartd checks
+the maximum of both values.
+
+[Please see the \fBsmartctl \-l xerror\fP command-line option.]
 
 .I selftest
 \- report if the number of failed tests reported in the SMART
@@ -1387,4 +1397,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3097 2010-04-30 14:54:38Z chrfranke $
+$Id: smartd.conf.5.in 3099 2010-04-30 21:00:31Z chrfranke $

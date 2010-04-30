@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3093 2010-04-30 09:57:36Z chrfranke $
+$Id: NEWS 3099 2010-04-30 21:00:31Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -16,6 +16,8 @@ Summary: smartmontools release 5.40
 - USB ID info is now included in 'drivedb.h'.
 - New script 'update-smart-drivedb'.
 - smartd libcap-ng support, option '-C, --capabilities'.
+- smartd directive '-l xerror' to check Extended Comprehensive
+  SMART Error Log.
 - smartctl option '-l scterc[,...]' to get/set the
   SCT Error Recovery Control time limit.
 - Linux: Add '/dev/sd[a-c][a-z]' to smartd DEVICESCAN.
