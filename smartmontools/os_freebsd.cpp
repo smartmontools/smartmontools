@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3066 2010-02-15 23:10:49Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3098 2010-04-30 17:35:35Z chrfranke $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3066 2010-02-15 23:10:49Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3098 2010-04-30 17:35:35Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3066 2010-02-15 23:10:49Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3098 2010-04-30 17:35:35Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1823,8 +1823,8 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
       set_err(EINVAL, "Option -d cciss,N requires N to be a non-negative integer");
       return 0;
     }
-    if (!(0 <= disknum && disknum <= 15)) {
-      set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 15", disknum);
+    if (!(0 <= disknum && disknum <= 127)) {
+      set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 127", disknum);
       return 0;
     }
     return new freebsd_cciss_device(this, name, disknum);

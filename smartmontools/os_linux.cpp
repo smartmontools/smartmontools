@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3095 2010-04-30 12:33:27Z dpgilbert $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3098 2010-04-30 17:35:35Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -3176,8 +3176,8 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
       set_err(EINVAL, "Option -d cciss,N requires N to be a non-negative integer");
       return 0;
     }
-    if (!(0 <= disknum && disknum <= 15)) {
-      set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 15", disknum);
+    if (!(0 <= disknum && disknum <= 127)) {
+      set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 127", disknum);
       return 0;
     }
     return new linux_cciss_device(this, name, disknum);

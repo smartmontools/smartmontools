@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
 
-const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 2973 2009-10-26 22:38:19Z chrfranke $"
+const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 3098 2010-04-30 17:35:35Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -516,7 +516,7 @@ smart_device * legacy_smart_interface::autodetect_smart_device(const char * name
 
 static void free_devnames(char * * devnames, int numdevs)
 {
-  static const char version[] = "$Id: dev_legacy.cpp 2973 2009-10-26 22:38:19Z chrfranke $";
+  static const char version[] = "$Id: dev_legacy.cpp 3098 2010-04-30 17:35:35Z chrfranke $";
   for (int i = 0; i < numdevs; i++)
     FreeNonZero(devnames[i], -1,__LINE__, version);
   FreeNonZero(devnames, (sizeof (char*) * numdevs),__LINE__, version);
@@ -639,8 +639,8 @@ smart_device * legacy_smart_interface::get_custom_smart_device(const char * name
       set_err(EINVAL, "Option -d cciss,N requires N to be a non-negative integer");
       return 0;
     }
-    if (!(0 <= disknum && disknum <= 15)) {
-      set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 15", disknum);
+    if (!(0 <= disknum && disknum <= 127)) {
+      set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 127", disknum);
       return 0;
     }
     return new legacy_cciss_device(this, name, disknum);
