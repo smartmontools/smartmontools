@@ -947,12 +947,22 @@ will be logged to syslog.  [Please see the
 command-line option.]
 .TP
 .B \-l TYPE
-Reports increases in the number of errors in one of the two SMART logs.  The
+Reports increases in the number of errors in one of three SMART logs.  The
 valid arguments to this Directive are:
 
 .I error
-\- report if the number of ATA errors reported in the ATA Error Log
+\- report if the number of ATA errors reported in the Summary SMART error log
 has increased since the last check.
+
+.I xerror
+\- [NEW EXPERIMENTAL SMARTD FEATURE] report if the number of ATA errors
+reported in the Extended Comprehensive SMART error log has increased since
+the last check.
+
+If both \'\-l error\' and \'\-l xerror\' are specified, smartd checks
+the maximum of both values.
+
+[Please see the \fBsmartctl \-l xerror\fP command-line option.]
 
 .I selftest
 \- report if the number of failed tests reported in the SMART

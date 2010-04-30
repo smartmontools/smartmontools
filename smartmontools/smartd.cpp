@@ -258,6 +258,7 @@ struct dev_config
   bool usage;                             // Track changes in Usage Attributes
   bool selftest;                          // Monitor number of selftest errors
   bool errorlog;                          // Monitor number of ATA errors
+  bool xerrorlog;                         // Monitor number of ATA errors (Extended Comprehensive error log)
   bool permissive;                        // Ignore failed SMART commands
   char autosave;                          // 1=disable, 2=enable Autosave Attributes
   char autoofflinetest;                   // 1=disable, 2=enable Auto Offline Test
@@ -299,6 +300,7 @@ dev_config::dev_config()
   usage(false),
   selftest(false),
   errorlog(false),
+  xerrorlog(false),
   permissive(false),
   autosave(0),
   autoofflinetest(0),
@@ -1406,7 +1408,7 @@ void Directives() {
            "  -n MODE No check if: never, sleep[,N][,q], standby[,N][,q], idle[,N][,q]\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
-           "  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n"
+           "  -l TYPE Monitor SMART log.  Type is one of: error, selftest, xerror\n"
            "  -f      Monitor 'Usage' Attributes, report failures\n"
            "  -m ADD  Send email warning to address ADD\n"
            "  -M TYPE Modify email warning behavior (see man page)\n"
@@ -1542,19 +1544,27 @@ static bool not_allowed_in_filename(char c)
            || ('a' <= c && c <= 'z'));
 }
 
-// returns <0 on failure
-static int ATAErrorCount(ata_device * device, const char * name,
-                         unsigned char fix_firmwarebug)
+// Read error count from Summary or Extended Comprehensive SMART error log
+// Return -1 on error
+static int read_ata_error_count(ata_device * device, const char * name,
+                                unsigned char fix_firmwarebug, bool extended)
 {
-  struct ata_smart_errorlog log;
-  
-  if (ataReadErrorLog(device, &log, fix_firmwarebug)){
-    PrintOut(LOG_INFO,"Device: %s, Read SMART Error Log Failed\n",name);
-    return -1;
+  if (!extended) {
+    ata_smart_errorlog log;
+    if (ataReadErrorLog(device, &log, fix_firmwarebug)){
+      PrintOut(LOG_INFO,"Device: %s, Read Summary SMART Error Log failed\n",name);
+      return -1;
+    }
+    return (log.error_log_pointer ? log.ata_error_count : 0);
   }
-  
-  // return current number of ATA errors
-  return log.error_log_pointer?log.ata_error_count:0;
+  else {
+    ata_smart_exterrlog logx;
+    if (!ataReadExtErrorLog(device, &logx, 1 /*first sector only*/)) {
+      PrintOut(LOG_INFO,"Device: %s, Read Extended Comprehensive SMART Error Log failed\n",name);
+      return -1;
+    }
+    return (logx.error_log_index ? logx.device_error_count : 0);
+  }
 }
 
 // returns <0 if problem.  Otherwise, bottom 8 bits are the self test
@@ -1719,7 +1729,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   // do we need to get SMART data?
   bool smart_val_ok = false;
-  if (   cfg.autoofflinetest || cfg.errorlog || cfg.selftest
+  if (   cfg.autoofflinetest || cfg.selftest
+      || cfg.errorlog        || cfg.xerrorlog
       || cfg.usagefailed     || cfg.prefail  || cfg.usage
       || cfg.tempdiff        || cfg.tempinfo || cfg.tempcrit
       || cfg.curr_pending_id || cfg.offl_pending_id         ) {
@@ -1803,22 +1814,32 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   }
   
   // capability check: ATA error log
-  if (cfg.errorlog) {
-    int val;
+  if (cfg.errorlog || cfg.xerrorlog) {
 
-    // start with service disabled, and re-enable it if all works OK
-    cfg.errorlog = false;
     state.ataerrorcount=0;
-
-    if (!smart_val_ok)
-      PrintOut(LOG_INFO, "Device: %s, no SMART Error log (SMART READ DATA failed); disabling -l error\n", name);
-    else if (!cfg.permissive && !isSmartErrorLogCapable(&state.smartval, &drive))
-      PrintOut(LOG_INFO, "Device: %s, appears to lack SMART Error log; disabling -l error (override with -T permissive Directive)\n", name);
-    else if ((val = ATAErrorCount(atadev, name, cfg.fix_firmwarebug)) < 0)
-      PrintOut(LOG_INFO, "Device: %s, no SMART Error log; remove -l error Directive from smartd.conf\n", name);
+    if (!(cfg.permissive || (smart_val_ok && isSmartErrorLogCapable(&state.smartval, &drive)))) {
+      PrintOut(LOG_INFO, "Device: %s, no SMART Error Log (%s), ignoring -l [x]error (override with -T permissive)\n",
+               name, (!smart_val_ok ? "SMART READ DATA failed" : "capability missing"));
+      cfg.errorlog = cfg.xerrorlog = false;
+    }
     else {
-        cfg.errorlog = true;
-        state.ataerrorcount=val;
+      int errcnt1 = -1, errcnt2 = -1;
+      if (cfg.errorlog && (errcnt1 = read_ata_error_count(atadev, name, cfg.fix_firmwarebug, false)) < 0) {
+        PrintOut(LOG_INFO, "Device: %s, no Summary SMART Error Log, ignoring -l error\n", name);
+        cfg.errorlog = false;
+      }
+      if (cfg.xerrorlog && (errcnt2 = read_ata_error_count(atadev, name, cfg.fix_firmwarebug, true)) < 0) {
+        PrintOut(LOG_INFO, "Device: %s, no Extended Comprehensive SMART Error Log, ignoring -l xerror\n", name);
+        cfg.xerrorlog = false;
+      }
+      if (cfg.errorlog || cfg.xerrorlog) {
+        if (cfg.errorlog && cfg.xerrorlog && errcnt1 != errcnt2) {
+          PrintOut(LOG_INFO, "Device: %s, SMART Error Logs report different error counts: %d != %d\n",
+                   name, errcnt1, errcnt2);
+        }
+        // Record max error count
+        state.ataerrorcount = (errcnt1 >= errcnt2 ? errcnt1 : errcnt2);
+      }
     }
   }
   
@@ -1838,9 +1859,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   }
 
   // If no tests available or selected, return
-  if (!(cfg.errorlog    || cfg.selftest || cfg.smartcheck ||
-        cfg.usagefailed || cfg.prefail  || cfg.usage      ||
-        cfg.tempdiff    || cfg.tempinfo || cfg.tempcrit     )) {
+  if (!(   cfg.smartcheck  || cfg.selftest
+        || cfg.errorlog    || cfg.xerrorlog
+        || cfg.usagefailed || cfg.prefail  || cfg.usage
+        || cfg.tempdiff    || cfg.tempinfo || cfg.tempcrit)) {
     CloseDevice(atadev, name);
     return 3;
   }
@@ -2767,12 +2789,16 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
     CheckSelfTestLogs(cfg, state, SelfTestErrorCount(atadev, name, cfg.fix_firmwarebug));
 
   // check if number of ATA errors has increased
-  if (cfg.errorlog) {
+  if (cfg.errorlog || cfg.xerrorlog) {
 
-    int newc, oldc= state.ataerrorcount;
+    int errcnt1 = -1, errcnt2 = -1;
+    if (cfg.errorlog)
+      errcnt1 = read_ata_error_count(atadev, name, cfg.fix_firmwarebug, false);
+    if (cfg.xerrorlog)
+      errcnt2 = read_ata_error_count(atadev, name, cfg.fix_firmwarebug, true);
 
-    // new number of errors
-    newc = ATAErrorCount(atadev, name, cfg.fix_firmwarebug);
+    // new number of errors is max of both logs
+    int newc = (errcnt1 >= errcnt2 ? errcnt1 : errcnt2);
 
     // did command fail?
     if (newc<0)
@@ -2780,6 +2806,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       MailWarning(cfg, state, 7, "Device: %s, Read SMART Error Log Failed", name);
 
     // has error count increased?
+    int oldc = state.ataerrorcount;
     if (newc>oldc){
       PrintOut(LOG_CRIT, "Device: %s, ATA error count increased from %d to %d\n",
                name, oldc, newc);
@@ -2787,8 +2814,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
                    name, oldc, newc);
       state.must_write = true;
     }
-    
-    // this last line is probably not needed, count always increases
+
     if (newc>=0)
       state.ataerrorcount=newc;
   }
@@ -3216,6 +3242,9 @@ static int ParseToken(char * token, dev_config & cfg)
     } else if (!strcmp(arg, "error")) {
       // track changes in ATA error log
       cfg.errorlog = true;
+    } else if (!strcmp(arg, "xerror")) {
+      // track changes in Extended Comprehensive SMART error log
+      cfg.xerrorlog = true;
     } else {
       badarg = 1;
     }
@@ -3507,9 +3536,10 @@ static int ParseConfigLine(dev_config_vector & conf_entries, int /*entry*/, int 
   }
   
   // If NO monitoring directives are set, then set all of them.
-  if (!(cfg.smartcheck || cfg.usagefailed || cfg.prefail  ||
-        cfg.usage      || cfg.selftest    || cfg.errorlog ||
-       cfg.tempdiff   || cfg.tempinfo    || cfg.tempcrit   )) {
+  if (!(   cfg.smartcheck  || cfg.selftest
+        || cfg.errorlog    || cfg.xerrorlog
+        || cfg.usagefailed || cfg.prefail  || cfg.usage
+        || cfg.tempdiff    || cfg.tempinfo || cfg.tempcrit)) {
     
     PrintOut(LOG_INFO,"Drive: %s, implied '-a' Directive on line %d of file %s\n",
              cfg.name.c_str(), cfg.lineno, configfile);
