@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3074 2010-03-05 23:00:30Z chrfranke $
+# $Id: Makefile.am 3094 2010-04-30 10:53:15Z chrfranke $
 #
 
 @SET_MAKE@
@@ -442,13 +442,13 @@ MAN_ATTRIBUTELOG = sed '/BEGIN ENABLE_ATTRIBUTELOG/,/END ENABLE_ATTRIBUTELOG/d'
 endif
 
 MAN_FILTER = \
-    sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g; \
-         s|CURRENT_CVS_DATE|`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g; \
-         s|CURRENT_CVS_TIME|`sed -n 's,^.*TIME[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g; \
+    sed "s|CURRENT_SVN_VERSION|$(releaseversion)|g; \
+         s|CURRENT_SVN_DATE|`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g; \
+         s|CURRENT_SVN_REV|`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`|g; \
          s|/usr/local/share/man/|$(mandir)/|g; \
          s|/usr/local/sbin/|$(sbindir)/|g; \
          s|/usr/local/etc/rc\\.d/init.d/|$(initddir)/|g; \
-         s|/usr/local/share/doc/smartmontools-5.1/|$(docsdir)/|g;  \
+         s|/usr/local/share/doc/smartmontools/|$(docsdir)/|g;  \
          s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g; \
          s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
     $(MAN_CAPABILITIES) | \
