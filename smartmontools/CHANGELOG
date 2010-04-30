@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Update man pages (include Debian patch
+       60_remove-redhatism.diff and Debian Bug 570892).
+
   [CF] Add SVN revision number to man pages.
 
   [CF] Windows: Read default drivedb.h and smartd.conf from exe

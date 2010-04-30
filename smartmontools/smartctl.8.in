@@ -143,10 +143,6 @@ The options are grouped below into several categories.  \fBsmartctl\fP
 will execute the corresponding commands in the order: INFORMATION,
 ENABLE/DISABLE, DISPLAY DATA, RUN/ABORT TESTS.
 
-Long options  are  not  supported  on  all  systems.   Use
-.B \'smartctl \-h\'
-to see the available options.
-
 .TP
 .B SHOW INFORMATION OPTIONS:
 .TP
@@ -218,7 +214,6 @@ use the exit status of \fBsmartctl\fP (see RETURN VALUES below).
 
 .I noserial
 \- Do not print the serial number of the device.
-
 .TP
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.  The valid arguments to this option
@@ -406,7 +401,6 @@ of the HighPoint RocketRAID controller.
 .B HighPoint RocketRAID controllers are currently ONLY supported under Linux and FreeBSD.
 
 .B cciss controllers are currently ONLY supported under Linux and FreeBSD.
-
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART
@@ -447,7 +441,6 @@ such cases, contrary to the final message, Feature X \fBis\fP enabled.
 \- equivalent to giving a large number of \'\-T permissive\' options:
 ignore failures of \fBany number\fP of \fBmandatory\fP SMART commands.
 Please see the note above.
-
 .TP
 .B \-b TYPE, \-\-badsum=TYPE
 [ATA only] Specifies the action \fBsmartctl\fP should take if a checksum
@@ -466,7 +459,6 @@ default.
 
 .I ignore
 \- continue silently without issuing a warning.
-
 .TP
 .B \-r TYPE, \-\-report=TYPE
 Intended primarily to help \fBsmartmontools\fP developers understand
@@ -503,7 +495,6 @@ The ATA command input parameters, sector data and return values are
 reconstructed from the debug report read from stdin.
 Then \fBsmartctl\fP internally simulates an ATA device with the same
 behaviour. This is does not work for SCSI devices yet.
-
 .TP
 .B \-n POWERMODE, \-\-nocheck=POWERMODE
 [ATA only] Specifies if \fBsmartctl\fP should exit before performing any
@@ -621,13 +612,17 @@ connection with the second category just described, e.g. for the
 connection with the third category.
 .TP
 .B \-S VALUE, \-\-saveauto=VALUE
-Enables or disables SMART autosave of device vendor\-specific
+[ATA] Enables or disables SMART autosave of device vendor\-specific
 Attributes. The valid arguments to this option are \fIon\fP
 and \fIoff\fP.  Note that this feature is preserved across disk power
 cycles, so you should only need to issue it once.
 
-For SCSI devices this toggles the value of the Global Logging Target
-Save Disabled (GLTSD) bit in the Control Mode Page. Some disk
+The ATA standard does not specify a method to check whether SMART
+autosave is enabled. Unlike SCSI (below), smartctl is unable to print
+a warning if autosave is disabled.
+
+[SCSI] For SCSI devices this toggles the value of the Global Logging
+Target Save Disabled (GLTSD) bit in the Control Mode Page. Some disk
 manufacturers set this bit by default. This prevents error counters,
 power\-up hours and other useful data from being placed in non\-volatile
 storage, so these values may be reset to zero the next time the device
@@ -864,8 +859,8 @@ If ',error' is appended and the Extended Comprehensive SMART error
 log is not supported, the Summary SMART self-test log is printed.
 
 Please note that some recent (e.g. Samsung) drives report errors only
-in the Comprehensive SMART error log. The Summary SMART error log can
-be read but is always empty.
+in the Extended Comprehensive SMART error log. The Summary SMART error
+log can be read but is always empty.
 
 .I selftest
 \- [ATA] prints the SMART self\-test log.  The disk maintains a self\-test
@@ -978,7 +973,7 @@ The SCT commands are specified in the proposed ATA\-8 Command Set
 \- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values
 and descriptions of the SCT Error Recovery Control settings. These
 are equivalent to TLER (as used by Western Digital), CCTL (as used
-by Samsung and Hitachi) and ERC (as used by Seagate. READTIME and
+by Samsung and Hitachi) and ERC (as used by Seagate). READTIME and
 WRITETIME arguments (deciseconds) set the specified values. Values of 0
 disable the feature, other values less than 65 are probably not
 supported. For RAID configurations, this is typically set to
@@ -1025,7 +1020,6 @@ This command:
 .fi
 writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
-
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME], \-\-vendorattribute=ID,FORMAT[:BYTEORDER][,NAME]
 [ATA only] Sets a vendor\-specific raw value print FORMAT, an optional
@@ -1194,7 +1188,6 @@ is not reset if uncorrectable sectors are reallocated
 Note: a table of hard drive models, listing which Attribute
 corresponds to temperature, can be found at:
 \fBhttp://www.guzu.net/linux/hddtemp.db\fP
-
 .TP
 .B \-F TYPE, \-\-firmwarebug=TYPE
 [ATA only] Modifies the behavior of \fBsmartctl\fP to compensate for some
@@ -1218,9 +1211,8 @@ are (1) no self\-test log printed, even though you have run self\-tests;
 (3) strange and impossible values for the ATA error log timestamps.
 
 .I samsung2
-\- In more recent Samsung disks (firmware revisions ending in "\-23")
-the number of ATA errors reported is byte swapped.  Enabling this
-option tells \fBsmartctl\fP to evaluate this quantity in
+\- In some Samsung disks the number of ATA errors reported is byte swapped.
+Enabling this option tells \fBsmartctl\fP to evaluate this quantity in
 byte\-reversed order. An indication that your Samsung disk needs this
 option is that the self\-test log is printed correctly, but there are a
 very large number of errors in the SMART error log.  This is because
@@ -1240,7 +1232,6 @@ below).
 .I swapid
 \- Fixes byte swapped ATA identify strings (device name, serial number,
 firmware version) returned by some buggy device drivers.
-
 .TP
 .B \-P TYPE, \-\-presets=TYPE
 [ATA only] Specifies whether \fBsmartctl\fP should use any preset options
@@ -1301,7 +1292,6 @@ lists all entries matching MODEL, and the command:
   smartctl \-P showall \'MODEL\' \'FIRMWARE\'
 .fi
 lists all entries for this MODEL and a specific FIRMWARE version.
-
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
 [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] Read the drive database from
@@ -1367,13 +1357,12 @@ self\-test will either be aborted or will resume automatically.
 The valid arguments to this option are:  
 
 .I offline
-\- runs SMART Immediate Offline Test.  This immediately
+\- [ATA] runs SMART Immediate Offline Test.  This immediately
 starts the test described above.  This command can be given during
 normal system operation.  The effects of this test are visible only in
 that it updates the SMART Attribute values, and if errors are
 found they will appear in the SMART error log, visible with the \'\-l error\'
-option. [In the case of SCSI devices runs the default self test in
-foreground. No entry is placed in the self test log.]
+option.
 
 If the \'\-c\' option to \fBsmartctl\fP shows that the device has the
 "Suspend Offline collection upon new command" capability then you can
@@ -1384,10 +1373,12 @@ most commands will abort the Immediate Offline Test, so you should not
 try to track the progress of the test with \'\-c\', as it will abort
 the test.
 
+.I offline
+\- [SCSI] runs the default self test in foreground. No entry is placed
+in the self test log.
+
 .I short
-\- runs SMART Short Self Test (usually under ten minutes).
-[Note: in the case of SCSI devices,
-this command option runs the "Background short" self\-test.]
+\- [ATA] runs SMART Short Self Test (usually under ten minutes).
 This command can be given during normal system operation (unless run in
 captive mode \- see the \'\-C\' option below).  This is a
 test in a different category than the immediate or automatic offline
@@ -1398,14 +1389,17 @@ the \'\-l selftest\' option.  Note that on some disks the progress of the
 self\-test can be monitored by watching this log during the self\-test; with other disks
 use the \'\-c\' option to monitor progress.
 
+.I short
+\- [SCSI] runs the "Background short" self\-test.
+
 .I long
-\- runs SMART Extended Self Test (tens of minutes).
-[Note: in the case of SCSI devices,
-this command option runs the "Background long" self\-test.]
-This is a
+\- [ATA] runs SMART Extended Self Test (tens of minutes). This is a
 longer and more thorough version of the Short Self Test described
 above.  Note that this command can be given during normal
 system operation (unless run in captive mode \- see the \'\-C\' option below).
+
+.I long
+\- [SCSI] runs the "Background long" self\-test.
 
 .I conveyance
 \- [ATA only] runs a SMART Conveyance Self Test (minutes).  This
@@ -1458,10 +1452,6 @@ Logical Block Addresses (LBAs).
 
 Selective self\-tests can be run during normal system operation (unless
 done in captive mode \- see the \'\-C\' option below).
-
-[Note: To use this feature on Linux, the kernel must be compiled with
-the configuration option CONFIG_IDE_TASKFILE_IO enabled.  Please report
-unusual or incorrect behavior to the smartmontools\-support mailing list.]
 
 The following variants of the selective self\-test command use spans based
 on the ranges from past tests already stored on the disk:
@@ -1547,18 +1537,16 @@ cycles. Otherwise, the setting is volatile and will be reverted to
 default (1 minute), or last non-volatile setting by the next hard reset.
 This command also clears the temperature history table. See
 \'\-l scttemp\' above for more information about SCT temperature logging.
-
 .TP
 .B \-C, \-\-captive
-Runs self\-tests in captive mode.  This has no effect with \'\-t
-offline\' or if the \'\-t\' option is not used. [Note: in the case of
-SCSI devices, this command option runs the self\-test in "Foreground"
-mode.]
+[ATA] Runs self\-tests in captive mode.  This has no effect with \'\-t
+offline\' or if the \'\-t\' option is not used.
 
 \fBWARNING: Tests run in captive mode may busy out the drive for the
 length of the test.  Only run captive tests on drives without any
 mounted partitions!\fP
 
+[SCSI] Runs the self\-test in "Foreground" mode.
 .TP
 .B \-X, \-\-abort
 Aborts non\-captive SMART Self Tests.  Note that this
@@ -1839,30 +1827,26 @@ REFERENCES FOR SMART
 .fi
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
-pages 74\-77. This is \fBhttp://www.linuxjournal.com/article.php?sid=6983\fP
+pages 74\-77. This is \fBhttp://www.linuxjournal.com/article/6983\fP
 online.
 
 If you would like to understand better how SMART works, and what it
 does, a good place to start is with Sections 4.8 and 6.54 of the first
 volume of the \'AT Attachment with Packet Interface\-7\' (ATA/ATAPI\-7)
-specification.  This documents the SMART functionality which the
-\fBsmartmontools\fP utilities provide access to.  You can find
-Revision 4b of this document at
-\fBhttp://www.t13.org/docs2004/d1532v1r4b-ATA-ATAPI-7.pdf\fP .
-Earlier and later versions of this Specification are available from
+specification Revision 4b.  This documents the SMART functionality which the
+\fBsmartmontools\fP utilities provide access to.
+This and other versions of this Specification are available from
 the T13 web site \fBhttp://www.t13.org/\fP .
 
 .fi
 The functioning of SMART was originally defined by the SFF\-8035i
 revision 2 and the SFF\-8055i revision 1.4 specifications.  These are
-publications of the Small Form Factors (SFF) Committee.  Links to
-these documents may be found in the References section of the
-\fBsmartmontools\fP home page at
-\fBhttp://smartmontools.sourceforge.net/\fP .
+publications of the Small Form Factors (SFF) Committee.
+
+Links to these and other documents may be found on the Links page of the
+\fBsmartmontools\fP Wiki at
+\fBhttp://sourceforge.net/apps/trac/smartmontools/wiki/Links\fP .
 
 .SH
 SVN ID OF THIS PAGE:
 $Id$
-.\" Local Variables:	         
-.\" mode: nroff         
-.\" End:

@@ -285,7 +285,6 @@ normal ATA devices.  Hence all the ATA directives can be used for
 these disks.  Areca firmware version 1.46 or later which supports
 smartmontools must be used; Please see the \fBsmartctl\fP(8) man page
 for further details.
-
 .TP
 .B \-d TYPE
 Specifies the type of the device.  This Directive may be used multiple
@@ -414,7 +413,6 @@ that it should continue (instead of exiting, which is the default
 behavior) if the device does not appear to be present when
 \fBsmartd\fP is started.  This Directive may be used in conjunction
 with the other \'\-d\' Directives.
-
 .TP
 .B \-n POWERMODE[,N][,q]
 This \'nocheck\' Directive is used to prevent a disk from being
@@ -472,7 +470,6 @@ the option \',q\' to POWERMODE (like \'\-n standby,q\').
 This prevents a laptop disk from spinning up due to this message.
 
 Both \',N\' and \',q\' can be specified together.
-
 .TP
 .B \-T TYPE
 Specifies how tolerant
@@ -520,7 +517,7 @@ Directive are \fIon\fP and \fIoff\fP.  Also affects SCSI devices.
 Check the SMART health status of the disk.  If any Prefailure
 Attributes are less than or equal to their threshold values, then disk
 failure is predicted in less than 24 hours, and a message at loglevel
-.B \'LOG_CRITICAL\'
+.B \'LOG_CRIT\'
 will be logged to syslog.  [Please see the
 .B smartctl \-H
 command-line option.]
@@ -673,7 +670,6 @@ file\-name pattern matching by the shell [glob(7)].  \fBsmartd\fP will
 issue harmless informational warning messages if it detects characters
 in \fBREGEXP\fP that appear to indicate that you have made this
 mistake.
-
 .TP
 .B \-m ADD
 Send a warning email to the email address \fBADD\fP if the \'\-H\',
@@ -741,7 +737,6 @@ if \'\fBmsgbox\fP\' is the first word in the comma separated list.
 With \'\fBsysmsgbox\fP\', a system modal (always on top) message box
 is used. If running as a service, a service notification message box
 (always shown on current visible desktop) is used.
-
 .TP
 .B \-M TYPE
 These Directives modify the behavior of the
@@ -858,6 +853,9 @@ read and are marked to be reallocated (replaced with spare sectors).
 one or more disk sectors could not be read.
 .nf
 .fi
+\fITemperature\fP: Temperature reached critical limit (see \-W directive).
+.nf
+.fi
 \fIFailedHealthCheck\fP: the SMART health status command failed.
 .nf
 .fi
@@ -949,7 +947,6 @@ discarded.
 Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
 /usr/local/share/doc/smartmontools/examplescripts/.
-
 .TP
 .B \-f
 Check for \'failure\' of any Usage Attributes.  If these Attributes are
@@ -1012,7 +1009,6 @@ A common use of this Directive is to track the device Temperature
 If the optional flag \'!\' is appended, a change of the Normalized
 value is considered critical.  The report will be logged as LOG_CRIT
 and a warning email will be sent if \'-m\' is specified.
-
 .TP
 .B \-R ID[!]
 When tracking, report whenever the \fIRaw\fP value of Attribute
@@ -1036,7 +1032,6 @@ If the optional flag \'!\' is appended, a change of the Raw
 value is considered critical.  The report will be logged as
 LOG_CRIT and a warning email will be sent if \'-m\' is specified.
 An example is \'-R 5!\' to warn when new sectors are reallocated.
-
 .TP
 .B \-C ID[+]
 [ATA only] Report if the current number of pending sectors is
@@ -1063,7 +1058,6 @@ to is operating system and file system specific.  You can typically
 force the sector to reallocate by writing to it (translation: make the
 device substitute a spare good sector for the bad one) but at the
 price of losing the 512 bytes of data stored there.
-
 .TP
 .B \-U ID[+]
 [ATA only] Report if the number of offline uncorrectable sectors is
@@ -1084,7 +1078,6 @@ readable during an off\-line scan or a self\-test.  This is important
 to know, because if you have data stored in this disk sector, and you
 need to read it, the read will fail.  Please see the previous \'\-C\'
 option for more details.
-
 .TP
 .B \-W DIFF[,INFO[,CRIT]]
 Report if the current temperature had changed by at least \fBDIFF\fP
@@ -1092,7 +1085,7 @@ degrees since last report, or if new min or max temperature is detected.
 Report or Warn if the temperature is greater or equal than one of
 \fBINFO\fP or \fBCRIT\fP degrees Celsius.
 If the limit \fBCRIT\fP is reached, a message with loglevel
-\fB\'LOG_CRITICAL\'\fP will be logged to syslog and a warning email
+\fB\'LOG_CRIT\'\fP will be logged to syslog and a warning email
 will be send if '-m' is specified. If only the limit \fBINFO\fP is
 reached, a message with loglevel \fB\'LOG_INFO\'\fP will be logged.
 
@@ -1125,7 +1118,6 @@ To combine all of the above reports, use:
 For ATA devices, smartd interprets Attribute 194 as Temperature Celsius
 by default. This can be changed to Attribute 9 or 220 by the drive
 database or by the \'-v\' directive, see below.
-
 .TP
 .B \-F TYPE
 [ATA only] Modifies the behavior of \fBsmartd\fP to compensate for
@@ -1134,24 +1126,24 @@ Directive are exclusive, so that only the final Directive given is
 used.  The valid values are:
 
 .I none
-\- Assume that the device firmware obeys the ATA specifications.  This is
-the default, unless the device has presets for \'\-F\' in the device
-database.
+\- Assume that the device firmware obeys the ATA specifications.  This
+is the default, unless the device has presets for \'\-F\' in the
+device database.
 
 .I samsung
 \- In some Samsung disks (example: model SV4012H Firmware Version:
-RM100-08) some of the two- and four-byte quantities in the SMART data
-structures are byte-swapped (relative to the ATA specification).
+RM100\-08) some of the two\- and four\-byte quantities in the SMART data
+structures are byte\-swapped (relative to the ATA specification).
 Enabling this option tells \fBsmartd\fP to evaluate these quantities
-in byte-reversed order.  Some signs that your disk needs this option
-are (1) no self-test log printed, even though you have run self-tests;
+in byte\-reversed order.  Some signs that your disk needs this option
+are (1) no self\-test log printed, even though you have run self\-tests;
 (2) very large numbers of ATA errors reported in the ATA error log;
 (3) strange and impossible values for the ATA error log timestamps.
 
 .I samsung2
-\- In more recent Samsung disks (firmware revisions ending in "\-23") the
-number of ATA errors reported is byte swapped.  Enabling this option
-tells \fBsmartd\fP to evaluate this quantity in byte-reversed order.
+\- In some Samsung disks the number of ATA errors reported is byte swapped.
+Enabling this option tells \fBsmartd\fP to evaluate this quantity in
+byte\-reversed order.
 
 .I samsung3
 \- Some Samsung disks (at least SP2514N with Firmware VF100\-37) report
@@ -1159,12 +1151,11 @@ a self\-test still in progress with 0% remaining when the test was already
 completed. If this directive is specified, \fBsmartd\fP will not skip the
 next scheduled self\-test (see Directive \'\-s\' above) in this case.
 
-Note that an explicit \'\-F\' Directive will over-ride any preset
+Note that an explicit \'\-F\' Directive will over\-ride any preset
 values for \'\-F\' (see the \'\-P\' option below).
 
 
 [Please see the \fBsmartctl \-F\fP command-line option.]
-
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME]
 [ATA only] Sets a vendor\-specific raw value print FORMAT, an optional
@@ -1183,7 +1174,6 @@ if no other \'-C\' directive is specified.
 \- Raw Attribute number 198 (Offline Uncorrectable Sector Count) is not
 reset if uncorrectable sector are reallocated.  This sets \'-U 198+\'
 if no other \'-U\' directive is specified.
-
 .TP
 .B \-P TYPE
 Specifies whether
@@ -1206,7 +1196,6 @@ valid arguments to this Directive are:
 [Please see the
 .B smartctl \-P
 command-line option.]
-
 .TP
 .B \-a
 Equivalent to turning on all of the following Directives: 
@@ -1227,7 +1216,6 @@ to report nonzero values of the offline pending sector count.
 
 Note that \-a is the default for ATA devices.  If none of these other
 Directives is given, then \-a is assumed.
-
 .TP
 .B #
 Comment: ignore the remainder of the line.
@@ -1351,7 +1339,7 @@ The remainder is flushed.
 
 .PP
 .SH AUTHOR
-\fBBruce Allen\fP smartmontools-support@lists.sourceforge.net
+\fBBruce Allen\fP smartmontools\-support@lists.sourceforge.net
 .fi
 University of Wisconsin \- Milwaukee Physics Department
 
@@ -1380,8 +1368,8 @@ Many other individuals have made smaller contributions and corrections.
 .SH CREDITS
 .fi
 This code was derived from the smartsuite package, written by Michael
-Cornwell, and from the previous ucsc smartsuite package. It extends
-these to cover ATA-5 disks. This code was originally developed as a
+Cornwell, and from the previous UCSC smartsuite package.  It extends
+these to cover ATA\-5 disks.  This code was originally developed as a
 Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
@@ -1390,10 +1378,7 @@ Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
 HOME PAGE FOR SMARTMONTOOLS: 
 .fi
 Please see the following web site for updates, further documentation, bug
-reports and patches:
-.nf
-.B
-http://smartmontools.sourceforge.net/
+reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 
 .SH
 SEE ALSO:

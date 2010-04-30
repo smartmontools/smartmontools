@@ -43,7 +43,8 @@ and to carry out different types of drive self-tests.  This version of
 (equivalent to \fBsmartctl -s on\fP) and polls these and SCSI devices
 every 30 minutes (configurable), logging SMART errors and changes of
 SMART Attributes via the SYSLOG interface.  The default location for
-these SYSLOG notifications and warnings is \fB/var/log/messages\fP.
+these SYSLOG notifications and warnings is system-dependent
+(typically \fB/var/log/messages\fP or \fB/var/log/syslog\fP).
 To change this default location, please see the \fB\'-l\'\fP
 command-line option described below.
 
@@ -126,8 +127,6 @@ below).
 
 .SH 
 OPTIONS
-Long options are not supported on all systems.  Use \fB\'smartd
-\-h\'\fP to see the available options.
 
 .TP
 .B \-A PREFIX, \-\-attributelog=PREFIX
@@ -152,14 +151,12 @@ files \'MODEL\-SERIAL.ata.csv\' are created in directory \'/path/dir\'.
 If the PREFIX has the form \'/path/name\' (e.g. \'/var/lib/misc/attrlog\-\'),
 then files 'nameMODEL\-SERIAL.ata.csv' are created in directory '/path/'.
 The path must be absolute, except if debug mode is enabled.
-
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
 [NEW EXPERIMENTAL SMARTD FEATURE] Read the drive database from FILE.
 The new database replaces the built in database by default. If \'+\' is
 specified, then the new entries prepend the built in entries.
 Please see the \fBsmartctl\fP(8) man page for further details.
-
 .TP
 .B \-c FILE, \-\-configfile=FILE
 Read \fBsmartd\fP configuration Directives from FILE, instead of from
@@ -174,14 +171,12 @@ input. This is useful for commands like:
 .B echo /dev/hdb \-m user@home \-M test | smartd \-c \- \-q onecheck
 .fi
 to perform quick and simple checks without a configuration file.
-
 .\" BEGIN ENABLE_CAPABILITIES
 .TP
 .B \-C, \-\-capabilities
 Use \fBcapabilities(7)\fP (EXPERIMENTAL).
 
 Warning: Mail notification does not work when used.
-
 .\" END ENABLE_CAPABILITIES
 .TP
 .B \-d, \-\-debug
@@ -207,7 +202,6 @@ appear in the configuration file following the device name.
 .TP
 .B \-h, \-\-help, \-\-usage
 Prints usage message to STDOUT and exits.
-
 .TP
 .B \-i N, \-\-interval=N
 Sets the interval between disk checks to \fIN\fP seconds, where
@@ -229,7 +223,6 @@ also use:
 for the same purpose.
 .fi
 (Windows: See NOTES below.)
-
 .TP
 .B \-l FACILITY, \-\-logfacility=FACILITY
 Uses syslog facility FACILITY to log the messages from \fBsmartd\fP.
@@ -239,8 +232,8 @@ then by default messages from \fBsmartd\fP are logged to the facility
 \fIdaemon\fP.
 
 If you would like to have \fBsmartd\fP messages logged somewhere other
-than the default \fB/var/log/messages\fP location, this can typically
-be accomplished with (for example) the following steps:
+than the default location, this can typically be accomplished with
+(for example) the following steps:
 .RS 7
 .IP \fB[1]\fP 4
 Modify the script that starts \fBsmartd\fP to include the \fBsmartd\fP
@@ -290,7 +283,6 @@ should be registered as an event message file to avoid error
 messages from the event viewer. Use \'\fBsyslogevt -r smartd\fP\'
 to register, \'\fBsyslogevt -u smartd\fP\' to unregister and
 \'\fBsyslogevt\fP\' for more help.
-
 .TP
 .B \-n, \-\-no\-fork
 Do not fork into background; this is useful when executed from modern
@@ -300,7 +292,6 @@ On Cygwin, this allows running \fBsmartd\fP as service via cygrunsrv,
 see NOTES below.
 
 On Windows, this option is not available, use \'\-\-service\' instead.
-
 .TP
 .B \-p NAME, \-\-pidfile=NAME
 Writes pidfile \fINAME\fP containing the \fBsmartd\fP Process ID
@@ -392,7 +383,6 @@ detail that should be reported.  The argument should be followed by a
 comma then the integer with no spaces.  For example, \fIataioctl,2\fP
 The default level is 1, so \'\-r ataioctl,1\' and \'\-r ataioctl\' are
 equivalent.
-
 .TP
 .B \-s PREFIX, \-\-savestates=PREFIX
 [NEW EXPERIMENTAL SMARTD FEATURE] [ATA ONLY]
@@ -422,7 +412,6 @@ always (re)written after reading the configuration file, before rereading
 the configuration file (SIGHUP), before smartd shutdown, and after a check
 forced by SIGUSR1. After a normal check cycle, a file is only rewritten if
 an important change (which usually results in a SYSLOG output) occurred.
-
 .TP
 .B \-\-service
 Cygwin and Windows only: Enables \fBsmartd\fP to run as a Windows service.
@@ -434,7 +423,6 @@ On Windows, this option enables the buildin service support.
 The option must be specified in the service command line as the first
 argument. It should not be used from console.
 See NOTES below for details.
-
 .TP
 .B \-V, \-\-version, \-\-license, \-\-copyright
 Prints version, copyright, license, home page and SVN revision
@@ -448,8 +436,7 @@ smartd
 .fi
 Runs the daemon in forked mode. This is the normal way to run
 \fBsmartd\fP.
-Entries are logged to SYSLOG (by default
-.B /var/log/messages.)
+Entries are logged to SYSLOG.
 
 .B
 smartd -d -i 30
@@ -477,16 +464,6 @@ you can start \fBsmartd\fP by giving the command:
 and stop it by using the command:
 .nf
 .B /usr/local/etc/rc.d/init.d/smartd stop
-
-.fi
-If you want \fBsmartd\fP to start running whenever your machine is
-booted, this can be enabled by using the command:
-.nf
-.B /sbin/chkconfig --add smartd
-.fi
-and disabled using the command:
-.nf
-.B /sbin/chkconfig --del smartd
 .fi
 
 .\" DO NOT MODIFY THIS OR THE FOLLOWING TWO LINES. THIS MATERIAL
@@ -732,7 +709,6 @@ normal ATA devices.  Hence all the ATA directives can be used for
 these disks.  Areca firmware version 1.46 or later which supports
 smartmontools must be used; Please see the \fBsmartctl\fP(8) man page
 for further details.
-
 .TP
 .B \-d TYPE
 Specifies the type of the device.  This Directive may be used multiple
@@ -861,7 +837,6 @@ that it should continue (instead of exiting, which is the default
 behavior) if the device does not appear to be present when
 \fBsmartd\fP is started.  This Directive may be used in conjunction
 with the other \'\-d\' Directives.
-
 .TP
 .B \-n POWERMODE[,N][,q]
 This \'nocheck\' Directive is used to prevent a disk from being
@@ -919,7 +894,6 @@ the option \',q\' to POWERMODE (like \'\-n standby,q\').
 This prevents a laptop disk from spinning up due to this message.
 
 Both \',N\' and \',q\' can be specified together.
-
 .TP
 .B \-T TYPE
 Specifies how tolerant
@@ -967,7 +941,7 @@ Directive are \fIon\fP and \fIoff\fP.  Also affects SCSI devices.
 Check the SMART health status of the disk.  If any Prefailure
 Attributes are less than or equal to their threshold values, then disk
 failure is predicted in less than 24 hours, and a message at loglevel
-.B \'LOG_CRITICAL\'
+.B \'LOG_CRIT\'
 will be logged to syslog.  [Please see the
 .B smartctl \-H
 command-line option.]
@@ -1120,7 +1094,6 @@ file\-name pattern matching by the shell [glob(7)].  \fBsmartd\fP will
 issue harmless informational warning messages if it detects characters
 in \fBREGEXP\fP that appear to indicate that you have made this
 mistake.
-
 .TP
 .B \-m ADD
 Send a warning email to the email address \fBADD\fP if the \'\-H\',
@@ -1188,7 +1161,6 @@ if \'\fBmsgbox\fP\' is the first word in the comma separated list.
 With \'\fBsysmsgbox\fP\', a system modal (always on top) message box
 is used. If running as a service, a service notification message box
 (always shown on current visible desktop) is used.
-
 .TP
 .B \-M TYPE
 These Directives modify the behavior of the
@@ -1305,6 +1277,9 @@ read and are marked to be reallocated (replaced with spare sectors).
 one or more disk sectors could not be read.
 .nf
 .fi
+\fITemperature\fP: Temperature reached critical limit (see \-W directive).
+.nf
+.fi
 \fIFailedHealthCheck\fP: the SMART health status command failed.
 .nf
 .fi
@@ -1396,7 +1371,6 @@ discarded.
 Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
 /usr/local/share/doc/smartmontools/examplescripts/.
-
 .TP
 .B \-f
 Check for \'failure\' of any Usage Attributes.  If these Attributes are
@@ -1459,7 +1433,6 @@ A common use of this Directive is to track the device Temperature
 If the optional flag \'!\' is appended, a change of the Normalized
 value is considered critical.  The report will be logged as LOG_CRIT
 and a warning email will be sent if \'-m\' is specified.
-
 .TP
 .B \-R ID[!]
 When tracking, report whenever the \fIRaw\fP value of Attribute
@@ -1483,7 +1456,6 @@ If the optional flag \'!\' is appended, a change of the Raw
 value is considered critical.  The report will be logged as
 LOG_CRIT and a warning email will be sent if \'-m\' is specified.
 An example is \'-R 5!\' to warn when new sectors are reallocated.
-
 .TP
 .B \-C ID[+]
 [ATA only] Report if the current number of pending sectors is
@@ -1510,7 +1482,6 @@ to is operating system and file system specific.  You can typically
 force the sector to reallocate by writing to it (translation: make the
 device substitute a spare good sector for the bad one) but at the
 price of losing the 512 bytes of data stored there.
-
 .TP
 .B \-U ID[+]
 [ATA only] Report if the number of offline uncorrectable sectors is
@@ -1531,7 +1502,6 @@ readable during an off\-line scan or a self\-test.  This is important
 to know, because if you have data stored in this disk sector, and you
 need to read it, the read will fail.  Please see the previous \'\-C\'
 option for more details.
-
 .TP
 .B \-W DIFF[,INFO[,CRIT]]
 Report if the current temperature had changed by at least \fBDIFF\fP
@@ -1539,7 +1509,7 @@ degrees since last report, or if new min or max temperature is detected.
 Report or Warn if the temperature is greater or equal than one of
 \fBINFO\fP or \fBCRIT\fP degrees Celsius.
 If the limit \fBCRIT\fP is reached, a message with loglevel
-\fB\'LOG_CRITICAL\'\fP will be logged to syslog and a warning email
+\fB\'LOG_CRIT\'\fP will be logged to syslog and a warning email
 will be send if '-m' is specified. If only the limit \fBINFO\fP is
 reached, a message with loglevel \fB\'LOG_INFO\'\fP will be logged.
 
@@ -1572,7 +1542,6 @@ To combine all of the above reports, use:
 For ATA devices, smartd interprets Attribute 194 as Temperature Celsius
 by default. This can be changed to Attribute 9 or 220 by the drive
 database or by the \'-v\' directive, see below.
-
 .TP
 .B \-F TYPE
 [ATA only] Modifies the behavior of \fBsmartd\fP to compensate for
@@ -1581,24 +1550,24 @@ Directive are exclusive, so that only the final Directive given is
 used.  The valid values are:
 
 .I none
-\- Assume that the device firmware obeys the ATA specifications.  This is
-the default, unless the device has presets for \'\-F\' in the device
-database.
+\- Assume that the device firmware obeys the ATA specifications.  This
+is the default, unless the device has presets for \'\-F\' in the
+device database.
 
 .I samsung
 \- In some Samsung disks (example: model SV4012H Firmware Version:
-RM100-08) some of the two- and four-byte quantities in the SMART data
-structures are byte-swapped (relative to the ATA specification).
+RM100\-08) some of the two\- and four\-byte quantities in the SMART data
+structures are byte\-swapped (relative to the ATA specification).
 Enabling this option tells \fBsmartd\fP to evaluate these quantities
-in byte-reversed order.  Some signs that your disk needs this option
-are (1) no self-test log printed, even though you have run self-tests;
+in byte\-reversed order.  Some signs that your disk needs this option
+are (1) no self\-test log printed, even though you have run self\-tests;
 (2) very large numbers of ATA errors reported in the ATA error log;
 (3) strange and impossible values for the ATA error log timestamps.
 
 .I samsung2
-\- In more recent Samsung disks (firmware revisions ending in "\-23") the
-number of ATA errors reported is byte swapped.  Enabling this option
-tells \fBsmartd\fP to evaluate this quantity in byte-reversed order.
+\- In some Samsung disks the number of ATA errors reported is byte swapped.
+Enabling this option tells \fBsmartd\fP to evaluate this quantity in
+byte\-reversed order.
 
 .I samsung3
 \- Some Samsung disks (at least SP2514N with Firmware VF100\-37) report
@@ -1606,12 +1575,11 @@ a self\-test still in progress with 0% remaining when the test was already
 completed. If this directive is specified, \fBsmartd\fP will not skip the
 next scheduled self\-test (see Directive \'\-s\' above) in this case.
 
-Note that an explicit \'\-F\' Directive will over-ride any preset
+Note that an explicit \'\-F\' Directive will over\-ride any preset
 values for \'\-F\' (see the \'\-P\' option below).
 
 
 [Please see the \fBsmartctl \-F\fP command-line option.]
-
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME]
 [ATA only] Sets a vendor\-specific raw value print FORMAT, an optional
@@ -1630,7 +1598,6 @@ if no other \'-C\' directive is specified.
 \- Raw Attribute number 198 (Offline Uncorrectable Sector Count) is not
 reset if uncorrectable sector are reallocated.  This sets \'-U 198+\'
 if no other \'-U\' directive is specified.
-
 .TP
 .B \-P TYPE
 Specifies whether
@@ -1653,7 +1620,6 @@ valid arguments to this Directive are:
 [Please see the
 .B smartctl \-P
 command-line option.]
-
 .TP
 .B \-a
 Equivalent to turning on all of the following Directives: 
@@ -1674,7 +1640,6 @@ to report nonzero values of the offline pending sector count.
 
 Note that \-a is the default for ATA devices.  If none of these other
 Directives is given, then \-a is assumed.
-
 .TP
 .B #
 Comment: ignore the remainder of the line.
@@ -2007,7 +1972,7 @@ is killed by SIGKILL (signal 9) then the exit status is 137.
 
 .PP
 .SH AUTHOR
-\fBBruce Allen\fP smartmontools-support@lists.sourceforge.net
+\fBBruce Allen\fP smartmontools\-support@lists.sourceforge.net
 .fi
 University of Wisconsin \- Milwaukee Physics Department
 
@@ -2036,8 +2001,8 @@ Many other individuals have made smaller contributions and corrections.
 .SH CREDITS
 .fi
 This code was derived from the smartsuite package, written by Michael
-Cornwell, and from the previous ucsc smartsuite package. It extends
-these to cover ATA-5 disks. This code was originally developed as a
+Cornwell, and from the previous UCSC smartsuite package.  It extends
+these to cover ATA\-5 disks.  This code was originally developed as a
 Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
@@ -2048,7 +2013,8 @@ HOME PAGE FOR SMARTMONTOOLS:
 Please see the following web site for updates, further documentation, bug
 reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 
-.SH SEE ALSO:
+.SH
+SEE ALSO:
 \fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBsyslogd\fP(8),
 \fBsyslog.conf\fP(5), \fBbadblocks\fP(8), \fBide\-smart\fP(8), \fBregex\fP(7).
 
@@ -2057,25 +2023,25 @@ REFERENCES FOR SMART
 .fi
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
-pages 74-77. This is \fBhttp://www.linuxjournal.com/article.php?sid=6983\fP
+pages 74\-77. This is \fBhttp://www.linuxjournal.com/article/6983\fP
 online.
 
 If you would like to understand better how SMART works, and what it
 does, a good place to start is with Sections 4.8 and 6.54 of the first
-volume of the \'AT Attachment with Packet Interface-7\' (ATA/ATAPI-7)
-specification.  This documents the SMART functionality which the
-\fBsmartmontools\fP utilities provide access to.  You can find
-Revision 4b of this document at
-\fBhttp://www.t13.org/docs2004/d1532v1r4b-ATA-ATAPI-7.pdf\fP .
-Earlier and later versions of this Specification are available from
+volume of the \'AT Attachment with Packet Interface\-7\' (ATA/ATAPI\-7)
+specification Revision 4b.  This documents the SMART functionality which the
+\fBsmartmontools\fP utilities provide access to.
+This and other versions of this Specification are available from
 the T13 web site \fBhttp://www.t13.org/\fP .
 
 .fi
-The functioning of SMART was originally defined by the SFF-8035i
-revision 2 and the SFF-8055i revision 1.4 specifications.  These are
-publications of the Small Form Factors (SFF) Committee.  Links to
-these documents may be found in the References section of the
-smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\fP .
+The functioning of SMART was originally defined by the SFF\-8035i
+revision 2 and the SFF\-8055i revision 1.4 specifications.  These are
+publications of the Small Form Factors (SFF) Committee.
+
+Links to these and other documents may be found on the Links page of the
+\fBsmartmontools\fP Wiki at
+\fBhttp://sourceforge.net/apps/trac/smartmontools/wiki/Links\fP .
 
 .SH
 SVN ID OF THIS PAGE:
