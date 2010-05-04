@@ -126,7 +126,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3100 2010-04-30 22:38:08Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3101 2010-05-04 16:03:18Z chrfranke $"
                                 CONFIG_H_CVSID EXTERN_H_CVSID;
 
 extern const char *reportbug;
@@ -1567,7 +1567,8 @@ static int read_ata_error_count(ata_device * device, const char * name,
       PrintOut(LOG_INFO,"Device: %s, Read Extended Comprehensive SMART Error Log failed\n",name);
       return -1;
     }
-    return (logx.error_log_index ? logx.device_error_count : 0);
+    // Some disks use the reserved byte as index, see ataprint.cpp.
+    return (logx.error_log_index || logx.reserved1 ? logx.device_error_count : 0);
   }
 }
 
