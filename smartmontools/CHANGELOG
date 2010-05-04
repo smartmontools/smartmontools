@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Add raw64 attributes 1, 210-213 to all SSD drives with
+         64-bit attribute format.
+
   [CF] Support smartd '-l xerror' also for disks which use reserved
        byte as log index.
 
