@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3101 2010-05-04 16:03:18Z chrfranke $
+$Id: CHANGELOG 3102 2010-05-04 17:44:15Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h updates:
+       - Add raw64 attributes 1, 210-213 to all SSD drives with
+         64-bit attribute format.
 
   [CF] Support smartd '-l xerror' also for disks which use reserved
        byte as log index.
