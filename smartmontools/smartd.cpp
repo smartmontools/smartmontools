@@ -1567,7 +1567,8 @@ static int read_ata_error_count(ata_device * device, const char * name,
       PrintOut(LOG_INFO,"Device: %s, Read Extended Comprehensive SMART Error Log failed\n",name);
       return -1;
     }
-    return (logx.error_log_index ? logx.device_error_count : 0);
+    // Some disks use the reserved byte as index, see ataprint.cpp.
+    return (logx.error_log_index || logx.reserved1 ? logx.device_error_count : 0);
   }
 }
 
