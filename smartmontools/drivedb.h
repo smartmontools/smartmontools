@@ -74,6 +74,7 @@ const drive_settings builtin_knowndrives[] = {
   { "SuperTalent UltraDrive GX SSD",
     "STT_FT[MD](28|32|56|64)GX25H",
     "", "",
+    " -v 1,raw64"
     " -v 9,raw64"
     " -v 12,raw64"
     " -v 184,raw64,Initial_Bad_Block_Count"
@@ -92,10 +93,15 @@ const drive_settings builtin_knowndrives[] = {
     " -v 207,raw64,Max_Erase_Count"
     " -v 208,raw64,Average_Erase_Count"
     " -v 209,raw64,Remaining_Lifetime_Perc"
+    " -v 210,raw64"
+    " -v 211,raw64"
+    " -v 212,raw64"
+    " -v 213,raw64"
   },
   { "Patriot Torqx SSD",
     "Patriot[ -]Torqx.*",
     "", "",
+    " -v 1,raw64"
     " -v 9,raw64"
     " -v 12,raw64"
     " -v 184,raw64,Initial_Bad_Block_Count"
@@ -114,10 +120,15 @@ const drive_settings builtin_knowndrives[] = {
     " -v 207,raw64,Max_Erase_Count"
     " -v 208,raw64,Average_Erase_Count"
     " -v 209,raw64,Remaining_Lifetime_Perc"
+    " -v 210,raw64"
+    " -v 211,raw64"
+    " -v 212,raw64"
+    " -v 213,raw64"
   },
   { "OCZ Vertex SSD",
     "OCZ[ -]VERTEX.*",
     "", "",
+    " -v 1,raw64"
     " -v 9,raw64"
     " -v 12,raw64"
     " -v 184,raw64,Initial_Bad_Block_Count"
@@ -136,10 +147,15 @@ const drive_settings builtin_knowndrives[] = {
     " -v 207,raw64,Max_Erase_Count"
     " -v 208,raw64,Average_Erase_Count"
     " -v 209,raw64,Remaining_Lifetime_Perc"
+    " -v 210,raw64"
+    " -v 211,raw64"
+    " -v 212,raw64"
+    " -v 213,raw64"
   },
   { "OCZ Agility SSD",
     "OCZ[ -]AGILITY",
     "", "",
+    " -v 1,raw64"
     " -v 9,raw64"
     " -v 12,raw64"
     " -v 184,raw64,Initial_Bad_Block_Count"
@@ -158,6 +174,10 @@ const drive_settings builtin_knowndrives[] = {
     " -v 207,raw64,Max_Erase_Count"
     " -v 208,raw64,Average_Erase_Count"
     " -v 209,raw64,Remaining_Lifetime_Perc"
+    " -v 210,raw64"
+    " -v 211,raw64"
+    " -v 212,raw64"
+    " -v 213,raw64"
   },
   { "Crucial M225 SSD",
     "CRUCIAL_CT(64|128|256)M225",
@@ -183,6 +203,8 @@ const drive_settings builtin_knowndrives[] = {
     " -v 209,raw64,Remaining_Lifetime_Perc"
     " -v 210,raw64"
     " -v 211,raw64"
+    " -v 212,raw64"
+    " -v 213,raw64"
   },
   { "Intel X25-E SSD",
     "SSDSA2SH(032|064)G1.* INTEL",  // G1 = first generation
