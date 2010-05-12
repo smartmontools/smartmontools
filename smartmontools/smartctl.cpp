@@ -622,7 +622,8 @@ const char * parse_options(int argc, char** argv,
           ataopts.smart_selective_args.pending_time = i+1;
 	}
       } else if (!strncmp(optarg,"select",strlen("select"))) {
-        testcnt++;
+        if (ataopts.smart_selective_args.num_spans == 0)
+          testcnt++;
         // parse range of LBAs to test
         uint64_t start, stop; int mode;
         if (split_selective_arg(optarg, &start, &stop, &mode)) {
