@@ -56,7 +56,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3093 2010-04-30 09:57:36Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3104 2010-05-12 07:12:47Z dlukes $"
                                   CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -622,7 +622,8 @@ const char * parse_options(int argc, char** argv,
           ataopts.smart_selective_args.pending_time = i+1;
 	}
       } else if (!strncmp(optarg,"select",strlen("select"))) {
-        testcnt++;
+        if (ataopts.smart_selective_args.num_spans == 0)
+          testcnt++;
         // parse range of LBAs to test
         uint64_t start, stop; int mode;
         if (split_selective_arg(optarg, &start, &stop, &mode)) {
