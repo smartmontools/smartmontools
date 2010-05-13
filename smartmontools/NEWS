@@ -24,6 +24,7 @@ Summary: smartmontools release 5.40
 - Windows: Read 'drivedb.h' and 'smartd.conf' from exe directory.
 - Windows: Support for 64-bit executables.
 - Windows: Support for cross compilation on Linux.
+- Fix regression in smartctl option '-t select,M-N'.
 - Fix SCT temperature table commands on big endian CPUs.
 
 Date 2010-01-28

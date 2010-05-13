@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DL] Fix regression in smartctl option '-t select,M-N' which prevents
+       that more than one test span can be specified (ticket #75).
+
   [CF] drivedb.h updates:
        - Add raw64 attributes 1, 210-213 to all SSD drives with
          64-bit attribute format.
