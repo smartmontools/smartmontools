@@ -1687,6 +1687,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  // Seagate
   { "USB: Seagate FreeAgent Go; ",
     "0x0bc2:0x2(000|100|101)",
     "",
@@ -1823,7 +1824,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // A-DATA
-  { "USB: A-DATA SH93; ",
+  { "USB: A-DATA SH93; Cypress",
     "0x125f:0xa93a",
     "0x0150",
     "",
@@ -1885,6 +1886,12 @@ const drive_settings builtin_knowndrives[] = {
     "0x0001",
     "",
     "-d sat"
+  },
+  { "USB: Verbatim External Hard Drive 47519; Sunplus", // USB->SATA
+    "0x18a5:0x0216",
+    "",
+    "",
+    "-d usbsunplus"
   },
   // SunplusIT
   { "USB: ; SunplusIT",
