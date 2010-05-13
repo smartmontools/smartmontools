@@ -1440,6 +1440,10 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((50|64|75)00AA(C|V)S|(50|64|75)00AADS|10EA(C|V)S|(10|15|20)EADS)-.*",
     "", "", ""
   },
+  { "Western Digital Caviar Green (Adv. Format) family",
+    "WDC WD((64|80)00A|(10|15|20)E)ARS-.*",
+    "", "", ""
+  },
   { "Western Digital Caviar Black family",
     "WDC WD((500|640|750)1AA|1001FA)LS-.*",
     "", "", ""
