@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3099 2010-04-30 21:00:31Z chrfranke $
+$Id: NEWS 3105 2010-05-13 20:27:29Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -24,6 +24,7 @@ Summary: smartmontools release 5.40
 - Windows: Read 'drivedb.h' and 'smartd.conf' from exe directory.
 - Windows: Support for 64-bit executables.
 - Windows: Support for cross compilation on Linux.
+- Fix regression in smartctl option '-t select,M-N'.
 - Fix SCT temperature table commands on big endian CPUs.
 
 Date 2010-01-28
