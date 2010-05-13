@@ -58,7 +58,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3103 2010-05-04 17:49:29Z chrfranke $",
+  { "$Id: drivedb.h 3108 2010-05-13 21:03:43Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1421,6 +1421,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Caviar Green family",
     "WDC WD((50|64|75)00AA(C|V)S|(50|64|75)00AADS|10EA(C|V)S|(10|15|20)EADS)-.*",
+    "", "", ""
+  },
+  { "Western Digital Caviar Green (Adv. Format) family",
+    "WDC WD((64|80)00A|(10|15|20)E)ARS-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black family",
