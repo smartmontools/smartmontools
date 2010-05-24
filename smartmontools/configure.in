@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3093 2010-04-30 09:57:36Z chrfranke $
+# $Id: configure.in 3109 2010-05-24 20:33:46Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.40, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3093 2010-04-30 09:57:36Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3109 2010-05-24 20:33:46Z chrfranke $'`
 smartmontools_release_date=2009-12-09
 smartmontools_release_time="21:00:32 UTC"
 
@@ -107,12 +107,8 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_TYPES([int64_t, uint64_t])
 
 dnl Checks for library functions.
-AC_CHECK_FUNCS([getopt_long], , [
-  AC_MSG_NOTICE([smartmontools does no longer support platforms without getopt_long().])
-  AC_MSG_NOTICE([Please inform ${PACKAGE_BUGREPORT},])
-  AC_MSG_NOTICE([including details about your build environment.])
-  AC_MSG_ERROR([function getopt_long() not found])
-])
+AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
+AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
 
 AC_CHECK_FUNCS([getdomainname])
 AC_CHECK_FUNCS([gethostname])
