@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Use getopt_long() from getopt/getopt* if necessary.
+       Add missing cast to os_qnxnto.cpp.
+       This fixes build on QNX (ticket #1).
+       Thanks to Stefan (stevestereo) for testing.
+
   [CF] drivedb.h update:
        - WD Caviar Green (Adv. Format) family
 

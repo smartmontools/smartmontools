@@ -21,6 +21,9 @@ endif
 if ENABLE_ATTRIBUTELOG
 AM_CPPFLAGS += -DSMARTMONTOOLS_ATTRIBUTELOG='"$(attributelog)"'
 endif
+if NEED_GETOPT_LONG
+AM_CPPFLAGS += -I$(srcdir)/getopt -DHAVE_GETOPT_LONG -D__GNU_LIBRARY__
+endif
 
 sbin_PROGRAMS = smartd 	\
 		smartctl
@@ -158,6 +161,20 @@ EXTRA_smartctl_SOURCES +=              \
                 posix/regexec.c        \
                 posix/regex_internal.c \
                 posix/regex_internal.h
+
+endif
+
+if NEED_GETOPT_LONG
+
+smartctl_SOURCES += \
+        getopt/getopt.c \
+        getopt/getopt.h \
+        getopt/getopt1.c
+
+smartd_SOURCES += \
+        getopt/getopt.c \
+        getopt/getopt.h \
+        getopt/getopt1.c
 
 endif
 

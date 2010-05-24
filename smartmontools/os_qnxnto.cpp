@@ -624,7 +624,7 @@ struct cam_pass_thru	cpt;
   cpt.cam_timeout=cpt.cam_timeout?cpt.cam_timeout:CAM_TIME_DEFAULT;
   if(cpt.cam_sense_len)
    {
-    SETIOV(&iov[1],cpt.cam_sense_ptr,cpt.cam_sense_len);
+    SETIOV(&iov[1],(void *)cpt.cam_sense_ptr,cpt.cam_sense_len);
     cpt.cam_sense_ptr=sizeof(cpt);
     icnt++;
    }
