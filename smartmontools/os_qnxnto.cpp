@@ -18,7 +18,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_qnxnto.cpp,v 1.3 2008/06/12 21:46:31 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id$" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_QNXNTO_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
