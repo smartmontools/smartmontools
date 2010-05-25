@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h update:
+       - WD My Passport Essential SE 1TB variant (USB interface)
+
   [CF] Use getopt_long() from getopt/getopt* if necessary.
        Add missing cast to os_qnxnto.cpp.
        This fixes build on QNX (ticket #1).

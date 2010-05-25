@@ -1493,7 +1493,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital My Passport Essential SE hard drive (USB interface)",
-    "WDC WD7500KMVV-.*",
+    "WDC WD(7500K|10T)MVV-.*",
     "", "", ""
   },
   { "Western Digital My Passport hard drive (USB interface)",
