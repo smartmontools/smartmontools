@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Makefile.am: Add os_qnxnto.* to EXTRA_smart*_SOURCES.
+
   [MS] drivedb.h update:
        - WD My Passport Essential SE 1TB variant (USB interface)
 

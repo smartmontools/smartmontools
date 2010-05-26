@@ -67,6 +67,8 @@ EXTRA_smartd_SOURCES = os_darwin.cpp    \
                        os_netbsd.h      \
                        os_openbsd.cpp   \
                        os_openbsd.h     \
+                       os_qnxnto.cpp    \
+                       os_qnxnto.h      \
                        os_solaris.cpp   \
                        os_solaris.h     \
                        os_solaris_ata.s \
@@ -138,6 +140,8 @@ EXTRA_smartctl_SOURCES = os_linux.cpp \
                        os_netbsd.h    \
                        os_openbsd.cpp \
                        os_openbsd.h   \
+                       os_qnxnto.cpp  \
+                       os_qnxnto.h    \
                        os_solaris.cpp \
                        os_solaris.h   \
                        os_win32.cpp   \
