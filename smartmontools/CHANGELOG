@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3111 2010-05-25 22:03:50Z manfred99 $
+$Id: CHANGELOG 3113 2010-05-26 06:08:23Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Makefile.am: Add os_qnxnto.* to EXTRA_smart*_SOURCES.
 
   [MS] drivedb.h update:
        - WD My Passport Essential SE 1TB variant (USB interface)
