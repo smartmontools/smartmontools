@@ -58,7 +58,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3108 2010-05-13 21:03:43Z chrfranke $",
+  { "$Id: drivedb.h 3112 2010-05-26 06:03:14Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1476,7 +1476,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital My Passport Essential SE hard drive (USB interface)",
-    "WDC WD7500KMVV-.*",
+    "WDC WD(7500K|10T)MVV-.*",
     "", "", ""
   },
   { "Western Digital My Passport hard drive (USB interface)",
