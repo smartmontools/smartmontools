@@ -14,7 +14,9 @@
 #    define _HAVE_CCISS
 #  endif
 #  include <asm/byteorder.h>
-#  define be32toh __be32_to_cpu
+#  ifndef be32toh
+#    define be32toh __be32_to_cpu
+#  endif
 #elif defined(__FreeBSD__) && defined(HAVE_DEV_CISS_CISSIO_H)
 #  include <sys/endian.h>
 #  include <dev/ciss/cissio.h>

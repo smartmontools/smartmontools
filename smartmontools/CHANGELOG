@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] cciss.cpp: avoid redefining be32toh
+       megaraid.h: replace use of undefined preprocessor macro BITS_PER_LONG
+                   by union construct (thanks to [DL]).
+                   Add assert for sizeof(ptr_t) == 8 (thanks to [CF]).
+
   [CF] Makefile.am: Add os_qnxnto.* to EXTRA_smart*_SOURCES.
 
   [MS] drivedb.h update:
