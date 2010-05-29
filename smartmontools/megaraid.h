@@ -63,12 +63,19 @@ typedef struct
 	uint8_t   status;
 } __attribute__((packed)) megacmd_t;
 
-typedef struct {
+typedef union {
 	uint8_t   *pointer;
-#if BITS_PER_LONG == 32
-	uint8_t    pad[4];
-#endif
+	uint8_t    pad[8];
 } ptr_t;
+
+// The above definition assumes sizeof(void*) <= 8.
+// This assumption also exists in the linux megaraid device driver.
+// So define a macro to check expected size of ptr_t at compile time using
+// a dummy typedef.  On size mismatch, compiler reports a negative array
+// size.  If you see an error message of this form, it means that
+// you have an unexpected pointer size on your platform and can not
+// use megaraid support in smartmontools.
+typedef char assert_sizeof_ptr_t[sizeof(ptr_t) == 8 ? 1 : -1];
 
 struct uioctl_t
 {
