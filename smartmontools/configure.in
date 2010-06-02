@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3109 2010-05-24 20:33:46Z chrfranke $
+# $Id: configure.in 3115 2010-06-02 17:23:05Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.40, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3109 2010-05-24 20:33:46Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3115 2010-06-02 17:23:05Z chrfranke $'`
 smartmontools_release_date=2009-12-09
 smartmontools_release_time="21:00:32 UTC"
 
@@ -109,6 +109,8 @@ AC_CHECK_TYPES([int64_t, uint64_t])
 dnl Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
 AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
+AC_CHECK_FUNCS([regcomp], [need_regex=no], [need_regex=yes])
+AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
 AC_CHECK_FUNCS([getdomainname])
 AC_CHECK_FUNCS([gethostname])

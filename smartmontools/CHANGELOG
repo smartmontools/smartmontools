@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3114 2010-05-29 20:32:25Z manfred99 $
+$Id: CHANGELOG 3115 2010-06-02 17:23:05Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Move 'posix/reg*' to 'regex/reg*'.
+       Add configure check for regex.
 
   [MS] cciss.cpp: avoid redefining be32toh
        megaraid.h: replace use of undefined preprocessor macro BITS_PER_LONG

@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\getopt,..\posix"
+				AdditionalIncludeDirectories=".,..\getopt,..\regex"
 				PreprocessorDefinitions="_DEBUG;HAVE_CONFIG_H;_ERRCODE_DEFINED;errno_t=int;_USE_32BIT_TIME_T;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -116,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".,..\getopt,..\posix"
+				AdditionalIncludeDirectories=".,..\getopt,..\regex"
 				PreprocessorDefinitions="NDEBUG;HAVE_CONFIG_H;_ERRCODE_DEFINED;errno_t=int;_USE_32BIT_TIME_T;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -302,10 +302,10 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="posix"
+			Name="regex"
 			>
 			<File
-				RelativePath="..\posix\regcomp.c"
+				RelativePath="..\regex\regcomp.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -325,15 +325,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\posix\regex.c"
+				RelativePath="..\regex\regex.c"
 				>
 			</File>
 			<File
-				RelativePath="..\posix\regex.h"
+				RelativePath="..\regex\regex.h"
 				>
 			</File>
 			<File
-				RelativePath="..\posix\regex_internal.c"
+				RelativePath="..\regex\regex_internal.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -353,11 +353,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\posix\regex_internal.h"
+				RelativePath="..\regex\regex_internal.h"
 				>
 			</File>
 			<File
-				RelativePath="..\posix\regexec.c"
+				RelativePath="..\regex\regexec.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
