@@ -21,8 +21,12 @@ endif
 if ENABLE_ATTRIBUTELOG
 AM_CPPFLAGS += -DSMARTMONTOOLS_ATTRIBUTELOG='"$(attributelog)"'
 endif
+
 if NEED_GETOPT_LONG
 AM_CPPFLAGS += -I$(srcdir)/getopt -DHAVE_GETOPT_LONG -D__GNU_LIBRARY__
+endif
+if NEED_REGEX
+AM_CPPFLAGS += -I$(srcdir)/regex
 endif
 
 sbin_PROGRAMS = smartd 	\
@@ -83,22 +87,13 @@ EXTRA_smartd_SOURCES = os_darwin.cpp    \
 
 if OS_WIN32_MINGW
 
-smartd_SOURCES +=                           \
-                posix/regex.h               \
-                posix/regex.c               \
-                os_win32/daemon_win32.h     \
-                os_win32/daemon_win32.cpp   \
-                os_win32/hostname_win32.h   \
-                os_win32/hostname_win32.cpp \
-                os_win32/syslog.h           \
-                os_win32/syslog_win32.cpp
-
-# Included by regex.c:
-EXTRA_smartd_SOURCES +=                   \
-                posix/regcomp.c           \
-                posix/regexec.c           \
-                posix/regex_internal.c    \
-                posix/regex_internal.h
+smartd_SOURCES += \
+        os_win32/daemon_win32.cpp \
+        os_win32/daemon_win32.h \
+        os_win32/hostname_win32.cpp \
+        os_win32/hostname_win32.h \
+        os_win32/syslog_win32.cpp \
+        os_win32/syslog.h
 
 endif
 
@@ -152,22 +147,6 @@ EXTRA_smartctl_SOURCES = os_linux.cpp \
                        dev_legacy.cpp \
                        megaraid.h
 
-if OS_WIN32_MINGW
-
-smartctl_SOURCES +=                    \
-                posix/regex.h          \
-                posix/regex.c          \
-                os_win32/syslog.h
-
-# Included by regex.c:
-EXTRA_smartctl_SOURCES +=              \
-                posix/regcomp.c        \
-                posix/regexec.c        \
-                posix/regex_internal.c \
-                posix/regex_internal.h
-
-endif
-
 if NEED_GETOPT_LONG
 
 smartctl_SOURCES += \
@@ -179,6 +158,31 @@ smartd_SOURCES += \
         getopt/getopt.c \
         getopt/getopt.h \
         getopt/getopt1.c
+
+endif
+
+if NEED_REGEX
+
+smartctl_SOURCES += \
+        regex/regex.c \
+        regex/regex.h \
+        regex/regex_internal.h
+
+smartd_SOURCES += \
+        regex/regex.c \
+        regex/regex.h \
+        regex/regex_internal.h
+
+# Included by regex.c:
+EXTRA_smartctl_SOURCES += \
+        regex/regcomp.c \
+        regex/regexec.c \
+        regex/regex_internal.c
+
+EXTRA_smartd_SOURCES += \
+        regex/regcomp.c \
+        regex/regexec.c \
+        regex/regex_internal.c
 
 endif
 

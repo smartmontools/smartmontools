@@ -109,6 +109,8 @@ AC_CHECK_TYPES([int64_t, uint64_t])
 dnl Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
 AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
+AC_CHECK_FUNCS([regcomp], [need_regex=no], [need_regex=yes])
+AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
 AC_CHECK_FUNCS([getdomainname])
 AC_CHECK_FUNCS([gethostname])

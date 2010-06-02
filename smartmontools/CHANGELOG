@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Move 'posix/reg*' to 'regex/reg*'.
+       Add configure check for regex.
+
   [MS] cciss.cpp: avoid redefining be32toh
        megaraid.h: replace use of undefined preprocessor macro BITS_PER_LONG
                    by union construct (thanks to [DL]).
