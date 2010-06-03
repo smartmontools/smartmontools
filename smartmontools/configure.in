@@ -51,7 +51,7 @@ case "${host}" in
 		  CPPFLAGS="$CPPFLAGS -mno-cygwin"
 		  LDFLAGS="$LDFLAGS -mno-cygwin"
 		fi
-		CPPFLAGS="$CPPFLAGS -idirafter ${srcdir}/posix -idirafter ${srcdir}/os_win32"
+		CPPFLAGS="$CPPFLAGS -I$srcdir/os_win32"
 		;;
 	*-*-freebsd*)
 		CPPFLAGS="$CPPFLAGS -I/usr/src/sys"
