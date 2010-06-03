@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3115 2010-06-02 17:23:05Z chrfranke $
+$Id: CHANGELOG 3116 2010-06-03 11:03:29Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] configure.in: Fix include path for MinGW.
 
   [CF] Move 'posix/reg*' to 'regex/reg*'.
        Add configure check for regex.
