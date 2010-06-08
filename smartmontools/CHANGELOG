@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3116 2010-06-03 11:03:29Z chrfranke $
+$Id: CHANGELOG 3117 2010-06-08 15:41:04Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd: Change defaults of '-C' and '-U' directives to 0 (disabled)
+       if attribute name is changed by '-v 19[78],...' directive.
 
   [CF] configure.in: Fix include path for MinGW.
 
