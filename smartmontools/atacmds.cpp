@@ -153,7 +153,13 @@ unsigned char get_unc_attr_id(bool offline, const ata_vendor_attr_defs & defs,
                               bool & increase)
 {
   unsigned char id = (!offline ? 197 : 198);
-  increase = !!(defs[id].flags & ATTRFLAG_INCREASING);
+  const ata_vendor_attr_defs::entry & def = defs[id];
+  if (def.flags & ATTRFLAG_INCREASING)
+    increase = true; // '-v 19[78],increasing' option
+  else if (def.name.empty() || (id == 198 && def.name == "Offline_Scan_UNC_SectCt"))
+    increase = false; // no or '-v 198,offlinescanuncsectorct' option
+  else
+    id = 0; // other '-v 19[78],...' option
   return id;
 }
 
@@ -223,7 +229,7 @@ const char * map_old_vendor_opts[][2] = {
   {"194,10xCelsius"               , "194,temp10x,Temperature_Celsius_x10"},
   {"194,unknown"                  , "194,raw48,Unknown_Attribute"},
   {"197,increasing"               , "197,raw48+,Total_Pending_Sectors"}, // '+' sets flag
-  {"198,offlinescanuncsectorct"   , "198,raw48,Offline_Scan_UNC_SectCt"},
+  {"198,offlinescanuncsectorct"   , "198,raw48,Offline_Scan_UNC_SectCt"}, // see also get_unc_attr_id() above
   {"198,increasing"               , "198,raw48+,Total_Offl_Uncorrectabl"}, // '+' sets flag
   {"200,writeerrorcount"          , "200,raw48,Write_Error_Count"},
   {"201,detectedtacount"          , "201,raw48,Detected_TA_Count"},

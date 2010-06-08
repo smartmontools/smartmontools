@@ -1474,7 +1474,9 @@ value is the Current Pending Sector count.  The allowed range of
 \fBID\fP is 0 to 255 inclusive.  To turn off this reporting, use
 ID\ =\ 0.  If the \fB\-C ID\fP option is not given, then it defaults to
 \fB\-C 197\fP (since Attribute 197 is generally used to monitor
-pending sectors).
+pending sectors).  If the name of this Attribute is changed by a
+\'\-v 197,FORMAT,NAME\' directive, the default is changed to
+\fB\-C 0\fP.
 
 If \'+\' is specified, a report is only printed if the number of sectors
 has increased between two check cycles. Some disks do not reset this
@@ -1500,7 +1502,9 @@ value is the Offline Uncorrectable Sector count.  The allowed range of
 \fBID\fP is 0 to 255 inclusive.  To turn off this reporting, use
 ID\ =\ 0.  If the \fB\-U ID\fP option is not given, then it defaults to
 \fB\-U 198\fP (since Attribute 198 is generally used to monitor
-offline uncorrectable sectors).
+offline uncorrectable sectors).  If the name of this Attribute is changed
+by a \'\-v 198,FORMAT,NAME\' (except \'\-v 198,FORMAT,Offline_Scan_UNC_SectCt\'),
+directive, the default is changed to \fB\-U 0\fP.
 
 If \'+\' is specified, a report is only printed if the number of sectors
 has increased since the last check cycle. Some disks do not reset this
