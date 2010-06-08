@@ -1740,9 +1740,9 @@ static int storage_query_property_ioctl(HANDLE hdevice, STORAGE_DEVICE_DESCRIPTO
          "    Revision: \"%s\"\n"
          "    Removable: %s\n"
          "    BusType:   0x%02x\n",
-         (data->desc.VendorIdOffset        ? data->raw+data->desc.VendorIdOffset : ""),
-         (data->desc.ProductIdOffset       ? data->raw+data->desc.ProductIdOffset : ""),
-         (data->desc.ProductRevisionOffset ? data->raw+data->desc.ProductRevisionOffset : ""),
+         (data->desc.VendorIdOffset        ? data->raw+data->desc.VendorIdOffset : "(null)"),
+         (data->desc.ProductIdOffset       ? data->raw+data->desc.ProductIdOffset : "(null)"),
+         (data->desc.ProductRevisionOffset ? data->raw+data->desc.ProductRevisionOffset : "(null)"),
          (data->desc.RemovableMedia? "Yes":"No"), data->desc.BusType
     );
   }
@@ -1869,10 +1869,32 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
     return -1;
 
   memset(id, 0, sizeof(*id));
-  if (data.desc.ProductIdOffset)
-    copy_swapped(id->model, data.raw+data.desc.ProductIdOffset, sizeof(id->model));
+
+  // Some drivers split ATA model string into VendorId and ProductId,
+  // others return it as ProductId only.
+  char model[sizeof(id->model) + 1] = "";
+
+  unsigned i = 0;
+  if (data.desc.VendorIdOffset) {
+    for ( ;i < sizeof(model)-1 && data.raw[data.desc.VendorIdOffset+i]; i++)
+      model[i] = data.raw[data.desc.VendorIdOffset+i];
+  }
+
+  if (data.desc.ProductIdOffset) {
+    while (i > 1 && model[i-2] == ' ') // Keep last blank from VendorId
+      i--;
+    for (unsigned j = 0; i < sizeof(model)-1 && data.raw[data.desc.ProductIdOffset+j]; i++, j++)
+      model[i] = data.raw[data.desc.ProductIdOffset+j];
+  }
+
+  while (i > 0 && model[i-1] == ' ')
+    i--;
+  model[i] = 0;
+  copy_swapped(id->model, model, sizeof(id->model));
+
   if (data.desc.ProductRevisionOffset)
     copy_swapped(id->fw_rev, data.raw+data.desc.ProductRevisionOffset, sizeof(id->fw_rev));
+
   id->command_set_1 = 0x0001; id->command_set_2 = 0x4000; // SMART supported, words 82,83 valid
   id->cfs_enable_1  = 0x0001; id->csf_default   = 0x4000; // SMART enabled, words 85,87 valid
   return 0;
