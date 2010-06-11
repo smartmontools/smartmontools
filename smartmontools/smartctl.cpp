@@ -90,6 +90,10 @@ void Usage (void){
 "         Show all SMART information for device\n\n"
 "  -x, --xall\n"
 "         Show all information for device\n\n"
+"  --scan\n"
+"         Scan for devices\n\n"
+"  --scan-open\n"
+"         Scan for devices and try to open each device\n\n"
   );
   printf(
 "================================== SMARTCTL RUN-TIME BEHAVIOR OPTIONS =====\n\n"
@@ -227,6 +231,8 @@ enum checksum_err_mode_t {
 
 static checksum_err_mode_t checksum_err_mode = CHECKSUM_ERR_WARN;
 
+static void scan_devices(const char * type, bool with_open, const char * pattern);
+
 /*      Takes command options and sets features to be run */    
 const char * parse_options(int argc, char** argv,
                            ata_print_options & ataopts,
@@ -235,6 +241,7 @@ const char * parse_options(int argc, char** argv,
   // Please update getvalidarglist() if you edit shortopts
   const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iaxv:P:t:CXF:n:B:";
   // Please update getvalidarglist() if you edit longopts
+  enum { opt_scan = 1000, opt_scan_open = 1001 };
   struct option longopts[] = {
     { "help",            no_argument,       0, 'h' },
     { "usage",           no_argument,       0, 'h' },
@@ -264,6 +271,8 @@ const char * parse_options(int argc, char** argv,
     { "firmwarebug",     required_argument, 0, 'F' },
     { "nocheck",         required_argument, 0, 'n' },
     { "drivedb",         required_argument, 0, 'B' },
+    { "scan",            no_argument,       0, opt_scan      },
+    { "scan-open",       no_argument,       0, opt_scan_open },
     { 0,                 0,                 0, 0   }
   };
 
@@ -274,16 +283,14 @@ const char * parse_options(int argc, char** argv,
 
   const char * type = 0; // set to -d optarg
   bool no_defaultdb = false; // set true on '-B FILE'
+  int scan = 0; // set by --scan, --scan-open
   bool badarg = false, captive = false;
   int testcnt = 0; // number of self-tests requested
 
   int optchar;
   char *arg;
 
-  // This miserable construction is needed to get emacs to do proper indenting. Sorry!
-  while (-1 != (optchar = 
-                getopt_long(argc, argv, shortopts, longopts, NULL)
-                )){
+  while ((optchar = getopt_long(argc, argv, shortopts, longopts, 0)) != -1) {
     switch (optchar){
     case 'V':
       con->dont_print = false;
@@ -697,6 +704,12 @@ const char * parse_options(int argc, char** argv,
       Usage();
       EXIT(0);  
       break;
+
+    case opt_scan:
+    case opt_scan_open:
+      scan = optchar;
+      break;
+
     case '?':
     default:
       con->dont_print = false;
@@ -748,6 +761,13 @@ const char * parse_options(int argc, char** argv,
       EXIT(FAILCMD);
     }
   }
+
+  // Special handling of --scan, --scanopen
+  if (scan) {
+    scan_devices(type, (scan == opt_scan_open), argv[optind]);
+    EXIT(0);
+  }
+
   // At this point we have processed all command-line options.  If the
   // print output is switchable, then start with the print output
   // turned off
@@ -888,6 +908,44 @@ static const char * get_protocol_info(const smart_device * dev)
     case 0x2: return "SCSI";
     case 0x3: return "ATA+SCSI";
     default:  return "Unknown";
+  }
+}
+
+// Device scan
+// smartctl [-d type] --scan[-open] [PATTERN]
+void scan_devices(const char * type, bool with_open, const char * pattern)
+{
+  bool dont_print = !(con->reportataioctl || con->reportscsiioctl);
+  smart_device_list devlist;
+
+  con->dont_print = dont_print;
+  bool ok = smi()->scan_smart_devices(devlist, type , pattern);
+  con->dont_print = false;
+
+  if (!ok) {
+    pout("scan_smart_devices: %s\n", smi()->get_errmsg());
+    return;
+  }
+
+  for (unsigned i = 0; i < devlist.size(); i++) {
+    smart_device * dev = devlist.at(i);
+
+    std::string openmsg;
+    if (with_open) {
+      con->dont_print = dont_print;
+      dev = dev->autodetect_open();
+      con->dont_print = false;
+
+      if (dev->is_open())
+        openmsg = " (opened)";
+      else
+        openmsg = strprintf(" (open failed: %s)", dev->get_errmsg());
+    }
+
+    pout("%s -d %s [%s]%s\n", dev->get_info_name(), dev->get_dev_type(),
+         get_protocol_info(dev), openmsg.c_str());
+    if (dev->is_open())
+      dev->close();
   }
 }
 

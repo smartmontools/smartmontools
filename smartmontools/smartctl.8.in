@@ -191,6 +191,18 @@ and for SCSI, this is equivalent to
 .nf
 \'\-H \-i \-A \-l error \-l selftest \-l background \-l sasphy\'.
 .fi
+.TP
+.B \-\-scan
+Scans for devices and prints each device name, device type and protocol
+([ATA] or [SCSI]) info.  May be used in conjunction with \'\-d TYPE\'
+to restrict the scan to a specific TYPE.  See also info about platform
+specific device scan and the \fBDEVICESCAN\fP directive on
+\fBsmartd\fP(8) man page.
+.TP
+.B \-\-scan\-open
+Same as \-\-scan, but also tries to open each device before printing
+device info.  The device open may change the device type due
+to autodetection (see also \'\-d test\').
 
 .TP
 .B RUN\-TIME BEHAVIOR OPTIONS:
