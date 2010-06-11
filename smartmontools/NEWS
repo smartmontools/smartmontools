@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3105 2010-05-13 20:27:29Z chrfranke $
+$Id: NEWS 3119 2010-06-11 16:21:25Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -20,6 +20,7 @@ Summary: smartmontools release 5.40
   SMART Error Log.
 - smartctl option '-l scterc[,...]' to get/set the
   SCT Error Recovery Control time limit.
+- smartctl options '--scan, --scan-open'.
 - Linux: Add '/dev/sd[a-c][a-z]' to smartd DEVICESCAN.
 - Windows: Read 'drivedb.h' and 'smartd.conf' from exe directory.
 - Windows: Support for 64-bit executables.

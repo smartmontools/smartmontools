@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3097 2010-04-30 14:54:38Z chrfranke $
+ $Id: smartctl.8.in 3119 2010-06-11 16:21:25Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -191,6 +191,18 @@ and for SCSI, this is equivalent to
 .nf
 \'\-H \-i \-A \-l error \-l selftest \-l background \-l sasphy\'.
 .fi
+.TP
+.B \-\-scan
+Scans for devices and prints each device name, device type and protocol
+([ATA] or [SCSI]) info.  May be used in conjunction with \'\-d TYPE\'
+to restrict the scan to a specific TYPE.  See also info about platform
+specific device scan and the \fBDEVICESCAN\fP directive on
+\fBsmartd\fP(8) man page.
+.TP
+.B \-\-scan\-open
+Same as \-\-scan, but also tries to open each device before printing
+device info.  The device open may change the device type due
+to autodetection (see also \'\-d test\').
 
 .TP
 .B RUN\-TIME BEHAVIOR OPTIONS:
@@ -1849,4 +1861,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3097 2010-04-30 14:54:38Z chrfranke $
+$Id: smartctl.8.in 3119 2010-06-11 16:21:25Z chrfranke $
