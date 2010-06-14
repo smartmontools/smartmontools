@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3111 2010-05-25 22:03:50Z manfred99 $",
+  { "$Id: drivedb.h 3120 2010-06-14 16:38:27Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1637,6 +1637,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbjmicron"
+  },
+  { "USB: LaCie Rugged Hard Drive; JMicron",
+    "0x059f:0x101d",
+    "0x0001",
+    "",
+    "-d usbjmicron,x"
   },
   // In-System Design
   { "USB: ; In-System/Cypress ISD-300A1",

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3119 2010-06-11 16:21:25Z chrfranke $
+$Id: CHANGELOG 3120 2010-06-14 16:38:27Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h USB update:
+       - LaCie Rugged Hard Drive
 
   [CF] smartctl: Add options '--scan, --scan-open'.
 
