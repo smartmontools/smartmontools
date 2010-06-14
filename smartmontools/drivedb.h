@@ -58,7 +58,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3112 2010-05-26 06:03:14Z chrfranke $",
+  { "$Id: drivedb.h 3122 2010-06-14 16:58:42Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -216,12 +216,21 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 225,raw48,Host_Writes_Count"
   },
-  { "Transcend Solid-State Drive",
+  { "Transcend IDE Solid State Drive",
     "TS(8|16|32|64|128)GSSD25-(M|S)",
     "", "", ""
   },
-  { "Transcend Solid-State Drive V series",
+  { "Transcend SATA Solid State Drive",
     "TS(8|16|32|64|128|192)GSSD25S-(M|S)",
+    "", "",
+    "-v 229,hex64,Halt_System_ID "
+    "-v 232,hex64,Firmware_Version_information "
+    "-v 233,hex64,ECC_Fail_Record "
+    "-v 234,raw24/raw24,Erase_Count_Avg/Max "
+    "-v 235,raw24/raw24,Block_Count_Good/System"
+  },
+  { "Transcend Ultra Series Solid State Drive (SATA II)",
+    "TS(60|120)GSSD25D-M",
     "", "", ""
   },
   { "Marvell SSD SD88SA024BA0 (SUN branded)",
