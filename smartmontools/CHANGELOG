@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Transcend Solid State Drives (ticket #80)
+
   [CF] drivedb.h USB update:
        - LaCie Rugged Hard Drive
 
