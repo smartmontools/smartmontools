@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB update:
+       - LaCie Rugged Hard Drive
+
   [CF] smartctl: Add options '--scan, --scan-open'.
 
   [CF] Windows: Use also VendorId from IOCTL_STORAGE_QUERY_PROPERTY.
