@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h updates:
+       - Intel X25-M SSD first Generation
+       - ExcelStor J8160
+       - OCZ Agility2
+
   [CF] drivedb.h updates:
        - Transcend Solid State Drives (ticket #80)
 

@@ -170,7 +170,7 @@ const drive_settings builtin_knowndrives[] = {
     " -v 213,raw64"
   },
   { "OCZ Agility SSD",
-    "OCZ[ -]AGILITY",
+    "OCZ[ -]AGILITY.*",
     "", "",
     " -v 1,raw64"
     " -v 9,raw64"
@@ -229,7 +229,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 225,raw48,Host_Writes_Count"
   },
   { "Intel X25-M SSD",
-    "INTEL SSDSA2M(080|160)G2.*",  // G2 = second generation
+    "INTEL SSDSA2MH(080|160)G1.*",  // G1 = first generation, 50nm
+    "", "",
+    "-v 225,raw48,Host_Writes_Count"
+  },
+  { "Intel X25-M SSD",
+    "INTEL SSDSA2M(080|160)G2.*",  // G2 = second generation, 34nm
     "", "",
     "-v 225,raw48,Host_Writes_Count"
   },
@@ -288,8 +293,8 @@ const drive_settings builtin_knowndrives[] = {
     "http://www.ibm.com/pc/support/site.wss/MIGR-42215.html",
     ""
   },
-  { "", // ExcelStor J240, J340, J360, J680, and J880
-    "ExcelStor Technology J(24|34|36|68|88)0",
+  { "", // ExcelStor J240, J340, J360, J680, J880 and J8160
+    "ExcelStor Technology J(24|34|36|68|88|816)0",
     "", "", ""
   },
   { "", // Fujitsu M1623TAU
