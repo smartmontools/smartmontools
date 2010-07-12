@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3123 2010-07-11 22:35:19Z manfred99 $",
+  { "$Id: drivedb.h 3124 2010-07-12 19:21:00Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1627,6 +1627,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
+  { "USB: Iomega LDHD-UP; Sunplus",
+    "0x059b:0x0370",
+    "",
+    "",
+    "-d usbsunplus"
+  },
   // LaCie
   { "USB: LaCie hard disk (FA Porsche design);",
     "0x059f:0x0651",
@@ -1750,6 +1756,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbsunplus"
   },
   // Maxtor
+  { "USB: Maxtor OneTouch; ",
+    "0x0d49:0x7300",
+    "0x0121",
+    "",
+    "-d sat"
+  },
   { "USB: Maxtor OneTouch 4; ",
     "0x0d49:0x7310",
     "0x0125",
@@ -1826,6 +1838,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: WD Elements; ",
     "0x1058:0x1010",
     "0x0105",
+    "",
+    "-d sat"
+  },
+  { "USB: WD Elements Desktop; ", // 2TB
+    "0x1058:0x1021",
+    "0x2002",
     "",
     "-d sat"
   },

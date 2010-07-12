@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3123 2010-07-11 22:35:19Z manfred99 $
+$Id: CHANGELOG 3124 2010-07-12 19:21:00Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h USB updates:
+       - Iomega LDHD-UP (ticket #83)
+       - WD Elements Desktop 2TB
+       - Maxtor OneTouch (0x0d49:0x7300)
 
   [MS] drivedb.h updates:
        - Intel X25-M SSD first Generation
