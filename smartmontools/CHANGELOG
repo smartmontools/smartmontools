@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - Iomega LDHD-UP (ticket #83)
+       - WD Elements Desktop 2TB
+       - Maxtor OneTouch (0x0d49:0x7300)
+
   [MS] drivedb.h updates:
        - Intel X25-M SSD first Generation
        - ExcelStor J8160
