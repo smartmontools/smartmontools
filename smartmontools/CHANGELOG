@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - SAMSUNG SpinPoint M7 series
+
   [CF] drivedb.h USB update:
        - Buffalo JustStore Portable HD-PVU2
 
