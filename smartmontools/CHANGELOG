@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB update:
+       - Buffalo JustStore Portable HD-PVU2
+
   [CF] drivedb.h USB updates:
        - Iomega LDHD-UP (ticket #83)
        - WD Elements Desktop 2TB

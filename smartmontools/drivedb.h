@@ -1574,6 +1574,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
+  // Buffalo / Melco
+  { "USB: Buffalo JustStore Portable HD-PVU2; ",
+    "0x0411:0x0181",
+    "",
+    "",
+    "-d sat"
+  },
   // Cypress
   { "USB: ; Cypress CY7C68300A (AT2)",
     "0x04b4:0x6830",
