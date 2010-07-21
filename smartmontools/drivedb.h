@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3124 2010-07-12 19:21:00Z chrfranke $",
+  { "$Id: drivedb.h 3126 2010-07-21 17:16:09Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1573,6 +1573,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "" // unsupported
+  },
+  // Buffalo / Melco
+  { "USB: Buffalo JustStore Portable HD-PVU2; ",
+    "0x0411:0x0181",
+    "",
+    "",
+    "-d sat"
   },
   // Cypress
   { "USB: ; Cypress CY7C68300A (AT2)",
