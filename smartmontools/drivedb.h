@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3126 2010-07-21 17:16:09Z chrfranke $",
+  { "$Id: drivedb.h 3127 2010-07-21 19:53:54Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -570,6 +570,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SAMSUNG SpinPoint M5 series", // tested with HM160HI/HH100-12
     "SAMSUNG HM((061|080)G|(121|160)H|250J)I",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint M7 series", // tested with HM500JI/2AC101C4
+    "SAMSUNG HM(250H|320I|[45]00J)I",
     "", "", ""
   },
   { "SAMSUNG SpinPoint M series", // tested with MP0402H/UC100-11
