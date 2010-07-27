@@ -58,7 +58,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3125 2010-07-12 19:39:37Z chrfranke $",
+  { "$Id: drivedb.h 3130 2010-07-27 15:48:38Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -446,6 +446,12 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG SV0322A",
     "", "", ""
   },
+  { "SAMSUNG SpinPoint V80 series", // tested with SV1604N/TR100-23
+    "SAMSUNG SV(0211|0401|0612|0802|1203|1604)N",
+    "",
+    "",
+    "-v 9,halfminutes -F samsung2"
+  },
   { "", // SAMSUNG SP40A2H with RR100-07 firmware
     "SAMSUNG SP40A2H",
     "RR100-07",
@@ -553,6 +559,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SAMSUNG SpinPoint M5 series", // tested with HM160HI/HH100-12
     "SAMSUNG HM((061|080)G|(121|160)H|250J)I",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint M7 series", // tested with HM500JI/2AC101C4
+    "SAMSUNG HM(250H|320I|[45]00J)I",
     "", "", ""
   },
   { "SAMSUNG SpinPoint M series", // tested with MP0402H/UC100-11
