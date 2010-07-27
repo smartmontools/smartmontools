@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3127 2010-07-21 19:53:54Z chrfranke $",
+  { "$Id: drivedb.h 3129 2010-07-27 15:39:41Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -462,6 +462,12 @@ const drive_settings builtin_knowndrives[] = {
   { "", // SAMSUNG SV0322A tested with FW JK200-35
     "SAMSUNG SV0322A",
     "", "", ""
+  },
+  { "SAMSUNG SpinPoint V80 series", // tested with SV1604N/TR100-23
+    "SAMSUNG SV(0211|0401|0612|0802|1203|1604)N",
+    "",
+    "",
+    "-v 9,halfminutes -F samsung2"
   },
   { "", // SAMSUNG SP40A2H with RR100-07 firmware
     "SAMSUNG SP40A2H",
