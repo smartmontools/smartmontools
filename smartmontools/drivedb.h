@@ -463,6 +463,12 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG SV0322A",
     "", "", ""
   },
+  { "SAMSUNG SpinPoint V80 series", // tested with SV1604N/TR100-23
+    "SAMSUNG SV(0211|0401|0612|0802|1203|1604)N",
+    "",
+    "",
+    "-v 9,halfminutes -F samsung2"
+  },
   { "", // SAMSUNG SP40A2H with RR100-07 firmware
     "SAMSUNG SP40A2H",
     "RR100-07",
