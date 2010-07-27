@@ -600,10 +600,17 @@ Section below!
 .B #
 .nf
 .B # Two ATA disks on a 3ware 9000 controller.
-.B # Start long self-tests Sundays between  midnight and 
+.B # Start long self-tests Sundays between midnight and
 .B # 1am and 2-3 am
 .B \ \ /dev/twa0 -d 3ware,0 -a -s L/../../7/00
 .B \ \ /dev/twa0 -d 3ware,1 -a -s L/../../7/02
+.B #
+.nf
+.B # Two SATA (not SAS) disks on a 3ware 9750 controller.
+.B # Start long self-tests Sundays between midnight and
+.B # 1am and 2-3 am
+.B \ \ /dev/twl0 -d 3ware,0 -a -s L/../../7/00
+.B \ \ /dev/twl0 -d 3ware,1 -a -s L/../../7/02
 .B #
 .nf
 .B # Three SATA disks on a HighPoint RocketRAID controller.
@@ -695,11 +702,11 @@ indicates a disk failure or problem, if the SCSI inquiry about disk
 status fails, or if new errors appear in the self-test log.
 
 .B If a 3ware controller is used
-then the corresponding SCSI (/dev/sd?) or character device (/dev/twe?
-or /dev/twa?) must be listed, along with the \'\-d 3ware,N\' Directive
-(see below).  The individual ATA disks hosted by the 3ware controller
-appear to \fBsmartd\fP as normal ATA devices.  Hence all the ATA
-directives can be used for these disks (but see note below).
+then the corresponding SCSI (/dev/sd?) or character device (/dev/twe?,
+/dev/twa? or /dev/twl?) must be listed, along with the \'\-d 3ware,N\'
+Directive (see below).  The individual ATA disks hosted by the 3ware
+controller appear to \fBsmartd\fP as normal ATA devices.  Hence all
+the ATA directives can be used for these disks (but see note below).
 
 .B If an Areca controller is used
 then the corresponding SCSI generic device (/dev/sg?)  must be listed,
@@ -783,11 +790,11 @@ see the \fBsmartctl\fP(8) man page for further details.
 
 ATA disks behind 3ware controllers may alternatively be accessed via a
 character device interface /dev/twe0-15 (3ware 6000/7000/8000
-controllers) and /dev/twa0-15 (3ware 9000 series controllers).  Note
-that the 9000 series controllers may \fBonly\fP be accessed using the
-character device interface /dev/twa0-15 and not the SCSI device
-interface /dev/sd?.  Please see the \fBsmartctl\fP(8) man page for
-further details.
+controllers), /dev/twa0-15 (3ware 9000 series controllers) and
+/dev/twl0-15 (3ware 9750 series controllers).  Note that the 9000 series
+controllers may \fBonly\fP be accessed using the character device
+interface /dev/twa0-15 and not the SCSI device interface /dev/sd?.
+Please see the \fBsmartctl\fP(8) man page for further details.
 
 Note that older 3w-xxxx drivers do not pass the \'Enable Autosave\'
 (\fB-S on\fP) and \'Enable Automatic Offline\' (\fB-o on\fP) commands
@@ -798,8 +805,8 @@ version 1.02.00.037 or later of the 3w-xxxx driver, or by applying a
 patch to older versions.  See
 \fBhttp://smartmontools.sourceforge.net/\fP for instructions.
 Alternatively use the character device interfaces /dev/twe0-15 (3ware
-6/7/8000 series controllers) or /dev/twa0-15 (3ware 9000 series
-controllers).
+6/7/8000 series controllers), /dev/twa0-15 (3ware 9000 series
+controllers) or /dev/twl0-15 (3ware 9750 series controllers).
 
 .I areca,N
 \- the device consists of one or more SATA disks connected to an Areca

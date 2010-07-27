@@ -22,6 +22,7 @@ Summary: smartmontools release 5.40
   SCT Error Recovery Control time limit.
 - smartctl options '--scan, --scan-open'.
 - Linux: Add '/dev/sd[a-c][a-z]' to smartd DEVICESCAN.
+- Linux: Support SATA drives on LSI 3ware 9750 controllers.
 - Windows: Read 'drivedb.h' and 'smartd.conf' from exe directory.
 - Windows: Support for 64-bit executables.
 - Windows: Support for cross compilation on Linux.

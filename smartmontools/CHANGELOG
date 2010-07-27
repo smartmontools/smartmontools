@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Linux: Support SATA drives on LSI 3ware 9750 controllers.
+       Patch provided by Victor Payno (ticket #86).
+       Modified to avoid duplicate code.
+
   [CF] drivedb.h update:
        - SAMSUNG SpinPoint M7 series
 

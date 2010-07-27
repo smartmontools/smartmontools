@@ -65,7 +65,7 @@ Changers with TapeAlert support use the devices \fB"/dev/nst*"\fP and
 \fB"/dev/sg*"\fP.  For SATA disks accessed with libata, use
 \fB"/dev/sd[a\-z]"\fP and append \fB"\-d ata"\fP. For disks behind
 3ware controllers you may need \fB"/dev/sd[a\-z]"\fP or
-\fB"/dev/twe[0\-9]"\fP or \fB"/dev/twa[0\-9]"\fP: see details
+\fB"/dev/twe[0\-9]"\fP, \fB"/dev/twa[0\-9]"\fP or \fB"/dev/twl[0\-9]"\fP: see details
 below. For disks behind HighPoint RocketRAID controllers you may need
 \fB"/dev/sd[a\-z]"\fP.  For disks behind Areca SATA RAID controllers,
 you need \fB"/dev/sg[2\-9]"\fP (note that smartmontools interacts with
@@ -303,6 +303,9 @@ use syntax such as:
 .nf
 \fBsmartctl \-a \-d 3ware,1 /dev/twa0\fP
 .fi
+.nf
+\fBsmartctl \-a \-d 3ware,1 /dev/twl0\fP
+.fi
 where in the argument \fI3ware,N\fP, the integer N is the disk number
 (3ware \'port\') within the 3ware ATA RAID controller.  The allowed
 values of N are from 0 to 127 inclusive.  The first two forms, which
@@ -314,12 +317,17 @@ kernel in the near future. The final form, which refers to devices
 /dev/twa0\-15, must be used with 3ware 9000 series controllers, which
 use the 3w\-9xxx driver.
 
-Note that if the special character device nodes /dev/twa? and
-/dev/twe? do not exist, or exist with the incorrect major or minor
+The devices /dev/twl0\-15 must be used with the 3ware/LSI 9750 series
+controllers which use the 3w-sas driver.
+
+Note that if the special character device nodes /dev/twl?, /dev/twa?
+and /dev/twe? do not exist, or exist with the incorrect major or minor
 numbers, smartctl will recreate them on the fly.  Typically /dev/twa0
 refers to the first 9000\-series controller, /dev/twa1 refers to the
-second 9000 series controller, and so on. Likewise /dev/twe0 refers to
-the first 6/7/8000\-series controller, /dev/twa1 refers to the second
+second 9000 series controller, and so on. The /dev/twl0 devices refers
+to the first 9750 series controller, /dev/twl1 resfers to the second
+9750 series controller, and so on. Likewise /dev/twe0 refers to
+the first 6/7/8000\-series controller, /dev/twe1 refers to the second
 6/7/8000 series controller, and so on.
 
 Note that for the 6/7/8000 controllers, \fBany\fP of the physical
@@ -354,7 +362,7 @@ versions. See \fBhttp://smartmontools.sourceforge.net/\fP for
 instructions.  Alternatively, use the character device /dev/twe0\-15 interface.
 
 The selective self\-test functions (\'\-t select,A\-B\') are only supported
-using the character device interface /dev/twa0\-15 and /dev/twe0\-15.
+using the character device interface /dev/twl0\-15, /dev/twa0\-15 and /dev/twe0\-15.
 The necessary WRITE LOG commands can not be passed through the SCSI
 interface.
 
@@ -1688,8 +1696,14 @@ RAID 6000/7000/8000 controller card.
 .nf
 .B smartctl \-a \-d 3ware,0 /dev/twa0
 .fi
-Examine all SMART data for the first ATA disk connected to a 3ware
-RAID 9000 controller card.
+Examine all SMART data for the first ATA disk connected to a
+3ware RAID 9000 controller card.
+.PP
+.nf
+.B smartctl \-a \-d 3ware,0 /dev/twl0
+.fi
+Examine all SMART data for the first SATA (not SAS) disk connected to a
+3ware RAID 9750 controller card.
 .PP
 .nf
 .B smartctl \-t short \-d 3ware,3 /dev/sdb

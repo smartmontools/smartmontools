@@ -196,6 +196,7 @@ static const char  smartctl_examples[] =
 		  "  smartctl --all --device=3ware,2 /dev/sda\n"
 		  "  smartctl --all --device=3ware,2 /dev/twe0\n"
 		  "  smartctl --all --device=3ware,2 /dev/twa0\n"
+		  "  smartctl --all --device=3ware,2 /dev/twl0\n"
 		  "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
 		  "  smartctl --all --device=hpt,1/1/3 /dev/sda\n"
 		  "          (Prints all SMART info for the SATA disk attached to the 3rd PMPort\n"
@@ -1216,7 +1217,8 @@ public:
   enum escalade_type_t {
     AMCC_3WARE_678K,
     AMCC_3WARE_678K_CHAR,
-    AMCC_3WARE_9000_CHAR
+    AMCC_3WARE_9000_CHAR,
+    AMCC_3WARE_9700_CHAR
   };
 
   linux_escalade_device(smart_interface * intf, const char * dev_name,
@@ -1389,12 +1391,17 @@ int setup_3ware_nodes(const char *nodename, const char *driver_name) {
 
 bool linux_escalade_device::open()
 {
-  if (m_escalade_type == AMCC_3WARE_9000_CHAR || m_escalade_type == AMCC_3WARE_678K_CHAR) {
+  if (m_escalade_type == AMCC_3WARE_9700_CHAR || m_escalade_type == AMCC_3WARE_9000_CHAR ||
+      m_escalade_type == AMCC_3WARE_678K_CHAR) {
     // the device nodes for these controllers are dynamically assigned,
     // so we need to check that they exist with the correct major
     // numbers and if not, create them
-    const char * node   = (m_escalade_type == AMCC_3WARE_9000_CHAR ? "twa"    : "twe"    );
-    const char * driver = (m_escalade_type == AMCC_3WARE_9000_CHAR ? "3w-9xxx": "3w-xxxx");
+    const char * node   = (m_escalade_type == AMCC_3WARE_9700_CHAR ? "twl"     :
+                           m_escalade_type == AMCC_3WARE_9000_CHAR ? "twa"     :
+                                                                     "twe"      );
+    const char * driver = (m_escalade_type == AMCC_3WARE_9700_CHAR ? "3w-sas"  :
+                           m_escalade_type == AMCC_3WARE_9000_CHAR ? "3w-9xxx" :
+                                                                     "3w-xxxx"  );
     if (setup_3ware_nodes(node, driver))
       return set_err((errno ? errno : ENXIO), "setup_3ware_nodes(\"%s\", \"%s\") failed", node, driver);
   }
@@ -1461,7 +1468,7 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
   memset(ioctl_buffer, 0, TW_IOCTL_BUFFER_SIZE);
 
   // TODO: Handle controller differences by different classes
-  if (m_escalade_type==AMCC_3WARE_9000_CHAR) {
+  if (m_escalade_type == AMCC_3WARE_9700_CHAR || m_escalade_type == AMCC_3WARE_9000_CHAR) {
     tw_ioctl_apache                               = (TW_Ioctl_Buf_Apache *)ioctl_buffer;
     tw_ioctl_apache->driver_command.control_code  = TW_IOCTL_FIRMWARE_PASS_THROUGH;
     tw_ioctl_apache->driver_command.buffer_length = 512; /* payload size */
@@ -1523,7 +1530,8 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
     // in dwords by 1 to account for the 64-bit single sgl 'address'
     // field. Note that this doesn't agree with the typedefs but it's
     // right (agree with kernel driver behavior/typedefs).
-    if (m_escalade_type==AMCC_3WARE_9000_CHAR && sizeof(long)==8)
+    if ((m_escalade_type == AMCC_3WARE_9700_CHAR || m_escalade_type == AMCC_3WARE_9000_CHAR)
+        && sizeof(long) == 8)
       passthru->size++;
   }
   else if (in.direction == ata_cmd_in::no_data) {
@@ -1535,7 +1543,7 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
     passthru->sector_count = 0x0;
   }
   else if (in.direction == ata_cmd_in::data_out) {
-    if (m_escalade_type == AMCC_3WARE_9000_CHAR)
+    if (m_escalade_type == AMCC_3WARE_9700_CHAR || m_escalade_type == AMCC_3WARE_9000_CHAR)
       memcpy(tw_ioctl_apache->data_buffer, in.buffer, in.size);
     else if (m_escalade_type == AMCC_3WARE_678K_CHAR)
       memcpy(tw_ioctl_char->data_buffer,   in.buffer, in.size);
@@ -1548,7 +1556,8 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
     passthru->byte0.sgloff = 0x5;
     passthru->size         = 0x7;  // TODO: Other value for multi-sector ?
     passthru->param        = 0xF;  // PIO data write
-    if (m_escalade_type==AMCC_3WARE_9000_CHAR && sizeof(long)==8)
+    if ((m_escalade_type == AMCC_3WARE_9700_CHAR || m_escalade_type == AMCC_3WARE_9000_CHAR)
+        && sizeof(long) == 8)
       passthru->size++;
   }
   else
@@ -1556,7 +1565,7 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
 
   // Now send the command down through an ioctl()
   int ioctlreturn;
-  if (m_escalade_type==AMCC_3WARE_9000_CHAR)
+  if (m_escalade_type == AMCC_3WARE_9700_CHAR || m_escalade_type == AMCC_3WARE_9000_CHAR)
     ioctlreturn=ioctl(get_fd(), TW_IOCTL_FIRMWARE_PASS_THROUGH, tw_ioctl_apache);
   else if (m_escalade_type==AMCC_3WARE_678K_CHAR)
     ioctlreturn=ioctl(get_fd(), TW_CMD_PACKET_WITH_DATA, tw_ioctl_char);
@@ -1607,7 +1616,7 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
 
   // If this is a read data command, copy data to output buffer
   if (readdata) {
-    if (m_escalade_type==AMCC_3WARE_9000_CHAR)
+    if (m_escalade_type == AMCC_3WARE_9700_CHAR || m_escalade_type == AMCC_3WARE_9000_CHAR)
       memcpy(in.buffer, tw_ioctl_apache->data_buffer, in.size);
     else if (m_escalade_type==AMCC_3WARE_678K_CHAR)
       memcpy(in.buffer, tw_ioctl_char->data_buffer, in.size);
@@ -2695,7 +2704,7 @@ smart_device * linux_scsi_device::autodetect_open()
     if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
       close();
       set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
-                      "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
+                      "you may need to replace %s with /dev/twlN, /dev/twaN or /dev/tweN", get_dev_name());
       return this;
     }
 
@@ -2997,6 +3006,7 @@ static const char * lin_dev_scsi_disk_plus = "s";
 static const char * lin_dev_scsi_tape1 = "ns";
 static const char * lin_dev_scsi_tape2 = "os";
 static const char * lin_dev_scsi_tape3 = "nos";
+static const char * lin_dev_3ware_9700_char = "twl";
 static const char * lin_dev_3ware_9000_char = "twa";
 static const char * lin_dev_3ware_678k_char = "twe";
 static const char * lin_dev_cciss_dir = "cciss/";
@@ -3080,6 +3090,11 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
                strlen(lin_dev_scsi_tape3)))
     return new linux_scsi_device(this, name, "");
 
+  // form /dev/twl*
+  if (!strncmp(lin_dev_3ware_9700_char, dev_name,
+               strlen(lin_dev_3ware_9700_char)))
+    return missing_option("-d 3ware,N");
+
   // form /dev/twa*
   if (!strncmp(lin_dev_3ware_9000_char, dev_name,
                strlen(lin_dev_3ware_9000_char)))
@@ -3122,7 +3137,9 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
       return 0;
     }
 
-    if (!strncmp(name, "/dev/twa", 8))
+    if (!strncmp(name, "/dev/twl", 8))
+      return new linux_escalade_device(this, name, linux_escalade_device::AMCC_3WARE_9700_CHAR, disknum);
+    else if (!strncmp(name, "/dev/twa", 8))
       return new linux_escalade_device(this, name, linux_escalade_device::AMCC_3WARE_9000_CHAR, disknum);
     else if (!strncmp(name, "/dev/twe", 8))
       return new linux_escalade_device(this, name, linux_escalade_device::AMCC_3WARE_678K_CHAR, disknum);
