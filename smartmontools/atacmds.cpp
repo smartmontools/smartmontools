@@ -1557,7 +1557,7 @@ int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest
   else if ((select=(testtype==SELECTIVE_SELF_TEST || testtype==SELECTIVE_CAPTIVE_SELF_TEST)))
     type="Selective self-test";
   else
-    type="[Unrecognized] self-test";
+    type = 0;
   
   // If doing a selective self-test, first use WRITE_LOG to write the
   // selective self-test log.
@@ -1571,6 +1571,8 @@ int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest
   //  Print ouf message that we are sending the command to test
   if (testtype==ABORT_SELF_TEST)
     sprintf(cmdmsg,"Abort SMART off-line mode self-test routine");
+  else if (!type)
+    sprintf(cmdmsg, "SMART EXECUTE OFF-LINE IMMEDIATE subcommand 0x%02x", testtype);
   else
     sprintf(cmdmsg,"Execute SMART %s routine immediately in %s mode",type,captive);
   pout("Sending command: \"%s\".\n",cmdmsg);
@@ -1598,8 +1600,11 @@ int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest
   // Since the command succeeded, tell user
   if (testtype==ABORT_SELF_TEST)
     pout("Self-testing aborted!\n");
-  else
-    pout("Drive command \"%s\" successful.\nTesting has begun.\n",cmdmsg);
+  else {
+    pout("Drive command \"%s\" successful.\n", cmdmsg);
+    if (type)
+      pout("Testing has begun.\n");
+  }
   return 0;
 }
 

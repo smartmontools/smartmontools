@@ -156,7 +156,7 @@ void Usage (void){
          "]\n\n"
 "============================================ DEVICE SELF-TEST OPTIONS =====\n\n"
 "  -t TEST, --test=TEST\n"
-"        Run test. TEST: offline short long conveyance select,M-N\n"
+"        Run test. TEST: offline short long conveyance vendor,N select,M-N\n"
 "                        pending,N afterselect,[on|off] scttempint,N[,p]\n\n"
 "  -C, --captive\n"
 "        Do test in captive mode (along with -t)\n\n"
@@ -194,7 +194,8 @@ static std::string getvalidarglist(char opt)
   case 'P':
     return "use, ignore, show, showall";
   case 't':
-    return "offline, short, long, conveyance, select,M-N, pending,N, afterselect,[on|off], scttempint,N[,p]";
+    return "offline, short, long, conveyance, vendor,N, select,M-N, "
+           "pending,N, afterselect,[on|off], scttempint,N[,p]";
   case 'F':
     return "none, samsung, samsung2, samsung3, swapid";
   case 'n':
@@ -662,6 +663,15 @@ const char * parse_options(int argc, char** argv,
         }
         ataopts.sct_temp_int = interval;
         ataopts.sct_temp_int_pers = (n2 == len);
+      } else if (!strncmp(optarg, "vendor,", sizeof("vendor,")-1)) {
+        unsigned subcmd = ~0U; int n = -1;
+        if (!(   sscanf(optarg, "%*[a-z],0x%x%n", &subcmd, &n) == 1
+              && subcmd <= 0xff && n == (int)strlen(optarg))) {
+          strcpy(extraerror, "Option -t vendor,0xNN syntax error\n");
+          badarg = true;
+        }
+        else
+          ataopts.smart_selftest_type = subcmd;
       } else {
         badarg = true;
       }

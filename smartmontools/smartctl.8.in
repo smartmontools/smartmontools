@@ -1557,6 +1557,15 @@ cycles. Otherwise, the setting is volatile and will be reverted to
 default (1 minute), or last non-volatile setting by the next hard reset.
 This command also clears the temperature history table. See
 \'\-l scttemp\' above for more information about SCT temperature logging.
+
+.I vendor,N
+\- [ATA only] issues the ATA command SMART EXECUTE OFF-LINE IMMEDIATE
+with subcommand N in LBA LOW register. The subcommand is specified as
+a hex value in the range 0x00 to 0xff. Subcommands 0x40-0x7f and
+0x90-0xff are reserved for vendor specific use, see table 61 of
+T13/1699-D Revision 6a (ATA8-ACS).
+\fBWARNING: Only run subcommands documented by the vendor of the
+device.\fP
 .TP
 .B \-C, \-\-captive
 [ATA] Runs self\-tests in captive mode.  This has no effect with \'\-t

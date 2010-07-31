@@ -2504,9 +2504,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     break;
   default:
-    pout("Internal error in smartctl: smart_test_type==%d not recognized\n", options.smart_selftest_type);
-    pout("Please contact smartmontools developers at %s.\n", PACKAGE_BUGREPORT);
-    EXIT(returnval|=FAILCMD);
+    break; // Vendor specific type
   }
 
   // Now do the test.  Note ataSmartTest prints its own error/success

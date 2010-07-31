@@ -20,6 +20,7 @@ Summary: smartmontools release 5.40
   SMART Error Log.
 - smartctl option '-l scterc[,...]' to get/set the
   SCT Error Recovery Control time limit.
+- smartctl option '-t vendor,N'.
 - smartctl options '--scan, --scan-open'.
 - Linux: Add '/dev/sd[a-c][a-z]' to smartd DEVICESCAN.
 - Linux: Support SATA drives on LSI 3ware 9750 controllers.
