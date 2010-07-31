@@ -44,7 +44,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3081 2010-04-03 19:39:11Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3131 2010-07-31 11:16:12Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 // for passing global control variables
@@ -2504,9 +2504,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     break;
   default:
-    pout("Internal error in smartctl: smart_test_type==%d not recognized\n", options.smart_selftest_type);
-    pout("Please contact smartmontools developers at %s.\n", PACKAGE_BUGREPORT);
-    EXIT(returnval|=FAILCMD);
+    break; // Vendor specific type
   }
 
   // Now do the test.  Note ataSmartTest prints its own error/success
