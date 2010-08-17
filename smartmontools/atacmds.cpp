@@ -1741,8 +1741,10 @@ int isSupportSelectiveSelfTest(const ata_smart_values * data)
 
 // Get attribute state
 ata_attr_state ata_get_attr_state(const ata_smart_attribute & attr,
-                                  const ata_smart_threshold_entry & thre,
-                                  const ata_vendor_attr_defs & defs)
+                                  int attridx,
+                                  const ata_smart_threshold_entry * thresholds,
+                                  const ata_vendor_attr_defs & defs,
+                                  unsigned char * threshval /* = 0 */)
 {
   if (!attr.id)
     return ATTRSTATE_NON_EXISTING;
@@ -1753,27 +1755,35 @@ ata_attr_state ata_get_attr_state(const ata_smart_attribute & attr,
   if (defs[attr.id].flags & ATTRFLAG_NO_NORMVAL)
     return ATTRSTATE_NO_NORMVAL;
 
-  // No threshold if thresholds cannot be read.
-  if (!thre.id && !thre.threshold)
-    return ATTRSTATE_NO_THRESHOLD;
+  // Normally threshold is at same index as attribute
+  int i = attridx;
+  if (thresholds[i].id != attr.id) {
+    // Find threshold id in table
+    for (i = 0; thresholds[i].id != attr.id; ) {
+      if (++i >= NUMBER_ATA_SMART_ATTRIBUTES)
+        // Threshold id missing or thresholds cannot be read
+        return ATTRSTATE_NO_THRESHOLD;
+    }
+  }
+  unsigned char threshold = thresholds[i].threshold;
 
-  // Bad threshold if id's don't match
-  if (attr.id != thre.id)
-    return ATTRSTATE_BAD_THRESHOLD;
+  // Return threshold if requested
+  if (threshval)
+    *threshval = threshold;
 
   // Don't report a failed attribute if its threshold is 0.
   // ATA-3 (X3T13/2008D Revision 7b) declares 0x00 as the "always passing"
   // threshold (Later ATA versions declare all thresholds as "obsolete").
   // In practice, threshold value 0 is often used for usage attributes.
-  if (!thre.threshold)
+  if (!threshold)
     return ATTRSTATE_OK;
 
   // Failed now if current value is below threshold
-  if (attr.current <= thre.threshold)
+  if (attr.current <= threshold)
     return ATTRSTATE_FAILED_NOW;
 
   // Failed in the past if worst value is below threshold
-  if (!(defs[attr.id].flags & ATTRFLAG_NO_WORSTVAL) && attr.worst <= thre.threshold)
+  if (!(defs[attr.id].flags & ATTRFLAG_NO_WORSTVAL) && attr.worst <= threshold)
     return ATTRSTATE_FAILED_PAST;
 
   return ATTRSTATE_OK;

@@ -2539,10 +2539,11 @@ static void CheckTemperature(const dev_config & cfg, dev_state & state, unsigned
 static void check_attribute(const dev_config & cfg, dev_state & state,
                             const ata_smart_attribute & attr,
                             const ata_smart_attribute & prev,
-                            const ata_smart_threshold_entry & thre)
+                            int attridx,
+                            const ata_smart_threshold_entry * thresholds)
 {
   // Check attribute and threshold
-  ata_attr_state attrstate = ata_get_attr_state(attr, thre, cfg.attribute_defs);
+  ata_attr_state attrstate = ata_get_attr_state(attr, attridx, thresholds, cfg.attribute_defs);
   if (attrstate == ATTRSTATE_NON_EXISTING)
     return;
 
@@ -2566,9 +2567,9 @@ static void check_attribute(const dev_config & cfg, dev_state & state,
     return;
 
   // Issue warning if they don't have the same ID in all structures.
-  if (attr.id != prev.id || attrstate == ATTRSTATE_BAD_THRESHOLD) {
-    PrintOut(LOG_INFO,"Device: %s, same Attribute has different ID numbers: %d = %d = %d\n",
-             cfg.name.c_str(), attr.id, prev.id, thre.id);
+  if (attr.id != prev.id) {
+    PrintOut(LOG_INFO,"Device: %s, same Attribute has different ID numbers: %d = %d\n",
+             cfg.name.c_str(), attr.id, prev.id);
     return;
   }
 
@@ -2773,7 +2774,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
           check_attribute(cfg, state,
                           curval.vendor_attributes[i],
                           state.smartval.vendor_attributes[i],
-                          state.smartthres.thres_entries[i]);
+                          i, state.smartthres.thres_entries);
         }
 
         if (cfg.selftest) {

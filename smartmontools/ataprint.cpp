@@ -786,8 +786,7 @@ static int find_failed_attr(const ata_smart_values * data,
   for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
     const ata_smart_attribute & attr = data->vendor_attributes[i];
 
-    ata_attr_state state = ata_get_attr_state(attr,
-                             thresholds->thres_entries[i], defs);
+    ata_attr_state state = ata_get_attr_state(attr, i, thresholds->thres_entries, defs);
 
     if (!onlyfailed) {
       if (state >= ATTRSTATE_FAILED_PAST)
@@ -814,10 +813,11 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
   // step through all vendor attributes
   for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
     const ata_smart_attribute & attr = data->vendor_attributes[i];
-    const ata_smart_threshold_entry & thre = thresholds->thres_entries[i];
+    //const ata_smart_threshold_entry & thre = thresholds->thres_entries[i];
 
     // Check attribute and threshold
-    ata_attr_state state = ata_get_attr_state(attr, thre, defs);
+    unsigned char threshold = 0;
+    ata_attr_state state = ata_get_attr_state(attr, i, thresholds->thres_entries, defs, &threshold);
     if (state == ATTRSTATE_NON_EXISTING)
       continue;
 
@@ -849,7 +849,7 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     else
       worstr = "---";
     if (state > ATTRSTATE_NO_THRESHOLD)
-      threstr = strprintf("%.3d", thre.threshold);
+      threstr = strprintf("%.3d", threshold);
     else
       threstr = "---";
 
@@ -864,14 +864,6 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
           state == ATTRSTATE_FAILED_PAST ? "In_the_past" :
                                            "    -"        ),
          ata_format_attr_raw_value(attr, defs).c_str());
-
-    // Print a warning if there is inconsistency here
-    if (state == ATTRSTATE_BAD_THRESHOLD) {
-      pout("%3d %-24s<== Data Page      |  WARNING: PREVIOUS ATTRIBUTE HAS TWO\n",
-           attr.id, attrname.c_str());
-      pout("%3d %-24s<== Threshold Page |  INCONSISTENT IDENTITIES IN THE DATA\n",
-           thre.id, ata_get_smart_attr_name(thre.id, defs).c_str());
-    }
   }
   if (!needheader) pout("\n");
 }
