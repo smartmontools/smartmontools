@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3065 2010-02-10 22:16:50Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3132 2010-08-17 20:27:19Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -826,7 +826,6 @@ enum ata_attr_state
 {
   ATTRSTATE_NON_EXISTING,   // No such Attribute
   ATTRSTATE_NO_NORMVAL,     // Normalized value not valid
-  ATTRSTATE_BAD_THRESHOLD,  // Threshold not valid
   ATTRSTATE_NO_THRESHOLD,   // Unknown or no threshold
   ATTRSTATE_OK,             // Never failed
   ATTRSTATE_FAILED_PAST,    // Failed in the past
@@ -835,8 +834,10 @@ enum ata_attr_state
 
 // Get attribute state
 ata_attr_state ata_get_attr_state(const ata_smart_attribute & attr,
-                                  const ata_smart_threshold_entry & thre,
-                                  const ata_vendor_attr_defs & defs);
+                                  int attridx,
+                                  const ata_smart_threshold_entry * thresholds,
+                                  const ata_vendor_attr_defs & defs,
+                                  unsigned char * threshval = 0);
 
 // Get attribute raw value.
 uint64_t ata_get_attr_raw_value(const ata_smart_attribute & attr,
