@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3132 2010-08-17 20:27:19Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3133 2010-08-18 17:23:27Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -660,10 +660,12 @@ enum ata_attr_raw_format
   RAWFMT_HEX64,
   RAWFMT_RAW16_OPT_RAW16,
   RAWFMT_RAW16_OPT_AVG16,
-  RAWFMT_RAW24_RAW24,
+  RAWFMT_RAW24_DIV_RAW24,
+  RAWFMT_RAW24_DIV_RAW32,
   RAWFMT_SEC2HOUR,
   RAWFMT_MIN2HOUR,
   RAWFMT_HALFMIN2HOUR,
+  RAWFMT_MSEC24_HOUR32,
   RAWFMT_TEMPMINMAX,
   RAWFMT_TEMP10X,
 };
