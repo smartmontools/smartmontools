@@ -503,8 +503,8 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HD(502H|754J|103S)J",
     "", "", ""
   },
-  { "SAMSUNG SpinPoint F3 EG series", // tested with HD503HI/1AJ100E4
-    "SAMSUNG HD(253G|(324|503)H|754J|105S)I",
+  { "SAMSUNG SpinPoint F3 EG series", // tested with HD503HI/1AJ100E4, HD153WI/1AN10002
+    "SAMSUNG HD(253G|(324|503)H|754J|105S|153W)I",
     "", "", ""
   },
   { "SAMSUNG SpinPoint S250 series", // tested with HD200HJ/KF100-06
