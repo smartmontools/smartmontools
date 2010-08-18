@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add print formats '-v ID,msec24hour32' and '-v ID,raw24/raw32'.
+
   [CF] Allow SMART threshold entries at positions different from
        attribute table. This fixes attribute output for recent
        SSDs with SandForce controller.

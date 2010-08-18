@@ -1054,8 +1054,8 @@ set \'012345rvwz\'. The characters \'0\' to \'5\' select the byte 0
 to 5 from the 48\-bit raw value, \'r\' selects the reserved byte of
 the attribute data block, \'v\' selects the normalized value, \'w\'
 selects the worst value and \'z\' inserts a zero byte.
-The default BYTEORDER is \'543210\' for all 48-bit formats,
-and \'543210wv\' for the 64-bit formats.
+The default BYTEORDER is \'543210\' for all 48\-bit formats, \'r543210\'
+for the 54\-bit formats, and \'543210wv\' for the 64\-bit formats.
 For example, \'\-v 5,raw48:012345\' prints the raw value of
 attribute 5 with big endian instead of little endian
 byte ordering.
@@ -1114,6 +1114,12 @@ will be displayed in the form "Xh+Ym".  Here X is hours, and Y is
 minutes in the range 0\-59 inclusive.  Y is always printed with two
 digits, for example "06" or "31" or "00".
 
+.I msec24hour32
+\- Raw Attribute is power\-on time measured in 32\-bit hours and 24\-bit
+milliseconds since last hour update.  It will be displayed in the form
+"Xh+Ym+Z.Ms".  Here X is hours, Y is minutes, Z is seconds and M is
+milliseconds.
+
 .I tempminmax
 \- Raw Attribute is the disk temperature in Celsius.  Info about
 Lifetime Min/Max temperature is printed if available.  This is the
@@ -1140,6 +1146,10 @@ the drive was unexpectedly powered off (also called an emergency
 unload). As a rule of thumb, the mechanical stress created by one
 emergency unload is equivalent to that created by one hundred normal
 unloads.
+
+.I raw24/raw32
+\- Raw attribute is an error rate which consists of a 24\-bit error
+count and a 32\-bit total count.
 
 The following old arguments to \'\-v\' are also still valid:
 

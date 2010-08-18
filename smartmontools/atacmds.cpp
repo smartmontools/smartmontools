@@ -208,10 +208,12 @@ const format_name_entry format_names[] = {
   {"hex64"          , RAWFMT_HEX64},
   {"raw16(raw16)"   , RAWFMT_RAW16_OPT_RAW16},
   {"raw16(avg16)"   , RAWFMT_RAW16_OPT_AVG16},
-  {"raw24/raw24"    , RAWFMT_RAW24_RAW24},
+  {"raw24/raw24"    , RAWFMT_RAW24_DIV_RAW24},
+  {"raw24/raw32"    , RAWFMT_RAW24_DIV_RAW32},
   {"sec2hour"       , RAWFMT_SEC2HOUR},
   {"min2hour"       , RAWFMT_MIN2HOUR},
   {"halfmin2hour"   , RAWFMT_HALFMIN2HOUR},
+  {"msec24hour32"   , RAWFMT_MSEC24_HOUR32},
   {"tempminmax"     , RAWFMT_TEMPMINMAX},
   {"temp10x"        , RAWFMT_TEMP10X},
 };
@@ -1818,10 +1820,16 @@ uint64_t ata_get_attr_raw_value(const ata_smart_attribute & attr,
   // Use default byteorder if not specified
   const char * byteorder = def.byteorder;
   if (!*byteorder) {
-    if (def.raw_format == RAWFMT_RAW64 || def.raw_format == RAWFMT_HEX64)
-      byteorder = "543210wv";
-    else
-      byteorder = "543210";
+    switch (def.raw_format) {
+      case RAWFMT_RAW64:
+      case RAWFMT_HEX64:
+        byteorder = "543210wv"; break;
+      case RAWFMT_RAW24_DIV_RAW32:
+      case RAWFMT_MSEC24_HOUR32:
+        byteorder = "r543210"; break;
+      default:
+        byteorder = "543210"; break;
+    }
   }
 
   // Build 64-bit value from selected bytes
@@ -1855,6 +1863,7 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
   uint64_t rawvalue = ata_get_attr_raw_value(attr, defs);
 
   // Get 16 bit words
+  // TODO: rebuild raw[6] from rawvalue
   const unsigned char * raw = attr.raw;
   unsigned word[3];
   word[0] = raw[0] | (raw[1] << 8);
@@ -1903,10 +1912,14 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
       s += strprintf(" (Average %u)", word[1]);
     break;
 
-  case RAWFMT_RAW24_RAW24:
-    s = strprintf("%d/%d",
-      raw[0] | (raw[1]<<8) | (raw[2]<<16),
-      raw[3] | (raw[4]<<8) | (raw[5]<<16));
+  case RAWFMT_RAW24_DIV_RAW24:
+    s = strprintf("%u/%u",
+      (unsigned)(rawvalue >> 24), (unsigned)(rawvalue & 0x00ffffffULL));
+    break;
+
+  case RAWFMT_RAW24_DIV_RAW32:
+    s = strprintf("%u/%u",
+      (unsigned)(rawvalue >> 32), (unsigned)(rawvalue & 0xffffffffULL));
     break;
 
   case RAWFMT_MIN2HOUR:
@@ -1937,6 +1950,17 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
       int64_t hours = rawvalue/120;
       int64_t minutes = (rawvalue-120*hours)/2;
       s += strprintf("%"PRIu64"h+%02"PRIu64"m", hours, minutes);
+    }
+    break;
+
+  case RAWFMT_MSEC24_HOUR32:
+    {
+      // hours + milliseconds
+      unsigned hours = (unsigned)(rawvalue & 0xffffffffULL);
+      unsigned milliseconds = (unsigned)(rawvalue >> 32);
+      unsigned seconds = milliseconds / 1000;
+      s = strprintf("%uh+%02um+%02u.%03us",
+        hours, seconds / 60, seconds % 60, milliseconds % 1000);
     }
     break;
 
