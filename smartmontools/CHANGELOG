@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3133 2010-08-18 17:23:27Z chrfranke $
+$Id: CHANGELOG 3134 2010-08-18 20:36:18Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h update:
+       - Add 1.5TB drive to SAMSUNG SpinPoint F3 EG series
 
   [CF] Add print formats '-v ID,msec24hour32' and '-v ID,raw24/raw32'.
 
