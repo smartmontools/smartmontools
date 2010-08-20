@@ -44,9 +44,16 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [CF] drivedb.h update:
+       - SandForce Driven SSDs (Demo Drive, OCZ-Agility2/Vertex2/Vertex-LE)
+
+       Thanks to Jeremy Werner (jwerner@sandforce.com) from SandForce for
+       providing the required information and a demo drive for testing.
+
+  [CF] drivedb.h update:
        - Add 1.5TB drive to SAMSUNG SpinPoint F3 EG series
 
   [CF] Add print formats '-v ID,msec24hour32' and '-v ID,raw24/raw32'.
+       Used by SSDs with SandForce controller.
 
   [CF] Allow SMART threshold entries at positions different from
        attribute table. This fixes attribute output for recent

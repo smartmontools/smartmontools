@@ -88,6 +88,30 @@ const drive_settings builtin_knowndrives[] = {
     "ASUS-PHISON SSD",
     "", "", ""
   },
+  { "SandForce Driven SSDs",
+    "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
+    "OCZ[ -](AGILITY2|VERTEX2|VERTEX-LE)", // tested with OCZ-VERTEX2/1.11
+    "", "",
+    "-v 1,raw24/raw32,Raw_Read_Error_Rate "
+    "-v 5,raw48,Retired_Block_Count "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 177,raw48,Wear_Range_Delta "
+    "-v 181,raw48,Program_Fail_Count "
+    "-v 182,raw48,Erase_Fail_Count "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 192,tempminmax,Temperature_Celsius "
+    "-v 195,raw24/raw32,ECC_Uncorr_Error_Count "
+  //"-v 196,raw48,Reallocated_Event_Count "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 233,raw48,SandForce_Internal "
+    "-v 234,raw48,SandForce_Internal "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB"
+  },
   { "SuperTalent UltraDrive GX SSD",
     "STT_FT[MD](28|32|56|64)GX25H",
     "", "",
@@ -143,7 +167,7 @@ const drive_settings builtin_knowndrives[] = {
     " -v 213,raw64"
   },
   { "OCZ Vertex SSD",
-    "OCZ[ -]VERTEX.*",
+    "OCZ[ -]VERTEX",
     "", "",
     " -v 1,raw64"
     " -v 9,raw64"
@@ -170,7 +194,7 @@ const drive_settings builtin_knowndrives[] = {
     " -v 213,raw64"
   },
   { "OCZ Agility SSD",
-    "OCZ[ -]AGILITY.*",
+    "OCZ[ -]AGILITY",
     "", "",
     " -v 1,raw64"
     " -v 9,raw64"
