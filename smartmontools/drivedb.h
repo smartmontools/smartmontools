@@ -125,20 +125,54 @@ const drive_settings builtin_knowndrives[] = {
     "-v 212,raw64,SATA_Error_Ct_Handshake "
     "-v 213,raw64,Indilinx_Internal"
   },
-  { "Intel X25-E SSD",
+  { "Intel X25-E SSDs",
     "SSDSA2SH(032|064)G1.* INTEL",  // G1 = first generation
     "", "",
-    "-v 225,raw48,Host_Writes_Count"
+  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 4,raw48,Start_Stop_Count "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Intel_Internal "
+    "-v 227,raw48,Intel_Internal "
+    "-v 228,raw48,Intel_Internal "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator"
   },
-  { "Intel X25-M SSD",
-    "INTEL SSDSA2MH(080|160)G1.*",  // G1 = first generation, 50nm
+  { "Intel X18-M/X25-M G1 SSDs",
+    "INTEL SSDSA[12]MH(080|160)G1.*",  // G1 = first generation, 50nm
     "", "",
-    "-v 225,raw48,Host_Writes_Count"
+  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 4,raw48,Start_Stop_Count "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Intel_Internal "
+    "-v 227,raw48,Intel_Internal "
+    "-v 228,raw48,Intel_Internal "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator"
   },
-  { "Intel X25-M SSD",
-    "INTEL SSDSA2M(080|160)G2.*",  // G2 = second generation, 34nm
+  { "Intel X18-M/X25-M G2 SSDs", // tested with INTEL SSDSA2M080G2GC/2CV102J8
+    "INTEL SSDSA[12]M(080|160)G2.*",  // G2 = second generation, 34nm
     "", "",
-    "-v 225,raw48,Host_Writes_Count"
+  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 4,raw48,Start_Stop_Count "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+  //"-v 184,raw48,End-to-End_Error " // G2 only
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Intel_Internal "
+    "-v 227,raw48,Intel_Internal "
+    "-v 228,raw48,Intel_Internal "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator"
   },
   { "Transcend IDE Solid State Drive",
     "TS(8|16|32|64|128)GSSD25-(M|S)",
