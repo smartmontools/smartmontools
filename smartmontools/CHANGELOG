@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: '--enable-drivedb' is now the default.
+
   [CF] drivedb.h update:
        - Indilinx Barefoot based SSDs
          (combine and update 5 SSD entries using this controller)

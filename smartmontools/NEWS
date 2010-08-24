@@ -11,6 +11,7 @@ Summary: smartmontools release 5.40
 - Other config entries may precede smartd DEVICESCAN.
 - Option '-v' allows to specify byte order of attribute raw value
 - configure: New default value for '--with-docdir'.
+- configure: '--enable-drivedb' is now the default.
 - Drive database is in a separate source file 'drivedb.h'
   which can be downloaded from SVN.
 - USB ID info is now included in 'drivedb.h'.
