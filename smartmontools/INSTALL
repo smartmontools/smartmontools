@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL 3074 2010-03-05 23:00:30Z chrfranke $
+$Id: INSTALL 3139 2010-08-24 20:28:01Z chrfranke $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -682,7 +682,7 @@ OPTIONS              DEFAULT                                      AFFECTS
                                                                   with correct SELinux file contexts.
 --with-libcap-ng     --with-libcap-ng=auto                        Enables/disables libcap-ng support. If enabled and libcap-ng is
                                                                   available, option --capabilities is added to smartd.
---enable-drivedb      --disable-drivedb                           Enables default drive database file '${drivedbdir}/drivedb.h'
+--disable-drivedb     --enable-drivedb                            Disables default drive database file '${drivedbdir}/drivedb.h'
 --with-drivedbdir     ${prefix}/share/smartmontools               Directory for 'drivedb.h' (implies --enable-drivedb)
 --enable-savestates   --disable-savestates                        Enables default smartd state files '${savestates}MODEL-SERIAL.ata.state'
 --with-savestates     ${prefix}/var/lib/smartmontools/smartd.     Prefix for smartd state files (implies --enable-savestates)
