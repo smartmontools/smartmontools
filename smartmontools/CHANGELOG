@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3135 2010-08-20 06:23:06Z chrfranke $
+$Id: CHANGELOG 3137 2010-08-24 16:39:33Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h update:
+       - Indilinx Barefoot based SSDs
+         (combine and update 5 SSD entries using this controller)
 
   [CF] drivedb.h update:
        - SandForce Driven SSDs (Demo Drive, OCZ-Agility2/Vertex2/Vertex-LE)
