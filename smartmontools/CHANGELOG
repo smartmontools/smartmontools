@@ -44,6 +44,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [CF] drivedb.h update:
+       - SandForce Driven SSDs: Add OCZ drives with form factor info.
+
+  [CF] drivedb.h update:
        - Intel X25-E, X18-M/X25-M (add X18-M, update attributes)
 
   [CF] configure.in: '--enable-drivedb' is now the default.
