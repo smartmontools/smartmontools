@@ -58,7 +58,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3141 2010-08-24 22:03:56Z chrfranke $",
+  { "$Id: drivedb.h 3143 2010-08-26 16:56:11Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -73,7 +73,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
-    "OCZ[ -](AGILITY2|VERTEX2|VERTEX-LE)", // tested with OCZ-VERTEX2/1.11
+    "OCZ[ -](AGILITY2|VERTEX2|VERTEX-LE)( .*)?", // tested with
+    // OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
     "", "",
     "-v 1,hex48,Raw_Read_Error_Rate " // raw24/raw32
     "-v 5,raw48,Retired_Block_Count "
