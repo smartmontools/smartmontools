@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3142 2010-08-26 16:52:50Z chrfranke $",
+  { "$Id: drivedb.h 3144 2010-09-01 20:11:48Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -175,7 +175,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
-  { "Intel X18-M/X25-M G2 SSDs", // tested with INTEL SSDSA2M080G2GC/2CV102J8
+  { "Intel X18-M/X25-M G2 SSDs", // tested with INTEL SSDSA2M(080|160)G2GC/2CV102J8
     "INTEL SSDSA[12]M(080|160)G2.*",  // G2 = second generation, 34nm
     "", "",
   //"-v 3,raw48,Spin_Up_Time "
@@ -186,9 +186,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 184,raw48,End-to-End_Error " // G2 only
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
-    "-v 226,raw48,Intel_Internal "
-    "-v 227,raw48,Intel_Internal "
-    "-v 228,raw48,Intel_Internal "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
   },

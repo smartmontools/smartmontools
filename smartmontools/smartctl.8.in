@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3133 2010-08-18 17:23:27Z chrfranke $
+ $Id: smartctl.8.in 3144 2010-09-01 20:11:48Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1574,8 +1574,13 @@ with subcommand N in LBA LOW register. The subcommand is specified as
 a hex value in the range 0x00 to 0xff. Subcommands 0x40-0x7f and
 0x90-0xff are reserved for vendor specific use, see table 61 of
 T13/1699-D Revision 6a (ATA8-ACS).
+
 \fBWARNING: Only run subcommands documented by the vendor of the
 device.\fP
+
+Example for Intel X18\-M/X25\-M G2 SSDs only: The subcommand 0x40
+(\'\-t vendor,0x40\') clears the timed workload related SMART
+attributes (226, 227, 228).
 .TP
 .B \-C, \-\-captive
 [ATA] Runs self\-tests in captive mode.  This has no effect with \'\-t
@@ -1894,4 +1899,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3133 2010-08-18 17:23:27Z chrfranke $
+$Id: smartctl.8.in 3144 2010-09-01 20:11:48Z chrfranke $
