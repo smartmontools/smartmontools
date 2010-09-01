@@ -44,6 +44,14 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [CF] drivedb.h update:
+       - Intel X18-M/X25-M G2: Add names of timed workload attributes.
+       Document attribute clear command '-t vendor,0x40' on smartctl
+       man page.
+
+       Thanks to Artem Danielov from Intel for providing the
+       required information and drives for testing.
+
+  [CF] drivedb.h update:
        - SandForce Driven SSDs: Add OCZ drives with form factor info.
 
   [CF] drivedb.h update:
