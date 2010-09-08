@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Remove "." from DLL search path to prevent DLL
+       preloading attacks.
+
   [CF] drivedb.h USB update:
        - JMicron 0x152d:0x0551 (ticket #95)
        Add note about port multipliers to smartctl man page.

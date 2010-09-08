@@ -496,11 +496,9 @@ protected:
 // Running on 64-bit Windows as 32-bit app ?
 static bool is_wow64()
 {
-  HMODULE hk = GetModuleHandleA("kernel32");
-  if (!hk)
-    return false;
   BOOL (WINAPI * IsWow64Process_p)(HANDLE, PBOOL) =
-    (BOOL (WINAPI *)(HANDLE, PBOOL))GetProcAddress(hk, "IsWow64Process");
+    (BOOL (WINAPI *)(HANDLE, PBOOL))
+    GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsWow64Process");
   if (!IsWow64Process_p)
     return false;
   BOOL w64 = FALSE;
@@ -2040,35 +2038,27 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
 
 static int get_device_power_state(HANDLE hdevice)
 {
-  static HINSTANCE h_kernel_dll = 0;
+  static bool unsupported = false;
+  if (unsupported) {
+    errno = ENOSYS;
+    return -1;
+  }
+
 #ifdef __CYGWIN__
   static DWORD kernel_dll_pid = 0;
 #endif
   static BOOL (WINAPI * GetDevicePowerState_p)(HANDLE, BOOL *) = 0;
-
-  BOOL state = TRUE;
 
   if (!GetDevicePowerState_p
 #ifdef __CYGWIN__
       || kernel_dll_pid != GetCurrentProcessId() // detect fork()
 #endif
      ) {
-    if (h_kernel_dll == INVALID_HANDLE_VALUE) {
-      errno = ENOSYS;
-      return -1;
-    }
-    if (!(h_kernel_dll = LoadLibraryA("KERNEL32.DLL"))) {
-      pout("Cannot load KERNEL32.DLL, Error=%ld\n", GetLastError());
-      h_kernel_dll = (HINSTANCE)INVALID_HANDLE_VALUE;
-      errno = ENOSYS;
-      return -1;
-    }
     if (!(GetDevicePowerState_p = (BOOL (WINAPI *)(HANDLE, BOOL *))
-                                  GetProcAddress(h_kernel_dll, "GetDevicePowerState"))) {
+          GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetDevicePowerState"))) {
       if (con->reportataioctl)
         pout("  GetDevicePowerState() not found, Error=%ld\n", GetLastError());
-      FreeLibrary(h_kernel_dll);
-      h_kernel_dll = (HINSTANCE)INVALID_HANDLE_VALUE;
+      unsupported = true;
       errno = ENOSYS;
       return -1;
     }
@@ -2077,6 +2067,7 @@ static int get_device_power_state(HANDLE hdevice)
 #endif
   }
 
+  BOOL state = TRUE;
   if (!GetDevicePowerState_p(hdevice, &state)) {
     long err = GetLastError();
     if (con->reportataioctl)
@@ -3587,6 +3578,15 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
 // Initialize platform interface and register with smi()
 void smart_interface::init()
 {
+  {
+    // Remove "." from DLL search path if supported
+    // to prevent DLL preloading attacks
+    BOOL (WINAPI * SetDllDirectoryA_p)(LPCSTR) = (BOOL (WINAPI *)(LPCSTR))
+      GetProcAddress(GetModuleHandleA("kernel32.dll"), "SetDllDirectoryA");
+    if (SetDllDirectoryA_p)
+      SetDllDirectoryA_p("");
+  }
+
   // Select interface for Windows flavor
   if (GetVersion() & 0x80000000) {
 #if WIN9X_SUPPORT
