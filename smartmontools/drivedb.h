@@ -90,8 +90,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
-    "OCZ[ -](AGILITY2|VERTEX2|VERTEX-LE)( .*)?", // tested with
-    // OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
+    "OCZ[ -](AGILITY2|VERTEX2|VERTEX-LE)( .*)?|" // tested with
+      // OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
+    "UGB88PGC...HF.", // Unigen, tested with UGB88PGC100HF2/MP Rev2
     "", "",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
     "-v 5,raw48,Retired_Block_Count "
@@ -117,7 +118,8 @@ const drive_settings builtin_knowndrives[] = {
     "CRUCIAL_CT(64|128|256)M225|" // tested with CRUCIAL_CT64M225/1571
     "OCZ[ -](VERTEX|AGILITY)|" // tested with OCZ-VERTEX/1.30
     "Patriot[ -]Torqx.*|"
-    "STT_FT[MD](28|32|56|64)GX25H", // tested with STT_FTM64GX25H/1916
+    "STT_FT[MD](28|32|56|64)GX25H|" // Super Talent Ultradrive, tested with STT_FTM64GX25H/1916
+    "TS(18|25)M(64|128)MLC(16|32|64|128|256|512)GSSD", // ASAX Leopard Hunt II, tested with TS25M64MLC64GSSD/0.1
     "", "",
     "-v 1,raw64 " // Raw_Read_Error_Rate
     "-v 9,raw64 " // Power_On_Hours
