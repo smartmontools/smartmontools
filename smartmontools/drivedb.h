@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3145 2010-09-08 16:30:43Z chrfranke $",
+  { "$Id: drivedb.h 3146 2010-09-08 19:27:36Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1865,6 +1865,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // JMicron
+  { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
+    "0x152d:0x0551",
+    "0x0100",
+    "",
+    "-d usbjmicron,x"
+  },
   { "USB: ; JMicron JM20329", // USB->SATA
     "0x152d:0x2329",
     "0x0100",
