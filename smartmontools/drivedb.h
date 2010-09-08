@@ -1865,6 +1865,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // JMicron
+  { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
+    "0x152d:0x0551",
+    "0x0100",
+    "",
+    "-d usbjmicron,x"
+  },
   { "USB: ; JMicron JM20329", // USB->SATA
     "0x152d:0x2329",
     "0x0100",
