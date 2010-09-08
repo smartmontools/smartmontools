@@ -88,7 +88,12 @@ unsigned char debugmode = 0;
 std::string format_version_info(const char * prog_name, bool full /*= false*/)
 {
   std::string info = strprintf(
-    "%s "PACKAGE_VERSION" "SMARTMONTOOLS_SVN_DATE" r"SMARTMONTOOLS_SVN_REV
+    "%s "PACKAGE_VERSION" "
+#ifdef SMARTMONTOOLS_SVN_REV
+      SMARTMONTOOLS_SVN_DATE" r"SMARTMONTOOLS_SVN_REV
+#else
+      "(build date "__DATE__")" // checkout without expansion of Id keywords
+#endif
       " [%s] "BUILD_INFO"\n"
     "Copyright (C) 2002-10 by Bruce Allen, http://smartmontools.sourceforge.net\n",
     prog_name, smi()->get_os_version_str().c_str()
@@ -108,8 +113,12 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
   info += strprintf(
     "smartmontools release "PACKAGE_VERSION
       " dated "SMARTMONTOOLS_RELEASE_DATE" at "SMARTMONTOOLS_RELEASE_TIME"\n"
+#ifdef SMARTMONTOOLS_SVN_REV
     "smartmontools SVN rev "SMARTMONTOOLS_SVN_REV
       " dated "SMARTMONTOOLS_SVN_DATE" at "SMARTMONTOOLS_SVN_TIME"\n"
+#else
+    "smartmontools SVN rev is unknown\n"
+#endif
     "smartmontools build host: "SMARTMONTOOLS_BUILD_HOST"\n"
     "smartmontools build configured: "SMARTMONTOOLS_CONFIGURE_DATE "\n"
     "%s compile dated "__DATE__" at "__TIME__"\n"
