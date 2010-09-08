@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3147 2010-09-08 20:46:07Z chrfranke $
+$Id: CHANGELOG 3148 2010-09-08 21:09:17Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Fix build if SVN Id keywords are not expanded (ticket #94).
 
   [CF] Windows: Remove "." from DLL search path to prevent DLL
        preloading attacks.
