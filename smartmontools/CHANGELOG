@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] smartctl.8.in minor update: adding FreeBSD ahci/scsi device hints
+
   [CF] Fix build if SVN Id keywords are not expanded (ticket #94).
 
   [CF] Windows: Remove "." from DLL search path to prevent DLL

@@ -77,7 +77,8 @@ Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or equivale
 examples. Note that there is currently no Darwin SCSI support.
 .IP \fBFREEBSD\fP: 9
 Use the forms \fB"/dev/ad[0\-9]+"\fP for IDE/ATA
-devices and \fB"/dev/da[0\-9]+"\fP for SCSI devices.
+devices and \fB"/dev/da[0\-9]+"\fP or \fB"/dev/pass[0\-9]+"\fP for SCSI devices.
+For SATA devices on AHCI bus use \fB"/dev/ada[0\-9]+"\fP format.
 .IP \fBNETBSD/OPENBSD\fP: 9
 Use the form \fB"/dev/wd[0\-9]+c"\fP for IDE/ATA
 devices.  For SCSI disk and tape devices, use the device names
