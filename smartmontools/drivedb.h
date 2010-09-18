@@ -1139,7 +1139,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Momentus 7200 FDE.2 series",
-    "ST9((160413|25041[12]|320426|50042[12])AS|(16041[89]|2504[16]4|32042[67]|500426)ASG)",
+    "ST9((160413|25041[12]|320426|50042[12])AS|(16041[489]|2504[16]4|32042[67]|500426)ASG)",
     "", "", ""
   },
   { "Seagate Medalist 1010, 1720, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
@@ -1281,6 +1281,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda LP",
     "ST3(500412|1000520|1500541|2000542)AS",
+    "", "", ""
+  },
+  { "Seagate Pipeline HD 5900.1 family",
+    "ST3(160310|320[34]10|500(321|422))CS",
+    "", "", ""
+  },
+  { "Seagate Pipeline HD 5900.2 family", // tested with ST31000322CS/SC13
+    "ST3(160316|250[34]12|320(311|413)|500(312|414)|1000(322|424))CS",
     "", "", ""
   },
   { "Seagate Medalist 17240, 13030, 10231, 8420, and 4310",
