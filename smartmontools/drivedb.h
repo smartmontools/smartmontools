@@ -177,8 +177,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
-  { "Intel X18-M/X25-M G2 SSDs", // tested with INTEL SSDSA2M(080|160)G2GC/2CV102J8
-    "INTEL SSDSA[12]M(080|160)G2.*",  // G2 = second generation, 34nm
+  { "Intel X18-M/X25-M/X25-V G2 SSDs", // tested with
+      // INTEL SSDSA2M(080|160)G2GC/2CV102J8 (X25-M),
+      // INTEL SSDSA2M040G2GC/2CV102HD (X25-V)
+    "INTEL SSDSA[12]M(040|080|160)G2.*",  // G2 = second generation, 34nm
     "", "",
   //"-v 3,raw48,Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
@@ -209,6 +211,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Transcend Ultra Series Solid State Drive (SATA II)",
     "TS(60|120)GSSD25D-M",
+    "", "", ""
+  },
+  { "Transcend CompactFlash Cards", // Tested with TRANSCEND/20080820
+    "TRANSCEND",
     "", "", ""
   },
   { "Marvell SSD SD88SA024BA0 (SUN branded)",

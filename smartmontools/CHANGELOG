@@ -44,6 +44,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [CF] drivedb.h updates:
+       - Intel X18-M/X25-M/X25-V G2: Add X25-V 40GB
+       - Transcend CompactFlash Cards
+
+  [CF] drivedb.h updates:
        - Seagate Momentus 7200 FDE.2: Add ST9160414ASG
        - Seagate Pipeline HD 5900.1 and 5900.2
        Based on patch provided by Marcin Falkiewicz.
