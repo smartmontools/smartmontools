@@ -50,7 +50,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 3152 2010-09-18 16:13:03Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 3153 2010-09-18 16:25:47Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -71,10 +71,6 @@ const char * packet_types[] = {
         "Reduced block command (simplified disk)",
         "Optical card reader/writer"
 };
-
-// Whenever exit() status is EXIT_BADCODE, please print this message
-const char *reportbug="Please report this bug to the Smartmontools developers at " PACKAGE_BUGREPORT ".\n";
-
 
 // command-line argument: are we running in debug mode?.
 unsigned char debugmode = 0;

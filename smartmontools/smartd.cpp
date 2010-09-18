@@ -126,10 +126,8 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3152 2010-09-18 16:13:03Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3153 2010-09-18 16:25:47Z chrfranke $"
                                 CONFIG_H_CVSID EXTERN_H_CVSID;
-
-extern const char *reportbug;
 
 extern unsigned char debugmode;
 
