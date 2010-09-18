@@ -129,8 +129,6 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 const char * smartd_cpp_cvsid = "$Id$"
                                 CONFIG_H_CVSID EXTERN_H_CVSID;
 
-extern const char *reportbug;
-
 extern unsigned char debugmode;
 
 // smartd exit codes

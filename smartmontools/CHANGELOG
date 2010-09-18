@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Remove unused variable 'reportbug'.
+
   [CF] Make function PrintOut() local to smartd.cpp, remove it from
        smartctl.cpp.
 

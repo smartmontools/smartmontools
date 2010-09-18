@@ -72,10 +72,6 @@ const char * packet_types[] = {
         "Optical card reader/writer"
 };
 
-// Whenever exit() status is EXIT_BADCODE, please print this message
-const char *reportbug="Please report this bug to the Smartmontools developers at " PACKAGE_BUGREPORT ".\n";
-
-
 // command-line argument: are we running in debug mode?.
 unsigned char debugmode = 0;
 
