@@ -160,8 +160,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
-  { "Intel X18-M/X25-M G2 SSDs", // tested with INTEL SSDSA2M(080|160)G2GC/2CV102J8
-    "INTEL SSDSA[12]M(080|160)G2.*",  // G2 = second generation, 34nm
+  { "Intel X18-M/X25-M/X25-V G2 SSDs", // tested with
+      // INTEL SSDSA2M(080|160)G2GC/2CV102J8 (X25-M),
+      // INTEL SSDSA2M040G2GC/2CV102HD (X25-V)
+    "INTEL SSDSA[12]M(040|080|160)G2.*",  // G2 = second generation, 34nm
     "", "",
   //"-v 3,raw48,Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
@@ -192,6 +194,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Transcend Ultra Series Solid State Drive (SATA II)",
     "TS(60|120)GSSD25D-M",
+    "", "", ""
+  },
+  { "Transcend CompactFlash Cards", // Tested with TRANSCEND/20080820
+    "TRANSCEND",
     "", "", ""
   },
   { "Marvell SSD SD88SA024BA0 (SUN branded)",
@@ -1122,7 +1128,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Momentus 7200 FDE.2 series",
-    "ST9((160413|25041[12]|320426|50042[12])AS|(16041[89]|2504[16]4|32042[67]|500426)ASG)",
+    "ST9((160413|25041[12]|320426|50042[12])AS|(16041[489]|2504[16]4|32042[67]|500426)ASG)",
     "", "", ""
   },
   { "Seagate Medalist 1010, 1720, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
@@ -1264,6 +1270,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda LP",
     "ST3(500412|1000520|1500541|2000542)AS",
+    "", "", ""
+  },
+  { "Seagate Pipeline HD 5900.1 family",
+    "ST3(160310|320[34]10|500(321|422))CS",
+    "", "", ""
+  },
+  { "Seagate Pipeline HD 5900.2 family", // tested with ST31000322CS/SC13
+    "ST3(160316|250[34]12|320(311|413)|500(312|414)|1000(322|424))CS",
     "", "", ""
   },
   { "Seagate Medalist 17240, 13030, 10231, 8420, and 4310",
