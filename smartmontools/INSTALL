@@ -443,28 +443,35 @@ To compile the Windows release with MinGW gcc on MSYS, use:
   Instead of using "make install", copy the .exe files into
   some directory in the PATH.
 
-To compile on Cygwin with MinGW gcc 3.x (option '-mno-cygwin'):
-
-  ./configure --build=i686-pc-mingw32 \
-               CC=gcc-3               \
-              CXX=g++-3
-
-To cross-compile on Debian Linux with gcc-mingw32:
+Cross-compile statically linked 32-bit version with MinGW-w64:
 
   ./configure --build=$(./config.guess) \
-              --host=i686-pc-mingw32    \
-               CC=i586-mingw32msvc-gcc  \
-              CXX=i586-mingw32msvc-g++
+              --host=i686-w64-mingw32 \
+              LDFLAGS=-static
 
-To compile statically linked 64-bit version with MinGW-w64:
+  Tested on Cygwin.
 
-  ./configure --build=$(./config.guess)  \
-              --host=x86_64-w64-mingw32   \
+Cross-compile statically linked 64-bit version with MinGW-w64:
+
+  ./configure --build=$(./config.guess) \
+              --host=x86_64-w64-mingw32 \
               LDFLAGS=-static
 
   Tested on Cygwin and Linux with MinGW-w64 from
   http://mingw-w64.sourceforge.net/.
   WARNING: 64-bit version is still EXPERIMENTAL.
+
+Cross-compile on Cygwin with old gcc-mingw 3.x:
+
+  ./configure --build=$(./config.guess) \
+              --host=i686-pc-mingw32 \
+               CC='gcc-3 -mno-cygwin' \
+              CXX='g++-3 -mno-cygwin'
+
+Cross-compile on Debian Linux with gcc-mingw32:
+
+  ./configure --build=$(./config.guess) \
+              --host=i586-mingw32msvc
 
 
 To build the Windows binary distribution, use:
@@ -508,10 +515,11 @@ To both create and run the (interactive) installer, use:
   or a native Win32 release of Info-ZIP, http://www.info-zip.org) are
   necessary but may be not installed by Cygwin's default settings.
 
-To prepare os_win32 directory for MSVC8, use the following on Cygwin:
+To prepare os_win32 directory for MSVC8, use the following on MSYS
+or Cygwin:
 
   mkdir vctmp && cd vctmp
-  ../configure --build=mingw32
+  ../configure [... any MinGW option set from above ...]
   make config-vc8
 
   The MSVC8 project files (os_win32/smartmontools_vc8.sln,

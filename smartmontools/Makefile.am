@@ -676,10 +676,10 @@ smartctl-nc.exe: smartctl.exe
 
 config-vc8: $(srcdir)/os_win32/config_vc8.h  $(srcdir)/os_win32/svnversion_vc8.h
 
-$(srcdir)/os_win32/config_vc8.h: config.h
+$(srcdir)/os_win32/config_vc8.h: config.h Makefile
 	sed '1i/* config_vc8.h.  Generated from config.h by Makefile.  */' $< | \
-	sed 's,^#define HAVE_\(ATTR_PACKED\|INTTYPES_H\|STDINT_H\|STRINGS_H\|STRTOULL\|U*INT64_T\|UNISTD_H\|WORKING_SNPRINTF\) 1$$,/* #undef HAVE_\1 */,' | \
-	sed 's,i.86-pc-mingw32,i686-pc-win32vc8,' > $@
+	sed 's,^#define HAVE_\(ATTR_PACKED\|INTTYPES_H\|[DK_]*NTDDDISK_H\|STDINT_H\|STRINGS_H\|STRTOULL\|U*INT64_T\|UNISTD_H\|WORKING_SNPRINTF\) 1$$,/* #undef HAVE_\1 */,' | \
+	sed 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-win32vc8,' > $@
 
 $(srcdir)/os_win32/svnversion_vc8.h: svnversion.h
 	cp svnversion.h $@

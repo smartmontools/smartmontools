@@ -16,7 +16,8 @@
  */
 
 #include "config.h"
-#define _WIN32_WINNT 0x0510
+#define WINVER 0x0502
+#define _WIN32_WINNT WINVER
 
 #include "int64.h"
 #include "atacmds.h"
@@ -37,20 +38,31 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 #define assert(x) /* */
 #endif
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 #include <stddef.h> // offsetof()
 #include <io.h> // access()
 
-// TODO: Add a configure test
-#if defined(__CYGWIN__) || (defined(__MINGW32__) && !defined(__MINGW64__))
+// WIN32_LEAN_AND_MEAN may be required to prevent inclusion of <winioctl.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#if HAVE_NTDDDISK_H
+// i686-w64-mingw32, x86_64-w64-mingw32
+// (Missing: FILE_DEVICE_SCSI)
+#include <devioctl.h>
+#include <ntdddisk.h>
+#include <ntddscsi.h>
+#include <ntddstor.h>
+#elif HAVE_DDK_NTDDDISK_H
+// i686-pc-cygwin, i686-pc-mingw32, i586-mingw32msvc
+// (Missing: IOCTL_IDE_PASS_THROUGH, IOCTL_ATA_PASS_THROUGH, FILE_DEVICE_SCSI)
 #include <ddk/ntdddisk.h>
 #include <ddk/ntddscsi.h>
 #include <ddk/ntddstor.h>
 #else
-// Win SDK, no DDK
-#include <winioctl.h>
+// MSVC8, older MinGW
+// (Missing: IOCTL_STORAGE_QUERY_PROPERTY, FILE_DEVICE_SCSI)
 #include <ntddscsi.h>
+#include <winioctl.h>
 #endif
 
 #ifdef __CYGWIN__
