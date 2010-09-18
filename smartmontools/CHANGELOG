@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Make function PrintOut() local to smartd.cpp, remove it from
+       smartctl.cpp.
+
   [CF] Windows: Improve compatibility with MinGW variants.
        Add configure check for DDK include files.
        Drop support for '-mno-cygwin' from old Cygwin gcc.

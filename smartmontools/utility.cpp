@@ -629,10 +629,6 @@ int split_selective_arg(char *s, uint64_t *start,
 
 #ifdef OLD_INTERFACE
 
-// smartd exit codes
-#define EXIT_NOMEM     8   // out of memory
-#define EXIT_BADCODE   10  // internal error - should NEVER happen
-
 int64_t bytes = 0;
 
 // Helps debugging.  If the second argument is non-negative, then
@@ -651,15 +647,12 @@ void *FreeNonZero1(void *address, int size, int line, const char* file){
 
 // To help with memory checking.  Use when it is known that address is
 // NOT null.
-void *CheckFree1(void *address, int whatline, const char* file){
+void *CheckFree1(void *address, int /*whatline*/, const char* /*file*/){
   if (address){
     free(address);
     return NULL;
   }
-  
-  PrintOut(LOG_CRIT, "Internal error in CheckFree() at line %d of file %s\n%s", 
-           whatline, file, reportbug);
-  EXIT(EXIT_BADCODE);
+  throw std::runtime_error("Internal error in CheckFree()");
 }
 
 // A custom version of calloc() that tracks memory use
@@ -675,16 +668,13 @@ void *Calloc(size_t nmemb, size_t size) {
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
 // try to duplicate a NULL string.
-char *CustomStrDup(const char *ptr, int mustexist, int whatline, const char* file){
+char *CustomStrDup(const char *ptr, int mustexist, int /*whatline*/, const char* /*file*/){
   char *tmp;
 
   // report error if ptr is NULL and mustexist is set
   if (ptr==NULL){
-    if (mustexist) {
-      PrintOut(LOG_CRIT, "Internal error in CustomStrDup() at line %d of file %s\n%s", 
-               whatline, file, reportbug);
-      EXIT(EXIT_BADCODE);
-    }
+    if (mustexist)
+      throw std::runtime_error("Internal error in CustomStrDup()");
     else
       return NULL;
   }
@@ -692,10 +682,8 @@ char *CustomStrDup(const char *ptr, int mustexist, int whatline, const char* fil
   // make a copy of the string...
   tmp=strdup(ptr);
   
-  if (!tmp) {
-    PrintOut(LOG_CRIT, "No memory to duplicate string %s at line %d of file %s\n", ptr, whatline, file);
-    EXIT(EXIT_NOMEM);
-  }
+  if (!tmp)
+    throw std::bad_alloc();
   
   // and track memory usage
   bytes+=1+strlen(ptr);

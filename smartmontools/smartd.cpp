@@ -211,6 +211,10 @@ volatile int caughtsigHUP=0;
 // set to signal value if we catch INT, QUIT, or TERM
 volatile int caughtsigEXIT=0;
 
+// This function prints either to stdout or to the syslog as needed.
+static void PrintOut(int priority, const char *fmt, ...)
+                     __attribute__ ((format(printf, 2, 3)));
+
 // Attribute monitoring flags.
 // See monitor_attr_flags below.
 enum {
@@ -1238,8 +1242,7 @@ void pout(const char *fmt, ...){
 }
 
 // This function prints either to stdout or to the syslog as needed.
-// This function is also used by utility.cpp to report LOG_CRIT errors.
-void PrintOut(int priority, const char *fmt, ...){
+static void PrintOut(int priority, const char *fmt, ...){
   va_list ap;
   
   // get the correct time in syslog()

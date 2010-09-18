@@ -134,16 +134,6 @@ inline T * CheckFree(T * address, int whatline, const char* file)
 
 #endif // OLD_INTERFACE
 
-// This function prints either to stdout or to the syslog as needed
-
-// [From GLIBC Manual: Since the prototype doesn't specify types for
-// optional arguments, in a call to a variadic function the default
-// argument promotions are performed on the optional argument
-// values. This means the objects of type char or short int (whether
-// signed or not) are promoted to either int or unsigned int, as
-// appropriate.]
-void PrintOut(int priority, const char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
-
 // Compile time check of byte ordering
 // (inline const function allows compiler to remove dead code)
 inline bool isbigendian()

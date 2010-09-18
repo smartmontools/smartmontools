@@ -880,21 +880,6 @@ void pout(const char *fmt, ...){
   return;
 }
 
-// This function is used by utility.cpp to report LOG_CRIT errors.
-// The smartctl version prints to stdout instead of syslog().
-void PrintOut(int priority, const char *fmt, ...) {
-  va_list ap;
-
-  // avoid warning message about unused variable from gcc -W: just
-  // change value of local copy.
-  priority=0;
-
-  va_start(ap,fmt);
-  vprintf(fmt,ap);
-  va_end(ap);
-  return;
-}
-
 // Used to warn users about invalid checksums. Called from atacmds.cpp.
 // Action to be taken may be altered by the user.
 void checksumwarning(const char * string)
