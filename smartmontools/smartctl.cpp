@@ -56,7 +56,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3131 2010-07-31 11:16:12Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3152 2010-09-18 16:13:03Z chrfranke $"
                                   CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -877,21 +877,6 @@ void pout(const char *fmt, ...){
   vprintf(fmt,ap);
   va_end(ap);
   fflush(stdout);
-  return;
-}
-
-// This function is used by utility.cpp to report LOG_CRIT errors.
-// The smartctl version prints to stdout instead of syslog().
-void PrintOut(int priority, const char *fmt, ...) {
-  va_list ap;
-
-  // avoid warning message about unused variable from gcc -W: just
-  // change value of local copy.
-  priority=0;
-
-  va_start(ap,fmt);
-  vprintf(fmt,ap);
-  va_end(ap);
   return;
 }
 

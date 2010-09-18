@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3151 2010-09-18 15:07:28Z chrfranke $
+$Id: CHANGELOG 3152 2010-09-18 16:13:03Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Make function PrintOut() local to smartd.cpp, remove it from
+       smartctl.cpp.
 
   [CF] Windows: Improve compatibility with MinGW variants.
        Add configure check for DDK include files.
