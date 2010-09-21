@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3155 2010-09-18 19:30:39Z chrfranke $
+$Id: CHANGELOG 3157 2010-09-21 19:03:16Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Include drivedb.h into binary distribution.
 
   [CF] drivedb.h updates:
        - Intel X18-M/X25-M/X25-V G2: Add X25-V 40GB
