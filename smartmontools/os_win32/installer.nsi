@@ -8,7 +8,7 @@
 ; Download and install NSIS from: http://nsis.sourceforge.net/Download
 ; Process with makensis to create installer (tested with NSIS 2.46)
 ;
-; $Id: installer.nsi 3157 2010-09-21 19:03:16Z chrfranke $
+; $Id: installer.nsi 3158 2010-09-21 19:45:43Z chrfranke $
 ;
 
 
@@ -139,6 +139,7 @@ Section "!Documentation" DOC_SECTION
   File "${INPDIR}\doc\README.txt"
   File "${INPDIR}\doc\TODO.txt"
   File "${INPDIR}\doc\WARNINGS.txt"
+  File "${INPDIR}\doc\checksums.txt"
   File "${INPDIR}\doc\smartctl.8.html"
   File "${INPDIR}\doc\smartctl.8.txt"
   File "${INPDIR}\doc\smartd.8.html"
@@ -423,6 +424,7 @@ Section "Uninstall"
   Delete "$INSTDIR\doc\README.txt"
   Delete "$INSTDIR\doc\TODO.txt"
   Delete "$INSTDIR\doc\WARNINGS.txt"
+  Delete "$INSTDIR\doc\checksums.txt"
   Delete "$INSTDIR\doc\smartctl.8.html"
   Delete "$INSTDIR\doc\smartctl.8.txt"
   Delete "$INSTDIR\doc\smartd.8.html"
