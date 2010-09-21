@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows installer: Fix smartctl-run.bat for drive menu (ticket #31).
+
   [CF] Windows: Create md5/sha1/sha256 checksums of the binaries.
        Add checksums.txt file to binary distribution.
 

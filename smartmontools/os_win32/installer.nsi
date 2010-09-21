@@ -215,7 +215,7 @@ Section "Start Menu Shortcuts" MENU_SECTION
     SetOutPath "$INSTDIR\bin"
     DetailPrint "Create file: $INSTDIR\bin\smartd-run.bat"
     FileOpen $0 "$INSTDIR\bin\smartd-run.bat" "w"
-    FileWrite $0 "@echo off$\r$\necho smartd %1 %2 %3 %4 %5$\r$\nsmartd %1 %2 %3 %4 %5$\r$\npause$\r$\n"
+    FileWrite $0 "@echo off$\r$\necho smartd %1 %2 %3 %4 %5$\r$\n$INSTDIR\bin\smartd %1 %2 %3 %4 %5$\r$\npause$\r$\n"
     FileClose $0
     CreateDirectory "$SMPROGRAMS\smartmontools\smartd Examples"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Daemon start, smartd.log.lnk" "$INSTDIR\bin\smartd-run.bat" "-l local0"
@@ -309,6 +309,7 @@ SectionGroup "Add smartctl to drive menu"
 !macro DriveSection id name args
   Section 'smartctl ${args} ...' DRIVE_${id}_SECTION
     SectionIn 3
+    Call CheckSmartctlBat
     DetailPrint 'Add drive menu entry "${name}": smartctl ${args} ...'
     WriteRegStr HKCR "Drive\shell\smartctl${id}" "" "${name}"
     WriteRegStr HKCR "Drive\shell\smartctl${id}\command" "" '"$INSTDIR\bin\smartctl-run.bat" ${args} %L'
@@ -539,10 +540,21 @@ Function CreateSmartctlBat
   FileWrite $0 'echo See man page (smartctl.8.*) for further info.$\r$\n'
   FileWrite $0 'goto end$\r$\n:run$\r$\n'
   FileWrite $0 'echo smartctl %1 %2 %3 %4 %5$\r$\n'
-  FileWrite $0 'smartctl %1 %2 %3 %4 %5$\r$\n'
+  FileWrite $0 '$INSTDIR\bin\smartctl %1 %2 %3 %4 %5$\r$\n'
   FileWrite $0 'pause$\r$\n:end$\r$\n'
   FileClose $0
   Pop $0
+FunctionEnd
+
+; Create smartctl-run.bat if missing
+
+Function CheckSmartctlBat
+  IfFileExists "$INSTDIR\bin\smartctl-run.bat" done 0
+    SetOutPath "$INSTDIR\bin"
+    DetailPrint "Create file: $INSTDIR\bin\smartctl-run.bat"
+    Push "$INSTDIR\bin\smartctl-run.bat"
+    Call CreateSmartctlBat
+  done:
 FunctionEnd
 
 
