@@ -558,25 +558,30 @@ distinst_win32 = $(PACKAGE)-$(VERSION).win$(win_bits)-setup.exe
 exedir_win32 = $(distdir_win32)/bin
 docdir_win32 = $(distdir_win32)/doc
 
-FILES_WIN32 = $(exedir_win32)/smartctl.exe \
-              $(exedir_win32)/smartctl-nc.exe \
-              $(exedir_win32)/smartd.exe \
-              $(exedir_win32)/drivedb.h \
-              $(docdir_win32)/AUTHORS.txt \
-              $(docdir_win32)/CHANGELOG.txt \
-              $(docdir_win32)/COPYING.txt \
-              $(docdir_win32)/INSTALL.txt \
-              $(docdir_win32)/NEWS.txt \
-              $(docdir_win32)/README.txt \
-              $(docdir_win32)/TODO.txt \
-              $(docdir_win32)/WARNINGS.txt \
-              $(docdir_win32)/smartd.conf \
-              $(docdir_win32)/smartctl.8.html \
-              $(docdir_win32)/smartctl.8.txt \
-              $(docdir_win32)/smartd.8.html \
-              $(docdir_win32)/smartd.8.txt \
-              $(docdir_win32)/smartd.conf.5.html \
-              $(docdir_win32)/smartd.conf.5.txt
+EXEFILES_WIN32 = \
+        $(exedir_win32)/smartctl.exe \
+        $(exedir_win32)/smartctl-nc.exe \
+        $(exedir_win32)/smartd.exe
+
+FILES_WIN32 = \
+        $(EXEFILES_WIN32) \
+        $(exedir_win32)/drivedb.h \
+        $(docdir_win32)/AUTHORS.txt \
+        $(docdir_win32)/CHANGELOG.txt \
+        $(docdir_win32)/COPYING.txt \
+        $(docdir_win32)/INSTALL.txt \
+        $(docdir_win32)/NEWS.txt \
+        $(docdir_win32)/README.txt \
+        $(docdir_win32)/TODO.txt \
+        $(docdir_win32)/WARNINGS.txt \
+        $(docdir_win32)/checksums.txt \
+        $(docdir_win32)/smartd.conf \
+        $(docdir_win32)/smartctl.8.html \
+        $(docdir_win32)/smartctl.8.txt \
+        $(docdir_win32)/smartd.8.html \
+        $(docdir_win32)/smartd.8.txt \
+        $(docdir_win32)/smartd.conf.5.html \
+        $(docdir_win32)/smartd.conf.5.txt
 
 CLEANFILES += $(FILES_WIN32) $(exedir_win32)/syslogevt.exe \
               smartctl-nc.exe smartctl-nc.exe.tmp \
@@ -600,7 +605,10 @@ distdir-win32: distdir.mkdir $(FILES_WIN32) syslogevt.check
 
 $(distzip_win32): distdir.mkdir $(FILES_WIN32) syslogevt.check
 	@rm -fv $(distzip_win32)
-	cd $(distdir_win32) && zip -9Dr ../$(distzip_win32) .
+	cd $(distdir_win32) && zip -9 ../$(distzip_win32) bin/* doc/*
+	md5sum $@ > $@.md5
+	sha1sum $@ > $@.sha1
+	sha256sum $@ > $@.sha256
 
 # Build NSIS installer, try to locate makensis in default location first
 # Note: Only option character '-' is also compatible with Linux version of makensis
@@ -618,8 +626,11 @@ $(distinst_win32): $(srcdir)/os_win32/installer.nsi distdir.mkdir $(FILES_WIN32)
 	date=`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`; \
 	rev=`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`; \
 	verstr="$(PACKAGE_VERSION) $$date $$rev "$(BUILD_INFO); \
-	echo "$$makensis -V2 -NOCD -DINPDIR=$(distdir_win32) -DOUTFILE=$(distinst_win32) -DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi"; \
-	"$$makensis" -V2 -NOCD -DINPDIR="$(distdir_win32)" -DOUTFILE="$(distinst_win32)" -DVERSTR="$$verstr" "$(srcdir)/os_win32/installer.nsi"
+	echo "$$makensis -V2 -NOCD -DINPDIR=$(distdir_win32) -DOUTFILE="$@" -DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi"; \
+	"$$makensis" -V2 -NOCD -DINPDIR="$(distdir_win32)" -DOUTFILE="$@" -DVERSTR="$$verstr" "$(srcdir)/os_win32/installer.nsi"
+	md5sum $@ > $@.md5
+	sha1sum $@ > $@.sha1
+	sha256sum $@ > $@.sha256
 
 cleandist-win32:
 	rm -rf $(distdir_win32) distdir.mkdir syslogevt.check
@@ -659,6 +670,10 @@ $(docdir_win32)/%.txt: $(srcdir)/%
 $(docdir_win32)/%.conf: $(srcdir)/%.conf
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
+
+$(docdir_win32)/checksums.txt: $(EXEFILES_WIN32) syslogevt.check
+	(cd $(exedir_win32) && md5sum *.exe && sha1sum *.exe && sha256sum *.exe) \
+	| $(UNIX2DOS) > $@
 
 # Build non-console version of smartctl for GSmartControl.
 # The script below changes the word at offset 220 (Subsystem) from 3
