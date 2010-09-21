@@ -221,7 +221,7 @@ const drive_settings builtin_knowndrives[] = {
     "(IBM-|Hitachi )?IC35L0[12346]0AVER07.*",
     "",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
-    "Please see http://www.geocities.com/dtla_update/index.html#rel and\n"
+    "Please see http://haque.net/dtla_update/ and\n"
     "http://www.ibm.com/pc/support/site.wss/MIGR-42215.html",
     ""
   },
@@ -234,7 +234,7 @@ const drive_settings builtin_knowndrives[] = {
     "(IBM-)?DTLA-30[57]0[123467][05].*",
     "",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
-    "Please see http://www.geocities.com/dtla_update/ and\n"
+    "Please see http://haque.net/dtla_update/ and\n"
     "http://www.ibm.com/pc/support/site.wss/MIGR-42215.html",
     ""
   },
@@ -1247,7 +1247,7 @@ const drive_settings builtin_knowndrives[] = {
     ""
   },
   { "Seagate Barracuda 7200.12 family",
-    "ST3((160|250)318|(320|500)418|500410|(750|1000)528)AS",
+    "ST3(160318|25031[18]|320418|50041[08]|750(518|52[38])|100052[38])AS",
     "", "", ""
   },
   { "Seagate Barracuda ES",
@@ -1422,7 +1422,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar Black family",
-    "WDC WD((500|640|750)1AA|1001FA)LS-.*",
+    "WDC WD((500|640|750)1AAL|1001FAL|2001FAS)S-.*",
     "", "", ""
   },
   { "Western Digital AV ATA family",
@@ -1442,7 +1442,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital VelociRaptor family",
-    "WDC WD(800H|(1500|3000)[BH]|1600H|3000G)LFS-.*",
+    "WDC WD(((800H|(1500|3000)[BH]|1600H|3000G)LFS)|((4500|6000)[BH]LHX))-.*",
     "", "", ""
   },
   { "Western Digital Scorpio EIDE family",
