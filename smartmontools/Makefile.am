@@ -561,6 +561,7 @@ docdir_win32 = $(distdir_win32)/doc
 FILES_WIN32 = $(exedir_win32)/smartctl.exe \
               $(exedir_win32)/smartctl-nc.exe \
               $(exedir_win32)/smartd.exe \
+              $(exedir_win32)/drivedb.h \
               $(docdir_win32)/AUTHORS.txt \
               $(docdir_win32)/CHANGELOG.txt \
               $(docdir_win32)/COPYING.txt \
@@ -637,6 +638,10 @@ syslogevt.check:
 $(exedir_win32)/%.exe: %.exe
 	cp -p $< $@
 	if test -n '$(STRIP)'; then $(STRIP) -s $@; else strip -s $@; fi
+	touch -r $< $@
+
+$(exedir_win32)/%.h: $(srcdir)/%.h
+	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
 
 $(docdir_win32)/%.html: %.html

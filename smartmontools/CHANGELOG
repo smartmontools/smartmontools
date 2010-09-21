@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Include drivedb.h into binary distribution.
+
   [CF] drivedb.h updates:
        - Intel X18-M/X25-M/X25-V G2: Add X25-V 40GB
        - Transcend CompactFlash Cards

@@ -1,12 +1,12 @@
 ;
 ; installer.nsi - NSIS install script for smartmontools
 ;
-; Copyright (C) 2006-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; Copyright (C) 2006-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ;
 ; Project home page is: http://smartmontools.sourceforge.net
 ;
 ; Download and install NSIS from: http://nsis.sourceforge.net/Download
-; Process with makensis to create installer (tested with NSIS 2.45)
+; Process with makensis to create installer (tested with NSIS 2.46)
 ;
 ; $Id$
 ;
@@ -112,6 +112,15 @@ SectionGroup "!Program files"
 
     SetOutPath "$INSTDIR\bin"
     File "${INPDIR}\bin\smartctl-nc.exe"
+
+  SectionEnd
+
+  Section "drivedb.h (Drive Database)" DRIVEDB_SECTION
+
+    SectionIn 1 2
+
+    SetOutPath "$INSTDIR\bin"
+    File "${INPDIR}\bin\drivedb.h"
 
   SectionEnd
 
@@ -244,8 +253,11 @@ Section "Start Menu Shortcuts" MENU_SECTION
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartctl manual page (txt).lnk"     "$INSTDIR\doc\smartctl.8.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd manual page (txt).lnk"       "$INSTDIR\doc\smartd.8.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd.conf manual page (txt).lnk"  "$INSTDIR\doc\smartd.conf.5.txt"
-    IfFileExists "$WINDIR\notepad.exe" 0 +2
+    IfFileExists "$WINDIR\notepad.exe" 0 +5
       CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd.conf sample.lnk" "$WINDIR\notepad.exe" "$INSTDIR\doc\smartd.conf"
+      IfFileExists "$INSTDIR\bin\drivedb.h" 0 +3
+        CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb.h (view).lnk" "$WINDIR\notepad.exe" "$INSTDIR\bin\drivedb.h"
+        CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb-add.h (create, edit).lnk" "$WINDIR\notepad.exe" "$INSTDIR\bin\drivedb-add.h"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\AUTHORS.lnk"   "$INSTDIR\doc\AUTHORS.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\CHANGELOG.lnk" "$INSTDIR\doc\CHANGELOG.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\COPYING.lnk"   "$INSTDIR\doc\COPYING.txt"
@@ -374,7 +386,7 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools"
   DeleteRegKey HKLM "Software\smartmontools"
 
-  ; Remove conf and log file
+  ; Remove conf file ?
   IfFileExists "$INSTDIR\bin\smartd.conf" 0 noconf
     ; Assume unchanged if timestamp is equal to sample file
     GetFileTime "$INSTDIR\bin\smartd.conf" $0 $1
@@ -384,15 +396,22 @@ Section "Uninstall"
         Delete "$INSTDIR\bin\smartd.conf"
   noconf:
 
+  ; Remove log file ?
   IfFileExists "$INSTDIR\bin\smartd.log" 0 +3
     MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete log file$\n$INSTDIR\bin\smartd.log ?" IDYES 0 IDNO +2
       Delete "$INSTDIR\bin\smartd.log"
+
+  ; Remove drivedb-add file ?
+  IfFileExists "$INSTDIR\bin\drivedb-add.h" 0 +3
+    MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete local drive database file$\n$INSTDIR\bin\drivedb-add.h ?" IDYES 0 IDNO +2
+      Delete "$INSTDIR\bin\drivedb-add.h"
 
   ; Remove files
   Delete "$INSTDIR\bin\smartctl.exe"
   Delete "$INSTDIR\bin\smartctl-nc.exe"
   Delete "$INSTDIR\bin\smartd.exe"
   Delete "$INSTDIR\bin\syslogevt.exe"
+  Delete "$INSTDIR\bin\drivedb.h"
   Delete "$INSTDIR\bin\smartctl-run.bat"
   Delete "$INSTDIR\bin\smartd-run.bat"
   Delete "$INSTDIR\bin\net-run.bat"
@@ -477,6 +496,7 @@ Function SkipProgPath
   !insertmacro CheckSection ${SMARTCTL_SECTION}
   !insertmacro CheckSection ${SMARTCTL_NC_SECTION}
   !insertmacro CheckSection ${SMARTD_SECTION}
+  !insertmacro CheckSection ${DRIVEDB_SECTION}
   !insertmacro CheckSection ${DOC_SECTION}
   !insertmacro CheckSection ${MENU_SECTION}
   !insertmacro CheckSection ${PATH_SECTION}
