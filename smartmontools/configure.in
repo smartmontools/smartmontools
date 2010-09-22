@@ -116,7 +116,6 @@ AC_CHECK_FUNCS([uname])
 AC_C_BIGENDIAN
 
 # Check whether snprintf appends null char and returns expected length on overflow
-AH_TEMPLATE(HAVE_WORKING_SNPRINTF, [Define to 1 if the `snprintf' function is sane])
 AC_MSG_CHECKING([for working snprintf])
 AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]], [[ char buf[]="ABCDEFGHI";
                int i=snprintf(buf,8,"12345678"); return !(!buf[7] && i==8); ]])],
@@ -125,12 +124,11 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]], [[ char buf[]="ABCDEFGHI"
               [libc_have_working_snprintf=unknown])
 AC_SUBST(libc_have_working_snprintf)
 if test "$libc_have_working_snprintf" = "yes"; then
-  AC_DEFINE(HAVE_WORKING_SNPRINTF)
+  AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane])
 fi
 AC_MSG_RESULT([$libc_have_working_snprintf])
 
 # check for __attribute__((packed))
-AH_TEMPLATE(HAVE_ATTR_PACKED, [Define to 1 if C++ compiler supports __attribute__((packed))])
 AC_MSG_CHECKING([whether $CXX supports __attribute__((packed))])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [[struct a { int b; } __attribute__((packed));]])],
                   [gcc_have_attr_packed=yes], [gcc_have_attr_packed=no])
@@ -140,7 +138,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [[#if defined(__SUNPRO_C) || defined(__SUNP
                   [true], [gcc_have_attr_packed=no])
 AC_SUBST(gcc_have_attr_packed)
 if test "$gcc_have_attr_packed" = "yes"; then
-  AC_DEFINE(HAVE_ATTR_PACKED)
+  AC_DEFINE(HAVE_ATTR_PACKED, 1, [Define to 1 if C++ compiler supports __attribute__((packed))])
 fi
 AC_MSG_RESULT([$gcc_have_attr_packed])
 
@@ -206,9 +204,12 @@ AC_SUBST(attributelog)
 AC_SUBST(attributelogdir)
 AM_CONDITIONAL(ENABLE_ATTRIBUTELOG, [test "$enable_attributelog" = "yes"])
 
-AC_ARG_ENABLE(sample,[AC_HELP_STRING([--enable-sample],[Enables appending .sample to the installed smartd rc script and configuration file])],[smartd_suffix='.sample'],[smartd_suffix=''])
+AC_ARG_ENABLE(sample,
+  [AC_HELP_STRING([--enable-sample],[Enables appending .sample to the installed smartd rc script and configuration file])],
+  [smartd_suffix=; test "$enableval" = "yes" && smartd_suffix=".sample"],
+  [smartd_suffix=;])
 AC_SUBST(smartd_suffix)
-AM_CONDITIONAL(SMARTD_SUFFIX, test $smartd_suffix)
+AM_CONDITIONAL(SMARTD_SUFFIX, [test -n "$smartd_suffix"])
 
 AC_ARG_WITH(os-deps,
   [AC_HELP_STRING([--with-os-deps='os_module.o ...'],[Specify OS dependent module(s) [guessed]])],
@@ -220,18 +221,20 @@ AC_ARG_WITH(os-deps,
     done
   ],[])
 
-AC_ARG_WITH(selinux,[AC_HELP_STRING([--with-selinux],[Enables SELinux support])],
-	[
-		AC_CHECK_HEADERS([selinux/selinux.h], [], [echo "*** Error: Missing SELinux header files";exit 1])
-		AC_CHECK_LIB(selinux, matchpathcon, [with_selinux=yes], [echo "*** Error: Missing or incorrect SELinux library files"; exit 1],)
-	],[])
+AC_ARG_WITH(selinux,
+  [AC_HELP_STRING([--with-selinux@<:@=yes|no@:>@],[Enables SELinux support [no]])],
+  [ if test "$withval" = "yes"; then
+      AC_CHECK_HEADERS([selinux/selinux.h], [], [AC_MSG_ERROR([Missing SELinux header files])])
+      AC_CHECK_LIB(selinux, matchpathcon, [], [AC_MSG_ERROR([Missing or incorrect SELinux library files])])
+    fi
+  ],[])
 AC_SUBST(with_selinux)
 if test "$with_selinux" = "yes"; then
-	AC_DEFINE(WITH_SELINUX, [1], [Define to 1 if SELinux support is enabled])
+  AC_DEFINE(WITH_SELINUX, 1, [Define to 1 if SELinux support is enabled])
 fi
 
 AC_ARG_WITH(libcap-ng,
-  [AC_HELP_STRING([--with-libcap-ng=[auto|yes|no]], [Add Libcap-ng support to smartd [auto]])],
+  [AC_HELP_STRING([--with-libcap-ng@<:@=auto|yes|no@:>@],[Add Libcap-ng support to smartd [auto]])],
   [with_libcap_ng="$withval"],
   [with_libcap_ng=auto])
 

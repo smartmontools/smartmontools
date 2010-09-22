@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: Fix '--enable-sample' and '--with-selinux'.
+       Fix obsolete use of AC_DEFINE().
+
   [CF] drivedb.h updates:
        - IBM Deskstar 60GXP, 40GV & 75GXP: Update link (ticket #99)
        - Seagate Barracuda 7200.12: Add ST31000523AS and others
