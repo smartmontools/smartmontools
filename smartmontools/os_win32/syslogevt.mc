@@ -3,7 +3,7 @@
 ; *
 ; * Home page of code is: http://smartmontools.sourceforge.net
 ; *
-; * Copyright (C) 2004-8 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; * Copyright (C) 2004-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ; *
 ; * This program is free software; you can redistribute it and/or modify
 ; * it under the terms of the GNU General Public License as published by
@@ -16,15 +16,18 @@
 ; *
 ; */
 ;
-;// $Id: syslogevt.mc,v 1.5 2008/03/04 22:09:48 ballen4705 Exp $
+;// $Id$
 ;
-;// Use message compiler "mc" to generate
+;// Use message compiler "mc" or "windmc" to generate
 ;//   syslogevt.rc, syslogevt.h, msg00001.bin
 ;// from this file.
 ;// MSG_SYSLOG in syslogmsg.h must be zero
 ;// MSG_SYSLOG_nn must be == nn
 ;
-;
+;// MS and binutils message compiler defaults for FacilityNames differ:
+;// mc:     Application = 0x000
+;// windmc: Application = 0xfff
+FacilityNames = (Application = 0x000)
 
 MessageId=0x0
 Severity=Success

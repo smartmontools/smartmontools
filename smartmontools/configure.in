@@ -30,6 +30,9 @@ AC_PROG_CXX
 AM_PROG_AS
 AC_PROG_INSTALL
 
+AC_ARG_VAR(WINDMC, [Windows message compiler command])
+AC_ARG_VAR(WINDRES, [Windows resource compiler command])
+
 AC_CANONICAL_HOST
 dnl Set flags which may affect AC_CHECK_*.
 case "${host}" in
@@ -39,6 +42,8 @@ case "${host}" in
 		   /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
 		  AC_MSG_ERROR([Build with MinGW on Cygwin requires cross-compilation, see INSTALL file.])
 		fi
+		AC_CHECK_PROGS(WINDMC, [${host}-windmc windmc])
+		AC_CHECK_PROGS(WINDRES, [${host}-windres windres])
 		CPPFLAGS="$CPPFLAGS -I$srcdir/os_win32"
 		;;
 	*-*-freebsd*)
@@ -346,6 +351,7 @@ dnl Define platform-specific symbol.
 AM_CONDITIONAL(OS_DARWIN, [echo $host_os | grep '^darwin' > /dev/null])
 AM_CONDITIONAL(OS_SOLARIS, [echo $host_os | grep '^solaris' > /dev/null])
 AM_CONDITIONAL(OS_WIN32_MINGW, [echo $host_os | grep '^mingw' > /dev/null])
+AM_CONDITIONAL(OS_WIN32_WINDMC, [test -n "$WINDMC" && test "$WINDMC" != "no" && test -n "$WINDRES"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
 AM_CONDITIONAL(OS_FREEBSD, [echo $host_os | grep '^freebsd' > /dev/null])
 
@@ -412,8 +418,12 @@ echo "--------------------------------------------------------------------------
 echo "${PACKAGE}-${VERSION} configuration:" >&AS_MESSAGE_FD
 echo "host operating system:  $host" >&AS_MESSAGE_FD
 echo "C++ compiler:           $CXX" >&AS_MESSAGE_FD
+echo "C compiler:             $CC" >&AS_MESSAGE_FD
+echo "Resource compiler:      $WINDRES" >&AS_MESSAGE_FD
+echo "Message compiler:       $WINDMC" >&AS_MESSAGE_FD
 echo "preprocessor flags:     $CPPFLAGS" >&AS_MESSAGE_FD
 echo "C++ compiler flags:     $CXXFLAGS" >&AS_MESSAGE_FD
+echo "C compiler flags:       $CFLAGS" >&AS_MESSAGE_FD
 echo "linker flags:           $LDFLAGS" >&AS_MESSAGE_FD
 
 case "$host_os" in

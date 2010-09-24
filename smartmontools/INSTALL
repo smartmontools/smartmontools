@@ -514,6 +514,11 @@ To both create and run the (interactive) installer, use:
   or a native Win32 release of Info-ZIP, http://www.info-zip.org) are
   necessary but may be not installed by Cygwin's default settings.
 
+  The event message file tool syslogevt.exe (see smartd man page) is
+  included in the binary distribution if message compiler (windmc)
+  and resource compiler (windres) are available. This may be disabled
+  by passing 'WINDMC=no' to configure.
+
 To prepare os_win32 directory for MSVC8, use the following on MSYS
 or Cygwin:
 
@@ -527,10 +532,6 @@ or Cygwin:
   for MinGW creates os_win32/{config,svnversion}_vc8.h from
   ./{config,svnversion}.h. The configure skript must be run outside
   of the source directory to avoid inclusion of the original config.h.
-
-  Unlike MinGW, MSVC can also be used to build the syslog message file
-  tool syslogevt.exe. See smartd man page for usage information about
-  this tool.
 
 
 [11] Guidelines for OS/2, eComStation

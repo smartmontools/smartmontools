@@ -273,6 +273,8 @@ EXTRA_DIST = smartd.initd.in                       \
              os_darwin/StartupParameters.plist     \
              os_darwin/English_Localizable.strings \
              os_win32/installer.nsi                \
+             os_win32/syslogevt.c                  \
+             os_win32/syslogevt.mc                 \
              $(docs_DATA)
 
 CLEANFILES = smartd.conf.5      \
@@ -549,6 +551,11 @@ EXEFILES_WIN32 = \
         $(exedir_win32)/smartctl-nc.exe \
         $(exedir_win32)/smartd.exe
 
+if OS_WIN32_WINDMC
+EXEFILES_WIN32 += \
+        $(exedir_win32)/syslogevt.exe
+endif
+
 FILES_WIN32 = \
         $(EXEFILES_WIN32) \
         $(exedir_win32)/drivedb.h \
@@ -569,9 +576,12 @@ FILES_WIN32 = \
         $(docdir_win32)/smartd.conf.5.html \
         $(docdir_win32)/smartd.conf.5.txt
 
-CLEANFILES += $(FILES_WIN32) $(exedir_win32)/syslogevt.exe \
-              smartctl-nc.exe smartctl-nc.exe.tmp \
-              distdir.mkdir syslogevt.check
+CLEANFILES += \
+        $(FILES_WIN32) \
+        smartctl-nc.exe smartctl-nc.exe.tmp \
+        syslogevt.exe syslogevt.h syslogevt.o \
+        syslogevt.res.o syslogevt.rc syslogevt_*.bin \
+        distdir.mkdir
 
 # Textfile converter from package cygutils or tofrodos
 # Note: Only use without options to be compatible with both packages
@@ -587,9 +597,9 @@ install-win32: $(distinst_win32)
 
 installer-win32: $(distinst_win32)
 
-distdir-win32: distdir.mkdir $(FILES_WIN32) syslogevt.check
+distdir-win32: distdir.mkdir $(FILES_WIN32)
 
-$(distzip_win32): distdir.mkdir $(FILES_WIN32) syslogevt.check
+$(distzip_win32): distdir.mkdir $(FILES_WIN32)
 	@rm -fv $(distzip_win32)
 	cd $(distdir_win32) && zip -9 ../$(distzip_win32) bin/* doc/*
 	md5sum $@ > $@.md5
@@ -598,7 +608,7 @@ $(distzip_win32): distdir.mkdir $(FILES_WIN32) syslogevt.check
 
 # Build NSIS installer, try to locate makensis in default location first
 # Note: Only option character '-' is also compatible with Linux version of makensis
-$(distinst_win32): $(srcdir)/os_win32/installer.nsi distdir.mkdir $(FILES_WIN32) syslogevt.check
+$(distinst_win32): os_win32/installer.nsi distdir.mkdir $(FILES_WIN32)
 	@makensis="$(MAKENSIS)"; if [ -z "$$makensis" ]; then \
 	  if [ ! -z "$$PROGRAMFILES" ] && "$$PROGRAMFILES/NSIS/makensis" -VERSION >/dev/null 2>&1; then \
 	    makensis="$$PROGRAMFILES/NSIS/makensis"; \
@@ -612,24 +622,18 @@ $(distinst_win32): $(srcdir)/os_win32/installer.nsi distdir.mkdir $(FILES_WIN32)
 	date=`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`; \
 	rev=`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`; \
 	verstr="$(PACKAGE_VERSION) $$date $$rev "$(BUILD_INFO); \
-	echo "$$makensis -V2 -NOCD -DINPDIR=$(distdir_win32) -DOUTFILE="$@" -DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi"; \
-	"$$makensis" -V2 -NOCD -DINPDIR="$(distdir_win32)" -DOUTFILE="$@" -DVERSTR="$$verstr" "$(srcdir)/os_win32/installer.nsi"
+	echo "$$makensis -V2 -NOCD -DINPDIR=$(distdir_win32) -DOUTFILE="$@" -DVERSTR='$$verstr' $<"; \
+	"$$makensis" -V2 -NOCD -DINPDIR="$(distdir_win32)" -DOUTFILE="$@" -DVERSTR="$$verstr" "$<"
 	md5sum $@ > $@.md5
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256
 
 cleandist-win32:
-	rm -rf $(distdir_win32) distdir.mkdir syslogevt.check
+	rm -rf $(distdir_win32) distdir.mkdir
 
 distdir.mkdir:
 	@test -d $(exedir_win32) || mkdir -pv $(exedir_win32)
 	@test -d $(docdir_win32) || mkdir -pv $(docdir_win32)
-	touch $@
-
-syslogevt.check:
-	@if [ -f $(srcdir)/os_win32/syslogevt.exe ]; then \
-	  cp -pv $(srcdir)/os_win32/syslogevt.exe $(exedir_win32)/syslogevt.exe; \
-	 else echo "Warning: $(srcdir)/os_win32/syslogevt.exe missing."; fi
 	touch $@
 
 $(exedir_win32)/%.exe: %.exe
@@ -657,7 +661,7 @@ $(docdir_win32)/%.conf: $(srcdir)/%.conf
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
 
-$(docdir_win32)/checksums.txt: $(EXEFILES_WIN32) syslogevt.check
+$(docdir_win32)/checksums.txt: $(EXEFILES_WIN32)
 	(cd $(exedir_win32) && md5sum *.exe && sha1sum *.exe && sha256sum *.exe) \
 	| $(UNIX2DOS) > $@
 
@@ -677,6 +681,21 @@ smartctl-nc.exe: smartctl.exe
 	  else echo "EXE patch failed"; exit 1; fi
 	mv -f $@.tmp $@
 
+if OS_WIN32_WINDMC
+# Build syslogevt.exe event message file tool
+
+syslogevt.exe: syslogevt.o syslogevt.res.o
+	$(LINK) $^
+
+syslogevt.o: os_win32/syslogevt.c syslogevt.rc
+	$(CC) -c -I. -Os -o $@ $<
+
+syslogevt.res.o: syslogevt.rc
+	$(WINDRES) $< $@
+
+syslogevt.rc: os_win32/syslogevt.mc
+	$(WINDMC) -b $<
+endif
 
 # Build {config,svnversion}_vc8.h for MSVC8 from MinGW {config,svnversion}.h
 

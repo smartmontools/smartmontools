@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-8 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  *
  */
 
-static char rcsid[] = "$Id: syslogevt.c,v 1.5 2008/03/04 22:09:48 ballen4705 Exp $";
+static char rcsid[] = "$Id$";
 
 #include <stdio.h>
 #include <string.h>
@@ -25,15 +25,17 @@ static char rcsid[] = "$Id: syslogevt.c,v 1.5 2008/03/04 22:09:48 ballen4705 Exp
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#ifdef _DEBUG
 #include "syslogevt.h"
-#endif
+// Compile time check for Message Ids, see also syslog_win32.cpp
+typedef assert_msg_syslog   [MSG_SYSLOG    ==  0 ? 1 : -1];
+typedef assert_msg_syslog_01[MSG_SYSLOG_01 ==  1 ? 1 : -1];
+typedef assert_msg_syslog_10[MSG_SYSLOG_10 == 10 ? 1 : -1];
 
 
 static int usage()
 {
 	puts(
-		"syslogevt $Revision: 1.5 $ Copyright (C) 2004-8 Christian Franke\n"
+		"syslogevt $Revision$ Copyright (C) 2004-10 Christian Franke\n"
 		"Home page is http://smartmontools.sourceforge.net/\n"
 		"\n"
 		"Usage: syslogevt [-ru] name [ident ...]\n"
@@ -66,12 +68,6 @@ main(int argc, char ** argv)
 	char name1[30+1], name2[30+1], mypath[MAX_PATH+1];
 	const char * ident;
 	FILE * f1, * f2;
-
-#ifdef _DEBUG
-	if (!(MSG_SYSLOG == 0 && MSG_SYSLOG_01 == 1 && MSG_SYSLOG_10 == 10)) {
-		puts("Internal error: MSG_SYSLOG_n != n"); return 1;
-	}
-#endif
 
 	if (argc < 2)
 		return usage();
