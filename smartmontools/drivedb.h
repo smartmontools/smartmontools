@@ -75,25 +75,37 @@ const drive_settings builtin_knowndrives[] = {
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
     "OCZ[ -](AGILITY2|VERTEX2|VERTEX-LE)( .*)?|" // tested with
       // OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
-    "UGB88PGC...HF.", // Unigen, tested with UGB88PGC100HF2/MP Rev2
+    "UGB(88|99)PGC...H[BF].", // Unigen, tested with
+      // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
     "", "",
     "-v 1,hex48,Raw_Read_Error_Rate " // raw24/raw32
     "-v 5,raw48,Retired_Block_Count "
     "-v 9,hex48,Power_On_Hours_and_Msec " // msec24hour32
   //"-v 12,raw48,Power_Cycle_Count "
+    "-v 13,hex48,Soft_Read_Error_Rate " // raw24/raw32
+    "-v 100,raw48,Gigabytes_Erased "
+    "-v 170,raw48,Reserve_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 177,raw48,Wear_Range_Delta "
     "-v 181,raw48,Program_Fail_Count "
     "-v 182,raw48,Erase_Fail_Count "
+    "-v 184,raw48,IO_Error_Detect_Code_Ct "
   //"-v 187,raw48,Reported_Uncorrect "
-  //"-v 192,tempminmax,Temperature_Celsius "
+  //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,hex48,ECC_Uncorr_Error_Count " // raw24/raw32
   //"-v 196,raw48,Reallocated_Event_Count "
+    "-v 198,hex48,Uncorrectable_Sector_Ct "
+    "-v 199,raw48,SATA_CRC_Error_Count "
+    "-v 201,hex48,Unc_Soft_Read_Err_Rate " // raw24/raw32
+    "-v 204,hex48,Soft_ECC_Correct_Rate " // raw24/raw32
+    "-v 230,raw48,Life_Curve_Status "
     "-v 231,raw48,SSD_Life_Left "
+  //"-v 232,raw48,Available_Reservd_Space "
     "-v 233,raw48,SandForce_Internal "
     "-v 234,raw48,SandForce_Internal "
+    "-v 235,raw48,SuperCapHealth "
     "-v 241,raw48,Lifetime_Writes_GiB "
     "-v 242,raw48,Lifetime_Reads_GiB"
   },
@@ -1425,8 +1437,12 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((500|640|750)1AAL|1001FAL|2001FAS)S-.*",
     "", "", ""
   },
-  { "Western Digital AV ATA family",
-    "WDC WD(8|16|50)00AV(B|J)B-.*",
+  { "Western Digital AV ATA family", // tested with WDC WD3200AVJB-63J5A0/01.03E01
+    "WDC WD(8|16|25|32|50)00AV[BJ]B-.*",
+    "", "", ""
+  },
+  { "Western Digital AV SATA family",
+    "WDC WD(16|25|32)00AVJS-.*",
     "", "", ""
   },
   { "Western Digital AV-GP family",
