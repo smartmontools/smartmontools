@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: Minor fix of '--enable-drivedb' new defaults
+       detection.
+
   [CF] Update links, configure and OS info in INSTALL file.
        Replace tabs by spaces.
 

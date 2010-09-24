@@ -171,14 +171,13 @@ AC_SUBST(docdir)
 
 AC_ARG_ENABLE(drivedb,
   [AC_HELP_STRING([--disable-drivedb],[Disables drive database file])],
-  [],
-  [enable_drivedb=yes])
+  [drivedbdir_is_default=no],
+  [enable_drivedb=yes; drivedbdir_is_default=yes])
 
-drivedbdir_is_default=no
 AC_ARG_WITH(drivedbdir,
   [AC_HELP_STRING([--with-drivedbdir=DIR],[Location of drive database file (implies --enable-drivedb) [DATADIR/smartmontools]])],
-  [drivedbdir="$withval"; enable_drivedb="yes"],
-  [drivedbdir=; test "$enable_drivedb" = "yes" && drivedbdir='${datadir}/${PACKAGE}' drivedbdir_is_default=yes])
+  [drivedbdir="$withval"; enable_drivedb=yes; drivedbdir_is_default=no],
+  [drivedbdir=; test "$enable_drivedb" = "yes" && drivedbdir='${datadir}/${PACKAGE}'])
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test "$enable_drivedb" = "yes"])
 
