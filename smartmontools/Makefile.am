@@ -391,13 +391,6 @@ install-initdDATA-darwin: $(initd_DATA)
 	  $(INSTALL_DATA) $(srcdir)/os_darwin/$${i}_Localizable.strings \
 	    $$RDIR/Localizable.strings ; \
 	done
-	@echo -e "\n\n####################################################################\n#"
-	@echo -e "#                       PLEASE READ THIS BOX!\n#"
-	@echo -e "#   To manually start the smartd daemon, run:\n#   ${initddir}/SMART/SMART start\n#"
-	@echo -e "#   To automatically start smartd on bootup, add the line:\n#   SMARTd=-YES-\n#   to /etc/hostconfig\n#"
-	@echo -e "#   smartd can now use a configuration file ${sysconfdir}/smartd.conf. Do:\n#   man smartd"
-	@echo -e "#   to learn about it. A sample configuration file can be found in:\n#   ${docdir}\n#"
-	@echo -e "####################################################################\n\n"
 
 uninstall-initdDATA-darwin:
 	rm -rf $(DESTDIR)$(initddir)/$(initd_install_name)
@@ -417,13 +410,6 @@ initd_DATA_uninstall = uninstall-initdDATA-generic
 install-initdDATA-generic: $(initd_DATA)
 	$(mkinstalldirs) $(DESTDIR)$(initddir)
 	$(INSTALL_SCRIPT) $(top_builddir)/smartd.initd $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
-	@echo -e "\n\n####################################################################\n#"
-	@echo -e "#                       PLEASE READ THIS BOX!\n#"
-	@echo -e "#   To manually start the smartd daemon, run:\n#   ${initddir}/smartd start\n#"
-	@echo -e "#   To automatically start smartd on bootup, run:\n#   /sbin/chkconfig --add smartd\n#"
-	@echo -e "#   smartd can now use a configuration file ${sysconfdir}/smartd.conf. Do:\n#   man smartd"
-	@echo -e "#   to learn about it. A sample configuration file can be found in:\n#   ${docdir}\n#"
-	@echo -e "####################################################################\n\n"
 
 
 uninstall-initdDATA-generic:

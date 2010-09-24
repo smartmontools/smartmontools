@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Makefile.am: Remove install message about smartd startup.
+       It might be misleading because it is not correct for all platforms.
+
   [CF] configure.in: Minor fix of '--enable-drivedb' new defaults
        detection.
 
