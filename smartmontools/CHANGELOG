@@ -44,6 +44,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [CF] drivedb.h updates:
+       - SandForce Driven SSDs: Fix regex for Unigen UG99SGC
+       - Seagate Momentus XT series
+       - Quantum Bigfoot: Add 12.7GB
+
+  [CF] drivedb.h updates:
        - SandForce Driven SSDs: Add 11 attributes of new FW,
          add Unigen UG99PGC
        - WD AV ATA family: Add 250GB, 320GB
