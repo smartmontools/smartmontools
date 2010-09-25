@@ -75,7 +75,7 @@ const drive_settings builtin_knowndrives[] = {
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
     "OCZ[ -](AGILITY2|VERTEX2|VERTEX-LE)( .*)?|" // tested with
       // OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
-    "UGB(88|99)PGC...H[BF].", // Unigen, tested with
+    "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
     "", "",
     "-v 1,hex48,Raw_Read_Error_Rate " // raw24/raw32
@@ -1143,6 +1143,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST9((160413|25041[12]|320426|50042[12])AS|(16041[489]|2504[16]4|32042[67]|500426)ASG)",
     "", "", ""
   },
+  { "Seagate Momentus XT series", // tested with ST95005620AS/SD22
+    "ST9(2505610|3205620|5005620)AS",
+    "", "", ""
+  },
   { "Seagate Medalist 1010, 1720, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
     "ST3(1010|1720|1721|2120|3230|4340)A",
     "", "", ""
@@ -1493,8 +1497,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD3200BMVV-.*",
     "", "", ""
   },
-  { "Quantum Bigfoot series",
-    "QUANTUM BIGFOOT TS10.0A",
+  { "Quantum Bigfoot series", // tested with TS10.0A/A21.0G00, TS12.7A/A21.0F00
+    "QUANTUM BIGFOOT TS(10\\.0|12\\.7)A",
     "", "", ""
   },
   { "Quantum Fireball lct15 series",
