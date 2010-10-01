@@ -90,6 +90,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
+    "Corsair CSSD-F(40|60|80|120|160|240)GBP?2.*|" // Corsair Force, tested with
+      // Corsair CSSD-F40GB2/1.1
     "OCZ[ -](AGILITY2|VERTEX2|VERTEX-LE)( .*)?|" // tested with
       // OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
     "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
@@ -122,7 +124,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
     "-v 233,raw48,SandForce_Internal "
     "-v 234,raw48,SandForce_Internal "
-    "-v 235,raw48,SuperCapHealth "
+    "-v 235,raw48,SuperCap_Health "
     "-v 241,raw48,Lifetime_Writes_GiB "
     "-v 242,raw48,Lifetime_Reads_GiB"
   },

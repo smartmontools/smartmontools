@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - SandForce Driven SSDs: Add Corsair Force, fix typo
+
   [CF] Print hex values of unknown self-test type or status.
 
   [CF] drivedb.h updates:
