@@ -2453,7 +2453,7 @@ bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
                                 uint64_t failing_lba,
                                 bool print_error_only, bool & print_header)
 {
-  const char * msgtest;
+  std::string msgtest;
   switch (test_type) {
     case 0x00: msgtest = "Offline";            break;
     case 0x01: msgtest = "Short offline";      break;
@@ -2467,13 +2467,13 @@ bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
     case 0x84: msgtest = "Selective captive";  break;
     default:
       if ((0x40 <= test_type && test_type <= 0x7e) || 0x90 <= test_type)
-        msgtest = "Vendor offline";
+        msgtest = strprintf("Vendor (0x%02x)", test_type);
       else
-        msgtest = "Reserved offline";
+        msgtest = strprintf("Reserved (0x%02x)", test_type);
   }
 
   bool is_error = false;
-  const char * msgstat;
+  std::string msgstat;
   switch (test_status >> 4) {
     case 0x0: msgstat = "Completed without error";       break;
     case 0x1: msgstat = "Aborted by host";               break;
@@ -2485,7 +2485,7 @@ bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
     case 0x7: msgstat = "Completed: read failure";       is_error = true; break;
     case 0x8: msgstat = "Completed: handling damage??";  is_error = true; break;
     case 0xf: msgstat = "Self-test routine in progress"; break;
-    default:  msgstat = "Unknown/reserved test status";
+    default:  msgstat = strprintf("Unknown status (0x%x)", test_status >> 4);
   }
 
   if (!is_error && print_error_only)
@@ -2503,8 +2503,8 @@ bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
   else
     strcpy(msglba, "-");
 
-  pout("#%2u  %-19s %-29s %1d0%%  %8u         %s\n", testnum, msgtest, msgstat,
-       test_status & 0x0f, timestamp, msglba);
+  pout("#%2u  %-19s %-29s %1d0%%  %8u         %s\n", testnum,
+       msgtest.c_str(), msgstat.c_str(), test_status & 0x0f, timestamp, msglba);
 
   return is_error;
 }
