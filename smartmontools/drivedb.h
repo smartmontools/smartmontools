@@ -1611,6 +1611,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Sunplus
+  { "USB: ; SunPlus",
+    "0x04fc:0x0c05",
+    "",
+    "",
+    "-d usbsunplus"
+  },
   { "USB: ; SunPlus SPDIF215",
     "0x04fc:0x0c15",
     "0xf615",

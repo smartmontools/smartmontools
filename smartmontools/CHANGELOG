@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB update:
+       - SunPlus 0x04fc:0x0c05
+
   [CF] drivedb.h update:
        - SandForce Driven SSDs: Add Corsair Force, fix typo
 
