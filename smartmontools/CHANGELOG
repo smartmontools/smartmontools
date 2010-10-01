@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3169 2010-09-25 12:02:57Z chrfranke $
+$Id: CHANGELOG 3171 2010-10-01 19:42:46Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Print hex values of unknown self-test type or status.
 
   [CF] drivedb.h updates:
        - SandForce Driven SSDs: Fix regex for Unigen UG99SGC
