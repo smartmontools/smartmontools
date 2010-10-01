@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3172 2010-10-01 20:48:48Z chrfranke $",
+  { "$Id: drivedb.h 3173 2010-10-01 21:02:55Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1611,6 +1611,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Sunplus
+  { "USB: ; SunPlus",
+    "0x04fc:0x0c05",
+    "",
+    "",
+    "-d usbsunplus"
+  },
   { "USB: ; SunPlus SPDIF215",
     "0x04fc:0x0c15",
     "0xf615",
