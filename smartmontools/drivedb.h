@@ -130,7 +130,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Indilinx Barefoot based SSDs",
     "CRUCIAL_CT(64|128|256)M225|" // tested with CRUCIAL_CT64M225/1571
-    "OCZ[ -](VERTEX|AGILITY)|" // tested with OCZ-VERTEX/1.30
+    "OCZ[ -](AGILITY|VERTEX( 1199|-TURBO)?)|" // tested with
+      // OCZ-VERTEX 1199/00.P97, OCZ-VERTEX/1.30, OCZ VERTEX-TURBO/1.5
     "Patriot[ -]Torqx.*|"
     "STT_FT[MD](28|32|56|64)GX25H|" // Super Talent Ultradrive, tested with STT_FTM64GX25H/1916
     "TS(18|25)M(64|128)MLC(16|32|64|128|256|512)GSSD", // ASAX Leopard Hunt II, tested with TS25M64MLC64GSSD/0.1
