@@ -62,6 +62,7 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <unistd.h>
+#include <stddef.h>  // for offsetof()
 #include <sys/uio.h>
 #include <sys/types.h>
 #ifndef makedev // old versions of types.h do not include sysmacros.h
@@ -90,7 +91,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3128 2010-07-27 13:08:31Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3178 2010-10-09 21:17:25Z manfred99 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */

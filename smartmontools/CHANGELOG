@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3176 2010-10-03 07:06:11Z chrfranke $
+$Id: CHANGELOG 3178 2010-10-09 21:17:25Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] os_linux.cpp: fix "gcc -flto" build error by including stddef.h
 
   [CF] drivedb.h update:
        - Indilinx Barefoot based SSDs: Add OCZ-VERTEX 1199 and -TURBO
