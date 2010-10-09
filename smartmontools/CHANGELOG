@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] os_linux.cpp: fix "gcc -flto" build error by including stddef.h
+
   [CF] drivedb.h update:
        - Indilinx Barefoot based SSDs: Add OCZ-VERTEX 1199 and -TURBO
 

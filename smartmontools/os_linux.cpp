@@ -62,6 +62,7 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <unistd.h>
+#include <stddef.h>  // for offsetof()
 #include <sys/uio.h>
 #include <sys/types.h>
 #ifndef makedev // old versions of types.h do not include sysmacros.h
