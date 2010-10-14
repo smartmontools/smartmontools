@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3176 2010-10-03 07:06:11Z chrfranke $",
+  { "$Id: drivedb.h 3181 2010-10-14 15:47:49Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1244,7 +1244,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Barracuda 7200.10 family",
-    "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|500[68]30|750[68]40)AS?",
+    "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|360320|500[68]30|750[68]40)AS?",
     "", "", ""
   },
   { "Seagate Barracuda 7200.11 family", // unaffected firmware
@@ -1642,6 +1642,12 @@ const drive_settings builtin_knowndrives[] = {
     "0x0001",
     "",
     "" // unsupported
+  },
+  { "USB: Iomega MDHD-UE; ",
+    "0x059b:0x0277",
+    "",
+    "",
+    "-d usbjmicron"
   },
   { "USB: Iomega LDHD-UP; Sunplus",
     "0x059b:0x0370",
