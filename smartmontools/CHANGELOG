@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Seagate Barracuda 7200.10: Add 360GB
+       - USB: Iomega MDHD-UE
+       Patch provided by Rob Marissen.
+
   [DL] Standby mode not detected properly on FreeBSD (ticket #91).
 
   [MS] os_linux.cpp: fix "gcc -flto" build error by including stddef.h
