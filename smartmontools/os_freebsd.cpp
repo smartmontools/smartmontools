@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3098 2010-04-30 17:35:35Z chrfranke $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3179 2010-10-14 14:00:26Z dlukes $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3098 2010-04-30 17:35:35Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3179 2010-10-14 14:00:26Z dlukes $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3098 2010-04-30 17:35:35Z chrfranke $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3179 2010-10-14 14:00:26Z dlukes $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -404,7 +404,10 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request)
                  request->timeout * 1000); // timeout in seconds
 
   // ata_28bit_cmd
-  ccb.ataio.cmd.flags = 0;
+  if (request->flags == ATA_CMD_CONTROL)
+    ccb.ataio.cmd.flags = CAM_ATAIO_NEEDRESULT;
+  else
+    ccb.ataio.cmd.flags = 0;
   ccb.ataio.cmd.command = request->u.ata.command;
   ccb.ataio.cmd.features = request->u.ata.feature;
   ccb.ataio.cmd.lba_low = request->u.ata.lba;
@@ -420,11 +423,13 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request)
     return -1;
   }
 
-  if ((ccb.ccb_h.status & CAM_STATUS_MASK) == CAM_REQ_CMP)
-    return 0;
+  if ((ccb.ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
+    cam_error_print(m_camdev, &ccb, CAM_ESF_ALL, CAM_EPF_ALL, stderr);
+    return -1;
+  }
 
-  cam_error_print(m_camdev, &ccb, CAM_ESF_ALL, CAM_EPF_ALL, stderr);
-  return -1;
+  request->u.ata.count = ccb.ataio.res.sector_count;
+  return 0;
 }
 
 #endif
