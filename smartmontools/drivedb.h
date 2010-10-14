@@ -58,7 +58,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3177 2010-10-03 07:12:43Z chrfranke $",
+  { "$Id: drivedb.h 3182 2010-10-14 15:57:06Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1227,7 +1227,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Barracuda 7200.10 family",
-    "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|500[68]30|750[68]40)AS?",
+    "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|360320|500[68]30|750[68]40)AS?",
     "", "", ""
   },
   { "Seagate Barracuda 7200.11 family", // unaffected firmware
