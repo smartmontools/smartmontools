@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Remove "Lifetime" from Min/Max temperature attribute output
+       (ticket #111).  Interval is device specific.
+
   [CF] configure.in: Print resource/message compiler info for Windows only.
 
   [CF] FreeBSD: Rework get_dev_names_cam() to support more than 26 devices.

@@ -1981,7 +1981,7 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
         unsigned t = lo; lo = hi; hi = t;
       }
       if (lo <= word[0] && word[0] <= hi)
-        s += strprintf(" (Lifetime Min/Max %u/%u)", lo, hi);
+        s += strprintf(" (Min/Max %u/%u)", lo, hi);
       else
         s += strprintf(" (%d %d %d %d)", raw[5], raw[4], raw[3], raw[2]);
     }

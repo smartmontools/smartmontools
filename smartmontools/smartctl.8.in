@@ -1126,8 +1126,10 @@ milliseconds.
 
 .I tempminmax
 \- Raw Attribute is the disk temperature in Celsius.  Info about
-Lifetime Min/Max temperature is printed if available.  This is the
-default for Attributes 190 and 194.
+Min/Max temperature is printed if available.  This is the default
+for Attributes 190 and 194.  The recording interval (lifetime,
+last power cycle, last soft reset) of the min/max values is device
+specific.
 
 .I temp10x
 \- Raw Attribute is ten times the disk temperature in Celsius.
