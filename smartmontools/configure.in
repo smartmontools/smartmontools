@@ -419,8 +419,6 @@ echo "${PACKAGE}-${VERSION} configuration:" >&AS_MESSAGE_FD
 echo "host operating system:  $host" >&AS_MESSAGE_FD
 echo "C++ compiler:           $CXX" >&AS_MESSAGE_FD
 echo "C compiler:             $CC" >&AS_MESSAGE_FD
-echo "Resource compiler:      $WINDRES" >&AS_MESSAGE_FD
-echo "Message compiler:       $WINDMC" >&AS_MESSAGE_FD
 echo "preprocessor flags:     $CPPFLAGS" >&AS_MESSAGE_FD
 echo "C++ compiler flags:     $CXXFLAGS" >&AS_MESSAGE_FD
 echo "C compiler flags:       $CFLAGS" >&AS_MESSAGE_FD
@@ -428,6 +426,8 @@ echo "linker flags:           $LDFLAGS" >&AS_MESSAGE_FD
 
 case "$host_os" in
   mingw*)
+    echo "resource compiler:      $WINDRES" >&AS_MESSAGE_FD
+    echo "message compiler:       $WINDMC" >&AS_MESSAGE_FD
     if test -n "$drivedbdir"; then
       echo "drive database file:    EXEDIR/drivedb.h" >&AS_MESSAGE_FD
       if test "$drivedbdir_is_default" = "yes"; then
