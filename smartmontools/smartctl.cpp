@@ -56,7 +56,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3152 2010-09-18 16:13:03Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3186 2010-10-16 13:09:11Z chrfranke $"
                                   CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -176,7 +176,7 @@ static std::string getvalidarglist(char opt)
   case 'q':
     return "errorsonly, silent, noserial";
   case 'd':
-    return smi()->get_valid_dev_types_str() + ", test";
+    return smi()->get_valid_dev_types_str() + ", auto, test";
   case 'T':
     return "normal, conservative, permissive, verypermissive";
   case 'b':
@@ -312,7 +312,7 @@ const char * parse_options(int argc, char** argv,
       }
       break;
     case 'd':
-      type = optarg;
+      type = (strcmp(optarg, "auto") ? optarg : (char *)0);
       break;
     case 'T':
       if (!strcmp(optarg,"normal")) {
