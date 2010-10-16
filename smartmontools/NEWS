@@ -12,9 +12,12 @@ Summary: smartmontools release 5.40
 - Option '-v' allows to specify byte order of attribute raw value
 - configure: New default value for '--with-docdir'.
 - configure: '--enable-drivedb' is now the default.
+- Improved support for Intel SSDs.
+- Improved support for SandForce based SSDs.
 - Drive database is in a separate source file 'drivedb.h'
   which can be downloaded from SVN.
 - USB ID info is now included in 'drivedb.h'.
+- Many additions to drive database.
 - New script 'update-smart-drivedb'.
 - smartd libcap-ng support, option '-C, --capabilities'.
 - smartd directive '-l xerror' to check Extended Comprehensive
@@ -30,6 +33,8 @@ Summary: smartmontools release 5.40
 - Windows: Support for cross compilation on Linux.
 - Fix regression in smartctl option '-t select,M-N'.
 - Fix SCT temperature table commands on big endian CPUs.
+- Fix regression in smartd SMARTD_DEVICE and SMARTD_DEVICETYPE
+  environment variables.
 
 Date 2010-01-28
 Summary: smartmontools release 5.39.1
