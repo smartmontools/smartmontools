@@ -176,7 +176,7 @@ static std::string getvalidarglist(char opt)
   case 'q':
     return "errorsonly, silent, noserial";
   case 'd':
-    return smi()->get_valid_dev_types_str() + ", test";
+    return smi()->get_valid_dev_types_str() + ", auto, test";
   case 'T':
     return "normal, conservative, permissive, verypermissive";
   case 'b':
@@ -312,7 +312,7 @@ const char * parse_options(int argc, char** argv,
       }
       break;
     case 'd':
-      type = optarg;
+      type = (strcmp(optarg, "auto") ? optarg : (char *)0);
       break;
     case 'T':
       if (!strcmp(optarg,"normal")) {

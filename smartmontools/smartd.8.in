@@ -1253,10 +1253,8 @@ is set to the argument of \-M exec, if present or else to \'mail\'
 .IP \fBSMARTD_DEVICE\fP 4
 is set to the device path (examples: /dev/hda, /dev/sdb).
 .IP \fBSMARTD_DEVICETYPE\fP 4
-is set to the device type (possible values: ata, scsi, 3ware,N,
-areca,N, hpt,L/M/N).  Here N=0,...,127 denotes the ATA disk behind a
-3ware RAID controller and L/M/N denotes the SATA disk behind a
-HighPoint RocketRAID controller.
+is set to the device type specified by \'-d\' directive or
+\'auto\' if none.
 .IP \fBSMARTD_DEVICESTRING\fP 4
 is set to the device description.  For SMARTD_DEVICETYPE of ata or
 scsi, this is the same as SMARTD_DEVICE.  For 3ware RAID controllers,

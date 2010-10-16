@@ -234,9 +234,9 @@ are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP,
 \fIareca,N\fP, \fIusbcypress\fP, \fIusbjmicron\fP, \fIusbsunplus\fP,
 \fIcciss,N\fP, \fIhpt,L/M\fP (or \fIhpt,L/M/N\fP), and \fItest\fP.
 
-If this option is not used then \fBsmartctl\fP will attempt to guess
-the device type from the device name or from controller type info
-provided by the operating system.
+If this option is not used or \'auto\' is used then \fBsmartctl\fP
+will attempt to guess the device type from the device name or from
+controller type info provided by the operating system.
 
 If \'test\' is used as the TYPE name, \fBsmartctl\fP prints the guessed
 TYPE name, then opens the device and prints the (possibly changed) TYPE

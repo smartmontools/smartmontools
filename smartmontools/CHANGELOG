@@ -43,6 +43,13 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Fix setting of SMARTD_DEVICE and SMARTD_DEVICETYPE
+       environment variables (ticket #113).
+       Regression was introduced by rework of smartd data structures.
+       SMARTD_DEVICE is now set to the plain device name.
+       SMARTD_DEVICETYPE is now set to 'auto' if no '-d' directive is
+       specified.  Smartctl now accepts '-d auto' for this purpose.
+
   [CF] Remove "Lifetime" from Min/Max temperature attribute output
        (ticket #111).  Interval is device specific.
 
