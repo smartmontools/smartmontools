@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] examplescripts/Example3: Use stdin to pass message to 'wall'
+       command (ticket #114).
+
   [CF] smartd: Fix setting of SMARTD_DEVICE and SMARTD_DEVICETYPE
        environment variables (ticket #113).
        Regression was introduced by rework of smartd data structures.
