@@ -1,11 +1,11 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3188 2010-10-16 13:58:31Z chrfranke $
+$Id: NEWS 3189 2010-10-16 16:35:49Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
-Date <Not released yet, please try current SVN>
+Date 2010-10-16
 Summary: smartmontools release 5.40
 -----------------------------------------------------------
 - Other config entries may precede smartd DEVICESCAN.
