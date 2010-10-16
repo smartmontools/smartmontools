@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+smartmontools 5.40 2010-10-16
+
   [CF] examplescripts/Example3: Use stdin to pass message to 'wall'
        command (ticket #114).
 
