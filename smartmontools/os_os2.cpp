@@ -31,7 +31,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp,v 1.9 2008/06/12 21:46:31 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id$" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver
@@ -65,7 +65,6 @@ static void unsupported(int which){
 
   if (!warninggiven[which]) {
     char msg;
-    debugmode=1;
     warninggiven[which]=1;
 
     switch (which) {

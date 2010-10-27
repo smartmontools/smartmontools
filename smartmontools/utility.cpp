@@ -72,9 +72,6 @@ const char * packet_types[] = {
         "Optical card reader/writer"
 };
 
-// command-line argument: are we running in debug mode?.
-unsigned char debugmode = 0;
-
 // BUILD_INFO can be provided by package maintainers
 #ifndef BUILD_INFO
 #define BUILD_INFO "(local build)"

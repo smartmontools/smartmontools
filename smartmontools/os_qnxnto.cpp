@@ -48,8 +48,6 @@ static void unsupported(){
 
   if (!warninggiven) {
     char *osname;
-    extern unsigned char debugmode;
-    unsigned char savedebugmode=debugmode;
 
 #ifdef HAVE_UNAME
     struct utsname ostype;
@@ -59,14 +57,12 @@ static void unsupported(){
     osname="host's";
 #endif
 
-    debugmode=1;
     pout("\n"
          "############################################################################\n"
          "WARNING: smartmontools has not been ported to the %s Operating System.\n"
          "Please see the files os_generic.cpp and os_generic.h for porting instructions.\n"
          "############################################################################\n\n",
          osname);
-    debugmode=savedebugmode;
     warninggiven=1;
   }
 
