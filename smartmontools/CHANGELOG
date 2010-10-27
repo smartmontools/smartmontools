@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3189 2010-10-16 16:35:49Z chrfranke $
+$Id: CHANGELOG 3191 2010-10-27 19:55:33Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -39,9 +39,9 @@ Maintainers / Developers Key (alphabetic order):
 [SZ]  Shengfeng Zhou
 [RZ]  Richard Zybert
 
-NOTES FOR FUTURE RELEASES: see TODO file.
-
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Make 'debugmode' variable local to smartd.cpp.
 
 smartmontools 5.40 2010-10-16
 

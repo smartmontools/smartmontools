@@ -126,10 +126,8 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3186 2010-10-16 13:09:11Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3191 2010-10-27 19:55:33Z chrfranke $"
                                 CONFIG_H_CVSID EXTERN_H_CVSID;
-
-extern unsigned char debugmode;
 
 // smartd exit codes
 #define EXIT_BADCMD    1   // command line did not parse
@@ -146,6 +144,10 @@ extern unsigned char debugmode;
 #define EXIT_NODEV     17  // no devices to monitor
 
 #define EXIT_SIGNAL    254 // abort on signal
+
+
+// command-line: 1=debug mode, 2=print presets
+static unsigned char debugmode = 0;
 
 // command-line: how long to sleep between checks
 #define CHECKTIME 1800

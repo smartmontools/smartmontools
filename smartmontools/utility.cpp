@@ -50,7 +50,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 3153 2010-09-18 16:25:47Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 3191 2010-10-27 19:55:33Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -71,9 +71,6 @@ const char * packet_types[] = {
         "Reduced block command (simplified disk)",
         "Optical card reader/writer"
 };
-
-// command-line argument: are we running in debug mode?.
-unsigned char debugmode = 0;
 
 // BUILD_INFO can be provided by package maintainers
 #ifndef BUILD_INFO

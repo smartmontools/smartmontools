@@ -82,7 +82,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp 2915 2009-09-18 21:17:37Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp 3191 2010-10-27 19:55:33Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
 
 // This is here to prevent compiler warnings for unused arguments of
@@ -106,8 +106,6 @@ static void unsupported(){
 
   if (!warninggiven) {
     char *osname;
-    extern unsigned char debugmode;
-    unsigned char savedebugmode=debugmode;
     
 #ifdef HAVE_UNAME
     struct utsname ostype;
@@ -117,14 +115,12 @@ static void unsupported(){
     osname="host's";
 #endif
 
-    debugmode=1;
     pout("\n"
          "############################################################################\n"
          "WARNING: smartmontools has not been ported to the %s Operating System.\n"
          "Please see the files os_generic.cpp and os_generic.h for porting instructions.\n"
          "############################################################################\n\n",
          osname);
-    debugmode=savedebugmode;
     warninggiven=1;
   }
   
