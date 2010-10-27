@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.63 2009/07/07 19:28:29 chrfranke Exp $\n"
+#define EXTERN_H_CVSID "$Id$\n"
 
 // Block used for global control/communications.  If you need more
 // global variables, this should be the only place that you need to
@@ -38,14 +38,6 @@ typedef struct smartmonctrl_s {
   bool conservative;
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
-#ifdef OLD_INTERFACE
-  // 3Ware controller type, but also extensible to other contoller types
-  unsigned char controller_type; // TODO: Only needed for os_linux.cpp
-  // For 3Ware controllers, nonzero value is 1 plus the disk number
-  unsigned char controller_port;  // TODO: Only needed for os_linux.cpp
-  // combined controller/channle/pmport for highpoint rocketraid controller
-  unsigned char hpt_data[3]; // TODO: Only needed for os_linux.cpp
-#endif
 } smartmonctrl;
 
 #endif

@@ -325,16 +325,6 @@ esac
 test -z "$with_os_deps" || os_deps="$with_os_deps"
 AC_MSG_RESULT([$os_deps $os_libs])
 
-# Define symbols for optional functions in OS specific module
-case "${os_deps}" in
-  os_win32*)
-    AC_DEFINE(HAVE_ATA_IDENTIFY_IS_CACHED, 1, [Define to 1 if you have the `ata_identify_is_cached' function in os_*.c.]) ;;
-esac
-case "${os_deps}" in
-  os_win32*)
-    AC_DEFINE(HAVE_GET_OS_VERSION_STR, 1, [Define to 1 if you have the `get_os_version_str' function in os_*.c.]) ;;
-esac
-
 # Check if we need adapter to old interface (dev_legacy.cpp)
 os_src=`echo "${os_deps}"|sed -n 's,^\([[^ .]]*\)\.o.*$,\1.cpp,p'`
 AC_MSG_CHECKING([whether ${os_src} uses new interface])
