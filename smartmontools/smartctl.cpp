@@ -316,15 +316,15 @@ const char * parse_options(int argc, char** argv,
       break;
     case 'T':
       if (!strcmp(optarg,"normal")) {
-        con->conservative = false;
-        con->permissive   = 0;
+        failuretest_conservative = false;
+        failuretest_permissive   = 0;
       } else if (!strcmp(optarg,"conservative")) {
-        con->conservative = true;
+        failuretest_conservative = true;
       } else if (!strcmp(optarg,"permissive")) {
-        if (con->permissive<0xff)
-          con->permissive++;
+        if (failuretest_permissive < 0xff)
+          failuretest_permissive++;
       } else if (!strcmp(optarg,"verypermissive")) {
-        con->permissive = 0xff;
+        failuretest_permissive = 0xff;
       } else {
         badarg = true;
       }
@@ -878,6 +878,34 @@ void pout(const char *fmt, ...){
   va_end(ap);
   fflush(stdout);
   return;
+}
+
+// Globals to set failuretest() policy
+bool failuretest_conservative = false;
+unsigned char failuretest_permissive = 0;
+
+// Compares failure type to policy in effect, and either exits or
+// simply returns to the calling routine.
+// Used in ataprint.cpp and scsiprint.cpp.
+void failuretest(failure_type type, int returnvalue)
+{
+  // If this is an error in an "optional" SMART command
+  if (type == OPTIONAL_CMD) {
+    if (!failuretest_conservative)
+      return;
+    pout("An optional SMART command failed: exiting. Remove '-T conservative' option to continue.\n");
+    EXIT(returnvalue);
+  }
+
+  // If this is an error in a "mandatory" SMART command
+  if (type == MANDATORY_CMD) {
+    if (failuretest_permissive--)
+      return;
+    pout("A mandatory SMART command failed: exiting. To continue, add one or more '-T permissive' options.\n");
+    EXIT(returnvalue);
+  }
+
+  throw std::logic_error("failuretest: Unknown type");
 }
 
 // Used to warn users about invalid checksums. Called from atacmds.cpp.

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef SMARTCTL_H_
 #define SMARTCTL_H_
 
-#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.27 2009/06/20 19:11:04 chrfranke Exp $\n"
+#define SMARTCTL_H_CVSID "$Id$\n"
 
 // Return codes (bitmask)
 
@@ -65,10 +65,17 @@
 // command set."  The 'mandatory' S.M.A.R.T.  commands are: (1)
 // Enable/Disable Attribute Autosave, (2) Enable/Disable S.M.A.R.T.,
 // and (3) S.M.A.R.T. Return Status.  All others are optional.
-#define OPTIONAL_CMD 1
-#define MANDATORY_CMD 2
+enum failure_type {
+  OPTIONAL_CMD,
+  MANDATORY_CMD,
+};
 
-// Moved to C++ interface
-//void print_smartctl_examples();
+// Globals to set failuretest() policy
+extern bool failuretest_conservative;
+extern unsigned char failuretest_permissive;
+
+// Compares failure type to policy in effect, and either exits or
+// simply returns to the calling routine.
+void failuretest(failure_type type, int returnvalue);
 
 #endif

@@ -22,9 +22,10 @@
 #include "int64.h"
 #include "atacmds.h"
 #include "extern.h"
-extern smartmonctrl * con; // con->permissive,reportataioctl
+extern smartmonctrl * con; // reportataioctl
 #include "scsicmds.h"
 #include "utility.h"
+#include "smartctl.h" // TODO: Do not use smartctl only variables here
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
@@ -601,11 +602,11 @@ static const char * ata_get_def_options(void);
 
 static int is_permissive()
 {
-  if (!con->permissive) {
+  if (!failuretest_permissive) {
     pout("To continue, add one or more '-T permissive' options.\n");
     return 0;
   }
-  con->permissive--;
+  failuretest_permissive--;
   return 1;
 }
 
@@ -2645,12 +2646,12 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         if (!m_smartver_state) {
           assert(m_port == -1);
           if (smart_get_version(get_fh()) < 0) {
-            if (!con->permissive) {
+            if (!failuretest_permissive) {
               m_smartver_state = 2;
               rc = -1; errno = ENOSYS;
               break;
             }
-            con->permissive--;
+            failuretest_permissive--;
           }
           m_smartver_state = 1;
         }

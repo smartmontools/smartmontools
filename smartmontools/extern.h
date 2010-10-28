@@ -34,8 +34,6 @@ typedef struct smartmonctrl_s {
   bool printing_switchable;
   bool dont_print;
   bool dont_print_serial;
-  unsigned char permissive;
-  bool conservative;
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
 } smartmonctrl;

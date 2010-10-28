@@ -1708,31 +1708,6 @@ static void ataPrintSCTErrorRecoveryControl(unsigned short read_timer, unsigned 
 }
 
 
-// Compares failure type to policy in effect, and either exits or
-// simply returns to the calling routine.
-void failuretest(int type, int returnvalue){
-
-  // If this is an error in an "optional" SMART command
-  if (type==OPTIONAL_CMD){
-    if (con->conservative){
-      pout("An optional SMART command failed: exiting.  Remove '-T conservative' option to continue.\n");
-      EXIT(returnvalue);
-    }
-    return;
-  }
-
-  // If this is an error in a "mandatory" SMART command
-  if (type==MANDATORY_CMD){
-    if (con->permissive--)
-      return;
-    pout("A mandatory SMART command failed: exiting. To continue, add one or more '-T permissive' options.\n");
-    EXIT(returnvalue);
-  }
-
-  pout("Smartctl internal error in failuretest(type=%d). Please contact developers at " PACKAGE_HOMEPAGE "\n",type);
-  EXIT(returnvalue|FAILCMD);
-}
-
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
   int returnval = 0;
@@ -2188,11 +2163,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       }
 
       if (!max_nsectors) {
-        if (!con->permissive) {
+        if (!failuretest_permissive) {
           pout("%s Log 0x%02x does not exist (override with '-T permissive' option)\n", type, req.logaddr);
           continue;
         }
-        con->permissive--;
+        failuretest_permissive--;
         max_nsectors = req.page+1;
       }
       if (max_nsectors <= req.page) {
