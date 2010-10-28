@@ -126,7 +126,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3191 2010-10-27 19:55:33Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3194 2010-10-28 17:48:20Z chrfranke $"
                                 CONFIG_H_CVSID EXTERN_H_CVSID;
 
 // smartd exit codes
@@ -191,6 +191,11 @@ static bool do_fork=true;
 #ifdef HAVE_LIBCAP_NG
 // command-line: enable capabilities?
 static bool enable_capabilities = false;
+#endif
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+// TODO: This smartctl only variable is also used in os_win32.cpp
+unsigned char failuretest_permissive = 0;
 #endif
 
 // used for control of printing, passing arguments to atacmds.c
