@@ -22,7 +22,6 @@
 #include "int64.h"
 #include <stdio.h>
 #include "atacmds.h"
-#include "extern.h"
 #include "knowndrives.h"
 #include "utility.h"
 
@@ -35,7 +34,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3093 2010-04-30 09:57:36Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3195 2010-10-28 19:20:33Z chrfranke $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40

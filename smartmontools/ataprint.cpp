@@ -44,7 +44,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3194 2010-10-28 17:48:20Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3195 2010-10-28 19:20:33Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 // for passing global control variables
@@ -473,7 +473,7 @@ static bool PrintDriveInfo(const ata_identify_device * drive, bool fix_swapped_i
     pout("Model Family:     %s\n", dbentry->modelfamily);
 
   pout("Device Model:     %s\n", infofound(model));
-  if (!con->dont_print_serial)
+  if (!dont_print_serial_number)
     pout("Serial Number:    %s\n", infofound(serial));
   pout("Firmware Version: %s\n", infofound(firm));
 

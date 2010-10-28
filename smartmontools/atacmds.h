@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3133 2010-08-18 17:23:27Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3195 2010-10-28 19:20:33Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -706,6 +706,12 @@ private:
   entry m_defs[256];
 };
 
+
+// Print ATA debug messages?
+extern unsigned char ata_debugmode;
+
+// Suppress serial number?
+extern bool dont_print_serial_number;
 
 // Get information from drive
 int ataReadHDIdentity(ata_device * device, struct ata_identify_device *buf);
