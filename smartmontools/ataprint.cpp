@@ -40,15 +40,12 @@
 #include "dev_interface.h"
 #include "ataprint.h"
 #include "smartctl.h"
-#include "extern.h"
 #include "utility.h"
 #include "knowndrives.h"
 
 const char * ataprint_cpp_cvsid = "$Id$"
                                   ATAPRINT_H_CVSID;
 
-// for passing global control variables
-extern smartmonctrl *con;
 
 static const char * infofound(const char *output) {
   return (*output ? output : "[No Information Found]");
@@ -1121,7 +1118,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
     pout("No Errors Logged\n\n");
     return 0;
   }
-  PRINT_ON(con);
+  print_on();
   // If log pointer out of range, return
   if (data->error_log_pointer>5){
     pout("Invalid Error Log index = 0x%02x (T13/1321D rev 1c "
@@ -1142,7 +1139,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
   else
     pout( "ATA Error Count: %d (device log contains only the most recent five errors)\n",
            (int)data->ata_error_count);
-  PRINT_OFF(con);
+  print_off();
   pout("\tCR = Command Register [HEX]\n"
        "\tFR = Features Register [HEX]\n"
        "\tSC = Sector Count Register [HEX]\n"
@@ -1172,10 +1169,10 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
       int days = (int)summary->timestamp/24;
 
       // See table 42 of ATA5 spec
-      PRINT_ON(con);
+      print_on();
       pout("Error %d occurred at disk power-on lifetime: %d hours (%d days + %d hours)\n",
              (int)(data->ata_error_count+k-4), (int)summary->timestamp, days, (int)(summary->timestamp-24*days));
-      PRINT_OFF(con);
+      print_off();
       pout("  When the command that caused the error occurred, the device was %s.\n\n",msgstate);
       pout("  After command completion occurred, registers were:\n"
            "  ER ST SC SN CL CH DH\n"
@@ -1224,10 +1221,10 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
       pout("\n");
     }
   }
-  PRINT_ON(con);
-  if (con->printing_switchable)
+  print_on();
+  if (printing_is_switchable)
     pout("\n");
-  PRINT_OFF(con);
+  print_off();
   return data->ata_error_count;  
 }
 
@@ -1242,7 +1239,7 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
     pout("No Errors Logged\n\n");
     return 0;
   }
-  PRINT_ON(con);
+  print_on();
 
   // Check index
   unsigned nentries = nsectors * 4;
@@ -1277,7 +1274,7 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
   if (max_errors < errcnt)
     errcnt = max_errors;
 
-  PRINT_OFF(con);
+  print_off();
   pout("\tCR     = Command Register\n"
        "\tFEATR  = Features Register\n"
        "\tCOUNT  = Count (was: Sector Count) Register\n"
@@ -1306,11 +1303,11 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
     }
 
     // Print error information
-    PRINT_ON(con);
+    print_on();
     const ata_smart_exterrlog_error & err = entry.error;
     pout("Error %u [%u] occurred at disk power-on lifetime: %u hours (%u days + %u hours)\n",
          errnum, erridx, err.timestamp, err.timestamp / 24, err.timestamp % 24);
-    PRINT_OFF(con);
+    print_off();
 
     pout("  When the command that caused the error occurred, the device was %s.\n\n",
       get_error_log_state_desc(err.state));
@@ -1376,10 +1373,10 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
     pout("\n");
   }
 
-  PRINT_ON(con);
-  if (con->printing_switchable)
+  print_on();
+  if (printing_is_switchable)
     pout("\n");
-  PRINT_OFF(con);
+  print_off();
   return log->device_error_count;
 }
 
@@ -2001,7 +1998,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         if (options.smart_vendor_attrib)
           pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
         else {
-          PRINT_ON(con);
+          print_on();
           pout("Please note the following marginal Attributes:\n");
           PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 2);
         } 
@@ -2013,16 +2010,16 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       
     case 1:
       // The case where the disk health is NOT OK
-      PRINT_ON(con);
+      print_on();
       pout("SMART overall-health self-assessment test result: FAILED!\n"
            "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
-      PRINT_OFF(con);
+      print_off();
       if (smart_thres_ok && find_failed_attr(&smartval, &smartthres, attribute_defs, 1)) {
         returnval|=FAILATTR;
         if (options.smart_vendor_attrib)
           pout("See vendor-specific Attribute list for failed Attributes.\n\n");
         else {
-          PRINT_ON(con);
+          print_on();
           pout("Failed Attributes:\n");
           PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 1);
         }
@@ -2030,7 +2027,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       else
         pout("No failed Attributes found.\n\n");   
       returnval|=FAILSTATUS;
-      PRINT_OFF(con);
+      print_off();
       break;
 
     case -1:
@@ -2041,21 +2038,21 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       // return the registers values.
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       if (!(smart_val_ok && smart_thres_ok)) {
-        PRINT_ON(con);
+        print_on();
         pout("SMART overall-health self-assessment test result: UNKNOWN!\n"
              "SMART Status, Attributes and Thresholds cannot be read.\n\n");
       }
       else if (find_failed_attr(&smartval, &smartthres, attribute_defs, 1)) {
-        PRINT_ON(con);
+        print_on();
         pout("SMART overall-health self-assessment test result: FAILED!\n"
              "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
-        PRINT_OFF(con);
+        print_off();
         returnval|=FAILATTR;
         returnval|=FAILSTATUS;
         if (options.smart_vendor_attrib)
           pout("See vendor-specific Attribute list for failed Attributes.\n\n");
         else {
-          PRINT_ON(con);
+          print_on();
           pout("Failed Attributes:\n");
           PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 1);
         }
@@ -2067,7 +2064,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
           if (options.smart_vendor_attrib)
             pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
           else {
-            PRINT_ON(con);
+            print_on();
             pout("Please note the following marginal Attributes:\n");
             PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 2);
           } 
@@ -2076,11 +2073,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         else
           pout("\n");
       } 
-      PRINT_OFF(con);
+      print_off();
       break;
     } // end of switch statement
     
-    PRINT_OFF(con);
+    print_off();
   } // end of checking SMART Status
   
   // Print general SMART values
@@ -2089,10 +2086,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print vendor-specific attributes
   if (smart_val_ok && options.smart_vendor_attrib) {
-    PRINT_ON(con);
+    print_on();
     PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs,
-                              (con->printing_switchable ? 2 : 0));
-    PRINT_OFF(con);
+                              (printing_is_switchable ? 2 : 0));
+    print_off();
   }
 
   // Print SMART and/or GP log Directory and/or logs
@@ -2241,7 +2238,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       // quiet mode is turned on inside ataPrintSmartErrorLog()
       if (PrintSmartErrorlog(&smarterror, fix_firmwarebug))
 	returnval|=FAILERR;
-      PRINT_OFF(con);
+      print_off();
     }
   }
 
@@ -2287,10 +2284,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
-      PRINT_ON(con);
-      if (ataPrintSmartSelfTestlog(&smartselftest, !con->printing_switchable, fix_firmwarebug))
+      print_on();
+      if (ataPrintSmartSelfTestlog(&smartselftest, !printing_is_switchable, fix_firmwarebug))
 	returnval|=FAILLOG;
-      PRINT_OFF(con);
+      print_off();
       pout("\n");
     }
   }
@@ -2306,12 +2303,13 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
-      PRINT_ON(con);
+      print_on();
       // If any errors were found, they are logged in the SMART Self-test log.
       // So there is no need to print the Selective Self Test log in silent
       // mode.
-      if (!con->printing_switchable) ataPrintSelectiveSelfTestLog(&log, &smartval);
-      PRINT_OFF(con);
+      if (!printing_is_switchable)
+        ataPrintSelectiveSelfTestLog(&log, &smartval);
+      print_off();
       pout("\n");
     }
   }

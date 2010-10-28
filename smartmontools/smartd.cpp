@@ -85,7 +85,6 @@ extern "C" int __stdcall FreeConsole(void);
 #include "int64.h"
 #include "atacmds.h"
 #include "dev_interface.h"
-#include "extern.h"
 #include "knowndrives.h"
 #include "scsicmds.h"
 #include "utility.h"
@@ -127,7 +126,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 #define ARGUSED(x) ((void)(x))
 
 const char * smartd_cpp_cvsid = "$Id$"
-                                CONFIG_H_CVSID EXTERN_H_CVSID;
+  CONFIG_H_CVSID;
 
 // smartd exit codes
 #define EXIT_BADCMD    1   // command line did not parse
@@ -197,9 +196,6 @@ static bool enable_capabilities = false;
 // TODO: This smartctl only variable is also used in os_win32.cpp
 unsigned char failuretest_permissive = 0;
 #endif
-
-// used for control of printing, passing arguments to atacmds.c
-smartmonctrl *con=NULL;
 
 // set to one if we catch a USR1 (check devices now)
 volatile int caughtsigUSR1=0;
@@ -4286,25 +4282,14 @@ int main_worker(int argc, char **argv)
   if (!smi())
     return 1;
 
-  // external control variables for ATA disks
-  smartmonctrl control;
-
   // is it our first pass through?
   bool firstpass = true;
 
   // next time to wake up
   time_t wakeuptime;
 
-  // for simplicity, null all global communications variables/lists
-  con=&control;
-  memset(con,        0,sizeof(control));
-
   // parse input and print header and usage info if needed
   ParseOpts(argc,argv);
-  
-  // do we mute printing from ataprint commands?
-  con->printing_switchable = false;
-  con->dont_print = !debugmode;
   
   // Configuration for each device
   dev_config_vector configs;

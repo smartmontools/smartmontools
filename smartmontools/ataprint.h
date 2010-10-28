@@ -44,7 +44,6 @@ struct ata_log_request
 };
 
 // Options for ataPrintMain
-// TODO: Move remaining options from con->* to here.
 struct ata_print_options
 {
   bool drive_info;

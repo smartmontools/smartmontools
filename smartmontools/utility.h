@@ -313,10 +313,6 @@ private:
   bool compile();
 };
 
-// macros to control printing
-#define PRINT_ON(control)  {if (control->printing_switchable) control->dont_print=false;}
-#define PRINT_OFF(control) {if (control->printing_switchable) control->dont_print=true;}
-
 #ifdef _WIN32
 // Get exe directory
 //(implemented in os_win32.cpp)

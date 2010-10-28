@@ -474,10 +474,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\extern.h"
-			>
-		</File>
-		<File
 			RelativePath="..\INSTALL"
 			>
 		</File>

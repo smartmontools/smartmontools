@@ -32,7 +32,6 @@
 #define SCSIPRINT_H_CVSID "$Id$\n"
 
 // Options for scsiPrintMain
-// TODO: Move remaining options from con->* to here.
 struct scsi_print_options
 {
   bool drive_info;

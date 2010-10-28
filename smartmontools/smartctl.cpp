@@ -49,7 +49,6 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 #include "ataprint.h"
-#include "extern.h"
 #include "knowndrives.h"
 #include "scsicmds.h"
 #include "scsiprint.h"
@@ -57,11 +56,11 @@
 #include "utility.h"
 
 const char * smartctl_cpp_cvsid = "$Id$"
-                                  CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
+  CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
-// This is a block containing all the "control variables".  We declare
-// this globally in this file, and externally in other files.
-smartmonctrl *con=NULL;
+// Globals to control printing
+bool printing_is_switchable = false;
+bool printing_is_off = false;
 
 static void printslogan()
 {
@@ -279,7 +278,6 @@ const char * parse_options(int argc, char** argv,
 
   char extraerror[256];
   memset(extraerror, 0, sizeof(extraerror));
-  memset(con,0,sizeof(*con));
   opterr=optopt=0;
 
   const char * type = 0; // set to -d optarg
@@ -294,17 +292,17 @@ const char * parse_options(int argc, char** argv,
   while ((optchar = getopt_long(argc, argv, shortopts, longopts, 0)) != -1) {
     switch (optchar){
     case 'V':
-      con->dont_print = false;
+      printing_is_off = false;
       pout("%s", format_version_info("smartctl", true /*full*/).c_str());
       EXIT(0);
       break;
     case 'q':
       if (!strcmp(optarg,"errorsonly")) {
-        con->printing_switchable = true;
-        con->dont_print = false;
+        printing_is_switchable = true;
+        printing_is_off = false;
       } else if (!strcmp(optarg,"silent")) {
-        con->printing_switchable = false;
-        con->dont_print = true;
+        printing_is_switchable = false;
+        printing_is_off = true;
       } else if (!strcmp(optarg,"noserial")) {
         dont_print_serial_number = true;
       } else {
@@ -562,7 +560,7 @@ const char * parse_options(int argc, char** argv,
     case 'v':
       // parse vendor-specific definitions of attributes
       if (!strcmp(optarg,"help")) {
-        con->dont_print = false;
+        printing_is_off = false;
         printslogan();
         pout("The valid arguments to -v are:\n\thelp\n%s\n",
              create_vendor_attribute_arg_list().c_str());
@@ -709,7 +707,7 @@ const char * parse_options(int argc, char** argv,
       }
       break;
     case 'h':
-      con->dont_print = false;
+      printing_is_off = false;
       printslogan();
       Usage();
       EXIT(0);  
@@ -722,7 +720,7 @@ const char * parse_options(int argc, char** argv,
 
     case '?':
     default:
-      con->dont_print = false;
+      printing_is_off = false;
       printslogan();
       // Point arg to the argument in which this option was found.
       arg = argv[optind-1];
@@ -781,12 +779,12 @@ const char * parse_options(int argc, char** argv,
   // At this point we have processed all command-line options.  If the
   // print output is switchable, then start with the print output
   // turned off
-  if (con->printing_switchable)
-    con->dont_print = true;
+  if (printing_is_switchable)
+    printing_is_off = true;
 
   // error message if user has asked for more than one test
   if (testcnt > 1) {
-    con->dont_print = false;
+    printing_is_off = false;
     printslogan();
     pout("\nERROR: smartctl can only run a single test type (or abort) at a time.\n");
     UsageSummary();
@@ -797,7 +795,7 @@ const char * parse_options(int argc, char** argv,
   // asking for a selective self-test
   if (   (ataopts.smart_selective_args.pending_time || ataopts.smart_selective_args.scan_after_select)
       && !ataopts.smart_selective_args.num_spans) {
-    con->dont_print = false;
+    printing_is_off = false;
     printslogan();
     if (ataopts.smart_selective_args.pending_time)
       pout("\nERROR: smartctl -t pending,N must be used with -t select,N-M.\n");
@@ -856,7 +854,7 @@ const char * parse_options(int argc, char** argv,
   return type;
 }
 
-// Printing function (controlled by global con->dont_print) 
+// Printing function (controlled by global printing_is_off)
 // [From GLIBC Manual: Since the prototype doesn't specify types for
 // optional arguments, in a call to a variadic function the default
 // argument promotions are performed on the optional argument
@@ -868,7 +866,7 @@ void pout(const char *fmt, ...){
   
   // initialize variable argument list 
   va_start(ap,fmt);
-  if (con->dont_print){
+  if (printing_is_off) {
     va_end(ap);
     return;
   }
@@ -941,9 +939,9 @@ void scan_devices(const char * type, bool with_open, const char * pattern)
   bool dont_print = !(ata_debugmode || scsi_debugmode);
   smart_device_list devlist;
 
-  con->dont_print = dont_print;
+  printing_is_off = dont_print;
   bool ok = smi()->scan_smart_devices(devlist, type , pattern);
-  con->dont_print = false;
+  printing_is_off = false;
 
   if (!ok) {
     pout("scan_smart_devices: %s\n", smi()->get_errmsg());
@@ -955,9 +953,9 @@ void scan_devices(const char * type, bool with_open, const char * pattern)
 
     std::string openmsg;
     if (with_open) {
-      con->dont_print = dont_print;
+      printing_is_off = dont_print;
       dev = dev->autodetect_open();
-      con->dont_print = false;
+      printing_is_off = false;
 
       if (dev->is_open())
         openmsg = " (opened)";
@@ -982,10 +980,6 @@ int main_worker(int argc, char **argv)
   smart_interface::init();
   if (!smi())
     return 1;
-
-  // define control block for external functions
-  smartmonctrl control;
-  con=&control;
 
   // Parse input arguments
   ata_print_options ataopts;

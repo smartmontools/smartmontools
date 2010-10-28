@@ -33,7 +33,6 @@
 
 #include "config.h"
 #include "int64.h"
-#include "extern.h"
 #include "scsicmds.h"
 #include "atacmds.h" // smart_command_set
 #include "dev_interface.h"
@@ -46,8 +45,6 @@
 const char * scsiprint_c_cvsid = "$Id$"
                                  SCSIPRINT_H_CVSID;
 
-// control block which points to external global control variables
-extern smartmonctrl *con;
 
 UINT8 gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
@@ -75,10 +72,6 @@ static int gIecMPage = 1;     /* N.B. assume it until we know otherwise */
 
 /* Remember last successful mode sense/select command */
 static int modese_len = 0;
-
-// Compares failure type to policy in effect, and either exits or
-// simply returns to the calling routine.
-extern void failuretest(int type, int returnvalue);
 
 static void scsiGetSupportedLogPages(scsi_device * device)
 {
@@ -154,20 +147,20 @@ static int scsiGetSmartData(scsi_device * device, bool attribs)
     const char * cp;
     int err = 0;
 
-    PRINT_ON(con);
+    print_on();
     if (scsiCheckIE(device, gSmartLPage, gTempLPage, &asc, &ascq,
                     &currenttemp, &triptemp)) {
         /* error message already announced */
-        PRINT_OFF(con);
+        print_off();
         return -1;
     }
-    PRINT_OFF(con);
+    print_off();
     cp = scsiGetIEString(asc, ascq);
     if (cp) {
         err = -2;
-        PRINT_ON(con);
+        print_on();
         pout("SMART Health Status: %s [asc=%x, ascq=%x]\n", cp, asc, ascq); 
-        PRINT_OFF(con);
+        print_off();
     } else if (gIecMPage)
         pout("SMART Health Status: OK\n");
 
@@ -200,16 +193,16 @@ static int scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
     const char *ts;
     int failures = 0;
 
-    PRINT_ON(con);
+    print_on();
     if ((err = scsiLogSense(device, TAPE_ALERTS_LPAGE, 0, gBuf,
                         LOG_RESP_TAPE_ALERT_LEN, LOG_RESP_TAPE_ALERT_LEN))) {
         pout("scsiGetTapesAlertData Failed [%s]\n", scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return -1;
     }
     if (gBuf[0] != 0x2e) {
         pout("TapeAlerts Log Sense Failed\n");
-        PRINT_OFF(con);
+        print_off();
         return -1;
     }
     pagelength = (unsigned short) gBuf[2] << 8 | gBuf[3];
@@ -231,7 +224,7 @@ static int scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
             }
         }
     }
-    PRINT_OFF(con);
+    print_off();
 
     if (! failures)
         pout("TapeAlert: OK\n");
@@ -247,24 +240,24 @@ static void scsiGetStartStopData(scsi_device * device)
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
-        PRINT_ON(con);
+        print_on();
         pout("scsiGetStartStopData Failed [%s]\n", scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return;
     }
     if ((gBuf[0] & 0x3f) != STARTSTOP_CYCLE_COUNTER_LPAGE) {
-        PRINT_ON(con);
+        print_on();
         pout("StartStop Log Sense Failed, page mismatch\n");
-        PRINT_OFF(con);
+        print_off();
         return;
     }
     len = ((gBuf[2] << 8) | gBuf[3]);
     ucp = gBuf + 4;
     for (k = len; k > 0; k -= extra, ucp += extra) {
         if (k < 3) {
-            PRINT_ON(con);
+            print_on();
             pout("StartStop Log Sense Failed: short\n");
-            PRINT_OFF(con);
+            print_off();
             return;
         }
         extra = ucp[3] + 4;
@@ -323,16 +316,16 @@ static void scsiPrintGrownDefectListLen(scsi_device * device)
     if ((err = scsiReadDefect10(device, 0 /* req_plist */, 1 /* req_glist */,
                                 4 /* bytes from index */, gBuf, 4))) {
         if (scsi_debugmode > 0) {
-            PRINT_ON(con);
+            print_on();
             pout("Read defect list (10) Failed: %s\n", scsiErrString(err));
-            PRINT_OFF(con);
+            print_off();
         }
         return;
     }
     if (0x8 != (gBuf[1] & 0x18)) {
-        PRINT_ON(con);
+        print_on();
         pout("Read defect list: asked for grown list but didn't get it\n");
-        PRINT_OFF(con);
+        print_off();
         return;
     }
     div = 0;
@@ -347,9 +340,9 @@ static void scsiPrintGrownDefectListLen(scsi_device * device)
             div = 8;
             break;
         default:
-            PRINT_ON(con);
+            print_on();
             pout("defect list format %d unknown\n", dl_format);
-            PRINT_OFF(con);
+            print_off();
             break;
     }
     dl_len = (gBuf[2] << 8) + gBuf[3];
@@ -373,15 +366,15 @@ static void scsiPrintSeagateCacheLPage(scsi_device * device)
 
     if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
-        PRINT_ON(con);
+        print_on();
         pout("Seagate Cache Log Sense Failed: %s\n", scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return;
     }
     if ((gBuf[0] & 0x3f) != SEAGATE_CACHE_LPAGE) {
-        PRINT_ON(con);
+        print_on();
         pout("Seagate Cache Log Sense Failed, page mismatch\n");
-        PRINT_OFF(con);
+        print_off();
         return;
     }
     len = ((gBuf[2] << 8) | gBuf[3]) + 4;
@@ -395,10 +388,10 @@ static void scsiPrintSeagateCacheLPage(scsi_device * device)
             break;
         default: 
             if (scsi_debugmode > 0) {
-                PRINT_ON(con);
+                print_on();
                 pout("Vendor (Seagate) cache lpage has unexpected parameter"
                      ", skip\n");
-                PRINT_OFF(con);
+                print_off();
             }
             return;
         }
@@ -448,15 +441,15 @@ static void scsiPrintSeagateFactoryLPage(scsi_device * device)
 
     if ((err = scsiLogSense(device, SEAGATE_FACTORY_LPAGE, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
-        PRINT_ON(con);
+        print_on();
         pout("scsiPrintSeagateFactoryLPage Failed [%s]\n", scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return;
     }
     if ((gBuf[0] & 0x3f) != SEAGATE_FACTORY_LPAGE) {
-        PRINT_ON(con);
+        print_on();
         pout("Seagate/Hitachi Factory Log Sense Failed, page mismatch\n");
-        PRINT_OFF(con);
+        print_off();
         return;
     }
     len = ((gBuf[2] << 8) | gBuf[3]) + 4;
@@ -480,10 +473,10 @@ static void scsiPrintSeagateFactoryLPage(scsi_device * device)
     }
     if ((good < 2) || (bad > 4)) {  /* heuristic */
         if (scsi_debugmode > 0) {
-            PRINT_ON(con);
+            print_on();
             pout("\nVendor (Seagate/Hitachi) factory lpage has too many "
                  "unexpected parameters, skip\n");
-            PRINT_OFF(con);
+            print_off();
         }
         return;
     }
@@ -503,10 +496,10 @@ static void scsiPrintSeagateFactoryLPage(scsi_device * device)
             break;
         default:
             if (scsi_debugmode > 0) {
-                PRINT_ON(con);
+                print_on();
                 pout("Vendor (Seagate/Hitachi) factory lpage: "
                      "unknown parameter code [0x%x]\n", pc);
-                PRINT_OFF(con);
+                print_off();
             }
             break;
         }
@@ -687,24 +680,24 @@ static int scsiPrintSelfTest(scsi_device * device)
 
     if ((err = scsiLogSense(device, SELFTEST_RESULTS_LPAGE, 0, gBuf,
                             LOG_RESP_SELF_TEST_LEN, 0))) {
-        PRINT_ON(con);
+        print_on();
         pout("scsiPrintSelfTest Failed [%s]\n", scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return FAILSMART;
     }
     if ((gBuf[0] & 0x3f) != SELFTEST_RESULTS_LPAGE) {
-        PRINT_ON(con);
+        print_on();
         pout("Self-test Log Sense Failed, page mismatch\n");
-        PRINT_OFF(con);
+        print_off();
         return FAILSMART;
     }
     // compute page length
     num = (gBuf[2] << 8) + gBuf[3];
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
-        PRINT_ON(con);
+        print_on();
         pout("Self-test Log Sense length is 0x%x not 0x190 bytes\n",num);
-        PRINT_OFF(con);
+        print_off();
         return FAILSMART;
     }
     // loop through the twenty possible entries
@@ -860,24 +853,24 @@ static int scsiPrintBackgroundResults(scsi_device * device)
 
     if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
-        PRINT_ON(con);
+        print_on();
         pout("scsiPrintBackgroundResults Failed [%s]\n", scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return FAILSMART;
     }
     if ((gBuf[0] & 0x3f) != BACKGROUND_RESULTS_LPAGE) {
-        PRINT_ON(con);
+        print_on();
         pout("Background scan results Log Sense Failed, page mismatch\n");
-        PRINT_OFF(con);
+        print_off();
         return FAILSMART;
     }
     // compute page length
     num = (gBuf[2] << 8) + gBuf[3] + 4;
     if (num < 20) {
-        PRINT_ON(con);
+        print_on();
         pout("Background scan results Log Sense length is %d, no scan "
              "status\n", num);
-        PRINT_OFF(con);
+        print_off();
         return FAILSMART;
     }
     truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
@@ -1248,32 +1241,32 @@ static int scsiPrintSasPhy(scsi_device * device, int reset)
 
     if ((err = scsiLogSense(device, PROTOCOL_SPECIFIC_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
-        PRINT_ON(con);
+        print_on();
         pout("scsiPrintSasPhy Log Sense Failed [%s]\n", scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return FAILSMART;
     }
     if ((gBuf[0] & 0x3f) != PROTOCOL_SPECIFIC_LPAGE) {
-        PRINT_ON(con);
+        print_on();
         pout("Protocol specific Log Sense Failed, page mismatch\n");
-        PRINT_OFF(con);
+        print_off();
         return FAILSMART;
     }
     // compute page length
     num = (gBuf[2] << 8) + gBuf[3];
     if (1 != show_protocol_specific_page(gBuf, num + 4)) {
-        PRINT_ON(con);
+        print_on();
         pout("Only support protocol specific log page on SAS devices\n");
-        PRINT_OFF(con);
+        print_off();
         return FAILSMART;
     }
     if (reset) {
         if ((err = scsiLogSelect(device, 1 /* pcr */, 0 /* sp */, 0 /* pc */,
                                  PROTOCOL_SPECIFIC_LPAGE, 0, NULL, 0))) {
-            PRINT_ON(con);
+            print_on();
             pout("scsiPrintSasPhy Log Select (reset) Failed [%s]\n",
                  scsiErrString(err));
-            PRINT_OFF(con);
+            print_off();
             return FAILSMART;
         }
     }
@@ -1335,17 +1328,17 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     memset(gBuf, 0, 96);
     req_len = 36;
     if ((err = scsiStdInquiry(device, gBuf, req_len))) {
-        PRINT_ON(con);
+        print_on();
         pout("Standard Inquiry (36 bytes) failed [%s]\n", scsiErrString(err));
         pout("Retrying with a 64 byte Standard Inquiry\n");
-        PRINT_OFF(con);
+        print_off();
         /* Marvell controllers fail on a 36 bytes StdInquiry, but 64 suffices */
         req_len = 64;
         if ((err = scsiStdInquiry(device, gBuf, req_len))) {
-            PRINT_ON(con);
+            print_on();
             pout("Standard Inquiry (64 bytes) failed [%s]\n",
                  scsiErrString(err));
-            PRINT_OFF(con);
+            print_off();
             return 1;
         }
     }
@@ -1356,9 +1349,9 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         *peripheral_type = peri_dt;
 
     if (len < 36) {
-        PRINT_ON(con);
+        print_on();
         pout("Short INQUIRY response, skip product id\n");
-        PRINT_OFF(con);
+        print_off();
         return 1;
     }
     memset(manufacturer, 0, sizeof(manufacturer));
@@ -1387,7 +1380,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         if (SIMPLE_ERR_BAD_RESP == iec_err) {
             pout(">> Terminate command early due to bad response to IEC "
                  "mode page\n");
-            PRINT_OFF(con);
+            print_off();
             gIecMPage = 0;
             return 1;
         }
@@ -1403,12 +1396,12 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
             pout("Serial number: %s\n", &gBuf[4]);
         }
         else if (scsi_debugmode > 0) {
-            PRINT_ON(con);
+            print_on();
             if (SIMPLE_ERR_BAD_RESP == err)
                 pout("Vital Product Data (VPD) bit ignored in INQUIRY\n");
             else
                 pout("Vital Product Data (VPD) INQUIRY failed [%d]\n", err);
-            PRINT_OFF(con);
+            print_off();
         }
     }
 
@@ -1434,37 +1427,37 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     // See if unit accepts SCSI commmands from us
     if ((err = scsiTestUnitReady(device))) {
         if (SIMPLE_ERR_NOT_READY == err) {
-            PRINT_ON(con);
+            print_on();
             if (!is_tape)
                 pout("device is NOT READY (e.g. spun down, busy)\n");
             else
                 pout("device is NOT READY (e.g. no tape)\n");
-            PRINT_OFF(con);
+            print_off();
          } else if (SIMPLE_ERR_NO_MEDIUM == err) {
-            PRINT_ON(con);
+            print_on();
             pout("NO MEDIUM present on device\n");
-            PRINT_OFF(con);
+            print_off();
          } else if (SIMPLE_ERR_BECOMING_READY == err) {
-            PRINT_ON(con);
+            print_on();
             pout("device becoming ready (wait)\n");
-            PRINT_OFF(con);
+            print_off();
         } else {
-            PRINT_ON(con);
+            print_on();
             pout("device Test Unit Ready  [%s]\n", scsiErrString(err));
-            PRINT_OFF(con);
+            print_off();
         }
         failuretest(MANDATORY_CMD, returnval|=FAILID);
     }
    
     if (iec_err) {
         if (!is_tape) {
-            PRINT_ON(con);
+            print_on();
             pout("Device does not support SMART");
             if (scsi_debugmode > 0)
                 pout(" [%s]\n", scsiErrString(iec_err));
             else
                 pout("\n");
-            PRINT_OFF(con);
+            print_off();
         }
         gIecMPage = 0;
         return 0;
@@ -1485,19 +1478,19 @@ static int scsiSmartEnable(scsi_device * device)
     int err;
 
     if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
-        PRINT_ON(con);
+        print_on();
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return 1;
     } else
         modese_len = iec.modese_len;
 
     if ((err = scsiSetExceptionControlAndWarning(device, 1, &iec))) {
-        PRINT_ON(con);
+        print_on();
         pout("unable to enable Exception control and warning [%s]\n",
              scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return 1;
     }
     /* Need to refetch 'iec' since could be modified by previous call */
@@ -1521,19 +1514,19 @@ static int scsiSmartDisable(scsi_device * device)
     int err;
 
     if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
-        PRINT_ON(con);
+        print_on();
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return 1;
     } else
         modese_len = iec.modese_len;
 
     if ((err = scsiSetExceptionControlAndWarning(device, 0, &iec))) {
-        PRINT_ON(con);
+        print_on();
         pout("unable to disable Exception control and warning [%s]\n",
              scsiErrString(err));
-        PRINT_OFF(con);
+        print_off();
         return 1;
     }
     /* Need to refetch 'iec' since could be modified by previous call */

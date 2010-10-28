@@ -48,7 +48,6 @@ smartd_SOURCES =  smartd.cpp      \
                   dev_interface.h     \
                   dev_tunnelled.h     \
                   drivedb.h           \
-                  extern.h        \
                   int64.h         \
                   knowndrives.cpp \
                   knowndrives.h   \
@@ -111,7 +110,6 @@ smartctl_SOURCES= smartctl.cpp    \
                   dev_interface.h     \
                   dev_tunnelled.h     \
                   drivedb.h           \
-                  extern.h        \
                   int64.h         \
                   knowndrives.cpp \
                   knowndrives.h   \
