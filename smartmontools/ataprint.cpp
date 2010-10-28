@@ -473,7 +473,7 @@ static bool PrintDriveInfo(const ata_identify_device * drive, bool fix_swapped_i
     pout("Model Family:     %s\n", dbentry->modelfamily);
 
   pout("Device Model:     %s\n", infofound(model));
-  if (!con->dont_print_serial)
+  if (!dont_print_serial_number)
     pout("Serial Number:    %s\n", infofound(serial));
   pout("Firmware Version: %s\n", infofound(firm));
 

@@ -707,6 +707,12 @@ private:
 };
 
 
+// Print ATA debug messages?
+extern unsigned char ata_debugmode;
+
+// Suppress serial number?
+extern bool dont_print_serial_number;
+
 // Get information from drive
 int ataReadHDIdentity(ata_device * device, struct ata_identify_device *buf);
 int ataCheckPowerMode(ata_device * device);

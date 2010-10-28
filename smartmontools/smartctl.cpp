@@ -306,7 +306,7 @@ const char * parse_options(int argc, char** argv,
         con->printing_switchable = false;
         con->dont_print = true;
       } else if (!strcmp(optarg,"noserial")) {
-        con->dont_print_serial = true;
+        dont_print_serial_number = true;
       } else {
         badarg = true;
       }
@@ -353,11 +353,11 @@ const char * parse_options(int argc, char** argv,
         if (split_report_arg(s, &i)) {
           badarg = true;
         } else if (!strcmp(s,"ioctl")) {
-          con->reportataioctl  = con->reportscsiioctl = i;
+          ata_debugmode  = scsi_debugmode = i;
         } else if (!strcmp(s,"ataioctl")) {
-          con->reportataioctl = i;
+          ata_debugmode = i;
         } else if (!strcmp(s,"scsiioctl")) {
-          con->reportscsiioctl = i;
+          scsi_debugmode = i;
         } else {
           badarg = true;
         }
@@ -938,7 +938,7 @@ static const char * get_protocol_info(const smart_device * dev)
 // smartctl [-d type] --scan[-open] [PATTERN]
 void scan_devices(const char * type, bool with_open, const char * pattern)
 {
-  bool dont_print = !(con->reportataioctl || con->reportscsiioctl);
+  bool dont_print = !(ata_debugmode || scsi_debugmode);
   smart_device_list devlist;
 
   con->dont_print = dont_print;

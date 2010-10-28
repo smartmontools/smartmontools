@@ -86,7 +86,7 @@ static void scsiGetSupportedLogPages(scsi_device * device)
 
     if ((err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
-        if (con->reportscsiioctl > 0)
+        if (scsi_debugmode > 0)
             pout("Log Sense for supported pages failed [%s]\n", 
                  scsiErrString(err)); 
         return;
@@ -322,7 +322,7 @@ static void scsiPrintGrownDefectListLen(scsi_device * device)
     memset(gBuf, 0, 4);
     if ((err = scsiReadDefect10(device, 0 /* req_plist */, 1 /* req_glist */,
                                 4 /* bytes from index */, gBuf, 4))) {
-        if (con->reportscsiioctl > 0) {
+        if (scsi_debugmode > 0) {
             PRINT_ON(con);
             pout("Read defect list (10) Failed: %s\n", scsiErrString(err));
             PRINT_OFF(con);
@@ -394,7 +394,7 @@ static void scsiPrintSeagateCacheLPage(scsi_device * device)
         case 0: case 1: case 2: case 3: case 4:
             break;
         default: 
-            if (con->reportscsiioctl > 0) {
+            if (scsi_debugmode > 0) {
                 PRINT_ON(con);
                 pout("Vendor (Seagate) cache lpage has unexpected parameter"
                      ", skip\n");
@@ -479,7 +479,7 @@ static void scsiPrintSeagateFactoryLPage(scsi_device * device)
         ucp += pl;
     }
     if ((good < 2) || (bad > 4)) {  /* heuristic */
-        if (con->reportscsiioctl > 0) {
+        if (scsi_debugmode > 0) {
             PRINT_ON(con);
             pout("\nVendor (Seagate/Hitachi) factory lpage has too many "
                  "unexpected parameters, skip\n");
@@ -502,7 +502,7 @@ static void scsiPrintSeagateFactoryLPage(scsi_device * device)
             good = 1;
             break;
         default:
-            if (con->reportscsiioctl > 0) {
+            if (scsi_debugmode > 0) {
                 PRINT_ON(con);
                 pout("Vendor (Seagate/Hitachi) factory lpage: "
                      "unknown parameter code [0x%x]\n", pc);
@@ -628,7 +628,7 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
                         pout("  Error event %d:\n", pc);
                         pout("    %.*s\n", pl - 4, (const char *)(ucp + 4));
                     } else {
-                        if (con->reportscsiioctl > 0) {
+                        if (scsi_debugmode > 0) {
                             pout("  Error event %d:\n", pc);
                             pout("    [data counter??]:\n");
                             dStrHex((const char *)ucp + 4, pl - 4, 1);
@@ -1394,7 +1394,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     } else
         modese_len = iec.modese_len;
 
-    if (!con->dont_print_serial) {
+    if (!dont_print_serial_number) {
         if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
             /* should use VPD page 0x83 and fall back to this page (0x80)
              * if 0x83 not supported. NAA requires a lot of decoding code */
@@ -1402,7 +1402,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
             gBuf[4 + len] = '\0';
             pout("Serial number: %s\n", &gBuf[4]);
         }
-        else if (con->reportscsiioctl > 0) {
+        else if (scsi_debugmode > 0) {
             PRINT_ON(con);
             if (SIMPLE_ERR_BAD_RESP == err)
                 pout("Vital Product Data (VPD) bit ignored in INQUIRY\n");
@@ -1460,7 +1460,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         if (!is_tape) {
             PRINT_ON(con);
             pout("Device does not support SMART");
-            if (con->reportscsiioctl > 0)
+            if (scsi_debugmode > 0)
                 pout(" [%s]\n", scsiErrString(iec_err));
             else
                 pout("\n");

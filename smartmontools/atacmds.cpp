@@ -43,6 +43,14 @@ const char * atacmds_cpp_cvsid = "$Id$"
 // for passing global control variables
 extern smartmonctrl *con;
 
+// Print ATA debug messages?
+unsigned char ata_debugmode = 0;
+
+// Suppress serial number?
+// (also used in scsiprint.cpp)
+bool dont_print_serial_number = false;
+
+
 #define SMART_CYL_LOW  0x4F
 #define SMART_CYL_HI   0xC2
 
@@ -476,7 +484,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
   int sendsdata=(command==WRITE_LOG);
   
   // If reporting is enabled, say what the command will be before it's executed
-  if (con->reportataioctl){
+  if (ata_debugmode) {
           // conditional is true for commands that use parameters
           int usesparam=(command==READ_LOG || 
                          command==AUTO_OFFLINE || 
@@ -508,7 +516,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
 
 
   // if requested, pretty-print the input data structure
-  if (con->reportataioctl>1 && sendsdata)
+  if (ata_debugmode > 1 && sendsdata)
     //pout("REPORT-IOCTL: Device=%s Command=%s\n", device->get_dev_name(), commandstrings[command]);
     prettyprint((unsigned char *)data, commandstrings[command]);
 
@@ -591,7 +599,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         return -1;
     }
 
-    if (con->reportataioctl)
+    if (ata_debugmode)
       print_regs(" Input:  ", in.in_regs,
         (in.direction==ata_cmd_in::data_in ? " IN\n":
          in.direction==ata_cmd_in::data_out ? " OUT\n":"\n"));
@@ -599,7 +607,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
     ata_cmd_out out;
     bool ok = device->ata_pass_through(in, out);
 
-    if (con->reportataioctl && out.out_regs.is_set())
+    if (ata_debugmode && out.out_regs.is_set())
       print_regs(" Output: ", out.out_regs);
 
     if (ok) switch (command) {
@@ -621,12 +629,12 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
           retval = 1;
         else if (out.out_regs.lba_mid == SMART_CYL_LOW) {
           retval = 0;
-          if (con->reportataioctl)
+          if (ata_debugmode)
             pout("SMART STATUS RETURN: half healthy response sequence, "
                  "probable SAT/USB truncation\n");
           } else if (out.out_regs.lba_mid == SRET_STATUS_MID_EXCEEDED) {
           retval = 1;
-          if (con->reportataioctl)
+          if (ata_debugmode)
             pout("SMART STATUS RETURN: half unhealthy response sequence, "
                  "probable SAT/USB truncation\n");
         } else {
@@ -643,11 +651,11 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
   }
 
   // If requested, invalidate serial number before any printing is done
-  if ((command == IDENTIFY || command == PIDENTIFY) && !retval && con->dont_print_serial)
+  if ((command == IDENTIFY || command == PIDENTIFY) && !retval && dont_print_serial_number)
     invalidate_serno((ata_identify_device *)data);
 
   // If reporting is enabled, say what output was produced by the command
-  if (con->reportataioctl){
+  if (ata_debugmode) {
     if (device->get_errno())
       pout("REPORT-IOCTL: Device=%s Command=%s returned %d errno=%d [%s]\n",
            device->get_dev_name(), commandstrings[command], retval,
@@ -657,7 +665,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
            device->get_dev_name(), commandstrings[command], retval);
     
     // if requested, pretty-print the output data structure
-    if (con->reportataioctl>1 && getsdata) {
+    if (ata_debugmode > 1 && getsdata) {
       if (command==CHECK_POWER_MODE)
 	pout("Sector Count Register (BASE-16): %02x\n", (unsigned char)(*data));
       else

@@ -22,7 +22,6 @@
 #include "int64.h"
 #include <stdio.h>
 #include "atacmds.h"
-#include "extern.h"
 #include "knowndrives.h"
 #include "utility.h"
 

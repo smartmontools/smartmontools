@@ -17,7 +17,6 @@
 
 #include "config.h"
 #include "int64.h"
-#include "extern.h"
 #include "utility.h"
 #include "atacmds.h"
 #include "scsicmds.h"
@@ -26,8 +25,6 @@
 
 const char * dev_legacy_cpp_cvsid = "$Id$"
   DEV_INTERFACE_H_CVSID;
-
-extern smartmonctrl * con; // con->reportscsiioctl
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -163,7 +160,7 @@ legacy_scsi_device::legacy_scsi_device(smart_interface * intf,
 
 bool legacy_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
-  int status = ::do_scsi_cmnd_io(get_fd(), iop, con->reportscsiioctl);
+  int status = ::do_scsi_cmnd_io(get_fd(), iop, scsi_debugmode);
   if (status < 0) {
       set_err(-status);
       return false;

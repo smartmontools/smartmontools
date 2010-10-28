@@ -284,6 +284,9 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 
 class scsi_device;
 
+// Print SCSI debug messages?
+extern unsigned char scsi_debugmode;
+
 void scsi_do_sense_disect(const struct scsi_cmnd_io * in,
                           struct scsi_sense_disect * out);
 

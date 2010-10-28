@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Replace global 'con->reportata/scsiioctl' variables by '*_debugmode'.
+
   [CF] Replace global 'con->conservative/permissive' variables by
        'failuretest_*'.  Move failuretest() function to smartctl.cpp.
 

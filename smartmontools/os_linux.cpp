@@ -74,11 +74,9 @@
 
 #include "int64.h"
 #include "atacmds.h"
-#include "extern.h"
 #include "os_linux.h"
 #include "scsicmds.h"
 #include "utility.h"
-#include "extern.h"
 #include "cciss.h"
 #include "megaraid.h"
 
@@ -93,10 +91,6 @@
 
 const char *os_XXXX_c_cvsid="$Id$" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
-
-/* for passing global control variables */
-// (con->reportscsiioctl only)
-extern smartmonctrl *con;
 
 
 namespace os_linux { // No need to publish anything, name provided for Doxygen
@@ -857,7 +851,7 @@ linux_scsi_device::linux_scsi_device(smart_interface * intf,
 
 bool linux_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
-  int status = do_normal_scsi_cmnd_io(get_fd(), iop, con->reportscsiioctl);
+  int status = do_normal_scsi_cmnd_io(get_fd(), iop, scsi_debugmode);
   if (status < 0)
       return set_err(-status);
   return true;
@@ -915,7 +909,7 @@ linux_megaraid_device::~linux_megaraid_device() throw()
 
 smart_device * linux_megaraid_device::autodetect_open()
 {
-  int report = con->reportscsiioctl; 
+  int report = scsi_debugmode;
 
   // Open device
   if (!open())
@@ -961,7 +955,7 @@ bool linux_megaraid_device::open()
   char line[128];
   int   mjr, n1;
   FILE *fp;
-  int report = con->reportscsiioctl; 
+  int report = scsi_debugmode;
 
   if (!linux_smart_device::open())
     return false;
@@ -1024,7 +1018,7 @@ bool linux_megaraid_device::close()
 
 bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 {
-  int report = con->reportscsiioctl; 
+  int report = scsi_debugmode;
 
   if (report > 0) {
         int k, j;
@@ -1199,7 +1193,7 @@ linux_cciss_device::linux_cciss_device(smart_interface * intf,
 
 bool linux_cciss_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
-  int status = cciss_io_interface(get_fd(), m_disknum, iop, con->reportscsiioctl);
+  int status = cciss_io_interface(get_fd(), m_disknum, iop, scsi_debugmode);
   if (status < 0)
       return set_err(-status);
   return true;
@@ -2795,7 +2789,7 @@ static bool get_usb_id(const char * name, unsigned short & vendor_id,
         && read_id(dir + "/bcdDevice", version)   ))
     return false;
 
-  if (con->reportscsiioctl > 1)
+  if (scsi_debugmode > 1)
     pout("USB ID = 0x%04x:0x%04x (0x%03x)\n", vendor_id, product_id, version);
   return true;
 }

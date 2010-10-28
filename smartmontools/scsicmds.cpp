@@ -43,17 +43,16 @@
 
 #include "config.h"
 #include "int64.h"
-#include "extern.h"
 #include "scsicmds.h"
 #include "atacmds.h" // FIXME: for smart_command_set only
 #include "dev_interface.h"
 #include "utility.h"
 
 const char *scsicmds_c_cvsid="$Id$"
-CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+  SCSICMDS_H_CVSID;
 
-/* for passing global control variables */
-extern smartmonctrl *con;
+// Print SCSI debug messages?
+unsigned char scsi_debugmode = 0;
 
 /* output binary in hex and optionally ascii */
 void dStrHex(const char* str, int len, int no_ascii)
@@ -859,7 +858,7 @@ int scsiModePageOffset(const UINT8 * resp, int len, int modese_len)
                  "resp_len=%d bd_len=%d\n", offset, resp_len, bd_len);
             offset = -1;
         } else if ((offset + 2) > resp_len) {
-             if ((resp_len > 2) || con->reportscsiioctl)
+             if ((resp_len > 2) || scsi_debugmode)
                 pout("scsiModePageOffset: response length too short, "
                      "resp_len=%d offset=%d bd_len=%d\n", resp_len,
                      offset, bd_len);
@@ -996,7 +995,7 @@ int scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
     sp = (rout[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
     if (enabled) {
         rout[offset + 2] = SCSI_IEC_MP_BYTE2_ENABLED;
-        if (con->reportscsiioctl > 2)
+        if (scsi_debugmode > 2)
             rout[offset + 2] |= SCSI_IEC_MP_BYTE2_TEST_MASK;
         rout[offset + 3] = SCSI_IEC_MP_MRIE;
         rout[offset + 4] = (SCSI_IEC_MP_INTERVAL_T >> 24) & 0xff;
@@ -1018,7 +1017,7 @@ int scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
             }
         }
         if (0 == memcmp(&rout[offset + 2], &iecp->raw_chg[offset + 2], 10)) {
-            if (con->reportscsiioctl > 0)
+            if (scsi_debugmode > 0)
                 pout("scsiSetExceptionControlAndWarning: already enabled\n");
             return 0;
         }
@@ -1026,7 +1025,7 @@ int scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
         eCEnabled = (rout[offset + 2] & DEXCPT_ENABLE) ? 0 : 1;
         wEnabled = (rout[offset + 2] & EWASC_ENABLE) ? 1 : 0;
         if ((! eCEnabled) && (! wEnabled)) {
-            if (con->reportscsiioctl > 0)
+            if (scsi_debugmode > 0)
                 pout("scsiSetExceptionControlAndWarning: already disabled\n");
             return 0;   /* nothing to do, leave other setting alone */
         }

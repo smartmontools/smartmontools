@@ -41,7 +41,6 @@
 #include "scsicmds.h"
 #include "cciss.h"
 #include "utility.h"
-#include "extern.h"
 #include "os_freebsd.h"
 
 #include "dev_interface.h"
@@ -71,12 +70,8 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id$";
-
 const char *os_XXXX_c_cvsid="$Id$" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
-
-extern smartmonctrl * con;
 
 #define NO_RETURN 0
 #define BAD_SMART 1
@@ -120,11 +115,6 @@ void printwarning(int msgNo, const char* extra) {
 
 // global variable holding byte count of allocated memory
 long long bytes;
-
-const char * dev_freebsd_cpp_cvsid = "$Id$"
-  DEV_INTERFACE_H_CVSID;
-
-extern smartmonctrl * con; // con->reportscsiioctl
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -966,7 +956,7 @@ freebsd_scsi_device::freebsd_scsi_device(smart_interface * intf,
 
 bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
-  int report=con->reportscsiioctl;
+  int report=scsi_debugmode;
   union ccb *ccb;
 
   if (report > 0) {
@@ -1103,7 +1093,7 @@ freebsd_cciss_device::freebsd_cciss_device(smart_interface * intf,
 bool freebsd_cciss_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
 #ifdef HAVE_DEV_CISS_CISSIO_H
-  int status = cciss_io_interface(get_fd(), m_disknum, iop, con->reportscsiioctl);
+  int status = cciss_io_interface(get_fd(), m_disknum, iop, scsi_debugmode);
   if (status < 0)
       return set_err(-status);
   return true;

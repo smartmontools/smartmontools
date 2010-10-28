@@ -1230,7 +1230,7 @@ void pout(const char *fmt, ...){
   FixGlibcTimeZoneBug();
   // initialize variable argument list 
   va_start(ap,fmt);
-  // in debug==1 mode we will print the output from the ataprint.o functions!
+  // in debugmode==1 mode we will print the output from the ataprint.o functions!
   if (debugmode && debugmode!=2)
 #ifdef _WIN32
    if (facility == LOG_LOCAL1) // logging to stdout
@@ -1238,8 +1238,8 @@ void pout(const char *fmt, ...){
    else   
 #endif
     vprintf(fmt,ap);
-  // in debug==2 mode we print output from knowndrives.o functions
-  else if (debugmode==2 || con->reportataioctl || con->reportscsiioctl /*|| con->controller_port???*/) {
+  // in debugmode==2 mode we print output from knowndrives.o functions
+  else if (debugmode==2 || ata_debugmode || scsi_debugmode) {
     openlog("smartd", LOG_PID, facility);
     vsyslog(LOG_INFO, fmt, ap);
     closelog();
@@ -3918,11 +3918,11 @@ void ParseOpts(int argc, char **argv)
           PrintOut(LOG_CRIT, "======> LEVEL MUST BE INTEGER BETWEEN 1 AND 3<=======\n");
           EXIT(EXIT_BADCMD);
         } else if (!strcmp(s,"ioctl")) {
-          con->reportataioctl  = con->reportscsiioctl = i;
+          ata_debugmode = scsi_debugmode = i;
         } else if (!strcmp(s,"ataioctl")) {
-          con->reportataioctl = i;
+          ata_debugmode = i;
         } else if (!strcmp(s,"scsiioctl")) {
-          con->reportscsiioctl = i;
+          scsi_debugmode = i;
         } else {
           badarg = true;
         }
