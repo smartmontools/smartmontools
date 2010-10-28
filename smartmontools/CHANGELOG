@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Remove unused CONTROLLER_* defines.
+
   [CF] Remove unused controller support from dev_legacy adapter module.
 
   [CF] Make 'debugmode' variable local to smartd.cpp.
