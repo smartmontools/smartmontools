@@ -26,7 +26,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 3193 2010-10-28 17:28:36Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 3196 2010-10-28 21:31:49Z chrfranke $"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -312,10 +312,6 @@ private:
   void copy(const regular_expression & x);
   bool compile();
 };
-
-// macros to control printing
-#define PRINT_ON(control)  {if (control->printing_switchable) control->dont_print=false;}
-#define PRINT_OFF(control) {if (control->printing_switchable) control->dont_print=true;}
 
 #ifdef _WIN32
 // Get exe directory

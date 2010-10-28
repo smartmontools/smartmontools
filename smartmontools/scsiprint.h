@@ -29,10 +29,9 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 3096 2010-04-30 14:32:49Z chrfranke $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 3196 2010-10-28 21:31:49Z chrfranke $\n"
 
 // Options for scsiPrintMain
-// TODO: Move remaining options from con->* to here.
 struct scsi_print_options
 {
   bool drive_info;

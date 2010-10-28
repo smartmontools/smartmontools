@@ -33,15 +33,11 @@
 #include "config.h"
 #include "int64.h"
 #include "atacmds.h"
-#include "extern.h"
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3195 2010-10-28 19:20:33Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3196 2010-10-28 21:31:49Z chrfranke $"
                                  ATACMDS_H_CVSID;
-
-// for passing global control variables
-extern smartmonctrl *con;
 
 // Print ATA debug messages?
 unsigned char ata_debugmode = 0;

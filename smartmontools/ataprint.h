@@ -26,7 +26,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h 3065 2010-02-10 22:16:50Z chrfranke $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h 3196 2010-10-28 21:31:49Z chrfranke $\n"
 
 #include <vector>
 
@@ -44,7 +44,6 @@ struct ata_log_request
 };
 
 // Options for ataPrintMain
-// TODO: Move remaining options from con->* to here.
 struct ata_print_options
 {
   bool drive_info;

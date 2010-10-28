@@ -4,6 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +26,7 @@
 #ifndef SMARTCTL_H_
 #define SMARTCTL_H_
 
-#define SMARTCTL_H_CVSID "$Id: smartctl.h 3194 2010-10-28 17:48:20Z chrfranke $\n"
+#define SMARTCTL_H_CVSID "$Id: smartctl.h 3196 2010-10-28 21:31:49Z chrfranke $\n"
 
 // Return codes (bitmask)
 
@@ -77,5 +78,21 @@ extern unsigned char failuretest_permissive;
 // Compares failure type to policy in effect, and either exits or
 // simply returns to the calling routine.
 void failuretest(failure_type type, int returnvalue);
+
+// Globals to control printing
+extern bool printing_is_switchable;
+extern bool printing_is_off;
+
+// Printing control functions
+inline void print_on()
+{
+  if (printing_is_switchable)
+    printing_is_off = false;
+}
+inline void print_off()
+{
+  if (printing_is_switchable)
+    printing_is_off = true;
+}
 
 #endif
