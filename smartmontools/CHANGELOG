@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3199 2010-10-29 20:57:20Z chrfranke $
+$Id: CHANGELOG 3200 2010-10-29 21:22:52Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h updates:
+       - Seagate Maxtor DiamondMax 21: Add 80GB
+       - Western Digital Caviar Black: Add 1TB/64MB
 
   [CF] drivedb.h USB updates:
        - iRiver iHP-120/140 (Ticket #119)

@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3199 2010-10-29 20:57:20Z chrfranke $",
+  { "$Id: drivedb.h 3200 2010-10-29 21:22:52Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -781,7 +781,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Maxtor DiamondMax 21",
-    "MAXTOR STM3(160215|(250|320)820|320620|500630)AS?",
+    "MAXTOR STM3(80815|160215|(250|320)820|320620|500630)AS?",
     "", "", ""
   },
   { "Seagate Maxtor DiamondMax 22", // fixed firmware
@@ -1458,7 +1458,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar Black family",
-    "WDC WD((500|640|750)1AAL|1001FAL|2001FAS)S-.*",
+    "WDC WD((500|640|750)1AAL|1001FA[EL]|2001FAS)S-.*",
     "", "", ""
   },
   { "Western Digital AV ATA family", // tested with WDC WD3200AVJB-63J5A0/01.03E01
