@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - iRiver iHP-120/140 (Ticket #119)
+       - ASMedia ASM1051
+
   [CF] Makefile.am: Handle examplescripts in main Makefile.
        Remove 'examplescripts/Makefile.am'.
 

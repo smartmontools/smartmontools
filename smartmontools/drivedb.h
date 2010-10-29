@@ -1808,6 +1808,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // iRiver
+  { "USB: iRiver iHP-120/140 MP3 Player; Cypress",
+    "0x1006:0x3002",
+    "0x0100",
+    "",
+    "-d usbcypress"
+  },
   // Western Digital
   { "USB: WD My Passport (IDE); Cypress",
     "0x1058:0x0701",
@@ -1949,6 +1956,13 @@ const drive_settings builtin_knowndrives[] = {
     "0x0100",
     "",
     "-d usbjmicron,x"
+  },
+  // ASMedia
+  { "USB: ; ASMedia ASM1051",
+    "0x174c:0x5106",
+    "",
+    "",
+    "-d sat"
   },
   // Verbatim
   { "USB: Verbatim FW/USB160; Oxford OXUF934SSA-LQAG", // USB+IEE1394->SATA
