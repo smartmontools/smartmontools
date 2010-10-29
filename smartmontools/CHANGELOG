@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: New option '--with-exampledir' allows to change
+       path of 'DOCDIR/examplescripts' directory.
+       (Debian package uses '/usr/share/doc/smartmontools/examples')
+
   [CF] Replace global 'con->dont_print/...' variables by 'printing_is_*'.
        Remove global 'con'trol pointer.  Remove file 'extern.h'.
 

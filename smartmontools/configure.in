@@ -151,8 +151,6 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(ASFLAGS)
 
-AC_SUBST([exampledir], ['${docdir}/examplescripts'])
-
 AC_ARG_WITH(initscriptdir,
   [AC_HELP_STRING([--with-initscriptdir=DIR],[Location of init scripts [SYSCONFDIR/rc.d/init.d]])],
   [initddir="$withval"],[initddir='${sysconfdir}/rc.d/init.d'])
@@ -173,6 +171,11 @@ AC_ARG_WITH(docdir,
     fi
   ])
 AC_SUBST(docdir)
+
+AC_ARG_WITH(exampledir,
+  [AC_HELP_STRING([--with-exampledir=DIR],[Location of example scripts [DOCDIR/examplescripts]])],
+  [exampledir="$withval"], [exampledir='${docdir}/examplescripts'])
+AC_SUBST(exampledir)
 
 AC_ARG_ENABLE(drivedb,
   [AC_HELP_STRING([--disable-drivedb],[Disables drive database file])],
@@ -441,6 +444,7 @@ case "$host_os" in
     if test "$docdir_is_default" = "yes"; then
       echo "(NOTE: old default was: `eval eval eval echo ${prefix}/share/doc/${PACKAGE}-${VERSION}`)" >&AS_MESSAGE_FD
     fi
+    echo "examples install path:  `eval eval eval echo $exampledir`" >&AS_MESSAGE_FD
     if test -n "$drivedbdir"; then
       echo "drive database file:    `eval eval eval echo $drivedbdir`/drivedb.h" >&AS_MESSAGE_FD
       if test "$drivedbdir_is_default" = "yes"; then

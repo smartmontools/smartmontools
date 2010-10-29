@@ -619,7 +619,6 @@ The following files are installed if ./configure has no options:
 /usr/local/share/man/man5/smartd.conf.5                 [Manual page]
 /usr/local/share/man/man8/smartctl.8                    [Manual page]
 /usr/local/share/man/man8/smartd.8                      [Manual page]
-/usr/local/share/smartmontools/drivedb.h                [Drive database]
 /usr/local/share/doc/smartmontools/AUTHORS              [Information about the authors and developers]
 /usr/local/share/doc/smartmontools/CHANGELOG            [A log of changes. Also see SVN]
 /usr/local/share/doc/smartmontools/COPYING              [GNU General Public License Version 2]
@@ -629,7 +628,8 @@ The following files are installed if ./configure has no options:
 /usr/local/share/doc/smartmontools/TODO                 [Things that need to be done/fixed]
 /usr/local/share/doc/smartmontools/WARNINGS             [Systems where lockups or other serious problems were reported]
 /usr/local/share/doc/smartmontools/smartd.conf          [Example configuration file for smartd]
-/usr/local/share/doc/smartmontools/examplescripts       [Executable scripts for -M exec of smartd.conf (4 files)]
+/usr/local/share/doc/smartmontools/examplescripts/      [Executable scripts for -M exec of smartd.conf (4 files)]
+/usr/local/share/smartmontools/drivedb.h                [Drive database]
 
 The commands:
 
@@ -685,6 +685,7 @@ OPTIONS              DEFAULT                                      AFFECTS
                                                                   Directory for rc.d/init.d/smartd init script
 --with-initscriptdir  ${sysconfdir}/init.d/rc.d                   Location of init scripts
 --with-docdir         ${prefix}/share/doc/smartmontools           Location of the documentation
+--with-exampledir     ${docdir}/examplescripts                    Location of example scripts
 --enable-sample       --disable-sample                            Adds the string '.sample' to the names of the smartd.conf file and the smartd RC file
 --with-os-deps        os_<guessed>.o                              OS dependent module(s)
 --with-selinux        --without-selinux                           Enables SELinux support.  If smartmontools has to create the /dev/tw[ae] device
