@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3192 2010-10-27 21:07:43Z chrfranke $
+# $Id: configure.in 3197 2010-10-29 19:33:56Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.41, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3192 2010-10-27 21:07:43Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3197 2010-10-29 19:33:56Z chrfranke $'`
 smartmontools_release_date=2010-10-16
 smartmontools_release_time="16:34:38 UTC"
 
@@ -151,8 +151,6 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(ASFLAGS)
 
-AC_SUBST([exampledir], ['${docdir}/examplescripts'])
-
 AC_ARG_WITH(initscriptdir,
   [AC_HELP_STRING([--with-initscriptdir=DIR],[Location of init scripts [SYSCONFDIR/rc.d/init.d]])],
   [initddir="$withval"],[initddir='${sysconfdir}/rc.d/init.d'])
@@ -173,6 +171,11 @@ AC_ARG_WITH(docdir,
     fi
   ])
 AC_SUBST(docdir)
+
+AC_ARG_WITH(exampledir,
+  [AC_HELP_STRING([--with-exampledir=DIR],[Location of example scripts [DOCDIR/examplescripts]])],
+  [exampledir="$withval"], [exampledir='${docdir}/examplescripts'])
+AC_SUBST(exampledir)
 
 AC_ARG_ENABLE(drivedb,
   [AC_HELP_STRING([--disable-drivedb],[Disables drive database file])],
@@ -441,6 +444,7 @@ case "$host_os" in
     if test "$docdir_is_default" = "yes"; then
       echo "(NOTE: old default was: `eval eval eval echo ${prefix}/share/doc/${PACKAGE}-${VERSION}`)" >&AS_MESSAGE_FD
     fi
+    echo "examples install path:  `eval eval eval echo $exampledir`" >&AS_MESSAGE_FD
     if test -n "$drivedbdir"; then
       echo "drive database file:    `eval eval eval echo $drivedbdir`/drivedb.h" >&AS_MESSAGE_FD
       if test "$drivedbdir_is_default" = "yes"; then

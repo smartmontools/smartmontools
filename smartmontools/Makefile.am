@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3196 2010-10-28 21:31:49Z chrfranke $
+# $Id: Makefile.am 3197 2010-10-29 19:33:56Z chrfranke $
 #
 
 @SET_MAKE@
@@ -459,7 +459,9 @@ MAN_FILTER = \
          s|/usr/local/share/man/|$(mandir)/|g; \
          s|/usr/local/sbin/|$(sbindir)/|g; \
          s|/usr/local/etc/rc\\.d/init.d/|$(initddir)/|g; \
-         s|/usr/local/share/doc/smartmontools/|$(docsdir)/|g;  \
+         s|/usr/local/share/doc/smartmontools/examplescripts/|!exampledir!|g; \
+         s|/usr/local/share/doc/smartmontools/|$(docsdir)/|g; \
+         s|!exampledir!|$(exampledir)/|g; \
          s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g; \
          s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
     $(MAN_CAPABILITIES) | \

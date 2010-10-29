@@ -1,9 +1,14 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3189 2010-10-16 16:35:49Z chrfranke $
+$Id: NEWS 3197 2010-10-29 19:33:56Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
+
+Date <Not released yet, please try current SVN>
+Summary: smartmontools release 5.41
+-----------------------------------------------------------
+- configure option '--with-exampledir'.
 
 Date 2010-10-16
 Summary: smartmontools release 5.40
