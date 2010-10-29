@@ -253,6 +253,15 @@ docs_DATA = AUTHORS     \
             WARNINGS    \
             smartd.conf
 
+examplesdir=$(exampledir)
+examples_DATA = \
+        examplescripts/README
+examples_SCRIPTS = \
+        examplescripts/Example1 \
+        examplescripts/Example2 \
+        examplescripts/Example3 \
+        examplescripts/Example4
+
 sysconf_DATA = smartd.conf$(smartd_suffix)
 
 if SMARTD_SUFFIX
@@ -260,20 +269,23 @@ smartd.conf$(smartd_suffix): smartd.conf
 	cp ${srcdir}/smartd.conf smartd.conf$(smartd_suffix)
 endif
 
-EXTRA_DIST = smartd.initd.in                       \
-             smartd.8.in                           \
-             smartctl.8.in                         \
-             smartd.conf.5.in                      \
-             smartd.conf                           \
-             autogen.sh                            \
-             update-smart-drivedb.in               \
-             os_darwin/SMART.in                    \
-             os_darwin/StartupParameters.plist     \
-             os_darwin/English_Localizable.strings \
-             os_win32/installer.nsi                \
-             os_win32/syslogevt.c                  \
-             os_win32/syslogevt.mc                 \
-             $(docs_DATA)
+EXTRA_DIST = \
+        smartd.initd.in \
+        smartd.8.in \
+        smartctl.8.in \
+        smartd.conf.5.in \
+        smartd.conf \
+        autogen.sh \
+        update-smart-drivedb.in \
+        os_darwin/SMART.in \
+        os_darwin/StartupParameters.plist \
+        os_darwin/English_Localizable.strings \
+        os_win32/installer.nsi \
+        os_win32/syslogevt.c \
+        os_win32/syslogevt.mc \
+        $(docs_DATA) \
+        $(examples_DATA) \
+        $(examples_SCRIPTS)
 
 CLEANFILES = smartd.conf.5      \
              smartd.conf.4      \
@@ -711,4 +723,4 @@ $(srcdir)/os_win32/svnversion_vc8.h: svnversion.h
 
 endif
 
-SUBDIRS= . examplescripts
+SUBDIRS= .
