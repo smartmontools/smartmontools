@@ -885,15 +885,14 @@ receives a command which is not implemented or is not valid.
 The verify row is only output if it has an element other than zero.
 
 .I xerror[,NUM][,error]
-\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints the Extended
-Comprehensive SMART error log (General Purpose Log address 0x03).
-Unlike the Summary SMART error log (see \'\-l error\' above),
-it provides sufficient space to log the contents of the 48-bit
-LBA register set introduced with ATA-6.  It also supports logs
-with more than one sector.  Each sector holds up to 4 log entries.
-The actual number of log sectors is vendor specific, typical values
-for HDD are 2 (Samsung), 5 (Seagate) or 6 (WD). Some recent SSD devices
-have much larger error logs.
+\- [ATA only] prints the Extended Comprehensive SMART error log
+(General Purpose Log address 0x03).  Unlike the Summary SMART error
+log (see \'\-l error\' above), it provides sufficient space to log
+the contents of the 48-bit LBA register set introduced with ATA-6.
+It also supports logs with more than one sector.  Each sector holds
+up to 4 log entries. The actual number of log sectors is vendor
+specific, typical values for HDD are 2 (Samsung), 5 (Seagate) or
+6 (WD).  Some recent SSD devices have much larger error logs.
 
 Only the 8 most recent error log entries are printed by default.
 This number can be changed by the optional parameter NUM.
@@ -943,12 +942,11 @@ can be run using the \'\-t\' option described below (using the ATA
 test terminology).
 
 .I xselftest[,NUM][,selftest]
-\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints the Extended
-SMART self\-test log (General Purpose Log address 0x07). Unlike the SMART
-self\-test log (see \'\-l selftest\' above), it supports 48-bit LBA
-and logs with more than one sector.  Each sector holds up to 19 log
-entries. The actual number of log sectors is vendor specific, typical
-values are 1 (Seagate) or 2 (Samsung).
+\- [ATA only] prints the Extended SMART self\-test log (General Purpose
+Log address 0x07). Unlike the SMART self\-test log (see \'\-l selftest\'
+above), it supports 48-bit LBA and logs with more than one sector.
+Each sector holds up to 19 log entries. The actual number of log sectors
+is vendor specific, typical values are 1 (Seagate) or 2 (Samsung).
 
 Only the 25 most recent log entries are printed by default. This number
 can be changed by the optional parameter NUM.
@@ -1023,30 +1021,26 @@ supported. For RAID configurations, this is typically set to
 70,70 deciseconds.
 
 .I sataphy[,reset]
-\- [SATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values
-and descriptions of the SATA Phy Event Counters (General Purpose Log
-address 0x11). If \'\-l sataphy,reset\' is specified, all counters
-are reset after reading the values.
+\- [SATA only] prints values and descriptions of the SATA Phy Event
+Counters (General Purpose Log address 0x11).  If \'\-l sataphy,reset\'
+is specified, all counters are reset after reading the values.
 
 .I sasphy[,reset]
-\- [SAS (SCSI) only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values
-and descriptions of the SAS (SSP) Protocol Specific log page (log page
-0x18). If \'\-l sasphy,reset\' is specified, all counters
-are reset after reading the values.
+\- [SAS (SCSI) only] prints values and descriptions of the SAS (SSP)
+Protocol Specific log page (log page 0x18).  If \'\-l sasphy,reset\'
+is specified, all counters are reset after reading the values.
 
 .I gplog,ADDR[,FIRST[\-LAST|+SIZE]]
-\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints a hex dump
-of any log accessible via General Purpose Logging (GPL) feature.
-The log address ADDR is the hex address listed in the log directory
-(see \'\-l directory\' above). The range of log sectors (pages) can
-be specified by decimal values FIRST\-LAST or FIRST+SIZE. FIRST
-defaults to 0, SIZE defaults to 1. LAST can be set to \'max\' to
-specify the last page of the log.
+\- [ATA only] prints a hex dump of any log accessible via General
+Purpose Logging (GPL) feature.  The log address ADDR is the hex address
+listed in the log directory (see \'\-l directory\' above).
+The range of log sectors (pages) can be specified by decimal values
+FIRST\-LAST or FIRST+SIZE.  FIRST defaults to 0, SIZE defaults to 1.
+LAST can be set to \'max\' to specify the last page of the log.
 
 .I smartlog,ADDR[,FIRST[\-LAST|+SIZE]]
-\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints a hex dump
-of any log accessible via SMART Read Log command. See
-\'\-l gplog,...\' above for parameter syntax.
+\- [ATA only] prints a hex dump of any log accessible via SMART Read
+Log command.  See \'\-l gplog,...\' above for parameter syntax.
 
 For example, all these commands:
 .nf
@@ -1349,9 +1343,9 @@ lists all entries matching MODEL, and the command:
 lists all entries for this MODEL and a specific FIRMWARE version.
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
-[ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] Read the drive database from
-FILE.  The new database replaces the built in database by default. If \'+\' is
-specified, then the new entries prepend the built in entries.
+[ATA only] Read the drive database from FILE.  The new database replaces
+the built in database by default.  If \'+\' is specified, then the new
+entries prepend the built in entries.
 
 If this option is not specified, optional entries are read from the file
 \fB/usr/local/etc/smart_drivedb.h\fP (Windows: \fBEXEDIR/drivedb-add.h\fP).

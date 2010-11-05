@@ -566,11 +566,10 @@ only), and \'O\' for an \fBO\fPffline Immediate Test (ATA only).  As
 soon as a match is found, the test will be started and no additional
 matches will be sought for that device and that polling cycle.
 
-[NEW EXPERIMENTAL SMARTD FEATURE] To run scheduled Selective
-Self-Tests, use \'n\' for \fBn\fPext span, \'r\' to \fBr\fPedo last
-span, or \'c\' to \fBc\fPontinue with next span or redo last span
-based on status of last test. The LBA range is based on the first
-span from the last test.
+To run scheduled Selective Self-Tests, use \'n\' for \fBn\fPext span,
+\'r\' to \fBr\fPedo last span, or \'c\' to \fBc\fPontinue with next span
+or redo last span based on status of last test.
+The LBA range is based on the first span from the last test.
 See the \fBsmartctl \-t select,[next|redo|cont]\fP options for
 further info.
 

@@ -130,12 +130,11 @@ OPTIONS
 
 .TP
 .B \-A PREFIX, \-\-attributelog=PREFIX
-[NEW EXPERIMENTAL SMARTD FEATURE] [ATA ONLY]
-Writes \fBsmartd\fP attribute information (normalized and raw attribute values)
-to files \'PREFIX\'\'MODEL\-SERIAL.ata.csv\'. At each check cycle attributes
-are logged as a line of semicolon separated triplets of the form
-"attribute-ID;attribute-norm-value;attribute-raw-value;". Each line is
-led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
+[ATA only] Writes \fBsmartd\fP attribute information (normalized and raw
+attribute values) to files \'PREFIX\'\'MODEL\-SERIAL.ata.csv\'.  At each
+check cycle attributes are logged as a line of semicolon separated triplets
+of the form "attribute-ID;attribute-norm-value;attribute-raw-value;".
+Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
 
 .\" BEGIN ENABLE_ATTRIBUTELOG
 If this option is not specified, attribute information is written to files
@@ -153,9 +152,9 @@ then files 'nameMODEL\-SERIAL.ata.csv' are created in directory '/path/'.
 The path must be absolute, except if debug mode is enabled.
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
-[NEW EXPERIMENTAL SMARTD FEATURE] Read the drive database from FILE.
-The new database replaces the built in database by default. If \'+\' is
-specified, then the new entries prepend the built in entries.
+[ATA only] Read the drive database from FILE.  The new database replaces
+the built in database by default.  If \'+\' is specified, then the new entries
+prepend the built in entries.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .TP
 .B \-c FILE, \-\-configfile=FILE
@@ -385,8 +384,7 @@ The default level is 1, so \'\-r ataioctl,1\' and \'\-r ataioctl\' are
 equivalent.
 .TP
 .B \-s PREFIX, \-\-savestates=PREFIX
-[NEW EXPERIMENTAL SMARTD FEATURE] [ATA ONLY]
-Reads/writes \fBsmartd\fP state information from/to files
+[ATA only] Reads/writes \fBsmartd\fP state information from/to files
 \'PREFIX\'\'MODEL\-SERIAL.ata.state\'. This preserves SMART attributes, drive
 min and max temperatures (\-W directive), info about last sent warning email
 (\-m directive), and the time of next check of the self-test REGEXP
@@ -990,11 +988,10 @@ only), and \'O\' for an \fBO\fPffline Immediate Test (ATA only).  As
 soon as a match is found, the test will be started and no additional
 matches will be sought for that device and that polling cycle.
 
-[NEW EXPERIMENTAL SMARTD FEATURE] To run scheduled Selective
-Self-Tests, use \'n\' for \fBn\fPext span, \'r\' to \fBr\fPedo last
-span, or \'c\' to \fBc\fPontinue with next span or redo last span
-based on status of last test. The LBA range is based on the first
-span from the last test.
+To run scheduled Selective Self-Tests, use \'n\' for \fBn\fPext span,
+\'r\' to \fBr\fPedo last span, or \'c\' to \fBc\fPontinue with next span
+or redo last span based on status of last test.
+The LBA range is based on the first span from the last test.
 See the \fBsmartctl \-t select,[next|redo|cont]\fP options for
 further info.
 
