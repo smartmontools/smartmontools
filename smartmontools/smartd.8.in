@@ -718,22 +718,14 @@ smartmontools must be used; Please see the \fBsmartctl\fP(8) man page
 for further details.
 .TP
 .B \-d TYPE
-Specifies the type of the device.  This Directive may be used multiple
-times for one device, but the arguments \fIata\fP, \fIscsi\fP,
-\fIsat\fP, \fImarvell\fP, \fIcciss,N\fP, \fIareca,N\fP, \fImegaraid,N\fP
-and \fI3ware,N\fP are mutually-exclusive. If more than one is given then
-\fBsmartd\fP will use the last one which appears.
+Specifies the type of the device.
+The valid arguments to this directive are:
 
-If none of these three arguments is given, then \fBsmartd\fP will
-first attempt to guess the device type by looking at whether the sixth
-character in the device name is an \'s\' or an \'h\'.  This will work for
-device names like /dev/hda or /dev/sdb, and corresponds to choosing
-\fIata\fP or \fIscsi\fP respectively. If
-\fBsmartd\fP
-can\'t guess from this sixth character, then it will simply try to
-access the device using first ATA and then SCSI ioctl()s.
-
-The valid arguments to this Directive are:
+.I auto
+- attempt to guess the device type from the device name or from
+controller type info provided by the operating system or from
+a matching USB ID entry in the drive database.
+This is the default.
 
 .I ata
 \- the device type is ATA.  This prevents
@@ -747,95 +739,93 @@ from issuing ATA commands to a SCSI device.
 
 .I sat
 \- the device type is SCSI to ATA Translation (SAT).
-\fBsmartd\fP
-will generate ATA (smart) commands and then package them in
-the SAT defined ATA PASS THROUGH SCSI commands. The commands
-are then routed through the SCSI pass through interface to the
-operating system. There are two types of ATA PASS THROUGH
-SCSI commands: a 12 byte and 16 byte variant.
-\fBsmartd\fP
-can use either and defaults to the 16 byte variant. This can
-be overridden with this syntax: \'\-d sat,12\' or \'\-d sat,16\'.
+This is for ATA disks that have a SCSI to ATA Translation (SAT) Layer
+(SATL) between the disk and the operating system.
+SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
+the other 16 bytes long.  The default is the 16 byte variant which can be
+overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
+
+.I usbcypress
+\- this device type is for ATA disks that are behind a Cypress USB to PATA
+bridge.  This will use the ATACB proprietary scsi pass through command.
+The default SCSI operation code is 0x24, but although it can be overridden
+with \'\-d usbcypress,0xN\', where N is the scsi operation code,
+you're running the risk of damage to the device or filesystems on it.
+
+.I usbjmicron
+- this device type is for SATA disks that are behind a JMicron USB to
+PATA/SATA bridge.  The 48-bit ATA commands (required e.g. for \'\-l xerror\',
+see below) do not work with all of these bridges and are therefore disabled by
+default.  These commands can be enabled by \'\-d usbjmicron,x\'.
+If two disks are connected to a bridge with two ports, an error message is printed
+if no PORT is specified.
+The port can be specified by \'\-d usbjmicron[,x],PORT\' where PORT is 0
+(master) or 1 (slave).  This is not necessary if the device uses a port
+multiplier to connect multiple disks to one port.  The disks appear under
+separate /dev/ice names then.
+CAUTION: Specifying \',x\' for a device which does not support it results
+in I/O errors and may disconnect the drive.  The same applies if the specified
+PORT does not exist or is not connected to a disk.
+
+.I usbsunplus
+\- this device type is for SATA disks that are behind a SunplusIT USB to SATA
+bridge.
 
 .I marvell
-\- Under Linux, interact with SATA disks behind Marvell chip-set
+\- [Linux only] interact with SATA disks behind Marvell chip-set
 controllers (using the Marvell rather than libata driver).
 
 .I megaraid,N
-\- the device consists of one or more SCSI/SAS/SATA disks connected
-to a MegaRAID controller.  The non-negative integer N (in the range
-of 0 to 127 inclusive) denotes which disk on the controller is monitored.
+\- [Linux only] the device consists of one or more SCSI/SAS disks connected
+to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
+127 inclusive) denotes which disk on the controller is monitored.
+This interface will also work for Dell PERC controllers.
 In log files and email messages this disk will be identified as
 megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
-
-.I 3ware,N
-\- the device consists of one or more ATA disks connected to a 3ware
-RAID controller. The non-negative integer N (in the range from 0 to 127 
-inclusive) denotes which disk on the controller is monitored.  In log
-files and email messages this disk will be identified as 3ware_disk_XXX
-with XXX in the range from 000 to 127 inclusive.
-
-This Directive may at first appear confusing, because the 3ware
-controller is a SCSI device (such as /dev/sda) and should be listed as
-such in the the configuration file.
-However when the \'\-d 3ware,N\'
-Directive is used, then the corresponding disk is addressed using
-native ATA commands which are \'passed through\' the SCSI driver. All
-ATA Directives listed in this man page may be used.  Note that while
-you may use \fBany\fP of the 3ware SCSI logical devices /dev/sd? to
-address \fBany\fP of the physical disks (3ware ports), error and log
-messages will make the most sense if you always list the 3ware SCSI
-logical device corresponding to the particular physical disks.  Please
-see the \fBsmartctl\fP(8) man page for further details.
-
-ATA disks behind 3ware controllers may alternatively be accessed via a
-character device interface /dev/twe0-15 (3ware 6000/7000/8000
-controllers), /dev/twa0-15 (3ware 9000 series controllers) and
-/dev/twl0-15 (3ware 9750 series controllers).  Note that the 9000 series
-controllers may \fBonly\fP be accessed using the character device
-interface /dev/twa0-15 and not the SCSI device interface /dev/sd?.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
-Note that older 3w-xxxx drivers do not pass the \'Enable Autosave\'
-(\fB-S on\fP) and \'Enable Automatic Offline\' (\fB-o on\fP) commands
-to the disk, if the SCSI interface is used, and produce these types of
-harmless syslog error messages instead: \fB\'3w-xxxx: tw_ioctl():
-Passthru size (123392) too big\'\fP. This can be fixed by upgrading to
-version 1.02.00.037 or later of the 3w-xxxx driver, or by applying a
-patch to older versions.  See
-\fBhttp://smartmontools.sourceforge.net/\fP for instructions.
-Alternatively use the character device interfaces /dev/twe0-15 (3ware
-6/7/8000 series controllers), /dev/twa0-15 (3ware 9000 series
-controllers) or /dev/twl0-15 (3ware 9750 series controllers).
+.I 3ware,N
+\- [FreeBSD and Linux only] the device consists of one or more ATA disks
+connected to a 3ware RAID controller.  The non-negative integer N
+(in the range from 0 to 127 inclusive) denotes which disk on the controller
+is monitored.
+In log files and email messages this disk will be identified as 3ware_disk_XXX
+with XXX in the range from 000 to 127 inclusive.
+
+Note that while you may use \fBany\fP of the 3ware SCSI logical devices /dev/tw*
+to address \fBany\fP of the physical disks (3ware ports), error and log
+messages will make the most sense if you always list the 3ware SCSI
+logical device corresponding to the particular physical disks.
+Please see the \fBsmartctl\fP(8) man page for further details.
 
 .I areca,N
-\- the device consists of one or more SATA disks connected to an Areca
-SATA RAID controller.  The positive integer N (in the range from 1 to
-24 inclusive) denotes which disk on the controller is monitored.  In
-log files and email messages this disk will be identifed as
+\- [Linux only] the device consists of one or more SATA disks connected to an
+Areca SATA RAID controller.  The positive integer N (in the range from 1 to
+24 inclusive) denotes which disk on the controller is monitored.
+In log files and email messages this disk will be identifed as
 areca_disk_XX with XX in the range from 01 to 24 inclusive.
+Please see the \fBsmartctl\fP(8) man page for further details.
 
 .I cciss,N
-\- the device consists of one or more SCSI disks connected to a cciss
-RAID controller. The non-negative integer N (in the range from 0 to 15
-inclusive) denotes which disk on the controller is monitored.  In log
-files and email messages this disk will be identified as cciss_disk_XX
+\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
+connected to a cciss RAID controller.  The non-negative integer N (in the range
+from 0 to 15 inclusive) denotes which disk on the controller is monitored.
+In log files and email messages this disk will be identified as cciss_disk_XX
 with XX in the range from 00 to 15 inclusive.
-
-.B 3ware, MegaRAID, Areca and cciss controllers are currently ONLY supported under Linux.
+Please see the \fBsmartctl\fP(8) man page for further details.
 
 .I hpt,L/M/N
-\- the device consists of one or more ATA disks connected to a HighPoint
-RocketRAID controller.  The integer L is the controller id, the integer M
-is the channel number, and the integer N is the PMPort number if it is
-available. The allowed values of L are from 1 to 4 inclusive, M are from
-1 to 8 inclusive and N from 1 to 4 if PMPort available.  And also these
-values are limited by the model of the HighPoint RocketRAID controller.
+\- [FreeBSD and Linux only] the device consists of one or more ATA disks
+connected to a HighPoint RocketRAID controller.  The integer L is the
+controller id, the integer M is the channel number, and the integer N
+is the PMPort number if it is available.  The allowed values of L are
+from 1 to 4 inclusive, M are from 1 to 8 inclusive and N from 1 to 4
+if PMPort available.  And also these values are limited by the model
+of the HighPoint RocketRAID controller.
 In log files and email messages this disk will be identified as
 hpt_X/X/X and X/X/X is the same as L/M/N, note if no N indicated, N set
 to the default value 1.
-
-.B HighPoint RocketRAID controllers are currently ONLY supported under Linux and FreeBSD.
+Please see the \fBsmartctl\fP(8) man page for further details.
 
 .I removable
 \- the device or its media is removable.  This indicates to

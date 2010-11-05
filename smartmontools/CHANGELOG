@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Rework '-d TYPE' documentation on man pages.
+
   [CF] drivedb.h updates:
        - Seagate Maxtor DiamondMax 21: Add 80GB
        - Western Digital Caviar Black: Add 1TB/64MB

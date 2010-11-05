@@ -229,75 +229,92 @@ use the exit status of \fBsmartctl\fP (see RETURN VALUES below).
 \- Do not print the serial number of the device.
 .TP
 .B \-d TYPE, \-\-device=TYPE
-Specifies the type of the device.  The valid arguments to this option
-are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP,
-\fIareca,N\fP, \fIusbcypress\fP, \fIusbjmicron\fP, \fIusbsunplus\fP,
-\fIcciss,N\fP, \fIhpt,L/M\fP (or \fIhpt,L/M/N\fP), and \fItest\fP.
+Specifies the type of the device.
+The valid arguments to this option are:
 
-If this option is not used or \'auto\' is used then \fBsmartctl\fP
-will attempt to guess the device type from the device name or from
-controller type info provided by the operating system.
+.I auto
+- attempt to guess the device type from the device name or from
+controller type info provided by the operating system or from
+a matching USB ID entry in the drive database.
+This is the default.
 
-If \'test\' is used as the TYPE name, \fBsmartctl\fP prints the guessed
-TYPE name, then opens the device and prints the (possibly changed) TYPE
-name and then exists without performing any further commands.
+.I test
+- prints the guessed type, then opens the device and prints the
+(possibly changed) TYPE name and then exists without performing
+any further commands.
 
-The \'sat\' device type is for ATA disks that have a SCSI to ATA
-Translation (SAT) Layer (SATL) between the disk and the operating system.
+.I ata
+\- the device type is ATA.  This prevents
+\fBsmartctl\fP
+from issuing SCSI commands to an ATA device.
+
+.I scsi
+\- the device type is SCSI.  This prevents
+\fBsmartctl\fP
+from issuing ATA commands to a SCSI device.
+
+.I sat
+\- the device type is SCSI to ATA Translation (SAT).
+This is for ATA disks that have a SCSI to ATA Translation (SAT) Layer
+(SATL) between the disk and the operating system.
 SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
-the other 16 bytes long that \fBsmartctl\fP will utilize when this device
-type is selected. The default is the 16 byte variant which can be
+the other 16 bytes long.  The default is the 16 byte variant which can be
 overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
 
-The \'usbcypress\' device type is for ATA disks that are behind a Cypress
-usb-pata bridge. This will use the ATACB proprietary scsi pass through command. There is no autodetection at the moment. The best way to know if your device support it, is to check your device usb id (most Cypress usb ata bridge got vid=0x04b4, pid=0x6830) or to try it (if the usb device doesn't support ATACB, smartmontools print an error).
-The default scsi operation code is 0x24, but although it can be overridden
-with \'\-d usbcypress,0xn\', where n is the scsi operation code,
+.I usbcypress
+\- this device type is for ATA disks that are behind a Cypress USB to PATA
+bridge.  This will use the ATACB proprietary scsi pass through command.
+The default SCSI operation code is 0x24, but although it can be overridden
+with \'\-d usbcypress,0xN\', where N is the scsi operation code,
 you're running the risk of damage to the device or filesystems on it.
 
-[NEW EXPERIMENTAL SMARTCTL FEATURE] The \'usbjmicron\' device type is for
-SATA disks that are behind a JMicron USB to PATA/SATA bridge. The 48-bit
-ATA commands (required e.g. for \'\-l xerror\', see below) do not work with
-all of these bridges and are therefore disabled by default. These commands
-can be enabled by \'\-d usbjmicron,x\'. If two disks are connected to a
-bridge with two ports, an error message is printed if no PORT is specified.
+.I usbjmicron
+- this device type is for SATA disks that are behind a JMicron USB to
+PATA/SATA bridge.  The 48-bit ATA commands (required e.g. for \'\-l xerror\',
+see below) do not work with all of these bridges and are therefore disabled by
+default.  These commands can be enabled by \'\-d usbjmicron,x\'.
+If two disks are connected to a bridge with two ports, an error message is printed
+if no PORT is specified.
 The port can be specified by \'\-d usbjmicron[,x],PORT\' where PORT is 0
-(master) or 1 (slave). This is not necessary if the device uses a port
-multiplier to connect multiple disks to one port. The disks appear under
+(master) or 1 (slave).  This is not necessary if the device uses a port
+multiplier to connect multiple disks to one port.  The disks appear under
 separate /dev/ice names then.
 CAUTION: Specifying \',x\' for a device which does not support it results
-in I/O errors and may disconnect the drive. The same applies if the specified
+in I/O errors and may disconnect the drive.  The same applies if the specified
 PORT does not exist or is not connected to a disk.
 
-[NEW EXPERIMENTAL SMARTCTL FEATURE] The \'usbsunplus\' device type is for
-SATA disks that are behind a SunplusIT USB to SATA bridge.
+.I usbsunplus
+\- this device type is for SATA disks that are behind a SunplusIT USB to SATA
+bridge.
 
-Under Linux, to look at SATA disks behind Marvell SATA controllers
-(using Marvell's \'linuxIAL\' driver rather than libata driver) use \'\-d marvell\'. Such
-controllers show up as Marvell Technology Group Ltd. SATA I or II controllers
-using lspci, or using lspci \-n show a vendor ID 0x11ab and a device ID of
-either 0x5040, 0x5041, 0x5080, 0x5081, 0x6041 or 0x6081. The \'linuxIAL\' driver
-seems not (yet?) available in the Linux kernel source tree, but should be available
-from system vendors (ftp://ftp.aslab.com/ is known to provide a patch with the driver).
+.I marvell
+\- [Linux only] interact with SATA disks behind Marvell chip-set
+controllers (using the Marvell rather than libata driver).
 
-Under Linux , to look at SCSI/SAS disks behind LSI MegaRAID controllers,
-use syntax such as:
+.I megaraid,N
+\- [Linux only] the device consists of one or more SCSI/SAS disks connected
+to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
+127 inclusive) denotes which disk on the controller is monitored.
+Use syntax such as:
 .nf
 \fBsmartctl \-a \-d megaraid,2 /dev/sda\fP
 .fi
 .nf
 \fBsmartctl \-a \-d megaraid,0 /dev/sdb\fP
 .fi
-where in the argument \fImegaraid,N\fP, the integer N is the physical disk
-number within the MegaRAID controller.  This interface will also work for
-Dell PERC controllers.  The following /dev/XXX entry must exist:
+This interface will also work for Dell PERC controllers.
+The following /dev/XXX entry must exist:
 .fi
 For PERC2/3/4 controllers: \fB/dev/megadev0\fP
 .fi
 For PERC5/6 controllers: \fB/dev/megaraid_sas_ioctl_node\fP
 
-Under Linux and FreeBSD, to look at ATA disks behind 3ware SCSI RAID controllers,
-use syntax such as:
+.I 3ware,N
+\- [FreeBSD and Linux only] the device consists of one or more ATA disks
+connected to a 3ware RAID controller.  The non-negative integer N
+(in the range from 0 to 127 inclusive) denotes which disk on the controller
+is monitored.
+Use syntax such as:
 .nf
 \fBsmartctl \-a \-d 3ware,2 /dev/sda\fP
 .fi
@@ -310,14 +327,12 @@ use syntax such as:
 .nf
 \fBsmartctl \-a \-d 3ware,1 /dev/twl0\fP
 .fi
-where in the argument \fI3ware,N\fP, the integer N is the disk number
-(3ware \'port\') within the 3ware ATA RAID controller.  The allowed
-values of N are from 0 to 127 inclusive.  The first two forms, which
-refer to devices /dev/sda\-z and /dev/twe0\-15, may be used with 3ware
-series 6000, 7000, and 8000 series controllers that use the 3x\-xxxx
-driver.  \fBNote that the /dev/sda\-z form is deprecated\fP starting
-with the Linux 2.6 kernel series and may not be supported by the Linux
-kernel in the near future. The final form, which refers to devices
+The first two forms, which refer to devices /dev/sda\-z and /dev/twe0\-15,
+may be used with 3ware series 6000, 7000, and 8000 series controllers
+that use the 3x\-xxxx driver.
+\fBNote that the /dev/sda\-z form is deprecated\fP starting with
+the Linux 2.6 kernel series and may not be supported by the Linux
+kernel in the near future.  The final form, which refers to devices
 /dev/twa0\-15, must be used with 3ware 9000 series controllers, which
 use the 3w\-9xxx driver.
 
@@ -328,9 +343,9 @@ Note that if the special character device nodes /dev/twl?, /dev/twa?
 and /dev/twe? do not exist, or exist with the incorrect major or minor
 numbers, smartctl will recreate them on the fly.  Typically /dev/twa0
 refers to the first 9000\-series controller, /dev/twa1 refers to the
-second 9000 series controller, and so on. The /dev/twl0 devices refers
+second 9000 series controller, and so on.  The /dev/twl0 devices refers
 to the first 9750 series controller, /dev/twl1 resfers to the second
-9750 series controller, and so on. Likewise /dev/twe0 refers to
+9750 series controller, and so on.  Likewise /dev/twe0 refers to
 the first 6/7/8000\-series controller, /dev/twe1 refers to the second
 6/7/8000 series controller, and so on.
 
@@ -352,7 +367,7 @@ the 3ware controller, or to a port that does not physically have a
 disk attached to it, the behavior of \fBsmartctl\fP depends upon the
 specific controller model, firmware, Linux kernel and platform.  In
 some cases you will get a warning message that the device does not
-exist. In other cases you will be presented with \'void\' data for a
+exist.  In other cases you will be presented with \'void\' data for a
 non\-existent device.
 
 Note that if the /dev/sd? addressing form is used, then older 3w\-xxxx
@@ -360,46 +375,59 @@ drivers do not pass the "Enable Autosave"
 (\'\fB\-S on\fP\') and "Enable Automatic Offline" (\'\fB\-o on\fP\')
 commands to the disk, and produce these types of harmless syslog error
 messages instead: "\fB3w\-xxxx: tw_ioctl(): Passthru size (123392) too
-big\fP". This can be fixed by upgrading to version 1.02.00.037 or
+big\fP".  This can be fixed by upgrading to version 1.02.00.037 or
 later of the 3w\-xxxx driver, or by applying a patch to older
-versions. See \fBhttp://smartmontools.sourceforge.net/\fP for
-instructions.  Alternatively, use the character device /dev/twe0\-15 interface.
+versions.  Alternatively, use the character device /dev/twe0\-15 interface.
 
 The selective self\-test functions (\'\-t select,A\-B\') are only supported
 using the character device interface /dev/twl0\-15, /dev/twa0\-15 and /dev/twe0\-15.
 The necessary WRITE LOG commands can not be passed through the SCSI
 interface.
 
-.B Areca SATA RAID controllers are currently supported under Linux only.
-To look at SATA disks behind Areca RAID controllers, use syntax such
-as:
+.I areca,N
+\- [Linux only] the device consists of one or more SATA disks connected to an
+Areca SATA RAID controller.  The positive integer N (in the range from 1 to
+24 inclusive) denotes which disk on the controller is monitored.
+Use syntax such as:
 .nf
 \fBsmartctl \-a \-d areca,2 /dev/sg2\fP
 .fi
 .nf
 \fBsmartctl \-a \-d areca,3 /dev/sg3\fP
 .fi
-where in the argument \fIareca,N\fP, the integer N is the disk number
-(Areca \'port\') within the Areca SATA RAID controller.  The allowed
-values of N are from 1 to 24 inclusive.  The first line above
-addresses the second disk on the first Areca RAID controller.  The
-second line addresses the third disk on the second Areca RAID
+The first line above addresses the second disk on the first Areca RAID controller.
+The second line addresses the third disk on the second Areca RAID
 controller.  To help identify the correct device, use the command:
 .nf
 \fBcat /proc/scsi/sg/device_hdr /proc/scsi/sg/devices\fP
 .fi
 to show the SCSI generic devices (one per line, starting with
-/dev/sg0). The correct SCSI generic devices to address for
+/dev/sg0).  The correct SCSI generic devices to address for
 smartmontools are the ones with the type field equal to 3.  If the
 incorrect device is addressed, please read the warning/error messages
 carefully.  They should provide hints about what devices to use.
 
 Important: the Areca controller must have firmware version 1.46 or
-later. Lower-numbered firmware versions will give (harmless) SCSI
+later.  Lower-numbered firmware versions will give (harmless) SCSI
 error messages and no SMART information.
 
-To look at (S)ATA disks behind HighPoint RocketRAID controllers, use syntax
-such as:
+.I cciss,N
+\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
+connected to a cciss RAID controller.  The non-negative integer N (in the range
+from 0 to 15 inclusive) denotes which disk on the controller is monitored.
+
+If the controller firmware or driver provides a SAT Layer it may be possible
+to monitor also SATA disks by specifiying \'\-d sat+cciss,N\'.
+
+.I hpt,L/M/N
+\- [FreeBSD and Linux only] the device consists of one or more ATA disks
+connected to a HighPoint RocketRAID controller.  The integer L is the
+controller id, the integer M is the channel number, and the integer N
+is the PMPort number if it is available.  The allowed values of L are
+from 1 to 4 inclusive, M are from 1 to 8 inclusive and N from 1 to 4
+if PMPort available.  And also these values are limited by the model
+of the HighPoint RocketRAID controller.
+Use syntax such as:
 .nf
 \fBsmartctl \-a \-d hpt,1/3 /dev/sda\fP    (under Linux)
 .fi
@@ -412,19 +440,10 @@ such as:
 .nf
 \fBsmartctl \-a \-d hpt,1/2/3 /dev/hptrr\fP    (under FreeBSD)
 .fi
-where in the argument \fIhpt,L/M\fP or \fIhpt,L/M/N\fP, the integer L is the
-controller id, the integer M is the channel number, and the integer N is the
-PMPort number if it is available. The allowed values of L are from 1 to 4
-inclusive, M are from 1 to 8 inclusive and N from 1 to 5 if PMPort available.
 Note that the /dev/sda\-z form should be the device node which stands for
 the disks derived from the HighPoint RocketRAID controllers under Linux and
 under FreeBSD, it is the character device which the driver registered (eg,
-/dev/hptrr, /dev/hptmv6).  And also these values are limited by the model
-of the HighPoint RocketRAID controller.
-
-.B HighPoint RocketRAID controllers are currently ONLY supported under Linux and FreeBSD.
-
-.B cciss controllers are currently ONLY supported under Linux and FreeBSD.
+/dev/hptrr, /dev/hptmv6).
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART
@@ -1836,7 +1855,7 @@ condition.
 \fBBruce Allen\fP smartmontools\-support@lists.sourceforge.net
 .fi
 University of Wisconsin \- Milwaukee Physics Department
- 
+
 .PP
 .SH CONTRIBUTORS
 The following have made large contributions to smartmontools:
