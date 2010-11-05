@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3202 2010-11-05 22:15:28Z chrfranke $
+$Id: smartd.conf.5.in 3203 2010-11-05 22:48:26Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -566,11 +566,10 @@ only), and \'O\' for an \fBO\fPffline Immediate Test (ATA only).  As
 soon as a match is found, the test will be started and no additional
 matches will be sought for that device and that polling cycle.
 
-[NEW EXPERIMENTAL SMARTD FEATURE] To run scheduled Selective
-Self-Tests, use \'n\' for \fBn\fPext span, \'r\' to \fBr\fPedo last
-span, or \'c\' to \fBc\fPontinue with next span or redo last span
-based on status of last test. The LBA range is based on the first
-span from the last test.
+To run scheduled Selective Self-Tests, use \'n\' for \fBn\fPext span,
+\'r\' to \fBr\fPedo last span, or \'c\' to \fBc\fPontinue with next span
+or redo last span based on status of last test.
+The LBA range is based on the first span from the last test.
 See the \fBsmartctl \-t select,[next|redo|cont]\fP options for
 further info.
 
@@ -1396,4 +1395,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3202 2010-11-05 22:15:28Z chrfranke $
+$Id: smartd.conf.5.in 3203 2010-11-05 22:48:26Z chrfranke $
