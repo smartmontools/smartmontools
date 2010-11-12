@@ -89,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3195 2010-10-28 19:20:33Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3204 2010-11-12 20:31:32Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -1091,17 +1091,21 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   pthru->cdb_len = cdbLen;
   pthru->timeout = 0;
   pthru->flags = MFI_FRAME_DIR_READ;
-  pthru->sge_count = 1;
-  pthru->data_xfer_len = dataLen;
-  pthru->sgl.sge32[0].phys_addr = (intptr_t)data;
-  pthru->sgl.sge32[0].length = (uint32_t)dataLen;
+  if (dataLen > 0) {
+    pthru->sge_count = 1;
+    pthru->data_xfer_len = dataLen;
+    pthru->sgl.sge32[0].phys_addr = (intptr_t)data;
+    pthru->sgl.sge32[0].length = (uint32_t)dataLen;
+  }
   memcpy(pthru->cdb, cdb, cdbLen);
 
   uio.host_no = m_hba;
-  uio.sge_count = 1;
-  uio.sgl_off = offsetof(struct megasas_pthru_frame, sgl);
-  uio.sgl[0].iov_base = data;
-  uio.sgl[0].iov_len = dataLen;
+  if (dataLen > 0) {
+    uio.sge_count = 1;
+    uio.sgl_off = offsetof(struct megasas_pthru_frame, sgl);
+    uio.sgl[0].iov_base = data;
+    uio.sgl[0].iov_len = dataLen;
+  }
 
   rc = 0;
   errno = 0;
