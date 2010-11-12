@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Linux megaraid: Fix segfault on non-data commands (Ticket #78).
+       The /dev/megaraid_sas_ioctl_node driver does not allow
+       sge_count = 1 and sgl[0].iov_len = 0.
+
   [CF] Remove EXPERIMENTAL notes for features already present
        in 5.39.
 
