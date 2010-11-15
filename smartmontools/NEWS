@@ -9,6 +9,8 @@ Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.41
 -----------------------------------------------------------
 - configure option '--with-exampledir'.
+- 'make install' does no longer overwrite an existing
+  smartd.conf file.
 - Linux megaraid: Fix segfault on non-data commands.
 
 Date 2010-10-16

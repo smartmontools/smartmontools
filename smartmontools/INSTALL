@@ -631,6 +631,10 @@ The following files are installed if ./configure has no options:
 /usr/local/share/doc/smartmontools/examplescripts/      [Executable scripts for -M exec of smartd.conf (4 files)]
 /usr/local/share/smartmontools/drivedb.h                [Drive database]
 
+If /usr/local/etc/smartd.conf exists and differs from the
+default then the default configuration file is installed as
+/usr/local/etc/smartd.conf.sample instead.
+
 The commands:
 
 make htmlman

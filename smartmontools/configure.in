@@ -216,7 +216,6 @@ AC_ARG_ENABLE(sample,
   [smartd_suffix=; test "$enableval" = "yes" && smartd_suffix=".sample"],
   [smartd_suffix=;])
 AC_SUBST(smartd_suffix)
-AM_CONDITIONAL(SMARTD_SUFFIX, [test -n "$smartd_suffix"])
 
 AC_ARG_WITH(os-deps,
   [AC_HELP_STRING([--with-os-deps='os_module.o ...'],[Specify OS dependent module(s) [guessed]])],

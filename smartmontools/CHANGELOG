@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Makefile.am: Do not overwrite existing smartd.conf file
+       (Ticket #122).  If smartd.conf exists and differs from the
+       default then smartd.conf.sample is installed instead
+       If smartd.conf.sample exists on uninstall then smartd.conf is
+       preserved.
+
   [CF] Linux megaraid: Fix segfault on non-data commands (Ticket #78).
        The /dev/megaraid_sas_ioctl_node driver does not allow
        sge_count = 1 and sgl[0].iov_len = 0.
