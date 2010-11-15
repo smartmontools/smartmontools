@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3198 2010-10-29 20:03:11Z chrfranke $
+# $Id: configure.in 3205 2010-11-15 18:32:55Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.41, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3198 2010-10-29 20:03:11Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3205 2010-11-15 18:32:55Z chrfranke $'`
 smartmontools_release_date=2010-10-16
 smartmontools_release_time="16:34:38 UTC"
 
@@ -216,7 +216,6 @@ AC_ARG_ENABLE(sample,
   [smartd_suffix=; test "$enableval" = "yes" && smartd_suffix=".sample"],
   [smartd_suffix=;])
 AC_SUBST(smartd_suffix)
-AM_CONDITIONAL(SMARTD_SUFFIX, [test -n "$smartd_suffix"])
 
 AC_ARG_WITH(os-deps,
   [AC_HELP_STRING([--with-os-deps='os_module.o ...'],[Specify OS dependent module(s) [guessed]])],
