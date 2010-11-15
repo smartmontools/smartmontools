@@ -13,6 +13,8 @@ Summary: smartmontools release 5.41
   smartd.conf file.
 - Linux megaraid: Fix segfault on non-data commands.
 - OpenBSD: Fix DEVICESCAN for OpenBSD >= 4.8.
+- Windows: Add missing quotes in smartctl-run.bat and
+  smartd-run.bat
 
 Date 2010-10-16
 Summary: smartmontools release 5.40

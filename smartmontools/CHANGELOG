@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows installer: Add missing quotes in smartctl-run.bat
+       and smartd-run.bat (Ticket #124).
+
   [CF] OpenBSD: Fix DEVICESCAN for OpenBSD >= 4.8 (Ticket #123).
 
   [CF] daemon_win32.cpp: Remove duplicate assignment (Ticket #120).
