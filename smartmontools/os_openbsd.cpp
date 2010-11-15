@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-8 David Snyder <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-10 David Snyder <smartmontools-support@lists.sourceforge.net>
  *
  * Derived from os_netbsd.cpp by Sergey Svishchev <smartmontools-support@lists.sourceforge.net>, Copyright (C) 2003-8 
  *
@@ -25,8 +25,8 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.17 2008/06/12 21:46:31 ballen4705 Exp $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_OPENBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char * os_openbsd_cpp_cvsid = "$Id$"
+  OS_OPENBSD_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
 extern long long bytes;
@@ -121,6 +121,9 @@ get_dev_names(char ***names, const char *prefix)
     if (strncmp(p, prefix, strlen(prefix))) {
       continue;
     }
+    char * u = strchr(p, ':');
+    if (u)
+      *u = 0;
     mp[n] = (char *)malloc(strlen(net_dev_prefix) + strlen(p) + 2);
     if (!mp[n]) {
       pout("Out of memory constructing scan device list\n");

@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] OpenBSD: Fix DEVICESCAN for OpenBSD >= 4.8 (Ticket #123).
+
   [CF] daemon_win32.cpp: Remove duplicate assignment (Ticket #120).
 
   [CF] Makefile.am: Do not overwrite existing smartd.conf file
