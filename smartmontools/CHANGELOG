@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] daemon_win32.cpp: Remove duplicate assignment (Ticket #120).
+
   [CF] Makefile.am: Do not overwrite existing smartd.conf file
        (Ticket #122).  If smartd.conf exists and differs from the
        default then smartd.conf.sample is installed instead

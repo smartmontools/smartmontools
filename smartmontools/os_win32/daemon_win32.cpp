@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-8 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.12 2008/03/04 22:09:48 ballen4705 Exp $"
+const char * daemon_win32_cpp_cvsid = "$Id$"
 DAEMON_WIN32_H_CVSID;
 
 
@@ -525,7 +525,7 @@ int daemon_messagebox(int system, const char * title, const char * text)
 	mb.mode = MB_OK|MB_ICONWARNING
 	         |(svc_mode?MB_SERVICE_NOTIFICATION:0)
 	         |(system?MB_SYSTEMMODAL:MB_APPLMODAL);
-	mb.title = title; mb.text = text;
+	mb.title = title;
 	mb.text = text;
 	if (!(ht = CreateThread(NULL, 0, mbox_thread, &mb, 0, &tid)))
 		return -1;
