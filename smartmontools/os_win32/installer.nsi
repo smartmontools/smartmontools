@@ -8,7 +8,7 @@
 ; Download and install NSIS from: http://nsis.sourceforge.net/Download
 ; Process with makensis to create installer (tested with NSIS 2.46)
 ;
-; $Id: installer.nsi 3159 2010-09-21 20:14:31Z chrfranke $
+; $Id: installer.nsi 3208 2010-11-15 22:37:47Z chrfranke $
 ;
 
 
@@ -215,7 +215,7 @@ Section "Start Menu Shortcuts" MENU_SECTION
     SetOutPath "$INSTDIR\bin"
     DetailPrint "Create file: $INSTDIR\bin\smartd-run.bat"
     FileOpen $0 "$INSTDIR\bin\smartd-run.bat" "w"
-    FileWrite $0 "@echo off$\r$\necho smartd %1 %2 %3 %4 %5$\r$\n$INSTDIR\bin\smartd %1 %2 %3 %4 %5$\r$\npause$\r$\n"
+    FileWrite $0 '@echo off$\r$\necho smartd %1 %2 %3 %4 %5$\r$\n"$INSTDIR\bin\smartd" %1 %2 %3 %4 %5$\r$\npause$\r$\n'
     FileClose $0
     CreateDirectory "$SMPROGRAMS\smartmontools\smartd Examples"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Daemon start, smartd.log.lnk" "$INSTDIR\bin\smartd-run.bat" "-l local0"
@@ -540,7 +540,7 @@ Function CreateSmartctlBat
   FileWrite $0 'echo See man page (smartctl.8.*) for further info.$\r$\n'
   FileWrite $0 'goto end$\r$\n:run$\r$\n'
   FileWrite $0 'echo smartctl %1 %2 %3 %4 %5$\r$\n'
-  FileWrite $0 '$INSTDIR\bin\smartctl %1 %2 %3 %4 %5$\r$\n'
+  FileWrite $0 '"$INSTDIR\bin\smartctl" %1 %2 %3 %4 %5$\r$\n'
   FileWrite $0 'pause$\r$\n:end$\r$\n'
   FileClose $0
   Pop $0
