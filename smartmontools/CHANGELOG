@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3205 2010-11-15 18:32:55Z chrfranke $
+$Id: CHANGELOG 3206 2010-11-15 18:51:30Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] daemon_win32.cpp: Remove duplicate assignment (Ticket #120).
 
   [CF] Makefile.am: Do not overwrite existing smartd.conf file
        (Ticket #122).  If smartd.conf exists and differs from the
