@@ -80,20 +80,35 @@ const drive_settings builtin_knowndrives[] = {
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
   },
-  { "Apple SSD SM128",
+  { "Apple SSD SM128", // Samsung?
     "APPLE SSD SM128",
     "", "", ""
+  },
+  { "Apple SSD TS*", // Toshiba?
+      // tested with APPLE SSD TS064C/CJAA0201
+    "APPLE SSD TS.*",
+    "", "",
+    "-v 10,raw48,Unknown_Attribute "
+    "-v 240,raw48,Unknown_Attribute"
   },
   { "Asus-Phison SSD",
     "ASUS-PHISON SSD",
     "", "", ""
   },
+  { "Crucial RealSSD C300 Series", // tested with C300-CTFDDAC128MAG/0002
+    "C300-CTFDDA[AC](064|128|256)MAG",
+    "", "",
+    "-v 189,raw48,Unknown_Attribute "
+    "-v 202,raw48,Unknown_Attribute "
+    "-v 206,raw48,Unknown_Attribute"
+  },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
     "Corsair CSSD-F(40|60|80|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1
-    "OCZ[ -](AGILITY2|VERTEX2|VERTEX-LE)( .*)?|" // tested with
+    "OCZ[ -](AGILITY2|VERTEX2(-PRO)?|VERTEX-LE)( .*)?|" // tested with
       // OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
+      // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
     "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
     "", "",
@@ -130,8 +145,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Indilinx Barefoot based SSDs",
     "CRUCIAL_CT(64|128|256)M225|" // tested with CRUCIAL_CT64M225/1571
-    "OCZ[ -](AGILITY|VERTEX( 1199|-TURBO)?)|" // tested with
-      // OCZ-VERTEX 1199/00.P97, OCZ-VERTEX/1.30, OCZ VERTEX-TURBO/1.5
+    "OCZ[ -](AGILITY|ONYX|VERTEX( 1199|-TURBO)?)|" // tested with
+      // OCZ-ONYX/1.6, OCZ-VERTEX 1199/00.P97, OCZ-VERTEX/1.30, OCZ VERTEX-TURBO/1.5
     "Patriot[ -]Torqx.*|"
     "STT_FT[MD](28|32|56|64)GX25H|" // Super Talent Ultradrive, tested with STT_FTM64GX25H/1916
     "TS(18|25)M(64|128)MLC(16|32|64|128|256|512)GSSD", // ASAX Leopard Hunt II, tested with TS25M64MLC64GSSD/0.1
@@ -211,6 +226,15 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
+  { "Kingston SSDNow V Series", // tested with KINGSTON SNV425S264GB/C091126a
+    "KINGSTON SNV425S2(64|128)GB",
+    "", "",
+    "-v 3,raw48,Unknown_Attribute "
+    "-v 7,raw48,Unknown_Attribute "
+    "-v 8,raw48,Unknown_Attribute "
+    "-v 10,raw48,Unknown_Attribute "
+    "-v 240,raw48,Unknown_Attribute"
+  },
   { "Transcend IDE Solid State Drive",
     "TS(8|16|32|64|128)GSSD25-(M|S)",
     "", "", ""
@@ -228,9 +252,11 @@ const drive_settings builtin_knowndrives[] = {
     "TS(60|120)GSSD25D-M",
     "", "", ""
   },
-  { "Transcend CompactFlash Cards", // Tested with TRANSCEND/20080820
-    "TRANSCEND",
-    "", "", ""
+  { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820, TS4GCF133/20100709
+    "TRANSCEND|TS4GCF133",
+    "", "",
+    "-v 7,raw48,Unknown_Attribute "
+    "-v 8,raw48,Unknown_Attribute"
   },
   { "Marvell SSD SD88SA024BA0 (SUN branded)",
     "MARVELL SD88SA024BA0 SUN24G 0902M0054V",
