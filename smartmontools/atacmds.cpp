@@ -808,10 +808,12 @@ int ataReadHDIdentity (ata_device * device, struct ata_identify_device *buf){
 
   // See if device responds either to IDENTIFY DEVICE or IDENTIFY
   // PACKET DEVICE
+  bool packet = false;
   if ((smartcommandhandler(device, IDENTIFY, 0, (char *)buf))){
     if (smartcommandhandler(device, PIDENTIFY, 0, (char *)buf)){
       return -1; 
     }
+    packet = true;
   }
 
 #ifndef __NetBSD__
@@ -835,7 +837,31 @@ int ataReadHDIdentity (ata_device * device, struct ata_identify_device *buf){
   // If there is a checksum there, validate it
   if ((rawshort[255] & 0x00ff) == 0x00a5 && checksum(rawbyte))
     checksumwarning("Drive Identity Structure");
-  
+
+  // AT Attachment 8 - ATA/ATAPI Command Set (ATA8-ACS)
+  // T13/1699-D Revision 6a (Final Draft), September 6, 2008.
+  // Sections 7.16.7 and 7.17.6:
+  //
+  // Word 0 of IDENTIFY DEVICE data:
+  // Bit 15 = 0 : ATA device
+  //
+  // Word 0 of IDENTIFY PACKET DEVICE data:
+  // Bits 15:14 = 10b : ATAPI device
+  // Bits 15:14 = 11b : Reserved
+  // Bits 12:8        : Device type (SPC-4, e.g 0x05 = CD/DVD)
+
+  // CF+ and CompactFlash Specification Revision 4.0, May 24, 2006.
+  // Section 6.2.1.6:
+  //
+  // Word 0 of IDENTIFY DEVICE data:
+  // 848Ah = Signature for CompactFlash Storage Card
+  // 044Ah = Alternate value turns on ATA device while preserving all retired bits
+  // 0040h = Alternate value turns on ATA device while zeroing all retired bits
+
+  // Assume ATA if IDENTIFY DEVICE returns CompactFlash Signature
+  if (!packet && rawbyte[1] == 0x84 && rawbyte[0] == 0x8a)
+    return 0;
+
   // If this is a PACKET DEVICE, return device type
   if (rawbyte[1] & 0x80)
     return 1+(rawbyte[1] & 0x1f);

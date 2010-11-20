@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add check for CompactFlash Signature in ATA IDENTIFY data.
+       This avoids that older CF microdrives are detected as ATAPI
+       devices (Ticket #125).
+
   [CF] drivedb.h updates:
        - Apple SSDs TS*
        - Crucial RealSSD C300 Series
