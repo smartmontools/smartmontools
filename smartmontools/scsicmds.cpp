@@ -119,23 +119,33 @@ static struct scsi_opcode_name opcode_name_arr[] = {
     {INQUIRY, "inquiry"},                       /* 0x12 */
     {MODE_SELECT, "mode select(6)"},            /* 0x15 */
     {MODE_SENSE, "mode sense(6)"},              /* 0x1a */
+    {START_STOP_UNIT, "start stop unit"},       /* 0x1b */
     {RECEIVE_DIAGNOSTIC, "receive diagnostic"}, /* 0x1c */
     {SEND_DIAGNOSTIC, "send diagnostic"},       /* 0x1d */
+    {READ_CAPACITY_10, "read capacity(10)"},    /* 0x25 */
     {READ_DEFECT_10, "read defect list(10)"},   /* 0x37 */
     {LOG_SELECT, "log select"},                 /* 0x4c */
     {LOG_SENSE, "log sense"},                   /* 0x4d */
     {MODE_SELECT_10, "mode select(10)"},        /* 0x55 */
     {MODE_SENSE_10, "mode sense(10)"},          /* 0x5a */
     {SAT_ATA_PASSTHROUGH_16, "ata pass-through(16)"}, /* 0x85 */
+    {READ_CAPACITY_16, "read capacity(16)"},    /* 0x9e,0x10 */
+    {REPORT_LUNS, "report luns"},               /* 0xa0 */
     {SAT_ATA_PASSTHROUGH_12, "ata pass-through(12)"}, /* 0xa1 */
 };
 
+static const char * vendor_specific = "<vendor specific>";
+
+/* Need to expand to take service action into account. For commands
+ * of interest the service action is in the 2nd command byte */
 const char * scsi_get_opcode_name(UINT8 opcode)
 {
     int k;
     int len = sizeof(opcode_name_arr) / sizeof(opcode_name_arr[0]);
     struct scsi_opcode_name * onp;
 
+    if (opcode >= 0xc0)
+	return vendor_specific;
     for (k = 0; k < len; ++k) {
         onp = &opcode_name_arr[k];
         if (opcode == onp->opcode)

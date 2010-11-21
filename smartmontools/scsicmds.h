@@ -79,6 +79,18 @@
 #ifndef READ_DEFECT_10
 #define READ_DEFECT_10  0x37
 #endif
+#ifndef START_STOP_UNIT
+#define START_STOP_UNIT  0x1b
+#endif
+#ifndef REPORT_LUNS
+#define REPORT_LUNS  0xa0
+#endif
+#ifndef READ_CAPACITY_10
+#define READ_CAPACITY_10  0x25
+#endif
+#ifndef READ_CAPACITY_16
+#define READ_CAPACITY_16  0x9e	/* service action 0x10 */
+#endif
 
 #ifndef SAT_ATA_PASSTHROUGH_12
 #define SAT_ATA_PASSTHROUGH_12 0xa1
