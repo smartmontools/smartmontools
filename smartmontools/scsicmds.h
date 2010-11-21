@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3195 2010-10-28 19:20:33Z chrfranke $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3212 2010-11-21 16:45:16Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,6 +78,18 @@
 #endif
 #ifndef READ_DEFECT_10
 #define READ_DEFECT_10  0x37
+#endif
+#ifndef START_STOP_UNIT
+#define START_STOP_UNIT  0x1b
+#endif
+#ifndef REPORT_LUNS
+#define REPORT_LUNS  0xa0
+#endif
+#ifndef READ_CAPACITY_10
+#define READ_CAPACITY_10  0x25
+#endif
+#ifndef READ_CAPACITY_16
+#define READ_CAPACITY_16  0x9e	/* service action 0x10 */
 #endif
 
 #ifndef SAT_ATA_PASSTHROUGH_12
