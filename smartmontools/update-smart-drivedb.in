@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License
 # (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: update-smart-drivedb.in 3072 2010-03-04 21:56:41Z chrfranke $
+# $Id: update-smart-drivedb.in 3214 2010-11-22 20:25:17Z chrfranke $
 #
 
 set -e
@@ -40,7 +40,8 @@ SMARTCTL="$sbindir/smartctl"
 SRCEXPR='http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/$location/smartmontools/drivedb.h?revision=HEAD'
 
 # Convert version into branch name: 5.41[.X] -> "RELEASE_5_41_DRIVEDB"
-BRANCH="`echo $VERSION | sed -n 's|^\([0-9][0-9]*\)\.\([0-9][0-9]*\)\([^0-9].*\)\?$|RELEASE_\1_\2_DRIVEDB|p'`"
+BRANCH="`echo $VERSION | sed 's|^\([0-9]*\.[0-9]*\)\..*$|\1|' \
+         | sed -n 's|^\([0-9][0-9]*\)\.\([0-9][0-9]*\)$|RELEASE_\1_\2_DRIVEDB|p'`"
 
 if [ -z "$BRANCH" ]; then
   echo "$0: syntax error in version number: $VERSION" >&2; exit 1
