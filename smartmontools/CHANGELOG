@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3211 2010-11-20 15:39:13Z chrfranke $
+$Id: CHANGELOG 3213 2010-11-22 20:08:13Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] In '-r ioctl' show vendor specific SCSI commands as such rather
+       than 'unknown'.
 
   [CF] Add check for CompactFlash Signature in ATA IDENTIFY data.
        This avoids that older CF microdrives are detected as ATAPI
