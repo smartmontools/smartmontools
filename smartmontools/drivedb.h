@@ -493,6 +493,18 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HD(253G|(324|503)H|754J|105S|153W)I",
     "", "", ""
   },
+  { "SAMSUNG SpinPoint F4 EG series",
+    "SAMSUNG HD204UI",
+    "", // 1AQ10001
+    "Using smartmontools with this drive may\n"
+    "result in write errors and bad blocks.\n"
+    "*****************************************************\n"
+    "***** DO NOT USE SMARTMONTOOLS WITH THIS DRIVE! *****\n"
+    "*****************************************************\n"
+    "See the following page for details:\n"
+    "http://sourceforge.net/apps/trac/smartmontools/wiki/SamsungF4EGBadBlocks",
+    ""
+  },
   { "SAMSUNG SpinPoint S250 series", // tested with HD200HJ/KF100-06
     "SAMSUNG HD(162|200|250)HJ",
     "", "", ""
