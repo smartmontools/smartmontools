@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Samsung SpinPoint F4 EG: Warning about bad blocks
+
   [CF] update-smart-drivedb.in: Replace ERE by BRE.  Script does no
        longer require GNU sed (Ticket #126).
 
