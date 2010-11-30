@@ -305,7 +305,7 @@ int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
         if ((res = scsiSimpleSenseFilter(&sinfo)))
             return res;
         /* sanity check on response */
-        if ((SUPPORTED_LPAGES != pagenum) && (pBuf[0] != pagenum))
+        if ((SUPPORTED_LPAGES != pagenum) && ((pBuf[0] & 0x3f) != pagenum))
             return SIMPLE_ERR_BAD_RESP;
         if (0 == ((pBuf[2] << 8) + pBuf[3]))
             return SIMPLE_ERR_BAD_RESP;
@@ -341,7 +341,7 @@ int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
     if (0 != status)
         return status;
     /* sanity check on response */
-    if ((SUPPORTED_LPAGES != pagenum) && (pBuf[0] != pagenum))
+    if ((SUPPORTED_LPAGES != pagenum) && ((pBuf[0] & 0x3f) != pagenum))
         return SIMPLE_ERR_BAD_RESP;
     if (0 == ((pBuf[2] << 8) + pBuf[3]))
         return SIMPLE_ERR_BAD_RESP;

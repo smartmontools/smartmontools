@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DG] [SCSI] Fix log page sanity check problem if the DS bit set
+       in response. Caused '-l background' to fail.
+
   [CF] drivedb.h updates:
        - Samsung SpinPoint F4 EG: Warning about bad blocks
 
