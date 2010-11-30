@@ -48,7 +48,7 @@
 #include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3212 2010-11-21 16:45:16Z dpgilbert $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3217 2010-11-30 03:13:31Z dpgilbert $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?
@@ -305,7 +305,7 @@ int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
         if ((res = scsiSimpleSenseFilter(&sinfo)))
             return res;
         /* sanity check on response */
-        if ((SUPPORTED_LPAGES != pagenum) && (pBuf[0] != pagenum))
+        if ((SUPPORTED_LPAGES != pagenum) && ((pBuf[0] & 0x3f) != pagenum))
             return SIMPLE_ERR_BAD_RESP;
         if (0 == ((pBuf[2] << 8) + pBuf[3]))
             return SIMPLE_ERR_BAD_RESP;
@@ -341,7 +341,7 @@ int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
     if (0 != status)
         return status;
     /* sanity check on response */
-    if ((SUPPORTED_LPAGES != pagenum) && (pBuf[0] != pagenum))
+    if ((SUPPORTED_LPAGES != pagenum) && ((pBuf[0] & 0x3f) != pagenum))
         return SIMPLE_ERR_BAD_RESP;
     if (0 == ((pBuf[2] << 8) + pBuf[3]))
         return SIMPLE_ERR_BAD_RESP;
