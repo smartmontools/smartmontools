@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - Samsung SpinPoint F4 EG: Add 1.5TB, update firmware bug warning.
+
   [DG] [SCSI] Fix log page sanity check problem if the DS bit set
        in response. Caused '-l background' to fail.
 
