@@ -58,7 +58,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3216 2010-11-24 22:19:51Z chrfranke $",
+  { "$Id: drivedb.h 3219 2010-12-09 20:49:48Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -493,15 +493,15 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HD(253G|(324|503)H|754J|105S|153W)I",
     "", "", ""
   },
-  { "SAMSUNG SpinPoint F4 EG series",
-    "SAMSUNG HD204UI",
+  { "SAMSUNG SpinPoint F4 EG (AFT)",// tested with HD204UI/1AQ10001(buggy|fixed)
+    "SAMSUNG HD(155|204)UI",
     "", // 1AQ10001
-    "Using smartmontools with this drive may\n"
-    "result in write errors and bad blocks.\n"
-    "*****************************************************\n"
-    "***** DO NOT USE SMARTMONTOOLS WITH THIS DRIVE! *****\n"
-    "*****************************************************\n"
-    "See the following page for details:\n"
+    "Using smartmontools or hdparm with this\n"
+    "drive may result in data loss due to a firmware bug.\n"
+    "****** THIS DRIVE MAY OR MAY NOT BE AFFECTED! ******\n"
+    "Buggy and fixed firmware report same version number!\n"
+    "See the following web pages for details:\n"
+    "http://www.samsung.com/global/business/hdd/faqView.do?b2b_bbs_msg_id=386\n"
     "http://sourceforge.net/apps/trac/smartmontools/wiki/SamsungF4EGBadBlocks",
     ""
   },
