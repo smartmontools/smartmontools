@@ -41,6 +41,13 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Samsung SpinPoint F3 EG: Add 2TB
+       - SandForce Driven SSDs: Add ADATA S599, SuperTalent TeraDrive CT
+       - Seagate Constellation (SATA)
+       - Seagate Constellation ES (SATA)
+       - WDC My Passport: Add WD5000BMVW
+
   [CF] drivedb.h update:
        - Samsung SpinPoint F4 EG: Add 1.5TB, update firmware bug warning.
 

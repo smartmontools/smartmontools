@@ -104,8 +104,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
+    "ADATA SSD S599 ...GB|" // tested with ADATA SSD S599 256GB/3.1.0
     "Corsair CSSD-F(40|60|80|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1
+    "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
+      // FTM24CT25H/STTMP2P1
     "OCZ[ -](AGILITY2|VERTEX2(-PRO)?|VERTEX-LE)( .*)?|" // tested with
       // OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
@@ -507,7 +510,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "SAMSUNG SpinPoint F3 EG series", // tested with HD503HI/1AJ100E4, HD153WI/1AN10002
-    "SAMSUNG HD(253G|(324|503)H|754J|105S|153W)I",
+    "SAMSUNG HD(253G|(324|503)H|754J|105S|(153|203)W)I",
     "", "", ""
   },
   { "SAMSUNG SpinPoint F4 EG (AFT)",// tested with HD204UI/1AQ10001(buggy|fixed)
@@ -1346,6 +1349,14 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(500412|1000520|1500541|2000542)AS",
     "", "", ""
   },
+  { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
+    "ST9(160511|500530)NS",
+    "", "", ""
+  },
+  { "Seagate Constellation ES (SATA)", // tested with ST31000524NS/SN11
+    "ST3(50051|100052|200064)4NS",
+    "", "", ""
+  },
   { "Seagate Pipeline HD 5900.1 family",
     "ST3(160310|320[34]10|500(321|422))CS",
     "", "", ""
@@ -1551,8 +1562,9 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(7500K|10T)MVV-.*",
     "", "", ""
   },
-  { "Western Digital My Passport hard drive (USB interface)",
-    "WDC WD3200BMVV-.*",
+  { "Western Digital My Passport hard drive (USB interface)", // tested with
+      // WDC WD5000BMVW-11AMCS0/01.01A01
+    "WDC WD(3200BMVV|5000BMVW)-.*",
     "", "", ""
   },
   { "Quantum Bigfoot series", // tested with TS10.0A/A21.0G00, TS12.7A/A21.0F00
