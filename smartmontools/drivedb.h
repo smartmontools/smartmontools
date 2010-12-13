@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3220 2010-12-13 20:15:10Z chrfranke $",
+  { "$Id: drivedb.h 3221 2010-12-13 20:27:58Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1896,6 +1896,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: WD My Passport 0730; ",
+    "0x1058:0x0730",
+    "0x1008",
+    "",
+    "-d sat"
+  },
   { "USB: WD My Book ES; ",
     "0x1058:0x0906",
     "0x0012",
@@ -2003,6 +2009,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron", // USB->SATA
     "0x152d:0x2352",
+    "0x0100",
+    "",
+    "-d usbjmicron,x"
+  },
+  { "USB: ; JMicron", // USB->SATA
+    "0x152d:0x2509",
     "0x0100",
     "",
     "-d usbjmicron,x"
