@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - JMicron 0x152d:0x2509
+       - WD My Passport 0730
+
   [CF] drivedb.h updates:
        - Samsung SpinPoint F3 EG: Add 2TB
        - SandForce Driven SSDs: Add ADATA S599, SuperTalent TeraDrive CT
