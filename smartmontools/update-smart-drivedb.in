@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License
 # (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: update-smart-drivedb.in 3224 2010-12-15 21:21:02Z chrfranke $
+# $Id: update-smart-drivedb.in 3225 2010-12-15 21:30:46Z chrfranke $
 #
 
 set -e
@@ -107,7 +107,7 @@ for location in "branches/$BRANCH" "trunk"; do
   rm -f "$DEST.new"
   SRC="`eval echo "$SRCEXPR"`"
 
-  if eval $DOWNLOAD; then :; else
+  if (eval $DOWNLOAD); then :; else
     errmsg="download from $location failed (HTTP error)"
     continue
   fi
