@@ -13,6 +13,9 @@ Summary: smartmontools release 5.41
   smartd.conf file.
 - 'update-smart-drivedb' does no longer require GNU sed.
 - Linux megaraid: Fix segfault on non-data commands.
+- FreeBSD: Use 'fetch' in 'update-smart-drivedb'.
+- OpenBSD: Use 'ftp' in 'update-smart-drivedb'.
+- OpenBSD: Workaround for shell bug.
 - OpenBSD: Fix DEVICESCAN for OpenBSD >= 4.8.
 - Windows: Add missing quotes in smartctl-run.bat and
   smartd-run.bat
