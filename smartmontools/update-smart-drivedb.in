@@ -107,7 +107,7 @@ for location in "branches/$BRANCH" "trunk"; do
   rm -f "$DEST.new"
   SRC="`eval echo "$SRCEXPR"`"
 
-  if eval $DOWNLOAD; then :; else
+  if (eval $DOWNLOAD); then :; else
     errmsg="download from $location failed (HTTP error)"
     continue
   fi
