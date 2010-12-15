@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] update-smart-drivedb.in: Add platform specific download tools:
+       'fetch' on FreeBSD (ticket #127), 'ftp' on OpenBSD.
+
   [CF] drivedb.h USB updates:
        - JMicron 0x152d:0x2509
        - WD My Passport 0730
