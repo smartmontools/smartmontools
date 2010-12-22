@@ -804,8 +804,8 @@ const drive_settings builtin_knowndrives[] = {
     "MAXTOR STM3(40|80|160)[28]1[12]0?AS?",
     "", "", ""
   },
-  { "Seagate Maxtor DiamondMax 21",
-    "MAXTOR STM3(80815|160215|(250|320)820|320620|500630)AS?",
+  { "Seagate Maxtor DiamondMax 21", // tested with MAXTOR STM3250310AS/3.AAF
+    "MAXTOR STM3(80815|160215|250310|(250|320)820|320620|500630)AS?",
     "", "", ""
   },
   { "Seagate Maxtor DiamondMax 22", // fixed firmware
@@ -1007,8 +1007,9 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HTS7220(80|10|12|16|20)K9(A3|SA)00",
     "", "", ""
   },
-  { "Hitachi Travelstar 7K320", // tested with HTS723225L9A360/FCDOC30F
-    "(Hitachi )?HT[ES]7232(80|12|16|25|32)L9(A300|A360|SA61)",
+  { "Hitachi Travelstar 7K320", // tested with
+    // HTS723225L9A360/FCDOC30F, HTS723216L9A362/FC2OC39F
+    "(Hitachi )?HT[ES]7232(80|12|16|25|32)L9(A300|A36[02]|SA61)",
     "", "", ""
   },
   { "Hitachi Travelstar 7K500",
@@ -1087,6 +1088,10 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HDS722020ALA330",
     "", "", ""
   },
+  { "Hitachi Deskstar 7K3000", // tested with HDS723030ALA640/MKAOA3B0
+    "Hitachi HDS7230((15|20)BLA642|30ALA640)",
+    "", "", ""
+  },
   { "Hitachi Ultrastar 7K1000",
     "(Hitachi )?HUA7210(50|75|10)KLA330",
     "", "", ""
@@ -1109,6 +1114,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba 2.5\" HDD MK..52GSX series",
     "TOSHIBA MK(80|12|16|25|32)52GSX",
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MK..65GSX series", // tested with TOSHIBA MK5065GSX/GJ003A
+    "TOSHIBA MK(16|25|32|50|64)65GSX",
     "", "", ""
   },
   { "Toshiba 1.8\" HDD series",
@@ -1486,7 +1495,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar Green (Adv. Format) family",
-    "WDC WD((64|80)00A|(10|15|20)E)ARS-.*",
+    "WDC WD((64|75|80)00AA|(10|15|20)EA|(25|30)EZ)RS-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black family",
