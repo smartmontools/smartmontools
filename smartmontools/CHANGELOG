@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - Micron USB SSD (unsupported, ticket #133)
+       - Samsung G2 Portable (ticket #132)
+       - Samsung Story Station 3.0 (ticket #130)
+       - Seagate FreeAgent GoFlex (ticket #131)
+
   [CF] update-smart-drivedb.in: Add workaround for OpenBSD shell bug:
        'set -e; if eval false; ...' aborts script (ticket #128).
 

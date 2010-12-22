@@ -1661,6 +1661,18 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Samsung G2 Portable; JMicron",
+    "0x04e8:0x6032",
+    "",
+    "",
+    "-d usbjmicron"
+  },
+  { "USB: Samsung Story Station 3.0; ",
+    "0x04e8:0x6054",
+    "",
+    "",
+    "-d sat"
+  },
   // Sunplus
   { "USB: ; SunPlus",
     "0x04fc:0x0c05",
@@ -1756,6 +1768,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Micron
+  { "USB: Micron USB SSD; ",
+    "0x0634:0x0655",
+    "",
+    "",
+    "" // unsupported
+  },
   // Prolific
   { "USB: ; Prolific PL2507", // USB->PATA
     "0x067b:0x2507",
@@ -1816,6 +1835,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Seagate FreeAgent Desk; ",
     "0x0bc2:0x3001",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate FreeAgent Go Flex; ",
+    "0x0bc2:0x5021",
     "",
     "",
     "-d sat"
