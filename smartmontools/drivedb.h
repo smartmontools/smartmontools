@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3228 2010-12-22 21:03:00Z chrfranke $",
+  { "$Id: drivedb.h 3231 2011-01-01 21:35:16Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2072,6 +2072,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbsunplus"
+  },
+  { "USB: Verbatim Portable Hard Drive 500Gb", // eSATA & USB 2.0 Combo
+    "0x152d:0x2351",
+    "0x0100",
+    "",
+    "-d sat"
   },
   // SunplusIT
   { "USB: ; SunplusIT",

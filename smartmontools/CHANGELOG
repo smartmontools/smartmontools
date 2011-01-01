@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3230 2011-01-01 15:27:59Z chrfranke $
+$Id: CHANGELOG 3231 2011-01-01 21:35:16Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] drivedb.h updates:
+       - Verbatim Portable Hard Drive eSATA & USB 2.0 Combo 500GB
 
   [CF] Happy New Year! Update copyright year in version info.
 
