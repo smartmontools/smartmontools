@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Happy New Year! Update copyright year in version info.
+
   [CF] drivedb.h updates:
        - Hitachi Deskstar 7K3000
        - Hitachi Travelstar 7K320: Add ...362 variant
