@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] drivedb.h updates:
+       - Verbatim Portable Hard Drive eSATA & USB 2.0 Combo 500GB
+
   [CF] Happy New Year! Update copyright year in version info.
 
   [CF] drivedb.h updates:

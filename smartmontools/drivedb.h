@@ -2073,6 +2073,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  { "USB: Verbatim Portable Hard Drive 500Gb", // eSATA & USB 2.0 Combo
+    "0x152d:0x2351",
+    "0x0100",
+    "",
+    "-d sat"
+  },
   // SunplusIT
   { "USB: ; SunplusIT",
     "0x1bcf:0x0c31",
