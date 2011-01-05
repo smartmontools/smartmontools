@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-10 Philip Williams, Bruce Allen
- * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-11 Philip Williams, Bruce Allen
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -357,8 +357,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 198,offlinescanuncsectorct -v 200,writeerrorcount "
     "-v 201,detectedtacount"
   },
-  { "Fujitsu MHT series",
-    "FUJITSU MHT2...(AH|AS|AT|BH)U?.*",
+  { "Fujitsu MHT", // tested with FUJITSU MHT2030AC/909B
+    "FUJITSU MHT2...(AC|AH|AS|AT|BH)U?.*",
     "",
     "",
     "-v 9,seconds"
@@ -385,6 +385,10 @@ const drive_settings builtin_knowndrives[] = {
     "FUJITSU MHY2(04|06|08|10|12|16|20|25)0BH.*",
     "", "",
     "-v 240,raw48,Transfer_Error_Rate"
+  },
+  { "Fujitsu MHW2 AC", // tested with FUJITSU MHW2060AC/00900004
+    "FUJITSU MHW20(40|60)AC",
+    "", "", ""
   },
   { "Fujitsu MHW2 BH series",
     "FUJITSU MHW2(04|06|08|10|12|16)0BH.*",
@@ -516,9 +520,10 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HD(250KD|(30[01]|320|40[01])L[DJ])",
     "", "", ""
   },
-  { "SAMSUNG SpinPoint T166 series", // tested with HD501LJ/CR100-10
+  { "SAMSUNG SpinPoint T166", // tested with HD501LJ/CR100-1[01]
     "SAMSUNG HD(080G|160H|32[01]K|403L|50[01]L)J",
-    "", "", ""
+    "", "",
+    "-v 197,increasing" // at least HD501LJ/CR100-11
   },
   { "SAMSUNG SpinPoint P120 series", // VF100-37 firmware, tested with SP2514N/VF100-37
     "SAMSUNG SP(16[01]3|2[05][01]4)[CN]",
@@ -1297,7 +1302,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.11 family", // buggy firmware
     "ST3(500[368]20|640[35]30|750[36]30|1000340)AS?",
-    "(AD14|SD1[5-9])",
+    "(AD14|SD1[5-9]|SD81)",
     "There are known problems with these drives,\n"
     "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
     "see the following Seagate web pages:\n"
@@ -1530,8 +1535,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(4|6|8|10|12|16)00(UE|VE)-.*",
     "", "", ""
   },
-  { "Western Digital Scorpio Blue EIDE family",
-    "WDC WD(4|6|8|10|12|16|25)00BEVE-.*",
+  { "Western Digital Scorpio Blue EIDE", // tested with WDC WD3200BEVE-00A0HT0/11.01A11
+    "WDC WD(4|6|8|10|12|16|25|32)00BEVE-.*",
     "", "", ""
   },
   { "Western Digital Scorpio Serial ATA family",
