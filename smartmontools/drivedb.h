@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-10 Philip Williams, Bruce Allen
- * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-11 Philip Williams, Bruce Allen
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
