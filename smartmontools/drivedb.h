@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3231 2011-01-01 21:35:16Z samm2 $",
+  { "$Id: drivedb.h 3232 2011-01-05 20:55:57Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1664,6 +1664,12 @@ const drive_settings builtin_knowndrives[] = {
     "" // unsupported
   },
   // Samsung
+  { "USB: Samsung S2 Portable; JMicron",
+    "0x04e8:0x1f06",
+    "",
+    "",
+    "-d usbjmicron"
+  },
   { "USB: Samsung Story Station; ",
     "0x04e8:0x5f06",
     "",
@@ -2041,6 +2047,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: ; JMicron", // USB+SATA->SATA
+    "0x152d:0x2351",  // e.g. Verbatim Portable Hard Drive 500Gb
+    "0x0100",
+    "",
+    "-d sat"
+  },
   { "USB: ; JMicron", // USB->SATA
     "0x152d:0x2352",
     "0x0100",
@@ -2072,12 +2084,6 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbsunplus"
-  },
-  { "USB: Verbatim Portable Hard Drive 500Gb", // eSATA & USB 2.0 Combo
-    "0x152d:0x2351",
-    "0x0100",
-    "",
-    "-d sat"
   },
   // SunplusIT
   { "USB: ; SunplusIT",
