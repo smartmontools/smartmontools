@@ -41,6 +41,13 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Fujitsu MHT: Add AC variant
+       - Fujitsu MHW2 AC
+       - Samsung SpinPoint T166: Needs '-v 197,increasing'
+       - Seagate Barracuda 7200.11: Add firmware SD81 as buggy
+       - WD Scorpio Blue EIDE: Add 320GB
+
   [CF] drivedb.h USB updates:
        - Samsung S2 Portable (ticket #136)
        - Move Verbatim 0x152d:0x2351 to JMicron section
