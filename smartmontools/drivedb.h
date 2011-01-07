@@ -1995,6 +1995,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: WD My Book Essential USB 3.0; ", // 3TB
+    "0x1058:0x1130",
+    "", // 0x1012
+    "",
+    "-d sat"
+  },
   // A-DATA
   { "USB: A-DATA SH93; Cypress",
     "0x125f:0xa93a",
