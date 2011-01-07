@@ -454,6 +454,33 @@ static uint64_t determine_capacity(const ata_identify_device * drive, char * pst
   return retval;
 }
 
+// Get sector sizes and offset.
+// Return physical sector size if valid else return 0.
+static unsigned determine_sector_sizes(const ata_identify_device * id,
+  unsigned & log_sector_size, unsigned & log_sector_offset)
+{
+  unsigned short word106 = id->words088_255[106-88];
+  if ((word106 & 0xc000) != 0x4000)
+    return 0; // word not valid
+
+  log_sector_size = 512;
+  if (word106 & 0x1000)
+    // logical sector size is specified in 16-bit words
+    log_sector_size = ((id->words088_255[118-88] << 16) | id->words088_255[117-88]) << 1;
+
+  unsigned phy_sector_size = log_sector_size;
+  if (word106 & 0x2000)
+    // physical sector size is multiple of logical sector size
+    phy_sector_size <<= (word106 & 0x0f);
+
+  unsigned short word209 = id->words088_255[209-88];
+  log_sector_offset = 0;
+  if ((word209 & 0xc000) == 0x4000)
+    log_sector_offset = (word209 & 0x3fff) * log_sector_size;
+
+  return phy_sector_size;
+}
+
 static bool PrintDriveInfo(const ata_identify_device * drive, bool fix_swapped_id)
 {
   // format drive information (with byte swapping as needed)
@@ -477,7 +504,22 @@ static bool PrintDriveInfo(const ata_identify_device * drive, bool fix_swapped_i
   char capacity[64];
   if (determine_capacity(drive, capacity))
     pout("User Capacity:    %s bytes\n", capacity);
-  
+
+  // Print sector sizes.
+  // Don't print if drive reports the default values.
+  // Some from 4KiB sector drives report 512 bytes in IDENTIFY word 106
+  // (e.g. Samsung HD204UI).
+  unsigned log_sector_size = 0, log_sector_offset = 0;
+  unsigned phy_sector_size = determine_sector_sizes(drive, log_sector_size,
+    log_sector_offset);
+  if (phy_sector_size && !(phy_sector_size == 512 && log_sector_size == 512)) {
+    pout("Sector Sizes:     %u bytes physical, %u bytes logical",
+         phy_sector_size, log_sector_size);
+    if (log_sector_offset)
+      pout(" (offset %u bytes)", log_sector_offset);
+    pout("\n");
+  }
+
   // See if drive is recognized
   pout("Device is:        %s\n", !dbentry ?
        "Not in smartctl database [for details use: -P showall]":

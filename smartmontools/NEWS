@@ -8,6 +8,7 @@ http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontool
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.41
 -----------------------------------------------------------
+- smartctl prints physical and logical sector sizes.
 - configure option '--with-exampledir'.
 - 'make install' does no longer overwrite an existing
   smartd.conf file.
