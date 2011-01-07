@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3234 2011-01-05 22:04:27Z chrfranke $",
+  { "$Id: drivedb.h 3238 2011-01-07 22:18:05Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1992,6 +1992,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: WD My Book Essential; ",
     "0x1058:0x1110",
     "0x1030",
+    "",
+    "-d sat"
+  },
+  { "USB: WD My Book Essential USB 3.0; ", // 3TB
+    "0x1058:0x1130",
+    "", // 0x1012
     "",
     "-d sat"
   },
