@@ -58,6 +58,9 @@
 #if (FREEBSDVER >= 800000)
 #include <libusb20_desc.h>
 #include <libusb20.h>
+#elif defined(__DragonFly__)
+#include <bus/usb/usb.h>
+#include <bus/usb/usbhid.h>
 #else
 #include <dev/usb/usb.h>
 #include <dev/usb/usbhid.h>
@@ -70,7 +73,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3195 2010-10-28 19:20:33Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3237 2011-01-07 22:05:24Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
