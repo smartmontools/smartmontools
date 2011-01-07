@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Fix usb header includes for DragonFly BSD (ticket #141).
+
   [CF] smartctl: Print physical and logical sector sizes (ticket #62).
 
   [CF] drivedb.h updates:

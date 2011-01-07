@@ -58,6 +58,9 @@
 #if (FREEBSDVER >= 800000)
 #include <libusb20_desc.h>
 #include <libusb20.h>
+#elif defined(__DragonFly__)
+#include <bus/usb/usb.h>
+#include <bus/usb/usbhid.h>
 #else
 #include <dev/usb/usb.h>
 #include <dev/usb/usbhid.h>
