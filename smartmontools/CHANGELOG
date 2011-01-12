@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3240 2011-01-12 20:51:50Z chrfranke $
+$Id: CHANGELOG 3241 2011-01-12 21:10:40Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] configure.in: Remove some no longer used settings:
+       -lselinux (duplicate), NEED_SOLARIS_ATA_CODE, OS_FREEBSD.
 
   [CF] Makefile.am: Remove SUBDIRS. Recursive targets are no longer used.
 

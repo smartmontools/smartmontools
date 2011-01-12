@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3224 2010-12-15 21:21:02Z chrfranke $
+# $Id: configure.in 3241 2011-01-12 21:10:40Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.41, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3224 2010-12-15 21:21:02Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3241 2011-01-12 21:10:40Z chrfranke $'`
 smartmontools_release_date=2010-10-16
 smartmontools_release_time="16:34:38 UTC"
 
@@ -279,11 +279,7 @@ os_win64=no
 case "${host}" in
 	*-*-linux*)
 		AC_SUBST([os_deps], ['os_linux.o cciss.o']) 
-		if test "$with_selinux" = "yes"; then
-			AC_SUBST([os_libs], ['-lselinux'])
-		else
-			AC_SUBST([os_libs], [''])
-		fi;;
+		AC_SUBST([os_libs], ['']) ;;
 	*-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
 		AC_SUBST([os_deps], ['os_freebsd.o cciss.o']) 
 		AC_SUBST([os_libs], ['-lcam'])
@@ -291,7 +287,6 @@ case "${host}" in
 		;;
 	sparc-*-solaris*) 
 		AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer])
-		AC_DEFINE_UNQUOTED(NEED_SOLARIS_ATA_CODE, "os_solaris_ata.s", [need assembly code os_solaris_ata.s])
 		AC_SUBST([os_deps], ['os_solaris.o os_solaris_ata.o']) 
 		AC_SUBST([os_libs], ['']) ;;
 	*-pc-solaris*) 
@@ -356,7 +351,6 @@ AM_CONDITIONAL(OS_SOLARIS, [echo $host_os | grep '^solaris' > /dev/null])
 AM_CONDITIONAL(OS_WIN32_MINGW, [echo $host_os | grep '^mingw' > /dev/null])
 AM_CONDITIONAL(OS_WIN32_WINDMC, [test -n "$WINDMC" && test "$WINDMC" != "no" && test -n "$WINDRES"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
-AM_CONDITIONAL(OS_FREEBSD, [echo $host_os | grep '^freebsd' > /dev/null])
 
 dnl Add -Wall and -W if using g++ and its not already specified.
 if test "$GXX" = "yes"; then
