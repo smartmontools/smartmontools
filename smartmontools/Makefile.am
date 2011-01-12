@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3205 2010-11-15 18:32:55Z chrfranke $
+# $Id: Makefile.am 3240 2011-01-12 20:51:50Z chrfranke $
 #
 
 @SET_MAKE@
@@ -743,5 +743,3 @@ $(srcdir)/os_win32/svnversion_vc8.h: svnversion.h
 	cp svnversion.h $@
 
 endif
-
-SUBDIRS= .
