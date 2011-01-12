@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: Remove some no longer used settings:
+       -lselinux (duplicate), NEED_SOLARIS_ATA_CODE, OS_FREEBSD.
+
   [CF] Makefile.am: Remove SUBDIRS. Recursive targets are no longer used.
 
   [CF] Use log directory to check for old error and self-test log
