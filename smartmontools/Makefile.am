@@ -743,5 +743,3 @@ $(srcdir)/os_win32/svnversion_vc8.h: svnversion.h
 	cp svnversion.h $@
 
 endif
-
-SUBDIRS= .
