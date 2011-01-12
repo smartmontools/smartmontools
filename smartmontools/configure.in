@@ -273,54 +273,70 @@ AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
 AC_SUBST(smartmontools_release_time)
 
-AC_MSG_CHECKING([for OS dependent modules and libraries])
-dnl if OS not recognized, then use the os_generic modules
+# Set platform-specific modules and symbols
+os_libs=
+os_dltools='curl wget lynx'
+os_mailer=
+os_darwin=no
+os_solaris=no
+os_win32_mingw=no
 os_win64=no
 case "${host}" in
-	*-*-linux*)
-		AC_SUBST([os_deps], ['os_linux.o cciss.o']) 
-		AC_SUBST([os_libs], ['']) ;;
-	*-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
-		AC_SUBST([os_deps], ['os_freebsd.o cciss.o']) 
-		AC_SUBST([os_libs], ['-lcam'])
-		AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
-		;;
-	sparc-*-solaris*) 
-		AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer])
-		AC_SUBST([os_deps], ['os_solaris.o os_solaris_ata.o']) 
-		AC_SUBST([os_libs], ['']) ;;
-	*-pc-solaris*) 
-		AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer]) 
-		AC_SUBST([os_deps], ['os_solaris.o']) 
-		AC_SUBST([os_libs], ['']) ;;
-	*-*-netbsd*)
-		AC_SUBST([os_deps], ['os_netbsd.o']) 
-		AC_SUBST([os_libs], ['-lutil']) ;;
-	*-*-openbsd*)
-		AC_SUBST([os_deps], ['os_openbsd.o'])
-		AC_SUBST([os_libs], ['-lutil']) ;;
-	*-*-cygwin*)
-		AC_SUBST([os_deps], ['os_win32.o'])
-		AC_SUBST([os_libs], ['']) ;;
-	*-*-mingw*)
-		AC_SUBST([os_deps], ['os_win32.o'])
-		AC_SUBST([os_libs], [''])
-		test "$host_cpu" = "x86_64" && os_win64=yes ;;
-	*-*-darwin*)
-		AC_SUBST([os_deps], ['os_darwin.o'])
-		AC_SUBST([os_libs], ['-framework CoreFoundation -framework IOKit']) ;;
-	*-*-nto-qnx*)
-		AC_SUBST([os_deps], ['os_qnxnto.o'])
-		AC_SUBST([os_libs], ['']) ;;
-		
-	*)
-		AC_SUBST([os_deps], ['os_generic.o']) 
-		AC_SUBST([os_libs], ['']) ;;
+  *-*-linux*)
+    os_deps='os_linux.o cciss.o'
+    ;;
+  *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
+    os_deps='os_freebsd.o cciss.o'
+    os_libs='-lcam'
+    os_dltools='curl wget lynx fetch'
+    AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
+    ;;
+  sparc-*-solaris*)
+    os_deps='os_solaris.o os_solaris_ata.o'
+    os_mailer='mailx'
+    os_solaris=yes
+    ;;
+  *-pc-solaris*)
+    os_deps='os_solaris.o'
+    os_mailer='mailx'
+    os_solaris=yes
+    ;;
+  *-*-netbsd*)
+    os_deps='os_netbsd.o'
+    os_libs='-lutil'
+    ;;
+  *-*-openbsd*)
+    os_deps='os_openbsd.o'
+    os_libs='-lutil'
+    os_dltools='curl wget lynx ftp'
+    ;;
+  *-*-cygwin*)
+    os_deps='os_win32.o'
+    ;;
+  x86_64-*-mingw*)
+    os_deps='os_win32.o'
+    os_win32_mingw=yes
+    os_win64=yes
+    ;;
+  *-*-mingw*)
+    os_deps='os_win32.o'
+    os_win32_mingw=yes
+    ;;
+  *-*-darwin*)
+    os_deps='os_darwin.o'
+    os_libs='-framework CoreFoundation -framework IOKit'
+    os_darwin=yes
+    ;;
+  *-*-nto-qnx*)
+    os_deps='os_qnxnto.o'
+    ;;
+  *)
+    os_deps='os_generic.o'
+    ;;
 esac
 
 # Replace if '--with-os-deps' was specified
 test -z "$with_os_deps" || os_deps="$with_os_deps"
-AC_MSG_RESULT([$os_deps $os_libs])
 
 # Check if we need adapter to old interface (dev_legacy.cpp)
 os_src=`echo "${os_deps}"|sed -n 's,^\([[^ .]]*\)\.o.*$,\1.cpp,p'`
@@ -334,21 +350,17 @@ else
 fi
 AC_MSG_RESULT([$os_new_interface])
 
-# Define list of download tools for update-smart-drivedb
-case "$host" in
-  *-*-freebsd*|*-*-dragonfly*)
-    os_dltools='curl wget lynx fetch' ;;
-  *-*-openbsd*)
-    os_dltools='curl wget lynx ftp' ;;
-  *)
-    os_dltools='curl wget lynx' ;;
-esac
+AC_SUBST([os_deps])
+AC_SUBST([os_libs])
 AC_SUBST([os_dltools])
+if test -n "$os_mailer"; then
+  AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "$os_mailer", [Default mailer if "mail" is unavailable])
+fi
 
-dnl Define platform-specific symbol.
-AM_CONDITIONAL(OS_DARWIN, [echo $host_os | grep '^darwin' > /dev/null])
-AM_CONDITIONAL(OS_SOLARIS, [echo $host_os | grep '^solaris' > /dev/null])
-AM_CONDITIONAL(OS_WIN32_MINGW, [echo $host_os | grep '^mingw' > /dev/null])
+# Enable platform-specific makefile sections
+AM_CONDITIONAL(OS_DARWIN, [test "$os_darwin" = "yes"])
+AM_CONDITIONAL(OS_SOLARIS, [test "$os_solaris" = "yes"])
+AM_CONDITIONAL(OS_WIN32_MINGW, [test "$os_win32_mingw" = "yes"])
 AM_CONDITIONAL(OS_WIN32_WINDMC, [test -n "$WINDMC" && test "$WINDMC" != "no" && test -n "$WINDRES"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
 
@@ -421,6 +433,7 @@ echo "preprocessor flags:     $CPPFLAGS" >&AS_MESSAGE_FD
 echo "C++ compiler flags:     $CXXFLAGS" >&AS_MESSAGE_FD
 echo "C compiler flags:       $CFLAGS" >&AS_MESSAGE_FD
 echo "linker flags:           $LDFLAGS" >&AS_MESSAGE_FD
+echo "OS specific modules:    $os_deps $os_libs $LIBS" >&AS_MESSAGE_FD
 
 case "$host_os" in
   mingw*)

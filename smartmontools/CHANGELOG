@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: Rework platform-specific settings.
+
   [CF] configure.in: Remove some no longer used settings:
        -lselinux (duplicate), NEED_SOLARIS_ATA_CODE, OS_FREEBSD.
 
