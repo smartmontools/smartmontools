@@ -1,10 +1,10 @@
 /*
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1802,57 +1802,80 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
         PrintOut(LOG_INFO,"Device: %s, %sd SMART Automatic Offline Testing.\n", name, what);
     }
   }
-  
+
+  // Read log directories if required for capability check
+  ata_smart_log_directory smart_logdir, gp_logdir;
+  bool smart_logdir_ok = false, gp_logdir_ok = false;
+
+  if (   isGeneralPurposeLoggingCapable(&drive)
+      && (cfg.errorlog || cfg.selftest)        ) {
+      if (!ataReadLogDirectory(atadev, &smart_logdir, false))
+        smart_logdir_ok = true;
+  }
+
+  if (cfg.xerrorlog) {
+    if (!ataReadLogDirectory(atadev, &gp_logdir, true))
+      gp_logdir_ok = true;
+  }
+
   // capability check: self-test-log
+  state.selflogcount = 0; state.selfloghour = 0;
   if (cfg.selftest) {
     int retval;
-    
-    // start with service disabled, and re-enable it if all works OK
-    cfg.selftest = false;
-    state.selflogcount = 0;
-    state.selfloghour = 0;
-
-    if (!smart_val_ok)
-      PrintOut(LOG_INFO, "Device: %s, no SMART Self-Test log (SMART READ DATA failed); disabling -l selftest\n", name);
-    else if (!cfg.permissive && !isSmartTestLogCapable(&state.smartval, &drive))
-      PrintOut(LOG_INFO, "Device: %s, appears to lack SMART Self-Test log; disabling -l selftest (override with -T permissive Directive)\n", name);
-    else if ((retval = SelfTestErrorCount(atadev, name, cfg.fix_firmwarebug)) < 0)
-      PrintOut(LOG_INFO, "Device: %s, no SMART Self-Test log; remove -l selftest Directive from smartd.conf\n", name);
+    if (!(   cfg.permissive
+          || ( smart_logdir_ok && smart_logdir.entry[0x06-1].numsectors)
+          || (!smart_logdir_ok && smart_val_ok && isSmartTestLogCapable(&state.smartval, &drive)))) {
+      PrintOut(LOG_INFO, "Device: %s, no SMART Self-test Log, ignoring -l selftest (override with -T permissive)\n", name);
+      cfg.selftest = false;
+    }
+    else if ((retval = SelfTestErrorCount(atadev, name, cfg.fix_firmwarebug)) < 0) {
+      PrintOut(LOG_INFO, "Device: %s, no SMART Self-test Log, ignoring -l selftest\n", name);
+      cfg.selftest = false;
+    }
     else {
-      cfg.selftest = true;
       state.selflogcount=SELFTEST_ERRORCOUNT(retval);
       state.selfloghour =SELFTEST_ERRORHOURS(retval);
     }
   }
   
   // capability check: ATA error log
-  if (cfg.errorlog || cfg.xerrorlog) {
+  state.ataerrorcount = 0;
+  if (cfg.errorlog) {
+    int errcnt1;
+    if (!(   cfg.permissive
+          || ( smart_logdir_ok && smart_logdir.entry[0x01-1].numsectors)
+          || (!smart_logdir_ok && smart_val_ok && isSmartErrorLogCapable(&state.smartval, &drive)))) {
+      PrintOut(LOG_INFO, "Device: %s, no SMART Error Log, ignoring -l error (override with -T permissive)\n", name);
+      cfg.errorlog = false;
+    }
+    else if ((errcnt1 = read_ata_error_count(atadev, name, cfg.fix_firmwarebug, false)) < 0) {
+      PrintOut(LOG_INFO, "Device: %s, no SMART Error Log, ignoring -l error\n", name);
+      cfg.errorlog = false;
+    }
+    else
+      state.ataerrorcount = errcnt1;
+  }
 
-    state.ataerrorcount=0;
-    if (!(cfg.permissive || (smart_val_ok && isSmartErrorLogCapable(&state.smartval, &drive)))) {
-      PrintOut(LOG_INFO, "Device: %s, no SMART Error Log (%s), ignoring -l [x]error (override with -T permissive)\n",
-               name, (!smart_val_ok ? "SMART READ DATA failed" : "capability missing"));
-      cfg.errorlog = cfg.xerrorlog = false;
+  if (cfg.xerrorlog) {
+    int errcnt2;
+    if (!(cfg.permissive || (gp_logdir_ok && gp_logdir.entry[0x03-1].numsectors))) {
+      PrintOut(LOG_INFO, "Device: %s, no Extended Comprehensive SMART Error Log, ignoring -l xerror (override with -T permissive)\n",
+               name);
+      cfg.xerrorlog = false;
     }
-    else {
-      int errcnt1 = -1, errcnt2 = -1;
-      if (cfg.errorlog && (errcnt1 = read_ata_error_count(atadev, name, cfg.fix_firmwarebug, false)) < 0) {
-        PrintOut(LOG_INFO, "Device: %s, no Summary SMART Error Log, ignoring -l error\n", name);
-        cfg.errorlog = false;
-      }
-      if (cfg.xerrorlog && (errcnt2 = read_ata_error_count(atadev, name, cfg.fix_firmwarebug, true)) < 0) {
-        PrintOut(LOG_INFO, "Device: %s, no Extended Comprehensive SMART Error Log, ignoring -l xerror\n", name);
-        cfg.xerrorlog = false;
-      }
-      if (cfg.errorlog || cfg.xerrorlog) {
-        if (cfg.errorlog && cfg.xerrorlog && errcnt1 != errcnt2) {
-          PrintOut(LOG_INFO, "Device: %s, SMART Error Logs report different error counts: %d != %d\n",
-                   name, errcnt1, errcnt2);
-        }
-        // Record max error count
-        state.ataerrorcount = (errcnt1 >= errcnt2 ? errcnt1 : errcnt2);
-      }
+    else if ((errcnt2 = read_ata_error_count(atadev, name, cfg.fix_firmwarebug, true)) < 0) {
+      PrintOut(LOG_INFO, "Device: %s, no Extended Comprehensive SMART Error Log, ignoring -l xerror\n", name);
+      cfg.xerrorlog = false;
     }
+    else if (cfg.errorlog && state.ataerrorcount != errcnt2) {
+      PrintOut(LOG_INFO, "Device: %s, SMART Error Logs report different error counts: %d != %d\n",
+               name, state.ataerrorcount, errcnt2);
+      // Record max error count
+      if (errcnt2 > state.ataerrorcount)
+        state.ataerrorcount = errcnt2;
+    }
+    else
+      state.ataerrorcount = errcnt2;
   }
   
   // capabilities check -- does it support powermode?

@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -51,6 +51,15 @@ static const char * infofound(const char *output) {
   return (*output ? output : "[No Information Found]");
 }
 
+// Return true if '-T permissive' is specified,
+// used to ignore missing capabilities
+static bool is_permissive()
+{
+  if (!failuretest_permissive)
+    return false;
+  failuretest_permissive--;
+  return true;
+}
 
 /* For the given Command Register (CR) and Features Register (FR), attempts
  * to construct a string that describes the contents of the Status
@@ -2134,107 +2143,105 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     print_off();
   }
 
-  // Print SMART and/or GP log Directory and/or logs
-  // Get #pages for extended SMART logs
+  // SMART and GP log directories needed?
+  bool need_smart_logdir = (
+          options.smart_logdir
+          // If GP Log is supported use smart log directory for
+          // error and selftest log support check.
+       || (   isGeneralPurposeLoggingCapable(&drive)
+           && (   options.smart_error_log || options.smart_selftest_log
+               || options.retry_error_log || options.retry_selftest_log))
+  );
+
+  bool need_gp_logdir  = (
+          options.gp_logdir
+       || options.smart_ext_error_log
+       || options.smart_ext_selftest_log
+       || options.sataphy
+  );
+
+  unsigned i;
+  for (i = 0; i < options.log_requests.size(); i++) {
+    if (options.log_requests[i].gpl)
+      need_gp_logdir = true;
+    else
+      need_smart_logdir = true;
+  }
+
   ata_smart_log_directory smartlogdir_buf, gplogdir_buf;
   const ata_smart_log_directory * smartlogdir = 0, * gplogdir = 0;
 
-  if (   options.gp_logdir
-      || options.smart_logdir
-      || options.smart_ext_error_log
-      || options.smart_ext_selftest_log
-      || options.sataphy
-      || !options.log_requests.empty() ) {
-    if (isGeneralPurposeLoggingCapable(&drive))
-      pout("General Purpose Logging (GPL) feature set supported\n");
+  // Read SMART Log directory
+  if (need_smart_logdir) {
+    if (ataReadLogDirectory(device, &smartlogdir_buf, false)) {
+      pout("Read SMART Log Directory failed.\n\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    else
+      smartlogdir = &smartlogdir_buf;
+  }
 
-    // Detect directories needed
-    bool need_smart_logdir = options.smart_logdir;
-    bool need_gp_logdir    = (   options.gp_logdir
-                              || options.smart_ext_error_log
-                              || options.smart_ext_selftest_log
-                              || options.sataphy               );
-    unsigned i;
-    for (i = 0; i < options.log_requests.size(); i++) {
-      if (options.log_requests[i].gpl)
-        need_gp_logdir = true;
-      else
-        need_smart_logdir = true;
+  // Read GP Log directory
+  if (need_gp_logdir) {
+    if (ataReadLogDirectory(device, &gplogdir_buf, true)) {
+      pout("Read GP Log Directory failed.\n\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    else
+      gplogdir = &gplogdir_buf;
+  }
+
+  // Print log directories
+  if ((options.gp_logdir && gplogdir) || (options.smart_logdir && smartlogdir))
+    PrintLogDirectories(gplogdir, smartlogdir);
+
+  // Print log pages
+  for (i = 0; i < options.log_requests.size(); i++) {
+    const ata_log_request & req = options.log_requests[i];
+
+    const char * type;
+    unsigned max_nsectors;
+    if (req.gpl) {
+      type = "General Purpose";
+      max_nsectors = GetNumLogSectors(gplogdir, req.logaddr, true);
+    }
+    else {
+      type = "SMART";
+      max_nsectors = GetNumLogSectors(smartlogdir, req.logaddr, false);
     }
 
-    // Read SMART Log directory
-    if (need_smart_logdir) {
-      if (ataReadLogDirectory(device, &smartlogdir_buf, false)){
-        pout("Read SMART Log Directory failed.\n\n");
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-      }
-      else
-        smartlogdir = &smartlogdir_buf;
-    }
-
-    // Read GP Log directory
-    if (need_gp_logdir) {
-      if (ataReadLogDirectory(device, &gplogdir_buf, true)){
-        pout("Read GP Log Directory failed.\n\n");
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-      }
-      else
-        gplogdir = &gplogdir_buf;
-    }
-
-    // Print log directories
-    if ((options.gp_logdir && gplogdir) || (options.smart_logdir && smartlogdir))
-      PrintLogDirectories(gplogdir, smartlogdir);
-
-    // Print log pages
-    for (i = 0; i < options.log_requests.size(); i++) {
-      const ata_log_request & req = options.log_requests[i];
-
-      const char * type;
-      unsigned max_nsectors;
-      if (req.gpl) {
-        type = "General Purpose";
-        max_nsectors = GetNumLogSectors(gplogdir, req.logaddr, true);
-      }
-      else {
-        type = "SMART";
-        max_nsectors = GetNumLogSectors(smartlogdir, req.logaddr, false);
-      }
-
-      if (!max_nsectors) {
-        if (!failuretest_permissive) {
-          pout("%s Log 0x%02x does not exist (override with '-T permissive' option)\n", type, req.logaddr);
-          continue;
-        }
-        failuretest_permissive--;
-        max_nsectors = req.page+1;
-      }
-      if (max_nsectors <= req.page) {
-        pout("%s Log 0x%02x has only %u sectors, output skipped\n", type, req.logaddr, max_nsectors);
+    if (!max_nsectors) {
+      if (!is_permissive()) {
+        pout("%s Log 0x%02x does not exist (override with '-T permissive' option)\n", type, req.logaddr);
         continue;
       }
-
-      unsigned ns = req.nsectors;
-      if (ns > max_nsectors - req.page) {
-        if (req.nsectors != ~0U) // "FIRST-max"
-          pout("%s Log 0x%02x has only %u sectors, output truncated\n", type, req.logaddr, max_nsectors);
-        ns = max_nsectors - req.page;
-      }
-
-      // SMART log don't support sector offset, start with first sector
-      unsigned offs = (req.gpl ? 0 : req.page);
-
-      raw_buffer log_buf((offs + ns) * 512);
-      bool ok;
-      if (req.gpl)
-        ok = ataReadLogExt(device, req.logaddr, 0x00, req.page, log_buf.data(), ns);
-      else
-        ok = ataReadSmartLog(device, req.logaddr, log_buf.data(), offs + ns);
-      if (!ok)
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-      else
-        PrintLogPages(type, log_buf.data() + offs*512, req.logaddr, req.page, ns, max_nsectors);
+      max_nsectors = req.page+1;
     }
+    if (max_nsectors <= req.page) {
+      pout("%s Log 0x%02x has only %u sectors, output skipped\n", type, req.logaddr, max_nsectors);
+      continue;
+    }
+
+    unsigned ns = req.nsectors;
+    if (ns > max_nsectors - req.page) {
+      if (req.nsectors != ~0U) // "FIRST-max"
+        pout("%s Log 0x%02x has only %u sectors, output truncated\n", type, req.logaddr, max_nsectors);
+      ns = max_nsectors - req.page;
+    }
+
+    // SMART log don't support sector offset, start with first sector
+    unsigned offs = (req.gpl ? 0 : req.page);
+
+    raw_buffer log_buf((offs + ns) * 512);
+    bool ok;
+    if (req.gpl)
+      ok = ataReadLogExt(device, req.logaddr, 0x00, req.page, log_buf.data(), ns);
+    else
+      ok = ataReadSmartLog(device, req.logaddr, log_buf.data(), offs + ns);
+    if (!ok)
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    else
+      PrintLogPages(type, log_buf.data() + offs*512, req.logaddr, req.page, ns, max_nsectors);
   }
 
   // Print SMART Extendend Comprehensive Error Log
@@ -2267,20 +2274,23 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print SMART error log
   if (do_smart_error_log) {
-    if (!isSmartErrorLogCapable(&smartval, &drive)){
-      pout("Warning: device does not support Error Logging\n");
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-    }
-    ata_smart_errorlog smarterror; memset(&smarterror, 0, sizeof(smarterror));
-    if (ataReadErrorLog(device, &smarterror, fix_firmwarebug)){
-      pout("Smartctl: SMART Error Log Read Failed\n");
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    if (!(   ( smartlogdir && GetNumLogSectors(smartlogdir, 0x01, false))
+          || (!smartlogdir && isSmartErrorLogCapable(&smartval, &drive) )
+          || is_permissive()                                             )) {
+      pout("SMART Error Log not supported\n");
     }
     else {
-      // quiet mode is turned on inside ataPrintSmartErrorLog()
-      if (PrintSmartErrorlog(&smarterror, fix_firmwarebug))
-	returnval|=FAILERR;
-      print_off();
+      ata_smart_errorlog smarterror; memset(&smarterror, 0, sizeof(smarterror));
+      if (ataReadErrorLog(device, &smarterror, fix_firmwarebug)) {
+        pout("Smartctl: SMART Error Log Read Failed\n");
+        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      }
+      else {
+        // quiet mode is turned on inside PrintSmartErrorLog()
+        if (PrintSmartErrorlog(&smarterror, fix_firmwarebug))
+	  returnval|=FAILERR;
+        print_off();
+      }
     }
   }
 
@@ -2316,21 +2326,24 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print SMART self-test log
   if (do_smart_selftest_log) {
-    if (!isSmartTestLogCapable(&smartval, &drive)){
-      pout("Warning: device does not support Self Test Logging\n");
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-    }    
-    ata_smart_selftestlog smartselftest; memset(&smartselftest, 0, sizeof(smartselftest));
-    if(ataReadSelfTestLog(device, &smartselftest, fix_firmwarebug)){
-      pout("Smartctl: SMART Self Test Log Read Failed\n");
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    if (!(   ( smartlogdir && GetNumLogSectors(smartlogdir, 0x06, false))
+          || (!smartlogdir && isSmartTestLogCapable(&smartval, &drive)  )
+          || is_permissive()                                             )) {
+      pout("SMART Self-test Log not supported\n");
     }
     else {
-      print_on();
-      if (ataPrintSmartSelfTestlog(&smartselftest, !printing_is_switchable, fix_firmwarebug))
-	returnval|=FAILLOG;
-      print_off();
-      pout("\n");
+      ata_smart_selftestlog smartselftest; memset(&smartselftest, 0, sizeof(smartselftest));
+      if (ataReadSelfTestLog(device, &smartselftest, fix_firmwarebug)) {
+        pout("Smartctl: SMART Self Test Log Read Failed\n");
+        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      }
+      else {
+        print_on();
+        if (ataPrintSmartSelfTestlog(&smartselftest, !printing_is_switchable, fix_firmwarebug))
+          returnval |= FAILLOG;
+        print_off();
+        pout("\n");
+      }
     }
   }
 
