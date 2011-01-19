@@ -184,6 +184,21 @@ EXTRA_smartd_SOURCES += \
 
 endif
 
+if OS_WIN32
+
+smartctl_SOURCES += \
+        os_win32/wmiquery.cpp \
+        os_win32/wmiquery.h
+
+smartd_SOURCES += \
+        os_win32/wmiquery.cpp \
+        os_win32/wmiquery.h
+
+smartctl_LDADD += -lole32 -loleaut32
+smartd_LDADD   += -lole32 -loleaut32
+
+endif
+
 if OS_SOLARIS
 # This block is required because Solaris uses manual page section 1m
 # for administrative command (linux/freebsd use section 8) and Solaris
@@ -308,6 +323,7 @@ EXTRA_DIST = \
         os_win32/installer.nsi \
         os_win32/syslogevt.c \
         os_win32/syslogevt.mc \
+        os_win32/wbemcli_small.h \
         $(docs_DATA) \
         $(examples_DATA) \
         $(examples_SCRIPTS)

@@ -95,10 +95,11 @@ AC_CHECK_HEADERS([linux/cciss_ioctl.h], [], [], [AC_INCLUDES_DEFAULT
 # include <linux/compiler.h>
 #endif
 ])
-dnl Check for Windows DDK header files
+dnl Check for Windows DDK and WMI header files
 AC_CHECK_HEADERS([ntdddisk.h ddk/ntdddisk.h], [], [], [AC_INCLUDES_DEFAULT
 #include <windows.h>
 ])
+AC_CHECK_HEADERS([wbemcli.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_TYPES([int64_t, uint64_t])
@@ -279,6 +280,7 @@ os_dltools='curl wget lynx'
 os_mailer=
 os_darwin=no
 os_solaris=no
+os_win32=no
 os_win32_mingw=no
 os_win64=no
 case "${host}" in
@@ -312,14 +314,17 @@ case "${host}" in
     ;;
   *-*-cygwin*)
     os_deps='os_win32.o'
+    os_win32=yes
     ;;
   x86_64-*-mingw*)
     os_deps='os_win32.o'
+    os_win32=yes
     os_win32_mingw=yes
     os_win64=yes
     ;;
   *-*-mingw*)
     os_deps='os_win32.o'
+    os_win32=yes
     os_win32_mingw=yes
     ;;
   *-*-darwin*)
@@ -360,6 +365,7 @@ fi
 # Enable platform-specific makefile sections
 AM_CONDITIONAL(OS_DARWIN, [test "$os_darwin" = "yes"])
 AM_CONDITIONAL(OS_SOLARIS, [test "$os_solaris" = "yes"])
+AM_CONDITIONAL(OS_WIN32, [test "$os_win32" = "yes"])
 AM_CONDITIONAL(OS_WIN32_MINGW, [test "$os_win32_mingw" = "yes"])
 AM_CONDITIONAL(OS_WIN32_WINDMC, [test -n "$WINDMC" && test "$WINDMC" != "no" && test -n "$WINDRES"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])

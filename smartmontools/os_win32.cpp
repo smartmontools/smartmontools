@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
+
+#include "os_win32/wmiquery.h"
 
 #include <errno.h>
 
@@ -1913,129 +1915,123 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
 /////////////////////////////////////////////////////////////////////////////
 // USB ID detection using WMI
 
-// Run a command, split stdout into lines.
-// Return number of lines read, -1 on error.
-static int run_cmd(std::vector<std::string> & lines, const char * cmd, ...)
+// Return true if STR starts with PREFIX.
+static inline bool str_starts_with(const std::string & str, const char * prefix)
 {
-  lines.clear();
-
-  va_list ap; va_start(ap, cmd);
-  std::string cmdline = vstrprintf(cmd, ap);
-  va_end(ap);
-
-  if (scsi_debugmode > 1)
-    pout("Run: \"%s\"\n", cmdline.c_str());
-
-  char buffer[16*1024];
-  int size = run_cmd(cmdline.c_str(), buffer, sizeof(buffer));
-
-  if (scsi_debugmode > 1)
-    pout("Read %d bytes\n", size);
-  if (!(0 < size && size < (int)sizeof(buffer)-1))
-    return -1;
-
-  buffer[size] = 0;
-
-  for (int i = 0; buffer[i]; ) {
-      int len = strcspn(buffer+i, "\r\n");
-      lines.push_back(std::string(buffer+i, len));
-      i += len;
-      i += strspn(buffer+i, "\r\n");
-  }
-  if (scsi_debugmode > 1) {
-    for (unsigned i = 0; i < lines.size(); i++)
-      printf("'%s'\n", lines[i].c_str());
-  }
-  return lines.size();
-}
-
-// Quote string for WMI
-static std::string wmi_quote(const char * s, int len)
-{
-  std::string r;
-  for (int i = 0; i < len; i++) {
-    char c = s[i];
-    if (c == '\\')
-      r += '\\';
-    r += c;
-  }
-  return r;
+  return !strncmp(str.c_str(), prefix, strlen(prefix));
 }
 
 // Get USB ID for a physical drive number
 static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & product_id)
 {
+  bool debug = (scsi_debugmode > 1);
+
+  wbem_services ws;
+  if (!ws.connect()) {
+    if (debug)
+      pout("WMI connect failed\n");
+    return false;
+  }
+
   // Get device name
-  std::vector<std::string> result;
-  if (run_cmd(result,
-        "wmic PATH Win32_DiskDrive WHERE DeviceID=\"\\\\\\\\.\\\\PHYSICALDRIVE%d\" GET Model",
-        drive) != 2)
+  wbem_object wo;
+  if (!ws.query1(wo, "SELECT Model FROM Win32_DiskDrive WHERE DeviceID=\"\\\\\\\\.\\\\PHYSICALDRIVE%d\"", drive))
     return false;
 
-  std::string name = result[1];
+  std::string name = wo.get_str("Model");
+  if (debug)
+    pout("PhysicalDrive%d, \"%s\":\n", drive, name.c_str());
 
   // Get USB_CONTROLLER -> DEVICE associations
-  std::vector<std::string> assoc;
-  int n = run_cmd(assoc, "wmic PATH Win32_USBControllerDevice GET Antecedent,Dependent");
-  if (n < 2)
+  wbem_enumerator we;
+  if (!ws.query(we, "SELECT Antecedent,Dependent FROM Win32_USBControllerDevice"))
     return false;
 
-  regular_expression regex("^([^ ]+) .*Win32_PnPEntity.DeviceID=\"(USBSTOR\\\\[^\"]*)\" *$",
-                           REG_EXTENDED);
+  std::string usb_devid;
+  std::string prev_usb_ant, prev_usb_devid;
+  std::string prev_ant, ant, dep;
+
+  const regular_expression regex("^.*PnPEntity\\.DeviceID=\"([^\"]*)\"", REG_EXTENDED);
   if (regex.empty()) // TODO: throw in constructor?
     return false;
 
-  int usbstoridx = -1;
-  std::string usbcontr;
-  for (int i = 2; i < n; i++) {
-    // Find next 'USB_CONTROLLER  USBSTORAGE_DEVICE' pair
-    regmatch_t match[3];
-    const char * s = assoc[i].c_str();
-    if (!regex.execute(s, 3, match))
-      continue;
+  while (we.next(wo)) {
+    prev_ant = ant;
+    // Find next 'USB_CONTROLLER, DEVICE' pair
+    ant = wo.get_str("Antecedent");
+    dep = wo.get_str("Dependent");
 
-    // USBSTOR device found, compare Name
-    if (run_cmd(result,
-          "wmic PATH Win32_PnPEntity WHERE DeviceID=\"%s\" GET Name",
-          wmi_quote(s + match[2].rm_so, match[2].rm_eo - match[2].rm_so).c_str()
-          ) != 2)
-      continue;
-    if (result[1] != name)
-      continue;
+    if (debug && ant != prev_ant)
+      pout(" %s:\n", ant.c_str());
 
-    // Name must be uniqe
-    if (usbstoridx >= 0)
-      return false;
+    // Extract DeviceID
+    regmatch_t match[2];
+    if (!(regex.execute(dep.c_str(), 2, match) && match[1].rm_so >= 0)) {
+      if (debug)
+        pout("  | (\"%s\")\n", dep.c_str());
+      continue;
+    }
 
-    usbstoridx = i;
-    usbcontr.assign(s + match[1].rm_so, match[1].rm_eo - match[1].rm_so);
+    std::string devid(dep.c_str()+match[1].rm_so, match[1].rm_eo-match[1].rm_so);
+
+    if (str_starts_with(devid, "USB\\\\VID_")) {
+      // USB bridge entry, save CONTROLLER, ID
+      if (debug)
+        pout("  +-> \"%s\"\n", devid.c_str());
+      prev_usb_ant = ant;
+      prev_usb_devid = devid;
+      continue;
+    }
+    else if (str_starts_with(devid, "USBSTOR\\\\")) {
+      // USBSTOR device found
+      if (debug)
+        pout("  +--> \"%s\"\n", devid.c_str());
+
+      // Retrieve name
+      wbem_object wo2;
+      if (!ws.query1(wo2, "SELECT Name FROM Win32_PnPEntity WHERE DeviceID=\"%s\"", devid.c_str()))
+        continue;
+      std::string name2 = wo2.get_str("Name");
+
+      // Continue if not name of physical disk drive
+      if (name2 != name) {
+        if (debug)
+          pout("  |    (Name: \"%s\")\n", name2.c_str());
+        continue;
+      }
+      if (debug)
+        pout("  |    Name: \"%s\"\n", name2.c_str());
+
+      // Fail if previos USB bridge is associated to other controller
+      if (ant != prev_usb_ant)
+        return false;
+
+      // Handle multiple devices with same name
+      if (!usb_devid.empty()) {
+        // Fail if multiple devices with same name have different USB bridge types
+        if (usb_devid != prev_usb_devid)
+          return false;
+        continue;
+      }
+
+      // Found
+      usb_devid = prev_usb_devid;
+
+      // Continue to check for duplicate names ...
+    }
+    else {
+      if (debug)
+        pout("  |   \"%s\"\n", devid.c_str());
+    }
   }
-
-  // Found ?
-  if (usbstoridx <= 0)
-    return false;
-
-  // The entry preceding USBSTOR should be the USB bridge device
-  regex.compile("^([^ ]+) .*Win32_PnPEntity.DeviceID=\"USB\\\\VID_(....&PID_....)[^\"]*\" *$",
-                REG_EXTENDED);
-  if (regex.empty())
-    return false;
-  regmatch_t match[3];
-  const char * s = assoc[usbstoridx-1].c_str();
-  if (!regex.execute(s, 3, match))
-    return false;
-
-  // Both devices must be associated to same controller
-  if (usbcontr != std::string(s + match[1].rm_so, match[1].rm_eo - match[1].rm_so))
-    return false;
 
   // Parse USB ID
   int nc = -1;
-  if (!(sscanf(s + match[2].rm_so, "%4hx&PID_%4hx%n",
-               &vendor_id, &product_id, &nc) == 2 && nc == 4+5+4))
+  if (!(sscanf(usb_devid.c_str(), "USB\\\\VID_%4hx&PID_%4hx%n",
+               &vendor_id, &product_id, &nc) == 2 && nc == 9+4+5+4))
     return false;
 
-  if (scsi_debugmode > 1)
+  if (debug)
     pout("USB ID = 0x%04x:0x%04x\n", vendor_id, product_id);
   return true;
 }
