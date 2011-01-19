@@ -204,6 +204,18 @@
 				RelativePath=".\syslog_win32.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\wbemcli_small.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wmiquery.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\wmiquery.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="regex"
