@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\getopt,..\regex"
+				AdditionalIncludeDirectories=".,..\getopt,..\regex,$(IntDir)"
 				PreprocessorDefinitions="_DEBUG;HAVE_CONFIG_H;_ERRCODE_DEFINED;errno_t=int;_USE_32BIT_TIME_T;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -116,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".,..\getopt,..\regex"
+				AdditionalIncludeDirectories=".,..\getopt,..\regex,$(IntDir)"
 				PreprocessorDefinitions="NDEBUG;HAVE_CONFIG_H;_ERRCODE_DEFINED;errno_t=int;_USE_32BIT_TIME_T;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -493,9 +493,9 @@
 				>
 				<Tool
 					Name="VCCustomBuildTool"
-					Description="Copy $(InputPath) config.h"
-					CommandLine="copy $(InputPath) config.h&#x0D;&#x0A;"
-					Outputs="config.h"
+					Description="Copy $(InputPath) $(IntDir)\config.h"
+					CommandLine="copy $(InputPath) $(IntDir)\config.h"
+					Outputs="$(IntDir)\config.h"
 				/>
 			</FileConfiguration>
 			<FileConfiguration
@@ -503,9 +503,9 @@
 				>
 				<Tool
 					Name="VCCustomBuildTool"
-					Description="Copy $(InputPath) config.h"
-					CommandLine="copy $(InputPath) config.h&#x0D;&#x0A;"
-					Outputs="config.h"
+					Description="Copy $(InputPath) $(IntDir)\config.h"
+					CommandLine="copy $(InputPath) $(IntDir)\config.h"
+					Outputs="$(IntDir)\config.h"
 				/>
 			</FileConfiguration>
 		</File>
