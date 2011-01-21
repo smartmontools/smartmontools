@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -55,7 +55,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3196 2010-10-28 21:31:49Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3245 2011-01-21 17:53:00Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -772,6 +772,9 @@ const char * parse_options(int argc, char** argv,
 
   // Special handling of --scan, --scanopen
   if (scan) {
+    // Read or init drive database to allow USB ID check.
+    if (!no_defaultdb && !read_default_drive_databases())
+      EXIT(FAILCMD);
     scan_devices(type, (scan == opt_scan_open), argv[optind]);
     EXIT(0);
   }
