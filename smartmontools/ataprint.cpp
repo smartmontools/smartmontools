@@ -982,7 +982,7 @@ static unsigned GetNumLogSectors(const ata_smart_log_directory * logdir, unsigne
 }
 
 // Get name of log.
-// Table A.2 of T13/1699-D Revision 6
+// Table A.2 of T13/2015-D Revision 4a (ACS-2), December 9, 2010.
 static const char * GetLogName(unsigned logaddr)
 {
     switch (logaddr) {
@@ -990,10 +990,13 @@ static const char * GetLogName(unsigned logaddr)
       case 0x01: return "Summary SMART error log";
       case 0x02: return "Comprehensive SMART error log";
       case 0x03: return "Ext. Comprehensive SMART error log";
+      case 0x05: return "Reserved for the CFA"; // ACS-2
       case 0x04: return "Device Statistics";
       case 0x06: return "SMART self-test log";
       case 0x07: return "Extended self-test log";
+      case 0x08: return "Power Conditions"; // ACS-2
       case 0x09: return "Selective self-test log";
+      case 0x0d: return "LPS Mis-alignment log"; // ACS-2
       case 0x10: return "NCQ Command Error";
       case 0x11: return "SATA Phy Event Counters";
       case 0x20: return "Streaming performance log"; // Obsolete

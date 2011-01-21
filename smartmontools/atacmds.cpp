@@ -3,8 +3,8 @@
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -150,6 +150,10 @@ static const int actual_ver[] = {
   7,            /* 0x0021       WARNING:        */
   6             /* 0x0022       WARNING:        */
 };
+
+// Compile time check of above array sizes
+typedef char assert_sizeof_minor_str [sizeof(minor_str) /sizeof(minor_str[0])  == MINOR_MAX+1 ? 1 : -1];
+typedef char assert_sizeof_actual_ver[sizeof(actual_ver)/sizeof(actual_ver[0]) == MINOR_MAX+1 ? 1 : -1];
 
 // Get ID and increase flag of current pending or offline
 // uncorrectable attribute.
@@ -876,23 +880,6 @@ int ataReadHDIdentity (ata_device * device, struct ata_identify_device *buf){
 // the version number.  See notes above.
 int ataVersionInfo(const char ** description, const ata_identify_device * drive, unsigned short * minor)
 {
-  // check that arrays at the top of this file are defined
-  // consistently
-  if (sizeof(minor_str) != sizeof(char *)*(1+MINOR_MAX)){
-    pout("Internal error in ataVersionInfo().  minor_str[] size %d\n"
-         "is not consistent with value of MINOR_MAX+1 = %d\n", 
-         (int)(sizeof(minor_str)/sizeof(char *)), MINOR_MAX+1);
-    fflush(NULL);
-    abort();
-  }
-  if (sizeof(actual_ver) != sizeof(int)*(1+MINOR_MAX)){
-    pout("Internal error in ataVersionInfo().  actual_ver[] size %d\n"
-         "is not consistent with value of MINOR_MAX = %d\n",
-         (int)(sizeof(actual_ver)/sizeof(int)), MINOR_MAX+1);
-    fflush(NULL);
-    abort();
-  }
-
   // get major and minor ATA revision numbers
   unsigned short major = drive->major_rev_num;
   *minor=drive->minor_rev_num;
@@ -912,18 +899,21 @@ int ataVersionInfo(const char ** description, const ata_identify_device * drive,
     }
   }
 
-  // Try new ATA-8 minor revision numbers (Table 31 of T13/1699-D Revision 6)
+  // Try new ATA-8 ACS minor revision numbers.
+  // Table 55 of T13/2015-D Revision 4a (ACS-2), December 9, 2010.
   // (not in actual_ver/minor_str to avoid large sparse tables)
   const char *desc;
   switch (*minor) {
     case 0x0027: desc = "ATA-8-ACS revision 3c"; break;
     case 0x0028: desc = "ATA-8-ACS revision 6"; break;
     case 0x0029: desc = "ATA-8-ACS revision 4"; break;
+    case 0x0031: desc = "ACS-2 revision 2"; break;
     case 0x0033: desc = "ATA-8-ACS revision 3e"; break;
     case 0x0039: desc = "ATA-8-ACS revision 4c"; break;
     case 0x0042: desc = "ATA-8-ACS revision 3f"; break;
     case 0x0052: desc = "ATA-8-ACS revision 3b"; break;
     case 0x0107: desc = "ATA-8-ACS revision 2d"; break;
+    case 0x0110: desc = "ACS-2 revision 3"; break;
     default:     desc = 0; break;
   }
   if (desc) {
