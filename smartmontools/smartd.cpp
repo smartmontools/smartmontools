@@ -1046,7 +1046,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
              "  NIS domain: %s\n\n"
              "The following warning/error was logged by the smartd daemon:\n\n"
              "%s\n\n"
-             "For details see host's SYSLOG (default: /var/log/messages).\n\n"
+             "For details see host's SYSLOG.\n\n"
              "%s%s%s",
 	     hostname, domainname, nisdomain, message, further, original, additional);
   exportenv(environ_strings[10], "SMARTD_FULLMESSAGE", fullmessage);

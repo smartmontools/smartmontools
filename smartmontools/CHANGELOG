@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Remove "default: /var/log/messages" hint from warning mail.
+       This obsoletes Debian patch 60_remove-redhatism.diff.
+
   [CF] Windows: Include USB devices in DEVICESCAN (ticket #116).
 
   [CF] Windows: Use direct WMI access to detect USB IDs (ticket #115).
