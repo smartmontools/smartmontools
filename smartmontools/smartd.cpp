@@ -1212,6 +1212,27 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   mail->logged++;
 }
 
+#ifndef _WIN32
+
+// Output multiple lines via separate syslog(3) calls.
+static void vsyslog_lines(int priority, const char * fmt, va_list ap)
+{
+  char buf[512+EBUFLEN]; // enough space for exec cmd output in MailWarning()
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+
+  for (char * p = buf, * q; p && *p; p = q) {
+    if ((q = strchr(p, '\n')))
+      *q++ = 0;
+    if (*p)
+      syslog(priority, "%s\n", p);
+  }
+}
+
+#else  // _WIN32
+// os_win32/syslog_win32.cpp supports multiple lines.
+#define vsyslog_lines vsyslog
+#endif // _WIN32
+
 // Printing function for watching ataprint commands, or losing them
 // [From GLIBC Manual: Since the prototype doesn't specify types for
 // optional arguments, in a call to a variadic function the default
@@ -1237,7 +1258,7 @@ void pout(const char *fmt, ...){
   // in debugmode==2 mode we print output from knowndrives.o functions
   else if (debugmode==2 || ata_debugmode || scsi_debugmode) {
     openlog("smartd", LOG_PID, facility);
-    vsyslog(LOG_INFO, fmt, ap);
+    vsyslog_lines(LOG_INFO, fmt, ap);
     closelog();
   }
   va_end(ap);
@@ -1262,7 +1283,7 @@ static void PrintOut(int priority, const char *fmt, ...){
     vprintf(fmt,ap);
   else {
     openlog("smartd", LOG_PID, facility);
-    vsyslog(priority,fmt,ap);
+    vsyslog_lines(priority, fmt, ap);
     closelog();
   }
   va_end(ap);

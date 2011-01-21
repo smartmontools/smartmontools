@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Output multiple lines via separate syslog(3) calls
+       (ticket #135).
+
   [CF] smartctl: Add new ATA minor revisions and log addresses from ACS-2
        revision 4a.  Replace runtime asserts by compile time asserts.
 
