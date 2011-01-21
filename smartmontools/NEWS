@@ -18,6 +18,8 @@ Summary: smartmontools release 5.41
 - OpenBSD: Use 'ftp' in 'update-smart-drivedb'.
 - OpenBSD: Workaround for shell bug.
 - OpenBSD: Fix DEVICESCAN for OpenBSD >= 4.8.
+- Windows: DEVICESCAN includes USB devices.
+- Windows: Faster USB ID detection.
 - Windows: Add missing quotes in smartctl-run.bat and
   smartd-run.bat
 

@@ -453,8 +453,8 @@ public:
 
   virtual std::string get_app_examples(const char * appname);
 
-  virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
-    const char * pattern = 0);
+//virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
+//  const char * pattern = 0);
 
 protected:
   virtual ata_device * get_ata_device(const char * name, const char * type);
@@ -462,10 +462,6 @@ protected:
 //virtual scsi_device * get_scsi_device(const char * name, const char * type);
 
   virtual smart_device * autodetect_smart_device(const char * name);
-
-  virtual bool ata_scan(smart_device_list & devlist) = 0;
-
-  virtual bool scsi_scan(smart_device_list & devlist) = 0;
 };
 
 #if WIN9X_SUPPORT
@@ -478,12 +474,16 @@ public:
   win9x_smart_interface()
     { win9x = true; }
 
+  virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
+    const char * pattern = 0);
+
 protected:
   virtual scsi_device * get_scsi_device(const char * name, const char * type);
 
-  virtual bool ata_scan(smart_device_list & devlist);
+private:
+  bool ata_scan(smart_device_list & devlist);
 
-  virtual bool scsi_scan(smart_device_list & devlist);
+  bool scsi_scan(smart_device_list & devlist);
 };
 
 #endif // WIN9X_SUPPORT
@@ -492,14 +492,14 @@ protected:
 class winnt_smart_interface
 : public /*extends*/ win_smart_interface
 {
+public:
+  virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
+    const char * pattern = 0);
+
 protected:
   virtual scsi_device * get_scsi_device(const char * name, const char * type);
 
   virtual smart_device * autodetect_smart_device(const char * name);
-
-  virtual bool ata_scan(smart_device_list & devlist);
-
-  virtual bool scsi_scan(smart_device_list & devlist);
 };
 
 
@@ -593,6 +593,7 @@ std::string win_smart_interface::get_os_version_str()
 enum win_dev_type { DEV_UNKNOWN = 0, DEV_ATA, DEV_SCSI, DEV_USB };
 
 static win_dev_type get_phy_drive_type(int drive);
+static win_dev_type get_phy_drive_type(int drive, GETVERSIONINPARAMS_EX * ata_version_ex);
 static win_dev_type get_log_drive_type(int drive);
 static bool get_usb_id(int drive, unsigned short & vendor_id,
                        unsigned short & product_id);
@@ -733,8 +734,11 @@ smart_device * winnt_smart_interface::autodetect_smart_device(const char * name)
 }
 
 
-// makes a list of ATA or SCSI devices for the DEVICESCAN directive
-bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
+#if WIN9X_SUPPORT
+
+// Scan for devices on Win9x/ME
+
+bool win9x_smart_interface::scan_smart_devices(smart_device_list & devlist,
   const char * type, const char * pattern /* = 0*/)
 {
   if (pattern) {
@@ -751,6 +755,111 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
     if (!scsi_scan(devlist))
       return false;
   }
+  return true;
+}
+
+#endif  // WIN9X_SUPPORT
+
+
+// Scan for devices
+
+bool winnt_smart_interface::scan_smart_devices(smart_device_list & devlist,
+  const char * type, const char * pattern /* = 0*/)
+{
+  if (pattern) {
+    set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
+    return false;
+  }
+
+  // Set valid types
+  bool ata, scsi, usb;
+  if (!type) {
+    ata = scsi = usb = true;
+  }
+  else {
+    ata = scsi = usb = false;
+    if (!strcmp(type, "ata"))
+      ata = true;
+    else if (!strcmp(type, "scsi"))
+      scsi = true;
+    else if (!strcmp(type, "usb"))
+      usb = true;
+    else {
+      set_err(EINVAL, "Invalid type '%s', valid arguments for scan are: ata, scsi, usb", type);
+      return false;
+    }
+  }
+
+  // Scan up to 10 drives and 2 3ware controllers
+  const int max_raid = 2;
+  bool raid_seen[max_raid] = {false, false};
+
+  char name[20];
+  for (int i = 0; i <= 9; i++) {
+    sprintf(name, "/dev/sd%c", 'a'+i);
+    GETVERSIONINPARAMS_EX vers_ex;
+
+    switch (get_phy_drive_type(i, (ata ? &vers_ex : 0))) {
+      case DEV_ATA:
+        // Driver supports SMART_GET_VERSION or STORAGE_QUERY_PROPERTY returned ATA/SATA
+        if (!ata)
+          continue;
+
+        // Interpret RAID drive map if present
+        if (vers_ex.wIdentifier == SMART_VENDOR_3WARE) {
+          // Skip if too many controllers or logical drive from this controller already seen
+          if (!(vers_ex.wControllerId < max_raid && !raid_seen[vers_ex.wControllerId]))
+            continue;
+          raid_seen[vers_ex.wControllerId] = true;
+          // Add physical drives
+          int len = strlen(name);
+          for (int pi = 0; pi < 32; pi++) {
+            if (vers_ex.dwDeviceMapEx & (1L << pi)) {
+              sprintf(name+len, ",%u", pi);
+              devlist.push_back( new win_ata_device(this, name, "ata") );
+            }
+          }
+        }
+        else {
+          devlist.push_back( new win_ata_device(this, name, "ata") );
+        }
+        break;
+
+      case DEV_SCSI:
+        // STORAGE_QUERY_PROPERTY returned SCSI/SAS/...
+        if (!scsi)
+          continue;
+        devlist.push_back( new win_scsi_device(this, name, "scsi") );
+        break;
+
+      case DEV_USB:
+        // STORAGE_QUERY_PROPERTY returned USB
+        if (!usb)
+          continue;
+        {
+          // TODO: Use common function for this and autodetect_smart_device()
+          // Get USB bridge ID
+          unsigned short vendor_id = 0, product_id = 0;
+          if (!get_usb_id(i, vendor_id, product_id))
+            continue;
+          // Get type name for this ID
+          const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id);
+          if (!usbtype)
+            continue;
+          // Return SAT/USB device for this type
+          ata_device * dev = get_sat_device(usbtype, new win_scsi_device(this, name, ""));
+          if (!dev)
+            continue;
+          devlist.push_back(dev);
+        }
+        break;
+
+      default:
+        // Unknown type
+        break;
+    }
+  }
+
   return true;
 }
 
@@ -2409,44 +2518,6 @@ bool win9x_smart_interface::ata_scan(smart_device_list & devlist)
 #endif // WIN9X_SUPPORT
 
 
-// Scan for ATA drives
-
-bool winnt_smart_interface::ata_scan(smart_device_list & devlist)
-{
-  const int max_raid = 2;
-  bool raid_seen[max_raid] = {false, false};
-
-  char name[20];
-  for (int i = 0; i <= 9; i++) {
-    GETVERSIONINPARAMS_EX vers_ex;
-    if (get_phy_drive_type(i, &vers_ex) != DEV_ATA)
-      continue;
-
-    // Interpret RAID drive map if present
-    if (vers_ex.wIdentifier == SMART_VENDOR_3WARE) {
-      // Skip if more than 2 controllers or logical drive from this controller already seen
-      if (vers_ex.wControllerId >= max_raid || raid_seen[vers_ex.wControllerId])
-        continue;
-      raid_seen[vers_ex.wControllerId] = true;
-      // Add physical drives
-      for (int pi = 0; pi < 32; pi++) {
-        if (vers_ex.dwDeviceMapEx & (1L << pi)) {
-            sprintf(name, "/dev/sd%c,%u", 'a'+i, pi);
-            devlist.push_back( new win_ata_device(this, name, "ata") );
-        }
-      }
-      continue;
-    }
-
-    // Driver supports SMART_GET_VERSION or STORAGE_QUERY_PROPERTY returns ATA/SATA
-    sprintf(name, "/dev/sd%c", 'a'+i);
-    devlist.push_back( new win_ata_device(this, name, "ata") );
-  }
-
-  return true;
-}
-
-
 /////////////////////////////////////////////////////////////////////////////
 
 // Interface to ATA devices
@@ -3382,20 +3453,6 @@ bool win_scsi_device::open(int pd_num, int ld_num, int tape_num, int /*sub_addr*
     return false;
   }
   set_fh(h);
-  return true;
-}
-
-
-bool winnt_smart_interface::scsi_scan(smart_device_list & devlist)
-{
-  char name[20];
-  for (int i = 0; i <= 9; i++) {
-    if (get_phy_drive_type(i) != DEV_SCSI)
-      continue;
-    // STORAGE_QUERY_PROPERTY returned SCSI/SAS/...
-    sprintf(name, "/dev/sd%c", 'a'+i);
-    devlist.push_back( new win_scsi_device(this, name, "scsi") );
-  }
   return true;
 }
 
