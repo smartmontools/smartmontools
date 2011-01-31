@@ -1761,8 +1761,6 @@ static void ataPrintSCTErrorRecoveryControl(unsigned short read_timer, unsigned 
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
-  int returnval = 0;
-
   // If requested, check power mode first
   const char * powername = 0;
   bool powerchg = false;
@@ -1772,7 +1770,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     switch (powermode) {
       case -1:
         if (errno == ENOSYS) {
-          pout("CHECK POWER STATUS not implemented, ignoring -n Option\n"); break;
+          pout("CHECK POWER MODE not implemented, ignoring -n option\n"); break;
         }
         powername = "SLEEP";   powerlimit = 2;
         break;
@@ -1783,7 +1781,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       case 0xff:
         powername = "ACTIVE or IDLE"; break;
       default:
-        pout("CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Option\n", powermode);
+        pout("CHECK POWER MODE returned unknown value 0x%02x, ignoring -n option\n", powermode);
         break;
     }
     if (powername) {
@@ -1824,7 +1822,47 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        || options.smart_disable
   );
 
+  // SMART and GP log directories needed ?
+  bool need_smart_logdir = options.smart_logdir;
+
+  bool need_gp_logdir  = (
+          options.gp_logdir
+       || options.smart_ext_error_log
+       || options.smart_ext_selftest_log
+       || options.sataphy
+  );
+
+  unsigned i;
+  for (i = 0; i < options.log_requests.size(); i++) {
+    if (options.log_requests[i].gpl)
+      need_gp_logdir = true;
+    else
+      need_smart_logdir = true;
+  }
+
+  // SCT commands needed ?
+  bool need_sct_support = (
+          options.sct_temp_sts
+       || options.sct_temp_hist
+       || options.sct_temp_int
+       || options.sct_erc_get
+       || options.sct_erc_set
+  );
+
+  // Exit if no further options specified
+  if (!(   options.drive_info || need_smart_support
+        || need_smart_logdir  || need_gp_logdir
+        || need_sct_support                        )) {
+    if (powername)
+      pout("Device is in %s mode\n", powername);
+    else
+      pout("ATA device successfully opened\n\n"
+           "Use 'smartctl -a' (or '-x') to print SMART (and more) information\n\n");
+    return 0;
+  }
+
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
+  int returnval = 0;
   ata_identify_device drive; memset(&drive, 0, sizeof(drive));
   int retid = ataReadHDIdentity(device,&drive);
   if (retid < 0) {
@@ -2146,30 +2184,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     print_off();
   }
 
-  // SMART and GP log directories needed?
-  bool need_smart_logdir = (
-          options.smart_logdir
-          // If GP Log is supported use smart log directory for
-          // error and selftest log support check.
-       || (   isGeneralPurposeLoggingCapable(&drive)
-           && (   options.smart_error_log || options.smart_selftest_log
-               || options.retry_error_log || options.retry_selftest_log))
-  );
-
-  bool need_gp_logdir  = (
-          options.gp_logdir
-       || options.smart_ext_error_log
-       || options.smart_ext_selftest_log
-       || options.sataphy
-  );
-
-  unsigned i;
-  for (i = 0; i < options.log_requests.size(); i++) {
-    if (options.log_requests[i].gpl)
-      need_gp_logdir = true;
-    else
-      need_smart_logdir = true;
-  }
+  // If GP Log is supported use smart log directory for
+  // error and selftest log support check.
+  if (   isGeneralPurposeLoggingCapable(&drive)
+      && (   options.smart_error_log || options.smart_selftest_log
+          || options.retry_error_log || options.retry_selftest_log))
+    need_smart_logdir = true;
 
   ata_smart_log_directory smartlogdir_buf, gplogdir_buf;
   const ata_smart_log_directory * smartlogdir = 0, * gplogdir = 0;
@@ -2374,8 +2394,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // SCT commands
   bool sct_ok = false;
-  if (   options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int
-      || options.sct_erc_get  || options.sct_erc_set                          ) {
+  if (need_sct_support) {
     if (!isSCTCapable(&drive)) {
       pout("Warning: device does not support SCT Commands\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);

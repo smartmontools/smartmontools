@@ -1570,22 +1570,27 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     int returnval = 0;
     int res, durationSec;
 
+    bool any_output = options.drive_info;
+
     res = scsiGetDriveInfo(device, &peripheral_type, options.drive_info);
     if (res) {
         if (2 == res)
             return 0;
         else
             failuretest(MANDATORY_CMD, returnval |= FAILID);
+	any_output = true;
     }
 
     if (options.smart_enable) {
         if (scsiSmartEnable(device))
             failuretest(MANDATORY_CMD, returnval |= FAILSMART);
+	any_output = true;
     }
 
     if (options.smart_disable) {
         if (scsiSmartDisable(device))
             failuretest(MANDATORY_CMD,returnval |= FAILSMART);
+	any_output = true;
     }
     
     if (options.smart_auto_save_enable) {
@@ -1593,6 +1598,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         pout("Enable autosave (clear GLTSD bit) failed\n");
         failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
+      any_output = true;
     }
     
     if (options.smart_auto_save_disable) {
@@ -1600,6 +1606,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         pout("Disable autosave (set GLTSD bit) failed\n");
         failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
+      any_output = true;
     }
     
     if (options.smart_check_status) {
@@ -1623,6 +1630,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                     returnval |= FAILSMART;
             }
         }
+        any_output = true;
     }   
     if (options.smart_vendor_attrib) {
         if (! checkedSupportedLogPages)
@@ -1641,6 +1649,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             if (gSeagateFactoryLPage)
                 scsiPrintSeagateFactoryLPage(device);
         }
+        any_output = true;
     }
     if (options.smart_error_log) {
         if (! checkedSupportedLogPages)
@@ -1649,6 +1658,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (1 == scsiFetchControlGLTSD(device, modese_len, 1))
             pout("\n[GLTSD (Global Logging Target Save Disable) set. "
                  "Enable Save with '-S on']\n");
+        any_output = true;
     }
     if (options.smart_selftest_log) {
         if (! checkedSupportedLogPages)
@@ -1662,6 +1672,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
         if (0 != res)
             failuretest(OPTIONAL_CMD, returnval|=res);
+        any_output = true;
     }
     if (options.smart_background_log) {
         if (! checkedSupportedLogPages)
@@ -1675,22 +1686,26 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
         if (0 != res)
             failuretest(OPTIONAL_CMD, returnval|=res);
+        any_output = true;
     }
     if (options.smart_default_selftest) {
         if (scsiSmartDefaultSelfTest(device))
             return returnval | FAILSMART;
         pout("Default Self Test Successful\n");
+        any_output = true;
     }
     if (options.smart_short_cap_selftest) {
         if (scsiSmartShortCapSelfTest(device))
             return returnval | FAILSMART;
         pout("Short Foreground Self Test Successful\n");
+        any_output = true;
     }
     if (options.smart_short_selftest) {
         if (scsiSmartShortSelfTest(device))
             return returnval | FAILSMART;
         pout("Short Background Self Test has begun\n");
         pout("Use smartctl -X to abort test\n");
+        any_output = true;
     }
     if (options.smart_extend_selftest) {
         if (scsiSmartExtendSelfTest(device))
@@ -1706,6 +1721,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             pout("Estimated completion time: %s\n", ctime(&t));
         }
         pout("Use smartctl -X to abort test\n");        
+        any_output = true;
     }
     if (options.smart_extend_cap_selftest) {
         if (scsiSmartExtendCapSelfTest(device))
@@ -1716,10 +1732,17 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (scsiSmartSelfTestAbort(device))
             return returnval | FAILSMART;
         pout("Self Test returned without error\n");
+        any_output = true;
     }           
     if (options.sasphy) {
         if (scsiPrintSasPhy(device, options.sasphy_reset))
             return returnval | FAILSMART;
+        any_output = true;
     }           
+
+    if (!any_output)
+      pout("SCSI device successfully opened\n\n"
+           "Use 'smartctl -a' (or '-x') to print SMART (and more) information\n\n");
+
     return returnval;
 }
