@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3249 2011-01-31 20:33:37Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3251 2011-02-04 15:41:10Z manfred99 $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -712,7 +712,7 @@ static void PrintSmartSelfExecStatus(const ata_smart_values * data,
 static void PrintSmartTotalTimeCompleteOffline (const ata_smart_values * data)
 {
   pout("Total time to complete Offline \n");
-  pout("data collection: \t\t (%4d) seconds.\n", 
+  pout("data collection: \t\t(%5d) seconds.\n", 
        (int)data->total_time_to_complete_off_line);
 }
 
