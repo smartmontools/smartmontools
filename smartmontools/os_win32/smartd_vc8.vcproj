@@ -450,6 +450,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\csmisas.h"
+			>
+		</File>
+		<File
 			RelativePath="..\dev_ata_cmd_set.cpp"
 			>
 		</File>

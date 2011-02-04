@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3243 2011-01-19 20:03:47Z chrfranke $
+# $Id: Makefile.am 3253 2011-02-04 21:36:44Z chrfranke $
 #
 
 @SET_MAKE@
@@ -187,10 +187,12 @@ endif
 if OS_WIN32
 
 smartctl_SOURCES += \
+        csmisas.h \
         os_win32/wmiquery.cpp \
         os_win32/wmiquery.h
 
 smartd_SOURCES += \
+        csmisas.h \
         os_win32/wmiquery.cpp \
         os_win32/wmiquery.h
 

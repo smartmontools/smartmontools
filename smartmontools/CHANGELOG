@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3251 2011-02-04 15:41:10Z manfred99 $
+$Id: CHANGELOG 3253 2011-02-04 21:36:44Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Add experimental CSMI support for disks behind Intel Matrix
+       RAID driver. Accessed through new device names '/dev/csmi[0-9],N'.
+       Experimental DEVICESCAN can be enabled by '-d csmi'.
 
   [MS] - ataprint.cpp: adjust print format for insanely large
            offline data collection times (e.g. WD drives).

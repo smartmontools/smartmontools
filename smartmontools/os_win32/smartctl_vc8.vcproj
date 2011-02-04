@@ -494,7 +494,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Copy $(InputPath) $(IntDir)\config.h"
-					CommandLine="copy $(InputPath) $(IntDir)\config.h"
+					CommandLine="copy $(InputPath) $(IntDir)\config.h&#x0D;&#x0A;"
 					Outputs="$(IntDir)\config.h"
 				/>
 			</FileConfiguration>
@@ -504,13 +504,17 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Copy $(InputPath) $(IntDir)\config.h"
-					CommandLine="copy $(InputPath) $(IntDir)\config.h"
+					CommandLine="copy $(InputPath) $(IntDir)\config.h&#x0D;&#x0A;"
 					Outputs="$(IntDir)\config.h"
 				/>
 			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\configure.in"
+			>
+		</File>
+		<File
+			RelativePath="..\csmisas.h"
 			>
 		</File>
 		<File
