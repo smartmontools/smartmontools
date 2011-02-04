@@ -712,7 +712,7 @@ static void PrintSmartSelfExecStatus(const ata_smart_values * data,
 static void PrintSmartTotalTimeCompleteOffline (const ata_smart_values * data)
 {
   pout("Total time to complete Offline \n");
-  pout("data collection: \t\t (%4d) seconds.\n", 
+  pout("data collection: \t\t(%5d) seconds.\n", 
        (int)data->total_time_to_complete_off_line);
 }
 

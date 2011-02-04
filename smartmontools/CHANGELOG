@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] - ataprint.cpp: adjust print format for insanely large
+           offline data collection times (e.g. WD drives).
+       - getopt: change config.h #include format from angle brackets to quotes
+
   [MS] drivedb.h update:
        - Fujitsu MJA2 BH series
        - Toshiba MK..59GSXP series (Adv. Format)
