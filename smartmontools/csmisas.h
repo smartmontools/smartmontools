@@ -212,6 +212,8 @@ typedef struct _IOCTL_HEADER {
 
 // windows IOCTL definitions
 
+#if 0 // <ntddscsi.h> and CSMI_*_PACK are no longer needed
+
 #ifndef _NTDDSCSIH_
 #include <ntddscsi.h>
 #endif
@@ -227,6 +229,8 @@ typedef struct _IOCTL_HEADER {
 #else
    #error "CSMISAS.H - Must externally define a pack compiler designator."
 #endif
+
+#endif // #if 0
 
 // base types
 

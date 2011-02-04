@@ -187,10 +187,12 @@ endif
 if OS_WIN32
 
 smartctl_SOURCES += \
+        csmisas.h \
         os_win32/wmiquery.cpp \
         os_win32/wmiquery.h
 
 smartd_SOURCES += \
+        csmisas.h \
         os_win32/wmiquery.cpp \
         os_win32/wmiquery.h
 

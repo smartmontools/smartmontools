@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Add experimental CSMI support for disks behind Intel Matrix
+       RAID driver. Accessed through new device names '/dev/csmi[0-9],N'.
+       Experimental DEVICESCAN can be enabled by '-d csmi'.
+
   [MS] - ataprint.cpp: adjust print format for insanely large
            offline data collection times (e.g. WD drives).
        - getopt: change config.h #include format from angle brackets to quotes

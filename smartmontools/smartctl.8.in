@@ -94,7 +94,7 @@ accessed via SMARTVSD.VXD, and \fB"/dev/hd[e\-h]"\fP for additional devices
 accessed via a patched SMARTVSE.VXD (see INSTALL file for details).
 Use the form \fB"/dev/scsi[0\-9][0\-f]"\fP for SCSI devices via an aspi dll
 on ASPI adapter 0\-9, ID 0\-15. The prefix \fB"/dev/"\fP is optional.
-.IP \fBWINDOWS\ NT4/2000/XP/2003/Vista\fP: 9
+.IP \fBWINDOWS\ NT4/2000/XP/2003/Vista/Win7/2008\fP: 9
 Use the forms \fB"/dev/sd[a\-z]"\fP for IDE/(S)ATA and SCSI disks
 "\\\\.\\PhysicalDrive[0\-25]" (where "a" maps to "0").
 These disks can also be referred to as \fB"/dev/pd[0\-255]"\fP for
@@ -117,9 +117,13 @@ monitoring (\'\-i\', \'\-c\', \'\-A\' below) if SMART support is missing
 in the driver. Use \fB"/dev/tw_cli/stdin"\fP or \fB"/dev/tw_cli/clip"\fP
 to parse CLI or 3DM output from standard input or clipboard.
 The option \'\-d 3ware,N\' is not necessary on Windows.
+
+[NEW EXPERIMENTAL SMARTCTL FEATURE] For disks behind Intel Matrix RAID
+driver use \fB"/dev/csmi[0\-9],N"\fP where N specifies the port behind
+the logical scsi controller "\\\\.\\Scsi[0\-9]:".
 The prefix \fB"/dev/"\fP is optional.
 .IP \fBCYGWIN\fP: 9
-See "WINDOWS NT4/2000/XP/2003/Vista" above.
+See "WINDOWS NT4/2000/XP/2003/Vista/Win7/2008" above.
 .IP \fBOS/2,eComStation\fP: 9
 Use the form \fB"/dev/hd[a\-z]"\fP for IDE/ATA devices.
 .PP

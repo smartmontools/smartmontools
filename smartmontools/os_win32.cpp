@@ -66,6 +66,9 @@
 #include <winioctl.h>
 #endif
 
+// CSMI support
+#include "csmisas.h"
+
 #ifdef __CYGWIN__
 #include <cygwin/version.h> // CYGWIN_VERSION_DLL_MAJOR
 #endif
@@ -296,6 +299,14 @@ typedef struct _SENDCMDINPARAMS_EX {
 ASSERT_SIZEOF(GETVERSIONINPARAMS_EX, sizeof(GETVERSIONINPARAMS));
 ASSERT_SIZEOF(SENDCMDINPARAMS_EX, sizeof(SENDCMDINPARAMS));
 
+
+// CSMI structs
+
+ASSERT_SIZEOF(IOCTL_HEADER, sizeof(SRB_IO_CONTROL));
+ASSERT_SIZEOF(CSMI_SAS_DRIVER_INFO_BUFFER, 204);
+ASSERT_SIZEOF(CSMI_SAS_PHY_INFO_BUFFER, 2080);
+ASSERT_SIZEOF(CSMI_SAS_STP_PASSTHRU_BUFFER, 168);
+
 } // extern "C"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -416,6 +427,82 @@ private:
 };
 
 #endif // WIN9X_SUPPORT
+
+
+//////////////////////////////////////////////////////////////////////
+
+class csmi_device
+: virtual public /*extends*/ smart_device
+{
+public:
+  /// Get phy info
+  bool get_phy_info(CSMI_SAS_PHY_INFO & phy_info);
+
+  /// Check physical drive existence
+  bool check_phy(const CSMI_SAS_PHY_INFO & phy_info, unsigned phy_no);
+
+protected:
+  csmi_device()
+    : smart_device(never_called)
+    { memset(&m_phy_ent, 0, sizeof(m_phy_ent)); }
+
+  /// Select physical drive
+  bool select_phy(unsigned phy_no);
+
+  /// Get info for selected physical drive
+  const CSMI_SAS_PHY_ENTITY & get_phy_ent() const
+    { return m_phy_ent; }
+
+  /// Call platform-specific CSMI ioctl
+  virtual bool csmi_ioctl(unsigned code, IOCTL_HEADER * csmi_buffer,
+    unsigned csmi_bufsiz) = 0;
+
+private:
+  CSMI_SAS_PHY_ENTITY m_phy_ent; ///< CSMI info for this phy
+};
+
+
+class csmi_ata_device
+: virtual public /*extends*/ csmi_device,
+  virtual public /*implements*/ ata_device
+{
+public:
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+
+protected:
+  csmi_ata_device()
+    : smart_device(never_called) { }
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
+class win_csmi_device
+: public /*implements*/ csmi_ata_device
+{
+public:
+  win_csmi_device(smart_interface * intf, const char * dev_name,
+    const char * req_type);
+
+  virtual ~win_csmi_device() throw();
+
+  virtual bool open();
+
+  virtual bool close();
+
+  virtual bool is_open() const;
+
+  bool open_scsi();
+
+protected:
+  virtual bool csmi_ioctl(unsigned code, IOCTL_HEADER * csmi_buffer,
+    unsigned csmi_bufsiz);
+
+private:
+  HANDLE m_fh; ///< Controller device handle
+  unsigned m_phy_no; ///< Physical drive number
+};
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -632,6 +719,8 @@ static const char * skipdev(const char * s)
 ata_device * win_smart_interface::get_ata_device(const char * name, const char * type)
 {
   const char * testname = skipdev(name);
+  if (!strncmp(testname, "csmi", 4))
+    return new win_csmi_device(this, name, type);
   if (!strncmp(testname, "tw_cli", 6))
     return new win_tw_cli_device(this, name, type);
   return new win_ata_device(this, name, type);
@@ -668,7 +757,6 @@ static win_dev_type get_dev_type(const char * name, int & phydrive)
     return DEV_SCSI;
   if (!strncmp(name, "tape", 4))
     return DEV_SCSI;
-
   int logdrive = drive_letter(name);
   if (logdrive >= 0) {
     win_dev_type type = get_log_drive_type(logdrive);
@@ -706,6 +794,9 @@ smart_device * winnt_smart_interface::autodetect_smart_device(const char * name)
   smart_device * dev = win_smart_interface::autodetect_smart_device(name);
   if (dev)
     return dev;
+
+  if (!strncmp(skipdev(name), "csmi", 4))
+    return new win_csmi_device(this, name, "");
 
   int phydrive = -1;
   win_dev_type type = get_dev_type(name, phydrive);
@@ -772,20 +863,22 @@ bool winnt_smart_interface::scan_smart_devices(smart_device_list & devlist,
   }
 
   // Set valid types
-  bool ata, scsi, usb;
+  bool ata, scsi, usb, csmi;
   if (!type) {
-    ata = scsi = usb = true;
+    ata = scsi = usb = true; csmi = false;
   }
   else {
-    ata = scsi = usb = false;
+    ata = scsi = usb = csmi = false;
     if (!strcmp(type, "ata"))
       ata = true;
     else if (!strcmp(type, "scsi"))
       scsi = true;
     else if (!strcmp(type, "usb"))
       usb = true;
+    else if (!strcmp(type, "csmi"))
+      csmi = true;
     else {
-      set_err(EINVAL, "Invalid type '%s', valid arguments for scan are: ata, scsi, usb", type);
+      set_err(EINVAL, "Invalid type '%s', valid arguments are: ata, scsi, usb, csmi", type);
       return false;
     }
   }
@@ -860,6 +953,25 @@ bool winnt_smart_interface::scan_smart_devices(smart_device_list & devlist,
     }
   }
 
+  if (csmi) {
+    // Scan CSMI devices
+    for (int i = 0; i <= 9; i++) {
+      snprintf(name, sizeof(name)-1, "/dev/csmi%d,0", i);
+      win_csmi_device test_dev(this, name, "");
+      if (!test_dev.open_scsi())
+        continue;
+      CSMI_SAS_PHY_INFO phy_info;
+      if (!test_dev.get_phy_info(phy_info))
+        continue;
+
+      for (int pi = 0; pi < phy_info.bNumberOfPhys; pi++) {
+        if (!test_dev.check_phy(phy_info, pi))
+          continue;
+        snprintf(name, sizeof(name)-1, "/dev/csmi%d,%d", i, pi);
+        devlist.push_back( new win_csmi_device(this, name, "ata") );
+      }
+    }
+  }
   return true;
 }
 
@@ -2840,6 +2952,325 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 bool win_ata_device::ata_identify_is_cached() const
 {
   return m_id_is_cached;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// csmi_ata_device
+
+bool csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info)
+{
+  // Get driver info to check CSMI support
+  CSMI_SAS_DRIVER_INFO_BUFFER driver_info_buf;
+  memset(&driver_info_buf, 0, sizeof(driver_info_buf));
+  if (!csmi_ioctl(CC_CSMI_SAS_GET_DRIVER_INFO, &driver_info_buf.IoctlHeader, sizeof(driver_info_buf)))
+    return false;
+
+  if (scsi_debugmode > 1) {
+    const CSMI_SAS_DRIVER_INFO & driver_info = driver_info_buf.Information;
+    pout("CSMI_SAS_DRIVER_INFO:\n");
+    pout("  Name:        \"%.81s\"\n", driver_info.szName);
+    pout("  Description: \"%.81s\"\n", driver_info.szDescription);
+    pout("  Revision:    %d.%d\n", driver_info.usMajorRevision, driver_info.usMinorRevision);
+  }
+
+  // Get Phy info
+  CSMI_SAS_PHY_INFO_BUFFER phy_info_buf;
+  memset(&phy_info_buf, 0, sizeof(phy_info_buf));
+  if (!csmi_ioctl(CC_CSMI_SAS_GET_PHY_INFO, &phy_info_buf.IoctlHeader, sizeof(phy_info_buf)))
+    return false;
+
+  phy_info = phy_info_buf.Information;
+  if (phy_info.bNumberOfPhys > sizeof(phy_info.Phy)/sizeof(phy_info.Phy[0]))
+    return set_err(EIO, "CSMI_SAS_PHY_INFO: Bogus NumberOfPhys=%d", phy_info.bNumberOfPhys);
+
+  if (scsi_debugmode > 1) {
+    pout("CSMI_SAS_PHY_INFO: NumberOfPhys=%d\n", phy_info.bNumberOfPhys);
+    for (int i = 0; i < phy_info.bNumberOfPhys; i++) {
+      const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
+      const CSMI_SAS_IDENTIFY & id = pe.Identify, & at = pe.Attached;
+      pout("Phy[%d] Port:   0x%02x\n", i, pe.bPortIdentifier);
+      pout("  Type:        0x%02x, 0x%02x\n", id.bDeviceType, at.bDeviceType);
+      pout("  InitProto:   0x%02x, 0x%02x\n", id.bInitiatorPortProtocol, at.bInitiatorPortProtocol);
+      pout("  TargetProto: 0x%02x, 0x%02x\n", id.bTargetPortProtocol, at.bTargetPortProtocol);
+      pout("  PhyIdent:    0x%02x, 0x%02x\n", id.bPhyIdentifier, at.bPhyIdentifier);
+      const unsigned char * b = id.bSASAddress;
+      pout("  SASAddress:  %02x %02x %02x %02x %02x %02x %02x %02x, ",
+        b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
+      b = at.bSASAddress;
+      pout(               "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+        b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
+    }
+  }
+
+  return true;
+}
+
+bool csmi_device::check_phy(const CSMI_SAS_PHY_INFO & phy_info, unsigned phy_no)
+{
+  // Check Phy presence
+  if (phy_no >= phy_info.bNumberOfPhys)
+    return set_err(ENOENT, "Port %u does not exist (#ports: %d)", phy_no,
+      phy_info.bNumberOfPhys);
+
+  const CSMI_SAS_PHY_ENTITY & phy_ent = phy_info.Phy[phy_no];
+  if (phy_ent.Attached.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
+    return set_err(ENOENT, "No device on port %u", phy_no);
+
+  switch (phy_ent.Attached.bTargetPortProtocol) {
+    case CSMI_SAS_PROTOCOL_SATA:
+    case CSMI_SAS_PROTOCOL_STP:
+      break;
+    default:
+      return set_err(ENOENT, "No SATA device on port %u (protocol: %u)",
+        phy_no, phy_ent.Attached.bTargetPortProtocol);
+  }
+
+  return true;
+}
+
+bool csmi_device::select_phy(unsigned phy_no)
+{
+  CSMI_SAS_PHY_INFO phy_info;
+  if (!get_phy_info(phy_info))
+    return false;
+
+
+  if (!check_phy(phy_info, phy_no))
+    return false;
+
+  m_phy_ent = phy_info.Phy[phy_no];
+  return true;
+}
+
+
+bool csmi_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
+{
+  if (!ata_cmd_is_ok(in,
+    true, // data_out_support
+    true, // multi_sector_support
+    true) // ata_48bit_support
+  )
+    return false;
+
+  // Create buffer with appropriate size
+  raw_buffer pthru_raw_buf(sizeof(CSMI_SAS_STP_PASSTHRU_BUFFER) + in.size);
+  CSMI_SAS_STP_PASSTHRU_BUFFER * pthru_buf = (CSMI_SAS_STP_PASSTHRU_BUFFER *)pthru_raw_buf.data();
+
+  // Set addresses from Phy info
+  CSMI_SAS_STP_PASSTHRU & pthru = pthru_buf->Parameters;
+  const CSMI_SAS_PHY_ENTITY & phy_ent = get_phy_ent();
+  pthru.bPhyIdentifier = phy_ent.Identify.bPhyIdentifier;
+  pthru.bPortIdentifier = phy_ent.bPortIdentifier;
+  memcpy(pthru.bDestinationSASAddress, phy_ent.Attached.bSASAddress,
+    sizeof(pthru.bDestinationSASAddress));
+  pthru.bConnectionRate = CSMI_SAS_LINK_RATE_NEGOTIATED;
+
+  // Set transfer mode
+  switch (in.direction) {
+    case ata_cmd_in::no_data:
+      pthru.uFlags = CSMI_SAS_STP_PIO | CSMI_SAS_STP_UNSPECIFIED;
+      break;
+    case ata_cmd_in::data_in:
+      pthru.uFlags = CSMI_SAS_STP_PIO | CSMI_SAS_STP_READ;
+      pthru.uDataLength = in.size;
+      break;
+    case ata_cmd_in::data_out:
+      pthru.uFlags = CSMI_SAS_STP_PIO | CSMI_SAS_STP_WRITE;
+      pthru.uDataLength = in.size;
+      memcpy(pthru_buf->bDataBuffer, in.buffer, in.size);
+      break;
+    default:
+      return set_err(EINVAL, "csmi_ata_device::ata_pass_through: invalid direction=%d",
+        (int)in.direction);
+  }
+
+  // Set host-to-device FIS
+  {
+    unsigned char * fis = pthru.bCommandFIS;
+    const ata_in_regs & lo = in.in_regs;
+    const ata_in_regs & hi = in.in_regs.prev;
+    fis[ 0] = 0x27; // Type: host-to-device FIS
+    fis[ 1] = 0x80; // Bit7: Update command register
+    fis[ 2] = lo.command;
+    fis[ 3] = lo.features;
+    fis[ 4] = lo.lba_low;
+    fis[ 5] = lo.lba_mid;
+    fis[ 6] = lo.lba_high;
+    fis[ 7] = lo.device;
+    fis[ 8] = hi.lba_low;
+    fis[ 9] = hi.lba_mid;
+    fis[10] = hi.lba_high;
+    fis[11] = hi.features;
+    fis[12] = lo.sector_count;
+    fis[13] = hi.sector_count;
+  }
+
+  // Call ioctl
+  if (!csmi_ioctl(CC_CSMI_SAS_STP_PASSTHRU, &pthru_buf->IoctlHeader, pthru_raw_buf.size())) {
+    return false;
+  }
+
+  // Get device-to-host FIS
+  {
+    const unsigned char * fis = pthru_buf->Status.bStatusFIS;
+    ata_out_regs & lo = out.out_regs;
+    lo.status       = fis[ 2];
+    lo.error        = fis[ 3];
+    lo.lba_low      = fis[ 4];
+    lo.lba_mid      = fis[ 5];
+    lo.lba_high     = fis[ 6];
+    lo.device       = fis[ 7];
+    lo.sector_count = fis[12];
+    if (in.in_regs.is_48bit_cmd()) {
+      ata_out_regs & hi = out.out_regs.prev;
+      hi.lba_low      = fis[ 8];
+      hi.lba_mid      = fis[ 9];
+      hi.lba_high     = fis[10];
+      hi.sector_count = fis[13];
+    }
+  }
+
+  // Get data
+  if (in.direction == ata_cmd_in::data_in)
+    // TODO: Check ptru_buf->Status.uDataBytes
+    memcpy(in.buffer, pthru_buf->bDataBuffer, in.size);
+
+  return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// win_csmi_device
+
+win_csmi_device::win_csmi_device(smart_interface * intf, const char * dev_name,
+  const char * req_type)
+: smart_device(intf, dev_name, "ata", req_type),
+  m_fh(INVALID_HANDLE_VALUE), m_phy_no(0)
+{
+}
+
+win_csmi_device::~win_csmi_device() throw()
+{
+  if (m_fh != INVALID_HANDLE_VALUE)
+    CloseHandle(m_fh);
+}
+
+bool win_csmi_device::is_open() const
+{
+  return (m_fh != INVALID_HANDLE_VALUE);
+}
+
+bool win_csmi_device::close()
+{
+  if (m_fh == INVALID_HANDLE_VALUE)
+    return true;
+  BOOL rc = CloseHandle(m_fh);
+  m_fh = INVALID_HANDLE_VALUE;
+  return !!rc;
+}
+
+
+bool win_csmi_device::open_scsi()
+{
+  // Parse name
+  unsigned contr_no = ~0, phy_no = ~0; int nc = -1;
+  const char * name = skipdev(get_dev_name());
+  if (!(   sscanf(name, "csmi%u,%u%n", &contr_no, &phy_no, &nc) >= 0
+        && nc == (int)strlen(name) && contr_no <= 9 && phy_no < 32)  )
+    return set_err(EINVAL);
+
+  // Open controller handle
+  char devpath[30];
+  snprintf(devpath, sizeof(devpath)-1, "\\\\.\\Scsi%u:", contr_no);
+
+  HANDLE h = CreateFileA(devpath, GENERIC_READ|GENERIC_WRITE,
+    FILE_SHARE_READ|FILE_SHARE_WRITE,
+    (SECURITY_ATTRIBUTES *)0, OPEN_EXISTING, 0, 0);
+
+  if (h == INVALID_HANDLE_VALUE) {
+    long err = GetLastError();
+    if (err == ERROR_FILE_NOT_FOUND)
+      set_err(ENOENT, "%s: not found", devpath);
+    else if (err == ERROR_ACCESS_DENIED)
+      set_err(EACCES, "%s: access denied", devpath);
+    else
+      set_err(EIO, "%s: Error=%ld", devpath, err);
+    return false;
+  }
+
+  m_fh = h;
+  m_phy_no = phy_no;
+  return true;
+}
+
+
+bool win_csmi_device::open()
+{
+  if (!open_scsi())
+    return false;
+
+  // Get Phy info for this drive
+  if (!select_phy(m_phy_no)) {
+    close();
+    return false;
+  }
+
+  return true;
+}
+
+
+bool win_csmi_device::csmi_ioctl(unsigned code, IOCTL_HEADER * csmi_buffer,
+  unsigned csmi_bufsiz)
+{
+  // Determine signature
+  const char * sig;
+  switch (code) {
+    case CC_CSMI_SAS_GET_DRIVER_INFO:
+      sig = CSMI_ALL_SIGNATURE; break;
+    case CC_CSMI_SAS_GET_PHY_INFO:
+    case CC_CSMI_SAS_STP_PASSTHRU:
+      sig = CSMI_SAS_SIGNATURE; break;
+    default:
+      return set_err(ENOSYS, "Unknown CSMI code=%u", code);
+  }
+
+  // Set header
+  csmi_buffer->HeaderLength = sizeof(IOCTL_HEADER);
+  strncpy((char *)csmi_buffer->Signature, sig, sizeof(csmi_buffer->Signature));
+  csmi_buffer->Timeout = CSMI_SAS_TIMEOUT;
+  csmi_buffer->ControlCode = code;
+  csmi_buffer->ReturnCode = 0;
+  csmi_buffer->Length = csmi_bufsiz - sizeof(IOCTL_HEADER);
+
+  // Call function
+  DWORD num_out = 0;
+  if (!DeviceIoControl(m_fh, IOCTL_SCSI_MINIPORT,
+    csmi_buffer, csmi_bufsiz, csmi_buffer, csmi_bufsiz, &num_out, (OVERLAPPED*)0)) {
+    long err = GetLastError();
+    if (scsi_debugmode)
+      pout("  IOCTL_SCSI_MINIPORT(CC_CSMI_%u) failed, Error=%ld\n", code, err);
+    if (   err == ERROR_INVALID_FUNCTION
+        || err == ERROR_NOT_SUPPORTED
+        || err == ERROR_DEV_NOT_EXIST)
+      return set_err(ENOSYS, "CSMI is not supported (Error=%ld)", err);
+    else
+      return set_err(EIO, "CSMI(%u) failed with Error=%ld", code, err);
+  }
+
+  // Check result
+  if (csmi_buffer->ReturnCode) {
+    if (scsi_debugmode) {
+      pout("  IOCTL_SCSI_MINIPORT(CC_CSMI_%u) failed, ReturnCode=%lu\n",
+        code, csmi_buffer->ReturnCode);
+    }
+    return set_err(EIO, "CSMI(%u) failed with ReturnCode=%lu", code, csmi_buffer->ReturnCode);
+  }
+
+  if (scsi_debugmode > 1)
+    pout("  IOCTL_SCSI_MINIPORT(CC_CSMI_%u) succeeded, bytes returned: %lu\n", code, num_out);
+
+  return true;
 }
 
 
