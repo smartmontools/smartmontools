@@ -41,6 +41,13 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h update:
+       - Fujitsu MJA2 BH series
+       - Toshiba MK..59GSXP series (Adv. Format)
+       - Toshiba MK..59GSM series (Adv. Format)
+       - Western Digital Caviar Blue SATA 3.0 variants
+       - Seagate Barracuda XT
+
   [CF] smartctl: Print help message if no option is specified (ticket #39).
        Don't issue any other ATA command if only '-n POWERMODE' is specified.
 

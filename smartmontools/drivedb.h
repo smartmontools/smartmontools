@@ -433,6 +433,10 @@ const drive_settings builtin_knowndrives[] = {
     "FUJITSU MHZ2(08|12|16|25)0BK.*",
     "", "", ""
   },
+  { "Fujitsu MJA2 BH series",
+    "FUJITSU MJA2(08|12|16|25|32|40|50)0BH.*",
+    "", "", ""
+  },
   { "", // Samsung SV4012H (known firmware)
     "SAMSUNG SV4012H",
     "RM100-08",
@@ -1138,6 +1142,14 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(80|12|16|25|32)52GSX",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD MK..59GSXP series", // Adv. Format
+    "TOSHIBA MK(32|50|64|75)59GSXP?",
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MK..59GSM series", // Adv. Format
+    "TOSHIBA MK(75|10)59GSM",
+    "", "", ""
+  },
   { "Toshiba 2.5\" HDD MK..65GSX series", // tested with TOSHIBA MK5065GSX/GJ003A
     "TOSHIBA MK(16|25|32|50|64)65GSX",
     "", "", ""
@@ -1363,6 +1375,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(500412|1000520|1500541|2000542)AS",
     "", "", ""
   },
+  { "Seagate Barracuda XT",
+    "ST32000641AS",
+    "", "", ""
+  },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
     "", "", ""
@@ -1489,11 +1505,15 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Caviar Blue Serial ATA family",  // WD Caviar SE Serial ATA family
     /* not completely accurate: at least also WD800BD, (4|8)00JD sold as Caviar Blue */
-    "WDC WD((8|12|16|25|32)00AABS|(12|16|25|32|40|50)00AAJS)-.*",
+    "WDC WD((8|12|16|25|32)00AABS|(8|12|16|25|32|40|50)00AAJS)-.*",
     "", "", ""
   },
   { "Western Digital Caviar Blue Serial ATA family",  // WD Caviar SE16 Serial ATA family
-    "WDC WD(16|20|25|32|40|50|64|75)00AAKS-.*",
+    "WDC WD((16|20|25|32|40|50|64|75)00AAKS|10EALS)-.*",
+    "", "", ""
+  },
+  { "Western Digital Caviar Blue Serial ATA family",  // SATA 3.0 variants
+    "WDC WD((25|32|50)00AAKX|7500AALX|10EALX)-.*",
     "", "", ""
   },
   { "Western Digital RE Serial ATA family",
