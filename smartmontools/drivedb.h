@@ -210,11 +210,11 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
-  { "Intel X18-M/X25-M/X25-V G2 SSDs", // tested with
-      // INTEL SSDSA2M(080|160)G2GC/2CV102J8 (X25-M),
-      // INTEL SSDSA2M040G2GC/2CV102HD (X25-V)
+  { "Intel X18-M/X25-M/X25-V G2 SSDs", // fixed firmware
+      // tested with INTEL SSDSA2M(080|160)G2GC/2CV102J8 (X25-M)
     "INTEL SSDSA[12]M(040|080|160)G2.*",  // G2 = second generation, 34nm
-    "", "",
+    "2CV102(J[89A-Z]|[K-Z].)", // >= "2CV102J8"
+    "",
   //"-v 3,raw48,Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw48,Reallocated_Sector_Ct "
@@ -228,6 +228,19 @@ const drive_settings builtin_knowndrives[] = {
     "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
+  },
+  { "Intel X18-M/X25-M/X25-V G2 SSDs", // buggy or unknown firmware
+      // tested with INTEL SSDSA2M040G2GC/2CV102HD (X25-V)
+    "INTEL SSDSA[12]M(040|080|160)G2.*",
+    "",
+    "This drive may require a firmware update to\n"
+    "fix possible drive hangs when reading SMART self-test log:\n"
+    "http://downloadcenter.intel.com/Detail_Desc.aspx?DwnldID=18363",
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes"
   },
   { "Kingston SSDNow V Series", // tested with KINGSTON SNV425S264GB/C091126a
     "KINGSTON SNV425S2(64|128)GB",
@@ -605,8 +618,16 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HM((061|080)G|(121|160)H|250J)I",
     "", "", ""
   },
+  { "SAMSUNG SpinPoint M6", // tested with HM320JI/2SS00_01 M6
+    "SAMSUNG HM(251J|320[HJ]|[45]00L)I",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint M7 series", // tested with HM500JI/2AC101C4
     "SAMSUNG HM(250H|320I|[45]00J)I",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint M7E (AFT)", // tested with HM321HI/2AJ10001, HM641JI/2AJ10001
+    "SAMSUNG HM(161G|(251|321)H|501I|641J)I",
     "", "", ""
   },
   { "SAMSUNG SpinPoint M series", // tested with MP0402H/UC100-11
@@ -614,6 +635,14 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-v 9,halfminutes"
+  },
+  { "SAMSUNG PM800 SSDs", // tested with SAMSUNG SSD PM800 TH 64GB/VBM25D1Q
+    "SAMSUNG SSD PM800 .*GB",
+    "", "", ""
+  },
+  { "SAMSUNG PM810 (470 series) SSDs", // tested with SAMSUNG SSD PM810 2.5" 128GB/AXM06D1Q
+    "SAMSUNG SSD PM810 .*GB",
+    "", "", ""
   },
 /*
   // TODO: Make the entries below more specific.

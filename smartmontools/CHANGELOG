@@ -41,6 +41,13 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Intel X18-M/X25-M/X25-V G2 SSDs: Add firmware bug warning
+       - Samsung SpinPoint M6
+       - Samsung SpinPoint M7E (AFT)
+       - Samsung PM800 SSDs
+       - Samsung PM810 (470 series) SSDs
+
   [CF] Windows: Add experimental CSMI support for disks behind Intel Matrix
        RAID driver. Accessed through new device names '/dev/csmi[0-9],N'.
        Experimental DEVICESCAN can be enabled by '-d csmi'.
