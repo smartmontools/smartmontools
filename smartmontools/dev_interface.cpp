@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,15 @@
 
 #include "config.h"
 #include "int64.h"
-#include "atacmds.h"
-#include "scsicmds.h"
 #include "dev_interface.h"
 #include "dev_tunnelled.h"
 #include "utility.h"
 
+#include <errno.h>
+#include <stdarg.h>
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 3015 2009-12-30 16:25:59Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 3256 2011-02-08 22:13:41Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -280,14 +280,18 @@ const char * smart_interface::get_msg_for_errno(int no)
 smart_device * smart_interface::get_smart_device(const char * name, const char * type)
 {
   clear_err();
+
+  // Call platform specific autodetection if no device type specified
+  smart_device * dev;
   if (!type || !*type) {
-    smart_device * dev = autodetect_smart_device(name);
+    dev = autodetect_smart_device(name);
     if (!dev && !get_errno())
       set_err(EINVAL, "Unable to detect device type");
     return dev;
   }
 
-  smart_device * dev = get_custom_smart_device(name, type);
+  // First check for platform specific device types
+  dev = get_custom_smart_device(name, type);
   if (dev || get_errno())
     return dev;
 

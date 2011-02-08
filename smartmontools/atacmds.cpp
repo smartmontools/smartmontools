@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3247 2011-01-21 21:27:23Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3256 2011-02-08 22:13:41Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -1334,9 +1334,9 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
   // swap endian order if needed
   if (isbigendian()){
     swap2((char *)&(data->logversion));
-    for (int i=0;i<5;i++){
-      swap8((char *)&(data->span[i].start));
-      swap8((char *)&(data->span[i].end));
+    for (int b = 0; b < 5; b++) {
+      swap8((char *)&(data->span[b].start));
+      swap8((char *)&(data->span[b].end));
     }
     swap8((char *)&(data->currentlba));
     swap2((char *)&(data->currentspan));
