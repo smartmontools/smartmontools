@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
@@ -533,7 +533,6 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
     struct scsiNonMediumError nme;
     int found[3] = {0, 0, 0};
     const char * pageNames[3] = {"read:   ", "write:  ", "verify: "};
-    int k;
     double processed_gb;
 
     if (gReadECounterLPage && (0 == scsiLogSense(device,
@@ -550,7 +549,7 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
                 VERIFY_ERROR_COUNTER_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[2]);
         ecp = &errCounterArr[2];
-        for (k = 0; k < 7; ++k) {
+        for (int k = 0; k < 7; ++k) {
             if (ecp->gotPC[k] && ecp->counter[k]) {
                 found[2] = 1;
                 break;
@@ -565,7 +564,7 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
              "algorithm      processed    uncorrected\n");
         pout("           fast | delayed   rewrites  corrected  "
              "invocations   [10^9 bytes]  errors\n");
-        for (k = 0; k < 3; ++k) {
+        for (int k = 0; k < 3; ++k) {
             if (! found[k])
                 continue;
             ecp = &errCounterArr[k];
@@ -592,26 +591,23 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
     }
     if (gLastNErrorLPage && (0 == scsiLogSense(device,
                 LAST_N_ERROR_LPAGE, 0, gBuf, LOG_RESP_LONG_LEN, 0))) {
-        unsigned char * ucp;
-        int num, k, pc, pl, truncated;
-
-        num = (gBuf[2] << 8) + gBuf[3] + 4;
-        truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
+        int num = (gBuf[2] << 8) + gBuf[3] + 4;
+        int truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
         if (truncated)
             num = LOG_RESP_LONG_LEN;
-        ucp = gBuf + 4;
+        unsigned char * ucp = gBuf + 4;
         num -= 4;
         if (num < 4)
             pout("\nNo error events logged\n");
         else {
             pout("\nLast n error events log page\n");
-            for (k = num; k > 0; k -= pl, ucp += pl) {
+            for (int k = num, pl; k > 0; k -= pl, ucp += pl) {
                 if (k < 3) {
                     pout("  <<short Last n error events log page>>\n");
                     break;
                 }
                 pl = ucp[3] + 4;
-                pc = (ucp[0] << 8) + ucp[1];
+                int pc = (ucp[0] << 8) + ucp[1];
                 if (pl > 4) {
                     if ((ucp[2] & 0x1) && (ucp[2] & 0x2)) {
                         pout("  Error event %d:\n", pc);

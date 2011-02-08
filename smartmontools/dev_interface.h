@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 
 #define DEV_INTERFACE_H_CVSID "$Id$\n"
 
-#include <stdarg.h>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -111,7 +110,7 @@ public:
   /// Downcast to SCSI device.
   scsi_device * to_scsi()
     { return m_scsi_ptr; }
-  /// Downcast to ATA device (const).
+  /// Downcast to SCSI device (const).
   const scsi_device * to_scsi() const
     { return m_scsi_ptr; }
 
@@ -237,7 +236,7 @@ private:
 /////////////////////////////////////////////////////////////////////////////
 // ATA specific interface
 
-/// ATA register value and info whether is has been ever set
+/// ATA register value and info whether it has ever been set
 // (Automatically set by first assignment)
 class ata_register
 {
@@ -245,8 +244,8 @@ public:
   ata_register()
     : m_val(0x00), m_is_set(false) { }
 
-  ata_register & operator=(unsigned char val)
-    { m_val = val; m_is_set = true; return * this; }
+  ata_register & operator=(unsigned char x)
+    { m_val = x; m_is_set = true; return * this; }
 
   unsigned char val() const
     { return m_val; }
@@ -306,9 +305,9 @@ public:
   ata_reg_alias_16(ata_register & lo, ata_register & hi)
     : m_lo(lo), m_hi(hi) { }
 
-  ata_reg_alias_16 & operator=(unsigned short val)
-    { m_lo = (unsigned char) val;
-      m_hi = (unsigned char)(val >> 8);
+  ata_reg_alias_16 & operator=(unsigned short x)
+    { m_lo = (unsigned char) x;
+      m_hi = (unsigned char)(x >> 8);
       return * this;                   }
 
   unsigned short val() const
@@ -335,14 +334,14 @@ public:
       m_hl(hl), m_hm(hm), m_hh(hh)
     { }
 
-  ata_reg_alias_48 & operator=(uint64_t val)
+  ata_reg_alias_48 & operator=(uint64_t x)
     {
-      m_ll = (unsigned char) val;
-      m_lm = (unsigned char)(val >>  8);
-      m_lh = (unsigned char)(val >> 16);
-      m_hl = (unsigned char)(val >> 24);
-      m_hm = (unsigned char)(val >> 32);
-      m_hh = (unsigned char)(val >> 40);
+      m_ll = (unsigned char) x;
+      m_lm = (unsigned char)(x >>  8);
+      m_lh = (unsigned char)(x >> 16);
+      m_hl = (unsigned char)(x >> 24);
+      m_hm = (unsigned char)(x >> 32);
+      m_hh = (unsigned char)(x >> 40);
       return * this;
     }
 
@@ -600,8 +599,8 @@ public:
         if (m_base_dev && m_dev->owns(m_base_dev))
           m_dev->release(m_base_dev);
         delete m_dev;
+        m_dev = 0;
       }
-      m_dev = 0;
     }
 
   /// Return the pointer and release ownership.
@@ -796,7 +795,7 @@ public:
   /// Default implementation selects between ata, scsi and custom device.
   virtual smart_device * get_smart_device(const char * name, const char * type);
 
-  /// Fill 'devlist' with devices of some 'type' with devices names.
+  /// Fill 'devlist' with devices of some 'type' with device names
   /// specified by some optional 'pattern'.
   /// Return false on error.
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,

@@ -3113,13 +3113,13 @@ void printoutvaliddirectiveargs(int priority, char d) {
 }
 
 // exits with an error message, or returns integer value of token
-int GetInteger(const char *arg, const char *name, const char *token, int lineno, const char *configfile,
+int GetInteger(const char *arg, const char *name, const char *token, int lineno, const char *cfgfile,
                int min, int max, char * suffix = 0)
 {
   // make sure argument is there
   if (!arg) {
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): Directive: %s takes integer argument from %d to %d.\n",
-             configfile, lineno, name, token, min, max);
+             cfgfile, lineno, name, token, min, max);
     return -1;
   }
   
@@ -3137,7 +3137,7 @@ int GetInteger(const char *arg, const char *name, const char *token, int lineno,
 
   if (!(!*endptr && min <= val && val <= max)) {
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): Directive: %s has argument: %s; needs integer from %d to %d.\n",
-             configfile, lineno, name, token, arg, min, max);
+             cfgfile, lineno, name, token, arg, min, max);
     return -1;
   }
 
@@ -3147,13 +3147,13 @@ int GetInteger(const char *arg, const char *name, const char *token, int lineno,
 
 
 // Get 1-3 small integer(s) for '-W' directive
-int Get3Integers(const char *arg, const char *name, const char *token, int lineno, const char *configfile,
+int Get3Integers(const char *arg, const char *name, const char *token, int lineno, const char *cfgfile,
                  unsigned char * val1, unsigned char * val2, unsigned char * val3){
   unsigned v1 = 0, v2 = 0, v3 = 0;
   int n1 = -1, n2 = -1, n3 = -1, len;
   if (!arg) {
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): Directive: %s takes 1-3 integer argument(s) from 0 to 255.\n",
-             configfile, lineno, name, token);
+             cfgfile, lineno, name, token);
     return -1;
   }
 
@@ -3161,7 +3161,7 @@ int Get3Integers(const char *arg, const char *name, const char *token, int linen
   if (!(   sscanf(arg, "%u%n,%u%n,%u%n", &v1, &n1, &v2, &n2, &v3, &n3) >= 1
         && (n1 == len || n2 == len || n3 == len) && v1 <= 255 && v2 <= 255 && v3 <= 255)) {
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): Directive: %s has argument: %s; needs 1-3 integer(s) from 0 to 255.\n",
-             configfile, lineno, name, token, arg);
+             cfgfile, lineno, name, token, arg);
     return -1;
   }
   *val1 = (unsigned char)v1; *val2 = (unsigned char)v2; *val3 = (unsigned char)v3;

@@ -1334,9 +1334,9 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
   // swap endian order if needed
   if (isbigendian()){
     swap2((char *)&(data->logversion));
-    for (int i=0;i<5;i++){
-      swap8((char *)&(data->span[i].start));
-      swap8((char *)&(data->span[i].end));
+    for (int b = 0; b < 5; b++) {
+      swap8((char *)&(data->span[b].start));
+      swap8((char *)&(data->span[b].end));
     }
     swap8((char *)&(data->currentlba));
     swap2((char *)&(data->currentspan));

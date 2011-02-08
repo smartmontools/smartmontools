@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Rename variables to prevent warnings if '-Wshadow' is set.
+       Remove unnecessary includes.  Fix some comments.
+
   [CF] drivedb.h updates:
        - Intel X18-M/X25-M/X25-V G2 SSDs: Add firmware bug warning
        - Samsung SpinPoint M6
