@@ -102,7 +102,7 @@ main(int argc, char ** argv)
 		perror(name1); return 1;
 	}
 	if (!(f2 = fopen(name2, "w"))) {
-		perror(name2); unlink(name1); return 1;
+		perror(name2); fclose(f1); unlink(name1); return 1;
 	}
 
 	fputs("REGEDIT4\n\n", f1);

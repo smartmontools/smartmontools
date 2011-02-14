@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] os_linux.cpp: rename variables to please "-Wshadow"
+       utility.cpp: remove unused variable "start"
+       os_win32/syslogevt.c: plug resource leak
+
   [CF] Rename variables to prevent warnings if '-Wshadow' is set.
        Remove unnecessary includes.  Fix some comments.
 

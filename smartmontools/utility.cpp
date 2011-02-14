@@ -701,7 +701,6 @@ bool nonempty(const void * data, int size)
 // string of the form Xd+Yh+Zm+Ts.msec.  The resulting text string is
 // written to the array.
 void MsecToText(unsigned int msec, char *txt){
-  int start=0;
   unsigned int days, hours, min, sec;
 
   days       = msec/86400000U;
@@ -718,7 +717,6 @@ void MsecToText(unsigned int msec, char *txt){
 
   if (days) {
     txt += sprintf(txt, "%2dd+", (int)days);
-    start=1;
   }
 
   sprintf(txt, "%02d:%02d:%02d.%03d", (int)hours, (int)min, (int)sec, (int)msec);  

@@ -2516,17 +2516,17 @@ int linux_highpoint_device::ata_command_interface(smart_command_set command, int
 
   if (command==WRITE_LOG) {
     unsigned char task[4*sizeof(int)+sizeof(ide_task_request_t)+512];
-    unsigned int *hpt = (unsigned int *)task;
+    unsigned int *hpt_tf = (unsigned int *)task;
     ide_task_request_t *reqtask = (ide_task_request_t *)(&task[4*sizeof(int)]);
     task_struct_t *taskfile = (task_struct_t *)reqtask->io_ports;
     int retval;
 
     memset(task, 0, sizeof(task));
 
-    hpt[0] = m_hpt_data[0]; // controller id
-    hpt[1] = m_hpt_data[1]; // channel number
-    hpt[3] = m_hpt_data[2]; // pmport number
-    hpt[2] = HDIO_DRIVE_TASKFILE; // real hd ioctl
+    hpt_tf[0] = m_hpt_data[0]; // controller id
+    hpt_tf[1] = m_hpt_data[1]; // channel number
+    hpt_tf[3] = m_hpt_data[2]; // pmport number
+    hpt_tf[2] = HDIO_DRIVE_TASKFILE; // real hd ioctl
 
     taskfile->data           = 0;
     taskfile->feature        = ATA_SMART_WRITE_LOG_SECTOR;
@@ -2593,13 +2593,13 @@ int linux_highpoint_device::ata_command_interface(smart_command_set command, int
 #if 1
   if (command==IDENTIFY || command==PIDENTIFY) {
     unsigned char deviceid[4*sizeof(int)+512*sizeof(char)];
-    unsigned int *hpt = (unsigned int *)deviceid;
+    unsigned int *hpt_id = (unsigned int *)deviceid;
 
-    hpt[0] = m_hpt_data[0]; // controller id
-    hpt[1] = m_hpt_data[1]; // channel number
-    hpt[3] = m_hpt_data[2]; // pmport number
+    hpt_id[0] = m_hpt_data[0]; // controller id
+    hpt_id[1] = m_hpt_data[1]; // channel number
+    hpt_id[3] = m_hpt_data[2]; // pmport number
 
-    hpt[2] = HDIO_GET_IDENTITY;
+    hpt_id[2] = HDIO_GET_IDENTITY;
     if (!ioctl(get_fd(), HPTIO_CTL, deviceid) && (deviceid[4*sizeof(int)] & 0x8000))
       buff[0]=(command==IDENTIFY)?ATA_IDENTIFY_PACKET_DEVICE:ATA_IDENTIFY_DEVICE;
   }
