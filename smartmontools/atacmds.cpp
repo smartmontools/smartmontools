@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3256 2011-02-08 22:13:41Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3259 2011-02-14 23:13:20Z manfred99 $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -431,7 +431,7 @@ static const char * preg(const ata_register & r, char * buf)
   sprintf(buf, "0x%02x", r.val()); return buf;
 }
 
-void print_regs(const char * prefix, const ata_in_regs & r, const char * suffix = "\n")
+static void print_regs(const char * prefix, const ata_in_regs & r, const char * suffix = "\n")
 {
   char bufs[7][4+1+13];
   pout("%s FR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, CMD=%s%s", prefix,
@@ -440,7 +440,7 @@ void print_regs(const char * prefix, const ata_in_regs & r, const char * suffix 
     preg(r.command, bufs[6]), suffix);
 }
 
-void print_regs(const char * prefix, const ata_out_regs & r, const char * suffix = "\n")
+static void print_regs(const char * prefix, const ata_out_regs & r, const char * suffix = "\n")
 {
   char bufs[7][4+1+13];
   pout("%sERR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, STS=%s%s", prefix,
