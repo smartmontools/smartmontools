@@ -16,7 +16,7 @@
  *
  */
 
-static char rcsid[] = "$Id: syslogevt.c 3166 2010-09-24 19:43:31Z chrfranke $";
+static char rcsid[] = "$Id: syslogevt.c 3257 2011-02-14 22:19:42Z manfred99 $";
 
 #include <stdio.h>
 #include <string.h>
@@ -35,7 +35,7 @@ typedef assert_msg_syslog_10[MSG_SYSLOG_10 == 10 ? 1 : -1];
 static int usage()
 {
 	puts(
-		"syslogevt $Revision: 3166 $ Copyright (C) 2004-10 Christian Franke\n"
+		"syslogevt $Revision: 3257 $ Copyright (C) 2004-10 Christian Franke\n"
 		"Home page is http://smartmontools.sourceforge.net/\n"
 		"\n"
 		"Usage: syslogevt [-ru] name [ident ...]\n"
@@ -102,7 +102,7 @@ main(int argc, char ** argv)
 		perror(name1); return 1;
 	}
 	if (!(f2 = fopen(name2, "w"))) {
-		perror(name2); unlink(name1); return 1;
+		perror(name2); fclose(f1); unlink(name1); return 1;
 	}
 
 	fputs("REGEDIT4\n\n", f1);
