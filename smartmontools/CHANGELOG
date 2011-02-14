@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] Remove unnecessary includes, move inclusion of errno.h from scsicmds.h
+       to the appropriate *.cpp files. Add cciss.h to cciss.cpp.
+
   [MS] os_linux.cpp: rename variables to please "-Wshadow"
        utility.cpp: remove unused variable "start"
        os_win32/syslogevt.c: plug resource leak

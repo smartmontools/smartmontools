@@ -60,7 +60,6 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <sys/file.h>
 #include <unistd.h>
 #include <stddef.h>  // for offsetof()
 #include <sys/uio.h>

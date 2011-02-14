@@ -50,6 +50,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "config.h"
 #include "int64.h"

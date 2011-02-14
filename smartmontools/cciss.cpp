@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#include <errno.h>
 
 #include "config.h"
 
@@ -28,6 +29,7 @@
 #endif
 
 #ifdef _HAVE_CCISS
+#include "cciss.h"
 #include "int64.h"
 #include "scsicmds.h"
 #include "utility.h"
