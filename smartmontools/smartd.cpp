@@ -198,19 +198,19 @@ unsigned char failuretest_permissive = 0;
 #endif
 
 // set to one if we catch a USR1 (check devices now)
-volatile int caughtsigUSR1=0;
+static volatile int caughtsigUSR1=0;
 
 #ifdef _WIN32
 // set to one if we catch a USR2 (toggle debug mode)
-volatile int caughtsigUSR2=0;
+static volatile int caughtsigUSR2=0;
 #endif
 
 // set to one if we catch a HUP (reload config file). In debug mode,
 // set to two, if we catch INT (also reload config file).
-volatile int caughtsigHUP=0;
+static volatile int caughtsigHUP=0;
 
 // set to signal value if we catch INT, QUIT, or TERM
-volatile int caughtsigEXIT=0;
+static volatile int caughtsigEXIT=0;
 
 // This function prints either to stdout or to the syslog as needed.
 static void PrintOut(int priority, const char *fmt, ...)
@@ -329,9 +329,9 @@ dev_config::dev_config()
 
 
 // Number of allowed mail message types
-const int SMARTD_NMAIL = 13;
+static const int SMARTD_NMAIL = 13;
 // Type for '-M test' mails (state not persistent)
-const int MAILTYPE_TEST = 0;
+static const int MAILTYPE_TEST = 0;
 // TODO: Add const or enum for all mail types.
 
 struct mailinfo {
@@ -744,7 +744,8 @@ static void write_all_dev_attrlogs(const dev_config_vector & configs,
 }
 
 // remove the PID file
-void RemovePidFile(){
+static void RemovePidFile()
+{
   if (!pid_file.empty()) {
     if (unlink(pid_file.c_str()))
       PrintOut(LOG_CRIT,"Can't unlink PID file %s (%s).\n", 
@@ -757,7 +758,8 @@ void RemovePidFile(){
 extern "C" { // signal handlers require C-linkage
 
 //  Note if we catch a SIGUSR1
-void USR1handler(int sig){
+static void USR1handler(int sig)
+{
   if (SIGUSR1==sig)
     caughtsigUSR1=1;
   return;
@@ -765,7 +767,8 @@ void USR1handler(int sig){
 
 #ifdef _WIN32
 //  Note if we catch a SIGUSR2
-void USR2handler(int sig){
+static void USR2handler(int sig)
+{
   if (SIGUSR2==sig)
     caughtsigUSR2=1;
   return;
@@ -773,7 +776,8 @@ void USR2handler(int sig){
 #endif
 
 // Note if we catch a HUP (or INT in debug mode)
-void HUPhandler(int sig){
+static void HUPhandler(int sig)
+{
   if (sig==SIGHUP)
     caughtsigHUP=1;
   else
@@ -782,7 +786,8 @@ void HUPhandler(int sig){
 }
 
 // signal handler for TERM, QUIT, and INT (if not in debug mode)
-void sighandler(int sig){
+static void sighandler(int sig)
+{
   if (!caughtsigEXIT)
     caughtsigEXIT=sig;
   return;
@@ -815,12 +820,14 @@ static int Goodbye(int status)
 // string can be freed if the environment variable is redefined or
 // deleted via another call to putenv(). So we keep these on the stack
 // as long as the popen() call is underway.
-int exportenv(char* stackspace, const char *name, const char *value){
+static int exportenv(char *stackspace, const char *name, const char *value)
+{
   snprintf(stackspace,ENVLENGTH, "%s=%s", name, value);
   return putenv(stackspace);
 }
 
-char* dnsdomain(const char* hostname) {
+static char *dnsdomain(const char *hostname)
+{
   char *p = NULL;
 #ifdef HAVE_GETADDRINFO
   static char canon_name[NI_MAXHOST];
@@ -1298,7 +1305,7 @@ void checksumwarning(const char * string)
 
 // Wait for the pid file to show up, this makes sure a calling program knows
 // that the daemon is really up and running and has a pid to kill it
-bool WaitForPidFile()
+static bool WaitForPidFile()
 {
     int waited, max_wait = 10;
     struct stat stat_buf;
@@ -1320,7 +1327,8 @@ bool WaitForPidFile()
 // stdout, and stderr.  Not quite daemon().  See
 // http://www.linuxjournal.com/article/2335
 // for a good description of why we do things this way.
-void DaemonInit(){
+static void DaemonInit()
+{
 #ifndef _WIN32
   pid_t pid;
   int i;  
@@ -1430,7 +1438,8 @@ static void PrintHead()
 }
 
 // prints help info for configuration file Directives
-void Directives() {
+static void Directives()
+{
   PrintOut(LOG_INFO,
            "Configuration file (%s) Directives (after device name):\n"
            "  -d TYPE Set the device type: %s, auto, removable\n"
@@ -1469,7 +1478,8 @@ void Directives() {
 
 /* Returns a pointer to a static string containing a formatted list of the valid
    arguments to the option opt or NULL on failure. */
-const char *GetValidArgList(char opt) {
+static const char *GetValidArgList(char opt)
+{
   switch (opt) {
   case 'A':
   case 's':
@@ -1493,7 +1503,8 @@ const char *GetValidArgList(char opt) {
 }
 
 /* prints help information for command syntax */
-void Usage (void){
+static void Usage()
+{
   PrintOut(LOG_INFO,"Usage: smartd [options]\n\n");
   PrintOut(LOG_INFO,"  -A PREFIX, --attributelog=PREFIX\n");
   PrintOut(LOG_INFO,"        Log ATA attribute information to {PREFIX}MODEL-SERIAL.ata.csv\n");
@@ -2156,7 +2167,7 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
 
 // Test types, ordered by priority.
 static const char test_type_chars[] = "LncrSCO";
-const unsigned num_test_types = sizeof(test_type_chars)-1;
+static const unsigned num_test_types = sizeof(test_type_chars)-1;
 
 // returns test type if time to do test of type testtype,
 // 0 if not time to do test.
@@ -2965,8 +2976,8 @@ static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector
 static bool is_initialized = false;
 
 // Does initialization right after fork to daemon mode
-void Initialize(time_t *wakeuptime){
-
+static void Initialize(time_t *wakeuptime)
+{
   // Call Goodbye() on exit
   is_initialized = true;
   
@@ -3075,8 +3086,8 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup)
 }
 
 // Print out a list of valid arguments for the Directive d
-void printoutvaliddirectiveargs(int priority, char d) {
-
+static void printoutvaliddirectiveargs(int priority, char d)
+{
   switch (d) {
   case 'n':
     PrintOut(priority, "never[,N][,q], sleep[,N][,q], standby[,N][,q], idle[,N][,q]");
@@ -3113,7 +3124,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
 }
 
 // exits with an error message, or returns integer value of token
-int GetInteger(const char *arg, const char *name, const char *token, int lineno, const char *cfgfile,
+static int GetInteger(const char *arg, const char *name, const char *token, int lineno, const char *cfgfile,
                int min, int max, char * suffix = 0)
 {
   // make sure argument is there
@@ -3147,8 +3158,9 @@ int GetInteger(const char *arg, const char *name, const char *token, int lineno,
 
 
 // Get 1-3 small integer(s) for '-W' directive
-int Get3Integers(const char *arg, const char *name, const char *token, int lineno, const char *cfgfile,
-                 unsigned char * val1, unsigned char * val2, unsigned char * val3){
+static int Get3Integers(const char *arg, const char *name, const char *token, int lineno, const char *cfgfile,
+                 unsigned char *val1, unsigned char *val2, unsigned char *val3)
+{
   unsigned v1 = 0, v2 = 0, v3 = 0;
   int n1 = -1, n2 = -1, n3 = -1, len;
   if (!arg) {
@@ -3776,7 +3788,8 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
 
 /* Prints the message "=======> VALID ARGUMENTS ARE: <LIST>  <=======\n", where
    <LIST> is the list of valid arguments for option opt. */
-void PrintValidArgs(char opt) {
+static void PrintValidArgs(char opt)
+{
   const char *s;
 
   PrintOut(LOG_CRIT, "=======> VALID ARGUMENTS ARE: ");
@@ -3805,7 +3818,7 @@ static bool is_abs_path(const char * path)
 
 // Parses input line, prints usage message and
 // version/license/copyright messages
-void ParseOpts(int argc, char **argv)
+static void ParseOpts(int argc, char **argv)
 {
   // Init default configfile path
 #ifndef _WIN32
@@ -4319,7 +4332,7 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
 
 
 // Main program without exception handling
-int main_worker(int argc, char **argv)
+static int main_worker(int argc, char **argv)
 {
   // Initialize interface
   smart_interface::init();

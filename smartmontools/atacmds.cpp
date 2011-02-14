@@ -431,7 +431,7 @@ static const char * preg(const ata_register & r, char * buf)
   sprintf(buf, "0x%02x", r.val()); return buf;
 }
 
-void print_regs(const char * prefix, const ata_in_regs & r, const char * suffix = "\n")
+static void print_regs(const char * prefix, const ata_in_regs & r, const char * suffix = "\n")
 {
   char bufs[7][4+1+13];
   pout("%s FR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, CMD=%s%s", prefix,
@@ -440,7 +440,7 @@ void print_regs(const char * prefix, const ata_in_regs & r, const char * suffix 
     preg(r.command, bufs[6]), suffix);
 }
 
-void print_regs(const char * prefix, const ata_out_regs & r, const char * suffix = "\n")
+static void print_regs(const char * prefix, const ata_out_regs & r, const char * suffix = "\n")
 {
   char bufs[7][4+1+13];
   pout("%sERR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, STS=%s%s", prefix,

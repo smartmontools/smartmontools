@@ -67,7 +67,8 @@ static void printslogan()
   pout("%s\n", format_version_info("smartctl").c_str());
 }
 
-void UsageSummary(){
+static void UsageSummary()
+{
   pout("\nUse smartctl -h to get a usage summary\n\n");
   return;
 }
@@ -75,7 +76,8 @@ void UsageSummary(){
 static std::string getvalidarglist(char opt);
 
 /*  void prints help information for command syntax */
-void Usage (void){
+static void Usage()
+{
   printf("Usage: smartctl [options] device\n\n");
   printf(
 "============================================ SHOW INFORMATION OPTIONS =====\n\n"
@@ -207,8 +209,8 @@ static std::string getvalidarglist(char opt)
 
 /* Prints the message "=======> VALID ARGUMENTS ARE: <LIST> \n", where
    <LIST> is the list of valid arguments for option opt. */
-void printvalidarglistmessage(char opt) {
- 
+static void printvalidarglistmessage(char opt)
+{
   if (opt=='v'){
     pout("=======> VALID ARGUMENTS ARE:\n\thelp\n%s\n<=======\n",
          create_vendor_attribute_arg_list().c_str());
@@ -234,7 +236,7 @@ static checksum_err_mode_t checksum_err_mode = CHECKSUM_ERR_WARN;
 static void scan_devices(const char * type, bool with_open, const char * pattern);
 
 /*      Takes command options and sets features to be run */    
-const char * parse_options(int argc, char** argv,
+static const char * parse_options(int argc, char** argv,
                            ata_print_options & ataopts,
                            scsi_print_options & scsiopts)
 {
@@ -974,7 +976,7 @@ void scan_devices(const char * type, bool with_open, const char * pattern)
 }
 
 // Main program without exception handling
-int main_worker(int argc, char **argv)
+static int main_worker(int argc, char **argv)
 {
   // Throw if CPU endianess does not match compile time test.
   check_endianness();

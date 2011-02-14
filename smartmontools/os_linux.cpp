@@ -1244,7 +1244,8 @@ linux_escalade_device::linux_escalade_device(smart_interface * intf, const char 
 #define MAJOR_STRING_LENGTH 3
 #define DEVICE_STRING_LENGTH 32
 #define NODE_STRING_LENGTH 16
-int setup_3ware_nodes(const char *nodename, const char *driver_name) {
+static int setup_3ware_nodes(const char *nodename, const char *driver_name)
+{
   int              tw_major      = 0;
   int              index         = 0;
   char             majorstring[MAJOR_STRING_LENGTH+1];
@@ -1719,8 +1720,8 @@ typedef struct _SRB_BUFFER
 
 // Looks in /proc/scsi to suggest correct areca devices
 // If hint not NULL, return device path guess
-int find_areca_in_proc(char *hint) {
- 
+static int find_areca_in_proc(char *hint)
+{
     const char* proc_format_string="host\tchan\tid\tlun\ttype\topens\tqdepth\tbusy\tonline\n";
 
     // check data formwat
@@ -1771,7 +1772,7 @@ int find_areca_in_proc(char *hint) {
 
 
 
-void dumpdata( unsigned char *block, int len)
+static void dumpdata(unsigned char *block, int len)
 {
 	int ln = (len / 16) + 1;	 // total line#
 	unsigned char c;
@@ -1820,7 +1821,7 @@ void dumpdata( unsigned char *block, int len)
 
 
 
-int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned char *data, int data_len, void *ext_data /* reserved for further use */)
+static int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned char *data, int data_len, void *ext_data /* reserved for further use */)
 {
 	ARGUSED(ext_data);
 
