@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3257 2011-02-14 22:19:42Z manfred99 $
+$Id: CHANGELOG 3258 2011-02-14 22:31:01Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] Remove unnecessary includes, move inclusion of errno.h from scsicmds.h
+       to the appropriate *.cpp files. Add cciss.h to cciss.cpp.
 
   [MS] os_linux.cpp: rename variables to please "-Wshadow"
        utility.cpp: remove unused variable "start"

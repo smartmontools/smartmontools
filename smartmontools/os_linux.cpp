@@ -60,7 +60,6 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <sys/file.h>
 #include <unistd.h>
 #include <stddef.h>  // for offsetof()
 #include <sys/uio.h>
@@ -89,7 +88,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3257 2011-02-14 22:19:42Z manfred99 $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3258 2011-02-14 22:31:01Z manfred99 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 

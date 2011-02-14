@@ -32,12 +32,11 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3212 2010-11-21 16:45:16Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3258 2011-02-14 22:31:01Z manfred99 $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
 

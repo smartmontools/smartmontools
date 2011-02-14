@@ -50,6 +50,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "config.h"
 #include "int64.h"
@@ -61,7 +62,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3195 2010-10-28 19:20:33Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3258 2011-02-14 22:31:01Z manfred99 $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea

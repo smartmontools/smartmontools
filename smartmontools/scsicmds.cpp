@@ -40,6 +40,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include "config.h"
 #include "int64.h"
@@ -48,7 +49,7 @@
 #include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3217 2010-11-30 03:13:31Z dpgilbert $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3258 2011-02-14 22:31:01Z manfred99 $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?
