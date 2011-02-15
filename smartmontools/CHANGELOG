@@ -41,7 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
-  [MS] Make functions without prototypes static. 
+  [CF] Linux megaraid: Avoid strict-aliasing warnings.
+       Patch was provided by Stanislav Brabec (2009-06-03).
+
+  [MS] Make functions without prototypes static.
 
   [MS] Remove unnecessary includes, move inclusion of errno.h from scsicmds.h
        to the appropriate *.cpp files. Add cciss.h to cciss.cpp.

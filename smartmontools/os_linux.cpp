@@ -1081,7 +1081,7 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   int rc;
 
   memset(&uio, 0, sizeof(uio));
-  pthru = (struct megasas_pthru_frame *)uio.frame.raw;
+  pthru = &uio.frame.pthru;
   pthru->cmd = MFI_CMD_PD_SCSI_IO;
   pthru->cmd_status = 0xFF;
   pthru->scsi_status = 0x0;
