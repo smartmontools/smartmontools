@@ -219,6 +219,7 @@ struct megasas_iocpacket {
 	union {
 		u8 raw[128];
 		struct megasas_header hdr;
+		struct megasas_pthru_frame pthru;
 	} frame;
 
 	struct iovec sgl[MAX_IOCTL_SGE];

@@ -88,7 +88,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3259 2011-02-14 23:13:20Z manfred99 $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3260 2011-02-15 21:16:40Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -1081,7 +1081,7 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   int rc;
 
   memset(&uio, 0, sizeof(uio));
-  pthru = (struct megasas_pthru_frame *)uio.frame.raw;
+  pthru = &uio.frame.pthru;
   pthru->cmd = MFI_CMD_PD_SCSI_IO;
   pthru->cmd_status = 0xFF;
   pthru->scsi_status = 0x0;
