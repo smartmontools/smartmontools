@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3243 2011-01-19 20:03:47Z chrfranke $
+# $Id: configure.in 3261 2011-02-15 21:23:04Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.41, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3243 2011-01-19 20:03:47Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3261 2011-02-15 21:23:04Z chrfranke $'`
 smartmontools_release_date=2010-10-16
 smartmontools_release_time="16:34:38 UTC"
 
@@ -384,20 +384,6 @@ if test "$GXX" = "yes"; then
       # MinGW uses MSVCRT.DLL which uses printf format "%I64d" and not "%lld" for int64_t
       CXXFLAGS="$CXXFLAGS -Wno-format";;
   esac
-
-  # Disable strict aliasing rules by default (see ticket #23).
-  if test -z "`echo "$CXXFLAGS" | grep "\-f[[no-]]*strict-aliasing" 2> /dev/null`" ; then
-    AC_MSG_CHECKING([whether $CXX supports -fno-strict-aliasing])
-    ac_save_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="-fno-strict-aliasing"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
-      [gcc_have_fno_strict_aliasing=yes], [gcc_have_fno_strict_aliasing=no])
-    CXXFLAGS="$ac_save_CXXFLAGS"
-    if test "$gcc_have_fno_strict_aliasing" = "yes"; then
-      CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
-    fi
-    AC_MSG_RESULT([$gcc_have_fno_strict_aliasing])
-  fi
 
 else
  dnl We are NOT using gcc, so enable host-specific compiler flags
