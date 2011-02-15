@@ -3,11 +3,11 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-10 Doug Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
  * Copyright (C) 2008    Hank Wu <hank@areca.com.tw>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2008    Jordan Hargrave <jordan_hargrave@dell.com>
  *
  *  Parts of this file are derived from code that was
@@ -88,7 +88,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3260 2011-02-15 21:16:40Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3262 2011-02-15 21:46:49Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -1045,23 +1045,14 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
         pout("%s", buff);
   }
 
-  /* Controller rejects Enable SMART and Test Unit Ready */
+  // Controller rejects Test Unit Ready
   if (iop->cmnd[0] == 0x00)
     return true;
-  if (iop->cmnd[0] == 0x85 && iop->cmnd[1] == 0x06) {
-    if(report > 0)
-      pout("Rejecting SMART/ATA command to controller\n");
-    // Emulate SMART STATUS CHECK drive reply
-    // smartctl fail to work without this
-    if(iop->cmnd[2]==0x2c) {
-      iop->resp_sense_len=22; // copied from real response
-      iop->sensep[0]=0x72; // descriptor format
-      iop->sensep[7]=0x0e; // additional length
-      iop->sensep[8]=0x09; // description pointer
-      iop->sensep[17]=0x4f; // low cylinder GOOD smart status
-      iop->sensep[19]=0xc2; // high cylinder GOOD smart status
-    }
-    return true;
+
+  if (iop->cmnd[0] == 0xa1 || iop->cmnd[0] == 0x85) { // SAT_ATA_PASSTHROUGH_12/16
+    // Controller does not return ATA output registers in SAT sense data
+    if (iop->cmnd[2] & (1 << 5)) // chk_cond
+      return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
   }
 
   if (pt_cmd == NULL)
