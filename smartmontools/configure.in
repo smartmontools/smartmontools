@@ -385,20 +385,6 @@ if test "$GXX" = "yes"; then
       CXXFLAGS="$CXXFLAGS -Wno-format";;
   esac
 
-  # Disable strict aliasing rules by default (see ticket #23).
-  if test -z "`echo "$CXXFLAGS" | grep "\-f[[no-]]*strict-aliasing" 2> /dev/null`" ; then
-    AC_MSG_CHECKING([whether $CXX supports -fno-strict-aliasing])
-    ac_save_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="-fno-strict-aliasing"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
-      [gcc_have_fno_strict_aliasing=yes], [gcc_have_fno_strict_aliasing=no])
-    CXXFLAGS="$ac_save_CXXFLAGS"
-    if test "$gcc_have_fno_strict_aliasing" = "yes"; then
-      CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
-    fi
-    AC_MSG_RESULT([$gcc_have_fno_strict_aliasing])
-  fi
-
 else
  dnl We are NOT using gcc, so enable host-specific compiler flags
  case "${host}" in

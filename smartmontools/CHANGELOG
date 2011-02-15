@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: Remove '-fno-strict-aliasing' from CXXFLAGS.
+       This reverts r2992 (see ticket #23).
+
   [CF] Linux megaraid: Avoid strict-aliasing warnings.
        Patch was provided by Stanislav Brabec (2009-06-03).
 
