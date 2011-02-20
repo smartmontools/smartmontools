@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 #include "scsicmds.h"
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
+
+#include <errno.h>
 
 const char * dev_legacy_cpp_cvsid = "$Id$"
   DEV_INTERFACE_H_CVSID;

@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] dev_legacy.cpp: Add missing <errno.h>
+
   [CF] Linux megaraid: Fix pass-through of non-data ATA commands
        (ticket #149).
        Only reject commands which require ATA output registers.
