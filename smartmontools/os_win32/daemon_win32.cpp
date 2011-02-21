@@ -16,14 +16,16 @@
  *
  */
 
+// Need MB_SERVICE_NOTIFICATION (NT4/2000/XP), IsDebuggerPresent() (Win98/ME/NT4/2000/XP)
+#define WINVER 0x0400
+#define _WIN32_WINNT WINVER
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <io.h>
 
 #define WIN32_LEAN_AND_MEAN
-// Need MB_SERVICE_NOTIFICATION (NT4/2000/XP), IsDebuggerPresent() (Win98/ME/NT4/2000/XP)
-#define _WIN32_WINNT 0x0400 
 #include <windows.h>
 #ifdef _DEBUG
 #include <crtdbg.h>
@@ -31,8 +33,8 @@
 
 #include "daemon_win32.h"
 
-const char * daemon_win32_cpp_cvsid = "$Id: daemon_win32.cpp 3206 2010-11-15 18:51:30Z chrfranke $"
-DAEMON_WIN32_H_CVSID;
+const char * daemon_win32_cpp_cvsid = "$Id: daemon_win32.cpp 3267 2011-02-21 17:14:25Z chrfranke $"
+  DAEMON_WIN32_H_CVSID;
 
 
 /////////////////////////////////////////////////////////////////////////////
