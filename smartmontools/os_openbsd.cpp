@@ -25,7 +25,9 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 3207 2010-11-15 20:22:15Z chrfranke $"
+#include <errno.h>
+
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 3265 2011-02-21 16:21:14Z chrfranke $"
   OS_OPENBSD_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
