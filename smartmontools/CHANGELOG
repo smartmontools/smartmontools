@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_netbsd.cpp, os_openbsd.cpp: Add missing <errno.h>
+
   [CF] os_freebsd.cpp: Add missing <errno.h>
 
   [CF] dev_legacy.cpp: Add missing <errno.h>

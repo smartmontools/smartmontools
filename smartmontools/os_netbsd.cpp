@@ -22,10 +22,12 @@
 #include "scsicmds.h"
 #include "utility.h"
 #include "os_netbsd.h"
+
+#include <errno.h>
 #include <unistd.h>
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.25 2008/06/12 21:46:31 ballen4705 Exp $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char * os_netbsd_cpp_cvsid = "$Id$"
+  OS_NETBSD_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
 extern long long bytes;

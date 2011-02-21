@@ -25,6 +25,8 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
+#include <errno.h>
+
 const char * os_openbsd_cpp_cvsid = "$Id$"
   OS_OPENBSD_H_CVSID;
 
