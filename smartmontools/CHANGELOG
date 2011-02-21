@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3263 2011-02-20 18:32:56Z chrfranke $
+$Id: CHANGELOG 3264 2011-02-21 15:52:04Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] os_freebsd.cpp: Add missing <errno.h>
 
   [CF] dev_legacy.cpp: Add missing <errno.h>
 
