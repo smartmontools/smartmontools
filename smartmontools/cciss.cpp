@@ -34,8 +34,8 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *cciss_c_cvsid="$Id: cciss.cpp,v 1.9 2008/07/30 20:42:53 chrfranke Exp $"
-CONFIG_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char * cciss_cpp_cvsid = "$Id$"
+  CCISS_H_CVSID;
 
 typedef struct _ReportLUNdata_struct
 {

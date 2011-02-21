@@ -82,7 +82,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.26 2009/01/14 02:39:00 sxzzsf Exp $\n"
+#define OS_FREEBSD_H_CVSID "$Id$"
 
 #define MAX_NUM_DEV 26
 
