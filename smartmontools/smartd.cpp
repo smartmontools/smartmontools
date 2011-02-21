@@ -1303,6 +1303,8 @@ void checksumwarning(const char * string)
   pout("Warning! %s error: invalid SMART checksum.\n", string);
 }
 
+#ifndef _WIN32
+
 // Wait for the pid file to show up, this makes sure a calling program knows
 // that the daemon is really up and running and has a pid to kill it
 static bool WaitForPidFile()
@@ -1322,6 +1324,7 @@ static bool WaitForPidFile()
     return false;
 }
 
+#endif // _WIN32
 
 // Forks new process, closes ALL file descriptors, redirects stdin,
 // stdout, and stderr.  Not quite daemon().  See
@@ -4343,7 +4346,7 @@ static int main_worker(int argc, char **argv)
   bool firstpass = true;
 
   // next time to wake up
-  time_t wakeuptime;
+  time_t wakeuptime = 0;
 
   // parse input and print header and usage info if needed
   ParseOpts(argc,argv);

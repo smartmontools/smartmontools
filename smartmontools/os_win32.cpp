@@ -1155,7 +1155,7 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
     memcpy(data, outpar->bBuffer, 512);
   else if (regs->bFeaturesReg == ATA_SMART_STATUS) {
     if (nonempty(outpar->bBuffer, sizeof(IDEREGS)))
-      *regs = *(const IDEREGS *)(outpar->bBuffer);
+      memcpy(regs, outpar->bBuffer, sizeof(IDEREGS));
     else {  // Workaround for driver not returning regs
       if (ata_debugmode)
         pout("  WARNING: driver does not return ATA registers in output buffer!\n");
@@ -1576,7 +1576,7 @@ static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, cha
   if (datasize > 0)
     memcpy(data, sb.params.out.bBuffer, datasize);
   else if (datasize == 0 && code == IOCTL_SCSI_MINIPORT_RETURN_STATUS)
-    *regs = *(const IDEREGS *)(sb.params.out.bBuffer);
+    memcpy(regs, sb.params.out.bBuffer, sizeof(IDEREGS));
 
   return 0;
 }
@@ -2034,15 +2034,15 @@ static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONIN
     return DEV_UNKNOWN;
 
   // Newer BusType* values are missing in older includes
-  switch (data.desc.BusType) {
+  switch ((int)data.desc.BusType) {
     case BusTypeAta:
-    case (STORAGE_BUS_TYPE)0x0b: // BusTypeSata
+    case 0x0b: // BusTypeSata
       if (ata_version_ex)
         memset(ata_version_ex, 0, sizeof(*ata_version_ex));
       return DEV_ATA;
     case BusTypeScsi:
-    case (STORAGE_BUS_TYPE)0x09: // BusTypeiScsi
-    case (STORAGE_BUS_TYPE)0x0a: // BusTypeSas
+    case 0x09: // BusTypeiScsi
+    case 0x0a: // BusTypeSas
       return DEV_SCSI;
     case BusTypeUsb:
       return DEV_USB;
