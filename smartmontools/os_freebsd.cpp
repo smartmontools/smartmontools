@@ -20,6 +20,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <err.h>
+#include <errno.h>
 #include <camlib.h>
 #include <cam/scsi/scsi_message.h>
 #include <cam/scsi/scsi_pass.h>
