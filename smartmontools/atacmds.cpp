@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3259 2011-02-14 23:13:20Z manfred99 $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3268 2011-02-22 21:30:47Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -2423,7 +2423,8 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
 
   ata_cmd_out out;
   if (!device->ata_pass_through(in, out)) {
-    pout("Error Write SCT Error Recovery Control Command failed: %s\n", device->get_errmsg());
+    pout("Error Write SCT (%cet) Error Recovery Control Command failed: %s\n",
+      (!set ? 'G' : 'S'), device->get_errmsg());
     return -1;
   }
 
