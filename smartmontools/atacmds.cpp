@@ -2423,7 +2423,8 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
 
   ata_cmd_out out;
   if (!device->ata_pass_through(in, out)) {
-    pout("Error Write SCT Error Recovery Control Command failed: %s\n", device->get_errmsg());
+    pout("Error Write SCT (%cet) Error Recovery Control Command failed: %s\n",
+      (!set ? 'G' : 'S'), device->get_errmsg());
     return -1;
   }
 

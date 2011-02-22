@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartctl -l scterc: Don't get ERC if only set is requested.
+       This prevent misleading error messages if ATA output registers
+       are not supported.
+
   [CF] Windows: Prevent warnings from gcc 4.5.1.
 
   [CF] os_netbsd.cpp, os_openbsd.cpp: Add missing <errno.h>

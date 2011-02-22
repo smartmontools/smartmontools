@@ -861,7 +861,6 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
   // step through all vendor attributes
   for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
     const ata_smart_attribute & attr = data->vendor_attributes[i];
-    //const ata_smart_threshold_entry & thre = thresholds->thres_entries[i];
 
     // Check attribute and threshold
     unsigned char threshold = 0;
@@ -990,8 +989,8 @@ static const char * GetLogName(unsigned logaddr)
       case 0x01: return "Summary SMART error log";
       case 0x02: return "Comprehensive SMART error log";
       case 0x03: return "Ext. Comprehensive SMART error log";
-      case 0x05: return "Reserved for the CFA"; // ACS-2
       case 0x04: return "Device Statistics";
+      case 0x05: return "Reserved for the CFA"; // ACS-2
       case 0x06: return "SMART self-test log";
       case 0x07: return "Extended self-test log";
       case 0x08: return "Power Conditions"; // ACS-2
@@ -1745,9 +1744,9 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
 }
 
 // Print SCT Error Recovery Control timers
-static void ataPrintSCTErrorRecoveryControl(unsigned short read_timer, unsigned short write_timer)
+static void ataPrintSCTErrorRecoveryControl(bool set, unsigned short read_timer, unsigned short write_timer)
 {
-  pout("SCT Error Recovery Control:\n");
+  pout("SCT Error Recovery Control%s:\n", (set ? " set to" : ""));
   if (!read_timer)
     pout("           Read: Disabled\n");
   else
@@ -2466,12 +2465,15 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         if (   ataSetSCTErrorRecoveryControltime(device, 1, options.sct_erc_readtime )
             || ataSetSCTErrorRecoveryControltime(device, 2, options.sct_erc_writetime)) {
           pout("Warning: device does not support SCT (Set) Error Recovery Control command\n");
-          pout("Suggest common arguments: scterc,70,70 to enable ERC or sct,0,0 to disable\n");
+          if (!(   (options.sct_erc_readtime == 70 && options.sct_erc_writetime == 70)
+                || (options.sct_erc_readtime ==  0 && options.sct_erc_writetime ==  0)))
+            pout("Retry with: 'scterc,70,70' to enable ERC or 'scterc,0,0' to disable\n");
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
           sct_erc_get = false;
         }
-        else
-          sct_erc_get = true;
+        else if (!sct_erc_get)
+          ataPrintSCTErrorRecoveryControl(true, options.sct_erc_readtime,
+            options.sct_erc_writetime);
       }
 
       if (sct_erc_get) {
@@ -2480,12 +2482,15 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         if (   ataGetSCTErrorRecoveryControltime(device, 1, read_timer )
             || ataGetSCTErrorRecoveryControltime(device, 2, write_timer)) {
           pout("Warning: device does not support SCT (Get) Error Recovery Control command\n");
-          if (options.sct_erc_set)
+          if (options.sct_erc_set) {
             pout("The previous SCT (Set) Error Recovery Control command succeeded\n");
+            ataPrintSCTErrorRecoveryControl(true, options.sct_erc_readtime,
+              options.sct_erc_writetime);
+          }
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         else
-          ataPrintSCTErrorRecoveryControl(read_timer, write_timer);
+          ataPrintSCTErrorRecoveryControl(false, read_timer, write_timer);
       }
       pout("\n");
     }
