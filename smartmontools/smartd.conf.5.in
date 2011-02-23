@@ -412,8 +412,8 @@ behavior) if the device does not appear to be present when
 with the other \'\-d\' Directives.
 .TP
 .B \-n POWERMODE[,N][,q]
-This \'nocheck\' Directive is used to prevent a disk from being
-spun-up when it is periodically polled by \fBsmartd\fP.
+[ATA only] This \'nocheck\' Directive is used to prevent a disk from
+being spun-up when it is periodically polled by \fBsmartd\fP.
 
 ATA disks have five different power states. In order of increasing
 power consumption they are: \'OFF\', \'SLEEP\', \'STANDBY\', \'IDLE\',
@@ -490,7 +490,7 @@ self\-test logging.
 [Please see the \fBsmartctl \-T\fP command-line option.]
 .TP
 .B \-o VALUE
-Enables or disables SMART Automatic Offline Testing when
+[ATA only] Enables or disables SMART Automatic Offline Testing when
 \fBsmartd\fP
 starts up and has no further effect.  The valid arguments to this
 Directive are \fIon\fP and \fIoff\fP.
@@ -511,7 +511,7 @@ Directive are \fIon\fP and \fIoff\fP.  Also affects SCSI devices.
 [Please see the \fBsmartctl \-S\fP command-line option.]
 .TP
 .B \-H
-Check the SMART health status of the disk.  If any Prefailure
+[ATA only] Check the SMART health status of the disk.  If any Prefailure
 Attributes are less than or equal to their threshold values, then disk
 failure is predicted in less than 24 hours, and a message at loglevel
 .B \'LOG_CRIT\'
@@ -524,13 +524,13 @@ Reports increases in the number of errors in one of three SMART logs.  The
 valid arguments to this Directive are:
 
 .I error
-\- report if the number of ATA errors reported in the Summary SMART error log
-has increased since the last check.
+\- [ATA only] report if the number of ATA errors reported in the Summary SMART
+error log has increased since the last check.
 
 .I xerror
-\- [NEW EXPERIMENTAL SMARTD FEATURE] report if the number of ATA errors
-reported in the Extended Comprehensive SMART error log has increased since
-the last check.
+\- [ATA only] [NEW EXPERIMENTAL SMARTD FEATURE] report if the number of ATA
+errors reported in the Extended Comprehensive SMART error log has increased
+since the last check.
 
 If both \'\-l error\' and \'\-l xerror\' are specified, smartd checks
 the maximum of both values.
@@ -953,32 +953,32 @@ Directive are given below. Some sample scripts are also included in
 /usr/local/share/doc/smartmontools/examplescripts/.
 .TP
 .B \-f
-Check for \'failure\' of any Usage Attributes.  If these Attributes are
-less than or equal to the threshold, it does NOT indicate imminent
-disk failure.  It "indicates an advisory condition where the usage or
-age of the device has exceeded its intended design life period."
+[ATA only] Check for \'failure\' of any Usage Attributes.  If these
+Attributes are less than or equal to the threshold, it does NOT indicate
+imminent disk failure.  It "indicates an advisory condition where the usage
+or age of the device has exceeded its intended design life period."
 [Please see the \fBsmartctl \-A\fP command-line option.]
 .TP
 .B \-p
-Report anytime that a Prefail Attribute has changed
+[ATA only] Report anytime that a Prefail Attribute has changed
 its value since the last check, 30 minutes ago. [Please see the
 .B smartctl \-A
 command-line option.]
 .TP
 .B \-u
-Report anytime that a Usage Attribute has changed its value
+[ATA only] Report anytime that a Usage Attribute has changed its value
 since the last check, 30 minutes ago. [Please see the
 .B smartctl \-A
 command-line option.]
 .TP
 .B \-t
-Equivalent to turning on the two previous flags \'\-p\' and \'\-u\'.
+[ATA only] Equivalent to turning on the two previous flags \'\-p\' and \'\-u\'.
 Tracks changes in \fIall\fP device Attributes (both Prefailure and
 Usage). [Please see the \fBsmartctl\fP \-A command-line option.]
 .TP
 .B \-i ID
-Ignore device Attribute number \fBID\fP when checking for failure of
-Usage Attributes.  \fBID\fP must be a decimal integer in the range
+[ATA only] Ignore device Attribute number \fBID\fP when checking for failure
+of Usage Attributes.  \fBID\fP must be a decimal integer in the range
 from 1 to 255.  This Directive modifies the behavior of the \'\-f\'
 Directive and has no effect without it.
 
@@ -988,7 +988,7 @@ want to keep getting messages about the hours-on-lifetime Attribute
 times for a single device, if you want to ignore multiple Attributes.
 .TP
 .B \-I ID
-Ignore device Attribute \fBID\fP when tracking changes in the
+[ATA only] Ignore device Attribute \fBID\fP when tracking changes in the
 Attribute values.  \fBID\fP must be a decimal integer in the range
 from 1 to 255.  This Directive modifies the behavior of the \'\-p\',
 \'\-u\', and \'\-t\' tracking Directives and has no effect without one
@@ -1000,9 +1000,9 @@ each time the temperature changes.  This Directive may appear multiple
 times for a single device, if you want to ignore multiple Attributes.
 .TP
 .B \-r ID[!]
-When tracking, report the \fIRaw\fP value of Attribute \fBID\fP along
-with its (normally reported) \fINormalized\fP value.  \fBID\fP must be
-a decimal integer in the range from 1 to 255.  This Directive modifies
+[ATA only] When tracking, report the \fIRaw\fP value of Attribute \fBID\fP
+along with its (normally reported) \fINormalized\fP value.  \fBID\fP must
+be a decimal integer in the range from 1 to 255.  This Directive modifies
 the behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives
 and has no effect without one of them.  This Directive may be given
 multiple times.
@@ -1015,7 +1015,7 @@ value is considered critical.  The report will be logged as LOG_CRIT
 and a warning email will be sent if \'-m\' is specified.
 .TP
 .B \-R ID[!]
-When tracking, report whenever the \fIRaw\fP value of Attribute
+[ATA only] When tracking, report whenever the \fIRaw\fP value of Attribute
 \fBID\fP changes.  (Normally \fBsmartd\fP only tracks/reports changes
 of the \fINormalized\fP Attribute values.)  \fBID\fP must be a decimal
 integer in the range from 1 to 255.  This Directive modifies the
@@ -1184,10 +1184,9 @@ reset if uncorrectable sector are reallocated.  This sets \'-U 198+\'
 if no other \'-U\' directive is specified.
 .TP
 .B \-P TYPE
-Specifies whether
-\fBsmartd\fP
-should use any preset options that are available for this drive.  The
-valid arguments to this Directive are:
+[ATA only] Specifies whether \fBsmartd\fP should use any preset options
+that are available for this drive.
+The valid arguments to this Directive are:
 
 .I use
 \- use any presets that are available for this drive.  This is the default.

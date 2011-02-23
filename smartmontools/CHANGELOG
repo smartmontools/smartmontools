@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd man pages: Add some missing [ATA only].
+
   [CF] os_linux.cpp: Dereference symlinks before guess of device type
        (ticket #146).  Minor rework of autodetect_smart_device().
 
