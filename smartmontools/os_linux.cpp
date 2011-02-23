@@ -2980,7 +2980,7 @@ smart_device * linux_smart_interface::missing_option(const char * opt)
 }
 
 // Return true if STR starts with PREFIX.
-static bool str_starts_with(const char * str, const char * prefix)
+static inline bool str_starts_with(const char * str, const char * prefix)
 {
   return !strncmp(str, prefix, strlen(prefix));
 }
@@ -2988,63 +2988,35 @@ static bool str_starts_with(const char * str, const char * prefix)
 // Guess device type (ata or scsi) based on device name (Linux
 // specific) SCSI device name in linux can be sd, sr, scd, st, nst,
 // osst, nosst and sg.
-static const char * lin_dev_prefix = "/dev/";
-static const char * lin_dev_ata_disk_plus = "h";
-static const char * lin_dev_ata_devfs_disk_plus = "ide/";
-static const char * lin_dev_scsi_devfs_disk_plus = "scsi/";
-static const char * lin_dev_scsi_disk_plus = "s";
-static const char * lin_dev_scsi_tape1 = "ns";
-static const char * lin_dev_scsi_tape2 = "os";
-static const char * lin_dev_scsi_tape3 = "nos";
-static const char * lin_dev_3ware_9700_char = "twl";
-static const char * lin_dev_3ware_9000_char = "twa";
-static const char * lin_dev_3ware_678k_char = "twe";
-static const char * lin_dev_cciss_dir = "cciss/";
-static const char * lin_dev_areca = "sg";
-
 smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
 {
-  const char * dev_name = name; // TODO: Remove this hack
-  int dev_prefix_len = strlen(lin_dev_prefix);
+  const char * test_name = name;
 
-  // if dev_name null, or string length zero
-  int len;
-  if (!dev_name || !(len = strlen(dev_name)))
-    return 0;
+  // Dereference symlinks
+  struct stat st;
+  char pathbuf[PATH_MAX];
+  if (!lstat(name, &st) && S_ISLNK(st.st_mode) && realpath(name, pathbuf))
+    test_name = pathbuf;
 
-  // Dereference if /dev/disk/by-*/* symlink
-  char linkbuf[100];
-  if (   str_starts_with(dev_name, "/dev/disk/by-")
-      && readlink(dev_name, linkbuf, sizeof(linkbuf)) > 0
-      && str_starts_with(linkbuf, "../../")) {
-    dev_name = linkbuf + sizeof("../../")-1;
-  }
   // Remove the leading /dev/... if it's there
-  else if (!strncmp(lin_dev_prefix, dev_name, dev_prefix_len)) {
-    if (len <= dev_prefix_len)
-      // if nothing else in the string, unrecognized
-      return 0;
-    // else advance pointer to following characters
-    dev_name += dev_prefix_len;
-  }
+  static const char dev_prefix[] = "/dev/";
+  if (str_starts_with(test_name, dev_prefix))
+    test_name += strlen(dev_prefix);
 
   // form /dev/h* or h*
-  if (!strncmp(lin_dev_ata_disk_plus, dev_name,
-               strlen(lin_dev_ata_disk_plus)))
+  if (str_starts_with(test_name, "h"))
     return new linux_ata_device(this, name, "");
 
   // form /dev/ide/* or ide/*
-  if (!strncmp(lin_dev_ata_devfs_disk_plus, dev_name,
-               strlen(lin_dev_ata_devfs_disk_plus)))
+  if (str_starts_with(test_name, "ide/"))
     return new linux_ata_device(this, name, "");
 
   // form /dev/s* or s*
-  if (!strncmp(lin_dev_scsi_disk_plus, dev_name,
-               strlen(lin_dev_scsi_disk_plus))) {
+  if (str_starts_with(test_name, "s")) {
 
     // Try to detect possible USB->(S)ATA bridge
     unsigned short vendor_id = 0, product_id = 0, version = 0;
-    if (get_usb_id(dev_name, vendor_id, product_id, version)) {
+    if (get_usb_id(test_name, vendor_id, product_id, version)) {
       const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
       if (!usbtype)
         return 0;
@@ -3061,49 +3033,28 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
   }
 
   // form /dev/scsi/* or scsi/*
-  if (!strncmp(lin_dev_scsi_devfs_disk_plus, dev_name,
-               strlen(lin_dev_scsi_devfs_disk_plus)))
+  if (str_starts_with(test_name, "scsi/"))
     return new linux_scsi_device(this, name, "");
 
   // form /dev/ns* or ns*
-  if (!strncmp(lin_dev_scsi_tape1, dev_name,
-               strlen(lin_dev_scsi_tape1)))
+  if (str_starts_with(test_name, "ns"))
     return new linux_scsi_device(this, name, "");
 
   // form /dev/os* or os*
-  if (!strncmp(lin_dev_scsi_tape2, dev_name,
-               strlen(lin_dev_scsi_tape2)))
+  if (str_starts_with(test_name, "os"))
     return new linux_scsi_device(this, name, "");
 
   // form /dev/nos* or nos*
-  if (!strncmp(lin_dev_scsi_tape3, dev_name,
-               strlen(lin_dev_scsi_tape3)))
+  if (str_starts_with(test_name, "nos"))
     return new linux_scsi_device(this, name, "");
 
-  // form /dev/twl*
-  if (!strncmp(lin_dev_3ware_9700_char, dev_name,
-               strlen(lin_dev_3ware_9700_char)))
+  // form /dev/tw[ael]* or tw[ael]*
+  if (str_starts_with(test_name, "tw") && strchr("ael", test_name[2]))
     return missing_option("-d 3ware,N");
 
-  // form /dev/twa*
-  if (!strncmp(lin_dev_3ware_9000_char, dev_name,
-               strlen(lin_dev_3ware_9000_char)))
-    return missing_option("-d 3ware,N");
-
-  // form /dev/twe*
-  if (!strncmp(lin_dev_3ware_678k_char, dev_name,
-               strlen(lin_dev_3ware_678k_char)))
-    return missing_option("-d 3ware,N");
-
-  // form /dev/cciss*
-  if (!strncmp(lin_dev_cciss_dir, dev_name,
-               strlen(lin_dev_cciss_dir)))
+  // form /dev/cciss/* or cciss/*
+  if (str_starts_with(test_name, "cciss/"))
     return missing_option("-d cciss,N");
-
-  // form /dev/sg*
-  if ( !strncmp(lin_dev_areca, dev_name,
-                strlen(lin_dev_areca)) )
-    return missing_option("-d areca,N");
 
   // we failed to recognize any of the forms
   return 0;
