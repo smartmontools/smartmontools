@@ -88,7 +88,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3269 2011-02-23 18:47:08Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3271 2011-02-24 18:05:08Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -2994,9 +2994,15 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
 
   // Dereference symlinks
   struct stat st;
-  char pathbuf[PATH_MAX];
-  if (!lstat(name, &st) && S_ISLNK(st.st_mode) && realpath(name, pathbuf))
-    test_name = pathbuf;
+  std::string pathbuf;
+  if (!lstat(name, &st) && S_ISLNK(st.st_mode)) {
+    char * p = realpath(name, (char *)0);
+    if (p) {
+      pathbuf = p;
+      free(p);
+      test_name = pathbuf.c_str();
+    }
+  }
 
   // Remove the leading /dev/... if it's there
   static const char dev_prefix[] = "/dev/";
