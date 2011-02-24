@@ -2994,9 +2994,15 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
 
   // Dereference symlinks
   struct stat st;
-  char pathbuf[PATH_MAX];
-  if (!lstat(name, &st) && S_ISLNK(st.st_mode) && realpath(name, pathbuf))
-    test_name = pathbuf;
+  std::string pathbuf;
+  if (!lstat(name, &st) && S_ISLNK(st.st_mode)) {
+    char * p = realpath(name, (char *)0);
+    if (p) {
+      pathbuf = p;
+      free(p);
+      test_name = pathbuf.c_str();
+    }
+  }
 
   // Remove the leading /dev/... if it's there
   static const char dev_prefix[] = "/dev/";

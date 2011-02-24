@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_linux.cpp: Don't use buffer of size PATH_MAX for the result
+       of realpath().  This also fixes compilation on Debian Lenny.
+
   [CF] smartd man pages: Add some missing [ATA only].
 
   [CF] os_linux.cpp: Dereference symlinks before guess of device type
