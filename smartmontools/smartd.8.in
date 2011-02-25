@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in 3270 2011-02-23 21:52:03Z chrfranke $
+$Id: smartd.8.in 3272 2011-02-25 19:52:09Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -973,10 +973,13 @@ disk (and it fails a test!).  Self-Tests can be run automatically by
 Self-Tests can also be run manually by using the \fB\'\-t\ short\'\fP
 and \fB\'\-t\ long\'\fP options of \fBsmartctl\fP and the results of
 the testing can be observed using the \fBsmartctl \'\-l\ selftest\'\fP
-command-line option.]
-
+command-line option.
 [Please see the \fBsmartctl \-l\fP and \fB\-t\fP command-line
 options.]
+
+[ATA only] Failed self-tests outdated by a newer successful extended
+self\-test are ignored.
+
 .TP
 .B \-s REGEXP
 Run Self-Tests or Offline Immediate Tests, at scheduled times.  A
@@ -2054,4 +2057,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 3270 2011-02-23 21:52:03Z chrfranke $
+$Id: smartd.8.in 3272 2011-02-25 19:52:09Z chrfranke $

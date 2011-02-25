@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3253 2011-02-04 21:36:44Z chrfranke $
+ $Id: smartctl.8.in 3272 2011-02-25 19:52:09Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1836,6 +1836,8 @@ The device error log contains records of errors.
 .TP
 .B Bit 7:
 The device self\-test log contains records of errors.
+[ATA only] Failed self-tests outdated by a newer successful extended
+self\-test are ignored.
 
 To test within the shell for whether or not the different bits are
 turned on or off, you can use the following type of construction (this
@@ -1930,4 +1932,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3253 2011-02-04 21:36:44Z chrfranke $
+$Id: smartctl.8.in 3272 2011-02-25 19:52:09Z chrfranke $

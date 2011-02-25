@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3262 2011-02-15 21:46:49Z chrfranke $
+$Id: NEWS 3272 2011-02-25 19:52:09Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -8,6 +8,8 @@ http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontool
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.41
 -----------------------------------------------------------
+- Failed self-tests outdated by a newer successful extended
+  self-test are no longer reported as errors.
 - smartctl prints physical and logical sector sizes.
 - configure option '--with-exampledir'.
 - 'make install' does no longer overwrite an existing
