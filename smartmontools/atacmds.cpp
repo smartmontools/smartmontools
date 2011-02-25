@@ -2467,13 +2467,33 @@ int ataSetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsign
 
 
 // Print one self-test log entry.
-// Returns true if self-test showed an error.
-bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
-                                unsigned char test_status,
-                                unsigned short timestamp,
-                                uint64_t failing_lba,
-                                bool print_error_only, bool & print_header)
+// Returns:
+// -1: self-test failed
+//  1: extended self-test completed without error
+//  0: otherwise
+int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
+                               unsigned char test_status,
+                               unsigned short timestamp,
+                               uint64_t failing_lba,
+                               bool print_error_only, bool & print_header)
 {
+  // Check status and type for return value
+  int retval = 0;
+  switch (test_status >> 4) {
+    case 0x0:
+      if ((test_type & 0x0f) == 0x02)
+        retval = 1; // extended self-test completed without error
+      break;
+    case 0x3: case 0x4:
+    case 0x5: case 0x6:
+    case 0x7: case 0x8:
+      retval = -1; // self-test failed
+      break;
+  }
+
+  if (retval >= 0 && print_error_only)
+    return retval;
+
   std::string msgtest;
   switch (test_type) {
     case 0x00: msgtest = "Offline";            break;
@@ -2493,24 +2513,20 @@ bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
         msgtest = strprintf("Reserved (0x%02x)", test_type);
   }
 
-  bool is_error = false;
   std::string msgstat;
   switch (test_status >> 4) {
     case 0x0: msgstat = "Completed without error";       break;
     case 0x1: msgstat = "Aborted by host";               break;
     case 0x2: msgstat = "Interrupted (host reset)";      break;
-    case 0x3: msgstat = "Fatal or unknown error";        is_error = true; break;
-    case 0x4: msgstat = "Completed: unknown failure";    is_error = true; break;
-    case 0x5: msgstat = "Completed: electrical failure"; is_error = true; break;
-    case 0x6: msgstat = "Completed: servo/seek failure"; is_error = true; break;
-    case 0x7: msgstat = "Completed: read failure";       is_error = true; break;
-    case 0x8: msgstat = "Completed: handling damage??";  is_error = true; break;
+    case 0x3: msgstat = "Fatal or unknown error";        break;
+    case 0x4: msgstat = "Completed: unknown failure";    break;
+    case 0x5: msgstat = "Completed: electrical failure"; break;
+    case 0x6: msgstat = "Completed: servo/seek failure"; break;
+    case 0x7: msgstat = "Completed: read failure";       break;
+    case 0x8: msgstat = "Completed: handling damage??";  break;
     case 0xf: msgstat = "Self-test routine in progress"; break;
     default:  msgstat = strprintf("Unknown status (0x%x)", test_status >> 4);
   }
-
-  if (!is_error && print_error_only)
-    return false;
 
   // Print header once
   if (print_header) {
@@ -2519,7 +2535,7 @@ bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
   }
 
   char msglba[32];
-  if (is_error && failing_lba < 0xffffffffffffULL)
+  if (retval < 0 && failing_lba < 0xffffffffffffULL)
     snprintf(msglba, sizeof(msglba), "%"PRIu64, failing_lba);
   else
     strcpy(msglba, "-");
@@ -2527,7 +2543,7 @@ bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
   pout("#%2u  %-19s %-29s %1d0%%  %8u         %s\n", testnum,
        msgtest.c_str(), msgstat.c_str(), test_status & 0x0f, timestamp, msglba);
 
-  return is_error;
+  return retval;
 }
 
 // Print Smart self-test log, used by smartctl and smartd.
@@ -2548,7 +2564,8 @@ int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries
   }
 
   bool noheaderprinted = true;
-  int retval=0, hours=0, testno=0;
+  int errcnt = 0, hours = 0, igncnt = 0;
+  int testno = 0, ext_ok_testno = -1;
 
   // print log
   for (int i = 20; i >= 0; i--) {
@@ -2576,24 +2593,38 @@ int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries
       uint64_t lba48 = (log->lbafirstfailure < 0xffffffff ? log->lbafirstfailure : 0xffffffffffffULL);
 
       // Print entry
-      if (ataPrintSmartSelfTestEntry(testno,
-            log->selftestnumber, log->selfteststatus,
-            log->timestamp, lba48, !allentries, noheaderprinted)) {
+      int state = ataPrintSmartSelfTestEntry(testno,
+        log->selftestnumber, log->selfteststatus,
+        log->timestamp, lba48, !allentries, noheaderprinted);
 
+      if (state < 0) {
         // Self-test showed an error
-        retval++;
+        if (ext_ok_testno < 0) {
+          errcnt++;
 
-        // keep track of time of most recent error
-        if (!hours)
-          hours = log->timestamp;
+          // keep track of time of most recent error
+          if (!hours)
+            hours = log->timestamp;
+        }
+        else
+          // Newer successful extended self-test exits
+          igncnt++;
+      }
+      else if (state > 0 && ext_ok_testno < 0) {
+        // Latest successful extended self-test
+        ext_ok_testno = testno;
       }
     }
   }
-  if (!allentries && retval)
+
+  if (igncnt)
+    pout("%d of %d failed self-tests are outdated by newer successful extended offline self-test #%2d\n",
+      igncnt, igncnt+errcnt, ext_ok_testno);
+
+  if (!allentries && !noheaderprinted)
     pout("\n");
 
-  hours = hours << 8;
-  return (retval | hours);
+  return ((hours << 8) | errcnt);
 }
 
 

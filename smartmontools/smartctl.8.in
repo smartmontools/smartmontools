@@ -1836,6 +1836,8 @@ The device error log contains records of errors.
 .TP
 .B Bit 7:
 The device self\-test log contains records of errors.
+[ATA only] Failed self-tests outdated by a newer successful extended
+self\-test are ignored.
 
 To test within the shell for whether or not the different bits are
 turned on or off, you can use the following type of construction (this

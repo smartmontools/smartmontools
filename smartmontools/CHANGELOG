@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Don't report failed self-tests outdated by a newer successful
+       extended self-test as errors (ticket #147).
+       This affects smartctl exit status and smartd syslog output and
+       warning email.  Only implemented for ATA.
+
   [CF] os_linux.cpp: Don't use buffer of size PATH_MAX for the result
        of realpath().  This also fixes compilation on Debian Lenny.
 

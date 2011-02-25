@@ -919,11 +919,15 @@ std::string create_vendor_attribute_arg_list();
 int smartcommandhandler(ata_device * device, smart_command_set command, int select, char *data);
 
 // Print one self-test log entry.
-bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
-                                unsigned char test_status,
-                                unsigned short timestamp,
-                                uint64_t failing_lba,
-                                bool print_error_only, bool & print_header);
+// Returns:
+// -1: failed self-test
+//  1: extended self-test completed without error
+//  0: otherwise
+int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
+                               unsigned char test_status,
+                               unsigned short timestamp,
+                               uint64_t failing_lba,
+                               bool print_error_only, bool & print_header);
 
 // Print Smart self-test log, used by smartctl and smartd.
 int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries,
