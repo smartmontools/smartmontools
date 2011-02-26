@@ -41,6 +41,16 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h USB updates:
+       - Freecom HD 500GB (0x07ab:0xfcda)
+       - Generic JMicron adapter (0x152d:0x2337)
+       - RaidSonic ICY BOX IB-110StU3-B (0x1759:0x500[02])
+       - Connectland BE-USB2-35BP-LCM (0x040d:0x6204)
+       - Freecom Classic HD 120GB (0x07ab:0xfccd)
+       - OCZ THROTTLE OCZESATATHR8G (0x152d:0x0602)
+       - Vantec NST-400MX-SR (0x1a4a:0x1670)
+       - Intenso Memory Station 2.5" (0x13fd:0x1840)
+
   [CF] Don't report failed self-tests outdated by a newer successful
        extended self-test as errors (ticket #147).
        This affects smartctl exit status and smartd syslog output and

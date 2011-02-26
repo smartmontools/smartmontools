@@ -1690,6 +1690,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
+  // VIA
+  { "USB: Connectland BE-USB2-35BP-LCM; VIA VT6204",
+    "0x040d:0x6204",
+    "",
+    "",
+    "" // unsupported
+  },
   // Buffalo / Melco
   { "USB: Buffalo JustStore Portable HD-PVU2; ",
     "0x0411:0x0181",
@@ -1863,6 +1870,18 @@ const drive_settings builtin_knowndrives[] = {
     "0x010f",
     "",
     "-d usbsunplus"
+  },
+  { "USB: Freecom Classic HD 120GB; ",
+    "0x07ab:0xfccd",
+    "",
+    "",
+    "" // unsupported
+  },
+  { "USB: Freecom HD 500GB; JMicron",
+    "0x07ab:0xfcda",
+    "",
+    "",
+    "-d usbjmicron"
   },
   // Toshiba
   { "USB: Toshiba PX1270E-1G16; Sunplus",
@@ -2076,12 +2095,24 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Intenso Memory Station 2,5\"; Initio",
+    "0x13fd:0x1840",
+    "",
+    "",
+    "-d sat"
+  },
   // JMicron
   { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
     "0x152d:0x0551",
     "0x0100",
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
+    "0x152d:0x0602",
+    "",
+    "",
+    "" // unsupported
   },
   { "USB: ; JMicron JM20329", // USB->SATA
     "0x152d:0x2329",
@@ -2094,6 +2125,12 @@ const drive_settings builtin_knowndrives[] = {
     "0x0100",
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: Generic JMicron adapter; JMicron",
+    "0x152d:0x2337",
+    "",
+    "",
+    "-d usbjmicron"
   },
   { "USB: ; JMicron JM20337/8", // USB->SATA+PATA, USB+SATA->PATA
     "0x152d:0x2338",
@@ -2132,6 +2169,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // LucidPort
+  { "USB: RaidSonic ICY BOX IB-110StU3-B; LucidPORT USB300",
+    "0x1759:0x500[02]",
+    "",
+    "",
+    "-d sat"
+  },
   // Verbatim
   { "USB: Verbatim FW/USB160; Oxford OXUF934SSA-LQAG", // USB+IEE1394->SATA
     "0x18a5:0x0215",
@@ -2144,6 +2188,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbsunplus"
+  },
+  // Silicon Image
+  { "USB: Vantec NST-400MX-SR; Silicon Image 5744",
+    "0x1a4a:0x1670",
+    "",
+    "",
+    "" // unsupported
   },
   // SunplusIT
   { "USB: ; SunplusIT",
