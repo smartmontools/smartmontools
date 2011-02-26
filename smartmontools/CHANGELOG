@@ -42,6 +42,10 @@ Maintainers / Developers Key (alphabetic order):
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [MS] drivedb.h USB updates:
+       - Seagate FreeAgent Go Flex Desk USB 3.0
+       - Toshiba Canvio 500GB
+
+  [MS] drivedb.h USB updates:
        - Freecom HD 500GB (0x07ab:0xfcda)
        - Generic JMicron adapter (0x152d:0x2337)
        - RaidSonic ICY BOX IB-110StU3-B (0x1759:0x500[02])

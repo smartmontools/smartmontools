@@ -1704,6 +1704,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Toshiba
+  { "USB: Toshiba Canvio 500GB; ",
+    "0x0480:0xa004",
+    "",
+    "",
+    "-d usbsunplus"
+  },
   // Cypress
   { "USB: ; Cypress CY7C68300A (AT2)",
     "0x04b4:0x6830",
@@ -1932,6 +1939,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d sat"
+  },
+  { "USB: Seagate FreeAgent Go Flex Desk USB 3.0; ",
+    "0x0bc2:0x50a1",
+    "",
+    "",
+    "-d sat,12"
   },
   // Dura Micro
   { "USB: Dura Micro 509; Sunplus",
