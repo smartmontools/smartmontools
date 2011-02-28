@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Disable '-C' and '-U' monitoring if raw values are
+       very large (ticket #148).
+
   [CF] smartd: Write reserved attribute byte to '.state' file
        (ticket #118).
 

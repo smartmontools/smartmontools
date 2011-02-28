@@ -1668,6 +1668,30 @@ static void log_self_test_exec_status(const char * name, unsigned char status)
              name, status);
 }
 
+// Check pending sector count id (-C, -U directives).
+static bool check_pending_id(const dev_config & cfg, const dev_state & state,
+                             unsigned char id, const char * msg)
+{
+  // Check attribute index
+  int i = ata_find_attr_index(id, state.smartval);
+  if (i < 0) {
+    PrintOut(LOG_INFO, "Device: %s, can't monitor %s count - no Attribute %d\n",
+             cfg.name.c_str(), msg, id);
+    return false;
+  }
+
+  // Check value
+  uint64_t rawval = ata_get_attr_raw_value(state.smartval.vendor_attributes[i],
+    cfg.attribute_defs);
+  if (rawval >= (state.num_sectors ? state.num_sectors : 0xffffffffULL)) {
+    PrintOut(LOG_INFO, "Device: %s, ignoring %s count - bogus Attribute %d value %"PRIu64" (0x%"PRIx64")\n",
+             cfg.name.c_str(), msg, id, rawval, rawval);
+    return false;
+  }
+
+  return true;
+}
+
 
 // TODO: Add '-F swapid' directive
 const bool fix_swapped_id = false;
@@ -1693,7 +1717,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     CloseDevice(atadev, name);
     return 2; 
   }
-  // Store drive size (for selective self-test only)
+  // Store drive size
   state.num_sectors = get_num_sectors(&drive);
 
   // Show if device in database, and use preset vendor attribute
@@ -1808,17 +1832,15 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
     // see if the necessary Attribute is there to monitor offline or
     // current pending sectors or temperature
-    if (cfg.curr_pending_id && ata_find_attr_index(cfg.curr_pending_id, state.smartval) < 0) {
-      PrintOut(LOG_INFO,"Device: %s, can't monitor Current Pending Sector count - no Attribute %d\n",
-               name, cfg.curr_pending_id);
+    if (   cfg.curr_pending_id
+        && !check_pending_id(cfg, state, cfg.curr_pending_id,
+              "Current_Pending_Sector"))
       cfg.curr_pending_id = 0;
-    }
-    
-    if (cfg.offl_pending_id && ata_find_attr_index(cfg.offl_pending_id, state.smartval) < 0) {
-      PrintOut(LOG_INFO,"Device: %s, can't monitor Offline Uncorrectable Sector count - no Attribute %d\n",
-               name, cfg.offl_pending_id);
+
+    if (   cfg.offl_pending_id
+        && !check_pending_id(cfg, state, cfg.offl_pending_id,
+              "Offline_Uncorrectable"))
       cfg.offl_pending_id = 0;
-    }
 
     if (   (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
         && !ata_return_temperature_value(&state.smartval, cfg.attribute_defs)) {
