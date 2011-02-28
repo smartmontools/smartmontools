@@ -364,8 +364,9 @@ struct persistent_dev_state
     unsigned char val;
     unsigned char worst; // Byte needed for 'raw64' attribute only.
     uint64_t raw;
+    unsigned char resvd;
 
-    ata_attribute() : id(0), val(0), worst(0), raw(0) { }
+    ata_attribute() : id(0), val(0), worst(0), raw(0), resvd(0) { }
   };
   ata_attribute ata_attributes[NUMBER_ATA_SMART_ATTRIBUTES];
 
@@ -468,6 +469,7 @@ void dev_state::update_persistent_state()
            | ((uint64_t)ta.raw[3] << 24)
            | ((uint64_t)ta.raw[4] << 32)
            | ((uint64_t)ta.raw[5] << 40);
+    pa.resvd = ta.reserv;
   }
 }
 
@@ -491,6 +493,7 @@ void dev_state::update_temp_state()
     ta.raw[3] = (unsigned char)(pa.raw >> 24);
     ta.raw[4] = (unsigned char)(pa.raw >> 32);
     ta.raw[5] = (unsigned char)(pa.raw >> 40);
+    ta.reserv = pa.resvd;
   }
 }
 
@@ -516,16 +519,17 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
        "|(val)" // (18)
        "|(worst)" // (19)
        "|(raw)" // (20)
+       "|(resvd)" // (21)
        ")" // 16)
       ")" // 14)
      ")" // 1)
-     " *= *([0-9]+)[ \n]*$", // (21)
+     " *= *([0-9]+)[ \n]*$", // (22)
     REG_EXTENDED
   );
   if (regex.empty())
     throw std::logic_error("parse_dev_state_line: invalid regex");
 
-  const int nmatch = 1+21;
+  const int nmatch = 1+22;
   regmatch_t match[nmatch];
   if (!regex.execute(line, nmatch, match))
     return false;
@@ -574,6 +578,8 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
       state.ata_attributes[i].worst = (unsigned char)val;
     else if (match[++m].rm_so >= 0)
       state.ata_attributes[i].raw = val;
+    else if (match[++m].rm_so >= 0)
+      state.ata_attributes[i].resvd = (unsigned char)val;
     else
       return false;
   }
@@ -677,6 +683,7 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
     write_dev_state_line(f, "ata-smart-attribute", i, "val", pa.val);
     write_dev_state_line(f, "ata-smart-attribute", i, "worst", pa.worst);
     write_dev_state_line(f, "ata-smart-attribute", i, "raw", pa.raw);
+    write_dev_state_line(f, "ata-smart-attribute", i, "resvd", pa.resvd);
   }
 
   return true;

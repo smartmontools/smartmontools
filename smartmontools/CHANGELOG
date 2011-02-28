@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Write reserved attribute byte to '.state' file
+       (ticket #118).
+
   [MS] drivedb.h USB updates:
        - Seagate FreeAgent Go Flex Desk USB 3.0
        - Toshiba Canvio 500GB
