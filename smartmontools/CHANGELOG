@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Log identify information of each ATA device.
+
   [CF] smartd: Disable '-C' and '-U' monitoring if raw values are
        very large (ticket #148).
 

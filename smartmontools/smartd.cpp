@@ -407,7 +407,7 @@ struct temp_dev_state
                                           // know yet) 6 or 10
 
   // ATA ONLY
-  uint64_t num_sectors;                   // Number of sectors (for selective self-test only)
+  uint64_t num_sectors;                   // Number of sectors
   ata_smart_values smartval;              // SMART data
   ata_smart_thresholds_pvt smartthres;    // SMART thresholds
 
@@ -1717,8 +1717,15 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     CloseDevice(atadev, name);
     return 2; 
   }
-  // Store drive size
+
+  // Log drive identity and size
+  char model[40+1], serial[20+1], firmware[8+1];
+  format_ata_string(model, drive.model, sizeof(model)-1, fix_swapped_id);
+  format_ata_string(serial, drive.serial_no, sizeof(serial)-1, fix_swapped_id);
+  format_ata_string(firmware, drive.fw_rev, sizeof(firmware)-1, fix_swapped_id);
   state.num_sectors = get_num_sectors(&drive);
+  PrintOut(LOG_INFO, "Device: %s, %s, S/N:%s, FW:%s, %"PRIu64" sectors\n", name,
+           model, serial, firmware, state.num_sectors);
 
   // Show if device in database, and use preset vendor attribute
   // options unless user has requested otherwise.
@@ -1974,9 +1981,6 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   if (!state_path_prefix.empty() || !attrlog_path_prefix.empty()) {
     // Build file name for state file
-    char model[40+1], serial[20+1];
-    format_ata_string(model, drive.model, sizeof(model)-1, fix_swapped_id);
-    format_ata_string(serial, drive.serial_no, sizeof(serial)-1, fix_swapped_id);
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
     if (!state_path_prefix.empty()) {
