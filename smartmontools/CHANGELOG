@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartctl: Fix exit status of '-l xerror' and '-l xselftest'
+       (ticket #144).
+
   [CF] smartd: Use '-M daily' as default if state persistence is enabled.
        This avoids that emails are suppressed forever (ticket #35).
 
