@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Use '-M daily' as default if state persistence is enabled.
+       This avoids that emails are suppressed forever (ticket #35).
+
   [CF] smartd: Log identify information of each ATA device.
 
   [CF] smartd: Disable '-C' and '-U' monitoring if raw values are

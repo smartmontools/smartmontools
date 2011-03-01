@@ -763,11 +763,12 @@ three):
 
 .I once
 \- send only one warning email for each type of disk problem detected.  This
-is the default.
+is the default unless state persistence (\'\-s\' option) is enabled.
 
 .I daily
 \- send additional warning reminder emails, once per day, for each type
-of disk problem detected.
+of disk problem detected.  This is the default if state persistence
+(\'\-s\' option) is enabled.
 
 .I diminishing
 \- send additional warning reminder emails, after a one-day interval,

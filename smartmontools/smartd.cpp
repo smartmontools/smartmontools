@@ -1692,6 +1692,23 @@ static bool check_pending_id(const dev_config & cfg, const dev_state & state,
   return true;
 }
 
+// Called by ATA/SCSIDeviceScan() after successful device check
+static void finish_device_scan(dev_config & cfg, dev_state & state)
+{
+  // Set cfg.emailfreq if user hasn't set it
+  if ((!cfg.emailaddress.empty() || !cfg.emailcmdline.empty()) && !cfg.emailfreq) {
+    // Avoid that emails are suppressed forever due to state persistence
+    if (cfg.state_file.empty())
+      cfg.emailfreq = 1; // '-M once'
+    else
+      cfg.emailfreq = 2; // '-M daily'
+  }
+
+  // Start self-test regex check now if time was not read from state file
+  if (!cfg.test_regex.empty() && !state.scheduled_test_next_check)
+    state.scheduled_test_next_check = time(0);
+}
+
 
 // TODO: Add '-F swapid' directive
 const bool fix_swapped_id = false;
@@ -1996,9 +2013,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
       cfg.attrlog_file = strprintf("%s%s-%s.ata.csv", attrlog_path_prefix.c_str(), model, serial);
   }
 
-  // Start self-test regex check now if time was not read from state file
-  if (!cfg.test_regex.empty() && !state.scheduled_test_next_check)
-    state.scheduled_test_next_check = time(0);
+  finish_device_scan(cfg, state);
 
   return 0;
 }
@@ -2140,9 +2155,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   // close file descriptor
   CloseDevice(scsidev, device);
 
-  // Start self-test regex check now if time was not read from state file
-  if (!cfg.test_regex.empty() && !state.scheduled_test_next_check)
-    state.scheduled_test_next_check = time(0);
+  finish_device_scan(cfg, state);
 
   return 0;
 }
@@ -3670,10 +3683,6 @@ static int ParseConfigLine(dev_config_vector & conf_entries, int /*entry*/, int 
     // From here on the sign of <nomailer> is address.empty() and !cfg.emailcmdline.empty()
     cfg.emailaddress.clear();
   }
-
-  // set cfg.emailfreq to 1 (once) if user hasn't set it
-  if ((!cfg.emailaddress.empty() || !cfg.emailcmdline.empty()) && !cfg.emailfreq)
-    cfg.emailfreq = 1;
 
   if (devscan)
     return -1;
