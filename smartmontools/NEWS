@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3277 2011-03-01 20:17:45Z chrfranke $
+$Id: NEWS 3280 2011-03-02 22:30:11Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -12,6 +12,7 @@ Summary: smartmontools release 5.41
   self-test are no longer reported as errors.
 - smartctl prints physical and logical sector sizes.
 - smartd logs identify information of each ATA device.
+- smartd directive '-l scterc,READTIME,WRITETIME'.
 - configure option '--with-exampledir'.
 - 'make install' does no longer overwrite an existing
   smartd.conf file.
