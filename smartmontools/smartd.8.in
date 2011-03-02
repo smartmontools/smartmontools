@@ -980,6 +980,15 @@ options.]
 [ATA only] Failed self-tests outdated by a newer successful extended
 self\-test are ignored.
 
+.I scterc,READTIME,WRITETIME
+\- [ATA only] [NEW EXPERIMENTAL SMARTD FEATURE] sets the SCT Error
+Recovery Control settings to the specified values (deciseconds)
+when \fBsmartd\fP starts up and has no further effect.
+Values of 0 disable the feature, other values less than 65 are probably
+not supported.  For RAID configurations, this is typically set to
+70,70 deciseconds.
+[Please see the \fBsmartctl \-l scterc\fP command-line option.]
+
 .TP
 .B \-s REGEXP
 Run Self-Tests or Offline Immediate Tests, at scheduled times.  A

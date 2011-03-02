@@ -12,6 +12,7 @@ Summary: smartmontools release 5.41
   self-test are no longer reported as errors.
 - smartctl prints physical and logical sector sizes.
 - smartd logs identify information of each ATA device.
+- smartd directive '-l scterc,READTIME,WRITETIME'.
 - configure option '--with-exampledir'.
 - 'make install' does no longer overwrite an existing
   smartd.conf file.

@@ -286,6 +286,10 @@ struct dev_config
   bool emailtest;                         // Send test email?
 
   // ATA ONLY
+  bool sct_erc_set;                       // set SCT ERC to:
+  unsigned short sct_erc_readtime;        // ERC read time (deciseconds)
+  unsigned short sct_erc_writetime;       // ERC write time (deciseconds)
+
   unsigned char curr_pending_id;          // ID of current pending sector count, 0 if none
   unsigned char offl_pending_id;          // ID of offline uncorrectable sector count, 0 if none
   bool curr_pending_incr, offl_pending_incr; // True if current/offline pending values increase
@@ -321,6 +325,8 @@ dev_config::dev_config()
   tempinfo(0), tempcrit(0),
   emailfreq(0),
   emailtest(false),
+  sct_erc_set(false),
+  sct_erc_readtime(0), sct_erc_writetime(0),
   curr_pending_id(0), offl_pending_id(0),
   curr_pending_incr(false), offl_pending_incr(false),
   curr_pending_set(false),  offl_pending_set(false)
@@ -1460,6 +1466,7 @@ static void Directives()
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
            "  -l TYPE Monitor SMART log.  Type is one of: error, selftest, xerror\n"
+           "  -l scterc,R,W  Set SCT Error Recovery Control\n"
            "  -f      Monitor 'Usage' Attributes, report failures\n"
            "  -m ADD  Send email warning to address ADD\n"
            "  -M TYPE Modify email warning behavior (see man page)\n"
@@ -1979,6 +1986,19 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 	       name, powermode);
       cfg.powermode=0;
     }
+  }
+
+  // set SCT Error Recovery Control if requested
+  if (cfg.sct_erc_set) {
+    if (!isSCTErrorRecoveryControlCapable(&drive))
+      PrintOut(LOG_INFO, "Device: %s, no SCT Error Recovery Control support, ignoring -l scterc\n",
+               name);
+    else if (   ataSetSCTErrorRecoveryControltime(atadev, 1, cfg.sct_erc_readtime )
+             || ataSetSCTErrorRecoveryControltime(atadev, 2, cfg.sct_erc_writetime))
+      PrintOut(LOG_INFO, "Device: %s, set of SCT Error Recovery Control failed\n", name);
+    else
+      PrintOut(LOG_INFO, "Device: %s, SCT Error Recovery Control set to: Read: %u, Write: %u\n",
+               name, cfg.sct_erc_readtime, cfg.sct_erc_writetime);
   }
 
   // If no tests available or selected, return
@@ -3357,6 +3377,17 @@ static int ParseToken(char * token, dev_config & cfg)
     } else if (!strcmp(arg, "xerror")) {
       // track changes in Extended Comprehensive SMART error log
       cfg.xerrorlog = true;
+    } else if (!strncmp(arg, "scterc,", sizeof("scterc,")-1)) {
+        // set SCT Error Recovery Control
+        unsigned rt = ~0, wt = ~0; int nc = -1;
+        sscanf(arg,"scterc,%u,%u%n", &rt, &wt, &nc);
+        if (nc == (int)strlen(arg) && rt <= 999 && wt <= 999) {
+          cfg.sct_erc_set = true;
+          cfg.sct_erc_readtime = rt;
+          cfg.sct_erc_writetime = wt;
+        }
+        else
+          badarg = 1;
     } else {
       badarg = 1;
     }

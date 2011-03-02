@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Add '-l scterc,READTIME,WRITETIME' directive (ticket #150).
+
   [CF] smartctl: Fix exit status of '-l xerror' and '-l xselftest'
        (ticket #144).
 
