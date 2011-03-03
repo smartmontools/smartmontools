@@ -60,6 +60,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/utsname.h>
 #include <unistd.h>
 #include <stddef.h>  // for offsetof()
 #include <sys/uio.h>
@@ -2797,6 +2798,8 @@ class linux_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
+  virtual std::string get_os_version_str();
+
   virtual std::string get_app_examples(const char * appname);
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
@@ -2819,6 +2822,13 @@ private:
 
   smart_device * missing_option(const char * opt);
 };
+
+std::string linux_smart_interface::get_os_version_str()
+{
+  struct utsname u;
+  return strprintf("%s-%s", SMARTMONTOOLS_BUILD_HOST,
+    (!uname(&u) ? u.release : "?"));
+}
 
 std::string linux_smart_interface::get_app_examples(const char * appname)
 {
@@ -2985,6 +2995,19 @@ static inline bool str_starts_with(const char * str, const char * prefix)
   return !strncmp(str, prefix, strlen(prefix));
 }
 
+// Return kernel release as integer ("2.6.31" -> 206031)
+static unsigned get_kernel_release()
+{
+  struct utsname u;
+  if (uname(&u))
+    return 0;
+  unsigned x = 0, y = 0, z = 0;
+  if (!(sscanf(u.release, "%u.%u.%u", &x, &y, &z) == 3
+        && x < 100 && y < 100 && z < 1000             ))
+    return 0;
+  return x * 100000 + y * 1000 + z;
+}
+
 // Guess device type (ata or scsi) based on device name (Linux
 // specific) SCSI device name in linux can be sd, sr, scd, st, nst,
 // osst, nosst and sg.
@@ -3026,9 +3049,12 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
       const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
       if (!usbtype)
         return 0;
-      // Linux USB layer does not support 16 byte SAT pass through command
-      if (!strcmp(usbtype, "sat"))
+
+      // Kernels before 2.6.29 do not support the sense data length
+      // required for SAT ATA PASS-THROUGH(16)
+      if (!strcmp(usbtype, "sat") && get_kernel_release() < 206029)
         usbtype = "sat,12";
+
       // Return SAT/USB device for this type
       // (Note: linux_scsi_device::autodetect_open() will not be called in this case)
       return get_sat_device(usbtype, new linux_scsi_device(this, name, ""));

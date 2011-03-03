@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_linux.cpp: Change '-d sat' to '-d sat,12' for USB only if
+       kernel is older than 2.6.29.  Add kernel release to version info.
+
   [CF] smartd: Add '-l scterc,READTIME,WRITETIME' directive (ticket #150).
 
   [CF] smartctl: Fix exit status of '-l xerror' and '-l xselftest'
