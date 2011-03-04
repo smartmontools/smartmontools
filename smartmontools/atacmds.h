@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3272 2011-02-25 19:52:09Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3284 2011-03-04 21:33:35Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -772,7 +772,8 @@ int ataSmartShortCapSelfTest (ata_device * device);
 int ataSmartExtendCapSelfTest (ata_device * device);
 int ataSmartSelfTestAbort (ata_device * device);
 int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_args & args,
-                                 const ata_smart_values * sv, uint64_t num_sectors);
+                                 const ata_smart_values * sv, uint64_t num_sectors,
+                                 const ata_selective_selftest_args * prev_spans = 0);
 
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported

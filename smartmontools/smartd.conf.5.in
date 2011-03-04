@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3280 2011-03-02 22:30:11Z chrfranke $
+$Id: smartd.conf.5.in 3284 2011-03-04 21:33:35Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -584,6 +584,11 @@ or redo last span based on status of last test.
 The LBA range is based on the first span from the last test.
 See the \fBsmartctl \-t select,[next|redo|cont]\fP options for
 further info.
+
+[NEW EXPERIMENTAL SMARTD FEATURE] Some disks (e.g. WD) do not preserve
+the selective self test log accross power cycles.  If state persistence
+(\'\-s\' option) is enabled, the last test span is preserved by smartd
+and used if (and only if) the selective self test log is empty.
 
 .IP \fBMM\fP 4
 is the month of the year, expressed with two decimal digits.  The
@@ -1407,4 +1412,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3280 2011-03-02 22:30:11Z chrfranke $
+$Id: smartd.conf.5.in 3284 2011-03-04 21:33:35Z chrfranke $
