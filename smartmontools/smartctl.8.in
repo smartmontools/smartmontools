@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3272 2011-02-25 19:52:09Z chrfranke $
+ $Id: smartctl.8.in 3283 2011-03-04 20:13:57Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -208,6 +208,13 @@ specific device scan and the \fBDEVICESCAN\fP directive on
 Same as \-\-scan, but also tries to open each device before printing
 device info.  The device open may change the device type due
 to autodetection (see also \'\-d test\').
+
+This option can be used to create a draft \fBsmartd.conf\fP file.
+All options after \'\-\-\' are appended to each output line.
+For example:
+.nf
+smartctl --scan-open -- -a -W 4,45,50 -m admin@work > smartd.conf
+.fi
 
 .TP
 .B RUN\-TIME BEHAVIOR OPTIONS:
@@ -1932,4 +1939,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3272 2011-02-25 19:52:09Z chrfranke $
+$Id: smartctl.8.in 3283 2011-03-04 20:13:57Z chrfranke $
