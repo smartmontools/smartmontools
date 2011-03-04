@@ -50,7 +50,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 3257 2011-02-14 22:19:42Z manfred99 $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 3285 2011-03-04 22:08:49Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -392,10 +392,14 @@ regular_expression::regular_expression()
   memset(&m_regex_buf, 0, sizeof(m_regex_buf));
 }
 
-regular_expression::regular_expression(const char * pattern, int flags)
+regular_expression::regular_expression(const char * pattern, int flags,
+                                       bool throw_on_error /*= true*/)
 {
   memset(&m_regex_buf, 0, sizeof(m_regex_buf));
-  compile(pattern, flags);
+  if (!compile(pattern, flags) && throw_on_error)
+    throw std::runtime_error(strprintf(
+      "error in regular expression \"%s\": %s",
+      m_pattern.c_str(), m_errmsg.c_str()));
 }
 
 regular_expression::~regular_expression()

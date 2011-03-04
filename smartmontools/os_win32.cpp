@@ -85,7 +85,7 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3267 2011-02-21 17:14:25Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3285 2011-03-04 22:08:49Z chrfranke $";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
 #ifdef _WIN64
@@ -2173,8 +2173,6 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
   std::string prev_ant, ant, dep;
 
   const regular_expression regex("^.*PnPEntity\\.DeviceID=\"([^\"]*)\"", REG_EXTENDED);
-  if (regex.empty()) // TODO: throw in constructor?
-    return false;
 
   while (we.next(wo)) {
     prev_ant = ant;

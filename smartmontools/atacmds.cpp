@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3284 2011-03-04 21:33:35Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3285 2011-03-04 22:08:49Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -2781,9 +2781,7 @@ bool parsed_ata_device::open()
   ")"; // )
 
   // Compile regex
-  regular_expression regex;
-  if (!regex.compile(pattern, REG_EXTENDED))
-    return set_err(EIO, "invalid regex");
+  const regular_expression regex(pattern, REG_EXTENDED);
 
   // Parse buffer
   const char * errmsg = 0;
