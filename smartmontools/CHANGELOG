@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Preserve last selective self-test span in '.state' file
+       and use it if the selective self-test log was cleared (ticket #88).
+
   [CF] smartctl --scan-open: Make output compatible with smartd.conf
        (ticket #108).  Fix possible crash if autodetect_open() returns
        new object.

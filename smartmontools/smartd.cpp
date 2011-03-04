@@ -359,6 +359,9 @@ struct persistent_dev_state
 
   time_t scheduled_test_next_check;       // Time of next check for scheduled self-tests
 
+  uint64_t selective_test_last_start;     // Start LBA of last scheduled selective self-test
+  uint64_t selective_test_last_end;       // End LBA of last scheduled selective self-test
+
   mailinfo maillog[SMARTD_NMAIL];         // log info on when mail sent
 
   // ATA ONLY
@@ -384,6 +387,8 @@ persistent_dev_state::persistent_dev_state()
   selflogcount(0),
   selfloghour(0),
   scheduled_test_next_check(0),
+  selective_test_last_start(0),
+  selective_test_last_end(0),
   ataerrorcount(0)
 {
 }
@@ -513,29 +518,31 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
      "|(self-test-errors)" // (4)
      "|(self-test-last-err-hour)" // (5)
      "|(scheduled-test-next-check)" // (6)
-     "|(ata-error-count)"  // (7)
-     "|(mail\\.([0-9]+)\\." // (8 (9)
-       "((count)" // (10 (11)
-       "|(first-sent-time)" // (12)
-       "|(last-sent-time)" // (13)
-       ")" // 10)
-      ")" // 8)
-     "|(ata-smart-attribute\\.([0-9]+)\\." // (14 (15)
-       "((id)" // (16 (17)
-       "|(val)" // (18)
-       "|(worst)" // (19)
-       "|(raw)" // (20)
-       "|(resvd)" // (21)
-       ")" // 16)
-      ")" // 14)
+     "|(selective-test-last-start)" // (7)
+     "|(selective-test-last-end)" // (8)
+     "|(ata-error-count)"  // (9)
+     "|(mail\\.([0-9]+)\\." // (10 (11)
+       "((count)" // (12 (13)
+       "|(first-sent-time)" // (14)
+       "|(last-sent-time)" // (15)
+       ")" // 12)
+      ")" // 10)
+     "|(ata-smart-attribute\\.([0-9]+)\\." // (16 (17)
+       "((id)" // (18 (19)
+       "|(val)" // (20)
+       "|(worst)" // (21)
+       "|(raw)" // (22)
+       "|(resvd)" // (23)
+       ")" // 18)
+      ")" // 16)
      ")" // 1)
-     " *= *([0-9]+)[ \n]*$", // (22)
+     " *= *([0-9]+)[ \n]*$", // (24)
     REG_EXTENDED
   );
   if (regex.empty())
     throw std::logic_error("parse_dev_state_line: invalid regex");
 
-  const int nmatch = 1+22;
+  const int nmatch = 1+24;
   regmatch_t match[nmatch];
   if (!regex.execute(line, nmatch, match))
     return false;
@@ -555,6 +562,10 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
     state.selfloghour = (unsigned short)val;
   else if (match[++m].rm_so >= 0)
     state.scheduled_test_next_check = (time_t)val;
+  else if (match[++m].rm_so >= 0)
+    state.selective_test_last_start = val;
+  else if (match[++m].rm_so >= 0)
+    state.selective_test_last_end = val;
   else if (match[++m].rm_so >= 0)
     state.ataerrorcount = (int)val;
   else if (match[m+=2].rm_so >= 0) {
@@ -665,6 +676,8 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
   write_dev_state_line(f, "self-test-errors", state.selflogcount);
   write_dev_state_line(f, "self-test-last-err-hour", state.selfloghour);
   write_dev_state_line(f, "scheduled-test-next-check", state.scheduled_test_next_check);
+  write_dev_state_line(f, "selective-test-last-start", state.selective_test_last_start);
+  write_dev_state_line(f, "selective-test-last-end", state.selective_test_last_end);
 
   int i;
   for (i = 0; i < SMARTD_NMAIL; i++) {
@@ -2518,10 +2531,13 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
 
   if (dotest == SELECTIVE_SELF_TEST) {
     // Set test span
-    ata_selective_selftest_args selargs;
+    ata_selective_selftest_args selargs, prev_args;
     selargs.num_spans = 1;
     selargs.span[0].mode = mode;
-    if (ataWriteSelectiveSelfTestLog(device, selargs, &data, state.num_sectors)) {
+    prev_args.num_spans = 1;
+    prev_args.span[0].start = state.selective_test_last_start;
+    prev_args.span[0].end   = state.selective_test_last_end;
+    if (ataWriteSelectiveSelfTestLog(device, selargs, &data, state.num_sectors, &prev_args)) {
       PrintOut(LOG_CRIT, "Device: %s, prepare %sTest failed\n", name, testname);
       return 1;
     }
@@ -2531,6 +2547,8 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
       start, end, end - start + 1,
       (unsigned)((100 * start + state.num_sectors/2) / state.num_sectors),
       (unsigned)((100 * end   + state.num_sectors/2) / state.num_sectors));
+    state.selective_test_last_start = start;
+    state.selective_test_last_end = end;
   }
 
   // execute the test, and return status

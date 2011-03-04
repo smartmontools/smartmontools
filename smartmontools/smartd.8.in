@@ -1011,6 +1011,11 @@ The LBA range is based on the first span from the last test.
 See the \fBsmartctl \-t select,[next|redo|cont]\fP options for
 further info.
 
+[NEW EXPERIMENTAL SMARTD FEATURE] Some disks (e.g. WD) do not preserve
+the selective self test log accross power cycles.  If state persistence
+(\'\-s\' option) is enabled, the last test span is preserved by smartd
+and used if (and only if) the selective self test log is empty.
+
 .IP \fBMM\fP 4
 is the month of the year, expressed with two decimal digits.  The
 range is from 01 (January) to 12 (December) inclusive.  Do \fBnot\fP

@@ -772,7 +772,8 @@ int ataSmartShortCapSelfTest (ata_device * device);
 int ataSmartExtendCapSelfTest (ata_device * device);
 int ataSmartSelfTestAbort (ata_device * device);
 int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_args & args,
-                                 const ata_smart_values * sv, uint64_t num_sectors);
+                                 const ata_smart_values * sv, uint64_t num_sectors,
+                                 const ata_selective_selftest_args * prev_spans = 0);
 
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported

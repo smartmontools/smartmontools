@@ -1190,7 +1190,8 @@ int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_t
 
 // Writes the selective self-test log (log #9)
 int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_args & args,
-                                 const ata_smart_values * sv, uint64_t num_sectors)
+                                 const ata_smart_values * sv, uint64_t num_sectors,
+                                 const ata_selective_selftest_args * prev_args)
 {
   // Disk size must be known
   if (!num_sectors) {
@@ -1234,6 +1235,17 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
           break;
       }
     }
+
+    if (   (mode == SEL_REDO || mode == SEL_NEXT)
+        && prev_args && i < prev_args->num_spans
+        && !data->span[i].start && !data->span[i].end) {
+      // Some drives do not preserve the selective self-test log accross
+      // power-cyles.  If old span on drive is cleared use span provided
+      // by caller.  This is used by smartd (first span only).
+      data->span[i].start = prev_args->span[i].start;
+      data->span[i].end   = prev_args->span[i].end;
+    }
+
     switch (mode) {
       case SEL_RANGE: // -t select,START-END
         break;
