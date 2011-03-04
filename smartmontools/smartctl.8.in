@@ -209,6 +209,13 @@ Same as \-\-scan, but also tries to open each device before printing
 device info.  The device open may change the device type due
 to autodetection (see also \'\-d test\').
 
+This option can be used to create a draft \fBsmartd.conf\fP file.
+All options after \'\-\-\' are appended to each output line.
+For example:
+.nf
+smartctl --scan-open -- -a -W 4,45,50 -m admin@work > smartd.conf
+.fi
+
 .TP
 .B RUN\-TIME BEHAVIOR OPTIONS:
 .TP

@@ -233,7 +233,7 @@ enum checksum_err_mode_t {
 
 static checksum_err_mode_t checksum_err_mode = CHECKSUM_ERR_WARN;
 
-static void scan_devices(const char * type, bool with_open, const char * pattern);
+static void scan_devices(const char * type, bool with_open, char ** argv);
 
 /*      Takes command options and sets features to be run */    
 static const char * parse_options(int argc, char** argv,
@@ -777,7 +777,7 @@ static const char * parse_options(int argc, char** argv,
     // Read or init drive database to allow USB ID check.
     if (!no_defaultdb && !read_default_drive_databases())
       EXIT(FAILCMD);
-    scan_devices(type, (scan == opt_scan_open), argv[optind]);
+    scan_devices(type, (scan == opt_scan_open), argv + optind);
     EXIT(0);
   }
 
@@ -938,38 +938,51 @@ static const char * get_protocol_info(const smart_device * dev)
 }
 
 // Device scan
-// smartctl [-d type] --scan[-open] [PATTERN]
-void scan_devices(const char * type, bool with_open, const char * pattern)
+// smartctl [-d type] --scan[-open] -- [PATTERN] [smartd directive ...]
+void scan_devices(const char * type, bool with_open, char ** argv)
 {
   bool dont_print = !(ata_debugmode || scsi_debugmode);
-  smart_device_list devlist;
 
+  const char * pattern = 0;
+  int ai = 0;
+  if (argv[ai] && argv[ai][0] != '-')
+    pattern = argv[ai++];
+
+  smart_device_list devlist;
   printing_is_off = dont_print;
   bool ok = smi()->scan_smart_devices(devlist, type , pattern);
   printing_is_off = false;
 
   if (!ok) {
-    pout("scan_smart_devices: %s\n", smi()->get_errmsg());
+    pout("# scan_smart_devices: %s\n", smi()->get_errmsg());
     return;
   }
 
   for (unsigned i = 0; i < devlist.size(); i++) {
-    smart_device * dev = devlist.at(i);
+    smart_device_auto_ptr dev( devlist.release(i) );
 
-    std::string openmsg;
     if (with_open) {
       printing_is_off = dont_print;
-      dev = dev->autodetect_open();
+      dev.replace ( dev->autodetect_open() );
       printing_is_off = false;
 
-      if (dev->is_open())
-        openmsg = " (opened)";
-      else
-        openmsg = strprintf(" (open failed: %s)", dev->get_errmsg());
+      if (!dev->is_open()) {
+        pout("# %s -d %s # %s, %s device open failed: %s\n", dev->get_dev_name(),
+          dev->get_dev_type(), dev->get_info_name(),
+          get_protocol_info(dev.get()), dev->get_errmsg());
+        continue;
+      }
     }
 
-    pout("%s -d %s [%s]%s\n", dev->get_info_name(), dev->get_dev_type(),
-         get_protocol_info(dev), openmsg.c_str());
+    pout("%s -d %s", dev->get_dev_name(), dev->get_dev_type());
+    if (!argv[ai])
+      pout(" # %s, %s device\n", dev->get_info_name(), get_protocol_info(dev.get()));
+    else {
+      for (int j = ai; argv[j]; j++)
+        pout(" %s", argv[j]);
+      pout("\n");
+    }
+
     if (dev->is_open())
       dev->close();
   }
