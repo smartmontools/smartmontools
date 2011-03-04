@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # do a smartmontools release
-# (C) 2003-9 Bruce Allen <ballen4705@users.sourceforge.net>,
-#            Guido Guenther <agx@sigxcpu.org>
-#            Christian Franke <smartmontools-support@lists.sourceforge.net>
+# (C) 2003-11 Bruce Allen <ballen4705@users.sourceforge.net>,
+#             Guido Guenther <agx@sigxcpu.org>
+#             Christian Franke <smartmontools-support@lists.sourceforge.net>
 # $Id$
 
 # Notes on generating releases:
@@ -14,6 +14,9 @@
 # (5) when satisfied, add option '--commit'
 
 set -e
+
+# Smartmontools Signing Key (through 2012)
+KEYID=0x2753E77A
 
 inc_release()
 {
@@ -59,10 +62,10 @@ if [ -n "${REV//[0-9]/}" ]; then
 fi
 
 (cd $WDROOT && svn status) | while read s; do
-  case "$s" in
-    "M       "$DIRPAT/smartmontools/CHANGELOG)    echo "$s: OK";;
-    "M       "$DIRPAT/smartmontools/NEWS)         echo "$s: OK";;
-    "M       "$DIRPAT/smartmontools/configure.in) echo "$s: OK";;
+  case "`echo $s | tr -s ' '`" in
+    "M "$DIRPAT/smartmontools/CHANGELOG)    echo "$s: OK";;
+    "M "$DIRPAT/smartmontools/NEWS)         echo "$s: OK";;
+    "M "$DIRPAT/smartmontools/configure.in) echo "$s: OK";;
     *) echo "$s: not allowed"; exit 1;;
   esac
 done
@@ -126,7 +129,6 @@ mv -f build/smartmontools-$VERSION.tar.gz $TARFILE
 rm -rvf build
 
 md5sum $TARFILE > $TARFILE.md5
-sha1sum $TARFILE > $TARFILE.sha1
 
 # Increase release number
 if [ -z "$RC" -a "$DIRPAT" = "trunk" ]; then
@@ -135,5 +137,10 @@ if [ -z "$RC" -a "$DIRPAT" = "trunk" ]; then
     perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.in
     # svn commit -m "Bump release number to $NEW_VERSION" configure.in
   fi
+fi
+
+# Sign tarball
+if [ -n "$KEYID" ] && gpg --list-secret-keys $KEYID >/dev/null 2>/dev/null; then
+  gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSIONRC.tar.gz
 fi
 
