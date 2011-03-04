@@ -2781,9 +2781,7 @@ bool parsed_ata_device::open()
   ")"; // )
 
   // Compile regex
-  regular_expression regex;
-  if (!regex.compile(pattern, REG_EXTENDED))
-    return set_err(EIO, "invalid regex");
+  const regular_expression regex(pattern, REG_EXTENDED);
 
   // Parse buffer
   const char * errmsg = 0;

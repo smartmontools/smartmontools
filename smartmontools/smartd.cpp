@@ -511,7 +511,7 @@ void dev_state::update_temp_state()
 // Parse a line from a state file.
 static bool parse_dev_state_line(const char * line, persistent_dev_state & state)
 {
-  static regular_expression regex(
+  static const regular_expression regex(
     "^ *"
      "((temperature-min)" // (1 (2)
      "|(temperature-max)" // (3)
@@ -539,8 +539,6 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
      " *= *([0-9]+)[ \n]*$", // (24)
     REG_EXTENDED
   );
-  if (regex.empty())
-    throw std::logic_error("parse_dev_state_line: invalid regex");
 
   const int nmatch = 1+24;
   regmatch_t match[nmatch];

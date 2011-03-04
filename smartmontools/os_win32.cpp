@@ -2173,8 +2173,6 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
   std::string prev_ant, ant, dep;
 
   const regular_expression regex("^.*PnPEntity\\.DeviceID=\"([^\"]*)\"", REG_EXTENDED);
-  if (regex.empty()) // TODO: throw in constructor?
-    return false;
 
   while (we.next(wo)) {
     prev_ant = ant;

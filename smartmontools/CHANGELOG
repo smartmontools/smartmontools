@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Let constructor of regular_expression throw on error by default.
+
   [CF] smartd: Preserve last selective self-test span in '.state' file
        and use it if the selective self-test log was cleared (ticket #88).
 
