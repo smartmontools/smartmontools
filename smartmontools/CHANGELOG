@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h USB updates:
+       - Samsung S2 Portable variant (0x04e8:0x1f08)
+       - Lacie rikiki (0x059f:0x102a)
+       - Toshiba Stor.E Steel series (0x0930:0x0b11)
+       - Super Top generic enclosure (0x14cd:0x6116)
+
   [CF] Let constructor of regular_expression throw on error by default.
 
   [CF] smartd: Preserve last selective self-test span in '.state' file

@@ -1733,7 +1733,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Samsung
   { "USB: Samsung S2 Portable; JMicron",
-    "0x04e8:0x1f06",
+    "0x04e8:0x1f0[68]",
     "",
     "",
     "-d usbjmicron"
@@ -1831,6 +1831,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: Lacie rikiki; JMicron",
+    "0x059f:0x102a",
+    "",
+    "",
+    "-d usbjmicron,x"
+  },
   // In-System Design
   { "USB: ; In-System/Cypress ISD-300A1",
     "0x05ab:0x0060",
@@ -1899,6 +1905,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Toshiba PX1396E-3T01; Sunplus", // similar to Dura Micro 501
     "0x0930:0x0b09",
+    "",
+    "",
+    "-d usbsunplus"
+  },
+  { "USB: Toshiba Stor.E Steel series; Sunplus",
+    "0x0930:0x0b11",
     "",
     "",
     "-d usbsunplus"
@@ -2113,6 +2125,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d sat"
+  },
+  // Super Top
+  { "USB: Super Top generic enclosure; Cypress",
+    "0x14cd:0x6116",
+    "",
+    "",
+    "-d usbcypress"
   },
   // JMicron
   { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
