@@ -490,16 +490,14 @@ static unsigned determine_sector_sizes(const ata_identify_device * id,
   return phy_sector_size;
 }
 
-static bool PrintDriveInfo(const ata_identify_device * drive, bool fix_swapped_id)
+static void print_drive_info(const ata_identify_device * drive,
+                             const drive_settings * dbentry, bool fix_swapped_id)
 {
   // format drive information (with byte swapping as needed)
   char model[64], serial[64], firm[64];
   format_ata_string(model, drive->model, 40, fix_swapped_id);
   format_ata_string(serial, drive->serial_no, 20, fix_swapped_id);
   format_ata_string(firm, drive->fw_rev, 8, fix_swapped_id);
-
-  // print out model, serial # and firmware versions  (byte-swap ASCI strings)
-  const drive_settings * dbentry = lookup_drive(model, firm);
 
   // Print model family if known
   if (dbentry && *dbentry->modelfamily)
@@ -570,11 +568,10 @@ static bool PrintDriveInfo(const ata_identify_device * drive, bool fix_swapped_i
     pout("\n==> WARNING: %s\n\n", dbentry->warningmsg);
 
   if (!version || version >= 3)
-    return !!dbentry;
+    return;
   
   pout("SMART is only available in ATA Version 3 Revision 3 or greater.\n");
   pout("We will try to proceed in spite of this.\n");
-  return !!dbentry;
 }
 
 static const char *OfflineDataCollectionStatus(unsigned char status_byte)
@@ -1899,14 +1896,15 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Use preset vendor attribute options unless user has requested otherwise.
   ata_vendor_attr_defs attribute_defs = options.attribute_defs;
   unsigned char fix_firmwarebug = options.fix_firmwarebug;
+  const drive_settings * dbentry = 0;
   if (!options.ignore_presets)
-    apply_presets(&drive, attribute_defs, fix_firmwarebug, options.fix_swapped_id);
+    dbentry = lookup_drive_apply_presets(&drive, attribute_defs,
+      fix_firmwarebug, options.fix_swapped_id);
 
   // Print most drive identity information if requested
-  bool known = false;
   if (options.drive_info) {
     pout("=== START OF INFORMATION SECTION ===\n");
-    known = PrintDriveInfo(&drive, options.fix_swapped_id);
+    print_drive_info(&drive, dbentry, options.fix_swapped_id);
   }
 
   // Check and print SMART support and state
@@ -1935,7 +1933,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
             smart_supported = smart_enabled = 1;
         }
       }
-      else if (smart_supported < 0 && (smart_enabled > 0 || known))
+      else if (smart_supported < 0 && (smart_enabled > 0 || dbentry))
         // Assume supported if enabled or in drive database
         smart_supported = 1;
 

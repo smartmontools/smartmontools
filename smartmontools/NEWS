@@ -13,6 +13,7 @@ Summary: smartmontools release 5.41
 - smartctl prints physical and logical sector sizes.
 - 'smartctl --scan-open' can create a draft smartd.conf.
 - smartd logs identify information of each ATA device.
+- smartd logs warning from drive database if present.
 - smartd directive '-l scterc,READTIME,WRITETIME'.
 - smartd preserves last scheduled selective self-tests span.
 - configure option '--with-exampledir'.

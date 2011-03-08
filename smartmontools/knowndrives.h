@@ -4,8 +4,8 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-10 Philip Williams, Bruce Allen
- * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-11 Philip Williams, Bruce Allen
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,10 +32,6 @@ struct drive_settings {
   const char * presets;
 };
 
-// Searches knowndrives[] for a drive with the given model number and firmware
-// string.
-const drive_settings * lookup_drive(const char * model, const char * firmware);
-
 // info returned by lookup_usb_device()
 struct usb_dev_info
 {
@@ -59,12 +55,13 @@ int showallpresets();
 // Returns # matching entries.
 int showmatchingpresets(const char *model, const char *firmware);
 
-// Sets preset vendor attribute options in opts by finding the entry
-// (if any) for the given drive in knowndrives[].  Values that have
-// already been set in opts will not be changed.  Also sets options in
-// con.  Returns false if drive not recognized.
-bool apply_presets(const ata_identify_device * drive, ata_vendor_attr_defs & defs,
-                   unsigned char & fix_firmwarebug, bool fix_swapped_id);
+// Searches drive database and sets preset vendor attribute
+// options in defs and fix_firmwarebug.
+// Values that have already been set will not be changed.
+// Returns pointer to database entry or nullptr if none found.
+const drive_settings * lookup_drive_apply_presets(
+  const ata_identify_device * drive, ata_vendor_attr_defs & defs,
+  unsigned char & fix_firmwarebug, bool fix_swapped_id);
 
 // Get path for additional database file
 const char * get_drivedb_path_add();
