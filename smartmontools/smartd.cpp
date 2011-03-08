@@ -125,7 +125,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3285 2011-03-04 22:08:49Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3287 2011-03-08 21:01:01Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -1767,11 +1767,16 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   if (cfg.ignorepresets)
     PrintOut(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", name);
   else {
-    // do whatever applypresets decides to do.
-    if (!apply_presets(&drive, cfg.attribute_defs, cfg.fix_firmwarebug, fix_swapped_id))
+    // Apply vendor specific presets, print warning if present
+    const drive_settings * dbentry = lookup_drive_apply_presets(
+      &drive, cfg.attribute_defs, cfg.fix_firmwarebug, fix_swapped_id);
+    if (!dbentry)
       PrintOut(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
-    else
+    else {
       PrintOut(LOG_INFO, "Device: %s, found in smartd database.\n", name);
+      if (*dbentry->warningmsg)
+        PrintOut(LOG_CRIT, "Device: %s, WARNING: %s\n", name, dbentry->warningmsg);
+    }
   }
 
   // Set default '-C 197[+]' if no '-C ID' is specified.
