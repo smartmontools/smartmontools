@@ -158,17 +158,12 @@ AC_ARG_WITH(initscriptdir,
 AC_SUBST(initddir)
 AM_CONDITIONAL(INSTALL_INITSCRIPT, [test "$with_initscriptdir" != "no"])
 
-docdir_is_default=no
 AC_ARG_WITH(docdir,
   [AC_HELP_STRING([--with-docdir=DIR],[Location of documentation [DATADIR/doc/smartmontools]])],
   [docdir="$withval"],
   [ if test -z "$docdir"; then
       # autoconf 2.5x without '--docdir' support
       docdir='${datadir}/doc/${PACKAGE}'
-      docdir_is_default=yes
-    elif test "$docdir" = '${datarootdir}/doc/${PACKAGE_TARNAME}'; then
-      # autoconf 2.6x '--docdir' default
-      docdir_is_default=yes
     fi
   ])
 AC_SUBST(docdir)
@@ -180,12 +175,11 @@ AC_SUBST(exampledir)
 
 AC_ARG_ENABLE(drivedb,
   [AC_HELP_STRING([--disable-drivedb],[Disables drive database file])],
-  [drivedbdir_is_default=no],
-  [enable_drivedb=yes; drivedbdir_is_default=yes])
+  [], [enable_drivedb=yes])
 
 AC_ARG_WITH(drivedbdir,
   [AC_HELP_STRING([--with-drivedbdir=DIR],[Location of drive database file (implies --enable-drivedb) [DATADIR/smartmontools]])],
-  [drivedbdir="$withval"; enable_drivedb=yes; drivedbdir_is_default=no],
+  [drivedbdir="$withval"; enable_drivedb=yes],
   [drivedbdir=; test "$enable_drivedb" = "yes" && drivedbdir='${datadir}/${PACKAGE}'])
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test "$enable_drivedb" = "yes"])
@@ -433,9 +427,6 @@ case "$host_os" in
     echo "message compiler:       $WINDMC" >&AS_MESSAGE_FD
     if test -n "$drivedbdir"; then
       echo "drive database file:    EXEDIR/drivedb.h" >&AS_MESSAGE_FD
-      if test "$drivedbdir_is_default" = "yes"; then
-        echo "(NOTE: old default was: [[disabled]])" >&AS_MESSAGE_FD
-      fi
     else
       echo "drive database file:    [[disabled]]" >&AS_MESSAGE_FD
     fi
@@ -451,15 +442,9 @@ case "$host_os" in
     echo "binary install path:    `eval eval eval echo $sbindir`" >&AS_MESSAGE_FD
     echo "man page install path:  `eval eval eval echo $mandir`" >&AS_MESSAGE_FD
     echo "doc file install path:  `eval eval eval echo $docdir`" >&AS_MESSAGE_FD
-    if test "$docdir_is_default" = "yes"; then
-      echo "(NOTE: old default was: `eval eval eval echo ${prefix}/share/doc/${PACKAGE}-${VERSION}`)" >&AS_MESSAGE_FD
-    fi
     echo "examples install path:  `eval eval eval echo $exampledir`" >&AS_MESSAGE_FD
     if test -n "$drivedbdir"; then
       echo "drive database file:    `eval eval eval echo $drivedbdir`/drivedb.h" >&AS_MESSAGE_FD
-      if test "$drivedbdir_is_default" = "yes"; then
-        echo "(NOTE: old default was: [[disabled]])" >&AS_MESSAGE_FD
-      fi
       echo "database update script: `eval eval eval echo $sbindir`/update-smart-drivedb" >&AS_MESSAGE_FD
       echo "download tools:         `eval eval eval echo $os_dltools`" >&AS_MESSAGE_FD
     else

@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: Remove info messages about old defaults.
+
   [CF] drivedb.h: Set unneeded USB bcdDevice patterns to empty.
 
   [CF] Rework USB ID drivedb search.  Stop search at first matching
