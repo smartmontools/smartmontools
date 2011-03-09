@@ -89,8 +89,8 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id$" \
-ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char * os_linux_cpp_cvsid = "$Id$"
+  OS_LINUX_H_CVSID;
 
 
 namespace os_linux { // No need to publish anything, name provided for Doxygen
@@ -934,7 +934,7 @@ smart_device * linux_megaraid_device::autodetect_open()
       return this;
 
   if (report)
-    printf("Got MegaRAID inquiry.. %s\n", req_buff+8);
+    pout("Got MegaRAID inquiry.. %s\n", req_buff+8);
 
   // Use INQUIRY to detect type
   {
@@ -978,14 +978,14 @@ bool linux_megaraid_device::open()
   	if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
 	   n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR, makedev(mjr, 0));
 	   if(report > 0)
-	     printf("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
+	     pout("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
 	   if (n1 >= 0 || errno == EEXIST)
 	      break;
 	}
 	else if (sscanf(line, "%d megadev%n", &mjr, &n1) == 1 && n1 == 11) {
 	   n1=mknod("/dev/megadev0", S_IFCHR, makedev(mjr, 0));
 	   if(report > 0)
-	     printf("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
+	     pout("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
 	   if (n1 >= 0 || errno == EEXIST)
 	      break;
 	}
@@ -1763,6 +1763,7 @@ static int find_areca_in_proc(char *hint)
 }
 
 
+#if 0 // For debugging areca code
 
 static void dumpdata(unsigned char *block, int len)
 {
@@ -1811,7 +1812,7 @@ static void dumpdata(unsigned char *block, int len)
 	printf("=====================================================================\n");
 }
 
-
+#endif
 
 static int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned char *data, int data_len, void *ext_data /* reserved for further use */)
 {
@@ -1935,14 +1936,14 @@ static int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned cha
 	// Deal with the different error cases
 	if ( ioctlreturn )
 	{
-		printf("do_scsi_cmnd_io with write buffer failed code = %x\n", ioctlreturn);
+		pout("do_scsi_cmnd_io with write buffer failed code = %x\n", ioctlreturn);
 		return -2;
 	}
 
 
 	if ( io_hdr.scsi_status )
 	{
-		printf("io_hdr.scsi_status with write buffer failed code = %x\n", io_hdr.scsi_status);
+		pout("io_hdr.scsi_status with write buffer failed code = %x\n", io_hdr.scsi_status);
 		return -3;
 	}
 
