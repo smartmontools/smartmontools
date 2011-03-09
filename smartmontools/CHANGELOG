@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Include CSMI (for Intel RAID) in default DEVICESCAN.
+
   [CF] configure.in: Remove info messages about old defaults.
 
   [CF] drivedb.h: Set unneeded USB bcdDevice patterns to empty.

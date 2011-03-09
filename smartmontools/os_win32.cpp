@@ -757,6 +757,7 @@ static win_dev_type get_dev_type(const char * name, int & phydrive)
     return DEV_SCSI;
   if (!strncmp(name, "tape", 4))
     return DEV_SCSI;
+
   int logdrive = drive_letter(name);
   if (logdrive >= 0) {
     win_dev_type type = get_log_drive_type(logdrive);
@@ -865,7 +866,7 @@ bool winnt_smart_interface::scan_smart_devices(smart_device_list & devlist,
   // Set valid types
   bool ata, scsi, usb, csmi;
   if (!type) {
-    ata = scsi = usb = true; csmi = false;
+    ata = scsi = usb = csmi = true;
   }
   else {
     ata = scsi = usb = csmi = false;
@@ -3196,6 +3197,9 @@ bool win_csmi_device::open_scsi()
       set_err(EIO, "%s: Error=%ld", devpath, err);
     return false;
   }
+
+  if (scsi_debugmode > 1)
+    pout(" %s: successfully opened\n", devpath);
 
   m_fh = h;
   m_phy_no = phy_no;
