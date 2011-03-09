@@ -45,7 +45,7 @@ int lookup_usb_device(int vendor_id, int product_id, int bcd_device,
                       usb_dev_info & info, usb_dev_info & info2);
 
 // Shows the presets (if any) that are available for the given drive.
-void show_presets(const ata_identify_device * drive, bool fix_swapped_id);
+void show_presets(const ata_identify_device * drive);
 
 // Shows all presets for drives in knowndrives[].
 // Returns #syntax errors.
@@ -61,7 +61,7 @@ int showmatchingpresets(const char *model, const char *firmware);
 // Returns pointer to database entry or nullptr if none found.
 const drive_settings * lookup_drive_apply_presets(
   const ata_identify_device * drive, ata_vendor_attr_defs & defs,
-  unsigned char & fix_firmwarebug, bool fix_swapped_id);
+  unsigned char & fix_firmwarebug);
 
 // Get path for additional database file
 const char * get_drivedb_path_add();

@@ -491,13 +491,13 @@ static unsigned determine_sector_sizes(const ata_identify_device * id,
 }
 
 static void print_drive_info(const ata_identify_device * drive,
-                             const drive_settings * dbentry, bool fix_swapped_id)
+                             const drive_settings * dbentry)
 {
   // format drive information (with byte swapping as needed)
-  char model[64], serial[64], firm[64];
-  format_ata_string(model, drive->model, 40, fix_swapped_id);
-  format_ata_string(serial, drive->serial_no, 20, fix_swapped_id);
-  format_ata_string(firm, drive->fw_rev, 8, fix_swapped_id);
+  char model[40+1], serial[20+1], firmware[8+1];
+  ata_format_id_string(model, drive->model, sizeof(model)-1);
+  ata_format_id_string(serial, drive->serial_no, sizeof(serial)-1);
+  ata_format_id_string(firmware, drive->fw_rev, sizeof(firmware)-1);
 
   // Print model family if known
   if (dbentry && *dbentry->modelfamily)
@@ -506,7 +506,7 @@ static void print_drive_info(const ata_identify_device * drive,
   pout("Device Model:     %s\n", infofound(model));
   if (!dont_print_serial_number)
     pout("Serial Number:    %s\n", infofound(serial));
-  pout("Firmware Version: %s\n", infofound(firm));
+  pout("Firmware Version: %s\n", infofound(firmware));
 
   char capacity[64];
   if (determine_capacity(drive, capacity))
@@ -1881,7 +1881,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
   int returnval = 0;
   ata_identify_device drive; memset(&drive, 0, sizeof(drive));
-  int retid = ataReadHDIdentity(device,&drive);
+  int retid = ata_read_identity(device, &drive, options.fix_swapped_id);
   if (retid < 0) {
     pout("Smartctl: Device Read Identity Failed (not an ATA/ATAPI device)\n\n");
     failuretest(MANDATORY_CMD, returnval|=FAILID);
@@ -1889,7 +1889,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // If requested, show which presets would be used for this drive and exit.
   if (options.show_presets) {
-    show_presets(&drive, options.fix_swapped_id);
+    show_presets(&drive);
     return 0;
   }
 
@@ -1899,12 +1899,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   const drive_settings * dbentry = 0;
   if (!options.ignore_presets)
     dbentry = lookup_drive_apply_presets(&drive, attribute_defs,
-      fix_firmwarebug, options.fix_swapped_id);
+      fix_firmwarebug);
 
   // Print most drive identity information if requested
   if (options.drive_info) {
     pout("=== START OF INFORMATION SECTION ===\n");
-    print_drive_info(&drive, dbentry, options.fix_swapped_id);
+    print_drive_info(&drive, dbentry);
   }
 
   // Check and print SMART support and state

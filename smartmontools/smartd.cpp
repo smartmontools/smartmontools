@@ -1742,7 +1742,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   // Device must be open
 
   // Get drive identity structure
-  if ((retid=ataReadHDIdentity (atadev, &drive))){
+  if ((retid = ata_read_identity(atadev, &drive, fix_swapped_id))) {
     if (retid<0)
       // Unable to read Identity structure
       PrintOut(LOG_INFO,"Device: %s, not ATA, no IDENTIFY DEVICE Structure\n",name);
@@ -1755,9 +1755,9 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   // Log drive identity and size
   char model[40+1], serial[20+1], firmware[8+1];
-  format_ata_string(model, drive.model, sizeof(model)-1, fix_swapped_id);
-  format_ata_string(serial, drive.serial_no, sizeof(serial)-1, fix_swapped_id);
-  format_ata_string(firmware, drive.fw_rev, sizeof(firmware)-1, fix_swapped_id);
+  ata_format_id_string(model, drive.model, sizeof(model)-1);
+  ata_format_id_string(serial, drive.serial_no, sizeof(serial)-1);
+  ata_format_id_string(firmware, drive.fw_rev, sizeof(firmware)-1);
   state.num_sectors = get_num_sectors(&drive);
   PrintOut(LOG_INFO, "Device: %s, %s, S/N:%s, FW:%s, %"PRIu64" sectors\n", name,
            model, serial, firmware, state.num_sectors);
@@ -1769,7 +1769,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   else {
     // Apply vendor specific presets, print warning if present
     const drive_settings * dbentry = lookup_drive_apply_presets(
-      &drive, cfg.attribute_defs, cfg.fix_firmwarebug, fix_swapped_id);
+      &drive, cfg.attribute_defs, cfg.fix_firmwarebug);
     if (!dbentry)
       PrintOut(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
     else {
@@ -1792,7 +1792,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     PrintOut(LOG_INFO, "Device %s: presets are:\n", name);
     if (!debugmode)
       debugmode=2;
-    show_presets(&drive, false);
+    show_presets(&drive);
     debugmode=savedebugmode;
   }
 

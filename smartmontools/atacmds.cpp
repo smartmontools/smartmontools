@@ -760,11 +760,12 @@ static void trim(char * out, const char * in)
 }
 
 // Convenience function for formatting strings from ata_identify_device
-void format_ata_string(char * out, const char * in, int n, bool fix_swap)
+void ata_format_id_string(char * out, const unsigned char * in, int n)
 {
-  bool must_swap = !fix_swap;
+  bool must_swap = true;
 #ifdef __NetBSD__
   /* NetBSD kernel delivers IDENTIFY data in host byte order (but all else is LE) */
+  // TODO: Handle NetBSD case in os_netbsd.cpp
   if (isbigendian())
     must_swap = !must_swap;
 #endif
@@ -772,9 +773,9 @@ void format_ata_string(char * out, const char * in, int n, bool fix_swap)
   char tmp[65];
   n = n > 64 ? 64 : n;
   if (!must_swap)
-    strncpy(tmp, in, n);
+    strncpy(tmp, (const char *)in, n);
   else
-    swapbytes(tmp, in, n);
+    swapbytes(tmp, (const char *)in, n);
   tmp[n] = '\0';
   trim(out, tmp);
 }
@@ -806,7 +807,8 @@ int ataCheckPowerMode(ata_device * device) {
 // capable).  The value of the integer helps identify the type of
 // Packet device, which is useful so that the user can connect the
 // formal device number with whatever object is inside their computer.
-int ataReadHDIdentity (ata_device * device, struct ata_identify_device *buf){
+int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id)
+{
   unsigned short *rawshort=(unsigned short *)buf;
   unsigned char  *rawbyte =(unsigned char  *)buf;
 
@@ -820,11 +822,22 @@ int ataReadHDIdentity (ata_device * device, struct ata_identify_device *buf){
     packet = true;
   }
 
+  unsigned i;
+  if (fix_swapped_id) {
+    // Swap ID strings
+    for (i = 0; i < sizeof(buf->serial_no)-1; i += 2)
+      swap2((char *)(buf->serial_no+i));
+    for (i = 0; i < sizeof(buf->fw_rev)-1; i += 2)
+      swap2((char *)(buf->fw_rev+i));
+    for (i = 0; i < sizeof(buf->model)-1; i += 2)
+      swap2((char *)(buf->model+i));
+  }
+
 #ifndef __NetBSD__
   // if machine is big-endian, swap byte order as needed
   // NetBSD kernel delivers IDENTIFY data in host byte order
+  // TODO: Handle NetBSD case in os_netbsd.cpp
   if (isbigendian()){
-    int i;
     
     // swap various capability words that are needed
     for (i=0; i<33; i++)

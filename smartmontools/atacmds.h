@@ -714,7 +714,7 @@ extern unsigned char ata_debugmode;
 extern bool dont_print_serial_number;
 
 // Get information from drive
-int ataReadHDIdentity(ata_device * device, struct ata_identify_device *buf);
+int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id);
 int ataCheckPowerMode(ata_device * device);
 
 /* Read S.M.A.R.T information from drive */
@@ -938,9 +938,7 @@ int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries
 uint64_t get_num_sectors(const ata_identify_device * drive);
 
 // Convenience function for formatting strings from ata_identify_device.
-void format_ata_string(char * out, const char * in, int n, bool fix_swap);
-inline void format_ata_string(char * out, const unsigned char * in, int n, bool fix_swap)
-  { format_ata_string(out, (const char *)in, n, fix_swap); }
+void ata_format_id_string(char * out, const unsigned char * in, int n);
 
 // Utility routines.
 unsigned char checksum(const void * data);

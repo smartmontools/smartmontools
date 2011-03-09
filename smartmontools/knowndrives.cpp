@@ -481,14 +481,14 @@ int showmatchingpresets(const char *model, const char *firmware)
 }
 
 // Shows the presets (if any) that are available for the given drive.
-void show_presets(const ata_identify_device * drive, bool fix_swapped_id)
+void show_presets(const ata_identify_device * drive)
 {
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
 
   // get the drive's model/firmware strings
-  format_ata_string(model, drive->model, MODEL_STRING_LENGTH, fix_swapped_id);
-  format_ata_string(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH, fix_swapped_id);
-  
+  ata_format_id_string(model, drive->model, sizeof(model)-1);
+  ata_format_id_string(firmware, drive->fw_rev, sizeof(firmware)-1);
+
   // and search to see if they match values in the table
   const drive_settings * dbentry = lookup_drive(model, firmware);
   if (!dbentry) {
@@ -517,13 +517,13 @@ void show_presets(const ata_identify_device * drive, bool fix_swapped_id)
 // Returns pointer to database entry or nullptr if none found
 const drive_settings * lookup_drive_apply_presets(
   const ata_identify_device * drive, ata_vendor_attr_defs & defs,
-  unsigned char & fix_firmwarebug, bool fix_swapped_id)
+  unsigned char & fix_firmwarebug)
 {
   // get the drive's model/firmware strings
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
-  format_ata_string(model, drive->model, MODEL_STRING_LENGTH, fix_swapped_id);
-  format_ata_string(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH, fix_swapped_id);
-  
+  ata_format_id_string(model, drive->model, sizeof(model)-1);
+  ata_format_id_string(firmware, drive->fw_rev, sizeof(firmware)-1);
+
   // Look up the drive in knowndrives[].
   const drive_settings * dbentry = lookup_drive(model, firmware);
   if (!dbentry)
