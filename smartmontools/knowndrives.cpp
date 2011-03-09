@@ -288,7 +288,6 @@ int lookup_usb_device(int vendor_id, int product_id, int bcd_device,
     bcd_dev_str[0] = 0;
 
   int found = 0;
-  bool bcd_match = false;
   for (unsigned i = 0; i < knowndrives.size(); i++) {
     const drive_settings & dbentry = knowndrives[i];
 
@@ -308,18 +307,25 @@ int lookup_usb_device(int vendor_id, int product_id, int bcd_device,
 
     // If two entries with same vendor:product ID have different
     // types, use bcd_device (if provided by OS) to select entry.
-    bool bm = (   *bcd_dev_str && *dbentry.firmwareregexp
-               && match(dbentry.firmwareregexp, bcd_dev_str));
-
-    if (found == 0 || bm > bcd_match) {
+    if (  *dbentry.firmwareregexp && *bcd_dev_str
+        && match(dbentry.firmwareregexp, bcd_dev_str)) {
+      // Exact match including bcd_device
       info = d; found = 1;
-      bcd_match = bm;
+      break;
     }
-    else if (info.usb_type != d.usb_type && bm == bcd_match) {
-      // two different entries found
+    else if (!found) {
+      // First match without bcd_device
+      info = d; found = 1;
+    }
+    else if (info.usb_type != d.usb_type) {
+      // Another possible match with different type
       info2 = d; found = 2;
       break;
     }
+
+    // Stop search at first matching entry with empty bcd_device
+    if (!*dbentry.firmwareregexp)
+      break;
   }
 
   return found;

@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Rework USB ID drivedb search.  Stop search at first matching
+       entry with empty bcd_device pattern.
+
   [CF] Move handling of '-F swapid' from formatting to identity read
        function.  Remove unneeded 'fix_swapped_id' parameters.
 
