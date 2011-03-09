@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3290 2011-03-09 20:40:36Z chrfranke $
+$Id: CHANGELOG 3291 2011-03-09 20:44:51Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] configure.in: Remove info messages about old defaults.
 
   [CF] drivedb.h: Set unneeded USB bcdDevice patterns to empty.
 
