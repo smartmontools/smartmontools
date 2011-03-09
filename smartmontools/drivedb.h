@@ -1727,7 +1727,7 @@ const drive_settings builtin_knowndrives[] = {
   // Myson Century
   { "USB: ; Myson Century CS8818",
     "0x04cf:0x8818",
-    "0xb007",
+    "", // 0xb007
     "",
     "" // unsupported
   },
@@ -1765,13 +1765,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; SunPlus SPDIF215",
     "0x04fc:0x0c15",
-    "0xf615",
+    "", // 0xf615
     "",
     "-d usbsunplus"
   },
   { "USB: ; SunPlus SPDIF225", // USB+SATA->SATA
     "0x04fc:0x0c25",
-    "0x0103",
+    "", // 0x0103
     "",
     "-d usbsunplus"
   },
@@ -1784,7 +1784,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Iomega MDHD500-U; ",
     "0x059b:0x0275",
-    "0x0001",
+    "", // 0x0001
     "",
     "" // unsupported
   },
@@ -1827,7 +1827,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: LaCie Rugged Hard Drive; JMicron",
     "0x059f:0x101d",
-    "0x0001",
+    "", // 0x0001
     "",
     "-d usbjmicron,x"
   },
@@ -1840,7 +1840,7 @@ const drive_settings builtin_knowndrives[] = {
   // In-System Design
   { "USB: ; In-System/Cypress ISD-300A1",
     "0x05ab:0x0060",
-    "0x1101",
+    "", // 0x1101
     "",
     "-d usbcypress"
   },
@@ -1853,7 +1853,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; Genesys Logic", // TODO: requires '-T permissive'
     "0x05e3:0x0718",
-    "0x0041",
+    "", // 0x0041
     "",
     "-d sat"
   },
@@ -1873,14 +1873,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; Prolific PL3507", // USB+IEE1394->PATA
     "0x067b:0x3507",
-    "0x0001",
+    "", // 0x0001
     "",
     "" // unsupported
   },
   // Freecom
   { "USB: Freecom Hard Drive XS; Sunplus",
     "0x07ab:0xfc8e",
-    "0x010f",
+    "", // 0x010f
     "",
     "-d usbsunplus"
   },
@@ -1961,130 +1961,130 @@ const drive_settings builtin_knowndrives[] = {
   // Dura Micro
   { "USB: Dura Micro 509; Sunplus",
     "0x0c0b:0xb159",
-    "0x0103",
+    "", // 0x0103
     "",
     "-d usbsunplus"
   },
   // Maxtor
   { "USB: Maxtor OneTouch; ",
     "0x0d49:0x7300",
-    "0x0121",
+    "", // 0x0121
     "",
     "-d sat"
   },
   { "USB: Maxtor OneTouch 4; ",
     "0x0d49:0x7310",
-    "0x0125",
+    "", // 0x0125
     "",
     "-d sat"
   },
   { "USB: Maxtor OneTouch 4 Mini; ",
     "0x0d49:0x7350",
-    "0x0125",
+    "", // 0x0125
     "",
     "-d sat"
   },
   { "USB: Maxtor Basics Desktop; ",
     "0x0d49:0x7410",
-    "0x0122",
+    "", // 0x0122
     "",
     "-d sat"
   },
   { "USB: Maxtor Basics Portable; ",
     "0x0d49:0x7450",
-    "0x0122",
+    "", // 0x0122
     "",
     "-d sat"
   },
   // iRiver
   { "USB: iRiver iHP-120/140 MP3 Player; Cypress",
     "0x1006:0x3002",
-    "0x0100",
+    "", // 0x0100
     "",
     "-d usbcypress"
   },
   // Western Digital
   { "USB: WD My Passport (IDE); Cypress",
     "0x1058:0x0701",
-    "0x0240",
+    "", // 0x0240
     "",
     "-d usbcypress"
   },
   { "USB: WD My Passport Portable; ",
     "0x1058:0x0702",
-    "0x0102",
+    "", // 0x0102
     "",
     "-d sat"
   },
   { "USB: WD My Passport Essential; ",
     "0x1058:0x0704",
-    "0x0175",
+    "", // 0x0175
     "",
     "-d sat"
   },
   { "USB: WD My Passport Elite; ",
     "0x1058:0x0705",
-    "0x0175",
+    "", // 0x0175
     "",
     "-d sat"
   },
   { "USB: WD My Passport 070A; ",
     "0x1058:0x070a",
-    "0x1028",
+    "", // 0x1028
     "",
     "-d sat"
   },
   { "USB: WD My Passport 0730; ",
     "0x1058:0x0730",
-    "0x1008",
+    "", // 0x1008
     "",
     "-d sat"
   },
   { "USB: WD My Book ES; ",
     "0x1058:0x0906",
-    "0x0012",
+    "", // 0x0012
     "",
     "-d sat"
   },
   { "USB: WD Elements Desktop; ",
     "0x1058:0x1001",
-    "0x0104",
+    "", // 0x0104
     "",
     "-d sat"
   },
   { "USB: WD Elements Desktop WDE1UBK...; ",
     "0x1058:0x1003",
-    "0x0175",
+    "", // 0x0175
     "",
     "-d sat"
   },
   { "USB: WD Elements; ",
     "0x1058:0x1010",
-    "0x0105",
+    "", // 0x0105
     "",
     "-d sat"
   },
   { "USB: WD Elements Desktop; ", // 2TB
     "0x1058:0x1021",
-    "0x2002",
+    "", // 0x2002
     "",
     "-d sat"
   },
   { "USB: WD My Book Essential; ",
     "0x1058:0x1100",
-    "0x0165",
+    "", // 0x0165
     "",
     "-d sat"
   },
   { "USB: WD My Book; ",
     "0x1058:0x1102",
-    "0x1028",
+    "", // 0x1028
     "",
     "-d sat"
   },
   { "USB: WD My Book Essential; ",
     "0x1058:0x1110",
-    "0x1030",
+    "", // 0x1030
     "",
     "-d sat"
   },
@@ -2097,7 +2097,7 @@ const drive_settings builtin_knowndrives[] = {
   // A-DATA
   { "USB: A-DATA SH93; Cypress",
     "0x125f:0xa93a",
-    "0x0150",
+    "", // 0x0150
     "",
     "-d usbcypress"
   },
@@ -2110,13 +2110,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; Initio", // USB->SATA
     "0x13fd:0x1240",
-    "0x0104",
+    "", // 0x0104
     "",
     "-d sat"
   },
   { "USB: ; Initio", // USB+SATA->SATA
     "0x13fd:0x1340",
-    "0x0208",
+    "", // 0x0208
     "",
     "-d sat"
   },
@@ -2136,7 +2136,7 @@ const drive_settings builtin_knowndrives[] = {
   // JMicron
   { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
     "0x152d:0x0551",
-    "0x0100",
+    "", // 0x0100
     "",
     "-d usbjmicron,x"
   },
@@ -2148,13 +2148,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron JM20329", // USB->SATA
     "0x152d:0x2329",
-    "0x0100",
+    "", // 0x0100
     "",
     "-d usbjmicron"
   },
   { "USB: ; JMicron JM20336", // USB+SATA->SATA, USB->2xSATA
     "0x152d:0x2336",
-    "0x0100",
+    "", // 0x0100
     "",
     "-d usbjmicron,x"
   },
@@ -2166,31 +2166,31 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron JM20337/8", // USB->SATA+PATA, USB+SATA->PATA
     "0x152d:0x2338",
-    "0x0100",
+    "", // 0x0100
     "",
     "-d usbjmicron"
   },
   { "USB: ; JMicron JM20339", // USB->SATA
     "0x152d:0x2339",
-    "0x0100",
+    "", // 0x0100
     "",
     "-d usbjmicron,x"
   },
   { "USB: ; JMicron", // USB+SATA->SATA
     "0x152d:0x2351",  // e.g. Verbatim Portable Hard Drive 500Gb
-    "0x0100",
+    "", // 0x0100
     "",
     "-d sat"
   },
   { "USB: ; JMicron", // USB->SATA
     "0x152d:0x2352",
-    "0x0100",
+    "", // 0x0100
     "",
     "-d usbjmicron,x"
   },
   { "USB: ; JMicron", // USB->SATA
     "0x152d:0x2509",
-    "0x0100",
+    "", // 0x0100
     "",
     "-d usbjmicron,x"
   },
@@ -2211,7 +2211,7 @@ const drive_settings builtin_knowndrives[] = {
   // Verbatim
   { "USB: Verbatim FW/USB160; Oxford OXUF934SSA-LQAG", // USB+IEE1394->SATA
     "0x18a5:0x0215",
-    "0x0001",
+    "", // 0x0001
     "",
     "-d sat"
   },
@@ -2245,7 +2245,7 @@ const drive_settings builtin_knowndrives[] = {
   // OnSpec
   { "USB: ; OnSpec", // USB->PATA
     "0x55aa:0x2b00",
-    "0x0100",
+    "", // 0x0100
     "",
     "" // unsupported
   },
