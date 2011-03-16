@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Move search for NSIS compiler from Makefile.am to
+       configure.in.
+
   [CF] update-smart-drivedb.in: Move DRIVEDB_BRANCH name creation
        from script to configure.in.
 

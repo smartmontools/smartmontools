@@ -657,27 +657,24 @@ $(distzip_win32): distdir.mkdir $(FILES_WIN32)
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256
 
-# Build NSIS installer, try to locate makensis in default location first
+if OS_WIN32_NSIS
+# Build NSIS installer
 # Note: Only option character '-' is also compatible with Linux version of makensis
 $(distinst_win32): os_win32/installer.nsi distdir.mkdir $(FILES_WIN32)
-	@makensis="$(MAKENSIS)"; if [ -z "$$makensis" ]; then \
-	  if [ ! -z "$$PROGRAMFILES" ] && "$$PROGRAMFILES/NSIS/makensis" -VERSION >/dev/null 2>&1; then \
-	    makensis="$$PROGRAMFILES/NSIS/makensis"; \
-	  elif makensis -VERSION >/dev/null 2>&1; then \
-	    makensis=makensis; \
-	  else \
-	    echo 'makensis: command not found. Please download and install NSIS' 1>&2; \
-	    echo 'from http://nsis.sourceforge.net/Download' 1>&2; exit 1; \
-	  fi; \
-	fi; \
-	date=`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`; \
+	@date=`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`; \
 	rev=`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`; \
 	verstr="$(PACKAGE_VERSION) $$date $$rev "$(BUILD_INFO); \
-	echo "$$makensis -V2 -NOCD -DINPDIR=$(distdir_win32) -DOUTFILE="$@" -DVERSTR='$$verstr' $<"; \
-	"$$makensis" -V2 -NOCD -DINPDIR="$(distdir_win32)" -DOUTFILE="$@" -DVERSTR="$$verstr" "$<"
+	echo "'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) -DOUTFILE=$@ -DVERSTR='$$verstr' $<"; \
+	'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) -DOUTFILE=$@ -DVERSTR="$$verstr" $<
 	md5sum $@ > $@.md5
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256
+
+else
+$(distinst_win32):
+	@echo "makensis: command not found. Please install NSIS from http://nsis.sourceforge.net/" 1>&2
+	@exit 1
+endif
 
 cleandist-win32:
 	rm -rf $(distdir_win32) distdir.mkdir

@@ -32,23 +32,35 @@ AC_PROG_INSTALL
 
 AC_ARG_VAR(WINDMC, [Windows message compiler command])
 AC_ARG_VAR(WINDRES, [Windows resource compiler command])
+AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 
 AC_CANONICAL_HOST
 dnl Set flags which may affect AC_CHECK_*.
 case "${host}" in
-	*-*-mingw*)
-		# Cygwin gcc 4.x does no longer support '-mno-cygwin' to select MinGW gcc.
-		if test "${build}" = "${host}" && test -x /usr/bin/uname && \
-		   /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
-		  AC_MSG_ERROR([Build with MinGW on Cygwin requires cross-compilation, see INSTALL file.])
-		fi
-		AC_CHECK_PROGS(WINDMC, [${host}-windmc windmc])
-		AC_CHECK_PROGS(WINDRES, [${host}-windres windres])
-		CPPFLAGS="$CPPFLAGS -I$srcdir/os_win32"
-		;;
-	*-*-freebsd*)
-		CPPFLAGS="$CPPFLAGS -I/usr/src/sys"
-		;;
+  *-*-mingw*)
+    # Cygwin gcc 4.x does no longer support '-mno-cygwin' to select MinGW gcc.
+    if test "${build}" = "${host}" && test -x /usr/bin/uname && \
+    /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
+      AC_MSG_ERROR([Build with MinGW on Cygwin requires cross-compilation, see INSTALL file.])
+    fi
+    AC_CHECK_PROGS(WINDMC, [${host}-windmc windmc])
+    AC_CHECK_PROGS(WINDRES, [${host}-windres windres])
+
+    AC_MSG_CHECKING([checking for makensis])
+    if test -z "$MAKENSIS"; then
+      if test -n "$PROGRAMFILES" && "$PROGRAMFILES/NSIS/makensis" -VERSION >/dev/null 2>&1; then
+        MAKENSIS="$PROGRAMFILES/NSIS/makensis"
+      elif makensis -VERSION >/dev/null 2>&1; then
+        MAKENSIS=makensis
+      fi
+    fi
+    AC_MSG_RESULT([${MAKENSIS:-no}])
+
+    CPPFLAGS="$CPPFLAGS -I$srcdir/os_win32"
+    ;;
+  *-*-freebsd*)
+    CPPFLAGS="$CPPFLAGS -I/usr/src/sys"
+    ;;
 esac
 
 # Check for SVN.
@@ -369,6 +381,7 @@ AM_CONDITIONAL(OS_DARWIN, [test "$os_darwin" = "yes"])
 AM_CONDITIONAL(OS_SOLARIS, [test "$os_solaris" = "yes"])
 AM_CONDITIONAL(OS_WIN32, [test "$os_win32" = "yes"])
 AM_CONDITIONAL(OS_WIN32_MINGW, [test "$os_win32_mingw" = "yes"])
+AM_CONDITIONAL(OS_WIN32_NSIS, [test -n "$MAKENSIS"])
 AM_CONDITIONAL(OS_WIN32_WINDMC, [test -n "$WINDMC" && test "$WINDMC" != "no" && test -n "$WINDRES"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
 
@@ -433,6 +446,7 @@ case "$host_os" in
   mingw*)
     echo "resource compiler:      $WINDRES" >&AS_MESSAGE_FD
     echo "message compiler:       $WINDMC" >&AS_MESSAGE_FD
+    echo "NSIS compiler:          $MAKENSIS" >&AS_MESSAGE_FD
     if test -n "$drivedbdir"; then
       echo "drive database file:    EXEDIR/drivedb.h" >&AS_MESSAGE_FD
     else
