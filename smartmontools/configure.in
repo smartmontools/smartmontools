@@ -449,6 +449,9 @@ case "$host_os" in
     echo "NSIS compiler:          $MAKENSIS" >&AS_MESSAGE_FD
     if test -n "$drivedbdir"; then
       echo "drive database file:    EXEDIR/drivedb.h" >&AS_MESSAGE_FD
+      if test -n "$MAKENSIS"; then
+        echo "database update tool:   EXEDIR/update-smart-drivedb.exe" >&AS_MESSAGE_FD
+      fi
     else
       echo "drive database file:    [[disabled]]" >&AS_MESSAGE_FD
     fi

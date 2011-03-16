@@ -29,6 +29,7 @@ Summary: smartmontools release 5.41
 - Windows: Experimental support for Intel Matrix RAID.
 - Windows: DEVICESCAN includes USB devices.
 - Windows: Faster USB ID detection.
+- Windows: update-smart-drivedb tool.
 - Windows: Add missing quotes in smartctl-run.bat and
   smartd-run.bat
 

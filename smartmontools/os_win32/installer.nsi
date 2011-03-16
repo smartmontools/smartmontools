@@ -1,12 +1,17 @@
 ;
-; installer.nsi - NSIS install script for smartmontools
+; smartmontools install NSIS script
 ;
-; Copyright (C) 2006-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; Home page of code is: http://smartmontools.sourceforge.net
 ;
-; Project home page is: http://smartmontools.sourceforge.net
+; Copyright (C) 2006-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ;
-; Download and install NSIS from: http://nsis.sourceforge.net/Download
-; Process with makensis to create installer (tested with NSIS 2.46)
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 2, or (at your option)
+; any later version.
+;
+; You should have received a copy of the GNU General Public License
+; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
 ; $Id$
 ;
@@ -14,7 +19,7 @@
 
 ;--------------------------------------------------------------------
 ; Command line arguments:
-; makensis /DINPDIR=<input-dir> /DOUTFILE=<output-file> /DVERSTR=<version-string> installer.nsi
+; makensis -DINPDIR=<input-dir> -DOUTFILE=<output-file> -DVERSTR=<version-string> installer.nsi
 
 !ifndef INPDIR
   !define INPDIR "."
@@ -121,6 +126,7 @@ SectionGroup "!Program files"
 
     SetOutPath "$INSTDIR\bin"
     File "${INPDIR}\bin\drivedb.h"
+    File "${INPDIR}\bin\update-smart-drivedb.exe"
 
   SectionEnd
 
@@ -273,6 +279,10 @@ Section "Start Menu Shortcuts" MENU_SECTION
   ; Homepage
   CreateShortCut "$SMPROGRAMS\smartmontools\smartmontools Home Page.lnk" "http://smartmontools.sourceforge.net/"
 
+  ; drivedb.h update
+  IfFileExists "$INSTDIR\bin\update-smart-drivedb.exe" 0 +2
+    CreateShortCut "$SMPROGRAMS\smartmontools\drivedb.h update.lnk" "$INSTDIR\bin\update-smart-drivedb.exe"
+
   ; Uninstall
   IfFileExists "$INSTDIR\uninst-smartmontools.exe" 0 +2
     CreateShortCut "$SMPROGRAMS\smartmontools\Uninstall smartmontools.lnk" "$INSTDIR\uninst-smartmontools.exe"
@@ -414,6 +424,10 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\smartd.exe"
   Delete "$INSTDIR\bin\syslogevt.exe"
   Delete "$INSTDIR\bin\drivedb.h"
+  Delete "$INSTDIR\bin\drivedb.h.error"
+  Delete "$INSTDIR\bin\drivedb.h.lastcheck"
+  Delete "$INSTDIR\bin\drivedb.h.old"
+  Delete "$INSTDIR\bin\update-smart-drivedb.exe"
   Delete "$INSTDIR\bin\smartctl-run.bat"
   Delete "$INSTDIR\bin\smartd-run.bat"
   Delete "$INSTDIR\bin\net-run.bat"

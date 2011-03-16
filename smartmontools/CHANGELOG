@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Add update-smart-drivedb.nsi NSIS script to build
+       drivedb.h update tool.
+
   [CF] Windows: Move search for NSIS compiler from Makefile.am to
        configure.in.
 

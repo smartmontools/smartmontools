@@ -33,7 +33,10 @@ sbin_PROGRAMS = smartd 	\
 		smartctl
 
 if ENABLE_DRIVEDB
+if OS_WIN32_MINGW
+else
 sbin_SCRIPTS = update-smart-drivedb
+endif
 endif
 
 
@@ -325,6 +328,7 @@ EXTRA_DIST = \
         os_win32/installer.nsi \
         os_win32/syslogevt.c \
         os_win32/syslogevt.mc \
+        os_win32/update-smart-drivedb.nsi \
         os_win32/wbemcli_small.h \
         $(docs_DATA) \
         $(examples_DATA) \
@@ -607,9 +611,15 @@ EXEFILES_WIN32 += \
         $(exedir_win32)/syslogevt.exe
 endif
 
+if ENABLE_DRIVEDB
+if OS_WIN32_NSIS
+EXEFILES_WIN32 += \
+        $(exedir_win32)/update-smart-drivedb.exe
+endif
+endif
+
 FILES_WIN32 = \
         $(EXEFILES_WIN32) \
-        $(exedir_win32)/drivedb.h \
         $(docdir_win32)/AUTHORS.txt \
         $(docdir_win32)/CHANGELOG.txt \
         $(docdir_win32)/COPYING.txt \
@@ -627,11 +637,17 @@ FILES_WIN32 = \
         $(docdir_win32)/smartd.conf.5.html \
         $(docdir_win32)/smartd.conf.5.txt
 
+if ENABLE_DRIVEDB
+FILES_WIN32 += \
+        $(exedir_win32)/drivedb.h
+endif
+
 CLEANFILES += \
         $(FILES_WIN32) \
         smartctl-nc.exe smartctl-nc.exe.tmp \
         syslogevt.exe syslogevt.h syslogevt.o \
         syslogevt.res.o syslogevt.rc syslogevt_*.bin \
+        update-smart-drivedb.exe \
         distdir.mkdir
 
 # Textfile converter from package cygutils or tofrodos
@@ -670,6 +686,10 @@ $(distinst_win32): os_win32/installer.nsi distdir.mkdir $(FILES_WIN32)
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256
 
+# Build drivedb.h update tool
+update-smart-drivedb.exe: os_win32/update-smart-drivedb.nsi
+	"$(MAKENSIS)" -V2 -NOCD -DBRANCH=$(DRIVEDB_BRANCH) $<
+
 else
 $(distinst_win32):
 	@echo "makensis: command not found. Please install NSIS from http://nsis.sourceforge.net/" 1>&2
@@ -688,6 +708,10 @@ $(exedir_win32)/%.exe: %.exe
 	cp -p $< $@
 	if test -n '$(STRIP)'; then $(STRIP) -s $@; else strip -s $@; fi
 	touch -r $< $@
+
+# strip would break NSIS integrity check
+$(exedir_win32)/update-smart-drivedb.exe: update-smart-drivedb.exe
+	cp -p $< $@
 
 $(exedir_win32)/%.h: $(srcdir)/%.h
 	$(UNIX2DOS) < $< > $@
