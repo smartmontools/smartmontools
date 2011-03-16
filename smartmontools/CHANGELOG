@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] update-smart-drivedb.in: Move DRIVEDB_BRANCH name creation
+       from script to configure.in.
+
   [CF] os_linux.cpp: Replace printf() by pout().  Disable unused
        function dumpdata().
 

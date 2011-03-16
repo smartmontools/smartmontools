@@ -2,7 +2,7 @@
 #
 # smartmontools drive database update script
 #
-# Copyright (C) 2010 Christian Franke <smartmontools-support@lists.sourceforge.net>
+# Copyright (C) 2010-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,6 +30,9 @@ drivedbdir="@drivedbdir@"
 # Download tools
 os_dltools="@os_dltools@"
 
+# drivedb.h update branch
+BRANCH="@DRIVEDB_BRANCH@"
+
 # Default drivedb location
 DEST="$drivedbdir/drivedb.h"
 
@@ -41,14 +44,6 @@ SMARTCTL="$sbindir/smartctl"
 
 # ViewVC repository browser
 SRCEXPR='http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/$location/smartmontools/drivedb.h?revision=HEAD'
-
-# Convert version into branch name: 5.41[.X] -> "RELEASE_5_41_DRIVEDB"
-BRANCH="`echo $VERSION | sed 's|^\([0-9]*\.[0-9]*\)\..*$|\1|' \
-         | sed -n 's|^\([0-9][0-9]*\)\.\([0-9][0-9]*\)$|RELEASE_\1_\2_DRIVEDB|p'`"
-
-if [ -z "$BRANCH" ]; then
-  echo "$0: syntax error in version number: $VERSION" >&2; exit 1
-fi
 
 
 # Parse options

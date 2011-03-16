@@ -356,6 +356,14 @@ if test -n "$os_mailer"; then
   AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "$os_mailer", [Default mailer if "mail" is unavailable])
 fi
 
+# Create drivedb.h update branch name from version: 5.41[.X] -> RELEASE_5_41_DRIVEDB
+DRIVEDB_BRANCH=`echo $VERSION | sed 's,^\([[0-9]]*\.[[0-9]]*\)\..*$,\1,' \
+                | sed -n 's,^\([[0-9]][[0-9]]*\)\.\([[0-9]][[0-9]]*\)$,RELEASE_\1_\2_DRIVEDB,p'`
+if test -z "$DRIVEDB_BRANCH"; then
+  AC_MSG_ERROR([Unable to create DRIVEDB_BRANCH from VERSION=$VERSION])
+fi
+AC_SUBST([DRIVEDB_BRANCH])
+
 # Enable platform-specific makefile sections
 AM_CONDITIONAL(OS_DARWIN, [test "$os_darwin" = "yes"])
 AM_CONDITIONAL(OS_SOLARIS, [test "$os_solaris" = "yes"])
@@ -449,7 +457,6 @@ case "$host_os" in
       echo "download tools:         `eval eval eval echo $os_dltools`" >&AS_MESSAGE_FD
     else
       echo "drive database file:    [[disabled]]" >&AS_MESSAGE_FD
-      echo "database update script: [[disabled]]" >&AS_MESSAGE_FD
     fi
     echo "local drive database:   `eval eval eval echo $sysconfdir`/smart_drivedb.h" >&AS_MESSAGE_FD
     echo "smartd config file:     `eval eval eval echo $sysconfdir`/smartd.conf${smartd_suffix}" >&AS_MESSAGE_FD
