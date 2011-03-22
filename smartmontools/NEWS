@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3297 2011-03-22 18:28:43Z chrfranke $
+$Id: NEWS 3300 2011-03-22 21:10:55Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -12,7 +12,8 @@ Summary: smartmontools release 5.41
   self-test are no longer reported as errors.
 - smartctl prints physical and logical sector sizes.
 - 'smartctl --scan-open' can create a draft smartd.conf.
-- smartd logs identify information of each ATA device.
+- smartctl prints World Wide Name (WWN) of ATA device.
+- smartd logs identify information and WWN of each ATA device.
 - smartd logs warning from drive database if present.
 - smartd directive '-l scterc,READTIME,WRITETIME'.
 - smartd preserves last scheduled selective self-tests span.
