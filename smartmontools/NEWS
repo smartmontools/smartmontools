@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3296 2011-03-16 22:17:51Z chrfranke $
+$Id: NEWS 3297 2011-03-22 18:28:43Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -30,6 +30,8 @@ Summary: smartmontools release 5.41
 - Windows: DEVICESCAN includes USB devices.
 - Windows: Faster USB ID detection.
 - Windows: update-smart-drivedb tool.
+- Windows installer: Option '/SO component,...'.
+- Windows installer: Fix shortcut removal on Vista/Win7.
 - Windows: Add missing quotes in smartctl-run.bat and
   smartd-run.bat
 
