@@ -385,12 +385,19 @@ void swap8(char *location){
   return;
 }
 
-// Invalidate serial number and adjust checksum in IDENTIFY data
-static void invalidate_serno(ata_identify_device * id){
+// Invalidate serial number and WWN and adjust checksum in IDENTIFY data
+static void invalidate_serno(ata_identify_device * id)
+{
   unsigned char sum = 0;
-  for (unsigned i = 0; i < sizeof(id->serial_no); i++) {
+  unsigned i;
+  for (i = 0; i < sizeof(id->serial_no); i++) {
     sum += id->serial_no[i]; sum -= id->serial_no[i] = 'X';
   }
+  unsigned char * b = (unsigned char *)id;
+  for (i = 2*108; i < 2*112; i++) { // words108-111: WWN
+    sum += b[i]; sum -= b[i] = 0x00;
+  }
+
 #ifndef __NetBSD__
   bool must_swap = !!isbigendian();
   if (must_swap)
@@ -798,9 +805,6 @@ int ataCheckPowerMode(ata_device * device) {
   return (int)result;
 }
 
-
-
-
 // Reads current Device Identity info (512 bytes) into buf.  Returns 0
 // if all OK.  Returns -1 if no ATA Device identity can be
 // established.  Returns >0 if Device is ATA Packet Device (not SMART
@@ -947,6 +951,27 @@ int ataVersionInfo(const char ** description, const ata_identify_device * drive,
     return 1;
   else
     return i;
+}
+
+// Get World Wide Name (WWN) fields.
+// Return NAA field or -1 if WWN is unsupported.
+// Table 34 of T13/1699-D Revision 6a (ATA8-ACS), September 6, 2008.
+// (WWN was introduced in ATA/ATAPI-7 and is mandatory since ATA8-ACS Revision 3b)
+int ata_get_wwn(const ata_identify_device * id, unsigned & oui, uint64_t & unique_id)
+{
+  unsigned short word084 = id->command_set_extension;
+  if ((word084 & 0xc100) != 0x4100)
+    return -1; // word not valid or WWN support bit 8 not set
+
+  unsigned short word108 = id->words088_255[108-88];
+  unsigned short word109 = id->words088_255[109-88];
+  unsigned short word110 = id->words088_255[110-88];
+  unsigned short word111 = id->words088_255[111-88];
+
+  oui = ((word108 & 0x0fff) << 12) | (word109 >> 4);
+  unique_id = ((uint64_t)(word109 & 0xf) << 32)
+            | (unsigned)((word110 << 16) | word111);
+  return (word108 >> 12);
 }
 
 // returns 1 if SMART supported, 0 if SMART unsupported, -1 if can't tell

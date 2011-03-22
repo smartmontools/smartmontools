@@ -504,8 +504,14 @@ static void print_drive_info(const ata_identify_device * drive,
     pout("Model Family:     %s\n", dbentry->modelfamily);
 
   pout("Device Model:     %s\n", infofound(model));
-  if (!dont_print_serial_number)
+  if (!dont_print_serial_number) {
     pout("Serial Number:    %s\n", infofound(serial));
+
+    unsigned oui = 0; uint64_t unique_id = 0;
+    int naa = ata_get_wwn(drive, oui, unique_id);
+    if (naa >= 0)
+      pout("LU WWN Device Id: %x %06x %09"PRIx64"\n", naa, oui, unique_id);
+  }
   pout("Firmware Version: %s\n", infofound(firmware));
 
   char capacity[64];

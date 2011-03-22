@@ -1759,8 +1759,15 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   ata_format_id_string(serial, drive.serial_no, sizeof(serial)-1);
   ata_format_id_string(firmware, drive.fw_rev, sizeof(firmware)-1);
   state.num_sectors = get_num_sectors(&drive);
-  PrintOut(LOG_INFO, "Device: %s, %s, S/N:%s, FW:%s, %"PRIu64" sectors\n", name,
-           model, serial, firmware, state.num_sectors);
+
+  char wwn[30]; wwn[0] = 0;
+  unsigned oui = 0; uint64_t unique_id = 0;
+  int naa = ata_get_wwn(&drive, oui, unique_id);
+  if (naa >= 0)
+    snprintf(wwn, sizeof(wwn), "WWN:%x-%06x-%09"PRIx64", ", naa, oui, unique_id);
+
+  PrintOut(LOG_INFO, "Device: %s, %s, S/N:%s, %sFW:%s, %"PRIu64" sectors\n", name,
+           model, serial, wwn, firmware, state.num_sectors);
 
   // Show if device in database, and use preset vendor attribute
   // options unless user has requested otherwise.

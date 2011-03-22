@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -778,6 +778,10 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported
 int ataVersionInfo(const char ** description, const ata_identify_device * drive, unsigned short * minor);
+
+// Get World Wide Name (WWN) fields.
+// Return NAA field or -1 if WWN is unsupported.
+int ata_get_wwn(const ata_identify_device * id, unsigned & oui, uint64_t & unique_id);
 
 // If SMART supported, this is guaranteed to return 1 if SMART is enabled, else 0.
 int ataDoesSmartWork(ata_device * device);
