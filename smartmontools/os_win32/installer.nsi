@@ -515,6 +515,7 @@ FunctionEnd
 
 ; Command line parsing
 !macro CheckCmdLineOption name section
+  StrCpy $allopts "$allopts,${name}"
   Push ",$opts,"
   Push ",${name},"
   Call StrStr
@@ -524,6 +525,7 @@ FunctionEnd
   Goto done_${name}
 sel_${name}:
   !insertmacro SelectSection ${section}
+  StrCpy $nomatch ""
 done_${name}:
 !macroend
 
@@ -533,7 +535,11 @@ Function ParseCmdLine
   ${GetParameters} $R0
   ${GetOptions} $R0 "/SO" $opts
   IfErrors 0 +2
-  Return
+    Return
+  Var /global allopts
+  StrCpy $allopts ""
+  Var /global nomatch
+  StrCpy $nomatch "t"
   ; turn sections on or off
   !insertmacro CheckCmdLineOption "smartctl" ${SMARTCTL_SECTION}
   !insertmacro CheckCmdLineOption "smartd" ${SMARTD_SECTION}
@@ -551,6 +557,12 @@ Function ParseCmdLine
   !insertmacro CheckCmdLineOption "drive4" ${DRIVE_4_SECTION}
   !insertmacro CheckCmdLineOption "drive5" ${DRIVE_5_SECTION}
   !insertmacro CheckCmdLineOption "ubcd" ${UBCD_SECTION}
+  StrCmp $opts "-" done
+  StrCmp $nomatch "" done
+    StrCpy $0 "$allopts,-" "" 1
+    MessageBox MB_OK "Usage: smartmontools-VERSION.win32-setup [/S] [/SO component,...] [/D=INSTDIR]$\n$\ncomponents:$\n  $0"
+    Abort
+done:
 FunctionEnd
 
 ; Directory page callbacks
