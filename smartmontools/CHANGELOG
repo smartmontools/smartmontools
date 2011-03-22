@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows installer: Request admin rights, select 'All Users'
+       section.  This fixes shortcut removal under Vista and later.
+       Add '/SO' option to select components for unattended install.
+       Patch was provided by József Fejes.
+
   [CF] Windows: Add update-smart-drivedb.nsi NSIS script to build
        drivedb.h update tool.
 

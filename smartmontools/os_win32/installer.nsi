@@ -46,6 +46,14 @@ Var UBCDDIR
 
 LicenseData "${INPDIR}\doc\COPYING.txt"
 
+!include "FileFunc.nsh"
+!include "Sections.nsh"
+
+!insertmacro GetParameters
+!insertmacro GetOptions
+
+RequestExecutionLevel admin
+
 ;--------------------------------------------------------------------
 ; Pages
 
@@ -187,6 +195,8 @@ Section "Start Menu Shortcuts" MENU_SECTION
 
   SectionIn 1
 
+  SetShellVarContext all
+
   CreateDirectory "$SMPROGRAMS\smartmontools"
 
   ; smartctl
@@ -311,7 +321,7 @@ SectionGroup "Add smartctl to drive menu"
   DeleteRegKey HKCR "Drive\shell\smartctl5"
 !macroend
 
-  Section "Remove existing entries first"
+  Section "Remove existing entries first" DRIVE_REMOVE_SECTION
     SectionIn 3
     !insertmacro DriveMenuRemove
   SectionEnd
@@ -450,6 +460,7 @@ Section "Uninstall"
   Delete "$INSTDIR\uninst-smartmontools.exe"
 
   ; Remove shortcuts
+  SetShellVarContext all
   Delete "$SMPROGRAMS\smartmontools\*.*"
   Delete "$SMPROGRAMS\smartmontools\Documentation\*.*"
   Delete "$SMPROGRAMS\smartmontools\smartctl Examples\*.*"
@@ -499,6 +510,47 @@ Function .onInit
   IfFileExists "$WINDIR\system32\cmd.exe" +2 0
     SectionSetText ${PATH_SECTION} ""
 
+  Call ParseCmdLine
+FunctionEnd
+
+; Command line parsing
+!macro CheckCmdLineOption name section
+  Push ",$opts,"
+  Push ",${name},"
+  Call StrStr
+  Pop $0
+  StrCmp $0 "" 0 sel_${name}
+  !insertmacro UnselectSection ${section}
+  Goto done_${name}
+sel_${name}:
+  !insertmacro SelectSection ${section}
+done_${name}:
+!macroend
+
+Function ParseCmdLine
+  ; get /SO option
+  Var /global opts
+  ${GetParameters} $R0
+  ${GetOptions} $R0 "/SO" $opts
+  IfErrors 0 +2
+  Return
+  ; turn sections on or off
+  !insertmacro CheckCmdLineOption "smartctl" ${SMARTCTL_SECTION}
+  !insertmacro CheckCmdLineOption "smartd" ${SMARTD_SECTION}
+  !insertmacro CheckCmdLineOption "smartctlnc" ${SMARTCTL_NC_SECTION}
+  !insertmacro CheckCmdLineOption "drivedb" ${DRIVEDB_SECTION}
+  !insertmacro CheckCmdLineOption "doc" ${DOC_SECTION}
+  !insertmacro CheckCmdLineOption "uninst" ${UNINST_SECTION}
+  !insertmacro CheckCmdLineOption "menu" ${MENU_SECTION}
+  !insertmacro CheckCmdLineOption "path" ${PATH_SECTION}
+  !insertmacro CheckCmdLineOption "driveremove" ${DRIVE_REMOVE_SECTION}
+  !insertmacro CheckCmdLineOption "drive0" ${DRIVE_0_SECTION}
+  !insertmacro CheckCmdLineOption "drive1" ${DRIVE_1_SECTION}
+  !insertmacro CheckCmdLineOption "drive2" ${DRIVE_2_SECTION}
+  !insertmacro CheckCmdLineOption "drive3" ${DRIVE_3_SECTION}
+  !insertmacro CheckCmdLineOption "drive4" ${DRIVE_4_SECTION}
+  !insertmacro CheckCmdLineOption "drive5" ${DRIVE_5_SECTION}
+  !insertmacro CheckCmdLineOption "ubcd" ${UBCD_SECTION}
 FunctionEnd
 
 ; Directory page callbacks
