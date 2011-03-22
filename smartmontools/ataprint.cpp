@@ -1881,9 +1881,15 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
   int returnval = 0;
   ata_identify_device drive; memset(&drive, 0, sizeof(drive));
+  device->clear_err();
   int retid = ata_read_identity(device, &drive, options.fix_swapped_id);
   if (retid < 0) {
-    pout("Smartctl: Device Read Identity Failed (not an ATA/ATAPI device)\n\n");
+    pout("Smartctl: Device Read Identity Failed: %s\n\n",
+         (device->get_errno() ? device->get_errmsg() : "Unknown error"));
+    failuretest(MANDATORY_CMD, returnval|=FAILID);
+  }
+  else if (!nonempty(&drive, sizeof(drive))) {
+    pout("Smartctl: Device Read Identity Failed: empty IDENTIFY data\n\n");
     failuretest(MANDATORY_CMD, returnval|=FAILID);
   }
 
