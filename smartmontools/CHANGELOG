@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DG] [SCSI] smartctl: add 'User Capacity' (disk size) in human
+       readable form
+
   [CF] smartctl, smartd: Print World Wide Name (WWN) of ATA device.
 
   [CF] smartctl: Print more specific error message if IDENTIFY DEVICE

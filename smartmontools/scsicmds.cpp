@@ -146,7 +146,7 @@ const char * scsi_get_opcode_name(UINT8 opcode)
     struct scsi_opcode_name * onp;
 
     if (opcode >= 0xc0)
-	return vendor_specific;
+        return vendor_specific;
     for (k = 0; k < len; ++k) {
         onp = &opcode_name_arr[k];
         if (opcode == onp->opcode)
@@ -846,6 +846,117 @@ int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist, int dl_
     scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
+
+/* READ CAPACITY (10) command. Returns 0 if ok, 1 if NOT READY, 2 if
+ * command not supported, 3 if field in command not supported or returns
+ * negated errno. SBC-3 section 5.15 (rev 26) */
+int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbap,
+                       unsigned int * lb_sizep)
+{
+    int res;
+    struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
+    UINT8 cdb[10];
+    UINT8 sense[32];
+    UINT8 resp[8];
+
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    memset(cdb, 0, sizeof(cdb));
+    memset(resp, 0, sizeof(resp));
+    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+    io_hdr.dxfer_len = sizeof(resp);
+    io_hdr.dxferp = resp;
+    cdb[0] = READ_CAPACITY_10;
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    res = scsiSimpleSenseFilter(&sinfo);
+    if (res)
+        return res;
+    if (last_lbap)
+        *last_lbap = (resp[0] << 24) | (resp[1] << 16) | (resp[2] << 8) |
+                     resp[3];
+    if (lb_sizep)
+        *lb_sizep = (resp[4] << 24) | (resp[5] << 16) | (resp[6] << 8) |
+                    resp[7];
+    return 0;
+}
+
+/* READ CAPACITY (16) command. The bufLen argument should be 32. Returns 0
+ * if ok, 1 if NOT READY, 2 if command not supported, 3 if field in command
+ * not supported or returns negated errno. SBC-3 section 5.16 (rev 26) */
+int scsiReadCapacity16(scsi_device * device, UINT8 *pBuf, int bufLen)
+{
+    struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
+    UINT8 cdb[16];
+    UINT8 sense[32];
+
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    memset(cdb, 0, sizeof(cdb));
+    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+    io_hdr.dxfer_len = bufLen;
+    io_hdr.dxferp = pBuf;
+    cdb[0] = READ_CAPACITY_16;
+    cdb[1] = SAI_READ_CAPACITY_16;
+    cdb[10] = (bufLen >> 24) & 0xff;
+    cdb[11] = (bufLen >> 16) & 0xff;
+    cdb[12] = (bufLen >> 8) & 0xff;
+    cdb[13] = bufLen & 0xff;
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    return scsiSimpleSenseFilter(&sinfo);
+}
+
+/* Return number of bytes of storage in 'device' or 0 if error. If
+ * successful and lb_sizep is not NULL then the logical block size
+ * in bytes is written to the location pointed to by lb_sizep. */
+uint64_t scsiGetSize(scsi_device * device, unsigned int * lb_sizep)
+{
+    unsigned int last_lba, lb_size;
+    int k, res;
+    uint64_t ret_val = 0;
+    UINT8 rc16resp[32];
+
+    res = scsiReadCapacity10(device, &last_lba, &lb_size);
+    if (res) {
+	if (scsi_debugmode)
+	    pout("scsiGetSize: READ CAPACITY(10) failed, res=%d\n", res);
+	return ret_val;
+    }
+    if (0xffffffff == last_lba) {
+	res = scsiReadCapacity16(device, rc16resp, sizeof(rc16resp));
+        if (res) {
+	    if (scsi_debugmode)
+	        pout("scsiGetSize: READ CAPACITY(16) failed, res=%d\n", res);
+	    return ret_val;
+	}
+	for (k = 0; k < 8; ++k) {
+	    if (k > 0)
+                ret_val <<= 8;
+            ret_val |= rc16resp[k + 0];
+        }
+    } else
+	ret_val = last_lba;
+    if (lb_sizep)
+	*lb_sizep = lb_size;
+    ++ret_val;	/* last_lba is origin 0 so need to bump to get number of */
+    return ret_val * lb_size;
+}
+
 
 /* Offset into mode sense (6 or 10 byte) response that actual mode page
  * starts at (relative to resp[0]). Returns -1 if problem */

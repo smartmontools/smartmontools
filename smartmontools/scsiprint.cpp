@@ -1308,6 +1308,54 @@ static const char * transport_proto_arr[] = {
         "0xf"
 };
 
+// This returns the capacity of a scsi disk drive and also prints this into
+// a string, using comma separators to make it easier to read.  If the
+// drive doesn't support LBA addressing or has no user writable
+// sectors (eg, CDROM or DVD) then routine returns zero.
+static uint64_t scsi_determine_capacity(scsi_device * device,
+				        char * size_str, char * lb_str)
+{
+    // get correct character to use as thousands separator
+    const char *separator = ",";
+#ifdef HAVE_LOCALE_H
+    struct lconv *currentlocale = NULL;
+
+    setlocale(LC_ALL, "");
+    currentlocale = localeconv();
+    if (*(currentlocale->thousands_sep))
+        separator = (char *)currentlocale->thousands_sep;
+#endif // #ifdef HAVE_LOCALE_H
+
+    // get #sectors and turn into bytes
+    unsigned int lb_size;
+    uint64_t capacity = scsiGetSize(device, &lb_size);
+    uint64_t retval = capacity;
+
+    // print with locale-specific separators (default is comma)
+    int started = 0, k = 1000000000;
+    uint64_t power_of_ten = k;
+
+    power_of_ten *= k;
+    for (k = 0; k < 7; ++k) {
+        uint64_t threedigits = capacity / power_of_ten;
+        capacity -= threedigits * power_of_ten;
+        if (started)
+            // we have already printed some digits
+            size_str += sprintf(size_str, "%s%03"PRIu64, separator,
+				threedigits);
+        else if (threedigits || (k == 6)) {
+            // these are the first digits that we are printing
+            size_str += sprintf(size_str, "%"PRIu64, threedigits);
+            started = 1;
+        }
+        if (6 != k)
+            power_of_ten /= 1000;
+    }
+    if (lb_str)
+	sprintf(lb_str, "%u", lb_size);
+    return retval;
+}
+
 /* Returns 0 on success, 1 on general error and 2 for early, clean exit */
 static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
 {
@@ -1320,6 +1368,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     int is_tape = 0;
     int peri_dt = 0;
     int returnval=0;
+    uint64_t num;
         
     memset(gBuf, 0, 96);
     req_len = 36;
@@ -1358,8 +1407,11 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         
     memset(revision, 0, sizeof(revision));
     strncpy(revision, (char *)&gBuf[32], 4);
-    if (all && (0 != strncmp(manufacturer, "ATA", 3)))
-        pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
+    if (all && (0 != strncmp(manufacturer, "ATA", 3))) {
+        pout("Vendor:               %s\n", manufacturer);
+	pout("Product:              %s\n", product);
+	pout("Revision:             %s\n", revision);
+    }
 
     if (!*device->get_req_type()/*no type requested*/ &&
                (0 == strncmp(manufacturer, "ATA", 3))) {
@@ -1369,6 +1421,68 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     }
     if (! all)
         return 0;
+
+    char capacity[64];
+    char lb_str[16];
+    if ((num = scsi_determine_capacity(device, capacity, lb_str))) {
+        int mb, gb, tb;
+        size_t len;
+        char s[64];
+        char b[32];
+        char dec[4];
+        const char * decimal_point = ".";
+#ifdef HAVE_LOCALE_H
+        struct lconv * currentlocale = NULL;
+
+        setlocale(LC_ALL, "");
+        currentlocale = localeconv();
+        if (*(currentlocale->decimal_point))
+            decimal_point = (char *)currentlocale->decimal_point;
+#endif // #ifdef HAVE_LOCALE_H
+
+        gb = num / 1000000000;
+        if (gb > 999999) {
+            tb = gb / 1000;
+            snprintf(b, sizeof(b), "%d", tb);
+            len = strlen(b); // len must be >= 4
+            dec[0] = b[len - 3];
+            dec[1] = b[len - 2];
+            dec[2] = '\0';
+            b[len - 3] = '\0';
+            snprintf(s, sizeof(s), "[%s%s%s PB]", b, decimal_point, dec);
+	} else if (gb > 99999) {
+            tb = gb / 1000;
+            snprintf(s, sizeof(s), "[%d TB]", tb);
+	} else {
+            mb = num / 1000000;
+            if (mb > 999999) {
+                gb = mb / 1000;
+                snprintf(b, sizeof(b), "%d", gb);
+                len = strlen(b); // len must be >= 4
+                dec[0] = b[len - 3];
+                dec[1] = b[len - 2];
+                dec[2] = '\0';
+                b[len - 3] = '\0';
+                snprintf(s, sizeof(s), "[%s%s%s TB]", b, decimal_point, dec);
+	    } else if (mb > 99999) {
+                gb = mb / 1000;
+                snprintf(s, sizeof(s), "[%d GB]", gb);
+            } else if (mb > 999) {
+                snprintf(b, sizeof(b), "%d", mb);
+                len = strlen(b); // len must be >= 4
+                dec[0] = b[len - 3];
+                dec[1] = b[len - 2];
+                dec[2] = '\0';
+                b[len - 3] = '\0';
+                snprintf(s, sizeof(s), "[%s%s%s GB]", b, decimal_point, dec);
+            } else if (mb > 0)
+                snprintf(s, sizeof(s), "[%d MB]", mb);
+	    else
+	        s[0] = '\0';
+	}
+        pout("User Capacity:        %s bytes %s\n", capacity, s);
+        pout("Logical block size:   %s bytes\n", lb_str);
+    }
 
     /* Do this here to try and detect badly conforming devices (some USB
        keys) that will lock up on a InquiryVpd or log sense or ... */
@@ -1389,7 +1503,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
              * if 0x83 not supported. NAA requires a lot of decoding code */
             len = gBuf[3];
             gBuf[4 + len] = '\0';
-            pout("Serial number: %s\n", &gBuf[4]);
+            pout("Serial number:        %s\n", &gBuf[4]);
         }
         else if (scsi_debugmode > 0) {
             print_on();
@@ -1404,18 +1518,18 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     // print SCSI peripheral device type
     if (peri_dt < (int)(sizeof(peripheral_dt_arr) / 
                         sizeof(peripheral_dt_arr[0])))
-        pout("Device type: %s\n", peripheral_dt_arr[peri_dt]);
+        pout("Device type:          %s\n", peripheral_dt_arr[peri_dt]);
     else
-        pout("Device type: <%d>\n", peri_dt);
+        pout("Device type:          <%d>\n", peri_dt);
 
     // See if transport protocol is known
     val = scsiFetchTransportProtocol(device, modese_len);
     if ((val >= 0) && (val <= 0xf))
-        pout("Transport protocol: %s\n", transport_proto_arr[val]);
+        pout("Transport protocol:   %s\n", transport_proto_arr[val]);
 
     // print current time and date and timezone
     dateandtimezone(timedatetz);
-    pout("Local Time is: %s\n", timedatetz);
+    pout("Local Time is:        %s\n", timedatetz);
 
     if ((SCSI_PT_SEQUENTIAL_ACCESS == *peripheral_type) ||
         (SCSI_PT_MEDIUM_CHANGER == *peripheral_type))

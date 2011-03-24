@@ -88,7 +88,10 @@
 #define READ_CAPACITY_10  0x25
 #endif
 #ifndef READ_CAPACITY_16
-#define READ_CAPACITY_16  0x9e	/* service action 0x10 */
+#define READ_CAPACITY_16  0x9e
+#endif
+#ifndef SAI_READ_CAPACITY_16    /* service action for READ_CAPACITY_16 */
+#define SAI_READ_CAPACITY_16  0x10
 #endif
 
 #ifndef SAT_ATA_PASSTHROUGH_12
@@ -340,6 +343,14 @@ int scsiReceiveDiagnostic(scsi_device * device, int pcv, int pagenum, UINT8 *pBu
 int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist, int dl_format,
                      UINT8 *pBuf, int bufLen);
 
+int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbp,
+                       unsigned int * lb_sizep);
+
+int scsiReadCapacity16(scsi_device * device, UINT8 *pBuf, int bufLen);
+
+uint64_t scsiGetSize(scsi_device * device, unsigned int * lb_sizep);
+
+
 /* SMART specific commands */
 int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage, UINT8 *asc,
                 UINT8 *ascq, UINT8 *currenttemp, UINT8 *triptemp);
@@ -362,8 +373,8 @@ int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current);
 int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len);
 int scsiFetchTransportProtocol(scsi_device * device, int modese_len);
 
-/* T10 Standard IE Additional Sense Code strings taken from t10.org */
 
+/* T10 Standard IE Additional Sense Code strings taken from t10.org */
 const char* scsiGetIEString(UINT8 asc, UINT8 ascq);
 int scsiGetTemp(scsi_device * device, UINT8 *currenttemp, UINT8 *triptemp);
 
