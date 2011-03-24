@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3300 2011-03-22 21:10:55Z chrfranke $
+$Id: CHANGELOG 3301 2011-03-24 11:55:40Z dpgilbert $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] [SCSI] smartctl: add 'User Capacity' (disk size) in human
+       readable form
 
   [CF] smartctl, smartd: Print World Wide Name (WWN) of ATA device.
 
