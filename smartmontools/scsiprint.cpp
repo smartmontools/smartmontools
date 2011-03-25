@@ -1364,10 +1364,11 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     char revision[5];
     char timedatetz[DATEANDEPOCHLEN];
     struct scsi_iec_mode_page iec;
-    int err, iec_err, len, req_len, avail_len, val;
+    int err, iec_err, len, req_len, avail_len;
     int is_tape = 0;
     int peri_dt = 0;
-    int returnval=0;
+    int returnval = 0;
+    int transport = -1;
     uint64_t num;
         
     memset(gBuf, 0, 96);
@@ -1410,7 +1411,8 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     if (all && (0 != strncmp(manufacturer, "ATA", 3))) {
         pout("Vendor:               %s\n", manufacturer);
 	pout("Product:              %s\n", product);
-	pout("Revision:             %s\n", revision);
+	if (revision[0] >= ' ')
+	    pout("Revision:             %s\n", revision);
     }
 
     if (!*device->get_req_type()/*no type requested*/ &&
@@ -1497,15 +1499,27 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     } else
         modese_len = iec.modese_len;
 
-    if (!dont_print_serial_number) {
-        if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
-            /* should use VPD page 0x83 and fall back to this page (0x80)
-             * if 0x83 not supported. NAA requires a lot of decoding code */
+    if (! dont_print_serial_number) {
+	if (0 == (err = scsiInquiryVpd(device, 0x83, gBuf, 200))) {
+	    char s[256];
+
+            len = gBuf[3];
+	    scsi_decode_lu_dev_id(gBuf + 4, len, s, sizeof(s), &transport);
+	    if (strlen(s) > 0)
+                pout("Logical Unit id:      %s\n", s);
+        } else if (scsi_debugmode > 0) {
+            print_on();
+            if (SIMPLE_ERR_BAD_RESP == err)
+                pout("Vital Product Data (VPD) bit ignored in INQUIRY\n");
+            else
+                pout("Vital Product Data (VPD) INQUIRY failed [%d]\n", err);
+            print_off();
+        }
+	if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
             len = gBuf[3];
             gBuf[4 + len] = '\0';
             pout("Serial number:        %s\n", &gBuf[4]);
-        }
-        else if (scsi_debugmode > 0) {
+        } else if (scsi_debugmode > 0) {
             print_on();
             if (SIMPLE_ERR_BAD_RESP == err)
                 pout("Vital Product Data (VPD) bit ignored in INQUIRY\n");
@@ -1523,9 +1537,10 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         pout("Device type:          <%d>\n", peri_dt);
 
     // See if transport protocol is known
-    val = scsiFetchTransportProtocol(device, modese_len);
-    if ((val >= 0) && (val <= 0xf))
-        pout("Transport protocol:   %s\n", transport_proto_arr[val]);
+    if (transport < 0)
+        transport = scsiFetchTransportProtocol(device, modese_len);
+    if ((transport >= 0) && (transport <= 0xf))
+        pout("Transport protocol:   %s\n", transport_proto_arr[transport]);
 
     // print current time and date and timezone
     dateandtimezone(timedatetz);

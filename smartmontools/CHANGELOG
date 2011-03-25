@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DG] [SCSI] smartctl: add 'Logical Unit id' from the Device
+       Identification VPD page (0x83)
+
   [DG] [SCSI] smartctl: add 'User Capacity' (disk size) in human
        readable form
 

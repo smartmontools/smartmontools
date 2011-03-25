@@ -252,6 +252,159 @@ const char * scsiErrString(int scsiErr)
     }
 }
 
+/* Iterates to next designation descriptor in the device identification
+ * VPD page. The 'initial_desig_desc' should point to start of first
+ * descriptor with 'page_len' being the number of valid bytes in that
+ * and following descriptors. To start, 'off' should point to a negative
+ * value, thereafter it should point to the value yielded by the previous
+ * call. If 0 returned then 'initial_desig_desc + *off' should be a valid
+ * descriptor; returns -1 if normal end condition and -2 for an abnormal
+ * termination. Matches association, designator_type and/or code_set when
+ * any of those values are greater than or equal to zero. */
+int scsi_vpd_dev_id_iter(const unsigned char * initial_desig_desc,
+			 int page_len, int * off, int m_assoc,
+		         int m_desig_type, int m_code_set)
+{
+    const unsigned char * ucp;
+    int k, c_set, assoc, desig_type;
+
+    for (k = *off, ucp = initial_desig_desc ; (k + 3) < page_len; ) {
+        k = (k < 0) ? 0 : (k + ucp[k + 3] + 4);
+        if ((k + 4) > page_len)
+            break;
+        c_set = (ucp[k] & 0xf);
+        if ((m_code_set >= 0) && (m_code_set != c_set))
+            continue;
+        assoc = ((ucp[k + 1] >> 4) & 0x3);
+        if ((m_assoc >= 0) && (m_assoc != assoc))
+            continue;
+        desig_type = (ucp[k + 1] & 0xf);
+        if ((m_desig_type >= 0) && (m_desig_type != desig_type))
+            continue;
+        *off = k;
+        return 0;
+    }
+    return (k == page_len) ? -1 : -2;
+}
+
+/* Decode VPD page 0x83 logical unit designator into a string. If both
+ * numeric address and SCSI name string present, prefer the former.
+ * Returns 0 on success, -1 on error with error string in s. */
+int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
+			  int slen, int * transport)
+{
+    int m, c_set, assoc, desig_type, i_len, naa, off, u, have_scsi_ns;
+    const unsigned char * ucp;
+    const unsigned char * ip;
+    char * orig_s = s;
+
+    if (transport)
+	*transport = -1;
+    if (slen < 32) {
+	if (slen > 0)
+	    s[0] = '\0';
+	return -1;
+    }
+    have_scsi_ns = 0;
+    s[0] = '\0';
+    off = -1;
+    while ((u = scsi_vpd_dev_id_iter(b, blen, &off, -1, -1, -1)) == 0) {
+        ucp = b + off;
+        i_len = ucp[3];
+        if ((off + i_len + 4) > blen) {
+	    s += sprintf(s, "error: designator length");
+	    return -1;
+        }
+        assoc = ((ucp[1] >> 4) & 0x3);
+	if (transport && assoc && (ucp[1] & 0x80) && (*transport < 0))
+	    *transport = (ucp[0] >> 4) & 0xf;
+	if (0 != assoc)
+	    continue;
+        ip = ucp + 4;
+        c_set = (ucp[0] & 0xf);
+        desig_type = (ucp[1] & 0xf);
+
+        switch (desig_type) {
+        case 0: /* vendor specific */
+        case 1: /* T10 vendor identification */
+            break;
+        case 2: /* EUI-64 based */
+            if ((8 != i_len) && (12 != i_len) && (16 != i_len)) {
+	        s += sprintf(s, "error: EUI-64 length");
+	        return -1;
+	    }
+	    if (have_scsi_ns)
+		s = orig_s;
+            s += sprintf(s, "0x");
+            for (m = 0; m < i_len; ++m)
+                s += sprintf(s, "%02x", (unsigned int)ip[m]);
+            break;
+        case 3: /* NAA */
+            if (1 != c_set) {
+	        s += sprintf(s, "error: NAA bad code_set");
+		return -1;
+	    }
+            naa = (ip[0] >> 4) & 0xff;
+            if ((naa < 2) || (naa > 6) || (4 == naa)) {
+	        s += sprintf(s, "error: unexpected NAA");
+		return -1;
+            }
+	    if (have_scsi_ns)
+		s = orig_s;
+            if (2 == naa) {             /* NAA IEEE Extended */
+                if (8 != i_len) {
+	            s += sprintf(s, "error: NAA 2 length");
+		    return -1;
+                }
+                s += sprintf(s, "0x");
+                for (m = 0; m < 8; ++m)
+                    s += sprintf(s, "%02x", (unsigned int)ip[m]);
+            } else if ((3 == naa ) || (5 == naa)) {
+                /* NAA=3 Locally assigned; NAA=5 IEEE Registered */
+                if (8 != i_len) {
+	            s += sprintf(s, "error: NAA 3 or 5 length");
+		    return -1;
+                }
+                s += sprintf(s, "0x");
+                for (m = 0; m < 8; ++m)
+                    s += sprintf(s, "%02x", (unsigned int)ip[m]);
+            } else if (6 == naa) {      /* NAA IEEE Registered extended */
+                if (16 != i_len) {
+	            s += sprintf(s, "error: NAA 6 length");
+		    return -1;
+                }
+                s += sprintf(s, "0x");
+                for (m = 0; m < 16; ++m)
+                    s += sprintf(s, "%02x", (unsigned int)ip[m]);
+            }
+            break;
+        case 4: /* Relative target port */
+        case 5: /* (primary) Target port group */
+        case 6: /* Logical unit group */
+        case 7: /* MD5 logical unit identifier */
+            break;
+        case 8: /* SCSI name string */
+            if (3 != c_set) {
+	        s += sprintf(s, "error: SCSI name string");
+		return -1;
+            }
+            /* does %s print out UTF-8 ok?? */
+	    if (orig_s == s) {
+                s += sprintf(s, "%s", (const char *)ip);
+		++have_scsi_ns;
+	    }
+            break;
+        default: /* reserved */
+            break;
+        }
+    }
+    if (-2 == u) {
+        s += sprintf(s, "error: bad structure");
+	return -1;
+    }
+    return 0;
+}
+
 /* Sends LOG SENSE command. Returns 0 if ok, 1 if device NOT READY, 2 if
    command not supported, 3 if field (within command) not supported or
    returns negated errno.  SPC-3 sections 6.6 and 7.2 (rec 22a).

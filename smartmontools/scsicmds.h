@@ -308,6 +308,14 @@ int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo);
 
 const char * scsiErrString(int scsiErr);
 
+int scsi_vpd_dev_id_iter(const unsigned char * initial_desig_desc,
+                         int page_len, int * off, int m_assoc,
+                         int m_desig_type, int m_code_set);
+
+int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
+                          int slen, int * transport);
+
+
 /* STANDARD SCSI Commands  */
 int scsiTestUnitReady(scsi_device * device);
 
