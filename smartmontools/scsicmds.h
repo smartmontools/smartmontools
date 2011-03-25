@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3301 2011-03-24 11:55:40Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3302 2011-03-25 23:04:36Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -307,6 +307,14 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * in,
 int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo);
 
 const char * scsiErrString(int scsiErr);
+
+int scsi_vpd_dev_id_iter(const unsigned char * initial_desig_desc,
+                         int page_len, int * off, int m_assoc,
+                         int m_desig_type, int m_code_set);
+
+int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
+                          int slen, int * transport);
+
 
 /* STANDARD SCSI Commands  */
 int scsiTestUnitReady(scsi_device * device);
