@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3300 2011-03-22 21:10:55Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3303 2011-03-30 19:25:53Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -959,8 +959,9 @@ int ataVersionInfo(const char ** description, const ata_identify_device * drive,
 // (WWN was introduced in ATA/ATAPI-7 and is mandatory since ATA8-ACS Revision 3b)
 int ata_get_wwn(const ata_identify_device * id, unsigned & oui, uint64_t & unique_id)
 {
-  unsigned short word084 = id->command_set_extension;
-  if ((word084 & 0xc100) != 0x4100)
+  // Don't use word 84 to be compatible with some older ATA-7 disks
+  unsigned short word087 = id->csf_default;
+  if ((word087 & 0xc100) != 0x4100)
     return -1; // word not valid or WWN support bit 8 not set
 
   unsigned short word108 = id->words088_255[108-88];
