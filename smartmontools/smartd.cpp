@@ -125,7 +125,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3300 2011-03-22 21:10:55Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3305 2011-03-30 21:32:05Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -1766,8 +1766,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   if (naa >= 0)
     snprintf(wwn, sizeof(wwn), "WWN:%x-%06x-%09"PRIx64", ", naa, oui, unique_id);
 
-  PrintOut(LOG_INFO, "Device: %s, %s, S/N:%s, %sFW:%s, %"PRIu64" sectors\n", name,
-           model, serial, wwn, firmware, state.num_sectors);
+  char cap[32];
+  PrintOut(LOG_INFO, "Device: %s, %s, S/N:%s, %sFW:%s, %s\n", name,
+           model, serial, wwn, firmware,  // TODO: Support LLS
+           format_capacity(cap, sizeof(cap), state.num_sectors * 512, "."));
 
   // Show if device in database, and use preset vendor attribute
   // options unless user has requested otherwise.
