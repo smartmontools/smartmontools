@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Fix WWN support check for older ATA-7 disks.
+
   [DG] [SCSI] smartctl: add 'Logical Unit id' from the Device
        Identification VPD page (0x83)
 
