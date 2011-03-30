@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL 3205 2010-11-15 18:32:55Z chrfranke $
+$Id: INSTALL 3306 2011-03-30 21:37:45Z chrfranke $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -465,7 +465,8 @@ Cross-compile on Cygwin with old gcc-mingw 3.x:
   ./configure --build=$(./config.guess) \
               --host=i686-pc-mingw32 \
                CC='gcc-3 -mno-cygwin' \
-              CXX='g++-3 -mno-cygwin'
+              CXX='g++-3 -mno-cygwin' \
+              CXXFLAGS='-g -O2 -Wall -W -Wno-format'
 
 Cross-compile on Debian Linux with gcc-mingw32:
 
