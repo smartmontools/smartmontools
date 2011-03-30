@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: Remove '-Wno-format' for MinGW.
+       Recent MinGW versions support MSVCRT printf format strings.
+
   [CF] Print ATA disk capacity with SI prefix.
        Add/move capacity formatting to utility.cpp
 

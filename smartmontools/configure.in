@@ -394,11 +394,6 @@ if test "$GXX" = "yes"; then
   if test -z "`echo "$CXXFLAGS " | grep "\-W " 2> /dev/null`" ; then
       CXXFLAGS="$CXXFLAGS -W"
   fi
-  case "${host}" in
-    *-*-mingw*)
-      # MinGW uses MSVCRT.DLL which uses printf format "%I64d" and not "%lld" for int64_t
-      CXXFLAGS="$CXXFLAGS -Wno-format";;
-  esac
 
 else
  dnl We are NOT using gcc, so enable host-specific compiler flags

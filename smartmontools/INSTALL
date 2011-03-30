@@ -465,7 +465,8 @@ Cross-compile on Cygwin with old gcc-mingw 3.x:
   ./configure --build=$(./config.guess) \
               --host=i686-pc-mingw32 \
                CC='gcc-3 -mno-cygwin' \
-              CXX='g++-3 -mno-cygwin'
+              CXX='g++-3 -mno-cygwin' \
+              CXXFLAGS='-g -O2 -Wall -W -Wno-format'
 
 Cross-compile on Debian Linux with gcc-mingw32:
 
