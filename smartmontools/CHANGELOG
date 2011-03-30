@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Print ATA disk capacity with SI prefix.
+       Add/move capacity formatting to utility.cpp
+
   [CF] Add error messages if ATA pass-through does not return required
        ATA output registers (for SMART RETURN STATUS, GET POWER MODE).
        This prevents misleading 'SMART Status command failed' messages

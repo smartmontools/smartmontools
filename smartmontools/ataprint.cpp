@@ -30,9 +30,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef HAVE_LOCALE_H
-#include <locale.h>
-#endif // #ifdef HAVE_LOCALE_H
 
 #include "int64.h"
 #include "atacmdnames.h"
@@ -419,50 +416,6 @@ static inline const char * construct_st_er_desc(char * s,
     (const ata_smart_errorlog_error_struct *)0, &data->error);
 }
 
-
-// This returns the capacity of a disk drive and also prints this into
-// a string, using comma separators to make it easier to read.  If the
-// drive doesn't support LBA addressing or has no user writable
-// sectors (eg, CDROM or DVD) then routine returns zero.
-static uint64_t determine_capacity(const ata_identify_device * drive, char * pstring)
-{
-  // get correct character to use as thousands separator
-  const char *separator = ",";
-#ifdef HAVE_LOCALE_H
-  struct lconv *currentlocale=NULL;
-  setlocale (LC_ALL, "");
-  currentlocale=localeconv();
-  if (*(currentlocale->thousands_sep))
-    separator=(char *)currentlocale->thousands_sep;
-#endif // #ifdef HAVE_LOCALE_H
-
-  // get #sectors and turn into bytes
-  uint64_t capacity = get_num_sectors(drive) * 512;
-  uint64_t retval = capacity;
-
-  // print with locale-specific separators (default is comma)
-  int started=0, k=1000000000;
-  uint64_t power_of_ten = k;
-  power_of_ten *= k;
-  
-  for (k=0; k<7; k++) {
-    uint64_t threedigits = capacity/power_of_ten;
-    capacity -= threedigits*power_of_ten;
-    if (started)
-      // we have already printed some digits
-      pstring += sprintf(pstring, "%s%03"PRIu64, separator, threedigits);
-    else if (threedigits || k==6) {
-      // these are the first digits that we are printing
-      pstring += sprintf(pstring, "%"PRIu64, threedigits);
-      started = 1;
-    }
-    if (k!=6)
-      power_of_ten /= 1000;
-  }
-  
-  return retval;
-}
-
 // Get sector sizes and offset.
 // Return physical sector size if valid else return 0.
 static unsigned determine_sector_sizes(const ata_identify_device * id,
@@ -514,9 +467,15 @@ static void print_drive_info(const ata_identify_device * drive,
   }
   pout("Firmware Version: %s\n", infofound(firmware));
 
-  char capacity[64];
-  if (determine_capacity(drive, capacity))
-    pout("User Capacity:    %s bytes\n", capacity);
+  // Print capacity
+  uint64_t capacity = get_num_sectors(drive);
+  if (capacity) {
+    capacity *= 512; // TODO: Support LLS
+    char num[64], cap[32];
+    pout("User Capacity:    %s bytes [%s]\n",
+      format_with_thousands_sep(num, sizeof(num), capacity),
+      format_capacity(cap, sizeof(cap), capacity));
+  }
 
   // Print sector sizes.
   // Don't print if drive reports the default values.

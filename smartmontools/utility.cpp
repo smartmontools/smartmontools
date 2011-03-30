@@ -27,22 +27,25 @@
 // BOTH SCSI AND ATA DEVICES, AND THAT MAY BE USED IN SMARTD,
 // SMARTCTL, OR BOTH.
 
+#include "config.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <syslog.h>
 #include <stdarg.h>
 #include <sys/stat.h>
+#ifdef HAVE_LOCALE_H
+#include <locale.h>
+#endif
 #ifdef _WIN32
 #include <mbstring.h> // _mbsinc()
 #endif
 
 #include <stdexcept>
 
-#include "config.h"
 #include "svnversion.h"
 #include "int64.h"
 #include "utility.h"
@@ -725,6 +728,80 @@ void MsecToText(unsigned int msec, char *txt){
 
   sprintf(txt, "%02d:%02d:%02d.%03d", (int)hours, (int)min, (int)sec, (int)msec);  
   return;
+}
+
+// Format integer with thousands separator
+const char * format_with_thousands_sep(char * str, int strsize, uint64_t val,
+                                       const char * thousands_sep /* = 0 */)
+{
+  if (!thousands_sep) {
+    thousands_sep = ",";
+#ifdef HAVE_LOCALE_H
+    setlocale(LC_ALL, "");
+    const struct lconv * currentlocale = localeconv();
+    if (*(currentlocale->thousands_sep))
+      thousands_sep = currentlocale->thousands_sep;
+#endif
+  }
+
+  char num[64];
+  snprintf(num, sizeof(num), "%"PRIu64, val);
+  int numlen = strlen(num);
+
+  int i = 0, j = 0;
+  do
+    str[j++] = num[i++];
+  while (i < numlen && (numlen - i) % 3 != 0 && j < strsize-1);
+  str[j] = 0;
+
+  while (i < numlen && j < strsize-1) {
+    j += snprintf(str+j, strsize-j, "%s%.3s", thousands_sep, num+i);
+    i += 3;
+  }
+
+  return str;
+}
+
+// Format capacity with SI prefixes
+const char * format_capacity(char * str, int strsize, uint64_t val,
+                             const char * decimal_point /* = 0 */)
+{
+  if (!decimal_point) {
+    decimal_point = ".";
+#ifdef HAVE_LOCALE_H
+    setlocale(LC_ALL, "");
+    const struct lconv * currentlocale = localeconv();
+    if (*(currentlocale->decimal_point))
+      decimal_point = currentlocale->decimal_point;
+#endif
+  }
+
+  const unsigned factor = 1000; // 1024 for KiB,MiB,...
+  static const char prefixes[] = " KMGTP";
+
+  // Find d with val in [d, d*factor)
+  unsigned i = 0;
+  uint64_t d = 1;
+  for (uint64_t d2 = d * factor; val >= d2; d2 *= factor) {
+    d = d2;
+    if (++i >= sizeof(prefixes)-2)
+      break;
+  }
+
+  // Print 3 digits
+  uint64_t n = val / d;
+  if (i == 0)
+    snprintf(str, strsize, "%u B", (unsigned)n);
+  else if (n >= 100) // "123 xB"
+    snprintf(str, strsize, "%"PRIu64" %cB", n, prefixes[i]);
+  else if (n >= 10)  // "12.3 xB"
+    snprintf(str, strsize, "%"PRIu64"%s%u %cB", n, decimal_point,
+        (unsigned)(((val % d) * 10) / d), prefixes[i]);
+  else               // "1.23 xB"
+    snprintf(str, strsize, "%"PRIu64"%s%02u %cB", n, decimal_point,
+        (unsigned)(((val % d) * 100) / d), prefixes[i]);
+
+  return str;
 }
 
 // return (v)sprintf() formatted std::string

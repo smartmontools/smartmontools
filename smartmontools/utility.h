@@ -173,6 +173,14 @@ void FixGlibcTimeZoneBug();
 // convert time in msec to a text string
 void MsecToText(unsigned int msec, char *txt);
 
+// Format integer with thousands separator
+const char * format_with_thousands_sep(char * str, int strsize, uint64_t val,
+                                       const char * thousands_sep = 0);
+
+// Format capacity with SI prefixes
+const char * format_capacity(char * str, int strsize, uint64_t val,
+                             const char * decimal_point = 0);
+
 // Wrapper class for a raw data buffer
 class raw_buffer
 {
