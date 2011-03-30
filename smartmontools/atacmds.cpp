@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3303 2011-03-30 19:25:53Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3304 2011-03-30 19:53:44Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -622,8 +622,15 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         retval = 0;
         break;
       case CHECK_POWER_MODE:
-        data[0] = out.out_regs.sector_count;
-        retval = 0;
+        if (out.out_regs.sector_count.is_set()) {
+          data[0] = out.out_regs.sector_count;
+          retval = 0;
+        }
+        else {
+          pout("CHECK POWER MODE: incomplete response, ATA output registers missing\n");
+          device->set_err(ENOSYS);
+          retval = -1;
+        }
         break;
       case STATUS_CHECK:
         // Cyl low and Cyl high unchanged means "Good SMART status"
@@ -644,13 +651,19 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
           if (ata_debugmode)
             pout("SMART STATUS RETURN: half unhealthy response sequence, "
                  "probable SAT/USB truncation\n");
-        } else {
+        }
+        else if (!out.out_regs.is_set()) {
+          pout("SMART STATUS RETURN: incomplete response, ATA output registers missing\n");
+          device->set_err(ENOSYS);
+          retval = -1;
+        }
+        else {
           // We haven't gotten output that makes sense; print out some debugging info
           pout("Error SMART Status command failed\n");
           pout("Please get assistance from %s\n", PACKAGE_HOMEPAGE);
           pout("Register values returned from SMART Status command are:\n");
           print_regs(" ", out.out_regs);
-          errno = EIO;
+          device->set_err(EIO);
           retval = -1;
         }
         break;
