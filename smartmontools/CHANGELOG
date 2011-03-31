@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3306 2011-03-30 21:37:45Z chrfranke $
+$Id: CHANGELOG 3307 2011-03-31 14:54:58Z dpgilbert $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] [SCSI] smartctl: (re-)use capacity formatting in utility.cpp
 
   [CF] configure.in: Remove '-Wno-format' for MinGW.
        Recent MinGW versions support MSVCRT printf format strings.
