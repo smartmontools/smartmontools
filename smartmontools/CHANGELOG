@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DG] [SCSI] smartctl: (re-)use capacity formatting in utility.cpp
+
   [CF] configure.in: Remove '-Wno-format' for MinGW.
        Recent MinGW versions support MSVCRT printf format strings.
 
