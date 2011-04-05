@@ -938,8 +938,17 @@ int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
 int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries,
                              unsigned char fix_firmwarebug);
 
-// Get number of sectors from IDENTIFY sector.
-uint64_t get_num_sectors(const ata_identify_device * drive);
+// Get capacity and sector sizes from IDENTIFY data
+struct ata_size_info
+{
+  uint64_t sectors;
+  uint64_t capacity;
+  unsigned log_sector_size;
+  unsigned phy_sector_size;
+  unsigned log_sector_offset;
+};
+
+void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes);
 
 // Convenience function for formatting strings from ata_identify_device.
 void ata_format_id_string(char * out, const unsigned char * in, int n);

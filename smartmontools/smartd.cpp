@@ -1758,7 +1758,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   ata_format_id_string(model, drive.model, sizeof(model)-1);
   ata_format_id_string(serial, drive.serial_no, sizeof(serial)-1);
   ata_format_id_string(firmware, drive.fw_rev, sizeof(firmware)-1);
-  state.num_sectors = get_num_sectors(&drive);
+
+  ata_size_info sizes;
+  ata_get_size_info(&drive, sizes);
+  state.num_sectors = sizes.sectors;
 
   char wwn[30]; wwn[0] = 0;
   unsigned oui = 0; uint64_t unique_id = 0;
@@ -1768,8 +1771,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   char cap[32];
   PrintOut(LOG_INFO, "Device: %s, %s, S/N:%s, %sFW:%s, %s\n", name,
-           model, serial, wwn, firmware,  // TODO: Support LLS
-           format_capacity(cap, sizeof(cap), state.num_sectors * 512, "."));
+           model, serial, wwn, firmware,
+           format_capacity(cap, sizeof(cap), sizes.capacity, "."));
 
   // Show if device in database, and use preset vendor attribute
   // options unless user has requested otherwise.

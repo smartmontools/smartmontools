@@ -416,34 +416,8 @@ static inline const char * construct_st_er_desc(char * s,
     (const ata_smart_errorlog_error_struct *)0, &data->error);
 }
 
-// Get sector sizes and offset.
-// Return physical sector size if valid else return 0.
-static unsigned determine_sector_sizes(const ata_identify_device * id,
-  unsigned & log_sector_size, unsigned & log_sector_offset)
-{
-  unsigned short word106 = id->words088_255[106-88];
-  if ((word106 & 0xc000) != 0x4000)
-    return 0; // word not valid
-
-  log_sector_size = 512;
-  if (word106 & 0x1000)
-    // logical sector size is specified in 16-bit words
-    log_sector_size = ((id->words088_255[118-88] << 16) | id->words088_255[117-88]) << 1;
-
-  unsigned phy_sector_size = log_sector_size;
-  if (word106 & 0x2000)
-    // physical sector size is multiple of logical sector size
-    phy_sector_size <<= (word106 & 0x0f);
-
-  unsigned short word209 = id->words088_255[209-88];
-  log_sector_offset = 0;
-  if ((word209 & 0xc000) == 0x4000)
-    log_sector_offset = (word209 & 0x3fff) * log_sector_size;
-
-  return phy_sector_size;
-}
-
 static void print_drive_info(const ata_identify_device * drive,
+                             const ata_size_info & sizes,
                              const drive_settings * dbentry)
 {
   // format drive information (with byte swapping as needed)
@@ -467,29 +441,28 @@ static void print_drive_info(const ata_identify_device * drive,
   }
   pout("Firmware Version: %s\n", infofound(firmware));
 
-  // Print capacity
-  uint64_t capacity = get_num_sectors(drive);
-  if (capacity) {
-    capacity *= 512; // TODO: Support LLS
+  if (sizes.capacity) {
+    // Print capacity
     char num[64], cap[32];
     pout("User Capacity:    %s bytes [%s]\n",
-      format_with_thousands_sep(num, sizeof(num), capacity),
-      format_capacity(cap, sizeof(cap), capacity));
-  }
+      format_with_thousands_sep(num, sizeof(num), sizes.capacity),
+      format_capacity(cap, sizeof(cap), sizes.capacity));
 
-  // Print sector sizes.
-  // Don't print if drive reports the default values.
-  // Some from 4KiB sector drives report 512 bytes in IDENTIFY word 106
-  // (e.g. Samsung HD204UI).
-  unsigned log_sector_size = 0, log_sector_offset = 0;
-  unsigned phy_sector_size = determine_sector_sizes(drive, log_sector_size,
-    log_sector_offset);
-  if (phy_sector_size && !(phy_sector_size == 512 && log_sector_size == 512)) {
-    pout("Sector Sizes:     %u bytes physical, %u bytes logical",
-         phy_sector_size, log_sector_size);
-    if (log_sector_offset)
-      pout(" (offset %u bytes)", log_sector_offset);
-    pout("\n");
+    // Print sector sizes.
+    if (sizes.phy_sector_size == sizes.log_sector_size) {
+      // Don't print if drive reports the default values.
+      // Some 4KiB LPS drives report 512 bytes in IDENTIFY word 106
+      // (e.g. Samsung HD204UI).
+      if (sizes.log_sector_size != 512)
+        pout("Sector Size:      %u bytes logical/physical\n", sizes.log_sector_size);
+    }
+    else {
+      pout("Sector Sizes:     %u bytes logical, %u bytes physical",
+         sizes.log_sector_size, sizes.phy_sector_size);
+      if (sizes.log_sector_offset)
+        pout(" (offset %u bytes)", sizes.log_sector_offset);
+      pout("\n");
+    }
   }
 
   // See if drive is recognized
@@ -1872,10 +1845,14 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     dbentry = lookup_drive_apply_presets(&drive, attribute_defs,
       fix_firmwarebug);
 
+  // Get capacity and sector sizes
+  ata_size_info sizes;
+  ata_get_size_info(&drive, sizes);
+
   // Print most drive identity information if requested
   if (options.drive_info) {
     pout("=== START OF INFORMATION SECTION ===\n");
-    print_drive_info(&drive, dbentry);
+    print_drive_info(&drive, sizes, dbentry);
   }
 
   // Check and print SMART support and state
@@ -2547,7 +2524,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Now do the test.  Note ataSmartTest prints its own error/success
   // messages
   if (ataSmartTest(device, options.smart_selftest_type, options.smart_selective_args,
-                   &smartval, get_num_sectors(&drive)                                ))
+                   &smartval, sizes.sectors                                          ))
     failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   else {  
     // Tell user how long test will take to complete.  This is tricky

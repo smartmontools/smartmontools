@@ -697,38 +697,60 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
   return retval;
 }
 
-// Get number of sectors from IDENTIFY sector. If the drive doesn't
-// support LBA addressing or has no user writable sectors
-// (eg, CDROM or DVD) then routine returns zero.
-uint64_t get_num_sectors(const ata_identify_device * drive)
+// Get capacity and sector sizes from IDENTIFY data
+void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes)
 {
-  unsigned short command_set_2  = drive->command_set_2;
-  unsigned short capabilities_0 = drive->words047_079[49-47];
-  unsigned short sects_16       = drive->words047_079[60-47];
-  unsigned short sects_32       = drive->words047_079[61-47];
-  unsigned short lba_16         = drive->words088_255[100-88];
-  unsigned short lba_32         = drive->words088_255[101-88];
-  unsigned short lba_48         = drive->words088_255[102-88];
-  unsigned short lba_64         = drive->words088_255[103-88];
+  sizes.sectors = sizes.capacity = 0;
+  sizes.log_sector_size = sizes.phy_sector_size = 0;
+  sizes.log_sector_offset = 0;
 
-  // LBA support?
-  if (!(capabilities_0 & 0x0200))
-    return 0; // No
+  // Return if no LBA support
+  if (!(id->words047_079[49-47] & 0x0200))
+    return;
 
-  // if drive supports LBA addressing, determine 32-bit LBA capacity
-  uint64_t lba32 = (unsigned int)sects_32 << 16 |
-                   (unsigned int)sects_16 << 0  ;
+  // Determine 28-bit LBA capacity
+  unsigned lba28 = (unsigned)id->words047_079[61-47] << 16
+                 | (unsigned)id->words047_079[60-47]      ;
 
-  uint64_t lba64 = 0;
-  // if drive supports 48-bit addressing, determine THAT capacity
-  if ((command_set_2 & 0xc000) == 0x4000 && (command_set_2 & 0x0400))
-      lba64 = (uint64_t)lba_64 << 48 |
-              (uint64_t)lba_48 << 32 |
-              (uint64_t)lba_32 << 16 |
-              (uint64_t)lba_16 << 0  ;
+  // Determine 48-bit LBA capacity if supported
+  uint64_t lba48 = 0;
+  if ((id->command_set_2 & 0xc400) == 0x4400)
+    lba48 = (uint64_t)id->words088_255[103-88] << 48
+          | (uint64_t)id->words088_255[102-88] << 32
+          | (uint64_t)id->words088_255[101-88] << 16
+          | (uint64_t)id->words088_255[100-88]      ;
 
-  // return the larger of the two possible capacities
-  return (lba32 > lba64 ? lba32 : lba64);
+  // Return if capacity unknown (ATAPI CD/DVD)
+  if (!(lba28 || lba48))
+    return;
+
+  // Determine sector sizes
+  sizes.log_sector_size = sizes.phy_sector_size = 512;
+
+  unsigned short word106 = id->words088_255[106-88];
+  if ((word106 & 0xc000) == 0x4000) {
+    // Long Logical/Physical Sectors (LLS/LPS) ?
+    if (word106 & 0x1000)
+      // Logical sector size is specified in 16-bit words
+      sizes.log_sector_size = sizes.phy_sector_size =
+        ((id->words088_255[118-88] << 16) | id->words088_255[117-88]) << 1;
+
+    if (word106 & 0x2000)
+      // Physical sector size is multiple of logical sector size
+      sizes.phy_sector_size <<= (word106 & 0x0f);
+
+    unsigned short word209 = id->words088_255[209-88];
+    if ((word209 & 0xc000) == 0x4000)
+      sizes.log_sector_offset = (word209 & 0x3fff) * sizes.log_sector_size;
+  }
+
+  // Some early 4KiB LLS disks (Samsung N3U-3) return bogus lba28 value
+  if (lba48 >= lba28 || (lba48 && sizes.log_sector_size > 512))
+    sizes.sectors = lba48;
+  else
+    sizes.sectors = lba28;
+
+  sizes.capacity = sizes.sectors * sizes.log_sector_size;
 }
 
 // This function computes the checksum of a single disk sector (512
