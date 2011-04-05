@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3309 2011-04-05 19:07:19Z chrfranke $",
+  { "$Id: drivedb.h 3310 2011-04-05 19:19:33Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2224,6 +2224,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbsunplus"
+  },
+  { "USB: Verbatim Pocket Hard Drive; JMicron", // SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS)
+    "0x18a5:0x0227",
+    "",
+    "",
+    "-d usbjmicron" // "-d usbjmicron,x" does not work
   },
   // Silicon Image
   { "USB: Vantec NST-400MX-SR; Silicon Image 5744",
