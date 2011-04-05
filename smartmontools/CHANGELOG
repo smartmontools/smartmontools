@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3311 2011-04-05 20:15:50Z chrfranke $
+$Id: CHANGELOG 3312 2011-04-05 21:08:55Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,12 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h updates:
+       - SandForce Driven SSDs: Add ADATA S599 64GB,
+         OWC Mercury Extreme Pro
+       - Kingston branded X25-V SSDs (ticket #156)
+       - Transcend SATA Solid State Drive: Truncate attribute name
 
   [CF] drivedb.h USB updates:
        - LaCie (0x059f:0x1029) (ticket #153)
