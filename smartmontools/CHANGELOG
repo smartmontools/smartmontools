@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - SandForce Driven SSDs: Add ADATA S599 64GB,
+         OWC Mercury Extreme Pro
+       - Kingston branded X25-V SSDs (ticket #156)
+       - Transcend SATA Solid State Drive: Truncate attribute name
+
   [CF] drivedb.h USB updates:
        - LaCie (0x059f:0x1029) (ticket #153)
        - WD My Book Office Edition (0x1058:0x1101)

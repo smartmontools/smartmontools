@@ -104,7 +104,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
-    "ADATA SSD S599 ...GB|" // tested with ADATA SSD S599 256GB/3.1.0
+    "ADATA SSD S599 .?..GB|" // tested with ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
     "Corsair CSSD-F(40|60|80|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
@@ -112,6 +112,7 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ[ -](AGILITY2|VERTEX2(-PRO)?|VERTEX-LE)( .*)?|" // tested with
       // OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
+    "OWC Mercury Extreme Pro SSD|" // tested with firmware 360A13F0
     "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
     "", "",
@@ -242,6 +243,29 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
   },
+  { "Kingston branded X25-V SSDs", // fixed firmware
+    "KINGSTON SSDNow 40GB",
+    "2CV102(J[89A-Z]|[K-Z].)", // >= "2CV102J8"
+    "",
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes"
+  },
+  { "Kingston branded X25-V SSDs", // buggy or unknown firmware
+    "KINGSTON SSDNow 40GB",
+    "",
+    "This drive may require a firmware update to\n"
+    "fix possible drive hangs when reading SMART self-test log.\n"
+    "To update Kingston branded drives, a modified Intel update\n"
+    "tool must be used. Search for \"kingston 40gb firmware\".",
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes"
+  },
   { "Kingston SSDNow V Series", // tested with KINGSTON SNV425S264GB/C091126a
     "KINGSTON SNV425S2(64|128)GB",
     "", "",
@@ -259,7 +283,7 @@ const drive_settings builtin_knowndrives[] = {
     "TS(8|16|32|64|128|192)GSSD25S-(M|S)",
     "", "",
     "-v 229,hex64,Halt_System_ID "
-    "-v 232,hex64,Firmware_Version_information "
+    "-v 232,hex64,Firmware_Version_Info "
     "-v 233,hex64,ECC_Fail_Record "
     "-v 234,raw24/raw24,Erase_Count_Avg/Max "
     "-v 235,raw24/raw24,Block_Count_Good/System"
