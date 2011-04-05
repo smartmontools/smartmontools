@@ -2225,6 +2225,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  { "USB: Verbatim Pocket Hard Drive; JMicron", // SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS)
+    "0x18a5:0x0227",
+    "",
+    "",
+    "-d usbjmicron" // "-d usbjmicron,x" does not work
+  },
   // Silicon Image
   { "USB: Vantec NST-400MX-SR; Silicon Image 5744",
     "0x1a4a:0x1670",
