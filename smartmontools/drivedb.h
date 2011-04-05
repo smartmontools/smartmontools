@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3290 2011-03-09 20:40:36Z chrfranke $",
+  { "$Id: drivedb.h 3309 2011-04-05 19:07:19Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -635,6 +635,10 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-v 9,halfminutes"
+  },
+  { "SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS)", // tested with HS25YJZ/3AU10-01
+    "SAMSUNG HS(122H|2[05]YJ)Z",
+    "", "", ""
   },
   { "SAMSUNG PM800 SSDs", // tested with SAMSUNG SSD PM800 TH 64GB/VBM25D1Q
     "SAMSUNG SSD PM800 .*GB",
