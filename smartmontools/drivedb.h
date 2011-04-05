@@ -1835,6 +1835,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: LaCie hard disk; ",
+    "0x059f:0x1029",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   { "USB: Lacie rikiki; JMicron",
     "0x059f:0x102a",
     "",
@@ -2080,6 +2086,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: WD My Book Office Edition; ", // 1TB
+    "0x1058:0x1101",
+    "", // 0x0165
+    "",
+    "-d sat"
+  },
   { "USB: WD My Book; ",
     "0x1058:0x1102",
     "", // 0x1028
@@ -2138,6 +2150,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   // JMicron
+  { "USB: ; JMicron USB 3.0",
+    "0x152d:0x0539",
+    "", // 0x0100
+    "",
+    "-d usbjmicron"
+  },
   { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
     "0x152d:0x0551",
     "", // 0x0100

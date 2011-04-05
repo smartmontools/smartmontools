@@ -41,8 +41,13 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - LaCie (0x059f:0x1029) (ticket #153)
+       - WD My Book Office Edition (0x1058:0x1101)
+       - JMicron USB 3.0 (0x152d:0x0539)
+
   [CF] drivedb.h USB update:
-       -  Verbatim Pocket Hard Drive (0x18a5:0x0227) (ticket #159)
+       - Verbatim Pocket Hard Drive (0x18a5:0x0227) (ticket #159)
 
   [CF] drivedb.h update:
        - SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS) (ticket #159)
