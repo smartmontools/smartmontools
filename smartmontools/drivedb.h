@@ -636,6 +636,10 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,halfminutes"
   },
+  { "SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS)", // tested with HS25YJZ/3AU10-01
+    "SAMSUNG HS(122H|2[05]YJ)Z",
+    "", "", ""
+  },
   { "SAMSUNG PM800 SSDs", // tested with SAMSUNG SSD PM800 TH 64GB/VBM25D1Q
     "SAMSUNG SSD PM800 .*GB",
     "", "", ""
