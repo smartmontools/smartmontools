@@ -1658,6 +1658,29 @@ static int SelfTestErrorCount(ata_device * device, const char * name,
 #define SELFTEST_ERRORCOUNT(x) (x & 0xff)
 #define SELFTEST_ERRORHOURS(x) ((x >> 8) & 0xffff)
 
+// Log offline data collection status
+static void log_offline_data_coll_status(const char * name, unsigned char status)
+{
+  const char * msg;
+  switch (status & 0x7f) {
+    case 0x00: msg = "was never started"; break;
+    case 0x02: msg = "was completed without error"; break;
+    case 0x03: msg = (status == 0x03 ? "is in progress" : 0); break;
+    case 0x04: msg = "was suspended by an interrupting command from host"; break;
+    case 0x05: msg = "was aborted by an interrupting command from host"; break;
+    case 0x06: msg = "was aborted by the device with a fatal error"; break;
+    default:   msg = 0;
+  }
+
+  if (msg)
+    PrintOut(((status & 0x7f) == 0x06 ? LOG_CRIT : LOG_INFO),
+             "Device: %s, offline data collection %s%s\n", name, msg,
+             ((status & 0x80) ? " (auto:on)" : ""));
+  else
+    PrintOut(LOG_INFO, "Device: %s, unknown offline data collection status 0x%02x\n",
+             name, status);
+}
+
 // Log self-test execution status
 static void log_self_test_exec_status(const char * name, unsigned char status)
 {
@@ -2789,7 +2812,8 @@ static void check_attribute(const dev_config & cfg, dev_state & state,
 }
 
 
-static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device * atadev, bool allow_selftests)
+static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device * atadev,
+                          bool firstpass, bool allow_selftests)
 {
   const char * name = cfg.name.c_str();
 
@@ -2934,9 +2958,14 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
         }
 
         if (cfg.selftest) {
-          // Log changes of self-test execution status
+          // Log changes of offline data collection and self-test execution status
+          if (   curval.offline_data_collection_status
+                 != state.smartval.offline_data_collection_status
+              || (firstpass && (debugmode || (curval.offline_data_collection_status & 0x7d))))
+            log_offline_data_coll_status(name, curval.offline_data_collection_status);
+
           if (   curval.self_test_exec_status != state.smartval.self_test_exec_status
-              || (!allow_selftests && curval.self_test_exec_status != 0x00)          )
+              || (firstpass && (debugmode || curval.self_test_exec_status != 0x00)))
             log_self_test_exec_status(name, curval.self_test_exec_status);
         }
 
@@ -3061,14 +3090,14 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
 
 // Checks the SMART status of all ATA and SCSI devices
 static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector & states,
-                             smart_device_list & devices, bool allow_selftests)
+                             smart_device_list & devices, bool firstpass, bool allow_selftests)
 {
   for (unsigned i = 0; i < configs.size(); i++) {
     const dev_config & cfg = configs.at(i);
     dev_state & state = states.at(i);
     smart_device * dev = devices.at(i);
     if (dev->is_ata())
-      ATACheckDevice(cfg, state, dev->to_ata(), allow_selftests);
+      ATACheckDevice(cfg, state, dev->to_ata(), firstpass, allow_selftests);
     else if (dev->is_scsi())
       SCSICheckDevice(cfg, state, dev->to_scsi(), allow_selftests);
   }
@@ -4590,7 +4619,7 @@ static int main_worker(int argc, char **argv)
 
     // check all devices once,
     // self tests are not started in first pass unless '-q onecheck' is specified
-    CheckDevicesOnce(configs, states, devices, (!firstpass || quit==3));
+    CheckDevicesOnce(configs, states, devices, firstpass, (!firstpass || quit==3));
 
      // Write state files
     if (!state_path_prefix.empty())
