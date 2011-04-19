@@ -77,6 +77,7 @@ struct ata_print_options
   unsigned sct_temp_int;
   bool sct_temp_int_pers;
 
+  unsigned char output_format; // 0=old, 1=brief
   unsigned char fix_firmwarebug; // FIX_*, see atacmds.h
   bool fix_swapped_id; // Fix swapped ID strings returned by some buggy drivers
 
@@ -108,6 +109,7 @@ struct ata_print_options
       smart_auto_save_disable(false), smart_auto_save_enable(false),
       smart_selftest_type(-1),
       sct_temp_int(0), sct_temp_int_pers(false),
+      output_format(0),
       fix_firmwarebug(FIX_NOTSPECIFIED),
       fix_swapped_id(false),
       ignore_presets(false),

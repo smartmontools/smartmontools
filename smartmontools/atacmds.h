@@ -196,8 +196,9 @@ ASSERT_SIZEOF_STRUCT(ata_smart_attribute, 12);
 // 5: Selfpereserving bit
 #define ATTRIBUTE_FLAGS_SELFPRESERVING(x) (x & 0x20)
 
+// 6-15: Reserved for future use
+#define ATTRIBUTE_FLAGS_OTHER(x) ((x) & 0xffc0)
 
-// Last ten bits are reserved for future use
 
 /* ata_smart_values is format of the read drive Attribute command */
 /* see Table 34 of T13/1321D Rev 1 spec (Device SMART data structure) for *some* info */

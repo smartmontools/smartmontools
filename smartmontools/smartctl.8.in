@@ -189,8 +189,8 @@ and the SMART options which require support for 48-bit ATA commands.
 Prints all SMART and non-SMART information about the device. For ATA
 devices this is equivalent to
 .nf
-\'\-H \-i \-c \-A \-l xerror,error \-l xselftest,selftest \-l selective
-\-l directory \-l scttemp \-l scterc \-l sataphy\'.
+\'\-H \-i \-c \-A \-f brief \-l xerror,error \-l xselftest,selftest
+\-l selective \-l directory \-l scttemp \-l scterc \-l sataphy\'.
 .fi
 and for SCSI, this is equivalent to
 .nf
@@ -816,6 +816,18 @@ the option of printing the Attribute values.
 and start\-stop cycle counter log pages. Certain vendor specific
 attributes are listed if recognised. The attributes are output in a
 relatively free format (compared with ATA disk attributes).
+.TP
+.B \-f FORMAT, \-\-format=FORMAT
+[ATA only] Selects the output format of the attributes to one of:
+
+.I old
+\- Old smartctl format. This is the default unless the \'\-x\' option is
+specified.
+
+.I brief
+\- New format which fits into 80 colums (except in some rare cases).
+This format also decodes four additional attribute flags.
+This is the default if the '\-x\' option is specified.
 .TP
 .B \-l TYPE, \-\-log=TYPE
 Prints either the SMART Error Log, the SMART Self\-Test Log, the SMART

@@ -126,8 +126,10 @@ static void Usage()
 "        Show device SMART health status\n\n"
 "  -c, --capabilities                                                  (ATA)\n"
 "        Show device SMART capabilities\n\n"
-"  -A, --attributes                                                         \n"
+"  -A, --attributes\n"
 "        Show device SMART vendor-specific Attributes and values\n\n"
+"  -f FORMAT, --format=FORMAT                                          (ATA)\n"
+"        Set output format for attributes to one of: old, brief\n\n"
 "  -l TYPE, --log=TYPE\n"
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "                               background, sasphy[,reset], sataphy[,reset],\n"
@@ -201,6 +203,8 @@ static std::string getvalidarglist(char opt)
     return "none, samsung, samsung2, samsung3, swapid";
   case 'n':
     return "never, sleep, standby, idle";
+  case 'f':
+    return "old, brief";
   case 'v':
   default:
     return "";
@@ -241,7 +245,7 @@ static const char * parse_options(int argc, char** argv,
                            scsi_print_options & scsiopts)
 {
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iaxv:P:t:CXF:n:B:";
+  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iaxv:P:t:CXF:n:B:f:";
   // Please update getvalidarglist() if you edit longopts
   enum { opt_scan = 1000, opt_scan_open = 1001 };
   struct option longopts[] = {
@@ -273,6 +277,7 @@ static const char * parse_options(int argc, char** argv,
     { "firmwarebug",     required_argument, 0, 'F' },
     { "nocheck",         required_argument, 0, 'n' },
     { "drivedb",         required_argument, 0, 'B' },
+    { "format",          required_argument, 0, 'f' },
     { "scan",            no_argument,       0, opt_scan      },
     { "scan-open",       no_argument,       0, opt_scan_open },
     { 0,                 0,                 0, 0   }
@@ -284,6 +289,7 @@ static const char * parse_options(int argc, char** argv,
 
   const char * type = 0; // set to -d optarg
   bool no_defaultdb = false; // set true on '-B FILE'
+  bool output_format_set = false; // set true on '-f FORMAT'
   int scan = 0; // set by --scan, --scan-open
   bool badarg = false, captive = false;
   int testcnt = 0; // number of self-tests requested
@@ -558,6 +564,8 @@ static const char * parse_options(int argc, char** argv,
       ataopts.sataphy = true;
       scsiopts.smart_background_log = true;
       scsiopts.sasphy = true;
+      if (!output_format_set)
+        ataopts.output_format = 1; // '-f brief'
       break;
     case 'v':
       // parse vendor-specific definitions of attributes
@@ -696,6 +704,16 @@ static const char * parse_options(int argc, char** argv,
         ataopts.powermode = 4;
       else
         badarg = true;
+      break;
+    case 'f':
+      output_format_set = true;
+      if (!strcmp(optarg,"old")) {
+        ataopts.output_format = 0;
+      } else if (!strcmp(optarg,"brief")) {
+        ataopts.output_format = 1;
+      } else {
+        badarg = true;
+      }
       break;
     case 'B':
       {
