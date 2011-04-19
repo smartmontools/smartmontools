@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3308 2011-04-05 19:01:56Z chrfranke $
+$Id: NEWS 3316 2011-04-19 19:34:57Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -13,6 +13,8 @@ Summary: smartmontools release 5.41
 - Support for ATA Long Logical/Physical Sectors (LLS/LPS).
 - 'smartctl --scan-open' can create a draft smartd.conf.
 - smartctl prints World Wide Name (WWN) of ATA device.
+- smartctl option '-f brief' to select new attribute output
+  format which includes more flags and fits in 80 columns.
 - smartd logs identify information and WWN of each ATA device.
 - smartd logs warning from drive database if present.
 - smartd directive '-l scterc,READTIME,WRITETIME'.
