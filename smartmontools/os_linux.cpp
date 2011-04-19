@@ -2827,8 +2827,10 @@ private:
 std::string linux_smart_interface::get_os_version_str()
 {
   struct utsname u;
-  return strprintf("%s-%s", SMARTMONTOOLS_BUILD_HOST,
-    (!uname(&u) ? u.release : "?"));
+  if (!uname(&u))
+    return strprintf("%s-linux-%s", u.machine, u.release);
+  else
+    return SMARTMONTOOLS_BUILD_HOST;
 }
 
 std::string linux_smart_interface::get_app_examples(const char * appname)

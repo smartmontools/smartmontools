@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_linux.cpp: Shorten version string.
+
   [CF] smartctl: Add option '-f brief' to select new attribute output
        format.  This format includes additional attribute flags
        (ticket #109) and fits in 80 columns (ticket #158).
