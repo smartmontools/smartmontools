@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3316 2011-04-19 19:34:57Z chrfranke $
+$Id: CHANGELOG 3317 2011-04-19 19:42:54Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] os_linux.cpp: Shorten version string.
 
   [CF] smartctl: Add option '-f brief' to select new attribute output
        format.  This format includes additional attribute flags

@@ -89,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3293 2011-03-09 21:55:15Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3317 2011-04-19 19:42:54Z chrfranke $"
   OS_LINUX_H_CVSID;
 
 
@@ -2827,8 +2827,10 @@ private:
 std::string linux_smart_interface::get_os_version_str()
 {
   struct utsname u;
-  return strprintf("%s-%s", SMARTMONTOOLS_BUILD_HOST,
-    (!uname(&u) ? u.release : "?"));
+  if (!uname(&u))
+    return strprintf("%s-linux-%s", u.machine, u.release);
+  else
+    return SMARTMONTOOLS_BUILD_HOST;
 }
 
 std::string linux_smart_interface::get_app_examples(const char * appname)
