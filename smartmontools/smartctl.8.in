@@ -1620,16 +1620,20 @@ This command also clears the temperature history table. See
 .I vendor,N
 \- [ATA only] issues the ATA command SMART EXECUTE OFF-LINE IMMEDIATE
 with subcommand N in LBA LOW register. The subcommand is specified as
-a hex value in the range 0x00 to 0xff. Subcommands 0x40-0x7f and
+a hex value in the range 0x00 to 0xff.  Subcommands 0x40-0x7e and
 0x90-0xff are reserved for vendor specific use, see table 61 of
-T13/1699-D Revision 6a (ATA8-ACS).
+T13/1699-D Revision 6a (ATA8-ACS).  Note that the subcommands
+0x00-0x04,0x7f,0x81-0x84 are supported by other smartctl options
+(e.g. 0x01: \'\-t short\', 0x7f: \'\-X\', 0x82: \'\-C \-t long\').
 
 \fBWARNING: Only run subcommands documented by the vendor of the
 device.\fP
 
-Example for Intel X18\-M/X25\-M G2 SSDs only: The subcommand 0x40
-(\'\-t vendor,0x40\') clears the timed workload related SMART
-attributes (226, 227, 228).
+Example for Intel (X18\-M/X25\-M G2 and 320 Series) SSDs only:
+The subcommand 0x40 (\'\-t vendor,0x40\') clears the timed workload
+related SMART attributes (226, 227, 228).  Note that the raw values of
+these attributes are held at 65535 (0xffff) until the workload timer
+reaches 60 minutes.
 .TP
 .B \-C, \-\-captive
 [ATA] Runs self\-tests in captive mode.  This has no effect with \'\-t
