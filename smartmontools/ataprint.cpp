@@ -449,13 +449,8 @@ static void print_drive_info(const ata_identify_device * drive,
       format_capacity(cap, sizeof(cap), sizes.capacity));
 
     // Print sector sizes.
-    if (sizes.phy_sector_size == sizes.log_sector_size) {
-      // Don't print if drive reports the default values.
-      // Some 4KiB LPS drives report 512 bytes in IDENTIFY word 106
-      // (e.g. Samsung HD204UI).
-      if (sizes.log_sector_size != 512)
-        pout("Sector Size:      %u bytes logical/physical\n", sizes.log_sector_size);
-    }
+    if (sizes.phy_sector_size == sizes.log_sector_size)
+      pout("Sector Size:      %u bytes logical/physical\n", sizes.log_sector_size);
     else {
       pout("Sector Sizes:     %u bytes logical, %u bytes physical",
          sizes.log_sector_size, sizes.phy_sector_size);
