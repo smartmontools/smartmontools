@@ -92,9 +92,12 @@ const drive_settings builtin_knowndrives[] = {
       // Corsair CSSD-F40GB2/1.1
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
-    "OCZ[ -](AGILITY2|VERTEX2(-PRO)?|VERTEX-LE)( .*)?|" // tested with
-      // OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
+    "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX2|VERTEX-LE)( [123]\\..*)?|" // SF-1200,
+      // tested with OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
+    "OCZ[ -](VELO|VERTEX2[ -](EX|PRO))( [123]\\..*)?|" // SF-1500, tested with
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
+    "(APOC|DENC|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200
+    "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
     "OWC Mercury Extreme Pro SSD|" // tested with firmware 360A13F0
     "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
@@ -225,6 +228,29 @@ const drive_settings builtin_knowndrives[] = {
     "-v 226,raw48,Workld_Media_Wear_Indic "
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
+  },
+  { "Intel 320 Series SSDs",
+    "INTEL SSDSA[12]CW(040|080|120|160|300|600)G3",
+    "", "",
+  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 4,raw48,Start_Stop_Count "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Reserve_Block_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB"
   },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",
