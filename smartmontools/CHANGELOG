@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - SandForce Driven SSDs: Add more OCZ SF-1200 and SF-1500 based drives
+
+       Thanks to Sudhir Verman from OCZ Technology for providing this info.
+
   [CF] drivedb.h USB updates:
        - Seagate Expansion External (0x0bc2:0x3300) (Debian bug 621411)
        - ASMedia USB 3.0 (0x174c:0x55aa) (unsupported)
