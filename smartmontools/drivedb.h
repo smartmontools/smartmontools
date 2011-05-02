@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3319 2011-04-30 20:02:30Z chrfranke $",
+  { "$Id: drivedb.h 3321 2011-05-02 17:38:18Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2003,6 +2003,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Seagate Expansion External; ", // 2TB
+    "0x0bc2:0x3300",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: Seagate FreeAgent Go Flex; ",
     "0x0bc2:0x5021",
     "",
@@ -2269,6 +2275,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d sat"
+  },
+  { "USB: ; ASMedia USB 3.0", // BYTECC T-200U3
+    "0x174c:0x55aa",
+    "",
+    "",
+    "" // unsupported
   },
   // LucidPort
   { "USB: RaidSonic ICY BOX IB-110StU3-B; LucidPORT USB300",
