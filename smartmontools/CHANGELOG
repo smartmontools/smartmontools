@@ -41,6 +41,21 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h updates:
+       - G.Skill FALCON II SSD (Indilinx)
+       - HP 250GB SATA disk VB0250EAVER
+       - SAMSUNG SpinPoint M5 HM160HC
+       - SAMSUNG SpinPoint MT2 HM100UI
+       - SAMSUNG HM100UX
+       - Hitachi Deskstar 5K3000 Series
+       - Seagate Barracuda Green (Adv. Format)
+       - Seagate Barracuda XT 3TB variant
+       - Western Digital RE4 Serial ATA family
+       - Western Digital Caviar Green WD20EACS
+       - Western Digital Caviar Black family, SATA 3.0 variants
+       - QUANTUM FIREBALLlct20 10
+       - QUANTUM FIREBALLP AS60.0
+
   [CF] drivedb.h update:
        - SandForce Driven SSDs: Add more OCZ SF-1200 and SF-1500 based drives
 
