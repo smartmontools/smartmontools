@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3318 2011-04-30 19:38:55Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3325 2011-05-10 19:22:13Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -1752,7 +1752,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     int powermode = ataCheckPowerMode(device);
     switch (powermode) {
       case -1:
-        if (errno == ENOSYS) {
+        if (device->get_errno() == ENOSYS) {
           pout("CHECK POWER MODE not implemented, ignoring -n option\n"); break;
         }
         powername = "SLEEP";   powerlimit = 2;
