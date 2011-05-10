@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Use get_errmsg() from device instead of errno or syserror() for
+       printing error messages.
+
   [MS] drivedb.h updates:
        - G.Skill FALCON II SSD (Indilinx)
        - HP 250GB SATA disk VB0250EAVER
