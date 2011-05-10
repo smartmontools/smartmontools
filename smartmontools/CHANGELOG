@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - Intel 510 Series SSDs (ticket #170)
+
   [CF] smartctl: Don't issue SMART DISABLE command to 3ware controllers
        when the port number was not specified (ticket #165).
 
