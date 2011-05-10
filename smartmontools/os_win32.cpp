@@ -380,6 +380,7 @@ private:
   bool m_usr_options; // options set by user?
   bool m_admin; // open with admin access?
   bool m_id_is_cached; // ata_identify_is_cached() return value.
+  bool m_is_3ware; // AMCC/3ware controller detected?
   int m_drive, m_port;
   int m_smartver_state;
 };
@@ -2407,6 +2408,7 @@ win_ata_device::win_ata_device(smart_interface * intf, const char * dev_name, co
   m_usr_options(false),
   m_admin(false),
   m_id_is_cached(false),
+  m_is_3ware(false),
   m_drive(0),
   m_port(-1),
   m_smartver_state(0)
@@ -2532,13 +2534,16 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   // Win9X/ME: Get drive map
   // RAID: Get port map
   GETVERSIONINPARAMS_EX vers_ex;
-  int devmap = smart_get_version(h, (port >= 0 ? &vers_ex : 0));
+  int devmap = smart_get_version(h, &vers_ex);
+
+  // 3ware RAID if vendor id present
+  m_is_3ware = (vers_ex.wIdentifier == SMART_VENDOR_3WARE);
 
   unsigned long portmap = 0;
   if (port >= 0 && devmap >= 0) {
     // 3ware RAID: check vendor id
-    if (vers_ex.wIdentifier != SMART_VENDOR_3WARE) {
-      pout("SMART_GET_VERSION returns unknown Identifier = %04x\n"
+    if (!m_is_3ware) {
+      pout("SMART_GET_VERSION returns unknown Identifier = 0x%04x\n"
            "This is no 3ware 9000 controller or driver has no SMART support.\n",
            vers_ex.wIdentifier);
       devmap = -1;
@@ -2642,6 +2647,12 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     true) // ata_48bit_support
   )
     return false;
+
+  // 3ware RAID: SMART DISABLE without port number disables SMART functions
+  if (   m_is_3ware && m_port < 0
+      && in.in_regs.command == ATA_SMART_CMD
+      && in.in_regs.features == ATA_SMART_DISABLE)
+    return set_err(ENOSYS, "SMART DISABLE requires 3ware port number");
 
   // Determine ioctl functions valid for this ATA cmd
   const char * valid_options = 0;
@@ -2821,7 +2832,8 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         }
         if (!m_smartver_state) {
           assert(m_port == -1);
-          if (smart_get_version(get_fh()) < 0) {
+          GETVERSIONINPARAMS_EX vers_ex;
+          if (smart_get_version(get_fh(), &vers_ex) < 0) {
             if (!failuretest_permissive) {
               m_smartver_state = 2;
               rc = -1; errno = ENOSYS;
@@ -2829,6 +2841,11 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
             }
             failuretest_permissive--;
           }
+          else  {
+            // 3ware RAID if vendor id present
+            m_is_3ware = (vers_ex.wIdentifier == SMART_VENDOR_3WARE);
+          }
+
           m_smartver_state = 1;
         }
         rc = smart_ioctl(get_fh(), m_drive, &regs, data, datasize, m_port);
