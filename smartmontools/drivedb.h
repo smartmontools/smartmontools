@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3328 2011-05-17 13:46:09Z manfred99 $",
+  { "$Id: drivedb.h 3329 2011-05-17 16:08:17Z manfred99 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1678,6 +1678,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital AV-GP family",
     "WDC WD((16|25|32|50|64|75)00AVVS|(50|75)00AVCS|10EVVS|(10|20)EVCS|(10|15|20)EVDS)-.*",
+    "", "", ""
+  },
+  { "Western Digital AV-25 family",
+    "WDC WD((16|25|32|50)00BUD|5000BUC)T-.*",
     "", "", ""
   },
   { "Western Digital Raptor family",
