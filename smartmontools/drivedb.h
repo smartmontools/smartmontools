@@ -84,13 +84,6 @@ const drive_settings builtin_knowndrives[] = {
     "APPLE SSD SM128",
     "", "", ""
   },
-  { "Apple SSD TS*", // Toshiba?
-      // tested with APPLE SSD TS064C/CJAA0201
-    "APPLE SSD TS.*",
-    "", "",
-    "-v 10,raw48,Unknown_Attribute "
-    "-v 240,raw48,Unknown_Attribute"
-  },
   { "Asus-Phison SSD",
     "ASUS-PHISON SSD",
     "", "", ""
@@ -155,7 +148,7 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ[ -](AGILITY|ONYX|VERTEX( 1199|-TURBO)?)|" // tested with
       // OCZ-ONYX/1.6, OCZ-VERTEX 1199/00.P97, OCZ-VERTEX/1.30, OCZ VERTEX-TURBO/1.5
     "Patriot[ -]Torqx.*|"
-    "STT_FT[MD](28|32|56|64)GX25H|" // Super Talent Ultradrive, tested with STT_FTM64GX25H/1916
+    "STT_FT[MD](28|32|56|64)GX25H|" // Super Talent Ultradrive GX, tested with STT_FTM64GX25H/1916
     "TS(18|25)M(64|128)MLC(16|32|64|128|256|512)GSSD|" // ASAX Leopard Hunt II, tested with TS25M64MLC64GSSD/0.1
     "FM-25S2I-(64|128)GBFII", // G.Skill FALCON II, tested with FM-25S2I-64GBFII
     "", "",
@@ -306,8 +299,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
   },
-  { "Kingston SSDNow V Series", // tested with KINGSTON SNV425S264GB/C091126a
-    "KINGSTON SNV425S2(64|128)GB",
+  { "JMicron based SSDs",
+    "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series, tested with KINGSTON SNV425S264GB/C091126a
+    "KINGSTON SVP100S2B?(64|96|128|256|512)G|"  // SSDNow V+100 Series,
+                                                // tested with KINGSTON SVP100S296G/CJR10202
+    "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
+                               // tested with Toshiba 128GB 2.5" SSD (built in MacBooks)
+    "APPLE SSD TS.*|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
+    "ADATA S596 Turbo",  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF612)
     "", "",
     "-v 3,raw48,Unknown_Attribute "
     "-v 7,raw48,Unknown_Attribute "
