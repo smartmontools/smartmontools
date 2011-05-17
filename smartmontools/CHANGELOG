@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [MS] drivedb.h update:
+       - Western Digital AV-25 family
+
+  [MS] drivedb.h update:
        JMicron based SSDs: Add
          Kingston SSDNow V, Kingston SSDNow V+100, TOSHIBA THNS128GG4BBAA,
          APPLE SSD TS*, ADATA S596 Turbo

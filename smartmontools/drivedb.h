@@ -1680,6 +1680,10 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((16|25|32|50|64|75)00AVVS|(50|75)00AVCS|10EVVS|(10|20)EVCS|(10|15|20)EVDS)-.*",
     "", "", ""
   },
+  { "Western Digital AV-25 family",
+    "WDC WD((16|25|32|50)00BUD|5000BUC)T-.*",
+    "", "", ""
+  },
   { "Western Digital Raptor family",
     "WDC WD((360|740|800)GD|(360|740|800|1500)ADF[DS])-.*",
     "", "", ""
