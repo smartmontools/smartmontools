@@ -85,7 +85,7 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3326 2011-05-10 20:04:08Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3331 2011-05-20 19:43:34Z chrfranke $";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
 #ifdef _WIN64
@@ -4055,6 +4055,10 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
     memcpy(iop->sensep, sb.ucSenseBuf, slen);
     iop->resp_sense_len = slen;
     if (report) {
+      if (report > 1) {
+        pout("  >>> Sense buffer, len=%d:\n", slen);
+        dStrHex(iop->sensep, slen , 1);
+      }
       if ((iop->sensep[0] & 0x7f) > 0x71)
         pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
              iop->scsi_status, iop->sensep[1] & 0xf,
