@@ -4055,6 +4055,10 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
     memcpy(iop->sensep, sb.ucSenseBuf, slen);
     iop->resp_sense_len = slen;
     if (report) {
+      if (report > 1) {
+        pout("  >>> Sense buffer, len=%d:\n", slen);
+        dStrHex(iop->sensep, slen , 1);
+      }
       if ((iop->sensep[0] & 0x7f) > 0x71)
         pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
              iop->scsi_status, iop->sensep[1] & 0xf,
