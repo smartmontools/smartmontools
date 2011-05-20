@@ -301,6 +301,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "JMicron based SSDs",
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series, tested with KINGSTON SNV425S264GB/C091126a
+    "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a 
     "KINGSTON SVP100S2B?(64|96|128|256|512)G|"  // SSDNow V+100 Series,
                                                 // tested with KINGSTON SVP100S296G/CJR10202
     "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,

@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h update:
+       Kingston SSDNow S100 Series
+
   [MS] drivedb.h USB update:
        - Samsung S1 Portable
        - LaCie rikiki USB 3.0
