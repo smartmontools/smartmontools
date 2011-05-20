@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3329 2011-05-17 16:08:17Z manfred99 $",
+  { "$Id: drivedb.h 3332 2011-05-20 22:36:55Z manfred99 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1837,6 +1837,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron"
   },
+  { "USB: Samsung S1 Portable; JMicron",
+    "0x04e8:0x2f03",
+    "",
+    "",
+    "-d usbjmicron"
+  },
   { "USB: Samsung Story Station; ",
     "0x04e8:0x5f06",
     "",
@@ -1942,6 +1948,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: LaCie rikiki USB 3.0; ",
+    "0x059f:0x1049",
+    "",
+    "",
+    "-d sat"
+  },
   // In-System Design
   { "USB: ; In-System/Cypress ISD-300A1",
     "0x05ab:0x0060",
@@ -2008,6 +2020,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  // Oxford Semiconductor, Ltd
+  { "USB: ; Oxford OXU921DS",
+    "0x0928:0x0002",
+    "",
+    "",
+    "" // unsupported
+  },
   { "USB: Toshiba PX1396E-3T01; Sunplus", // similar to Dura Micro 501
     "0x0930:0x0b09",
     "",
@@ -2057,13 +2076,19 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Seagate FreeAgent Go Flex; ",
+  { "USB: Seagate FreeAgent GoFlex USB 2.0; ",
     "0x0bc2:0x5021",
     "",
     "",
     "-d sat"
   },
-  { "USB: Seagate FreeAgent Go Flex Desk USB 3.0; ",
+  { "USB: Seagate FreeAgent GoFlex USB 3.0; ",
+    "0x0bc2:0x5031",
+    "",
+    "",
+    "-d sat,12"
+  },
+  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ",
     "0x0bc2:0x50a1",
     "",
     "",
@@ -2106,6 +2131,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0122
     "",
     "-d sat"
+  },
+  // Cowon Systems, Inc.
+  { "USB: Cowon iAudio X5; ",
+    "0x0e21:0x7510",
+    "",
+    "",
+    "-d usbcypress"
   },
   // iRiver
   { "USB: iRiver iHP-120/140 MP3 Player; Cypress",
