@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add 'smartd.service' file for systemd.
+       Add configure option '--with-systemdsystemunitdir'.
+       Disable initd script if systemd is used.
+
   [MS] drivedb.h update:
        - Western Digital AV-25 family
 

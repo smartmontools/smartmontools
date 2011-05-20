@@ -19,6 +19,8 @@ Summary: smartmontools release 5.41
 - smartd logs warning from drive database if present.
 - smartd directive '-l scterc,READTIME,WRITETIME'.
 - smartd preserves last scheduled selective self-tests span.
+- 'smartd.service' file for systemd.
+- configure option '--with-systemdsystemunitdir'
 - configure option '--with-exampledir'.
 - 'make install' does no longer overwrite an existing
   smartd.conf file.

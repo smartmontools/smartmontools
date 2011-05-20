@@ -689,6 +689,7 @@ OPTIONS              DEFAULT                                      AFFECTS
                                                                   Contents of smartd/smartd.conf man pages;
                                                                   Directory for rc.d/init.d/smartd init script
 --with-initscriptdir  ${sysconfdir}/init.d/rc.d                   Location of init scripts
+--with-systemdsystemunitdir    auto                               Location of systemd service files
 --with-docdir         ${prefix}/share/doc/smartmontools           Location of the documentation
 --with-exampledir     ${docdir}/examplescripts                    Location of example scripts
 --enable-sample       --disable-sample                            Adds the string '.sample' to the names of the smartd.conf file and the smartd RC file

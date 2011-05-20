@@ -29,6 +29,7 @@ dnl Checks for programs.
 AC_PROG_CXX
 AM_PROG_AS
 AC_PROG_INSTALL
+PKG_PROG_PKG_CONFIG
 
 AC_ARG_VAR(WINDMC, [Windows message compiler command])
 AC_ARG_VAR(WINDRES, [Windows resource compiler command])
@@ -164,11 +165,36 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(ASFLAGS)
 
+AC_ARG_WITH(systemdsystemunitdir,
+  [AS_HELP_STRING([--with-systemdsystemunitdir@<:@=DIR|auto|yes|no@:>@], [Location of systemd service files [auto]])],
+  [], [with_systemdsystemunitdir=auto])
+
+systemdsystemunitdir=
+case "$with_systemdsystemunitdir" in
+ auto|yes)
+   test -n "$PKG_CONFIG" && systemdsystemunitdir=`$PKG_CONFIG --variable=systemdsystemunitdir systemd`
+   if test "$with_systemdsystemunitdir" = "yes" && test -z "$systemdsystemunitdir"; then
+     AC_MSG_ERROR([Location of systemd service files not found])
+   fi ;;
+ no) ;;
+ *) systemdsystemunitdir="$with_systemdsystemunitdir" ;;
+esac
+AC_SUBST(systemdsystemunitdir)
+AM_CONDITIONAL(INSTALL_SYSTEMDUNIT, [test -n "$systemdsystemunitdir"])
+
 AC_ARG_WITH(initscriptdir,
   [AC_HELP_STRING([--with-initscriptdir=DIR],[Location of init scripts [SYSCONFDIR/rc.d/init.d]])],
-  [initddir="$withval"],[initddir='${sysconfdir}/rc.d/init.d'])
+  [], [with_initscriptdir=auto])
+
+initddir='${sysconfdir}/rc.d/init.d'
+case "$with_initscriptdir" in
+  auto) test -n "$systemdsystemunitdir" && initddir= ;;
+  yes) ;;
+  no) initddir= ;;
+  *) initddir="$with_initscriptdir" ;;
+esac
 AC_SUBST(initddir)
-AM_CONDITIONAL(INSTALL_INITSCRIPT, [test "$with_initscriptdir" != "no"])
+AM_CONDITIONAL(INSTALL_INITSCRIPT, [test -n "$initddir"])
 
 AC_ARG_WITH(docdir,
   [AC_HELP_STRING([--with-docdir=DIR],[Location of documentation [DATADIR/doc/smartmontools]])],
@@ -248,8 +274,7 @@ fi
 
 AC_ARG_WITH(libcap-ng,
   [AC_HELP_STRING([--with-libcap-ng@<:@=auto|yes|no@:>@],[Add Libcap-ng support to smartd [auto]])],
-  [with_libcap_ng="$withval"],
-  [with_libcap_ng=auto])
+  [], [with_libcap_ng=auto])
 
 use_libcap_ng=no
 if test "$with_libcap_ng" != "no"; then
@@ -472,7 +497,14 @@ case "$host_os" in
     fi
     echo "local drive database:   `eval eval eval echo $sysconfdir`/smart_drivedb.h" >&AS_MESSAGE_FD
     echo "smartd config file:     `eval eval eval echo $sysconfdir`/smartd.conf${smartd_suffix}" >&AS_MESSAGE_FD
-    echo "smartd initd script:    `eval eval eval echo $initddir`/smartd${smartd_suffix}" >&AS_MESSAGE_FD
+    if test -n "$initddir"; then
+      echo "smartd initd script:    `eval eval eval echo $initddir`/smartd${smartd_suffix}" >&AS_MESSAGE_FD
+    elif test -z "$systemdsystemunitdir"; then
+      echo "smartd initd script:    [[disabled]]" >&AS_MESSAGE_FD
+    fi
+    if test -n "$systemdsystemunitdir"; then
+      echo "smartd systemd file:    `eval eval eval echo $systemdsystemunitdir`/smartd.service" >&AS_MESSAGE_FD
+    fi
     if test -n "$savestates"; then
       echo "smartd save files:      `eval eval eval echo $savestates`MODEL-SERIAL.TYPE.state" >&AS_MESSAGE_FD
     else
