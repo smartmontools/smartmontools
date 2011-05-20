@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3332 2011-05-20 22:36:55Z manfred99 $",
+  { "$Id: drivedb.h 3333 2011-05-20 22:51:01Z manfred99 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -301,6 +301,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "JMicron based SSDs",
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series, tested with KINGSTON SNV425S264GB/C091126a
+    "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a 
     "KINGSTON SVP100S2B?(64|96|128|256|512)G|"  // SSDNow V+100 Series,
                                                 // tested with KINGSTON SVP100S296G/CJR10202
     "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
