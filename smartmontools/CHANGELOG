@@ -41,6 +41,13 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h USB update:
+       - Samsung S1 Portable
+       - LaCie rikiki USB 3.0
+       - Seagate FreeAgent GoFlex USB 3.0
+       - Cowon iAudio X5
+       - Oxford OXU921DS chip (unsupported)
+
   [CF] Windows: Add debug output of SCSI sense data.
 
   [CF] Add 'smartd.service' file for systemd.
