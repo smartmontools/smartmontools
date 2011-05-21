@@ -1,0 +1,71 @@
+#!/bin/sh
+# $FreeBSD: ports/sysutils/smartmontools/files/smartd.in,v 1.2 2010/03/27 00:15:05 dougb Exp $
+
+# PROVIDE: smartd
+# REQUIRE: DAEMON
+# BEFORE: LOGIN
+# KEYWORD: shutdown nojail
+
+# Define these smartd_* variables in one of these files:
+#       /etc/rc.conf
+#       /etc/rc.conf.local
+#       /etc/rc.conf.d/smartd
+#
+# DO NOT CHANGE THESE DEFAULT VALUES HERE
+#
+smartd_enable="${smartd_enable-NO}"
+smartd_pidfile="/var/run/smartd.pid"
+
+. /etc/rc.subr
+
+name="smartd"
+rcvar=`set_rcvar`
+command="/usr/local/sbin/smartd"
+extra_commands="reload report"
+reload_cmd="smartd_reload"
+report_cmd="smartd_report"
+
+smartd_reload()
+{
+    rc_pid=$(check_pidfile $pidfile $command)
+    if [ -z "$rc_pid" ]; then
+        [ -n "$rc_fast" ] && return 0
+        _run_rc_notrunning
+        return 1
+    fi
+    echo 'Reloading smartd.'
+    kill -HUP $rc_pid
+}
+
+smartd_report()
+{
+    rc_pid=$(check_pidfile $pidfile $command)
+    if [ -z "$rc_pid" ]; then
+        [ -n "$rc_fast" ] && return 0
+        _run_rc_notrunning
+        return 1
+    fi
+    echo 'Checking SMART devices now.'
+    kill -USR1 $rc_pid
+}
+
+load_rc_config $name
+
+: ${smartd_config="/usr/local/etc/smartd.conf"}
+: ${smartd_flags="-c ${smartd_config}"}
+
+pidfile="${smartd_pidfile}"
+required_files="${smartd_config}"
+
+case "${smartd_flags}" in
+*-p\ *)
+        echo "ERROR: \$smartd_flags includes -p option." \
+                "Please use \$smartd_pidfile instead."
+        exit 1
+        ;;
+*)
+        smartd_flags="-p ${pidfile} ${smartd_flags}"
+        ;;
+esac
+
+run_rc_command "$1"

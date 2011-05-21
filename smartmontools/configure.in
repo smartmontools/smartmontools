@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3330 2011-05-20 19:33:24Z chrfranke $
+# $Id: configure.in 3337 2011-05-21 21:00:20Z samm2 $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.41, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3330 2011-05-20 19:33:24Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3337 2011-05-21 21:00:20Z samm2 $'`
 smartmontools_release_date=2010-10-16
 smartmontools_release_time="16:34:38 UTC"
 
@@ -183,18 +183,43 @@ AC_SUBST(systemdsystemunitdir)
 AM_CONDITIONAL(INSTALL_SYSTEMDUNIT, [test -n "$systemdsystemunitdir"])
 
 AC_ARG_WITH(initscriptdir,
-  [AC_HELP_STRING([--with-initscriptdir=DIR],[Location of init scripts [SYSCONFDIR/rc.d/init.d]])],
+  [AC_HELP_STRING([--with-initscriptdir=DIR],[Location of the init script])],
   [], [with_initscriptdir=auto])
 
-initddir='${sysconfdir}/rc.d/init.d'
+AC_MSG_CHECKING(which init (rc) directory to use)
+initddir=""
+for initdir in /etc/init.d /etc/rc.d/init.d /sbin/init.d        \
+         /usr/local/etc/rc.d /etc/rc.d
+do
+  if
+    test -d $initdir
+  then
+    initddir=$initdir
+    AC_MSG_RESULT($initddir);
+    break
+  fi
+done
+
 case "$with_initscriptdir" in
   auto) test -n "$systemdsystemunitdir" && initddir= ;;
   yes) ;;
   no) initddir= ;;
   *) initddir="$with_initscriptdir" ;;
 esac
+
 AC_SUBST(initddir)
 AM_CONDITIONAL(INSTALL_INITSCRIPT, [test -n "$initddir"])
+
+# use different init script templates for different OS
+case "${host}" in
+  *-*-freebsd*)
+    initdfile="smartd.freebsdinit"
+    ;;
+  *)
+    initdfile="smartd.initd"
+    ;;
+esac
+AC_SUBST(initdfile)
 
 AC_ARG_WITH(docdir,
   [AC_HELP_STRING([--with-docdir=DIR],[Location of documentation [DATADIR/doc/smartmontools]])],
