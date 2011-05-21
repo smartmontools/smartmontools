@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3333 2011-05-20 22:51:01Z manfred99 $
+$Id: CHANGELOG 3335 2011-05-21 17:32:16Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] freebsd_os.cpp:
+       Fix memory leak in the ata detection code (added free())
+       Using bzero in cam code to clear structure (fixing varnish varning)
 
   [MS] drivedb.h update:
        Kingston SSDNow S100 Series
