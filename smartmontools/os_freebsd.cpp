@@ -1267,6 +1267,8 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
   ccb.cdm.match_buf_len = bufsize;
   // TODO: Use local buffer instead of malloc() if possible
   ccb.cdm.matches = (struct dev_match_result *)malloc(bufsize);
+  bzero(ccb.cdm.matches,bufsize); // clear ccb.cdm.matches structure
+  
   if (ccb.cdm.matches == NULL) {
     close(fd);
     throw std::bad_alloc();
@@ -1477,7 +1479,9 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
     ata_device * atadev = get_ata_device(atanames[i], type);
     if (atadev)
       devlist.push_back(atadev);
+    free(atanames[i]);
   }
+  if(numata) free(atanames);
 
   for (i = 0; i < (int)scsinames.size(); i++) {
     if(!*type) { // try USB autodetection if no type specified
@@ -1635,7 +1639,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   struct cam_device *cam_dev;
   union ccb ccb;
   int bus=-1;
-  int i;
+  int i,c;
   int len;
 
   // if dev_name null, or string length zero
@@ -1649,9 +1653,13 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
     // check ATA/ATAPI devices
     for (i = 0; i < numata; i++) {
       if(!strcmp(atanames[i],name)) {
+        for (c = i; c < numata; c++) free(atanames[c]);
+        free(atanames);
         return new freebsd_ata_device(this, name, "");
       }
+      else free(atanames[i]);
     }
+    if(numata) free(atanames);
   }
   else {
     if (numata < 0)

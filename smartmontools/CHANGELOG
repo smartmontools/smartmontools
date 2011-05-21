@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] freebsd_os.cpp:
+       Fix memory leak in the ata detection code (added free())
+       Using bzero in cam code to clear structure (fixing varnish varning)
+
   [MS] drivedb.h update:
        Kingston SSDNow S100 Series
 
