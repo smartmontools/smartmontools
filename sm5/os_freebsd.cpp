@@ -272,7 +272,6 @@ int marvell_command_interface(__unused int fd, __unused smart_command_set comman
 }
 
 int highpoint_command_interface(__unused int fd, __unused smart_command_set command, __unused int select, __unused char *data) {
-{
   return -1;
 }
 
