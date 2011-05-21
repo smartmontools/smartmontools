@@ -67,13 +67,6 @@ const drive_settings builtin_knowndrives[] = {
     "APPLE SSD SM128",
     "", "", ""
   },
-  { "Apple SSD TS*", // Toshiba?
-      // tested with APPLE SSD TS064C/CJAA0201
-    "APPLE SSD TS.*",
-    "", "",
-    "-v 10,raw48,Unknown_Attribute "
-    "-v 240,raw48,Unknown_Attribute"
-  },
   { "Asus-Phison SSD",
     "ASUS-PHISON SSD",
     "", "", ""
@@ -138,8 +131,9 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ[ -](AGILITY|ONYX|VERTEX( 1199|-TURBO)?)|" // tested with
       // OCZ-ONYX/1.6, OCZ-VERTEX 1199/00.P97, OCZ-VERTEX/1.30, OCZ VERTEX-TURBO/1.5
     "Patriot[ -]Torqx.*|"
-    "STT_FT[MD](28|32|56|64)GX25H|" // Super Talent Ultradrive, tested with STT_FTM64GX25H/1916
-    "TS(18|25)M(64|128)MLC(16|32|64|128|256|512)GSSD", // ASAX Leopard Hunt II, tested with TS25M64MLC64GSSD/0.1
+    "STT_FT[MD](28|32|56|64)GX25H|" // Super Talent Ultradrive GX, tested with STT_FTM64GX25H/1916
+    "TS(18|25)M(64|128)MLC(16|32|64|128|256|512)GSSD|" // ASAX Leopard Hunt II, tested with TS25M64MLC64GSSD/0.1
+    "FM-25S2I-(64|128)GBFII", // G.Skill FALCON II, tested with FM-25S2I-64GBFII
     "", "",
     "-v 1,raw64 " // Raw_Read_Error_Rate
     "-v 9,raw64 " // Power_On_Hours
@@ -252,6 +246,19 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB"
   },
+  { "Intel 510 Series SSDs",
+    "INTEL SSDSC2MH(120|250)A2",
+    "", "",
+  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 4,raw48,Start_Stop_Count "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator"
+  },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",
     "2CV102(J[89A-Z]|[K-Z].)", // >= "2CV102J8"
@@ -275,8 +282,15 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
   },
-  { "Kingston SSDNow V Series", // tested with KINGSTON SNV425S264GB/C091126a
-    "KINGSTON SNV425S2(64|128)GB",
+  { "JMicron based SSDs",
+    "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series, tested with KINGSTON SNV425S264GB/C091126a
+    "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a 
+    "KINGSTON SVP100S2B?(64|96|128|256|512)G|"  // SSDNow V+100 Series,
+                                                // tested with KINGSTON SVP100S296G/CJR10202
+    "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
+                               // tested with Toshiba 128GB 2.5" SSD (built in MacBooks)
+    "APPLE SSD TS.*|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
+    "ADATA S596 Turbo",  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF612)
     "", "",
     "-v 3,raw48,Unknown_Attribute "
     "-v 7,raw48,Unknown_Attribute "
@@ -317,6 +331,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HP 500GB SATA disk MM0500EANCR",
     "MM0500EANCR",
+    "", "", ""
+  },
+  { "HP 250GB SATA disk VB0250EAVER",
+    "VB0250EAVER",
     "", "", ""
   },
   { "IBM Deskstar 60GXP series",  // ER60A46A firmware
@@ -648,7 +666,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 9,halfminutes"
   },
   { "SAMSUNG SpinPoint M5 series", // tested with HM160HI/HH100-12
-    "SAMSUNG HM((061|080)G|(121|160)H|250J)I",
+    "SAMSUNG HM(((061|080)G|(121|160)H|250J)I|160HC)",
     "", "", ""
   },
   { "SAMSUNG SpinPoint M6", // tested with HM320JI/2SS00_01 M6
@@ -661,6 +679,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SAMSUNG SpinPoint M7E (AFT)", // tested with HM321HI/2AJ10001, HM641JI/2AJ10001
     "SAMSUNG HM(161G|(251|321)H|501I|641J)I",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint MT2", // tested with HM100UI/2AM10001
+    "SAMSUNG HM100UI",
+    "", "", ""
+  },
+  { "SAMSUNG HM100UX (S2 Portable)", // tested with HM100UX/2AM10001
+    "SAMSUNG HM100UX",
     "", "", ""
   },
   { "SAMSUNG SpinPoint M series", // tested with MP0402H/UC100-11
@@ -1128,6 +1154,10 @@ const drive_settings builtin_knowndrives[] = {
     "(IBM-)?IC35L(030|060|090|120|180)AVV207-[01]",
     "", "", ""
   },
+  { "Hitachi Deskstar 5K3000",
+    "(Hitachi )?HDS5C30(15|20|30)ALA63[02].*",
+    "", "", ""
+  },
   { "Hitachi Deskstar 7K80",
     "(Hitachi )?HDS7280([48]0PLAT20|(40)?PLA320|80PLA380).*",
     "", "", ""
@@ -1441,8 +1471,12 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(500412|1000520|1500541|2000542)AS",
     "", "", ""
   },
+  { "Seagate Barracuda Green",  // Adv. Format
+    "ST(15|20)00DL003-.*",
+    "", "", ""
+  },
   { "Seagate Barracuda XT",
-    "ST32000641AS",
+    "ST(32000641|33000651)AS",
     "", "", ""
   },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
@@ -1598,16 +1632,24 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((25|32|50)02A|(75|10)02F)BYS-.*",
     "", "", ""
   },
+  { "Western Digital RE4 Serial ATA family",
+    "WDC WD((((25|50)03A|1003F)BYX)|((15|20)03FYYS))-.*",
+    "", "", ""
+  },
   { "Western Digital Caviar Green family",
     "WDC WD((50|64|75)00AA(C|V)S|(50|64|75)00AADS|10EA(C|V)S|(10|15|20)EADS)-.*",
     "", "", ""
   },
   { "Western Digital Caviar Green (Adv. Format) family",
-    "WDC WD((64|75|80)00AA|(10|15|20)EA|(25|30)EZ)RS-.*",
+    "WDC WD(((64|75|80)00AA|(10|15|20)EA|(25|30)EZ)R|20EAC)S-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black family",
     "WDC WD((500|640|750)1AAL|1001FA[EL]|2001FAS)S-.*",
+    "", "", ""
+  },
+  { "Western Digital Caviar Black family",  // SATA 3.0 variants
+    "WDC WD(5002AAL|(64|75)02AAE|(10|15|20)02FAE)X-.*",
     "", "", ""
   },
   { "Western Digital AV ATA family", // tested with WDC WD3200AVJB-63J5A0/01.03E01
@@ -1620,6 +1662,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital AV-GP family",
     "WDC WD((16|25|32|50|64|75)00AVVS|(50|75)00AVCS|10EVVS|(10|20)EVCS|(10|15|20)EVDS)-.*",
+    "", "", ""
+  },
+  { "Western Digital AV-25 family",
+    "WDC WD((16|25|32|50)00BUD|5000BUC)T-.*",
     "", "", ""
   },
   { "Western Digital Raptor family",
@@ -1676,7 +1722,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Quantum Fireball lct20 series",
-    "QUANTUM FIREBALLlct20 [234]0",
+    "QUANTUM FIREBALLlct20 [1234]0",
     "", "", ""
   },
   { "Quantum Fireball CX series",
@@ -1704,7 +1750,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Quantum Fireball Plus AS series",
-    "QUANTUM FIREBALLP AS(10.2|20.5|30.0|40.0)",
+    "QUANTUM FIREBALLP AS(10.2|20.5|30.0|40.0|60.0)",
     "", "", ""
   },
   { "Quantum Fireball Plus KX series",
