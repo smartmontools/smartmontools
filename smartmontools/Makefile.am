@@ -317,6 +317,7 @@ uninstall-sysconfDATA:
 EXTRA_DIST = \
         autogen.sh \
         smartd.initd.in \
+        smartd.freebsdinit.in \
         smartd.8.in \
         smartctl.8.in \
         smartd.conf.5.in \
@@ -349,6 +350,7 @@ CLEANFILES = \
         smartd.conf.5.html \
         smartd.conf.5.txt \
         smartd.initd \
+        smartd.freebsdinit \
         smartd.service \
         svnversion.h \
         update-smart-drivedb \
@@ -455,10 +457,10 @@ uninstall-initdDATA-darwin:
 
 else
 
-initd_DATA = smartd.initd
+initd_DATA = @initdfile@
 
-smartd.initd: $(srcdir)/smartd.initd.in Makefile
-	sed "s|/usr/local/sbin/|$(sbindir)/|g" $(srcdir)/smartd.initd.in > $@
+@initdfile@: $(srcdir)/@initdfile@.in Makefile
+	sed "s|/usr/local/sbin/|$(sbindir)/|g" $(srcdir)/@initdfile@.in > $@
 
 initd_install_name = smartd$(smartd_suffix)
 
@@ -467,7 +469,7 @@ initd_DATA_uninstall = uninstall-initdDATA-generic
 
 install-initdDATA-generic: $(initd_DATA)
 	$(mkinstalldirs) $(DESTDIR)$(initddir)
-	$(INSTALL_SCRIPT) $(top_builddir)/smartd.initd $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
+	$(INSTALL_SCRIPT) $(top_builddir)/@initdfile@ $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
 
 
 uninstall-initdDATA-generic:

@@ -183,18 +183,43 @@ AC_SUBST(systemdsystemunitdir)
 AM_CONDITIONAL(INSTALL_SYSTEMDUNIT, [test -n "$systemdsystemunitdir"])
 
 AC_ARG_WITH(initscriptdir,
-  [AC_HELP_STRING([--with-initscriptdir=DIR],[Location of init scripts [SYSCONFDIR/rc.d/init.d]])],
+  [AC_HELP_STRING([--with-initscriptdir=DIR],[Location of the init script])],
   [], [with_initscriptdir=auto])
 
-initddir='${sysconfdir}/rc.d/init.d'
+AC_MSG_CHECKING(which init (rc) directory to use)
+initddir=""
+for initdir in /etc/init.d /etc/rc.d/init.d /sbin/init.d        \
+         /usr/local/etc/rc.d /etc/rc.d
+do
+  if
+    test -d $initdir
+  then
+    initddir=$initdir
+    AC_MSG_RESULT($initddir);
+    break
+  fi
+done
+
 case "$with_initscriptdir" in
   auto) test -n "$systemdsystemunitdir" && initddir= ;;
   yes) ;;
   no) initddir= ;;
   *) initddir="$with_initscriptdir" ;;
 esac
+
 AC_SUBST(initddir)
 AM_CONDITIONAL(INSTALL_INITSCRIPT, [test -n "$initddir"])
+
+# use different init script templates for different OS
+case "${host}" in
+  *-*-freebsd*)
+    initdfile="smartd.freebsdinit"
+    ;;
+  *)
+    initdfile="smartd.initd"
+    ;;
+esac
+AC_SUBST(initdfile)
 
 AC_ARG_WITH(docdir,
   [AC_HELP_STRING([--with-docdir=DIR],[Location of documentation [DATADIR/doc/smartmontools]])],

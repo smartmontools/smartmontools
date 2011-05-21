@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+  [AS] FreeBSD: Added native rc.conf style script to the package. 
+       Modifications to the configure script to use correct template and
+       path.
 
   [AS] freebsd_os.cpp:
        Fix memory leak in the ata detection code (added free())
