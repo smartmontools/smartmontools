@@ -195,10 +195,10 @@ do
     test -d $initdir
   then
     initddir=$initdir
-    AC_MSG_RESULT($initddir);
     break
   fi
 done
+AC_MSG_RESULT([${initddir:-not found}])
 
 case "$with_initscriptdir" in
   auto) test -n "$systemdsystemunitdir" && initddir= ;;
