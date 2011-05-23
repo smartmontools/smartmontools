@@ -213,7 +213,7 @@ AM_CONDITIONAL(INSTALL_INITSCRIPT, [test -n "$initddir"])
 # use different init script templates for different OS
 case "${host}" in
   *-*-freebsd*)
-    initdfile="smartd.freebsdinit"
+    initdfile="smartd.freebsd.initd"
     ;;
   *)
     initdfile="smartd.initd"

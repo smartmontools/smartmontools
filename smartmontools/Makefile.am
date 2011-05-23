@@ -317,7 +317,7 @@ uninstall-sysconfDATA:
 EXTRA_DIST = \
         autogen.sh \
         smartd.initd.in \
-        smartd.freebsdinit.in \
+        smartd.freebsd.initd.in \
         smartd.8.in \
         smartctl.8.in \
         smartd.conf.5.in \
@@ -350,7 +350,7 @@ CLEANFILES = \
         smartd.conf.5.html \
         smartd.conf.5.txt \
         smartd.initd \
-        smartd.freebsdinit \
+        smartd.freebsd.initd \
         smartd.service \
         svnversion.h \
         update-smart-drivedb \
