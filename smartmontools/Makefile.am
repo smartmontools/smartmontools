@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3337 2011-05-21 21:00:20Z samm2 $
+# $Id: Makefile.am 3338 2011-05-23 08:29:12Z samm2 $
 #
 
 @SET_MAKE@
@@ -317,7 +317,7 @@ uninstall-sysconfDATA:
 EXTRA_DIST = \
         autogen.sh \
         smartd.initd.in \
-        smartd.freebsdinit.in \
+        smartd.freebsd.initd.in \
         smartd.8.in \
         smartctl.8.in \
         smartd.conf.5.in \
@@ -350,7 +350,7 @@ CLEANFILES = \
         smartd.conf.5.html \
         smartd.conf.5.txt \
         smartd.initd \
-        smartd.freebsdinit \
+        smartd.freebsd.initd \
         smartd.service \
         svnversion.h \
         update-smart-drivedb \
