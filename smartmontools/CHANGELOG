@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+  [MS] drivedb.h update:
+       correct typo for Cowon iAudio X5
+
   [MS] drivedb.h USB updates:
        - Maxtor OneTouch 200GB (unsupported)
        - LaCie Little Disk

@@ -2147,7 +2147,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Cowon Systems, Inc.
   { "USB: Cowon iAudio X5; ",
-    "0x0e21:0x7510",
+    "0x0e21:0x0510",
     "",
     "",
     "-d usbcypress"
