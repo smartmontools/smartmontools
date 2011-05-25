@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - Kingston SSDNow V Series SSDs (ticket #171)
+
   [CF] Increase size of drive database option parse buffer
        to allow long '-v N,FORMAT:BYTEORDER,NAME' options.
 
