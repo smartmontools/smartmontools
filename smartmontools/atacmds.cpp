@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3325 2011-05-10 19:22:13Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3345 2011-05-25 20:50:02Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -1963,9 +1963,14 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
   // Get 48 bit or 64 bit raw value
   uint64_t rawvalue = ata_get_attr_raw_value(attr, defs);
 
-  // Get 16 bit words
-  // TODO: rebuild raw[6] from rawvalue
-  const unsigned char * raw = attr.raw;
+  // Split into bytes and words
+  unsigned char raw[6];
+  raw[0] = (unsigned char) rawvalue;
+  raw[1] = (unsigned char)(rawvalue >>  8);
+  raw[2] = (unsigned char)(rawvalue >> 16);
+  raw[3] = (unsigned char)(rawvalue >> 24);
+  raw[4] = (unsigned char)(rawvalue >> 32);
+  raw[5] = (unsigned char)(rawvalue >> 40);
   unsigned word[3];
   word[0] = raw[0] | (raw[1] << 8);
   word[1] = raw[2] | (raw[3] << 8);
