@@ -214,8 +214,8 @@ static bool parse_db_presets(const char * presets, ata_vendor_attr_defs * defs,
     i += strspn(presets+i, " \t");
     if (!presets[i])
       break;
-    char opt, arg[40+1+13]; int len = -1;
-    if (!(sscanf(presets+i, "-%c %40[^ ]%n", &opt, arg, &len) >= 2 && len > 0))
+    char opt, arg[80+1+13]; int len = -1;
+    if (!(sscanf(presets+i, "-%c %80[^ ]%n", &opt, arg, &len) >= 2 && len > 0))
       return false;
     if (opt == 'v' && defs) {
       // Parse "-v N,format[,name]"

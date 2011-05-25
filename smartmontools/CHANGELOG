@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Increase size of drive database option parse buffer
+       to allow long '-v N,FORMAT:BYTEORDER,NAME' options.
+
   [MS] drivedb.h update:
        - Western Digital Scorpio Blue Advanced Format variants
 
