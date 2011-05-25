@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3340 2011-05-25 08:57:49Z manfred99 $",
+  { "$Id: drivedb.h 3341 2011-05-25 10:45:55Z manfred99 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2147,7 +2147,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Cowon Systems, Inc.
   { "USB: Cowon iAudio X5; ",
-    "0x0e21:0x7510",
+    "0x0e21:0x0510",
     "",
     "",
     "-d usbcypress"
