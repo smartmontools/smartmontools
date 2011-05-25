@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3341 2011-05-25 10:45:55Z manfred99 $",
+  { "$Id: drivedb.h 3342 2011-05-25 10:59:34Z manfred99 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1711,6 +1711,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Scorpio Blue Serial ATA family",
     "WDC WD((4|6|8|10|12|16|25)00BEVS|(8|12|16|25|32|40|50|64)00BEVT|7500KEVT|10TEVT)-.*",
+    "", "", ""
+  },
+  { "Western Digital Scorpio Blue Serial ATA family", // Adv. Format
+    "WDC WD((16|25|32|50|64|75)00BPVT|10TPVT)-.*",
     "", "", ""
   },
   { "Western Digital Scorpio Black Serial ATA family",
