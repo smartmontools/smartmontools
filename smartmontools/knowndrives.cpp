@@ -34,7 +34,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3289 2011-03-09 19:52:04Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3343 2011-05-25 20:18:17Z chrfranke $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -214,8 +214,8 @@ static bool parse_db_presets(const char * presets, ata_vendor_attr_defs * defs,
     i += strspn(presets+i, " \t");
     if (!presets[i])
       break;
-    char opt, arg[40+1+13]; int len = -1;
-    if (!(sscanf(presets+i, "-%c %40[^ ]%n", &opt, arg, &len) >= 2 && len > 0))
+    char opt, arg[80+1+13]; int len = -1;
+    if (!(sscanf(presets+i, "-%c %80[^ ]%n", &opt, arg, &len) >= 2 && len > 0))
       return false;
     if (opt == 'v' && defs) {
       // Parse "-v N,format[,name]"
