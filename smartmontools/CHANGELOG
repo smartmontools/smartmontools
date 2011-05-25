@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+  [MS] drivedb.h USB updates:
+       - Maxtor OneTouch 200GB (unsupported)
+       - LaCie Little Disk
+
   [AS] FreeBSD: Added native rc.conf style script to the package. 
        Modifications to the configure script to use correct template and
        path.

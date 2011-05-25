@@ -1937,6 +1937,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: LaCie Little Disk USB2; JMicron",
+    "0x059f:0x1021",
+    "",
+    "",
+    "-d usbjmicron"
+  },
   { "USB: LaCie hard disk; ",
     "0x059f:0x1029",
     "", // 0x0100
@@ -2103,6 +2109,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbsunplus"
   },
   // Maxtor
+  { "USB: Maxtor OneTouch 200GB; ",
+    "0x0d49:0x7010",
+    "",
+    "",
+    "" // unsupported
+  },
   { "USB: Maxtor OneTouch; ",
     "0x0d49:0x7300",
     "", // 0x0121
