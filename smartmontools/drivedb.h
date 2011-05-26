@@ -299,8 +299,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
   },
-  { "Kingston SSDNow V Series SSDs",
-    "Kingston SSDNow V Series [0-9]*GB",
+  { "JMicron based SSDs", // JMicron JMF602?
+    "Kingston SSDNow V Series [0-9]*GB|" // tested with Kingston SSDNow V Series 64GB/B090522a
+    "TS(8|16|32|64|128|192)GSSD25S?-(M|S)", // Transcend IDE and SATA, tested with TS32GSSD25-M/V090331
     "", "",
   //"-v 9,raw48,Power_On_Hours " // raw value always 0?
   //"-v 12,raw48,Power_Cycle_Count "
@@ -312,7 +313,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 235,raw24/raw24:w01z23,Good/Sys_Block_Ct"
     //  1.....................................40 chars limit for smartmontools <= r3343
   },
-  { "JMicron based SSDs",
+  { "JMicron based SSDs", // JMicron JMF612/618?
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series, tested with KINGSTON SNV425S264GB/C091126a
     "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a 
     "KINGSTON SVP100S2B?(64|96|128|256|512)G|"  // SSDNow V+100 Series,
@@ -327,19 +328,6 @@ const drive_settings builtin_knowndrives[] = {
     "-v 8,raw48,Unknown_Attribute "
     "-v 10,raw48,Unknown_Attribute "
     "-v 240,raw48,Unknown_Attribute"
-  },
-  { "Transcend IDE Solid State Drive",
-    "TS(8|16|32|64|128)GSSD25-(M|S)",
-    "", "", ""
-  },
-  { "Transcend SATA Solid State Drive",
-    "TS(8|16|32|64|128|192)GSSD25S-(M|S)",
-    "", "",
-    "-v 229,hex64,Halt_System_ID "
-    "-v 232,hex64,Firmware_Version_Info "
-    "-v 233,hex64,ECC_Fail_Record "
-    "-v 234,raw24/raw24,Erase_Count_Avg/Max "
-    "-v 235,raw24/raw24,Block_Count_Good/System"
   },
   { "Transcend Ultra Series Solid State Drive (SATA II)",
     "TS(60|120)GSSD25D-M",

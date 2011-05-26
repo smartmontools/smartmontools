@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - JMicron based SSD (JMicron JMF602?): rename from
+         Kingston SSDNow V Series, move Transcend IDE and SATA
+         entries to here.
+
   [CF] Support ':BYTEORDER' for all attribute print formats.
 
   [CF] drivedb.h update:
