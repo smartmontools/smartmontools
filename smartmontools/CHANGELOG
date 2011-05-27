@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] smartd.initd.in:
+       cleanup, provide targets "reload" and "report" for all platforms
+
   [CF] drivedb.h update:
        - JMicron based SSD (JMicron JMF602?): rename from
          Kingston SSDNow V Series, move Transcend IDE and SATA

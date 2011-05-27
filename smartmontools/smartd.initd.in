@@ -12,11 +12,10 @@
 # For SuSE and cousins
 ### BEGIN INIT INFO
 # Provides:                   smartd
-# Required-Start:             $syslog
-# X-UnitedLinux-Should-Start: $sendmail
-# Should-Start:               $sendmail
-# Required-Stop:              $syslog
-# X-UnitedLinux-Should-Stop:
+# Required-Start:             $syslog $remote_fs
+# Should-Start:               sendmail
+# Required-Stop:              $syslog $remote_fs
+# Should-Stop:                sendmail
 # Default-Start:              2 3 5
 # Default-Stop:
 # Short-Description:          Monitors disk and tape health via S.M.A.R.T.
@@ -52,237 +51,370 @@ report_unsupported () {
 
 # Red Hat or Yellow Dog or Mandrake
 if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-release -o -f /etc/whitebox-release -o -f /etc/trustix-release -o -f /etc/tinysofa-release ] ; then
-    
-# Source function library
+
+    # Source function library
     . /etc/rc.d/init.d/functions
 
-# Source configuration file.  This should define the shell variable smartd_opts
+    # Source configuration file.  This should define the shell variable smartd_opts
     [ -r /etc/sysconfig/smartmontools ] && . /etc/sysconfig/smartmontools
-    
+
     RETVAL=0
-    
+
     prog=smartd
-    
+    pidfile=/var/lock/subsys/smartd
+    config=/etc/smartd.conf
+
+    start()
+    {
+	[ $UID -eq 0 ] || exit 4
+	[ -x $SMARTD_BIN ] || exit 5
+	[ -f $config ] || exit 6
+	echo -n $"Starting $prog: "
+	daemon $SMARTD_BIN $smartd_opts
+	RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && touch $pidfile
+	return $RETVAL
+    }
+
+    stop()
+    {
+	[ $UID -eq 0 ] || exit 4
+	echo -n $"Shutting down $prog: "
+	killproc $SMARTD_BIN
+	RETVAL=$?
+	echo
+	rm -f $pidfile
+	return $RETVAL
+    }
+
+    reload()
+    {
+	echo -n $"Reloading $prog daemon configuration: "
+	killproc $SMARTD_BIN -HUP
+	RETVAL=$?
+	echo
+	return $RETVAL
+    }
+
+    report()
+    {
+	echo -n $"Checking SMART devices now: "
+	killproc $SMARTD_BIN -USR1
+	RETVAL=$?
+	echo
+	return $RETVAL
+    }
+
     case "$1" in
 	start)
-	    echo -n $"Starting $prog: "
-	    daemon $SMARTD_BIN $smartd_opts
-	    touch /var/lock/subsys/smartd
-	    echo
-	    ;;
+		start
+		;;
 	stop)
-	    echo -n $"Shutting down $prog: "
-	    killproc $SMARTD_BIN
-	    rm -f /var/lock/subsys/smartd
-	    echo
-	    ;;
+		stop
+		;;
 	reload)
-            echo -n $"Reloading $prog daemon configuration: "
-	    killproc $SMARTD_BIN -HUP
-	    RETVAL=$?
-	    echo
-	    ;;
+		reload
+		;;
 	report)
-	    echo -n $"Checking SMART devices now: "
-	    killproc $SMARTD_BIN -USR1
-	    RETVAL=$?
-	    echo
-            ;;
+		report
+		;;
 	restart)
-	    $0 stop
-	    $0 start
-	    ;;
+		stop
+		start
+		;;
+	condrestart|try-restart)
+		if [ -f $pidfile ]; then
+			stop
+			start
+		fi
+		;;
+	force-reload)
+		reload || (stop; start)
+		;;
 	status)
-	    status $prog
-	    ;;
+		status $prog
+		RETVAL=$?
+		;;
 	*)
-	    echo $"Usage: $0 {start|stop|reload|report|restart|status}"
-	    RETVAL=1
+		echo $"Usage: $0 {start|stop|restart|status|condrestart|try-restart|reload|force-reload|report}"
+		RETVAL=2
+		[ "$1" = 'usage' ] && RETVAL=0
     esac
-    
     exit $RETVAL
 
 # Slackware
 elif [ -f /etc/slackware-version ] ; then
-    
-# Source configuration file.  This should define the shell variable smartd_opts.
-# Email smartmontools-support@lists.sourceforge.net if there is a better choice
-# of path for Slackware.
+
+    # Source configuration file.  This should define the shell variable smartd_opts.
+    # Email smartmontools-support@lists.sourceforge.net if there is a better choice
+    # of path for Slackware.
 
     [ -r /etc/sysconfig/smartmontools ] && . /etc/sysconfig/smartmontools
 
+    RETVAL=0
     case "$1" in
 	start)
 	    echo -n "Starting smartd: "
 	    $SMARTD_BIN $smartd_opts
+	    RETVAL=$?
 	    echo
 	    ;;
 	stop)
 	    echo -n "Shutting down smartd: "
 	    killall $SMARTD_BIN
+	    RETVAL=$?
 	    echo
 	    ;;
 	restart)
 	    $0 stop
 	    sleep 1
 	    $0 start
+	    RETVAL=$?
+	    ;;
+	try-restart)
+	    if pidof $SMARTD_BIN >/dev/null; then
+		$0 restart
+		RETVAL=$?
+	    fi
+	    ;;
+	force-reload)
+	    $0 reload || $0 restart
+	    RETVAL=$?
+	    ;;
+	reload)
+	    echo -n "Reloading smartd configuration: "
+	    killall -s HUP $SMARTD_BIN
+	    RETVAL=$?
+	    echo
+	    ;;
+	report)
+	    echo -n "Checking SMART devices now: "
+	    killall -s USR1 $SMARTD_BIN
+	    RETVAL=$?
+	    echo
+	    ;;
+	status)
+	    if pidof $SMARTD_BIN >/dev/null; then
+		echo "$SMARTD_BIN is running."
+	    else
+		echo "$SMARTD_BIN is not running."
+		RETVAL=1
+	    fi
 	    ;;
 	*)
-	    echo "Usage: smartd {start|stop|restart}"
-	    exit 1
+	    echo "Usage: smartd {start|stop|restart|try-restart|force-reload|reload|report|status}"
+	    RETVAL=1
     esac
-    
-    exit 0
-    
+    exit $RETVAL
+
 # SuSE
 elif [ -f /etc/SuSE-release ] ; then
     test -x $SMARTD_BIN || exit 5
-    
+
     # Existence of config file is optional
     SMARTD_CONFIG=/etc/smartd.conf
 
-# source configuration file. This should set the shell variable smartd_opts
-    [ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
+    # source configuration file.
+    [ -r /etc/sysconfig/smartmontools ] && . /etc/sysconfig/smartmontools
+    smartd_opts=
+    if test -n "$SMARTD_CHECK_INTERVAL" -a "$SMARTD_CHECK_INTERVAL" != 1800 ; then
+       smartd_opts=" -i $SMARTD_CHECK_INTERVAL"
+    fi
+    if test -n "$SMARTD_LOG_FACILITY" -a "$SMARTD_LOG_FACILITY" != "daemon" ; then
+       smartd_opts="$smartd_opts -l $SMARTD_LOG_FACILITY"
+    fi
+    if test -n "$SMARTD_DRIVEDB" ; then
+       smartd_opts="$smartd_opts -B $SMARTD_DRIVEDB"
+    fi
 
-   # Shell functions sourced from /etc/rc.status:
-   #      rc_check         check and set local and overall rc status
-   #      rc_status        check and set local and overall rc status
-   #      rc_status -v     ditto but be verbose in local rc status
-   #      rc_status -v -r  ditto and clear the local rc status
-   #      rc_failed        set local and overall rc status to failed
-   #      rc_reset         clear local rc status (overall remains)
-   #      rc_exit          exit appropriate to overall rc status
+    # Shell functions sourced from /etc/rc.status:
+    #      rc_check         check and set local and overall rc status
+    #      rc_status        check and set local and overall rc status
+    #      rc_status -v     be verbose in local rc status and clear it afterwards
+    #      rc_status -v -r  ditto and clear both the local and overall rc status
+    #      rc_status -s     display "skipped" and exit with status 3
+    #      rc_status -u     display "unused" and exit with status 3
+    #      rc_failed        set local and overall rc status to failed
+    #      rc_failed <num>  set local and overall rc status to <num>
+    #      rc_reset         clear both the local and overall rc status
+    #      rc_exit          exit appropriate to overall rc status
+    #      rc_active        checks whether a service is activated by symlinks
     . /etc/rc.status
-    
-   # First reset status of this service
+
+    # Reset status of this service
     rc_reset
-    
-   # Return values acc. to LSB for all commands but status:
-   # 0 - success
-   # 1 - misc error
-   # 2 - invalid or excess args
-   # 3 - unimplemented feature (e.g. reload)
-   # 4 - insufficient privilege
-   # 5 - program not installed
-   # 6 - program not configured
-   #
-   # Note that starting an already running service, stopping
-   # or restarting a not-running service as well as the restart
-   # with force-reload (in case signalling is not supported) are
-   # considered a success.
+
+    # Return values acc. to LSB for all commands but status:
+    # 0       - success
+    # 1       - generic or unspecified error
+    # 2       - invalid or excess argument(s)
+    # 3       - unimplemented feature (e.g. "reload")
+    # 4       - user had insufficient privileges
+    # 5       - program is not installed
+    # 6       - program is not configured
+    # 7       - program is not running
+    # 8--199  - reserved (8--99 LSB, 100--149 distrib, 150--199 appl)
+    #
+    # Note that starting an already running service, stopping
+    # or restarting a not-running service as well as the restart
+    # with force-reload (in case signaling is not supported) are
+    # considered a success.
+
     case "$1" in
 	start)
 	    echo -n "Starting smartd "
-            ## Start daemon with startproc(8). If this fails
-            ## the echo return value is set appropriate.
-	    
-            # startproc should return 0, even if service is
-            # already running to match LSB spec.
-            startproc $SMARTD_BIN $smartd_opts
-	    
-            # Remember status and be verbose
-            rc_status -v
+	    ## Start daemon with startproc(8). If this fails
+	    ## the return value is set appropriately by startproc.
+
+	    # We don't use startproc - we need to check for return code 17.
+	    if ! /sbin/checkproc $SMARTD_BIN ; then
+		$SMARTD_BIN $smartd_opts
+		# Remember status and be verbose
+		if test $? -ne 17 ; then
+		    rc_status -v
+		else
+		    rc_status -u
+		fi
+	    else
+		rc_reset
+		rc_status -v
+	    fi
 	    ;;
 	stop)
 	    echo -n "Shutting down smartd "
-            killproc -TERM $SMARTD_BIN
-	    
-            # Remember status and be verbose
-            rc_status -v
+	    /sbin/killproc -TERM $SMARTD_BIN
+	    # Remember status and be verbose
+	    rc_status -v
 	    ;;
-    try-restart|condrestart)
+	try-restart)
 	    ## Do a restart only if the service was active before.
 	    ## Note: try-restart is now part of LSB (as of 1.9).
-	    ## RH has a similar command named condrestart.
-	    if test "$1" = "condrestart"; then
-		    echo "${attn} Use try-restart ${done}(LSB)${attn} rather than condrestart ${warn}(RH)${norm}"
-	    fi
 	    $0 status
 	    if test $? = 0; then
-		    $0 restart 
-	    else 
-		    rc_reset	# Not running is not a failure.
+		$0 restart
+	    else
+		rc_reset	# Not running is not a failure.
 	    fi
 	    # Remember status and be quiet
 	    rc_status
 	    ;;
-    restart | force-reload)
+	restart)
 	    $0 stop
 	    $0 start
+	    # Remember status and be quiet
+	    rc_status
 	    ;;
-    reload)
-	## Like force-reload, but if daemon does not support
-	## signaling, do nothing (!)
-	    rc_failed 3
+	force-reload|reload)
+	    echo -n "Reload service smartd "
+	    /sbin/killproc -HUP $SMARTD_BIN
 	    rc_status -v
 	    ;;
-    status)
-            echo -n "Checking for service smartd "
-            ## Check status with checkproc(8), if process is running
-            ## checkproc will return with exit status 0.
-	    
-            # Status has a slightly different for the status command:
-            # 0 - service running
-            # 1 - service dead, but /var/run/  pid  file exists
-            # 2 - service dead, but /var/lock/ lock file exists
-            # 3 - service not running
-	    
-            # NOTE: checkproc returns LSB compliant status values.
-            checkproc $SMARTD_BIN
-            rc_status -v
-            ;;
-        probe)
+	report)
+	    ## Checking SMART devices now (smartd specific function)
+	    echo -n "Checking SMART devices now "
+	    /sbin/killproc -USR1 $SMARTD_BIN
+	    rc_status -v
+	    ;;
+	status)
+	    echo -n "Checking for service smartd "
+	    ## Check status with checkproc(8), if process is running
+	    ## checkproc will return with exit status 0.
+
+	    # Return value is slightly different for the status command:
+	    # 0 - service up and running
+	    # 1 - service dead, but /var/run/  pid  file exists
+	    # 2 - service dead, but /var/lock/ lock file exists
+	    # 3 - service not running (unused)
+	    # 4 - service status unknown :-(
+	    # 5--199 reserved (5--99 LSB, 100--149 distro, 150--199 appl.)
+
+	    # NOTE: checkproc returns LSB compliant status values.
+	    /sbin/checkproc $SMARTD_BIN
+	    rc_status -v
+	    ;;
+	probe)
 	    ## Optional: Probe for the necessity of a reload, print out the
 	    ## argument to this init script which is required for a reload.
-	    ## Note: probe is not (yet) part of LSB (as of 1.2)
+	    ## Note: probe is not (yet) part of LSB (as of 1.9)
 
 	    test $SMARTD_CONFIG -nt /var/run/smartd.pid && echo reload
 	    ;;
 	*)
-	    echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload|probe}"
+	    echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload|report|probe}"
 	    exit 1
-	    ;;
     esac
-    
     rc_exit
 
 # Debian case
 elif [ -f /etc/debian_version ] ; then
-        PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-	SMARTDPID=/var/run/smartd.pid
-	[ -x $SMARTD_BIN ] || exit 0
-	RET=0
+    PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+    SMARTDPID=/var/run/smartd.pid
+    [ -x $SMARTD_BIN ] || exit 0
+    RET=0
 
-# source configuration file
-	[ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
+    # source configuration file
+    [ -r /etc/default/rcS ] && . /etc/default/rcS
+    [ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
 
-	smartd_opts="--pidfile $SMARTDPID $smartd_opts"
-	
-	case "$1" in
+    smartd_opts="--pidfile $SMARTDPID $smartd_opts"
+
+    case "$1" in
 	start)
 		echo -n "Starting S.M.A.R.T. daemon: smartd"
 		if start-stop-daemon --start --quiet --pidfile $SMARTDPID \
-	    	--exec $SMARTD_BIN -- $smartd_opts; then 
-	    		echo "."
+			--exec $SMARTD_BIN -- $smartd_opts; then
+			echo "."
 		else
-	        	echo " (failed)"
+			echo " (failed)"
 			RET=1
-	    	fi
-	;;
+		fi
+		;;
 	stop)
 		echo -n "Stopping S.M.A.R.T. daemon: smartd"
 		start-stop-daemon --stop --quiet --oknodo --pidfile $SMARTDPID
 		echo "."
-	;;
-	restart|force-reload)
-       		$0 stop
-        	$0 start
-        	;;
-  	*)
-		echo "Usage: /etc/init.d/smartmontools {start|stop|restart|force-reload}"
+		;;
+	restart)
+		$0 stop
+		$0 start
+		;;
+	force-reload)
+		$0 reload || $0 restart
+		;;
+	reload)
+		echo -n "Reload S.M.A.R.T. daemon: smartd"
+		if start-stop-daemon --stop --quiet --signal 1 \
+			--pidfile $SMARTDPID; then
+			echo "."
+		else
+			echo " (failed)"
+			RET=1
+		fi
+		;;
+	report)
+		echo -n "Checking SMART devices now"
+		if start-stop-daemon --stop --quiet --signal 10 \
+			--pidfile $SMARTDPID; then
+			echo "."
+		else
+			echo " (failed)"
+			RET=1
+		fi
+		;;
+	status)
+		if pidofproc $SMARTD_BIN >/dev/null; then
+			echo "$SMARTD_BIN is running."
+		else
+			echo "$SMARTD_BIN is not running."
+			RET=1
+		fi
+		;;
+	*)
+		echo "Usage: /etc/init.d/smartmontools {start|stop|restart|force-reload|reload|report|status}"
 		exit 1
-	esac
- 	exit $RET
+    esac
+    exit $RET
 
 elif [ -f /etc/gentoo-release ] ; then
     report_unsupported "Gentoo"
@@ -296,30 +428,30 @@ elif [ -f /etc/environment.corel ] ; then
 # PLEASE ADD OTHER LINUX DISTRIBUTIONS JUST BEFORE THIS LINE, USING elif
 
 elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
-# following is replaced by port install
+    # following is replaced by port install
     PREFIX=@@PREFIX@@
-    
-# Updated to try both the RCNG version of things from 5.x, or fallback to
-# oldfashioned rc.conf
 
-    if [ -r /etc/rc.subr ]; then 
-# This is RC-NG, pick up our values
+    # Updated to try both the RCNG version of things from 5.x, or fallback to
+    # oldfashioned rc.conf
+
+    if [ -r /etc/rc.subr ]; then
+	# This is RC-NG, pick up our values
 	. /etc/rc.subr
-        name="smartd"
-	rcvar="smartd_enable" 
-        command="$SMARTD_BIN"
+	name="smartd"
+	rcvar="smartd_enable"
+	command="$SMARTD_BIN"
 	load_rc_config $name
     elif [ -r /etc/defaults/rc.conf ]; then
-# Not a 5.x system, try the default location for variables
+	# Not a 5.x system, try the default location for variables
 	. /etc/defaults/rc.conf
 	source_rc_confs
     elif [ -r /etc/rc.conf ]; then
-# Worst case, fallback to system config file
+	# Worst case, fallback to system config file
 	. /etc/rc.conf
     fi
 
-    if [ -r /etc/rc.subr ]; then 
-# Use new functionality from RC-NG
+    if [ -r /etc/rc.subr ]; then
+	# Use new functionality from RC-NG
 	run_rc_command "$1"
     else
 	PID_FILE=/var/run/smartd.pid
@@ -337,23 +469,29 @@ elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
 		sleep 1
 		$0 start
 		;;
+	    reload)
+		kill -s HUP `cat $PID_FILE`
+		;;
+	    report)
+		kill -s USR1 `cat $PID_FILE`
+		;;
 	    *)
-		echo "Usage: smartd {start|stop|restart}"
+		echo "Usage: smartd {start|stop|restart|reload|report}"
 		exit 1
 	esac
-	
 	exit 0
     fi
+
 elif uname -a | grep SunOS > /dev/null 2>&1 ; then
-    
-# Source configuration file.  This should define the shell variable smartd_opts.
-# Email smartmontools-support@lists.sourceforge.net if there is a better choice
-# of path for Solaris
+
+    # Source configuration file.  This should define the shell variable smartd_opts.
+    # Email smartmontools-support@lists.sourceforge.net if there is a better choice
+    # of path for Solaris
 
     [ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
 
     PID_FILE=/var/run/smartd.pid
-    
+
     case "$1" in
 	start)
 	    $SMARTD_BIN -p $PID_FILE $smartd_opts
@@ -368,17 +506,22 @@ elif uname -a | grep SunOS > /dev/null 2>&1 ; then
 	    sleep 1
 	    $0 start
 	    ;;
+	reload)
+	    kill -s HUP `cat $PID_FILE`
+	    ;;
+	report)
+	    kill -s USR1 `cat $PID_FILE`
+	    ;;
 	*)
-	    echo "Usage: smartd {start|stop|restart}"
+	    echo "Usage: smartd {start|stop|restart|reload|report}"
 	    exit 1
     esac
-    
     exit 0
 
 # Cygwin
 elif uname | grep -i CYGWIN > /dev/null 2>&1 ; then
 
-# The following settings may be changed by the configuration file below
+    # The following settings may be changed by the configuration file below
     # Service Name (must be unique)
     smartd_svcname=smartd
     # Service display name
@@ -390,9 +533,9 @@ Analysis and Reporting Technology System (S.M.A.R.T.) \
 built into ATA and SCSI Hard Drives. \
 http://smartmontools.sourceforge.net/"
 
-# Source configuration file.  This should define the shell variable smartd_opts.
-# Email smartmontools-support@lists.sourceforge.net if there is a better choice
-# of path for Cygwin
+    # Source configuration file.  This should define the shell variable smartd_opts.
+    # Email smartmontools-support@lists.sourceforge.net if there is a better choice
+    # of path for Cygwin
 
     [ -r /etc/sysconfig/smartmontools ] && . /etc/sysconfig/smartmontools
 
@@ -504,7 +647,7 @@ else
 fi
 
 # One should NEVER arrive here, except for a badly written case above,
-# that fails to exit.  
+# that fails to exit.
 echo "SOMETHING IS WRONG WITH THE SMARTD STARTUP SCRIPT"
 echo "PLEASE CONTACT smartmontools-support@lists.sourceforge.net"
 exit 1
