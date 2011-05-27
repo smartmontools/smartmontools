@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h cleanup:
+       harmonize family names, add AF information into name
+
   [MS] drivedb.h update:
        - OCZ Vertex 3
        - Seagate Barracuda Green 1TB variant
