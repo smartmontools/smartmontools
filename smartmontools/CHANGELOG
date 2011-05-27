@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Avoid '%n' printf format specifier because it is always
+       disabled in recent versions of msvcrt.dll.  This fixes truncation
+       of smartd warning email (ticket #174).
+
   [MS] smartd.initd.in:
        cleanup, provide targets "reload" and "report" for all platforms
 
