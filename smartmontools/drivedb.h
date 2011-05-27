@@ -106,6 +106,7 @@ const drive_settings builtin_knowndrives[] = {
       // tested with OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
     "OCZ[ -](VELO|VERTEX2[ -](EX|PRO))( [123]\\..*)?|" // SF-1500, tested with
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
+    "OCZ-VERTEX3|"  // SF-2200, tested with OCZ-VERTEX3/2.02
     "(APOC|DENC|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
     "OWC Mercury Extreme Pro SSD|" // tested with firmware 360A13F0
@@ -1490,7 +1491,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Barracuda Green",  // Adv. Format
-    "ST(15|20)00DL003-.*",
+    "ST(1000DL002|(15|20)00DL003)-.*",
     "", "", ""
   },
   { "Seagate Barracuda XT",

@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h update:
+       - OCZ Vertex 3
+       - Seagate Barracuda Green 1TB variant
+
   [CF] Windows: Avoid '%n' printf format specifier because it is always
        disabled in recent versions of msvcrt.dll.  This fixes truncation
        of smartd warning email (ticket #174).
