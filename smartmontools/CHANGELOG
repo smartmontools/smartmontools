@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3346 2011-05-26 19:42:20Z chrfranke $
+$Id: CHANGELOG 3348 2011-05-27 13:53:20Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] smartd.initd.in:
+       cleanup, provide targets "reload" and "report" for all platforms
 
   [CF] drivedb.h update:
        - JMicron based SSD (JMicron JMF602?): rename from
