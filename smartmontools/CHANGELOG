@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] --with-initscriptdir default changed to "no" from "auto" to avoid 
+       filesystem pollution.
+
   [MS] drivedb.h cleanup:
        harmonize family names, add AF information into name
 

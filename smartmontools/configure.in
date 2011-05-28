@@ -184,7 +184,7 @@ AM_CONDITIONAL(INSTALL_SYSTEMDUNIT, [test -n "$systemdsystemunitdir"])
 
 AC_ARG_WITH(initscriptdir,
   [AC_HELP_STRING([--with-initscriptdir=DIR],[Location of the init script])],
-  [], [with_initscriptdir=auto])
+  [], [with_initscriptdir=no])
 
 AC_MSG_CHECKING(which init (rc) directory to use)
 initddir=""
