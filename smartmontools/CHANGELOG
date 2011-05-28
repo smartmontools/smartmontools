@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3351 2011-05-27 22:49:15Z manfred99 $
+$Id: CHANGELOG 3352 2011-05-28 20:43:21Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] --with-initscriptdir default changed to "no" from "auto" to avoid 
+       filesystem pollution.
 
   [MS] drivedb.h cleanup:
        harmonize family names, add AF information into name
