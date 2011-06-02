@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3352 2011-05-28 20:43:21Z samm2 $
+$Id: CHANGELOG 3353 2011-06-02 21:31:27Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] smartd.initd.in:
+       fix for debian, cleanup. Based on patch of CF.
 
   [AS] --with-initscriptdir default changed to "no" from "auto" to avoid 
        filesystem pollution.
