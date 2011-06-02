@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] smartd.initd.in:
+       fix for debian, cleanup. Based on patch of CF.
+
   [AS] --with-initscriptdir default changed to "no" from "auto" to avoid 
        filesystem pollution.
 

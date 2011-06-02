@@ -203,7 +203,7 @@ elif [ -f /etc/slackware-version ] ; then
 	    fi
 	    ;;
 	*)
-	    echo "Usage: smartd {start|stop|restart|try-restart|force-reload|reload|report|status}"
+	    echo "Usage: $0 {start|stop|restart|try-restart|force-reload|reload|report|status}"
 	    RETVAL=1
     esac
     exit $RETVAL
@@ -403,7 +403,7 @@ elif [ -f /etc/debian_version ] ; then
 		fi
 		;;
 	status)
-		if pidofproc $SMARTD_BIN >/dev/null; then
+		if pidof $SMARTD_BIN >/dev/null; then
 			echo "$SMARTD_BIN is running."
 		else
 			echo "$SMARTD_BIN is not running."
@@ -411,7 +411,7 @@ elif [ -f /etc/debian_version ] ; then
 		fi
 		;;
 	*)
-		echo "Usage: /etc/init.d/smartmontools {start|stop|restart|force-reload|reload|report|status}"
+		echo "Usage: $0 {start|stop|restart|force-reload|reload|report|status}"
 		exit 1
     esac
     exit $RET
@@ -476,7 +476,7 @@ elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
 		kill -s USR1 `cat $PID_FILE`
 		;;
 	    *)
-		echo "Usage: smartd {start|stop|restart|reload|report}"
+		echo "Usage: $0 {start|stop|restart|reload|report}"
 		exit 1
 	esac
 	exit 0
@@ -513,7 +513,7 @@ elif uname -a | grep SunOS > /dev/null 2>&1 ; then
 	    kill -s USR1 `cat $PID_FILE`
 	    ;;
 	*)
-	    echo "Usage: smartd {start|stop|restart|reload|report}"
+	    echo "Usage: $0 {start|stop|restart|reload|report}"
 	    exit 1
     esac
     exit 0
