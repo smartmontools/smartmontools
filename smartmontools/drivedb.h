@@ -88,12 +88,19 @@ const drive_settings builtin_knowndrives[] = {
     "ASUS-PHISON SSD",
     "", "", ""
   },
-  { "Crucial RealSSD C300", // tested with C300-CTFDDAC128MAG/0002
+  { "Crucial RealSSD C300", // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002
     "C300-CTFDDA[AC](064|128|256)MAG",
     "", "",
-    "-v 189,raw48,Unknown_Attribute "
-    "-v 202,raw48,Unknown_Attribute "
-    "-v 206,raw48,Unknown_Attribute"
+    "-v 170,raw48,Grown_Failing_Block_Ct "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Wear_Levelling_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 181,raw48,Non4k_Aligned_Access "
+    "-v 183,raw48,SATA_Iface_Downshift "
+    "-v 189,raw48,Factory_Bad_Block_Ct "
+    "-v 202,raw48,Perc_Rated_Life_Used "
+    "-v 206,raw48,Write_Error_Rate"
   },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
@@ -317,7 +324,7 @@ const drive_settings builtin_knowndrives[] = {
   { "JMicron based SSDs", // JMicron JMF612/618?
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series (2. Generation, JMF618),
                                     // tested with KINGSTON SNV425S264GB/C091126a
-    "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a 
+    "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a
     "KINGSTON SVP100S2B?(64|96|128|256|512)G|"  // SSDNow V+100 Series,
                                                 // tested with KINGSTON SVP100S296G/CJR10202
     "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
