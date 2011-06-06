@@ -2117,6 +2117,9 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
   if (data.desc.ProductIdOffset) {
     while (i > 1 && model[i-2] == ' ') // Keep last blank from VendorId
       i--;
+    // Ignore VendorId "ATA"
+    if (i <= 4 && !strncmp(model, "ATA", 3) && (i == 3 || model[3] == ' '))
+      i = 0;
     for (unsigned j = 0; i < sizeof(model)-1 && data.raw[data.desc.ProductIdOffset+j]; i++, j++)
       model[i] = data.raw[data.desc.ProductIdOffset+j];
   }
