@@ -85,7 +85,7 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3331 2011-05-20 19:43:34Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3358 2011-06-06 19:04:20Z chrfranke $";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
 #ifdef _WIN64
@@ -2117,6 +2117,9 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
   if (data.desc.ProductIdOffset) {
     while (i > 1 && model[i-2] == ' ') // Keep last blank from VendorId
       i--;
+    // Ignore VendorId "ATA"
+    if (i <= 4 && !strncmp(model, "ATA", 3) && (i == 3 || model[3] == ' '))
+      i = 0;
     for (unsigned j = 0; i < sizeof(model)-1 && data.raw[data.desc.ProductIdOffset+j]; i++, j++)
       model[i] = data.raw[data.desc.ProductIdOffset+j];
   }
