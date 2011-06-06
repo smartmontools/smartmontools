@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3354 2011-06-04 22:04:18Z manfred99 $
+$Id: CHANGELOG 3355 2011-06-06 12:00:22Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] drivedb.h update:
+       disentangle Transcend SSD versions
 
   [MS] drivedb.h update:
        add attribute details for Crucial C300
