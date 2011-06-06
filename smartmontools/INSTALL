@@ -688,7 +688,7 @@ OPTIONS              DEFAULT                                      AFFECTS
                                                                   Contents of smartd executable;
                                                                   Contents of smartd/smartd.conf man pages;
                                                                   Directory for rc.d/init.d/smartd init script
---with-initscriptdir  no                                          Location of init scripts, use "auto" to autodetect
+--with-initscriptdir           auto                               Location of init scripts
 --with-systemdsystemunitdir    auto                               Location of systemd service files
 --with-docdir         ${prefix}/share/doc/smartmontools           Location of the documentation
 --with-exampledir     ${docdir}/examplescripts                    Location of example scripts
@@ -712,14 +712,50 @@ default for --with-docdir was
 This was changed to make it consistent with the default of the
 new --docdir option added in autoconf 2.60.
 
+The defaults for --with-initscriptdir and --with-systemdsystemunitdir are
+guessed such that the following rules apply:
+- If --prefix=/usr --sysconfdir=/etc is specified, the guessed directories
+  should be the defaults used by the current OS or distribution.
+- If --sysconfdir=/etc is NOT specified, the guessed directories should
+  always be below ${prefix} or below ${sysconfdir}.
+
 Here's an example:
 If you set --prefix=/home/joe and none of the other four
 variables then the different directories that are used would be:
 --sbindir             /home/joe/sbin
+--docdir              /home/joe/share/doc/smartmontools
 --mandir              /home/joe/share/man
 --sysconfdir          /home/joe/etc
---with-initscriptdir  [disabled]
---with-docdir         /home/joe/doc/smartmontools
+--with-exampledir     /home/joe/share/doc/smartmontools/examplescripts
+--with-drivedbdir     /home/joe/share/smartmontools
+--with-initscriptdir         [see below]
+--with-systemdsystemunitdir  [see below]
+
+If systemd is present (and pkg-config reports /lib/systemd/system
+as the systemdsystemunitdir):
+
+--with-initscriptdir         [disabled]
+--with-systemdsystemunitdir  /home/joe/lib/systemd/system
+
+else if /etc/rc.d/init.d exists:
+
+--with-initscriptdir         /home/joe/etc/rc.d/init.d
+--with-systemdsystemunitdir  [disabled]
+
+else if /etc/init.d exists:
+
+--with-initscriptdir         /home/joe/etc/init.d
+--with-systemdsystemunitdir  [disabled]
+
+else if /etc/rc.d exists:
+
+--with-initscriptdir         /home/joe/etc/rc.d
+--with-systemdsystemunitdir  [disabled]
+
+else
+
+--with-initscriptdir         [disabled]
+--with-systemdsystemunitdir  [disabled]
 
 This is useful for test installs in a harmless subdirectory somewhere.
 

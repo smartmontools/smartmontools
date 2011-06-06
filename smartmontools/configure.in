@@ -173,9 +173,11 @@ systemdsystemunitdir=
 case "$with_systemdsystemunitdir" in
  auto|yes)
    test -n "$PKG_CONFIG" && systemdsystemunitdir=`$PKG_CONFIG --variable=systemdsystemunitdir systemd`
-   if test "$with_systemdsystemunitdir" = "yes" && test -z "$systemdsystemunitdir"; then
-     AC_MSG_ERROR([Location of systemd service files not found])
-   fi ;;
+   case "$with_systemdsystemunitdir:$sysconfdir:$systemdsystemunitdir" in
+     yes:*:) AC_MSG_ERROR([Location of systemd service files not found]) ;;
+     yes:*:*|auto:*:|auto:/etc:*) ;;
+     *) systemdsystemunitdir='${prefix}'$systemdsystemunitdir ;;
+   esac ;;
  no) ;;
  *) systemdsystemunitdir="$with_systemdsystemunitdir" ;;
 esac
@@ -183,18 +185,14 @@ AC_SUBST(systemdsystemunitdir)
 AM_CONDITIONAL(INSTALL_SYSTEMDUNIT, [test -n "$systemdsystemunitdir"])
 
 AC_ARG_WITH(initscriptdir,
-  [AC_HELP_STRING([--with-initscriptdir=DIR],[Location of the init script])],
-  [], [with_initscriptdir=no])
+  [AC_HELP_STRING([--with-initscriptdir@<:@=DIR|auto|yes|no@:>@], [Location of init scripts [auto]])],
+  [], [with_initscriptdir=auto])
 
 AC_MSG_CHECKING(which init (rc) directory to use)
 initddir=""
-for initdir in /etc/init.d /etc/rc.d/init.d /sbin/init.d        \
-         /usr/local/etc/rc.d /etc/rc.d
-do
-  if
-    test -d $initdir
-  then
-    initddir=$initdir
+for dir in rc.d/init.d init.d rc.d; do
+  if test -d /etc/$dir; then
+    initddir='${sysconfdir}'/$dir
     break
   fi
 done
@@ -202,7 +200,10 @@ AC_MSG_RESULT([${initddir:-not found}])
 
 case "$with_initscriptdir" in
   auto) test -n "$systemdsystemunitdir" && initddir= ;;
-  yes) ;;
+  yes)
+   if test -z "$initddir"; then
+     AC_MSG_ERROR([Location of init scripts not found])
+   fi ;;
   no) initddir= ;;
   *) initddir="$with_initscriptdir" ;;
 esac
