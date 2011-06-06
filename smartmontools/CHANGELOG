@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add ATA NCQ commands to error register decoding.
+
   [CF] Re-enable '--with-initscriptdir=auto' as default.
        Change search for initddir and systemdsystemunitdir such that
        default ./configure does never overwrite system files.
