@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3347 2011-05-26 20:23:42Z chrfranke $
+$Id: NEWS 3361 2011-06-06 19:39:38Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -23,6 +23,7 @@ Summary: smartmontools release 5.41
 - 'smartd.service' file for systemd.
 - configure option '--with-systemdsystemunitdir'
 - configure option '--with-exampledir'.
+- configure searches for init.d or rc.d directory.
 - 'make install' does no longer overwrite an existing
   smartd.conf file.
 - 'update-smart-drivedb' does no longer require GNU sed.
@@ -39,6 +40,7 @@ Summary: smartmontools release 5.41
 - Windows: Faster USB ID detection.
 - Windows: update-smart-drivedb tool.
 - Windows installer: Option '/SO component,...'.
+- Windows: Fix smartd warning email truncation on Win7.
 - Windows installer: Fix shortcut removal on Vista/Win7.
 - Windows: Add missing quotes in smartctl-run.bat and
   smartd-run.bat
