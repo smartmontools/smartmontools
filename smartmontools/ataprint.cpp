@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3325 2011-05-10 19:22:13Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3357 2011-06-06 18:56:55Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -165,11 +165,12 @@ static const char * construct_st_er_desc(
     print_lba=1;
     print_sector=SC;
     break;
-  case 0x25:  /* READ DMA EXT */
+  case 0x25:  // READ DMA EXT
   case 0x26:  // READ DMA QUEUED EXT
   case 0xC7:  // READ DMA QUEUED
-  case 0xC8:  /* READ DMA */
-  case 0xC9:
+  case 0xC8:  // READ DMA (with retries)
+  case 0xC9:  // READ DMA (without retries, obsolete since ATA-5)
+  case 0x60:  // READ FPDMA QUEUED (NCQ)
     error_flag[7] = icrc;
     error_flag[6] = unc;
     error_flag[5] = mc;
@@ -294,13 +295,14 @@ static const char * construct_st_er_desc(
       break;
     }
     break;
-  case 0xCA:  /* WRITE DMA */
-  case 0xCB:
+  case 0xCA:  // WRITE DMA (with retries)
+  case 0xCB:  // WRITE DMA (without retries, obsolete since ATA-5)
   case 0x35:  // WRITE DMA EXT
   case 0x3D:  // WRITE DMA FUA EXT
   case 0xCC:  // WRITE DMA QUEUED
   case 0x36:  // WRITE DMA QUEUED EXT
   case 0x3E:  // WRITE DMA QUEUED FUA EXT
+  case 0x61:  // WRITE FPDMA QUEUED (NCQ)
     error_flag[7] = icrc;
     error_flag[6] = wp;
     error_flag[5] = mc;
