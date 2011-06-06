@@ -158,7 +158,8 @@ const drive_settings builtin_knowndrives[] = {
     "Patriot[ -]Torqx.*|"
     "STT_FT[MD](28|32|56|64)GX25H|" // Super Talent Ultradrive GX, tested with STT_FTM64GX25H/1916
     "TS(18|25)M(64|128)MLC(16|32|64|128|256|512)GSSD|" // ASAX Leopard Hunt II, tested with TS25M64MLC64GSSD/0.1
-    "FM-25S2I-(64|128)GBFII", // G.Skill FALCON II, tested with FM-25S2I-64GBFII
+    "FM-25S2I-(64|128)GBFII|" // G.Skill FALCON II, tested with FM-25S2I-64GBFII
+    "TS(60|120)GSSD25D-M", // Transcend Ultra SSD (SATA II), see also Ticket #80
     "", "",
     "-v 1,raw64 " // Raw_Read_Error_Rate
     "-v 9,raw64 " // Power_On_Hours
@@ -307,10 +308,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
   },
-  { "JMicron based SSDs", // JMicron JMF602?
+  { "JMicron based SSDs", // JMicron JMF60x
     "Kingston SSDNow V Series [0-9]*GB|" // tested with Kingston SSDNow V Series 64GB/B090522a
-    "TS(8|16|32|64|128|192)GSSD25S?-(M|S)", // Transcend IDE and SATA, tested with TS32GSSD25-M/V090331
-    "", "",
+    "TS(2|4|8|16|32|64|128|192)GSSD25S?-(M|S)", // Transcend IDE and SATA, tested with TS32GSSD25-M/V090331
+    "[BV].*", // other Transcend SSD versions will be catched by subsequent entry
+    "",
   //"-v 9,raw48,Power_On_Hours " // raw value always 0?
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 194,tempminmax,Temperature_Celsius " // raw value always 0?
@@ -321,7 +323,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 235,raw24/raw24:w01z23,Good/Sys_Block_Ct"
     //  1.....................................40 chars limit for smartmontools <= r3343
   },
-  { "JMicron based SSDs", // JMicron JMF612/618?
+  { "JMicron based SSDs", // JMicron JMF61x
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series (2. Generation, JMF618),
                                     // tested with KINGSTON SNV425S264GB/C091126a
     "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a
@@ -330,17 +332,14 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
                                // tested with Toshiba 128GB 2.5" SSD (built in MacBooks)
     "APPLE SSD TS.*|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
-    "ADATA S596 Turbo",  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF612)
+    "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
+    "TS(8|16|32|64|128|192|256|512)GSSD25S-(MD?|S)", // Transcend SATA (JMF612), tested with TS256GSSD25S-M/101028
     "", "",
     "-v 3,raw48,Unknown_Attribute "
     "-v 7,raw48,Unknown_Attribute "
     "-v 8,raw48,Unknown_Attribute "
     "-v 10,raw48,Unknown_Attribute "
     "-v 240,raw48,Unknown_Attribute"
-  },
-  { "Transcend Ultra Series Solid State Drive (SATA II)",
-    "TS(60|120)GSSD25D-M",
-    "", "", ""
   },
   { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820, TS4GCF133/20100709
     "TRANSCEND|TS4GCF133",

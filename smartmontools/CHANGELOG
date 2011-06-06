@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [MS] drivedb.h update:
+       disentangle Transcend SSD versions
+
+  [MS] drivedb.h update:
        add attribute details for Crucial C300
 
   [MS] smartd.initd.in:
