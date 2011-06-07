@@ -339,7 +339,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 3,raw48,Unknown_Attribute "
     "-v 7,raw48,Unknown_Attribute "
     "-v 8,raw48,Unknown_Attribute "
+  //"-v 9,raw48,Power_On_Hours "
     "-v 10,raw48,Unknown_Attribute "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 168,raw48,SATA_Phy_Error_Count "
+    "-v 170,raw16,Bad_Block_Count "
+    "-v 173,raw16,Erase_Count "
+    "-v 175,raw48,Bad_Cluster_Table_Count "
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
     "-v 240,raw48,Unknown_Attribute"
   },
   { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820, TS4GCF133/20100709
