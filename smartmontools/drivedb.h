@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3362 2011-06-07 08:15:08Z manfred99 $",
+  { "$Id: drivedb.h 3363 2011-06-08 10:55:38Z manfred99 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -348,6 +348,31 @@ const drive_settings builtin_knowndrives[] = {
     "-v 175,raw48,Bad_Cluster_Table_Count "
     "-v 192,raw48,Unexpect_Power_Loss_Ct "
     "-v 240,raw48,Unknown_Attribute"
+  },
+  { "Samsung based SSDs",
+    "SAMSUNG SSD PM800 .*GB|"  // SAMSUNG PM800 SSDs, tested with SAMSUNG SSD PM800 TH 64GB/VBM25D1Q
+    "SAMSUNG SSD PM810 .*GB|"  // SAMSUNG PM810 (470 series) SSDs, tested with SAMSUNG SSD PM810 2.5" 128GB/AXM06D1Q
+    "SAMSUNG 470 Series SSD",  // SAMSUNG 470 Series SSD, tested with SAMSUNG 470 Series SSD 64GB/AXM09B1Q
+    "", "",
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+  //"-v 175,raw48,Program_Fail_Count_Chip "
+  //"-v 176,raw48,Erase_Fail_Count_Chip "
+  //"-v 177,raw48,Wear_Leveling_Count Wear "
+  //"-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip "
+  //"-v 179,raw48,Used_Rsvd_Blk_Cnt_Tot "
+  //"-v 180,raw48,Unused_Rsvd_Blk_Cnt_Tot "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 182,raw48,Erase_Fail_Count_Total "
+  //"-v 183,raw48,Runtime_Bad_Block "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+    "-v 190,raw48,Temperature_Exceed_Cnt "
+  //"-v 194,raw48,Airflow_Temperature "
+    "-v 195,raw48,ECC_Rate "
+  //"-v 198,raw48,Offline_Uncorrectable "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 201,raw48,Supercap_Status "
+    "-v 202,raw48,Exception_Mode_Status"
   },
   { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820, TS4GCF133/20100709
     "TRANSCEND|TS4GCF133",
@@ -731,14 +756,6 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS)", // tested with HS25YJZ/3AU10-01
     "SAMSUNG HS(122H|2[05]YJ)Z",
-    "", "", ""
-  },
-  { "SAMSUNG PM800 SSDs", // tested with SAMSUNG SSD PM800 TH 64GB/VBM25D1Q
-    "SAMSUNG SSD PM800 .*GB",
-    "", "", ""
-  },
-  { "SAMSUNG PM810 (470 series) SSDs", // tested with SAMSUNG SSD PM810 2.5" 128GB/AXM06D1Q
-    "SAMSUNG SSD PM810 .*GB",
     "", "", ""
   },
 /*
