@@ -366,7 +366,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 182,raw48,Erase_Fail_Count_Total "
   //"-v 183,raw48,Runtime_Bad_Block "
     "-v 187,raw48,Uncorrectable_Error_Cnt "
-    "-v 190,raw48,Temperature_Exceed_Cnt "
+  //"-v 190,raw48,Temperature_Exceed_Cnt "  // seems to be some sort of temperature value for 470 Series?
   //"-v 194,raw48,Airflow_Temperature "
     "-v 195,raw48,ECC_Rate "
   //"-v 198,raw48,Offline_Uncorrectable "
