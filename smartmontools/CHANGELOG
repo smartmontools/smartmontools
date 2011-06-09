@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+smartmontools 5.41 2011-06-09
+
   [MS] drivedb.h: revert attribute 190 to default for Samsung SSD controllers,
        some 470 series SSDs seem to have some temperature information at
        this location.
