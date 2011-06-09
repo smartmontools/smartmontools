@@ -1,11 +1,11 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3361 2011-06-06 19:39:38Z chrfranke $
+$Id: NEWS 3365 2011-06-09 18:47:31Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
-Date <Not released yet, please try current SVN>
+Date 2011-06-09
 Summary: smartmontools release 5.41
 -----------------------------------------------------------
 - Failed self-tests outdated by a newer successful extended
