@@ -310,10 +310,6 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
     unsigned const char normal_lo=0x4f, normal_hi=0xc2;
     unsigned const char failed_lo=0xf4, failed_hi=0x2c;
 
-#if (FREEBSDVER < 502000)
-    printwarning(NO_RETURN,NULL);
-#endif
-
     // Cyl low and Cyl high unchanged means "Good SMART status"
     if (!(out.out_regs.lba_mid==normal_lo && out.out_regs.lba_high==normal_hi)
     // These values mean "Bad SMART status"
@@ -1012,17 +1008,13 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 
   if (cam_send_ccb(m_camdev,ccb) < 0) {
     warn("error sending SCSI ccb");
-#if (FREEBSDVER > 500000)
     cam_error_print(m_camdev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
-#endif
     cam_freeccb(ccb);
     return -EIO;
   }
 
   if (((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) && ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_SCSI_STATUS_ERROR)) {
-#if (FREEBSDVER > 500000)
     cam_error_print(m_camdev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
-#endif
     cam_freeccb(ccb);
     return -EIO;
   }
