@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3335 2011-05-21 17:32:16Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3368 2011-06-13 22:22:21Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -309,10 +309,6 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
   {
     unsigned const char normal_lo=0x4f, normal_hi=0xc2;
     unsigned const char failed_lo=0xf4, failed_hi=0x2c;
-
-#if (FREEBSDVER < 502000)
-    printwarning(NO_RETURN,NULL);
-#endif
 
     // Cyl low and Cyl high unchanged means "Good SMART status"
     if (!(out.out_regs.lba_mid==normal_lo && out.out_regs.lba_high==normal_hi)
@@ -1012,17 +1008,13 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 
   if (cam_send_ccb(m_camdev,ccb) < 0) {
     warn("error sending SCSI ccb");
-#if (FREEBSDVER > 500000)
     cam_error_print(m_camdev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
-#endif
     cam_freeccb(ccb);
     return -EIO;
   }
 
   if (((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) && ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_SCSI_STATUS_ERROR)) {
-#if (FREEBSDVER > 500000)
     cam_error_print(m_camdev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
-#endif
     cam_freeccb(ccb);
     return -EIO;
   }
