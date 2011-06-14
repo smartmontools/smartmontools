@@ -459,7 +459,7 @@ static void print_regs(const char * prefix, const ata_out_regs & r, const char *
 static void prettyprint(const unsigned char *p, const char *name){
   pout("\n===== [%s] DATA START (BASE-16) =====\n", name);
   for (int i=0; i<512; i+=16, p+=16)
-#define P(n) (isprint((int)(p[n]))?(int)(p[n]):'.')
+#define P(n) (' ' <= p[n] && p[n] <= '~' ? (int)p[n] : '.')
     // print complete line to avoid slow tty output and extra lines in syslog.
     pout("%03d-%03d: %02x %02x %02x %02x %02x %02x %02x %02x "
                     "%02x %02x %02x %02x %02x %02x %02x %02x"

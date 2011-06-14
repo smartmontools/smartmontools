@@ -1032,7 +1032,7 @@ static void PrintLogPages(const char * type, const unsigned char * data,
          (page * 512) + i,
          p[ 0], p[ 1], p[ 2], p[ 3], p[ 4], p[ 5], p[ 6], p[ 7],
          p[ 8], p[ 9], p[10], p[11], p[12], p[13], p[14], p[15]);
-#define P(n) (isprint((int)(p[n]))?(int)(p[n]):'.')
+#define P(n) (' ' <= p[n] && p[n] <= '~' ? (int)p[n] : '.')
     pout("|%c%c%c%c%c%c%c%c"
           "%c%c%c%c%c%c%c%c|\n",
          P( 0), P( 1), P( 2), P( 3), P( 4), P( 5), P( 6), P( 7),
