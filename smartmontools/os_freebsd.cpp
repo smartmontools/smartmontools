@@ -1120,9 +1120,9 @@ typedef struct _SRB_BUFFER
 } sSRB_BUFFER;
 
 
-#if 0 // For debugging areca code
+// For debugging areca code
 
-static void dumpdata(unsigned char *block, int len)
+static void areca_dumpdata(unsigned char *block, int len)
 {
 	int ln = (len / 16) + 1;	 // total line#
 	unsigned char c;
@@ -1169,7 +1169,6 @@ static void dumpdata(unsigned char *block, int len)
 	printf("=====================================================================\n");
 }
 
-#endif
 
 static int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned char *data, int data_len, void *ext_data /* reserved for further use */)
 {
@@ -1232,7 +1231,8 @@ static int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned cha
 
 		if ( sBuf.srbioctl.Length )
 		{
-			//dumpdata(&sBuf.ioctldatabuffer[0], sBuf.srbioctl.Length);
+			if(ata_debugmode)
+			    areca_dumpdata(&sBuf.ioctldatabuffer[0], sBuf.srbioctl.Length);
 			memcpy(ptr, &sBuf.ioctldatabuffer[0], sBuf.srbioctl.Length);
 			ptr += sBuf.srbioctl.Length;
 			total += sBuf.srbioctl.Length;
