@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3370 2011-06-15 15:32:56Z samm2 $
+$Id: CHANGELOG 3374 2011-06-15 22:15:18Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] os_freebsd.cpp: Areca code converted to the new interface.
 
   [AS] os_freebsd.cpp: Added support for the Areca RAID controllers. 
        Support is basesd on Linux code, but using IOCTL on areca control
