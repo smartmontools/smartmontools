@@ -1121,58 +1121,6 @@ typedef struct _SRB_BUFFER
 	unsigned char   ioctldatabuffer[1032]; // the buffer to put the command data to/from firmware
 } sSRB_BUFFER;
 
-// Looks in /proc/scsi to suggest correct areca devices
-// If hint not NULL, return device path guess
-static int find_areca_in_proc(char *hint)
-{
-    const char* proc_format_string="host\tchan\tid\tlun\ttype\topens\tqdepth\tbusy\tonline\n";
-
-    // check data formwat
-    FILE *fp=fopen("/proc/scsi/sg/device_hdr", "r");
-    if (!fp) {
-        pout("Unable to open /proc/scsi/sg/device_hdr for reading\n");
-        return 1;
-     }
-
-     // get line, compare to format
-     char linebuf[256];
-     linebuf[255]='\0';
-     char *out = fgets(linebuf, 256, fp);
-     fclose(fp);
-     if (!out) {
-         pout("Unable to read contents of /proc/scsi/sg/device_hdr\n");
-         return 2;
-     }
-
-     if (strcmp(linebuf, proc_format_string)) {
-     	// wrong format!
-	// Fix this by comparing only tokens not white space!!
-	pout("Unexpected format %s in /proc/scsi/sg/device_hdr\n", proc_format_string);
-	return 3;
-     }
-
-    // Format is understood, now search for correct device
-    fp=fopen("/proc/scsi/sg/devices", "r");
-    if (!fp) return 1;
-    int host, chan, id, lun, type, opens, qdepth, busy, online;
-    int dev=-1;
-    int found=0;
-    // search all lines of /proc/scsi/sg/devices
-    while (9 == fscanf(fp, "%d %d %d %d %d %d %d %d %d", &host, &chan, &id, &lun, &type, &opens, &qdepth, &busy, &online)) {
-        dev++;
-	if (id == 16 && type == 3) {
-	   // devices with id=16 and type=3 might be Areca controllers
-	   if (!found && hint) {
-	       sprintf(hint, "/dev/sg%d", dev);
-	   }
-	   pout("Device /dev/sg%d appears to be an Areca controller.\n", dev);
-           found++;
-        }
-    }
-    fclose(fp);
-    return 0;
-}
-
 
 #if 0 // For debugging areca code
 
@@ -1540,7 +1488,6 @@ int freebsd_areca_device::ata_command_interface(smart_command_set command, int s
 
 	expected = arcmsr_command_handler(get_fd(), ARCMSR_IOCTL_CLEAR_RQBUFFER, NULL, 0, NULL);
         if (expected==-3) {
-	    find_areca_in_proc(NULL);
 	    return -1;
 	}
 
