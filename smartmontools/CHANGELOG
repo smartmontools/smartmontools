@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] os_freebsd.cpp: Areca code converted to the new interface.
+
   [AS] os_freebsd.cpp: Added support for the Areca RAID controllers. 
        Support is basesd on Linux code, but using IOCTL on areca control
        device instead of SCSI commands to talk with the drives. Hardware
