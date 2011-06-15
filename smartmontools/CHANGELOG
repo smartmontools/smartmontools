@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] os_linux.cpp: Areca code converted to the new interface.
+       Patch is based on os_freebsd.cpp patch and is not tested yet.
+
   [AS] os_freebsd.cpp: Areca code converted to the new interface.
 
   [AS] os_freebsd.cpp: Added support for the Areca RAID controllers. 

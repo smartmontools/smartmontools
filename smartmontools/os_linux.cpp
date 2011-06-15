@@ -1641,14 +1641,14 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
 /// Areca RAID support
 
 class linux_areca_device
-: public /*implements*/ ata_device_with_command_set,
+: public /*implements*/ ata_device,
   public /*extends*/ linux_smart_device
 {
 public:
   linux_areca_device(smart_interface * intf, const char * dev_name, int disknum);
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out); 
 
 private:
   int m_disknum; ///< Disk number.
@@ -1966,8 +1966,16 @@ linux_areca_device::linux_areca_device(smart_interface * intf, const char * dev_
 }
 
 // Areca RAID Controller
-int linux_areca_device::ata_command_interface(smart_command_set command, int select, char * data)
+// int linux_areca_device::ata_command_interface(smart_command_set command, int select, char * data)
+bool linux_areca_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) 
 {
+if (!ata_cmd_is_ok(in, 
+    true, // data_out_support 
+    false, // TODO: multi_sector_support 
+    true) // ata_48bit_support 
+    )
+    return false; 
+
 	// ATA input registers
 	typedef struct _ATA_INPUT_REGISTERS
 	{
@@ -2041,113 +2049,42 @@ int linux_areca_device::ata_command_interface(smart_command_set command, int sel
 	areca_packet[4] = (unsigned char)(((areca_packet_len - 6) >> 8) & 0xff);
 	areca_packet[5] = 0x1c;	// areca defined code for ATA passthrough command
 
-
 	// ----- BEGIN TO SETUP PAYLOAD DATA -----
-
 	memcpy(&areca_packet[7], "SmrT", 4);	// areca defined password
-
 	ata_cmd = (sATA_INPUT_REGISTERS *)&areca_packet[12];
-	ata_cmd->cylinder_low    = 0x4F;
-	ata_cmd->cylinder_high   = 0xC2;
 
-
-	if ( command == READ_VALUES     ||
-		 command == READ_THRESHOLDS ||
-		 command == READ_LOG ||
-		 command == IDENTIFY ||
-		 command == PIDENTIFY )
-	{
-		// the commands will return data
-		areca_packet[6] = 0x13;
-		ata_cmd->sector_count = 0x1;
+	// Set registers
+        {
+	    const ata_in_regs_48bit & r = in.in_regs;
+	    ata_cmd->features     = r.features_16;
+	    ata_cmd->sector_count  = r.sector_count_16;
+	    ata_cmd->sector_number = r.lba_low_16;
+	    ata_cmd->cylinder_low  = r.lba_mid_16;
+	    ata_cmd->cylinder_high = r.lba_high_16;
+	    ata_cmd->device_head   = r.device;
+	    ata_cmd->command      = r.command;
 	}
-	else if ( command == WRITE_LOG )
-	{
-		// the commands will write data
-		areca_packet[6] = 0x14;
+	bool readdata = false; 
+	if (in.direction == ata_cmd_in::data_in) { 
+	    readdata = true;
+	    // the command will read data
+	    areca_packet[6] = 0x13;
 	}
-	else
+	else if ( in.direction == ata_cmd_in::no_data )
 	{
 		// the commands will return no data
 		areca_packet[6] = 0x15;
 	}
-
-
-	ata_cmd->command = ATA_SMART_CMD;
-	// Now set ATA registers depending upon command
-	switch ( command )
+	else if (in.direction == ata_cmd_in::data_out) 
 	{
-	case CHECK_POWER_MODE:  
-		//printf("command = CHECK_POWER_MODE\n");
-		ata_cmd->command = ATA_CHECK_POWER_MODE;        
-		break;
-	case READ_VALUES:
-		//printf("command = READ_VALUES\n");
-		ata_cmd->features = ATA_SMART_READ_VALUES;
-		break;
-	case READ_THRESHOLDS:    
-		//printf("command = READ_THRESHOLDS\n");
-		ata_cmd->features = ATA_SMART_READ_THRESHOLDS;
-		break;
-	case READ_LOG: 
-		//printf("command = READ_LOG\n");
-		ata_cmd->features = ATA_SMART_READ_LOG_SECTOR;
-		ata_cmd->sector_number = select;        
-		break;
-	case WRITE_LOG:        
-		//printf("command = WRITE_LOG\n");    
-		ata_cmd->features = ATA_SMART_WRITE_LOG_SECTOR;
-		memcpy(ata_cmd->data, data, 512);
-		ata_cmd->sector_count = 1;
-		ata_cmd->sector_number = select;
-		break;
-	case IDENTIFY:
-		//printf("command = IDENTIFY\n");   
-		ata_cmd->command = ATA_IDENTIFY_DEVICE;         
-		break;
-	case PIDENTIFY:
-		//printf("command = PIDENTIFY\n");
-		errno=ENODEV;
-		return -1;
-	case ENABLE:
-		//printf("command = ENABLE\n");
-		ata_cmd->features = ATA_SMART_ENABLE;
-		break;
-	case DISABLE:
-		//printf("command = DISABLE\n");
-		ata_cmd->features = ATA_SMART_DISABLE;
-		break;
-	case AUTO_OFFLINE:
-		//printf("command = AUTO_OFFLINE\n");
-		ata_cmd->features = ATA_SMART_AUTO_OFFLINE;
-		// Enable or disable?
-		ata_cmd->sector_count = select;
-		break;
-	case AUTOSAVE:
-		//printf("command = AUTOSAVE\n");
-		ata_cmd->features = ATA_SMART_AUTOSAVE;
-		// Enable or disable?
-		ata_cmd->sector_count = select;
-		break;
-	case IMMEDIATE_OFFLINE:
-		//printf("command = IMMEDIATE_OFFLINE\n");
-		ata_cmd->features = ATA_SMART_IMMEDIATE_OFFLINE;
-		// What test type to run?
-		ata_cmd->sector_number = select;
-		break;
-	case STATUS_CHECK:
-		//printf("command = STATUS_CHECK\n");
-		ata_cmd->features = ATA_SMART_STATUS;           
-		break;
-	case STATUS:
-		//printf("command = STATUS\n");
-		ata_cmd->features = ATA_SMART_STATUS;       
-		break;
-	default:
-		//printf("command = UNKNOWN\n");
-		errno=ENOSYS;
-		return -1;
-	};
+		// the commands will write data
+		memcpy(ata_cmd->data, in.buffer, in.size);
+		areca_packet[6] = 0x14;
+	}
+	else {
+	    // COMMAND NOT SUPPORTED VIA ARECA IOCTL INTERFACE
+	    return set_err(ENOTSUP, "DATA OUT not supported for this Areca controller type");
+	}
 
 	areca_packet[11] = m_disknum - 1;		   // drive number
 
@@ -2166,7 +2103,7 @@ int linux_areca_device::ata_command_interface(smart_command_set command, int sel
 	expected = arcmsr_command_handler(get_fd(), ARCMSR_IOCTL_CLEAR_RQBUFFER, NULL, 0, NULL);
         if (expected==-3) {
 	    find_areca_in_proc(NULL);
-	    return -1;
+	    return set_err(EIO);
 	}
 
 	expected = arcmsr_command_handler(get_fd(), ARCMSR_IOCTL_CLEAR_WQBUFFER, NULL, 0, NULL);
@@ -2189,45 +2126,36 @@ int linux_areca_device::ata_command_interface(smart_command_set command, int sel
 
 	if ( return_buff[expected - 1] != cs )
 	{
-		errno = EIO;
-		return -1;
+		return set_err(EIO);
 	}
 
 	sATA_OUTPUT_REGISTERS *ata_out = (sATA_OUTPUT_REGISTERS *)&return_buff[5] ;
 	if ( ata_out->status )
 	{
-		if ( command == IDENTIFY )
-		{
-			pout("The firmware of your Areca RAID controller appears to be outdated!\n" \
-				 "Please update your controller to firmware version 1.46 or later.\n" \
-				 "You may download it here: ftp://ftp.areca.com.tw/RaidCards/BIOS_Firmware\n\n");
-		}
-		errno = EIO;
-		return -1;
+		if ( in.in_regs.command == ATA_IDENTIFY_DEVICE
+		 && !nonempty((unsigned char *)in.buffer, in.size)) 
+		 {
+		    return set_err(ENODEV, "No drive on port %d", m_disknum);
+		 } 
 	}
 
 	// returns with data
-	if ( command == READ_VALUES     ||
-		 command == READ_THRESHOLDS ||
-		 command == READ_LOG ||
-		 command == IDENTIFY ||
-		 command == PIDENTIFY )
+	if (readdata)
 	{
-		memcpy(data, &return_buff[7], 512); 
+		memcpy(in.buffer, &return_buff[7], in.size); 
 	}
 
-	if ( command == CHECK_POWER_MODE )
+	// Return register values
 	{
-		data[0] = ata_out->sector_count;
+	    ata_out_regs_48bit & r = out.out_regs;
+	    r.error           = ata_out->error;
+	    r.sector_count_16 = ata_out->sector_count;
+	    r.lba_low_16      = ata_out->sector_number;
+	    r.lba_mid_16      = ata_out->cylinder_low;
+	    r.lba_high_16     = ata_out->cylinder_high;
+	    r.status          = ata_out->status;
 	}
-
-	if ( command == STATUS_CHECK &&
-		 ( ata_out->cylinder_low == 0xF4 && ata_out->cylinder_high == 0x2C ) )
-	{
-		return 1;
-	}
-
-	return 0;
+	return true;
 }
 
 
