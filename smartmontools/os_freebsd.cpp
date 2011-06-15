@@ -1087,8 +1087,6 @@ private:
 //   1 if the command succeeded and disk SMART status is "FAILING"
 
 
-/*DeviceType*/
-#define ARECA_SATA_RAID                      	0x90000000
 /*FunctionCode*/
 #define FUNCTION_READ_RQBUFFER               	0x0801
 #define FUNCTION_WRITE_WQBUFFER              	0x0802
@@ -1266,7 +1264,7 @@ static int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned cha
 	// Deal with the different error cases
 	if ( ioctlreturn )
 	{
-		pout("do_scsi_cmnd_io with write buffer failed code = %x\n", ioctlreturn);
+		pout("ioctl write buffer failed code = %x\n", ioctlreturn);
 		return -2;
 	}
 
@@ -1349,11 +1347,6 @@ int freebsd_areca_device::ata_command_interface(smart_command_set command, int s
 	sATA_INPUT_REGISTERS *ata_cmd;
 
 	// For debugging
-#if 0
-	memset(sInq, 0, sizeof(sInq));
-	scsiStdInquiry(fd, (unsigned char *)sInq, (int)sizeof(sInq));
-	dumpdata((unsigned char *)sInq, sizeof(sInq));
-#endif
 	memset(areca_packet, 0, areca_packet_len);
 
 	// ----- BEGIN TO SETUP HEADERS -------
