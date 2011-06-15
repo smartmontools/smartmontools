@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3372 2011-06-15 16:12:54Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3373 2011-06-15 16:25:19Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1120,9 +1120,9 @@ typedef struct _SRB_BUFFER
 } sSRB_BUFFER;
 
 
-#if 0 // For debugging areca code
+// For debugging areca code
 
-static void dumpdata(unsigned char *block, int len)
+static void areca_dumpdata(unsigned char *block, int len)
 {
 	int ln = (len / 16) + 1;	 // total line#
 	unsigned char c;
@@ -1169,7 +1169,6 @@ static void dumpdata(unsigned char *block, int len)
 	printf("=====================================================================\n");
 }
 
-#endif
 
 static int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned char *data, int data_len, void *ext_data /* reserved for further use */)
 {
@@ -1232,7 +1231,8 @@ static int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned cha
 
 		if ( sBuf.srbioctl.Length )
 		{
-			//dumpdata(&sBuf.ioctldatabuffer[0], sBuf.srbioctl.Length);
+			if(ata_debugmode)
+			    areca_dumpdata(&sBuf.ioctldatabuffer[0], sBuf.srbioctl.Length);
 			memcpy(ptr, &sBuf.ioctldatabuffer[0], sBuf.srbioctl.Length);
 			ptr += sBuf.srbioctl.Length;
 			total += sBuf.srbioctl.Length;
