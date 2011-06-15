@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] os_freebsd.cpp: Added support for the Areca RAID controllers. 
+       Support is basesd on Linux code, but using IOCTL on areca control
+       device instead of SCSI commands to talk with the drives. Hardware
+       access was provided by Andrej Binder.
+
   [CF] Don't use isprint() for ASCII character check as it may be affected
        by setlocale().
 

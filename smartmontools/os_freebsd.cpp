@@ -192,6 +192,9 @@ static const char  smartctl_examples[] =
   "  smartctl -a --device=cciss,0 /dev/ciss0\n"
          "                              (Prints all SMART information for first disk \n"
          "                               on Common Interface for SCSI-3 Support driver)\n"
+  "  smartctl -a --device=areca,1 /dev/arcmsr0\n"
+         "                              (Prints all SMART information for first disk \n"
+         "                               on first ARECA RAID controller)\n"
 
          ;
 
@@ -1044,6 +1047,567 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 
 
 /////////////////////////////////////////////////////////////////////////////
+/// Areca RAID support
+
+class freebsd_areca_device
+: public /*implements*/ ata_device_with_command_set,
+  public /*extends*/ freebsd_smart_device
+{
+public:
+  freebsd_areca_device(smart_interface * intf, const char * dev_name, int disknum);
+
+protected:
+  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+
+private:
+  int m_disknum; ///< Disk number.
+};
+
+
+// PURPOSE
+//   This is an interface routine meant to isolate the OS dependent
+//   parts of the code, and to provide a debugging interface.  Each
+//   different port and OS needs to provide it's own interface.  This
+//   is the linux interface to the Areca "arcmsr" driver.  It allows ATA
+//   commands to be passed through the SCSI driver.
+// DETAILED DESCRIPTION OF ARGUMENTS
+//   fd: is the file descriptor provided by open()
+//   disknum is the disk number (0 to 15) in the RAID array
+//   command: defines the different operations.
+//   select: additional input data if needed (which log, which type of
+//           self-test).
+//   data:   location to write output data, if needed (512 bytes).
+//   Note: not all commands use all arguments.
+// RETURN VALUES
+//  -1 if the command failed
+//   0 if the command succeeded,
+//   STATUS_CHECK routine: 
+//  -1 if the command failed
+//   0 if the command succeeded and disk SMART status is "OK"
+//   1 if the command succeeded and disk SMART status is "FAILING"
+
+
+/*DeviceType*/
+#define ARECA_SATA_RAID                      	0x90000000
+/*FunctionCode*/
+#define FUNCTION_READ_RQBUFFER               	0x0801
+#define FUNCTION_WRITE_WQBUFFER              	0x0802
+#define FUNCTION_CLEAR_RQBUFFER              	0x0803
+#define FUNCTION_CLEAR_WQBUFFER              	0x0804
+
+/* ARECA IO CONTROL CODE*/
+#define ARCMSR_IOCTL_READ_RQBUFFER           _IOWR('F', FUNCTION_READ_RQBUFFER, sSRB_BUFFER)
+#define ARCMSR_IOCTL_WRITE_WQBUFFER          _IOWR('F', FUNCTION_WRITE_WQBUFFER, sSRB_BUFFER)
+#define ARCMSR_IOCTL_CLEAR_RQBUFFER          _IOWR('F', FUNCTION_CLEAR_RQBUFFER, sSRB_BUFFER)
+#define ARCMSR_IOCTL_CLEAR_WQBUFFER          _IOWR('F', FUNCTION_CLEAR_WQBUFFER, sSRB_BUFFER)
+#define ARECA_SIG_STR							"ARCMSR"
+
+#define ARGUSED(x) ((void)(x))
+
+// The SRB_IO_CONTROL & SRB_BUFFER structures are used to communicate(to/from) to areca driver
+typedef struct _SRB_IO_CONTROL
+{
+	unsigned int HeaderLength;
+	unsigned char Signature[8];
+	unsigned int Timeout;
+	unsigned int ControlCode;
+	unsigned int ReturnCode;
+	unsigned int Length;
+} sSRB_IO_CONTROL;
+
+typedef struct _SRB_BUFFER
+{
+	sSRB_IO_CONTROL srbioctl;
+	unsigned char   ioctldatabuffer[1032]; // the buffer to put the command data to/from firmware
+} sSRB_BUFFER;
+
+// Looks in /proc/scsi to suggest correct areca devices
+// If hint not NULL, return device path guess
+static int find_areca_in_proc(char *hint)
+{
+    const char* proc_format_string="host\tchan\tid\tlun\ttype\topens\tqdepth\tbusy\tonline\n";
+
+    // check data formwat
+    FILE *fp=fopen("/proc/scsi/sg/device_hdr", "r");
+    if (!fp) {
+        pout("Unable to open /proc/scsi/sg/device_hdr for reading\n");
+        return 1;
+     }
+
+     // get line, compare to format
+     char linebuf[256];
+     linebuf[255]='\0';
+     char *out = fgets(linebuf, 256, fp);
+     fclose(fp);
+     if (!out) {
+         pout("Unable to read contents of /proc/scsi/sg/device_hdr\n");
+         return 2;
+     }
+
+     if (strcmp(linebuf, proc_format_string)) {
+     	// wrong format!
+	// Fix this by comparing only tokens not white space!!
+	pout("Unexpected format %s in /proc/scsi/sg/device_hdr\n", proc_format_string);
+	return 3;
+     }
+
+    // Format is understood, now search for correct device
+    fp=fopen("/proc/scsi/sg/devices", "r");
+    if (!fp) return 1;
+    int host, chan, id, lun, type, opens, qdepth, busy, online;
+    int dev=-1;
+    int found=0;
+    // search all lines of /proc/scsi/sg/devices
+    while (9 == fscanf(fp, "%d %d %d %d %d %d %d %d %d", &host, &chan, &id, &lun, &type, &opens, &qdepth, &busy, &online)) {
+        dev++;
+	if (id == 16 && type == 3) {
+	   // devices with id=16 and type=3 might be Areca controllers
+	   if (!found && hint) {
+	       sprintf(hint, "/dev/sg%d", dev);
+	   }
+	   pout("Device /dev/sg%d appears to be an Areca controller.\n", dev);
+           found++;
+        }
+    }
+    fclose(fp);
+    return 0;
+}
+
+
+#if 0 // For debugging areca code
+
+static void dumpdata(unsigned char *block, int len)
+{
+	int ln = (len / 16) + 1;	 // total line#
+	unsigned char c;
+	int pos = 0;
+
+	printf(" Address = %p, Length = (0x%x)%d\n", block, len, len);
+	printf("      0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F      ASCII      \n");
+	printf("=====================================================================\n");
+
+	for ( int l = 0; l < ln && len; l++ )
+	{
+		// printf the line# and the HEX data
+		// if a line data length < 16 then append the space to the tail of line to reach 16 chars
+		printf("%02X | ", l);
+		for ( pos = 0; pos < 16 && len; pos++, len-- )
+		{
+			c = block[l*16+pos];    
+			printf("%02X ", c);
+		}
+
+		if ( pos < 16 )
+		{
+			for ( int loop = pos; loop < 16; loop++ )
+			{
+				printf("   ");
+			}
+		}
+
+		// print ASCII char
+		for ( int loop = 0; loop < pos; loop++ )
+		{
+			c = block[l*16+loop];
+			if ( c >= 0x20 && c <= 0x7F )
+			{
+				printf("%c", c);
+			}
+			else
+			{
+				printf(".");
+			}
+		}
+		printf("\n");
+	}   
+	printf("=====================================================================\n");
+}
+
+#endif
+
+static int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned char *data, int data_len, void *ext_data /* reserved for further use */)
+{
+	ARGUSED(ext_data);
+
+	int ioctlreturn = 0;
+	sSRB_BUFFER sBuf;
+
+	unsigned char *areca_return_packet;
+	int total = 0;
+	int expected = -1;
+	unsigned char return_buff[2048];
+	unsigned char *ptr = &return_buff[0];
+	memset(return_buff, 0, sizeof(return_buff));
+
+	memset((unsigned char *)&sBuf, 0, sizeof(sBuf));
+
+
+	sBuf.srbioctl.HeaderLength = sizeof(sSRB_IO_CONTROL);   
+	memcpy(sBuf.srbioctl.Signature, ARECA_SIG_STR, strlen(ARECA_SIG_STR));
+	sBuf.srbioctl.Timeout = 10000;      
+	sBuf.srbioctl.ControlCode = ARCMSR_IOCTL_READ_RQBUFFER;
+
+	switch ( arcmsr_cmd )
+	{
+	// command for writing data to driver
+	case ARCMSR_IOCTL_WRITE_WQBUFFER:   
+		if ( data && data_len )
+		{
+			sBuf.srbioctl.Length = data_len;    
+			memcpy((unsigned char *)sBuf.ioctldatabuffer, (unsigned char *)data, data_len);
+		}
+		// commands for clearing related buffer of driver
+	case ARCMSR_IOCTL_CLEAR_RQBUFFER:
+	case ARCMSR_IOCTL_CLEAR_WQBUFFER:
+		break;
+		// command for reading data from driver
+	case ARCMSR_IOCTL_READ_RQBUFFER:    
+		break;
+	default:
+		// unknown arcmsr commands
+		return -1;
+	}
+
+
+	while ( 1 )
+	{
+		ioctlreturn = ioctl(fd,arcmsr_cmd,&sBuf);
+		if ( ioctlreturn  )
+		{
+			// errors found
+			break;
+		}
+
+		if ( arcmsr_cmd != ARCMSR_IOCTL_READ_RQBUFFER )
+		{
+			// if succeeded, just returns the length of outgoing data
+			return data_len;
+		}
+
+		if ( sBuf.srbioctl.Length )
+		{
+			//dumpdata(&sBuf.ioctldatabuffer[0], sBuf.srbioctl.Length);
+			memcpy(ptr, &sBuf.ioctldatabuffer[0], sBuf.srbioctl.Length);
+			ptr += sBuf.srbioctl.Length;
+			total += sBuf.srbioctl.Length;
+			// the returned bytes enough to compute payload length ?
+			if ( expected < 0 && total >= 5 )
+			{
+				areca_return_packet = (unsigned char *)&return_buff[0];
+				if ( areca_return_packet[0] == 0x5E && 
+					 areca_return_packet[1] == 0x01 && 
+					 areca_return_packet[2] == 0x61 )
+				{
+					// valid header, let's compute the returned payload length,
+					// we expected the total length is 
+					// payload + 3 bytes header + 2 bytes length + 1 byte checksum
+					expected = areca_return_packet[4] * 256 + areca_return_packet[3] + 6;
+				}
+			}
+
+			if ( total >= 7 && total >= expected )
+			{
+				//printf("total bytes received = %d, expected length = %d\n", total, expected);
+
+				// ------ Okay! we received enough --------
+				break;
+			}
+		}
+	}
+
+	// Deal with the different error cases
+	if ( ioctlreturn )
+	{
+		pout("do_scsi_cmnd_io with write buffer failed code = %x\n", ioctlreturn);
+		return -2;
+	}
+
+
+	if ( data )
+	{
+		memcpy(data, return_buff, total);
+	}
+
+	return total;
+}
+
+
+freebsd_areca_device::freebsd_areca_device(smart_interface * intf, const char * dev_name, int disknum)
+: smart_device(intf, dev_name, "areca", "areca"),
+  freebsd_smart_device("ATA"),
+  m_disknum(disknum)
+{
+  set_info().info_name = strprintf("%s [areca_%02d]", dev_name, disknum);
+}
+
+// Areca RAID Controller
+int freebsd_areca_device::ata_command_interface(smart_command_set command, int select, char * data)
+{
+	// ATA input registers
+	typedef struct _ATA_INPUT_REGISTERS
+	{
+		unsigned char features;
+		unsigned char sector_count;
+		unsigned char sector_number;
+		unsigned char cylinder_low; 
+		unsigned char cylinder_high;    
+		unsigned char device_head;  
+		unsigned char command;      
+		unsigned char reserved[8];
+		unsigned char data[512]; // [in/out] buffer for outgoing/incoming data
+	} sATA_INPUT_REGISTERS;
+
+	// ATA output registers
+	// Note: The output registers is re-sorted for areca internal use only
+	typedef struct _ATA_OUTPUT_REGISTERS
+	{
+		unsigned char error;
+		unsigned char status;
+		unsigned char sector_count;
+		unsigned char sector_number;
+		unsigned char cylinder_low; 
+		unsigned char cylinder_high;
+	}sATA_OUTPUT_REGISTERS;
+
+	// Areca packet format for outgoing:
+	// B[0~2] : 3 bytes header, fixed value 0x5E, 0x01, 0x61
+	// B[3~4] : 2 bytes command length + variant data length, little endian
+	// B[5]   : 1 bytes areca defined command code, ATA passthrough command code is 0x1c
+	// B[6~last-1] : variant bytes payload data
+	// B[last] : 1 byte checksum, simply sum(B[3] ~ B[last -1])
+	// 
+	// 
+	//   header 3 bytes  length 2 bytes   cmd 1 byte    payload data x bytes  cs 1 byte 
+	// +--------------------------------------------------------------------------------+
+	// + 0x5E 0x01 0x61 |   0x00 0x00   |     0x1c   | .................... |   0x00    |
+	// +--------------------------------------------------------------------------------+
+	// 
+
+	//Areca packet format for incoming:
+	// B[0~2] : 3 bytes header, fixed value 0x5E, 0x01, 0x61
+	// B[3~4] : 2 bytes payload length, little endian
+	// B[5~last-1] : variant bytes returned payload data
+	// B[last] : 1 byte checksum, simply sum(B[3] ~ B[last -1])
+	// 
+	// 
+	//   header 3 bytes  length 2 bytes   payload data x bytes  cs 1 byte 
+	// +-------------------------------------------------------------------+
+	// + 0x5E 0x01 0x61 |   0x00 0x00   | .................... |   0x00    |
+	// +-------------------------------------------------------------------+
+	unsigned char    areca_packet[640];
+	int areca_packet_len = sizeof(areca_packet);
+	unsigned char cs = 0;	
+
+	sATA_INPUT_REGISTERS *ata_cmd;
+
+	// For debugging
+#if 0
+	memset(sInq, 0, sizeof(sInq));
+	scsiStdInquiry(fd, (unsigned char *)sInq, (int)sizeof(sInq));
+	dumpdata((unsigned char *)sInq, sizeof(sInq));
+#endif
+	memset(areca_packet, 0, areca_packet_len);
+
+	// ----- BEGIN TO SETUP HEADERS -------
+	areca_packet[0] = 0x5E;
+	areca_packet[1] = 0x01;
+	areca_packet[2] = 0x61;
+	areca_packet[3] = (unsigned char)((areca_packet_len - 6) & 0xff);
+	areca_packet[4] = (unsigned char)(((areca_packet_len - 6) >> 8) & 0xff);
+	areca_packet[5] = 0x1c;	// areca defined code for ATA passthrough command
+
+
+	// ----- BEGIN TO SETUP PAYLOAD DATA -----
+
+	memcpy(&areca_packet[7], "SmrT", 4);	// areca defined password
+
+	ata_cmd = (sATA_INPUT_REGISTERS *)&areca_packet[12];
+	ata_cmd->cylinder_low    = 0x4F;
+	ata_cmd->cylinder_high   = 0xC2;
+
+
+	if ( command == READ_VALUES     ||
+		 command == READ_THRESHOLDS ||
+		 command == READ_LOG ||
+		 command == IDENTIFY ||
+		 command == PIDENTIFY )
+	{
+		// the commands will return data
+		areca_packet[6] = 0x13;
+		ata_cmd->sector_count = 0x1;
+	}
+	else if ( command == WRITE_LOG )
+	{
+		// the commands will write data
+		areca_packet[6] = 0x14;
+	}
+	else
+	{
+		// the commands will return no data
+		areca_packet[6] = 0x15;
+	}
+
+
+	ata_cmd->command = ATA_SMART_CMD;
+	// Now set ATA registers depending upon command
+	switch ( command )
+	{
+	case CHECK_POWER_MODE:  
+		//printf("command = CHECK_POWER_MODE\n");
+		ata_cmd->command = ATA_CHECK_POWER_MODE;        
+		break;
+	case READ_VALUES:
+		//printf("command = READ_VALUES\n");
+		ata_cmd->features = ATA_SMART_READ_VALUES;
+		break;
+	case READ_THRESHOLDS:    
+		//printf("command = READ_THRESHOLDS\n");
+		ata_cmd->features = ATA_SMART_READ_THRESHOLDS;
+		break;
+	case READ_LOG: 
+		//printf("command = READ_LOG\n");
+		ata_cmd->features = ATA_SMART_READ_LOG_SECTOR;
+		ata_cmd->sector_number = select;        
+		break;
+	case WRITE_LOG:        
+		//printf("command = WRITE_LOG\n");    
+		ata_cmd->features = ATA_SMART_WRITE_LOG_SECTOR;
+		memcpy(ata_cmd->data, data, 512);
+		ata_cmd->sector_count = 1;
+		ata_cmd->sector_number = select;
+		break;
+	case IDENTIFY:
+		//printf("command = IDENTIFY\n");   
+		ata_cmd->command = ATA_IDENTIFY_DEVICE;         
+		break;
+	case PIDENTIFY:
+		//printf("command = PIDENTIFY\n");
+		errno=ENODEV;
+		return -1;
+	case ENABLE:
+		//printf("command = ENABLE\n");
+		ata_cmd->features = ATA_SMART_ENABLE;
+		break;
+	case DISABLE:
+		//printf("command = DISABLE\n");
+		ata_cmd->features = ATA_SMART_DISABLE;
+		break;
+	case AUTO_OFFLINE:
+		//printf("command = AUTO_OFFLINE\n");
+		ata_cmd->features = ATA_SMART_AUTO_OFFLINE;
+		// Enable or disable?
+		ata_cmd->sector_count = select;
+		break;
+	case AUTOSAVE:
+		//printf("command = AUTOSAVE\n");
+		ata_cmd->features = ATA_SMART_AUTOSAVE;
+		// Enable or disable?
+		ata_cmd->sector_count = select;
+		break;
+	case IMMEDIATE_OFFLINE:
+		//printf("command = IMMEDIATE_OFFLINE\n");
+		ata_cmd->features = ATA_SMART_IMMEDIATE_OFFLINE;
+		// What test type to run?
+		ata_cmd->sector_number = select;
+		break;
+	case STATUS_CHECK:
+		//printf("command = STATUS_CHECK\n");
+		ata_cmd->features = ATA_SMART_STATUS;           
+		break;
+	case STATUS:
+		//printf("command = STATUS\n");
+		ata_cmd->features = ATA_SMART_STATUS;       
+		break;
+	default:
+		//printf("command = UNKNOWN\n");
+		errno=ENOSYS;
+		return -1;
+	};
+
+	areca_packet[11] = m_disknum - 1;		   // drive number
+
+	// ----- BEGIN TO SETUP CHECKSUM -----
+	for ( int loop = 3; loop < areca_packet_len - 1; loop++ )
+	{
+		cs += areca_packet[loop]; 
+	}
+	areca_packet[areca_packet_len-1] = cs;
+
+	// ----- BEGIN TO SEND TO ARECA DRIVER ------
+	int expected = 0;	
+	unsigned char return_buff[2048];
+	memset(return_buff, 0, sizeof(return_buff));
+
+	expected = arcmsr_command_handler(get_fd(), ARCMSR_IOCTL_CLEAR_RQBUFFER, NULL, 0, NULL);
+        if (expected==-3) {
+	    find_areca_in_proc(NULL);
+	    return -1;
+	}
+
+	expected = arcmsr_command_handler(get_fd(), ARCMSR_IOCTL_CLEAR_WQBUFFER, NULL, 0, NULL);
+	expected = arcmsr_command_handler(get_fd(), ARCMSR_IOCTL_WRITE_WQBUFFER, areca_packet, areca_packet_len, NULL);
+	if ( expected > 0 )
+	{
+		expected = arcmsr_command_handler(get_fd(), ARCMSR_IOCTL_READ_RQBUFFER, return_buff, sizeof(return_buff), NULL);
+	}
+	if ( expected < 0 )
+	{
+		return -1;
+	}
+
+	// ----- VERIFY THE CHECKSUM -----
+	cs = 0;
+	for ( int loop = 3; loop < expected - 1; loop++ )
+	{
+		cs += return_buff[loop]; 
+	}
+
+	if ( return_buff[expected - 1] != cs )
+	{
+		errno = EIO;
+		return -1;
+	}
+
+	sATA_OUTPUT_REGISTERS *ata_out = (sATA_OUTPUT_REGISTERS *)&return_buff[5] ;
+	if ( ata_out->status )
+	{
+		if ( command == IDENTIFY )
+		{
+			pout("The firmware of your Areca RAID controller appears to be outdated!\n" \
+				 "Please update your controller to firmware version 1.46 or later.\n" \
+				 "You may download it here: ftp://ftp.areca.com.tw/RaidCards/BIOS_Firmware\n\n");
+		}
+		errno = EIO;
+		return -1;
+	}
+
+	// returns with data
+	if ( command == READ_VALUES     ||
+		 command == READ_THRESHOLDS ||
+		 command == READ_LOG ||
+		 command == IDENTIFY ||
+		 command == PIDENTIFY )
+	{
+		memcpy(data, &return_buff[7], 512); 
+	}
+
+	if ( command == CHECK_POWER_MODE )
+	{
+		data[0] = ata_out->sector_count;
+	}
+
+	if ( command == STATUS_CHECK &&
+		 ( ata_out->cylinder_low == 0xF4 && ata_out->cylinder_high == 0x2C ) )
+	{
+		return 1;
+	}
+
+	return 0;
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////
 /// Implement CCISS RAID support with old functions
 
 class freebsd_cciss_device
@@ -1788,13 +2352,26 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
   if(!strcmp(type,"atacam"))
     return new freebsd_atacam_device(this, name, "");
 #endif
+  // Areca?
+  disknum = n1 = n2 = -1;
+  if (sscanf(type, "areca,%n%d%n", &n1, &disknum, &n2) == 1 || n1 == 6) {
+    if (n2 != (int)strlen(type)) {
+      set_err(EINVAL, "Option -d areca,N requires N to be a non-negative integer");
+      return 0;
+    }
+    if (!(1 <= disknum && disknum <= 24)) {
+      set_err(EINVAL, "Option -d areca,N (N=%d) must have 1 <= N <= 24", disknum);
+      return 0;
+    }
+    return new freebsd_areca_device(this, name, disknum);
+  }
 
   return 0;
 }
 
 std::string freebsd_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "3ware,N, hpt,L/M/N, cciss,N"
+  return "3ware,N, hpt,L/M/N, cciss,N, areca,N"
 #if FREEBSDVER > 800100
   ", atacam"
 #endif
