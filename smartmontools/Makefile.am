@@ -83,6 +83,7 @@ EXTRA_smartd_SOURCES = os_darwin.cpp    \
                        os_generic.h     \
                        cciss.cpp        \
                        cciss.h          \
+                       cissio_freebsd.h \
                        dev_legacy.cpp   \
                        megaraid.h
 
@@ -145,6 +146,7 @@ EXTRA_smartctl_SOURCES = os_linux.cpp \
                        os_generic.h   \
                        cciss.cpp      \
                        cciss.h        \
+                       cissio_freebsd.h \
                        dev_legacy.cpp \
                        megaraid.h
 
