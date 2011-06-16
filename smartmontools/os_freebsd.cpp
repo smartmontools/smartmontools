@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3374 2011-06-15 22:15:18Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3377 2011-06-16 12:11:16Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1496,11 +1496,6 @@ bool freebsd_cciss_device::open()
 {
   const char *dev = get_dev_name();
   int fd;
-#ifndef HAVE_DEV_CISS_CISSIO_H
-  pout("CCISS support is not available in this build of smartmontools,\n"
-    "/usr/src/sys/dev/ciss/cissio.h was not available at build time.\n\n");
-  return false;
-#endif  
   if ((fd = ::open(dev,O_RDWR))<0) {
     set_err(errno);
     return false;
@@ -1520,12 +1515,10 @@ freebsd_cciss_device::freebsd_cciss_device(smart_interface * intf,
 
 bool freebsd_cciss_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
-#ifdef HAVE_DEV_CISS_CISSIO_H
   int status = cciss_io_interface(get_fd(), m_disknum, iop, scsi_debugmode);
   if (status < 0)
       return set_err(-status);
   return true;
-#endif
   // not reached
   return true;
 }

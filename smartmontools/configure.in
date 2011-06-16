@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3366 2011-06-09 19:12:16Z chrfranke $
+# $Id: configure.in 3377 2011-06-16 12:11:16Z samm2 $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.42, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3366 2011-06-09 19:12:16Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3377 2011-06-16 12:11:16Z samm2 $'`
 smartmontools_release_date=2011-06-09
 smartmontools_release_time="18:46:32 UTC"
 
@@ -59,9 +59,6 @@ case "${host}" in
 
     CPPFLAGS="$CPPFLAGS -I$srcdir/os_win32"
     ;;
-  *-*-freebsd*)
-    CPPFLAGS="$CPPFLAGS -I/usr/src/sys"
-    ;;
 esac
 
 # Check for SVN.
@@ -98,8 +95,6 @@ AC_CHECK_HEADERS([sys/tweio.h])
 AC_CHECK_HEADERS([sys/twereg.h])
 dnl Check for FreeBSD twa include files...
 AC_CHECK_HEADERS([sys/tw_osl_ioctl.h])
-dnl Check for FreeBSD ciss include files...
-AC_CHECK_HEADERS([dev/ciss/cissio.h])
 dnl This header file is needed for cciss_ioctl.h at least on SuSE LINUX
 AC_CHECK_HEADERS([linux/compiler.h])
 dnl Check for Linux CCISS include file
