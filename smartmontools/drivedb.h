@@ -1888,6 +1888,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Samsung Story Station 3.0; ",
+    "0x04e8:0x6052",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: Samsung G2 Portable; JMicron",
     "0x04e8:0x6032",
     "",
