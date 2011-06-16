@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3377 2011-06-16 12:11:16Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3381 2011-06-16 21:58:58Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -258,10 +258,14 @@ int freebsd_ata_device::do_cmd( struct ata_ioc_request* request)
 
 bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
+  bool ata_48bit = false; // no ata_48bit_support via IOCATAREQUEST
+  if(!strcmp("atacam",get_dev_type())) // enable for atacam interface
+    ata_48bit = true;
+
   if (!ata_cmd_is_ok(in,
     true,  // data_out_support
     true,  // multi_sector_support
-    false) // no ata_48bit_support via IOCATAREQUEST
+    ata_48bit) 
     ) 
     return false;
 
