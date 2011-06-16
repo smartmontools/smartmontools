@@ -2173,8 +2173,9 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
   if (!ws.query(we, "SELECT Antecedent,Dependent FROM Win32_USBControllerDevice"))
     return false;
 
-  std::string usb_devid;
-  std::string prev_usb_ant, prev_usb_devid;
+  unsigned short usb_venid = 0, prev_usb_venid = 0;
+  unsigned short usb_proid = 0, prev_usb_proid = 0;
+  std::string prev_usb_ant;
   std::string prev_ant, ant, dep;
 
   const regular_expression regex("^.*PnPEntity\\.DeviceID=\"([^\"]*)\"", REG_EXTENDED);
@@ -2200,10 +2201,14 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
 
     if (str_starts_with(devid, "USB\\\\VID_")) {
       // USB bridge entry, save CONTROLLER, ID
-      if (debug)
-        pout("  +-> \"%s\"\n", devid.c_str());
+      int nc = -1;
+      if (!(sscanf(devid.c_str(), "USB\\\\VID_%4hx&PID_%4hx%n",
+            &prev_usb_venid, &prev_usb_proid, &nc) == 2 && nc == 9+4+5+4)) {
+        prev_usb_venid = prev_usb_proid = 0;
+      }
       prev_usb_ant = ant;
-      prev_usb_devid = devid;
+      if (debug)
+        pout("  +-> \"%s\" [0x%04x:0x%04x]\n", devid.c_str(), prev_usb_venid, prev_usb_proid);
       continue;
     }
     else if (str_starts_with(devid, "USBSTOR\\\\")) {
@@ -2220,26 +2225,32 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
       // Continue if not name of physical disk drive
       if (name2 != name) {
         if (debug)
-          pout("  |    (Name: \"%s\")\n", name2.c_str());
+          pout("  +---> (\"%s\")\n", name2.c_str());
         continue;
       }
-      if (debug)
-        pout("  |    Name: \"%s\"\n", name2.c_str());
 
-      // Fail if previos USB bridge is associated to other controller
-      if (ant != prev_usb_ant)
+      // Fail if previos USB bridge is associated to other controller or ID is unknown
+      if (!(ant == prev_usb_ant && prev_usb_venid)) {
+        if (debug)
+          pout("  +---> \"%s\" (Error: No USB bridge found)\n", name2.c_str());
         return false;
+      }
 
       // Handle multiple devices with same name
-      if (!usb_devid.empty()) {
+      if (usb_venid) {
         // Fail if multiple devices with same name have different USB bridge types
-        if (usb_devid != prev_usb_devid)
+        if (!(usb_venid == prev_usb_venid && usb_proid == prev_usb_proid)) {
+          if (debug)
+            pout("  +---> \"%s\" (Error: More than one USB ID found)\n", name2.c_str());
           return false;
-        continue;
+        }
       }
 
       // Found
-      usb_devid = prev_usb_devid;
+      usb_venid = prev_usb_venid;
+      usb_proid = prev_usb_proid;
+      if (debug)
+        pout("  +===> \"%s\" [0x%04x:0x%04x]\n", name2.c_str(), usb_venid, usb_proid);
 
       // Continue to check for duplicate names ...
     }
@@ -2249,14 +2260,12 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
     }
   }
 
-  // Parse USB ID
-  int nc = -1;
-  if (!(sscanf(usb_devid.c_str(), "USB\\\\VID_%4hx&PID_%4hx%n",
-               &vendor_id, &product_id, &nc) == 2 && nc == 9+4+5+4))
+  if (!usb_venid)
     return false;
 
-  if (debug)
-    pout("USB ID = 0x%04x:0x%04x\n", vendor_id, product_id);
+  vendor_id = usb_venid;
+  product_id = usb_proid;
+
   return true;
 }
 
