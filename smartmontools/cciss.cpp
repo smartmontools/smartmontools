@@ -18,13 +18,13 @@
 #  ifndef be32toh
 #    define be32toh __be32_to_cpu
 #  endif
-#elif defined(__FreeBSD__) && defined(HAVE_DEV_CISS_CISSIO_H)
+#elif defined(__FreeBSD__)
 #  include <sys/endian.h>
-#  include <dev/ciss/cissio.h>
+#  include "cissio_freebsd.h"
 #  define _HAVE_CCISS
-#elif defined(__FreeBSD_kernel__) && defined(HAVE_DEV_CISS_CISSIO_H)
+#elif defined(__FreeBSD_kernel__)
 #  include <endian.h>
-#  include <dev/ciss/cissio.h>
+#  include "cissio_freebsd.h"
 #  define _HAVE_CCISS
 #endif
 

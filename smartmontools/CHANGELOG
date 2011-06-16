@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+
+  [AS] os_freebsd.cpp: including ciss headers to the base, we can not rely 
+       on the header sources in the build time. Also this file was changed 
+       last time > 2 yrs. ago and it is unlikely that it will be changed in 
+       the feature. This will fix FreeBSD PR 150235.
+
   [AS] drivedb.h update: Added Samsung Story Station 3.0 USB.
 
   [AS] os_linux.cpp: Areca code converted to the new interface.

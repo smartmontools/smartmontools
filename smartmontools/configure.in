@@ -59,9 +59,6 @@ case "${host}" in
 
     CPPFLAGS="$CPPFLAGS -I$srcdir/os_win32"
     ;;
-  *-*-freebsd*)
-    CPPFLAGS="$CPPFLAGS -I/usr/src/sys"
-    ;;
 esac
 
 # Check for SVN.
@@ -98,8 +95,6 @@ AC_CHECK_HEADERS([sys/tweio.h])
 AC_CHECK_HEADERS([sys/twereg.h])
 dnl Check for FreeBSD twa include files...
 AC_CHECK_HEADERS([sys/tw_osl_ioctl.h])
-dnl Check for FreeBSD ciss include files...
-AC_CHECK_HEADERS([dev/ciss/cissio.h])
 dnl This header file is needed for cciss_ioctl.h at least on SuSE LINUX
 AC_CHECK_HEADERS([linux/compiler.h])
 dnl Check for Linux CCISS include file
