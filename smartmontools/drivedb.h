@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3364 2011-06-08 21:26:23Z manfred99 $",
+  { "$Id: drivedb.h 3376 2011-06-16 11:03:00Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1884,6 +1884,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Samsung Story Station; ",
     "0x04e8:0x5f06",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Samsung Story Station 3.0; ",
+    "0x04e8:0x6052",
     "",
     "",
     "-d sat"
