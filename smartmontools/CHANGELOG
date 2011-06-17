@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3381 2011-06-16 21:58:58Z samm2 $
+$Id: CHANGELOG 3382 2011-06-17 14:21:56Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] os_freebsd.cpp: fix 48nit support inside "atacam" (not tested yet).
 
   [AS] os_freebsd.cpp: enable 48bit support for the new "atacam" interface.
 
