@@ -41,9 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
-  [AS] os_freebsd.cpp: fix 48nit support inside "atacam" (not tested yet).
-
-  [AS] os_freebsd.cpp: enable 48bit support for the new "atacam" interface.
+  [AS] os_freebsd.cpp: Implement 48bit support for the new "atacam" 
+       interface. Tested on FreeBSD 8.2 and works fine. 
 
   [CF] os_win32.cpp: Fix USB ID detection if two devices with the same
        name exist (ticket #178).

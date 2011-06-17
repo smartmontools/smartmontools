@@ -117,6 +117,8 @@ void printwarning(int msgNo, const char* extra) {
 #define ATA_DEVICE "/dev/ata"
 #endif
 
+#define ARGUSED(x) ((void)(x))
+
 // global variable holding byte count of allocated memory
 long long bytes;
 
@@ -239,7 +241,7 @@ public:
   virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
 protected:
-  virtual int do_cmd(struct ata_ioc_request* request);
+  virtual int do_cmd(struct ata_ioc_request* request, bool is_48bit_cmd);
 };
 
 freebsd_ata_device::freebsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
@@ -248,9 +250,10 @@ freebsd_ata_device::freebsd_ata_device(smart_interface * intf, const char * dev_
 {
 }
 
-int freebsd_ata_device::do_cmd( struct ata_ioc_request* request)
+int freebsd_ata_device::do_cmd( struct ata_ioc_request* request, bool is_48bit_cmd)
 {
   int fd = get_fd();
+  ARGUSED(is_48bit_cmd); // no support for 48 bit commands in the IOCATAREQUEST
   return ioctl(fd, IOCATAREQUEST, request);
 }
 
@@ -299,7 +302,7 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
                           
   clear_err(); 
   errno = 0;
-  if (do_cmd(&request))
+  if (do_cmd(&request, in.in_regs.is_48bit_cmd()))
       return set_err(errno);
   if (request.error)
       return set_err(EIO, "request failed, error code 0x%02x", request.error);
@@ -357,7 +360,7 @@ protected:
   int m_fd;
   struct cam_device *m_camdev;
 
-  virtual int do_cmd( struct ata_ioc_request* request);
+  virtual int do_cmd( struct ata_ioc_request* request , bool is_48bit_cmd);
 };
 
 bool freebsd_atacam_device::open(){
@@ -377,7 +380,7 @@ bool freebsd_atacam_device::close(){
   return true;
 }
 
-int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request)
+int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bit_cmd)
 {
   union ccb ccb;
   int camflags;
@@ -390,6 +393,8 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request)
     camflags = CAM_DIR_IN;
   else
     camflags = CAM_DIR_OUT;
+  if(is_48bit_cmd)
+    camflags |= CAM_ATAIO_48BIT;
 
   cam_fill_ataio(&ccb.ataio,
                  0,
@@ -1109,7 +1114,7 @@ private:
 #define ARCMSR_IOCTL_CLEAR_WQBUFFER          _IOWR('F', FUNCTION_CLEAR_WQBUFFER, sSRB_BUFFER)
 #define ARECA_SIG_STR							"ARCMSR"
 
-#define ARGUSED(x) ((void)(x))
+
 
 // The SRB_IO_CONTROL & SRB_BUFFER structures are used to communicate(to/from) to areca driver
 typedef struct _SRB_IO_CONTROL
