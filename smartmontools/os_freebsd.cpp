@@ -410,8 +410,13 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request)
   ccb.ataio.cmd.lba_low = request->u.ata.lba;
   ccb.ataio.cmd.lba_mid = request->u.ata.lba >> 8;
   ccb.ataio.cmd.lba_high = request->u.ata.lba >> 16;
+  // ata_48bit cmd
+  ccb.ataio.cmd.lba_low_exp = request->u.ata.lba >> 24;
+  ccb.ataio.cmd.lba_mid_exp = request->u.ata.lba >> 32;
+  ccb.ataio.cmd.lba_high_exp = request->u.ata.lba >> 40;
   ccb.ataio.cmd.device = 0x40 | ((request->u.ata.lba >> 24) & 0x0f);
   ccb.ataio.cmd.sector_count = request->u.ata.count;
+  ccb.ataio.cmd.sector_count_exp = request->u.ata.count  >> 8;;
 
   ccb.ccb_h.flags |= CAM_DEV_QFRZDIS;
 
