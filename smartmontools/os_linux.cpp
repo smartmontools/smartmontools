@@ -89,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3375 2011-06-15 22:53:08Z samm2 $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3384 2011-06-20 16:26:24Z chrfranke $"
   OS_LINUX_H_CVSID;
 
 
@@ -940,9 +940,13 @@ smart_device * linux_megaraid_device::autodetect_open()
   {
     // SAT or USB ?
     ata_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
-    if (newdev)
+    if (newdev) {
       // NOTE: 'this' is now owned by '*newdev'
+      newdev->close();
+      newdev->set_err(ENOSYS, "SATA device detected,\n"
+        "MegaRAID SAT layer is reportedly buggy, use '-d sat+megaraid,N' to try anyhow");
       return newdev;
+    }
   }
 
   // Nothing special found
