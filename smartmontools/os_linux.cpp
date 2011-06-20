@@ -940,9 +940,13 @@ smart_device * linux_megaraid_device::autodetect_open()
   {
     // SAT or USB ?
     ata_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
-    if (newdev)
+    if (newdev) {
       // NOTE: 'this' is now owned by '*newdev'
+      newdev->close();
+      newdev->set_err(ENOSYS, "SATA device detected,\n"
+        "MegaRAID SAT layer is reportedly buggy, use '-d sat+megaraid,N' to try anyhow");
       return newdev;
+    }
   }
 
   // Nothing special found
