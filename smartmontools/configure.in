@@ -143,13 +143,13 @@ fi
 AC_MSG_RESULT([$libc_have_working_snprintf])
 
 # check for __attribute__((packed))
+# (sizeof() check is required to avoid false positives if other
+# __attribute__((x)) are supported)
 AC_MSG_CHECKING([whether $CXX supports __attribute__((packed))])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [[struct a { int b; } __attribute__((packed));]])],
-                  [gcc_have_attr_packed=yes], [gcc_have_attr_packed=no])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [[#if defined(__SUNPRO_C) || defined(__SUNPRO_CC)
-#error "Sun's compiler cannot handle __attribute__((packed))!"
-#endif]])],
-                  [true], [gcc_have_attr_packed=no])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [[
+    struct s { char a; short b; } __attribute__((packed));
+    typedef char t[sizeof(struct s) == 3 ? 1 : -1];]])],
+  [gcc_have_attr_packed=yes], [gcc_have_attr_packed=no])
 AC_SUBST(gcc_have_attr_packed)
 if test "$gcc_have_attr_packed" = "yes"; then
   AC_DEFINE(HAVE_ATTR_PACKED, 1, [Define to 1 if C++ compiler supports __attribute__((packed))])
