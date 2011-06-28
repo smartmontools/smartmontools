@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - SandForce Driven SSDs: Add OWC Mercury Extreme Pro RE (ticket #168)
+
   [CF] os_linux.cpp: Let MegaRAID autodetect_open() fail for SATA devices.
        MegaRAID SAT layer has serious bugs as reported by AS.
 

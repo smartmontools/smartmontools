@@ -117,7 +117,8 @@ const drive_settings builtin_knowndrives[] = {
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
-    "OWC Mercury Extreme Pro SSD|" // tested with firmware 360A13F0
+    "OWC Mercury Extreme Pro (RE )?SSD|" // tested with
+      // OWC Mercury Extreme Pro SSD/360A13F0
     "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
     "", "",
