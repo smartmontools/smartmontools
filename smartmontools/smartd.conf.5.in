@@ -21,13 +21,20 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File\fP
 
+.\" %IF NOT OS Windows
 .SH FULL PATH
 .B /usr/local/etc/smartd.conf
 
+.\" %ENDIF NOT OS Windows
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
 .SH DESCRIPTION
+.\" %IF NOT OS ALL
+.\"! [This man page is generated for the OS_MAN_FILTER version of smartmontools.
+.\"! It does not contain info specific to other platforms.]
+.\"! .PP
+.\" %ENDIF NOT OS ALL
 \fB/usr/local/etc/smartd.conf\fP is the configuration file for the \fBsmartd\fP
 daemon, which monitors the Self-Monitoring, Analysis and Reporting
 Technology (SMART) system built into many ATA-3 and later ATA, IDE and
@@ -308,6 +315,7 @@ This is the default.
 \fBsmartd\fP
 from issuing SCSI commands to an ATA device.
 
+.\" %IF NOT OS Darwin
 .I scsi
 \- the device type is SCSI.  This prevents
 \fBsmartd\fP
@@ -347,6 +355,8 @@ PORT does not exist or is not connected to a disk.
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
 bridge.
 
+.\" %ENDIF NOT OS Darwin
+.\" %IF OS Linux
 .I marvell
 \- [Linux only] interact with SATA disks behind Marvell chip-set
 controllers (using the Marvell rather than libata driver).
@@ -360,6 +370,8 @@ In log files and email messages this disk will be identified as
 megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD Linux
 .I 3ware,N
 \- [FreeBSD and Linux only] the device consists of one or more ATA disks
 connected to a 3ware RAID controller.  The non-negative integer N
@@ -374,6 +386,8 @@ messages will make the most sense if you always list the 3ware SCSI
 logical device corresponding to the particular physical disks.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
+.\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
 .I areca,N
 \- [Linux only] the device consists of one or more SATA disks connected to an
 Areca SATA RAID controller.  The positive integer N (in the range from 1 to
@@ -382,6 +396,8 @@ In log files and email messages this disk will be identifed as
 areca_disk_XX with XX in the range from 01 to 24 inclusive.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD Linux
 .I cciss,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
 connected to a cciss RAID controller.  The non-negative integer N (in the range
@@ -403,6 +419,7 @@ hpt_X/X/X and X/X/X is the same as L/M/N, note if no N indicated, N set
 to the default value 1.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
+.\" %ENDIF OS FreeBSD Linux
 .I removable
 \- the device or its media is removable.  This indicates to
 \fBsmartd\fP
@@ -734,11 +751,13 @@ Note that by default under Solaris, in the previous paragraph,
 \'/bin/mail\' does not accept a \'\-s\' (Subject) command-line
 argument.
 
+.\" %IF OS Windows
 On Windows, the \'\fBBlat\fP\' mailer
 (\fBhttp://blat.sourceforge.net/\fP) is used by default.
 This mailer uses a different command line syntax, see
 \'\-M exec\' below.
 
+.\" %ENDIF OS Windows
 Note also that there is a special argument
 .B <nomailer>
 which can be given to the \'\-m\' Directive in conjunction with the \'\-M
@@ -945,12 +964,14 @@ that would normally be provided to \'mail\'.  Examples include:
 .B -m root -M exec /Example_1/bash/script/below
 .fi
 
+.\" %IF OS Windows
 Note that on Windows, the syntax of the \'\fBBlat\fP\' mailer is
 used:
 .nf
 - -q -subject "$SMARTD_SUBJECT" -to "$SMARTD_ADDRESS"
 .fi
 
+.\" %ENDIF OS Windows
 If the \'\-m ADD\' Directive is given with the special address argument
 .B <nomailer>
 then the executable pointed to by PATH is run in a shell with

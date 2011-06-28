@@ -25,13 +25,20 @@
 .SH SYNOPSIS
 .B smartctl [options] device
 
+.\" %IF NOT OS Windows
 .SH FULL PATH
 .B /usr/local/sbin/smartctl
 
+.\" %ENDIF NOT OS Windows
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
 .SH DESCRIPTION
+.\" %IF NOT OS ALL
+.\"! [This man page is generated for the OS_MAN_FILTER version of smartmontools.
+.\"! It does not contain info specific to other platforms.]
+.\"! .PP
+.\" %ENDIF NOT OS ALL
 \fBsmartctl\fP controls the Self\-Monitoring, Analysis and Reporting
 Technology (SMART) system built into many ATA\-3 and later ATA, IDE and
 SCSI\-3 hard drives. The purpose of SMART is to monitor the reliability
@@ -58,6 +65,7 @@ the final argument to \fBsmartctl\fP. The command set used by the device
 is often derived from the device path but may need help with the \'\-d\'
 option (for more information see the section on "ATA, SCSI command sets
 and SAT" below). Device paths are as follows:
+.\" %IF OS Linux
 .IP \fBLINUX\fP: 9
 Use the forms \fB"/dev/hd[a\-t]"\fP for IDE/ATA devices, and
 \fB"/dev/sd[a\-z]"\fP for SCSI devices. For SCSI Tape Drives and
@@ -71,29 +79,41 @@ below. For disks behind HighPoint RocketRAID controllers you may need
 you need \fB"/dev/sg[2\-9]"\fP (note that smartmontools interacts with
 the Areca controllers via a SCSI generic device which is different
 than the SCSI device used for reading and writing data)!
+.\" %ENDIF OS Linux
+.\" %IF OS Darwin
 .IP \fBDARWIN\fP: 9
 Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or equivalently
 \fB/dev/rdisk[0\-9]\fP.  Long forms are also available: please use \'\-h\' to see some
 examples. Note that there is currently no Darwin SCSI support.
+.\" %ENDIF OS Darwin
+.\" %IF OS FreeBSD
 .IP \fBFREEBSD\fP: 9
 Use the forms \fB"/dev/ad[0\-9]+"\fP for IDE/ATA
 devices and \fB"/dev/da[0\-9]+"\fP or \fB"/dev/pass[0\-9]+"\fP for SCSI devices.
 For SATA devices on AHCI bus use \fB"/dev/ada[0\-9]+"\fP format.
+.\" %ENDIF OS FreeBSD
+.\" %IF OS NetBSD OpenBSD
 .IP \fBNETBSD/OPENBSD\fP: 9
 Use the form \fB"/dev/wd[0\-9]+c"\fP for IDE/ATA
 devices.  For SCSI disk and tape devices, use the device names
 \fB"/dev/sd[0\-9]+c"\fP and \fB"/dev/st[0\-9]+c"\fP respectively.  
 Be sure to specify the correct "whole disk" partition letter for 
 your architecture.
+.\" %ENDIF OS NetBSD OpenBSD
+.\" %IF OS Solaris
 .IP \fBSOLARIS\fP: 9
 Use the forms \fB"/dev/rdsk/c?t?d?s?"\fP for IDE/ATA and SCSI disk
 devices, and \fB"/dev/rmt/*"\fP for SCSI tape devices.
+.\" %ENDIF OS Solaris
+.\" %IF OS Windows
 .IP \fBWINDOWS\ 9x/ME\fP: 9
 Use the forms \fB"/dev/hd[a\-d]"\fP for standard IDE/ATA devices
 accessed via SMARTVSD.VXD, and \fB"/dev/hd[e\-h]"\fP for additional devices
 accessed via a patched SMARTVSE.VXD (see INSTALL file for details).
 Use the form \fB"/dev/scsi[0\-9][0\-f]"\fP for SCSI devices via an aspi dll
 on ASPI adapter 0\-9, ID 0\-15. The prefix \fB"/dev/"\fP is optional.
+.\" %ENDIF OS Windows
+.\" %IF OS Windows Cygwin
 .IP \fBWINDOWS\ NT4/2000/XP/2003/Vista/Win7/2008\fP: 9
 Use the forms \fB"/dev/sd[a\-z]"\fP for IDE/(S)ATA and SCSI disks
 "\\\\.\\PhysicalDrive[0\-25]" (where "a" maps to "0").
@@ -122,10 +142,15 @@ The option \'\-d 3ware,N\' is not necessary on Windows.
 driver use \fB"/dev/csmi[0\-9],N"\fP where N specifies the port behind
 the logical scsi controller "\\\\.\\Scsi[0\-9]:".
 The prefix \fB"/dev/"\fP is optional.
+.\" %ENDIF OS Windows Cygwin
+.\" %IF OS Cygwin
 .IP \fBCYGWIN\fP: 9
 See "WINDOWS NT4/2000/XP/2003/Vista/Win7/2008" above.
+.\" %ENDIF OS Cygwin
+.\" %IF OS OS2
 .IP \fBOS/2,eComStation\fP: 9
 Use the form \fB"/dev/hd[a\-z]"\fP for IDE/ATA devices.
+.\" %ENDIF OS OS2
 .PP
 if \'\-\' is specified as the device path, \fBsmartctl\fP reads and
 interprets it's own debug output from standard input.
@@ -259,6 +284,7 @@ any further commands.
 \fBsmartctl\fP
 from issuing SCSI commands to an ATA device.
 
+.\" %IF NOT OS Darwin
 .I scsi
 \- the device type is SCSI.  This prevents
 \fBsmartctl\fP
@@ -298,6 +324,8 @@ PORT does not exist or is not connected to a disk.
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
 bridge.
 
+.\" %ENDIF NOT OS Darwin
+.\" %IF OS Linux
 .I marvell
 \- [Linux only] interact with SATA disks behind Marvell chip-set
 controllers (using the Marvell rather than libata driver).
@@ -320,6 +348,8 @@ For PERC2/3/4 controllers: \fB/dev/megadev0\fP
 .fi
 For PERC5/6 controllers: \fB/dev/megaraid_sas_ioctl_node\fP
 
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD Linux
 .I 3ware,N
 \- [FreeBSD and Linux only] the device consists of one or more ATA disks
 connected to a 3ware RAID controller.  The non-negative integer N
@@ -395,6 +425,8 @@ using the character device interface /dev/twl0\-15, /dev/twa0\-15 and /dev/twe0\
 The necessary WRITE LOG commands can not be passed through the SCSI
 interface.
 
+.\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
 .I areca,N
 \- [Linux only] the device consists of one or more SATA disks connected to an
 Areca SATA RAID controller.  The positive integer N (in the range from 1 to
@@ -422,6 +454,8 @@ Important: the Areca controller must have firmware version 1.46 or
 later.  Lower-numbered firmware versions will give (harmless) SCSI
 error messages and no SMART information.
 
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD Linux
 .I cciss,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
 connected to a cciss RAID controller.  The non-negative integer N (in the range
@@ -439,22 +473,29 @@ from 1 to 4 inclusive, M are from 1 to 8 inclusive and N from 1 to 4
 if PMPort available.  And also these values are limited by the model
 of the HighPoint RocketRAID controller.
 Use syntax such as:
+.\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
 .nf
 \fBsmartctl \-a \-d hpt,1/3 /dev/sda\fP    (under Linux)
 .fi
 .nf
 \fBsmartctl \-a \-d hpt,1/2/3 /dev/sda\fP    (under Linux)
 .fi
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD
 .nf
 \fBsmartctl \-a \-d hpt,1/3 /dev/hptrr\fP    (under FreeBSD)
 .fi
 .nf
 \fBsmartctl \-a \-d hpt,1/2/3 /dev/hptrr\fP    (under FreeBSD)
 .fi
+.\" %ENDIF OS FreeBSD
+.\" %IF OS FreeBSD Linux
 Note that the /dev/sda\-z form should be the device node which stands for
 the disks derived from the HighPoint RocketRAID controllers under Linux and
 under FreeBSD, it is the character device which the driver registered (eg,
 /dev/hptrr, /dev/hptmv6).
+.\" %ENDIF OS FreeBSD Linux
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART
@@ -1377,15 +1418,42 @@ lists all entries for this MODEL and a specific FIRMWARE version.
 the built in database by default.  If \'+\' is specified, then the new
 entries prepend the built in entries.
 
-If this option is not specified, optional entries are read from the file
-\fB/usr/local/etc/smart_drivedb.h\fP (Windows: \fBEXEDIR/drivedb-add.h\fP).
+Optional entries are read from the file
+.\" %IF NOT OS Windows
+\fB/usr/local/etc/smart_drivedb.h\fP
+.\" %ENDIF NOT OS Windows
+.\" %IF OS ALL
+ (Windows: \fBEXEDIR/drivedb-add.h\fP)
+.\" %ENDIF OS ALL
+.\" %IF OS Windows
+.\"! \fBEXEDIR/drivedb-add.h\fP.
+.\" %ENDIF OS Windows
 .\" BEGIN ENABLE_DRIVEDB
-If \fB/usr/local/share/smartmontools/drivedb.h\fP
-(Windows: \fBEXEDIR/drivedb.h\fP) is present, the
-contents of this file is used instead of the built in table.
+if this option is not specified.
 
-Run the script \fB/usr/local/sbin/update-smart-drivedb\fP to update this
-file from the smartmontools SVN repository.
+If
+.\" %IF NOT OS Windows
+\fB/usr/local/share/smartmontools/drivedb.h\fP
+.\" %ENDIF NOT OS Windows
+.\" %IF OS ALL
+(Windows: \fBEXEDIR/drivedb.h\fP)
+.\" %ENDIF OS ALL
+.\" %IF OS Windows
+.\"! \fBEXEDIR/drivedb.h\fP
+.\" %ENDIF OS Windows
+is present, the contents of this file is used instead of the built in table.
+
+Run
+.\" %IF NOT OS Windows
+\fB/usr/local/sbin/update-smart-drivedb\fP
+.\" %ENDIF NOT OS Windows
+.\" %IF OS ALL
+(Windows: \fBEXEDIR/update-smart-drivedb.exe\fP)
+.\" %ENDIF OS ALL
+.\" %IF OS Windows
+.\"! \fBEXEDIR/update-smart-drivedb.exe\fP
+.\" %ENDIF OS Windows
+to update this file from the smartmontools SVN repository.
 .\" END ENABLE_DRIVEDB
 
 The database files use the same C/C++ syntax that is used to initialize

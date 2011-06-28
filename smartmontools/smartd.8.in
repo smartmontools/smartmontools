@@ -24,13 +24,20 @@ University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .SH SYNOPSIS
 .B smartd [options]
 
+.\" %IF NOT OS Windows
 .SH FULL PATH
 .B /usr/local/sbin/smartd
 
+.\" %ENDIF NOT OS Windows
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
 .SH DESCRIPTION
+.\" %IF NOT OS ALL
+.\"! [This man page is generated for the OS_MAN_FILTER version of smartmontools.
+.\"! It does not contain info specific to other platforms.]
+.\"! .PP
+.\" %ENDIF NOT OS ALL
 \fBsmartd\fP is a daemon that monitors the Self-Monitoring, Analysis
 and Reporting Technology (SMART) system built into many ATA-3 and
 later ATA, IDE and SCSI-3 hard drives. The purpose of SMART is to
@@ -69,7 +76,9 @@ can be told to re-read the configuration file by sending it a
 .fi
 \fBkillall -HUP smartd\fP.
 .fi
+.\" %IF OS Windows
 (Windows: See NOTES below.)
+.\" %ENDIF OS Windows
 
 On startup, if \fBsmartd\fP finds a syntax error in the configuration
 file, it will print an error message and then exit. However if
@@ -83,30 +92,45 @@ When \fBsmartd\fP is running in debug mode, the \fBINT\fP signal
 (normally generated from a shell with CONTROL\-C) is treated in the
 same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
 configuration file. To exit \fBsmartd\fP use CONTROL-\e
+.\" %IF OS Windows Cygwin
 (Cygwin: 2x CONTROL\-C, Windows: CONTROL\-Break).
+.\" %ENDIF OS Windows Cygwin
 
 On startup, in the absence of the configuration file
 \fB/usr/local/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
 devices that support SMART.  The scanning is done as follows:
+.\" %IF OS Linux
 .IP \fBLINUX:\fP 9
 Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a-z]"\fP, \fB"/dev/sd[a-c][a-z]"\fP
 for SCSI or SATA devices.
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD
 .IP \fBFREEBSD:\fP 9
 Authoritative list of disk devices is obtained from SCSI (CAM) and ATA subsystems.
+.\" %ENDIF OS FreeBSD
+.\" %IF OS NetBSD OpenBSD
 .IP \fBNETBSD/OPENBSD:\fP 9
 Authoritative list of disk devices is obtained from sysctl 
 \'hw.disknames\'.
+.\" %ENDIF OS NetBSD OpenBSD
+.\" %IF OS Solaris
 .IP \fBSOLARIS:\fP 9
 Examine all entries \fB"/dev/rdsk/c?t?d?s?"\fP for IDE/ATA and SCSI disk
 devices, and entries \fB"/dev/rmt/*"\fP for SCSI tape devices.
+.\" %ENDIF OS Solaris
+.\" %IF OS Darwin
 .IP \fBDARWIN:\fP 9
 The IOService plane is scanned for ATA block storage devices.
+.\" %ENDIF OS Darwin
+.\" %IF OS Windows
 .IP \fBWINDOWS\ 9x/ME\fP: 9
 Examine all entries \fB"/dev/hd[a-d]"\fP (bitmask
 from "\\\\.\\SMARTVSD") for IDE/ATA devices.
 Examine all entries \fB"/dev/scsi[0\-9][0\-f]"\fP for SCSI devices 
 on ASPI adapter 0\-9, ID 0\-15.
+.\" %ENDIF OS Windows
+.\" %IF OS Windows Cygwin
 .IP \fBWINDOWS\ NT4/2000/XP/2003/Vista/Win7/2008\fP: 9
 Examine all entries \fB"/dev/sd[a-j]"\fP ("\\\\.\\PhysicalDrive[0-9]")
 for IDE/(S)ATA and SCSI disk devices 
@@ -119,10 +143,15 @@ detected behind this controller. Same for a second controller if present.
 [NEW EXPERIMENTAL SMARTD FEATURE] If directive \'\-d csmi\' is specified,
 examine all entries \fB"/dev/csmi[0\-9],N"\fP for drives behind Intel
 Matrix RAID driver.
+.\" %ENDIF OS Windows Cygwin
+.\" %IF OS Cygwin
 .IP \fBCYGWIN\fP: 9
 See "WINDOWS NT4/2000/XP/2003/Vista/Win7/2008" above.
+.\" %ENDIF OS Cygwin
+.\" %IF OS OS2
 .IP \fBOS/2,eComStation\fP: 9
 Use the form \fB"/dev/hd[a\-z]"\fP for IDE/ATA devices.
+.\" %ENDIF OS OS2
 .PP
 \fBsmartd\fP then monitors
 for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
@@ -191,11 +220,15 @@ information about what it is doing than when operating in "daemon"
 mode. In this mode, the \fBQUIT\fP signal (normally generated from a
 terminal with CONTROL\-C) makes \fBsmartd\fP reload its configuration
 file.  Please use CONTROL-\e to exit
+.\" %IF OS Windows Cygwin
 (Cygwin: 2x CONTROL\-C, Windows: CONTROL\-Break).
+.\" %ENDIF OS Windows Cygwin
+.\" %IF OS Windows
 
 Windows only: The "debug" mode can be toggled by the command
 \fBsmartd sigusr2\fP. A new console for debug output is opened when
 debug mode is enabled.
+.\" %ENDIF OS Windows
 .TP
 .B \-D, \-\-showdirectives
 Prints a list (to STDOUT) of all the possible Directives which may
@@ -225,7 +258,9 @@ also use:
 .fi
 for the same purpose.
 .fi
+.\" %IF OS Windows
 (Windows: See NOTES below.)
+.\" %ENDIF OS Windows
 .TP
 .B \-l FACILITY, \-\-logfacility=FACILITY
 Uses syslog facility FACILITY to log the messages from \fBsmartd\fP.
@@ -264,11 +299,14 @@ For more detailed information, please refer to the man pages for
 \fBsyslog.conf\fP, \fBsyslogd\fP, and \fBsyslog\fP.  You may also want
 to modify the log rotation configuration files; see the man pages for
 \fBlogrotate\fP and examine your system\'s /etc/logrotate.conf file.
+.\" %IF OS Cygwin
 
 Cygwin: Support for \fBsyslogd\fP as described above is available starting with Cygwin 1.5.15.
 On older releases or if no local \fBsyslogd\fP is running, the \'\-l\' option has no effect.
 In this case, all \fBsyslog\fP messages are written to Windows event log
 or to file \fBC:/CYGWIN_SYSLOG.TXT\fP if the event log is not available.
+.\" %ENDIF OS Cygwin
+.\" %IF OS Windows
 
 Windows: Some \fBsyslog\fP functionality is implemented
 internally in \fBsmartd\fP as follows: If no \'\-l\' option
@@ -286,15 +324,20 @@ should be registered as an event message file to avoid error
 messages from the event viewer. Use \'\fBsyslogevt -r smartd\fP\'
 to register, \'\fBsyslogevt -u smartd\fP\' to unregister and
 \'\fBsyslogevt\fP\' for more help.
+.\" %ENDIF OS Windows
 .TP
 .B \-n, \-\-no\-fork
 Do not fork into background; this is useful when executed from modern
 init methods like initng, minit or supervise.
+.\" %IF OS Cygwin
 
 On Cygwin, this allows running \fBsmartd\fP as service via cygrunsrv,
 see NOTES below.
+.\" %ENDIF OS Cygwin
+.\" %IF OS Windows
 
 On Windows, this option is not available, use \'\-\-service\' instead.
+.\" %ENDIF OS Windows
 .TP
 .B \-p NAME, \-\-pidfile=NAME
 Writes pidfile \fINAME\fP containing the \fBsmartd\fP Process ID
@@ -415,17 +458,25 @@ the configuration file (SIGHUP), before smartd shutdown, and after a check
 forced by SIGUSR1. After a normal check cycle, a file is only rewritten if
 an important change (which usually results in a SYSLOG output) occurred.
 .TP
+.\" %IF OS Windows Cygwin
 .B \-\-service
 Cygwin and Windows only: Enables \fBsmartd\fP to run as a Windows service.
+.\" %ENDIF OS Windows Cygwin
+.\" %IF OS Cygwin
 
 On Cygwin, this option is kept for backward compatibility only.
 It has the same effect as \'\-n, \-\-no\-fork\', see above.
+.\" %ENDIF OS Cygwin
+.\" %IF OS Windows
 
 On Windows, this option enables the buildin service support.
 The option must be specified in the service command line as the first
 argument. It should not be used from console.
 See NOTES below for details.
+.\" %ENDIF OS Windows
+.\" %IF OS Windows Cygwin
 .TP
+.\" %ENDIF OS Windows Cygwin
 .B \-V, \-\-version, \-\-license, \-\-copyright
 Prints version, copyright, license, home page and SVN revision
 information for your copy of \fBsmartd\fP to STDOUT and then exits.
@@ -734,6 +785,7 @@ This is the default.
 \fBsmartd\fP
 from issuing SCSI commands to an ATA device.
 
+.\" %IF NOT OS Darwin
 .I scsi
 \- the device type is SCSI.  This prevents
 \fBsmartd\fP
@@ -773,6 +825,8 @@ PORT does not exist or is not connected to a disk.
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
 bridge.
 
+.\" %ENDIF NOT OS Darwin
+.\" %IF OS Linux
 .I marvell
 \- [Linux only] interact with SATA disks behind Marvell chip-set
 controllers (using the Marvell rather than libata driver).
@@ -786,6 +840,8 @@ In log files and email messages this disk will be identified as
 megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD Linux
 .I 3ware,N
 \- [FreeBSD and Linux only] the device consists of one or more ATA disks
 connected to a 3ware RAID controller.  The non-negative integer N
@@ -800,6 +856,8 @@ messages will make the most sense if you always list the 3ware SCSI
 logical device corresponding to the particular physical disks.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
+.\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
 .I areca,N
 \- [Linux only] the device consists of one or more SATA disks connected to an
 Areca SATA RAID controller.  The positive integer N (in the range from 1 to
@@ -808,6 +866,8 @@ In log files and email messages this disk will be identifed as
 areca_disk_XX with XX in the range from 01 to 24 inclusive.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD Linux
 .I cciss,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
 connected to a cciss RAID controller.  The non-negative integer N (in the range
@@ -829,6 +889,7 @@ hpt_X/X/X and X/X/X is the same as L/M/N, note if no N indicated, N set
 to the default value 1.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
+.\" %ENDIF OS FreeBSD Linux
 .I removable
 \- the device or its media is removable.  This indicates to
 \fBsmartd\fP
@@ -1160,11 +1221,13 @@ Note that by default under Solaris, in the previous paragraph,
 \'/bin/mail\' does not accept a \'\-s\' (Subject) command-line
 argument.
 
+.\" %IF OS Windows
 On Windows, the \'\fBBlat\fP\' mailer
 (\fBhttp://blat.sourceforge.net/\fP) is used by default.
 This mailer uses a different command line syntax, see
 \'\-M exec\' below.
 
+.\" %ENDIF OS Windows
 Note also that there is a special argument
 .B <nomailer>
 which can be given to the \'\-m\' Directive in conjunction with the \'\-M
@@ -1371,12 +1434,14 @@ that would normally be provided to \'mail\'.  Examples include:
 .B -m root -M exec /Example_1/bash/script/below
 .fi
 
+.\" %IF OS Windows
 Note that on Windows, the syntax of the \'\fBBlat\fP\' mailer is
 used:
 .nf
 - -q -subject "$SMARTD_SUBJECT" -to "$SMARTD_ADDRESS"
 .fi
 
+.\" %ENDIF OS Windows
 If the \'\-m ADD\' Directive is given with the special address argument
 .B <nomailer>
 then the executable pointed to by PATH is run in a shell with
@@ -1838,6 +1903,7 @@ should not be ignored: they mean that the disk is failing.  Use the
 .B smartctl
 utility to investigate. 
 
+.\" %IF OS Solaris
 Under Solaris with the default \fB/etc/syslog.conf\fP configuration,
 messages below loglevel \fBLOG_NOTICE\fP will \fBnot\fP be recorded.
 Hence all \fBsmartd\fP messages with loglevel \fBLOG_INFO\fP will be
@@ -1854,10 +1920,14 @@ to read:
 Alternatively, you can use a local facility to log messages: please
 see the \fBsmartd\fP '-l' command-line option described above.
 
+.\" %ENDIF OS Solaris
+.\" %IF OS Windows Cygwin
 On Cygwin and Windows, the log messages are written to the event log
 or to a file. See documentation of the '-l FACILITY' option above for
 details.
 
+.\" %ENDIF OS Windows Cygwin
+.\" %IF OS Windows
 On Windows, the following built-in commands can be used to control
 \fBsmartd\fP, if running as a daemon:
 
@@ -1875,7 +1945,8 @@ On Windows, the following built-in commands can be used to control
 
 On WinNT4/2000/XP, \fBsmartd\fP can also be run as a Windows service:
 
-
+.\" %ENDIF OS Windows
+.\" %IF OS Cygwin
 The Cygwin Version of \fBsmartd\fP can be run as a service via the
 cygrunsrv tool. The start-up script provides Cygwin-specific commands
 to install and remove the service:
@@ -1885,7 +1956,8 @@ to install and remove the service:
 .fi
 The service can be started and stopped by the start-up script as usual
 (see \fBEXAMPLES\fP above).
-
+.\" %ENDIF OS Cygwin
+.\" %IF OS Windows
 
 The Windows Version of \fBsmartd\fP has buildin support for services:
 
@@ -1916,6 +1988,7 @@ Continuing a still running service (\'\fBnet continue smartd\fP\' without
 preceding \'\fBnet pause smartd\fP\') does not reread configuration but
 checks disks immediately (like \fBSIGUSR1\fP).
 
+.\" %ENDIF OS Windows
 .SH LOG TIMESTAMP TIMEZONE
 
 When \fBsmartd\fP makes log entries, these are time-stamped.  The time

@@ -538,6 +538,16 @@ MAN_FILTER = \
          s|!exampledir!|$(exampledir)/|g; \
          s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g; \
          s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
+    if test -n '$(os_man_filter)'; then \
+      sed -e 's,OS_MAN_FILTER,$(os_man_filter),g' \
+          -e '/^\.\\" %IF NOT OS .*$(os_man_filter)/,/^.\\" %ENDIF NOT OS .*$(os_man_filter)/ s,^,.\\"\# ,' \
+          -e '/^\.\\" %IF OS .*$(os_man_filter)/,/^\.\\" %ENDIF OS .*$(os_man_filter)/ s,^,!!,' \
+          -e '/^\.\\" %IF OS ./,/^\.\\" %ENDIF OS ./ s,^,.\\"\# ,' \
+          -e '/^!*\.\\" %IF NOT OS ./,/^!*\.\\" %ENDIF NOT OS ./ s,^,!!,' \
+          -e '/^!!/{ s,^!!!*,,; s,^\.\\"! \(.*\)$$,\1 \\"\#, }' ; \
+    else \
+      cat; \
+    fi | \
     $(MAN_CAPABILITIES) | \
     $(MAN_DRIVEDB) | \
     $(MAN_SAVESTATES) | \

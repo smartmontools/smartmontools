@@ -332,54 +332,65 @@ os_solaris=no
 os_win32=no
 os_win32_mingw=no
 os_win64=no
+os_man_filter=
 case "${host}" in
   *-*-linux*)
     os_deps='os_linux.o cciss.o'
+    os_man_filter=Linux
     ;;
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
     os_deps='os_freebsd.o cciss.o'
     os_libs='-lcam'
     os_dltools='curl wget lynx fetch'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
+    os_man_filter=FreeBSD
     ;;
   sparc-*-solaris*)
     os_deps='os_solaris.o os_solaris_ata.o'
     os_mailer='mailx'
     os_solaris=yes
+    os_man_filter=Solaris
     ;;
   *-pc-solaris*)
     os_deps='os_solaris.o'
     os_mailer='mailx'
     os_solaris=yes
+    os_man_filter=Solaris
     ;;
   *-*-netbsd*)
     os_deps='os_netbsd.o'
     os_libs='-lutil'
+    os_man_filter=NetBSD
     ;;
   *-*-openbsd*)
     os_deps='os_openbsd.o'
     os_libs='-lutil'
     os_dltools='curl wget lynx ftp'
+    os_man_filter=OpenBSD
     ;;
   *-*-cygwin*)
     os_deps='os_win32.o'
     os_win32=yes
+    os_man_filter=Cygwin
     ;;
   x86_64-*-mingw*)
     os_deps='os_win32.o'
     os_win32=yes
     os_win32_mingw=yes
     os_win64=yes
+    os_man_filter=Windows
     ;;
   *-*-mingw*)
     os_deps='os_win32.o'
     os_win32=yes
     os_win32_mingw=yes
+    os_man_filter=Windows
     ;;
   *-*-darwin*)
     os_deps='os_darwin.o'
     os_libs='-framework CoreFoundation -framework IOKit'
     os_darwin=yes
+    os_man_filter=Darwin
     ;;
   *-*-nto-qnx*)
     os_deps='os_qnxnto.o'
@@ -407,6 +418,7 @@ AC_MSG_RESULT([$os_new_interface])
 AC_SUBST([os_deps])
 AC_SUBST([os_libs])
 AC_SUBST([os_dltools])
+AC_SUBST([os_man_filter])
 if test -n "$os_mailer"; then
   AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "$os_mailer", [Default mailer if "mail" is unavailable])
 fi
