@@ -36,7 +36,6 @@ AC_ARG_VAR(WINDRES, [Windows resource compiler command])
 AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 
 AC_CANONICAL_HOST
-dnl Set flags which may affect AC_CHECK_*.
 case "${host}" in
   *-*-mingw*)
     # Cygwin gcc 4.x does no longer support '-mno-cygwin' to select MinGW gcc.
@@ -56,8 +55,6 @@ case "${host}" in
       fi
     fi
     AC_MSG_RESULT([${MAKENSIS:-no}])
-
-    CPPFLAGS="$CPPFLAGS -I$srcdir/os_win32"
     ;;
 esac
 

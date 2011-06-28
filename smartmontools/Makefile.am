@@ -22,6 +22,9 @@ if ENABLE_ATTRIBUTELOG
 AM_CPPFLAGS += -DSMARTMONTOOLS_ATTRIBUTELOG='"$(attributelog)"'
 endif
 
+if OS_WIN32_MINGW
+AM_CPPFLAGS += -I$(srcdir)/os_win32
+endif
 if NEED_GETOPT_LONG
 AM_CPPFLAGS += -I$(srcdir)/getopt -DHAVE_GETOPT_LONG -D__GNU_LIBRARY__
 endif

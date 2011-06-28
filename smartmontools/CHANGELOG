@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Move '-I os_win32' from configure.in to Makefile.am.
+
   [CF] configure.in: Fix check for __attribute__((packed)).
 
   [CF] drivedb.h USB update:
