@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB update:
+       - Verbatim Portable Hard Drive (0x18a5:0x0214)
+
   [CF] drivedb.h update:
        - SandForce Driven SSDs: Add OWC Mercury Extreme Pro RE (ticket #168)
 

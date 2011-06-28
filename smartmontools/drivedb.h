@@ -2428,6 +2428,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Verbatim
+  { "USB: Verbatim Portable Hard Drive; Sunplus",
+    "0x18a5:0x0214",
+    "", // 0x0112
+    "",
+    "-d usbsunplus"
+  },
   { "USB: Verbatim FW/USB160; Oxford OXUF934SSA-LQAG", // USB+IEE1394->SATA
     "0x18a5:0x0215",
     "", // 0x0001
