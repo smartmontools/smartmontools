@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3387 2011-06-28 19:49:18Z chrfranke $
+# $Id: configure.in 3388 2011-06-28 20:03:37Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.42, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3387 2011-06-28 19:49:18Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3388 2011-06-28 20:03:37Z chrfranke $'`
 smartmontools_release_date=2011-06-09
 smartmontools_release_time="18:46:32 UTC"
 
@@ -36,7 +36,6 @@ AC_ARG_VAR(WINDRES, [Windows resource compiler command])
 AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 
 AC_CANONICAL_HOST
-dnl Set flags which may affect AC_CHECK_*.
 case "${host}" in
   *-*-mingw*)
     # Cygwin gcc 4.x does no longer support '-mno-cygwin' to select MinGW gcc.
@@ -56,8 +55,6 @@ case "${host}" in
       fi
     fi
     AC_MSG_RESULT([${MAKENSIS:-no}])
-
-    CPPFLAGS="$CPPFLAGS -I$srcdir/os_win32"
     ;;
 esac
 

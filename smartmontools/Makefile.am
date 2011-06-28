@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3378 2011-06-16 13:05:15Z samm2 $
+# $Id: Makefile.am 3388 2011-06-28 20:03:37Z chrfranke $
 #
 
 @SET_MAKE@
@@ -22,6 +22,9 @@ if ENABLE_ATTRIBUTELOG
 AM_CPPFLAGS += -DSMARTMONTOOLS_ATTRIBUTELOG='"$(attributelog)"'
 endif
 
+if OS_WIN32_MINGW
+AM_CPPFLAGS += -I$(srcdir)/os_win32
+endif
 if NEED_GETOPT_LONG
 AM_CPPFLAGS += -I$(srcdir)/getopt -DHAVE_GETOPT_LONG -D__GNU_LIBRARY__
 endif
