@@ -234,9 +234,11 @@ Table of contents:
     --sbindir=/usr/local/sbin
     --sysconfdir=/usr/local/etc
     --mandir=/usr/local/share/man
-    --[with-]docdir=/usr/local/share/doc/smartmontools
+    --docdir=/usr/local/share/doc/smartmontools
+    --with-exampledir=/usr/local/share/doc/smartmontools/examplescripts
     --with-drivedbdir=/usr/local/share/smartmontools
-    --with-initscriptdir=/usr/local/etc/rc.d/init.d
+    --with-initscriptdir=auto
+    --with-systemdsystemunitdir=auto
     --enable-drivedb
     --disable-attributelog
     --disable-sample
@@ -276,15 +278,15 @@ Filesystem Hierarchy Standard (FHS, http://www.pathname.com/fhs/):
   ./configure --sbindir=/usr/local/sbin                               \
               --sysconfdir=/usr/local/etc                             \
               --mandir=/usr/local/man                                 \
-              --with-initscriptdir=/usr/local/etc/rc.d/init.d         \
-              --with-docdir=/usr/local/share/doc/smartmontools-VERSION
+              --docdir=/usr/local/share/doc/smartmontools             \
+              --with-initscriptdir=/usr/local/etc/init.d
 
 Red Hat:
   ./configure --sbindir=/usr/sbin                               \
               --sysconfdir=/etc                                 \
               --mandir=/usr/share/man                           \
-              --with-initscriptdir=/etc/rc.d/init.d             \
-              --with-docdir=/usr/share/doc/smartmontools-VERSION
+              --docdir=/usr/share/doc/smartmontools             \
+              --with-initscriptdir=/etc/rc.d/init.d
 
 Slackware:
   If you don't want to overwrite any "distribution" package, use:
@@ -294,8 +296,8 @@ Slackware:
   ./configure --sbindir=/usr/sbin                               \
               --sysconfdir=/etc                                 \
               --mandir=/usr/share/man                           \
-              --with-initscriptdir=/etc/rc.d                    \
-              --with-docdir=/usr/share/doc/smartmontools-VERSION
+              --docdir=/usr/share/doc/smartmontools             \
+              --with-initscriptdir=/etc/rc.d
 
   And
   removepkg smartmontools smartsuite (only root can do this)
@@ -318,8 +320,8 @@ SuSE:
   ./configure --sbindir=/usr/sbin                                        \
               --sysconfdir=/etc                                          \
               --mandir=/usr/share/man                                    \
+              --docdir=/usr/share/doc/packages/smartmontools-VERSION     \
               --with-initscriptdir=/etc/init.d                           \
-              --with-docdir=/usr/share/doc/packages/smartmontools-VERSION
 
 [5] Guidelines for FreeBSD
 ==========================
@@ -327,8 +329,8 @@ SuSE:
   the following:
 
   ./configure --prefix=/usr/local                                      \
+              --docdir=/usr/local/share/doc/smartmontools-VERSION      \
               --with-initscriptdir=/usr/local/etc/rc.d/                \
-              --with-docdir=/usr/local/share/doc/smartmontools-VERSION \
               --enable-sample
 
   NOTE: --enable-sample will cause the smartd.conf and smartd RC files to
@@ -349,14 +351,10 @@ SuSE:
     ./configure --host=i386-apple-darwin \
                 --with-initscriptdir=/Library/StartupItems
 
-[7] Guidelines for NetBSD/OpenBSD
-=================================
+[7] Guidelines for NetBSD
+=========================
   ./configure --prefix=/usr/pkg                                       \
-              --with-docdir=/usr/pkg/share/doc/smartmontools
-
-  On OpenBSD, it is important that you use GNU make (gmake from 
-  /usr/ports/devel/gmake) to build smartmontools, as the BSD make doesn't
-  know how to make the manpages.
+              --docdir=/usr/pkg/share/doc/smartmontools
 
 [8] Guidelines for Solaris
 ==========================
@@ -380,7 +378,7 @@ SuSE:
      --sbindir=/usr/sbin                                \
      --sysconfdir=/etc                                  \
      --mandir=/usr/share/man                            \
-     --with-docdir=/usr/share/doc/smartmontools-VERSION \
+     --docdir=/usr/share/doc/smartmontools-VERSION      \
      --with-initscriptdir=/etc/init.d
 
     To start the script automatically on bootup, create hardlinks that
@@ -412,8 +410,8 @@ Same as Red Hat:
   ./configure --sbindir=/usr/sbin                               \
               --sysconfdir=/etc                                 \
               --mandir=/usr/share/man                           \
-              --with-initscriptdir=/etc/rc.d/init.d             \
-              --with-docdir=/usr/share/doc/smartmontools
+              --docdir=/usr/share/doc/smartmontools             \
+              --with-initscriptdir=/etc/rc.d/init.d
 
   Using DOS text file type as default for the working directories ("textmode"
   mount option) is not recommended. Building the binaries and man pages using
@@ -426,7 +424,7 @@ Same as Red Hat:
   longer accept scripts with CR/LF by default. To run the initial script
   ./autogen.sh checked out with CR/LF on a "binmode" mount, type:
 
-  bash -O igncr ./autogen.sh
+  bash -o igncr ./autogen.sh
 
   instead. This is not necessary for the generated ./configure script.
 
@@ -545,30 +543,20 @@ To compile the OS/2 code, please run
   make install
 
 [12] Guidelines for OpenBSD
-==========================
+===========================
   To match the way it will installed when it becomes available as a PORT, use
   the following:
 
   ./configure --prefix=/usr/local                                      \
-              --sysconfdir=/etc
-              --with-initscriptdir=/usr/local/share/doc/smartmontools-VERSION \
-              --with-docdir=/usr/local/share/doc/smartmontools-VERSION \
+              --sysconfdir=/etc                                        \
+              --docdir=/usr/local/share/doc/smartmontools-VERSION      \
+              --without-initscriptdir                                  \
               --enable-sample
 
-  It is important that you use GNU make (gmake from /usr/ports/devel/gmake)
-  to build smartmontools, as the default OpenBSD make doesn't know how to build
-  the man pages.
-
-  NOTE1: --with-initscriptdir installs a SystemV startup script.  It really
-  should be --without-initscriptdir, but the Makefile code is incorrect and
-  trys to install the initscript (smartd) to /no.  So, an interim fix it to
-  set the initscript dir to the doc dir.
-
-  NOTE2: --enable-sample will cause the smartd.conf and smartd RC files to
+  NOTE: --enable-sample will cause the smartd.conf and smartd RC files to
   be installed with the string '.sample' append to the name, so you will end
   up with the following:
-        /usr/local/etc/smartd.conf.sample
-        /usr/local/etc/rc.d/smartd.sample
+        /etc/smartd.conf.sample
 
 [13] Comments
 ============
@@ -580,6 +568,11 @@ by the following:
   cd objdir
   ../configure [options]
 
+Man pages contents is platform-specific by default. Info specific to other
+platforms may be not visible. To generate man pages with full contents use:
+
+  make os_man_filter=
+
 To install to another destination (used mainly by package maintainers,
 or to examine the package contents without risk of modifying any
 system files) you can replace the step:
@@ -587,7 +580,7 @@ system files) you can replace the step:
 with:
   make DESTDIR=/home/myself/smartmontools-package install
 
-Use a full path. Paths like ~/smartmontools-package may not work.
+Use a full path. Paths like ./smartmontools-package may not work.
 
 After installing smartmontools, you can read the man pages, and try
 out the commands:
