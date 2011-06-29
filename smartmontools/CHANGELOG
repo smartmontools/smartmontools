@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: Don't search for initddir and systemdsystemunitdir
+       when cross-compiling.
+
   [CF] Makefile.am: Use same syntax also for ENABLE_* man page sections.
 
   [CF] Add experimental support for platform-specific man pages.

@@ -29,7 +29,10 @@ dnl Checks for programs.
 AC_PROG_CXX
 AM_PROG_AS
 AC_PROG_INSTALL
-PKG_PROG_PKG_CONFIG
+
+if test "$cross_compiling" = "no"; then
+  PKG_PROG_PKG_CONFIG
+fi
 
 AC_ARG_VAR(WINDMC, [Windows message compiler command])
 AC_ARG_VAR(WINDRES, [Windows resource compiler command])
@@ -164,7 +167,11 @@ AC_ARG_WITH(systemdsystemunitdir,
 systemdsystemunitdir=
 case "$with_systemdsystemunitdir" in
  auto|yes)
-   test -n "$PKG_CONFIG" && systemdsystemunitdir=`$PKG_CONFIG --variable=systemdsystemunitdir systemd`
+   if test -n "$PKG_CONFIG"; then
+     AC_MSG_CHECKING([for systemdsystemunitdir])
+     systemdsystemunitdir=`$PKG_CONFIG --variable=systemdsystemunitdir systemd`
+     AC_MSG_RESULT([${systemdsystemunitdir:-no}])
+   fi
    case "$with_systemdsystemunitdir:$sysconfdir:$systemdsystemunitdir" in
      yes:*:) AC_MSG_ERROR([Location of systemd service files not found]) ;;
      yes:*:*|auto:*:|auto:/etc:*) ;;
@@ -180,26 +187,23 @@ AC_ARG_WITH(initscriptdir,
   [AC_HELP_STRING([--with-initscriptdir@<:@=DIR|auto|yes|no@:>@], [Location of init scripts [auto]])],
   [], [with_initscriptdir=auto])
 
-AC_MSG_CHECKING(which init (rc) directory to use)
-initddir=""
-for dir in rc.d/init.d init.d rc.d; do
-  if test -d /etc/$dir; then
-    initddir='${sysconfdir}'/$dir
-    break
-  fi
-done
-AC_MSG_RESULT([${initddir:-not found}])
-
-case "$with_initscriptdir" in
-  auto) test -n "$systemdsystemunitdir" && initddir= ;;
-  yes)
-   if test -z "$initddir"; then
-     AC_MSG_ERROR([Location of init scripts not found])
-   fi ;;
-  no) initddir= ;;
+initddir=
+case "$with_initscriptdir:$cross_compiling:$systemdsystemunitdir" in
+  auto:no:|yes:*)
+    AC_MSG_CHECKING([for init (rc) directory])
+    for dir in rc.d/init.d init.d rc.d; do
+      if test -d /etc/$dir; then
+        initddir='${sysconfdir}'/$dir
+        break
+      fi
+    done
+    AC_MSG_RESULT([${initddir:-no}])
+    case "$with_initscriptdir:$initddir" in
+      yes:) AC_MSG_ERROR([Location of init scripts not found]) ;;
+    esac ;;
+  auto:*|no:*) ;;
   *) initddir="$with_initscriptdir" ;;
 esac
-
 AC_SUBST(initddir)
 AM_CONDITIONAL(INSTALL_INITSCRIPT, [test -n "$initddir"])
 
