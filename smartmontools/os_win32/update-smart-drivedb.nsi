@@ -49,7 +49,7 @@ Section ""
   Push $0
   Call Download
   IfErrors 0 endload
-    MessageBox MB_OK "Download failed"
+    MessageBox MB_OK "Download failed" /SD IDOK
     Abort "Download failed"
   endload:
 
@@ -59,7 +59,7 @@ Section ""
     ExecWait '.\smartctl-nc.exe -B drivedb.h.new -P showall' $1
     StrCmp $1 "0" endsyntax
       Rename "drivedb.h.new" "drivedb.h.error"
-      MessageBox MB_OK "drivedb.h.error: rejected by smartctl, probably no longer compatible"
+      MessageBox MB_OK "drivedb.h.error: rejected by smartctl, probably no longer compatible" /SD IDOK
       Abort "drivedb.h.error: rejected by smartctl, probably no longer compatible"
   endsyntax:
 
@@ -69,7 +69,7 @@ Section ""
     Call Cmp
     IfErrors changed 0
       DetailPrint "drivedb.h is already up to date"
-      MessageBox MB_OK "$INSTDIR\drivedb.h is already up to date"
+      MessageBox MB_OK "$INSTDIR\drivedb.h is already up to date" /SD IDOK
       Delete "drivedb.h.new"
       DetailPrint "Create file: drivedb.h.lastcheck"
       FileOpen $1 "drivedb.h.lastcheck" w
@@ -81,7 +81,7 @@ Section ""
 
   endcomp:
   Rename "drivedb.h.new" "drivedb.h"
-  MessageBox MB_OK "$INSTDIR\drivedb.h updated from $0"
+  MessageBox MB_OK "$INSTDIR\drivedb.h updated from $0" /SD IDOK
 
 SectionEnd
 
@@ -124,18 +124,18 @@ FunctionEnd
 ; Compare drivedb.h drivedb.h.new, SetErrors if different
 ; TODO: ignore differences in Id string
 Function Cmp
-    ClearErrors
-    FileOpen $R0 "drivedb.h" r
-    FileOpen $R1 "drivedb.h.new" r
-    readloop:
-      FileRead $R0 $R2
-      FileRead $R1 $R3
-      StrCmp $R2 $R3 0 +2
-    IfErrors 0 readloop
-    FileClose $R0
-    FileClose $R1
-    ClearErrors
+  ClearErrors
+  FileOpen $R0 "drivedb.h" r
+  FileOpen $R1 "drivedb.h.new" r
+  readloop:
+    FileRead $R0 $R2
+    FileRead $R1 $R3
     StrCmp $R2 $R3 0 +2
-      Return
-    SetErrors
+  IfErrors 0 readloop
+  FileClose $R0
+  FileClose $R1
+  ClearErrors
+  StrCmp $R2 $R3 0 +2
+    Return
+  SetErrors
 FunctionEnd
