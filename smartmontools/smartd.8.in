@@ -169,12 +169,12 @@ check cycle attributes are logged as a line of semicolon separated triplets
 of the form "attribute-ID;attribute-norm-value;attribute-raw-value;".
 Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
 
-.\" BEGIN ENABLE_ATTRIBUTELOG
+.\" %IF ENABLE_ATTRIBUTELOG
 If this option is not specified, attribute information is written to files
 \'/usr/local/var/lib/smartmontools/attrlog.MODEL\-SERIAL.ata.csv\'.
 To disable attribute log files, specify this option with an empty string
 argument: \'-A ""\'.
-.\" END ENABLE_ATTRIBUTELOG
+.\" %ENDIF ENABLE_ATTRIBUTELOG
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
 
@@ -203,13 +203,13 @@ input. This is useful for commands like:
 .B echo /dev/hdb \-m user@home \-M test | smartd \-c \- \-q onecheck
 .fi
 to perform quick and simple checks without a configuration file.
-.\" BEGIN ENABLE_CAPABILITIES
+.\" %IF ENABLE_CAPABILITIES
 .TP
 .B \-C, \-\-capabilities
 Use \fBcapabilities(7)\fP (EXPERIMENTAL).
 
 Warning: Mail notification does not work when used.
-.\" END ENABLE_CAPABILITIES
+.\" %ENDIF ENABLE_CAPABILITIES
 .TP
 .B \-d, \-\-debug
 Runs \fBsmartd\fP in "debug" mode. In this mode, it displays status
@@ -437,12 +437,12 @@ min and max temperatures (\-W directive), info about last sent warning email
 (\-m directive), and the time of next check of the self-test REGEXP
 (\-s directive) across boot cycles.
 
-.\" BEGIN ENABLE_SAVESTATES
+.\" %IF ENABLE_SAVESTATES
 If this option is not specified, state information is maintained in files
 \'/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\'.
 To disable state files, specify this option with an empty string
 argument: \'-s ""\'.
-.\" END ENABLE_SAVESTATES
+.\" %ENDIF ENABLE_SAVESTATES
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
 

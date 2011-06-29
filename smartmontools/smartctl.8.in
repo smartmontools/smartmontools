@@ -1428,7 +1428,7 @@ Optional entries are read from the file
 .\" %IF OS Windows
 .\"! \fBEXEDIR/drivedb-add.h\fP.
 .\" %ENDIF OS Windows
-.\" BEGIN ENABLE_DRIVEDB
+.\" %IF ENABLE_DRIVEDB
 if this option is not specified.
 
 If
@@ -1454,7 +1454,7 @@ Run
 .\"! \fBEXEDIR/update-smart-drivedb.exe\fP
 .\" %ENDIF OS Windows
 to update this file from the smartmontools SVN repository.
-.\" END ENABLE_DRIVEDB
+.\" %ENDIF ENABLE_DRIVEDB
 
 The database files use the same C/C++ syntax that is used to initialize
 the built in database array. C/C++ style comments are allowed.

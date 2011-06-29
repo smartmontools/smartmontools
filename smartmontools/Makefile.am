@@ -505,25 +505,25 @@ smartd.service: smartd.service.in Makefile
 if ENABLE_CAPABILITIES
 MAN_CAPABILITIES = cat
 else
-MAN_CAPABILITIES = sed '/BEGIN ENABLE_CAPABILITIES/,/END ENABLE_CAPABILITIES/d'
+MAN_CAPABILITIES = sed '/^\.\\" %IF ENABLE_CAPABILITIES/,/^\.\\" %ENDIF ENABLE_CAPABILITIES/ s,^,.\\"\# ,'
 endif
 
 if ENABLE_DRIVEDB
 MAN_DRIVEDB = sed "s|/usr/local/share/smartmontools/drivedb\\.h|$(drivedbdir)/drivedb.h|g"
 else
-MAN_DRIVEDB = sed '/BEGIN ENABLE_DRIVEDB/,/END ENABLE_DRIVEDB/d'
+MAN_DRIVEDB = sed '/^\.\\" %IF ENABLE_DRIVEDB/,/^\.\\" %ENDIF ENABLE_DRIVEDB/ s,^,.\\"\# ,'
 endif
 
 if ENABLE_SAVESTATES
 MAN_SAVESTATES = sed "s|/usr/local/var/lib/smartmontools/smartd\\.|$(savestates)|g"
 else
-MAN_SAVESTATES = sed '/BEGIN ENABLE_SAVESTATES/,/END ENABLE_SAVESTATES/d'
+MAN_SAVESTATES = sed '/^\.\\" %IF ENABLE_SAVESTATES/,/^\.\\" %ENDIF ENABLE_SAVESTATES/ s,^,.\\"\# ,'
 endif
 
 if ENABLE_ATTRIBUTELOG
 MAN_ATTRIBUTELOG = sed "s|/usr/local/var/lib/smartmontools/attrlog\\.|$(attributelog)|g"
 else
-MAN_ATTRIBUTELOG = sed '/BEGIN ENABLE_ATTRIBUTELOG/,/END ENABLE_ATTRIBUTELOG/d'
+MAN_ATTRIBUTELOG = sed '/^\.\\" %IF ENABLE_ATTRIBUTELOG/,/^\.\\" %ENDIF ENABLE_ATTRIBUTELOG/ s,^,.\\"\# ,'
 endif
 
 MAN_FILTER = \
@@ -538,6 +538,10 @@ MAN_FILTER = \
          s|!exampledir!|$(exampledir)/|g; \
          s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g; \
          s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
+    $(MAN_ATTRIBUTELOG) | \
+    $(MAN_CAPABILITIES) | \
+    $(MAN_DRIVEDB) | \
+    $(MAN_SAVESTATES) | \
     if test -n '$(os_man_filter)'; then \
       sed -e 's,OS_MAN_FILTER,$(os_man_filter),g' \
           -e '/^\.\\" %IF NOT OS .*$(os_man_filter)/,/^.\\" %ENDIF NOT OS .*$(os_man_filter)/ s,^,.\\"\# ,' \
@@ -547,11 +551,7 @@ MAN_FILTER = \
           -e '/^!!/{ s,^!!!*,,; s,^\.\\"! \(.*\)$$,\1 \\"\#, }' ; \
     else \
       cat; \
-    fi | \
-    $(MAN_CAPABILITIES) | \
-    $(MAN_DRIVEDB) | \
-    $(MAN_SAVESTATES) | \
-    $(MAN_ATTRIBUTELOG)
+    fi
 
 # Implicit rule 'smart%: smart%.in ...' does not work with BSD make
 smartctl.8: smartctl.8.in Makefile svnversion.h
