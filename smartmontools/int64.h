@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2004-8 Christian Franke
+ * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-11 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.17 2008/03/04 22:09:47 ballen4705 Exp $\n"
+#define INT64_H_CVSID "$Id$"
 
 // 64 bit integer typedefs and format strings
 
@@ -79,17 +79,5 @@ typedef unsigned long long uint64_t;
 #ifndef PRIx64
 #define PRIx64 "llx"
 #endif // ndef PRIx64
-
-
-#if defined(_WIN32) && defined(_MSC_VER)
-// for MSVC 6.0: "unsigned __int64 -> double" conversion not implemented (why?-)
-__inline double uint64_to_double(uint64_t ull) {
-  return ((int64_t)ull >= 0 ? (double)(int64_t)ull :
-    ((double)(int64_t)(ull - 9223372036854775808UI64)) + 9223372036854775808.0);
-}
-#else
-#define uint64_to_double(ull) ((double)(ull))
-#endif // _WIN32 && _MSC_VER
-
 
 #endif // INT64_H

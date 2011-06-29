@@ -517,7 +517,7 @@ static void scsiPrintSeagateFactoryLPage(scsi_device * device)
                 ull |= xp[j];
             }
             if (0 == pc)
-                pout(" = %.2f\n", uint64_to_double(ull) / 60.0 );
+                pout(" = %.2f\n", ull / 60.0 );
             else
                 pout(" = %"PRIu64"\n", ull);
         }
@@ -571,7 +571,7 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
             pout("%s%8"PRIu64" %8"PRIu64"  %8"PRIu64"  %8"PRIu64"   %8"PRIu64, 
                  pageNames[k], ecp->counter[0], ecp->counter[1], 
                  ecp->counter[2], ecp->counter[3], ecp->counter[4]);
-            processed_gb = uint64_to_double(ecp->counter[5]) / 1000000000.0;
+            processed_gb = ecp->counter[5] / 1000000000.0;
             pout("   %12.3f    %8"PRIu64"\n", processed_gb, ecp->counter[6]);
         }
     }

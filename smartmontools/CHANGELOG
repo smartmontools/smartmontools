@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] int64.h: Remove outdated uint64_to_double() workaround for MSVC6.
+
   [CF] os_win32/update-smart-drivedb.nsi: Add support for /S(ilent) option.
 
   [CF] configure.in: Don't search for initddir and systemdsystemunitdir
