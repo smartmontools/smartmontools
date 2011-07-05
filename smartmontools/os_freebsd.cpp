@@ -2147,6 +2147,9 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
       }
     }
   }
+  // device is LSI raid supported by mfi driver
+  if(!strncmp("/dev/mfid", name, strlen("/dev/mfid")))
+    set_err(EINVAL, "To monitor disks on LSI RAID add mfip.ko module and run 'smartctl /dev/passX' to see smart info");
   // device type unknown
   return 0;
 }

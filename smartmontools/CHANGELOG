@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] os_freebsd.cpp: detecting access to /dev/mfidX devices to show help (#97)
+
   [CF] Update configure options in INSTALL file, remove outdated info.
 
   [CF] int64.h: Remove outdated uint64_to_double() workaround for MSVC6.
