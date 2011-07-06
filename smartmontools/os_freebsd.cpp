@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3396 2011-07-05 01:30:31Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3397 2011-07-06 20:28:44Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -2149,7 +2149,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   }
   // device is LSI raid supported by mfi driver
   if(!strncmp("/dev/mfid", name, strlen("/dev/mfid")))
-    set_err(EINVAL, "To monitor disks on LSI RAID add mfip.ko module and run 'smartctl /dev/passX' to see smart info");
+    set_err(EINVAL, "To monitor disks on LSI RAID load mfip.ko module and run 'smartctl -a /dev/passX' to show SMART information");
   // device type unknown
   return 0;
 }
