@@ -40,8 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+  [AS] smartd.8 - removed configuration file information from this manual,
+       added reference to smartd.conf.5.
 
-  [AS] smartd.conf - added more platform-specific sections, corrected "areca"
+  [AS] smartd.conf.5 - added more platform-specific sections, corrected "areca"
        device information, corrected sample configuration.
 
   [AS] os_freebsd.cpp: detecting access to /dev/mfidX devices to show help (#97)
