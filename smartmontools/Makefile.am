@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3398 2011-07-07 22:17:09Z samm2 $
+# $Id: Makefile.am 3401 2011-07-08 19:17:18Z samm2 $
 #
 
 @SET_MAKE@
@@ -412,17 +412,6 @@ if ENABLE_ATTRIBUTELOG
 # Create $(attributelogdir) only
 attributelog_DATA =
 endif
-
-smartd.conf.5.in: smartd.8.in
-	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < $(srcdir)/smartd.8.in > $(top_builddir)/tmp.directives
-	sed '/STARTINCLUDE/,$$D'  < $(srcdir)/smartd.conf.5.in > $(top_builddir)/tmp.head
-	sed '1,/ENDINCLUDE/D'   < $(srcdir)/smartd.conf.5.in > $(top_builddir)/tmp.tail
-	cat $(top_builddir)/tmp.head > $(srcdir)/smartd.conf.5.in
-	echo '.\" STARTINCLUDE' >> $(srcdir)/smartd.conf.5.in
-	cat $(top_builddir)/tmp.directives >> $(srcdir)/smartd.conf.5.in
-	echo '.\" ENDINCLUDE'   >> $(srcdir)/smartd.conf.5.in
-	cat $(top_builddir)/tmp.tail >> $(srcdir)/smartd.conf.5.in
-	rm -f $(top_builddir)/tmp.head $(top_builddir)/tmp.tail $(top_builddir)/tmp.directives
 
 update-smart-drivedb: update-smart-drivedb.in config.status
 	$(SHELL) ./config.status --file=$@
