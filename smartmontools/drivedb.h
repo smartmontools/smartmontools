@@ -100,7 +100,8 @@ const drive_settings builtin_knowndrives[] = {
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
-    "OWC Mercury Extreme Pro SSD|" // tested with firmware 360A13F0
+    "OWC Mercury Extreme Pro (RE )?SSD|" // tested with
+      // OWC Mercury Extreme Pro SSD/360A13F0
     "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
     "", "",
@@ -957,7 +958,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Maxtor DiamondMax 21", // tested with MAXTOR STM3250310AS/3.AAF
-    "MAXTOR STM3(80815|160215|250310|(250|320)820|320620|500630)AS?",
+    "MAXTOR STM3(80[28]15|160215|250310|(250|320)820|320620|500630)AS?",
     "", "", ""
   },
   { "Seagate Maxtor DiamondMax 22", // fixed firmware
@@ -1268,6 +1269,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(80(25GAS|26GAX|32GAX|32GSX)|10(31GAS|32GAX)|12(33GAS|34G[AS]X)|2035GSS)",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD MK..50GACY", // tested with TOSHIBA MK8050GACY/TF105A
+    "TOSHIBA MK8050GACY",
+    "", "", ""
+  },
   { "Toshiba 2.5\" HDD MK..52GSX",
     "TOSHIBA MK(80|12|16|25|32)52GSX",
     "", "", ""
@@ -1283,6 +1288,12 @@ const drive_settings builtin_knowndrives[] = {
   { "Toshiba 2.5\" HDD MK..65GSX", // tested with TOSHIBA MK5065GSX/GJ003A
     "TOSHIBA MK(16|25|32|50|64)65GSX",
     "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MK..76GSX", // tested with TOSHIBA MK3276GSX/GS002D
+    "TOSHIBA MK(16|25|32|50|64)76GSX",
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Toshiba 1.8\" HDD",
     "TOSHIBA MK[23468]00[4-9]GA[HL]",
@@ -1479,8 +1490,8 @@ const drive_settings builtin_knowndrives[] = {
     "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957",
     ""
   },
-  { "Seagate Barracuda 7200.12",
-    "ST3(160318|25031[18]|320418|50041[08]|750(518|52[38])|100052[38])AS",
+  { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45
+    "ST3(160318|25031[128]|320418|50041[08]|750(518|52[38])|100052[348])AS",
     "", "", ""
   },
   { "Seagate Barracuda ES",
@@ -1489,8 +1500,18 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda ES.2", // fixed firmware
     "ST3(25031|50032|75033|100034)0NS",
-    "SN[01]6", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207963
+    "SN[01]6|"         // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207963
+    "MA(0[^7]|[^0].)", // http://dellfirmware.seagate.com/dell_firmware/DellFirmwareRequest.jsp
     "", ""
+  },
+  { "Seagate Barracuda ES.2", // buggy firmware (Dell)
+    "ST3(25031|50032|75033|100034)0NS",
+    "MA07",
+    "There are known problems with these drives,\n"
+    "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
+    "see the following Seagate web page:\n"
+    "http://dellfirmware.seagate.com/dell_firmware/DellFirmwareRequest.jsp",
+    ""
   },
   { "Seagate Barracuda ES.2", // unknown firmware
     "ST3(25031|50032|75033|100034)0NS",
