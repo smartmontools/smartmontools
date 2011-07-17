@@ -300,11 +300,11 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 9,raw48,Power_On_Hours " // raw value always 0?
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 194,tempminmax,Temperature_Celsius " // raw value always 0?
-    "-v 229,hex64:w012345r,Halt_System/Flash_ID " // Halt, Flash[7]
-    "-v 232,hex64:w012345r,Firmware_Version_Info " // "YYMMDD", #Channels, #Banks
-    "-v 233,hex48:w01234,ECC_Fail_Record " // Fail number, Row[3], Channel, Bank
-    "-v 234,hex48:w01234,Avg/Max_Erase_Ct " // raw24/raw24
-    "-v 235,hex48:w01z23,Good/Sys_Block_Ct" // raw24/raw24
+    "-v 229,hex64,Halt_System/Flash_ID " // Halt, Flash[7]
+    "-v 232,hex64,Firmware_Version_Info " // "YYMMDD", #Channels, #Banks
+    "-v 233,hex48,ECC_Fail_Record " // Fail number, Row[3], Channel, Bank
+    "-v 234,hex48,Avg/Max_Erase_Ct " // raw24/raw24
+    "-v 235,hex48,Good/Sys_Block_Ct" // raw24/raw24
     //  1.....................................40 chars limit for smartmontools <= r3343
   },
   { "JMicron based SSDs", // JMicron JMF61x
