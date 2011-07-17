@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3402 2011-07-17 16:25:17Z chrfranke $",
+  { "$Id: drivedb.h 3403 2011-07-17 16:46:59Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1517,8 +1517,18 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda ES.2", // fixed firmware
     "ST3(25031|50032|75033|100034)0NS",
-    "SN[01]6", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207963
+    "SN[01]6|"         // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207963
+    "MA(0[^7]|[^0].)", // http://dellfirmware.seagate.com/dell_firmware/DellFirmwareRequest.jsp
     "", ""
+  },
+  { "Seagate Barracuda ES.2", // buggy firmware (Dell)
+    "ST3(25031|50032|75033|100034)0NS",
+    "MA07",
+    "There are known problems with these drives,\n"
+    "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
+    "see the following Seagate web page:\n"
+    "http://dellfirmware.seagate.com/dell_firmware/DellFirmwareRequest.jsp",
+    ""
   },
   { "Seagate Barracuda ES.2", // unknown firmware
     "ST3(25031|50032|75033|100034)0NS",

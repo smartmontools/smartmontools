@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3402 2011-07-17 16:25:17Z chrfranke $
+$Id: CHANGELOG 3403 2011-07-17 16:46:59Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h update:
+       - Seagate Barracuda ES.2: Add Dell firmware versions (ticket #189)
 
   [CF] drivedb.h updates:
        - Seagate Maxtor DiamondMax 21: Add STM380215AS
