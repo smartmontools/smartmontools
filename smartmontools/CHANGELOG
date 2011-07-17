@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - Seagate Barracuda ES.2: Add Dell firmware versions (ticket #189)
+
   [CF] drivedb.h updates:
        - Seagate Maxtor DiamondMax 21: Add STM380215AS
        - Seagate Barracuda 7200.12: Add ST3250312AS, ST31000524AS
