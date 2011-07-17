@@ -40,6 +40,13 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h updates:
+       - Seagate Maxtor DiamondMax 21: Add STM380215AS
+       - Seagate Barracuda 7200.12: Add ST3250312AS, ST31000524AS
+       - Toshiba 2.5" HDD MK..50GACY
+       - Toshiba 2.5" HDD MK..76GSX
+
   [AS] smartd.8 - removed configuration file information from this manual,
        added reference to smartd.conf.5.
 

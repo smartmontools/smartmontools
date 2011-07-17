@@ -975,7 +975,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Maxtor DiamondMax 21", // tested with MAXTOR STM3250310AS/3.AAF
-    "MAXTOR STM3(80815|160215|250310|(250|320)820|320620|500630)AS?",
+    "MAXTOR STM3(80[28]15|160215|250310|(250|320)820|320620|500630)AS?",
     "", "", ""
   },
   { "Seagate Maxtor DiamondMax 22", // fixed firmware
@@ -1286,6 +1286,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(80(25GAS|26GAX|32GAX|32GSX)|10(31GAS|32GAX)|12(33GAS|34G[AS]X)|2035GSS)",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD MK..50GACY", // tested with TOSHIBA MK8050GACY/TF105A
+    "TOSHIBA MK8050GACY",
+    "", "", ""
+  },
   { "Toshiba 2.5\" HDD MK..52GSX",
     "TOSHIBA MK(80|12|16|25|32)52GSX",
     "", "", ""
@@ -1301,6 +1305,12 @@ const drive_settings builtin_knowndrives[] = {
   { "Toshiba 2.5\" HDD MK..65GSX", // tested with TOSHIBA MK5065GSX/GJ003A
     "TOSHIBA MK(16|25|32|50|64)65GSX",
     "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MK..76GSX", // tested with TOSHIBA MK3276GSX/GS002D
+    "TOSHIBA MK(16|25|32|50|64)76GSX",
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Toshiba 1.8\" HDD",
     "TOSHIBA MK[23468]00[4-9]GA[HL]",
@@ -1497,8 +1507,8 @@ const drive_settings builtin_knowndrives[] = {
     "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957",
     ""
   },
-  { "Seagate Barracuda 7200.12",
-    "ST3(160318|25031[18]|320418|50041[08]|750(518|52[38])|100052[38])AS",
+  { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45
+    "ST3(160318|25031[128]|320418|50041[08]|750(518|52[38])|100052[348])AS",
     "", "", ""
   },
   { "Seagate Barracuda ES",
