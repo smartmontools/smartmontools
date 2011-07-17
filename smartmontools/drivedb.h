@@ -2267,6 +2267,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: WD My Book Essential; ",
+    "0x1058:0x0910",
+    "", // 0x0106
+    "",
+    "-d sat"
+  },
   { "USB: WD Elements Desktop; ",
     "0x1058:0x1001",
     "", // 0x0104
@@ -2318,6 +2324,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: WD My Book Essential USB 3.0; ", // 3TB
     "0x1058:0x1130",
     "", // 0x1012
+    "",
+    "-d sat"
+  },
+  // Atech Flash Technology
+  { "USB: ; Atech", // Enclosure from Kingston SSDNow notebook upgrade kit
+    "0x11b0:0x6298",
+    "", // 0x0108
     "",
     "-d sat"
   },

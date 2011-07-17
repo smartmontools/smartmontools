@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - WD My Book Essential (0x1058:0x0910, Debian bug 633724)
+       - Atech (0x11b0:0x6298)
+
   [CF] drivedb.h update:
        - Seagate Barracuda ES.2: Add Dell firmware versions (ticket #189)
 
