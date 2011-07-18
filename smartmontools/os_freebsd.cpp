@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3397 2011-07-06 20:28:44Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3407 2011-07-18 23:22:02Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -2075,7 +2075,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
 
   // if dev_name null, or string length zero
   if (!name || !(len = strlen(name)))
-    return false;
+    return 0;
 
   // check ATA bus
   char * * atanames = 0; int numata = 0;
@@ -2109,7 +2109,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
         if ((cam_dev = cam_open_device(name, O_RDWR)) == NULL) {
           // open failure
           set_err(errno);
-          return false;
+          return 0;
         }
         
         // zero the payload
@@ -2131,7 +2131,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
             if (usbtype)
               return get_sat_device(usbtype, new freebsd_scsi_device(this, name, ""));
           }
-          return false;
+          return 0;
         }
 #if FREEBSDVER > 800100
         // check if we have ATA device connected to CAM (ada)
