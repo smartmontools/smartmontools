@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DG] [SCSI] smartd initial log entry for each drive now shows INQUIRY
+       strings and optionally the LU (logical unit) id and capacity
+
   [AS] os_freebsd.cpp: fixed return type in autodetect_smart_device.
 
   [CF] drivedb.h USB updates:

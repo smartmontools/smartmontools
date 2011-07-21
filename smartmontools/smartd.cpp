@@ -2093,12 +2093,57 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 // please.
 static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scsidev)
 {
-  int k, err;
+  int k, err, req_len, avail_len, peri_dt, version, len;
   const char *device = cfg.name.c_str();
   struct scsi_iec_mode_page iec;
   UINT8  tBuf[64];
+  UINT8  inqBuf[96];
+  UINT8  vpdBuf[252];
+  char lu_id[64];
 
   // Device must be open
+  memset(inqBuf, 0, 96);
+  req_len = 36;
+  if ((err = scsiStdInquiry(scsidev, inqBuf, req_len))) {
+    /* Marvell controllers fail on a 36 bytes StdInquiry, but 64 suffices */
+    req_len = 64;
+    if ((err = scsiStdInquiry(scsidev, inqBuf, req_len))) {
+      PrintOut(LOG_INFO, "Device: %s, Both 36 and 64 byte INQUIRY failed; "
+	       "skip device\n", device);
+      return 2;
+    }
+  }
+  version = inqBuf[2];
+  avail_len = inqBuf[4] + 5;
+  len = (avail_len < req_len) ? avail_len : req_len;
+  peri_dt = inqBuf[0] & 0x1f;
+  if (len < 36) {
+    PrintOut(LOG_INFO, "Device: %s, INQUIRY response less than 36 bytes; "
+	     "skip device\n", device);
+    return 2;
+  }
+  lu_id[0] = '\0';
+  if ((version >= 0x4) && (version < 0x8)) {
+    /* SPC-2 to SPC-5 */
+    if (0 == (err = scsiInquiryVpd(scsidev, 0x83, vpdBuf, sizeof(vpdBuf)))) {
+      len = vpdBuf[3];
+      scsi_decode_lu_dev_id(vpdBuf + 4, len, lu_id, sizeof(lu_id), NULL);
+    }
+  } 
+
+  unsigned int lb_size;
+  char si_str[64];
+  uint64_t capacity = scsiGetSize(scsidev, &lb_size);
+
+  if (capacity)
+    format_capacity(si_str, sizeof(si_str), capacity);
+  else
+    si_str[0] = '\0';
+  PrintOut(LOG_INFO, "Device: %s, [%.8s %.16s %.4s]%s%s%s%s\n",
+	   device, (char *)&inqBuf[8], (char *)&inqBuf[16],
+	   (char *)&inqBuf[32],
+	   (lu_id[0] ? ", lu id: " : ""), (lu_id[0] ? lu_id : ""),
+	   (si_str[0] ? ", " : ""), (si_str[0] ? si_str : ""));
 
   // check that device is ready for commands. IE stores its stuff on
   // the media.
