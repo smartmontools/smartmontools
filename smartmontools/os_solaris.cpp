@@ -445,13 +445,18 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
     if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) &&
         iop->sensep && (len > 3)) {
-      pout("  status=0x%x: sense_key=0x%x asc=0x%x ascq=0x%x\n", 
-           iop->scsi_status, iop->sensep[2] & 0xf,
-           iop->sensep[12], iop->sensep[13]);
+      if ((iop->sensep[0] & 0x7f) > 0x71)
+        pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
+             iop->scsi_status, iop->sensep[1] & 0xf,
+             iop->sensep[2], iop->sensep[3]);
+      else
+        pout("  status=%x: sense_key=%x asc=%x ascq=%x\n",
+             iop->scsi_status, iop->sensep[2] & 0xf,
+             iop->sensep[12], iop->sensep[13]);
       if (report > 1) {
           pout("  >>> Sense buffer, len=%d:\n", len);
           dStrHex((const char *)iop->sensep, ((len > 252) ? 252 : len) , 1);
-        }
+      }
     } else if (iop->scsi_status)
       pout("  status=%x\n", iop->scsi_status);
     if (iop->resid)
