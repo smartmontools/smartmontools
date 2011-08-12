@@ -155,6 +155,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Indilinx Barefoot based SSDs",
     "CRUCIAL_CT(64|128|256)M225|" // tested with CRUCIAL_CT64M225/1571
+    "G.SKILL FALCON (64|128|256)GB SSD|" // tested with G.SKILL FALCON 128GB SSD/2030
     "OCZ[ -](AGILITY|ONYX|VERTEX( 1199|-TURBO)?)|" // tested with
       // OCZ-ONYX/1.6, OCZ-VERTEX 1199/00.P97, OCZ-VERTEX/1.30, OCZ VERTEX-TURBO/1.5
     "Patriot[ -]Torqx.*|"
@@ -329,15 +330,19 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series (2. Generation, JMF618),
                                     // tested with KINGSTON SNV425S264GB/C091126a
     "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a
-    "KINGSTON SVP100S2B?(64|96|128|256|512)G|"  // SSDNow V+100 Series,
-                                                // tested with KINGSTON SVP100S296G/CJR10202
+    "KINGSTON SVP?100S2B?(64|96|128|256|512)G|"  // SSDNow V100/V+100 Series,
+                                                 // tested with KINGSTON SVP100S296G/CJR10202,
+                                                 // KINGSTON SV100S2256G/D110225a
     "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
                                // tested with Toshiba 128GB 2.5" SSD (built in MacBooks)
     "APPLE SSD TS.*|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
     "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
     "TS(8|16|32|64|128|192|256|512)GSSD25S-(MD?|S)", // Transcend SATA (JMF612), tested with TS256GSSD25S-M/101028
     "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 2,raw48,Throughput_Performance "
     "-v 3,raw48,Unknown_Attribute "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
     "-v 7,raw48,Unknown_Attribute "
     "-v 8,raw48,Unknown_Attribute "
   //"-v 9,raw48,Power_On_Hours "
@@ -348,6 +353,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 173,raw16,Erase_Count "
     "-v 175,raw48,Bad_Cluster_Table_Count "
     "-v 192,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 197,raw48,Current_Pending_Sector "
     "-v 240,raw48,Unknown_Attribute"
   },
   { "Samsung based SSDs",
@@ -375,8 +382,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 201,raw48,Supercap_Status "
     "-v 202,raw48,Exception_Mode_Status"
   },
-  { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820, TS4GCF133/20100709
-    "TRANSCEND|TS4GCF133",
+  { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820,
+      // TS4GCF133/20100709, TS16GCF133/20100709
+    "TRANSCEND|TS(4|8|16)GCF133",
     "", "",
     "-v 7,raw48,Unknown_Attribute "
     "-v 8,raw48,Unknown_Attribute"
@@ -739,6 +747,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SAMSUNG SpinPoint M7E (AFT)", // tested with HM321HI/2AJ10001, HM641JI/2AJ10001
     "SAMSUNG HM(161G|(251|321)H|501I|641J)I",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint M7U", // tested with HM252HX/2AC101C4
+    "SAMSUNG HM(162H|252H|322I|502J)X",
     "", "", ""
   },
   { "SAMSUNG SpinPoint MT2", // tested with HM100UI/2AM10001
@@ -1316,6 +1328,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK[23468]00[4-9]GA[HL]",
     "", "", ""
   },
+  { "Toshiba 1.8\" HDD MK..29GSG",
+    "TOSHIBA MK(12|16|25)29GSG",
+    "", "", ""
+  },
   { "", // TOSHIBA MK6022GAX
     "TOSHIBA MK6022GAX",
     "", "", ""
@@ -1716,6 +1732,11 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(((64|75|80)00AA|(10|15|20)EA|(25|30)EZ)R|20EAC)S-.*",
     "", "", ""
   },
+  { "Western Digital Caviar Green (Adv. Format)", // SATA 6Gb/s variants
+      // tested with WDC WD30EZRX-00MMMB0/80.00A80
+    "WDC WD(7500AA|(10|15|20)EA|(25|30)EZ)RX-.*",
+    "", "", ""
+  },
   { "Western Digital Caviar Black",
     "WDC WD((500|640|750)1AAL|1001FA[EL]|2001FAS)S-.*",
     "", "", ""
@@ -1776,15 +1797,15 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(8|12|16|25|32)00B[EJ]KT-.*",
     "", "", ""
   },
-  { "Western Digital My Passport Essential hard drive (USB interface)",
+  { "Western Digital My Passport Essential (USB)",
     "WDC WD(25|32|40|50)00BMVU-.*",
     "", "", ""
   },
-  { "Western Digital My Passport Essential SE hard drive (USB interface)",
+  { "Western Digital My Passport Essential SE (USB, Adv. Format)",
     "WDC WD(7500K|10T)MVV-.*",
     "", "", ""
   },
-  { "Western Digital My Passport hard drive (USB interface)", // tested with
+  { "Western Digital My Passport (USB)", // tested with
       // WDC WD5000BMVW-11AMCS0/01.01A01
     "WDC WD(3200BMVV|5000BMVW)-.*",
     "", "", ""

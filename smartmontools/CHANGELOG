@@ -41,6 +41,15 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Indilinx Barefoot based SSDs: Add G.Skill Falcon
+       - JMicron based SSDs (JMF61x): Add Kingston SSDNow V100 Series
+       - Transcend CompactFlash Cards: Add 8, 16GB
+       - Toshiba 1.8" HDD MD..29GSG
+       - SAMSUNG SpinPoint M7U
+       - Western Digital Caviar Green (Adv. Format): Add SATA 6Gb/s variants
+       - Western Digital My Passport USB: Shorten names
+
   [DG] [SCSI] smartd initial log entry for each drive now shows INQUIRY
        strings and optionally the LU (logical unit) id and capacity
 
