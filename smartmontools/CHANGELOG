@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - LaCie rikiki USB 3.0 (0x059f:0x1057)
+       - Freecom Mobile Drive XXS (0x07ab:0xfc88)
+       - WD Elements SE (0x1058:0x1023)
+
   [CF] drivedb.h updates:
        - Indilinx Barefoot based SSDs: Add G.Skill Falcon
        - JMicron based SSDs (JMF61x): Add Kingston SSDNow V100 Series

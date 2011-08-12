@@ -2042,7 +2042,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbjmicron,x"
   },
   { "USB: LaCie rikiki USB 3.0; ",
-    "0x059f:0x1049",
+    "0x059f:0x10(49|57)",
     "",
     "",
     "-d sat"
@@ -2088,6 +2088,12 @@ const drive_settings builtin_knowndrives[] = {
     "" // unsupported
   },
   // Freecom
+  { "USB: Freecom Mobile Drive XXS; JMicron",
+    "0x07ab:0xfc88",
+    "", // 0x0101
+    "",
+    "-d usbjmicron,x"
+  },
   { "USB: Freecom Hard Drive XS; Sunplus",
     "0x07ab:0xfc8e",
     "", // 0x010f
@@ -2315,6 +2321,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: WD Elements Desktop; ", // 2TB
     "0x1058:0x1021",
     "", // 0x2002
+    "",
+    "-d sat"
+  },
+  { "USB: WD Elements SE; ", // 1TB
+    "0x1058:0x1023",
+    "",
     "",
     "-d sat"
   },
