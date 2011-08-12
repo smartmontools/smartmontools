@@ -2072,24 +2072,36 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
 
   case RAWFMT_TEMPMINMAX:
     // Temperature
-    s = strprintf("%u", word[0]);
-    if (word[1] || word[2]) {
-      unsigned lo = ~0, hi = ~0;
-      if (!raw[3]) {
-        // 00 HH 00 LL 00 TT (IBM)
-        hi = word[2]; lo = word[1];
+    {
+      // Search for possible min/max values
+      // 00 HH 00 LL 00 TT (Hitachi/IBM)
+      // 00 00 HH LL 00 TT (Maxtor, Samsung)
+      // 00 00 00 HH LL TT (WDC)
+      unsigned char lo = 0, hi = 0;
+      int cnt = 0;
+      for (int i = 1; i < 6; i++) {
+        if (raw[i])
+          switch (cnt++) {
+            case 0:
+              lo = raw[i];
+              break;
+            case 1:
+              if (raw[i] < lo) {
+                hi = lo; lo = raw[i];
+              }
+              else
+                hi = raw[i];
+              break;
+          }
       }
-      else if (!word[2]) {
-        // 00 00 HH LL 00 TT (Maxtor)
-        hi = raw[3]; lo = raw[2];
-      }
-      if (lo > hi) {
-        unsigned t = lo; lo = hi; hi = t;
-      }
-      if (lo <= word[0] && word[0] <= hi)
-        s += strprintf(" (Min/Max %u/%u)", lo, hi);
+
+      unsigned char t = raw[0];
+      if (cnt == 0)
+        s = strprintf("%d", t);
+      else if (cnt == 2 && 0 < lo && lo <= t && t <= hi && hi < 128)
+        s = strprintf("%d (Min/Max %d/%d)", t, lo, hi);
       else
-        s += strprintf(" (%d %d %d %d)", raw[5], raw[4], raw[3], raw[2]);
+        s = strprintf("%d (%d %d %d %d %d)", t, raw[5], raw[4], raw[3], raw[2], raw[1]);
     }
     break;
 
@@ -2301,10 +2313,13 @@ unsigned char ata_return_temperature_value(const ata_smart_values * data, const 
     if (idx < 0)
       continue;
     uint64_t raw = ata_get_attr_raw_value(data->vendor_attributes[idx], defs);
-    unsigned temp = (unsigned short)raw; // ignore possible min/max values in high words
+    unsigned temp;
+    // ignore possible min/max values in high words
     if (format == RAWFMT_TEMP10X) // -v N,temp10x
-      temp = (temp+5) / 10;
-    if (!(0 < temp && temp <= 255))
+      temp = ((unsigned short)raw + 5) / 10;
+    else
+      temp = (unsigned char)raw;
+    if (!(0 < temp && temp < 128))
       continue;
     return temp;
   }

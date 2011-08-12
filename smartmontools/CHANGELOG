@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] atacmds.cpp: Rework search for temperature min/max values
+       in attributes 190/194.  This fixes temperature tracking
+       for recent WDC drives.
+
   [CF] drivedb.h USB updates:
        - LaCie rikiki USB 3.0 (0x059f:0x1057)
        - Freecom Mobile Drive XXS (0x07ab:0xfc88)
