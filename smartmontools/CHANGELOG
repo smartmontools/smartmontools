@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3411 2011-08-12 21:48:54Z chrfranke $
+$Id: CHANGELOG 3413 2011-09-06 21:23:00Z dpgilbert $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] [SCSI] smartctl output Solid State Media (SSD) percentage used
+       endurance indicator. Add '-l ssd', useful for SATA SSDs?
 
   [CF] atacmds.cpp: Rework search for temperature min/max values
        in attributes 190/194.  This fixes temperature tracking
