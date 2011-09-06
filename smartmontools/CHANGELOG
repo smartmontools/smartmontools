@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DG] [SCSI] smartctl output Solid State Media (SSD) percentage used
+       endurance indicator. Add '-l ssd', useful for SATA SSDs?
+
   [CF] atacmds.cpp: Rework search for temperature min/max values
        in attributes 190/194.  This fixes temperature tracking
        for recent WDC drives.

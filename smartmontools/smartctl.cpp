@@ -405,6 +405,7 @@ static const char * parse_options(int argc, char** argv,
       break;
     case 'H':
       ataopts.smart_check_status = scsiopts.smart_check_status = true;
+      scsiopts.smart_ss_media_log = true;
       break;
     case 'F':
       if (!strcmp(optarg,"none")) {
@@ -450,6 +451,8 @@ static const char * parse_options(int argc, char** argv,
         ataopts.sataphy = ataopts.sataphy_reset = true;
       } else if (!strcmp(optarg,"background")) {
         scsiopts.smart_background_log = true;
+      } else if (!strcmp(optarg,"ssd")) {
+        scsiopts.smart_ss_media_log = true;
       } else if (!strcmp(optarg,"scterc")) {
         ataopts.sct_erc_get = true;
       } else if (!strcmp(optarg,"scttemp")) {
@@ -546,6 +549,7 @@ static const char * parse_options(int argc, char** argv,
       ataopts.smart_selftest_log   = scsiopts.smart_selftest_log  = true;
       ataopts.smart_selective_selftest_log = true;
       /* scsiopts.smart_background_log = true; */
+      scsiopts.smart_ss_media_log = true;
       break;
     case 'x':
       ataopts.drive_info           = scsiopts.drive_info          = true;
@@ -563,6 +567,7 @@ static const char * parse_options(int argc, char** argv,
       ataopts.sct_erc_get = true;
       ataopts.sataphy = true;
       scsiopts.smart_background_log = true;
+      scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
       if (!output_format_set)
         ataopts.output_format = 1; // '-f brief'

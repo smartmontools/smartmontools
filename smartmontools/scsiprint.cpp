@@ -64,6 +64,9 @@ static int gLastNErrorLPage = 0;
 static int gBackgroundResultsLPage = 0;
 static int gProtocolSpecificLPage = 0;
 static int gTapeAlertsLPage = 0;
+static int gSSMediaLPage = 0;
+
+/* Vendor specific log pages */
 static int gSeagateCacheLPage = 0;
 static int gSeagateFactoryLPage = 0;
 
@@ -123,6 +126,9 @@ static void scsiGetSupportedLogPages(scsi_device * device)
                 break;
             case TAPE_ALERTS_LPAGE:
                 gTapeAlertsLPage = 1;
+                break;
+            case SS_MEDIA_LPAGE:
+                gSSMediaLPage = 1;
                 break;
             case SEAGATE_CACHE_LPAGE:
                 gSeagateCacheLPage = 1;
@@ -942,6 +948,63 @@ static int scsiPrintBackgroundResults(scsi_device * device)
     return retval;
 }
 
+// See SCSI Block Commands - 3 (SBC-3) rev 27 (draft) section 6.3.6 .
+// Returns 0 if ok else FAIL* bitmask. Note can have a status entry
+// and up to 2048 events (although would hope to have less). May set
+// FAILLOG if serious errors detected (in the future).
+static int scsiPrintSSMedia(scsi_device * device)
+{
+    int num, err, pc, pl, truncated;
+    int retval = 0;
+    UINT8 * ucp;
+
+    if ((err = scsiLogSense(device, SS_MEDIA_LPAGE, 0, gBuf,
+                            LOG_RESP_LONG_LEN, 0))) {
+        print_on();
+        pout("scsiPrintSSMedia Failed [%s]\n", scsiErrString(err));
+        print_off();
+        return FAILSMART;
+    }
+    if ((gBuf[0] & 0x3f) != SS_MEDIA_LPAGE) {
+        print_on();
+        pout("Solid state media Log Sense Failed, page mismatch\n");
+        print_off();
+        return FAILSMART;
+    }
+    // compute page length
+    num = (gBuf[2] << 8) + gBuf[3] + 4;
+    if (num < 12) {
+        print_on();
+        pout("Solid state media Log Sense length is %d, too short\n", num);
+        print_off();
+        return FAILSMART;
+    }
+    truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
+    if (truncated)
+        num = LOG_RESP_LONG_LEN;
+    ucp = gBuf + 4;
+    num -= 4;
+    while (num > 3) {
+        pc = (ucp[0] << 8) | ucp[1];
+        // pcb = ucp[2];
+        pl = ucp[3] + 4;
+        switch (pc) {
+        case 1:
+	    if (pl < 8) {
+                print_on();
+                pout("Percentage used endurance indicator too short (pl=%d)\n", pl);
+                print_off();
+                return FAILSMART;
+	    }
+            pout("SS Media used endurance indicator: %d%%\n", ucp[7]);
+        default:	/* ignore other parameter codes */
+            break;
+        }
+        num -= pl;
+        ucp += pl;
+    }
+    return retval;
+}
 
 static void show_sas_phy_event_info(int peis, unsigned int val,
                                     unsigned thresh_val)
@@ -1649,6 +1712,16 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
         any_output = true;
     }   
+    if (options.smart_ss_media_log) {
+        if (! checkedSupportedLogPages)
+            scsiGetSupportedLogPages(device);
+        res = 0;
+        if (gSSMediaLPage)
+            res = scsiPrintSSMedia(device);
+        if (0 != res)
+            failuretest(OPTIONAL_CMD, returnval|=res);
+        any_output = true;
+    }
     if (options.smart_vendor_attrib) {
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(device);

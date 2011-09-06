@@ -40,6 +40,7 @@ struct scsi_print_options
   bool smart_error_log;
   bool smart_selftest_log;
   bool smart_background_log;
+  bool smart_ss_media_log;
 
   bool smart_disable, smart_enable;
   bool smart_auto_save_disable, smart_auto_save_enable;
@@ -58,6 +59,7 @@ struct scsi_print_options
       smart_error_log(false),
       smart_selftest_log(false),
       smart_background_log(false),
+      smart_ss_media_log(false),
       smart_disable(false), smart_enable(false),
       smart_auto_save_disable(false), smart_auto_save_enable(false),
       smart_default_selftest(false),

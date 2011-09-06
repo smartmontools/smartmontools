@@ -7,7 +7,7 @@
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-10 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-11 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -183,11 +183,14 @@ struct scsiNonMediumError {
 #define NON_MEDIUM_ERROR_LPAGE                  0x06
 #define LAST_N_ERROR_LPAGE                      0x07
 #define FORMAT_STATUS_LPAGE                     0x08
+#define LB_PROV_LPAGE                           0x0c   /* SBC-3 */
 #define TEMPERATURE_LPAGE                       0x0d
 #define STARTSTOP_CYCLE_COUNTER_LPAGE           0x0e
 #define APPLICATION_CLIENT_LPAGE                0x0f
 #define SELFTEST_RESULTS_LPAGE                  0x10
+#define SS_MEDIA_LPAGE                          0x11   /* SBC-3 */
 #define BACKGROUND_RESULTS_LPAGE                0x15   /* SBC-3 */
+#define NONVOL_CACHE_LPAGE                      0x17   /* SBC-3 */
 #define PROTOCOL_SPECIFIC_LPAGE                 0x18
 #define IE_LPAGE                                0x2f
 
