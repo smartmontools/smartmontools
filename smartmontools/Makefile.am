@@ -787,16 +787,16 @@ syslogevt.rc: os_win32/syslogevt.mc
 	$(WINDMC) -b $<
 endif
 
-# Build {config,svnversion}_vc8.h for MSVC8 from MinGW {config,svnversion}.h
+# Build {config,svnversion}_vc10.h for MSVC10 from MinGW {config,svnversion}.h
 
-config-vc8: $(srcdir)/os_win32/config_vc8.h  $(srcdir)/os_win32/svnversion_vc8.h
+config-vc10: $(srcdir)/os_win32/config_vc10.h  $(srcdir)/os_win32/svnversion_vc10.h
 
-$(srcdir)/os_win32/config_vc8.h: config.h Makefile
-	sed '1i/* config_vc8.h.  Generated from config.h by Makefile.  */' $< | \
-	sed 's,^#define HAVE_\(ATTR_PACKED\|INTTYPES_H\|[DK_]*NTDDDISK_H\|STDINT_H\|STRINGS_H\|STRTOULL\|U*INT64_T\|UNISTD_H\|WORKING_SNPRINTF\) 1$$,/* #undef HAVE_\1 */,' | \
-	sed 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-win32vc8,' > $@
+$(srcdir)/os_win32/config_vc10.h: config.h Makefile
+	sed -e '1i/* config_vc10.h.  Generated from config.h by Makefile.  */' \
+	    -e 's,^#define HAVE_\(ATTR_PACKED\|INTTYPES_H\|[DK_]*NTDDDISK_H\|STRINGS_H\|STRTOULL\|UNISTD_H\|WORKING_SNPRINTF\) 1$$,/* #undef HAVE_\1 */,' \
+	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc10,' $< > $@
 
-$(srcdir)/os_win32/svnversion_vc8.h: svnversion.h
-	cp svnversion.h $@
+$(srcdir)/os_win32/svnversion_vc10.h: svnversion.h
+	cp $< $@
 
 endif

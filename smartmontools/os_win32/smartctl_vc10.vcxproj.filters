@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="os_win32">
+      <UniqueIdentifier>{9321e988-dd03-496d-9933-7c8b235a46bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="regex">
+      <UniqueIdentifier>{bfbfd4ea-fae3-45ec-9cfb-c5424218c47c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="getopt">
+      <UniqueIdentifier>{8ff0bf5f-c96e-45c3-bcb4-7450cecfa0d4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="daemon_win32.cpp">
+      <Filter>os_win32</Filter>
+    </ClCompile>
+    <ClCompile Include="hostname_win32.cpp">
+      <Filter>os_win32</Filter>
+    </ClCompile>
+    <ClCompile Include="syslog_win32.cpp">
+      <Filter>os_win32</Filter>
+    </ClCompile>
+    <ClCompile Include="wmiquery.cpp">
+      <Filter>os_win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\regex\regcomp.c">
+      <Filter>regex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\regex\regex.c">
+      <Filter>regex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\regex\regex_internal.c">
+      <Filter>regex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\regex\regexec.c">
+      <Filter>regex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\getopt\getopt.c">
+      <Filter>getopt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\getopt\getopt1.c">
+      <Filter>getopt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\atacmdnames.cpp" />
+    <ClCompile Include="..\atacmds.cpp" />
+    <ClCompile Include="..\ataprint.cpp" />
+    <ClCompile Include="..\cciss.cpp" />
+    <ClCompile Include="..\dev_ata_cmd_set.cpp" />
+    <ClCompile Include="..\dev_interface.cpp" />
+    <ClCompile Include="..\dev_legacy.cpp" />
+    <ClCompile Include="..\knowndrives.cpp" />
+    <ClCompile Include="..\os_darwin.cpp" />
+    <ClCompile Include="..\os_freebsd.cpp" />
+    <ClCompile Include="..\os_generic.cpp" />
+    <ClCompile Include="..\os_linux.cpp" />
+    <ClCompile Include="..\os_netbsd.cpp" />
+    <ClCompile Include="..\os_openbsd.cpp" />
+    <ClCompile Include="..\os_os2.cpp" />
+    <ClCompile Include="..\os_qnxnto.cpp" />
+    <ClCompile Include="..\os_solaris.cpp" />
+    <ClCompile Include="..\os_win32.cpp" />
+    <ClCompile Include="..\scsiata.cpp" />
+    <ClCompile Include="..\scsicmds.cpp" />
+    <ClCompile Include="..\scsiprint.cpp" />
+    <ClCompile Include="..\smartctl.cpp" />
+    <ClCompile Include="..\smartd.cpp" />
+    <ClCompile Include="..\utility.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="wbemcli_small.h">
+      <Filter>os_win32</Filter>
+    </ClInclude>
+    <ClInclude Include="wmiquery.h">
+      <Filter>os_win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\regex\regex.h">
+      <Filter>regex</Filter>
+    </ClInclude>
+    <ClInclude Include="..\regex\regex_internal.h">
+      <Filter>regex</Filter>
+    </ClInclude>
+    <ClInclude Include="..\getopt\getopt.h">
+      <Filter>getopt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\atacmdnames.h" />
+    <ClInclude Include="..\atacmds.h" />
+    <ClInclude Include="..\ataprint.h" />
+    <ClInclude Include="..\cissio_freebsd.h" />
+    <ClInclude Include="..\csmisas.h" />
+    <ClInclude Include="..\dev_ata_cmd_set.h" />
+    <ClInclude Include="..\dev_interface.h" />
+    <ClInclude Include="..\dev_tunnelled.h" />
+    <ClInclude Include="..\drivedb.h" />
+    <ClInclude Include="..\int64.h" />
+    <ClInclude Include="..\knowndrives.h" />
+    <ClInclude Include="..\scsicmds.h" />
+    <ClInclude Include="..\scsiprint.h" />
+    <ClInclude Include="..\smartctl.h" />
+    <ClInclude Include="..\utility.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="installer.nsi">
+      <Filter>os_win32</Filter>
+    </None>
+    <None Include="update-smart-drivedb.nsi">
+      <Filter>os_win32</Filter>
+    </None>
+    <None Include="..\AUTHORS" />
+    <None Include="..\autogen.sh" />
+    <None Include="..\CHANGELOG" />
+    <None Include="..\config.h.in" />
+    <None Include="..\configure.in" />
+    <None Include="..\do_release" />
+    <None Include="..\Doxyfile" />
+    <None Include="..\INSTALL" />
+    <None Include="..\Makefile.am" />
+    <None Include="..\NEWS" />
+    <None Include="..\README" />
+    <None Include="..\smartctl.8.in" />
+    <None Include="..\smartd.8.in" />
+    <None Include="..\smartd.conf.5.in" />
+    <None Include="..\smartd.initd.in" />
+    <None Include="..\TODO" />
+    <None Include="..\update-smart-drivedb.in" />
+    <None Include="..\WARNINGS" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="daemon_win32.h">
+      <Filter>os_win32</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="hostname_win32.h">
+      <Filter>os_win32</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="syslog.h">
+      <Filter>os_win32</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\cciss.h" />
+    <CustomBuildStep Include="..\megaraid.h" />
+    <CustomBuildStep Include="..\os_darwin.h" />
+    <CustomBuildStep Include="..\os_freebsd.h" />
+    <CustomBuildStep Include="..\os_generic.h" />
+    <CustomBuildStep Include="..\os_linux.h" />
+    <CustomBuildStep Include="..\os_netbsd.h" />
+    <CustomBuildStep Include="..\os_openbsd.h" />
+    <CustomBuildStep Include="..\os_os2.h" />
+    <CustomBuildStep Include="..\os_qnxnto.h" />
+    <CustomBuildStep Include="..\os_solaris.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="config_vc10.h" />
+    <CustomBuild Include="svnversion_vc10.h" />
+  </ItemGroup>
+</Project>

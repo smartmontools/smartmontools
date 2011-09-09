@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Add MSVC10 support, remove MSVC8 project files.
+
   [DG] [SCSI] smartctl output Solid State Media (SSD) percentage used
        endurance indicator. Add '-l ssd', useful for SATA SSDs?
 
