@@ -2187,11 +2187,17 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat,12"
   },
+  { "USB: Seagate FreeAgent GoFlex USB 3.0; ", // 2TB
+    "0x0bc2:0x5071",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ",
     "0x0bc2:0x50a1",
     "",
     "",
-    "-d sat,12"
+    "-d sat"
   },
   // Dura Micro
   { "USB: Dura Micro 509; Sunplus",
@@ -2234,6 +2240,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Maxtor Basics Portable; ",
     "0x0d49:0x7450",
     "", // 0x0122
+    "",
+    "-d sat"
+  },
+  // Oyen Digital
+  { "USB: Oyen Digital MiniPro USB 3.0; ",
+    "0x0dc4:0x020a",
+    "",
     "",
     "-d sat"
   },
@@ -2285,6 +2298,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: WD My Passport 0730; ",
     "0x1058:0x0730",
     "", // 0x1008
+    "",
+    "-d sat"
+  },
+  { "USB: WD My Passport Essential SE USB 3.0; ",
+    "0x1058:0x0740",
+    "",
     "",
     "-d sat"
   },

@@ -41,6 +41,13 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - Seagate FreeAgent GoFlex USB 3.0 (0x0bc2:0x5071) (ticket #195)
+       - Seagate FreeAgent GoFlex Desk USB 3.0 (0x0bc2:0x50a1):
+         Enable -d sat,16 (ticket #151).
+       - Oyen Digital MiniPro USB 3.0 (0x0dc4:0x020a) (ticket #193)
+       - WD My Passport Essential SE USB 3.0 (0x1058:0x0740)
+
   [CF] Windows: Add MSVC10 support, remove MSVC8 project files.
 
   [DG] [SCSI] smartctl output Solid State Media (SSD) percentage used
