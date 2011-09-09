@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL 3394 2011-06-29 19:37:07Z chrfranke $
+$Id: INSTALL 3414 2011-09-09 21:07:55Z chrfranke $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -518,17 +518,17 @@ To both create and run the (interactive) installer, use:
   and resource compiler (windres) are available. This may be disabled
   by passing 'WINDMC=no' to configure.
 
-To prepare os_win32 directory for MSVC8, use the following on MSYS
-or Cygwin:
+To prepare os_win32 directory for MS Visual Studio C++ 2010 [Express],
+use the following on MSYS or Cygwin:
 
   mkdir vctmp && cd vctmp
   ../configure [... any MinGW option set from above ...]
-  make config-vc8
+  make config-vc10
 
-  The MSVC8 project files (os_win32/smartmontools_vc8.sln,
-  os_win32/smart{ctl,d}_vc8.vcproj) are included in SVN (but not in
-  source tarball). The target config-vc8 from a Makefile configured
-  for MinGW creates os_win32/{config,svnversion}_vc8.h from
+  The MSVC project files (os_win32/smartmontools_vc10.sln,
+  os_win32/smart{ctl,d}_vc10.vcxproj) are included in SVN (but not in
+  source tarball). The target config-vc10 from a Makefile configured
+  for MinGW creates os_win32/{config,svnversion}_vc10.h from
   ./{config,svnversion}.h. The configure skript must be run outside
   of the source directory to avoid inclusion of the original config.h.
 
