@@ -41,6 +41,16 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Crucial/Micron RealSSD C300/C400: Add C400
+       - SandForce Driven SSDs: Add Kingston HyperX,
+         OCZ-REVODRIVE, OCZ Deneva 2
+       - Intel X18-M/X25-M/X25-V G2 SSDs: Add 120GB
+       - Hitachi Travelstar 7K200: Match capital letters also
+       - Hitachi Ultrastar 7K3000
+       - Seagate Barracuda Green: Add ST2000DL001-* (ticket #195)
+       - WD My Passport Essential SE: Add WD10TMVW-*
+
   [CF] drivedb.h USB updates:
        - Seagate FreeAgent GoFlex USB 3.0 (0x0bc2:0x5071) (ticket #195)
        - Seagate FreeAgent GoFlex Desk USB 3.0 (0x0bc2:0x50a1):

@@ -88,9 +88,14 @@ const drive_settings builtin_knowndrives[] = {
     "ASUS-PHISON SSD",
     "", "", ""
   },
-  { "Crucial RealSSD C300", // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002
-    "C300-CTFDDA[AC](064|128|256)MAG",
+  { "Crucial/Micron RealSSD C300/C400",
+    "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002
+    "C400-MTFDDA[ACK](064|128|256|512)MAM", // tested with C400-MTFDDAC256MAM/0002
     "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
     "-v 170,raw48,Grown_Failing_Block_Ct "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
@@ -98,6 +103,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 181,raw48,Non4k_Aligned_Access "
     "-v 183,raw48,SATA_Iface_Downshift "
+  //"-v 184,raw48,End-to-End_Error "
     "-v 189,raw48,Factory_Bad_Block_Ct "
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
@@ -109,10 +115,14 @@ const drive_settings builtin_knowndrives[] = {
       // Corsair CSSD-F40GB2/1.1
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
+    "KINGSTON SH100S3(120|240)G|" // Hyper-X, SF-2281, tested with SH100S3240G/320ABBF0
     "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX2|VERTEX-LE)( [123]\\..*)?|" // SF-1200,
       // tested with OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
+    "OCZ-REVODRIVE( X2)?|" // SF-1200, tested with OCZ-REVODRIVE(-X2)?/1.20
     "OCZ[ -](VELO|VERTEX2[ -](EX|PRO))( [123]\\..*)?|" // SF-1500, tested with
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
+    "D2CSTK251M11-(0120|0240|0400)|" // OCZ Deneva 2, SF-2000,
+      // tested with D2CSTK251M11-0240/2.08
     "OCZ-VERTEX3|"  // SF-2200, tested with OCZ-VERTEX3/2.02
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
@@ -222,7 +232,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Intel X18-M/X25-M/X25-V G2 SSDs", // fixed firmware
       // tested with INTEL SSDSA2M(080|160)G2GC/2CV102J8 (X25-M)
-    "INTEL SSDSA[12]M(040|080|160)G2.*",  // G2 = second generation, 34nm
+    "INTEL SSDSA[12]M(040|080|120|160)G2.*",  // G2 = second generation, 34nm
     "2CV102(J[89A-Z]|[K-Z].)", // >= "2CV102J8"
     "",
   //"-v 3,raw48,Spin_Up_Time "
@@ -241,7 +251,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Intel X18-M/X25-M/X25-V G2 SSDs", // buggy or unknown firmware
       // tested with INTEL SSDSA2M040G2GC/2CV102HD (X25-V)
-    "INTEL SSDSA[12]M(040|080|160)G2.*",
+    "INTEL SSDSA[12]M(040|080|120|160)G2.*",
     "",
     "This drive may require a firmware update to\n"
     "fix possible drive hangs when reading SMART self-test log:\n"
@@ -1185,8 +1195,8 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HTE7210[168]0G9(AT|SA)00",
     "", "", ""
   },
-  { "Hitachi Travelstar 7K200",
-    "(Hitachi )?HTS7220(80|10|12|16|20)K9(A3|SA)00",
+  { "Hitachi Travelstar 7K200", // tested with HITACHI HTS722016K9SA00/DCDZC75A
+    "(Hitachi |HITACHI )?HTS7220(80|10|12|16|20)K9(A3|SA)00",
     "", "", ""
   },
   { "Hitachi Travelstar 7K320", // tested with
@@ -1280,6 +1290,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Hitachi Ultrastar 7K1000",
     "(Hitachi )?HUA7210(50|75|10)KLA330",
+    "", "", ""
+  },
+  { "Hitachi Ultrastar 7K3000",
+    "Hitachi HUA7230(20|30)ALA640",
     "", "", ""
   },
   { "Hitachi Ultrastar A7K2000",
@@ -1560,7 +1574,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Barracuda Green (Adv. Format)",
-    "ST(1000DL002|(15|20)00DL003)-.*",
+    "ST((10|15|20)00DL00[123])-.*",
     "", "", ""
   },
   { "Seagate Barracuda XT",
@@ -1801,8 +1815,9 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(25|32|40|50)00BMVU-.*",
     "", "", ""
   },
-  { "Western Digital My Passport Essential SE (USB, Adv. Format)",
-    "WDC WD(7500K|10T)MVV-.*",
+  { "Western Digital My Passport Essential SE (USB, Adv. Format)", // tested with
+      // WDC WD10TMVW-11ZSMS5/01.01A01
+    "WDC WD(7500K|10T)MV[VW]-.*",
     "", "", ""
   },
   { "Western Digital My Passport (USB)", // tested with
