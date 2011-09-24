@@ -41,8 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
-  [AS] os_freebsd.cpp: -l scterc was broken on FreeBSD, fixed for atacam driver 
-       (bug #198).
+  [AS] os_freebsd.cpp: -l scterc was broken on FreeBSD, fixed for ataca and
+       ata drivers (bug #198).
+
   [CF] drivedb.h updates:
        - Crucial/Micron RealSSD C300/C400: Add C400
        - SandForce Driven SSDs: Add Kingston HyperX,

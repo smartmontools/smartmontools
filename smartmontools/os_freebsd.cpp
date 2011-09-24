@@ -287,12 +287,12 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
       request.flags=ATA_CMD_CONTROL;
       break;
     case ata_cmd_in::data_in:  
-      request.flags=ATA_CMD_READ;
+      request.flags=ATA_CMD_READ | ATA_CMD_CONTROL;;
       request.data=(char *)in.buffer;
       request.count=in.size;
       break;
     case ata_cmd_in::data_out: 
-      request.flags=ATA_CMD_WRITE;
+      request.flags=ATA_CMD_WRITE | ATA_CMD_CONTROL;
       request.data=(char *)in.buffer;
       request.count=in.size;
       break;
