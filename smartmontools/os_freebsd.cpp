@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3407 2011-07-18 23:22:02Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3417 2011-09-24 07:09:32Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -405,11 +405,8 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
                  request->count,
                  request->timeout * 1000); // timeout in seconds
 
+  ccb.ataio.cmd.flags = CAM_ATAIO_NEEDRESULT;
   // ata_28bit_cmd
-  if (request->flags == ATA_CMD_CONTROL)
-    ccb.ataio.cmd.flags = CAM_ATAIO_NEEDRESULT;
-  else
-    ccb.ataio.cmd.flags = 0;
   ccb.ataio.cmd.command = request->u.ata.command;
   ccb.ataio.cmd.features = request->u.ata.feature;
   ccb.ataio.cmd.lba_low = request->u.ata.lba;
@@ -434,6 +431,14 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
     cam_error_print(m_camdev, &ccb, CAM_ESF_ALL, CAM_EPF_ALL, stderr);
     return -1;
   }
+
+  request->u.ata.lba =
+    ((u_int64_t)(ccb.ataio.res.lba_low)) |
+    ((u_int64_t)(ccb.ataio.res.lba_mid) << 8) |
+    ((u_int64_t)(ccb.ataio.res.lba_high) << 16) |
+    ((u_int64_t)(ccb.ataio.res.lba_low_exp) << 24) |
+    ((u_int64_t)(ccb.ataio.res.lba_mid_exp) << 32) |
+    ((u_int64_t)(ccb.ataio.res.lba_high_exp) << 40);
 
   request->u.ata.count = ccb.ataio.res.sector_count;
   return 0;
