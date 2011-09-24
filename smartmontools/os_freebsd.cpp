@@ -440,7 +440,9 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
     ((u_int64_t)(ccb.ataio.res.lba_mid_exp) << 32) |
     ((u_int64_t)(ccb.ataio.res.lba_high_exp) << 40);
 
-  request->u.ata.count = ccb.ataio.res.sector_count;
+  request->u.ata.count = ccb.ataio.res.sector_count | (ccb.ataio.res.sector_count_exp << 8);
+  request->error = ccb.ataio.res.error;
+
   return 0;
 }
 
