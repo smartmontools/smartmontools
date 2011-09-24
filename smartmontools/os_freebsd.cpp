@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3417 2011-09-24 07:09:32Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3418 2011-09-24 07:32:38Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -440,7 +440,9 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
     ((u_int64_t)(ccb.ataio.res.lba_mid_exp) << 32) |
     ((u_int64_t)(ccb.ataio.res.lba_high_exp) << 40);
 
-  request->u.ata.count = ccb.ataio.res.sector_count;
+  request->u.ata.count = ccb.ataio.res.sector_count | (ccb.ataio.res.sector_count_exp << 8);
+  request->error = ccb.ataio.res.error;
+
   return 0;
 }
 
