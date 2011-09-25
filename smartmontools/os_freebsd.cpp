@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3419 2011-09-24 08:46:58Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3420 2011-09-25 19:55:58Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -287,7 +287,7 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
       request.flags=ATA_CMD_CONTROL;
       break;
     case ata_cmd_in::data_in:  
-      request.flags=ATA_CMD_READ | ATA_CMD_CONTROL;;
+      request.flags=ATA_CMD_READ | ATA_CMD_CONTROL;
       request.data=(char *)in.buffer;
       request.count=in.size;
       break;
@@ -299,8 +299,8 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
     default:
       return set_err(ENOSYS);
   }
-                          
-  clear_err(); 
+
+  clear_err();
   errno = 0;
   if (do_cmd(&request, in.in_regs.is_48bit_cmd()))
       return set_err(errno);
