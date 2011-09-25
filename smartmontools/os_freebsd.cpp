@@ -287,7 +287,7 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
       request.flags=ATA_CMD_CONTROL;
       break;
     case ata_cmd_in::data_in:  
-      request.flags=ATA_CMD_READ | ATA_CMD_CONTROL;;
+      request.flags=ATA_CMD_READ | ATA_CMD_CONTROL;
       request.data=(char *)in.buffer;
       request.count=in.size;
       break;
@@ -299,8 +299,8 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
     default:
       return set_err(ENOSYS);
   }
-                          
-  clear_err(); 
+
+  clear_err();
   errno = 0;
   if (do_cmd(&request, in.in_regs.is_48bit_cmd()))
       return set_err(errno);

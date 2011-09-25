@@ -41,7 +41,7 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
-  [AS] os_freebsd.cpp: -l scterc was broken on FreeBSD, fixed for ataca and
+  [AS] os_freebsd.cpp: -l scterc was broken on FreeBSD, fixed for atacam and
        ata drivers (bug #198).
 
   [CF] drivedb.h updates:
