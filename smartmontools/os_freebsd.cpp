@@ -389,7 +389,7 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
 
   if (request->count == 0)
     camflags = CAM_DIR_NONE;
-  else if (request->flags == ATA_CMD_READ)
+  else if (request->flags & ATA_CMD_READ)
     camflags = CAM_DIR_IN;
   else
     camflags = CAM_DIR_OUT;
