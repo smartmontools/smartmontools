@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3420 2011-09-25 19:55:58Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3421 2011-09-26 14:59:06Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -389,7 +389,7 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
 
   if (request->count == 0)
     camflags = CAM_DIR_NONE;
-  else if (request->flags == ATA_CMD_READ)
+  else if (request->flags & ATA_CMD_READ)
     camflags = CAM_DIR_IN;
   else
     camflags = CAM_DIR_OUT;
