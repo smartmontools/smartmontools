@@ -1054,11 +1054,17 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
   if (iop->cmnd[0] == 0x00)
     return true;
 
-  if (iop->cmnd[0] == 0xa1 || iop->cmnd[0] == 0x85) { // SAT_ATA_PASSTHROUGH_12/16
+  if (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 || iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16) { 
     // Controller does not return ATA output registers in SAT sense data
     if (iop->cmnd[2] & (1 << 5)) // chk_cond
       return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
   }
+  // SMART WRITE LOG SECTOR causing media errors
+  if ((iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16 && iop->cmnd[14] == ATA_SMART_CMD 
+	&& iop->cmnd[3]==0 && iop->cmnd[4] == ATA_SMART_WRITE_LOG_SECTOR) || 
+      (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 && iop->cmnd[9] == ATA_SMART_CMD &&
+        iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR)) 
+    return set_err(ENOSYS, "SMART WRITE LOG SECTOR command is not supported by controller firmware"); 
 
   if (pt_cmd == NULL)
     return false;
