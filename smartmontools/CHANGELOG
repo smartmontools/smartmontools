@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Add some sleep() time after machine standby mode.
+       Some drivers (Intel ICHxR Windows driver) report failures if
+       pass-through is accessed immediately after wake up.
+
   [AS] -d hpt on linux/freebsd - increased max channel number to 16,
        fixed documentation.
        (see http://permalink.gmane.org/gmane.linux.utilities.smartmontools/7846)
