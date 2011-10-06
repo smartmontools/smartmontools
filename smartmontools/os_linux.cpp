@@ -89,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3422 2011-09-29 22:33:18Z samm2 $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3423 2011-10-06 16:43:44Z samm2 $"
   OS_LINUX_H_CVSID;
 
 
@@ -3088,7 +3088,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
       set_err(EINVAL, "Option '-d hpt,L/M/N' invalid controller id L supplied");
       return 0;
     }
-    if (!(1 <= channel && channel <= 8)) {
+    if (!(1 <= channel && channel <= 16)) {
       set_err(EINVAL, "Option '-d hpt,L/M/N' invalid channel number M supplied");
       return 0;
     }
