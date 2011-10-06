@@ -125,7 +125,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3408 2011-07-21 23:47:09Z dpgilbert $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3424 2011-10-06 17:41:05Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -3227,7 +3227,8 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup)
   }
   
   // sleep until we catch SIGUSR1 or have completed sleeping
-  while (timenow<wakeuptime && !caughtsigUSR1 && !caughtsigHUP && !caughtsigEXIT){
+  int addtime = 0;
+  while (timenow < wakeuptime+addtime && !caughtsigUSR1 && !caughtsigHUP && !caughtsigEXIT) {
     
     // protect user again system clock being adjusted backwards
     if (wakeuptime>timenow+checktime){
@@ -3236,7 +3237,7 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup)
     }
     
     // Exit sleep when time interval has expired or a signal is received
-    sleep(wakeuptime-timenow);
+    sleep(wakeuptime+addtime-timenow);
 
 #ifdef _WIN32
     // toggle debug mode?
@@ -3247,6 +3248,19 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup)
 #endif
 
     timenow=time(NULL);
+
+    // Actual sleep time too long?
+    if (!addtime && timenow > wakeuptime+60) {
+      if (debugmode)
+        PrintOut(LOG_INFO, "Sleep time was %d seconds too long, assuming wakeup from standby mode.\n",
+          (int)(timenow-wakeuptime));
+      // Wait another 20 seconds to avoid I/O errors during disk spin-up
+      addtime = timenow-wakeuptime+20;
+      // Use next wake-up-time if close
+      int nextcheck = checktime - addtime % checktime;
+      if (nextcheck <= 20)
+        addtime += nextcheck;
+    }
   }
  
   // if we caught a SIGUSR1 then print message and clear signal
