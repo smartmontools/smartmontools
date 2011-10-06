@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Crucial/Micron RealSSD C300/C400: Add m4 series (ticket #192)
+       - SandForce Driven SSDs: Add OCZ-AGILITY3
+       - Indilinx Barefoot based SSDs: Add RENICE Z2
+       - Intel 710 Series SSDs
+
   [CF] Windows smartd: Fix quoting of service command line.
 
   [CF] Cygwin smartd: Remove FreeConsole() after fork().

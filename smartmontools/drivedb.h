@@ -90,7 +90,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Crucial/Micron RealSSD C300/C400",
     "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002
-    "C400-MTFDDA[ACK](064|128|256|512)MAM", // tested with C400-MTFDDAC256MAM/0002
+    "C400-MTFDDA[ACK](064|128|256|512)MAM|" // tested with C400-MTFDDAC256MAM/0002
+    "M4-CT(064|128|256)M4SSD2", // tested with M4-CT064M4SSD2/0002
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw48,Reallocated_Sector_Ct "
@@ -101,7 +102,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw48,Wear_Levelling_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
-    "-v 181,raw48,Non4k_Aligned_Access "
+    "-v 181,raw16,Non4k_Aligned_Access "
     "-v 183,raw48,SATA_Iface_Downshift "
   //"-v 184,raw48,End-to-End_Error "
     "-v 189,raw48,Factory_Bad_Block_Ct "
@@ -123,7 +124,7 @@ const drive_settings builtin_knowndrives[] = {
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
     "D2CSTK251M11-(0120|0240|0400)|" // OCZ Deneva 2, SF-2000,
       // tested with D2CSTK251M11-0240/2.08
-    "OCZ-VERTEX3|"  // SF-2200, tested with OCZ-VERTEX3/2.02
+    "OCZ-(AGILITY3|VERTEX3)|"  // SF-2200, tested with OCZ-VERTEX3/2.02, OCZ-AGILITY3/2.11
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
@@ -169,6 +170,7 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ[ -](AGILITY|ONYX|VERTEX( 1199|-TURBO)?)|" // tested with
       // OCZ-ONYX/1.6, OCZ-VERTEX 1199/00.P97, OCZ-VERTEX/1.30, OCZ VERTEX-TURBO/1.5
     "Patriot[ -]Torqx.*|"
+    "RENICE Z2|" // tested with RENICE Z2/2030
     "STT_FT[MD](28|32|56|64)GX25H|" // Super Talent Ultradrive GX, tested with STT_FTM64GX25H/1916
     "TS(18|25)M(64|128)MLC(16|32|64|128|256|512)GSSD|" // ASAX Leopard Hunt II, tested with TS25M64MLC64GSSD/0.1
     "FM-25S2I-(64|128)GBFII|" // G.Skill FALCON II, tested with FM-25S2I-64GBFII
@@ -275,6 +277,32 @@ const drive_settings builtin_knowndrives[] = {
     "-v 172,raw48,Erase_Fail_Count "
   //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB"
+  },
+  { "Intel 710 Series SSDs",
+    "INTEL SSDSA2BZ(100|200|300)G3",
+    "", "",
+  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 4,raw48,Start_Stop_Count "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Reserve_Block_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+  //"-v 174,raw48,Unknown_Attribute "
+    "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 190,raw48,Airflow_Temperature_Cel "
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
     "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
