@@ -2208,7 +2208,7 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
       set_err(EINVAL, "Option '-d hpt,L/M/N' invalid controller id L supplied");
       return 0;
     }
-    if (!(1 <= channel && channel <= 8)) {
+    if (!(1 <= channel && channel <= 16)) {
       set_err(EINVAL, "Option '-d hpt,L/M/N' invalid channel number M supplied");
       return 0;
     }
