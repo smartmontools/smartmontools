@@ -71,9 +71,6 @@ typedef int pid_t;
 #endif // _WIN32
 
 #ifdef __CYGWIN__
-// From <windows.h>:
-// BOOL WINAPI FreeConsole(void);
-extern "C" int __stdcall FreeConsole(void);
 #include <io.h> // setmode()
 #endif // __CYGWIN__
 
@@ -1399,11 +1396,6 @@ static void DaemonInit()
   for (i=getdtablesize();i>=0;--i)
     close(i);
   
-#ifdef __CYGWIN__
-  // Cygwin's setsid() does not detach the process from Windows console
-  FreeConsole();
-#endif // __CYGWIN__
-
 #define NO_warn_unused_result(cmd) { if (cmd) {} ; }
 
   // redirect any IO attempts to /dev/null for stdin
