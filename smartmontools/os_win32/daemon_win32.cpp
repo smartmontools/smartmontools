@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 
 #include "daemon_win32.h"
 
-const char * daemon_win32_cpp_cvsid = "$Id: daemon_win32.cpp 3267 2011-02-21 17:14:25Z chrfranke $"
+const char * daemon_win32_cpp_cvsid = "$Id: daemon_win32.cpp 3426 2011-10-06 18:23:15Z chrfranke $"
   DAEMON_WIN32_H_CVSID;
 
 
@@ -1034,13 +1034,27 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
 			CloseServiceHandle(hm);
 			return 1;
 		}
+		// Add quotes if necessary
+		if (strchr(path, ' ')) {
+			i = strlen(path);
+			path[i+1] = '"'; path[i+2] = 0;
+			while (--i >= 0)
+				path[i+1] = path[i];
+			path[0] = '"';
+		}
 		// Append options
 		strcat(path, " "); strcat(path, svc_opts->cmd_opt);
 		for (i = 2; i < argc; i++) {
 			const char * s = argv[i];
-			if (strlen(path)+strlen(s)+1 >= sizeof(path))
+			if (strlen(path)+1+1+strlen(s)+1 >= sizeof(path))
 				break;
-			strcat(path, " "); strcat(path, s);
+			// Add quotes if necessary
+			if (strchr(s, ' ') && !strchr(s, '"')) {
+				strcat(path, " \""); strcat(path, s); strcat(path, "\"");
+			}
+			else {
+				strcat(path, " "); strcat(path, s);
+			}
 		}
 		// Create
 		if (!(hs = CreateService(hm,
