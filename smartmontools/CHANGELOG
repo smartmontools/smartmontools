@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3424 2011-10-06 17:41:05Z chrfranke $
+$Id: CHANGELOG 3425 2011-10-06 18:06:51Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Cygwin smartd: Remove FreeConsole() after fork().
+       No longer needed for recent versions of Cygwin DLL.
 
   [CF] smartd: Add some sleep() time after machine standby mode.
        Some drivers (Intel ICHxR Windows driver) report failures if

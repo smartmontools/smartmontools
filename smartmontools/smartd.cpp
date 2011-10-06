@@ -71,9 +71,6 @@ typedef int pid_t;
 #endif // _WIN32
 
 #ifdef __CYGWIN__
-// From <windows.h>:
-// BOOL WINAPI FreeConsole(void);
-extern "C" int __stdcall FreeConsole(void);
 #include <io.h> // setmode()
 #endif // __CYGWIN__
 
@@ -125,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3424 2011-10-06 17:41:05Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3425 2011-10-06 18:06:51Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -1399,11 +1396,6 @@ static void DaemonInit()
   for (i=getdtablesize();i>=0;--i)
     close(i);
   
-#ifdef __CYGWIN__
-  // Cygwin's setsid() does not detach the process from Windows console
-  FreeConsole();
-#endif // __CYGWIN__
-
 #define NO_warn_unused_result(cmd) { if (cmd) {} ; }
 
   // redirect any IO attempts to /dev/null for stdin
