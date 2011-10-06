@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows smartd: Fix quoting of service command line.
+
   [CF] Cygwin smartd: Remove FreeConsole() after fork().
        No longer needed for recent versions of Cygwin DLL.
 
