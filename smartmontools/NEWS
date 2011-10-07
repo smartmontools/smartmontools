@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3395 2011-06-29 20:03:20Z chrfranke $
+$Id: NEWS 3428 2011-10-07 14:32:43Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -8,6 +8,7 @@ http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontool
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.42
 -----------------------------------------------------------
+- smartd directives '-l offlinests' and '-l selfteststs'.
 - Platform-specific man pages.
 - FreeBSD: Compilation fixes.
 - FreeBSD: Support for Areca controllers.
