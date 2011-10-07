@@ -598,6 +598,17 @@ options.]
 [ATA only] Failed self-tests outdated by a newer successful extended
 self\-test are ignored.
 
+.I offlinests
+\- [ATA only] report if the Offline Data Collection status has changed
+since the last check.  The report will be logged as LOG_CRIT if the new
+status indicates an error.  With some drives the status often changes,
+therefore \'\-l offlinests\' is not enabled by '\-a\' Directive.
+
+.I selfteststs
+\- [ATA only] report if the Self-Test execution status has changed
+since the last check.  The report will be logged as LOG_CRIT if the new
+status indicates an error.
+
 .I scterc,READTIME,WRITETIME
 \- [ATA only] [NEW EXPERIMENTAL SMARTD FEATURE] sets the SCT Error
 Recovery Control settings to the specified values (deciseconds)
@@ -1278,10 +1289,12 @@ to check the SMART health status,
 to report failures of Usage (rather than Prefail) Attributes,
 .B \'\-t\' 
 to track changes in both Prefailure and Usage Attributes,
-.B \'\-l\ selftest\' 
-to report increases in the number of Self-Test Log errors,
-.B \'\-l\ error\' 
+.B \'\-l\ error\'
 to report increases in the number of ATA errors,
+.B \'\-l\ selftest\'
+to report increases in the number of Self-Test Log errors,
+.B \'\-l\ selfteststs\'
+to report changes of Self-Test execution status,
 .B \'\-C 197\'
 to report nonzero values of the current pending sector count, and
 .B \'\-U 198\'

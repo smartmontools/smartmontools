@@ -262,6 +262,8 @@ struct dev_config
   bool selftest;                          // Monitor number of selftest errors
   bool errorlog;                          // Monitor number of ATA errors
   bool xerrorlog;                         // Monitor number of ATA errors (Extended Comprehensive error log)
+  bool offlinests;                        // Monitor changes in offline data collection status
+  bool selfteststs;                       // Monitor changes in self-test execution status
   bool permissive;                        // Ignore failed SMART commands
   char autosave;                          // 1=disable, 2=enable Autosave Attributes
   char autoofflinetest;                   // 1=disable, 2=enable Auto Offline Test
@@ -308,6 +310,8 @@ dev_config::dev_config()
   selftest(false),
   errorlog(false),
   xerrorlog(false),
+  offlinests(false),
+  selfteststs(false),
   permissive(false),
   autosave(0),
   autoofflinetest(0),
@@ -1468,7 +1472,8 @@ static void Directives()
            "  -n MODE No check if: never, sleep[,N][,q], standby[,N][,q], idle[,N][,q]\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
-           "  -l TYPE Monitor SMART log.  Type is one of: error, selftest, xerror\n"
+           "  -l TYPE Monitor SMART log or self-test status\n"
+           "          Type is one of: error, selftest, xerror, offlinests, selfteststs\n"
            "  -l scterc,R,W  Set SCT Error Recovery Control\n"
            "  -f      Monitor 'Usage' Attributes, report failures\n"
            "  -m ADD  Send email warning to address ADD\n"
@@ -1485,7 +1490,7 @@ static void Directives()
            "  -W D,I,C Monitor Temperature D)ifference, I)nformal limit, C)ritical limit\n"
            "  -v N,ST Modifies labeling of Attribute N (see man page)  \n"
            "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
-           "  -a      Default: -H -f -t -l error -l selftest -C 197 -U 198\n"
+           "  -a      Default: -H -f -t -l error -l selftest -l selfteststs -C 197 -U 198\n"
            "  -F TYPE Firmware bug workaround: none, samsung, samsung2, samsung3\n"
            "   #      Comment: text after a hash sign is ignored\n"
            "   \\      Line continuation character\n"
@@ -1657,7 +1662,7 @@ static void log_offline_data_coll_status(const char * name, unsigned char status
   switch (status & 0x7f) {
     case 0x00: msg = "was never started"; break;
     case 0x02: msg = "was completed without error"; break;
-    case 0x03: msg = (status == 0x03 ? "is in progress" : 0); break;
+    case 0x03: msg = "is in progress"; break;
     case 0x04: msg = "was suspended by an interrupting command from host"; break;
     case 0x05: msg = "was aborted by an interrupting command from host"; break;
     case 0x06: msg = "was aborted by the device with a fatal error"; break;
@@ -1883,6 +1888,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   bool smart_val_ok = false;
   if (   cfg.autoofflinetest || cfg.selftest
       || cfg.errorlog        || cfg.xerrorlog
+      || cfg.offlinests      || cfg.selfteststs
       || cfg.usagefailed     || cfg.prefail  || cfg.usage
       || cfg.tempdiff        || cfg.tempinfo || cfg.tempcrit
       || cfg.curr_pending_id || cfg.offl_pending_id         ) {
@@ -2015,7 +2021,18 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     else
       state.ataerrorcount = errcnt2;
   }
-  
+
+  // capability check: self-test and offline data collection status
+  if (cfg.offlinests || cfg.selfteststs) {
+    if (!(cfg.permissive || (smart_val_ok && state.smartval.offline_data_collection_capability))) {
+      if (cfg.offlinests)
+        PrintOut(LOG_INFO, "Device: %s, no SMART Offline Data Collection capability, ignoring -l offlinests (override with -T permissive)\n", name);
+      if (cfg.selfteststs)
+        PrintOut(LOG_INFO, "Device: %s, no SMART Self-test capability, ignoring -l selfteststs (override with -T permissive)\n", name);
+      cfg.offlinests = cfg.selfteststs = false;
+    }
+  }
+
   // capabilities check -- does it support powermode?
   if (cfg.powermode) {
     int powermode = ataCheckPowerMode(atadev);
@@ -2047,6 +2064,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   // If no tests available or selected, return
   if (!(   cfg.smartcheck  || cfg.selftest
         || cfg.errorlog    || cfg.xerrorlog
+        || cfg.offlinests  || cfg.selfteststs
         || cfg.usagefailed || cfg.prefail  || cfg.usage
         || cfg.tempdiff    || cfg.tempinfo || cfg.tempcrit)) {
     CloseDevice(atadev, name);
@@ -2959,7 +2977,8 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   // Check everything that depends upon SMART Data (eg, Attribute values)
   if (   cfg.usagefailed || cfg.prefail || cfg.usage
       || cfg.curr_pending_id || cfg.offl_pending_id
-      || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit || cfg.selftest) {
+      || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit
+      || cfg.selftest ||  cfg.offlinests || cfg.selfteststs) {
 
     // Read current attribute values.
     ata_smart_values curval;
@@ -2984,31 +3003,33 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
         CheckTemperature(cfg, state, ata_return_temperature_value(&curval, cfg.attribute_defs), 0);
 
+      // look for failed usage attributes, or track usage or prefail attributes
       if (cfg.usagefailed || cfg.prefail || cfg.usage) {
-
-        // look for failed usage attributes, or track usage or prefail attributes
         for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
           check_attribute(cfg, state,
                           curval.vendor_attributes[i],
                           state.smartval.vendor_attributes[i],
                           i, state.smartthres.thres_entries);
         }
-
-        if (cfg.selftest) {
-          // Log changes of offline data collection and self-test execution status
-          if (   curval.offline_data_collection_status
-                 != state.smartval.offline_data_collection_status
-              || (firstpass && (debugmode || (curval.offline_data_collection_status & 0x7d))))
-            log_offline_data_coll_status(name, curval.offline_data_collection_status);
-
-          if (   curval.self_test_exec_status != state.smartval.self_test_exec_status
-              || (firstpass && (debugmode || curval.self_test_exec_status != 0x00)))
-            log_self_test_exec_status(name, curval.self_test_exec_status);
-        }
-
-	// Save the new values into *drive for the next time around
-	state.smartval = curval;
       }
+
+      // Log changes of offline data collection status
+      if (cfg.offlinests) {
+        if (   curval.offline_data_collection_status
+                != state.smartval.offline_data_collection_status
+            || (firstpass && (debugmode || (curval.offline_data_collection_status & 0x7d))))
+          log_offline_data_coll_status(name, curval.offline_data_collection_status);
+      }
+
+      // Log changes of self-test execution status
+      if (cfg.selfteststs) {
+        if (   curval.self_test_exec_status != state.smartval.self_test_exec_status
+            || (firstpass && (debugmode || curval.self_test_exec_status != 0x00)))
+          log_self_test_exec_status(name, curval.self_test_exec_status);
+      }
+
+      // Save the new values for the next time around
+      state.smartval = curval;
     }
   }
   
@@ -3490,6 +3511,12 @@ static int ParseToken(char * token, dev_config & cfg)
     } else if (!strcmp(arg, "xerror")) {
       // track changes in Extended Comprehensive SMART error log
       cfg.xerrorlog = true;
+    } else if (!strcmp(arg, "offlinests")) {
+      // track changes in offline data collection status
+      cfg.offlinests = true;
+    } else if (!strcmp(arg, "selfteststs")) {
+      // track changes in self-test execution status
+      cfg.selfteststs = true;
     } else if (!strncmp(arg, "scterc,", sizeof("scterc,")-1)) {
         // set SCT Error Recovery Control
         unsigned rt = ~0, wt = ~0; int nc = -1;
@@ -3513,6 +3540,7 @@ static int ParseToken(char * token, dev_config & cfg)
     cfg.usage = true;
     cfg.selftest = true;
     cfg.errorlog = true;
+    cfg.selfteststs = true;
     break;
   case 'o':
     // automatic offline testing enable/disable
@@ -3795,6 +3823,7 @@ static int ParseConfigLine(dev_config_vector & conf_entries, int /*entry*/, int 
   // If NO monitoring directives are set, then set all of them.
   if (!(   cfg.smartcheck  || cfg.selftest
         || cfg.errorlog    || cfg.xerrorlog
+        || cfg.offlinests  || cfg.selfteststs
         || cfg.usagefailed || cfg.prefail  || cfg.usage
         || cfg.tempdiff    || cfg.tempinfo || cfg.tempcrit)) {
     
@@ -3807,6 +3836,7 @@ static int ParseConfigLine(dev_config_vector & conf_entries, int /*entry*/, int 
     cfg.usage = true;
     cfg.selftest = true;
     cfg.errorlog = true;
+    cfg.selfteststs = true;
   }
   
   // additional sanity check. Has user set -M options without -m?
@@ -4302,7 +4332,7 @@ static void ParseOpts(int argc, char **argv)
   if (!attrlog_path_prefix.empty() && !debugmode && !is_abs_path(attrlog_path_prefix.c_str())) {
     debugmode=1;
     PrintHead();
-    PrintOut(LOG_CRIT, "=======> INVALID CHOICE OF OPTIONS: -s <======= \n\n");
+    PrintOut(LOG_CRIT, "=======> INVALID CHOICE OF OPTIONS: -A <======= \n\n");
     PrintOut(LOG_CRIT, "Error: relative path %s is only allowed in debug (-d) mode\n\n",
       attrlog_path_prefix.c_str());
     EXIT(EXIT_BADCMD);
