@@ -85,7 +85,7 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3414 2011-09-09 21:07:55Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3430 2011-10-07 21:08:26Z chrfranke $";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
 #ifdef _WIN64
@@ -2024,14 +2024,22 @@ static int storage_predict_failure_ioctl(HANDLE hdevice, char * data = 0)
 
 /////////////////////////////////////////////////////////////////////////////
 
+// Return true if Intel ICHxR RAID volume
+static bool is_intel_raid_volume(const STORAGE_DEVICE_DESCRIPTOR_DATA * data)
+{
+  if (!(data->desc.VendorIdOffset && data->desc.ProductIdOffset))
+    return false;
+  const char * vendor = data->raw + data->desc.VendorIdOffset;
+  if (!(!strnicmp(vendor, "Intel", 5) && strspn(vendor+5, " ") == strlen(vendor+5)))
+    return false;
+  if (strnicmp(data->raw + data->desc.ProductIdOffset, "Raid ", 5))
+    return false;
+  return true;
+}
+
 // get DEV_* for open handle
 static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONINPARAMS_EX * ata_version_ex)
 {
-  // Try SMART_GET_VERSION first to detect ATA SMART support
-  // for drivers reporting BusTypeScsi (3ware)
-  if (admin && smart_get_version(hdevice, ata_version_ex) >= 0)
-    return DEV_ATA;
-
   // Get BusType from device descriptor
   STORAGE_DEVICE_DESCRIPTOR_DATA data;
   if (storage_query_property_ioctl(hdevice, &data))
@@ -2044,12 +2052,24 @@ static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONIN
       if (ata_version_ex)
         memset(ata_version_ex, 0, sizeof(*ata_version_ex));
       return DEV_ATA;
+
     case BusTypeScsi:
+    case BusTypeRAID:
+      // Intel ICHxR RAID volume: reports SMART_GET_VERSION but does not support SMART_*
+      if (is_intel_raid_volume(&data))
+        return DEV_SCSI;
+      // LSI/3ware RAID volume: supports SMART_*
+      if (admin && smart_get_version(hdevice, ata_version_ex) >= 0)
+        return DEV_ATA;
+      return DEV_SCSI;
+
     case 0x09: // BusTypeiScsi
     case 0x0a: // BusTypeSas
       return DEV_SCSI;
+
     case BusTypeUsb:
       return DEV_USB;
+
     default:
       return DEV_UNKNOWN;
   }
