@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Resend warning emails if problem reappears (ticket #167).
+
   [CF] smartd: Add separate directives '-l offlinests' and '-l selfteststs'
        to enable tracking of status changes.  Disable '-l offlinests' by
        default to avoid misleading messages (see Debian bug 636078).

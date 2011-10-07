@@ -941,7 +941,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
              which, (int)sizeof(whichfail));
     return;
   }
-  
+
   // Return if a single warning mail has been sent.
   if ((cfg.emailfreq==1) && mail->logged)
     return;
@@ -1242,6 +1242,34 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 
   // increment mail sent counter
   mail->logged++;
+}
+
+static void reset_warning_mail(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
+                               __attribute__ ((format (printf, 4, 5)));
+
+static void reset_warning_mail(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
+{
+  if (!(0 <= which && which < SMARTD_NMAIL))
+    return;
+
+  // Return if no mail sent yet
+  mailinfo & mi = state.maillog[which];
+  if (!mi.logged)
+    return;
+
+  // Format & print message
+  char msg[256];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(msg, sizeof(msg), fmt, ap);
+  va_end(ap);
+
+  PrintOut(LOG_INFO, "Device: %s, %s, warning condition reset after %d email%s\n", cfg.name.c_str(),
+           msg, mi.logged, (mi.logged==1 ? "" : "s"));
+
+  // Clear mail counter and timestamps
+  mi = mailinfo();
+  state.must_write = true;
 }
 
 #ifndef _WIN32
@@ -2295,7 +2323,9 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
   if (newi<0)
     // command failed
     MailWarning(cfg, state, 8, "Device: %s, Read SMART Self-Test Log Failed", name);
-  else {      
+  else {
+    reset_warning_mail(cfg, state, 8, "Read SMART Self-Test Log worked again");
+
     // old and new error counts
     int oldc=state.selflogcount;
     int newc=SELFTEST_ERRORCOUNT(newi);
@@ -2328,9 +2358,13 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
     }
 
     // Print info if error entries have disappeared
-    if (oldc > newc)
+    // or newer successful successful extended self-test exits
+    if (oldc > newc) {
       PrintOut(LOG_INFO, "Device: %s, Self-Test Log error count decreased from %d to %d\n",
                name, oldc, newc);
+      if (newc == 0)
+        reset_warning_mail(cfg, state, 3, "Self-Test Log does no longer report errors");
+    }
 
     // Needed since self-test error count may DECREASE.  Hour might
     // also have changed.
@@ -2672,8 +2706,10 @@ static void check_pending(const dev_config & cfg, dev_state & state,
 
   // No report if no sectors pending.
   uint64_t rawval = ata_get_attr_raw_value(smartval.vendor_attributes[i], cfg.attribute_defs);
-  if (rawval == 0)
+  if (rawval == 0) {
+    reset_warning_mail(cfg, state, mailtype, "No more %s", msg);
     return;
+  }
 
   // If attribute is not reset, report only sector count increases.
   uint64_t prev_rawval = ata_get_attr_raw_value(state.smartval.vendor_attributes[i], cfg.attribute_defs);
@@ -2766,6 +2802,11 @@ static void CheckTemperature(const dev_config & cfg, dev_state & state, unsigned
   else if (cfg.tempinfo && currtemp >= cfg.tempinfo) {
     PrintOut(LOG_INFO, "Device: %s, Temperature %u Celsius reached limit of %u Celsius (Min/Max %s%s/%u%s)\n",
       cfg.name.c_str(), currtemp, cfg.tempinfo, fmt_temp(state.tempmin, buf), minchg, state.tempmax, maxchg);
+  }
+  else if (cfg.tempcrit) {
+    unsigned char limit = (cfg.tempinfo ? cfg.tempinfo : cfg.tempcrit-5);
+    if (currtemp < limit)
+      reset_warning_mail(cfg, state, 12, "Temperature %u Celsius dropped below %u Celsius", currtemp, limit);
   }
 }
 
@@ -2884,8 +2925,10 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
     PrintOut(LOG_INFO, "Device: %s, open() failed: %s\n", name, atadev->get_errmsg());
     MailWarning(cfg, state, 9, "Device: %s, unable to open device", name);
     return 1;
-  } else if (debugmode)
+  }
+  if (debugmode)
     PrintOut(LOG_INFO,"Device: %s, opened ATA device\n", name);
+  reset_warning_mail(cfg, state, 9, "open device worked again");
 
   // user may have requested (with the -n Directive) to leave the disk
   // alone if it is in idle or sleeping mode.  In this case check the
@@ -2988,6 +3031,8 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       state.must_write = true;
     }
     else {
+      reset_warning_mail(cfg, state, 6, "read SMART Attribute Data worked again");
+
       // look for current or offline pending sectors
       if (cfg.curr_pending_id)
         check_pending(cfg, state, cfg.curr_pending_id, cfg.curr_pending_incr, curval, 10,

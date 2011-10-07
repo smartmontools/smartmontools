@@ -596,7 +596,9 @@ command-line option.
 options.]
 
 [ATA only] Failed self-tests outdated by a newer successful extended
-self\-test are ignored.
+self\-test are ignored.  The warning email counter is reset if the
+number of failed self tests dropped to 0.  This typically happens when
+an extended self\-test is run after all bad sectors have been reallocated.
 
 .I offlinests
 \- [ATA only] report if the Offline Data Collection status has changed
@@ -846,6 +848,9 @@ of disk problem detected.  This is the default if state persistence
 then a two-day interval, then a four-day interval, and so on for each
 type of disk problem detected. Each interval is twice as long as the
 previous interval.
+
+If a disk problem is no longer detected, the internal email counter is
+reset.  If the problem reappears a new warning email is sent immediately.
 
 In addition, one may add zero or more of the following Directives:
 
@@ -1130,6 +1135,10 @@ has increased between two check cycles. Some disks do not reset this
 attribute when a bad sector is reallocated.
 See also \'\-v 197,increasing\' below.
 
+The warning email counter is reset if the number of pending sectors
+dropped to 0.  This typically happens when all pending sectors have
+been reallocated or could be read again.
+
 A pending sector is a disk sector (containing 512 bytes of your data)
 which the device would like to mark as ``bad" and reallocate.
 Typically this is because your computer tried to read that sector, and
@@ -1158,6 +1167,10 @@ has increased since the last check cycle. Some disks do not reset this
 attribute when a bad sector is reallocated.
 See also \'\-v 198,increasing\' below.
 
+The warning email counter is reset if the number of offline uncorrectable
+sectors dropped to 0.  This typically happens when all offline uncorrectable
+sectors have been reallocated or could be read again.
+
 An offline uncorrectable sector is a disk sector which was not
 readable during an off\-line scan or a self\-test.  This is important
 to know, because if you have data stored in this disk sector, and you
@@ -1173,6 +1186,9 @@ If the limit \fBCRIT\fP is reached, a message with loglevel
 \fB\'LOG_CRIT\'\fP will be logged to syslog and a warning email
 will be send if '-m' is specified. If only the limit \fBINFO\fP is
 reached, a message with loglevel \fB\'LOG_INFO\'\fP will be logged.
+
+The warning email counter is reset if the temperature dropped below
+\fBINFO\fP or \fBCRIT\fP-5 if \fBINFO\fP is not specified.
 
 If this directive is used in conjunction with state persistence
 (\'\-s\' option), the min and max temperature values are preserved
