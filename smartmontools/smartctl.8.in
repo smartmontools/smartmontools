@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3423 2011-10-06 16:43:44Z samm2 $
+ $Id: smartctl.8.in 3431 2011-10-08 19:58:35Z dpgilbert $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1128,6 +1128,12 @@ This command:
 .fi
 writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
+
+.I ssd
+\- [SCSI only] prints the Solid State Media percentage used endurance
+indicator. A value of 0 indicates as new condition while 100
+indicates the device is at the end of its lifetime as projected by the
+manufacturer. The value may reach 255.
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME], \-\-vendorattribute=ID,FORMAT[:BYTEORDER][,NAME]
 [ATA only] Sets a vendor\-specific raw value print FORMAT, an optional
@@ -2023,4 +2029,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3423 2011-10-06 16:43:44Z samm2 $
+$Id: smartctl.8.in 3431 2011-10-08 19:58:35Z dpgilbert $

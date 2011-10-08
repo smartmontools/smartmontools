@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3430 2011-10-07 21:08:26Z chrfranke $
+$Id: CHANGELOG 3431 2011-10-08 19:58:35Z dpgilbert $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] [SCSI] document 'ssd' list option in man page and smartctl usage.
 
   [CF] Windows: Fix device type detection for Intel ICHxR RAID Volumes.
 
