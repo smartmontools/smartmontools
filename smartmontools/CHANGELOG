@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DG] [SCSI] document 'ssd' list option in man page and smartctl usage.
+
   [CF] Windows: Fix device type detection for Intel ICHxR RAID Volumes.
 
   [CF] smartd: Resend warning emails if problem reappears (ticket #167).

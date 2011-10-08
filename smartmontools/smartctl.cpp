@@ -134,7 +134,7 @@ static void Usage()
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "                               background, sasphy[,reset], sataphy[,reset],\n"
 "                               scttemp[sts,hist], scterc[,N,M],\n"
-"                               gplog,N[,RANGE], smartlog,N[,RANGE],\n"
+"                               gplog,N[,RANGE], smartlog,N[,RANGE], ssd,\n"
 "                               xerror[,N][,error], xselftest[,N][,selftest]\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
@@ -192,7 +192,7 @@ static std::string getvalidarglist(char opt)
     return "on, off";
   case 'l':
     return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist], scterc[,N,M], "
-           "sasphy[,reset], sataphy[,reset], gplog,N[,RANGE], smartlog,N[,RANGE], "
+           "sasphy[,reset], sataphy[,reset], gplog,N[,RANGE], smartlog,N[,RANGE], ssd, "
 	   "xerror[,N][,error], xselftest[,N][,selftest]";
   case 'P':
     return "use, ignore, show, showall";

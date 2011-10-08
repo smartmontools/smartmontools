@@ -1128,6 +1128,12 @@ This command:
 .fi
 writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
+
+.I ssd
+\- [SCSI only] prints the Solid State Media percentage used endurance
+indicator. A value of 0 indicates as new condition while 100
+indicates the device is at the end of its lifetime as projected by the
+manufacturer. The value may reach 255.
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME], \-\-vendorattribute=ID,FORMAT[:BYTEORDER][,NAME]
 [ATA only] Sets a vendor\-specific raw value print FORMAT, an optional
