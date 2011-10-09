@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] drivedb.h update:
+       - SMART Xcel-10 2.5 SATA SSD
+
   [DG] [SCSI] document 'ssd' list option in man page and smartctl usage.
 
   [CF] Windows: Fix device type detection for Intel ICHxR RAID Volumes.
