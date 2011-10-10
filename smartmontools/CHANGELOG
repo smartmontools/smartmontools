@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3432 2011-10-09 21:32:02Z samm2 $
+$Id: CHANGELOG 3433 2011-10-10 15:28:41Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h update:
+       - SMART Xcel-10 2.5 SATA SSD: Fix syntax error (ticket #200)
 
   [AS] drivedb.h update:
        - SMART Xcel-10 2.5 SATA SSD
