@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] man pages: trivial man page syntax fixes (ticket #199)
+
   [CF] drivedb.h update:
        - SMART Xcel-10 2.5 SATA SSD: Fix syntax error (ticket #200)
 
