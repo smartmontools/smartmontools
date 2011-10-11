@@ -122,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3429 2011-10-07 19:32:18Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3439 2011-10-11 21:42:36Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -1578,7 +1578,7 @@ static void Usage()
   PrintOut(LOG_INFO,"        [default is %s]\n\n", configfile);
 #ifdef HAVE_LIBCAP_NG
   PrintOut(LOG_INFO,"  -C, --capabilities\n");
-  PrintOut(LOG_INFO,"        Use capabilities (EXPERIMENTAL).\n"
+  PrintOut(LOG_INFO,"        Use capabilities.\n"
                     "        Warning: Mail notification does not work when used.\n\n");
 #endif
   PrintOut(LOG_INFO,"  -d, --debug\n");

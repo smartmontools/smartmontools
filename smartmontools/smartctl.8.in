@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3435 2011-10-11 19:01:42Z chrfranke $
+ $Id: smartctl.8.in 3439 2011-10-11 21:42:36Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1082,14 +1082,13 @@ The SCT commands are specified in the proposed ATA\-8 Command Set
 (ACS), and are already implemented in some recent ATA\-7 disks.
 
 .I scterc[,READTIME,WRITETIME]
-\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values
-and descriptions of the SCT Error Recovery Control settings. These
-are equivalent to TLER (as used by Western Digital), CCTL (as used
-by Samsung and Hitachi) and ERC (as used by Seagate). READTIME and
-WRITETIME arguments (deciseconds) set the specified values. Values of 0
-disable the feature, other values less than 65 are probably not
-supported. For RAID configurations, this is typically set to
-70,70 deciseconds.
+\- [ATA only] prints values and descriptions of the SCT Error Recovery
+Control settings. These are equivalent to TLER (as used by Western
+Digital), CCTL (as used by Samsung and Hitachi) and ERC (as used by
+Seagate). READTIME and WRITETIME arguments (deciseconds) set the
+specified values. Values of 0 disable the feature, other values less
+than 65 are probably not supported. For RAID configurations, this is
+typically set to 70,70 deciseconds.
 
 .I devstat[,PAGE]
 \- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values
@@ -2042,4 +2041,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3435 2011-10-11 19:01:42Z chrfranke $
+$Id: smartctl.8.in 3439 2011-10-11 21:42:36Z chrfranke $

@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in 3434 2011-10-10 15:45:35Z samm2 $
+$Id: smartd.8.in 3439 2011-10-11 21:42:36Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -206,7 +206,7 @@ to perform quick and simple checks without a configuration file.
 .\" %IF ENABLE_CAPABILITIES
 .TP
 .B \-C, \-\-capabilities
-Use \fBcapabilities(7)\fP (EXPERIMENTAL).
+Use \fBcapabilities(7)\fP.
 
 Warning: Mail notification does not work when used.
 .\" %ENDIF ENABLE_CAPABILITIES
@@ -812,4 +812,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 3434 2011-10-10 15:45:35Z samm2 $
+$Id: smartd.8.in 3439 2011-10-11 21:42:36Z chrfranke $
