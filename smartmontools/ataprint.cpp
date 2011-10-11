@@ -482,13 +482,26 @@ static void print_drive_info(const ata_identify_device * drive,
 
   std::string majorstr, minorstr;
   if (version) {
-    majorstr = strprintf("%d", abs(version));
-    if (description)
-      minorstr = description;
-    else if (!minorrev)
-      minorstr = "Exact ATA specification draft version not indicated";
-    else
-      minorstr = strprintf("Not recognized. Minor revision code: 0x%04x", minorrev);
+    if (version <= 8) {
+      majorstr = strprintf("%d", abs(version));
+      if (description)
+        minorstr = description;
+      else if (!minorrev)
+        minorstr = "Exact ATA specification draft version not indicated";
+      else
+        minorstr = strprintf("Not recognized. Minor revision code: 0x%04x", minorrev);
+    }
+    else {
+      // Bit 9 in word 80 of ATA IDENTIFY data does not mean "ATA-9" but "ACS-2"
+      // TODO: handle this in ataVersionInfo()
+      majorstr = "8";
+      if (description)
+        minorstr = description;
+      else if (!minorrev)
+        minorstr = strprintf("ACS-%d (revision not indicated)", version-9+2);
+      else
+        minorstr = strprintf("ACS-%d (unknown minor revision code: 0x%04x)", version-9+2, minorrev);
+    }
   }
 
   pout("ATA Version is:   %s\n", infofound(majorstr.c_str()));
