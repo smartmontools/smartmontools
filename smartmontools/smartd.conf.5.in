@@ -572,9 +572,8 @@ valid arguments to this Directive are:
 error log has increased since the last check.
 
 .I xerror
-\- [ATA only] [NEW EXPERIMENTAL SMARTD FEATURE] report if the number of ATA
-errors reported in the Extended Comprehensive SMART error log has increased
-since the last check.
+\- [ATA only] report if the number of ATA errors reported in the Extended
+Comprehensive SMART error log has increased since the last check.
 
 If both \'\-l error\' and \'\-l xerror\' are specified, smartd checks
 the maximum of both values.
@@ -1347,9 +1346,8 @@ string \fBDEVICESCAN\fP in capital letters, then \fBsmartd\fP will
 ignore any remaining lines in the configuration file, and will scan
 for devices.
 
-[NEW EXPERIMENTAL SMARTD FEATURE] Configuration entries for devices
-not found by the platform\-specific device scanning may precede the
-\fBDEVICESCAN\fP entry.
+Configuration entries for devices not found by the platform\-specific
+device scanning may precede the \fBDEVICESCAN\fP entry.
 
 If \fBDEVICESCAN\fP is not followed by any Directives, then smartd
 will scan for both ATA and SCSI devices, and will monitor all possible
