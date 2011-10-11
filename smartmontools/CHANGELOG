@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3435 2011-10-11 19:01:42Z chrfranke $
+$Id: CHANGELOG 3436 2011-10-11 19:43:35Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -43,6 +43,8 @@ Maintainers / Developers Key (alphabetic order):
 
   [CF] smartctl: Add option '-l devstat[,PAGE]',
        print ATA Device Statistics log pages (ticket #106).
+
+       Thanks to David Boreham for providing access to a machine for testing
 
   [AS] man pages: trivial man page syntax fixes (ticket #199)
 
