@@ -1230,7 +1230,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     rc = daemon_spawn(command, stdinbuf, strlen(stdinbuf), stdoutbuf, sizeof(stdoutbuf));
     if (rc >= 0 && stdoutbuf[0])
       PrintOut(LOG_CRIT,"%s %s to %s produced unexpected output (%d bytes) to STDOUT/STDERR:\n%s\n",
-        newwarn, executable, newadd, strlen(stdoutbuf), stdoutbuf);
+        newwarn, executable, newadd, (int)strlen(stdoutbuf), stdoutbuf);
     if (rc != 0)
       PrintOut(LOG_CRIT,"%s %s to %s: failed, exit status %d\n",
         newwarn, executable, newadd, rc);
