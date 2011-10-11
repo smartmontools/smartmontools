@@ -26,7 +26,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h 3316 2011-04-19 19:34:57Z chrfranke $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h 3435 2011-10-11 19:01:42Z chrfranke $\n"
 
 #include <vector>
 
@@ -60,6 +60,9 @@ struct ata_print_options
   bool retry_error_log, retry_selftest_log;
 
   std::vector<ata_log_request> log_requests;
+
+  bool devstat_all_pages, devstat_ssd_page;
+  std::vector<int> devstat_pages;
 
   bool sct_temp_sts, sct_temp_hist;
   bool sct_erc_get;
@@ -99,6 +102,7 @@ struct ata_print_options
       smart_ext_error_log(0),
       smart_ext_selftest_log(0),
       retry_error_log(false), retry_selftest_log(false),
+      devstat_all_pages(false), devstat_ssd_page(false),
       sct_temp_sts(false), sct_temp_hist(false),
       sct_erc_get(false),
       sct_erc_set(false),
