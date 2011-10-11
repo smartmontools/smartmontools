@@ -44,6 +44,8 @@ Maintainers / Developers Key (alphabetic order):
   [CF] smartctl: Add option '-l devstat[,PAGE]',
        print ATA Device Statistics log pages (ticket #106).
 
+       Thanks to David Boreham for providing access to a machine for testing
+
   [AS] man pages: trivial man page syntax fixes (ticket #199)
 
   [CF] drivedb.h update:
