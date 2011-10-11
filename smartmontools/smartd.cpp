@@ -122,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3439 2011-10-11 21:42:36Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3440 2011-10-11 21:47:44Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -1230,7 +1230,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     rc = daemon_spawn(command, stdinbuf, strlen(stdinbuf), stdoutbuf, sizeof(stdoutbuf));
     if (rc >= 0 && stdoutbuf[0])
       PrintOut(LOG_CRIT,"%s %s to %s produced unexpected output (%d bytes) to STDOUT/STDERR:\n%s\n",
-        newwarn, executable, newadd, strlen(stdoutbuf), stdoutbuf);
+        newwarn, executable, newadd, (int)strlen(stdoutbuf), stdoutbuf);
     if (rc != 0)
       PrintOut(LOG_CRIT,"%s %s to %s: failed, exit status %d\n",
         newwarn, executable, newadd, rc);
