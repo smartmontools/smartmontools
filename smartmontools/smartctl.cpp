@@ -135,7 +135,8 @@ static void Usage()
 "                               background, sasphy[,reset], sataphy[,reset],\n"
 "                               scttemp[sts,hist], scterc[,N,M],\n"
 "                               gplog,N[,RANGE], smartlog,N[,RANGE], ssd,\n"
-"                               xerror[,N][,error], xselftest[,N][,selftest]\n\n"
+"                               xerror[,N][,error], xselftest[,N][,selftest],\n"
+"                               devstat[,N]\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -193,7 +194,7 @@ static std::string getvalidarglist(char opt)
   case 'l':
     return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist], scterc[,N,M], "
            "sasphy[,reset], sataphy[,reset], gplog,N[,RANGE], smartlog,N[,RANGE], ssd, "
-	   "xerror[,N][,error], xselftest[,N][,selftest]";
+           "xerror[,N][,error], xselftest[,N][,selftest], devstat[,N]";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -452,6 +453,7 @@ static const char * parse_options(int argc, char** argv,
       } else if (!strcmp(optarg,"background")) {
         scsiopts.smart_background_log = true;
       } else if (!strcmp(optarg,"ssd")) {
+        ataopts.devstat_ssd_page = true;
         scsiopts.smart_ss_media_log = true;
       } else if (!strcmp(optarg,"scterc")) {
         ataopts.sct_erc_get = true;
@@ -461,6 +463,17 @@ static const char * parse_options(int argc, char** argv,
         ataopts.sct_temp_sts = true;
       } else if (!strcmp(optarg,"scttemphist")) {
         ataopts.sct_temp_hist = true;
+
+      } else if (!strncmp(optarg, "devstat", sizeof("devstat")-1)) {
+        int n1 = -1, n2 = -1, len = strlen(optarg);
+        unsigned val = ~0;
+        sscanf(optarg, "devstat%n,%u%n", &n1, &val, &n2);
+        if (n1 == len)
+          ataopts.devstat_all_pages = true;
+        else if (n2 == len && val <= 255)
+          ataopts.devstat_pages.push_back(val);
+        else
+          badarg = true;
 
       } else if (!strncmp(optarg, "xerror", sizeof("xerror")-1)) {
         int n1 = -1, n2 = -1, len = strlen(optarg);

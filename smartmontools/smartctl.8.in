@@ -1091,6 +1091,15 @@ disable the feature, other values less than 65 are probably not
 supported. For RAID configurations, this is typically set to
 70,70 deciseconds.
 
+.I devstat[,PAGE]
+\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values
+and descriptions of the ATA Device Statistics log pages
+(General Purpose Log address 0x04).  If no PAGE number is specified,
+entries from all supported pages are printed.  If PAGE 0 is specified,
+the list of supported pages is printed.  Device Statistics was
+introduced in ATA-8 ACS and is only supported by some recent devices
+(e.g. Intel 320 and 710 Series SSDs).
+
 .I sataphy[,reset]
 \- [SATA only] prints values and descriptions of the SATA Phy Event
 Counters (General Purpose Log address 0x11).  If \'\-l sataphy,reset\'
@@ -1130,7 +1139,11 @@ writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
 
 .I ssd
-\- [SCSI only] prints the Solid State Media percentage used endurance
+\- [ATA] prints the Solid State Device Statistics log page.
+This has the same effect as \'\-l devstat,7\', see above.
+
+.I ssd
+\- [SCSI] prints the Solid State Media percentage used endurance
 indicator. A value of 0 indicates as new condition while 100
 indicates the device is at the end of its lifetime as projected by the
 manufacturer. The value may reach 255.

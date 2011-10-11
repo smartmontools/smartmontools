@@ -1043,6 +1043,249 @@ static void PrintLogPages(const char * type, const unsigned char * data,
   }
 }
 
+///////////////////////////////////////////////////////////////////////
+// Device statistics (Log 0x04)
+
+// See Section A.5 of
+//   ATA/ATAPI Command Set - 3 (ACS-3)
+//   T13/2161-D Revision 1, August 13, 2011
+
+struct devstat_entry_info
+{
+  short size; // #bytes of value, -1 for signed char
+  const char * name;
+};
+
+const devstat_entry_info devstat_info_0x00[] = {
+  {  2, "List of supported log pages" },
+  {  0, 0 }
+};
+
+const devstat_entry_info devstat_info_0x01[] = {
+  {  2, "General Statistics" },
+  {  4, "Lifetime Power-On Resets" },
+  {  4, "Power-on Hours" }, // spec says no flags(?)
+  {  6, "Logical Sectors Written" },
+  {  6, "Number of Write Commands" },
+  {  6, "Logical Sectors Read" },
+  {  6, "Number of Read Commands" },
+  {  0, 0 }
+};
+
+const devstat_entry_info devstat_info_0x02[] = {
+  {  2, "Freefall Statistics" },
+  {  4, "Number of Free-Fall Events Detected" },
+  {  4, "Overlimit Shock Events" },
+  {  0, 0 }
+};
+
+const devstat_entry_info devstat_info_0x03[] = {
+  {  2, "Rotating Media Statistics" },
+  {  4, "Spindle Motor Power-on Hours" },
+  {  4, "Head Flying Hours" },
+  {  4, "Head Load Events" },
+  {  4, "Number of Reallocated Logical Sectors" },
+  {  4, "Read Recovery Attempts" },
+  {  4, "Number of Mechanical Start Failures" },
+  {  4, "Number of Realloc. Candidate Logical Sectors" }, // ACS-3
+  {  0, 0 }
+};
+
+const devstat_entry_info devstat_info_0x04[] = {
+  {  2, "General Errors Statistics" },
+  {  4, "Number of Reported Uncorrectable Errors" },
+//{  4, "Number of Resets Between Command Acceptance and Command Completion" },
+  {  4, "Resets Between Cmd Acceptance and Completion" },
+  {  0, 0 }
+};
+
+const devstat_entry_info devstat_info_0x05[] = {
+  {  2, "Temperature Statistics" },
+  { -1, "Current Temperature" },
+  { -1, "Average Short Term Temperature" },
+  { -1, "Average Long Term Temperature" },
+  { -1, "Highest Temperature" },
+  { -1, "Lowest Temperature" },
+  { -1, "Highest Average Short Term Temperature" },
+  { -1, "Lowest Average Short Term Temperature" },
+  { -1, "Highest Average Long Term Temperature" },
+  { -1, "Lowest Average Long Term Temperature" },
+  {  4, "Time in Over-Temperature" },
+  { -1, "Specified Maximum Operating Temperature" },
+  {  4, "Time in Under-Temperature" },
+  { -1, "Specified Minimum Operating Temperature" },
+  {  0, 0 }
+};
+
+const devstat_entry_info devstat_info_0x06[] = {
+  {  2, "Transport Statistics" },
+  {  4, "Number of Hardware Resets" },
+  {  4, "Number of ASR Events" },
+  {  4, "Number of Interface CRC Errors" },
+  {  0, 0 }
+};
+
+const devstat_entry_info devstat_info_0x07[] = {
+  {  2, "Solid State Device Statistics" },
+  {  1, "Percentage Used Endurance Indicator" },
+  {  0, 0 }
+};
+
+const devstat_entry_info * devstat_infos[] = {
+  devstat_info_0x00,
+  devstat_info_0x01,
+  devstat_info_0x02,
+  devstat_info_0x03,
+  devstat_info_0x04,
+  devstat_info_0x05,
+  devstat_info_0x06,
+  devstat_info_0x07
+};
+
+const int num_devstat_infos = sizeof(devstat_infos)/sizeof(devstat_infos[0]);
+
+static void print_device_statistics_page(const unsigned char * data, int page,
+  bool & need_trailer)
+{
+  const devstat_entry_info * info = (page < num_devstat_infos ? devstat_infos[page] : 0);
+  const char * name = (info ? info[0].name : "Unknown Statistics");
+
+  // Check page number in header
+  static const char line[] = "  =====  =                =  == ";
+  if (!data[2]) {
+    pout("%3d%s%s (empty) ==\n", page, line, name);
+    return;
+  }
+  if (data[2] != page) {
+    pout("%3d%s%s (invalid page %d in header) ==\n", page, line, name, data[2]);
+    return;
+  }
+
+  pout("%3d%s%s (rev %d) ==\n", page, line, name, data[0]);
+
+  // Print entries
+  for (int i = 1, offset = 8; offset < 512-7; i++, offset+=8) {
+    // Check for last known entry
+    if (info && !info[i].size)
+      info = 0;
+
+    // Skip unsupported entries
+    unsigned char flags = data[offset+7];
+    if (!(flags & 0x80))
+      continue;
+
+    // Get value size, default to max if unknown
+    int size = (info ? info[i].size : 7);
+
+    // Format value
+    char valstr[32];
+    if (flags & 0x40) { // valid flag
+      // Get value
+      int64_t val;
+      if (size < 0) {
+        val = (signed char)data[offset];
+      }
+      else {
+        val = 0;
+        for (int j = 0; j < size; j++)
+          val |= (int64_t)data[offset+j] << (j*8);
+      }
+      snprintf(valstr, sizeof(valstr), "%"PRId64, val);
+    }
+    else {
+      // Value not known (yet)
+      strcpy(valstr, "-");
+    }
+
+    pout("%3d  0x%03x  %d%c %15s%c %s\n",
+      page, offset,
+      abs(size),
+      (flags & 0x1f ? '+' : ' '), // unknown flags
+      valstr,
+      (flags & 0x20 ? '~' : ' '), // normalized flag
+      (info ? info[i].name : "Unknown"));
+    if (flags & 0x20)
+      need_trailer = true;
+  }
+}
+
+static bool print_device_statistics(ata_device * device, unsigned nsectors,
+  const std::vector<int> & single_pages, bool all_pages, bool ssd_page)
+{
+  // Read list of supported pages from page 0
+  unsigned char page_0[512] = {0, };
+  if (!ataReadLogExt(device, 0x04, 0, 0, page_0, 1))
+    return false;
+
+  unsigned char nentries = page_0[8];
+  if (!(page_0[2] == 0 && nentries > 0)) {
+    pout("Device Statistics page 0 is invalid (page=%d, nentries=%d)\n", page_0[2], nentries);
+    return false;
+  }
+
+  // Prepare list of pages to print
+  std::vector<int> pages;
+  unsigned i;
+  if (all_pages) {
+    // Add all supported pages
+    for (i = 0; i < nentries; i++) {
+      int page = page_0[8+1+i];
+      if (page)
+        pages.push_back(page);
+    }
+    ssd_page = false;
+  }
+  // Add manually specified pages
+  bool print_page_0 = false;
+  for (i = 0; i < single_pages.size() || ssd_page; i++) {
+    int page = (i < single_pages.size() ? single_pages[i] : 7);
+    if (!page)
+      print_page_0 = true;
+    else if (page >= (int)nsectors)
+      pout("Device Statistics Log has only %u pages\n", nsectors);
+    else
+      pages.push_back(page);
+    if (page == 7)
+      ssd_page = false;
+  }
+
+  // Print list of supported pages if requested
+  if (print_page_0) {
+    pout("Device Statistics (GP Log 0x04) supported pages\n");
+    pout("Page Description\n");
+    for (i = 0; i < nentries; i++) {
+      int page = page_0[8+1+i];
+      pout("%3d  %s\n", page,
+        (page < num_devstat_infos ? devstat_infos[page][0].name : "Unknown Statistics"));
+    }
+    pout("\n");
+  }
+
+  // Read & print pages
+  if (!pages.empty()) {
+    pout("Device Statistics (GP Log 0x04)\n");
+    pout("Page Offset Size         Value  Description\n");
+    bool need_trailer = false;
+
+    for (i = 0; i <  pages.size(); i++) {
+      int page = pages[i];
+      unsigned char page_n[512] = {0, };
+      if (!ataReadLogExt(device, 0x04, 0, page, page_n, 1))
+        return false;
+      print_device_statistics_page(page_n, page, need_trailer);
+    }
+
+    if (need_trailer)
+      pout("%30s|_ ~ normalized value\n", "");
+    pout("\n");
+  }
+
+  return true;
+}
+
+
+///////////////////////////////////////////////////////////////////////
+
 // Print log 0x11
 static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
 {
@@ -1815,6 +2058,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        || options.smart_ext_error_log
        || options.smart_ext_selftest_log
        || options.sataphy
+       || options.devstat_all_pages
+       || options.devstat_ssd_page
+       || !options.devstat_pages.empty()
   );
 
   unsigned i;
@@ -2491,6 +2737,16 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       }
       pout("\n");
     }
+  }
+
+  // Print Device Statistics
+  if (options.devstat_all_pages || options.devstat_ssd_page || !options.devstat_pages.empty()) {
+    unsigned nsectors = GetNumLogSectors(gplogdir, 0x04, true);
+    if (!nsectors)
+      pout("Device Statistics (GP Log 0x04) not supported\n");
+    else if (!print_device_statistics(device, nsectors, options.devstat_pages,
+               options.devstat_all_pages, options.devstat_ssd_page))
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   }
 
   // Print SATA Phy Event Counters
