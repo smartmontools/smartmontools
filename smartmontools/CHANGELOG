@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3443 2011-10-12 20:43:04Z chrfranke $
+$Id: CHANGELOG 3444 2011-10-12 21:20:22Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] man pages: Remove reference to T13 web site.  It does no
+       longer provide links to the ATA documents.
 
   [CF] smartctl: Replace '-t scttempint,N[,p]' option
        by '-l scttempint,N[,p]'.
