@@ -89,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3423 2011-10-06 16:43:44Z samm2 $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3441 2011-10-12 17:22:15Z chrfranke $"
   OS_LINUX_H_CVSID;
 
 
@@ -1125,13 +1125,10 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
 /* Issue passthrough scsi commands to PERC2/3/4 controllers */
 bool linux_megaraid_device::megadev_cmd(int cdbLen, void *cdb, 
   int dataLen, void *data,
-  int senseLen, void *sense, int /*report*/)
+  int /*senseLen*/, void * /*sense*/, int /*report*/)
 {
   struct uioctl_t uio;
   int rc;
-
-  sense = NULL;
-  senseLen = 0;
 
   /* Don't issue to the controller */
   if (m_disknum == 7)

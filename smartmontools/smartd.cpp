@@ -122,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3440 2011-10-11 21:47:44Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3441 2011-10-12 17:22:15Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -2131,7 +2131,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 // please.
 static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scsidev)
 {
-  int k, err, req_len, avail_len, peri_dt, version, len;
+  int k, err, req_len, avail_len, version, len;
   const char *device = cfg.name.c_str();
   struct scsi_iec_mode_page iec;
   UINT8  tBuf[64];
@@ -2154,7 +2154,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   version = inqBuf[2];
   avail_len = inqBuf[4] + 5;
   len = (avail_len < req_len) ? avail_len : req_len;
-  peri_dt = inqBuf[0] & 0x1f;
+  // peri_dt = inqBuf[0] & 0x1f;
   if (len < 36) {
     PrintOut(LOG_INFO, "Device: %s, INQUIRY response less than 36 bytes; "
 	     "skip device\n", device);

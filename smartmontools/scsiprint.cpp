@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3413 2011-09-06 21:23:00Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3441 2011-10-12 17:22:15Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1139,14 +1139,14 @@ static void show_sas_phy_event_info(int peis, unsigned int val,
 
 static void show_sas_port_param(unsigned char * ucp, int param_len)
 {
-    int j, m, n, nphys, pcb, t, sz, spld_len;
+    int j, m, n, nphys, t, sz, spld_len;
     unsigned char * vcp;
     uint64_t ull;
     unsigned int ui;
     char s[64];
 
     sz = sizeof(s);
-    pcb = ucp[2];
+    // pcb = ucp[2];
     t = (ucp[0] << 8) | ucp[1];
     pout("relative target port id = %d\n", t);
     pout("  generation code = %d\n", ucp[6]);
