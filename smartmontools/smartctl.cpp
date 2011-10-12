@@ -132,11 +132,11 @@ static void Usage()
 "        Set output format for attributes to one of: old, brief\n\n"
 "  -l TYPE, --log=TYPE\n"
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
-"                               background, sasphy[,reset], sataphy[,reset],\n"
-"                               scttemp[sts,hist], scterc[,N,M],\n"
-"                               gplog,N[,RANGE], smartlog,N[,RANGE], ssd,\n"
 "                               xerror[,N][,error], xselftest[,N][,selftest],\n"
-"                               devstat[,N]\n\n"
+"                               background, sasphy[,reset], sataphy[,reset],\n"
+"                               scttemp[sts,hist], scttempint,N[,p],\n"
+"                               scterc[,N,M], devstat[,N], ssd,\n"
+"                               gplog,N[,RANGE], smartlog,N[,RANGE]\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -160,8 +160,8 @@ static void Usage()
          "]\n\n"
 "============================================ DEVICE SELF-TEST OPTIONS =====\n\n"
 "  -t TEST, --test=TEST\n"
-"        Run test. TEST: offline short long conveyance vendor,N select,M-N\n"
-"                        pending,N afterselect,[on|off] scttempint,N[,p]\n\n"
+"        Run test. TEST: offline, short, long, conveyance, vendor,N,\n"
+"                        select,M-N, pending,N, afterselect,[on|off]\n\n"
 "  -C, --captive\n"
 "        Do test in captive mode (along with -t)\n\n"
 "  -X, --abort\n"
@@ -192,14 +192,18 @@ static std::string getvalidarglist(char opt)
   case 'S':
     return "on, off";
   case 'l':
-    return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist], scterc[,N,M], "
-           "sasphy[,reset], sataphy[,reset], gplog,N[,RANGE], smartlog,N[,RANGE], ssd, "
-           "xerror[,N][,error], xselftest[,N][,selftest], devstat[,N]";
+    return "error, selftest, selective, directory[,g|s], "
+           "xerror[,N][,error], xselftest[,N][,selftest], "
+           "background, sasphy[,reset], sataphy[,reset], "
+           "scttemp[sts,hist], scttempint,N[,p], "
+           "scterc[,N,M], devstat[,N], ssd, "
+           "gplog,N[,RANGE], smartlog,N[,RANGE]";
+
   case 'P':
     return "use, ignore, show, showall";
   case 't':
     return "offline, short, long, conveyance, vendor,N, select,M-N, "
-           "pending,N, afterselect,[on|off], scttempint,N[,p]";
+           "pending,N, afterselect,[on|off]";
   case 'F':
     return "none, samsung, samsung2, samsung3, swapid";
   case 'n':
@@ -464,6 +468,16 @@ static const char * parse_options(int argc, char** argv,
       } else if (!strcmp(optarg,"scttemphist")) {
         ataopts.sct_temp_hist = true;
 
+      } else if (!strncmp(optarg, "scttempint,", sizeof("scstempint,")-1)) {
+        unsigned interval = 0; int n1 = -1, n2 = -1, len = strlen(optarg);
+        if (!(   sscanf(optarg,"scttempint,%u%n,p%n", &interval, &n1, &n2) == 1
+              && 0 < interval && interval <= 0xffff && (n1 == len || n2 == len))) {
+            strcpy(extraerror, "Option -l scttempint,N[,p] must have positive integer N\n");
+            badarg = true;
+        }
+        ataopts.sct_temp_int = interval;
+        ataopts.sct_temp_int_pers = (n2 == len);
+
       } else if (!strncmp(optarg, "devstat", sizeof("devstat")-1)) {
         int n1 = -1, n2 = -1, len = strlen(optarg);
         unsigned val = ~0;
@@ -680,15 +694,9 @@ static const char * parse_options(int argc, char** argv,
           ataopts.smart_selective_args.num_spans++;
           ataopts.smart_selftest_type = SELECTIVE_SELF_TEST;
         }
-      } else if (!strncmp(optarg, "scttempint,", sizeof("scstempint,")-1)) {
-        unsigned interval = 0; int n1 = -1, n2 = -1, len = strlen(optarg);
-        if (!(   sscanf(optarg,"scttempint,%u%n,p%n", &interval, &n1, &n2) == 1
-              && 0 < interval && interval <= 0xffff && (n1 == len || n2 == len))) {
-            strcpy(extraerror, "Option -t scttempint,N[,p] must have positive integer N\n");
-            badarg = true;
-        }
-        ataopts.sct_temp_int = interval;
-        ataopts.sct_temp_int_pers = (n2 == len);
+      } else if (!strncmp(optarg, "scttempint", sizeof("scstempint")-1)) {
+        strcpy(extraerror, "-t scttempint is no longer supported, use -l scttempint instead\n");
+        badarg = true;
       } else if (!strncmp(optarg, "vendor,", sizeof("vendor,")-1)) {
         unsigned subcmd = ~0U; int n = -1;
         if (!(   sscanf(optarg, "%*[a-z],0x%x%n", &subcmd, &n) == 1

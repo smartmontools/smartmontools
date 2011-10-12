@@ -1076,10 +1076,18 @@ ranges returned by the SCT Status command, \'scttemphist\' prints
 temperature limits and the temperature history table returned by
 the SCT Data Table command, and \'scttemp\' prints both.
 The temperature values are preserved across power cycles.
-The default temperature logging interval is 1 minute and can be
-configured with the \'\-t scttempint,N[,p]\' option, see below.
-The SCT commands are specified in the proposed ATA\-8 Command Set
-(ACS), and are already implemented in some recent ATA\-7 disks.
+The logging interval can be configured with the
+\'\-l scttempint,N[,p]\' option, see below.
+The SCT commands were introduced in ATA\-8 ACS and were also
+supported by in many ATA\-7 disks.
+
+.I scttempint,N[,p]
+\- [ATA only] clears the SCT temperature history table and sets the
+time interval for temperature logging to N minutes.
+If \',p\' is specified, the setting is preserved across power cycles.
+Otherwise, the setting is volatile and will be reverted to the last
+non-volatile setting by the next hard reset.  The default interval
+is vendor specific, typical values are 1, 2, or 5 minutes.
 
 .I scterc[,READTIME,WRITETIME]
 \- [ATA only] prints values and descriptions of the SCT Error Recovery
@@ -1096,7 +1104,7 @@ and descriptions of the ATA Device Statistics log pages
 (General Purpose Log address 0x04).  If no PAGE number is specified,
 entries from all supported pages are printed.  If PAGE 0 is specified,
 the list of supported pages is printed.  Device Statistics was
-introduced in ATA-8 ACS and is only supported by some recent devices
+introduced in ATA\-8 ACS and is only supported by some recent devices
 (e.g. Intel 320 and 710 Series SSDs).
 
 .I sataphy[,reset]
@@ -1695,14 +1703,6 @@ option must be use together with one or more of the \fIselect,N\-M\fP
 options above. The value of this option is preserved between selective
 self\-tests.
 
-.I scttempint,N[,p]
-\- [ATA only] set the time interval for SCT temperature logging to N
-minutes. If \',p\' is specified, the setting is preserved across power
-cycles. Otherwise, the setting is volatile and will be reverted to
-default (1 minute), or last non-volatile setting by the next hard reset.
-This command also clears the temperature history table. See
-\'\-l scttemp\' above for more information about SCT temperature logging.
-
 .I vendor,N
 \- [ATA only] issues the ATA command SMART EXECUTE OFF-LINE IMMEDIATE
 with subcommand N in LBA LOW register. The subcommand is specified as
@@ -1720,6 +1720,9 @@ The subcommand 0x40 (\'\-t vendor,0x40\') clears the timed workload
 related SMART attributes (226, 227, 228).  Note that the raw values of
 these attributes are held at 65535 (0xffff) until the workload timer
 reaches 60 minutes.
+
+.I scttempint,N[,p]
+\- is no longer supported, use \'\-l scttempint,N[,p]\' instead, see above.
 .TP
 .B \-C, \-\-captive
 [ATA] Runs self\-tests in captive mode.  This has no effect with \'\-t
