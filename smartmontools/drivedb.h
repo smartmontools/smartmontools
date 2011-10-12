@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3433 2011-10-10 15:28:41Z chrfranke $",
+  { "$Id: drivedb.h 3442 2011-10-12 19:16:04Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2175,6 +2175,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbsunplus"
   },
   // Oxford Semiconductor, Ltd
+  { "USB: ; Oxford",
+    "0x0928:0x0000",
+    "",
+    "",
+    "" // unsupported
+  },
   { "USB: ; Oxford OXU921DS",
     "0x0928:0x0002",
     "",
