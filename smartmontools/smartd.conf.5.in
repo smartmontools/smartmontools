@@ -785,11 +785,13 @@ was started.  If you wish to specify an explicit path to the mail
 executable (for example /usr/local/bin/mail) or a custom script to
 run, please use the \'\-M exec\' Directive below.
 
+.\" %IF OS Solaris
 Note that by default under Solaris, in the previous paragraph,
 \'\fBmailx\fP\' and \'\fB/bin/mailx\fP\' are used, since Solaris
 \'/bin/mail\' does not accept a \'\-s\' (Subject) command-line
 argument.
 
+.\" %ENDIF OS Solaris
 .\" %IF OS Windows
 On Windows, the \'\fBBlat\fP\' mailer
 (\fBhttp://blat.sourceforge.net/\fP) is used by default.
@@ -809,6 +811,7 @@ sending mail, this should help you to understand and fix them.  If
 you have mail problems, we recommend running \fBsmartd\fP in debug
 mode with the \'-d\' flag, using the \'-M test\' Directive described
 below.
+.\" %IF OS Windows
 
 The following extension is available on Windows:
 By specifying \'\fBmsgbox\fP\' as a mail address, a warning
@@ -816,8 +819,13 @@ By specifying \'\fBmsgbox\fP\' as a mail address, a warning
 Using both \'\fBmsgbox\fP\' and regular mail addresses is possible,
 if \'\fBmsgbox\fP\' is the first word in the comma separated list.
 With \'\fBsysmsgbox\fP\', a system modal (always on top) message box
-is used. If running as a service, a service notification message box
-(always shown on current visible desktop) is used.
+is used.
+
+If running as a service, a service notification message box
+(always shown on current visible desktop) is used.  Please note that
+service notification message boxes are no longer supported on Windows
+Vista/2008 or later.
+.\" %ENDIF OS Windows
 .TP
 .B \-M TYPE
 These Directives modify the behavior of the

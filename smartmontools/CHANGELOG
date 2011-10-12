@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd.conf.5.in: Update Windows 'msgbox' info.
+       Add missing IF/ENDIF for Solaris and Windows.
+
   [CF] man pages: Remove reference to T13 web site.  It does no
        longer provide links to the ATA documents.
 
