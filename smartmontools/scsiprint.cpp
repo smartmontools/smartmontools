@@ -1139,14 +1139,14 @@ static void show_sas_phy_event_info(int peis, unsigned int val,
 
 static void show_sas_port_param(unsigned char * ucp, int param_len)
 {
-    int j, m, n, nphys, pcb, t, sz, spld_len;
+    int j, m, n, nphys, t, sz, spld_len;
     unsigned char * vcp;
     uint64_t ull;
     unsigned int ui;
     char s[64];
 
     sz = sizeof(s);
-    pcb = ucp[2];
+    // pcb = ucp[2];
     t = (ucp[0] << 8) | ucp[1];
     pout("relative target port id = %d\n", t);
     pout("  generation code = %d\n", ucp[6]);

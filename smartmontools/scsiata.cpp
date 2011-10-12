@@ -590,7 +590,6 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
     int copydata = 0;
     int outlen = 0;
     int ck_cond = 0;    /* set to 1 to read register(s) back */
-    int protocol = 3;   /* non-data */
     int t_dir = 1;      /* 0 -> to device, 1 -> from device */
     int byte_block = 1; /* 0 -> bytes, 1 -> 512 byte blocks */
     int t_length = 0;   /* 0 -> no data transferred */
@@ -615,7 +614,6 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
     case READ_VALUES:           /* READ DATA */
         feature = ATA_SMART_READ_VALUES;
         sector_count = 1;     /* one (512 byte) block */
-        protocol = 4;   /* PIO data-in */
         t_length = 2;   /* sector count holds count */
         copydata = 512;
         break;
@@ -623,7 +621,6 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
         feature = ATA_SMART_READ_THRESHOLDS;
         sector_count = 1;     /* one (512 byte) block */
         lba_low = 1;
-        protocol = 4;   /* PIO data-in */
         t_length = 2;   /* sector count holds count */
         copydata=512;
         break;
@@ -631,7 +628,6 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
         feature = ATA_SMART_READ_LOG_SECTOR;
         sector_count = 1;     /* one (512 byte) block */
         lba_low = select;
-        protocol = 4;   /* PIO data-in */
         t_length = 2;   /* sector count holds count */
         copydata = 512;
         break;
@@ -639,7 +635,6 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
         feature = ATA_SMART_WRITE_LOG_SECTOR;
         sector_count = 1;     /* one (512 byte) block */
         lba_low = select;
-        protocol = 5;   /* PIO data-out */
         t_length = 2;   /* sector count holds count */
         t_dir = 0;      /* to device */
         outlen = 512;
@@ -647,14 +642,12 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
     case IDENTIFY:
         ata_command = ATA_IDENTIFY_DEVICE;
         sector_count = 1;     /* one (512 byte) block */
-        protocol = 4;   /* PIO data-in */
         t_length = 2;   /* sector count holds count */
         copydata = 512;
         break;
     case PIDENTIFY:
         ata_command = ATA_IDENTIFY_PACKET_DEVICE;
         sector_count = 1;     /* one (512 byte) block */
-        protocol = 4;   /* PIO data-in */
         t_length = 2;   /* sector count (7:0) holds count */
         copydata = 512;
         break;

@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Minor cleanup to prevent warnings from new gcc 4.6 options
+       -Wunused-but-set-parameter/variable.
+
   [CF] Windows smartd: Fix format string for 64-bit version.
 
   [CF] Remove EXPERIMENTAL notes for features already present in 5.40.
