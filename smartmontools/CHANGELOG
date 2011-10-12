@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB update:
+       - Oxford (0x0928:0x0000): unsupported, see
+         https://bugs.freedesktop.org/show_bug.cgi?id=24951
+
   [CF] Minor cleanup to prevent warnings from new gcc 4.6 options
        -Wunused-but-set-parameter/variable.
 

@@ -2175,6 +2175,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbsunplus"
   },
   // Oxford Semiconductor, Ltd
+  { "USB: ; Oxford",
+    "0x0928:0x0000",
+    "",
+    "",
+    "" // unsupported
+  },
   { "USB: ; Oxford OXU921DS",
     "0x0928:0x0002",
     "",
