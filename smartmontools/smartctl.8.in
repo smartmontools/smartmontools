@@ -2030,8 +2030,6 @@ does, a good place to start is with Sections 4.8 and 6.54 of the first
 volume of the \'AT Attachment with Packet Interface\-7\' (ATA/ATAPI\-7)
 specification Revision 4b.  This documents the SMART functionality which the
 \fBsmartmontools\fP utilities provide access to.
-This and other versions of this Specification are available from
-the T13 web site \fBhttp://www.t13.org/\fP .
 
 .fi
 The functioning of SMART was originally defined by the SFF\-8035i

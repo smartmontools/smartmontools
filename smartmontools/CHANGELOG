@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] man pages: Remove reference to T13 web site.  It does no
+       longer provide links to the ATA documents.
+
   [CF] smartctl: Replace '-t scttempint,N[,p]' option
        by '-l scttempint,N[,p]'.
 
