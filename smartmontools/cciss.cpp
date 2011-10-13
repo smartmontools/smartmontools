@@ -20,11 +20,11 @@
 #  endif
 #elif defined(__FreeBSD__)
 #  include <sys/endian.h>
-#  include "cissio_freebsd.h"
+#  include CISS_LOCATION
 #  define _HAVE_CCISS
 #elif defined(__FreeBSD_kernel__)
 #  include <endian.h>
-#  include "cissio_freebsd.h"
+#  include CISS_LOCATION
 #  define _HAVE_CCISS
 #endif
 
@@ -34,7 +34,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char * cciss_cpp_cvsid = "$Id: cciss.cpp 3377 2011-06-16 12:11:16Z samm2 $"
+const char * cciss_cpp_cvsid = "$Id: cciss.cpp 3446 2011-10-13 22:36:28Z samm2 $"
   CCISS_H_CVSID;
 
 typedef struct _ReportLUNdata_struct
