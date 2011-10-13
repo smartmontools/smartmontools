@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] freebsd: use system ciss header if available, it is added
+       to the base system by recent commit.
+
   [CF] smartd.conf.5.in: Update Windows 'msgbox' info.
        Add missing IF/ENDIF for Solaris and Windows.
 

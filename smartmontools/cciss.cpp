@@ -20,11 +20,11 @@
 #  endif
 #elif defined(__FreeBSD__)
 #  include <sys/endian.h>
-#  include "cissio_freebsd.h"
+#  include CISS_LOCATION
 #  define _HAVE_CCISS
 #elif defined(__FreeBSD_kernel__)
 #  include <endian.h>
-#  include "cissio_freebsd.h"
+#  include CISS_LOCATION
 #  define _HAVE_CCISS
 #endif
 
