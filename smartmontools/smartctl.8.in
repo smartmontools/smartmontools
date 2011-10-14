@@ -1174,7 +1174,9 @@ For example, \'\-v 5,raw48:012345\' prints the raw value of
 attribute 5 with big endian instead of little endian
 byte ordering.
 
-The NAME is a string of letters, digits and underscore.
+The NAME is a string of letters, digits and underscore.  Its length should
+not exceed 23 characters.  The \'\-P showall\' option reports an error if
+this is the case.
 
 .I \-v help
 \- Prints (to STDOUT) a list of all valid arguments to this option,
@@ -1422,7 +1424,8 @@ presets, then exit.
 
 .I showall
 \- list all recognized drives, and the presets that are set for them,
-then exit.
+then exit.  This also checks the drive database regular expressions
+and settings for syntax errors.
 
 The \'\-P showall\' option takes up to two optional arguments to
 match a specific drive type and firmware version. The command:
