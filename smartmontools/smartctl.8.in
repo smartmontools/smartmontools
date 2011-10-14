@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3444 2011-10-12 21:20:22Z chrfranke $
+ $Id: smartctl.8.in 3447 2011-10-14 20:32:00Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1174,7 +1174,9 @@ For example, \'\-v 5,raw48:012345\' prints the raw value of
 attribute 5 with big endian instead of little endian
 byte ordering.
 
-The NAME is a string of letters, digits and underscore.
+The NAME is a string of letters, digits and underscore.  Its length should
+not exceed 23 characters.  The \'\-P showall\' option reports an error if
+this is the case.
 
 .I \-v help
 \- Prints (to STDOUT) a list of all valid arguments to this option,
@@ -1422,7 +1424,8 @@ presets, then exit.
 
 .I showall
 \- list all recognized drives, and the presets that are set for them,
-then exit.
+then exit.  This also checks the drive database regular expressions
+and settings for syntax errors.
 
 The \'\-P showall\' option takes up to two optional arguments to
 match a specific drive type and firmware version. The command:
@@ -2042,4 +2045,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3444 2011-10-12 21:20:22Z chrfranke $
+$Id: smartctl.8.in 3447 2011-10-14 20:32:00Z chrfranke $

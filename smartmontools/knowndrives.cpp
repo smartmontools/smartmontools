@@ -34,7 +34,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3343 2011-05-25 20:18:17Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3447 2011-10-14 20:32:00Z chrfranke $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -375,9 +375,16 @@ static int showonepreset(const drive_settings * dbentry)
       }
       for (int i = 0; i < MAX_ATTRIBUTE_NUM; i++) {
         if (defs[i].priority != PRIOR_DEFAULT) {
+          std::string name = ata_get_smart_attr_name(i, defs);
           // Use leading zeros instead of spaces so that everything lines up.
           pout("%-*s %03d %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "",
-               i, ata_get_smart_attr_name(i, defs).c_str());
+               i, name.c_str());
+          // Check max name length suitable for smartctl -A output
+          const unsigned maxlen = 23;
+          if (name.size() > maxlen) {
+            pout("%*s\n", TABLEPRINTWIDTH+6+maxlen, "Error: Attribute name too long ------^");
+            errcnt++;
+          }
           first_preset = false;
         }
       }
