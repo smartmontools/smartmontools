@@ -1833,7 +1833,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     if (!dbentry)
       PrintOut(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
     else {
-      PrintOut(LOG_INFO, "Device: %s, found in smartd database.\n", name);
+      PrintOut(LOG_INFO, "Device: %s, found in smartd database%s%s\n",
+        name, (*dbentry->modelfamily ? ": " : "."), (*dbentry->modelfamily ? dbentry->modelfamily : ""));
       if (*dbentry->warningmsg)
         PrintOut(LOG_CRIT, "Device: %s, WARNING: %s\n", name, dbentry->warningmsg);
     }

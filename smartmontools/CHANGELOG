@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Log model family from drive database if known.
+
   [CF] drivedb.h update:
        - SMART Xcel-10 2.5 SATA SSD: Shorten names,
          document supported default attributes.
