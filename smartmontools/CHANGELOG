@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3448 2011-10-14 20:43:29Z chrfranke $
+$Id: CHANGELOG 3449 2011-10-14 20:50:25Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd: Log model family from drive database if known.
 
   [CF] drivedb.h update:
        - SMART Xcel-10 2.5 SATA SSD: Shorten names,

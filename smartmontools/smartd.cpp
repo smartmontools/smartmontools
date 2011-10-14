@@ -122,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3441 2011-10-12 17:22:15Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3449 2011-10-14 20:50:25Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -1833,7 +1833,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     if (!dbentry)
       PrintOut(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
     else {
-      PrintOut(LOG_INFO, "Device: %s, found in smartd database.\n", name);
+      PrintOut(LOG_INFO, "Device: %s, found in smartd database%s%s\n",
+        name, (*dbentry->modelfamily ? ": " : "."), (*dbentry->modelfamily ? dbentry->modelfamily : ""));
       if (*dbentry->warningmsg)
         PrintOut(LOG_CRIT, "Device: %s, WARNING: %s\n", name, dbentry->warningmsg);
     }
