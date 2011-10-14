@@ -810,16 +810,21 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "SMART Xcel-10 2.5 SATA SSD", //  based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
-    "SMART A25FD-(32|64|128)GI32N",
+    "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
     "",
     "", // attributes info from http://www.adtron.com/pdf/SMART_Attributes_Xcel-10_810800014_RevB.pdf
     "-v 1,raw48,Not_Supported "
     "-v 2,raw48,Not_Supported "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
     "-v 191,raw48,Not_Supported "
+  //"-v 192,raw48,Power-Off_Retract_Count "
     "-v 197,raw48,ECC_Error_Count "
-    "-v 251,raw48,Minimum_Spares_Remaining_Pct " // percentage of the total number of spare blocks available
-    "-v 252,raw48,Added_Bad_Flash_Block_Count " // number of bad flash blocks
-    "-v 254,raw48,Total_Erase_Blocks_Count" // number of times the drive has erased any erase block
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 251,raw48,Min_Spares_Remain_Perc " // percentage of the total number of spare blocks available
+    "-v 252,raw48,Added_Bad_Flash_Blk_Ct " // number of bad flash blocks
+    "-v 254,raw48,Total_Erase_Blocks_Ct" // number of times the drive has erased any erase block
   },
 /*
   // TODO: Make the entries below more specific.
