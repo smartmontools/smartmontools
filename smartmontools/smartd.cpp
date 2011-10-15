@@ -122,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3450 2011-10-15 13:12:15Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3451 2011-10-15 14:27:08Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -4108,15 +4108,14 @@ static void ParseOpts(int argc, char **argv)
     { "interval",       required_argument, 0, 'i' },
 #ifndef _WIN32
     { "no-fork",        no_argument,       0, 'n' },
+#else
+    { "service",        no_argument,       0, 'n' },
 #endif
     { "pidfile",        required_argument, 0, 'p' },
     { "report",         required_argument, 0, 'r' },
     { "savestates",     required_argument, 0, 's' },
     { "attributelog",   required_argument, 0, 'A' },
     { "drivedb",        required_argument, 0, 'B' },
-#if defined(_WIN32) || defined(__CYGWIN__)
-    { "service",        no_argument,       0, 'n' },
-#endif
     { "version",        no_argument,       0, 'V' },
     { "license",        no_argument,       0, 'V' },
     { "copyright",      no_argument,       0, 'V' },
