@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Cygwin smartd: Remove '--service' option, update man page.
+
   [CF] smartd: Require absolute path name also for '-p' option.
        Allow relative path names for '-A', '-s', '-p' in Windows
        version only.

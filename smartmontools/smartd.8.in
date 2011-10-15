@@ -301,10 +301,8 @@ to modify the log rotation configuration files; see the man pages for
 \fBlogrotate\fP and examine your system\'s /etc/logrotate.conf file.
 .\" %IF OS Cygwin
 
-Cygwin: Support for \fBsyslogd\fP as described above is available starting with Cygwin 1.5.15.
-On older releases or if no local \fBsyslogd\fP is running, the \'\-l\' option has no effect.
-In this case, all \fBsyslog\fP messages are written to Windows event log
-or to file \fBC:/CYGWIN_SYSLOG.TXT\fP if the event log is not available.
+Cygwin: If no \fBsyslogd\fP is running, the \'\-l\' option has no effect.
+In this case, all \fBsyslog\fP messages are written to Windows event log.
 .\" %ENDIF OS Cygwin
 .\" %IF OS Windows
 
@@ -457,26 +455,15 @@ always (re)written after reading the configuration file, before rereading
 the configuration file (SIGHUP), before smartd shutdown, and after a check
 forced by SIGUSR1. After a normal check cycle, a file is only rewritten if
 an important change (which usually results in a SYSLOG output) occurred.
-.TP
-.\" %IF OS Windows Cygwin
-.B \-\-service
-Cygwin and Windows only: Enables \fBsmartd\fP to run as a Windows service.
-.\" %ENDIF OS Windows Cygwin
-.\" %IF OS Cygwin
-
-On Cygwin, this option is kept for backward compatibility only.
-It has the same effect as \'\-n, \-\-no\-fork\', see above.
-.\" %ENDIF OS Cygwin
 .\" %IF OS Windows
-
-On Windows, this option enables the buildin service support.
+.TP
+.B \-\-service
+Windows only: Enables \fBsmartd\fP to run as a Windows service.
 The option must be specified in the service command line as the first
 argument. It should not be used from console.
 See NOTES below for details.
 .\" %ENDIF OS Windows
-.\" %IF OS Windows Cygwin
 .TP
-.\" %ENDIF OS Windows Cygwin
 .B \-V, \-\-version, \-\-license, \-\-copyright
 Prints version, copyright, license, home page and SVN revision
 information for your copy of \fBsmartd\fP to STDOUT and then exits.
@@ -588,13 +575,22 @@ Alternatively, you can use a local facility to log messages: please
 see the \fBsmartd\fP '-l' command-line option described above.
 
 .\" %ENDIF OS Solaris
-.\" %IF OS Windows Cygwin
-On Cygwin and Windows, the log messages are written to the event log
-or to a file. See documentation of the '-l FACILITY' option above for
-details.
+.\" %IF OS Cygwin
+The Cygwin Version of \fBsmartd\fP can be run as a service via the
+cygrunsrv tool. The start-up script provides Cygwin-specific commands
+to install and remove the service:
+.nf
+.B /usr/local/etc/rc.d/init.d/smartd install [options]
+.B /usr/local/etc/rc.d/init.d/smartd remove
+.fi
+The service can be started and stopped by the start-up script as usual
+(see \fBEXAMPLES\fP above).
 
-.\" %ENDIF OS Windows Cygwin
+.\" %ENDIF OS Cygwin
 .\" %IF OS Windows
+On Windows, the log messages are written to the event log or to a file.
+See documentation of the '-l FACILITY' option above for details.
+
 On Windows, the following built-in commands can be used to control
 \fBsmartd\fP, if running as a daemon:
 
@@ -610,27 +606,11 @@ On Windows, the following built-in commands can be used to control
 
 \'\fBsmartd sigusr2\fP\' \- toggle debug mode
 
-On WinNT4/2000/XP, \fBsmartd\fP can also be run as a Windows service:
-
-.\" %ENDIF OS Windows
-.\" %IF OS Cygwin
-The Cygwin Version of \fBsmartd\fP can be run as a service via the
-cygrunsrv tool. The start-up script provides Cygwin-specific commands
-to install and remove the service:
-.nf
-.B /usr/local/etc/rc.d/init.d/smartd install [options]
-.B /usr/local/etc/rc.d/init.d/smartd remove
-.fi
-The service can be started and stopped by the start-up script as usual
-(see \fBEXAMPLES\fP above).
-.\" %ENDIF OS Cygwin
-.\" %IF OS Windows
-
 The Windows Version of \fBsmartd\fP has buildin support for services:
 
 \'\fBsmartd install [options]\fP\' installs a service
 named "smartd" (display name "SmartD Service") using the command line
-\'/installpath/smartd.exe --service [options]\'.
+\'/INSTALLPATH/smartd.exe \-\-service [options]\'.
 
 \'\fBsmartd remove\fP\' can later be used to remove the service entry
 from registry.
