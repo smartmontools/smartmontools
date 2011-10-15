@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartctl.8.in: Add example script which prints all status bits
+       (ticket #191).
+
   [CF] Cygwin smartd: Remove '--service' option, update man page.
 
   [CF] smartd: Require absolute path name also for '-p' option.

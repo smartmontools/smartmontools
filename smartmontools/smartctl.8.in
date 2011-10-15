@@ -1953,7 +1953,7 @@ The device error log contains records of errors.
 The device self\-test log contains records of errors.
 [ATA only] Failed self-tests outdated by a newer successful extended
 self\-test are ignored.
-
+.PP
 To test within the shell for whether or not the different bits are
 turned on or off, you can use the following type of construction (this
 is bash syntax):
@@ -1965,6 +1965,14 @@ This looks at only at bit 3 of the exit status
 (since 8=2^3).  The shell variable
 $smartstat will be nonzero if SMART status check returned "disk
 failing" and zero otherwise.
+
+This bash script prints all status bits:
+.nf
+status=$?
+for ((i=0; i<8; i++)); do
+  echo "Bit $i: $((status & 2**i && 1))"
+done
+.fi
 
 .PP
 .SH NOTES
