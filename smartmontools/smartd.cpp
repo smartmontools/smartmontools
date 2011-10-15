@@ -4065,21 +4065,20 @@ static void PrintValidArgs(char opt)
   PrintOut(LOG_CRIT, " <=======\n");
 }
 
-// Return true if absolute path name
-static bool is_abs_path(const char * path)
+#ifndef _WIN32
+// Report error and exit if specified path is not absolute.
+static void check_abs_path(char option, const std::string & path)
 {
-  if (*path == '/')
-    return true;
-#if defined(_WIN32) || defined(__CYGWIN__)
-  if (*path == '\\')
-    return true;
-  int n = -1;
-  sscanf(path, "%*1[A-Za-z]:%*1[/\\]%n", &n);
-  if (n > 0)
-    return true;
-#endif
-  return false;
+  if (path.empty() || path[0] == '/')
+    return;
+
+  debugmode = 1;
+  PrintHead();
+  PrintOut(LOG_CRIT, "=======> INVALID ARGUMENT TO -%c: %s <=======\n\n", option, path.c_str());
+  PrintOut(LOG_CRIT, "Error: relative path names are not allowed\n\n");
+  EXIT(EXIT_BADCMD);
 }
+#endif // !_WIN32
 
 // Parses input line, prints usage message and
 // version/license/copyright messages
@@ -4364,25 +4363,14 @@ static void ParseOpts(int argc, char **argv)
     EXIT(EXIT_BADCMD);
   }
 
-  // absolute path is required due to chdir('/') after fork().
-  if (!state_path_prefix.empty() && !debugmode && !is_abs_path(state_path_prefix.c_str())) {
-    debugmode=1;
-    PrintHead();
-    PrintOut(LOG_CRIT, "=======> INVALID CHOICE OF OPTIONS: -s <======= \n\n");
-    PrintOut(LOG_CRIT, "Error: relative path %s is only allowed in debug (-d) mode\n\n",
-      state_path_prefix.c_str());
-    EXIT(EXIT_BADCMD);
+#ifndef _WIN32
+  if (!debugmode) {
+    // absolute path names are required due to chdir('/') after fork().
+    check_abs_path('p', pid_file);
+    check_abs_path('s', state_path_prefix);
+    check_abs_path('A', attrlog_path_prefix);
   }
-
-  // absolute path is required due to chdir('/') after fork().
-  if (!attrlog_path_prefix.empty() && !debugmode && !is_abs_path(attrlog_path_prefix.c_str())) {
-    debugmode=1;
-    PrintHead();
-    PrintOut(LOG_CRIT, "=======> INVALID CHOICE OF OPTIONS: -A <======= \n\n");
-    PrintOut(LOG_CRIT, "Error: relative path %s is only allowed in debug (-d) mode\n\n",
-      attrlog_path_prefix.c_str());
-    EXIT(EXIT_BADCMD);
-  }
+#endif
 
   // Read or init drive database
   if (!no_defaultdb) {
