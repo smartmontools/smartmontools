@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3447 2011-10-14 20:32:00Z chrfranke $
+ $Id: smartctl.8.in 3452 2011-10-15 15:22:09Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1953,7 +1953,7 @@ The device error log contains records of errors.
 The device self\-test log contains records of errors.
 [ATA only] Failed self-tests outdated by a newer successful extended
 self\-test are ignored.
-
+.PP
 To test within the shell for whether or not the different bits are
 turned on or off, you can use the following type of construction (this
 is bash syntax):
@@ -1965,6 +1965,14 @@ This looks at only at bit 3 of the exit status
 (since 8=2^3).  The shell variable
 $smartstat will be nonzero if SMART status check returned "disk
 failing" and zero otherwise.
+
+This bash script prints all status bits:
+.nf
+status=$?
+for ((i=0; i<8; i++)); do
+  echo "Bit $i: $((status & 2**i && 1))"
+done
+.fi
 
 .PP
 .SH NOTES
@@ -2045,4 +2053,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3447 2011-10-14 20:32:00Z chrfranke $
+$Id: smartctl.8.in 3452 2011-10-15 15:22:09Z chrfranke $
