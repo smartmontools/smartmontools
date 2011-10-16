@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows installer: Rework to support UAC.
+       Replace *-run.bat files by runcmd?.exe wrappers.
+       Run drive menu entries elevated (ticket #173).
+
   [CF] smartctl.8.in: Add example script which prints all status bits
        (ticket #191).
 

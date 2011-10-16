@@ -16,6 +16,7 @@ Summary: smartmontools release 5.42
 - FreeBSD: Compilation fixes.
 - FreeBSD: Support for Areca controllers.
 - Linux: Support for Areca controllers enhanced.
+- Windows installer: UAC support.
 - Windows: update-smart-drivedb /S(ilent) option.
 
 Date 2011-06-09

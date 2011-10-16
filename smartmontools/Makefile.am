@@ -333,6 +333,9 @@ EXTRA_DIST = \
         os_darwin/StartupParameters.plist \
         os_darwin/English_Localizable.strings \
         os_win32/installer.nsi \
+        os_win32/runcmd.c \
+        os_win32/runcmda.exe.manifest \
+        os_win32/runcmdu.exe.manifest \
         os_win32/syslogevt.c \
         os_win32/syslogevt.mc \
         os_win32/update-smart-drivedb.nsi \
@@ -622,7 +625,9 @@ docdir_win32 = $(distdir_win32)/doc
 EXEFILES_WIN32 = \
         $(exedir_win32)/smartctl.exe \
         $(exedir_win32)/smartctl-nc.exe \
-        $(exedir_win32)/smartd.exe
+        $(exedir_win32)/smartd.exe \
+        $(exedir_win32)/runcmda.exe \
+        $(exedir_win32)/runcmdu.exe
 
 if OS_WIN32_WINDMC
 EXEFILES_WIN32 += \
@@ -653,7 +658,9 @@ FILES_WIN32 = \
         $(docdir_win32)/smartd.8.html \
         $(docdir_win32)/smartd.8.txt \
         $(docdir_win32)/smartd.conf.5.html \
-        $(docdir_win32)/smartd.conf.5.txt
+        $(docdir_win32)/smartd.conf.5.txt \
+        $(exedir_win32)/runcmda.exe.manifest \
+        $(exedir_win32)/runcmdu.exe.manifest
 
 if ENABLE_DRIVEDB
 FILES_WIN32 += \
@@ -662,6 +669,7 @@ endif
 
 CLEANFILES += \
         $(FILES_WIN32) \
+        runcmdu.exe \
         smartctl-nc.exe smartctl-nc.exe.tmp \
         syslogevt.exe syslogevt.h syslogevt.o \
         syslogevt.res.o syslogevt.rc syslogevt_*.bin \
@@ -731,7 +739,15 @@ $(exedir_win32)/%.exe: %.exe
 $(exedir_win32)/update-smart-drivedb.exe: update-smart-drivedb.exe
 	cp -p $< $@
 
+# runcmd?.exe only differ by .exe.manifest files
+$(exedir_win32)/runcmda.exe: $(exedir_win32)/runcmdu.exe
+	cp -p $< $@
+
 $(exedir_win32)/%.h: $(srcdir)/%.h
+	$(UNIX2DOS) < $< > $@
+	touch -r $< $@
+
+$(exedir_win32)/%.exe.manifest: $(srcdir)/os_win32/%.exe.manifest
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
 
@@ -770,6 +786,10 @@ smartctl-nc.exe: smartctl.exe
 	@if test `od -A n -j 220 -N 2 -d $@.tmp` -eq 2; then :; \
 	  else echo "EXE patch failed"; exit 1; fi
 	mv -f $@.tmp $@
+
+# Build runcmd?.exe
+runcmdu.exe: os_win32/runcmd.c
+	$(CC) -Os -o $@ $<
 
 if OS_WIN32_WINDMC
 # Build syslogevt.exe event message file tool
