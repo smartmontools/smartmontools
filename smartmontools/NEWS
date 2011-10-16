@@ -9,15 +9,21 @@ Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.42
 -----------------------------------------------------------
 - smartctl option '-l devstat' (Device Statistics).
-- smartctl option '-l ssd'.
+- smartctl option '-l ssd' (SSD endurance indicator).
+- smartd logs identify information of each SCSI/SAS device.
 - smartd resends warning emails if problem reappears.
 - smartd directives '-l offlinests' and '-l selfteststs'.
+- Many HDD, SSD and USB additions to drive database.
 - Platform-specific man pages.
+- smartd.8 man page no longer includes smartd.conf.5.
 - FreeBSD: Compilation fixes.
 - FreeBSD: Support for Areca controllers.
+- FreeBSD: Fix '-l scterc' support.
+- FreeBSD: Support for 48-bit ATA commands.
 - Linux: Support for Areca controllers enhanced.
 - Windows installer: UAC support.
 - Windows: update-smart-drivedb /S(ilent) option.
+- Windows: improved USB ID detection.
 
 Date 2011-06-09
 Summary: smartmontools release 5.41
