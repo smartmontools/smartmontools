@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3435 2011-10-11 19:01:42Z chrfranke $
+$Id: NEWS 3453 2011-10-16 12:45:27Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -16,6 +16,7 @@ Summary: smartmontools release 5.42
 - FreeBSD: Compilation fixes.
 - FreeBSD: Support for Areca controllers.
 - Linux: Support for Areca controllers enhanced.
+- Windows installer: UAC support.
 - Windows: update-smart-drivedb /S(ilent) option.
 
 Date 2011-06-09
