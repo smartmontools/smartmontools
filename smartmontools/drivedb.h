@@ -2415,6 +2415,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: WD Elements SE USB 3.0; ",
+    "0x1058:0x1042",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: WD My Book Essential; ",
     "0x1058:0x1100",
     "", // 0x0165
