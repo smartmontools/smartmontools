@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3448 2011-10-14 20:43:29Z chrfranke $",
+  { "$Id: drivedb.h 3455 2011-10-19 19:31:08Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2411,6 +2411,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: WD Elements SE; ", // 1TB
     "0x1058:0x1023",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: WD Elements SE USB 3.0; ",
+    "0x1058:0x1042",
     "",
     "",
     "-d sat"
