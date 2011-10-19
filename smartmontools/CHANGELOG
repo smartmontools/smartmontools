@@ -41,6 +41,16 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - SAMSUNG SpinPoint MP5
+       - Seagate Barracuda 7200.11: Change warning text, Seagate
+         apparently released fixed firmware without changing version
+         number (Debian bug 632758)
+       - Western Digital RE4 GP
+       - Western Digital VelociRaptor: Add 150GB, 300GB LHX variants
+       - Western Digital Scorpio Blue Serial ATA (Adv. Format):
+         Add 1TB JPVT variant
+
   [CF] drivedb.h USB update:
        - WD Elements SE USB 3.0 (0x1058:0x1042)
 

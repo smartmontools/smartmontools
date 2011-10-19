@@ -791,6 +791,10 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HM(162H|252H|322I|502J)X",
     "", "", ""
   },
+  { "SAMSUNG SpinPoint MP5", // tested with HM250HJ/2AK10001
+    "SAMSUNG HM(250H|320H|500J|640J)J",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint MT2", // tested with HM100UI/2AM10001
     "SAMSUNG HM100UI",
     "", "", ""
@@ -1273,7 +1277,7 @@ const drive_settings builtin_knowndrives[] = {
     "(IBM-)?IC35L(030|060|090|120|180)AVV207-[01]",
     "", "", ""
   },
-  { "Hitachi Deskstar 5K3000",
+  { "Hitachi Deskstar 5K3000", // tested with HDS5C3030ALA630/MEAOA5C0
     "(Hitachi )?HDS5C30(15|20|30)ALA63[02].*",
     "", "", ""
   },
@@ -1337,7 +1341,7 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HUA7210(50|75|10)KLA330",
     "", "", ""
   },
-  { "Hitachi Ultrastar 7K3000",
+  { "Hitachi Ultrastar 7K3000", // tested with HUA723030ALA640/MKAOA580
     "Hitachi HUA7230(20|30)ALA640",
     "", "", ""
   },
@@ -1562,14 +1566,15 @@ const drive_settings builtin_knowndrives[] = {
     "SD[12]B", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957
     "", ""
   },
-  { "Seagate Barracuda 7200.11", // buggy firmware
+  { "Seagate Barracuda 7200.11", // buggy or fixed firmware
     "ST3(500[368]20|640[35]30|750[36]30|1000340)AS?",
     "(AD14|SD1[5-9]|SD81)",
     "There are known problems with these drives,\n"
-    "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
-    "see the following Seagate web pages:\n"
+    "THIS DRIVE MAY OR MAY NOT BE AFFECTED,\n"
+    "see the following web pages for details:\n"
     "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207951",
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207951\n"
+    "http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=632758",
     ""
   },
   { "Seagate Barracuda 7200.11", // unknown firmware
@@ -1783,6 +1788,10 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((((25|50)03A|1003F)BYX)|((15|20)03FYYS))-.*",
     "", "", ""
   },
+  { "Western Digital RE4-GP", // tested with WDC WD2002FYPS-02W3B0/04.01G01
+    "WDC WD2002FYPS-.*",
+    "", "", ""
+  },
   { "Western Digital Caviar Green",
     "WDC WD((50|64|75)00AA(C|V)S|(50|64|75)00AADS|10EA(C|V)S|(10|15|20)EADS)-.*",
     "", "", ""
@@ -1828,8 +1837,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD1500AHFD-.*",
     "", "", ""
   },
-  { "Western Digital VelociRaptor",
-    "WDC WD(((800H|(1500|3000)[BH]|1600H|3000G)LFS)|((4500|6000)[BH]LHX))-.*",
+  { "Western Digital VelociRaptor", // tested with WDC WD1500HLHX-01JJPV0/04.05G04
+    "WDC WD(((800H|(1500|3000)[BH]|1600H|3000G)LFS)|((1500|3000|4500|6000)[BH]LHX))-.*",
     "", "", ""
   },
   { "Western Digital Scorpio EIDE",
@@ -1848,8 +1857,9 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((4|6|8|10|12|16|25)00BEVS|(8|12|16|25|32|40|50|64)00BEVT|7500KEVT|10TEVT)-.*",
     "", "", ""
   },
-  { "Western Digital Scorpio Blue Serial ATA (Adv. Format)",
-    "WDC WD((16|25|32|50|64|75)00BPVT|10TPVT)-.*",
+  { "Western Digital Scorpio Blue Serial ATA (Adv. Format)", // tested with
+      // WDC WD10JPVT-00A1YT0/01.01A01
+    "WDC WD((16|25|32|50|64|75)00BPVT|10[JT]PVT)-.*",
     "", "", ""
   },
   { "Western Digital Scorpio Black Serial ATA",
