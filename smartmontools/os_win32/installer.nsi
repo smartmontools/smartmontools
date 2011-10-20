@@ -13,7 +13,7 @@
 ; You should have received a copy of the GNU General Public License
 ; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
-; $Id: installer.nsi 3453 2011-10-16 12:45:27Z chrfranke $
+; $Id: installer.nsi 3457 2011-10-20 16:36:47Z chrfranke $
 ;
 
 
@@ -218,7 +218,7 @@ Section "Start Menu Shortcuts" MENU_SECTION
   IfFileExists "$INSTDIR\bin\smartctl.exe" 0 noctl
     SetOutPath "$INSTDIR\bin"
     IfFileExists "$WINDIR\system32\cmd.exe" 0 nocmd
-      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl (Admin CMD).lnk" "$WINDIR\system32\cmd.exe" '/k cd /d "$INSTDIR\bin"'
+      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl (Admin CMD).lnk" "$WINDIR\system32\cmd.exe" '/k PATH=$INSTDIR\bin;%PATH%&cd /d "$INSTDIR\bin"'
     nocmd:
     CreateDirectory "$SMPROGRAMS\smartmontools\smartctl Examples"
     FileOpen $0 "$SMPROGRAMS\smartmontools\smartctl Examples\!Read this first!.txt" "w"
