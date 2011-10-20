@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+smartmontools 5.42 2011-10-20
+
   [CF] Windows installer: Add install dir to PATH in CMD shortcut.
 
   [CF] drivedb.h updates:
