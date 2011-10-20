@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows installer: Add install dir to PATH in CMD shortcut.
+
   [CF] drivedb.h updates:
        - SAMSUNG SpinPoint MP5
        - Seagate Barracuda 7200.11: Change warning text, Seagate

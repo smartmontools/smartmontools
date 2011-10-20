@@ -218,7 +218,7 @@ Section "Start Menu Shortcuts" MENU_SECTION
   IfFileExists "$INSTDIR\bin\smartctl.exe" 0 noctl
     SetOutPath "$INSTDIR\bin"
     IfFileExists "$WINDIR\system32\cmd.exe" 0 nocmd
-      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl (Admin CMD).lnk" "$WINDIR\system32\cmd.exe" '/k cd /d "$INSTDIR\bin"'
+      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl (Admin CMD).lnk" "$WINDIR\system32\cmd.exe" '/k PATH=$INSTDIR\bin;%PATH%&cd /d "$INSTDIR\bin"'
     nocmd:
     CreateDirectory "$SMPROGRAMS\smartmontools\smartctl Examples"
     FileOpen $0 "$SMPROGRAMS\smartmontools\smartctl Examples\!Read this first!.txt" "w"
