@@ -1,11 +1,11 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3454 2011-10-16 17:16:15Z chrfranke $
+$Id: NEWS 3458 2011-10-20 19:20:23Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
-Date <Not released yet, please try current SVN>
+Date 2011-10-20
 Summary: smartmontools release 5.42
 -----------------------------------------------------------
 - smartctl option '-l devstat' (Device Statistics).
