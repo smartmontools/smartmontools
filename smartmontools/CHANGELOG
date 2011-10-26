@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Replace COPYING file with current (2010-03-24) version from
+       http://www.gnu.org/licenses/gpl-2.0.txt
+
 smartmontools 5.42 2011-10-20
 
   [CF] Windows installer: Add install dir to PATH in CMD shortcut.
