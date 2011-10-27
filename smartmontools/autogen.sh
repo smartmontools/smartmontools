@@ -96,5 +96,5 @@ set -e	# stops on error status
 
 ${ACLOCAL}
 autoheader
-${AUTOMAKE} --add-missing --copy --foreign
+${AUTOMAKE} --add-missing --copy
 autoconf
