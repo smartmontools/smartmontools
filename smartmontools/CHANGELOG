@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Don't include pkg-config macros in aclocal.m4, copy to m4/pkg.m4
+       instead.  Allow builds from SVN without pkg-config installed
+       but prevent 'make dist' when pkg-config support is missing.
+
   [CF] Move automake --foreign option from autogen.sh to configure.in.
        This fixes autoreconf support.
 
