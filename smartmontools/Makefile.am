@@ -1,9 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3453 2011-10-16 12:45:27Z chrfranke $
+# $Id: Makefile.am 3462 2011-10-27 19:55:10Z chrfranke $
 #
 
 @SET_MAKE@
+
+ACLOCAL_AM_FLAGS = -I m4
 
 # Make sure .cpp takes precedence to avoid compiling old .c file
 SUFFIXES = .cpp .c .s .o
@@ -329,6 +331,7 @@ EXTRA_DIST = \
         smartd.conf \
         smartd.service.in \
         update-smart-drivedb.in \
+        m4/pkg.m4 \
         os_darwin/SMART.in \
         os_darwin/StartupParameters.plist \
         os_darwin/English_Localizable.strings \
@@ -376,7 +379,8 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/depcomp \
         $(srcdir)/install-sh \
         $(srcdir)/missing \
-        $(srcdir)/mkinstalldirs
+        $(srcdir)/mkinstalldirs \
+        $(srcdir)/m4/pkg.m4
 
 utility.o: svnversion.h
 
