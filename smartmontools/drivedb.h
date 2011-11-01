@@ -1467,9 +1467,29 @@ const drive_settings builtin_knowndrives[] = {
     "ST9((160413|25041[12]|320426|50042[12])AS|(16041[489]|2504[16]4|32042[67]|500426)ASG)",
     "", "", ""
   },
-  { "Seagate Momentus XT", // tested with ST95005620AS/SD22
+  { "Seagate Momentus XT", // fixed firmware
     "ST9(2505610|3205620|5005620)AS",
-    "", "", ""
+    "SD2[68]",
+    "", ""
+  },
+  { "Seagate Momentus XT", // buggy firmware, tested with ST92505610AS/SD24
+    "ST9(2505610|3205620|5005620)AS",
+    "SD2[45]",
+    "These drives may corrupt large files,\n"
+    "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
+    "see the following web pages for details:\n"
+    "http://forums.seagate.com/t5/Momentus-XT-Momentus-Momentus/Momentus-XT-corrupting-large-files-Linux/td-p/109008\n"
+    "http://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
+    ""
+  },
+  { "Seagate Momentus XT", // unknown firmware
+    "ST9(2505610|3205620|5005620)AS",
+    "",
+    "These drives may corrupt large files,\n"
+    "see the following web pages for details:\n"
+    "http://forums.seagate.com/t5/Momentus-XT-Momentus-Momentus/Momentus-XT-corrupting-large-files-Linux/td-p/109008\n"
+    "http://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
+    ""
   },
   { "Seagate Medalist 1010, 1720, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
     "ST3(1010|1720|1721|2120|3230|4340)A",
