@@ -1341,6 +1341,11 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HUA7210(50|75|10)KLA330",
     "", "", ""
   },
+  { "Hitachi Ultrastar A7K2000", // tested with
+    // HUA722010CLA330      43W7629 42C0401IBM
+    "HUA7220[125]0CLA33[01].*",
+    "", "", ""
+  },
   { "Hitachi Ultrastar 7K3000", // tested with HUA723030ALA640/MKAOA580
     "Hitachi HUA7230(20|30)ALA640",
     "", "", ""

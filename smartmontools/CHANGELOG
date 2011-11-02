@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] drivedb.h update: 
+       - Hitachi Ultrastar 7K2000
+
   [CF] drivedb.h update:
        - Seagate Momentus XT: Add bug warning for firmware SD24 and SD25
 
