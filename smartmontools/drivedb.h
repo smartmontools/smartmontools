@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3463 2011-11-01 18:15:20Z chrfranke $",
+  { "$Id: drivedb.h 3464 2011-11-02 11:38:58Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1339,6 +1339,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Hitachi Ultrastar 7K1000",
     "(Hitachi )?HUA7210(50|75|10)KLA330",
+    "", "", ""
+  },
+  { "Hitachi Ultrastar A7K2000", // tested with
+    // HUA722010CLA330      43W7629 42C0401IBM
+    "HUA7220[125]0CLA33[01].*",
     "", "", ""
   },
   { "Hitachi Ultrastar 7K3000", // tested with HUA723030ALA640/MKAOA580
