@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] os_freebsd.cpp: backport quirks for the LSI controllers with SATA
+       disks to the FreeBSD. Tested with DELL Perc/6i controller.
+
   [AS] os_freebsd.cpp: disable SAT autodetection on megaraid controllers
 
   [AS] drivedb.h update: 
