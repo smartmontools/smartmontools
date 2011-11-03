@@ -2294,11 +2294,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ",
+  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 3TB
     "0x0bc2:0x50a1",
     "",
     "",
-    "-d sat"
+    "-d sat,12" // "-d sat" does not work (ticket #151)
   },
   // Dura Micro
   { "USB: Dura Micro 509; Sunplus",

@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB update:
+       - Seagate FreeAgent GoFlex Desk USB 3.0 (0x0bc2:0x50a1):
+         Revert to -d sat,12 (ticket #151).
+
   [AS] os_freebsd.cpp - fixed crash on FreeBSD9-RC1 caused by r225950
 
   [AS] smartctl.8 - added information about -d areca on FreeBSD
