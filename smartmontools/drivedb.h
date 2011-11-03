@@ -1979,6 +1979,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // LG Electronics
+  { "USB: LG Mini HXD5; JMicron",
+    "0x043e:0x70f1",
+    "",
+    "",
+    "-d usbjmicron"
+  },
   // Toshiba
   { "USB: Toshiba Canvio 500GB; ",
     "0x0480:0xa004",
@@ -2195,6 +2202,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  { "USB: Freecom; ", // Intel labeled
+    "0x07ab:0xfc8f",
+    "", // 0x0000
+    "",
+    "-d sat"
+  },
   { "USB: Freecom Classic HD 120GB; ",
     "0x07ab:0xfccd",
     "",
@@ -2301,6 +2314,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat,12" // "-d sat" does not work (ticket #151)
   },
   // Dura Micro
+  { "USB: Dura Micro; Cypress",
+    "0x0c0b:0xb001",
+    "", // 0x1110
+    "",
+    "-d usbcypress"
+  },
   { "USB: Dura Micro 509; Sunplus",
     "0x0c0b:0xb159",
     "", // 0x0103
@@ -2503,6 +2522,12 @@ const drive_settings builtin_knowndrives[] = {
   // Initio
   { "USB: ; Initio 316000",
     "0x13fd:0x0540",
+    "",
+    "",
+    "" // unsupported
+  },
+  { "USB: ; Initio 6Y120L0", // CoolerMaster XCraft RX-3HU
+    "0x13fd:0x1150",
     "",
     "",
     "" // unsupported

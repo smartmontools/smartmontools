@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - LG Mini HXD5 (0x043e:0x70f1)
+       - Freecom/Intel (0x07ab:0xfc8e)
+       - Dura Micro (0x0c0b:0xb001) (Debian bug 643928)
+       - Initio 6Y120L0 (0x13fd:0x1150): unsupported
+
   [CF] drivedb.h USB update:
        - Seagate FreeAgent GoFlex Desk USB 3.0 (0x0bc2:0x50a1):
          Revert to -d sat,12 (ticket #151).
