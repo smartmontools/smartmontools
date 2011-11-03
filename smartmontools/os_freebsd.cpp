@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3465 2011-11-03 11:03:33Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3466 2011-11-03 17:50:35Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1012,6 +1012,20 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   if (!(ccb = cam_getccb(m_camdev))) {
     warnx("error allocating ccb");
     return -ENOMEM;
+  }
+  // mfi SAT layer is known to be buggy
+  if(!strcmp("mfi",m_camdev->sim_name)) {
+    if (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 || iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16) { 
+      // Controller does not return ATA output registers in SAT sense data
+      if (iop->cmnd[2] & (1 << 5)) // chk_cond
+        return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
+    }
+    // SMART WRITE LOG SECTOR causing media errors
+    if ((iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16 && iop->cmnd[14] == ATA_SMART_CMD 
+        && iop->cmnd[3]==0 && iop->cmnd[4] == ATA_SMART_WRITE_LOG_SECTOR) || 
+        (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 && iop->cmnd[9] == ATA_SMART_CMD &&
+        iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR)) 
+      return set_err(ENOSYS, "SMART WRITE LOG SECTOR command is not supported by controller firmware"); 
   }
 
   // clear out structure, except for header that was filled in for us
