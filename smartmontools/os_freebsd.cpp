@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3423 2011-10-06 16:43:44Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3465 2011-11-03 11:03:33Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1590,12 +1590,18 @@ smart_device * freebsd_scsi_device::autodetect_open()
     return this;
   }
 
-  // SAT or USB ?
+  // SAT or USB, skip MFI controllers because of bugs
   {
     smart_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
-    if (newdev)
+    if (newdev) {
       // NOTE: 'this' is now owned by '*newdev'
+      if(!strcmp("mfi",m_camdev->sim_name)) {
+        newdev->close();
+        newdev->set_err(ENOSYS, "SATA device detected,\n"
+          "MegaRAID SAT layer is reportedly buggy, use '-d sat' to try anyhow");
+      }
       return newdev;
+    }
   }
 
   // Nothing special found
