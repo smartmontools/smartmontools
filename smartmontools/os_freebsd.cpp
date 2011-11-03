@@ -1058,8 +1058,8 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   }
 
   if (iop->sensep) {
-    memcpy(iop->sensep,&(ccb->csio.sense_data),sizeof(struct scsi_sense_data));
-    iop->resp_sense_len = sizeof(struct scsi_sense_data);
+    iop->resp_sense_len = ccb->csio.sense_len - ccb->csio.sense_resid;
+    memcpy(iop->sensep,&(ccb->csio.sense_data),iop->resp_sense_len);
   }
 
   iop->scsi_status = ccb->csio.scsi_status;
