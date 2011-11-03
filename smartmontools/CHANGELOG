@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] os_freebsd.cpp: disable SAT autodetection on megaraid controllers
+
   [AS] drivedb.h update: 
        - Hitachi Ultrastar 7K2000
 

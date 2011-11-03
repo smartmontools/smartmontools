@@ -1590,12 +1590,18 @@ smart_device * freebsd_scsi_device::autodetect_open()
     return this;
   }
 
-  // SAT or USB ?
+  // SAT or USB, skip MFI controllers because of bugs
   {
     smart_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
-    if (newdev)
+    if (newdev) {
       // NOTE: 'this' is now owned by '*newdev'
+      if(!strcmp("mfi",m_camdev->sim_name)) {
+        newdev->close();
+        newdev->set_err(ENOSYS, "SATA device detected,\n"
+          "MegaRAID SAT layer is reportedly buggy, use '-d sat' to try anyhow");
+      }
       return newdev;
+    }
   }
 
   // Nothing special found
