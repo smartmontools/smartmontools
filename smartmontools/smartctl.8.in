@@ -426,21 +426,35 @@ The necessary WRITE LOG commands can not be passed through the SCSI
 interface.
 
 .\" %ENDIF OS FreeBSD Linux
-.\" %IF OS Linux
+.\" %IF OS Linux FreeBSD
 .I areca,N
-\- [Linux only] the device consists of one or more SATA disks connected to an
+\- [Linux and FreeBSD only] the device consists of one or more SATA disks connected to an
 Areca SATA RAID controller.  The positive integer N (in the range from 1 to
 24 inclusive) denotes which disk on the controller is monitored.
-Use syntax such as:
+.\" %ENDIF OS Linux FreeBSD
+.\" %IF OS Linux
+On Linux use syntax such as:
 .nf
 \fBsmartctl \-a \-d areca,2 /dev/sg2\fP
 .fi
 .nf
 \fBsmartctl \-a \-d areca,3 /dev/sg3\fP
 .fi
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD
+On FreeBSD use syntax such as:
+.nf
+\fBsmartctl \-a \-d areca,2 /dev/arcmsr1\fP
+.fi
+.nf
+\fBsmartctl \-a \-d areca,3 /dev/arcmsr2\fP
+.fi
+.\" %ENDIF OS FreeBSD
 The first line above addresses the second disk on the first Areca RAID controller.
 The second line addresses the third disk on the second Areca RAID
-controller.  To help identify the correct device, use the command:
+controller.  
+.\" %IF OS Linux
+To help identify the correct device on Linus, use the command:
 .nf
 \fBcat /proc/scsi/sg/device_hdr /proc/scsi/sg/devices\fP
 .fi
@@ -449,12 +463,14 @@ to show the SCSI generic devices (one per line, starting with
 smartmontools are the ones with the type field equal to 3.  If the
 incorrect device is addressed, please read the warning/error messages
 carefully.  They should provide hints about what devices to use.
+.\" %ENDIF OS Linux
 
+.\" %IF OS Linux FreeBSD
 Important: the Areca controller must have firmware version 1.46 or
 later.  Lower-numbered firmware versions will give (harmless) SCSI
 error messages and no SMART information.
 
-.\" %ENDIF OS Linux
+.\" %ENDIF OS Linux FreeBSD
 .\" %IF OS FreeBSD Linux
 .I cciss,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks

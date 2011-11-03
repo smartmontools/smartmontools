@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] smartctl.8 - added information about -d areca on FreeBSD
+
   [AS] os_freebsd.cpp: backport quirks for the LSI controllers with SATA
        disks to the FreeBSD. Tested with DELL Perc/6i controller.
 
