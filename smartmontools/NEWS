@@ -1,9 +1,11 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3458 2011-10-20 19:20:23Z chrfranke $
+$Id: NEWS 3469 2011-11-03 20:17:16Z samm2 $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
+
+- FreeBSD: fixed crash on SCSI devices with FreeBSD9-RC1
 
 Date 2011-10-20
 Summary: smartmontools release 5.42
