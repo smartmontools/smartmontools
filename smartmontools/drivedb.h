@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3464 2011-11-02 11:38:58Z samm2 $",
+  { "$Id: drivedb.h 3470 2011-11-03 21:22:18Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2294,11 +2294,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ",
+  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 3TB
     "0x0bc2:0x50a1",
     "",
     "",
-    "-d sat"
+    "-d sat,12" // "-d sat" does not work (ticket #151)
   },
   // Dura Micro
   { "USB: Dura Micro 509; Sunplus",
