@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3471 2011-11-03 22:18:34Z chrfranke $
+$Id: CHANGELOG 3472 2011-11-07 12:46:27Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] os_freebsd.cpp: Dereference symlinks before guess of device type
+       (problem reported by email).
 
   [CF] drivedb.h USB updates:
        - LG Mini HXD5 (0x043e:0x70f1)
