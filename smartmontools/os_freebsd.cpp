@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3472 2011-11-07 12:46:27Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3473 2011-11-07 12:59:40Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -2146,7 +2146,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
     for (i = 0; i < (int)scsinames.size(); i++) {
       if(strcmp(scsinames[i].c_str(), test_name)==0)
       { // our disk device is CAM
-        if ((cam_dev = cam_open_device(name, O_RDWR)) == NULL) {
+        if ((cam_dev = cam_open_device(test_name, O_RDWR)) == NULL) {
           // open failure
           set_err(errno);
           return 0;
