@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] os_freebsd.cpp: Dereference symlinks before guess of device type
+       (problem reported by email).
+
   [CF] drivedb.h USB updates:
        - LG Mini HXD5 (0x043e:0x70f1)
        - Freecom/Intel (0x07ab:0xfc8e)

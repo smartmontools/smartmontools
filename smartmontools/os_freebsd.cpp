@@ -2099,10 +2099,23 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   int bus=-1;
   int i,c;
   int len;
+  const char * test_name = name;
 
   // if dev_name null, or string length zero
   if (!name || !(len = strlen(name)))
     return 0;
+
+  // Dereference symlinks
+  struct stat st;
+  std::string pathbuf;
+  if (!lstat(name, &st) && S_ISLNK(st.st_mode)) {
+    char * p = realpath(name, (char *)0);
+    if (p) {
+      pathbuf = p;
+      free(p);
+      test_name = pathbuf.c_str();
+    }
+  }
 
   // check ATA bus
   char * * atanames = 0; int numata = 0;
@@ -2110,10 +2123,10 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   if (numata > 0) {
     // check ATA/ATAPI devices
     for (i = 0; i < numata; i++) {
-      if(!strcmp(atanames[i],name)) {
+      if(!strcmp(atanames[i],test_name)) {
         for (c = i; c < numata; c++) free(atanames[c]);
         free(atanames);
-        return new freebsd_ata_device(this, name, "");
+        return new freebsd_ata_device(this, test_name, "");
       }
       else free(atanames[i]);
     }
@@ -2131,14 +2144,13 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   else if (!scsinames.empty()) {
     // check all devices on CAM bus
     for (i = 0; i < (int)scsinames.size(); i++) {
-      if(strcmp(scsinames[i].c_str(), name)==0)
+      if(strcmp(scsinames[i].c_str(), test_name)==0)
       { // our disk device is CAM
         if ((cam_dev = cam_open_device(name, O_RDWR)) == NULL) {
           // open failure
           set_err(errno);
           return 0;
         }
-        
         // zero the payload
         bzero(&(&ccb.ccb_h)[1], PATHINQ_SETTINGS_SIZE);
         ccb.ccb_h.func_code = XPT_PATH_INQ; // send PATH_INQ to the device
@@ -2156,7 +2168,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
           if(usbdevlist(bus,vendor_id, product_id, version)){
             const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
             if (usbtype)
-              return get_sat_device(usbtype, new freebsd_scsi_device(this, name, ""));
+              return get_sat_device(usbtype, new freebsd_scsi_device(this, test_name, ""));
           }
           return 0;
         }
@@ -2164,18 +2176,18 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
         // check if we have ATA device connected to CAM (ada)
         if(ccb.cpi.protocol == PROTO_ATA){
           cam_close_device(cam_dev);
-          return new freebsd_atacam_device(this, name, "");
+          return new freebsd_atacam_device(this, test_name, "");
         }
 #endif
         // close cam device, we don`t need it anymore
         cam_close_device(cam_dev);
         // handle as usual scsi
-        return new freebsd_scsi_device(this, name, "");      
+        return new freebsd_scsi_device(this, test_name, "");      
       }
     }
   }
   // device is LSI raid supported by mfi driver
-  if(!strncmp("/dev/mfid", name, strlen("/dev/mfid")))
+  if(!strncmp("/dev/mfid", test_name, strlen("/dev/mfid")))
     set_err(EINVAL, "To monitor disks on LSI RAID load mfip.ko module and run 'smartctl -a /dev/passX' to show SMART information");
   // device type unknown
   return 0;
