@@ -1740,6 +1740,11 @@ related SMART attributes (226, 227, 228).  Note that the raw values of
 these attributes are held at 65535 (0xffff) until the workload timer
 reaches 60 minutes.
 
+.I force
+\- [ATA only] start new self\-test even if another test is already running.
+By default a running self\-test will not be interrupted to begin another
+test.
+
 .I scttempint,N[,p]
 \- is no longer supported, use \'\-l scttempint,N[,p]\' instead, see above.
 .TP

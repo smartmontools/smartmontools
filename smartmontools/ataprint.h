@@ -75,6 +75,7 @@ struct ata_print_options
   bool smart_auto_save_disable, smart_auto_save_enable;
 
   int smart_selftest_type; // OFFLINE_FULL_SCAN, ..., see atacmds.h. -1 for no test
+  bool smart_selftest_force; // Ignore already running test
   ata_selective_selftest_args smart_selective_args; // Extra args for selective self-test
 
   unsigned sct_temp_int;
@@ -111,7 +112,7 @@ struct ata_print_options
       smart_disable(false), smart_enable(false),
       smart_auto_offl_disable(false), smart_auto_offl_enable(false),
       smart_auto_save_disable(false), smart_auto_save_enable(false),
-      smart_selftest_type(-1),
+      smart_selftest_type(-1), smart_selftest_force(false),
       sct_temp_int(0), sct_temp_int_pers(false),
       output_format(0),
       fix_firmwarebug(FIX_NOTSPECIFIED),

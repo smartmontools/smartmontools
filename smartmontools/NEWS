@@ -5,6 +5,11 @@ $Id$
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
+Date <Not released yet, please try current SVN>
+Summary: smartmontools release 5.43
+-----------------------------------------------------------
+- smartctl does not start ATA self-test if another test is
+  already running.  Override with new option '-t force'.
 - FreeBSD: fixed crash on SCSI devices with FreeBSD9-RC1
 
 Date 2011-10-20
