@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] atacmds.h: Remove bogus ataSmart*Test*() prototypes.
+
   [CF] Define __attribute_format_printf() for functions with printf() style
        arguments.  Allow MinGW build with __USE_MINGW_ANSI_STDIO enabled.
 
