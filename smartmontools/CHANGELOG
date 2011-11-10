@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Makefile.am: Replace sed compound command in MAN_FILTER.
+       This fixes build on Solaris (ticket #203).
+
   [AS] os_freebsd.cpp: Dereference symlinks before guess of device type
        (problem reported by email).
 
