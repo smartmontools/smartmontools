@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3462 2011-10-27 19:55:10Z chrfranke $
+# $Id: Makefile.am 3474 2011-11-10 18:19:58Z chrfranke $
 #
 
 @SET_MAKE@
@@ -544,7 +544,8 @@ MAN_FILTER = \
           -e '/^\.\\" %IF OS .*$(os_man_filter)/,/^\.\\" %ENDIF OS .*$(os_man_filter)/ s,^,!!,' \
           -e '/^\.\\" %IF OS ./,/^\.\\" %ENDIF OS ./ s,^,.\\"\# ,' \
           -e '/^!*\.\\" %IF NOT OS ./,/^!*\.\\" %ENDIF NOT OS ./ s,^,!!,' \
-          -e '/^!!/{ s,^!!!*,,; s,^\.\\"! \(.*\)$$,\1 \\"\#, ;}' ; \
+          -e 's,^!!!*\.\\"! \(.*\)$$,\1 \\"\#,' \
+          -e 's,^!!!*,,' ; \
     else \
       cat; \
     fi
