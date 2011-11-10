@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3316 2011-04-19 19:34:57Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3476 2011-11-10 21:49:54Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -766,12 +766,9 @@ int ataEnableAutoOffline (ata_device * device);
 int ataDisableAutoOffline (ata_device * device);
 
 /* S.M.A.R.T. test commands */
-int ataSmartOfflineTest (ata_device * device);
-int ataSmartExtendSelfTest (ata_device * device);
-int ataSmartShortSelfTest (ata_device * device);
-int ataSmartShortCapSelfTest (ata_device * device);
-int ataSmartExtendCapSelfTest (ata_device * device);
-int ataSmartSelfTestAbort (ata_device * device);
+int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest_args & args,
+                 const ata_smart_values * sv, uint64_t num_sectors);
+
 int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_args & args,
                                  const ata_smart_values * sv, uint64_t num_sectors,
                                  const ata_selective_selftest_args * prev_spans = 0);
@@ -829,9 +826,6 @@ inline bool isSCTFeatureControlCapable(const ata_identify_device *drive)
 
 inline bool isSCTDataTableCapable(const ata_identify_device *drive)
   { return ((drive->words088_255[206-88] & 0x21) == 0x21); } // 0x20 = SCT Data Table support
-
-int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest_args & args,
-                 const ata_smart_values * sv, uint64_t num_sectors);
 
 int TestTime(const ata_smart_values * data, int testtype);
 
