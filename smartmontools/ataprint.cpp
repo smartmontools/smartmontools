@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3438 2011-10-11 21:36:27Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3477 2011-11-10 22:13:26Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2824,8 +2824,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Now do the test.  Note ataSmartTest prints its own error/success
   // messages
-  if (ataSmartTest(device, options.smart_selftest_type, options.smart_selective_args,
-                   &smartval, sizes.sectors                                          ))
+  if (ataSmartTest(device, options.smart_selftest_type, options.smart_selftest_force,
+                   options.smart_selective_args, &smartval, sizes.sectors            ))
     failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   else {  
     // Tell user how long test will take to complete.  This is tricky

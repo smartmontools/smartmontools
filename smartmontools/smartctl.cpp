@@ -55,7 +55,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3443 2011-10-12 20:43:04Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3477 2011-11-10 22:13:26Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -160,7 +160,7 @@ static void Usage()
          "]\n\n"
 "============================================ DEVICE SELF-TEST OPTIONS =====\n\n"
 "  -t TEST, --test=TEST\n"
-"        Run test. TEST: offline, short, long, conveyance, vendor,N,\n"
+"        Run test. TEST: offline, short, long, conveyance, force, vendor,N,\n"
 "                        select,M-N, pending,N, afterselect,[on|off]\n\n"
 "  -C, --captive\n"
 "        Do test in captive mode (along with -t)\n\n"
@@ -202,7 +202,7 @@ static std::string getvalidarglist(char opt)
   case 'P':
     return "use, ignore, show, showall";
   case 't':
-    return "offline, short, long, conveyance, vendor,N, select,M-N, "
+    return "offline, short, long, conveyance, force, vendor,N, select,M-N, "
            "pending,N, afterselect,[on|off]";
   case 'F':
     return "none, samsung, samsung2, samsung3, swapid";
@@ -648,6 +648,8 @@ static const char * parse_options(int argc, char** argv,
       } else if (!strcmp(optarg,"conveyance")) {
         testcnt++;
         ataopts.smart_selftest_type = CONVEYANCE_SELF_TEST;
+      } else if (!strcmp(optarg,"force")) {
+        ataopts.smart_selftest_force = true;
       } else if (!strcmp(optarg,"afterselect,on")) {
         // scan remainder of disk after doing selected segment
         ataopts.smart_selective_args.scan_after_select = 2;

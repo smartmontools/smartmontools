@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3467 2011-11-03 17:51:43Z samm2 $
+ $Id: smartctl.8.in 3477 2011-11-10 22:13:26Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1740,6 +1740,11 @@ related SMART attributes (226, 227, 228).  Note that the raw values of
 these attributes are held at 65535 (0xffff) until the workload timer
 reaches 60 minutes.
 
+.I force
+\- [ATA only] start new self\-test even if another test is already running.
+By default a running self\-test will not be interrupted to begin another
+test.
+
 .I scttempint,N[,p]
 \- is no longer supported, use \'\-l scttempint,N[,p]\' instead, see above.
 .TP
@@ -2069,4 +2074,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3467 2011-11-03 17:51:43Z samm2 $
+$Id: smartctl.8.in 3477 2011-11-10 22:13:26Z chrfranke $

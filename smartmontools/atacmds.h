@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3476 2011-11-10 21:49:54Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3477 2011-11-10 22:13:26Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -766,7 +766,8 @@ int ataEnableAutoOffline (ata_device * device);
 int ataDisableAutoOffline (ata_device * device);
 
 /* S.M.A.R.T. test commands */
-int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest_args & args,
+int ataSmartTest(ata_device * device, int testtype, bool force,
+                 const ata_selective_selftest_args & args,
                  const ata_smart_values * sv, uint64_t num_sectors);
 
 int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_args & args,

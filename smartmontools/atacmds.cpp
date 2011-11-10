@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3411 2011-08-12 21:48:54Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3477 2011-11-10 22:13:26Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -1637,7 +1637,8 @@ int ataSmartStatus2(ata_device * device){
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
 // TODO: Move to ataprint.cpp ?
-int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest_args & selargs,
+int ataSmartTest(ata_device * device, int testtype, bool force,
+                 const ata_selective_selftest_args & selargs,
                  const ata_smart_values * sv, uint64_t num_sectors)
 {
   char cmdmsg[128]; const char *type, *captive;
@@ -1664,7 +1665,20 @@ int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest
     type="Selective self-test";
   else
     type = 0;
-  
+
+  // Check whether another test is already running
+  if (type && (sv->self_test_exec_status >> 4) == 0xf) {
+    if (!force) {
+      pout("Can't start self-test without aborting current test (%d0%% remaining),\n"
+           "%srun 'smartctl -X' to abort test.\n",
+           sv->self_test_exec_status & 0x0f,
+           (!select ? "add '-t force' option to override, or " : ""));
+      return -1;
+    }
+  }
+  else
+    force = false;
+
   // If doing a selective self-test, first use WRITE_LOG to write the
   // selective self-test log.
   ata_selective_selftest_args selargs_io = selargs; // filled with info about actual spans
@@ -1706,7 +1720,7 @@ int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest
   else {
     pout("Drive command \"%s\" successful.\n", cmdmsg);
     if (type)
-      pout("Testing has begun.\n");
+      pout("Testing has begun%s.\n", (force ? " (previous test aborted)" : ""));
   }
   return 0;
 }
