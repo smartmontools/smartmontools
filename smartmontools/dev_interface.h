@@ -20,13 +20,11 @@
 
 #define DEV_INTERFACE_H_CVSID "$Id$\n"
 
+#include "utility.h"
+
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-#if !defined(__GNUC__) && !defined(__attribute__)
-#define __attribute__(x)  /**/
-#endif
 
 #ifdef _MSC_VER // Disable MSVC warning
 #pragma warning(disable:4250) // 'class1' : inherits 'class2::member' via dominance
@@ -157,7 +155,7 @@ public:
   /// Printf()-like formatting is supported.
   /// Returns false always to allow use as a return expression.
   bool set_err(int no, const char * msg, ...)
-    __attribute__ ((format (printf, 3, 4)));
+    __attribute_format_printf(3, 4);
 
   /// Set last error info struct.
   bool set_err(const error_info & err)
@@ -764,7 +762,7 @@ public:
   /// Set last error number and message.
   /// Printf()-like formatting is supported.
   void set_err(int no, const char * msg, ...)
-    __attribute__ ((format (printf, 3, 4)));
+    __attribute_format_printf(3, 4);
 
   /// Set last error info struct.
   void set_err(const smart_device::error_info & err)

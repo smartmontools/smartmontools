@@ -28,8 +28,13 @@
 
 #include <string>
 
-#if !defined(__GNUC__) && !defined(__attribute__)
-#define __attribute__(x)  /**/
+#ifndef __GNUC__
+#define __attribute_format_printf(x, y)  /**/
+#elif defined(__MINGW32__) && __USE_MINGW_ANSI_STDIO
+// Check format of __mingw_*printf() instead of MSVCRT.DLL:*printf()
+#define __attribute_format_printf(x, y)  __attribute__((format (gnu_printf, x, y)))
+#else
+#define __attribute_format_printf(x, y)  __attribute__((format (printf, x, y)))
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -171,11 +176,11 @@ public:
 
   /// Version of vquery() with printf() formatting.
   bool query(wbem_enumerator & result, const char * qstr, ...) /*const*/
-       __attribute__ ((format (printf, 3, 4)));
+       __attribute_format_printf(3, 4);
 
   /// Version of vquery1() with printf() formatting.
   bool query1(wbem_object & obj, const char * qstr, ...) /*const*/
-       __attribute__ ((format (printf, 3, 4)));
+       __attribute_format_printf(3, 4);
 
 private:
   com_intf_ptr<IWbemServices> m_intf;

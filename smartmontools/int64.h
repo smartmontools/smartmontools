@@ -40,7 +40,7 @@
 #include <sys/int_types.h>
 #else
 #if defined(_WIN32) && defined(_MSC_VER)
-// for MSVC 6.0
+// for MSVC <= 9 (MSVC10 and MinGW provide <stdint.h>)
 typedef          __int64    int64_t;
 typedef unsigned __int64   uint64_t;
 #else
@@ -59,12 +59,12 @@ typedef unsigned long long uint64_t;
 #endif // HAVE_STDINT_H
 #endif // HAVE_INTTYPES_H
 
-#ifdef _WIN32
-// for MSVCRT.DLL (used by both MSVC 6.0 and MinGW)
+#if defined(_WIN32) && !defined(PRId64)
+// for MSVC (MinGW provides <inttypes.h>)
 #define PRId64 "I64d"
 #define PRIu64 "I64u"
 #define PRIx64 "I64x"
-#endif // _WIN32
+#endif // _WIN32 && !PRId64
 
 // If macros not defined in inttypes.h, fix here.  Default is GCC
 // style

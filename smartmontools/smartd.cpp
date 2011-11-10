@@ -211,7 +211,7 @@ static volatile int caughtsigEXIT=0;
 
 // This function prints either to stdout or to the syslog as needed.
 static void PrintOut(int priority, const char *fmt, ...)
-                     __attribute__ ((format(printf, 2, 3)));
+                     __attribute_format_printf(2, 3);
 
 // Attribute monitoring flags.
 // See monitor_attr_flags below.
@@ -891,7 +891,7 @@ static char *dnsdomain(const char *hostname)
 #define EBUFLEN 1024
 
 static void MailWarning(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
-                        __attribute__ ((format (printf, 4, 5)));
+                        __attribute_format_printf(4, 5);
 
 // If either address or executable path is non-null then send and log
 // a warning email, or execute executable
@@ -1245,7 +1245,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 }
 
 static void reset_warning_mail(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
-                               __attribute__ ((format (printf, 4, 5)));
+                               __attribute_format_printf(4, 5);
 
 static void reset_warning_mail(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
 {

@@ -36,8 +36,14 @@
 #include <string.h>
 #include <string>
 
-#if !defined(__GNUC__) && !defined(__attribute__)
-#define __attribute__(x)  /**/
+#ifndef __GNUC__
+#define __attribute_format_printf(x, y)  /**/
+#elif defined(__MINGW32__) && __USE_MINGW_ANSI_STDIO
+// Check format of __mingw_*printf() instead of MSVCRT.DLL:*printf()
+#define __attribute_format_printf(x, y)  __attribute__((format (gnu_printf, x, y)))
+#define HAVE_WORKING_SNPRINTF 1
+#else
+#define __attribute_format_printf(x, y)  __attribute__((format (printf, x, y)))
 #endif
 
 // Make version information string
@@ -45,13 +51,13 @@ std::string format_version_info(const char * prog_name, bool full = false);
 
 // return (v)sprintf() formated std::string
 std::string strprintf(const char * fmt, ...)
-    __attribute__ ((format (printf, 1, 2)));
+    __attribute_format_printf(1, 2);
 std::string vstrprintf(const char * fmt, va_list ap);
 
 #ifndef HAVE_WORKING_SNPRINTF
 // Substitute by safe replacement functions
 int safe_snprintf(char *buf, int size, const char *fmt, ...)
-    __attribute__ ((format (printf, 3, 4)));
+    __attribute_format_printf(3, 4);
 int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
 #define snprintf  safe_snprintf
 #define vsnprintf safe_vsnprintf
@@ -75,7 +81,7 @@ void dateandtimezoneepoch(char *buffer, time_t tval);
 // itself is defined differently in smartctl and smartd.  So the
 // function definition(s) are in smartd.c and in smartctl.c.
 void pout(const char *fmt, ...)  
-     __attribute__ ((format (printf, 1, 2)));
+    __attribute_format_printf(1, 2);
 
 // replacement for perror() with redirected output.
 void syserror(const char *message);
