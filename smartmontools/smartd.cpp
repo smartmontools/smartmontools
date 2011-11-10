@@ -122,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3451 2011-10-15 14:27:08Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3475 2011-11-10 21:43:40Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -211,7 +211,7 @@ static volatile int caughtsigEXIT=0;
 
 // This function prints either to stdout or to the syslog as needed.
 static void PrintOut(int priority, const char *fmt, ...)
-                     __attribute__ ((format(printf, 2, 3)));
+                     __attribute_format_printf(2, 3);
 
 // Attribute monitoring flags.
 // See monitor_attr_flags below.
@@ -891,7 +891,7 @@ static char *dnsdomain(const char *hostname)
 #define EBUFLEN 1024
 
 static void MailWarning(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
-                        __attribute__ ((format (printf, 4, 5)));
+                        __attribute_format_printf(4, 5);
 
 // If either address or executable path is non-null then send and log
 // a warning email, or execute executable
@@ -1245,7 +1245,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 }
 
 static void reset_warning_mail(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
-                               __attribute__ ((format (printf, 4, 5)));
+                               __attribute_format_printf(4, 5);
 
 static void reset_warning_mail(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
 {
