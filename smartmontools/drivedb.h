@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3471 2011-11-03 22:18:34Z chrfranke $",
+  { "$Id: drivedb.h 3478 2011-11-11 18:39:13Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1686,6 +1686,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate SV35.2",
     "ST3(160815|250820|320620|500630|750640)(A|S)V",
+    "", "", ""
+  },
+  { "Seagate SV35",
+    "ST(2000VX002|31000526SV|3500411SV)",
     "", "", ""
   },
   { "Seagate DB35.3",
