@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] drivedb.h updates: Added Seagate SV35 Series
+
   [CF] smartctl: Don't start ATA self-test if another test is already
        running (ticket #40).  Add option '-t force' to allow override.
 
