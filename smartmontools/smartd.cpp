@@ -122,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3475 2011-11-10 21:43:40Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3479 2011-11-17 22:40:20Z dpgilbert $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -2155,10 +2155,18 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   version = inqBuf[2];
   avail_len = inqBuf[4] + 5;
   len = (avail_len < req_len) ? avail_len : req_len;
-  // peri_dt = inqBuf[0] & 0x1f;
   if (len < 36) {
     PrintOut(LOG_INFO, "Device: %s, INQUIRY response less than 36 bytes; "
 	     "skip device\n", device);
+    return 2;
+  }
+
+  int pdt = inqBuf[0] & 0x1f;
+
+  if (! ((0 == pdt) || (4 == pdt) || (5 == pdt) || (7 == pdt) ||
+         (0xe == pdt))) {
+    PrintOut(LOG_INFO, "Device: %s, not a disk like device [PDT=0x%x], "
+             "skip\n", device, pdt);
     return 2;
   }
   lu_id[0] = '\0';
