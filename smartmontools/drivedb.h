@@ -119,12 +119,15 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SH100S3(120|240)G|" // Hyper-X, SF-2281, tested with SH100S3240G/320ABBF0
     "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX2|VERTEX-LE)( [123]\\..*)?|" // SF-1200,
       // tested with OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
-    "OCZ-REVODRIVE( X2)?|" // SF-1200, tested with OCZ-REVODRIVE(-X2)?/1.20
+    "OCZ-REVODRIVE( X2)?|" // PCIe, SF-1200, tested with OCZ-REVODRIVE( X2)?/1.20
+    "OCZ-REVODRIVE3( X2)?|" // PCIe, SF-2281, tested with OCZ-REVODRIVE3 X2/2.11
     "OCZ[ -](VELO|VERTEX2[ -](EX|PRO))( [123]\\..*)?|" // SF-1500, tested with
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
     "D2CSTK251M11-(0120|0240|0400)|" // OCZ Deneva 2, SF-2000,
       // tested with D2CSTK251M11-0240/2.08
     "OCZ-(AGILITY3|VERTEX3)|"  // SF-2200, tested with OCZ-VERTEX3/2.02, OCZ-AGILITY3/2.11
+    "OCZ Z-DRIVE R4 [CR]M8[48]|" // PCIe, SF-2282/2582, tested with OCZ Z-DRIVE R4 CM84/2.13
+      // (Bogus attributes under Linux)
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
@@ -1253,6 +1256,10 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HT[ES]7232(80|12|16|25|32)L9(A300|A36[02]|SA61)",
     "", "", ""
   },
+  { "Hitachi Travelstar Z7K320", // tested with HITACHI HTS723232A7A364/EC2ZB70B
+    "(HITACHI )?HT[ES]7232(16|25|32)A7A36[145]",
+    "", "", ""
+  },
   { "Hitachi Travelstar 7K500",
     "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[45]",
     "", "", ""
@@ -1374,6 +1381,12 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(80|12|16|25|32)52GSX",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD MK..56GSY", // tested with TOSHIBA MK2556GSYF/LJ001D
+    "TOSHIBA MK(16|25|32|50)56GSYF?",
+    "",
+    "",
+    "-v 9,minutes"
+  },
   { "Toshiba 2.5\" HDD MK..59GSXP (Adv. Format)", // Adv. Format
     "TOSHIBA MK(32|50|64|75)59GSXP?",
     "", "", ""
@@ -1391,6 +1404,10 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-v 9,minutes"
+  },
+  { "Toshiba 2.5\" HDD MK.002TSKB", // tested with TOSHIBA MK1002TSKB/MT1A
+    "TOSHIBA MK(10|20)02TSKB",
+    "", "", ""
   },
   { "Toshiba 1.8\" HDD",
     "TOSHIBA MK[23468]00[4-9]GA[HL]",
@@ -1504,36 +1521,36 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(2110|3221|4321|6531|8641)A",
     "", "", ""
   },
-  { "Seagate U Series X",
-    "ST3(10014A(CE)?|20014A)",
+  { "Seagate U4",
+    "ST3(2112|4311|6421|8421)A",
     "", "", ""
   },
-  { "Seagate U8",
-    "ST3(4313|6811|8410|13021|17221)A",
+  { "Seagate U5",
+    "ST3(40823|30621|20413|15311|10211)A",
+    "", "", ""
+  },
+  { "Seagate U6",
+    "ST3(8002|6002|4081|3061|2041)0A",
     "", "", ""
   },
   { "Seagate U7",
     "ST3(30012|40012|60012|80022|120020)A",
     "", "", ""
   },
-  { "Seagate U Series 6",
-    "ST3(8002|6002|4081|3061|2041)0A",
-    "", "", ""
-  },
-  { "Seagate U Series 5",
-    "ST3(40823|30621|20413|15311|10211)A",
-    "", "", ""
-  },
-  { "Seagate U4",
-    "ST3(2112|4311|6421|8421)A",
-    "", "", ""
-  },
   { "Seagate U8",
-    "ST3(8410|4313|17221|13021)A",
+    "ST3(4313|6811|8410|4313|13021|17221)A",
+    "", "", ""
+  },
+  { "Seagate U9", // tested with ST3160022ACE/9.51
+    "ST3(80012|120025|160022)A(CE)?",
     "", "", ""
   },
   { "Seagate U10",
     "ST3(20423|15323|10212)A",
+    "", "", ""
+  },
+  { "Seagate UX",
+    "ST3(10014A(CE)?|20014A)",
     "", "", ""
   },
   { "Seagate Barracuda ATA",
@@ -1664,6 +1681,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(50051|100052|200064)4NS",
     "", "", ""
   },
+  { "Seagate Constellation ES (SATA 6Gb/s)", // tested with ST1000NM0011/SN02
+    "ST(5|10|20)00NM0011",
+    "", "", ""
+  },
   { "Seagate Pipeline HD 5900.1",
     "ST3(160310|320[34]10|500(321|422))CS",
     "", "", ""
@@ -1685,15 +1706,23 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate SV35.2",
-    "ST3(160815|250820|320620|500630|750640)(A|S)V",
+    "ST3(160815|250820|320620|500630|750640)[AS]V",
     "", "", ""
   },
   { "Seagate SV35",
     "ST(2000VX002|31000526SV|3500411SV)",
     "", "", ""
   },
+  { "Seagate DB35", // tested with ST3250823ACE/3.03
+    "ST3(200826|250823|300831|400832)ACE",
+    "", "", ""
+  },
+  { "Seagate DB35.2", // tested with ST3160212SCE/3.ACB
+    "ST3(802110|120213|160212|200827|250824|300822|400833|500841)[AS]CE",
+    "", "", ""
+  },
   { "Seagate DB35.3",
-    "ST3(750640SCE|((80|160)215|(250|320|400)820|500830|750840)(A|S)CE)",
+    "ST3(750640SCE|((80|160)215|(250|320|400)820|500830|750840)[AS]CE)",
     "", "", ""
   },
   { "Western Digital Protege",
@@ -1891,8 +1920,12 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((16|25|32|50|64|75)00BPVT|10[JT]PVT)-.*",
     "", "", ""
   },
-  { "Western Digital Scorpio Black Serial ATA",
-    "WDC WD(8|12|16|25|32)00B[EJ]KT-.*",
+  { "Western Digital Scorpio Black", // tested with WDC WD5000BEKT-00KA9T0/01.01A01
+    "WDC WD(8|12|16|25|32|50)00B[EJ]KT-.*",
+    "", "", ""
+  },
+  { "Western Digital Scorpio Black (Adv. Format)",
+    "WDC WD(50|75)00BPKT-.*",
     "", "", ""
   },
   { "Western Digital My Passport Essential (USB)",
