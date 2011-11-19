@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - Samsung S2 (0x04e8:0x1f05)
+       - Toshiba Stor.E (0x0939:0x0b16) (ticket #206)
+       - Seagate FreeAgent (0x0bc2:0x5040)
+       - Initio/Thermaltake BlacX (0x13fd:0x0840)
+
   [DG] [SCSI] smartd: skip non-storage devices (e.g. SES devices)
 
   [AS] drivedb.h updates: Added Seagate SV35 Series

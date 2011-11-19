@@ -2019,7 +2019,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Samsung
   { "USB: Samsung S2 Portable; JMicron",
-    "0x04e8:0x1f0[68]",
+    "0x04e8:0x1f0[568]",
     "",
     "",
     "-d usbjmicron"
@@ -2244,6 +2244,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
+  // Toshiba Corp.
   { "USB: Toshiba PX1396E-3T01; Sunplus", // similar to Dura Micro 501
     "0x0930:0x0b09",
     "",
@@ -2252,6 +2253,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Toshiba Stor.E Steel; Sunplus",
     "0x0930:0x0b11",
+    "",
+    "",
+    "-d usbsunplus"
+  },
+  // Lumberg, Inc.
+  { "USB: Toshiba Stor.E; Sunplus",
+    "0x0939:0x0b16",
     "",
     "",
     "-d usbsunplus"
@@ -2304,6 +2312,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d sat,12"
+  },
+  { "USB: Seagate FreeAgent; ",
+    "0x0bc2:0x5040",
+    "",
+    "",
+    "-d sat"
   },
   { "USB: Seagate FreeAgent GoFlex USB 3.0; ", // 2TB
     "0x0bc2:0x5071",
@@ -2529,6 +2543,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "" // unsupported
+  },
+  { "USB: ; Initio", // Thermaltake BlacX
+    "0x13fd:0x0840",
+    "",
+    "",
+    "-d sat"
   },
   { "USB: ; Initio 6Y120L0", // CoolerMaster XCraft RX-3HU
     "0x13fd:0x1150",
