@@ -10,6 +10,8 @@ Summary: smartmontools release 5.43
 -----------------------------------------------------------
 - smartctl does not start ATA self-test if another test is
   already running.  Override with new option '-t force'.
+- smartctl supports extended self-test polling times
+  greater than 255 minutes.
 - FreeBSD: fixed crash on SCSI devices with FreeBSD9-RC1
 
 Date 2011-10-20

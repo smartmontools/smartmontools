@@ -200,8 +200,8 @@ ASSERT_SIZEOF_STRUCT(ata_smart_attribute, 12);
 #define ATTRIBUTE_FLAGS_OTHER(x) ((x) & 0xffc0)
 
 
-/* ata_smart_values is format of the read drive Attribute command */
-/* see Table 34 of T13/1321D Rev 1 spec (Device SMART data structure) for *some* info */
+// Format of data returned by SMART READ DATA
+// Table 62 of T13/1699-D (ATA8-ACS) Revision 6a, September 2008
 #pragma pack(1)
 struct ata_smart_values {
   unsigned short int revnumber;
@@ -215,9 +215,10 @@ struct ata_smart_values {
   unsigned char errorlog_capability;
   unsigned char vendor_specific_371;  // Maxtor, IBM: self-test failure checkpoint see below!
   unsigned char short_test_completion_time;
-  unsigned char extend_test_completion_time;
+  unsigned char extend_test_completion_time_b; // If 0xff, use 16-bit value below
   unsigned char conveyance_test_completion_time;
-  unsigned char reserved_375_385[11];
+  unsigned short extend_test_completion_time_w; // e04130r2, added to T13/1699-D Revision 1c, April 2005
+  unsigned char reserved_377_385[9];
   unsigned char vendor_specific_386_510[125]; // Maxtor bytes 508-509 Attribute/Threshold Revision #
   unsigned char chksum;
 } ATTR_PACKED;

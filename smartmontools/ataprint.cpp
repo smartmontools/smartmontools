@@ -754,7 +754,7 @@ static void PrintSmartExtendedSelfTestPollingTime(const ata_smart_values * data)
   pout("Extended self-test routine\n");
   if (isSupportSelfTest(data))
     pout("recommended polling time: \t (%4d) minutes.\n", 
-         (int)data->extend_test_completion_time);
+         TestTime(data, EXTEND_SELF_TEST));
   else
     pout("recommended polling time: \t        Not Supported.\n");
 }
