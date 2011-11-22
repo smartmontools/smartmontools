@@ -1904,11 +1904,11 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
   pout("Device State:                        %s (%u)\n",
     sct_device_state_msg(sts->device_state), sts->device_state);
   char buf1[20], buf2[20];
-  if (   !sts->min_temp && !sts->life_min_temp && !sts->byte205
-      && !sts->under_limit_count && !sts->over_limit_count     ) {
+  if (   !sts->min_temp && !sts->life_min_temp
+      && !sts->under_limit_count && !sts->over_limit_count) {
     // "Reserved" fields not set, assume "old" format version 2
-    // Table 11 of T13/1701DT Revision 5
-    // Table 54 of T13/1699-D Revision 3e
+    // Table 11 of T13/1701DT-N (SMART Command Transport) Revision 5, February 2005
+    // Table 54 of T13/1699-D (ATA8-ACS) Revision 3e, July 2006
     pout("Current Temperature:                 %s Celsius\n",
       sct_ptemp(sts->hda_temp, buf1));
     pout("Power Cycle Max Temperature:         %s Celsius\n",
@@ -1918,17 +1918,18 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
   }
   else {
     // Assume "new" format version 2 or version 3
-    // T13/e06152r0-3 (Additional SCT Temperature Statistics)
-    // Table 60 of T13/1699-D Revision 3f
+    // T13/e06152r0-3 (Additional SCT Temperature Statistics), August - October 2006
+    // Table 60 of T13/1699-D (ATA8-ACS) Revision 3f, December 2006  (format version 2)
+    // Table 80 of T13/1699-D (ATA8-ACS) Revision 6a, September 2008 (format version 3)
     pout("Current Temperature:                    %s Celsius\n",
       sct_ptemp(sts->hda_temp, buf1));
     pout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
       sct_ptemp(sts->min_temp, buf1), sct_ptemp(sts->max_temp, buf2));
     pout("Lifetime    Min/Max Temperature:     %s/%s Celsius\n",
       sct_ptemp(sts->life_min_temp, buf1), sct_ptemp(sts->life_max_temp, buf2));
-    if (sts->byte205) // e06152r0-2, removed in e06152r3
-      pout("Lifetime    Average Temperature:        %s Celsius\n",
-        sct_ptemp((signed char)sts->byte205, buf1));
+    signed char avg = sts->byte205; // Average Temperature from e06152r0-2, removed in e06152r3
+    if (0 < avg && sts->life_min_temp <= avg && avg <= sts->life_max_temp)
+      pout("Lifetime    Average Temperature:        %2d Celsius\n", avg);
     pout("Under/Over Temperature Limit Count:  %2u/%u\n",
       sts->under_limit_count, sts->over_limit_count);
   }
