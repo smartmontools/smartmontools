@@ -1956,6 +1956,25 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
       PrintOut(LOG_CRIT, "Device: %s, can't monitor Temperature, ignoring -W Directive\n", name);
       cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
     }
+
+    // Report ignored '-r' or '-R' directives
+    for (int id = 1; id <= 255; id++) {
+      if (cfg.monitor_attr_flags.is_set(id, MONITOR_RAW_PRINT)) {
+        char opt = (!cfg.monitor_attr_flags.is_set(id, MONITOR_RAW) ? 'r' : 'R');
+        const char * excl = (cfg.monitor_attr_flags.is_set(id,
+          (opt == 'r' ? MONITOR_AS_CRIT : MONITOR_RAW_AS_CRIT)) ? "!" : "");
+
+        int idx = ata_find_attr_index(id, state.smartval);
+        if (idx < 0)
+          PrintOut(LOG_INFO,"Device: %s, no Attribute %d, ignoring -%c %d%s\n", name, id, opt, id, excl);
+        else {
+          bool prefail = !!ATTRIBUTE_FLAGS_PREFAILURE(state.smartval.vendor_attributes[idx].flags);
+          if (!((prefail && cfg.prefail) || (!prefail && cfg.usage)))
+            PrintOut(LOG_INFO,"Device: %s, not monitoring %s Attributes, ignoring -%c %d%s\n", name,
+                     (prefail ? "Prefailure" : "Usage"), opt, id, excl);
+        }
+      }
+    }
   }
   
   // enable/disable automatic on-line testing

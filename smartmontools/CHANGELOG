@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Report ignored '-r' and '-R' directives.
+
   [CF] smartctl: Use 16-bit value (ATA-8) for extended self-test polling
        time if 8-bit value is 0xff (ticket #207).
 
