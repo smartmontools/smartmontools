@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3483 2011-11-22 21:32:41Z chrfranke $
+$Id: CHANGELOG 3484 2011-11-22 22:31:15Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartctl: Print average temperature from SCT status only if
+       value is reasonable.  Field is not part of ATA-8.
 
   [CF] smartd: Report ignored '-r' and '-R' directives.
 
