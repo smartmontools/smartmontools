@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3477 2011-11-10 22:13:26Z chrfranke $
+$Id: NEWS 3482 2011-11-22 18:48:37Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -10,6 +10,8 @@ Summary: smartmontools release 5.43
 -----------------------------------------------------------
 - smartctl does not start ATA self-test if another test is
   already running.  Override with new option '-t force'.
+- smartctl supports extended self-test polling times
+  greater than 255 minutes.
 - FreeBSD: fixed crash on SCSI devices with FreeBSD9-RC1
 
 Date 2011-10-20

@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3477 2011-11-10 22:13:26Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3482 2011-11-22 18:48:37Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -1057,6 +1057,7 @@ int ataReadSmartValues(ata_device * device, struct ata_smart_values *data){
     swap2((char *)&(data->revnumber));
     swap2((char *)&(data->total_time_to_complete_off_line));
     swap2((char *)&(data->smart_capability));
+    swapx(&data->extend_test_completion_time_w);
     for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
       struct ata_smart_attribute *x=data->vendor_attributes+i;
       swap2((char *)&(x->flags));
@@ -1736,7 +1737,12 @@ int TestTime(const ata_smart_values *data, int testtype)
     return (int) data->short_test_completion_time;
   case EXTEND_SELF_TEST:
   case EXTEND_CAPTIVE_SELF_TEST:
-    return (int) data->extend_test_completion_time;
+    if (data->extend_test_completion_time_b == 0xff
+        && data->extend_test_completion_time_w != 0x0000
+        && data->extend_test_completion_time_w != 0xffff)
+      return data->extend_test_completion_time_w; // ATA-8
+    else
+      return data->extend_test_completion_time_b;
   case CONVEYANCE_SELF_TEST:
   case CONVEYANCE_CAPTIVE_SELF_TEST:
     return (int) data->conveyance_test_completion_time;

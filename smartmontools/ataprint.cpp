@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3477 2011-11-10 22:13:26Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3482 2011-11-22 18:48:37Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -754,7 +754,7 @@ static void PrintSmartExtendedSelfTestPollingTime(const ata_smart_values * data)
   pout("Extended self-test routine\n");
   if (isSupportSelfTest(data))
     pout("recommended polling time: \t (%4d) minutes.\n", 
-         (int)data->extend_test_completion_time);
+         TestTime(data, EXTEND_SELF_TEST));
   else
     pout("recommended polling time: \t        Not Supported.\n");
 }
