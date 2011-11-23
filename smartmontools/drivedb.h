@@ -790,8 +790,12 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HM(161G|(251|321)H|501I|641J)I",
     "", "", ""
   },
-  { "SAMSUNG SpinPoint M7U", // tested with HM252HX/2AC101C4
+  { "SAMSUNG SpinPoint M7U (USB)", // tested with HM252HX/2AC101C4
     "SAMSUNG HM(162H|252H|322I|502J)X",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint M8U (USB)", // tested with HN-M500XBB/2AR10001
+    "SAMSUNG HN-M(320|500|750|101)XBB",
     "", "", ""
   },
   { "SAMSUNG SpinPoint MP5", // tested with HM250HJ/2AK10001
@@ -1405,7 +1409,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,minutes"
   },
-  { "Toshiba 2.5\" HDD MK.002TSKB", // tested with TOSHIBA MK1002TSKB/MT1A
+  { "Toshiba 3.5\" HDD MK.002TSKB", // tested with TOSHIBA MK1002TSKB/MT1A
     "TOSHIBA MK(10|20)02TSKB",
     "", "", ""
   },

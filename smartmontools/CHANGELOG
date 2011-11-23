@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - SAMSUNG SpinPoint M8U (USB)
+       - Toshiba 3.5" HDD MKx002TSKB: Fix typo
+
   [CF] smartctl: Print average temperature from SCT status only if
        value is reasonable.  Field is not part of ATA-8.
 
