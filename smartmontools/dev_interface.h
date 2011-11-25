@@ -761,12 +761,13 @@ public:
 
   /// Set last error number and message.
   /// Printf()-like formatting is supported.
-  void set_err(int no, const char * msg, ...)
+  /// Returns false always to allow use as a return expression.
+  bool set_err(int no, const char * msg, ...)
     __attribute_format_printf(3, 4);
 
   /// Set last error info struct.
-  void set_err(const smart_device::error_info & err)
-    { m_err = err; }
+  bool set_err(const smart_device::error_info & err)
+    { m_err = err; return false; }
 
   /// Clear last error info.
   void clear_err()
@@ -774,11 +775,11 @@ public:
 
   /// Set last error number and default message.
   /// Message is retrieved from get_msg_for_errno(no).
-  void set_err(int no);
+  bool set_err(int no);
 
   /// Set last error number and default message to any error_info.
   /// Used by set_err(no).
-  void set_err_var(smart_device::error_info * err, int no);
+  bool set_err_var(smart_device::error_info * err, int no);
 
   /// Convert error number into message, used by set_err(no).
   /// Default implementation returns strerror(no).

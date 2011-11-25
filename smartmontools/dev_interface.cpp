@@ -61,8 +61,7 @@ bool smart_device::set_err(int no, const char * msg, ...)
 
 bool smart_device::set_err(int no)
 {
-  smi()->set_err_var(&m_err, no);
-  return false;
+  return smi()->set_err_var(&m_err, no);
 }
 
 smart_device * smart_device::autodetect_open()
@@ -244,28 +243,29 @@ std::string smart_interface::get_app_examples(const char * /*appname*/)
   return "";
 }
 
-void smart_interface::set_err(int no, const char * msg, ...)
+bool smart_interface::set_err(int no, const char * msg, ...)
 {
-  if (!msg) {
-    set_err(no); return;
-  }
+  if (!msg)
+    return set_err(no);
   m_err.no = no;
   va_list ap; va_start(ap, msg);
   m_err.msg = vstrprintf(msg, ap);
   va_end(ap);
+  return false;
 }
 
-void smart_interface::set_err(int no)
+bool smart_interface::set_err(int no)
 {
-  set_err_var(&m_err, no);
+  return set_err_var(&m_err, no);
 }
 
-void smart_interface::set_err_var(smart_device::error_info * err, int no)
+bool smart_interface::set_err_var(smart_device::error_info * err, int no)
 {
   err->no = no;
   err->msg = get_msg_for_errno(no);
   if (err->msg.empty() && no != 0)
     err->msg = strprintf("Unknown error %d", no);
+  return false;
 }
 
 const char * smart_interface::get_msg_for_errno(int no)

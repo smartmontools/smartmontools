@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] dev_interface: Let smart_interface::set_err() return false.
+
   [CF] drivedb.h updates:
        - SAMSUNG SpinPoint M8U (USB)
        - Toshiba 3.5" HDD MKx002TSKB: Fix typo
