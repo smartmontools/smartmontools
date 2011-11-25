@@ -123,8 +123,8 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ-REVODRIVE3( X2)?|" // PCIe, SF-2281, tested with OCZ-REVODRIVE3 X2/2.11
     "OCZ[ -](VELO|VERTEX2[ -](EX|PRO))( [123]\\..*)?|" // SF-1500, tested with
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
-    "D2CSTK251M11-(0120|0240|0400)|" // OCZ Deneva 2, SF-2000,
-      // tested with D2CSTK251M11-0240/2.08
+    "D2CSTK251(A10|M11)-(0060|0120|0240|0400|0480)|" // OCZ Deneva 2 C, SF-2281,
+      // tested with D2CSTK251M11-0240/2.08, D2CSTK251A10-0240/2.15
     "OCZ-(AGILITY3|VERTEX3)|"  // SF-2200, tested with OCZ-VERTEX3/2.02, OCZ-AGILITY3/2.11
     "OCZ Z-DRIVE R4 [CR]M8[48]|" // PCIe, SF-2282/2582, tested with OCZ Z-DRIVE R4 CM84/2.13
       // (Bogus attributes under Linux)
@@ -202,6 +202,18 @@ const drive_settings builtin_knowndrives[] = {
     "-v 211,raw64,SATA_Error_Ct_CRC "
     "-v 212,raw64,SATA_Error_Ct_Handshake "
     "-v 213,raw64,Indilinx_Internal"
+  },
+  { "Indilinx Martini based SSDs",
+    "OCZ VERTEX-PLUS", // tested with OCZ VERTEX-PLUS/3.55
+    "", "", ""
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 4,raw48,Start_Stop_Count "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator"
   },
   { "Intel X25-E SSDs",
     "SSDSA2SH(032|064)G1.* INTEL",  // G1 = first generation
