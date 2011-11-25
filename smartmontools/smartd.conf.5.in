@@ -599,16 +599,40 @@ self\-test are ignored.  The warning email counter is reset if the
 number of failed self tests dropped to 0.  This typically happens when
 an extended self\-test is run after all bad sectors have been reallocated.
 
-.I offlinests
+.I offlinests[,ns]
 \- [ATA only] report if the Offline Data Collection status has changed
 since the last check.  The report will be logged as LOG_CRIT if the new
 status indicates an error.  With some drives the status often changes,
 therefore \'\-l offlinests\' is not enabled by '\-a\' Directive.
+.\" %IF NOT OS Cygwin Windows
+.\"! Appending \',ns\' (no standby) to this directive is not implemented
+.\"! on OS_MAN_FILTER.
+.\" %ENDIF NOT OS Cygwin Windows
+.\" %IF OS Cygwin Windows
 
-.I selfteststs
+[Windows and Cygwin only] If \',ns\' (no standby) is appended to this
+directive, smartd disables system auto standby as long as an Offline
+Data Collection is in progress. See \'\-l selfteststs,ns\' below.
+.\" %ENDIF OS Cygwin Windows
+
+.I selfteststs[,ns]
 \- [ATA only] report if the Self-Test execution status has changed
 since the last check.  The report will be logged as LOG_CRIT if the new
 status indicates an error.
+.\" %IF NOT OS Cygwin Windows
+.\"! Appending \',ns\' (no standby) to this directive is not implemented
+.\"! on OS_MAN_FILTER.
+.\" %ENDIF NOT OS Cygwin Windows
+.\" %IF OS Cygwin Windows
+
+[Windows and Cygwin only] If \',ns\' (no standby) is appended to this
+directive, smartd disables system auto standby as long as a Self-Test
+is in progress.  This prevents that a Self-Test is aborted because the
+OS sets the system to a standby/sleep mode when idle.  Smartd check
+interval (\'\-i\' option) should be shorter than the configured idle
+timeout.  Auto standby is not disabled if the system is running on
+battery.
+.\" %ENDIF OS Cygwin Windows
 
 .I scterc,READTIME,WRITETIME
 \- [ATA only] [NEW EXPERIMENTAL SMARTD FEATURE] sets the SCT Error

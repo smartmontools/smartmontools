@@ -746,6 +746,13 @@ public:
   /// TODO: Remove this hack.
   virtual std::string get_app_examples(const char * appname);
 
+  /// Disable/Enable system auto standby/sleep mode.
+  /// Return false if unsupported or if system is running
+  /// on battery.
+  /// Default implementation returns false.
+  virtual bool disable_system_auto_standby(bool disable);
+
+
   ///////////////////////////////////////////////
   // Last error information
 

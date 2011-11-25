@@ -263,7 +263,9 @@ struct dev_config
   bool errorlog;                          // Monitor number of ATA errors
   bool xerrorlog;                         // Monitor number of ATA errors (Extended Comprehensive error log)
   bool offlinests;                        // Monitor changes in offline data collection status
+  bool offlinests_ns;                     // Disable auto standby if in progress
   bool selfteststs;                       // Monitor changes in self-test execution status
+  bool selfteststs_ns;                    // Disable auto standby if in progress
   bool permissive;                        // Ignore failed SMART commands
   char autosave;                          // 1=disable, 2=enable Autosave Attributes
   char autoofflinetest;                   // 1=disable, 2=enable Auto Offline Test
@@ -310,8 +312,8 @@ dev_config::dev_config()
   selftest(false),
   errorlog(false),
   xerrorlog(false),
-  offlinests(false),
-  selfteststs(false),
+  offlinests(false),  offlinests_ns(false),
+  selfteststs(false), selfteststs_ns(false),
   permissive(false),
   autosave(0),
   autoofflinetest(0),
@@ -1500,8 +1502,8 @@ static void Directives()
            "  -n MODE No check if: never, sleep[,N][,q], standby[,N][,q], idle[,N][,q]\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
-           "  -l TYPE Monitor SMART log or self-test status\n"
-           "          Type is one of: error, selftest, xerror, offlinests, selfteststs\n"
+           "  -l TYPE Monitor SMART log or self-test status:\n"
+           "          error, selftest, xerror, offlinests[,ns], selfteststs[,ns]\n"
            "  -l scterc,R,W  Set SCT Error Recovery Control\n"
            "  -f      Monitor 'Usage' Attributes, report failures\n"
            "  -m ADD  Send email warning to address ADD\n"
@@ -1682,6 +1684,18 @@ static int SelfTestErrorCount(ata_device * device, const char * name,
 
 #define SELFTEST_ERRORCOUNT(x) (x & 0xff)
 #define SELFTEST_ERRORHOURS(x) ((x >> 8) & 0xffff)
+
+// Check offline data collection status
+static inline bool is_offl_coll_in_progress(unsigned char status)
+{
+  return ((status & 0x7f) == 0x03);
+}
+
+// Check self-test execution status
+static inline bool is_self_test_in_progress(unsigned char status)
+{
+  return ((status >> 4) == 0xf);
+}
 
 // Log offline data collection status
 static void log_offline_data_coll_status(const char * name, unsigned char status)
@@ -2333,6 +2347,9 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   if (!attrlog_path_prefix.empty()) {
     PrintOut(LOG_INFO, "Device: %s, attribute log not yet supported for SCSI; ignoring -A option.\n", device);
   }
+
+  // Make sure that init_standby_check() ignores SCSI devices
+  cfg.offlinests_ns = cfg.selfteststs_ns = false;
 
   // close file descriptor
   CloseDevice(scsidev, device);
@@ -3219,6 +3236,74 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     return 0;
 }
 
+// 0=not used, 1=not disabled, 2=disable rejected by OS, 3=disabled
+static int standby_disable_state;
+
+static void init_disable_standby_check(dev_config_vector & configs)
+{
+  // Check for '-l offlinests,ns' or '-l selfteststs,ns' directives
+  bool sts1 = false, sts2 = false;
+  for (unsigned i = 0; i < configs.size() && !(sts1 || sts2); i++) {
+    dev_config & cfg = configs.at(i);
+    if (cfg.offlinests_ns)
+      sts1 = true;
+    if (cfg.selfteststs_ns)
+      sts2 = true;
+  }
+
+  // Check for support of disable auto standby
+  standby_disable_state = 0;
+  if (sts1 || sts2) {
+    if (!smi()->disable_system_auto_standby(false))
+      PrintOut(LOG_INFO, "Disable auto standby not supported, ignoring ',ns' from %s%s%s\n",
+        (sts1 ? "-l offlinests,ns" : ""), (sts1 && sts2 ? " and " : ""), (sts2 ? "-l selfteststs,ns" : ""));
+    else
+      standby_disable_state = 1;
+  }
+}
+
+static void do_disable_standby_check(const dev_config_vector & configs, const dev_state_vector & states)
+{
+  if (!standby_disable_state)
+    return;
+
+  // Check for running self-tests
+  bool running = false;
+  for (unsigned i = 0; i < configs.size() && !running; i++) {
+    const dev_config & cfg = configs.at(i); const dev_state & state = states.at(i);
+    if (   (   cfg.offlinests_ns
+            && is_offl_coll_in_progress(state.smartval.offline_data_collection_status))
+        || (   cfg.selfteststs_ns
+            && is_self_test_in_progress(state.smartval.self_test_exec_status))         )
+      running = true;
+  }
+
+  // Disable/enable auto standby and log state changes
+  if (!running) {
+    if (standby_disable_state != 1) {
+      if (!smi()->disable_system_auto_standby(false))
+        PrintOut(LOG_CRIT, "All self-tests completed, system auto standby enable failed: %s\n",
+                 smi()->get_errmsg());
+      else
+        PrintOut(LOG_INFO, "All self-tests completed, system auto standby enabled\n");
+      standby_disable_state = 1;
+    }
+  }
+  else if (!smi()->disable_system_auto_standby(true)) {
+    if (standby_disable_state != 2) {
+      PrintOut(LOG_INFO, "Self-test(s) in progress, system auto standby disable rejected: %s\n",
+               smi()->get_errmsg());
+      standby_disable_state = 2;
+    }
+  }
+  else {
+    if (standby_disable_state != 3) {
+      PrintOut(LOG_INFO, "Self-test(s) in progress, system auto standby disabled\n");
+      standby_disable_state = 3;
+    }
+  }
+}
+
 // Checks the SMART status of all ATA and SCSI devices
 static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector & states,
                              smart_device_list & devices, bool firstpass, bool allow_selftests)
@@ -3232,6 +3317,8 @@ static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector
     else if (dev->is_scsi())
       SCSICheckDevice(cfg, state, dev->to_scsi(), allow_selftests);
   }
+
+  do_disable_standby_check(configs, states);
 }
 
 // Set if Initialize() was called
@@ -3587,9 +3674,15 @@ static int ParseToken(char * token, dev_config & cfg)
     } else if (!strcmp(arg, "offlinests")) {
       // track changes in offline data collection status
       cfg.offlinests = true;
+    } else if (!strcmp(arg, "offlinests,ns")) {
+      // track changes in offline data collection status, disable auto standby
+      cfg.offlinests = cfg.offlinests_ns = true;
     } else if (!strcmp(arg, "selfteststs")) {
       // track changes in self-test execution status
       cfg.selfteststs = true;
+    } else if (!strcmp(arg, "selfteststs,ns")) {
+      // track changes in self-test execution status, disable auto standby
+      cfg.selfteststs = cfg.selfteststs_ns = true;
     } else if (!strncmp(arg, "scterc,", sizeof("scterc,")-1)) {
         // set SCT Error Recovery Control
         unsigned rt = ~0, wt = ~0; int nc = -1;
@@ -4607,6 +4700,8 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
       }
     }
   }
+
+  init_disable_standby_check(configs);
 }
 
 

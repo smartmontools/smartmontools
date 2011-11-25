@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Add '-l offlinests,ns' and '-l selfteststs,ns' directives.
+       dev_interface: Add smart_interface::disable_system_auto_standby().
+       os_win32.cpp: Implement disable_system_auto_standby().
+
   [CF] dev_interface: Let smart_interface::set_err() return false.
 
   [CF] drivedb.h updates:

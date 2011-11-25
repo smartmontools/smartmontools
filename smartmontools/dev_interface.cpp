@@ -243,6 +243,11 @@ std::string smart_interface::get_app_examples(const char * /*appname*/)
   return "";
 }
 
+bool smart_interface::disable_system_auto_standby(bool /*disable*/)
+{
+  return set_err(ENOSYS);
+}
+
 bool smart_interface::set_err(int no, const char * msg, ...)
 {
   if (!msg)

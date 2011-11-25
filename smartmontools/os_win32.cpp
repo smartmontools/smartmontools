@@ -583,6 +583,8 @@ class winnt_smart_interface
 : public /*extends*/ win_smart_interface
 {
 public:
+  virtual bool disable_system_auto_standby(bool disable);
+
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0);
 
@@ -1015,6 +1017,28 @@ std::string win_smart_interface::get_app_examples(const char * appname)
       + strprintf(
          "  The default on this system is /dev/sdX:%s\n", ata_get_def_options()
         );
+}
+
+
+bool winnt_smart_interface::disable_system_auto_standby(bool disable)
+{
+  if (disable) {
+    SYSTEM_POWER_STATUS ps;
+    if (!GetSystemPowerStatus(&ps))
+      return set_err(ENOSYS, "Unknown power status");
+    if (ps.ACLineStatus != 1) {
+      SetThreadExecutionState(ES_CONTINUOUS);
+      if (ps.ACLineStatus == 0)
+        set_err(EIO, "AC offline");
+      else
+        set_err(EIO, "Unknown AC line status");
+      return false;
+    }
+  }
+
+  if (!SetThreadExecutionState(ES_CONTINUOUS | (disable ? ES_SYSTEM_REQUIRED : 0)))
+    return set_err(ENOSYS);
+  return true;
 }
 
 
