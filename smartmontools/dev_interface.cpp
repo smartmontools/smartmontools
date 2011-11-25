@@ -25,7 +25,7 @@
 #include <stdarg.h>
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 3486 2011-11-25 21:30:48Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 3487 2011-11-25 21:43:09Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -241,6 +241,11 @@ std::string smart_interface::get_valid_dev_types_str()
 std::string smart_interface::get_app_examples(const char * /*appname*/)
 {
   return "";
+}
+
+bool smart_interface::disable_system_auto_standby(bool /*disable*/)
+{
+  return set_err(ENOSYS);
 }
 
 bool smart_interface::set_err(int no, const char * msg, ...)

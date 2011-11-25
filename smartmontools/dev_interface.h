@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 3486 2011-11-25 21:30:48Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 3487 2011-11-25 21:43:09Z chrfranke $\n"
 
 #include "utility.h"
 
@@ -745,6 +745,13 @@ public:
   /// function is allowed to print examples to stdout.
   /// TODO: Remove this hack.
   virtual std::string get_app_examples(const char * appname);
+
+  /// Disable/Enable system auto standby/sleep mode.
+  /// Return false if unsupported or if system is running
+  /// on battery.
+  /// Default implementation returns false.
+  virtual bool disable_system_auto_standby(bool disable);
+
 
   ///////////////////////////////////////////////
   // Last error information
