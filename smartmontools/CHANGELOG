@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Sandforce Driven SSDs: Add OCZ Vertex 3 Max IOPS (ticket #209)
+       - Seagate ST1.2 CompactFlash (found in ticket #125)
+
   [CF] Fix GPL version reported by '-V' option.
        Now reports GPLv2+ which is consistent with file headers.
        Patch was provided by Stanislav Brabec.

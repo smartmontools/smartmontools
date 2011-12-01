@@ -125,7 +125,8 @@ const drive_settings builtin_knowndrives[] = {
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
     "D2CSTK251(A10|M11)-(0060|0120|0240|0400|0480)|" // OCZ Deneva 2 C, SF-2281,
       // tested with D2CSTK251M11-0240/2.08, D2CSTK251A10-0240/2.15
-    "OCZ-(AGILITY3|VERTEX3)|"  // SF-2200, tested with OCZ-VERTEX3/2.02, OCZ-AGILITY3/2.11
+    "OCZ-(AGILITY3|VERTEX3( MI)?)|"  // SF-2200, tested with OCZ-VERTEX3/2.02,
+      // OCZ-AGILITY3/2.11, OCZ-VERTEX3 MI/2.15
     "OCZ Z-DRIVE R4 [CR]M8[48]|" // PCIe, SF-2282/2582, tested with OCZ Z-DRIVE R4 CM84/2.13
       // (Bogus attributes under Linux)
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
@@ -1739,6 +1740,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate DB35.3",
     "ST3(750640SCE|((80|160)215|(250|320|400)820|500830|750840)[AS]CE)",
+    "", "", ""
+  },
+  { "Seagate ST1.2 CompactFlash", // tested with ST68022CF/3.01
+    "ST6[468]022CF",
     "", "", ""
   },
   { "Western Digital Protege",
