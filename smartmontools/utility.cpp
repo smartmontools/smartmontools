@@ -53,7 +53,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 3305 2011-03-30 21:32:05Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 3489 2011-12-01 19:45:04Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -101,7 +101,8 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "\n"
     "%s comes with ABSOLUTELY NO WARRANTY. This is free\n"
     "software, and you are welcome to redistribute it under\n"
-    "the terms of the GNU General Public License Version 2.\n"
+    "the terms of the GNU General Public License; either\n"
+    "version 2, or (at your option) any later version.\n"
     "See http://www.gnu.org for further details.\n"
     "\n",
     prog_name
