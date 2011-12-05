@@ -1690,6 +1690,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST(32000641|33000651)AS",
     "", "", ""
   },
+  { "Seagate Barracuda (SATA 3Gb/s, 4K Sectors)", // tested with ST250DM000-1BC141
+    "ST(3000|2000|1500|750|500|320|250)DM00[012]-.*",
+    "", "", ""
+  },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
     "", "", ""

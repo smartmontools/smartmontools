@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] drivedb.h update: Seagate Barracuda (SATA 3Gb/s, 4K Sectors)
+
   [AS] drivedb.h update: Seagate Constellation ES.2 (SATA 6Gb/s)
 
   [CF] drivedb.h updates:
