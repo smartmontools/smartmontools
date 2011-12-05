@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3490 2011-12-01 20:28:39Z chrfranke $",
+  { "$Id: drivedb.h 3491 2011-12-05 11:17:56Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1700,6 +1700,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Constellation ES (SATA 6Gb/s)", // tested with ST1000NM0011/SN02
     "ST(5|10|20)00NM0011",
+    "", "", ""
+  },
+  { "Seagate Constellation ES.2 (SATA 6Gb/s)", // tested with ST33000650NS
+    "ST3300065[012]NS",
     "", "", ""
   },
   { "Seagate Pipeline HD 5900.1",
