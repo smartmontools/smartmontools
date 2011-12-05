@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3491 2011-12-05 11:17:56Z samm2 $",
+  { "$Id: drivedb.h 3492 2011-12-05 13:30:09Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1688,6 +1688,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda XT",
     "ST(32000641|33000651)AS",
+    "", "", ""
+  },
+  { "Seagate Barracuda (SATA 3Gb/s, 4K Sectors)", // tested with ST250DM000-1BC141
+    "ST(3000|2000|1500|750|500|320|250)DM00[012]-.*",
     "", "", ""
   },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
