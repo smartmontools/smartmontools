@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] drivedb.h update: Seagate Constellation ES.2 (SATA 6Gb/s)
+
   [CF] drivedb.h updates:
        - Sandforce Driven SSDs: Add OCZ Vertex 3 Max IOPS (ticket #209)
        - Seagate ST1.2 CompactFlash (found in ticket #125)

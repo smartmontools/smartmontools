@@ -1702,6 +1702,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST(5|10|20)00NM0011",
     "", "", ""
   },
+  { "Seagate Constellation ES.2 (SATA 6Gb/s)", // tested with ST33000650NS
+    "ST3300065[012]NS",
+    "", "", ""
+  },
   { "Seagate Pipeline HD 5900.1",
     "ST3(160310|320[34]10|500(321|422))CS",
     "", "", ""
