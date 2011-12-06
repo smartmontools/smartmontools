@@ -122,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3494 2011-12-06 21:51:18Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3495 2011-12-06 22:27:32Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -3983,7 +3983,11 @@ static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & defaul
 
     // PrintOut(LOG_INFO,"Parsed token %s\n",token);
   }
-  
+
+  // Don't perform checks below for DEFAULT entries
+  if (retval == 0)
+    return retval;
+
   // If NO monitoring directives are set, then set all of them.
   if (!(   cfg.smartcheck  || cfg.selftest
         || cfg.errorlog    || cfg.xerrorlog
