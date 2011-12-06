@@ -284,10 +284,40 @@ may optionally be followed by Directives that will apply to all
 devices that are found in the scan.  Please see below for additional
 details.
 
+[NEW EXPERIMENTAL SMARTD FEATURE] If an entry in the configuration file
+starts with
+.B DEFAULT
+instead of a device name, then all directives in this entry are set
+as defaults for the next device entries.
+
+This configuration:
+
+.nf
+\ \ DEFAULT -a -R5! -W 2,40,45 -I 194 -s L/../../7/00 -m admin@example.com
+\ \ /dev/sda
+\ \ /dev/sdb
+\ \ /dev/sdc
+\ \ DEFAULT -H -m admin@example.com
+\ \ /dev/sdd
+\ \ /dev/sde -d removable
+.fi
+
+has the same effect as:
+
+.nf
+\ \ /dev/sda -a -R5! -W 2,40,45 -I 194 -s L/../../7/00 -m admin@example.com
+\ \ /dev/sdb -a -R5! -W 2,40,45 -I 194 -s L/../../7/00 -m admin@example.com
+\ \ /dev/sdc -a -R5! -W 2,40,45 -I 194 -s L/../../7/00 -m admin@example.com
+\ \ /dev/sdd -H -m admin@example.com
+\ \ /dev/sde -d removable -H -m admin@example.com
+.fi
+
 .sp 2
 The following are the Directives that may appear following the device
 name or
 .B DEVICESCAN
+or
+.B DEFAULT
 on any line of the
 .B /usr/local/etc/smartd.conf
 configuration file. Note that

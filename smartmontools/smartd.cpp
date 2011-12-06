@@ -3938,58 +3938,50 @@ static int ParseToken(char * token, dev_config & cfg)
 //
 // Return values are:
 //  1: parsed a normal line
-//  0: found comment or blank line
+//  0: found DEFAULT setting or comment or blank line
 // -1: found SCANDIRECTIVE line
 // -2: found an error
 //
 // Note: this routine modifies *line from the caller!
-static int ParseConfigLine(dev_config_vector & conf_entries, int /*entry*/, int lineno, /*const*/ char * line)
+static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & default_conf, int lineno, /*const*/ char * line)
 {
-  char *token=NULL;
-  char *name=NULL;
   const char *delim = " \n\t";
-  int devscan=0;
 
   // get first token: device name. If a comment, skip line
-  if (!(name=strtok(line,delim)) || *name=='#') {
+  const char * name = strtok(line, delim);
+  if (!name || *name == '#')
     return 0;
-  }
 
-  // Have we detected the SCANDIRECTIVE directive?
-  if (!strcmp(SCANDIRECTIVE,name)){
-    devscan=1;
+  // Check device name for DEFAULT or DEVICESCAN
+  int retval;
+  if (!strcmp("DEFAULT", name)) {
+    retval = 0;
+    // Restart with empty defaults
+    default_conf = dev_config();
   }
-  
-  // We've got a legit entry, make space to store it
-  conf_entries.push_back( dev_config() );
-  dev_config & cfg = conf_entries.back();
+  else {
+    retval = (!strcmp(SCANDIRECTIVE, name) ? -1 : 1);
+    // Init new entry with current defaults
+    conf_entries.push_back(default_conf);
+  }
+  dev_config & cfg = (retval ? conf_entries.back() : default_conf);
 
   cfg.name = name; // Later replaced by dev->get_info().info_name
   cfg.dev_name = name; // If DEVICESCAN later replaced by get->dev_info().dev_name
-
-  // Store line number, and by default check for both device types.
-  cfg.lineno=lineno;
+  cfg.lineno = lineno;
 
   // parse tokens one at a time from the file.
-  while ((token=strtok(NULL,delim))){
-    int retval=ParseToken(token,cfg);
-    
-    if (retval==0)
-      // No tokens left:
-      break;
-    
-    if (retval>0) {
-      // Parsed token  
-#if (0)
-      PrintOut(LOG_INFO,"Parsed token %s\n",token);
-#endif
-      continue;
-    }
-    
-    if (retval<0) {
+  while (char * token = strtok(0, delim)) {
+    int rc = ParseToken(token, cfg);
+    if (rc < 0)
       // error found on the line
       return -2;
-    }
+
+    if (rc == 0)
+      // No tokens left
+      break;
+
+    // PrintOut(LOG_INFO,"Parsed token %s\n",token);
   }
   
   // If NO monitoring directives are set, then set all of them.
@@ -4030,10 +4022,7 @@ static int ParseConfigLine(dev_config_vector & conf_entries, int /*entry*/, int 
     cfg.emailaddress.clear();
   }
 
-  if (devscan)
-    return -1;
-  else
-    return 1;
+  return retval;
 }
 
 // Parses a configuration file.  Return values are:
@@ -4068,12 +4057,15 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
   else // read from stdin ('-c -' option)
     f.open(stdin);
 
+  // Start with empty defaults
+  dev_config default_conf;
+
   // No configuration file found -- use fake one
   int entry = 0;
   if (!f) {
     char fakeconfig[] = SCANDIRECTIVE" -a"; // TODO: Remove this hack, build cfg_entry.
 
-    if (ParseConfigLine(conf_entries, entry, 0, fakeconfig) != -1)
+    if (ParseConfigLine(conf_entries, default_conf, 0, fakeconfig) != -1)
       throw std::logic_error("Internal error parsing "SCANDIRECTIVE);
     return 0;
   }
@@ -4105,7 +4097,7 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     // are we at the end of the file?
     if (!code){
       if (cont) {
-        scandevice = ParseConfigLine(conf_entries, entry, contlineno, fullline);
+        scandevice = ParseConfigLine(conf_entries, default_conf, contlineno, fullline);
         // See if we found a SCANDIRECTIVE directive
         if (scandevice==-1)
           return 0;
@@ -4159,7 +4151,7 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     }
 
     // Not a continuation line. Parse it
-    scandevice = ParseConfigLine(conf_entries, entry, contlineno, fullline);
+    scandevice = ParseConfigLine(conf_entries, default_conf, contlineno, fullline);
 
     // did we find a scandevice directive?
     if (scandevice==-1)
