@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3493 2011-12-06 21:42:40Z chrfranke $
+$Id: CHANGELOG 3494 2011-12-06 21:51:18Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd: Add smartd.conf DEFAULT directive.  Allows to set default
+       settings for multiple devices.
 
   [CF] smartd: Re-enable auto standby if smartd.conf is re-read.
 
