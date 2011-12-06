@@ -3983,7 +3983,11 @@ static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & defaul
 
     // PrintOut(LOG_INFO,"Parsed token %s\n",token);
   }
-  
+
+  // Don't perform checks below for DEFAULT entries
+  if (retval == 0)
+    return retval;
+
   // If NO monitoring directives are set, then set all of them.
   if (!(   cfg.smartcheck  || cfg.selftest
         || cfg.errorlog    || cfg.xerrorlog
