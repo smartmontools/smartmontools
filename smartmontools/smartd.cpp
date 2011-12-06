@@ -3237,7 +3237,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
 }
 
 // 0=not used, 1=not disabled, 2=disable rejected by OS, 3=disabled
-static int standby_disable_state;
+static int standby_disable_state = 0;
 
 static void init_disable_standby_check(dev_config_vector & configs)
 {
@@ -3252,14 +3252,20 @@ static void init_disable_standby_check(dev_config_vector & configs)
   }
 
   // Check for support of disable auto standby
-  standby_disable_state = 0;
-  if (sts1 || sts2) {
-    if (!smi()->disable_system_auto_standby(false))
-      PrintOut(LOG_INFO, "Disable auto standby not supported, ignoring ',ns' from %s%s%s\n",
-        (sts1 ? "-l offlinests,ns" : ""), (sts1 && sts2 ? " and " : ""), (sts2 ? "-l selfteststs,ns" : ""));
-    else
-      standby_disable_state = 1;
+  // Reenable standby if smartd.conf was reread
+  if (sts1 || sts2 || standby_disable_state == 3) {
+   if (!smi()->disable_system_auto_standby(false)) {
+      if (standby_disable_state == 3)
+        PrintOut(LOG_CRIT, "System auto standby enable failed: %s\n", smi()->get_errmsg());
+      if (sts1 || sts2) {
+        PrintOut(LOG_INFO, "Disable auto standby not supported, ignoring ',ns' from %s%s%s\n",
+          (sts1 ? "-l offlinests,ns" : ""), (sts1 && sts2 ? " and " : ""), (sts2 ? "-l selfteststs,ns" : ""));
+        sts1 = sts2 = false;
+      }
+    }
   }
+
+  standby_disable_state = (sts1 || sts2 ? 1 : 0);
 }
 
 static void do_disable_standby_check(const dev_config_vector & configs, const dev_state_vector & states)
@@ -3282,10 +3288,10 @@ static void do_disable_standby_check(const dev_config_vector & configs, const de
   if (!running) {
     if (standby_disable_state != 1) {
       if (!smi()->disable_system_auto_standby(false))
-        PrintOut(LOG_CRIT, "All self-tests completed, system auto standby enable failed: %s\n",
+        PrintOut(LOG_CRIT, "Self-test(s) completed, system auto standby enable failed: %s\n",
                  smi()->get_errmsg());
       else
-        PrintOut(LOG_INFO, "All self-tests completed, system auto standby enabled\n");
+        PrintOut(LOG_INFO, "Self-test(s) completed, system auto standby enabled\n");
       standby_disable_state = 1;
     }
   }
