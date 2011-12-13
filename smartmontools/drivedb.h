@@ -114,6 +114,7 @@ const drive_settings builtin_knowndrives[] = {
     "ADATA SSD S599 .?..GB|" // tested with ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
     "Corsair CSSD-F(40|60|80|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1
+    "Corsair Force 3 SSD|" // SF-2281, tested with Corsair Force 3 SSD/1.3.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
     "KINGSTON SH100S3(120|240)G|" // Hyper-X, SF-2281, tested with SH100S3240G/320ABBF0
@@ -1240,8 +1241,9 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi |HITACHI )?HTS5425(80|12|16|20|25)K9(A3|SA)00",
     "", "", ""
   },
-  { "Hitachi Travelstar 5K320",
-    "(Hitachi |HITACHI )?HT(S|E)5432(80|12|16|25|32)L9(A3(00)?|SA01)",
+  { "Hitachi Travelstar 5K320", // tested with HITACHI HTS543232L9SA00/FB4ZC4EC,
+    // Hitachi HTS543212L9SA02/FBBAC52F
+    "(Hitachi |HITACHI )?HT(S|E)5432(80|12|16|25|32)L9(A3(00)?|SA0[012])",
     "", "", ""
   },
   { "Hitachi Travelstar 5K500.B",
@@ -1830,8 +1832,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(4|8|20|32)00BD-.*",
     "", "", ""
   },
-  { "Western Digital Caviar SE Serial ATA",
-    "WDC WD(4|8|12|16|20|25|32|40)00(JD|KD|PD)-.*",
+  { "Western Digital Caviar SE Serial ATA", // tested with WDC WD3000JD-98KLB0/08.05J08
+    "WDC WD(4|8|12|16|20|25|30|32|40)00(JD|KD|PD)-.*",
     "", "", ""
   },
   { "Western Digital Caviar SE Serial ATA",
