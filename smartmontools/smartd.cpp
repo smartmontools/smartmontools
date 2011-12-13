@@ -108,12 +108,7 @@ typedef int pid_t;
 #define SIGQUIT SIGBREAK
 #define SIGQUIT_KEYNAME "CONTROL-Break"
 #else  // _WIN32
-#ifdef __CYGWIN__
-// 2x CONTROL-C simulates missing SIGQUIT via keyboard
-#define SIGQUIT_KEYNAME "2x CONTROL-C"
-#else // __CYGWIN__
 #define SIGQUIT_KEYNAME "CONTROL-\\"
-#endif // __CYGWIN__
 #endif // _WIN32
 
 #if defined (__SVR4) && defined (__sun)
@@ -4783,19 +4778,6 @@ static int main_worker(int argc, char **argv)
     // Should we (re)read the config file?
     if (firstpass || caughtsigHUP){
       if (!firstpass) {
-#ifdef __CYGWIN__
-        // Workaround for missing SIGQUIT via keyboard on Cygwin
-        if (caughtsigHUP==2) {
-          // Simulate SIGQUIT if another SIGINT arrives soon
-          caughtsigHUP=0;
-          sleep(1);
-          if (caughtsigHUP==2) {
-            caughtsigEXIT=SIGQUIT;
-            continue;
-          }
-          caughtsigHUP=2;
-        }
-#endif
         // Write state files
         if (!state_path_prefix.empty())
           write_all_dev_states(configs, states);

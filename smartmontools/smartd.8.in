@@ -92,9 +92,9 @@ When \fBsmartd\fP is running in debug mode, the \fBINT\fP signal
 (normally generated from a shell with CONTROL\-C) is treated in the
 same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
 configuration file. To exit \fBsmartd\fP use CONTROL-\e
-.\" %IF OS Windows Cygwin
-(Cygwin: 2x CONTROL\-C, Windows: CONTROL\-Break).
-.\" %ENDIF OS Windows Cygwin
+.\" %IF OS Windows
+(Windows: CONTROL\-Break).
+.\" %ENDIF OS Windows
 
 On startup, in the absence of the configuration file
 \fB/usr/local/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
@@ -220,10 +220,8 @@ information about what it is doing than when operating in "daemon"
 mode. In this mode, the \fBQUIT\fP signal (normally generated from a
 terminal with CONTROL\-C) makes \fBsmartd\fP reload its configuration
 file.  Please use CONTROL-\e to exit
-.\" %IF OS Windows Cygwin
-(Cygwin: 2x CONTROL\-C, Windows: CONTROL\-Break).
-.\" %ENDIF OS Windows Cygwin
 .\" %IF OS Windows
+(Windows: CONTROL\-Break).
 
 Windows only: The "debug" mode can be toggled by the command
 \fBsmartd sigusr2\fP. A new console for debug output is opened when
