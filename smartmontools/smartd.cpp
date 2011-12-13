@@ -424,6 +424,8 @@ struct temp_dev_state
   uint64_t num_sectors;                   // Number of sectors
   ata_smart_values smartval;              // SMART data
   ata_smart_thresholds_pvt smartthres;    // SMART thresholds
+  bool offline_started;                   // true if offline data collection was started
+  bool selftest_started;                  // true if self-test was started
 
   temp_dev_state();
 };
@@ -443,7 +445,9 @@ temp_dev_state::temp_dev_state()
   TempPageSupported(false),
   SuppressReport(false),
   modese_len(0),
-  num_sectors(0)
+  num_sectors(0),
+  offline_started(false),
+  selftest_started(false)
 {
   memset(&smartval, 0, sizeof(smartval));
   memset(&smartthres, 0, sizeof(smartthres));
@@ -2730,9 +2734,12 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
     return retval;
   }
 
-  if (testtype != 'O')
-    // Log next self-test execution status
-    state.smartval.self_test_exec_status = 0xff;
+  // Report recent test start to do_disable_standby_check()
+  // and force log of next test status
+  if (testtype == 'O')
+    state.offline_started = true;
+  else
+    state.selftest_started = true;
 
   PrintOut(LOG_INFO, "Device: %s, starting scheduled %sTest.\n", name, testname);
   return 0;
@@ -3107,6 +3114,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       if (cfg.offlinests) {
         if (   curval.offline_data_collection_status
                 != state.smartval.offline_data_collection_status
+            || state.offline_started // test was started in previous call
             || (firstpass && (debugmode || (curval.offline_data_collection_status & 0x7d))))
           log_offline_data_coll_status(name, curval.offline_data_collection_status);
       }
@@ -3114,6 +3122,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       // Log changes of self-test execution status
       if (cfg.selfteststs) {
         if (   curval.self_test_exec_status != state.smartval.self_test_exec_status
+            || state.selftest_started // test was started in previous call
             || (firstpass && (debugmode || curval.self_test_exec_status != 0x00)))
           log_self_test_exec_status(name, curval.self_test_exec_status);
       }
@@ -3122,6 +3131,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       state.smartval = curval;
     }
   }
+  state.offline_started = state.selftest_started = false;
   
   // check if number of selftest errors has increased (note: may also DECREASE)
   if (cfg.selftest)
@@ -3244,7 +3254,7 @@ static void init_disable_standby_check(dev_config_vector & configs)
   // Check for '-l offlinests,ns' or '-l selfteststs,ns' directives
   bool sts1 = false, sts2 = false;
   for (unsigned i = 0; i < configs.size() && !(sts1 || sts2); i++) {
-    dev_config & cfg = configs.at(i);
+    const dev_config & cfg = configs.at(i);
     if (cfg.offlinests_ns)
       sts1 = true;
     if (cfg.selfteststs_ns)
@@ -3273,15 +3283,19 @@ static void do_disable_standby_check(const dev_config_vector & configs, const de
   if (!standby_disable_state)
     return;
 
-  // Check for running self-tests
+  // Check for just started or still running self-tests
   bool running = false;
   for (unsigned i = 0; i < configs.size() && !running; i++) {
     const dev_config & cfg = configs.at(i); const dev_state & state = states.at(i);
+
     if (   (   cfg.offlinests_ns
-            && is_offl_coll_in_progress(state.smartval.offline_data_collection_status))
+            && (state.offline_started ||
+                is_offl_coll_in_progress(state.smartval.offline_data_collection_status)))
         || (   cfg.selfteststs_ns
-            && is_self_test_in_progress(state.smartval.self_test_exec_status))         )
+            && (state.selftest_started ||
+                is_self_test_in_progress(state.smartval.self_test_exec_status)))         )
       running = true;
+    // state.offline/selftest_started will be reset after next logging of test status
   }
 
   // Disable/enable auto standby and log state changes

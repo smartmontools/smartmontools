@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Disable auto standby also after start of scheduled
+       self-test.
+
   [CF] smartd: Add smartd.conf DEFAULT directive.  Allows to set default
        settings for multiple devices.
 
