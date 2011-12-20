@@ -135,6 +135,7 @@ const drive_settings builtin_knowndrives[] = {
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
     "OWC Mercury Extreme Pro (RE )?SSD|" // tested with
       // OWC Mercury Extreme Pro SSD/360A13F0
+    "Patriot Pyro|" // tested with Patriot Pyro/332ABBF0
     "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
     "", "",
@@ -281,8 +282,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
   },
-  { "Intel 320 Series SSDs",
-    "INTEL SSDSA[12]CW(040|080|120|160|300|600)G3",
+  { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362
+    "INTEL SSDSA[12]C[WT](040|080|120|160|300|600)G3",
     "", "",
   //"-v 3,raw48,Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
@@ -304,7 +305,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB"
   },
-  { "Intel 710 Series SSDs",
+  { "Intel 710 Series SSDs", // tested with INTEL SSDSA2BZ100G3/6PB10362
     "INTEL SSDSA2BZ(100|200|300)G3",
     "", "",
   //"-v 3,raw48,Spin_Up_Time "
@@ -1688,8 +1689,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST((10|15|20)00DL00[123])-.*",
     "", "", ""
   },
-  { "Seagate Barracuda XT",
-    "ST(32000641|33000651)AS",
+  { "Seagate Barracuda XT", // tested with ST32000641AS/CC13,
+      // ST4000DX000-1C5160/CC42
+    "ST(3(2000641|3000651)AS|4000DX000-.*)",
     "", "", ""
   },
   { "Seagate Barracuda (SATA 3Gb/s, 4K Sectors)", // tested with ST250DM000-1BC141

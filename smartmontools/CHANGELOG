@@ -42,6 +42,11 @@ Maintainers / Developers Key (alphabetic order):
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [CF] drivedb.h updates:
+       - SandForce Driven SSDs: Add Patriot Pyro
+       - Intel 320 Series SSDs: Fix 40GB
+       - Seagate Barracuda XT: Add 4TB
+
+  [CF] drivedb.h updates:
        - SandForce Driven SSDs: Add Corsair Force 3
        - Hitachi Travelstar 5K320: Add SA00 and SA02 models
        - Western Digital Caviar SE SATA: Add 300GB
