@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Happy New Year! Update copyright year in version info.
+
   [CF] drivedb.h updates:
        - SandForce Driven SSDs: Add Patriot Pyro
        - Intel 320 Series SSDs: Fix 40GB
