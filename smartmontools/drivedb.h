@@ -124,10 +124,10 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ-REVODRIVE3( X2)?|" // PCIe, SF-2281, tested with OCZ-REVODRIVE3 X2/2.11
     "OCZ[ -](VELO|VERTEX2[ -](EX|PRO))( [123]\\..*)?|" // SF-1500, tested with
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
-    "D2CSTK251(A10|M11)-(0060|0120|0240|0400|0480)|" // OCZ Deneva 2 C, SF-2281,
+    "D2[CR]STK251...-....|" // OCZ Deneva 2 C/R, SF-22xx/25xx,
       // tested with D2CSTK251M11-0240/2.08, D2CSTK251A10-0240/2.15
-    "OCZ-(AGILITY3|VERTEX3( MI)?)|"  // SF-2200, tested with OCZ-VERTEX3/2.02,
-      // OCZ-AGILITY3/2.11, OCZ-VERTEX3 MI/2.15
+    "OCZ-(AGILITY3|SOLID3|VERTEX3( MI)?)|"  // SF-2200, tested with OCZ-VERTEX3/2.02,
+      // OCZ-AGILITY3/2.11, OCZ-SOLID3/2.15, OCZ-VERTEX3 MI/2.15
     "OCZ Z-DRIVE R4 [CR]M8[48]|" // PCIe, SF-2282/2582, tested with OCZ Z-DRIVE R4 CM84/2.13
       // (Bogus attributes under Linux)
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
@@ -1483,6 +1483,15 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus 5400.6",
     "ST9(80313|160(301|314)|(12|25)0315|250317|(320|500)325|500327|640320)ASG?",
+    "", "", ""
+  },
+  { "Seagate Momentus 5400.7",
+    "ST9(160316|(250|320)310|(500|640)320)AS",
+    "", "", ""
+  },
+  { "Seagate Momentus 5400.7 (Adv. Format)", // tested with ST9640322AS/0001BSM2
+      // (device reports 4KiB LPS with 1 sector offset)
+    "ST9(320312|400321|640322|750423)AS",
     "", "", ""
   },
   { "Seagate Momentus 5400 PSD", // Hybrid drives

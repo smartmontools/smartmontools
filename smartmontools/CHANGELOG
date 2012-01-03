@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - SandForce Driven SSDs: Add OCZ Solid 3, OCZ Deneva 2 C/R
+       - Seagate Momentus 5400.7
+
   [CF] Happy New Year! Update copyright year in version info.
 
   [CF] drivedb.h updates:
