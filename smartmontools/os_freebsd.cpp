@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3473 2011-11-07 12:59:40Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3502 2012-01-26 09:41:05Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1769,8 +1769,7 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
       if (ccb.cdm.matches[i].type == DEV_MATCH_BUS) {
         bus_result = &ccb.cdm.matches[i].result.bus_result;
 
-        if (strcmp(bus_result->dev_name,"ata") == 0 /* ATAPICAM devices will be probed as ATA devices, skip'em there */
-          || strcmp(bus_result->dev_name,"xpt") == 0) /* skip XPT bus at all */
+        if (strcmp(bus_result->dev_name,"xpt") == 0) /* skip XPT bus at all */
         skip_bus = 1;
         else
           skip_bus = 0;

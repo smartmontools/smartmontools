@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3501 2012-01-03 11:57:09Z chrfranke $
+$Id: CHANGELOG 3502 2012-01-26 09:41:05Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] os_freebsd.cpp - do not skip ATA devices from cam list. Starting from
+       FreeBSD 9.0 such devices are exported ONLY as camdev`s, so DEVICESCAN
+       was broken. Its possible to get duplicates now on some old systems.
 
   [CF] drivedb.h updates:
        - SandForce Driven SSDs: Add OCZ Solid 3, OCZ Deneva 2 C/R
