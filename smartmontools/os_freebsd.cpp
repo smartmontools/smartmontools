@@ -1769,8 +1769,7 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
       if (ccb.cdm.matches[i].type == DEV_MATCH_BUS) {
         bus_result = &ccb.cdm.matches[i].result.bus_result;
 
-        if (strcmp(bus_result->dev_name,"ata") == 0 /* ATAPICAM devices will be probed as ATA devices, skip'em there */
-          || strcmp(bus_result->dev_name,"xpt") == 0) /* skip XPT bus at all */
+        if (strcmp(bus_result->dev_name,"xpt") == 0) /* skip XPT bus at all */
         skip_bus = 1;
         else
           skip_bus = 0;

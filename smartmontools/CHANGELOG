@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] os_freebsd.cpp - do not skip ATA devices from cam list. Starting from
+       FreeBSD 9.0 such devices are exported ONLY as camdev`s, so DEVICESCAN
+       was broken. Its possible to get duplicates now on some old systems.
+
   [CF] drivedb.h updates:
        - SandForce Driven SSDs: Add OCZ Solid 3, OCZ Deneva 2 C/R
        - Seagate Momentus 5400.7
