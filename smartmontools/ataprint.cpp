@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -2099,7 +2099,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Exit if no further options specified
   if (!(   options.drive_info || need_smart_support
         || need_smart_logdir  || need_gp_logdir
-        || need_sct_support                        )) {
+        || need_sct_support || options.get_apm || options.set_apm)) {
     if (powername)
       pout("Device is in %s mode\n", powername);
     else
@@ -2199,6 +2199,16 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
   }
 
+  // Print APM status
+  if (options.get_apm) {
+    if ((drive.command_set_2 & 0xc008) != 0x4008) // word083
+      pout("APM feature is:   Unavailable\n");
+    else if (!(drive.word086 & 0x0008))
+      pout("APM feature is:   Disabled\n");
+    else
+      pout("APM level is:     %d\n", drive.words088_255[91-88] & 0xff);
+  }
+
   // Print remaining drive info
   if (options.drive_info) {
     // Print the (now possibly changed) power mode if available
@@ -2217,6 +2227,26 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       || options.smart_auto_offl_disable || options.smart_auto_offl_enable)
     pout("=== START OF ENABLE/DISABLE COMMANDS SECTION ===\n");
   
+  // Enable/Disable APM
+  if (options.set_apm) {
+    if (options.set_apm > 0) {
+      if (!ata_set_features(device, ATA_ENABLE_APM, options.set_apm-1)) {
+        pout("APM enable failed: %s\n", device->get_errmsg());
+        returnval |= FAILSMART;
+      }
+      else
+        pout("APM set to level %d\n", options.set_apm-1);
+    }
+    else {
+      if (!ata_set_features(device, ATA_DISABLE_APM)) {
+        pout("APM disable failed: %s\n", device->get_errmsg());
+        returnval |= FAILSMART;
+      }
+      else
+        pout("APM disabled\n");
+    }
+  }
+
   // Enable/Disable SMART commands
   if (options.smart_enable) {
     if (ataEnableSmart(device)) {

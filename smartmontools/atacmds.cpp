@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -836,6 +836,19 @@ int ataCheckPowerMode(ata_device * device) {
     pout("ataCheckPowerMode(): ATA CHECK POWER MODE returned unknown Sector Count Register value %02x\n", result);
 
   return (int)result;
+}
+
+// Call SET FEATURES command with optional count register value
+bool ata_set_features(ata_device * device, unsigned char features,
+                      int sector_count /* = -1 */)
+{
+  ata_cmd_in in;
+  in.in_regs.command = ATA_SET_FEATURES;
+  in.in_regs.features = features;
+  if (sector_count >= 0)
+    in.in_regs.sector_count = sector_count;
+
+  return device->ata_pass_through(in);
 }
 
 // Reads current Device Identity info (512 bytes) into buf.  Returns 0

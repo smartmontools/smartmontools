@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -85,9 +85,11 @@ static void Usage()
 "         Display this help and exit\n\n"
 "  -V, --version, --copyright, --license\n"
 "         Print license, copyright, and version information and exit\n\n"
-"  -i, --info                                                       \n"
+"  -i, --info\n"
 "         Show identity information for device\n\n"
-"  -a, --all                                                        \n"
+"  -g NAME, --get=NAME\n"
+"        Get device setting: apm\n\n"
+"  -a, --all\n"
 "         Show all SMART information for device\n\n"
 "  -x, --xall\n"
 "         Show all information for device\n\n"
@@ -119,6 +121,8 @@ static void Usage()
 "        Enable/disable automatic offline testing on device (on/off)\n\n"
 "  -S VALUE, --saveauto=VALUE                                          (ATA)\n"
 "        Enable/disable Attribute autosave on device (on/off)\n\n"
+"  -e NAME[,VALUE], --set=NAME[,VALUE]\n"
+"        Enable/disable/change device setting: apm,[N|off]\n\n"
   );
   printf(
 "======================================= READ AND DISPLAY DATA OPTIONS =====\n\n"
@@ -210,6 +214,10 @@ static std::string getvalidarglist(char opt)
     return "never, sleep, standby, idle";
   case 'f':
     return "old, brief";
+  case 'g':
+    return "apm";
+  case 'e':
+    return "apm,[N|off]";
   case 'v':
   default:
     return "";
@@ -250,7 +258,7 @@ static const char * parse_options(int argc, char** argv,
                            scsi_print_options & scsiopts)
 {
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iaxv:P:t:CXF:n:B:f:";
+  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iaxv:P:t:CXF:n:B:f:g:e:";
   // Please update getvalidarglist() if you edit longopts
   enum { opt_scan = 1000, opt_scan_open = 1001 };
   struct option longopts[] = {
@@ -283,6 +291,8 @@ static const char * parse_options(int argc, char** argv,
     { "nocheck",         required_argument, 0, 'n' },
     { "drivedb",         required_argument, 0, 'B' },
     { "format",          required_argument, 0, 'f' },
+    { "get",             required_argument, 0, 'g' },
+    { "set",             required_argument, 0, 'e' },
     { "scan",            no_argument,       0, opt_scan      },
     { "scan-open",       no_argument,       0, opt_scan_open },
     { 0,                 0,                 0, 0   }
@@ -593,6 +603,7 @@ static const char * parse_options(int argc, char** argv,
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
       ataopts.sct_erc_get = true;
       ataopts.sataphy = true;
+      ataopts.get_apm = true;
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
@@ -759,6 +770,38 @@ static const char * parse_options(int argc, char** argv,
       printslogan();
       Usage();
       EXIT(0);  
+      break;
+
+    case 'g':
+    case 'e':
+      {
+        bool get = (optchar == 'g');
+        char name[16+1]; unsigned val;
+        int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
+        if (sscanf(optarg, "%16[a-z]%n%*[,=]%n%u%n", name, &n1, &n2, &val, &n3) >= 1
+            && (n1 == len || (!get && n2 > 0))) {
+          bool off = (n2 > 0 && !strcmp(optarg+n2, "off"));
+          if (n3 != len)
+            val = ~0U;
+
+          if (!strcmp(name, "apm")) {
+            if (get)
+              ataopts.get_apm = true;
+            else if (off)
+              ataopts.set_apm = -1;
+            else if (1 <= val && val <= 254)
+              ataopts.set_apm = val + 1;
+            else {
+              sprintf(extraerror, "Option -e apm,N must have 1 <= N <= 254\n");
+              badarg = true;
+            }
+          }
+          else
+            badarg = true;
+        }
+        else
+          badarg = true;
+      }
       break;
 
     case opt_scan:

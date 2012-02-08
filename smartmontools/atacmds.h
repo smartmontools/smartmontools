@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -81,6 +81,12 @@ enum {
 #define ATA_IDENTIFY_PACKET_DEVICE      0xa1
 #define ATA_SMART_CMD                   0xb0
 #define ATA_CHECK_POWER_MODE            0xe5
+#define ATA_SET_FEATURES                0xef
+
+// SET_FEATURES subcommands
+#define ATA_DISABLE_APM                 0x85
+#define ATA_ENABLE_APM                  0x05
+
 // 48-bit commands
 #define ATA_READ_LOG_EXT                0x2F
 
@@ -718,6 +724,9 @@ extern bool dont_print_serial_number;
 // Get information from drive
 int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id);
 int ataCheckPowerMode(ata_device * device);
+
+// Call SET FEATURES command with optional count register value
+bool ata_set_features(ata_device * device, unsigned char features, int sector_count = -1);
 
 /* Read S.M.A.R.T information from drive */
 int ataReadSmartValues(ata_device * device,struct ata_smart_values *);

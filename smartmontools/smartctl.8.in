@@ -214,7 +214,7 @@ and the SMART options which require support for 48-bit ATA commands.
 Prints all SMART and non-SMART information about the device. For ATA
 devices this is equivalent to
 .nf
-\'\-H \-i \-c \-A \-f brief \-l xerror,error \-l xselftest,selftest
+\'\-H \-i \-g apm \-c \-A \-f brief \-l xerror,error \-l xselftest,selftest
 \-l selective \-l directory \-l scttemp \-l scterc \-l sataphy\'.
 .fi
 and for SCSI, this is equivalent to
@@ -240,6 +240,9 @@ For example:
 .nf
 smartctl --scan-open -- -a -W 4,45,50 -m admin@work > smartd.conf
 .fi
+.TP
+.B \-g NAME, \-\-get=NAME
+Get non\-SMART device settings.  See \'\-e, \-\-set\' below for further info.
 
 .TP
 .B RUN\-TIME BEHAVIOR OPTIONS:
@@ -749,6 +752,19 @@ issue a warning. Use \fIon\fP to clear the GLTSD bit and thus enable
 saving counters to non\-volatile storage. For extreme streaming\-video
 type applications you might consider using \fIoff\fP to set the GLTSD
 bit.
+.TP
+.B \-g NAME, \-\-get=NAME, \-e NAME[,VALUE], \-\-set=NAME[,VALUE]
+[NEW EXPERIMENTAL SMARTCTL FEATURE] Gets/sets non\-SMART device settings.
+Valid arguments are:
+
+.I apm[,VALUE]
+\- [ATA only] Gets/sets the Advanced Power Management feature on
+device (if supported).  If a value between 1 and 254 is provided, it will
+attempt to enable APM and set the specified value, \'off\' disables APM.
+Note the actual behavior depends on the drive, for example some drives disable
+APM if their value is set above 128.  Values below 128 are supposed to allow
+drive spindown, values 128 and above adjust only head-parking frequency,
+although the actual behavior defined is also vendor-specific.
 
 .TP
 .B SMART READ AND DISPLAY DATA OPTIONS:

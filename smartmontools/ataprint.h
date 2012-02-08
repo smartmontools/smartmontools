@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -91,6 +91,9 @@ struct ata_print_options
   bool show_presets; // Show presets and exit
   unsigned char powermode; // Skip check, if disk in idle or standby mode
 
+  bool get_apm; // print Advanced Power Management status
+  int set_apm; // disable(-1), enable(2..255->1..254) Advanced Power Management
+
   ata_print_options()
     : drive_info(false),
       smart_check_status(false),
@@ -119,7 +122,8 @@ struct ata_print_options
       fix_swapped_id(false),
       ignore_presets(false),
       show_presets(false),
-      powermode(0)
+      powermode(0),
+      get_apm(false), set_apm(0)
     { }
 };
 
