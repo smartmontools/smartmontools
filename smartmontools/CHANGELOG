@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_win32.cpp: Prevent warnings from gcc option -Wformat-security.
+
   [CF] smartctl: Add options '-g, --get apm' and '-e, --set apm,[N|off]'
        to get/set ATA Advanced Power Management feature.
        Original patch was provided by Marcus Sorensen.
