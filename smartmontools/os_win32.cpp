@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3487 2011-11-25 21:43:09Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3504 2012-02-08 21:43:55Z chrfranke $";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
 #ifdef _WIN64
@@ -1922,7 +1922,7 @@ bool win_tw_cli_device::open()
         // Show tw_cli error message
         err++;
         err[strcspn(err, "\r\n")] = 0;
-        return set_err(EIO, err);
+        return set_err(EIO, "%s", err);
       }
       return set_err(EIO);
     }
@@ -3802,7 +3802,7 @@ bool win_aspi_device::scsi_pass_through(scsi_cmnd_io * iop)
     }
     else
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    pout(buff);
+    pout("%s", buff);
   }
 
   ASPI_SRB srb;
@@ -4045,7 +4045,7 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
     }
     else
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    pout(buff);
+    pout("%s", buff);
   }
 
   SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER sb;
