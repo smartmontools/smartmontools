@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3504 2012-02-08 21:43:55Z chrfranke $
+$Id: CHANGELOG 3505 2012-02-09 22:22:59Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartctl: Add options '-g aam' and '-e aam,[N|off]' to get/set
+       ATA Automatic Acoustic Management feature.  Add '-g all'.
 
   [CF] os_win32.cpp: Prevent warnings from gcc option -Wformat-security.
 
