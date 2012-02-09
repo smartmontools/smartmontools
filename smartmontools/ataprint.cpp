@@ -2002,6 +2002,30 @@ static void ataPrintSCTErrorRecoveryControl(bool set, unsigned short read_timer,
     pout("          Write: %6d (%0.1f seconds)\n", write_timer, write_timer/10.0);
 }
 
+static void print_aam_level(const char * msg, int level, int recommended = -1)
+{
+  // Table 56 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Obsolete since T13/2015-D (ACS-2) Revision 4a, December 9, 2010
+  const char * s;
+  if (level == 0)
+    s = "vendor specific";
+  else if (level < 128)
+    s = "unknown/retired";
+  else if (level == 128)
+    s = "quiet";
+  else if (level < 254)
+    s = "intermediate";
+  else if (level == 254)
+    s = "fast";
+  else
+    s = "reserved";
+
+  if (recommended >= 0)
+    pout("%s%d (%s), recommended: %d\n", msg, level, s, recommended);
+  else
+    pout("%s%d (%s)\n", msg, level, s);
+}
+
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
@@ -2099,7 +2123,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Exit if no further options specified
   if (!(   options.drive_info || need_smart_support
         || need_smart_logdir  || need_gp_logdir
-        || need_sct_support || options.get_apm || options.set_apm)) {
+        || need_sct_support
+        || options.get_aam || options.set_aam
+        || options.get_apm || options.set_apm)) {
     if (powername)
       pout("Device is in %s mode\n", powername);
     else
@@ -2199,6 +2225,17 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
   }
 
+  // Print AAM status
+  if (options.get_aam) {
+    if ((drive.command_set_2 & 0xc200) != 0x4200) // word083
+      pout("AAM feature is:   Unavailable\n");
+    else if (!(drive.word086 & 0x0200))
+      pout("AAM feature is:   Disabled\n");
+    else
+      print_aam_level("AAM level is:     ", drive.words088_255[94-88] & 0xff,
+        drive.words088_255[94-88] >> 8);
+  }
+
   // Print APM status
   if (options.get_apm) {
     if ((drive.command_set_2 & 0xc008) != 0x4008) // word083
@@ -2227,6 +2264,26 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       || options.smart_auto_offl_disable || options.smart_auto_offl_enable)
     pout("=== START OF ENABLE/DISABLE COMMANDS SECTION ===\n");
   
+  // Enable/Disable AAM
+  if (options.set_aam) {
+    if (options.set_aam > 0) {
+      if (!ata_set_features(device, ATA_ENABLE_AAM, options.set_aam-1)) {
+        pout("AAM enable failed: %s\n", device->get_errmsg());
+        returnval |= FAILSMART;
+      }
+      else
+        print_aam_level("AAM set to level ", options.set_aam-1);
+    }
+    else {
+      if (!ata_set_features(device, ATA_DISABLE_AAM)) {
+        pout("AAM disable failed: %s\n", device->get_errmsg());
+        returnval |= FAILSMART;
+      }
+      else
+        pout("AAM disabled\n");
+    }
+  }
+
   // Enable/Disable APM
   if (options.set_apm) {
     if (options.set_apm > 0) {

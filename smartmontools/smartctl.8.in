@@ -214,7 +214,7 @@ and the SMART options which require support for 48-bit ATA commands.
 Prints all SMART and non-SMART information about the device. For ATA
 devices this is equivalent to
 .nf
-\'\-H \-i \-g apm \-c \-A \-f brief \-l xerror,error \-l xselftest,selftest
+\'\-H \-i \-g all \-c \-A \-f brief \-l xerror,error \-l xselftest,selftest
 \-l selective \-l directory \-l scttemp \-l scterc \-l sataphy\'.
 .fi
 and for SCSI, this is equivalent to
@@ -757,8 +757,22 @@ bit.
 [NEW EXPERIMENTAL SMARTCTL FEATURE] Gets/sets non\-SMART device settings.
 Valid arguments are:
 
+.I all
+\- Gets all values. This is equivalent to
+.nf
+\'-g aam -g apm\'
+.fi
+
+.I aam[,VALUE]
+\- [ATA only] Gets/sets the Automatic Acoustic Management (AAM) feature
+(if supported).  A value of 128 sets the most quiet (slowest) mode and 254
+the fastest (loudest) mode, \'off\' disables AAM.  Devices may support
+intermediate levels.  Values below 128 are defined as vendor specific (0)
+or retired (1\-127).  Note that the AAM feature was declared obsolete in
+ATA ACS-2 Revision 4a (Dec 2010).
+
 .I apm[,VALUE]
-\- [ATA only] Gets/sets the Advanced Power Management feature on
+\- [ATA only] Gets/sets the Advanced Power Management (APM) feature on
 device (if supported).  If a value between 1 and 254 is provided, it will
 attempt to enable APM and set the specified value, \'off\' disables APM.
 Note the actual behavior depends on the drive, for example some drives disable
@@ -1969,8 +1983,8 @@ Device open failed, device did not return an IDENTIFY DEVICE structure,
 or device is in a low-power mode (see \'\-n\' option above).
 .TP
 .B Bit 2:
-Some SMART command to the disk failed, or there was a checksum error
-in a SMART data structure (see \'\-b\' option above).
+Some SMART or other ATA command to the disk failed, or there was a checksum
+error in a SMART data structure (see \'\-b\' option above).
 .TP
 .B Bit 3:
 SMART status check returned "DISK FAILING".

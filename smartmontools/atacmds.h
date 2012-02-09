@@ -84,7 +84,9 @@ enum {
 #define ATA_SET_FEATURES                0xef
 
 // SET_FEATURES subcommands
+#define ATA_DISABLE_AAM                 0xC2
 #define ATA_DISABLE_APM                 0x85
+#define ATA_ENABLE_AAM                  0x42
 #define ATA_ENABLE_APM                  0x05
 
 // 48-bit commands

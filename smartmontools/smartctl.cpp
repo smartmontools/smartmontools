@@ -88,7 +88,7 @@ static void Usage()
 "  -i, --info\n"
 "         Show identity information for device\n\n"
 "  -g NAME, --get=NAME\n"
-"        Get device setting: apm\n\n"
+"        Get device setting: all, aam, apm\n\n"
 "  -a, --all\n"
 "         Show all SMART information for device\n\n"
 "  -x, --xall\n"
@@ -122,7 +122,7 @@ static void Usage()
 "  -S VALUE, --saveauto=VALUE                                          (ATA)\n"
 "        Enable/disable Attribute autosave on device (on/off)\n\n"
 "  -e NAME[,VALUE], --set=NAME[,VALUE]\n"
-"        Enable/disable/change device setting: apm,[N|off]\n\n"
+"        Enable/disable/change device setting: aam,[N|off], apm,[N|off]\n\n"
   );
   printf(
 "======================================= READ AND DISPLAY DATA OPTIONS =====\n\n"
@@ -215,9 +215,9 @@ static std::string getvalidarglist(char opt)
   case 'f':
     return "old, brief";
   case 'g':
-    return "apm";
+    return "aam, apm";
   case 'e':
-    return "apm,[N|off]";
+    return "aam,[N|off], apm,[N|off]";
   case 'v':
   default:
     return "";
@@ -603,7 +603,7 @@ static const char * parse_options(int argc, char** argv,
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
       ataopts.sct_erc_get = true;
       ataopts.sataphy = true;
-      ataopts.get_apm = true;
+      ataopts.get_aam = ataopts.get_apm = true;
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
@@ -784,7 +784,22 @@ static const char * parse_options(int argc, char** argv,
           if (n3 != len)
             val = ~0U;
 
-          if (!strcmp(name, "apm")) {
+          if (get && !strcmp(name, "all")) {
+            ataopts.get_aam = ataopts.get_apm = true;
+          }
+          else if (!strcmp(name, "aam")) {
+            if (get)
+              ataopts.get_aam = true;
+            else if (off)
+              ataopts.set_aam = -1;
+            else if (val <= 254)
+              ataopts.set_aam = val + 1;
+            else {
+              sprintf(extraerror, "Option -e aam,N must have 0 <= N <= 254\n");
+              badarg = true;
+            }
+          }
+          else if (!strcmp(name, "apm")) {
             if (get)
               ataopts.get_apm = true;
             else if (off)
