@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3505 2012-02-09 22:22:59Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3506 2012-02-11 14:52:17Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2123,9 +2123,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Exit if no further options specified
   if (!(   options.drive_info || need_smart_support
         || need_smart_logdir  || need_gp_logdir
-        || need_sct_support
-        || options.get_aam || options.set_aam
-        || options.get_apm || options.set_apm)) {
+        || need_sct_support || options.get_set_used)) {
     if (powername)
       pout("Device is in %s mode\n", powername);
     else
@@ -2246,6 +2244,22 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("APM level is:     %d\n", drive.words088_255[91-88] & 0xff);
   }
 
+  // Print read look-ahead status
+  if (options.get_lookahead) {
+    pout("Rd look-ahead is: %s\n",
+      (   (drive.command_set_2 & 0xc000) != 0x4000 // word083
+       || !(drive.command_set_1 & 0x0040)) ? "Unavailable" : // word082
+       !(drive.cfs_enable_1 & 0x0040) ? "Disabled" : "Enabled"); // word085
+  }
+
+  // Print write cache status
+  if (options.get_wcache) {
+    pout("Write cache is:   %s\n",
+      (   (drive.command_set_2 & 0xc000) != 0x4000 // word083
+       || !(drive.command_set_1 & 0x0020)) ? "Unavailable" : // word082
+       !(drive.cfs_enable_1 & 0x0020) ? "Disabled" : "Enabled"); // word085
+  }
+
   // Print remaining drive info
   if (options.drive_info) {
     // Print the (now possibly changed) power mode if available
@@ -2302,6 +2316,28 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       else
         pout("APM disabled\n");
     }
+  }
+
+  // Enable/Disable read look-ahead
+  if (options.set_lookahead) {
+    bool enable = (options.set_lookahead > 0);
+    if (!ata_set_features(device, (enable ? ATA_ENABLE_READ_LOOK_AHEAD : ATA_DISABLE_READ_LOOK_AHEAD))) {
+        pout("Read look-ahead %sable failed: %s\n", (enable ? "en" : "dis"), device->get_errmsg());
+        returnval |= FAILSMART;
+    }
+    else
+      pout("Read look-ahead %sabled\n", (enable ? "en" : "dis"));
+  }
+
+  // Enable/Disable write cache
+  if (options.set_wcache) {
+    bool enable = (options.set_wcache > 0);
+    if (!ata_set_features(device, (enable ? ATA_ENABLE_WRITE_CACHE : ATA_DISABLE_WRITE_CACHE))) {
+        pout("Write cache %sable failed: %s\n", (enable ? "en" : "dis"), device->get_errmsg());
+        returnval |= FAILSMART;
+    }
+    else
+      pout("Write cache %sabled\n", (enable ? "en" : "dis"));
   }
 
   // Enable/Disable SMART commands
