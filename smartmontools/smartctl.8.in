@@ -760,7 +760,7 @@ Valid arguments are:
 .I all
 \- Gets all values. This is equivalent to
 .nf
-\'-g aam -g apm -g lookahead -g wcache\'
+\'-g aam -g apm -g lookahead -g security -g wcache\'
 .fi
 
 .I aam[,N|off]
@@ -783,6 +783,16 @@ although the actual behavior defined is also vendor-specific.
 .I lookahead[,on|off]
 \- [ATA only] Gets/sets the read look-ahead feature (if supported).
 Read look-ahead is usually enabled by default.
+
+.I security
+\- [ATA only] Gets the status of ATA Security feature (if supported).
+If ATA Security is enabled an ATA user password is set.  The drive will be
+locked on next reset then.
+
+.I security-freeze
+\- [ATA only] Sets ATA Security feature to frozen mode.  This prevents that
+the drive accepts any security commands until next reset.  Note that the
+frozen mode may already be set by BIOS or OS.
 
 .I wcache[,on|off]
 \- [ATA only] Gets/sets the volatile write cache feature (if supported).

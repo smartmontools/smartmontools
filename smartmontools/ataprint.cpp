@@ -2026,6 +2026,44 @@ static void print_aam_level(const char * msg, int level, int recommended = -1)
     pout("%s%d (%s)\n", msg, level, s);
 }
 
+static void print_ata_security_status(const char * msg, unsigned short state)
+{
+    const char * s1, * s2 = "", * s3 = "", * s4 = "";
+
+    // Table 6 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
+    if (!(state & 0x0001))
+      s1 = "Unavailable";
+    else if (!(state & 0x0002)) {
+      s1 = "Disabled, ";
+      if (!(state & 0x0008))
+        s2 = "NOT FROZEN [SEC1]";
+      else
+        s2 = "frozen [SEC2]";
+    }
+    else {
+      s1 = "ENABLED, PW level ";
+      if (!(state & 0x0020))
+        s2 = "HIGH";
+      else
+        s2 = "MAX";
+
+      if (!(state & 0x0004)) {
+         s3 = ", not locked, ";
+        if (!(state & 0x0008))
+          s4 = "not frozen [SEC5]";
+        else
+          s4 = "frozen [SEC6]";
+      }
+      else {
+        s3 = ", **LOCKED** [SEC4]";
+        if (state & 0x0010)
+          s4 = ", PW ATTEMPTS EXCEEDED";
+      }
+    }
+
+    pout("%s%s%s%s%s\n", msg, s1, s2, s3, s4);
+}
+
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
@@ -2260,6 +2298,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        !(drive.cfs_enable_1 & 0x0020) ? "Disabled" : "Enabled"); // word085
   }
 
+  // Print ATA security status
+  if (options.get_security)
+    print_ata_security_status("ATA Security is:  ", drive.words088_255[128-88]);
+
   // Print remaining drive info
   if (options.drive_info) {
     // Print the (now possibly changed) power mode if available
@@ -2338,6 +2380,16 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     else
       pout("Write cache %sabled\n", (enable ? "en" : "dis"));
+  }
+
+  // Freeze ATA security
+  if (options.set_security_freeze) {
+    if (!ata_nodata_command(device, ATA_SECURITY_FREEZE_LOCK)) {
+        pout("ATA SECURITY FREEZE LOCK failed: %s\n", device->get_errmsg());
+        returnval |= FAILSMART;
+    }
+    else
+      pout("ATA Security set to frozen mode\n");
   }
 
   // Enable/Disable SMART commands

@@ -81,6 +81,7 @@ enum {
 #define ATA_IDENTIFY_PACKET_DEVICE      0xa1
 #define ATA_SMART_CMD                   0xb0
 #define ATA_CHECK_POWER_MODE            0xe5
+#define ATA_SECURITY_FREEZE_LOCK        0xf5
 #define ATA_SET_FEATURES                0xef
 
 // SET_FEATURES subcommands
@@ -731,7 +732,10 @@ extern bool dont_print_serial_number;
 int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id);
 int ataCheckPowerMode(ata_device * device);
 
-// Call SET FEATURES command with optional count register value
+// Issue a no-data ATA command with optional sector count register value
+bool ata_nodata_command(ata_device * device, unsigned char command, int sector_count = -1);
+
+// Issue SET FEATURES command with optional sector count register value
 bool ata_set_features(ata_device * device, unsigned char features, int sector_count = -1);
 
 /* Read S.M.A.R.T information from drive */

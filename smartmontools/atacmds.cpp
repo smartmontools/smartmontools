@@ -838,7 +838,19 @@ int ataCheckPowerMode(ata_device * device) {
   return (int)result;
 }
 
-// Call SET FEATURES command with optional count register value
+// Issue a no-data ATA command with optional sector count register value
+bool ata_nodata_command(ata_device * device, unsigned char command,
+                        int sector_count /* = -1 */)
+{
+  ata_cmd_in in;
+  in.in_regs.command = command;
+  if (sector_count >= 0)
+    in.in_regs.sector_count = sector_count;
+
+  return device->ata_pass_through(in);
+}
+
+// Issue SET FEATURES command with optional sector count register value
 bool ata_set_features(ata_device * device, unsigned char features,
                       int sector_count /* = -1 */)
 {

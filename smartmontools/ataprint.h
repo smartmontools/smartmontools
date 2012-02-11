@@ -98,6 +98,8 @@ struct ata_print_options
   int set_apm; // disable(-1), enable(2..255->1..254) Advanced Power Management
   bool get_lookahead; // print read look-ahead status
   int set_lookahead; // disable(-1), enable(1) read look-ahead
+  bool get_security; // print ATA security status
+  bool set_security_freeze; // Freeze ATA security
   bool get_wcache; // print write cache status
   int set_wcache; // disable(-1), enable(1) write cache
 
@@ -134,6 +136,7 @@ struct ata_print_options
       get_aam(false), set_aam(0),
       get_apm(false), set_apm(0),
       get_lookahead(false), set_lookahead(0),
+      get_security(false), set_security_freeze(false),
       get_wcache(false), set_wcache(0)
     { }
 };
