@@ -88,7 +88,7 @@ static void Usage()
 "  -i, --info\n"
 "         Show identity information for device\n\n"
 "  -g NAME, --get=NAME\n"
-"        Get device setting: all, aam, apm\n\n"
+"        Get device setting: all, aam, apm, lookahead, wcache\n\n"
 "  -a, --all\n"
 "         Show all SMART information for device\n\n"
 "  -x, --xall\n"
@@ -122,7 +122,8 @@ static void Usage()
 "  -S VALUE, --saveauto=VALUE                                          (ATA)\n"
 "        Enable/disable Attribute autosave on device (on/off)\n\n"
 "  -e NAME[,VALUE], --set=NAME[,VALUE]\n"
-"        Enable/disable/change device setting: aam,[N|off], apm,[N|off]\n\n"
+"        Enable/disable/change device setting: aam,[N|off], apm,[N|off],\n"
+"        lookahead,[on|off], wcache,[on|off]\n\n"
   );
   printf(
 "======================================= READ AND DISPLAY DATA OPTIONS =====\n\n"
@@ -215,9 +216,9 @@ static std::string getvalidarglist(char opt)
   case 'f':
     return "old, brief";
   case 'g':
-    return "aam, apm";
+    return "aam, apm, lookahead, wcache";
   case 'e':
-    return "aam,[N|off], apm,[N|off]";
+    return "aam,[N|off], apm,[N|off], lookahead,[on|off], wcache,[on|off]";
   case 'v':
   default:
     return "";
@@ -603,7 +604,9 @@ static const char * parse_options(int argc, char** argv,
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
       ataopts.sct_erc_get = true;
       ataopts.sataphy = true;
+      ataopts.get_set_used = true;
       ataopts.get_aam = ataopts.get_apm = true;
+      ataopts.get_lookahead = ataopts.get_wcache = true;
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
@@ -775,17 +778,20 @@ static const char * parse_options(int argc, char** argv,
     case 'g':
     case 'e':
       {
+        ataopts.get_set_used = true;
         bool get = (optchar == 'g');
         char name[16+1]; unsigned val;
         int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
         if (sscanf(optarg, "%16[a-z]%n%*[,=]%n%u%n", name, &n1, &n2, &val, &n3) >= 1
             && (n1 == len || (!get && n2 > 0))) {
+          bool on  = (n2 > 0 && !strcmp(optarg+n2, "on"));
           bool off = (n2 > 0 && !strcmp(optarg+n2, "off"));
           if (n3 != len)
             val = ~0U;
 
           if (get && !strcmp(name, "all")) {
             ataopts.get_aam = ataopts.get_apm = true;
+            ataopts.get_lookahead = ataopts.get_wcache = true;
           }
           else if (!strcmp(name, "aam")) {
             if (get)
@@ -810,6 +816,26 @@ static const char * parse_options(int argc, char** argv,
               sprintf(extraerror, "Option -e apm,N must have 1 <= N <= 254\n");
               badarg = true;
             }
+          }
+          else if (!strcmp(name, "lookahead")) {
+            if (get)
+              ataopts.get_lookahead = true;
+            else if (off)
+              ataopts.set_lookahead = -1;
+            else if (on)
+              ataopts.set_lookahead = 1;
+            else
+              badarg = true;
+          }
+          else if (!strcmp(name, "wcache")) {
+            if (get)
+              ataopts.get_wcache = true;
+            else if (off)
+              ataopts.set_wcache = -1;
+            else if (on)
+              ataopts.set_wcache = 1;
+            else
+              badarg = true;
           }
           else
             badarg = true;

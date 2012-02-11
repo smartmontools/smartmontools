@@ -91,10 +91,15 @@ struct ata_print_options
   bool show_presets; // Show presets and exit
   unsigned char powermode; // Skip check, if disk in idle or standby mode
 
+  bool get_set_used; // true if any get/set command is used
   bool get_aam; // print Automatic Acoustic Management status
   int set_aam; // disable(-1), enable(1..255->0..254) Automatic Acoustic Management
   bool get_apm; // print Advanced Power Management status
   int set_apm; // disable(-1), enable(2..255->1..254) Advanced Power Management
+  bool get_lookahead; // print read look-ahead status
+  int set_lookahead; // disable(-1), enable(1) read look-ahead
+  bool get_wcache; // print write cache status
+  int set_wcache; // disable(-1), enable(1) write cache
 
   ata_print_options()
     : drive_info(false),
@@ -125,8 +130,11 @@ struct ata_print_options
       ignore_presets(false),
       show_presets(false),
       powermode(0),
+      get_set_used(false),
       get_aam(false), set_aam(0),
-      get_apm(false), set_apm(0)
+      get_apm(false), set_apm(0),
+      get_lookahead(false), set_lookahead(0),
+      get_wcache(false), set_wcache(0)
     { }
 };
 

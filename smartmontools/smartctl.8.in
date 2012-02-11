@@ -760,10 +760,10 @@ Valid arguments are:
 .I all
 \- Gets all values. This is equivalent to
 .nf
-\'-g aam -g apm\'
+\'-g aam -g apm -g lookahead -g wcache\'
 .fi
 
-.I aam[,VALUE]
+.I aam[,N|off]
 \- [ATA only] Gets/sets the Automatic Acoustic Management (AAM) feature
 (if supported).  A value of 128 sets the most quiet (slowest) mode and 254
 the fastest (loudest) mode, \'off\' disables AAM.  Devices may support
@@ -771,7 +771,7 @@ intermediate levels.  Values below 128 are defined as vendor specific (0)
 or retired (1\-127).  Note that the AAM feature was declared obsolete in
 ATA ACS-2 Revision 4a (Dec 2010).
 
-.I apm[,VALUE]
+.I apm[,N|off]
 \- [ATA only] Gets/sets the Advanced Power Management (APM) feature on
 device (if supported).  If a value between 1 and 254 is provided, it will
 attempt to enable APM and set the specified value, \'off\' disables APM.
@@ -779,6 +779,14 @@ Note the actual behavior depends on the drive, for example some drives disable
 APM if their value is set above 128.  Values below 128 are supposed to allow
 drive spindown, values 128 and above adjust only head-parking frequency,
 although the actual behavior defined is also vendor-specific.
+
+.I lookahead[,on|off]
+\- [ATA only] Gets/sets the read look-ahead feature (if supported).
+Read look-ahead is usually enabled by default.
+
+.I wcache[,on|off]
+\- [ATA only] Gets/sets the volatile write cache feature (if supported).
+The write cache is usually enabled by default.
 
 .TP
 .B SMART READ AND DISPLAY DATA OPTIONS:
