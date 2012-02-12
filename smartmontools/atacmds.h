@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3507 2012-02-11 20:16:13Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3508 2012-02-12 15:47:56Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -77,15 +77,17 @@ enum {
 };
 
 // ATA Specification Command Register Values (Commands)
+#define ATA_CHECK_POWER_MODE            0xe5
 #define ATA_IDENTIFY_DEVICE             0xec
 #define ATA_IDENTIFY_PACKET_DEVICE      0xa1
+#define ATA_IDLE                        0xe3
 #define ATA_SMART_CMD                   0xb0
-#define ATA_CHECK_POWER_MODE            0xe5
 #define ATA_SECURITY_FREEZE_LOCK        0xf5
 #define ATA_SET_FEATURES                0xef
+#define ATA_STANDBY_IMMEDIATE           0xe0
 
 // SET_FEATURES subcommands
-#define ATA_DISABLE_AAM                 0xC2
+#define ATA_DISABLE_AAM                 0xc2
 #define ATA_DISABLE_APM                 0x85
 #define ATA_DISABLE_WRITE_CACHE         0x82
 #define ATA_DISABLE_READ_LOOK_AHEAD     0x55
