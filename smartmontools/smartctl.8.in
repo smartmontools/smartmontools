@@ -794,6 +794,21 @@ locked on next reset then.
 the drive accepts any security commands until next reset.  Note that the
 frozen mode may already be set by BIOS or OS.
 
+.I standby,[N|off]
+\- [ATA only] Sets the standby (spindown) timer and places the drive in the
+IDLE mode.  A value of 0 or \'off\' disables the standby timer.
+Values from 1 to 240 specify timeouts from 5 seconds to 20 minutes in 5
+second increments.  Values from 241 to 251 specify timeouts from 30 minutes
+to 330 minutes in 30 minute increments.  Value 252 specifies 21 minutes.
+Value 253 specifies a vendor specific time between 8 and 12 hours.  Value
+255 specifies 21 minutes and 15 seconds.  Some drives may use a vendor
+specific interpretation for the values.  Note that there is no get option
+because ATA standards do not specify a method to read the standby timer.
+
+.I standby,now
+\- [ATA only] Places the drive in the STANDBY mode.  This usually spins down
+the drive.  The setting of the standby timer is not affected.
+
 .I wcache[,on|off]
 \- [ATA only] Gets/sets the volatile write cache feature (if supported).
 The write cache is usually enabled by default.

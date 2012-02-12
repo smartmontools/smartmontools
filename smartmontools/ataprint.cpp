@@ -2064,6 +2064,39 @@ static void print_ata_security_status(const char * msg, unsigned short state)
     pout("%s%s%s%s%s\n", msg, s1, s2, s3, s4);
 }
 
+static void print_standby_timer(const char * msg, int timer, const ata_identify_device & drive)
+{
+  const char * s1 = 0;
+  int hours = 0, minutes = 0 , seconds = 0;
+
+  // Table 63 of s13/2015-D (ACS-2) Revision 7, June 22, 2011
+  if (timer == 0)
+    s1 = "disabled";
+  else if (timer <= 240)
+    seconds = timer * 5, minutes = seconds / 60, seconds %= 60;
+  else if (timer <= 251)
+    minutes = (timer - 240) * 30, hours = minutes / 60, minutes %= 60;
+  else if (timer == 252)
+    minutes = 21;
+  else if (timer == 253)
+    s1 = "between 8 hours and 12 hours";
+  else if (timer == 255)
+    minutes = 21, seconds = 15;
+  else
+    s1 = "reserved";
+
+  const char * s2 = "", * s3 = "";
+  if (!(drive.words047_079[49-47] & 0x2000))
+    s2 = " or vendor-specific";
+  if (timer > 0 && (drive.words047_079[50-47] & 0xc001) == 0x4001)
+    s3 = ", a vendor-specific minimum applies";
+
+  if (s1)
+    pout("%s%d (%s%s%s)\n", msg, timer, s1, s2, s3);
+  else
+    pout("%s%d (%02d:%02d:%02d%s%s)\n", msg, timer, hours, minutes, seconds, s2, s3);
+}
+
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
@@ -2390,6 +2423,16 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     else
       pout("ATA Security set to frozen mode\n");
+  }
+
+  // Set standby timer
+  if (options.set_standby) {
+    if (!ata_nodata_command(device, ATA_IDLE, options.set_standby-1)) {
+        pout("ATA IDLE command failed: %s\n", device->get_errmsg());
+        returnval |= FAILSMART;
+    }
+    else
+      print_standby_timer("Standby timer set to ", options.set_standby-1, drive);
   }
 
   // Enable/Disable SMART commands
@@ -2955,6 +2998,17 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       else
         PrintSataPhyEventCounters(log_11, options.sataphy_reset);
     }
+  }
+
+  // Set to standby (spindown) mode
+  // (Above commands may spinup drive)
+  if (options.set_standby_now) {
+    if (!ata_nodata_command(device, ATA_STANDBY_IMMEDIATE)) {
+        pout("ATA STANDBY IMMEDIATE command failed: %s\n", device->get_errmsg());
+        returnval |= FAILSMART;
+    }
+    else
+      pout("Device placed in STANDBY mode\n");
   }
 
   // START OF THE TESTING SECTION OF THE CODE.  IF NO TESTING, RETURN

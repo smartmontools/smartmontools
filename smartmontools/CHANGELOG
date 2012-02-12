@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartctl: Add option '-e standby,[N|off|now]' to set standby timer
+       or standby mode.
+
   [CF] smartctl: Add options '-g security' and '-e security-freeze' to
        get/freeze ATA security settings.
 

@@ -123,7 +123,8 @@ static void Usage()
 "        Enable/disable Attribute autosave on device (on/off)\n\n"
 "  -e NAME[,VALUE], --set=NAME[,VALUE]\n"
 "        Enable/disable/change device setting: aam,[N|off], apm,[N|off],\n"
-"        lookahead,[on|off], security-freeze, wcache,[on|off]\n\n"
+"        lookahead,[on|off], security-freeze, standby,[N|off|now],\n"
+"        wcache,[on|off]\n\n"
   );
   printf(
 "======================================= READ AND DISPLAY DATA OPTIONS =====\n\n"
@@ -219,7 +220,7 @@ static std::string getvalidarglist(char opt)
     return "aam, apm, lookahead, security, wcache";
   case 'e':
     return "aam,[N|off], apm,[N|off], lookahead,[on|off], security-freeze, "
-           "wcache,[on|off]";
+           "standby,[N|off|now], wcache,[on|off]";
   case 'v':
   default:
     return "";
@@ -835,6 +836,19 @@ static const char * parse_options(int argc, char** argv,
           }
           else if (!get && !strcmp(optarg, "security-freeze")) {
             ataopts.set_security_freeze = true;
+          }
+          else if (!get && !strcmp(optarg, "standby,now")) {
+              ataopts.set_standby_now = true;
+          }
+          else if (!get && !strcmp(name, "standby")) {
+            if (off)
+              ataopts.set_standby = 0 + 1;
+            else if (val <= 255)
+              ataopts.set_standby = val + 1;
+            else {
+              sprintf(extraerror, "Option -e standby,N must have 0 <= N <= 255\n");
+              badarg = true;
+            }
           }
           else if (!strcmp(name, "wcache")) {
             if (get)
