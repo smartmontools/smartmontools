@@ -2016,7 +2016,7 @@ static void print_aam_level(const char * msg, int level, int recommended = -1)
   else if (level < 254)
     s = "intermediate";
   else if (level == 254)
-    s = "fast";
+    s = "maximum performance";
   else
     s = "reserved";
 
@@ -2024,6 +2024,26 @@ static void print_aam_level(const char * msg, int level, int recommended = -1)
     pout("%s%d (%s), recommended: %d\n", msg, level, s, recommended);
   else
     pout("%s%d (%s)\n", msg, level, s);
+}
+
+static void print_apm_level(const char * msg, int level)
+{
+  // Table 120 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
+  const char * s;
+  if (!(1 <= level && level <= 254))
+    s = "reserved";
+  else if (level == 1)
+    s = "minimum power consumption with standby";
+  else if (level < 128)
+    s = "intermediate level with standby";
+  else if (level == 128)
+    s = "minimum power consumption without standby";
+  else if (level < 254)
+    s = "intermediate level without standby";
+  else
+    s = "maximum performance";
+
+  pout("%s%d (%s)\n", msg, level, s);
 }
 
 static void print_ata_security_status(const char * msg, unsigned short state)
@@ -2069,7 +2089,7 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
   const char * s1 = 0;
   int hours = 0, minutes = 0 , seconds = 0;
 
-  // Table 63 of s13/2015-D (ACS-2) Revision 7, June 22, 2011
+  // Table 63 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
   if (timer == 0)
     s1 = "disabled";
   else if (timer <= 240)
@@ -2312,7 +2332,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     else if (!(drive.word086 & 0x0008))
       pout("APM feature is:   Disabled\n");
     else
-      pout("APM level is:     %d\n", drive.words088_255[91-88] & 0xff);
+      print_apm_level("APM level is:     ", drive.words088_255[91-88] & 0xff);
   }
 
   // Print read look-ahead status
@@ -2381,7 +2401,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         returnval |= FAILSMART;
       }
       else
-        pout("APM set to level %d\n", options.set_apm-1);
+        print_apm_level("APM set to level ", options.set_apm-1);
     }
     else {
       if (!ata_set_features(device, ATA_DISABLE_APM)) {
