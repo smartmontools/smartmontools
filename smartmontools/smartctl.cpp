@@ -73,7 +73,7 @@ static void UsageSummary()
   return;
 }
 
-static std::string getvalidarglist(char opt);
+static std::string getvalidarglist(int opt);
 
 /*  void prints help information for command syntax */
 static void Usage()
@@ -121,7 +121,7 @@ static void Usage()
 "        Enable/disable automatic offline testing on device (on/off)\n\n"
 "  -S VALUE, --saveauto=VALUE                                          (ATA)\n"
 "        Enable/disable Attribute autosave on device (on/off)\n\n"
-"  -e NAME[,VALUE], --set=NAME[,VALUE]\n"
+"  -s NAME[,VALUE], --set=NAME[,VALUE]\n"
 "        Enable/disable/change device setting: aam,[N|off], apm,[N|off],\n"
 "        lookahead,[on|off], security-freeze, standby,[N|off|now],\n"
 "        wcache,[on|off]\n\n"
@@ -178,9 +178,12 @@ static void Usage()
     printf("%s\n", examples.c_str());
 }
 
+// Values for  --long only options, see parse_options()
+enum { opt_scan = 1000, opt_scan_open, opt_set, opt_smart };
+
 /* Returns a string containing a formatted list of the valid arguments
    to the option opt or empty on failure. Note 'v' case different */
-static std::string getvalidarglist(char opt)
+static std::string getvalidarglist(int opt)
 {
   switch (opt) {
   case 'q':
@@ -193,7 +196,7 @@ static std::string getvalidarglist(char opt)
     return "warn, exit, ignore";
   case 'r':
     return "ioctl[,N], ataioctl[,N], scsiioctl[,N]";
-  case 's':
+  case opt_smart:
   case 'o':
   case 'S':
     return "on, off";
@@ -218,9 +221,11 @@ static std::string getvalidarglist(char opt)
     return "old, brief";
   case 'g':
     return "aam, apm, lookahead, security, wcache";
-  case 'e':
+  case opt_set:
     return "aam,[N|off], apm,[N|off], lookahead,[on|off], security-freeze, "
            "standby,[N|off|now], wcache,[on|off]";
+  case 's':
+    return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
   case 'v':
   default:
     return "";
@@ -229,7 +234,7 @@ static std::string getvalidarglist(char opt)
 
 /* Prints the message "=======> VALID ARGUMENTS ARE: <LIST> \n", where
    <LIST> is the list of valid arguments for option opt. */
-static void printvalidarglistmessage(char opt)
+static void printvalidarglistmessage(int opt)
 {
   if (opt=='v'){
     pout("=======> VALID ARGUMENTS ARE:\n\thelp\n%s\n<=======\n",
@@ -255,15 +260,15 @@ static checksum_err_mode_t checksum_err_mode = CHECKSUM_ERR_WARN;
 
 static void scan_devices(const char * type, bool with_open, char ** argv);
 
+
 /*      Takes command options and sets features to be run */    
 static const char * parse_options(int argc, char** argv,
                            ata_print_options & ataopts,
                            scsi_print_options & scsiopts)
 {
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iaxv:P:t:CXF:n:B:f:g:e:";
+  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iaxv:P:t:CXF:n:B:f:g:";
   // Please update getvalidarglist() if you edit longopts
-  enum { opt_scan = 1000, opt_scan_open = 1001 };
   struct option longopts[] = {
     { "help",            no_argument,       0, 'h' },
     { "usage",           no_argument,       0, 'h' },
@@ -275,7 +280,7 @@ static const char * parse_options(int argc, char** argv,
     { "tolerance",       required_argument, 0, 'T' },
     { "badsum",          required_argument, 0, 'b' },
     { "report",          required_argument, 0, 'r' },
-    { "smart",           required_argument, 0, 's' },
+    { "smart",           required_argument, 0, opt_smart },
     { "offlineauto",     required_argument, 0, 'o' },
     { "saveauto",        required_argument, 0, 'S' },
     { "health",          no_argument,       0, 'H' },
@@ -295,7 +300,7 @@ static const char * parse_options(int argc, char** argv,
     { "drivedb",         required_argument, 0, 'B' },
     { "format",          required_argument, 0, 'f' },
     { "get",             required_argument, 0, 'g' },
-    { "set",             required_argument, 0, 'e' },
+    { "set",             required_argument, 0, opt_set },
     { "scan",            no_argument,       0, opt_scan      },
     { "scan-open",       no_argument,       0, opt_scan_open },
     { 0,                 0,                 0, 0   }
@@ -388,17 +393,22 @@ static const char * parse_options(int argc, char** argv,
         free(s);
       }
       break;
+
     case 's':
+    case opt_smart: // --smart
       if (!strcmp(optarg,"on")) {
         ataopts.smart_enable  = scsiopts.smart_enable  = true;
         ataopts.smart_disable = scsiopts.smart_disable = false;
       } else if (!strcmp(optarg,"off")) {
         ataopts.smart_disable = scsiopts.smart_disable = true;
         ataopts.smart_enable  = scsiopts.smart_enable  = false;
+      } else if (optchar == 's') {
+        goto case_s_continued; // --set, see below
       } else {
         badarg = true;
       }
       break;
+
     case 'o':
       if (!strcmp(optarg,"on")) {
         ataopts.smart_auto_offl_enable  = true;
@@ -779,7 +789,8 @@ static const char * parse_options(int argc, char** argv,
       break;
 
     case 'g':
-    case 'e':
+    case_s_continued: // -s, see above
+    case opt_set: // --set
       {
         ataopts.get_set_used = true;
         bool get = (optchar == 'g');
@@ -805,7 +816,7 @@ static const char * parse_options(int argc, char** argv,
             else if (val <= 254)
               ataopts.set_aam = val + 1;
             else {
-              sprintf(extraerror, "Option -e aam,N must have 0 <= N <= 254\n");
+              sprintf(extraerror, "Option -s aam,N must have 0 <= N <= 254\n");
               badarg = true;
             }
           }
@@ -817,7 +828,7 @@ static const char * parse_options(int argc, char** argv,
             else if (1 <= val && val <= 254)
               ataopts.set_apm = val + 1;
             else {
-              sprintf(extraerror, "Option -e apm,N must have 1 <= N <= 254\n");
+              sprintf(extraerror, "Option -s apm,N must have 1 <= N <= 254\n");
               badarg = true;
             }
           }
@@ -846,7 +857,7 @@ static const char * parse_options(int argc, char** argv,
             else if (val <= 255)
               ataopts.set_standby = val + 1;
             else {
-              sprintf(extraerror, "Option -e standby,N must have 0 <= N <= 255\n");
+              sprintf(extraerror, "Option -s standby,N must have 0 <= N <= 255\n");
               badarg = true;
             }
           }
@@ -882,7 +893,7 @@ static const char * parse_options(int argc, char** argv,
       // Check whether the option is a long option that doesn't map to -h.
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
-        if (optopt && (strchr(shortopts, optopt) != NULL)) {
+        if (optopt && (optopt >= opt_scan || strchr(shortopts, optopt))) {
           pout("=======> ARGUMENT REQUIRED FOR OPTION: %s\n", arg+2);
           printvalidarglistmessage(optopt);
         } else
@@ -892,7 +903,7 @@ static const char * parse_options(int argc, char** argv,
         UsageSummary();
         EXIT(FAILCMD);
       }
-      if (optopt) {
+      if (0 < optopt && optopt < '~') {
         // Iff optopt holds a valid option then argument must be
         // missing.  Note (BA) this logic seems to fail using Solaris
         // getopt!
@@ -916,7 +927,10 @@ static const char * parse_options(int argc, char** argv,
       // It would be nice to print the actual option name given by the user
       // here, but we just print the short form.  Please fix this if you know
       // a clean way to do it.
-      pout("=======> INVALID ARGUMENT TO -%c: %s\n", optchar, optarg);
+      char optstr[] = { (char)optchar, 0 };
+      pout("=======> INVALID ARGUMENT TO -%s: %s\n",
+        (optchar == opt_set ? "-set" :
+         optchar == opt_smart ? "-smart" : optstr), optarg);
       printvalidarglistmessage(optchar);
       if (extraerror[0])
 	pout("=======> %s", extraerror);
