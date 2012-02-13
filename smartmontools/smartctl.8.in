@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3508 2012-02-12 15:47:56Z chrfranke $
+ $Id: smartctl.8.in 3510 2012-02-13 20:42:40Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -242,7 +242,7 @@ smartctl --scan-open -- -a -W 4,45,50 -m admin@work > smartd.conf
 .fi
 .TP
 .B \-g NAME, \-\-get=NAME
-Get non\-SMART device settings.  See \'\-e, \-\-set\' below for further info.
+Get non\-SMART device settings.  See \'\-s, \-\-set\' below for further info.
 
 .TP
 .B RUN\-TIME BEHAVIOR OPTIONS:
@@ -753,9 +753,10 @@ saving counters to non\-volatile storage. For extreme streaming\-video
 type applications you might consider using \fIoff\fP to set the GLTSD
 bit.
 .TP
-.B \-g NAME, \-\-get=NAME, \-e NAME[,VALUE], \-\-set=NAME[,VALUE]
+.B \-g NAME, \-\-get=NAME, \-s NAME[,VALUE], \-\-set=NAME[,VALUE]
 [NEW EXPERIMENTAL SMARTCTL FEATURE] Gets/sets non\-SMART device settings.
-Valid arguments are:
+Note that the \'\-\-set\' option shares its short option \'\-s\' with
+\'\-\-smart\'.  Valid arguments are:
 
 .I all
 \- Gets all values. This is equivalent to
@@ -2137,4 +2138,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3508 2012-02-12 15:47:56Z chrfranke $
+$Id: smartctl.8.in 3510 2012-02-13 20:42:40Z chrfranke $
