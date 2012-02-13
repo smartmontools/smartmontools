@@ -114,7 +114,7 @@ const drive_settings builtin_knowndrives[] = {
     "ADATA SSD S599 .?..GB|" // tested with ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
     "Corsair CSSD-F(40|60|80|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1
-    "Corsair Force 3 SSD|" // SF-2281, tested with Corsair Force 3 SSD/1.3.2
+    "Corsair Force (3 SSD|GT)|" // SF-2281, tested with Corsair Force 3 SSD/1.3.2, GT/1.3.3
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
     "KINGSTON SH100S3(120|240)G|" // Hyper-X, SF-2281, tested with SH100S3240G/320ABBF0
@@ -171,6 +171,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Lifetime_Reads_GiB"
   },
   { "Indilinx Barefoot based SSDs",
+    "Corsair CSSD-V(32|60|64|128|256)GB2|" // Corsair Nova, tested with Corsair CSSD-V32GB2/2.2
     "CRUCIAL_CT(64|128|256)M225|" // tested with CRUCIAL_CT64M225/1571
     "G.SKILL FALCON (64|128|256)GB SSD|" // tested with G.SKILL FALCON 128GB SSD/2030
     "OCZ[ -](AGILITY|ONYX|VERTEX( 1199|-TURBO)?)|" // tested with
@@ -807,6 +808,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SAMSUNG SpinPoint M7U (USB)", // tested with HM252HX/2AC101C4
     "SAMSUNG HM(162H|252H|322I|502J)X",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint M8 (AFT)", // tested with HN-M101MBB/2AR10001
+    "SAMSUNG HN-M(250|500|750|101)MBB",
     "", "", ""
   },
   { "SAMSUNG SpinPoint M8U (USB)", // tested with HN-M500XBB/2AR10001
@@ -1745,6 +1750,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate SV35.2",
     "ST3(160815|250820|320620|500630|750640)[AS]V",
+    "", "", ""
+  },
+  { "Seagate SV35.5", // tested with ST31000525SV/CV12
+    "ST3(250311|500410|1000525)SV",
     "", "", ""
   },
   { "Seagate SV35",

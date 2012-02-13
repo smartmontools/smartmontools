@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - SandForce Driven SSDs: Corsair Force GT
+       - Indilinx Barefoot based SSDs: Corsair Nova
+       - SAMSUNG SpinPoint M8
+       - Seagate SV35.5
+
   [CF] smartctl: Change short option for '--set' from '-e' to '-s'.
        Keep backward compatibility with short option for '--smart'.
 
