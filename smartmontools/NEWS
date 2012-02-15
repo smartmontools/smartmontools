@@ -11,6 +11,8 @@ Summary: smartmontools release 5.43
 - smartctl options '-g, --get' and '-s, --set' to get/set
   various ATA settings: AAM, APM, Read look-ahead, Write
   cache, Security (freeze), Standby mode/timer.
+- smartd directive '-e' to set (most of) the above settings
+  on startup.
 - smartctl does not start ATA self-test if another test is
   already running.  Override with new option '-t force'.
 - smartctl supports extended self-test polling times

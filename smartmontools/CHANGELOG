@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Add smartd.conf directive '-e' to set ATA settings on
+       startup: aam, apm, lookahead, security-freeze, standby, wcache.
+
   [CF] drivedb.h updates:
        - SandForce Driven SSDs: Corsair Force GT
        - Indilinx Barefoot based SSDs: Corsair Nova

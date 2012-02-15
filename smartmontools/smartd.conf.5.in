@@ -674,6 +674,32 @@ not supported.  For RAID configurations, this is typically set to
 [Please see the \fBsmartctl \-l scterc\fP command-line option.]
 
 .TP
+.B -e NAME[,VALUE]
+[NEW EXPERIMENTAL SMARTD FEATURE] Sets non\-SMART device settings
+when \fBsmartd\fP starts up and has no further effect.
+[Please see the \fBsmartctl \-\-set\fP command-line option.]
+Valid arguments are:
+
+.I aam,[N|off]
+\- [ATA only] Sets the Automatic Acoustic Management (AAM) feature.
+
+.I apm,[N|off]
+\- [ATA only] Sets the Advanced Power Management (APM) feature.
+
+.I lookahead,[on|off]
+\- [ATA only] Sets the read look-ahead feature.
+
+.I security-freeze
+\- [ATA only] Sets ATA Security feature to frozen mode.
+
+.I standby,[N|off]
+\- [ATA only] Sets the standby (spindown) timer and places the drive in the
+IDLE mode.
+
+.I wcache,[on|off]
+\- [ATA only] Sets the volatile write cache feature.
+
+.TP
 .B \-s REGEXP
 Run Self-Tests or Offline Immediate Tests, at scheduled times.  A
 Self- or Offline Immediate Test will be run at the end of periodic

@@ -4,7 +4,7 @@
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -282,6 +282,13 @@ struct dev_config
   bool emailtest;                         // Send test email?
 
   // ATA ONLY
+  int set_aam; // disable(-1), enable(1..255->0..254) Automatic Acoustic Management
+  int set_apm; // disable(-1), enable(2..255->1..254) Advanced Power Management
+  int set_lookahead; // disable(-1), enable(1) read look-ahead
+  int set_standby; // set(1..255->0..254) standby timer
+  bool set_security_freeze; // Freeze ATA security
+  int set_wcache; // disable(-1), enable(1) write cache
+
   bool sct_erc_set;                       // set SCT ERC to:
   unsigned short sct_erc_readtime;        // ERC read time (deciseconds)
   unsigned short sct_erc_writetime;       // ERC write time (deciseconds)
@@ -323,6 +330,11 @@ dev_config::dev_config()
   tempinfo(0), tempcrit(0),
   emailfreq(0),
   emailtest(false),
+  set_aam(0), set_apm(0),
+  set_lookahead(0),
+  set_standby(0),
+  set_security_freeze(false),
+  set_wcache(0),
   sct_erc_set(false),
   sct_erc_readtime(0), sct_erc_writetime(0),
   curr_pending_id(0), offl_pending_id(0),
@@ -1504,6 +1516,8 @@ static void Directives()
            "  -l TYPE Monitor SMART log or self-test status:\n"
            "          error, selftest, xerror, offlinests[,ns], selfteststs[,ns]\n"
            "  -l scterc,R,W  Set SCT Error Recovery Control\n"
+           "  -e      Change device setting: aam,[N|off], apm,[N|off], lookahead,[on|off],\n"
+           "          security-freeze, standby,[N|off], wcache,[on|off]\n"
            "  -f      Monitor 'Usage' Attributes, report failures\n"
            "  -m ADD  Send email warning to address ADD\n"
            "  -M TYPE Modify email warning behavior (see man page)\n"
@@ -1786,6 +1800,23 @@ static void finish_device_scan(dev_config & cfg, dev_state & state)
   // Start self-test regex check now if time was not read from state file
   if (!cfg.test_regex.empty() && !state.scheduled_test_next_check)
     state.scheduled_test_next_check = time(0);
+}
+
+// Common function to format result message for ATA setting
+static void format_set_result_msg(std::string & msg, const char * name, bool ok,
+                                  int set_option = 0, bool has_value = false)
+{
+  if (!msg.empty())
+    msg += ", ";
+  msg += name;
+  if (!ok)
+    msg += ":--";
+  else if (set_option < 0)
+    msg += ":off";
+  else if (has_value)
+    msg += strprintf(":%d", set_option-1);
+  else if (set_option > 0)
+    msg += ":on";
 }
 
 
@@ -2108,6 +2139,40 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
       cfg.powermode=0;
     }
   }
+
+  // Apply ATA settings
+  std::string msg;
+
+  if (cfg.set_aam)
+    format_set_result_msg(msg, "AAM", (cfg.set_aam > 0 ?
+      ata_set_features(atadev, ATA_ENABLE_AAM, cfg.set_aam-1) :
+      ata_set_features(atadev, ATA_DISABLE_AAM)), cfg.set_aam, true);
+
+  if (cfg.set_apm)
+    format_set_result_msg(msg, "APM", (cfg.set_apm > 0 ?
+      ata_set_features(atadev, ATA_ENABLE_APM, cfg.set_apm-1) :
+      ata_set_features(atadev, ATA_DISABLE_APM)), cfg.set_apm, true);
+
+  if (cfg.set_lookahead)
+    format_set_result_msg(msg, "Rd-ahead", ata_set_features(atadev,
+      (cfg.set_lookahead > 0 ? ATA_ENABLE_READ_LOOK_AHEAD : ATA_DISABLE_READ_LOOK_AHEAD)),
+      cfg.set_lookahead);
+
+  if (cfg.set_wcache)
+    format_set_result_msg(msg, "Wr-cache", ata_set_features(atadev,
+      (cfg.set_wcache > 0? ATA_ENABLE_WRITE_CACHE : ATA_DISABLE_WRITE_CACHE)), cfg.set_wcache);
+
+  if (cfg.set_security_freeze)
+    format_set_result_msg(msg, "Security freeze",
+      ata_nodata_command(atadev, ATA_SECURITY_FREEZE_LOCK));
+
+  if (cfg.set_standby)
+    format_set_result_msg(msg, "Standby",
+      ata_nodata_command(atadev, ATA_IDLE, cfg.set_standby-1), cfg.set_standby, true);
+
+  // Report as one log entry
+  if (!msg.empty())
+    PrintOut(LOG_INFO, "Device: %s, ATA settings applied: %s\n", name, msg.c_str());
 
   // set SCT Error Recovery Control if requested
   if (cfg.sct_erc_set) {
@@ -3497,6 +3562,9 @@ static void printoutvaliddirectiveargs(int priority, char d)
     break;
   case 'F':
     PrintOut(priority, "none, samsung, samsung2, samsung3");
+  case 'e':
+    PrintOut(priority, "aam,[N|off], apm,[N|off], lookahead,[on|off], "
+                       "security-freeze, standby,[N|off], wcache,[on|off]");
     break;
   }
 }
@@ -3915,6 +3983,73 @@ static int ParseToken(char * token, dev_config & cfg)
       badarg = 1;
     }
     break;
+
+  case 'e':
+    // Various ATA settings
+    if (!(arg = strtok(NULL, delim))) {
+      missingarg = true;
+    }
+    else {
+      char arg2[16+1]; unsigned val;
+      int n1 = -1, n2 = -1, n3 = -1, len = strlen(arg);
+      if (sscanf(arg, "%16[^,=]%n%*[,=]%n%u%n", arg2, &n1, &n2, &val, &n3) >= 1
+          && (n1 == len || n2 > 0)) {
+        bool on  = (n2 > 0 && !strcmp(arg+n2, "on"));
+        bool off = (n2 > 0 && !strcmp(arg+n2, "off"));
+        if (n3 != len)
+          val = ~0U;
+
+        if (!strcmp(arg2, "aam")) {
+          if (off)
+            cfg.set_aam = -1;
+          else if (val <= 254)
+            cfg.set_aam = val + 1;
+          else
+            badarg = true;
+        }
+        else if (!strcmp(arg2, "apm")) {
+          if (off)
+            cfg.set_apm = -1;
+          else if (1 <= val && val <= 254)
+            cfg.set_apm = val + 1;
+          else
+            badarg = true;
+        }
+        else if (!strcmp(arg2, "lookahead")) {
+          if (off)
+            cfg.set_lookahead = -1;
+          else if (on)
+            cfg.set_lookahead = 1;
+          else
+            badarg = true;
+        }
+        else if (!strcmp(arg, "security-freeze")) {
+          cfg.set_security_freeze = true;
+        }
+        else if (!strcmp(arg2, "standby")) {
+          if (off)
+            cfg.set_standby = 0 + 1;
+          else if (val <= 255)
+            cfg.set_standby = val + 1;
+          else
+            badarg = true;
+        }
+        else if (!strcmp(arg2, "wcache")) {
+          if (off)
+            cfg.set_wcache = -1;
+          else if (on)
+            cfg.set_wcache = 1;
+          else
+            badarg = true;
+        }
+        else
+          badarg = true;
+      }
+      else
+        badarg = true;
+    }
+    break;
+
   default:
     // Directive not recognized
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
