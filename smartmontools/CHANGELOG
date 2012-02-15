@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3512 2012-02-13 21:57:25Z chrfranke $
+$Id: CHANGELOG 3513 2012-02-15 21:57:21Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd: Add smartd.conf directive '-e' to set ATA settings on
+       startup: aam, apm, lookahead, security-freeze, standby, wcache.
 
   [CF] drivedb.h updates:
        - SandForce Driven SSDs: Corsair Force GT

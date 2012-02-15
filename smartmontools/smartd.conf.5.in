@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3494 2011-12-06 21:51:18Z chrfranke $
+$Id: smartd.conf.5.in 3513 2012-02-15 21:57:21Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -672,6 +672,32 @@ Values of 0 disable the feature, other values less than 65 are probably
 not supported.  For RAID configurations, this is typically set to
 70,70 deciseconds.
 [Please see the \fBsmartctl \-l scterc\fP command-line option.]
+
+.TP
+.B -e NAME[,VALUE]
+[NEW EXPERIMENTAL SMARTD FEATURE] Sets non\-SMART device settings
+when \fBsmartd\fP starts up and has no further effect.
+[Please see the \fBsmartctl \-\-set\fP command-line option.]
+Valid arguments are:
+
+.I aam,[N|off]
+\- [ATA only] Sets the Automatic Acoustic Management (AAM) feature.
+
+.I apm,[N|off]
+\- [ATA only] Sets the Advanced Power Management (APM) feature.
+
+.I lookahead,[on|off]
+\- [ATA only] Sets the read look-ahead feature.
+
+.I security-freeze
+\- [ATA only] Sets ATA Security feature to frozen mode.
+
+.I standby,[N|off]
+\- [ATA only] Sets the standby (spindown) timer and places the drive in the
+IDLE mode.
+
+.I wcache,[on|off]
+\- [ATA only] Sets the volatile write cache feature.
 
 .TP
 .B \-s REGEXP
@@ -1545,4 +1571,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3494 2011-12-06 21:51:18Z chrfranke $
+$Id: smartd.conf.5.in 3513 2012-02-15 21:57:21Z chrfranke $
