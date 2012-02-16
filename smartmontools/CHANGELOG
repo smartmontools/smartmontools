@@ -41,6 +41,19 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - Buffalo MiniStation HD-PCTU2 (0x0411:0x01d9) (ticket #211)
+       - Philips SDE3273VC/97 (0x0471:0x2021) (ticket #212)
+       - Samsung M2 Portable 3.0 (0x04e8:0x60c5)
+       - Iomega GDHDU2 (0x059b:0x0475)
+       - LaCie minimus USB 3.0 (0x059f:0x104a)
+       - Seagate FreeAgent GoFlex Desk USB 3.0 (0x0bc2:0x50a5)
+       - Maxtor BlackArmor Portable (0x0d49:0x7550)
+       - WD My Passport Essential SE USB 3.0 (0x1058:0x0742)
+       - Initio (0x13fd:0x1e40)
+       - Verbatim External Hard Drive 2TB (0x18a5:0x022a)
+       - Hitachi Touro Desk (0x4971:0x1011)
+
   [CF] smartd: Add smartd.conf directive '-e' to set ATA settings on
        startup: aam, apm, lookahead, security-freeze, standby, wcache.
 

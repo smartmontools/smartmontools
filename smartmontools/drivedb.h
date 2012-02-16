@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2067,12 +2067,25 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Buffalo MiniStation Stealth HD-PCTU2; ",
+    "0x0411:0x01d9",
+    "", // 0x0108
+    "",
+    "-d sat"
+  },
   // LG Electronics
   { "USB: LG Mini HXD5; JMicron",
     "0x043e:0x70f1",
-    "",
+    "", // 0x0100
     "",
     "-d usbjmicron"
+  },
+  // Philips
+  { "USB: Philips; ", // SDE3273FC/97 2.5" SATA HDD enclosure
+    "0x0471:0x2021",
+    "", // 0x0103
+    "",
+    "-d sat"
   },
   // Toshiba
   { "USB: Toshiba Canvio 500GB; ",
@@ -2120,12 +2133,6 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Samsung Story Station 3.0; ",
-    "0x04e8:0x6052",
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: Samsung G2 Portable; JMicron",
     "0x04e8:0x6032",
     "",
@@ -2133,7 +2140,19 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbjmicron"
   },
   { "USB: Samsung Story Station 3.0; ",
+    "0x04e8:0x6052",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Samsung Story Station 3.0; ",
     "0x04e8:0x6054",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Samsung M2 Portable 3.0; ",
+    "0x04e8:0x60c5",
     "",
     "",
     "-d sat"
@@ -2181,6 +2200,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbsunplus"
+  },
+  { "USB: Iomega GDHDU2; JMicron",
+    "0x059b:0x0475",
+    "", // 0x0100
+    "",
+    "-d usbjmicron"
   },
   // LaCie
   { "USB: LaCie hard disk (FA Porsche design);",
@@ -2233,6 +2258,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: LaCie rikiki USB 3.0; ",
     "0x059f:0x10(49|57)",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: LaCie minimus USB 3.0; ",
+    "0x059f:0x104a",
     "",
     "",
     "-d sat"
@@ -2415,6 +2446,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat,12" // "-d sat" does not work (ticket #151)
   },
+  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 4TB
+    "0x0bc2:0x50a5",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // Dura Micro
   { "USB: Dura Micro; Cypress",
     "0x0c0b:0xb001",
@@ -2450,6 +2487,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Maxtor OneTouch 4 Mini; ",
     "0x0d49:0x7350",
     "", // 0x0125
+    "",
+    "-d sat"
+  },
+  { "USB: Maxtor BlackArmor Portable; ",
+    "0x0d49:0x7550",
+    "",
     "",
     "-d sat"
   },
@@ -2524,7 +2567,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: WD My Passport Essential SE USB 3.0; ",
-    "0x1058:0x0740",
+    "0x1058:0x074[02]",
     "",
     "",
     "-d sat"
@@ -2658,10 +2701,16 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; Initio", // NexStar CX USB enclosure
+    "0x13fd:0x1e40",
+    "",
+    "",
+    "-d sat"
+  },
   // Super Top
   { "USB: Super Top generic enclosure; Cypress",
     "0x14cd:0x6116",
-    "",
+    "", // 0x0160 also reported as unsupported
     "",
     "-d usbcypress"
   },
@@ -2777,6 +2826,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron" // "-d usbjmicron,x" does not work
   },
+  { "USB: Verbatim External Hard Drive; JMicron", // 2TB
+    "0x18a5:0x022a",
+    "",
+    "",
+    "-d usbjmicron"
+  },
   // Silicon Image
   { "USB: Vantec NST-400MX-SR; Silicon Image 5744",
     "0x1a4a:0x1670",
@@ -2792,6 +2847,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbsunplus"
   },
   // Hitachi/SimpleTech
+  { "USB: Hitachi Touro Desk; JMicron", // 3TB
+    "0x4971:0x1011",
+    "",
+    "",
+    "-d usbjmicron"
+  },
   { "USB: Hitachi/SimpleTech; JMicron", // 1TB
     "0x4971:0xce17",
     "",
