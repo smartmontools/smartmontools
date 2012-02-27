@@ -41,6 +41,16 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - SandForce Driven SSDs: ADATA S510
+       - JMicron based SSDs: Toshiba THNSNC128GMLJ
+       - Samsung based SSDs: 830 Series
+       - Hitachi Deskstar E7K1000
+       - Hitachi Ultrastar A7K1000: Fix name, allow trailing characters
+       - Hitachi Ultrastar A7K2000: Remove duplicate entry
+       - Toshiba 2.5" HDD MK..55GSX
+       - Western Digital AV-GP: WD..EURS variants
+
   [CF] drivedb.h USB updates:
        - Buffalo MiniStation HD-PCTU2 (0x0411:0x01d9) (ticket #211)
        - Philips SDE3273VC/97 (0x0471:0x2021) (ticket #212)

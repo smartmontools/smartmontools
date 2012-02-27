@@ -111,7 +111,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
-    "ADATA SSD S599 .?..GB|" // tested with ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
+    "ADATA SSD S(510|599) .?..GB|" // tested with ADATA SSD S510 60GB/320ABBF0,
+      // ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
     "Corsair CSSD-F(40|60|80|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1
     "Corsair Force (3 SSD|GT)|" // SF-2281, tested with Corsair Force 3 SSD/1.3.2, GT/1.3.3
@@ -384,6 +385,8 @@ const drive_settings builtin_knowndrives[] = {
     //  1.....................................40 chars limit for smartmontools <= r3343
   },
   { "JMicron based SSDs", // JMicron JMF61x
+    "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
+    "APPLE SSD TS.*|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series (2. Generation, JMF618),
                                     // tested with KINGSTON SNV425S264GB/C091126a
     "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a
@@ -392,8 +395,7 @@ const drive_settings builtin_knowndrives[] = {
                                                  // KINGSTON SV100S2256G/D110225a
     "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
                                // tested with Toshiba 128GB 2.5" SSD (built in MacBooks)
-    "APPLE SSD TS.*|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
-    "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
+    "TOSHIBA THNSNC128GMLJ|" // tested with THNSNC128GMLJ/CJTA0202 (built in Toshiba Protege/Dynabook)
     "TS(8|16|32|64|128|192|256|512)GSSD25S-(MD?|S)", // Transcend SATA (JMF612), tested with TS256GSSD25S-M/101028
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -405,7 +407,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 9,raw48,Power_On_Hours "
     "-v 10,raw48,Unknown_Attribute "
   //"-v 12,raw48,Power_Cycle_Count "
+  //"-v 167,raw48,Unknown_Attribute "
     "-v 168,raw48,SATA_Phy_Error_Count "
+  //"-v 169,raw48,Unknown_Attribute "
     "-v 170,raw16,Bad_Block_Count "
     "-v 173,raw16,Erase_Count "
     "-v 175,raw48,Bad_Cluster_Table_Count "
@@ -417,13 +421,14 @@ const drive_settings builtin_knowndrives[] = {
   { "Samsung based SSDs",
     "SAMSUNG SSD PM800 .*GB|"  // SAMSUNG PM800 SSDs, tested with SAMSUNG SSD PM800 TH 64GB/VBM25D1Q
     "SAMSUNG SSD PM810 .*GB|"  // SAMSUNG PM810 (470 series) SSDs, tested with SAMSUNG SSD PM810 2.5" 128GB/AXM06D1Q
-    "SAMSUNG 470 Series SSD",  // SAMSUNG 470 Series SSD, tested with SAMSUNG 470 Series SSD 64GB/AXM09B1Q
+    "SAMSUNG 470 Series SSD|"  // tested with SAMSUNG 470 Series SSD 64GB/AXM09B1Q
+    "SAMSUNG SSD 830 Series",  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
     "", "",
   //"-v 9,raw48,Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 175,raw48,Program_Fail_Count_Chip "
   //"-v 176,raw48,Erase_Fail_Count_Chip "
-  //"-v 177,raw48,Wear_Leveling_Count Wear "
+  //"-v 177,raw48,Wear_Leveling_Count "
   //"-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip "
   //"-v 179,raw48,Used_Rsvd_Blk_Cnt_Tot "
   //"-v 180,raw48,Unused_Rsvd_Blk_Cnt_Tot "
@@ -438,6 +443,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 199,raw48,CRC_Error_Count "
     "-v 201,raw48,Supercap_Status "
     "-v 202,raw48,Exception_Mode_Status"
+  //"-v 240,raw48,Unknown_Attribute " // 830 Series
+  //"-v 241,raw48,Total_LBAs_Written" // 830 Series
   },
   { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820,
       // TS4GCF133/20100709, TS16GCF133/20100709
@@ -1361,6 +1368,10 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HDS7210((16|25)CLA382|(32|50)CLA362|(64|75|10)CLA332)",
     "", "", ""
   },
+  { "Hitachi Deskstar E7K1000", // tested with HDE721010SLA330/ST6OA31B
+    "Hitachi HDE7210(50|75|10)SLA330",
+    "", "", ""
+  },
   { "Hitachi Deskstar 7K2000",
     "Hitachi HDS722020ALA330",
     "", "", ""
@@ -1369,21 +1380,18 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HDS7230((15|20)BLA642|30ALA640)",
     "", "", ""
   },
-  { "Hitachi Ultrastar 7K1000",
-    "(Hitachi )?HUA7210(50|75|10)KLA330",
+  { "Hitachi Ultrastar A7K1000", // tested with
+    // HUA721010KLA330      44X2459 42C0424IBM/GKAOAB4A
+    "(Hitachi )?HUA7210(50|75|10)KLA330.*",
     "", "", ""
   },
   { "Hitachi Ultrastar A7K2000", // tested with
     // HUA722010CLA330      43W7629 42C0401IBM
-    "HUA7220[125]0CLA33[01].*",
+    "(Hitachi )?HUA7220(50|10|20)[AC]LA33[01].*",
     "", "", ""
   },
   { "Hitachi Ultrastar 7K3000", // tested with HUA723030ALA640/MKAOA580
     "Hitachi HUA7230(20|30)ALA640",
-    "", "", ""
-  },
-  { "Hitachi Ultrastar A7K2000",
-    "(Hitachi )?HUA7220((50|10)C|20A)LA33[01]",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD (10-20 GB)",
@@ -1406,17 +1414,21 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(80|12|16|25|32)52GSX",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD MK..55GSX", // tested with TOSHIBA MK5055GSX/FG001A
+    "TOSHIBA MK(12|16|25|32|40|50)55GSX",
+    "", "", ""
+  },
   { "Toshiba 2.5\" HDD MK..56GSY", // tested with TOSHIBA MK2556GSYF/LJ001D
     "TOSHIBA MK(16|25|32|50)56GSYF?",
     "",
     "",
     "-v 9,minutes"
   },
-  { "Toshiba 2.5\" HDD MK..59GSXP (Adv. Format)", // Adv. Format
+  { "Toshiba 2.5\" HDD MK..59GSXP (Adv. Format)",
     "TOSHIBA MK(32|50|64|75)59GSXP?",
     "", "", ""
   },
-  { "Toshiba 2.5\" HDD MK..59GSM (Adv. Format)", // Adv. Format
+  { "Toshiba 2.5\" HDD MK..59GSM (Adv. Format)",
     "TOSHIBA MK(75|10)59GSM",
     "", "", ""
   },
@@ -1930,8 +1942,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(16|25|32)00AVJS-.*",
     "", "", ""
   },
-  { "Western Digital AV-GP",
-    "WDC WD((16|25|32|50|64|75)00AVVS|(50|75)00AVCS|10EVVS|(10|20)EVCS|(10|15|20)EVDS)-.*",
+  { "Western Digital AV-GP", // tested with WDC WD10EURS-630AB1/80.00A80
+    "WDC WD((16|25|32|50|64|75)00AVVS|(50|75)00AVCS|(10|15|20|25|30)EURS|10EVVS|(10|20)EVCS|(10|15|20)EVDS)-.*",
     "", "", ""
   },
   { "Western Digital AV-25",
