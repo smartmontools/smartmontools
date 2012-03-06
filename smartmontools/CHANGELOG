@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Add Win8 to get_os_version_str().
+
   [CF] Windows: Remove MSVC specific pragma, disable warning in project file.
 
   [CF] Add '-d sat,auto[,N]' option for controller independent SAT detection.

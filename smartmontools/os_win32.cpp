@@ -659,6 +659,9 @@ std::string win_smart_interface::get_os_version_str()
     case VER_PLATFORM_WIN32_NT     <<16|0x0600| 1:
       w = (vi.wProductType == VER_NT_WORKSTATION   ?   "win7"
                                                    :   "2008r2"); break;
+    case VER_PLATFORM_WIN32_NT     <<16|0x0600| 2:
+      w = (vi.wProductType == VER_NT_WORKSTATION   ?   "win8"
+                                                   :   "win8s"); break;
     default: w = 0; break;
   }
 
