@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3515 2012-02-27 21:05:25Z chrfranke $
+$Id: CHANGELOG 3516 2012-03-06 13:16:45Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] FreeBSD: sync init script with one from ports repository.
 
   [CF] drivedb.h updates:
        - SandForce Driven SSDs: ADATA S510
