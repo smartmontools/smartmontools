@@ -263,8 +263,8 @@ static void scan_devices(const char * type, bool with_open, char ** argv);
 
 /*      Takes command options and sets features to be run */    
 static const char * parse_options(int argc, char** argv,
-                           ata_print_options & ataopts,
-                           scsi_print_options & scsiopts)
+  ata_print_options & ataopts, scsi_print_options & scsiopts,
+  bool & print_type_only)
 {
   // Please update getvalidarglist() if you edit shortopts
   const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iaxv:P:t:CXF:n:B:f:g:";
@@ -341,7 +341,10 @@ static const char * parse_options(int argc, char** argv,
       }
       break;
     case 'd':
-      type = (strcmp(optarg, "auto") ? optarg : (char *)0);
+      if (!strcmp(optarg, "test"))
+        print_type_only = true;
+      else
+        type = (strcmp(optarg, "auto") ? optarg : (char *)0);
       break;
     case 'T':
       if (!strcmp(optarg,"normal")) {
@@ -1169,12 +1172,8 @@ static int main_worker(int argc, char **argv)
   // Parse input arguments
   ata_print_options ataopts;
   scsi_print_options scsiopts;
-  const char * type = parse_options(argc, argv, ataopts, scsiopts);
-
-  // '-d test' -> Report result of autodetection
-  bool print_type_only = (type && !strcmp(type, "test"));
-  if (print_type_only)
-    type = 0;
+  bool print_type_only = false;
+  const char * type = parse_options(argc, argv, ataopts, scsiopts, print_type_only);
 
   const char * name = argv[argc-1];
 
