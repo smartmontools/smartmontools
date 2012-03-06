@@ -378,13 +378,17 @@ from issuing SCSI commands to an ATA device.
 \fBsmartd\fP
 from issuing ATA commands to a SCSI device.
 
-.I sat
+.I sat[,auto][,N]
 \- the device type is SCSI to ATA Translation (SAT).
 This is for ATA disks that have a SCSI to ATA Translation (SAT) Layer
 (SATL) between the disk and the operating system.
 SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
 the other 16 bytes long.  The default is the 16 byte variant which can be
 overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
+
+If \'-d sat,auto\' is specified, device type SAT (for ATA/SATA disks) is
+only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
+Otherwise device type SCSI (for SCSI/SAS disks) is used.
 
 .I usbcypress
 \- this device type is for ATA disks that are behind a Cypress USB to PATA

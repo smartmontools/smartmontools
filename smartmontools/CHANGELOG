@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add '-d sat,auto[,N]' option for controller independent SAT detection.
+
   [CF] dev_interface.h: Replace this_is_ata/scsi(*) by hide_ata/scsi(bool).
 
   [CF] smartctl: Allow '-d test' in conjunction with other '-d TYPE' options.
