@@ -85,7 +85,7 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3504 2012-02-08 21:43:55Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3521 2012-03-06 21:15:25Z chrfranke $";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
 #ifdef _WIN64
@@ -659,6 +659,9 @@ std::string win_smart_interface::get_os_version_str()
     case VER_PLATFORM_WIN32_NT     <<16|0x0600| 1:
       w = (vi.wProductType == VER_NT_WORKSTATION   ?   "win7"
                                                    :   "2008r2"); break;
+    case VER_PLATFORM_WIN32_NT     <<16|0x0600| 2:
+      w = (vi.wProductType == VER_NT_WORKSTATION   ?   "win8"
+                                                   :   "win8s"); break;
     default: w = 0; break;
   }
 
