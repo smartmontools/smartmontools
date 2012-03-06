@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] FreeBSD: sync init script with one from ports repository.
+
   [CF] drivedb.h updates:
        - SandForce Driven SSDs: ADATA S510
        - JMicron based SSDs: Toshiba THNSNC128GMLJ
