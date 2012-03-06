@@ -26,10 +26,6 @@
 #include <string>
 #include <vector>
 
-#ifdef _MSC_VER // Disable MSVC warning
-#pragma warning(disable:4250) // 'class1' : inherits 'class2::member' via dominance
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // Common functionality for all device types
 
