@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -202,14 +202,6 @@ public:
   virtual void release(const smart_device * dev);
 
 protected:
-  /// Set dynamic downcast for ATA
-  void this_is_ata(ata_device * ata);
-    // {see below;}
-
-  /// Set dynamic downcast for SCSI
-  void this_is_scsi(scsi_device * scsi);
-    // {see below;}
-
   /// Get interface which produced this object.
   smart_interface * smi()
     { return m_intf; }
@@ -221,9 +213,14 @@ protected:
 private:
   smart_interface * m_intf;
   device_info m_info;
-  ata_device * m_ata_ptr;
-  scsi_device * m_scsi_ptr;
   error_info m_err;
+
+  // Pointers for to_ata(), to_scsi(),
+  // set by ATA/SCSI interface classes.
+  friend class ata_device;
+  ata_device * m_ata_ptr;
+  friend class scsi_device;
+  scsi_device * m_scsi_ptr;
 
   // Prevent copy/assigment
   smart_device(const smart_device &);
@@ -516,10 +513,14 @@ protected:
     bool multi_sector_support = false,
     bool ata_48bit_support = false);
 
+  /// Hide/unhide ATA interface.
+  void hide_ata(bool hide = true)
+    { m_ata_ptr = (!hide ? this : 0); }
+
   /// Default constructor, registers device as ATA.
   ata_device()
     : smart_device(never_called)
-    { this_is_ata(this); }
+    { hide_ata(false); }
 };
 
 
@@ -538,28 +539,15 @@ public:
   virtual bool scsi_pass_through(scsi_cmnd_io * iop) = 0;
 
 protected:
+  /// Hide/unhide SCSI interface.
+  void hide_scsi(bool hide = true)
+    { m_scsi_ptr = (!hide ? this : 0); }
+
   /// Default constructor, registers device as SCSI.
   scsi_device()
     : smart_device(never_called)
-    { this_is_scsi(this); }
+    { hide_scsi(false); }
 };
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-// Set dynamic downcasts
-// Note that due to virtual inheritance,
-// (ata == this) does not imply ((void*)ata == (void*)this))
-
-inline void smart_device::this_is_ata(ata_device * ata)
-{
-  m_ata_ptr = (ata == this ? ata : 0);
-}
-
-inline void smart_device::this_is_scsi(scsi_device * scsi)
-{
-  m_scsi_ptr = (scsi == this ? scsi : 0);
-}
 
 
 /////////////////////////////////////////////////////////////////////////////
