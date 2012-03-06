@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3510 2012-02-13 20:42:40Z chrfranke $
+ $Id: smartctl.8.in 3519 2012-03-06 20:01:44Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -293,13 +293,17 @@ from issuing SCSI commands to an ATA device.
 \fBsmartctl\fP
 from issuing ATA commands to a SCSI device.
 
-.I sat
+.I sat[,auto][,N]
 \- the device type is SCSI to ATA Translation (SAT).
 This is for ATA disks that have a SCSI to ATA Translation (SAT) Layer
 (SATL) between the disk and the operating system.
 SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
 the other 16 bytes long.  The default is the 16 byte variant which can be
 overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
+
+If \'-d sat,auto\' is specified, device type SAT (for ATA/SATA disks) is
+only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
+Otherwise device type SCSI (for SCSI/SAS disks) is used.
 
 .I usbcypress
 \- this device type is for ATA disks that are behind a Cypress USB to PATA
@@ -2138,4 +2142,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3510 2012-02-13 20:42:40Z chrfranke $
+$Id: smartctl.8.in 3519 2012-03-06 20:01:44Z chrfranke $

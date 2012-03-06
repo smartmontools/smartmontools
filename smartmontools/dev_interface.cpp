@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include <stdarg.h>
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 3487 2011-11-25 21:43:09Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 3519 2012-03-06 20:01:44Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -229,7 +229,7 @@ std::string smart_interface::get_valid_dev_types_str()
 {
   // default
   std::string s =
-    "ata, scsi, sat[,N][+TYPE], usbcypress[,X], usbjmicron[,x][,N], usbsunplus";
+    "ata, scsi, sat[,auto][,N][+TYPE], usbcypress[,X], usbjmicron[,x][,N], usbsunplus";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
   if (!s2.empty()) {
