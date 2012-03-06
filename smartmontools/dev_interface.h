@@ -18,17 +18,13 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 3518 2012-03-06 19:52:35Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 3520 2012-03-06 20:50:10Z chrfranke $\n"
 
 #include "utility.h"
 
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-#ifdef _MSC_VER // Disable MSVC warning
-#pragma warning(disable:4250) // 'class1' : inherits 'class2::member' via dominance
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Common functionality for all device types
