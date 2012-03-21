@@ -42,6 +42,11 @@ Maintainers / Developers Key (alphabetic order):
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [CF] drivedb.h updates:
+       - SandForce Driven SSDs: G.SKILL Phoenix Pro
+       - Intel 520 Series SSDs
+       - SAMSUNG SpinPoint F4 EG: Update firmware download link
+
+  [CF] drivedb.h updates:
        - Add comment with default settings.
        - Samsung based SSDs: Fix attribute 240
 

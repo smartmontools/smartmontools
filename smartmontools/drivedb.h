@@ -189,13 +189,15 @@ const drive_settings builtin_knowndrives[] = {
     "Corsair CSSD-F(40|60|80|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1
     "Corsair Force (3 SSD|GT)|" // SF-2281, tested with Corsair Force 3 SSD/1.3.2, GT/1.3.3
+    "FM-25S2S-(60|120|240)GBP2|" // G.SKILL Phoenix Pro, SF-1200, tested with
+      // FM-25S2S-240GBP2/4.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
     "KINGSTON SH100S3(120|240)G|" // Hyper-X, SF-2281, tested with SH100S3240G/320ABBF0
-    "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX2|VERTEX-LE)( [123]\\..*)?|" // SF-1200,
+    "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX(2|-LE))( [123]\\..*)?|" // SF-1200,
       // tested with OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
-    "OCZ-REVODRIVE( X2)?|" // PCIe, SF-1200, tested with OCZ-REVODRIVE( X2)?/1.20
-    "OCZ-REVODRIVE3( X2)?|" // PCIe, SF-2281, tested with OCZ-REVODRIVE3 X2/2.11
+    "OCZ-REVODRIVE3?( X2)?|" // PCIe, SF-1200/2281, tested with
+      // OCZ-REVODRIVE( X2)?/1.20, OCZ-REVODRIVE3 X2/2.11
     "OCZ[ -](VELO|VERTEX2[ -](EX|PRO))( [123]\\..*)?|" // SF-1500, tested with
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
     "D2[CR]STK251...-....|" // OCZ Deneva 2 C/R, SF-22xx/25xx,
@@ -418,6 +420,29 @@ const drive_settings builtin_knowndrives[] = {
     "-v 225,raw48,Host_Writes_32MiB "
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
+  },
+  { "Intel 520 Series SSDs", // tested with INTEL SSDSC2CW120A3/400i
+    "INTEL SSDSC2CW(060|120|180|240|480)A3",
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 184,raw48,End-to-End_Error "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 249,raw48,Total_NAND_Writes"
   },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",
@@ -798,7 +823,7 @@ const drive_settings builtin_knowndrives[] = {
     "****** THIS DRIVE MAY OR MAY NOT BE AFFECTED! ******\n"
     "Buggy and fixed firmware report same version number!\n"
     "See the following web pages for details:\n"
-    "http://www.samsung.com/global/business/hdd/faqView.do?b2b_bbs_msg_id=386\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=223451\n"
     "http://sourceforge.net/apps/trac/smartmontools/wiki/SamsungF4EGBadBlocks",
     ""
   },
