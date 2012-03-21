@@ -83,6 +83,10 @@ AC_SEARCH_LIBS(gethostbyname, nsl)
 AC_SEARCH_LIBS(getaddrinfo, nsl)
 AC_SEARCH_LIBS(getdomainname, nsl)
 
+# Note: On Linux, clock_gettime() requires -lrt which implies -lpthreads
+# Check ommitted for now, gettimeofday() provides reasonable precision
+# AC_SEARCH_LIBS(clock_gettime, rt)
+
 dnl Checks for header files.
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([dev/ata/atavar.h])
@@ -132,6 +136,7 @@ AC_CHECK_FUNCS([gethostbyname])
 AC_CHECK_FUNCS([sigset])
 AC_CHECK_FUNCS([strtoull])
 AC_CHECK_FUNCS([uname])
+AC_CHECK_FUNCS([clock_gettime ftime gettimeofday])
 
 # Check byte ordering (defines WORDS_BIGENDIAN)
 AC_C_BIGENDIAN

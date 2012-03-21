@@ -730,6 +730,12 @@ public:
   /// TODO: Remove this hack.
   virtual std::string get_app_examples(const char * appname);
 
+  /// Get microseconds since some unspecified starting point.
+  /// Used only for command duration measurements in debug outputs.
+  /// Returns -1 if unsupported.
+  /// Default implementation uses clock_gettime(), gettimeofday() or ftime().
+  virtual int64_t get_timer_usec();
+
   /// Disable/Enable system auto standby/sleep mode.
   /// Return false if unsupported or if system is running
   /// on battery.

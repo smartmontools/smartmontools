@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Print command duration in ATA debug output.
+       Add smart_interface::get_timer_usec().
+
   [CF] drivedb.h updates:
        - SandForce Driven SSDs: G.SKILL Phoenix Pro
        - Intel 520 Series SSDs

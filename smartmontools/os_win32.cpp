@@ -543,6 +543,10 @@ public:
 
   virtual std::string get_app_examples(const char * appname);
 
+#ifndef __CYGWIN__
+  virtual int64_t get_timer_usec();
+#endif
+
 //virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
 //  const char * pattern = 0);
 
@@ -683,6 +687,31 @@ std::string win_smart_interface::get_os_version_str()
     snprintf(vptr, vlen, "-%s%s", w, w64);
   return vstr;
 }
+
+#ifndef __CYGWIN__
+// MSVCRT only provides ftime() which uses GetSystemTime()
+// This provides only ~15ms resolution by default.
+// Use QueryPerformanceCounter instead (~300ns).
+// (Cygwin provides CLOCK_MONOTONIC which has the same effect)
+int64_t win_smart_interface::get_timer_usec()
+{
+  static int64_t freq = 0;
+
+  LARGE_INTEGER t;
+  if (freq == 0)
+    freq = (QueryPerformanceFrequency(&t) ? t.QuadPart : -1);
+  if (freq <= 0)
+    return smart_interface::get_timer_usec();
+
+  if (!QueryPerformanceCounter(&t))
+    return -1;
+  if (!(0 <= t.QuadPart && t.QuadPart <= (int64_t)(~(uint64_t)0 >> 1)/1000000))
+    return -1;
+
+  return (t.QuadPart * 1000000LL) / freq;
+}
+#endif // __CYGWIN__
+
 
 // Return value for device detection functions
 enum win_dev_type { DEV_UNKNOWN = 0, DEV_ATA, DEV_SCSI, DEV_USB };
