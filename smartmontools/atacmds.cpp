@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3507 2012-02-11 20:16:13Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3524 2012-03-21 22:19:31Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -611,7 +611,18 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
          in.direction==ata_cmd_in::data_out ? " OUT\n":"\n"));
 
     ata_cmd_out out;
+
+    int64_t start_usec = -1;
+    if (ata_debugmode)
+      start_usec = smi()->get_timer_usec();
+
     bool ok = device->ata_pass_through(in, out);
+
+    if (start_usec >= 0) {
+      int64_t duration_usec = smi()->get_timer_usec() - start_usec;
+      if (duration_usec >= 500)
+        pout(" [Duration: %.3fs]\n", duration_usec / 1000000.0);
+    }
 
     if (ata_debugmode && out.out_regs.is_set())
       print_regs(" Output: ", out.out_regs);

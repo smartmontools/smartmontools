@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3474 2011-11-10 18:19:58Z chrfranke $
+# $Id: Makefile.am 3524 2012-03-21 22:19:31Z chrfranke $
 #
 
 @SET_MAKE@
@@ -818,7 +818,7 @@ config-vc10: $(srcdir)/os_win32/config_vc10.h  $(srcdir)/os_win32/svnversion_vc1
 
 $(srcdir)/os_win32/config_vc10.h: config.h Makefile
 	sed -e '1i/* config_vc10.h.  Generated from config.h by Makefile.  */' \
-	    -e 's,^#define HAVE_\(ATTR_PACKED\|INTTYPES_H\|[DK_]*NTDDDISK_H\|STRINGS_H\|STRTOULL\|UNISTD_H\|WORKING_SNPRINTF\) 1$$,/* #undef HAVE_\1 */,' \
+	    -e 's,^#define HAVE_\(ATTR_PACKED\|GETTIMEOFDAY\|INTTYPES_H\|[DK_]*NTDDDISK_H\|STRINGS_H\|STRTOULL\|UNISTD_H\|WORKING_SNPRINTF\) 1$$,/* #undef HAVE_\1 */,' \
 	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc10,' $< > $@
 
 $(srcdir)/os_win32/svnversion_vc10.h: svnversion.h

@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 3520 2012-03-06 20:50:10Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 3524 2012-03-21 22:19:31Z chrfranke $\n"
 
 #include "utility.h"
 
@@ -729,6 +729,12 @@ public:
   /// function is allowed to print examples to stdout.
   /// TODO: Remove this hack.
   virtual std::string get_app_examples(const char * appname);
+
+  /// Get microseconds since some unspecified starting point.
+  /// Used only for command duration measurements in debug outputs.
+  /// Returns -1 if unsupported.
+  /// Default implementation uses clock_gettime(), gettimeofday() or ftime().
+  virtual int64_t get_timer_usec();
 
   /// Disable/Enable system auto standby/sleep mode.
   /// Return false if unsupported or if system is running
