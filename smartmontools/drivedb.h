@@ -79,6 +79,79 @@ const drive_settings builtin_knowndrives[] = {
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
+  /* Default settings:
+    "-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 2,raw48,Throughput_Performance "
+    "-v 3,raw16(avg16),Spin_Up_Time "
+    "-v 4,raw48,Start_Stop_Count "
+    "-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 6,raw48,Read_Channel_Margin "
+    "-v 7,raw48,Seek_Error_Rate "
+    "-v 8,raw48,Seek_Time_Performance "
+    "-v 9,raw48,Power_On_Hours "
+    "-v 10,raw48,Spin_Retry_Count "
+    "-v 11,raw48,Calibration_Retry_Count "
+    "-v 12,raw48,Power_Cycle_Count "
+    "-v 13,raw48,Read_Soft_Error_Rate "
+    //  14-174 Unknown_Attribute
+    "-v 175,raw48,Program_Fail_Count_Chip "
+    "-v 176,raw48,Erase_Fail_Count_Chip "
+    "-v 177,raw48,Wear_Leveling_Count "
+    "-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip "
+    "-v 179,raw48,Used_Rsvd_Blk_Cnt_Tot "
+    "-v 180,raw48,Unused_Rsvd_Blk_Cnt_Tot "
+    "-v 181,raw48,Program_Fail_Cnt_Total "
+    "-v 182,raw48,Erase_Fail_Count_Total "
+    "-v 183,raw48,Runtime_Bad_Block "
+    "-v 184,raw48,End-to-End_Error "
+    //  185-186 Unknown_Attribute
+    "-v 187,raw48,Reported_Uncorrect "
+    "-v 188,raw48,Command_Timeout "
+    "-v 189,raw48,High_Fly_Writes "
+    "-v 190,tempminmax,Airflow_Temperature_Cel "
+    "-v 191,raw48,G-Sense_Error_Rate "
+    "-v 192,raw48,Power-Off_Retract_Count "
+    "-v 193,raw48,Load_Cycle_Count "
+    "-v 194,tempminmax,Temperature_Celsius "
+    "-v 195,raw48,Hardware_ECC_Recovered "
+    "-v 196,raw16(raw16),Reallocated_Event_Count "
+    "-v 197,raw48,Current_Pending_Sector "
+    "-v 198,raw48,Offline_Uncorrectable "
+    "-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 200,raw48,Multi_Zone_Error_Rate "
+    "-v 201,raw48,Soft_Read_Error_Rate "
+    "-v 202,raw48,Data_Address_Mark_Errs "
+    "-v 203,raw48,Run_Out_Cancel "
+    "-v 204,raw48,Soft_ECC_Correction "
+    "-v 205,raw48,Thermal_Asperity_Rate "
+    "-v 206,raw48,Flying_Height "
+    "-v 207,raw48,Spin_High_Current "
+    "-v 208,raw48,Spin_Buzz "
+    "-v 209,raw48,Offline_Seek_Performnce "
+    //  210-219 Unknown_Attribute
+    "-v 220,raw48,Disk_Shift "
+    "-v 221,raw48,G-Sense_Error_Rate "
+    "-v 222,raw48,Loaded_Hours "
+    "-v 223,raw48,Load_Retry_Count "
+    "-v 224,raw48,Load_Friction "
+    "-v 225,raw48,Load_Cycle_Count "
+    "-v 226,raw48,Load-in_Time "
+    "-v 227,raw48,Torq-amp_Count "
+    "-v 228,raw48,Power-off_Retract_Count "
+    //  229 Unknown_Attribute
+    "-v 230,raw48,Head_Amplitude "
+    "-v 231,raw48,Temperature_Celsius "
+    "-v 232,raw48,Available_Reservd_Space "
+    "-v 233,raw48,Media_Wearout_Indicator "
+    //  234-239 Unknown_Attribute
+    "-v 240,raw48,Head_Flying_Hours "
+    "-v 241,raw48,Total_LBAs_Written "
+    "-v 242,raw48,Total_LBAs_Read "
+    //  243-249 Unknown_Attribute
+    "-v 250,raw48,Read_Error_Retry_Rate "
+    //  251-253 Unknown_Attribute
+    "-v 254,raw48,Free_Fall_Sensor "
+  */
   },
   { "Apple SSD SM128", // Samsung?
     "APPLE SSD SM128",
@@ -94,7 +167,7 @@ const drive_settings builtin_knowndrives[] = {
     "M4-CT(064|128|256)M4SSD2", // tested with M4-CT064M4SSD2/0002
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw48,Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 170,raw48,Grown_Failing_Block_Ct "
@@ -157,7 +230,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 187,raw48,Reported_Uncorrect "
   //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw24/raw32,ECC_Uncorr_Error_Count "
-  //"-v 196,raw48,Reallocated_Event_Count "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
     "-v 198,hex48,Uncorrectable_Sector_Ct "
     "-v 199,raw48,SATA_CRC_Error_Count "
     "-v 201,raw24/raw32,Unc_Soft_Read_Err_Rate "
@@ -212,9 +285,9 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ VERTEX-PLUS", // tested with OCZ VERTEX-PLUS/3.55
     "", "", ""
   //"-v 1,raw48,Raw_Read_Error_Rate "
-  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw48,Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 232,raw48,Available_Reservd_Space "
@@ -223,9 +296,9 @@ const drive_settings builtin_knowndrives[] = {
   { "Intel X25-E SSDs",
     "SSDSA2SH(032|064)G1.* INTEL",  // G1 = first generation
     "", "",
-  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw48,Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 192,raw48,Unsafe_Shutdown_Count "
@@ -239,9 +312,9 @@ const drive_settings builtin_knowndrives[] = {
   { "Intel X18-M/X25-M G1 SSDs",
     "INTEL SSDSA[12]MH(080|160)G1.*",  // G1 = first generation, 50nm
     "", "",
-  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw48,Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 192,raw48,Unsafe_Shutdown_Count "
@@ -257,9 +330,9 @@ const drive_settings builtin_knowndrives[] = {
     "INTEL SSDSA[12]M(040|080|120|160)G2.*",  // G2 = second generation, 34nm
     "2CV102(J[89A-Z]|[K-Z].)", // >= "2CV102J8"
     "",
-  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw48,Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 184,raw48,End-to-End_Error " // G2 only
@@ -287,9 +360,9 @@ const drive_settings builtin_knowndrives[] = {
   { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362
     "INTEL SSDSA[12]C[WT](040|080|120|160|300|600)G3",
     "", "",
-  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw48,Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 170,raw48,Reserve_Block_Count "
@@ -310,9 +383,9 @@ const drive_settings builtin_knowndrives[] = {
   { "Intel 710 Series SSDs", // tested with INTEL SSDSA2BZ100G3/6PB10362
     "INTEL SSDSA2BZ(100|200|300)G3",
     "", "",
-  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw48,Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 170,raw48,Reserve_Block_Count "
@@ -322,7 +395,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 183,raw48,SATA_Downshift_Count "
   //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
-  //"-v 190,raw48,Airflow_Temperature_Cel "
+  //"-v 190,tempminmax,Airflow_Temperature_Cel "
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
     "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
@@ -336,9 +409,9 @@ const drive_settings builtin_knowndrives[] = {
   { "Intel 510 Series SSDs",
     "INTEL SSDSC2MH(120|250)A2",
     "", "",
-  //"-v 3,raw48,Spin_Up_Time "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw48,Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 192,raw48,Unsafe_Shutdown_Count "
@@ -401,7 +474,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
     "-v 3,raw48,Unknown_Attribute "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
     "-v 7,raw48,Unknown_Attribute "
     "-v 8,raw48,Unknown_Attribute "
   //"-v 9,raw48,Power_On_Hours "
@@ -436,14 +509,14 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 182,raw48,Erase_Fail_Count_Total "
   //"-v 183,raw48,Runtime_Bad_Block "
     "-v 187,raw48,Uncorrectable_Error_Cnt "
-  //"-v 190,raw48,Temperature_Exceed_Cnt "  // seems to be some sort of temperature value for 470 Series?
-  //"-v 194,raw48,Airflow_Temperature "
+  //"-v 190,tempminmax,Airflow_Temperature_Cel "  // seems to be some sort of temperature value for 470 Series?
+  //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw48,ECC_Rate "
   //"-v 198,raw48,Offline_Uncorrectable "
     "-v 199,raw48,CRC_Error_Count "
     "-v 201,raw48,Supercap_Status "
-    "-v 202,raw48,Exception_Mode_Status"
-  //"-v 240,raw48,Unknown_Attribute " // 830 Series
+    "-v 202,raw48,Exception_Mode_Status "
+    "-v 240,raw48,Unknown_Attribute"  // 830 Series
   //"-v 241,raw48,Total_LBAs_Written" // 830 Series
   },
   { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820,
