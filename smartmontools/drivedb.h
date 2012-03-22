@@ -440,9 +440,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 228,raw48,Workload_Minutes "
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator "
-  //"-v 241,raw48,Total_LBAs_Written "
-  //"-v 242,raw48,Total_LBAs_Read "
-    "-v 249,raw48,Total_NAND_Writes"
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 249,raw48,NAND_Writes_1GiB"
   },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",
