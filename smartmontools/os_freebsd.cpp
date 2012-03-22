@@ -931,7 +931,7 @@ int freebsd_highpoint_device::ata_command_interface(smart_command_set command, i
 
 
 /////////////////////////////////////////////////////////////////////////////
-/// Implement standard SCSI support with old functions
+/// Standard SCSI support
 
 class freebsd_scsi_device
 : public /*implements*/ scsi_device,

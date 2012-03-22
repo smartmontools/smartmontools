@@ -1866,8 +1866,8 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(250311|500410|1000525)SV",
     "", "", ""
   },
-  { "Seagate SV35",
-    "ST(2000VX002|31000526SV|3500411SV)",
+  { "Seagate SV35", // tested with ST2000VX000-9YW164/CV12
+    "ST([123]000VX00[20]|31000526SV|3500411SV)(-.*)?",
     "", "", ""
   },
   { "Seagate DB35", // tested with ST3250823ACE/3.03

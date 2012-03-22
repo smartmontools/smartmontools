@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] drivedb.h: fixed identifier for Seagate SV35 series.
+
   [CF] Print command duration in ATA debug output.
        Add smart_interface::get_timer_usec().
 
