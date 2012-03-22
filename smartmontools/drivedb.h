@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3523 2012-03-21 20:46:49Z chrfranke $",
+  { "$Id: drivedb.h 3525 2012-03-22 08:54:52Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1866,8 +1866,8 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(250311|500410|1000525)SV",
     "", "", ""
   },
-  { "Seagate SV35",
-    "ST(2000VX002|31000526SV|3500411SV)",
+  { "Seagate SV35", // tested with ST2000VX000-9YW164/CV12
+    "ST([123]000VX00[20]|31000526SV|3500411SV)(-.*)?",
     "", "", ""
   },
   { "Seagate DB35", // tested with ST3250823ACE/3.03

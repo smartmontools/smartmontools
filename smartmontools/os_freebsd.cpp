@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3502 2012-01-26 09:41:05Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3525 2012-03-22 08:54:52Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -931,7 +931,7 @@ int freebsd_highpoint_device::ata_command_interface(smart_command_set command, i
 
 
 /////////////////////////////////////////////////////////////////////////////
-/// Implement standard SCSI support with old functions
+/// Standard SCSI support
 
 class freebsd_scsi_device
 : public /*implements*/ scsi_device,
