@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3524 2012-03-21 22:19:31Z chrfranke $
+# $Id: configure.in 3527 2012-03-25 16:42:24Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.43, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3524 2012-03-21 22:19:31Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3527 2012-03-25 16:42:24Z chrfranke $'`
 smartmontools_release_date=2011-10-20
 smartmontools_release_time="19:19:34 UTC"
 
@@ -66,12 +66,17 @@ esac
 # Check for SVN.
 AC_MSG_CHECKING([whether this is a build from SVN])
 is_svn_build=no
+svn_deps=
 if test -f "$srcdir/.svn/entries"; then
   is_svn_build=unknown
   if (cd "$srcdir" && svn --version && svnversion && svn info) >/dev/null 2>&1; then
     is_svn_build=yes
+    svn_deps='${srcdir}/.svn/entries'
+    # SVN 1.7 working copy?
+    test -f "$srcdir/.svn/wc.db" && svn_deps='${srcdir}/.svn/wc.db'
   fi
 fi
+AC_SUBST([svn_deps])
 AM_CONDITIONAL(IS_SVN_BUILD, [test "$is_svn_build" = "yes"])
 AC_MSG_RESULT([$is_svn_build])
 
