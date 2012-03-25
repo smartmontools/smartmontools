@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in 3497 2011-12-13 20:17:08Z chrfranke $
+$Id: smartd.8.in 3529 2012-03-25 17:26:10Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -217,7 +217,7 @@ information to STDOUT rather than logging it to SYSLOG and does not
 \fBfork(2)\fP into the background and detach from the controlling
 terminal.  In this mode, \fBsmartd\fP also prints more verbose
 information about what it is doing than when operating in "daemon"
-mode. In this mode, the \fBQUIT\fP signal (normally generated from a
+mode. In this mode, the \fBINT\fP signal (normally generated from a
 terminal with CONTROL\-C) makes \fBsmartd\fP reload its configuration
 file.  Please use CONTROL-\e to exit
 .\" %IF OS Windows
@@ -788,4 +788,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 3497 2011-12-13 20:17:08Z chrfranke $
+$Id: smartd.8.in 3529 2012-03-25 17:26:10Z chrfranke $
