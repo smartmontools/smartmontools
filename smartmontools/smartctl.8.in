@@ -1284,15 +1284,23 @@ This is the default for most attributes.
 \- Print the Raw value as a 12 digit hexadecimal number.
 This may be useful for decoding the meaning of the Raw value.
 
+.I raw56
+\- Print the Raw value as a 54\-bit unsigned base\-10 integer.
+This includes the reserved byte which follows the 48\-bit raw value.
+
+.I hex56
+\- Print the Raw value as a 14 digit hexadecimal number.
+This includes the reserved byte which follows the 48\-bit raw value.
+
 .I raw64
 \- Print the Raw value as a 64\-bit unsigned base\-10 integer.
 This includes two bytes from the normalized and worst attribute value.
-This new raw format is used by some recent SSD devices.
+This raw format is used by some SSD devices with Indilinx controller.
 
 .I hex64
 \- Print the Raw value as a 16 digit hexadecimal number.
 This includes two bytes from the normalized and worst attribute value.
-This new raw format is used by some recent SSD devices.
+This raw format is used by some SSD devices with Indilinx controller.
 
 .I min2hour
 \- Raw Attribute is power\-on time in minutes.  Its raw value
@@ -1339,6 +1347,11 @@ for Attributes 5 and 196.
 \- Raw attribute is spin-up time.  It is printed as a 16-bit value
 and an optional "Average" 16-bit value if the word is nonzero.
 This is the default for Attribute 3.
+
+.I raw24(raw8)
+\- Print the raw attribute as a 24\-bit value and three optional
+8\-bit values if these bytes are nonzero.  This is the default
+for Attribute 9.
 
 .I raw24/raw24
 \- Raw Attribute contains two 24\-bit values. The first is the

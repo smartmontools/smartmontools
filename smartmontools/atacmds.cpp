@@ -212,10 +212,13 @@ const format_name_entry format_names[] = {
   {"raw16"          , RAWFMT_RAW16},
   {"raw48"          , RAWFMT_RAW48},
   {"hex48"          , RAWFMT_HEX48},
+  {"raw56"          , RAWFMT_RAW56},
+  {"hex56"          , RAWFMT_HEX56},
   {"raw64"          , RAWFMT_RAW64},
   {"hex64"          , RAWFMT_HEX64},
   {"raw16(raw16)"   , RAWFMT_RAW16_OPT_RAW16},
   {"raw16(avg16)"   , RAWFMT_RAW16_OPT_AVG16},
+  {"raw24(raw8)"    , RAWFMT_RAW24_OPT_RAW8},
   {"raw24/raw24"    , RAWFMT_RAW24_DIV_RAW24},
   {"raw24/raw32"    , RAWFMT_RAW24_DIV_RAW32},
   {"sec2hour"       , RAWFMT_SEC2HOUR},
@@ -1959,6 +1962,9 @@ static ata_attr_raw_format get_default_raw_format(unsigned char id)
   case 196: // Reallocated event count
     return RAWFMT_RAW16_OPT_RAW16;
 
+  case 9:  // Power on hours
+    return RAWFMT_RAW24_OPT_RAW8;
+
   case 190: // Temperature
   case 194:
     return RAWFMT_TEMPMINMAX;
@@ -1981,6 +1987,8 @@ uint64_t ata_get_attr_raw_value(const ata_smart_attribute & attr,
       case RAWFMT_RAW64:
       case RAWFMT_HEX64:
         byteorder = "543210wv"; break;
+      case RAWFMT_RAW56:
+      case RAWFMT_HEX56:
       case RAWFMT_RAW24_DIV_RAW32:
       case RAWFMT_MSEC24_HOUR32:
         byteorder = "r543210"; break;
@@ -2050,12 +2058,17 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
     break;
 
   case RAWFMT_RAW48:
+  case RAWFMT_RAW56:
   case RAWFMT_RAW64:
     s = strprintf("%"PRIu64, rawvalue);
     break;
 
   case RAWFMT_HEX48:
     s = strprintf("0x%012"PRIx64, rawvalue);
+    break;
+
+  case RAWFMT_HEX56:
+    s = strprintf("0x%014"PRIx64, rawvalue);
     break;
 
   case RAWFMT_HEX64:
@@ -2065,13 +2078,19 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
   case RAWFMT_RAW16_OPT_RAW16:
     s = strprintf("%u", word[0]);
     if (word[1] || word[2])
-      s += strprintf(" (%u, %u)", word[2], word[1]);
+      s += strprintf(" (%u %u)", word[2], word[1]);
     break;
 
   case RAWFMT_RAW16_OPT_AVG16:
     s = strprintf("%u", word[0]);
     if (word[1])
       s += strprintf(" (Average %u)", word[1]);
+    break;
+
+  case RAWFMT_RAW24_OPT_RAW8:
+    s = strprintf("%u", (unsigned)(rawvalue & 0x00ffffffULL));
+    if (raw[3] || raw[4] || raw[5])
+      s += strprintf(" (%d %d %d)", raw[5], raw[4], raw[3]);
     break;
 
   case RAWFMT_RAW24_DIV_RAW24:

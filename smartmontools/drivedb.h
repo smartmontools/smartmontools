@@ -88,7 +88,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 6,raw48,Read_Channel_Margin "
     "-v 7,raw48,Seek_Error_Rate "
     "-v 8,raw48,Seek_Time_Performance "
-    "-v 9,raw48,Power_On_Hours "
+    "-v 9,raw24(raw8),Power_On_Hours " // smartmontools <= r3527: raw48
     "-v 10,raw48,Spin_Retry_Count "
     "-v 11,raw48,Calibration_Retry_Count "
     "-v 12,raw48,Power_Cycle_Count "
@@ -168,7 +168,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 170,raw48,Grown_Failing_Block_Ct "
     "-v 171,raw48,Program_Fail_Count "
@@ -290,7 +290,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
@@ -301,7 +301,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
@@ -317,7 +317,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
@@ -335,7 +335,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 184,raw48,End-to-End_Error " // G2 only
     "-v 192,raw48,Unsafe_Shutdown_Count "
@@ -365,7 +365,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 170,raw48,Reserve_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
@@ -388,7 +388,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 170,raw48,Reserve_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
@@ -414,7 +414,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
@@ -472,7 +472,7 @@ const drive_settings builtin_knowndrives[] = {
     "TS(2|4|8|16|32|64|128|192)GSSD25S?-(M|S)", // Transcend IDE and SATA, tested with TS32GSSD25-M/V090331
     "[BV].*", // other Transcend SSD versions will be catched by subsequent entry
     "",
-  //"-v 9,raw48,Power_On_Hours " // raw value always 0?
+  //"-v 9,raw24(raw8),Power_On_Hours " // raw value always 0?
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 194,tempminmax,Temperature_Celsius " // raw value always 0?
     "-v 229,hex64:w012345r,Halt_System/Flash_ID " // Halt, Flash[7]
@@ -502,7 +502,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
     "-v 7,raw48,Unknown_Attribute "
     "-v 8,raw48,Unknown_Attribute "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
     "-v 10,raw48,Unknown_Attribute "
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 167,raw48,Unknown_Attribute "
@@ -522,7 +522,7 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG 470 Series SSD|"  // tested with SAMSUNG 470 Series SSD 64GB/AXM09B1Q
     "SAMSUNG SSD 830 Series",  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
     "", "",
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 175,raw48,Program_Fail_Count_Chip "
   //"-v 176,raw48,Erase_Fail_Count_Chip "
@@ -951,7 +951,7 @@ const drive_settings builtin_knowndrives[] = {
     "", // attributes info from http://www.adtron.com/pdf/SMART_Attributes_Xcel-10_810800014_RevB.pdf
     "-v 1,raw48,Not_Supported "
     "-v 2,raw48,Not_Supported "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 191,raw48,Not_Supported "
   //"-v 192,raw48,Power-Off_Retract_Count "

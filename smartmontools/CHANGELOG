@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add 'raw56', 'hex56', 'raw24(raw8)' attribute print formats.
+       Change default for Power_On_Hours to 'raw24(raw8)'.
+       This provides more reasonable output for SandForce based devices
+       missing in drivedb.h.
+
   [CF] configure.in, Makefile.am: Support new SVN 1.7 working copy format.
 
   [CF] drivedb.h update:
