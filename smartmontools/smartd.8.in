@@ -217,7 +217,7 @@ information to STDOUT rather than logging it to SYSLOG and does not
 \fBfork(2)\fP into the background and detach from the controlling
 terminal.  In this mode, \fBsmartd\fP also prints more verbose
 information about what it is doing than when operating in "daemon"
-mode. In this mode, the \fBQUIT\fP signal (normally generated from a
+mode. In this mode, the \fBINT\fP signal (normally generated from a
 terminal with CONTROL\-C) makes \fBsmartd\fP reload its configuration
 file.  Please use CONTROL-\e to exit
 .\" %IF OS Windows
