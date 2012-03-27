@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3513 2012-02-15 21:57:21Z chrfranke $
+$Id: NEWS 3530 2012-03-27 19:54:06Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -13,6 +13,7 @@ Summary: smartmontools release 5.43
   cache, Security (freeze), Standby mode/timer.
 - smartd directive '-e' to set (most of) the above settings
   on startup.
+- smartctl options '-f hex' and '-f hex,[id|val]'.
 - smartctl does not start ATA self-test if another test is
   already running.  Override with new option '-t force'.
 - smartctl supports extended self-test polling times

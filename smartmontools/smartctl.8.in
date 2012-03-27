@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3528 2012-03-25 17:13:47Z chrfranke $
+ $Id: smartctl.8.in 3530 2012-03-27 19:54:06Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -943,7 +943,7 @@ attributes are listed if recognised. The attributes are output in a
 relatively free format (compared with ATA disk attributes).
 .TP
 .B \-f FORMAT, \-\-format=FORMAT
-[ATA only] Selects the output format of the attributes to one of:
+[ATA only] Selects the output format of the attributes:
 
 .I old
 \- Old smartctl format. This is the default unless the \'\-x\' option is
@@ -953,6 +953,15 @@ specified.
 \- New format which fits into 80 colums (except in some rare cases).
 This format also decodes four additional attribute flags.
 This is the default if the '\-x\' option is specified.
+
+.I hex,id
+\- Print all attribute IDs as hexadecimal numbers.
+
+.I hex,val
+\- Print all normalized values as hexadecimal numbers.
+
+.I hex
+\- Same as \'\-f hex,id \-f hex,val\'.
 .TP
 .B \-l TYPE, \-\-log=TYPE
 Prints either the SMART Error Log, the SMART Self\-Test Log, the SMART
@@ -2155,4 +2164,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3528 2012-03-25 17:13:47Z chrfranke $
+$Id: smartctl.8.in 3530 2012-03-27 19:54:06Z chrfranke $
