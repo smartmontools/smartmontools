@@ -943,7 +943,7 @@ attributes are listed if recognised. The attributes are output in a
 relatively free format (compared with ATA disk attributes).
 .TP
 .B \-f FORMAT, \-\-format=FORMAT
-[ATA only] Selects the output format of the attributes to one of:
+[ATA only] Selects the output format of the attributes:
 
 .I old
 \- Old smartctl format. This is the default unless the \'\-x\' option is
@@ -953,6 +953,15 @@ specified.
 \- New format which fits into 80 colums (except in some rare cases).
 This format also decodes four additional attribute flags.
 This is the default if the '\-x\' option is specified.
+
+.I hex,id
+\- Print all attribute IDs as hexadecimal numbers.
+
+.I hex,val
+\- Print all normalized values as hexadecimal numbers.
+
+.I hex
+\- Same as \'\-f hex,id \-f hex,val\'.
 .TP
 .B \-l TYPE, \-\-log=TYPE
 Prints either the SMART Error Log, the SMART Self\-Test Log, the SMART

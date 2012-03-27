@@ -801,6 +801,9 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
                                       const ata_vendor_attr_defs & defs,
                                       int onlyfailed, unsigned char format)
 {
+  bool brief  = !!(format & ata_print_options::FMT_BRIEF);
+  bool hexid  = !!(format & ata_print_options::FMT_HEX_ID);
+  bool hexval = !!(format & ata_print_options::FMT_HEX_VAL);
   bool needheader = true;
 
   // step through all vendor attributes
@@ -826,35 +829,42 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
         pout("SMART Attributes Data Structure revision number: %d\n",(int)data->revnumber);
         pout("Vendor Specific SMART Attributes with Thresholds:\n");
       }
-      if (format == 0)
-        pout("ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE\n");
+      if (!brief)
+        pout("ID#%s ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE\n",
+             (!hexid ? "" : " "));
       else
-        pout("ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE\n");
+        pout("ID#%s ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE\n",
+             (!hexid ? "" : " "));
       needheader = false;
     }
 
     // Format value, worst, threshold
     std::string valstr, worstr, threstr;
     if (state > ATTRSTATE_NO_NORMVAL)
-      valstr = strprintf("%.3d", attr.current);
+      valstr = (!hexval ? strprintf("%.3d",   attr.current)
+                        : strprintf("0x%02x", attr.current));
     else
-      valstr = "---";
+      valstr = (!hexval ? "---" : "----");
     if (!(defs[attr.id].flags & ATTRFLAG_NO_WORSTVAL))
-      worstr = strprintf("%.3d", attr.worst);
+      worstr = (!hexval ? strprintf("%.3d",   attr.worst)
+                        : strprintf("0x%02x", attr.worst));
     else
-      worstr = "---";
+      worstr = (!hexval ? "---" : "----");
     if (state > ATTRSTATE_NO_THRESHOLD)
-      threstr = strprintf("%.3d", threshold);
+      threstr = (!hexval ? strprintf("%.3d",   threshold)
+                         : strprintf("0x%02x", threshold));
     else
-      threstr = "---";
+      threstr = (!hexval ? "---" : "----");
 
     // Print line for each valid attribute
+    std::string idstr = (!hexid ? strprintf("%3d",    attr.id)
+                                : strprintf("0x%02x", attr.id));
     std::string attrname = ata_get_smart_attr_name(attr.id, defs);
     std::string rawstr = ata_format_attr_raw_value(attr, defs);
 
-    if (format == 0)
-      pout("%3d %-24s0x%04x   %-3s   %-3s   %-3s    %-10s%-9s%-12s%s\n",
-           attr.id, attrname.c_str(), attr.flags,
+    if (!brief)
+      pout("%s %-24s0x%04x   %-4s  %-4s  %-4s   %-10s%-9s%-12s%s\n",
+           idstr.c_str(), attrname.c_str(), attr.flags,
            valstr.c_str(), worstr.c_str(), threstr.c_str(),
            (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags) ? "Pre-fail" : "Old_age"),
            (ATTRIBUTE_FLAGS_ONLINE(attr.flags)     ? "Always"   : "Offline"),
@@ -863,8 +873,8 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
                                            : "    -"        ) ,
             rawstr.c_str());
     else
-      pout("%3d %-24s%c%c%c%c%c%c%c  %-3s   %-3s   %-3s    %-5s%s\n",
-           attr.id, attrname.c_str(),
+      pout("%s %-24s%c%c%c%c%c%c%c  %-4s  %-4s  %-4s   %-5s%s\n",
+           idstr.c_str(), attrname.c_str(),
            (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags)     ? 'P' : '-'),
            (ATTRIBUTE_FLAGS_ONLINE(attr.flags)         ? 'O' : '-'),
            (ATTRIBUTE_FLAGS_PERFORMANCE(attr.flags)    ? 'S' : '-'),
@@ -881,14 +891,16 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
   }
 
   if (!needheader) {
-    if (!onlyfailed && format == 1)
-      pout("%28s||||||_ K auto-keep\n"
-           "%28s|||||__ C event count\n"
-           "%28s||||___ R error rate\n"
-           "%28s|||____ S speed/performance\n"
-           "%28s||_____ O updated online\n"
-           "%28s|______ P prefailure warning\n",
-           "", "", "", "", "", "");
+    if (!onlyfailed && brief) {
+        int n = (!hexid ? 28 : 29);
+        pout("%*s||||||_ K auto-keep\n"
+             "%*s|||||__ C event count\n"
+             "%*s||||___ R error rate\n"
+             "%*s|||____ S speed/performance\n"
+             "%*s||_____ O updated online\n"
+             "%*s|______ P prefailure warning\n",
+             n, "", n, "", n, "", n, "", n, "", n, "");
+    }
     pout("\n");
   }
 }

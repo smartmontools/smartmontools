@@ -81,7 +81,9 @@ struct ata_print_options
   unsigned sct_temp_int;
   bool sct_temp_int_pers;
 
-  unsigned char output_format; // 0=old, 1=brief
+  enum { FMT_BRIEF = 0x01, FMT_HEX_ID = 0x02, FMT_HEX_VAL = 0x04 };
+  unsigned char output_format; // FMT_* flags
+
   unsigned char fix_firmwarebug; // FIX_*, see atacmds.h
   bool fix_swapped_id; // Fix swapped ID strings returned by some buggy drivers
 

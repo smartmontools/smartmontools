@@ -218,7 +218,7 @@ static std::string getvalidarglist(int opt)
   case 'n':
     return "never, sleep, standby, idle";
   case 'f':
-    return "old, brief";
+    return "old, brief, hex[,id|val]";
   case 'g':
     return "aam, apm, lookahead, security, wcache";
   case opt_set:
@@ -627,7 +627,7 @@ static const char * parse_options(int argc, char** argv,
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
       if (!output_format_set)
-        ataopts.output_format = 1; // '-f brief'
+        ataopts.output_format |= ata_print_options::FMT_BRIEF;
       break;
     case 'v':
       // parse vendor-specific definitions of attributes
@@ -764,14 +764,23 @@ static const char * parse_options(int argc, char** argv,
         badarg = true;
       break;
     case 'f':
-      output_format_set = true;
-      if (!strcmp(optarg,"old")) {
-        ataopts.output_format = 0;
-      } else if (!strcmp(optarg,"brief")) {
-        ataopts.output_format = 1;
-      } else {
-        badarg = true;
+      if (!strcmp(optarg, "old")) {
+        ataopts.output_format &= ~ata_print_options::FMT_BRIEF;
+        output_format_set = true;
       }
+      else if (!strcmp(optarg, "brief")) {
+        ataopts.output_format |= ata_print_options::FMT_BRIEF;
+        output_format_set = true;
+      }
+      else if (!strcmp(optarg, "hex"))
+        ataopts.output_format |= ata_print_options::FMT_HEX_ID
+                              |  ata_print_options::FMT_HEX_VAL;
+      else if (!strcmp(optarg, "hex,id"))
+        ataopts.output_format |= ata_print_options::FMT_HEX_ID;
+      else if (!strcmp(optarg, "hex,val"))
+        ataopts.output_format |= ata_print_options::FMT_HEX_VAL;
+      else
+        badarg = true;
       break;
     case 'B':
       {
