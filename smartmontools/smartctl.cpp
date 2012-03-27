@@ -55,7 +55,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3530 2012-03-27 19:54:06Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3531 2012-03-27 20:02:25Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -135,7 +135,7 @@ static void Usage()
 "  -A, --attributes\n"
 "        Show device SMART vendor-specific Attributes and values\n\n"
 "  -f FORMAT, --format=FORMAT                                          (ATA)\n"
-"        Set output format for attributes to one of: old, brief\n\n"
+"        Set output format for attributes: old, brief, hex[,id|val]\n\n"
 "  -l TYPE, --log=TYPE\n"
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "                               xerror[,N][,error], xselftest[,N][,selftest],\n"
