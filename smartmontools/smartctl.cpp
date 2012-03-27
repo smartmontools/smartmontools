@@ -135,7 +135,7 @@ static void Usage()
 "  -A, --attributes\n"
 "        Show device SMART vendor-specific Attributes and values\n\n"
 "  -f FORMAT, --format=FORMAT                                          (ATA)\n"
-"        Set output format for attributes to one of: old, brief\n\n"
+"        Set output format for attributes: old, brief, hex[,id|val]\n\n"
 "  -l TYPE, --log=TYPE\n"
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "                               xerror[,N][,error], xselftest[,N][,selftest],\n"
