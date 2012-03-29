@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - Samsung Story Station (0x04e8:0x5f05)
+       - Toshiba STOR.E (0x0930:0x0b1b)
+
   [CF] smartctl: Add options '-f hex' and '-f hex,[id|val]' to print
        attribute IDs and/or values as hex.
 

@@ -2238,7 +2238,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbjmicron"
   },
   { "USB: Samsung Story Station; ",
-    "0x04e8:0x5f06",
+    "0x04e8:0x5f0[56]",
     "",
     "",
     "-d sat"
@@ -2455,6 +2455,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbsunplus"
+  },
+  { "USB: Toshiba STOR.E; ",
+    "0x0930:0x0b1b",
+    "", // 0x0001
+    "",
+    "-d sat"
   },
   // Oxford Semiconductor, Ltd
   { "USB: ; Oxford",
