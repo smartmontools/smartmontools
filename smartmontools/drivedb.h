@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3528 2012-03-25 17:13:47Z chrfranke $",
+  { "$Id: drivedb.h 3532 2012-03-29 19:38:59Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2238,7 +2238,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbjmicron"
   },
   { "USB: Samsung Story Station; ",
-    "0x04e8:0x5f06",
+    "0x04e8:0x5f0[56]",
     "",
     "",
     "-d sat"
@@ -2455,6 +2455,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbsunplus"
+  },
+  { "USB: Toshiba STOR.E; ",
+    "0x0930:0x0b1b",
+    "", // 0x0001
+    "",
+    "-d sat"
   },
   // Oxford Semiconductor, Ltd
   { "USB: ; Oxford",
