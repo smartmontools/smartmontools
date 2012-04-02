@@ -576,8 +576,7 @@ const drive_settings builtin_knowndrives[] = {
     "(IBM-|Hitachi )?IC35L0[12346]0AVER07.*",
     "",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
-    "Please see http://haque.net/dtla_update/ and\n"
-    "http://www.ibm.com/pc/support/site.wss/MIGR-42215.html",
+    "Please see http://haque.net/dtla_update/",
     ""
   },
   { "IBM Deskstar 40GV & 75GXP (A5AA/A6AA firmware)",
@@ -589,8 +588,7 @@ const drive_settings builtin_knowndrives[] = {
     "(IBM-)?DTLA-30[57]0[123467][05].*",
     "",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
-    "Please see http://haque.net/dtla_update/ and\n"
-    "http://www.ibm.com/pc/support/site.wss/MIGR-42215.html",
+    "Please see http://haque.net/dtla_update/",
     ""
   },
   { "", // ExcelStor J240, J340, J360, J680, J880 and J8160
@@ -823,7 +821,7 @@ const drive_settings builtin_knowndrives[] = {
     "****** THIS DRIVE MAY OR MAY NOT BE AFFECTED! ******\n"
     "Buggy and fixed firmware report same version number!\n"
     "See the following web pages for details:\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=223451\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/223451en\n"
     "http://sourceforge.net/apps/trac/smartmontools/wiki/SamsungF4EGBadBlocks",
     ""
   },
@@ -1183,12 +1181,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Maxtor DiamondMax 22", // fixed firmware
     "(MAXTOR )?STM3(500320|750330|1000340)AS?",
-    "MX1A", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207969
+    "MX1A", // http://knowledge.seagate.com/articles/en_US/FAQ/207969en
     "", ""
   },
   { "Seagate Maxtor DiamondMax 22", // fixed firmware
     "(MAXTOR )?STM3(160813|320614|640323|1000334)AS?",
-    "MX1B", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207975
+    "MX1B", // http://knowledge.seagate.com/articles/en_US/FAQ/207975en
     "", ""
   },
   { "Seagate Maxtor DiamondMax 22", // buggy firmware
@@ -1197,8 +1195,8 @@ const drive_settings builtin_knowndrives[] = {
     "There are known problems with these drives,\n"
     "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
     "see the following Seagate web pages:\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207969",
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207969en",
     ""
   },
   { "Seagate Maxtor DiamondMax 22", // unknown firmware
@@ -1206,9 +1204,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "There are known problems with these drives,\n"
     "see the following Seagate web pages:\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207969\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207975",
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207969en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207975en",
     ""
   },
   { "Seagate Maxtor DiamondMax 23",
@@ -1466,6 +1464,10 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HDS7210((16|25)CLA382|(32|50)CLA362|(64|75|10)CLA332)",
     "", "", ""
   },
+  { "Hitachi Deskstar 7K1000.D", // tested with HDS721010DLE630/MS2OA5Q0
+    "Hitachi HDS7210(25|32|50|75|10)DLE630",
+    "", "", ""
+  },
   { "Hitachi Deskstar E7K1000", // tested with HDE721010SLA330/ST6OA31B
     "Hitachi HDE7210(50|75|10)SLA330",
     "", "", ""
@@ -1635,7 +1637,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus XT", // fixed firmware
     "ST9(2505610|3205620|5005620)AS",
-    "SD2[68]",
+    "SD2[68]", // http://knowledge.seagate.com/articles/en_US/FAQ/215451en
     "", ""
   },
   { "Seagate Momentus XT", // buggy firmware, tested with ST92505610AS/SD24
@@ -1644,6 +1646,7 @@ const drive_settings builtin_knowndrives[] = {
     "These drives may corrupt large files,\n"
     "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
     "see the following web pages for details:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/215451en\n"
     "http://forums.seagate.com/t5/Momentus-XT-Momentus-Momentus/Momentus-XT-corrupting-large-files-Linux/td-p/109008\n"
     "http://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
     ""
@@ -1653,6 +1656,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "These drives may corrupt large files,\n"
     "see the following web pages for details:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/215451en\n"
     "http://forums.seagate.com/t5/Momentus-XT-Momentus-Momentus/Momentus-XT-corrupting-large-files-Linux/td-p/109008\n"
     "http://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
     ""
@@ -1739,17 +1743,17 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.11", // unaffected firmware
     "ST3(160813|320[68]13|500[368]20|640[36]23|640[35]30|750[36]30|1000(333|[36]40)|1500341)AS?",
-    "CC.?.?", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957
+    "CC.?.?", // http://knowledge.seagate.com/articles/en_US/FAQ/207957en
     "", ""
   },
   { "Seagate Barracuda 7200.11", // fixed firmware
     "ST3(500[368]20|750[36]30|1000340)AS?",
-    "SD1A", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207951
+    "SD1A", // http://knowledge.seagate.com/articles/en_US/FAQ/207951en
     "", ""
   },
   { "Seagate Barracuda 7200.11", // fixed firmware
     "ST3(160813|320[68]13|640[36]23|1000333|1500341)AS?",
-    "SD[12]B", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957
+    "SD[12]B", // http://knowledge.seagate.com/articles/en_US/FAQ/207957en
     "", ""
   },
   { "Seagate Barracuda 7200.11", // buggy or fixed firmware
@@ -1758,8 +1762,8 @@ const drive_settings builtin_knowndrives[] = {
     "There are known problems with these drives,\n"
     "THIS DRIVE MAY OR MAY NOT BE AFFECTED,\n"
     "see the following web pages for details:\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207951\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207951en\n"
     "http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=632758",
     ""
   },
@@ -1768,9 +1772,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "There are known problems with these drives,\n"
     "see the following Seagate web pages:\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207951\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957",
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207951en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207957en",
     ""
   },
   { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45
@@ -1783,7 +1787,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda ES.2", // fixed firmware
     "ST3(25031|50032|75033|100034)0NS",
-    "SN[01]6|"         // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207963
+    "SN[01]6|"         // http://knowledge.seagate.com/articles/en_US/FAQ/207963en
     "MA(0[^7]|[^0].)", // http://dellfirmware.seagate.com/dell_firmware/DellFirmwareRequest.jsp
     "", ""
   },
@@ -1801,8 +1805,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "There are known problems with these drives,\n"
     "see the following Seagate web pages:\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207963",
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207963en",
     ""
   },
   { "Seagate Barracuda LP",

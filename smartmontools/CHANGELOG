@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Remove outdated IBM links
+       - Update all links to Seagate Knowledge Base
+       - Hitachi Deskstar 7K1000.D
+
   [CF] drivedb.h USB update:
        - Seagate Expansion External (0x0bc2:0x3332) (ticket #223)
 
