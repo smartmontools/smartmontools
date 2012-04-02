@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3532 2012-03-29 19:38:59Z chrfranke $",
+  { "$Id: drivedb.h 3533 2012-04-02 19:39:13Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2527,7 +2527,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Expansion External; ", // 2TB
-    "0x0bc2:0x3300",
+    "0x0bc2:0x33(00|32)",
     "",
     "",
     "-d sat"
