@@ -2527,7 +2527,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Expansion External; ", // 2TB
-    "0x0bc2:0x3300",
+    "0x0bc2:0x33(00|32)",
     "",
     "",
     "-d sat"
