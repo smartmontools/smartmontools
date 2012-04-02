@@ -212,6 +212,9 @@ const drive_settings builtin_knowndrives[] = {
     "OWC Mercury Extreme Pro (RE )?SSD|" // tested with
       // OWC Mercury Extreme Pro SSD/360A13F0
     "Patriot Pyro|" // tested with Patriot Pyro/332ABBF0
+    "(TX32|TX31C1|VN0..GCNMK|VN0...GCNMK).*|" // Smart Storage Systems XceedSTOR
+    "(TX22D1|TX21B1).*|" // Smart Storage Systems XceedIOPS2
+    "TX52D1.*|" // Smart Storage Systems Xcel-200
     "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
     "", "",
@@ -480,7 +483,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 233,hex48:w01234,ECC_Fail_Record " // Fail number, Row[3], Channel, Bank
     "-v 234,raw24/raw24:w01234,Avg/Max_Erase_Ct "
     "-v 235,raw24/raw24:w01z23,Good/Sys_Block_Ct"
-    //  1.....................................40 chars limit for smartmontools <= r3343
+    //  1.....................................40 chars limit for smartmontools <= r3342
   },
   { "JMicron based SSDs", // JMicron JMF61x
     "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
@@ -543,6 +546,44 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Exception_Mode_Status "
     "-v 240,raw48,Unknown_Attribute"  // 830 Series
   //"-v 241,raw48,Total_LBAs_Written" // 830 Series
+  },
+  { "Smart Storage Systems XceedSecure2 SSDs",
+    "(SMART|Adtron) ([AIS]25FBS|S35FCS).*",
+    "", "",
+    "-v 9,sec2hour,Power_On_Hours "
+    "-v 194,hex64,Proprietary_194"
+  },
+  { "Smart Storage Systems XceedUltraX/Adtron A25FBX SSDs",
+    "(SMART|Adtron) (A|I)25FBX.*",
+    "", "",
+    "-v 9,hex64,Proprietary_9 "
+    "-v 194,hex48,Proprietary_194"
+  },
+  { "Smart Storage Systems Adtron A25FB 2xN SSDs",
+    "(SMART|Adtron) A25FB.*2.N",
+    "", "",
+    "-v 110,hex64,Proprietary_HWC "
+    "-v 111,hex64,Proprietary_MP "
+    "-v 112,hex64,Proprietary_RtR "
+    "-v 113,hex64,Proprietary_RR "
+    "-v 120,hex64,Proprietary_HFAll "
+    "-v 121,hex64,Proprietary_HF1st "
+    "-v 122,hex64,Proprietary_HF2nd "
+    "-v 123,hex64,Proprietary_HF3rd "
+    "-v 125,hex64,Proprietary_SFAll "
+    "-v 126,hex64,Proprietary_SF1st "
+    "-v 127,hex64,Proprietary_SF2nd "
+    "-v 128,hex64,Proprietary_SF3rd "
+    "-v 194,raw24/raw32:zvzzzw,Fract_Temperature"
+    //  1.....................................40 chars limit for smartmontools <= r3342
+  },
+  { "Smart Storage Systems Adtron A25FB 3xN SSDs",
+    "(SMART|Adtron) A25FB-.*3.N",
+    "", "",
+    "-v 9,sec2hour,Power_On_Hours "
+    "-v 113,hex48,Proprietary_RR "
+    "-v 130,raw48:54321,Minimum_Spares_All_Zs"
+  //"-v 194,tempminmax,Temperature_Celsius"
   },
   { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820,
       // TS4GCF133/20100709, TS16GCF133/20100709
