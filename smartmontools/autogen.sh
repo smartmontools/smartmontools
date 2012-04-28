@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh 3536 2012-04-28 11:59:50Z chrfranke $
+# $Id: autogen.sh 3537 2012-04-28 13:22:41Z chrfranke $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
