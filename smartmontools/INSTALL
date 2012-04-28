@@ -419,14 +419,9 @@ Same as Red Hat:
   file type ("binmode" mount option) set. The "autogen.sh" script prints a
   warning if DOS type is selected.
 
-  If installing from SVN, you may check out all files either with CR/LF
-  or LF line endings. Starting with release 3.1-7, Cygwin's bash does no
-  longer accept scripts with CR/LF by default. To run the initial script
-  ./autogen.sh checked out with CR/LF on a "binmode" mount, type:
-
-  bash -o igncr ./autogen.sh
-
-  instead. This is not necessary for the generated ./configure script.
+  Files may also be checked out with a non-Cygwin SVN client which uses CR/LF
+  for svn:eol-style=native.  The "autogen.sh" script has svn:eol-style=LF.
+  Bash option "-o igncr" is not required.
 
 [10] Guidelines for Windows
 ===========================
