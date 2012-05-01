@@ -161,10 +161,10 @@ const drive_settings builtin_knowndrives[] = {
     "ASUS-PHISON SSD",
     "", "", ""
   },
-  { "Crucial/Micron RealSSD C300/C400",
+  { "Crucial/Micron RealSSD C300/C400/m4",
     "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002
-    "C400-MTFDDA[ACK](064|128|256|512)MAM|" // tested with C400-MTFDDAC256MAM/0002
-    "M4-CT(064|128|256)M4SSD2", // tested with M4-CT064M4SSD2/0002
+    "C400-MTFDDA[ACK](064|128|256|512)MAM|" // Marvel 9176, tested with C400-MTFDDAC256MAM/0002
+    "M4-CT(064|128|256|512)M4SSD2", // tested with M4-CT064M4SSD2/0002, M4-CT512M4SSD2/0309
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -178,7 +178,15 @@ const drive_settings builtin_knowndrives[] = {
     "-v 181,raw16,Non4k_Aligned_Access "
     "-v 183,raw48,SATA_Iface_Downshift "
   //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 188,raw48,Command_Timeout "
     "-v 189,raw48,Factory_Bad_Block_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
@@ -286,8 +294,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 212,raw64,SATA_Error_Ct_Handshake "
     "-v 213,raw64,Indilinx_Internal"
   },
-  { "Indilinx Martini based SSDs",
-    "OCZ VERTEX-PLUS", // tested with OCZ VERTEX-PLUS/3.55
+  { "Indilinx Everest/Martini based SSDs",
+    "OCZ VERTEX-PLUS|" // tested with OCZ VERTEX-PLUS/3.55
+    "OCZ-PETROL", // tested with OCZ-PETROL/3.12
     "", "", ""
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -862,7 +871,7 @@ const drive_settings builtin_knowndrives[] = {
     "****** THIS DRIVE MAY OR MAY NOT BE AFFECTED! ******\n"
     "Buggy and fixed firmware report same version number!\n"
     "See the following web pages for details:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/223451en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/223571en\n"
     "http://sourceforge.net/apps/trac/smartmontools/wiki/SamsungF4EGBadBlocks",
     ""
   },
@@ -1615,12 +1624,12 @@ const drive_settings builtin_knowndrives[] = {
     "ST9(2014|3015|4019)A",
     "", "", ""
   },
-  { "Seagate Momentus 4200.2",
-    "ST9(100822|808210|60821|50212|402113|30219)A",
+  { "Seagate Momentus 4200.2", // tested with ST960812A/3.05
+    "ST9(100822|808210|60812|50212|402113|30219)A",
     "", "", ""
   },
   { "Seagate Momentus 5400.2",
-    "ST9(808211|60822|408114|308110|120821|10082[34]|8823|6812|4813|3811)AS?",
+    "ST9(808211|6082[12]|408114|308110|120821|10082[34]|8823|6812|4813|3811)AS?",
     "", "", ""
   },
   { "Seagate Momentus 5400.3",
@@ -1818,8 +1827,8 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207957en",
     ""
   },
-  { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45
-    "ST3(160318|25031[128]|320418|50041[08]|750(518|52[38])|100052[348])AS",
+  { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45, ST3500413AS/JC4B
+    "ST3(160318|25031[128]|320418|50041[038]|750(518|52[38])|100052[348])AS",
     "", "", ""
   },
   { "Seagate Barracuda ES",
@@ -2044,8 +2053,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(5000AB|7500AY|1000FY)PS-.*",
     "", "", ""
   },
-  { "Western Digital RE3 Serial ATA",
-    "WDC WD((25|32|50)02A|(75|10)02F)BYS-.*",
+  { "Western Digital RE3 Serial ATA", // tested with WDC WD7502ABYS-02A6B0/03.00C06
+    "WDC WD((25|32|50|75)02A|(75|10)02F)BYS-.*",
     "", "", ""
   },
   { "Western Digital RE4 Serial ATA",
@@ -2085,8 +2094,12 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(16|25|32)00AVJS-.*",
     "", "", ""
   },
-  { "Western Digital AV-GP", // tested with WDC WD10EURS-630AB1/80.00A80
-    "WDC WD((16|25|32|50|64|75)00AVVS|(50|75)00AVCS|(10|15|20|25|30)EURS|10EVVS|(10|20)EVCS|(10|15|20)EVDS)-.*",
+  { "Western Digital AV-GP",
+    "WDC WD((16|25|32|50|64|75)00AV[CDV]S|(10|15|20)EV[CDV]S)-.*",
+    "", "", ""
+  },
+  { "Western Digital AV-GP (Adv. Format)", // tested with WDC WD10EURS-630AB1/80.00A80, WDC WD10EUCX-63YZ1Y0/51.0AB52
+    "WDC WD(7500AURS|10EU[CR]X|(10|15|20|25|30)EURS)-.*",
     "", "", ""
   },
   { "Western Digital AV-25",

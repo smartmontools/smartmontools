@@ -41,6 +41,17 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Crucial/Micron RealSSD C300/C400/m4: m4 512GB
+       - Indilinx Everest/Martini based SSDs: OCZ-PETROL
+       - SAMSUNG SpinPoint F4 EG (AFT): Fix link
+       - Seagate Momentus 4200.2: ST960812A
+       - Seagate Momentus 5400.2: ST960821A (from 4200.2)
+       - Seagate Barracuda 7200.12: ST3500413AS
+       - Western Digital RE3 Serial ATA: WD7502ABYS
+       - Western Digital AV-GP: WD....AV[CD]S, split entry
+       - Western Digital AV-GP (Adv. Format): WD10EU[CR]X
+
   [CF] autogen.sh: Set svn:eol-style=LF to be compatible with Cygwin bash.
 
   [CF] autogen.sh: automake 1.11.3 is OK.
