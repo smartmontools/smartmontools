@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3538 2012-05-01 19:45:49Z chrfranke $
+$Id: CHANGELOG 3539 2012-05-01 19:57:02Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartctl: Add log addresses and statistics value from ACS-3 revision 2.
 
   [CF] drivedb.h updates:
        - Crucial/Micron RealSSD C300/C400/m4: m4 512GB
