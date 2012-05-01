@@ -971,7 +971,7 @@ static unsigned GetNumLogSectors(const ata_smart_log_directory * logdir, unsigne
 }
 
 // Get name of log.
-// Table A.2 of T13/2161-D Revision 1 (ACS-3), August 13, 2011.
+// Table A.2 of T13/2161-D Revision 2 (ACS-3), February 21, 2012.
 static const char * GetLogName(unsigned logaddr)
 {
     switch (logaddr) {
@@ -988,11 +988,18 @@ static const char * GetLogName(unsigned logaddr)
       case 0x0d: return "LPS Mis-alignment log"; // ACS-2
       case 0x10: return "NCQ Command Error log";
       case 0x11: return "SATA Phy Event Counters";
+      case 0x12: return "SATA NCQ Queue Management log"; // ACS-3
+      case 0x13: return "SATA NCQ Send and Receive log"; // ACS-3
+      case 0x14:
+      case 0x15:
+      case 0x16: return "Reserved for Serial ATA";
       case 0x19: return "LBA Status log"; // ACS-3
       case 0x20: return "Streaming performance log"; // Obsolete
       case 0x21: return "Write stream error log";
       case 0x22: return "Read stream error log";
       case 0x23: return "Delayed sector log"; // Obsolete
+      case 0x24: return "Current Device Internal Status Data log"; // ACS-3
+      case 0x25: return "Saved Device Internal Status Data log"; // ACS-3
       case 0x30: return "IDENTIFY DEVICE data log"; // ACS-3
       case 0xe0: return "SCT Command/Status";
       case 0xe1: return "SCT Data Transfer";
@@ -1001,8 +1008,6 @@ static const char * GetLogName(unsigned logaddr)
           return "Device vendor specific log";
         if (0x80 <= logaddr && logaddr <= 0x9f)
           return "Host vendor specific log";
-        if (0x12 <= logaddr && logaddr <= 0x17)
-          return "Reserved for Serial ATA";
         return "Reserved";
     }
     /*NOTREACHED*/
@@ -1075,7 +1080,7 @@ static void PrintLogPages(const char * type, const unsigned char * data,
 
 // See Section A.5 of
 //   ATA/ATAPI Command Set - 3 (ACS-3)
-//   T13/2161-D Revision 1, August 13, 2011
+//   T13/2161-D Revision 2, February 21, 2012.
 
 struct devstat_entry_info
 {
@@ -1096,11 +1101,12 @@ const devstat_entry_info devstat_info_0x01[] = {
   {  6, "Number of Write Commands" },
   {  6, "Logical Sectors Read" },
   {  6, "Number of Read Commands" },
+  {  6, "Date and Time TimeStamp" }, // ACS-3
   {  0, 0 }
 };
 
 const devstat_entry_info devstat_info_0x02[] = {
-  {  2, "Freefall Statistics" },
+  {  2, "Free-Fall Statistics" },
   {  4, "Number of Free-Fall Events Detected" },
   {  4, "Overlimit Shock Events" },
   {  0, 0 }
