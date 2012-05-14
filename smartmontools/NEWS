@@ -19,6 +19,7 @@ Summary: smartmontools release 5.43
 - smartctl supports extended self-test polling times
   greater than 255 minutes.
 - smartd.conf DEFAULT directive.
+- Linux: Support for SATA disks behind Areca SAS controllers.
 - Windows smartd: directives '-l offlinests,ns' and
   '-l selfteststs,ns'.
 - FreeBSD: fixed crash on SCSI devices with FreeBSD9-RC1

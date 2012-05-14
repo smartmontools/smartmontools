@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_linux.cpp: Add optional enclosure number to '-d areca' option.
+       This adds support for SATA disks behind Areca SAS controllers.
+
+       Patch was provided by Hank Wu from Areca.
+
   [CF] smartctl: Add log addresses and statistics value from ACS-3 revision 2.
 
   [CF] drivedb.h updates:
