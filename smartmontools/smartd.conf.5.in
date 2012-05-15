@@ -447,8 +447,6 @@ messages will make the most sense if you always list the 3ware SCSI
 logical device corresponding to the particular physical disks.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
-.\" %ENDIF OS FreeBSD Linux
-.\" %IF OS Linux FreeBSD
 .I areca,N
 \- [Linux and FreeBSD only] the device consists of one or more SATA disks connected to an
 Areca SATA RAID controller.  The positive integer N (in the range from 1 to
@@ -457,7 +455,15 @@ In log files and email messages this disk will be identifed as
 areca_disk_XX with XX in the range from 01 to 24 inclusive.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
-.\" %ENDIF OS Linux FreeBSD
+.\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
+.I areca,N/E
+\- [Linux only] [NEW EXPERIMENTAL SMARTD FEATURE] the device consists
+of one or more SATA disks connected to an Areca SAS RAID controller.
+The integer N (range 1 to 128) denotes the channel (slot) and E (range
+1 to 8) denotes the enclosure.
+
+.\" %ENDIF OS Linux
 .\" %IF OS FreeBSD Linux
 .I cciss,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
