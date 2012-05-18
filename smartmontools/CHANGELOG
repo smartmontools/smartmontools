@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3541 2012-05-15 20:35:35Z chrfranke $
+$Id: CHANGELOG 3542 2012-05-18 18:18:45Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] os_freebsd.cpp: sync Areca code with linux version by adding optional 
+       enclosure number.
 
   [CF] smartctl.8.in, smartd.conf.5.in: Add brief doc for '-d areca N/E'.
 
