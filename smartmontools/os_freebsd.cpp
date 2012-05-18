@@ -194,8 +194,8 @@ static const char  smartctl_examples[] =
   "  smartctl -a --device=cciss,0 /dev/ciss0\n"
          "                              (Prints all SMART information for first disk \n"
          "                               on Common Interface for SCSI-3 Support driver)\n"
-  "  smartctl -a --device=areca,1 /dev/arcmsr0\n"
-         "                              (Prints all SMART information for first disk \n"
+  "  smartctl -a --device=areca,3/1 /dev/arcmsr0\n"
+         "                              (Prints all SMART information for 3rd disk in the 1st enclosure \n"
          "                               on first ARECA RAID controller)\n"
 
          ;
@@ -1089,7 +1089,7 @@ class freebsd_areca_device
   public /*extends*/ freebsd_smart_device
 {
 public:
-  freebsd_areca_device(smart_interface * intf, const char * dev_name, int disknum);
+  freebsd_areca_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
 
 protected:
   virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out); 
@@ -1313,12 +1313,13 @@ static int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned cha
 }
 
 
-freebsd_areca_device::freebsd_areca_device(smart_interface * intf, const char * dev_name, int disknum)
+freebsd_areca_device::freebsd_areca_device(smart_interface * intf, const char * dev_name, int disknum, int encnum)
 : smart_device(intf, dev_name, "areca", "areca"),
   freebsd_smart_device("ATA"),
-  m_disknum(disknum)
+  m_disknum(disknum),
+  m_encnum(encnum)
 {
-  set_info().info_name = strprintf("%s [areca_%02d]", dev_name, disknum);
+  set_info().info_name = strprintf("%s [areca_disk#%02d_enc#%02d]", dev_name, disknum, encnum);
 }
 
 // Areca RAID Controller
@@ -1437,7 +1438,8 @@ if (!ata_cmd_is_ok(in,
 	    return set_err(ENOTSUP, "DATA OUT not supported for this Areca controller type");
 	}
 
-	areca_packet[11] = m_disknum - 1;		   // drive number
+	areca_packet[11] = m_disknum - 1;		// disk #
+	areca_packet[19] = m_encnum - 1;		// enc#
 
 	// ----- BEGIN TO SETUP CHECKSUM -----
 	for ( int loop = 3; loop < areca_packet_len - 1; loop++ )
@@ -2270,13 +2272,14 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
 #endif
   // Areca?
   disknum = n1 = n2 = -1;
-  if (sscanf(type, "areca,%n%d%n", &n1, &disknum, &n2) == 1 || n1 == 6) {
-    if (n2 != (int)strlen(type)) {
-      set_err(EINVAL, "Option -d areca,N requires N to be a non-negative integer");
+  int encnum = 1;
+  if (sscanf(type, "areca,%n%d/%d%n", &n1, &disknum, &encnum, &n2) >= 1 || n1 == 6) {
+    if (!(1 <= disknum && disknum <= 128)) {
+      set_err(EINVAL, "Option -d areca,N/E (N=%d) must have 1 <= N <= 128", disknum);
       return 0;
     }
-    if (!(1 <= disknum && disknum <= 24)) {
-      set_err(EINVAL, "Option -d areca,N (N=%d) must have 1 <= N <= 24", disknum);
+    if (!(1 <= encnum && encnum <= 8)) {
+      set_err(EINVAL, "Option -d areca,N/E (E=%d) must have 1 <= E <= 8", encnum);
       return 0;
     }
     return new freebsd_areca_device(this, name, disknum);
@@ -2287,7 +2290,7 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
 
 std::string freebsd_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "3ware,N, hpt,L/M/N, cciss,N, areca,N"
+  return "3ware,N, hpt,L/M/N, cciss,N, areca,N/E"
 #if FREEBSDVER > 800100
   ", atacam"
 #endif

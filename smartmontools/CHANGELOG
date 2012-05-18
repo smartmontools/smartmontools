@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] os_freebsd.cpp: sync Areca code with linux version by adding optional 
+       enclosure number.
+
   [CF] smartctl.8.in, smartd.conf.5.in: Add brief doc for '-d areca N/E'.
 
   [CF] os_linux.cpp: Add optional enclosure number to '-d areca' option.

@@ -475,15 +475,13 @@ Important: the Areca controller must have firmware version 1.46 or
 later.  Lower-numbered firmware versions will give (harmless) SCSI
 error messages and no SMART information.
 
-.\" %ENDIF OS Linux FreeBSD
-.\" %IF OS Linux
 .I areca,N/E
-\- [Linux only] [NEW EXPERIMENTAL SMARTCTL FEATURE] the device consists
+\- [Linux and FreeBSD only] [NEW EXPERIMENTAL SMARTCTL FEATURE] the device consists
 of one or more SATA disks connected to an Areca SAS RAID controller.
 The integer N (range 1 to 128) denotes the channel (slot) and E (range
 1 to 8) denotes the enclosure.
 
-.\" %ENDIF OS Linux
+.\" %ENDIF OS Linux FreeBSD
 .\" %IF OS FreeBSD Linux
 .I cciss,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
