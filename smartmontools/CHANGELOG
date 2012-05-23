@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows installer: Drop support for UBCD4Win.
+
   [AS] os_freebsd.cpp: sync Areca code with linux version by adding optional 
        enclosure number.
 

@@ -3,7 +3,7 @@
 ;
 ; Home page of code is: http://smartmontools.sourceforge.net
 ;
-; Copyright (C) 2006-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; Copyright (C) 2006-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -44,7 +44,6 @@ InstallDir "$PROGRAMFILES\smartmontools"
 InstallDirRegKey HKLM "Software\smartmontools" "Install_Dir"
 
 Var EDITOR
-Var UBCDDIR
 
 LicenseData "${INPDIR}\doc\COPYING.txt"
 
@@ -61,12 +60,7 @@ RequestExecutionLevel admin
 
 Page license
 Page components
-Page directory SkipProgPath "" ""
-PageEx directory
-  PageCallbacks SkipUBCDPath "" ""
-  DirText "Setup will install the UBCD4Win plugin in the following folder."
-  DirVar $UBCDDIR
-PageExEnd
+Page directory
 Page instfiles
 
 UninstPage uninstConfirm
@@ -75,7 +69,6 @@ UninstPage instfiles
 InstType "Full"
 InstType "Extract files only"
 InstType "Drive menu"
-InstType "UBCD4Win plugin"
 
 
 ;--------------------------------------------------------------------
@@ -352,49 +345,6 @@ SectionGroup "Add smartctl to drive menu"
 
 SectionGroupEnd
 
-Section "UBCD4Win Plugin" UBCD_SECTION
-
-  SectionIn 4
-
-  SetOutPath "$UBCDDIR"
-  DetailPrint "Create file: smartmontools.inf"
-  FileOpen $0 "$UBCDDIR\smartmontools.inf" "w"
-  FileWrite $0 '; smartmontools.inf$\r$\n; PE Builder v3 plug-in INF file$\r$\n'
-  FileWrite $0 '; Created by smartmontools installer$\r$\n'
-  FileWrite $0 '; http://smartmontools.sourceforge.net/$\r$\n$\r$\n'
-  FileWrite $0 '[Version]$\r$\nSignature= "$$Windows NT$$"$\r$\n$\r$\n'
-  FileWrite $0 '[PEBuilder]$\r$\nName="Disk -Diagnostic: smartmontools"$\r$\n'
-  FileWrite $0 'Enable=1$\r$\nHelp="files\smartctl.8.html"$\r$\n$\r$\n'
-  FileWrite $0 '[WinntDirectories]$\r$\na=Programs\smartmontools,2$\r$\n$\r$\n'
-  FileWrite $0 '[SourceDisksFolders]$\r$\nfiles=a,,1$\r$\n$\r$\n'
-  FileWrite $0 '[Append]$\r$\nnu2menu.xml, smartmontools_nu2menu.xml$\r$\n'
-  FileClose $0
-
-  DetailPrint "Create file: smartmontools_nu2menu.xml"
-  FileOpen $0 "$UBCDDIR\smartmontools_nu2menu.xml" "w"
-  FileWrite $0 '<!-- Nu2Menu entry for smartmontools -->$\r$\n<NU2MENU>$\r$\n'
-  FileWrite $0 '$\t<MENU ID="Programs">$\r$\n$\t$\t<MITEM TYPE="POPUP" MENUID="Disk Tools">'
-  FileWrite $0 'Disk Tools</MITEM>$\r$\n$\t</MENU>$\r$\n$\t<MENU ID="Disk Tools">$\r$\n'
-  FileWrite $0 '$\t$\t<MITEM TYPE="POPUP" MENUID="Diagnostic">Diagnostic</MITEM>$\r$\n$\t</MENU>'
-  FileWrite $0 '$\r$\n$\t<MENU ID="Diagnostic">$\r$\n$\t$\t<MITEM TYPE="ITEM" DISABLED="'
-  FileWrite $0 '@Not(@FileExists(@GetProgramDrive()\Programs\smartmontools\smartctl.exe))" '
-  FileWrite $0 'CMD="RUN" FUNC="cmd.exe /k cd /d @GetProgramDrive()\Programs\smartmontools&'
-  FileWrite $0 'set PATH=@GetProgramDrive()\Programs\smartmontools;%PATH%  ">'
-  FileWrite $0 'smartctl</MITEM>$\r$\n$\t</MENU>$\r$\n</NU2MENU>$\r$\n'
-  FileClose $0
-  
-  SetOutPath "$UBCDDIR\files"
-  File "${INPDIR}\bin\smartctl.exe"
-  File "${INPDIR}\bin\smartd.exe"
-  File "${INPDIR}\doc\smartctl.8.html"
-  File "${INPDIR}\doc\smartctl.8.txt"
-  File "${INPDIR}\doc\smartd.8.html"
-  File "${INPDIR}\doc\smartd.8.txt"
-  File "${INPDIR}\doc\smartd.conf"
-
-SectionEnd
-
-
 ;--------------------------------------------------------------------
 
 Section "Uninstall"
@@ -513,12 +463,6 @@ Function .onInit
   IfFileExists "$EDITOR" +2 0
     StrCpy $EDITOR "notepad.exe"
 
-  ; Get UBCD4Win install location
-  ReadRegStr $0 HKLM "Software\UBCD4Win" "InstallPath"
-  StrCmp $0 "" 0 +2
-    StrCpy $0 "C:\UBCD4Win"
-  StrCpy $UBCDDIR "$0\plugin\Disk\Diagnostic\smartmontools"
-
   ; Hide "Add install dir to PATH" on 9x/ME
   IfFileExists "$WINDIR\system32\cmd.exe" +2 0
     SectionSetText ${PATH_SECTION} ""
@@ -569,7 +513,6 @@ Function ParseCmdLine
   !insertmacro CheckCmdLineOption "drive3" ${DRIVE_3_SECTION}
   !insertmacro CheckCmdLineOption "drive4" ${DRIVE_4_SECTION}
   !insertmacro CheckCmdLineOption "drive5" ${DRIVE_5_SECTION}
-  !insertmacro CheckCmdLineOption "ubcd" ${UBCD_SECTION}
   StrCmp $opts "-" done
   StrCmp $nomatch "" done
     StrCpy $0 "$allopts,-" "" 1
@@ -577,39 +520,6 @@ Function ParseCmdLine
     Abort
 done:
 FunctionEnd
-
-; Directory page callbacks
-
-!macro CheckSection section
-  SectionGetFlags ${section} $0
-  IntOp $0 $0 & 1
-  IntCmp $0 1 done
-!macroend
-
-Function SkipProgPath
-  !insertmacro CheckSection ${SMARTCTL_SECTION}
-  !insertmacro CheckSection ${SMARTCTL_NC_SECTION}
-  !insertmacro CheckSection ${SMARTD_SECTION}
-  !insertmacro CheckSection ${DRIVEDB_SECTION}
-  !insertmacro CheckSection ${DOC_SECTION}
-  !insertmacro CheckSection ${MENU_SECTION}
-  !insertmacro CheckSection ${PATH_SECTION}
-  !insertmacro CheckSection ${DRIVE_0_SECTION}
-  !insertmacro CheckSection ${DRIVE_1_SECTION}
-  !insertmacro CheckSection ${DRIVE_2_SECTION}
-  !insertmacro CheckSection ${DRIVE_3_SECTION}
-  !insertmacro CheckSection ${DRIVE_4_SECTION}
-  !insertmacro CheckSection ${DRIVE_5_SECTION}
-  Abort
-done:
-FunctionEnd
-
-Function SkipUBCDPath
-  !insertmacro CheckSection ${UBCD_SECTION}
-  Abort
-done:
-FunctionEnd
-
 
 ; Install runcmda.exe if missing
 
