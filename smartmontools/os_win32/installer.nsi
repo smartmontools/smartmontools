@@ -183,7 +183,14 @@ Section "!Documentation" DOC_SECTION
   File "${INPDIR}\doc\README.txt"
   File "${INPDIR}\doc\TODO.txt"
   File "${INPDIR}\doc\WARNINGS.txt"
-  File "${INPDIR}\doc\checksums.txt"
+!ifdef INPDIR64
+  StrCmp $X64 "" +3
+    File "${INPDIR64}\doc\checksums64.txt"
+  GoTo +2
+    File "${INPDIR}\doc\checksums32.txt"
+!else
+  File "${INPDIR}\doc\checksums??.txt"
+!endif
   File "${INPDIR}\doc\smartctl.8.html"
   File "${INPDIR}\doc\smartctl.8.txt"
   File "${INPDIR}\doc\smartd.8.html"
@@ -443,7 +450,7 @@ Section "Uninstall"
   Delete "$INSTDIR\doc\README.txt"
   Delete "$INSTDIR\doc\TODO.txt"
   Delete "$INSTDIR\doc\WARNINGS.txt"
-  Delete "$INSTDIR\doc\checksums.txt"
+  Delete "$INSTDIR\doc\checksums*.txt"
   Delete "$INSTDIR\doc\smartctl.8.html"
   Delete "$INSTDIR\doc\smartctl.8.txt"
   Delete "$INSTDIR\doc\smartd.8.html"

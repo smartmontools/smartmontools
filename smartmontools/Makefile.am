@@ -656,7 +656,7 @@ FILES_WIN32 = \
         $(docdir_win32)/README.txt \
         $(docdir_win32)/TODO.txt \
         $(docdir_win32)/WARNINGS.txt \
-        $(docdir_win32)/checksums.txt \
+        $(docdir_win32)/checksums$(win_bits).txt \
         $(docdir_win32)/smartd.conf \
         $(docdir_win32)/smartctl.8.html \
         $(docdir_win32)/smartctl.8.txt \
@@ -774,7 +774,7 @@ $(docdir_win32)/%.conf: $(srcdir)/%.conf
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
 
-$(docdir_win32)/checksums.txt: $(EXEFILES_WIN32)
+$(docdir_win32)/checksums$(win_bits).txt: $(EXEFILES_WIN32)
 	(cd $(exedir_win32) && md5sum *.exe && sha1sum *.exe && sha256sum *.exe) \
 	| $(UNIX2DOS) > $@
 
