@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL 3537 2012-04-28 13:22:41Z chrfranke $
+$Id: INSTALL 3544 2012-05-25 20:17:23Z chrfranke $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -494,6 +494,11 @@ To create a Windows installer, use:
 
   It is also possible to (cross-)build the installer on Linux.
   This was successfully tested on Debian with package "nsis".
+
+To create a combined 32-/64-bit installer, use this in 32-bit build
+directory if 64-build directory is at ../build64:
+
+  make builddir_win64=../build64 installer_win32
 
 To both create and run the (interactive) installer, use:
 
