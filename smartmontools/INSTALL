@@ -495,6 +495,11 @@ To create a Windows installer, use:
   It is also possible to (cross-)build the installer on Linux.
   This was successfully tested on Debian with package "nsis".
 
+To create a combined 32-/64-bit installer, use this in 32-bit build
+directory if 64-build directory is at ../build64:
+
+  make builddir_win64=../build64 installer_win32
+
 To both create and run the (interactive) installer, use:
 
   make install-win32

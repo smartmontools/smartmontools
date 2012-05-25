@@ -19,7 +19,8 @@
 
 ;--------------------------------------------------------------------
 ; Command line arguments:
-; makensis -DINPDIR=<input-dir> -DOUTFILE=<output-file> -DVERSTR=<version-string> installer.nsi
+; makensis -DINPDIR=<input-dir> -DINPDIR64=<input-dir-64-bit> \
+;   -DOUTFILE=<output-file> -DVERSTR=<version-string> installer.nsi
 
 !ifndef INPDIR
   !define INPDIR "."
@@ -40,10 +41,17 @@ SetCompressor /solid lzma
 XPStyle on
 InstallColors /windows
 
-InstallDir "$PROGRAMFILES\smartmontools"
-InstallDirRegKey HKLM "Software\smartmontools" "Install_Dir"
+; Set in .onInit
+;InstallDir "$PROGRAMFILES\smartmontools"
+;InstallDirRegKey HKLM "Software\smartmontools" "Install_Dir"
 
 Var EDITOR
+
+!ifdef INPDIR64
+  Var X64
+  Var INSTDIR32
+  Var INSTDIR64
+!endif
 
 LicenseData "${INPDIR}\doc\COPYING.txt"
 
@@ -60,7 +68,11 @@ RequestExecutionLevel admin
 
 Page license
 Page components
-Page directory
+!ifdef INPDIR64
+  Page directory CheckX64
+!else
+  Page directory
+!endif
 Page instfiles
 
 UninstPage uninstConfirm
@@ -74,14 +86,36 @@ InstType "Drive menu"
 ;--------------------------------------------------------------------
 ; Sections
 
+!ifdef INPDIR64
+  Section "64-bit version (EXPERIMENTAL)" X64_SECTION
+    ; Handled in Function CheckX64
+  SectionEnd
+!endif
+
 SectionGroup "!Program files"
+
+  !macro FileExe path option
+    !ifdef INPDIR64
+      ; Use dummy SetOutPath to control archive location of executables
+      StrCmp $X64 "" +5
+        Goto +2
+          SetOutPath "$INSTDIR\bin64"
+        File ${option} '${INPDIR64}\${path}'
+      GoTo +4
+        Goto +2
+          SetOutPath "$INSTDIR\bin"
+        File ${option} '${INPDIR}\${path}'
+    !else
+      File ${option} '${INPDIR}\${path}'
+    !endif
+  !macroend
 
   Section "smartctl" SMARTCTL_SECTION
 
     SectionIn 1 2
 
     SetOutPath "$INSTDIR\bin"
-    File "${INPDIR}\bin\smartctl.exe"
+    !insertmacro FileExe "bin\smartctl.exe" ""
 
   SectionEnd
 
@@ -98,14 +132,15 @@ SectionGroup "!Program files"
       StrCmp $0 "" nosrv
         ExecWait "net stop smartd" $1
   nosrv:
-    File "${INPDIR}\bin\smartd.exe"
+    !insertmacro FileExe "bin\smartd.exe" ""
 
     IfFileExists "$INSTDIR\bin\smartd.conf" 0 +2
       MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "Replace existing configuration file$\n$INSTDIR\bin\smartd.conf ?" IDYES 0 IDNO +2
         File "${INPDIR}\doc\smartd.conf"
 
-    IfFileExists "$WINDIR\system32\cmd.exe" 0 +2
-      File /nonfatal "${INPDIR}\bin\syslogevt.exe"
+    IfFileExists "$WINDIR\system32\cmd.exe" 0 nosysl
+      !insertmacro FileExe "bin\syslogevt.exe" /nonfatal
+    nosysl:
 
     ; Restart service ?
     StrCmp $1 "0" 0 +3
@@ -119,7 +154,7 @@ SectionGroup "!Program files"
     SectionIn 1 2
 
     SetOutPath "$INSTDIR\bin"
-    File "${INPDIR}\bin\smartctl-nc.exe"
+    !insertmacro FileExe "bin\smartctl-nc.exe" ""
 
   SectionEnd
 
@@ -162,7 +197,7 @@ SectionEnd
 Section "Uninstaller" UNINST_SECTION
 
   SectionIn 1
-  AddSize 35
+  AddSize 40
 
   CreateDirectory "$INSTDIR"
 
@@ -202,10 +237,11 @@ Section "Start Menu Shortcuts" MENU_SECTION
 
   ; runcmdu
   IfFileExists "$INSTDIR\bin\smartctl.exe" 0 +2
-  IfFileExists "$INSTDIR\bin\smartd.exe" 0 +4
+  IfFileExists "$INSTDIR\bin\smartd.exe" 0 noruncmd
     SetOutPath "$INSTDIR\bin"
-    File "${INPDIR}\bin\runcmdu.exe"
+    !insertmacro FileExe "bin\runcmdu.exe" ""
     File "${INPDIR}\bin\runcmdu.exe.manifest"
+  noruncmd:
 
   ; smartctl
   IfFileExists "$INSTDIR\bin\smartctl.exe" 0 noctl
@@ -456,7 +492,31 @@ SectionEnd
 ;--------------------------------------------------------------------
 ; Functions
 
+!macro AdjustSectionSize section
+  SectionGetSize ${section} $0
+  IntOp $0 $0 / 2
+  SectionSetSize ${section} $0
+!macroend
+
 Function .onInit
+
+  ; Set default install directories
+  StrCmp $INSTDIR "" 0 endinst ; /D=PATH option specified ?
+  ReadRegStr $INSTDIR HKLM "Software\smartmontools" "Install_Dir"
+  StrCmp $INSTDIR "" 0 endinst ; Already installed ?
+    StrCpy $INSTDIR "$PROGRAMFILES\smartmontools"
+!ifdef INPDIR64
+    StrCpy $INSTDIR32 $INSTDIR
+    StrCpy $INSTDIR64 "$PROGRAMFILES64\smartmontools"
+!endif
+  endinst:
+
+!ifdef INPDIR64
+  ; Sizes of binary sections include 32-bit and 64-bit executables
+  !insertmacro AdjustSectionSize ${SMARTCTL_SECTION}
+  !insertmacro AdjustSectionSize ${SMARTD_SECTION}
+  !insertmacro AdjustSectionSize ${SMARTCTL_NC_SECTION}
+!endif
 
   ; Use Notepad++ if installed
   StrCpy $EDITOR "$PROGRAMFILES\Notepad++\notepad++.exe"
@@ -469,6 +529,27 @@ Function .onInit
 
   Call ParseCmdLine
 FunctionEnd
+
+; Check x64 section and update INSTDIR accordingly
+
+!ifdef INPDIR64
+Function CheckX64
+  SectionGetFlags ${X64_SECTION} $0
+  IntOp $0 $0 & ${SF_SELECTED}
+  IntCmp $0 ${SF_SELECTED} x64
+    StrCpy $X64 ""
+    StrCmp $INSTDIR32 "" +3
+      StrCpy $INSTDIR $INSTDIR32
+      StrCpy $INSTDIR32 ""
+    Goto done
+  x64:
+    StrCpy $X64 "t"
+    StrCmp $INSTDIR64 "" +3
+      StrCpy $INSTDIR $INSTDIR64
+      StrCpy $INSTDIR64 ""
+  done:
+FunctionEnd
+!endif
 
 ; Command line parsing
 !macro CheckCmdLineOption name section
@@ -498,6 +579,12 @@ Function ParseCmdLine
   Var /global nomatch
   StrCpy $nomatch "t"
   ; turn sections on or off
+!ifdef INPDIR64
+  !insertmacro CheckCmdLineOption "x64" ${X64_SECTION}
+  Call CheckX64
+  StrCmp $opts "x64" 0 +2
+    Return ; leave sections unchanged if only "x64" is specified
+!endif
   !insertmacro CheckCmdLineOption "smartctl" ${SMARTCTL_SECTION}
   !insertmacro CheckCmdLineOption "smartd" ${SMARTD_SECTION}
   !insertmacro CheckCmdLineOption "smartctlnc" ${SMARTCTL_NC_SECTION}
@@ -526,7 +613,7 @@ FunctionEnd
 Function CheckRunCmdA
   IfFileExists "$INSTDIR\bin\runcmda.exe" done 0
     SetOutPath "$INSTDIR\bin"
-    File "${INPDIR}\bin\runcmda.exe"
+    !insertmacro FileExe "bin\runcmda.exe" ""
     File "${INPDIR}\bin\runcmda.exe.manifest"
   done:
 FunctionEnd
@@ -699,6 +786,10 @@ FunctionEnd
 !endif
 
 Function ShellLinkSetRunAs
+  ; Set archive location of $PLUGINSDIR
+  Goto +2
+    SetOutPath "$INSTDIR"
+
   System::Store S ; push $0-$9, $R0-$R9
   pop $9
   ; $0 = CoCreateInstance(CLSID_ShellLink, 0, CLSCTX_INPROC_SERVER, IID_IShellLink, &$1)

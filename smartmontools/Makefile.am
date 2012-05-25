@@ -708,11 +708,13 @@ if OS_WIN32_NSIS
 # Build NSIS installer
 # Note: Only option character '-' is also compatible with Linux version of makensis
 $(distinst_win32): os_win32/installer.nsi distdir.mkdir $(FILES_WIN32)
+	test -z '$(builddir_win64)' || ( cd $(builddir_win64) && make distdir-win32 )
 	@date=`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`; \
 	rev=`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`; \
 	verstr="$(PACKAGE_VERSION) $$date $$rev "$(BUILD_INFO); \
-	echo "'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) -DOUTFILE=$@ -DVERSTR='$$verstr' $<"; \
-	'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) -DOUTFILE=$@ -DVERSTR="$$verstr" $<
+	d64=; test -z '$(builddir_win64)' || d64='-DINPDIR64=$(builddir_win64)/$(PACKAGE)-$(VERSION).win64'; \
+	echo "'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSTR='$$verstr' $<"; \
+	'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSTR="$$verstr" $<
 	md5sum $@ > $@.md5
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256
