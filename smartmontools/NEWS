@@ -20,6 +20,7 @@ Summary: smartmontools release 5.43
   greater than 255 minutes.
 - smartd.conf DEFAULT directive.
 - Linux and FreeBSD: Support for SATA disks behind Areca SAS controllers.
+- Windows: Support for SATA disks behind Areca controllers.
 - Windows smartd: directives '-l offlinests,ns' and
   '-l selfteststs,ns'.
 - Windows installer: Combined 32-/64-bit support.

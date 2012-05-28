@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_win32.cpp: Add support for SATA disks behind Areca SATA and SAS
+       controllers.  Requires '-d areca,N[/E]' as type and '[/dev/]arcmsrX'
+       as device name.
+
+       Patch was provided by Hank Wu from Areca.
+
   [CF] Windows installer: Make name of checksum file 32-/64-bit specific.
 
   [CF] Windows installer: Add support for combined 32-/64-bit installer.
