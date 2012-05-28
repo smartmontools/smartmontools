@@ -568,7 +568,7 @@ class win_areca_device
 public:
   win_areca_device(smart_interface * intf, const char * dev_name, HANDLE fh, int disknum, int encnum = 1);
 
-  static int arcmsr_command_handler(HANDLE fh, unsigned long arcmsr_cmd, unsigned char *data, int data_len, void *ext_data /* reserved for further use */);
+  static int arcmsr_command_handler(HANDLE fh, unsigned long arcmsr_cmd, unsigned char *data, int data_len);
 
 protected:
   virtual bool open();
@@ -913,7 +913,7 @@ smart_device * win_smart_interface::get_custom_smart_device(const char * name, c
         sprintf(devpath, "\\\\.\\scsi%d:", idx);
         if ( (fh = CreateFile( devpath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
                                NULL, OPEN_EXISTING, 0, NULL )) != INVALID_HANDLE_VALUE ) {
-          if( win_areca_device::arcmsr_command_handler(fh, ARCMSR_IOCTL_RETURN_CODE_3F, NULL, 0, NULL) == 0 ) {
+          if (win_areca_device::arcmsr_command_handler(fh, ARCMSR_IOCTL_RETURN_CODE_3F, NULL, 0) == 0) {
             if (ctlrindex-- == 0) {
               return new win_areca_device(this, devpath, fh, disknum, encnum);
             }
@@ -4406,14 +4406,6 @@ static long scsi_pass_through_direct(HANDLE fd, struct scsi_cmnd_io * iop)
 }
 
 
-// Looks in /proc/scsi to suggest correct areca devices
-// If hint not NULL, return device path guess
-static int find_areca_in_proc(char *hint)
-{
-    return 0;
-}
-
-
 #if 0 // For debugging areca code
 
 static void dumpdata(unsigned char *block, int len)
@@ -4486,7 +4478,7 @@ static void dumpdata(unsigned char *block, int len)
 //  -1 if the command failed
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
-int win_areca_device::arcmsr_command_handler(HANDLE fd, unsigned long arcmsr_cmd, unsigned char *data, int data_len, void *ext_data /* reserved for further use */)
+int win_areca_device::arcmsr_command_handler(HANDLE fd, unsigned long arcmsr_cmd, unsigned char *data, int data_len)
 {
   int ioctlreturn = 0;
   sSRB_BUFFER sBuf;
@@ -4742,14 +4734,14 @@ bool win_areca_device::arcmsr_ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
 
   // Set registers
   {
-      const ata_in_regs_48bit & r = in.in_regs;
-      ata_cmd->features     = r.features_16;
-      ata_cmd->sector_count  = r.sector_count_16;
-      ata_cmd->sector_number = r.lba_low_16;
-      ata_cmd->cylinder_low  = r.lba_mid_16;
-      ata_cmd->cylinder_high = r.lba_high_16;
-      ata_cmd->device_head   = r.device;
-      ata_cmd->command      = r.command;
+    const ata_in_regs & r = in.in_regs;
+    ata_cmd->features      = r.features;
+    ata_cmd->sector_count  = r.sector_count;
+    ata_cmd->sector_number = r.lba_low;
+    ata_cmd->cylinder_low  = r.lba_mid;
+    ata_cmd->cylinder_high = r.lba_high;
+    ata_cmd->device_head   = r.device;
+    ata_cmd->command       = r.command;
   }
   bool readdata = false;
   if (in.direction == ata_cmd_in::data_in) {
@@ -4788,21 +4780,20 @@ bool win_areca_device::arcmsr_ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   unsigned char return_buff[2048];
   memset(return_buff, 0, sizeof(return_buff));
 
-  expected = arcmsr_command_handler(get_fh(), ARCMSR_IOCTL_CLEAR_RQBUFFER, NULL, 0, NULL);
+  expected = arcmsr_command_handler(get_fh(), ARCMSR_IOCTL_CLEAR_RQBUFFER, NULL, 0);
   if (expected==-3) {
-      find_areca_in_proc(NULL);
       return set_err(EIO);
   }
 
-  expected = arcmsr_command_handler(get_fh(), ARCMSR_IOCTL_CLEAR_WQBUFFER, NULL, 0, NULL);
-  expected = arcmsr_command_handler(get_fh(), ARCMSR_IOCTL_WRITE_WQBUFFER, areca_packet, areca_packet_len, NULL);
+  expected = arcmsr_command_handler(get_fh(), ARCMSR_IOCTL_CLEAR_WQBUFFER, NULL, 0);
+  expected = arcmsr_command_handler(get_fh(), ARCMSR_IOCTL_WRITE_WQBUFFER, areca_packet, areca_packet_len);
   if ( expected > 0 )
   {
-    expected = arcmsr_command_handler(get_fh(), ARCMSR_IOCTL_READ_RQBUFFER, return_buff, sizeof(return_buff), NULL);
+    expected = arcmsr_command_handler(get_fh(), ARCMSR_IOCTL_READ_RQBUFFER, return_buff, sizeof(return_buff));
   }
   if ( expected < 0 )
   {
-    return false;
+    return set_err(EIO);
   }
 
   // ----- VERIFY THE CHECKSUM -----
@@ -4835,13 +4826,13 @@ bool win_areca_device::arcmsr_ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
 
   // Return register values
   {
-      ata_out_regs_48bit & r = out.out_regs;
-      r.error           = ata_out->error;
-      r.sector_count_16 = ata_out->sector_count;
-      r.lba_low_16      = ata_out->sector_number;
-      r.lba_mid_16      = ata_out->cylinder_low;
-      r.lba_high_16     = ata_out->cylinder_high;
-      r.status          = ata_out->status;
+    ata_out_regs & r = out.out_regs;
+    r.error          = ata_out->error;
+    r.sector_count   = ata_out->sector_count;
+    r.lba_low        = ata_out->sector_number;
+    r.lba_mid        = ata_out->cylinder_low;
+    r.lba_high       = ata_out->cylinder_high;
+    r.status         = ata_out->status;
   }
   return true;
 }
@@ -4850,7 +4841,6 @@ bool win_areca_device::arcmsr_ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
 bool win_areca_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
 #define    SYNCOBJNAME "Global\\SynIoctlMutex"
-  bool ok = false;
   int ctlrnum = -1;
   char mutexstr[64];
   SECURITY_ATTRIBUTES sa;
@@ -4864,10 +4854,12 @@ bool win_areca_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out
   )
     return false;
 
-  if(sscanf(get_dev_name(), "\\\\.\\scsi%d:", &ctlrnum) < 1)
-  {
-    return false;
-  }
+  // Support 48-bit commands with zero high bytes
+  if (in.in_regs.is_real_48bit_cmd())
+    return set_err(ENOSYS, "48-bit ATA commands not fully supported by Areca");
+
+  if (sscanf(get_dev_name(), "\\\\.\\scsi%d:", &ctlrnum) < 1)
+    return set_err(EINVAL, "unable to parse device name");
 
   memset(mutexstr, 0, sizeof(mutexstr));
   sprintf(mutexstr, "%s%d",SYNCOBJNAME, ctlrnum);
@@ -4875,13 +4867,13 @@ bool win_areca_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out
   if ( !InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION) )
   {
     LocalFree((HLOCAL)pSD);
-    return false;
+    return set_err(EIO, "InitializeSecurityDescriptor failed");
   }
 
   if ( !SetSecurityDescriptorDacl(pSD, TRUE, (PACL)NULL, FALSE) )
   {
     LocalFree((HLOCAL)pSD);
-    return false;
+    return set_err(EIO, "SetSecurityDescriptor failed");
   }
 
   sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -4891,12 +4883,12 @@ bool win_areca_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out
   if ( hmutex == NULL )
   {
     LocalFree((HLOCAL)pSD);
-    return false;
+    return set_err(EIO, "CreateMutex failed");
   }
 
   // atomic access to driver
   WaitForSingleObject(hmutex, INFINITE);
-  ok = arcmsr_ata_pass_through(in,out);
+  bool ok = arcmsr_ata_pass_through(in,out);
   ReleaseMutex(hmutex);
 
   if(hmutex)
