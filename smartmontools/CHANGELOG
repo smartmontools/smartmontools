@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3545 2012-05-25 21:19:03Z chrfranke $
+$Id: CHANGELOG 3546 2012-05-28 16:54:30Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,12 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] os_win32.cpp: Add support for SATA disks behind Areca SATA and SAS
+       controllers.  Requires '-d areca,N[/E]' as type and '[/dev/]arcmsrX'
+       as device name.
+
+       Patch was provided by Hank Wu from Areca.
 
   [CF] Windows installer: Make name of checksum file 32-/64-bit specific.
 
