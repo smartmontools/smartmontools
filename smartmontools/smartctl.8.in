@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3549 2012-05-29 21:25:23Z chrfranke $
+ $Id: smartctl.8.in 3550 2012-05-29 21:36:50Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -461,15 +461,15 @@ On FreeBSD use syntax such as:
 \fBsmartctl \-a \-d areca,3 /dev/arcmsr2\fP
 .fi
 .\" %ENDIF OS FreeBSD
-.\" %IF OS Windows
-[NEW EXPERIMENTAL SMARTCTL FEATURE] On Windows use syntax such as:
+.\" %IF OS Windows Cygwin
+[NEW EXPERIMENTAL SMARTCTL FEATURE] On Windows and Cygwin use syntax such as:
 .nf
 \fBsmartctl \-a \-d areca,2 /dev/arcmsr0\fP
 .fi
 .nf
 \fBsmartctl \-a \-d areca,3 /dev/arcmsr1\fP
 .fi
-.\" %ENDIF OS Windows
+.\" %ENDIF OS Windows Cygwin
 .\" %IF OS FreeBSD Linux Windows Cygwin
 The first line above addresses the second disk on the first Areca RAID controller.
 The second line addresses the third disk on the second Areca RAID
@@ -2185,4 +2185,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3549 2012-05-29 21:25:23Z chrfranke $
+$Id: smartctl.8.in 3550 2012-05-29 21:36:50Z chrfranke $
