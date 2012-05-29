@@ -141,6 +141,10 @@ The option \'\-d 3ware,N\' is not necessary on Windows.
 [NEW EXPERIMENTAL SMARTCTL FEATURE] For disks behind Intel Matrix RAID
 driver use \fB"/dev/csmi[0\-9],N"\fP where N specifies the port behind
 the logical scsi controller "\\\\.\\Scsi[0\-9]:".
+
+[NEW EXPERIMENTAL SMARTCTL FEATURE] For SATA disks behind an Areca SATA
+or SAS controller use \fB"/dev/arcmsr[0\-9]"\fP, see \'\-d areca,N[/E]\' below.
+
 The prefix \fB"/dev/"\fP is optional.
 .\" %ENDIF OS Windows Cygwin
 .\" %IF OS Cygwin
@@ -432,11 +436,13 @@ using the character device interface /dev/twl0\-15, /dev/twa0\-15 and /dev/twe0\
 The necessary WRITE LOG commands can not be passed through the SCSI
 interface.
 
-.I areca,N
-\- [Linux and FreeBSD only] the device consists of one or more SATA disks connected to an
-Areca SATA RAID controller.  The positive integer N (in the range from 1 to
-24 inclusive) denotes which disk on the controller is monitored.
 .\" %ENDIF OS FreeBSD Linux
+.\" %IF OS FreeBSD Linux Windows Cygwin
+.I areca,N
+\- [FreeBSD, Linux, Windows and Cygwin only] the device consists of one or more SATA disks
+connected to an Areca SATA RAID controller.  The positive integer N (in the range
+from 1 to 24 inclusive) denotes which disk on the controller is monitored.
+.\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS Linux
 On Linux use syntax such as:
 .nf
@@ -455,11 +461,22 @@ On FreeBSD use syntax such as:
 \fBsmartctl \-a \-d areca,3 /dev/arcmsr2\fP
 .fi
 .\" %ENDIF OS FreeBSD
+.\" %IF OS Windows
+[NEW EXPERIMENTAL SMARTCTL FEATURE] On Windows use syntax such as:
+.nf
+\fBsmartctl \-a \-d areca,2 /dev/arcmsr0\fP
+.fi
+.nf
+\fBsmartctl \-a \-d areca,3 /dev/arcmsr1\fP
+.fi
+.\" %ENDIF OS Windows
+.\" %IF OS FreeBSD Linux Windows Cygwin
 The first line above addresses the second disk on the first Areca RAID controller.
 The second line addresses the third disk on the second Areca RAID
 controller.  
+.\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS Linux
-To help identify the correct device on Linus, use the command:
+To help identify the correct device on Linux, use the command:
 .nf
 \fBcat /proc/scsi/sg/device_hdr /proc/scsi/sg/devices\fP
 .fi
@@ -469,19 +486,19 @@ smartmontools are the ones with the type field equal to 3.  If the
 incorrect device is addressed, please read the warning/error messages
 carefully.  They should provide hints about what devices to use.
 .\" %ENDIF OS Linux
+.\" %IF OS FreeBSD Linux Windows Cygwin
 
-.\" %IF OS Linux FreeBSD
 Important: the Areca controller must have firmware version 1.46 or
 later.  Lower-numbered firmware versions will give (harmless) SCSI
 error messages and no SMART information.
 
 .I areca,N/E
-\- [Linux and FreeBSD only] [NEW EXPERIMENTAL SMARTCTL FEATURE] the device consists
-of one or more SATA disks connected to an Areca SAS RAID controller.
+\- [FreeBSD, Linux, Windows and Cygwin only] [NEW EXPERIMENTAL SMARTCTL FEATURE] the
+device consists of one or more SATA disks connected to an Areca SAS RAID controller.
 The integer N (range 1 to 128) denotes the channel (slot) and E (range
 1 to 8) denotes the enclosure.
 
-.\" %ENDIF OS Linux FreeBSD
+.\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS FreeBSD Linux
 .I cciss,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks

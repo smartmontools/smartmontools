@@ -53,7 +53,7 @@ running.
 In the absence of a configuration file
 \fBsmartd\fP will try to open all available devices.
 .\" %IF OS Linux
-Ubder linux will try to open the 20 ATA devices
+Under linux \fBsmartd\fP will try to open the 20 ATA devices
 .B /dev/hd[a-t] 
 and the 26 SCSI devices
 .B /dev/sd[a-z].
@@ -447,21 +447,23 @@ messages will make the most sense if you always list the 3ware SCSI
 logical device corresponding to the particular physical disks.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
+.\" %ENDIF OS FreeBSD Linux
+.\" %IF OS FreeBSD Linux Windows Cygwin
 .I areca,N
-\- [Linux and FreeBSD only] the device consists of one or more SATA disks connected to an
-Areca SATA RAID controller.  The positive integer N (in the range from 1 to
-24 inclusive) denotes which disk on the controller is monitored.
+\- [FreeBSD, Linux, Windows and Cygwin only] the device consists of one or more SATA disks
+connected to an Areca SATA RAID controller.  The positive integer N (in the range
+from 1 to 24 inclusive) denotes which disk on the controller is monitored.
 In log files and email messages this disk will be identifed as
 areca_disk_XX with XX in the range from 01 to 24 inclusive.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
 .I areca,N/E
-\- [NEW EXPERIMENTAL SMARTD FEATURE] the device consists
-of one or more SATA disks connected to an Areca SAS RAID controller.
+\- [FreeBSD, Linux, Windows and Cygwin only] [NEW EXPERIMENTAL SMARTD FEATURE] the
+device consists of one or more SATA disks connected to an Areca SAS RAID controller.
 The integer N (range 1 to 128) denotes the channel (slot) and E (range
 1 to 8) denotes the enclosure.
 
-.\" %ENDIF OS FreeBSD Linux
+.\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS FreeBSD Linux
 .I cciss,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
