@@ -608,8 +608,6 @@ protected:
 //virtual scsi_device * get_scsi_device(const char * name, const char * type);
 
   virtual smart_device * autodetect_smart_device(const char * name);
-
-  virtual smart_device * get_custom_smart_device(const char * name, const char * type);
 };
 
 #if WIN9X_SUPPORT
@@ -650,6 +648,10 @@ protected:
   virtual scsi_device * get_scsi_device(const char * name, const char * type);
 
   virtual smart_device * autodetect_smart_device(const char * name);
+
+  virtual smart_device * get_custom_smart_device(const char * name, const char * type);
+
+  virtual std::string get_valid_custom_dev_types_str();
 };
 
 
@@ -882,12 +884,11 @@ smart_device * win_smart_interface::autodetect_smart_device(const char * name)
 }
 
 
-smart_device * win_smart_interface::get_custom_smart_device(const char * name, const char * type)
+smart_device * winnt_smart_interface::get_custom_smart_device(const char * name, const char * type)
 {
   // Areca?
   int disknum = -1, n1 = -1, n2 = -1;
   int encnum = 1;
-  int ctlrindex = 0;
   HANDLE fh = INVALID_HANDLE_VALUE;
   char devpath[32];
 
@@ -903,7 +904,9 @@ smart_device * win_smart_interface::get_custom_smart_device(const char * name, c
 
     name = skipdev(name);
 #define ARECA_MAX_CTLR_NUM  16
-    if (sscanf(name, "arcmsr%n%d%n2", &n1, &ctlrindex, &n2) >= 1 || n1 == 6) {
+    n1 = -1;
+    int ctlrindex = 0;
+    if (sscanf(name, "arcmsr%d%n", &ctlrindex, &n1) >= 1 && n1 == (int)strlen(name)) {
       /*
        1. scan from "\\\\.\\scsi[0]:" up to "\\\\.\\scsi[ARECA_MAX_CTLR_NUM]:" and
        2. map arcmsrX into "\\\\.\\scsiX"
@@ -921,11 +924,20 @@ smart_device * win_smart_interface::get_custom_smart_device(const char * name, c
           CloseHandle(fh);
         }
       }
+      set_err(ENOENT, "No Areca controller found");
     }
+    else
+      set_err(EINVAL, "Option -d areca,N/E requires device name /dev/arcmsrX");
   }
 
   return 0;
 }
+
+std::string winnt_smart_interface::get_valid_custom_dev_types_str()
+{
+  return "areca,N[/E]";
+}
+
 
 smart_device * winnt_smart_interface::autodetect_smart_device(const char * name)
 {

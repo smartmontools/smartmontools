@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_win32.cpp: Add help text and error messages for '-d areca,N[/E]'.
+
   [CF] os_win32.cpp win_areca_device: Disable full 48-bit ATA support.
        Add missing set_err() calls.  Remove unused function and parameter.
 
