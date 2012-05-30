@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DG] os_linux.cpp: Fix scsi pass-through SG_INFO_CHECK mask logic
+       (ticket #225)
+
   [CF] drivedb.h updates:
        - Sandforce Driven SSDs: OCZ-NOCTI
        - Intel 330 Series SSDs (ticket #227)

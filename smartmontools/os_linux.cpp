@@ -606,7 +606,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         }
     }
 
-    if (io_hdr.info | SG_INFO_CHECK) { /* error or warning */
+    if (io_hdr.info & SG_INFO_CHECK) { /* error or warning */
         int masked_driver_status = (LSCSI_DRIVER_MASK & io_hdr.driver_status);
 
         if (0 != io_hdr.host_status) {
