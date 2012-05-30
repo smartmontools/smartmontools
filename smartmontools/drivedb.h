@@ -204,6 +204,7 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SH100S3(120|240)G|" // Hyper-X, SF-2281, tested with SH100S3240G/320ABBF0
     "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX(2|-LE))( [123]\\..*)?|" // SF-1200,
       // tested with OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
+    "OCZ-NOCTI|" // mSATA, SF-2100, tested with OCZ-NOCTI/2.15
     "OCZ-REVODRIVE3?( X2)?|" // PCIe, SF-1200/2281, tested with
       // OCZ-REVODRIVE( X2)?/1.20, OCZ-REVODRIVE3 X2/2.11
     "OCZ[ -](VELO|VERTEX2[ -](EX|PRO))( [123]\\..*)?|" // SF-1500, tested with
@@ -450,6 +451,22 @@ const drive_settings builtin_knowndrives[] = {
     "-v 226,raw48,Workld_Media_Wear_Indic "
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 249,raw48,NAND_Writes_1GiB"
+  },
+  { "Intel 330 Series SSDs", // tested with INTEL SSDSC2CT180A3/300i
+    "INTEL SSDSC2CT(060|120|180)A3",
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+  //"-v 181,raw48,Program_Fail_Cnt_Total " // ] Missing in 330 specification from April 2012
+  //"-v 182,raw48,Erase_Fail_Count_Total " // ]
+  //"-v 192,raw48,Power-Off_Retract_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator "
     "-v 241,raw48,Host_Writes_32MiB "

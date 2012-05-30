@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Sandforce Driven SSDs: OCZ-NOCTI
+       - Intel 330 Series SSDs (ticket #227)
+
   [CF] smartctl.8.in, smartd.conf.5.in: Document '-d areca N[/E]' support
        for Windows.
 
