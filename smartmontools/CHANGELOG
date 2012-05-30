@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3551 2012-05-30 20:24:18Z chrfranke $
+$Id: CHANGELOG 3552 2012-05-30 20:57:16Z dpgilbert $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] os_linux.cpp: Fix scsi pass-through SG_INFO_CHECK mask logic
+       (ticket #225)
 
   [CF] drivedb.h updates:
        - Sandforce Driven SSDs: OCZ-NOCTI

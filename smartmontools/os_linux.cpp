@@ -89,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3540 2012-05-14 20:25:18Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3552 2012-05-30 20:57:16Z dpgilbert $"
   OS_LINUX_H_CVSID;
 
 
@@ -606,7 +606,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         }
     }
 
-    if (io_hdr.info | SG_INFO_CHECK) { /* error or warning */
+    if (io_hdr.info & SG_INFO_CHECK) { /* error or warning */
         int masked_driver_status = (LSCSI_DRIVER_MASK & io_hdr.driver_status);
 
         if (0 != io_hdr.host_status) {
