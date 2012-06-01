@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_win32.cpp: Avoid ENOTSUP which is not provided by some versions
+       of MinGW.
+
   [DG] os_linux.cpp: Fix scsi pass-through SG_INFO_CHECK mask logic
        (ticket #225)
 

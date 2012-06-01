@@ -4774,7 +4774,7 @@ bool win_areca_device::arcmsr_ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   }
   else {
       // COMMAND NOT SUPPORTED VIA ARECA IOCTL INTERFACE
-      return set_err(ENOTSUP, "DATA OUT not supported for this Areca controller type");
+      return set_err(ENOSYS);
   }
 
   areca_packet[11] = m_disknum - 1;  // disk#
