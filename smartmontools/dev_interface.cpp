@@ -31,7 +31,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 3524 2012-03-21 22:19:31Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 3554 2012-06-01 20:11:46Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -52,6 +52,17 @@ smart_device::smart_device(do_not_use_in_implementation_classes)
 
 smart_device::~smart_device() throw()
 {
+}
+
+bool smart_device::is_syscall_unsup() const
+{
+  if (get_errno() == ENOSYS)
+    return true;
+#ifdef ENOTSUP
+  if (get_errno() == ENOTSUP)
+    return true;
+#endif
+  return false;
 }
 
 bool smart_device::set_err(int no, const char * msg, ...)
