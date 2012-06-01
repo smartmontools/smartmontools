@@ -85,6 +85,9 @@ than the SCSI device used for reading and writing data)!
 Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or equivalently
 \fB/dev/rdisk[0\-9]\fP.  Long forms are also available: please use \'\-h\' to see some
 examples. Note that there is currently no Darwin SCSI support.
+
+Use the OS X SAT SMART Driver to access SMART data on SAT capable USB and
+Firewire devices (see INSTALL file).
 .\" %ENDIF OS Darwin
 .\" %IF OS FreeBSD
 .IP \fBFREEBSD\fP: 9

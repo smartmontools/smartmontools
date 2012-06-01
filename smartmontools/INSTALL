@@ -193,6 +193,13 @@ Table of contents:
     hard drive comes with the offline test switched on by default, so
     even that works.
 
+    The OS X SAT SMART Driver provides access to SMART data for SAT capable
+    USB and Firewire devices:
+    https://github.com/kasbert/OS-X-SAT-SMART-Driver
+    https://github.com/RJVB/OS-X-SAT-SMART-Driver
+    This does not require any smartctl -d TYPE option and should work also
+    with older smartmontools releases.
+
     H) OS/2, eComStation
 
     The code was tested on eComStation 1.1, but it should work on all versions
