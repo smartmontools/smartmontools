@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3550 2012-05-29 21:36:50Z chrfranke $
+ $Id: smartctl.8.in 3555 2012-06-01 21:07:33Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -85,6 +85,9 @@ than the SCSI device used for reading and writing data)!
 Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or equivalently
 \fB/dev/rdisk[0\-9]\fP.  Long forms are also available: please use \'\-h\' to see some
 examples. Note that there is currently no Darwin SCSI support.
+
+Use the OS X SAT SMART Driver to access SMART data on SAT capable USB and
+Firewire devices (see INSTALL file).
 .\" %ENDIF OS Darwin
 .\" %IF OS FreeBSD
 .IP \fBFREEBSD\fP: 9
@@ -2185,4 +2188,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3550 2012-05-29 21:36:50Z chrfranke $
+$Id: smartctl.8.in 3555 2012-06-01 21:07:33Z chrfranke $
