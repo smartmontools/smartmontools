@@ -54,6 +54,17 @@ smart_device::~smart_device() throw()
 {
 }
 
+bool smart_device::is_syscall_unsup() const
+{
+  if (get_errno() == ENOSYS)
+    return true;
+#ifdef ENOTSUP
+  if (get_errno() == ENOTSUP)
+    return true;
+#endif
+  return false;
+}
+
 bool smart_device::set_err(int no, const char * msg, ...)
 {
   if (!msg)

@@ -147,6 +147,10 @@ public:
   const char * get_errmsg() const
     { return m_err.msg.c_str(); }
 
+  /// Return true if last error indicates an unsupported system call.
+  /// Default implementation returns true on ENOSYS and ENOTSUP.
+  virtual bool is_syscall_unsup() const;
+
   /// Set last error number and message.
   /// Printf()-like formatting is supported.
   /// Returns false always to allow use as a return expression.
@@ -183,7 +187,7 @@ public:
   /// Open device with autodetection support.
   /// May return another device for further access.
   /// In this case, the original pointer is no longer valid.
-  /// Default Implementation calls 'open()' and returns 'this'.
+  /// Default implementation calls 'open()' and returns 'this'.
   virtual smart_device * autodetect_open();
 
   ///////////////////////////////////////////////

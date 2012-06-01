@@ -2146,7 +2146,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     int powermode = ataCheckPowerMode(device);
     switch (powermode) {
       case -1:
-        if (device->get_errno() == ENOSYS) {
+        if (device->is_syscall_unsup()) {
           pout("CHECK POWER MODE not implemented, ignoring -n option\n"); break;
         }
         powername = "SLEEP";   powerlimit = 2;
