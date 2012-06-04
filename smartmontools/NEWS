@@ -18,7 +18,9 @@ Summary: smartmontools release 5.43
   already running.  Override with new option '-t force'.
 - smartctl supports extended self-test polling times
   greater than 255 minutes.
+- Controller-independent SAT detection: '-d sat,auto[+TYPE]'.
 - smartd.conf DEFAULT directive.
+- Many HDD, SSD and USB additions to drive database.
 - Linux and FreeBSD: Support for SATA disks behind Areca SAS controllers.
 - Windows: Support for SATA disks behind Areca controllers.
 - Windows smartd: directives '-l offlinests,ns' and
