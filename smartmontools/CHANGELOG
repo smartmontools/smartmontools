@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd.service.in: Add ExecReload and StandardOutput.
+       Make EnvironmentFile optional (ticket #194).
+
   [CF] drivedb.h USB updates:
        - HP Desktop HD BD07 (0x03f0:0xbd07)
        - Iomega Prestige Desktop USB 3.0 (0x059b:0x0070)
