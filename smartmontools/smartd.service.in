@@ -3,8 +3,10 @@ Description=Self Monitoring and Reporting Technology (SMART) Daemon
 After=syslog.target
 
 [Service]
-EnvironmentFile=/usr/local/etc/sysconfig/smartmontools
+EnvironmentFile=-/usr/local/etc/sysconfig/smartmontools
 ExecStart=/usr/local/sbin/smartd -n $smartd_opts
+ExecReload=/bin/kill -HUP $MAINPID
+StandardOutput=syslog
 
 [Install]
 WantedBy=multi-user.target
