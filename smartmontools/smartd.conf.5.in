@@ -386,7 +386,8 @@ SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
 the other 16 bytes long.  The default is the 16 byte variant which can be
 overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
 
-If \'-d sat,auto\' is specified, device type SAT (for ATA/SATA disks) is
+[NEW EXPERIMENTAL SMARTD FEATURE] If \'-d sat,auto\' is specified,
+device type SAT (for ATA/SATA disks) is
 only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
 Otherwise device type SCSI (for SCSI/SAS disks) is used.
 
@@ -677,9 +678,8 @@ battery.
 .\" %ENDIF OS Cygwin Windows
 
 .I scterc,READTIME,WRITETIME
-\- [ATA only] [NEW EXPERIMENTAL SMARTD FEATURE] sets the SCT Error
-Recovery Control settings to the specified values (deciseconds)
-when \fBsmartd\fP starts up and has no further effect.
+\- [ATA only] sets the SCT Error Recovery Control settings to the specified
+values (deciseconds) when \fBsmartd\fP starts up and has no further effect.
 Values of 0 disable the feature, other values less than 65 are probably
 not supported.  For RAID configurations, this is typically set to
 70,70 deciseconds.
@@ -733,10 +733,10 @@ The LBA range is based on the first span from the last test.
 See the \fBsmartctl \-t select,[next|redo|cont]\fP options for
 further info.
 
-[NEW EXPERIMENTAL SMARTD FEATURE] Some disks (e.g. WD) do not preserve
-the selective self test log accross power cycles.  If state persistence
-(\'\-s\' option) is enabled, the last test span is preserved by smartd
-and used if (and only if) the selective self test log is empty.
+Some disks (e.g. WD) do not preserve the selective self test log accross
+power cycles.  If state persistence (\'\-s\' option) is enabled, the last
+test span is preserved by smartd and used if (and only if) the selective
+self test log is empty.
 
 .IP \fBMM\fP 4
 is the month of the year, expressed with two decimal digits.  The
@@ -1142,13 +1142,13 @@ or age of the device has exceeded its intended design life period."
 .TP
 .B \-p
 [ATA only] Report anytime that a Prefail Attribute has changed
-its value since the last check, 30 minutes ago. [Please see the
+its value since the last check. [Please see the
 .B smartctl \-A
 command-line option.]
 .TP
 .B \-u
 [ATA only] Report anytime that a Usage Attribute has changed its value
-since the last check, 30 minutes ago. [Please see the
+since the last check. [Please see the
 .B smartctl \-A
 command-line option.]
 .TP
@@ -1300,19 +1300,19 @@ reports are disabled (\'-W 0\').
 
 To track temperature changes of at least 2 degrees, use:
 .nf
-\fB \-W 2
+.B \-W 2
 .fi
 To log informal messages on temperatures of at least 40 degrees, use:
 .nf
-\fB \-W 0,40
+.B \-W 0,40
 .fi
 For warning messages/mails on temperatures of at least 45 degrees, use:
 .nf
-\fB \-W 0,0,45
+.B \-W 0,0,45
 .fi
 To combine all of the above reports, use:
 .nf
-\fB \-W 2,40,45
+.B \-W 2,40,45
 .fi
 
 For ATA devices, smartd interprets Attribute 194 as Temperature Celsius

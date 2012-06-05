@@ -116,7 +116,7 @@ Authoritative list of disk devices is obtained from sysctl
 .\" %ENDIF OS NetBSD OpenBSD
 .\" %IF OS Solaris
 .IP \fBSOLARIS:\fP 9
-Examine all entries \fB"/dev/rdsk/c?t?d?s?"\fP for IDE/ATA and SCSI disk
+Examine all entries \fB"/dev/rdsk/*s0"\fP for IDE/ATA and SCSI disk
 devices, and entries \fB"/dev/rmt/*"\fP for SCSI tape devices.
 .\" %ENDIF OS Solaris
 .\" %IF OS Darwin
@@ -140,9 +140,9 @@ If a 3ware 9000 controller is installed, examine all entries
 \fB"/dev/sdX"\fP) and all physical disks (\'ports\' \fB",N"\fP)
 detected behind this controller. Same for a second controller if present.
 
-[NEW EXPERIMENTAL SMARTD FEATURE] If directive \'\-d csmi\' is specified,
-examine all entries \fB"/dev/csmi[0\-9],N"\fP for drives behind Intel
-Matrix RAID driver.
+If directive \'\-d csmi\' or no \'\-d\' directive is specified,
+examine all entries \fB"/dev/csmi[0\-9],N"\fP for drives behind an Intel
+ICHxR controller with RST driver.
 .\" %ENDIF OS Windows Cygwin
 .\" %IF OS Cygwin
 .IP \fBCYGWIN\fP: 9
@@ -223,7 +223,7 @@ file.  Please use CONTROL-\e to exit
 .\" %IF OS Windows
 (Windows: CONTROL\-Break).
 
-Windows only: The "debug" mode can be toggled by the command
+[Windows only] The "debug" mode can be toggled by the command
 \fBsmartd sigusr2\fP. A new console for debug output is opened when
 debug mode is enabled.
 .\" %ENDIF OS Windows
@@ -456,7 +456,7 @@ an important change (which usually results in a SYSLOG output) occurred.
 .\" %IF OS Windows
 .TP
 .B \-\-service
-Windows only: Enables \fBsmartd\fP to run as a Windows service.
+[Windows only] Enables \fBsmartd\fP to run as a Windows service.
 The option must be specified in the service command line as the first
 argument. It should not be used from console.
 See NOTES below for details.
@@ -685,7 +685,7 @@ A compile time constant of\fB smartd\fP was too small.  This can be caused by an
 excessive number of disks, or by lines in \fB /usr/local/etc/smartd.conf\fP that are too long.
 Please report this problem to \fB smartmontools-support@lists.sourceforge.net\fP.
 .TP
-.B 10
+.B 10:
 An inconsistency was found in \fBsmartd\fP\'s internal data
 structures. This should never happen.  It must be due to either a
 coding or compiler bug.  \fIPlease\fP report such failures to

@@ -141,9 +141,9 @@ in the driver. Use \fB"/dev/tw_cli/stdin"\fP or \fB"/dev/tw_cli/clip"\fP
 to parse CLI or 3DM output from standard input or clipboard.
 The option \'\-d 3ware,N\' is not necessary on Windows.
 
-[NEW EXPERIMENTAL SMARTCTL FEATURE] For disks behind Intel Matrix RAID
-driver use \fB"/dev/csmi[0\-9],N"\fP where N specifies the port behind
-the logical scsi controller "\\\\.\\Scsi[0\-9]:".
+For disks behind an Intel ICHxR controller with RST driver use
+\fB"/dev/csmi[0\-9],N"\fP where N specifies the port behind the logical
+scsi controller "\\\\.\\Scsi[0\-9]:".
 
 [NEW EXPERIMENTAL SMARTCTL FEATURE] For SATA disks behind an Areca SATA
 or SAS controller use \fB"/dev/arcmsr[0\-9]"\fP, see \'\-d areca,N[/E]\' below.
@@ -308,7 +308,8 @@ SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
 the other 16 bytes long.  The default is the 16 byte variant which can be
 overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
 
-If \'-d sat,auto\' is specified, device type SAT (for ATA/SATA disks) is
+[NEW EXPERIMENTAL SMARTCTL FEATURE] If \'-d sat,auto\' is specified,
+device type SAT (for ATA/SATA disks) is
 only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
 Otherwise device type SCSI (for SCSI/SAS disks) is used.
 
@@ -1090,9 +1091,9 @@ This number can be changed by the optional parameter NUM.
 If ',error' is appended and the Extended Comprehensive SMART error
 log is not supported, the Summary SMART self-test log is printed.
 
-Please note that some recent (e.g. Samsung) drives report errors only
-in the Extended Comprehensive SMART error log. The Summary SMART error
-log can be read but is always empty.
+Please note that recent drives may report errors only in the Extended
+Comprehensive SMART error log.  The Summary SMART error log may be reported
+as supported but is always empty then.
 
 .I selftest
 \- [ATA] prints the SMART self\-test log.  The disk maintains a self\-test
@@ -1224,7 +1225,8 @@ and descriptions of the ATA Device Statistics log pages
 entries from all supported pages are printed.  If PAGE 0 is specified,
 the list of supported pages is printed.  Device Statistics was
 introduced in ATA\-8 ACS and is only supported by some recent devices
-(e.g. Intel 320 and 710 Series SSDs).
+(e.g. Hitachi 7K3000, Intel 320, 330 and 710 Series SSDs, Crucial/Micron
+m4 SSDs).
 
 .I sataphy[,reset]
 \- [SATA only] prints values and descriptions of the SATA Phy Event
@@ -1850,7 +1852,7 @@ T13/1699-D Revision 6a (ATA8-ACS).  Note that the subcommands
 \fBWARNING: Only run subcommands documented by the vendor of the
 device.\fP
 
-Example for Intel (X18\-M/X25\-M G2 and 320 Series) SSDs only:
+Example for Intel (X18/X25\-M G2, 320, 520 and 710 Series) SSDs only:
 The subcommand 0x40 (\'\-t vendor,0x40\') clears the timed workload
 related SMART attributes (226, 227, 228).  Note that the raw values of
 these attributes are held at 65535 (0xffff) until the workload timer
