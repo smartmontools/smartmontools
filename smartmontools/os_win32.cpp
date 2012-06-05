@@ -86,7 +86,7 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3553 2012-06-01 19:38:26Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3558 2012-06-05 16:42:05Z chrfranke $";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
 #ifdef _WIN64
@@ -2333,12 +2333,6 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
 
 /////////////////////////////////////////////////////////////////////////////
 // USB ID detection using WMI
-
-// Return true if STR starts with PREFIX.
-static inline bool str_starts_with(const std::string & str, const char * prefix)
-{
-  return !strncmp(str.c_str(), prefix, strlen(prefix));
-}
 
 // Get USB ID for a physical drive number
 static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & product_id)
