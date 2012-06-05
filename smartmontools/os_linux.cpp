@@ -7,7 +7,7 @@
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
  * Copyright (C) 2008-12 Hank Wu <hank@areca.com.tw>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2008    Jordan Hargrave <jordan_hargrave@dell.com>
  *
  *  Parts of this file are derived from code that was
@@ -2929,12 +2929,6 @@ smart_device * linux_smart_interface::missing_option(const char * opt)
 {
   set_err(EINVAL, "requires option '%s'", opt);
   return 0;
-}
-
-// Return true if STR starts with PREFIX.
-static inline bool str_starts_with(const char * str, const char * prefix)
-{
-  return !strncmp(str, prefix, strlen(prefix));
 }
 
 // Return kernel release as integer ("2.6.31" -> 206031)

@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -53,6 +53,13 @@ std::string format_version_info(const char * prog_name, bool full = false);
 std::string strprintf(const char * fmt, ...)
     __attribute_format_printf(1, 2);
 std::string vstrprintf(const char * fmt, va_list ap);
+
+// Return true if STR starts with PREFIX
+inline bool str_starts_with(const char * str, const char * prefix)
+  { return !strncmp(str, prefix, strlen(prefix)); }
+
+inline bool str_starts_with(const std::string & str, const char * prefix)
+  { return !strncmp(str.c_str(), prefix, strlen(prefix)); }
 
 #ifndef HAVE_WORKING_SNPRINTF
 // Substitute by safe replacement functions

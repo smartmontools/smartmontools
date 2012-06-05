@@ -2334,12 +2334,6 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
 /////////////////////////////////////////////////////////////////////////////
 // USB ID detection using WMI
 
-// Return true if STR starts with PREFIX.
-static inline bool str_starts_with(const std::string & str, const char * prefix)
-{
-  return !strncmp(str.c_str(), prefix, strlen(prefix));
-}
-
 // Get USB ID for a physical drive number
 static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & product_id)
 {
