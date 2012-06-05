@@ -2231,6 +2231,13 @@ const drive_settings builtin_knowndrives[] = {
   // USB ID entries
   ////////////////////////////////////////////////////
 
+  // Hewlett-Packard
+  { "USB: HP Desktop HD BD07; ", // 2TB
+    "0x03f0:0xbd07",
+    "",
+    "",
+    "-d sat"
+  },
   // ALi
   { "USB: ; ALi M5621", // USB->PATA
     "0x0402:0x5621",
@@ -2362,6 +2369,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbsunplus"
   },
   // Iomega
+  { "USB: Iomega Prestige Desktop USB 3.0; ",
+    "0x059b:0x0070",
+    "", // 0x0004
+    "",
+    "-d sat" // ATA output registers missing
+  },
   { "USB: Iomega LPHD080-0; ",
     "0x059b:0x0272",
     "",
@@ -2485,7 +2498,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x067b:0x2507",
     "",
     "",
-    "" // unsupported
+    "-d usbjmicron,0" // Port number is required
   },
   { "USB: ; Prolific PL3507", // USB+IEE1394->PATA
     "0x067b:0x3507",
@@ -2763,6 +2776,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: WD My Passport USB 3.0; ",
+    "0x1058:0x0748",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: WD My Book ES; ",
     "0x1058:0x0906",
     "", // 0x0012
@@ -2836,8 +2855,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: WD My Book Essential USB 3.0; ", // 3TB
-    "0x1058:0x1130",
-    "", // 0x1012
+    "0x1058:0x11[34]0",
+    "", // 0x1012/0x1003
     "",
     "-d sat"
   },
@@ -3037,12 +3056,25 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  // Unknown: 0x1f75
+  { "USB: Sharkoon SATA QuickDeck Pro; ", // USB 2.0/3.0
+    "0x1f75:0x0888",
+    "", // 0x0034
+    "",
+    "" // unsupported
+  },
   // Hitachi/SimpleTech
   { "USB: Hitachi Touro Desk; JMicron", // 3TB
     "0x4971:0x1011",
     "",
     "",
     "-d usbjmicron"
+  },
+  { "USB: Hitachi Touro Desk 3.0; ", // 2TB
+    "0x4971:0x1015",
+    "", // 0x0000
+    "",
+    "-d sat" // ATA output registers missing
   },
   { "USB: Hitachi/SimpleTech; JMicron", // 1TB
     "0x4971:0xce17",

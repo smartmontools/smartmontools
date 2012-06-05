@@ -41,6 +41,15 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - HP Desktop HD BD07 (0x03f0:0xbd07)
+       - Iomega Prestige Desktop USB 3.0 (0x059b:0x0070)
+       - Prolific PL2507 (0x067b:0x2507): unsupported -> -d usbjmicron,0
+       - WD My Passport USB 3.0 (0x1058:0x0748)
+       - WD My Book Essential USB 3.0 (0x1058:0x1140)
+       - Sharkoon SATA QuickDeck Pro (0x1f75:0x0888): unsupported
+       - Hitachi Touro Desk (0x4971:0x1015)
+
   [CF] Move function str_starts_with() to utility.h.
 
   [CF] smartctl.8.in, smartd.conf.5.in: Note required Areca SAS firmware version.
