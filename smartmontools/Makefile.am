@@ -567,11 +567,11 @@ MAN2HTML = man2html
 MAN2TXT = groff -man -Tascii -P'-bcou'
 
 # Remove HTTP header and fix links in man2html output
-FIXHTML = sed '1s,^Content-type.*,,' \
-        | sed 's,<A HREF="http://[-a-z/]*/man2html?\([1-8]\)+\(smart[cd][.a-z]*\)">,<A HREF="\2.\1.html">,g' \
-        | sed 's,<A HREF="http://[-a-z/]*/man2html">,<A HREF=".">,g' \
-        | sed 's,<A HREF="http://[-a-z/]*/man2html?[^"]*">\([^<]*\)</A>,\1,g' \
-        | sed 's,<A HREF="mailto:[^s][^m][^a][^"]*">\([^<]*\)</A>,\1,g'
+FIXHTML = sed -e '1s,^Content-type.*,,' \
+              -e 's,<A HREF="[^"]*/man2html?\([1-8]\)+\(smart[cd][.a-z]*\)">,<A HREF="\2.\1.html">,g' \
+              -e 's,<A HREF="[^"]*/man2html">,<A HREF=".">,g' \
+              -e 's,<A HREF="[^"]*/man2html?[^"]*">\([^<]*\)</A>,\1,g' \
+              -e 's,<A HREF="mailto:[^s][^m][^a][^"]*">\([^<]*\)</A>,\1,g'
 
 # Convert man pages into .html and .txt
 
