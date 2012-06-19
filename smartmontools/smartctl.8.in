@@ -78,7 +78,14 @@ below. For disks behind HighPoint RocketRAID controllers you may need
 \fB"/dev/sd[a\-z]"\fP.  For disks behind Areca SATA RAID controllers,
 you need \fB"/dev/sg[2\-9]"\fP (note that smartmontools interacts with
 the Areca controllers via a SCSI generic device which is different
-than the SCSI device used for reading and writing data)!
+than the SCSI device used for reading and writing data)!  For HP Smart
+Array RAID controllers, there are three currently supported drivers: cciss,
+hpsa, and hpahcisr.  For disks accessed via the cciss driver the device nodes
+are of the form \fB"/dev/cciss/c[0\-9]d0"\fP.  For disks accessed via
+the hpahcisr and hpsa drivers, the device nodes you need are \fB"/dev/sg[0\-9]*"\fP.
+("lsscsi -g" is helpful in determining which scsi generic device node corresponds
+to which device.)  Use the nodes corresponding to the RAID controllers,
+not the nodes corresponding to logical drives.  See the \fB\-d\fP option below, as well.
 .\" %ENDIF OS Linux
 .\" %IF OS Darwin
 .IP \fBDARWIN\fP: 9
@@ -93,7 +100,9 @@ Firewire devices (see INSTALL file).
 .IP \fBFREEBSD\fP: 9
 Use the forms \fB"/dev/ad[0\-9]+"\fP for IDE/ATA
 devices and \fB"/dev/da[0\-9]+"\fP or \fB"/dev/pass[0\-9]+"\fP for SCSI devices.
-For SATA devices on AHCI bus use \fB"/dev/ada[0\-9]+"\fP format.
+For SATA devices on AHCI bus use \fB"/dev/ada[0\-9]+"\fP format.  For HP Smart
+Array RAID controllers, use \fB"/dev/ciss[0\-9]"\fP (and see the \fB-d\fP option,
+below).
 .\" %ENDIF OS FreeBSD
 .\" %IF OS NetBSD OpenBSD
 .IP \fBNETBSD/OPENBSD\fP: 9
@@ -507,12 +516,27 @@ recent beta version.
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS FreeBSD Linux
 .I cciss,N
-\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
+\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS or SATA disks
 connected to a cciss RAID controller.  The non-negative integer N (in the range
 from 0 to 15 inclusive) denotes which disk on the controller is monitored.
 
-If the controller firmware or driver provides a SAT Layer it may be possible
-to monitor also SATA disks by specifiying \'\-d sat+cciss,N\'.
+To look at disks behind HP Smart Array controllers, use syntax
+such as:
+.\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
+.nf
+\fBsmartctl \-a \-d cciss,0 /dev/cciss/c0d0\fP    (cciss driver under Linux)
+.fi
+.nf
+\fBsmartctl \-a \-d cciss,0 /dev/sg2\fP    (hpsa or hpahcisr drivers under Linux)
+.fi
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD
+.nf
+\fBsmartctl \-a \-d cciss,0 /dev/ciss0\fP    (under FreeBSD)
+.fi
+.\" %ENDIF OS FreeBSD
+.\" %IF OS FreeBSD Linux
 
 .I hpt,L/M/N
 \- [FreeBSD and Linux only] the device consists of one or more ATA disks

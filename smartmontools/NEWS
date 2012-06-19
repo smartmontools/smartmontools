@@ -21,7 +21,8 @@ Summary: smartmontools release 5.43
 - Controller-independent SAT detection: '-d sat,auto[+TYPE]'.
 - smartd.conf DEFAULT directive.
 - Many HDD, SSD and USB additions to drive database.
-- Linux and FreeBSD: Support for SATA disks behind Areca SAS controllers.
+- Linux and FreeBSD: Support for SATA disks behind Areca SAS
+  RAID controllers and HP Smart Array controllers.
 - Windows: Support for SATA disks behind Areca controllers.
 - Windows smartd: directives '-l offlinests,ns' and
   '-l selfteststs,ns'.

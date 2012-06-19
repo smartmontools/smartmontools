@@ -41,7 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
-  [CF] os_freebsp.cpp: add SAT autodetection to '-d cciss,N' device type
+  [CF] smartctl.8.in: Add info about HP Smart Array controllers.
+       Original patch was provided by Don Brace from HP.
+
+  [CF] os_freebsd.cpp: add SAT autodetection to '-d cciss,N' device type
        (ticket #202).
        Add missing freebsd_areca_device::m_encnum (regression from r3542).
        Patch was provided by Don Brace from HP.
