@@ -1096,6 +1096,7 @@ protected:
 
 private:
   int m_disknum; ///< Disk number.
+  int m_encnum;
 };
 
 
@@ -2263,7 +2264,7 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
       set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 127", disknum);
       return 0;
     }
-    return new freebsd_cciss_device(this, name, disknum);
+    return get_sat_device("sat,auto", new freebsd_cciss_device(this, name, disknum));
   }
 #if FREEBSDVER > 800100
   // adaX devices ?
