@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3561 2012-06-05 19:49:31Z chrfranke $
+$Id: smartd.conf.5.in 3566 2012-06-19 21:26:28Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -469,7 +469,7 @@ recent beta version.
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS FreeBSD Linux
 .I cciss,N
-\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
+\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS or SATA disks
 connected to a cciss RAID controller.  The non-negative integer N (in the range
 from 0 to 15 inclusive) denotes which disk on the controller is monitored.
 In log files and email messages this disk will be identified as cciss_disk_XX
@@ -1583,4 +1583,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3561 2012-06-05 19:49:31Z chrfranke $
+$Id: smartd.conf.5.in 3566 2012-06-19 21:26:28Z chrfranke $
