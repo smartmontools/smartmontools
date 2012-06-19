@@ -89,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3558 2012-06-05 16:42:05Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3564 2012-06-19 20:16:48Z chrfranke $"
   OS_LINUX_H_CVSID;
 
 
@@ -3107,7 +3107,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
       set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 127", disknum);
       return 0;
     }
-    return new linux_cciss_device(this, name, disknum);
+    return get_sat_device("sat,auto", new linux_cciss_device(this, name, disknum));
   }
 #endif // HAVE_LINUX_CCISS_IOCTL_H
 
