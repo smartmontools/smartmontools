@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_linux.cpp: add SAT autodetection to '-d cciss,N' device type.
+
   [CF] Makefile.am: FIXHTML modified for newer man2html versions.
 
   [CF] autogen.sh: automake 1.11.5 is OK.
