@@ -4285,7 +4285,7 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
 }
 
 // Interface to SPT SCSI devices.  See scsicmds.h and os_linux.c
-static long scsi_pass_through_direct(HANDLE fd, struct scsi_cmnd_io * iop)
+static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd_io * iop)
 {
   int report = scsi_debugmode; // TODO
 
@@ -4322,7 +4322,7 @@ static long scsi_pass_through_direct(HANDLE fd, struct scsi_cmnd_io * iop)
   memset(&sb, 0, sizeof(sb));
   sb.spt.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
   //sb.spt.PathId = 0;
-  sb.spt.TargetId = 127;
+  sb.spt.TargetId = targetid;
   //sb.spt.Lun = 0;
   sb.spt.CdbLength = iop->cmnd_len;
   memcpy(sb.spt.Cdb, iop->cmnd, iop->cmnd_len);
@@ -4552,11 +4552,15 @@ int win_areca_device::arcmsr_command_handler(HANDLE fd, unsigned long arcmsr_cmd
 
   while ( 1 )
   {
-    ioctlreturn = scsi_pass_through_direct(fd, &io_hdr);
+    ioctlreturn = scsi_pass_through_direct(fd, 16, &io_hdr);
     if ( ioctlreturn || io_hdr.scsi_status )
     {
-      // errors found
-      break;
+      ioctlreturn = scsi_pass_through_direct(fd, 127, &io_hdr);
+      if ( ioctlreturn || io_hdr.scsi_status )
+      {
+        // errors found
+        break;
+      }
     }
 
     if ( arcmsr_cmd != ARCMSR_IOCTL_READ_RQBUFFER )
