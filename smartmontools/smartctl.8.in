@@ -1688,7 +1688,16 @@ specified per command line.  Note also that if a computer is shutdown
 or power cycled during a self\-test, no harm should result.  The
 self\-test will either be aborted or will resume automatically.
 
-The valid arguments to this option are:  
+All \'\-t TEST\' commands can be given during normal system operation
+unless captive mode (\'\-C\' option) is used.
+A running self\-test can, however, degrade performance of the drive.
+Frequent I/O requests from the operating system increase the duration
+of a test.  These impacts may vary from device to device.
+
+If a test failure occurs then the device may discontinue the testing
+and report the result immediately.
+
+The valid arguments to this option are:
 
 .I offline
 \- [ATA] runs SMART Immediate Offline Test.  This immediately
