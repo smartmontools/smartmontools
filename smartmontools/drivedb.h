@@ -218,6 +218,8 @@ const drive_settings builtin_knowndrives[] = {
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
+    "OWC Mercury Electra [36]G SSD|" // tested with
+      // OWC Mercury Electra 6G SSD/502ABBF0
     "OWC Mercury Extreme Pro (RE )?SSD|" // tested with
       // OWC Mercury Extreme Pro SSD/360A13F0
     "Patriot Pyro|" // tested with Patriot Pyro/332ABBF0
@@ -984,6 +986,11 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HN-M(250|500|750|101)MBB",
     "", "", ""
   },
+  { "Seagate Momentus SpinPoint M8 (AFT)", // tested with
+      // "ST750LM022 HN-M750MBB"/2AR10001
+    "ST(250|500|750|1000)LM0[012][124] HN-M[0-9]*MBB",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint M8U (USB)", // tested with HN-M500XBB/2AR10001
     "SAMSUNG HN-M(320|500|750|101)XBB",
     "", "", ""
@@ -1483,6 +1490,10 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HDS5C30(15|20|30)ALA63[02].*",
     "", "", ""
   },
+  { "Hitachi Deskstar 5K4000", // tested with HDS5C4040ALE630/MPAOA250
+    "(Hitachi )?HDS5C40(30|40)ALE63[01].*",
+    "", "", ""
+  },
   { "Hitachi Deskstar 7K80",
     "(Hitachi )?HDS7280([48]0PLAT20|(40)?PLA320|80PLA380).*",
     "", "", ""
@@ -1597,6 +1608,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba 2.5\" HDD MK..59GSM (Adv. Format)",
     "TOSHIBA MK(75|10)59GSM",
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MK..61GSYN", // tested with TOSHIBA MK5061GSYN/MH000A
+    "TOSHIBA MK(16|25|32|50|64)61GSYN",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..65GSX", // tested with TOSHIBA MK5065GSX/GJ003A
@@ -1889,8 +1904,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST(3(2000641|3000651)AS|4000DX000-.*)",
     "", "", ""
   },
-  { "Seagate Barracuda (SATA 3Gb/s, 4K Sectors)", // tested with ST250DM000-1BC141
-    "ST(3000|2000|1500|750|500|320|250)DM00[012]-.*",
+  { "Seagate Barracuda (SATA 3Gb/s, 4K Sectors)", // tested with ST250DM000-1BC141,
+      // ST1000DM003-9YN162/CC46
+    "ST(250|320|500|750|1000|1500|2000|3000)DM00[0-3]-.*",
     "", "", ""
   },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03

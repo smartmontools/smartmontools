@@ -41,6 +41,13 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Sandforce Driven SSDs: OWC Mercury Electra 3/6G SSD
+       - Seagate Momentus SpinPoint M8
+       - Hitachi Deskstar 5K4000
+       - Toshiba 2.5" HDD MK..61GSYN
+       - Seagate Barracuda (SATA 3Gb/s, 4K Sectors): 1TB, *DM003-* variant
+
   [CF] smartctl.8.in: Note performance impact of self-tests.
 
   [CF] os_win32.cpp: Add support for older Areca drivers which used a
