@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Add Windows Server 2012 to get_os_version_str().
+
   [CF] drivedb.h updates:
        - Sandforce Driven SSDs: OWC Mercury Electra 3/6G SSD
        - Seagate Momentus SpinPoint M8
