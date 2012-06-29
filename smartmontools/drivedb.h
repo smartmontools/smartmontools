@@ -1463,7 +1463,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi Travelstar 7K500",
-    "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[45]",
+    "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[2-5]",
     "", "", ""
   },
   { "IBM Deskstar 14GXP and 16GP",
