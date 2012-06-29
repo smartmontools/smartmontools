@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3569 2012-06-25 21:22:25Z chrfranke $
+$Id: CHANGELOG 3570 2012-06-29 19:19:30Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Add Windows Server 2012 to get_os_version_str().
 
   [CF] drivedb.h updates:
        - Sandforce Driven SSDs: OWC Mercury Electra 3/6G SSD
