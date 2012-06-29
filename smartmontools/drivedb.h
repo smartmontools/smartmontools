@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3569 2012-06-25 21:22:25Z chrfranke $",
+  { "$Id: drivedb.h 3571 2012-06-29 19:32:31Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1463,7 +1463,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi Travelstar 7K500",
-    "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[45]",
+    "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[2-5]",
     "", "", ""
   },
   { "IBM Deskstar 14GXP and 16GP",
