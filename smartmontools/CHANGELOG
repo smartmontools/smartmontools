@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h USB updates:
+       - Toshiba Canvio Basics (0x0480:0xa006)
+       - A-DATA DashDrive (0x125f:0xa94a)
+
   [CF] drivedb.h: Hitachi Travelstar 7K500: *A362/3 variants
 
   [CF] Windows: Add Windows Server 2012 to get_os_version_str().

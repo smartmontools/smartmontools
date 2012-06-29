@@ -2296,11 +2296,17 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Toshiba
-  { "USB: Toshiba Canvio 500GB; ",
+  { "USB: Toshiba Canvio 500GB; SunPlus",
     "0x0480:0xa004",
     "",
     "",
     "-d usbsunplus"
+  },
+  { "USB: Toshiba Canvio Basics; ",
+    "0x0480:0xa006",
+    "", // 0x0001
+    "",
+    "-d sat"
   },
   // Cypress
   { "USB: ; Cypress CY7C68300A (AT2)",
@@ -2890,6 +2896,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
+  { "USB: A-DATA DashDrive; Cypress",
+    "0x125f:0xa94a",
+    "",
+    "",
+    "-d usbcypress"
+  },
   // Initio
   { "USB: ; Initio 316000",
     "0x13fd:0x0540",
@@ -3021,8 +3033,8 @@ const drive_settings builtin_knowndrives[] = {
     "" // unsupported
   },
   // LucidPort
-  { "USB: RaidSonic ICY BOX IB-110StU3-B; LucidPORT USB300",
-    "0x1759:0x500[02]",
+  { "USB: ; LucidPORT USB300", // RaidSonic ICY BOX IB-110StU3-B, Sharkoon SATA QuickPort H3
+    "0x1759:0x500[02]", // 0x5000: USB 2.0, 0x5002: USB 3.0
     "",
     "",
     "-d sat"
