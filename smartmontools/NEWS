@@ -1,11 +1,11 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3566 2012-06-19 21:26:28Z chrfranke $
+$Id: NEWS 3573 2012-06-30 14:03:55Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
-Date <Not released yet, please try current SVN>
+Date 2012-06-30
 Summary: smartmontools release 5.43
 -----------------------------------------------------------
 - smartctl options '-g, --get' and '-s, --set' to get/set
