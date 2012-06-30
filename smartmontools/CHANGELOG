@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+smartmontools 5.43 2012-06-30
+
   [CF] drivedb.h USB updates:
        - Toshiba Canvio Basics (0x0480:0xa006)
        - A-DATA DashDrive (0x125f:0xa94a)

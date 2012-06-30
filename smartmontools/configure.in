@@ -8,8 +8,8 @@ AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
 smartmontools_cvs_tag=`echo '$Id$'`
-smartmontools_release_date=2011-10-20
-smartmontools_release_time="19:19:34 UTC"
+smartmontools_release_date=2012-06-30
+smartmontools_release_time="14:03:01 UTC"
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",            [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_DATE, "$smartmontools_configure_date", [smartmontools Configure Date])
