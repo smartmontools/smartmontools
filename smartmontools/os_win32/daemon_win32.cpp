@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,12 +11,11 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-// Need MB_SERVICE_NOTIFICATION (NT4/2000/XP), IsDebuggerPresent() (Win98/ME/NT4/2000/XP)
+// Need MB_SERVICE_NOTIFICATION, IsDebuggerPresent()
 #define WINVER 0x0400
 #define _WIN32_WINNT WINVER
 
@@ -550,29 +549,13 @@ int daemon_spawn(const char * cmd,
                  const char * inpbuf, int inpsize,
                  char *       outbuf, int outsize )
 {
-	HANDLE pipe_inp_r, pipe_inp_w, pipe_out_r, pipe_out_w, pipe_err_w, h;
-	char temp_path[MAX_PATH];
-	DWORD flags, num_io, exitcode;
-	int use_file, state, i;
-	SECURITY_ATTRIBUTES sa;
-	STARTUPINFO si; PROCESS_INFORMATION pi;
 	HANDLE self = GetCurrentProcess();
 
-	if (GetVersion() & 0x80000000L) {
-		// Win9x/ME: A calling process never receives EOF if output of COMMAND.COM or
-		// any other DOS program is redirected via a pipe. Using a temp file instead.
-		use_file = 1; flags = DETACHED_PROCESS;
-	}
-	else {
-		// NT4/2000/XP: If DETACHED_PROCESS is used, CMD.EXE opens a new console window
-		// for each external command in a redirected .BAT file.
-		// Even (DETACHED_PROCESS|CREATE_NO_WINDOW) does not work.
-		use_file = 0; flags = CREATE_NO_WINDOW;
-	}
-
 	// Create stdin pipe with inheritable read side
+	SECURITY_ATTRIBUTES sa;
 	memset(&sa, 0, sizeof(sa)); sa.nLength = sizeof(sa);
 	sa.bInheritHandle = TRUE;
+	HANDLE pipe_inp_r, pipe_inp_w, h;
 	if (!CreatePipe(&pipe_inp_r, &h, &sa/*inherit*/, inpsize*2+13))
 		return -1;
 	if (!DuplicateHandle(self, h, self, &pipe_inp_w,
@@ -581,36 +564,16 @@ int daemon_spawn(const char * cmd,
 		return -1;
 	}
 
+	// Create stdout pipe with inheritable write side
 	memset(&sa, 0, sizeof(sa)); sa.nLength = sizeof(sa);
 	sa.bInheritHandle = TRUE;
-	if (!use_file) {
-		// Create stdout pipe with inheritable write side
-		if (!CreatePipe(&h, &pipe_out_w, &sa/*inherit*/, outsize)) {
-			CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
-			return -1;
-		}
-	}
-	else {
-		// Create temp file with inheritable write handle
-		char temp_dir[MAX_PATH];
-		if (!GetTempPathA(sizeof(temp_dir), temp_dir))
-			strcpy(temp_dir, ".");
-		if (!GetTempFileNameA(temp_dir, "out"/*prefix*/, 0/*create unique*/, temp_path)) {
-			CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
-			return -1;
-		}
-		if ((h = CreateFileA(temp_path, GENERIC_READ|GENERIC_WRITE,
-			0/*no sharing*/, &sa/*inherit*/, OPEN_EXISTING, 0, NULL)) == INVALID_HANDLE_VALUE) {
-			CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
-			return -1;
-		}
-		if (!DuplicateHandle(self, h, self, &pipe_out_w,
-			GENERIC_WRITE, TRUE/*inherit*/, 0)) {
-			CloseHandle(h); CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
-			return -1;
-		}
+	HANDLE pipe_out_w;
+	if (!CreatePipe(&h, &pipe_out_w, &sa/*inherit*/, outsize)) {
+		CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+		return -1;
 	}
 
+	HANDLE pipe_out_r;
 	if (!DuplicateHandle(self, h, self, &pipe_out_r,
 		GENERIC_READ, FALSE/*!inherit*/, DUPLICATE_CLOSE_SOURCE)) {
 		CloseHandle(pipe_out_w); CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
@@ -618,6 +581,7 @@ int daemon_spawn(const char * cmd,
 	}
 
 	// Create stderr handle as dup of stdout write side
+	HANDLE pipe_err_w;
 	if (!DuplicateHandle(self, pipe_out_w, self, &pipe_err_w,
 		0, TRUE/*inherit*/, DUPLICATE_SAME_ACCESS)) {
 		CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
@@ -625,16 +589,18 @@ int daemon_spawn(const char * cmd,
 		return -1;
 	}
 
-	// Create process with pipes/file as stdio
+	// Create process with pipes as stdio
+	STARTUPINFO si;
 	memset(&si, 0, sizeof(si)); si.cb = sizeof(si);
 	si.hStdInput  = pipe_inp_r;
 	si.hStdOutput = pipe_out_w;
 	si.hStdError  = pipe_err_w;
 	si.dwFlags = STARTF_USESTDHANDLES;
+	PROCESS_INFORMATION pi;
 	if (!CreateProcessA(
 		NULL, (char*)cmd,
 		NULL, NULL, TRUE/*inherit*/,
-		flags/*DETACHED_PROCESS or CREATE_NO_WINDOW*/,
+		CREATE_NO_WINDOW, // DETACHED_PROCESS does not work
 		NULL, NULL, &si, &pi)) {
 		CloseHandle(pipe_err_w);
 		CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
@@ -648,7 +614,9 @@ int daemon_spawn(const char * cmd,
 	CloseHandle(pipe_err_w);
 
 	// Copy inpbuf to stdin
-	// convert \n => \r\n 
+	// convert \n => \r\n
+	DWORD num_io;
+	int i;
 	for (i = 0; i < inpsize; ) {
 		int len = 0;
 		while (i+len < inpsize && inpbuf[i+len] != '\n')
@@ -663,37 +631,25 @@ int daemon_spawn(const char * cmd,
 	}
 	CloseHandle(pipe_inp_w);
 
-	exitcode = 42;
-	for (state = 0; state < 2; state++) {
-		// stdout pipe: read pipe first
-		// stdout file: wait for process first
-		if (state == use_file) {
-			// Copy stdout to output buffer until full, rest to /dev/null
-			// convert \r\n => \n
-			if (use_file)
-				SetFilePointer(pipe_out_r, 0, NULL, FILE_BEGIN);
-			for (i = 0; ; ) {
-				char buf[256];
-				int j;
-				if (!ReadFile(pipe_out_r, buf, sizeof(buf), &num_io, NULL) || num_io == 0)
-					break;
-				for (j = 0; i < outsize-1 && j < (int)num_io; j++) {
-					if (buf[j] != '\r')
-						outbuf[i++] = buf[j];
-				}
-			}
-			outbuf[i] = 0;
-			CloseHandle(pipe_out_r);
-			if (use_file)
-				DeleteFileA(temp_path);
-		}
-		else {
-			// Wait for process exitcode
-			WaitForSingleObject(pi.hProcess, INFINITE);
-			GetExitCodeProcess(pi.hProcess, &exitcode);
-			CloseHandle(pi.hProcess);
+	// Copy stdout to output buffer until full, rest to /dev/null
+	// convert \r\n => \n
+	for (i = 0; ; ) {
+		char buf[256];
+		if (!ReadFile(pipe_out_r, buf, sizeof(buf), &num_io, NULL) || num_io == 0)
+			break;
+		for (int j = 0; i < outsize-1 && j < (int)num_io; j++) {
+			if (buf[j] != '\r')
+				outbuf[i++] = buf[j];
 		}
 	}
+	outbuf[i] = 0;
+	CloseHandle(pipe_out_r);
+
+	// Wait for process exitcode
+	DWORD exitcode = 42;
+	WaitForSingleObject(pi.hProcess, INFINITE);
+	GetExitCodeProcess(pi.hProcess, &exitcode);
+	CloseHandle(pi.hProcess);
 	return exitcode;
 }
 

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-8 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,57 +11,17 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 #include "hostname_win32.h"
 
-const char * hostname_win32_c_cvsid = "$Id: hostname_win32.cpp,v 1.6 2008/03/04 22:09:48 ballen4705 Exp $" HOSTNAME_WIN32_H_CVSID;
+const char * hostname_win32_cpp_cvsid = "$Id$"
+  HOSTNAME_WIN32_H_CVSID;
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <string.h>
-
-#ifndef MAX_HOSTNAME_LEN
-
-// From IPHlpApi.dll:
-
-#define MAX_HOSTNAME_LEN    132
-#define MAX_DOMAIN_NAME_LEN 132
-#define MAX_SCOPE_ID_LEN    260
-
-typedef struct {
-  char String[4 * 4];
-} IP_ADDRESS_STRING, 
-*PIP_ADDRESS_STRING, IP_MASK_STRING, *PIP_MASK_STRING;
-
-typedef struct _IP_ADDR_STRING {
-  struct _IP_ADDR_STRING* Next;
-  IP_ADDRESS_STRING IpAddress;
-  IP_MASK_STRING IpMask;
-  DWORD Context;
-} IP_ADDR_STRING, 
-*PIP_ADDR_STRING;
-
-typedef struct {
-  char HostName[MAX_HOSTNAME_LEN];
-  char DomainName[MAX_DOMAIN_NAME_LEN];
-  PIP_ADDR_STRING CurrentDnsServer;
-  IP_ADDR_STRING DnsServerList;
-  UINT NodeType;
-  char ScopeId[MAX_SCOPE_ID_LEN];
-  UINT EnableRouting;
-  UINT EnableProxy;
-  UINT EnableDns;
-} FIXED_INFO,
-*PFIXED_INFO;
-
-DWORD WINAPI GetNetworkParams(PFIXED_INFO info, PULONG size);
-
-#endif // MAX_HOSTNAME_LEN
-
 
 // Call GetComputerNameEx() if available (Win2000/XP)
 
@@ -81,33 +41,13 @@ static BOOL CallGetComputerNameExA(int type, LPSTR name, LPDWORD size)
 }
 
 
-// Call GetNetworkParams() if available (Win98/ME/2000/XP)
-
-static DWORD CallGetNetworkParams(PFIXED_INFO info, PULONG size)
-{
-	HINSTANCE hdll;
-	DWORD (WINAPI * GetNetworkParams_p)(PFIXED_INFO, PULONG);
-	DWORD ret;
-	if (!(hdll = LoadLibraryA("IPHlpApi.dll")))
-		return ERROR_NOT_SUPPORTED;
-	if (!(GetNetworkParams_p = (DWORD (WINAPI *)(PFIXED_INFO, PULONG))GetProcAddress(hdll, "GetNetworkParams")))
-		ret = ERROR_NOT_SUPPORTED;
-	else
-		ret = GetNetworkParams_p(info, size);
-	FreeLibrary(hdll);
-	return ret;
-}
-
-
-// Get host/domainname from registry (Win98/ME/NT4/2000/XP)
+// Get host/domainname from registry (NT4/2000/XP)
 
 static DWORD GetNamesFromRegistry(BOOL domain, char * name, int len)
 {
 	HKEY hk; DWORD size, type;
 	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-	    (GetVersion() & 0x80000000
-	     ? "System\\CurrentControlSet\\Services\\VxD\\MSTCP" //Win9x/ME
-	     : "System\\CurrentControlSet\\Services\\Tcpip\\Parameters"),
+	    "System\\CurrentControlSet\\Services\\Tcpip\\Parameters",
 	    0, KEY_READ, &hk) != ERROR_SUCCESS)
 		return 0;
 	size = len-1;
@@ -125,19 +65,10 @@ static DWORD GetNamesFromRegistry(BOOL domain, char * name, int len)
 
 static int gethostdomname(int domain, char * name, int len)
 {
-	DWORD size; FIXED_INFO info;
-
 	// try KERNEL32.dll::GetComputerNameEx()
-	size = len - 1;
+	DWORD size = len - 1;
 	if (CallGetComputerNameExA((!domain ? 1:2/*ComputerNameDnsHost:Domain*/), name, &size))
 		return 0;
-
-	// try IPHlpApi.dll::GetNetworkParams() 
-	size = sizeof(info);
-	if (CallGetNetworkParams(&info, &size) == ERROR_SUCCESS) {
-		strncpy(name, (!domain?info.HostName:info.DomainName), len-1); name[len-1] = 0;
-		return 0;
-	}
 
 	// try registry
 	if (GetNamesFromRegistry(domain, name, len))

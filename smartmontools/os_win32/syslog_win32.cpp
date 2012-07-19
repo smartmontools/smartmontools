@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-8 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,15 +11,13 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 // Win32 Emulation of syslog() for smartd
 // Writes to windows event log on NT4/2000/XP
 // (Register syslogevt.exe as event message file)
-// Writes to file "<ident>.log" on 9x/ME.
 // If facility is set to LOG_LOCAL[0-7], log is written to
 // file "<ident>.log", stdout, stderr, "<ident>[1-5].log".
 
@@ -35,8 +33,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h> // RegisterEventSourceA(), ReportEventA(), ...
 
-const char *syslog_win32_c_cvsid = "$Id: syslog_win32.cpp,v 1.8 2008/03/04 22:09:48 ballen4705 Exp $"
-SYSLOG_H_CVSID;
+const char *syslog_win32_cpp_cvsid = "$Id$"
+  SYSLOG_H_CVSID;
 
 #ifdef _MSC_VER
 // MSVC
@@ -350,12 +348,8 @@ void openlog(const char *ident, int logopt, int facility)
 		// Cannot open => Use logfile
 		long err = GetLastError();
 		strcat(strcpy(sl_logpath, sl_ident), ".log");
-		if (GetVersion() & 0x80000000)
-			fprintf(stderr, "%s: No event log on Win9x/ME, writing to %s\n",
-				sl_ident, sl_logpath);
-		else
-			fprintf(stderr, "%s: Cannot register event source (Error=%ld), writing to %s\n",
-				sl_ident, err, sl_logpath);
+		fprintf(stderr, "%s: Cannot register event source (Error=%ld), writing to %s\n",
+			sl_ident, err, sl_logpath);
 	}
 	else {
 		// Start event log thread

@@ -97,7 +97,7 @@ Table of contents:
 
     E) Cygwin
 
-    The code was tested on Cygwin 1.7.7-1. It should also work on other
+    The code was tested on Cygwin 1.7.15-1.  It should also work on other
     recent releases.
 
     Both Cygwin and Windows versions of smartmontools share the same code
@@ -106,40 +106,14 @@ Table of contents:
 
     F) Windows
 
-    The code was tested on Windows 98SE, ME, NT4(SP5,SP6), 2000(SP4),
-    XP(up to SP3), 2003, Vista and Windows 7.
-
-    -- Windows 9x/ME
-
-    On 9x/ME, only standard (legacy) IDE/ATA devices 0-3 are supported.
-    The driver SMARTVSD.VXD must be present in WINDOWS\SYSTEM\IOSUBSYS
-    to get loaded at Windows startup. The default location in a new
-    installation of some versions of Windows is the WINDOWS\SYSTEM folder.
-    In this case, move SMARTVSD.VXD to WINDOWS\SYSTEM\IOSUBSYS and reboot
-    (http://support.microsoft.com/kb/265854/en-us).
-
-    SMARTVSD.VXD relies on the standard IDE port driver ESDI_506.PDR.
-    If the system uses a vendor specific driver, access of SMART data
-    is not possible.
-
-    Some ATA controllers (e.g. Promise) provided a custom SMARTVSD.VXD
-    for their Win9x/ME driver. To access SMART data from both the legacy
-    (/dev/h[a-d]) and this additional (/dev/hd[e-h]) controller, rename
-    this file to SMARTVSE.VXD. Open the file with a hex editor and replace
-    all occurrences of the string "SMARTVSD" with "SMARTVSE". Then reinstall
-    the original Windows SMARTVSD.VXD.
-
-    To access SCSI and USB devices, an installed ASPI interface (WNASPI32.DLL)
-    is required. The code was tested with Adaptec Windows ASPI drivers 4.71.2.
-    (http://www.adaptec.com/en-US/support/_eol/scsi_sw/ASPI-4.70/)
-    Links to other ASPI drivers can be found at http://www.nu2.nu/aspi/.
-
-    -- Windows NT4/2000/XP/2003/Vista/Win7
+    The code was tested on Windows XP SP3, 2003, Vista, Windows 7 and
+    Windows 8 Release Preview.  Support von Windows 9x/ME was removed after
+    smartmontools 5.43.
 
     ATA or SATA devices are supported if the device driver implements
     the SMART IOCTLs or IOCTL_IDE_PASS_THROUGH or IOCTL_ATA_PASS_THROUGH.
-    The ATA SMART READ LOG command (smartctl -l, --log, -a, --all) is not
-    supported if only the SMART IOCTLs are implemented.
+    Only the latter provides full pass-through support which is needed
+    for all smartmontools features.
 
     SCSI and USB devices are accessed through SPTI. Special driver support
     is not required.

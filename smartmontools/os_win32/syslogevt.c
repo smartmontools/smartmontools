@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,8 +11,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -35,7 +34,7 @@ typedef assert_msg_syslog_10[MSG_SYSLOG_10 == 10 ? 1 : -1];
 static int usage()
 {
 	puts(
-		"syslogevt $Revision$ Copyright (C) 2004-10 Christian Franke\n"
+		"syslogevt $Revision$ Copyright (C) 2004-12 Christian Franke\n"
 		"Home page is http://smartmontools.sourceforge.net/\n"
 		"\n"
 		"Usage: syslogevt [-ru] name [ident ...]\n"
@@ -126,12 +125,6 @@ main(int argc, char ** argv)
 
 	fclose(f1);
 	fclose(f2);
-
-	if (GetVersion() & 0x80000000) {
-		puts("Warning: Event log not supported on Win9x/ME\n");
-		if (regedit)
-			return 1;
-	}
 
 	if (regedit) {
 		if (spawnlp(P_WAIT, "regedit", "regedit", (regedit > 0 ? name1 : name2), (const char *)0) == -1) {

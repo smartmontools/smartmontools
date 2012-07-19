@@ -138,9 +138,7 @@ SectionGroup "!Program files"
       MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "Replace existing configuration file$\n$INSTDIR\bin\smartd.conf ?" IDYES 0 IDNO +2
         File "${INPDIR}\doc\smartd.conf"
 
-    IfFileExists "$WINDIR\system32\cmd.exe" 0 nosysl
-      !insertmacro FileExe "bin\syslogevt.exe" /nonfatal
-    nosysl:
+    !insertmacro FileExe "bin\syslogevt.exe" /nonfatal
 
     ; Restart service ?
     StrCmp $1 "0" 0 +3
@@ -253,9 +251,7 @@ Section "Start Menu Shortcuts" MENU_SECTION
   ; smartctl
   IfFileExists "$INSTDIR\bin\smartctl.exe" 0 noctl
     SetOutPath "$INSTDIR\bin"
-    IfFileExists "$WINDIR\system32\cmd.exe" 0 nocmd
-      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl (Admin CMD).lnk" "$WINDIR\system32\cmd.exe" '/k PATH=$INSTDIR\bin;%PATH%&cd /d "$INSTDIR\bin"'
-    nocmd:
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl (Admin CMD).lnk" "$WINDIR\system32\cmd.exe" '/k PATH=$INSTDIR\bin;%PATH%&cd /d "$INSTDIR\bin"'
     CreateDirectory "$SMPROGRAMS\smartmontools\smartctl Examples"
     FileOpen $0 "$SMPROGRAMS\smartmontools\smartctl Examples\!Read this first!.txt" "w"
     FileWrite $0 "All the example commands in this directory$\r$\napply to the first drive (sda).$\r$\n"
@@ -288,15 +284,13 @@ Section "Start Menu Shortcuts" MENU_SECTION
     CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\smartd.conf (view).lnk"                   "$EDITOR" "$INSTDIR\bin\smartd.conf"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\smartd.log (view).lnk"                    "$EDITOR" "$INSTDIR\bin\smartd.log"
 
-    ; smartd service (not on 9x/ME)
-    IfFileExists "$WINDIR\system32\cmd.exe" 0 nosvc
-      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, eventlog, 30min.lnk"   "$INSTDIR\bin\runcmdu.exe" "smartd install"
-      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, smartd.log, 10min.lnk" "$INSTDIR\bin\runcmdu.exe" "smartd install -l local0 -i 600"
-      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, smartd.log, 30min.lnk" "$INSTDIR\bin\runcmdu.exe" "smartd install -l local0"
-      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service remove.lnk"                     "$INSTDIR\bin\runcmdu.exe" "smartd remove"
-      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service start.lnk"                      "$INSTDIR\bin\runcmdu.exe" "net start smartd"
-      !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service stop.lnk"                       "$INSTDIR\bin\runcmdu.exe" "net stop smartd"
-    nosvc:
+    ; smartd service
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, eventlog, 30min.lnk"   "$INSTDIR\bin\runcmdu.exe" "smartd install"
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, smartd.log, 10min.lnk" "$INSTDIR\bin\runcmdu.exe" "smartd install -l local0 -i 600"
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, smartd.log, 30min.lnk" "$INSTDIR\bin\runcmdu.exe" "smartd install -l local0"
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service remove.lnk"                     "$INSTDIR\bin\runcmdu.exe" "smartd remove"
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service start.lnk"                      "$INSTDIR\bin\runcmdu.exe" "net start smartd"
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service stop.lnk"                       "$INSTDIR\bin\runcmdu.exe" "net stop smartd"
   nod:
 
   ; Documentation
@@ -346,9 +340,8 @@ Section "Add install dir to PATH" PATH_SECTION
 
   SectionIn 1
 
-  IfFileExists "$WINDIR\system32\cmd.exe" 0 +3
-    Push "$INSTDIR\bin"
-    Call AddToPath
+  Push "$INSTDIR\bin"
+  Call AddToPath
  
 SectionEnd
 
@@ -477,9 +470,8 @@ Section "Uninstall"
   RMDir  "$INSTDIR"
 
   ; Remove install dir from PATH
-  IfFileExists "$WINDIR\system32\cmd.exe" 0 +3
-    Push "$INSTDIR\bin"
-    Call un.RemoveFromPath
+  Push "$INSTDIR\bin"
+  Call un.RemoveFromPath
 
   ; Remove drive menu registry entries
   !insertmacro DriveMenuRemove
@@ -529,10 +521,6 @@ Function .onInit
   StrCpy $EDITOR "$PROGRAMFILES\Notepad++\notepad++.exe"
   IfFileExists "$EDITOR" +2 0
     StrCpy $EDITOR "notepad.exe"
-
-  ; Hide "Add install dir to PATH" on 9x/ME
-  IfFileExists "$WINDIR\system32\cmd.exe" +2 0
-    SectionSetText ${PATH_SECTION} ""
 
   Call ParseCmdLine
 FunctionEnd

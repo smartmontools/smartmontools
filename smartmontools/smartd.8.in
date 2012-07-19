@@ -1,5 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  
 $Id$
 
@@ -9,8 +10,7 @@ the Free Software Foundation; either version 2, or (at your option)
 any later version.
  
 You should have received a copy of the GNU General Public License (for
-example COPYING); if not, write to the Free Software Foundation, Inc.,
-675 Mass Ave, Cambridge, MA 02139, USA.
+example COPYING); If not, see <http://www.gnu.org/licenses/>.
  
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -123,15 +123,8 @@ devices, and entries \fB"/dev/rmt/*"\fP for SCSI tape devices.
 .IP \fBDARWIN:\fP 9
 The IOService plane is scanned for ATA block storage devices.
 .\" %ENDIF OS Darwin
-.\" %IF OS Windows
-.IP \fBWINDOWS\ 9x/ME\fP: 9
-Examine all entries \fB"/dev/hd[a-d]"\fP (bitmask
-from "\\\\.\\SMARTVSD") for IDE/ATA devices.
-Examine all entries \fB"/dev/scsi[0\-9][0\-f]"\fP for SCSI devices 
-on ASPI adapter 0\-9, ID 0\-15.
-.\" %ENDIF OS Windows
 .\" %IF OS Windows Cygwin
-.IP \fBWINDOWS\ NT4/2000/XP/2003/Vista/Win7/2008\fP: 9
+.IP \fBWINDOWS\fP: 9
 Examine all entries \fB"/dev/sd[a-j]"\fP ("\\\\.\\PhysicalDrive[0-9]")
 for IDE/(S)ATA and SCSI disk devices 
 
@@ -144,10 +137,6 @@ If directive \'\-d csmi\' or no \'\-d\' directive is specified,
 examine all entries \fB"/dev/csmi[0\-9],N"\fP for drives behind an Intel
 ICHxR controller with RST driver.
 .\" %ENDIF OS Windows Cygwin
-.\" %IF OS Cygwin
-.IP \fBCYGWIN\fP: 9
-See "WINDOWS NT4/2000/XP/2003/Vista/Win7/2008" above.
-.\" %ENDIF OS Cygwin
 .\" %IF OS OS2
 .IP \fBOS/2,eComStation\fP: 9
 Use the form \fB"/dev/hd[a\-z]"\fP for IDE/ATA devices.
@@ -308,7 +297,7 @@ Windows: Some \fBsyslog\fP functionality is implemented
 internally in \fBsmartd\fP as follows: If no \'\-l\' option
 (or \'\-l daemon\') is specified, messages are written to Windows
 event log or to file \fB./smartd.log\fP if event log is not available
-(Win9x/ME or access denied). By specifying other values of FACILITY,
+(access denied). By specifying other values of FACILITY,
 log output is redirected as follows:
 \'\-l local0\' to file \fB./smartd.log\fP,
 \'\-l local1\' to standard output (redirect with \'>\' to any file),

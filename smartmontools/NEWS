@@ -5,6 +5,11 @@ $Id$
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
+Date <Not released yet, please try current SVN>
+Summary: smartmontools release 5.44
+-----------------------------------------------------------
+- Windows: Win9x/ME are no longer supported.
+
 Date 2012-06-30
 Summary: smartmontools release 5.43
 -----------------------------------------------------------
