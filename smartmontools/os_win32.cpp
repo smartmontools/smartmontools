@@ -989,16 +989,16 @@ std::string win_smart_interface::get_app_examples(const char * appname)
   if (strcmp(appname, "smartctl"))
     return "";
   return "=================================================== SMARTCTL EXAMPLES =====\n\n"
-         "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
-         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
+         "  smartctl -a /dev/sda                       (Prints all SMART information)\n\n"
+         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/sda\n"
          "                                              (Enables SMART on first disk)\n\n"
-         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
-         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
+         "  smartctl -t long /dev/sda              (Executes extended disk self-test)\n\n"
+         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/sda\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
          "  smartctl -a /dev/sda\n"
-         "             (Prints all information for SCSI disk on PhysicalDrive 0)\n"
+         "             (Prints all information for disk on PhysicalDrive 0)\n"
          "  smartctl -a /dev/pd3\n"
-         "             (Prints all information for SCSI disk on PhysicalDrive 3)\n"
+         "             (Prints all information for disk on PhysicalDrive 3)\n"
          "  smartctl -a /dev/tape1\n"
          "             (Prints all information for SCSI tape on Tape 1)\n"
          "  smartctl -A /dev/hdb,3\n"
@@ -1012,8 +1012,8 @@ std::string win_smart_interface::get_app_examples(const char * appname)
          "  ATA SMART access methods and ordering may be specified by modifiers\n"
          "  following the device name: /dev/hdX:[saicm], where\n"
          "  's': SMART_* IOCTLs,         'a': IOCTL_ATA_PASS_THROUGH,\n"
-         "  'i': IOCTL_IDE_PASS_THROUGH, 'c': ATA via IOCTL_SCSI_PASS_THROUGH,\n"
-         "  'f': IOCTL_STORAGE_*,        'm': IOCTL_SCSI_MINIPORT_*.\n"
+         "  'i': IOCTL_IDE_PASS_THROUGH, 'f': IOCTL_STORAGE_*,\n"
+         "  'm': IOCTL_SCSI_MINIPORT_*.\n"
       + strprintf(
          "  The default on this system is /dev/sdX:%s\n", ata_get_def_options()
         );
@@ -1386,91 +1386,6 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev
   if (prev_regs)
     *prev_regs = *ptfregs;
 
-  return 0;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-// ATA PASS THROUGH via SCSI PASS THROUGH (WinNT4 only)
-
-// undocumented SCSI opcode to for ATA passthrough
-#define SCSIOP_ATA_PASSTHROUGH    0xCC
-
-static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned datasize)
-{
-  typedef struct {
-    SCSI_PASS_THROUGH spt;
-    ULONG Filler;
-    UCHAR ucSenseBuf[32];
-    UCHAR ucDataBuf[512];
-  } SCSI_PASS_THROUGH_WITH_BUFFERS;
-
-  SCSI_PASS_THROUGH_WITH_BUFFERS sb;
-  IDEREGS * cdbregs;
-  unsigned int size;
-  DWORD num_out;
-  const unsigned char magic = 0xcf;
-
-  memset(&sb, 0, sizeof(sb));
-  sb.spt.Length = sizeof(SCSI_PASS_THROUGH);
-  //sb.spt.PathId = 0;
-  sb.spt.TargetId = 1;
-  //sb.spt.Lun = 0;
-  sb.spt.CdbLength = 10; sb.spt.SenseInfoLength = 24;
-  sb.spt.TimeOutValue = 10;
-  sb.spt.SenseInfoOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, ucSenseBuf);
-  size = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, ucDataBuf);
-  sb.spt.DataBufferOffset = size;
-
-  if (datasize) {
-    if (datasize > sizeof(sb.ucDataBuf)) {
-      errno = EINVAL;
-      return -1;
-    }
-    sb.spt.DataIn = SCSI_IOCTL_DATA_IN;
-    sb.spt.DataTransferLength = datasize;
-    size += datasize;
-    sb.ucDataBuf[0] = magic;
-  }
-  else {
-    sb.spt.DataIn = SCSI_IOCTL_DATA_UNSPECIFIED;
-    //sb.spt.DataTransferLength = 0;
-  }
-
-  // Use pseudo SCSI command followed by registers
-  sb.spt.Cdb[0] = SCSIOP_ATA_PASSTHROUGH;
-  cdbregs = (IDEREGS *)(sb.spt.Cdb+2);
-  *cdbregs = *regs;
-
-  if (!DeviceIoControl(hdevice, IOCTL_SCSI_PASS_THROUGH,
-    &sb, size, &sb, size, &num_out, NULL)) {
-    long err = GetLastError();
-    if (ata_debugmode)
-      pout("  ATA via IOCTL_SCSI_PASS_THROUGH failed, Error=%ld\n", err);
-    errno = (err == ERROR_INVALID_FUNCTION || err == ERROR_NOT_SUPPORTED ? ENOSYS : EIO);
-    return -1;
-  }
-
-  // Cannot check ATA status, because command does not return IDEREGS
-
-  // Check and copy data
-  if (datasize) {
-    if (   num_out != size
-        || (sb.ucDataBuf[0] == magic && !nonempty(sb.ucDataBuf+1, datasize-1))) {
-      if (ata_debugmode) {
-        pout("  ATA via IOCTL_SCSI_PASS_THROUGH output data missing (%lu)\n", num_out);
-        print_ide_regs_io(regs, NULL);
-      }
-      errno = EIO;
-      return -1;
-    }
-    memcpy(data, sb.ucDataBuf, datasize);
-  }
-
-  if (ata_debugmode > 1) {
-    pout("  ATA via IOCTL_SCSI_PASS_THROUGH suceeded, bytes returned: %lu\n", num_out);
-    print_ide_regs_io(regs, NULL);
-  }
   return 0;
 }
 
@@ -2370,12 +2285,8 @@ static int get_device_power_state(HANDLE hdevice)
 
 static const char * ata_get_def_options()
 {
-  DWORD ver = GetVersion();
-  if ((ver & 0xff) == 4) // WinNT4
-    return "sc"; // SMART_*, SCSI_PASS_THROUGH
-  else // WinXP, 2003, Vista
-    return "pasifm"; // GetDevicePowerState(), ATA_, SMART_*, IDE_PASS_THROUGH,
-                     // STORAGE_*, SCSI_MINIPORT_*
+  return "pasifm"; // GetDevicePowerState(), ATA_, SMART_*, IDE_PASS_THROUGH,
+                   // STORAGE_*, SCSI_MINIPORT_*
 }
 
 
@@ -2427,15 +2338,15 @@ bool win_ata_device::open()
   const char * name = skipdev(get_dev_name()); int len = strlen(name);
   // [sh]d[a-z](:[saicmfp]+)? => Physical drive 0-25, with options
   char drive[1+1] = "", options[8+1] = ""; int n1 = -1, n2 = -1;
-  if (   sscanf(name, "%*[sh]d%1[a-z]%n:%7[saicmfp]%n", drive, &n1, options, &n2) >= 1
-      && ((n1 == len && !options[0]) || n2 == len)                                       ) {
+  if (   sscanf(name, "%*[sh]d%1[a-z]%n:%6[saimfp]%n", drive, &n1, options, &n2) >= 1
+      && ((n1 == len && !options[0]) || n2 == len)                                   ) {
     return open(drive[0] - 'a', -1, options, -1);
   }
   // [sh]d[a-z],N(:[saicmfp3]+)? => Physical drive 0-25, RAID port N, with options
   drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
   unsigned port = ~0;
-  if (   sscanf(name, "%*[sh]d%1[a-z],%u%n:%8[saicmfp3]%n", drive, &port, &n1, options, &n2) >= 2
-      && port < 32 && ((n1 == len && !options[0]) || n2 == len)                                     ) {
+  if (   sscanf(name, "%*[sh]d%1[a-z],%u%n:%7[saimfp3]%n", drive, &port, &n1, options, &n2) >= 2
+      && port < 32 && ((n1 == len && !options[0]) || n2 == len)                                  ) {
     return open(drive[0] - 'a', -1, options, port);
   }
   // pd<m>,N => Physical drive <m>, RAID port N
@@ -2519,7 +2430,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
     m_options = def_options;
   }
 
-  // NT4/2000/XP: SMART_GET_VERSION may spin up disk, so delay until first real SMART_* call
+  // SMART_GET_VERSION may spin up disk, so delay until first real SMART_* call
   m_drive = 0; m_port = port;
   if (port < 0)
     return true;
@@ -2602,7 +2513,7 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     case ATA_IDENTIFY_PACKET_DEVICE:
       // SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH, STORAGE_PREDICT_FAILURE
       // and SCSI_MINIPORT_* if requested by user
-      valid_options = (m_usr_options ? "saicmf" : "saicf");
+      valid_options = (m_usr_options ? "saimf" : "saif");
       break;
 
     case ATA_CHECK_POWER_MODE:
@@ -2620,13 +2531,13 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         case ATA_SMART_AUTO_OFFLINE:
           // SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH, STORAGE_PREDICT_FAILURE
           // and SCSI_MINIPORT_* if requested by user
-          valid_options = (m_usr_options ? "saicmf" : "saicf");
+          valid_options = (m_usr_options ? "saimf" : "saif");
           break;
 
         case ATA_SMART_IMMEDIATE_OFFLINE:
           // SMART_SEND_DRIVE_COMMAND does not support ABORT_SELF_TEST
           valid_options = (m_usr_options || in.in_regs.lba_low != 127/*ABORT*/ ?
-                           "saicm3" : "aicm3");
+                           "saim3" : "aim3");
           break;
 
         case ATA_SMART_READ_LOG_SECTOR:
@@ -2634,7 +2545,7 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
           // Try SCSI_MINIPORT also to skip buggy class driver
           // SMART functions do not support multi sector I/O.
           if (in.size == 512)
-            valid_options = (m_usr_options ? "saicm3" : "aicm3");
+            valid_options = (m_usr_options ? "saim3" : "aim3");
           else
             valid_options = "a";
           break;
@@ -2646,11 +2557,7 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
           break;
 
         case ATA_SMART_STATUS:
-          // May require lba_mid,lba_high register return
-          if (in.out_needed.is_set())
-            valid_options = (m_usr_options ? "saimf" : "saif");
-          else
-            valid_options = (m_usr_options ? "saicmf" : "saicf");
+          valid_options = (m_usr_options ? "saimf" : "saif");
           break;
 
         default:
@@ -2671,11 +2578,9 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
          ||  in.in_regs.is_48bit_cmd()                               )
       // DATA_OUT, more than one sector, 48-bit command: ATA_PASS_THROUGH only
       valid_options = "a";
-    else if (in.out_needed.is_set())
-      // Need output registers: ATA/IDE_PASS_THROUGH
-      valid_options = "ai";
     else
-      valid_options = "aic";
+      // ATA/IDE_PASS_THROUGH
+      valid_options = "ai";
   }
 
   if (!m_admin) {
@@ -2805,9 +2710,6 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
       case 'i':
         rc = ide_pass_through_ioctl(get_fh(), &regs, data, datasize);
         out_regs_set = true;
-        break;
-      case 'c':
-        rc = ata_via_scsi_pass_through_ioctl(get_fh(), &regs, data, datasize);
         break;
       case 'f':
         if (in.in_regs.command == ATA_IDENTIFY_DEVICE) {

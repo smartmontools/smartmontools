@@ -23,59 +23,11 @@ const char * hostname_win32_cpp_cvsid = "$Id$"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-// Call GetComputerNameEx() if available (Win2000/XP)
-
-static BOOL CallGetComputerNameExA(int type, LPSTR name, LPDWORD size)
+int gethostname(char * name, int len)
 {
-	HINSTANCE hdll;
-	BOOL (WINAPI * GetComputerNameExA_p)(int/*enum COMPUTER_NAME_FORMAT*/, LPSTR, LPDWORD);
-	BOOL ret;
-	if (!(hdll = LoadLibraryA("KERNEL32.DLL")))
-		return FALSE;
-	if (!(GetComputerNameExA_p = (BOOL (WINAPI *)(int, LPSTR, LPDWORD))GetProcAddress(hdll, "GetComputerNameExA")))
-		ret = FALSE;
-	else
-		ret = GetComputerNameExA_p(type, name, size);
-	FreeLibrary(hdll);
-	return ret;
-}
-
-
-// Get host/domainname from registry (NT4/2000/XP)
-
-static DWORD GetNamesFromRegistry(BOOL domain, char * name, int len)
-{
-	HKEY hk; DWORD size, type;
-	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-	    "System\\CurrentControlSet\\Services\\Tcpip\\Parameters",
-	    0, KEY_READ, &hk) != ERROR_SUCCESS)
-		return 0;
-	size = len-1;
-	if (!(RegQueryValueExA(hk, (!domain?"HostName":"Domain"), 0, &type, (unsigned char *)name, &size) == ERROR_SUCCESS && type == REG_SZ))
-		size = 0;
-	if (size == 0 && domain) {
-		size = len-1;
-		if (!(RegQueryValueExA(hk, "DhcpDomain", 0, &type, (unsigned char *)name, &size) == ERROR_SUCCESS && type == REG_SZ))
-			size = 0;
-	}
-	RegCloseKey(hk);
-	return size;
-}
-
-
-static int gethostdomname(int domain, char * name, int len)
-{
-	// try KERNEL32.dll::GetComputerNameEx()
 	DWORD size = len - 1;
-	if (CallGetComputerNameExA((!domain ? 1:2/*ComputerNameDnsHost:Domain*/), name, &size))
+	if (GetComputerNameExA(ComputerNameDnsHostname, name, &size))
 		return 0;
-
-	// try registry
-	if (GetNamesFromRegistry(domain, name, len))
-		return 0;
-
-	if (domain)
-		return -1;
 
 	// last resort: get NETBIOS name
 	size = len - 1;
@@ -86,15 +38,13 @@ static int gethostdomname(int domain, char * name, int len)
 }
 
 
-int gethostname(char * name, int len)
-{
-	return gethostdomname(0, name, len);
-}
-
-
 int getdomainname(char * name, int len)
 {
-	return gethostdomname(1, name, len);
+	DWORD size = len - 1;
+	if (GetComputerNameExA(ComputerNameDnsDomain, name, &size))
+		return 0;
+
+	return -1;
 }
 
 

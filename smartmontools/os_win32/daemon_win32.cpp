@@ -799,7 +799,6 @@ static void service_report_status(int state, int seconds)
 {
 	// TODO: Avoid race
 	static DWORD checkpoint = 1;
-	static DWORD accept_more = SERVICE_ACCEPT_PARAMCHANGE; // Win2000/XP
 	svc_status.dwCurrentState = state;
 	svc_status.dwWaitHint = seconds*1000;
 	switch (state) {
@@ -818,17 +817,10 @@ static void service_report_status(int state, int seconds)
 		default:
 			svc_status.dwControlsAccepted =
 				SERVICE_ACCEPT_STOP|SERVICE_ACCEPT_SHUTDOWN|
-				SERVICE_ACCEPT_PAUSE_CONTINUE|accept_more;
+				SERVICE_ACCEPT_PAUSE_CONTINUE|SERVICE_ACCEPT_PARAMCHANGE;
 			break;
 	}
-	if (!SetServiceStatus(svc_handle, &svc_status)) {
-		if (svc_status.dwControlsAccepted & accept_more) {
-			// Retry without SERVICE_ACCEPT_PARAMCHANGE (WinNT4)
-			svc_status.dwControlsAccepted &= ~accept_more;
-			accept_more = 0;
-			SetServiceStatus(svc_handle, &svc_status);
-		}
-	}
+	SetServiceStatus(svc_handle, &svc_status);
 }
 
 

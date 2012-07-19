@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Drop backward compatibility with WinNT4.
+
   [CF] Windows: Drop backward compatibility with Win9x/ME.
 
 smartmontools 5.43 2012-06-30

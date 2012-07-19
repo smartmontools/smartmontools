@@ -8,7 +8,7 @@ http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontool
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.44
 -----------------------------------------------------------
-- Windows: Win9x/ME are no longer supported.
+- Windows: Win9x/ME and NT4 are no longer supported.
 
 Date 2012-06-30
 Summary: smartmontools release 5.43
