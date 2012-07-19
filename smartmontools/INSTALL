@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL 3575 2012-07-19 21:32:56Z chrfranke $
+$Id: INSTALL 3576 2012-07-19 22:04:01Z chrfranke $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -107,8 +107,8 @@ Table of contents:
     F) Windows
 
     The code was tested on Windows XP SP3, 2003, Vista, Windows 7 and
-    Windows 8 Release Preview.  Support von Windows 9x/ME was removed after
-    smartmontools 5.43.
+    Windows 8 Release Preview.  Support von Windows 9x/ME and NT4 was removed
+    after smartmontools 5.43.
 
     ATA or SATA devices are supported if the device driver implements
     the SMART IOCTLs or IOCTL_IDE_PASS_THROUGH or IOCTL_ATA_PASS_THROUGH.
