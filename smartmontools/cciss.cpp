@@ -24,6 +24,10 @@
 #  define _HAVE_CCISS
 #elif defined(__FreeBSD_kernel__)
 #  include <endian.h>
+#  ifdef __GLIBC__
+#  include <bsd/sys/cdefs.h>
+#  include <stdint.h>
+#  endif
 #  include CISS_LOCATION
 #  define _HAVE_CCISS
 #endif

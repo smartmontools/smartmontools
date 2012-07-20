@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] cciss.cpp: Fix build on GNU/kFreeBSD (Debian bug 676142).
+       This obsoletes Debian kfreebsd.patch.
+
   [CF] Windows: Drop backward compatibility with WinNT4.
 
   [CF] Windows: Drop backward compatibility with Win9x/ME.
