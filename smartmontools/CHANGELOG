@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd.cpp: Add fflush() to support redirection of debug output
+       (Debian bug 681349).
+
   [CF] os_generic.cpp: Add missing int64.h (Debian bug 619208)
        This obsoletes Debian patch fix-generic.diff.
 

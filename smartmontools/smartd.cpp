@@ -1321,13 +1321,15 @@ void pout(const char *fmt, ...){
   // initialize variable argument list 
   va_start(ap,fmt);
   // in debugmode==1 mode we will print the output from the ataprint.o functions!
-  if (debugmode && debugmode!=2)
+  if (debugmode && debugmode != 2) {
+    FILE * f = stdout;
 #ifdef _WIN32
-   if (facility == LOG_LOCAL1) // logging to stdout
-    vfprintf(stderr,fmt,ap);
-   else   
+    if (facility == LOG_LOCAL1) // logging to stdout
+      f = stderr;
 #endif
-    vprintf(fmt,ap);
+    vfprintf(f, fmt, ap);
+    fflush(f);
+  }
   // in debugmode==2 mode we print output from knowndrives.o functions
   else if (debugmode==2 || ata_debugmode || scsi_debugmode) {
     openlog("smartd", LOG_PID, facility);
@@ -1335,7 +1337,6 @@ void pout(const char *fmt, ...){
     closelog();
   }
   va_end(ap);
-  fflush(NULL);
   return;
 }
 
@@ -1347,13 +1348,15 @@ static void PrintOut(int priority, const char *fmt, ...){
   FixGlibcTimeZoneBug();
   // initialize variable argument list 
   va_start(ap,fmt);
-  if (debugmode) 
+  if (debugmode) {
+    FILE * f = stdout;
 #ifdef _WIN32
-   if (facility == LOG_LOCAL1) // logging to stdout
-    vfprintf(stderr,fmt,ap);
-   else   
+    if (facility == LOG_LOCAL1) // logging to stdout
+      f = stderr;
 #endif
-    vprintf(fmt,ap);
+    vfprintf(f, fmt, ap);
+    fflush(f);
+  }
   else {
     openlog("smartd", LOG_PID, facility);
     vsyslog_lines(priority, fmt, ap);
