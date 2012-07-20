@@ -1,5 +1,5 @@
 /*
- * os_generic.c
+ * os_generic.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -13,8 +13,8 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 
@@ -71,6 +71,7 @@
 
 // These are needed to define prototypes and structures for the
 // functions defined below
+#include "int64.h"
 #include "atacmds.h"
 #include "utility.h"
 
@@ -82,8 +83,8 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id$" \
-ATACMDS_H_CVSID CONFIG_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
+const char * os_XXXX_cpp_cvsid="$Id$"
+  ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
 
 // This is here to prevent compiler warnings for unused arguments of
 // functions.
