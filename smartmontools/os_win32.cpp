@@ -2371,7 +2371,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   char devpath[30];
   if (0 <= phydrive && phydrive <= 255)
     snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", phydrive);
-  if (0 <= logdrive && logdrive <= 'Z'-'A')
+  else if (0 <= logdrive && logdrive <= 'Z'-'A')
     snprintf(devpath, sizeof(devpath)-1, "\\\\.\\%c:", 'A'+logdrive);
   else
     return set_err(ENOENT);
@@ -4040,8 +4040,8 @@ void smart_interface::init()
       SetDllDirectoryA_p("");
   }
 
-  static os_win32::win_smart_interface the_winnt_interface;
-  smart_interface::set(&the_winnt_interface);
+  static os_win32::win_smart_interface the_win_interface;
+  smart_interface::set(&the_win_interface);
 }
 
 
