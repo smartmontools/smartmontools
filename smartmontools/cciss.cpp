@@ -24,6 +24,10 @@
 #  define _HAVE_CCISS
 #elif defined(__FreeBSD_kernel__)
 #  include <endian.h>
+#  ifdef __GLIBC__
+#  include <bsd/sys/cdefs.h>
+#  include <stdint.h>
+#  endif
 #  include CISS_LOCATION
 #  define _HAVE_CCISS
 #endif
@@ -34,7 +38,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char * cciss_cpp_cvsid = "$Id: cciss.cpp 3446 2011-10-13 22:36:28Z samm2 $"
+const char * cciss_cpp_cvsid = "$Id: cciss.cpp 3578 2012-07-20 17:26:32Z chrfranke $"
   CCISS_H_CVSID;
 
 typedef struct _ReportLUNdata_struct
