@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd.cpp: Fix setting of temporary environment in MailWarning().
+       Stack space was passed to putenv() but variable was not unset
+       before return.  Very old bug introduced 2003 in r1114.
+
   [CF] smartd.cpp: Add fflush() to support redirection of debug output
        (Debian bug 681349).
 
