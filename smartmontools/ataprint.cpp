@@ -13,8 +13,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  * This code was originally developed as a Senior Thesis by Michael Cornwell
  * at the Concurrent Systems Laboratory (now part of the Storage Systems
@@ -40,7 +39,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3554 2012-06-01 20:11:46Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3583 2012-07-26 17:11:15Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2230,9 +2229,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   );
 
   // Exit if no further options specified
-  if (!(   options.drive_info || need_smart_support
-        || need_smart_logdir  || need_gp_logdir
-        || need_sct_support || options.get_set_used)) {
+  if (!(   options.drive_info || options.show_presets
+        || need_smart_support || need_smart_logdir
+        || need_gp_logdir     || need_sct_support
+        || options.get_set_used                      )) {
     if (powername)
       pout("Device is in %s mode\n", powername);
     else
