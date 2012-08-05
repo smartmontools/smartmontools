@@ -901,18 +901,16 @@ mode with the \'-d\' flag, using the \'-M test\' Directive described
 below.
 .\" %IF OS Windows
 
-The following extension is available on Windows:
-By specifying \'\fBmsgbox\fP\' as a mail address, a warning
-"email" is displayed as a message box on the screen.
-Using both \'\fBmsgbox\fP\' and regular mail addresses is possible,
-if \'\fBmsgbox\fP\' is the first word in the comma separated list.
-With \'\fBsysmsgbox\fP\', a system modal (always on top) message box
-is used.
-
-If running as a service, a service notification message box
-(always shown on current visible desktop) is used.  Please note that
-service notification message boxes are no longer supported on Windows
-Vista/2008 or later.
+[Windows only] [NEW EXPERIMENTAL SMARTD FEATURE]
+If one of the following words are used as the first address in the
+comma separated list, warning messages are sent via WTSSendMessage().
+This displays message boxes on the desktops of the selected sessions.
+Address \'\fBconsole\fP\' specifies the console session only,
+\'\fBactive\fP\' specifies the console session and all active remote
+sessions, and \'\fBconnected\fP\' specifies the console session and
+all connected (active or waiting for login) remote sessions.
+The addresses \'\fBmsgbox\fP\' and \'\fBsysmsgbox\fP\' are now
+deprecated and have the same effect as \'\fBconsole\fP\'.
 .\" %ENDIF OS Windows
 .TP
 .B \-M TYPE

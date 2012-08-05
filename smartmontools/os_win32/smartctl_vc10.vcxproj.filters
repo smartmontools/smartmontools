@@ -66,6 +66,9 @@
     <ClCompile Include="..\smartctl.cpp" />
     <ClCompile Include="..\smartd.cpp" />
     <ClCompile Include="..\utility.cpp" />
+    <ClCompile Include="wtssendmsg.cpp">
+      <Filter>os_win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="wbemcli_small.h">
@@ -98,6 +101,9 @@
     <ClInclude Include="..\scsiprint.h" />
     <ClInclude Include="..\smartctl.h" />
     <ClInclude Include="..\utility.h" />
+    <ClInclude Include="wtssendmsg.h">
+      <Filter>os_win32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="installer.nsi">

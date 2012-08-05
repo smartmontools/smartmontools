@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows smartd: Add smartd.conf directives '-m console',
+       '-m active', '-m connected'.  Send warning messages via
+       WTSSendMessage().  Remove use of MessageBox() which does no
+       longer work for services since Vista/2008.
+
   [CF] Fix 'smartctl -P show'.  Regression from r3249.
 
   [CF] smartd.cpp: Fix setting of temporary environment in MailWarning().

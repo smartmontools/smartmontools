@@ -100,6 +100,7 @@ typedef int pid_t;
 #define HAVE_GETDOMAINNAME 1
 // fork()/signal()/initd simulation for native Windows
 #include "daemon_win32.h" // daemon_main/detach/signal()
+#include "wtssendmsg.h" // wts_send_message()
 #undef SIGNALFN
 #define SIGNALFN  daemon_signal
 #define strsignal daemon_strsignal
@@ -1215,13 +1216,15 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   int boxtype = -1, boxmsgoffs = 0;
   const char * newadd = "<nomailer>";
   if (!address.empty()) {
-    // address "[sys]msgbox ..." => show warning (also) as [system modal ]messagebox
+    // address "console", ... => show warning (also) via message box(es)
     char addr1[9+1+13] = ""; int n1 = -1, n2 = -1;
     if (sscanf(address.c_str(), "%9[a-z]%n,%n", addr1, &n1, &n2) == 1 && (n1 == (int)address.size() || n2 > 0)) {
-      if (!strcmp(addr1, "msgbox"))
+      if (!strcmp(addr1, "console"))
         boxtype = 0;
-      else if (!strcmp(addr1, "sysmsgbox"))
+      else if (!strcmp(addr1, "active"))
         boxtype = 1;
+      else if (!strcmp(addr1, "connected"))
+        boxtype = 2;
       if (boxtype >= 0)
         address.erase(0, (n2 > n1 ? n2 : n1));
     }
@@ -1256,9 +1259,11 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 
   const char * newwarn = (which ? "Warning via" : "Test of");
   if (boxtype >= 0) {
-    // show message box
-    daemon_messagebox(boxtype, subject, stdinbuf+boxmsgoffs);
-    PrintOut(LOG_INFO,"%s message box\n", newwarn);
+    // show message box(es) via send message
+    int errcnt = 0;
+    int msgcnt = wts_send_message(boxtype, subject, stdinbuf+boxmsgoffs, &errcnt);
+    PrintOut(LOG_INFO,"%s message box: %d message%s sent, %d failed\n", newwarn,
+      msgcnt, (msgcnt==1 ? "" : "s"), errcnt);
   }
   if (command[0]) {
     char stdoutbuf[800]; // < buffer in syslog_win32::vsyslog()
@@ -3923,6 +3928,18 @@ static int ParseToken(char * token, dev_config & cfg)
       if (!cfg.emailaddress.empty())
         PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous Address Directive -m %s\n",
                  configfile, lineno, name, cfg.emailaddress.c_str());
+#ifdef _WIN32
+      if (   !strcmp(arg, "msgbox")          || !strcmp(arg, "sysmsgbox")
+          || str_starts_with(arg, "msgbox,") || str_starts_with(arg, "sysmsgbox,")) {
+        cfg.emailaddress = "console";
+        const char * arg2 = strchr(arg, ',');
+        if (arg2)
+          cfg.emailaddress += arg2;
+        PrintOut(LOG_INFO, "File %s line %d (drive %s): Deprecated -m %s changed to -m %s\n",
+                 configfile, lineno, name, arg, cfg.emailaddress.c_str());
+      }
+      else
+#endif
       cfg.emailaddress = arg;
     }
     break;

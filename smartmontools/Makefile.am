@@ -92,7 +92,6 @@ EXTRA_smartd_SOURCES = os_darwin.cpp    \
                        dev_legacy.cpp   \
                        megaraid.h
 
-
 if OS_WIN32_MINGW
 
 smartd_SOURCES += \
@@ -101,7 +100,11 @@ smartd_SOURCES += \
         os_win32/hostname_win32.cpp \
         os_win32/hostname_win32.h \
         os_win32/syslog_win32.cpp \
-        os_win32/syslog.h
+        os_win32/syslog.h \
+        os_win32/wtssendmsg.cpp \
+        os_win32/wtssendmsg.h
+
+smartd_LDADD += -lwtsapi32
 
 endif
 

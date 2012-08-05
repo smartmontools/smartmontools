@@ -15,7 +15,6 @@
  *
  */
 
-// Need MB_SERVICE_NOTIFICATION, IsDebuggerPresent()
 #define WINVER 0x0400
 #define _WIN32_WINNT WINVER
 
@@ -468,79 +467,6 @@ int daemon_detach(const char * ident)
 
 
 /////////////////////////////////////////////////////////////////////////////
-// MessageBox
-
-#ifndef _MT
-//MT runtime not necessary, because mbox_thread uses no unsafe lib functions
-//#error Program must be linked with multithreaded runtime library
-#endif
-
-static LONG mbox_count; // # mbox_thread()s
-static HANDLE mbox_mutex; // Show 1 box at a time (not necessary for service)
-
-typedef struct mbox_args_s {
-	HANDLE taken; const char * title, * text; int mode;
-} mbox_args;
-
-
-// Thread to display one message box
-
-static ULONG WINAPI mbox_thread(LPVOID arg)
-{
-	// Take args
-	mbox_args * mb = (mbox_args *)arg;
-	char title[100]; char text[1000]; int mode;
-	strncpy(title, mb->title, sizeof(title)-1); title[sizeof(title)-1] = 0;
-	strncpy(text , mb->text , sizeof(text )-1); text [sizeof(text )-1] = 0;
-	mode = mb->mode;
-	SetEvent(mb->taken);
-
-	// Show only one box at a time
-	WaitForSingleObject(mbox_mutex, INFINITE);
-	MessageBoxA(NULL, text, title, mode);
-	ReleaseMutex(mbox_mutex);
-
-	InterlockedDecrement(&mbox_count);
-	return 0;
-}
-
-
-// Display a message box
-int daemon_messagebox(int system, const char * title, const char * text)
-{
-	mbox_args mb;
-	HANDLE ht; DWORD tid;
-
-	// Create mutex during first call
-	if (!mbox_mutex)
-		mbox_mutex = CreateMutex(NULL/*!inherit*/, FALSE/*!owned*/, NULL/*unnamed*/);
-
-	// Allow at most 10 threads
-	if (InterlockedIncrement(&mbox_count) > 10) {
-		InterlockedDecrement(&mbox_count);
-		return -1;
-	}
-
-	// Create thread
-	mb.taken = CreateEvent(NULL/*!inherit*/, FALSE, FALSE/*!signaled*/, NULL/*unnamed*/);
-	mb.mode = MB_OK|MB_ICONWARNING
-	         |(svc_mode?MB_SERVICE_NOTIFICATION:0)
-	         |(system?MB_SYSTEMMODAL:MB_APPLMODAL);
-	mb.title = title;
-	mb.text = text;
-	if (!(ht = CreateThread(NULL, 0, mbox_thread, &mb, 0, &tid)))
-		return -1;
-
-	// Wait for args taken
-	if (WaitForSingleObject(mb.taken, 10000) != WAIT_OBJECT_0)
-		TerminateThread(ht, 0);
-	CloseHandle(mb.taken);
-	CloseHandle(ht);
-	return 0;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
 
 // Spawn a command and redirect <inpbuf >outbuf
 // return command's exitcode or -1 on error
@@ -896,7 +822,7 @@ static void WINAPI service_main(DWORD argc, LPSTR * argv)
 	svc_handle = RegisterServiceCtrlHandler(argv[0], service_control);
 
 	// Init service status
-	svc_status.dwServiceType = SERVICE_WIN32_OWN_PROCESS|SERVICE_INTERACTIVE_PROCESS;
+	svc_status.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
 	service_report_status(SERVICE_START_PENDING, 10);
 
 	// Service started in \windows\system32, change to .exe directory
