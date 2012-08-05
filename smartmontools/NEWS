@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3581 2012-07-20 19:16:03Z chrfranke $
+$Id: NEWS 3584 2012-08-05 17:05:32Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -9,6 +9,8 @@ Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.44
 -----------------------------------------------------------
 - smartd '-d' output is flushed to support redirection.
+- Windows smartd: smartd.conf directives '-m console',
+  '-m active', '-m connected'.
 - Windows: Win9x/ME and NT4 are no longer supported.
 
 Date 2012-06-30

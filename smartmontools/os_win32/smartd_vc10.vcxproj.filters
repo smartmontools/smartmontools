@@ -24,6 +24,9 @@
     <ClCompile Include="wmiquery.cpp">
       <Filter>os_win32</Filter>
     </ClCompile>
+    <ClCompile Include="wtssendmsg.cpp">
+      <Filter>os_win32</Filter>
+    </ClCompile>
     <ClCompile Include="..\regex\regcomp.c">
       <Filter>regex</Filter>
     </ClCompile>
@@ -104,6 +107,9 @@
     <ClInclude Include="..\knowndrives.h" />
     <ClInclude Include="..\scsicmds.h" />
     <ClInclude Include="..\utility.h" />
+    <ClInclude Include="wtssendmsg.h">
+      <Filter>os_win32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="installer.nsi">
