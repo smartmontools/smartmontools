@@ -15,12 +15,12 @@
  *
  */
 
-#define WINVER 0x0400
+#define WINVER 0x0500
 #define _WIN32_WINNT WINVER
 
 #include "wtssendmsg.h"
 
-const char * wtssendmsg_cpp_cvsid = "$Id: wtssendmsg.cpp 3584 2012-08-05 17:05:32Z chrfranke $"
+const char * wtssendmsg_cpp_cvsid = "$Id: wtssendmsg.cpp 3585 2012-08-06 18:44:23Z chrfranke $"
   WTSSENDMSG_H_CVSID;
 
 #include <string.h>
