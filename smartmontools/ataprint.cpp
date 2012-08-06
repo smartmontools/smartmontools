@@ -39,7 +39,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3583 2012-07-26 17:11:15Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3587 2012-08-06 20:43:08Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2494,8 +2494,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Exit if SMART is disabled but must be enabled to proceed
-  if (options.smart_disable || (smart_enabled <= 0 && need_smart_enabled)) {
+  if (options.smart_disable || (smart_enabled <= 0 && need_smart_enabled && !is_permissive())) {
     pout("SMART Disabled. Use option -s with argument 'on' to enable it.\n");
+    if (!options.smart_disable)
+      pout("(override with '-T permissive' option)\n");
     return returnval;
   }
 
