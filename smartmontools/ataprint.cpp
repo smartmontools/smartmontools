@@ -2494,8 +2494,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Exit if SMART is disabled but must be enabled to proceed
-  if (options.smart_disable || (smart_enabled <= 0 && need_smart_enabled)) {
+  if (options.smart_disable || (smart_enabled <= 0 && need_smart_enabled && !is_permissive())) {
     pout("SMART Disabled. Use option -s with argument 'on' to enable it.\n");
+    if (!options.smart_disable)
+      pout("(override with '-T permissive' option)\n");
     return returnval;
   }
 
