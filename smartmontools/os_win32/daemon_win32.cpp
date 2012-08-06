@@ -15,8 +15,13 @@
  *
  */
 
-#define WINVER 0x0400
+#define WINVER 0x0500
 #define _WIN32_WINNT WINVER
+
+#include "daemon_win32.h"
+
+const char * daemon_win32_cpp_cvsid = "$Id$"
+  DAEMON_WIN32_H_CVSID;
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,15 +34,8 @@
 #include <crtdbg.h>
 #endif
 
-#include "daemon_win32.h"
-
-const char * daemon_win32_cpp_cvsid = "$Id$"
-  DAEMON_WIN32_H_CVSID;
-
 
 /////////////////////////////////////////////////////////////////////////////
-
-#define ARGUSED(x) ((void)(x))
 
 // Prevent spawning of child process if debugging
 #ifdef _DEBUG
@@ -813,10 +811,9 @@ static char ** svc_main_argv;
 
 // Main function for service, called by service dispatcher
 
-static void WINAPI service_main(DWORD argc, LPSTR * argv)
+static void WINAPI service_main(DWORD /*argc*/, LPSTR * argv)
 {
 	char path[MAX_PATH], *p;
-	ARGUSED(argc);
 
 	// Register control handler
 	svc_handle = RegisterServiceCtrlHandler(argv[0], service_control);
@@ -843,26 +840,6 @@ static void WINAPI service_main(DWORD argc, LPSTR * argv)
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows Service Admin Functions
-
-// Set Service description (Win2000/XP)
-
-static int svcadm_setdesc(SC_HANDLE hs, const char * desc)
-{
-	HINSTANCE hdll;
-	BOOL (WINAPI * ChangeServiceConfig2A_p)(SC_HANDLE, DWORD, LPVOID);
-	BOOL ret;
-	if (!(hdll = LoadLibraryA("ADVAPI32.DLL")))
-		return FALSE;
-	if (!((ChangeServiceConfig2A_p = (BOOL (WINAPI *)(SC_HANDLE, DWORD, LPVOID))GetProcAddress(hdll, "ChangeServiceConfig2A"))))
-		ret = FALSE;
-	else {
-		SERVICE_DESCRIPTIONA sd = { (char *)desc };
-		ret = ChangeServiceConfig2A_p(hs, SERVICE_CONFIG_DESCRIPTION, &sd);
-	}
-	FreeLibrary(hdll);
-	return ret;
-}
-
 
 // Service install/remove commands
 
@@ -892,8 +869,6 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
 	if (!(hm = OpenSCManager(NULL/*local*/, NULL/*default*/, SC_MANAGER_ALL_ACCESS))) {
 		if ((err = GetLastError()) == ERROR_ACCESS_DENIED)
 			puts(" access to SCManager denied");
-		else if (err == ERROR_CALL_NOT_IMPLEMENTED)
-			puts(" services not implemented on this version of Windows");
 		else
 			printf(" cannot open SCManager, Error=%ld\n", err);
 		return 1;
@@ -949,8 +924,10 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
 			return 1;
 		}
 		// Set optional description
-		if (svc_opts->descript)
-			svcadm_setdesc(hs, svc_opts->descript);
+		if (svc_opts->descript) {
+			SERVICE_DESCRIPTIONA sd = { const_cast<char *>(svc_opts->descript) };
+			ChangeServiceConfig2A(hs, SERVICE_CONFIG_DESCRIPTION, &sd);
+		}
 	}
 	else {
 		// Open
