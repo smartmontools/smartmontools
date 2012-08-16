@@ -15,9 +15,12 @@
  *
  */
 
+#define WINVER 0x0500
+#define _WIN32_WINNT WINVER
+
 #include "hostname_win32.h"
 
-const char * hostname_win32_cpp_cvsid = "$Id: hostname_win32.cpp 3576 2012-07-19 22:04:01Z chrfranke $"
+const char * hostname_win32_cpp_cvsid = "$Id: hostname_win32.cpp 3589 2012-08-16 21:24:55Z chrfranke $"
   HOSTNAME_WIN32_H_CVSID;
 
 #define WIN32_LEAN_AND_MEAN
