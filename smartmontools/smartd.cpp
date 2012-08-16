@@ -2031,7 +2031,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
     if (   (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
         && !ata_return_temperature_value(&state.smartval, cfg.attribute_defs)) {
-      PrintOut(LOG_CRIT, "Device: %s, can't monitor Temperature, ignoring -W Directive\n", name);
+      PrintOut(LOG_INFO, "Device: %s, can't monitor Temperature, ignoring -W %d,%d,%d\n",
+               name, cfg.tempdiff, cfg.tempinfo, cfg.tempcrit);
       cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
     }
 
@@ -2395,7 +2396,8 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
       PrintOut(LOG_INFO, "Device: %s, unexpectedly failed to read SMART values\n", device);
       state.SuppressReport = 1;
       if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
-        PrintOut(LOG_CRIT, "Device: %s, can't monitor Temperature, ignoring -W Directive\n", device);
+        PrintOut(LOG_INFO, "Device: %s, can't monitor Temperature, ignoring -W %d,%d,%d\n",
+                 device, cfg.tempdiff, cfg.tempinfo, cfg.tempcrit);
         cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
       }
     }

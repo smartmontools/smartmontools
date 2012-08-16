@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Don't log ignored -W directive as critical.
+
   [CF] drivedb.h updates:
        - Smart Storage Systems Xcel-10 SSDs: Move entry, change name
        - Samsung: Remove very old and already commented out entries
