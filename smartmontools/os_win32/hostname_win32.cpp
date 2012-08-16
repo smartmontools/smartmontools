@@ -15,6 +15,9 @@
  *
  */
 
+#define WINVER 0x0500
+#define _WIN32_WINNT WINVER
+
 #include "hostname_win32.h"
 
 const char * hostname_win32_cpp_cvsid = "$Id$"
