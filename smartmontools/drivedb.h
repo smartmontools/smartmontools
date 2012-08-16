@@ -575,6 +575,23 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,raw48,Unknown_Attribute"  // 830 Series
   //"-v 241,raw48,Total_LBAs_Written" // 830 Series
   },
+  { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
+    "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
+    "",
+    "", // attributes info from http://www.adtron.com/pdf/SMART_Attributes_Xcel-10_810800014_RevB.pdf
+    "-v 1,raw48,Not_Supported "
+    "-v 2,raw48,Not_Supported "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 191,raw48,Not_Supported "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+    "-v 197,raw48,ECC_Error_Count "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 251,raw48,Min_Spares_Remain_Perc " // percentage of the total number of spare blocks available
+    "-v 252,raw48,Added_Bad_Flash_Blk_Ct " // number of bad flash blocks
+    "-v 254,raw48,Total_Erase_Blocks_Ct" // number of times the drive has erased any erase block
+  },
   { "Smart Storage Systems XceedSecure2 SSDs",
     "(SMART|Adtron) ([AIS]25FBS|S35FCS).*",
     "", "",
@@ -1017,46 +1034,6 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HS(122H|2[05]YJ)Z",
     "", "", ""
   },
-  { "SMART Xcel-10 2.5 SATA SSD", //  based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
-    "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
-    "",
-    "", // attributes info from http://www.adtron.com/pdf/SMART_Attributes_Xcel-10_810800014_RevB.pdf
-    "-v 1,raw48,Not_Supported "
-    "-v 2,raw48,Not_Supported "
-  //"-v 9,raw24(raw8),Power_On_Hours "
-  //"-v 12,raw48,Power_Cycle_Count "
-    "-v 191,raw48,Not_Supported "
-  //"-v 192,raw48,Power-Off_Retract_Count "
-    "-v 197,raw48,ECC_Error_Count "
-  //"-v 198,raw48,Offline_Uncorrectable "
-  //"-v 199,raw48,UDMA_CRC_Error_Count "
-    "-v 251,raw48,Min_Spares_Remain_Perc " // percentage of the total number of spare blocks available
-    "-v 252,raw48,Added_Bad_Flash_Blk_Ct " // number of bad flash blocks
-    "-v 254,raw48,Total_Erase_Blocks_Ct" // number of times the drive has erased any erase block
-  },
-/*
-  // TODO: Make the entries below more specific.
-  // These entries produce misleading results, because newer
-  // Samsung disks reuse the version numbers *-NN.
-  { "", // All Samsung drives with '.*-25' firmware
-    "SAMSUNG.*",
-    ".*-25",
-    "May need -F samsung2 disabled; see manual for details.",
-    "-v 9,halfminutes -F samsung2"
-  },
-  { "", // All Samsung drives with '.*-26 or later (currently to -39)' firmware
-    "SAMSUNG.*",
-    ".*-(2[6789]|3[0-9])",
-    "",
-    "-v 9,halfminutes"
-  },
-  { "", // Samsung ALL OTHER DRIVES
-    "SAMSUNG.*",
-    "",
-    "May need -F samsung or -F samsung2 enabled; see manual for details.",
-    ""
-  },
-*/
   { "Maxtor Fireball 541DX",
     "Maxtor 2B0(0[468]|1[05]|20)H1",
     "",
@@ -1743,6 +1720,10 @@ const drive_settings builtin_knowndrives[] = {
     "http://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
     ""
   },
+  { "Seagate Momentus XT (Adv. Format)", // tested with ST750LX003-1AC154/SM12
+    "ST750LX003-.*",
+    "", "", ""
+  },
   { "Seagate Medalist 1010, 1720, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
     "ST3(1010|1720|1721|2120|3230|4340)A",
     "", "", ""
@@ -2180,18 +2161,14 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(50|75)00BPKT-.*",
     "", "", ""
   },
-  { "Western Digital My Passport Essential (USB)",
-    "WDC WD(25|32|40|50)00BMVU-.*",
+  { "Western Digital My Passport (USB)", // tested with WDC WD5000BMVW-11AMCS0/01.01A01
+    "WDC WD(25|32|40|50)00BMV[UVW]-.*",  // *W-* = USB 3.0
     "", "", ""
   },
-  { "Western Digital My Passport Essential SE (USB, Adv. Format)", // tested with
-      // WDC WD10TMVW-11ZSMS5/01.01A01
-    "WDC WD(7500K|10T)MV[VW]-.*",
-    "", "", ""
-  },
-  { "Western Digital My Passport (USB)", // tested with
-      // WDC WD5000BMVW-11AMCS0/01.01A01
-    "WDC WD(3200BMVV|5000BMVW)-.*",
+  { "Western Digital My Passport (USB, Adv. Format)", // tested with
+      // WDC WD5000KMVV-11TK7S1/01.01A01, WDC WD10TMVW-11ZSMS5/01.01A01,
+      // WDC WD20NMVW-11W68S0/01.01A01
+    "WDC WD(5000K|7500K|10T|20N)MV[VW]-.*", // *W-* = USB 3.0
     "", "", ""
   },
   { "Quantum Bigfoot", // tested with TS10.0A/A21.0G00, TS12.7A/A21.0F00
@@ -2527,6 +2504,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0001
     "",
     "" // unsupported
+  },
+  // Imation
+  { "USB: Imation ; ", // Imation Odyssey external USB dock
+    "0x0718:0x1000",
+    "", // 0x5104
+    "",
+    "-d sat"
   },
   // Freecom
   { "USB: Freecom Mobile Drive XXS; JMicron",
@@ -2915,6 +2899,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; Initio", // USB->SATA+PATA, Chieftec CEB-25I
+    "0x13fd:0x1040",
+    "", // 0x0106
+    "",
+    "" // unsupported
+  },
   { "USB: ; Initio 6Y120L0", // CoolerMaster XCraft RX-3HU
     "0x13fd:0x1150",
     "",
@@ -3026,11 +3016,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: ; ASMedia USB 3.0", // BYTECC T-200U3
+  { "USB: ; ASMedia USB 3.0", // MEDION HDDrive-n-GO, LaCie Rikiki USB 3.0
     "0x174c:0x55aa",
     "",
     "",
-    "" // unsupported
+    "-d sat" // (BYTECC T-200U3: possibly unsupported)
   },
   // LucidPort
   { "USB: ; LucidPORT USB300", // RaidSonic ICY BOX IB-110StU3-B, Sharkoon SATA QuickPort H3
@@ -3090,6 +3080,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0034
     "",
     "" // unsupported
+  },
+  // Power Quotient International
+  { "USB: PQI H560; ",
+    "0x3538:0x0902",
+    "", // 0x0000
+    "",
+    "-d sat"
   },
   // Hitachi/SimpleTech
   { "USB: Hitachi Touro Desk; JMicron", // 3TB

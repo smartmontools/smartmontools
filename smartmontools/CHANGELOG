@@ -41,6 +41,16 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Smart Storage Systems Xcel-10 SSDs: Move entry, change name
+       - Samsung: Remove very old and already commented out entries
+       - Seagate Momentus XT (Adv. Format)
+       - WD My Passport: 3 -> 2 entries, add 2TB
+       - USB: Imation (0x0718:0x1000) (ticket #231)
+       - USB: Initio (0x13fd:0x1040): unsupported
+       - USB: ASMedia USB 3.0 (0x174c:0x55aa): unsupported -> -d sat
+       - USB: PQI H560 (0x3538:0x0902) (ticket #232)
+
   [CF] smartctl: Override SMART disabled state with '-T permissive'.
 
   [CF] os_win32/daemon_win32.cpp: Drop remaining WinNT4 compatibility.
