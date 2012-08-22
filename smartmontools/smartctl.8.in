@@ -2,7 +2,7 @@
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3575 2012-07-19 21:32:56Z chrfranke $
+ $Id: smartctl.8.in 3591 2012-08-22 19:46:47Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1494,6 +1494,11 @@ option given is used.  The valid values are:
 is the default, unless the device has presets for \'\-F\' in the
 device database (see note below).
 
+.I nologdir
+\- Suppresses read attempts of SMART or GP Log Directory.
+Support for all standard logs is assumed without an actual check.
+Some Intel SSDs may freeze if log address 0 is read.
+
 .I samsung
 \- In some Samsung disks (example: model SV4012H Firmware Version:
 RM100\-08) some of the two\- and four\-byte quantities in the SMART data
@@ -2213,4 +2218,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3575 2012-07-19 21:32:56Z chrfranke $
+$Id: smartctl.8.in 3591 2012-08-22 19:46:47Z chrfranke $

@@ -13,8 +13,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  * This code was originally developed as a Senior Thesis by Michael Cornwell
  * at the Concurrent Systems Laboratory (now part of the Storage Systems
@@ -55,7 +54,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3531 2012-03-27 20:02:25Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3591 2012-08-22 19:46:47Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -146,7 +145,7 @@ static void Usage()
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
-"        Use firmware bug workaround: none, samsung, samsung2,\n"
+"        Use firmware bug workaround: none, nologdir, samsung, samsung2,\n"
 "                                     samsung3, swapid\n\n"
 "  -P TYPE, --presets=TYPE                                             (ATA)\n"
 "        Drive-specific presets: use, ignore, show, showall\n\n"
@@ -214,7 +213,7 @@ static std::string getvalidarglist(int opt)
     return "offline, short, long, conveyance, force, vendor,N, select,M-N, "
            "pending,N, afterselect,[on|off]";
   case 'F':
-    return "none, samsung, samsung2, samsung3, swapid";
+    return "none, nologdir, samsung, samsung2, samsung3, swapid";
   case 'n':
     return "never, sleep, standby, idle";
   case 'f':
@@ -441,6 +440,8 @@ static const char * parse_options(int argc, char** argv,
     case 'F':
       if (!strcmp(optarg,"none")) {
         ataopts.fix_firmwarebug = FIX_NONE;
+      } else if (!strcmp(optarg, "nologdir")) {
+        ataopts.fix_firmwarebug = FIX_NOLOGDIR;
       } else if (!strcmp(optarg,"samsung")) {
         ataopts.fix_firmwarebug = FIX_SAMSUNG;
       } else if (!strcmp(optarg,"samsung2")) {

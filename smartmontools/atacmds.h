@@ -13,8 +13,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  * This code was originally developed as a Senior Thesis by Michael Cornwell
  * at the Concurrent Systems Laboratory (now part of the Storage Systems
@@ -26,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3528 2012-03-25 17:13:47Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3591 2012-08-22 19:46:47Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -71,6 +70,7 @@ typedef enum {
 enum {
   FIX_NOTSPECIFIED = 0,
   FIX_NONE,
+  FIX_NOLOGDIR,
   FIX_SAMSUNG,
   FIX_SAMSUNG2,
   FIX_SAMSUNG3
