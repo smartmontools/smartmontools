@@ -1324,6 +1324,11 @@ used.  The valid values are:
 is the default, unless the device has presets for \'\-F\' in the
 device database.
 
+.I nologdir
+\- Suppresses read attempts of SMART or GP Log Directory.
+Support for all standard logs is assumed without an actual check.
+Some Intel SSDs may freeze if log address 0 is read.
+
 .I samsung
 \- In some Samsung disks (example: model SV4012H Firmware Version:
 RM100\-08) some of the two\- and four\-byte quantities in the SMART data

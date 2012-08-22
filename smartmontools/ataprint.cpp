@@ -1012,6 +1012,22 @@ static const char * GetLogName(unsigned logaddr)
     /*NOTREACHED*/
 }
 
+// Init a fake log directory, assume that standard logs are supported
+const ata_smart_log_directory * fake_logdir(ata_smart_log_directory * logdir,
+  const ata_print_options & options)
+{
+  memset(logdir, 0, sizeof(*logdir));
+  logdir->logversion = 255;
+  logdir->entry[0x01-1].numsectors = 1;
+  logdir->entry[0x03-1].numsectors = (options.smart_ext_error_log + (4-1)) / 4;
+  logdir->entry[0x04-1].numsectors = 8;
+  logdir->entry[0x06-1].numsectors = 1;
+  logdir->entry[0x07-1].numsectors = (options.smart_ext_selftest_log + (19-1)) / 19;
+  logdir->entry[0x09-1].numsectors = 1;
+  logdir->entry[0x11-1].numsectors = 1;
+  return logdir;
+}
+
 // Print SMART and/or GP Log Directory
 static void PrintLogDirectories(const ata_smart_log_directory * gplogdir,
                                 const ata_smart_log_directory * smartlogdir)
@@ -2712,7 +2728,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Read SMART Log directory
   if (need_smart_logdir) {
-    if (ataReadLogDirectory(device, &smartlogdir_buf, false)) {
+    if (fix_firmwarebug == FIX_NOLOGDIR)
+      smartlogdir = fake_logdir(&smartlogdir_buf, options);
+    else if (ataReadLogDirectory(device, &smartlogdir_buf, false)) {
       pout("Read SMART Log Directory failed.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
@@ -2722,7 +2740,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Read GP Log directory
   if (need_gp_logdir) {
-    if (ataReadLogDirectory(device, &gplogdir_buf, true)) {
+    if (fix_firmwarebug == FIX_NOLOGDIR)
+      gplogdir = fake_logdir(&gplogdir_buf, options);
+    else if (ataReadLogDirectory(device, &gplogdir_buf, true)) {
       pout("Read GP Log Directory failed.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
@@ -2731,8 +2751,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Print log directories
-  if ((options.gp_logdir && gplogdir) || (options.smart_logdir && smartlogdir))
-    PrintLogDirectories(gplogdir, smartlogdir);
+  if ((options.gp_logdir && gplogdir) || (options.smart_logdir && smartlogdir)) {
+    if (fix_firmwarebug == FIX_NOLOGDIR)
+      pout("Log Directories not read due to '-F nologdir' option\n\n");
+    else
+      PrintLogDirectories(gplogdir, smartlogdir);
+  }
 
   // Print log pages
   for (i = 0; i < options.log_requests.size(); i++) {

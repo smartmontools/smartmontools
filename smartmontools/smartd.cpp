@@ -1568,7 +1568,7 @@ static void Directives()
            "  -v N,ST Modifies labeling of Attribute N (see man page)  \n"
            "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
            "  -a      Default: -H -f -t -l error -l selftest -l selfteststs -C 197 -U 198\n"
-           "  -F TYPE Firmware bug workaround: none, samsung, samsung2, samsung3\n"
+           "  -F TYPE Firmware bug workaround: none, nologdir, samsung, samsung2, samsung3\n"
            "   #      Comment: text after a hash sign is ignored\n"
            "   \\      Line continuation character\n"
            "Attribute ID is a decimal integer 1 <= ID <= 255\n"
@@ -2079,12 +2079,13 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   bool smart_logdir_ok = false, gp_logdir_ok = false;
 
   if (   isGeneralPurposeLoggingCapable(&drive)
-      && (cfg.errorlog || cfg.selftest)        ) {
+      && (cfg.errorlog || cfg.selftest)
+      && cfg.fix_firmwarebug != FIX_NOLOGDIR   ) {
       if (!ataReadLogDirectory(atadev, &smart_logdir, false))
         smart_logdir_ok = true;
   }
 
-  if (cfg.xerrorlog) {
+  if (cfg.xerrorlog && cfg.fix_firmwarebug != FIX_NOLOGDIR) {
     if (!ataReadLogDirectory(atadev, &gp_logdir, true))
       gp_logdir_ok = true;
   }
@@ -2129,7 +2130,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   if (cfg.xerrorlog) {
     int errcnt2;
-    if (!(cfg.permissive || (gp_logdir_ok && gp_logdir.entry[0x03-1].numsectors))) {
+    if (!(   cfg.permissive || cfg.fix_firmwarebug == FIX_NOLOGDIR
+          || (gp_logdir_ok && gp_logdir.entry[0x03-1].numsectors) )) {
       PrintOut(LOG_INFO, "Device: %s, no Extended Comprehensive SMART Error Log, ignoring -l xerror (override with -T permissive)\n",
                name);
       cfg.xerrorlog = false;
@@ -3597,7 +3599,8 @@ static void printoutvaliddirectiveargs(int priority, char d)
     PrintOut(priority, "use, ignore, show, showall");
     break;
   case 'F':
-    PrintOut(priority, "none, samsung, samsung2, samsung3");
+    PrintOut(priority, "none, nologdir, samsung, samsung2, samsung3");
+    break;
   case 'e':
     PrintOut(priority, "aam,[N|off], apm,[N|off], lookahead,[on|off], "
                        "security-freeze, standby,[N|off], wcache,[on|off]");
@@ -3746,6 +3749,8 @@ static int ParseToken(char * token, dev_config & cfg)
       missingarg = 1;
     } else if (!strcmp(arg, "none")) {
       cfg.fix_firmwarebug = FIX_NONE;
+    } else if (!strcmp(arg, "nologdir")) {
+      cfg.fix_firmwarebug = FIX_NOLOGDIR;
     } else if (!strcmp(arg, "samsung")) {
       cfg.fix_firmwarebug = FIX_SAMSUNG;
     } else if (!strcmp(arg, "samsung2")) {

@@ -5,7 +5,7 @@
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +13,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -224,7 +223,10 @@ static bool parse_db_presets(const char * presets, ata_vendor_attr_defs * defs,
     }
     else if (opt == 'F' && fix_firmwarebug) {
       unsigned char fix;
-      if (!strcmp(arg, "samsung"))
+      // TODO: Use one common function for this (see smartctl.cpp, smartd.cpp)
+      if (!strcmp(arg, "nologdir"))
+        fix = FIX_NOLOGDIR;
+      else if (!strcmp(arg, "samsung"))
         fix = FIX_SAMSUNG;
       else if (!strcmp(arg, "samsung2"))
         fix = FIX_SAMSUNG2;
@@ -396,6 +398,9 @@ static int showonepreset(const drive_settings * dbentry)
     if (fix_firmwarebug) {
       const char * fixdesc;
       switch (fix_firmwarebug) {
+        case FIX_NOLOGDIR:
+          fixdesc = "Avoids reading GP/SMART Log Directories (same as -F nologdir)";
+          break;
         case FIX_SAMSUNG:
           fixdesc = "Fixes byte order in some SMART data (same as -F samsung)";
           break;

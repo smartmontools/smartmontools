@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add '-F nologdir' option/directive.
+       Prevents freeze of some Intel SSDs (ticket #214).
+
   [CF] smartd: Don't log ignored -W directive as critical.
 
   [CF] drivedb.h updates:

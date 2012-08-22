@@ -13,8 +13,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  * This code was originally developed as a Senior Thesis by Michael Cornwell
  * at the Concurrent Systems Laboratory (now part of the Storage Systems
@@ -71,6 +70,7 @@ typedef enum {
 enum {
   FIX_NOTSPECIFIED = 0,
   FIX_NONE,
+  FIX_NOLOGDIR,
   FIX_SAMSUNG,
   FIX_SAMSUNG2,
   FIX_SAMSUNG3
