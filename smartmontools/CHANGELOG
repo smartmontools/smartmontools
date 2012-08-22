@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Include device identify info in warning emails (ticket #185).
+       Add SMARTD_DEVICEINFO environment variable.
+
   [CF] Add '-F nologdir' option/directive.
        Prevents freeze of some Intel SSDs (ticket #214).
 

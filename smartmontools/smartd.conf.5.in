@@ -1002,6 +1002,11 @@ or \'/dev/hptrr [hpt_1/1/1]\' under FreeBSD.  For Areca controllers, the
 form is \'/dev/sg2 [areca_disk_09]\' on Linux or  \'/dev/arcmsr0 [areca_disk_09]\' on FreeBSD.  In these cases the device string
 contains a space and is NOT quoted.  So to use $SMARTD_DEVICESTRING in a
 bash script you should probably enclose it in double quotes.
+.IP \fBSMARTD_DEVICEINFO\fP 4
+is set to device identify information.  It includes most of the info printed
+by \fBsmartctl \-i\fP but uses a brief single line format.
+This device info is also logged when \fBsmartd\fP starts up.
+The string contains space characters and is NOT quoted.
 .IP \fBSMARTD_FAILTYPE\fP 4
 gives the reason for the warning or message email.  The possible values that
 it takes and their meanings are:
