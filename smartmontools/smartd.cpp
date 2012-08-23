@@ -95,9 +95,10 @@ typedef int pid_t;
 #endif
 
 #ifdef _WIN32
-#include "hostname_win32.h" // gethost/domainname()
+#include <winsock2.h>  // ws2_32.dll
+// AC_SEARCH_LIBS and AC_CHECK_FUNCS do not work due to DLL linkage
 #define HAVE_GETHOSTNAME   1
-#define HAVE_GETDOMAINNAME 1
+#define HAVE_GETHOSTBYNAME 1
 // fork()/signal()/initd simulation for native Windows
 #include "daemon_win32.h" // daemon_main/detach/signal()
 #include "wtssendmsg.h" // wts_send_message()
@@ -891,6 +892,19 @@ void temp_environ::set(const char * name, const char * value)
   putenv(const_cast<char *>(m_buf.c_str()));
 }
 
+#ifdef _WIN32
+
+// Wrapper for winsock startup/cleanup
+struct winsock_initializer
+{
+  winsock_initializer()
+    { WSADATA wsad; status = WSAStartup(0x0202 /*2.2*/, &wsad); }
+  ~winsock_initializer()
+    { if (!status) WSACleanup(); }
+  int status;
+};
+
+#endif // _WIN32
 
 static char *dnsdomain(const char *hostname)
 {
@@ -1017,7 +1031,14 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   if (!mail->logged)
     mail->firstsent=epoch;
   mail->lastsent=epoch;
-  
+
+#ifdef _WIN32
+  // Init winsock during first call
+  static winsock_initializer init_winsock;
+  if (init_winsock.status)
+    PrintOut(LOG_CRIT, "WSAStartup() failed: %d\n", init_winsock.status);
+#endif
+
   // get system host & domain names (not null terminated if length=MAX) 
 #ifdef HAVE_GETHOSTNAME
   if (gethostname(hostname, 256))
@@ -1124,10 +1145,11 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 #endif
            "\n",
            hostname,
+           domainname
 #ifndef _WIN32
-           domainname,
+           , nisdomain
 #endif
-           nisdomain);
+           );
 
   int boxmsgoffs = strlen(fullmessage); // start of message for message box on Windows
 

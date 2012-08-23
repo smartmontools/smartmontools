@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows smartd: Use gethostname/gethostbyname() from winsock.
+       Remove os_win32/hostname_win32.*.
+
   [CF] smartd: Include device identify info in warning emails (ticket #185).
        Add SMARTD_DEVICEINFO environment variable.
 

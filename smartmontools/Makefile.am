@@ -97,14 +97,12 @@ if OS_WIN32_MINGW
 smartd_SOURCES += \
         os_win32/daemon_win32.cpp \
         os_win32/daemon_win32.h \
-        os_win32/hostname_win32.cpp \
-        os_win32/hostname_win32.h \
         os_win32/syslog_win32.cpp \
         os_win32/syslog.h \
         os_win32/wtssendmsg.cpp \
         os_win32/wtssendmsg.h
 
-smartd_LDADD += -lwtsapi32
+smartd_LDADD += -lws2_32 -lwtsapi32
 
 endif
 
