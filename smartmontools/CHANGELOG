@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3593 2012-08-23 18:59:50Z chrfranke $
+$Id: CHANGELOG 3594 2012-08-23 20:10:00Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd.cpp: Rework dnsname().  Print "[None]" instead of "[Unknown]"
+       if domain is not set.  Print NIS domain only if supported.
 
   [CF] Windows smartd: Use gethostname/gethostbyname() from winsock.
        Remove os_win32/hostname_win32.*.
