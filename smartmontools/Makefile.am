@@ -1,11 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3593 2012-08-23 18:59:50Z chrfranke $
+# $Id: Makefile.am 3596 2012-08-23 20:56:50Z chrfranke $
 #
 
 @SET_MAKE@
 
-ACLOCAL_AM_FLAGS = -I m4
+ACLOCAL_AMFLAGS = -I m4
 
 # Make sure .cpp takes precedence to avoid compiling old .c file
 SUFFIXES = .cpp .c .s .o
