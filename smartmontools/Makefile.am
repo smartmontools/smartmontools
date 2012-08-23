@@ -5,7 +5,7 @@
 
 @SET_MAKE@
 
-ACLOCAL_AM_FLAGS = -I m4
+ACLOCAL_AMFLAGS = -I m4
 
 # Make sure .cpp takes precedence to avoid compiling old .c file
 SUFFIXES = .cpp .c .s .o
