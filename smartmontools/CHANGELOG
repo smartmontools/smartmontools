@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd.cpp: MailWarning(): Move variable declarations, use sizeof()
+       instead of numbers.
+
   [CF] smartd.cpp: Rework dnsname().  Print "[None]" instead of "[Unknown]"
        if domain is not set.  Print NIS domain only if supported.
 
