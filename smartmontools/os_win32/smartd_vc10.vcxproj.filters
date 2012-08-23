@@ -15,9 +15,6 @@
     <ClCompile Include="daemon_win32.cpp">
       <Filter>os_win32</Filter>
     </ClCompile>
-    <ClCompile Include="hostname_win32.cpp">
-      <Filter>os_win32</Filter>
-    </ClCompile>
     <ClCompile Include="syslog_win32.cpp">
       <Filter>os_win32</Filter>
     </ClCompile>
@@ -72,9 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="daemon_win32.h">
-      <Filter>os_win32</Filter>
-    </ClInclude>
-    <ClInclude Include="hostname_win32.h">
       <Filter>os_win32</Filter>
     </ClInclude>
     <ClInclude Include="syslog.h">

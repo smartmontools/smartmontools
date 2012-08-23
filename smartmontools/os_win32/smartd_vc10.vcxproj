@@ -63,7 +63,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -84,12 +84,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="daemon_win32.cpp" />
-    <ClCompile Include="hostname_win32.cpp" />
     <ClCompile Include="syslog_win32.cpp" />
     <ClCompile Include="wmiquery.cpp" />
     <ClCompile Include="..\regex\regcomp.c">
@@ -177,7 +176,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="daemon_win32.h" />
-    <ClInclude Include="hostname_win32.h" />
     <ClInclude Include="syslog.h" />
     <ClInclude Include="wbemcli_small.h" />
     <ClInclude Include="wmiquery.h" />

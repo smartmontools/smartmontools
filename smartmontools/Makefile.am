@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3584 2012-08-05 17:05:32Z chrfranke $
+# $Id: Makefile.am 3593 2012-08-23 18:59:50Z chrfranke $
 #
 
 @SET_MAKE@
@@ -97,14 +97,12 @@ if OS_WIN32_MINGW
 smartd_SOURCES += \
         os_win32/daemon_win32.cpp \
         os_win32/daemon_win32.h \
-        os_win32/hostname_win32.cpp \
-        os_win32/hostname_win32.h \
         os_win32/syslog_win32.cpp \
         os_win32/syslog.h \
         os_win32/wtssendmsg.cpp \
         os_win32/wtssendmsg.h
 
-smartd_LDADD += -lwtsapi32
+smartd_LDADD += -lws2_32 -lwtsapi32
 
 endif
 
