@@ -8,7 +8,7 @@ http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontool
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.44
 -----------------------------------------------------------
-- option/directive '-F nologdir' for some Intel SSDs.
+- option/directive '-F nologdir' and '-F xerrorlba'.
 - smartd warning emails include device identify info.
 - smartd '-d' output is flushed to support redirection.
 - Windows smartd: smartd.conf directives '-m console',
