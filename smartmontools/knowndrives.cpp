@@ -403,6 +403,9 @@ static int showonepreset(const drive_settings * dbentry)
         case BUG_SAMSUNG3:
           fixdesc = "Fixes completed self-test reported as in progress (same as -F samsung3)";
           break;
+        case BUG_XERRORLBA:
+          fixdesc = "Fixes LBA byte ordering in Ext. Comprehensive SMART error log (same as -F xerrorlba)";
+          break;
         default:
           fixdesc = "UNKNOWN"; errcnt++;
           break;

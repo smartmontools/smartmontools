@@ -373,6 +373,8 @@ bool parse_firmwarebug_def(const char * opt, firmwarebug_defs & firmwarebugs)
       firmwarebugs.set(BUG_SAMSUNG2);
     else if (!strcmp(opt, "samsung3"))
       firmwarebugs.set(BUG_SAMSUNG3);
+    else if (!strcmp(opt, "xerrorlba"))
+      firmwarebugs.set(BUG_XERRORLBA);
     else
       return false;
     return true;
@@ -381,7 +383,7 @@ bool parse_firmwarebug_def(const char * opt, firmwarebug_defs & firmwarebugs)
 // Return a string of valid argument words for parse_firmwarebug_def()
 const char * get_valid_firmwarebug_args()
 {
-  return "none, nologdir, samsung, samsung2, samsung3";
+  return "none, nologdir, samsung, samsung2, samsung3, xerrorlba";
 }
 
 
@@ -1579,9 +1581,34 @@ int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
   return 0;
 }
 
+
+// Fix LBA byte ordering of Extended Comprehensive Error Log
+// if little endian instead of ATA register ordering is provided
+template <class T>
+static inline void fix_exterrlog_lba_cmd(T & cmd)
+{
+  T org = cmd;
+  cmd.lba_mid_register_hi = org.lba_high_register;
+  cmd.lba_low_register_hi = org.lba_mid_register_hi;
+  cmd.lba_high_register   = org.lba_mid_register;
+  cmd.lba_mid_register    = org.lba_low_register_hi;
+}
+
+static void fix_exterrlog_lba(ata_smart_exterrlog * log, unsigned nsectors)
+{
+   for (unsigned i = 0; i < nsectors; i++) {
+     for (int ei = 0; ei < 4; ei++) {
+       ata_smart_exterrlog_error_log & entry = log[i].error_logs[ei];
+       fix_exterrlog_lba_cmd(entry.error);
+       for (int ci = 0; ci < 5; ci++)
+         fix_exterrlog_lba_cmd(entry.commands[ci]);
+     }
+   }
+}
+
 // Read Extended Comprehensive Error Log
 bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
-                        unsigned nsectors)
+                        unsigned nsectors, firmwarebug_defs firmwarebugs)
 {
   if (!ataReadLogExt(device, 0x03, 0x00, 0, log, nsectors))
     return false;
@@ -1598,6 +1625,9 @@ bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
       swapx(&log->error_logs[i].error.timestamp);
     }
   }
+
+  if (firmwarebugs.is_set(BUG_XERRORLBA))
+    fix_exterrlog_lba(log, nsectors);
 
   return true;
 }

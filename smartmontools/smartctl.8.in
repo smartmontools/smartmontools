@@ -1524,6 +1524,11 @@ a self\-test still in progress with 0% remaining when the test was already
 completed. Enabling this option modifies the output of the self\-test
 execution status (see options \'\-c\' or \'\-a\' above) accordingly.
 
+.I xerrorlba
+\- Fixes LBA byte ordering in Extended Comprehensive SMART error log.
+Some disk use little endian byte ordering instead of ATA register
+ordering to specifiy the LBA addresses in the log entries.
+
 .I swapid
 \- Fixes byte swapped ATA identify strings (device name, serial number,
 firmware version) returned by some buggy device drivers.

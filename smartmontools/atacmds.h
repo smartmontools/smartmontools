@@ -724,7 +724,8 @@ enum firmwarebug_t {
   BUG_NOLOGDIR,
   BUG_SAMSUNG,
   BUG_SAMSUNG2,
-  BUG_SAMSUNG3
+  BUG_SAMSUNG3,
+  BUG_XERRORLBA
 };
 
 // Set of firmware bugs
@@ -784,7 +785,7 @@ bool ataReadSmartLog(ata_device * device, unsigned char logaddr,
                      void * data, unsigned nsectors);
 // Read SMART Extended Comprehensive Error Log
 bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
-                        unsigned nsectors);
+                        unsigned nsectors, firmwarebug_defs firwarebugs);
 // Read SMART Extended Self-test Log
 bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
                            unsigned nsectors);

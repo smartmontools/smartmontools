@@ -2819,7 +2819,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     else {
       raw_buffer log_03_buf(nsectors * 512);
       ata_smart_exterrlog * log_03 = (ata_smart_exterrlog *)log_03_buf.data();
-      if (!ataReadExtErrorLog(device, log_03, nsectors))
+      if (!ataReadExtErrorLog(device, log_03, nsectors, firmwarebugs))
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       else {
         if (PrintSmartExtErrorLog(log_03, nsectors, options.smart_ext_error_log))

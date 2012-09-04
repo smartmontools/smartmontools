@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add '-F xerrorlba' option/directive.
+
   [CF] Rework '-F' option handling.  Add support for multiple '-F' options
        and directives.
 

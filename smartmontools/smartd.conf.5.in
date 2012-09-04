@@ -1354,6 +1354,9 @@ a self\-test still in progress with 0% remaining when the test was already
 completed. If this directive is specified, \fBsmartd\fP will not skip the
 next scheduled self\-test (see Directive \'\-s\' above) in this case.
 
+.I xerrorlba
+\- This only affects \fBsmartctl\fP.
+
 [Please see the \fBsmartctl \-F\fP command-line option.]
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME]
