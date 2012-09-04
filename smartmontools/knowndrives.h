@@ -5,7 +5,7 @@
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,15 +13,14 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h 3288 2011-03-09 18:40:36Z chrfranke $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h 3597 2012-09-04 21:10:37Z chrfranke $\n"
 
 // Structure to store drive database entries, see drivedb.h for a description.
 struct drive_settings {
@@ -56,12 +55,12 @@ int showallpresets();
 int showmatchingpresets(const char *model, const char *firmware);
 
 // Searches drive database and sets preset vendor attribute
-// options in defs and fix_firmwarebug.
+// options in defs and firmwarebugs.
 // Values that have already been set will not be changed.
 // Returns pointer to database entry or nullptr if none found.
 const drive_settings * lookup_drive_apply_presets(
   const ata_identify_device * drive, ata_vendor_attr_defs & defs,
-  unsigned char & fix_firmwarebug);
+  firmwarebug_defs & firmwarebugs);
 
 // Get path for additional database file
 const char * get_drivedb_path_add();

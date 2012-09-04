@@ -25,7 +25,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h 3591 2012-08-22 19:46:47Z chrfranke $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h 3597 2012-09-04 21:10:37Z chrfranke $\n"
 
 #include <vector>
 
@@ -83,7 +83,7 @@ struct ata_print_options
   enum { FMT_BRIEF = 0x01, FMT_HEX_ID = 0x02, FMT_HEX_VAL = 0x04 };
   unsigned char output_format; // FMT_* flags
 
-  unsigned char fix_firmwarebug; // FIX_*, see atacmds.h
+  firmwarebug_defs firmwarebugs; // -F options
   bool fix_swapped_id; // Fix swapped ID strings returned by some buggy drivers
 
   ata_vendor_attr_defs attribute_defs; // -v options
@@ -130,7 +130,6 @@ struct ata_print_options
       smart_selftest_type(-1), smart_selftest_force(false),
       sct_temp_int(0), sct_temp_int_pers(false),
       output_format(0),
-      fix_firmwarebug(FIX_NOTSPECIFIED),
       fix_swapped_id(false),
       ignore_presets(false),
       show_presets(false),
