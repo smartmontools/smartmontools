@@ -572,7 +572,7 @@ static void PrintSmartOfflineStatus(const ata_smart_values * data)
 }
 
 static void PrintSmartSelfExecStatus(const ata_smart_values * data,
-                                     unsigned char fix_firmwarebug)
+                                     firmwarebug_defs firmwarebugs)
 {
    pout("Self-test execution status:      ");
    
@@ -632,7 +632,7 @@ static void PrintSmartSelfExecStatus(const ata_smart_values * data,
           pout("damage.\n");
           break;
        case 15:
-          if (fix_firmwarebug == FIX_SAMSUNG3 && data->self_test_exec_status == 0xf0) {
+          if (firmwarebugs.is_set(BUG_SAMSUNG3) && data->self_test_exec_status == 0xf0) {
             pout("(%4d)\tThe previous self-test routine completed\n\t\t\t\t\t",
                     (int)data->self_test_exec_status);
             pout("with unknown result or self-test in\n\t\t\t\t\t");
@@ -921,14 +921,14 @@ static void ataPrintSCTCapability(const ata_identify_device *drive)
 
 
 static void PrintGeneralSmartValues(const ata_smart_values *data, const ata_identify_device *drive,
-                                    unsigned char fix_firmwarebug)
+                                    firmwarebug_defs firmwarebugs)
 {
   pout("General SMART Values:\n");
   
   PrintSmartOfflineStatus(data); 
   
   if (isSupportSelfTest(data)){
-    PrintSmartSelfExecStatus(data, fix_firmwarebug);
+    PrintSmartSelfExecStatus(data, firmwarebugs);
   }
   
   PrintSmartTotalTimeCompleteOffline(data);
@@ -1418,7 +1418,7 @@ static const char * get_error_log_state_desc(unsigned state)
 
 // returns number of errors
 static int PrintSmartErrorlog(const ata_smart_errorlog *data,
-                              unsigned char fix_firmwarebug)
+                              firmwarebug_defs firmwarebugs)
 {
   pout("SMART Error Log Version: %d\n", (int)data->revnumber);
   
@@ -1437,7 +1437,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
   }
 
   // Some internal consistency checking of the data structures
-  if ((data->ata_error_count-data->error_log_pointer)%5 && fix_firmwarebug != FIX_SAMSUNG2) {
+  if ((data->ata_error_count-data->error_log_pointer) % 5 && !firmwarebugs.is_set(BUG_SAMSUNG2)) {
     pout("Warning: ATA error count %d inconsistent with error log pointer %d\n\n",
          data->ata_error_count,data->error_log_pointer);
   }
@@ -2280,11 +2280,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Use preset vendor attribute options unless user has requested otherwise.
   ata_vendor_attr_defs attribute_defs = options.attribute_defs;
-  unsigned char fix_firmwarebug = options.fix_firmwarebug;
+  firmwarebug_defs firmwarebugs = options.firmwarebugs;
   const drive_settings * dbentry = 0;
   if (!options.ignore_presets)
     dbentry = lookup_drive_apply_presets(&drive, attribute_defs,
-      fix_firmwarebug);
+      firmwarebugs);
 
   // Get capacity and sector sizes
   ata_size_info sizes;
@@ -2706,7 +2706,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   
   // Print general SMART values
   if (smart_val_ok && options.smart_general_values)
-    PrintGeneralSmartValues(&smartval, &drive, fix_firmwarebug);
+    PrintGeneralSmartValues(&smartval, &drive, firmwarebugs);
 
   // Print vendor-specific attributes
   if (smart_val_ok && options.smart_vendor_attrib) {
@@ -2728,7 +2728,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Read SMART Log directory
   if (need_smart_logdir) {
-    if (fix_firmwarebug == FIX_NOLOGDIR)
+    if (firmwarebugs.is_set(BUG_NOLOGDIR))
       smartlogdir = fake_logdir(&smartlogdir_buf, options);
     else if (ataReadLogDirectory(device, &smartlogdir_buf, false)) {
       pout("Read SMART Log Directory failed.\n\n");
@@ -2740,7 +2740,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Read GP Log directory
   if (need_gp_logdir) {
-    if (fix_firmwarebug == FIX_NOLOGDIR)
+    if (firmwarebugs.is_set(BUG_NOLOGDIR))
       gplogdir = fake_logdir(&gplogdir_buf, options);
     else if (ataReadLogDirectory(device, &gplogdir_buf, true)) {
       pout("Read GP Log Directory failed.\n\n");
@@ -2752,7 +2752,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print log directories
   if ((options.gp_logdir && gplogdir) || (options.smart_logdir && smartlogdir)) {
-    if (fix_firmwarebug == FIX_NOLOGDIR)
+    if (firmwarebugs.is_set(BUG_NOLOGDIR))
       pout("Log Directories not read due to '-F nologdir' option\n\n");
     else
       PrintLogDirectories(gplogdir, smartlogdir);
@@ -2845,13 +2845,13 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     else {
       ata_smart_errorlog smarterror; memset(&smarterror, 0, sizeof(smarterror));
-      if (ataReadErrorLog(device, &smarterror, fix_firmwarebug)) {
+      if (ataReadErrorLog(device, &smarterror, firmwarebugs)) {
         pout("Smartctl: SMART Error Log Read Failed\n");
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       }
       else {
         // quiet mode is turned on inside PrintSmartErrorLog()
-        if (PrintSmartErrorlog(&smarterror, fix_firmwarebug))
+        if (PrintSmartErrorlog(&smarterror, firmwarebugs))
 	  returnval|=FAILERR;
         print_off();
       }
@@ -2896,13 +2896,13 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     else {
       ata_smart_selftestlog smartselftest; memset(&smartselftest, 0, sizeof(smartselftest));
-      if (ataReadSelfTestLog(device, &smartselftest, fix_firmwarebug)) {
+      if (ataReadSelfTestLog(device, &smartselftest, firmwarebugs)) {
         pout("Smartctl: SMART Self Test Log Read Failed\n");
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       }
       else {
         print_on();
-        if (ataPrintSmartSelfTestlog(&smartselftest, !printing_is_switchable, fix_firmwarebug))
+        if (ataPrintSmartSelfTestlog(&smartselftest, !printing_is_switchable, firmwarebugs))
           returnval |= FAILLOG;
         print_off();
         pout("\n");

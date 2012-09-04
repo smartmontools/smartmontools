@@ -1319,15 +1319,14 @@ by default. This can be changed to Attribute 9 or 220 by the drive
 database or by the \'-v\' directive, see below.
 .TP
 .B \-F TYPE
-[ATA only] Modifies the behavior of \fBsmartd\fP to compensate for
-some known and understood device firmware bug.  The arguments to this
-Directive are exclusive, so that only the final Directive given is
-used.  The valid values are:
+[ATA only] Modifies the behavior of \fBsmartd\fP to compensate for some
+known and understood device firmware bug.  This directive may be used
+multiple times.  The valid arguments are:
 
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This
 is the default, unless the device has presets for \'\-F\' in the
-device database.
+drive database.  Using this directive will over\-ride any preset values.
 
 .I nologdir
 \- Suppresses read attempts of SMART or GP Log Directory.
@@ -1354,10 +1353,6 @@ byte\-reversed order.
 a self\-test still in progress with 0% remaining when the test was already
 completed. If this directive is specified, \fBsmartd\fP will not skip the
 next scheduled self\-test (see Directive \'\-s\' above) in this case.
-
-Note that an explicit \'\-F\' Directive will over\-ride any preset
-values for \'\-F\' (see the \'\-P\' option below).
-
 
 [Please see the \fBsmartctl \-F\fP command-line option.]
 .TP

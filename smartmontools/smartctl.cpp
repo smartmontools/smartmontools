@@ -145,13 +145,14 @@ static void Usage()
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
-"        Use firmware bug workaround: none, nologdir, samsung, samsung2,\n"
-"                                     samsung3, swapid\n\n"
+"        Use firmware bug workaround:\n"
+"        %s, swapid\n\n"
 "  -P TYPE, --presets=TYPE                                             (ATA)\n"
 "        Drive-specific presets: use, ignore, show, showall\n\n"
 "  -B [+]FILE, --drivedb=[+]FILE                                       (ATA)\n"
 "        Read and replace [add] drive database from FILE\n"
 "        [default is +%s",
+    get_valid_firmwarebug_args(),
     get_drivedb_path_add()
   );
 #ifdef SMARTMONTOOLS_DRIVEDBDIR
@@ -213,7 +214,7 @@ static std::string getvalidarglist(int opt)
     return "offline, short, long, conveyance, force, vendor,N, select,M-N, "
            "pending,N, afterselect,[on|off]";
   case 'F':
-    return "none, nologdir, samsung, samsung2, samsung3, swapid";
+    return std::string(get_valid_firmwarebug_args()) + ", swapid";
   case 'n':
     return "never, sleep, standby, idle";
   case 'f':
@@ -438,21 +439,10 @@ static const char * parse_options(int argc, char** argv,
       scsiopts.smart_ss_media_log = true;
       break;
     case 'F':
-      if (!strcmp(optarg,"none")) {
-        ataopts.fix_firmwarebug = FIX_NONE;
-      } else if (!strcmp(optarg, "nologdir")) {
-        ataopts.fix_firmwarebug = FIX_NOLOGDIR;
-      } else if (!strcmp(optarg,"samsung")) {
-        ataopts.fix_firmwarebug = FIX_SAMSUNG;
-      } else if (!strcmp(optarg,"samsung2")) {
-        ataopts.fix_firmwarebug = FIX_SAMSUNG2;
-      } else if (!strcmp(optarg,"samsung3")) {
-        ataopts.fix_firmwarebug = FIX_SAMSUNG3;
-      } else if (!strcmp(optarg,"swapid")) {
+      if (!strcmp(optarg, "swapid"))
         ataopts.fix_swapped_id = true;
-      } else {
+      else if (!parse_firmwarebug_def(optarg, ataopts.firmwarebugs))
         badarg = true;
-      }
       break;
     case 'c':
       ataopts.smart_general_values = true;

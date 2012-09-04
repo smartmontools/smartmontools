@@ -1485,14 +1485,14 @@ corresponds to temperature, can be found at:
 .TP
 .B \-F TYPE, \-\-firmwarebug=TYPE
 [ATA only] Modifies the behavior of \fBsmartctl\fP to compensate for some
-known and understood device firmware or driver bug.  Except \'swapid\',
-the arguments to this option are exclusive, so that only the final
-option given is used.  The valid values are:
+known and understood device firmware or driver bug.  This option may be used
+multiple times.  The valid arguments are:
 
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This
 is the default, unless the device has presets for \'\-F\' in the
-device database (see note below).
+drive database.  Using this option on the command line will over\-ride any
+preset values.
 
 .I nologdir
 \- Suppresses read attempts of SMART or GP Log Directory.
@@ -1523,10 +1523,6 @@ the error count is byte swapped.  Thus a disk with five errors
 a self\-test still in progress with 0% remaining when the test was already
 completed. Enabling this option modifies the output of the self\-test
 execution status (see options \'\-c\' or \'\-a\' above) accordingly.
-
-Note that an explicit \'\-F\' option on the command line will
-over\-ride any preset values for \'\-F\' (see the \'\-P\' option
-below).
 
 .I swapid
 \- Fixes byte swapped ATA identify strings (device name, serial number,

@@ -14,8 +14,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  * This code was originally developed as a Senior Thesis by Michael Cornwell
  * at the Concurrent Systems Laboratory (now part of the Storage Systems
@@ -358,6 +357,33 @@ std::string create_vendor_attribute_arg_list()
     s += strprintf("\n\t%s", map_old_vendor_opts[i][0]);
   return s;
 }
+
+
+// Parse firmwarebug def (-F option).
+// Return false on error.
+bool parse_firmwarebug_def(const char * opt, firmwarebug_defs & firmwarebugs)
+{
+    if (!strcmp(opt, "none"))
+      firmwarebugs.set(BUG_NONE);
+    else if (!strcmp(opt, "nologdir"))
+      firmwarebugs.set(BUG_NOLOGDIR);
+    else if (!strcmp(opt, "samsung"))
+      firmwarebugs.set(BUG_SAMSUNG);
+    else if (!strcmp(opt, "samsung2"))
+      firmwarebugs.set(BUG_SAMSUNG2);
+    else if (!strcmp(opt, "samsung3"))
+      firmwarebugs.set(BUG_SAMSUNG3);
+    else
+      return false;
+    return true;
+}
+
+// Return a string of valid argument words for parse_firmwarebug_def()
+const char * get_valid_firmwarebug_args()
+{
+  return "none, nologdir, samsung, samsung2, samsung3";
+}
+
 
 // swap two bytes.  Point to low address
 void swap2(char *location){
@@ -1127,7 +1153,7 @@ static void fixsamsungselftestlog(ata_smart_selftestlog * data)
 
 // Reads the Self Test Log (log #6)
 int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
-                        unsigned char fix_firmwarebug)
+                        firmwarebug_defs firmwarebugs)
 {
 
   // get data from device
@@ -1141,7 +1167,7 @@ int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
     checksumwarning("SMART Self-Test Log Structure");
   
   // fix firmware bugs in self-test log
-  if (fix_firmwarebug == FIX_SAMSUNG)
+  if (firmwarebugs.is_set(BUG_SAMSUNG))
     fixsamsungselftestlog(data);
 
   // swap endian order if needed
@@ -1512,7 +1538,7 @@ static void fixsamsungerrorlog2(ata_smart_errorlog * data)
 // Error Log is #2, and the Extended Comprehensive SMART Error log is
 // #3
 int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
-                     unsigned char fix_firmwarebug)
+                     firmwarebug_defs firmwarebugs)
 {
   
   // get data from device
@@ -1527,9 +1553,9 @@ int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
   
   // Some disks have the byte order reversed in some SMART Summary
   // Error log entries
-  if (fix_firmwarebug == FIX_SAMSUNG)
+  if (firmwarebugs.is_set(BUG_SAMSUNG))
     fixsamsungerrorlog(data);
-  else if (fix_firmwarebug == FIX_SAMSUNG2)
+  else if (firmwarebugs.is_set(BUG_SAMSUNG2))
     fixsamsungerrorlog2(data);
 
   // swap endian order if needed
@@ -2727,11 +2753,11 @@ int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
 // bottom 8 bits: number of entries found where self-test showed an error
 // remaining bits: if nonzero, power on hours of last self-test where error was found
 int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries,
-                             unsigned char fix_firmwarebug)
+                             firmwarebug_defs firmwarebugs)
 {
   if (allentries)
     pout("SMART Self-test log structure revision number %d\n",(int)data->revnumber);
-  if ((data->revnumber!=0x0001) && allentries && fix_firmwarebug != FIX_SAMSUNG)
+  if (data->revnumber != 0x0001 && allentries && !firmwarebugs.is_set(BUG_SAMSUNG))
     pout("Warning: ATA Specification requires self-test log structure revision number = 1\n");
   if (data->mostrecenttest==0){
     if (allentries)

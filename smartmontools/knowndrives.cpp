@@ -207,7 +207,7 @@ static const drive_settings * lookup_drive(const char * model, const char * firm
 
 // Parse drive or USB options in preset string, return false on error.
 static bool parse_db_presets(const char * presets, ata_vendor_attr_defs * defs,
-                             unsigned char * fix_firmwarebug, std::string * type)
+                             firmwarebug_defs * firmwarebugs, std::string * type)
 {
   for (int i = 0; ; ) {
     i += strspn(presets+i, " \t");
@@ -221,22 +221,13 @@ static bool parse_db_presets(const char * presets, ata_vendor_attr_defs * defs,
       if (!parse_attribute_def(arg, *defs, PRIOR_DATABASE))
         return false;
     }
-    else if (opt == 'F' && fix_firmwarebug) {
-      unsigned char fix;
-      // TODO: Use one common function for this (see smartctl.cpp, smartd.cpp)
-      if (!strcmp(arg, "nologdir"))
-        fix = FIX_NOLOGDIR;
-      else if (!strcmp(arg, "samsung"))
-        fix = FIX_SAMSUNG;
-      else if (!strcmp(arg, "samsung2"))
-        fix = FIX_SAMSUNG2;
-      else if (!strcmp(arg, "samsung3"))
-        fix = FIX_SAMSUNG3;
-      else
+    else if (opt == 'F' && firmwarebugs) {
+      firmwarebug_defs bug;
+      if (!parse_firmwarebug_def(arg, bug))
         return false;
-      // Set only if not set by user
-      if (*fix_firmwarebug == FIX_NOTSPECIFIED)
-        *fix_firmwarebug = fix;
+      // Don't set if user specified '-F none'.
+      if (!firmwarebugs->is_set(BUG_NONE))
+        firmwarebugs->set(bug);
     }
     else if (opt == 'd' && type) {
         // TODO: Check valid types
@@ -253,9 +244,9 @@ static bool parse_db_presets(const char * presets, ata_vendor_attr_defs * defs,
 // Parse '-v' and '-F' options in preset string, return false on error.
 static inline bool parse_presets(const char * presets,
                                  ata_vendor_attr_defs & defs,
-                                 unsigned char & fix_firmwarebug)
+                                 firmwarebug_defs & firmwarebugs)
 {
-  return parse_db_presets(presets, &defs, &fix_firmwarebug, 0);
+  return parse_db_presets(presets, &defs, &firmwarebugs, 0);
 }
 
 // Parse '-d' option in preset string, return false on error.
@@ -367,11 +358,11 @@ static int showonepreset(const drive_settings * dbentry)
     pout("%-*s %s\n", TABLEPRINTWIDTH, "MODEL FAMILY:", dbentry->modelfamily);
 
     // if there are any presets, then show them
-    unsigned char fix_firmwarebug = 0;
+    firmwarebug_defs firmwarebugs;
     bool first_preset = true;
     if (*dbentry->presets) {
       ata_vendor_attr_defs defs;
-      if (!parse_presets(dbentry->presets, defs, fix_firmwarebug)) {
+      if (!parse_presets(dbentry->presets, defs, firmwarebugs)) {
         pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
         errcnt++;
       }
@@ -395,19 +386,21 @@ static int showonepreset(const drive_settings * dbentry)
       pout("%-*s %s\n", TABLEPRINTWIDTH, "ATTRIBUTE OPTIONS:", "None preset; no -v options are required.");
 
     // describe firmwarefix
-    if (fix_firmwarebug) {
+    for (int b = BUG_NOLOGDIR; b <= BUG_SAMSUNG3; b++) {
+      if (!firmwarebugs.is_set((firmwarebug_t)b))
+        continue;
       const char * fixdesc;
-      switch (fix_firmwarebug) {
-        case FIX_NOLOGDIR:
+      switch ((firmwarebug_t)b) {
+        case BUG_NOLOGDIR:
           fixdesc = "Avoids reading GP/SMART Log Directories (same as -F nologdir)";
           break;
-        case FIX_SAMSUNG:
+        case BUG_SAMSUNG:
           fixdesc = "Fixes byte order in some SMART data (same as -F samsung)";
           break;
-        case FIX_SAMSUNG2:
+        case BUG_SAMSUNG2:
           fixdesc = "Fixes byte order in some SMART data (same as -F samsung2)";
           break;
-        case FIX_SAMSUNG3:
+        case BUG_SAMSUNG3:
           fixdesc = "Fixes completed self-test reported as in progress (same as -F samsung3)";
           break;
         default:
@@ -530,12 +523,12 @@ void show_presets(const ata_identify_device * drive)
 }
 
 // Searches drive database and sets preset vendor attribute
-// options in defs and fix_firmwarebug.
+// options in defs and firmwarebugs.
 // Values that have already been set will not be changed.
 // Returns pointer to database entry or nullptr if none found
 const drive_settings * lookup_drive_apply_presets(
   const ata_identify_device * drive, ata_vendor_attr_defs & defs,
-  unsigned char & fix_firmwarebug)
+  firmwarebug_defs & firmwarebugs)
 {
   // get the drive's model/firmware strings
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
@@ -549,7 +542,7 @@ const drive_settings * lookup_drive_apply_presets(
 
   if (*dbentry->presets) {
     // Apply presets
-    if (!parse_presets(dbentry->presets, defs, fix_firmwarebug))
+    if (!parse_presets(dbentry->presets, defs, firmwarebugs))
       pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
   }
   return dbentry;
@@ -770,7 +763,7 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
           case 4:
             if (!token.value.empty()) {
               if (!is_usb_modelfamily(values[0].c_str())) {
-                ata_vendor_attr_defs defs; unsigned char fix = 0;
+                ata_vendor_attr_defs defs; firmwarebug_defs fix;
                 if (!parse_presets(token.value.c_str(), defs, fix)) {
                   pout("%s(%d): Syntax error in preset option string\n", path, token.line);
                   ok = false;

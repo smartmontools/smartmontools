@@ -66,15 +66,6 @@ typedef enum {
   WRITE_LOG
 } smart_command_set;
 
-// Possible values for fix_firmwarebug.
-enum {
-  FIX_NOTSPECIFIED = 0,
-  FIX_NONE,
-  FIX_NOLOGDIR,
-  FIX_SAMSUNG,
-  FIX_SAMSUNG2,
-  FIX_SAMSUNG3
-};
 
 // ATA Specification Command Register Values (Commands)
 #define ATA_CHECK_POWER_MODE            0xe5
@@ -727,6 +718,36 @@ private:
 };
 
 
+// Possible values for firmwarebugs
+enum firmwarebug_t {
+  BUG_NONE = 0,
+  BUG_NOLOGDIR,
+  BUG_SAMSUNG,
+  BUG_SAMSUNG2,
+  BUG_SAMSUNG3
+};
+
+// Set of firmware bugs
+class firmwarebug_defs
+{
+public:
+  firmwarebug_defs()
+    : m_bugs(0) { }
+
+  bool is_set(firmwarebug_t bug) const
+    { return !!(m_bugs & (1 << bug)); }
+
+  void set(firmwarebug_t bug)
+    { m_bugs |= (1 << bug); }
+
+  void set(firmwarebug_defs bugs)
+    { m_bugs |= bugs.m_bugs; }
+
+private:
+  unsigned m_bugs;
+};
+
+
 // Print ATA debug messages?
 extern unsigned char ata_debugmode;
 
@@ -747,9 +768,9 @@ bool ata_set_features(ata_device * device, unsigned char features, int sector_co
 int ataReadSmartValues(ata_device * device,struct ata_smart_values *);
 int ataReadSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt *);
 int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
-                     unsigned char fix_firmwarebug);
+                     firmwarebug_defs firmwarebugs);
 int ataReadSelfTestLog(ata_device * device, ata_smart_selftestlog * data,
-                       unsigned char fix_firmwarebug);
+                       firmwarebug_defs firmwarebugs);
 int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_test_log *data);
 int ataSetSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt *);
 int ataReadLogDirectory(ata_device * device, ata_smart_log_directory *, bool gpl);
@@ -924,6 +945,13 @@ unsigned char get_unc_attr_id(bool offline, const ata_vendor_attr_defs & defs,
 // parse_attribute_def().
 std::string create_vendor_attribute_arg_list();
 
+// Parse firmwarebug def (-F option).
+// Return false on error.
+bool parse_firmwarebug_def(const char * opt, firmwarebug_defs & firmwarebugs);
+
+// Return a string of valid argument words for parse_firmwarebug_def()
+const char * get_valid_firmwarebug_args();
+
 
 // These are two of the functions that are defined in os_*.c and need
 // to be ported to get smartmontools onto another OS.
@@ -957,7 +985,7 @@ int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
 
 // Print Smart self-test log, used by smartctl and smartd.
 int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries,
-                             unsigned char fix_firmwarebug);
+                             firmwarebug_defs firmwarebugs);
 
 // Get capacity and sector sizes from IDENTIFY data
 struct ata_size_info
