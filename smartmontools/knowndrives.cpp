@@ -33,7 +33,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3597 2012-09-04 21:10:37Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3598 2012-09-04 21:44:05Z chrfranke $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -402,6 +402,9 @@ static int showonepreset(const drive_settings * dbentry)
           break;
         case BUG_SAMSUNG3:
           fixdesc = "Fixes completed self-test reported as in progress (same as -F samsung3)";
+          break;
+        case BUG_XERRORLBA:
+          fixdesc = "Fixes LBA byte ordering in Ext. Comprehensive SMART error log (same as -F xerrorlba)";
           break;
         default:
           fixdesc = "UNKNOWN"; errcnt++;

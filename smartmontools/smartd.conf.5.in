@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3597 2012-09-04 21:10:37Z chrfranke $
+$Id: smartd.conf.5.in 3598 2012-09-04 21:44:05Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -1354,6 +1354,9 @@ a self\-test still in progress with 0% remaining when the test was already
 completed. If this directive is specified, \fBsmartd\fP will not skip the
 next scheduled self\-test (see Directive \'\-s\' above) in this case.
 
+.I xerrorlba
+\- This only affects \fBsmartctl\fP.
+
 [Please see the \fBsmartctl \-F\fP command-line option.]
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME]
@@ -1582,4 +1585,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3597 2012-09-04 21:10:37Z chrfranke $
+$Id: smartd.conf.5.in 3598 2012-09-04 21:44:05Z chrfranke $

@@ -117,7 +117,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3597 2012-09-04 21:10:37Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3598 2012-09-04 21:44:05Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -1751,7 +1751,7 @@ static int read_ata_error_count(ata_device * device, const char * name,
   }
   else {
     ata_smart_exterrlog logx;
-    if (!ataReadExtErrorLog(device, &logx, 1 /*first sector only*/)) {
+    if (!ataReadExtErrorLog(device, &logx, 1 /*first sector only*/, firmwarebugs)) {
       PrintOut(LOG_INFO,"Device: %s, Read Extended Comprehensive SMART Error Log failed\n",name);
       return -1;
     }
