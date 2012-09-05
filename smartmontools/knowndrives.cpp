@@ -386,7 +386,7 @@ static int showonepreset(const drive_settings * dbentry)
       pout("%-*s %s\n", TABLEPRINTWIDTH, "ATTRIBUTE OPTIONS:", "None preset; no -v options are required.");
 
     // describe firmwarefix
-    for (int b = BUG_NOLOGDIR; b <= BUG_SAMSUNG3; b++) {
+    for (int b = BUG_NOLOGDIR; b <= BUG_XERRORLBA; b++) {
       if (!firmwarebugs.is_set((firmwarebug_t)b))
         continue;
       const char * fixdesc;
