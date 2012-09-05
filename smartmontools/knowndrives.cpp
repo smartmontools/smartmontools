@@ -33,7 +33,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3598 2012-09-04 21:44:05Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3602 2012-09-05 20:15:04Z chrfranke $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -386,7 +386,7 @@ static int showonepreset(const drive_settings * dbentry)
       pout("%-*s %s\n", TABLEPRINTWIDTH, "ATTRIBUTE OPTIONS:", "None preset; no -v options are required.");
 
     // describe firmwarefix
-    for (int b = BUG_NOLOGDIR; b <= BUG_SAMSUNG3; b++) {
+    for (int b = BUG_NOLOGDIR; b <= BUG_XERRORLBA; b++) {
       if (!firmwarebugs.is_set((firmwarebug_t)b))
         continue;
       const char * fixdesc;
