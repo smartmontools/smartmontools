@@ -70,10 +70,6 @@
 // CSMI support
 #include "csmisas.h"
 
-#ifdef __CYGWIN__
-#include <cygwin/version.h> // CYGWIN_VERSION_DLL_MAJOR
-#endif
-
 // Macro to check constants at compile time using a dummy typedef
 #define ASSERT_CONST(c, n) \
   typedef char assert_const_##c[((c) == (n)) ? 1 : -1]
@@ -360,8 +356,8 @@ private:
   bool m_usr_options; // options set by user?
   bool m_admin; // open with admin access?
   bool m_id_is_cached; // ata_identify_is_cached() return value.
-  bool m_is_3ware; // AMCC/3ware controller detected?
-  int m_drive, m_port;
+  bool m_is_3ware; // LSI/3ware controller detected?
+  int m_port; // LSI/3ware port
   int m_smartver_state;
 };
 
@@ -1052,8 +1048,8 @@ bool win_smart_interface::disable_system_auto_standby(bool disable)
 static void print_ide_regs(const IDEREGS * r, int out)
 {
   pout("%s=0x%02x,%s=0x%02x, SC=0x%02x, SN=0x%02x, CL=0x%02x, CH=0x%02x, SEL=0x%02x\n",
-  (out?"STS":"CMD"), r->bCommandReg, (out?"ERR":" FR"), r->bFeaturesReg,
-  r->bSectorCountReg, r->bSectorNumberReg, r->bCylLowReg, r->bCylHighReg, r->bDriveHeadReg);
+    (out?"STS":"CMD"), r->bCommandReg, (out?"ERR":" FR"), r->bFeaturesReg,
+    r->bSectorCountReg, r->bSectorNumberReg, r->bCylLowReg, r->bCylHighReg, r->bDriveHeadReg);
 }
 
 static void print_ide_regs_io(const IDEREGS * ri, const IDEREGS * ro)
@@ -1103,7 +1099,7 @@ static int smart_get_version(HANDLE hdevice, GETVERSIONINPARAMS_EX * ata_version
 
 // call SMART_* ioctl
 
-static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, unsigned datasize, int port)
+static int smart_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned datasize, int port)
 {
   SENDCMDINPARAMS inpar;
   SENDCMDINPARAMS_EX & inpar_ex = (SENDCMDINPARAMS_EX &)inpar;
@@ -1116,9 +1112,14 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 
   memset(&inpar, 0, sizeof(inpar));
   inpar.irDriveRegs = *regs;
-  // drive is set to 0-3 on Win9x only
-  inpar.irDriveRegs.bDriveHeadReg = 0xA0 | ((drive & 1) << 4);
-  inpar.bDriveNumber = drive;
+
+  // Older drivers may require bits 5 and 7 set
+  // ATA-3: bits shall be set, ATA-4 and later: bits are obsolete
+  inpar.irDriveRegs.bDriveHeadReg |= 0xa0;
+
+  // Drive number 0-3 was required on Win9x/ME only
+  //inpar.irDriveRegs.bDriveHeadReg |= (drive & 1) << 4;
+  //inpar.bDriveNumber = drive;
 
   if (port >= 0) {
     // Set RAID port
@@ -1147,7 +1148,7 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 
   if (!DeviceIoControl(hdevice, code, &inpar, sizeof(SENDCMDINPARAMS)-1,
     outbuf, sizeof(SENDCMDOUTPARAMS)-1 + size_out, &num_out, NULL)) {
-    // CAUTION: DO NOT change "regs" Parameter in this case, see ata_command_interface()
+    // CAUTION: DO NOT change "regs" Parameter in this case, see win_ata_device::ata_pass_through()
     long err = GetLastError();
     if (ata_debugmode && (err != ERROR_INVALID_PARAMETER || ata_debugmode > 1)) {
       pout("  %s failed, Error=%ld\n", name, err);
@@ -2184,7 +2185,7 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
         continue;
       }
 
-      // Fail if previos USB bridge is associated to other controller or ID is unknown
+      // Fail if previous USB bridge is associated to other controller or ID is unknown
       if (!(ant == prev_usb_ant && prev_usb_venid)) {
         if (debug)
           pout("  +---> \"%s\" (Error: No USB bridge found)\n", name2.c_str());
@@ -2227,43 +2228,14 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
 
 /////////////////////////////////////////////////////////////////////////////
 
-// Call GetDevicePowerState() if available (Win98/ME/2000/XP/2003)
+// Call GetDevicePowerState()
 // returns: 1=active, 0=standby, -1=error
 // (This would also work for SCSI drives)
 
 static int get_device_power_state(HANDLE hdevice)
 {
-  static bool unsupported = false;
-  if (unsupported) {
-    errno = ENOSYS;
-    return -1;
-  }
-
-#ifdef __CYGWIN__
-  static DWORD kernel_dll_pid = 0;
-#endif
-  static BOOL (WINAPI * GetDevicePowerState_p)(HANDLE, BOOL *) = 0;
-
-  if (!GetDevicePowerState_p
-#ifdef __CYGWIN__
-      || kernel_dll_pid != GetCurrentProcessId() // detect fork()
-#endif
-     ) {
-    if (!(GetDevicePowerState_p = (BOOL (WINAPI *)(HANDLE, BOOL *))
-          GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetDevicePowerState"))) {
-      if (ata_debugmode)
-        pout("  GetDevicePowerState() not found, Error=%ld\n", GetLastError());
-      unsupported = true;
-      errno = ENOSYS;
-      return -1;
-    }
-#ifdef __CYGWIN__
-    kernel_dll_pid = GetCurrentProcessId();
-#endif
-  }
-
   BOOL state = TRUE;
-  if (!GetDevicePowerState_p(hdevice, &state)) {
+  if (!GetDevicePowerState(hdevice, &state)) {
     long err = GetLastError();
     if (ata_debugmode)
       pout("  GetDevicePowerState() failed, Error=%ld\n", err);
@@ -2320,7 +2292,6 @@ win_ata_device::win_ata_device(smart_interface * intf, const char * dev_name, co
   m_admin(false),
   m_id_is_cached(false),
   m_is_3ware(false),
-  m_drive(0),
   m_port(-1),
   m_smartver_state(0)
 {
@@ -2367,7 +2338,6 @@ bool win_ata_device::open()
 
 bool win_ata_device::open(int phydrive, int logdrive, const char * options, int port)
 {
-  // path depends on Windows Version
   char devpath[30];
   if (0 <= phydrive && phydrive <= 255)
     snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", phydrive);
@@ -2431,7 +2401,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   }
 
   // SMART_GET_VERSION may spin up disk, so delay until first real SMART_* call
-  m_drive = 0; m_port = port;
+  m_port = port;
   if (port < 0)
     return true;
 
@@ -2693,7 +2663,7 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 
           m_smartver_state = 1;
         }
-        rc = smart_ioctl(get_fh(), m_drive, &regs, data, datasize, m_port);
+        rc = smart_ioctl(get_fh(), &regs, data, datasize, m_port);
         out_regs_set = (in.in_regs.features == ATA_SMART_STATUS);
         id_is_cached = (m_port < 0); // Not cached by 3ware driver
         break;
