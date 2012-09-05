@@ -355,6 +355,7 @@ private:
   std::string m_options;
   bool m_usr_options; // options set by user?
   bool m_admin; // open with admin access?
+  int m_phydrive; // PhysicalDriveN or -1
   bool m_id_is_cached; // ata_identify_is_cached() return value.
   bool m_is_3ware; // LSI/3ware controller detected?
   int m_port; // LSI/3ware port
@@ -2099,6 +2100,31 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
   return 0;
 }
 
+// Get Serial Number in IDENTIFY from WMI
+static bool get_serial_from_wmi(int drive, ata_identify_device * id)
+{
+  bool debug = (ata_debugmode > 1);
+
+  wbem_services ws;
+  if (!ws.connect()) {
+    if (debug)
+      pout("WMI connect failed\n");
+    return false;
+  }
+
+  wbem_object wo;
+  if (!ws.query1(wo, "SELECT Model,SerialNumber FROM Win32_DiskDrive WHERE "
+                     "DeviceID=\"\\\\\\\\.\\\\PHYSICALDRIVE%d\"", drive))
+    return false;
+
+  std::string serial = wo.get_str("SerialNumber");
+  if (debug)
+    pout("  WMI:PhysicalDrive%d: \"%s\", S/N:\"%s\"\n", drive, wo.get_str("Model").c_str(), serial.c_str());
+
+  copy_swapped(id->serial_no, serial.c_str(), sizeof(id->serial_no));
+  return true;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // USB ID detection using WMI
@@ -2290,6 +2316,7 @@ win_ata_device::win_ata_device(smart_interface * intf, const char * dev_name, co
 : smart_device(intf, dev_name, "ata", req_type),
   m_usr_options(false),
   m_admin(false),
+  m_phydrive(-1),
   m_id_is_cached(false),
   m_is_3ware(false),
   m_port(-1),
@@ -2338,9 +2365,10 @@ bool win_ata_device::open()
 
 bool win_ata_device::open(int phydrive, int logdrive, const char * options, int port)
 {
+  m_phydrive = -1;
   char devpath[30];
   if (0 <= phydrive && phydrive <= 255)
-    snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", phydrive);
+    snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", (m_phydrive = phydrive));
   else if (0 <= logdrive && logdrive <= 'Z'-'A')
     snprintf(devpath, sizeof(devpath)-1, "\\\\.\\%c:", 'A'+logdrive);
   else
@@ -2684,6 +2712,8 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
       case 'f':
         if (in.in_regs.command == ATA_IDENTIFY_DEVICE) {
             rc = get_identify_from_device_property(get_fh(), (ata_identify_device *)data);
+            if (rc == 0 && m_phydrive >= 0)
+              get_serial_from_wmi(m_phydrive, (ata_identify_device *)data);
             id_is_cached = true;
         }
         else if (in.in_regs.command == ATA_SMART_CMD) switch (in.in_regs.features) {
