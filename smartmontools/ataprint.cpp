@@ -461,6 +461,19 @@ static void print_drive_info(const ata_identify_device * drive,
     }
   }
 
+  // Print nominal media rotation rate if reported
+  // Table 37 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Table A.31 of T13/2161-D (ACS-3) Revision 3b, August 25, 2012
+  unsigned short word217 = drive->words088_255[217-88];
+  if (!(word217 == 0x0000 || word217 == 0xffff)) {
+    if (word217 == 0x0001)
+      pout("Rotation Rate:    Solid State Device\n");
+    else if (word217 > 0x0400)
+      pout("Rotation Rate:    %d rpm\n", word217);
+    else
+      pout("Rotation Rate:    Unknown (0x%04x)\n", word217);
+  }
+
   // See if drive is recognized
   pout("Device is:        %s\n", !dbentry ?
        "Not in smartctl database [for details use: -P showall]":
