@@ -39,7 +39,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3598 2012-09-04 21:44:05Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3603 2012-09-06 19:42:27Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -459,6 +459,19 @@ static void print_drive_info(const ata_identify_device * drive,
         pout(" (offset %u bytes)", sizes.log_sector_offset);
       pout("\n");
     }
+  }
+
+  // Print nominal media rotation rate if reported
+  // Table 37 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Table A.31 of T13/2161-D (ACS-3) Revision 3b, August 25, 2012
+  unsigned short word217 = drive->words088_255[217-88];
+  if (!(word217 == 0x0000 || word217 == 0xffff)) {
+    if (word217 == 0x0001)
+      pout("Rotation Rate:    Solid State Device\n");
+    else if (word217 > 0x0400)
+      pout("Rotation Rate:    %d rpm\n", word217);
+    else
+      pout("Rotation Rate:    Unknown (0x%04x)\n", word217);
   }
 
   // See if drive is recognized
