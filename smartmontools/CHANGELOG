@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Create branches RELEASE_5_4[0-3]_DRIVEDB with last drivedb.h file
+       compatible with smartmontools 5.4[0-3].
+
   [CF] drivedb.h updates:
        - SAMSUNG SpinPoint M40/60/80: HM120IC
        - USB: Oxford (0x0928:0x0010)
