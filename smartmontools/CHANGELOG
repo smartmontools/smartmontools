@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - SAMSUNG SpinPoint M40/60/80: HM120IC
+       - USB: Oxford (0x0928:0x0010)
+       - USB: Seagate External Drive/Cypress (0x0bc2:0x0503)
+       - USB: 0x1f75:0x0888 is Innostor IS888
+
   [CF] smartctl: Print nominal media rotation rate in '-i' output (ATA).
 
   [CF] knowndrives.cpp: Fix missing '-F xerrorlba' in '-P show' output.

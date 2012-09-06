@@ -163,7 +163,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Crucial/Micron RealSSD C300/C400/m4",
     "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002
-    "C400-MTFDDA[ACK](064|128|256|512)MAM|" // Marvel 9176, tested with C400-MTFDDAC256MAM/0002
+    "C400-MTFDDA[ACK](064|128|256|512)MAM|" // Marvell 9176, tested with C400-MTFDDAC256MAM/0002
     "M4-CT(064|128|256|512)M4SSD2", // tested with M4-CT064M4SSD2/0002, M4-CT512M4SSD2/0309
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -973,8 +973,8 @@ const drive_settings builtin_knowndrives[] = {
     "May need -F samsung2 or -F samsung3 enabled; see manual for details.",
     ""
   },
-  { "SAMSUNG SpinPoint M40/60/80", // tested with HM160JI/AD100-16
-    "SAMSUNG HM(0[468]0H|1[026]0J)[CI]",
+  { "SAMSUNG SpinPoint M40/60/80", // tested with HM120IC/AN100-16, HM160JI/AD100-16
+    "SAMSUNG HM(0[468]0H|120I|1[026]0J)[CI]",
     "",
     "",
     "-v 9,halfminutes"
@@ -2569,6 +2569,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
+  { "USB: ; Oxford", // Zalman ZM-VE200
+    "0x0928:0x0010",
+    "", // 0x0304
+    "",
+    "-d sat"
+  },
   // Toshiba Corp.
   { "USB: Toshiba PX1396E-3T01; Sunplus", // similar to Dura Micro 501
     "0x0930:0x0b09",
@@ -2590,6 +2596,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbsunplus"
   },
   // Seagate
+  { "USB: Seagate External Drive; Cypress",
+    "0x0bc2:0x0503",
+    "", // 0x0240
+    "",
+    "-d usbcypress"
+  },
   { "USB: Seagate FreeAgent Go; ",
     "0x0bc2:0x2(000|100|101)",
     "",
@@ -3011,16 +3023,18 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ASMedia
   { "USB: ; ASMedia ASM1051",
-    "0x174c:0x5106",
+    "0x174c:0x5106", // 0x174c:0x55aa after firmware update
     "",
     "",
     "-d sat"
   },
-  { "USB: ; ASMedia USB 3.0", // MEDION HDDrive-n-GO, LaCie Rikiki USB 3.0
+  { "USB: ; ASMedia USB 3.0", // MEDION HDDrive-n-GO, LaCie Rikiki USB 3.0,
+      // Silicon Power Armor A80 (ticket #237)
+      // reported as unsupported: BYTECC T-200U3, Kingwin USB 3.0 docking station
     "0x174c:0x55aa",
+    "", // 0x0100
     "",
-    "",
-    "-d sat" // (BYTECC T-200U3: possibly unsupported)
+    "-d sat"
   },
   // LucidPort
   { "USB: ; LucidPORT USB300", // RaidSonic ICY BOX IB-110StU3-B, Sharkoon SATA QuickPort H3
@@ -3074,8 +3088,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
-  // Unknown: 0x1f75
-  { "USB: Sharkoon SATA QuickDeck Pro; ", // USB 2.0/3.0
+  // Innostor
+  { "USB: ; Innostor IS888", // Sharkoon SATA QuickDeck Pro USB 3.0
     "0x1f75:0x0888",
     "", // 0x0034
     "",
