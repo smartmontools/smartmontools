@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Intel 320 and 710 Series SSDs: Set '-F nologdir'
+       - Seagate Barracuda ES.2: Set '-F xerrorlba'
+
   [CF] Create branches RELEASE_5_4[0-3]_DRIVEDB with last drivedb.h file
        compatible with smartmontools 5.4[0-3].
 

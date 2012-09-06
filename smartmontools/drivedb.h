@@ -374,9 +374,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
   },
-  { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362
+  { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362,
+      // INTEL SSDSA2CW160G3/4PC10362
     "INTEL SSDSA[12]C[WT](040|080|120|160|300|600)G3",
     "", "",
+    "-F nologdir "
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -397,9 +399,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB"
   },
-  { "Intel 710 Series SSDs", // tested with INTEL SSDSA2BZ100G3/6PB10362
+  { "Intel 710 Series SSDs", // tested with INTEL SSDSA2BZ[12]00G3/6PB10362
     "INTEL SSDSA2BZ(100|200|300)G3",
     "", "",
+    "-F nologdir "
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -1852,7 +1855,8 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(25031|50032|75033|100034)0NS",
     "SN[01]6|"         // http://knowledge.seagate.com/articles/en_US/FAQ/207963en
     "MA(0[^7]|[^0].)", // http://dellfirmware.seagate.com/dell_firmware/DellFirmwareRequest.jsp
-    "", ""
+    "",
+    "-F xerrorlba" // tested with ST31000340NS/SN06
   },
   { "Seagate Barracuda ES.2", // buggy firmware (Dell)
     "ST3(25031|50032|75033|100034)0NS",
