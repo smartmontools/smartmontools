@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3598 2012-09-04 21:44:05Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3607 2012-09-15 15:50:29Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -829,6 +829,10 @@ int ataVersionInfo(const char ** description, const ata_identify_device * drive,
 // Return NAA field or -1 if WWN is unsupported.
 int ata_get_wwn(const ata_identify_device * id, unsigned & oui, uint64_t & unique_id);
 
+// Get nominal media rotation rate.
+// Returns: 0 = not reported, 1 = SSD, >1 = HDD rpm, < 0 = -(Unknown value)
+int ata_get_rotation_rate(const ata_identify_device * id);
+
 // If SMART supported, this is guaranteed to return 1 if SMART is enabled, else 0.
 int ataDoesSmartWork(ata_device * device);
 
@@ -905,7 +909,8 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
 
 // Get attribute name
 std::string ata_get_smart_attr_name(unsigned char id,
-                                    const ata_vendor_attr_defs & defs);
+                                    const ata_vendor_attr_defs & defs,
+                                    int rpm = 0);
 
 // External handler function, for when a checksum is not correct.  Can
 // simply return if no action is desired, or can print error messages
