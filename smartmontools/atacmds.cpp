@@ -1075,6 +1075,23 @@ int ata_get_wwn(const ata_identify_device * id, unsigned & oui, uint64_t & uniqu
   return (word108 >> 12);
 }
 
+// Get nominal media rotation rate.
+// Returns: 0 = not reported, 1 = SSD, >1 = HDD rpm, < 0 = -(Unknown value)
+int ata_get_rotation_rate(const ata_identify_device * id)
+{
+  // Table 37 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Table A.31 of T13/2161-D (ACS-3) Revision 3b, August 25, 2012
+  unsigned short word217 = id->words088_255[217-88];
+  if (word217 == 0x0000 || word217 == 0xffff)
+    return 0;
+  else if (word217 == 0x0001)
+    return 1;
+  else if (word217 > 0x0400)
+    return word217;
+  else
+    return -(int)word217;
+}
+
 // returns 1 if SMART supported, 0 if SMART unsupported, -1 if can't tell
 int ataSmartSupport(const ata_identify_device * drive)
 {
@@ -2251,8 +2268,13 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
 
 // Attribute names shouldn't be longer than 23 chars, otherwise they break the
 // output of smartctl.
-static const char * get_default_attr_name(unsigned char id)
+static const char * get_default_attr_name(unsigned char id, int rpm)
 {
+  bool hdd = (rpm > 1), ssd = (rpm == 1);
+
+  static const char Unknown_HDD_Attribute[] = "Unknown_HDD_Attribute";
+  static const char Unknown_SSD_Attribute[] = "Unknown_SSD_Attribute";
+
   switch (id) {
   case 1:
     return "Raw_Read_Error_Rate";
@@ -2265,36 +2287,48 @@ static const char * get_default_attr_name(unsigned char id)
   case 5:
     return "Reallocated_Sector_Ct";
   case 6:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Read_Channel_Margin";
   case 7:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Seek_Error_Rate";
   case 8:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Seek_Time_Performance";
   case 9:
     return "Power_On_Hours";
   case 10:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Spin_Retry_Count";
   case 11:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Calibration_Retry_Count";
   case 12:
     return "Power_Cycle_Count";
   case 13:
     return "Read_Soft_Error_Rate";
   case 175:
+    if (hdd) return Unknown_HDD_Attribute;
     return "Program_Fail_Count_Chip";
   case 176:
+    if (hdd) return Unknown_HDD_Attribute;
     return "Erase_Fail_Count_Chip";
   case 177:
+    if (hdd) return Unknown_HDD_Attribute;
     return "Wear_Leveling_Count";
   case 178:
+    if (hdd) return Unknown_HDD_Attribute;
     return "Used_Rsvd_Blk_Cnt_Chip";
   case 179:
+    if (hdd) return Unknown_HDD_Attribute;
     return "Used_Rsvd_Blk_Cnt_Tot";
   case 180:
+    if (hdd) return Unknown_HDD_Attribute;
     return "Unused_Rsvd_Blk_Cnt_Tot";
   case 181:
     return "Program_Fail_Cnt_Total";
   case 182:
+    if (hdd) return Unknown_HDD_Attribute;
     return "Erase_Fail_Count_Total";
   case 183:
     return "Runtime_Bad_Block";
@@ -2305,6 +2339,7 @@ static const char * get_default_attr_name(unsigned char id)
   case 188:
     return "Command_Timeout";
   case 189:
+    if (ssd) return Unknown_SSD_Attribute;
     return "High_Fly_Writes";
   case 190:
     // Western Digital uses this for temperature.
@@ -2316,10 +2351,12 @@ static const char * get_default_attr_name(unsigned char id)
     // 55C sometime in the past.
     return "Airflow_Temperature_Cel";
   case 191:
+    if (ssd) return Unknown_SSD_Attribute;
     return "G-Sense_Error_Rate";
   case 192:
     return "Power-Off_Retract_Count";
   case 193:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Load_Cycle_Count";
   case 194:
     return "Temperature_Celsius";
@@ -2335,11 +2372,14 @@ static const char * get_default_attr_name(unsigned char id)
   case 199:
     return "UDMA_CRC_Error_Count";
   case 200:
+    if (ssd) return Unknown_SSD_Attribute;
     // Western Digital
     return "Multi_Zone_Error_Rate";
   case 201:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Soft_Read_Error_Rate";
   case 202:
+    if (ssd) return Unknown_SSD_Attribute;
     // Fujitsu: "TA_Increase_Count"
     return "Data_Address_Mark_Errs";
   case 203:
@@ -2354,36 +2394,49 @@ static const char * get_default_attr_name(unsigned char id)
     return "Thermal_Asperity_Rate";
   case 206:
     // Fujitsu
+    if (ssd) return Unknown_SSD_Attribute;
     return "Flying_Height";
   case 207:
     // Maxtor
+    if (ssd) return Unknown_SSD_Attribute;
     return "Spin_High_Current";
   case 208:
     // Maxtor
+    if (ssd) return Unknown_SSD_Attribute;
     return "Spin_Buzz";
   case 209:
     // Maxtor
+    if (ssd) return Unknown_SSD_Attribute;
     return "Offline_Seek_Performnce";
   case 220:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Disk_Shift";
   case 221:
+    if (ssd) return Unknown_SSD_Attribute;
     return "G-Sense_Error_Rate";
   case 222:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Loaded_Hours";
   case 223:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Load_Retry_Count";
   case 224:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Load_Friction";
   case 225:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Load_Cycle_Count";
   case 226:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Load-in_Time";
   case 227:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Torq-amp_Count";
   case 228:
     return "Power-off_Retract_Count";
   case 230:
     // seen in IBM DTPA-353750
+    if (ssd) return Unknown_SSD_Attribute;
     return "Head_Amplitude";
   case 231:
     return "Temperature_Celsius";
@@ -2392,8 +2445,10 @@ static const char * get_default_attr_name(unsigned char id)
     return "Available_Reservd_Space";
   case 233:
     // seen in Intel X25-E SSD
+    if (hdd) return Unknown_HDD_Attribute;
     return "Media_Wearout_Indicator";
   case 240:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Head_Flying_Hours";
   case 241:
     return "Total_LBAs_Written";
@@ -2402,6 +2457,7 @@ static const char * get_default_attr_name(unsigned char id)
   case 250:
     return "Read_Error_Retry_Rate";
   case 254:
+    if (ssd) return Unknown_SSD_Attribute;
     return "Free_Fall_Sensor";
   default:
     return "Unknown_Attribute";
@@ -2409,12 +2465,13 @@ static const char * get_default_attr_name(unsigned char id)
 }
 
 // Get attribute name
-std::string ata_get_smart_attr_name(unsigned char id, const ata_vendor_attr_defs & defs)
+std::string ata_get_smart_attr_name(unsigned char id, const ata_vendor_attr_defs & defs,
+                                    int rpm /* = 0 */)
 {
   if (!defs[id].name.empty())
     return defs[id].name;
   else
-    return get_default_attr_name(id);
+    return get_default_attr_name(id, rpm);
 }
 
 // Find attribute index for attribute id, -1 if not found.

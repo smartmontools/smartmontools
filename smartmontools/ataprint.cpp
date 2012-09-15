@@ -418,7 +418,7 @@ static inline const char * construct_st_er_desc(char * s,
 }
 
 static void print_drive_info(const ata_identify_device * drive,
-                             const ata_size_info & sizes,
+                             const ata_size_info & sizes, int rpm,
                              const drive_settings * dbentry)
 {
   // format drive information (with byte swapping as needed)
@@ -462,16 +462,13 @@ static void print_drive_info(const ata_identify_device * drive,
   }
 
   // Print nominal media rotation rate if reported
-  // Table 37 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
-  // Table A.31 of T13/2161-D (ACS-3) Revision 3b, August 25, 2012
-  unsigned short word217 = drive->words088_255[217-88];
-  if (!(word217 == 0x0000 || word217 == 0xffff)) {
-    if (word217 == 0x0001)
+  if (rpm) {
+    if (rpm == 1)
       pout("Rotation Rate:    Solid State Device\n");
-    else if (word217 > 0x0400)
-      pout("Rotation Rate:    %d rpm\n", word217);
+    else if (rpm > 1)
+      pout("Rotation Rate:    %d rpm\n", rpm);
     else
-      pout("Rotation Rate:    Unknown (0x%04x)\n", word217);
+      pout("Rotation Rate:    Unknown (0x%04x)\n", -rpm);
   }
 
   // See if drive is recognized
@@ -810,7 +807,7 @@ static int find_failed_attr(const ata_smart_values * data,
 // onlyfailed=2:  ones that are failed, or have failed with or without prefailure bit set
 static void PrintSmartAttribWithThres(const ata_smart_values * data,
                                       const ata_smart_thresholds_pvt * thresholds,
-                                      const ata_vendor_attr_defs & defs,
+                                      const ata_vendor_attr_defs & defs, int rpm,
                                       int onlyfailed, unsigned char format)
 {
   bool brief  = !!(format & ata_print_options::FMT_BRIEF);
@@ -871,7 +868,7 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     // Print line for each valid attribute
     std::string idstr = (!hexid ? strprintf("%3d",    attr.id)
                                 : strprintf("0x%02x", attr.id));
-    std::string attrname = ata_get_smart_attr_name(attr.id, defs);
+    std::string attrname = ata_get_smart_attr_name(attr.id, defs, rpm);
     std::string rawstr = ata_format_attr_raw_value(attr, defs);
 
     if (!brief)
@@ -2299,14 +2296,15 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     dbentry = lookup_drive_apply_presets(&drive, attribute_defs,
       firmwarebugs);
 
-  // Get capacity and sector sizes
+  // Get capacity, sector sizes and rotation rate
   ata_size_info sizes;
   ata_get_size_info(&drive, sizes);
+  int rpm = ata_get_rotation_rate(&drive);
 
   // Print most drive identity information if requested
   if (options.drive_info) {
     pout("=== START OF INFORMATION SECTION ===\n");
-    print_drive_info(&drive, sizes, dbentry);
+    print_drive_info(&drive, sizes, rpm, dbentry);
   }
 
   // Check and print SMART support and state
@@ -2637,7 +2635,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         else {
           print_on();
           pout("Please note the following marginal Attributes:\n");
-          PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 2, options.output_format);
+          PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, rpm, 2, options.output_format);
         } 
         returnval|=FAILAGE;
       }
@@ -2658,7 +2656,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         else {
           print_on();
           pout("Failed Attributes:\n");
-          PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 1, options.output_format);
+          PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, rpm, 1, options.output_format);
         }
       }
       else
@@ -2691,7 +2689,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         else {
           print_on();
           pout("Failed Attributes:\n");
-          PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 1, options.output_format);
+          PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, rpm, 1, options.output_format);
         }
       }
       else {
@@ -2703,7 +2701,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
           else {
             print_on();
             pout("Please note the following marginal Attributes:\n");
-            PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 2, options.output_format);
+            PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, rpm, 2, options.output_format);
           } 
           returnval|=FAILAGE;
         }
@@ -2724,7 +2722,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Print vendor-specific attributes
   if (smart_val_ok && options.smart_vendor_attrib) {
     print_on();
-    PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs,
+    PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, rpm,
                               (printing_is_switchable ? 2 : 0), options.output_format);
     print_off();
   }

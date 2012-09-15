@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Do not print HDD/SSD specific default attribute names if identify
+       data reports SSD/HDD device.
+
   [CF] drivedb.h updates:
        - Intel 320 and 710 Series SSDs: Set '-F nologdir'
        - Seagate Barracuda ES.2: Set '-F xerrorlba'

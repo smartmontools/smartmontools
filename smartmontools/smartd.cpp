@@ -283,6 +283,7 @@ struct dev_config
   bool emailtest;                         // Send test email?
 
   // ATA ONLY
+  int dev_rpm; // rotation rate, 0 = unknown, 1 = SSD, >1 = HDD
   int set_aam; // disable(-1), enable(1..255->0..254) Automatic Acoustic Management
   int set_apm; // disable(-1), enable(2..255->1..254) Advanced Power Management
   int set_lookahead; // disable(-1), enable(1) read look-ahead
@@ -330,6 +331,7 @@ dev_config::dev_config()
   tempinfo(0), tempcrit(0),
   emailfreq(0),
   emailtest(false),
+  dev_rpm(0),
   set_aam(0), set_apm(0),
   set_lookahead(0),
   set_standby(0),
@@ -1926,7 +1928,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     return 2; 
   }
 
-  // Get drive identity and size
+  // Get drive identity, size and rotation rate (HDD/SSD)
   char model[40+1], serial[20+1], firmware[8+1];
   ata_format_id_string(model, drive.model, sizeof(model)-1);
   ata_format_id_string(serial, drive.serial_no, sizeof(serial)-1);
@@ -1935,6 +1937,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   ata_size_info sizes;
   ata_get_size_info(&drive, sizes);
   state.num_sectors = sizes.sectors;
+  cfg.dev_rpm = ata_get_rotation_rate(&drive);
 
   char wwn[30]; wwn[0] = 0;
   unsigned oui = 0; uint64_t unique_id = 0;
@@ -3027,7 +3030,7 @@ static void check_attribute(const dev_config & cfg, dev_state & state,
   // If requested, check for usage attributes that have failed.
   if (   cfg.usagefailed && attrstate == ATTRSTATE_FAILED_NOW
       && !cfg.monitor_attr_flags.is_set(attr.id, MONITOR_IGN_FAILUSE)) {
-    std::string attrname = ata_get_smart_attr_name(attr.id, cfg.attribute_defs);
+    std::string attrname = ata_get_smart_attr_name(attr.id, cfg.attribute_defs, cfg.dev_rpm);
     PrintOut(LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %d %s.\n", cfg.name.c_str(), attr.id, attrname.c_str());
     MailWarning(cfg, state, 2, "Device: %s, Failed SMART usage Attribute: %d %s.", cfg.name.c_str(), attr.id, attrname.c_str());
     state.must_write = true;
@@ -3094,7 +3097,7 @@ static void check_attribute(const dev_config & cfg, dev_state & state,
   // Format message
   std::string msg = strprintf("Device: %s, SMART %s Attribute: %d %s changed from %s to %s",
                               cfg.name.c_str(), (prefail ? "Prefailure" : "Usage"), attr.id,
-                              ata_get_smart_attr_name(attr.id, cfg.attribute_defs).c_str(),
+                              ata_get_smart_attr_name(attr.id, cfg.attribute_defs, cfg.dev_rpm).c_str(),
                               prevstr.c_str(), currstr.c_str());
 
   // Report this change as critical ?
