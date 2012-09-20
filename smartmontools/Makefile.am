@@ -53,6 +53,8 @@ smartctl_SOURCES = \
         atacmdnames.h \
         atacmds.cpp \
         atacmds.h \
+        ataidentify.cpp \
+        ataidentify.h \
         ataprint.cpp \
         ataprint.h \
         dev_ata_cmd_set.cpp \

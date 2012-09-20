@@ -33,6 +33,7 @@
 #include "int64.h"
 #include "atacmdnames.h"
 #include "atacmds.h"
+#include "ataidentify.h"
 #include "dev_interface.h"
 #include "ataprint.h"
 #include "smartctl.h"
@@ -2258,6 +2259,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (!(   options.drive_info || options.show_presets
         || need_smart_support || need_smart_logdir
         || need_gp_logdir     || need_sct_support
+        || options.identify_word_level >= 0
         || options.get_set_used                      )) {
     if (powername)
       pout("Device is in %s mode\n", powername);
@@ -2300,6 +2302,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   ata_size_info sizes;
   ata_get_size_info(&drive, sizes);
   int rpm = ata_get_rotation_rate(&drive);
+
+  // Print ATA IDENTIFY info if requested
+  if (options.identify_word_level >= 0) {
+    pout("=== ATA IDENTIFY DATA ===\n");
+    ata_print_identify_data(&drive, (options.identify_word_level > 0), options.identify_bit_level);
+  }
 
   // Print most drive identity information if requested
   if (options.drive_info) {

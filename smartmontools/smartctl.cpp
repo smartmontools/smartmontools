@@ -86,6 +86,8 @@ static void Usage()
 "         Print license, copyright, and version information and exit\n\n"
 "  -i, --info\n"
 "         Show identity information for device\n\n"
+"  --identify[=[w][nvb]]\n"
+"         Show words and bits from IDENTIFY DEVICE data                (ATA)\n\n"
 "  -g NAME, --get=NAME\n"
 "        Get device setting: all, aam, apm, lookahead, security, wcache\n\n"
 "  -a, --all\n"
@@ -179,7 +181,7 @@ static void Usage()
 }
 
 // Values for  --long only options, see parse_options()
-enum { opt_scan = 1000, opt_scan_open, opt_set, opt_smart };
+enum { opt_identify = 1000, opt_scan, opt_scan_open, opt_set, opt_smart };
 
 /* Returns a string containing a formatted list of the valid arguments
    to the option opt or empty on failure. Note 'v' case different */
@@ -226,6 +228,8 @@ static std::string getvalidarglist(int opt)
            "standby,[N|off|now], wcache,[on|off]";
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
+  case opt_identify:
+    return "n, wn, w, v, wv, wb";
   case 'v':
   default:
     return "";
@@ -300,6 +304,7 @@ static const char * parse_options(int argc, char** argv,
     { "drivedb",         required_argument, 0, 'B' },
     { "format",          required_argument, 0, 'f' },
     { "get",             required_argument, 0, 'g' },
+    { "identify",        optional_argument, 0, opt_identify },
     { "set",             required_argument, 0, opt_set },
     { "scan",            no_argument,       0, opt_scan      },
     { "scan-open",       no_argument,       0, opt_scan_open },
@@ -584,6 +589,22 @@ static const char * parse_options(int argc, char** argv,
     case 'i':
       ataopts.drive_info = scsiopts.drive_info = true;
       break;
+
+    case opt_identify:
+      ataopts.identify_word_level = ataopts.identify_bit_level = 0;
+      if (optarg) {
+        for (int i = 0; optarg[i]; i++) {
+          switch (optarg[i]) {
+            case 'w': ataopts.identify_word_level = 1; break;
+            case 'n': ataopts.identify_bit_level = -1; break;
+            case 'v': ataopts.identify_bit_level = 1; break;
+            case 'b': ataopts.identify_bit_level = 2; break;
+            default: badarg = true;
+          }
+        }
+      }
+      break;
+
     case 'a':
       ataopts.drive_info           = scsiopts.drive_info          = true;
       ataopts.smart_check_status   = scsiopts.smart_check_status  = true;
@@ -932,7 +953,8 @@ static const char * parse_options(int argc, char** argv,
       // a clean way to do it.
       char optstr[] = { (char)optchar, 0 };
       pout("=======> INVALID ARGUMENT TO -%s: %s\n",
-        (optchar == opt_set ? "-set" :
+        (optchar == opt_identify ? "-identify" :
+         optchar == opt_set ? "-set" :
          optchar == opt_smart ? "-smart" : optstr), optarg);
       printvalidarglistmessage(optchar);
       if (extraerror[0])

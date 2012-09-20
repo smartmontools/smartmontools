@@ -46,6 +46,7 @@ struct ata_log_request
 struct ata_print_options
 {
   bool drive_info;
+  int identify_word_level, identify_bit_level;
   bool smart_check_status;
   bool smart_general_values;
   bool smart_vendor_attrib;
@@ -108,6 +109,7 @@ struct ata_print_options
 
   ata_print_options()
     : drive_info(false),
+      identify_word_level(-1), identify_bit_level(-1),
       smart_check_status(false),
       smart_general_values(false),
       smart_vendor_attrib(false),

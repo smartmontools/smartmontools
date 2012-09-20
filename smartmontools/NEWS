@@ -9,6 +9,7 @@ Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.44
 -----------------------------------------------------------
 - option/directive '-F nologdir' and '-F xerrorlba'.
+- smartctl '--identify' option.
 - smartctl prints nominal media rotation rate (ATA).
 - smartd warning emails include device identify info.
 - smartd '-d' output is flushed to support redirection.

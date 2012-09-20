@@ -200,6 +200,20 @@ in the smartmontools database (see \'\-v\' options below).  If so, the
 drive model family may also be printed. If \'\-n\' (see below) is
 specified, the power mode of the drive is printed.
 .TP
+.B \-\-identify[=[w][nvb]]
+[ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] Prints an annotated
+table of the IDENTIFY DEVICE data.
+By default, only valid words (words not equal to 0x0000 or 0xffff)
+and nonzero bits and bit fields are printed.
+This can be changed by the optional argument which consists of one or
+two characters from the set \'wnvb\'.
+The character \'w\' enables printing of all 256 words. The character
+\'n\' suppresses printing of bits, \'v\' enables printing of all bits
+from valid words, \'b\' enables printing of all bits.
+For example \'\-\-identify=n\' (valid words, no bits) produces the
+shortest output and \'\-\-identify=wb\' (all words, all bits) produces
+the longest output.
+.TP
 .B \-a, \-\-all
 Prints all SMART information about the disk, or TapeAlert information
 about the tape drive or changer.  For ATA devices this is equivalent
