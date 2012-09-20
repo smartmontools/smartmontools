@@ -34,8 +34,9 @@ if NEED_REGEX
 AM_CPPFLAGS += -I$(srcdir)/regex
 endif
 
-sbin_PROGRAMS = smartd 	\
-		smartctl
+sbin_PROGRAMS = \
+        smartctl \
+        smartd
 
 if ENABLE_DRIVEDB
 if OS_WIN32_MINGW
@@ -45,52 +46,109 @@ endif
 endif
 
 
-smartd_SOURCES =  smartd.cpp      \
-                  atacmdnames.cpp \
-                  atacmdnames.h   \
-                  atacmds.cpp     \
-                  atacmds.h       \
-                  dev_ata_cmd_set.cpp \
-                  dev_ata_cmd_set.h   \
-                  dev_interface.cpp   \
-                  dev_interface.h     \
-                  dev_tunnelled.h     \
-                  drivedb.h           \
-                  int64.h         \
-                  knowndrives.cpp \
-                  knowndrives.h   \
-                  scsicmds.cpp    \
-                  scsicmds.h      \
-                  scsiata.cpp     \
-                  utility.cpp     \
-                  utility.h
+smartctl_SOURCES = \
+        smartctl.cpp \
+        smartctl.h \
+        atacmdnames.cpp \
+        atacmdnames.h \
+        atacmds.cpp \
+        atacmds.h \
+        ataprint.cpp \
+        ataprint.h \
+        dev_ata_cmd_set.cpp \
+        dev_ata_cmd_set.h \
+        dev_interface.cpp \
+        dev_interface.h \
+        dev_tunnelled.h \
+        drivedb.h \
+        int64.h \
+        knowndrives.cpp \
+        knowndrives.h \
+        scsicmds.cpp \
+        scsicmds.h \
+        scsiata.cpp \
+        scsiprint.cpp \
+        scsiprint.h \
+        utility.cpp \
+        utility.h
+
+smartctl_LDADD = @os_deps@ @os_libs@
+smartctl_DEPENDENCIES = @os_deps@
+
+EXTRA_smartctl_SOURCES = \
+        os_darwin.cpp \
+        os_darwin.h \
+        os_linux.cpp \
+        os_linux.h \
+        os_freebsd.cpp \
+        os_freebsd.h \
+        os_netbsd.cpp \
+        os_netbsd.h \
+        os_openbsd.cpp \
+        os_openbsd.h \
+        os_qnxnto.cpp \
+        os_qnxnto.h \
+        os_solaris.cpp \
+        os_solaris.h \
+        os_solaris_ata.s \
+        os_win32.cpp \
+        os_generic.cpp \
+        os_generic.h \
+        cciss.cpp \
+        cciss.h \
+        cissio_freebsd.h \
+        dev_legacy.cpp \
+        megaraid.h
+
+
+smartd_SOURCES = \
+        smartd.cpp \
+        atacmdnames.cpp \
+        atacmdnames.h \
+        atacmds.cpp \
+        atacmds.h \
+        dev_ata_cmd_set.cpp \
+        dev_ata_cmd_set.h \
+        dev_interface.cpp \
+        dev_interface.h \
+        dev_tunnelled.h \
+        drivedb.h \
+        int64.h \
+        knowndrives.cpp \
+        knowndrives.h \
+        scsicmds.cpp \
+        scsicmds.h \
+        scsiata.cpp \
+        utility.cpp \
+        utility.h
 
 smartd_LDADD = @os_deps@ @os_libs@ @CAPNG_LDADD@
 smartd_DEPENDENCIES = @os_deps@
 
-EXTRA_smartd_SOURCES = os_darwin.cpp    \
-                       os_darwin.h      \
-                       os_linux.cpp     \
-                       os_linux.h       \
-                       os_freebsd.cpp   \
-                       os_freebsd.h     \
-                       os_netbsd.cpp    \
-                       os_netbsd.h      \
-                       os_openbsd.cpp   \
-                       os_openbsd.h     \
-                       os_qnxnto.cpp    \
-                       os_qnxnto.h      \
-                       os_solaris.cpp   \
-                       os_solaris.h     \
-                       os_solaris_ata.s \
-                       os_win32.cpp     \
-                       os_generic.cpp   \
-                       os_generic.h     \
-                       cciss.cpp        \
-                       cciss.h          \
-                       cissio_freebsd.h \
-                       dev_legacy.cpp   \
-                       megaraid.h
+EXTRA_smartd_SOURCES = \
+        os_darwin.cpp \
+        os_darwin.h \
+        os_linux.cpp \
+        os_linux.h \
+        os_freebsd.cpp \
+        os_freebsd.h \
+        os_netbsd.cpp \
+        os_netbsd.h \
+        os_openbsd.cpp \
+        os_openbsd.h \
+        os_qnxnto.cpp \
+        os_qnxnto.h \
+        os_solaris.cpp \
+        os_solaris.h \
+        os_solaris_ata.s \
+        os_win32.cpp \
+        os_generic.cpp \
+        os_generic.h \
+        cciss.cpp \
+        cciss.h \
+        cissio_freebsd.h \
+        dev_legacy.cpp \
+        megaraid.h
 
 if OS_WIN32_MINGW
 
@@ -106,55 +164,6 @@ smartd_LDADD += -lws2_32 -lwtsapi32
 
 endif
 
-smartctl_SOURCES= smartctl.cpp    \
-                  smartctl.h      \
-                  atacmdnames.cpp \
-                  atacmdnames.h   \
-                  atacmds.cpp     \
-                  atacmds.h       \
-                  ataprint.cpp    \
-                  ataprint.h      \
-                  dev_ata_cmd_set.cpp \
-                  dev_ata_cmd_set.h   \
-                  dev_interface.cpp   \
-                  dev_interface.h     \
-                  dev_tunnelled.h     \
-                  drivedb.h           \
-                  int64.h         \
-                  knowndrives.cpp \
-                  knowndrives.h   \
-                  scsicmds.cpp    \
-                  scsicmds.h      \
-                  scsiata.cpp     \
-                  scsiprint.cpp   \
-                  scsiprint.h     \
-                  utility.cpp     \
-                  utility.h
-
-
-smartctl_LDADD = @os_deps@ @os_libs@
-smartctl_DEPENDENCIES = @os_deps@
-
-EXTRA_smartctl_SOURCES = os_linux.cpp \
-                       os_linux.h     \
-                       os_freebsd.cpp \
-                       os_freebsd.h   \
-                       os_netbsd.cpp  \
-                       os_netbsd.h    \
-                       os_openbsd.cpp \
-                       os_openbsd.h   \
-                       os_qnxnto.cpp  \
-                       os_qnxnto.h    \
-                       os_solaris.cpp \
-                       os_solaris.h   \
-                       os_win32.cpp   \
-                       os_generic.cpp \
-                       os_generic.h   \
-                       cciss.cpp      \
-                       cciss.h        \
-                       cissio_freebsd.h \
-                       dev_legacy.cpp \
-                       megaraid.h
 
 if NEED_GETOPT_LONG
 
