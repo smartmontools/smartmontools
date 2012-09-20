@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3608 2012-09-20 20:55:49Z chrfranke $
+# $Id: Makefile.am 3609 2012-09-20 21:24:43Z chrfranke $
 #
 
 @SET_MAKE@
@@ -53,6 +53,8 @@ smartctl_SOURCES = \
         atacmdnames.h \
         atacmds.cpp \
         atacmds.h \
+        ataidentify.cpp \
+        ataidentify.h \
         ataprint.cpp \
         ataprint.h \
         dev_ata_cmd_set.cpp \

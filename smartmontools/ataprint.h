@@ -25,7 +25,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h 3597 2012-09-04 21:10:37Z chrfranke $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h 3609 2012-09-20 21:24:43Z chrfranke $\n"
 
 #include <vector>
 
@@ -46,6 +46,7 @@ struct ata_log_request
 struct ata_print_options
 {
   bool drive_info;
+  int identify_word_level, identify_bit_level;
   bool smart_check_status;
   bool smart_general_values;
   bool smart_vendor_attrib;
@@ -108,6 +109,7 @@ struct ata_print_options
 
   ata_print_options()
     : drive_info(false),
+      identify_word_level(-1), identify_bit_level(-1),
       smart_check_status(false),
       smart_general_values(false),
       smart_vendor_attrib(false),

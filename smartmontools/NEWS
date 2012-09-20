@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3603 2012-09-06 19:42:27Z chrfranke $
+$Id: NEWS 3609 2012-09-20 21:24:43Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -9,6 +9,7 @@ Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.44
 -----------------------------------------------------------
 - option/directive '-F nologdir' and '-F xerrorlba'.
+- smartctl '--identify' option.
 - smartctl prints nominal media rotation rate (ATA).
 - smartd warning emails include device identify info.
 - smartd '-d' output is flushed to support redirection.

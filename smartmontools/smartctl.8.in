@@ -2,7 +2,7 @@
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3598 2012-09-04 21:44:05Z chrfranke $
+ $Id: smartctl.8.in 3609 2012-09-20 21:24:43Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -199,6 +199,20 @@ than the potential maximum drive capacity.)  Indicates if the drive is
 in the smartmontools database (see \'\-v\' options below).  If so, the
 drive model family may also be printed. If \'\-n\' (see below) is
 specified, the power mode of the drive is printed.
+.TP
+.B \-\-identify[=[w][nvb]]
+[ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] Prints an annotated
+table of the IDENTIFY DEVICE data.
+By default, only valid words (words not equal to 0x0000 or 0xffff)
+and nonzero bits and bit fields are printed.
+This can be changed by the optional argument which consists of one or
+two characters from the set \'wnvb\'.
+The character \'w\' enables printing of all 256 words. The character
+\'n\' suppresses printing of bits, \'v\' enables printing of all bits
+from valid words, \'b\' enables printing of all bits.
+For example \'\-\-identify=n\' (valid words, no bits) produces the
+shortest output and \'\-\-identify=wb\' (all words, all bits) produces
+the longest output.
 .TP
 .B \-a, \-\-all
 Prints all SMART information about the disk, or TapeAlert information
@@ -2219,4 +2233,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3598 2012-09-04 21:44:05Z chrfranke $
+$Id: smartctl.8.in 3609 2012-09-20 21:24:43Z chrfranke $

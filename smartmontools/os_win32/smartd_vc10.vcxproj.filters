@@ -66,6 +66,7 @@
     <ClCompile Include="..\smartctl.cpp" />
     <ClCompile Include="..\smartd.cpp" />
     <ClCompile Include="..\utility.cpp" />
+    <ClCompile Include="..\ataidentify.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="daemon_win32.h">
@@ -104,6 +105,7 @@
     <ClInclude Include="wtssendmsg.h">
       <Filter>os_win32</Filter>
     </ClInclude>
+    <ClInclude Include="..\ataidentify.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="installer.nsi">
