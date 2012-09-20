@@ -18,7 +18,7 @@
 #ifndef ATAIDENTIFY_H
 #define ATAIDENTIFY_H
 
-#define ATAIDENTIFY_H_CVSID "$Id"
+#define ATAIDENTIFY_H_CVSID "$Id: ataidentify.h 3610 2012-09-20 21:27:19Z chrfranke $"
 
 void ata_print_identify_data(const void * id, bool all_words, int bit_level);
 
