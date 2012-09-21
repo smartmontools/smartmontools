@@ -15,6 +15,7 @@ Summary: smartmontools release 5.44
 - smartd '-d' output is flushed to support redirection.
 - Windows smartd: smartd.conf directives '-m console',
   '-m active', '-m connected'.
+- Windows: Support for SAS disks behind Areca controllers.
 - Windows: Win9x/ME and NT4 are no longer supported.
 
 Date 2012-06-30

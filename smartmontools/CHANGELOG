@@ -41,6 +41,11 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] os_win32.cpp: Add support for SAS disks behind Areca SAS
+       controllers.  This includes SAS/SATA autodetection.
+
+       Patch was provided by Hank Wu from Areca.
+
   [CF] ataidentify.cpp: Add some recent SATA features.
 
   [CF] smartctl: Add '--identify[=wnvb]' option.
