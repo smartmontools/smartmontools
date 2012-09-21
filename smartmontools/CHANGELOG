@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] ataidentify.cpp: Add some recent SATA features.
+
   [CF] smartctl: Add '--identify[=wnvb]' option.
        Add new source files ataidentify.h/cpp.
 
