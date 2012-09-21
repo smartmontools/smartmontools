@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3609 2012-09-20 21:24:43Z chrfranke $
+$Id: NEWS 3612 2012-09-21 20:50:48Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -15,6 +15,7 @@ Summary: smartmontools release 5.44
 - smartd '-d' output is flushed to support redirection.
 - Windows smartd: smartd.conf directives '-m console',
   '-m active', '-m connected'.
+- Windows: Support for SAS disks behind Areca controllers.
 - Windows: Win9x/ME and NT4 are no longer supported.
 
 Date 2012-06-30
