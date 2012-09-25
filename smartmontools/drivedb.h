@@ -895,11 +895,19 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HD(502H|754J|103S)J",
     "", "", ""
   },
+  { "Seagate Barracuda SpinPoint F3", // tested with ST1000DM005 HD103SJ/1AJ100E5
+    "ST[0-9DM]* HD(502H|754J|103S)J",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint F3 EG", // tested with HD503HI/1AJ100E4, HD153WI/1AN10002
     "SAMSUNG HD(253G|(324|503)H|754J|105S|(153|203)W)I",
     "", "", ""
   },
-  { "SAMSUNG SpinPoint F4 EG (AFT)",// tested with HD204UI/1AQ10001(buggy|fixed)
+  { "SAMSUNG SpinPoint F3 RE", // tested with HE103SJ/1AJ30001
+    "SAMSUNG HE(502H|754J|103S)J",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint F4 EG (AF)",// tested with HD204UI/1AQ10001(buggy|fixed)
     "SAMSUNG HD(155|204)UI",
     "", // 1AQ10001
     "Using smartmontools or hdparm with this\n"
@@ -991,7 +999,7 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HM(250H|320I|[45]00J)I",
     "", "", ""
   },
-  { "SAMSUNG SpinPoint M7E (AFT)", // tested with HM321HI/2AJ10001, HM641JI/2AJ10001
+  { "SAMSUNG SpinPoint M7E (AF)", // tested with HM321HI/2AJ10001, HM641JI/2AJ10001
     "SAMSUNG HM(161G|(251|321)H|501I|641J)I",
     "", "", ""
   },
@@ -999,11 +1007,11 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HM(162H|252H|322I|502J)X",
     "", "", ""
   },
-  { "SAMSUNG SpinPoint M8 (AFT)", // tested with HN-M101MBB/2AR10001
+  { "SAMSUNG SpinPoint M8 (AF)", // tested with HN-M101MBB/2AR10001
     "SAMSUNG HN-M(250|500|750|101)MBB",
     "", "", ""
   },
-  { "Seagate Momentus SpinPoint M8 (AFT)", // tested with
+  { "Seagate Momentus SpinPoint M8 (AF)", // tested with
       // "ST750LM022 HN-M750MBB"/2AR10001
     "ST(250|500|750|1000)LM0[012][124] HN-M[0-9]*MBB",
     "", "", ""
@@ -1579,11 +1587,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,minutes"
   },
-  { "Toshiba 2.5\" HDD MK..59GSXP (Adv. Format)",
+  { "Toshiba 2.5\" HDD MK..59GSXP (AF)",
     "TOSHIBA MK(32|50|64|75)59GSXP?",
     "", "", ""
   },
-  { "Toshiba 2.5\" HDD MK..59GSM (Adv. Format)",
+  { "Toshiba 2.5\" HDD MK..59GSM (AF)",
     "TOSHIBA MK(75|10)59GSM",
     "", "", ""
   },
@@ -1665,7 +1673,7 @@ const drive_settings builtin_knowndrives[] = {
     "ST9(160316|(250|320)310|(500|640)320)AS",
     "", "", ""
   },
-  { "Seagate Momentus 5400.7 (Adv. Format)", // tested with ST9640322AS/0001BSM2
+  { "Seagate Momentus 5400.7 (AF)", // tested with ST9640322AS/0001BSM2
       // (device reports 4KiB LPS with 1 sector offset)
     "ST9(320312|400321|640322|750423)AS",
     "", "", ""
@@ -1720,7 +1728,7 @@ const drive_settings builtin_knowndrives[] = {
     "http://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
     ""
   },
-  { "Seagate Momentus XT (Adv. Format)", // tested with ST750LX003-1AC154/SM12
+  { "Seagate Momentus XT (AF)", // tested with ST750LX003-1AC154/SM12
     "ST750LX003-.*",
     "", "", ""
   },
@@ -1840,8 +1848,28 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207957en",
     ""
   },
-  { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45, ST3500413AS/JC4B
-    "ST3(160318|25031[128]|320418|50041[038]|750(518|52[38])|100052[348])AS",
+  { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45,
+      // ST3500413AS/JC4B, ST3750525AS/JC4B
+    "ST3(160318|25031[128]|320418|50041[038]|750(518|52[358])|100052[348])AS",
+    "", "", ""
+  },
+  { "Seagate Barracuda XT", // tested with ST32000641AS/CC13,
+      // ST4000DX000-1C5160/CC42
+    "ST(3(2000641|3000651)AS|4000DX000-.*)",
+    "", "", ""
+  },
+  { "Seagate Barracuda 7200.14 (AF)", // tested with ST250DM000-1BC141,
+      // ST1000DM003-9YN162/CC46, ST3000DM001-9YN166/CC4H
+    "ST(250|320|500|750|1000|1500|2000|3000)DM00[0-3]-.*",
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32" // tested with ST3000DM001-9YN166/CC4H
+  },
+  { "Seagate Barracuda LP",
+    "ST3(500412|1000520|1500541|2000542)AS",
+    "", "", ""
+  },
+  { "Seagate Barracuda Green (AF)",
+    "ST((10|15|20)00DL00[123])-.*",
     "", "", ""
   },
   { "Seagate Barracuda ES",
@@ -1871,24 +1899,6 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/207963en",
     ""
-  },
-  { "Seagate Barracuda LP",
-    "ST3(500412|1000520|1500541|2000542)AS",
-    "", "", ""
-  },
-  { "Seagate Barracuda Green (Adv. Format)",
-    "ST((10|15|20)00DL00[123])-.*",
-    "", "", ""
-  },
-  { "Seagate Barracuda XT", // tested with ST32000641AS/CC13,
-      // ST4000DX000-1C5160/CC42
-    "ST(3(2000641|3000651)AS|4000DX000-.*)",
-    "", "", ""
-  },
-  { "Seagate Barracuda (SATA 3Gb/s, 4K Sectors)", // tested with ST250DM000-1BC141,
-      // ST1000DM003-9YN162/CC46
-    "ST(250|320|500|750|1000|1500|2000|3000)DM00[0-3]-.*",
-    "", "", ""
   },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
@@ -2083,11 +2093,11 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((50|64|75)00AA(C|V)S|(50|64|75)00AADS|10EA(C|V)S|(10|15|20)EADS)-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Green (Adv. Format)",
+  { "Western Digital Caviar Green (AF)",
     "WDC WD(((64|75|80)00AA|(10|15|20)EA|(25|30)EZ)R|20EAC)S-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Green (Adv. Format)", // SATA 6Gb/s variants
+  { "Western Digital Caviar Green (AF)", // SATA 6Gb/s variants
       // tested with WDC WD30EZRX-00MMMB0/80.00A80
     "WDC WD(7500AA|(10|15|20)EA|(25|30)EZ)RX-.*",
     "", "", ""
@@ -2112,7 +2122,7 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((16|25|32|50|64|75)00AV[CDV]S|(10|15|20)EV[CDV]S)-.*",
     "", "", ""
   },
-  { "Western Digital AV-GP (Adv. Format)", // tested with WDC WD10EURS-630AB1/80.00A80, WDC WD10EUCX-63YZ1Y0/51.0AB52
+  { "Western Digital AV-GP (AF)", // tested with WDC WD10EURS-630AB1/80.00A80, WDC WD10EUCX-63YZ1Y0/51.0AB52
     "WDC WD(7500AURS|10EU[CR]X|(10|15|20|25|30)EURS)-.*",
     "", "", ""
   },
@@ -2148,7 +2158,7 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((4|6|8|10|12|16|25)00BEVS|(8|12|16|25|32|40|50|64)00BEVT|7500KEVT|10TEVT)-.*",
     "", "", ""
   },
-  { "Western Digital Scorpio Blue Serial ATA (Adv. Format)", // tested with
+  { "Western Digital Scorpio Blue Serial ATA (AF)", // tested with
       // WDC WD10JPVT-00A1YT0/01.01A01
     "WDC WD((16|25|32|50|64|75)00BPVT|10[JT]PVT)-.*",
     "", "", ""
@@ -2157,15 +2167,19 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(8|12|16|25|32|50)00B[EJ]KT-.*",
     "", "", ""
   },
-  { "Western Digital Scorpio Black (Adv. Format)",
+  { "Western Digital Scorpio Black (AF)",
     "WDC WD(50|75)00BPKT-.*",
+    "", "", ""
+  },
+  { "Western Digital Red (AF)", // tested with WDC WD10EFRX-68JCSN0/01.01A01
+    "WDC WD(10|20|30)EFRX-.*",
     "", "", ""
   },
   { "Western Digital My Passport (USB)", // tested with WDC WD5000BMVW-11AMCS0/01.01A01
     "WDC WD(25|32|40|50)00BMV[UVW]-.*",  // *W-* = USB 3.0
     "", "", ""
   },
-  { "Western Digital My Passport (USB, Adv. Format)", // tested with
+  { "Western Digital My Passport (USB, AF)", // tested with
       // WDC WD5000KMVV-11TK7S1/01.01A01, WDC WD10TMVW-11ZSMS5/01.01A01,
       // WDC WD20NMVW-11W68S0/01.01A01
     "WDC WD(5000K|7500K|10T|20N)MV[VW]-.*", // *W-* = USB 3.0
@@ -2671,6 +2685,18 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 4TB
     "0x0bc2:0x50a5",
     "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate Backup Plus USB 3.0; ", // 1TB
+    "0x0bc2:0xa013",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate Backup Plus Desktop USB 3.0; ", // 3TB, 8 LBA/1 PBA offset
+    "0x0bc2:0xa0a4",
+    "",
     "",
     "-d sat"
   },
