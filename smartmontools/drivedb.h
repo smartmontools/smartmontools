@@ -1856,6 +1856,25 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(160318|25031[128]|320418|50041[038]|750(518|52[358])|100052[348])AS",
     "", "", ""
   },
+  { "Seagate Barracuda XT", // tested with ST32000641AS/CC13,
+      // ST4000DX000-1C5160/CC42
+    "ST(3(2000641|3000651)AS|4000DX000-.*)",
+    "", "", ""
+  },
+  { "Seagate Barracuda 7200.14 (AF)", // tested with ST250DM000-1BC141,
+      // ST1000DM003-9YN162/CC46, ST3000DM001-9YN166/CC4H
+    "ST(250|320|500|750|1000|1500|2000|3000)DM00[0-3]-.*",
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32" // tested with ST3000DM001-9YN166/CC4H
+  },
+  { "Seagate Barracuda LP",
+    "ST3(500412|1000520|1500541|2000542)AS",
+    "", "", ""
+  },
+  { "Seagate Barracuda Green (AF)",
+    "ST((10|15|20)00DL00[123])-.*",
+    "", "", ""
+  },
   { "Seagate Barracuda ES",
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
     "", "", ""
@@ -1884,25 +1903,6 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/207963en",
     ""
-  },
-  { "Seagate Barracuda LP",
-    "ST3(500412|1000520|1500541|2000542)AS",
-    "", "", ""
-  },
-  { "Seagate Barracuda Green (AF)",
-    "ST((10|15|20)00DL00[123])-.*",
-    "", "", ""
-  },
-  { "Seagate Barracuda XT", // tested with ST32000641AS/CC13,
-      // ST4000DX000-1C5160/CC42
-    "ST(3(2000641|3000651)AS|4000DX000-.*)",
-    "", "", ""
-  },
-  { "Seagate Barracuda 7200.14 (AF)", // tested with ST250DM000-1BC141,
-      // ST1000DM003-9YN162/CC46, ST3000DM001-9YN166/CC4H
-    "ST(250|320|500|750|1000|1500|2000|3000)DM00[0-3]-.*",
-    "", "",
-    "-v 188,raw16 -v 240,msec24hour32" // tested with ST3000DM001-9YN166/CC4H
   },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
