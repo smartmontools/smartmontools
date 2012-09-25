@@ -41,6 +41,15 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Seagate Barracuda SpinPoint F3
+       - SAMSUNG SpinPoint F3 RE
+       - Seagate Barracuda 7200.12: ST3750525AS
+       - Seagate Barracuda 7200.14 (AF): change name, add -v options
+       - Western Digital Red (AF)
+       - USB: Seagate Backup Plus USB 3.0 (0x0bc2:0xa013) (ticket #235)
+       - USB: Seagate Backup Plus Desktop USB 3.0 (0x0bc2:0xa0a4)
+
   [CF] os_win32.cpp: Add support for SAS disks behind Areca SAS
        controllers.  This includes SAS/SATA autodetection.
 

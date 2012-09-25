@@ -898,8 +898,16 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HD(502H|754J|103S)J",
     "", "", ""
   },
+  { "Seagate Barracuda SpinPoint F3", // tested with ST1000DM005 HD103SJ/1AJ100E5
+    "ST[0-9DM]* HD(502H|754J|103S)J",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint F3 EG", // tested with HD503HI/1AJ100E4, HD153WI/1AN10002
     "SAMSUNG HD(253G|(324|503)H|754J|105S|(153|203)W)I",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint F3 RE", // tested with HE103SJ/1AJ30001
+    "SAMSUNG HE(502H|754J|103S)J",
     "", "", ""
   },
   { "SAMSUNG SpinPoint F4 EG (AFT)",// tested with HD204UI/1AQ10001(buggy|fixed)
@@ -1843,8 +1851,9 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207957en",
     ""
   },
-  { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45, ST3500413AS/JC4B
-    "ST3(160318|25031[128]|320418|50041[038]|750(518|52[38])|100052[348])AS",
+  { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45,
+      // ST3500413AS/JC4B, ST3750525AS/JC4B
+    "ST3(160318|25031[128]|320418|50041[038]|750(518|52[358])|100052[348])AS",
     "", "", ""
   },
   { "Seagate Barracuda ES",
@@ -1889,10 +1898,11 @@ const drive_settings builtin_knowndrives[] = {
     "ST(3(2000641|3000651)AS|4000DX000-.*)",
     "", "", ""
   },
-  { "Seagate Barracuda (SATA 3Gb/s, 4K Sectors)", // tested with ST250DM000-1BC141,
-      // ST1000DM003-9YN162/CC46
+  { "Seagate Barracuda 7200.14 (AF)", // tested with ST250DM000-1BC141,
+      // ST1000DM003-9YN162/CC46, ST3000DM001-9YN166/CC4H
     "ST(250|320|500|750|1000|1500|2000|3000)DM00[0-3]-.*",
-    "", "", ""
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32" // tested with ST3000DM001-9YN166/CC4H
   },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
@@ -2163,6 +2173,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Scorpio Black (Adv. Format)",
     "WDC WD(50|75)00BPKT-.*",
+    "", "", ""
+  },
+  { "Western Digital Red (AF)", // tested with WDC WD10EFRX-68JCSN0/01.01A01
+    "WDC WD(10|20|30)EFRX-.*",
     "", "", ""
   },
   { "Western Digital My Passport (USB)", // tested with WDC WD5000BMVW-11AMCS0/01.01A01
@@ -2675,6 +2689,18 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 4TB
     "0x0bc2:0x50a5",
     "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate Backup Plus USB 3.0; ", // 1TB
+    "0x0bc2:0xa013",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate Backup Plus Desktop USB 3.0; ", // 3TB, 8 LBA/1 PBA offset
+    "0x0bc2:0xa0a4",
+    "",
     "",
     "-d sat"
   },
