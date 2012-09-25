@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h: Use "AF" for Advanced Format (4KiB LPS).
+
   [CF] drivedb.h updates:
        - Seagate Barracuda SpinPoint F3
        - SAMSUNG SpinPoint F3 RE
