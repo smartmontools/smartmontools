@@ -418,6 +418,62 @@ static inline const char * construct_st_er_desc(char * s,
     (const ata_smart_errorlog_error_struct *)0, &data->error);
 }
 
+
+static int find_msb(unsigned short word)
+{
+  for (int bit = 15; bit >= 0; bit--)
+    if (word & (1 << bit))
+      return bit;
+  return -1;
+}
+
+static const char * get_sata_version(const ata_identify_device * drive)
+{
+  unsigned short word222 = drive->words088_255[222-88];
+  if ((word222 & 0xf000) != 0x1000)
+    return 0;
+  switch (find_msb(word222 & 0x0fff)) {
+    default: return "SATA >3.1";
+    case 6:  return "SATA 3.1";
+    case 5:  return "SATA 3.0";
+    case 4:  return "SATA 2.6";
+    case 3:  return "SATA 2.5";
+    case 2:  return "SATA II Ext";
+    case 1:  return "SATA 1.0a";
+    case 0:  return "ATA8-AST";
+    case -1: return 0;
+  }
+}
+
+static const char * get_sata_speed(int level)
+{
+  if (level <= 0)
+    return 0;
+  switch (level) {
+    default: return ">6.0 Gb/s";
+    case 3:  return "6.0 Gb/s";
+    case 2:  return "3.0 Gb/s";
+    case 1:  return "1.5 Gb/s";
+  }
+}
+
+static const char * get_sata_maxspeed(const ata_identify_device * drive)
+{
+  unsigned short word076 = drive->words047_079[76-47];
+  if (word076 & 0x0001)
+    return 0;
+  return get_sata_speed(find_msb(word076 & 0x00fe));
+}
+
+static const char * get_sata_curspeed(const ata_identify_device * drive)
+{
+  unsigned short word077 = drive->words047_079[77-47];
+  if (word077 & 0x0001)
+    return 0;
+  return get_sata_speed((word077 >> 1) & 0x7);
+}
+
+
 static void print_drive_info(const ata_identify_device * drive,
                              const ata_size_info & sizes, int rpm,
                              const drive_settings * dbentry)
@@ -516,6 +572,17 @@ static void print_drive_info(const ata_identify_device * drive,
 
   pout("ATA Version is:   %s\n", infofound(majorstr.c_str()));
   pout("ATA Standard is:  %s\n", infofound(minorstr.c_str()));
+
+  // If SATA drive print SATA version and speed
+  const char * sataver = get_sata_version(drive);
+  if (sataver) {
+    const char * maxspeed = get_sata_maxspeed(drive);
+    const char * curspeed = get_sata_curspeed(drive);
+    pout("SATA Version is:  %s%s%s%s%s%s\n", sataver,
+         (maxspeed ? ", " : ""), (maxspeed ? maxspeed : ""),
+         (curspeed ? " (current: " : ""), (curspeed ? curspeed : ""),
+         (curspeed ? ")" : ""));
+  }
 
   // print current time and date and timezone
   char timedatetz[DATEANDEPOCHLEN]; dateandtimezone(timedatetz);
