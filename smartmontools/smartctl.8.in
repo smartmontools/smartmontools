@@ -2,7 +2,7 @@
  Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3609 2012-09-20 21:24:43Z chrfranke $
+ $Id: smartctl.8.in 3619 2012-09-26 21:26:09Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1258,6 +1258,8 @@ m4 SSDs).
 \- [SATA only] prints values and descriptions of the SATA Phy Event
 Counters (General Purpose Log address 0x11).  If \'\-l sataphy,reset\'
 is specified, all counters are reset after reading the values.
+This also works for SATA devices with Packet interface like CD/DVD
+drives.
 
 .I sasphy[,reset]
 \- [SAS (SCSI) only] prints values and descriptions of the SAS (SSP)
@@ -2233,4 +2235,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3609 2012-09-20 21:24:43Z chrfranke $
+$Id: smartctl.8.in 3619 2012-09-26 21:26:09Z chrfranke $
