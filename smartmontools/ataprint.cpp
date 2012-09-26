@@ -2299,7 +2299,6 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
           options.gp_logdir
        || options.smart_ext_error_log
        || options.smart_ext_selftest_log
-       || options.sataphy
        || options.devstat_all_pages
        || options.devstat_ssd_page
        || !options.devstat_pages.empty()
@@ -2326,6 +2325,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (!(   options.drive_info || options.show_presets
         || need_smart_support || need_smart_logdir
         || need_gp_logdir     || need_sct_support
+        || options.sataphy
         || options.identify_word_level >= 0
         || options.get_set_used                      )) {
     if (powername)
@@ -3136,6 +3136,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Print SATA Phy Event Counters
   if (options.sataphy) {
     unsigned nsectors = GetNumLogSectors(gplogdir, 0x11, true);
+    // Packet interface devices do not provide a log directory, check support bit
+    if (!nsectors && (drive.words047_079[76-47] & 0x0401) == 0x0400)
+      nsectors = 1;
     if (!nsectors)
       pout("SATA Phy Event Counters (GP Log 0x11) not supported\n");
     else if (nsectors != 1)

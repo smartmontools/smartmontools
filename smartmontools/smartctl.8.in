@@ -1258,6 +1258,8 @@ m4 SSDs).
 \- [SATA only] prints values and descriptions of the SATA Phy Event
 Counters (General Purpose Log address 0x11).  If \'\-l sataphy,reset\'
 is specified, all counters are reset after reading the values.
+This also works for SATA devices with Packet interface like CD/DVD
+drives.
 
 .I sasphy[,reset]
 \- [SAS (SCSI) only] prints values and descriptions of the SAS (SSP)
