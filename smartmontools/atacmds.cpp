@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3607 2012-09-15 15:50:29Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3618 2012-09-26 20:51:02Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -99,7 +99,7 @@ static const char * const minor_str[] = {       /* word 81 value: */
   "ATA/ATAPI-6 T13 1410D revision 1",           /* 0x001c       */
   "ATA/ATAPI-7 published, ANSI INCITS 397-2005",/* 0x001d       */
   "ATA/ATAPI-7 T13 1532D revision 0",           /* 0x001e       */
-  "reserved",                                   /* 0x001f       */
+  "ACS-3 revision 3b",                          /* 0x001f       */
   "reserved",                                   /* 0x0020       */
   "ATA/ATAPI-7 T13 1532D revision 4a",          /* 0x0021       */
   "ATA/ATAPI-6 published, ANSI INCITS 361-2002" /* 0x0022       */
@@ -144,7 +144,7 @@ static const int actual_ver[] = {
   6,            /* 0x001c       WARNING:        */
   7,            /* 0x001d       WARNING:        */
   7,            /* 0x001e       WARNING:        */
-  0,            /* 0x001f       WARNING:        */
+  8,            /* 0x001f       WARNING:        */
   0,            /* 0x0020       WARNING:        */
   7,            /* 0x0021       WARNING:        */
   6             /* 0x0022       WARNING:        */
