@@ -30,7 +30,7 @@ const char * ataidentify_cpp_cvsid = "$Id$"
 // Tables 16 and 18 of T13/1532D (ATA/ATAPI-7) Volume 1 Revision 4b, April 21, 2004
 // Tables 29 and 39 of T13/1699-D (ATA-8 ACS) Revision 6a, September 6, 2008
 // Tables 50 and 61 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
-// Tables 51 and 56 of T13/2161-D (ACS-3) Revision 3b, August 25, 2012
+// Tables 51 and 56 of T13/2161-D (ACS-3) Revision 4, September 4, 2012
 
 const char * const identify_descriptions[] = {
   "  0 General configuration",
@@ -181,7 +181,7 @@ const char * const identify_descriptions[] = {
     ". 1 SATA Gen1 signaling speed (1.5Gb/s) supported",
     ". 0 Must be set to 0",
 
-  " 77 Serial ATA capabilities",
+  " 77 Serial ATA additional capabilities", // ACS-3
     ". 15:7 Reserved for Serial ATA",
     ". 6 RECEIVE/SEND FPDMA QUEUED supported",
     ". 5 NCQ Queue Management supported",
@@ -191,9 +191,9 @@ const char * const identify_descriptions[] = {
 
   " 78 Serial ATA features supported",
     ". 15:8 Reserved for Serial ATA",
-    ". 7 NCQ Autosense supported",
+    ". 7 NCQ Autosense supported", // ACS-3
     ". 6 Software Settings Preservation supported",
-    ". 5 Hardware Feature Control supported",
+    ". 5 Hardware Feature Control supported", // ACS-3
     ". 4 In-order data delivery supported",
     ". 3 Device initiated power management supported",
     ". 2 DMA Setup auto-activation supported",
@@ -202,9 +202,9 @@ const char * const identify_descriptions[] = {
 
   " 79 Serial ATA features enabled",
     ". 15:8 Reserved for Serial ATA",
-    ". 7 Automatic Partial to Slumber transitions enabled",
+    ". 7 Automatic Partial to Slumber transitions enabled", // ACS-3
     ". 6 Software Settings Preservation enabled",
-    ". 5 Hardware Feature Control enabled",
+    ". 5 Hardware Feature Control enabled", // ACS-3
     ". 4 In-order data delivery enabled",
     ". 3 Device initiated power management enabled",
     ". 2 DMA Setup auto-activation enabled",
@@ -392,7 +392,11 @@ const char * const identify_descriptions[] = {
 
   "119 Commands and feature sets supported",
     ". 15:14 Must be set to 0x1",
-    ". 13:6 Reserved",
+    ". 13:10 Reserved",
+    ". 9 DSN feature set supported", // ACS-3
+    ". 8 Accessible Max Address Config feature set supported", // ACS-3
+    ". 7 Extended Power Conditions feature set supported",
+    ". 6 Sense Data Reporting feature set supported",
     ". 5 Free-fall Control feature set supported",
     ". 4 DOWNLOAD MICROCODE with mode 3 supported",
     ". 3 READ/WRITE LOG DMA EXT supported",
@@ -402,7 +406,11 @@ const char * const identify_descriptions[] = {
 
   "120 Commands and feature sets supported or enabled",
     ". 15:14 Must be set to 0x1",
-    ". 13:6 Reserved",
+    ". 13:10 Reserved",
+    ". 9 DSN feature set enabled", // ACS-3
+    ". 8 Reserved",
+    ". 7 Extended Power Conditions feature set enabled",
+    ". 6 Sense Data Reporting feature set enabled",
     ". 5 Free-fall Control feature set enabled",
     ". 4 DOWNLOAD MICROCODE with mode 3 supported",
     ". 3 READ/WRITE LOG DMA EXT supported",

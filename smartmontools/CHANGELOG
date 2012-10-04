@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] ataidentify.cpp: Add some recent ACS-3 features.
+
   [CF] smartctl: Support '-l sataphy' also for Packet interface devices.
 
   [CF] atacmds.cpp: Add new ATA ACS-3 minor revision.
