@@ -87,7 +87,7 @@ InstType "Drive menu"
 ; Sections
 
 !ifdef INPDIR64
-  Section "64-bit version (EXPERIMENTAL)" X64_SECTION
+  Section "64-bit version" X64_SECTION
     ; Handled in Function CheckX64
   SectionEnd
 !endif

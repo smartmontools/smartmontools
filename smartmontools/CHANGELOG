@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Remove EXPERIMENTAL notes for 64-bit version.
+
   [CF] autogen.sh: automake 1.11.6 and 1.12.3 are OK.
 
   [CF] smartctl: Fix '--identify' for big-endian CPUs.

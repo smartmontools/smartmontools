@@ -432,8 +432,6 @@ Cross-compile statically linked 64-bit version with MinGW-w64:
   Tested on Cygwin and Debian Linux with MinGW-w64 from
   http://mingw-w64.sourceforge.net/.
 
-WARNING: The smartmontools version for 64-bit Windows is still EXPERIMENTAL.
-
 Cross-compile on Cygwin with old gcc-mingw 3.x:
 
   ./configure --build=$(./config.guess) \
