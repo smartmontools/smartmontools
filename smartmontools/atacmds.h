@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3607 2012-09-15 15:50:29Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3622 2012-10-05 19:58:04Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -756,7 +756,8 @@ extern unsigned char ata_debugmode;
 extern bool dont_print_serial_number;
 
 // Get information from drive
-int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id);
+int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id,
+                      unsigned char * raw_buf = 0);
 int ataCheckPowerMode(ata_device * device);
 
 // Issue a no-data ATA command with optional sector count register value
