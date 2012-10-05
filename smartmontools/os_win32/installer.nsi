@@ -13,7 +13,7 @@
 ; You should have received a copy of the GNU General Public License
 ; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
-; $Id: installer.nsi 3575 2012-07-19 21:32:56Z chrfranke $
+; $Id: installer.nsi 3624 2012-10-05 20:50:51Z chrfranke $
 ;
 
 
@@ -87,7 +87,7 @@ InstType "Drive menu"
 ; Sections
 
 !ifdef INPDIR64
-  Section "64-bit version (EXPERIMENTAL)" X64_SECTION
+  Section "64-bit version" X64_SECTION
     ; Handled in Function CheckX64
   SectionEnd
 !endif
