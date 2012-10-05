@@ -911,7 +911,8 @@ bool ata_set_features(ata_device * device, unsigned char features,
 // capable).  The value of the integer helps identify the type of
 // Packet device, which is useful so that the user can connect the
 // formal device number with whatever object is inside their computer.
-int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id)
+int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id,
+                      unsigned char * raw_buf /* = 0 */)
 {
   unsigned short *rawshort=(unsigned short *)buf;
   unsigned char  *rawbyte =(unsigned char  *)buf;
@@ -936,6 +937,10 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
     for (i = 0; i < sizeof(buf->model)-1; i += 2)
       swap2((char *)(buf->model+i));
   }
+
+  // If requested, save raw data before endianness adjustments
+  if (raw_buf)
+    memcpy(raw_buf, buf, sizeof(*buf));
 
 #ifndef __NetBSD__
   // if machine is big-endian, swap byte order as needed

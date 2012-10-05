@@ -756,7 +756,8 @@ extern unsigned char ata_debugmode;
 extern bool dont_print_serial_number;
 
 // Get information from drive
-int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id);
+int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id,
+                      unsigned char * raw_buf = 0);
 int ataCheckPowerMode(ata_device * device);
 
 // Issue a no-data ATA command with optional sector count register value
