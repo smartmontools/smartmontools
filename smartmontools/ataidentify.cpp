@@ -28,7 +28,7 @@ const char * ataidentify_cpp_cvsid = "$Id$"
 // Tables 20 and 22 of T13/1321D (ATA/ATAPI-5) Revision 3, February 29, 2000
 // Tables 27 and 29 of T13/1410D (ATA/ATAPI-6) Revision 3b, February 26, 2002
 // Tables 16 and 18 of T13/1532D (ATA/ATAPI-7) Volume 1 Revision 4b, April 21, 2004
-// Tables 29 and 39 of T13/1699-D (ATA-8 ACS) Revision 6a, September 6, 2008
+// Tables 29 and 39 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
 // Tables 50 and 61 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
 // Tables 51 and 56 of T13/2161-D (ACS-3) Revision 4, September 4, 2012
 
@@ -117,7 +117,7 @@ const char * const identify_descriptions[] = {
     ". 7:0 Current sectors per DRQ on READ/WRITE MULTIPLE",
 
   " 60-61 User addressable sectors for 28-bit commands (DWord)",
-  " 62 Obsolete",
+  " 62 Obsolete (ATA-2: Single Word DMA modes)",
 
   " 63 Multiword DMA modes",
     ". 15:11 Reserved",
@@ -143,10 +143,10 @@ const char * const identify_descriptions[] = {
     ". 15 CFast specification supported",
     ". 14 Deterministic data after trim supported",
     ". 13 LPS Alignment Error Reporting Control supported",
-    ". 12 DCO IDENTIFY DMA and DCO SET DMA supported",
+    ". 12 DCO IDENTIFY DMA and DCO SET DMA supported", // ACS-3: Obsolete
     ". 11 READ BUFFER DMA supported",
     ". 10 WRITE BUFFER DMA supported",
-    ". 9 SET MAX SET PASSWORD/UNLOCK DMA supported",
+    ". 9 SET MAX SET PASSWORD/UNLOCK DMA supported", // ACS-3: Obsolete
     ". 8 DOWNLOAD MICROCODE DMA supported",
     ". 7 Reserved for IEEE 1667",
     ". 6 Optional ATA device 28-bit commands supported",
@@ -227,11 +227,11 @@ const char * const identify_descriptions[] = {
   " 81 Minor version number",
 
   " 82 Commands and feature sets supported",
-    ". 15 Obsolete",
+    ". 15 Obsolete (ATA-4: IDENTIFY DEVICE DMA supported)", // r07-r14 only
     ". 14 NOP supported",
     ". 13 READ BUFFER supported",
     ". 12 WRITE BUFFER supported",
-    ". 11 Obsolete",
+    ". 11 Obsolete (ATA-4: WRITE VERIFY supported)", // r07-r13 only
     ". 10 HPA feature set supported",
     ". 9 DEVICE RESET supported", // ATA:0, ATAPI:1
     ". 8 SERVICE interrupt supported",
@@ -240,7 +240,7 @@ const char * const identify_descriptions[] = {
     ". 5 Volatile write cache supported",
     ". 4 PACKET feature set supported", // ATA:0, ATAPI:1
     ". 3 Power Management feature set supported",
-    ". 2 Removable Media feature set supported",
+    ". 2 Removable Media feature set supported", // ATA8-ACS: Obsolete
     ". 1 Security feature set supported",
     ". 0 SMART feature set supported",
 
@@ -248,40 +248,41 @@ const char * const identify_descriptions[] = {
     ". 15:14 Must be set to 0x1",
     ". 13 FLUSH CACHE EXT supported",
     ". 12 FLUSH CACHE supported",
-    ". 11 DCO feature set supported",
+    ". 11 DCO feature set supported", // ACS-3: Obsolete
     ". 10 48-bit Address feature set supported",
-    ". 9 AAM feature set supported",
-    ". 8 SET MAX security extension supported",
+    ". 9 AAM feature set supported", // ACS-2: Obsolete
+    ". 8 SET MAX security extension supported", // ACS-3: Obsolete
     ". 7 Reserved for Address Offset Reserved Area Boot Method",
     ". 6 SET FEATURES subcommand required to spin-up",
     ". 5 PUIS feature set supported",
-    ". 4 Removable Media Status Notification supported",
+    ". 4 Removable Media Status Notification supported", // ATA8-ACS: Obsolete
     ". 3 APM feature set supported",
     ". 2 CFA feature set supported",
-    ". 1 TCQ feature set supported",
+    ". 1 TCQ feature set supported", // ACS-2: Obsolete
     ". 0 DOWNLOAD MICROCODE supported",
 
   " 84 Commands and feature sets supported",
     ". 15:14 Must be set to 0x1",
     ". 13 IDLE IMMEDIATE with UNLOAD feature supported",
     ". 12:11 Reserved", // TLC (Obsolete)
-    ". 10:9 Obsolete",
+    ". 10 URG bit for WRITE STREAM (DMA) EXT supported", // ATA8-ACS: Obsolete
+    ". 9 URG bit for READ STREAM (DMA) EXT supported", // ATA8-ACS: Obsolete
     ". 8 64-bit World Wide Name supported",
     ". 7 WRITE DMA QUEUED FUA EXT supported",
     ". 6 WRITE DMA/MULTIPLE FUA EXT supported",
     ". 5 GPL feature set supported",
-    ". 4 Streaming feature set supported",
-    ". 3 Media Card Pass Through Command feature set supported",
+    ". 4 Streaming feature set supported", // ACS-3: Obsolete
+    ". 3 Media Card Pass Through Command feature set supported", // ACS-2: Obsolete
     ". 2 Media serial number supported",
     ". 1 SMART self-test supported",
     ". 0 SMART error logging supported",
 
   " 85 Commands and feature sets supported or enabled",
-    ". 15 Obsolete",
+    ". 15 Obsolete (ATA-4: IDENTIFY DEVICE DMA supported)", // r07-r14 only
     ". 14 NOP supported",
     ". 13 READ BUFFER supported",
     ". 12 WRITE BUFFER supported",
-    ". 11 Obsolete",
+    ". 11 Obsolete (ATA-4: WRITE VERIFY supported)", // r07-r13 only
     ". 10 HPA feature set supported",
     ". 9 DEVICE RESET supported", // ATA:0, ATAPI:1
     ". 8 SERVICE interrupt enabled",
@@ -290,7 +291,7 @@ const char * const identify_descriptions[] = {
     ". 5 Write cache enabled",
     ". 4 PACKET feature set supported", // ATA:0, ATAPI:1
     ". 3 Power Management feature set supported",
-    ". 2 Obsolete",
+    ". 2 Removable Media feature set supported", // ATA8-ACS: Obsolete
     ". 1 Security feature set enabled",
     ". 0 SMART feature set enabled",
 
@@ -299,30 +300,31 @@ const char * const identify_descriptions[] = {
     ". 14 Reserved",
     ". 13 FLUSH CACHE EXT supported",
     ". 12 FLUSH CACHE supported",
-    ". 11 DCO feature set supported",
+    ". 11 DCO feature set supported", // ACS-3: Obsolete
     ". 10 48-bit Address features set supported",
-    ". 9 AAM feature set enabled",
-    ". 8 HPA security extension enabled",
+    ". 9 AAM feature set enabled", // ACS-2: Obsolete
+    ". 8 SET MAX security extension enabled", // ACS-3: Obsolete
     ". 7 Reserved for Address Offset Reserved Area Boot Method",
     ". 6 SET FEATURES subcommand required to spin-up",
     ". 5 PUIS feature set enabled",
-    ". 4 Obsolete",
+    ". 4 Removable Media Status Notification enabled", // ATA8-ACS: Obsolete
     ". 3 APM feature set enabled",
     ". 2 CFA feature set supported",
-    ". 1 TCQ feature set supported",
+    ". 1 TCQ feature set supported", // ACS-2: Obsolete
     ". 0 DOWNLOAD MICROCODE supported",
 
   " 87 Commands and feature sets supported or enabled",
     ". 15:14 Must be set to 0x1",
     ". 13 IDLE IMMEDIATE with UNLOAD FEATURE supported",
     ". 12:11 Reserved", // TLC (Obsolete)
-    ". 10:9 Obsolete",
+    ". 10 URG bit for WRITE STREAM (DMA) EXT supported", // ATA8-ACS: Obsolete
+    ". 9 URG bit for READ STREAM (DMA) EXT supported", // ATA8-ACS: Obsolete
     ". 8 64-bit World Wide Name supported",
     ". 7 WRITE DMA QUEUED FUA EXT supported",
     ". 6 WRITE DMA/MULTIPLE FUA EXT supported",
     ". 5 GPL feature set supported",
-    ". 4 Obsolete",
-    ". 3 Media Card Pass Through Command feature set supported",
+    ". 4 Valid CONFIGURE STREAM command has been executed", // ATA8-ACS: Obsolete
+    ". 3 Media Card Pass Through Command feature set supported", // ACS-2: Obsolete
     ". 2 Media serial number is valid",
     ". 1 SMART self-test supported",
     ". 0 SMART error logging supported",
@@ -365,7 +367,7 @@ const char * const identify_descriptions[] = {
     ". 2:1 Device 0 detection method: -, Jumper, CSEL, other",
     ". 0 Must be set to 1",
 
-  " 94 AAM level",
+  " 94 AAM level", // ACS-2: Obsolete
     ". 15:8 Recommended AAM level",
     ". 7:0 Current AAM level",
 
@@ -422,7 +424,10 @@ const char * const identify_descriptions[] = {
   "121-124 ATAPI: Reserved",
   "125 ATAPI: Byte count = 0 behavior",
   "126 ATAPI: Obsolete (ATA-5: Byte count = 0 behavior)",
-  "127 Obsolete",
+
+  "127 Removable Media Status Notification feature set", // ATA8-ACS: Obsolete
+    ". 15:1 Reserved",
+    ". 0 Removable Media Status Notification supported",
 
   "128 Security status",
     ". 15:9 Reserved",
