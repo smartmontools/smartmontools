@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3622 2012-10-05 19:58:04Z chrfranke $
+$Id: CHANGELOG 3623 2012-10-05 20:22:58Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] autogen.sh: automake 1.11.6 and 1.12.3 are OK.
 
   [CF] smartctl: Fix '--identify' for big-endian CPUs.
 
