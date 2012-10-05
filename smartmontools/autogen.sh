@@ -32,7 +32,8 @@ typep()
     return 1
 }
 
-test -x "$AUTOMAKE" || AUTOMAKE=`typep automake-1.11` || AUTOMAKE=`typep automake-1.10` ||
+test -x "$AUTOMAKE" || AUTOMAKE=`typep automake-1.12` ||
+    AUTOMAKE=`typep automake-1.11` || AUTOMAKE=`typep automake-1.10` ||
     AUTOMAKE=`typep automake-1.9` || AUTOMAKE=`typep automake-1.8` ||
     AUTOMAKE=`typep automake-1.7` || AUTOMAKE=`typep automake17` ||
 {
@@ -83,7 +84,7 @@ case "$ver" in
     rm -f casetest.tmp
     ;;
 
-  1.9.[1-6]|1.10|1.10.[12]|1.11|1.11.[1-5])
+  1.9.[1-6]|1.10|1.10.[12]|1.11|1.11.[1-6]|1.12.3)
     # OK
     ;;
 
