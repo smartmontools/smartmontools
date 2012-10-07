@@ -42,6 +42,11 @@ Maintainers / Developers Key (alphabetic order):
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
   [CF] drivedb.h updates:
+       - Add firmware warnings for various Seagate series (ticket #239):
+         DiamondMax 23, Barracuda 7200.12, 7200.14 (AF), LP, Green (AF)
+       - Seagate Barracuda 7200.14 (AF): 2.5TB
+
+  [CF] drivedb.h updates:
        - SandForce Driven SSDs: SanDisk Extreme
        - Indilinx Everest/Martini based SSDs: OCZ-VERTEX4,
          fix Attribute 232

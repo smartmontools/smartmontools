@@ -1287,9 +1287,19 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207975en",
     ""
   },
-  { "Seagate Maxtor DiamondMax 23",
+  { "Seagate Maxtor DiamondMax 23", // new firmware
     "STM3((160|250)31|(320|500)41|(750|1000)52)8AS?",
-    "", "", ""
+    "CC3D",
+    "", ""
+  },
+  { "Seagate Maxtor DiamondMax 23", // unknown firmware
+    "STM3((160|250)31|(320|500)41|(750|1000)52)8AS?",
+    "",
+    "A firmware update for this drive may be available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/213911en",
+    ""
   },
   { "Maxtor MaXLine Plus II",
     "Maxtor 7Y250[PM]0",
@@ -1867,6 +1877,20 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207957en",
     ""
   },
+  { "Seagate Barracuda 7200.12", // new firmware
+    "ST3(160318|250318|320418|50041[08]|750528|1000528)AS",
+    "CC49",
+    "", ""
+  },
+  { "Seagate Barracuda 7200.12", // unknown firmware
+    "ST3(160318|250318|320418|50041[08]|750528|1000528)AS",
+    "",
+    "A firmware update for this drive may be available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/213891en",
+    ""
+  },
   { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45,
       // ST3500413AS/JC4B, ST3750525AS/JC4B
     "ST3(160318|25031[128]|320418|50041[038]|750(518|52[358])|100052[348])AS",
@@ -1877,19 +1901,64 @@ const drive_settings builtin_knowndrives[] = {
     "ST(3(2000641|3000651)AS|4000DX000-.*)",
     "", "", ""
   },
-  { "Seagate Barracuda 7200.14 (AF)", // tested with ST250DM000-1BC141,
-      // ST1000DM003-9YN162/CC46, ST3000DM001-9YN166/CC4H
-    "ST(250|320|500|750|1000|1500|2000|3000)DM00[0-3]-.*",
-    "", "",
+  { "Seagate Barracuda 7200.14 (AF)", // new firmware, tested with
+      // ST3000DM001-9YN166/CC4H
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "CC4H",
+    "",
     "-v 188,raw16 -v 240,msec24hour32" // tested with ST3000DM001-9YN166/CC4H
   },
-  { "Seagate Barracuda LP",
-    "ST3(500412|1000520|1500541|2000542)AS",
-    "", "", ""
+  { "Seagate Barracuda 7200.14 (AF)", // old firmware, tested with
+      // ST1000DM003-9YN162/CC46
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "CC4[679CG]",
+    "A firmware update for this drive is available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/223651en",
+    "-v 188,raw16 -v 240,msec24hour32"
   },
-  { "Seagate Barracuda Green (AF)",
+  { "Seagate Barracuda 7200.14 (AF)", // unknown firmware
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "",
+    "A firmware update for this drive may be available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/223651en",
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate Barracuda 7200.14 (AF)", // < 1TB, tested with ST250DM000-1BC141
+    "ST(250|320|500|750)DM00[0-3]-.*",
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate Barracuda LP", // new firmware
+    "ST3(500412|1000520|1500541|2000542)AS",
+    "CC35",
+    "", ""
+  },
+  { "Seagate Barracuda LP", // unknown firmware
+    "ST3(500412|1000520|1500541|2000542)AS",
+    "",
+    "A firmware update for this drive may be available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/213915en",
+    ""
+  },
+  { "Seagate Barracuda Green (AF)", // new firmware
     "ST((10|15|20)00DL00[123])-.*",
-    "", "", ""
+    "CC32",
+    "", ""
+  },
+  { "Seagate Barracuda Green (AF)", // unknown firmware
+    "ST((10|15|20)00DL00[123])-.*",
+    "",
+    "A firmware update for this drive may be available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/218171en",
+    ""
   },
   { "Seagate Barracuda ES",
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
