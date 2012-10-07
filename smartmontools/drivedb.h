@@ -173,7 +173,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 170,raw48,Grown_Failing_Block_Ct "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
-    "-v 173,raw48,Wear_Levelling_Count "
+    "-v 173,raw48,Wear_Leveling_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 181,raw16,Non4k_Aligned_Access "
     "-v 183,raw48,SATA_Iface_Downshift "
@@ -223,6 +223,8 @@ const drive_settings builtin_knowndrives[] = {
     "OWC Mercury Extreme Pro (RE )?SSD|" // tested with
       // OWC Mercury Extreme Pro SSD/360A13F0
     "Patriot Pyro|" // tested with Patriot Pyro/332ABBF0
+    "SanDisk SDSSDX(60|120|240|480)GG25|" // SanDisk Extreme, SF-2281, tested with
+      // SDSSDX240GG25/R201
     "(TX32|TX31C1|VN0..GCNMK|VN0...GCNMK).*|" // Smart Storage Systems XceedSTOR
     "(TX22D1|TX21B1).*|" // Smart Storage Systems XceedIOPS2
     "TX52D1.*|" // Smart Storage Systems Xcel-200
@@ -299,7 +301,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Indilinx Everest/Martini based SSDs",
     "OCZ VERTEX-PLUS|" // tested with OCZ VERTEX-PLUS/3.55
-    "OCZ-PETROL", // tested with OCZ-PETROL/3.12
+    "OCZ-PETROL|" // Everest 1, tested with OCZ-PETROL/3.12
+    "OCZ-VERTEX4", // Everest 2, tested with OCZ-VERTEX4/1.5
     "", "", ""
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -307,7 +310,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
-  //"-v 232,raw48,Available_Reservd_Space "
+    "-v 232,raw48,Lifetime_Writes " // LBA?
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
   { "Intel X25-E SSDs",
@@ -629,6 +632,19 @@ const drive_settings builtin_knowndrives[] = {
     "-v 113,hex48,Proprietary_RR "
     "-v 130,raw48:54321,Minimum_Spares_All_Zs"
   //"-v 194,tempminmax,Temperature_Celsius"
+  },
+  { "STEC Mach2 CompactFlash Cards", // tested with STEC M2P CF 1.0.0/K1385MS
+    "STEC M2P CF 1.0.0",
+    "", "",
+    "-v 100,raw48,Erase_Program_Cycles "
+    "-v 103,raw48,Remaining_Energy_Storg "
+    "-v 170,raw48,Reserved_Block_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Wear_Leveling_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 211,raw48,Unknown_Attribute " // ] Missing in specification
+    "-v 212,raw48,Unknown_Attribute"  // ] from September 2012
   },
   { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820,
       // TS4GCF133/20100709, TS16GCF133/20100709
@@ -1268,9 +1284,19 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207975en",
     ""
   },
-  { "Seagate Maxtor DiamondMax 23",
+  { "Seagate Maxtor DiamondMax 23", // new firmware
     "STM3((160|250)31|(320|500)41|(750|1000)52)8AS?",
-    "", "", ""
+    "CC3D",
+    "", ""
+  },
+  { "Seagate Maxtor DiamondMax 23", // unknown firmware
+    "STM3((160|250)31|(320|500)41|(750|1000)52)8AS?",
+    "",
+    "A firmware update for this drive may be available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/213911en",
+    ""
   },
   { "Maxtor MaXLine Plus II",
     "Maxtor 7Y250[PM]0",
@@ -1577,8 +1603,8 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(80|12|16|25|32)52GSX",
     "", "", ""
   },
-  { "Toshiba 2.5\" HDD MK..55GSX", // tested with TOSHIBA MK5055GSX/FG001A
-    "TOSHIBA MK(12|16|25|32|40|50)55GSX",
+  { "Toshiba 2.5\" HDD MK..55GSX", // tested with TOSHIBA MK5055GSX/FG001A, MK3255GSXF/FH115B
+    "TOSHIBA MK(12|16|25|32|40|50)55GSXF?",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..56GSY", // tested with TOSHIBA MK2556GSYF/LJ001D
@@ -1848,6 +1874,20 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207957en",
     ""
   },
+  { "Seagate Barracuda 7200.12", // new firmware
+    "ST3(160318|250318|320418|50041[08]|750528|1000528)AS",
+    "CC49",
+    "", ""
+  },
+  { "Seagate Barracuda 7200.12", // unknown firmware
+    "ST3(160318|250318|320418|50041[08]|750528|1000528)AS",
+    "",
+    "A firmware update for this drive may be available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/213891en",
+    ""
+  },
   { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45,
       // ST3500413AS/JC4B, ST3750525AS/JC4B
     "ST3(160318|25031[128]|320418|50041[038]|750(518|52[358])|100052[348])AS",
@@ -1858,19 +1898,64 @@ const drive_settings builtin_knowndrives[] = {
     "ST(3(2000641|3000651)AS|4000DX000-.*)",
     "", "", ""
   },
-  { "Seagate Barracuda 7200.14 (AF)", // tested with ST250DM000-1BC141,
-      // ST1000DM003-9YN162/CC46, ST3000DM001-9YN166/CC4H
-    "ST(250|320|500|750|1000|1500|2000|3000)DM00[0-3]-.*",
-    "", "",
+  { "Seagate Barracuda 7200.14 (AF)", // new firmware, tested with
+      // ST3000DM001-9YN166/CC4H
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "CC4H",
+    "",
     "-v 188,raw16 -v 240,msec24hour32" // tested with ST3000DM001-9YN166/CC4H
   },
-  { "Seagate Barracuda LP",
-    "ST3(500412|1000520|1500541|2000542)AS",
-    "", "", ""
+  { "Seagate Barracuda 7200.14 (AF)", // old firmware, tested with
+      // ST1000DM003-9YN162/CC46
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "CC4[679CG]",
+    "A firmware update for this drive is available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/223651en",
+    "-v 188,raw16 -v 240,msec24hour32"
   },
-  { "Seagate Barracuda Green (AF)",
+  { "Seagate Barracuda 7200.14 (AF)", // unknown firmware
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "",
+    "A firmware update for this drive may be available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/223651en",
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate Barracuda 7200.14 (AF)", // < 1TB, tested with ST250DM000-1BC141
+    "ST(250|320|500|750)DM00[0-3]-.*",
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate Barracuda LP", // new firmware
+    "ST3(500412|1000520|1500541|2000542)AS",
+    "CC35",
+    "", ""
+  },
+  { "Seagate Barracuda LP", // unknown firmware
+    "ST3(500412|1000520|1500541|2000542)AS",
+    "",
+    "A firmware update for this drive may be available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/213915en",
+    ""
+  },
+  { "Seagate Barracuda Green (AF)", // new firmware
     "ST((10|15|20)00DL00[123])-.*",
-    "", "", ""
+    "CC32",
+    "", ""
+  },
+  { "Seagate Barracuda Green (AF)", // unknown firmware
+    "ST((10|15|20)00DL00[123])-.*",
+    "",
+    "A firmware update for this drive may be available,\n"
+    "see the following Seagate web pages:\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "http://knowledge.seagate.com/articles/en_US/FAQ/218171en",
+    ""
   },
   { "Seagate Barracuda ES",
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
@@ -2140,6 +2225,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital VelociRaptor", // tested with WDC WD1500HLHX-01JJPV0/04.05G04
     "WDC WD(((800H|(1500|3000)[BH]|1600H|3000G)LFS)|((1500|3000|4500|6000)[BH]LHX))-.*",
+    "", "", ""
+  },
+  { "Western Digital VelociRaptor (AF)", // tested with WDC WD1000DHTZ-04N21V0/04.06A00
+    "WDC WD(2500H|5000H|1000D)HTZ-.*",
     "", "", ""
   },
   { "Western Digital Scorpio EIDE",
