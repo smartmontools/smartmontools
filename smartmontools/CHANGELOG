@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3626 2012-10-07 16:05:59Z chrfranke $
+$Id: CHANGELOG 3628 2012-10-07 17:45:58Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartctl: Rework "ATA Version" output.  Print major and minor
+       revision in one output line.  Remove "ATA Standard" line.
 
   [CF] drivedb.h updates:
        - Add firmware warnings for various Seagate series (ticket #239):

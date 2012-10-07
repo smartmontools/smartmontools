@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3622 2012-10-05 19:58:04Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3628 2012-10-07 17:45:58Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -821,10 +821,6 @@ int ataSmartTest(ata_device * device, int testtype, bool force,
 int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_args & args,
                                  const ata_smart_values * sv, uint64_t num_sectors,
                                  const ata_selective_selftest_args * prev_spans = 0);
-
-// Returns the latest compatibility of ATA/ATAPI Version the device
-// supports. Returns -1 if Version command is not supported
-int ataVersionInfo(const char ** description, const ata_identify_device * drive, unsigned short * minor);
 
 // Get World Wide Name (WWN) fields.
 // Return NAA field or -1 if WWN is unsupported.
