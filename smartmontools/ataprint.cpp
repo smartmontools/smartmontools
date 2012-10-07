@@ -427,6 +427,83 @@ static int find_msb(unsigned short word)
   return -1;
 }
 
+const char * get_ata_major_version(const ata_identify_device * drive)
+{
+  switch (find_msb(drive->major_rev_num)) {
+  //case 10: return "ACS-3"; // ?
+    case  9: return "ACS-2";
+    case  8: return "ATA8-ACS";
+    case  7: return "ATA/ATAPI-7";
+    case  6: return "ATA/ATAPI-6";
+    case  5: return "ATA/ATAPI-5";
+    case  4: return "ATA/ATAPI-4";
+    case  3: return "ATA-3";
+    case  2: return "ATA-2";
+    case  1: return "ATA-1";
+    default: return 0;
+  }
+}
+
+const char * get_ata_minor_version(const ata_identify_device * drive)
+{
+  switch (drive->minor_rev_num) {
+    case 0x0001: return "ATA-1 X3T9.2/781D prior to revision 4";
+    case 0x0002: return "ATA-1 published, ANSI X3.221-1994";
+    case 0x0003: return "ATA-1 X3T9.2/781D revision 4";
+    case 0x0004: return "ATA-2 published, ANSI X3.279-1996";
+    case 0x0005: return "ATA-2 X3T10/948D prior to revision 2k";
+    case 0x0006: return "ATA-3 X3T10/2008D revision 1";
+    case 0x0007: return "ATA-2 X3T10/948D revision 2k";
+    case 0x0008: return "ATA-3 X3T10/2008D revision 0";
+    case 0x0009: return "ATA-2 X3T10/948D revision 3";
+    case 0x000a: return "ATA-3 published, ANSI X3.298-1997";
+    case 0x000b: return "ATA-3 X3T10/2008D revision 6"; // 1st ATA-3 revision with SMART
+    case 0x000c: return "ATA-3 X3T13/2008D revision 7 and 7a";
+    case 0x000d: return "ATA/ATAPI-4 X3T13/1153D revision 6";
+    case 0x000e: return "ATA/ATAPI-4 T13/1153D revision 13";
+    case 0x000f: return "ATA/ATAPI-4 X3T13/1153D revision 7";
+    case 0x0010: return "ATA/ATAPI-4 T13/1153D revision 18";
+    case 0x0011: return "ATA/ATAPI-4 T13/1153D revision 15";
+    case 0x0012: return "ATA/ATAPI-4 published, ANSI NCITS 317-1998";
+    case 0x0013: return "ATA/ATAPI-5 T13/1321D revision 3";
+    case 0x0014: return "ATA/ATAPI-4 T13/1153D revision 14";
+    case 0x0015: return "ATA/ATAPI-5 T13/1321D revision 1";
+    case 0x0016: return "ATA/ATAPI-5 published, ANSI NCITS 340-2000";
+    case 0x0017: return "ATA/ATAPI-4 T13/1153D revision 17";
+    case 0x0018: return "ATA/ATAPI-6 T13/1410D revision 0";
+    case 0x0019: return "ATA/ATAPI-6 T13/1410D revision 3a";
+    case 0x001a: return "ATA/ATAPI-7 T13/1532D revision 1";
+    case 0x001b: return "ATA/ATAPI-6 T13/1410D revision 2";
+    case 0x001c: return "ATA/ATAPI-6 T13/1410D revision 1";
+    case 0x001d: return "ATA/ATAPI-7 published, ANSI INCITS 397-2005";
+    case 0x001e: return "ATA/ATAPI-7 T13/1532D revision 0";
+    case 0x001f: return "ACS-3 T13/2161-D revision 3b";
+
+    case 0x0021: return "ATA/ATAPI-7 T13/1532D revision 4a";
+    case 0x0022: return "ATA/ATAPI-6 published, ANSI INCITS 361-2002";
+
+    case 0x0027: return "ATA8-ACS T13/1699-D revision 3c";
+    case 0x0028: return "ATA8-ACS T13/1699-D revision 6";
+    case 0x0029: return "ATA8-ACS T13/1699-D revision 4";
+
+    case 0x0031: return "ACS-2 T13/2015-D revision 2";
+
+    case 0x0033: return "ATA8-ACS T13/1699-D revision 3e";
+
+    case 0x0039: return "ATA8-ACS T13/1699-D revision 4c";
+
+    case 0x0042: return "ATA8-ACS T13/1699-D revision 3f";
+
+    case 0x0052: return "ATA8-ACS T13/1699-D revision 3b";
+
+    case 0x0107: return "ATA8-ACS T13/1699-D revision 2d";
+
+    case 0x0110: return "ACS-2 T13/2015-D revision 3";
+
+    default:     return 0;
+  }
+}
+
 static const char * get_sata_version(const ata_identify_device * drive)
 {
   unsigned short word222 = drive->words088_255[222-88];
@@ -533,45 +610,32 @@ static void print_drive_info(const ata_identify_device * drive,
        "Not in smartctl database [for details use: -P showall]":
        "In smartctl database [for details use: -P show]");
 
-  // now get ATA version info
-  const char *description; unsigned short minorrev;
-  int version = ataVersionInfo(&description, drive, &minorrev);
+  // Print ATA version
+  std::string ataver;
+  if (   (drive->major_rev_num != 0x0000 && drive->major_rev_num != 0xffff)
+      || (drive->minor_rev_num != 0x0000 && drive->minor_rev_num != 0xffff)) {
+    const char * majorver = get_ata_major_version(drive);
+    const char * minorver = get_ata_minor_version(drive);
 
-  // SMART Support was first added into the ATA/ATAPI-3 Standard with
-  // Revision 3 of the document, July 25, 1995.  Look at the "Document
-  // Status" revision commands at the beginning of
-  // http://www.t13.org/Documents/UploadedDocuments/project/d2008r7b-ATA-3.pdf
-  // to see this.  So it's not enough to check if we are ATA-3.
-  // Version=-3 indicates ATA-3 BEFORE Revision 3.
-  // Version=0 indicates that no info is found. This may happen if
-  // the OS provides only part of the IDENTIFY data.
-
-  std::string majorstr, minorstr;
-  if (version) {
-    if (version <= 8) {
-      majorstr = strprintf("%d", abs(version));
-      if (description)
-        minorstr = description;
-      else if (!minorrev)
-        minorstr = "Exact ATA specification draft version not indicated";
-      else
-        minorstr = strprintf("Not recognized. Minor revision code: 0x%04x", minorrev);
+    if (majorver && minorver && str_starts_with(minorver, majorver)) {
+      // Major and minor strings match, print minor string only
+      ataver = minorver;
     }
     else {
-      // Bit 9 in word 80 of ATA IDENTIFY data does not mean "ATA-9" but "ACS-2"
-      // TODO: handle this in ataVersionInfo()
-      majorstr = "8";
-      if (description)
-        minorstr = description;
-      else if (!minorrev)
-        minorstr = strprintf("ACS-%d (revision not indicated)", version-9+2);
+      if (majorver)
+        ataver = majorver;
       else
-        minorstr = strprintf("ACS-%d (unknown minor revision code: 0x%04x)", version-9+2, minorrev);
+        ataver = strprintf("Unknown(0x%04x)", drive->major_rev_num);
+
+      if (minorver)
+        ataver += strprintf(", %s", minorver);
+      else if (drive->minor_rev_num != 0x0000 && drive->minor_rev_num != 0xffff)
+        ataver += strprintf(" (unknown minor revision code: 0x%04x)", drive->minor_rev_num);
+      else
+        ataver += " (minor revision not indicated)";
     }
   }
-
-  pout("ATA Version is:   %s\n", infofound(majorstr.c_str()));
-  pout("ATA Standard is:  %s\n", infofound(minorstr.c_str()));
+  pout("ATA Version is:   %s\n", infofound(ataver.c_str()));
 
   // If SATA drive print SATA version and speed
   const char * sataver = get_sata_version(drive);
@@ -591,12 +655,6 @@ static void print_drive_info(const ata_identify_device * drive,
   // Print warning message, if there is one
   if (dbentry && *dbentry->warningmsg)
     pout("\n==> WARNING: %s\n\n", dbentry->warningmsg);
-
-  if (!version || version >= 3)
-    return;
-  
-  pout("SMART is only available in ATA Version 3 Revision 3 or greater.\n");
-  pout("We will try to proceed in spite of this.\n");
 }
 
 static const char *OfflineDataCollectionStatus(unsigned char status_byte)

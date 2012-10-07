@@ -822,10 +822,6 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
                                  const ata_smart_values * sv, uint64_t num_sectors,
                                  const ata_selective_selftest_args * prev_spans = 0);
 
-// Returns the latest compatibility of ATA/ATAPI Version the device
-// supports. Returns -1 if Version command is not supported
-int ataVersionInfo(const char ** description, const ata_identify_device * drive, unsigned short * minor);
-
 // Get World Wide Name (WWN) fields.
 // Return NAA field or -1 if WWN is unsupported.
 int ata_get_wwn(const ata_identify_device * id, unsigned & oui, uint64_t & unique_id);
