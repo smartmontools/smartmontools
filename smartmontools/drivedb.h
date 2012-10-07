@@ -173,7 +173,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 170,raw48,Grown_Failing_Block_Ct "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
-    "-v 173,raw48,Wear_Levelling_Count "
+    "-v 173,raw48,Wear_Leveling_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 181,raw16,Non4k_Aligned_Access "
     "-v 183,raw48,SATA_Iface_Downshift "
@@ -223,6 +223,8 @@ const drive_settings builtin_knowndrives[] = {
     "OWC Mercury Extreme Pro (RE )?SSD|" // tested with
       // OWC Mercury Extreme Pro SSD/360A13F0
     "Patriot Pyro|" // tested with Patriot Pyro/332ABBF0
+    "SanDisk SDSSDX(60|120|240|480)GG25|" // SanDisk Extreme, SF-2281, tested with
+      // SDSSDX240GG25/R201
     "(TX32|TX31C1|VN0..GCNMK|VN0...GCNMK).*|" // Smart Storage Systems XceedSTOR
     "(TX22D1|TX21B1).*|" // Smart Storage Systems XceedIOPS2
     "TX52D1.*|" // Smart Storage Systems Xcel-200
@@ -299,7 +301,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Indilinx Everest/Martini based SSDs",
     "OCZ VERTEX-PLUS|" // tested with OCZ VERTEX-PLUS/3.55
-    "OCZ-PETROL", // tested with OCZ-PETROL/3.12
+    "OCZ-PETROL|" // Everest 1, tested with OCZ-PETROL/3.12
+    "OCZ-VERTEX4", // Everest 2, tested with OCZ-VERTEX4/1.5
     "", "", ""
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -307,7 +310,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
-  //"-v 232,raw48,Available_Reservd_Space "
+    "-v 232,raw48,Lifetime_Writes " // LBA?
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
   { "Intel X25-E SSDs",
@@ -632,6 +635,19 @@ const drive_settings builtin_knowndrives[] = {
     "-v 113,hex48,Proprietary_RR "
     "-v 130,raw48:54321,Minimum_Spares_All_Zs"
   //"-v 194,tempminmax,Temperature_Celsius"
+  },
+  { "STEC Mach2 CompactFlash Cards", // tested with STEC M2P CF 1.0.0/K1385MS
+    "STEC M2P CF 1.0.0",
+    "", "",
+    "-v 100,raw48,Erase_Program_Cycles "
+    "-v 103,raw48,Remaining_Energy_Storg "
+    "-v 170,raw48,Reserved_Block_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Wear_Leveling_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 211,raw48,Unknown_Attribute " // ] Missing in specification
+    "-v 212,raw48,Unknown_Attribute"  // ] from September 2012
   },
   { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820,
       // TS4GCF133/20100709, TS16GCF133/20100709
@@ -1580,8 +1596,8 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(80|12|16|25|32)52GSX",
     "", "", ""
   },
-  { "Toshiba 2.5\" HDD MK..55GSX", // tested with TOSHIBA MK5055GSX/FG001A
-    "TOSHIBA MK(12|16|25|32|40|50)55GSX",
+  { "Toshiba 2.5\" HDD MK..55GSX", // tested with TOSHIBA MK5055GSX/FG001A, MK3255GSXF/FH115B
+    "TOSHIBA MK(12|16|25|32|40|50)55GSXF?",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..56GSY", // tested with TOSHIBA MK2556GSYF/LJ001D
@@ -2144,6 +2160,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital VelociRaptor", // tested with WDC WD1500HLHX-01JJPV0/04.05G04
     "WDC WD(((800H|(1500|3000)[BH]|1600H|3000G)LFS)|((1500|3000|4500|6000)[BH]LHX))-.*",
+    "", "", ""
+  },
+  { "Western Digital VelociRaptor (AF)", // tested with WDC WD1000DHTZ-04N21V0/04.06A00
+    "WDC WD(2500H|5000H|1000D)HTZ-.*",
     "", "", ""
   },
   { "Western Digital Scorpio EIDE",

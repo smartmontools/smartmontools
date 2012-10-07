@@ -41,6 +41,14 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - SandForce Driven SSDs: SanDisk Extreme
+       - Indilinx Everest/Martini based SSDs: OCZ-VERTEX4,
+         fix Attribute 232
+       - STEC Mach2 CompactFlash Cards
+       - Toshiba 2.5" HDD MK..55GSX: *55GSXF variants
+       - Western Digital VelociRaptor (AF)
+
   [CF] Windows: Remove EXPERIMENTAL notes for 64-bit version.
 
   [CF] autogen.sh: automake 1.11.6 and 1.12.3 are OK.
