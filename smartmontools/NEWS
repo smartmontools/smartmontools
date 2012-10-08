@@ -1,12 +1,12 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3619 2012-09-26 21:26:09Z chrfranke $
+$Id: NEWS 3629 2012-10-08 12:22:51Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
 Date <Not released yet, please try current SVN>
-Summary: smartmontools release 5.44
+Summary: smartmontools release 6.0
 -----------------------------------------------------------
 - option/directive '-F nologdir' and '-F xerrorlba'.
 - smartctl '--identify' option.

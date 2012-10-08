@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3598 2012-09-04 21:44:05Z chrfranke $
+$Id: smartd.conf.5.in 3629 2012-10-08 12:22:51Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -1536,17 +1536,21 @@ within the script, and a snippet of STDOUT/STDERR is logged to SYSLOG.
 The remainder is flushed.
 
 .PP
-.SH AUTHOR
-\fBBruce Allen\fP smartmontools\-support@lists.sourceforge.net
-.fi
+.SH AUTHORS
+\fBBruce Allen\fP
+.br
 University of Wisconsin \- Milwaukee Physics Department
+.br
+\fBChristian Franke\fP (Windows interface, C++ redesign, most enhancements
+since 2009)
+.br
+\fBsmartmontools\-support@lists.sourceforge.net\fP
 
 .PP
 .SH CONTRIBUTORS
 The following have made large contributions to smartmontools:
 .nf
 \fBCasper Dik\fP (Solaris SCSI interface)
-\fBChristian Franke\fP (Windows interface, C++ redesign, USB support, ...)
 \fBDouglas Gilbert\fP (SCSI subsystem)
 \fBGuido Guenther\fP (Autoconf/Automake packaging)
 \fBGeoffrey Keating\fP (Darwin ATA interface)
@@ -1585,4 +1589,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3598 2012-09-04 21:44:05Z chrfranke $
+$Id: smartd.conf.5.in 3629 2012-10-08 12:22:51Z chrfranke $

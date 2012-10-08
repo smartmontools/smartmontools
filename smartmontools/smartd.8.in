@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in 3575 2012-07-19 21:32:56Z chrfranke $
+$Id: smartd.8.in 3629 2012-10-08 12:22:51Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -705,17 +705,21 @@ status is then 128 plus the signal number.  For example if
 is killed by SIGKILL (signal 9) then the exit status is 137.
 
 .PP
-.SH AUTHOR
-\fBBruce Allen\fP smartmontools\-support@lists.sourceforge.net
-.fi
+.SH AUTHORS
+\fBBruce Allen\fP
+.br
 University of Wisconsin \- Milwaukee Physics Department
+.br
+\fBChristian Franke\fP (Windows interface, C++ redesign, most enhancements
+since 2009)
+.br
+\fBsmartmontools\-support@lists.sourceforge.net\fP
 
 .PP
 .SH CONTRIBUTORS
 The following have made large contributions to smartmontools:
 .nf
 \fBCasper Dik\fP (Solaris SCSI interface)
-\fBChristian Franke\fP (Windows interface, C++ redesign, USB support, ...)
 \fBDouglas Gilbert\fP (SCSI subsystem)
 \fBGuido Guenther\fP (Autoconf/Automake packaging)
 \fBGeoffrey Keating\fP (Darwin ATA interface)
@@ -777,4 +781,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 3575 2012-07-19 21:32:56Z chrfranke $
+$Id: smartd.8.in 3629 2012-10-08 12:22:51Z chrfranke $
