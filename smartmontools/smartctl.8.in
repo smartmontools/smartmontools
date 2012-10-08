@@ -2164,17 +2164,21 @@ once by \fBsmartctl\fP for each initiator for each activation of the
 condition.
 
 .PP
-.SH AUTHOR
-\fBBruce Allen\fP smartmontools\-support@lists.sourceforge.net
-.fi
+.SH AUTHORS
+\fBBruce Allen\fP
+.br
 University of Wisconsin \- Milwaukee Physics Department
+.br
+\fBChristian Franke\fP (Windows interface, C++ redesign, most enhancements
+since 2009)
+.br
+\fBsmartmontools\-support@lists.sourceforge.net\fP
 
 .PP
 .SH CONTRIBUTORS
 The following have made large contributions to smartmontools:
 .nf
 \fBCasper Dik\fP (Solaris SCSI interface)
-\fBChristian Franke\fP (Windows interface, C++ redesign, USB support, ...)
 \fBDouglas Gilbert\fP (SCSI subsystem)
 \fBGuido Guenther\fP (Autoconf/Automake packaging)
 \fBGeoffrey Keating\fP (Darwin ATA interface)

@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Prepare release 6.0.  Change Copyright output line.
+       Change AUTHORS sections on man pages.
+
   [CF] smartctl: Rework "ATA Version" output.  Print major and minor
        revision in one output line.  Remove "ATA Standard" line.
 

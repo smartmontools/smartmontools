@@ -13,8 +13,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  * This code was originally developed as a Senior Thesis by Michael Cornwell
  * at the Concurrent Systems Laboratory (now part of the Storage Systems
@@ -91,7 +90,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
       "(build date "__DATE__")" // checkout without expansion of Id keywords
 #endif
       " [%s] "BUILD_INFO"\n"
-    "Copyright (C) 2002-12 by Bruce Allen, http://smartmontools.sourceforge.net\n",
+    "Copyright (C) 2002-12, Bruce Allen, Christian Franke, www.smartmontools.org\n",
     prog_name, smi()->get_os_version_str().c_str()
   );
   if (!full)
