@@ -256,9 +256,9 @@ Section "Start Menu Shortcuts" MENU_SECTION
     FileOpen $0 "$SMPROGRAMS\smartmontools\smartctl Examples\!Read this first!.txt" "w"
     FileWrite $0 "All the example commands in this directory$\r$\napply to the first drive (sda).$\r$\n"
     FileClose $0
-    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\All info (-a).lnk"                    "$INSTDIR\bin\runcmdu.exe" "smartctl -a sda"
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\All info (-x).lnk"                    "$INSTDIR\bin\runcmdu.exe" "smartctl -x sda"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Identify drive (-i).lnk"              "$INSTDIR\bin\runcmdu.exe" "smartctl -i sda"
-    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART attributes (-A).lnk"            "$INSTDIR\bin\runcmdu.exe" "smartctl -A sda"
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART attributes (-A -f brief).lnk"   "$INSTDIR\bin\runcmdu.exe" "smartctl -A -f brief sda"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART capabilities (-c).lnk"          "$INSTDIR\bin\runcmdu.exe" "smartctl -c sda"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART health status (-H).lnk"         "$INSTDIR\bin\runcmdu.exe" "smartctl -H sda"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART error log (-l error).lnk"       "$INSTDIR\bin\runcmdu.exe" "smartctl -l error sda"
@@ -308,14 +308,9 @@ Section "Start Menu Shortcuts" MENU_SECTION
         CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb.h (view).lnk" "$EDITOR" "$INSTDIR\bin\drivedb.h"
         !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb-add.h (create, edit).lnk" "$EDITOR" "$INSTDIR\bin\drivedb-add.h"
     nodb:
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\AUTHORS.lnk"   "$INSTDIR\doc\AUTHORS.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\CHANGELOG.lnk" "$INSTDIR\doc\CHANGELOG.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\COPYING.lnk"   "$INSTDIR\doc\COPYING.txt"
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\INSTALL.lnk"   "$INSTDIR\doc\INSTALL.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\NEWS.lnk"      "$INSTDIR\doc\NEWS.txt"
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\README.lnk"    "$INSTDIR\doc\README.txt"
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\TODO.lnk"      "$INSTDIR\doc\TODO.txt"
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\WARNINGS.lnk"  "$INSTDIR\doc\WARNINGS.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\Windows version download page.lnk" "http://smartmontools-win32.dyndns.org/smartmontools/"
   nodoc:
 
@@ -372,9 +367,9 @@ SectionGroup "Add smartctl to drive menu"
   SectionEnd
 !macroend
 
-  !insertmacro DriveSection 0 "SMART all info"       "-a"
+  !insertmacro DriveSection 0 "SMART all info"       "-x"
   !insertmacro DriveSection 1 "SMART status"         "-Hc"
-  !insertmacro DriveSection 2 "SMART attributes"     "-A"
+  !insertmacro DriveSection 2 "SMART attributes"     "-A -f brief"
   !insertmacro DriveSection 3 "SMART short selftest" "-t short"
   !insertmacro DriveSection 4 "SMART long selftest"  "-t long"
   !insertmacro DriveSection 5 "SMART continue selective selftest"  '-t "selective,cont"'
