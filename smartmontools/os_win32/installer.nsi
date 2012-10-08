@@ -135,14 +135,14 @@ SectionGroup "!Program files"
     !insertmacro FileExe "bin\smartd.exe" ""
 
     IfFileExists "$INSTDIR\bin\smartd.conf" 0 +2
-      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "Replace existing configuration file$\n$INSTDIR\bin\smartd.conf ?" IDYES 0 IDNO +2
+      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "Replace existing configuration file$\n$INSTDIR\bin\smartd.conf ?" /SD IDNO IDYES 0 IDNO +2
         File "${INPDIR}\doc\smartd.conf"
 
     !insertmacro FileExe "bin\syslogevt.exe" /nonfatal
 
     ; Restart service ?
     StrCmp $1 "0" 0 +3
-      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Restart smartd service ?" IDYES 0 IDNO +2
+      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Restart smartd service ?" /SD IDNO IDYES 0 IDNO +2
         ExecWait "net start smartd"
 
   SectionEnd
@@ -385,7 +385,7 @@ Section "Uninstall"
     ReadRegStr $0 HKLM "System\CurrentControlSet\Services\smartd" "ImagePath"
     StrCmp $0 "" nosrv
       ExecWait "net stop smartd"
-      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Remove smartd service ?" IDYES 0 IDNO nosrv
+      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Remove smartd service ?" /SD IDNO IDYES 0 IDNO nosrv
         ExecWait "$INSTDIR\bin\smartd.exe remove"
   nosrv:
 
@@ -399,18 +399,18 @@ Section "Uninstall"
     GetFileTime "$INSTDIR\bin\smartd.conf" $0 $1
     GetFileTime "$INSTDIR\doc\smartd.conf" $2 $3
     StrCmp "$0:$1" "$2:$3" +2 0
-      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete configuration file$\n$INSTDIR\bin\smartd.conf ?" IDYES 0 IDNO noconf
+      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete configuration file$\n$INSTDIR\bin\smartd.conf ?" /SD IDNO IDYES 0 IDNO noconf
         Delete "$INSTDIR\bin\smartd.conf"
   noconf:
 
   ; Remove log file ?
   IfFileExists "$INSTDIR\bin\smartd.log" 0 +3
-    MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete log file$\n$INSTDIR\bin\smartd.log ?" IDYES 0 IDNO +2
+    MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete log file$\n$INSTDIR\bin\smartd.log ?" /SD IDNO IDYES 0 IDNO +2
       Delete "$INSTDIR\bin\smartd.log"
 
   ; Remove drivedb-add file ?
   IfFileExists "$INSTDIR\bin\drivedb-add.h" 0 +3
-    MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete local drive database file$\n$INSTDIR\bin\drivedb-add.h ?" IDYES 0 IDNO +2
+    MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete local drive database file$\n$INSTDIR\bin\drivedb-add.h ?" /SD IDNO IDYES 0 IDNO +2
       Delete "$INSTDIR\bin\drivedb-add.h"
 
   ; Remove files
@@ -473,13 +473,13 @@ Section "Uninstall"
 
   ; Check for still existing entries
   IfFileExists "$INSTDIR\bin\smartd.exe" 0 +3
-    MessageBox MB_OK|MB_ICONEXCLAMATION "$INSTDIR\bin\smartd.exe could not be removed.$\nsmartd is possibly still running."
+    MessageBox MB_OK|MB_ICONEXCLAMATION "$INSTDIR\bin\smartd.exe could not be removed.$\nsmartd is possibly still running." /SD IDOK
     Goto +3
   IfFileExists "$INSTDIR" 0 +2
-    MessageBox MB_OK "Note: $INSTDIR could not be removed."
+    MessageBox MB_OK "Note: $INSTDIR could not be removed." /SD IDOK
 
   IfFileExists "$SMPROGRAMS\smartmontools" 0 +2
-    MessageBox MB_OK "Note: $SMPROGRAMS\smartmontools could not be removed."
+    MessageBox MB_OK "Note: $SMPROGRAMS\smartmontools could not be removed." /SD IDOK
 
 SectionEnd
 

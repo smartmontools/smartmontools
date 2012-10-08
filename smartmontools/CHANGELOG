@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows installer: Add support for /S(ilent) install/uninstall.
+
   [CF] Windows installer: Update examples.  Remove some doc shortcuts.
 
   [CF] Prepare release 6.0.  Change Copyright output line.
