@@ -54,7 +54,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3609 2012-09-20 21:24:43Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3633 2012-10-09 10:50:13Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -1203,7 +1203,7 @@ static int main_worker(int argc, char **argv)
   if (!strcmp(name,"-")) {
     // Parse "smartctl -r ataioctl,2 ..." output from stdin
     if (type || print_type_only) {
-      pout("Smartctl: -d option is not allowed in conjunction with device name \"-\".\n");
+      pout("-d option is not allowed in conjunction with device name \"-\".\n");
       UsageSummary();
       return FAILCMD;
     }
@@ -1218,7 +1218,7 @@ static int main_worker(int argc, char **argv)
     if (type)
       printvalidarglistmessage('d');
     else
-      pout("Smartctl: please specify device type with the -d option.\n");
+      pout("Please specify device type with the -d option.\n");
     UsageSummary();
     return FAILCMD;
   }
