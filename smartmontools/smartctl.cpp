@@ -630,6 +630,7 @@ static const char * parse_options(int argc, char** argv,
       ataopts.smart_logdir = ataopts.gp_logdir = true;
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
       ataopts.sct_erc_get = true;
+      ataopts.devstat_all_pages = true;
       ataopts.sataphy = true;
       ataopts.get_set_used = true;
       ataopts.get_aam = ataopts.get_apm = true;

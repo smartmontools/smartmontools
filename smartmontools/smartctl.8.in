@@ -233,7 +233,7 @@ Prints all SMART and non-SMART information about the device. For ATA
 devices this is equivalent to
 .nf
 \'\-H \-i \-g all \-c \-A \-f brief \-l xerror,error \-l xselftest,selftest
-\-l selective \-l directory \-l scttemp \-l scterc \-l sataphy\'.
+\-l selective \-l directory \-l scttemp \-l scterc \-l devstat \-l sataphy\'.
 .fi
 and for SCSI, this is equivalent to
 .nf
@@ -1245,13 +1245,12 @@ than 65 are probably not supported. For RAID configurations, this is
 typically set to 70,70 deciseconds.
 
 .I devstat[,PAGE]
-\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values
-and descriptions of the ATA Device Statistics log pages
-(General Purpose Log address 0x04).  If no PAGE number is specified,
+\- [ATA only] prints values and descriptions of the ATA Device Statistics
+log pages (General Purpose Log address 0x04).  If no PAGE number is specified,
 entries from all supported pages are printed.  If PAGE 0 is specified,
 the list of supported pages is printed.  Device Statistics was
 introduced in ATA\-8 ACS and is only supported by some recent devices
-(e.g. Hitachi 7K3000, Intel 320, 330 and 710 Series SSDs, Crucial/Micron
+(e.g. Hitachi 7K3000, Intel 320, 330, 520 and 710 Series SSDs, Crucial/Micron
 m4 SSDs).
 
 .I sataphy[,reset]

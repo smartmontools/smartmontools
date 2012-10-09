@@ -13,6 +13,7 @@ Summary: smartmontools release 6.0
 - smartctl prints nominal media rotation rate (ATA).
 - smartctl prints SATA version and speed.
 - smartctl '-l sataphy' works for CD/DVD drives also.
+- smartctl '-x' includes ATA Device Statistics.
 - smartd warning emails include device identify info.
 - smartd '-d' output is flushed to support redirection.
 - Windows smartd: smartd.conf directives '-m console',
