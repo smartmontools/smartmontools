@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3633 2012-10-09 10:50:13Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3635 2012-10-09 13:57:47Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -1181,9 +1181,6 @@ int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_t
     swap2((char *)&(data->flags));
     swap2((char *)&(data->pendingtime));
   }
-  
-  if (data->logversion != 1)
-    pout("Note: selective self-test log revision number (%d) not 1 implies that no selective self-test has ever been run\n", data->logversion);
   
   return 0;
 }
