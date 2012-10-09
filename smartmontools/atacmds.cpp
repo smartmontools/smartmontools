@@ -603,7 +603,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         }
         else {
           // We haven't gotten output that makes sense; print out some debugging info
-          pout("Error SMART Status command failed\n");
+          pout("SMART Status command failed\n");
           pout("Please get assistance from %s\n", PACKAGE_HOMEPAGE);
           pout("Register values returned from SMART Status command are:\n");
           print_regs(" ", out.out_regs);
@@ -973,7 +973,6 @@ int ataIsSmartEnabled(const ata_identify_device * drive)
 int ataReadSmartValues(ata_device * device, struct ata_smart_values *data){
   
   if (smartcommandhandler(device, READ_VALUES, 0, (char *)data)){
-    pout("Error SMART Values Read failed: %s\n", device->get_errmsg());
     return -1;
   }
 
@@ -1023,7 +1022,6 @@ int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
 
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x06, (char *)data)){
-    pout("Error SMART Error Self-Test Log Read failed: %s\n", device->get_errmsg());
     return -1;
   }
 
@@ -1163,7 +1161,6 @@ int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_t
   
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x09, (char *)data)){
-    pout("Error SMART Read Selective Self-Test Log failed: %s\n", device->get_errmsg());
     return -1;
   }
    
@@ -1206,6 +1203,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
   struct ata_selective_self_test_log sstlog, *data=&sstlog;
   unsigned char *ptr=(unsigned char *)data;
   if (ataReadSelectiveSelfTestLog(device, data)) {
+    pout("SMART Read Selective Self-test Log failed: %s\n", device->get_errmsg());
     pout("Since Read failed, will not attempt to WRITE Selective Self-test Log\n");
     return -1;
   }
@@ -1216,7 +1214,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
   // Host is NOT allowed to write selective self-test log if a selective
   // self-test is in progress.
   if (0<data->currentspan && data->currentspan<6 && ((sv->self_test_exec_status)>>4)==15) {
-    pout("Error SMART Selective or other Self-Test in progress.\n");
+    pout("SMART Selective or other Self-test in progress\n");
     return -4;
   }
 
@@ -1361,7 +1359,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
 
   // write new selective self-test log
   if (smartcommandhandler(device, WRITE_LOG, 0x09, (char *)data)){
-    pout("Error Write Selective Self-Test Log failed: %s\n", device->get_errmsg());
+    pout("Write Selective Self-test Log failed: %s\n", device->get_errmsg());
     return -3;
   }
 
@@ -1408,7 +1406,6 @@ int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
   
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x01, (char *)data)){
-    pout("Error SMART Error Log Read failed: %s\n", device->get_errmsg());
     return -1;
   }
   
@@ -1500,7 +1497,6 @@ int ataReadSmartThresholds (ata_device * device, struct ata_smart_thresholds_pvt
   
   // get data from device
   if (smartcommandhandler(device, READ_THRESHOLDS, 0, (char *)data)){
-    pout("Error SMART Thresholds Read failed: %s\n", device->get_errmsg());
     return -1;
   }
   
@@ -1517,7 +1513,6 @@ int ataReadSmartThresholds (ata_device * device, struct ata_smart_thresholds_pvt
 
 int ataEnableSmart (ata_device * device ){
   if (smartcommandhandler(device, ENABLE, 0, NULL)){
-    pout("Error SMART Enable failed: %s\n", device->get_errmsg());
     return -1;
   }
   return 0;
@@ -1526,7 +1521,6 @@ int ataEnableSmart (ata_device * device ){
 int ataDisableSmart (ata_device * device ){
   
   if (smartcommandhandler(device, DISABLE, 0, NULL)){
-    pout("Error SMART Disable failed: %s\n", device->get_errmsg());
     return -1;
   }  
   return 0;
@@ -1534,7 +1528,6 @@ int ataDisableSmart (ata_device * device ){
 
 int ataEnableAutoSave(ata_device * device){
   if (smartcommandhandler(device, AUTOSAVE, 241, NULL)){
-    pout("Error SMART Enable Auto-save failed: %s\n", device->get_errmsg());
     return -1;
   }
   return 0;
@@ -1543,7 +1536,6 @@ int ataEnableAutoSave(ata_device * device){
 int ataDisableAutoSave(ata_device * device){
   
   if (smartcommandhandler(device, AUTOSAVE, 0, NULL)){
-    pout("Error SMART Disable Auto-save failed: %s\n", device->get_errmsg());
     return -1;
   }
   return 0;
@@ -1557,7 +1549,6 @@ int ataEnableAutoOffline (ata_device * device){
   
   /* timer hard coded to 4 hours */  
   if (smartcommandhandler(device, AUTO_OFFLINE, 248, NULL)){
-    pout("Error SMART Enable Automatic Offline failed: %s\n", device->get_errmsg());
     return -1;
   }
   return 0;
@@ -1568,7 +1559,6 @@ int ataEnableAutoOffline (ata_device * device){
 int ataDisableAutoOffline (ata_device * device){
   
   if (smartcommandhandler(device, AUTO_OFFLINE, 0, NULL)){
-    pout("Error SMART Disable Automatic Offline failed: %s\n", device->get_errmsg());
     return -1;
   }
   return 0;
@@ -2368,7 +2358,7 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
   // read SCT status via SMART log 0xe0
   memset(sts, 0, sizeof(*sts));
   if (smartcommandhandler(device, READ_LOG, 0xe0, (char *)sts)){
-    pout("Error Read SCT Status failed: %s\n", device->get_errmsg());
+    pout("Read SCT Status failed: %s\n", device->get_errmsg());
     return -1;
   }
 
@@ -2386,7 +2376,7 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
 
   // Check format version
   if (!(sts->format_version == 2 || sts->format_version == 3)) {
-    pout("Error unknown SCT Status format version %u, should be 2 or 3.\n", sts->format_version);
+    pout("Unknown SCT Status format version %u, should be 2 or 3.\n", sts->format_version);
     return -1;
   }
   return 0;
@@ -2423,14 +2413,14 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
 
   // write command via SMART log page 0xe0
   if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
-    pout("Error Write SCT Data Table command failed: %s\n", device->get_errmsg());
+    pout("Write SCT Data Table failed: %s\n", device->get_errmsg());
     return -1;
   }
 
   // read SCT data via SMART log page 0xe1
   memset(tmh, 0, sizeof(*tmh));
   if (smartcommandhandler(device, READ_LOG, 0xe1, (char *)tmh)){
-    pout("Error Read SCT Data Table failed: %s\n", device->get_errmsg());
+    pout("Read SCT Data Table failed: %s\n", device->get_errmsg());
     return -1;
   }
 
@@ -2439,7 +2429,7 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
     return -1;
 
   if (!(sts->ext_status_code == 0 && sts->action_code == 5 && sts->function_code == 1)) {
-    pout("Error unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+    pout("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts->ext_status_code, sts->action_code, sts->function_code);
     return -1;
   }
@@ -2453,7 +2443,7 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
 
   // Check format version
   if (tmh->format_version != 2) {
-    pout("Error unknown SCT Temperature History Format Version (%u), should be 2.\n", tmh->format_version);
+    pout("Unknown SCT Temperature History Format Version (%u), should be 2.\n", tmh->format_version);
     return -1;
   }
   return 0;
@@ -2494,7 +2484,7 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
 
   // write command via SMART log page 0xe0
   if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
-    pout("Error Write SCT Feature Control Command failed: %s\n", device->get_errmsg());
+    pout("Write SCT Feature Control Command failed: %s\n", device->get_errmsg());
     return -1;
   }
 
@@ -2503,7 +2493,7 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
     return -1;
 
   if (!(sts.ext_status_code == 0 && sts.action_code == 4 && sts.function_code == 1)) {
-    pout("Error unexcepted SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+    pout("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts.ext_status_code, sts.action_code, sts.function_code);
     return -1;
   }
@@ -2558,7 +2548,7 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
 
   ata_cmd_out out;
   if (!device->ata_pass_through(in, out)) {
-    pout("Error Write SCT (%cet) Error Recovery Control Command failed: %s\n",
+    pout("Write SCT (%cet) Error Recovery Control Command failed: %s\n",
       (!set ? 'G' : 'S'), device->get_errmsg());
     return -1;
   }
@@ -2568,7 +2558,7 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
     return -1;
 
   if (!(sts.ext_status_code == 0 && sts.action_code == 3 && sts.function_code == (set ? 1 : 2))) {
-    pout("Error unexcepted SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+    pout("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts.ext_status_code, sts.action_code, sts.function_code);
     return -1;
   }
@@ -2578,7 +2568,7 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
     if (!(out.out_regs.sector_count.is_set() && out.out_regs.lba_low.is_set())) {
       // TODO: Output register support should be checked within each ata_pass_through()
       // implementation before command is issued.
-      pout("Error SMART WRITE LOG does not return COUNT and LBA_LOW register\n");
+      pout("SMART WRITE LOG does not return COUNT and LBA_LOW register\n");
       return -1;
     }
     // Return value to caller

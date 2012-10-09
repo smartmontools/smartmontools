@@ -1203,7 +1203,7 @@ static int main_worker(int argc, char **argv)
   if (!strcmp(name,"-")) {
     // Parse "smartctl -r ataioctl,2 ..." output from stdin
     if (type || print_type_only) {
-      pout("Smartctl: -d option is not allowed in conjunction with device name \"-\".\n");
+      pout("-d option is not allowed in conjunction with device name \"-\".\n");
       UsageSummary();
       return FAILCMD;
     }
@@ -1218,7 +1218,7 @@ static int main_worker(int argc, char **argv)
     if (type)
       printvalidarglistmessage('d');
     else
-      pout("Smartctl: please specify device type with the -d option.\n");
+      pout("Please specify device type with the -d option.\n");
     UsageSummary();
     return FAILCMD;
   }
