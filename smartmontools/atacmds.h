@@ -774,7 +774,6 @@ int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
 int ataReadSelfTestLog(ata_device * device, ata_smart_selftestlog * data,
                        firmwarebug_defs firmwarebugs);
 int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_test_log *data);
-int ataSetSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt *);
 int ataReadLogDirectory(ata_device * device, ata_smart_log_directory *, bool gpl);
 
 // Read GP Log page(s)
@@ -923,15 +922,6 @@ int ata_find_attr_index(unsigned char id, const ata_smart_values & smartval);
 unsigned char ata_return_temperature_value(const ata_smart_values * data, const ata_vendor_attr_defs & defs);
 
 
-// This are the meanings of the Self-test failure checkpoint byte.
-// This is in the self-test log at offset 4 bytes into the self-test
-// descriptor and in the SMART READ DATA structure at byte offset
-// 371. These codes are not well documented.  The meanings returned by
-// this routine are used (at least) by Maxtor and IBM. Returns NULL if
-// not recognized.
-const char *SelfTestFailureCodeName(unsigned char which);
-
-
 #define MAX_ATTRIBUTE_NUM 256
 
 // Parse vendor attribute display def (-v option).
@@ -965,12 +955,6 @@ const char * get_valid_firmwarebug_args();
 //int highpoint_command_interface(int device, smart_command_set command, int select, char *data);
 //int areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data);
 
-
-// Optional functions of os_*.c
-#ifdef HAVE_ATA_IDENTIFY_IS_CACHED
-// Return true if OS caches the ATA identify sector
-//int ata_identify_is_cached(int fd);
-#endif
 
 // This function is exported to give low-level capability
 int smartcommandhandler(ata_device * device, smart_command_set command, int select, char *data);
