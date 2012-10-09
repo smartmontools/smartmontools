@@ -194,8 +194,8 @@ const drive_settings builtin_knowndrives[] = {
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
     "ADATA SSD S(510|599) .?..GB|" // tested with ADATA SSD S510 60GB/320ABBF0,
       // ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
-    "Corsair CSSD-F(40|60|80|120|160|240)GBP?2.*|" // Corsair Force, tested with
-      // Corsair CSSD-F40GB2/1.1
+    "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
+      // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
     "Corsair Force (3 SSD|GT)|" // SF-2281, tested with Corsair Force 3 SSD/1.3.2, GT/1.3.3
     "FM-25S2S-(60|120|240)GBP2|" // G.SKILL Phoenix Pro, SF-1200, tested with
       // FM-25S2S-240GBP2/4.2
@@ -1586,6 +1586,10 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HUA7230(20|30)ALA640",
     "", "", ""
   },
+  { "Hitachi Ultrastar 7K4000", // tested with Hitachi HUS724040ALE640/MJAOA3B0
+    "Hitachi HUS7240(20|30|40)ALE640",
+    "", "", ""
+  },
   { "Toshiba 2.5\" HDD (10-20 GB)",
     "TOSHIBA MK(101[67]GAP|15[67]GAP|20(1[678]GAP|(18|23)GAS))",
     "", "", ""
@@ -1825,8 +1829,8 @@ const drive_settings builtin_knowndrives[] = {
     "ST340015A",
     "", "", ""
   },
-  { "Seagate Barracuda 7200.7 and 7200.7 Plus",
-    "ST3(200021A|200822AS?|16002[13]AS?|12002[26]AS?|1[26]082[78]AS|8001[13]AS?|8081[79]AS|60014A|40111AS|40014AS?)",
+  { "Seagate Barracuda 7200.7 and 7200.7 Plus", // tested with "ST380819AS          39M3701 39M0171 IBM"/3.03
+    "ST3(200021A|200822AS?|16002[13]AS?|12002[26]AS?|1[26]082[78]AS|8001[13]AS?|8081[79]AS|60014A|40111AS|40014AS?)( .* IBM)?",
     "", "", ""
   },
   { "Seagate Barracuda 7200.8",
@@ -2197,6 +2201,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Caviar Black",  // SATA 3.0 variants
     "WDC WD(5002AAL|(64|75)02AAE|(10|15|20)02FAE)X-.*",
+    "", "", ""
+  },
+  { "Western Digital Caviar Black (AF)", // tested with WDC WD5003AZEX-00RKKA0/80.00A80
+    "WDC WD(5003AZE|(10|15|20)02FAE)X-.*",
     "", "", ""
   },
   { "Western Digital AV ATA", // tested with WDC WD3200AVJB-63J5A0/01.03E01

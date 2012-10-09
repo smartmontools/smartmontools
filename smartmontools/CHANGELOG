@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - SandForce Driven SSDs: Corsair Force 115GB
+       - Hitachi Ultrastar 7K4000
+       - Seagate Barracuda 7200.7 and 7200.7 Plus: IBM OEM variants
+       - Western Digital Caviar Black (AF)
+
   [CF] man pages: Update introduction. Update ATA standards.
        Remove some outdated info.
 
