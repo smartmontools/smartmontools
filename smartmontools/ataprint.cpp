@@ -2109,7 +2109,8 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
 static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
 {
   char buf1[20], buf2[80];
-  pout("SCT Temperature History Version:     %u\n", tmh->format_version);
+  pout("SCT Temperature History Version:     %u%s\n", tmh->format_version,
+       (tmh->format_version != 2 ? " (Unknown, should be 2)" : ""));
   pout("Temperature Sampling Period:         %u minute%s\n",
     tmh->sampling_period, (tmh->sampling_period==1?"":"s"));
   pout("Temperature Logging Interval:        %u minute%s\n",
@@ -2119,8 +2120,12 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
   pout("Min/Max Temperature Limit:           %s/%s Celsius\n",
     sct_ptemp(tmh->under_limit, buf1), sct_ptemp(tmh->over_limit, buf2));
   pout("Temperature History Size (Index):    %u (%u)\n", tmh->cb_size, tmh->cb_index);
+
   if (!(0 < tmh->cb_size && tmh->cb_size <= sizeof(tmh->cb) && tmh->cb_index < tmh->cb_size)) {
-    pout("Invalid Temperature History Size or Index\n");
+    if (!tmh->cb_size)
+      pout("Temperature History is empty\n");
+    else
+      pout("Invalid Temperature History Size or Index\n");
     return 0;
   }
 

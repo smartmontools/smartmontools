@@ -2437,12 +2437,6 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
     swapx(&tmh->sampling_period);
     swapx(&tmh->interval);
   }
-
-  // Check format version
-  if (tmh->format_version != 2) {
-    pout("Unknown SCT Temperature History Format Version (%u), should be 2.\n", tmh->format_version);
-    return -1;
-  }
   return 0;
 }
 
