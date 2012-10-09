@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3633 2012-10-09 10:50:13Z chrfranke $
+$Id: CHANGELOG 3634 2012-10-09 11:45:55Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 [RZ]  Richard Zybert
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartctl: Add '-l devstat' to '-x, --xall' output.
 
   [CF] smartctl: Rework ATA error messages and 'not supported' messages.
        Avoid misleading warnings on unsupported features (ticket #182).
