@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.8.in 3637 2012-10-09 16:20:32Z chrfranke $
+$Id: smartd.8.in 3638 2012-10-09 19:35:25Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,13 +39,15 @@ CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .\"! It does not contain info specific to other platforms.]
 .\"! .PP
 .\" %ENDIF NOT OS ALL
-\fBsmartd\fP is a daemon that monitors the Self-Monitoring, Analysis
-and Reporting Technology (SMART) system built into many ATA-3 and
-later ATA, IDE and SCSI-3 hard drives. The purpose of SMART is to
-monitor the reliability of the hard drive and predict drive failures,
-and to carry out different types of drive self-tests.  This version of
-\fBsmartd\fP is compatible with ATA/ATAPI-7 and earlier standards (see
-\fBREFERENCES\fP below).
+\fBsmartd\fP is a daemon that monitors the Self\-Monitoring, Analysis and
+Reporting Technology (SMART) system built into most ATA/SATA and SCSI/SAS
+hard drives and solid-state drives.
+The purpose of SMART is to monitor the reliability of the hard drive
+and predict drive failures, and to carry out different types of drive
+self\-tests.
+This version of \fBsmartd\fP is compatible with
+ACS\-2, ATA8\-ACS, ATA/ATAPI\-7 and earlier standards
+(see \fBREFERENCES\fP below).
 
 \fBsmartd\fP will attempt to enable SMART monitoring on ATA devices
 (equivalent to \fBsmartctl -s on\fP) and polls these and SCSI devices
@@ -138,10 +140,6 @@ If directive \'\-d csmi\' or no \'\-d\' directive is specified,
 examine all entries \fB"/dev/csmi[0\-9],N"\fP for drives behind an Intel
 ICHxR controller with RST driver.
 .\" %ENDIF OS Windows Cygwin
-.\" %IF OS OS2
-.IP \fBOS/2,eComStation\fP: 9
-Use the form \fB"/dev/hd[a\-z]"\fP for IDE/ATA devices.
-.\" %ENDIF OS OS2
 .PP
 \fBsmartd\fP then monitors
 for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
@@ -782,4 +780,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 3637 2012-10-09 16:20:32Z chrfranke $
+$Id: smartd.8.in 3638 2012-10-09 19:35:25Z chrfranke $
