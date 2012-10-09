@@ -1182,9 +1182,6 @@ int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_t
     swap2((char *)&(data->pendingtime));
   }
   
-  if (data->logversion != 1)
-    pout("Note: selective self-test log revision number (%d) not 1 implies that no selective self-test has ever been run\n", data->logversion);
-  
   return 0;
 }
 
