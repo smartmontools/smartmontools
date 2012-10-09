@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] man pages: Update introduction. Update ATA standards.
+       Remove some outdated info.
+
   [CF] man pages: Unify license headers.
 
   [CF] smartctl: Do not abort SCT status output on unknown temperature

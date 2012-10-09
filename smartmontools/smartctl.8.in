@@ -39,23 +39,16 @@ CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .\"! It does not contain info specific to other platforms.]
 .\"! .PP
 .\" %ENDIF NOT OS ALL
-\fBsmartctl\fP controls the Self\-Monitoring, Analysis and Reporting
-Technology (SMART) system built into many ATA\-3 and later ATA, IDE and
-SCSI\-3 hard drives. The purpose of SMART is to monitor the reliability
-of the hard drive and predict drive failures, and to carry out
-different types of drive self\-tests.  This version of \fBsmartctl\fP
-is compatible with ATA/ATAPI\-7 and earlier standards (see REFERENCES
-below)
-
-\fBsmartctl\fP is a command line utility designed to perform SMART
-tasks such as printing the SMART self\-test and error logs, enabling
-and disabling SMART automatic testing, and initiating device
-self\-tests. Note: if the user issues a SMART command that is
-(apparently) not implemented by the device, \fBsmartctl\fP will print
-a warning message but issue the command anyway (see the \fB\-T,
-\-\-tolerance\fP option below).  This should not cause problems: on
-most devices, unimplemented SMART commands issued to a drive are
-ignored and/or return an error.
+\fBsmartctl\fP controls the Self\-Monitoring, Analysis and
+Reporting Technology (SMART) system built into most ATA/SATA and SCSI/SAS
+hard drives and solid-state drives.
+The purpose of SMART is to monitor the reliability of the hard drive
+and predict drive failures, and to carry out different types of drive
+self\-tests.
+\fBsmartctl\fP also supports some features not related to SMART.
+This version of \fBsmartctl\fP is compatible with
+ACS\-2, ATA8\-ACS, ATA/ATAPI\-7 and earlier standards
+(see \fBREFERENCES\fP below).
 
 \fBsmartctl\fP also provides support for polling TapeAlert messages
 from SCSI tape drives and changers.
@@ -579,9 +572,9 @@ command failures.
 
 The behavior of \fBsmartctl\fP depends upon whether the command is
 "\fBoptional\fP" or "\fBmandatory\fP". Here "\fBmandatory\fP" means
-"required by the ATA/ATAPI\-5 Specification if the device implements
+"required by the ATA Specification if the device implements
 the SMART command set" and "\fBoptional\fP" means "not required by the
-ATA/ATAPI\-5 Specification even if the device implements the SMART
+ATA Specification even if the device implements the SMART
 command set."  The "\fBmandatory\fP" ATA and SMART commands are: (1)
 ATA IDENTIFY DEVICE, (2) SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE, (3)
 SMART ENABLE/DISABLE, and (4) SMART RETURN STATUS.
@@ -604,8 +597,8 @@ final message, Feature X is \fBnot\fP enabled.
 \- ignore failure(s) of \fBmandatory\fP SMART commands.  This option
 may be given more than once.  Each additional use of this option will
 cause one more additional failure to be ignored.  Note that the use of
-this option can lead to messages like "Feature X not implemented",
-followed shortly by "Error: unable to enable Feature X".  In a few
+this option can lead to messages like "Feature X not supported",
+followed shortly by "Feature X enable failed".  In a few
 such cases, contrary to the final message, Feature X \fBis\fP enabled.
 
 .I verypermissive
@@ -987,8 +980,12 @@ the device.
 
 Note that starting with ATA/ATAPI\-4, revision 4, the meaning of these
 Attribute fields has been made entirely vendor\-specific.  However most
-ATA/ATAPI\-5 disks seem to respect their meaning, so we have retained
+newer ATA/SATA disks seem to respect their meaning, so we have retained
 the option of printing the Attribute values.
+
+Solid\-state drives use different meanings for some of the attributes.
+In this case the attribute name printed by smartctl is incorrect unless
+the drive is already in the smartmontools drive database.
 
 [SCSI] For SCSI devices the "attributes" are obtained from the temperature
 and start\-stop cycle counter log pages. Certain vendor specific
@@ -1056,7 +1053,7 @@ stamp wraps after 2^32 milliseconds, or 49 days 17 hours 2 minutes and
 log.  The final column of the error log is a text\-string description
 of the ATA command defined by the Command Register (CR) and Feature
 Register (FR) values.  Commands that are obsolete in the most current
-(ATA\-7) spec are listed like this: \fBREAD LONG (w/ retry) [OBS\-4]\fP,
+spec are listed like this: \fBREAD LONG (w/ retry) [OBS\-4]\fP,
 indicating that the command became obsolete with or in the ATA\-4
 specification.  Similarly, the notation \fB[RET\-\fP\fIN\fP\fB]\fP is
 used to indicate that a command was retired in the ATA\-\fIN\fP
@@ -1105,11 +1102,11 @@ The verify row is only output if it has an element other than zero.
 \- [ATA only] prints the Extended Comprehensive SMART error log
 (General Purpose Log address 0x03).  Unlike the Summary SMART error
 log (see \'\-l error\' above), it provides sufficient space to log
-the contents of the 48-bit LBA register set introduced with ATA-6.
+the contents of the 48-bit LBA register set introduced with ATA\-6.
 It also supports logs with more than one sector.  Each sector holds
 up to 4 log entries. The actual number of log sectors is vendor
 specific, typical values for HDD are 2 (Samsung), 5 (Seagate) or
-6 (WD).  Some recent SSD devices have much larger error logs.
+6 (WD).
 
 Only the 8 most recent error log entries are printed by default.
 This number can be changed by the optional parameter NUM.
@@ -1182,9 +1179,7 @@ The selective self\-test log also shows if a read\-scan of the
 remainder of the disk will be carried out after the selective
 self\-test has completed (see \'\-t afterselect\' option) and the time
 delay before restarting this read\-scan if it is interrupted (see
-\'\-t pending\' option). This is a new smartmontools feature; please
-report unusual or incorrect behavior to the smartmontools\-support
-mailing list.
+\'\-t pending\' option).
 
 .I directory[,gs]
 \- [ATA only] if the device supports the General Purpose Logging feature
@@ -1224,8 +1219,8 @@ the SCT Data Table command, and \'scttemp\' prints both.
 The temperature values are preserved across power cycles.
 The logging interval can be configured with the
 \'\-l scttempint,N[,p]\' option, see below.
-The SCT commands were introduced in ATA\-8 ACS and were also
-supported by in many ATA\-7 disks.
+The SCT commands were introduced in ATA8\-ACS and were also
+supported by many ATA\-7 disks.
 
 .I scttempint,N[,p]
 \- [ATA only] clears the SCT temperature history table and sets the
@@ -1249,7 +1244,7 @@ typically set to 70,70 deciseconds.
 log pages (General Purpose Log address 0x04).  If no PAGE number is specified,
 entries from all supported pages are printed.  If PAGE 0 is specified,
 the list of supported pages is printed.  Device Statistics was
-introduced in ATA\-8 ACS and is only supported by some recent devices
+introduced in ACS\-2 and is only supported by some recent devices
 (e.g. Hitachi 7K3000, Intel 320, 330, 520 and 710 Series SSDs, Crucial/Micron
 m4 SSDs).
 
@@ -1887,7 +1882,7 @@ self\-tests.
 with subcommand N in LBA LOW register. The subcommand is specified as
 a hex value in the range 0x00 to 0xff.  Subcommands 0x40-0x7e and
 0x90-0xff are reserved for vendor specific use, see table 61 of
-T13/1699-D Revision 6a (ATA8-ACS).  Note that the subcommands
+T13/1699-D Revision 6a (ATA8\-ACS).  Note that the subcommands
 0x00-0x04,0x7f,0x81-0x84 are supported by other smartctl options
 (e.g. 0x01: \'\-t short\', 0x7f: \'\-X\', 0x82: \'\-C \-t long\').
 
@@ -1904,9 +1899,6 @@ reaches 60 minutes.
 \- [ATA only] start new self\-test even if another test is already running.
 By default a running self\-test will not be interrupted to begin another
 test.
-
-.I scttempint,N[,p]
-\- is no longer supported, use \'\-l scttempint,N[,p]\' instead, see above.
 .TP
 .B \-C, \-\-captive
 [ATA] Runs self\-tests in captive mode.  This has no effect with \'\-t

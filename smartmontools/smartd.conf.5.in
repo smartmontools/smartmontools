@@ -37,9 +37,7 @@ CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .\"! .PP
 .\" %ENDIF NOT OS ALL
 \fB/usr/local/etc/smartd.conf\fP is the configuration file for the \fBsmartd\fP
-daemon, which monitors the Self-Monitoring, Analysis and Reporting
-Technology (SMART) system built into many ATA-3 and later ATA, IDE and
-SCSI-3 hard drives.
+daemon.
 
 If the configuration file \fB/usr/local/etc/smartd.conf\fP is present,
 \fBsmartd\fP reads it at startup, before \fBfork\fP(2)ing into the
@@ -566,11 +564,7 @@ continue if an optional SMART command fails.  This is the default.
 \- try to monitor the disk even if it appears to lack SMART
 capabilities.  This may be required for some old disks (prior to
 ATA\-3 revision 4) that implemented SMART before the SMART standards
-were incorporated into the ATA/ATAPI Specifications.  This may also be
-needed for some Maxtor disks which fail to comply with the ATA
-Specifications and don't properly indicate support for error\- or
-self\-test logging.
-
+were incorporated into the ATA/ATAPI Specifications.
 [Please see the \fBsmartctl \-T\fP command-line option.]
 .TP
 .B \-o VALUE
