@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+smartmontools 6.0 2012-10-10
+
   [CF] do_release: Fix for minor rev number 0.
 
   [CF] drivedb.h updates:
