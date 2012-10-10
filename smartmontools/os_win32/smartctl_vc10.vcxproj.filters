@@ -113,7 +113,7 @@
     </None>
     <None Include="..\AUTHORS" />
     <None Include="..\autogen.sh" />
-    <None Include="..\CHANGELOG" />
+    <None Include="..\ChangeLog" />
     <None Include="..\config.h.in" />
     <None Include="..\configure.in" />
     <None Include="..\do_release" />

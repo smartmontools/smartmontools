@@ -13,7 +13,7 @@
 ; You should have received a copy of the GNU General Public License
 ; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
-; $Id: installer.nsi 3631 2012-10-08 16:12:13Z chrfranke $
+; $Id: installer.nsi 3645 2012-10-10 16:15:26Z chrfranke $
 ;
 
 
@@ -174,7 +174,8 @@ Section "!Documentation" DOC_SECTION
 
   SetOutPath "$INSTDIR\doc"
   File "${INPDIR}\doc\AUTHORS.txt"
-  File "${INPDIR}\doc\CHANGELOG.txt"
+  File "${INPDIR}\doc\ChangeLog.txt"
+  File "${INPDIR}\doc\ChangeLog-5.0-6.0.txt"
   File "${INPDIR}\doc\COPYING.txt"
   File "${INPDIR}\doc\INSTALL.txt"
   File "${INPDIR}\doc\NEWS.txt"
@@ -308,7 +309,7 @@ Section "Start Menu Shortcuts" MENU_SECTION
         CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb.h (view).lnk" "$EDITOR" "$INSTDIR\bin\drivedb.h"
         !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb-add.h (create, edit).lnk" "$EDITOR" "$INSTDIR\bin\drivedb-add.h"
     nodb:
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\CHANGELOG.lnk" "$INSTDIR\doc\CHANGELOG.txt"
+    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\ChangeLog.lnk" "$INSTDIR\doc\ChangeLog.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\COPYING.lnk"   "$INSTDIR\doc\COPYING.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\NEWS.lnk"      "$INSTDIR\doc\NEWS.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\Windows version download page.lnk" "http://smartmontools-win32.dyndns.org/smartmontools/"
@@ -431,7 +432,7 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\runcmdu.exe"
   Delete "$INSTDIR\bin\runcmdu.exe.manifest"
   Delete "$INSTDIR\doc\AUTHORS.txt"
-  Delete "$INSTDIR\doc\CHANGELOG.txt"
+  Delete "$INSTDIR\doc\ChangeLog.txt"
   Delete "$INSTDIR\doc\COPYING.txt"
   Delete "$INSTDIR\doc\INSTALL.txt"
   Delete "$INSTDIR\doc\NEWS.txt"
