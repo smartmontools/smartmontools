@@ -593,7 +593,7 @@ The following files are installed if ./configure has no options:
 /usr/local/share/man/man8/smartctl.8                    [Manual page]
 /usr/local/share/man/man8/smartd.8                      [Manual page]
 /usr/local/share/doc/smartmontools/AUTHORS              [Information about the authors and developers]
-/usr/local/share/doc/smartmontools/CHANGELOG            [A log of changes. Also see SVN]
+/usr/local/share/doc/smartmontools/ChangeLog            [A log of changes. Also see SVN]
 /usr/local/share/doc/smartmontools/COPYING              [GNU General Public License Version 2]
 /usr/local/share/doc/smartmontools/INSTALL              [Installation instructions: what you're reading!]
 /usr/local/share/doc/smartmontools/NEWS                 [Significant bugs discovered in old versions]

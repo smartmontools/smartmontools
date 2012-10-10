@@ -8,7 +8,7 @@
 
 # Notes on generating releases:
 # (1) update NEWS
-# (2) update CHANGELOG -- put in release number
+# (2) update ChangeLog -- put in release number
 # (3) update release number in configure.in 
 # (4) to test, run without '--commit'
 # (5) when satisfied, add option '--commit'
@@ -63,7 +63,7 @@ fi
 
 (cd $WDROOT && svn status) | while read s; do
   case "`echo $s | tr -s ' '`" in
-    "M "$DIRPAT/smartmontools/CHANGELOG)    echo "$s: OK";;
+    "M "$DIRPAT/smartmontools/ChangeLog)    echo "$s: OK";;
     "M "$DIRPAT/smartmontools/NEWS)         echo "$s: OK";;
     "M "$DIRPAT/smartmontools/configure.in) echo "$s: OK";;
     *) echo "$s: not allowed"; exit 1;;

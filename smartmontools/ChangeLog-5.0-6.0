@@ -1,9 +1,6 @@
-CHANGELOG for smartmontools
+CHANGELOG for smartmontools 5.0 to 6.0
 
 $Id$
-
-The most recent version of this file is:
-http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
 
 Maintainers / Developers Key (alphabetic order):
 [AS]  Alex Samorukov

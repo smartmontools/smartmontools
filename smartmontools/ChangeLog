@@ -1,0 +1,10 @@
+$Id$
+
+2012-10-10  Christian Franke  <franke@computer.org>
+
+	Rename old CHANGELOG to ChangeLog-5.0-6.0.
+	Start new ChangeLog.
+
+2012-10-10  Christian Franke  <franke@computer.org>
+
+	smartmontools 6.0
