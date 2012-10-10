@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] do_release: Fix for minor rev number 0.
+
   [CF] drivedb.h updates:
        - SandForce Driven SSDs: Corsair Force 115GB
        - Hitachi Ultrastar 7K4000

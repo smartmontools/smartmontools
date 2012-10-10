@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003-11 Bruce Allen <ballen4705@users.sourceforge.net>,
 #             Guido Guenther <agx@sigxcpu.org>
-#             Christian Franke <smartmontools-support@lists.sourceforge.net>
+# (C) 2006-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 # $Id$
 
 # Notes on generating releases:
@@ -23,7 +23,7 @@ inc_release()
   MINOR=`echo $VERSION | cut -d. -f2`
   MAJOR=`echo $VERSION | cut -d. -f1`
   PERL_OLD=$MAJOR\\.$MINOR
-  ((MINOR++))
+  ((++MINOR))
   NEW_VERSION=$MAJOR.$MINOR
   PERL_NEW=$MAJOR\\.$MINOR	
   NEW_RELEASE="RELEASE_${NEW_VERSION//\./_}"
