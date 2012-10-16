@@ -1,5 +1,11 @@
 $Id$
 
+2012-10-16  Hank Wu  <hank@areca.com.tw>
+
+	Move common Areca code from os_freebsd.cpp, os_linux.cpp, os_win32.cpp
+	to new files dev_areca.h, dev_areca.cpp.
+	Add SAS support for FreeBSD and Linux.
+
 2012-10-10  Christian Franke  <franke@computer.org>
 
 	Rename old CHANGELOG to ChangeLog-5.0-6.0.
