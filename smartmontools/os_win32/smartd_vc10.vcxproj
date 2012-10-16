@@ -92,6 +92,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\dev_areca.cpp" />
     <ClCompile Include="daemon_win32.cpp" />
     <ClCompile Include="syslog_win32.cpp" />
     <ClCompile Include="wmiquery.cpp" />
@@ -183,6 +184,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\dev_areca.h" />
     <ClInclude Include="daemon_win32.h" />
     <ClInclude Include="syslog.h" />
     <ClInclude Include="wbemcli_small.h" />

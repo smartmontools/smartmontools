@@ -82,6 +82,7 @@
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
+#include "dev_areca.h"
 
 #ifndef ENOTSUP
 #define ENOTSUP ENOSYS
@@ -89,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3646 2012-10-16 19:49:39Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3647 2012-10-16 19:57:08Z chrfranke $"
   OS_LINUX_H_CVSID;
 
 

@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3644 2012-10-10 12:35:33Z chrfranke $
+# $Id: configure.in 3647 2012-10-16 19:57:08Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 6.1, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3644 2012-10-10 12:35:33Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3647 2012-10-16 19:57:08Z chrfranke $'`
 smartmontools_release_date=2012-10-10
 smartmontools_release_time="11:53:34 UTC"
 
@@ -356,11 +356,11 @@ os_win64=no
 os_man_filter=
 case "${host}" in
   *-*-linux*)
-    os_deps='os_linux.o cciss.o'
+    os_deps='os_linux.o cciss.o dev_areca.o'
     os_man_filter=Linux
     ;;
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
-    os_deps='os_freebsd.o cciss.o'
+    os_deps='os_freebsd.o cciss.o dev_areca.o'
     os_libs='-lcam'
     os_dltools='curl wget lynx fetch'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
@@ -390,19 +390,19 @@ case "${host}" in
     os_man_filter=OpenBSD
     ;;
   *-*-cygwin*)
-    os_deps='os_win32.o'
+    os_deps='os_win32.o dev_areca.o'
     os_win32=yes
     os_man_filter=Cygwin
     ;;
   x86_64-*-mingw*)
-    os_deps='os_win32.o'
+    os_deps='os_win32.o dev_areca.o'
     os_win32=yes
     os_win32_mingw=yes
     os_win64=yes
     os_man_filter=Windows
     ;;
   *-*-mingw*)
-    os_deps='os_win32.o'
+    os_deps='os_win32.o dev_areca.o'
     os_win32=yes
     os_win32_mingw=yes
     os_man_filter=Windows

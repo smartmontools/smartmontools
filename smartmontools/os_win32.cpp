@@ -28,6 +28,7 @@
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
+#include "dev_areca.h"
 
 #include "os_win32/wmiquery.h"
 
@@ -82,7 +83,7 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3646 2012-10-16 19:49:39Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3647 2012-10-16 19:57:08Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
