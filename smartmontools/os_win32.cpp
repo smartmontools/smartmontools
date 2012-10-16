@@ -28,6 +28,7 @@
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
+#include "dev_areca.h"
 
 #include "os_win32/wmiquery.h"
 

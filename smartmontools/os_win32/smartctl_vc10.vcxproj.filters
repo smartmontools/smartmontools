@@ -67,6 +67,7 @@
       <Filter>os_win32</Filter>
     </ClCompile>
     <ClCompile Include="..\ataidentify.cpp" />
+    <ClCompile Include="..\dev_areca.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="wbemcli_small.h">
@@ -103,6 +104,7 @@
       <Filter>os_win32</Filter>
     </ClInclude>
     <ClInclude Include="..\ataidentify.h" />
+    <ClInclude Include="..\dev_areca.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="installer.nsi">

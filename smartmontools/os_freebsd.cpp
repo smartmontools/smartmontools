@@ -46,6 +46,7 @@
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
+#include "dev_areca.h"
 
 #define USBDEV "/dev/usb"
 #if defined(__FreeBSD_version)

@@ -1,5 +1,11 @@
 $Id$
 
+2012-10-16  Christian Franke  <franke@computer.org>
+
+	Compile fixes for Areca patch:
+	Add missing includes.  Add GPL header.
+	Add dev_areca.* to configure.in and Makefile.am.
+
 2012-10-16  Hank Wu  <hank@areca.com.tw>
 
 	Move common Areca code from os_freebsd.cpp, os_linux.cpp, os_win32.cpp

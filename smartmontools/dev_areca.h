@@ -1,5 +1,24 @@
+/*
+ * dev_areca.h
+ *
+ * Home page of code is: http://smartmontools.sourceforge.net
+ *
+ * Copyright (C) 2012 Hank Wu <hank@areca.com.tw>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * You should have received a copy of the GNU General Public License
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 #ifndef DEV_ARECA_H
 #define DEV_ARECA_H
+
+#define DEV_ARECA_H_CVSID "$Id$"
 
 /////////////////////////////////////////////////////////////////////////////
 /// Areca RAID support
@@ -161,8 +180,5 @@ protected:
   }
   virtual bool scsi_pass_through(scsi_cmnd_io * iop);
 };
-
-
-extern void dumpdata(unsigned char *block, int len);
 
 #endif

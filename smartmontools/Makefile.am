@@ -99,6 +99,8 @@ EXTRA_smartctl_SOURCES = \
         cciss.cpp \
         cciss.h \
         cissio_freebsd.h \
+        dev_areca.cpp \
+        dev_areca.h \
         dev_legacy.cpp \
         megaraid.h
 
@@ -149,6 +151,8 @@ EXTRA_smartd_SOURCES = \
         cciss.cpp \
         cciss.h \
         cissio_freebsd.h \
+        dev_areca.cpp \
+        dev_areca.h \
         dev_legacy.cpp \
         megaraid.h
 

@@ -1,7 +1,36 @@
+/*
+ * dev_areca.cpp
+ *
+ * Home page of code is: http://smartmontools.sourceforge.net
+ *
+ * Copyright (C) 2012 Hank Wu <hank@areca.com.tw>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * You should have received a copy of the GNU General Public License
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#include "config.h"
+#include "int64.h"
+
+#include "dev_interface.h"
 #include "dev_areca.h"
 
+const char * dev_areca_cpp_cvsid = "$Id$"
+  DEV_ARECA_H_CVSID;
+
+#include "atacmds.h"
+#include "scsicmds.h"
+
+#include <errno.h>
+
 #if 0 // For debugging areca code
-void dumpdata(unsigned char *block, int len)
+static void dumpdata(unsigned char *block, int len)
 {
   int ln = (len / 16) + 1;   // total line#
   unsigned char c;
@@ -46,12 +75,6 @@ void dumpdata(unsigned char *block, int len)
     printf("\n");
   }
   printf("=====================================================================\n");
-}
-#else
-void dumpdata(unsigned char *block, int len)
-{
-    block = block;
-    len = len;
 }
 #endif
 

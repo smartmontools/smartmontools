@@ -356,11 +356,11 @@ os_win64=no
 os_man_filter=
 case "${host}" in
   *-*-linux*)
-    os_deps='os_linux.o cciss.o'
+    os_deps='os_linux.o cciss.o dev_areca.o'
     os_man_filter=Linux
     ;;
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
-    os_deps='os_freebsd.o cciss.o'
+    os_deps='os_freebsd.o cciss.o dev_areca.o'
     os_libs='-lcam'
     os_dltools='curl wget lynx fetch'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
@@ -390,19 +390,19 @@ case "${host}" in
     os_man_filter=OpenBSD
     ;;
   *-*-cygwin*)
-    os_deps='os_win32.o'
+    os_deps='os_win32.o dev_areca.o'
     os_win32=yes
     os_man_filter=Cygwin
     ;;
   x86_64-*-mingw*)
-    os_deps='os_win32.o'
+    os_deps='os_win32.o dev_areca.o'
     os_win32=yes
     os_win32_mingw=yes
     os_win64=yes
     os_man_filter=Windows
     ;;
   *-*-mingw*)
-    os_deps='os_win32.o'
+    os_deps='os_win32.o dev_areca.o'
     os_win32=yes
     os_win32_mingw=yes
     os_man_filter=Windows

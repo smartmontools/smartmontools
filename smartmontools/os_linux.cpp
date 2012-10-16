@@ -82,6 +82,7 @@
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
+#include "dev_areca.h"
 
 #ifndef ENOTSUP
 #define ENOTSUP ENOSYS
