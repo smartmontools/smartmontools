@@ -629,8 +629,9 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   // doesn't make much sense: we don't care in detail why the error
   // happened.
 
-  if (scsi_debugmode && (ata->status || (ata->command & 0x21))) {
-    pout("Command failed, ata.status=(0x%2.2x), ata.command=(0x%2.2x), ata.flags=(0x%2.2x)\n",ata->status,ata->command,ata->flags);
+  if (ata->status || (ata->command & 0x21)) {
+    if (scsi_debugmode)
+      pout("Command failed, ata.status=(0x%2.2x), ata.command=(0x%2.2x), ata.flags=(0x%2.2x)\n",ata->status,ata->command,ata->flags);
     return set_err(EIO);
   }
 
