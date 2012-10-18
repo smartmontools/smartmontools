@@ -5,6 +5,7 @@ $Id$
 	Added support for the /dev/twsX (3ware 9750) controller on FreeBSD.
 	Manual pages updated with /dev/twsX device
 	FreeBSD: Migrate 3ware interface to ata_pass_through()
+	FreeBSD: fix missing drives detection on -d 3ware
 
 2012-10-16  Christian Franke  <franke@computer.org>
 
