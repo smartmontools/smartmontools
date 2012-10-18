@@ -49,14 +49,14 @@
 #include <windows.h>
 
 #if HAVE_NTDDDISK_H
-// i686-w64-mingw32, x86_64-w64-mingw32
+// i686-pc-cygwin, i686-w64-mingw32, x86_64-w64-mingw32
 // (Missing: FILE_DEVICE_SCSI)
 #include <devioctl.h>
 #include <ntdddisk.h>
 #include <ntddscsi.h>
 #include <ntddstor.h>
 #elif HAVE_DDK_NTDDDISK_H
-// i686-pc-cygwin, i686-pc-mingw32, i586-mingw32msvc
+// older i686-pc-cygwin, i686-pc-mingw32, i586-mingw32msvc
 // (Missing: IOCTL_IDE_PASS_THROUGH, IOCTL_ATA_PASS_THROUGH, FILE_DEVICE_SCSI)
 #include <ddk/ntdddisk.h>
 #include <ddk/ntddscsi.h>
@@ -66,6 +66,11 @@
 // (Missing: IOCTL_SCSI_MINIPORT_*)
 #include <ntddscsi.h>
 #include <winioctl.h>
+#endif
+
+#ifndef _WIN32
+// csmisas.h requires _WIN32 but w32api-headers no longer define it on Cygwin
+#define _WIN32
 #endif
 
 // CSMI support
@@ -83,7 +88,7 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3647 2012-10-16 19:57:08Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3660 2012-10-18 21:10:26Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
