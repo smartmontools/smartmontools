@@ -1,4 +1,10 @@
-$Id: ChangeLog 3660 2012-10-18 21:10:26Z chrfranke $
+$Id: ChangeLog 3661 2012-10-18 21:42:12Z chrfranke $
+
+2012-10-18  Christian Franke  <franke@computer.org>
+
+	utility.cpp: Add missing errno clear in split_selective_arg()
+	(Debian bug 690108).
+	Remove unused function split_report_arg2().
 
 2012-10-18  Christian Franke  <franke@computer.org>
 
