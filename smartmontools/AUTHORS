@@ -1,4 +1,4 @@
-$Id: AUTHORS 3096 2010-04-30 14:32:49Z chrfranke $
+$Id: AUTHORS 3652 2012-10-18 15:17:03Z samm2 $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -36,3 +36,4 @@ Praveen Chidambaram 	<bunchofmails@gmail.com>
 Joerg Hering            <hering.ruegen@gmx.de>
 Tomas Smetana		<tsmetana@redhat.com>
 Jordan Hargrave		<jordan_hargrave@dell.com>
+Alex Samorukov		<samm@os2.kiev.ua>
