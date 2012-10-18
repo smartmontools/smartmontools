@@ -1242,9 +1242,10 @@ smart_device * freebsd_scsi_device::autodetect_open()
   // Use INQUIRY to detect type
 
   // 3ware ?
-  if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
+  if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4) ||
+      !strcmp("tws",m_camdev->sim_name) || !strcmp("twa",m_camdev->sim_name)) {
     close();
-    set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
+    set_err(EINVAL, "3ware/LSI controller, please try adding '-d 3ware,N',\n"
                     "you may need to replace %s with /dev/twaN, /dev/tweN or /dev/twsN", get_dev_name());
     return this;
   }
