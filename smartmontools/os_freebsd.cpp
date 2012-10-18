@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3653 2012-10-18 15:39:50Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3654 2012-10-18 15:46:18Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -629,8 +629,9 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   // doesn't make much sense: we don't care in detail why the error
   // happened.
 
-  if (scsi_debugmode && (ata->status || (ata->command & 0x21))) {
-    pout("Command failed, ata.status=(0x%2.2x), ata.command=(0x%2.2x), ata.flags=(0x%2.2x)\n",ata->status,ata->command,ata->flags);
+  if (ata->status || (ata->command & 0x21)) {
+    if (scsi_debugmode)
+      pout("Command failed, ata.status=(0x%2.2x), ata.command=(0x%2.2x), ata.flags=(0x%2.2x)\n",ata->status,ata->command,ata->flags);
     return set_err(EIO);
   }
 
