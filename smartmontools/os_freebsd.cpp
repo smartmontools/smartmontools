@@ -454,7 +454,7 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
 /// Implement AMCC/3ware RAID support with old functions
 
 class freebsd_escalade_device
-: public /*implements*/ ata_device_with_command_set,
+: public /*implements*/ ata_device,
   public /*extends*/ freebsd_smart_device
 {
 public:
@@ -462,7 +462,7 @@ public:
     int escalade_type, int disknum);
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
   virtual bool open();
 
 private:
@@ -495,13 +495,18 @@ bool freebsd_escalade_device::open()
   return true;
 }
 
-int freebsd_escalade_device::ata_command_interface(smart_command_set command, int select, char * data)
+bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
   // to hold true file descriptor
   int fd = get_fd();
 
-  // return value and buffer for ioctl()
-  int  ioctlreturn, readdata=0;
+  if (!ata_cmd_is_ok(in,
+    true, // data_out_support
+    false, // TODO: multi_sector_support
+    true) // ata_48bit_support
+  )
+  return false;
+
   struct twe_usercommand* cmd_twe = NULL;
   TW_OSLI_IOCTL_NO_DATA_BUF* cmd_twa = NULL;
   TWE_Command_ATA* ata = NULL;
@@ -525,10 +530,9 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
     cmd_twe = (struct twe_usercommand*)ioctl_buffer;
     ata = &cmd_twe->tu_command.ata;
   } else {
-    pout("Unrecognized escalade_type %d in freebsd_3ware_command_interface(disk %d)\n"
-      "Please contact " PACKAGE_BUGREPORT "\n", m_escalade_type, m_disknum);
-    errno=ENOSYS;
-    return -1;
+    return set_err(ENOSYS,
+      "Unrecognized escalade_type %d in linux_3ware_command_interface(disk %d)\n"
+      "Please contact " PACKAGE_BUGREPORT "\n", (int)m_escalade_type, m_disknum);
   }
 
   ata->opcode = TWE_OP_ATA_PASSTHROUGH;
@@ -536,18 +540,19 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
   // Same for (almost) all commands - but some reset below
   ata->request_id    = 0xFF;
   ata->unit          = m_disknum;
-  ata->status        = 0;           
+  ata->status        = 0;
   ata->flags         = 0x1;
-  ata->drive_head    = 0x0;
-  ata->sector_num    = 0;
-
-  // All SMART commands use this CL/CH signature.  These are magic
-  // values from the ATA specifications.
-  ata->cylinder_lo   = 0x4F;
-  ata->cylinder_hi   = 0xC2;
-
-  // SMART ATA COMMAND REGISTER value
-  ata->command       = ATA_SMART_CMD;
+  // Set registers
+  {
+    const ata_in_regs_48bit & r = in.in_regs;
+    ata->features     = r.features_16;
+    ata->sector_count = r.sector_count_16;
+    ata->sector_num   = r.lba_low_16;
+    ata->cylinder_lo  = r.lba_mid_16;
+    ata->cylinder_hi  = r.lba_high_16;
+    ata->drive_head   = r.device;
+    ata->command      = r.command;
+  }
 
   // Is this a command that reads or returns 512 bytes?
   // passthru->param values are:
@@ -556,113 +561,46 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
   // 0xD - data command that returns data to host from device
   // 0xF - data command that writes data from host to device
   // passthru->size values are 0x5 for non-data and 0x07 for data
-  if (command == READ_VALUES     ||
-      command == READ_THRESHOLDS ||
-      command == READ_LOG        ||
-      command == IDENTIFY        ||
-      command == WRITE_LOG ) 
-  {
-    readdata=1;
-    if (m_escalade_type==CONTROLLER_3WARE_678K_CHAR) {
-      cmd_twe->tu_data = data;
-      cmd_twe->tu_size = 512;
-    }
-    ata->sgl_offset = 0x5;
-    ata->size         = 0x5;
+  bool readdata = false;
+  if (in.direction == ata_cmd_in::data_in) {
+    readdata=true;
+    ata->sgl_offset   = 0x5;
+    ata->size         = 0x5; // TODO: other values for multisector?
     ata->param        = 0xD;
-    ata->sector_count = 0x1;
     // For 64-bit to work correctly, up the size of the command packet
     // in dwords by 1 to account for the 64-bit single sgl 'address'
     // field. Note that this doesn't agree with the typedefs but it's
     // right (agree with kernel driver behavior/typedefs).
-    //if (sizeof(long)==8)
+    // if (sizeof(long)==8)
     //  ata->size++;
   }
-  else {
+  else if (in.direction == ata_cmd_in::no_data) {
     // Non data command -- but doesn't use large sector 
     // count register values.  
-    ata->sgl_offset = 0x0;
+    ata->sgl_offset   = 0x0;
     ata->size         = 0x5;
     ata->param        = 0x8;
     ata->sector_count = 0x0;
   }
 
-  // Now set ATA registers depending upon command
-  switch (command){
-  case CHECK_POWER_MODE:
-    ata->command     = ATA_CHECK_POWER_MODE;
-    ata->features    = 0;
-    ata->cylinder_lo = 0;
-    ata->cylinder_hi = 0;
-    break;
-  case READ_VALUES:
-    ata->features = ATA_SMART_READ_VALUES;
-    break;
-  case READ_THRESHOLDS:
-    ata->features = ATA_SMART_READ_THRESHOLDS;
-    break;
-  case READ_LOG:
-    ata->features = ATA_SMART_READ_LOG_SECTOR;
-    // log number to return
-    ata->sector_num  = select;
-    break;
-  case WRITE_LOG:
-    readdata=0;
-    ata->features     = ATA_SMART_WRITE_LOG_SECTOR;
-    ata->sector_count = 1;
-    ata->sector_num   = select;
-    ata->param        = 0xF;  // PIO data write
-    break;
-  case IDENTIFY:
-    // ATA IDENTIFY DEVICE
-    ata->command     = ATA_IDENTIFY_DEVICE;
-    ata->features    = 0;
-    ata->cylinder_lo = 0;
-    ata->cylinder_hi = 0;
-    break;
-  case PIDENTIFY:
-    // 3WARE controller can NOT have packet device internally
-    pout("WARNING - NO DEVICE FOUND ON 3WARE CONTROLLER (disk %d)\n", m_disknum);
-    errno=ENODEV;
-    return -1;
-  case ENABLE:
-    ata->features = ATA_SMART_ENABLE;
-    break;
-  case DISABLE:
-    ata->features = ATA_SMART_DISABLE;
-    break;
-  case AUTO_OFFLINE:
-    ata->features     = ATA_SMART_AUTO_OFFLINE;
-    // Enable or disable?
-    ata->sector_count = select;
-    break;
-  case AUTOSAVE:
-    ata->features     = ATA_SMART_AUTOSAVE;
-    // Enable or disable?
-    ata->sector_count = select;
-    break;
-  case IMMEDIATE_OFFLINE:
-    ata->features    = ATA_SMART_IMMEDIATE_OFFLINE;
-    // What test type to run?
-    ata->sector_num  = select;
-    break;
-  case STATUS_CHECK:
-    ata->features = ATA_SMART_STATUS;
-    break;
-  case STATUS:
-    // This is JUST to see if SMART is enabled, by giving SMART status
-    // command. But it doesn't say if status was good, or failing.
-    // See below for the difference.
-    ata->features = ATA_SMART_STATUS;
-    break;
-  default:
-    pout("Unrecognized command %d in freebsd_3ware_command_interface(disk %d)\n"
-         "Please contact " PACKAGE_BUGREPORT "\n", command, m_disknum);
-    errno=ENOSYS;
-    return -1;
+  else if (in.direction == ata_cmd_in::data_out) {
+    // Non data command -- but doesn't use large sector 
+    // count register values.
+    ata->sgl_offset   = 0x5;
+    ata->size         = 0x5; // TODO: not valid for multisector
+    ata->param        = 0xF; // PIO data write
+    if (m_escalade_type==CONTROLLER_3WARE_678K_CHAR) {
+      cmd_twe->tu_data = in.buffer;
+      cmd_twe->tu_size = in.size;
+    }
+    else if (m_escalade_type==CONTROLLER_3WARE_9000_CHAR) {
+       cmd_twa->pdata = in.buffer;
+       cmd_twa->driver_pkt.buffer_length = in.size;
+    }
   }
 
   // Now send the command down through an ioctl()
+  int ioctlreturn;
   if (m_escalade_type==CONTROLLER_3WARE_9000_CHAR) {
     ioctlreturn=ioctl(fd,TW_OSL_IOCTL_FIRMWARE_PASS_THROUGH,cmd_twa);
   } else {
@@ -671,9 +609,7 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
 
   // Deal with the different error cases
   if (ioctlreturn) {
-    if (!errno)
-      errno=EIO;
-    return -1;
+    return set_err(EIO);
   }
 
   // See if the ATA command failed.  Now that we have returned from
@@ -690,49 +626,34 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
 
   if (ata->status || (ata->command & 0x21)) {
     pout("Command failed, ata.status=(0x%2.2x), ata.command=(0x%2.2x), ata.flags=(0x%2.2x)\n",ata->status,ata->command,ata->flags);
-    errno=EIO;
-    return -1;
+    return set_err(EIO);
   }
 
   // If this is a read data command, copy data to output buffer
   if (readdata) {
     if (m_escalade_type==CONTROLLER_3WARE_9000_CHAR)
-      memcpy(data, cmd_twa->pdata, 512);
+      memcpy(in.buffer, cmd_twa->pdata, in.size);
+    else if(m_escalade_type==CONTROLLER_3WARE_678K_CHAR) {
+      memcpy(in.buffer, cmd_twe->tu_data, in.size); // untested
+    }
   }
-
-  // For STATUS_CHECK, we need to check register values
-  if (command==STATUS_CHECK) {
-
-    // To find out if the SMART RETURN STATUS is good or failing, we
-    // need to examine the values of the Cylinder Low and Cylinder
-    // High Registers.
-
-    unsigned short cyl_lo=ata->cylinder_lo;
-    unsigned short cyl_hi=ata->cylinder_hi;
-
-    // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
-    if (cyl_lo==0x4F && cyl_hi==0xC2)
-      return 0;
-
-    // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
-    if (cyl_lo==0xF4 && cyl_hi==0x2C)
-      return 1;
-
-      errno=EIO;
-      return -1;
+  // Return register values
+  if (ata) {
+    ata_out_regs_48bit & r = out.out_regs;
+    r.error           = ata->features;
+    r.sector_count_16 = ata->sector_count;
+    r.lba_low_16      = ata->sector_num;
+    r.lba_mid_16      = ata->cylinder_lo;
+    r.lba_high_16     = ata->cylinder_hi;
+    r.device          = ata->drive_head;
+    r.status          = ata->command;
   }
-
-  // copy sector count register (one byte!) to return data
-  if (command==CHECK_POWER_MODE)
-    *data=*(char *)&(ata->sector_count);
-
   // look for nonexistent devices/ports
-  if (command==IDENTIFY && !nonempty(data, 512)) {
-    errno=ENODEV;
-    return -1;
+  if (in.in_regs.command == ATA_IDENTIFY_DEVICE
+  && !nonempty((unsigned char *)in.buffer, in.size)) {
+    return set_err(ENODEV, "No drive on port %d", m_disknum);
   }
-
-  return 0;
+  return true;
 }
 
 
