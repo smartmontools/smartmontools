@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3650 2012-10-18 14:26:56Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3653 2012-10-18 15:39:50Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -451,7 +451,7 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-/// Implement AMCC/3ware RAID support with old functions
+/// Implement AMCC/3ware RAID support
 
 class freebsd_escalade_device
 : public /*implements*/ ata_device,
@@ -599,6 +599,11 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
     }
   }
 
+  // 3WARE controller can NOT have packet device internally
+  if (in.in_regs.command == ATA_IDENTIFY_PACKET_DEVICE) {
+    return set_err(ENODEV, "No drive on port %d", m_disknum);
+  }
+
   // Now send the command down through an ioctl()
   int ioctlreturn;
   if (m_escalade_type==CONTROLLER_3WARE_9000_CHAR) {
@@ -624,7 +629,7 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   // doesn't make much sense: we don't care in detail why the error
   // happened.
 
-  if (ata->status || (ata->command & 0x21)) {
+  if (scsi_debugmode && (ata->status || (ata->command & 0x21))) {
     pout("Command failed, ata.status=(0x%2.2x), ata.command=(0x%2.2x), ata.flags=(0x%2.2x)\n",ata->status,ata->command,ata->flags);
     return set_err(EIO);
   }
