@@ -376,7 +376,7 @@ connected to a 3ware RAID controller.  The non-negative integer N
 is monitored.
 Use syntax such as:
 .nf
-\fBsmartctl \-a \-d 3ware,2 /dev/sda\fP
+\fBsmartctl \-a \-d 3ware,2 /dev/sda\fP  [Linux only]
 .fi
 .nf
 \fBsmartctl \-a \-d 3ware,0 /dev/twe0\fP
@@ -385,7 +385,10 @@ Use syntax such as:
 \fBsmartctl \-a \-d 3ware,1 /dev/twa0\fP
 .fi
 .nf
-\fBsmartctl \-a \-d 3ware,1 /dev/twl0\fP
+\fBsmartctl \-a \-d 3ware,1 /dev/twl0\fP [Linux only]
+.fi
+.nf
+\fBsmartctl \-a \-d 3ware,1 /dev/tws0\fP [FreeBSD only]
 .fi
 The first two forms, which refer to devices /dev/sda\-z and /dev/twe0\-15,
 may be used with 3ware series 6000, 7000, and 8000 series controllers
@@ -396,10 +399,10 @@ kernel in the near future.  The final form, which refers to devices
 /dev/twa0\-15, must be used with 3ware 9000 series controllers, which
 use the 3w\-9xxx driver.
 
-The devices /dev/twl0\-15 must be used with the 3ware/LSI 9750 series
+The devices /dev/twl0\-15 [Linux] or /dev/tws0\-15 [FreeBSD] must be used with the 3ware/LSI 9750 series
 controllers which use the 3w-sas driver.
 
-Note that if the special character device nodes /dev/twl?, /dev/twa?
+Note that if the special character device nodes /dev/tw[ls]?, /dev/twa?
 and /dev/twe? do not exist, or exist with the incorrect major or minor
 numbers, smartctl will recreate them on the fly.  Typically /dev/twa0
 refers to the first 9000\-series controller, /dev/twa1 refers to the
@@ -440,7 +443,7 @@ later of the 3w\-xxxx driver, or by applying a patch to older
 versions.  Alternatively, use the character device /dev/twe0\-15 interface.
 
 The selective self\-test functions (\'\-t select,A\-B\') are only supported
-using the character device interface /dev/twl0\-15, /dev/twa0\-15 and /dev/twe0\-15.
+using the character device interface /dev/twl0\-15, /dev/tws0\-15, /dev/twa0\-15 and /dev/twe0\-15.
 The necessary WRITE LOG commands can not be passed through the SCSI
 interface.
 

@@ -197,8 +197,14 @@ Section below!
 .B # Two SATA (not SAS) disks on a 3ware 9750 controller.
 .B # Start long self-tests Sundays between midnight and
 .B # 1am and 2-3 am
+.\" %IF OS Linux
 .B \ \ /dev/twl0 -d 3ware,0 -a -s L/../../7/00
 .B \ \ /dev/twl0 -d 3ware,1 -a -s L/../../7/02
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD
+.B \ \ /dev/tws0 -d 3ware,0 -a -s L/../../7/00
+.B \ \ /dev/tws0 -d 3ware,1 -a -s L/../../7/02
+.\" %ENDIF OS FreeBSD
 .B #
 .nf
 .B # Three SATA disks on a HighPoint RocketRAID controller.
@@ -336,7 +342,7 @@ status fails, or if new errors appear in the self-test log.
 
 .B If a 3ware controller is used
 then the corresponding SCSI (/dev/sd?) or character device (/dev/twe?,
-/dev/twa? or /dev/twl?) must be listed, along with the \'\-d 3ware,N\'
+/dev/twa?, /dev/twl? or /dev/tws?) must be listed, along with the \'\-d 3ware,N\'
 Directive (see below).  The individual ATA disks hosted by the 3ware
 controller appear to \fBsmartd\fP as normal ATA devices.  Hence all
 the ATA directives can be used for these disks (but see note below).
