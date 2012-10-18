@@ -1,6 +1,12 @@
 $Id$
 
+2012-10-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: define _WIN32.  This fixes build on
+	Cygwin with new w32api-headers.
+
 2012-10-18  Alex Samorukov  <samm@os2.kiev.ua>
+
 	Compile fixes for Areca patch on FreeBSD.
 	Added support for the /dev/twsX (3ware 9750) controller on FreeBSD.
 	Manual pages updated with /dev/twsX device
