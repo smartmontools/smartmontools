@@ -542,6 +542,7 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   ata->unit          = m_disknum;
   ata->status        = 0;
   ata->flags         = 0x1;
+  ata->size         = 0x5; // TODO: multisector support
   // Set registers
   {
     const ata_in_regs_48bit & r = in.in_regs;
@@ -565,7 +566,6 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   if (in.direction == ata_cmd_in::data_in) {
     readdata=true;
     ata->sgl_offset   = 0x5;
-    ata->size         = 0x5; // TODO: other values for multisector?
     ata->param        = 0xD;
     // For 64-bit to work correctly, up the size of the command packet
     // in dwords by 1 to account for the 64-bit single sgl 'address'
@@ -576,9 +576,8 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   }
   else if (in.direction == ata_cmd_in::no_data) {
     // Non data command -- but doesn't use large sector 
-    // count register values.  
+    // count register values.
     ata->sgl_offset   = 0x0;
-    ata->size         = 0x5;
     ata->param        = 0x8;
     ata->sector_count = 0x0;
   }
@@ -587,7 +586,6 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
     // Non data command -- but doesn't use large sector 
     // count register values.
     ata->sgl_offset   = 0x5;
-    ata->size         = 0x5; // TODO: not valid for multisector
     ata->param        = 0xF; // PIO data write
     if (m_escalade_type==CONTROLLER_3WARE_678K_CHAR) {
       cmd_twe->tu_data = in.buffer;
