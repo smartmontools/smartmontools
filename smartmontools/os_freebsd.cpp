@@ -190,6 +190,7 @@ static const char  smartctl_examples[] =
          "                                      (Prints Self-Test & Attribute errors)\n\n"
          "  smartctl -a --device=3ware,2 /dev/twa0\n"
          "  smartctl -a --device=3ware,2 /dev/twe0\n"
+         "  smartctl -a --device=3ware,2 /dev/tws0\n"
          "                              (Prints all SMART information for ATA disk on\n"
          "                                 third port of first 3ware RAID controller)\n"
   "  smartctl -a --device=cciss,0 /dev/ciss0\n"
@@ -1318,7 +1319,7 @@ smart_device * freebsd_scsi_device::autodetect_open()
   if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
     close();
     set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
-                    "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
+                    "you may need to replace %s with /dev/twaN, /dev/tweN or /dev/twsN", get_dev_name());
     return this;
   }
 
@@ -1916,6 +1917,7 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
   // 3Ware ?
   static const char * fbsd_dev_twe_ctrl = "/dev/twe";
   static const char * fbsd_dev_twa_ctrl = "/dev/twa";
+  static const char * fbsd_dev_tws_ctrl = "/dev/tws";
   int disknum = -1, n1 = -1, n2 = -1, contr = -1;
 
   if (sscanf(type, "3ware,%n%d%n", &n1, &disknum, &n2) == 1 || n1 == 6) {
@@ -1929,7 +1931,8 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
     }
 
     // guess 3ware device type based on device name
-    if (!strncmp(fbsd_dev_twa_ctrl, name, strlen(fbsd_dev_twa_ctrl))){
+    if (str_starts_with(name, fbsd_dev_twa_ctrl) ||
+        str_starts_with(name, fbsd_dev_tws_ctrl)   ) {
       contr=CONTROLLER_3WARE_9000_CHAR;
     }
     if (!strncmp(fbsd_dev_twe_ctrl, name, strlen(fbsd_dev_twe_ctrl))){
@@ -1937,12 +1940,12 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
     }
 
     if(contr == -1){
-      set_err(EINVAL, "3ware controller type unknown, use %sX or %sX devices", 
-        fbsd_dev_twe_ctrl, fbsd_dev_twa_ctrl);
+      set_err(EINVAL, "3ware controller type unknown, use %sX, %sX or %sX devices", 
+        fbsd_dev_twe_ctrl, fbsd_dev_twa_ctrl, fbsd_dev_tws_ctrl);
       return 0;
     }
     return new freebsd_escalade_device(this, name, contr, disknum);
-  } 
+  }
 
   // Highpoint ?
   int controller = -1, channel = -1; disknum = 1;
