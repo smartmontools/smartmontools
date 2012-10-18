@@ -6,6 +6,7 @@ $Id$
 	Manual pages updated with /dev/twsX device
 	FreeBSD: Migrate 3ware interface to ata_pass_through()
 	FreeBSD: fix missing drives detection on -d 3ware
+	FreeBSD: 3ware - do not pass buffers direcly, use memcpy() instead
 
 2012-10-16  Christian Franke  <franke@computer.org>
 

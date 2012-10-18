@@ -587,12 +587,11 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
     ata->sgl_offset   = 0x5;
     ata->param        = 0xF; // PIO data write
     if (m_escalade_type==CONTROLLER_3WARE_678K_CHAR) {
-      cmd_twe->tu_data = in.buffer;
+      memcpy(cmd_twe->tu_data, in.buffer, in.size);
       cmd_twe->tu_size = in.size;
     }
     else if (m_escalade_type==CONTROLLER_3WARE_9000_CHAR) {
-       cmd_twa->pdata = in.buffer;
-       cmd_twa->driver_pkt.buffer_length = in.size;
+       memcpy(cmd_twa->pdata, in.buffer, in.size);
     }
   }
   else
