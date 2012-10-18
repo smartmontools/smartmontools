@@ -59,6 +59,8 @@ ARCMSR_CMD_TOTAL
 #define ARCMSR_IOCTL_CLEAR_WQBUFFER          (ARECA_SATA_RAID | FUNCTION_CLEAR_WQBUFFER)
 #define ARCMSR_IOCTL_RETURN_CODE_3F          (ARECA_SATA_RAID | FUNCTION_RETURN_CODE_3F)
 #elif defined(__FreeBSD__)
+#include <sys/ioctl.h> // _IOWR
+
 /*FunctionCode*/
 #define FUNCTION_READ_RQBUFFER               0x0801
 #define FUNCTION_WRITE_WQBUFFER              0x0802
