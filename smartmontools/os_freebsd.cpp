@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3655 2012-10-18 16:03:53Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3656 2012-10-18 16:06:55Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -581,7 +581,6 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
     ata->param        = 0x8;
     ata->sector_count = 0x0;
   }
-
   else if (in.direction == ata_cmd_in::data_out) {
     // Non data command -- but doesn't use large sector 
     // count register values.
@@ -596,6 +595,8 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
        cmd_twa->driver_pkt.buffer_length = in.size;
     }
   }
+  else
+    return set_err(EINVAL);
 
   // 3WARE controller can NOT have packet device internally
   if (in.in_regs.command == ATA_IDENTIFY_PACKET_DEVICE) {
