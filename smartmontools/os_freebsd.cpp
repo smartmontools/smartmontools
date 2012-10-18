@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3658 2012-10-18 19:33:06Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3659 2012-10-18 19:58:22Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1242,9 +1242,10 @@ smart_device * freebsd_scsi_device::autodetect_open()
   // Use INQUIRY to detect type
 
   // 3ware ?
-  if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
+  if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4) ||
+      !strcmp("tws",m_camdev->sim_name) || !strcmp("twa",m_camdev->sim_name)) {
     close();
-    set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
+    set_err(EINVAL, "3ware/LSI controller, please try adding '-d 3ware,N',\n"
                     "you may need to replace %s with /dev/twaN, /dev/tweN or /dev/twsN", get_dev_name());
     return this;
   }
