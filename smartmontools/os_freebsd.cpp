@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3656 2012-10-18 16:06:55Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3657 2012-10-18 16:49:27Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -587,12 +587,11 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
     ata->sgl_offset   = 0x5;
     ata->param        = 0xF; // PIO data write
     if (m_escalade_type==CONTROLLER_3WARE_678K_CHAR) {
-      cmd_twe->tu_data = in.buffer;
+      memcpy(cmd_twe->tu_data, in.buffer, in.size);
       cmd_twe->tu_size = in.size;
     }
     else if (m_escalade_type==CONTROLLER_3WARE_9000_CHAR) {
-       cmd_twa->pdata = in.buffer;
-       cmd_twa->driver_pkt.buffer_length = in.size;
+       memcpy(cmd_twa->pdata, in.buffer, in.size);
     }
   }
   else

@@ -1,4 +1,4 @@
-$Id: ChangeLog 3653 2012-10-18 15:39:50Z samm2 $
+$Id: ChangeLog 3657 2012-10-18 16:49:27Z samm2 $
 
 2012-10-18  Alex Samorukov  <samm@os2.kiev.ua>
 	Compile fixes for Areca patch on FreeBSD.
@@ -6,6 +6,7 @@ $Id: ChangeLog 3653 2012-10-18 15:39:50Z samm2 $
 	Manual pages updated with /dev/twsX device
 	FreeBSD: Migrate 3ware interface to ata_pass_through()
 	FreeBSD: fix missing drives detection on -d 3ware
+	FreeBSD: 3ware - do not pass buffers direcly, use memcpy() instead
 
 2012-10-16  Christian Franke  <franke@computer.org>
 
