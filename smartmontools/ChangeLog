@@ -2,6 +2,12 @@ $Id$
 
 2012-10-18  Christian Franke  <franke@computer.org>
 
+	utility.cpp: Add missing errno clear in split_selective_arg()
+	(Debian bug 690108).
+	Remove unused function split_report_arg2().
+
+2012-10-18  Christian Franke  <franke@computer.org>
+
 	os_win32.cpp: define _WIN32.  This fixes build on
 	Cygwin with new w32api-headers.
 

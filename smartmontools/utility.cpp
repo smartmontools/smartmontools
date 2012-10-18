@@ -502,27 +502,6 @@ int split_report_arg(char *s, int *i)
   return 0;
 }
 
-// same as above but sets *i to -1 if missing , argument
-int split_report_arg2(char *s, int *i){
-  char *tailptr;
-  s+=6;
-
-  if (*s=='\0' || !isdigit((int)*s)) { 
-    // What's left must be integer
-    *i=-1;
-    return 1;
-  }
-
-  errno = 0;
-  *i = (int) strtol(s, &tailptr, 10);
-  if (errno || *tailptr != '\0') {
-    *i=-1;
-    return 1;
-  }
-
-  return 0;
-}
-
 #ifndef HAVE_STRTOULL
 // Replacement for missing strtoull() (Linux with libc < 6, MSVC)
 // Functionality reduced to requirements of smartd and split_selective_arg().
@@ -616,6 +595,8 @@ int split_selective_arg(char *s, uint64_t *start,
       return 0;
     }
   }
+
+  errno = 0;
   *stop = strtoull(s+1, &tailptr, 0);
   if (errno || *tailptr != '\0')
     return 1;
