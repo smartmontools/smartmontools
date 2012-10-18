@@ -581,7 +581,6 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
     ata->param        = 0x8;
     ata->sector_count = 0x0;
   }
-
   else if (in.direction == ata_cmd_in::data_out) {
     // Non data command -- but doesn't use large sector 
     // count register values.
@@ -596,6 +595,8 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
        cmd_twa->driver_pkt.buffer_length = in.size;
     }
   }
+  else
+    return set_err(EINVAL);
 
   // 3WARE controller can NOT have packet device internally
   if (in.in_regs.command == ATA_IDENTIFY_PACKET_DEVICE) {
