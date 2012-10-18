@@ -524,7 +524,8 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   if (m_escalade_type==CONTROLLER_3WARE_9000_CHAR) {
     cmd_twa = (TW_OSLI_IOCTL_NO_DATA_BUF*)ioctl_buffer;
     cmd_twa->pdata = ((TW_OSLI_IOCTL_WITH_PAYLOAD*)cmd_twa)->payload.data_buf;
-    cmd_twa->driver_pkt.buffer_length = 512;
+    cmd_twa->driver_pkt.buffer_length = in.size;
+    // using "old" packet format to speak with SATA devices
     ata = (TWE_Command_ATA*)&cmd_twa->cmd_pkt.command.cmd_pkt_7k;
   } else if (m_escalade_type==CONTROLLER_3WARE_678K_CHAR) {
     cmd_twe = (struct twe_usercommand*)ioctl_buffer;
