@@ -1,4 +1,8 @@
-$Id: ChangeLog 3661 2012-10-18 21:42:12Z chrfranke $
+$Id: ChangeLog 3662 2012-10-19 11:30:21Z samm2 $
+
+2012-10-19  Alex Samorukov   <samm@os2.kiev.ua>
+	os_freebsd.cpp - fixed 3ware twe controller support broken 
+	by inerface migration.
 
 2012-10-18  Christian Franke  <franke@computer.org>
 

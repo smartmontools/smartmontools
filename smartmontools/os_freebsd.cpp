@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3659 2012-10-18 19:58:22Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3662 2012-10-19 11:30:21Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -565,6 +565,11 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   // passthru->size values are 0x5 for non-data and 0x07 for data
   bool readdata = false;
   if (in.direction == ata_cmd_in::data_in) {
+    if (m_escalade_type==CONTROLLER_3WARE_678K_CHAR) {
+      cmd_twe->tu_data = in.buffer;
+      cmd_twe->tu_size = 512;
+    }
+
     readdata=true;
     ata->sgl_offset   = 0x5;
     ata->param        = 0xD;
@@ -583,13 +588,11 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
     ata->sector_count = 0x0;
   }
   else if (in.direction == ata_cmd_in::data_out) {
-    // Non data command -- but doesn't use large sector 
-    // count register values.
     ata->sgl_offset   = 0x5;
     ata->param        = 0xF; // PIO data write
     if (m_escalade_type==CONTROLLER_3WARE_678K_CHAR) {
-      memcpy(cmd_twe->tu_data, in.buffer, in.size);
-      cmd_twe->tu_size = in.size;
+      cmd_twe->tu_data = in.buffer;
+      cmd_twe->tu_size = 512;
     }
     else if (m_escalade_type==CONTROLLER_3WARE_9000_CHAR) {
        memcpy(cmd_twa->pdata, in.buffer, in.size);
