@@ -1,5 +1,9 @@
 $Id$
 
+2012-10-19  Alex Samorukov   <samm@os2.kiev.ua>
+	os_freebsd.cpp - fixed 3ware twe controller support broken 
+	by inerface migration.
+
 2012-10-18  Christian Franke  <franke@computer.org>
 
 	utility.cpp: Add missing errno clear in split_selective_arg()
