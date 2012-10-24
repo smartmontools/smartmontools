@@ -1,4 +1,11 @@
-$Id: ChangeLog 3662 2012-10-19 11:30:21Z samm2 $
+$Id: ChangeLog 3663 2012-10-24 20:35:55Z chrfranke $
+
+2012-10-24  Christian Franke  <franke@computer.org>
+
+	dev_interface: Rework ATA parameter checks, use new flags
+	ata_device::supports_* for new ata_cmd_is_supported().
+	Replace ata_cmd_is_ok() by ata_cmd_is_supported() in scsiata.cpp
+	and os_win32.cpp.
 
 2012-10-19  Alex Samorukov   <samm@os2.kiev.ua>
 	os_freebsd.cpp - fixed 3ware twe controller support broken 
