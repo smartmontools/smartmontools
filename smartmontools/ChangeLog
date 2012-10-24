@@ -1,4 +1,9 @@
-$Id: ChangeLog 3663 2012-10-24 20:35:55Z chrfranke $
+$Id: ChangeLog 3664 2012-10-24 21:07:11Z chrfranke $
+
+2012-10-24  Christian Franke  <franke@computer.org>
+
+	dev_areca.cpp: Add missing parameter check to ata_pass_through().
+	Update Areca info on man pages.
 
 2012-10-24  Christian Franke  <franke@computer.org>
 
@@ -8,7 +13,8 @@ $Id: ChangeLog 3663 2012-10-24 20:35:55Z chrfranke $
 	and os_win32.cpp.
 
 2012-10-19  Alex Samorukov   <samm@os2.kiev.ua>
-	os_freebsd.cpp - fixed 3ware twe controller support broken 
+
+	os_freebsd.cpp - fixed 3ware twe controller support broken
 	by inerface migration.
 
 2012-10-18  Christian Franke  <franke@computer.org>
