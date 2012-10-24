@@ -667,6 +667,15 @@ areca_ata_device::~areca_ata_device() throw()
 
 bool areca_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
+  if (!ata_cmd_is_supported(in,
+    ata_device::supports_data_out |
+    ata_device::supports_output_regs |
+  //ata_device::supports_multi_sector | // TODO
+    ata_device::supports_48bit_hi_null,
+    "Areca")
+  )
+    return false;
+
   return arcmsr_ata_pass_through(in, out);
 }
 

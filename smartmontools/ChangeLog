@@ -2,13 +2,19 @@ $Id$
 
 2012-10-24  Christian Franke  <franke@computer.org>
 
+	dev_areca.cpp: Add missing parameter check to ata_pass_through().
+	Update Areca info on man pages.
+
+2012-10-24  Christian Franke  <franke@computer.org>
+
 	dev_interface: Rework ATA parameter checks, use new flags
 	ata_device::supports_* for new ata_cmd_is_supported().
 	Replace ata_cmd_is_ok() by ata_cmd_is_supported() in scsiata.cpp
 	and os_win32.cpp.
 
 2012-10-19  Alex Samorukov   <samm@os2.kiev.ua>
-	os_freebsd.cpp - fixed 3ware twe controller support broken 
+
+	os_freebsd.cpp - fixed 3ware twe controller support broken
 	by inerface migration.
 
 2012-10-18  Christian Franke  <franke@computer.org>
