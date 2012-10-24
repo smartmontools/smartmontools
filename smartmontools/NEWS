@@ -5,6 +5,15 @@ $Id$
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
+Date <Not released yet, please try current SVN>
+Summary: smartmontools release 6.1
+-----------------------------------------------------------
+- smartctl: Fix parsing of '-l select,cont+SIZE' option.
+- Linux: Support for SAS disks behind Areca controllers.
+- FreeBSD: Support for SAS disks behind Areca controllers.
+- FreeBSD: Enhanced ATA command support for 3ware.
+- FreeBSD: Support for 3ware 9750 (/dev/twsX).
+
 Date 2012-10-10
 Summary: smartmontools release 6.0
 -----------------------------------------------------------
