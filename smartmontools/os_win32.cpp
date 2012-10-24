@@ -2482,10 +2482,10 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
   // No multi-sector support for now, see above
   // warning about IOCTL_ATA_PASS_THROUGH
-  if (!ata_cmd_is_ok(in,
-    true, // data_out_support
-    false, // !multi_sector_support
-    true) // ata_48bit_support
+  if (!ata_cmd_is_supported(in,
+    ata_device::supports_data_out |
+    ata_device::supports_output_regs |
+    ata_device::supports_48bit)
   )
     return false;
 
@@ -2896,10 +2896,12 @@ bool csmi_device::select_phy(unsigned phy_no)
 
 bool csmi_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
-  if (!ata_cmd_is_ok(in,
-    true, // data_out_support
-    true, // multi_sector_support
-    true) // ata_48bit_support
+  if (!ata_cmd_is_supported(in,
+    ata_device::supports_data_out |
+    ata_device::supports_output_regs |
+    ata_device::supports_multi_sector |
+    ata_device::supports_48bit,
+    "CMSI")
   )
     return false;
 

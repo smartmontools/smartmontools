@@ -19,6 +19,7 @@
 #include "int64.h"
 #include "dev_interface.h"
 #include "dev_tunnelled.h"
+#include "atacmds.h" // ATA_SMART_CMD/STATUS
 #include "utility.h"
 
 #include <errno.h>
@@ -138,10 +139,8 @@ bool ata_device::ata_pass_through(const ata_cmd_in & in)
   return ata_pass_through(in, dummy);
 }
 
-bool ata_device::ata_cmd_is_ok(const ata_cmd_in & in,
-  bool data_out_support /*= false*/,
-  bool multi_sector_support /*= false*/,
-  bool ata_48bit_support /*= false*/)
+bool ata_device::ata_cmd_is_supported(const ata_cmd_in & in,
+  unsigned flags, const char * type /* = 0 */)
 {
   // Check DATA IN/OUT
   switch (in.direction) {
@@ -167,12 +166,25 @@ bool ata_device::ata_cmd_is_ok(const ata_cmd_in & in,
   }
 
   // Check features
-  if (in.direction == ata_cmd_in::data_out && !data_out_support)
-    return set_err(ENOSYS, "DATA OUT ATA commands not supported");
-  if (!(in.size == 0 || in.size == 512) && !multi_sector_support)
-    return set_err(ENOSYS, "Multi-sector ATA commands not supported");
-  if (in.in_regs.is_48bit_cmd() && !ata_48bit_support)
-    return set_err(ENOSYS, "48-bit ATA commands not supported");
+  const char * errmsg = 0;
+  if (in.direction == ata_cmd_in::data_out && !(flags & supports_data_out))
+    errmsg = "DATA OUT ATA commands not implemented";
+  else if (   in.out_needed.is_set() && !(flags & supports_output_regs)
+           && !(   in.in_regs.command == ATA_SMART_CMD
+                && in.in_regs.features == ATA_SMART_STATUS
+                && (flags & supports_smart_status)))
+    errmsg = "Read of ATA output registers not implemented";
+  else if (!(in.size == 0 || in.size == 512) && !(flags & supports_multi_sector))
+    errmsg = "Multi-sector ATA commands not implemented";
+  else if (in.in_regs.is_48bit_cmd() && !(flags & (supports_48bit_hi_null|supports_48bit)))
+    errmsg = "48-bit ATA commands not implemented";
+  else if (in.in_regs.is_real_48bit_cmd() && !(flags & supports_48bit))
+    errmsg = "48-bit ATA commands not fully implemented";
+
+  if (errmsg)
+    return set_err(ENOSYS, "%s%s%s%s", errmsg,
+                   (type ? " [" : ""), (type ? type : ""), (type ? "]" : ""));
+
   return true;
 }
 

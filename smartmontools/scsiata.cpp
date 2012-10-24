@@ -232,10 +232,12 @@ sat_device::~sat_device() throw()
 
 bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
-  if (!ata_cmd_is_ok(in,
-    true, // data_out_support
-    true, // multi_sector_support
-    true) // ata_48bit_support
+  if (!ata_cmd_is_supported(in,
+    ata_device::supports_data_out |
+    ata_device::supports_output_regs |
+    ata_device::supports_multi_sector |
+    ata_device::supports_48bit,
+    "SAT")
   )
     return false;
 
@@ -989,23 +991,13 @@ bool usbjmicron_device::open()
 
 bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
-  if (!ata_cmd_is_ok(in,
-    true,  // data_out_support
-    false, // !multi_sector_support
-    m_ata_48bit_support) // limited, see below
+  if (!ata_cmd_is_supported(in,
+    ata_device::supports_data_out |
+    ata_device::supports_smart_status |
+    (m_ata_48bit_support ? ata_device::supports_48bit_hi_null : 0),
+    "JMicron")
   )
     return false;
-
-  bool is_smart_status = (   in.in_regs.command  == ATA_SMART_CMD
-                          && in.in_regs.features == ATA_SMART_STATUS);
-
-  // Support output registers for SMART STATUS
-  if (in.out_needed.is_set() && !is_smart_status)
-    return set_err(ENOSYS, "ATA output registers not supported");
-
-  // Support 48-bit commands with zero high bytes
-  if (in.in_regs.is_real_48bit_cmd())
-    return set_err(ENOSYS, "48-bit ATA commands not fully supported");
 
   if (m_port < 0)
     return set_err(EIO, "Unknown JMicron port");
@@ -1015,6 +1007,9 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
 
   bool rwbit = true;
   unsigned char smart_status = 0;
+
+  bool is_smart_status = (   in.in_regs.command  == ATA_SMART_CMD
+                          && in.in_regs.features == ATA_SMART_STATUS);
 
   if (is_smart_status && in.out_needed.is_set()) {
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
@@ -1169,10 +1164,11 @@ usbsunplus_device::~usbsunplus_device() throw()
 
 bool usbsunplus_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
-  if (!ata_cmd_is_ok(in,
-    true,  // data_out_support
-    false, // !multi_sector_support
-    true)  // ata_48bit_support
+  if (!ata_cmd_is_supported(in,
+    ata_device::supports_data_out |
+    ata_device::supports_output_regs |
+    ata_device::supports_48bit,
+    "Sunplus")
   )
     return false;
 
