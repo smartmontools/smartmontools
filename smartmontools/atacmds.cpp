@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3636 2012-10-09 14:55:31Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3666 2012-10-25 17:40:31Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -2562,6 +2562,13 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
       pout("SMART WRITE LOG does not return COUNT and LBA_LOW register\n");
       return -1;
     }
+    if (   out.out_regs.sector_count == in.in_regs.sector_count
+        && out.out_regs.lba_low      == in.in_regs.lba_low     ) {
+      // 0xe001 (5734.5s) - this is most likely a broken ATA pass-through implementation
+      pout("SMART WRITE LOG returns COUNT and LBA_LOW register unchanged\n");
+      return -1;
+    }
+
     // Return value to caller
     time_limit = out.out_regs.sector_count | (out.out_regs.lba_low << 8);
   }
