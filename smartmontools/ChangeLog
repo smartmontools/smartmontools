@@ -1,5 +1,10 @@
 $Id$
 
+2012-10-25  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Return error for get SCT ERC if ATA registers are
+	unchanged after SMART_WRITE_LOG command (see ticket #245).
+
 2012-10-24  Christian Franke  <franke@computer.org>
 
 	dev_areca.cpp: Add missing parameter check to ata_pass_through().
