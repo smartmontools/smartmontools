@@ -2,7 +2,9 @@ $Id$
 
 2012-10-27  Alex Samorukov <samm@os2.kiev.ua>
 	os_freebsd.cpp: Have smartd prefer real device names over passN.
-	Patch provided by dnelson, see ticket #211
+	Patch provided by dnelson, see ticket #21
+	os_freebsd.cpp: fix 48-bit support for ATA legacy controllers in
+	ATACAM mode, patch provided by Alexander Motin
 
 2012-10-25  Christian Franke  <franke@computer.org>
 

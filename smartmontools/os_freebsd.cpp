@@ -395,8 +395,6 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
     camflags = CAM_DIR_IN;
   else
     camflags = CAM_DIR_OUT;
-  if(is_48bit_cmd)
-    camflags |= CAM_ATAIO_48BIT;
 
   cam_fill_ataio(&ccb.ataio,
                  0,
@@ -407,7 +405,8 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
                  request->count,
                  request->timeout * 1000); // timeout in seconds
 
-  ccb.ataio.cmd.flags = CAM_ATAIO_NEEDRESULT;
+  ccb.ataio.cmd.flags = CAM_ATAIO_NEEDRESULT |
+    (is_48bit_cmd ? CAM_ATAIO_48BIT : 0);
   // ata_28bit_cmd
   ccb.ataio.cmd.command = request->u.ata.command;
   ccb.ataio.cmd.features = request->u.ata.feature;
