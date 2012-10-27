@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3667 2012-10-27 05:08:40Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3668 2012-10-27 08:18:45Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -395,8 +395,6 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
     camflags = CAM_DIR_IN;
   else
     camflags = CAM_DIR_OUT;
-  if(is_48bit_cmd)
-    camflags |= CAM_ATAIO_48BIT;
 
   cam_fill_ataio(&ccb.ataio,
                  0,
@@ -407,7 +405,8 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
                  request->count,
                  request->timeout * 1000); // timeout in seconds
 
-  ccb.ataio.cmd.flags = CAM_ATAIO_NEEDRESULT;
+  ccb.ataio.cmd.flags = CAM_ATAIO_NEEDRESULT |
+    (is_48bit_cmd ? CAM_ATAIO_48BIT : 0);
   // ata_28bit_cmd
   ccb.ataio.cmd.command = request->u.ata.command;
   ccb.ataio.cmd.features = request->u.ata.feature;
