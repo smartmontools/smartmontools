@@ -1,4 +1,8 @@
-$Id: ChangeLog 3666 2012-10-25 17:40:31Z chrfranke $
+$Id: ChangeLog 3667 2012-10-27 05:08:40Z samm2 $
+
+2012-10-27  Alex Samorukov <samm@os2.kiev.ua>
+	os_freebsd.cpp: Have smartd prefer real device names over passN.
+	Patch provided by dnelson, see ticket #211
 
 2012-10-25  Christian Franke  <franke@computer.org>
 

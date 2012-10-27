@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3662 2012-10-19 11:30:21Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3667 2012-10-27 05:08:40Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1438,10 +1438,13 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
       } else if (ccb.cdm.matches[i].type == DEV_MATCH_PERIPH && 
           (skip_device == 0 || show_all)) { 
         /* One device may be populated as many peripherals (pass0 & da0 for example). 
-        * We are searching for latest name
+        * We are searching for best name
         */
         periph_result =  &ccb.cdm.matches[i].result.periph_result;
-        devname = strprintf("%s%s%d", _PATH_DEV, periph_result->periph_name, periph_result->unit_number);
+        /* Prefer non-"pass" names */
+        if (devname.empty() || strncmp(periph_result->periph_name, "pass", 4) != 0) {
+          devname = strprintf("%s%s%d", _PATH_DEV, periph_result->periph_name, periph_result->unit_number);
+	    }
         changed = 0;
       };
       if ((changed == 1 || show_all) && !devname.empty()) {
