@@ -1438,10 +1438,13 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
       } else if (ccb.cdm.matches[i].type == DEV_MATCH_PERIPH && 
           (skip_device == 0 || show_all)) { 
         /* One device may be populated as many peripherals (pass0 & da0 for example). 
-        * We are searching for latest name
+        * We are searching for best name
         */
         periph_result =  &ccb.cdm.matches[i].result.periph_result;
-        devname = strprintf("%s%s%d", _PATH_DEV, periph_result->periph_name, periph_result->unit_number);
+        /* Prefer non-"pass" names */
+        if (devname.empty() || strncmp(periph_result->periph_name, "pass", 4) != 0) {
+          devname = strprintf("%s%s%d", _PATH_DEV, periph_result->periph_name, periph_result->unit_number);
+	    }
         changed = 0;
       };
       if ((changed == 1 || show_all) && !devname.empty()) {
