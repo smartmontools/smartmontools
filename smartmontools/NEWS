@@ -13,6 +13,8 @@ Summary: smartmontools release 6.1
 - FreeBSD: Support for SAS disks behind Areca controllers.
 - FreeBSD: Enhanced ATA command support for 3ware.
 - FreeBSD: Support for 3ware 9750 (/dev/twsX).
+- FreeBSD: Fixed support for 48-bit ATA commands on legacy controllers
+  with ATACAM driver.
 
 Date 2012-10-10
 Summary: smartmontools release 6.0
