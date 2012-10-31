@@ -1,6 +1,13 @@
 $Id$
 
+2012-10-31  Christian Franke  <franke@computer.org>
+
+	atacmdnames.cpp: Update for ATA-8-ACS, ACS-2, ACS-3.
+	ataidentify.cpp: Mark retired/obsolete values.
+	ataprint.cpp: Add new ACS-3 logs, mark obsolete logs.
+
 2012-10-27  Alex Samorukov <samm@os2.kiev.ua>
+
 	os_freebsd.cpp: Have smartd prefer real device names over passN.
 	Patch provided by dnelson, see ticket #21
 	os_freebsd.cpp: fix 48-bit support for ATA legacy controllers in

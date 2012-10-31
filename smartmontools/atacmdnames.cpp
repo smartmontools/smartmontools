@@ -1,13 +1,10 @@
 /*
  * atacmdnames.cpp
  *
- * This module is based on the T13/1532D Volume 1 Revision 3 (ATA/ATAPI-7)
- * specification, which is available from http://www.t13.org/#FTP_site
- *
  * Home page of code is: http://smartmontools.sourceforge.net
- * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
  * Copyright (C) 2003-8 Philip Williams
+ * Copyright (C) 2012 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,32 +20,33 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define COMMAND_TABLE_SIZE 256
-
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.17 2008/03/29 23:41:28 shattered Exp $" ATACMDNAMES_H_CVSID;
+const char * atacmdnames_cpp_cvsid = "$Id$"
+  ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
 const char cmd_reserved_sa[]     = "[RESERVED FOR SERIAL ATA]";
 const char cmd_reserved_cf[]     = "[RESERVED FOR COMPACTFLASH ASSOCIATION]";
-const char cmd_reserved_mcpt[]   = "[RESERVED FOR MEDIA CARD PASS THROUGH]";
+const char cmd_reserved_mcpt[]   = "[RESERVED FOR MEDIA CARD PASS THROUGH]"; // ACS-3: Reserved
 const char cmd_recalibrate_ret4[]= "RECALIBRATE [RET-4]";
 const char cmd_seek_ret4[]       = "SEEK [RET-4]";
 
-const char *command_table[COMMAND_TABLE_SIZE] = {
+// Tables B.3 and B.4 of T13/2161-D (ACS-3) Revision 4, September 4, 2012
+
+const char * const command_table[] = {
 /*-------------------------------------------------- 00h-0Fh -----*/
   "NOP",
   cmd_reserved,
   cmd_reserved,
-  "CFA REQUEST EXTENDED ERROR CODE",
+  "CFA REQUEST EXTENDED ERROR",
   cmd_reserved,
   cmd_reserved,
-  cmd_reserved,
+  "DATA SET MANAGEMENT", // ACS-2
   cmd_reserved,
   "DEVICE RESET",
   cmd_reserved,
   cmd_reserved,
-  cmd_reserved,
+  "REQUEST SENSE DATA EXT", // ACS-2
   cmd_reserved,
   cmd_reserved,
   cmd_reserved,
@@ -74,46 +71,46 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
 /*-------------------------------------------------- 20h-2Fh -----*/
   "READ SECTOR(S)",
   "READ SECTOR(S) [OBS-5]",
-  "READ LONG (w/ retry) [OBS-4]",
+  "READ LONG [OBS-4]",
   "READ LONG (w/o retry) [OBS-4]",
   "READ SECTOR(S) EXT",
   "READ DMA EXT",
-  "READ DMA QUEUED EXT",
-  "READ NATIVE MAX ADDRESS EXT",
+  "READ DMA QUEUED EXT [OBS-ACS-2]",
+  "READ NATIVE MAX ADDRESS EXT [OBS-ACS-3]",
   cmd_reserved,
   "READ MULTIPLE EXT",
   "READ STREAM DMA",
-  "READ STREAM PIO",
+  "READ STREAM",
   cmd_reserved,
   cmd_reserved,
   cmd_reserved,
   "READ LOG EXT",
 /*-------------------------------------------------- 30h-3Fh -----*/
   "WRITE SECTOR(S)",
-  "WRITE SECTOR(S) [OBS-5]",
-  "WRITE LONG(w/ retry) [OBS-4]",
-  "WRITE LONG(w/o retry) [OBS-4]",
+  "WRITE SECTOR(S) (w/o retry) [OBS-5]",
+  "WRITE LONG [OBS-4]",
+  "WRITE LONG (w/o retry) [OBS-4]",
   "WRITE SECTORS(S) EXT",
   "WRITE DMA EXT",
-  "WRITE DMA QUEUED EXT",
-  "SET MAX ADDRESS EXT",
+  "WRITE DMA QUEUED EXT [OBS-ACS-2]",
+  "SET NATIVE MAX ADDRESS EXT [OBS-ACS-3]",
   "CFA WRITE SECTORS WITHOUT ERASE",
   "WRITE MULTIPLE EXT",
   "WRITE STREAM DMA",
-  "WRITE STREAM PIO",
+  "WRITE STREAM",
   "WRITE VERIFY [OBS-4]",
   "WRITE DMA FUA EXT",
-  "WRITE DMA QUEUED FUA EXT",
+  "WRITE DMA QUEUED FUA EXT [OBS-ACS-2]",
   "WRITE LOG EXT",
 /*-------------------------------------------------- 40h-4Fh -----*/
   "READ VERIFY SECTOR(S)",
-  "READ VERIFY SECTOR(S) [OBS-5]",
+  "READ VERIFY SECTOR(S) (w/o retry) [OBS-5]",
   "READ VERIFY SECTOR(S) EXT",
   cmd_reserved,
   cmd_reserved,
+  "WRITE UNCORRECTABLE EXT", // ATA-8
   cmd_reserved,
-  cmd_reserved,
-  cmd_reserved,
+  "READ LOG DMA EXT", // ATA-8
   cmd_reserved,
   cmd_reserved,
   cmd_reserved,
@@ -130,22 +127,22 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
   cmd_reserved,
   cmd_reserved,
   cmd_reserved,
+  "WRITE LOG DMA EXT", // ATA-8
   cmd_reserved,
   cmd_reserved,
   cmd_reserved,
-  cmd_reserved,
-  cmd_reserved,
-  cmd_reserved,
-  cmd_reserved,
-  cmd_reserved,
-  cmd_reserved,
+  "TRUSTED NON-DATA", // ATA-8
+  "TRUSTED RECEIVE", // ATA-8
+  "TRUSTED RECEIVE DMA", // ATA-8
+  "TRUSTED SEND", // ATA-8
+  "TRUSTED SEND DMA", // ATA-8
 /*-------------------------------------------------- 60h-6Fh -----*/
-  "READ FPDMA QUEUED",
-  "WRITE FPDMA QUEUED",  
+  "READ FPDMA QUEUED", // ATA-8
+  "WRITE FPDMA QUEUED", // ATA-8
   cmd_reserved_sa,
-  cmd_reserved_sa,
-  cmd_reserved_sa,
-  cmd_reserved_sa,
+  "NCQ QUEUE MANAGEMENT", // ACS-3
+  "SEND FPDMA QUEUED", // ACS-3
+  "RECEIVE FPDMA QUEUED", // ACS-3
   cmd_reserved_sa,
   cmd_reserved_sa,
   cmd_reserved,
@@ -164,8 +161,8 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
   cmd_seek_ret4,
   cmd_seek_ret4,
   cmd_seek_ret4,
-  cmd_seek_ret4,
-  cmd_seek_ret4,
+  "SET DATE & TIME EXT", // ACS-3
+  "ACCESSIBLE MAX ADDRESS CONFIGURATION", // ACS-3
   cmd_seek_ret4,
   cmd_seek_ret4,
   cmd_seek_ret4,
@@ -194,7 +191,7 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
   "EXECUTE DEVICE DIAGNOSTIC",
   "INITIALIZE DEVICE PARAMETERS [OBS-6]",
   "DOWNLOAD MICROCODE",
-  cmd_reserved,
+  "DOWNLOAD MICROCODE DMA", // ACS-2
   "STANDBY IMMEDIATE [RET-4]",
   "IDLE IMMEDIATE [RET-4]",
   "STANDBY [RET-4]",
@@ -210,7 +207,7 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
 /*-------------------------------------------------- A0h-AFh -----*/
   "PACKET",
   "IDENTIFY PACKET DEVICE",
-  "SERVICE",
+  "SERVICE [OBS-ACS-2]",
   cmd_reserved,
   cmd_reserved,
   cmd_reserved,
@@ -226,21 +223,21 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
   cmd_reserved,
 /*-------------------------------------------------- B0h-BFh -----*/
   "SMART",
-  "DEVICE CONFIGURATION",
+  "DEVICE CONFIGURATION [OBS-ACS-3]",
+  cmd_reserved,
+  cmd_reserved,
+  "SANITIZE DEVICE", // ACS-2
+  cmd_reserved,
+  "NV CACHE [OBS-ACS-3]", // ATA-8
+  cmd_reserved_cf,
+  cmd_reserved_cf,
+  cmd_reserved_cf,
+  cmd_reserved_cf,
+  cmd_reserved_cf,
   cmd_reserved,
   cmd_reserved,
   cmd_reserved,
   cmd_reserved,
-  cmd_reserved,
-  cmd_reserved,
-  cmd_reserved_cf,
-  cmd_reserved_cf,
-  cmd_reserved_cf,
-  cmd_reserved_cf,
-  cmd_reserved_cf,
-  cmd_reserved_cf,
-  cmd_reserved_cf,
-  cmd_reserved_cf,
 /*-------------------------------------------------- C0h-CFh -----*/
   "CFA ERASE SECTORS [VS IF NO CFA]",
   cmd_vendor_specific,
@@ -249,18 +246,18 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
   "READ MULTIPLE",
   "WRITE MULTIPLE",
   "SET MULTIPLE MODE",
-  "READ DMA QUEUED",
+  "READ DMA QUEUED [OBS-ACS-2]",
   "READ DMA",
-  "READ DMA [OBS-5]",
+  "READ DMA (w/o retry) [OBS-5]",
   "WRITE DMA",
-  "WRITE DMA [OBS-5]",
-  "WRITE DMA QUEUED",
+  "WRITE DMA (w/o retry) [OBS-5]",
+  "WRITE DMA QUEUED [OBS-ACS-2]",
   "CFA WRITE MULTIPLE WITHOUT ERASE",
   "WRITE MULTIPLE FUA EXT",
   cmd_reserved,
 /*-------------------------------------------------- D0h-DFh -----*/
   cmd_reserved,
-  "CHECK MEDIA CARD TYPE",
+  "CHECK MEDIA CARD TYPE [OBS-ACS-2]",
   cmd_reserved_mcpt,
   cmd_reserved_mcpt,
   cmd_reserved_mcpt,
@@ -269,12 +266,12 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
   cmd_reserved,
   cmd_reserved,
   cmd_reserved,
-  "GET MEDIA STATUS",
+  "GET MEDIA STATUS [OBS-8]",
   "ACKNOWLEDGE MEDIA CHANGE [RET-4]",
   "BOOT POST-BOOT [RET-4]",
   "BOOT PRE-BOOT [RET-4]",
-  "MEDIA LOCK",
-  "MEDIA UNLOCK",
+  "MEDIA LOCK [OBS-8]",
+  "MEDIA UNLOCK [OBS-8]",
 /*-------------------------------------------------- E0h-EFh -----*/
   "STANDBY IMMEDIATE",
   "IDLE IMMEDIATE",
@@ -285,14 +282,11 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
   "SLEEP",
   "FLUSH CACHE",
   "WRITE BUFFER",
-  "WRITE SAME [RET-4]",  /* Warning!  This command is retired but the value of
-                            f_reg is used in look_up_ata_command().  If this
-                            command code is reclaimed in a future standard then
-                            be sure to update look_up_ata_command(). */
+  "READ BUFFER DMA", // ACS-2 (was: WRITE SAME [RET-4])
   "FLUSH CACHE EXT",
-  cmd_reserved,
+  "WRITE BUFFER DMA", // ACS-2
   "IDENTIFY DEVICE",
-  "MEDIA EJECT",
+  "MEDIA EJECT [OBS-8]",
   "IDENTIFY DEVICE DMA [OBS-4]",
   "SET FEATURES",
 /*-------------------------------------------------- F0h-FFh -----*/
@@ -304,8 +298,8 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
   "SECURITY FREEZE LOCK",
   "SECURITY DISABLE PASSWORD",
   cmd_vendor_specific,
-  "READ NATIVE MAX ADDRESS",
-  "SET MAX",
+  "READ NATIVE MAX ADDRESS [OBS-ACS-3]",
+  "SET MAX ADDRESS [OBS-ACS-3]",
   cmd_vendor_specific,
   cmd_vendor_specific,
   cmd_vendor_specific,
@@ -314,6 +308,9 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
   cmd_vendor_specific
 };
 
+typedef char ASSERT_command_table_size[
+  sizeof(command_table)/sizeof(command_table[0]) == 256 ? 1 : -1];
+
 /* Returns the name of the command (and possibly sub-command) with the given
    command code and feature register values.   For most command codes this
    simply returns the corresponding entry in the command_table array, but for
@@ -321,33 +318,28 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
    distinguishes commands. */
 const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
 
-  // check that command table not messed up.  The compiler will issue
-  // warnings if there are too many array elements, but won't issue
-  // warnings if there are not enough of them.
-  if (sizeof(command_table) != sizeof(char *)*COMMAND_TABLE_SIZE){
-    fprintf(stderr, 
-            "Problem in atacmdnames.c.  Command Table command_table[] does\n"
-            "not have %d entries!  It has %d entries. Please fix it.\n",
-            COMMAND_TABLE_SIZE, (int)(sizeof(command_table)/sizeof(char *)));
-    abort();
-  }
-
   switch (c_code) {
   case 0x00:  /* NOP */
     switch (f_reg) {
     case 0x00:
       return "NOP [Abort queued commands]";
     case 0x01:
-      return "NOP [Don't abort queued commands]";
+      return "NOP [Don't abort queued commands] [OBS-ACS-2]";
     default:
-      return "NOP [Reserved subcommand]";
+      return "NOP [Reserved subcommand] [OBS-ACS-2]";
     }
   case 0x92:  /* DOWNLOAD MICROCODE */
     switch (f_reg) {
     case 0x01:
-      return "DOWNLOAD MICROCODE [Temporary]";
+      return "DOWNLOAD MICROCODE [Temporary] [OBS-8]";
+    case 0x03:
+      return "DOWNLOAD MICROCODE [Save with offsets]"; // ATA-8
     case 0x07:
       return "DOWNLOAD MICROCODE [Save]";
+    case 0x0e:
+      return "DOWNLOAD MICROCODE [Save for future use]"; // ACS-3
+    case 0x0f:
+      return "DOWNLOAD MICROCODE [Activate]"; // ACS-3
     default:
       return "DOWNLOAD MICROCODE [Reserved subcommand]";
     }
@@ -379,36 +371,27 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "SMART EN/DISABLE AUTO OFFLINE [NS (SFF-8035i)]";
     default:
         if (f_reg >= 0xE0)
-          return "[Vendor specific SMART command]";
+          return "SMART [Vendor specific subcommand]";
         else
-          return "[Reserved SMART command]";
+          return "SMART [Reserved subcommand]";
     }
   case 0xB1:  /* DEVICE CONFIGURATION */
     switch (f_reg) {
     case 0xC0:
-      return "DEVICE CONFIGURATION RESTORE";
+      return "DEVICE CONFIGURATION RESTORE [OBS-ACS-3]";
     case 0xC1:
-      return "DEVICE CONFIGURATION FREEZE LOCK";
+      return "DEVICE CONFIGURATION FREEZE LOCK [OBS-ACS-3]";
     case 0xC2:
-      return "DEVICE CONFIGURATION IDENTIFY";
+      return "DEVICE CONFIGURATION IDENTIFY [OBS-ACS-3]";
     case 0xC3:
-      return "DEVICE CONFIGURATION SET";
+      return "DEVICE CONFIGURATION SET [OBS-ACS-3]";
     default:
-      return "DEVICE CONFIGURATION [Reserved command]";
+      return "DEVICE CONFIGURATION [Reserved subcommand] [OBS-ACS-3]";
     }
-  case 0xE9:  /* WRITE SAME */
-    switch (f_reg) {
-    case 0x22:
-      return "WRITE SAME [Start specified] [RET-4]";
-    case 0xDD:
-      return "WRITE SAME [Start unspecified] [RET-4]";
-    default:
-      return "WRITE SAME [Invalid subcommand] [RET-4]";
-    } 
   case 0xEF:  /* SET FEATURES */
     switch (f_reg) {
     case 0x01:
-      return "SET FEATURES [Enable 8-bit PIO]";
+      return "SET FEATURES [Enable 8-bit PIO] [OBS-3]"; // Now CFA
     case 0x02:
       return "SET FEATURES [Enable write cache]";
     case 0x03:
@@ -422,39 +405,45 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0x07:
       return "SET FEATURES [Set device spin-up]";
     case 0x09:
-      return "SET FEATURES [Reserved (address offset)]";
+      return "SET FEATURES [Reserved (address offset)] [OPS-ACS-3]";
     case 0x0A:
       return "SET FEATURES [Enable CFA power mode 1]";
     case 0x10:
-      return "SET FEATURES [Reserved for Serial ATA]";
+      return "SET FEATURES [Enable SATA feature]"; // ACS-3
     case 0x20:
       return "SET FEATURES [Set Time-ltd R/W WCT]";
     case 0x21:
       return "SET FEATURES [Set Time-ltd R/W EH]";
     case 0x31:
-      return "SET FEATURES [Disable Media Status Notf]";
+      return "SET FEATURES [Disable Media Status Notf] [OBS-8]";
     case 0x33:
       return "SET FEATURES [Disable retry] [OBS-4]";
+    case 0x41:
+      return "SET FEATURES [Enable Free-fall Control]"; // ATA-8
     case 0x42:
-      return "SET FEATURES [Enable AAM]";
+      return "SET FEATURES [Enable AAM] [OBS-ACS-2]";
     case 0x43:
       return "SET FEATURES [Set Max Host I/F S Times]";
     case 0x44:
       return "SET FEATURES [Length of VS data] [OBS-4]";
+    case 0x4a:
+      return "SET FEATURES [Ext. Power Conditions]"; // ACS-2
     case 0x54:
       return "SET FEATURES [Set cache segs] [OBS-4]";
     case 0x55:
       return "SET FEATURES [Disable read look-ahead]";
     case 0x5D:
-      return "SET FEATURES [Enable release interrupt]";
+      return "SET FEATURES [Enable release interrupt] [OBS-ACS-2]";
     case 0x5E:
-      return "SET FEATURES [Enable SERVICE interrupt]";
+      return "SET FEATURES [Enable SERVICE interrupt] [OBS-ACS-2]";
     case 0x66:
       return "SET FEATURES [Disable revert defaults]";
+    case 0x69:
+      return "SET FEATURES [LPS Error Reporting Control]"; // ACS-2
     case 0x77:
       return "SET FEATURES [Disable ECC] [OBS-4]";
     case 0x81:
-      return "SET FEATURES [Disable 8-bit PIO]";
+      return "SET FEATURES [Disable 8-bit PIO] [OBS-3]"; // Now CFA
     case 0x82:
       return "SET FEATURES [Disable write cache]";
     case 0x84:
@@ -470,9 +459,9 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0x8A:
       return "SET FEATURES [Disable CFA power mode 1]";
     case 0x90:
-      return "SET FEATURES [Reserved for Serial ATA]";
+      return "SET FEATURES [Disable SATA feature]"; // ACS-3
     case 0x95:
-      return "SET FEATURES [Enable Media Status Notf]";
+      return "SET FEATURES [Enable Media Status Notf] [OBS-8]";
     case 0x99:
       return "SET FEATURES [Enable retries] [OBS-4]";
     case 0x9A:
@@ -483,16 +472,20 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "SET FEATURES [Set max prefetch] [OBS-4]";
     case 0xBB:
       return "SET FEATURES [4 bytes VS data] [OBS-4]";
+    case 0xC1:
+      return "SET FEATURES [Disable Free-fall Control]"; // ATA-8
     case 0xC2:
-      return "SET FEATURES [Disable AAM]";
+      return "SET FEATURES [Disable AAM] [OBS-ACS-2]";
+    case 0xC3:
+      return "SET FEATURES [Sense Data Reporting]"; // ACS-2
     case 0xCC:
       return "SET FEATURES [Enable revert to defaults]";
     case 0xDD:
-      return "SET FEATURES [Disable release interrupt]";
+      return "SET FEATURES [Disable release interrupt] [OBS-ACS-2]";
     case 0xDE:
-      return "SET FEATURES [Disable SERVICE interrupt]";
+      return "SET FEATURES [Disable SERVICE interrupt] [OBS-ACS-2]";
     case 0xE0:
-      return "SET FEATURES [Obsolete subcommand]";
+      return "SET FEATURES [Vendor specific] [OBS-7]";
     default:
       if (f_reg >= 0xF0)
         return "SET FEATURES [Reserved for CFA]";
@@ -504,15 +497,15 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0x00:
       return "SET MAX ADDRESS [OBS-6]";
     case 0x01:
-      return "SET MAX SET PASSWORD";
+      return "SET MAX SET PASSWORD [OBS-ACS-3]";
     case 0x02:
-      return "SET MAX LOCK";
+      return "SET MAX LOCK [OBS-ACS-3]";
     case 0x03:
-      return "SET MAX UNLOCK";
+      return "SET MAX UNLOCK [OBS-ACS-3]";
     case 0x04:
-      return "SET MAX FREEZE LOCK";
+      return "SET MAX FREEZE LOCK [OBS-ACS-3]";
     default:
-      return "[Reserved SET MAX command]";
+      return "SET MAX [Reserved subcommand] [OBS-ACS-3]";
     }
   default:
     return command_table[c_code];

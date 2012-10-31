@@ -25,6 +25,9 @@ const char * ataidentify_cpp_cvsid = "$Id$"
 #include "utility.h"
 
 
+// Table 12 of X3T10/0948D (ATA-2) Revision 4c, March 18, 1996
+// Table 9 of X3T13/2008D (ATA-3) Revision 7b, January 27, 1997
+// Tables 11 and 13 of T13/1153D (ATA/ATAPI-4) revision 18, August 19, 1998
 // Tables 20 and 22 of T13/1321D (ATA/ATAPI-5) Revision 3, February 29, 2000
 // Tables 27 and 29 of T13/1410D (ATA/ATAPI-6) Revision 3b, February 26, 2002
 // Tables 16 and 18 of T13/1532D (ATA/ATAPI-7) Volume 1 Revision 4b, April 21, 2004
@@ -35,32 +38,32 @@ const char * ataidentify_cpp_cvsid = "$Id$"
 const char * const identify_descriptions[] = {
   "  0 General configuration",
     ". 15 Device identifier: 0 = ATA, 1 = ATAPI",
-    ". 14:8 ATA: Retired",
+    ". 14:8 ATA: Vendor specific [RET-3]",
     ". 14 ATAPI: Must be set to 0",
     ". 13 ATAPI: Reserved",
     ". 12:8 ATAPI: Command set: 0x05 = CD/DVD",
     ". 7 Removable media device",
-    ". 6 ATA: Obsolete (ATA-5: Not removable controller/device)",
-    ". 5:3 ATA: Retired",
+    ". 6 ATA: Not removable controller and/or device [OBS-6]",
+    ". 5:3 ATA: Vendor specific [RET-3]",
     ". 6:5 ATAPI: DRQ after PACKET cmd: 0x0 = 3ms, 0x2 = 50us",
     ". 4:3 ATAPI: Reserved",
     ". 2 Response incomplete",
-    ". 1 ATA: Retired",
+    ". 1 ATA: Vendor specific [RET-3]",
     ". 0 ATA: Reserved",
     ". 1:0 ATAPI: Packet size: 0x0 = 12 byte, 0x1 = 16 byte",
 
-  "  1 Obsolete (ATA-5: Cylinders)",
+  "  1 Cylinders [OBS-6]",
   "  2 Specific configuration (0x37c8/738c/8c73/c837)",
-  "  3 Obsolete (ATA-5: Heads)",
-  "  4 Retired",
-  "  5 Retired",
-  "  6 Obsolete (ATA-5: Sectors)",
+  "  3 Heads [OBS-6]",
+  "  4 Vendor specific [RET-3]",
+  "  5 Vendor specific [RET-3]",
+  "  6 Sectors per track [OBS-6]",
   "  7-8 Reserved for CFA (Sectors per card)",
-  "  9 Retired",
+  "  9 Vendor specific [RET-4]",
   " 10-19 Serial number (String)",
-  " 20 Retired (ATA-3: Vendor specific)",
-  " 21 Retired (ATA-3: Vendor specific)",
-  " 22 Obsolete (ATA-3: Vendor specific bytes on R/W LONG)",
+  " 20 Vendor specific [RET-3]",
+  " 21 Vendor specific [RET-3]",
+  " 22 Vendor specific bytes on READ/WRITE LONG [OBS-4]",
   " 23-26 Firmware revision (String)",
   " 27-46 Model number (String)",
 
@@ -75,37 +78,38 @@ const char * const identify_descriptions[] = {
 
   " 49 Capabilities",
     ". 15:14 ATA: Reserved for IDENTIFY PACKET DEVICE",
-    ". 15 ATAPI: Interleaved DMA supported",
-    ". 14 ATAPI: Command queuing supported",
-    ". 13 Standard standby timer values supported",
+    ". 15 ATAPI: Interleaved DMA supported [OBS-8]",
+    ". 14 ATAPI: Command queuing supported [OBS-8]",
+    ". 13 ATAPI: Overlap operation supported [OBS-8]",
+    ". 13 ATA: Standard standby timer values supported",
     ". 12 ATA: Reserved for IDENTIFY PACKET DEVICE",
-    ". 12 ATAPI: ATA software reset required",
+    ". 12 ATAPI: ATA software reset required [OBS-5]",
     ". 11 IORDY supported",
     ". 10 IORDY may be disabled",
     ". 9 LBA supported",
     ". 8 DMA supported",
-    ". 7:0 Retired",
+    ". 7:0 Vendor specific [RET-4]",
 
   " 50 Capabilities",
     ". 15:14 Must be set to 0x1",
     ". 13:2 Reserved",
-    ". 1 Obsolete",
+    ". 1 Reserved [OBS-6]",
     ". 0 Vendor specific minimum standby timer value",
 
-  " 51 Obsolete (ATA-4: PIO data transfer mode)",
-  " 52 Obsolete (ATA-2: Single Word DMA data transfer mode)",
+  " 51 PIO data transfer mode [OBS-5]",
+  " 52 Single Word DMA data transfer mode [OBS-3]",
 
   " 53 Field validity / Free-fall Control",
     ". 15:8 Free-fall Control sensitivity",
     ". 7:3 Reserved",
     ". 2 Word 88 (Ultra DMA modes) is valid",
     ". 1 Words 64-70 (PIO modes) are valid",
-    ". 0 Words 54-58 (CHS) are valid",
+    ". 0 Words 54-58 (CHS) are valid [OBS-6]",
 
-  " 54 Obsolete (ATA-5: Current cylinders)",
-  " 55 Obsolete (ATA-5: Current heads)",
-  " 56 Obsolete (ATA-5: Current sectors)",
-  " 57-58 Obsolete (ATA-5: Current capacity) (DWord)",
+  " 54 Current cylinders [OBS-6]",
+  " 55 Current heads [OBS-6]",
+  " 56 Current sectors per track [OBS-6]",
+  " 57-58 Current capacity in sectors (DWord) [OBS-6]",
 
   " 59 Sanitize Device - READ/WRITE MULTIPLE support",
     ". 15 BLOCK ERASE EXT supported",
@@ -117,7 +121,7 @@ const char * const identify_descriptions[] = {
     ". 7:0 Current sectors per DRQ on READ/WRITE MULTIPLE",
 
   " 60-61 User addressable sectors for 28-bit commands (DWord)",
-  " 62 Obsolete (ATA-2: Single Word DMA modes)",
+  " 62 Single Word DMA modes [OBS-3]",
 
   " 63 Multiword DMA modes",
     ". 15:11 Reserved",
@@ -143,10 +147,10 @@ const char * const identify_descriptions[] = {
     ". 15 CFast specification supported",
     ". 14 Deterministic data after trim supported",
     ". 13 LPS Alignment Error Reporting Control supported",
-    ". 12 DCO IDENTIFY DMA and DCO SET DMA supported", // ACS-3: Obsolete
+    ". 12 DCO IDENTIFY/SET DMA supported [OBS-ACS-3]",
     ". 11 READ BUFFER DMA supported",
     ". 10 WRITE BUFFER DMA supported",
-    ". 9 SET MAX SET PASSWORD/UNLOCK DMA supported", // ACS-3: Obsolete
+    ". 9 SET MAX SET PASSWORD/UNLOCK DMA supported [OBS-ACS-3]",
     ". 8 DOWNLOAD MICROCODE DMA supported",
     ". 7 Reserved for IEEE 1667",
     ". 6 Optional ATA device 28-bit commands supported",
@@ -158,8 +162,8 @@ const char * const identify_descriptions[] = {
 
   " 70 Reserved",
   " 71-74 ATA: Reserved for IDENTIFY PACKET DEVICE",
-  " 71 ATAPI: Time in ns from PACKET command to bus release",
-  " 72 ATAPI: Time in ns from SERVICE command to BSY cleared",
+  " 71 ATAPI: Time in ns from PACKET to bus release [OBS-8]",
+  " 72 ATAPI: Time in ns from SERVICE to BSY cleared [OBS-8]",
   " 73-74 ATAPI: Reserved",
 
   " 75 Queue depth",
@@ -176,9 +180,9 @@ const char * const identify_descriptions[] = {
     ". 9 Receipt of host initiated PM requests supported",
     ". 8 NCQ feature set supported",
     ". 7:4 Reserved for Serial ATA",
-    ". 3 SATA Gen3 signaling speed (6.0Gb/s) supported",
-    ". 2 SATA Gen2 signaling speed (3.0Gb/s) supported",
-    ". 1 SATA Gen1 signaling speed (1.5Gb/s) supported",
+    ". 3 SATA Gen3 signaling speed (6.0 Gb/s) supported",
+    ". 2 SATA Gen2 signaling speed (3.0 Gb/s) supported",
+    ". 1 SATA Gen1 signaling speed (1.5 Gb/s) supported",
     ". 0 Must be set to 0",
 
   " 77 Serial ATA additional capabilities", // ACS-3
@@ -218,29 +222,29 @@ const char * const identify_descriptions[] = {
     ". 7 ATA/ATAPI-7 supported",
     ". 6 ATA/ATAPI-6 supported",
     ". 5 ATA/ATAPI-5 supported",
-    ". 4 ATA/ATAPI-4 supported",
-    ". 3 ATA-3 supported",
-    ". 2 ATA-2 supported",
-    ". 1 ATA-1 supported",
+    ". 4 ATA/ATAPI-4 supported [OBS-8]",
+    ". 3 ATA-3 supported [OBS-7]",
+    ". 2 ATA-2 supported [OBS-6]",
+    ". 1 ATA-1 supported [OBS-5]",
     ". 0 Reserved",
 
   " 81 Minor version number",
 
   " 82 Commands and feature sets supported",
-    ". 15 Obsolete (ATA-4: IDENTIFY DEVICE DMA supported)", // r07-r14 only
+    ". 15 IDENTIFY DEVICE DMA supported [OBS-4]", // ATA-4 r07-r14 only
     ". 14 NOP supported",
     ". 13 READ BUFFER supported",
     ". 12 WRITE BUFFER supported",
-    ". 11 Obsolete (ATA-4: WRITE VERIFY supported)", // r07-r13 only
+    ". 11 WRITE VERIFY supported [OBS-4]", // ATA-4 r07-r13 only
     ". 10 HPA feature set supported",
     ". 9 DEVICE RESET supported", // ATA:0, ATAPI:1
-    ". 8 SERVICE interrupt supported",
-    ". 7 Release interrupt supported",
+    ". 8 SERVICE interrupt supported [OBS-ACS-2]",
+    ". 7 Release interrupt supported [OBS-ACS-2]",
     ". 6 Read look-ahead supported",
     ". 5 Volatile write cache supported",
     ". 4 PACKET feature set supported", // ATA:0, ATAPI:1
     ". 3 Power Management feature set supported",
-    ". 2 Removable Media feature set supported", // ATA8-ACS: Obsolete
+    ". 2 Removable Media feature set supported [OBS-8]",
     ". 1 Security feature set supported",
     ". 0 SMART feature set supported",
 
@@ -248,50 +252,50 @@ const char * const identify_descriptions[] = {
     ". 15:14 Must be set to 0x1",
     ". 13 FLUSH CACHE EXT supported",
     ". 12 FLUSH CACHE supported",
-    ". 11 DCO feature set supported", // ACS-3: Obsolete
+    ". 11 DCO feature set supported [OBS-ACS-3]",
     ". 10 48-bit Address feature set supported",
-    ". 9 AAM feature set supported", // ACS-2: Obsolete
-    ". 8 SET MAX security extension supported", // ACS-3: Obsolete
+    ". 9 AAM feature set supported [OBS-ACS-2]",
+    ". 8 SET MAX security extension supported [OBS-ACS-3]",
     ". 7 Reserved for Address Offset Reserved Area Boot Method",
     ". 6 SET FEATURES subcommand required to spin-up",
     ". 5 PUIS feature set supported",
-    ". 4 Removable Media Status Notification supported", // ATA8-ACS: Obsolete
+    ". 4 Removable Media Status Notification supported [OBS-8]",
     ". 3 APM feature set supported",
     ". 2 CFA feature set supported",
-    ". 1 TCQ feature set supported", // ACS-2: Obsolete
+    ". 1 TCQ feature set supported [OBS-ACS-2]",
     ". 0 DOWNLOAD MICROCODE supported",
 
   " 84 Commands and feature sets supported",
     ". 15:14 Must be set to 0x1",
     ". 13 IDLE IMMEDIATE with UNLOAD feature supported",
-    ". 12:11 Reserved", // TLC (Obsolete)
-    ". 10 URG bit for WRITE STREAM (DMA) EXT supported", // ATA8-ACS: Obsolete
-    ". 9 URG bit for READ STREAM (DMA) EXT supported", // ATA8-ACS: Obsolete
+    ". 12:11 Reserved for TLC [OBS-ACS-3]",
+    ". 10 URG bit for WRITE STREAM (DMA) EXT supported [OBS-8]",
+    ". 9 URG bit for READ STREAM (DMA) EXT supported [OBS-8]",
     ". 8 64-bit World Wide Name supported",
     ". 7 WRITE DMA QUEUED FUA EXT supported",
     ". 6 WRITE DMA/MULTIPLE FUA EXT supported",
     ". 5 GPL feature set supported",
-    ". 4 Streaming feature set supported", // ACS-3: Obsolete
-    ". 3 Media Card Pass Through Command feature set supported", // ACS-2: Obsolete
+    ". 4 Streaming feature set supported [OBS-ACS-3]",
+    ". 3 Media Card Pass Through Command supported [OBS-ACS-2]",
     ". 2 Media serial number supported",
     ". 1 SMART self-test supported",
     ". 0 SMART error logging supported",
 
   " 85 Commands and feature sets supported or enabled",
-    ". 15 Obsolete (ATA-4: IDENTIFY DEVICE DMA supported)", // r07-r14 only
+    ". 15 IDENTIFY DEVICE DMA supported [OBS-4]", // ATA-4 r07-r14 only
     ". 14 NOP supported",
     ". 13 READ BUFFER supported",
     ". 12 WRITE BUFFER supported",
-    ". 11 Obsolete (ATA-4: WRITE VERIFY supported)", // r07-r13 only
-    ". 10 HPA feature set supported",
+    ". 11 WRITE VERIFY supported [OBS-4]", // ATA-4 r07-r13 only
+    ". 10 HPA feature set supported [OBS-ACS-3]",
     ". 9 DEVICE RESET supported", // ATA:0, ATAPI:1
-    ". 8 SERVICE interrupt enabled",
-    ". 7 Release interrupt enabled",
+    ". 8 SERVICE interrupt enabled [OBS-ACS-2]",
+    ". 7 Release interrupt enabled [OBS-ACS-2]",
     ". 6 Read look-ahead enabled",
     ". 5 Write cache enabled",
     ". 4 PACKET feature set supported", // ATA:0, ATAPI:1
     ". 3 Power Management feature set supported",
-    ". 2 Removable Media feature set supported", // ATA8-ACS: Obsolete
+    ". 2 Removable Media feature set supported [OBS-8]",
     ". 1 Security feature set enabled",
     ". 0 SMART feature set enabled",
 
@@ -300,31 +304,31 @@ const char * const identify_descriptions[] = {
     ". 14 Reserved",
     ". 13 FLUSH CACHE EXT supported",
     ". 12 FLUSH CACHE supported",
-    ". 11 DCO feature set supported", // ACS-3: Obsolete
+    ". 11 DCO feature set supported [OBS-ACS-3]",
     ". 10 48-bit Address features set supported",
-    ". 9 AAM feature set enabled", // ACS-2: Obsolete
-    ". 8 SET MAX security extension enabled", // ACS-3: Obsolete
+    ". 9 AAM feature set enabled [OBS-ACS-2]",
+    ". 8 SET MAX security extension enabled [OBS-ACS-3]",
     ". 7 Reserved for Address Offset Reserved Area Boot Method",
     ". 6 SET FEATURES subcommand required to spin-up",
     ". 5 PUIS feature set enabled",
-    ". 4 Removable Media Status Notification enabled", // ATA8-ACS: Obsolete
+    ". 4 Removable Media Status Notification enabled [OBS-8]",
     ". 3 APM feature set enabled",
     ". 2 CFA feature set supported",
-    ". 1 TCQ feature set supported", // ACS-2: Obsolete
+    ". 1 TCQ feature set supported [OBS-ACS-2]",
     ". 0 DOWNLOAD MICROCODE supported",
 
   " 87 Commands and feature sets supported or enabled",
     ". 15:14 Must be set to 0x1",
     ". 13 IDLE IMMEDIATE with UNLOAD FEATURE supported",
-    ". 12:11 Reserved", // TLC (Obsolete)
-    ". 10 URG bit for WRITE STREAM (DMA) EXT supported", // ATA8-ACS: Obsolete
-    ". 9 URG bit for READ STREAM (DMA) EXT supported", // ATA8-ACS: Obsolete
+    ". 12:11 Reserved for TLC [OBS-ACS-3]",
+    ". 10 URG bit for WRITE STREAM (DMA) EXT supported [OBS-8]",
+    ". 9 URG bit for READ STREAM (DMA) EXT supported [OBS-8]",
     ". 8 64-bit World Wide Name supported",
-    ". 7 WRITE DMA QUEUED FUA EXT supported",
+    ". 7 WRITE DMA QUEUED FUA EXT supported [OBS-ACS-2]",
     ". 6 WRITE DMA/MULTIPLE FUA EXT supported",
     ". 5 GPL feature set supported",
-    ". 4 Valid CONFIGURE STREAM command has been executed", // ATA8-ACS: Obsolete
-    ". 3 Media Card Pass Through Command feature set supported", // ACS-2: Obsolete
+    ". 4 Valid CONFIGURE STREAM has been executed [OBS-8]",
+    ". 3 Media Card Pass Through Command supported [OBS-ACS-2]",
     ". 2 Media serial number is valid",
     ". 1 SMART self-test supported",
     ". 0 SMART error logging supported",
@@ -367,7 +371,7 @@ const char * const identify_descriptions[] = {
     ". 2:1 Device 0 detection method: -, Jumper, CSEL, other",
     ". 0 Must be set to 1",
 
-  " 94 AAM level", // ACS-2: Obsolete
+  " 94 AAM level [OBS-ACS-2]",
     ". 15:8 Recommended AAM level",
     ". 7:0 Current AAM level",
 
@@ -389,7 +393,7 @@ const char * const identify_descriptions[] = {
   "107 Inter-seek delay for ISO 7779 acoustic testing",
   "108-111 64-bit World Wide Name",
   "112-115 Reserved for a 128-bit World Wide Name",
-  "116 Reserved", // TLC (Obsolete)
+  "116 Reserved for TLC [OBS-ACS-3]",
   "117-118 Logical sector size (DWord)",
 
   "119 Commands and feature sets supported",
@@ -404,7 +408,7 @@ const char * const identify_descriptions[] = {
     ". 3 READ/WRITE LOG DMA EXT supported",
     ". 2 WRITE UNCORRECTABLE EXT supported",
     ". 1 Write-Read-Verify feature set supported",
-    ". 0 Reserved", // DDT (Obsolete)
+    ". 0 Reserved for DDT [OBS-ACS-3]",
 
   "120 Commands and feature sets supported or enabled",
     ". 15:14 Must be set to 0x1",
@@ -418,14 +422,14 @@ const char * const identify_descriptions[] = {
     ". 3 READ/WRITE LOG DMA EXT supported",
     ". 2 WRITE UNCORRECTABLE EXT supported",
     ". 1 Write-Read-Verify feature set enabled",
-    ". 0 Reserved", // DDT (Obsolete)
+    ". 0 Reserved for DDT [OBS-ACS-3]",
 
   "121-126 ATA: Reserved",
   "121-124 ATAPI: Reserved",
   "125 ATAPI: Byte count = 0 behavior",
-  "126 ATAPI: Obsolete (ATA-5: Byte count = 0 behavior)",
+  "126 ATAPI: Byte count = 0 behavior [OBS-6]",
 
-  "127 Removable Media Status Notification feature set", // ATA8-ACS: Obsolete
+  "127 Removable Media Status Notification [OBS-8]",
     ". 15:1 Reserved",
     ". 0 Removable Media Status Notification supported",
 
@@ -469,7 +473,7 @@ const char * const identify_descriptions[] = {
     ". 4 SCT Feature Control supported",
     ". 3 SCT Error Recovery Control supported",
     ". 2 SCT Write Same supported",
-    ". 1 SCT Read/Write Long supported",
+    ". 1 SCT Read/Write Long supported [OBS-ACS-2]",
     ". 0 SCT Command Transport supported",
 
   "207-208 Reserved for CE-ATA",
@@ -481,7 +485,7 @@ const char * const identify_descriptions[] = {
   "210-211 Write-Read-Verify sector count mode 3 (DWord)",
   "212-213 Write-Read-Verify sector count mode 2 (DWord)",
 
-  "214 NV Cache capabilities",
+  "214 NV Cache capabilities [OBS-ACS-3]",
     ". 15:12 NV Cache feature set version",
     ". 11:8 NV Cache Power Mode feature set version",
     ". 7:5 Reserved",
@@ -490,11 +494,11 @@ const char * const identify_descriptions[] = {
     ". 1 NV Cache Power Mode feature set enabled",
     ". 0 NV Cache Power Mode feature set supported",
 
-  "215-216 NV Cache size in logical blocks (DWord)",
+  "215-216 NV Cache size in logical blocks (DWord) [OBS-ACS-3]",
   "217 Nominal media rotation rate",
   "218 Reserved",
 
-  "219 NV Cache options",
+  "219 NV Cache options [OBS-ACS-3]",
     ". 15:8 Reserved",
     ". 7:0 Device estimated time to spin up in seconds",
 
