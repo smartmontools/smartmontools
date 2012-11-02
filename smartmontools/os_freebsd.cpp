@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3668 2012-10-27 08:18:45Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3671 2012-11-02 12:25:36Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -386,6 +386,14 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
 {
   union ccb ccb;
   int camflags;
+
+  // FIXME:
+  // 48bit commands are broken in ATACAM before r242422/HEAD
+  // and may cause system hang
+  // Waiting for MFC to make sure that bug is fixed,
+  // later version check needs to be added
+  if(!strcmp("ata",m_camdev->sim_name) && is_48bit_cmd)
+    return -1;
 
   memset(&ccb, 0, sizeof(ccb));
 

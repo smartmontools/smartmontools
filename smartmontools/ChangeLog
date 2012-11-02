@@ -1,4 +1,9 @@
-$Id: ChangeLog 3670 2012-10-31 22:00:50Z chrfranke $
+$Id: ChangeLog 3671 2012-11-02 12:25:36Z samm2 $
+
+2012-11-02  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: disabling 48bit commands on legacy ATA controllers 
+	in ATACAM mode because of kernel bug.
 
 2012-10-31  Christian Franke  <franke@computer.org>
 
