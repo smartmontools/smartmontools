@@ -1,5 +1,10 @@
 $Id$
 
+2012-11-02  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: disabling 48bit commands on legacy ATA controllers 
+	in ATACAM mode because of kernel bug.
+
 2012-10-31  Christian Franke  <franke@computer.org>
 
 	atacmdnames.cpp: Update for ATA-8-ACS, ACS-2, ACS-3.

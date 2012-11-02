@@ -387,6 +387,14 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
   union ccb ccb;
   int camflags;
 
+  // FIXME:
+  // 48bit commands are broken in ATACAM before r242422/HEAD
+  // and may cause system hang
+  // Waiting for MFC to make sure that bug is fixed,
+  // later version check needs to be added
+  if(!strcmp("ata",m_camdev->sim_name) && is_48bit_cmd)
+    return -1;
+
   memset(&ccb, 0, sizeof(ccb));
 
   if (request->count == 0)
