@@ -202,6 +202,7 @@ const drive_settings builtin_knowndrives[] = {
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
     "KINGSTON SH100S3(120|240)G|" // Hyper-X, SF-2281, tested with SH100S3240G/320ABBF0
+    "MKNSSDCR[0-9]*GB|" // Mushkin Chronos, SF-2281, tested with MKNSSDCR120GB
     "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX(2|-LE))( [123]\\..*)?|" // SF-1200,
       // tested with OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
     "OCZ-NOCTI|" // mSATA, SF-2100, tested with OCZ-NOCTI/2.15
@@ -302,6 +303,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Indilinx Everest/Martini based SSDs",
     "OCZ VERTEX-PLUS|" // tested with OCZ VERTEX-PLUS/3.55
     "OCZ-PETROL|" // Everest 1, tested with OCZ-PETROL/3.12
+    "OCZ-AGILITY4|" // Everest 2, tested with OCZ-AGILITY4/1.5.2
     "OCZ-VERTEX4", // Everest 2, tested with OCZ-VERTEX4/1.5
     "", "", ""
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -411,7 +413,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 170,raw48,Reserve_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
-  //"-v 174,raw48,Unknown_Attribute "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct " // Missing in 710 specification from September 2011
     "-v 183,raw48,SATA_Downshift_Count "
   //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
@@ -521,6 +523,7 @@ const drive_settings builtin_knowndrives[] = {
     "APPLE SSD TS.*|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series (2. Generation, JMF618),
                                     // tested with KINGSTON SNV425S264GB/C091126a
+    "KINGSTON SSDNOW 30GB|" // tested with KINGSTON SSDNOW 30GB/AJXA0202
     "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a
     "KINGSTON SVP?100S2B?(64|96|128|256|512)G|"  // SSDNow V100/V+100 Series,
                                                  // tested with KINGSTON SVP100S296G/CJR10202,
@@ -1286,7 +1289,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Maxtor DiamondMax 23", // new firmware
     "STM3((160|250)31|(320|500)41|(750|1000)52)8AS?",
-    "CC3D",
+    "CC3[D-Z]",
     "", ""
   },
   { "Seagate Maxtor DiamondMax 23", // unknown firmware
@@ -1549,8 +1552,8 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HDT7210((16|25)SLA380|(32|50|64|75|10)SLA360)",
     "", "", ""
   },
-  { "Hitachi Deskstar 7K1000.C",
-    "(Hitachi )?HDS7210((16|25)CLA382|(32|50)CLA362|(64|75|10)CLA332)",
+  { "Hitachi Deskstar 7K1000.C", // tested with Hitachi HDS721010CLA330/JP4OA3MA
+    "(Hitachi )?HDS7210((16|25)CLA382|(32|50)CLA362|(64|75|10)CLA33[02])",
     "", "", ""
   },
   { "Hitachi Deskstar 7K1000.D", // tested with HDS721010DLE630/MS2OA5Q0
@@ -1880,7 +1883,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.12", // new firmware
     "ST3(160318|250318|320418|50041[08]|750528|1000528)AS",
-    "CC49",
+    "CC4[9A-Z]",
     "", ""
   },
   { "Seagate Barracuda 7200.12", // unknown firmware
@@ -1905,7 +1908,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Barracuda 7200.14 (AF)", // new firmware, tested with
       // ST3000DM001-9YN166/CC4H
     "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
-    "CC4H",
+    "CC4[H-Z]",
     "",
     "-v 188,raw16 -v 240,msec24hour32" // tested with ST3000DM001-9YN166/CC4H
   },
@@ -1935,7 +1938,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda LP", // new firmware
     "ST3(500412|1000520|1500541|2000542)AS",
-    "CC35",
+    "CC3[5-9A-Z]",
     "", ""
   },
   { "Seagate Barracuda LP", // unknown firmware
@@ -1949,7 +1952,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda Green (AF)", // new firmware
     "ST((10|15|20)00DL00[123])-.*",
-    "CC32",
+    "CC3[2-9A-Z]",
     "", ""
   },
   { "Seagate Barracuda Green (AF)", // unknown firmware
@@ -2186,9 +2189,9 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(((64|75|80)00AA|(10|15|20)EA|(25|30)EZ)R|20EAC)S-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Green (AF)", // SATA 6Gb/s variants
-      // tested with WDC WD30EZRX-00MMMB0/80.00A80
-    "WDC WD(7500AA|(10|15|20)EA|(25|30)EZ)RX-.*",
+  { "Western Digital Caviar Green (AF, SATA 6Gb/s)", // tested with
+      // WDC WD10EZRX-00A8LB0/01.01A01, WDC WD30EZRX-00MMMB0/80.00A80
+    "WDC WD(7500AA|(10|15|20)EA|(10|25|30)EZ)RX-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black",
@@ -2654,19 +2657,6 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron"
   },
-  // Toshiba
-  { "USB: Toshiba PX1270E-1G16; Sunplus",
-    "0x0930:0x0b03",
-    "",
-    "",
-    "-d usbsunplus"
-  },
-  { "USB: Toshiba STOR.E; ",
-    "0x0930:0x0b1b",
-    "", // 0x0001
-    "",
-    "-d sat"
-  },
   // Oxford Semiconductor, Ltd
   { "USB: ; Oxford",
     "0x0928:0x0000",
@@ -2686,7 +2676,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  // Toshiba Corp.
+  // Toshiba
+  { "USB: Toshiba PX1270E-1G16; Sunplus",
+    "0x0930:0x0b03",
+    "",
+    "",
+    "-d usbsunplus"
+  },
   { "USB: Toshiba PX1396E-3T01; Sunplus", // similar to Dura Micro 501
     "0x0930:0x0b09",
     "",
@@ -2698,6 +2694,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbsunplus"
+  },
+  { "USB: Toshiba Stor.E; ",
+    "0x0930:0x0b1[9ab]",
+    "", // 0x0001
+    "",
+    "-d sat"
   },
   // Lumberg, Inc.
   { "USB: Toshiba Stor.E; Sunplus",
@@ -3194,6 +3196,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Verbatim External Hard Drive; JMicron", // 2TB
     "0x18a5:0x022a",
     "",
+    "",
+    "-d usbjmicron"
+  },
+  { "USB: Verbatim Store'n'Go; JMicron", // USB->SATA
+    "0x18a5:0x022b",
+    "", // 0x0100
     "",
     "-d usbjmicron"
   },
