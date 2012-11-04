@@ -1,8 +1,22 @@
 $Id$
 
+2012-11-04  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Mushkin Chronos
+	- Indilinx Everest/Martini based SSDs: OCZ AGILITY4
+	- Intel 710 Series SSDs: Add attribute 174
+	- JMicron based SSDs: KINGSTON SSDNOW 30GB
+	- Hitachi Deskstar 7K1000.C: *CLA330
+	- Seagate DiamondMax 23, Barracuda 7200.12, 7200.14 (AF),
+	  LP, Green (AF): no warnings for newer firmware versions
+	- Western Digital Caviar Green (AF, SATA 6Gb/s): rename, add 1TB
+	- USB: Toshiba Stor.E (0x0930:0x0b1[9a])
+	- USB: Verbatim Store'n'Go (0x18a5:0x022b)
+
 2012-11-02  Alex Samorukov  <samm@os2.kiev.ua>
 
-	os_freebsd.cpp: disabling 48bit commands on legacy ATA controllers 
+	os_freebsd.cpp: disabling 48bit commands on legacy ATA controllers
 	in ATACAM mode because of kernel bug.
 
 2012-10-31  Christian Franke  <franke@computer.org>
