@@ -8,6 +8,7 @@ http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontool
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 6.1
 -----------------------------------------------------------
+- smartctl '-l directory': improved output format.
 - smartctl: Fix parsing of '-l select,cont+SIZE' option.
 - Linux: Support for SAS disks behind Areca controllers.
 - FreeBSD: Support for SAS disks behind Areca controllers.

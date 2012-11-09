@@ -1,6 +1,12 @@
 $Id$
 
+2012-11-09  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Rework smartctl -l directory output.
+	Add R/W, R/O info.  Report identical logs in one line.
+
 2012-11-09  Alex Samorukov  <samm@os2.kiev.ua>
+
 	os_freebsd.cpp: adding handling of SCSI devices exported with mfip
 	driver. FreeBSD changing PDT code to 0x1f and we are changing it back
 	to 0x00 (direct-access block device).

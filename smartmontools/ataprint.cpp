@@ -1156,6 +1156,28 @@ static const char * GetLogName(unsigned logaddr)
     /*NOTREACHED*/
 }
 
+// Get log access permissions
+static const char * get_log_rw(unsigned logaddr)
+{
+   if (   (                   logaddr <= 0x08)
+       || (0x0d == logaddr)
+       || (0x10 <= logaddr && logaddr <= 0x13)
+       || (0x19 == logaddr)
+       || (0x20 <= logaddr && logaddr <= 0x25)
+       || (0x30 == logaddr))
+      return "R/O";
+
+   if (   (0x09 <= logaddr && logaddr <= 0x0a)
+       || (0x80 <= logaddr && logaddr <= 0x9f)
+       || (0xe0 <= logaddr && logaddr <= 0xe1))
+      return "R/W";
+
+   if (0xa0 <= logaddr && logaddr <= 0xdf)
+      return "VS"; // Vendor specific
+
+   return "-"; // Unknown/Reserved
+}
+
 // Init a fake log directory, assume that standard logs are supported
 const ata_smart_log_directory * fake_logdir(ata_smart_log_directory * logdir,
   const ata_print_options & options)
@@ -1183,6 +1205,8 @@ static void PrintLogDirectories(const ata_smart_log_directory * gplogdir,
          (gplogdir ? "          " : ""), smartlogdir->logversion,
          (smartlogdir->logversion==1 ? " [multi-sector log support]" : ""));
 
+  pout("Address    Access  R/W   Size  Description\n");
+
   for (unsigned i = 0; i <= 0xff; i++) {
     // Get number of sectors
     unsigned smart_numsect = GetNumLogSectors(smartlogdir, i, false);
@@ -1191,18 +1215,47 @@ static void PrintLogDirectories(const ata_smart_log_directory * gplogdir,
     if (!(smart_numsect || gp_numsect))
       continue; // Log does not exist
 
-    const char * name = GetLogName(i);
-
-    // Print name and length of log.
-    // If both SMART and GP exist, print separate entries if length differ.
-    if (smart_numsect == gp_numsect)
-      pout(  "GP/S  Log at address 0x%02x has %4d sectors [%s]\n", i, smart_numsect, name);
+    const char * acc; unsigned size;
+    if (smart_numsect == gp_numsect) {
+      acc = "GPL,SL"; size = gp_numsect;
+    }
+    else if (!smart_numsect) {
+      acc = "GPL"; size = gp_numsect;
+    }
+    else if (!gp_numsect) {
+      acc = "    SL"; size = smart_numsect;
+    }
     else {
-      if (gp_numsect)
-        pout("GP %sLog at address 0x%02x has %4d sectors [%s]\n", (smartlogdir?"   ":""),
-             i, gp_numsect, name);
-      if (smart_numsect)
-        pout("SMART Log at address 0x%02x has %4d sectors [%s]\n", i, smart_numsect, name);
+      acc = 0; size = 0;
+    }
+
+    unsigned i2 = i;
+    if (acc && ((0x80 <= i && i < 0x9f) || (0xa0 <= i && i < 0xdf))) {
+      // Find range of Host/Device vendor specific logs with same size
+      unsigned imax = (i < 0x9f ? 0x9f : 0xdf);
+      for (unsigned j = i+1; j <= imax; j++) {
+          unsigned sn = GetNumLogSectors(smartlogdir, j, false);
+          unsigned gn = GetNumLogSectors(gplogdir   , j, true );
+
+          if (!(sn == smart_numsect && gn == gp_numsect))
+            break;
+          i2 = j;
+      }
+    }
+
+    const char * name = GetLogName(i);
+    const char * rw = get_log_rw(i);
+
+    if (i2 > i) {
+      pout("0x%02x-0x%02x  %-6s  %-3s  %5u  %s\n", i, i2, acc, rw, size, name);
+      i = i2;
+    }
+    else if (acc)
+      pout(  "0x%02x       %-6s  %-3s  %5u  %s\n", i, acc, rw, size, name);
+    else {
+      // GPL and SL support different sizes
+      pout(  "0x%02x       %-6s  %-3s  %5u  %s\n", i, "GPL", rw, gp_numsect, name);
+      pout(  "0x%02x       %-6s  %-3s  %5u  %s\n", i, "SL", rw, smart_numsect, name);
     }
   }
   pout("\n");
