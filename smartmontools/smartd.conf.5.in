@@ -962,15 +962,22 @@ in addition to the single test email!
 \fBsmartd\fP
 needs to send email.  PATH must point to an executable binary file or
 script.
+.\" %IF OS Windows
+
+[Windows only] The PATH may contain space characters.
+Then it must be included in double quotes.
+.\" %ENDIF OS Windows
 
 By setting PATH to point to a customized script, you can make
 \fBsmartd\fP perform useful tricks when a disk problem is detected
 (beeping the console, shutting down the machine, broadcasting warnings
 to all logged-in users, etc.)  But please be careful. \fBsmartd\fP
 will \fBblock\fP until the executable PATH returns, so if your
-executable hangs, then \fBsmartd\fP will also hang. Some sample
-scripts are included in
+executable hangs, then \fBsmartd\fP will also hang.
+.\" %IF NOT OS Windows
+Some sample scripts are included in
 /usr/local/share/doc/smartmontools/examplescripts/.
+.\" %ENDIF NOT OS Windows
 
 The return status of the executable is recorded by \fBsmartd\fP in
 SYSLOG. The executable is not expected to write to STDOUT or

@@ -3721,6 +3721,35 @@ static int Get3Integers(const char *arg, const char *name, const char *token, in
 }
 
 
+#ifdef _WIN32
+
+// Concatenate strtok() results if quoted with "..."
+static const char * strtok_dequote(const char * delimiters)
+{
+  const char * t = strtok(0, delimiters);
+  if (!t || t[0] != '"')
+    return t;
+
+  static std::string token;
+  token = t+1;
+  for (;;) {
+    t = strtok(0, delimiters);
+    if (!t || !*t)
+      return "\"";
+    token += ' ';
+    int len = strlen(t);
+    if (t[len-1] == '"') {
+      token += std::string(t, len-1);
+      break;
+    }
+    token += t;
+  }
+  return token.c_str();
+}
+
+#endif // _WIN32
+
+
 // This function returns 1 if it has correctly parsed one token (and
 // any arguments), else zero if no tokens remain.  It returns -1 if an
 // error was encountered.
@@ -4008,7 +4037,18 @@ static int ParseToken(char * token, dev_config & cfg)
       cfg.emailtest = 1;
     else if (!strcmp(arg, "exec")) {
       // Get the next argument (the command line)
-      if (!(arg = strtok(NULL, delim))) {
+#ifdef _WIN32
+      // Allow "/path name/with spaces/..." on Windows
+      arg = strtok_dequote(delim);
+      if (arg && arg[0] == '"') {
+        PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive %s 'exec' argument: missing closing quote\n",
+                 configfile, lineno, name, token);
+        return -1;
+      }
+#else
+      arg = strtok(0, delim);
+#endif
+      if (!arg) {
         PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive %s 'exec' argument must be followed by executable path.\n",
                  configfile, lineno, name, token);
         return -1;

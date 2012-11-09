@@ -2,6 +2,11 @@ $Id$
 
 2012-11-09  Christian Franke  <franke@computer.org>
 
+	Windows smartd: Allow quoting of '-M exec' argument
+	to support path names with spaces.
+
+2012-11-09  Christian Franke  <franke@computer.org>
+
 	ataprint.cpp: Rework smartctl -l directory output.
 	Add R/W, R/O info.  Report identical logs in one line.
 

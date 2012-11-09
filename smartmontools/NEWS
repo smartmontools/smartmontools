@@ -16,6 +16,7 @@ Summary: smartmontools release 6.1
 - FreeBSD: Support for 3ware 9750 (/dev/twsX).
 - FreeBSD: Fixed support for 48-bit ATA commands on legacy controllers
   with ATACAM driver.
+- Windows: smartd.conf '-M exec' supports path names with spaces.
 
 Date 2012-10-10
 Summary: smartmontools release 6.0
