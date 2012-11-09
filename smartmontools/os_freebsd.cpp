@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3675 2012-11-09 17:09:33Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3676 2012-11-09 17:12:53Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1026,7 +1026,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   // this sets PDT to 00h - direct-access block device
   if(!strcmp("mfi",m_camdev->sim_name) && iop->cmnd[0] == INQUIRY) {
      if (report > 0) {
-        pout("device on mfi controller PDT, patching PDT\n");
+        pout("device on mfi controller, patching PDT\n");
      }
      iop->dxferp[0] = iop->dxferp[0] & 0xe0;
   }
