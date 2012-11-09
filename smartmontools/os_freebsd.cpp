@@ -1015,6 +1015,15 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
   }
 
+  // mfip replacing PDT of the device so response does not make a sense
+  // this sets PDT to 00h - direct-access block device
+  if(!strcmp("mfi",m_camdev->sim_name) && iop->cmnd[0] == INQUIRY) {
+     if (report > 0) {
+        pout("device on mfi controller PDT, patching PDT\n");
+     }
+     iop->dxferp[0] = iop->dxferp[0] & 0xe0;
+  }
+
   return true;
 }
 
