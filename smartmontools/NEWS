@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3669 2012-10-31 19:01:39Z samm2 $
+$Id: NEWS 3677 2012-11-09 20:51:45Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -8,6 +8,7 @@ http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontool
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 6.1
 -----------------------------------------------------------
+- smartctl '-l directory': improved output format.
 - smartctl: Fix parsing of '-l select,cont+SIZE' option.
 - Linux: Support for SAS disks behind Areca controllers.
 - FreeBSD: Support for SAS disks behind Areca controllers.
