@@ -254,9 +254,11 @@ freebsd_ata_device::freebsd_ata_device(smart_interface * intf, const char * dev_
 
 int freebsd_ata_device::do_cmd( struct ata_ioc_request* request, bool is_48bit_cmd)
 {
-  int fd = get_fd();
+  int fd = get_fd(), ret;
   ARGUSED(is_48bit_cmd); // no support for 48 bit commands in the IOCATAREQUEST
-  return ioctl(fd, IOCATAREQUEST, request);
+  ret = ioctl(fd, IOCATAREQUEST, request);
+  if (ret) set_err(errno);
+  return ret;
 }
 
 
@@ -271,8 +273,10 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
     true,  // data_out_support
     true,  // multi_sector_support
     ata_48bit) 
-    ) 
-    return false;
+    ) {
+      set_err(ENOSYS, "48-bit ATA commands not implemented for legacy controllers");
+      return false;
+    }
 
   struct ata_ioc_request request;
   bzero(&request,sizeof(struct ata_ioc_request));
@@ -305,7 +309,7 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
   clear_err();
   errno = 0;
   if (do_cmd(&request, in.in_regs.is_48bit_cmd()))
-      return set_err(errno);
+      return false;
   if (request.error)
       return set_err(EIO, "request failed, error code 0x%02x", request.error);
 
@@ -392,8 +396,10 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
   // and may cause system hang
   // Waiting for MFC to make sure that bug is fixed,
   // later version check needs to be added
-  if(!strcmp("ata",m_camdev->sim_name) && is_48bit_cmd)
+  if(!strcmp("ata",m_camdev->sim_name) && is_48bit_cmd) {
+    set_err(ENOSYS, "48-bit ATA commands not implemented for legacy controllers");
     return -1;
+  }
 
   memset(&ccb, 0, sizeof(ccb));
 
@@ -432,12 +438,13 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
   ccb.ccb_h.flags |= CAM_DEV_QFRZDIS;
 
   if (cam_send_ccb(m_camdev, &ccb) < 0) {
-    err(1, "cam_send_ccb");
+    set_err(EIO, "cam_send_ccb failed");
     return -1;
   }
 
   if ((ccb.ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
     cam_error_print(m_camdev, &ccb, CAM_ESF_ALL, CAM_EPF_ALL, stderr);
+    set_err(EIO);
     return -1;
   }
 
