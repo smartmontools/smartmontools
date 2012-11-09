@@ -1,4 +1,9 @@
-$Id: ChangeLog 3677 2012-11-09 20:51:45Z chrfranke $
+$Id: ChangeLog 3678 2012-11-09 21:47:19Z chrfranke $
+
+2012-11-09  Christian Franke  <franke@computer.org>
+
+	Windows smartd: Allow quoting of '-M exec' argument
+	to support path names with spaces.
 
 2012-11-09  Christian Franke  <franke@computer.org>
 
