@@ -2388,9 +2388,8 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
                      (si_str[0] ? ", " : ""), (si_str[0] ? si_str : ""));
   
   // format "model" string
-  snprintf(&model[0], sizeof(model), "%.8s %.16s %.4s", (char *)&inqBuf[8], 
-		     (char *)&inqBuf[16], (char *)&inqBuf[32]);
-
+  snprintf(&model[0], sizeof(model), "%.8s-%.16s", (char *)&inqBuf[8], 
+                     (char *)&inqBuf[16]);
   PrintOut(LOG_INFO, "Device: %s, %s\n", device, cfg.dev_idinfo.c_str());
 
   // check that device is ready for commands. IE stores its stuff on
