@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3672 2012-11-04 16:24:22Z chrfranke $",
+  { "$Id: drivedb.h 3684 2012-11-17 19:59:47Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1942,7 +1942,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Barracuda LP", // new firmware
     "ST3(500412|1000520|1500541|2000542)AS",
     "CC3[5-9A-Z]",
-    "", ""
+    "",
+    ""
   },
   { "Seagate Barracuda LP", // unknown firmware
     "ST3(500412|1000520|1500541|2000542)AS",
@@ -1951,7 +1952,7 @@ const drive_settings builtin_knowndrives[] = {
     "see the following Seagate web pages:\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/213915en",
-    ""
+    "-F xerrorlba" // tested with ST31000520AS/CC32
   },
   { "Seagate Barracuda Green (AF)", // new firmware
     "ST((10|15|20)00DL00[123])-.*",
