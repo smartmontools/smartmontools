@@ -117,7 +117,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3681 2012-11-17 13:40:51Z samm2 $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3682 2012-11-17 14:50:59Z samm2 $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -3396,6 +3396,8 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
         if (cp) {
             PrintOut(LOG_CRIT, "Device: %s, SMART Failure: %s\n", name, cp);
             MailWarning(cfg, state, 1,"Device: %s, SMART Failure: %s", name, cp);
+        } else if (asc == 4 && ascq == 9) {
+            PrintOut(LOG_INFO,"Device: %s, self-test in progress\n", name);  
         } else if (debugmode)
             PrintOut(LOG_INFO,"Device: %s, non-SMART asc,ascq: %d,%d\n",
                      name, (int)asc, (int)ascq);  
