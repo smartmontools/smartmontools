@@ -6,6 +6,7 @@ $Id$
 	smartd.cpp: add S/N to SCSI device identifier, lu_id is not available
 	on some drives.
 	smartd.cpp: fix warning for SCSI drives with self test in progress (#249)
+	drivedb.h: added -F xerrorlba flag Seagate Barracuda LP/CC32
 
 2012-11-09  Christian Franke  <franke@computer.org>
 
