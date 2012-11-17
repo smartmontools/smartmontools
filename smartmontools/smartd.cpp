@@ -2356,8 +2356,8 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
     return 2;
   }
   lu_id[0] = '\0';
-  if ((version >= 0x4) && (version < 0x8)) {
-    /* SPC-2 to SPC-5 */
+  if ((version >= 0x3) && (version < 0x8)) {
+    /* SPC to SPC-5 */
     if (0 == (err = scsiInquiryVpd(scsidev, 0x83, vpdBuf, sizeof(vpdBuf)))) {
       len = vpdBuf[3];
       scsi_decode_lu_dev_id(vpdBuf + 4, len, lu_id, sizeof(lu_id), NULL);
