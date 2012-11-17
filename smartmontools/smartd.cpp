@@ -2324,7 +2324,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   UINT8  tBuf[64];
   UINT8  inqBuf[96];
   UINT8  vpdBuf[252];
-  char lu_id[64];
+  char lu_id[64], serial[32+1], model[40+1];
 
   // Device must be open
   memset(inqBuf, 0, 96);
@@ -2362,6 +2362,13 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
       len = vpdBuf[3];
       scsi_decode_lu_dev_id(vpdBuf + 4, len, lu_id, sizeof(lu_id), NULL);
     }
+  }
+  
+  serial[0] = '\0';
+  if (0 == (err = scsiInquiryVpd(scsidev, 0x80, vpdBuf, sizeof(vpdBuf)))) {
+  	  len = vpdBuf[3];
+  	  vpdBuf[4 + len] = '\0';
+  	  snprintf(&serial[0], sizeof(serial), "%s", &vpdBuf[4]);
   } 
 
   unsigned int lb_size;
@@ -2378,6 +2385,10 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
                      (char *)&inqBuf[8], (char *)&inqBuf[16], (char *)&inqBuf[32],
                      (lu_id[0] ? ", lu id: " : ""), (lu_id[0] ? lu_id : ""),
                      (si_str[0] ? ", " : ""), (si_str[0] ? si_str : ""));
+  
+  // format "model" string
+  snprintf(&model[0], sizeof(model), "%.8s %.16s %.4s", (char *)&inqBuf[8], 
+		     (char *)&inqBuf[16], (char *)&inqBuf[32]);
 
   PrintOut(LOG_INFO, "Device: %s, %s\n", device, cfg.dev_idinfo.c_str());
 
@@ -2496,20 +2507,28 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   // tell user we are registering device
   PrintOut(LOG_INFO, "Device: %s, is SMART capable. Adding to \"monitor\" list.\n", device);
 
-  // TODO: Build file name for state file
-  if (!state_path_prefix.empty()) {
-    PrintOut(LOG_INFO, "Device: %s, persistence not yet supported for SCSI; ignoring -s option.\n", device);
-  }
-  // TODO: Build file name for attribute log file
-  if (!attrlog_path_prefix.empty()) {
-    PrintOut(LOG_INFO, "Device: %s, attribute log not yet supported for SCSI; ignoring -A option.\n", device);
-  }
-
   // Make sure that init_standby_check() ignores SCSI devices
   cfg.offlinests_ns = cfg.selfteststs_ns = false;
 
   // close file descriptor
   CloseDevice(scsidev, device);
+
+  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty()) {
+    // Build file name for state file
+    std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
+    std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
+    if (!state_path_prefix.empty()) {
+      cfg.state_file = strprintf("%s%s-%s.scsi.state", state_path_prefix.c_str(), model, serial);
+      // Read previous state
+      if (read_dev_state(cfg.state_file.c_str(), state)) {
+        PrintOut(LOG_INFO, "Device: %s, state read from %s\n", device, cfg.state_file.c_str());
+        // Copy ATA attribute values to temp state
+        state.update_temp_state();
+      }
+    }
+    if (!attrlog_path_prefix.empty())
+      cfg.attrlog_file = strprintf("%s%s-%s.scsi.csv", attrlog_path_prefix.c_str(), model, serial);
+  }
 
   finish_device_scan(cfg, state);
 

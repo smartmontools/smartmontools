@@ -415,9 +415,10 @@ The default level is 1, so \'\-r ataioctl,1\' and \'\-r ataioctl\' are
 equivalent.
 .TP
 .B \-s PREFIX, \-\-savestates=PREFIX
-[ATA only] Reads/writes \fBsmartd\fP state information from/to files
-\'PREFIX\'\'MODEL\-SERIAL.ata.state\'. This preserves SMART attributes, drive
-min and max temperatures (\-W directive), info about last sent warning email
+Reads/writes \fBsmartd\fP state information from/to files
+\'PREFIX\'\'MODEL\-SERIAL.ata.state\' or \'PREFIX\'\'MODEL\-SERIAL.scsi.state\'. 
+This preserves SMART attributes, drive min and max temperatures (\-W directive),
+info about last sent warning email
 (\-m directive), and the time of next check of the self-test REGEXP
 (\-s directive) across boot cycles.
 
