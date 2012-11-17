@@ -5,6 +5,7 @@ $Id$
 	smartd.cpp: added initial state file support for the SCSI devices
 	smartd.cpp: add S/N to SCSI device identifier, lu_id is not available
 	on some drives.
+	smartd.cpp: fix warning for SCSI drives with self test in progress (#249)
 
 2012-11-09  Christian Franke  <franke@computer.org>
 
