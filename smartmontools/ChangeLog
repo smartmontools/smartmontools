@@ -3,6 +3,8 @@ $Id$
 2012-11-17  Alex Samorukov  <samm@os2.kiev.ua>
 	smartd.cpp: print lu_id for SPC devices, it is supported by standard
 	smartd.cpp: added initial state file support for the SCSI devices
+	smartd.cpp: add S/N to SCSI device identifier, lu_id is not available
+	on some drives.
 
 2012-11-09  Christian Franke  <franke@computer.org>
 

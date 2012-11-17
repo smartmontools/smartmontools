@@ -2381,9 +2381,10 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
     si_str[0] = '\0';
 
   // Format device id string for warning emails
-  cfg.dev_idinfo = strprintf("[%.8s %.16s %.4s]%s%s%s%s",
+  cfg.dev_idinfo = strprintf("[%.8s %.16s %.4s]%s%s%s%s%s%s",
                      (char *)&inqBuf[8], (char *)&inqBuf[16], (char *)&inqBuf[32],
                      (lu_id[0] ? ", lu id: " : ""), (lu_id[0] ? lu_id : ""),
+                     (serial[0] ? ", S/N: " : ""), (serial[0] ? serial : ""),
                      (si_str[0] ? ", " : ""), (si_str[0] ? si_str : ""));
   
   // format "model" string
