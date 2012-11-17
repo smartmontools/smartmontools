@@ -117,7 +117,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3682 2012-11-17 14:50:59Z samm2 $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3683 2012-11-17 19:07:49Z samm2 $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -2388,9 +2388,8 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
                      (si_str[0] ? ", " : ""), (si_str[0] ? si_str : ""));
   
   // format "model" string
-  snprintf(&model[0], sizeof(model), "%.8s %.16s %.4s", (char *)&inqBuf[8], 
-		     (char *)&inqBuf[16], (char *)&inqBuf[32]);
-
+  snprintf(&model[0], sizeof(model), "%.8s-%.16s", (char *)&inqBuf[8], 
+                     (char *)&inqBuf[16]);
   PrintOut(LOG_INFO, "Device: %s, %s\n", device, cfg.dev_idinfo.c_str());
 
   // check that device is ready for commands. IE stores its stuff on
