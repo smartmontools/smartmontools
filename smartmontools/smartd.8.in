@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.8.in 3680 2012-11-17 12:23:42Z samm2 $
+$Id: smartd.8.in 3687 2012-11-18 19:39:11Z samm2 $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -151,10 +151,11 @@ OPTIONS
 
 .TP
 .B \-A PREFIX, \-\-attributelog=PREFIX
-[ATA only] Writes \fBsmartd\fP attribute information (normalized and raw
-attribute values) to files \'PREFIX\'\'MODEL\-SERIAL.ata.csv\'.  At each
+Writes \fBsmartd\fP attribute information (normalized and raw
+attribute values) to files \'PREFIX\'\'MODEL\-SERIAL.ata.csv\' or \'PREFIX\'\'VENDOR\-MODEL\-SERIAL.scsi.csv\'.  At each
 check cycle attributes are logged as a line of semicolon separated triplets
 of the form "attribute-ID;attribute-norm-value;attribute-raw-value;".
+For SCSI devices error counters and temperature recorded in the form "counter-name;counter-value;"
 Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
 
 .\" %IF ENABLE_ATTRIBUTELOG
@@ -416,7 +417,7 @@ equivalent.
 .TP
 .B \-s PREFIX, \-\-savestates=PREFIX
 Reads/writes \fBsmartd\fP state information from/to files
-\'PREFIX\'\'MODEL\-SERIAL.ata.state\' or \'PREFIX\'\'MODEL\-SERIAL.scsi.state\'. 
+\'PREFIX\'\'MODEL\-SERIAL.ata.state\' or \'PREFIX\'\'VENDOR\-MODEL\-SERIAL.scsi.state\'. 
 This preserves SMART attributes, drive min and max temperatures (\-W directive),
 info about last sent warning email
 (\-m directive), and the time of next check of the self-test REGEXP
@@ -424,7 +425,8 @@ info about last sent warning email
 
 .\" %IF ENABLE_SAVESTATES
 If this option is not specified, state information is maintained in files
-\'/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\'.
+\'/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\' for ATA devices and
+\'/usr/local/var/lib/smartmontools/smartd.VENDOR\-MODEL\-SERIAL.scsi.state\' for SCSI devices.
 To disable state files, specify this option with an empty string
 argument: \'-s ""\'.
 .\" %ENDIF ENABLE_SAVESTATES
@@ -781,4 +783,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 3680 2012-11-17 12:23:42Z samm2 $
+$Id: smartd.8.in 3687 2012-11-18 19:39:11Z samm2 $
