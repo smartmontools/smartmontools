@@ -4,6 +4,7 @@ $Id$
 
 	smartd.cpp: implement error counters and temperature saving to the 
 	attrlog file for SCSI devices.
+	smartd.cpp: added reset_warning_mail() if device is working for SCSI
 
 2012-11-18  Christian Franke  <franke@computer.org>
 

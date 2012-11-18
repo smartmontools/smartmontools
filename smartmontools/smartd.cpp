@@ -3442,6 +3442,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
       return 1;
     } else if (debugmode)
         PrintOut(LOG_INFO,"Device: %s, opened SCSI device\n", name);
+    reset_warning_mail(cfg, state, 9, "open device worked again");
     currenttemp = 0;
     asc = 0;
     ascq = 0;
