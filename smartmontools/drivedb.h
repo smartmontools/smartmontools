@@ -1943,7 +1943,7 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(500412|1000520|1500541|2000542)AS",
     "CC3[5-9A-Z]",
     "",
-    ""
+    "" // -F xerrorlba ?
   },
   { "Seagate Barracuda LP", // unknown firmware
     "ST3(500412|1000520|1500541|2000542)AS",
@@ -2188,7 +2188,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Caviar Green",
     "WDC WD((50|64|75)00AA(C|V)S|(50|64|75)00AADS|10EA(C|V)S|(10|15|20)EADS)-.*",
-    "", "", ""
+    "",
+    "",
+    "-F xerrorlba" // tested with WDC WD7500AADS-00M2B0/01.00A01
   },
   { "Western Digital Caviar Green (AF)",
     "WDC WD(((64|75|80)00AA|(10|15|20)EA|(25|30)EZ)R|20EAC)S-.*",
