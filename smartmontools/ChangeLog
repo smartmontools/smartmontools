@@ -1,5 +1,10 @@
 $Id$
 
+2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
+
+	smartd.cpp: implement error counters and temperature saving to the 
+	attrlog file for SCSI devices.
+
 2012-11-18  Christian Franke  <franke@computer.org>
 
 	drivedb.h: Western Digital Caviar Green: Add -F xerrorlba

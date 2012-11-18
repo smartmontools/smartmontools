@@ -390,6 +390,22 @@ struct persistent_dev_state
     ata_attribute() : id(0), val(0), worst(0), raw(0), resvd(0) { }
   };
   ata_attribute ata_attributes[NUMBER_ATA_SMART_ATTRIBUTES];
+  
+  // SCSI ONLY
+
+  struct scsi_error_counter {
+    struct scsiErrorCounter errCounter;
+    unsigned char found;
+    scsi_error_counter() : found(0) { }
+  };
+  scsi_error_counter scsi_error_counters[3];
+
+  struct scsi_nonmedium_error {
+    struct scsiNonMediumError nme;
+    unsigned char found;
+    scsi_nonmedium_error() : found(0) { }
+  };
+  scsi_nonmedium_error scsi_nonmedium_error;
 
   persistent_dev_state();
 };
@@ -425,10 +441,13 @@ struct temp_dev_state
   // SCSI ONLY
   unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
   unsigned char TempPageSupported;        // has log sense temperature page (0xd)
+  unsigned char ReadECounterPageSupported;
+  unsigned char WriteECounterPageSupported;
+  unsigned char VerifyECounterPageSupported;
+  unsigned char NonMediumErrorPageSupported;
   unsigned char SuppressReport;           // minimize nuisance reports
   unsigned char modese_len;               // mode sense/select cmd len: 0 (don't
                                           // know yet) 6 or 10
-
   // ATA ONLY
   uint64_t num_sectors;                   // Number of sectors
   ata_smart_values smartval;              // SMART data
@@ -452,6 +471,10 @@ temp_dev_state::temp_dev_state()
   powerskipcnt(0),
   SmartPageSupported(false),
   TempPageSupported(false),
+  ReadECounterPageSupported(false),
+  WriteECounterPageSupported(false),
+  VerifyECounterPageSupported(false),
+  NonMediumErrorPageSupported(false),
   SuppressReport(false),
   modese_len(0),
   num_sectors(0),
@@ -723,7 +746,7 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
 }
 
 // Write to the attrlog file
-static bool write_dev_attrlog(const char * path, const persistent_dev_state & state)
+static bool write_dev_attrlog(const char * path, const dev_state & state)
 {
   stdio_file f(path, "a");
   if (!f) {
@@ -731,20 +754,48 @@ static bool write_dev_attrlog(const char * path, const persistent_dev_state & st
     return false;
   }
 
-  // ATA ONLY
+  
   time_t now = time(0);
   struct tm * tms = gmtime(&now);
   fprintf(f, "%d-%02d-%02d %02d:%02d:%02d;",
              1900+tms->tm_year, 1+tms->tm_mon, tms->tm_mday,
              tms->tm_hour, tms->tm_min, tms->tm_sec);
+  // ATA ONLY
   for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
     const persistent_dev_state::ata_attribute & pa = state.ata_attributes[i];
     if (!pa.id)
       continue;
     fprintf(f, "\t%d;%d;%"PRIu64";", pa.id, pa.val, pa.raw);
   }
+  // SCSI ONLY
+  const struct scsiErrorCounter * ecp;
+  const char * pageNames[3] = {"read", "write", "verify"};
+  for (int k = 0; k < 3; ++k) {
+    if ( !state.scsi_error_counters[k].found ) continue;
+    ecp = &state.scsi_error_counters[k].errCounter;
+     fprintf(f, "\t%s-corr-by-ecc-fast;%"PRIu64";"
+       "\t%s-corr-by-ecc-delayed;%"PRIu64";"
+       "\t%s-corr-by-retry;%"PRIu64";"
+       "\t%s-total-err-corrected;%"PRIu64";"
+       "\t%s-corr-algorithm-invocations;%"PRIu64";"
+       "\t%s-gb-processed;%.3f;"
+       "\t%s-total-unc-errors;%"PRIu64";",
+       pageNames[k], ecp->counter[0],
+       pageNames[k], ecp->counter[1],
+       pageNames[k], ecp->counter[2],
+       pageNames[k], ecp->counter[3],
+       pageNames[k], ecp->counter[4],
+       pageNames[k], (ecp->counter[5] / 1000000000.0),
+       pageNames[k], ecp->counter[6]);
+  }
+  if(state.scsi_nonmedium_error.found && state.scsi_nonmedium_error.nme.gotPC0) {
+    fprintf(f, "\tnon-medium-errors;%"PRIu64";", state.scsi_nonmedium_error.nme.counterPC0);
+  }
+  // write SCSI current temperature if it is monitored
+  if(state.TempPageSupported && state.temperature)
+     fprintf(f, "\ttemperature;%d;", state.temperature);
+  // end of line
   fprintf(f, "\n");
-
   return true;
 }
 
@@ -2446,6 +2497,18 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
       case IE_LPAGE:
         state.SmartPageSupported = 1;
         break;
+      case READ_ERROR_COUNTER_LPAGE:
+        state.ReadECounterPageSupported = 1;
+        break;
+      case WRITE_ERROR_COUNTER_LPAGE:
+        state.WriteECounterPageSupported = 1;
+        break;
+      case VERIFY_ERROR_COUNTER_LPAGE:
+        state.VerifyECounterPageSupported = 1;
+        break;
+      case NON_MEDIUM_ERROR_LPAGE:
+        state.NonMediumErrorPageSupported = 1;
+        break;
       default:
         break;
       }
@@ -3363,6 +3426,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     UINT8 asc, ascq;
     UINT8 currenttemp;
     UINT8 triptemp;
+    UINT8  tBuf[252];
     const char * name = cfg.name.c_str();
     const char *cp;
 
@@ -3415,6 +3479,27 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
       char testtype = next_scheduled_test(cfg, state, true/*scsi*/);
       if (testtype)
         DoSCSISelfTest(cfg, state, scsidev, testtype);
+    }
+    // saving error counters to state
+    if (state.ReadECounterPageSupported && (0 == scsiLogSense(scsidev,
+        READ_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+        scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[0].errCounter);
+        state.scsi_error_counters[0].found=1;
+    }
+    if (state.WriteECounterPageSupported && (0 == scsiLogSense(scsidev,
+        WRITE_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+        scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[1].errCounter);
+        state.scsi_error_counters[1].found=1;
+    }
+    if (state.VerifyECounterPageSupported && (0 == scsiLogSense(scsidev,
+        VERIFY_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+        scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[2].errCounter);
+        state.scsi_error_counters[2].found=1;
+    }
+    if (state.NonMediumErrorPageSupported && (0 == scsiLogSense(scsidev,
+        NON_MEDIUM_ERROR_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+        scsiDecodeNonMediumErrPage(tBuf, &state.scsi_nonmedium_error.nme);
+        state.scsi_nonmedium_error.found=1;
     }
     CloseDevice(scsidev, name);
     return 0;
