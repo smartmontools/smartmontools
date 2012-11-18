@@ -3469,7 +3469,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
         PrintOut(LOG_INFO,"Device: %s, SMART health: passed\n", name);  
 
     // check temperature limits
-    if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
+    if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit || !cfg.attrlog_file.empty())
       CheckTemperature(cfg, state, currenttemp, triptemp);
 
     // check if number of selftest errors has increased (note: may also DECREASE)
@@ -3481,26 +3481,28 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
       if (testtype)
         DoSCSISelfTest(cfg, state, scsidev, testtype);
     }
-    // saving error counters to state
-    if (state.ReadECounterPageSupported && (0 == scsiLogSense(scsidev,
-        READ_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-        scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[0].errCounter);
-        state.scsi_error_counters[0].found=1;
-    }
-    if (state.WriteECounterPageSupported && (0 == scsiLogSense(scsidev,
-        WRITE_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-        scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[1].errCounter);
-        state.scsi_error_counters[1].found=1;
-    }
-    if (state.VerifyECounterPageSupported && (0 == scsiLogSense(scsidev,
-        VERIFY_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-        scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[2].errCounter);
-        state.scsi_error_counters[2].found=1;
-    }
-    if (state.NonMediumErrorPageSupported && (0 == scsiLogSense(scsidev,
-        NON_MEDIUM_ERROR_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-        scsiDecodeNonMediumErrPage(tBuf, &state.scsi_nonmedium_error.nme);
-        state.scsi_nonmedium_error.found=1;
+    if (!cfg.attrlog_file.empty()){
+      // saving error counters to state
+      if (state.ReadECounterPageSupported && (0 == scsiLogSense(scsidev,
+          READ_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+          scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[0].errCounter);
+          state.scsi_error_counters[0].found=1;
+      }
+      if (state.WriteECounterPageSupported && (0 == scsiLogSense(scsidev,
+          WRITE_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+          scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[1].errCounter);
+          state.scsi_error_counters[1].found=1;
+      }
+      if (state.VerifyECounterPageSupported && (0 == scsiLogSense(scsidev,
+          VERIFY_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+          scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[2].errCounter);
+          state.scsi_error_counters[2].found=1;
+      }
+      if (state.NonMediumErrorPageSupported && (0 == scsiLogSense(scsidev,
+          NON_MEDIUM_ERROR_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+          scsiDecodeNonMediumErrPage(tBuf, &state.scsi_nonmedium_error.nme);
+          state.scsi_nonmedium_error.found=1;
+      }
     }
     CloseDevice(scsidev, name);
     return 0;
