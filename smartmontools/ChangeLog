@@ -1,9 +1,10 @@
-$Id: ChangeLog 3687 2012-11-18 19:39:11Z samm2 $
+$Id: ChangeLog 3688 2012-11-18 22:52:45Z samm2 $
 
 2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 
 	smartd.cpp: implement error counters and temperature saving to the 
 	attrlog file for SCSI devices.
+	smartd.cpp: added reset_warning_mail() if device is working for SCSI
 
 2012-11-18  Christian Franke  <franke@computer.org>
 
