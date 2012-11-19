@@ -179,6 +179,7 @@ static int scsiGetSmartData(scsi_device * device, bool attribs)
         if (triptemp)
             pout("Drive Trip Temperature:        %d C\n", triptemp);
     }
+    pout("\n");
     return err;
 }
 
@@ -1556,9 +1557,9 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     }
 
     if (!is_tape)
-        pout("Device supports SMART and is %s\n\n",
+        pout("Device supports SMART and is %s\n",
              (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
-    pout("%s\n", (scsi_IsWarningEnabled(&iec)) ? 
+    pout("%s\n\n", (scsi_IsWarningEnabled(&iec)) ? 
                   "Temperature Warning Enabled" :
                   "Temperature Warning Disabled or Not Supported");
     return 0;
@@ -1703,6 +1704,14 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
       }
       any_output = true;
     }
+
+    // START OF READ-ONLY OPTIONS APART FROM -V and -i
+    if (    options.smart_check_status  || options.smart_ss_media_log
+           || options.smart_vendor_attrib || options.smart_error_log
+           || options.smart_selftest_log  || options.smart_vendor_attrib
+           || options.smart_background_log || options.sasphy
+         )
+    pout("=== START OF READ SMART DATA SECTION ===\n");
     
     if (options.smart_check_status) {
         scsiGetSupportedLogPages(device);
@@ -1727,13 +1736,6 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
         any_output = true;
     }   
-      // START OF READ-ONLY OPTIONS APART FROM -V and -i
-    if (    options.smart_check_status  || options.smart_ss_media_log
-           || options.smart_vendor_attrib || options.smart_error_log
-           || options.smart_selftest_log  || options.smart_vendor_attrib
-           || options.smart_background_log || options.sasphy
-         )
-    pout("\n=== START OF READ SMART DATA SECTION ===\n");
 
     if (options.smart_ss_media_log) {
         if (! checkedSupportedLogPages)
@@ -1870,8 +1872,6 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     if (!any_output)
       pout("SCSI device successfully opened\n\n"
            "Use 'smartctl -a' (or '-x') to print SMART (and more) information\n\n");
-    else 
-      pout("\n");
 
     return returnval;
 }
