@@ -49,6 +49,7 @@ struct scsi_print_options
   bool smart_short_selftest, smart_short_cap_selftest;
   bool smart_extend_selftest, smart_extend_cap_selftest;
   bool smart_selftest_abort;
+  bool smart_selftest_force; // Ignore already running test
 
   bool sasphy, sasphy_reset;
 
@@ -66,6 +67,7 @@ struct scsi_print_options
       smart_short_selftest(false), smart_short_cap_selftest(false),
       smart_extend_selftest(false), smart_extend_cap_selftest(false),
       smart_selftest_abort(false),
+      smart_selftest_force(false),
       sasphy(false), sasphy_reset(false)
     { }
 };

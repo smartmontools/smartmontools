@@ -1898,7 +1898,7 @@ these attributes are held at 65535 (0xffff) until the workload timer
 reaches 60 minutes.
 
 .I force
-\- [ATA only] start new self\-test even if another test is already running.
+\- start new self\-test even if another test is already running.
 By default a running self\-test will not be interrupted to begin another
 test.
 .TP

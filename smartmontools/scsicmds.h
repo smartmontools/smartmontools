@@ -134,6 +134,7 @@ struct scsi_sense_disect {
     UINT8 sense_key;
     UINT8 asc; 
     UINT8 ascq;
+    int progress; /* -1 -> N/A, 0-65535 -> available */
 };
 
 /* Useful data from Informational Exception Control mode page (0x1c) */
@@ -406,6 +407,12 @@ const char * scsi_get_opcode_name(UINT8 opcode);
 void dStrHex(const char* str, int len, int no_ascii);
 inline void dStrHex(const unsigned char* str, int len, int no_ascii)
   { dStrHex((const char *)str, len, no_ascii); }
+
+/* Attempt to find the first SCSI sense data descriptor that matches the
+   given 'desc_type'. If found return pointer to start of sense data
+   descriptor; otherwise (including fixed format sense data) returns NULL. */
+const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
+                                                     int sense_len, int desc_type);
 
 
 /* SCSI command transmission interface function declaration. Its

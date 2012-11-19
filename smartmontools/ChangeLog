@@ -1,5 +1,9 @@
 $Id$
 
+2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
+
+	smartcl supports progress indicator on selftests 
+
 2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 
 	smartd.cpp: implement error counters and temperature saving to the 

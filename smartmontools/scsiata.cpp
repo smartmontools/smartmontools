@@ -92,12 +92,6 @@ struct sg_scsi_sense_hdr {
 static int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
                                    struct sg_scsi_sense_hdr * sshp);
 
-/* Attempt to find the first SCSI sense data descriptor that matches the
-   given 'desc_type'. If found return pointer to start of sense data
-   descriptor; otherwise (including fixed format sense data) returns NULL. */
-static const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
-                                                     int sense_len, int desc_type);
-
 #define SAT_ATA_PASSTHROUGH_12LEN 12
 #define SAT_ATA_PASSTHROUGH_16LEN 16
 
@@ -534,32 +528,6 @@ static int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
         }
     }
     return 1;
-}
-
-
-static const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
-                                                     int sense_len, int desc_type)
-{
-    int add_sen_len, add_len, desc_len, k;
-    const unsigned char * descp;
-
-    if ((sense_len < 8) || (0 == (add_sen_len = sensep[7])))
-        return NULL;
-    if ((sensep[0] < 0x72) || (sensep[0] > 0x73))
-        return NULL;
-    add_sen_len = (add_sen_len < (sense_len - 8)) ?
-                         add_sen_len : (sense_len - 8);
-    descp = &sensep[8];
-    for (desc_len = 0, k = 0; k < add_sen_len; k += desc_len) {
-        descp += desc_len;
-        add_len = (k < (add_sen_len - 1)) ? descp[1]: -1;
-        desc_len = add_len + 2;
-        if (descp[0] == desc_type)
-            return descp;
-        if (add_len < 0) /* short descriptor ?? */
-            break;
-    }
-    return NULL;
 }
 
 

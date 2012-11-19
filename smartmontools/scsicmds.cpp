@@ -847,6 +847,42 @@ int scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info
                 sense_info->ascq = buff[13];
             }
         }
+    // fill progrss indicator, if available
+    sense_info->progress = -1;
+    switch (ecode) {
+      const unsigned char * ucp;
+      int sk, sk_pr;
+      case 0x70:
+      case 0x71:
+          sk = (buff[2] & 0xf);
+          if ((sizeof(buff) < 18) ||
+              ((SCSI_SK_NO_SENSE != sk) && (SCSI_SK_NOT_READY != sk))) {
+              break;
+          }
+          if (buff[15] & 0x80) {        /* SKSV bit set */
+              sense_info->progress = (buff[16] << 8) + buff[17];
+              break;
+          } else {
+              break;
+          }
+      case 0x72:
+      case 0x73:
+          /* sense key specific progress (0x2) or progress descriptor (0xa) */
+          sk = (buff[1] & 0xf);
+          sk_pr = (SCSI_SK_NO_SENSE == sk) || (SCSI_SK_NOT_READY == sk);
+          if (sk_pr && ((ucp = sg_scsi_sense_desc_find(buff, sizeof(buff), 2))) &&
+              (0x6 == ucp[1]) && (0x80 & ucp[4])) {
+              sense_info->progress = (ucp[5] << 8) + ucp[6];
+              break;
+          } else if (((ucp = sg_scsi_sense_desc_find(buff, sizeof(buff), 0xa))) &&
+                     ((0x6 == ucp[1]))) {
+              sense_info->progress = (ucp[6] << 8) + ucp[7];
+              break;
+          } else
+              break;
+      default:
+          return 0;
+      }
     }
     return 0;
 }
@@ -2379,4 +2415,29 @@ int scsiFetchTransportProtocol(scsi_device * device, int modese_len)
                 return (buff[offset + 2] & 0xf);
     }
     return -EINVAL;
+}
+
+const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
+                                                     int sense_len, int desc_type)
+{
+    int add_sen_len, add_len, desc_len, k;
+    const unsigned char * descp;
+
+    if ((sense_len < 8) || (0 == (add_sen_len = sensep[7])))
+        return NULL;
+    if ((sensep[0] < 0x72) || (sensep[0] > 0x73))
+        return NULL;
+    add_sen_len = (add_sen_len < (sense_len - 8)) ?
+                         add_sen_len : (sense_len - 8);
+    descp = &sensep[8];
+    for (desc_len = 0, k = 0; k < add_sen_len; k += desc_len) {
+        descp += desc_len;
+        add_len = (k < (add_sen_len - 1)) ? descp[1]: -1;
+        desc_len = add_len + 2;
+        if (descp[0] == desc_type)
+            return descp;
+        if (add_len < 0) /* short descriptor ?? */
+            break;
+    }
+    return NULL;
 }

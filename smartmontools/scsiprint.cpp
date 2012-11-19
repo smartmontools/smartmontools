@@ -679,6 +679,14 @@ static int scsiPrintSelfTest(scsi_device * device)
     int retval = 0;
     UINT8 * ucp;
     uint64_t ull=0;
+    struct scsi_sense_disect sense_info;
+
+    // check if test is running
+    if (!scsiRequestSense(device, &sense_info) && 
+                        (sense_info.asc == 0x04 && sense_info.ascq == 0x09 && 
+                        sense_info.progress != -1)) {
+        pout("Self-test execution status:\t\t%d%% of test remaining\n", 100 - sense_info.progress * 100 / 65535);
+    }
 
     if ((err = scsiLogSense(device, SELFTEST_RESULTS_LPAGE, 0, gBuf,
                             LOG_RESP_SELF_TEST_LEN, 0))) {
@@ -1649,6 +1657,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     UINT8 peripheral_type = 0;
     int returnval = 0;
     int res, durationSec;
+    struct scsi_sense_disect sense_info;
 
     bool any_output = options.drive_info;
 
@@ -1789,6 +1798,22 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             return returnval | FAILSMART;
         pout("Short Foreground Self Test Successful\n");
         any_output = true;
+    }
+    // check if another test is running
+    if (options.smart_short_selftest || options.smart_extend_selftest) {
+      if (!scsiRequestSense(device, &sense_info) && 
+            (sense_info.asc == 0x04 && sense_info.ascq == 0x09)) {
+         if (!options.smart_selftest_force) {
+           pout("Can't start self-test without aborting current test");
+           if (sense_info.progress != -1) {
+             pout(" (%d%% remaining)", 100 - sense_info.progress * 100 / 65535);
+           }
+           pout(",\nadd '-t force' option to override, or run 'smartctl -X' to abort test.\n");
+            return -1;
+         }
+         else
+            scsiSmartSelfTestAbort(device);
+       }
     }
     if (options.smart_short_selftest) {
         if (scsiSmartShortSelfTest(device))
