@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3693 2012-11-19 19:17:47Z samm2 $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3694 2012-11-19 19:29:09Z samm2 $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1731,7 +1731,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
            || options.smart_selftest_log  || options.smart_vendor_attrib
            || options.smart_background_log || options.sasphy
          )
-    pout("\n=== START OF READ SMART DATA SECTION ===");
+    pout("\n=== START OF READ SMART DATA SECTION ===\n");
 
     if (options.smart_ss_media_log) {
         if (! checkedSupportedLogPages)
