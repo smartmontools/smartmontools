@@ -54,7 +54,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3634 2012-10-09 11:45:55Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3690 2012-11-19 08:20:49Z samm2 $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -693,6 +693,7 @@ static const char * parse_options(int argc, char** argv,
         ataopts.smart_selftest_type = CONVEYANCE_SELF_TEST;
       } else if (!strcmp(optarg,"force")) {
         ataopts.smart_selftest_force = true;
+        scsiopts.smart_selftest_force = true;
       } else if (!strcmp(optarg,"afterselect,on")) {
         // scan remainder of disk after doing selected segment
         ataopts.smart_selective_args.scan_after_select = 2;

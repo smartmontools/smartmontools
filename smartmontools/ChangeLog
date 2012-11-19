@@ -1,4 +1,8 @@
-$Id: ChangeLog 3688 2012-11-18 22:52:45Z samm2 $
+$Id: ChangeLog 3690 2012-11-19 08:20:49Z samm2 $
+
+2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
+
+	smartcl supports progress indicator on selftests 
 
 2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 

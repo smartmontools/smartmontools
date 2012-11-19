@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartctl.8.in 3664 2012-10-24 21:07:11Z chrfranke $
+$Id: smartctl.8.in 3690 2012-11-19 08:20:49Z samm2 $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1898,7 +1898,7 @@ these attributes are held at 65535 (0xffff) until the workload timer
 reaches 60 minutes.
 
 .I force
-\- [ATA only] start new self\-test even if another test is already running.
+\- start new self\-test even if another test is already running.
 By default a running self\-test will not be interrupted to begin another
 test.
 .TP
@@ -2232,4 +2232,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3664 2012-10-24 21:07:11Z chrfranke $
+$Id: smartctl.8.in 3690 2012-11-19 08:20:49Z samm2 $
