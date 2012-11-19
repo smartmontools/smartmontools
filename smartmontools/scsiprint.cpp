@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3692 2012-11-19 19:15:45Z samm2 $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3693 2012-11-19 19:17:47Z samm2 $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1450,7 +1450,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         pout("Logical block size:   %s bytes\n", lb_str);
     }
     int rpm = scsiGetRPM(device,modese_len);
-    if (rpm)
+    if (rpm > 0)
         pout("Rotation Rate:        %d rpm\n", rpm);
 
     /* Do this here to try and detect badly conforming devices (some USB
