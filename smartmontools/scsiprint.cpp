@@ -1731,7 +1731,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
            || options.smart_selftest_log  || options.smart_vendor_attrib
            || options.smart_background_log || options.sasphy
          )
-    pout("\n=== START OF READ SMART DATA SECTION ===");
+    pout("\n=== START OF READ SMART DATA SECTION ===\n");
 
     if (options.smart_ss_media_log) {
         if (! checkedSupportedLogPages)
