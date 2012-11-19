@@ -7,6 +7,7 @@ $Id$
 	smartctl: add headers to SCSI output, fix data blocks formatting, 
 	trim identification data
 	os_linux.cpp: add autodetection for PERC H700 array
+	smartd: trim SCSI vendor/model/serial before creating state files
 
 2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 
