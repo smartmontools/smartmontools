@@ -2,8 +2,9 @@ $Id$
 
 2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
 
-	smartcl supports progress indicator on selftests 
-	smartcl prints rotation speed for SCSI drives, if supported
+	smartctl: supports progress indicator on selftests 
+	smartctl: prints rotation speed for SCSI drives, if supported
+	smartctl: add headers to SCSI output
 
 2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 
