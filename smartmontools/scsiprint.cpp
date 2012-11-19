@@ -1689,6 +1689,11 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 	any_output = true;
     }
 
+  // START OF THE ENABLE/DISABLE SECTION OF THE CODE
+  if (   options.smart_disable           || options.smart_enable
+      || options.smart_auto_save_disable || options.smart_auto_save_enable)
+    pout("=== START OF ENABLE/DISABLE COMMANDS SECTION ===\n");
+
     if (options.smart_enable) {
         if (scsiSmartEnable(device))
             failuretest(MANDATORY_CMD, returnval |= FAILSMART);
@@ -1706,16 +1711,25 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         pout("Enable autosave (clear GLTSD bit) failed\n");
         failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
+      else {
+         pout("Autosave enabled (GLTSD bit set).\n");
+      }
       any_output = true;
     }
-    
+
     if (options.smart_auto_save_disable) {
       if (scsiSetControlGLTSD(device, 1, modese_len)) {
         pout("Disable autosave (set GLTSD bit) failed\n");
         failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
+      else {
+         pout("Autosave disabled (GLTSD bit cleared).\n");
+      }
       any_output = true;
     }
+  if (   options.smart_disable           || options.smart_enable
+      || options.smart_auto_save_disable || options.smart_auto_save_enable)
+    pout("\n"); // END OF THE ENABLE/DISABLE SECTION OF THE CODE
 
     // START OF READ-ONLY OPTIONS APART FROM -V and -i
     if (    options.smart_check_status  || options.smart_ss_media_log
