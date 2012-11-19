@@ -152,7 +152,6 @@ static int scsiGetSmartData(scsi_device * device, bool attribs)
     UINT8 triptemp = 0;
     const char * cp;
     int err = 0;
-
     print_on();
     if (scsiCheckIE(device, gSmartLPage, gTempLPage, &asc, &ascq,
                     &currenttemp, &triptemp)) {
@@ -169,10 +168,8 @@ static int scsiGetSmartData(scsi_device * device, bool attribs)
         print_off();
     } else if (gIecMPage)
         pout("SMART Health Status: OK\n");
-
+    
     if (attribs && !gTempLPage) {
-        if (currenttemp || triptemp)
-            pout("\n");
         if (currenttemp) {
             if (255 != currenttemp)
                 pout("Current Drive Temperature:     %d C\n", currenttemp);
@@ -563,7 +560,7 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
         }
     }
     if (found[0] || found[1] || found[2]) {
-        pout("\nError counter log:\n");
+        pout("Error counter log:\n");
         pout("           Errors Corrected by           Total   "
              "Correction     Gigabytes    Total\n");
         pout("               ECC          rereads/    errors   "
@@ -582,7 +579,7 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
         }
     }
     else 
-        pout("\nError Counter logging not supported\n");
+        pout("Error Counter logging not supported\n");
     if (gNonMediumELPage && (0 == scsiLogSense(device,
                 NON_MEDIUM_ERROR_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeNonMediumErrPage(gBuf, &nme);
@@ -636,6 +633,7 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
                      "bytes\n", LOG_RESP_LONG_LEN, truncated);
         }
     }
+    pout("\n");
 }
 
 static const char * self_test_code[] = {
@@ -724,7 +722,7 @@ static int scsiPrintSelfTest(scsi_device * device)
 
         // only print header if needed
         if (noheader) {
-            pout("\nSMART Self-test log\n");
+            pout("SMART Self-test log\n");
             pout("Num  Test              Status                 segment  "
                    "LifeTime  LBA_first_err [SK ASC ASQ]\n");
             pout("     Description                              number   "
@@ -816,12 +814,12 @@ static int scsiPrintSelfTest(scsi_device * device)
     if (noheader)
         pout("No self-tests have been logged\n");
     else
-        pout("\n");
     if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
                         modese_len)) && (durationSec > 0)) {
         pout("Long (extended) Self Test duration: %d seconds "
              "[%.1f minutes]\n", durationSec, durationSec / 60.0);
     }
+    pout("\n");
     return retval;
 }
 
@@ -896,7 +894,7 @@ static int scsiPrintBackgroundResults(scsi_device * device)
         case 0:
             if (noheader) {
                 noheader = 0;
-                pout("\nBackground scan results log\n");
+                pout("Background scan results log\n");
             }
             pout("  Status: ");
             if ((pl < 16) || (num < 16)) {
@@ -953,6 +951,7 @@ static int scsiPrintBackgroundResults(scsi_device * device)
     if (truncated)
         pout(" >>>> log truncated, fetched %d of %d available "
              "bytes\n", LOG_RESP_LONG_LEN, truncated);
+    pout("\n");
     return retval;
 }
 
@@ -1292,6 +1291,7 @@ static int show_protocol_specific_page(unsigned char * resp, int len)
         k += param_len;
         ucp += param_len;
     }
+    pout("\n");
     return 1;
 }
 
@@ -1309,13 +1309,13 @@ static int scsiPrintSasPhy(scsi_device * device, int reset)
     if ((err = scsiLogSense(device, PROTOCOL_SPECIFIC_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
         print_on();
-        pout("scsiPrintSasPhy Log Sense Failed [%s]\n", scsiErrString(err));
+        pout("scsiPrintSasPhy Log Sense Failed [%s]\n\n", scsiErrString(err));
         print_off();
         return FAILSMART;
     }
     if ((gBuf[0] & 0x3f) != PROTOCOL_SPECIFIC_LPAGE) {
         print_on();
-        pout("Protocol specific Log Sense Failed, page mismatch\n");
+        pout("Protocol specific Log Sense Failed, page mismatch\n\n");
         print_off();
         return FAILSMART;
     }
@@ -1323,7 +1323,7 @@ static int scsiPrintSasPhy(scsi_device * device, int reset)
     num = (gBuf[2] << 8) + gBuf[3];
     if (1 != show_protocol_specific_page(gBuf, num + 4)) {
         print_on();
-        pout("Only support protocol specific log page on SAS devices\n");
+        pout("Only support protocol specific log page on SAS devices\n\n");
         print_off();
         return FAILSMART;
     }
@@ -1331,7 +1331,7 @@ static int scsiPrintSasPhy(scsi_device * device, int reset)
         if ((err = scsiLogSelect(device, 1 /* pcr */, 0 /* sp */, 0 /* pc */,
                                  PROTOCOL_SPECIFIC_LPAGE, 0, NULL, 0))) {
             print_on();
-            pout("scsiPrintSasPhy Log Select (reset) Failed [%s]\n",
+            pout("scsiPrintSasPhy Log Select (reset) Failed [%s]\n\n",
                  scsiErrString(err));
             print_off();
             return FAILSMART;
@@ -1652,6 +1652,8 @@ static void scsiPrintTemp(scsi_device * device)
     }
     if (trip)
         pout("Drive Trip Temperature:        %d C\n", trip);
+    if (temp || trip)
+        pout("\n");
 }
 
 /* Main entry point used by smartctl command. Return 0 for success */
@@ -1747,8 +1749,6 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(device);
         if (gTempLPage) {
-            if (options.smart_check_status)
-                pout("\n");
             scsiPrintTemp(device);
         }
         if (gStartStopLPage)
