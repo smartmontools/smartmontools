@@ -1450,7 +1450,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         pout("Logical block size:   %s bytes\n", lb_str);
     }
     int rpm = scsiGetRPM(device,modese_len);
-    if (rpm)
+    if (rpm > 0)
         pout("Rotation Rate:        %d rpm\n", rpm);
 
     /* Do this here to try and detect badly conforming devices (some USB
