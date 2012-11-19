@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3647 2012-10-16 19:57:08Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3698 2012-11-19 21:39:38Z samm2 $"
   OS_LINUX_H_CVSID;
 
 
@@ -2316,7 +2316,9 @@ smart_device * linux_scsi_device::autodetect_open()
     }
 
     // DELL?
-    if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)) {
+    if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)
+        || !memcmp(req_buff + 16, "PERC H700", 9)
+    ) {
       close();
       set_err(EINVAL, "DELL or MegaRaid controller, please try adding '-d megaraid,N'");
       return this;
