@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3697 2012-11-19 21:27:49Z samm2 $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3699 2012-11-19 21:55:33Z samm2 $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -351,13 +351,13 @@ static void scsiPrintGrownDefectListLen(scsi_device * device)
     }
     dl_len = (gBuf[2] << 8) + gBuf[3];
     if (0 == dl_len)
-        pout("Elements in grown defect list: 0\n");
+        pout("Elements in grown defect list: 0\n\n");
     else {
         if (0 == div)
             pout("Grown defect list length=%d bytes [unknown "
-                 "number of elements]\n", dl_len);
+                 "number of elements]\n\n", dl_len);
         else
-            pout("Elements in grown defect list: %d\n", dl_len / div);
+            pout("Elements in grown defect list: %d\n\n", dl_len / div);
     }
 }
 
@@ -434,6 +434,7 @@ static void scsiPrintSeagateCacheLPage(scsi_device * device)
         num -= pl;
         ucp += pl;
     }
+    pout("\n");
 }
 
 static void scsiPrintSeagateFactoryLPage(scsi_device * device)
@@ -528,6 +529,7 @@ static void scsiPrintSeagateFactoryLPage(scsi_device * device)
         num -= pl;
         ucp += pl;
     }
+    pout("\n");
 }
 
 static void scsiPrintErrorCounterLog(scsi_device * device)
