@@ -1,4 +1,4 @@
-$Id: ChangeLog 3698 2012-11-19 21:39:38Z samm2 $
+$Id: ChangeLog 3702 2012-11-19 23:46:03Z samm2 $
 
 2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
 
@@ -7,6 +7,7 @@ $Id: ChangeLog 3698 2012-11-19 21:39:38Z samm2 $
 	smartctl: add headers to SCSI output, fix data blocks formatting, 
 	trim identification data
 	os_linux.cpp: add autodetection for PERC H700 array
+	smartd: trim SCSI vendor/model/serial before creating state files
 
 2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 
