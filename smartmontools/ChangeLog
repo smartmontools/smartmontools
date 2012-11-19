@@ -1,10 +1,11 @@
-$Id: ChangeLog 3696 2012-11-19 20:37:17Z samm2 $
+$Id: ChangeLog 3697 2012-11-19 21:27:49Z samm2 $
 
 2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
 
 	smartctl: supports progress indicator on selftests 
 	smartctl: prints rotation speed for SCSI drives, if supported
-	smartctl: add headers to SCSI output, fix data blocks formatting
+	smartctl: add headers to SCSI output, fix data blocks formatting, 
+        trim identification data
 
 2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 
