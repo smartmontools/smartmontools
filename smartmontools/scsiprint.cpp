@@ -1420,12 +1420,18 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         print_off();
         return 1;
     }
+    
     if (all && (0 != strncmp((char *)&gBuf[8], "ATA", 3))) {
+	char vendor[8+1], product[16+1], revision[4+1];
+	scsi_format_id_string(vendor, (const unsigned char *)&gBuf[8], 8);
+	scsi_format_id_string(product, (const unsigned char *)&gBuf[16], 16);
+	scsi_format_id_string(revision, (const unsigned char *)&gBuf[32], 4);
+
         pout("=== START OF INFORMATION SECTION ===\n");
-        pout("Vendor:               %.8s\n", (char *)&gBuf[8]);
-	pout("Product:              %.16s\n", (char *)&gBuf[16]);
+        pout("Vendor:               %.8s\n", vendor);
+	pout("Product:              %.16s\n", product);
 	if (gBuf[32] >= ' ')
-	    pout("Revision:             %.4s\n", (char *)&gBuf[32]);
+	    pout("Revision:             %.4s\n", revision);
     }
 
     if (!*device->get_req_type()/*no type requested*/ &&
@@ -1484,9 +1490,12 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
             print_off();
         }
 	if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
+	    char serial[256];
             len = gBuf[3];
+            
             gBuf[4 + len] = '\0';
-            pout("Serial number:        %s\n", &gBuf[4]);
+            scsi_format_id_string(serial, &gBuf[4], len);
+            pout("Serial number:        %s\n", serial);
         } else if (scsi_debugmode > 0) {
             print_on();
             if (SIMPLE_ERR_BAD_RESP == err)

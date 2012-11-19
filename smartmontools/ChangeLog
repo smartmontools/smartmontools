@@ -4,7 +4,8 @@ $Id$
 
 	smartctl: supports progress indicator on selftests 
 	smartctl: prints rotation speed for SCSI drives, if supported
-	smartctl: add headers to SCSI output, fix data blocks formatting
+	smartctl: add headers to SCSI output, fix data blocks formatting, 
+        trim identification data
 
 2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 

@@ -2472,3 +2472,34 @@ const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
     }
     return NULL;
 }
+
+// Convenience function for formatting strings from SCSI identify
+void scsi_format_id_string(char * out, const unsigned char * in, int n)
+{
+  char tmp[65];
+  n = n > 64 ? 64 : n;
+  strncpy(tmp, (const char *)in, n);
+  tmp[n] = '\0';
+
+  // Find the first non-space character (maybe none).
+  int first = -1;
+  int i;
+  for (i = 0; tmp[i]; i++)
+    if (!isspace((int)tmp[i])) {
+      first = i;
+      break;
+    }
+
+  if (first == -1) {
+    // There are no non-space characters.
+    out[0] = '\0';
+    return;
+  }
+
+  // Find the last non-space character.
+  for (i = strlen(tmp)-1; i >= first && isspace((int)tmp[i]); i--);
+  int last = i;
+
+  strncpy(out, tmp+first, last-first+1);
+  out[last-first+1] = '\0';
+}

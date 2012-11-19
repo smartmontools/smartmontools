@@ -405,6 +405,8 @@ const char * scsiTapeAlertsTapeDevice(unsigned short code);
 const char * scsiTapeAlertsChangerDevice(unsigned short code);
 
 const char * scsi_get_opcode_name(UINT8 opcode);
+void scsi_format_id_string(char * out, const unsigned char * in, int n);
+
 void dStrHex(const char* str, int len, int no_ascii);
 inline void dStrHex(const unsigned char* str, int len, int no_ascii)
   { dStrHex((const char *)str, len, no_ascii); }
