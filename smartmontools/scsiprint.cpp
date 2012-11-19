@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3690 2012-11-19 08:20:49Z samm2 $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3691 2012-11-19 18:38:32Z samm2 $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1448,6 +1448,9 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         snprintf(lb_str, sizeof(lb_str) - 1, "%u", lb_size);
         pout("Logical block size:   %s bytes\n", lb_str);
     }
+    int rpm = scsiGetRPM(device,modese_len);
+    if (rpm)
+        pout("Rotation Rate:        %d rpm\n", rpm);
 
     /* Do this here to try and detect badly conforming devices (some USB
        keys) that will lock up on a InquiryVpd or log sense or ... */

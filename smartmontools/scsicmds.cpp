@@ -49,7 +49,7 @@
 #include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3690 2012-11-19 08:20:49Z samm2 $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3691 2012-11-19 18:38:32Z samm2 $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?
@@ -2310,6 +2310,37 @@ int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current)
         return (buff[offset + 2] & 2) ? 1 : 0;
     return -EINVAL;
 }
+
+/* Returns a negative value if failed to fetch RIGID_DISK_DRIVE_GEOMETRY_PAGE, 
+   or it was malformed. Returns Rotational Rate on success */
+
+int scsiGetRPM(scsi_device * device, int modese_len)
+{
+    int err, offset;
+    UINT8 buff[64];
+    int pc = MPAGE_CONTROL_DEFAULT;
+
+    memset(buff, 0, sizeof(buff));
+    if (modese_len <= 6) {
+        if ((err = scsiModeSense(device, RIGID_DISK_DRIVE_GEOMETRY_PAGE, 0, pc,
+                                 buff, sizeof(buff)))) {
+            if (SIMPLE_ERR_BAD_OPCODE == err)
+                modese_len = 10;
+            else
+                return -EINVAL;
+        } else if (0 == modese_len)
+            modese_len = 6;
+    }
+    if (10 == modese_len) {
+        err = scsiModeSense10(device, RIGID_DISK_DRIVE_GEOMETRY_PAGE, 0, pc,
+                              buff, sizeof(buff));
+        if (err)
+            return -EINVAL;
+    }
+    offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
+    return (buff[offset + 20] << 8) | buff[offset + 21];
+}
+
 
 /* Attempts to set or clear GLTSD bit in Control mode page. If enabled is
    0 attempts to clear GLTSD otherwise it attempts to set it. Returns 0 if

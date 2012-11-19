@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3690 2012-11-19 08:20:49Z samm2 $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3691 2012-11-19 18:38:32Z samm2 $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -384,6 +384,7 @@ int scsiSelfTestInProgress(scsi_device * device, int * inProgress);
 int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current);
 int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len);
 int scsiFetchTransportProtocol(scsi_device * device, int modese_len);
+int scsiGetRPM(scsi_device * device, int modese_len);
 
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
