@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3699 2012-11-19 21:55:33Z samm2 $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3700 2012-11-19 22:45:49Z samm2 $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1556,7 +1556,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     if (iec_err) {
         if (!is_tape) {
             print_on();
-            pout("Device does not support SMART");
+            pout("SMART support is:     Unavailable - device lacks SMART capability.\n");
             if (scsi_debugmode > 0)
                 pout(" [%s]\n", scsiErrString(iec_err));
             else
@@ -1568,11 +1568,12 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     }
 
     if (!is_tape)
-        pout("Device supports SMART and is %s\n",
+        pout("SMART support is:     Available - device has SMART capability.\n"
+             "SMART support is:     %s\n",
              (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
     pout("%s\n\n", (scsi_IsWarningEnabled(&iec)) ? 
-                  "Temperature Warning Enabled" :
-                  "Temperature Warning Disabled or Not Supported");
+                  "Temperature Warning:  Enabled" :
+                  "Temperature Warning:  Disabled or Not Supported");
     return 0;
 }
 
