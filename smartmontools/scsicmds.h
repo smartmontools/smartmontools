@@ -384,6 +384,7 @@ int scsiSelfTestInProgress(scsi_device * device, int * inProgress);
 int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current);
 int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len);
 int scsiFetchTransportProtocol(scsi_device * device, int modese_len);
+int scsiGetRPM(scsi_device * device, int modese_len);
 
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */

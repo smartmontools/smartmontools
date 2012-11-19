@@ -1448,6 +1448,9 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         snprintf(lb_str, sizeof(lb_str) - 1, "%u", lb_size);
         pout("Logical block size:   %s bytes\n", lb_str);
     }
+    int rpm = scsiGetRPM(device,modese_len);
+    if (rpm)
+        pout("Rotation Rate:        %d rpm\n", rpm);
 
     /* Do this here to try and detect badly conforming devices (some USB
        keys) that will lock up on a InquiryVpd or log sense or ... */
