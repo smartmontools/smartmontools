@@ -5,7 +5,8 @@ $Id$
 	smartctl: supports progress indicator on selftests 
 	smartctl: prints rotation speed for SCSI drives, if supported
 	smartctl: add headers to SCSI output, fix data blocks formatting, 
-        trim identification data
+	trim identification data
+	os_linux.cpp: add autodetection for PERC H700 array
 
 2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 

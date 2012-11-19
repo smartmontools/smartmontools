@@ -2316,7 +2316,9 @@ smart_device * linux_scsi_device::autodetect_open()
     }
 
     // DELL?
-    if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)) {
+    if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)
+        || !memcmp(req_buff + 16, "PERC H700", 9)
+    ) {
       close();
       set_err(EINVAL, "DELL or MegaRaid controller, please try adding '-d megaraid,N'");
       return this;
