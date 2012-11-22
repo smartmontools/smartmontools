@@ -2,7 +2,8 @@ $Id$
 
 2012-11-22  Alex Samorukov  <samm@os2.kiev.ua>
 
-	smartctl: implemeted support for -g lookahead and -g wcache for SCSI.
+	smartctl: implemeted support for -g/-s rcache and -g/-s wcache for SCSI
+	devices to control read/write device cache.
 
 2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
 

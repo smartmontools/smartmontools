@@ -2341,35 +2341,43 @@ int scsiGetRPM(scsi_device * device, int modese_len)
     return (buff[offset + 20] << 8) | buff[offset + 21];
 }
 
+/* Returns a non-zero value in case of error, wcep/rcdp == -1 - get value,
+   0 - clear bit, 1 - set bit  */
+
 int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep, short int * rcdp)
 {
-    
-    int err, offset;
-    UINT8 buff[64];
-    int pc = MPAGE_CONTROL_CURRENT;
+    int err, offset, resp_len, sp;
+    UINT8 buff[64], ch_buff[64];
     short set_wce = *wcep;
     short set_rcd = *rcdp;
 
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
-        if ((err = scsiModeSense(device, CACHING_PAGE, 0, pc,
+        if ((err = scsiModeSense(device, CACHING_PAGE, 0, MPAGE_CONTROL_CURRENT,
                                  buff, sizeof(buff)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
-            else
+            else {
+                device->set_err(EINVAL, "SCSI MODE SENSE failed");
                 return -EINVAL;
+            }
         } else if (0 == modese_len)
             modese_len = 6;
     }
+
     if (10 == modese_len) {
-        err = scsiModeSense10(device, CACHING_PAGE, 0, pc,
+        err = scsiModeSense10(device, CACHING_PAGE, 0, MPAGE_CONTROL_CURRENT,
                               buff, sizeof(buff));
-        if (err)
+        if (err) {
+            device->set_err(EINVAL, "SCSI MODE SENSE failed");
             return -EINVAL;
+        }
     }
     offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
-    if ((offset < 0) || (buff[offset + 1] < 0xa))
+    if ((offset < 0) || (buff[offset + 1] < 0xa)) {
+        device->set_err(EINVAL, "Bad response");
         return SIMPLE_ERR_BAD_RESP;
+    }
 
     *wcep = ((buff[offset + 2] & 0x04) != 0);
     *rcdp = ((buff[offset + 2] & 0x01) != 0);
@@ -2378,8 +2386,59 @@ int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep, sho
     if (set_wce == -1 && set_rcd == -1)
       return 0;
 
-    // TODO - add change settings code
-    return 0;
+    if(*wcep == set_wce && *rcdp == set_rcd)
+      return 0; // no changes needed
+
+    if (modese_len == 6)
+        err = scsiModeSense(device, CACHING_PAGE, 0,
+                            MPAGE_CONTROL_CHANGEABLE,
+                            ch_buff, sizeof(ch_buff));
+    else
+        err = scsiModeSense10(device, CACHING_PAGE, 0,
+                              MPAGE_CONTROL_CHANGEABLE,
+                              ch_buff, sizeof(ch_buff));
+    if (err) {
+        device->set_err(EINVAL, "WCE/RCD bits not changable");
+        return err;
+    }
+    // set WCE bit
+    if(set_wce >= 0 && *wcep != set_wce) {
+       if (0 == (ch_buff[offset + 2] & 0x04)) {
+         device->set_err(EINVAL, "WCE bit not changable");
+         return 1;
+       }
+       if(set_wce)
+          buff[offset + 2] |= 0x04; // set bit
+       else
+          buff[offset + 2] &= 0xfb; // clear bit
+    }
+    // set RCD bit
+    if(set_rcd >= 0 && *rcdp != set_rcd) {
+       if (0 == (ch_buff[offset + 2] & 0x01)) {
+         device->set_err(EINVAL, "RCD bit not changable");
+         return 1;
+       }
+       if(set_rcd)
+          buff[offset + 2] |= 0x01; // set bit
+       else
+          buff[offset + 2] &= 0xfe; // clear bit
+    }
+
+    if (10 == modese_len) {
+        resp_len = (buff[0] << 8) + buff[1] + 2;
+        buff[3] &= 0xef;    /* for disks mask out DPOFUA bit */
+    } else {
+        resp_len = buff[0] + 1;
+        buff[2] &= 0xef;    /* for disks mask out DPOFUA bit */
+    }
+    sp = 0; /* Do not change saved values */
+    if (10 == modese_len)
+        err = scsiModeSelect10(device, sp, buff, resp_len);
+    else if (6 == modese_len)
+        err = scsiModeSelect(device, sp, buff, resp_len);
+    if(err)
+      device->set_err(EINVAL, "MODE SELECT command failed");
+    return err;
 }
 
 

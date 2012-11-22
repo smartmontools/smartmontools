@@ -863,8 +863,16 @@ because ATA standards do not specify a method to read the standby timer.
 the drive.  The setting of the standby timer is not affected.
 
 .I wcache[,on|off]
-\- [ATA only] Gets/sets the volatile write cache feature (if supported).
+\- [ATA] Gets/sets the volatile write cache feature (if supported).
 The write cache is usually enabled by default.
+
+\- [SCSI] Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
+The write cache is usually enabled by default.
+
+.I rcache[,on|off]
+\- [SCSI only] Gets/sets the \'Read Cache Disable\' (RCE) bit. \'Off\' value disables read cache
+(if supported).
+The read cache is usually enabled by default.
 
 .TP
 .B SMART READ AND DISPLAY DATA OPTIONS:

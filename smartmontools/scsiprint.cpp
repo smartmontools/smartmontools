@@ -1739,6 +1739,33 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
       any_output = true;
     }
 
+    // Enable/Disable write cache
+    if (options.set_wce && SCSI_PT_DIRECT_ACCESS == peripheral_type) {
+      short int enable = wce = (options.set_wce > 0);
+      rcd = -1;
+      if (scsiGetSetCache(device, modese_len, &wce, &rcd)) {
+          pout("Write cache %sable failed: %s\n", (enable ? "en" : "dis"), device->get_errmsg());
+          failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
+      }
+      else
+        pout("Write cache %sabled\n", (enable ? "en" : "dis"));
+      any_output = true;
+    }
+
+    // Enable/Disable read cache
+    if (options.set_rcd && SCSI_PT_DIRECT_ACCESS == peripheral_type) {
+      short int enable =  (options.set_rcd > 0);
+      rcd = !enable;
+      wce = -1;
+      if (scsiGetSetCache(device, modese_len, &wce, &rcd)) {
+          pout("Read cache %sable failed: %s\n", (enable ? "en" : "dis"), device->get_errmsg());
+          failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
+      }
+      else
+        pout("Read cache %sabled\n", (enable ? "en" : "dis"));
+      any_output = true;
+    }
+
     if (options.smart_auto_save_disable) {
       if (scsiSetControlGLTSD(device, 1, modese_len)) {
         pout("Disable autosave (set GLTSD bit) failed\n");
