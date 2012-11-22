@@ -2341,6 +2341,47 @@ int scsiGetRPM(scsi_device * device, int modese_len)
     return (buff[offset + 20] << 8) | buff[offset + 21];
 }
 
+int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep, short int * rcdp)
+{
+    
+    int err, offset;
+    UINT8 buff[64];
+    int pc = MPAGE_CONTROL_CURRENT;
+    short set_wce = *wcep;
+    short set_rcd = *rcdp;
+
+    memset(buff, 0, sizeof(buff));
+    if (modese_len <= 6) {
+        if ((err = scsiModeSense(device, CACHING_PAGE, 0, pc,
+                                 buff, sizeof(buff)))) {
+            if (SIMPLE_ERR_BAD_OPCODE == err)
+                modese_len = 10;
+            else
+                return -EINVAL;
+        } else if (0 == modese_len)
+            modese_len = 6;
+    }
+    if (10 == modese_len) {
+        err = scsiModeSense10(device, CACHING_PAGE, 0, pc,
+                              buff, sizeof(buff));
+        if (err)
+            return -EINVAL;
+    }
+    offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
+    if ((offset < 0) || (buff[offset + 1] < 0xa))
+        return SIMPLE_ERR_BAD_RESP;
+
+    *wcep = ((buff[offset + 2] & 0x04) != 0);
+    *rcdp = ((buff[offset + 2] & 0x01) != 0);
+
+    // nothing to set, exiting
+    if (set_wce == -1 && set_rcd == -1)
+      return 0;
+
+    // TODO - add change settings code
+    return 0;
+}
+
 
 /* Attempts to set or clear GLTSD bit in Control mode page. If enabled is
    0 attempts to clear GLTSD otherwise it attempts to set it. Returns 0 if

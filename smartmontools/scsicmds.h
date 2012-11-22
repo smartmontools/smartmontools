@@ -385,7 +385,7 @@ int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current);
 int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len);
 int scsiFetchTransportProtocol(scsi_device * device, int modese_len);
 int scsiGetRPM(scsi_device * device, int modese_len);
-
+int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wce, short int * rcd);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 const char* scsiGetIEString(UINT8 asc, UINT8 ascq);

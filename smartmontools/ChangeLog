@@ -1,5 +1,9 @@
 $Id$
 
+2012-11-22  Alex Samorukov  <samm@os2.kiev.ua>
+
+	smartctl: implemeted support for -g lookahead and -g wcache for SCSI.
+
 2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
 
 	smartctl: supports progress indicator on selftests 

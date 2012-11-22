@@ -1571,7 +1571,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         pout("SMART support is:     Available - device has SMART capability.\n"
              "SMART support is:     %s\n",
              (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
-    pout("%s\n\n", (scsi_IsWarningEnabled(&iec)) ? 
+    pout("%s\n", (scsi_IsWarningEnabled(&iec)) ? 
                   "Temperature Warning:  Enabled" :
                   "Temperature Warning:  Disabled or Not Supported");
     return 0;
@@ -1688,6 +1688,27 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             failuretest(MANDATORY_CMD, returnval |= FAILID);
 	any_output = true;
     }
+
+  // Print read look-ahead status
+  short int wce = -1, rcd = -1;
+  if (options.get_rcd || options.get_wce) {
+       res = scsiGetSetCache(device, modese_len, &wce, &rcd);
+       any_output = true;
+  }
+
+  if (options.get_rcd) {
+    pout("Read Cache is:        %s\n",
+      res ? "Unavailable" : // error
+      rcd ? "Disabled" : "Enabled");
+   }
+
+  if (options.get_wce) {
+    pout("Writeback Cache is:   %s\n",
+      res ? "Unavailable" : // error
+      !wce ? "Disabled" : "Enabled");
+   }
+   if (options.drive_info)
+     pout("\n");
 
   // START OF THE ENABLE/DISABLE SECTION OF THE CODE
   if (   options.smart_disable           || options.smart_enable

@@ -52,6 +52,8 @@ struct scsi_print_options
   bool smart_selftest_force; // Ignore already running test
 
   bool sasphy, sasphy_reset;
+  
+  bool get_wce, get_rcd;
 
   scsi_print_options()
     : drive_info(false),
@@ -68,7 +70,8 @@ struct scsi_print_options
       smart_extend_selftest(false), smart_extend_cap_selftest(false),
       smart_selftest_abort(false),
       smart_selftest_force(false),
-      sasphy(false), sasphy_reset(false)
+      sasphy(false), sasphy_reset(false),
+      get_wce(false), get_rcd(false)
     { }
 };
 

@@ -636,6 +636,7 @@ static const char * parse_options(int argc, char** argv,
       ataopts.get_aam = ataopts.get_apm = true;
       ataopts.get_security = true;
       ataopts.get_lookahead = ataopts.get_wcache = true;
+      scsiopts.get_rcd = scsiopts.get_wce = true;
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
@@ -833,6 +834,7 @@ static const char * parse_options(int argc, char** argv,
             ataopts.get_aam = ataopts.get_apm = true;
             ataopts.get_security = true;
             ataopts.get_lookahead = ataopts.get_wcache = true;
+            scsiopts.get_rcd = scsiopts.get_wce = true;
           }
           else if (!strcmp(name, "aam")) {
             if (get)
@@ -859,8 +861,10 @@ static const char * parse_options(int argc, char** argv,
             }
           }
           else if (!strcmp(name, "lookahead")) {
-            if (get)
+            if (get) {
               ataopts.get_lookahead = true;
+              scsiopts.get_rcd = true;
+            }
             else if (off)
               ataopts.set_lookahead = -1;
             else if (on)
@@ -888,8 +892,10 @@ static const char * parse_options(int argc, char** argv,
             }
           }
           else if (!strcmp(name, "wcache")) {
-            if (get)
+            if (get) {
               ataopts.get_wcache = true;
+              scsiopts.get_wce = true;
+            }
             else if (off)
               ataopts.set_wcache = -1;
             else if (on)
