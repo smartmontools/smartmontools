@@ -134,6 +134,10 @@
     <None Include="..\TODO" />
     <None Include="..\update-smart-drivedb.in" />
     <None Include="..\WARNINGS" />
+    <None Include="smartd_warning.cmd">
+      <Filter>os_win32</Filter>
+    </None>
+    <None Include="..\smartd_warning.sh.in" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuildStep Include="..\ataprint.h" />

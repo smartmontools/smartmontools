@@ -286,7 +286,9 @@
     <ClInclude Include="..\utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\smartd_warning.sh.in" />
     <None Include="installer.nsi" />
+    <None Include="smartd_warning.cmd" />
     <None Include="update-smart-drivedb.nsi" />
     <None Include="..\AUTHORS" />
     <None Include="..\autogen.sh" />

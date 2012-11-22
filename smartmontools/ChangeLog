@@ -1,4 +1,13 @@
-$Id: ChangeLog 3706 2012-11-22 13:11:26Z samm2 $
+$Id: ChangeLog 3712 2012-11-22 22:33:29Z chrfranke $
+
+2012-11-22  Christian Franke  <franke@computer.org>
+
+	smartd: Move warning message formatting and mailer/command
+	startup to new script SYSCONFDIR/smartd_warning.sh
+	(Windows: smartd_warning.cmd).
+	Add environment variables SMARTD_PREVCNT and SMARTD_NEXTDAYS.
+	Remove host/domainname related code from smartd.cpp
+	and configure.in
 
 2012-11-22  Alex Samorukov  <samm@os2.kiev.ua>
 

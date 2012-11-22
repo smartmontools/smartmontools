@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3709 2012-11-22 14:41:23Z samm2 $
+$Id: NEWS 3712 2012-11-22 22:33:29Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -10,6 +10,8 @@ Summary: smartmontools release 6.1
 -----------------------------------------------------------
 - smartctl '-l directory': improved output format.
 - smartctl: Fix parsing of '-l select,cont+SIZE' option.
+- smartd runs /etc/smartd_warning.sh to generate warning emails
+  (Windows: smartd_warning.cmd).
 - Linux: Support for SAS disks behind Areca controllers.
 - FreeBSD: Support for SAS disks behind Areca controllers.
 - FreeBSD: Enhanced ATA command support for 3ware.
