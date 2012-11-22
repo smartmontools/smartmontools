@@ -16,7 +16,13 @@ Summary: smartmontools release 6.1
 - FreeBSD: Support for 3ware 9750 (/dev/twsX).
 - FreeBSD: Fixed support for 48-bit ATA commands on legacy controllers
   with ATACAM driver.
+- FreeBSD: Improved support for SAS/SCSI disks on LSI/Megaraid controllers.
 - Windows: smartd.conf '-M exec' supports path names with spaces.
+- smartd: added support for state persistence ('-s') and attribute logging 
+  ('-A') for SCSI devices.
+- smartctl '-s/-g wcache' for SCSI devices to control write cache.
+- smartctl '-s/-g rcache' for SCSI devices to control read cache.
+- smartctl prints media rotation rate and selftest progress status [SCSI]
 
 Date 2012-10-10
 Summary: smartmontools release 6.0
