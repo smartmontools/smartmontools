@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartctl.8.in 3706 2012-11-22 13:11:26Z samm2 $
+$Id: smartctl.8.in 3710 2012-11-22 14:45:03Z samm2 $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -866,6 +866,7 @@ the drive.  The setting of the standby timer is not affected.
 \- [ATA] Gets/sets the volatile write cache feature (if supported).
 The write cache is usually enabled by default.
 
+.I wcache[,on|off]
 \- [SCSI] Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
 The write cache is usually enabled by default.
 
@@ -2240,4 +2241,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3706 2012-11-22 13:11:26Z samm2 $
+$Id: smartctl.8.in 3710 2012-11-22 14:45:03Z samm2 $
