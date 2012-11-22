@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartctl.8.in 3690 2012-11-19 08:20:49Z samm2 $
+$Id: smartctl.8.in 3706 2012-11-22 13:11:26Z samm2 $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -863,8 +863,16 @@ because ATA standards do not specify a method to read the standby timer.
 the drive.  The setting of the standby timer is not affected.
 
 .I wcache[,on|off]
-\- [ATA only] Gets/sets the volatile write cache feature (if supported).
+\- [ATA] Gets/sets the volatile write cache feature (if supported).
 The write cache is usually enabled by default.
+
+\- [SCSI] Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
+The write cache is usually enabled by default.
+
+.I rcache[,on|off]
+\- [SCSI only] Gets/sets the \'Read Cache Disable\' (RCE) bit. \'Off\' value disables read cache
+(if supported).
+The read cache is usually enabled by default.
 
 .TP
 .B SMART READ AND DISPLAY DATA OPTIONS:
@@ -2232,4 +2240,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3690 2012-11-19 08:20:49Z samm2 $
+$Id: smartctl.8.in 3706 2012-11-22 13:11:26Z samm2 $

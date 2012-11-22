@@ -29,7 +29,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 3703 2012-11-22 08:58:39Z samm2 $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 3706 2012-11-22 13:11:26Z samm2 $\n"
 
 // Options for scsiPrintMain
 struct scsi_print_options
@@ -54,6 +54,7 @@ struct scsi_print_options
   bool sasphy, sasphy_reset;
   
   bool get_wce, get_rcd;
+  short int set_wce, set_rcd;  // disable(-1), enable(1) cache
 
   scsi_print_options()
     : drive_info(false),
@@ -71,7 +72,8 @@ struct scsi_print_options
       smart_selftest_abort(false),
       smart_selftest_force(false),
       sasphy(false), sasphy_reset(false),
-      get_wce(false), get_rcd(false)
+      get_wce(false), get_rcd(false),
+      set_wce(0), set_rcd(0)
     { }
 };
 

@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3705 2012-11-22 09:31:45Z samm2 $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3706 2012-11-22 13:11:26Z samm2 $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1736,6 +1736,33 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
       else {
          pout("Autosave enabled (GLTSD bit set).\n");
       }
+      any_output = true;
+    }
+
+    // Enable/Disable write cache
+    if (options.set_wce && SCSI_PT_DIRECT_ACCESS == peripheral_type) {
+      short int enable = wce = (options.set_wce > 0);
+      rcd = -1;
+      if (scsiGetSetCache(device, modese_len, &wce, &rcd)) {
+          pout("Write cache %sable failed: %s\n", (enable ? "en" : "dis"), device->get_errmsg());
+          failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
+      }
+      else
+        pout("Write cache %sabled\n", (enable ? "en" : "dis"));
+      any_output = true;
+    }
+
+    // Enable/Disable read cache
+    if (options.set_rcd && SCSI_PT_DIRECT_ACCESS == peripheral_type) {
+      short int enable =  (options.set_rcd > 0);
+      rcd = !enable;
+      wce = -1;
+      if (scsiGetSetCache(device, modese_len, &wce, &rcd)) {
+          pout("Read cache %sable failed: %s\n", (enable ? "en" : "dis"), device->get_errmsg());
+          failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
+      }
+      else
+        pout("Read cache %sabled\n", (enable ? "en" : "dis"));
       any_output = true;
     }
 
