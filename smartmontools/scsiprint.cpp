@@ -1559,8 +1559,6 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
             pout("SMART support is:     Unavailable - device lacks SMART capability.\n");
             if (scsi_debugmode > 0)
                 pout(" [%s]\n", scsiErrString(iec_err));
-            else
-                pout("\n");
             print_off();
         }
         gIecMPage = 0;
@@ -1689,11 +1687,14 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 	any_output = true;
     }
 
-  // Print read look-ahead status
+  // Print read look-ahead status for disks
   short int wce = -1, rcd = -1;
   if (options.get_rcd || options.get_wce) {
+    if (SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type)
        res = scsiGetSetCache(device, modese_len, &wce, &rcd);
-       any_output = true;
+    else
+       res = -1; // fetch for disks only
+    any_output = true;
   }
 
   if (options.get_rcd) {
