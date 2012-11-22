@@ -95,13 +95,8 @@ typedef int pid_t;
 #endif
 
 #ifdef _WIN32
-#include <winsock2.h>  // ws2_32.dll
-// AC_SEARCH_LIBS and AC_CHECK_FUNCS do not work due to DLL linkage
-#define HAVE_GETHOSTNAME   1
-#define HAVE_GETHOSTBYNAME 1
 // fork()/signal()/initd simulation for native Windows
 #include "daemon_win32.h" // daemon_main/detach/signal()
-#include "wtssendmsg.h" // wts_send_message()
 #undef SIGNALFN
 #define SIGNALFN  daemon_signal
 #define strsignal daemon_strsignal
@@ -167,6 +162,9 @@ static const char * configfile;
 static const char * const configfile_stdin = "<stdin>";
 // path of alternate configuration file
 static std::string configfile_alt;
+
+// warning script file
+static std::string warning_script;
 
 // command-line: when should we exit?
 static int quit=0;
@@ -942,65 +940,6 @@ void temp_environ::set(const char * name, const char * value)
   putenv(const_cast<char *>(m_buf.c_str()));
 }
 
-#ifdef _WIN32
-
-// Wrapper for winsock startup/cleanup
-struct winsock_initializer
-{
-  winsock_initializer()
-    { WSADATA wsad; status = WSAStartup(0x0202 /*2.2*/, &wsad); }
-  ~winsock_initializer()
-    { if (!status) WSACleanup(); }
-  int status;
-};
-
-#endif // _WIN32
-
-#if defined(HAVE_GETADDRINFO) || defined(HAVE_GETHOSTBYNAME)
-
-static bool get_dnsdomain(const char * hostname, char * domainname, unsigned maxsize)
-{
-#ifdef HAVE_GETADDRINFO
-  struct addrinfo hints;
-  memset(&hints, 0, sizeof(hints));
-  hints.ai_flags = AI_CANONNAME;
-  struct addrinfo * info = 0;
-  int err = getaddrinfo(hostname, (const char *)0, &hints, &info);
-  if (err || !info) {
-    PrintOut(LOG_CRIT, "Error retrieving getaddrinfo(%s): %s\n", hostname, gai_strerror(err));
-    return false;
-  }
-
-  const char * p = info->ai_canonname;
-
-#else // defined(HAVE_GETHOSTBYNAME)
-  const struct hostent * hp = gethostbyname(hostname);
-  if (!hp)
-    return false;
-
-  // Does this work if gethostbyname() returns an IPv6 name in
-  // colon/dot notation?  [BA]
-  const char * p = hp->h_name;
-
-#endif
-  if (!p)
-    return false;
-  p = strchr(p, '.');
-  if (!p)
-    domainname[0] = 0;
-  else {
-    strncpy(domainname, p + 1, maxsize);
-    domainname[maxsize-1] = 0;
-  }
-
-#ifdef HAVE_GETADDRINFO
-  freeaddrinfo(info);
-#endif
-  return true;
-}
-
-#endif // defined(HAVE_GETADDRINFO) || defined(HAVE_GETHOSTBYNAME)
-
 #define EBUFLEN 1024
 
 static void MailWarning(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
@@ -1084,47 +1023,6 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     mail->firstsent=epoch;
   mail->lastsent=epoch;
 
-#ifdef _WIN32
-  // Init winsock during first call
-  static winsock_initializer init_winsock;
-  if (init_winsock.status)
-    PrintOut(LOG_CRIT, "WSAStartup() failed: %d\n", init_winsock.status);
-#endif
-
-  // get system host & domain names (not null terminated if length=MAX) 
-  const char * unknown = "[Unknown]", * none = "[None]";
-  char hostname[256], domainname[256];
-
-#ifdef HAVE_GETHOSTNAME
-  if (gethostname(hostname, sizeof(hostname)))
-    strcpy(hostname, unknown);
-  else {
-    hostname[sizeof(hostname)-1] = 0;
-#if defined(HAVE_GETADDRINFO) || defined(HAVE_GETHOSTBYNAME)
-    if (!get_dnsdomain(hostname, domainname, sizeof(domainname)))
-      strcpy(domainname, unknown);
-    else if (!domainname[0])
-      strcpy(domainname, none);
-#else
-    strcpy(domainname, unknown);
-#endif
-  }
-#else
-  strcpy(hostname, unknown);
-  strcpy(domainname, unknown);
-#endif
-  
-#ifdef HAVE_GETDOMAINNAME
-  char nisdomain[256];
-  if (getdomainname(nisdomain, sizeof(nisdomain)))
-    strcpy(nisdomain, unknown);
-  else {
-    nisdomain[sizeof(nisdomain)-1] = 0;
-    if (!nisdomain[0])
-      strcpy(nisdomain, none);
-  }
-#endif
-  
   // print warning string into message
   char message[256];
   va_list ap;
@@ -1132,62 +1030,23 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   vsnprintf(message, sizeof(message), fmt, ap);
   va_end(ap);
 
-  // appropriate message about further information
-  char additional[256], original[256], further[256], dates[DATEANDEPOCHLEN];
-  additional[0]=original[0]=further[0]='\0';
-  if (which) {
-    sprintf(further,"You can also use the smartctl utility for further investigation.\n");
-
-    switch (cfg.emailfreq) {
-    case 1:
-      sprintf(additional,"No additional email messages about this problem will be sent.\n");
-      break;
-    case 2:
-      sprintf(additional,"Another email message will be sent in 24 hours if the problem persists.\n");
-      break;
-    case 3:
-      sprintf(additional,"Another email message will be sent in %d days if the problem persists\n",
-              (0x01)<<mail->logged);
-      break;
-    }
-    if (cfg.emailfreq>1 && mail->logged) {
-      dateandtimezoneepoch(dates, mail->firstsent);
-      sprintf(original,"The original email about this issue was sent at %s\n", dates);
-    }
-  }
-
-  char subject[256];
-  snprintf(subject, sizeof(subject), "SMART error (%s) detected on host: %s", whichfail[which], hostname);
-
-  // If the user has set cfg.emailcmdline, use that as mailer, else "mail" or "mailx".
-  if (!*executable)
-#ifdef DEFAULT_MAILER
-    executable = DEFAULT_MAILER ;
-#else
-#ifndef _WIN32
-    executable = "mail";
-#else
-    executable = "blat"; // http://blat.sourceforge.net/
-#endif
-#endif
-
-#ifndef _WIN32 // blat mailer needs comma
   // replace commas by spaces to separate recipients
   std::replace(address.begin(), address.end(), ',', ' ');
-#endif
+
   // Export information in environment variables that will be useful
   // for user scripts
   temp_environ env[12];
   env[0].set("SMARTD_MAILER", executable);
   env[1].set("SMARTD_MESSAGE", message);
-  env[2].set("SMARTD_SUBJECT", subject);
+  char dates[DATEANDEPOCHLEN];
+  snprintf(dates, sizeof(dates), "%d", mail->logged);
+  env[2].set("SMARTD_PREVCNT", dates);
   dateandtimezoneepoch(dates, mail->firstsent);
   env[3].set("SMARTD_TFIRST", dates);
   snprintf(dates, DATEANDEPOCHLEN,"%d", (int)mail->firstsent);
   env[4].set("SMARTD_TFIRSTEPOCH", dates);
   env[5].set("SMARTD_FAILTYPE", whichfail[which]);
-  if (!address.empty())
-    env[6].set("SMARTD_ADDRESS", address.c_str());
+  env[6].set("SMARTD_ADDRESS", address.c_str());
   env[7].set("SMARTD_DEVICESTRING", cfg.name.c_str());
 
   // Allow 'smartctl ... -d $SMARTD_DEVICETYPE $SMARTD_DEVICE'
@@ -1196,58 +1055,24 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   env[9].set("SMARTD_DEVICE", cfg.dev_name.c_str());
 
   env[10].set("SMARTD_DEVICEINFO", cfg.dev_idinfo.c_str());
-
-  // Format message
-  char fullmessage[1024];
-  snprintf(fullmessage, sizeof(fullmessage),
-           "This email was generated by the smartd daemon running on:\n\n"
-           "   host name: %s\n"
-           "  DNS domain: %s\n"
-#ifdef HAVE_GETDOMAINNAME
-           "  NIS domain: %s\n"
-#endif
-           "\n",
-           hostname,
-           domainname
-#ifdef HAVE_GETDOMAINNAME
-           , nisdomain
-#endif
-           );
-
-  int boxmsgoffs = strlen(fullmessage); // start of message for message box on Windows
-
-  snprintf(fullmessage + boxmsgoffs, sizeof(fullmessage) - boxmsgoffs,
-           "The following warning/error was logged by the smartd daemon:\n\n"
-           "%s\n\n"
-           "Device info:\n"
-           "%s\n\n"
-#ifndef _WIN32
-           "For details see host's SYSLOG.\n\n"
-#else
-           "For details see the event log or log file of smartd.\n\n"
-#endif
-           "%s%s%s",
-           message,
-           cfg.dev_idinfo.c_str(),
-           further, original, additional);
-
-  env[11].set("SMARTD_FULLMESSAGE", fullmessage);
+  dates[0] = 0;
+  if (which) switch (cfg.emailfreq) {
+    case 2: strcpy(dates, "1"); break;
+    case 3: snprintf(dates, sizeof(dates), "%d", (0x01)<<mail->logged);
+  }
+  env[11].set("SMARTD_NEXTDAYS", dates);
 
   // now construct a command to send this as EMAIL
   char command[2048];
-
-#ifndef _WIN32
-  if (!address.empty())
-    snprintf(command, sizeof(command),
-             "$SMARTD_MAILER -s '%s' %s 2>&1 << \"ENDMAIL\"\n"
-	     "%sENDMAIL\n", subject, address.c_str(), fullmessage);
-  else
-    snprintf(command, sizeof(command), "%s 2>&1", executable);
-  
-  // tell SYSLOG what we are about to do...
+  if (!*executable)
+    executable = "<mail>";
   const char * newadd = (!address.empty()? address.c_str() : "<nomailer>");
   const char * newwarn = (which? "Warning via" : "Test of");
 
+#ifndef _WIN32
+  snprintf(command, sizeof(command), "%s 2>&1", warning_script.c_str());
+  
+  // tell SYSLOG what we are about to do...
   PrintOut(LOG_INFO,"%s %s to %s ...\n",
            which?"Sending warning via":"Executing test of", executable, newadd);
   
@@ -1321,54 +1146,15 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   }
   
 #else // _WIN32
+  {
+    snprintf(command, sizeof(command), "cmd /c \"%s\"", warning_script.c_str());
 
-  // No "here-documents" on Windows, so must use separate commandline and stdin
-  const char * stdinbuf = "";
-  command[0] = 0;
-  int boxtype = -1;
-  const char * newadd = "<nomailer>";
-  if (!address.empty()) {
-    // address "console", ... => show warning (also) via message box(es)
-    char addr1[9+1+13] = ""; int n1 = -1, n2 = -1;
-    if (sscanf(address.c_str(), "%9[a-z]%n,%n", addr1, &n1, &n2) == 1 && (n1 == (int)address.size() || n2 > 0)) {
-      if (!strcmp(addr1, "console"))
-        boxtype = 0;
-      else if (!strcmp(addr1, "active"))
-        boxtype = 1;
-      else if (!strcmp(addr1, "connected"))
-        boxtype = 2;
-      if (boxtype >= 0)
-        address.erase(0, (n2 > n1 ? n2 : n1));
-    }
-
-    if (!address.empty()) {
-      // Use "blat" parameter syntax (TODO: configure via -M for other mailers)
-      snprintf(command, sizeof(command),
-               "%s - -q -subject \"%s\" -to \"%s\"",
-               executable, subject, address.c_str());
-      newadd = address.c_str();
-    }
-
-    stdinbuf = fullmessage;
-  }
-  else
-    snprintf(command, sizeof(command), "%s", executable);
-
-  const char * newwarn = (which ? "Warning via" : "Test of");
-  if (boxtype >= 0) {
-    // show message box(es) via send message
-    int errcnt = 0;
-    int msgcnt = wts_send_message(boxtype, subject, stdinbuf+boxmsgoffs, &errcnt);
-    PrintOut(LOG_INFO,"%s message box: %d message%s sent, %d failed\n", newwarn,
-      msgcnt, (msgcnt==1 ? "" : "s"), errcnt);
-  }
-  if (command[0]) {
     char stdoutbuf[800]; // < buffer in syslog_win32::vsyslog()
     int rc;
     // run command
     PrintOut(LOG_INFO,"%s %s to %s ...\n",
              (which?"Sending warning via":"Executing test of"), executable, newadd);
-    rc = daemon_spawn(command, stdinbuf, strlen(stdinbuf), stdoutbuf, sizeof(stdoutbuf));
+    rc = daemon_spawn(command, "", 0, stdoutbuf, sizeof(stdoutbuf));
     if (rc >= 0 && stdoutbuf[0])
       PrintOut(LOG_CRIT,"%s %s to %s produced unexpected output (%d bytes) to STDOUT/STDERR:\n%s\n",
         newwarn, executable, newadd, (int)strlen(stdoutbuf), stdoutbuf);
@@ -4595,12 +4381,15 @@ static void check_abs_path(char option, const std::string & path)
 // version/license/copyright messages
 static void ParseOpts(int argc, char **argv)
 {
-  // Init default configfile path
+  // Init default path names
 #ifndef _WIN32
   configfile = SMARTMONTOOLS_SYSCONFDIR"/smartd.conf";
+  warning_script = SMARTMONTOOLS_SYSCONFDIR"/smartd_warning.sh";
 #else
-  static std::string configfile_str = get_exe_dir() + "/smartd.conf";
+  std::string exedir = get_exe_dir();
+  static std::string configfile_str = exedir + "/smartd.conf";
   configfile = configfile_str.c_str();
+  warning_script = exedir + "/smartd_warning.cmd";
 #endif
 
   // Please update GetValidArgList() if you edit shortopts

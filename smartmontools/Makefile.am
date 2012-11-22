@@ -162,11 +162,7 @@ smartd_SOURCES += \
         os_win32/daemon_win32.cpp \
         os_win32/daemon_win32.h \
         os_win32/syslog_win32.cpp \
-        os_win32/syslog.h \
-        os_win32/wtssendmsg.cpp \
-        os_win32/wtssendmsg.h
-
-smartd_LDADD += -lws2_32 -lwtsapi32
+        os_win32/syslog.h
 
 endif
 
@@ -339,6 +335,10 @@ uninstall-sysconfDATA:
 	echo " rm -f $$f"; \
 	rm -f "$$f"
 
+# automake does not allow 'sysconf_SCRIPTS'
+sysscriptdir = $(sysconfdir)
+sysscript_SCRIPTS = smartd_warning.sh
+
 EXTRA_DIST = \
         autogen.sh \
         smartd.initd.in \
@@ -348,6 +348,7 @@ EXTRA_DIST = \
         smartd.conf.5.in \
         smartd.conf \
         smartd.service.in \
+        smartd_warning.sh.in \
         update-smart-drivedb.in \
         m4/pkg.m4 \
         os_darwin/SMART.in \
@@ -357,6 +358,7 @@ EXTRA_DIST = \
         os_win32/runcmd.c \
         os_win32/runcmda.exe.manifest \
         os_win32/runcmdu.exe.manifest \
+        os_win32/smartd_warning.cmd \
         os_win32/syslogevt.c \
         os_win32/syslogevt.mc \
         os_win32/update-smart-drivedb.nsi \
@@ -381,6 +383,7 @@ CLEANFILES = \
         smartd.initd \
         smartd.freebsd.initd \
         smartd.service \
+        smartd_warning.sh \
         svnversion.h \
         update-smart-drivedb \
         SMART
@@ -442,6 +445,9 @@ update-smart-drivedb: update-smart-drivedb.in config.status
 	$(SHELL) ./config.status --file=$@
 	chmod +x $@
 
+smartd_warning.sh: smartd_warning.sh.in config.status
+	$(SHELL) ./config.status --file=$@
+	chmod +x $@
 
 if INSTALL_INITSCRIPT
 if OS_DARWIN
@@ -649,6 +655,7 @@ EXEFILES_WIN32 = \
         $(exedir_win32)/smartctl.exe \
         $(exedir_win32)/smartctl-nc.exe \
         $(exedir_win32)/smartd.exe \
+        $(exedir_win32)/smartd_warning.cmd \
         $(exedir_win32)/runcmda.exe \
         $(exedir_win32)/runcmdu.exe
 
@@ -774,6 +781,10 @@ $(exedir_win32)/%.h: $(srcdir)/%.h
 	touch -r $< $@
 
 $(exedir_win32)/%.exe.manifest: $(srcdir)/os_win32/%.exe.manifest
+	$(UNIX2DOS) < $< > $@
+	touch -r $< $@
+
+$(exedir_win32)/%.cmd: $(srcdir)/os_win32/%.cmd
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
 

@@ -80,14 +80,6 @@ AC_SUBST([svn_deps])
 AM_CONDITIONAL(IS_SVN_BUILD, [test "$is_svn_build" = "yes"])
 AC_MSG_RESULT([$is_svn_build])
 
-dnl Checks for libraries needed for name services (Solaris needs
-dnl libnsl, might in the future also need libsocket)
-#  AC_SEARCH_LIBS (FUNCTION, SEARCH-LIBS, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND], [OTHER-LIBRARIES])
-AC_SEARCH_LIBS(socket, socket)
-AC_SEARCH_LIBS(gethostbyname, nsl)
-AC_SEARCH_LIBS(getaddrinfo, nsl)
-AC_SEARCH_LIBS(getdomainname, nsl)
-
 # Note: On Linux, clock_gettime() requires -lrt which implies -lpthreads
 # Check ommitted for now, gettimeofday() provides reasonable precision
 # AC_SEARCH_LIBS(clock_gettime, rt)
@@ -134,10 +126,6 @@ AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
 AC_CHECK_FUNCS([regcomp], [need_regex=no], [need_regex=yes])
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
-AC_CHECK_FUNCS([getdomainname])
-AC_CHECK_FUNCS([gethostname])
-AC_CHECK_FUNCS([getaddrinfo])
-AC_CHECK_FUNCS([gethostbyname])
 AC_CHECK_FUNCS([sigset])
 AC_CHECK_FUNCS([strtoull])
 AC_CHECK_FUNCS([uname])
@@ -347,7 +335,7 @@ AC_SUBST(smartmontools_release_time)
 # Set platform-specific modules and symbols
 os_libs=
 os_dltools='curl wget lynx'
-os_mailer=
+os_mailer=mail
 os_darwin=no
 os_solaris=no
 os_win32=no
@@ -439,10 +427,8 @@ AC_MSG_RESULT([$os_new_interface])
 AC_SUBST([os_deps])
 AC_SUBST([os_libs])
 AC_SUBST([os_dltools])
+AC_SUBST([os_mailer])
 AC_SUBST([os_man_filter])
-if test -n "$os_mailer"; then
-  AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "$os_mailer", [Default mailer if "mail" is unavailable])
-fi
 
 # Create drivedb.h update branch name from version: 5.41[.X] -> RELEASE_5_41_DRIVEDB
 DRIVEDB_BRANCH=`echo $VERSION | sed 's,^\([[0-9]]*\.[[0-9]]*\)\..*$,\1,' \
