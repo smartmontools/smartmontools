@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3704 2012-11-22 09:26:06Z samm2 $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3705 2012-11-22 09:31:45Z samm2 $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1690,7 +1690,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
   // Print read look-ahead status for disks
   short int wce = -1, rcd = -1;
   if (options.get_rcd || options.get_wce) {
-    if (SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type)
+    if (SCSI_PT_DIRECT_ACCESS == peripheral_type)
        res = scsiGetSetCache(device, modese_len, &wce, &rcd);
     else
        res = -1; // fetch for disks only
