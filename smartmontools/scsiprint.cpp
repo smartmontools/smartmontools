@@ -1690,7 +1690,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
   // Print read look-ahead status for disks
   short int wce = -1, rcd = -1;
   if (options.get_rcd || options.get_wce) {
-    if (SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type)
+    if (SCSI_PT_DIRECT_ACCESS == peripheral_type)
        res = scsiGetSetCache(device, modese_len, &wce, &rcd);
     else
        res = -1; // fetch for disks only
