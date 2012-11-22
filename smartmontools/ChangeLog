@@ -1,4 +1,8 @@
-$Id: ChangeLog 3702 2012-11-19 23:46:03Z samm2 $
+$Id: ChangeLog 3703 2012-11-22 08:58:39Z samm2 $
+
+2012-11-22  Alex Samorukov  <samm@os2.kiev.ua>
+
+	smartctl: implemeted support for -g lookahead and -g wcache for SCSI.
 
 2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
 
