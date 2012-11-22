@@ -49,7 +49,7 @@
 #include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3706 2012-11-22 13:11:26Z samm2 $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3707 2012-11-22 13:33:08Z samm2 $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?
@@ -2386,7 +2386,8 @@ int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep, sho
     if (set_wce == -1 && set_rcd == -1)
       return 0;
 
-    if(*wcep == set_wce && *rcdp == set_rcd)
+    if((*wcep == set_wce || set_wce == -1) 
+          && (*rcdp == set_rcd) || set_rcd == -1)
       return 0; // no changes needed
 
     if (modese_len == 6)
