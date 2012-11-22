@@ -49,7 +49,7 @@
 #include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3708 2012-11-22 13:37:01Z samm2 $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3711 2012-11-22 15:02:34Z samm2 $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?
@@ -2382,13 +2382,9 @@ int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep, sho
     *wcep = ((buff[offset + 2] & 0x04) != 0);
     *rcdp = ((buff[offset + 2] & 0x01) != 0);
 
-    // nothing to set, exiting
-    if (set_wce == -1 && set_rcd == -1)
-      return 0;
-
-    if((*wcep == set_wce || set_wce == -1) 
+    if((*wcep == set_wce || set_wce == -1)
           && ((*rcdp == set_rcd) || set_rcd == -1))
-      return 0; // no changes needed
+      return 0; // no changes needed or nothing to set
 
     if (modese_len == 6)
         err = scsiModeSense(device, CACHING_PAGE, 0,
@@ -2402,6 +2398,7 @@ int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep, sho
         device->set_err(EINVAL, "WCE/RCD bits not changable");
         return err;
     }
+
     // set WCE bit
     if(set_wce >= 0 && *wcep != set_wce) {
        if (0 == (ch_buff[offset + 2] & 0x04)) {
