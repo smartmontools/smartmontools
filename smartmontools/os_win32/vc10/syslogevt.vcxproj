@@ -38,11 +38,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">syslogevt_vc10.d\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">syslogevt_vc10.d\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\$(ProjectName).tmp\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">syslogevt_vc10.r\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\$(ProjectName).tmp\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -56,6 +54,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -71,11 +70,10 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <OutputFile>syslogevt.exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -83,16 +81,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="syslogevt.c" />
+    <ClCompile Include="..\syslogevt.c" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="syslogevt.mc">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mc -r $(IntDir) syslogevt.mc</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mc -r $(IntDir) syslogevt.mc
+    <CustomBuild Include="..\syslogevt.mc">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mc -r $(IntDir) ..\syslogevt.mc</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mc -r $(IntDir) ..\syslogevt.mc
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)syslogevt.rc;$(IntDir)msg00001.bin;syslogevt.h;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mc -r $(IntDir) syslogevt.mc</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mc -r $(IntDir) syslogevt.mc
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mc -r $(IntDir) ..\syslogevt.mc</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mc -r $(IntDir) ..\syslogevt.mc
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)syslogevt.rc;$(IntDir)msg00001.bin;syslogevt.h;%(Outputs)</Outputs>
     </CustomBuild>

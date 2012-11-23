@@ -40,14 +40,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>.\runcmdu_vc10.d\</OutDir>
-    <IntDir>.\runcmdu_vc10.d\</IntDir>
+    <IntDir>$(Configuration)\$(ProjectName).tmp\</IntDir>
     <TargetName>$(ProjectName)u</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>.\runcmdu_vc10.r\</OutDir>
-    <IntDir>.\runcmdu_vc10.r\</IntDir>
+    <IntDir>$(Configuration)\$(ProjectName).tmp\</IntDir>
     <TargetName>$(ProjectName)u</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -77,7 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="runcmd.c" />
+    <ClCompile Include="..\runcmd.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

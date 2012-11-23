@@ -1,4 +1,8 @@
-$Id: ChangeLog 3712 2012-11-22 22:33:29Z chrfranke $
+$Id: ChangeLog 3713 2012-11-23 21:26:17Z chrfranke $
+
+2012-11-23  Christian Franke  <franke@computer.org>
+
+	Move MSVC10 project files to new directory os_win32/vc10.
 
 2012-11-22  Christian Franke  <franke@computer.org>
 
