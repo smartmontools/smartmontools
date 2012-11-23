@@ -844,16 +844,16 @@ syslogevt.rc: os_win32/syslogevt.mc
 	$(WINDMC) -b $<
 endif
 
-# Build {config,svnversion}_vc10.h for MSVC10 from MinGW {config,svnversion}.h
+# Build os_win32/vc10/{config,svnversion}.h for MSVC10 from MinGW {config,svnversion}.h
 
-config-vc10: $(srcdir)/os_win32/config_vc10.h  $(srcdir)/os_win32/svnversion_vc10.h
+config-vc10: $(srcdir)/os_win32/vc10/config.h  $(srcdir)/os_win32/vc10/svnversion.h
 
-$(srcdir)/os_win32/config_vc10.h: config.h Makefile
-	sed -e '1i/* config_vc10.h.  Generated from config.h by Makefile.  */' \
+$(srcdir)/os_win32/vc10/config.h: config.h Makefile
+	sed -e '1i/* os_win32/vc10/config.h.  Generated from config.h by Makefile.  */' \
 	    -e 's,^#define HAVE_\(ATTR_PACKED\|GETTIMEOFDAY\|INTTYPES_H\|[DK_]*NTDDDISK_H\|STRINGS_H\|STRTOULL\|UNISTD_H\|WORKING_SNPRINTF\) 1$$,/* #undef HAVE_\1 */,' \
 	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc10,' $< > $@
 
-$(srcdir)/os_win32/svnversion_vc10.h: svnversion.h
+$(srcdir)/os_win32/vc10/svnversion.h: svnversion.h
 	cp $< $@
 
 endif

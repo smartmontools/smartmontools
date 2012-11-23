@@ -504,10 +504,9 @@ use the following on MSYS or Cygwin:
   ../configure [... any MinGW option set from above ...]
   make config-vc10
 
-  The MSVC project files (os_win32/smartmontools_vc10.sln,
-  os_win32/smart{ctl,d}_vc10.vcxproj) are included in SVN (but not in
-  source tarball). The target config-vc10 from a Makefile configured
-  for MinGW creates os_win32/{config,svnversion}_vc10.h from
+  The MSVC project files (os_win32/vc10/*) are included in SVN (but not
+  in source tarball). The target config-vc10 from a Makefile configured
+  for MinGW creates os_win32/vc10/{config,svnversion}.h from
   ./{config,svnversion}.h. The configure skript must be run outside
   of the source directory to avoid inclusion of the original config.h.
 
