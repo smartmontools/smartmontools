@@ -363,6 +363,7 @@ EXTRA_DIST = \
         os_win32/syslogevt.mc \
         os_win32/update-smart-drivedb.nsi \
         os_win32/wbemcli_small.h \
+        os_win32/wtssendmsg.c \
         $(docs_DATA) \
         $(examples_DATA) \
         $(examples_SCRIPTS)
@@ -657,7 +658,8 @@ EXEFILES_WIN32 = \
         $(exedir_win32)/smartd.exe \
         $(exedir_win32)/smartd_warning.cmd \
         $(exedir_win32)/runcmda.exe \
-        $(exedir_win32)/runcmdu.exe
+        $(exedir_win32)/runcmdu.exe \
+        $(exedir_win32)/wtssendmsg.exe
 
 if OS_WIN32_WINDMC
 EXEFILES_WIN32 += \
@@ -704,6 +706,7 @@ CLEANFILES += \
         smartctl-nc.exe smartctl-nc.exe.tmp \
         syslogevt.exe syslogevt.h syslogevt.o \
         syslogevt.res.o syslogevt.rc syslogevt_*.bin \
+        wtssendmsg.exe \
         update-smart-drivedb.exe \
         distdir.mkdir
 
@@ -824,9 +827,12 @@ smartctl-nc.exe: smartctl.exe
 	  else echo "EXE patch failed"; exit 1; fi
 	mv -f $@.tmp $@
 
-# Build runcmd?.exe
+# Build runcmd?.exe and wtssendmsg.exe
 runcmdu.exe: os_win32/runcmd.c
 	$(CC) -Os -o $@ $<
+
+wtssendmsg.exe: os_win32/wtssendmsg.c
+	$(CC) -Os -o $@ $< -lwtsapi32
 
 if OS_WIN32_WINDMC
 # Build syslogevt.exe event message file tool

@@ -20,6 +20,7 @@ Summary: smartmontools release 6.1
   with ATACAM driver.
 - FreeBSD: Improved support for SAS/SCSI disks on LSI/Megaraid controllers.
 - Windows: smartd.conf '-M exec' supports path names with spaces.
+- Windows: Tool wtssendmsg.exe to handle smartd.conf '-m console'.
 - smartd: added support for state persistence ('-s') and attribute logging 
   ('-A') for SCSI devices.
 - smartctl '-s/-g wcache' for SCSI devices to control write cache.

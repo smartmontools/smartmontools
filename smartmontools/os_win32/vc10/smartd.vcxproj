@@ -61,7 +61,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>ws2_32.lib;wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -81,7 +80,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>ws2_32.lib;wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -174,7 +172,6 @@
     </ClCompile>
     <ClCompile Include="..\..\smartd.cpp" />
     <ClCompile Include="..\..\utility.cpp" />
-    <ClCompile Include="..\wtssendmsg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ataidentify.h">
@@ -191,7 +188,6 @@
     <ClInclude Include="..\..\getopt\getopt.h" />
     <ClInclude Include="..\..\atacmdnames.h" />
     <ClInclude Include="..\..\atacmds.h" />
-    <ClInclude Include="..\wtssendmsg.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="svnversion.h" />
     <CustomBuildStep Include="..\..\ataprint.h">

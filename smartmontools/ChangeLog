@@ -1,5 +1,13 @@
 $Id$
 
+2012-11-24  Christian Franke  <franke@computer.org>
+
+	Windows: Add tool wtssendmsg.exe based on no longer
+	used module os_win32/wtssendmsg.cpp.
+	os_win32/smartd_warning.cmd: Fix wtssendmsg call.
+	os_win32/installer.nsi: Install smartd_warning.cmd
+	and wtssendmsg.exe.  Fix uninstall of old ChangeLog.
+
 2012-11-23  Christian Franke  <franke@computer.org>
 
 	Move MSVC10 project files to new directory os_win32/vc10.

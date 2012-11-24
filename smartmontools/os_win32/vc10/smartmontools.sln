@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "syslogevt", "syslogevt.vcxp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "runcmd", "runcmd.vcxproj", "{11A4B619-D97B-499F-AF17-CF9F80BF70E8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wtssendmsg", "wtssendmsg.vcxproj", "{0B6B7D19-07AE-41DD-B70E-2F74362A4EC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,10 @@ Global
 		{11A4B619-D97B-499F-AF17-CF9F80BF70E8}.Debug|Win32.Build.0 = Debug|Win32
 		{11A4B619-D97B-499F-AF17-CF9F80BF70E8}.Release|Win32.ActiveCfg = Release|Win32
 		{11A4B619-D97B-499F-AF17-CF9F80BF70E8}.Release|Win32.Build.0 = Release|Win32
+		{0B6B7D19-07AE-41DD-B70E-2F74362A4EC0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0B6B7D19-07AE-41DD-B70E-2F74362A4EC0}.Debug|Win32.Build.0 = Debug|Win32
+		{0B6B7D19-07AE-41DD-B70E-2F74362A4EC0}.Release|Win32.ActiveCfg = Release|Win32
+		{0B6B7D19-07AE-41DD-B70E-2F74362A4EC0}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

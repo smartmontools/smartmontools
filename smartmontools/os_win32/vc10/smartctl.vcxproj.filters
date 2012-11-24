@@ -63,9 +63,6 @@
     <ClCompile Include="..\..\smartctl.cpp" />
     <ClCompile Include="..\..\smartd.cpp" />
     <ClCompile Include="..\..\utility.cpp" />
-    <ClCompile Include="..\wtssendmsg.cpp">
-      <Filter>os_win32</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ataidentify.cpp" />
     <ClCompile Include="..\..\dev_areca.cpp" />
   </ItemGroup>
@@ -100,9 +97,6 @@
     <ClInclude Include="..\..\scsiprint.h" />
     <ClInclude Include="..\..\smartctl.h" />
     <ClInclude Include="..\..\utility.h" />
-    <ClInclude Include="..\wtssendmsg.h">
-      <Filter>os_win32</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ataidentify.h" />
     <ClInclude Include="..\..\dev_areca.h" />
     <ClInclude Include="config.h" />

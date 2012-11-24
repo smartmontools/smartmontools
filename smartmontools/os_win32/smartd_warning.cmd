@@ -106,9 +106,9 @@ set first=
 if not "%wtssend%" == "" (
   :: Show Message box(es) via WTSSendMessage()
   if not "%dryrun%" == "" (
-    echo call wtssendmsg %wtssend% - "%SMARTD_SUBJECT%"  ^< "%SMARTD_FULLMSGFILE%"
+    echo call wtssendmsg %wtssend% "%SMARTD_SUBJECT%" - ^< "%SMARTD_FULLMSGFILE%"
   ) else (
-    call wtssendmsg %wtssend% - "%SMARTD_SUBJECT%" < "%SMARTD_FULLMSGFILE%"
+    call wtssendmsg %wtssend% "%SMARTD_SUBJECT%" - < "%SMARTD_FULLMSGFILE%"
     if errorlevel 1 set err=t
   )
   :: Remove first address
