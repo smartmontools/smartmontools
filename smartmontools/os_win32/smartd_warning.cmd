@@ -12,7 +12,7 @@
 :: You should have received a copy of the GNU General Public License
 :: (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ::
-:: $Id: smartd_warning.cmd 3712 2012-11-22 22:33:29Z chrfranke $
+:: $Id: smartd_warning.cmd 3714 2012-11-24 16:34:47Z chrfranke $
 ::
 
 set err=
@@ -106,9 +106,9 @@ set first=
 if not "%wtssend%" == "" (
   :: Show Message box(es) via WTSSendMessage()
   if not "%dryrun%" == "" (
-    echo call wtssendmsg %wtssend% - "%SMARTD_SUBJECT%"  ^< "%SMARTD_FULLMSGFILE%"
+    echo call wtssendmsg %wtssend% "%SMARTD_SUBJECT%" - ^< "%SMARTD_FULLMSGFILE%"
   ) else (
-    call wtssendmsg %wtssend% - "%SMARTD_SUBJECT%" < "%SMARTD_FULLMSGFILE%"
+    call wtssendmsg %wtssend% "%SMARTD_SUBJECT%" - < "%SMARTD_FULLMSGFILE%"
     if errorlevel 1 set err=t
   )
   :: Remove first address

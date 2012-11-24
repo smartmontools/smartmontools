@@ -13,7 +13,7 @@
 ; You should have received a copy of the GNU General Public License
 ; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
-; $Id: installer.nsi 3645 2012-10-10 16:15:26Z chrfranke $
+; $Id: installer.nsi 3714 2012-11-24 16:34:47Z chrfranke $
 ;
 
 
@@ -138,7 +138,9 @@ SectionGroup "!Program files"
       MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "Replace existing configuration file$\n$INSTDIR\bin\smartd.conf ?" /SD IDNO IDYES 0 IDNO +2
         File "${INPDIR}\doc\smartd.conf"
 
+    File "${INPDIR}\bin\smartd_warning.cmd"
     !insertmacro FileExe "bin\syslogevt.exe" /nonfatal
+    !insertmacro FileExe "bin\wtssendmsg.exe" ""
 
     ; Restart service ?
     StrCmp $1 "0" 0 +3
@@ -418,6 +420,7 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\smartctl.exe"
   Delete "$INSTDIR\bin\smartctl-nc.exe"
   Delete "$INSTDIR\bin\smartd.exe"
+  Delete "$INSTDIR\bin\smartd_warning.cmd" ; TODO: Check for modifications?
   Delete "$INSTDIR\bin\syslogevt.exe"
   Delete "$INSTDIR\bin\drivedb.h"
   Delete "$INSTDIR\bin\drivedb.h.error"
@@ -431,8 +434,10 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\runcmda.exe.manifest"
   Delete "$INSTDIR\bin\runcmdu.exe"
   Delete "$INSTDIR\bin\runcmdu.exe.manifest"
+  Delete "$INSTDIR\bin\wtssendmsg.exe"
   Delete "$INSTDIR\doc\AUTHORS.txt"
   Delete "$INSTDIR\doc\ChangeLog.txt"
+  Delete "$INSTDIR\doc\ChangeLog-5.0-6.0.txt"
   Delete "$INSTDIR\doc\COPYING.txt"
   Delete "$INSTDIR\doc\INSTALL.txt"
   Delete "$INSTDIR\doc\NEWS.txt"
