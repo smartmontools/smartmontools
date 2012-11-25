@@ -174,14 +174,6 @@ deviceclose(int fd)
 }
 
 int
-marvell_command_interface(int fd, smart_command_set command, int select, char *data)
-{ return -1; }
-
-int
-highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
-{ return -1; }
-
-int
 ata_command_interface(int fd, smart_command_set command, int select, char *data)
 {
   struct atareq req;
@@ -357,20 +349,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     memcpy(data, inbuf, 512);
 
   return 0;
-}
-
-int
-escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data)
-{
-  printwarning(NO_3WARE, NULL);
-  return -1;
-}
-
-int
-areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data)
-{
-  printwarning(NO_ARECA, NULL);
-  return -1;
 }
 
 int

@@ -1,5 +1,9 @@
 $Id$
 
+2012-11-25  Alex Samorukov  <samm@os2.kiev.ua>
+
+       OpenBSD: remove dummy functions
+
 2012-11-24  Christian Franke  <franke@computer.org>
 
 	Windows: Add tool wtssendmsg.exe based on no longer
