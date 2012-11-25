@@ -1,4 +1,8 @@
-$Id: ChangeLog 3714 2012-11-24 16:34:47Z chrfranke $
+$Id: ChangeLog 3715 2012-11-25 22:53:48Z samm2 $
+
+2012-11-25  Alex Samorukov  <samm@os2.kiev.ua>
+
+       OpenBSD: remove dummy functions
 
 2012-11-24  Christian Franke  <franke@computer.org>
 
