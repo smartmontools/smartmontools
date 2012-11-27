@@ -1,5 +1,10 @@
 $Id$
 
+2012-11-27  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Remove trailing newlines from some MailWarning() strings.
+	os_win32/smartd_warning.cmd: Fix SMARTD_MESSAGE with parentheses.
+
 2012-11-25  Alex Samorukov  <samm@os2.kiev.ua>
 
        OpenBSD: remove dummy functions

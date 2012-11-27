@@ -68,10 +68,12 @@ if     "%TMP%" == "" set SMARTD_FULLMSGFILE=smartd_warning-%DATE%-%RANDOM%.txt
   echo.
   echo The following warning/error was logged by the smartd service:
   echo.
-  echo.%SMARTD_MESSAGE%
+  :: SMARTD_MESSAGE and SMARTD_DEVICEINFO may contain parentheses
+  for %%m in ("%SMARTD_MESSAGE%") do echo.%%~m
   echo.
   echo Device info:
-  echo.%SMARTD_DEVICEINFO%
+  for %%m in ("%SMARTD_DEVICEINFO%") do echo.%%~m
+  set m=
   echo.
   echo For details see the event log or log file of smartd.
   if not "%SMARTD_FAILTYPE%" == "EmailTest" (

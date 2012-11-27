@@ -2421,7 +2421,7 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
       // new failure.
       PrintOut(LOG_CRIT, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
                name, newh);
-      MailWarning(cfg, state, 3, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
+      MailWarning(cfg, state, 3, "Device: %s, new Self-Test Log error at hour timestamp %d",
                    name, newh);
       state.must_write = true;
     }
@@ -2794,7 +2794,7 @@ static void check_pending(const dev_config & cfg, dev_state & state,
     s += strprintf(" (changed %+"PRId64")", rawval - prev_rawval);
 
   PrintOut(LOG_CRIT, "%s\n", s.c_str());
-  MailWarning(cfg, state, mailtype, "%s\n", s.c_str());
+  MailWarning(cfg, state, mailtype, "%s", s.c_str());
   state.must_write = true;
 }
 
@@ -2868,7 +2868,7 @@ static void CheckTemperature(const dev_config & cfg, dev_state & state, unsigned
   if (cfg.tempcrit && currtemp >= cfg.tempcrit) {
     PrintOut(LOG_CRIT, "Device: %s, Temperature %u Celsius reached critical limit of %u Celsius (Min/Max %s%s/%u%s)\n",
       cfg.name.c_str(), currtemp, cfg.tempcrit, fmt_temp(state.tempmin, buf), minchg, state.tempmax, maxchg);
-    MailWarning(cfg, state, 12, "Device: %s, Temperature %d Celsius reached critical limit of %u Celsius (Min/Max %s%s/%u%s)\n",
+    MailWarning(cfg, state, 12, "Device: %s, Temperature %d Celsius reached critical limit of %u Celsius (Min/Max %s%s/%u%s)",
       cfg.name.c_str(), currtemp, cfg.tempcrit, fmt_temp(state.tempmin, buf), minchg, state.tempmax, maxchg);
   }
   else if (cfg.tempinfo && currtemp >= cfg.tempinfo) {
