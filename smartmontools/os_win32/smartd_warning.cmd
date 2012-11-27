@@ -12,7 +12,7 @@
 :: You should have received a copy of the GNU General Public License
 :: (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ::
-:: $Id: smartd_warning.cmd 3714 2012-11-24 16:34:47Z chrfranke $
+:: $Id: smartd_warning.cmd 3716 2012-11-27 20:10:06Z chrfranke $
 ::
 
 set err=
@@ -68,10 +68,12 @@ if     "%TMP%" == "" set SMARTD_FULLMSGFILE=smartd_warning-%DATE%-%RANDOM%.txt
   echo.
   echo The following warning/error was logged by the smartd service:
   echo.
-  echo.%SMARTD_MESSAGE%
+  :: SMARTD_MESSAGE and SMARTD_DEVICEINFO may contain parentheses
+  for %%m in ("%SMARTD_MESSAGE%") do echo.%%~m
   echo.
   echo Device info:
-  echo.%SMARTD_DEVICEINFO%
+  for %%m in ("%SMARTD_DEVICEINFO%") do echo.%%~m
+  set m=
   echo.
   echo For details see the event log or log file of smartd.
   if not "%SMARTD_FAILTYPE%" == "EmailTest" (

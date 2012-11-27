@@ -1,4 +1,9 @@
-$Id: ChangeLog 3715 2012-11-25 22:53:48Z samm2 $
+$Id: ChangeLog 3716 2012-11-27 20:10:06Z chrfranke $
+
+2012-11-27  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Remove trailing newlines from some MailWarning() strings.
+	os_win32/smartd_warning.cmd: Fix SMARTD_MESSAGE with parentheses.
 
 2012-11-25  Alex Samorukov  <samm@os2.kiev.ua>
 
