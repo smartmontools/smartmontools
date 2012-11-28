@@ -1,4 +1,11 @@
-$Id: ChangeLog 3716 2012-11-27 20:10:06Z chrfranke $
+$Id: ChangeLog 3717 2012-11-28 20:50:19Z chrfranke $
+
+2012-11-28  Christian Franke  <franke@computer.org>
+
+	smartd.conf.5.in: Document smartd_warning.sh/cmd scripts and
+	the new environment variables.
+	Makefile.am: Replace smartd_warning.* paths on man pages.
+	Reformat long sed commands.
 
 2012-11-27  Christian Franke  <franke@computer.org>
 
