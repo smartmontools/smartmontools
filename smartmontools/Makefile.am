@@ -519,8 +519,8 @@ systemdsystemunit_DATA = smartd.service
 endif
 
 smartd.service: smartd.service.in Makefile
-	sed "s|/usr/local/sbin/smartd|$(sbindir)/smartd|g; \
-	     s|/usr/local/etc/sysconfig/smartmontools|$(sysconfdir)/sysconfig/smartmontools|g" \
+	sed -e 's|/usr/local/sbin/smartd|$(sbindir)/smartd|g' \
+	    -e 's|/usr/local/etc/sysconfig/smartmontools|$(sysconfdir)/sysconfig/smartmontools|g' \
 	$(srcdir)/smartd.service.in > $@
 
 if ENABLE_CAPABILITIES
@@ -548,17 +548,18 @@ MAN_ATTRIBUTELOG = sed '/^\.\\" %IF ENABLE_ATTRIBUTELOG/,/^\.\\" %ENDIF ENABLE_A
 endif
 
 MAN_FILTER = \
-    sed "s|CURRENT_SVN_VERSION|$(releaseversion)|g; \
-         s|CURRENT_SVN_DATE|`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g; \
-         s|CURRENT_SVN_REV|`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`|g; \
-         s|/usr/local/share/man/|$(mandir)/|g; \
-         s|/usr/local/sbin/|$(sbindir)/|g; \
-         s|/usr/local/etc/rc\\.d/init.d/|$(initddir)/|g; \
-         s|/usr/local/share/doc/smartmontools/examplescripts/|!exampledir!|g; \
-         s|/usr/local/share/doc/smartmontools/|$(docsdir)/|g; \
-         s|!exampledir!|$(exampledir)/|g; \
-         s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g; \
-         s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
+    sed -e 's|CURRENT_SVN_VERSION|$(releaseversion)|g' \
+        -e "s|CURRENT_SVN_DATE|`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g" \
+        -e "s|CURRENT_SVN_REV|`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`|g" \
+        -e 's|/usr/local/share/man/|$(mandir)/|g' \
+        -e 's|/usr/local/sbin/|$(sbindir)/|g' \
+        -e 's|/usr/local/etc/rc\.d/init.d/|$(initddir)/|g' \
+        -e 's|/usr/local/share/doc/smartmontools/examplescripts/|!exampledir!|g' \
+        -e 's|/usr/local/share/doc/smartmontools/|$(docsdir)/|g' \
+        -e 's|!exampledir!|$(exampledir)/|g' \
+        -e 's|/usr/local/etc/smartd\.conf|$(sysconfdir)/smartd.conf|g' \
+        -e 's|/usr/local/etc/smartd_warning\.|$(sysconfdir)/smartd_warning.|g' \
+        -e 's|/usr/local/etc/smart_drivedb\.h|$(sysconfdir)/smart_drivedb.h|g' | \
     $(MAN_ATTRIBUTELOG) | \
     $(MAN_CAPABILITIES) | \
     $(MAN_DRIVEDB) | \

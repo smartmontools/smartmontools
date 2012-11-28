@@ -899,6 +899,18 @@ sending mail, this should help you to understand and fix them.  If
 you have mail problems, we recommend running \fBsmartd\fP in debug
 mode with the \'-d\' flag, using the \'-M test\' Directive described
 below.
+.\" %IF NOT OS Windows
+
+[NEW EXPERIMENTAL SMARTD FEATURE]
+If a word of the comma separated list has the form \'@plugin\', a custom
+script /usr/local/etc/smartd_warning.d/plugin is run and the word is
+removed from the list before sending mail. The string \'plugin\' may be any
+valid name except \'ALL\'.
+If \'@ALL\' is specified, all scripts in /usr/local/etc/smartd_warning.d/*
+are run instead.
+This is handled by the script /usr/local/etc/smartd_warning.sh
+(see also \'\-M exec\' below).
+.\" %ENDIF NOT OS Windows
 .\" %IF OS Windows
 
 [Windows only] [NEW EXPERIMENTAL SMARTD FEATURE]
@@ -909,6 +921,8 @@ Address \'\fBconsole\fP\' specifies the console session only,
 \'\fBactive\fP\' specifies the console session and all active remote
 sessions, and \'\fBconnected\fP\' specifies the console session and
 all connected (active or waiting for login) remote sessions.
+This is handled by the script EXEDIR/smartd_warning.cmd which runs
+the tool EXEDIR/wtssendmsg.exe (see also \'\-M exec\' below).
 The addresses \'\fBmsgbox\fP\' and \'\fBsysmsgbox\fP\' are now
 deprecated and have the same effect as \'\fBconsole\fP\'.
 .\" %ENDIF OS Windows
@@ -1067,18 +1081,32 @@ given by the argument ADD, with the commas replaced by spaces
 given, then this string will contain space characters and is NOT
 quoted, so to use it in a bash script you may want to enclose it in
 double quotes.
+.\" %IF OS Windows
+.IP \fBSMARTD_ADDRCSV\fP 4
+[Windows only] is set to a comma-separated list of the addresses from
+SMARTD_ADDRESS.
+.\" %ENDIF OS Windows
 .IP \fBSMARTD_MESSAGE\fP 4
 is set to the one sentence summary warning email message string from
 \fBsmartd\fP. 
 This message string contains space characters and is NOT quoted. So to
 use $SMARTD_MESSAGE in a bash script you should probably enclose it in
 double quotes.
+.\" %IF NOT OS Windows
 .IP \fBSMARTD_FULLMESSAGE\fP 4
 is set to the contents of the entire email warning message string from
 \fBsmartd\fP. 
 This message string contains space and return characters and is NOT quoted. So to
 use $SMARTD_FULLMESSAGE in a bash script you should probably enclose it in
 double quotes.
+.\" %ENDIF NOT OS Windows
+.\" %IF OS Windows
+.IP \fBSMARTD_FULLMSGFILE\fP 4
+[Windows only] is the path to a temporary file containing the full message.
+The path may contain space characters and is NOT quoted.
+The file is created by the smartd_warning.cmd script and removed when
+the mailer or command exits.
+.\" %ENDIF OS Windows
 .IP \fBSMARTD_TFIRST\fP 4
 is a text string giving the time and date at which the first problem
 of this type was reported. This text string contains space characters
@@ -1089,6 +1117,12 @@ Sun Feb  9 14:58:19 2003 CST
 .IP \fBSMARTD_TFIRSTEPOCH\fP 4
 is an integer, which is the unix epoch (number of seconds since Jan 1,
 1970) for \fBSMARTD_TFIRST\fP.
+.IP \fBSMARTD_PREVCNT\fP 4
+is an integer specifying the number of previous messages sent.
+It is set to \'0\' for the first message.
+.IP \fBSMARTD_NEXTDAYS\fP 4
+is an integer specifying the number of days until the next message will be sent.
+It it set to empty on \'\-M once\' and set to \'1\' on \'\-M daily\'.
 .RE
 .\"  The following two lines are a workaround for a man2html bug.  Please leave them.
 .\" They define a non-existent option; useful because man2html can't correctly reset the margins.
@@ -1113,10 +1147,10 @@ that would normally be provided to \'mail\'.  Examples include:
 .fi
 
 .\" %IF OS Windows
-Note that on Windows, the syntax of the \'\fBBlat\fP\' mailer is
+[Windows only] On Windows, the syntax of the \'\fBBlat\fP\' mailer is
 used:
 .nf
-- -q -subject "$SMARTD_SUBJECT" -to "$SMARTD_ADDRESS"
+- -q -subject "%SMARTD_SUBJECT%" -to %SMARTD_ADDRCSV%
 .fi
 
 .\" %ENDIF OS Windows
@@ -1136,8 +1170,36 @@ will be copied to SYSLOG.  The remainder of the output is then
 discarded.
 
 Some EXAMPLES of scripts that can be used with the \'\-M exec\'
-Directive are given below. Some sample scripts are also included in
+Directive are given below.
+.\" %IF NOT OS Windows
+Some sample scripts are also included in
 /usr/local/share/doc/smartmontools/examplescripts/.
+.\" %ENDIF NOT OS Windows
+
+[NEW EXPERIMENTAL SMARTD FEATURE] The executable is run by the script
+.\" %IF NOT OS Windows
+/usr/local/etc/smartd_warning.sh.
+.\" %ENDIF NOT OS Windows
+.\" %IF OS ALL
+(Windows: EXEDIR/smartd_warning.cmd)
+.\" %ENDIF OS ALL
+.\" %IF OS Windows
+.\"! EXEDIR/smartd_warning.cmd.
+.\" %ENDIF OS Windows
+This script formats subject and full message based on SMARTD_MESSAGE and other
+environment variables set by \fBsmartd\fP.
+The environment variables
+.\" %IF NOT OS Windows
+SMARTD_SUBJECT and SMARTD_FULLMESSAGE
+.\" %ENDIF NOT OS Windows
+.\" %IF OS ALL
+(Windows: SMARTD_SUBJECT, SMARTD_FULLMSGFILE and SMARTD_ADDRCSV)
+.\" %ENDIF OS ALL
+.\" %IF OS Windows
+.\"! SMARTD_SUBJECT, SMARTD_FULLMSGFILE and SMARTD_ADDRCSV
+.\" %ENDIF OS Windows
+are set by the script before running the executable.
+
 .TP
 .B \-f
 [ATA only] Check for \'failure\' of any Usage Attributes.  If these
