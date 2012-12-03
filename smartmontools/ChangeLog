@@ -1,5 +1,10 @@
 $Id$
 
+2012-12-03  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Ignore a device from DEVICESCAN if a preceding smartd.conf
+	entry for the same device exists.
+
 2012-11-28  Christian Franke  <franke@computer.org>
 
 	smartd.conf.5.in: Document smartd_warning.sh/cmd scripts and

@@ -4778,6 +4778,32 @@ static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_devic
   return conf_entries.size();
 }
 
+// Return true if TYPE contains a RAID drive number
+static bool is_raid_type(const char * type)
+{
+  if (str_starts_with(type, "sat,"))
+    return false;
+  int i;
+  if (sscanf(type, "%*[^,],%d", &i) != 1)
+    return false;
+  return true;
+}
+
+// Return true if DEV is already in DEVICES[0..NUMDEVS)
+static bool is_duplicate_device(const smart_device * dev, const smart_device_list & devices, unsigned numdevs)
+{
+  for (unsigned i = 0; i < numdevs; i++) {
+    const smart_device::device_info & info1 = dev->get_info();
+    const smart_device::device_info & info2 = devices.at(i)->get_info();
+    // -d TYPE options must match if RAID drive number is specified
+    if (   info1.dev_name == info2.dev_name
+        && (   info1.dev_type == info2.dev_type
+            || !is_raid_type(info1.dev_type.c_str())
+            || !is_raid_type(info2.dev_type.c_str())))
+      return true;
+  }
+  return false;
+}
 
 // This function tries devices from conf_entries.  Each one that can be
 // registered is moved onto the [ata|scsi]devices lists and removed
@@ -4791,6 +4817,7 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
   states.clear();
 
   // Register entries
+  unsigned numnoscan = 0;
   for (unsigned i = 0; i < conf_entries.size(); i++){
 
     dev_config cfg = conf_entries[i];
@@ -4802,8 +4829,14 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
     // Device may already be detected during devicescan
     if (i < scanned_devs.size()) {
       dev = scanned_devs.release(i);
-      if (dev)
+      if (dev) {
+        // Check for a preceding non-DEVICESCAN entry for the same device
+        if (numnoscan && is_duplicate_device(dev.get(), devices, numnoscan)) {
+          PrintOut(LOG_INFO, "Device: %s, duplicate, ignored\n", dev->get_info_name());
+          continue;
+        }
         scanning = true;
+      }
     }
 
     if (!dev) {
@@ -4868,6 +4901,8 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
       configs.push_back(cfg);
       states.push_back(state);
       devices.push_back(dev);
+      if (!scanning)
+        numnoscan = devices.size();
     }
     // if device is explictly listed and we can't register it, then
     // exit unless the user has specified that the device is removable
