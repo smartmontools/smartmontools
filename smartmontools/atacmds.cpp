@@ -229,7 +229,7 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
       defs[i].priority = priority;
       defs[i].raw_format = format;
       defs[i].flags = flags;
-      strcpy(defs[i].byteorder, byteorder);
+      snprintf(defs[i].byteorder, sizeof(defs[i].byteorder), "%s", byteorder);
     }
   }
   else if (defs[id].priority <= priority) {
@@ -239,7 +239,7 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
     defs[id].raw_format = format;
     defs[id].priority = priority;
     defs[id].flags = flags;
-    strcpy(defs[id].byteorder, byteorder);
+    snprintf(defs[i].byteorder, sizeof(defs[i].byteorder), "%s", byteorder);
   }
 
   return true;
@@ -364,17 +364,18 @@ static const char * const commandstrings[]={
 };
 
 
-static const char * preg(const ata_register & r, char * buf)
+static const char * preg(const ata_register & r, char (& buf)[8])
 {
   if (!r.is_set())
     //return "n/a ";
     return "....";
-  sprintf(buf, "0x%02x", r.val()); return buf;
+  snprintf(buf, sizeof(buf), "0x%02x", r.val());
+  return buf;
 }
 
 static void print_regs(const char * prefix, const ata_in_regs & r, const char * suffix = "\n")
 {
-  char bufs[7][4+1+13];
+  char bufs[7][8];
   pout("%s FR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, CMD=%s%s", prefix,
     preg(r.features, bufs[0]), preg(r.sector_count, bufs[1]), preg(r.lba_low, bufs[2]),
     preg(r.lba_mid, bufs[3]), preg(r.lba_high, bufs[4]), preg(r.device, bufs[5]),
@@ -383,7 +384,7 @@ static void print_regs(const char * prefix, const ata_in_regs & r, const char * 
 
 static void print_regs(const char * prefix, const ata_out_regs & r, const char * suffix = "\n")
 {
-  char bufs[7][4+1+13];
+  char bufs[7][8];
   pout("%sERR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, STS=%s%s", prefix,
     preg(r.error, bufs[0]), preg(r.sector_count, bufs[1]), preg(r.lba_low, bufs[2]),
     preg(r.lba_mid, bufs[3]), preg(r.lba_high, bufs[4]), preg(r.device, bufs[5]),
@@ -1636,11 +1637,11 @@ int ataSmartTest(ata_device * device, int testtype, bool force,
 
   //  Print ouf message that we are sending the command to test
   if (testtype==ABORT_SELF_TEST)
-    sprintf(cmdmsg,"Abort SMART off-line mode self-test routine");
+    snprintf(cmdmsg, sizeof(cmdmsg), "Abort SMART off-line mode self-test routine");
   else if (!type)
-    sprintf(cmdmsg, "SMART EXECUTE OFF-LINE IMMEDIATE subcommand 0x%02x", testtype);
+    snprintf(cmdmsg, sizeof(cmdmsg), "SMART EXECUTE OFF-LINE IMMEDIATE subcommand 0x%02x", testtype);
   else
-    sprintf(cmdmsg,"Execute SMART %s routine immediately in %s mode",type,captive);
+    snprintf(cmdmsg, sizeof(cmdmsg), "Execute SMART %s routine immediately in %s mode", type, captive);
   pout("Sending command: \"%s\".\n",cmdmsg);
 
   if (select) {
@@ -2660,8 +2661,9 @@ int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
   char msglba[32];
   if (retval < 0 && failing_lba < 0xffffffffffffULL)
     snprintf(msglba, sizeof(msglba), "%"PRIu64, failing_lba);
-  else
-    strcpy(msglba, "-");
+  else {
+    msglba[0] = '-'; msglba[1] = 0;
+  }
 
   pout("#%2u  %-19s %-29s %1d0%%  %8u         %s\n", testnum,
        msgtest.c_str(), msgstat.c_str(), test_status & 0x0f, timestamp, msglba);

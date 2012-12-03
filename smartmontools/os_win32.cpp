@@ -785,7 +785,7 @@ smart_device * win_smart_interface::get_custom_smart_device(const char * name, c
       */
      for (int idx = 0; idx < ARECA_MAX_CTLR_NUM; idx++) {
         memset(devpath, 0, sizeof(devpath));
-        sprintf(devpath, "\\\\.\\scsi%d:", idx);
+        snprintf(devpath, sizeof(devpath), "\\\\.\\scsi%d:", idx);
         win_areca_ata_device *arcdev = new win_areca_ata_device(this, devpath, disknum, encnum);
         if(arcdev->arcmsr_probe()) {
           if(ctlrindex-- == 0) {
@@ -885,7 +885,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   char name[20];
   for (int i = 0; i <= 9; i++) {
-    sprintf(name, "/dev/sd%c", 'a'+i);
+    snprintf(name, sizeof(name), "/dev/sd%c", 'a'+i);
     GETVERSIONINPARAMS_EX vers_ex;
 
     switch (get_phy_drive_type(i, (ata ? &vers_ex : 0))) {
@@ -904,7 +904,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
           int len = strlen(name);
           for (int pi = 0; pi < 32; pi++) {
             if (vers_ex.dwDeviceMapEx & (1L << pi)) {
-              sprintf(name+len, ",%u", pi);
+              snprintf(name+len, sizeof(name)-1-len, ",%u", pi);
               devlist.push_back( new win_ata_device(this, name, "ata") );
             }
           }
@@ -1537,7 +1537,7 @@ static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * d
     return -1;
   }
   memset(&sb, 0, sizeof(sb));
-  strcpy((char *)sb.srbc.Signature, "<3ware>");
+  strncpy((char *)sb.srbc.Signature, "<3ware>", sizeof(sb.srbc.Signature));
   sb.srbc.HeaderLength = sizeof(SRB_IO_CONTROL);
   sb.srbc.Timeout = 60; // seconds
   sb.srbc.ControlCode = 0xA0000000;
@@ -1590,7 +1590,7 @@ static int update_3ware_devicemap_ioctl(HANDLE hdevice)
 {
   SRB_IO_CONTROL srbc;
   memset(&srbc, 0, sizeof(srbc));
-  strcpy((char *)srbc.Signature, "<3ware>");
+  strncpy((char *)srbc.Signature, "<3ware>", sizeof(srbc.Signature));
   srbc.HeaderLength = sizeof(SRB_IO_CONTROL);
   srbc.Timeout = 60; // seconds
   srbc.ControlCode = 0xCC010014;
@@ -3577,8 +3577,7 @@ bool win_areca_scsi_device::arcmsr_lock()
   if (sscanf(get_dev_name(), "\\\\.\\scsi%d:", &ctlrnum) < 1)
     return set_err(EINVAL, "unable to parse device name");
 
-  memset(mutexstr, 0, sizeof(mutexstr));
-  sprintf(mutexstr, "%s%d",SYNCOBJNAME, ctlrnum);
+  snprintf(mutexstr, sizeof(mutexstr), "%s%d", SYNCOBJNAME, ctlrnum);
   m_mutex = CreateMutex(NULL, FALSE, mutexstr);
   if ( m_mutex == NULL )
   {
@@ -3692,8 +3691,7 @@ bool win_areca_ata_device::arcmsr_lock()
   if (sscanf(get_dev_name(), "\\\\.\\scsi%d:", &ctlrnum) < 1)
     return set_err(EINVAL, "unable to parse device name");
 
-  memset(mutexstr, 0, sizeof(mutexstr));
-  sprintf(mutexstr, "%s%d",SYNCOBJNAME, ctlrnum);
+  snprintf(mutexstr, sizeof(mutexstr), "%s%d", SYNCOBJNAME, ctlrnum);
   m_mutex = CreateMutex(NULL, FALSE, mutexstr);
   if ( m_mutex == NULL )
   {

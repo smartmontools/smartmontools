@@ -684,33 +684,6 @@ bool nonempty(const void * data, int size)
   return false;
 }
 
-
-// This routine converts an integer number of milliseconds into a test
-// string of the form Xd+Yh+Zm+Ts.msec.  The resulting text string is
-// written to the array.
-void MsecToText(unsigned int msec, char *txt){
-  unsigned int days, hours, min, sec;
-
-  days       = msec/86400000U;
-  msec      -= days*86400000U;
-
-  hours      = msec/3600000U; 
-  msec      -= hours*3600000U;
-
-  min        = msec/60000U;
-  msec      -= min*60000U;
-
-  sec        = msec/1000U;
-  msec      -= sec*1000U;
-
-  if (days) {
-    txt += sprintf(txt, "%2dd+", (int)days);
-  }
-
-  sprintf(txt, "%02d:%02d:%02d.%03d", (int)hours, (int)min, (int)sec, (int)msec);  
-  return;
-}
-
 // Format integer with thousands separator
 const char * format_with_thousands_sep(char * str, int strsize, uint64_t val,
                                        const char * thousands_sep /* = 0 */)

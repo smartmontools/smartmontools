@@ -2,6 +2,12 @@ $Id$
 
 2012-12-03  Christian Franke  <franke@computer.org>
 
+	Avoid usage of strcpy(), strcat(), sprintf().
+	Use snprintf() instead or change type to std::string.
+	Use array references instead of char pointers for parameters.
+
+2012-12-03  Christian Franke  <franke@computer.org>
+
 	smartd.cpp: Ignore a device from DEVICESCAN if a preceding smartd.conf
 	entry for the same device exists.
 

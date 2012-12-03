@@ -11,8 +11,8 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #include <stdio.h>
@@ -334,7 +334,8 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
     {
       // We haven't gotten output that makes sense; print out some debugging info
       char buf[512];
-      sprintf(buf,"CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
+      snprintf(buf, sizeof(buf),
+        "CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
         (int)request.u.ata.command,
         (int)request.u.ata.feature,
         (int)request.u.ata.count,
@@ -856,7 +857,8 @@ int freebsd_highpoint_device::ata_command_interface(smart_command_set command, i
 
     // We haven't gotten output that makes sense; print out some debugging info
     char buf[512];
-    sprintf(buf,"CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
+    snprintf(buf, sizeof(buf),
+            "CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
             (int)pide_pt_hdr_out->command,
             (int)pide_pt_hdr_out->feature,
             (int)pide_pt_hdr_out->sectorcount,

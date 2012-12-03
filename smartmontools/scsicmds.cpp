@@ -15,8 +15,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  * This code was originally developed as a Senior Thesis by Michael Cornwell
  * at the Concurrent Systems Laboratory (now part of the Storage Systems
@@ -71,7 +70,7 @@ void dStrHex(const char* str, int len, int no_ascii)
     if (len <= 0) return;
     memset(buff,' ',80);
     buff[80]='\0';
-    k = sprintf(buff + 1, "%.2x", a);
+    k = snprintf(buff+1, sizeof(buff)-1, "%.2x", a);
     buff[k + 1] = ' ';
     if (bpos >= ((bpstart + (9 * 3))))
         bpos++;
@@ -82,7 +81,7 @@ void dStrHex(const char* str, int len, int no_ascii)
         bpos += 3;
         if (bpos == (bpstart + (9 * 3)))
             bpos++;
-        sprintf(&buff[bpos], "%.2x", (int)(unsigned char)c);
+        snprintf(buff+bpos, sizeof(buff)-bpos, "%.2x", (int)(unsigned char)c);
         buff[bpos + 2] = ' ';
         if (no_ascii)
             buff[cpos++] = ' ';
@@ -98,7 +97,7 @@ void dStrHex(const char* str, int len, int no_ascii)
             cpos = cpstart;
             a += 16;
             memset(buff,' ',80);
-            k = sprintf(buff + 1, "%.2x", a);
+            k = snprintf(buff+1, sizeof(buff)-1, "%.2x", a);
             buff[k + 1] = ' ';
         }
     }
@@ -296,7 +295,7 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
     int m, c_set, assoc, desig_type, i_len, naa, off, u, have_scsi_ns;
     const unsigned char * ucp;
     const unsigned char * ip;
-    char * orig_s = s;
+    int si = 0;
 
     if (transport)
 	*transport = -1;
@@ -312,7 +311,7 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
         ucp = b + off;
         i_len = ucp[3];
         if ((off + i_len + 4) > blen) {
-	    s += sprintf(s, "error: designator length");
+            snprintf(s+si, slen-si, "error: designator length");
 	    return -1;
         }
         assoc = ((ucp[1] >> 4) & 0x3);
@@ -330,52 +329,52 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
             break;
         case 2: /* EUI-64 based */
             if ((8 != i_len) && (12 != i_len) && (16 != i_len)) {
-	        s += sprintf(s, "error: EUI-64 length");
+                snprintf(s+si, slen-si, "error: EUI-64 length");
 	        return -1;
 	    }
 	    if (have_scsi_ns)
-		s = orig_s;
-            s += sprintf(s, "0x");
+                si = 0;
+            si += snprintf(s+si, slen-si, "0x");
             for (m = 0; m < i_len; ++m)
-                s += sprintf(s, "%02x", (unsigned int)ip[m]);
+                si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
             break;
         case 3: /* NAA */
             if (1 != c_set) {
-	        s += sprintf(s, "error: NAA bad code_set");
+                snprintf(s+si, slen-si, "error: NAA bad code_set");
 		return -1;
 	    }
             naa = (ip[0] >> 4) & 0xff;
             if ((naa < 2) || (naa > 6) || (4 == naa)) {
-	        s += sprintf(s, "error: unexpected NAA");
+                snprintf(s+si, slen-si, "error: unexpected NAA");
 		return -1;
             }
 	    if (have_scsi_ns)
-		s = orig_s;
+                si = 0;
             if (2 == naa) {             /* NAA IEEE Extended */
                 if (8 != i_len) {
-	            s += sprintf(s, "error: NAA 2 length");
+                    snprintf(s+si, slen-si, "error: NAA 2 length");
 		    return -1;
                 }
-                s += sprintf(s, "0x");
+                si += snprintf(s+si, slen-si, "0x");
                 for (m = 0; m < 8; ++m)
-                    s += sprintf(s, "%02x", (unsigned int)ip[m]);
+                    si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
             } else if ((3 == naa ) || (5 == naa)) {
                 /* NAA=3 Locally assigned; NAA=5 IEEE Registered */
                 if (8 != i_len) {
-	            s += sprintf(s, "error: NAA 3 or 5 length");
+                    snprintf(s+si, slen-si, "error: NAA 3 or 5 length");
 		    return -1;
                 }
-                s += sprintf(s, "0x");
+                si += snprintf(s+si, slen-si, "0x");
                 for (m = 0; m < 8; ++m)
-                    s += sprintf(s, "%02x", (unsigned int)ip[m]);
+                    si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
             } else if (6 == naa) {      /* NAA IEEE Registered extended */
                 if (16 != i_len) {
-	            s += sprintf(s, "error: NAA 6 length");
+                    snprintf(s+si, slen-si, "error: NAA 6 length");
 		    return -1;
                 }
-                s += sprintf(s, "0x");
+                si += snprintf(s+si, slen-si, "0x");
                 for (m = 0; m < 16; ++m)
-                    s += sprintf(s, "%02x", (unsigned int)ip[m]);
+                    si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
             }
             break;
         case 4: /* Relative target port */
@@ -385,12 +384,12 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
             break;
         case 8: /* SCSI name string */
             if (3 != c_set) {
-	        s += sprintf(s, "error: SCSI name string");
+                snprintf(s+si, slen-si, "error: SCSI name string");
 		return -1;
             }
             /* does %s print out UTF-8 ok?? */
-	    if (orig_s == s) {
-                s += sprintf(s, "%s", (const char *)ip);
+            if (si == 0) {
+                si += snprintf(s+si, slen-si, "%s", (const char *)ip);
 		++have_scsi_ns;
 	    }
             break;
@@ -399,7 +398,7 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
         }
     }
     if (-2 == u) {
-        s += sprintf(s, "error: bad structure");
+        snprintf(s+si, slen-si, "error: bad structure");
 	return -1;
     }
     return 0;

@@ -13,8 +13,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  * This code was originally developed as a Senior Thesis by Michael Cornwell
  * at the Concurrent Systems Laboratory (now part of the Storage Systems
@@ -180,9 +179,6 @@ bool nonempty(const void * data, int size);
 
 // needed to fix glibc bug
 void FixGlibcTimeZoneBug();
-
-// convert time in msec to a text string
-void MsecToText(unsigned int msec, char *txt);
 
 // Format integer with thousands separator
 const char * format_with_thousands_sep(char * str, int strsize, uint64_t val,

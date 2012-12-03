@@ -1057,7 +1057,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   env[10].set("SMARTD_DEVICEINFO", cfg.dev_idinfo.c_str());
   dates[0] = 0;
   if (which) switch (cfg.emailfreq) {
-    case 2: strcpy(dates, "1"); break;
+    case 2: dates[0] = '1'; dates[1] = 0; break;
     case 3: snprintf(dates, sizeof(dates), "%d", (0x01)<<mail->logged);
   }
   env[11].set("SMARTD_NEXTDAYS", dates);
@@ -2799,12 +2799,11 @@ static void check_pending(const dev_config & cfg, dev_state & state,
 }
 
 // Format Temperature value
-static const char * fmt_temp(unsigned char x, char * buf)
+static const char * fmt_temp(unsigned char x, char (& buf)[20])
 {
   if (!x) // unset
-    strcpy(buf, "??");
-  else
-    sprintf(buf, "%u", x);
+    return "??";
+  snprintf(buf, sizeof(buf), "%u", x);
   return buf;
 }
 
@@ -4320,7 +4319,7 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     }
     
     // copy string so far into fullline, and increment length
-    strcpy(fullline+cont,line);
+    snprintf(fullline+cont, sizeof(fullline)-cont, line);
     cont+=len;
 
     // is this a continuation line.  If so, replace \ by space and look at next line

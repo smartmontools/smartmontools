@@ -123,14 +123,16 @@ void drive_database::push_back(const drive_settings & src)
 
 const char * drive_database::copy_string(const char * src)
 {
-  char * dest = new char[strlen(src)+1];
+  size_t len = strlen(src);
+  char * dest = new char[len+1];
+  memcpy(dest, src, len+1);
   try {
     m_custom_strings.push_back(dest);
   }
   catch (...) {
     delete [] dest; throw;
   }
-  return strcpy(dest, src);
+  return dest;
 }
 
 

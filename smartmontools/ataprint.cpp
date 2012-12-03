@@ -60,10 +60,9 @@ static bool is_permissive()
 
 /* For the given Command Register (CR) and Features Register (FR), attempts
  * to construct a string that describes the contents of the Status
- * Register (ST) and Error Register (ER).  The caller passes the string
- * buffer and the return value is a pointer to this string.  If the
- * meanings of the flags of the error register are not known for the given
- * command then it returns NULL.
+ * Register (ST) and Error Register (ER).  If the meanings of the flags of
+ * the error register are not known for the given command then it returns an
+ * empty string.
  *
  * The meanings of the flags of the error register for all commands are
  * described in the ATA spec and could all be supported here in theory.
@@ -72,8 +71,7 @@ static bool is_permissive()
  * should probably be redesigned.
  */
 
-static const char * construct_st_er_desc(
-  char * s,
+static std::string format_st_er_desc(
   unsigned char CR, unsigned char FR,
   unsigned char ST, unsigned char ER,
   unsigned short SC,
@@ -110,6 +108,8 @@ static const char * construct_st_er_desc(
   /* A value of NULL means that the error flag isn't used */
   for (i = 0; i < 8; i++)
     error_flag[i] = NULL;
+
+  std::string str;
 
   switch (CR) {
   case 0x10:  // RECALIBRATE
@@ -281,7 +281,7 @@ static const char * construct_st_er_desc(
       error_flag[2] = abrt;
       break;
     default:
-      return NULL;
+      return str; // ""
       break;
     }
     break;
@@ -291,7 +291,7 @@ static const char * construct_st_er_desc(
       error_flag[2] = abrt;
       break;
     default:
-      return NULL;
+      return str; // ""
       break;
     }
     break;
@@ -320,39 +320,34 @@ static const char * construct_st_er_desc(
     error_flag[2] = abrt;
     break;
   default:
-    return NULL;
+    return str; // ""
   }
-
-  s[0] = '\0';
 
   /* We ignore any status flags other than Device Fault and Error */
 
   if (uses_device_fault && (ST & (1 << 5))) {
-    strcat(s, "Device Fault");
+    str = "Device Fault";
     if (ST & 1)  // Error flag
-      strcat(s, "; ");
+      str += "; ";
   }
   if (ST & 1) {  // Error flag
     int count = 0;
 
-    strcat(s, "Error: ");
+    str += "Error: ";
     for (i = 7; i >= 0; i--)
       if ((ER & (1 << i)) && (error_flag[i])) {
         if (count++ > 0)
-           strcat(s, ", ");
-        strcat(s, error_flag[i]);
+           str += ", ";
+        str += error_flag[i];
       }
   }
 
   // If the error was a READ or WRITE error, print the Logical Block
   // Address (LBA) at which the read or write failed.
   if (print_lba) {
-    char tmp[128];
     // print number of sectors, if known, and append to print string
-    if (print_sector) {
-      snprintf(tmp, 128, " %d sectors", print_sector);
-      strcat(s, tmp);
-    }
+    if (print_sector)
+      str += strprintf(" %d sectors", print_sector);
 
     if (lba28_regs) {
       unsigned lba;
@@ -367,8 +362,7 @@ static const char * construct_st_er_desc(
       lba <<= 8;
       // bits 0-7:   SN
       lba  |= lba28_regs->sector_number;
-      snprintf(tmp, 128, " at LBA = 0x%08x = %u", lba, lba);
-      strcat(s, tmp);
+      str += strprintf(" at LBA = 0x%08x = %u", lba, lba);
     }
     else if (lba48_regs) {
       // This assumes that upper LBA registers are 0 for 28-bit commands
@@ -386,18 +380,17 @@ static const char * construct_st_er_desc(
       lba48  |= lba48_regs->lba_mid_register;
       lba48 <<= 8;
       lba48  |= lba48_regs->lba_low_register;
-      snprintf(tmp, 128, " at LBA = 0x%08"PRIx64" = %"PRIu64, lba48, lba48);
-      strcat(s, tmp);
+      str += strprintf(" at LBA = 0x%08"PRIx64" = %"PRIu64, lba48, lba48);
     }
   }
 
-  return s;
+  return str;
 }
 
-static inline const char * construct_st_er_desc(char * s,
+static inline std::string format_st_er_desc(
   const ata_smart_errorlog_struct * data)
 {
-  return construct_st_er_desc(s,
+  return format_st_er_desc(
     data->commands[4].commandreg,
     data->commands[4].featuresreg,
     data->error_struct.status,
@@ -406,10 +399,10 @@ static inline const char * construct_st_er_desc(char * s,
     &data->error_struct, (const ata_smart_exterrlog_error *)0);
 }
 
-static inline const char * construct_st_er_desc(char * s,
+static inline std::string format_st_er_desc(
   const ata_smart_exterrlog_error_log * data)
 {
-  return construct_st_er_desc(s,
+  return format_st_er_desc(
     data->commands[4].command_register,
     data->commands[4].features_register,
     data->error.status_register,
@@ -1439,7 +1432,7 @@ static void print_device_statistics_page(const unsigned char * data, int page,
     }
     else {
       // Value not known (yet)
-      strcpy(valstr, "-");
+      valstr[0] = '-'; valstr[1] = 0;
     }
 
     pout("%3d  0x%03x  %d%c %15s%c %s\n",
@@ -1597,6 +1590,25 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
   pout("\n");
 }
 
+// Format milliseconds from error log entry as "DAYS+H:M:S.MSEC"
+static std::string format_milliseconds(unsigned msec)
+{
+  unsigned days  = msec  / 86400000U;
+  msec          -= days  * 86400000U;
+  unsigned hours = msec  / 3600000U;
+  msec          -= hours * 3600000U;
+  unsigned min   = msec  / 60000U;
+  msec          -= min   * 60000U;
+  unsigned sec   = msec  / 1000U;
+  msec          -= sec   * 1000U;
+
+  std::string str;
+  if (days)
+    str = strprintf("%2ud+", days);
+  str += strprintf("%02u:%02u:%02u.%03u", hours, min, sec, msec);
+  return str;
+}
+
 // Get description for 'state' value from SMART Error Logs
 static const char * get_error_log_state_desc(unsigned state)
 {
@@ -1693,10 +1705,9 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
            (int)summary->drive_head);
       // Add a description of the contents of the status and error registers
       // if possible
-      char descbuf[256];
-      const char * st_er_desc = construct_st_er_desc(descbuf, elog);
-      if (st_er_desc)
-        pout("  %s", st_er_desc);
+      std::string st_er_desc = format_st_er_desc(elog);
+      if (!st_er_desc.empty())
+        pout("  %s", st_er_desc.c_str());
       pout("\n\n");
       pout("  Commands leading to the command that caused the error were:\n"
            "  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name\n"
@@ -1706,11 +1717,6 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
 
         // Spec says: unused data command structures shall be zero filled
         if (nonempty(thiscommand, sizeof(*thiscommand))) {
-	  char timestring[32];
-	  
-	  // Convert integer milliseconds to a text-format string
-	  MsecToText(thiscommand->timestamp, timestring);
-	  
           pout("  %02x %02x %02x %02x %02x %02x %02x %02x  %16s  %s\n",
                (int)thiscommand->commandreg,
                (int)thiscommand->featuresreg,
@@ -1720,7 +1726,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
                (int)thiscommand->cylinder_high,
                (int)thiscommand->drive_head,
                (int)thiscommand->devicecontrolreg,
-	       timestring,
+               format_milliseconds(thiscommand->timestamp).c_str(),
                look_up_ata_command(thiscommand->commandreg, thiscommand->featuresreg));
 	}
       }
@@ -1838,10 +1844,9 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
 
     // Add a description of the contents of the status and error registers
     // if possible
-    char descbuf[256];
-    const char * st_er_desc = construct_st_er_desc(descbuf, &entry);
-    if (st_er_desc)
-      pout("  %s", st_er_desc);
+    std::string st_er_desc = format_st_er_desc(&entry);
+    if (!st_er_desc.empty())
+      pout("  %s", st_er_desc.c_str());
     pout("\n\n");
 
     // Print command history
@@ -1856,9 +1861,6 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
         continue;
 
       // Print registers, timestamp and ATA command name
-      char timestring[32];
-      MsecToText(cmd.timestamp, timestring);
-
       pout("  %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %16s  %s\n",
            cmd.command_register,
            cmd.features_register_hi,
@@ -1873,7 +1875,7 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
            cmd.lba_low_register,
            cmd.device_register,
            cmd.device_control_register,
-           timestring,
+           format_milliseconds(cmd.timestamp).c_str(),
            look_up_ata_command(cmd.command_register, cmd.features_register));
     }
     pout("\n");
@@ -2081,16 +2083,15 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
 }
 
 // Format SCT Temperature value
-static const char * sct_ptemp(signed char x, char * buf)
+static const char * sct_ptemp(signed char x, char (& buf)[20])
 {
   if (x == -128 /*0x80 = unknown*/)
-    strcpy(buf, " ?");
-  else
-    sprintf(buf, "%2d", x);
+    return " ?";
+  snprintf(buf, sizeof(buf), "%2d", x);
   return buf;
 }
 
-static const char * sct_pbar(int x, char * buf)
+static const char * sct_pbar(int x, char (& buf)[64])
 {
   if (x <= 19)
     x = 0;
@@ -2169,7 +2170,7 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
 // Print SCT Temperature History Table
 static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
 {
-  char buf1[20], buf2[80];
+  char buf1[20], buf2[20], buf3[64];
   pout("SCT Temperature History Version:     %u%s\n", tmh->format_version,
        (tmh->format_version != 2 ? " (Unknown, should be 2)" : ""));
   pout("Temperature Sampling Period:         %u minute%s\n",
@@ -2209,11 +2210,11 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
         // TODO: Don't print times < boot time
         strftime(date, sizeof(date), "%Y-%m-%d %H:%M", localtime(&t));
         pout(" %3u    %s    %s  %s\n", i, date,
-          sct_ptemp(tmh->cb[i], buf1), sct_pbar(tmh->cb[i], buf2));
+          sct_ptemp(tmh->cb[i], buf1), sct_pbar(tmh->cb[i], buf3));
       }
       else if (n == n1+1) {
         pout(" ...    ..(%3u skipped).    ..  %s\n",
-          n2-n1-2, sct_pbar(tmh->cb[i], buf2));
+          n2-n1-2, sct_pbar(tmh->cb[i], buf3));
       }
       t += interval * 60; i = (i+1) % tmh->cb_size; n++;
     }

@@ -1302,7 +1302,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
 #endif
   /* Now check if nodes are correct */
   for (index=0; index<16; index++) {
-    sprintf(nodestring, "/dev/%s%d", nodename, index);
+    snprintf(nodestring, sizeof(nodestring), "/dev/%s%d", nodename, index);
 #ifdef WITH_SELINUX
     /* Get context of the node and set it as the default */
     if (selinux_enabled) {
@@ -1678,8 +1678,7 @@ public:
 };
 
 // Looks in /proc/scsi to suggest correct areca devices
-// If hint not NULL, return device path guess
-static int find_areca_in_proc(char *hint)
+static int find_areca_in_proc()
 {
     const char* proc_format_string="host\tchan\tid\tlun\ttype\topens\tqdepth\tbusy\tonline\n";
 
@@ -1718,9 +1717,6 @@ static int find_areca_in_proc(char *hint)
         dev++;
 	if (id == 16 && type == 3) {
 	   // devices with id=16 and type=3 might be Areca controllers
-	   if (!found && hint) {
-	       sprintf(hint, "/dev/sg%d", dev);
-	   }
 	   pout("Device /dev/sg%d appears to be an Areca controller.\n", dev);
            found++;
         }
@@ -1773,7 +1769,7 @@ int linux_areca_ata_device::arcmsr_do_scsi_io(struct scsi_cmnd_io * iop)
 
   if(!is_open()) {
       if(!open()){
-          find_areca_in_proc(NULL);
+          find_areca_in_proc();
       }
   }
 
@@ -1820,7 +1816,7 @@ int linux_areca_scsi_device::arcmsr_do_scsi_io(struct scsi_cmnd_io * iop)
 
   if(!is_open()) {
       if(!open()){
-          find_areca_in_proc(NULL);
+          find_areca_in_proc();
       }
   }
 

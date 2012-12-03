@@ -494,7 +494,7 @@ static const char * parse_options(int argc, char** argv,
         unsigned interval = 0; int n1 = -1, n2 = -1, len = strlen(optarg);
         if (!(   sscanf(optarg,"scttempint,%u%n,p%n", &interval, &n1, &n2) == 1
               && 0 < interval && interval <= 0xffff && (n1 == len || n2 == len))) {
-            strcpy(extraerror, "Option -l scttempint,N[,p] must have positive integer N\n");
+            snprintf(extraerror, sizeof(extraerror), "Option -l scttempint,N[,p] must have positive integer N\n");
             badarg = true;
         }
         ataopts.sct_temp_int = interval;
@@ -550,7 +550,7 @@ static const char * parse_options(int argc, char** argv,
           ataopts.sct_erc_writetime = wt;
         }
         else {
-          sprintf(extraerror, "Option -l scterc,[READTIME,WRITETIME] syntax error\n");
+          snprintf(extraerror, sizeof(extraerror), "Option -l scterc,[READTIME,WRITETIME] syntax error\n");
           badarg = true;
         }
       } else if (   !strncmp(optarg, "gplog,"   , sizeof("gplog,"   )-1)
@@ -566,14 +566,14 @@ static const char * parse_options(int argc, char** argv,
         const char * erropt = (gpl ? "gplog" : "smartlog");
         if (!(   n1 == len || n2 == len
               || (n3 == len && (sign == '+' || sign == '-')))) {
-          sprintf(extraerror, "Option -l %s,ADDR[,FIRST[-LAST|+SIZE]] syntax error\n", erropt);
+          snprintf(extraerror, sizeof(extraerror), "Option -l %s,ADDR[,FIRST[-LAST|+SIZE]] syntax error\n", erropt);
           badarg = true;
         }
         else if (!(    logaddr <= 0xff && page <= (gpl ? 0xffffU : 0x00ffU)
                    && 0 < nsectors
                    && (nsectors <= (gpl ? 0xffffU : 0xffU) || nsectors == ~0U)
                    && (sign != '-' || page <= nsectors)                       )) {
-          sprintf(extraerror, "Option -l %s,ADDR[,FIRST[-LAST|+SIZE]] parameter out of range\n", erropt);
+          snprintf(extraerror, sizeof(extraerror), "Option -l %s,ADDR[,FIRST[-LAST|+SIZE]] parameter out of range\n", erropt);
           badarg = true;
         }
         else {
@@ -708,10 +708,10 @@ static const char * parse_options(int argc, char** argv,
 	errno=0;
 	i=(int)strtol(optarg+strlen("pending,"), &tailptr, 10);
 	if (errno || *tailptr != '\0') {
-	  sprintf(extraerror, "Option -t pending,N requires N to be a non-negative integer\n");
+          snprintf(extraerror, sizeof(extraerror), "Option -t pending,N requires N to be a non-negative integer\n");
           badarg = true;
 	} else if (i<0 || i>65535) {
-	  sprintf(extraerror, "Option -t pending,N (N=%d) must have 0 <= N <= 65535\n", i);
+          snprintf(extraerror, sizeof(extraerror), "Option -t pending,N (N=%d) must have 0 <= N <= 65535\n", i);
           badarg = true;
 	} else {
           ataopts.smart_selective_args.pending_time = i+1;
@@ -722,15 +722,15 @@ static const char * parse_options(int argc, char** argv,
         // parse range of LBAs to test
         uint64_t start, stop; int mode;
         if (split_selective_arg(optarg, &start, &stop, &mode)) {
-	  sprintf(extraerror, "Option -t select,M-N must have non-negative integer M and N\n");
+          snprintf(extraerror, sizeof(extraerror), "Option -t select,M-N must have non-negative integer M and N\n");
           badarg = true;
         } else {
           if (ataopts.smart_selective_args.num_spans >= 5 || start > stop) {
             if (start > stop) {
-              sprintf(extraerror, "ERROR: Start LBA (%"PRIu64") > ending LBA (%"PRId64") in argument \"%s\"\n",
+              snprintf(extraerror, sizeof(extraerror), "ERROR: Start LBA (%"PRIu64") > ending LBA (%"PRId64") in argument \"%s\"\n",
                 start, stop, optarg);
             } else {
-              sprintf(extraerror,"ERROR: No more than five selective self-test spans may be"
+              snprintf(extraerror, sizeof(extraerror),"ERROR: No more than five selective self-test spans may be"
                 " defined\n");
             }
             badarg = true;
@@ -742,13 +742,13 @@ static const char * parse_options(int argc, char** argv,
           ataopts.smart_selftest_type = SELECTIVE_SELF_TEST;
         }
       } else if (!strncmp(optarg, "scttempint", sizeof("scstempint")-1)) {
-        strcpy(extraerror, "-t scttempint is no longer supported, use -l scttempint instead\n");
+        snprintf(extraerror, sizeof(extraerror), "-t scttempint is no longer supported, use -l scttempint instead\n");
         badarg = true;
       } else if (!strncmp(optarg, "vendor,", sizeof("vendor,")-1)) {
         unsigned subcmd = ~0U; int n = -1;
         if (!(   sscanf(optarg, "%*[a-z],0x%x%n", &subcmd, &n) == 1
               && subcmd <= 0xff && n == (int)strlen(optarg))) {
-          strcpy(extraerror, "Option -t vendor,0xNN syntax error\n");
+          snprintf(extraerror, sizeof(extraerror), "Option -t vendor,0xNN syntax error\n");
           badarg = true;
         }
         else
@@ -844,7 +844,7 @@ static const char * parse_options(int argc, char** argv,
             else if (val <= 254)
               ataopts.set_aam = val + 1;
             else {
-              sprintf(extraerror, "Option -s aam,N must have 0 <= N <= 254\n");
+              snprintf(extraerror, sizeof(extraerror), "Option -s aam,N must have 0 <= N <= 254\n");
               badarg = true;
             }
           }
@@ -856,7 +856,7 @@ static const char * parse_options(int argc, char** argv,
             else if (1 <= val && val <= 254)
               ataopts.set_apm = val + 1;
             else {
-              sprintf(extraerror, "Option -s apm,N must have 1 <= N <= 254\n");
+              snprintf(extraerror, sizeof(extraerror), "Option -s apm,N must have 1 <= N <= 254\n");
               badarg = true;
             }
           }
@@ -896,7 +896,7 @@ static const char * parse_options(int argc, char** argv,
             else if (val <= 255)
               ataopts.set_standby = val + 1;
             else {
-              sprintf(extraerror, "Option -s standby,N must have 0 <= N <= 255\n");
+              snprintf(extraerror, sizeof(extraerror), "Option -s standby,N must have 0 <= N <= 255\n");
               badarg = true;
             }
           }
