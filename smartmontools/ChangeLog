@@ -1,4 +1,9 @@
-$Id: ChangeLog 3717 2012-11-28 20:50:19Z chrfranke $
+$Id: ChangeLog 3718 2012-12-03 20:36:35Z chrfranke $
+
+2012-12-03  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Ignore a device from DEVICESCAN if a preceding smartd.conf
+	entry for the same device exists.
 
 2012-11-28  Christian Franke  <franke@computer.org>
 
