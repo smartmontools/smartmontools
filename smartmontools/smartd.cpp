@@ -112,7 +112,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3719 2012-12-03 21:19:33Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3720 2012-12-03 22:02:05Z samm2 $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -4319,7 +4319,7 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     }
     
     // copy string so far into fullline, and increment length
-    snprintf(fullline+cont, sizeof(fullline)-cont, line);
+    snprintf(fullline+cont, sizeof(fullline)-cont, "%s" ,line);
     cont+=len;
 
     // is this a continuation line.  If so, replace \ by space and look at next line
