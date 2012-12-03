@@ -4319,7 +4319,7 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     }
     
     // copy string so far into fullline, and increment length
-    snprintf(fullline+cont, sizeof(fullline)-cont, line);
+    snprintf(fullline+cont, sizeof(fullline)-cont, "%s" ,line);
     cont+=len;
 
     // is this a continuation line.  If so, replace \ by space and look at next line
