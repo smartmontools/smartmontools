@@ -52,7 +52,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 3661 2012-10-18 21:42:12Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 3719 2012-12-03 21:19:33Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -682,33 +682,6 @@ bool nonempty(const void * data, int size)
     if (((const unsigned char *)data)[i])
       return true;
   return false;
-}
-
-
-// This routine converts an integer number of milliseconds into a test
-// string of the form Xd+Yh+Zm+Ts.msec.  The resulting text string is
-// written to the array.
-void MsecToText(unsigned int msec, char *txt){
-  unsigned int days, hours, min, sec;
-
-  days       = msec/86400000U;
-  msec      -= days*86400000U;
-
-  hours      = msec/3600000U; 
-  msec      -= hours*3600000U;
-
-  min        = msec/60000U;
-  msec      -= min*60000U;
-
-  sec        = msec/1000U;
-  msec      -= sec*1000U;
-
-  if (days) {
-    txt += sprintf(txt, "%2dd+", (int)days);
-  }
-
-  sprintf(txt, "%02d:%02d:%02d.%03d", (int)hours, (int)min, (int)sec, (int)msec);  
-  return;
 }
 
 // Format integer with thousands separator
