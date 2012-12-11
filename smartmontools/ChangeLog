@@ -1,4 +1,10 @@
-$Id: ChangeLog 3719 2012-12-03 21:19:33Z chrfranke $
+$Id: ChangeLog 3721 2012-12-11 19:47:41Z chrfranke $
+
+2012-12-11  Stanislav Brabec  <sbrabec@suse.cz>
+
+	* smartd.initd.in: SUSE: Added sysconfig options to disable
+	persistent state writes, attribute log and set arbitrary smartd
+	options.
 
 2012-12-03  Christian Franke  <franke@computer.org>
 

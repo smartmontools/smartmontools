@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in 3360 2011-06-06 19:25:36Z chrfranke $
+# $Id: smartd.initd.in 3721 2012-12-11 19:47:41Z chrfranke $
 
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -227,6 +227,15 @@ elif [ -f /etc/SuSE-release ] ; then
     if test -n "$SMARTD_DRIVEDB" ; then
        smartd_opts="$smartd_opts -B $SMARTD_DRIVEDB"
     fi
+    if test "$SMARTD_SAVESTATES" = "no" ; then
+	smartd_opts="$smartd_opts -s \"\""
+    fi
+    if test "$SMARTD_ATTRLOG" = "no" ; then
+	smartd_opts="$smartd_opts -A \"\""
+    fi
+    if test -n "$SMARTD_EXTRA_OPTS" ; then
+	smartd_opts="$smartd_opts $SMARTD_EXTRA_OPTS"
+    fi
 
     # Shell functions sourced from /etc/rc.status:
     #      rc_check         check and set local and overall rc status
@@ -269,7 +278,7 @@ elif [ -f /etc/SuSE-release ] ; then
 
 	    # We don't use startproc - we need to check for return code 17.
 	    if ! /sbin/checkproc $SMARTD_BIN ; then
-		$SMARTD_BIN $smartd_opts
+		eval $SMARTD_BIN$smartd_opts
 		# Remember status and be verbose
 		if test $? -ne 17 ; then
 		    rc_status -v
