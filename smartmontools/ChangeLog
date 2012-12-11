@@ -1,4 +1,9 @@
-$Id: ChangeLog 3723 2012-12-11 21:14:36Z chrfranke $
+$Id: ChangeLog 3724 2012-12-11 22:22:38Z chrfranke $
+
+2012-12-11  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add '-w PATH, --warnexec=PATH' option.
+	smartd.8.in: Document this option.
 
 2012-12-11  Christian Franke  <franke@computer.org>
 
