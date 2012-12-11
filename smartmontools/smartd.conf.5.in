@@ -490,6 +490,14 @@ to the default value 1.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
 .\" %ENDIF OS FreeBSD Linux
+.I ignore
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+the device specified by this configuration entry should be ignored.
+This allows to ignore specific devices which are detected by a following
+DEVICESCAN configuration line.
+It may also be used to temporary disable longer multi-line configuration entries.
+This Directive may be used in conjunction with the other \'\-d\' Directives.
+
 .I removable
 \- the device or its media is removable.  This indicates to
 \fBsmartd\fP
@@ -1517,9 +1525,6 @@ string \fBDEVICESCAN\fP in capital letters, then \fBsmartd\fP will
 ignore any remaining lines in the configuration file, and will scan
 for devices.
 
-Configuration entries for devices not found by the platform\-specific
-device scanning may precede the \fBDEVICESCAN\fP entry.
-
 If \fBDEVICESCAN\fP is not followed by any Directives, then smartd
 will scan for both ATA and SCSI devices, and will monitor all possible
 SMART properties of any devices that are found.
@@ -1542,6 +1547,20 @@ will do the same, but restricts the scan to ATA devices only.
 will do the same, but only monitors the SMART health status of the
 devices, (rather than the default \-a, which monitors all SMART
 properties).
+
+[NEW EXPERIMENTAL SMARTD FEATURE]
+Configuration entries for specific devices may precede the \fBDEVICESCAN\fP entry.
+For example
+.nf
+.B  DEFAULT -m root@example.com
+.B  /dev/sda -s S/../.././02
+.B  /dev/sdc -d ignore
+.B  DEVICESCAN -s L/../.././02
+.fi
+will scan for all devices except /dev/sda and /dev/sdc, monitor them, and run a long
+test between 2-3am every morning.  Device /dev/sda will also be monitored, but
+only a short test will be run.  Device /dev/sdc will be ignored.
+Warning emails will be sent for all monitored devices.
 
 .TP
 .B EXAMPLES OF SHELL SCRIPTS FOR \'\-M exec\'

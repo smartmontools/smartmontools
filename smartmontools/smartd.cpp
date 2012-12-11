@@ -249,6 +249,7 @@ struct dev_config
   std::string dev_idinfo;                 // Device identify info for warning emails
   std::string state_file;                 // Path of the persistent state file, empty if none
   std::string attrlog_file;               // Path of the persistent attrlog file, empty if none
+  bool ignore;                            // Ignore this entry
   bool smartcheck;                        // Check SMART status
   bool usagefailed;                       // Check for failed Usage Attributes
   bool prefail;                           // Track changes in Prefail Attributes
@@ -307,6 +308,7 @@ struct dev_config
 
 dev_config::dev_config()
 : lineno(0),
+  ignore(false),
   smartcheck(false),
   usagefailed(false),
   prefail(false),
@@ -1423,7 +1425,7 @@ static void Directives()
 {
   PrintOut(LOG_INFO,
            "Configuration file (%s) Directives (after device name):\n"
-           "  -d TYPE Set the device type: auto, removable,\n"
+           "  -d TYPE Set the device type: auto, ignore, removable,\n"
            "          %s\n"
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
@@ -3712,6 +3714,8 @@ static int ParseToken(char * token, dev_config & cfg)
     // specify the device type
     if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
+    } else if (!strcmp(arg, "ignore")) {
+      cfg.ignore = true;
     } else if (!strcmp(arg, "removable")) {
       cfg.removable = true;
     } else if (!strcmp(arg, "auto")) {
@@ -4788,17 +4792,28 @@ static bool is_raid_type(const char * type)
   return true;
 }
 
-// Return true if DEV is already in DEVICES[0..NUMDEVS)
-static bool is_duplicate_device(const smart_device * dev, const smart_device_list & devices, unsigned numdevs)
+// Return true if DEV is already in DEVICES[0..NUMDEVS) or IGNORED[*]
+static bool is_duplicate_device(const smart_device * dev,
+                                const smart_device_list & devices, unsigned numdevs,
+                                const dev_config_vector & ignored)
 {
+  const smart_device::device_info & info1 = dev->get_info();
+  bool is_raid1 = is_raid_type(info1.dev_type.c_str());
+
   for (unsigned i = 0; i < numdevs; i++) {
-    const smart_device::device_info & info1 = dev->get_info();
     const smart_device::device_info & info2 = devices.at(i)->get_info();
     // -d TYPE options must match if RAID drive number is specified
     if (   info1.dev_name == info2.dev_name
         && (   info1.dev_type == info2.dev_type
-            || !is_raid_type(info1.dev_type.c_str())
-            || !is_raid_type(info2.dev_type.c_str())))
+            || !is_raid1 || !is_raid_type(info2.dev_type.c_str())))
+      return true;
+  }
+
+  for (unsigned i = 0; i < ignored.size(); i++) {
+    const dev_config & cfg2 = ignored.at(i);
+    if (   info1.dev_name == cfg2.dev_name
+        && (   info1.dev_type == cfg2.dev_type
+            || !is_raid1 || !is_raid_type(cfg2.dev_type.c_str())))
       return true;
   }
   return false;
@@ -4816,10 +4831,21 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
   states.clear();
 
   // Register entries
+  dev_config_vector ignored_entries;
   unsigned numnoscan = 0;
   for (unsigned i = 0; i < conf_entries.size(); i++){
 
     dev_config cfg = conf_entries[i];
+
+    if (cfg.ignore) {
+      // Store for is_duplicate_device() check and ignore
+      PrintOut(LOG_INFO, "Device: %s%s%s%s, ignored\n", cfg.name.c_str(),
+               (!cfg.dev_type.empty() ? " [" : ""),
+               cfg.dev_type.c_str(),
+               (!cfg.dev_type.empty() ? "]" : ""));
+      ignored_entries.push_back(cfg);
+      continue;
+    }
 
     // get device of appropriate type
     smart_device_auto_ptr dev;
@@ -4830,7 +4856,8 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
       dev = scanned_devs.release(i);
       if (dev) {
         // Check for a preceding non-DEVICESCAN entry for the same device
-        if (numnoscan && is_duplicate_device(dev.get(), devices, numnoscan)) {
+        if (  (numnoscan || !ignored_entries.empty())
+            && is_duplicate_device(dev.get(), devices, numnoscan, ignored_entries)) {
           PrintOut(LOG_INFO, "Device: %s, duplicate, ignored\n", dev->get_info_name());
           continue;
         }

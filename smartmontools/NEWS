@@ -12,6 +12,8 @@ Summary: smartmontools release 6.1
 - smartctl: Fix parsing of '-l select,cont+SIZE' option.
 - smartd runs /etc/smartd_warning.sh to generate warning emails
   (Windows: smartd_warning.cmd).
+- smartd '-d ignore' directive.
+- smartd DEVICESCAN ignores devices already specified.
 - Linux: Support for SAS disks behind Areca controllers.
 - FreeBSD: Support for SAS disks behind Areca controllers.
 - FreeBSD: Enhanced ATA command support for 3ware.
