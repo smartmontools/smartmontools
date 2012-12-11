@@ -107,10 +107,12 @@ devices that support SMART.  The scanning is done as follows:
 Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a-z]"\fP, \fB"/dev/sd[a-c][a-z]"\fP
 for SCSI or SATA devices.
+Disks behind RAID controllers are not included.
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD
 .IP \fBFREEBSD:\fP 9
 Authoritative list of disk devices is obtained from SCSI (CAM) and ATA subsystems.
+Disks behind RAID controllers are not included.
 .\" %ENDIF OS FreeBSD
 .\" %IF OS NetBSD OpenBSD
 .IP \fBNETBSD/OPENBSD:\fP 9
@@ -139,12 +141,13 @@ detected behind this controller. Same for a second controller if present.
 If directive \'\-d csmi\' or no \'\-d\' directive is specified,
 examine all entries \fB"/dev/csmi[0\-9],N"\fP for drives behind an Intel
 ICHxR controller with RST driver.
+
+Disks behind Areca RAID controllers are not included.
 .\" %ENDIF OS Windows Cygwin
 .PP
 \fBsmartd\fP then monitors
 for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
-Directive in the configuration file; see \fBCONFIGURATION FILE\fP
-below). 
+Directive in the configuration file; see the \fBsmartd.conf\fP(5) man page).
 
 .SH 
 OPTIONS
