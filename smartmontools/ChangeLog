@@ -2,6 +2,11 @@ $Id$
 
 2012-12-11  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Add '-w PATH, --warnexec=PATH' option.
+	smartd.8.in: Document this option.
+
+2012-12-11  Christian Franke  <franke@computer.org>
+
 	smartd.cpp: Add '-d ignore' directive.
 	smartd.conf.5.in: Document '-d ignore'.  Add DEVICESCAN example.
 	Remove duplicate and outdated info about device scanning.

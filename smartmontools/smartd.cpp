@@ -1484,6 +1484,7 @@ static const char *GetValidArgList(char opt)
     return "ioctl[,N], ataioctl[,N], scsiioctl[,N]";
   case 'B':
   case 'p':
+  case 'w':
     return "<FILE_NAME>";
   case 'i':
     return "<INTEGER_SECONDS>";
@@ -1548,6 +1549,13 @@ static void Usage()
   PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_SAVESTATES"MODEL-SERIAL.TYPE.state]\n");
 #endif
   PrintOut(LOG_INFO,"\n");
+  PrintOut(LOG_INFO,"  -w NAME, --warnexec=NAME\n");
+  PrintOut(LOG_INFO,"        Run executable NAME on warnings\n");
+#ifndef _WIN32
+  PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_SYSCONFDIR"/smartd_warning.sh]\n\n");
+#else
+  PrintOut(LOG_INFO,"        [default is %s/smartd_warning.cmd]\n\n", get_exe_dir().c_str());
+#endif
 #ifdef _WIN32
   PrintOut(LOG_INFO,"  --service\n");
   PrintOut(LOG_INFO,"        Running as windows service (see man page), install with:\n");
@@ -4396,7 +4404,7 @@ static void ParseOpts(int argc, char **argv)
 #endif
 
   // Please update GetValidArgList() if you edit shortopts
-  static const char shortopts[] = "c:l:q:dDni:p:r:s:A:B:Vh?"
+  static const char shortopts[] = "c:l:q:dDni:p:r:s:A:B:w:Vh?"
 #ifdef HAVE_LIBCAP_NG
                                                           "C"
 #endif
@@ -4419,6 +4427,7 @@ static void ParseOpts(int argc, char **argv)
     { "savestates",     required_argument, 0, 's' },
     { "attributelog",   required_argument, 0, 'A' },
     { "drivedb",        required_argument, 0, 'B' },
+    { "warnexec",       required_argument, 0, 'w' },
     { "version",        no_argument,       0, 'V' },
     { "license",        no_argument,       0, 'V' },
     { "copyright",      no_argument,       0, 'V' },
@@ -4579,6 +4588,9 @@ static void ParseOpts(int argc, char **argv)
           EXIT(EXIT_BADCMD);
         debugmode = savedebug;
       }
+      break;
+    case 'w':
+      warning_script = optarg;
       break;
     case 'V':
       // print version and CVS info

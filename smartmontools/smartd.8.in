@@ -447,6 +447,21 @@ always (re)written after reading the configuration file, before rereading
 the configuration file (SIGHUP), before smartd shutdown, and after a check
 forced by SIGUSR1. After a normal check cycle, a file is only rewritten if
 an important change (which usually results in a SYSLOG output) occurred.
+.TP
+.B \-w PATH, \-\-warnexec=PATH
+Run the executable PATH instead of the default script when smartd
+needs to send warning messages.  PATH must point to an executable binary
+file or script.
+The default script is
+.\" %IF NOT OS Windows
+/usr/local/etc/smartd_warning.sh.
+.\" %ENDIF NOT OS Windows
+.\" %IF OS ALL
+(Windows: EXEDIR/smartd_warning.cmd)
+.\" %ENDIF OS ALL
+.\" %IF OS Windows
+.\"! EXEDIR/smartd_warning.cmd.
+.\" %ENDIF OS Windows
 .\" %IF OS Windows
 .TP
 .B \-\-service
