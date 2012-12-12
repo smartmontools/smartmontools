@@ -21,11 +21,6 @@
  *
  */
 
-#ifndef _GNU_SOURCE
-// TODO: Why is this define necessary?
-#define _GNU_SOURCE
-#endif
-
 // unconditionally included files
 #include <stdio.h>
 #include <sys/types.h>
