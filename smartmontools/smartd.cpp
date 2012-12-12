@@ -21,11 +21,6 @@
  *
  */
 
-#ifndef _GNU_SOURCE
-// TODO: Why is this define necessary?
-#define _GNU_SOURCE
-#endif
-
 // unconditionally included files
 #include <stdio.h>
 #include <sys/types.h>
@@ -112,7 +107,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3724 2012-12-11 22:22:38Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3725 2012-12-12 19:56:28Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
