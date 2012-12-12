@@ -40,10 +40,6 @@
 #include <sys/param.h>
 #endif
 
-#if defined(__QNXNTO__) 
-#include <new> // TODO: Why is this include necessary on QNX ?
-#endif
-
 #include "int64.h"
 #include "atacmds.h"
 #include "dev_interface.h"

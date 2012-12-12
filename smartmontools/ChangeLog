@@ -2,6 +2,8 @@ $Id$
 
 2012-12-12  Christian Franke  <franke@computer.org>
 
+	smartctl.cpp: Remove include <new> for QNXNTO.
+	Should only be needed if placement new is used.
 	smartd.cpp: Remove very old _GNU_SOURCE define.
 	It was added 10 years ago in r147.  It is not (or no longer) needed
 	and has an unwanted side effect (__USE_MINGW_ANSI_STDIO) on MinGW.
