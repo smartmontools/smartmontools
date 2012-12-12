@@ -40,10 +40,6 @@
 #include <sys/param.h>
 #endif
 
-#if defined(__QNXNTO__) 
-#include <new> // TODO: Why is this include necessary on QNX ?
-#endif
-
 #include "int64.h"
 #include "atacmds.h"
 #include "dev_interface.h"
@@ -54,7 +50,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3719 2012-12-03 21:19:33Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3726 2012-12-12 20:02:48Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
