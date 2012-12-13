@@ -23,7 +23,7 @@
 #ifndef ATACMDNAMES_H_
 #define ATACMDNAMES_H_
 
-#define ATACMDNAMES_H_CVSID "$Id: atacmdnames.h,v 1.6 2008/03/04 22:09:47 ballen4705 Exp $\n"
+#define ATACMDNAMES_H_CVSID "$Id: atacmdnames.h 3728 2012-12-13 17:57:50Z chrfranke $\n"
 
 /* Returns the name of the command (and possibly sub-command) with the given
    command code and feature register values. */

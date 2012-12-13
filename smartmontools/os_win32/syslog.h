@@ -19,7 +19,7 @@
 #ifndef SYSLOG_H
 #define SYSLOG_H
 
-#define SYSLOG_H_CVSID "$Id: syslog.h,v 1.6 2008/03/04 22:09:48 ballen4705 Exp $\n"
+#define SYSLOG_H_CVSID "$Id: syslog.h 3728 2012-12-13 17:57:50Z chrfranke $\n"
 
 #include <stdarg.h>
 
