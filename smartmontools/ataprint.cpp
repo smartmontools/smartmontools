@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3719 2012-12-03 21:19:33Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3729 2012-12-13 19:56:13Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -566,6 +566,15 @@ static void print_drive_info(const ata_identify_device * drive,
     int naa = ata_get_wwn(drive, oui, unique_id);
     if (naa >= 0)
       pout("LU WWN Device Id: %x %06x %09"PRIx64"\n", naa, oui, unique_id);
+
+    // Additional Product Identifier (OEM Id) string in words 170-173
+    // (e08130r1, added in ACS-2 Revision 1, December 17, 2008)
+    if (0x2020 <= drive->words088_255[170-88] && drive->words088_255[170-88] <= 0x7e7e) {
+      char add[8+1];
+      ata_format_id_string(add, (const unsigned char *)(drive->words088_255+170-88), sizeof(add)-1);
+      if (add[0])
+        pout("Add. Product Id:  %s\n", add);
+    }
   }
   pout("Firmware Version: %s\n", infofound(firmware));
 

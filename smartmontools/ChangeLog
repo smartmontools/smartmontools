@@ -1,4 +1,8 @@
-$Id: ChangeLog 3727 2012-12-13 17:23:06Z samm2 $
+$Id: ChangeLog 3729 2012-12-13 19:56:13Z chrfranke $
+
+2012-12-13  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print Additional Product Identifier (OEM Id).
 
 2012-12-13  Stanislav Brabec  <sbrabec@suse.cz>
 

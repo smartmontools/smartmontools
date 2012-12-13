@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3724 2012-12-11 22:22:38Z chrfranke $
+$Id: NEWS 3729 2012-12-13 19:56:13Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -10,6 +10,7 @@ Summary: smartmontools release 6.1
 -----------------------------------------------------------
 - smartctl '-l directory': improved output format.
 - smartctl: Fix parsing of '-l select,cont+SIZE' option.
+- smartctl prints ATA Additional Product Id (OEM Id).
 - smartd runs /etc/smartd_warning.sh to generate warning emails
   (Windows: smartd_warning.cmd).
 - smartd '-w PATH' option to specify this executable.
