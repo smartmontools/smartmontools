@@ -312,8 +312,7 @@ SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
 the other 16 bytes long.  The default is the 16 byte variant which can be
 overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
 
-[NEW EXPERIMENTAL SMARTCTL FEATURE] If \'-d sat,auto\' is specified,
-device type SAT (for ATA/SATA disks) is
+If \'\-d sat,auto\' is specified, device type SAT (for ATA/SATA disks) is
 only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
 Otherwise device type SCSI (for SCSI/SAS disks) is used.
 
@@ -806,7 +805,7 @@ type applications you might consider using \fIoff\fP to set the GLTSD
 bit.
 .TP
 .B \-g NAME, \-\-get=NAME, \-s NAME[,VALUE], \-\-set=NAME[,VALUE]
-[NEW EXPERIMENTAL SMARTCTL FEATURE] Gets/sets non\-SMART device settings.
+Gets/sets non\-SMART device settings.
 Note that the \'\-\-set\' option shares its short option \'\-s\' with
 \'\-\-smart\'.  Valid arguments are:
 
@@ -867,11 +866,13 @@ the drive.  The setting of the standby timer is not affected.
 The write cache is usually enabled by default.
 
 .I wcache[,on|off]
-\- [SCSI] Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
+\- [SCSI] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
 The write cache is usually enabled by default.
 
 .I rcache[,on|off]
-\- [SCSI only] Gets/sets the \'Read Cache Disable\' (RCE) bit. \'Off\' value disables read cache
+\- [SCSI only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+Gets/sets the \'Read Cache Disable\' (RCE) bit. \'Off\' value disables read cache
 (if supported).
 The read cache is usually enabled by default.
 

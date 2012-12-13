@@ -449,18 +449,19 @@ forced by SIGUSR1. After a normal check cycle, a file is only rewritten if
 an important change (which usually results in a SYSLOG output) occurred.
 .TP
 .B \-w PATH, \-\-warnexec=PATH
+[NEW EXPERIMENTAL SMARTD FEATURE]
 Run the executable PATH instead of the default script when smartd
 needs to send warning messages.  PATH must point to an executable binary
 file or script.
 The default script is
 .\" %IF NOT OS Windows
-/usr/local/etc/smartd_warning.sh.
+\fB/usr/local/etc/smartd_warning.sh\fP.
 .\" %ENDIF NOT OS Windows
 .\" %IF OS ALL
 (Windows: EXEDIR/smartd_warning.cmd)
 .\" %ENDIF OS ALL
 .\" %IF OS Windows
-.\"! EXEDIR/smartd_warning.cmd.
+.\"! \fBEXEDIR/smartd_warning.cmd\fP.
 .\" %ENDIF OS Windows
 .\" %IF OS Windows
 .TP

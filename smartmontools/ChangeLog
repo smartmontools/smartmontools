@@ -2,6 +2,10 @@ $Id$
 
 2012-12-13  Christian Franke  <franke@computer.org>
 
+	man pages: Update EXPERIMENTAL notes.
+
+2012-12-13  Christian Franke  <franke@computer.org>
+
 	ataprint.cpp: Print Additional Product Identifier (OEM Id).
 
 2012-12-13  Stanislav Brabec  <sbrabec@suse.cz>
