@@ -10,6 +10,7 @@ Summary: smartmontools release 6.1
 -----------------------------------------------------------
 - smartctl '-l directory': improved output format.
 - smartctl: Fix parsing of '-l select,cont+SIZE' option.
+- smartctl prints ATA Additional Product Id (OEM Id).
 - smartd runs /etc/smartd_warning.sh to generate warning emails
   (Windows: smartd_warning.cmd).
 - smartd '-w PATH' option to specify this executable.

@@ -1,5 +1,9 @@
 $Id$
 
+2012-12-13  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print Additional Product Identifier (OEM Id).
+
 2012-12-13  Stanislav Brabec  <sbrabec@suse.cz>
 
 	Update FSF postal address in all files.
