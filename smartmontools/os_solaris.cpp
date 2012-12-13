@@ -39,9 +39,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.32 2008/06/12 21:46:31 ballen4705 Exp $";
+static const char *filenameandversion="$Id$";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.32 2008/06/12 21:46:31 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id$" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions

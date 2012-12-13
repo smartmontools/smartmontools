@@ -25,7 +25,7 @@
 #ifndef OS_SOLARIS_H_
 #define OS_SOLARIS_H_
 
-#define OS_SOLARIS_H_CVSID "$Id: os_solaris.h,v 1.14 2008/03/04 22:09:47 ballen4705 Exp $\n"
+#define OS_SOLARIS_H_CVSID "$Id$\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include

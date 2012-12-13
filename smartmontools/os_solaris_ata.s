@@ -97,7 +97,7 @@
 	.section	".rodata"
 	.align 8
 .LLC0:
-	.asciz	"$Id: os_solaris_ata.s,v 1.6 2008/03/04 22:09:47 ballen4705 Exp $"
+	.asciz	"$Id$"
 	.global os_solaris_ata_s_cvsid
 	.section	".data"
 	.align 4

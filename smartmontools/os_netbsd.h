@@ -24,7 +24,7 @@
 #ifndef OS_NETBSD_H_
 #define OS_NETBSD_H_
 
-#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.10 2008/03/04 22:09:47 ballen4705 Exp $\n"
+#define OS_NETBSD_H_CVSID "$Id$\n"
 
 #include <sys/device.h>
 #include <sys/param.h>
