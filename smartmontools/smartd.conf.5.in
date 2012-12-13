@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3723 2012-12-11 21:14:36Z chrfranke $
+$Id: smartd.conf.5.in 3730 2012-12-13 20:22:45Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -357,8 +357,7 @@ SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
 the other 16 bytes long.  The default is the 16 byte variant which can be
 overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
 
-[NEW EXPERIMENTAL SMARTD FEATURE] If \'-d sat,auto\' is specified,
-device type SAT (for ATA/SATA disks) is
+If \'\-d sat,auto\' is specified, device type SAT (for ATA/SATA disks) is
 only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
 Otherwise device type SCSI (for SCSI/SAS disks) is used.
 
@@ -660,9 +659,9 @@ not supported.  For RAID configurations, this is typically set to
 [Please see the \fBsmartctl \-l scterc\fP command-line option.]
 
 .TP
-.B -e NAME[,VALUE]
-[NEW EXPERIMENTAL SMARTD FEATURE] Sets non\-SMART device settings
-when \fBsmartd\fP starts up and has no further effect.
+.B \-e NAME[,VALUE]
+Sets non\-SMART device settings when \fBsmartd\fP starts up and has no
+further effect.
 [Please see the \fBsmartctl \-\-set\fP command-line option.]
 Valid arguments are:
 
@@ -1647,4 +1646,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3723 2012-12-11 21:14:36Z chrfranke $
+$Id: smartd.conf.5.in 3730 2012-12-13 20:22:45Z chrfranke $
