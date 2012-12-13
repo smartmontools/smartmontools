@@ -1211,7 +1211,7 @@ SL directory by \'\-l directory,q\' or \'\-l directory,s\' respectively.
 
 .I background
 \- [SCSI only] the background scan results log outputs information derived
-from Background Media Scans (BMS) done after power up and/or periodocally
+from Background Media Scans (BMS) done after power up and/or periodically
 (e.g. every 24 hours) on recent SCSI disks. If supported, the BMS status
 is output first, indicating whether a background scan is currently
 underway (and if so a progress percentage), the amount of time the disk
@@ -1219,7 +1219,7 @@ has been powered up and the number of scans already completed. Then there
 is a header and a line for each background scan "event". These will
 typically be either recovered or unrecoverable errors. That latter group
 may need some attention. There is a description of the background scan
-mechansim in section 4.18 of SBC\-3 revision 6 (see www.t10.org ).
+mechanism in section 4.18 of SBC\-3 revision 6 (see www.t10.org ).
 
 .I scttemp, scttempsts, scttemphist
 \- [ATA only] prints the disk temperature information provided by the
