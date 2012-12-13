@@ -11,12 +11,12 @@
 ; * any later version.
 ; *
 ; * You should have received a copy of the GNU General Public License
-; * (for example COPYING); if not, write to the Free
-; * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+; * (for example COPYING); if not, write to the Free Software Foundation,
+; * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ; *
 ; */
 ;
-;// $Id: syslogevt.mc 3166 2010-09-24 19:43:31Z chrfranke $
+;// $Id: syslogevt.mc 3727 2012-12-13 17:23:06Z samm2 $
 ;
 ;// Use message compiler "mc" or "windmc" to generate
 ;//   syslogevt.rc, syslogevt.h, msg00001.bin

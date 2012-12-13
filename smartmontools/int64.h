@@ -12,15 +12,15 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
 
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h 3475 2011-11-10 21:43:40Z chrfranke $"
+#define INT64_H_CVSID "$Id: int64.h 3727 2012-12-13 17:23:06Z samm2 $"
 
 // 64 bit integer typedefs and format strings
 
