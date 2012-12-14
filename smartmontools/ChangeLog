@@ -1,5 +1,9 @@
 $Id$
 
+2012-12-14  Christian Franke  <franke@computer.org>
+
+	man pages: Fix usage of Hyphen (-) and Minus sign (\-).
+
 2012-12-13  Christian Franke  <franke@computer.org>
 
 	man pages: Update EXPERIMENTAL notes.

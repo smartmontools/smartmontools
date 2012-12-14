@@ -39,14 +39,14 @@ CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .\"! It does not contain info specific to other platforms.]
 .\"! .PP
 .\" %ENDIF NOT OS ALL
-\fBsmartd\fP is a daemon that monitors the Self\-Monitoring, Analysis and
+\fBsmartd\fP is a daemon that monitors the Self-Monitoring, Analysis and
 Reporting Technology (SMART) system built into most ATA/SATA and SCSI/SAS
 hard drives and solid-state drives.
 The purpose of SMART is to monitor the reliability of the hard drive
 and predict drive failures, and to carry out different types of drive
-self\-tests.
+self-tests.
 This version of \fBsmartd\fP is compatible with
-ACS\-2, ATA8\-ACS, ATA/ATAPI\-7 and earlier standards
+ACS-2, ATA8-ACS, ATA/ATAPI-7 and earlier standards
 (see \fBREFERENCES\fP below).
 
 \fBsmartd\fP will attempt to enable SMART monitoring on ATA devices
@@ -60,7 +60,7 @@ command-line option described below.
 
 In addition to logging to a file, \fBsmartd\fP can also be configured
 to send email warnings if problems are detected.  Depending upon the
-type of problem, you may want to run self\-tests on the disk, back up
+type of problem, you may want to run self-tests on the disk, back up
 the disk, replace the disk, or use a manufacturer\'s utility to force
 reallocation of bad or unreadable disk sectors.  If disk problems are
 detected, please see the \fBsmartctl\fP manual page and the
@@ -92,11 +92,11 @@ the contents of the (faulty) configuration file, as if the \fBHUP\fP
 signal had never been received.
 
 When \fBsmartd\fP is running in debug mode, the \fBINT\fP signal
-(normally generated from a shell with CONTROL\-C) is treated in the
+(normally generated from a shell with CONTROL-C) is treated in the
 same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
 configuration file. To exit \fBsmartd\fP use CONTROL-\e
 .\" %IF OS Windows
-(Windows: CONTROL\-Break).
+(Windows: CONTROL-Break).
 .\" %ENDIF OS Windows
 
 On startup, in the absence of the configuration file
@@ -210,10 +210,10 @@ information to STDOUT rather than logging it to SYSLOG and does not
 terminal.  In this mode, \fBsmartd\fP also prints more verbose
 information about what it is doing than when operating in "daemon"
 mode. In this mode, the \fBINT\fP signal (normally generated from a
-terminal with CONTROL\-C) makes \fBsmartd\fP reload its configuration
+terminal with CONTROL-C) makes \fBsmartd\fP reload its configuration
 file.  Please use CONTROL-\e to exit
 .\" %IF OS Windows
-(Windows: CONTROL\-Break).
+(Windows: CONTROL-Break).
 
 [Windows only] The "debug" mode can be toggled by the command
 \fBsmartd sigusr2\fP. A new console for debug output is opened when
@@ -309,8 +309,8 @@ log output is redirected as follows:
 
 When using the event log, the enclosed utility \fBsyslogevt.exe\fP
 should be registered as an event message file to avoid error
-messages from the event viewer. Use \'\fBsyslogevt -r smartd\fP\'
-to register, \'\fBsyslogevt -u smartd\fP\' to unregister and
+messages from the event viewer. Use \'\fBsyslogevt \-r smartd\fP\'
+to register, \'\fBsyslogevt \-u smartd\fP\' to unregister and
 \'\fBsyslogevt\fP\' for more help.
 .\" %ENDIF OS Windows
 .TP
@@ -384,7 +384,7 @@ a list of future scheduled self tests to stdout, and then exit with zero
 exit status if all of these steps worked correctly.
 Device's SMART status is not checked.
 
-This option is intended to test whether the '-s REGEX' directives in
+This option is intended to test whether the '\-s REGEX' directives in
 smartd.conf will have the desired effect. The output lists the next test
 schedules, limited to 5 tests per type and device. This is followed by a
 summary of all tests of each device within the next 90 days.
@@ -431,7 +431,7 @@ If this option is not specified, state information is maintained in files
 \'/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\' for ATA devices and
 \'/usr/local/var/lib/smartmontools/smartd.VENDOR\-MODEL\-SERIAL.scsi.state\' for SCSI devices.
 To disable state files, specify this option with an empty string
-argument: \'-s ""\'.
+argument: \'\-s ""\'.
 .\" %ENDIF ENABLE_SAVESTATES
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
@@ -580,7 +580,7 @@ to read:
        ...;daemon.info;...          /var/adm/messages
 .fi
 Alternatively, you can use a local facility to log messages: please
-see the \fBsmartd\fP '-l' command-line option described above.
+see the \fBsmartd\fP '\-l' command-line option described above.
 
 .\" %ENDIF OS Solaris
 .\" %IF OS Cygwin
@@ -597,7 +597,7 @@ The service can be started and stopped by the start-up script as usual
 .\" %ENDIF OS Cygwin
 .\" %IF OS Windows
 On Windows, the log messages are written to the event log or to a file.
-See documentation of the '-l FACILITY' option above for details.
+See documentation of the '\-l FACILITY' option above for details.
 
 On Windows, the following built-in commands can be used to control
 \fBsmartd\fP, if running as a daemon:
@@ -627,14 +627,14 @@ Upon startup, the smartd service changes the working directory
 to its own installation path. If smartd.conf and blat.exe are stored
 in this directory, no \'-c\' option and \'-M exec\' directive is needed.
 
-The debug mode (\'-d\', \'-q onecheck\') does not work if smartd is
+The debug mode (\'\-d\', \'\-q onecheck\') does not work if smartd is
 running as service.
 
 The service can be controlled as usual with Windows commands \'net\'
 or \'sc\' (\'\fBnet start smartd\fP\', \'\fBnet stop smartd\fP\').
 
 Pausing the service (\'\fBnet pause smartd\fP\') sets the interval between
-disk checks (\'-i N\') to infinite.
+disk checks (\'\-i N\') to infinite.
 
 Continuing the paused service (\'\fBnet continue smartd\fP\') resets the
 interval and rereads the configuration file immediately (like \fBSIGHUP\fP):
@@ -681,7 +681,7 @@ Forking the daemon failed.
 Couldn\'t create PID file.
 .TP
 .B 5:
-Config file does not exist (only returned in conjunction with the \'-c\' option).
+Config file does not exist (only returned in conjunction with the \'\-c\' option).
 .TP
 .B 6:
 Config file exists, but cannot be read.
@@ -761,7 +761,7 @@ Many other individuals have made smaller contributions and corrections.
 .fi
 This code was derived from the smartsuite package, written by Michael
 Cornwell, and from the previous UCSC smartsuite package.  It extends
-these to cover ATA\-5 disks.  This code was originally developed as a
+these to cover ATA-5 disks.  This code was originally developed as a
 Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
@@ -782,18 +782,18 @@ REFERENCES FOR SMART
 .fi
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
-pages 74\-77. This is \fBhttp://www.linuxjournal.com/article/6983\fP
+pages 74-77. This is \fBhttp://www.linuxjournal.com/article/6983\fP
 online.
 
 If you would like to understand better how SMART works, and what it
 does, a good place to start is with Sections 4.8 and 6.54 of the first
-volume of the \'AT Attachment with Packet Interface\-7\' (ATA/ATAPI\-7)
+volume of the \'AT Attachment with Packet Interface-7\' (ATA/ATAPI-7)
 specification Revision 4b.  This documents the SMART functionality which the
 \fBsmartmontools\fP utilities provide access to.
 
 .fi
-The functioning of SMART was originally defined by the SFF\-8035i
-revision 2 and the SFF\-8055i revision 1.4 specifications.  These are
+The functioning of SMART was originally defined by the SFF-8035i
+revision 2 and the SFF-8055i revision 1.4 specifications.  These are
 publications of the Small Form Factors (SFF) Committee.
 
 Links to these and other documents may be found on the Links page of the

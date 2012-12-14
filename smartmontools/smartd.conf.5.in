@@ -333,7 +333,7 @@ Specifies the type of the device.
 The valid arguments to this directive are:
 
 .I auto
-- attempt to guess the device type from the device name or from
+\- attempt to guess the device type from the device name or from
 controller type info provided by the operating system or from
 a matching USB ID entry in the drive database.
 This is the default.
@@ -369,7 +369,7 @@ with \'\-d usbcypress,0xN\', where N is the scsi operation code,
 you're running the risk of damage to the device or filesystems on it.
 
 .I usbjmicron
-- this device type is for SATA disks that are behind a JMicron USB to
+\- this device type is for SATA disks that are behind a JMicron USB to
 PATA/SATA bridge.  The 48-bit ATA commands (required e.g. for \'\-l xerror\',
 see below) do not work with all of these bridges and are therefore disabled by
 default.  These commands can be enabled by \'\-d usbjmicron,x\'.
@@ -484,25 +484,25 @@ power consumption they are: \'OFF\', \'SLEEP\', \'STANDBY\', \'IDLE\',
 and \'ACTIVE\'.  Typically in the OFF, SLEEP, and STANDBY modes the
 disk\'s platters are not spinning. But usually, in response to SMART
 commands issued by \fBsmartd\fP, the disk platters are spun up.  So if
-this option is not used, then a disk which is in a low\-power mode may
-be spun up and put into a higher\-power mode when it is periodically
+this option is not used, then a disk which is in a low-power mode may
+be spun up and put into a higher-power mode when it is periodically
 polled by \fBsmartd\fP.
 
 Note that if the disk is in SLEEP mode when \fBsmartd\fP is started,
 then it won't respond to \fBsmartd\fP commands, and so the disk won't
 be registered as a device for \fBsmartd\fP to monitor. If a disk is in
-any other low\-power mode, then the commands issued by \fBsmartd\fP to
-register the disk will probably cause it to spin\-up.
+any other low-power mode, then the commands issued by \fBsmartd\fP to
+register the disk will probably cause it to spin-up.
 
 The \'\fB\-n\fP\' (nocheck) Directive specifies if \fBsmartd\fP\'s
 periodic checks should still be carried out when the device is in a
-low\-power mode.  It may be used to prevent a disk from being spun\-up
+low-power mode.  It may be used to prevent a disk from being spun-up
 by periodic \fBsmartd\fP polling.  The allowed values of POWERMODE
 are:
 
 .I never
 \- \fBsmartd\fP will poll (check) the device regardless of its power
-mode. This may cause a disk which is spun\-down to be spun\-up when
+mode. This may cause a disk which is spun-down to be spun-up when
 \fBsmartd\fP checks it.  This is the default behavior if the '\-n'
 Directive is not given.
 
@@ -545,7 +545,7 @@ continue if an optional SMART command fails.  This is the default.
 .I permissive
 \- try to monitor the disk even if it appears to lack SMART
 capabilities.  This may be required for some old disks (prior to
-ATA\-3 revision 4) that implemented SMART before the SMART standards
+ATA-3 revision 4) that implemented SMART before the SMART standards
 were incorporated into the ATA/ATAPI Specifications.
 [Please see the \fBsmartctl \-T\fP command-line option.]
 .TP
@@ -611,9 +611,9 @@ command-line option.
 options.]
 
 [ATA only] Failed self-tests outdated by a newer successful extended
-self\-test are ignored.  The warning email counter is reset if the
+self-test are ignored.  The warning email counter is reset if the
 number of failed self tests dropped to 0.  This typically happens when
-an extended self\-test is run after all bad sectors have been reallocated.
+an extended self-test is run after all bad sectors have been reallocated.
 
 .I offlinests[,ns]
 \- [ATA only] report if the Offline Data Collection status has changed
@@ -660,7 +660,7 @@ not supported.  For RAID configurations, this is typically set to
 
 .TP
 .B \-e NAME[,VALUE]
-Sets non\-SMART device settings when \fBsmartd\fP starts up and has no
+Sets non-SMART device settings when \fBsmartd\fP starts up and has no
 further effect.
 [Please see the \fBsmartctl \-\-set\fP command-line option.]
 Valid arguments are:
@@ -810,7 +810,7 @@ disk is active again.
 
 Unix users: please beware that the rules for extended regular
 expressions [regex(7)] are \fBnot\fP the same as the rules for
-file\-name pattern matching by the shell [glob(7)].  \fBsmartd\fP will
+file-name pattern matching by the shell [glob(7)].  \fBsmartd\fP will
 issue harmless informational warning messages if it detects characters
 in \fBREGEXP\fP that appear to indicate that you have made this
 mistake.
@@ -1029,7 +1029,7 @@ it takes and their meanings are:
 read and are marked to be reallocated (replaced with spare sectors).
 .nf
 .fi
-\fIOfflineUncorrectableSector\fP: during off\-line testing, or self\-testing,
+\fIOfflineUncorrectableSector\fP: during off-line testing, or self-testing,
 one or more disk sectors could not be read.
 .nf
 .fi
@@ -1238,7 +1238,7 @@ A common use of this Directive is to track the device Temperature
 
 If the optional flag \'!\' is appended, a change of the Normalized
 value is considered critical.  The report will be logged as LOG_CRIT
-and a warning email will be sent if \'-m\' is specified.
+and a warning email will be sent if \'\-m\' is specified.
 .TP
 .B \-R ID[!]
 [ATA only] When tracking, report whenever the \fIRaw\fP value of Attribute
@@ -1260,7 +1260,7 @@ Attributes.
 
 If the optional flag \'!\' is appended, a change of the Raw
 value is considered critical.  The report will be logged as
-LOG_CRIT and a warning email will be sent if \'-m\' is specified.
+LOG_CRIT and a warning email will be sent if \'\-m\' is specified.
 An example is \'-R 5!\' to warn when new sectors are reallocated.
 .TP
 .B \-C ID[+]
@@ -1316,7 +1316,7 @@ sectors dropped to 0.  This typically happens when all offline uncorrectable
 sectors have been reallocated or could be read again.
 
 An offline uncorrectable sector is a disk sector which was not
-readable during an off\-line scan or a self\-test.  This is important
+readable during an off-line scan or a self-test.  This is important
 to know, because if you have data stored in this disk sector, and you
 need to read it, the read will fail.  Please see the previous \'\-C\'
 option for more details.
@@ -1328,7 +1328,7 @@ Report or Warn if the temperature is greater or equal than one of
 \fBINFO\fP or \fBCRIT\fP degrees Celsius.
 If the limit \fBCRIT\fP is reached, a message with loglevel
 \fB\'LOG_CRIT\'\fP will be logged to syslog and a warning email
-will be send if '-m' is specified. If only the limit \fBINFO\fP is
+will be send if \'\-m\' is specified. If only the limit \fBINFO\fP is
 reached, a message with loglevel \fB\'LOG_INFO\'\fP will be logged.
 
 The warning email counter is reset if the temperature dropped below
@@ -1372,7 +1372,7 @@ multiple times.  The valid arguments are:
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This
 is the default, unless the device has presets for \'\-F\' in the
-drive database.  Using this directive will over\-ride any preset values.
+drive database.  Using this directive will over-ride any preset values.
 
 .I nologdir
 \- Suppresses read attempts of SMART or GP Log Directory.
@@ -1381,24 +1381,24 @@ Some Intel SSDs may freeze if log address 0 is read.
 
 .I samsung
 \- In some Samsung disks (example: model SV4012H Firmware Version:
-RM100\-08) some of the two\- and four\-byte quantities in the SMART data
-structures are byte\-swapped (relative to the ATA specification).
+RM100-08) some of the two- and four-byte quantities in the SMART data
+structures are byte-swapped (relative to the ATA specification).
 Enabling this option tells \fBsmartd\fP to evaluate these quantities
-in byte\-reversed order.  Some signs that your disk needs this option
-are (1) no self\-test log printed, even though you have run self\-tests;
+in byte-reversed order.  Some signs that your disk needs this option
+are (1) no self-test log printed, even though you have run self-tests;
 (2) very large numbers of ATA errors reported in the ATA error log;
 (3) strange and impossible values for the ATA error log timestamps.
 
 .I samsung2
 \- In some Samsung disks the number of ATA errors reported is byte swapped.
 Enabling this option tells \fBsmartd\fP to evaluate this quantity in
-byte\-reversed order.
+byte-reversed order.
 
 .I samsung3
-\- Some Samsung disks (at least SP2514N with Firmware VF100\-37) report
-a self\-test still in progress with 0% remaining when the test was already
+\- Some Samsung disks (at least SP2514N with Firmware VF100-37) report
+a self-test still in progress with 0% remaining when the test was already
 completed. If this directive is specified, \fBsmartd\fP will not skip the
-next scheduled self\-test (see Directive \'\-s\' above) in this case.
+next scheduled self-test (see Directive \'\-s\' above) in this case.
 
 .I xerrorlba
 \- This only affects \fBsmartctl\fP.
@@ -1406,7 +1406,7 @@ next scheduled self\-test (see Directive \'\-s\' above) in this case.
 [Please see the \fBsmartctl \-F\fP command-line option.]
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME]
-[ATA only] Sets a vendor\-specific raw value print FORMAT, an optional
+[ATA only] Sets a vendor-specific raw value print FORMAT, an optional
 BYTEORDER and an optional NAME for Attribute ID.
 This directive may be used multiple times.
 Please see \fBsmartctl -v\fP command-line option for further details.
@@ -1628,7 +1628,7 @@ Many other individuals have made smaller contributions and corrections.
 .fi
 This code was derived from the smartsuite package, written by Michael
 Cornwell, and from the previous UCSC smartsuite package.  It extends
-these to cover ATA\-5 disks.  This code was originally developed as a
+these to cover ATA-5 disks.  This code was originally developed as a
 Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
