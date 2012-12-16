@@ -886,11 +886,11 @@ private:
   int m_fd;
 
   bool (linux_megaraid_device::*pt_cmd)(int cdblen, void *cdb, int dataLen, void *data,
-    int senseLen, void *sense, int report);
+    int senseLen, void *sense, int report, int direction);
   bool megasas_cmd(int cdbLen, void *cdb, int dataLen, void *data,
-    int senseLen, void *sense, int report);
+    int senseLen, void *sense, int report, int direction);
   bool megadev_cmd(int cdbLen, void *cdb, int dataLen, void *data,
-    int senseLen, void *sense, int report);
+    int senseLen, void *sense, int report, int direction);
 };
 
 linux_megaraid_device::linux_megaraid_device(smart_interface *intf,
@@ -940,15 +940,10 @@ smart_device * linux_megaraid_device::autodetect_open()
 
   // Use INQUIRY to detect type
   {
-    // SAT or USB ?
+    // SAT?
     ata_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
-    if (newdev) {
-      // NOTE: 'this' is now owned by '*newdev'
-      newdev->close();
-      newdev->set_err(ENOSYS, "SATA device detected,\n"
-        "MegaRAID SAT layer is reportedly buggy, use '-d sat+megaraid,N' to try anyhow");
+    if (newdev) // NOTE: 'this' is now owned by '*newdev'
       return newdev;
-    }
   }
 
   // Nothing special found
@@ -1061,24 +1056,17 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     if (iop->cmnd[2] & (1 << 5)) // chk_cond
       return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
   }
-  // SMART WRITE LOG SECTOR causing media errors
-  if ((iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16 && iop->cmnd[14] == ATA_SMART_CMD 
-	&& iop->cmnd[3]==0 && iop->cmnd[4] == ATA_SMART_WRITE_LOG_SECTOR) || 
-      (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 && iop->cmnd[9] == ATA_SMART_CMD &&
-        iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR)) 
-    return set_err(ENOSYS, "SMART WRITE LOG SECTOR command is not supported by controller firmware"); 
-
   if (pt_cmd == NULL)
     return false;
-  return (this->*pt_cmd)(iop->cmnd_len, iop->cmnd, 
+  return (this->*pt_cmd)(iop->cmnd_len, iop->cmnd,
     iop->dxfer_len, iop->dxferp,
-    iop->max_sense_len, iop->sensep, report);
+    iop->max_sense_len, iop->sensep, report, iop->dxfer_dir);
 }
 
 /* Issue passthrough scsi command to PERC5/6 controllers */
 bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb, 
   int dataLen, void *data,
-  int /*senseLen*/, void * /*sense*/, int /*report*/)
+  int /*senseLen*/, void * /*sense*/, int /*report*/, int dxfer_dir)
 {
   struct megasas_pthru_frame	*pthru;
   struct megasas_iocpacket	uio;
@@ -1094,6 +1082,21 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   pthru->cdb_len = cdbLen;
   pthru->timeout = 0;
   pthru->flags = MFI_FRAME_DIR_READ;
+  switch (dxfer_dir) {
+    case DXFER_NONE:
+      pthru->flags = MFI_FRAME_DIR_NONE;
+      break;
+    case DXFER_FROM_DEVICE:
+      pthru->flags = MFI_FRAME_DIR_READ;
+      break;
+    case DXFER_TO_DEVICE:
+      pthru->flags = MFI_FRAME_DIR_WRITE;
+      break;
+    default:
+      pout("do_scsi_cmnd_io: bad dxfer_dir\n");
+      return set_err(EINVAL, "do_scsi_cmnd_io: bad dxfer_dir\n");
+  }
+
   if (dataLen > 0) {
     pthru->sge_count = 1;
     pthru->data_xfer_len = dataLen;
@@ -1127,7 +1130,7 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
 /* Issue passthrough scsi commands to PERC2/3/4 controllers */
 bool linux_megaraid_device::megadev_cmd(int cdbLen, void *cdb, 
   int dataLen, void *data,
-  int /*senseLen*/, void * /*sense*/, int /*report*/)
+  int /*senseLen*/, void * /*sense*/, int /*report*/, int /* dir */)
 {
   struct uioctl_t uio;
   int rc;
