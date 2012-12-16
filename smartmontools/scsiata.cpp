@@ -62,7 +62,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3727 2012-12-13 17:23:06Z samm2 $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3734 2012-12-16 21:03:47Z samm2 $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -141,6 +141,8 @@ sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
     hide_ata(); // Start as SCSI, switch to ATA in autodetect_open()
   else
     hide_scsi(); // ATA always
+  if (strcmp(scsidev->get_dev_type(), "scsi"))
+    set_info().dev_type += strprintf("+%s", scsidev->get_dev_type());
 
   set_info().info_name = strprintf("%s [%sSAT]", scsidev->get_info_name(),
                                    (enable_auto ? "SCSI/" : ""));
