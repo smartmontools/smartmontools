@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3719 2012-12-03 21:19:33Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3735 2012-12-16 21:29:08Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -967,12 +967,6 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       if (iop->cmnd[2] & (1 << 5)) // chk_cond
         return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
     }
-    // SMART WRITE LOG SECTOR causing media errors
-    if ((iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16 && iop->cmnd[14] == ATA_SMART_CMD 
-        && iop->cmnd[3]==0 && iop->cmnd[4] == ATA_SMART_WRITE_LOG_SECTOR) || 
-        (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 && iop->cmnd[9] == ATA_SMART_CMD &&
-        iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR)) 
-      return set_err(ENOSYS, "SMART WRITE LOG SECTOR command is not supported by controller firmware"); 
   }
 
   // clear out structure, except for header that was filled in for us

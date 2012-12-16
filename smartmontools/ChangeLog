@@ -1,7 +1,9 @@
-$Id: ChangeLog 3734 2012-12-16 21:03:47Z samm2 $
+$Id: ChangeLog 3735 2012-12-16 21:29:08Z samm2 $
 
 2012-12-16  Alex Samorukov  <samm@os2.kiev.ua>
 
+	os_freebsd.cpp: WRITE LOG on LSI/Megaraid should work fine, disable
+	check, problem was linux related.
 	os_linux.cpp: Implemented autoscan for the megaraid SAS controolers.
 	os_linux.cpp: fix WRITE LOG command in SAT layer for -d megaraid.
 	Reason was direction flag always set to READ.
