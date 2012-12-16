@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3729 2012-12-13 19:56:13Z chrfranke $
+$Id: NEWS 3733 2012-12-16 20:43:50Z samm2 $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -8,6 +8,7 @@ http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontool
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 6.1
 -----------------------------------------------------------
+- Linux: Improved support for SATA disks on LSI/Megaraid controllers
 - smartctl '-l directory': improved output format.
 - smartctl: Fix parsing of '-l select,cont+SIZE' option.
 - smartctl prints ATA Additional Product Id (OEM Id).

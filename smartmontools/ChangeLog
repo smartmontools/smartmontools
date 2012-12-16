@@ -1,4 +1,10 @@
-$Id: ChangeLog 3732 2012-12-14 20:36:21Z chrfranke $
+$Id: ChangeLog 3733 2012-12-16 20:43:50Z samm2 $
+
+2012-12-16  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_linux.cpp: fix WRITE LOG command in SAT layer for -d megaraid.
+	Reason was direction flag always set to READ.
+	os_linux.cpp: unblock autodetection for the SAT drives in -d megaraid.
 
 2012-12-14  Christian Franke  <franke@computer.org>
 

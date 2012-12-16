@@ -108,7 +108,10 @@ struct uioctl_t
 
 #define MFI_CMD_PD_SCSI_IO        0x04
 #define MFI_FRAME_SGL64           0x02
-#define MFI_FRAME_DIR_READ        0x10 
+#define MFI_FRAME_DIR_NONE        0x0000
+#define MFI_FRAME_DIR_WRITE       0x0008
+#define MFI_FRAME_DIR_READ        0x0010
+#define MFI_FRAME_DIR_BOTH        0x0018
 
 #define MAX_IOCTL_SGE			16
 
