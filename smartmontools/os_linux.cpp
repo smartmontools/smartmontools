@@ -65,6 +65,7 @@
 #include <stddef.h>  // for offsetof()
 #include <sys/uio.h>
 #include <sys/types.h>
+#include <dirent.h>
 #ifndef makedev // old versions of types.h do not include sysmacros.h
 #include <sys/sysmacros.h>
 #endif
@@ -92,7 +93,6 @@
 
 const char * os_linux_cpp_cvsid = "$Id$"
   OS_LINUX_H_CVSID;
-
 
 namespace os_linux { // No need to publish anything, name provided for Doxygen
 
@@ -122,12 +122,14 @@ protected:
   int get_fd() const
     { return m_fd; }
 
+  void set_fd(int fd)
+    { m_fd = fd; }
+
 private:
   int m_fd; ///< filedesc, -1 if not open.
   int m_flags; ///< Flags for ::open()
   int m_retry_flags; ///< Flags to retry ::open(), -1 if no retry
 };
-
 
 linux_smart_device::~linux_smart_device() throw()
 {
@@ -202,7 +204,6 @@ static const char  smartctl_examples[] =
 		  "           on Areca RAID controller)\n"
   ;
 
-
 /////////////////////////////////////////////////////////////////////////////
 /// Linux ATA support
 
@@ -242,7 +243,6 @@ linux_ata_device::linux_ata_device(smart_interface * intf, const char * dev_name
 //  -1 if the command failed
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
-
 
 #define BUFFER_LENGTH (4+512)
 
@@ -850,7 +850,6 @@ linux_scsi_device::linux_scsi_device(smart_interface * intf,
 {
 }
 
-
 bool linux_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
   int status = do_normal_scsi_cmnd_io(get_fd(), iop, scsi_debugmode);
@@ -876,7 +875,7 @@ public:
 
   virtual bool open();
   virtual bool close();
- 
+
   virtual bool scsi_pass_through(scsi_cmnd_io *iop);
 
 private:
@@ -901,6 +900,7 @@ linux_megaraid_device::linux_megaraid_device(smart_interface *intf,
    m_fd(-1), pt_cmd(0)
 {
   set_info().info_name = strprintf("%s [megaraid_disk_%02d]", dev_name, m_disknum);
+  set_info().dev_type = strprintf("megaraid,%d", tgt);
 }
 
 linux_megaraid_device::~linux_megaraid_device() throw()
@@ -950,46 +950,45 @@ smart_device * linux_megaraid_device::autodetect_open()
   return this;
 }
 
-
 bool linux_megaraid_device::open()
 {
   char line[128];
-  int   mjr, n1;
-  FILE *fp;
+  int   mjr;
   int report = scsi_debugmode;
 
-  if (!linux_smart_device::open())
-    return false;
-
-  /* Get device HBA */
-  struct sg_scsi_id sgid;
-  if (ioctl(get_fd(), SG_GET_SCSI_ID, &sgid) == 0) {
-    m_hba = sgid.host_no;
-  }
-  else if (ioctl(get_fd(), SCSI_IOCTL_GET_BUS_NUMBER, &m_hba) != 0) {
-    int err = errno;
+  if(sscanf(get_dev_name(),"/dev/bus/%d", &m_hba) == 0) {
+    if (!linux_smart_device::open())
+      return false;
+    /* Get device HBA */
+    struct sg_scsi_id sgid;
+    if (ioctl(get_fd(), SG_GET_SCSI_ID, &sgid) == 0) {
+      m_hba = sgid.host_no;
+    }
+    else if (ioctl(get_fd(), SCSI_IOCTL_GET_BUS_NUMBER, &m_hba) != 0) {
+      int err = errno;
+      linux_smart_device::close();
+      return set_err(err, "can't get bus number");
+    } // we dont need this device anymore
     linux_smart_device::close();
-    return set_err(err, "can't get bus number");
   }
-
   /* Perform mknod of device ioctl node */
-  fp = fopen("/proc/devices", "r");
+  FILE * fp = fopen("/proc/devices", "r");
   while (fgets(line, sizeof(line), fp) != NULL) {
-  	n1=0;
-  	if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
-	   n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR, makedev(mjr, 0));
-	   if(report > 0)
-	     pout("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
-	   if (n1 >= 0 || errno == EEXIST)
-	      break;
-	}
-	else if (sscanf(line, "%d megadev%n", &mjr, &n1) == 1 && n1 == 11) {
-	   n1=mknod("/dev/megadev0", S_IFCHR, makedev(mjr, 0));
-	   if(report > 0)
-	     pout("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
-	   if (n1 >= 0 || errno == EEXIST)
-	      break;
-	}
+    int n1 = 0;
+    if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
+      n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR, makedev(mjr, 0));
+      if(report > 0)
+        pout("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
+      if (n1 >= 0 || errno == EEXIST)
+        break;
+    }
+    else if (sscanf(line, "%d megadev%n", &mjr, &n1) == 1 && n1 == 11) {
+      n1=mknod("/dev/megadev0", S_IFCHR, makedev(mjr, 0));
+      if(report > 0)
+        pout("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
+      if (n1 >= 0 || errno == EEXIST)
+        break;
+    }
   }
   fclose(fp);
 
@@ -1005,7 +1004,7 @@ bool linux_megaraid_device::open()
     linux_smart_device::close();
     return set_err(err, "cannot open /dev/megaraid_sas_ioctl_node or /dev/megadev0");
   }
-
+  set_fd(m_fd);
   return true;
 }
 
@@ -1014,7 +1013,8 @@ bool linux_megaraid_device::close()
   if (m_fd >= 0)
     ::close(m_fd);
   m_fd = -1; m_hba = 0; pt_cmd = 0;
-  return linux_smart_device::close();
+  set_fd(m_fd);
+  return true;
 }
 
 bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
@@ -1265,7 +1265,6 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
   int                selinux_enforced = security_getenforce();
 #endif
 
-
   /* First try to open up /proc/devices */
   if (!(file = fopen("/proc/devices", "r"))) {
     pout("Error opening /proc/devices to check/create 3ware device nodes\n");
@@ -1437,7 +1436,6 @@ bool linux_escalade_device::open()
 //  -1 if the command failed
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
-
 
 /* 512 is the max payload size: increase if needed */
 #define BUFFER_LEN_678K      ( sizeof(TW_Ioctl)                  ) // 1044 unpacked, 1041 packed
@@ -1648,7 +1646,6 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
   return true;
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
 /// Areca RAID support
 
@@ -1738,7 +1735,6 @@ linux_areca_ata_device::linux_areca_ata_device(smart_interface * intf, const cha
   set_info().info_name = strprintf("%s [areca_disk#%02d_enc#%02d]", dev_name, disknum, encnum);
 }
 
-
 smart_device * linux_areca_ata_device::autodetect_open()
 {
   int is_ata = 1;
@@ -1791,12 +1787,10 @@ bool linux_areca_ata_device::arcmsr_lock()
   return true;
 }
 
-
 bool linux_areca_ata_device::arcmsr_unlock()
 {
   return true;
 }
-
 
 // Areca RAID Controller(SAS Device)
 linux_areca_scsi_device::linux_areca_scsi_device(smart_interface * intf, const char * dev_name, int disknum, int encnum)
@@ -1838,12 +1832,10 @@ bool linux_areca_scsi_device::arcmsr_lock()
   return true;
 }
 
-
 bool linux_areca_scsi_device::arcmsr_unlock()
 {
   return true;
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 /// Marvell support
@@ -1991,7 +1983,6 @@ int linux_marvell_device::ata_command_interface(smart_command_set command, int s
     memcpy(data, buff, 512);
   return 0;
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 /// Highpoint RAID support
@@ -2225,7 +2216,6 @@ int linux_highpoint_device::ata_command_interface(smart_command_set command, int
   return 0;
 }
 
-
 #if 0 // TODO: Migrate from 'smart_command_set' to 'ata_in_regs' OR remove the function
 // Utility function for printing warnings
 void printwarning(smart_command_set command){
@@ -2256,7 +2246,6 @@ void printwarning(smart_command_set command){
   return;
 }
 #endif
-
 
 /////////////////////////////////////////////////////////////////////////////
 /// SCSI open with autodetection support
@@ -2316,7 +2305,7 @@ smart_device * linux_scsi_device::autodetect_open()
 
     // DELL?
     if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)
-        || !memcmp(req_buff + 16, "PERC H700", 9)
+        || !memcmp(req_buff + 16, "PERC H700", 9) || !memcmp(req_buff + 8, "LSI\0",4)
     ) {
       close();
       set_err(EINVAL, "DELL or MegaRaid controller, please try adding '-d megaraid,N'");
@@ -2352,7 +2341,6 @@ smart_device * linux_scsi_device::autodetect_open()
   }
   return this;
 }
-
 
 //////////////////////////////////////////////////////////////////////
 // USB bridge ID detection
@@ -2407,7 +2395,6 @@ static bool get_usb_id(const char * name, unsigned short & vendor_id,
   return true;
 }
 
-
 //////////////////////////////////////////////////////////////////////
 /// Linux interface
 
@@ -2436,8 +2423,11 @@ protected:
 private:
   bool get_dev_list(smart_device_list & devlist, const char * pattern,
     bool scan_ata, bool scan_scsi, const char * req_type, bool autodetect);
-
+  bool get_dev_megasas(smart_device_list & devlist);
   smart_device * missing_option(const char * opt);
+  int megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
+    size_t bufsize, uint8_t *mbox, size_t mboxlen, uint8_t *statusp);
+  int megasas_pd_add_list(int bus_no, smart_device_list & devlist);
 };
 
 std::string linux_smart_interface::get_os_version_str()
@@ -2455,7 +2445,6 @@ std::string linux_smart_interface::get_app_examples(const char * appname)
     return smartctl_examples;
   return "";
 }
-
 
 // we are going to take advantage of the fact that Linux's devfs will only
 // have device entries for devices that exist.  So if we get the equivalent of
@@ -2553,7 +2542,61 @@ bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
 
   // free memory
   globfree(&globbuf);
+  return true;
+}
 
+// getting devices from LSI SAS MegaRaid, if available
+bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
+{
+  /* Scanning of disks on MegaRaid device */
+  /* Perform mknod of device ioctl node */
+  int   mjr, n1;
+  char line[128];
+  bool scan_megasas = false;
+  FILE * fp = fopen("/proc/devices", "r");
+  while (fgets(line, sizeof(line), fp) != NULL) {
+    n1=0;
+    if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
+      scan_megasas = true;
+      n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR, makedev(mjr, 0));
+      if(scsi_debugmode > 0)
+        pout("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
+      if (n1 >= 0 || errno == EEXIST)
+        break;
+    }
+  }
+  fclose(fp);
+
+  if(!scan_megasas)
+    return false;
+
+  // getting bus numbers with megasas devices
+  struct dirent *ep;
+  unsigned int host_no = 0;
+  char sysfsdir[256];
+
+  /* we are using sysfs to get list of all scsi hosts */
+  DIR * dp = opendir ("/sys/class/scsi_host/");
+  if (dp != NULL)
+  {
+    while ((ep = readdir (dp)) != NULL) {
+      if (!sscanf(ep->d_name, "host%d", &host_no)) 
+        continue;
+      /* proc_name should be megaraid_sas */
+      snprintf(sysfsdir, sizeof(sysfsdir) - 1,
+        "/sys/class/scsi_host/host%d/proc_name", host_no);
+      if((fp = fopen(sysfsdir, "r")) == NULL)
+        continue;
+      if(fgets(line, sizeof(line), fp) != NULL && !strncmp(line,"megaraid_sas",12)) {
+        megasas_pd_add_list(host_no, devlist);
+      }
+      fclose(fp);
+    }
+    (void) closedir (dp);
+  } else { /* sysfs not mounted ? */
+    for(unsigned i = 0; i <=16; i++) // trying to add devices on first 16 buses
+      megasas_pd_add_list(i, devlist);
+  }
   return true;
 }
 
@@ -2581,6 +2624,8 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     get_dev_list(devlist, "/dev/sd[a-z]", false, true, type, autodetect);
     // Support up to 104 devices
     get_dev_list(devlist, "/dev/sd[a-c][a-z]", false, true, type, autodetect);
+    // get device list from the megaraid device
+    get_dev_megasas(devlist);
   }
 
   // if we found traditional links, we are done
@@ -2606,6 +2651,99 @@ smart_device * linux_smart_interface::missing_option(const char * opt)
 {
   set_err(EINVAL, "requires option '%s'", opt);
   return 0;
+}
+
+int
+linux_smart_interface::megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
+  size_t bufsize, uint8_t *mbox, size_t mboxlen, uint8_t *statusp)
+{
+  struct megasas_iocpacket ioc;
+
+  if ((mbox != NULL && (mboxlen == 0 || mboxlen > MFI_MBOX_SIZE)) ||
+    (mbox == NULL && mboxlen != 0)) 
+  {
+    errno = EINVAL;
+    return (-1);
+  }
+
+  bzero(&ioc, sizeof(ioc));
+  struct megasas_dcmd_frame * dcmd = &ioc.frame.dcmd;
+  ioc.host_no = bus_no;
+  if (mbox)
+    bcopy(mbox, dcmd->mbox.w, mboxlen);
+  dcmd->cmd = MFI_CMD_DCMD;
+  dcmd->timeout = 0;
+  dcmd->flags = 0;
+  dcmd->data_xfer_len = bufsize;
+  dcmd->opcode = opcode;
+
+  if (bufsize > 0) {
+    dcmd->sge_count = 1;
+    dcmd->data_xfer_len = bufsize;
+    dcmd->sgl.sge32[0].phys_addr = (intptr_t)buf;
+    dcmd->sgl.sge32[0].length = (uint32_t)bufsize;
+    ioc.sge_count = 1;
+    ioc.sgl_off = offsetof(struct megasas_dcmd_frame, sgl);
+    ioc.sgl[0].iov_base = buf;
+    ioc.sgl[0].iov_len = bufsize;
+  }
+
+  int fd;
+  if ((fd = ::open("/dev/megaraid_sas_ioctl_node", O_RDWR)) <= 0) {
+    return (errno);
+  }
+
+  int r = ioctl(fd, MEGASAS_IOC_FIRMWARE, &ioc);
+  if (r < 0) {
+    return (r);
+  }
+
+  if (statusp != NULL)
+    *statusp = dcmd->cmd_status;
+  else if (dcmd->cmd_status != MFI_STAT_OK) {
+    fprintf(stderr, "command %x returned error status %x\n",
+      opcode, dcmd->cmd_status);
+    errno = EIO;
+    return (-1);
+  }
+  return (0);
+}
+
+int
+linux_smart_interface::megasas_pd_add_list(int bus_no, smart_device_list & devlist)
+{
+  /*
+  * Keep fetching the list in a loop until we have a large enough
+  * buffer to hold the entire list.
+  */
+  megasas_pd_list * list = 0;
+  for (unsigned list_size = 1024; ; ) {
+    list = (megasas_pd_list *)realloc(list, list_size);
+    if (!list)
+      throw std::bad_alloc();
+    bzero(list, list_size);
+    if (megasas_dcmd_cmd(bus_no, MFI_DCMD_PD_GET_LIST, list, list_size, NULL, 0,
+      NULL) < 0) 
+    {
+      free(list);
+      return (-1);
+    }
+    if (list->size <= list_size)
+      break;
+    list_size = list->size;
+  }
+
+  // adding all SCSI devices
+  for (unsigned i = 0; i < list->count; i++) {
+    if(list->addr[i].scsi_dev_type)
+      continue; /* non disk device found */
+    char line[128];
+    snprintf(line, sizeof(line) - 1, "/dev/bus/%d", bus_no);
+    smart_device * dev = new linux_megaraid_device(this, line, 0, list->addr[i].device_id);
+    devlist.push_back(dev);
+  }
+  free(list);
+  return (0);
 }
 
 // Return kernel release as integer ("2.6.31" -> 206031)
@@ -2805,7 +2943,6 @@ std::string linux_smart_interface::get_valid_custom_dev_types_str()
 }
 
 } // namespace
-
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()

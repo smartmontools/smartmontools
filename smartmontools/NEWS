@@ -9,6 +9,7 @@ Date <Not released yet, please try current SVN>
 Summary: smartmontools release 6.1
 -----------------------------------------------------------
 - Linux: Improved support for SATA disks on LSI/Megaraid controllers
+- Linux: disks on MegaRaid controllers are automatically scanned
 - smartctl '-l directory': improved output format.
 - smartctl: Fix parsing of '-l select,cont+SIZE' option.
 - smartctl prints ATA Additional Product Id (OEM Id).

@@ -2,6 +2,7 @@ $Id$
 
 2012-12-16  Alex Samorukov  <samm@os2.kiev.ua>
 
+	os_linux.cpp: Implemented autoscan for the megaraid SAS controolers.
 	os_linux.cpp: fix WRITE LOG command in SAT layer for -d megaraid.
 	Reason was direction flag always set to READ.
 	os_linux.cpp: unblock autodetection for the SAT drives in -d megaraid.

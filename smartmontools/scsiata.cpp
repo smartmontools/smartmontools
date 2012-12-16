@@ -141,6 +141,8 @@ sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
     hide_ata(); // Start as SCSI, switch to ATA in autodetect_open()
   else
     hide_scsi(); // ATA always
+  if (strcmp(scsidev->get_dev_type(), "scsi"))
+    set_info().dev_type += strprintf("+%s", scsidev->get_dev_type());
 
   set_info().info_name = strprintf("%s [%sSAT]", scsidev->get_info_name(),
                                    (enable_auto ? "SCSI/" : ""));
