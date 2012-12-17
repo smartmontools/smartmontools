@@ -177,10 +177,8 @@ static bool do_fork=true;
 static bool enable_capabilities = false;
 #endif
 
-#if defined(_WIN32) || defined(__CYGWIN__)
 // TODO: This smartctl only variable is also used in os_win32.cpp
 unsigned char failuretest_permissive = 0;
-#endif
 
 // set to one if we catch a USR1 (check devices now)
 static volatile int caughtsigUSR1=0;

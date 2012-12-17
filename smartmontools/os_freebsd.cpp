@@ -122,6 +122,7 @@ void printwarning(int msgNo, const char* extra) {
 
 // global variable holding byte count of allocated memory
 long long bytes;
+extern unsigned char failuretest_permissive;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -967,8 +968,17 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       if (iop->cmnd[2] & (1 << 5)) // chk_cond
         return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
     }
+    // SMART WRITE LOG SECTOR causing media errors
+    if ((iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16
+        && iop->cmnd[14] == ATA_SMART_CMD  && iop->cmnd[3]==0 &&
+        iop->cmnd[4] == ATA_SMART_WRITE_LOG_SECTOR) ||
+        (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12
+        && iop->cmnd[9] == ATA_SMART_CMD && iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR))
+    {
+      if(!failuretest_permissive)
+        return set_err(ENOSYS, "SMART WRITE LOG SECTOR may cause problems, try with -T permissive to force"); 
+    }
   }
-
   // clear out structure, except for header that was filled in for us
   bzero(&(&ccb->ccb_h)[1],
     sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
