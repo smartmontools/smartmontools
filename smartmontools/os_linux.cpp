@@ -1081,7 +1081,6 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   pthru->lun = 0;
   pthru->cdb_len = cdbLen;
   pthru->timeout = 0;
-  pthru->flags = MFI_FRAME_DIR_READ;
   switch (dxfer_dir) {
     case DXFER_NONE:
       pthru->flags = MFI_FRAME_DIR_NONE;
@@ -1093,8 +1092,8 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
       pthru->flags = MFI_FRAME_DIR_WRITE;
       break;
     default:
-      pout("do_scsi_cmnd_io: bad dxfer_dir\n");
-      return set_err(EINVAL, "do_scsi_cmnd_io: bad dxfer_dir\n");
+      pout("megasas_cmd: bad dxfer_dir\n");
+      return set_err(EINVAL, "megasas_cmd: bad dxfer_dir\n");
   }
 
   if (dataLen > 0) {
