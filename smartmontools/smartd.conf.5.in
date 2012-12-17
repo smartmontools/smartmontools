@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3732 2012-12-14 20:36:21Z chrfranke $
+$Id: smartd.conf.5.in 3736 2012-12-17 07:56:08Z samm2 $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -141,6 +141,7 @@ Section below!
 .B \ \ /dev/sda -d megaraid,0 -a -s S/../.././01
 .B \ \ /dev/sda -d megaraid,1 -a -s S/../.././02
 .B \ \ /dev/sda -d megaraid,2 -a -s S/../.././03
+.B \ \ /dev/bus/0 -d megaraid,2 -a -s S/../.././03
 .B
 .B #
 .\" %ENDIF OS Linux
@@ -400,6 +401,8 @@ to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
 This interface will also work for Dell PERC controllers.
 In log files and email messages this disk will be identified as
 megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
+It is possible to set RAID device name as /dev/bus/N, where N is a SCSI bus 
+number.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
 .\" %ENDIF OS Linux
@@ -1646,4 +1649,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3732 2012-12-14 20:36:21Z chrfranke $
+$Id: smartd.conf.5.in 3736 2012-12-17 07:56:08Z samm2 $
