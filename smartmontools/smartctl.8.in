@@ -359,12 +359,18 @@ Use syntax such as:
 .nf
 \fBsmartctl \-a \-d megaraid,0 /dev/sdb\fP
 .fi
+.nf
+\fBsmartctl \-a \-d megaraid,0 /dev/bus/0\fP
+.fi
 This interface will also work for Dell PERC controllers.
-The following /dev/XXX entry must exist:
+It is possible to set RAID device name as /dev/bus/N, where N is a SCSI bus
+number.
+
+The following entry in /proc/devices must exist:
 .fi
-For PERC2/3/4 controllers: \fB/dev/megadev0\fP
+For PERC2/3/4 controllers: \fBmegadevN\fP
 .fi
-For PERC5/6 controllers: \fB/dev/megaraid_sas_ioctl_node\fP
+For PERC5/6 controllers: \fBmegaraid_sas_ioctlN\fP
 
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD Linux

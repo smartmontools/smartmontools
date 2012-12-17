@@ -141,6 +141,7 @@ Section below!
 .B \ \ /dev/sda -d megaraid,0 -a -s S/../.././01
 .B \ \ /dev/sda -d megaraid,1 -a -s S/../.././02
 .B \ \ /dev/sda -d megaraid,2 -a -s S/../.././03
+.B \ \ /dev/bus/0 -d megaraid,2 -a -s S/../.././03
 .B
 .B #
 .\" %ENDIF OS Linux
@@ -400,6 +401,8 @@ to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
 This interface will also work for Dell PERC controllers.
 In log files and email messages this disk will be identified as
 megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
+It is possible to set RAID device name as /dev/bus/N, where N is a SCSI bus 
+number.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
 .\" %ENDIF OS Linux
