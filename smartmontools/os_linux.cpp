@@ -91,8 +91,9 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3737 2012-12-17 08:53:56Z samm2 $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3738 2012-12-17 12:01:35Z samm2 $"
   OS_LINUX_H_CVSID;
+extern unsigned char failuretest_permissive;
 
 namespace os_linux { // No need to publish anything, name provided for Doxygen
 
@@ -1055,6 +1056,15 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     // Controller does not return ATA output registers in SAT sense data
     if (iop->cmnd[2] & (1 << 5)) // chk_cond
       return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
+  }
+  // SMART WRITE LOG SECTOR causing media errors
+  if ((iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16 // SAT16 WRITE LOG
+      && iop->cmnd[14] == ATA_SMART_CMD && iop->cmnd[3]==0 && iop->cmnd[4] == ATA_SMART_WRITE_LOG_SECTOR) ||
+      (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 // SAT12 WRITE LOG
+       && iop->cmnd[9] == ATA_SMART_CMD && iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR)) 
+  {
+    if(!failuretest_permissive)
+       return set_err(ENOSYS, "SMART WRITE LOG SECTOR may cause problems, try with -T permissive to force"); 
   }
   if (pt_cmd == NULL)
     return false;
