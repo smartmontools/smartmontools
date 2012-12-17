@@ -91,7 +91,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3734 2012-12-16 21:03:47Z samm2 $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3737 2012-12-17 08:53:56Z samm2 $"
   OS_LINUX_H_CVSID;
 
 namespace os_linux { // No need to publish anything, name provided for Doxygen
@@ -1081,7 +1081,6 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   pthru->lun = 0;
   pthru->cdb_len = cdbLen;
   pthru->timeout = 0;
-  pthru->flags = MFI_FRAME_DIR_READ;
   switch (dxfer_dir) {
     case DXFER_NONE:
       pthru->flags = MFI_FRAME_DIR_NONE;
@@ -1093,8 +1092,8 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
       pthru->flags = MFI_FRAME_DIR_WRITE;
       break;
     default:
-      pout("do_scsi_cmnd_io: bad dxfer_dir\n");
-      return set_err(EINVAL, "do_scsi_cmnd_io: bad dxfer_dir\n");
+      pout("megasas_cmd: bad dxfer_dir\n");
+      return set_err(EINVAL, "megasas_cmd: bad dxfer_dir\n");
   }
 
   if (dataLen > 0) {
