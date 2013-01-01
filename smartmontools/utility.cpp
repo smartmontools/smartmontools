@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-12 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -52,7 +52,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 3719 2012-12-03 21:19:33Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 3739 2013-01-01 16:32:48Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -90,7 +90,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
       "(build date "__DATE__")" // checkout without expansion of Id keywords
 #endif
       " [%s] "BUILD_INFO"\n"
-    "Copyright (C) 2002-12, Bruce Allen, Christian Franke, www.smartmontools.org\n",
+    "Copyright (C) 2002-13, Bruce Allen, Christian Franke, www.smartmontools.org\n",
     prog_name, smi()->get_os_version_str().c_str()
   );
   if (!full)
