@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -148,7 +148,7 @@ const char * map_old_vendor_opts[][2] = {
   {"198,increasing"               , "198,raw48+,Total_Offl_Uncorrectabl"}, // '+' sets flag
   {"200,writeerrorcount"          , "200,raw48,Write_Error_Count"},
   {"201,detectedtacount"          , "201,raw48,Detected_TA_Count"},
-  {"220,temp"                     , "220,raw48,Temperature_Celsius"},
+  {"220,temp"                     , "220,tempminmax,Temperature_Celsius"},
 };
 
 const unsigned num_old_vendor_opts = sizeof(map_old_vendor_opts)/sizeof(map_old_vendor_opts[0]);
@@ -2324,11 +2324,11 @@ int ata_find_attr_index(unsigned char id, const ata_smart_values & smartval)
 // non-default interpretations. If the Attribute does not exist, return 0
 unsigned char ata_return_temperature_value(const ata_smart_values * data, const ata_vendor_attr_defs & defs)
 {
-  for (int i = 0; i < 3; i++) {
-    static const unsigned char ids[3] = {194, 9, 220};
+  for (int i = 0; i < 4; i++) {
+    static const unsigned char ids[4] = {194, 190, 9, 220};
     unsigned char id = ids[i];
     const ata_attr_raw_format format = defs[id].raw_format;
-    if (!(   (id == 194 && format == RAWFMT_DEFAULT)
+    if (!(   ((id == 194 || id == 190) && format == RAWFMT_DEFAULT)
           || format == RAWFMT_TEMPMINMAX || format == RAWFMT_TEMP10X))
       continue;
     int idx = ata_find_attr_index(id, *data);

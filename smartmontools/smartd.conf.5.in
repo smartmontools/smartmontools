@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
 $Id$
 
@@ -1363,9 +1363,9 @@ To combine all of the above reports, use:
 .B \-W 2,40,45
 .fi
 
-For ATA devices, smartd interprets Attribute 194 as Temperature Celsius
+For ATA devices, smartd interprets Attribute 194 or 190 as Temperature Celsius
 by default. This can be changed to Attribute 9 or 220 by the drive
-database or by the \'-v\' directive, see below.
+database or by the \'\-v 9,temp\' or \'\-v 220,temp\' directive.
 .TP
 .B \-F TYPE
 [ATA only] Modifies the behavior of \fBsmartd\fP to compensate for some

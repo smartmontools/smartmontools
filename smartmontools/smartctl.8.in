@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
 $Id$
 
@@ -1505,7 +1505,7 @@ is not reset if uncorrectable sectors are reallocated
 
 .I 220,temp
 \- same as:
-.I 220,raw48,Temperature_Celsius.
+.I 220,tempminmax,Temperature_Celsius.
 
 Note: a table of hard drive models, listing which Attribute
 corresponds to temperature, can be found at:
