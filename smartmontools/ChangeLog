@@ -1,5 +1,9 @@
 $Id$
 
+2013-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year! Update copyright year in version info.
+
 2012-12-16  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: WRITE LOG on LSI/Megaraid should work fine, disable
