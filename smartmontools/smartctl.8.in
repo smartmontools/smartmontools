@@ -1,8 +1,8 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartctl.8.in 3736 2012-12-17 07:56:08Z samm2 $
+$Id: smartctl.8.in 3740 2013-01-01 18:12:00Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1505,7 +1505,7 @@ is not reset if uncorrectable sectors are reallocated
 
 .I 220,temp
 \- same as:
-.I 220,raw48,Temperature_Celsius.
+.I 220,tempminmax,Temperature_Celsius.
 
 Note: a table of hard drive models, listing which Attribute
 corresponds to temperature, can be found at:
@@ -2248,4 +2248,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3736 2012-12-17 07:56:08Z samm2 $
+$Id: smartctl.8.in 3740 2013-01-01 18:12:00Z chrfranke $

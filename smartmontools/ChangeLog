@@ -1,4 +1,8 @@
-$Id: ChangeLog 3739 2013-01-01 16:32:48Z chrfranke $
+$Id: ChangeLog 3740 2013-01-01 18:12:00Z chrfranke $
+
+2013-01-01  Christian Franke  <franke@computer.org>
+
+	smartd: Use Attribute 190 for temperature (-W) if 194 is not present.
 
 2013-01-01  Christian Franke  <franke@computer.org>
 
