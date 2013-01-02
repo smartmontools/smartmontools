@@ -369,7 +369,7 @@ The default SCSI operation code is 0x24, but although it can be overridden
 with \'\-d usbcypress,0xN\', where N is the scsi operation code,
 you're running the risk of damage to the device or filesystems on it.
 
-.I usbjmicron
+.I usbjmicron[,p][,x][,PORT]
 \- this device type is for SATA disks that are behind a JMicron USB to
 PATA/SATA bridge.  The 48-bit ATA commands (required e.g. for \'\-l xerror\',
 see below) do not work with all of these bridges and are therefore disabled by
@@ -383,6 +383,13 @@ separate /dev/ice names then.
 CAUTION: Specifying \',x\' for a device which does not support it results
 in I/O errors and may disconnect the drive.  The same applies if the specified
 PORT does not exist or is not connected to a disk.
+
+[NEW EXPERIMENTAL SMARTD FEATURE]
+The Prolific PL2507/3507 USB bridges with older firmware support a pass-through
+command similar to JMicron and work with \'\-d usbjmicron,0\'.
+Newer Prolific firmware requires a modified command which can be selected by
+\'\-d usbjmicron,p\'.
+Note that this does not yet support the SMART status command.
 
 .I usbsunplus
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA

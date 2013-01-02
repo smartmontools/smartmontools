@@ -18,6 +18,7 @@ Summary: smartmontools release 6.1
 - smartd '-w PATH' option to specify this executable.
 - smartd '-d ignore' directive.
 - smartd DEVICESCAN ignores devices already specified.
+- Device type '-d usbjmicron,p' for Prolific USB bridges.
 - Linux: Support for SAS disks behind Areca controllers.
 - FreeBSD: Support for SAS disks behind Areca controllers.
 - FreeBSD: Enhanced ATA command support for 3ware.

@@ -1,5 +1,10 @@
 $Id$
 
+2013-01-02  Christian Franke  <franke@computer.org>
+
+	Add '-d usbjmicron,p' device type for Prolific USB bridges.
+	Based on patch provided by Edward Sheldrake.
+
 2013-01-01  Christian Franke  <franke@computer.org>
 
 	smartd: Use Attribute 190 for temperature (-W) if 194 is not present.

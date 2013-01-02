@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -258,7 +258,7 @@ std::string smart_interface::get_valid_dev_types_str()
 {
   // default
   std::string s =
-    "ata, scsi, sat[,auto][,N][+TYPE], usbcypress[,X], usbjmicron[,x][,N], usbsunplus";
+    "ata, scsi, sat[,auto][,N][+TYPE], usbcypress[,X], usbjmicron[,p][,x][,N], usbsunplus";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
   if (!s2.empty()) {

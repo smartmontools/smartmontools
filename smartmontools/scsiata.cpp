@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2006-12 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2009-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -897,7 +897,8 @@ class usbjmicron_device
 {
 public:
   usbjmicron_device(smart_interface * intf, scsi_device * scsidev,
-                    const char * req_type, bool ata_48bit_support, int port);
+                    const char * req_type, bool prolific,
+                    bool ata_48bit_support, int port);
 
   virtual ~usbjmicron_device() throw();
 
@@ -908,16 +909,19 @@ public:
 private:
   bool get_registers(unsigned short addr, unsigned char * buf, unsigned short size);
 
+  bool m_prolific;
   bool m_ata_48bit_support;
   int m_port;
 };
 
 
 usbjmicron_device::usbjmicron_device(smart_interface * intf, scsi_device * scsidev,
-                                     const char * req_type, bool ata_48bit_support, int port)
+                                     const char * req_type, bool prolific,
+                                     bool ata_48bit_support, int port)
 : smart_device(intf, scsidev->get_dev_name(), "usbjmicron", req_type),
   tunnelled_device<ata_device, scsi_device>(scsidev),
-  m_ata_48bit_support(ata_48bit_support), m_port(port)
+  m_prolific(prolific), m_ata_48bit_support(ata_48bit_support),
+  m_port(port >= 0 || !prolific ? port : 0)
 {
   set_info().info_name = strprintf("%s [USB JMicron]", scsidev->get_info_name());
 }
@@ -1007,7 +1011,7 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   }
 
   // Build pass through command
-  unsigned char cdb[12];
+  unsigned char cdb[14];
   cdb[ 0] = 0xdf;
   cdb[ 1] = (rwbit ? 0x10 : 0x00);
   cdb[ 2] = 0x00;
@@ -1020,9 +1024,12 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   cdb[ 9] = in.in_regs.lba_high;
   cdb[10] = in.in_regs.device | (m_port == 0 ? 0xa0 : 0xb0);
   cdb[11] = in.in_regs.command;
+  // Prolific PL3507
+  cdb[12] = 0x06;
+  cdb[13] = 0x7b;
 
   io_hdr.cmnd = cdb;
-  io_hdr.cmnd_len = sizeof(cdb);
+  io_hdr.cmnd_len = (!m_prolific ? 12 : 14);
 
   scsi_device * scsidev = get_tunnel_dev();
   if (!scsi_pass_through_and_check(scsidev, &io_hdr,
@@ -1069,7 +1076,7 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
 bool usbjmicron_device::get_registers(unsigned short addr,
                                       unsigned char * buf, unsigned short size)
 {
-  unsigned char cdb[12];
+  unsigned char cdb[14];
   cdb[ 0] = 0xdf;
   cdb[ 1] = 0x10;
   cdb[ 2] = 0x00;
@@ -1082,6 +1089,9 @@ bool usbjmicron_device::get_registers(unsigned short addr,
   cdb[ 9] = 0x00;
   cdb[10] = 0x00;
   cdb[11] = 0xfd;
+  // Prolific PL3507
+  cdb[12] = 0x06;
+  cdb[13] = 0x7b;
 
   scsi_cmnd_io io_hdr;
   memset(&io_hdr, 0, sizeof(io_hdr));
@@ -1090,6 +1100,7 @@ bool usbjmicron_device::get_registers(unsigned short addr,
   io_hdr.dxferp = buf;
   io_hdr.cmnd = cdb;
   io_hdr.cmnd_len = sizeof(cdb);
+  io_hdr.cmnd_len = (!m_prolific ? 12 : 14);
 
   scsi_device * scsidev = get_tunnel_dev();
   if (!scsi_pass_through_and_check(scsidev, &io_hdr,
@@ -1291,6 +1302,11 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
 
   else if (!strncmp(type, "usbjmicron", 10)) {
     const char * t = type + 10;
+    bool prolific = false;
+    if (!strncmp(t, ",p", 2)) {
+      t += 2;
+      prolific = true;
+    }
     bool ata_48bit_support = false;
     if (!strncmp(t, ",x", 2)) {
       t += 2;
@@ -1299,10 +1315,10 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
     int port = -1, n = -1;
     if (*t && !(  (sscanf(t, ",%d%n", &port, &n) == 1
                 && n == (int)strlen(t) && 0 <= port && port <= 1))) {
-      set_err(EINVAL, "Option '-d usbmicron[,x],<n>' requires <n> to be 0 or 1");
+      set_err(EINVAL, "Option '-d usbjmicron[,p][,x],<n>' requires <n> to be 0 or 1");
       return 0;
     }
-    return new usbjmicron_device(this, scsidev, type, ata_48bit_support, port);
+    return new usbjmicron_device(this, scsidev, type, prolific, ata_48bit_support, port);
   }
 
   else if (!strcmp(type, "usbsunplus")) {
