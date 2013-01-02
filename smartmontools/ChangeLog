@@ -1,4 +1,11 @@
-$Id: ChangeLog 3741 2013-01-02 17:06:54Z chrfranke $
+$Id: ChangeLog 3742 2013-01-02 21:23:54Z chrfranke $
+
+2013-01-02  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Sandforce Driven SSDs: ADATA S396, Kingston 3K, V+
+	- Indilinx Everest/Martini based SSDs: OCZ VERTEX PLUS
+	- Samsung based SSD: Samsung SSD 840 PRO Series
 
 2013-01-02  Christian Franke  <franke@computer.org>
 
