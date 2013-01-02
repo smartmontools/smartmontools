@@ -192,7 +192,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
-    "ADATA SSD S(510|599) .?..GB|" // tested with ADATA SSD S510 60GB/320ABBF0,
+    "ADATA SSD S(396|510|599) .?..GB|" // tested with ADATA SSD S510 60GB/320ABBF0,
       // ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
@@ -201,7 +201,12 @@ const drive_settings builtin_knowndrives[] = {
       // FM-25S2S-240GBP2/4.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
-    "KINGSTON SH100S3(120|240)G|" // Hyper-X, SF-2281, tested with SH100S3240G/320ABBF0
+    "KINGSTON SH10[03]S3(90|120|240|480)G|" // HyperX (3K), SF-2281, tested with
+      // SH100S3240G/320ABBF0, SH103S3120G/505ABBF0
+    "KINGSTON SVP200S37A(60|90|120|240|480)G|" // V+ 200, SF-2281, tested with
+      // SVP200S37A480G/502ABBF0
+    "KINGSTON SMS450S3(32|64|128)G|" // mSATA, SF-2281, tested with SMS450S3128G/503ABBF0
+    "KINGSTON (SV300|SKC100|SE100)S3.*G|" // other SF-2281
     "MKNSSDCR[0-9]*GB|" // Mushkin Chronos, SF-2281, tested with MKNSSDCR120GB
     "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX(2|-LE))( [123]\\..*)?|" // SF-1200,
       // tested with OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
@@ -247,6 +252,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 182,raw48,Erase_Fail_Count "
     "-v 184,raw48,IO_Error_Detect_Code_Ct "
   //"-v 187,raw48,Reported_Uncorrect "
+    "-v 189,tempminmax,Airflow_Temperature_Cel "
   //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw24/raw32,ECC_Uncorr_Error_Count "
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
@@ -301,7 +307,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 213,raw64,Indilinx_Internal"
   },
   { "Indilinx Everest/Martini based SSDs",
-    "OCZ VERTEX-PLUS|" // tested with OCZ VERTEX-PLUS/3.55
+    "OCZ VERTEX[ -]PLUS|" // tested with OCZ VERTEX-PLUS/3.55, OCZ VERTEX PLUS/3.55
     "OCZ-PETROL|" // Everest 1, tested with OCZ-PETROL/3.12
     "OCZ-AGILITY4|" // Everest 2, tested with OCZ-AGILITY4/1.5.2
     "OCZ-VERTEX4", // Everest 2, tested with OCZ-VERTEX4/1.5
@@ -560,8 +566,10 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG SSD PM800 .*GB|"  // SAMSUNG PM800 SSDs, tested with SAMSUNG SSD PM800 TH 64GB/VBM25D1Q
     "SAMSUNG SSD PM810 .*GB|"  // SAMSUNG PM810 (470 series) SSDs, tested with SAMSUNG SSD PM810 2.5" 128GB/AXM06D1Q
     "SAMSUNG 470 Series SSD|"  // tested with SAMSUNG 470 Series SSD 64GB/AXM09B1Q
-    "SAMSUNG SSD 830 Series",  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
+    "SAMSUNG SSD 830 Series|"  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
+    "Samsung SSD 840 PRO Series", // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q
     "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 175,raw48,Program_Fail_Count_Chip "
@@ -581,8 +589,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 199,raw48,CRC_Error_Count "
     "-v 201,raw48,Supercap_Status "
     "-v 202,raw48,Exception_Mode_Status "
-    "-v 240,raw48,Unknown_Attribute"  // 830 Series
-  //"-v 241,raw48,Total_LBAs_Written" // 830 Series
+    "-v 235,raw48,POR_Recovery_Count " // 830/840 Series
+  //"-v 241,raw48,Total_LBAs_Written"
   },
   { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
     "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K

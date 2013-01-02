@@ -2,6 +2,13 @@ $Id$
 
 2013-01-02  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Sandforce Driven SSDs: ADATA S396, Kingston 3K, V+
+	- Indilinx Everest/Martini based SSDs: OCZ VERTEX PLUS
+	- Samsung based SSD: Samsung SSD 840 PRO Series
+
+2013-01-02  Christian Franke  <franke@computer.org>
+
 	Add '-d usbjmicron,p' device type for Prolific USB bridges.
 	Based on patch provided by Edward Sheldrake.
 
