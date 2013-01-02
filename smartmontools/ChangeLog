@@ -1,4 +1,9 @@
-$Id: ChangeLog 3740 2013-01-01 18:12:00Z chrfranke $
+$Id: ChangeLog 3741 2013-01-02 17:06:54Z chrfranke $
+
+2013-01-02  Christian Franke  <franke@computer.org>
+
+	Add '-d usbjmicron,p' device type for Prolific USB bridges.
+	Based on patch provided by Edward Sheldrake.
 
 2013-01-01  Christian Franke  <franke@computer.org>
 
