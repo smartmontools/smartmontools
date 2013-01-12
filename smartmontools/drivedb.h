@@ -208,6 +208,8 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SMS450S3(32|64|128)G|" // mSATA, SF-2281, tested with SMS450S3128G/503ABBF0
     "KINGSTON (SV300|SKC100|SE100)S3.*G|" // other SF-2281
     "MKNSSDCR[0-9]*GB|" // Mushkin Chronos, SF-2281, tested with MKNSSDCR120GB
+    "Mushkin MKNSSDCL(40|60|80|90|115|120|180|240|480)GB-DX2?|" // Mushkin Callisto deluxe,
+      // SF-1200/1222, Mushkin MKNSSDCL60GB-DX/361A13F0
     "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX(2|-LE))( [123]\\..*)?|" // SF-1200,
       // tested with OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
     "OCZ-NOCTI|" // mSATA, SF-2100, tested with OCZ-NOCTI/2.15
@@ -231,7 +233,8 @@ const drive_settings builtin_knowndrives[] = {
     "Patriot Pyro|" // tested with Patriot Pyro/332ABBF0
     "SanDisk SDSSDX(60|120|240|480)GG25|" // SanDisk Extreme, SF-2281, tested with
       // SDSSDX240GG25/R201
-    "(TX32|TX31C1|VN0..GCNMK|VN0...GCNMK).*|" // Smart Storage Systems XceedSTOR
+    "SuperSSpeed S301 [0-9]*GB|" // SF-2281, tested with SuperSSpeed S301 128GB/503
+    "(TX32|TX31C1|VN0.?..GCNMK).*|" // Smart Storage Systems XceedSTOR
     "(TX22D1|TX21B1).*|" // Smart Storage Systems XceedIOPS2
     "TX52D1.*|" // Smart Storage Systems Xcel-200
     "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
@@ -385,8 +388,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
   },
-  { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362
-    "INTEL SSDSA[12]C[WT](040|080|120|160|300|600)G3",
+  { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362,
+      // INTEL SSDSA2CW160G3/4PC10362, INTEL SSDSA2BT040G3/4PC10362
+    "INTEL SSDSA[12][BC][WT](040|080|120|160|300|600)G3",
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
@@ -910,6 +914,10 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HD(083G|16[12]G|25[12]H|32[12]H|50[12]I|642J|75[23]L|10[23]U)J",
     "", "", ""
   },
+  { "SAMSUNG SpinPoint F1 EG", // tested with HD103UI/1AA01113
+    "SAMSUNG HD(252H|322H|502I|642J|753L|103U)I",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint F1 RE", // tested with HE103UJ/1AA01113
     "SAMSUNG HE(252H|322H|502I|642J|753L|103U)J",
     "", "", ""
@@ -987,8 +995,9 @@ const drive_settings builtin_knowndrives[] = {
     "May need -F samsung3 enabled; see manual for details.",
     ""
   },
-  { "SAMSUNG SpinPoint P80", // firmware *-25...34, tested with SP1614C/SW100-25 and -34
-    "SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]",
+  { "SAMSUNG SpinPoint P80", // firmware *-25...34, tested with
+      // SP0401N/TJ100-30, SP1614C/SW100-25 and -34
+    "SAMSUNG SP(04[05]1|08[0124]2|12[0145]3|16[0145]4)[CN]",
     ".*-(2[5-9]|3[0-4])",
     "",
     "-v 9,halfminutes -v 198,increasing"
@@ -2206,12 +2215,13 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((500|640|750)1AAL|1001FA[EL]|2001FAS)S-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Black",  // SATA 3.0 variants
-    "WDC WD(5002AAL|(64|75)02AAE|(10|15|20)02FAE)X-.*",
+  { "Western Digital Caviar Black",  // SATA 6 Gb/s variants, tested with
+      //  WDC WD4001FAEX-00MJRA0/01.01L01
+    "WDC WD(5002AAL|(64|75)02AAE|((10|15|20)02|4001)FAE)X-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black (AF)", // tested with WDC WD5003AZEX-00RKKA0/80.00A80
-    "WDC WD(5003AZE|(10|15|20)02FAE)X-.*",
+    "WDC WD(5003AZE)X-.*",
     "", "", ""
   },
   { "Western Digital AV ATA", // tested with WDC WD3200AVJB-63J5A0/01.03E01
@@ -2289,8 +2299,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital My Passport (USB, AF)", // tested with
       // WDC WD5000KMVV-11TK7S1/01.01A01, WDC WD10TMVW-11ZSMS5/01.01A01,
-      // WDC WD20NMVW-11W68S0/01.01A01
-    "WDC WD(5000K|7500K|10T|20N)MV[VW]-.*", // *W-* = USB 3.0
+      // WDC WD10JMVW-11S5XS1/01.01A01, WDC WD20NMVW-11W68S0/01.01A01
+    "WDC WD(5000[LK]|7500K|10[JT]|20N)MV[VW]-.*", // *W-* = USB 3.0
     "", "", ""
   },
   { "Quantum Bigfoot", // tested with TS10.0A/A21.0G00, TS12.7A/A21.0F00
@@ -2625,7 +2635,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x067b:0x3507",
     "", // 0x0001
     "",
-    "" // unsupported
+    "" // smartmontools >= r3741: -d usbjmicron,p
   },
   // Imation
   { "USB: Imation ; ", // Imation Odyssey external USB dock
@@ -2928,7 +2938,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: WD My Passport USB 3.0; ",
-    "0x1058:0x0748",
+    "0x1058:0x07[4a]8",
     "",
     "",
     "-d sat"
@@ -2996,6 +3006,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: WD My Book; ",
     "0x1058:0x1102",
     "", // 0x1028
+    "",
+    "-d sat"
+  },
+  { "USB: WD My Book Studio II; ", // 2x1TB
+    "0x1058:0x1105",
+    "",
     "",
     "-d sat"
   },
