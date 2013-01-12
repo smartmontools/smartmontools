@@ -1,9 +1,22 @@
 $Id$
 
+2013-01-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Mushkin Callisto deluxe, SuperSSpeed S301
+	- Intel 320 Series SSDs: 'B' (7mm) variant (ticket #257)
+	- SAMSUNG SpinPoint F1 EG
+	- SAMSUNG SpinPoint P80: SP0401N/TJ100-30
+	- Western Digital Caviar Black: 4TB
+	- Western Digital Caviar Black (AF): Remove non-AF models
+	- Western Digital My Passport (USB, AF): 5000L, 10J variants
+	- USB: WD My Passport USB 3.0 (0x1058:0x07a8)
+	- USB: WD My Book Studio II (0x1058:0x1105)
+
 2013-01-02  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
-	- Sandforce Driven SSDs: ADATA S396, Kingston 3K, V+
+	- SandForce Driven SSDs: ADATA S396, Kingston 3K, V+
 	- Indilinx Everest/Martini based SSDs: OCZ VERTEX PLUS
 	- Samsung based SSD: Samsung SSD 840 PRO Series
 
