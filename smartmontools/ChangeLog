@@ -1,5 +1,9 @@
 $Id$
 
+2013-01-13  Ole Jørgen Legård  <ole@smartautomation.no>
+
+	os_qnxnto.cpp: Fix include of errno.h.
+
 2013-01-12  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

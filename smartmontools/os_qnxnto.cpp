@@ -13,6 +13,7 @@
 // This is to include whatever structures and prototypes you define in
 // os_generic.h
 #include "os_qnxnto.h"
+#include <errno.h>
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl.  You
 // should have one *_H_CVSID macro appearing below for each file
@@ -420,7 +421,6 @@ int areca_command_interface(int fd,int disknum,smart_command_set command,int sel
   return -1;
 }
 //----------------------------------------------------------------------------------------------
-#include <errno.h>
 // Interface to SCSI devices.  See os_linux.c
 int do_scsi_cmnd_io(int fd,struct scsi_cmnd_io * iop,int report)
 {
