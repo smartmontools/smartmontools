@@ -239,7 +239,7 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
     defs[id].raw_format = format;
     defs[id].priority = priority;
     defs[id].flags = flags;
-    snprintf(defs[i].byteorder, sizeof(defs[i].byteorder), "%s", byteorder);
+    snprintf(defs[id].byteorder, sizeof(defs[id].byteorder), "%s", byteorder);
   }
 
   return true;

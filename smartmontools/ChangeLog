@@ -1,5 +1,10 @@
 $Id$
 
+2013-01-16  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Fix assignment of BYTEORDER from -v option
+	(Regression from r3719).
+
 2013-01-13  Ole Jørgen Legård  <ole@smartautomation.no>
 
 	os_qnxnto.cpp: Fix include of errno.h.
