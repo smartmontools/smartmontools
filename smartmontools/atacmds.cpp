@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3740 2013-01-01 18:12:00Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3747 2013-01-16 21:29:42Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -239,7 +239,7 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
     defs[id].raw_format = format;
     defs[id].priority = priority;
     defs[id].flags = flags;
-    snprintf(defs[i].byteorder, sizeof(defs[i].byteorder), "%s", byteorder);
+    snprintf(defs[id].byteorder, sizeof(defs[id].byteorder), "%s", byteorder);
   }
 
   return true;

@@ -1,4 +1,9 @@
-$Id: ChangeLog 3746 2013-01-13 17:11:58Z chrfranke $
+$Id: ChangeLog 3747 2013-01-16 21:29:42Z chrfranke $
+
+2013-01-16  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Fix assignment of BYTEORDER from -v option
+	(Regression from r3719).
 
 2013-01-13  Ole Jørgen Legård  <ole@smartautomation.no>
 
