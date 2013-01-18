@@ -2,6 +2,10 @@ $Id$
 
 2013-01-18  Christian Franke  <franke@computer.org>
 
+	AUTHORS: Convert to UTF-8.
+
+2013-01-18  Christian Franke  <franke@computer.org>
+
 	Rename configure.in to configure.ac to silence warning from
 	new automake.
 	autogen.sh: automake 1.12.5 is OK.
