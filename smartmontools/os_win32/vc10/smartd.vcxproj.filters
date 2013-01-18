@@ -116,7 +116,7 @@
     <None Include="..\..\autogen.sh" />
     <None Include="..\..\ChangeLog" />
     <None Include="..\..\config.h.in" />
-    <None Include="..\..\configure.in" />
+    <None Include="..\..\configure.ac" />
     <None Include="..\..\do_release" />
     <None Include="..\..\Doxyfile" />
     <None Include="..\..\INSTALL" />

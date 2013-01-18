@@ -3,13 +3,13 @@
 # do a smartmontools release
 # (C) 2003-11 Bruce Allen <ballen4705@users.sourceforge.net>,
 #             Guido Guenther <agx@sigxcpu.org>
-# (C) 2006-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+# (C) 2006-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 # $Id$
 
 # Notes on generating releases:
 # (1) update NEWS
 # (2) update ChangeLog -- put in release number
-# (3) update release number in configure.in 
+# (3) update release number in configure.ac
 # (4) to test, run without '--commit'
 # (5) when satisfied, add option '--commit'
 
@@ -65,7 +65,7 @@ fi
   case "`echo $s | tr -s ' '`" in
     "M "$DIRPAT/smartmontools/ChangeLog)    echo "$s: OK";;
     "M "$DIRPAT/smartmontools/NEWS)         echo "$s: OK";;
-    "M "$DIRPAT/smartmontools/configure.in) echo "$s: OK";;
+    "M "$DIRPAT/smartmontools/configure.ac) echo "$s: OK";;
     *) echo "$s: not allowed"; exit 1;;
   esac
 done
@@ -74,9 +74,9 @@ if [ $? -ne 0 ]; then
 fi
 
 # Get release number
-VERSION=`sed -n 's|^AC_INIT[^,]*, *\([0-9.]*\) *,.*$|\1|p' configure.in`
+VERSION=`sed -n 's|^AC_INIT[^,]*, *\([0-9.]*\) *,.*$|\1|p' configure.ac`
 if [ -z "$VERSION" ]; then
-  echo "AC_INIT not found in configure.in"; exit 1
+  echo "AC_INIT not found in configure.ac"; exit 1
 fi
 VERSIONRC="$VERSION"
 RELEASE="RELEASE_${VERSION//\./_}"
@@ -95,8 +95,8 @@ echo "r$REV: Release $VERSIONRC $RELEASE"
 # Update timestamp
 smartmontools_release_date=`date -u +"%Y-%m-%d"`
 smartmontools_release_time=`date -u +"%T %Z"`
-cat configure.in  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
-cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.in
+cat configure.ac  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
+cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.ac
 rm -f configure.tmp
 
 # Review changes
@@ -134,8 +134,8 @@ md5sum $TARFILE > $TARFILE.md5
 if [ -z "$RC" -a "$DIRPAT" = "trunk" ]; then
   inc_release
   if [ "$COMMIT" = "yes" ]; then
-    perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.in
-    # svn commit -m "Bump release number to $NEW_VERSION" configure.in
+    perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.ac
+    # svn commit -m "Bump release number to $NEW_VERSION" configure.ac
   fi
 fi
 
