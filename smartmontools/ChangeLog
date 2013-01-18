@@ -1,4 +1,8 @@
-$Id: ChangeLog 3749 2013-01-18 20:41:35Z chrfranke $
+$Id: ChangeLog 3750 2013-01-18 20:58:12Z chrfranke $
+
+2013-01-18  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Convert to UTF-8.
 
 2013-01-18  Christian Franke  <franke@computer.org>
 
