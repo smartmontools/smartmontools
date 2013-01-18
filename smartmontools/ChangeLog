@@ -1,4 +1,8 @@
-$Id: ChangeLog 3747 2013-01-16 21:29:42Z chrfranke $
+$Id: ChangeLog 3748 2013-01-18 20:12:44Z chrfranke $
+
+2013-01-18  Christian Franke  <franke@computer.org>
+
+	autogen.sh: automake 1.12.5 is OK.
 
 2013-01-16  Christian Franke  <franke@computer.org>
 

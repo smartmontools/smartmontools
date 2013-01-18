@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh 3623 2012-10-05 20:22:58Z chrfranke $
+# $Id: autogen.sh 3748 2013-01-18 20:12:44Z chrfranke $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -84,7 +84,7 @@ case "$ver" in
     rm -f casetest.tmp
     ;;
 
-  1.9.[1-6]|1.10|1.10.[12]|1.11|1.11.[1-6]|1.12.3)
+  1.9.[1-6]|1.10|1.10.[12]|1.11|1.11.[1-6]|1.12.[3-5])
     # OK
     ;;
 
