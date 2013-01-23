@@ -1,5 +1,13 @@
 $Id$
 
+2013-01-23  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300/C400/m4: m4 mSATA variant
+	- Indilinx Barefoot 3 based SSDs
+	- Intel DC S3700 Series SSDs
+	- Samsung based SSD: Samsung SSD 840 Series
+
 2013-01-18  Christian Franke  <franke@computer.org>
 
 	AUTHORS: Convert to UTF-8.  Sort names.  Replace tabs.

@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -164,7 +164,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Crucial/Micron RealSSD C300/C400/m4",
     "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002
     "C400-MTFDDA[ACK](064|128|256|512)MAM|" // Marvell 9176, tested with C400-MTFDDAC256MAM/0002
-    "M4-CT(064|128|256|512)M4SSD2", // tested with M4-CT064M4SSD2/0002, M4-CT512M4SSD2/0309
+    "M4-CT(064|128|256|512)M4SSD[23]", // tested with M4-CT064M4SSD2/0002, M4-CT512M4SSD2/0309,
+                                       // M4-CT256M4SSD3/000F
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -323,6 +324,25 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 232,raw48,Lifetime_Writes " // LBA?
   //"-v 233,raw48,Media_Wearout_Indicator"
+  },
+  { "Indilinx Barefoot 3 based SSDs",
+    "OCZ-VECTOR", // tested with OCZ-VECTOR/1.03
+    "", "", ""
+    "-v 5,raw48,Runtime_Bad_Block "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 171,raw48,Avail_OP_Block_Count "
+    "-v 174,raw48,Pwr_Cycle_Ct_Unplanned "
+    "-v 187,raw48,Total_Unc_NAND_Reads "
+    "-v 195,raw48,Total_Prog_Failures "
+    "-v 196,raw48,Total_Erase_Failures "
+    "-v 197,raw48,Total_Unc_Read_Failures "
+    "-v 198,raw48,Host_Reads_GiB "
+    "-v 199,raw48,Host_Writes_GiB "
+    "-v 208,raw48,Average_Erase_Count "
+    "-v 210,raw48,SATA_CRC_Error_Count "
+    "-v 233,raw48,Remaining_Lifetime_Perc "
+    "-v 249,raw48,Total_NAND_Prog_Ct_GiB"
   },
   { "Intel X25-E SSDs",
     "SSDSA2SH(032|064)G1.* INTEL",  // G1 = first generation
@@ -492,6 +512,37 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
+  { "Intel DC S3700 Series SSDs", // tested with INTEL SSDSC2BA200G3/5DV10250
+    "INTEL SSDSC(1N|2B)A(100|200|400|800)G3",
+    "", "",
+  //"-v 3,raw16(avg16),Spin_Up_Time "
+  //"-v 4,raw48,Start_Stop_Count "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unsafe_Shutdown_Count "
+    "-v 175,raw48,Power_Loss_Cap_Test "
+    "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+    "-v 190,tempminmax,Temperature_Case "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 194,tempminmax,Temperature_Internal "
+  //"-v 197,raw48,Current_Pending_Sector "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 234,raw48,Thermal_Throttle "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB"
+  },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",
     "2CV102(J[89A-Z]|[K-Z].)", // >= "2CV102J8"
@@ -570,7 +621,8 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG SSD PM810 .*GB|"  // SAMSUNG PM810 (470 series) SSDs, tested with SAMSUNG SSD PM810 2.5" 128GB/AXM06D1Q
     "SAMSUNG 470 Series SSD|"  // tested with SAMSUNG 470 Series SSD 64GB/AXM09B1Q
     "SAMSUNG SSD 830 Series|"  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
-    "Samsung SSD 840 PRO Series", // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q
+    "Samsung SSD 840 (PRO )?Series", // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
+                                     // Samsung SSD 840 Series/DXT06B0Q
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -2194,7 +2246,7 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((25|32|50|75)02A|(75|10)02F)BYS-.*",
     "", "", ""
   },
-  { "Western Digital RE4 Serial ATA",
+  { "Western Digital RE4 Serial ATA", // tested with WDC WD2003FYYS-18W0B0/01.01D02
     "WDC WD((((25|50)03A|1003F)BYX)|((15|20)03FYYS))-.*",
     "", "", ""
   },
