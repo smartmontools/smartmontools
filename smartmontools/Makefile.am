@@ -104,6 +104,13 @@ EXTRA_smartctl_SOURCES = \
         dev_legacy.cpp \
         megaraid.h
 
+if OS_WIN32_MINGW
+
+smartctl_LDADD        += smartctl_res.o
+smartctl_DEPENDENCIES += smartctl_res.o
+
+endif
+
 
 smartd_SOURCES = \
         smartd.cpp \
@@ -163,6 +170,9 @@ smartd_SOURCES += \
         os_win32/daemon_win32.h \
         os_win32/syslog_win32.cpp \
         os_win32/syslog.h
+
+smartd_LDADD        += smartd_res.o
+smartd_DEPENDENCIES += smartd_res.o
 
 endif
 
@@ -358,6 +368,8 @@ EXTRA_DIST = \
         os_win32/runcmd.c \
         os_win32/runcmda.exe.manifest \
         os_win32/runcmdu.exe.manifest \
+        os_win32/smartctl_res.rc.in \
+        os_win32/smartd_res.rc.in \
         os_win32/smartd_warning.cmd \
         os_win32/syslogevt.c \
         os_win32/syslogevt.mc \
@@ -638,6 +650,27 @@ check:
 
 
 if OS_WIN32_MINGW
+# Windows resources
+
+smartctl_res.o: smartctl_res.rc
+	$(WINDRES) $< $@
+
+smartd_res.o: smartd_res.rc
+	$(WINDRES) $< $@
+
+# Convert version for VERSIONINFO resource: 6.1 r3754 -> 6.1.0.3754
+WIN_RC_FILTER = \
+    ( ver=`echo '$(PACKAGE_VERSION).0' | sed -n 's,^\([0-9]*\.[0-9]*\.[0-9]*\).*$$,\1,p'`; \
+      rev=`sed -n 's,^.*REV[^"]*"\([0-9]*\).*$$,\1,p' svnversion.h`; \
+      txtver="$${ver:-0.0.0}.$${rev:-0}"; binver=`echo "$$txtver" | sed 's|\.|,|g'`; \
+      sed -e "s|@BINARY_VERSION@|$$binver|g" -e "s|@TEXT_VERSION@|$$txtver|g"; )
+
+smartctl_res.rc: os_win32/smartctl_res.rc.in Makefile svnversion.h
+	cat $< | $(WIN_RC_FILTER) > $@
+
+smartd_res.rc: os_win32/smartd_res.rc.in Makefile svnversion.h
+	cat $< | $(WIN_RC_FILTER) > $@
+
 # Definitions for Windows distribution
 
 if OS_WIN64
@@ -705,6 +738,8 @@ CLEANFILES += \
         $(FILES_WIN32) \
         runcmdu.exe \
         smartctl-nc.exe smartctl-nc.exe.tmp \
+        smartctl_res.rc smartctl_res.o \
+        smartd_res.rc smartd_res.o \
         syslogevt.exe syslogevt.h syslogevt.o \
         syslogevt.res.o syslogevt.rc syslogevt_*.bin \
         wtssendmsg.exe \
@@ -851,9 +886,12 @@ syslogevt.rc: os_win32/syslogevt.mc
 	$(WINDMC) -b $<
 endif
 
-# Build os_win32/vc10/{config,svnversion}.h for MSVC10 from MinGW {config,svnversion}.h
+# Build os_win32/vc10/{config.h,smart*.rc,svnversion.h} for MSVC10 from MinGW files
 
-config-vc10: $(srcdir)/os_win32/vc10/config.h  $(srcdir)/os_win32/vc10/svnversion.h
+config-vc10: $(srcdir)/os_win32/vc10/config.h \
+             $(srcdir)/os_win32/vc10/smartctl_res.rc \
+             $(srcdir)/os_win32/vc10/smartd_res.rc \
+             $(srcdir)/os_win32/vc10/svnversion.h
 
 $(srcdir)/os_win32/vc10/config.h: config.h Makefile
 	sed -e '1i/* os_win32/vc10/config.h.  Generated from config.h by Makefile.  */' \
@@ -861,6 +899,12 @@ $(srcdir)/os_win32/vc10/config.h: config.h Makefile
 	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc10,' $< > $@
 
 $(srcdir)/os_win32/vc10/svnversion.h: svnversion.h
+	cp $< $@
+
+$(srcdir)/os_win32/vc10/smartctl_res.rc: smartctl_res.rc
+	cp $< $@
+
+$(srcdir)/os_win32/vc10/smartd_res.rc: smartd_res.rc
 	cp $< $@
 
 endif

@@ -2,6 +2,10 @@ $Id$
 
 2013-01-23  Christian Franke  <franke@computer.org>
 
+	Windows: Add VERSIONINFO resource to exe files.
+
+2013-01-23  Christian Franke  <franke@computer.org>
+
 	drivedb.h:
 	- Crucial/Micron RealSSD C300/C400/m4: m4 mSATA variant
 	- Indilinx Barefoot 3 based SSDs
