@@ -254,6 +254,8 @@
   <ItemGroup>
     <None Include="..\..\smartd_warning.sh.in" />
     <None Include="..\installer.nsi" />
+    <None Include="..\smartctl_res.rc.in" />
+    <None Include="..\smartd_res.rc.in" />
     <None Include="..\smartd_warning.cmd" />
     <None Include="..\update-smart-drivedb.nsi" />
     <None Include="..\..\AUTHORS" />
@@ -274,6 +276,13 @@
     <None Include="..\..\TODO" />
     <None Include="..\..\update-smart-drivedb.in" />
     <None Include="..\..\WARNINGS" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="smartctl_res.rc" />
+    <ResourceCompile Include="smartd_res.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

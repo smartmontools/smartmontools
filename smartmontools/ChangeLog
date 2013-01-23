@@ -1,4 +1,8 @@
-$Id: ChangeLog 3752 2013-01-23 20:19:46Z chrfranke $
+$Id: ChangeLog 3754 2013-01-23 22:07:11Z chrfranke $
+
+2013-01-23  Christian Franke  <franke@computer.org>
+
+	Windows: Add VERSIONINFO resource to exe files.
 
 2013-01-23  Christian Franke  <franke@computer.org>
 

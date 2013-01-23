@@ -131,6 +131,12 @@
       <Filter>os_win32</Filter>
     </None>
     <None Include="..\..\smartd_warning.sh.in" />
+    <None Include="..\smartctl_res.rc.in">
+      <Filter>os_win32</Filter>
+    </None>
+    <None Include="..\smartd_res.rc.in">
+      <Filter>os_win32</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CustomBuildStep Include="..\daemon_win32.h">
@@ -150,5 +156,13 @@
     <CustomBuildStep Include="..\..\os_os2.h" />
     <CustomBuildStep Include="..\..\os_qnxnto.h" />
     <CustomBuildStep Include="..\..\os_solaris.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="smartctl_res.rc">
+      <Filter>os_win32</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="smartd_res.rc">
+      <Filter>os_win32</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
