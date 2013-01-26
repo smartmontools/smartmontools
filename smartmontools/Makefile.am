@@ -371,7 +371,6 @@ EXTRA_DIST = \
         os_win32/smartctl_res.rc.in \
         os_win32/smartd_res.rc.in \
         os_win32/smartd_warning.cmd \
-        os_win32/syslogevt.c \
         os_win32/syslogevt.mc \
         os_win32/update-smart-drivedb.nsi \
         os_win32/wbemcli_small.h \
@@ -698,11 +697,6 @@ EXEFILES_WIN32 = \
         $(exedir_win32)/runcmdu.exe \
         $(exedir_win32)/wtssendmsg.exe
 
-if OS_WIN32_WINDMC
-EXEFILES_WIN32 += \
-        $(exedir_win32)/syslogevt.exe
-endif
-
 if ENABLE_DRIVEDB
 if OS_WIN32_NSIS
 EXEFILES_WIN32 += \
@@ -743,8 +737,8 @@ CLEANFILES += \
         smartctl-nc.exe smartctl-nc.exe.tmp \
         smartctl_res.rc smartctl_res.o \
         smartd_res.rc smartd_res.o \
-        syslogevt.exe syslogevt.h syslogevt.o \
-        syslogevt.res.o syslogevt.rc syslogevt_*.bin \
+        syslogevt.h syslogevt.o \
+        syslogevt.rc syslogevt_*.bin \
         wtssendmsg.exe \
         update-smart-drivedb.exe \
         distdir.mkdir
@@ -872,20 +866,6 @@ runcmdu.exe: os_win32/runcmd.c
 
 wtssendmsg.exe: os_win32/wtssendmsg.c
 	$(CC) -Os -o $@ $< -lwtsapi32
-
-if OS_WIN32_WINDMC
-# Build syslogevt.exe event message file tool
-
-syslogevt.exe: syslogevt.o syslogevt.res.o
-	$(LINK) $^
-
-syslogevt.o: os_win32/syslogevt.c syslogevt.rc
-	$(CC) -c -I. -Os -o $@ $<
-
-syslogevt.res.o: syslogevt.rc
-	$(WINDRES) $< $@
-
-endif
 
 # Build os_win32/vc10/{config.h,smart*.rc,svnversion.h} for MSVC10 from MinGW files
 

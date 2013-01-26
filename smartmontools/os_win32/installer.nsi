@@ -3,7 +3,7 @@
 ;
 ; Home page of code is: http://smartmontools.sourceforge.net
 ;
-; Copyright (C) 2006-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; Copyright (C) 2006-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -139,7 +139,6 @@ SectionGroup "!Program files"
         File "${INPDIR}\doc\smartd.conf"
 
     File "${INPDIR}\bin\smartd_warning.cmd"
-    !insertmacro FileExe "bin\syslogevt.exe" /nonfatal
     !insertmacro FileExe "bin\wtssendmsg.exe" ""
 
     ; Restart service ?
@@ -421,7 +420,6 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\smartctl-nc.exe"
   Delete "$INSTDIR\bin\smartd.exe"
   Delete "$INSTDIR\bin\smartd_warning.cmd" ; TODO: Check for modifications?
-  Delete "$INSTDIR\bin\syslogevt.exe"
   Delete "$INSTDIR\bin\drivedb.h"
   Delete "$INSTDIR\bin\drivedb.h.error"
   Delete "$INSTDIR\bin\drivedb.h.lastcheck"

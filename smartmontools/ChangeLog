@@ -4,6 +4,7 @@ $Id$
 
 	Windows smartd: Add eventlog MESSAGETABLE resource.
 	Install/remove smartd.exe as event message file.
+	Remove syslogevt.exe tool.
 
 2013-01-26  Christian Franke  <franke@computer.org>
 
