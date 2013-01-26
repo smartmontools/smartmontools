@@ -137,6 +137,9 @@
     <None Include="..\smartd_res.rc.in">
       <Filter>os_win32</Filter>
     </None>
+    <None Include="..\syslogevt.mc">
+      <Filter>os_win32</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CustomBuildStep Include="..\daemon_win32.h">

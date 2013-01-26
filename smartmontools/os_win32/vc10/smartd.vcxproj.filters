@@ -165,4 +165,9 @@
       <Filter>os_win32</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\syslogevt.mc">
+      <Filter>os_win32</Filter>
+    </CustomBuild>
+  </ItemGroup>
 </Project>

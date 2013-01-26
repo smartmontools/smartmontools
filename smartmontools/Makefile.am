@@ -655,8 +655,8 @@ if OS_WIN32_MINGW
 smartctl_res.o: smartctl_res.rc
 	$(WINDRES) $< $@
 
-smartd_res.o: smartd_res.rc
-	$(WINDRES) $< $@
+smartd_res.o: smartd_res.rc syslogevt.rc
+	$(WINDRES) -I. $< $@
 
 # Convert version for VERSIONINFO resource: 6.1 r3754 -> 6.1.0.3754
 WIN_RC_FILTER = \
@@ -670,6 +670,9 @@ smartctl_res.rc: os_win32/smartctl_res.rc.in Makefile svnversion.h
 
 smartd_res.rc: os_win32/smartd_res.rc.in Makefile svnversion.h
 	cat $< | $(WIN_RC_FILTER) > $@
+
+syslogevt.rc: os_win32/syslogevt.mc
+	$(WINDMC) -b $<
 
 # Definitions for Windows distribution
 
@@ -882,8 +885,6 @@ syslogevt.o: os_win32/syslogevt.c syslogevt.rc
 syslogevt.res.o: syslogevt.rc
 	$(WINDRES) $< $@
 
-syslogevt.rc: os_win32/syslogevt.mc
-	$(WINDMC) -b $<
 endif
 
 # Build os_win32/vc10/{config.h,smart*.rc,svnversion.h} for MSVC10 from MinGW files
