@@ -306,12 +306,6 @@ log output is redirected as follows:
 \'\-l local1\' to standard output (redirect with \'>\' to any file),
 \'\-l local2\' to standard error,
 \'\-l local[3-7]\': to file \fB./smartd[1-5].log\fP.
-
-When using the event log, the enclosed utility \fBsyslogevt.exe\fP
-should be registered as an event message file to avoid error
-messages from the event viewer. Use \'\fBsyslogevt \-r smartd\fP\'
-to register, \'\fBsyslogevt \-u smartd\fP\' to unregister and
-\'\fBsyslogevt\fP\' for more help.
 .\" %ENDIF OS Windows
 .TP
 .B \-n, \-\-no\-fork
@@ -619,9 +613,11 @@ The Windows Version of \fBsmartd\fP has buildin support for services:
 \'\fBsmartd install [options]\fP\' installs a service
 named "smartd" (display name "SmartD Service") using the command line
 \'/INSTALLPATH/smartd.exe \-\-service [options]\'.
+This also installs smartd.exe as a event message file for the Windows
+event viewer.
 
-\'\fBsmartd remove\fP\' can later be used to remove the service entry
-from registry.
+\'\fBsmartd remove\fP\' can later be used to remove the service and
+event message entries from the registry.
 
 Upon startup, the smartd service changes the working directory
 to its own installation path. If smartd.conf and blat.exe are stored

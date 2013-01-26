@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -841,6 +841,79 @@ static void WINAPI service_main(DWORD /*argc*/, LPSTR * argv)
 /////////////////////////////////////////////////////////////////////////////
 // Windows Service Admin Functions
 
+
+// Make registry key name for event message file
+static bool make_evtkey(char * buf, unsigned size, const char * ident)
+{
+  static const char prefix[] = "SYSTEM\\CurrentControlSet\\Services\\Eventlog\\Application\\";
+  const unsigned pfxlen = sizeof(prefix)-1;
+  unsigned idlen = strlen(ident);
+  if (pfxlen + idlen >= size) {
+    printf(" Buffer overflow\n");
+    return false;
+  }
+  memcpy(buf, prefix, pfxlen);
+  memcpy(buf+pfxlen, ident, idlen+1);
+  return true;
+}
+
+// Install this exe as event message file
+static void inst_evtmsg(const char * ident)
+{
+  printf("Installing event message file for %s:", ident); fflush(stdout);
+
+  char mypath[MAX_PATH];
+  if (!GetModuleFileNameA((HMODULE)0, mypath, sizeof(mypath))) {
+    printf(" unknown program path, Error=%ld\n", GetLastError());
+    return;
+  }
+
+  char subkey[MAX_PATH];
+  if (!make_evtkey(subkey, sizeof(subkey), ident))
+    return;
+
+  HKEY hk;
+  LONG err = RegCreateKeyExA(HKEY_LOCAL_MACHINE, subkey, 0, (char *)0, 0, KEY_ALL_ACCESS,
+                             (SECURITY_ATTRIBUTES *)0, &hk, (DWORD *)0);
+  if (err != ERROR_SUCCESS) {
+    printf(" RegCreateKeyEx failed, error=%ld\n", err);
+    return;
+  }
+
+  err = RegSetValueExA(hk, "EventMessageFile", 0, REG_SZ,
+                       (const BYTE *)mypath, strlen(mypath)+1);
+  if (err == ERROR_SUCCESS) {
+    DWORD val = EVENTLOG_INFORMATION_TYPE
+               |EVENTLOG_WARNING_TYPE
+               |EVENTLOG_ERROR_TYPE;
+    err = RegSetValueExA(hk, "TypesSupported", 0, REG_DWORD,
+                         (const BYTE *)&val, sizeof(val));
+  }
+  if (err != ERROR_SUCCESS)
+    printf(" RegSetValueEx failed, error=%ld\n", err);
+
+  RegCloseKey(hk);
+  puts(" done");
+}
+
+// Uninstall event message file
+static void uninst_evtmsg(const char * ident)
+{
+  printf("Removing event message file for %s:", ident); fflush(stdout);
+
+  char subkey[MAX_PATH];
+  if (!make_evtkey(subkey, sizeof(subkey), ident))
+    return;
+
+  LONG err = RegDeleteKeyA(HKEY_LOCAL_MACHINE, subkey);
+  if (err != ERROR_SUCCESS && err != ERROR_FILE_NOT_FOUND) {
+    printf(" RegDeleteKey failed, error=%ld\n", err);
+    return;
+  }
+  puts(" done");
+}
+
+
 // Service install/remove commands
 
 static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opts,
@@ -950,6 +1023,15 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
   }
   puts(" done");
   CloseServiceHandle(hs); CloseServiceHandle(hm);
+
+  // Install/Remove event message file registry entry
+  if (!remove) {
+    inst_evtmsg(ident);
+  }
+  else {
+    uninst_evtmsg(ident);
+  }
+
   return 0;
 }
 
