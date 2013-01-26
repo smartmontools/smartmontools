@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.8.in 3732 2012-12-14 20:36:21Z chrfranke $
+$Id: smartd.8.in 3758 2013-01-26 18:11:28Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -306,12 +306,6 @@ log output is redirected as follows:
 \'\-l local1\' to standard output (redirect with \'>\' to any file),
 \'\-l local2\' to standard error,
 \'\-l local[3-7]\': to file \fB./smartd[1-5].log\fP.
-
-When using the event log, the enclosed utility \fBsyslogevt.exe\fP
-should be registered as an event message file to avoid error
-messages from the event viewer. Use \'\fBsyslogevt \-r smartd\fP\'
-to register, \'\fBsyslogevt \-u smartd\fP\' to unregister and
-\'\fBsyslogevt\fP\' for more help.
 .\" %ENDIF OS Windows
 .TP
 .B \-n, \-\-no\-fork
@@ -619,9 +613,11 @@ The Windows Version of \fBsmartd\fP has buildin support for services:
 \'\fBsmartd install [options]\fP\' installs a service
 named "smartd" (display name "SmartD Service") using the command line
 \'/INSTALLPATH/smartd.exe \-\-service [options]\'.
+This also installs smartd.exe as a event message file for the Windows
+event viewer.
 
-\'\fBsmartd remove\fP\' can later be used to remove the service entry
-from registry.
+\'\fBsmartd remove\fP\' can later be used to remove the service and
+event message entries from the registry.
 
 Upon startup, the smartd service changes the working directory
 to its own installation path. If smartd.conf and blat.exe are stored
@@ -802,4 +798,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 3732 2012-12-14 20:36:21Z chrfranke $
+$Id: smartd.8.in 3758 2013-01-26 18:11:28Z chrfranke $
