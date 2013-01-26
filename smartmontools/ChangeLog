@@ -1,5 +1,9 @@
 $Id$
 
+2013-01-26  Christian Franke  <franke@computer.org>
+
+	Windows: Add required string CompanyName to VERSIONINFO.
+
 2013-01-23  Christian Franke  <franke@computer.org>
 
 	Windows: Add VERSIONINFO resource to exe files.
