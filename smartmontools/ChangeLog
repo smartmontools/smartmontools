@@ -1,9 +1,10 @@
-$Id: ChangeLog 3758 2013-01-26 18:11:28Z chrfranke $
+$Id: ChangeLog 3759 2013-01-26 21:11:02Z chrfranke $
 
 2013-01-26  Christian Franke  <franke@computer.org>
 
 	Windows smartd: Add eventlog MESSAGETABLE resource.
 	Install/remove smartd.exe as event message file.
+	Remove syslogevt.exe tool.
 
 2013-01-26  Christian Franke  <franke@computer.org>
 

@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 3749 2013-01-18 20:41:35Z chrfranke $
+# $Id: configure.ac 3759 2013-01-26 21:11:02Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 6.1, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.ac 3749 2013-01-18 20:41:35Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 3759 2013-01-26 21:11:02Z chrfranke $'`
 smartmontools_release_date=2012-10-10
 smartmontools_release_time="11:53:34 UTC"
 
@@ -444,7 +444,6 @@ AM_CONDITIONAL(OS_SOLARIS, [test "$os_solaris" = "yes"])
 AM_CONDITIONAL(OS_WIN32, [test "$os_win32" = "yes"])
 AM_CONDITIONAL(OS_WIN32_MINGW, [test "$os_win32_mingw" = "yes"])
 AM_CONDITIONAL(OS_WIN32_NSIS, [test -n "$MAKENSIS"])
-AM_CONDITIONAL(OS_WIN32_WINDMC, [test -n "$WINDMC" && test "$WINDMC" != "no" && test -n "$WINDRES"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
 
 dnl Add -Wall and -W if using g++ and its not already specified.
