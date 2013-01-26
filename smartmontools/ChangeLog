@@ -1,4 +1,8 @@
-$Id: ChangeLog 3755 2013-01-26 15:13:08Z chrfranke $
+$Id: ChangeLog 3756 2013-01-26 16:16:35Z chrfranke $
+
+2013-01-26  Christian Franke  <franke@computer.org>
+
+	Windows smartd: Add eventlog MESSAGETABLE resource.
 
 2013-01-26  Christian Franke  <franke@computer.org>
 

@@ -257,6 +257,7 @@
     <None Include="..\smartctl_res.rc.in" />
     <None Include="..\smartd_res.rc.in" />
     <None Include="..\smartd_warning.cmd" />
+    <None Include="..\syslogevt.mc" />
     <None Include="..\update-smart-drivedb.nsi" />
     <None Include="..\..\AUTHORS" />
     <None Include="..\..\autogen.sh" />

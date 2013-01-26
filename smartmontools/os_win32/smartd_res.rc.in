@@ -1,7 +1,7 @@
 //
 // os_win32/smartd_res.rc.in
 //
-// $Id: smartd_res.rc.in 3755 2013-01-26 15:13:08Z chrfranke $
+// $Id: smartd_res.rc.in 3756 2013-01-26 16:16:35Z chrfranke $
 //
 
 1 VERSIONINFO
@@ -32,3 +32,6 @@ BEGIN
         VALUE "Translation", 0x0409, 0x0000
     END
 END
+
+// eventlog MESSAGETABLE for syslog() emulation
+#include "syslogevt.rc"
