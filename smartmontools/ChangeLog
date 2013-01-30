@@ -1,4 +1,8 @@
-$Id: ChangeLog 3759 2013-01-26 21:11:02Z chrfranke $
+$Id: ChangeLog 3760 2013-01-30 18:43:39Z chrfranke $
+
+2013-01-30  Christian Franke  <franke@computer.org>
+
+	Windows smartd: Install service with delayed auto start enabled.
 
 2013-01-26  Christian Franke  <franke@computer.org>
 
