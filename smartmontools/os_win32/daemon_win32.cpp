@@ -15,7 +15,7 @@
  *
  */
 
-#define WINVER 0x0500
+#define WINVER 0x0600
 #define _WIN32_WINNT WINVER
 
 #include "daemon_win32.h"
@@ -32,6 +32,11 @@ const char * daemon_win32_cpp_cvsid = "$Id$"
 #include <windows.h>
 #ifdef _DEBUG
 #include <crtdbg.h>
+#endif
+
+#ifndef SERVICE_CONFIG_DELAYED_AUTO_START_INFO
+// Missing in older MinGW headers
+#define SERVICE_CONFIG_DELAYED_AUTO_START_INFO 3
 #endif
 
 
@@ -1000,6 +1005,14 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
     if (svc_opts->descript) {
       SERVICE_DESCRIPTIONA sd = { const_cast<char *>(svc_opts->descript) };
       ChangeServiceConfig2A(hs, SERVICE_CONFIG_DESCRIPTION, &sd);
+    }
+    // Enable delayed auto start if supported
+    OSVERSIONINFOA ver; ver.dwOSVersionInfoSize = sizeof(ver);
+    if (   GetVersionExA(&ver)
+        && ver.dwPlatformId == VER_PLATFORM_WIN32_NT
+        && ver.dwMajorVersion >= 6 /* Vista */      ) {
+      SERVICE_DELAYED_AUTO_START_INFO sdasi = { TRUE };
+      ChangeServiceConfig2A(hs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO, &sdasi);
     }
   }
   else {

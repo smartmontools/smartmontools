@@ -1,5 +1,9 @@
 $Id$
 
+2013-01-30  Christian Franke  <franke@computer.org>
+
+	Windows smartd: Install service with delayed auto start enabled.
+
 2013-01-26  Christian Franke  <franke@computer.org>
 
 	Windows smartd: Add eventlog MESSAGETABLE resource.
