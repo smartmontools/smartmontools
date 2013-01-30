@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 3759 2013-01-26 21:11:02Z chrfranke $
+# $Id: configure.ac 3762 2013-01-30 20:36:50Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 6.1, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.ac 3759 2013-01-26 21:11:02Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 3762 2013-01-30 20:36:50Z chrfranke $'`
 smartmontools_release_date=2012-10-10
 smartmontools_release_time="11:53:34 UTC"
 
@@ -48,8 +48,8 @@ case "${host}" in
     /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
       AC_MSG_ERROR([Build with MinGW on Cygwin requires cross-compilation, see INSTALL file.])
     fi
-    AC_CHECK_PROGS(WINDMC, [${host}-windmc windmc])
-    AC_CHECK_PROGS(WINDRES, [${host}-windres windres])
+    AC_CHECK_TOOL(WINDMC, [windmc])
+    AC_CHECK_TOOL(WINDRES, [windres])
 
     AC_MSG_CHECKING([checking for makensis])
     if test -z "$MAKENSIS"; then

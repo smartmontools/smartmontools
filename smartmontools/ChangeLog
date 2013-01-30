@@ -1,4 +1,8 @@
-$Id: ChangeLog 3760 2013-01-30 18:43:39Z chrfranke $
+$Id: ChangeLog 3762 2013-01-30 20:36:50Z chrfranke $
+
+2013-01-30  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use AC_CHECK_TOOL for winmc and windres.
 
 2013-01-30  Christian Franke  <franke@computer.org>
 
