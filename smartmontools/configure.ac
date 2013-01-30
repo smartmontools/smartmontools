@@ -48,8 +48,8 @@ case "${host}" in
     /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
       AC_MSG_ERROR([Build with MinGW on Cygwin requires cross-compilation, see INSTALL file.])
     fi
-    AC_CHECK_PROGS(WINDMC, [${host}-windmc windmc])
-    AC_CHECK_PROGS(WINDRES, [${host}-windres windres])
+    AC_CHECK_TOOL(WINDMC, [windmc])
+    AC_CHECK_TOOL(WINDRES, [windres])
 
     AC_MSG_CHECKING([checking for makensis])
     if test -z "$MAKENSIS"; then
