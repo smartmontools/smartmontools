@@ -149,9 +149,8 @@ public:
   ~areca_ata_device() throw();
   bool arcmsr_lock() { return true; }
   bool arcmsr_unlock() { return true; }
-  int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop)
+  int arcmsr_do_scsi_io(struct scsi_cmnd_io * /* iop */)
   {
-      iop = iop;
       return -1;
   }
 protected:
@@ -171,9 +170,8 @@ public:
   ~areca_scsi_device() throw();
   bool arcmsr_lock() { return true; }
   bool arcmsr_unlock() { return true; }
-  int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop)
+  int arcmsr_do_scsi_io(struct scsi_cmnd_io * /* iop */)
   {
-      iop = iop;
       return -1;
   }
 protected:

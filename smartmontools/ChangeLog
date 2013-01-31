@@ -1,5 +1,10 @@
 $Id$
 
+2013-01-31  Christian Franke  <franke@computer.org>
+
+	dev_areca.h: Use the C++ way to specify unused arguments.
+	This silences -Wself-assign warning from clang++.
+
 2013-01-30  Christian Franke  <franke@computer.org>
 
 	configure.ac: Use AC_CHECK_TOOL for winmc and windres.
