@@ -15,8 +15,8 @@
 
 set -e
 
-# Smartmontools Signing Key (through 2012)
-KEYID=0x2753E77A
+# Smartmontools Signing Key (through 2014)
+KEYID=0x8F6ED8AA
 
 inc_release()
 {

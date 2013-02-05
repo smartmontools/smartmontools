@@ -1,5 +1,9 @@
 $Id$
 
+2013-02-05  Christian Franke  <franke@computer.org>
+
+	do_release: New Signing Key.
+
 2013-01-31  Christian Franke  <franke@computer.org>
 
 	dev_areca.h: Use the C++ way to specify unused arguments.
