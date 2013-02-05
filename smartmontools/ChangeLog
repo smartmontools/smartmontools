@@ -2,6 +2,11 @@ $Id$
 
 2013-02-05  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Fix allocation of buffer passed to putenv().
+	Using putenv("NAME") to unset NAME is not portable.
+
+2013-02-05  Christian Franke  <franke@computer.org>
+
 	do_release: New Signing Key.
 
 2013-01-31  Christian Franke  <franke@computer.org>

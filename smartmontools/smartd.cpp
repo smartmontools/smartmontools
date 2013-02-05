@@ -4,7 +4,7 @@
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -899,40 +899,39 @@ static int Goodbye(int status)
 // Note that the string passed to putenv must not be freed or made
 // invalid, since a pointer to it is kept by putenv(). This means that
 // it must either be a static buffer or allocated off the heap. The
-// string can be freed if the environment variable is redefined or
-// deleted via another call to putenv(). So we keep these in an object
-// as long as the popen() call is underway.
+// string can be freed if the environment variable is redefined via
+// another call to putenv(). There is no portable way to unset a variable
+// with putenv(). So we manage the buffer in a static object.
+// Using setenv() if available is not considered because some
+// implementations may produce memory leaks.
 
-class temp_environ
+class env_buffer
 {
 public:
-  temp_environ()
-    : m_name(0) { }
-
-  ~temp_environ();
+  env_buffer()
+    : m_buf((char *)0) { }
 
   void set(const char * name, const char * value);
 
 private:
-  const char * m_name;
-  std::string m_buf;
+  char * m_buf;
 
-  temp_environ(const temp_environ &);
-  void operator=(const temp_environ &);
+  env_buffer(const env_buffer &);
+  void operator=(const env_buffer &);
 };
 
-temp_environ::~temp_environ()
+void env_buffer::set(const char * name, const char * value)
 {
-  if (m_name)
-    putenv(const_cast<char *>(m_name));
-  // Now it is safe to free m_buf
-}
+  int size = strlen(name) + 1 + strlen(value) + 1;
+  char * newbuf = new char[size];
+  snprintf(newbuf, size, "%s=%s", name, value);
 
-void temp_environ::set(const char * name, const char * value)
-{
-  m_name = name; // Assumes that name is a static string
-  m_buf = name; m_buf += '='; m_buf += value;
-  putenv(const_cast<char *>(m_buf.c_str()));
+  if (putenv(newbuf))
+    throw std::runtime_error("putenv() failed");
+
+  // This assumes that the same NAME is passed on each call
+  delete [] m_buf;
+  m_buf = newbuf;
 }
 
 #define EBUFLEN 1024
@@ -1030,7 +1029,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 
   // Export information in environment variables that will be useful
   // for user scripts
-  temp_environ env[12];
+  static env_buffer env[12];
   env[0].set("SMARTD_MAILER", executable);
   env[1].set("SMARTD_MESSAGE", message);
   char dates[DATEANDEPOCHLEN];
