@@ -4,7 +4,7 @@
 # (C) 2003-11 Bruce Allen <ballen4705@users.sourceforge.net>,
 #             Guido Guenther <agx@sigxcpu.org>
 # (C) 2006-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
-# $Id: do_release 3749 2013-01-18 20:41:35Z chrfranke $
+# $Id: do_release 3765 2013-02-05 17:17:13Z chrfranke $
 
 # Notes on generating releases:
 # (1) update NEWS
@@ -15,8 +15,8 @@
 
 set -e
 
-# Smartmontools Signing Key (through 2012)
-KEYID=0x2753E77A
+# Smartmontools Signing Key (through 2014)
+KEYID=0x8F6ED8AA
 
 inc_release()
 {

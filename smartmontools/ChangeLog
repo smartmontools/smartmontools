@@ -1,4 +1,8 @@
-$Id: ChangeLog 3763 2013-01-31 22:25:25Z chrfranke $
+$Id: ChangeLog 3765 2013-02-05 17:17:13Z chrfranke $
+
+2013-02-05  Christian Franke  <franke@computer.org>
+
+	do_release: New Signing Key.
 
 2013-01-31  Christian Franke  <franke@computer.org>
 
