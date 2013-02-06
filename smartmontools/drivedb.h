@@ -577,9 +577,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 229,hex64:w012345r,Halt_System/Flash_ID " // Halt, Flash[7]
     "-v 232,hex64:w012345r,Firmware_Version_Info " // "YYMMDD", #Channels, #Banks
     "-v 233,hex48:w01234,ECC_Fail_Record " // Fail number, Row[3], Channel, Bank
-    "-v 234,raw24/raw24:w01234,Avg/Max_Erase_Ct "
-    "-v 235,raw24/raw24:w01z23,Good/Sys_Block_Ct"
-    //  1.....................................40 chars limit for smartmontools <= r3342
+    "-v 234,raw24/raw24:w01234,Avg/Max_Erase_Count "
+    "-v 235,raw24/raw24:w01z23,Good/Sys_Block_Count"
   },
   { "JMicron based SSDs", // JMicron JMF61x
     "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
@@ -691,8 +690,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 126,hex64,Proprietary_SF1st "
     "-v 127,hex64,Proprietary_SF2nd "
     "-v 128,hex64,Proprietary_SF3rd "
-    "-v 194,raw24/raw32:zvzzzw,Fract_Temperature"
-    //  1.....................................40 chars limit for smartmontools <= r3342
+    "-v 194,raw24/raw32:zvzzzw,Fractional_Temperature"
   },
   { "Smart Storage Systems Adtron A25FB 3xN SSDs",
     "(SMART|Adtron) A25FB-.*3.N",

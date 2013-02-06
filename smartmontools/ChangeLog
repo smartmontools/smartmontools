@@ -14,6 +14,7 @@ $Id$
 	- Western Digital Caviar Green (AF, SATA 6Gb/s): 2TB
 	- USB: Samsung M3 Portable USB 3.0 (0x04e8:0x61b6)
 	- USB: LaCie Rugged Mini USB 3.0 (0x059f:0x1051)
+	- Change short attribute names required before r3343.
 
 2013-02-05  Christian Franke  <franke@computer.org>
 
