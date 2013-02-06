@@ -1,5 +1,20 @@
 $Id$
 
+2013-02-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Samsung SpinPoint M8U (USB)
+	- Hitachi/HGST Travelstar Z5K500
+	- Hitachi/HGST Travelstar 5K750
+	- Hitachi/HGST Deskstar 7K4000
+	- Toshiba 2.5" HDD MK..37GSX
+	- Toshiba 2.5" HDD MK..65GSX: GSXN variant
+	- Toshiba 2.5" HDD MQ01ABD...
+	- Seagate Momentus 7200.5
+	- Western Digital Caviar Green (AF, SATA 6Gb/s): 2TB
+	- USB: Samsung M3 Portable USB 3.0 (0x04e8:0x61b6)
+	- USB: LaCie Rugged Mini USB 3.0 (0x059f:0x1051)
+
 2013-02-05  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Fix allocation of buffer passed to putenv().
