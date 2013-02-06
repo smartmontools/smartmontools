@@ -1108,6 +1108,10 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HN-M(320|500|750|101)XBB",
     "", "", ""
   },
+  { "Seagate Samsung SpinPoint M8U (USB)", // tested with ST1000LM025 HN-M101ABB/2AR10001
+    "ST(250|320|500|640|750|1000)LM0[012][3459] HN-M[0-9]*ABB",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint MP5", // tested with HM250HJ/2AK10001
     "SAMSUNG HM(250H|320H|500J|640J)J",
     "", "", ""
@@ -1516,6 +1520,14 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HT[ES]5450(12|16|25|32|40|50)B9A30[01]",
     "", "", ""
   },
+  { "Hitachi/HGST Travelstar Z5K500", // tested with HGST HTS545050A7E380/GG2OAC90
+    "HGST HT[ES]5450(25|32|50)A7E38[01]",
+    "", "", ""
+  },
+  { "Hitachi/HGST Travelstar 5K750", // tested with Hitachi HTS547575A9E384/JE4OA60A
+    "Hitachi HT[ES]5475(50|64|75)A9E38[14]",
+    "", "", ""
+  },
   { "Hitachi Travelstar 7K60",
     "(Hitachi )?HTS726060M9AT00",
     "", "", ""
@@ -1641,6 +1653,10 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HDS7230((15|20)BLA642|30ALA640)",
     "", "", ""
   },
+  { "Hitachi/HGST Deskstar 7K4000", // tested with Hitachi HDS724040ALE640/MJAOA250
+    "Hitachi HDS724040ALE640",
+    "", "", ""
+  },
   { "Hitachi Ultrastar A7K1000", // tested with
     // HUA721010KLA330      44X2459 42C0424IBM/GKAOAB4A
     "(Hitachi )?HUA7210(50|75|10)KLA330.*",
@@ -1669,6 +1685,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba 2.5\" HDD (80 GB and above)",
     "TOSHIBA MK(80(25GAS|26GAX|32GAX|32GSX)|10(31GAS|32GAX)|12(33GAS|34G[AS]X)|2035GSS)",
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MK..37GSX", // tested with TOSHIBA MK1637GSX/DL032C
+    "TOSHIBA MK(12|16)37GSX",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..50GACY", // tested with TOSHIBA MK8050GACY/TF105A
@@ -1701,8 +1721,8 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(16|25|32|50|64)61GSYN",
     "", "", ""
   },
-  { "Toshiba 2.5\" HDD MK..65GSX", // tested with TOSHIBA MK5065GSX/GJ003A
-    "TOSHIBA MK(16|25|32|50|64)65GSX",
+  { "Toshiba 2.5\" HDD MK..65GSX", // tested with TOSHIBA MK5065GSX/GJ003A, MK3265GSXN/GH012H
+    "TOSHIBA MK(16|25|32|50|64)65GSXN?",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..76GSX", // tested with TOSHIBA MK3276GSX/GS002D
@@ -1710,6 +1730,10 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-v 9,minutes"
+  },
+  { "Toshiba 2.5\" HDD MQ01ABD...", // tested with TOSHIBA MQ01ABD100/AX001U
+    "TOSHIBA MQ01ABD(025|032|050|064|075|100)",
+    "", "", ""
   },
   { "Toshiba 3.5\" HDD MK.002TSKB", // tested with TOSHIBA MK1002TSKB/MT1A
     "TOSHIBA MK(10|20)02TSKB",
@@ -1802,6 +1826,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus 7200 FDE.2",
     "ST9((160413|25041[12]|320426|50042[12])AS|(16041[489]|2504[16]4|32042[67]|500426)ASG)",
+    "", "", ""
+  },
+  { "Seagate Momentus 7200.5", // tested with ST9750420AS/0001SDM5, ST9750420AS/0002SDM1
+    "ST9(50042[34]|64042[012]|75042[02])ASG?",
     "", "", ""
   },
   { "Seagate Momentus XT", // fixed firmware
@@ -2259,8 +2287,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar Green (AF, SATA 6Gb/s)", // tested with
-      // WDC WD10EZRX-00A8LB0/01.01A01, WDC WD30EZRX-00MMMB0/80.00A80
-    "WDC WD(7500AA|(10|15|20)EA|(10|25|30)EZ)RX-.*",
+      // WDC WD10EZRX-00A8LB0/01.01A01, WDC WD20EZRX-00DC0B0/80.00A80,
+      // WDC WD30EZRX-00MMMB0/80.00A80
+    "WDC WD(7500AA|(10|15|20)EA|(10|20|25|30)EZ)RX-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black",
@@ -2532,6 +2561,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Samsung M3 Portable USB 3.0; ", // 1TB
+    "0x04e8:0x61b6",
+    "", // 0x0e00
+    "",
+    "-d sat"
+  },
   // Sunplus
   { "USB: ; SunPlus",
     "0x04fc:0x0c05",
@@ -2646,6 +2681,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: LaCie minimus USB 3.0; ",
     "0x059f:0x104a",
     "",
+    "",
+    "-d sat"
+  },
+  { "USB: LaCie Rugged Mini USB 3.0; ",
+    "0x059f:0x1051",
+    "", // 0x0000
     "",
     "-d sat"
   },
