@@ -1,4 +1,8 @@
-$Id: ChangeLog 3769 2013-02-06 22:20:07Z chrfranke $
+$Id: ChangeLog 3771 2013-02-10 15:36:55Z samm2 $
+
+2013-02-10  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: adding device type fix for devices on MPT controlelrs.
 
 2013-02-06  Christian Franke  <franke@computer.org>
 
