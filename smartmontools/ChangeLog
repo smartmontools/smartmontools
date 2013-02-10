@@ -1,5 +1,9 @@
 $Id$
 
+2013-02-10  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: adding device type fix for devices on MPT controlelrs.
+
 2013-02-06  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
