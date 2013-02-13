@@ -1,5 +1,11 @@
 $Id$
 
+2013-02-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300: new separate entry
+	- Crucial/Micron RealSSD m4/C400: firmware bug warning
+
 2013-02-10  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: adding device type fix for devices on MPT controlelrs.
