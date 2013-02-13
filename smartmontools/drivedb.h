@@ -161,11 +161,9 @@ const drive_settings builtin_knowndrives[] = {
     "ASUS-PHISON SSD",
     "", "", ""
   },
-  { "Crucial/Micron RealSSD C300/C400/m4",
-    "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002
-    "C400-MTFDDA[ACK](064|128|256|512)MAM|" // Marvell 9176, tested with C400-MTFDDAC256MAM/0002
-    "M4-CT(064|128|256|512)M4SSD[23]", // tested with M4-CT064M4SSD2/0002, M4-CT512M4SSD2/0309,
-                                       // M4-CT256M4SSD3/000F
+  { "Crucial/Micron RealSSD C300", // Marvell 88SS9174 BJP2
+    "C300-CTFDDA[AC](064|128|256)MAG|", // tested with C300-CTFDDAC128MAG/0002,
+      // C300-CTFDDAC064MAG/0006
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -188,6 +186,56 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 197,raw48,Current_Pending_Sector "
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 202,raw48,Perc_Rated_Life_Used "
+    "-v 206,raw48,Write_Error_Rate"
+  },
+  { "Crucial/Micron RealSSD m4/C400", // Marvell 9176, fixed firmware
+    "C400-MTFDDA[ACK](064|128|256|512)MAM|"
+    "M4-CT(064|128|256|512)M4SSD[23]", // tested with M4-CT512M4SSD2/0309
+    "030[9-Z]|03[1-Z].|0[4-Z]..|[1-Z]....*", // >= "0309"
+    "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Grown_Failing_Block_Ct "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Wear_Leveling_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 181,raw16,Non4k_Aligned_Access "
+    "-v 183,raw48,SATA_Iface_Downshift "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 188,raw48,Command_Timeout "
+    "-v 189,raw48,Factory_Bad_Block_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 202,raw48,Perc_Rated_Life_Used "
+    "-v 206,raw48,Write_Error_Rate"
+  },
+  { "Crucial/Micron RealSSD m4/C400", // Marvell 9176, buggy or unknown firmware
+    "C400-MTFDDA[ACK](064|128|256|512)MAM|" // tested with C400-MTFDDAC256MAM/0002
+    "M4-CT(064|128|256|512)M4SSD[23]", // tested with M4-CT064M4SSD2/0002,
+      // M4-CT064M4SSD2/0009, M4-CT256M4SSD3/000F
+    "",
+    "This drive may hang after 5184 hours of power-on time:\n"
+    "http://www.tomshardware.com/news/Crucial-m4-Firmware-BSOD,14544.html\n"
+    "See the following web pages for firmware updates:\n"
+    "http://www.crucial.com/support/firmware.aspx\n"
+    "http://www.micron.com/products/solid-state-storage/client-ssd#software",
+    "-v 170,raw48,Grown_Failing_Block_Ct "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Wear_Leveling_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 181,raw16,Non4k_Aligned_Access "
+    "-v 183,raw48,SATA_Iface_Downshift "
+    "-v 189,raw48,Factory_Bad_Block_Ct "
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
