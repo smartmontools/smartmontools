@@ -1,4 +1,10 @@
-$Id: ChangeLog 3771 2013-02-10 15:36:55Z samm2 $
+$Id: ChangeLog 3772 2013-02-13 20:35:53Z chrfranke $
+
+2013-02-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300: new separate entry
+	- Crucial/Micron RealSSD m4/C400: firmware bug warning
 
 2013-02-10  Alex Samorukov  <samm@os2.kiev.ua>
 
