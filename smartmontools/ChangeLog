@@ -1,5 +1,12 @@
 $Id$
 
+2013-02-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Kingston V+ 200, Mushkin Chronos deluxe,
+	  OCZ Talos 2
+	- Plextor M3 (Pro) Series SSDs
+
 2013-02-13  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
