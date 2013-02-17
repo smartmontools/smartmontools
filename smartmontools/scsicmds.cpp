@@ -7,7 +7,7 @@
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-10 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-13 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ void dStrHex(const char* str, int len, int no_ascii)
     int cpos = cpstart;
     int bpos = bpstart;
     int i, k;
-    
+
     if (len <= 0) return;
     memset(buff,' ',80);
     buff[80]='\0';
@@ -187,7 +187,7 @@ int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
     case SCSI_SK_RECOVERED_ERR:
         return SIMPLE_NO_ERROR;
     case SCSI_SK_NOT_READY:
-        if (SCSI_ASC_NO_MEDIUM == sinfo->asc) 
+        if (SCSI_ASC_NO_MEDIUM == sinfo->asc)
             return SIMPLE_ERR_NO_MEDIUM;
         else if (SCSI_ASC_NOT_READY == sinfo->asc) {
             if (0x1 == sinfo->ascq)
@@ -222,29 +222,29 @@ const char * scsiErrString(int scsiErr)
     if (scsiErr < 0)
         return strerror(-scsiErr);
     switch (scsiErr) {
-        case SIMPLE_NO_ERROR: 
+        case SIMPLE_NO_ERROR:
             return "no error";
-        case SIMPLE_ERR_NOT_READY: 
+        case SIMPLE_ERR_NOT_READY:
             return "device not ready";
-        case SIMPLE_ERR_BAD_OPCODE: 
+        case SIMPLE_ERR_BAD_OPCODE:
             return "unsupported scsi opcode";
-        case SIMPLE_ERR_BAD_FIELD: 
+        case SIMPLE_ERR_BAD_FIELD:
             return "unsupported field in scsi command";
-        case SIMPLE_ERR_BAD_PARAM: 
+        case SIMPLE_ERR_BAD_PARAM:
             return "badly formed scsi parameters";
-        case SIMPLE_ERR_BAD_RESP: 
+        case SIMPLE_ERR_BAD_RESP:
             return "scsi response fails sanity test";
-        case SIMPLE_ERR_NO_MEDIUM: 
+        case SIMPLE_ERR_NO_MEDIUM:
             return "no medium present";
-        case SIMPLE_ERR_BECOMING_READY: 
+        case SIMPLE_ERR_BECOMING_READY:
             return "device will be ready soon";
-        case SIMPLE_ERR_TRY_AGAIN: 
+        case SIMPLE_ERR_TRY_AGAIN:
             return "unit attention reported, try again";
-        case SIMPLE_ERR_MEDIUM_HARDWARE: 
+        case SIMPLE_ERR_MEDIUM_HARDWARE:
             return "medium or hardware error (serious)";
-        case SIMPLE_ERR_UNKNOWN: 
+        case SIMPLE_ERR_UNKNOWN:
             return "unknown error (unexpected sense key)";
-        case SIMPLE_ERR_ABORTED_COMMAND: 
+        case SIMPLE_ERR_ABORTED_COMMAND:
             return "aborted command";
         default:
             return "unknown error";
@@ -261,8 +261,8 @@ const char * scsiErrString(int scsiErr)
  * termination. Matches association, designator_type and/or code_set when
  * any of those values are greater than or equal to zero. */
 int scsi_vpd_dev_id_iter(const unsigned char * initial_desig_desc,
-			 int page_len, int * off, int m_assoc,
-		         int m_desig_type, int m_code_set)
+                         int page_len, int * off, int m_assoc,
+                         int m_desig_type, int m_code_set)
 {
     const unsigned char * ucp;
     int k, c_set, assoc, desig_type;
@@ -290,7 +290,7 @@ int scsi_vpd_dev_id_iter(const unsigned char * initial_desig_desc,
  * numeric address and SCSI name string present, prefer the former.
  * Returns 0 on success, -1 on error with error string in s. */
 int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
-			  int slen, int * transport)
+                          int slen, int * transport)
 {
     int m, c_set, assoc, desig_type, i_len, naa, off, u, have_scsi_ns;
     const unsigned char * ucp;
@@ -298,11 +298,11 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
     int si = 0;
 
     if (transport)
-	*transport = -1;
+        *transport = -1;
     if (slen < 32) {
-	if (slen > 0)
-	    s[0] = '\0';
-	return -1;
+        if (slen > 0)
+            s[0] = '\0';
+        return -1;
     }
     have_scsi_ns = 0;
     s[0] = '\0';
@@ -312,13 +312,13 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
         i_len = ucp[3];
         if ((off + i_len + 4) > blen) {
             snprintf(s+si, slen-si, "error: designator length");
-	    return -1;
+            return -1;
         }
         assoc = ((ucp[1] >> 4) & 0x3);
-	if (transport && assoc && (ucp[1] & 0x80) && (*transport < 0))
-	    *transport = (ucp[0] >> 4) & 0xf;
-	if (0 != assoc)
-	    continue;
+        if (transport && assoc && (ucp[1] & 0x80) && (*transport < 0))
+            *transport = (ucp[0] >> 4) & 0xf;
+        if (0 != assoc)
+            continue;
         ip = ucp + 4;
         c_set = (ucp[0] & 0xf);
         desig_type = (ucp[1] & 0xf);
@@ -330,9 +330,9 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
         case 2: /* EUI-64 based */
             if ((8 != i_len) && (12 != i_len) && (16 != i_len)) {
                 snprintf(s+si, slen-si, "error: EUI-64 length");
-	        return -1;
-	    }
-	    if (have_scsi_ns)
+                return -1;
+            }
+            if (have_scsi_ns)
                 si = 0;
             si += snprintf(s+si, slen-si, "0x");
             for (m = 0; m < i_len; ++m)
@@ -341,19 +341,19 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
         case 3: /* NAA */
             if (1 != c_set) {
                 snprintf(s+si, slen-si, "error: NAA bad code_set");
-		return -1;
-	    }
+                return -1;
+            }
             naa = (ip[0] >> 4) & 0xff;
             if ((naa < 2) || (naa > 6) || (4 == naa)) {
                 snprintf(s+si, slen-si, "error: unexpected NAA");
-		return -1;
+                return -1;
             }
-	    if (have_scsi_ns)
+            if (have_scsi_ns)
                 si = 0;
             if (2 == naa) {             /* NAA IEEE Extended */
                 if (8 != i_len) {
                     snprintf(s+si, slen-si, "error: NAA 2 length");
-		    return -1;
+                    return -1;
                 }
                 si += snprintf(s+si, slen-si, "0x");
                 for (m = 0; m < 8; ++m)
@@ -362,7 +362,7 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
                 /* NAA=3 Locally assigned; NAA=5 IEEE Registered */
                 if (8 != i_len) {
                     snprintf(s+si, slen-si, "error: NAA 3 or 5 length");
-		    return -1;
+                    return -1;
                 }
                 si += snprintf(s+si, slen-si, "0x");
                 for (m = 0; m < 8; ++m)
@@ -370,7 +370,7 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
             } else if (6 == naa) {      /* NAA IEEE Registered extended */
                 if (16 != i_len) {
                     snprintf(s+si, slen-si, "error: NAA 6 length");
-		    return -1;
+                    return -1;
                 }
                 si += snprintf(s+si, slen-si, "0x");
                 for (m = 0; m < 16; ++m)
@@ -385,13 +385,13 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
         case 8: /* SCSI name string */
             if (3 != c_set) {
                 snprintf(s+si, slen-si, "error: SCSI name string");
-		return -1;
+                return -1;
             }
             /* does %s print out UTF-8 ok?? */
             if (si == 0) {
                 si += snprintf(s+si, slen-si, "%s", (const char *)ip);
-		++have_scsi_ns;
-	    }
+                ++have_scsi_ns;
+            }
             break;
         default: /* reserved */
             break;
@@ -399,7 +399,7 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
     }
     if (-2 == u) {
         snprintf(s+si, slen-si, "error: bad structure");
-	return -1;
+        return -1;
     }
     return 0;
 }
@@ -411,7 +411,7 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
    If known_resp_len > 0 then a single fetch is done for this response
    length. If known_resp_len == 0 then twin fetches are performed, the
    first to deduce the response length, then send the same command again
-   requesting the deduced response length. This protects certain fragile 
+   requesting the deduced response length. This protects certain fragile
    HBAs. The twin fetch technique should not be used with the TapeAlert
    log page since it clears its state flags after each fetch. */
 int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
@@ -467,7 +467,7 @@ int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
             pageLen = 252; /* some IBM tape drives don't like double fetch */
         /* some SCSI HBA don't like "odd" length transfers */
         if (pageLen % 2)
-            pageLen += 1;   
+            pageLen += 1;
         if (pageLen > bufLen)
             pageLen = bufLen;
     }
@@ -539,7 +539,7 @@ int scsiLogSelect(scsi_device * device, int pcr, int sp, int pc, int pagenum,
 
 /* Send MODE SENSE (6 byte) command. Returns 0 if ok, 1 if NOT READY,
  * 2 if command not supported (then MODE SENSE(10) should be supported),
- * 3 if field in command not supported or returns negated errno. 
+ * 3 if field in command not supported or returns negated errno.
  * SPC-3 sections 6.9 and 7.4 (rev 22a) [mode subpage==0] */
 int scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
                   UINT8 *pBuf, int bufLen)
@@ -593,7 +593,7 @@ int scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
  * from a corresponding 6 byte MODE SENSE command. Such a response should
  * have a 4 byte header followed by 0 or more 8 byte block descriptors
  * (normally 1) and then 1 mode page. Returns 0 if ok, 1 if NOT READY,
- * 2 if command not supported (then MODE SELECT(10) may be supported), 
+ * 2 if command not supported (then MODE SELECT(10) may be supported),
  * 3 if field in command not supported, 4 if bad parameter to command
  * or returns negated errno. SPC-3 sections 6.7 and 7.4 (rev 22a) */
 int scsiModeSelect(scsi_device * device, int sp, UINT8 *pBuf, int bufLen)
@@ -633,9 +633,9 @@ int scsiModeSelect(scsi_device * device, int sp, UINT8 *pBuf, int bufLen)
     return scsiSimpleSenseFilter(&sinfo);
 }
 
-/* MODE SENSE (10 byte). Returns 0 if ok, 1 if NOT READY, 2 if command 
+/* MODE SENSE (10 byte). Returns 0 if ok, 1 if NOT READY, 2 if command
  * not supported (then MODE SENSE(6) might be supported), 3 if field in
- * command not supported or returns negated errno.  
+ * command not supported or returns negated errno.
  * SPC-3 sections 6.10 and 7.4 (rev 22a) [mode subpage==0] */
 int scsiModeSense10(scsi_device * device, int pagenum, int subpagenum, int pc,
                     UINT8 *pBuf, int bufLen)
@@ -687,7 +687,7 @@ int scsiModeSense10(scsi_device * device, int pagenum, int subpagenum, int pc,
 /* Sends a 10 byte MODE SELECT command. Assumes given pBuf is the response
  * from a corresponding 10 byte MODE SENSE command. Such a response should
  * have a 8 byte header followed by 0 or more 8 byte block descriptors
- * (normally 1) and then 1 mode page. Returns 0 if ok, 1 NOT REAFY, 2 if 
+ * (normally 1) and then 1 mode page. Returns 0 if ok, 1 NOT REAFY, 2 if
  * command not supported (then MODE SELECT(6) may be supported), 3 if field
  * in command not supported, 4 if bad parameter to command or returns
  * negated errno. SPC-3 sections 6.8 and 7.4 (rev 22a) */
@@ -706,7 +706,7 @@ int scsiModeSelect10(scsi_device * device, int sp, UINT8 *pBuf, int bufLen)
     hdr_plus_1_pg = pg_offset + pg_len;
     if (hdr_plus_1_pg > bufLen)
         return -EINVAL;
-    pBuf[0] = 0;    
+    pBuf[0] = 0;
     pBuf[1] = 0; /* Length of returned mode sense data reserved for SELECT */
     pBuf[pg_offset] &= 0x7f;    /* Mask out PS bit from byte 0 of page data */
     memset(&io_hdr, 0, sizeof(io_hdr));
@@ -761,7 +761,7 @@ int scsiStdInquiry(scsi_device * device, UINT8 *pBuf, int bufLen)
 }
 
 /* INQUIRY to fetch Vital Page Data.  Returns 0 if ok, 1 if NOT READY
- * (unlikely), 2 if command not supported, 3 if field in command not 
+ * (unlikely), 2 if command not supported, 3 if field in command not
  * supported, 5 if response indicates that EVPD bit ignored or returns
  * negated errno. SPC-3 section 6.4 and 7.6 (rev 22a) */
 int scsiInquiryVpd(scsi_device * device, int vpd_page, UINT8 *pBuf, int bufLen)
@@ -916,7 +916,7 @@ int scsiSendDiagnostic(scsi_device * device, int functioncode, UINT8 *pBuf, int 
     io_hdr.max_sense_len = sizeof(sense);
     /* worst case is an extended foreground self test on a big disk */
     io_hdr.timeout = SCSI_TIMEOUT_SELF_TEST;
-    
+
     if (!device->scsi_pass_through(&io_hdr))
       return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
@@ -994,7 +994,7 @@ int scsiTestUnitReady(scsi_device * device)
     status = scsiSimpleSenseFilter(&sinfo);
     if (SIMPLE_ERR_TRY_AGAIN == status) {
         /* power on reset, media changed, ok ... try again */
-        status = _testunitready(device, &sinfo);        
+        status = _testunitready(device, &sinfo);
         if (0 != status)
             return status;
         status = scsiSimpleSenseFilter(&sinfo);
@@ -1121,27 +1121,27 @@ uint64_t scsiGetSize(scsi_device * device, unsigned int * lb_sizep)
 
     res = scsiReadCapacity10(device, &last_lba, &lb_size);
     if (res) {
-	if (scsi_debugmode)
-	    pout("scsiGetSize: READ CAPACITY(10) failed, res=%d\n", res);
-	return ret_val;
+        if (scsi_debugmode)
+            pout("scsiGetSize: READ CAPACITY(10) failed, res=%d\n", res);
+        return ret_val;
     }
     if (0xffffffff == last_lba) {
-	res = scsiReadCapacity16(device, rc16resp, sizeof(rc16resp));
+        res = scsiReadCapacity16(device, rc16resp, sizeof(rc16resp));
         if (res) {
-	    if (scsi_debugmode)
-	        pout("scsiGetSize: READ CAPACITY(16) failed, res=%d\n", res);
-	    return ret_val;
-	}
-	for (k = 0; k < 8; ++k) {
-	    if (k > 0)
+            if (scsi_debugmode)
+                pout("scsiGetSize: READ CAPACITY(16) failed, res=%d\n", res);
+            return ret_val;
+        }
+        for (k = 0; k < 8; ++k) {
+            if (k > 0)
                 ret_val <<= 8;
             ret_val |= rc16resp[k + 0];
         }
     } else
-	ret_val = last_lba;
+        ret_val = last_lba;
     if (lb_sizep)
-	*lb_sizep = lb_size;
-    ++ret_val;	/* last_lba is origin 0 so need to bump to get number of */
+        *lb_sizep = lb_size;
+    ++ret_val;  /* last_lba is origin 0 so need to bump to get number of */
     return ret_val * lb_size;
 }
 
@@ -1218,7 +1218,7 @@ int scsiFetchIECmpage(scsi_device * device, struct scsi_iec_mode_page *iecp, int
             iecp->modese_len = 0;
             return err;
         }
-    } 
+    }
     iecp->gotCurrent = 1;
     iecp->requestedChangeable = 1;
     if (10 == iecp->modese_len)
@@ -1226,8 +1226,8 @@ int scsiFetchIECmpage(scsi_device * device, struct scsi_iec_mode_page *iecp, int
                               0, MPAGE_CONTROL_CHANGEABLE,
                               iecp->raw_chg, sizeof(iecp->raw_chg));
     else if (6 == iecp->modese_len)
-        err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE, 
-                            0, MPAGE_CONTROL_CHANGEABLE, 
+        err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE,
+                            0, MPAGE_CONTROL_CHANGEABLE,
                             iecp->raw_chg, sizeof(iecp->raw_chg));
     if (err)
         return err;
@@ -1266,10 +1266,10 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp)
 }
 
 /* set EWASC and clear PERF, EBF, DEXCPT TEST and LOGERR */
-#define SCSI_IEC_MP_BYTE2_ENABLED 0x10 
+#define SCSI_IEC_MP_BYTE2_ENABLED 0x10
 #define SCSI_IEC_MP_BYTE2_TEST_MASK 0x4
 /* exception/warning via an unrequested REQUEST SENSE command */
-#define SCSI_IEC_MP_MRIE 6      
+#define SCSI_IEC_MP_MRIE 6
 #define SCSI_IEC_MP_INTERVAL_T 0
 #define SCSI_IEC_MP_REPORT_COUNT 1
 
@@ -1339,10 +1339,10 @@ int scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
                 pout("scsiSetExceptionControlAndWarning: already disabled\n");
             return 0;   /* nothing to do, leave other setting alone */
         }
-        if (wEnabled) 
+        if (wEnabled)
             rout[offset + 2] &= EWASC_DISABLE;
         if (eCEnabled) {
-            if (iecp->gotChangeable && 
+            if (iecp->gotChangeable &&
                 (iecp->raw_chg[offset + 2] & DEXCPT_ENABLE))
                 rout[offset + 2] |= DEXCPT_ENABLE;
                 rout[offset + 2] &= TEST_DISABLE;/* clear TEST bit for spec */
@@ -1387,7 +1387,7 @@ int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
     int temperatureSet = 0;
     unsigned short pagesize;
     UINT8 currTemp, trTemp;
- 
+
     *asc = 0;
     *ascq = 0;
     *currenttemp = 0;
@@ -1401,23 +1401,23 @@ int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
             return err;
         }
         // pull out page size from response, don't forget to add 4
-        pagesize = (unsigned short) ((tBuf[2] << 8) | tBuf[3]) + 4; 
+        pagesize = (unsigned short) ((tBuf[2] << 8) | tBuf[3]) + 4;
         if ((pagesize < 4) || tBuf[4] || tBuf[5]) {
             pout("Log Sense failed, IE page, bad parameter code or length\n");
             return SIMPLE_ERR_BAD_PARAM;
         }
         if (tBuf[7] > 1) {
-            sense_info.asc = tBuf[8]; 
+            sense_info.asc = tBuf[8];
             sense_info.ascq = tBuf[9];
             if (! hasTempLogPage) {
-                if (tBuf[7] > 2) 
+                if (tBuf[7] > 2)
                     *currenttemp = tBuf[10];
                 if (tBuf[7] > 3)        /* IBM extension in SMART (IE) lpage */
                     *triptemp = tBuf[11];
             }
-        } 
+        }
     }
-    if (0 == sense_info.asc) {    
+    if (0 == sense_info.asc) {
         /* ties in with MRIE field of 6 in IEC mode page (0x1c) */
         if ((err = scsiRequestSense(device, &sense_info))) {
             pout("Request Sense failed, [%s]\n", scsiErrString(err));
@@ -1436,7 +1436,7 @@ int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
 }
 
 // The first character (W, C, I) tells the severity
-static const char * TapeAlertsMessageTable[]= {  
+static const char * TapeAlertsMessageTable[]= {
     " ",
     /* 0x01 */
    "W: The tape drive is having problems reading data. No data has been lost,\n"
@@ -1665,11 +1665,11 @@ const char * scsiTapeAlertsTapeDevice(unsigned short code)
     const int num = sizeof(TapeAlertsMessageTable) /
                         sizeof(TapeAlertsMessageTable[0]);
 
-    return (code < num) ?  TapeAlertsMessageTable[code] : "Unknown Alert"; 
+    return (code < num) ?  TapeAlertsMessageTable[code] : "Unknown Alert";
 }
 
 // The first character (W, C, I) tells the severity
-static const char * ChangerTapeAlertsMessageTable[]= {  
+static const char * ChangerTapeAlertsMessageTable[]= {
     " ",
     /* 0x01 */
     "C: The library mechanism is having difficulty communicating with the\n"
@@ -1800,7 +1800,7 @@ const char * scsiTapeAlertsChangerDevice(unsigned short code)
     const int num = sizeof(ChangerTapeAlertsMessageTable) /
                         sizeof(ChangerTapeAlertsMessageTable[0]);
 
-    return (code < num) ?  ChangerTapeAlertsMessageTable[code] : "Unknown Alert"; 
+    return (code < num) ?  ChangerTapeAlertsMessageTable[code] : "Unknown Alert";
 }
 
 
@@ -1936,7 +1936,7 @@ const char * scsiGetIEString(UINT8 asc, UINT8 ascq)
     if (SCSI_ASC_IMPENDING_FAILURE == asc) {
         if (ascq == 0xff)
             return "FAILURE PREDICTION THRESHOLD EXCEEDED (FALSE)";
-        else if (ascq < 
+        else if (ascq <
                  (sizeof(strs_for_asc_5d) / sizeof(strs_for_asc_5d[0]))) {
             rp = strs_for_asc_5d[ascq];
             if (strlen(rp) > 0)
@@ -1961,10 +1961,10 @@ const char * scsiGetIEString(UINT8 asc, UINT8 ascq)
 /* This is not documented in t10.org, page 0x80 is vendor specific */
 /* Some IBM disks do an offline read-scan when they get this command. */
 int scsiSmartIBMOfflineTest(scsi_device * device)
-{       
+{
     UINT8 tBuf[256];
     int res;
-        
+
     memset(tBuf, 0, sizeof(tBuf));
     /* Build SMART Off-line Immediate Diag Header */
     tBuf[0] = 0x80; /* Page Code */
@@ -1982,7 +1982,7 @@ int scsiSmartIBMOfflineTest(scsi_device * device)
 }
 
 int scsiSmartDefaultSelfTest(scsi_device * device)
-{       
+{
     int res;
 
     res = scsiSendDiagnostic(device, SCSI_DIAG_DEF_SELF_TEST, NULL, 0);
@@ -1992,7 +1992,7 @@ int scsiSmartDefaultSelfTest(scsi_device * device)
 }
 
 int scsiSmartShortSelfTest(scsi_device * device)
-{       
+{
     int res;
 
     res = scsiSendDiagnostic(device, SCSI_DIAG_BG_SHORT_SELF_TEST, NULL, 0);
@@ -2002,7 +2002,7 @@ int scsiSmartShortSelfTest(scsi_device * device)
 }
 
 int scsiSmartExtendSelfTest(scsi_device * device)
-{       
+{
     int res;
 
     res = scsiSendDiagnostic(device, SCSI_DIAG_BG_EXTENDED_SELF_TEST, NULL, 0);
@@ -2013,7 +2013,7 @@ int scsiSmartExtendSelfTest(scsi_device * device)
 }
 
 int scsiSmartShortCapSelfTest(scsi_device * device)
-{       
+{
     int res;
 
     res = scsiSendDiagnostic(device, SCSI_DIAG_FG_SHORT_SELF_TEST, NULL, 0);
@@ -2064,11 +2064,11 @@ int scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec, int m
     }
     if (10 == modese_len) {
         err = scsiModeSense10(device, CONTROL_MODE_PAGE, 0,
-                              MPAGE_CONTROL_CURRENT, 
+                              MPAGE_CONTROL_CURRENT,
                               buff, sizeof(buff));
         if (err)
             return err;
-    } 
+    }
     offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
     if (offset < 0)
         return -EINVAL;
@@ -2081,7 +2081,7 @@ int scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec, int m
         return -EINVAL;
 }
 
-void scsiDecodeErrCounterPage(unsigned char * resp, 
+void scsiDecodeErrCounterPage(unsigned char * resp,
                               struct scsiErrorCounter *ecp)
 {
     int k, j, num, pl, pc;
@@ -2096,17 +2096,17 @@ void scsiDecodeErrCounterPage(unsigned char * resp,
         pc = (ucp[0] << 8) | ucp[1];
         pl = ucp[3] + 4;
         switch (pc) {
-            case 0: 
-            case 1: 
-            case 2: 
-            case 3: 
-            case 4: 
-            case 5: 
-            case 6: 
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
                 ecp->gotPC[pc] = 1;
                 ullp = &ecp->counter[pc];
                 break;
-        default: 
+        default:
                 ecp->gotExtraPC = 1;
                 ullp = &ecp->counter[7];
                 break;
@@ -2128,7 +2128,7 @@ void scsiDecodeErrCounterPage(unsigned char * resp,
     }
 }
 
-void scsiDecodeNonMediumErrPage(unsigned char *resp, 
+void scsiDecodeNonMediumErrPage(unsigned char *resp,
                                 struct scsiNonMediumError *nmep)
 {
     int k, j, num, pl, pc, szof;
@@ -2143,7 +2143,7 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
         pc = (ucp[0] << 8) | ucp[1];
         pl = ucp[3] + 4;
         switch (pc) {
-            case 0: 
+            case 0:
                 nmep->gotPC0 = 1;
                 k = pl - 4;
                 xp = ucp + 4;
@@ -2158,7 +2158,7 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
                     nmep->counterPC0 |= xp[j];
                 }
                 break;
-            case 0x8009: 
+            case 0x8009:
                 nmep->gotTFE_H = 1;
                 k = pl - 4;
                 xp = ucp + 4;
@@ -2173,7 +2173,7 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
                     nmep->counterTFE_H |= xp[j];
                 }
                 break;
-            case 0x8015: 
+            case 0x8015:
                 nmep->gotPE_H = 1;
                 k = pl - 4;
                 xp = ucp + 4;
@@ -2188,7 +2188,7 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
                     nmep->counterPE_H |= xp[j];
                 }
                 break;
-        default: 
+        default:
                 nmep->gotExtraPC = 1;
                 break;
         }
@@ -2202,8 +2202,8 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
    this function has a problem (typically -1), otherwise the bottom 8
    bits are the number of failed self tests and the 16 bits above that
    are the poweron hour of the most recent failure. Note: aborted self
-   tests (typically by the user) and self tests in progress are not 
-   considered failures. See Working Draft SCSI Primary Commands - 3 
+   tests (typically by the user) and self tests in progress are not
+   considered failures. See Working Draft SCSI Primary Commands - 3
    (SPC-3) section 7.2.10 T10/1416-D (rev 22a) */
 int scsiCountFailedSelfTests(scsi_device * fd, int noisy)
 {
@@ -2245,7 +2245,7 @@ int scsiCountFailedSelfTests(scsi_device * fd, int noisy)
         res = ucp[4] & 0xf;
         if ((res > 2) && (res < 8)) {
             fails++;
-            if (1 == fails) 
+            if (1 == fails)
                 fail_hour = (ucp[6] << 8) + ucp[7];
         }
     }
@@ -2303,23 +2303,35 @@ int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current)
                               buff, sizeof(buff));
         if (err)
             return -EINVAL;
-    } 
+    }
     offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
     if ((offset >= 0) && (buff[offset + 1] >= 0xa))
         return (buff[offset + 2] & 2) ? 1 : 0;
     return -EINVAL;
 }
 
-/* Returns a negative value if failed to fetch RIGID_DISK_DRIVE_GEOMETRY_PAGE, 
-   or it was malformed. Returns Rotational Rate on success */
+/* Returns a negative value on error, 0 if unknown and 1 if SSD,
+ * otherwise the positive returned value is the speed in rpm. First checks
+ * the Block Device Characteristics VPD page and if that fails it tries the
+ * RIGID_DISK_DRIVE_GEOMETRY_PAGE mode page. */
 
-int scsiGetRPM(scsi_device * device, int modese_len)
+int scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp)
 {
-    int err, offset;
+    int err, offset, speed;
     UINT8 buff[64];
     int pc = MPAGE_CONTROL_DEFAULT;
 
     memset(buff, 0, sizeof(buff));
+    if ((0 == (err = scsiInquiryVpd(device,
+         SCSI_VPD_BLOCK_DEVICE_CHARACTERISTICS, buff, sizeof(buff)))) &&
+        (((buff[2] << 8) + buff[3]) > 2)) {
+        speed = (buff[4] << 8) + buff[5];
+        if (form_factorp)
+            *form_factorp = buff[7] & 0xf;
+        return speed;
+    }
+    if (form_factorp)
+        *form_factorp = 0;
     if (modese_len <= 6) {
         if ((err = scsiModeSense(device, RIGID_DISK_DRIVE_GEOMETRY_PAGE, 0, pc,
                                  buff, sizeof(buff)))) {
@@ -2467,7 +2479,7 @@ int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len)
                               buff, sizeof(buff));
         if (err)
             return err;
-    } 
+    }
     offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
     if ((offset < 0) || (buff[offset + 1] < 0xa))
         return SIMPLE_ERR_BAD_RESP;
@@ -2489,7 +2501,7 @@ int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len)
         return err;
     if (0 == (ch_buff[offset + 2] & 2))
         return SIMPLE_ERR_BAD_PARAM;  /* GLTSD bit not chageable */
-    
+
     if (10 == modese_len) {
         resp_len = (buff[0] << 8) + buff[1] + 2;
         buff[3] &= 0xef;    /* for disks mask out DPOFUA bit */
@@ -2509,7 +2521,7 @@ int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len)
     return err;
 }
 
-/* Returns a negative value if failed to fetch Protocol specific port mode 
+/* Returns a negative value if failed to fetch Protocol specific port mode
    page or it was malformed. Returns transport protocol identifier when
    value >= 0 . */
 int scsiFetchTransportProtocol(scsi_device * device, int modese_len)
@@ -2535,11 +2547,11 @@ int scsiFetchTransportProtocol(scsi_device * device, int modese_len)
                               buff, sizeof(buff));
         if (err)
             return -EINVAL;
-    } 
+    }
     offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
     if ((offset >= 0) && (buff[offset + 1] > 1)) {
         if ((0 == (buff[offset] & 0x40)) &&       /* SPF==0 */
-            (PROTOCOL_SPECIFIC_PORT_PAGE == (buff[offset] & 0x3f))) 
+            (PROTOCOL_SPECIFIC_PORT_PAGE == (buff[offset] & 0x3f)))
                 return (buff[offset + 2] & 0xf);
     }
     return -EINVAL;

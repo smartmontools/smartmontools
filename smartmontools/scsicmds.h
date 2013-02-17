@@ -7,7 +7,7 @@
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-11 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-13 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -241,6 +241,18 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define MPAGE_CONTROL_DEFAULT               2
 #define MPAGE_CONTROL_SAVED                 3
 
+/* SCSI Vital Product Data (VPD) pages */
+#define SCSI_VPD_SUPPORTED_VPD_PAGES	0x0
+#define SCSI_VPD_UNIT_SERIAL_NUMBER	0x80
+#define SCSI_VPD_DEVICE_IDENTIFICATION	0x83
+#define SCSI_VPD_EXTENDED_INQUIRY_DATA	0x86
+#define SCSI_VPD_ATA_INFORMATION	0x89
+#define SCSI_VPD_POWER_CONDITION	0x8a
+#define SCSI_VPD_POWER_CONSUMPTION	0x8d
+#define SCSI_VPD_BLOCK_LIMITS		0xb0
+#define SCSI_VPD_BLOCK_DEVICE_CHARACTERISTICS	0xb1
+#define SCSI_VPD_LOGICAL_BLOCK_PROVISIONING	0xb2
+
 /* defines for useful SCSI Status codes */
 #define SCSI_STATUS_CHECK_CONDITION     0x2
 
@@ -384,7 +396,7 @@ int scsiSelfTestInProgress(scsi_device * device, int * inProgress);
 int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current);
 int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len);
 int scsiFetchTransportProtocol(scsi_device * device, int modese_len);
-int scsiGetRPM(scsi_device * device, int modese_len);
+int scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp);
 int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wce, short int * rcd);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */

@@ -7,7 +7,7 @@
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-10 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-13 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,10 +83,10 @@ static void scsiGetSupportedLogPages(scsi_device * device)
     if ((err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
         if (scsi_debugmode > 0)
-            pout("Log Sense for supported pages failed [%s]\n", 
-                 scsiErrString(err)); 
+            pout("Log Sense for supported pages failed [%s]\n",
+                 scsiErrString(err));
         return;
-    } 
+    }
 
     for (i = 4; i < gBuf[3] + LOGPAGEHDRSIZE; i++) {
         switch (gBuf[i])
@@ -164,11 +164,11 @@ static int scsiGetSmartData(scsi_device * device, bool attribs)
     if (cp) {
         err = -2;
         print_on();
-        pout("SMART Health Status: %s [asc=%x, ascq=%x]\n", cp, asc, ascq); 
+        pout("SMART Health Status: %s [asc=%x, ascq=%x]\n", cp, asc, ascq);
         print_off();
     } else if (gIecMPage)
         pout("SMART Health Status: OK\n");
-    
+
     if (attribs && !gTempLPage) {
         if (currenttemp) {
             if (255 != currenttemp)
@@ -223,7 +223,7 @@ static int scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
                     if (!failures)
                         pout("TapeAlert Errors (C=Critical, W=Warning, I=Informational):\n");
                     pout("[0x%02x] %s\n", parametercode, ts);
-                    failures += 1; 
+                    failures += 1;
                 }
             }
         }
@@ -310,7 +310,7 @@ static void scsiGetStartStopData(scsi_device * device)
             break;
         }
     }
-} 
+}
 
 static void scsiPrintGrownDefectListLen(scsi_device * device)
 {
@@ -390,7 +390,7 @@ static void scsiPrintSeagateCacheLPage(scsi_device * device)
         switch (pc) {
         case 0: case 1: case 2: case 3: case 4:
             break;
-        default: 
+        default:
             if (scsi_debugmode > 0) {
                 print_on();
                 pout("Vendor (Seagate) cache lpage has unexpected parameter"
@@ -469,7 +469,7 @@ static void scsiPrintSeagateFactoryLPage(scsi_device * device)
         case 0: case 8:
             ++good;
             break;
-        default: 
+        default:
             ++bad;
             break;
         }
@@ -574,14 +574,14 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
             if (! found[k])
                 continue;
             ecp = &errCounterArr[k];
-            pout("%s%8"PRIu64" %8"PRIu64"  %8"PRIu64"  %8"PRIu64"   %8"PRIu64, 
-                 pageNames[k], ecp->counter[0], ecp->counter[1], 
+            pout("%s%8"PRIu64" %8"PRIu64"  %8"PRIu64"  %8"PRIu64"   %8"PRIu64,
+                 pageNames[k], ecp->counter[0], ecp->counter[1],
                  ecp->counter[2], ecp->counter[3], ecp->counter[4]);
             processed_gb = ecp->counter[5] / 1000000000.0;
             pout("   %12.3f    %8"PRIu64"\n", processed_gb, ecp->counter[6]);
         }
     }
-    else 
+    else
         pout("Error Counter logging not supported\n");
     if (gNonMediumELPage && (0 == scsiLogSense(device,
                 NON_MEDIUM_ERROR_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
@@ -640,12 +640,12 @@ static void scsiPrintErrorCounterLog(scsi_device * device)
 }
 
 static const char * self_test_code[] = {
-        "Default         ", 
-        "Background short", 
-        "Background long ", 
+        "Default         ",
+        "Background short",
+        "Background long ",
         "Reserved(3)     ",
-        "Abort background", 
-        "Foreground short", 
+        "Abort background",
+        "Foreground short",
         "Foreground long ",
         "Reserved(7)     "
 };
@@ -659,12 +659,12 @@ static const char * self_test_result[] = {
         "Failed in first segment  ",
         "Failed in second segment ",
         "Failed in segment -->    ",
-        "Reserved(8)              ", 
-        "Reserved(9)              ", 
-        "Reserved(10)             ", 
-        "Reserved(11)             ", 
-        "Reserved(12)             ", 
-        "Reserved(13)             ", 
+        "Reserved(8)              ",
+        "Reserved(9)              ",
+        "Reserved(10)             ",
+        "Reserved(11)             ",
+        "Reserved(12)             ",
+        "Reserved(13)             ",
         "Reserved(14)             ",
         "Self test in progress ..."
 };
@@ -683,10 +683,11 @@ static int scsiPrintSelfTest(scsi_device * device)
     struct scsi_sense_disect sense_info;
 
     // check if test is running
-    if (!scsiRequestSense(device, &sense_info) && 
-                        (sense_info.asc == 0x04 && sense_info.ascq == 0x09 && 
+    if (!scsiRequestSense(device, &sense_info) &&
+                        (sense_info.asc == 0x04 && sense_info.ascq == 0x09 &&
                         sense_info.progress != -1)) {
-        pout("Self-test execution status:\t\t%d%% of test remaining\n", 100 - sense_info.progress * 100 / 65535);
+        pout("Self-test execution status:\t\t%d%% of test remaining\n",
+	     100 - ((sense_info.progress * 100) / 65535));
     }
 
     if ((err = scsiLogSense(device, SELFTEST_RESULTS_LPAGE, 0, gBuf,
@@ -734,7 +735,7 @@ static int scsiPrintSelfTest(scsi_device * device)
         }
 
         // print parameter code (test number) & self-test code text
-        pout("#%2d  %s", (ucp[0] << 8) | ucp[1], 
+        pout("#%2d  %s", (ucp[0] << 8) | ucp[1],
             self_test_code[(ucp[4] >> 5) & 0x7]);
 
         // check the self-test result nibble, using the self-test results
@@ -786,9 +787,9 @@ static int scsiPrintSelfTest(scsi_device * device)
         if (n==0 && res==0xf)
         // self-test in progress
             pout("     NOW");
-        else   
+        else
             pout("   %5d", n);
-          
+
         // construct 8-byte integer address of first failure
         for (i = 0; i < 8; i++) {
             ull <<= 8;
@@ -1000,14 +1001,14 @@ static int scsiPrintSSMedia(scsi_device * device)
         pl = ucp[3] + 4;
         switch (pc) {
         case 1:
-	    if (pl < 8) {
+            if (pl < 8) {
                 print_on();
                 pout("Percentage used endurance indicator too short (pl=%d)\n", pl);
                 print_off();
                 return FAILSMART;
-	    }
+            }
             pout("SS Media used endurance indicator: %d%%\n", ucp[7]);
-        default:	/* ignore other parameter codes */
+        default:        /* ignore other parameter codes */
             break;
         }
         num -= pl;
@@ -1392,7 +1393,8 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     int peri_dt = 0;
     int returnval = 0;
     int transport = -1;
-        
+    int form_factor = 0;
+
     memset(gBuf, 0, 96);
     req_len = 36;
     if ((err = scsiStdInquiry(device, gBuf, req_len))) {
@@ -1422,18 +1424,18 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         print_off();
         return 1;
     }
-    
+
     if (all && (0 != strncmp((char *)&gBuf[8], "ATA", 3))) {
-	char vendor[8+1], product[16+1], revision[4+1];
-	scsi_format_id_string(vendor, (const unsigned char *)&gBuf[8], 8);
-	scsi_format_id_string(product, (const unsigned char *)&gBuf[16], 16);
-	scsi_format_id_string(revision, (const unsigned char *)&gBuf[32], 4);
+        char vendor[8+1], product[16+1], revision[4+1];
+        scsi_format_id_string(vendor, (const unsigned char *)&gBuf[8], 8);
+        scsi_format_id_string(product, (const unsigned char *)&gBuf[16], 16);
+        scsi_format_id_string(revision, (const unsigned char *)&gBuf[32], 4);
 
         pout("=== START OF INFORMATION SECTION ===\n");
         pout("Vendor:               %.8s\n", vendor);
-	pout("Product:              %.16s\n", product);
-	if (gBuf[32] >= ' ')
-	    pout("Revision:             %.4s\n", revision);
+        pout("Product:              %.16s\n", product);
+        if (gBuf[32] >= ' ')
+            pout("Revision:             %.4s\n", revision);
     }
 
     if (!*device->get_req_type()/*no type requested*/ &&
@@ -1458,9 +1460,36 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         snprintf(lb_str, sizeof(lb_str) - 1, "%u", lb_size);
         pout("Logical block size:   %s bytes\n", lb_str);
     }
-    int rpm = scsiGetRPM(device,modese_len);
-    if (rpm > 0)
-        pout("Rotation Rate:        %d rpm\n", rpm);
+    int rpm = scsiGetRPM(device, modese_len, &form_factor);
+    if (rpm > 0) {
+        if (1 == rpm)
+            pout("Rotation Rate:        Solid State Device\n");
+        else
+            pout("Rotation Rate:        %d rpm\n", rpm);
+    }
+    if (form_factor > 0) {
+        const char * cp = NULL;
+
+        switch (form_factor) {
+        case 1:
+            cp = "5.25";
+            break;
+        case 2:
+            cp = "3.5";
+            break;
+        case 3:
+            cp = "2.5";
+            break;
+        case 4:
+            cp = "1.8";
+            break;
+        case 5:
+            cp = "< 1.8";
+            break;
+        }
+        if (cp)
+            pout("Form Factor:          %s inches\n", cp);
+    }
 
     /* Do this here to try and detect badly conforming devices (some USB
        keys) that will lock up on a InquiryVpd or log sense or ... */
@@ -1476,12 +1505,13 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         modese_len = iec.modese_len;
 
     if (! dont_print_serial_number) {
-	if (0 == (err = scsiInquiryVpd(device, 0x83, gBuf, 200))) {
-	    char s[256];
+        if (0 == (err = scsiInquiryVpd(device, SCSI_VPD_DEVICE_IDENTIFICATION,
+                                       gBuf, 200))) {
+            char s[256];
 
             len = gBuf[3];
-	    scsi_decode_lu_dev_id(gBuf + 4, len, s, sizeof(s), &transport);
-	    if (strlen(s) > 0)
+            scsi_decode_lu_dev_id(gBuf + 4, len, s, sizeof(s), &transport);
+            if (strlen(s) > 0)
                 pout("Logical Unit id:      %s\n", s);
         } else if (scsi_debugmode > 0) {
             print_on();
@@ -1491,10 +1521,11 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
                 pout("Vital Product Data (VPD) INQUIRY failed [%d]\n", err);
             print_off();
         }
-	if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
-	    char serial[256];
+        if (0 == (err = scsiInquiryVpd(device, SCSI_VPD_UNIT_SERIAL_NUMBER,
+                                       gBuf, 64))) {
+            char serial[256];
             len = gBuf[3];
-            
+
             gBuf[4 + len] = '\0';
             scsi_format_id_string(serial, &gBuf[4], len);
             pout("Serial number:        %s\n", serial);
@@ -1509,7 +1540,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
     }
 
     // print SCSI peripheral device type
-    if (peri_dt < (int)(sizeof(peripheral_dt_arr) / 
+    if (peri_dt < (int)(sizeof(peripheral_dt_arr) /
                         sizeof(peripheral_dt_arr[0])))
         pout("Device type:          %s\n", peripheral_dt_arr[peri_dt]);
     else
@@ -1552,7 +1583,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         }
         failuretest(MANDATORY_CMD, returnval|=FAILID);
     }
-   
+
     if (iec_err) {
         if (!is_tape) {
             print_on();
@@ -1569,7 +1600,7 @@ static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool 
         pout("SMART support is:     Available - device has SMART capability.\n"
              "SMART support is:     %s\n",
              (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
-    pout("%s\n", (scsi_IsWarningEnabled(&iec)) ? 
+    pout("%s\n", (scsi_IsWarningEnabled(&iec)) ?
                   "Temperature Warning:  Enabled" :
                   "Temperature Warning:  Disabled or Not Supported");
     return 0;
@@ -1582,7 +1613,7 @@ static int scsiSmartEnable(scsi_device * device)
 
     if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
         print_on();
-        pout("unable to fetch IEC (SMART) mode page [%s]\n", 
+        pout("unable to fetch IEC (SMART) mode page [%s]\n",
              scsiErrString(err));
         print_off();
         return 1;
@@ -1598,7 +1629,7 @@ static int scsiSmartEnable(scsi_device * device)
     }
     /* Need to refetch 'iec' since could be modified by previous call */
     if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
-        pout("unable to fetch IEC (SMART) mode page [%s]\n", 
+        pout("unable to fetch IEC (SMART) mode page [%s]\n",
              scsiErrString(err));
         return 1;
     } else
@@ -1610,7 +1641,7 @@ static int scsiSmartEnable(scsi_device * device)
          scsi_IsWarningEnabled(&iec) ? "enabled" : "disabled");
     return 0;
 }
-        
+
 static int scsiSmartDisable(scsi_device * device)
 {
     struct scsi_iec_mode_page iec;
@@ -1618,7 +1649,7 @@ static int scsiSmartDisable(scsi_device * device)
 
     if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
         print_on();
-        pout("unable to fetch IEC (SMART) mode page [%s]\n", 
+        pout("unable to fetch IEC (SMART) mode page [%s]\n",
              scsiErrString(err));
         print_off();
         return 1;
@@ -1634,7 +1665,7 @@ static int scsiSmartDisable(scsi_device * device)
     }
     /* Need to refetch 'iec' since could be modified by previous call */
     if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
-        pout("unable to fetch IEC (SMART) mode page [%s]\n", 
+        pout("unable to fetch IEC (SMART) mode page [%s]\n",
              scsiErrString(err));
         return 1;
     } else
@@ -1654,7 +1685,7 @@ static void scsiPrintTemp(scsi_device * device)
 
     if (scsiGetTemp(device, &temp, &trip))
         return;
-  
+
     if (temp) {
         if (255 != temp)
             pout("Current Drive Temperature:     %d C\n", temp);
@@ -1684,7 +1715,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             return 0;
         else
             failuretest(MANDATORY_CMD, returnval |= FAILID);
-	any_output = true;
+        any_output = true;
     }
 
   // Print read look-ahead status for disks
@@ -1719,15 +1750,15 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     if (options.smart_enable) {
         if (scsiSmartEnable(device))
             failuretest(MANDATORY_CMD, returnval |= FAILSMART);
-	any_output = true;
+        any_output = true;
     }
 
     if (options.smart_disable) {
         if (scsiSmartDisable(device))
             failuretest(MANDATORY_CMD,returnval |= FAILSMART);
-	any_output = true;
+        any_output = true;
     }
-    
+
     if (options.smart_auto_save_enable) {
       if (scsiSetControlGLTSD(device, 0, modese_len)) {
         pout("Enable autosave (clear GLTSD bit) failed\n");
@@ -1787,7 +1818,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
            || options.smart_background_log || options.sasphy
          )
     pout("=== START OF READ SMART DATA SECTION ===\n");
-    
+
     if (options.smart_check_status) {
         scsiGetSupportedLogPages(device);
         checkedSupportedLogPages = 1;
@@ -1810,7 +1841,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             }
         }
         any_output = true;
-    }   
+    }
 
     if (options.smart_ss_media_log) {
         if (! checkedSupportedLogPages)
@@ -1890,7 +1921,7 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     }
     // check if another test is running
     if (options.smart_short_selftest || options.smart_extend_selftest) {
-      if (!scsiRequestSense(device, &sense_info) && 
+      if (!scsiRequestSense(device, &sense_info) &&
             (sense_info.asc == 0x04 && sense_info.ascq == 0x09)) {
          if (!options.smart_selftest_force) {
            pout("Can't start self-test without aborting current test");
@@ -1920,11 +1951,11 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             time_t t = time(NULL);
 
             t += durationSec;
-            pout("Please wait %d minutes for test to complete.\n", 
+            pout("Please wait %d minutes for test to complete.\n",
                  durationSec / 60);
             pout("Estimated completion time: %s\n", ctime(&t));
         }
-        pout("Use smartctl -X to abort test\n");        
+        pout("Use smartctl -X to abort test\n");
         any_output = true;
     }
     if (options.smart_extend_cap_selftest) {
@@ -1937,12 +1968,12 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             return returnval | FAILSMART;
         pout("Self Test returned without error\n");
         any_output = true;
-    }           
+    }
     if (options.sasphy) {
         if (scsiPrintSasPhy(device, options.sasphy_reset))
             return returnval | FAILSMART;
         any_output = true;
-    }           
+    }
 
     if (!any_output)
       pout("SCSI device successfully opened\n\n"
