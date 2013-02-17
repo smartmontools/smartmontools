@@ -1,4 +1,9 @@
-$Id: ChangeLog 3774 2013-02-14 20:58:31Z chrfranke $
+$Id: ChangeLog 3776 2013-02-17 04:25:42Z dpgilbert $
+
+2013-02-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.h, scsicmds.cpp, scsiprint.h, scsiprint.cpp:
+	- SCSI VPD work; improve rotation rate reporting and add form factor
 
 2013-02-14  Christian Franke  <franke@computer.org>
 
@@ -15,7 +20,7 @@ $Id: ChangeLog 3774 2013-02-14 20:58:31Z chrfranke $
 
 2013-02-10  Alex Samorukov  <samm@os2.kiev.ua>
 
-	os_freebsd.cpp: adding device type fix for devices on MPT controlelrs.
+	os_freebsd.cpp: adding device type fix for devices on MPT controllers.
 
 2013-02-06  Christian Franke  <franke@computer.org>
 

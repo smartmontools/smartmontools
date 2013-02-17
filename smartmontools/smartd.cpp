@@ -107,7 +107,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3766 2013-02-05 19:35:36Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3776 2013-02-17 04:25:42Z dpgilbert $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -2197,13 +2197,15 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   lu_id[0] = '\0';
   if ((version >= 0x3) && (version < 0x8)) {
     /* SPC to SPC-5 */
-    if (0 == (err = scsiInquiryVpd(scsidev, 0x83, vpdBuf, sizeof(vpdBuf)))) {
+    if (0 == (err = scsiInquiryVpd(scsidev, SCSI_VPD_DEVICE_IDENTIFICATION,
+				   vpdBuf, sizeof(vpdBuf)))) {
       len = vpdBuf[3];
       scsi_decode_lu_dev_id(vpdBuf + 4, len, lu_id, sizeof(lu_id), NULL);
     }
   }
   serial[0] = '\0';
-  if (0 == (err = scsiInquiryVpd(scsidev, 0x80, vpdBuf, sizeof(vpdBuf)))) {
+  if (0 == (err = scsiInquiryVpd(scsidev, SCSI_VPD_UNIT_SERIAL_NUMBER,
+				 vpdBuf, sizeof(vpdBuf)))) {
   	  len = vpdBuf[3];
   	  vpdBuf[4 + len] = '\0';
   	  scsi_format_id_string(serial, (const unsigned char *)&vpdBuf[4], len);
