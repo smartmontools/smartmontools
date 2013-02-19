@@ -1,5 +1,10 @@
 $Id$
 
+2013-02-19  Alex Samorukov  <samm@os2.kiev.ua>
+
+	atacmds.cpp: fixed scttemphist on LE machines, including PPC. Patch
+	and report provided by Roger Roehrig.
+
 2013-02-16  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsicmds.h, scsicmds.cpp, scsiprint.h, scsiprint.cpp:

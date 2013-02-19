@@ -2437,6 +2437,8 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
     swapx(&tmh->format_version);
     swapx(&tmh->sampling_period);
     swapx(&tmh->interval);
+    swapx(&tmh->cb_index);
+    swapx(&tmh->cb_size);
   }
   return 0;
 }
