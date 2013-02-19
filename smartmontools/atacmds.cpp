@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3747 2013-01-16 21:29:42Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3777 2013-02-19 18:32:15Z samm2 $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -2437,6 +2437,8 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
     swapx(&tmh->format_version);
     swapx(&tmh->sampling_period);
     swapx(&tmh->interval);
+    swapx(&tmh->cb_index);
+    swapx(&tmh->cb_size);
   }
   return 0;
 }

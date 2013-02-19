@@ -1,4 +1,9 @@
-$Id: ChangeLog 3776 2013-02-17 04:25:42Z dpgilbert $
+$Id: ChangeLog 3777 2013-02-19 18:32:15Z samm2 $
+
+2013-02-19  Alex Samorukov  <samm@os2.kiev.ua>
+
+	atacmds.cpp: fixed scttemphist on LE machines, including PPC. Patch
+	and report provided by Roger Roehrig.
 
 2013-02-16  Douglas Gilbert  <dgilbert@interlog.com>
 
