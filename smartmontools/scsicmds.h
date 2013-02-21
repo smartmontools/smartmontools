@@ -114,11 +114,11 @@ struct scsi_cmnd_io
 {
     UINT8 * cmnd;       /* [in]: ptr to SCSI command block (cdb) */
     size_t  cmnd_len;   /* [in]: number of bytes in SCSI command */
-    int dxfer_dir;      /* [in]: DXFER_NONE, DXFER_FROM_DEVICE, or 
+    int dxfer_dir;      /* [in]: DXFER_NONE, DXFER_FROM_DEVICE, or
                                  DXFER_TO_DEVICE */
     UINT8 * dxferp;     /* [in]: ptr to outgoing or incoming data buffer */
     size_t dxfer_len;   /* [in]: bytes to be transferred to/from dxferp */
-    UINT8 * sensep;     /* [in]: ptr to sense buffer, filled when 
+    UINT8 * sensep;     /* [in]: ptr to sense buffer, filled when
                                  CHECK CONDITION status occurs */
     size_t max_sense_len; /* [in]: max number of bytes to write to sensep */
     unsigned timeout;   /* [in]: seconds, 0-> default timeout (60 seconds?) */
@@ -130,9 +130,9 @@ struct scsi_cmnd_io
 };
 
 struct scsi_sense_disect {
-    UINT8 error_code;
+    UINT8 resp_code;
     UINT8 sense_key;
-    UINT8 asc; 
+    UINT8 asc;
     UINT8 ascq;
     int progress; /* -1 -> N/A, 0-65535 -> available */
 };
@@ -202,7 +202,7 @@ struct scsiNonMediumError {
 /* Log page response lengths */
 #define LOG_RESP_SELF_TEST_LEN 0x194
 
-/* See the SSC-2 document at www.t10.org . Earler note: From IBM 
+/* See the SSC-2 document at www.t10.org . Earler note: From IBM
 Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define TAPE_ALERTS_LPAGE                        0x2e
 
@@ -242,16 +242,16 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define MPAGE_CONTROL_SAVED                 3
 
 /* SCSI Vital Product Data (VPD) pages */
-#define SCSI_VPD_SUPPORTED_VPD_PAGES	0x0
-#define SCSI_VPD_UNIT_SERIAL_NUMBER	0x80
-#define SCSI_VPD_DEVICE_IDENTIFICATION	0x83
-#define SCSI_VPD_EXTENDED_INQUIRY_DATA	0x86
-#define SCSI_VPD_ATA_INFORMATION	0x89
-#define SCSI_VPD_POWER_CONDITION	0x8a
-#define SCSI_VPD_POWER_CONSUMPTION	0x8d
-#define SCSI_VPD_BLOCK_LIMITS		0xb0
-#define SCSI_VPD_BLOCK_DEVICE_CHARACTERISTICS	0xb1
-#define SCSI_VPD_LOGICAL_BLOCK_PROVISIONING	0xb2
+#define SCSI_VPD_SUPPORTED_VPD_PAGES    0x0
+#define SCSI_VPD_UNIT_SERIAL_NUMBER     0x80
+#define SCSI_VPD_DEVICE_IDENTIFICATION  0x83
+#define SCSI_VPD_EXTENDED_INQUIRY_DATA  0x86
+#define SCSI_VPD_ATA_INFORMATION        0x89
+#define SCSI_VPD_POWER_CONDITION        0x8a
+#define SCSI_VPD_POWER_CONSUMPTION      0x8d
+#define SCSI_VPD_BLOCK_LIMITS           0xb0
+#define SCSI_VPD_BLOCK_DEVICE_CHARACTERISTICS   0xb1
+#define SCSI_VPD_LOGICAL_BLOCK_PROVISIONING     0xb2
 
 /* defines for useful SCSI Status codes */
 #define SCSI_STATUS_CHECK_CONDITION     0x2
@@ -270,7 +270,7 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_ASC_NOT_READY              0x4     /* more info in ASCQ code */
 #define SCSI_ASC_NO_MEDIUM              0x3a    /* more info in ASCQ code */
 #define SCSI_ASC_UNKNOWN_OPCODE         0x20
-#define SCSI_ASC_UNKNOWN_FIELD          0x24
+#define SCSI_ASC_INVALID_FIELD          0x24
 #define SCSI_ASC_UNKNOWN_PARAM          0x26
 #define SCSI_ASC_WARNING                0xb
 #define SCSI_ASC_IMPENDING_FAILURE      0x5d
@@ -313,6 +313,27 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define LOGPAGEHDRSIZE  4
 
 class scsi_device;
+
+// Set of supported SCSI VPD pages. Constructor fetches Supported VPD pages
+// VPD page and remembers the response for later queries.
+class supported_vpd_pages
+{
+public:
+    supported_vpd_pages(scsi_device * device);
+    ~supported_vpd_pages() { num_valid = 0; }
+
+    bool is_supported(int vpd_page_num) const;
+
+    /* Returns 0 or less for VPD pages not supported or error */
+    int num_pages() const { return num_valid; }
+
+private:
+    int num_valid;      /* 0 or less for invalid */
+    unsigned char pages[256];
+};
+
+extern supported_vpd_pages * supported_vpd_pages_p;
+
 
 // Print SCSI debug messages?
 extern unsigned char scsi_debugmode;
@@ -372,9 +393,6 @@ int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbp,
 
 int scsiReadCapacity16(scsi_device * device, UINT8 *pBuf, int bufLen);
 
-uint64_t scsiGetSize(scsi_device * device, unsigned int * lb_sizep);
-
-
 /* SMART specific commands */
 int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage, UINT8 *asc,
                 UINT8 *ascq, UINT8 *currenttemp, UINT8 *triptemp);
@@ -397,7 +415,11 @@ int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current);
 int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len);
 int scsiFetchTransportProtocol(scsi_device * device, int modese_len);
 int scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp);
-int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wce, short int * rcd);
+int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wce,
+                    short int * rcd);
+uint64_t scsiGetSize(scsi_device * device, unsigned int * lb_sizep,
+                     int * lb_per_pb_expp);
+int scsiGetProtPBInfo(scsi_device * device, unsigned char * rc16_12_31p);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 const char* scsiGetIEString(UINT8 asc, UINT8 ascq);
@@ -444,4 +466,3 @@ const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
 
 
 #endif
-

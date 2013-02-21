@@ -2177,7 +2177,8 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
       return 2;
     }
   }
-  version = inqBuf[2];
+  version = (inqBuf[2] & 0x7f);	/* Accept old ISO/IEC 9316:1995 variants */
+
   avail_len = inqBuf[4] + 5;
   len = (avail_len < req_len) ? avail_len : req_len;
   if (len < 36) {
@@ -2194,18 +2195,25 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
              "skip\n", device, pdt);
     return 2;
   }
+
+  if (supported_vpd_pages_p) {
+    delete supported_vpd_pages_p;
+    supported_vpd_pages_p = NULL;
+  }
+  supported_vpd_pages_p = new supported_vpd_pages(scsidev);
+
   lu_id[0] = '\0';
   if ((version >= 0x3) && (version < 0x8)) {
     /* SPC to SPC-5 */
-    if (0 == (err = scsiInquiryVpd(scsidev, SCSI_VPD_DEVICE_IDENTIFICATION,
-				   vpdBuf, sizeof(vpdBuf)))) {
+    if (0 == scsiInquiryVpd(scsidev, SCSI_VPD_DEVICE_IDENTIFICATION,
+			    vpdBuf, sizeof(vpdBuf))) {
       len = vpdBuf[3];
       scsi_decode_lu_dev_id(vpdBuf + 4, len, lu_id, sizeof(lu_id), NULL);
     }
   }
   serial[0] = '\0';
-  if (0 == (err = scsiInquiryVpd(scsidev, SCSI_VPD_UNIT_SERIAL_NUMBER,
-				 vpdBuf, sizeof(vpdBuf)))) {
+  if (0 == scsiInquiryVpd(scsidev, SCSI_VPD_UNIT_SERIAL_NUMBER,
+			  vpdBuf, sizeof(vpdBuf))) {
   	  len = vpdBuf[3];
   	  vpdBuf[4 + len] = '\0';
   	  scsi_format_id_string(serial, (const unsigned char *)&vpdBuf[4], len);
@@ -2213,7 +2221,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
 
   unsigned int lb_size;
   char si_str[64];
-  uint64_t capacity = scsiGetSize(scsidev, &lb_size);
+  uint64_t capacity = scsiGetSize(scsidev, &lb_size, NULL);
 
   if (capacity)
     format_capacity(si_str, sizeof(si_str), capacity);
