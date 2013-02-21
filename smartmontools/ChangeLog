@@ -1,4 +1,12 @@
-$Id: ChangeLog 3777 2013-02-19 18:32:15Z samm2 $
+$Id: ChangeLog 3778 2013-02-21 23:55:35Z dpgilbert $
+
+2013-02-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.h, scsicmds.cpp, scsiprint.h, scsiprint.cpp:
+	- for SCSI disks, in 'smartctl --info' report physical
+	  block size and lowest LBA alignement (if PB size
+	  different from LB size); logical block provisioning
+	  status (if any); and disk protection (a.k.a. DIF) type
 
 2013-02-19  Alex Samorukov  <samm@os2.kiev.ua>
 
