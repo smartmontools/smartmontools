@@ -1,5 +1,10 @@
 $Id$
 
+2013-02-23  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Crucial/Micron RealSSD C300: Remove bogus trailing '|' from
+	regex (Regression from r3772).
+
 2013-02-16  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsicmds.h, scsicmds.cpp, scsiprint.h, scsiprint.cpp:

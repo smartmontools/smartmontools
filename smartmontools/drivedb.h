@@ -162,7 +162,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Crucial/Micron RealSSD C300", // Marvell 88SS9174 BJP2
-    "C300-CTFDDA[AC](064|128|256)MAG|", // tested with C300-CTFDDAC128MAG/0002,
+    "C300-CTFDDA[AC](064|128|256)MAG", // tested with C300-CTFDDAC128MAG/0002,
       // C300-CTFDDAC064MAG/0006
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
