@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3775 2013-02-14 21:03:43Z chrfranke $",
+  { "$Id: drivedb.h 3780 2013-02-23 14:29:47Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -162,7 +162,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Crucial/Micron RealSSD C300", // Marvell 88SS9174 BJP2
-    "C300-CTFDDA[AC](064|128|256)MAG|", // tested with C300-CTFDDAC128MAG/0002,
+    "C300-CTFDDA[AC](064|128|256)MAG", // tested with C300-CTFDDAC128MAG/0002,
       // C300-CTFDDAC064MAG/0006
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
