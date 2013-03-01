@@ -288,6 +288,7 @@ const drive_settings builtin_knowndrives[] = {
     "(TX32|TX31C1|VN0.?..GCNMK).*|" // Smart Storage Systems XceedSTOR
     "(TX22D1|TX21B1).*|" // Smart Storage Systems XceedIOPS2
     "TX52D1.*|" // Smart Storage Systems Xcel-200
+    "TS(64|128|256|512)GSSD320|" // Transcend SSD320, SF-2281, tested with TS128GSSD320
     "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
     "", "",
@@ -521,8 +522,8 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
-  { "Intel 520 Series SSDs", // tested with INTEL SSDSC2CW120A3/400i
-    "INTEL SSDSC2CW(060|120|180|240|480)A3",
+  { "Intel 520 Series SSDs", // tested with INTEL SSDSC2CW120A3/400i, SSDSC2BW480A3F/400i
+    "INTEL SSDSC2[BC]W(060|120|180|240|480)A3F?",
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
     "-v 9,msec24hour32,Power_On_Hours_and_Msec "
@@ -641,7 +642,8 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
                                // tested with Toshiba 128GB 2.5" SSD (built in MacBooks)
     "TOSHIBA THNSNC128GMLJ|" // tested with THNSNC128GMLJ/CJTA0202 (built in Toshiba Protege/Dynabook)
-    "TS(8|16|32|64|128|192|256|512)GSSD25S-(MD?|S)", // Transcend SATA (JMF612), tested with TS256GSSD25S-M/101028
+    "TS(8|16|32|64|128|192|256|512)GSSD25S?-(MD?|S)", // Transcend IDE and SATA (JMF612), tested with
+      // TS256GSSD25S-M/101028, TS32GSSD25-M/20101227
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -1630,6 +1632,10 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[2-5]",
     "", "", ""
   },
+  { "HGST Travelstar 7K1000", // tested with HGST HTS721010A9E630/JB0OA3B0
+    "HGST HTS721010A9E630",
+    "", "", ""
+  },
   { "IBM Deskstar 14GXP and 16GP",
     "IBM-DTTA-3(7101|7129|7144|5032|5043|5064|5084|5101|5129|5168)0",
     "", "", ""
@@ -2102,6 +2108,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
+  { "Seagate Desktop HDD.15", // tested with ST4000DM000-1CD168/CC43
+    "ST4000DM000-.*",
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
   { "Seagate Barracuda LP", // new firmware
     "ST3(500412|1000520|1500541|2000542)AS",
     "CC3[5-9A-Z]",
@@ -2216,6 +2227,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate DB35.3",
     "ST3(750640SCE|((80|160)215|(250|320|400)820|500830|750840)[AS]CE)",
+    "", "", ""
+  },
+  { "Seagate LD25.2", // tested with ST940210AS/3.ALC
+    "ST9(40|80)210AS?",
     "", "", ""
   },
   { "Seagate ST1.2 CompactFlash", // tested with ST68022CF/3.01
@@ -2339,12 +2354,16 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((25|32|50|75)02A|(75|10)02F)BYS-.*",
     "", "", ""
   },
-  { "Western Digital RE4 Serial ATA", // tested with WDC WD2003FYYS-18W0B0/01.01D02
+  { "Western Digital RE4", // tested with WDC WD2003FYYS-18W0B0/01.01D02
     "WDC WD((((25|50)03A|1003F)BYX)|((15|20)03FYYS))-.*",
     "", "", ""
   },
   { "Western Digital RE4-GP", // tested with WDC WD2002FYPS-02W3B0/04.01G01
     "WDC WD2002FYPS-.*",
+    "", "", ""
+  },
+  { "Western Digital RE4 (SATA 6Gb/s)", // tested with WDC WD2000FYYZ-01UL1B0/01.01K01
+    "WDC WD(20|30|40)00FYYZ-.*",
     "", "", ""
   },
   { "Western Digital Caviar Green",
@@ -2579,6 +2598,13 @@ const drive_settings builtin_knowndrives[] = {
     "0x0240",
     "",
     "-d usbcypress"
+  },
+  // Fujitsu
+  { "USB: Fujitsu/Zalman ZM-VE300; ", // USB 3.0
+    "0x04c5:0x2028",
+    "", // 0x0001
+    "",
+    "-d sat"
   },
   // Myson Century
   { "USB: ; Myson Century CS8818",
