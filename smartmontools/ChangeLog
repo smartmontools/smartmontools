@@ -1,5 +1,17 @@
 $Id$
 
+2013-03-01  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Transcend SSD320
+	- Intel 520 Series SSDs: OEM variant
+	- JMicron based SSDs: Transcend SSD25 IDE
+	- HGST Travelstar 7K1000
+	- Seagate Desktop HDD.15
+	- Seagate LD25.2
+	- Western Digital RE4 (SATA 6Gb/s)
+	- USB: Fujitsu/Zalman ZM-VE300 (0x04c5:0x2028)
+
 2013-02-23  Christian Franke  <franke@computer.org>
 
 	drivedb.h: Crucial/Micron RealSSD C300: Remove bogus trailing '|' from
