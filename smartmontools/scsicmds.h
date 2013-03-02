@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3778 2013-02-21 23:55:35Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3783 2013-03-02 01:51:12Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,6 +77,9 @@
 #endif
 #ifndef READ_DEFECT_10
 #define READ_DEFECT_10  0x37
+#endif
+#ifndef READ_DEFECT_12
+#define READ_DEFECT_12  0xb7
 #endif
 #ifndef START_STOP_UNIT
 #define START_STOP_UNIT  0x1b
@@ -387,6 +390,9 @@ int scsiReceiveDiagnostic(scsi_device * device, int pcv, int pagenum, UINT8 *pBu
 
 int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist, int dl_format,
                      UINT8 *pBuf, int bufLen);
+
+int scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
+                     int dl_format, int addrDescIndex, UINT8 *pBuf, int bufLen);
 
 int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbp,
                        unsigned int * lb_sizep);
