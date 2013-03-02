@@ -1,5 +1,12 @@
 $Id$
 
+2013-03-01  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.h, scsicmds.cpp, scsiprint.cpp:
+	- for SCSI disks prefer READ DEFECT(12) for finding the
+	  grown defect list length (previously used READ DEFECT(10)
+	  only)
+
 2013-03-01  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

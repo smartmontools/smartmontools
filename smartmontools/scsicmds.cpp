@@ -164,6 +164,7 @@ static struct scsi_opcode_name opcode_name_arr[] = {
     {READ_CAPACITY_16, "read capacity(16)"},    /* 0x9e,0x10 */
     {REPORT_LUNS, "report luns"},               /* 0xa0 */
     {SAT_ATA_PASSTHROUGH_12, "ata pass-through(12)"}, /* 0xa1 */
+    {READ_DEFECT_12, "read defect list(12)"},   /* 0xb7 */
 };
 
 static const char * vendor_specific = "<vendor specific>";
@@ -1091,6 +1092,46 @@ scsiReadDefect10(scsi_device * device, int req_plist, int req_glist,
                ((req_glist << 3) & 0x8) | (dl_format & 0x7));
     cdb[7] = (bufLen >> 8) & 0xff;
     cdb[8] = bufLen & 0xff;
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    return scsiSimpleSenseFilter(&sinfo);
+}
+
+/* READ DEFECT (12) command. Returns 0 if ok, 1 if NOT READY, 2 if
+ * command not supported, 3 if field in command not supported or returns
+ * negated errno. SBC-3 section 5.18 (rev 35; vale Mark Evans) */
+int
+scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
+                 int dl_format, int addrDescIndex, UINT8 *pBuf, int bufLen)
+{
+    struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
+    UINT8 cdb[12];
+    UINT8 sense[32];
+
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    memset(cdb, 0, sizeof(cdb));
+    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+    io_hdr.dxfer_len = bufLen;
+    io_hdr.dxferp = pBuf;
+    cdb[0] = READ_DEFECT_12;
+    cdb[1] = (unsigned char)(((req_plist << 4) & 0x10) |
+               ((req_glist << 3) & 0x8) | (dl_format & 0x7));
+    cdb[2] = (addrDescIndex >> 24) & 0xff;
+    cdb[3] = (addrDescIndex >> 16) & 0xff;
+    cdb[4] = (addrDescIndex >> 8) & 0xff;
+    cdb[5] = addrDescIndex & 0xff;
+    cdb[6] = (bufLen >> 24) & 0xff;
+    cdb[7] = (bufLen >> 16) & 0xff;
+    cdb[8] = (bufLen >> 8) & 0xff;
+    cdb[9] = bufLen & 0xff;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;

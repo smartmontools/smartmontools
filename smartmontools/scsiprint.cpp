@@ -321,17 +321,45 @@ scsiGetStartStopData(scsi_device * device)
 static void
 scsiPrintGrownDefectListLen(scsi_device * device)
 {
-    int err, dl_format, dl_len, div;
+    int err, dl_format, got_rd12, generation;
+    unsigned int dl_len, div;
 
-    memset(gBuf, 0, 4);
-    if ((err = scsiReadDefect10(device, 0 /* req_plist */, 1 /* req_glist */,
-                                4 /* bytes from index */, gBuf, 4))) {
-        if (scsi_debugmode > 0) {
+    memset(gBuf, 0, 8);
+    if ((err = scsiReadDefect12(device, 0 /* req_plist */, 1 /* req_glist */,
+                                4 /* format: bytes from index */,
+                                0 /* addr desc index */, gBuf, 8))) {
+        if (2 == err) { /* command not supported */
+            if ((err = scsiReadDefect10(device, 0 /* req_plist */, 1 /* req_glist */,
+                                        4 /* format: bytes from index */, gBuf, 4))) {
+                if (scsi_debugmode > 0) {
+                    print_on();
+                    pout("Read defect list (10) Failed: %s\n", scsiErrString(err));
+                    print_off();
+                }
+                return;
+            } else
+                got_rd12 = 0;
+        } else {
+            if (scsi_debugmode > 0) {
+                print_on();
+                pout("Read defect list (12) Failed: %s\n", scsiErrString(err));
+                print_off();
+            }
+            return;
+        }
+    } else
+        got_rd12 = 1;
+
+    if (got_rd12) {
+        generation = (gBuf[2] << 8) + gBuf[3];
+        if ((generation > 1) && (scsi_debugmode > 0)) {
             print_on();
-            pout("Read defect list (10) Failed: %s\n", scsiErrString(err));
+            pout("Read defect list (12): generation=%d\n", generation);
             print_off();
         }
-        return;
+        dl_len = (gBuf[4] << 24) + (gBuf[5] << 16) + (gBuf[6] << 8) + gBuf[7];
+    } else {
+        dl_len = (gBuf[2] << 8) + gBuf[3];
     }
     if (0x8 != (gBuf[1] & 0x18)) {
         print_on();
@@ -345,6 +373,11 @@ scsiPrintGrownDefectListLen(scsi_device * device)
         case 0:     /* short block */
             div = 4;
             break;
+        case 1:     /* extended bytes from index */
+        case 2:     /* extended physical sector */
+            /* extended = 1; # might use in future */
+            div = 8;
+            break;
         case 3:     /* long block */
         case 4:     /* bytes from index */
         case 5:     /* physical sector */
@@ -356,15 +389,14 @@ scsiPrintGrownDefectListLen(scsi_device * device)
             print_off();
             break;
     }
-    dl_len = (gBuf[2] << 8) + gBuf[3];
     if (0 == dl_len)
         pout("Elements in grown defect list: 0\n\n");
     else {
         if (0 == div)
-            pout("Grown defect list length=%d bytes [unknown "
+            pout("Grown defect list length=%u bytes [unknown "
                  "number of elements]\n\n", dl_len);
         else
-            pout("Elements in grown defect list: %d\n\n", dl_len / div);
+            pout("Elements in grown defect list: %u\n\n", dl_len / div);
     }
 }
 
