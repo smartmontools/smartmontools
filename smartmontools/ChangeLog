@@ -1,4 +1,9 @@
-$Id: ChangeLog 3783 2013-03-02 01:51:12Z dpgilbert $
+$Id: ChangeLog 3784 2013-03-06 22:02:54Z chrfranke $
+
+2013-03-06  Christian Franke  <franke@computer.org>
+
+	smartd_warning.sh.in: Support BSD variant of 'hostname' command
+	which prints FQDN.  Add Windows domain name (Cygwin).
 
 2013-03-01  Douglas Gilbert  <dgilbert@interlog.com>
 
