@@ -1,5 +1,10 @@
 $Id$
 
+2013-03-06  Christian Franke  <franke@computer.org>
+
+	smartd_warning.sh.in: Support BSD variant of 'hostname' command
+	which prints FQDN.  Add Windows domain name (Cygwin).
+
 2013-03-01  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsicmds.h, scsicmds.cpp, scsiprint.cpp:

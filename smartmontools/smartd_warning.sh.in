@@ -2,7 +2,7 @@
 #
 # smartd warning script
 #
-# Copyright (C) 2012 Christian Franke <smartmontools-support@lists.sourceforge.net>
+# Copyright (C) 2012-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -66,19 +66,31 @@ fi
 for cmd in 'hostname' 'uname -n' 'echo "${HOSTNAME?unset}"' 'echo "[Unknown]"'; do
   hostname=`eval $cmd 2>/dev/null` || continue
   test -n "$hostname" || continue
-  break;
+  break
 done
 
-for cmd in 'dnsdomainname' 'hostname -d' 'echo "${USERDNSDOMAIN?unset}"' 'echo "[Unknown]"'; do
-  dnsdomain=`eval $cmd 2>/dev/null` || continue
-  break;
-done
+dnsdomain=${hostname#*.}
+if [ "$dnsdomain" != "$hostname" ]; then
+  # BSD 'hostname' prints FQDN
+  hostname=${hostname%%.*}
+else
+  #           Linux           Cygwin
+  for cmd in 'dnsdomainname' 'echo "${USERDNSDOMAIN?unset}"' 'echo'; do
+    dnsdomain=`eval $cmd 2>/dev/null` || continue
+    break
+  done
+fi
 
-nisdomain=
-for cmd in 'nisdomainname' 'ypdomainname' 'hostname -y'; do
+for cmd in 'nisdomainname' 'ypdomainname' 'domainname' 'echo'; do
   nisdomain=`eval $cmd 2>/dev/null` || continue
-  break;
+  break
 done
+test "$nisdomain" != "(none)" || nisdomain=
+
+case $OS in
+  Windows*) windomain=$USERDOMAIN ;;
+  *)        windomain= ;;
+esac
 
 # Format subject
 export SMARTD_SUBJECT="SMART error (${SMARTD_FAILTYPE-[SMARTD_FAILTYPE]}) detected on host: $hostname"
@@ -91,6 +103,8 @@ fullmessage=`
   echo "   DNS domain: ${dnsdomain:-[Empty]}"
   test -z "$nisdomain" ||
     echo "   NIS domain: $nisdomain"
+  test -z "$windomain" ||
+    echo "   Win domain: $windomain"
   echo
   echo "The following warning/error was logged by the smartd daemon:"
   echo
