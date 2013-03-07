@@ -1,8 +1,9 @@
-$Id: ChangeLog 3785 2013-03-07 21:58:05Z chrfranke $
+$Id: ChangeLog 3786 2013-03-07 22:09:17Z chrfranke $
 
 2013-03-07  Christian Franke  <franke@computer.org>
 
 	ataidentify.cpp, ataprint.cpp: ACS-3 updates.
+	ataprint.cpp: Improve device statistics error messages.
 
 2013-03-06  Christian Franke  <franke@computer.org>
 
