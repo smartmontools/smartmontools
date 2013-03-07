@@ -1,4 +1,8 @@
-$Id: ChangeLog 3784 2013-03-06 22:02:54Z chrfranke $
+$Id: ChangeLog 3785 2013-03-07 21:58:05Z chrfranke $
+
+2013-03-07  Christian Franke  <franke@computer.org>
+
+	ataidentify.cpp, ataprint.cpp: ACS-3 updates.
 
 2013-03-06  Christian Franke  <franke@computer.org>
 
