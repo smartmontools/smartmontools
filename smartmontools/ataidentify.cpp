@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2012 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2012-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ const char * ataidentify_cpp_cvsid = "$Id$"
 // Tables 16 and 18 of T13/1532D (ATA/ATAPI-7) Volume 1 Revision 4b, April 21, 2004
 // Tables 29 and 39 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
 // Tables 50 and 61 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
-// Tables 51 and 56 of T13/2161-D (ACS-3) Revision 4, September 4, 2012
+// Tables 51 and 56 of T13/2161-D (ACS-3) Revision 4g, February 27, 2013
 
 const char * const identify_descriptions[] = {
   "  0 General configuration",
@@ -80,8 +80,8 @@ const char * const identify_descriptions[] = {
     ". 15:14 ATA: Reserved for IDENTIFY PACKET DEVICE",
     ". 15 ATAPI: Interleaved DMA supported [OBS-8]",
     ". 14 ATAPI: Command queuing supported [OBS-8]",
-    ". 13 ATAPI: Overlap operation supported [OBS-8]",
     ". 13 ATA: Standard standby timer values supported",
+    ". 13 ATAPI: Overlap operation supported [OBS-8]",
     ". 12 ATA: Reserved for IDENTIFY PACKET DEVICE",
     ". 12 ATAPI: ATA software reset required [OBS-5]",
     ". 11 IORDY supported",
@@ -216,7 +216,8 @@ const char * const identify_descriptions[] = {
     ". 0 Must be set to 0",
 
   " 80 Major version number",
-    ". 15:10 Reserved",
+    ". 15:11 Reserved",
+    ". 10 ACS-3 supported",
     ". 9 ACS-2 supported",
     ". 8 ATA8-ACS supported",
     ". 7 ATA/ATAPI-7 supported",
@@ -236,7 +237,7 @@ const char * const identify_descriptions[] = {
     ". 13 READ BUFFER supported",
     ". 12 WRITE BUFFER supported",
     ". 11 WRITE VERIFY supported [OBS-4]", // ATA-4 r07-r13 only
-    ". 10 HPA feature set supported",
+    ". 10 HPA feature set supported [OBS-ACS-3]",
     ". 9 DEVICE RESET supported", // ATA:0, ATAPI:1
     ". 8 SERVICE interrupt supported [OBS-ACS-2]",
     ". 7 Release interrupt supported [OBS-ACS-2]",
@@ -277,7 +278,7 @@ const char * const identify_descriptions[] = {
     ". 5 GPL feature set supported",
     ". 4 Streaming feature set supported [OBS-ACS-3]",
     ". 3 Media Card Pass Through Command supported [OBS-ACS-2]",
-    ". 2 Media serial number supported",
+    ". 2 Media serial number supported", // ACS-3 r3 or later: Reserved
     ". 1 SMART self-test supported",
     ". 0 SMART error logging supported",
 
@@ -372,8 +373,8 @@ const char * const identify_descriptions[] = {
     ". 0 Must be set to 1",
 
   " 94 AAM level [OBS-ACS-2]",
-    ". 15:8 Recommended AAM level",
-    ". 7:0 Current AAM level",
+    ". 15:8 Recommended AAM level [OBS-ACS-2]",
+    ". 7:0 Current AAM level [OBS-ACS-2]",
 
   " 95 Stream Minimum Request Size",
   " 96 Streaming Transfer Time - DMA",
@@ -468,7 +469,9 @@ const char * const identify_descriptions[] = {
 
   "206 SCT Command Transport",
     ". 15:12 Vendor Specific",
-    ". 11:6 Reserved",
+    ". 11:8 Reserved",
+    ". 7 Reserved for Serial ATA",
+    ". 6 Reserved",
     ". 5 SCT Data Tables supported",
     ". 4 SCT Feature Control supported",
     ". 3 SCT Error Recovery Control supported",
@@ -486,21 +489,21 @@ const char * const identify_descriptions[] = {
   "212-213 Write-Read-Verify sector count mode 2 (DWord)",
 
   "214 NV Cache capabilities [OBS-ACS-3]",
-    ". 15:12 NV Cache feature set version",
-    ". 11:8 NV Cache Power Mode feature set version",
-    ". 7:5 Reserved",
-    ". 4 NV Cache feature set enabled",
+    ". 15:12 NV Cache feature set version [OBS-ACS-3]",
+    ". 11:8 NV Cache Power Mode feature set version [OBS-ACS-3]",
+    ". 7:5 Reserved [OBS-ACS-3]",
+    ". 4 NV Cache feature set enabled [OBS-ACS-3]",
     ". 3:2 Reserved",
-    ". 1 NV Cache Power Mode feature set enabled",
-    ". 0 NV Cache Power Mode feature set supported",
+    ". 1 NV Cache Power Mode feature set enabled [OBS-ACS-3]",
+    ". 0 NV Cache Power Mode feature set supported [OBS-ACS-3]",
 
   "215-216 NV Cache size in logical blocks (DWord) [OBS-ACS-3]",
   "217 Nominal media rotation rate",
   "218 Reserved",
 
   "219 NV Cache options [OBS-ACS-3]",
-    ". 15:8 Reserved",
-    ". 7:0 Device estimated time to spin up in seconds",
+    ". 15:8 Reserved [OBS-ACS-3]",
+    ". 7:0 Estimated time to spin up in seconds [OBS-ACS-3]",
 
   "220 Write-Read-Verify mode",
     ". 15:8 Reserved",

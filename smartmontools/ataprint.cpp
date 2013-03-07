@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -420,10 +420,10 @@ static int find_msb(unsigned short word)
   return -1;
 }
 
-const char * get_ata_major_version(const ata_identify_device * drive)
+static const char * get_ata_major_version(const ata_identify_device * drive)
 {
   switch (find_msb(drive->major_rev_num)) {
-  //case 10: return "ACS-3"; // ?
+    case 10: return "ACS-3";
     case  9: return "ACS-2";
     case  8: return "ATA8-ACS";
     case  7: return "ATA/ATAPI-7";
@@ -437,7 +437,7 @@ const char * get_ata_major_version(const ata_identify_device * drive)
   }
 }
 
-const char * get_ata_minor_version(const ata_identify_device * drive)
+static const char * get_ata_minor_version(const ata_identify_device * drive)
 {
   switch (drive->minor_rev_num) {
     case 0x0001: return "ATA-1 X3T9.2/781D prior to revision 4";

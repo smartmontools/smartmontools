@@ -1,5 +1,9 @@
 $Id$
 
+2013-03-07  Christian Franke  <franke@computer.org>
+
+	ataidentify.cpp, ataprint.cpp: ACS-3 updates.
+
 2013-03-06  Christian Franke  <franke@computer.org>
 
 	smartd_warning.sh.in: Support BSD variant of 'hostname' command
