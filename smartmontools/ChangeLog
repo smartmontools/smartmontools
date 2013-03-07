@@ -3,6 +3,7 @@ $Id$
 2013-03-07  Christian Franke  <franke@computer.org>
 
 	ataidentify.cpp, ataprint.cpp: ACS-3 updates.
+	ataprint.cpp: Improve device statistics error messages.
 
 2013-03-06  Christian Franke  <franke@computer.org>
 

@@ -1461,12 +1461,14 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
 {
   // Read list of supported pages from page 0
   unsigned char page_0[512] = {0, };
-  if (!ataReadLogExt(device, 0x04, 0, 0, page_0, 1))
+  if (!ataReadLogExt(device, 0x04, 0, 0, page_0, 1)) {
+    pout("Read Device Statistics page 0 failed\n\n");
     return false;
+  }
 
   unsigned char nentries = page_0[8];
   if (!(page_0[2] == 0 && nentries > 0)) {
-    pout("Device Statistics page 0 is invalid (page=%d, nentries=%d)\n", page_0[2], nentries);
+    pout("Device Statistics page 0 is invalid (page=%d, nentries=%d)\n\n", page_0[2], nentries);
     return false;
   }
 
@@ -1517,8 +1519,10 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
     for (i = 0; i <  pages.size(); i++) {
       int page = pages[i];
       unsigned char page_n[512] = {0, };
-      if (!ataReadLogExt(device, 0x04, 0, page, page_n, 1))
+      if (!ataReadLogExt(device, 0x04, 0, page, page_n, 1)) {
+        pout("Read Device Statistics page %d failed\n\n", page);
         return false;
+      }
       print_device_statistics_page(page_n, page, need_trailer);
     }
 
