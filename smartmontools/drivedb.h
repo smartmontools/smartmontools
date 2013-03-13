@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3782 2013-03-01 20:27:15Z chrfranke $",
+  { "$Id: drivedb.h 3790 2013-03-13 20:15:31Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
