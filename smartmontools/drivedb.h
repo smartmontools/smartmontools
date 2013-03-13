@@ -2835,7 +2835,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x067b:0x3507",
     "", // 0x0001
     "",
-    "" // smartmontools >= r3741: -d usbjmicron,p
+    "-d usbjmicron,p"
   },
   // Imation
   { "USB: Imation ; ", // Imation Odyssey external USB dock

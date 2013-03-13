@@ -2,6 +2,11 @@ $Id$
 
 2013-03-13  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- USB: Prolific PL3507 (0x067b:0x3507): works with '-d usbjmicron,p'
+
+2013-03-13  Christian Franke  <franke@computer.org>
+
 	Create branch RELEASE_6_0_DRIVEDB with last drivedb.h file
 	compatible with smartmontools 6.0.
 
