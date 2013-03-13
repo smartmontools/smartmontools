@@ -1,5 +1,10 @@
 $Id$
 
+2013-03-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Fix format of attribute 198 (ticket #258).
+
 2013-03-07  Christian Franke  <franke@computer.org>
 
 	ataidentify.cpp, ataprint.cpp: ACS-3 updates.
