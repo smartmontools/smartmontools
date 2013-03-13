@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3791 2013-03-13 21:47:19Z chrfranke $",
+  { "$Id: drivedb.h 3794 2013-03-13 22:34:36Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2835,7 +2835,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x067b:0x3507",
     "", // 0x0001
     "",
-    "" // smartmontools >= r3741: -d usbjmicron,p
+    "-d usbjmicron,p"
   },
   // Imation
   { "USB: Imation ; ", // Imation Odyssey external USB dock

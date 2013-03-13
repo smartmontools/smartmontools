@@ -1,4 +1,9 @@
-$Id: ChangeLog 3793 2013-03-13 22:16:48Z chrfranke $
+$Id: ChangeLog 3794 2013-03-13 22:34:36Z chrfranke $
+
+2013-03-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Prolific PL3507 (0x067b:0x3507): works with '-d usbjmicron,p'
 
 2013-03-13  Christian Franke  <franke@computer.org>
 
