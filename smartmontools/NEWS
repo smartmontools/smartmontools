@@ -8,18 +8,23 @@ http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontool
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 6.1
 -----------------------------------------------------------
-- Linux: Improved support for SATA disks on LSI/Megaraid controllers
-- Linux: disks on MegaRaid controllers are automatically scanned
 - smartctl '-l directory': improved output format.
 - smartctl: Fix parsing of '-l select,cont+SIZE' option.
 - smartctl prints ATA Additional Product Id (OEM Id).
+- smartctl '-s/-g wcache' for SCSI devices to control write cache.
+- smartctl '-s/-g rcache' for SCSI devices to control read cache.
+- smartctl prints media rotation rate and selftest progress status [SCSI]
 - smartd runs /etc/smartd_warning.sh to generate warning emails
   (Windows: smartd_warning.cmd).
 - smartd '-w PATH' option to specify this executable.
 - smartd '-d ignore' directive.
 - smartd DEVICESCAN ignores devices already specified.
+- smartd: added support for state persistence ('-s') and attribute logging
+  ('-A') for SCSI devices.
 - Device type '-d usbjmicron,p' for Prolific USB bridges.
 - Linux: Support for SAS disks behind Areca controllers.
+- Linux: Improved support for SATA disks on LSI/Megaraid controllers
+- Linux: disks on MegaRaid controllers are automatically scanned
 - FreeBSD: Support for SAS disks behind Areca controllers.
 - FreeBSD: Enhanced ATA command support for 3ware.
 - FreeBSD: Support for 3ware 9750 (/dev/twsX).
@@ -28,11 +33,6 @@ Summary: smartmontools release 6.1
 - FreeBSD: Improved support for SAS/SCSI disks on LSI/Megaraid controllers.
 - Windows: smartd.conf '-M exec' supports path names with spaces.
 - Windows: Tool wtssendmsg.exe to handle smartd.conf '-m console'.
-- smartd: added support for state persistence ('-s') and attribute logging 
-  ('-A') for SCSI devices.
-- smartctl '-s/-g wcache' for SCSI devices to control write cache.
-- smartctl '-s/-g rcache' for SCSI devices to control read cache.
-- smartctl prints media rotation rate and selftest progress status [SCSI]
 
 Date 2012-10-10
 Summary: smartmontools release 6.0
