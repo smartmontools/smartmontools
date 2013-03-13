@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3782 2013-03-01 20:27:15Z chrfranke $",
+  { "$Id: drivedb.h 3790 2013-03-13 20:15:31Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -311,7 +311,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw24/raw32,ECC_Uncorr_Error_Count "
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
-    "-v 198,hex48,Uncorrectable_Sector_Ct "
+    "-v 198,raw24/raw32:210zr54,Uncorrectable_Sector_Ct " // KINGSTON SE100S3100G/510ABBF0
     "-v 199,raw48,SATA_CRC_Error_Count "
     "-v 201,raw24/raw32,Unc_Soft_Read_Err_Rate "
     "-v 204,raw24/raw32,Soft_ECC_Correct_Rate "
