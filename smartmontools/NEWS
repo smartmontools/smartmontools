@@ -13,7 +13,11 @@ Summary: smartmontools release 6.1
 - smartctl prints ATA Additional Product Id (OEM Id).
 - smartctl '-s/-g wcache' for SCSI devices to control write cache.
 - smartctl '-s/-g rcache' for SCSI devices to control read cache.
-- smartctl prints media rotation rate and selftest progress status [SCSI]
+- smartctl prints more info for SCSI devices: media rotation rate,
+  form factor, physical block size, lowest LBA alignement,
+  logical block provisioning, disk protection type
+  and selftest progress status.
+- smartctl '--identify' updated for latest ATA ACS-3 spec.
 - smartd runs /etc/smartd_warning.sh to generate warning emails
   (Windows: smartd_warning.cmd).
 - smartd '-w PATH' option to specify this executable.
@@ -21,7 +25,10 @@ Summary: smartmontools release 6.1
 - smartd DEVICESCAN ignores devices already specified.
 - smartd: added support for state persistence ('-s') and attribute logging
   ('-A') for SCSI devices.
+- smartd '-W' directive uses ATA attribute 190 if 194 is missing.
+- Support of larger SCSI defect lists via READ DEFECT(12).
 - Device type '-d usbjmicron,p' for Prolific USB bridges.
+- Many HDD, SSD and USB additions to drive database.
 - Linux: Support for SAS disks behind Areca controllers.
 - Linux: Improved support for SATA disks on LSI/Megaraid controllers
 - Linux: disks on MegaRaid controllers are automatically scanned
@@ -33,6 +40,9 @@ Summary: smartmontools release 6.1
 - FreeBSD: Improved support for SAS/SCSI disks on LSI/Megaraid controllers.
 - Windows: smartd.conf '-M exec' supports path names with spaces.
 - Windows: Tool wtssendmsg.exe to handle smartd.conf '-m console'.
+- Windows: smartctl.exe and smartd.exe include VERSIONINFO resource.
+- Windows: smartd.exe includes MESSAGETABLE resource.
+- Windows: syslogevt.exe is no longer provided.
 
 Date 2012-10-10
 Summary: smartmontools release 6.0
