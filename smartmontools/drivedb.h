@@ -245,7 +245,8 @@ const drive_settings builtin_knowndrives[] = {
       // ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
-    "Corsair Force (3 SSD|GT)|" // SF-2281, tested with Corsair Force 3 SSD/1.3.2, GT/1.3.3
+    "Corsair Force (3 SSD|GS|GT)|" // SF-2281, tested with
+      // Corsair Force 3 SSD/1.3.2, GT/1.3.3, GS/5.03
     "FM-25S2S-(60|120|240)GBP2|" // G.SKILL Phoenix Pro, SF-1200, tested with
       // FM-25S2S-240GBP2/4.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
@@ -361,8 +362,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 212,raw64,SATA_Error_Ct_Handshake "
     "-v 213,raw64,Indilinx_Internal"
   },
-  { "Indilinx Everest/Martini based SSDs",
+  { "Indilinx Barefoot_2/Everest/Martini based SSDs",
     "OCZ VERTEX[ -]PLUS|" // tested with OCZ VERTEX-PLUS/3.55, OCZ VERTEX PLUS/3.55
+    "OCZ-VERTEX PLUS R2|" // Barefoot 2, tested with OCZ-VERTEX PLUS R2/1.2
     "OCZ-PETROL|" // Everest 1, tested with OCZ-PETROL/3.12
     "OCZ-AGILITY4|" // Everest 2, tested with OCZ-AGILITY4/1.5.2
     "OCZ-VERTEX4", // Everest 2, tested with OCZ-VERTEX4/1.5
@@ -1169,12 +1171,12 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "SAMSUNG SpinPoint M8 (AF)", // tested with HN-M101MBB/2AR10001
-    "SAMSUNG HN-M(250|500|750|101)MBB",
+    "SAMSUNG HN-M(250|320|500|640|750|101)MBB",
     "", "", ""
   },
   { "Seagate Momentus SpinPoint M8 (AF)", // tested with
-      // "ST750LM022 HN-M750MBB"/2AR10001
-    "ST(250|500|750|1000)LM0[012][124] HN-M[0-9]*MBB",
+      // ST750LM022 HN-M750MBB/2AR10001, ST320LM001 HN-M320MBB/2AR10002
+    "ST(250|320|500|640|750|1000)LM0[012][124] HN-M[0-9]*MBB",
     "", "", ""
   },
   { "SAMSUNG SpinPoint M8U (USB)", // tested with HN-M500XBB/2AR10001
@@ -1939,6 +1941,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST750LX003-.*",
     "", "", ""
   },
+  { "Seagate Momentus Thin", // tested with ST320LT007-9ZV142/0004LVM1
+    "ST(160|250|320)LT0(07|09|11|14)-.*",
+    "", "", ""
+  },
   { "Seagate Medalist 1010, 1720, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
     "ST3(1010|1720|1721|2120|3230|4340)A",
     "", "", ""
@@ -2494,8 +2500,8 @@ const drive_settings builtin_knowndrives[] = {
     "QUANTUM FIREBALL CR(4.3|6.4|8.4|13.0)A",
     "", "", ""
   },
-  { "Quantum Fireball EX",
-    "QUANTUM FIREBALL EX(3.2|6.4)A",
+  { "Quantum Fireball EX", // tested with QUANTUM FIREBALL EX10.2A/A0A.0D00
+    "QUANTUM FIREBALL EX(3\\.2|6\\.4|10\\.2)A",
     "", "", ""
   },
   { "Quantum Fireball ST",
