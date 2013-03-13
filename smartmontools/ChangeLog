@@ -1,4 +1,9 @@
-$Id: ChangeLog 3786 2013-03-07 22:09:17Z chrfranke $
+$Id: ChangeLog 3789 2013-03-13 20:00:51Z chrfranke $
+
+2013-03-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Fix format of attribute 198 (ticket #258).
 
 2013-03-07  Christian Franke  <franke@computer.org>
 
