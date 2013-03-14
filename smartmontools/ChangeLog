@@ -278,7 +278,7 @@ $Id$
 
 2012-11-25  Alex Samorukov  <samm@os2.kiev.ua>
 
-       OpenBSD: remove dummy functions
+	OpenBSD: remove dummy functions
 
 2012-11-24  Christian Franke  <franke@computer.org>
 
@@ -308,16 +308,16 @@ $Id$
 
 2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
 
-	smartctl: supports progress indicator on selftests 
+	smartctl: supports progress indicator on selftests
 	smartctl: prints rotation speed for SCSI drives, if supported
-	smartctl: add headers to SCSI output, fix data blocks formatting, 
+	smartctl: add headers to SCSI output, fix data blocks formatting,
 	trim identification data
 	os_linux.cpp: add autodetection for PERC H700 array
 	smartd: trim SCSI vendor/model/serial before creating state files
 
 2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 
-	smartd.cpp: implement error counters and temperature saving to the 
+	smartd.cpp: implement error counters and temperature saving to the
 	attrlog file for SCSI devices.
 	smartd.cpp: added reset_warning_mail() if device is working for SCSI
 
@@ -376,7 +376,7 @@ $Id$
 	ataidentify.cpp: Mark retired/obsolete values.
 	ataprint.cpp: Add new ACS-3 logs, mark obsolete logs.
 
-2012-10-27  Alex Samorukov <samm@os2.kiev.ua>
+2012-10-27  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: Have smartd prefer real device names over passN.
 	Patch provided by dnelson, see ticket #21
@@ -400,7 +400,7 @@ $Id$
 	Replace ata_cmd_is_ok() by ata_cmd_is_supported() in scsiata.cpp
 	and os_win32.cpp.
 
-2012-10-19  Alex Samorukov   <samm@os2.kiev.ua>
+2012-10-19  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp - fixed 3ware twe controller support broken
 	by inerface migration.
