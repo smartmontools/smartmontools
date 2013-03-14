@@ -1,5 +1,10 @@
 $Id$
 
+2013-03-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Barracuda 7200.14: Fix regex for new firmware version.
+
 2013-03-13  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
