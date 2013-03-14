@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3795 2013-03-13 22:43:03Z chrfranke $",
+  { "$Id: drivedb.h 3798 2013-03-14 17:57:10Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2086,9 +2086,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Barracuda 7200.14 (AF)", // new firmware, tested with
-      // ST3000DM001-9YN166/CC4H
+      // ST3000DM001-9YN166/CC4H, ST3000DM001-9YN166/CC9E
     "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
-    "CC4[H-Z]",
+    "CC(4[H-Z]|[5-9A-Z]..*)", // >= "CC4H"
     "",
     "-v 188,raw16 -v 240,msec24hour32" // tested with ST3000DM001-9YN166/CC4H
   },
