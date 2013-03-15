@@ -114,6 +114,7 @@ devices, and \fB"/dev/rmt/*"\fP for SCSI tape devices.
 .IP \fBWINDOWS\fP: 9
 Use the forms \fB"/dev/sd[a\-z]"\fP for IDE/(S)ATA and SCSI disks
 "\\\\.\\PhysicalDrive[0\-25]" (where "a" maps to "0").
+Use \fB"/dev/sd[a\-z][a\-z]"\fP for "\\\\.\\PhysicalDrive[26\-...]".
 These disks can also be referred to as \fB"/dev/pd[0\-255]"\fP for
 "\\\\.\\PhysicalDrive[0\-255]".
 ATA disks can also be referred to as \fB"/dev/hd[a\-z]"\fP for

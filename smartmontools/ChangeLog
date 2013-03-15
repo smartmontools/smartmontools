@@ -1,5 +1,11 @@
 $Id$
 
+2013-03-15  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Support device names /dev/sd[a-z][a-z] (ticket #240).
+	Enhance DEVICESCAN to 128 drives.  Add '-d [TYPE,]pd' option.
+	smartctl.8.in, smartd.8.in: Document these enhancements.
+
 2013-03-14  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

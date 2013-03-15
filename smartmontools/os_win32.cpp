@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2012    Hank Wu <hank@areca.com.tw>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -728,6 +728,14 @@ scsi_device * win_smart_interface::get_scsi_device(const char * name, const char
   return new win_scsi_device(this, name, type);
 }
 
+static int sdxy_to_phydrive(const char (& xy)[2+1])
+{
+  int phydrive = xy[0] - 'a';
+  if (xy[1])
+    phydrive = (phydrive + 1) * ('z' - 'a' + 1) + (xy[1] - 'a');
+  return phydrive;
+}
+
 static win_dev_type get_dev_type(const char * name, int & phydrive)
 {
   phydrive = -1;
@@ -745,9 +753,9 @@ static win_dev_type get_dev_type(const char * name, int & phydrive)
     return (type != DEV_UNKNOWN ? type : DEV_SCSI);
   }
 
-  char drive[1+1] = "";
-  if (sscanf(name, "sd%1[a-z]", drive) == 1) {
-    phydrive = drive[0] - 'a';
+  char drive[2+1] = "";
+  if (sscanf(name, "sd%2[a-z]", drive) == 1) {
+    phydrive = sdxy_to_phydrive(drive);
     return get_phy_drive_type(phydrive);
   }
 
@@ -858,6 +866,22 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
     return false;
   }
 
+  // Check for "[*,]pd" type
+  bool pd = false;
+  char type2[16+1] = "";
+  if (type) {
+    int nc = -1;
+    if (!strcmp(type, "pd")) {
+      pd = true;
+      type = 0;
+    }
+    else if (sscanf(type, "%16[^,],pd%n", type2, &nc) == 1 &&
+             nc == (int)strlen(type)) {
+      pd = true;
+      type = type2;
+    }
+  }
+
   // Set valid types
   bool ata, scsi, usb, csmi;
   if (!type) {
@@ -874,78 +898,89 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
     else if (!strcmp(type, "csmi"))
       csmi = true;
     else {
-      set_err(EINVAL, "Invalid type '%s', valid arguments are: ata, scsi, usb, csmi", type);
+      set_err(EINVAL, "Invalid type '%s', valid arguments are: ata[,pd], scsi[,pd], usb[,pd], csmi, pd", type);
       return false;
     }
   }
 
-  // Scan up to 10 drives and 2 3ware controllers
-  const int max_raid = 2;
-  bool raid_seen[max_raid] = {false, false};
-
   char name[20];
-  for (int i = 0; i <= 9; i++) {
-    snprintf(name, sizeof(name), "/dev/sd%c", 'a'+i);
-    GETVERSIONINPARAMS_EX vers_ex;
 
-    switch (get_phy_drive_type(i, (ata ? &vers_ex : 0))) {
-      case DEV_ATA:
-        // Driver supports SMART_GET_VERSION or STORAGE_QUERY_PROPERTY returned ATA/SATA
-        if (!ata)
-          continue;
+  if (ata || scsi || usb) {
+    // Scan up to 128 drives and 2 3ware controllers
+    const int max_raid = 2;
+    bool raid_seen[max_raid] = {false, false};
 
-        // Interpret RAID drive map if present
-        if (vers_ex.wIdentifier == SMART_VENDOR_3WARE) {
-          // Skip if too many controllers or logical drive from this controller already seen
-          if (!(vers_ex.wControllerId < max_raid && !raid_seen[vers_ex.wControllerId]))
+    for (int i = 0; i < 128; i++) {
+      if (pd)
+        snprintf(name, sizeof(name), "/dev/pd%d", i);
+      else if (i + 'a' <= 'z')
+        snprintf(name, sizeof(name), "/dev/sd%c", i + 'a');
+      else
+        snprintf(name, sizeof(name), "/dev/sd%c%c",
+                 i / ('z'-'a'+1) - 1 + 'a',
+                 i % ('z'-'a'+1)     + 'a');
+
+      GETVERSIONINPARAMS_EX vers_ex;
+
+      switch (get_phy_drive_type(i, (ata ? &vers_ex : 0))) {
+        case DEV_ATA:
+          // Driver supports SMART_GET_VERSION or STORAGE_QUERY_PROPERTY returned ATA/SATA
+          if (!ata)
             continue;
-          raid_seen[vers_ex.wControllerId] = true;
-          // Add physical drives
-          int len = strlen(name);
-          for (int pi = 0; pi < 32; pi++) {
-            if (vers_ex.dwDeviceMapEx & (1L << pi)) {
-              snprintf(name+len, sizeof(name)-1-len, ",%u", pi);
-              devlist.push_back( new win_ata_device(this, name, "ata") );
+
+          // Interpret RAID drive map if present
+          if (vers_ex.wIdentifier == SMART_VENDOR_3WARE) {
+            // Skip if too many controllers or logical drive from this controller already seen
+            if (!(vers_ex.wControllerId < max_raid && !raid_seen[vers_ex.wControllerId]))
+              continue;
+            raid_seen[vers_ex.wControllerId] = true;
+            // Add physical drives
+            int len = strlen(name);
+            for (int pi = 0; pi < 32; pi++) {
+              if (vers_ex.dwDeviceMapEx & (1L << pi)) {
+                snprintf(name+len, sizeof(name)-1-len, ",%u", pi);
+                devlist.push_back( new win_ata_device(this, name, "ata") );
+              }
             }
           }
-        }
-        else {
-          devlist.push_back( new win_ata_device(this, name, "ata") );
-        }
-        break;
+          else {
+            devlist.push_back( new win_ata_device(this, name, "ata") );
+          }
+          break;
 
-      case DEV_SCSI:
-        // STORAGE_QUERY_PROPERTY returned SCSI/SAS/...
-        if (!scsi)
-          continue;
-        devlist.push_back( new win_scsi_device(this, name, "scsi") );
-        break;
+        case DEV_SCSI:
+          // STORAGE_QUERY_PROPERTY returned SCSI/SAS/...
+          if (!scsi)
+            continue;
+          devlist.push_back( new win_scsi_device(this, name, "scsi") );
+          break;
 
-      case DEV_USB:
-        // STORAGE_QUERY_PROPERTY returned USB
-        if (!usb)
-          continue;
-        {
-          // TODO: Use common function for this and autodetect_smart_device()
-          // Get USB bridge ID
-          unsigned short vendor_id = 0, product_id = 0;
-          if (!get_usb_id(i, vendor_id, product_id))
+        case DEV_USB:
+          // STORAGE_QUERY_PROPERTY returned USB
+          if (!usb)
             continue;
-          // Get type name for this ID
-          const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id);
-          if (!usbtype)
-            continue;
-          // Return SAT/USB device for this type
-          ata_device * dev = get_sat_device(usbtype, new win_scsi_device(this, name, ""));
-          if (!dev)
-            continue;
-          devlist.push_back(dev);
-        }
-        break;
+          {
+            // TODO: Use common function for this and autodetect_smart_device()
+            // Get USB bridge ID
+            unsigned short vendor_id = 0, product_id = 0;
+            if (!get_usb_id(i, vendor_id, product_id))
+              continue;
+            // Get type name for this ID
+            const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id);
+            if (!usbtype)
+              continue;
+            // Return SAT/USB device for this type
+            ata_device * dev = get_sat_device(usbtype, new win_scsi_device(this, name, ""));
+            if (!dev)
+              continue;
+            devlist.push_back(dev);
+          }
+          break;
 
-      default:
-        // Unknown type
-        break;
+        default:
+          // Unknown type
+          break;
+      }
     }
   }
 
@@ -2326,18 +2361,18 @@ win_ata_device::~win_ata_device() throw()
 bool win_ata_device::open()
 {
   const char * name = skipdev(get_dev_name()); int len = strlen(name);
-  // [sh]d[a-z](:[saicmfp]+)? => Physical drive 0-25, with options
-  char drive[1+1] = "", options[8+1] = ""; int n1 = -1, n2 = -1;
-  if (   sscanf(name, "%*[sh]d%1[a-z]%n:%6[saimfp]%n", drive, &n1, options, &n2) >= 1
+  // [sh]d[a-z]([a-z])?(:[saicmfp]+)? => Physical drive 0-701, with options
+  char drive[2+1] = "", options[8+1] = ""; int n1 = -1, n2 = -1;
+  if (   sscanf(name, "%*[sh]d%2[a-z]%n:%6[saimfp]%n", drive, &n1, options, &n2) >= 1
       && ((n1 == len && !options[0]) || n2 == len)                                   ) {
-    return open(drive[0] - 'a', -1, options, -1);
+    return open(sdxy_to_phydrive(drive), -1, options, -1);
   }
-  // [sh]d[a-z],N(:[saicmfp3]+)? => Physical drive 0-25, RAID port N, with options
+  // [sh]d[a-z],N(:[saicmfp3]+)? => Physical drive 0-701, RAID port N, with options
   drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
   unsigned port = ~0;
-  if (   sscanf(name, "%*[sh]d%1[a-z],%u%n:%7[saimfp3]%n", drive, &port, &n1, options, &n2) >= 2
+  if (   sscanf(name, "%*[sh]d%2[a-z],%u%n:%7[saimfp3]%n", drive, &port, &n1, options, &n2) >= 2
       && port < 32 && ((n1 == len && !options[0]) || n2 == len)                                  ) {
-    return open(drive[0] - 'a', -1, options, port);
+    return open(sdxy_to_phydrive(drive), -1, options, port);
   }
   // pd<m>,N => Physical drive <m>, RAID port N
   int phydrive = -1; port = ~0; n1 = -1; n2 = -1;
@@ -3143,11 +3178,11 @@ win_scsi_device::win_scsi_device(smart_interface * intf,
 bool win_scsi_device::open()
 {
   const char * name = skipdev(get_dev_name()); int len = strlen(name);
-  // sd[a-z],N => Physical drive 0-26, RAID port N
-  char drive[1+1] = ""; int sub_addr = -1; int n1 = -1; int n2 = -1;
-  if (   sscanf(name, "sd%1[a-z]%n,%d%n", drive, &n1, &sub_addr, &n2) >= 1
+  // sd[a-z]([a-z])?,N => Physical drive 0-701, RAID port N
+  char drive[2+1] = ""; int sub_addr = -1; int n1 = -1; int n2 = -1;
+  if (   sscanf(name, "sd%2[a-z]%n,%d%n", drive, &n1, &sub_addr, &n2) >= 1
       && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))  ) {
-    return open(drive[0] - 'a', -1, -1, sub_addr);
+    return open(sdxy_to_phydrive(drive), -1, -1, sub_addr);
   }
   // pd<m>,N => Physical drive <m>, RAID port N
   int pd_num = -1; sub_addr = -1; n1 = -1; n2 = -1;
