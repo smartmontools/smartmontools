@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartctl.8.in 3741 2013-01-02 17:06:54Z chrfranke $
+$Id: smartctl.8.in 3799 2013-03-15 17:47:25Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -114,6 +114,7 @@ devices, and \fB"/dev/rmt/*"\fP for SCSI tape devices.
 .IP \fBWINDOWS\fP: 9
 Use the forms \fB"/dev/sd[a\-z]"\fP for IDE/(S)ATA and SCSI disks
 "\\\\.\\PhysicalDrive[0\-25]" (where "a" maps to "0").
+Use \fB"/dev/sd[a\-z][a\-z]"\fP for "\\\\.\\PhysicalDrive[26\-...]".
 These disks can also be referred to as \fB"/dev/pd[0\-255]"\fP for
 "\\\\.\\PhysicalDrive[0\-255]".
 ATA disks can also be referred to as \fB"/dev/hd[a\-z]"\fP for
@@ -2255,4 +2256,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3741 2013-01-02 17:06:54Z chrfranke $
+$Id: smartctl.8.in 3799 2013-03-15 17:47:25Z chrfranke $

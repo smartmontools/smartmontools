@@ -1,8 +1,8 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.8.in 3758 2013-01-26 18:11:28Z chrfranke $
+$Id: smartd.8.in 3799 2013-03-15 17:47:25Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -130,8 +130,9 @@ The IOService plane is scanned for ATA block storage devices.
 .\" %ENDIF OS Darwin
 .\" %IF OS Windows Cygwin
 .IP \fBWINDOWS\fP: 9
-Examine all entries \fB"/dev/sd[a-j]"\fP ("\\\\.\\PhysicalDrive[0-9]")
-for IDE/(S)ATA and SCSI disk devices 
+Examine all entries \fB"/dev/sd[a\-z]"\fP, \fB"/dev/sd[a\-c][a\-z]"\fP
+and \fB"/dev/sdd[a\-x]"\fP ("\\\\.\\PhysicalDrive[0\-127]") for
+IDE/(S)ATA and SCSI disk devices.
 
 If a 3ware 9000 controller is installed, examine all entries
 \fB"/dev/sdX,N"\fP for the first logical drive (\'unit\'
@@ -798,4 +799,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 3758 2013-01-26 18:11:28Z chrfranke $
+$Id: smartd.8.in 3799 2013-03-15 17:47:25Z chrfranke $

@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3788 2013-03-13 19:09:05Z chrfranke $
+$Id: NEWS 3799 2013-03-15 17:47:25Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -40,6 +40,7 @@ Summary: smartmontools release 6.1
 - FreeBSD: Improved support for SAS/SCSI disks on LSI/Megaraid controllers.
 - Windows: smartd.conf '-M exec' supports path names with spaces.
 - Windows: Tool wtssendmsg.exe to handle smartd.conf '-m console'.
+- Windows: DEVICESCAN now supports up to 128 drives.
 - Windows: smartctl.exe and smartd.exe include VERSIONINFO resource.
 - Windows: smartd.exe includes MESSAGETABLE resource.
 - Windows: syslogevt.exe is no longer provided.
