@@ -21,6 +21,9 @@
  *
  */
 
+#include "config.h"
+#include "int64.h"
+
 // unconditionally included files
 #include <stdio.h>
 #include <sys/types.h>
@@ -40,9 +43,6 @@
 #include <string>
 #include <vector>
 #include <algorithm> // std::replace()
-
-// see which system files to conditionally include
-#include "config.h"
 
 // conditionally included files
 #ifndef _WIN32
@@ -74,7 +74,6 @@ typedef int pid_t;
 #endif // LIBCAP_NG
 
 // locally included files
-#include "int64.h"
 #include "atacmds.h"
 #include "dev_interface.h"
 #include "knowndrives.h"

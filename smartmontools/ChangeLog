@@ -1,5 +1,10 @@
 $Id$
 
+2013-03-24  Christian Franke  <franke@computer.org>
+
+	Windows: Compile fixes for 64-bit Cygwin.
+	It uses LP64 model instead of LLP64 (64-bit MSVC, MinGW).
+
 2013-03-16  Christian Franke  <franke@computer.org>
 
 	smartmontools 6.1
