@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2011 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2011-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 
-const char * wmiquery_cpp_cvsid = "$Id: wmiquery.cpp 3243 2011-01-19 20:03:47Z chrfranke $"
+const char * wmiquery_cpp_cvsid = "$Id: wmiquery.cpp 3802 2013-03-24 18:36:21Z chrfranke $"
   WMIQUERY_H_CVSID;
 
 
@@ -67,7 +67,7 @@ std::string wbem_object::get_str(const char * name) /*const*/
     return s;
 
   VARIANT var; VariantInit(&var);
-  if (m_intf->Get(com_bstr(name), 0L, &var, (CIMTYPE*)0, (long*)0) /* != WBEM_S_NO_ERROR */)
+  if (m_intf->Get(com_bstr(name), 0L, &var, (CIMTYPE*)0, (LPLONG)0) /* != WBEM_S_NO_ERROR */)
     return s;
 
   if (var.vt == VT_BSTR)

@@ -1,4 +1,9 @@
-$Id: ChangeLog 3800 2013-03-16 14:36:20Z chrfranke $
+$Id: ChangeLog 3802 2013-03-24 18:36:21Z chrfranke $
+
+2013-03-24  Christian Franke  <franke@computer.org>
+
+	Windows: Compile fixes for 64-bit Cygwin.
+	It uses LP64 model instead of LLP64 (64-bit MSVC, MinGW).
 
 2013-03-16  Christian Franke  <franke@computer.org>
 

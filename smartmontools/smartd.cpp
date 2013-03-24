@@ -21,6 +21,9 @@
  *
  */
 
+#include "config.h"
+#include "int64.h"
+
 // unconditionally included files
 #include <stdio.h>
 #include <sys/types.h>
@@ -40,9 +43,6 @@
 #include <string>
 #include <vector>
 #include <algorithm> // std::replace()
-
-// see which system files to conditionally include
-#include "config.h"
 
 // conditionally included files
 #ifndef _WIN32
@@ -74,7 +74,6 @@ typedef int pid_t;
 #endif // LIBCAP_NG
 
 // locally included files
-#include "int64.h"
 #include "atacmds.h"
 #include "dev_interface.h"
 #include "knowndrives.h"
@@ -107,7 +106,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3778 2013-02-21 23:55:35Z dpgilbert $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3802 2013-03-24 18:36:21Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
