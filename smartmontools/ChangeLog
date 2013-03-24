@@ -1,4 +1,9 @@
-$Id: ChangeLog 3802 2013-03-24 18:36:21Z chrfranke $
+$Id: ChangeLog 3803 2013-03-24 18:52:54Z chrfranke $
+
+2013-03-24  Christian Franke  <franke@computer.org>
+
+	dev_areca.cpp: Add casts to silence C++11 -Wnarrowing warning
+	from g++ 4.8.
 
 2013-03-24  Christian Franke  <franke@computer.org>
 
