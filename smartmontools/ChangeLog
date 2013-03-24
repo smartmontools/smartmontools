@@ -2,6 +2,11 @@ $Id$
 
 2013-03-24  Christian Franke  <franke@computer.org>
 
+	dev_areca.cpp: Add casts to silence C++11 -Wnarrowing warning
+	from g++ 4.8.
+
+2013-03-24  Christian Franke  <franke@computer.org>
+
 	Windows: Compile fixes for 64-bit Cygwin.
 	It uses LP64 model instead of LLP64 (64-bit MSVC, MinGW).
 

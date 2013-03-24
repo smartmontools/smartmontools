@@ -356,7 +356,8 @@ int generic_areca_device::arcmsr_get_dev_type()
   int ctlr_type = -1;
   int encnum = get_encnum();
   int disknum = get_disknum();
-  unsigned char areca_packet[] = {0x5E, 0x01, 0x61, 0x03, 0x00, 0x22, disknum - 1, encnum - 1, 0x00};
+  unsigned char areca_packet[] = {0x5E, 0x01, 0x61, 0x03, 0x00, 0x22,
+    (unsigned char)(disknum - 1), (unsigned char)(encnum - 1), 0x00};
 
   memset(return_buff, 0, sizeof(return_buff));
   expected = arcmsr_ui_handler(areca_packet, sizeof(areca_packet), return_buff);
