@@ -76,11 +76,18 @@
 // CSMI support
 #include "csmisas.h"
 
+// Silence -Wunused-local-typedefs warning from g++ >= 4.8
+#if __GNUC__ >= 4
+#define ATTR_UNUSED __attribute__((unused))
+#else
+#define ATTR_UNUSED /**/
+#endif
+
 // Macro to check constants at compile time using a dummy typedef
 #define ASSERT_CONST(c, n) \
-  typedef char assert_const_##c[((c) == (n)) ? 1 : -1]
+  typedef char assert_const_##c[((c) == (n)) ? 1 : -1] ATTR_UNUSED
 #define ASSERT_SIZEOF(t, n) \
-  typedef char assert_sizeof_##t[(sizeof(t) == (n)) ? 1 : -1]
+  typedef char assert_sizeof_##t[(sizeof(t) == (n)) ? 1 : -1] ATTR_UNUSED
 
 #ifndef _WIN64
 #define SELECT_WIN_32_64(x32, x64) (x32)
@@ -88,7 +95,7 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3802 2013-03-24 18:36:21Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3804 2013-03-27 20:39:41Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files

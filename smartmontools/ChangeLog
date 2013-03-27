@@ -1,4 +1,8 @@
-$Id: ChangeLog 3803 2013-03-24 18:52:54Z chrfranke $
+$Id: ChangeLog 3804 2013-03-27 20:39:41Z chrfranke $
+
+2013-03-27  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Silence -Wunused-local-typedefs warning.
 
 2013-03-24  Christian Franke  <franke@computer.org>
 
