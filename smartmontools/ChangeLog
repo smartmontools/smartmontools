@@ -1,5 +1,9 @@
 $Id$
 
+2013-03-27  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Silence -Wunused-local-typedefs warning.
+
 2013-03-24  Christian Franke  <franke@computer.org>
 
 	dev_areca.cpp: Add casts to silence C++11 -Wnarrowing warning
