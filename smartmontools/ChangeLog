@@ -1,5 +1,10 @@
 $Id$
 
+2013-03-29  Christian Franke  <franke@computer.org>
+
+	os_darwin.cpp: Silence -Wself-assign warning (ticket #266).
+	Remove dummy functions no longer called since r3192.
+
 2013-03-27  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Silence -Wunused-local-typedefs warning.

@@ -72,9 +72,8 @@ void print_smartctl_examples(){
 
 // tries to guess device type given the name (a path).  See utility.h
 // for return values.
-int guess_device_type (const char* dev_name) {
+int guess_device_type (const char * /* dev_name */) {
   // Only ATA is supported right now, so that's what it'd better be.
-  dev_name = dev_name;  // suppress unused warning.
   return CONTROLLER_ATA;
 }
 
@@ -420,59 +419,7 @@ ata_command_interface(int fd, smart_command_set command,
   return err == kIOReturnSuccess ? 0 : -1;
 }
 
-// There's no special handling needed for hidden devices, the kernel
-// must deal with them.
-int escalade_command_interface(int fd, int escalade_port, int escalade_type,
-			       smart_command_set command, int select,
-			       char *data)
-{
-  fd = fd;
-  escalade_port = escalade_port;
-  escalade_type = escalade_type;
-  command = command;
-  select = select;
-  data = data;
-  return -1;
-}
-
-int areca_command_interface(int fd, int escalade_port, 
-			       smart_command_set command, int select,
-			       char *data)
-{
-  fd = fd;
-  escalade_port = escalade_port;
-  command = command;
-  select = select;
-  data = data;
-  return -1;
-}
-
-
-
-
-int marvell_command_interface(int fd, smart_command_set command,
-		      int select, char *data)
-{ 
-  fd = fd;
-  command = command;
-  select = select;
-  data = data;
-  return -1;
-}
-
-int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
-{
-  fd = fd;
-  command = command;
-  select = select;
-  data = data;
-  return -1;
-}
-
 // Interface to SCSI devices.  See os_linux.c
-int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report) {
-  fd = fd;
-  iop = iop;
-  report = report;
+int do_scsi_cmnd_io(int /* fd */, struct scsi_cmnd_io * /* iop */, int /* report */) {
   return -ENOSYS;
 }
