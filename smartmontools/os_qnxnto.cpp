@@ -371,56 +371,6 @@ int                  status,rc;
   return(rc);
 }
 //----------------------------------------------------------------------------------------------
-int marvell_command_interface(int fd, smart_command_set command, int select, char *data)
-{
-  ARGUSED(fd);
-  ARGUSED(command);
-  ARGUSED(select);
-  ARGUSED(data);
-  unsupported();
-  return -1;
-}
-//----------------------------------------------------------------------------------------------
-int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
-{
-  ARGUSED(fd);
-  ARGUSED(command);
-  ARGUSED(select);
-  ARGUSED(data);
-  unsupported();
-  return -1;
-}
-//----------------------------------------------------------------------------------------------
-// Interface to ATA devices behind 3ware escalade/apache RAID
-// controller cards.  Same description as ata_command_interface()
-// above except that 0 <= disknum <= 15 specifies the ATA disk
-// attached to the controller, and controller_type specifies the
-// precise type of 3ware controller.  See os_linux.c
-int escalade_command_interface(int fd,int disknum,int controller_type,smart_command_set command,int select,char *data)
-{
-  ARGUSED(fd);
-  ARGUSED(disknum);
-  ARGUSED(controller_type);
-  ARGUSED(command);
-  ARGUSED(select);
-  ARGUSED(data);
-
-  unsupported();
-  return -1;
-}
-
-int areca_command_interface(int fd,int disknum,smart_command_set command,int select,char *data)
-{
-  ARGUSED(fd);
-  ARGUSED(disknum);
-  ARGUSED(command);
-  ARGUSED(select);
-  ARGUSED(data);
-
-  unsupported();
-  return -1;
-}
-//----------------------------------------------------------------------------------------------
 // Interface to SCSI devices.  See os_linux.c
 int do_scsi_cmnd_io(int fd,struct scsi_cmnd_io * iop,int report)
 {

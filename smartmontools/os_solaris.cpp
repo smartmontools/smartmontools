@@ -285,17 +285,6 @@ static void swap_sector(void *p)
 #endif
 
 // Interface to ATA devices.  See os_linux.c
-int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
-    ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
-    return -1;
-}
-
-int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
-{
-    ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
-    return -1;
-}
-
 int ata_command_interface(int fd, smart_command_set command, int select, char *data){
 #if defined(__sparc)
     int err;
@@ -350,25 +339,6 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 	return -1;
 #endif
     return -1;
-}
-
-// Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
-int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data){
-  ARGUSED(fd);  ARGUSED(disknum);  ARGUSED(escalade_type);
-  ARGUSED(command);  ARGUSED(select);  ARGUSED(data); 
-
-  if (printwarning(1))
-    return -1;
-  return -1;
-}
-
-int areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
-  ARGUSED(fd);  ARGUSED(disknum);
-  ARGUSED(command);  ARGUSED(select);  ARGUSED(data); 
-
-  if (printwarning(1))
-    return -1;
-  return -1;
 }
 
 #include <errno.h>
