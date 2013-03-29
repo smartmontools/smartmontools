@@ -39,9 +39,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp 3728 2012-12-13 17:57:50Z chrfranke $";
+static const char *filenameandversion="$Id: os_solaris.cpp 3806 2013-03-29 20:17:03Z chrfranke $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 3728 2012-12-13 17:57:50Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 3806 2013-03-29 20:17:03Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -285,17 +285,6 @@ static void swap_sector(void *p)
 #endif
 
 // Interface to ATA devices.  See os_linux.c
-int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
-    ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
-    return -1;
-}
-
-int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
-{
-    ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
-    return -1;
-}
-
 int ata_command_interface(int fd, smart_command_set command, int select, char *data){
 #if defined(__sparc)
     int err;
@@ -350,25 +339,6 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 	return -1;
 #endif
     return -1;
-}
-
-// Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
-int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data){
-  ARGUSED(fd);  ARGUSED(disknum);  ARGUSED(escalade_type);
-  ARGUSED(command);  ARGUSED(select);  ARGUSED(data); 
-
-  if (printwarning(1))
-    return -1;
-  return -1;
-}
-
-int areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
-  ARGUSED(fd);  ARGUSED(disknum);
-  ARGUSED(command);  ARGUSED(select);  ARGUSED(data); 
-
-  if (printwarning(1))
-    return -1;
-  return -1;
 }
 
 #include <errno.h>

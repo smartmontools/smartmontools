@@ -1,8 +1,9 @@
-$Id: ChangeLog 3805 2013-03-29 19:54:18Z chrfranke $
+$Id: ChangeLog 3806 2013-03-29 20:17:03Z chrfranke $
 
 2013-03-29  Christian Franke  <franke@computer.org>
 
 	os_darwin.cpp: Silence -Wself-assign warning (ticket #266).
+	os_darwin.cpp, os_netbsd.cpp, os_os2.cpp, os_qnxnto.cpp, os_solaris.cpp:
 	Remove dummy functions no longer called since r3192.
 
 2013-03-27  Christian Franke  <franke@computer.org>

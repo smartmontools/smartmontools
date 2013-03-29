@@ -26,7 +26,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 3727 2012-12-13 17:23:06Z samm2 $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 3806 2013-03-29 20:17:03Z chrfranke $"
   OS_NETBSD_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -168,14 +168,6 @@ deviceclose(int fd)
 {
   return close(fd);
 }
-
-int
-marvell_command_interface(int fd, smart_command_set command, int select, char *data)
-{ return -1; }
-
-int
-highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
-{ return -1; }
 
 int
 ata_command_interface(int fd, smart_command_set command, int select, char *data)
@@ -343,20 +335,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     memcpy(data, inbuf, 512);
 
   return 0;
-}
-
-int
-escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data)
-{
-  printwarning(NO_3WARE, NULL);
-  return -1;
-}
-
-int
-areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data)
-{
-  printwarning(NO_ARECA, NULL);
-  return -1;
 }
 
 int

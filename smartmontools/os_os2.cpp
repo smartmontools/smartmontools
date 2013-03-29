@@ -31,7 +31,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 3727 2012-12-13 17:23:06Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 3806 2013-03-29 20:17:03Z chrfranke $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver
@@ -520,31 +520,6 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     memcpy(data, buff+HDIO_DRIVE_CMD_OFFSET, copydata);
 
   return 0;
-}
-
-int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
-  unsupported(1);
-  return -1;
-}
-
-int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
-{
-  unsupported(1);
-  return -1;
-}
-
-// Interface to ATA devices behind 3ware escalade RAID controller
-// cards.  Same description as ata_command_interface() above except
-// that 0 <= disknum <= 15 specifies the ATA disk attached to the
-// controller.
-int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data){
-  unsupported(2);
-  return -1;
-}
-
-int areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
-  unsupported(2);
-  return -1;
 }
 
 // Interface to SCSI devices.  See os_linux.c
