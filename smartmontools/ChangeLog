@@ -2,6 +2,11 @@ $Id$
 
 2013-04-18  Christian Franke  <franke@computer.org>
 
+	configure.ac, smartd_warning.sh.in: Add platform specific commands for
+	host and domain names.
+
+2013-04-18  Christian Franke  <franke@computer.org>
+
 	scsicmds.cpp, scsiprint.cpp: Silence -Wmaybe-uninitialized warning
 	(g++ 4.8.0 with -flto).
 

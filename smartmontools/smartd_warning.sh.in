@@ -45,7 +45,7 @@ Usage:
   export SMARTD_MESSAGE='Error Message'
   export SMARTD_FAILTYPE='Type of failure, "EMailTest" for tests'
   export SMARTD_TFIRST='Date of first message sent, empty if none'
-  export SMARTD_TFIRSTEPOCH='time_t format of above'
+  #export SMARTD_TFIRSTEPOCH='time_t format of above'
   export SMARTD_PREVCNT='Number of previous messages, 0 if none'
   export SMARTD_NEXTDAYS='Number of days until next message, empty if none'
   export SMARTD_DEVICEINFO='Device identify information'
@@ -63,7 +63,7 @@ if [ -z "${SMARTD_ADDRESS}${SMARTD_MAILER}" ]; then
 fi
 
 # Get host and domain names
-for cmd in 'hostname' 'uname -n' 'echo "${HOSTNAME?unset}"' 'echo "[Unknown]"'; do
+for cmd in @os_hostname@ 'echo "[Unknown]"'; do
   hostname=`eval $cmd 2>/dev/null` || continue
   test -n "$hostname" || continue
   break
@@ -71,26 +71,21 @@ done
 
 dnsdomain=${hostname#*.}
 if [ "$dnsdomain" != "$hostname" ]; then
-  # BSD 'hostname' prints FQDN
+  # hostname command printed FQDN
   hostname=${hostname%%.*}
 else
-  #           Linux           Cygwin
-  for cmd in 'dnsdomainname' 'echo "${USERDNSDOMAIN?unset}"' 'echo'; do
+  for cmd in @os_dnsdomainname@ 'echo'; do
     dnsdomain=`eval $cmd 2>/dev/null` || continue
     break
   done
+  test "$dnsdomain" != "(none)" || dnsdomain=
 fi
 
-for cmd in 'nisdomainname' 'ypdomainname' 'domainname' 'echo'; do
+for cmd in @os_nisdomainname@ 'echo'; do
   nisdomain=`eval $cmd 2>/dev/null` || continue
   break
 done
 test "$nisdomain" != "(none)" || nisdomain=
-
-case $OS in
-  Windows*) windomain=$USERDOMAIN ;;
-  *)        windomain= ;;
-esac
 
 # Format subject
 export SMARTD_SUBJECT="SMART error (${SMARTD_FAILTYPE-[SMARTD_FAILTYPE]}) detected on host: $hostname"
@@ -103,8 +98,8 @@ fullmessage=`
   echo "   DNS domain: ${dnsdomain:-[Empty]}"
   test -z "$nisdomain" ||
     echo "   NIS domain: $nisdomain"
-  test -z "$windomain" ||
-    echo "   Win domain: $windomain"
+  @OS_WIN32_TRUE@test -z "$USERDOMAIN" ||
+  @OS_WIN32_TRUE@  echo "   Win domain: $USERDOMAIN"
   echo
   echo "The following warning/error was logged by the smartd daemon:"
   echo
