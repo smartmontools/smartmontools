@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 3801 2013-03-16 15:09:22Z chrfranke $
+# $Id: configure.ac 3809 2013-04-18 19:41:40Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 6.2, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.ac 3801 2013-03-16 15:09:22Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 3809 2013-04-18 19:41:40Z chrfranke $'`
 smartmontools_release_date=2013-03-16
 smartmontools_release_time="14:35:27 UTC"
 
@@ -336,6 +336,9 @@ AC_SUBST(smartmontools_release_time)
 os_libs=
 os_dltools='curl wget lynx'
 os_mailer=mail
+os_hostname="'hostname'"
+os_dnsdomainname=
+os_nisdomainname="'domainname'"
 os_darwin=no
 os_solaris=no
 os_win32=no
@@ -345,6 +348,8 @@ os_man_filter=
 case "${host}" in
   *-*-linux*)
     os_deps='os_linux.o cciss.o dev_areca.o'
+    os_dnsdomainname="'dnsdomainname' 'hostname -d'"
+    os_nisdomainname="'nisdomainname' 'domainname'"
     os_man_filter=Linux
     ;;
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
@@ -379,6 +384,9 @@ case "${host}" in
     ;;
   *-*-cygwin*)
     os_deps='os_win32.o dev_areca.o'
+    os_hostname="'hostname' 'echo "'"${HOSTNAME?unset}"'"'"
+    os_dnsdomainname="'dnsdomainname' 'hostname -d' 'echo "'"${USERDNSDOMAIN?unset}"'"'"
+    os_nisdomainname=
     os_win32=yes
     os_man_filter=Cygwin
     ;;
@@ -428,6 +436,9 @@ AC_SUBST([os_deps])
 AC_SUBST([os_libs])
 AC_SUBST([os_dltools])
 AC_SUBST([os_mailer])
+AC_SUBST([os_hostname])
+AC_SUBST([os_dnsdomainname])
+AC_SUBST([os_nisdomainname])
 AC_SUBST([os_man_filter])
 
 # Create drivedb.h update branch name from version: 5.41[.X] -> RELEASE_5_41_DRIVEDB
@@ -533,6 +544,7 @@ case "$host_os" in
     fi
     echo "local drive database:   `eval eval eval echo $sysconfdir`/smart_drivedb.h" >&AS_MESSAGE_FD
     echo "smartd config file:     `eval eval eval echo $sysconfdir`/smartd.conf${smartd_suffix}" >&AS_MESSAGE_FD
+    echo "smartd warning script:  `eval eval eval echo $sysconfdir`/smartd_warning.sh" >&AS_MESSAGE_FD
     if test -n "$initddir"; then
       echo "smartd initd script:    `eval eval eval echo $initddir`/smartd${smartd_suffix}" >&AS_MESSAGE_FD
     elif test -z "$systemdsystemunitdir"; then

@@ -1,4 +1,9 @@
-$Id: ChangeLog 3807 2013-04-18 17:11:12Z chrfranke $
+$Id: ChangeLog 3809 2013-04-18 19:41:40Z chrfranke $
+
+2013-04-18  Christian Franke  <franke@computer.org>
+
+	configure.ac, smartd_warning.sh.in: Add platform specific commands for
+	host and domain names.
 
 2013-04-18  Christian Franke  <franke@computer.org>
 
