@@ -2,7 +2,7 @@
 ::
 :: smartd warning script
 ::
-:: Copyright (C) 2012 Christian Franke <smartmontools-support@lists.sourceforge.net>
+:: Copyright (C) 2012-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ::
 :: This program is free software; you can redistribute it and/or modify
 :: it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ if not "%1" == "" (
   echo set SMARTD_MESSAGE='Error Message'
   echo set SMARTD_FAILTYPE='Type of failure, "EMailTest" for tests'
   echo set SMARTD_TFIRST='Date of first message sent, empty if none'
-  echo set SMARTD_TFIRSTEPOCH='time_t format of above'
+  echo :: set SMARTD_TFIRSTEPOCH='time_t format of above'
   echo set SMARTD_PREVCNT='Number of previous messages, 0 if none'
   echo set SMARTD_NEXTDAYS='Number of days until next message, empty if none'
   echo set SMARTD_DEVICEINFO='Device identify information'
@@ -48,6 +48,11 @@ if not "%1" == "" (
 if "%SMARTD_ADDRESS%%SMARTD_MAILER%" == "" (
   echo smartd_warning.cmd: SMARTD_ADDRESS or SMARTD_MAILER must be set
   goto EOF
+)
+
+:: USERDNSDOMAIN may be unset if running as service
+if "%USERDNSDOMAIN%" == "" (
+  for /f "delims== tokens=2 usebackq" %%d in (`WMIC PATH Win32_Computersystem WHERE "PartOfDomain=TRUE" GET Domain /VALUE 2^>nul ^| find "Domain=" 2^>nul`) do set USERDNSDOMAIN=%%~d
 )
 
 :: Format subject

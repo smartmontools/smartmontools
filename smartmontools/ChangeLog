@@ -4,6 +4,7 @@ $Id$
 
 	configure.ac, smartd_warning.sh.in: Add platform specific commands for
 	host and domain names.
+	os_win32/smartd_warning.cmd: Use WMI for DNS domain name.
 
 2013-04-18  Christian Franke  <franke@computer.org>
 
