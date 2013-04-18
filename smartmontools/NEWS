@@ -1,9 +1,14 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3800 2013-03-16 14:36:20Z chrfranke $
+$Id: NEWS 3808 2013-04-18 17:30:12Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
+
+Date <Not released yet, please try current SVN>
+Summary: smartmontools release 6.2
+-----------------------------------------------------------
+- Cygwin: 64-bit compile fixes.
 
 Date 2013-03-16
 Summary: smartmontools release 6.1
