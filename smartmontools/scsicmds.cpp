@@ -1227,7 +1227,7 @@ uint64_t
 scsiGetSize(scsi_device * device, unsigned int * lb_sizep,
             int * lb_per_pb_expp)
 {
-    unsigned int last_lba, lb_size;
+    unsigned int last_lba = 0, lb_size = 0;
     int k, res;
     uint64_t ret_val = 0;
     UINT8 rc16resp[32];

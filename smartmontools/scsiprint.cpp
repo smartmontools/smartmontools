@@ -1500,12 +1500,12 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
     protect = gBuf[5] & 0x1;    /* from and including SPC-3 */
 
     if (! is_tape) {    /* only do this for disks */
-        unsigned int lb_size;
+        unsigned int lb_size = 0;
         unsigned char lb_prov_resp[8];
         char cap_str[64];
         char si_str[64];
         char lb_str[16];
-        int lb_per_pb_exp;
+        int lb_per_pb_exp = 0;
         uint64_t capacity = scsiGetSize(device, &lb_size, &lb_per_pb_exp);
 
         if (capacity) {
@@ -1518,7 +1518,7 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
         int lbpme = -1;
         int lbprz = -1;
         if (protect || lb_per_pb_exp) {
-            unsigned char rc16_12[20];
+            unsigned char rc16_12[20] = {0, };
 
             if (0 == scsiGetProtPBInfo(device, rc16_12)) {
                 lb_per_pb_exp = rc16_12[1] & 0xf;       /* just in case */

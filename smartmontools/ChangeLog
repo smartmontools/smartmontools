@@ -1,5 +1,10 @@
 $Id$
 
+2013-04-18  Christian Franke  <franke@computer.org>
+
+	scsicmds.cpp, scsiprint.cpp: Silence -Wmaybe-uninitialized warning
+	(g++ 4.8.0 with -flto).
+
 2013-03-29  Christian Franke  <franke@computer.org>
 
 	os_darwin.cpp: Silence -Wself-assign warning (ticket #266).
