@@ -1,4 +1,13 @@
-$Id: ChangeLog 3811 2013-04-20 17:10:41Z chrfranke $
+$Id: ChangeLog 3812 2013-04-20 18:59:19Z chrfranke $
+
+2013-04-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- InnoDisk InnoLite SATADOM D150QV-L SSDs
+	- Intel 313 Series SSDs
+	- Intel 330 Series SSDs: 240GB
+	- JMicron based SSDs: Kingston V200 (ticket #267)
+	- Samsung based SSDs: SM843T Series
 
 2013-04-20  Christian Franke  <franke@computer.org>
 
