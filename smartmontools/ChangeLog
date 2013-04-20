@@ -1,5 +1,9 @@
 $Id$
 
+2013-04-20  Christian Franke  <franke@computer.org>
+
+	configure.ac: Linux: Try 'hostname -y' if 'nishostname' is missing.
+
 2013-04-18  Christian Franke  <franke@computer.org>
 
 	configure.ac, smartd_warning.sh.in: Add platform specific commands for
