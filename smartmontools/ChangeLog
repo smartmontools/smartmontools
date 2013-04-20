@@ -1,4 +1,8 @@
-$Id: ChangeLog 3810 2013-04-18 20:08:39Z chrfranke $
+$Id: ChangeLog 3811 2013-04-20 17:10:41Z chrfranke $
+
+2013-04-20  Christian Franke  <franke@computer.org>
+
+	configure.ac: Linux: Try 'hostname -y' if 'nishostname' is missing.
 
 2013-04-18  Christian Franke  <franke@computer.org>
 

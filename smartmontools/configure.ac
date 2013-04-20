@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 3809 2013-04-18 19:41:40Z chrfranke $
+# $Id: configure.ac 3811 2013-04-20 17:10:41Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 6.2, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.ac 3809 2013-04-18 19:41:40Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 3811 2013-04-20 17:10:41Z chrfranke $'`
 smartmontools_release_date=2013-03-16
 smartmontools_release_time="14:35:27 UTC"
 
@@ -349,7 +349,7 @@ case "${host}" in
   *-*-linux*)
     os_deps='os_linux.o cciss.o dev_areca.o'
     os_dnsdomainname="'dnsdomainname' 'hostname -d'"
-    os_nisdomainname="'nisdomainname' 'domainname'"
+    os_nisdomainname="'nisdomainname' 'hostname -y' 'domainname'"
     os_man_filter=Linux
     ;;
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
