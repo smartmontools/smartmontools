@@ -397,6 +397,30 @@ const drive_settings builtin_knowndrives[] = {
     "-v 233,raw48,Remaining_Lifetime_Perc "
     "-v 249,raw48,Total_NAND_Prog_Ct_GiB"
   },
+  { "InnoDisk InnoLite SATADOM D150QV-L SSDs", // tested with InnoLite SATADOM D150QV-L/120319
+    "InnoLite SATADOM D150QV-L",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 2,raw48,Throughput_Performance "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 7,raw48,Seek_Error_Rate " // from InnoDisk iSMART Linux tool, useless for SSD
+  //"-v 8,raw48,Seek_Time_Performance "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 10,raw48,Spin_Retry_Count "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 170,raw48,Bad_Block_Count "
+    "-v 173,raw48,Erase_Count "
+    "-v 175,raw48,Bad_Cluster_Table_Count "
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 197,raw48,Current_Pending_Sector "
+    "-v 229,hex48,Flash_ID "
+    "-v 235,raw48,Later_Bad_Block "
+    "-v 236,raw48,Unstable_Power_Count "
+    "-v 240,raw48,Write_Head"
+  },
   { "Intel X25-E SSDs",
     "SSDSA2SH(032|064)G1.* INTEL",  // G1 = first generation
     "", "",
@@ -460,6 +484,30 @@ const drive_settings builtin_knowndrives[] = {
     "-v 226,raw48,Workld_Media_Wear_Indic "
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
+  },
+  { "Intel 313 Series SSDs", // tested with INTEL SSDSA2VP020G3/9CV10379
+    "INTEL SSDSA2VP(020|024)G3",
+    "", "",
+  //"-v 3,raw16(avg16),Spin_Up_Time "
+  //"-v 4,raw48,Start_Stop_Count "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Reserve_Block_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB"
   },
   { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362,
       // INTEL SSDSA2CW160G3/4PC10362, INTEL SSDSA2BT040G3/4PC10362
@@ -547,8 +595,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
-  { "Intel 330 Series SSDs", // tested with INTEL SSDSC2CT180A3/300i
-    "INTEL SSDSC2CT(060|120|180)A3",
+  { "Intel 330 Series SSDs", // tested with INTEL SSDSC2CT180A3/300i, SSDSC2CT240A3/300i
+    "INTEL SSDSC2CT(060|120|180|240)A3",
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
     "-v 9,msec24hour32,Power_On_Hours_and_Msec "
@@ -639,8 +687,8 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SSDNOW 30GB|" // tested with KINGSTON SSDNOW 30GB/AJXA0202
     "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a
     "KINGSTON SVP?100S2B?(64|96|128|256|512)G|"  // SSDNow V100/V+100 Series,
-                                                 // tested with KINGSTON SVP100S296G/CJR10202,
-                                                 // KINGSTON SV100S2256G/D110225a
+      // tested with KINGSTON SVP100S296G/CJR10202, KINGSTON SV100S2256G/D110225a
+    "KINGSTON SV200S3(64|128|256)G|" // SSDNow V200 Series, tested with KINGSTON SV200S3128G/E120506a
     "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
                                // tested with Toshiba 128GB 2.5" SSD (built in MacBooks)
     "TOSHIBA THNSNC128GMLJ|" // tested with THNSNC128GMLJ/CJTA0202 (built in Toshiba Protege/Dynabook)
@@ -693,8 +741,10 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG SSD PM810 .*GB|"  // SAMSUNG PM810 (470 series) SSDs, tested with SAMSUNG SSD PM810 2.5" 128GB/AXM06D1Q
     "SAMSUNG 470 Series SSD|"  // tested with SAMSUNG 470 Series SSD 64GB/AXM09B1Q
     "SAMSUNG SSD 830 Series|"  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
-    "Samsung SSD 840 (PRO )?Series", // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
-                                     // Samsung SSD 840 Series/DXT06B0Q
+    "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
+      // Samsung SSD 840 Series/DXT06B0Q
+    "SAMSUNG MZ7WD((120|240)HAFV|480HAGM|960HAGP)-00003", // SM843T Series, tested with
+      // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -708,10 +758,11 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 181,raw48,Program_Fail_Cnt_Total "
   //"-v 182,raw48,Erase_Fail_Count_Total "
   //"-v 183,raw48,Runtime_Bad_Block "
+  //"-v 184,raw48,End-to-End_Error " // SM843T Series
     "-v 187,raw48,Uncorrectable_Error_Cnt "
   //"-v 190,tempminmax,Airflow_Temperature_Cel "  // seems to be some sort of temperature value for 470 Series?
   //"-v 194,tempminmax,Temperature_Celsius "
-    "-v 195,raw48,ECC_Rate "
+    "-v 195,raw48,ECC_Error_Rate "
   //"-v 198,raw48,Offline_Uncorrectable "
     "-v 199,raw48,CRC_Error_Count "
     "-v 201,raw48,Supercap_Status "
