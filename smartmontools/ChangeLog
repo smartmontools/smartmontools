@@ -2,6 +2,15 @@ $Id$
 
 2013-04-20  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- InnoDisk InnoLite SATADOM D150QV-L SSDs
+	- Intel 313 Series SSDs
+	- Intel 330 Series SSDs: 240GB
+	- JMicron based SSDs: Kingston V200 (ticket #267)
+	- Samsung based SSDs: SM843T Series
+
+2013-04-20  Christian Franke  <franke@computer.org>
+
 	configure.ac: Linux: Try 'hostname -y' if 'nishostname' is missing.
 
 2013-04-18  Christian Franke  <franke@computer.org>
