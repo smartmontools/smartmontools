@@ -1,5 +1,10 @@
 $Id$
 
+2013-06-04  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Use new sourceforge code browser for
+	download.
+
 2013-04-20  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

@@ -2,7 +2,7 @@
 #
 # smartmontools drive database update script
 #
-# Copyright (C) 2010-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+# Copyright (C) 2010-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,12 +39,8 @@ DEST="$drivedbdir/drivedb.h"
 # Smartctl used for syntax check
 SMARTCTL="$sbindir/smartctl"
 
-# Trac repository browser (does not return HTTP 404 errors)
-#SRCEXPR='http://sourceforge.net/apps/trac/smartmontools/export/HEAD/$location/smartmontools/drivedb.h'
-
-# ViewVC repository browser
-SRCEXPR='http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/$location/smartmontools/drivedb.h?revision=HEAD'
-
+# Download URL for sourceforge code browser
+SRCEXPR='http://sourceforge.net/p/smartmontools/code/HEAD/tree/$location/smartmontools/drivedb.h?format=raw'
 
 # Parse options
 q="-q "
@@ -106,8 +102,8 @@ for location in "branches/$BRANCH" "trunk"; do
     errmsg="download from $location failed (HTTP error)"
     continue
   fi
-  if grep -i 'ViewVC Exception' "$DEST.new" >/dev/null; then
-    errmsg="download from $location failed (ViewVC error)"
+  if grep -i '<title>.*Error has Occurred' "$DEST.new" >/dev/null; then
+    errmsg="download from $location failed (SF code browser error)"
     continue
   fi
 
@@ -132,10 +128,10 @@ if $SMARTCTL -B "$DEST.new" -P showall >/dev/null; then :; else
   exit 1
 fi
 
-# Keep old file if identical, ignore differences in Id string
+# Keep old file if identical
 rm -f "$DEST.lastcheck"
 if [ -f "$DEST" ]; then
-  if cat "$DEST" | sed 's|\$''Id''[^$]*\$|$''Id''$|' | cmp - "$DEST.new" >/dev/null; then
+  if cmp "$DEST" "$DEST.new" >/dev/null 2>/dev/null; then
     rm -f "$DEST.new"
     touch "$DEST.lastcheck"
     echo "$DEST is already up to date"
