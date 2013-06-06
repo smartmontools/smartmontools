@@ -3,7 +3,7 @@
 ;
 ; Home page of code is: http://smartmontools.sourceforge.net
 ;
-; Copyright (C) 2011 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; Copyright (C) 2011-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -95,10 +95,10 @@ Function Download
   Pop $R0
   DetailPrint "Download from $R0"
 
-  ; Trac repository browser (does not return HTTP 404 errors)
-  StrCpy $R1 "http://sourceforge.net/apps/trac/smartmontools/export/HEAD/$R0/smartmontools/drivedb.h"
-  ; ViewVC repository browser (does not return ContentLength required for NSISdl::download)
-  ;StrCpy $R1 "http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/$R0/smartmontools/drivedb.h?revision=HEAD"
+  ; SVN repository read-only URL
+  ; (SF code browser does not return ContentLength required for NSISdl::download)
+  StrCpy $R1 "http://svn.code.sf.net/p/smartmontools/code/$R0/smartmontools/drivedb.h"
+
   DetailPrint "($R1)"
 
   NSISdl::download $R1 "drivedb.h.new"
