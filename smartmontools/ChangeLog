@@ -1,4 +1,9 @@
-$Id: ChangeLog 3814 2013-06-04 19:38:25Z chrfranke $
+$Id: ChangeLog 3815 2013-06-06 17:31:59Z chrfranke $
+
+2013-06-06  Christian Franke  <franke@computer.org>
+
+	os_win32/update-smart-drivedb.nsi: Use new SVN repository for
+	download.
 
 2013-06-04  Christian Franke  <franke@computer.org>
 
