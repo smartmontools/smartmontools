@@ -1,5 +1,11 @@
 $Id$
 
+2013-06-09  Christian Franke  <franke@computer.org>
+
+	os_win32/smartd_warning.cmd: Using %DATE% in temp file names
+	breaks the script if localized date contains '/'
+	(This fix is already included in smartmontools-6.1-2.win32-setup.exe).
+
 2013-06-06  Christian Franke  <franke@computer.org>
 
 	os_win32/update-smart-drivedb.nsi: Use new SVN repository for

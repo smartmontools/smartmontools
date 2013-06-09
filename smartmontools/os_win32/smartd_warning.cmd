@@ -59,8 +59,8 @@ if "%USERDNSDOMAIN%" == "" (
 set SMARTD_SUBJECT=SMART error (%SMARTD_FAILTYPE%) detected on host: %COMPUTERNAME%
 
 :: Temp file for message
-if not "%TMP%" == "" set SMARTD_FULLMSGFILE=%TMP%\smartd_warning-%DATE%-%RANDOM%.txt
-if     "%TMP%" == "" set SMARTD_FULLMSGFILE=smartd_warning-%DATE%-%RANDOM%.txt
+if not "%TMP%" == "" set SMARTD_FULLMSGFILE=%TMP%\smartd_warning-%RANDOM%.txt
+if     "%TMP%" == "" set SMARTD_FULLMSGFILE=smartd_warning-%RANDOM%.txt
 
 :: Format message
 (
