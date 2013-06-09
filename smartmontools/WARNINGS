@@ -1,7 +1,7 @@
 $Id$
 
 The most recent version of this file can be found here:
-http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/WARNINGS?view=markup
+http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/WARNINGS
 
 The following are reports of serious problems (eg system lockup) which
 were due to smartmontools.  There are DARWIN, LINUX, FREEBSD, SOLARIS

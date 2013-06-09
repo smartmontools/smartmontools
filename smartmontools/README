@@ -69,21 +69,21 @@ smartd   is a daemon that periodically monitors S.M.A.R.T. status and
 Source tarballs
 ---------------
 
-http://sourceforge.net/project/showfiles.php?group_id=64297
+http://sourceforge.net/projects/smartmontools/files/
 
 SVN
 ---
 
-svn co https://smartmontools.svn.sourceforge.net/svnroot/smartmontools/trunk/smartmontools smartmontools
+svn co http://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools smartmontools
 
 This will create a subdirectory called smartmontools containing the code.
 
 To instead get the 5.38 release:
 
-svn co https://smartmontools.svn.sourceforge.net/svnroot/smartmontools/tags/RELEASE_5_38/sm5 smartmontools
+svn co http://svn.code.sf.net/p/smartmontools/code/tags/RELEASE_5_38/sm5 smartmontools
 
 You can see what the different tags are by looking at
-http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/tags/
+http://sourceforge.net/p/smartmontools/code/HEAD/tree/tags/
 
 == BUILDING/INSTALLING SMARTMONTOOLS ==
 

@@ -185,7 +185,7 @@ Table of contents:
 =======================
 
     Get the sources from the SVN repository:
-    svn co https://smartmontools.svn.sourceforge.net/svnroot/smartmontools/trunk/smartmontools smartmontools
+    svn co http://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools smartmontools
 
     Then type:
     ./autogen.sh
