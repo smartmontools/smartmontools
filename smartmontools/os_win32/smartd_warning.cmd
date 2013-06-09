@@ -12,7 +12,7 @@
 :: You should have received a copy of the GNU General Public License
 :: (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ::
-:: $Id: smartd_warning.cmd 3810 2013-04-18 20:08:39Z chrfranke $
+:: $Id: smartd_warning.cmd 3816 2013-06-09 16:16:11Z chrfranke $
 ::
 
 set err=
@@ -59,8 +59,8 @@ if "%USERDNSDOMAIN%" == "" (
 set SMARTD_SUBJECT=SMART error (%SMARTD_FAILTYPE%) detected on host: %COMPUTERNAME%
 
 :: Temp file for message
-if not "%TMP%" == "" set SMARTD_FULLMSGFILE=%TMP%\smartd_warning-%DATE%-%RANDOM%.txt
-if     "%TMP%" == "" set SMARTD_FULLMSGFILE=smartd_warning-%DATE%-%RANDOM%.txt
+if not "%TMP%" == "" set SMARTD_FULLMSGFILE=%TMP%\smartd_warning-%RANDOM%.txt
+if     "%TMP%" == "" set SMARTD_FULLMSGFILE=smartd_warning-%RANDOM%.txt
 
 :: Format message
 (
