@@ -1,4 +1,8 @@
-$Id: ChangeLog 3816 2013-06-09 16:16:11Z chrfranke $
+$Id: ChangeLog 3817 2013-06-09 16:59:50Z chrfranke $
+
+2013-06-09  Christian Franke  <franke@computer.org>
+
+	INSTALL, NEWS, README, WARNINGS: Update SVN repository URLs.
 
 2013-06-09  Christian Franke  <franke@computer.org>
 
