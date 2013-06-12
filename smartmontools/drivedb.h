@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3812 2013-04-20 18:59:19Z chrfranke $",
+  { "$Id: drivedb.h 3818 2013-06-12 06:41:46Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -189,9 +189,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
-  { "Crucial/Micron RealSSD m4/C400", // Marvell 9176, fixed firmware
+  { "Crucial/Micron RealSSD m4/C400/P400e", // Marvell 9176, fixed firmware
     "C400-MTFDDA[ACK](064|128|256|512)MAM|"
-    "M4-CT(064|128|256|512)M4SSD[23]", // tested with M4-CT512M4SSD2/0309
+    "M4-CT(064|128|256|512)M4SSD[23]|" // tested with M4-CT512M4SSD2/0309
+    "MTFDDAK(064|128|256|512|050|100|200|400)MAR-1[JK]1AA.*", // tested with
+                                             // MTFDDAK256MAR-1K1AA/MA52
     "030[9-Z]|03[1-Z].|0[4-Z]..|[1-Z]....*", // >= "0309"
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
