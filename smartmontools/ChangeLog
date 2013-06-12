@@ -1,5 +1,10 @@
 $Id$
 
+2013-04-20  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- JMicron SSD: P400e/P400m series
+
 2013-06-09  Christian Franke  <franke@computer.org>
 
 	INSTALL, NEWS, README, WARNINGS: Update SVN repository URLs.
