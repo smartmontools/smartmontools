@@ -1,4 +1,9 @@
-$Id: ChangeLog 3817 2013-06-09 16:59:50Z chrfranke $
+$Id: ChangeLog 3819 2013-06-12 06:57:54Z samm2 $
+
+2013-04-20  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- JMicron SSD: P400e/P400m series
 
 2013-06-09  Christian Franke  <franke@computer.org>
 
