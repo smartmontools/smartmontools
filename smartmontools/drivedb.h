@@ -284,6 +284,8 @@ const drive_settings builtin_knowndrives[] = {
       // OWC Mercury Electra 6G SSD/502ABBF0
     "OWC Mercury Extreme Pro (RE )?SSD|" // tested with
       // OWC Mercury Extreme Pro SSD/360A13F0
+    "OWC Mercury EXTREME Pro 6G SSD|" // tested with
+      // OWC Mercury EXTREME Pro 6G SSD/507ABBF0
     "Patriot Pyro|" // tested with Patriot Pyro/332ABBF0
     "SanDisk SDSSDX(60|120|240|480)GG25|" // SanDisk Extreme, SF-2281, tested with
       // SDSSDX240GG25/R201
@@ -2667,6 +2669,13 @@ const drive_settings builtin_knowndrives[] = {
   // Fujitsu
   { "USB: Fujitsu/Zalman ZM-VE300; ", // USB 3.0
     "0x04c5:0x2028",
+    "", // 0x0001
+    "",
+    "-d sat"
+  },
+  // Fujitsu chip on DeLock 42475 
+  { "USB: Fujitsu  SATA-to-USB3.0 bridge chip", // USB 3.0
+    "0x04c5:0x201d",
     "", // 0x0001
     "",
     "-d sat"

@@ -4,6 +4,9 @@ $Id$
 
 	scsicmds.cpp: fix build on RedHat 9
 	os_freebsd.cpp: skip port multipliers on FreeBSD
+	drivedb.h: 
+	 - OWC Mercury EXTREME Pro 6G SSD (from #277)
+	 - USB: Fujitsu  SATA-to-USB3.0 bridge chip (#280)
 
 2013-06-12  Alex Samorukov <samm@os2.kiev.ua>
 
