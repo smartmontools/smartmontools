@@ -1827,6 +1827,11 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
     for (i = 0; i < (int)scsinames.size(); i++) {
       if(strcmp(scsinames[i].c_str(), test_name)==0)
       { // our disk device is CAM
+        if(strncmp(scsinames[i].c_str(), "/dev/pmp", strlen("/dev/pmp")) == 0) {
+          pout("Skipping port multiplier [%s]\n", scsinames[i].c_str());
+          set_err(EINVAL);
+          return 0;
+        }
         if ((cam_dev = cam_open_device(test_name, O_RDWR)) == NULL) {
           // open failure
           set_err(errno);
