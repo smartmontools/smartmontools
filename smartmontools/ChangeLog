@@ -1,8 +1,9 @@
-$Id: ChangeLog 3820 2013-06-17 08:45:10Z samm2 $
+$Id: ChangeLog 3821 2013-06-17 13:36:53Z samm2 $
 
 2013-06-17  Alex Samorukov <samm@os2.kiev.ua>
 
 	scsicmds.cpp: fix build on RedHat 9
+	os_freebsd.cpp: skip port multipliers on FreeBSD
 
 2013-06-12  Alex Samorukov <samm@os2.kiev.ua>
 
