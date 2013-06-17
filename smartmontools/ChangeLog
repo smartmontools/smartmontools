@@ -1,6 +1,10 @@
 $Id$
 
-2013-04-20  Alex Samorukov <samm@os2.kiev.ua>
+2013-06-17  Alex Samorukov <samm@os2.kiev.ua>
+
+	scsicmds.cpp: fix build on RedHat 9
+
+2013-06-12  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
 	- JMicron SSD: P400e/P400m series
