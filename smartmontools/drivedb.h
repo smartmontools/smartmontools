@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3822 2013-06-17 13:46:59Z samm2 $",
+  { "$Id: drivedb.h 3823 2013-06-28 10:26:43Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -156,6 +156,16 @@ const drive_settings builtin_knowndrives[] = {
   { "Apple SSD SM128", // Samsung?
     "APPLE SSD SM128",
     "", "", ""
+  },
+  { "Apacer SDM4",
+    "2GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFI2101D
+    "SFI2101D", "",
+    "-v 160,raw48,Initial_Bad_Block_Count "
+    "-v 161,raw48,Bad_Block_Count "
+    "-v 162,raw48,Spare_Block_Count "
+    "-v 163,raw48,Max_Erase_Count "
+    "-v 164,raw48,Min_Erase_Count " // could be wrong
+    "-v 165,raw48,Average_Erase_Count " // could be wrong
   },
   { "Asus-Phison SSD",
     "ASUS-PHISON SSD",
