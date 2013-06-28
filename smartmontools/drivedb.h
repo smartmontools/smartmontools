@@ -157,6 +157,16 @@ const drive_settings builtin_knowndrives[] = {
     "APPLE SSD SM128",
     "", "", ""
   },
+  { "Apacer SDM4",
+    "2GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFI2101D
+    "SFI2101D", "",
+    "-v 160,raw48,Initial_Bad_Block_Count "
+    "-v 161,raw48,Bad_Block_Count "
+    "-v 162,raw48,Spare_Block_Count "
+    "-v 163,raw48,Max_Erase_Count "
+    "-v 164,raw48,Min_Erase_Count " // could be wrong
+    "-v 165,raw48,Average_Erase_Count " // could be wrong
+  },
   { "Asus-Phison SSD",
     "ASUS-PHISON SSD",
     "", "", ""

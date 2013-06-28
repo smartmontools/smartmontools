@@ -1,10 +1,15 @@
 $Id$
 
+2013-06-28  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Apacer SDM4 2Gb SSD
+
 2013-06-17  Alex Samorukov <samm@os2.kiev.ua>
 
 	scsicmds.cpp: fix build on RedHat 9
 	os_freebsd.cpp: skip port multipliers on FreeBSD
-	drivedb.h: 
+	drivedb.h:
 	 - OWC Mercury EXTREME Pro 6G SSD (from #277)
 	 - USB: Fujitsu  SATA-to-USB3.0 bridge chip (#280)
 
