@@ -91,7 +91,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3738 2012-12-17 12:01:35Z samm2 $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3824 2013-07-05 10:40:38Z samm2 $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -2908,7 +2908,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
       set_err(EINVAL, "Option '-d hpt,L/M/N' invalid controller id L supplied");
       return 0;
     }
-    if (!(1 <= channel && channel <= 16)) {
+    if (!(1 <= channel && channel <= 128)) {
       set_err(EINVAL, "Option '-d hpt,L/M/N' invalid channel number M supplied");
       return 0;
     }

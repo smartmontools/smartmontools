@@ -1,4 +1,8 @@
-$Id: ChangeLog 3823 2013-06-28 10:26:43Z samm2 $
+$Id: ChangeLog 3824 2013-07-05 10:40:38Z samm2 $
+
+
+2013-07-05  Alex Samorukov <samm@os2.kiev.ua>
+	HPT RAID support: maximum disk number now is 128 (#281)
 
 2013-06-28  Alex Samorukov <samm@os2.kiev.ua>
 
