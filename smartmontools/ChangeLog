@@ -1,5 +1,9 @@
 $Id$
 
+
+2013-07-05  Alex Samorukov <samm@os2.kiev.ua>
+	HPT RAID support: maximum disk number now is 128 (#281)
+
 2013-06-28  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
