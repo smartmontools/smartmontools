@@ -50,7 +50,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3825 2013-07-06 21:38:25Z samm2 $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3826 2013-07-06 21:57:29Z samm2 $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -626,6 +626,7 @@ static const char * parse_options(int argc, char** argv,
       ataopts.smart_logdir = ataopts.gp_logdir = true;
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
       ataopts.sct_erc_get = true;
+      ataopts.sct_wcache_reorder_get = true;
       ataopts.devstat_all_pages = true;
       ataopts.sataphy = true;
       ataopts.get_set_used = true;
