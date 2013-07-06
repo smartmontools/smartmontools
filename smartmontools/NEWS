@@ -9,6 +9,9 @@ Date <Not released yet, please try current SVN>
 Summary: smartmontools release 6.2
 -----------------------------------------------------------
 - Cygwin: 64-bit compile fixes.
+- RHEL 9 compile fixes
+- Added ATA write cache reordering control using -g wcreorder and
+  -s wcreorder,[on|off] commands
 
 Date 2013-03-16
 Summary: smartmontools release 6.1

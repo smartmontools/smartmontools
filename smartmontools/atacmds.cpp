@@ -2443,6 +2443,73 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
   return 0;
 }
 
+// Get/Set Write Cache Reordering
+int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool persistent, bool set)
+{
+  // Check initial status
+  ata_sct_status_response sts;
+  if (ataReadSCTStatus(device, &sts))
+    return -1;
+
+  // Do nothing if other SCT command is executing
+  if (sts.ext_status_code == 0xffff) {
+    pout("Another SCT command is executing, abort Feature Control\n"
+         "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
+      sts.ext_status_code, sts.action_code, sts.function_code);
+    return -1;
+  }
+
+  ata_sct_feature_control_command cmd; memset(&cmd, 0, sizeof(cmd));
+  // CAUTION: DO NOT CHANGE THIS VALUE (SOME ACTION CODES MAY ERASE DISK)
+  cmd.action_code   = 4; // Feature Control command
+  cmd.function_code  = (set ? 1 : 2); // 1=Set, 2=Get
+  cmd.feature_code  = 2; //  Enable/Disable Write Cache Reordering 
+  cmd.state         = (enable ? 1 : 2); // 1 enable, 2 disable
+  cmd.option_flags  = (persistent ? 0x01 : 0x00);
+
+  // swap endian order if needed
+  if (isbigendian()) {
+    swapx(&cmd.action_code);
+    swapx(&cmd.function_code);
+    swapx(&cmd.feature_code);
+    swapx(&cmd.state);
+    swapx(&cmd.option_flags);
+  }
+
+  // write command via SMART log page 0xe0
+  // TODO: Debug output
+  ata_cmd_in in;
+  in.in_regs.command = ATA_SMART_CMD;
+  in.in_regs.lba_high = SMART_CYL_HI; in.in_regs.lba_mid = SMART_CYL_LOW;
+  in.in_regs.features = ATA_SMART_WRITE_LOG_SECTOR;
+  in.in_regs.lba_low = 0xe0;
+  in.set_data_out(&cmd, 1);
+
+  if (!set)
+    // Time limit returned in ATA registers
+    in.out_needed.sector_count = in.out_needed.lba_low = true;
+
+  ata_cmd_out out;
+  if (!device->ata_pass_through(in, out)) {
+    pout("Write SCT (%cet) XXX Error Recovery Control Command failed: %s\n",
+      (!set ? 'G' : 'S'), device->get_errmsg());
+    return -1;
+  }
+  int state = out.out_regs.sector_count | (out.out_regs.lba_low << 8);
+
+  // re-read and check SCT status
+  if (ataReadSCTStatus(device, &sts))
+    return -1;
+
+  if (!(sts.ext_status_code == 0 && sts.action_code == 4 && sts.function_code == (set ? 1 : 2))) {
+    pout("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+      sts.ext_status_code, sts.action_code, sts.function_code);
+    return -1;
+  }
+  return state;
+}
+
+
 // Set SCT Temperature Logging Interval
 int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persistent)
 {

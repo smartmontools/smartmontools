@@ -836,6 +836,12 @@ int ataDoesSmartWork(ata_device * device);
 int ataSmartSupport(const ata_identify_device * drive);
 
 // Return values:
+//  1: Write Cache Reordering enabled
+//  2: Write Cache Reordering disabled
+// -1: error
+int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool persistent, bool set);
+
+// Return values:
 //  1: SMART enabled
 //  0: SMART disabled
 // -1: can't tell if SMART is enabled -- try issuing ataDoesSmartWork command to see

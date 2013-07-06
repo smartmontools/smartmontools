@@ -85,7 +85,7 @@ static void Usage()
 "  --identify[=[w][nvb]]\n"
 "         Show words and bits from IDENTIFY DEVICE data                (ATA)\n\n"
 "  -g NAME, --get=NAME\n"
-"        Get device setting: all, aam, apm, lookahead, security, wcache, rcache\n\n"
+"        Get device setting: all, aam, apm, lookahead, security, wcache, rcache, wcreorder\n\n"
 "  -a, --all\n"
 "         Show all SMART information for device\n\n"
 "  -x, --xall\n"
@@ -121,7 +121,7 @@ static void Usage()
 "  -s NAME[,VALUE], --set=NAME[,VALUE]\n"
 "        Enable/disable/change device setting: aam,[N|off], apm,[N|off],\n"
 "        lookahead,[on|off], security-freeze, standby,[N|off|now],\n"
-"        wcache,[on|off], rcache,[on|off]\n\n"
+"        wcache,[on|off], rcache,[on|off], wcreorder,[on|off]\n\n"
   );
   printf(
 "======================================= READ AND DISPLAY DATA OPTIONS =====\n\n"
@@ -218,10 +218,10 @@ static std::string getvalidarglist(int opt)
   case 'f':
     return "old, brief, hex[,id|val]";
   case 'g':
-    return "aam, apm, lookahead, security, wcache, rcache";
+    return "aam, apm, lookahead, security, wcache, rcache, wcreorder";
   case opt_set:
     return "aam,[N|off], apm,[N|off], lookahead,[on|off], security-freeze, "
-           "standby,[N|off|now], wcache,[on|off], rcache,[on|off]";
+           "standby,[N|off|now], wcache,[on|off], rcache,[on|off], wcreorder,[on|off]";
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
   case opt_identify:
@@ -864,6 +864,17 @@ static const char * parse_options(int argc, char** argv,
               ataopts.set_lookahead = -1;
             else if (on)
               ataopts.set_lookahead = 1;
+            else
+              badarg = true;
+          }
+          else if (!strcmp(name, "wcreorder")) {
+            if (get) {
+              ataopts.sct_wcache_reorder_get = true;
+            }
+            else if (off)
+              ataopts.sct_wcache_reorder_set = -1;
+            else if (on)
+              ataopts.sct_wcache_reorder_set = 1;
             else
               badarg = true;
           }

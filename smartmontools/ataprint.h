@@ -106,6 +106,8 @@ struct ata_print_options
   bool set_security_freeze; // Freeze ATA security
   bool get_wcache; // print write cache status
   int set_wcache; // disable(-1), enable(1) write cache
+  bool sct_wcache_reorder_get; // print write cache reordering status
+  int sct_wcache_reorder_set; // disable(-1), enable(1) write cache reordering
 
   ata_print_options()
     : drive_info(false),
@@ -142,7 +144,8 @@ struct ata_print_options
       get_lookahead(false), set_lookahead(0),
       set_standby(0), set_standby_now(false),
       get_security(false), set_security_freeze(false),
-      get_wcache(false), set_wcache(0)
+      get_wcache(false), set_wcache(0),
+      sct_wcache_reorder_get(false), sct_wcache_reorder_set(0)
     { }
 };
 
