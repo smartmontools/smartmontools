@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3826 2013-07-06 21:57:29Z samm2 $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3827 2013-07-06 22:02:47Z samm2 $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2646,7 +2646,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("\n");
   }
   if (!sct_ok && options.sct_wcache_reorder_get) {
-    pout("Wt Cache Reorder: SCT Not Supported\n");
+    pout("Wt Cache Reorder: Unavailable\n");
   }
 
   // Print remaining drive info
