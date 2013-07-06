@@ -2622,7 +2622,6 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   bool sct_ok = false;
   if (need_sct_support) {
     if (!isSCTCapable(&drive)) {
-      pout("SCT Commands not supported\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else
@@ -2635,14 +2634,19 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       false /* enable */, false /* persistent */, false /*set*/);
       pout("Wt Cache Reorder: ");
       switch(wcache_reorder) {
+        case 0: /* not defined in standard but returned on some drives if not set */
+        pout("Unknown"); break;
         case 1:
         pout("Enabled"); break;
         case 2:
         pout("Disabled"); break;
-        default:
+        default: /* error? */
         pout("N/A"); break;
       }
       pout("\n");
+  }
+  if (!sct_ok && options.sct_wcache_reorder_get) {
+    pout("Wt Cache Reorder: SCT Not Supported\n");
   }
 
   // Print remaining drive info
@@ -3213,7 +3217,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
   }
 
-
+  if(!sct_ok)
+    pout("SCT Commands not supported\n\n");
   // Print SCT status and temperature history table
   if (sct_ok && (options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int)) {
     for (;;) {
