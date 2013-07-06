@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 3632 2012-10-09 10:10:53Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3825 2013-07-06 21:38:25Z samm2 $"
 
 #include "dev_interface.h" // ata_device
 
@@ -834,6 +834,12 @@ int ataDoesSmartWork(ata_device * device);
 
 // returns 1 if SMART supported, 0 if not supported or can't tell
 int ataSmartSupport(const ata_identify_device * drive);
+
+// Return values:
+//  1: Write Cache Reordering enabled
+//  2: Write Cache Reordering disabled
+// -1: error
+int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool persistent, bool set);
 
 // Return values:
 //  1: SMART enabled

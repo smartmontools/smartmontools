@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3817 2013-06-09 16:59:50Z chrfranke $
+$Id: NEWS 3825 2013-07-06 21:38:25Z samm2 $
 
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
@@ -9,6 +9,9 @@ Date <Not released yet, please try current SVN>
 Summary: smartmontools release 6.2
 -----------------------------------------------------------
 - Cygwin: 64-bit compile fixes.
+- RHEL 9 compile fixes
+- Added ATA write cache reordering control using -g wcreorder and
+  -s wcreorder,[on|off] commands
 
 Date 2013-03-16
 Summary: smartmontools release 6.1

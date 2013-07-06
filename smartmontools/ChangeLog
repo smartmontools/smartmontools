@@ -1,5 +1,10 @@
-$Id: ChangeLog 3824 2013-07-05 10:40:38Z samm2 $
+$Id: ChangeLog 3825 2013-07-06 21:38:25Z samm2 $
 
+
+2013-07-06  Alex Samorukov <samm@os2.kiev.ua>
+	smartctl: Added ATA Write Cache Reordering control using "-g wcreorder"
+	and "-s wcreorder[,on|off]" options (bug #221)
+	smartctl: minor formatting fixes
 
 2013-07-05  Alex Samorukov <samm@os2.kiev.ua>
 	HPT RAID support: maximum disk number now is 128 (#281)
