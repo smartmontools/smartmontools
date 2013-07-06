@@ -2646,7 +2646,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("\n");
   }
   if (!sct_ok && options.sct_wcache_reorder_get) {
-    pout("Wt Cache Reorder: SCT Not Supported\n");
+    pout("Wt Cache Reorder: Unavailable\n");
   }
 
   // Print remaining drive info
