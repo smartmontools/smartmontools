@@ -1,12 +1,17 @@
-$Id: ChangeLog 3825 2013-07-06 21:38:25Z samm2 $
+$Id: ChangeLog 3828 2013-07-07 20:08:02Z chrfranke $
 
+2013-07-07  Christian Franke  <franke@computer.org>
+
+	configure.ac: Support SVN 1.8 working copy format.
 
 2013-07-06  Alex Samorukov <samm@os2.kiev.ua>
+
 	smartctl: Added ATA Write Cache Reordering control using "-g wcreorder"
 	and "-s wcreorder[,on|off]" options (bug #221)
 	smartctl: minor formatting fixes
 
 2013-07-05  Alex Samorukov <samm@os2.kiev.ua>
+
 	HPT RAID support: maximum disk number now is 128 (#281)
 
 2013-06-28  Alex Samorukov <samm@os2.kiev.ua>

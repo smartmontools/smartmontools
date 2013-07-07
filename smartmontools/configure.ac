@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 3811 2013-04-20 17:10:41Z chrfranke $
+# $Id: configure.ac 3828 2013-07-07 20:08:02Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 6.2, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.ac 3811 2013-04-20 17:10:41Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 3828 2013-07-07 20:08:02Z chrfranke $'`
 smartmontools_release_date=2013-03-16
 smartmontools_release_time="14:35:27 UTC"
 
@@ -67,13 +67,17 @@ esac
 AC_MSG_CHECKING([whether this is a build from SVN])
 is_svn_build=no
 svn_deps=
-if test -f "$srcdir/.svn/entries"; then
+if test -f "$srcdir/.svn/wc.db"; then
+  # SVN 1.7, 1.8 working copy
+  svn_deps='${srcdir}/.svn/wc.db'
+elif test -f "${srcdir}/.svn/entries"; then
+  # SVN <= 1.6 working copy (SVN 1.7 has empty entries file)
+  svn_deps='${srcdir}/.svn/entries'
+fi
+if test -n "$svn_deps"; then
   is_svn_build=unknown
   if (cd "$srcdir" && svn --version && svnversion && svn info) >/dev/null 2>&1; then
     is_svn_build=yes
-    svn_deps='${srcdir}/.svn/entries'
-    # SVN 1.7 working copy?
-    test -f "$srcdir/.svn/wc.db" && svn_deps='${srcdir}/.svn/wc.db'
   fi
 fi
 AC_SUBST([svn_deps])
