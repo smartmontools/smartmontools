@@ -1,5 +1,9 @@
 $Id$
 
+2013-07-08  Alex Samorukov  <samm@os2.kiev.ua>
+
+	Add Automake 1.12.2 to the list of supported versions
+
 2013-07-07  Christian Franke  <franke@computer.org>
 
 	configure.ac: Support SVN 1.8 working copy format.
