@@ -1,4 +1,8 @@
-$Id: ChangeLog 3828 2013-07-07 20:08:02Z chrfranke $
+$Id: ChangeLog 3829 2013-07-08 15:13:16Z samm2 $
+
+2013-07-08  Alex Samorukov  <samm@os2.kiev.ua>
+
+	Add Automake 1.12.2 to the list of supported versions
 
 2013-07-07  Christian Franke  <franke@computer.org>
 
