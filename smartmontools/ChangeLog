@@ -1,4 +1,9 @@
-$Id: ChangeLog 3829 2013-07-08 15:13:16Z samm2 $
+$Id: ChangeLog 3830 2013-07-18 20:59:53Z chrfranke $
+
+2013-07-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add Win-8.1 and 2012r2 to get_os_version_str(),
+	remove 9x/ME and NT4.
 
 2013-07-08  Alex Samorukov  <samm@os2.kiev.ua>
 
