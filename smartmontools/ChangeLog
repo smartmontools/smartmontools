@@ -1,5 +1,10 @@
 $Id$
 
+2013-07-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add Win-8.1 and 2012r2 to get_os_version_str(),
+	remove 9x/ME and NT4.
+
 2013-07-08  Alex Samorukov  <samm@os2.kiev.ua>
 
 	Add Automake 1.12.2 to the list of supported versions

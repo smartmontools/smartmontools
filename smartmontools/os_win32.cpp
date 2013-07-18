@@ -604,36 +604,51 @@ std::string win_smart_interface::get_os_version_str()
       return vstr;
   }
 
-  if (vi.dwPlatformId > 0xff || vi.dwMajorVersion > 0xff || vi.dwMinorVersion > 0xff)
-    return vstr;
+  const char * w = 0;
+  if (vi.dwPlatformId == VER_PLATFORM_WIN32_NT) {
 
-  const char * w;
-  switch (vi.dwPlatformId << 16 | vi.dwMajorVersion << 8 | vi.dwMinorVersion) {
-    case VER_PLATFORM_WIN32_WINDOWS<<16|0x0400| 0:
-      w = (vi.szCSDVersion[1] == 'B' ||
-           vi.szCSDVersion[1] == 'C'     ? "95-osr2" : "95");    break;
-    case VER_PLATFORM_WIN32_WINDOWS<<16|0x0400|10:
-      w = (vi.szCSDVersion[1] == 'A'     ? "98se"    : "98");    break;
-    case VER_PLATFORM_WIN32_WINDOWS<<16|0x0400|90: w = "me";     break;
-  //case VER_PLATFORM_WIN32_NT     <<16|0x0300|51: w = "nt3.51"; break;
-    case VER_PLATFORM_WIN32_NT     <<16|0x0400| 0: w = "nt4";    break;
-    case VER_PLATFORM_WIN32_NT     <<16|0x0500| 0: w = "2000";   break;
-    case VER_PLATFORM_WIN32_NT     <<16|0x0500| 1:
-      w = (!GetSystemMetrics(87/*SM_MEDIACENTER*/) ?   "xp"
-                                                   :   "xp-mc"); break;
-    case VER_PLATFORM_WIN32_NT     <<16|0x0500| 2:
-      w = (!GetSystemMetrics(89/*SM_SERVERR2*/)    ?   "2003"
-                                                   :   "2003r2"); break;
-    case VER_PLATFORM_WIN32_NT     <<16|0x0600| 0:
-      w = (vi.wProductType == VER_NT_WORKSTATION   ?   "vista"
-                                                   :   "2008" );  break;
-    case VER_PLATFORM_WIN32_NT     <<16|0x0600| 1:
-      w = (vi.wProductType == VER_NT_WORKSTATION   ?   "win7"
-                                                   :   "2008r2"); break;
-    case VER_PLATFORM_WIN32_NT     <<16|0x0600| 2:
-      w = (vi.wProductType == VER_NT_WORKSTATION   ?   "win8"
-                                                   :   "2012"); break;
-    default: w = 0; break;
+    if (vi.dwMajorVersion > 6 || (vi.dwMajorVersion == 6 && vi.dwMinorVersion >= 2)) {
+      // Starting with Windows 8.1 Preview, GetVersionEx() does no longer report the
+      // actual OS version, see:
+      // http://msdn.microsoft.com/en-us/library/windows/desktop/dn302074.aspx
+
+      ULONGLONG major_equal = VerSetConditionMask(0, VER_MAJORVERSION, VER_EQUAL);
+      for (unsigned major = vi.dwMajorVersion; major <= 9; major++) {
+        OSVERSIONINFOEXA vi2; memset(&vi2, 0, sizeof(vi2));
+        vi2.dwOSVersionInfoSize = sizeof(vi2); vi2.dwMajorVersion = major;
+        if (!VerifyVersionInfo(&vi2, VER_MAJORVERSION, major_equal))
+          continue;
+        if (vi.dwMajorVersion < major) {
+          vi.dwMajorVersion = major; vi.dwMinorVersion = 0;
+        }
+
+        ULONGLONG minor_equal = VerSetConditionMask(0, VER_MINORVERSION, VER_EQUAL);
+        for (unsigned minor = vi.dwMinorVersion; minor <= 9; minor++) {
+          memset(&vi2, 0, sizeof(vi2)); vi2.dwOSVersionInfoSize = sizeof(vi2);
+          vi2.dwMinorVersion = minor;
+          if (!VerifyVersionInfo(&vi2, VER_MINORVERSION, minor_equal))
+            continue;
+          vi.dwMinorVersion = minor;
+          break;
+        }
+
+        break;
+      }
+    }
+
+    if (vi.dwMajorVersion <= 0xf && vi.dwMinorVersion <= 0xf) {
+      bool ws = (vi.wProductType <= VER_NT_WORKSTATION);
+      switch (vi.dwMajorVersion << 4 | vi.dwMinorVersion) {
+        case 0x50: w =       "2000";              break;
+        case 0x51: w =       "xp";                break;
+        case 0x52: w = (!GetSystemMetrics(89/*SM_SERVERR2*/)
+                           ? "2003"  : "2003r2"); break;
+        case 0x60: w = (ws ? "vista" : "2008"  ); break;
+        case 0x61: w = (ws ? "win7"  : "2008r2"); break;
+        case 0x62: w = (ws ? "win8"  : "2012"  ); break;
+        case 0x63: w = (ws ? "win8.1": "2012r2"); break;
+      }
+    }
   }
 
   const char * w64 = "";
@@ -644,7 +659,7 @@ std::string win_smart_interface::get_os_version_str()
 
   if (!w)
     snprintf(vptr, vlen, "-%s%u.%u%s",
-      (vi.dwPlatformId==VER_PLATFORM_WIN32_NT ? "nt" : "9x"),
+      (vi.dwPlatformId==VER_PLATFORM_WIN32_NT ? "nt" : "??"),
       (unsigned)vi.dwMajorVersion, (unsigned)vi.dwMinorVersion, w64);
   else if (vi.wServicePackMinor)
     snprintf(vptr, vlen, "-%s%s-sp%u.%u", w, w64, vi.wServicePackMajor, vi.wServicePackMinor);
