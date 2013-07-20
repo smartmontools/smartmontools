@@ -1,9 +1,10 @@
-$Id: ChangeLog 3831 2013-07-20 14:25:56Z chrfranke $
+$Id: ChangeLog 3832 2013-07-20 14:49:31Z chrfranke $
 
 2013-07-20  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Do not print 'SCT Commands not supported' if SCT is
 	not used (regression from r3825 r3826).
+	smartctl.8.in: Mark '-g/-s wcreorder' as EXPERIMENTAL.
 
 2013-07-18  Christian Franke  <franke@computer.org>
 

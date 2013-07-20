@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartctl.8.in 3825 2013-07-06 21:38:25Z samm2 $
+$Id: smartctl.8.in 3832 2013-07-20 14:49:31Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -885,7 +885,8 @@ Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
 The write cache is usually enabled by default.
 
 .I wcreorder[,on|off]
-\- [ATA only] prints or set Write Cache Reordering.
+\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+Gets/sets Write Cache Reordering.
 If it is disabled (off), disk write scheduling is executed on a 
 first-in-first-out (FIFO) basis. If Write Cache Reordering is enabled (on),
 then disk write scheduling may be reordered by the drive. If write cache is
@@ -2266,4 +2267,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3825 2013-07-06 21:38:25Z samm2 $
+$Id: smartctl.8.in 3832 2013-07-20 14:49:31Z chrfranke $
