@@ -1,4 +1,8 @@
-$Id: ChangeLog 3834 2013-07-20 16:17:13Z chrfranke $
+$Id: ChangeLog 3835 2013-07-20 18:37:19Z chrfranke $
+
+2013-07-20  Christian Franke  <franke@computer.org>
+
+	dev_areca.cpp: Fix possible segfault on empty port.
 
 2013-07-20  Christian Franke  <franke@computer.org>
 

@@ -21,7 +21,7 @@
 #include "dev_interface.h"
 #include "dev_areca.h"
 
-const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 3803 2013-03-24 18:52:54Z chrfranke $"
+const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 3835 2013-07-20 18:37:19Z chrfranke $"
   DEV_ARECA_H_CVSID;
 
 #include "atacmds.h"
@@ -613,10 +613,11 @@ bool generic_areca_device::arcmsr_scsi_pass_through(struct scsi_cmnd_io * iop)
 
   // ----- BEGIN TO SEND TO ARECA DRIVER ------
   expected = arcmsr_ui_handler(areca_packet, areca_packet_len, return_buff);
-  if ( expected < 0 )
-  {
-    return set_err(EIO);
-  }
+
+  if (expected < 0)
+    return set_err(EIO, "arcmsr_scsi_pass_through: I/O error");
+  if (expected < 15) // 7 bytes if port is empty
+    return set_err(EIO, "arcmsr_scsi_pass_through: missing data (%d bytes, expected %d)", expected, 15);
 
   int scsi_status = return_buff[5];
   int in_data_len = return_buff[11] | return_buff[12] << 8 | return_buff[13] << 16 | return_buff[14] << 24;
