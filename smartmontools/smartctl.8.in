@@ -885,7 +885,8 @@ Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
 The write cache is usually enabled by default.
 
 .I wcreorder[,on|off]
-\- [ATA only] prints or set Write Cache Reordering.
+\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+Gets/sets Write Cache Reordering.
 If it is disabled (off), disk write scheduling is executed on a 
 first-in-first-out (FIFO) basis. If Write Cache Reordering is enabled (on),
 then disk write scheduling may be reordered by the drive. If write cache is

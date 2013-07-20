@@ -4,6 +4,7 @@ $Id$
 
 	ataprint.cpp: Do not print 'SCT Commands not supported' if SCT is
 	not used (regression from r3825 r3826).
+	smartctl.8.in: Mark '-g/-s wcreorder' as EXPERIMENTAL.
 
 2013-07-18  Christian Franke  <franke@computer.org>
 
