@@ -20,7 +20,7 @@
 
 #include "daemon_win32.h"
 
-const char * daemon_win32_cpp_cvsid = "$Id: daemon_win32.cpp 3760 2013-01-30 18:43:39Z chrfranke $"
+const char * daemon_win32_cpp_cvsid = "$Id: daemon_win32.cpp 3834 2013-07-20 16:17:13Z chrfranke $"
   DAEMON_WIN32_H_CVSID;
 
 #include <stdio.h>
@@ -987,7 +987,7 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
     if (!(hs = CreateService(hm,
       svc_opts->svcname, svc_opts->dispname,
       SERVICE_ALL_ACCESS,
-      SERVICE_WIN32_OWN_PROCESS|SERVICE_INTERACTIVE_PROCESS,
+      SERVICE_WIN32_OWN_PROCESS,
       SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, path,
       NULL/*no load ordering*/, NULL/*no tag id*/,
       ""/*no depedencies*/, NULL/*local system account*/, NULL/*no pw*/))) {

@@ -1,4 +1,10 @@
-$Id: ChangeLog 3832 2013-07-20 14:49:31Z chrfranke $
+$Id: ChangeLog 3834 2013-07-20 16:17:13Z chrfranke $
+
+2013-07-20  Christian Franke  <franke@computer.org>
+
+	os_win32/daemon_win32.cpp: Do not install the service as interactive.
+	This is no longer supported since Vista and produces misleading error
+	messages in event log.
 
 2013-07-20  Christian Franke  <franke@computer.org>
 
