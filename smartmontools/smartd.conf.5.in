@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3741 2013-01-02 17:06:54Z chrfranke $
+$Id: smartd.conf.5.in 3833 2013-07-20 15:00:04Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -460,7 +460,7 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 connected to a HighPoint RocketRAID controller.  The integer L is the
 controller id, the integer M is the channel number, and the integer N
 is the PMPort number if it is available.  The allowed values of L are
-from 1 to 4 inclusive, M are from 1 to 16 inclusive and N from 1 to 4
+from 1 to 4 inclusive, M are from 1 to 128 inclusive and N from 1 to 4
 if PMPort available.  And also these values are limited by the model
 of the HighPoint RocketRAID controller.
 In log files and email messages this disk will be identified as
@@ -1656,4 +1656,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3741 2013-01-02 17:06:54Z chrfranke $
+$Id: smartd.conf.5.in 3833 2013-07-20 15:00:04Z chrfranke $
