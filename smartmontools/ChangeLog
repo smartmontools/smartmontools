@@ -2,6 +2,10 @@ $Id$
 
 2013-07-20  Christian Franke  <franke@computer.org>
 
+	dev_areca.cpp: Fix possible segfault on empty port.
+
+2013-07-20  Christian Franke  <franke@computer.org>
+
 	os_win32/daemon_win32.cpp: Do not install the service as interactive.
 	This is no longer supported since Vista and produces misleading error
 	messages in event log.

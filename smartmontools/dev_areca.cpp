@@ -613,10 +613,11 @@ bool generic_areca_device::arcmsr_scsi_pass_through(struct scsi_cmnd_io * iop)
 
   // ----- BEGIN TO SEND TO ARECA DRIVER ------
   expected = arcmsr_ui_handler(areca_packet, areca_packet_len, return_buff);
-  if ( expected < 0 )
-  {
-    return set_err(EIO);
-  }
+
+  if (expected < 0)
+    return set_err(EIO, "arcmsr_scsi_pass_through: I/O error");
+  if (expected < 15) // 7 bytes if port is empty
+    return set_err(EIO, "arcmsr_scsi_pass_through: missing data (%d bytes, expected %d)", expected, 15);
 
   int scsi_status = return_buff[5];
   int in_data_len = return_buff[11] | return_buff[12] << 8 | return_buff[13] << 16 | return_buff[14] << 24;
