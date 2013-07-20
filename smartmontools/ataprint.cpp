@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3827 2013-07-06 22:02:47Z samm2 $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3831 2013-07-20 14:25:56Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -3217,8 +3217,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
   }
 
-  if(!sct_ok)
+  if(!sct_ok && (options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int
+                 || options.sct_erc_get || options.sct_erc_set                        ))
     pout("SCT Commands not supported\n\n");
+
   // Print SCT status and temperature history table
   if (sct_ok && (options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int)) {
     for (;;) {
