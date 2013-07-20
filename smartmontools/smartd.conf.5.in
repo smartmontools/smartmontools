@@ -460,7 +460,7 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 connected to a HighPoint RocketRAID controller.  The integer L is the
 controller id, the integer M is the channel number, and the integer N
 is the PMPort number if it is available.  The allowed values of L are
-from 1 to 4 inclusive, M are from 1 to 16 inclusive and N from 1 to 4
+from 1 to 4 inclusive, M are from 1 to 128 inclusive and N from 1 to 4
 if PMPort available.  And also these values are limited by the model
 of the HighPoint RocketRAID controller.
 In log files and email messages this disk will be identified as
