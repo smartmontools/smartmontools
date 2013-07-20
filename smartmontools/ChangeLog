@@ -2,6 +2,12 @@ $Id$
 
 2013-07-20  Christian Franke  <franke@computer.org>
 
+	os_win32/daemon_win32.cpp: Do not install the service as interactive.
+	This is no longer supported since Vista and produces misleading error
+	messages in event log.
+
+2013-07-20  Christian Franke  <franke@computer.org>
+
 	ataprint.cpp: Do not print 'SCT Commands not supported' if SCT is
 	not used (regression from r3825 r3826).
 	smartctl.8.in: Mark '-g/-s wcreorder' as EXPERIMENTAL.
