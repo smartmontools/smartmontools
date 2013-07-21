@@ -2,6 +2,10 @@ $Id$
 
 2013-07-21  Christian Franke  <franke@computer.org>
 
+	utility.cpp: Add check for empty subexpressions in regular expressions.
+
+2013-07-21  Christian Franke  <franke@computer.org>
+
 	drivedb.h:
 	- Crucial/Micron RealSSD C300/M500: Rename, add M500
 	- SandForce Driven SSDs: Kingston KC300, MS200

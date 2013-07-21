@@ -364,27 +364,62 @@ void syserror(const char *message){
   return;
 }
 
+// Check regular expression for non-portable features.
+//
 // POSIX extended regular expressions interpret unmatched ')' ordinary:
 // "The close-parenthesis shall be considered special in this context
 //  only if matched with a preceding open-parenthesis."
 //
-// Actual '(...)' nesting errors remain undetected on strict POSIX
-// implementations (glibc) but an error is reported on others (Cygwin).
-// 
-// The check below is rather incomplete because it does not handle
-// e.g. '\)' '[)]'.
-// But it should work for the regex subset used in drive database
-// and smartd '-s' directives.
-static int check_regex_nesting(const char * pattern)
+// GNU libc and BSD libc support unmatched ')', Cygwin reports an error.
+//
+// POSIX extended regular expressions do not define empty subexpressions:
+// "A vertical-line appearing first or last in an ERE, or immediately following
+//  a vertical-line or a left-parenthesis, or immediately preceding a
+//  right-parenthesis, produces undefined results."
+//
+// GNU libc and Cygwin support empty subexpressions, BSD libc reports an error.
+//
+static const char * check_regex(const char * pattern)
 {
-  int level = 0, i;
-  for (i = 0; pattern[i] && level >= 0; i++) {
-    switch (pattern[i]) {
-      case '(': level++; break;
-      case ')': level--; break;
+  int level = 0;
+  char c;
+
+  for (int i = 0; (c = pattern[i]); i++) {
+    // Skip "\x"
+    if (c == '\\') {
+      if (!pattern[++i])
+        break;
+      continue;
     }
+
+    // Skip "[...]"
+    if (c == '[') {
+      if (pattern[++i] == '^')
+        i++;
+      if (!pattern[i++])
+        break;
+      while ((c = pattern[i]) && c != ']')
+        i++;
+      if (!c)
+        break;
+      continue;
+    }
+
+    // Check "(...)" nesting
+    if (c == '(')
+      level++;
+    else if (c == ')' && --level < 0)
+      return "Unmatched ')'";
+
+    // Check for leading/trailing '|' or "||", "|)", "|$", "(|", "^|"
+    char c1;
+    if (   (c == '|' && (   i == 0 || !(c1 = pattern[i+1])
+                          || c1 == '|' || c1 == ')' || c1 == '$'))
+        || ((c == '(' || c == '^') && pattern[i+1] == '|')       )
+      return "Empty '|' subexpression";
   }
-  return level;
+
+  return (const char *)0;
 }
 
 // Wrapper class for regex(3)
@@ -465,8 +500,9 @@ bool regular_expression::compile()
     return false;
   }
 
-  if (check_regex_nesting(m_pattern.c_str()) < 0) {
-    m_errmsg = "Unmatched ')'";
+  const char * errmsg = check_regex(m_pattern.c_str());
+  if (errmsg) {
+    m_errmsg = errmsg;
     free_buf();
     return false;
   }
