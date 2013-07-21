@@ -8,10 +8,18 @@ http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 6.2
 -----------------------------------------------------------
+- smartctl: Added ATA write cache reordering control using
+  '-g wcreorder' and '-s wcreorder,[on|off]' options.
+- update-smart-drivedb: Updated for new SVN repository.
+- HDD, SSD and USB additions to drive database.
+- Areca RAID support: Fixed possible segfault on empty port.
+- HPT RAID support: Maximum disk number increased to 128.
+- Linux: RHEL 9 compile fixes.
+- FreeBSD: Device scanning now skips port multipliers.
 - Cygwin: 64-bit compile fixes.
-- RHEL 9 compile fixes
-- Added ATA write cache reordering control using -g wcreorder and
-  -s wcreorder,[on|off] commands
+- Windows: Fixed bogus temp file name in smartd_warning.cmd
+  (already included in smartmontools-6.1-2.win32-setup.exe).
+- Windows: smartd service is no longer installed as interactive.
 
 Date 2013-03-16
 Summary: smartmontools release 6.1
