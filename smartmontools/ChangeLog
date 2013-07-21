@@ -1,5 +1,22 @@
 $Id$
 
+2013-07-21  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300/M500: Rename, add M500
+	- SandForce Driven SSDs: Kingston KC300, MS200
+	- Intel 320 Series SSDs: *A variant
+	- Intel 330/335 Series SSDs: Rename, add 335 Series
+	- Toshiba 2.5" HDD MK..46GSX
+	- Toshiba 2.5" HDD MK..61GSY[N]: Rename, add *GSY variant
+	- Toshiba 2.5" HDD MK..65GSX: *GSXF variant
+	- Toshiba 3.5" HDD DT01ACA...
+	- Seagate Laptop SSHD
+	- Seagate Constellation ES.2: 2GB
+	- USB: Seagate Expansion External (0x0bc2:0x3320)
+	- USB: Seagate Backup Plus Desktop USB 3.0 (0x0bc2:0xa0a1)
+	- USB: WD Elements (0x1058:0x10a2)
+
 2013-07-20  Christian Franke  <franke@computer.org>
 
 	dev_areca.cpp: Fix possible segfault on empty port.
