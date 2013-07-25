@@ -1,5 +1,22 @@
 $Id$
 
+2013-07-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: ADATA SP900
+	- Transcend CompactFlash Cards: *GCF150
+	- Hitachi/HGST Travelstar 5K750: Apple OEM
+	- Hitachi/HGST Travelstar Z7K500
+	- Hitachi/HGST Travelstar 7K750
+	- Hitachi Deskstar 5K3000: *BLE630 OEM
+	- Seagate Constellation ES.3
+	- Western Digital Caviar Blue (SATA): Rename, add WD1602ABKS
+	- Western Digital Caviar Blue (SATA 6Gb/s): Rename, add WD10EZEX
+	- USB: Toshiba Canvio 3.0 Portable Hard Drive (0x0480:0xa007)
+	- USB: Toshiba Canvio Desktop (0x0480:0xd010)
+	- USB: Seagate FreeAgent Desk (0x0bc2:0x3008)
+	- USB: Sharkoon 2-Bay RAID Box (0x6795:0x2756)
+
 2013-07-21  Christian Franke  <franke@computer.org>
 
 	utility.cpp: Add check for empty subexpressions in regular expressions.
