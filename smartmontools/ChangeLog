@@ -5,6 +5,7 @@ $Id$
 	autogen.sh: automake 1.10.3, 1.12.6, and 1.13.4 work.
 	The new automake 1.14 is left out for now due to the
 	'subdir-objects' warning and the new 'compile' script.
+	Add options '--force' and '--warnings=CATEGORY'.
 
 2013-07-26  Christian Franke  <franke@computer.org>
 
