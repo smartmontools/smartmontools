@@ -103,6 +103,7 @@ esac
 # Install pkg-config macros
 # (Don't use 'aclocal -I m4 --install' to keep support for automake < 1.10)
 test -d m4 || mkdir m4 || exit 1
+test -z "$force" || rm -f m4/pkg.m4
 test -f m4/pkg.m4 || acdir=`${ACLOCAL} --print-ac-dir` &&
   test -n "$acdir" && test -f "$acdir/pkg.m4" &&
 {
