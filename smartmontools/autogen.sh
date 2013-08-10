@@ -32,13 +32,14 @@ typep()
     return 1
 }
 
-test -x "$AUTOMAKE" || AUTOMAKE=`typep automake-1.12` ||
+test -x "$AUTOMAKE" ||
+    AUTOMAKE=`typep automake-1.13` || AUTOMAKE=`typep automake-1.12` ||
     AUTOMAKE=`typep automake-1.11` || AUTOMAKE=`typep automake-1.10` ||
     AUTOMAKE=`typep automake-1.9` || AUTOMAKE=`typep automake-1.8` ||
     AUTOMAKE=`typep automake-1.7` || AUTOMAKE=`typep automake17` ||
 {
 echo
-echo "You must have at least GNU Automake 1.7 (up to 1.11) installed"
+echo "You must have at least GNU Automake 1.7 (up to 1.13) installed"
 echo "in order to bootstrap smartmontools from SVN. Download the"
 echo "appropriate package for your distribution, or the source tarball"
 echo "from ftp://ftp.gnu.org/gnu/automake/ ."
@@ -84,7 +85,7 @@ case "$ver" in
     rm -f casetest.tmp
     ;;
 
-  1.9.[1-6]|1.10|1.10.[12]|1.11|1.11.[1-6]|1.12.[2-5])
+  1.9.[1-6]|1.10|1.10.[123]|1.11|1.11.[1-6]|1.12.[2-6]|1.13.4)
     # OK
     ;;
 
