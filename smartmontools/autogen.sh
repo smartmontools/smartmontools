@@ -1,11 +1,17 @@
 #!/bin/sh
-# $Id: autogen.sh 3843 2013-08-10 19:54:11Z chrfranke $
+# $Id: autogen.sh 3844 2013-08-10 21:17:37Z chrfranke $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
 # directory. To update these files at a later date use:
 #	autoreconf -f -i -v
 
+force=; warnings=
+while [ $# -gt 0 ]; do case $1 in
+  --force) force=$1; shift ;;
+  --warnings=?*) warnings="${warnings} $1"; shift ;;
+  *) echo "Usage: $0 [--force] [--warnings=CATEGORY ...]"; exit 1 ;;
+esac; done
 
 # Cygwin?
 test -x /usr/bin/uname && /usr/bin/uname | grep -i CYGWIN >/dev/null &&
@@ -108,7 +114,9 @@ test -f m4/pkg.m4 ||
 
 set -e	# stops on error status
 
-${ACLOCAL} -I m4
-autoheader
-${AUTOMAKE} --add-missing --copy
-autoconf
+test -z "$warnings" || set -x
+
+${ACLOCAL} -I m4 $force $warnings
+autoheader $force $warnings
+${AUTOMAKE} --add-missing --copy ${force:+--force-missing} $warnings
+autoconf $force $warnings
