@@ -540,8 +540,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 170,raw48,Reserve_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
+    "-v 183,raw48,SATA_Downshift_Count " // FW >= 4Px10362
   //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
+    "-v 199,raw48,CRC_Error_Count "      // FW >= 4Px10362
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
     "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)

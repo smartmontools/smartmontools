@@ -1,5 +1,9 @@
 $Id$
 
+2013-08-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Intel 320 Series SSDs: Add attribute 183 and 199.
+
 2013-08-10  Christian Franke  <franke@computer.org>
 
 	autogen.sh: automake 1.10.3, 1.12.6, and 1.13.4 work.
