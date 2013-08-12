@@ -256,6 +256,7 @@ const drive_settings builtin_knowndrives[] = {
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
     "ADATA SSD S(396|510|599) .?..GB|" // tested with ADATA SSD S510 60GB/320ABBF0,
       // ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
+    "ADATA SP900|" // Premier Pro, SF-2281, tested with ADATA SP900/5.0.6
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
     "Corsair Force (3 SSD|GS|GT)|" // SF-2281, tested with
@@ -538,8 +539,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 170,raw48,Reserve_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
+    "-v 183,raw48,SATA_Downshift_Count " // FW >= 4Px10362
   //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
+    "-v 199,raw48,CRC_Error_Count "      // FW >= 4Px10362
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
     "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
@@ -858,8 +861,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 212,raw48,Unknown_Attribute"  // ] from September 2012
   },
   { "Transcend CompactFlash Cards", // tested with TRANSCEND/20080820,
-      // TS4GCF133/20100709, TS16GCF133/20100709
-    "TRANSCEND|TS(4|8|16)GCF133",
+      // TS4GCF133/20100709, TS16GCF133/20100709, TS16GCF150/20110407
+    "TRANSCEND|TS(4|8|16)GCF(133|150)",
     "", "",
     "-v 7,raw48,Unknown_Attribute "
     "-v 8,raw48,Unknown_Attribute"
@@ -1668,8 +1671,9 @@ const drive_settings builtin_knowndrives[] = {
     "HGST HT[ES]5450(25|32|50)A7E38[01]",
     "", "", ""
   },
-  { "Hitachi/HGST Travelstar 5K750", // tested with Hitachi HTS547575A9E384/JE4OA60A
-    "Hitachi HT[ES]5475(50|64|75)A9E38[14]",
+  { "Hitachi/HGST Travelstar 5K750", // tested with Hitachi HTS547575A9E384/JE4OA60A,
+       // APPLE HDD HTS547550A9E384/JE3AD70F
+    "(Hitachi|APPLE HDD) HT[ES]5475(50|64|75)A9E38[14]",
     "", "", ""
   },
   { "Hitachi Travelstar 7K60",
@@ -1705,6 +1709,16 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[2-5]",
     "", "", ""
   },
+  { "Hitachi/HGST Travelstar Z7K500", // tested with HITACHI HTS725050A7E630/GH2ZB390,
+      // HGST HTS725050A7E630/GH2OA420
+    "(HITACHI|HGST) HT[ES]7250(25|32|50)A7E63[015]",
+    "", "", ""
+  },
+  { "Hitachi/HGST Travelstar 7K750", // tested with Hitachi HTS727550A9E364/JF3OA0E0,
+      // Hitachi HTS727575A9E364/JF4OA0D0
+    "(Hitachi|HGST) HT[ES]7275(50|64|75)A9E36[14]",
+    "", "", ""
+  },
   { "HGST Travelstar 7K1000", // tested with HGST HTS721010A9E630/JB0OA3B0
     "HGST HTS721010A9E630",
     "", "", ""
@@ -1729,8 +1743,9 @@ const drive_settings builtin_knowndrives[] = {
     "(IBM-)?IC35L(030|060|090|120|180)AVV207-[01]",
     "", "", ""
   },
-  { "Hitachi Deskstar 5K3000", // tested with HDS5C3030ALA630/MEAOA5C0
-    "(Hitachi )?HDS5C30(15|20|30)ALA63[02].*",
+  { "Hitachi Deskstar 5K3000", // tested with HDS5C3030ALA630/MEAOA5C0,
+       // Hitachi HDS5C3020BLE630/MZ4OAAB0 (OEM, Toshiba Canvio Desktop)
+    "(Hitachi )?HDS5C30(15|20|30)(ALA|BLE)63[02].*",
     "", "", ""
   },
   { "Hitachi Deskstar 5K4000", // tested with HDS5C4040ALE630/MPAOA250
@@ -1892,7 +1907,8 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(10|20)02TSKB",
     "", "", ""
   },
-  { "Toshiba 3.5\" HDD DT01ACA...", // tested with TOSHIBA DT01ACA100/MS2OA750
+  { "Toshiba 3.5\" HDD DT01ACA...", // tested with TOSHIBA DT01ACA100/MS2OA750,
+      // TOSHIBA DT01ACA200/MX4OABB0, TOSHIBA DT01ACA300/MX6OABB0
     "TOSHIBA DT01ACA(025|032|050|075|100|150|200|300)",
     "", "", ""
   },
@@ -2275,6 +2291,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(2000645|300065[012])NS",
     "", "", ""
   },
+  { "Seagate Constellation ES.3", // tested with ST1000NM0033-9ZM173/0001, ST4000NM0033-9ZM170/SN03
+    "ST[1234]000NM00[35]3-.*",
+    "", "", ""
+  },
   { "Seagate Pipeline HD 5900.1",
     "ST3(160310|320[34]10|500(321|422))CS",
     "", "", ""
@@ -2420,12 +2440,13 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((8|12|16|25|32)00AABS|(8|12|16|25|32|40|50)00AAJS)-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Blue Serial ATA",  // WD Caviar SE16 Serial ATA
-    "WDC WD((16|20|25|32|40|50|64|75)00AAKS|10EALS)-.*",
+  { "Western Digital Caviar Blue (SATA)",  // WD Caviar SE16 Serial ATA
+      // tested with WD1602ABKS-18N8A0/DELL/02.03B04
+    "WDC WD((16|20|25|32|40|50|64|75)00AAKS|1602ABKS|10EALS)-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Blue Serial ATA",  // SATA 3.0 variants
-    "WDC WD((25|32|50)00AAKX|7500AALX|10EALX)-.*",
+  { "Western Digital Caviar Blue (SATA 6Gb/s)", // tested with WDC WD10EZEX-00RKKA0/80.00A80
+    "WDC WD((25|32|50)00AAKX|7500AALX|10EALX|10EZEX)-.*",
     "", "", ""
   },
   { "Western Digital RE Serial ATA",
@@ -2673,6 +2694,18 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Toshiba Canvio Basics; ",
     "0x0480:0xa006",
     "", // 0x0001
+    "",
+    "-d sat"
+  },
+  { "USB: Toshiba Canvio 3.0 Portable Hard Drive; ", // 1TB
+    "0x0480:0xa007",
+    "", // 0x0001
+    "",
+    "-d sat"
+  },
+  { "USB: Toshiba Canvio Desktop; ", // 2TB
+    "0x0480:0xd010",
+    "",
     "",
     "-d sat"
   },
@@ -3047,6 +3080,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d sat"
+  },
+  { "USB: Seagate FreeAgent Desk; ", // 1TB
+    "0x0bc2:0x3008",
+    "",
+    "",
+    "-d sat,12"
   },
   { "USB: Seagate Expansion External; ", // 2TB, 3TB
     "0x0bc2:0x33(00|20|32)",
@@ -3567,6 +3606,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0100
     "",
     "" // unsupported
+  },
+  // 0x6795 (?)
+  { "USB: Sharkoon 2-Bay RAID Box; ", // USB 3.0
+    "0x6795:0x2756",
+    "", // 0x0100
+    "",
+    "-d sat"
   },
 /*
 }; // builtin_knowndrives[]
