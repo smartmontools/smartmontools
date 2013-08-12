@@ -1,4 +1,8 @@
-$Id: ChangeLog 3844 2013-08-10 21:17:37Z chrfranke $
+$Id: ChangeLog 3846 2013-08-12 19:15:36Z chrfranke $
+
+2013-08-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Intel 320 Series SSDs: Add attribute 183 and 199.
 
 2013-08-10  Christian Franke  <franke@computer.org>
 
