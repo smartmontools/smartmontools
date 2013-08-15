@@ -1,5 +1,9 @@
 $Id$
 
+2013-08-15 Dan Lukes  <dan+smartmontools.changelog@obluda.cz>
+
+	drivedb.h: Intel DC S3500 Series SSDs
+
 2013-08-12  Christian Franke  <franke@computer.org>
 
 	drivedb.h: Intel 320 Series SSDs: Add attribute 183 and 199.
