@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3848 2013-08-15 14:22:15Z dlukes $",
+  { "$Id: drivedb.h 3849 2013-08-16 21:46:10Z dlukes $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -661,7 +661,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator "
-    "-v 234,hex48,Thermal_Throttle "
+    "-v 234,raw24/raw32:04321,Thermal_Throttle "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB"
   },
@@ -692,7 +692,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator "
-    "-v 234,raw48,Thermal_Throttle "
+    "-v 234,raw24/raw32:04321,Thermal_Throttle "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB"
   },
