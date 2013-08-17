@@ -18,7 +18,7 @@
 #include "config.h"
 #include "ataidentify.h"
 
-const char * ataidentify_cpp_cvsid = "$Id: ataidentify.cpp 3785 2013-03-07 21:58:05Z chrfranke $"
+const char * ataidentify_cpp_cvsid = "$Id: ataidentify.cpp 3851 2013-08-17 20:10:11Z chrfranke $"
   ATAIDENTIFY_H_CVSID;
 
 #include "int64.h"
@@ -683,9 +683,9 @@ void ata_print_identify_data(const void * id, bool all_words, int bit_level)
             if (word + 1 == word2 && strstr(desc, "(DWord)"))
               pout("  (%u)\n", ((unsigned)get_word(id, word2) << 16) | w);
             else if (word + 3 == word2 && strstr(desc, "(QWord)"))
-              pout("  (%"PRIu64")\n", ((uint64_t)get_word(id, word + 3) << 48)
-                                    | ((uint64_t)get_word(id, word + 2) << 32)
-                                    | ((unsigned)get_word(id, word + 1) << 16) | (unsigned)w);
+              pout("  (%" PRIu64 ")\n", ((uint64_t)get_word(id, word + 3) << 48)
+                                      | ((uint64_t)get_word(id, word + 2) << 32)
+                                      | ((unsigned)get_word(id, word + 1) << 16) | (unsigned)w);
             else
               pout("\n");
           }
