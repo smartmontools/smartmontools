@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3759 2013-01-26 21:11:02Z chrfranke $
+# $Id: Makefile.am 3853 2013-08-17 21:37:50Z chrfranke $
 #
 
 @SET_MAKE@
@@ -311,7 +311,9 @@ examples_SCRIPTS = \
         examplescripts/Example1 \
         examplescripts/Example2 \
         examplescripts/Example3 \
-        examplescripts/Example4
+        examplescripts/Example4 \
+        examplescripts/Example5 \
+        examplescripts/Example6
 
 sysconf_DATA = smartd.conf
 
