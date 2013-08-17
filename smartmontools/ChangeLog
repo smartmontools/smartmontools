@@ -2,6 +2,10 @@ $Id$
 
 2013-08-17  Christian Franke  <franke@computer.org>
 
+	examplescripts: Add scripts from Debian and Fedora packages.
+
+2013-08-17  Christian Franke  <franke@computer.org>
+
 	Add spaces between string literals and macro identifiers.
 	This avoids the interpretation as user-defined literals if
 	C++11 is enabled (g++ -std=gnu++11).

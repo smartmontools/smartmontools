@@ -3,6 +3,7 @@
 # $Id$
 #
 # Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+# Copyright (C) 2009-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -35,16 +36,24 @@ and include a brief description to use below.
 
 The files contained in this directory are:
 
-Example1: appends values of $SMARTD_* environment variables and the output
+Example1: Appends values of $SMARTD_* environment variables and the output
           of smartctl -a to the normal email message, and sends that
           to the email address listed as the argument to the -m
           Directive.
 
 Example2: Appends output of smartctl -a to the normal email message
-	  and sends that to the email address listed as the argument
-	  to the -m Directive.
+          and sends that to the email address listed as the argument
+          to the -m Directive.
 
 Example3: Uses wall(1) to send a warning message to all users, then powers
           down the machine.
 
 Example4: Uses powersave-notify to issue a desktop neutral warning.
+          (/etc/smartmontools/run.d/10powersave-notify from Debian package)
+
+Example5: Uses run-parts(8) to run scripts from /etc/smartmontools/run.d/.
+          (/usr/share/smartmontools/smartd-runner from Debian package)
+
+Example6: Sends a warning mail and then notifies the users by direct write
+          to terminals.
+          (/usr/libexec/smartmontools/smartdnotify from Fedora package)
