@@ -676,13 +676,13 @@ static bool read_dev_state(const char * path, persistent_dev_state & state)
 static void write_dev_state_line(FILE * f, const char * name, uint64_t val)
 {
   if (val)
-    fprintf(f, "%s = %"PRIu64"\n", name, val);
+    fprintf(f, "%s = %" PRIu64 "\n", name, val);
 }
 
 static void write_dev_state_line(FILE * f, const char * name1, int id, const char * name2, uint64_t val)
 {
   if (val)
-    fprintf(f, "%s.%d.%s = %"PRIu64"\n", name1, id, name2, val);
+    fprintf(f, "%s.%d.%s = %" PRIu64 "\n", name1, id, name2, val);
 }
 
 // Write a state file
@@ -757,7 +757,7 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
     const persistent_dev_state::ata_attribute & pa = state.ata_attributes[i];
     if (!pa.id)
       continue;
-    fprintf(f, "\t%d;%d;%"PRIu64";", pa.id, pa.val, pa.raw);
+    fprintf(f, "\t%d;%d;%" PRIu64 ";", pa.id, pa.val, pa.raw);
   }
   // SCSI ONLY
   const struct scsiErrorCounter * ecp;
@@ -765,13 +765,13 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
   for (int k = 0; k < 3; ++k) {
     if ( !state.scsi_error_counters[k].found ) continue;
     ecp = &state.scsi_error_counters[k].errCounter;
-     fprintf(f, "\t%s-corr-by-ecc-fast;%"PRIu64";"
-       "\t%s-corr-by-ecc-delayed;%"PRIu64";"
-       "\t%s-corr-by-retry;%"PRIu64";"
-       "\t%s-total-err-corrected;%"PRIu64";"
-       "\t%s-corr-algorithm-invocations;%"PRIu64";"
+     fprintf(f, "\t%s-corr-by-ecc-fast;%" PRIu64 ";"
+       "\t%s-corr-by-ecc-delayed;%" PRIu64 ";"
+       "\t%s-corr-by-retry;%" PRIu64 ";"
+       "\t%s-total-err-corrected;%" PRIu64 ";"
+       "\t%s-corr-algorithm-invocations;%" PRIu64 ";"
        "\t%s-gb-processed;%.3f;"
-       "\t%s-total-unc-errors;%"PRIu64";",
+       "\t%s-total-unc-errors;%" PRIu64 ";",
        pageNames[k], ecp->counter[0],
        pageNames[k], ecp->counter[1],
        pageNames[k], ecp->counter[2],
@@ -781,7 +781,7 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
        pageNames[k], ecp->counter[6]);
   }
   if(state.scsi_nonmedium_error.found && state.scsi_nonmedium_error.nme.gotPC0) {
-    fprintf(f, "\tnon-medium-errors;%"PRIu64";", state.scsi_nonmedium_error.nme.counterPC0);
+    fprintf(f, "\tnon-medium-errors;%" PRIu64 ";", state.scsi_nonmedium_error.nme.counterPC0);
   }
   // write SCSI current temperature if it is monitored
   if(state.TempPageSupported && state.temperature)
@@ -1491,7 +1491,7 @@ static void Usage()
   PrintOut(LOG_INFO,"  -A PREFIX, --attributelog=PREFIX\n");
   PrintOut(LOG_INFO,"        Log ATA attribute information to {PREFIX}MODEL-SERIAL.ata.csv\n");
 #ifdef SMARTMONTOOLS_ATTRIBUTELOG
-  PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_ATTRIBUTELOG"MODEL-SERIAL.ata.csv]\n");
+  PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_ATTRIBUTELOG "MODEL-SERIAL.ata.csv]\n");
 #endif
   PrintOut(LOG_INFO,"\n");
   PrintOut(LOG_INFO,"  -B [+]FILE, --drivedb=[+]FILE\n");
@@ -1537,13 +1537,13 @@ static void Usage()
   PrintOut(LOG_INFO,"  -s PREFIX, --savestates=PREFIX\n");
   PrintOut(LOG_INFO,"        Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n");
 #ifdef SMARTMONTOOLS_SAVESTATES
-  PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_SAVESTATES"MODEL-SERIAL.TYPE.state]\n");
+  PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_SAVESTATES "MODEL-SERIAL.TYPE.state]\n");
 #endif
   PrintOut(LOG_INFO,"\n");
   PrintOut(LOG_INFO,"  -w NAME, --warnexec=NAME\n");
   PrintOut(LOG_INFO,"        Run executable NAME on warnings\n");
 #ifndef _WIN32
-  PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_SYSCONFDIR"/smartd_warning.sh]\n\n");
+  PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_SYSCONFDIR "/smartd_warning.sh]\n\n");
 #else
   PrintOut(LOG_INFO,"        [default is %s/smartd_warning.cmd]\n\n", get_exe_dir().c_str());
 #endif
@@ -1698,7 +1698,7 @@ static bool check_pending_id(const dev_config & cfg, const dev_state & state,
   uint64_t rawval = ata_get_attr_raw_value(state.smartval.vendor_attributes[i],
     cfg.attribute_defs);
   if (rawval >= (state.num_sectors ? state.num_sectors : 0xffffffffULL)) {
-    PrintOut(LOG_INFO, "Device: %s, ignoring %s count - bogus Attribute %d value %"PRIu64" (0x%"PRIx64")\n",
+    PrintOut(LOG_INFO, "Device: %s, ignoring %s count - bogus Attribute %d value %" PRIu64 " (0x%" PRIx64 ")\n",
              cfg.name.c_str(), msg, id, rawval, rawval);
     return false;
   }
@@ -1781,7 +1781,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   unsigned oui = 0; uint64_t unique_id = 0;
   int naa = ata_get_wwn(&drive, oui, unique_id);
   if (naa >= 0)
-    snprintf(wwn, sizeof(wwn), "WWN:%x-%06x-%09"PRIx64", ", naa, oui, unique_id);
+    snprintf(wwn, sizeof(wwn), "WWN:%x-%06x-%09" PRIx64 ", ", naa, oui, unique_id);
 
   // Format device id string for warning emails
   char cap[32];
@@ -2749,7 +2749,7 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
       return 1;
     }
     uint64_t start = selargs.span[0].start, end = selargs.span[0].end;
-    PrintOut(LOG_INFO, "Device: %s, %s test span at LBA %"PRIu64" - %"PRIu64" (%"PRIu64" sectors, %u%% - %u%% of disk).\n",
+    PrintOut(LOG_INFO, "Device: %s, %s test span at LBA %" PRIu64 " - %" PRIu64 " (%" PRIu64 " sectors, %u%% - %u%% of disk).\n",
       name, (selargs.span[0].mode == SEL_NEXT ? "next" : "redo"),
       start, end, end - start + 1,
       (unsigned)((100 * start + state.num_sectors/2) / state.num_sectors),
@@ -2800,9 +2800,9 @@ static void check_pending(const dev_config & cfg, dev_state & state,
     return;
 
   // Format message.
-  std::string s = strprintf("Device: %s, %"PRId64" %s", cfg.name.c_str(), rawval, msg);
+  std::string s = strprintf("Device: %s, %" PRId64 " %s", cfg.name.c_str(), rawval, msg);
   if (prev_rawval > 0 && rawval != prev_rawval)
-    s += strprintf(" (changed %+"PRId64")", rawval - prev_rawval);
+    s += strprintf(" (changed %+" PRId64 ")", rawval - prev_rawval);
 
   PrintOut(LOG_CRIT, "%s\n", s.c_str());
   MailWarning(cfg, state, mailtype, "%s", s.c_str());
@@ -4254,10 +4254,10 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
   // No configuration file found -- use fake one
   int entry = 0;
   if (!f) {
-    char fakeconfig[] = SCANDIRECTIVE" -a"; // TODO: Remove this hack, build cfg_entry.
+    char fakeconfig[] = SCANDIRECTIVE " -a"; // TODO: Remove this hack, build cfg_entry.
 
     if (ParseConfigLine(conf_entries, default_conf, 0, fakeconfig) != -1)
-      throw std::logic_error("Internal error parsing "SCANDIRECTIVE);
+      throw std::logic_error("Internal error parsing " SCANDIRECTIVE);
     return 0;
   }
 
@@ -5028,7 +5028,7 @@ static int main_worker(int argc, char **argv)
         PrintOut(LOG_INFO,
                  caughtsigHUP==1?
                  "Signal HUP - rereading configuration file %s\n":
-                 "\a\nSignal INT - rereading configuration file %s ("SIGQUIT_KEYNAME" quits)\n\n",
+                 "\a\nSignal INT - rereading configuration file %s (" SIGQUIT_KEYNAME " quits)\n\n",
                  configfile);
       }
 

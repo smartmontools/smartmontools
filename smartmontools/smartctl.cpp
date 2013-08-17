@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -724,7 +724,7 @@ static const char * parse_options(int argc, char** argv,
         } else {
           if (ataopts.smart_selective_args.num_spans >= 5 || start > stop) {
             if (start > stop) {
-              snprintf(extraerror, sizeof(extraerror), "ERROR: Start LBA (%"PRIu64") > ending LBA (%"PRId64") in argument \"%s\"\n",
+              snprintf(extraerror, sizeof(extraerror), "ERROR: Start LBA (%" PRIu64 ") > ending LBA (%" PRId64 ") in argument \"%s\"\n",
                 start, stop, optarg);
             } else {
               snprintf(extraerror, sizeof(extraerror),"ERROR: No more than five selective self-test spans may be"

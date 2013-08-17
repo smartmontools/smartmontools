@@ -470,7 +470,7 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
                 ull <<= 8;
             ull |= xp[j];
         }
-        pout(" = %"PRIu64"\n", ull);
+        pout(" = %" PRIu64 "\n", ull);
         num -= pl;
         ucp += pl;
     }
@@ -565,7 +565,7 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
             if (0 == pc)
                 pout(" = %.2f\n", ull / 60.0 );
             else
-                pout(" = %"PRIu64"\n", ull);
+                pout(" = %" PRIu64 "\n", ull);
         }
         num -= pl;
         ucp += pl;
@@ -616,11 +616,11 @@ scsiPrintErrorCounterLog(scsi_device * device)
             if (! found[k])
                 continue;
             ecp = &errCounterArr[k];
-            pout("%s%8"PRIu64" %8"PRIu64"  %8"PRIu64"  %8"PRIu64"   %8"PRIu64,
+            pout("%s%8" PRIu64 " %8" PRIu64 "  %8" PRIu64 "  %8" PRIu64 "   %8" PRIu64,
                  pageNames[k], ecp->counter[0], ecp->counter[1],
                  ecp->counter[2], ecp->counter[3], ecp->counter[4]);
             processed_gb = ecp->counter[5] / 1000000000.0;
-            pout("   %12.3f    %8"PRIu64"\n", processed_gb, ecp->counter[6]);
+            pout("   %12.3f    %8" PRIu64 "\n", processed_gb, ecp->counter[6]);
         }
     }
     else
@@ -629,12 +629,12 @@ scsiPrintErrorCounterLog(scsi_device * device)
                 NON_MEDIUM_ERROR_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeNonMediumErrPage(gBuf, &nme);
         if (nme.gotPC0)
-            pout("\nNon-medium error count: %8"PRIu64"\n", nme.counterPC0);
+            pout("\nNon-medium error count: %8" PRIu64 "\n", nme.counterPC0);
         if (nme.gotTFE_H)
-            pout("Track following error count [Hitachi]: %8"PRIu64"\n",
+            pout("Track following error count [Hitachi]: %8" PRIu64 "\n",
                  nme.counterTFE_H);
         if (nme.gotPE_H)
-            pout("Positioning error count [Hitachi]: %8"PRIu64"\n",
+            pout("Positioning error count [Hitachi]: %8" PRIu64 "\n",
                  nme.counterPE_H);
     }
     if (gLastNErrorLPage && (0 == scsiLogSense(device,
@@ -843,8 +843,8 @@ scsiPrintSelfTest(scsi_device * device)
             char buff[32];
 
             // was hex but change to decimal to conform with ATA
-            snprintf(buff, sizeof(buff), "%"PRIu64, ull);
-            // snprintf(buff, sizeof(buff), "0x%"PRIx64, ull);
+            snprintf(buff, sizeof(buff), "%" PRIu64, ull);
+            // snprintf(buff, sizeof(buff), "0x%" PRIx64, ull);
             pout("%18s", buff);
         } else
             pout("                 -");

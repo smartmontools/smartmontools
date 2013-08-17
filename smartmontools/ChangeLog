@@ -1,5 +1,11 @@
 $Id$
 
+2013-08-17  Christian Franke  <franke@computer.org>
+
+	Add spaces between string literals and macro identifiers.
+	This avoids the interpretation as user-defined literals if
+	C++11 is enabled (g++ -std=gnu++11).
+
 2013-08-15 Dan Lukes  <dan+smartmontools.changelog@obluda.cz>
 
 	drivedb.h: Intel DC S3500 Series SSDs

@@ -1274,9 +1274,9 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
             uint64_t spans = (num_sectors + oldsize-1) / oldsize;
             uint64_t newsize = (num_sectors + spans-1) / spans;
             uint64_t newstart = num_sectors - newsize, newend = num_sectors - 1;
-            pout("Span %d changed from %"PRIu64"-%"PRIu64" (%"PRIu64" sectors)\n",
+            pout("Span %d changed from %" PRIu64 "-%" PRIu64 " (%" PRIu64 " sectors)\n",
                  i, start, end, oldsize);
-            pout("                 to %"PRIu64"-%"PRIu64" (%"PRIu64" sectors) (%"PRIu64" spans)\n",
+            pout("                 to %" PRIu64 "-%" PRIu64 " (%" PRIu64 " sectors) (%" PRIu64 " spans)\n",
                  newstart, newend, newsize, spans);
             start = newstart; end = newend;
           }
@@ -1293,7 +1293,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
       end = num_sectors - 1;
     }
     if (!(start <= end && end < num_sectors)) {
-      pout("Invalid selective self-test span %d: %"PRIu64"-%"PRIu64" (%"PRIu64" sectors)\n",
+      pout("Invalid selective self-test span %d: %" PRIu64 "-%" PRIu64 " (%" PRIu64 " sectors)\n",
         i, start, end, num_sectors);
       return -1;
     }
@@ -1648,7 +1648,7 @@ int ataSmartTest(ata_device * device, int testtype, bool force,
     int i;
     pout("SPAN         STARTING_LBA           ENDING_LBA\n");
     for (i = 0; i < selargs_io.num_spans; i++)
-      pout("   %d %20"PRId64" %20"PRId64"\n", i,
+      pout("   %d %20" PRId64 " %20" PRId64 "\n", i,
            selargs_io.span[i].start,
            selargs_io.span[i].end);
   }
@@ -1967,19 +1967,19 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
   case RAWFMT_RAW48:
   case RAWFMT_RAW56:
   case RAWFMT_RAW64:
-    s = strprintf("%"PRIu64, rawvalue);
+    s = strprintf("%" PRIu64, rawvalue);
     break;
 
   case RAWFMT_HEX48:
-    s = strprintf("0x%012"PRIx64, rawvalue);
+    s = strprintf("0x%012" PRIx64, rawvalue);
     break;
 
   case RAWFMT_HEX56:
-    s = strprintf("0x%014"PRIx64, rawvalue);
+    s = strprintf("0x%014" PRIx64, rawvalue);
     break;
 
   case RAWFMT_HEX64:
-    s = strprintf("0x%016"PRIx64, rawvalue);
+    s = strprintf("0x%016" PRIx64, rawvalue);
     break;
 
   case RAWFMT_RAW16_OPT_RAW16:
@@ -2016,7 +2016,7 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
       int64_t temp = word[0]+(word[1]<<16);
       int64_t tmp1 = temp/60;
       int64_t tmp2 = temp%60;
-      s = strprintf("%"PRIu64"h+%02"PRIu64"m", tmp1, tmp2);
+      s = strprintf("%" PRIu64 "h+%02" PRIu64 "m", tmp1, tmp2);
       if (word[2])
         s += strprintf(" (%u)", word[2]);
     }
@@ -2028,7 +2028,7 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
       int64_t hours = rawvalue/3600;
       int64_t minutes = (rawvalue-3600*hours)/60;
       int64_t seconds = rawvalue%60;
-      s = strprintf("%"PRIu64"h+%02"PRIu64"m+%02"PRIu64"s", hours, minutes, seconds);
+      s = strprintf("%" PRIu64 "h+%02" PRIu64 "m+%02" PRIu64 "s", hours, minutes, seconds);
     }
     break;
 
@@ -2037,7 +2037,7 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
       // 30-second counter
       int64_t hours = rawvalue/120;
       int64_t minutes = (rawvalue-120*hours)/2;
-      s += strprintf("%"PRIu64"h+%02"PRIu64"m", hours, minutes);
+      s += strprintf("%" PRIu64 "h+%02" PRIu64 "m", hours, minutes);
     }
     break;
 
@@ -2729,7 +2729,7 @@ int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
 
   char msglba[32];
   if (retval < 0 && failing_lba < 0xffffffffffffULL)
-    snprintf(msglba, sizeof(msglba), "%"PRIu64, failing_lba);
+    snprintf(msglba, sizeof(msglba), "%" PRIu64, failing_lba);
   else {
     msglba[0] = '-'; msglba[1] = 0;
   }

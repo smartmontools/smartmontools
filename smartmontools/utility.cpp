@@ -83,13 +83,13 @@ const char * packet_types[] = {
 std::string format_version_info(const char * prog_name, bool full /*= false*/)
 {
   std::string info = strprintf(
-    "%s "PACKAGE_VERSION" "
+    "%s " PACKAGE_VERSION " "
 #ifdef SMARTMONTOOLS_SVN_REV
-      SMARTMONTOOLS_SVN_DATE" r"SMARTMONTOOLS_SVN_REV
+      SMARTMONTOOLS_SVN_DATE " r" SMARTMONTOOLS_SVN_REV
 #else
-      "(build date "__DATE__")" // checkout without expansion of Id keywords
+      "(build date " __DATE__ ")" // checkout without expansion of Id keywords
 #endif
-      " [%s] "BUILD_INFO"\n"
+      " [%s] " BUILD_INFO "\n"
     "Copyright (C) 2002-13, Bruce Allen, Christian Franke, www.smartmontools.org\n",
     prog_name, smi()->get_os_version_str().c_str()
   );
@@ -107,17 +107,17 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     prog_name
   );
   info += strprintf(
-    "smartmontools release "PACKAGE_VERSION
-      " dated "SMARTMONTOOLS_RELEASE_DATE" at "SMARTMONTOOLS_RELEASE_TIME"\n"
+    "smartmontools release " PACKAGE_VERSION
+      " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n"
 #ifdef SMARTMONTOOLS_SVN_REV
-    "smartmontools SVN rev "SMARTMONTOOLS_SVN_REV
-      " dated "SMARTMONTOOLS_SVN_DATE" at "SMARTMONTOOLS_SVN_TIME"\n"
+    "smartmontools SVN rev " SMARTMONTOOLS_SVN_REV
+      " dated " SMARTMONTOOLS_SVN_DATE " at " SMARTMONTOOLS_SVN_TIME "\n"
 #else
     "smartmontools SVN rev is unknown\n"
 #endif
-    "smartmontools build host: "SMARTMONTOOLS_BUILD_HOST"\n"
-    "smartmontools build configured: "SMARTMONTOOLS_CONFIGURE_DATE "\n"
-    "%s compile dated "__DATE__" at "__TIME__"\n"
+    "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n"
+    "smartmontools build configured: " SMARTMONTOOLS_CONFIGURE_DATE "\n"
+    "%s compile dated " __DATE__ " at " __TIME__ "\n"
     "smartmontools configure arguments: ",
     prog_name
   );
@@ -735,7 +735,7 @@ const char * format_with_thousands_sep(char * str, int strsize, uint64_t val,
   }
 
   char num[64];
-  snprintf(num, sizeof(num), "%"PRIu64, val);
+  snprintf(num, sizeof(num), "%" PRIu64, val);
   int numlen = strlen(num);
 
   int i = 0, j = 0;
@@ -783,12 +783,12 @@ const char * format_capacity(char * str, int strsize, uint64_t val,
   if (i == 0)
     snprintf(str, strsize, "%u B", (unsigned)n);
   else if (n >= 100) // "123 xB"
-    snprintf(str, strsize, "%"PRIu64" %cB", n, prefixes[i]);
+    snprintf(str, strsize, "%" PRIu64 " %cB", n, prefixes[i]);
   else if (n >= 10)  // "12.3 xB"
-    snprintf(str, strsize, "%"PRIu64"%s%u %cB", n, decimal_point,
+    snprintf(str, strsize, "%" PRIu64 "%s%u %cB", n, decimal_point,
         (unsigned)(((val % d) * 10) / d), prefixes[i]);
   else               // "1.23 xB"
-    snprintf(str, strsize, "%"PRIu64"%s%02u %cB", n, decimal_point,
+    snprintf(str, strsize, "%" PRIu64 "%s%02u %cB", n, decimal_point,
         (unsigned)(((val % d) * 100) / d), prefixes[i]);
 
   return str;

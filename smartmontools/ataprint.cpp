@@ -380,7 +380,7 @@ static std::string format_st_er_desc(
       lba48  |= lba48_regs->lba_mid_register;
       lba48 <<= 8;
       lba48  |= lba48_regs->lba_low_register;
-      str += strprintf(" at LBA = 0x%08"PRIx64" = %"PRIu64, lba48, lba48);
+      str += strprintf(" at LBA = 0x%08" PRIx64 " = %" PRIu64, lba48, lba48);
     }
   }
 
@@ -565,7 +565,7 @@ static void print_drive_info(const ata_identify_device * drive,
     unsigned oui = 0; uint64_t unique_id = 0;
     int naa = ata_get_wwn(drive, oui, unique_id);
     if (naa >= 0)
-      pout("LU WWN Device Id: %x %06x %09"PRIx64"\n", naa, oui, unique_id);
+      pout("LU WWN Device Id: %x %06x %09" PRIx64 "\n", naa, oui, unique_id);
 
     // Additional Product Identifier (OEM Id) string in words 170-173
     // (e08130r1, added in ACS-2 Revision 1, December 17, 2008)
@@ -1437,7 +1437,7 @@ static void print_device_statistics_page(const unsigned char * data, int page,
         for (int j = 0; j < size; j++)
           val |= (int64_t)data[offset+j] << (j*8);
       }
-      snprintf(valstr, sizeof(valstr), "%"PRId64, val);
+      snprintf(valstr, sizeof(valstr), "%" PRId64, val);
     }
     else {
       // Value not known (yet)
@@ -1595,7 +1595,7 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
     }
 
     // Counters stop at max value, add '+' in this case
-    pout("0x%04x  %u %12"PRIu64"%c %s\n", id, size, val,
+    pout("0x%04x  %u %12" PRIu64 "%c %s\n", id, size, val,
       (val == max_val ? '+' : ' '), name);
   }
   if (reset)
@@ -2034,9 +2034,9 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
   
   // we need at least 7 characters wide fields to accomodate the
   // labels
-  if ((field1=snprintf(tmp,64, "%"PRIu64, maxl))<7)
+  if ((field1=snprintf(tmp,64, "%" PRIu64, maxl))<7)
     field1=7;
-  if ((field2=snprintf(tmp,64, "%"PRIu64, maxr))<7)
+  if ((field2=snprintf(tmp,64, "%" PRIu64, maxr))<7)
     field2=7;
 
   // now print the five test spans
@@ -2048,19 +2048,19 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
     
     if ((i+1)==(int)log->currentspan)
       // this span is currently under test
-      pout("    %d  %*"PRIu64"  %*"PRIu64"  %s [%01d0%% left] (%"PRIu64"-%"PRIu64")\n",
+      pout("    %d  %*" PRIu64 "  %*" PRIu64 "  %s [%01d0%% left] (%" PRIu64 "-%" PRIu64 ")\n",
 	   i+1, field1, start, field2, end, msg,
 	   (int)(sv->self_test_exec_status & 0xf), current, currentend);
     else
       // this span is not currently under test
-      pout("    %d  %*"PRIu64"  %*"PRIu64"  Not_testing\n",
+      pout("    %d  %*" PRIu64 "  %*" PRIu64 "  Not_testing\n",
 	   i+1, field1, start, field2, end);
   }  
   
   // if we are currently read-scanning, print LBAs and the status of
   // the read scan
   if (log->currentspan>5)
-    pout("%5d  %*"PRIu64"  %*"PRIu64"  Read_scanning %s\n",
+    pout("%5d  %*" PRIu64 "  %*" PRIu64 "  Read_scanning %s\n",
 	 (int)log->currentspan, field1, current, field2, currentend,
 	 OfflineDataCollectionStatus(sv->offline_data_collection_status));
   
