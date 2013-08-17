@@ -311,7 +311,9 @@ examples_SCRIPTS = \
         examplescripts/Example1 \
         examplescripts/Example2 \
         examplescripts/Example3 \
-        examplescripts/Example4
+        examplescripts/Example4 \
+        examplescripts/Example5 \
+        examplescripts/Example6
 
 sysconf_DATA = smartd.conf
 
