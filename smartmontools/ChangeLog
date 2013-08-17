@@ -1,4 +1,8 @@
-$Id: ChangeLog 3851 2013-08-17 20:10:11Z chrfranke $
+$Id: ChangeLog 3852 2013-08-17 21:22:53Z chrfranke $
+
+2013-08-17  Christian Franke  <franke@computer.org>
+
+	examplescripts: Add scripts from Debian and Fedora packages.
 
 2013-08-17  Christian Franke  <franke@computer.org>
 
