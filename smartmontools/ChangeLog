@@ -1,5 +1,10 @@
 $Id$
 
+2013-09-12  Christoph Egger  <christoph@debian.org>
+
+	dev_areca.h: Fix build on kFreeBSD (Debian bug 717567).
+	This obsoletes Debian kfreebsd.patch.
+
 2013-08-17  Christian Franke  <franke@computer.org>
 
 	examplescripts: Add scripts from Debian and Fedora packages.
