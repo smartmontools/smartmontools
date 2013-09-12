@@ -18,7 +18,7 @@
 #ifndef DEV_ARECA_H
 #define DEV_ARECA_H
 
-#define DEV_ARECA_H_CVSID "$Id: dev_areca.h 3763 2013-01-31 22:25:25Z chrfranke $"
+#define DEV_ARECA_H_CVSID "$Id: dev_areca.h 3854 2013-09-12 05:36:20Z chrfranke $"
 
 /////////////////////////////////////////////////////////////////////////////
 /// Areca RAID support
@@ -58,7 +58,7 @@ ARCMSR_CMD_TOTAL
 #define ARCMSR_IOCTL_CLEAR_RQBUFFER          (ARECA_SATA_RAID | FUNCTION_CLEAR_RQBUFFER)
 #define ARCMSR_IOCTL_CLEAR_WQBUFFER          (ARECA_SATA_RAID | FUNCTION_CLEAR_WQBUFFER)
 #define ARCMSR_IOCTL_RETURN_CODE_3F          (ARECA_SATA_RAID | FUNCTION_RETURN_CODE_3F)
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #include <sys/ioctl.h> // _IOWR
 
 /*FunctionCode*/

@@ -1,4 +1,9 @@
-$Id: ChangeLog 3852 2013-08-17 21:22:53Z chrfranke $
+$Id: ChangeLog 3854 2013-09-12 05:36:20Z chrfranke $
+
+2013-09-12  Christoph Egger  <christoph@debian.org>
+
+	dev_areca.h: Fix build on kFreeBSD (Debian bug 717567).
+	This obsoletes Debian kfreebsd.patch.
 
 2013-08-17  Christian Franke  <franke@computer.org>
 
