@@ -2,6 +2,10 @@ $Id$
 
 2013-11-07  Roger Röhrig  <...>
 
+	drivedb.h: Intel DC S3500 Series SSDs: Add -F xerrorlba.
+
+2013-11-07  Roger Röhrig  <...>
+
 	atacmds.cpp: Fix Extended Comprehensive Error Log timestamp
 	byte order on big endian machines.
 
