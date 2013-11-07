@@ -1,5 +1,10 @@
 $Id$
 
+2013-11-07  Matt Kraai  <...>
+
+	smartctl.cpp: Add missing stdlib.h.
+	This fixes build on QNX 6.3.2 (ticket #300).
+
 2013-11-07  Roger Röhrig  <...>
 
 	drivedb.h: Intel DC S3500 Series SSDs: Add -F xerrorlba.
