@@ -1,4 +1,9 @@
-$Id: ChangeLog 3856 2013-11-07 20:17:50Z chrfranke $
+$Id: ChangeLog 3857 2013-11-07 20:41:51Z chrfranke $
+
+2013-11-07  Matt Kraai  <...>
+
+	smartctl.cpp: Add missing stdlib.h.
+	This fixes build on QNX 6.3.2 (ticket #300).
 
 2013-11-07  Roger Röhrig  <...>
 

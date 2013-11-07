@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <stdexcept>
 #include <getopt.h>
@@ -50,7 +51,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3851 2013-08-17 20:10:11Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3857 2013-11-07 20:41:51Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
