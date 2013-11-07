@@ -1,5 +1,10 @@
 $Id$
 
+2013-11-07  Roger Röhrig  <...>
+
+	atacmds.cpp: Fix Extended Comprehensive Error Log timestamp
+	byte order on big endian machines.
+
 2013-09-12  Christoph Egger  <christoph@debian.org>
 
 	dev_areca.h: Fix build on kFreeBSD (Debian bug 717567).

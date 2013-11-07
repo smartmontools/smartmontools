@@ -1476,11 +1476,12 @@ bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
   if (isbigendian()) {
     swapx(&log->device_error_count);
     swapx(&log->error_log_index);
-
     for (unsigned i = 0; i < nsectors; i++) {
-      for (unsigned j = 0; j < 4; j++)
-        swapx(&log->error_logs[i].commands[j].timestamp);
-      swapx(&log->error_logs[i].error.timestamp);
+      for (unsigned j = 0; j < 4; j++) {
+        for (unsigned k = 0; k < 5; k++)
+           swapx(&log[i].error_logs[j].commands[k].timestamp);
+        swapx(&log[i].error_logs[j].error.timestamp);
+      }
     }
   }
 
