@@ -1,4 +1,8 @@
-$Id: ChangeLog 3855 2013-11-07 20:06:25Z chrfranke $
+$Id: ChangeLog 3856 2013-11-07 20:17:50Z chrfranke $
+
+2013-11-07  Roger Röhrig  <...>
+
+	drivedb.h: Intel DC S3500 Series SSDs: Add -F xerrorlba.
 
 2013-11-07  Roger Röhrig  <...>
 
