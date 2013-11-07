@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3851 2013-08-17 20:10:11Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3855 2013-11-07 20:06:25Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -1476,11 +1476,12 @@ bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
   if (isbigendian()) {
     swapx(&log->device_error_count);
     swapx(&log->error_log_index);
-
     for (unsigned i = 0; i < nsectors; i++) {
-      for (unsigned j = 0; j < 4; j++)
-        swapx(&log->error_logs[i].commands[j].timestamp);
-      swapx(&log->error_logs[i].error.timestamp);
+      for (unsigned j = 0; j < 4; j++) {
+        for (unsigned k = 0; k < 5; k++)
+           swapx(&log[i].error_logs[j].commands[k].timestamp);
+        swapx(&log[i].error_logs[j].error.timestamp);
+      }
     }
   }
 

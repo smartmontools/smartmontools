@@ -1,4 +1,9 @@
-$Id: ChangeLog 3854 2013-09-12 05:36:20Z chrfranke $
+$Id: ChangeLog 3855 2013-11-07 20:06:25Z chrfranke $
+
+2013-11-07  Roger Röhrig  <...>
+
+	atacmds.cpp: Fix Extended Comprehensive Error Log timestamp
+	byte order on big endian machines.
 
 2013-09-12  Christoph Egger  <christoph@debian.org>
 
