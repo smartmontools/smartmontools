@@ -1,5 +1,11 @@
 $Id$
 
+2013-11-15  Alex Samorukov <samm@os2.kiev.ua>
+
+       os_freebsd.cpp: Fix crash on FreeBSD 9.2 caused by wrong
+       SCSI status check condition.
+       os_freebsd.cpp: Print debug info on errors only if requested.
+
 2013-11-07  Matt Kraai  <...>
 
 	smartctl.cpp: Add missing stdlib.h.
