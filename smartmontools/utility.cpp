@@ -106,7 +106,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "\n",
     prog_name
   );
-  info += strprintf(
+  info +=
     "smartmontools release " PACKAGE_VERSION
       " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n"
 #ifdef SMARTMONTOOLS_SVN_REV
@@ -116,11 +116,8 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "smartmontools SVN rev is unknown\n"
 #endif
     "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n"
-    "smartmontools build configured: " SMARTMONTOOLS_CONFIGURE_DATE "\n"
-    "%s compile dated " __DATE__ " at " __TIME__ "\n"
-    "smartmontools configure arguments: ",
-    prog_name
-  );
+    "smartmontools configure arguments: "
+  ;
   info += (sizeof(SMARTMONTOOLS_CONFIGURE_ARGS) > 1 ?
            SMARTMONTOOLS_CONFIGURE_ARGS : "[no arguments given]");
   info += '\n';

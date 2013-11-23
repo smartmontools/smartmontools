@@ -1,5 +1,12 @@
 $Id$
 
+2013-11-23  Christian Franke  <franke@computer.org>
+
+	configure.ac, utility.cpp: Remove __DATE__, __TIME__
+	and SMARTMONTOOLS_CONFIGURE_DATE.
+	This obsoletes OpenSUSE nobuild-date.patch.
+	Reproducible builds are now supported.
+
 2013-11-15  Alex Samorukov <samm@os2.kiev.ua>
 
        os_freebsd.cpp: Fix crash on FreeBSD 9.2 caused by wrong

@@ -6,13 +6,11 @@ AC_PREREQ(2.50)
 AC_INIT(smartmontools, 6.3, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
 smartmontools_cvs_tag=`echo '$Id$'`
 smartmontools_release_date=2013-07-26
 smartmontools_release_time="17:38:20 UTC"
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",            [smartmontools Configure Arguments])
-AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_DATE, "$smartmontools_configure_date", [smartmontools Configure Date])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE,   "$smartmontools_release_date",   [smartmontools Release Date])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME,   "$smartmontools_release_time",   [smartmontools Release Time])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",        [smartmontools CVS Tag])
