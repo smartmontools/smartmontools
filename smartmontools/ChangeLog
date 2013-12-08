@@ -1,4 +1,10 @@
-$Id: ChangeLog 3859 2013-11-23 20:55:42Z chrfranke $
+$Id: ChangeLog 3860 2013-12-08 17:20:24Z chrfranke $
+
+2013-12-08  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Barracuda 7200.14: Check part number to avoid bogus
+	firmware bug warning (ticket #298).
 
 2013-11-23  Christian Franke  <franke@computer.org>
 
