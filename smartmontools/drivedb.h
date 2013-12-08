@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3850 2013-08-17 17:55:06Z chrfranke $",
+  { "$Id: drivedb.h 3863 2013-12-08 20:23:22Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -663,7 +663,8 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 233,raw48,Media_Wearout_Indicator "
     "-v 234,raw24/raw32:04321,Thermal_Throttle "
     "-v 241,raw48,Host_Writes_32MiB "
-    "-v 242,raw48,Host_Reads_32MiB"
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-F xerrorlba" // tested with SSDSC2BB600G4/D2010355
   },
   { "Intel DC S3700 Series SSDs", // tested with INTEL SSDSC2BA200G3/5DV10250
     "INTEL SSDSC(1N|2B)A(100|200|400|800)G3",
