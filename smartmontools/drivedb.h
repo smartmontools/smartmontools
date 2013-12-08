@@ -2217,14 +2217,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.14 (AF)", // new firmware, tested with
       // ST3000DM001-9YN166/CC4H, ST3000DM001-9YN166/CC9E
-    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-9YN16.",
     "CC(4[H-Z]|[5-9A-Z]..*)", // >= "CC4H"
     "",
     "-v 188,raw16 -v 240,msec24hour32" // tested with ST3000DM001-9YN166/CC4H
   },
   { "Seagate Barracuda 7200.14 (AF)", // old firmware, tested with
       // ST1000DM003-9YN162/CC46
-    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-9YN16.",
     "CC4[679CG]",
     "A firmware update for this drive is available,\n"
     "see the following Seagate web pages:\n"
@@ -2233,12 +2233,18 @@ const drive_settings builtin_knowndrives[] = {
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // unknown firmware
-    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-9YN16.",
     "",
     "A firmware update for this drive may be available,\n"
     "see the following Seagate web pages:\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/223651en",
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate Barracuda 7200.14 (AF)", // different part number, tested with
+      // ST2000DM001-1CH164/CC24
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // < 1TB, tested with ST250DM000-1BC141

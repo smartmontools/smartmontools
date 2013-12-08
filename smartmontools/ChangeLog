@@ -1,5 +1,11 @@
 $Id$
 
+2013-12-08  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Barracuda 7200.14: Check part number to avoid bogus
+	firmware bug warning (ticket #298).
+
 2013-11-23  Christian Franke  <franke@computer.org>
 
 	configure.ac, utility.cpp: Remove __DATE__, __TIME__
