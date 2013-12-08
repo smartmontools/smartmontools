@@ -1,8 +1,9 @@
-$Id: ChangeLog 3860 2013-12-08 17:20:24Z chrfranke $
+$Id: ChangeLog 3861 2013-12-08 17:39:52Z chrfranke $
 
 2013-12-08  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Crucial/Micron RealSSD m4/C400/P400: M4 SSD1 (ticket #306).
 	- Seagate Barracuda 7200.14: Check part number to avoid bogus
 	firmware bug warning (ticket #298).
 
