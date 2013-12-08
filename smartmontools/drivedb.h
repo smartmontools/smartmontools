@@ -158,8 +158,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Apacer SDM4",
-    "2GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFI2101D
-    "SFI2101D", "",
+    "2GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D
+    "SF(DDA01C|I2101D)", "",
     "-v 160,raw48,Initial_Bad_Block_Count "
     "-v 161,raw48,Bad_Block_Count "
     "-v 162,raw48,Spare_Block_Count "
