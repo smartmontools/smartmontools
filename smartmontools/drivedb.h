@@ -158,8 +158,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Apacer SDM4",
-    "2GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFI2101D
-    "SFI2101D", "",
+    "2GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D
+    "SF(DDA01C|I2101D)", "",
     "-v 160,raw48,Initial_Bad_Block_Count "
     "-v 161,raw48,Bad_Block_Count "
     "-v 162,raw48,Spare_Block_Count "
@@ -202,7 +202,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Crucial/Micron RealSSD m4/C400/P400", // Marvell 9176, fixed firmware
     "C400-MTFDDA[ACK](064|128|256|512)MAM|"
-    "M4-CT(064|128|256|512)M4SSD[23]|" // tested with M4-CT512M4SSD2/0309
+    "M4-CT(064|128|256|512)M4SSD[123]|" // tested with M4-CT512M4SSD2/0309
     "MTFDDAK(064|128|256|512|050|100|200|400)MA[RN]-1[JKS]1AA.*", // tested with
                                              // MTFDDAK256MAR-1K1AA/MA52
     "030[9-Z]|03[1-Z].|0[4-Z]..|[1-Z]....*", // >= "0309"
@@ -233,7 +233,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Crucial/Micron RealSSD m4/C400", // Marvell 9176, buggy or unknown firmware
     "C400-MTFDDA[ACK](064|128|256|512)MAM|" // tested with C400-MTFDDAC256MAM/0002
-    "M4-CT(064|128|256|512)M4SSD[23]", // tested with M4-CT064M4SSD2/0002,
+    "M4-CT(064|128|256|512)M4SSD[123]", // tested with M4-CT064M4SSD2/0002,
       // M4-CT064M4SSD2/0009, M4-CT256M4SSD3/000F
     "",
     "This drive may hang after 5184 hours of power-on time:\n"
@@ -2214,14 +2214,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.14 (AF)", // new firmware, tested with
       // ST3000DM001-9YN166/CC4H, ST3000DM001-9YN166/CC9E
-    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-9YN16.",
     "CC(4[H-Z]|[5-9A-Z]..*)", // >= "CC4H"
     "",
     "-v 188,raw16 -v 240,msec24hour32" // tested with ST3000DM001-9YN166/CC4H
   },
   { "Seagate Barracuda 7200.14 (AF)", // old firmware, tested with
       // ST1000DM003-9YN162/CC46
-    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-9YN16.",
     "CC4[679CG]",
     "A firmware update for this drive is available,\n"
     "see the following Seagate web pages:\n"
@@ -2230,12 +2230,18 @@ const drive_settings builtin_knowndrives[] = {
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // unknown firmware
-    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-9YN16.",
     "",
     "A firmware update for this drive may be available,\n"
     "see the following Seagate web pages:\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/223651en",
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate Barracuda 7200.14 (AF)", // different part number, tested with
+      // ST2000DM001-1CH164/CC24
+    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+    "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // < 1TB, tested with ST250DM000-1BC141
