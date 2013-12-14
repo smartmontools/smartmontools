@@ -1921,8 +1921,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..65GSX", // tested with TOSHIBA MK5065GSX/GJ003A, MK3265GSXN/GH012H,
-      // MK5065GSXF/GP006B
-    "TOSHIBA MK(16|25|32|50|64)65GSX[FN]?",
+      // MK5065GSXF/GP006B, MK2565GSX H/GJ003A
+    "TOSHIBA MK(16|25|32|50|64)65GSX[FN]?( H)?", // "... H" = USB ?
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..76GSX", // tested with TOSHIBA MK3276GSX/GS002D
@@ -1933,6 +1933,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba 2.5\" HDD MQ01ABD...", // tested with TOSHIBA MQ01ABD100/AX001U
     "TOSHIBA MQ01ABD(025|032|050|064|075|100)",
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MQ01UBD... (USB 3.0)", // tested with TOSHIBA MQ01ABD100/AX001U
+    "TOSHIBA MQ01UBD(050|075|100)",
     "", "", ""
   },
   { "Toshiba 3.5\" HDD MK.002TSKB", // tested with TOSHIBA MK1002TSKB/MT1A
@@ -2727,6 +2731,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Toshiba
+  { "USB: Toshiba Stor.E Slim USB 3.0; ", // 1TB, MQ01UBD100
+    "0x0480:0x0100",
+    "", // 0x0000
+    "",
+    "-d sat"
+  },
   { "USB: Toshiba Canvio 500GB; SunPlus",
     "0x0480:0xa004",
     "",
@@ -2742,6 +2752,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Toshiba Canvio 3.0 Portable Hard Drive; ", // 1TB
     "0x0480:0xa007",
     "", // 0x0001
+    "",
+    "-d sat"
+  },
+  { "USB: Toshiba Stor.E Basics; ", // 1TB
+    "0x0480:0xa009",
+    "",
     "",
     "-d sat"
   },
@@ -3081,7 +3097,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Lumberg, Inc.
   { "USB: Toshiba Stor.E; Sunplus",
-    "0x0939:0x0b16",
+    "0x0939:0x0b1[56]",
     "",
     "",
     "-d usbsunplus"
@@ -3136,7 +3152,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate FreeAgent GoFlex USB 2.0; ",
-    "0x0bc2:0x5021",
+    "0x0bc2:0x502[01]",
     "",
     "",
     "-d sat"
@@ -3303,6 +3319,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: WD My Passport Ultra; ",
+    "0x1058:0x0741",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: WD My Passport USB 3.0; ",
     "0x1058:0x07[4a]8",
     "",
@@ -3334,7 +3356,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: WD Elements; ",
-    "0x1058:0x10(10|a2)",
+    "0x1058:0x10(10|48|a2)",
     "", // 0x0105
     "",
     "-d sat"
@@ -3450,6 +3472,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; Initio",
+    "0x13fd:0x1640",
+    "", // 0x0864
+    "",
+    "-d sat,12" // some SMART commands fail, see ticket #295
+  },
   { "USB: Intenso Memory Station 2,5\"; Initio",
     "0x13fd:0x1840",
     "",
@@ -3555,6 +3583,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; LucidPORT USB300", // RaidSonic ICY BOX IB-110StU3-B, Sharkoon SATA QuickPort H3
     "0x1759:0x500[02]", // 0x5000: USB 2.0, 0x5002: USB 3.0
     "",
+    "",
+    "-d sat"
+  },
+  { "USB: ; LucidPort", // Fuj:tech SATA-USB3 dock
+    "0x1759:0x5100",
+    "", // 0x2580
     "",
     "-d sat"
   },

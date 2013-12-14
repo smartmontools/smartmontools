@@ -1,5 +1,19 @@
 $Id$
 
+2013-12-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Toshiba 2.5" HDD MK..65GSX: "... H" (USB?) variant
+	- Toshiba 2.5" HDD MQ01UBD... (USB 3.0)
+	- USB: Toshiba Stor.E Slim USB 3.0 (0x0480:0x0100)
+	- USB: Toshiba Stor.E Basics (0x0480:0xa009)
+	- USB: Toshiba Stor.E (0x0939:0x0b15)
+	- USB: Seagate FreeAgent GoFlex (0x0bc2:0x5020)
+	- USB: WD My Passport Ultra (0x1058:0x0741)
+	- USB: WD Elements (0x1058:0x1048)
+	- USB: Initio (0x13fd:0x1640) (ticket #295)
+	- USB: LucidPORT (0x1759:0x5100)
+
 2013-12-08  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
