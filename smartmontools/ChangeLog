@@ -2,6 +2,16 @@ $Id$
 
 2013-12-19  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Seagate Samsung Spinpoint F4
+	- Seagate Desktop SSHD
+	- Seagate Constellation CS
+	- Western Digital Red: *JFCX variant
+	- Western Digital Green Mobile
+	- Western Digital Elements / My Passport (USB): rename
+
+2013-12-19  Christian Franke  <franke@computer.org>
+
 	autogen.sh: automake 1.13.3 works.
 
 2013-12-14  Christian Franke  <franke@computer.org>

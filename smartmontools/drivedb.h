@@ -1173,6 +1173,10 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HE(502H|754J|103S)J",
     "", "", ""
   },
+  { "Seagate Samsung Spinpoint F4", // tested with ST250DM001 HD256GJ/1AR10001
+    "ST(250|320)DM001 HD(256G|322G|323H)J",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint F4 EG (AF)",// tested with HD204UI/1AQ10001(buggy|fixed)
     "SAMSUNG HD(155|204)UI",
     "", // 1AQ10001
@@ -2261,6 +2265,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
+  { "Seagate Desktop SSHD", // tested with ST2000DX001-1CM164/CC43
+    "ST(1000|2000|4000)DX001-.*",
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
   { "Seagate Barracuda LP", // new firmware
     "ST3(500412|1000520|1500541|2000542)AS",
     "CC3[5-9A-Z]",
@@ -2337,6 +2346,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Constellation ES.3", // tested with ST1000NM0033-9ZM173/0001, ST4000NM0033-9ZM170/SN03
     "ST[1234]000NM00[35]3-.*",
+    "", "", ""
+  },
+  { "Seagate Constellation CS", // tested with ST3000NC000/CE02, ST3000NC002-1DY166/CN02
+    "ST(1000|2000|3000)NC00[0-3](-.*)?",
     "", "", ""
   },
   { "Seagate Pipeline HD 5900.1",
@@ -2615,15 +2628,20 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(50|75)00BPKT-.*",
     "", "", ""
   },
-  { "Western Digital Red (AF)", // tested with WDC WD10EFRX-68JCSN0/01.01A01
-    "WDC WD(10|20|30)EFRX-.*",
+  { "Western Digital Red (AF)", // tested with WDC WD10EFRX-68JCSN0/01.01A01,
+      // WDC WD10JFCX-68N6GN0/01.01A01
+    "WDC WD(10|20|30)[EJ]F[CR]X-.*",
     "", "", ""
   },
-  { "Western Digital My Passport (USB)", // tested with WDC WD5000BMVW-11AMCS0/01.01A01
+  { "Western Digital Green Mobile", // tested with WDC WD20NPVX-00EA4T0/01.01A01
+    "WDC WD(15|20)NPV[TX]-.*",
+    "", "", ""
+  },
+  { "Western Digital Elements / My Passport (USB)", // tested with WDC WD5000BMVW-11AMCS0/01.01A01
     "WDC WD(25|32|40|50)00BMV[UVW]-.*",  // *W-* = USB 3.0
     "", "", ""
   },
-  { "Western Digital My Passport (USB, AF)", // tested with
+  { "Western Digital Elements / My Passport (USB, AF)", // tested with
       // WDC WD5000KMVV-11TK7S1/01.01A01, WDC WD10TMVW-11ZSMS5/01.01A01,
       // WDC WD10JMVW-11S5XS1/01.01A01, WDC WD20NMVW-11W68S0/01.01A01
     "WDC WD(5000[LK]|7500K|10[JT]|20N)MV[VW]-.*", // *W-* = USB 3.0
