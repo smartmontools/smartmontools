@@ -1,4 +1,14 @@
-$Id: ChangeLog 3867 2013-12-19 20:10:22Z chrfranke $
+$Id: ChangeLog 3868 2013-12-19 20:40:51Z chrfranke $
+
+2013-12-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Samsung Spinpoint F4
+	- Seagate Desktop SSHD
+	- Seagate Constellation CS
+	- Western Digital Red: *JFCX variant
+	- Western Digital Green Mobile
+	- Western Digital Elements / My Passport (USB): rename
 
 2013-12-19  Christian Franke  <franke@computer.org>
 
