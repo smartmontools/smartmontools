@@ -1,4 +1,8 @@
-$Id: ChangeLog 3865 2013-12-14 21:21:18Z chrfranke $
+$Id: ChangeLog 3867 2013-12-19 20:10:22Z chrfranke $
+
+2013-12-19  Christian Franke  <franke@computer.org>
+
+	autogen.sh: automake 1.13.3 works.
 
 2013-12-14  Christian Franke  <franke@computer.org>
 
