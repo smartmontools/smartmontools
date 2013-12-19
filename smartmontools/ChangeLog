@@ -1,5 +1,9 @@
 $Id$
 
+2013-12-19  Christian Franke  <franke@computer.org>
+
+	autogen.sh: automake 1.13.3 works.
+
 2013-12-14  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
