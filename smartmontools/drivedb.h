@@ -617,6 +617,58 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
+  { "Intel 525 Series SSDs", // mSATA, tested with SSDMCEAC120B3/LLLi
+    "INTEL SSDMCEAC(030|060|090|120|180|240)B3",
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+  //"-v 190,tempminmax,Airflow_Temperature_Cel "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 249,raw48,NAND_Writes_1GiB"
+  },
+  { "Intel 530 Series SSDs", // tested with INTEL SSDSC2BW180A4/DC12, SSDSC2BW240A4/DC12
+    "INTEL SSDSC2BW(080|120|180|240|360|480)A4",
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+  //"-v 190,tempminmax,Airflow_Temperature_Cel "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 249,raw48,NAND_Writes_1GiB"
+  },
   { "Intel 330/335 Series SSDs", // tested with INTEL SSDSC2CT180A3/300i, SSDSC2CT240A3/300i,
       // INTEL SSDSC2CT240A4/335t
     "INTEL SSDSC2CT(060|120|180|240)A[34]", // A4 = 335 Series

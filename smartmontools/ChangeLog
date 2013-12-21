@@ -1,5 +1,11 @@
 $Id$
 
+2013-12-21  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 525 Series SSDs
+	- Intel 530 Series SSDs (ticket #308)
+
 2013-12-19  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
