@@ -615,6 +615,58 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
+  { "Intel 525 Series SSDs", // mSATA, tested with SSDMCEAC120B3/LLLi
+    "INTEL SSDMCEAC(030|060|090|120|180|240)B3",
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+  //"-v 190,tempminmax,Airflow_Temperature_Cel "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 249,raw48,NAND_Writes_1GiB"
+  },
+  { "Intel 530 Series SSDs", // tested with INTEL SSDSC2BW180A4/DC12, SSDSC2BW240A4/DC12
+    "INTEL SSDSC2BW(080|120|180|240|360|480)A4",
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+  //"-v 190,tempminmax,Airflow_Temperature_Cel "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 249,raw48,NAND_Writes_1GiB"
+  },
   { "Intel 330/335 Series SSDs", // tested with INTEL SSDSC2CT180A3/300i, SSDSC2CT240A3/300i,
       // INTEL SSDSC2CT240A4/335t
     "INTEL SSDSC2CT(060|120|180|240)A[34]", // A4 = 335 Series
@@ -1168,6 +1220,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SAMSUNG SpinPoint F3 RE", // tested with HE103SJ/1AJ30001
     "SAMSUNG HE(502H|754J|103S)J",
+    "", "", ""
+  },
+  { "Seagate Samsung Spinpoint F4", // tested with ST250DM001 HD256GJ/1AR10001
+    "ST(250|320)DM001 HD(256G|322G|323H)J",
     "", "", ""
   },
   { "SAMSUNG SpinPoint F4 EG (AF)",// tested with HD204UI/1AQ10001(buggy|fixed)
@@ -2258,6 +2314,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
+  { "Seagate Desktop SSHD", // tested with ST2000DX001-1CM164/CC43
+    "ST(1000|2000|4000)DX001-.*",
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
   { "Seagate Barracuda LP", // new firmware
     "ST3(500412|1000520|1500541|2000542)AS",
     "CC3[5-9A-Z]",
@@ -2332,6 +2393,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Constellation ES.3", // tested with ST1000NM0033-9ZM173/0001, ST4000NM0033-9ZM170/SN03
     "ST[1234]000NM00[35]3-.*",
+    "", "", ""
+  },
+  { "Seagate Constellation CS", // tested with ST3000NC000/CE02, ST3000NC002-1DY166/CN02
+    "ST(1000|2000|3000)NC00[0-3](-.*)?",
     "", "", ""
   },
   { "Seagate Pipeline HD 5900.1",
@@ -2608,15 +2673,20 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(50|75)00BPKT-.*",
     "", "", ""
   },
-  { "Western Digital Red (AF)", // tested with WDC WD10EFRX-68JCSN0/01.01A01
-    "WDC WD(10|20|30)EFRX-.*",
+  { "Western Digital Red (AF)", // tested with WDC WD10EFRX-68JCSN0/01.01A01,
+      // WDC WD10JFCX-68N6GN0/01.01A01
+    "WDC WD(10|20|30)[EJ]F[CR]X-.*",
     "", "", ""
   },
-  { "Western Digital My Passport (USB)", // tested with WDC WD5000BMVW-11AMCS0/01.01A01
+  { "Western Digital Green Mobile", // tested with WDC WD20NPVX-00EA4T0/01.01A01
+    "WDC WD(15|20)NPV[TX]-.*",
+    "", "", ""
+  },
+  { "Western Digital Elements / My Passport (USB)", // tested with WDC WD5000BMVW-11AMCS0/01.01A01
     "WDC WD(25|32|40|50)00BMV[UVW]-.*",  // *W-* = USB 3.0
     "", "", ""
   },
-  { "Western Digital My Passport (USB, AF)", // tested with
+  { "Western Digital Elements / My Passport (USB, AF)", // tested with
       // WDC WD5000KMVV-11TK7S1/01.01A01, WDC WD10TMVW-11ZSMS5/01.01A01,
       // WDC WD10JMVW-11S5XS1/01.01A01, WDC WD20NMVW-11W68S0/01.01A01
     "WDC WD(5000[LK]|7500K|10[JT]|20N)MV[VW]-.*", // *W-* = USB 3.0
