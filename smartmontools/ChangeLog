@@ -1,4 +1,10 @@
-$Id: ChangeLog 3868 2013-12-19 20:40:51Z chrfranke $
+$Id: ChangeLog 3869 2013-12-21 17:16:15Z chrfranke $
+
+2013-12-21  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 525 Series SSDs
+	- Intel 530 Series SSDs (ticket #308)
 
 2013-12-19  Christian Franke  <franke@computer.org>
 
