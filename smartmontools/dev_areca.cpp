@@ -114,7 +114,10 @@ generic_areca_device::~generic_areca_device() throw()
 //   1 if the command succeeded and disk SMART status is "FAILING"
 int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsigned char *data, int data_len)
 {
-  unsigned int cmds[] =
+  if (arcmsr_cmd >= ARCMSR_CMD_TOTAL)
+    return -1;
+
+  static const unsigned int cmds[ARCMSR_CMD_TOTAL] =
   {
     ARCMSR_IOCTL_READ_RQBUFFER,
     ARCMSR_IOCTL_WRITE_WQBUFFER,
@@ -144,11 +147,6 @@ int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsig
   memcpy(sBuf.srbioctl.Signature, ARECA_SIG_STR, strlen(ARECA_SIG_STR));
   sBuf.srbioctl.Timeout = 10000;
   sBuf.srbioctl.ControlCode = cmds[arcmsr_cmd];
-
-  if(arcmsr_cmd >= ARCMSR_CMD_TOTAL)
-  {
-      return -1;
-  }
 
   switch ( arcmsr_cmd )
   {

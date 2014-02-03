@@ -1,5 +1,10 @@
 $Id$
 
+2014-02-03  Christian Franke  <franke@computer.org>
+
+	dev_areca.cpp: Check cmds index before use (ticket #312).
+	Make cmds array static const.
+
 2014-01-01  Christian Franke  <franke@computer.org>
 
 	Happy New Year! Update copyright year in version info.
