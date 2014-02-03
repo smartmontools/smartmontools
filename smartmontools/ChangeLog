@@ -1,4 +1,9 @@
-$Id: ChangeLog 3871 2014-01-01 16:28:01Z chrfranke $
+$Id: ChangeLog 3872 2014-02-03 21:07:51Z chrfranke $
+
+2014-02-03  Christian Franke  <franke@computer.org>
+
+	dev_areca.cpp: Check cmds index before use (ticket #312).
+	Make cmds array static const.
 
 2014-01-01  Christian Franke  <franke@computer.org>
 
