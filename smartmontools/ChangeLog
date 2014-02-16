@@ -1,5 +1,20 @@
 $Id$
 
+2014-02-16  Alex Samorukov  <samm@os2.kiev.ua>
+	os_freebsd.cpp: mass updates, provided by Tijl Coosemans
+	- Remove some unused private fields from some classes (found by Clang)
+	- In freebsd_scsi_device::scsi_pass_through:
+	* Make sure this function returns false on error instead of an error
+	  code that gets converted to true.
+	* Put printing of the "Incoming data" debug info right after the
+	  cam_send_ccb() call and before the error checking to make debugging 
+	  easier.
+	* When copying sense data make sure the fields in the CCB are actually
+	  valid with CAM_AUTOSNS_VALID.  Also make sure that the size of the 
+	  sense data doesn't overflow max_sense_len.  This was the real cause for
+	  the crash in ports/181836.
+	* Add some debug printing on the sense data.
+
 2014-02-03  Christian Franke  <franke@computer.org>
 
 	dev_areca.cpp: Check cmds index before use (ticket #312).
