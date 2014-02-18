@@ -1,5 +1,8 @@
 $Id$
 
+2014-02-18  Alex Samorukov  <samm@os2.kiev.ua>
+	os_freebsd.cpp: use %lu for iop->resp_sense_len
+
 2014-02-16  Alex Samorukov  <samm@os2.kiev.ua>
 	os_freebsd.cpp: mass updates, provided by Tijl Coosemans
 	- Remove some unused private fields from some classes (found by Clang)
