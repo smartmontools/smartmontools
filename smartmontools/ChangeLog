@@ -1,4 +1,8 @@
-$Id: ChangeLog 3876 2014-03-03 17:24:00Z chrfranke $
+$Id: ChangeLog 3877 2014-03-03 18:27:21Z chrfranke $
+
+2014-03-03  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Fix glob(3) max path count (ticket #317).
 
 2014-03-03  Christian Franke  <franke@computer.org>
 

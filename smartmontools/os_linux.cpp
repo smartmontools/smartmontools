@@ -7,7 +7,7 @@
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
  * Copyright (C) 2008-12 Hank Wu <hank@areca.com.tw>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2008    Jordan Hargrave <jordan_hargrave@dell.com>
  *
  *  Parts of this file are derived from code that was
@@ -91,7 +91,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3824 2013-07-05 10:40:38Z samm2 $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3877 2014-03-03 18:27:21Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -2488,7 +2488,7 @@ bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
   }
 
   // did we find too many paths?
-  const int max_pathc = 32;
+  const int max_pathc = 1024;
   int n = (int)globbuf.gl_pathc;
   if (n > max_pathc) {
     pout("glob(3) found %d > MAX=%d devices matching pattern %s: ignoring %d paths\n",
