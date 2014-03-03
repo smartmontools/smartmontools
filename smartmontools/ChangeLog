@@ -5,6 +5,7 @@ $Id$
 	configure.ac, Makefile.am: Add '--with-systemdenvfile=[FILE|no]'
 	configure option to change or remove (ticket #316) the systemd
 	EnvironmentFile setting.
+	smartd.service.in: Add a reference to documentation (ticket #316).
 
 2014-02-18  Alex Samorukov  <samm@os2.kiev.ua>
 	os_freebsd.cpp: use %lu for iop->resp_sense_len
