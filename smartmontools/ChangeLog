@@ -2,6 +2,10 @@ $Id$
 
 2014-03-03  Christian Franke  <franke@computer.org>
 
+	os_linux.cpp: Fix glob(3) max path count (ticket #317).
+
+2014-03-03  Christian Franke  <franke@computer.org>
+
 	configure.ac, Makefile.am: Add '--with-systemdenvfile=[FILE|no]'
 	configure option to change or remove (ticket #316) the systemd
 	EnvironmentFile setting.
