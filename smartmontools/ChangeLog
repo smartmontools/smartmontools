@@ -1,4 +1,9 @@
-$Id: ChangeLog 3877 2014-03-03 18:27:21Z chrfranke $
+$Id: ChangeLog 3878 2014-03-03 18:45:21Z chrfranke $
+
+2014-03-03  Christian Franke  <franke@computer.org>
+
+	Makefile.am, os_win32/smart*_res.rc.in: Set Copyright year in
+	Windows VERSIONINFO resource.
 
 2014-03-03  Christian Franke  <franke@computer.org>
 
