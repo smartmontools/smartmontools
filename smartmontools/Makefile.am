@@ -663,12 +663,13 @@ smartctl_res.o: smartctl_res.rc
 smartd_res.o: smartd_res.rc syslogevt.rc
 	$(WINDRES) -I. $< $@
 
-# Convert version for VERSIONINFO resource: 6.1 r3754 -> 6.1.0.3754
+# Convert version for VERSIONINFO resource: 6.1 r3754 -> 6.1.0.3754, set Copyright year
 WIN_RC_FILTER = \
     ( ver=`echo '$(PACKAGE_VERSION).0' | sed -n 's,^\([0-9]*\.[0-9]*\.[0-9]*\).*$$,\1,p'`; \
       rev=`sed -n 's,^.*REV[^"]*"\([0-9]*\).*$$,\1,p' svnversion.h`; \
       txtver="$${ver:-0.0.0}.$${rev:-0}"; binver=`echo "$$txtver" | sed 's|\.|,|g'`; \
-      sed -e "s|@BINARY_VERSION@|$$binver|g" -e "s|@TEXT_VERSION@|$$txtver|g"; )
+      yy=`sed -n 's,^.*DATE[^"]*"20\([0-9][0-9]\).*$$,\1,p' svnversion.h`; yy="$${yy:-XX}"; \
+      sed -e "s|@BINARY_VERSION@|$$binver|g" -e "s|@TEXT_VERSION@|$$txtver|g" -e "s|@YY@|$$yy|g"; )
 
 smartctl_res.rc: os_win32/smartctl_res.rc.in Makefile svnversion.h
 	cat $< | $(WIN_RC_FILTER) > $@

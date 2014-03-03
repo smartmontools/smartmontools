@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription", "Control and Monitor Utility for SMART Disks"
             VALUE "FileVersion", "@TEXT_VERSION@"
             VALUE "InternalName", "smartctl"
-            VALUE "LegalCopyright", "(C) 2002-13, Bruce Allen, Christian Franke, www.smartmontools.org"
+            VALUE "LegalCopyright", "(C) 2002-@YY@, Bruce Allen, Christian Franke, www.smartmontools.org"
             VALUE "OriginalFilename", "smartctl.exe"
             VALUE "ProductName", "smartmontools"
             VALUE "ProductVersion", "@TEXT_VERSION@"

@@ -2,6 +2,11 @@ $Id$
 
 2014-03-03  Christian Franke  <franke@computer.org>
 
+	Makefile.am, os_win32/smart*_res.rc.in: Set Copyright year in
+	Windows VERSIONINFO resource.
+
+2014-03-03  Christian Franke  <franke@computer.org>
+
 	os_linux.cpp: Fix glob(3) max path count (ticket #317).
 
 2014-03-03  Christian Franke  <franke@computer.org>

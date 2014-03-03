@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription", "SMART Disk Monitoring Daemon"
             VALUE "FileVersion", "@TEXT_VERSION@"
             VALUE "InternalName", "smartd"
-            VALUE "LegalCopyright", "(C) 2002-13, Bruce Allen, Christian Franke, www.smartmontools.org"
+            VALUE "LegalCopyright", "(C) 2002-@YY@, Bruce Allen, Christian Franke, www.smartmontools.org"
             VALUE "OriginalFilename", "smartd.exe"
             VALUE "ProductName", "smartmontools"
             VALUE "ProductVersion", "@TEXT_VERSION@"
