@@ -167,9 +167,16 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(ASFLAGS)
 
+AC_ARG_WITH(systemdenvfile,
+  [AS_HELP_STRING([--with-systemdenvfile=@<:@FILE|no@:>@],
+    [Path of systemd EnvironmentFile (implies --with-systemdsystemunitdir=yes) [SYSCONFDIR/sysconfig/smartmontools]])],
+  [systemdenvfile=; test "$withval" != "no" && systemdenvfile="$withval"; systemd_default=yes],
+  [systemdenvfile='${sysconfdir}/sysconfig/smartmontools'; systemd_default=auto])
+AC_SUBST(systemdenvfile)
+
 AC_ARG_WITH(systemdsystemunitdir,
   [AS_HELP_STRING([--with-systemdsystemunitdir@<:@=DIR|auto|yes|no@:>@], [Location of systemd service files [auto]])],
-  [], [with_systemdsystemunitdir=auto])
+  [], [with_systemdsystemunitdir=$systemd_default])
 
 systemdsystemunitdir=
 case "$with_systemdsystemunitdir" in
@@ -245,7 +252,7 @@ AC_ARG_ENABLE(drivedb,
   [], [enable_drivedb=yes])
 
 AC_ARG_WITH(drivedbdir,
-  [AC_HELP_STRING([--with-drivedbdir=DIR],[Location of drive database file (implies --enable-drivedb) [DATADIR/smartmontools]])],
+  [AC_HELP_STRING([--with-drivedbdir=DIR],[Location of drive database file [DATADIR/smartmontools]])],
   [drivedbdir="$withval"; enable_drivedb=yes],
   [drivedbdir=; test "$enable_drivedb" = "yes" && drivedbdir='${datadir}/${PACKAGE}'])
 AC_SUBST(drivedbdir)
@@ -554,6 +561,11 @@ case "$host_os" in
     fi
     if test -n "$systemdsystemunitdir"; then
       echo "smartd systemd file:    `eval eval eval echo $systemdsystemunitdir`/smartd.service" >&AS_MESSAGE_FD
+      if test -n "$systemdenvfile"; then
+        echo "smartd environ file:    `eval eval eval echo $systemdenvfile`" >&AS_MESSAGE_FD
+      else
+        echo "smartd environ file:    [[disabled]]" >&AS_MESSAGE_FD
+      fi
     fi
     if test -n "$savestates"; then
       echo "smartd save files:      `eval eval eval echo $savestates`MODEL-SERIAL.TYPE.state" >&AS_MESSAGE_FD
