@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
 $Id$
 
@@ -491,7 +491,7 @@ every 30 seconds.
 smartd -q onecheck
 .fi
 Registers devices, and checks the status of the devices exactly
-once. The exit status (the bash
+once. The exit status (the shell
 .B $?
 variable) will be zero if all went well, and nonzero if no devices
 were detected or some other problem was encountered.

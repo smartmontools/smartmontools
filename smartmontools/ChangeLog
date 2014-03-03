@@ -2,6 +2,11 @@ $Id$
 
 2014-03-03  Christian Franke  <franke@computer.org>
 
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Remove bashisms from
+	shell script examples.
+
+2014-03-03  Christian Franke  <franke@computer.org>
+
 	Makefile.am, os_win32/smart*_res.rc.in: Set Copyright year in
 	Windows VERSIONINFO resource.
 

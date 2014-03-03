@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
 $Id$
 
@@ -1009,7 +1009,7 @@ RocketRAID controller, the form is \'/dev/sdd [hpt_1/1/1]\' under Linux
 or \'/dev/hptrr [hpt_1/1/1]\' under FreeBSD.  For Areca controllers, the
 form is \'/dev/sg2 [areca_disk_09]\' on Linux or  \'/dev/arcmsr0 [areca_disk_09]\' on FreeBSD.  In these cases the device string
 contains a space and is NOT quoted.  So to use $SMARTD_DEVICESTRING in a
-bash script you should probably enclose it in double quotes.
+shell script you should probably enclose it in double quotes.
 .IP \fBSMARTD_DEVICEINFO\fP 4
 is set to device identify information.  It includes most of the info printed
 by \fBsmartctl \-i\fP but uses a brief single line format.
@@ -1066,7 +1066,7 @@ Otherwise, it is set to the comma-separated-list of email addresses
 given by the argument ADD, with the commas replaced by spaces
 (example:admin@example.com root).  If more than one email address is
 given, then this string will contain space characters and is NOT
-quoted, so to use it in a bash script you may want to enclose it in
+quoted, so to use it in a shell script you may want to enclose it in
 double quotes.
 .\" %IF OS Windows
 .IP \fBSMARTD_ADDRCSV\fP 4
@@ -1077,14 +1077,14 @@ SMARTD_ADDRESS.
 is set to the one sentence summary warning email message string from
 \fBsmartd\fP. 
 This message string contains space characters and is NOT quoted. So to
-use $SMARTD_MESSAGE in a bash script you should probably enclose it in
+use $SMARTD_MESSAGE in a shell script you should probably enclose it in
 double quotes.
 .\" %IF NOT OS Windows
 .IP \fBSMARTD_FULLMESSAGE\fP 4
 is set to the contents of the entire email warning message string from
 \fBsmartd\fP. 
 This message string contains space and return characters and is NOT quoted. So to
-use $SMARTD_FULLMESSAGE in a bash script you should probably enclose it in
+use $SMARTD_FULLMESSAGE in a shell script you should probably enclose it in
 double quotes.
 .\" %ENDIF NOT OS Windows
 .\" %IF OS Windows
@@ -1130,7 +1130,7 @@ that would normally be provided to \'mail\'.  Examples include:
 .nf
 .B -m user@home -M exec /bin/mail
 .B -m admin@work -M exec /usr/local/bin/mailto
-.B -m root -M exec /Example_1/bash/script/below
+.B -m root -M exec /Example_1/shell/script/below
 .fi
 
 .\" %IF OS Windows
@@ -1149,7 +1149,7 @@ STDIN and
 .B no
 command-line arguments, for example:
 .nf
-.B -m <nomailer> -M exec /Example_2/bash/script/below
+.B -m <nomailer> -M exec /Example_2/shell/script/below
 .fi
 If the executable produces any STDERR/STDOUT output, then \fBsmartd\fP
 assumes that something is going wrong, and a snippet of that output
@@ -1555,7 +1555,7 @@ to the output of the smartd email warning message and sends it to ADDRESS.
 
 .nf
 \fB
-#! /bin/bash
+#! /bin/sh
 
 # Save the email message (STDIN) to a file:
 cat > /root/msg
@@ -1574,7 +1574,7 @@ then powers down the machine.
 
 .nf
 \fB
-#! /bin/bash
+#! /bin/sh
 
 # Warn all users of a problem
 wall \'Problem detected with disk: \' "$SMARTD_DEVICESTRING"
