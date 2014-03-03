@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3853 2013-08-17 21:37:50Z chrfranke $
+# $Id: Makefile.am 3875 2014-03-03 17:18:58Z chrfranke $
 #
 
 @SET_MAKE@
@@ -532,9 +532,13 @@ systemdsystemunit_DATA = smartd.service
 endif
 
 smartd.service: smartd.service.in Makefile
-	sed -e 's|/usr/local/sbin/smartd|$(sbindir)/smartd|g' \
-	    -e 's|/usr/local/etc/sysconfig/smartmontools|$(sysconfdir)/sysconfig/smartmontools|g' \
-	$(srcdir)/smartd.service.in > $@
+	cat $(srcdir)/smartd.service.in | \
+	sed 's|/usr/local/sbin/smartd|$(sbindir)/smartd|' | \
+	if test -n '$(systemdenvfile)'; then \
+	  sed 's|/usr/local/etc/sysconfig/smartmontools|$(systemdenvfile)|'; \
+	else \
+	  sed -e '/^EnvironmentFile=/d' -e 's| *\$$smartd[_a-z]* *||g'; \
+	fi > $@
 
 if ENABLE_CAPABILITIES
 MAN_CAPABILITIES = cat

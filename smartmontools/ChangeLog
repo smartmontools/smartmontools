@@ -1,4 +1,10 @@
-$Id: ChangeLog 3874 2014-02-18 00:47:23Z samm2 $
+$Id: ChangeLog 3875 2014-03-03 17:18:58Z chrfranke $
+
+2014-03-03  Christian Franke  <franke@computer.org>
+
+	configure.ac, Makefile.am: Add '--with-systemdenvfile=[FILE|no]'
+	configure option to change or remove (ticket #316) the systemd
+	EnvironmentFile setting.
 
 2014-02-18  Alex Samorukov  <samm@os2.kiev.ua>
 	os_freebsd.cpp: use %lu for iop->resp_sense_len
