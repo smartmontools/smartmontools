@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3855 2013-11-07 20:06:25Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3881 2014-03-05 17:49:47Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -2492,7 +2492,7 @@ int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool pers
 
   ata_cmd_out out;
   if (!device->ata_pass_through(in, out)) {
-    pout("Write SCT (%cet) XXX Error Recovery Control Command failed: %s\n",
+    pout("Write SCT (%cet) Feature Control Command failed: %s\n",
       (!set ? 'G' : 'S'), device->get_errmsg());
     return -1;
   }
