@@ -1,5 +1,11 @@
 $Id$
 
+2014-03-05  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Check SCT Feature Control support bit for '-g/-s wcreorder'.
+	This prevents bogus error messages if SCT support excludes SCT Feature
+	Control command.
+
 2014-03-03  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Remove bashisms from
