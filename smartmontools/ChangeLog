@@ -1,4 +1,10 @@
-$Id: ChangeLog 3879 2014-03-03 21:14:46Z chrfranke $
+$Id: ChangeLog 3880 2014-03-05 17:38:44Z chrfranke $
+
+2014-03-05  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Check SCT Feature Control support bit for '-g/-s wcreorder'.
+	This prevents bogus error messages if SCT support excludes SCT Feature
+	Control command.
 
 2014-03-03  Christian Franke  <franke@computer.org>
 
