@@ -1,4 +1,9 @@
-$Id: ChangeLog 3881 2014-03-05 17:49:47Z chrfranke $
+$Id: ChangeLog 3882 2014-03-06 22:07:38Z chrfranke $
+
+2014-03-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- OCZ Intrepid 3000 SSDs
 
 2014-03-05  Christian Franke  <franke@computer.org>
 
