@@ -4,6 +4,8 @@ $Id$
 
 	drivedb.h:
 	- OCZ Intrepid 3000 SSDs
+	- Intel 320 Series SSDs: 'D' variant (ticket #315)
+	- Intel DC S3500 Series SSDs: 'T' variant (ticket #315)
 
 2014-03-05  Christian Franke  <franke@computer.org>
 

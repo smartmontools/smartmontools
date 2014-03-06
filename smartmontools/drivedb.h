@@ -562,8 +562,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB"
   },
   { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362,
-      // INTEL SSDSA2CW160G3/4PC10362, INTEL SSDSA2BT040G3/4PC10362, INTEL SSDSA2BW120G3A/4PC10362
-    "INTEL SSDSA[12][BC][WT](040|080|120|160|300|600)G3A?",
+      // INTEL SSDSA2CW160G3/4PC10362, INTEL SSDSA2BT040G3/4PC10362, INTEL SSDSA2BW120G3A/4PC10362,
+      // INTEL SSDSA2BW300G3D/4PC10362
+    "INTEL SSDSA[12][BC][WT](040|080|120|160|300|600)G3[AD]?",
     "", "",
     "-F nologdir "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -720,8 +721,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
-  { "Intel DC S3500 Series SSDs", // tested with INTEL SSDSC2BB120G4/D2010355
-    "INTEL SSDSC(1N|2B)B(080|120|160|240|300|400|480|600|800)G.",
+  { "Intel DC S3500 Series SSDs", // tested with INTEL SSDSC2BB120G4/D2010355, INTEL SSDSC2BB800G4T
+    "INTEL SSDSC(1N|2B)B(080|120|160|240|300|400|480|600|800)G.T?",
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
