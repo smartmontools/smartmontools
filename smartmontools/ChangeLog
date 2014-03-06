@@ -1,9 +1,11 @@
-$Id: ChangeLog 3882 2014-03-06 22:07:38Z chrfranke $
+$Id: ChangeLog 3883 2014-03-06 22:38:58Z chrfranke $
 
 2014-03-06  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
 	- OCZ Intrepid 3000 SSDs
+	- Intel 320 Series SSDs: 'D' variant (ticket #315)
+	- Intel DC S3500 Series SSDs: 'T' variant (ticket #315)
 
 2014-03-05  Christian Franke  <franke@computer.org>
 
