@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -414,6 +414,40 @@ const drive_settings builtin_knowndrives[] = {
     "-v 210,raw48,SATA_CRC_Error_Count "
     "-v 233,raw48,Remaining_Lifetime_Perc "
     "-v 249,raw48,Total_NAND_Prog_Ct_GiB"
+  },
+  { "OCZ Intrepid 3000 SSDs", // tested with OCZ INTREPID 3600/1.4.3.6, 3800/1.4.3.0
+    "OCZ INTREPID 3[68]00",
+    "", "", ""
+    "-v 5,raw48,Runtime_Bad_Block "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 100,raw48,Total_Blocks_Erased "
+    "-v 171,raw48,Avail_OP_Block_Count "
+    "-v 174,raw48,Pwr_Cycle_Ct_Unplanned "
+    "-v 184,raw48,Factory_Bad_Block_Count "
+    "-v 187,raw48,Total_Unc_NAND_Reads "
+    "-v 190,tempminmax,Temperature_Celsius "
+    "-v 195,raw48,Total_Prog_Failures "
+    "-v 196,raw48,Total_Erase_Failures "
+    "-v 197,raw48,Total_Unc_Read_Failures "
+    "-v 198,raw48,Host_Reads_GiB "
+    "-v 199,raw48,Host_Writes_GiB "
+    "-v 202,raw48,Total_Read_Bits_Corr_Ct "
+    "-v 205,raw48,Max_Rated_PE_Count "
+    "-v 206,raw48,Min_Erase_Count "
+    "-v 207,raw48,Max_Erase_Count "
+    "-v 208,raw48,Average_Erase_Count "
+    "-v 210,raw48,SATA_CRC_Error_Count "
+    "-v 211,raw48,SATA_UNC_Count "
+    "-v 212,raw48,NAND_Reads_with_Retry "
+    "-v 213,raw48,Simple_Rd_Rtry_Attempts "
+    "-v 214,raw48,Adaptv_Rd_Rtry_Attempts "
+    "-v 221,raw48,Int_Data_Path_Prot_Unc "
+    "-v 222,raw48,RAID_Recovery_Count "
+    "-v 230,raw48,SuperCap_Charge_Status " // 0=not charged, 1=fully charged, 2=unknown
+    "-v 233,raw48,Remaining_Lifetime_Perc "
+    "-v 249,raw48,Total_NAND_Prog_Ct_GiB "
+    "-v 251,raw48,Total_NAND_Read_Ct_GiB"
   },
   { "InnoDisk InnoLite SATADOM D150QV-L SSDs", // tested with InnoLite SATADOM D150QV-L/120319
     "InnoLite SATADOM D150QV-L",

@@ -1,5 +1,10 @@
 $Id$
 
+2014-03-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- OCZ Intrepid 3000 SSDs
+
 2014-03-05  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Check SCT Feature Control support bit for '-g/-s wcreorder'.
