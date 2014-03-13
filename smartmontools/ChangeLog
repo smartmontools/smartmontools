@@ -1,5 +1,16 @@
 $Id$
 
+2014-03-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300/M500: *SSD1 variant
+	- SandForce Driven SSDs: ADATA SP300, ADATA SP800, ADATA SP900 DL2,
+	Corsair Force SSD, Kingston SE50S3, Kingston SKC380S3,
+	Smart Storage XceedIOPS2, VisionTek GoDrive
+	- Indilinx Barefoot 3 based SSDs: OCZ VERTEX 450
+	- JMicron based SSDs: ADATA SP600
+	- Plextor M3/M5 (Pro) Series SSDs: Rename, add M5S (ticket #297), M5Pro
+
 2014-03-06  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
