@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,7 +174,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Crucial/Micron RealSSD C300/M500", // Marvell 88SS91xx
     "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002,
       // C300-CTFDDAC064MAG/0006
-    "Crucial_CT(120|240|480)M500SSD3", // Marvell 88SS9187 BLD2, tested with Crucial_CT120M500SSD3/MU02
+    "Crucial_CT(120|240|480)M500SSD[13]", // Marvell 88SS9187 BLD2, tested with Crucial_CT120M500SSD3/MU02,
+      // Crucial_CT120M500SSD1/MU02, Crucial_CT240M500SSD1/MU03
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -256,18 +257,22 @@ const drive_settings builtin_knowndrives[] = {
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
     "ADATA SSD S(396|510|599) .?..GB|" // tested with ADATA SSD S510 60GB/320ABBF0,
       // ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
-    "ADATA SP900|" // Premier Pro, SF-2281, tested with ADATA SP900/5.0.6
+    "ADATA SP[389]00|" // tested with ADATA SP300/5.0.2d, SP800/5.0.6c,
+      // ADATA SP900/5.0.6 (Premier Pro, SF-2281)
+    "ADATA SSD SP900 (64|128|256)GB-DL2|" // tested with ADATA SSD SP900 256GB-DL2/5.0.6
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
-    "Corsair Force (3 SSD|GS|GT)|" // SF-2281, tested with
-      // Corsair Force 3 SSD/1.3.2, GT/1.3.3, GS/5.03
+    "Corsair Force (SSD|3 SSD|GS|GT)|" // SF-2281, tested with
+      // Corsair Force SSD/5.05, 3 SSD/1.3.2, GT/1.3.3, GS/5.03
     "FM-25S2S-(60|120|240)GBP2|" // G.SKILL Phoenix Pro, SF-1200, tested with
       // FM-25S2S-240GBP2/4.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
+    "KINGSTON SE50S3(100|240|480)G|" // tested with SE50S3100G/KE1ABBF0
     "KINGSTON SH10[03]S3(90|120|240|480)G|" // HyperX (3K), SF-2281, tested with
       // SH100S3240G/320ABBF0, SH103S3120G/505ABBF0
-    "KINGSTON SKC300S37A(60|120|240|480)G|" // SF-2281, tested with SKC300S37A120G/KC4ABBF0
+    "KINGSTON SKC(300S37A|380S3)(60|120|240|480)G|" // SF-2281, tested with SKC300S37A120G/KC4ABBF0,
+      // SKC380S3120G/507ABBF0
     "KINGSTON SVP200S3(7A)?(60|90|120|240|480)G|" // V+ 200, SF-2281, tested with
       // SVP200S37A480G/502ABBF0, SVP200S390G/332ABBF0
     "KINGSTON SMS200S3(30|60|120)G|" // mSATA, SF-2241, tested with SMS200S3120G/KC3ABBF0
@@ -304,12 +309,15 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SDSSDX(60|120|240|480)GG25|" // SanDisk Extreme, SF-2281, tested with
       // SDSSDX240GG25/R201
     "SuperSSpeed S301 [0-9]*GB|" // SF-2281, tested with SuperSSpeed S301 128GB/503
+    "SG9XCS2D(0?50|100|200|400)GESLT|" // Smart Storage Systems XceedIOPS2, tested with
+      // SG9XCS2D200GESLT/SA03L370
     "(TX32|TX31C1|VN0.?..GCNMK).*|" // Smart Storage Systems XceedSTOR
     "(TX22D1|TX21B1).*|" // Smart Storage Systems XceedIOPS2
     "TX52D1.*|" // Smart Storage Systems Xcel-200
     "TS(64|128|256|512)GSSD320|" // Transcend SSD320, SF-2281, tested with TS128GSSD320
-    "UGB(88P|99S)GC...H[BF].", // Unigen, tested with
+    "UGB(88P|99S)GC...H[BF].|" // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
+    "VisionTek GoDrive (60|120|240|480)GB", // tested with VisionTek GoDrive 480GB/506ABBF0
     "", "",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
     "-v 5,raw48,Retired_Block_Count "
@@ -397,7 +405,8 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
   { "Indilinx Barefoot 3 based SSDs",
-    "OCZ-VECTOR", // tested with OCZ-VECTOR/1.03
+    "OCZ-VECTOR|" // tested with OCZ-VECTOR/1.03
+    "OCZ-VERTEX450", // tested with OCZ-VERTEX450/1.0 (Barefoot 3 M10)
     "", "", ""
     "-v 5,raw48,Runtime_Bad_Block "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -413,7 +422,43 @@ const drive_settings builtin_knowndrives[] = {
     "-v 208,raw48,Average_Erase_Count "
     "-v 210,raw48,SATA_CRC_Error_Count "
     "-v 233,raw48,Remaining_Lifetime_Perc "
+    "-v 241,raw48,Host_Writes_GiB " // M10
+    "-v 242,raw48,Host_Reads_GiB "  // M10
     "-v 249,raw48,Total_NAND_Prog_Ct_GiB"
+  },
+  { "OCZ Intrepid 3000 SSDs", // tested with OCZ INTREPID 3600/1.4.3.6, 3800/1.4.3.0
+    "OCZ INTREPID 3[68]00",
+    "", "", ""
+    "-v 5,raw48,Runtime_Bad_Block "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 100,raw48,Total_Blocks_Erased "
+    "-v 171,raw48,Avail_OP_Block_Count "
+    "-v 174,raw48,Pwr_Cycle_Ct_Unplanned "
+    "-v 184,raw48,Factory_Bad_Block_Count "
+    "-v 187,raw48,Total_Unc_NAND_Reads "
+    "-v 190,tempminmax,Temperature_Celsius "
+    "-v 195,raw48,Total_Prog_Failures "
+    "-v 196,raw48,Total_Erase_Failures "
+    "-v 197,raw48,Total_Unc_Read_Failures "
+    "-v 198,raw48,Host_Reads_GiB "
+    "-v 199,raw48,Host_Writes_GiB "
+    "-v 202,raw48,Total_Read_Bits_Corr_Ct "
+    "-v 205,raw48,Max_Rated_PE_Count "
+    "-v 206,raw48,Min_Erase_Count "
+    "-v 207,raw48,Max_Erase_Count "
+    "-v 208,raw48,Average_Erase_Count "
+    "-v 210,raw48,SATA_CRC_Error_Count "
+    "-v 211,raw48,SATA_UNC_Count "
+    "-v 212,raw48,NAND_Reads_with_Retry "
+    "-v 213,raw48,Simple_Rd_Rtry_Attempts "
+    "-v 214,raw48,Adaptv_Rd_Rtry_Attempts "
+    "-v 221,raw48,Int_Data_Path_Prot_Unc "
+    "-v 222,raw48,RAID_Recovery_Count "
+    "-v 230,raw48,SuperCap_Charge_Status " // 0=not charged, 1=fully charged, 2=unknown
+    "-v 233,raw48,Remaining_Lifetime_Perc "
+    "-v 249,raw48,Total_NAND_Prog_Ct_GiB "
+    "-v 251,raw48,Total_NAND_Read_Ct_GiB"
   },
   { "InnoDisk InnoLite SATADOM D150QV-L SSDs", // tested with InnoLite SATADOM D150QV-L/120319
     "InnoLite SATADOM D150QV-L",
@@ -528,8 +573,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB"
   },
   { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362,
-      // INTEL SSDSA2CW160G3/4PC10362, INTEL SSDSA2BT040G3/4PC10362, INTEL SSDSA2BW120G3A/4PC10362
-    "INTEL SSDSA[12][BC][WT](040|080|120|160|300|600)G3A?",
+      // INTEL SSDSA2CW160G3/4PC10362, INTEL SSDSA2BT040G3/4PC10362, INTEL SSDSA2BW120G3A/4PC10362,
+      // INTEL SSDSA2BW300G3D/4PC10362
+    "INTEL SSDSA[12][BC][WT](040|080|120|160|300|600)G3[AD]?",
     "", "",
     "-F nologdir "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -686,8 +732,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
-  { "Intel DC S3500 Series SSDs", // tested with INTEL SSDSC2BB120G4/D2010355
-    "INTEL SSDSC(1N|2B)B(080|120|160|240|300|400|480|600|800)G.",
+  { "Intel DC S3500 Series SSDs", // tested with INTEL SSDSC2BB120G4/D2010355, INTEL SSDSC2BB800G4T
+    "INTEL SSDSC(1N|2B)B(080|120|160|240|300|400|480|600|800)G.T?",
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
@@ -786,8 +832,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 234,raw24/raw24:w01234,Avg/Max_Erase_Count "
     "-v 235,raw24/raw24:w01z23,Good/Sys_Block_Count"
   },
-  { "JMicron based SSDs", // JMicron JMF61x
+  { "JMicron based SSDs", // JMicron JMF61x, JMF661
     "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
+    "ADATA SP600|"  // tested with ADATA SP600/2.4 (JMicron JMF661)
     "APPLE SSD TS.*|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series (2. Generation, JMF618),
                                     // tested with KINGSTON SNV425S264GB/C091126a
@@ -815,17 +862,18 @@ const drive_settings builtin_knowndrives[] = {
     "-v 168,raw48,SATA_Phy_Error_Count "
   //"-v 169,raw48,Unknown_Attribute "
     "-v 170,raw16,Bad_Block_Count "
-    "-v 173,raw16,Erase_Count "
+    "-v 173,raw16,Erase_Count " // JMF661: different?
     "-v 175,raw48,Bad_Cluster_Table_Count "
     "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 197,raw48,Current_Pending_Sector "
     "-v 240,raw48,Unknown_Attribute"
   },
-  { "Plextor M3 (Pro) Series SSDs", // Marvell 9174, tested with PLEXTOR PX-128M3/1.01,
-      // PLEXTOR PX-128M3P/1.04, PLEXTOR PX-256M3/1.05
+  { "Plextor M3/M5 (Pro) Series SSDs", // Marvell 88SS9174 (M3, M5S), 88SS9187 (M5Pro), tested with
+      // PLEXTOR PX-128M3/1.01, PX-128M3P/1.04, PX-256M3/1.05, PX-128M5S/1.02, PX-256M5S/1.03,
+      // PX-128M5S/1.05, PX-128M5Pro/1.05, PX-512M5Pro/1.06
       // (1.04/5 Firmware self-test log lifetime unit is bogus, possibly 1/256 hours)
-    "PLEXTOR PX-(64|128|256|512)M3P?",
+    "PLEXTOR PX-(64|128|256|512)M(3P?|5S|5Pro)",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -841,7 +889,8 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
   //"-v 232,raw48,Available_Reservd_Space "
-    ""
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB"
   },
   { "Samsung based SSDs",
     "SAMSUNG SSD PM800 .*GB|"  // SAMSUNG PM800 SSDs, tested with SAMSUNG SSD PM800 TH 64GB/VBM25D1Q
