@@ -1,4 +1,8 @@
-$Id: ChangeLog 3884 2014-03-13 21:10:23Z chrfranke $
+$Id: ChangeLog 3886 2014-04-06 19:31:21Z chrfranke $
+
+2014-04-06  Christian Franke  <franke@computer.org>
+
+	WARNINGS: Remove all entries.  Add link to Warnings page in Wiki.
 
 2014-03-13  Christian Franke  <franke@computer.org>
 
