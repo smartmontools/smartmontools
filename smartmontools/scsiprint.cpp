@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3851 2013-08-17 20:10:11Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3887 2014-04-10 01:23:10Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -2107,7 +2107,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         pout("Self Test returned without error\n");
         any_output = true;
     }
-    if (options.sasphy) {
+    if (options.sasphy && gProtocolSpecificLPage) {
         if (scsiPrintSasPhy(device, options.sasphy_reset))
             return returnval | FAILSMART;
         any_output = true;
