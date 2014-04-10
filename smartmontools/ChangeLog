@@ -1,4 +1,10 @@
-$Id: ChangeLog 3887 2014-04-10 01:23:10Z dpgilbert $
+$Id: ChangeLog 3888 2014-04-10 19:36:53Z chrfranke $
+
+2014-04-10  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Rework CSMI port scanning.
+	Use bPortIdentifier instead of Phy array index for addressing.
+	Ignore possibly bogus bNumberOfPhys (ticket #325).
 
 2014-04-09  Douglas Gilbert  <dgilbert@interlog.com>
 
