@@ -2107,7 +2107,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         pout("Self Test returned without error\n");
         any_output = true;
     }
-    if (options.sasphy) {
+    if (options.sasphy && gProtocolSpecificLPage) {
         if (scsiPrintSasPhy(device, options.sasphy_reset))
             return returnval | FAILSMART;
         any_output = true;

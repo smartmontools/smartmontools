@@ -1,5 +1,10 @@
 $Id$
 
+2014-04-09  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp:
+	- add guard to scsiPrintSasPhy() invocation; resolve ticket #204
+
 2014-04-06  Christian Franke  <franke@computer.org>
 
 	WARNINGS: Remove all entries.  Add link to Warnings page in Wiki.
