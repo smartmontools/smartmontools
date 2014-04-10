@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2012    Hank Wu <hank@areca.com.tw>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -400,19 +400,19 @@ class csmi_device
 : virtual public /*extends*/ smart_device
 {
 public:
-  /// Get phy info
-  bool get_phy_info(CSMI_SAS_PHY_INFO & phy_info);
-
-  /// Check physical drive existence
-  bool check_phy(const CSMI_SAS_PHY_INFO & phy_info, unsigned phy_no);
+  /// Get bitmask of used ports
+  unsigned get_ports_used();
 
 protected:
   csmi_device()
     : smart_device(never_called)
     { memset(&m_phy_ent, 0, sizeof(m_phy_ent)); }
 
+  /// Get phy info
+  bool get_phy_info(CSMI_SAS_PHY_INFO & phy_info);
+
   /// Select physical drive
-  bool select_phy(unsigned phy_no);
+  bool select_port(int port);
 
   /// Get info for selected physical drive
   const CSMI_SAS_PHY_ENTITY & get_phy_ent() const
@@ -465,7 +465,7 @@ protected:
 
 private:
   HANDLE m_fh; ///< Controller device handle
-  unsigned m_phy_no; ///< Physical drive number
+  int m_port; ///< Port number
 };
 
 
@@ -1013,12 +1013,13 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
       win_csmi_device test_dev(this, name, "");
       if (!test_dev.open_scsi())
         continue;
-      CSMI_SAS_PHY_INFO phy_info;
-      if (!test_dev.get_phy_info(phy_info))
+
+      unsigned ports_used = test_dev.get_ports_used();
+      if (!ports_used)
         continue;
 
-      for (int pi = 0; pi < phy_info.bNumberOfPhys; pi++) {
-        if (!test_dev.check_phy(phy_info, pi))
+      for (int pi = 0; pi < 32; pi++) {
+        if (!(ports_used & (1 << pi)))
           continue;
         snprintf(name, sizeof(name)-1, "/dev/csmi%d,%d", i, pi);
         devlist.push_back( new win_csmi_device(this, name, "ata") );
@@ -2888,14 +2889,19 @@ bool csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info)
     return false;
 
   phy_info = phy_info_buf.Information;
-  if (phy_info.bNumberOfPhys > sizeof(phy_info.Phy)/sizeof(phy_info.Phy[0]))
+
+  const int max_number_of_phys = sizeof(phy_info.Phy) / sizeof(phy_info.Phy[0]);
+  if (phy_info.bNumberOfPhys > max_number_of_phys)
     return set_err(EIO, "CSMI_SAS_PHY_INFO: Bogus NumberOfPhys=%d", phy_info.bNumberOfPhys);
 
   if (scsi_debugmode > 1) {
     pout("CSMI_SAS_PHY_INFO: NumberOfPhys=%d\n", phy_info.bNumberOfPhys);
-    for (int i = 0; i < phy_info.bNumberOfPhys; i++) {
+    for (int i = 0; i < max_number_of_phys; i++) {
       const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
       const CSMI_SAS_IDENTIFY & id = pe.Identify, & at = pe.Attached;
+      if (id.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
+        continue;
+
       pout("Phy[%d] Port:   0x%02x\n", i, pe.bPortIdentifier);
       pout("  Type:        0x%02x, 0x%02x\n", id.bDeviceType, at.bDeviceType);
       pout("  InitProto:   0x%02x, 0x%02x\n", id.bInitiatorPortProtocol, at.bInitiatorPortProtocol);
@@ -2913,40 +2919,79 @@ bool csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info)
   return true;
 }
 
-bool csmi_device::check_phy(const CSMI_SAS_PHY_INFO & phy_info, unsigned phy_no)
+unsigned csmi_device::get_ports_used()
 {
-  // Check Phy presence
-  if (phy_no >= phy_info.bNumberOfPhys)
-    return set_err(ENOENT, "Port %u does not exist (#ports: %d)", phy_no,
-      phy_info.bNumberOfPhys);
+  CSMI_SAS_PHY_INFO phy_info;
+  if (!get_phy_info(phy_info))
+    return 0;
 
-  const CSMI_SAS_PHY_ENTITY & phy_ent = phy_info.Phy[phy_no];
+  unsigned ports_used = 0;
+  for (unsigned i = 0; i < sizeof(phy_info.Phy) / sizeof(phy_info.Phy[0]); i++) {
+    const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
+    if (pe.Identify.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
+      continue;
+    if (pe.Attached.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
+      continue;
+    switch (pe.Attached.bTargetPortProtocol) {
+      case CSMI_SAS_PROTOCOL_SATA:
+      case CSMI_SAS_PROTOCOL_STP:
+        break;
+      default:
+        continue;
+    }
+    if (pe.bPortIdentifier >= 32)
+      continue;
+
+    ports_used |= (1 << pe.bPortIdentifier);
+  }
+
+  return ports_used;
+}
+
+
+bool csmi_device::select_port(int port)
+{
+  CSMI_SAS_PHY_INFO phy_info;
+  if (!get_phy_info(phy_info))
+    return false;
+
+  // Find port
+  int max_port = -1, port_index = -1;
+  for (unsigned i = 0; i < sizeof(phy_info.Phy) / sizeof(phy_info.Phy[0]); i++) {
+    const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
+    if (pe.Identify.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
+      continue;
+    if (pe.bPortIdentifier > max_port)
+      max_port = pe.bPortIdentifier;
+    if (pe.bPortIdentifier != port)
+      continue;
+
+    port_index = i;
+    break;
+  }
+
+  if (port_index < 0) {
+    if (port <= max_port)
+      return set_err(ENOENT, "Port %d is disabled", port);
+    else
+      return set_err(ENOENT, "Port %d does not exist (#ports: %d)", port,
+        max_port + 1);
+  }
+
+  const CSMI_SAS_PHY_ENTITY & phy_ent = phy_info.Phy[port_index];
   if (phy_ent.Attached.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
-    return set_err(ENOENT, "No device on port %u", phy_no);
+    return set_err(ENOENT, "No device on port %d", port);
 
   switch (phy_ent.Attached.bTargetPortProtocol) {
     case CSMI_SAS_PROTOCOL_SATA:
     case CSMI_SAS_PROTOCOL_STP:
       break;
     default:
-      return set_err(ENOENT, "No SATA device on port %u (protocol: %u)",
-        phy_no, phy_ent.Attached.bTargetPortProtocol);
+      return set_err(ENOENT, "No SATA device on port %d (protocol: %d)",
+        port, phy_ent.Attached.bTargetPortProtocol);
   }
 
-  return true;
-}
-
-bool csmi_device::select_phy(unsigned phy_no)
-{
-  CSMI_SAS_PHY_INFO phy_info;
-  if (!get_phy_info(phy_info))
-    return false;
-
-
-  if (!check_phy(phy_info, phy_no))
-    return false;
-
-  m_phy_ent = phy_info.Phy[phy_no];
+  m_phy_ent = phy_ent;
   return true;
 }
 
@@ -3055,7 +3100,7 @@ bool csmi_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 win_csmi_device::win_csmi_device(smart_interface * intf, const char * dev_name,
   const char * req_type)
 : smart_device(intf, dev_name, "ata", req_type),
-  m_fh(INVALID_HANDLE_VALUE), m_phy_no(0)
+  m_fh(INVALID_HANDLE_VALUE), m_port(-1)
 {
 }
 
@@ -3083,10 +3128,10 @@ bool win_csmi_device::close()
 bool win_csmi_device::open_scsi()
 {
   // Parse name
-  unsigned contr_no = ~0, phy_no = ~0; int nc = -1;
+  unsigned contr_no = ~0, port = ~0; int nc = -1;
   const char * name = skipdev(get_dev_name());
-  if (!(   sscanf(name, "csmi%u,%u%n", &contr_no, &phy_no, &nc) >= 0
-        && nc == (int)strlen(name) && contr_no <= 9 && phy_no < 32)  )
+  if (!(   sscanf(name, "csmi%u,%u%n", &contr_no, &port, &nc) >= 0
+        && nc == (int)strlen(name) && contr_no <= 9 && port < 32)  )
     return set_err(EINVAL);
 
   // Open controller handle
@@ -3112,7 +3157,7 @@ bool win_csmi_device::open_scsi()
     pout(" %s: successfully opened\n", devpath);
 
   m_fh = h;
-  m_phy_no = phy_no;
+  m_port = port;
   return true;
 }
 
@@ -3123,7 +3168,7 @@ bool win_csmi_device::open()
     return false;
 
   // Get Phy info for this drive
-  if (!select_phy(m_phy_no)) {
+  if (!select_port(m_port)) {
     close();
     return false;
   }

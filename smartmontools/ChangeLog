@@ -1,5 +1,11 @@
 $Id$
 
+2014-04-10  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Rework CSMI port scanning.
+	Use bPortIdentifier instead of Phy array index for addressing.
+	Ignore possibly bogus bNumberOfPhys (ticket #325).
+
 2014-04-09  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp:
