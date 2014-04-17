@@ -1,6 +1,6 @@
 $Id$
 
-2014-04-16  Christian Franke  <franke@computer.org>
+2014-04-17  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
 	- Western Digital RE4 (SATA 6Gb/s): WD2000FYYX
@@ -42,7 +42,6 @@ $Id$
 	- OCZ Intrepid 3000 SSDs
 	- Intel 320 Series SSDs: 'D' variant (ticket #315)
 	- Intel DC S3500 Series SSDs: 'T' variant (ticket #315)
-	- Western Digital Red: 4TB (ticket #322)
 
 2014-03-05  Christian Franke  <franke@computer.org>
 
