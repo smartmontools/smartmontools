@@ -2628,8 +2628,13 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD2002FYPS-.*",
     "", "", ""
   },
-  { "Western Digital RE4 (SATA 6Gb/s)", // tested with WDC WD2000FYYZ-01UL1B0/01.01K01
-    "WDC WD(20|30|40)00FYYZ-.*",
+  { "Western Digital RE4 (SATA 6Gb/s)", // tested with WDC WD2000FYYZ-01UL1B0/01.01K01,
+      // WD2000FYYX/00.0D1K2
+    "WDC WD(20|30|40)00FYYZ-.*|WD2000FYYX",
+    "", "", ""
+  },
+  { "Western Digital Se", // tested with WDC WD2000F9YZ-09N20L0/01.01A01
+    "WDC WD(1002|2000|3000|4000)F9YZ-.*",
     "", "", ""
   },
   { "Western Digital Caviar Green",
@@ -2642,21 +2647,18 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Caviar Green (AF, SATA 6Gb/s)", // tested with
       // WDC WD10EZRX-00A8LB0/01.01A01, WDC WD20EZRX-00DC0B0/80.00A80,
-      // WDC WD30EZRX-00MMMB0/80.00A80
-    "WDC WD(7500AA|(10|15|20)EA|(10|20|25|30)EZ)RX-.*",
+      // WDC WD30EZRX-00MMMB0/80.00A80, WDC WD40EZRX-00SPEB0/80.00A80
+    "WDC WD(7500AA|(10|15|20)EA|(10|20|25|30|40)EZ)RX-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black",
     "WDC WD((500|640|750)1AAL|1001FA[EL]|2001FAS)S-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Black",  // SATA 6 Gb/s variants, tested with
-      //  WDC WD4001FAEX-00MJRA0/01.01L01
-    "WDC WD(5002AAL|(64|75)02AAE|((10|15|20)02|4001)FAE)X-.*",
-    "", "", ""
-  },
-  { "Western Digital Caviar Black (AF)", // tested with WDC WD5003AZEX-00RKKA0/80.00A80
-    "WDC WD(5003AZE)X-.*",
+  { "Western Digital Black", // tested with
+      // WDC WD5003AZEX-00RKKA0/80.00A80, WDC WD1003FZEX-00MK2A0/01.01A01,
+      // WDC WD3001FAEX-00MJRA0/01.01L01, WDC WD4001FAEX-00MJRA0/01.01L01
+    "WDC WD(5002AAL|5003AZE|(64|75)02AAE|((10|15|20)0[23]|[34]001)F[AZ]E)X-.*",
     "", "", ""
   },
   { "Western Digital AV ATA", // tested with WDC WD3200AVJB-63J5A0/01.03E01
@@ -2725,8 +2727,12 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Red (AF)", // tested with WDC WD10EFRX-68JCSN0/01.01A01,
-      // WDC WD10JFCX-68N6GN0/01.01A01
-    "WDC WD(10|20|30)[EJ]F[CR]X-.*",
+      // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD40EFRX-68WT0N0/80.00A80
+    "WDC WD(10|20|30|40)[EJ]F[CR]X-.*",
+    "", "", ""
+  },
+  { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03
+    "WDC WD((25|32|50|75)00[BLM]|10[JS])P[CV][TX]-.*",
     "", "", ""
   },
   { "Western Digital Green Mobile", // tested with WDC WD20NPVX-00EA4T0/01.01A01
