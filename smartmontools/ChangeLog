@@ -1,5 +1,15 @@
 $Id$
 
+2014-04-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital RE4 (SATA 6Gb/s): WD2000FYYX
+	- Western Digital Se
+	- Western Digital Caviar Green (AF, SATA 6Gb/s): 4TB
+	- Western Digital Black: Rename, add 3TB, AF, remove extra AF entry
+	- Western Digital Red: 4TB (ticket #322)
+	- Western Digital Blue Mobile
+
 2014-04-10  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Rework CSMI port scanning.
@@ -32,6 +42,7 @@ $Id$
 	- OCZ Intrepid 3000 SSDs
 	- Intel 320 Series SSDs: 'D' variant (ticket #315)
 	- Intel DC S3500 Series SSDs: 'T' variant (ticket #315)
+	- Western Digital Red: 4TB (ticket #322)
 
 2014-03-05  Christian Franke  <franke@computer.org>
 
