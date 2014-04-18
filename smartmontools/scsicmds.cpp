@@ -49,7 +49,7 @@
 #include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3820 2013-06-17 08:45:10Z samm2 $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 3892 2014-04-18 20:28:10Z dpgilbert $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?
@@ -60,7 +60,7 @@ supported_vpd_pages * supported_vpd_pages_p = NULL;
 
 supported_vpd_pages::supported_vpd_pages(scsi_device * device) : num_valid(0)
 {
-    unsigned char b[0x1fc];     /* size chosen for old INQUIRY command */
+    unsigned char b[0xfc];     /* pre SPC-3 INQUIRY max response size */
     int n;
 
     memset(b, 0, sizeof(b));
