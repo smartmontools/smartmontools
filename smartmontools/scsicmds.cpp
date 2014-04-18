@@ -60,7 +60,7 @@ supported_vpd_pages * supported_vpd_pages_p = NULL;
 
 supported_vpd_pages::supported_vpd_pages(scsi_device * device) : num_valid(0)
 {
-    unsigned char b[0x1fc];     /* size chosen for old INQUIRY command */
+    unsigned char b[0xfc];     /* pre SPC-3 INQUIRY max response size */
     int n;
 
     memset(b, 0, sizeof(b));

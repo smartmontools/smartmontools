@@ -1,5 +1,11 @@
 $Id$
 
+2014-04-18  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.cpp:
+	- supported_vpd_pages(): lower response length to stop sense data
+          noise on old disks (pre SPC-3)
+
 2014-04-17  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
