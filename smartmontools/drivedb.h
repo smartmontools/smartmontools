@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3889 2014-04-17 20:31:37Z chrfranke $",
+  { "$Id: drivedb.h 3895 2014-04-27 21:03:27Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2046,6 +2046,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba 3.5\" HDD MK.002TSKB", // tested with TOSHIBA MK1002TSKB/MT1A
     "TOSHIBA MK(10|20)02TSKB",
+    "", "", ""
+  },
+  { "Toshiba 3.5\" MG03ACAxxx(Y) Enterprise HDD", // tested with TOSHIBA MG03ACA100/FL1A
+    "TOSHIBA MG03ACA[1234]00Y?",
     "", "", ""
   },
   { "Toshiba 3.5\" HDD DT01ACA...", // tested with TOSHIBA DT01ACA100/MS2OA750,

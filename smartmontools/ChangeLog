@@ -1,4 +1,9 @@
-$Id: ChangeLog 3894 2014-04-27 16:45:40Z chrfranke $
+$Id: ChangeLog 3895 2014-04-27 21:03:27Z samm2 $
+
+2014-04-27  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Toshiba 3.5" MG03ACAxxx(Y) Enterprise HDD
 
 2014-04-27  Christian Franke  <franke@computer.org>
 
