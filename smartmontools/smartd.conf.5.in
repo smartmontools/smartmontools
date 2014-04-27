@@ -146,6 +146,17 @@ Section below!
 .B #
 .\" %ENDIF OS Linux
 .nf
+.\" %IF OS Linux
+.B # Three disks connected to a AacRaid controller
+.B # Start short self-tests daily between 1-2, 2-3, and
+.B # 3-4 am.
+.B \ \ /dev/sda -d aacraid,0,66 -a -s S/../.././01
+.B \ \ /dev/sda -d aacraid,0,67 -a -s S/../.././02
+.B \ \ /dev/sda -d aacraid,0,68 -a -s S/../.././03
+.B
+.B #
+.\" %ENDIF OS Linux
+.nf
 .B # Four ATA disks on a 3ware 6/7/8000 controller.
 .B # Start short self-tests daily between midnight and 1am,
 .B # 1-2, 2-3, and 3-4 am.  Starting with the Linux 2.6

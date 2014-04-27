@@ -96,6 +96,7 @@ EXTRA_smartctl_SOURCES = \
         os_win32.cpp \
         os_generic.cpp \
         os_generic.h \
+        aacraid.h \
         cciss.cpp \
         cciss.h \
         cissio_freebsd.h \
@@ -155,6 +156,7 @@ EXTRA_smartd_SOURCES = \
         os_win32.cpp \
         os_generic.cpp \
         os_generic.h \
+        aacraid.h \
         cciss.cpp \
         cciss.h \
         cissio_freebsd.h \

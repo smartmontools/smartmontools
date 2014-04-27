@@ -3,6 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
+ * Copyright (C) 2014 Raghava Aditya <Raghava.Aditya@pmcs.com>
  * Copyright (C) 2003-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
  * Copyright (C) 2008-12 Hank Wu <hank@areca.com.tw>
@@ -80,6 +81,7 @@
 #include "utility.h"
 #include "cciss.h"
 #include "megaraid.h"
+#include "aacraid.h"
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
@@ -858,6 +860,217 @@ bool linux_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       return set_err(-status);
   return true;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+/// PMC AacRAID support
+
+class linux_aacraid_device
+:public   scsi_device,
+ public /*extends */   linux_smart_device
+{
+public:
+  linux_aacraid_device(smart_interface *intf, const char *dev_name,
+    unsigned int host, unsigned int channel, unsigned int device);
+
+  virtual ~linux_aacraid_device() throw();
+
+  virtual bool open();
+
+  virtual bool scsi_pass_through(scsi_cmnd_io *iop);
+
+private:
+  int afd;
+
+  //Device Host number
+  int aHost;
+
+  //Channel(Lun) of the device
+  int aLun;
+
+  //Id of the device
+  int aId;
+
+};
+
+linux_aacraid_device::linux_aacraid_device(smart_interface *intf,
+  const char *dev_name, unsigned int host, unsigned int channel, unsigned int device)
+   : smart_device(intf,dev_name,"aacraid","aacraid"),
+     linux_smart_device(O_RDWR|O_NONBLOCK),
+     afd(-1), aHost(host), aLun(channel), aId(device)
+{
+  set_info().info_name = strprintf("%s [aacraid_disk_%02d_%02d_%d]",dev_name,aHost,aLun,aId);
+  set_info().dev_type  = strprintf("aacraid,%d,%d,%d",aHost,aLun,aId);
+}
+
+linux_aacraid_device::~linux_aacraid_device() throw()
+{
+
+}
+
+bool linux_aacraid_device::open()
+{
+
+  //Create the character device name based on the host number
+  //Required for get stats from disks connected to different controllers
+  char dev_name[128];
+  sprintf(dev_name,"/dev/aac%d",aHost);
+
+  //Initial open of dev name to check if it exsists
+  afd = ::open(dev_name,O_RDWR);
+
+  if(afd < 0 && errno == ENOENT) {
+
+    FILE *fp = fopen("/proc/devices","r");
+    if(NULL == fp)
+      return set_err(errno,"cannot open /proc/devices:%s",
+                     strerror(errno));
+
+    char line[256];
+    int mjr = -1;
+    int nc  = -1;
+
+    while(fgets(line,sizeof(line),fp) !=NULL) {
+      if(sscanf(line,"%d aac%n",&mjr,&nc) == 1
+                && nc > 0 && '\n' == line[nc])
+        break;
+    }
+
+    //work with /proc/devices is done
+    fclose(fp);
+
+    //Create misc device file in /dev/ used for communication with driver
+    if(mknod(dev_name,S_IFCHR,makedev(mjr,aHost)))
+      return set_err(errno,"cannot create %s:%s",dev_name,strerror(errno));
+
+    afd = ::open(dev_name,O_RDWR);
+  }
+
+  if(afd < 0)
+    return set_err(errno,"cannot open %s:%s",dev_name,strerror(errno));
+
+  set_fd(afd);
+  return true;
+}
+
+bool linux_aacraid_device::scsi_pass_through(scsi_cmnd_io *iop)
+{
+  int report = scsi_debugmode;
+
+  if (report > 0) {
+    int k, j;
+    const unsigned char * ucp = iop->cmnd;
+    const char * np;
+    char buff[256];
+    const int sz = (int)sizeof(buff);
+
+    np = scsi_get_opcode_name(ucp[0]);
+    j  = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
+    for (k = 0; k < (int)iop->cmnd_len; ++k)
+      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
+      if ((report > 1) &&
+        (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+        int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+        j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
+                      "data, len=%d%s:\n", (int)iop->dxfer_len,
+                      (trunc ? " [only first 256 bytes shown]" : ""));
+        dStrHex((const char *)iop->dxferp,
+               (trunc ? 256 : iop->dxfer_len) , 1);
+    }
+    else
+      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
+
+    pout("%s", buff);
+  }
+
+
+  //return test commands
+  if (iop->cmnd[0] == 0x00)
+    return true;
+
+  user_aac_reply *pReply;
+
+  #ifdef ENVIRONMENT64
+    // Create user 64 bit request
+    user_aac_srb64  *pSrb;
+    uint8_t aBuff[sizeof(user_aac_srb64) + sizeof(user_aac_reply)] = {0,};
+
+    pSrb    = (user_aac_srb64*)aBuff;
+    pReply  = (user_aac_reply*)(aBuff+sizeof(user_aac_srb64));
+
+ #elif defined(ENVIRONMENT32)
+    //Create user 32 bit request
+    user_aac_srb32  *pSrb;
+    uint8_t aBuff[sizeof(user_aac_srb32) + sizeof(user_aac_reply)] = {0,};
+
+    pSrb    = (user_aac_srb32*)aBuff;
+    pReply  = (user_aac_reply*)(aBuff+sizeof(user_aac_srb32));
+
+ #endif
+
+  pSrb->function = SRB_FUNCTION_EXECUTE_SCSI;
+  //channel is 0 always
+  pSrb->channel  = 0;
+  pSrb->id       = aId;
+  pSrb->lun      = aLun;
+  pSrb->timeout  = 0;
+
+  pSrb->retry_limit = 0;
+  pSrb->cdb_size    = iop->cmnd_len;
+
+  switch(iop->dxfer_dir) {
+    case DXFER_NONE:
+      pSrb->flags = SRB_NoDataXfer;
+      break;
+    case DXFER_FROM_DEVICE:
+      pSrb->flags = SRB_DataIn;
+      break;
+    case DXFER_TO_DEVICE:
+      pSrb->flags = SRB_DataOut;
+      break;
+    default:
+      pout("aacraid: bad dxfer_dir\n");
+      return set_err(EINVAL, "aacraid: bad dxfer_dir\n");
+  }
+
+  if(iop->dxfer_len > 0) {
+
+    #ifdef ENVIRONMENT64
+      pSrb->sg64.count = 1;
+      pSrb->sg64.sg64[0].addr64.lo32 = ((intptr_t)iop->dxferp) &
+                                         0x00000000ffffffff;
+      pSrb->sg64.sg64[0].addr64.hi32 = ((intptr_t)iop->dxferp) >> 32;
+
+      pSrb->sg64.sg64[0].length = (uint32_t)iop->dxfer_len;
+      pSrb->count = sizeof(user_aac_srb64) +
+                          (sizeof(user_sgentry64)*(pSrb->sg64.count-1));
+    #elif defined(ENVIRONMENT32)
+      pSrb->sg32.count = 1;
+      pSrb->sg32.sg32[0].addr32 = (intptr_t)iop->dxferp;
+
+      pSrb->sg32.sg32[0].length = (uint32_t)iop->dxfer_len;
+      pSrb->count = sizeof(user_aac_srb32) +
+                          (sizeof(user_sgentry32)*(pSrb->sg32.count-1));
+    #endif
+
+  }
+
+  memcpy(pSrb->cdb,iop->cmnd,iop->cmnd_len);
+
+  int rc = 0;
+  errno = 0;
+  rc = ioctl(get_fd(),FSACTL_SEND_RAW_SRB,pSrb);
+  if(rc!= 0 || pReply->srb_status != 0x01) {
+    if(pReply->srb_status == 0x08) {
+      return set_err(EIO, "aacraid: Device %d %d does not exist\n" ,aLun,aId );
+    }
+  return set_err((errno ? errno : EIO), "aacraid result: %d.%d = %d/%d",
+                            aLun, aId, errno,
+                            pReply->srb_status);
+  }
+  return true;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 /// LSI MegaRAID support
@@ -2939,12 +3152,23 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   if (sscanf(type, "megaraid,%d", &disknum) == 1) {
     return new linux_megaraid_device(this, name, 0, disknum);
   }
+
+  //aacraid?
+  unsigned int device;
+  unsigned int host;
+  if(sscanf(type, "aacraid,%d,%d,%d", &host, &channel, &device)==3) {
+    //return new linux_aacraid_device(this,name,channel,device);
+    return get_sat_device("sat,auto",
+      new linux_aacraid_device(this, name, host, channel, device));
+
+  }
+
   return 0;
 }
 
 std::string linux_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "marvell, areca,N/E, 3ware,N, hpt,L/M/N, megaraid,N"
+  return "marvell, areca,N/E, 3ware,N, hpt,L/M/N, megaraid,N aacraid,H,L,ID"
 #ifdef HAVE_LINUX_CCISS_IOCTL_H
                                               ", cciss,N"
 #endif
