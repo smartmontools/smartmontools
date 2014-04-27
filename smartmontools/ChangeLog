@@ -1,4 +1,11 @@
-$Id: ChangeLog 3892 2014-04-18 20:28:10Z dpgilbert $
+$Id: ChangeLog 3893 2014-04-27 16:24:35Z chrfranke $
+
+2014-04-27  Raghava Aditya  <raghava.aditya@pmcs.com>
+
+	os_linux.cpp:
+	- Added support for aacraid drivers
+	- Created a new interface for aacraid
+	         smartctl -d aacraid,H,L,ID /dev/sdx
 
 2014-04-18  Douglas Gilbert  <dgilbert@interlog.com>
 

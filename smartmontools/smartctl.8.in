@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartctl.8.in 3879 2014-03-03 21:14:46Z chrfranke $
+$Id: smartctl.8.in 3893 2014-04-27 16:24:35Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -379,6 +379,26 @@ The following entry in /proc/devices must exist:
 For PERC2/3/4 controllers: \fBmegadevN\fP
 .fi
 For PERC5/6 controllers: \fBmegaraid_sas_ioctlN\fP
+
+.I aacraid,L,ID
+\- [Linux only] the device consists of one or more SCSI/SAS disks connected
+to a AacRaid controller.  The non-negative integer L is the Lun number and ID is the id number both of which 
+denotes which disk on the controller is monitored.
+Use syntax such as:
+.nf
+\fBsmartctl \-a \-d aacraid,0,66 /dev/sda\fP
+.fi
+.nf
+\fBsmartctl \-a \-d aacraid,0,66 /dev/sdb\fP
+.fi
+
+The L and ID numbers of a disk can be found in 
+/proc/scsi/scsi
+
+The following entry in /proc/devices must exist:
+.fi
+ \fBaac\fP
+
 
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD Linux
@@ -2268,4 +2288,4 @@ Links to these and other documents may be found on the Links page of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3879 2014-03-03 21:14:46Z chrfranke $
+$Id: smartctl.8.in 3893 2014-04-27 16:24:35Z chrfranke $

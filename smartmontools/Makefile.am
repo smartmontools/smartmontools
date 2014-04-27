@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3878 2014-03-03 18:45:21Z chrfranke $
+# $Id: Makefile.am 3893 2014-04-27 16:24:35Z chrfranke $
 #
 
 @SET_MAKE@
@@ -96,6 +96,7 @@ EXTRA_smartctl_SOURCES = \
         os_win32.cpp \
         os_generic.cpp \
         os_generic.h \
+        aacraid.h \
         cciss.cpp \
         cciss.h \
         cissio_freebsd.h \
@@ -155,6 +156,7 @@ EXTRA_smartd_SOURCES = \
         os_win32.cpp \
         os_generic.cpp \
         os_generic.h \
+        aacraid.h \
         cciss.cpp \
         cciss.h \
         cissio_freebsd.h \
