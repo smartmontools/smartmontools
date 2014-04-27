@@ -1,5 +1,10 @@
 $Id$
 
+2014-04-27  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Toshiba 3.5" MG03ACAxxx(Y) Enterprise HDD
+
 2014-04-27  Christian Franke  <franke@computer.org>
 
 	Fixes for aacraid patch:

@@ -2048,6 +2048,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(10|20)02TSKB",
     "", "", ""
   },
+  { "Toshiba 3.5\" MG03ACAxxx(Y) Enterprise HDD", // tested with TOSHIBA MG03ACA100/FL1A
+    "TOSHIBA MG03ACA[1234]00Y?",
+    "", "", ""
+  },
   { "Toshiba 3.5\" HDD DT01ACA...", // tested with TOSHIBA DT01ACA100/MS2OA750,
       // TOSHIBA DT01ACA200/MX4OABB0, TOSHIBA DT01ACA300/MX6OABB0
     "TOSHIBA DT01ACA(025|032|050|075|100|150|200|300)",
