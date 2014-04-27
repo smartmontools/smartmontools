@@ -53,7 +53,7 @@ typedef struct {
   }  user_sgentry64;
 
 typedef struct {
-  uint32_t aadr32;
+  uint32_t addr32;
   uint32_t length;
   }  user_sgentry32;
 
@@ -80,7 +80,7 @@ typedef struct {
   uint8_t  cdb[16];            // The actual cdb command
   user_sgmap64 sg64;           // pDatabuffer and address of Databuffer
   }  user_aac_srb64;
-   
+
 typedef struct {
   uint32_t function;           //SRB_FUNCTION_EXECUTE_SCSI 0x00
   uint32_t channel;            //bus

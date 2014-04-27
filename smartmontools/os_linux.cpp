@@ -879,8 +879,6 @@ public:
   virtual bool scsi_pass_through(scsi_cmnd_io *iop);
 
 private:
-  int afd;
-
   //Device Host number
   int aHost;
 
@@ -896,7 +894,7 @@ linux_aacraid_device::linux_aacraid_device(smart_interface *intf,
   const char *dev_name, unsigned int host, unsigned int channel, unsigned int device)
    : smart_device(intf,dev_name,"aacraid","aacraid"),
      linux_smart_device(O_RDWR|O_NONBLOCK),
-     afd(-1), aHost(host), aLun(channel), aId(device)
+     aHost(host), aLun(channel), aId(device)
 {
   set_info().info_name = strprintf("%s [aacraid_disk_%02d_%02d_%d]",dev_name,aHost,aLun,aId);
   set_info().dev_type  = strprintf("aacraid,%d,%d,%d",aHost,aLun,aId);
@@ -904,19 +902,17 @@ linux_aacraid_device::linux_aacraid_device(smart_interface *intf,
 
 linux_aacraid_device::~linux_aacraid_device() throw()
 {
-
 }
 
 bool linux_aacraid_device::open()
 {
-
   //Create the character device name based on the host number
   //Required for get stats from disks connected to different controllers
   char dev_name[128];
-  sprintf(dev_name,"/dev/aac%d",aHost);
+  snprintf(dev_name, sizeof(dev_name), "/dev/aac%d", aHost);
 
   //Initial open of dev name to check if it exsists
-  afd = ::open(dev_name,O_RDWR);
+  int afd = ::open(dev_name,O_RDWR);
 
   if(afd < 0 && errno == ENOENT) {
 
@@ -927,16 +923,20 @@ bool linux_aacraid_device::open()
 
     char line[256];
     int mjr = -1;
-    int nc  = -1;
 
     while(fgets(line,sizeof(line),fp) !=NULL) {
+      int nc = -1;
       if(sscanf(line,"%d aac%n",&mjr,&nc) == 1
                 && nc > 0 && '\n' == line[nc])
         break;
+      mjr = -1;
     }
 
     //work with /proc/devices is done
     fclose(fp);
+
+    if (mjr < 0)
+      return set_err(ENOENT, "aac entry not found in /proc/devices");
 
     //Create misc device file in /dev/ used for communication with driver
     if(mknod(dev_name,S_IFCHR,makedev(mjr,aHost)))
@@ -3168,7 +3168,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
 
 std::string linux_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "marvell, areca,N/E, 3ware,N, hpt,L/M/N, megaraid,N aacraid,H,L,ID"
+  return "marvell, areca,N/E, 3ware,N, hpt,L/M/N, megaraid,N, aacraid,H,L,ID"
 #ifdef HAVE_LINUX_CCISS_IOCTL_H
                                               ", cciss,N"
 #endif

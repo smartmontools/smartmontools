@@ -1,5 +1,13 @@
 $Id$
 
+2014-04-27  Christian Franke  <franke@computer.org>
+
+	Fixes for aacraid patch:
+	aacraid.h: Fix typo which breaks 32-bit build.
+	os_linux.cpp:  Remove useless member variable afd.
+	Fix error handling of /proc/devices parsing.
+	Avoid unsafe sprintf().  Fix help text.
+
 2014-04-27  Raghava Aditya  <raghava.aditya@pmcs.com>
 
 	os_linux.cpp:
