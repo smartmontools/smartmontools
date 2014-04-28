@@ -863,7 +863,7 @@ scsiPrintSelfTest(scsi_device * device)
     else
     if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
                         modese_len)) && (durationSec > 0)) {
-        pout("Long (extended) Self Test duration: %d seconds "
+        pout("\nLong (extended) Self Test duration: %d seconds "
              "[%.1f minutes]\n", durationSec, durationSec / 60.0);
     }
     pout("\n");
@@ -1048,11 +1048,12 @@ scsiPrintSSMedia(scsi_device * device)
         case 1:
             if (pl < 8) {
                 print_on();
-                pout("Percentage used endurance indicator too short (pl=%d)\n", pl);
+                pout("SS Media Percentage used endurance indicator parameter "
+                     "too short (pl=%d)\n", pl);
                 print_off();
                 return FAILSMART;
             }
-            pout("SS Media used endurance indicator: %d%%\n", ucp[7]);
+            pout("Percentage used endurance indicator: %d%%\n", ucp[7]);
         default:        /* ignore other parameter codes */
             break;
         }
@@ -1221,7 +1222,7 @@ show_sas_port_param(unsigned char * ucp, int param_len)
         t = ((0x70 & vcp[4]) >> 4);
         switch (t) {
         case 0: snprintf(s, sz, "no device attached"); break;
-        case 1: snprintf(s, sz, "end device"); break;
+        case 1: snprintf(s, sz, "SAS or SATA device"); break;
         case 2: snprintf(s, sz, "expander device"); break;
         case 3: snprintf(s, sz, "expander device (fanout)"); break;
         default: snprintf(s, sz, "reserved [%d]", t); break;
@@ -1279,6 +1280,7 @@ show_sas_port_param(unsigned char * ucp, int param_len)
         case 8: snprintf(s, sz, "phy enabled; 1.5 Gbps"); break;
         case 9: snprintf(s, sz, "phy enabled; 3 Gbps"); break;
         case 0xa: snprintf(s, sz, "phy enabled; 6 Gbps"); break;
+        case 0xb: snprintf(s, sz, "phy enabled; 12 Gbps"); break;
         default: snprintf(s, sz, "reserved [%d]", t); break;
         }
         pout("    negotiated logical link rate: %s\n", s);
@@ -1347,12 +1349,8 @@ show_protocol_specific_page(unsigned char * resp, int len)
 }
 
 
-// See Serial Attached SCSI (SAS-2) (e.g. revision 16) the Protocol Specific
-// log pageSerial Attached SCSI (SAS-2) (e.g. revision 16) the Protocol
-// Specific log page.
-// Returns 0 if ok else FAIL* bitmask. Note that if any of the most recent
-// 20 self tests fail (result code 3 to 7 inclusive) then FAILLOG and/or
-// FAILSMART is returned.
+// See Serial Attached SCSI (SPL-3) (e.g. revision 6g) the Protocol Specific
+// log page [0x18]. Returns 0 if ok else FAIL* bitmask.
 static int
 scsiPrintSasPhy(scsi_device * device, int reset)
 {
@@ -1410,6 +1408,22 @@ static const char * peripheral_dt_arr[] = {
         "enclosure",
         "simplified disk",
         "optical card reader"
+        "reserved [0x10]"
+        "object based storage"
+        "automation/driver interface"
+        "security manager device"
+        "host managed zoned block device"
+        "reserved [0x15]"
+        "reserved [0x16]"
+        "reserved [0x17]"
+        "reserved [0x18]"
+        "reserved [0x19]"
+        "reserved [0x1a]"
+        "reserved [0x1b]"
+        "reserved [0x1c]"
+        "reserved [0x1d]"
+        "well known logical unit"
+        "unknown or no device type"
 };
 
 static const char * transport_proto_arr[] = {
@@ -1419,11 +1433,11 @@ static const char * transport_proto_arr[] = {
         "IEEE 1394 (SBP-2)",
         "RDMA (SRP)",
         "iSCSI",
-        "SAS",
+        "SAS (SPL-3)",
         "ADT",
-        "0x8",
-        "0x9",
-        "0xa",
+        "ATA (ACS-2)",
+        "UAS",
+        "SOP",
         "0xb",
         "0xc",
         "0xd",
@@ -1437,12 +1451,13 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
 {
     char timedatetz[DATEANDEPOCHLEN];
     struct scsi_iec_mode_page iec;
-    int err, iec_err, len, req_len, avail_len, n;
+    int err, iec_err, len, req_len, avail_len, n, scsi_version;
     int is_tape = 0;
     int peri_dt = 0;
     int returnval = 0;
     int transport = -1;
     int form_factor = 0;
+    int haw_zbc = 0;
     int protect = 0;
 
     memset(gBuf, 0, 96);
@@ -1474,6 +1489,9 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
         print_off();
         return 1;
     }
+    // Upper bits of version bytes were used in older standards
+    // Only interested in SPC-4 (0x6) and SPC-5 (assumed to be 0x7)
+    scsi_version = gBuf[2] & 0x7;
 
     if (all && (0 != strncmp((char *)&gBuf[8], "ATA", 3))) {
         char vendor[8+1], product[16+1], revision[4+1];
@@ -1486,6 +1504,10 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
         pout("Product:              %.16s\n", product);
         if (gBuf[32] >= ' ')
             pout("Revision:             %.4s\n", revision);
+        if (scsi_version == 0x6)
+            pout("Compliance:           SPC-4\n");
+        else if (scsi_version == 0x7)
+            pout("Compliance:           SPC-5\n");
     }
 
     if (!*device->get_req_type()/*no type requested*/ &&
@@ -1566,8 +1588,8 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
                 lbprz = !! (lb_prov_resp[5] & 0x4);
             switch (prov_type) {
             case 0:
-                pout("Logical block provisioning type unreported, "
-                     "LBPME=%d, LBPRZ=%d\n", lbpme, lbprz);
+                pout("LB provisioning type: unreported, LBPME=%d, LBPRZ=%d\n",
+                     lbpme, lbprz);
                 break;
             case 1:
                 pout("LU is resource provisioned, LBPRZ=%d\n", lbprz);
@@ -1583,10 +1605,14 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
         } else if (1 == lbpme)
             pout("Logical block provisioning enabled, LBPRZ=%d\n", lbprz);
 
-        int rpm = scsiGetRPM(device, modese_len, &form_factor);
-        if (rpm > 0) {
-            if (1 == rpm)
+        int rpm = scsiGetRPM(device, modese_len, &form_factor, &haw_zbc);
+        if (rpm >= 0) {
+            if (0 == rpm)
+                ;       // Not reported
+            else if (1 == rpm)
                 pout("Rotation Rate:        Solid State Device\n");
+            else if ((rpm <= 0x400) || (0xffff == rpm))
+                ;       // Reserved
             else
                 pout("Rotation Rate:        %d rpm\n", rpm);
         }
@@ -1613,6 +1639,8 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
             if (cp)
                 pout("Form Factor:          %s inches\n", cp);
         }
+        if (haw_zbc > 0)
+            pout("Host aware zoned block capable\n");
     }
 
     /* Do this here to try and detect badly conforming devices (some USB

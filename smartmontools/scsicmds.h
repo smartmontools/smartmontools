@@ -420,7 +420,8 @@ int scsiSelfTestInProgress(scsi_device * device, int * inProgress);
 int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current);
 int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len);
 int scsiFetchTransportProtocol(scsi_device * device, int modese_len);
-int scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp);
+int scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp,
+               int * haw_zbcp);
 int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wce,
                     short int * rcd);
 uint64_t scsiGetSize(scsi_device * device, unsigned int * lb_sizep,

@@ -2479,7 +2479,8 @@ scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current)
  * RIGID_DISK_DRIVE_GEOMETRY_PAGE mode page. */
 
 int
-scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp)
+scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp,
+           int * haw_zbcp)
 {
     int err, offset, speed;
     UINT8 buff[64];
@@ -2492,10 +2493,14 @@ scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp)
         speed = (buff[4] << 8) + buff[5];
         if (form_factorp)
             *form_factorp = buff[7] & 0xf;
+        if (haw_zbcp)
+            *haw_zbcp = !!(0x10 & buff[8]);
         return speed;
     }
     if (form_factorp)
         *form_factorp = 0;
+    if (haw_zbcp)
+        *haw_zbcp = 0;
     if (modese_len <= 6) {
         if ((err = scsiModeSense(device, RIGID_DISK_DRIVE_GEOMETRY_PAGE, 0, pc,
                                  buff, sizeof(buff)))) {
