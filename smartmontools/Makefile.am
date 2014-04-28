@@ -408,6 +408,7 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = \
         $(srcdir)/Makefile.in \
         $(srcdir)/aclocal.m4 \
+        $(srcdir)/compile \
         $(srcdir)/configure \
         $(srcdir)/config.guess \
         $(srcdir)/config.h.in \
