@@ -1,4 +1,9 @@
-$Id: ChangeLog 3896 2014-04-28 04:31:25Z dpgilbert $
+$Id: ChangeLog 3897 2014-04-28 18:30:18Z chrfranke $
+
+2014-04-28  Christian Franke  <franke@computer.org>
+
+	autogen.sh: Allow automake 1.14, suppress 'subdir-objects' warning.
+	Makefile.am: Add new 'compile' script to target 'maintainer-clean'.
 
 2014-04-28  Douglas Gilbert  <dgilbert@interlog.com>
 

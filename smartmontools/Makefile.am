@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3893 2014-04-27 16:24:35Z chrfranke $
+# $Id: Makefile.am 3897 2014-04-28 18:30:18Z chrfranke $
 #
 
 @SET_MAKE@
@@ -408,6 +408,7 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = \
         $(srcdir)/Makefile.in \
         $(srcdir)/aclocal.m4 \
+        $(srcdir)/compile \
         $(srcdir)/configure \
         $(srcdir)/config.guess \
         $(srcdir)/config.h.in \
