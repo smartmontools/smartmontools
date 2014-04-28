@@ -1,4 +1,11 @@
-$Id: ChangeLog 3895 2014-04-27 21:03:27Z samm2 $
+$Id: ChangeLog 3896 2014-04-28 04:31:25Z dpgilbert $
+
+2014-04-28  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.h, scsicmds.cpp, scsiprint.h:
+	- improve handling of modern SCSI disks (SAS SSDs)
+	  show compliance (SCSI version), show 12 Gbps SAS-3
+	  speed, and flag ZBC presence
 
 2014-04-27  Alex Samorukov  <samm@os2.kiev.ua>
 

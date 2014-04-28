@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3783 2013-03-02 01:51:12Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 3896 2014-04-28 04:31:25Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -420,7 +420,8 @@ int scsiSelfTestInProgress(scsi_device * device, int * inProgress);
 int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current);
 int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len);
 int scsiFetchTransportProtocol(scsi_device * device, int modese_len);
-int scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp);
+int scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp,
+               int * haw_zbcp);
 int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wce,
                     short int * rcd);
 uint64_t scsiGetSize(scsi_device * device, unsigned int * lb_sizep,
