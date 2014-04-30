@@ -1549,7 +1549,8 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
                              (lb_size * (1 << lb_per_pb_exp)));
                     pout("Physical block size:  %s bytes\n", lb_str);
                     n = ((rc16_12[2] & 0x3f) << 8) + rc16_12[3];
-                    pout("Lowest aligned LBA:   %d\n", n);
+                    if (n > 0)  // not common so cut the clutter
+                        pout("Lowest aligned LBA:   %d\n", n);
                 }
                 if (rc16_12[0] & 0x1) { /* PROT_EN set */
                     int p_type = ((rc16_12[0] >> 1) & 0x7);

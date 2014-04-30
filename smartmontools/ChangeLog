@@ -1,5 +1,10 @@
 $Id$
 
+2014-04-30  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp:
+	- Lowest aligned LBA > 0 not common so only output in that case
+
 2014-04-28  Christian Franke  <franke@computer.org>
 
 	autogen.sh: Allow automake 1.14, suppress 'subdir-objects' warning.
