@@ -1,4 +1,9 @@
-$Id: ChangeLog 3897 2014-04-28 18:30:18Z chrfranke $
+$Id: ChangeLog 3898 2014-04-30 17:44:13Z dpgilbert $
+
+2014-04-30  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp:
+	- Lowest aligned LBA > 0 not common so only output in that case
 
 2014-04-28  Christian Franke  <franke@computer.org>
 
