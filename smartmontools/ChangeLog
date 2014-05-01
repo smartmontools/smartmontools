@@ -1,4 +1,8 @@
-$Id: ChangeLog 3898 2014-04-30 17:44:13Z dpgilbert $
+$Id: ChangeLog 3899 2014-05-01 16:53:10Z chrfranke $
+
+2014-05-01  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in: Update '-d aacraid' info.
 
 2014-04-30  Douglas Gilbert  <dgilbert@interlog.com>
 
