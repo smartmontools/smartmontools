@@ -5,6 +5,23 @@ $Id$
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
+Date <Not released yet, please try current SVN>
+Summary: smartmontools release 6.3
+-----------------------------------------------------------
+- smartctl: Fixed bogus error messages from '-g/-s wcreorder'.
+- SCSI: Improved support of modern disks (SAS SSDs).
+- SCSI: Fixed sense data noise from old disks.
+- configure option '--with-systemdenvfile'.
+- Removed build time stamps to support reproducible builds.
+- Compile fixes for C++11.
+- HDD, SSD and USB additions to drive database.
+- Linux: Support for controllers behind AACRAID driver.
+- Linux: Fixed DEVICESCAN max path count.
+- FreeBSD: Fixed possible crash caused by wrong SCSI error handling.
+- FreeBSD: Compile fix for kFreeBSD.
+- Windows: Reworked CSMI port scanning.
+- QNX: Compile fix.
+
 Date 2013-07-26
 Summary: smartmontools release 6.2
 -----------------------------------------------------------
