@@ -3,19 +3,25 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2014 Raghava Aditya <Raghava.Aditya@pmcs.com>
  * Copyright (C) 2003-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-12 Hank Wu <hank@areca.com.tw>
- * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008    Jordan Hargrave <jordan_hargrave@dell.com>
  *
- *  Parts of this file are derived from code that was
+ * Original AACRaid code:
+ *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
+ *
+ * Original Areca code:
+ *  Copyright (C) 2008-12 Hank Wu <hank@areca.com.tw>
+ *  Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
+ *
+ * Original MegaRAID code:
+ *  Copyright (C) 2008    Jordan Hargrave <jordan_hargrave@dell.com>
+ *
+ * 3ware code was derived from code that was:
  *
  *  Written By: Adam Radford <linux@3ware.com>
  *  Modifications By: Joel Jacobson <linux@3ware.com>
- *                   Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+ *                    Arnaldo Carvalho de Melo <acme@conectiva.com.br>
  *                    Brad Strand <linux@3ware.com>
  *
  *  Copyright (C) 1999-2003 3ware Inc.
@@ -93,7 +99,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3894 2014-04-27 16:45:40Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 3900 2014-05-01 17:08:59Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 

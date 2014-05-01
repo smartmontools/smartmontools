@@ -1,7 +1,8 @@
-$Id: ChangeLog 3899 2014-05-01 16:53:10Z chrfranke $
+$Id: ChangeLog 3900 2014-05-01 17:08:59Z chrfranke $
 
 2014-05-01  Christian Franke  <franke@computer.org>
 
+	os_linux.cpp: Clarify copyright info in GPL header.
 	smartctl.8.in, smartd.conf.5.in: Update '-d aacraid' info.
 
 2014-04-30  Douglas Gilbert  <dgilbert@interlog.com>
