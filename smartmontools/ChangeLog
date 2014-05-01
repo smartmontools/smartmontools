@@ -1,5 +1,9 @@
 $Id$
 
+2014-05-01  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in: Update '-d aacraid' info.
+
 2014-04-30  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp:

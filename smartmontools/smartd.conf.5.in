@@ -144,19 +144,17 @@ Section below!
 .B \ \ /dev/bus/0 -d megaraid,2 -a -s S/../.././03
 .B
 .B #
-.\" %ENDIF OS Linux
 .nf
-.\" %IF OS Linux
-.B # Three disks connected to a AacRaid controller
+.B # Three disks connected to an AacRaid controller
 .B # Start short self-tests daily between 1-2, 2-3, and
 .B # 3-4 am.
-.B \ \ /dev/sda -d aacraid,0,66 -a -s S/../.././01
-.B \ \ /dev/sda -d aacraid,0,67 -a -s S/../.././02
-.B \ \ /dev/sda -d aacraid,0,68 -a -s S/../.././03
+.B \ \ /dev/sda -d aacraid,0,0,66 -a -s S/../.././01
+.B \ \ /dev/sda -d aacraid,0,0,67 -a -s S/../.././02
+.B \ \ /dev/sda -d aacraid,0,0,68 -a -s S/../.././03
 .B
 .B #
-.\" %ENDIF OS Linux
 .nf
+.\" %ENDIF OS Linux
 .B # Four ATA disks on a 3ware 6/7/8000 controller.
 .B # Start short self-tests daily between midnight and 1am,
 .B # 1-2, 2-3, and 3-4 am.  Starting with the Linux 2.6
@@ -421,6 +419,14 @@ In log files and email messages this disk will be identified as
 megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
 It is possible to set RAID device name as /dev/bus/N, where N is a SCSI bus 
 number.
+Please see the \fBsmartctl\fP(8) man page for further details.
+
+.I aacraid,H,L,ID
+\- [Linux only] [NEW EXPERIMENTAL SMARTD FEATURE]
+the device consists of one or more SCSI/SAS disks connected to an AacRaid controller.
+The non-negative integers H,L,ID (Host number, Lun, ID) denote which disk
+on the controller is monitored.
+In log files and email messages this disk will be identified as aacraid_disk_HH_LL_ID.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
 .\" %ENDIF OS Linux
