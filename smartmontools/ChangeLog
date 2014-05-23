@@ -1,6 +1,6 @@
-$Id: ChangeLog 3902 2014-05-23 19:14:15Z samm2 $
+$Id: ChangeLog 3903 2014-05-23 19:43:07Z samm2 $
 
-2014-05-01  Christian Franke  <franke@computer.org>
+2014-05-23 Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: fixed #321 (compiler warning on 32 bit architectures),
 	patch provided by tijl
