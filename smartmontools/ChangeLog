@@ -2,6 +2,11 @@ $Id$
 
 2014-05-01  Christian Franke  <franke@computer.org>
 
+	os_freebsd.cpp: fixed #321 (compiler warning on 32 bit architectures),
+	patch provided by tijl
+
+2014-05-01  Christian Franke  <franke@computer.org>
+
 	os_linux.cpp: Clarify copyright info in GPL header.
 	smartctl.8.in, smartd.conf.5.in: Update '-d aacraid' info.
 

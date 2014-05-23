@@ -1042,7 +1042,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       memcpy(iop->sensep, &(ccb->csio.sense_data), iop->resp_sense_len);
       if (scsi_debugmode) {
         if (scsi_debugmode > 1) {
-          pout("  >>> Sense buffer, len=%lu:\n", iop->resp_sense_len);
+          pout("  >>> Sense buffer, len=%zu:\n", iop->resp_sense_len);
           dStrHex(iop->sensep, iop->resp_sense_len, 1);
         }
         if ((iop->sensep[0] & 0x7f) > 0x71)
