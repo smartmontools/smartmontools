@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3874 2014-02-18 00:47:23Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3902 2014-05-23 19:14:15Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1042,7 +1042,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       memcpy(iop->sensep, &(ccb->csio.sense_data), iop->resp_sense_len);
       if (scsi_debugmode) {
         if (scsi_debugmode > 1) {
-          pout("  >>> Sense buffer, len=%lu:\n", iop->resp_sense_len);
+          pout("  >>> Sense buffer, len=%zu:\n", iop->resp_sense_len);
           dStrHex(iop->sensep, iop->resp_sense_len, 1);
         }
         if ((iop->sensep[0] & 0x7f) > 0x71)
