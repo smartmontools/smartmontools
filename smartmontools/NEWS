@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3901 2014-05-01 17:31:14Z chrfranke $
+$Id: NEWS 3904 2014-06-15 14:21:15Z chrfranke $
 
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
@@ -226,7 +226,7 @@ Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
 - Sourcecode repository moved from CVS to SVN
 - Support for USB devices with Cypress, JMicron and Sunplus USB bridges
 - USB device type autodetection for some devices on Linux, Windows and FreeBSD
-  (http://sourceforge.net/apps/trac/smartmontools/wiki/Supported_USB-Devices)
+  (http://www.smartmontools.org/wiki/Supported_USB-Devices)
 - Support for Areca controllers on Linux
 - Support for MegaRAID controllers on Linux
 - Support for HighPoint RocketRAID controllers on FreeBSD

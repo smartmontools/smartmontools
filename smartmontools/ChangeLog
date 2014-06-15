@@ -1,4 +1,9 @@
-$Id: ChangeLog 3903 2014-05-23 19:43:07Z samm2 $
+$Id: ChangeLog 3904 2014-06-15 14:21:15Z chrfranke $
+
+2014-06-15  Christian Franke  <franke@computer.org>
+
+	drivedb.h, smartctl.8.in, smartd.8.in, INSTALL, NEWS, TODO, WARNINGS:
+	Fix old Trac links.
 
 2014-05-23 Alex Samorukov  <samm@os2.kiev.ua>
 

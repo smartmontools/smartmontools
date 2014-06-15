@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL 3875 2014-03-03 17:18:58Z chrfranke $
+$Id: INSTALL 3904 2014-06-15 14:21:15Z chrfranke $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -578,8 +578,8 @@ variable.
 Source and binary packages for Windows are available at
 http://sourceforge.net/projects/smartmontools/files/
 
-Refer to http://sourceforge.net/apps/trac/smartmontools/wiki/Download
-for any additional download and installation instructions.
+Refer to http://www.smartmontools.org/wiki/Download for any additional
+download and installation instructions.
 
 The following files are installed if ./configure has no options:
 
