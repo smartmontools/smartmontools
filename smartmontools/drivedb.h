@@ -1287,7 +1287,7 @@ const drive_settings builtin_knowndrives[] = {
     "Buggy and fixed firmware report same version number!\n"
     "See the following web pages for details:\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/223571en\n"
-    "http://sourceforge.net/apps/trac/smartmontools/wiki/SamsungF4EGBadBlocks",
+    "http://www.smartmontools.org/wiki/SamsungF4EGBadBlocks",
     ""
   },
   { "SAMSUNG SpinPoint S250", // tested with HD200HJ/KF100-06

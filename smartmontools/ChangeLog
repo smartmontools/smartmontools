@@ -1,5 +1,10 @@
 $Id$
 
+2014-06-15  Christian Franke  <franke@computer.org>
+
+	drivedb.h, smartctl.8.in, smartd.8.in, INSTALL, NEWS, TODO, WARNINGS:
+	Fix old Trac links.
+
 2014-05-23 Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: fixed #321 (compiler warning on 32 bit architectures),

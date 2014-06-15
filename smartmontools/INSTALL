@@ -578,8 +578,8 @@ variable.
 Source and binary packages for Windows are available at
 http://sourceforge.net/projects/smartmontools/files/
 
-Refer to http://sourceforge.net/apps/trac/smartmontools/wiki/Download
-for any additional download and installation instructions.
+Refer to http://www.smartmontools.org/wiki/Download for any additional
+download and installation instructions.
 
 The following files are installed if ./configure has no options:
 
