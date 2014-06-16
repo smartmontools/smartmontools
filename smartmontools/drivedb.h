@@ -2359,8 +2359,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // different part number, tested with
-      // ST1000DM003-1CH162/CC47, ST1000DM003-1CH162/CC49, ST2000DM001-1CH164/CC24
-    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+      // ST1000DM003-1CH162/CC47, ST1000DM003-1CH162/CC49, ST2000DM001-1CH164/CC24,
+      // ST1000DM000-9TS15E/CC92
+    "ST(1000|1500|2000|2500|3000)DM00[0-3]-.*",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -2477,7 +2478,7 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(160316|250[34]12|320(311|413)|500(312|414)|1000(322|424))CS",
     "", "", ""
   },
-  { "Seagate Video 3.5 HDD", // tested with ST4000VM000-1F3168/SC25
+  { "Seagate Video 3.5 HDD", // tested with ST4000VM000-1F3168/SC23, SC25
     "ST(10|15|20|30|40)00VM00[023]-.*",
     "", "", ""
   },

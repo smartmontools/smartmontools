@@ -4,6 +4,7 @@ $Id$
 
 	drivedb.h:
 	- Seagate Laptop Thin HDD
+	- Seagate Barracuda 7200.14 (AF): *DM000 variant
 	- Seagate Barracuda Green (AF): no warnings for newer firmware versions
 	- Seagate Constellation.2 (SATA)
 	- Seagate NAS HDD
