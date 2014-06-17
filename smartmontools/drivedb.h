@@ -1286,7 +1286,7 @@ const drive_settings builtin_knowndrives[] = {
     "Buggy and fixed firmware report same version number!\n"
     "See the following web pages for details:\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/223571en\n"
-    "http://sourceforge.net/apps/trac/smartmontools/wiki/SamsungF4EGBadBlocks",
+    "http://www.smartmontools.org/wiki/SamsungF4EGBadBlocks",
     ""
   },
   { "SAMSUNG SpinPoint S250", // tested with HD200HJ/KF100-06
@@ -2047,6 +2047,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(10|20)02TSKB",
     "", "", ""
   },
+  { "Toshiba 3.5\" MG03ACAxxx(Y) Enterprise HDD", // tested with TOSHIBA MG03ACA100/FL1A
+    "TOSHIBA MG03ACA[1234]00Y?",
+    "", "", ""
+  },
   { "Toshiba 3.5\" HDD DT01ACA...", // tested with TOSHIBA DT01ACA100/MS2OA750,
       // TOSHIBA DT01ACA200/MX4OABB0, TOSHIBA DT01ACA300/MX6OABB0
     "TOSHIBA DT01ACA(025|032|050|075|100|150|200|300)",
@@ -2177,6 +2181,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus Thin", // tested with ST320LT007-9ZV142/0004LVM1
     "ST(160|250|320)LT0(07|09|11|14)-.*",
+    "", "", ""
+  },
+  { "Seagate Laptop Thin HDD", // tested with ST500LT012-9WS142/0001SDM1
+    "ST(250|320|500)LT0(12|15|25)-.*",
     "", "", ""
   },
   { "Seagate Laptop SSHD", // tested with ST500LM000-1EJ162/SM11
@@ -2350,8 +2358,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // different part number, tested with
-      // ST2000DM001-1CH164/CC24
-    "ST(1000|1500|2000|2500|3000)DM00[1-3]-.*",
+      // ST1000DM003-1CH162/CC47, ST1000DM003-1CH162/CC49, ST2000DM001-1CH164/CC24,
+      // ST1000DM000-9TS15E/CC92
+    "ST(1000|1500|2000|2500|3000)DM00[0-3]-.*",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -2386,7 +2395,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda Green (AF)", // new firmware
     "ST((10|15|20)00DL00[123])-.*",
-    "CC3[2-9A-Z]",
+    "CC(3[2-9A-Z]|[4-9A-Z]..*)", // >= "CC32"
     "", ""
   },
   { "Seagate Barracuda Green (AF)", // unknown firmware
@@ -2450,12 +2459,24 @@ const drive_settings builtin_knowndrives[] = {
     "ST(1000|2000|3000)NC00[0-3](-.*)?",
     "", "", ""
   },
+  { "Seagate Constellation.2 (SATA)", // 2.5", tested with ST91000640NS/SN02
+    "ST9(25061|50062|100064)[012]NS", // *SS = SAS
+    "", "", ""
+  },
+  { "Seagate NAS HDD", // tested with ST2000VN000-1H3164/SC42, ST3000VN000-1H4167/SC43
+    "ST[234]000VN000-.*",
+    "", "", ""
+  },
   { "Seagate Pipeline HD 5900.1",
     "ST3(160310|320[34]10|500(321|422))CS",
     "", "", ""
   },
   { "Seagate Pipeline HD 5900.2", // tested with ST31000322CS/SC13
     "ST3(160316|250[34]12|320(311|413)|500(312|414)|1000(322|424))CS",
+    "", "", ""
+  },
+  { "Seagate Video 3.5 HDD", // tested with ST4000VM000-1F3168/SC23, SC25
+    "ST(10|15|20|30|40)00VM00[023]-.*",
     "", "", ""
   },
   { "Seagate Medalist 17240, 13030, 10231, 8420, and 4310",
