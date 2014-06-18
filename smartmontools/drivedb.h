@@ -2855,6 +2855,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Buffalo MiniStationHD-PCFU3; ",
+    "0x0411:0x0240",
+    "",
+    "",
+    "-d sat"
+  },
   // LG Electronics
   { "USB: LG Mini HXD5; JMicron",
     "0x043e:0x70f1",
@@ -2896,6 +2902,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Toshiba Stor.E Basics; ", // 1TB
     "0x0480:0xa009",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Toshiba Stor.E Plus", // 2TB
+    "0x0480:0xa00a",
     "",
     "",
     "-d sat"
@@ -2983,8 +2995,14 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Samsung M3 Portable USB 3.0; ", // 1TB
-    "0x04e8:0x61b6",
+  { "USB: Samsung D3 Station; ", // 3TB
+    "0x04e8:0x6124",
+    "", // 0x200
+    "",
+    "-d sat"
+  },
+  { "USB: Samsung M3 Portable USB 3.0; ",
+    "0x04e8:0x61b[456]", // 4=2TB, 5=1.5TB, 6=1TB
     "", // 0x0e00
     "",
     "-d sat"
@@ -3261,7 +3279,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Expansion Portable; ",
-    "0x0bc2:0x2300",
+    "0x0bc2:0x23(00|12)",
     "",
     "",
     "-d sat"
@@ -3285,7 +3303,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat,12"
   },
   { "USB: Seagate Expansion External; ", // 2TB, 3TB
-    "0x0bc2:0x33(00|20|32)",
+    "0x0bc2:0x33(00|12|20|32)",
     "",
     "",
     "-d sat"
@@ -3518,6 +3536,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: WD Elements; ",
+    "0x1058:0x10[ab]8", // a=1TB, b=2TB
+    "", // a=0x1042, b=0x1007
+    "",
+    "-d sat"
+  },
   { "USB: WD My Book Essential; ",
     "0x1058:0x1100",
     "", // 0x0165
@@ -3715,6 +3739,12 @@ const drive_settings builtin_knowndrives[] = {
       // reported as unsupported: BYTECC T-200U3, Kingwin USB 3.0 docking station
     "0x174c:0x55aa",
     "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: ; ASMedia AS2105", // Icy Box IB-AC603A-U3
+    "0x174c:0x5136",
+    "", // 0x0001
     "",
     "-d sat"
   },
