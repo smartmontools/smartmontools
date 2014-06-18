@@ -1,5 +1,17 @@
 $Id$
 
+2014-06-18  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Buffalo MiniStationHD-PCFU3 (0x0411:0x0240)
+	- USB: Toshiba Stor.E Plus (0x0480:0xa00a) (Debian bug 734395)
+	- USB: Samsung D3 Station (0x04e8:0x6124) (ticket #332)
+	- USB: Samsung M3 Portable (0x04e8:0x61b[45])
+	- USB: Seagate Expansion Portable (0x0bc2:0x2312)
+	- USB: Seagate Expansion External (0x0bc2:0x3312) (ticket #320)
+	- USB: WD Elements (0x1058:0x10[ab]8) (ticket #331)
+	- USB: ASMedia AS2105 (0x174c:0x5136)
+
 2014-06-16  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
