@@ -6,6 +6,7 @@ $Id$
 	bPortIdentifier=0xff (regression from r3888).
 	os_win32/installer.nsi: Create standard InstallLocation registry entry.
 	Keep old Install_Dir entry if needed for GSmartControl.
+	Update links in registry and shortcuts.
 
 2014-06-18  Christian Franke  <franke@computer.org>
 

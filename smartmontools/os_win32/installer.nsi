@@ -220,12 +220,11 @@ Section "Uninstaller" UNINST_SECTION
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayVersion" "${VERSTR}"
 !endif
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation" "$INSTDIR"
-  ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "Publisher" "smartmontools"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "UninstallString" '"$INSTDIR\uninst-smartmontools.exe"'
-  ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLInfoAbout" "http://smartmontools.sourceforge.net/"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "HelpLink"     "http://smartmontools.sourceforge.net/"
-  ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLUpdateInfo" "http://sourceforge.net/project/showfiles.php?group_id=64297"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLUpdateInfo" "http://smartmontools-win32.dyndns.org/"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "Publisher"     "smartmontools.org"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLInfoAbout"  "http://www.smartmontools.org/"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "HelpLink"      "http://sourceforge.net/projects/smartmontools/support"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLUpdateInfo" "http://smartmontools.no-ip.org/"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "NoRepair" 1
   WriteUninstaller "uninst-smartmontools.exe"
@@ -317,11 +316,11 @@ Section "Start Menu Shortcuts" MENU_SECTION
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\ChangeLog.lnk" "$INSTDIR\doc\ChangeLog.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\COPYING.lnk"   "$INSTDIR\doc\COPYING.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\NEWS.lnk"      "$INSTDIR\doc\NEWS.txt"
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\Windows version download page.lnk" "http://smartmontools-win32.dyndns.org/smartmontools/"
+    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\Windows version download page.lnk" "http://smartmontools.no-ip.org/"
   nodoc:
 
   ; Homepage
-  CreateShortCut "$SMPROGRAMS\smartmontools\smartmontools Home Page.lnk" "http://smartmontools.sourceforge.net/"
+  CreateShortCut "$SMPROGRAMS\smartmontools\smartmontools Home Page.lnk" "http://www.smartmontools.org/"
 
   ; drivedb.h update
   IfFileExists "$INSTDIR\bin\update-smart-drivedb.exe" 0 noupdb
