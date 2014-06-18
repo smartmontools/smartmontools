@@ -2,6 +2,11 @@ $Id$
 
 2014-06-18  Christian Franke  <franke@computer.org>
 
+	os_win32.cpp: Fix CSMI support for older Intel RST drivers which set
+	bPortIdentifier=0xff (regression from r3888).
+
+2014-06-18  Christian Franke  <franke@computer.org>
+
 	drivedb.h:
 	- USB: Buffalo MiniStationHD-PCFU3 (0x0411:0x0240)
 	- USB: Toshiba Stor.E Plus (0x0480:0xa00a) (Debian bug 734395)

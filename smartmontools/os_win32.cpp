@@ -2939,10 +2939,12 @@ unsigned csmi_device::get_ports_used()
       default:
         continue;
     }
-    if (pe.bPortIdentifier >= 32)
-      continue;
 
-    ports_used |= (1 << pe.bPortIdentifier);
+    if (pe.bPortIdentifier == 0xff)
+      // Older (<= 9.*) Intel RST driver
+      ports_used |= (1 << i);
+    else
+      ports_used |= (1 << pe.bPortIdentifier);
   }
 
   return ports_used;
@@ -2961,10 +2963,21 @@ bool csmi_device::select_port(int port)
     const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
     if (pe.Identify.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
       continue;
-    if (pe.bPortIdentifier > max_port)
-      max_port = pe.bPortIdentifier;
-    if (pe.bPortIdentifier != port)
-      continue;
+
+    if (pe.bPortIdentifier == 0xff) {
+      // Older (<= 9.*) Intel RST driver
+      max_port = phy_info.bNumberOfPhys - 1;
+      if (i >= phy_info.bNumberOfPhys)
+        break;
+      if ((int)i != port)
+        continue;
+    }
+    else {
+      if (pe.bPortIdentifier > max_port)
+        max_port = pe.bPortIdentifier;
+      if (pe.bPortIdentifier != port)
+        continue;
+    }
 
     port_index = i;
     break;
