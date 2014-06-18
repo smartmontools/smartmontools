@@ -1,4 +1,9 @@
-$Id: ChangeLog 3908 2014-06-18 05:22:38Z chrfranke $
+$Id: ChangeLog 3910 2014-06-18 16:23:56Z chrfranke $
+
+2014-06-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Fix CSMI support for older Intel RST drivers which set
+	bPortIdentifier=0xff (regression from r3888).
 
 2014-06-18  Christian Franke  <franke@computer.org>
 
