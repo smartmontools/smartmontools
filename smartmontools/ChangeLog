@@ -1,9 +1,11 @@
-$Id: ChangeLog 3910 2014-06-18 16:23:56Z chrfranke $
+$Id: ChangeLog 3911 2014-06-18 17:59:45Z chrfranke $
 
 2014-06-18  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Fix CSMI support for older Intel RST drivers which set
 	bPortIdentifier=0xff (regression from r3888).
+	os_win32/installer.nsi: Create standard InstallLocation registry entry.
+	Keep old Install_Dir entry if needed for GSmartControl.
 
 2014-06-18  Christian Franke  <franke@computer.org>
 
