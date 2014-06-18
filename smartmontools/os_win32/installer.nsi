@@ -3,7 +3,7 @@
 ;
 ; Home page of code is: http://smartmontools.sourceforge.net
 ;
-; Copyright (C) 2006-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; Copyright (C) 2006-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -208,14 +208,18 @@ Section "Uninstaller" UNINST_SECTION
 
   CreateDirectory "$INSTDIR"
 
-  ; Save installation location
-  WriteRegStr HKLM "Software\smartmontools" "Install_Dir" "$INSTDIR"
+  ; Keep old Install_Dir registry entry for GSmartControl
+  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\GSmartControl" "InstallLocation"
+  ReadRegStr $1 HKLM "Software\smartmontools" "Install_Dir"
+  StrCmp "$0$1" "" +2 0
+    WriteRegStr HKLM "Software\smartmontools" "Install_Dir" "$INSTDIR"
 
   ; Write uninstall keys and program
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayName" "smartmontools"
 !ifdef VERSTR
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayVersion" "${VERSTR}"
 !endif
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation" "$INSTDIR"
   ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "Publisher" "smartmontools"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "UninstallString" '"$INSTDIR\uninst-smartmontools.exe"'
   ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLInfoAbout" "http://smartmontools.sourceforge.net/"
@@ -500,6 +504,8 @@ Function .onInit
 
   ; Set default install directories
   StrCmp $INSTDIR "" 0 endinst ; /D=PATH option specified ?
+  ReadRegStr $INSTDIR HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation"
+  StrCmp $INSTDIR "" 0 endinst ; Already installed ?
   ReadRegStr $INSTDIR HKLM "Software\smartmontools" "Install_Dir"
   StrCmp $INSTDIR "" 0 endinst ; Already installed ?
     StrCpy $INSTDIR "$PROGRAMFILES\smartmontools"
