@@ -1,4 +1,9 @@
-$Id: ChangeLog 3913 2014-06-19 17:38:33Z chrfranke $
+$Id: ChangeLog 3915 2014-06-19 18:24:57Z dpgilbert $
+
+2014-06-19  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp:
+	- minor comment clean-up
 
 2014-06-19  Christian Franke  <franke@computer.org>
 
