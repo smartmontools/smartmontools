@@ -1,5 +1,10 @@
 $Id$
 
+2014-06-19  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp:
+	- minor comment clean-up
+
 2014-06-19  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

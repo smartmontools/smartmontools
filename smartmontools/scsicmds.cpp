@@ -1441,12 +1441,13 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
     if (offset < 0)
         return -EINVAL;
     memcpy(rout, iecp->raw_curr, SCSI_IECMP_RAW_LEN);
+    /* mask out DPOFUA device specific (disk) parameter bit */
     if (10 == iecp->modese_len) {
         resp_len = (rout[0] << 8) + rout[1] + 2;
-        rout[3] &= 0xef;    /* for disks mask out DPOFUA bit */
+        rout[3] &= 0xef;
     } else {
         resp_len = rout[0] + 1;
-        rout[2] &= 0xef;    /* for disks mask out DPOFUA bit */
+        rout[2] &= 0xef;
     }
     sp = (rout[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
     if (enabled) {
@@ -2604,12 +2605,13 @@ scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep,
           buff[offset + 2] &= 0xfe; // clear bit
     }
 
+    /* mask out DPOFUA device specific (disk) parameter bit */
     if (10 == modese_len) {
         resp_len = (buff[0] << 8) + buff[1] + 2;
-        buff[3] &= 0xef;    /* for disks mask out DPOFUA bit */
+        buff[3] &= 0xef;
     } else {
         resp_len = buff[0] + 1;
-        buff[2] &= 0xef;    /* for disks mask out DPOFUA bit */
+        buff[2] &= 0xef;
     }
     sp = 0; /* Do not change saved values */
     if (10 == modese_len)
@@ -2672,14 +2674,15 @@ scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len)
     if (err)
         return err;
     if (0 == (ch_buff[offset + 2] & 2))
-        return SIMPLE_ERR_BAD_PARAM;  /* GLTSD bit not chageable */
+        return SIMPLE_ERR_BAD_PARAM;  /* GLTSD bit not changeable */
 
+    /* mask out DPOFUA device specific (disk) parameter bit */
     if (10 == modese_len) {
         resp_len = (buff[0] << 8) + buff[1] + 2;
-        buff[3] &= 0xef;    /* for disks mask out DPOFUA bit */
+        buff[3] &= 0xef;    
     } else {
         resp_len = buff[0] + 1;
-        buff[2] &= 0xef;    /* for disks mask out DPOFUA bit */
+        buff[2] &= 0xef;
     }
     sp = (buff[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
     if (enabled)
