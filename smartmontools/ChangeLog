@@ -1,4 +1,10 @@
-$Id: ChangeLog 3912 2014-06-18 19:03:30Z chrfranke $
+$Id: ChangeLog 3913 2014-06-19 17:38:33Z chrfranke $
+
+2014-06-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 730 and DC S3500/S3700 Series SSDs: rename, add 730 and S3700.
+	Remove extra S3700 entry.  Based on patch provided by Tim Small.
 
 2014-06-18  Christian Franke  <franke@computer.org>
 
