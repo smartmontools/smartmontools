@@ -1,5 +1,11 @@
 $Id$
 
+2014-06-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 730 and DC S3500/S3700 Series SSDs: rename, add 730 and S3700.
+	Remove extra S3700 entry.  Based on patch provided by Tim Small.
+
 2014-06-18  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Fix CSMI support for older Intel RST drivers which set
