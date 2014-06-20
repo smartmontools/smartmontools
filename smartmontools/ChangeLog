@@ -1,4 +1,8 @@
-$Id: ChangeLog 3916 2014-06-20 19:21:00Z chrfranke $
+$Id: ChangeLog 3917 2014-06-20 19:57:41Z chrfranke $
+
+2014-06-20  Christian Franke  <franke@computer.org>
+
+	autogen.sh: automake 1.14.1 works.
 
 2014-06-20  Christian Franke  <franke@computer.org>
 
