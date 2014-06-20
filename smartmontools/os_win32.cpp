@@ -3492,7 +3492,7 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
 
   if ((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)) {
      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-     pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
+     pout("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
         (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
   }
@@ -3618,7 +3618,7 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
 
   if ((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)) {
      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-     pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
+     pout("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
         (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
   }

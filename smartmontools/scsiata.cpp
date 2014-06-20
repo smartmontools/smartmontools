@@ -980,7 +980,7 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   memset(&io_hdr, 0, sizeof(io_hdr));
 
   bool rwbit = true;
-  unsigned char smart_status = 0;
+  unsigned char smart_status = 0xff;
 
   bool is_smart_status = (   in.in_regs.command  == ATA_SMART_CMD
                           && in.in_regs.features == ATA_SMART_STATUS);
@@ -1038,7 +1038,9 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
 
   if (in.out_needed.is_set()) {
     if (is_smart_status) {
-      switch (smart_status) {
+      if (io_hdr.resid == 1)
+        ; // No status byte transferred
+      else switch (smart_status) {
         case 0x01: case 0xc2:
           out.out_regs.lba_high = 0xc2;
           out.out_regs.lba_mid = 0x4f;

@@ -1,5 +1,11 @@
 $Id$
 
+2014-06-20  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: usbjmicron_device: Check SCSI resid for SMART STATUS.
+	Some (Prolific) USB bridges do not transfer a status byte.
+	os_win32.cpp: Include SCSI resid in debug output.
+
 2014-06-19  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp:
