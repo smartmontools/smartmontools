@@ -253,6 +253,61 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
+  { "Crucial/Micron M500/M510/M550 Client SSDs",
+    "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
+    "M510-MTFDDA[KTV](128|256)MAZ|" // tested with M510-MTFDDAK256MAZ/MU01
+    "M550-MTFDDA[KTV](064|128|256|512|1T0)MAY", // tested with M550-MTFDDAK256MAY/MU01
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Ave_Block-Erase_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 180,raw48,Unused_Reserve_NAND_Blk "
+    "-v 183,raw48,SATA_Interfac_Downshift "
+    "-v 184,raw48,Error_Correction_Count "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 202,raw48,Percent_Lifetime_Used "
+    "-v 206,raw48,Write_Error_Rate "
+    "-v 210,raw48,Success_RAIN_Recov_Cnt "
+    "-v 246,raw48,Total_Host_Sector_Write "
+    "-v 247,raw48,Host_Program_Page_Count "
+    "-v 248,raw48,Bckgnd_Program_Page_Cnt"
+  },
+  { "Micron M500DC Enterprise SSDs",
+    "Micron_M500DC_(EE|MT)FDDA[AK](120|240|480|800)MBB", // tested with
+      // Micron_M500DC_EEFDDAA120MBB/129, Micron_M500DC_MTFDDAK800MBB/0129
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 5,raw48,Reallocated_Block_Count "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Reserved_Block_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Ave_Block-Erase_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 184,raw48,Error_Correction_Count "
+  //"-v 187,raw48,Reported_Uncorrect "
+    "-v 188,raw48,Command_Timeouts "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 195,raw48,Cumulativ_Corrected_ECC "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 202,raw48,Percent_Lifetime_Remain "
+    "-v 206,raw48,Write_Error_Rate "
+    "-v 247,raw48,Host_Program_Page_Count "
+    "-v 248,raw48,Bckgnd_Program_Page_Cnt"
+  },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
     "ADATA SSD S(396|510|599) .?..GB|" // tested with ADATA SSD S510 60GB/320ABBF0,
