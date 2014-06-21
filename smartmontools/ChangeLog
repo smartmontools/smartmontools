@@ -1,5 +1,12 @@
 $Id$
 
+2014-06-21  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron M500/M510/M550 Client SSDs
+	- Micron M500DC Enterprise SSDs
+	Based on patch provided by Clayton Hawkings from Micron.
+
 2014-06-20  Christian Franke  <franke@computer.org>
 
 	autogen.sh: automake 1.14.1 works.
