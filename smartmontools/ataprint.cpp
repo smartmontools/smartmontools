@@ -607,6 +607,24 @@ static void print_drive_info(const ata_identify_device * drive,
       pout("Rotation Rate:    Unknown (0x%04x)\n", -rpm);
   }
 
+  // Print form factor if reported
+  unsigned short word168 = drive->words088_255[168-88];
+  if (word168) {
+    const char * inches;
+    switch (word168) {
+      case 0x1: inches = "5.25"; break;
+      case 0x2: inches = "3.5"; break;
+      case 0x3: inches = "2.5"; break;
+      case 0x4: inches = "1.8"; break;
+      case 0x5: inches = "< 1.8"; break;
+      default : inches = 0;
+    }
+    if (inches)
+      pout("Form Factor:      %s inches\n", inches);
+    else
+      pout("Form Factor:      Unknown (0x%04x)\n", word168);
+  }
+
   // See if drive is recognized
   pout("Device is:        %s\n", !dbentry ?
        "Not in smartctl database [for details use: -P showall]":

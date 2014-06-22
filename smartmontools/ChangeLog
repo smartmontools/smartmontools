@@ -4,6 +4,7 @@ $Id$
 
 	atacmds.cpp, ataprint.cpp: Improve messages for unsupported SMART Status
 	command.
+	ataprint.cpp: Print form factor.
 
 2014-06-21  Christian Franke  <franke@computer.org>
 

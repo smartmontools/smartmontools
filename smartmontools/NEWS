@@ -9,6 +9,7 @@ Date <Not released yet, please try current SVN>
 Summary: smartmontools release 6.3
 -----------------------------------------------------------
 - smartctl: Fixed bogus error messages from '-g/-s wcreorder'.
+- smartctl prints ATA form factor.
 - SCSI: Improved support of modern disks (SAS SSDs).
 - SCSI: Fixed sense data noise from old disks.
 - configure option '--with-systemdenvfile'.
