@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -2928,7 +2928,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       // The ATA SMART RETURN STATUS command provides the result in the ATA output
       // registers. Buggy ATA/SATA drivers and SAT Layers often do not properly
       // return the registers values.
+      pout("SMART Status %s: %s\n",
+           (device->is_syscall_unsup() ? "not supported" : "command failed"),
+           device->get_errmsg());
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+
       if (!(smart_val_ok && smart_thres_ok)) {
         print_on();
         pout("SMART overall-health self-assessment test result: UNKNOWN!\n"
@@ -2938,6 +2942,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         print_on();
         pout("SMART overall-health self-assessment test result: FAILED!\n"
              "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
+        pout("Warning: This result is based on an Attribute check.\n");
         print_off();
         returnval|=FAILATTR;
         returnval|=FAILSTATUS;

@@ -598,8 +598,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
                  "probable SAT/USB truncation\n");
         }
         else if (!out.out_regs.is_set()) {
-          pout("SMART STATUS RETURN: incomplete response, ATA output registers missing\n");
-          device->set_err(ENOSYS);
+          device->set_err(ENOSYS, "Incomplete response, ATA output registers missing");
           retval = -1;
         }
         else {
@@ -608,7 +607,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
           pout("Please get assistance from %s\n", PACKAGE_HOMEPAGE);
           pout("Register values returned from SMART Status command are:\n");
           print_regs(" ", out.out_regs);
-          device->set_err(EIO);
+          device->set_err(ENOSYS, "Invalid ATA output register values");
           retval = -1;
         }
         break;
