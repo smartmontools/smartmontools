@@ -1,9 +1,10 @@
-$Id: ChangeLog 3920 2014-06-22 19:36:25Z chrfranke $
+$Id: ChangeLog 3921 2014-06-22 19:52:51Z chrfranke $
 
 2014-06-22  Christian Franke  <franke@computer.org>
 
 	atacmds.cpp, ataprint.cpp: Improve messages for unsupported SMART Status
 	command.
+	ataprint.cpp: Print form factor.
 
 2014-06-21  Christian Franke  <franke@computer.org>
 
