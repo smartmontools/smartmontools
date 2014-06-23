@@ -1039,16 +1039,21 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   if (in.out_needed.is_set()) {
     if (is_smart_status) {
       if (io_hdr.resid == 1)
-        ; // No status byte transferred
-      else switch (smart_status) {
-        case 0x01: case 0xc2:
+        // Some (Prolific) USB bridges do not transfer a status byte
+        return set_err(ENOSYS, "Incomplete response, status byte missing [JMicron]");
+
+      switch (smart_status) {
+        case 0xc2:
           out.out_regs.lba_high = 0xc2;
           out.out_regs.lba_mid = 0x4f;
           break;
-        case 0x00: case 0x2c:
+        case 0x2c:
           out.out_regs.lba_high = 0x2c;
           out.out_regs.lba_mid = 0xf4;
           break;
+        default:
+          // Some (JM20336) USB bridges always return 0x01, regardless of SMART Status
+          return set_err(ENOSYS, "Invalid status byte (0x%02x) [JMicron]", smart_status);
       }
     }
 

@@ -1,5 +1,10 @@
 $Id$
 
+2014-06-23  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: usbjmicron_device: Fix SMART Status check for USB bridges
+	which always return 0x01.  Add JMicron specific error messages.
+
 2014-06-22  Christian Franke  <franke@computer.org>
 
 	atacmds.cpp, ataprint.cpp: Improve messages for unsupported SMART Status
