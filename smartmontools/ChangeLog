@@ -1,4 +1,9 @@
-$Id: ChangeLog 3921 2014-06-22 19:52:51Z chrfranke $
+$Id: ChangeLog 3922 2014-06-23 19:17:18Z chrfranke $
+
+2014-06-23  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: usbjmicron_device: Fix SMART Status check for USB bridges
+	which always return 0x01.  Add JMicron specific error messages.
 
 2014-06-22  Christian Franke  <franke@computer.org>
 
