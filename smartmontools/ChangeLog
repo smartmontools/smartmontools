@@ -1,4 +1,8 @@
-$Id: ChangeLog 3922 2014-06-23 19:17:18Z chrfranke $
+$Id: ChangeLog 3923 2014-06-25 17:10:46Z chrfranke $
+
+2014-06-25  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Fix calculation of SCSI resid.
 
 2014-06-23  Christian Franke  <franke@computer.org>
 
