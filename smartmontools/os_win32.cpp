@@ -3485,7 +3485,7 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
   } else
     iop->resp_sense_len = 0;
 
-  if ((iop->dxfer_len > 0) && (sb.spt.DataTransferLength > 0))
+  if (iop->dxfer_len > sb.spt.DataTransferLength)
     iop->resid = iop->dxfer_len - sb.spt.DataTransferLength;
   else
     iop->resid = 0;
@@ -3611,7 +3611,7 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
   } else
     iop->resp_sense_len = 0;
 
-  if ((iop->dxfer_len > 0) && (sb.spt.DataTransferLength > 0))
+  if (iop->dxfer_len > sb.spt.DataTransferLength)
     iop->resid = iop->dxfer_len - sb.spt.DataTransferLength;
   else
     iop->resid = 0;

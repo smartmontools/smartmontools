@@ -1,5 +1,9 @@
 $Id$
 
+2014-06-25  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Fix calculation of SCSI resid.
+
 2014-06-23  Christian Franke  <franke@computer.org>
 
 	scsiata.cpp: usbjmicron_device: Fix SMART Status check for USB bridges
