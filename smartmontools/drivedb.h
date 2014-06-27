@@ -175,7 +175,7 @@ const drive_settings builtin_knowndrives[] = {
     "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002,
       // C300-CTFDDAC064MAG/0006
     "Crucial_CT(120|240|480)M500SSD[13]", // Marvell 88SS9187 BLD2, tested with Crucial_CT120M500SSD3/MU02,
-      // Crucial_CT120M500SSD1/MU02, Crucial_CT240M500SSD1/MU03
+      // Crucial_CT120M500SSD1/MU02, Crucial_CT240M500SSD1/MU03, Crucial_CT480M500SSD1/MU03
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -198,8 +198,12 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 197,raw48,Current_Pending_Sector "
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
-    "-v 202,raw48,Perc_Rated_Life_Used "
-    "-v 206,raw48,Write_Error_Rate"
+    "-v 202,raw48,Percent_Lifetime_Used "
+    "-v 206,raw48,Write_Error_Rate "
+    "-v 210,raw48,Success_RAIN_Recov_Cnt "
+    "-v 246,raw48,Total_Host_Sector_Write "
+    "-v 247,raw48,Host_Program_Page_Count "
+    "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
   { "Crucial/Micron RealSSD m4/C400/P400", // Marvell 9176, fixed firmware
     "C400-MTFDDA[ACK](064|128|256|512)MAM|"
@@ -315,10 +319,11 @@ const drive_settings builtin_knowndrives[] = {
     "ADATA SP[389]00|" // tested with ADATA SP300/5.0.2d, SP800/5.0.6c,
       // ADATA SP900/5.0.6 (Premier Pro, SF-2281)
     "ADATA SSD SP900 (64|128|256)GB-DL2|" // tested with ADATA SSD SP900 256GB-DL2/5.0.6
+    "ADATA XM11 (128|256)GB|" // tested with ADATA XM11 128GB/5.0.1
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
-    "Corsair Force (SSD|3 SSD|GS|GT)|" // SF-2281, tested with
-      // Corsair Force SSD/5.05, 3 SSD/1.3.2, GT/1.3.3, GS/5.03
+    "Corsair Force ((3 |LS )?SSD|GS|GT)|" // SF-2281, tested with
+      // Corsair Force SSD/5.05, 3 SSD/1.3.2, GT/1.3.3, GS/5.03, LS SSD/S8FM06.5
     "FM-25S2S-(60|120|240)GBP2|" // G.SKILL Phoenix Pro, SF-1200, tested with
       // FM-25S2S-240GBP2/4.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
@@ -354,22 +359,23 @@ const drive_settings builtin_knowndrives[] = {
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
-    "OWC Mercury Electra [36]G SSD|" // tested with
-      // OWC Mercury Electra 6G SSD/502ABBF0
-    "OWC Mercury Extreme Pro (RE )?SSD|" // tested with
-      // OWC Mercury Extreme Pro SSD/360A13F0
-    "OWC Mercury EXTREME Pro 6G SSD|" // tested with
-      // OWC Mercury EXTREME Pro 6G SSD/507ABBF0
+    "OWC Aura Pro 6G SSD|" // tested with OWC Aura Pro 6G SSD/507ABBF0
+    "OWC Mercury Electra (Pro )?[36]G SSD|" // tested with
+      // OWC Mercury Electra 6G SSD/502ABBF0, OWC Mercury Electra Pro 3G SSD/541ABBF0
+    "OWC Mercury E(xtreme|XTREME) Pro (6G |RE )?SSD|" // tested with
+      // OWC Mercury Extreme Pro SSD/360A13F0, OWC Mercury EXTREME Pro 6G SSD/507ABBF0
     "Patriot Pyro|" // tested with Patriot Pyro/332ABBF0
     "SanDisk SDSSDX(60|120|240|480)GG25|" // SanDisk Extreme, SF-2281, tested with
       // SDSSDX240GG25/R201
     "SuperSSpeed S301 [0-9]*GB|" // SF-2281, tested with SuperSSpeed S301 128GB/503
     "SG9XCS2D(0?50|100|200|400)GESLT|" // Smart Storage Systems XceedIOPS2, tested with
       // SG9XCS2D200GESLT/SA03L370
+    "SSD9SC(120|240|480)GED[EA]|" // PNY Prevail Elite, tested with SSD9SC120GEDA/334ABBF0
     "(TX32|TX31C1|VN0.?..GCNMK).*|" // Smart Storage Systems XceedSTOR
     "(TX22D1|TX21B1).*|" // Smart Storage Systems XceedIOPS2
     "TX52D1.*|" // Smart Storage Systems Xcel-200
-    "TS(64|128|256|512)GSSD320|" // Transcend SSD320, SF-2281, tested with TS128GSSD320
+    "TS(64|128|256|512)GSSD[37]20|" // Transcend SSD320/720, SF-2281, tested with
+      // TS128GSSD320, TS256GSSD720/5.2.0
     "UGB(88P|99S)GC...H[BF].|" // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
     "VisionTek GoDrive (60|120|240|480)GB", // tested with VisionTek GoDrive 480GB/506ABBF0
