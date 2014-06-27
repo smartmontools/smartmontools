@@ -1,4 +1,11 @@
-$Id: ChangeLog 3929 2014-06-27 19:55:27Z chrfranke $
+$Id: ChangeLog 3930 2014-06-27 20:06:08Z chrfranke $
+
+2014-06-27  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add update-smart-drivedb.8 target.
+	update-smart-drivedb.8.in: Add copyright and version info.
+	Adjust path names for make target.
+	Add FreeBSD/OpenBSD specific info.
 
 2014-06-27  Hannes von Haugwitz  <hannes@vonhaugwitz.com>
 
