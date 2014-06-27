@@ -175,7 +175,7 @@ const drive_settings builtin_knowndrives[] = {
     "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002,
       // C300-CTFDDAC064MAG/0006
     "Crucial_CT(120|240|480)M500SSD[13]", // Marvell 88SS9187 BLD2, tested with Crucial_CT120M500SSD3/MU02,
-      // Crucial_CT120M500SSD1/MU02, Crucial_CT240M500SSD1/MU03
+      // Crucial_CT120M500SSD1/MU02, Crucial_CT240M500SSD1/MU03, Crucial_CT480M500SSD1/MU03
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -198,8 +198,12 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 197,raw48,Current_Pending_Sector "
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
-    "-v 202,raw48,Perc_Rated_Life_Used "
-    "-v 206,raw48,Write_Error_Rate"
+    "-v 202,raw48,Percent_Lifetime_Used "
+    "-v 206,raw48,Write_Error_Rate "
+    "-v 210,raw48,Success_RAIN_Recov_Cnt "
+    "-v 246,raw48,Total_Host_Sector_Write "
+    "-v 247,raw48,Host_Program_Page_Count "
+    "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
   { "Crucial/Micron RealSSD m4/C400/P400", // Marvell 9176, fixed firmware
     "C400-MTFDDA[ACK](064|128|256|512)MAM|"
