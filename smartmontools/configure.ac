@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 3875 2014-03-03 17:18:58Z chrfranke $
+# $Id: configure.ac 3928 2014-06-27 19:19:27Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 6.3, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 3875 2014-03-03 17:18:58Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 3928 2014-06-27 19:19:27Z chrfranke $'`
 smartmontools_release_date=2013-07-26
 smartmontools_release_time="17:38:20 UTC"
 
@@ -183,7 +183,7 @@ case "$with_systemdsystemunitdir" in
  auto|yes)
    if test -n "$PKG_CONFIG"; then
      AC_MSG_CHECKING([for systemdsystemunitdir])
-     systemdsystemunitdir=`$PKG_CONFIG --variable=systemdsystemunitdir systemd`
+     systemdsystemunitdir=`$PKG_CONFIG --variable=systemdsystemunitdir systemd 2>/dev/null`
      AC_MSG_RESULT([${systemdsystemunitdir:-no}])
    fi
    case "$with_systemdsystemunitdir:$sysconfdir:$systemdsystemunitdir" in
