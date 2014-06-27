@@ -2,6 +2,7 @@ $Id$
 
 2014-06-27  Christian Franke  <franke@computer.org>
 
+	configure.ac: Suppress pkg-config warnings about missing 'systemd.pc'.
 	Makefile.am: Silence build of man pages and svnversion.h.
 	This makes '--enable-silent-rules' or 'make V=0' more effective
 	(available since automake 1.13).
