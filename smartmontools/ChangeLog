@@ -1,5 +1,9 @@
 $Id$
 
+2014-06-27  Hannes von Haugwitz  <hannes@vonhaugwitz.com>
+
+	update-smart-drivedb.8.in: New man page (Debian bug 708433).
+
 2014-06-27  Christian Franke  <franke@computer.org>
 
 	configure.ac: Suppress pkg-config warnings about missing 'systemd.pc'.
