@@ -1,4 +1,8 @@
-$Id: ChangeLog 3928 2014-06-27 19:19:27Z chrfranke $
+$Id: ChangeLog 3929 2014-06-27 19:55:27Z chrfranke $
+
+2014-06-27  Hannes von Haugwitz  <hannes@vonhaugwitz.com>
+
+	update-smart-drivedb.8.in: New man page (Debian bug 708433).
 
 2014-06-27  Christian Franke  <franke@computer.org>
 
