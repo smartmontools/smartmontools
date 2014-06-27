@@ -1,4 +1,10 @@
-$Id: ChangeLog 3925 2014-06-27 18:40:10Z chrfranke $
+$Id: ChangeLog 3927 2014-06-27 19:08:30Z chrfranke $
+
+2014-06-27  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Silence build of man pages and svnversion.h.
+	This makes '--enable-silent-rules' or 'make V=0' more effective
+	(available since automake 1.13).
 
 2014-06-27  Christian Franke  <franke@computer.org>
 
