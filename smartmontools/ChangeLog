@@ -1,5 +1,11 @@
 $Id$
 
+2014-06-27  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: ADATA XM11, Corsair Force LS, OWC Aura Pro 6G
+	  OWC Mercury Electra Pro 3G, PNY Prevail Elite, Transcend SSD320/720
+
 2014-06-25  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Fix calculation of SCSI resid.
