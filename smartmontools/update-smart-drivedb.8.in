@@ -1,15 +1,37 @@
-.TH UPDATE-SMART-DRIVEDB 8 "May 15, 2013" "smartmontools" ""
-.SH "NAME"
+.ig
+Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
+Copyright (C) 2014 Christian Franke <smartmontools-support@lists.sourceforge.net>
+
+$Id$
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+You should have received a copy of the GNU General Public License
+(for example COPYING); If not, see <http://www.gnu.org/licenses/>.
+
+..
+.TH UPDATE-SMART-DRIVEDB 8 CURRENT_SVN_DATE CURRENT_SVN_VERSION CURRENT_SVN_DATE
+.SH NAME
 update-smart-drivedb \- update smartmontools drive database
+
 .SH "SYNOPSIS"
 .B update-smart-drivedb
 .RB [ -v ]
 .RI [ DESTFILE ]
 
+.SH FULL PATH
+.B /usr/local/sbin/update-smart-drivedb
+
+.SH PACKAGE VERSION
+CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
+
 .SH "DESCRIPTION"
 .B update-smart-drivedb
 updates
-.B /usr/share/smartmontools/drivedb.h
+.B /usr/local/share/smartmontools/drivedb.h
 or
 .I DESTFILE
 from smartmontools SVN repository.
@@ -19,6 +41,16 @@ trunk. The tools used for downloading are either
 .BR curl (1),
 .BR wget "(1) or"
 .BR lynx (1).
+.\" %IF OS FreeBSD
+On FreeBSD,
+.BR fetch (1)
+is used as a fallback.
+.\" %ENDIF OS FreeBSD
+.\" %IF OS OpenBSD
+On OpenBSD,
+.BR ftp (1)
+is used as a fallback.
+.\" %ENDIF OS OpenBSD
 
 The old file is kept if the downloaded file is identical (ignoring
 the differences in Id string) otherwise it is moved to
@@ -32,7 +64,7 @@ verbose output
 .SH "EXAMPLES"
 .nf
 # update-smart-drivedb
-/usr/share/smartmontools/drivedb.h updated from branches/RELEASE_5_43_DRIVEDB
+/usr/local/share/smartmontools/drivedb.h updated from branches/RELEASE_6_0_DRIVEDB
 .fi
 
 .SH "EXIT STATUS"
@@ -40,9 +72,16 @@ The exit status is 0 if the database has been successfully
 updated. If an error occurs the exit status is 1.
 
 .SH "SEE ALSO"
-.BR smartctl(8),
+.BR smartctl (8),
 .BR smartd (8).
 
-.SH "AUTHOR"
-This manual page was written by
+.SH AUTHORS
+\fBChristian Franke\fP
+.br
+\fBsmartmontools\-support@lists.sourceforge.net\fP
+.br
+This manual page was originally written by
 .BR "Hannes von Haugwitz <hannes@vonhaugwitz.com>" .
+
+.SH SVN ID OF THIS PAGE
+$Id$
