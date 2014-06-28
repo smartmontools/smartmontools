@@ -12,6 +12,7 @@ Summary: smartmontools release 6.3
 - smartctl prints ATA form factor.
 - SCSI: Improved support of modern disks (SAS SSDs).
 - SCSI: Fixed sense data noise from old disks.
+- update-smart-drivedb man page.
 - configure option '--with-systemdenvfile'.
 - Removed build time stamps to support reproducible builds.
 - Compile fixes for C++11.
