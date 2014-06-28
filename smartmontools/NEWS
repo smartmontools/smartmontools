@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3921 2014-06-22 19:52:51Z chrfranke $
+$Id: NEWS 3931 2014-06-28 18:14:12Z chrfranke $
 
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
@@ -12,6 +12,7 @@ Summary: smartmontools release 6.3
 - smartctl prints ATA form factor.
 - SCSI: Improved support of modern disks (SAS SSDs).
 - SCSI: Fixed sense data noise from old disks.
+- update-smart-drivedb man page.
 - configure option '--with-systemdenvfile'.
 - Removed build time stamps to support reproducible builds.
 - Compile fixes for C++11.
