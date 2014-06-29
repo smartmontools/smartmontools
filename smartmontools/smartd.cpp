@@ -4,7 +4,7 @@
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1543,7 +1543,7 @@ static void Usage()
   PrintOut(LOG_INFO,"  -w NAME, --warnexec=NAME\n");
   PrintOut(LOG_INFO,"        Run executable NAME on warnings\n");
 #ifndef _WIN32
-  PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_SYSCONFDIR "/smartd_warning.sh]\n\n");
+  PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_SMARTDSCRIPTDIR "/smartd_warning.sh]\n\n");
 #else
   PrintOut(LOG_INFO,"        [default is %s/smartd_warning.cmd]\n\n", get_exe_dir().c_str());
 #endif
@@ -4395,8 +4395,8 @@ static void ParseOpts(int argc, char **argv)
 {
   // Init default path names
 #ifndef _WIN32
-  configfile = SMARTMONTOOLS_SYSCONFDIR"/smartd.conf";
-  warning_script = SMARTMONTOOLS_SYSCONFDIR"/smartd_warning.sh";
+  configfile = SMARTMONTOOLS_SYSCONFDIR "/smartd.conf";
+  warning_script = SMARTMONTOOLS_SMARTDSCRIPTDIR "/smartd_warning.sh";
 #else
   std::string exedir = get_exe_dir();
   static std::string configfile_str = exedir + "/smartd.conf";

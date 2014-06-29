@@ -1,5 +1,14 @@
 $Id$
 
+2014-06-29  Christian Franke  <franke@computer.org>
+
+	configure.ac, Makefile.am, smartd.cpp, smartd_warning.sh.in:
+	Add '--with-smartdscriptdir' configure option to change location of
+	smartd_warning.sh (Debian bug 710815).
+	Add '--with-smartdplugindir' configure option to change (or disable)
+	smartd_warning.sh plugin location.
+	smartd.conf.5.in: Optionally hide the plugin documentation.
+
 2014-06-27  Christian Franke  <franke@computer.org>
 
 	Makefile.am: Add update-smart-drivedb.8 target.

@@ -903,6 +903,7 @@ sending mail, this should help you to understand and fix them.  If
 you have mail problems, we recommend running \fBsmartd\fP in debug
 mode with the \'-d\' flag, using the \'-M test\' Directive described
 below.
+.\" %IF ENABLE_SMARTDPLUGINDIR
 .\" %IF NOT OS Windows
 
 [NEW EXPERIMENTAL SMARTD FEATURE]
@@ -915,6 +916,7 @@ are run instead.
 This is handled by the script /usr/local/etc/smartd_warning.sh
 (see also \'\-M exec\' below).
 .\" %ENDIF NOT OS Windows
+.\" %ENDIF ENABLE_SMARTDPLUGINDIR
 .\" %IF OS Windows
 
 [Windows only] [NEW EXPERIMENTAL SMARTD FEATURE]

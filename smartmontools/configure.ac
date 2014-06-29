@@ -258,6 +258,17 @@ AC_ARG_WITH(drivedbdir,
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test "$enable_drivedb" = "yes"])
 
+AC_ARG_WITH(smartdscriptdir,
+  [AS_HELP_STRING([--with-smartdscriptdir=DIR], [Location of smartd_warning.sh script [SYSCONFDIR]])],
+  [smartdscriptdir="$withval"], [smartdscriptdir='${sysconfdir}'])
+AC_SUBST(smartdscriptdir)
+
+AC_ARG_WITH(smartdplugindir,
+  [AS_HELP_STRING([--with-smartdplugindir=@<:@=DIR|no@:>@], [Location of smartd_warning.sh plugin scripts [SMARTDSCRIPTDIR/smartd_warning.d]])],
+  [smartdplugindir=; test "$withval" != "no" && smartdplugindir="$withval"],
+  [smartdplugindir='${smartdscriptdir}/smartd_warning.d'])
+AC_SUBST(smartdplugindir)
+
 AC_ARG_ENABLE(savestates, [AC_HELP_STRING([--enable-savestates],[Enables default smartd state files])])
 
 AC_ARG_WITH(savestates,
@@ -553,7 +564,12 @@ case "$host_os" in
     fi
     echo "local drive database:   `eval eval eval echo $sysconfdir`/smart_drivedb.h" >&AS_MESSAGE_FD
     echo "smartd config file:     `eval eval eval echo $sysconfdir`/smartd.conf${smartd_suffix}" >&AS_MESSAGE_FD
-    echo "smartd warning script:  `eval eval eval echo $sysconfdir`/smartd_warning.sh" >&AS_MESSAGE_FD
+    echo "smartd warning script:  `eval eval eval echo $smartdscriptdir`/smartd_warning.sh" >&AS_MESSAGE_FD
+    if test -n "$smartdplugindir"; then
+      echo "smartd plugin path:     `eval eval eval echo $smartdplugindir`" >&AS_MESSAGE_FD
+    else
+      echo "smartd plugin path:     [[disabled]]" >&AS_MESSAGE_FD
+    fi
     if test -n "$initddir"; then
       echo "smartd initd script:    `eval eval eval echo $initddir`/smartd${smartd_suffix}" >&AS_MESSAGE_FD
     elif test -z "$systemdsystemunitdir"; then

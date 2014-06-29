@@ -673,6 +673,8 @@ OPTIONS              DEFAULT                                      AFFECTS
                                                                   available, option --capabilities is added to smartd.
 --disable-drivedb     --enable-drivedb                            Disables default drive database file '${drivedbdir}/drivedb.h'
 --with-drivedbdir     ${prefix}/share/smartmontools               Directory for 'drivedb.h' (implies --enable-drivedb)
+--with-smartdscriptdir    ${sysconfdir}                           Directory for 'smartd_warning.sh' script
+--with-smartdplugindir    ${sysconfdir}/smartd_warning.d          Directory for 'smartd_warning.sh' plugin scripts
 --enable-savestates   --disable-savestates                        Enables default smartd state files '${savestates}MODEL-SERIAL.ata.state'
 --with-savestates     ${prefix}/var/lib/smartmontools/smartd.     Prefix for smartd state files (implies --enable-savestates)
 --enable-attributelog --disable-attributelog                      Enables default smartd attribute log files

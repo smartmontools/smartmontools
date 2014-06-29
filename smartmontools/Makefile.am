@@ -13,7 +13,11 @@ SUFFIXES = .cpp .c .s .o
 # BUILD_INFO can be provided by package maintainers (see INSTALL file)
 BUILD_INFO= "(local build)"
 
-AM_CPPFLAGS = -DBUILD_INFO='$(BUILD_INFO)' -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"'
+AM_CPPFLAGS = \
+        -DBUILD_INFO='$(BUILD_INFO)' \
+        -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"' \
+        -DSMARTMONTOOLS_SMARTDSCRIPTDIR='"$(smartdscriptdir)"'
+
 if ENABLE_DRIVEDB
 AM_CPPFLAGS += -DSMARTMONTOOLS_DRIVEDBDIR='"$(drivedbdir)"'
 endif
@@ -356,9 +360,7 @@ uninstall-sysconfDATA:
 	echo " rm -f $$f"; \
 	rm -f "$$f"
 
-# automake does not allow 'sysconf_SCRIPTS'
-sysscriptdir = $(sysconfdir)
-sysscript_SCRIPTS = smartd_warning.sh
+smartdscript_SCRIPTS = smartd_warning.sh
 
 EXTRA_DIST = \
         autogen.sh \
@@ -589,9 +591,14 @@ MAN_FILTER = \
         -e 's|/usr/local/share/doc/smartmontools/|$(docsdir)/|g' \
         -e 's|!exampledir!|$(exampledir)/|g' \
         -e 's|/usr/local/etc/smartd\.conf|$(sysconfdir)/smartd.conf|g' \
-        -e 's|/usr/local/etc/smartd_warning\.|$(sysconfdir)/smartd_warning.|g' \
         -e 's|/usr/local/etc/smart_drivedb\.h|$(sysconfdir)/smart_drivedb.h|g' \
+        -e 's|/usr/local/etc/smartd_warning\.sh|$(smartdscriptdir)/smartd_warning.sh|g' \
         -e 's|RELEASE_6_0_DRIVEDB|@DRIVEDB_BRANCH@|g' | \
+    if test -n '$(smartdplugindir)'; then \
+      sed 's|/usr/local/etc/smartd_warning\.d|$(smartdplugindir)|g' ; \
+    else \
+      sed '/^\.\\" %IF ENABLE_SMARTDPLUGINDIR/,/^\.\\" %ENDIF ENABLE_SMARTDPLUGINDIR/ s,^,.\\"\# ,' ; \
+    fi | \
     $(MAN_ATTRIBUTELOG) | \
     $(MAN_CAPABILITIES) | \
     $(MAN_DRIVEDB) | \
