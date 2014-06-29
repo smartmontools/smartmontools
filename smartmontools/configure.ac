@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 3928 2014-06-27 19:19:27Z chrfranke $
+# $Id: configure.ac 3932 2014-06-29 19:02:38Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 6.3, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 3928 2014-06-27 19:19:27Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 3932 2014-06-29 19:02:38Z chrfranke $'`
 smartmontools_release_date=2013-07-26
 smartmontools_release_time="17:38:20 UTC"
 
@@ -257,6 +257,17 @@ AC_ARG_WITH(drivedbdir,
   [drivedbdir=; test "$enable_drivedb" = "yes" && drivedbdir='${datadir}/${PACKAGE}'])
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test "$enable_drivedb" = "yes"])
+
+AC_ARG_WITH(smartdscriptdir,
+  [AS_HELP_STRING([--with-smartdscriptdir=DIR], [Location of smartd_warning.sh script [SYSCONFDIR]])],
+  [smartdscriptdir="$withval"], [smartdscriptdir='${sysconfdir}'])
+AC_SUBST(smartdscriptdir)
+
+AC_ARG_WITH(smartdplugindir,
+  [AS_HELP_STRING([--with-smartdplugindir=@<:@=DIR|no@:>@], [Location of smartd_warning.sh plugin scripts [SMARTDSCRIPTDIR/smartd_warning.d]])],
+  [smartdplugindir=; test "$withval" != "no" && smartdplugindir="$withval"],
+  [smartdplugindir='${smartdscriptdir}/smartd_warning.d'])
+AC_SUBST(smartdplugindir)
 
 AC_ARG_ENABLE(savestates, [AC_HELP_STRING([--enable-savestates],[Enables default smartd state files])])
 
@@ -553,7 +564,12 @@ case "$host_os" in
     fi
     echo "local drive database:   `eval eval eval echo $sysconfdir`/smart_drivedb.h" >&AS_MESSAGE_FD
     echo "smartd config file:     `eval eval eval echo $sysconfdir`/smartd.conf${smartd_suffix}" >&AS_MESSAGE_FD
-    echo "smartd warning script:  `eval eval eval echo $sysconfdir`/smartd_warning.sh" >&AS_MESSAGE_FD
+    echo "smartd warning script:  `eval eval eval echo $smartdscriptdir`/smartd_warning.sh" >&AS_MESSAGE_FD
+    if test -n "$smartdplugindir"; then
+      echo "smartd plugin path:     `eval eval eval echo $smartdplugindir`" >&AS_MESSAGE_FD
+    else
+      echo "smartd plugin path:     [[disabled]]" >&AS_MESSAGE_FD
+    fi
     if test -n "$initddir"; then
       echo "smartd initd script:    `eval eval eval echo $initddir`/smartd${smartd_suffix}" >&AS_MESSAGE_FD
     elif test -z "$systemdsystemunitdir"; then

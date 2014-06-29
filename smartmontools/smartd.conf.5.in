@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3899 2014-05-01 16:53:10Z chrfranke $
+$Id: smartd.conf.5.in 3932 2014-06-29 19:02:38Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -903,6 +903,7 @@ sending mail, this should help you to understand and fix them.  If
 you have mail problems, we recommend running \fBsmartd\fP in debug
 mode with the \'-d\' flag, using the \'-M test\' Directive described
 below.
+.\" %IF ENABLE_SMARTDPLUGINDIR
 .\" %IF NOT OS Windows
 
 [NEW EXPERIMENTAL SMARTD FEATURE]
@@ -915,6 +916,7 @@ are run instead.
 This is handled by the script /usr/local/etc/smartd_warning.sh
 (see also \'\-M exec\' below).
 .\" %ENDIF NOT OS Windows
+.\" %ENDIF ENABLE_SMARTDPLUGINDIR
 .\" %IF OS Windows
 
 [Windows only] [NEW EXPERIMENTAL SMARTD FEATURE]
@@ -1673,4 +1675,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3899 2014-05-01 16:53:10Z chrfranke $
+$Id: smartd.conf.5.in 3932 2014-06-29 19:02:38Z chrfranke $
