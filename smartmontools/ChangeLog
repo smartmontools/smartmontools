@@ -1,8 +1,9 @@
-$Id: ChangeLog 3933 2014-06-30 18:35:19Z chrfranke $
+$Id: ChangeLog 3934 2014-06-30 19:44:43Z chrfranke $
 
 2014-06-30  Christian Franke  <franke@computer.org>
 
 	configure.ac: Update macros as suggested by 'autoconf --warnings=obsolete'.
+	Makefile.am: Add creation of empty directories to install targets.
 
 2014-06-29  Christian Franke  <franke@computer.org>
 
