@@ -1,5 +1,9 @@
 $Id$
 
+2014-06-30  Christian Franke  <franke@computer.org>
+
+	configure.ac: Update macros as suggested by 'autoconf --warnings=obsolete'.
+
 2014-06-29  Christian Franke  <franke@computer.org>
 
 	configure.ac, Makefile.am, smartd.cpp, smartd_warning.sh.in:

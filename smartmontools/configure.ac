@@ -16,13 +16,13 @@ AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME,   "$smartmontools_release_time", 
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",        [smartmontools CVS Tag])
 AC_DEFINE_UNQUOTED(PACKAGE_HOMEPAGE,             "http://smartmontools.sourceforge.net/", [smartmontools Home Page])
 
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([foreign])
 
 AM_MAINTAINER_MODE
 
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 dnl Checks for programs.
 AC_PROG_CXX
 AM_PROG_AS
@@ -198,7 +198,7 @@ AC_SUBST(systemdsystemunitdir)
 AM_CONDITIONAL(INSTALL_SYSTEMDUNIT, [test -n "$systemdsystemunitdir"])
 
 AC_ARG_WITH(initscriptdir,
-  [AC_HELP_STRING([--with-initscriptdir@<:@=DIR|auto|yes|no@:>@], [Location of init scripts [auto]])],
+  [AS_HELP_STRING([--with-initscriptdir@<:@=DIR|auto|yes|no@:>@], [Location of init scripts [auto]])],
   [], [with_initscriptdir=auto])
 
 initddir=
@@ -233,7 +233,7 @@ esac
 AC_SUBST(initdfile)
 
 AC_ARG_WITH(docdir,
-  [AC_HELP_STRING([--with-docdir=DIR],[Location of documentation [DATADIR/doc/smartmontools]])],
+  [AS_HELP_STRING([--with-docdir=DIR], [Location of documentation [DATADIR/doc/smartmontools]])],
   [docdir="$withval"],
   [ if test -z "$docdir"; then
       # autoconf 2.5x without '--docdir' support
@@ -243,16 +243,16 @@ AC_ARG_WITH(docdir,
 AC_SUBST(docdir)
 
 AC_ARG_WITH(exampledir,
-  [AC_HELP_STRING([--with-exampledir=DIR],[Location of example scripts [DOCDIR/examplescripts]])],
+  [AS_HELP_STRING([--with-exampledir=DIR], [Location of example scripts [DOCDIR/examplescripts]])],
   [exampledir="$withval"], [exampledir='${docdir}/examplescripts'])
 AC_SUBST(exampledir)
 
 AC_ARG_ENABLE(drivedb,
-  [AC_HELP_STRING([--disable-drivedb],[Disables drive database file])],
+  [AS_HELP_STRING([--disable-drivedb], [Disables drive database file])],
   [], [enable_drivedb=yes])
 
 AC_ARG_WITH(drivedbdir,
-  [AC_HELP_STRING([--with-drivedbdir=DIR],[Location of drive database file [DATADIR/smartmontools]])],
+  [AS_HELP_STRING([--with-drivedbdir=DIR], [Location of drive database file [DATADIR/smartmontools]])],
   [drivedbdir="$withval"; enable_drivedb=yes],
   [drivedbdir=; test "$enable_drivedb" = "yes" && drivedbdir='${datadir}/${PACKAGE}'])
 AC_SUBST(drivedbdir)
@@ -264,15 +264,17 @@ AC_ARG_WITH(smartdscriptdir,
 AC_SUBST(smartdscriptdir)
 
 AC_ARG_WITH(smartdplugindir,
-  [AS_HELP_STRING([--with-smartdplugindir=@<:@=DIR|no@:>@], [Location of smartd_warning.sh plugin scripts [SMARTDSCRIPTDIR/smartd_warning.d]])],
+  [AS_HELP_STRING([--with-smartdplugindir=@<:@=DIR|no@:>@],
+    [Location of smartd_warning.sh plugin scripts [SMARTDSCRIPTDIR/smartd_warning.d]])],
   [smartdplugindir=; test "$withval" != "no" && smartdplugindir="$withval"],
   [smartdplugindir='${smartdscriptdir}/smartd_warning.d'])
 AC_SUBST(smartdplugindir)
 
-AC_ARG_ENABLE(savestates, [AC_HELP_STRING([--enable-savestates],[Enables default smartd state files])])
+AC_ARG_ENABLE(savestates, [AS_HELP_STRING([--enable-savestates], [Enables default smartd state files])])
 
 AC_ARG_WITH(savestates,
-  [AC_HELP_STRING([--with-savestates=PREFIX],[Prefix for default smartd state files (implies --enable-savestates) [LOCALSTATEDIR/lib/smartmontools/smartd.]])],
+  [AS_HELP_STRING([--with-savestates=PREFIX],
+    [Prefix for default smartd state files (implies --enable-savestates) [LOCALSTATEDIR/lib/smartmontools/smartd.]])],
   [savestates="$withval"; enable_savestates="yes"],
   [savestates=; test "$enable_savestates" = "yes" && savestates='${localstatedir}/lib/${PACKAGE}/smartd.'])
 savestatesdir="${savestates%/*}"
@@ -280,10 +282,11 @@ AC_SUBST(savestates)
 AC_SUBST(savestatesdir)
 AM_CONDITIONAL(ENABLE_SAVESTATES, [test "$enable_savestates" = "yes"])
 
-AC_ARG_ENABLE(attributelog, [AC_HELP_STRING([--enable-attributelog],[Enables default smartd attribute log files])])
+AC_ARG_ENABLE(attributelog, [AS_HELP_STRING([--enable-attributelog], [Enables default smartd attribute log files])])
 
 AC_ARG_WITH(attributelog,
-  [AC_HELP_STRING([--with-attributelog=PREFIX],[Prefix for default smartd attribute log files (implies --enable-attributelog) [LOCALSTATEDIR/lib/smartmontools/attrlog.]])],
+  [AS_HELP_STRING([--with-attributelog=PREFIX],
+    [Prefix for default smartd attribute log files (implies --enable-attributelog) [LOCALSTATEDIR/lib/smartmontools/attrlog.]])],
   [attributelog="$withval"; enable_attributelog="yes"],
   [attributelog=; test "$enable_attributelog" = "yes" && attributelog='${localstatedir}/lib/${PACKAGE}/attrlog.'])
 attributelogdir="${attributelog%/*}"
@@ -292,13 +295,13 @@ AC_SUBST(attributelogdir)
 AM_CONDITIONAL(ENABLE_ATTRIBUTELOG, [test "$enable_attributelog" = "yes"])
 
 AC_ARG_ENABLE(sample,
-  [AC_HELP_STRING([--enable-sample],[Enables appending .sample to the installed smartd rc script and configuration file])],
+  [AS_HELP_STRING([--enable-sample], [Enables appending .sample to the installed smartd rc script and configuration file])],
   [smartd_suffix=; test "$enableval" = "yes" && smartd_suffix=".sample"],
   [smartd_suffix=;])
 AC_SUBST(smartd_suffix)
 
 AC_ARG_WITH(os-deps,
-  [AC_HELP_STRING([--with-os-deps='os_module.o ...'],[Specify OS dependent module(s) [guessed]])],
+  [AS_HELP_STRING([--with-os-deps='os_module.o ...'], [Specify OS dependent module(s) [guessed]])],
   [ for x in $with_os_deps; do
       case $x in
         *.o) ;;
@@ -308,7 +311,7 @@ AC_ARG_WITH(os-deps,
   ],[])
 
 AC_ARG_WITH(selinux,
-  [AC_HELP_STRING([--with-selinux@<:@=yes|no@:>@],[Enables SELinux support [no]])],
+  [AS_HELP_STRING([--with-selinux@<:@=yes|no@:>@], [Enables SELinux support [no]])],
   [ if test "$withval" = "yes"; then
       AC_CHECK_HEADERS([selinux/selinux.h], [], [AC_MSG_ERROR([Missing SELinux header files])])
       AC_CHECK_LIB(selinux, matchpathcon, [], [AC_MSG_ERROR([Missing or incorrect SELinux library files])])
@@ -320,7 +323,7 @@ if test "$with_selinux" = "yes"; then
 fi
 
 AC_ARG_WITH(libcap-ng,
-  [AC_HELP_STRING([--with-libcap-ng@<:@=auto|yes|no@:>@],[Add Libcap-ng support to smartd [auto]])],
+  [AS_HELP_STRING([--with-libcap-ng@<:@=auto|yes|no@:>@], [Add Libcap-ng support to smartd [auto]])],
   [], [with_libcap_ng=auto])
 
 use_libcap_ng=no
