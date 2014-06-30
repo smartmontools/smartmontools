@@ -461,16 +461,6 @@ if ENABLE_DRIVEDB
 drivedb_DATA = drivedb.h
 endif
 
-if ENABLE_SAVESTATES
-# Create $(savestatesdir) only
-savestates_DATA =
-endif
-
-if ENABLE_ATTRIBUTELOG
-# Create $(attributelogdir) only
-attributelog_DATA =
-endif
-
 update-smart-drivedb: update-smart-drivedb.in config.status
 	$(SHELL) ./config.status --file=$@
 	chmod +x $@
@@ -555,6 +545,20 @@ smartd.service: smartd.service.in Makefile
 	else \
 	  sed -e '/^EnvironmentFile=/d' -e 's| *\$$smartd[_a-z]* *||g'; \
 	fi > $@
+
+
+# Create empty directories if configured.
+# Default install rules no longer create empty directories since automake 1.11.
+# Uses $(mkinstalldirs) instead of $(MKDIR_P) to preserve support for automake 1.7 - 1.9.
+installdirs-local:
+	@for d in '$(smartdplugindir)' '$(savestatesdir)' '$(attributelogdir)'; do \
+	  test -n "$$d" || continue; \
+	  echo "$(mkinstalldirs) $(DESTDIR)$$d"; \
+	  $(mkinstalldirs) "$(DESTDIR)$$d" || exit 1; \
+	done
+
+install-data-local: installdirs-local
+
 
 if ENABLE_CAPABILITIES
 MAN_CAPABILITIES = cat
