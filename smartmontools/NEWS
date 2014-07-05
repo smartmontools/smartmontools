@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3932 2014-06-29 19:02:38Z chrfranke $
+$Id: NEWS 3935 2014-07-05 16:28:06Z chrfranke $
 
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
@@ -16,6 +16,7 @@ Summary: smartmontools release 6.3
 - configure option '--with-smartdscriptdir'.
 - configure option '--with-smartdplugindir'.
 - configure option '--with-systemdenvfile'.
+- configure option '--with-working-snprintf'.
 - Removed build time stamps to support reproducible builds.
 - Compile fixes for C++11.
 - HDD, SSD and USB additions to drive database.

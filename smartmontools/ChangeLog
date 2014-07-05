@@ -1,4 +1,10 @@
-$Id: ChangeLog 3934 2014-06-30 19:44:43Z chrfranke $
+$Id: ChangeLog 3935 2014-07-05 16:28:06Z chrfranke $
+
+2014-07-05  Christian Franke  <franke@computer.org>
+
+	configure.ac: Remove snprintf() compile time test.
+	Add '--with-working-snprintf' configure option.
+	Add __USE_MINGW_ANSI_STDIO test for MinGW GCC.
 
 2014-06-30  Christian Franke  <franke@computer.org>
 
