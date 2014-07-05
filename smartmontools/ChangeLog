@@ -1,4 +1,4 @@
-$Id: ChangeLog 3937 2014-07-05 17:51:21Z chrfranke $
+$Id: ChangeLog 3938 2014-07-05 19:28:37Z chrfranke $
 
 2014-07-05  Christian Franke  <franke@computer.org>
 
@@ -7,6 +7,7 @@ $Id: ChangeLog 3937 2014-07-05 17:51:21Z chrfranke $
 	Add __USE_MINGW_ANSI_STDIO test for MinGW GCC.
 	utility.cpp: Add snprintf() runtime test.
 	Add GCC version to output of -V option.
+	Makefile.am: Add update-smart-drivedb.1m for Solaris.
 
 2014-06-30  Christian Franke  <franke@computer.org>
 
