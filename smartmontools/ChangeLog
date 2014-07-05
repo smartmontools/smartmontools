@@ -7,6 +7,7 @@ $Id$
 	Add __USE_MINGW_ANSI_STDIO test for MinGW GCC.
 	utility.cpp: Add snprintf() runtime test.
 	Add GCC version to output of -V option.
+	Makefile.am: Add update-smart-drivedb.1m for Solaris.
 
 2014-06-30  Christian Franke  <franke@computer.org>
 
