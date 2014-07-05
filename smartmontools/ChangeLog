@@ -1,5 +1,11 @@
 $Id$
 
+2014-07-05  Christian Franke  <franke@computer.org>
+
+	configure.ac: Remove snprintf() compile time test.
+	Add '--with-working-snprintf' configure option.
+	Add __USE_MINGW_ANSI_STDIO test for MinGW GCC.
+
 2014-06-30  Christian Franke  <franke@computer.org>
 
 	configure.ac: Update macros as suggested by 'autoconf --warnings=obsolete'.

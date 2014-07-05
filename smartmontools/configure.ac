@@ -136,19 +136,6 @@ AC_CHECK_FUNCS([clock_gettime ftime gettimeofday])
 # Check byte ordering (defines WORDS_BIGENDIAN)
 AC_C_BIGENDIAN
 
-# Check whether snprintf appends null char and returns expected length on overflow
-AC_MSG_CHECKING([for working snprintf])
-AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]], [[ char buf[]="ABCDEFGHI";
-               int i=snprintf(buf,8,"12345678"); return !(!buf[7] && i==8); ]])],
-              [libc_have_working_snprintf=yes],
-              [libc_have_working_snprintf=no],
-              [libc_have_working_snprintf=unknown])
-AC_SUBST(libc_have_working_snprintf)
-if test "$libc_have_working_snprintf" = "yes"; then
-  AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane])
-fi
-AC_MSG_RESULT([$libc_have_working_snprintf])
-
 # check for __attribute__((packed))
 # (sizeof() check is required to avoid false positives if other
 # __attribute__((x)) are supported)
@@ -343,6 +330,38 @@ AC_MSG_CHECKING([whether to use libcap-ng])
 AC_SUBST(CAPNG_LDADD)
 AM_CONDITIONAL(ENABLE_CAPABILITIES, [test "$use_libcap_ng" = "yes"])
 AC_MSG_RESULT([$use_libcap_ng])
+
+# Assume broken snprintf only on Windows with MSVCRT (MinGW without ANSI stdio support)
+libc_have_working_snprintf=yes
+
+case "$host" in
+  *-*-mingw*)
+    case " $CPPFLAGS $CXXFLAGS" in
+      *\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
+        ;;
+      *)
+        AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO is defined by C++ includes])
+        AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+          #undef __USE_MINGW_ANSI_STDIO
+          #include <iostream>
+          #ifndef __USE_MINGW_ANSI_STDIO
+            #error false
+          #endif]])],
+        [CXXFLAGS="-D__USE_MINGW_ANSI_STDIO $CXXFLAGS"],
+        [libc_have_working_snprintf=no])
+        AC_MSG_RESULT([$libc_have_working_snprintf])
+        ;;
+    esac ;;
+esac
+
+AC_ARG_WITH(working-snprintf,
+  [AS_HELP_STRING([--with-working-snprintf@<:@=yes|no@:>@],
+    [Function snprintf() handles output truncation as specified by C99 [MinGW:guessed,others:yes]])],
+  [libc_have_working_snprintf=$withval])
+
+if test "$libc_have_working_snprintf" = "yes"; then
+  AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane])
+fi
 
 if test "$prefix" = "NONE"; then
     dnl no prefix and no mandir, so use ${prefix}/share/man as default

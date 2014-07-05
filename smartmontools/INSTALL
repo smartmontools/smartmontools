@@ -679,6 +679,7 @@ OPTIONS              DEFAULT                                      AFFECTS
 --with-savestates     ${prefix}/var/lib/smartmontools/smartd.     Prefix for smartd state files (implies --enable-savestates)
 --enable-attributelog --disable-attributelog                      Enables default smartd attribute log files
 --with-attributelog   ${prefix}/var/lib/smartmontools/attrlog.    Prefix for smartd attribute log files (implies --enable-attributelog)
+--with-working-snprintf    MinGW:guessed,others:yes               Function snprintf() handles output truncation as specified by C99
 
 Please note that in previous versions of smartmontools (<= 5.39) the
 default for --with-docdir was
