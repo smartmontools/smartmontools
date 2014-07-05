@@ -1,4 +1,4 @@
-$Id: ChangeLog 3936 2014-07-05 17:16:23Z chrfranke $
+$Id: ChangeLog 3937 2014-07-05 17:51:21Z chrfranke $
 
 2014-07-05  Christian Franke  <franke@computer.org>
 
@@ -6,6 +6,7 @@ $Id: ChangeLog 3936 2014-07-05 17:16:23Z chrfranke $
 	Add '--with-working-snprintf' configure option.
 	Add __USE_MINGW_ANSI_STDIO test for MinGW GCC.
 	utility.cpp: Add snprintf() runtime test.
+	Add GCC version to output of -V option.
 
 2014-06-30  Christian Franke  <franke@computer.org>
 

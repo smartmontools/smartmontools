@@ -52,7 +52,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 3936 2014-07-05 17:16:23Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 3937 2014-07-05 17:51:21Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -116,6 +116,9 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "smartmontools SVN rev is unknown\n"
 #endif
     "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n"
+#if defined(__GNUC__) && defined(__VERSION__) // works also with CLang
+    "smartmontools build with: GCC " __VERSION__ "\n"
+#endif
     "smartmontools configure arguments: "
   ;
   info += (sizeof(SMARTMONTOOLS_CONFIGURE_ARGS) > 1 ?
