@@ -116,6 +116,9 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "smartmontools SVN rev is unknown\n"
 #endif
     "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n"
+#if defined(__GNUC__) && defined(__VERSION__) // works also with CLang
+    "smartmontools build with: GCC " __VERSION__ "\n"
+#endif
     "smartmontools configure arguments: "
   ;
   info += (sizeof(SMARTMONTOOLS_CONFIGURE_ARGS) > 1 ?
