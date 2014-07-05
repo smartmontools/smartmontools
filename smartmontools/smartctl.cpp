@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -1213,8 +1213,8 @@ void scan_devices(const char * type, bool with_open, char ** argv)
 // Main program without exception handling
 static int main_worker(int argc, char **argv)
 {
-  // Throw if CPU endianess does not match compile time test.
-  check_endianness();
+  // Throw if runtime environment does not match compile time test.
+  check_config();
 
   // Initialize interface
   smart_interface::init();

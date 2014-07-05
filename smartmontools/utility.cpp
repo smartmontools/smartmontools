@@ -262,7 +262,7 @@ const char *packetdevicetype(int type){
 }
 
 // Runtime check of byte ordering, throws if different from isbigendian().
-void check_endianness()
+static void check_endianness()
 {
   union {
     // Force compile error if int type is not 32bit.
@@ -811,8 +811,8 @@ std::string strprintf(const char * fmt, ...)
 
 
 #ifndef HAVE_WORKING_SNPRINTF
-// Some versions of (v)snprintf() don't append null char on overflow (MSVCRT.DLL),
-// and/or return -1 on overflow (old Linux).
+// Some versions of (v)snprintf() don't append null char (MSVCRT.DLL),
+// and/or return -1 on output truncation (glibc <= 2.0.6).
 // Below are sane replacements substituted by #define in utility.h.
 
 #undef vsnprintf
@@ -841,5 +841,25 @@ int safe_snprintf(char *buf, int size, const char *fmt, ...)
   return i;
 }
 
-#endif
+#else // HAVE_WORKING_SNPRINTF
 
+static void check_snprintf()
+{
+  char buf[] =              "ABCDEFGHI";
+  int n1 = snprintf(buf, 8, "123456789");
+  int n2 = snprintf(buf, 0, "X");
+  if (!(!strcmp(buf, "1234567") && n1 == 9 && n2 == 1))
+    throw std::logic_error("Function snprintf() does not conform to C99,\n"
+                           "please contact " PACKAGE_BUGREPORT);
+}
+
+#endif // HAVE_WORKING_SNPRINTF
+
+// Runtime check of ./configure result, throws on error.
+void check_config()
+{
+  check_endianness();
+#ifdef HAVE_WORKING_SNPRINTF
+  check_snprintf();
+#endif
+}

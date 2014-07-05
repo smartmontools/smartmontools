@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -155,8 +155,8 @@ inline bool isbigendian()
 #endif
 }
 
-// Runtime check of byte ordering, throws if different from isbigendian().
-void check_endianness();
+// Runtime check of ./configure result, throws on error.
+void check_config();
 
 // This value follows the peripheral device type value as defined in
 // SCSI Primary Commands, ANSI INCITS 301:1997.  It is also used in
