@@ -732,8 +732,6 @@ since 2009)
 .br
 \fBsmartmontools\-support@lists.sourceforge.net\fP
 
-.PP
-.SH CONTRIBUTORS
 The following have made large contributions to smartmontools:
 .nf
 \fBCasper Dik\fP (Solaris SCSI interface)
@@ -752,12 +750,9 @@ The following have made large contributions to smartmontools:
 .fi
 Many other individuals have made smaller contributions and corrections.
 
-.PP
-.SH CREDITS
-.fi
-This code was derived from the smartsuite package, written by Michael
-Cornwell, and from the previous UCSC smartsuite package.  It extends
-these to cover ATA-5 disks.  This code was originally developed as a
+The first smartmontools code was derived from the smartsuite package,
+written by Michael Cornwell, and from the previous UCSC smartsuite package.
+This code was originally developed as a
 Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
