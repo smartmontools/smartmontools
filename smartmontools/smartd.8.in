@@ -150,8 +150,7 @@ Disks behind Areca RAID controllers are not included.
 for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
 Directive in the configuration file; see the \fBsmartd.conf\fP(5) man page).
 
-.SH 
-OPTIONS
+.SH OPTIONS
 
 .TP
 .B \-A PREFIX, \-\-attributelog=PREFIX
@@ -763,19 +762,16 @@ Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
 Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
-.SH
-HOME PAGE FOR SMARTMONTOOLS: 
+.SH HOME PAGE FOR SMARTMONTOOLS
 .fi
 Please see the following web site for updates, further documentation, bug
 reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 
-.SH
-SEE ALSO:
+.SH SEE ALSO
 \fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBsyslogd\fP(8),
 \fBsyslog.conf\fP(5), \fBbadblocks\fP(8), \fBide\-smart\fP(8), \fBregex\fP(7).
 
-.SH
-REFERENCES FOR SMART
+.SH REFERENCES FOR SMART
 .fi
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
@@ -796,6 +792,5 @@ publications of the Small Form Factors (SFF) Committee.
 Links to these and other documents may be found on the Links page of the
 \fBsmartmontools\fP Wiki at \fBhttp://www.smartmontools.org/wiki/Links\fP .
 
-.SH
-SVN ID OF THIS PAGE:
+.SH SVN ID OF THIS PAGE
 $Id$

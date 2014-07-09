@@ -1,5 +1,10 @@
 $Id$
 
+2014-07-09  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Avoid '.SH' macros with no
+	argument.  Remove colons from section names.
+
 2014-07-05  Christian Franke  <franke@computer.org>
 
 	configure.ac: Remove snprintf() compile time test.

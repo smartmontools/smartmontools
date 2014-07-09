@@ -1662,17 +1662,14 @@ Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
 Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
-.SH
-HOME PAGE FOR SMARTMONTOOLS: 
+.SH HOME PAGE FOR SMARTMONTOOLS
 .fi
 Please see the following web site for updates, further documentation, bug
 reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 
-.SH
-SEE ALSO:
+.SH SEE ALSO
 \fBsmartd\fP(8), \fBsmartctl\fP(8), \fBsyslogd\fP(8),
 \fBsyslog.conf\fP(5), \fBbadblocks\fP(8), \fBide\-smart\fP(8), \fBregex\fP(7).
 
-.SH
-SVN ID OF THIS PAGE:
+.SH SVN ID OF THIS PAGE
 $Id$
