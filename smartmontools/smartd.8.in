@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.8.in 3941 2014-07-09 19:19:36Z chrfranke $
+$Id: smartd.8.in 3942 2014-07-09 19:49:48Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -223,8 +223,8 @@ debug mode is enabled.
 .B \-D, \-\-showdirectives
 Prints a list (to STDOUT) of all the possible Directives which may
 appear in the configuration file /usr/local/etc/smartd.conf, and then exits.
-These Directives are also described later in this man page. They may
-appear in the configuration file following the device name.
+These Directives are described in the \fBsmartd.conf\fP(5) man page.
+They may appear in the configuration file following the device name.
 .TP
 .B \-h, \-\-help, \-\-usage
 Prints usage message to STDOUT and exits.
@@ -763,8 +763,8 @@ Please see the following web site for updates, further documentation, bug
 reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 
 .SH SEE ALSO
-\fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBsyslogd\fP(8),
-\fBsyslog.conf\fP(5), \fBbadblocks\fP(8), \fBide\-smart\fP(8), \fBregex\fP(7).
+\fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBupdate-smart-drivedb\fP(8),
+\fBsyslogd\fP(8), \fBsyslog.conf\fP(5).
 
 .SH REFERENCES FOR SMART
 .fi
@@ -788,4 +788,4 @@ Links to these and other documents may be found on the Links page of the
 \fBsmartmontools\fP Wiki at \fBhttp://www.smartmontools.org/wiki/Links\fP .
 
 .SH SVN ID OF THIS PAGE
-$Id: smartd.8.in 3941 2014-07-09 19:19:36Z chrfranke $
+$Id: smartd.8.in 3942 2014-07-09 19:49:48Z chrfranke $
