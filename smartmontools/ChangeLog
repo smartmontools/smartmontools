@@ -1,9 +1,10 @@
-$Id: ChangeLog 3940 2014-07-09 18:45:33Z chrfranke $
+$Id: ChangeLog 3941 2014-07-09 19:19:36Z chrfranke $
 
 2014-07-09  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Avoid '.SH' macros with no
 	argument.  Remove colons from section names.
+	Merge sections CONTRIBUTORS and CREDITS with AUTHORS.
 
 2014-07-05  Christian Franke  <franke@computer.org>
 
