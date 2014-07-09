@@ -5,6 +5,7 @@ $Id$
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Avoid '.SH' macros with no
 	argument.  Remove colons from section names.
 	Merge sections CONTRIBUTORS and CREDITS with AUTHORS.
+	Update SEE ALSO sections.
 
 2014-07-05  Christian Franke  <franke@computer.org>
 

@@ -2252,7 +2252,8 @@ Please see the following web site for updates, further documentation, bug
 reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 
 .SH SEE ALSO
-\fBsmartd\fP(8), \fBbadblocks\fP(8), \fBide\-smart\fP(8).
+\fBsmartd\fP(8), \fBupdate-smart-drivedb\fP(8).
+
 .SH REFERENCES FOR SMART
 .fi
 An introductory article about smartmontools is \fIMonitoring Hard
