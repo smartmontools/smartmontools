@@ -1555,7 +1555,7 @@ multiple times.  The valid arguments are:
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This
 is the default, unless the device has presets for \'\-F\' in the
-drive database.  Using this option on the command line will over-ride any
+drive database.  Using this option on the command line will override any
 preset values.
 
 .I nologdir
@@ -1590,7 +1590,7 @@ execution status (see options \'\-c\' or \'\-a\' above) accordingly.
 
 .I xerrorlba
 \- Fixes LBA byte ordering in Extended Comprehensive SMART error log.
-Some disk use little endian byte ordering instead of ATA register
+Some disks use little endian byte ordering instead of ATA register
 ordering to specifiy the LBA addresses in the log entries.
 
 .I swapid

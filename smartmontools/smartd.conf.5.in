@@ -836,8 +836,8 @@ during disk standby time, the longest of these tests is run when the
 disk is active again.
 
 Unix users: please beware that the rules for extended regular
-expressions [regex(7)] are \fBnot\fP the same as the rules for
-file-name pattern matching by the shell [glob(7)].  \fBsmartd\fP will
+expressions [\fBregex\fP(7)] are \fBnot\fP the same as the rules for
+file-name pattern matching by the shell [\fBglob\fP(7)].  \fBsmartd\fP will
 issue harmless informational warning messages if it detects characters
 in \fBREGEXP\fP that appear to indicate that you have made this
 mistake.
@@ -1401,7 +1401,7 @@ multiple times.  The valid arguments are:
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This
 is the default, unless the device has presets for \'\-F\' in the
-drive database.  Using this directive will over-ride any preset values.
+drive database.  Using this directive will override any preset values.
 
 .I nologdir
 \- Suppresses read attempts of SMART or GP Log Directory.
@@ -1449,7 +1449,7 @@ if no other \'-C\' directive is specified.
 
 .I 198,increasing
 \- Raw Attribute number 198 (Offline Uncorrectable Sector Count) is not
-reset if uncorrectable sector are reallocated.  This sets \'-U 198+\'
+reset if uncorrectable sectors are reallocated.  This sets \'-U 198+\'
 if no other \'-U\' directive is specified.
 .TP
 .B \-P TYPE

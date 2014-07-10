@@ -4,6 +4,8 @@ $Id$
 
 	Makefile.am: Rework build of Solaris specific man pages.
 	This fixes some bogus and some missing replacements.
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Minor typo and syntax
+	fixes.
 
 2014-07-09  Christian Franke  <franke@computer.org>
 

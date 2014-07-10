@@ -198,7 +198,7 @@ to perform quick and simple checks without a configuration file.
 .\" %IF ENABLE_CAPABILITIES
 .TP
 .B \-C, \-\-capabilities
-Use \fBcapabilities(7)\fP.
+Use \fBcapabilities\fP(7).
 
 Warning: Mail notification does not work when used.
 .\" %ENDIF ENABLE_CAPABILITIES
@@ -206,7 +206,7 @@ Warning: Mail notification does not work when used.
 .B \-d, \-\-debug
 Runs \fBsmartd\fP in "debug" mode. In this mode, it displays status
 information to STDOUT rather than logging it to SYSLOG and does not
-\fBfork(2)\fP into the background and detach from the controlling
+\fBfork\fP(2) into the background and detach from the controlling
 terminal.  In this mode, \fBsmartd\fP also prints more verbose
 information about what it is doing than when operating in "daemon"
 mode. In this mode, the \fBINT\fP signal (normally generated from a
@@ -508,7 +508,7 @@ and stop it by using the command:
 .B /usr/local/etc/rc.d/init.d/smartd stop
 .fi
 .SH CONFIGURATION
-The syntax of the smartd.conf(5) file is discussed separately.
+The syntax of the \fBsmartd.conf\fP(5) file is discussed separately.
 .SH NOTES
 \fBsmartd\fP
 will make log entries at loglevel 
@@ -648,7 +648,7 @@ using either the environment variable \'\fBTZ\fP\' or using a
 time-zone file such as \fB/etc/localtime\fP.  You may wish to change
 the timezone while \fBsmartd\fP is running (for example, if you carry
 a laptop to a new time-zone and don't reboot it).  Due to a bug in the
-\fBtzset(3)\fP function of many unix standard C libraries, the
+\fBtzset\fP(3) function of many unix standard C libraries, the
 time-zone stamps of \fBsmartd\fP might not change.  For some systems,
 \fBsmartd\fP will work around this problem \fIif\fP the time-zone is
 set using \fB/etc/localtime\fP. The work-around \fIfails\fP if the
