@@ -1,5 +1,10 @@
 $Id$
 
+2014-07-10  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Rework build of Solaris specific man pages.
+	This fixes some bogus and some missing replacements.
+
 2014-07-09  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Avoid '.SH' macros with no

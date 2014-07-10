@@ -251,6 +251,8 @@ extra_MANS =      smartd.conf.4 \
 if ENABLE_DRIVEDB
 extra_MANS += update-smart-drivedb.1m
 endif
+
+all-local: $(extra_MANS)
 install-man: $(extra_MANS)
 	@$(NORMAL_INSTALL)
 	$(mkinstalldirs) $(DESTDIR)$(mandir)/man4
@@ -277,22 +279,6 @@ uninstall-man:
 	  echo " rm -f $(DESTDIR)$(mandir)/man$$ext/$$inst"; \
 	  rm -f $(DESTDIR)$(mandir)/man$$ext/$$inst; \
 	done
-%.1m: %.8
-	awk '/^.TH/ {$$3="1m"} {print}' < $< | \
-	sed -e 's/smartd\.conf\(.*\)(5)/smartd.conf\1(4)/g' \
-            -e 's/syslog\.conf\(.*\)(5)/syslog.conf\1(4)/g' \
-	    -e 's/smartctl\(.*\)(8)/smartctl\1(1m)/g' \
-	    -e 's/syslogd\(.*\)(8)/syslogd\1(1m)/g' \
-            -e 's|/var/log/messages|/var/adm/messages|g' \
-	    -e 's/smartd\(.*\)(8)/smartd\1(1m)/g' > $@
-%.4: %.5
-	awk '/^.TH/ {$$3="4"}  {print}' < $< | \
-	sed -e 's/smartd\.conf\(.*\)(5)/smartd.conf\1(4)/g' \
-            -e 's/syslog\.conf\(.*\)(5)/syslog.conf\1(4)/g' \
-	    -e 's/smartctl\(.*\)(8)/smartdctl\1(1m)/g' \
-	    -e 's/syslogd\(.*\)(8)/syslogd\1(1m)/g' \
-            -e 's|/var/log/messages|/var/adm/messages|g' \
-	    -e 's/smartd\(.*\)(8)/smartd\1(1m)/g' > $@
 else
 # For systems that adopts traditional manner
 
@@ -562,7 +548,9 @@ installdirs-local:
 
 install-data-local: installdirs-local
 
-
+#
+# Build man pages
+#
 if ENABLE_CAPABILITIES
 MAN_CAPABILITIES = cat
 else
@@ -638,6 +626,31 @@ smartd.conf.5: smartd.conf.5.in Makefile svnversion.h
 update-smart-drivedb.8: update-smart-drivedb.8.in Makefile svnversion.h
 	@echo '  cat $(srcdir)/update-smart-drivedb.8.in | $$(MAN_FILTER) > $@'
 	@cat $(srcdir)/update-smart-drivedb.8.in | $(MAN_FILTER) > $@
+
+# Build Solaris specific man pages
+SOLARIS_MAN_FILTER = \
+    sed -e '/^\.TH/s, \([58]\) , !!\1!! ,' \
+        -e '/^\.BR/s, (\([578]\)), (!!\1!!),' \
+        -e 's,\\fP(\([578]\)),\\fP(!!\1!!),g' \
+        -e 's,!!5!!,4,g' -e 's,!!7!!,5,g' -e 's,!!8!!,1m,g' \
+        -e 's,/var/log/messages,/var/adm/messages,g'
+
+smartctl.1m: smartctl.8
+	@echo '  cat smartctl.8 | $$(SOLARIS_MAN_FILTER) > $@'
+	@cat smartctl.8 | $(SOLARIS_MAN_FILTER) > $@
+
+smartd.1m: smartd.8
+	@echo '  cat smartd.8 | $$(SOLARIS_MAN_FILTER) > $@'
+	@cat smartd.8 | $(SOLARIS_MAN_FILTER) > $@
+
+smartd.conf.4: smartd.conf.5
+	@echo '  cat smartd.conf.5 | $$(SOLARIS_MAN_FILTER) > $@'
+	@cat smartd.conf.5 | $(SOLARIS_MAN_FILTER) > $@
+
+update-smart-drivedb.1m: update-smart-drivedb.8
+	@echo '  cat update-smart-drivedb.8 | $$(SOLARIS_MAN_FILTER) > $@'
+	@cat update-smart-drivedb.8 | $(SOLARIS_MAN_FILTER) > $@
+
 
 # Commands to convert man pages into .html and .txt
 # TODO: configure
