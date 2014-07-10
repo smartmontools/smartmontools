@@ -1,4 +1,9 @@
-$Id: ChangeLog 3942 2014-07-09 19:49:48Z chrfranke $
+$Id: ChangeLog 3943 2014-07-10 18:48:01Z chrfranke $
+
+2014-07-10  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Rework build of Solaris specific man pages.
+	This fixes some bogus and some missing replacements.
 
 2014-07-09  Christian Franke  <franke@computer.org>
 
