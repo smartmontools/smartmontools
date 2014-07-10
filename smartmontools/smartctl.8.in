@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartctl.8.in 3942 2014-07-09 19:49:48Z chrfranke $
+$Id: smartctl.8.in 3944 2014-07-10 20:03:33Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1555,7 +1555,7 @@ multiple times.  The valid arguments are:
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This
 is the default, unless the device has presets for \'\-F\' in the
-drive database.  Using this option on the command line will over-ride any
+drive database.  Using this option on the command line will override any
 preset values.
 
 .I nologdir
@@ -1590,7 +1590,7 @@ execution status (see options \'\-c\' or \'\-a\' above) accordingly.
 
 .I xerrorlba
 \- Fixes LBA byte ordering in Extended Comprehensive SMART error log.
-Some disk use little endian byte ordering instead of ATA register
+Some disks use little endian byte ordering instead of ATA register
 ordering to specifiy the LBA addresses in the log entries.
 
 .I swapid
@@ -2276,4 +2276,4 @@ Links to these and other documents may be found on the Links page of the
 \fBsmartmontools\fP Wiki at \fBhttp://www.smartmontools.org/wiki/Links\fP .
 
 .SH SVN ID OF THIS PAGE
-$Id: smartctl.8.in 3942 2014-07-09 19:49:48Z chrfranke $
+$Id: smartctl.8.in 3944 2014-07-10 20:03:33Z chrfranke $
