@@ -7,6 +7,7 @@ $Id$
 	ataprint.cpp: Add new ACS-4 log.
 	cciss.cpp: Fix C++11 builds on Linux.  GCC and CLang do not
 	predefine 'linux' when in '-std=c++11' mode.
+	smartd.cpp: Update description of Windows smartd service.
 
 2014-07-10  Christian Franke  <franke@computer.org>
 
