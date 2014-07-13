@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#if defined(linux)
+#if defined(linux) || defined(__linux__)
 #  include <sys/ioctl.h>
 #  ifdef HAVE_LINUX_COMPILER_H
 #    include <linux/compiler.h>
@@ -38,7 +38,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char * cciss_cpp_cvsid = "$Id: cciss.cpp 3578 2012-07-20 17:26:32Z chrfranke $"
+const char * cciss_cpp_cvsid = "$Id: cciss.cpp 3945 2014-07-13 15:29:05Z chrfranke $"
   CCISS_H_CVSID;
 
 typedef struct _ReportLUNdata_struct
