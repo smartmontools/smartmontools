@@ -2,6 +2,8 @@ $Id$
 
 2014-07-13  Christian Franke  <franke@computer.org>
 
+	atacmds.cpp: Add missing const and initialization.
+	Don't print extra '\n' if self-test log is empty.
 	ataprint.cpp: Add new ACS-4 log.
 	cciss.cpp: Fix C++11 builds on Linux.  GCC and CLang do not
 	predefine 'linux' when in '-std=c++11' mode.

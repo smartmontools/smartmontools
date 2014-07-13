@@ -134,7 +134,7 @@ const format_name_entry format_names[] = {
 const unsigned num_format_names = sizeof(format_names)/sizeof(format_names[0]);
 
 // Table to map old to new '-v' option arguments
-const char * map_old_vendor_opts[][2] = {
+const char * const map_old_vendor_opts[][2] = {
   {  "9,halfminutes"              , "9,halfmin2hour,Power_On_Half_Minutes"},
   {  "9,minutes"                  , "9,min2hour,Power_On_Minutes"},
   {  "9,seconds"                  , "9,sec2hour,Power_On_Seconds"},
@@ -172,7 +172,7 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
   int id = 0, n1 = -1, n2 = -1;
   char fmtname[32+1], attrname[32+1];
   if (opt[0] == 'N') {
-    // "N,format"
+    // "N,format[,name]"
     if (!(   sscanf(opt, "N,%32[^,]%n,%32[^,]%n", fmtname, &n1, attrname, &n2) >= 1
           && (n1 == len || n2 == len)))
       return false;
@@ -196,6 +196,7 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
   // Split "format[:byteorder]"
   char byteorder[8+1] = "";
   if (strchr(fmtname, ':')) {
+    n1 = n2 = -1;
     if (!(   sscanf(fmtname, "%*[^:]%n:%8[012345rvwz]%n", &n1, byteorder, &n2) >= 1
           && n2 == (int)strlen(fmtname)))
       return false;
@@ -2753,7 +2754,7 @@ int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries
     pout("Warning: ATA Specification requires self-test log structure revision number = 1\n");
   if (data->mostrecenttest==0){
     if (allentries)
-      pout("No self-tests have been logged.  [To run self-tests, use: smartctl -t]\n\n");
+      pout("No self-tests have been logged.  [To run self-tests, use: smartctl -t]\n");
     return 0;
   }
 
