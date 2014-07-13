@@ -106,7 +106,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3932 2014-06-29 19:02:38Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3948 2014-07-13 16:53:30Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -5178,9 +5178,9 @@ int main(int argc, char **argv){
     "smartd", "SmartD Service", // servicename, displayname
     // description
     "Controls and monitors storage devices using the Self-Monitoring, "
-    "Analysis and Reporting Technology System (S.M.A.R.T.) "
-    "built into ATA and SCSI Hard Drives. "
-    PACKAGE_HOMEPAGE
+    "Analysis and Reporting Technology System (SMART) built into "
+    "ATA/SATA and SCSI/SAS hard drives and solid-state drives. "
+    "www.smartmontools.org"
   };
   // daemon_main() handles daemon and service specific commands
   // and starts smartd_main() direct, from a new process,
