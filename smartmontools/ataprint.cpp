@@ -1142,7 +1142,7 @@ static const char * GetLogName(unsigned logaddr)
       case 0x09: return "Selective self-test log";
       case 0x0a: return "Device Statistics Notification"; // ACS-3
       case 0x0b: return "Reserved for CFA"; // ACS-3
-
+      case 0x0c: return "Pending Defects log"; // ACS-4
       case 0x0d: return "LPS Mis-alignment log"; // ACS-2
 
       case 0x10: return "NCQ Command Error log";
@@ -1151,7 +1151,8 @@ static const char * GetLogName(unsigned logaddr)
       case 0x13: return "SATA NCQ Send and Receive log"; // ACS-3
       case 0x14:
       case 0x15:
-      case 0x16: return "Reserved for Serial ATA";
+      case 0x16:
+      case 0x17: return "Reserved for Serial ATA";
 
       case 0x19: return "LBA Status log"; // ACS-3
 
@@ -1180,7 +1181,7 @@ static const char * GetLogName(unsigned logaddr)
 static const char * get_log_rw(unsigned logaddr)
 {
    if (   (                   logaddr <= 0x08)
-       || (0x0d == logaddr)
+       || (0x0c <= logaddr && logaddr <= 0x0d)
        || (0x10 <= logaddr && logaddr <= 0x13)
        || (0x19 == logaddr)
        || (0x20 <= logaddr && logaddr <= 0x25)
