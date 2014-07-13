@@ -8,6 +8,7 @@ $Id$
 	cciss.cpp: Fix C++11 builds on Linux.  GCC and CLang do not
 	predefine 'linux' when in '-std=c++11' mode.
 	smartd.cpp: Update description of Windows smartd service.
+	README: Update license info.  Remove outdated ATA references.
 
 2014-07-10  Christian Franke  <franke@computer.org>
 
