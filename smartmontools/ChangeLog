@@ -3,6 +3,8 @@ $Id$
 2014-07-16  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Marvell based SanDisk SSDs: Extreme II (ticket #334), others
+	- SanDisk based SSDs: iSSD P4 (ticket #272), U100 (ticket #337), others
 	- USB: Iomega (0x059b:0x047a)
 	- USB: WD My Passport: Merge entries
 	- USB: WD My Passport USB 3.0 (0x1058:0x074a, 0x1058:0x0820)
