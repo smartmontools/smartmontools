@@ -3101,6 +3101,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron"
   },
+  { "USB: Iomega; JMicron",
+    "0x059b:0x047a",
+    "", // 0x0100
+    "",
+    "-d sat" // works also with "-d usbjmicron"
+  },
   // LaCie
   { "USB: LaCie hard disk (FA Porsche design);",
     "0x059f:0x0651",
@@ -3478,50 +3484,14 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
-  { "USB: WD My Passport Portable; ",
-    "0x1058:0x0702",
-    "", // 0x0102
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Passport Essential; ",
-    "0x1058:0x0704",
-    "", // 0x0175
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Passport Elite; ",
-    "0x1058:0x0705",
-    "", // 0x0175
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Passport 070A; ",
-    "0x1058:0x070a",
-    "", // 0x1028
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Passport 0730; ",
-    "0x1058:0x0730",
-    "", // 0x1008
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Passport Essential SE USB 3.0; ",
-    "0x1058:0x074[02]",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Passport Ultra; ",
-    "0x1058:0x0741",
+  { "USB: WD My Passport; ",
+    "0x1058:0x07(0[245a]|30)",
     "",
     "",
     "-d sat"
   },
   { "USB: WD My Passport USB 3.0; ",
-    "0x1058:0x07[4a]8",
+    "0x1058:0x0(74[0128a]|7a8|820)",
     "",
     "",
     "-d sat"
@@ -3623,7 +3593,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  // A-DATA
+  // ADATA
+  { "USB: ADATA; ",
+    "0x125f:0xa[13]1a", // 1=Classic CH11 1TB, 3=DashDrive HV620 2TB
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   { "USB: A-DATA SH93; Cypress",
     "0x125f:0xa93a",
     "", // 0x0150
@@ -3699,11 +3675,18 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   // JMicron
-  { "USB: ; JMicron USB 3.0",
+  { "USB: ; JMicron JMS539", // USB2/3->SATA (old firmware)
     "0x152d:0x0539",
-    "", // 0x0100
+    "0x0100",  //  1.00
     "",
     "-d usbjmicron"
+  },
+  { "USB: ; JMicron JMS539", // USB2/3->SATA (new firmware)
+    "0x152d:0x0539",
+    "0x0205|"  //  2.05, ticket #338
+    "0x2812",  // 28.12, Mediasonic ProBox H82-SU3S2 (port multiplier)
+    "",
+    "-d sat"
   },
   { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
     "0x152d:0x0551",
@@ -3849,6 +3832,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbsunplus"
+  },
+  // TrekStor
+  { "USB: TrekStor DataStation; ", // DataStation maxi light (USB 3.0)
+    "0x1e68:0x0050",
+    "", // 0x0100
+    "",
+    "-d sat"
   },
   // Innostor
   { "USB: ; Innostor IS888", // Sharkoon SATA QuickDeck Pro USB 3.0

@@ -1,5 +1,15 @@
 $Id$
 
+2014-07-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Iomega (0x059b:0x047a)
+	- USB: WD My Passport: Merge entries
+	- USB: WD My Passport USB 3.0 (0x1058:0x074a, 0x1058:0x0820)
+	- USB: ADATA (0x125f:0xa[13]1a)
+	- USB: JMicron JMS539 (0x152d:0x0539): New FW supports SAT (ticket #338)
+	- USB: TrekStor Datastation (0x1e68:0x0050) (Red Hat Bugzilla 954162)
+
 2014-07-13  Christian Franke  <franke@computer.org>
 
 	atacmds.cpp: Add missing const and initialization.
