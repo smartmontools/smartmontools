@@ -957,6 +957,53 @@ const drive_settings builtin_knowndrives[] = {
     "-v 235,raw48,POR_Recovery_Count " // 830/840 Series
   //"-v 241,raw48,Total_LBAs_Written"
   },
+  { "Marvell based SanDisk SSDs",
+    "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
+    "SanDisk SD6SB1M[0-9]*G1022I|" // X110 (88SS9175), tested with SanDisk SD6SB1M(064|256)G1022I/X231600
+    "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
+    "SanDisk SDSSDXP[0-9]*G", // Extreme II (88SS9187), tested with SanDisk SDSSDXP480G/R1311
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 166,raw48,Min_W/E_Cycle "
+    "-v 167,raw48,Min_Bad_Block/Die "
+    "-v 168,raw48,Maximum_Erase_Cycle "
+    "-v 169,raw48,Total_Bad_Block "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Avg_Write_Erase_Ct "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 212,raw48,SATA_PHY_Error "
+    "-v 230,raw48,Perc_Write_Erase_Count "
+    "-v 232,raw48,Perc_Avail_Resrvd_Space "
+    "-v 233,raw48,Total_NAND_Writes_GiB "
+    "-v 241,raw48,Total_Writes_GiB "
+    "-v 242,raw48,Total_Reads_GiB "
+  //"-v 243,raw48,Unknown_Attribute "
+  },
+  { "SanDisk based SSDs",
+    "SanDisk iSSD P4 [0-9]*GB|" // tested with SanDisk iSSD P4 16GB/SSD 9.14
+    "SanDisk SDSSDP[0-9]*G|" // tested with SanDisk SDSSDP064G/1.0.0, SDSSDP128G/2.0.0
+    "SanDisk SSD i100 [0-9]*GB|" // tested with SanDisk SSD i100 8GB/11.56.04, 24GB/11.56.04
+    "SanDisk SSD U100 ([0-9]*GB|SMG2)", // tested with SanDisk SSD U100 8GB/10.56.00, 256GB/10.01.02, SMG2/10.56.04
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Avg_Write_Erase_Ct "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 187,raw48,Reported_Uncorrect "
+    "-v 230,raw48,Perc_Write_Erase_Count "
+    "-v 232,raw48,Perc_Avail_Resrvd_Space "
+    "-v 234,raw48,Perc_Write_Erase_Ct_BC "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+  },
   { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
     "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
     "",
