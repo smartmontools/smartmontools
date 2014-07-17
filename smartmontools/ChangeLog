@@ -1,5 +1,16 @@
 $Id$
 
+2014-07-17  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron MX100/M500/M510/M550 Client SSDs: Rename, add MX100,
+	  update MX510/550
+	- Indilinx Barefoot based SSDs: OCZ Vertex 1.10
+	- Intel 320 Series SSDs: 'L' variant
+	- JMicron based SSDs: Transcend *18M-M variant
+	- Plextor M3/M5 (Pro) Series SSDs: M5M (mSATA) variant
+	- Samsung based SSDs: 840 EVO
+
 2014-07-16  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
