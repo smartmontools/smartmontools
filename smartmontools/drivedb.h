@@ -257,10 +257,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
-  { "Crucial/Micron M500/M510/M550 Client SSDs",
+  { "Crucial/Micron MX100/M500/M510/M550 Client SSDs",
+    "Crucial_CT(128|256|512)MX100SSD1|"// tested with Crucial_CT256MX100SSD1/MU01
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
-    "M510-MTFDDA[KTV](128|256)MAZ|" // tested with M510-MTFDDAK256MAZ/MU01
-    "M550-MTFDDA[KTV](064|128|256|512|1T0)MAY", // tested with M550-MTFDDAK256MAY/MU01
+    "(Micron_)?M510[_-]MTFDDA[KTV](128|256)MAZ|" // tested with M510-MTFDDAK256MAZ/MU01
+    "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY", // tested with M550-MTFDDAK256MAY/MU01
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
@@ -416,8 +417,8 @@ const drive_settings builtin_knowndrives[] = {
     "Corsair CSSD-V(32|60|64|128|256)GB2|" // Corsair Nova, tested with Corsair CSSD-V32GB2/2.2
     "CRUCIAL_CT(64|128|256)M225|" // tested with CRUCIAL_CT64M225/1571
     "G.SKILL FALCON (64|128|256)GB SSD|" // tested with G.SKILL FALCON 128GB SSD/2030
-    "OCZ[ -](AGILITY|ONYX|VERTEX( 1199|-TURBO)?)|" // tested with
-      // OCZ-ONYX/1.6, OCZ-VERTEX 1199/00.P97, OCZ-VERTEX/1.30, OCZ VERTEX-TURBO/1.5
+    "OCZ[ -](AGILITY|ONYX|VERTEX( 1199|-TURBO| v1\\.10)?)|" // tested with
+      // OCZ-ONYX/1.6, OCZ-VERTEX 1199/00.P97, OCZ-VERTEX/1.30, OCZ VERTEX-TURBO/1.5, OCZ-VERTEX v1.10/1370
     "Patriot[ -]Torqx.*|"
     "RENICE Z2|" // tested with RENICE Z2/2030
     "STT_FT[MD](28|32|56|64)GX25H|" // Super Talent Ultradrive GX, tested with STT_FTM64GX25H/1916
@@ -635,8 +636,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362,
       // INTEL SSDSA2CW160G3/4PC10362, INTEL SSDSA2BT040G3/4PC10362, INTEL SSDSA2BW120G3A/4PC10362,
-      // INTEL SSDSA2BW300G3D/4PC10362
-    "INTEL SSDSA[12][BC][WT](040|080|120|160|300|600)G3[AD]?",
+      // INTEL SSDSA2BW300G3D/4PC10362, INTEL SSDSA2BW160G3L/4PC1LE04
+    "INTEL SSDSA[12][BC][WT](040|080|120|160|300|600)G3[ADL]?",
     "", "",
     "-F nologdir "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -851,8 +852,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "JMicron based SSDs", // JMicron JMF60x
     "Kingston SSDNow V Series [0-9]*GB|" // tested with Kingston SSDNow V Series 64GB/B090522a
-    "TS(2|4|8|16|32|64|128|192)GSSD25S?-(M|S)", // Transcend IDE and SATA, tested with TS32GSSD25-M/V090331
-    "[BV].*", // other Transcend SSD versions will be catched by subsequent entry
+    "TS(2|4|8|16|32|64|128|192)GSSD(18|25)[MS]?-[MS]", // Transcend IDE and SATA, tested with
+      // TS32GSSD25-M/V090331, TS32GSSD18M-M/v090331
+    "[BVv].*", // other Transcend SSD versions will be catched by subsequent entry
     "",
   //"-v 9,raw24(raw8),Power_On_Hours " // raw value always 0?
   //"-v 12,raw48,Power_Cycle_Count "
@@ -902,9 +904,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Plextor M3/M5 (Pro) Series SSDs", // Marvell 88SS9174 (M3, M5S), 88SS9187 (M5Pro), tested with
       // PLEXTOR PX-128M3/1.01, PX-128M3P/1.04, PX-256M3/1.05, PX-128M5S/1.02, PX-256M5S/1.03,
-      // PX-128M5S/1.05, PX-128M5Pro/1.05, PX-512M5Pro/1.06
+      // PX-128M5M/1.05, PX-128M5S/1.05, PX-128M5Pro/1.05, PX-512M5Pro/1.06
       // (1.04/5 Firmware self-test log lifetime unit is bogus, possibly 1/256 hours)
-    "PLEXTOR PX-(64|128|256|512)M(3P?|5S|5Pro)",
+    "PLEXTOR PX-(64|128|256|512)M(3P?|5[MS]|5Pro)",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -930,6 +932,8 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG SSD 830 Series|"  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
     "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
       // Samsung SSD 840 Series/DXT06B0Q
+    "Samsung SSD 840 EVO ([0-9]*G|1T)B( mSATA)?|"  // tested with Samsung SSD 840 EVO (120|250|500)GB/EXT0AB0Q,
+      // Samsung SSD 840 EVO (120|250)GB/EXT0BB6Q, 1TB/EXT0BB0Q, 120GB mSATA/EXT41B6Q
     "SAMSUNG MZ7WD((120|240)HAFV|480HAGM|960HAGP)-00003", // SM843T Series, tested with
       // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q
     "", "",
