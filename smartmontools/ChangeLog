@@ -8,6 +8,8 @@ $Id$
 	specific mailer.
 	examplescripts/README, examplescripts/Example[123]: Remove bashisms.
 	Use '/usr/bin/mail' instead of '/bin/mail'.
+	os_win32/daemon_win32.cpp: Support older MinGW headers with missing
+	struct SERVICE_DELAYED_AUTO_START_INFO.
 
 2014-07-17  Christian Franke  <franke@computer.org>
 

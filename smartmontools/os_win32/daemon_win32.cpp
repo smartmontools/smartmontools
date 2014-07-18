@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,11 +32,6 @@ const char * daemon_win32_cpp_cvsid = "$Id$"
 #include <windows.h>
 #ifdef _DEBUG
 #include <crtdbg.h>
-#endif
-
-#ifndef SERVICE_CONFIG_DELAYED_AUTO_START_INFO
-// Missing in older MinGW headers
-#define SERVICE_CONFIG_DELAYED_AUTO_START_INFO 3
 #endif
 
 
@@ -1011,8 +1006,13 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
     if (   GetVersionExA(&ver)
         && ver.dwPlatformId == VER_PLATFORM_WIN32_NT
         && ver.dwMajorVersion >= 6 /* Vista */      ) {
-      SERVICE_DELAYED_AUTO_START_INFO sdasi = { TRUE };
-      ChangeServiceConfig2A(hs, SERVICE_CONFIG_DELAYED_AUTO_START_INFO, &sdasi);
+      // SERVICE_{,CONFIG_}DELAYED_AUTO_START_INFO are missing in older MinGW headers
+      struct /* SERVICE_DELAYED_AUTO_START_INFO */ {
+        BOOL fDelayedAutostart;
+      } sdasi = { TRUE };
+      // typedef char ASSERT_sizeof_sdasi[sizeof(sdasi) == sizeof(SERVICE_DELAYED_AUTO_START_INFO) ? 1 : -1];
+      // typedef char ASSERT_const_scdasi[SERVICE_CONFIG_DELAYED_AUTO_START_INFO == 3 ? 1 : -1];
+      ChangeServiceConfig2A(hs, 3 /* SERVICE_CONFIG_DELAYED_AUTO_START_INFO */, &sdasi);
     }
   }
   else {
