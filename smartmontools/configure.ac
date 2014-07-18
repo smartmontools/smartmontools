@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 3935 2014-07-05 16:28:06Z chrfranke $
+# $Id: configure.ac 3956 2014-07-18 17:34:02Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 6.3, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 3935 2014-07-05 16:28:06Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 3956 2014-07-18 17:34:02Z chrfranke $'`
 smartmontools_release_date=2013-07-26
 smartmontools_release_time="17:38:20 UTC"
 
@@ -41,15 +41,10 @@ AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 AC_CANONICAL_HOST
 case "${host}" in
   *-*-mingw*)
-    # Cygwin gcc 4.x does no longer support '-mno-cygwin' to select MinGW gcc.
-    if test "${build}" = "${host}" && test -x /usr/bin/uname && \
-    /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
-      AC_MSG_ERROR([Build with MinGW on Cygwin requires cross-compilation, see INSTALL file.])
-    fi
     AC_CHECK_TOOL(WINDMC, [windmc])
     AC_CHECK_TOOL(WINDRES, [windres])
 
-    AC_MSG_CHECKING([checking for makensis])
+    AC_MSG_CHECKING([for makensis])
     if test -z "$MAKENSIS"; then
       if test -n "$PROGRAMFILES" && "$PROGRAMFILES/NSIS/makensis" -VERSION >/dev/null 2>&1; then
         MAKENSIS="$PROGRAMFILES/NSIS/makensis"
@@ -426,6 +421,7 @@ case "${host}" in
     ;;
   *-*-cygwin*)
     os_deps='os_win32.o dev_areca.o'
+    os_mailer='email'
     os_hostname="'hostname' 'echo "'"${HOSTNAME?unset}"'"'"
     os_dnsdomainname="'dnsdomainname' 'hostname -d' 'echo "'"${USERDNSDOMAIN?unset}"'"'"
     os_nisdomainname=

@@ -1,4 +1,9 @@
-$Id: ChangeLog 3954 2014-07-17 20:08:20Z chrfranke $
+$Id: ChangeLog 3956 2014-07-18 17:34:02Z chrfranke $
+
+2014-07-18  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use 'email' instead of 'mail' on Cygwin.
+	Remove outdated '-mno-cygwin' error check.
 
 2014-07-17  Christian Franke  <franke@computer.org>
 
