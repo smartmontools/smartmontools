@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 #
 # This is a script from the smartmontools examplescripts/ directory.
 # It can be used as an argument to the -M exec Directive in

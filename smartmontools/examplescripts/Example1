@@ -1,4 +1,4 @@
-#!/bin/bash 
+#! /bin/sh
 #
 # This is a script from the smartmontools examplescripts/ directory.
 # It can be used as an argument to the -M exec Directive in
@@ -8,7 +8,7 @@
 # Please see man 8 smartd or man 5 smartd.conf for further
 # information.
 #
-# $Id: Example1,v 1.7 2004/08/29 02:33:17 ballen4705 Exp $
+# $Id$
 
 # Save standard input into a temp file
 cat > /root/tempfile
@@ -36,9 +36,9 @@ echo "$SMARTD_TFIRSTEPOCH"  >> /root/tempfile
 # Run smartctl -a and save output in temp file
 /usr/sbin/smartctl -a -d $SMARTD_DEVICETYPE $SMARTD_DEVICE >> /root/tempfile
 
-# Email the contents of the temp file. Solaris and other OSes
-# may need to use /bin/mailx not /bin/mail.
-/bin/mail -s "SMART errors detected on host: `hostname`" $SMARTD_ADDRESS < /root/tempfile
+# Email the contents of the temp file.  Solaris and
+# other OSes may need to use /usr/bin/mailx below.
+/usr/bin/mail -s "SMART errors detected on host: `hostname`" $SMARTD_ADDRESS < /root/tempfile
 
 # And exit
 exit 0

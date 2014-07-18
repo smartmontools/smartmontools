@@ -6,6 +6,8 @@ $Id$
 	Remove outdated '-mno-cygwin' error check.
 	Makefile.am, smartd.conf.5.in: Replace 'mail' by actual platform
 	specific mailer.
+	examplescripts/README, examplescripts/Example[123]: Remove bashisms.
+	Use '/usr/bin/mail' instead of '/bin/mail'.
 
 2014-07-17  Christian Franke  <franke@computer.org>
 

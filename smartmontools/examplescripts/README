@@ -3,7 +3,7 @@
 # $Id$
 #
 # Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# Copyright (C) 2009-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+# Copyright (C) 2009-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -11,15 +11,14 @@
 # version.
 # 
 # You should have received a copy of the GNU General Public License (for
-# example COPYING); if not, write to the Free Software Foundation, Inc., 51
-# Franklin Street, Fifth Floor, Boston, 02110-1301 USA.
+# example COPYING).  If not, see <http://www.gnu.org/licenses/>.
 #
 # This code was originally developed as a Senior Thesis by Michael Cornwell
 # at the Concurrent Systems Laboratory (now part of the Storage Systems
 # Research Center), Jack Baskin School of Engineering, University of
 # California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
-This directory contains executable bash scripts, that are intended for
+This directory contains executable shell scripts, that are intended for
 use with the
   -m address -M exec /path/to/an/executable
 Directive in /etc/smartd.conf.

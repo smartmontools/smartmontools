@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 #
 # This is a script from the smartmontools examplescripts/ directory.
 # It can be used as an argument to the -M exec Directive in
@@ -8,7 +8,7 @@
 # Please see man 8 smartd or man 5 smartd.conf for further
 # information.
 #
-# $Id: Example2,v 1.4 2004/01/07 16:49:56 ballen4705 Exp $
+# $Id$
 
 # Save the email message (STDIN) to a file:
 cat > /root/msg
@@ -16,7 +16,7 @@ cat > /root/msg
 # Append the output of smartctl -a to the message:
 /usr/sbin/smartctl -a -d $SMARTD_DEVICETYPE $SMARTD_DEVICE >> /root/msg
 
-# Now email the message to the user at address ADD.  Solaris and
-# other OSes may need to use /bin/mailx below.
-/bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
+# Now email the message to the user.  Solaris and
+# other OSes may need to use /usr/bin/mailx below.
+/usr/bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
 
