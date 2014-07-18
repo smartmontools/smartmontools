@@ -41,15 +41,10 @@ AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 AC_CANONICAL_HOST
 case "${host}" in
   *-*-mingw*)
-    # Cygwin gcc 4.x does no longer support '-mno-cygwin' to select MinGW gcc.
-    if test "${build}" = "${host}" && test -x /usr/bin/uname && \
-    /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
-      AC_MSG_ERROR([Build with MinGW on Cygwin requires cross-compilation, see INSTALL file.])
-    fi
     AC_CHECK_TOOL(WINDMC, [windmc])
     AC_CHECK_TOOL(WINDRES, [windres])
 
-    AC_MSG_CHECKING([checking for makensis])
+    AC_MSG_CHECKING([for makensis])
     if test -z "$MAKENSIS"; then
       if test -n "$PROGRAMFILES" && "$PROGRAMFILES/NSIS/makensis" -VERSION >/dev/null 2>&1; then
         MAKENSIS="$PROGRAMFILES/NSIS/makensis"
@@ -426,6 +421,7 @@ case "${host}" in
     ;;
   *-*-cygwin*)
     os_deps='os_win32.o dev_areca.o'
+    os_mailer='email'
     os_hostname="'hostname' 'echo "'"${HOSTNAME?unset}"'"'"
     os_dnsdomainname="'dnsdomainname' 'hostname -d' 'echo "'"${USERDNSDOMAIN?unset}"'"'"
     os_nisdomainname=

@@ -1,5 +1,10 @@
 $Id$
 
+2014-07-18  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use 'email' instead of 'mail' on Cygwin.
+	Remove outdated '-mno-cygwin' error check.
+
 2014-07-17  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
