@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 3943 2014-07-10 18:48:01Z chrfranke $
+# $Id: Makefile.am 3957 2014-07-18 18:39:06Z chrfranke $
 #
 
 @SET_MAKE@
@@ -588,6 +588,9 @@ MAN_FILTER = \
         -e 's|/usr/local/etc/smartd\.conf|$(sysconfdir)/smartd.conf|g' \
         -e 's|/usr/local/etc/smart_drivedb\.h|$(sysconfdir)/smart_drivedb.h|g' \
         -e 's|/usr/local/etc/smartd_warning\.sh|$(smartdscriptdir)/smartd_warning.sh|g' \
+        -e 's|\\fBmail\\fP|\\fB$(os_mailer)\\fP|g' \
+        -e 's|\\'\''mail\\'\''|\\'\''$(os_mailer)\\'\''|g' \
+        -e 's|/usr/bin/mail|/usr/bin/$(os_mailer)|g' \
         -e 's|RELEASE_6_0_DRIVEDB|@DRIVEDB_BRANCH@|g' | \
     if test -n '$(smartdplugindir)'; then \
       sed 's|/usr/local/etc/smartd_warning\.d|$(smartdplugindir)|g' ; \

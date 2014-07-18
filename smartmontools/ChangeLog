@@ -1,9 +1,11 @@
-$Id: ChangeLog 3956 2014-07-18 17:34:02Z chrfranke $
+$Id: ChangeLog 3957 2014-07-18 18:39:06Z chrfranke $
 
 2014-07-18  Christian Franke  <franke@computer.org>
 
 	configure.ac: Use 'email' instead of 'mail' on Cygwin.
 	Remove outdated '-mno-cygwin' error check.
+	Makefile.am, smartd.conf.5.in: Replace 'mail' by actual platform
+	specific mailer.
 
 2014-07-17  Christian Franke  <franke@computer.org>
 
