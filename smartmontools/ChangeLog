@@ -4,6 +4,8 @@ $Id$
 
 	configure.ac: Use 'email' instead of 'mail' on Cygwin.
 	Remove outdated '-mno-cygwin' error check.
+	Makefile.am, smartd.conf.5.in: Replace 'mail' by actual platform
+	specific mailer.
 
 2014-07-17  Christian Franke  <franke@computer.org>
 

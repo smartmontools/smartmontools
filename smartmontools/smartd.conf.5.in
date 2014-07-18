@@ -865,25 +865,14 @@ Directive described below to send one test email message on
 \fBsmartd\fP
 startup.
 
-By default, email is sent using the system 
-.B mail
-command.  In order that
-\fBsmartd\fP
-find the mail command (normally /bin/mail) an executable named
-.B \'mail\'
-must be in the path of the shell or environment from which
+By default, email is sent using the system \fBmail\fP(1) command.
+In order that \fBsmartd\fP find this command (normally /usr/bin/mail) the
+executable must be in the path of the shell or environment from which
 \fBsmartd\fP
 was started.  If you wish to specify an explicit path to the mail
 executable (for example /usr/local/bin/mail) or a custom script to
 run, please use the \'\-M exec\' Directive below.
 
-.\" %IF OS Solaris
-Note that by default under Solaris, in the previous paragraph,
-\'\fBmailx\fP\' and \'\fB/bin/mailx\fP\' are used, since Solaris
-\'/bin/mail\' does not accept a \'\-s\' (Subject) command-line
-argument.
-
-.\" %ENDIF OS Solaris
 .\" %IF OS Windows
 On Windows, the \'\fBBlat\fP\' mailer
 (\fBhttp://blat.sourceforge.net/\fP) is used by default.
@@ -1014,7 +1003,7 @@ exported by \fBsmartd\fP are:
 .RS 7
 .IP \fBSMARTD_MAILER\fP 4
 is set to the argument of \-M exec, if present or else to \'mail\'
-(examples: /bin/mail, mail).
+(examples: /usr/local/bin/mail, mail).
 .IP \fBSMARTD_DEVICE\fP 4
 is set to the device path (examples: /dev/hda, /dev/sdb).
 .IP \fBSMARTD_DEVICETYPE\fP 4
@@ -1147,7 +1136,7 @@ command-line arguments:
 .fi
 that would normally be provided to \'mail\'.  Examples include:
 .nf
-.B -m user@home -M exec /bin/mail
+.B -m user@home -M exec /usr/bin/mail
 .B -m admin@work -M exec /usr/local/bin/mailto
 .B -m root -M exec /Example_1/shell/script/below
 .fi
@@ -1583,7 +1572,7 @@ cat > /root/msg
 /usr/local/sbin/smartctl -a -d $SMART_DEVICETYPE $SMARTD_DEVICE >> /root/msg
  
 # Now email the message to the user at address ADD:
-/bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
+/usr/bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
 \fP
 .fi
 
@@ -1664,7 +1653,7 @@ reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 
 .SH SEE ALSO
 \fBsmartd\fP(8), \fBsmartctl\fP(8),
-\fBregex\fP(7).
+\fBmail\fP(1), \fBregex\fP(7).
 
 .SH SVN ID OF THIS PAGE
 $Id$
