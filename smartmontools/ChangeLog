@@ -1,4 +1,4 @@
-$Id: ChangeLog 3957 2014-07-18 18:39:06Z chrfranke $
+$Id: ChangeLog 3958 2014-07-18 19:13:32Z chrfranke $
 
 2014-07-18  Christian Franke  <franke@computer.org>
 
@@ -6,6 +6,8 @@ $Id: ChangeLog 3957 2014-07-18 18:39:06Z chrfranke $
 	Remove outdated '-mno-cygwin' error check.
 	Makefile.am, smartd.conf.5.in: Replace 'mail' by actual platform
 	specific mailer.
+	examplescripts/README, examplescripts/Example[123]: Remove bashisms.
+	Use '/usr/bin/mail' instead of '/bin/mail'.
 
 2014-07-17  Christian Franke  <franke@computer.org>
 
