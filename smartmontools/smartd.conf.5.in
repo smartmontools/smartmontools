@@ -1612,42 +1612,6 @@ The remainder is flushed.
 full path of this file.
 
 .\" %ENDIF NOT OS Windows
-.SH AUTHORS
-\fBBruce Allen\fP
-.br
-University of Wisconsin \- Milwaukee Physics Department
-.br
-\fBChristian Franke\fP (Windows interface, C++ redesign, most enhancements
-since 2009)
-.br
-\fBsmartmontools\-support@lists.sourceforge.net\fP
-
-The following have made large contributions to smartmontools:
-.nf
-\fBCasper Dik\fP (Solaris SCSI interface)
-\fBDouglas Gilbert\fP (SCSI subsystem)
-\fBGuido Guenther\fP (Autoconf/Automake packaging)
-\fBGeoffrey Keating\fP (Darwin ATA interface)
-\fBEduard Martinescu\fP (FreeBSD interface)
-\fBFr\['e]d\['e]ric L. W. Meunier\fP (Web site and Mailing list)
-\fBGabriele Pohl\fP (Web site and Wiki, conversion from CVS to SVN)
-\fBKeiji Sawada\fP (Solaris ATA interface)
-\fBManfred Schwarb\fP (Drive database)
-\fBSergey Svishchev\fP (NetBSD interface)
-\fBDavid Snyder and Sergey Svishchev\fP (OpenBSD interface)
-\fBPhil Williams\fP (User interface and drive database)
-\fBShengfeng Zhou\fP (Linux/FreeBSD HighPoint RocketRAID interface)
-.fi
-Many other individuals have made smaller contributions and corrections.
-
-The first smartmontools code was derived from the smartsuite package,
-written by Michael Cornwell, and from the previous UCSC smartsuite package.
-This code was originally developed as a
-Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
-(now part of the Storage Systems Research Center), Jack Baskin School
-of Engineering, University of California, Santa
-Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
-
 .SH SEE ALSO
 \fBsmartd\fP(8), \fBsmartctl\fP(8),
 \fBmail\fP(1), \fBregex\fP(7).
