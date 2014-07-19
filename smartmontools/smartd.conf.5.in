@@ -1647,10 +1647,6 @@ Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
 Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
-.SH HOME PAGE FOR SMARTMONTOOLS
-.fi
-Please see the following web site for updates, further documentation, bug
-reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 
 .SH SEE ALSO
 \fBsmartd\fP(8), \fBsmartctl\fP(8),

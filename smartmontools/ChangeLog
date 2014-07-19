@@ -4,6 +4,7 @@ $Id$
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
 	Add FILES section.  Move FULL PATH info to FILES section.
+	Rename REFERENCES section.  Move HOME PAGE info to REFERENCES section.
 
 2014-07-18  Christian Franke  <franke@computer.org>
 

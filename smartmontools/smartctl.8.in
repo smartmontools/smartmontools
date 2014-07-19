@@ -2255,16 +2255,14 @@ Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
 Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
-.SH HOME PAGE FOR SMARTMONTOOLS
-.fi
-Please see the following web site for updates, further documentation, bug
-reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 
 .SH SEE ALSO
 \fBsmartd\fP(8), \fBupdate-smart-drivedb\fP(8).
 
-.SH REFERENCES FOR SMART
-.fi
+.SH REFERENCES
+Please see the following web site for more info:
+\fBhttp://smartmontools.sourceforge.net/\fP
+
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
 pages 74-77. This is \fBhttp://www.linuxjournal.com/article/6983\fP
