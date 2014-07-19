@@ -25,11 +25,6 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .SH SYNOPSIS
 .B smartd [options]
 
-.\" %IF NOT OS Windows
-.SH FULL PATH
-.B /usr/local/sbin/smartd
-
-.\" %ENDIF NOT OS Windows
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
@@ -723,6 +718,9 @@ is killed by SIGKILL (signal 9) then the exit status is 137.
 
 .\" %IF NOT OS Windows
 .SH FILES
+.TP
+.B /usr/local/sbin/smartd
+full path of this executable.
 .TP
 .B /usr/local/etc/smartd.conf
 configuration file (see \fBsmartd.conf\fP(5) man page).

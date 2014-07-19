@@ -25,11 +25,6 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .SH SYNOPSIS
 .B smartctl [options] device
 
-.\" %IF NOT OS Windows
-.SH FULL PATH
-.B /usr/local/sbin/smartctl
-
-.\" %ENDIF NOT OS Windows
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
@@ -2204,6 +2199,9 @@ done
 
 .\" %IF NOT OS Windows
 .SH FILES
+.TP
+.B /usr/local/sbin/smartctl
+full path of this executable.
 .\" %IF ENABLE_DRIVEDB
 .TP
 .B /usr/local/share/smartmontools/drivedb.h

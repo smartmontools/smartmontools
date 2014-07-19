@@ -22,11 +22,6 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File\fP
 
-.\" %IF NOT OS Windows
-.SH FULL PATH
-.B /usr/local/etc/smartd.conf
-
-.\" %ENDIF NOT OS Windows
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
@@ -1610,7 +1605,13 @@ this is interpreted as indicating that there was an internal error
 within the script, and a snippet of STDOUT/STDERR is logged to SYSLOG.
 The remainder is flushed.
 
-.PP
+.\" %IF NOT OS Windows
+.SH FILES
+.TP
+.B /usr/local/etc/smartd.conf
+full path of this file.
+
+.\" %ENDIF NOT OS Windows
 .SH AUTHORS
 \fBBruce Allen\fP
 .br

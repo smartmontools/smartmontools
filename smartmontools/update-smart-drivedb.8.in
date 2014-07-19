@@ -22,9 +22,6 @@ update-smart-drivedb \- update smartmontools drive database
 .RB [ -v ]
 .RI [ DESTFILE ]
 
-.SH FULL PATH
-.B /usr/local/sbin/update-smart-drivedb
-
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
@@ -72,6 +69,9 @@ The exit status is 0 if the database has been successfully
 updated. If an error occurs the exit status is 1.
 
 .SH FILES
+.TP
+.B /usr/local/sbin/update-smart-drivedb
+full path of this script.
 .TP
 .B /usr/local/sbin/smartctl
 used to check syntax of new drive database.

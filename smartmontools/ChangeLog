@@ -2,8 +2,8 @@ $Id$
 
 2014-07-19  Christian Franke  <franke@computer.org>
 
-	smartctl.8.in, smartd.8.in, update-smart-drivedb.8.in:
-	Add FILES section.
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
+	Add FILES section.  Move FULL PATH info to FILES section.
 
 2014-07-18  Christian Franke  <franke@computer.org>
 
