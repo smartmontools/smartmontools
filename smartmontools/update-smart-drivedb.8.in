@@ -71,6 +71,23 @@ verbose output
 The exit status is 0 if the database has been successfully
 updated. If an error occurs the exit status is 1.
 
+.SH FILES
+.TP
+.B /usr/local/sbin/smartctl
+used to check syntax of new drive database.
+.TP
+.B /usr/local/share/smartmontools/drivedb.h
+current drive database.
+.TP
+.B /usr/local/share/smartmontools/drivedb.h.old
+previous drive database.
+.TP
+.B /usr/local/share/smartmontools/drivedb.h.error
+new drive database rejected due to syntax errors.
+.TP
+.B /usr/local/share/smartmontools/drivedb.h.lastcheck
+empty file created if downloaded file was identical.
+
 .SH "SEE ALSO"
 .BR smartctl (8),
 .BR smartd (8).

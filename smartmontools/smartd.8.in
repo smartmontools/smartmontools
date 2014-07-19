@@ -721,7 +721,31 @@ status is then 128 plus the signal number.  For example if
 \fBsmartd\fP
 is killed by SIGKILL (signal 9) then the exit status is 137.
 
-.PP
+.\" %IF NOT OS Windows
+.SH FILES
+.TP
+.B /usr/local/etc/smartd.conf
+configuration file (see \fBsmartd.conf\fP(5) man page).
+.TP
+.B /usr/local/etc/smartd_warning.sh
+script run on warnings (see \'\-M exec\' directive on
+\fBsmartd.conf\fP(5) man page).
+.\" %IF ENABLE_SMARTDPLUGINDIR
+.TP
+.B /usr/local/etc/smartd_warning.d/
+plugin directory for smartd warning script (see \'\-m\' directive on
+\fBsmartd.conf\fP(5) man page).
+.\" %ENDIF ENABLE_SMARTDPLUGINDIR
+.\" %IF ENABLE_DRIVEDB
+.TP
+.B /usr/local/share/smartmontools/drivedb.h
+drive database (see \'\-B\' option).
+.\" %ENDIF ENABLE_DRIVEDB
+.TP
+.B /usr/local/etc/smart_drivedb.h
+optional local drive database (see \'\-B\' option).
+
+.\" %ENDIF NOT OS Windows
 .SH AUTHORS
 \fBBruce Allen\fP
 .br

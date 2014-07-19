@@ -2202,7 +2202,18 @@ for i in 0 1 2 3 4 5 6 7; do
 done
 .fi
 
-.PP
+.\" %IF NOT OS Windows
+.SH FILES
+.\" %IF ENABLE_DRIVEDB
+.TP
+.B /usr/local/share/smartmontools/drivedb.h
+drive database (see \'\-B\' option).
+.\" %ENDIF ENABLE_DRIVEDB
+.TP
+.B /usr/local/etc/smart_drivedb.h
+optional local drive database (see \'\-B\' option).
+
+.\" %ENDIF NOT OS Windows
 .SH NOTES
 The TapeAlert log page flags are cleared for the initiator when the
 page is read. This means that each alert condition is reported only
