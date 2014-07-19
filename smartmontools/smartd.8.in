@@ -41,7 +41,7 @@ The purpose of SMART is to monitor the reliability of the hard drive
 and predict drive failures, and to carry out different types of drive
 self-tests.
 This version of \fBsmartd\fP is compatible with
-ACS-2, ATA8-ACS, ATA/ATAPI-7 and earlier standards
+ACS-3, ACS-2, ATA8-ACS, ATA/ATAPI-7 and earlier standards
 (see \fBREFERENCES\fP below).
 
 \fBsmartd\fP will attempt to enable SMART monitoring on ATA devices
@@ -255,35 +255,14 @@ then by default messages from \fBsmartd\fP are logged to the facility
 \fIdaemon\fP.
 
 If you would like to have \fBsmartd\fP messages logged somewhere other
-than the default location, this can typically be accomplished with
-(for example) the following steps:
-.RS 7
-.IP \fB[1]\fP 4
-Modify the script that starts \fBsmartd\fP to include the \fBsmartd\fP
-command-line argument \'\-l local3\'.  This tells \fBsmartd\fP to log its
-messages to facility \fBlocal3\fP.
-.IP \fB[2]\fP 4
-Modify the \fBsyslogd\fP configuration file (typically
-\fB/etc/syslog.conf\fP) by adding a line of the form:
-.nf
-\fBlocal3.* /var/log/smartd.log\fP
-.fi
-This tells \fBsyslogd\fP to log all the messages from facility \fBlocal3\fP to
-the designated file: /var/log/smartd.log.
-.IP \fB[3]\fP 4
-Tell \fBsyslogd\fP to re-read its configuration file, typically by
-sending the \fBsyslogd\fP process a \fBSIGHUP\fP hang-up signal.
-.IP \fB[4]\fP 4
-Start (or restart) the \fBsmartd\fP daemon.
-.RE
-.\"  The following two lines are a workaround for a man2html bug.  Please leave them.
-.\" They define a non-existent option; useful because man2html can't correctly reset the margins.
-.TP
-.B \&
+than the default location, include (for example) \'\-l local3\' in its
+start up argument list.
+Tell the syslog daemon to log all messages from facility \fBlocal3\fP
+to (for example) \'/var/log/smartd.log\'.
+
 For more detailed information, please refer to the man pages for
-\fBsyslog.conf\fP, \fBsyslogd\fP, and \fBsyslog\fP.  You may also want
-to modify the log rotation configuration files; see the man pages for
-\fBlogrotate\fP and examine your system\'s /etc/logrotate.conf file.
+the local syslog daemon, typically \fBsyslogd\fP(8), \fBsyslog-ng\fP(8)
+or \fBrsyslogd\fP(8).
 .\" %IF OS Cygwin
 
 Cygwin: If no \fBsyslogd\fP is running, the \'\-l\' option has no effect.
@@ -781,8 +760,7 @@ of Engineering, University of California, Santa
 Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
 
 .SH SEE ALSO
-\fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBupdate-smart-drivedb\fP(8),
-\fBsyslogd\fP(8), \fBsyslog.conf\fP(5).
+\fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBupdate-smart-drivedb\fP(8).
 
 .SH REFERENCES
 Please see the following web site for more info:

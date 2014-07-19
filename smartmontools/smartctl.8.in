@@ -42,7 +42,7 @@ and predict drive failures, and to carry out different types of drive
 self-tests.
 \fBsmartctl\fP also supports some features not related to SMART.
 This version of \fBsmartctl\fP is compatible with
-ACS-2, ATA8-ACS, ATA/ATAPI-7 and earlier standards
+ACS-3, ACS-2, ATA8-ACS, ATA/ATAPI-7 and earlier standards
 (see \fBREFERENCES\fP below).
 
 \fBsmartctl\fP also provides support for polling TapeAlert messages
@@ -190,8 +190,7 @@ drive model family may also be printed. If \'\-n\' (see below) is
 specified, the power mode of the drive is printed.
 .TP
 .B \-\-identify[=[w][nvb]]
-[ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] Prints an annotated
-table of the IDENTIFY DEVICE data.
+[ATA only] Prints an annotated table of the IDENTIFY DEVICE data.
 By default, only valid words (words not equal to 0x0000 or 0xffff)
 and nonzero bits and bit fields are printed.
 This can be changed by the optional argument which consists of one or
@@ -748,11 +747,7 @@ Note that the SMART automatic offline test command is listed as
 "Obsolete" in every version of the ATA and ATA/ATAPI Specifications.
 It was originally part of the SFF-8035i Revision 2.0 specification,
 but was never part of any ATA specification.  However it is
-implemented and used by many vendors. [Good documentation can be found
-in IBM\'s Official Published Disk Specifications.  For example the IBM
-Travelstar 40GNX Hard Disk Drive Specifications (Revision 1.1, 22
-April 2002, Publication # 1541, Document S07N-7715-02) page 164. You
-can also read the SFF-8035i Specification -- see REFERENCES below.]
+implemented and used by many vendors.
 You can tell if automatic offline testing is supported by seeing if
 this command enables and disables it, as indicated by the \'Auto
 Offline Data Collection\' part of the SMART capabilities report
@@ -1110,13 +1105,12 @@ specification.  Some commands are not defined in any version of the
 ATA specification but are in common use nonetheless; these are marked
 \fB[NS]\fP, meaning non-standard.
 
-The ATA Specification (ATA-5 Revision 1c, Section 8.41.6.8.2) says:
-\fB"Error log structures shall include UNC errors, IDNF errors for
-which the address requested was valid, servo errors, write fault
-errors, etc.  Error log data structures shall not include errors
-attributed to the receipt of faulty commands such as command codes not
-implemented by the device or requests with invalid parameters or
-invalid addresses."\fP The definitions of these terms are:
+The ATA Specification (ATA ACS-2 Revision 7, Section A.7.1) says:
+\fB"Error log data structures shall include, but are not limited to,
+Uncorrectable errors, ID Not Found errors for which the LBA requested was
+valid, servo errors, and write fault errors.  Error log data structures
+shall not include errors attributed to the receipt of faulty commands."\fP
+The definitions of these terms are:
 .br
 \fBUNC\fP (\fBUNC\fPorrectable): data is uncorrectable.  This refers
 to data which has been read from the disk, but for which the Error
@@ -1154,8 +1148,7 @@ log (see \'\-l error\' above), it provides sufficient space to log
 the contents of the 48-bit LBA register set introduced with ATA-6.
 It also supports logs with more than one sector.  Each sector holds
 up to 4 log entries. The actual number of log sectors is vendor
-specific, typical values for HDD are 2 (Samsung), 5 (Seagate) or
-6 (WD).
+specific.
 
 Only the 8 most recent error log entries are printed by default.
 This number can be changed by the optional parameter NUM.
@@ -1209,7 +1202,7 @@ test terminology).
 Log address 0x07). Unlike the SMART self-test log (see \'\-l selftest\'
 above), it supports 48-bit LBA and logs with more than one sector.
 Each sector holds up to 19 log entries. The actual number of log sectors
-is vendor specific, typical values are 1 (Seagate) or 2 (Samsung).
+is vendor specific.
 
 Only the 25 most recent log entries are printed by default. This number
 can be changed by the optional parameter NUM.
@@ -1282,7 +1275,7 @@ is vendor specific, typical values are 1, 2, or 5 minutes.
 .I scterc[,READTIME,WRITETIME]
 \- [ATA only] prints values and descriptions of the SCT Error Recovery
 Control settings. These are equivalent to TLER (as used by Western
-Digital), CCTL (as used by Samsung and Hitachi) and ERC (as used by
+Digital), CCTL (as used by Samsung and Hitachi/HGST) and ERC (as used by
 Seagate). READTIME and WRITETIME arguments (deciseconds) set the
 specified values. Values of 0 disable the feature, other values less
 than 65 are probably not supported. For RAID configurations, this is
@@ -1293,9 +1286,7 @@ typically set to 70,70 deciseconds.
 log pages (General Purpose Log address 0x04).  If no PAGE number is specified,
 entries from all supported pages are printed.  If PAGE 0 is specified,
 the list of supported pages is printed.  Device Statistics was
-introduced in ACS-2 and is only supported by some recent devices
-(e.g. Hitachi 7K3000, Intel 320, 330, 520 and 710 Series SSDs, Crucial/Micron
-m4 SSDs).
+introduced in ACS-2 and is only supported by some recent devices.
 
 .I sataphy[,reset]
 \- [SATA only] prints values and descriptions of the SATA Phy Event
@@ -1537,10 +1528,6 @@ is not reset if uncorrectable sectors are reallocated
 .I 220,temp
 \- same as:
 .I 220,tempminmax,Temperature_Celsius.
-
-Note: a table of hard drive models, listing which Attribute
-corresponds to temperature, can be found at:
-\fBhttp://www.guzu.net/linux/hddtemp.db\fP
 .TP
 .B \-F TYPE, \-\-firmwarebug=TYPE
 [ATA only] Modifies the behavior of \fBsmartctl\fP to compensate for some
@@ -1596,15 +1583,6 @@ firmware version) returned by some buggy device drivers.
 [ATA only] Specifies whether \fBsmartctl\fP should use any preset options
 that are available for this drive. By default, if the drive is recognized
 in the \fBsmartmontools\fP database, then the presets are used.
-
-\fBsmartctl\fP can automatically set appropriate options for known
-drives.  For example, the Maxtor 4D080H4 uses Attribute 9 to stores
-power-on time in minutes whereas most drives use that Attribute to
-store the power-on time in hours.  The command-line option \'\-v
-9,minutes\' ensures that \fBsmartctl\fP correctly interprets Attribute
-9 in this case, but that option is preset for the Maxtor 4D080H4 and
-so need not be specified by the user on the \fBsmartctl\fP command
-line.
 
 The argument
 .I show
@@ -1938,7 +1916,7 @@ T13/1699-D Revision 6a (ATA8-ACS).  Note that the subcommands
 \fBWARNING: Only run subcommands documented by the vendor of the
 device.\fP
 
-Example for Intel (X18/X25-M G2, 320, 520 and 710 Series) SSDs only:
+Example for some Intel SSDs only:
 The subcommand 0x40 (\'\-t vendor,0x40\') clears the timed workload
 related SMART attributes (226, 227, 228).  Note that the raw values of
 these attributes are held at 65535 (0xffff) until the workload timer

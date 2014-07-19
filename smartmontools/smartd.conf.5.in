@@ -260,8 +260,7 @@ may optionally be followed by Directives that will apply to all
 devices that are found in the scan.  Please see below for additional
 details.
 
-[NEW EXPERIMENTAL SMARTD FEATURE] If an entry in the configuration file
-starts with
+If an entry in the configuration file starts with
 .B DEFAULT
 instead of a device name, then all directives in this entry are set
 as defaults for the next device entries.
@@ -1580,13 +1579,15 @@ then powers down the machine.
 #! /bin/sh
 
 # Warn all users of a problem
-wall \'Problem detected with disk: \' "$SMARTD_DEVICESTRING"
-wall \'Warning message from smartd is: \' "$SMARTD_MESSAGE"
-wall \'Shutting down machine in 30 seconds... \'
- 
+wall <<EOF
+Problem detected with disk: $SMARTD_DEVICESTRING
+Warning message from smartd is: $SMARTD_MESSAGE
+Shutting down machine in 30 seconds...
+EOF
+
 # Wait half a minute
 sleep 30
- 
+
 # Power down the machine
 /sbin/shutdown -hf now
 \fP

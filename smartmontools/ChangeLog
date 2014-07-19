@@ -6,6 +6,7 @@ $Id$
 	Add FILES section.  Move FULL PATH info to FILES section.
 	Rename REFERENCES section.  Move HOME PAGE info to REFERENCES section.
 	Remove AUTHORS section from smartd.conf man page.
+	Update or remove various outdated info.
 
 2014-07-18  Christian Franke  <franke@computer.org>
 
