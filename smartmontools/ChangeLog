@@ -1,9 +1,10 @@
-$Id: ChangeLog 3961 2014-07-19 16:44:10Z chrfranke $
+$Id: ChangeLog 3962 2014-07-19 17:19:38Z chrfranke $
 
 2014-07-19  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
 	Add FILES section.  Move FULL PATH info to FILES section.
+	Rename REFERENCES section.  Move HOME PAGE info to REFERENCES section.
 
 2014-07-18  Christian Franke  <franke@computer.org>
 
