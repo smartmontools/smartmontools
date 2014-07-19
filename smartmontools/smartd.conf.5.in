@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3957 2014-07-18 18:39:06Z chrfranke $
+$Id: smartd.conf.5.in 3961 2014-07-19 16:44:10Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,11 +22,6 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File\fP
 
-.\" %IF NOT OS Windows
-.SH FULL PATH
-.B /usr/local/etc/smartd.conf
-
-.\" %ENDIF NOT OS Windows
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
@@ -1610,7 +1605,13 @@ this is interpreted as indicating that there was an internal error
 within the script, and a snippet of STDOUT/STDERR is logged to SYSLOG.
 The remainder is flushed.
 
-.PP
+.\" %IF NOT OS Windows
+.SH FILES
+.TP
+.B /usr/local/etc/smartd.conf
+full path of this file.
+
+.\" %ENDIF NOT OS Windows
 .SH AUTHORS
 \fBBruce Allen\fP
 .br
@@ -1656,4 +1657,4 @@ reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 \fBmail\fP(1), \fBregex\fP(7).
 
 .SH SVN ID OF THIS PAGE
-$Id: smartd.conf.5.in 3957 2014-07-18 18:39:06Z chrfranke $
+$Id: smartd.conf.5.in 3961 2014-07-19 16:44:10Z chrfranke $

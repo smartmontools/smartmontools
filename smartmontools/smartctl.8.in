@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartctl.8.in 3960 2014-07-19 16:19:08Z chrfranke $
+$Id: smartctl.8.in 3961 2014-07-19 16:44:10Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,11 +25,6 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .SH SYNOPSIS
 .B smartctl [options] device
 
-.\" %IF NOT OS Windows
-.SH FULL PATH
-.B /usr/local/sbin/smartctl
-
-.\" %ENDIF NOT OS Windows
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
@@ -2204,6 +2199,9 @@ done
 
 .\" %IF NOT OS Windows
 .SH FILES
+.TP
+.B /usr/local/sbin/smartctl
+full path of this executable.
 .\" %IF ENABLE_DRIVEDB
 .TP
 .B /usr/local/share/smartmontools/drivedb.h
@@ -2287,4 +2285,4 @@ Links to these and other documents may be found on the Links page of the
 \fBsmartmontools\fP Wiki at \fBhttp://www.smartmontools.org/wiki/Links\fP .
 
 .SH SVN ID OF THIS PAGE
-$Id: smartctl.8.in 3960 2014-07-19 16:19:08Z chrfranke $
+$Id: smartctl.8.in 3961 2014-07-19 16:44:10Z chrfranke $
