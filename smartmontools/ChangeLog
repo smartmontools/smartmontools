@@ -1,4 +1,9 @@
-$Id: ChangeLog 3959 2014-07-18 19:22:18Z chrfranke $
+$Id: ChangeLog 3960 2014-07-19 16:19:08Z chrfranke $
+
+2014-07-19  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, update-smart-drivedb.8.in:
+	Add FILES section.
 
 2014-07-18  Christian Franke  <franke@computer.org>
 
