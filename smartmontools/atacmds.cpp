@@ -1870,7 +1870,8 @@ static ata_attr_raw_format get_default_raw_format(unsigned char id)
   case 196: // Reallocated event count
     return RAWFMT_RAW16_OPT_RAW16;
 
-  case 9:  // Power on hours
+  case 9:   // Power on hours
+  case 240: // Head flying hours
     return RAWFMT_RAW24_OPT_RAW8;
 
   case 190: // Temperature

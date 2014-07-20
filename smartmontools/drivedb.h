@@ -144,7 +144,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 232,raw48,Available_Reservd_Space "
     "-v 233,raw48,Media_Wearout_Indicator "       // SSD only
     //  234-239 Unknown_Attribute
-    "-v 240,raw48,Head_Flying_Hours "             // HDD only
+    "-v 240,raw24(raw8),Head_Flying_Hours "       // HDD only, smartmontools <= r3966: raw48
     "-v 241,raw48,Total_LBAs_Written "
     "-v 242,raw48,Total_LBAs_Read "
     //  243-249 Unknown_Attribute
