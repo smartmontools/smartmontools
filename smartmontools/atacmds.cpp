@@ -1927,6 +1927,33 @@ uint64_t ata_get_attr_raw_value(const ata_smart_attribute & attr,
   return rawvalue;
 }
 
+// Helper functions for RAWFMT_TEMPMINMAX
+static inline int check_temp_word(unsigned word)
+{
+  if (word <= 0x7f)
+    return 0x11; // >= 0, signed byte or word
+  if (word <= 0xff)
+    return 0x01; // < 0, signed byte
+  if (0xff80 <= word)
+    return 0x10; // < 0, signed word
+  return 0x00;
+}
+
+static bool check_temp_range(int t, unsigned char ut1, unsigned char ut2,
+                             int & lo, int & hi)
+{
+  int t1 = (signed char)ut1, t2 = (signed char)ut2;
+  if (t1 > t2) {
+    int tx = t1; t1 = t2; t2 = tx;
+  }
+
+  if (   -60 <= t1 && t1 <= t && t <= t2 && t2 <= 120
+      && !(t1 == -1 && t2 <= 0)                      ) {
+    lo = t1; hi = t2;
+    return true;
+  }
+  return false;
+}
 
 // Format attribute raw value.
 std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
@@ -2057,34 +2084,63 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
     // Temperature
     {
       // Search for possible min/max values
-      // 00 HH 00 LL 00 TT (Hitachi/IBM)
-      // 00 00 HH LL 00 TT (Maxtor, Samsung)
+      // [5][4][3][2][1][0] raw[]
+      // [ 2 ] [ 1 ] [ 0 ]  word[]
+      // xx HH xx LL xx TT (Hitachi/HGST)
+      // xx LL xx HH xx TT (Kingston SSDs)
+      // 00 00 HH LL xx TT (Maxtor, Samsung, Seagate, Toshiba)
       // 00 00 00 HH LL TT (WDC)
-      unsigned char lo = 0, hi = 0;
-      int cnt = 0;
-      for (int i = 1; i < 6; i++) {
-        if (raw[i])
-          switch (cnt++) {
-            case 0:
-              lo = raw[i];
-              break;
-            case 1:
-              if (raw[i] < lo) {
-                hi = lo; lo = raw[i];
-              }
-              else
-                hi = raw[i];
-              break;
-          }
-      }
+      // CC CC HH LL xx TT (WDC, CCCC=over temperature count)
+      // (xx = 00/ff, possibly sign extension of lower byte)
 
-      unsigned char t = raw[0];
-      if (cnt == 0)
-        s = strprintf("%d", t);
-      else if (cnt == 2 && 0 < lo && lo <= t && t <= hi && hi < 128)
-        s = strprintf("%d (Min/Max %d/%d)", t, lo, hi);
+      int t = (signed char)raw[0];
+      int lo = 0, hi = 0;
+
+      int tformat;
+      int ctw0 = check_temp_word(word[0]);
+      if (!word[2]) {
+        if (!word[1] && ctw0)
+          // 00 00 00 00 xx TT
+          tformat = 0;
+        else if (ctw0 && check_temp_range(t, raw[2], raw[3], lo, hi))
+          // 00 00 HL LH xx TT
+          tformat = 1;
+        else if (!raw[3] && check_temp_range(t, raw[1], raw[2], lo, hi))
+          // 00 00 00 HL LH TT
+          tformat = 2;
+        else
+          tformat = -1;
+      }
+      else if (ctw0) {
+        if (   (ctw0 & check_temp_word(word[1]) & check_temp_word(word[2])) != 0x00
+            && check_temp_range(t, raw[2], raw[4], lo, hi)                         )
+          // xx HL xx LH xx TT
+          tformat = 3;
+        else if (   word[2] < 0x7fff
+                 && check_temp_range(t, raw[2], raw[3], lo, hi)
+                 && hi >= 40                                   )
+          // CC CC HL LH xx TT
+          tformat = 4;
+        else
+          tformat = -2;
+      }
       else
-        s = strprintf("%d (%d %d %d %d %d)", t, raw[5], raw[4], raw[3], raw[2], raw[1]);
+        tformat = -3;
+
+      switch (tformat) {
+        case 0:
+          s = strprintf("%d", t);
+          break;
+        case 1: case 2: case 3:
+          s = strprintf("%d (Min/Max %d/%d)", t, lo, hi);
+          break;
+        case 4:
+          s = strprintf("%d (Min/Max %d/%d #%d)", t, lo, hi, word[2]);
+          break;
+        default:
+          s = strprintf("%d (%d %d %d %d %d)", raw[0], raw[5], raw[4], raw[3], raw[2], raw[1]);
+          break;
+      }
     }
     break;
 
