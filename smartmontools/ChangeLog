@@ -1,10 +1,13 @@
-$Id: ChangeLog 3966 2014-07-20 15:49:00Z chrfranke $
+$Id: ChangeLog 3967 2014-07-20 16:26:38Z chrfranke $
 
 2014-07-20  Christian Franke  <franke@computer.org>
 
 	atacmds.cpp: Rework heuristics for 'tempminmax' format.
 	Now supports negative values (ticket #291) and WDC over temperature
 	counter.
+	Change default for Head_Flying_Hours to 'raw24(raw8)'.  This provides
+	more reasonable output for Seagate HDDs missing in drivedb.h.
+	drivedb.h: Comment new default for Head_Flying_Hours.
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in:
 	Fix usage of line breaks and empty lines.
 

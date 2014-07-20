@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3966 2014-07-20 15:49:00Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3967 2014-07-20 16:26:38Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -1870,7 +1870,8 @@ static ata_attr_raw_format get_default_raw_format(unsigned char id)
   case 196: // Reallocated event count
     return RAWFMT_RAW16_OPT_RAW16;
 
-  case 9:  // Power on hours
+  case 9:   // Power on hours
+  case 240: // Head flying hours
     return RAWFMT_RAW24_OPT_RAW8;
 
   case 190: // Temperature
