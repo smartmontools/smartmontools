@@ -1,5 +1,10 @@
 $Id$
 
+2014-07-20  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in:
+	Fix usage of line breaks and empty lines.
+
 2014-07-19  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
