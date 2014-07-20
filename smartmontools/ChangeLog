@@ -1,7 +1,10 @@
-$Id: ChangeLog 3965 2014-07-20 14:46:41Z chrfranke $
+$Id: ChangeLog 3966 2014-07-20 15:49:00Z chrfranke $
 
 2014-07-20  Christian Franke  <franke@computer.org>
 
+	atacmds.cpp: Rework heuristics for 'tempminmax' format.
+	Now supports negative values (ticket #291) and WDC over temperature
+	counter.
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in:
 	Fix usage of line breaks and empty lines.
 
