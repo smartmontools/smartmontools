@@ -153,10 +153,6 @@ const drive_settings builtin_knowndrives[] = {
     "-v 254,raw48,Free_Fall_Sensor "              // HDD only
   */
   },
-  { "Apple SSD SM128", // Samsung?
-    "APPLE SSD SM128",
-    "", "", ""
-  },
   { "Apacer SDM4",
     "2GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D
     "SF(DDA01C|I2101D)", "",
@@ -167,9 +163,23 @@ const drive_settings builtin_knowndrives[] = {
     "-v 164,raw48,Min_Erase_Count " // could be wrong
     "-v 165,raw48,Average_Erase_Count " // could be wrong
   },
-  { "Asus-Phison SSD",
-    "ASUS-PHISON SSD",
-    "", "", ""
+  { "Apple SD/SM...E/F SSDs", // SanDisk/Samsung?
+    "APPLE SSD S[DM]0?(128|256|512|768)[EF]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
+     // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+  //"-v 169,raw48,Unknown_Attribute "
+  //"-v 173,raw48,Unknown_Attribute "
+    "-v 174,raw48,Host_Reads_MiB "  // ] guessed (ticket #342), S[DM]*F only
+    "-v 175,raw48,Host_Writes_MiB " // ]
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+  //"-v 240,raw48,Unknown_SSD_Attribute "
   },
   { "Crucial/Micron RealSSD C300/M500", // Marvell 88SS91xx
     "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002,
