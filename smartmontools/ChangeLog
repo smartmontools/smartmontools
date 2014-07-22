@@ -1,4 +1,10 @@
-$Id: ChangeLog 3967 2014-07-20 16:26:38Z chrfranke $
+$Id: ChangeLog 3969 2014-07-22 20:31:13Z chrfranke $
+
+2014-07-22  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apple SD/SM...E/F SSDs (ticket #342)
+	- Apple SSD SM128, Asus-Phison SSD: Remove (missing attribute info)
 
 2014-07-20  Christian Franke  <franke@computer.org>
 
