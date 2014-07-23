@@ -2438,13 +2438,11 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
   return 0;
 }
 
-// Read SCT Temperature History Table and Status
+// Read SCT Temperature History Table
 int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * tmh,
                        ata_sct_status_response * sts)
 {
-  // Check initial status
-  if (ataReadSCTStatus(device, sts))
-    return -1;
+  // Initial SCT status must be provided by caller
 
   // Do nothing if other SCT command is executing
   if (sts->ext_status_code == 0xffff) {

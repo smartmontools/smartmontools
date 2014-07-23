@@ -3237,35 +3237,41 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Print SCT status and temperature history table
   if (sct_ok && (options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int)) {
     for (;;) {
-      if (options.sct_temp_sts || options.sct_temp_hist) {
-        ata_sct_status_response sts;
-        ata_sct_temperature_history_table tmh;
-        if (!options.sct_temp_hist) {
-          // Read SCT status only
-          if (ataReadSCTStatus(device, &sts)) {
-            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-            break;
-          }
+      bool sct_temp_hist_ok = isSCTDataTableCapable(&drive);
+      ata_sct_status_response sts;
+
+      if (options.sct_temp_sts || (options.sct_temp_hist && sct_temp_hist_ok)) {
+        // Read SCT status
+        if (ataReadSCTStatus(device, &sts)) {
+          pout("\n");
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+          break;
         }
-        else {
-          if (!isSCTDataTableCapable(&drive)) {
-            pout("SCT Data Table command not supported\n\n");
-            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-            break;
-          }
-          // Read SCT status and temperature history
-          if (ataReadSCTTempHist(device, &tmh, &sts)) {
-            pout("Read SCT Temperature History failed\n\n");
-            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-            break;
-          }
-        }
-        if (options.sct_temp_sts)
+        if (options.sct_temp_sts) {
           ataPrintSCTStatus(&sts);
-        if (options.sct_temp_hist)
-          ataPrintSCTTempHist(&tmh);
+          pout("\n");
+        }
+      }
+
+      if (!sct_temp_hist_ok && (options.sct_temp_hist || options.sct_temp_int)) {
+        pout("SCT Data Table command not supported\n\n");
+        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        break;
+      }
+
+      if (options.sct_temp_hist) {
+        // Read SCT temperature history,
+        // requires initial SCT status from above
+        ata_sct_temperature_history_table tmh;
+        if (ataReadSCTTempHist(device, &tmh, &sts)) {
+          pout("Read SCT Temperature History failed\n\n");
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+          break;
+        }
+        ataPrintSCTTempHist(&tmh);
         pout("\n");
       }
+
       if (options.sct_temp_int) {
         // Set new temperature logging interval
         if (!isSCTFeatureControlCapable(&drive)) {

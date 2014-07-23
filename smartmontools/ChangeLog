@@ -1,5 +1,10 @@
 $Id$
 
+2014-07-23  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print SCT Status regardless of SCT Data Table support.
+	atacmds.cpp: ataReadSCTTempHist(): Do not reread initial SCT Status.
+
 2014-07-22  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
