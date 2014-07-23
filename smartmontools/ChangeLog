@@ -4,6 +4,7 @@ $Id$
 
 	ataprint.cpp: Print SCT Status regardless of SCT Data Table support.
 	atacmds.cpp: ataReadSCTTempHist(): Do not reread initial SCT Status.
+	configure.ac: Fix typo in help text.  Add MinGW comment.
 
 2014-07-22  Christian Franke  <franke@computer.org>
 

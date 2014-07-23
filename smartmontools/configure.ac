@@ -246,7 +246,7 @@ AC_ARG_WITH(smartdscriptdir,
 AC_SUBST(smartdscriptdir)
 
 AC_ARG_WITH(smartdplugindir,
-  [AS_HELP_STRING([--with-smartdplugindir=@<:@=DIR|no@:>@],
+  [AS_HELP_STRING([--with-smartdplugindir=@<:@DIR|no@:>@],
     [Location of smartd_warning.sh plugin scripts [SMARTDSCRIPTDIR/smartd_warning.d]])],
   [smartdplugindir=; test "$withval" != "no" && smartdplugindir="$withval"],
   [smartdplugindir='${smartdscriptdir}/smartd_warning.d'])
@@ -335,6 +335,8 @@ case "$host" in
       *\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
         ;;
       *)
+        # Older MinGW do not properly define PRI?64 if __USE_MINGW_ANSI_STDIO is set
+        # Newer MinGW set __USE_MINGW_ANSI_STDIO in first C++ include which may be too late
         AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO is defined by C++ includes])
         AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
           #undef __USE_MINGW_ANSI_STDIO
