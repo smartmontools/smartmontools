@@ -1,9 +1,10 @@
-$Id: ChangeLog 3971 2014-07-23 18:57:55Z chrfranke $
+$Id: ChangeLog 3972 2014-07-23 21:14:27Z chrfranke $
 
 2014-07-23  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Print SCT Status regardless of SCT Data Table support.
 	atacmds.cpp: ataReadSCTTempHist(): Do not reread initial SCT Status.
+	configure.ac: Fix typo in help text.  Add MinGW comment.
 
 2014-07-22  Christian Franke  <franke@computer.org>
 

@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 3956 2014-07-18 17:34:02Z chrfranke $
+# $Id: configure.ac 3972 2014-07-23 21:14:27Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 6.3, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 3956 2014-07-18 17:34:02Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 3972 2014-07-23 21:14:27Z chrfranke $'`
 smartmontools_release_date=2013-07-26
 smartmontools_release_time="17:38:20 UTC"
 
@@ -246,7 +246,7 @@ AC_ARG_WITH(smartdscriptdir,
 AC_SUBST(smartdscriptdir)
 
 AC_ARG_WITH(smartdplugindir,
-  [AS_HELP_STRING([--with-smartdplugindir=@<:@=DIR|no@:>@],
+  [AS_HELP_STRING([--with-smartdplugindir=@<:@DIR|no@:>@],
     [Location of smartd_warning.sh plugin scripts [SMARTDSCRIPTDIR/smartd_warning.d]])],
   [smartdplugindir=; test "$withval" != "no" && smartdplugindir="$withval"],
   [smartdplugindir='${smartdscriptdir}/smartd_warning.d'])
@@ -335,6 +335,8 @@ case "$host" in
       *\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
         ;;
       *)
+        # Older MinGW do not properly define PRI?64 if __USE_MINGW_ANSI_STDIO is set
+        # Newer MinGW set __USE_MINGW_ANSI_STDIO in first C++ include which may be too late
         AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO is defined by C++ includes])
         AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
           #undef __USE_MINGW_ANSI_STDIO
