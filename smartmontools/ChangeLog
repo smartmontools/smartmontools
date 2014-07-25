@@ -1,5 +1,9 @@
 $Id$
 
+2014-07-25  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Apple SM* SSD - add attribute 173 description (guessed)
+
 2014-07-23  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Print SCT Status regardless of SCT Data Table support.
