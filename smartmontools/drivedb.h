@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3969 2014-07-22 20:31:13Z chrfranke $",
+  { "$Id: drivedb.h 3973 2014-07-25 15:31:28Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -173,8 +173,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 169,raw48,Unknown_Attribute "
   //"-v 173,raw48,Unknown_Attribute "
-    "-v 174,raw48,Host_Reads_MiB "  // ] guessed (ticket #342), S[DM]*F only
-    "-v 175,raw48,Host_Writes_MiB " // ]
+    "-v 174,raw48,Host_Reads_MiB "      // ] guessed (ticket #342), S[DM]*F only
+    "-v 175,raw48,Host_Writes_MiB "     // ]
+    "-v 173,raw48,Wear_Leveling_Count " // ]
   //"-v 192,raw48,Power-Off_Retract_Count "
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 197,raw48,Current_Pending_Sector "

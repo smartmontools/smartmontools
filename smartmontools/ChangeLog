@@ -1,4 +1,8 @@
-$Id: ChangeLog 3972 2014-07-23 21:14:27Z chrfranke $
+$Id: ChangeLog 3973 2014-07-25 15:31:28Z samm2 $
+
+2014-07-25  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Apple SM* SSD - add attribute 173 description (guessed)
 
 2014-07-23  Christian Franke  <franke@computer.org>
 
