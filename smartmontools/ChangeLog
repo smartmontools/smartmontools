@@ -1,4 +1,11 @@
-$Id: ChangeLog 3973 2014-07-25 15:31:28Z samm2 $
+$Id: ChangeLog 3974 2014-07-25 18:54:47Z chrfranke $
+
+2014-07-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apple SD/SM/TS...E/F SSDs: Rename, add TS*[EF]
+	- JMicron based SSDs: Fix regex for Apple TS*C
+	- Marvell based SanDisk SSDs: X210
 
 2014-07-25  Alex Samorukov  <samm@os2.kiev.ua>
 
