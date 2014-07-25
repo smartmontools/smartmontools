@@ -1,5 +1,12 @@
 $Id$
 
+2014-07-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apple SD/SM/TS...E/F SSDs: Rename, add TS*[EF]
+	- JMicron based SSDs: Fix regex for Apple TS*C
+	- Marvell based SanDisk SSDs: X210
+
 2014-07-25  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: Apple SM* SSD - add attribute 173 description (guessed)

@@ -163,19 +163,18 @@ const drive_settings builtin_knowndrives[] = {
     "-v 164,raw48,Min_Erase_Count " // could be wrong
     "-v 165,raw48,Average_Erase_Count " // could be wrong
   },
-  { "Apple SD/SM...E/F SSDs", // SanDisk/Samsung?
-    "APPLE SSD S[DM]0?(128|256|512|768)[EF]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
-     // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q
+  { "Apple SD/SM/TS...E/F SSDs", // SanDisk/Samsung/Toshiba?
+    "APPLE SSD (S[DM]|TS)0?(128|256|512|768)[EF]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
+     // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q, TS0256F/109L0704
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
   //"-v 169,raw48,Unknown_Attribute "
-  //"-v 173,raw48,Unknown_Attribute "
+    "-v 173,raw48,Wear_Leveling_Count " // ]
     "-v 174,raw48,Host_Reads_MiB "      // ] guessed (ticket #342), S[DM]*F only
     "-v 175,raw48,Host_Writes_MiB "     // ]
-    "-v 173,raw48,Wear_Leveling_Count " // ]
   //"-v 192,raw48,Power-Off_Retract_Count "
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 197,raw48,Current_Pending_Sector "
@@ -879,7 +878,7 @@ const drive_settings builtin_knowndrives[] = {
   { "JMicron based SSDs", // JMicron JMF61x, JMF661
     "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
     "ADATA SP600|"  // tested with ADATA SP600/2.4 (JMicron JMF661)
-    "APPLE SSD TS.*|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
+    "APPLE SSD TS(064|128|256|512)C|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series (2. Generation, JMF618),
                                     // tested with KINGSTON SNV425S264GB/C091126a
     "KINGSTON SSDNOW 30GB|" // tested with KINGSTON SSDNOW 30GB/AJXA0202
@@ -974,7 +973,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Marvell based SanDisk SSDs",
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
-    "SanDisk SD6SB1M[0-9]*G1022I|" // X110 (88SS9175), tested with SanDisk SD6SB1M(064|256)G1022I/X231600
+    "SanDisk SD6SB[12]M[0-9]*G1022I|" // X110/X210 (88SS9175), tested with SanDisk SD6SB1M064G1022I/X231600,
+      // SanDisk SD6SB1M256G1022I/X231600, SanDisk SD6SB2M512G1022I/X210400
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk SDSSDXP[0-9]*G", // Extreme II (88SS9187), tested with SanDisk SDSSDXP480G/R1311
     "", "",
