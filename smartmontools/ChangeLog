@@ -1,5 +1,9 @@
 $Id$
 
+2014-07-26  Christian Franke  <franke@computer.org>
+
+	smartmontools 6.3
+
 2014-07-25  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

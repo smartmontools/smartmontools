@@ -5,7 +5,7 @@ $Id$
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
-Date <Not released yet, please try current SVN>
+Date 2014-07-26
 Summary: smartmontools release 6.3
 -----------------------------------------------------------
 - smartctl: Fixed bogus error messages from '-g/-s wcreorder'.
