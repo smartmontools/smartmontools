@@ -5,6 +5,8 @@ $Id$
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
+- darwin: '-S' command implemented, '-l devstat' should work now
+
 Date 2014-07-26
 Summary: smartmontools release 6.3
 -----------------------------------------------------------

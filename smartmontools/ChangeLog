@@ -1,5 +1,10 @@
 $Id$
 
+
+2014-08-15  Alex Samorukov  <samm@os2.kiev.ua>
+
+	ataprint.cpp: device statistic - use smart log if GP log is not available
+
 2014-08-15  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_darwin.cpp:
