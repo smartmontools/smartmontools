@@ -1,4 +1,11 @@
-$Id: ChangeLog 3976 2014-07-26 09:50:09Z chrfranke $
+$Id: ChangeLog 3978 2014-08-15 10:01:42Z samm2 $
+
+2014-08-15  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp:
+	- Migrated to the new interface
+	- Added multisector support
+	- Fixed smart autosave processing
 
 2014-07-26  Christian Franke  <franke@computer.org>
 
