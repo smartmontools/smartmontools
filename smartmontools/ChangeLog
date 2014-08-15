@@ -1,5 +1,12 @@
 $Id$
 
+2014-08-15  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp:
+	- Migrated to the new interface
+	- Added multisector support
+	- Fixed smart autosave processing
+
 2014-07-26  Christian Franke  <franke@computer.org>
 
 	smartmontools 6.3

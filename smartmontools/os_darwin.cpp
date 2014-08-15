@@ -1,18 +1,19 @@
 /*
- * os_darwin.c
+ * os_darwin.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2004-8 Geoffrey Keating <geoffk@geoffk.org>
+ * Copyright (C) 2014 Alex Samorukov <samm@os2.kiev.ua>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *  You should have received a copy of the GNU General Public License
+ *  along with smartmontools.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #include <stdbool.h>
@@ -40,17 +41,16 @@
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"
-
 #include "os_darwin.h"
+#include "dev_interface.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id$" \
+const char *os_darwin_cpp_cvsid="$Id$" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
-// Print examples for smartctl.
-void print_smartctl_examples(){
-  printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
-  printf(
+// examples for smartctl
+static const char  smartctl_examples[] =
+         "=================================================== SMARTCTL EXAMPLES =====\n\n"
          "  smartctl -a disk0                            (Prints all SMART information)\n\n"
          "  smartctl -t long /dev/disk0              (Executes extended disk self-test)\n\n"
 #ifdef HAVE_GETOPT_LONG
@@ -66,15 +66,64 @@ void print_smartctl_examples(){
          "                                                 (You can use IOService: ...)\n\n"
          "  smartctl -c IODeviceTree:/pci@f4000000/ata-6@D/@0:0\n"
          "                                                       (... Or IODeviceTree:)\n"
-         );
-  return;
+         ;
+
+
+// Information that we keep about each device.
+
+static struct {
+  io_object_t ioob;
+  IOCFPlugInInterface **plugin;
+  IOATASMARTInterface **smartIf;
+} devices[20];
+
+const char * dev_darwin_cpp_cvsid = "$Id$"
+  DEV_INTERFACE_H_CVSID;
+
+/////////////////////////////////////////////////////////////////////////////
+
+namespace os { // No need to publish anything, name provided for Doxygen
+
+/////////////////////////////////////////////////////////////////////////////
+/// Implement shared open/close routines with old functions.
+
+class darwin_smart_device
+: virtual public /*implements*/ smart_device
+{
+public:
+  explicit darwin_smart_device(const char * mode)
+    : smart_device(never_called),
+      m_fd(-1), m_mode(mode) { }
+
+  virtual ~darwin_smart_device() throw();
+
+  virtual bool is_open() const;
+
+  virtual bool open();
+
+  virtual bool close();
+ 
+protected:
+  /// Return filedesc for derived classes.
+  int get_fd() const
+    { return m_fd; }
+    
+
+private:
+  int m_fd; ///< filedesc, -1 if not open.
+  const char * m_mode; ///< Mode string for deviceopen().
+};
+
+
+darwin_smart_device::~darwin_smart_device() throw()
+{
+  if (m_fd >= 0)
+    darwin_smart_device::close();
 }
 
-// tries to guess device type given the name (a path).  See utility.h
-// for return values.
-int guess_device_type (const char * /* dev_name */) {
-  // Only ATA is supported right now, so that's what it'd better be.
-  return CONTROLLER_ATA;
+bool darwin_smart_device::is_open() const
+{
+  return (m_fd >= 0);
 }
 
 // Determine whether 'dev' is a SMART-capable device.
@@ -116,95 +165,19 @@ static bool is_smart_capable (io_object_t dev) {
   return false;
 }
 
-
-// makes a list of ATA or SCSI devices for the DEVICESCAN directive of
-// smartd.  Returns number N of devices, or -1 if out of
-// memory. Allocates N+1 arrays: one of N pointers (devlist); the
-// other N arrays each contain null-terminated character strings.  In
-// the case N==0, no arrays are allocated because the array of 0
-// pointers has zero length, equivalent to calling malloc(0).
-int make_device_names (char*** devlist, const char* name) {
-  IOReturn err;
-  io_iterator_t i;
-  io_object_t device = MACH_PORT_NULL;
-  int result;
-  int index;
-
-  // We treat all devices as ATA so long as they support SMARTLib.
-  if (strcmp (name, "ATA") != 0)
-    return 0;
-
-  err = IOServiceGetMatchingServices 
-    (kIOMasterPortDefault, IOServiceMatching (kIOBlockStorageDeviceClass), &i);
-  if (err != kIOReturnSuccess)
-    return -1;
-
-  // Count the devices.
-  result = 0;
-  while ((device = IOIteratorNext (i)) != MACH_PORT_NULL) {
-    if (is_smart_capable (device))
-      result++;
-    IOObjectRelease (device);
-  }
-
-  // Create an array of service names.
-  IOIteratorReset (i);
-  *devlist = (char**)Calloc (result, sizeof (char *)); 
-  if (! *devlist)
-    goto error;
-  index = 0;
-  while ((device = IOIteratorNext (i)) != MACH_PORT_NULL) {
-    if (is_smart_capable (device))
-      {
-	io_string_t devName;
-	IORegistryEntryGetPath(device, kIOServicePlane, devName);
-	(*devlist)[index] = CustomStrDup (devName, true, __LINE__, __FILE__);
-	if (! (*devlist)[index])
-	  goto error;
-	index++;
-      }
-    IOObjectRelease (device);
-  }
-
-  IOObjectRelease (i);
-  return result;
-
- error:
-  if (device != MACH_PORT_NULL)
-    IOObjectRelease (device);
-  IOObjectRelease (i);
-  if (*devlist)
-    {
-      for (index = 0; index < result; index++)
-	if ((*devlist)[index])
-	  FreeNonZero ((*devlist)[index], 0, __LINE__, __FILE__);
-      FreeNonZero (*devlist, result * sizeof (char *), __LINE__, __FILE__);
-    }
-  return -1;
-}
-
-// Information that we keep about each device.
-
-static struct {
-  io_object_t ioob;
-  IOCFPlugInInterface **plugin;
-  IOATASMARTInterface **smartIf;
-} devices[20];
-
-// Like open().  Return non-negative integer handle, only used by the
-// functions below.  type=="ATA" or "SCSI".  The return value is
-// an index into the devices[] array.  If the device can't be opened,
-// sets errno and returns -1.
-// Acceptable device names are:
-// /dev/disk*
-// /dev/rdisk*
-// disk*
-// IOService:*
-// IODeviceTree:*
-int deviceopen(const char *pathname, char *type){
+bool darwin_smart_device::open()
+{
+  // Acceptable device names are:
+  // /dev/disk*
+  // /dev/rdisk*
+  // disk*
+  // IOService:*
+  // IODeviceTree:*
   size_t devnum;
   const char *devname;
   io_object_t disk;
+  const char *pathname = get_dev_name();
+  char *type = const_cast<char*>(m_mode);
   
   if (strcmp (type, "ATA") != 0)
     {
@@ -285,141 +258,322 @@ int deviceopen(const char *pathname, char *type){
          (void **)&devices[devnum].smartIf);
   }
   
-  return devnum;
+  
+  m_fd = devnum;
+  if (m_fd < 0) {
+    set_err((errno==ENOENT || errno==ENOTDIR) ? ENODEV : errno);
+    return false;
+  }
+  return true;
 }
 
-// Like close().  Acts only on integer handles returned by
-// deviceopen() above.
-int deviceclose(int fd){
+bool darwin_smart_device::close()
+{
+  int fd = m_fd; m_fd = -1;
   if (devices[fd].smartIf)
     (*devices[fd].smartIf)->Release (devices[fd].smartIf);
   if (devices[fd].plugin)
     IODestroyPlugInInterface (devices[fd].plugin);
   IOObjectRelease (devices[fd].ioob);
   devices[fd].ioob = MACH_PORT_NULL;
-  return 0;
+  return true;
 }
 
-// Interface to ATA devices.  See os_linux.cpp for the cannonical example.
-// DETAILED DESCRIPTION OF ARGUMENTS
-//   device: is the integer handle provided by deviceopen()
-//   command: defines the different operations, see atacmds.h
-//   select: additional input data IF NEEDED (which log, which type of
-//           self-test).
-//   data:   location to write output data, IF NEEDED (1 or 512 bytes).
-//   Note: not all commands use all arguments.
-// RETURN VALUES (for all commands BUT command==STATUS_CHECK)
-//  -1 if the command failed
-//   0 if the command succeeded,
-// RETURN VALUES if command==STATUS_CHECK
-//  -1 if the command failed OR the disk SMART status can't be determined
-//   0 if the command succeeded and disk SMART status is "OK"
-//   1 if the command succeeded and disk SMART status is "FAILING"
+// makes a list of ATA or SCSI devices for the DEVICESCAN directive of
+// smartd.  Returns number N of devices, or -1 if out of
+// memory. Allocates N+1 arrays: one of N pointers (devlist); the
+// other N arrays each contain null-terminated character strings.  In
+// the case N==0, no arrays are allocated because the array of 0
+// pointers has zero length, equivalent to calling malloc(0).
+static int make_device_names (char*** devlist, const char* name) {
+  IOReturn err;
+  io_iterator_t i;
+  io_object_t device = MACH_PORT_NULL;
+  int result;
+  int index;
 
-// Things that aren't available in the Darwin interfaces:
-// - Tests other than short and extended (in particular, can't run
-//   an immediate offline test)
-// - Captive-mode tests, aborting tests
-// - ability to switch automatic offline testing on or off
+  // We treat all devices as ATA so long as they support SMARTLib.
+  if (strcmp (name, "ATA") != 0)
+    return 0;
 
-// Note that some versions of Darwin, at least 7H63 and earlier,
-// have a buggy library that treats the boolean value in
-// SMARTEnableDisableOperations, SMARTEnableDisableAutosave, and
-// SMARTExecuteOffLineImmediate as always being true.
-int
-ata_command_interface(int fd, smart_command_set command,
-		      int select, char *data)
+  err = IOServiceGetMatchingServices 
+    (kIOMasterPortDefault, IOServiceMatching (kIOBlockStorageDeviceClass), &i);
+  if (err != kIOReturnSuccess)
+    return -1;
+
+  // Count the devices.
+  result = 0;
+  while ((device = IOIteratorNext (i)) != MACH_PORT_NULL) {
+    if (is_smart_capable (device))
+      result++;
+    IOObjectRelease (device);
+  }
+
+  // Create an array of service names.
+  IOIteratorReset (i);
+  *devlist = (char**)calloc (result, sizeof (char *)); 
+  if (! *devlist)
+    goto error;
+  index = 0;
+  while ((device = IOIteratorNext (i)) != MACH_PORT_NULL) {
+    if (is_smart_capable (device))
+      {
+	io_string_t devName;
+	IORegistryEntryGetPath(device, kIOServicePlane, devName);
+	(*devlist)[index] = strdup (devName);
+	if (! (*devlist)[index])
+	  goto error;
+	index++;
+      }
+    IOObjectRelease (device);
+  }
+
+  IOObjectRelease (i);
+  return result;
+
+ error:
+  if (device != MACH_PORT_NULL)
+    IOObjectRelease (device);
+  IOObjectRelease (i);
+  if (*devlist)
+    {
+      for (index = 0; index < result; index++)
+	if ((*devlist)[index])
+	  free ((*devlist)[index]);
+      free (*devlist);
+    }
+  return -1;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/// Implement standard ATA support
+
+class darwin_ata_device
+: public /*implements*/ ata_device,
+  public /*extends*/ darwin_smart_device
 {
+public:
+  darwin_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+
+protected:
+  // virtual int ata_command_interface(smart_command_set command, int select, char * data);
+};
+
+darwin_ata_device::darwin_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
+: smart_device(intf, dev_name, "ata", req_type),
+  darwin_smart_device("ATA")
+{
+}
+
+bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
+{
+  if (!ata_cmd_is_ok(in,
+    true, // data_out_support
+    true, // multi_sector_support
+    false) // not supported by API
+  )
+  	return false;
+  
+  int select = 0;
+  char * data = (char *)in.buffer;
+  int fd = get_fd();
   IOATASMARTInterface **ifp = devices[fd].smartIf;
   IOATASMARTInterface *smartIf;
   IOReturn err;
   int timeoutCount = 5;
+  int rc = 0;
   
   if (! ifp)
     return -1;
   smartIf = *ifp;
-
+  clear_err(); errno = 0;
   do {
-    switch (command)
-      {
-      case STATUS:
-	return 0;
-      case STATUS_CHECK:
-	{
-	  Boolean is_failing;
-	  err = smartIf->SMARTReturnStatus (ifp, &is_failing);
-	  if (err == kIOReturnSuccess && is_failing)
-	    return 1;
-	  break;
-	}
-      case ENABLE:
-      case DISABLE:
-	err = smartIf->SMARTEnableDisableOperations (ifp, command == ENABLE);
-	break;
-      case AUTOSAVE:
-	err = smartIf->SMARTEnableDisableAutosave (ifp, select != 0);
-	break;
-      case IMMEDIATE_OFFLINE:
-	if (select != SHORT_SELF_TEST && select != EXTEND_SELF_TEST)
-	  {
-	    errno = EINVAL;
-	    return -1;
-	  }
-	err = smartIf->SMARTExecuteOffLineImmediate (ifp, 
-						     select == EXTEND_SELF_TEST);
-	break;
-      case READ_VALUES:
-	err = smartIf->SMARTReadData (ifp, (ATASMARTData *)data);
-	break;
-      case READ_THRESHOLDS:
-	err = smartIf->SMARTReadDataThresholds (ifp, 
-						(ATASMARTDataThresholds *)data);
-	break;
-      case READ_LOG:
-	err = smartIf->SMARTReadLogAtAddress (ifp, select, data, 512);
-	break;
-      case WRITE_LOG:
-	err = smartIf->SMARTWriteLogAtAddress (ifp, select, data, 512);
-	break;
-      case IDENTIFY:
-	{
-	  UInt32 dummy;
-	  err = smartIf->GetATAIdentifyData (ifp, data, 512, &dummy);
-	  if (err != kIOReturnSuccess && err != kIOReturnTimeout
-	      && err != kIOReturnNotResponding)
-	    printf ("identify failed: %#x\n", (unsigned) err);
-	  if (err == kIOReturnSuccess && isbigendian())
-	    {
-	      int i;
-	      /* The system has already byte-swapped, undo it.  */
-	      for (i = 0; i < 256; i+=2)
-		swap2 (data + i);
-	    }
-	}
-	break;
-      case CHECK_POWER_MODE:
-	// The information is right there in the device registry, but how
-	// to get to it portably?
+  	switch (in.in_regs.command) {
+    case ATA_IDENTIFY_DEVICE:
+    	{
+    		UInt32 dummy;
+    		err = smartIf->GetATAIdentifyData (ifp, data, 512, &dummy);
+    		if (err != kIOReturnSuccess && err != kIOReturnTimeout
+    			&& err != kIOReturnNotResponding)
+    		printf ("identify failed: %#x\n", (unsigned) rc);
+    		if (err == kIOReturnSuccess && isbigendian())
+    		{
+    			int i;
+    			/* The system has already byte-swapped, undo it.  */
+    			for (i = 0; i < 256; i+=2)
+    				swap2 (data + i);
+    		}
+    	}
+      break;
+    case ATA_IDENTIFY_PACKET_DEVICE:
+    case ATA_CHECK_POWER_MODE:
+      errno = ENOTSUP;
+      err = -1;
+      break;
+    case ATA_SMART_CMD:
+      switch (in.in_regs.features) {
+      case ATA_SMART_READ_VALUES:
+      	err = smartIf->SMARTReadData (ifp, (ATASMARTData *)data);
+      	break;
+      case ATA_SMART_READ_THRESHOLDS:
+      	err = smartIf->SMARTReadDataThresholds (ifp, 
+      		(ATASMARTDataThresholds *)data);
+      	break;
+      case ATA_SMART_READ_LOG_SECTOR:
+      	err = smartIf->SMARTReadLogAtAddress (ifp, in.in_regs.lba_low, data, 512 * in.in_regs.sector_count);
+      	break;
+      case ATA_SMART_WRITE_LOG_SECTOR:
+      	err = smartIf->SMARTWriteLogAtAddress (ifp, in.in_regs.lba_low, data, 512 * in.in_regs.sector_count);
+      	break;
+      case ATA_SMART_ENABLE:
+      case ATA_SMART_DISABLE:
+      	err = smartIf->SMARTEnableDisableOperations (ifp, in.in_regs.features == ATA_SMART_ENABLE);
+      	break;
+      case ATA_SMART_STATUS:
+      	if (in.out_needed.lba_high) // statuscheck
+      	{
+      		Boolean is_failing;
+      		err = smartIf->SMARTReturnStatus (ifp, &is_failing);
+      		if (err == kIOReturnSuccess && is_failing) {
+      			err = -1; // thresholds exceeded condition
+      			out.out_regs.lba_high = 0x2c; out.out_regs.lba_mid = 0xf4;
+      		}
+      		else
+      			out.out_regs.lba_high = 0xc2; out.out_regs.lba_mid = 0x4f;
+      		break;
+      	}
+      	else err = 0;
+      	break;
+      case ATA_SMART_AUTOSAVE:
+      	err = smartIf->SMARTEnableDisableAutosave (ifp, 
+      		(in.in_regs.sector_count == 241 ? true : false));
+      	break;
+      case ATA_SMART_IMMEDIATE_OFFLINE:
+      	select = in.in_regs.lba_low;
+      	if (select != SHORT_SELF_TEST && select != EXTEND_SELF_TEST)
+      	{
+      		errno = EINVAL;
+      		err = -1;
+      	}
+      	err = smartIf->SMARTExecuteOffLineImmediate (ifp, 
+      		select == EXTEND_SELF_TEST);
+      	break;
+      case ATA_SMART_AUTO_OFFLINE:
+      	return set_err(ENOSYS, "SMART command not supported");
       default:
-	errno = ENOTSUP;
-	return -1;
+      	return set_err(ENOSYS, "Unknown SMART command");
       }
-    /* This bit is a bit strange.  Apparently, when the drive is spun
-       down, the intended behaviour of these calls is that they fail,
-       return kIOReturnTimeout and then power the drive up.  So if
-       you get a timeout, you have to try again to get the actual
-       command run, but the drive is already powering up so you can't
-       use this for CHECK_POWER_MODE.  */
-    if (err == kIOReturnTimeout || err == kIOReturnNotResponding)
-      sleep (1);
+      break;
+    default:
+      return set_err(ENOSYS, "Non-SMART commands not implemented");
+    }
   } while ((err == kIOReturnTimeout || err == kIOReturnNotResponding)
-	   && timeoutCount-- > 0);
+  	&& timeoutCount-- > 0);
   if (err == kIOReturnExclusiveAccess)
     errno = EBUSY;
-  return err == kIOReturnSuccess ? 0 : -1;
+  rc = err == kIOReturnSuccess ? 0 : -1;
+  if (rc < 0) {
+    if (!get_errno())
+      set_err(errno);
+    return false;
+  }
+  return true;
 }
 
-// Interface to SCSI devices.  See os_linux.c
-int do_scsi_cmnd_io(int /* fd */, struct scsi_cmnd_io * /* iop */, int /* report */) {
-  return -ENOSYS;
+/////////////////////////////////////////////////////////////////////////////
+/// Implement platform interface
+
+class darwin_smart_interface
+: public /*implements*/ smart_interface
+{
+public:
+  virtual std::string get_app_examples(const char * appname);
+
+  virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
+    const char * pattern = 0);
+
+protected:
+  virtual ata_device * get_ata_device(const char * name, const char * type);
+  
+  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+
+  virtual smart_device * autodetect_smart_device(const char * name);
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
+std::string darwin_smart_interface::get_app_examples(const char * appname)
+{
+  if (!strcmp(appname, "smartctl"))
+    return smartctl_examples;
+  return ""; // ... so don't print again.
+}
+
+ata_device * darwin_smart_interface::get_ata_device(const char * name, const char * type)
+{
+  return new darwin_ata_device(this, name, type);
+}
+
+scsi_device * darwin_smart_interface::get_scsi_device(const char *, const char *)
+{
+  return 0; // scsi devices are not supported [yet]
+}
+
+
+smart_device * darwin_smart_interface::autodetect_smart_device(const char * name)
+{
+  return new darwin_ata_device(this, name, "");
+}
+
+static void free_devnames(char * * devnames, int numdevs)
+{
+  for (int i = 0; i < numdevs; i++)
+    free(devnames[i]);
+  free(devnames);
+}
+
+bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
+  const char * type, const char * pattern /*= 0*/)
+{
+  if (pattern) {
+    set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
+    return false;
+  }
+
+  // Make namelists
+  char * * atanames = 0; int numata = 0;
+  if (!type || !strcmp(type, "ata")) {
+    numata = make_device_names(&atanames, "ATA");
+    if (numata < 0) {
+      set_err(ENOMEM);
+      return false;
+    }
+  }
+
+  // Add to devlist
+  int i;
+  if (!type)
+    type="";
+  for (i = 0; i < numata; i++) {
+    ata_device * atadev = get_ata_device(atanames[i], type);
+    if (atadev)
+      devlist.push_back(atadev);
+  }
+  free_devnames(atanames, numata);
+  return true;
+}
+
+} // namespace
+
+
+/////////////////////////////////////////////////////////////////////////////
+/// Initialize platform interface and register with smi()
+
+void smart_interface::init()
+{
+  static os::darwin_smart_interface the_interface;
+  smart_interface::set(&the_interface);
 }
