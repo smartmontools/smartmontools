@@ -1,9 +1,11 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3976 2014-07-26 09:50:09Z chrfranke $
+$Id: NEWS 3979 2014-08-15 11:09:41Z samm2 $
 
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
+
+- darwin: '-S' command implemented, '-l devstat' should work now
 
 Date 2014-07-26
 Summary: smartmontools release 6.3

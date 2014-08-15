@@ -1,4 +1,9 @@
-$Id: ChangeLog 3978 2014-08-15 10:01:42Z samm2 $
+$Id: ChangeLog 3979 2014-08-15 11:09:41Z samm2 $
+
+
+2014-08-15  Alex Samorukov  <samm@os2.kiev.ua>
+
+	ataprint.cpp: device statistic - use smart log if GP log is not available
 
 2014-08-15  Alex Samorukov  <samm@os2.kiev.ua>
 
