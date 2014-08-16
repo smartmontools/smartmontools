@@ -1,5 +1,10 @@
-$Id: ChangeLog 3979 2014-08-15 11:09:41Z samm2 $
+$Id: ChangeLog 3983 2014-08-16 21:12:48Z samm2 $
 
+
+2014-08-16  Alex Samorukov  <samm@os2.kiev.ua>
+
+	ataprint.cpp: '-l devstat' - workaround for buggy firmware by provided
+	Christian Franke
 
 2014-08-15  Alex Samorukov  <samm@os2.kiev.ua>
 
