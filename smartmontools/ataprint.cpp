@@ -1437,7 +1437,7 @@ static void print_device_statistics_page(const unsigned char * data, int page,
 
     // Skip unsupported entries
     unsigned char flags = data[offset+7];
-    if (!(flags & 0x80) || !info)
+    if (!(flags & 0x80))
       continue;
 
     // Get value size, default to max if unknown
@@ -1484,12 +1484,12 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
   int rc;
   
   if (use_gplog)
-  	rc = ataReadLogExt(device, 0x04, 0, 0, page_0, 1);
+    rc = ataReadLogExt(device, 0x04, 0, 0, page_0, 1);
   else
-  	rc = ataReadSmartLog(device, 0x04, page_0, 1);
+    rc = ataReadSmartLog(device, 0x04, page_0, 1);
   if (!rc) {
-  	pout("Read Device Statistics page 0 failed\n\n");
-  	return false;
+    pout("Read Device Statistics page 0 failed\n\n");
+    return false;
   }
 
   unsigned char nentries = page_0[8];
@@ -1527,7 +1527,7 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
   // Print list of supported pages if requested
   if (print_page_0) {
     pout("Device Statistics (%s Log 0x04) supported pages\n", 
-    	use_gplog ? "GP" : "SMART");
+      use_gplog ? "GP" : "SMART");
     pout("Page Description\n");
     for (i = 0; i < nentries; i++) {
       int page = page_0[8+1+i];
@@ -1540,23 +1540,23 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
   // Read & print pages
   if (!pages.empty()) {
     pout("Device Statistics (%s Log 0x04)\n",
-    	use_gplog ? "GP" : "SMART");
+      use_gplog ? "GP" : "SMART");
     pout("Page Offset Size         Value  Description\n");
     bool need_trailer = false;
     
     for (i = 0; i <  pages.size(); i++) {
-    	int page = pages[i];
-    	unsigned char page_n[512 * 8] = {0, };
-    	if (use_gplog)
-    		rc = ataReadLogExt(device, 0x04, 0, page, page_n, 1);
-    	else
-    		rc = ataReadSmartLog(device, 0x04, page_n, page + 1); 
-    	if (!rc) {
-    		pout("Read Device Statistics page %d failed\n\n", page);
-    		return false;
-    	}
-    	int offset = (use_gplog ? 0 : 512 * page);
-    	print_device_statistics_page(page_n + offset, page, need_trailer);
+      int page = pages[i];
+      unsigned char page_n[512 * 8] = {0, };
+      if (use_gplog)
+        rc = ataReadLogExt(device, 0x04, 0, page, page_n, 1);
+      else
+        rc = ataReadSmartLog(device, 0x04, page_n, page + 1); 
+      if (!rc) {
+        pout("Read Device Statistics page %d failed\n\n", page);
+        return false;
+      }
+      int offset = (use_gplog ? 0 : 512 * page);
+      print_device_statistics_page(page_n + offset, page, need_trailer);
     }
     
     if (need_trailer)
@@ -2465,11 +2465,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // SMART and GP log directories needed ?
   bool need_smart_logdir = ( 
-  	  options.smart_logdir
+          options.smart_logdir
        || options.devstat_all_pages // devstat fallback to smartlog if needed
        || options.devstat_ssd_page
        || !options.devstat_pages.empty()
-  );
+    );
 
   bool need_gp_logdir  = (
           options.gp_logdir
@@ -3360,10 +3360,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     bool use_gplog = true;
     unsigned nsectors = 0;
     if (gplogdir) 
-    	    nsectors = GetNumLogSectors(gplogdir, 0x04, false);
+      nsectors = GetNumLogSectors(gplogdir, 0x04, false);
     else if (smartlogdir){ // for systems without ATA_READ_LOG_EXT
-    	    nsectors = GetNumLogSectors(smartlogdir, 0x04, false);
-    	    use_gplog = false;
+      nsectors = GetNumLogSectors(smartlogdir, 0x04, false);
+      use_gplog = false;
     }
     if (!nsectors)
       pout("Device Statistics (GP/SMART Log 0x04) not supported\n\n");
