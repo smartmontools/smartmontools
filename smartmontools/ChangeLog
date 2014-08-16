@@ -1,6 +1,11 @@
 $Id$
 
 
+2014-08-16  Alex Samorukov  <samm@os2.kiev.ua>
+
+	ataprint.cpp: '-l devstat' - workaround for buggy firmware by provided
+	Christian Franke
+
 2014-08-15  Alex Samorukov  <samm@os2.kiev.ua>
 
 	ataprint.cpp: device statistic - use smart log if GP log is not available
