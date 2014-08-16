@@ -145,20 +145,20 @@ static bool is_smart_capable (io_object_t dev) {
   // If it's an kIOATABlockStorageDeviceClass then we're successful
   // only if its ATA features indicate it supports SMART.
   if (IOObjectConformsTo (dev, kIOATABlockStorageDeviceClass)
-      && (diskChars = (CFDictionaryRef)IORegistryEntryCreateCFProperty                                                                                                           
-	  (dev, CFSTR (kIOPropertyDeviceCharacteristicsKey),
-	   kCFAllocatorDefault, kNilOptions)) != NULL)
+    && (diskChars = (CFDictionaryRef)IORegistryEntryCreateCFProperty                                                                                                           
+      (dev, CFSTR (kIOPropertyDeviceCharacteristicsKey),
+        kCFAllocatorDefault, kNilOptions)) != NULL)
     {
       CFNumberRef diskFeatures = NULL;
       UInt32 ataFeatures = 0;
 
       if (CFDictionaryGetValueIfPresent (diskChars, CFSTR ("ATA Features"),
-					 (const void **)&diskFeatures))
-	CFNumberGetValue (diskFeatures, kCFNumberLongType,
-			  &ataFeatures);
+        (const void **)&diskFeatures))
+      CFNumberGetValue (diskFeatures, kCFNumberLongType,
+        &ataFeatures);
       CFRelease (diskChars);
       if (diskFeatures)
-	CFRelease (diskFeatures);
+        CFRelease (diskFeatures);
       
       return (ataFeatures & kIOATAFeatureSMART) != 0;
     }
@@ -231,11 +231,11 @@ bool darwin_smart_device::open()
       // Find this device's parent and try again.
       err = IORegistryEntryGetParentEntry (disk, kIOServicePlane, &disk);
       if (err != kIOReturnSuccess || ! disk)
-	{
-	  errno = ENODEV;
-	  IOObjectRelease (prevdisk);
-	  return -1;
-	}
+      {
+        errno = ENODEV;
+        IOObjectRelease (prevdisk);
+        return -1;
+      }
     }
   
   devices[devnum].ioob = disk;
@@ -248,14 +248,14 @@ bool darwin_smart_device::open()
 
     // Create an interface to the ATA SMART library.
     if (IOCreatePlugInInterfaceForService (disk,
-					   kIOATASMARTUserClientTypeID,
-					   kIOCFPlugInInterfaceID,
-					   &devices[devnum].plugin,
-					   &dummy) == kIOReturnSuccess)
-      (*devices[devnum].plugin)->QueryInterface
-	(devices[devnum].plugin,
-	 CFUUIDGetUUIDBytes ( kIOATASMARTInterfaceID),
-         (void **)&devices[devnum].smartIf);
+      kIOATASMARTUserClientTypeID,
+      kIOCFPlugInInterfaceID,
+      &devices[devnum].plugin,
+      &dummy) == kIOReturnSuccess)
+    (*devices[devnum].plugin)->QueryInterface
+    (devices[devnum].plugin,
+      CFUUIDGetUUIDBytes ( kIOATASMARTInterfaceID),
+      (void **)&devices[devnum].smartIf);
   }
   
   
@@ -317,14 +317,14 @@ static int make_device_names (char*** devlist, const char* name) {
   index = 0;
   while ((device = IOIteratorNext (i)) != MACH_PORT_NULL) {
     if (is_smart_capable (device))
-      {
-	io_string_t devName;
-	IORegistryEntryGetPath(device, kIOServicePlane, devName);
-	(*devlist)[index] = strdup (devName);
-	if (! (*devlist)[index])
-	  goto error;
-	index++;
-      }
+    {
+      io_string_t devName;
+      IORegistryEntryGetPath(device, kIOServicePlane, devName);
+      (*devlist)[index] = strdup (devName);
+      if (! (*devlist)[index])
+        goto error;
+      index++;
+    }
     IOObjectRelease (device);
   }
 
@@ -336,10 +336,10 @@ static int make_device_names (char*** devlist, const char* name) {
     IOObjectRelease (device);
   IOObjectRelease (i);
   if (*devlist)
-    {
-      for (index = 0; index < result; index++)
-	if ((*devlist)[index])
-	  free ((*devlist)[index]);
+  {
+    for (index = 0; index < result; index++)
+      if ((*devlist)[index])
+      free ((*devlist)[index]);
       free (*devlist);
     }
   return -1;
@@ -372,8 +372,8 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
     true, // data_out_support
     true, // multi_sector_support
     false) // not supported by API
-  )
-  	return false;
+    )
+  return false;
   
   int select = 0;
   char * data = (char *)in.buffer;
@@ -389,22 +389,22 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   smartIf = *ifp;
   clear_err(); errno = 0;
   do {
-  	switch (in.in_regs.command) {
+  switch (in.in_regs.command) {
     case ATA_IDENTIFY_DEVICE:
-    	{
-    		UInt32 dummy;
-    		err = smartIf->GetATAIdentifyData (ifp, data, 512, &dummy);
-    		if (err != kIOReturnSuccess && err != kIOReturnTimeout
-    			&& err != kIOReturnNotResponding)
-    		printf ("identify failed: %#x\n", (unsigned) rc);
-    		if (err == kIOReturnSuccess && isbigendian())
-    		{
-    			int i;
-    			/* The system has already byte-swapped, undo it.  */
-    			for (i = 0; i < 256; i+=2)
-    				swap2 (data + i);
-    		}
-    	}
+      {
+        UInt32 dummy;
+        err = smartIf->GetATAIdentifyData (ifp, data, 512, &dummy);
+        if (err != kIOReturnSuccess && err != kIOReturnTimeout
+          && err != kIOReturnNotResponding)
+        printf ("identify failed: %#x\n", (unsigned) rc);
+        if (err == kIOReturnSuccess && isbigendian())
+        {
+          int i;
+          /* The system has already byte-swapped, undo it.  */
+          for (i = 0; i < 256; i+=2)
+            swap2 (data + i);
+        }
+      }
       break;
     case ATA_IDENTIFY_PACKET_DEVICE:
     case ATA_CHECK_POWER_MODE:
@@ -414,62 +414,62 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
     case ATA_SMART_CMD:
       switch (in.in_regs.features) {
       case ATA_SMART_READ_VALUES:
-      	err = smartIf->SMARTReadData (ifp, (ATASMARTData *)data);
-      	break;
+        err = smartIf->SMARTReadData (ifp, (ATASMARTData *)data);
+        break;
       case ATA_SMART_READ_THRESHOLDS:
-      	err = smartIf->SMARTReadDataThresholds (ifp, 
-      		(ATASMARTDataThresholds *)data);
-      	break;
+        err = smartIf->SMARTReadDataThresholds (ifp, 
+          (ATASMARTDataThresholds *)data);
+        break;
       case ATA_SMART_READ_LOG_SECTOR:
-      	err = smartIf->SMARTReadLogAtAddress (ifp, in.in_regs.lba_low, data, 512 * in.in_regs.sector_count);
-      	break;
+        err = smartIf->SMARTReadLogAtAddress (ifp, in.in_regs.lba_low, data, 512 * in.in_regs.sector_count);
+        break;
       case ATA_SMART_WRITE_LOG_SECTOR:
-      	err = smartIf->SMARTWriteLogAtAddress (ifp, in.in_regs.lba_low, data, 512 * in.in_regs.sector_count);
-      	break;
+        err = smartIf->SMARTWriteLogAtAddress (ifp, in.in_regs.lba_low, data, 512 * in.in_regs.sector_count);
+        break;
       case ATA_SMART_ENABLE:
       case ATA_SMART_DISABLE:
-      	err = smartIf->SMARTEnableDisableOperations (ifp, in.in_regs.features == ATA_SMART_ENABLE);
-      	break;
+        err = smartIf->SMARTEnableDisableOperations (ifp, in.in_regs.features == ATA_SMART_ENABLE);
+        break;
       case ATA_SMART_STATUS:
-      	if (in.out_needed.lba_high) // statuscheck
-      	{
-      		Boolean is_failing;
-      		err = smartIf->SMARTReturnStatus (ifp, &is_failing);
-      		if (err == kIOReturnSuccess && is_failing) {
-      			err = -1; // thresholds exceeded condition
-      			out.out_regs.lba_high = 0x2c; out.out_regs.lba_mid = 0xf4;
-      		}
-      		else
-      			out.out_regs.lba_high = 0xc2; out.out_regs.lba_mid = 0x4f;
-      		break;
-      	}
-      	else err = 0;
-      	break;
+        if (in.out_needed.lba_high) // statuscheck
+        {
+          Boolean is_failing;
+          err = smartIf->SMARTReturnStatus (ifp, &is_failing);
+          if (err == kIOReturnSuccess && is_failing) {
+            err = -1; // thresholds exceeded condition
+            out.out_regs.lba_high = 0x2c; out.out_regs.lba_mid = 0xf4;
+          }
+          else
+            out.out_regs.lba_high = 0xc2; out.out_regs.lba_mid = 0x4f;
+          break;
+        }
+        else err = 0;
+        break;
       case ATA_SMART_AUTOSAVE:
-      	err = smartIf->SMARTEnableDisableAutosave (ifp, 
-      		(in.in_regs.sector_count == 241 ? true : false));
-      	break;
+        err = smartIf->SMARTEnableDisableAutosave (ifp, 
+          (in.in_regs.sector_count == 241 ? true : false));
+        break;
       case ATA_SMART_IMMEDIATE_OFFLINE:
-      	select = in.in_regs.lba_low;
-      	if (select != SHORT_SELF_TEST && select != EXTEND_SELF_TEST)
-      	{
-      		errno = EINVAL;
-      		err = -1;
-      	}
-      	err = smartIf->SMARTExecuteOffLineImmediate (ifp, 
-      		select == EXTEND_SELF_TEST);
-      	break;
+        select = in.in_regs.lba_low;
+        if (select != SHORT_SELF_TEST && select != EXTEND_SELF_TEST)
+        {
+          errno = EINVAL;
+          err = -1;
+        }
+        err = smartIf->SMARTExecuteOffLineImmediate (ifp, 
+          select == EXTEND_SELF_TEST);
+        break;
       case ATA_SMART_AUTO_OFFLINE:
-      	return set_err(ENOSYS, "SMART command not supported");
+        return set_err(ENOSYS, "SMART command not supported");
       default:
-      	return set_err(ENOSYS, "Unknown SMART command");
+        return set_err(ENOSYS, "Unknown SMART command");
       }
       break;
     default:
       return set_err(ENOSYS, "Non-SMART commands not implemented");
     }
   } while ((err == kIOReturnTimeout || err == kIOReturnNotResponding)
-  	&& timeoutCount-- > 0);
+  && timeoutCount-- > 0);
   if (err == kIOReturnExclusiveAccess)
     errno = EBUSY;
   rc = err == kIOReturnSuccess ? 0 : -1;
