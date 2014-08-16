@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3981 2014-08-16 19:56:33Z samm2 $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 3982 2014-08-16 21:07:19Z samm2 $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -1439,6 +1439,12 @@ static void print_device_statistics_page(const unsigned char * data, int page,
     unsigned char flags = data[offset+7];
     if (!(flags & 0x80))
       continue;
+
+    // Stop if unknown entries contain garbage data due to buggy firmware
+    if (!info && (data[offset+5] || data[offset+6])) {
+      pout("%3d  0x%03x  -                -  [Trailing garbage ignored]\n", page, offset);
+      break;
+    }
 
     // Get value size, default to max if unknown
     int size = (info ? info[i].size : 7);
