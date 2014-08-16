@@ -1543,22 +1543,33 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
       use_gplog ? "GP" : "SMART");
     pout("Page Offset Size         Value  Description\n");
     bool need_trailer = false;
+    int max_page = 0;
     
+    if (!use_gplog)
+    for (i = 0; i < pages.size(); i++) {
+      int page = pages[i];
+      if (max_page < page && page < 0xff)
+        max_page = page;
+    }
+    
+    raw_buffer pages_buf((max_page+1) * 512);
+
+     if (!use_gplog && !ataReadSmartLog(device, 0x04, pages_buf.data(), max_page+1)) {
+      pout("Read Device Statistics pages 0-%d failed\n\n", max_page);
+      return false;
+    }
+
     for (i = 0; i <  pages.size(); i++) {
       int page = pages[i];
-      unsigned char page_n[512 * 8] = {0, };
-      if (use_gplog)
-        rc = ataReadLogExt(device, 0x04, 0, page, page_n, 1);
-      else
-        rc = ataReadSmartLog(device, 0x04, page_n, page + 1); 
-      if (!rc) {
+      if (use_gplog && !ataReadLogExt(device, 0x04, 0, page, pages_buf.data(), 1)) {
         pout("Read Device Statistics page %d failed\n\n", page);
         return false;
       }
-      int offset = (use_gplog ? 0 : 512 * page);
-      print_device_statistics_page(page_n + offset, page, need_trailer);
+
+      int offset = (use_gplog ? 0 : page * 512);
+      print_device_statistics_page(pages_buf.data() + offset, page, need_trailer);
     }
-    
+
     if (need_trailer)
       pout("%30s|_ ~ normalized value\n", "");
     pout("\n");
