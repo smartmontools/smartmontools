@@ -2,7 +2,9 @@ $Id$
 
 2014-08-21  Alex Samorukov  <samm@os2.kiev.ua>
 
-	drivedb.h: added SanDisk X300s SSD
+	drivedb.h:
+	- added SanDisk X300s SSD
+	- extended Apacer SSD support based on APSDM004G13AN-AT user report
 
 2014-08-16  Alex Samorukov  <samm@os2.kiev.ua>
 

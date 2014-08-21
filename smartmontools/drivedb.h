@@ -153,15 +153,18 @@ const drive_settings builtin_knowndrives[] = {
     "-v 254,raw48,Free_Fall_Sensor "              // HDD only
   */
   },
-  { "Apacer SDM4",
-    "2GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D
-    "SF(DDA01C|I2101D)", "",
+  { "Apacer SSD",
+    "(2|4|8|16|32)GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D, APSDM004G13AN-AT/SFDE001A
+    "SF(DDA01C|I2101D|DE001A)", "", // spec found at http://wfcache.advantech.com/www/certified-peripherals/documents/96fmcff-04g-cs-ap_Datasheet.pdf
     "-v 160,raw48,Initial_Bad_Block_Count "
     "-v 161,raw48,Bad_Block_Count "
     "-v 162,raw48,Spare_Block_Count "
     "-v 163,raw48,Max_Erase_Count "
-    "-v 164,raw48,Min_Erase_Count " // could be wrong
+    "-v 164,raw48,Average_Erase_Count "
     "-v 165,raw48,Average_Erase_Count " // could be wrong
+    "-v 166,raw48,Later_Bad_Block_Count "
+    "-v 167,raw48,SSD_Protect_Mode "
+    "-v 168,raw48,SATA_PHY_Err_Ct "
   },
   { "Apple SD/SM/TS...E/F SSDs", // SanDisk/Samsung/Toshiba?
     "APPLE SSD (S[DM]|TS)0?(128|256|512|768)[EF]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
