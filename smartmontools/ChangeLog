@@ -1,5 +1,8 @@
-$Id: ChangeLog 3983 2014-08-16 21:12:48Z samm2 $
+$Id: ChangeLog 3984 2014-08-21 20:13:25Z samm2 $
 
+2014-08-21  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: added SanDisk X300s SSD
 
 2014-08-16  Alex Samorukov  <samm@os2.kiev.ua>
 
