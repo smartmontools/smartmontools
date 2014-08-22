@@ -1,4 +1,9 @@
-$Id: ChangeLog 3985 2014-08-21 20:37:49Z samm2 $
+$Id: ChangeLog 3988 2014-08-22 21:39:16Z samm2 $
+
+2014-08-22  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- fixed SanDisk X210 regular expression
 
 2014-08-21  Alex Samorukov  <samm@os2.kiev.ua>
 
