@@ -1,5 +1,10 @@
 $Id$
 
+2014-08-22  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- fixed SanDisk X210 regular expression
+
 2014-08-21  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h:
