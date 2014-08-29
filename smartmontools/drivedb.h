@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3988 2014-08-22 21:39:16Z samm2 $",
+  { "$Id: drivedb.h 3989 2014-08-29 19:47:14Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -976,7 +976,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Marvell based SanDisk SSDs",
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
-    "SanDisk SD6SB[12]M[0-9]*G(1022I|)|" // X110/X210 (88SS9175), tested with SanDisk SD6SB1M064G1022I/X231600,
+    "SanDisk SD6SB[12]M[0-9]*G(1022I)?|" // X110/X210 (88SS9175), tested with SanDisk SD6SB1M064G1022I/X231600,
       // SanDisk SD6SB1M256G1022I/X231600, SanDisk SD6SB2M512G1022I/X210400
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk SDSSDXP[0-9]*G", // Extreme II (88SS9187), tested with SanDisk SDSSDXP480G/R1311

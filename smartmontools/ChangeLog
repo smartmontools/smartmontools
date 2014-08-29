@@ -1,4 +1,8 @@
-$Id: ChangeLog 3988 2014-08-22 21:39:16Z samm2 $
+$Id: ChangeLog 3989 2014-08-29 19:47:14Z chrfranke $
+
+2014-08-29  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Fix regex syntax error (regression from r3988).
 
 2014-08-22  Alex Samorukov  <samm@os2.kiev.ua>
 
