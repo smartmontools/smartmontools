@@ -3466,6 +3466,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Seagate Backup Plus Slim USB 3.0; ", // (ticket #443)
+    "0x0bc2:0xab24",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // Dura Micro
   { "USB: Dura Micro; Cypress",
     "0x0c0b:0xb001",

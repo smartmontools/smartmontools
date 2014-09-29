@@ -1,5 +1,9 @@
 $Id$
 
+2014-09-29  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Added Seagate Backup Plus Slim Portable USB 3.0 drive
+
 2014-08-29  Christian Franke  <franke@computer.org>
 
 	drivedb.h: Fix regex syntax error (regression from r3988).
