@@ -1,4 +1,8 @@
-$Id: ChangeLog 3989 2014-08-29 19:47:14Z chrfranke $
+$Id: ChangeLog 3990 2014-09-29 17:59:37Z samm2 $
+
+2014-09-29  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Added Seagate Backup Plus Slim Portable USB 3.0 drive
 
 2014-08-29  Christian Franke  <franke@computer.org>
 

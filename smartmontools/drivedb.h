@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3989 2014-08-29 19:47:14Z chrfranke $",
+  { "$Id: drivedb.h 3990 2014-09-29 17:59:37Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3463,6 +3463,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Seagate Backup Plus Desktop USB 3.0; ", // 4TB, 3TB (8 LBA/1 PBA offset)
     "0x0bc2:0xa0a[14]",
     "",
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate Backup Plus Slim USB 3.0; ", // (ticket #443)
+    "0x0bc2:0xab24",
+    "", // 0x0100
     "",
     "-d sat"
   },
