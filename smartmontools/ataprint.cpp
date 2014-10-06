@@ -2239,6 +2239,7 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
     // T13/e06152r0-3 (Additional SCT Temperature Statistics), August - October 2006
     // Table 60 of T13/1699-D (ATA8-ACS) Revision 3f, December 2006  (format version 2)
     // Table 80 of T13/1699-D (ATA8-ACS) Revision 6a, September 2008 (format version 3)
+    // Table 182 of T13/BSR INCITS 529 (ACS-4) Revision 02a, May 22, 2014 (smart_status field)
     pout("Current Temperature:                    %s Celsius\n",
       sct_ptemp(sts->hda_temp, buf1));
     pout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
@@ -2250,6 +2251,11 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
       pout("Lifetime    Average Temperature:        %2d Celsius\n", avg);
     pout("Under/Over Temperature Limit Count:  %2u/%u\n",
       sts->under_limit_count, sts->over_limit_count);
+
+    if (sts->smart_status) // ACS-4
+      pout("SMART Status:                        0x%04x (%s)\n", sts->smart_status,
+           (sts->smart_status == 0x2cf4 ? "FAILED" :
+            sts->smart_status == 0xc24f ? "PASSED" : "Reserved"));
 
     if (nonempty(sts->vendor_specific, sizeof(sts->vendor_specific))) {
       pout("Vendor specific:\n");

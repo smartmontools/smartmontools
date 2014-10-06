@@ -6,6 +6,8 @@ $Id$
 	Add ACS-2 and ACS-3 minor versions.
 	Update SATA log names.  Add SATA 3.2.
 	Print vendor specific bytes from SCT Status.
+	atacmds.cpp, atacmds.h, ataprint.cpp: Print SMART STATUS info
+	from SCT Status.
 
 2014-10-06  Alex Samorukov  <samm@os2.kiev.ua>
 

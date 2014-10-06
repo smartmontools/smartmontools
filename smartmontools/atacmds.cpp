@@ -2428,6 +2428,7 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
     swapx(&sts->function_code);
     swapx(&sts->over_limit_count);
     swapx(&sts->under_limit_count);
+    swapx(&sts->smart_status);
   }
 
   // Check format version
