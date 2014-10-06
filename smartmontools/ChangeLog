@@ -1,5 +1,9 @@
 $Id$
 
+2014-10-06  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Exteneded regexp for SanDisk X300s (#463)
+
 2014-09-29  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: Added Seagate Backup Plus Slim Portable USB 3.0 drive
