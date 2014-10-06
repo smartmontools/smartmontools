@@ -3,6 +3,7 @@ $Id$
 2014-10-06  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add form factors from ACS-4.
+	Add ACS-2 and ACS-3 minor versions.
 
 2014-10-06  Alex Samorukov  <samm@os2.kiev.ua>
 

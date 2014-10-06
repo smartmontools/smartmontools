@@ -457,6 +457,10 @@ static const char * get_ata_major_version(const ata_identify_device * drive)
 
 static const char * get_ata_minor_version(const ata_identify_device * drive)
 {
+  // Table 10 of X3T13/2008D (ATA-3) Revision 7b, January 27, 1997
+  // Table 28 of T13/1410D (ATA/ATAPI-6) Revision 3b, February 26, 2002
+  // Table 31 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Table 45 of T13/BSR INCITS 529 (ACS-4) Revision 04, August 25, 2014
   switch (drive->minor_rev_num) {
     case 0x0001: return "ATA-1 X3T9.2/781D prior to revision 4";
     case 0x0002: return "ATA-1 published, ANSI X3.221-1994";
@@ -507,9 +511,15 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
 
     case 0x0052: return "ATA8-ACS T13/1699-D revision 3b";
 
+    case 0x006d: return "ACS-3 T13/2161-D revision 5";
+
+    case 0x0082: return "ACS-2 published, ANSI INCITS 482-2012";
+
     case 0x0107: return "ATA8-ACS T13/1699-D revision 2d";
 
     case 0x0110: return "ACS-2 T13/2015-D revision 3";
+
+    case 0x011b: return "ACS-3 T13/2161-D revision 4";
 
     default:     return 0;
   }
