@@ -2250,6 +2250,12 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
       pout("Lifetime    Average Temperature:        %2d Celsius\n", avg);
     pout("Under/Over Temperature Limit Count:  %2u/%u\n",
       sts->under_limit_count, sts->over_limit_count);
+
+    if (nonempty(sts->vendor_specific, sizeof(sts->vendor_specific))) {
+      pout("Vendor specific:\n");
+      for (unsigned i = 0; i < sizeof(sts->vendor_specific); i++)
+        pout("%02x%c", sts->vendor_specific[i], ((i & 0xf) != 0xf ? ' ' : '\n'));
+    }
   }
   return 0;
 }
