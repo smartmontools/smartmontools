@@ -1,10 +1,11 @@
-$Id: ChangeLog 3996 2014-10-06 14:47:28Z chrfranke $
+$Id: ChangeLog 3997 2014-10-06 15:00:21Z chrfranke $
 
 2014-10-06  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add form factors from ACS-4.
 	Add ACS-2 and ACS-3 minor versions.
 	Update SATA log names.  Add SATA 3.2.
+	Print vendor specific bytes from SCT Status.
 
 2014-10-06  Alex Samorukov  <samm@os2.kiev.ua>
 
