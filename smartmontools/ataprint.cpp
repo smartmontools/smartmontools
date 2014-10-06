@@ -412,6 +412,24 @@ static inline std::string format_st_er_desc(
 }
 
 
+static const char * get_form_factor(unsigned short word168)
+{
+  // Table A.32 of T13/2161-D (ACS-3) Revision 4p, September 19, 2013
+  // Table 236 of T13/BSR INCITS 529 (ACS-4) Revision 04, August 25, 2014
+  switch (word168) {
+    case 0x1: return "5.25 inches";
+    case 0x2: return "3.5 inches";
+    case 0x3: return "2.5 inches";
+    case 0x4: return "1.8 inches";
+    case 0x5: return "< 1.8 inches";
+    case 0x6: return "mSATA"; // ACS-4
+    case 0x7: return "M.2"; // ACS-4
+    case 0x8: return "MicroSSD"; // ACS-4
+    case 0x9: return "CFast"; // ACS-4
+    default : return 0;
+  }
+}
+
 static int find_msb(unsigned short word)
 {
   for (int bit = 15; bit >= 0; bit--)
@@ -610,17 +628,9 @@ static void print_drive_info(const ata_identify_device * drive,
   // Print form factor if reported
   unsigned short word168 = drive->words088_255[168-88];
   if (word168) {
-    const char * inches;
-    switch (word168) {
-      case 0x1: inches = "5.25"; break;
-      case 0x2: inches = "3.5"; break;
-      case 0x3: inches = "2.5"; break;
-      case 0x4: inches = "1.8"; break;
-      case 0x5: inches = "< 1.8"; break;
-      default : inches = 0;
-    }
-    if (inches)
-      pout("Form Factor:      %s inches\n", inches);
+    const char * form_factor = get_form_factor(word168);
+    if (form_factor)
+      pout("Form Factor:      %s\n", form_factor);
     else
       pout("Form Factor:      Unknown (0x%04x)\n", word168);
   }

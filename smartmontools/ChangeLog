@@ -1,5 +1,9 @@
 $Id$
 
+2014-10-06  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add form factors from ACS-4.
+
 2014-10-06  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: Exteneded regexp for SanDisk X300s (#463)
