@@ -1147,9 +1147,10 @@ static unsigned GetNumLogSectors(const ata_smart_log_directory * logdir, unsigne
 }
 
 // Get name of log.
-// Table A.2 of T13/2161-D (ACS-3) Revision 4, September 4, 2012
 static const char * GetLogName(unsigned logaddr)
 {
+    // Table 201 of T13/BSR INCITS 529 (ACS-4) Revision 04, August 25, 2014
+    // Table 112 of Serial ATA Revision 3.2, August 7, 2013
     switch (logaddr) {
       case 0x00: return "Log Directory";
       case 0x01: return "Summary SMART error log";
@@ -1166,12 +1167,13 @@ static const char * GetLogName(unsigned logaddr)
       case 0x0c: return "Pending Defects log"; // ACS-4
       case 0x0d: return "LPS Mis-alignment log"; // ACS-2
 
-      case 0x10: return "NCQ Command Error log";
-      case 0x11: return "SATA Phy Event Counters";
-      case 0x12: return "SATA NCQ Queue Management log"; // ACS-3
-      case 0x13: return "SATA NCQ Send and Receive log"; // ACS-3
-      case 0x14:
-      case 0x15:
+      case 0x10: return "SATA NCQ Queued Error log";
+      case 0x11: return "SATA Phy Event Counters log";
+    //case 0x12: return "SATA NCQ Queue Management log"; // SATA 3.0/3.1
+      case 0x12: return "SATA NCQ NON-DATA log"; // SATA 3.2
+      case 0x13: return "SATA NCQ Send and Receive log"; // SATA 3.1
+      case 0x14: return "SATA Hybrid Information log"; // SATA 3.2
+      case 0x15: return "SATA Rebuild Assist log"; // SATA 3.2
       case 0x16:
       case 0x17: return "Reserved for Serial ATA";
 
@@ -1203,13 +1205,14 @@ static const char * get_log_rw(unsigned logaddr)
 {
    if (   (                   logaddr <= 0x08)
        || (0x0c <= logaddr && logaddr <= 0x0d)
-       || (0x10 <= logaddr && logaddr <= 0x13)
+       || (0x10 <= logaddr && logaddr <= 0x14)
        || (0x19 == logaddr)
        || (0x20 <= logaddr && logaddr <= 0x25)
        || (0x30 == logaddr))
       return "R/O";
 
    if (   (0x09 <= logaddr && logaddr <= 0x0a)
+       || (0x15 == logaddr)
        || (0x80 <= logaddr && logaddr <= 0x9f)
        || (0xe0 <= logaddr && logaddr <= 0xe1))
       return "R/W";
