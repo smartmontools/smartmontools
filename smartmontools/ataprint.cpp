@@ -531,7 +531,8 @@ static const char * get_sata_version(const ata_identify_device * drive)
   if ((word222 & 0xf000) != 0x1000)
     return 0;
   switch (find_msb(word222 & 0x0fff)) {
-    default: return "SATA >3.1";
+    default: return "SATA >3.2";
+    case 7:  return "SATA 3.2";
     case 6:  return "SATA 3.1";
     case 5:  return "SATA 3.0";
     case 4:  return "SATA 2.6";
