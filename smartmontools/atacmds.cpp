@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3971 2014-07-23 18:57:55Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3998 2014-10-06 15:20:25Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -2428,6 +2428,7 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
     swapx(&sts->function_code);
     swapx(&sts->over_limit_count);
     swapx(&sts->under_limit_count);
+    swapx(&sts->smart_status);
   }
 
   // Check format version
