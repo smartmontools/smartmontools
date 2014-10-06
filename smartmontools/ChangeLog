@@ -1,8 +1,9 @@
-$Id: ChangeLog 3993 2014-10-06 13:11:10Z chrfranke $
+$Id: ChangeLog 3994 2014-10-06 13:25:21Z chrfranke $
 
 2014-10-06  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add form factors from ACS-4.
+	Add ACS-2 and ACS-3 minor versions.
 
 2014-10-06  Alex Samorukov  <samm@os2.kiev.ua>
 
