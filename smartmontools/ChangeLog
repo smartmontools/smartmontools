@@ -1,4 +1,8 @@
-$Id: ChangeLog 3990 2014-09-29 17:59:37Z samm2 $
+$Id: ChangeLog 3991 2014-10-06 08:49:11Z samm2 $
+
+2014-10-06  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Exteneded regexp for SanDisk X300s (#463)
 
 2014-09-29  Alex Samorukov  <samm@os2.kiev.ua>
 
