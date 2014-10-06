@@ -5,6 +5,7 @@ $Id$
 	ataprint.cpp: Add form factors from ACS-4.
 	Add ACS-2 and ACS-3 minor versions.
 	Update SATA log names.  Add SATA 3.2.
+	Avoid crash on device statistics page 0xff if SMART READ LOG is used.
 	Print vendor specific bytes from SCT Status.
 	atacmds.cpp, atacmds.h, ataprint.cpp: Print SMART STATUS info
 	from SCT Status.

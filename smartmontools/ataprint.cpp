@@ -1574,14 +1574,14 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
     pout("Page Offset Size         Value  Description\n");
     bool need_trailer = false;
     int max_page = 0;
-    
+
     if (!use_gplog)
-    for (i = 0; i < pages.size(); i++) {
-      int page = pages[i];
-      if (max_page < page && page < 0xff)
-        max_page = page;
-    }
-    
+      for (i = 0; i < pages.size(); i++) {
+        int page = pages[i];
+        if (max_page < page && page < 0xff)
+          max_page = page;
+      }
+
     raw_buffer pages_buf((max_page+1) * 512);
 
      if (!use_gplog && !ataReadSmartLog(device, 0x04, pages_buf.data(), max_page+1)) {
@@ -1591,10 +1591,14 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
 
     for (i = 0; i <  pages.size(); i++) {
       int page = pages[i];
-      if (use_gplog && !ataReadLogExt(device, 0x04, 0, page, pages_buf.data(), 1)) {
-        pout("Read Device Statistics page %d failed\n\n", page);
-        return false;
+      if (use_gplog) {
+        if (!ataReadLogExt(device, 0x04, 0, page, pages_buf.data(), 1)) {
+          pout("Read Device Statistics page %d failed\n\n", page);
+          return false;
+        }
       }
+      else if (page > max_page)
+        continue;
 
       int offset = (use_gplog ? 0 : page * 512);
       print_device_statistics_page(pages_buf.data() + offset, page, need_trailer);
