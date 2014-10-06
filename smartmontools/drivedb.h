@@ -153,15 +153,18 @@ const drive_settings builtin_knowndrives[] = {
     "-v 254,raw48,Free_Fall_Sensor "
   */
   },
-  { "Apacer SDM4",
-    "2GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D
-    "SF(DDA01C|I2101D)", "",
+  { "Apacer SSD",
+    "(2|4|8|16|32)GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D, APSDM004G13AN-AT/SFDE001A
+    "SF(DDA01C|I2101D|DE001A)", "", // spec found at http://wfcache.advantech.com/www/certified-peripherals/documents/96fmcff-04g-cs-ap_Datasheet.pdf
     "-v 160,raw48,Initial_Bad_Block_Count "
     "-v 161,raw48,Bad_Block_Count "
     "-v 162,raw48,Spare_Block_Count "
     "-v 163,raw48,Max_Erase_Count "
-    "-v 164,raw48,Min_Erase_Count " // could be wrong
+    "-v 164,raw48,Average_Erase_Count "
     "-v 165,raw48,Average_Erase_Count " // could be wrong
+    "-v 166,raw48,Later_Bad_Block_Count "
+    "-v 167,raw48,SSD_Protect_Mode "
+    "-v 168,raw48,SATA_PHY_Err_Ct "
   },
   { "Apple SD/SM/TS...E/F SSDs", // SanDisk/Samsung/Toshiba?
     "APPLE SSD (S[DM]|TS)0?(128|256|512|768)[EF]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
@@ -971,7 +974,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Marvell based SanDisk SSDs",
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
-    "SanDisk SD6SB[12]M[0-9]*G1022I|" // X110/X210 (88SS9175), tested with SanDisk SD6SB1M064G1022I/X231600,
+    "SanDisk SD6SB[12]M[0-9]*G(1022I)?|" // X110/X210 (88SS9175), tested with SanDisk SD6SB1M064G1022I/X231600,
       // SanDisk SD6SB1M256G1022I/X231600, SanDisk SD6SB2M512G1022I/X210400
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk SDSSDXP[0-9]*G", // Extreme II (88SS9187), tested with SanDisk SDSSDXP480G/R1311
@@ -1001,7 +1004,8 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk iSSD P4 [0-9]*GB|" // tested with SanDisk iSSD P4 16GB/SSD 9.14
     "SanDisk SDSSDP[0-9]*G|" // tested with SanDisk SDSSDP064G/1.0.0, SDSSDP128G/2.0.0
     "SanDisk SSD i100 [0-9]*GB|" // tested with SanDisk SSD i100 8GB/11.56.04, 24GB/11.56.04
-    "SanDisk SSD U100 ([0-9]*GB|SMG2)", // tested with SanDisk SSD U100 8GB/10.56.00, 256GB/10.01.02, SMG2/10.56.04
+    "SanDisk SSD U100 ([0-9]*GB|SMG2)|" // tested with SanDisk SSD U100 8GB/10.56.00, 256GB/10.01.02, SMG2/10.56.04
+    "SanDisk SD7[SU]B[23]Q(064|128|256|512)G.*", // tested with SD7SB3Q064G1122/SD7UB3Q256G1122/SD7SB3Q128G/SD7UB2Q512G1122
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -3454,6 +3458,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Seagate Backup Plus Desktop USB 3.0; ", // 4TB, 3TB (8 LBA/1 PBA offset)
     "0x0bc2:0xa0a[14]",
     "",
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate Backup Plus Slim USB 3.0; ", // (ticket #443)
+    "0x0bc2:0xab24",
+    "", // 0x0100
     "",
     "-d sat"
   },
