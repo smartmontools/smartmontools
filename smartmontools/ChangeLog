@@ -1,5 +1,10 @@
 $Id$
 
+2014-10-07  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Added more attributes for SanDisk based SSDs based on SSD
+	Dashboard tool data (#463)
+
 2014-10-06  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add form factors from ACS-4.

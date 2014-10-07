@@ -1002,7 +1002,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Total_Reads_GiB "
   //"-v 243,raw48,Unknown_Attribute "
   },
-  { "SanDisk based SSDs",
+  { "SanDisk based SSDs", // see also #463 for the vendor attribute description
     "SanDisk iSSD P4 [0-9]*GB|" // tested with SanDisk iSSD P4 16GB/SSD 9.14
     "SanDisk SDSSDP[0-9]*G|" // tested with SanDisk SDSSDP064G/1.0.0, SDSSDP128G/2.0.0
     "SanDisk SSD i100 [0-9]*GB|" // tested with SanDisk SSD i100 8GB/11.56.04, 24GB/11.56.04
@@ -1017,11 +1017,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 173,raw48,Avg_Write_Erase_Ct "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
   //"-v 187,raw48,Reported_Uncorrect "
+    "-v 212,raw48,SATA_PHY_Error "
     "-v 230,raw48,Perc_Write_Erase_Count "
     "-v 232,raw48,Perc_Avail_Resrvd_Space "
     "-v 234,raw48,Perc_Write_Erase_Ct_BC "
   //"-v 241,raw48,Total_LBAs_Written "
   //"-v 242,raw48,Total_LBAs_Read "
+    "-v 244,raw48,Thermal_Throttle "
   },
   { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
     "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
