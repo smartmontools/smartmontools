@@ -1,9 +1,11 @@
-$Id: ChangeLog 4000 2014-10-07 09:28:31Z samm2 $
+$Id: ChangeLog 4001 2014-10-07 09:57:54Z samm2 $
 
 2014-10-07  Alex Samorukov  <samm@os2.kiev.ua>
 
-	drivedb.h: Added more attributes for SanDisk based SSDs based on SSD
+	drivedb.h: 
+	- Added more attributes for SanDisk based SSDs based on SSD
 	Dashboard tool data (#463)
+	- move attributes 171/172 to the defaults
 
 2014-10-06  Christian Franke  <franke@computer.org>
 
