@@ -1,4 +1,13 @@
-$Id: ChangeLog 4002 2014-10-07 11:11:49Z samm2 $
+$Id: ChangeLog 4003 2014-11-09 16:43:07Z chrfranke $
+
+2014-11-09  Roger Willcocks  <roger@filmlight.ltd.uk>
+
+	os_linux.cpp: linux_aacraid_device: Fix ioctl data count
+	if dxfer_len == 0.  Return scsi sense data.  Together these
+	allow the SMART STATUS command to operate correctly.
+	Improve SRB status checks.
+	linux_ata_device: Fix very old bug in the error handling
+	of HDIO_DRIVE_TASKFILE.
 
 2014-10-07  Alex Samorukov  <samm@os2.kiev.ua>
 
