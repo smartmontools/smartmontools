@@ -1120,6 +1120,144 @@ bool usbjmicron_device::get_registers(unsigned short addr,
 
 /////////////////////////////////////////////////////////////////////////////
 
+/// Prolific USB Bridge support. (PL2773) (Probably works on PL2771 also...)
+
+class usbprolific_device
+: public tunnelled_device<
+    /*implements*/ ata_device,
+    /*by tunnelling through a*/ scsi_device
+  >
+{
+public:
+  usbprolific_device(smart_interface * intf, scsi_device * scsidev,
+                    const char * req_type);
+
+  virtual ~usbprolific_device() throw();
+
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+};
+
+
+usbprolific_device::usbprolific_device(smart_interface * intf, scsi_device * scsidev,
+                                     const char * req_type)
+: smart_device(intf, scsidev->get_dev_name(), "usbprolific", req_type),
+  tunnelled_device<ata_device, scsi_device>(scsidev)
+{
+  set_info().info_name = strprintf("%s [USB Prolific]", scsidev->get_info_name());
+}
+
+usbprolific_device::~usbprolific_device() throw()
+{
+}
+
+bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
+{
+  if (!ata_cmd_is_supported(in,
+//    ata_device::supports_data_out |       // Does not work - better disable for now
+    ata_device::supports_48bit_hi_null |
+    ata_device::supports_smart_status,
+    "Prolific" )
+  )
+    return false;
+
+  scsi_cmnd_io io_hdr;
+  memset(&io_hdr, 0, sizeof(io_hdr));
+
+  switch (in.direction) {
+    case ata_cmd_in::no_data:
+      io_hdr.dxfer_dir = DXFER_NONE;
+      break;
+    case ata_cmd_in::data_in:
+      io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+      io_hdr.dxfer_len = in.size;
+      io_hdr.dxferp = (unsigned char *)in.buffer;
+      memset(in.buffer, 0, in.size);
+      break;
+    case ata_cmd_in::data_out:
+      io_hdr.dxfer_dir = DXFER_TO_DEVICE;
+      io_hdr.dxfer_len = in.size;
+      io_hdr.dxferp = (unsigned char *)in.buffer;
+      break;
+    default:
+      return set_err(EINVAL);
+  }
+
+  // Based on reverse engineering of iSmart.exe with API Monitor.
+  // Seen commands:
+  // D0  0 0  0 06 7B 0 0 0 0 0 0                 // Read Firmware info?, reads 16 bytes
+  // F4  0 0  0 06 7B                             // ??
+  // D8 15 0 D8 06 7B 0 0 0 0 1 1 4F C2 A0 B0     // SMART Enable
+  // D8 15 0 D0 06 7B 0 0 2 0 1 1 4F C2 A0 B0     // SMART Read values
+  // D8 15 0 D1 06 7B 0 0 2 0 1 1 4F C2 A0 B0     // SMART Read thresholds
+  // D8 15 0 D4 06 7B 0 0 0 0 0 1 4F C2 A0 B0     // SMART Execute self test
+  // D7  0 0  0 06 7B 0 0 0 0 0 0 0 0 0 0         // Read status registers, Reads 16 bytes of data
+
+  // Build pass through command
+  unsigned char cdb[16];
+  cdb[ 0] = 0xD8;  // Prolific ATA pass through? (OPERATION CODE)
+  cdb[ 1] = 0x15;  // Magic?
+  cdb[ 2] = 0x0;   // Always 0?
+  cdb[ 3] = in.in_regs.features;        // SMART command
+  cdb[ 4] = 0x06;  // VendorID magic? (Prolific VendorID: 0x067B)
+  cdb[ 5] = 0x7B;  // VendorID magic? (Prolific VendorID: 0x067B)
+  cdb[ 6] = 0;     // Always 0?
+  cdb[ 7] = 0;     // Always 0?
+  cdb[ 8] = (unsigned char)(io_hdr.dxfer_len >> 8);     // 2 when reading a sector
+  cdb[ 9] = (unsigned char)(io_hdr.dxfer_len     );     // Always 0? - Seems ok
+  cdb[10] = in.in_regs.sector_count;    // 0 when starting selftest
+  cdb[11] = in.in_regs.lba_low;         // LBA(7:0)   - Works for Log Address!
+  cdb[12] = in.in_regs.lba_mid;         // LBA(15:8)  - 0x4F
+  cdb[13] = in.in_regs.lba_high;        // LBA(23:16) - 0xC2
+  cdb[14] = 0xA0;                       // Is A0 for both drives attached
+  cdb[15] = in.in_regs.command;         // ATA command
+  // Use '-r scsiioctl,1' to print CDB for debug purposes
+
+  io_hdr.cmnd = cdb;
+  io_hdr.cmnd_len = 16;
+
+  scsi_device * scsidev = get_tunnel_dev();
+  if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+         "usbprolific_device::ata_pass_through: "))
+    return set_err(scsidev->get_err());
+
+  if (in.out_needed.is_set()) {
+    // Read ATA output registers
+    unsigned char regbuf[16] = {0, };
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+    io_hdr.dxfer_len = sizeof(regbuf);
+    io_hdr.dxferp = regbuf;
+
+    memset(cdb, 0, sizeof(cdb));
+    cdb[ 0] = 0xD7;  // Prolific read registers?
+    cdb[ 4] = 0x06;  // VendorID magic? (Prolific VendorID: 0x067B)
+    cdb[ 5] = 0x7B;  // VendorID magic? (Prolific VendorID: 0x067B)
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+
+    if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+           "usbprolific_device::scsi_pass_through (get registers): "))
+      return set_err(scsidev->get_err());
+
+    // Use '-r scsiioctl,2' to print input registers for debug purposes
+    // Example: 50 00 00 00 00 01 4f 00  c2 00 a0 da 00 b0 00 50
+    // out.out_regs.status       = regbuf[0];  // Guess: Was seen go 51 to indicate error
+    // out.out_regs.error        = regbuf[1];  // Guess: Was seen go 04 to indicate ABRT
+    // out.out_regs.sector_count = regbuf[X];  // Not found...
+    out.out_regs.lba_low      = regbuf[4];  // Found by testing Log Address
+    out.out_regs.lba_mid      = regbuf[6];  // Needed for SMART STATUS
+    out.out_regs.lba_high     = regbuf[8];  // Needed for SMART STATUS
+    out.out_regs.device       = regbuf[10]; // Always A0?
+    //                           = regbuf[11]; // ATA Feature
+    //                           = regbuf[13]; // ATA Command
+  }
+
+  return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
 /// SunplusIT USB Bridge support.
 
 class usbsunplus_device
@@ -1326,6 +1464,10 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
       return 0;
     }
     return new usbjmicron_device(this, scsidev, type, prolific, ata_48bit_support, port);
+  }
+
+  else if (!strcmp(type, "usbprolific")) {
+    return new usbprolific_device(this, scsidev, type);
   }
 
   else if (!strcmp(type, "usbsunplus")) {

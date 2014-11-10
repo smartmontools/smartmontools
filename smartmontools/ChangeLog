@@ -1,5 +1,11 @@
 $Id$
 
+2014-11-10  Tommy Vestermark  <tommy.vestermark@gmail.com>
+
+	scsiata.cpp: Add class usbprolific_device to support Prolific PL2773
+	USB bridges (ticket #482).
+	smartctl.8.in, smartd.conf.5.in: Document '-d usbprolific'.
+
 2014-11-09  Roger Willcocks  <roger@filmlight.ltd.uk>
 
 	os_linux.cpp: linux_aacraid_device: Fix ioctl data count
