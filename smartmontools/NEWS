@@ -5,7 +5,15 @@ $Id$
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
-- darwin: '-S' command implemented, '-l devstat' should work now
+Date <Not released yet, please try current SVN>
+Summary: smartmontools release 6.4
+-----------------------------------------------------------
+- Device type '-d usbprolific' for Prolific PL2773 USB bridges.
+- smartctl '-i': ATA ACS-4 and SATA 3.2 enhancements.
+- smartctl '-l devstat': Read via SMART command if GP log is not
+  available.
+- Linux: AACRAID fixes, SMART STATUS should work now.
+- Darwin: '-S' command implemented, '-l devstat' should work now.
 
 Date 2014-07-26
 Summary: smartmontools release 6.3
