@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3965 2014-07-20 14:46:41Z chrfranke $
+$Id: smartd.conf.5.in 4004 2014-11-10 21:07:18Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -375,6 +375,11 @@ command similar to JMicron and work with \'\-d usbjmicron,0\'.
 Newer Prolific firmware requires a modified command which can be selected by
 \'\-d usbjmicron,p\'.
 Note that this does not yet support the SMART status command.
+
+.I usbprolific
+\- this device type is for SATA disks that are behind a Prolific P2773 USB to
+SATA bridge. This driver may work with other Prolific P277x devices - this is
+however untested.
 
 .I usbsunplus
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
@@ -1582,4 +1587,4 @@ full path of this file.
 \fBmail\fP(1), \fBregex\fP(7).
 
 .SH SVN ID OF THIS PAGE
-$Id: smartd.conf.5.in 3965 2014-07-20 14:46:41Z chrfranke $
+$Id: smartd.conf.5.in 4004 2014-11-10 21:07:18Z chrfranke $
