@@ -1,4 +1,9 @@
-$Id: ChangeLog 4004 2014-11-10 21:07:18Z chrfranke $
+$Id: ChangeLog 4007 2014-11-16 15:20:10Z chrfranke $
+
+2014-11-16  Christian Franke  <franke@computer.org>
+
+	Create branches RELEASE_6_[1-3]_DRIVEDB with last drivedb.h file
+	compatible with smartmontools 6.[1-3].
 
 2014-11-10  Tommy Vestermark  <tommy.vestermark@gmail.com>
 
