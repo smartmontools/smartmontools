@@ -1,4 +1,8 @@
-$Id: ChangeLog 4007 2014-11-16 15:20:10Z chrfranke $
+$Id: ChangeLog 4008 2014-11-16 15:52:40Z chrfranke $
+
+2014-11-16  Tommy Vestermark  <tommy.vestermark@gmail.com>
+
+	drivedb.h: USB: Prolific PL2773 (0x067b:0x2773) (ticket #482).
 
 2014-11-16  Christian Franke  <franke@computer.org>
 
