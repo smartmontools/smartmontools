@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4006 2014-11-16 14:47:22Z chrfranke $",
+  { "$Id: drivedb.h 4009 2014-11-16 16:25:15Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3275,6 +3275,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbjmicron,0" // Port number is required
+  },
+  { "USB: ; Prolific PL2773", // USB->SATA
+    "0x067b:0x2773",
+    "",
+    "",
+    "" // smartmontools >= r4004: -d usbprolific
   },
   { "USB: ; Prolific PL3507", // USB+IEE1394->PATA
     "0x067b:0x3507",
