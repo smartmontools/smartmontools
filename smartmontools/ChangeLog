@@ -1,5 +1,10 @@
 $Id$
 
+2014-11-16  Christian Franke  <franke@computer.org>
+
+	Create branches RELEASE_6_[1-3]_DRIVEDB with last drivedb.h file
+	compatible with smartmontools 6.[1-3].
+
 2014-11-10  Tommy Vestermark  <tommy.vestermark@gmail.com>
 
 	scsiata.cpp: Add class usbprolific_device to support Prolific PL2773
