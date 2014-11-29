@@ -1153,8 +1153,9 @@ usbprolific_device::~usbprolific_device() throw()
 bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
   if (!ata_cmd_is_supported(in,
-//    ata_device::supports_data_out |       // Does not work - better disable for now
+    ata_device::supports_data_out |
     ata_device::supports_48bit_hi_null |
+    ata_device::supports_output_regs |
     ata_device::supports_smart_status,
     "Prolific" )
   )
@@ -1162,6 +1163,7 @@ bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
 
   scsi_cmnd_io io_hdr;
   memset(&io_hdr, 0, sizeof(io_hdr));
+  unsigned char cmd_rw = 0x10;  // Read
 
   switch (in.direction) {
     case ata_cmd_in::no_data:
@@ -1177,6 +1179,7 @@ bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
       io_hdr.dxfer_dir = DXFER_TO_DEVICE;
       io_hdr.dxfer_len = in.size;
       io_hdr.dxferp = (unsigned char *)in.buffer;
+      cmd_rw = 0x0; // Write
       break;
     default:
       return set_err(EINVAL);
@@ -1191,25 +1194,26 @@ bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
   // D8 15 0 D1 06 7B 0 0 2 0 1 1 4F C2 A0 B0     // SMART Read thresholds
   // D8 15 0 D4 06 7B 0 0 0 0 0 1 4F C2 A0 B0     // SMART Execute self test
   // D7  0 0  0 06 7B 0 0 0 0 0 0 0 0 0 0         // Read status registers, Reads 16 bytes of data
+  // Additional DATA OUT support based on document from Prolific
 
   // Build pass through command
   unsigned char cdb[16];
-  cdb[ 0] = 0xD8;  // Prolific ATA pass through? (OPERATION CODE)
-  cdb[ 1] = 0x15;  // Magic?
-  cdb[ 2] = 0x0;   // Always 0?
-  cdb[ 3] = in.in_regs.features;        // SMART command
-  cdb[ 4] = 0x06;  // VendorID magic? (Prolific VendorID: 0x067B)
-  cdb[ 5] = 0x7B;  // VendorID magic? (Prolific VendorID: 0x067B)
-  cdb[ 6] = 0;     // Always 0?
-  cdb[ 7] = 0;     // Always 0?
-  cdb[ 8] = (unsigned char)(io_hdr.dxfer_len >> 8);     // 2 when reading a sector
-  cdb[ 9] = (unsigned char)(io_hdr.dxfer_len     );     // Always 0? - Seems ok
-  cdb[10] = in.in_regs.sector_count;    // 0 when starting selftest
-  cdb[11] = in.in_regs.lba_low;         // LBA(7:0)   - Works for Log Address!
-  cdb[12] = in.in_regs.lba_mid;         // LBA(15:8)  - 0x4F
-  cdb[13] = in.in_regs.lba_high;        // LBA(23:16) - 0xC2
-  cdb[14] = 0xA0;                       // Is A0 for both drives attached
-  cdb[15] = in.in_regs.command;         // ATA command
+  cdb[ 0] = 0xD8;         // Operation Code (D8 = Prolific ATA pass through)
+  cdb[ 1] = cmd_rw|0x5;   // Read(0x10)/Write(0x0) | NORMAL(0x5)/PREFIX(0x0)(?)
+  cdb[ 2] = 0x0;          // Reserved
+  cdb[ 3] = in.in_regs.features;        // Feature register (SMART command)
+  cdb[ 4] = 0x06;         // Check Word (VendorID magic, Prolific: 0x067B)
+  cdb[ 5] = 0x7B;         // Check Word (VendorID magic, Prolific: 0x067B)
+  cdb[ 6] = (unsigned char)(io_hdr.dxfer_len >> 24);  // Length MSB
+  cdb[ 7] = (unsigned char)(io_hdr.dxfer_len >> 16);  // Length ...
+  cdb[ 8] = (unsigned char)(io_hdr.dxfer_len >>  8);  // Length ...
+  cdb[ 9] = (unsigned char)(io_hdr.dxfer_len      );  // Length LSB
+  cdb[10] = in.in_regs.sector_count;    // Sector Count
+  cdb[11] = in.in_regs.lba_low;         // LBA Low (7:0)
+  cdb[12] = in.in_regs.lba_mid;         // LBA Mid (15:8)
+  cdb[13] = in.in_regs.lba_high;        // LBA High (23:16)
+  cdb[14] = in.in_regs.device | 0xA0;   // Device/Head
+  cdb[15] = in.in_regs.command;         // ATA Command Register (only PIO supported)
   // Use '-r scsiioctl,1' to print CDB for debug purposes
 
   io_hdr.cmnd = cdb;
@@ -1229,9 +1233,9 @@ bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
     io_hdr.dxferp = regbuf;
 
     memset(cdb, 0, sizeof(cdb));
-    cdb[ 0] = 0xD7;  // Prolific read registers?
-    cdb[ 4] = 0x06;  // VendorID magic? (Prolific VendorID: 0x067B)
-    cdb[ 5] = 0x7B;  // VendorID magic? (Prolific VendorID: 0x067B)
+    cdb[ 0] = 0xD7;  // Prolific read registers
+    cdb[ 4] = 0x06;  // Check Word (VendorID magic, Prolific: 0x067B)
+    cdb[ 5] = 0x7B;  // Check Word (VendorID magic, Prolific: 0x067B)
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
 
@@ -1241,15 +1245,15 @@ bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
 
     // Use '-r scsiioctl,2' to print input registers for debug purposes
     // Example: 50 00 00 00 00 01 4f 00  c2 00 a0 da 00 b0 00 50
-    // out.out_regs.status       = regbuf[0];  // Guess: Was seen go 51 to indicate error
-    // out.out_regs.error        = regbuf[1];  // Guess: Was seen go 04 to indicate ABRT
-    // out.out_regs.sector_count = regbuf[X];  // Not found...
-    out.out_regs.lba_low      = regbuf[4];  // Found by testing Log Address
-    out.out_regs.lba_mid      = regbuf[6];  // Needed for SMART STATUS
-    out.out_regs.lba_high     = regbuf[8];  // Needed for SMART STATUS
-    out.out_regs.device       = regbuf[10]; // Always A0?
-    //                           = regbuf[11]; // ATA Feature
-    //                           = regbuf[13]; // ATA Command
+    out.out_regs.status       = regbuf[0];  // Status
+    out.out_regs.error        = regbuf[1];  // Error
+    out.out_regs.sector_count = regbuf[2];  // Sector Count (7:0)
+    out.out_regs.lba_low      = regbuf[4];  // LBA Low (7:0)
+    out.out_regs.lba_mid      = regbuf[6];  // LBA Mid (7:0)
+    out.out_regs.lba_high     = regbuf[8];  // LBA High (7:0)
+    out.out_regs.device       = regbuf[10]; // Device/Head
+    //                          = regbuf[11]; // ATA Feature (7:0)
+    //                          = regbuf[13]; // ATA Command
   }
 
   return true;

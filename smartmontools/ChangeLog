@@ -1,5 +1,10 @@
 $Id$
 
+2014-11-29  Tommy Vestermark  <tommy.vestermark@gmail.com>
+
+	scsiata.cpp: Add DATA OUT support for Prolific (ticket #482).
+	Add more ATA output registers.  SCT commands are now supported.
+
 2014-11-29  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Add strnicmp() compatibility macro for newer Cygwin
