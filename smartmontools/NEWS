@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 4005 2014-11-10 22:04:03Z chrfranke $
+$Id: NEWS 4010 2014-11-29 17:17:41Z chrfranke $
 
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
@@ -14,6 +14,7 @@ Summary: smartmontools release 6.4
   available.
 - Linux: AACRAID fixes, SMART STATUS should work now.
 - Darwin: '-S' command implemented, '-l devstat' should work now.
+- Cygwin: Compile fix.
 
 Date 2014-07-26
 Summary: smartmontools release 6.3

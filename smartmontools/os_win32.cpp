@@ -95,7 +95,13 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3923 2014-06-25 17:10:46Z chrfranke $";
+// Cygwin does no longer provide strnicmp() compatibility macro
+// MSVCRT does not provide strncasecmp()
+#if defined(__CYGWIN__) && !defined(strnicmp)
+#define strnicmp strncasecmp
+#endif
+
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4010 2014-11-29 17:17:41Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files

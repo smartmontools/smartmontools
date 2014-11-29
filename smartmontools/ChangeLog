@@ -1,4 +1,9 @@
-$Id: ChangeLog 4008 2014-11-16 15:52:40Z chrfranke $
+$Id: ChangeLog 4010 2014-11-29 17:17:41Z chrfranke $
+
+2014-11-29  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add strnicmp() compatibility macro for newer Cygwin
+	releases.
 
 2014-11-16  Tommy Vestermark  <tommy.vestermark@gmail.com>
 
