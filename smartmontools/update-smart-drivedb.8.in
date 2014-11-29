@@ -2,7 +2,7 @@
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
 Copyright (C) 2014 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: update-smart-drivedb.8.in 4012 2014-11-29 20:15:09Z chrfranke $
+$Id: update-smart-drivedb.8.in 4013 2014-11-29 21:49:02Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,9 +21,6 @@ update-smart-drivedb \- update smartmontools drive database
 .B update-smart-drivedb
 .RB [ -v ]
 .RI [ DESTFILE ]
-
-.SH PACKAGE VERSION
-CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
 .SH "DESCRIPTION"
 .B update-smart-drivedb
@@ -100,5 +97,7 @@ empty file created if downloaded file was identical.
 This manual page was originally written by
 .BR "Hannes von Haugwitz <hannes@vonhaugwitz.com>" .
 
-.SH SVN ID OF THIS PAGE
-$Id: update-smart-drivedb.8.in 4012 2014-11-29 20:15:09Z chrfranke $
+.SH PACKAGE VERSION
+CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
+.br
+$Id: update-smart-drivedb.8.in 4013 2014-11-29 21:49:02Z chrfranke $

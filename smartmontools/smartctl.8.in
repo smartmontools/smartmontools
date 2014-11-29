@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartctl.8.in 4012 2014-11-29 20:15:09Z chrfranke $
+$Id: smartctl.8.in 4013 2014-11-29 21:49:02Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,9 +24,6 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 .SH SYNOPSIS
 .B smartctl [options] device
-
-.SH PACKAGE VERSION
-CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 
 .SH DESCRIPTION
 .\" %IF NOT OS ALL
@@ -2274,5 +2271,7 @@ publications of the Small Form Factors (SFF) Committee.
 Links to these and other documents may be found on the Links page of the
 \fBsmartmontools\fP Wiki at \fBhttp://www.smartmontools.org/wiki/Links\fP .
 
-.SH SVN ID OF THIS PAGE
-$Id: smartctl.8.in 4012 2014-11-29 20:15:09Z chrfranke $
+.SH PACKAGE VERSION
+CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
+.br
+$Id: smartctl.8.in 4013 2014-11-29 21:49:02Z chrfranke $
