@@ -3,7 +3,8 @@ $Id$
 2014-11-29  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
-	Add package title to page header.
+	Add package title to page header.  Move PACKAGE VERSION section to bottom
+	of page.  Remove SVN ID section header.
 
 2014-11-29  Tommy Vestermark  <tommy.vestermark@gmail.com>
 

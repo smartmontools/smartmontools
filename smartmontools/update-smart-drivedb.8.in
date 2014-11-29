@@ -22,9 +22,6 @@ update-smart-drivedb \- update smartmontools drive database
 .RB [ -v ]
 .RI [ DESTFILE ]
 
-.SH PACKAGE VERSION
-CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
-
 .SH "DESCRIPTION"
 .B update-smart-drivedb
 updates
@@ -100,5 +97,7 @@ empty file created if downloaded file was identical.
 This manual page was originally written by
 .BR "Hannes von Haugwitz <hannes@vonhaugwitz.com>" .
 
-.SH SVN ID OF THIS PAGE
+.SH PACKAGE VERSION
+CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
+.br
 $Id$

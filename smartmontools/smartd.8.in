@@ -25,9 +25,6 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .SH SYNOPSIS
 .B smartd [options]
 
-.SH PACKAGE VERSION
-CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
-
 .SH DESCRIPTION
 .\" %IF NOT OS ALL
 .\"! [This man page is generated for the OS_MAN_FILTER version of smartmontools.
@@ -790,5 +787,7 @@ publications of the Small Form Factors (SFF) Committee.
 Links to these and other documents may be found on the Links page of the
 \fBsmartmontools\fP Wiki at \fBhttp://www.smartmontools.org/wiki/Links\fP .
 
-.SH SVN ID OF THIS PAGE
+.SH PACKAGE VERSION
+CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
+.br
 $Id$
