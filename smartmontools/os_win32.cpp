@@ -95,6 +95,12 @@
 #define SELECT_WIN_32_64(x32, x64) (x64)
 #endif
 
+// Cygwin does no longer provide strnicmp() compatibility macro
+// MSVCRT does not provide strncasecmp()
+#if defined(__CYGWIN__) && !defined(strnicmp)
+#define strnicmp strncasecmp
+#endif
+
 const char * os_win32_cpp_cvsid = "$Id$";
 
 /////////////////////////////////////////////////////////////////////////////

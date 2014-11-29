@@ -14,6 +14,7 @@ Summary: smartmontools release 6.4
   available.
 - Linux: AACRAID fixes, SMART STATUS should work now.
 - Darwin: '-S' command implemented, '-l devstat' should work now.
+- Cygwin: Compile fix.
 
 Date 2014-07-26
 Summary: smartmontools release 6.3
