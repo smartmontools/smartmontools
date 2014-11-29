@@ -1,4 +1,9 @@
-$Id: ChangeLog 4010 2014-11-29 17:17:41Z chrfranke $
+$Id: ChangeLog 4011 2014-11-29 18:43:13Z chrfranke $
+
+2014-11-29  Tommy Vestermark  <tommy.vestermark@gmail.com>
+
+	scsiata.cpp: Add DATA OUT support for Prolific (ticket #482).
+	Add more ATA output registers.  SCT commands are now supported.
 
 2014-11-29  Christian Franke  <franke@computer.org>
 
