@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 4004 2014-11-10 21:07:18Z chrfranke $
+$Id: smartd.conf.5.in 4012 2014-11-29 20:15:09Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
-.TH SMARTD.CONF 5 CURRENT_SVN_DATE CURRENT_SVN_VERSION CURRENT_SVN_DATE
+.TH SMARTD.CONF 5 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File\fP
 
@@ -1587,4 +1587,4 @@ full path of this file.
 \fBmail\fP(1), \fBregex\fP(7).
 
 .SH SVN ID OF THIS PAGE
-$Id: smartd.conf.5.in 4004 2014-11-10 21:07:18Z chrfranke $
+$Id: smartd.conf.5.in 4012 2014-11-29 20:15:09Z chrfranke $
