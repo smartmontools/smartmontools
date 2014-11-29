@@ -18,7 +18,7 @@ Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
-.TH SMARTD.CONF 5 CURRENT_SVN_DATE CURRENT_SVN_VERSION CURRENT_SVN_DATE
+.TH SMARTD.CONF 5 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File\fP
 

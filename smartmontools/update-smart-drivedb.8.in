@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License
 (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 
 ..
-.TH UPDATE-SMART-DRIVEDB 8 CURRENT_SVN_DATE CURRENT_SVN_VERSION CURRENT_SVN_DATE
+.TH UPDATE-SMART-DRIVEDB 8 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
 .SH NAME
 update-smart-drivedb \- update smartmontools drive database
 

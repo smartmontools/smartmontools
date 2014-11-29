@@ -1,5 +1,10 @@
 $Id$
 
+2014-11-29  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
+	Add package title to page header.
+
 2014-11-29  Tommy Vestermark  <tommy.vestermark@gmail.com>
 
 	scsiata.cpp: Add DATA OUT support for Prolific (ticket #482).

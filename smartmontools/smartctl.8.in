@@ -18,7 +18,7 @@ Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
-.TH SMARTCTL 8 CURRENT_SVN_DATE CURRENT_SVN_VERSION CURRENT_SVN_DATE
+.TH SMARTCTL 8 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
 .SH NAME
 \fBsmartctl\fP \- Control and Monitor Utility for SMART Disks
 
