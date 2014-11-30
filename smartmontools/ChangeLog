@@ -4,6 +4,7 @@ $Id$
 
 	drivedb.h: USB: Prolific PL2571, PL2771, PL2775 (0x067b:0x2.7.)
 	(ticket #499).
+	smartctl.8.in, smartd.conf.5.in: Update '-d usbprolific' documentation.
 
 2014-11-29  Christian Franke  <franke@computer.org>
 
