@@ -221,8 +221,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Crucial/Micron RealSSD m4/C400/P400", // Marvell 9176, fixed firmware
     "C400-MTFDDA[ACK](064|128|256|512)MAM|"
     "M4-CT(064|128|256|512)M4SSD[123]|" // tested with M4-CT512M4SSD2/0309
-    "MTFDDAK(064|128|256|512|050|100|200|400)MA[RN]-1[JKS]1AA.*", // tested with
-                                             // MTFDDAK256MAR-1K1AA/MA52
+    "MTFDDAK(064|128|256|512|050|100|200|400)MA[MNR]-1[JKS]1.*", // tested with
+       // MTFDDAK256MAR-1K1AA/MA52, MTFDDAK256MAM-1K12/08TH
     "030[9-Z]|03[1-Z].|0[4-Z]..|[1-Z]....*", // >= "0309"
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -270,11 +270,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
-  { "Crucial/Micron MX100/M500/M510/M550 Client SSDs",
+  { "Crucial/Micron MX100/M500/M510/M550/M600 Client SSDs",
     "Crucial_CT(128|256|512)MX100SSD1|"// tested with Crucial_CT256MX100SSD1/MU01
+    "Crucial_CT(120|240|480|960)M500SSD1|" // tested with Crucial_CT960M500SSD1/MU03
+    "Crucial_CT(128|256|512|1024)M550SSD[13]|" // tested with Crucial_CT512M550SSD3/MU01, Crucial_CT1024M550SSD1/MU01
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
     "(Micron_)?M510[_-]MTFDDA[KTV](128|256)MAZ|" // tested with M510-MTFDDAK256MAZ/MU01
-    "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY", // tested with M550-MTFDDAK256MAY/MU01
+    "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY|" // tested with M550-MTFDDAK256MAY/MU01
+    "Micron_M600_MTFDDA[KTV](128|256|512|1T0)MBF", // tested with Micron_M600_MTFDDAK1T0MBF/MU01
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
@@ -332,7 +335,8 @@ const drive_settings builtin_knowndrives[] = {
       // ADATA SSD S599 256GB/3.1.0, 64GB/3.4.6
     "ADATA SP[389]00|" // tested with ADATA SP300/5.0.2d, SP800/5.0.6c,
       // ADATA SP900/5.0.6 (Premier Pro, SF-2281)
-    "ADATA SSD SP900 (64|128|256)GB-DL2|" // tested with ADATA SSD SP900 256GB-DL2/5.0.6
+    "ADATA SSD S[PX]900 (64|128|256|512)GB-DL2|" // tested with ADATA SSD SP900 256GB-DL2/5.0.6,
+      // ADATA SSD SX900 512GB-DL2/5.8.2
     "ADATA XM11 (128|256)GB|" // tested with ADATA XM11 128GB/5.0.1
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
@@ -354,6 +358,8 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON (SV300|SKC100|SE100)S3.*G|" // other SF-2281
     "MKNSSDCR(45|60|90|120|180|240|480)GB(-DX)?|" // Mushkin Chronos (deluxe), SF-2281,
       // tested with MKNSSDCR120GB
+    "MKNSSDAT(30|40|60|120|180|240|480)GB(-(DX|V))?|" // Mushkin Atlas (Deluxe/Value), mSATA, SF-2281,
+      // tested with MKNSSDAT120GB-V/540ABBF0
     "Mushkin MKNSSDCL(40|60|80|90|115|120|180|240|480)GB-DX2?|" // Mushkin Callisto deluxe,
       // SF-1200/1222, Mushkin MKNSSDCL60GB-DX/361A13F0
     "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX(2|-LE))( [123]\\..*)?|" // SF-1200,
@@ -623,8 +629,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
   },
-  { "Intel 313 Series SSDs", // tested with INTEL SSDSA2VP020G3/9CV10379
-    "INTEL SSDSA2VP(020|024)G3",
+  { "Intel 311/313 Series SSDs", // tested with INTEL SSDSA2VP020G2/2CV102M5,
+      // INTEL SSDSA2VP020G3/9CV10379,
+    "INTEL SSDSA2VP(020|024)G[23]", // G3 = 313 Series
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
