@@ -1,5 +1,15 @@
 $Id$
 
+
+2014-11-30  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD m4/C400/P400: C400 *MAM variant
+	- Crucial/Micron MX100/M500/M510/M550/M600 Client SSDs: Rename,
+	add Crucial M500/M550, Micron M600
+	- SandForce Driven SSDs: ADATA SX900 (ticket #490), Mushkin Atlas
+	- Intel 311/313 Series SSDs: Rename, add 311 Series
+
 2014-11-30  Christian Franke  <franke@computer.org>
 
 	drivedb.h: USB: Prolific PL2571, PL2771, PL2775 (0x067b:0x2.7.)
