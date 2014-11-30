@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 4013 2014-11-29 21:49:02Z chrfranke $
+$Id: smartd.conf.5.in 4016 2014-11-30 15:29:17Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -374,9 +374,9 @@ Newer Prolific firmware requires a modified command which can be selected by
 Note that this does not yet support the SMART status command.
 
 .I usbprolific
-\- this device type is for SATA disks that are behind a Prolific P2773 USB to
-SATA bridge. This driver may work with other Prolific P277x devices - this is
-however untested.
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+this device type is for SATA disks that are behind a Prolific PL2571/2771/2773/2775
+USB to SATA bridge.
 
 .I usbsunplus
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
@@ -1586,4 +1586,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 4013 2014-11-29 21:49:02Z chrfranke $
+$Id: smartd.conf.5.in 4016 2014-11-30 15:29:17Z chrfranke $
