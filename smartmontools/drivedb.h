@@ -3276,8 +3276,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,0" // Port number is required
   },
-  { "USB: ; Prolific PL2773", // USB->SATA
-    "0x067b:0x2773",
+  { "USB: ; Prolific PL2571/2771/2773/2775", // USB->SATA, USB3->SATA,
+    "0x067b:0x(2571|277[135])",              // USB3+eSATA->SATA, USB3->2xSATA
     "",
     "",
     "-d usbprolific"

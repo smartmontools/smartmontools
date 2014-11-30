@@ -1,5 +1,10 @@
 $Id$
 
+2014-11-30  Christian Franke  <franke@computer.org>
+
+	drivedb.h: USB: Prolific PL2571, PL2771, PL2775 (0x067b:0x2.7.)
+	(ticket #499).
+
 2014-11-29  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
