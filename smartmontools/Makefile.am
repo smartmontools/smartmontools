@@ -255,8 +255,8 @@ endif
 all-local: $(extra_MANS)
 install-man: $(extra_MANS)
 	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(mandir)/man4
-	$(mkinstalldirs) $(DESTDIR)$(mandir)/man1m
+	$(mkinstalldirs) '$(DESTDIR)$(mandir)/man4'
+	$(mkinstalldirs) '$(DESTDIR)$(mandir)/man1m'
 	for i in $(extra_MANS); do \
 	  if test -f $(srcdir)/$$i; then file=$(srcdir)/$$i; \
 	  else file=$$i; fi; \
@@ -264,8 +264,8 @@ install-man: $(extra_MANS)
 	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
 	  inst=`echo $$inst | sed -e 's/^.*\///'`; \
 	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
-	  echo " $(INSTALL_DATA) $$file $(DESTDIR)$(mandir)/man$$ext/$$inst"; \
-	  $(INSTALL_DATA) $$file $(DESTDIR)$(mandir)/man$$ext/$$inst; \
+	  echo " $(INSTALL_DATA) '$$file' '$(DESTDIR)$(mandir)/man$$ext/$$inst'"; \
+	  $(INSTALL_DATA) "$$file" "$(DESTDIR)$(mandir)/man$$ext/$$inst"; \
 	done
 uninstall-man:
 	@$(NORMAL_UNINSTALL)
@@ -276,8 +276,8 @@ uninstall-man:
 	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
 	  inst=`echo $$inst | sed -e 's/^.*\///'`; \
 	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
-	  echo " rm -f $(DESTDIR)$(mandir)/man$$ext/$$inst"; \
-	  rm -f $(DESTDIR)$(mandir)/man$$ext/$$inst; \
+	  echo " rm -f '$(DESTDIR)$(mandir)/man$$ext/$$inst'"; \
+	  rm -f "$(DESTDIR)$(mandir)/man$$ext/$$inst"; \
 	done
 else
 # For systems that adopts traditional manner
@@ -320,7 +320,7 @@ sysconf_DATA = smartd.conf
 
 # If modified smartd.conf exists install smartd.conf.sample instead
 install-sysconfDATA: $(sysconf_DATA)
-	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)
+	$(mkinstalldirs) '$(DESTDIR)$(sysconfdir)'
 	@s="$(srcdir)/smartd.conf"; \
 	f="$(DESTDIR)$(sysconfdir)/smartd.conf$(smartd_suffix)"; \
 	if test -z "$(smartd_suffix)" && test -f "$$f"; then \
@@ -332,7 +332,7 @@ install-sysconfDATA: $(sysconf_DATA)
 	    f="$$f".sample; \
 	  fi; \
 	fi; \
-	echo " $(INSTALL_DATA) $$s $$f"; \
+	echo " $(INSTALL_DATA) '$$s' '$$f'"; \
 	$(INSTALL_DATA) "$$s" "$$f"
 
 # If smartd.conf.sample exists preserve smartd.conf
@@ -345,7 +345,7 @@ uninstall-sysconfDATA:
 	  echo "************************************************************"; \
 	  f="$$f".sample; \
 	fi; \
-	echo " rm -f $$f"; \
+	echo " rm -f '$$f'"; \
 	rm -f "$$f"
 
 smartdscript_SCRIPTS = smartd_warning.sh
@@ -502,12 +502,11 @@ initd_DATA_install = install-initdDATA-generic
 initd_DATA_uninstall = uninstall-initdDATA-generic
 
 install-initdDATA-generic: $(initd_DATA)
-	$(mkinstalldirs) $(DESTDIR)$(initddir)
-	$(INSTALL_SCRIPT) $(top_builddir)/@initdfile@ $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
-
+	$(mkinstalldirs) '$(DESTDIR)$(initddir)'
+	$(INSTALL_SCRIPT) '$(top_builddir)/@initdfile@' '$(DESTDIR)$(initddir)/smartd$(smartd_suffix)'
 
 uninstall-initdDATA-generic:
-	rm -rf $(DESTDIR)$(initddir)/$(initd_install_name)
+	rm -f '$(DESTDIR)$(initddir)/$(initd_install_name)'
 endif
 else
 
@@ -542,7 +541,7 @@ smartd.service: smartd.service.in Makefile
 installdirs-local:
 	@for d in '$(smartdplugindir)' '$(savestatesdir)' '$(attributelogdir)'; do \
 	  test -n "$$d" || continue; \
-	  echo "$(mkinstalldirs) $(DESTDIR)$$d"; \
+	  echo " $(mkinstalldirs) '$(DESTDIR)$$d'"; \
 	  $(mkinstalldirs) "$(DESTDIR)$$d" || exit 1; \
 	done
 
