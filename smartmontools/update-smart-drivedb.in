@@ -2,7 +2,7 @@
 #
 # smartmontools drive database update script
 #
-# Copyright (C) 2010-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+# Copyright (C) 2010-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ chmod 0644 "$DEST.new"
 
 # Check syntax
 rm -f "$DEST.error"
-if $SMARTCTL -B "$DEST.new" -P showall >/dev/null; then :; else
+if "$SMARTCTL" -B "$DEST.new" -P showall >/dev/null; then :; else
   mv "$DEST.new" "$DEST.error"
   echo "$DEST.error: rejected by $SMARTCTL, probably no longer compatible" >&2
   exit 1

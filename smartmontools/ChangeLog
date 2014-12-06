@@ -1,5 +1,8 @@
 $Id$
 
+2014-12-06  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add quotes to SMARTCTL variable (ticket #502).
 
 2014-11-30  Christian Franke  <franke@computer.org>
 
