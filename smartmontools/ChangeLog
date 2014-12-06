@@ -1,7 +1,9 @@
-$Id: ChangeLog 4019 2014-12-06 20:12:50Z chrfranke $
+$Id: ChangeLog 4020 2014-12-06 20:26:28Z chrfranke $
 
 2014-12-06  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Add quotes to parameters of INSTALL commands to allow path
+	names with spaces (this is supported since automake 1.8).
 	update-smart-drivedb.in: Add quotes to SMARTCTL variable (ticket #502).
 
 2014-11-30  Christian Franke  <franke@computer.org>
