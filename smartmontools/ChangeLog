@@ -1,5 +1,15 @@
 $Id$
 
+2014-12-07  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron MX100/M500/M510/M550/M600 Client SSDs: M600 EE variant
+	- SandForce Driven SSDs: Kingston KC300 180GB
+	- Indilinx Barefoot 3 based SSDs: OCZ Vector 150
+	- JMicron based SSDs: Kingston SSDNow V+
+	- Plextor M3/M5 (Pro) Series SSDs: M5P
+	- Samsung based SSDs: 850 PRO, SM853T Series
+
 2014-12-06  Christian Franke  <franke@computer.org>
 
 	Makefile.am: Add quotes to parameters of INSTALL commands to allow path
