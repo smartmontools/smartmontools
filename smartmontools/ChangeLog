@@ -2,6 +2,10 @@ $Id$
 
 2014-12-07  Christian Franke  <franke@computer.org>
 
+	os_linux.cpp: Fix fd leak in megasas_dcmd_cmd().  Found by cppcheck.
+
+2014-12-07  Christian Franke  <franke@computer.org>
+
 	drivedb.h:
 	- Crucial/Micron MX100/M500/M510/M550/M600 Client SSDs: M600 EE variant
 	- SandForce Driven SSDs: Kingston KC300 180GB

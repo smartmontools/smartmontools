@@ -2948,6 +2948,7 @@ linux_smart_interface::megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
   }
 
   int r = ioctl(fd, MEGASAS_IOC_FIRMWARE, &ioc);
+  ::close(fd);
   if (r < 0) {
     return (r);
   }
