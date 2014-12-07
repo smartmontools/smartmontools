@@ -277,7 +277,7 @@ const drive_settings builtin_knowndrives[] = {
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
     "(Micron_)?M510[_-]MTFDDA[KTV](128|256)MAZ|" // tested with M510-MTFDDAK256MAZ/MU01
     "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY|" // tested with M550-MTFDDAK256MAY/MU01
-    "Micron_M600_MTFDDA[KTV](128|256|512|1T0)MBF", // tested with Micron_M600_MTFDDAK1T0MBF/MU01
+    "Micron_M600_(EE|MT)FDDA[KTV](128|256|512|1T0)MBF[25Z]?", // tested with Micron_M600_MTFDDAK1T0MBF/MU01
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
@@ -349,8 +349,8 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SE50S3(100|240|480)G|" // tested with SE50S3100G/KE1ABBF0
     "KINGSTON SH10[03]S3(90|120|240|480)G|" // HyperX (3K), SF-2281, tested with
       // SH100S3240G/320ABBF0, SH103S3120G/505ABBF0
-    "KINGSTON SKC(300S37A|380S3)(60|120|240|480)G|" // SF-2281, tested with SKC300S37A120G/KC4ABBF0,
-      // SKC380S3120G/507ABBF0
+    "KINGSTON SKC(300S37A|380S3)(60|120|180|240|480)G|" // KC300, SF-2281, tested with
+      // SKC300S37A120G/KC4ABBF0, SKC380S3120G/507ABBF0
     "KINGSTON SVP200S3(7A)?(60|90|120|240|480)G|" // V+ 200, SF-2281, tested with
       // SVP200S37A480G/502ABBF0, SVP200S390G/332ABBF0
     "KINGSTON SMS200S3(30|60|120)G|" // mSATA, SF-2241, tested with SMS200S3120G/KC3ABBF0
@@ -487,6 +487,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Indilinx Barefoot 3 based SSDs",
     "OCZ-VECTOR|" // tested with OCZ-VECTOR/1.03
+    "OCZ-VECTOR150|" // tested with OCZ-VECTOR150/1.2
     "OCZ-VERTEX450", // tested with OCZ-VERTEX450/1.0 (Barefoot 3 M10)
     "", "", ""
     "-v 5,raw48,Runtime_Bad_Block "
@@ -893,6 +894,7 @@ const drive_settings builtin_knowndrives[] = {
                                     // tested with KINGSTON SNV425S264GB/C091126a
     "KINGSTON SSDNOW 30GB|" // tested with KINGSTON SSDNOW 30GB/AJXA0202
     "KINGSTON SS100S2(8|16)G|"  // SSDNow S100 Series, tested with KINGSTON SS100S28G/D100309a
+    "KINGSTON SNVP325S2(64|128|256|512)GB|" // SSDNow V+ Series, tested with KINGSTON SNVP325S2128GB/AGYA0201
     "KINGSTON SVP?100S2B?(64|96|128|256|512)G|"  // SSDNow V100/V+100 Series,
       // tested with KINGSTON SVP100S296G/CJR10202, KINGSTON SV100S2256G/D110225a
     "KINGSTON SV200S3(64|128|256)G|" // SSDNow V200 Series, tested with KINGSTON SV200S3128G/E120506a
@@ -922,11 +924,11 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 197,raw48,Current_Pending_Sector "
     "-v 240,raw48,Unknown_Attribute"
   },
-  { "Plextor M3/M5 (Pro) Series SSDs", // Marvell 88SS9174 (M3, M5S), 88SS9187 (M5Pro), tested with
+  { "Plextor M3/M5 (Pro) Series SSDs", // Marvell 88SS9174 (M3, M5S), 88SS9187 (M5P, M5Pro), tested with
       // PLEXTOR PX-128M3/1.01, PX-128M3P/1.04, PX-256M3/1.05, PX-128M5S/1.02, PX-256M5S/1.03,
-      // PX-128M5M/1.05, PX-128M5S/1.05, PX-128M5Pro/1.05, PX-512M5Pro/1.06
+      // PX-128M5M/1.05, PX-128M5S/1.05, PX-128M5Pro/1.05, PX-512M5Pro/1.06, PX-256M5P/1.01
       // (1.04/5 Firmware self-test log lifetime unit is bogus, possibly 1/256 hours)
-    "PLEXTOR PX-(64|128|256|512)M(3P?|5[MS]|5Pro)",
+    "PLEXTOR PX-(64|128|256|512)M(3P?|5[MPS]|5Pro)",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -952,10 +954,14 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG SSD 830 Series|"  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
     "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
       // Samsung SSD 840 Series/DXT06B0Q
-    "Samsung SSD 840 EVO ([0-9]*G|1T)B( mSATA)?|"  // tested with Samsung SSD 840 EVO (120|250|500)GB/EXT0AB0Q,
+    "Samsung SSD 840 EVO ((120|250|500)G|1T)B( mSATA)?|" // tested with Samsung SSD 840 EVO (120|250|500)GB/EXT0AB0Q,
       // Samsung SSD 840 EVO (120|250)GB/EXT0BB6Q, 1TB/EXT0BB0Q, 120GB mSATA/EXT41B6Q
-    "SAMSUNG MZ7WD((120|240)HAFV|480HAGM|960HAGP)-00003", // SM843T Series, tested with
+    "Samsung SSD 850 PRO ((128|256|512)G|1T)B|" // tested with Samsung SSD 850 PRO 128GB/EXM01B6Q,
+      // Samsung SSD 850 PRO 1TB/EXM01B6Q
+    "SAMSUNG MZ7WD((120|240)HAFV|480HAGM|960HAGP)-00003|" // SM843T Series, tested with
       // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q
+    "SAMSUNG MZ7GE(240HMGR|(480|960)HMHP)-00003", // SM853T Series, tested with
+      // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
