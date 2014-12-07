@@ -1,4 +1,8 @@
-$Id: ChangeLog 4021 2014-12-07 16:26:32Z chrfranke $
+$Id: ChangeLog 4023 2014-12-07 17:44:49Z chrfranke $
+
+2014-12-07  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Fix fd leak in megasas_dcmd_cmd().  Found by cppcheck.
 
 2014-12-07  Christian Franke  <franke@computer.org>
 

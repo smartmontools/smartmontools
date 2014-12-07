@@ -99,7 +99,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4003 2014-11-09 16:43:07Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4023 2014-12-07 17:44:49Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -2948,6 +2948,7 @@ linux_smart_interface::megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
   }
 
   int r = ioctl(fd, MEGASAS_IOC_FIRMWARE, &ioc);
+  ::close(fd);
   if (r < 0) {
     return (r);
   }
