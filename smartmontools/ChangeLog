@@ -1,5 +1,19 @@
 $Id$
 
+2014-12-08  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Hitachi Travelstar 5K500.B: *SA00 variant
+	- Hitachi/HGST Travelstar Z5K500: Hitachi variant, Apple OEM
+	- HGST Travelstar 5K1000
+	- HGST Travelstar 5K1500
+	- Hitachi Travelstar 7K500: *A360 variant
+	- Hitachi CinemaStar 5K320
+	- Hitachi Deskstar 7K1000.C: SATA 6Gb/s variants
+	- HGST Deskstar NAS
+	- Hitachi/HGST Ultrastar 7K4000: Rename, add HGST
+	- HGST MegaScale 4000
+
 2014-12-07  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp: Fix fd leak in megasas_dcmd_cmd().  Found by cppcheck.

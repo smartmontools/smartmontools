@@ -1912,17 +1912,27 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi |HITACHI )?HT(S|E)5432(80|12|16|25|32)L9(A3(00)?|SA0[012])",
     "", "", ""
   },
-  { "Hitachi Travelstar 5K500.B",
-    "(Hitachi )?HT[ES]5450(12|16|25|32|40|50)B9A30[01]",
+  { "Hitachi Travelstar 5K500.B", // tested with Hitachi HTS545050B9SA00/PB4OC60X
+    "(Hitachi )?HT[ES]5450(12|16|25|32|40|50)B9(A30[01]|SA00)",
     "", "", ""
   },
-  { "Hitachi/HGST Travelstar Z5K500", // tested with HGST HTS545050A7E380/GG2OAC90
-    "HGST HT[ES]5450(25|32|50)A7E38[01]",
+  { "Hitachi/HGST Travelstar Z5K500", // tested with HGST HTS545050A7E380/GG2OAC90,
+      // Hitachi HTS545032A7E380/GGBOA7A0, APPLE HDD HTS545050A7E362/GG2AB990
+    "(Hitachi|HGST|APPLE HDD) HT[ES]5450(25|32|50)A7E3(62|8[01])",
     "", "", ""
   },
   { "Hitachi/HGST Travelstar 5K750", // tested with Hitachi HTS547575A9E384/JE4OA60A,
        // APPLE HDD HTS547550A9E384/JE3AD70F
     "(Hitachi|APPLE HDD) HT[ES]5475(50|64|75)A9E38[14]",
+    "", "", ""
+  },
+  { "HGST Travelstar 5K1000", // tested with HGST HTS541010A9E680/JA0OA560,
+      // HGST HTS541075A9E680/JA2OA560
+    "HGST HT[ES]5410(64|75|10)A9E68[01]",
+    "", "", ""
+  },
+  { "HGST Travelstar 5K1500", // tested with HGST HTS541515A9E630/KA0OA500
+    "HGST HT[ES]541515A9E63[015]",
     "", "", ""
   },
   { "Hitachi Travelstar 7K60",
@@ -1954,8 +1964,8 @@ const drive_settings builtin_knowndrives[] = {
     "(HITACHI )?HT[ES]7232(16|25|32)A7A36[145]",
     "", "", ""
   },
-  { "Hitachi Travelstar 7K500",
-    "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[2-5]",
+  { "Hitachi Travelstar 7K500", // tested with Hitachi HTS725050A9A360/PC4OC70D
+    "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[02-5]",
     "", "", ""
   },
   { "Hitachi/HGST Travelstar Z7K500", // tested with HITACHI HTS725050A7E630/GH2ZB390,
@@ -1990,6 +2000,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "IBM/Hitachi Deskstar GXP-180",
     "(IBM-)?IC35L(030|060|090|120|180)AVV207-[01]",
+    "", "", ""
+  },
+  { "Hitachi CinemaStar 5K320", // tested with Hitachi HCS5C3225SLA380/STBOA37H
+    "Hitachi HCS5C32(25|32)SLA380",
     "", "", ""
   },
   { "Hitachi Deskstar 5K3000", // tested with HDS5C3030ALA630/MEAOA5C0,
@@ -2045,8 +2059,9 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HDT7210((16|25)SLA380|(32|50|64|75|10)SLA360)",
     "", "", ""
   },
-  { "Hitachi Deskstar 7K1000.C", // tested with Hitachi HDS721010CLA330/JP4OA3MA
-    "(Hitachi )?HDS7210((16|25)CLA382|(32|50)CLA362|(64|75|10)CLA33[02])",
+  { "Hitachi Deskstar 7K1000.C", // tested with Hitachi HDS721010CLA330/JP4OA3MA,
+      // Hitachi HDS721025CLA682/JP1OA41A
+    "(Hitachi )?HDS7210((16|25)CLA[36]82|(32|50)CLA[36]62|(64|75|10)CLA[36]3[02])",
     "", "", ""
   },
   { "Hitachi Deskstar 7K1000.D", // tested with HDS721010DLE630/MS2OA5Q0
@@ -2069,6 +2084,10 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HDS724040ALE640",
     "", "", ""
   },
+  { "HGST Deskstar NAS", // tested with HGST HDN724040ALE640/MJAOA5E0
+    "HGST HDN72(4030|4040|6050|6060)ALE640",
+    "", "", ""
+  },
   { "Hitachi Ultrastar A7K1000", // tested with
     // HUA721010KLA330      44X2459 42C0424IBM/GKAOAB4A
     "(Hitachi )?HUA7210(50|75|10)KLA330.*",
@@ -2083,8 +2102,13 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HUA7230(20|30)ALA640",
     "", "", ""
   },
-  { "Hitachi Ultrastar 7K4000", // tested with Hitachi HUS724040ALE640/MJAOA3B0
-    "Hitachi HUS7240(20|30|40)ALE640",
+  { "Hitachi/HGST Ultrastar 7K4000", // tested with Hitachi HUS724040ALE640/MJAOA3B0,
+      // HGST HUS724040ALE640/MJAOA580, HGST HUS724020ALA640/MF6OAA70
+    "(Hitachi|HGST) HUS7240(20|30|40)AL[AE]64[01]",
+    "", "", ""
+  },
+  { "HGST MegaScale 4000", // tested with HGST HMS5C4040ALE640/MPAOA580
+    "HGST HMS5C4040[AB]LE64[01]", // B = DC 4000.B
     "", "", ""
   },
   { "Toshiba 2.5\" HDD (10-20 GB)",
