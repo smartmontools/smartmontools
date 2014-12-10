@@ -2760,8 +2760,9 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((16|20|25|32|40|50|64|75)00AAKS|1602ABKS|10EALS)-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Blue (SATA 6Gb/s)", // tested with WDC WD10EZEX-00RKKA0/80.00A80
-    "WDC WD((25|32|50)00AAKX|7500AALX|10EALX|10EZEX)-.*",
+  { "Western Digital Blue", // tested with WDC WD5000AZLX-00K4KA0/80.00A80,
+      // WDC WD10EZEX-00RKKA0/80.00A80,
+    "WDC WD((25|32|50)00AAK|5000AZL|7500AAL|10EAL|10EZE)X-.*",
     "", "", ""
   },
   { "Western Digital RE Serial ATA",
@@ -2780,8 +2781,9 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((25|32|50|75)02A|(75|10)02F)BYS-.*",
     "", "", ""
   },
-  { "Western Digital RE4", // tested with WDC WD2003FYYS-18W0B0/01.01D02
-    "WDC WD((((25|50)03A|1003F)BYX)|((15|20)03FYYS))-.*",
+  { "Western Digital RE4", // tested with WDC WD2003FYYS-18W0B0/01.01D02,
+      // WDC WD1003FBYZ-010FB0/01.01V03
+    "WDC WD((25|50)03ABYX|1003FBY[XZ]|(15|20)03FYYS)-.*",
     "", "", ""
   },
   { "Western Digital RE4-GP", // tested with WDC WD2002FYPS-02W3B0/04.01G01
@@ -2807,10 +2809,11 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(((64|75|80)00AA|(10|15|20)EA|(25|30)EZ)R|20EAC)S-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Green (AF, SATA 6Gb/s)", // tested with
+  { "Western Digital Green", // tested with
       // WDC WD10EZRX-00A8LB0/01.01A01, WDC WD20EZRX-00DC0B0/80.00A80,
-      // WDC WD30EZRX-00MMMB0/80.00A80, WDC WD40EZRX-00SPEB0/80.00A80
-    "WDC WD(7500AA|(10|15|20)EA|(10|20|25|30|40)EZ)RX-.*",
+      // WDC WD30EZRX-00MMMB0/80.00A80, WDC WD40EZRX-00SPEB0/80.00A80,
+      // WDC WD60EZRX-00MVLB1/80.00A80
+    "WDC WD(7500AA|(10|15|20)EA|(10|20|25|30|40|50|60)EZ)RX-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black",
@@ -2839,8 +2842,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(7500AURS|10EU[CR]X|(10|15|20|25|30)EURS)-.*",
     "", "", ""
   },
-  { "Western Digital AV-25",
-    "WDC WD((16|25|32|50)00BUD|5000BUC)T-.*",
+  { "Western Digital AV", // tested with DC WD10JUCT-63CYNY0/01.01A01
+    "WDC WD((16|25|32|50)00BU[CD]|5000LUC|10JUC)T-.*",
     "", "", ""
   },
   { "Western Digital Raptor",
@@ -2888,9 +2891,10 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(50|75)00BPKT-.*",
     "", "", ""
   },
-  { "Western Digital Red (AF)", // tested with WDC WD10EFRX-68JCSN0/01.01A01,
-      // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD40EFRX-68WT0N0/80.00A80
-    "WDC WD(10|20|30|40)[EJ]F[CR]X-.*",
+  { "Western Digital Red", // tested with WDC WD10EFRX-68JCSN0/01.01A01,
+      // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD40EFRX-68WT0N0/80.00A80,
+      // WDC WD60EFRX-68MYMN1/82.00A82
+    "WDC WD(7500BFC|10JFC|(10|20|30|40|50|60)EFR)X-.*",
     "", "", ""
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03
@@ -2899,6 +2903,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Green Mobile", // tested with WDC WD20NPVX-00EA4T0/01.01A01
     "WDC WD(15|20)NPV[TX]-.*",
+    "", "", ""
+  },
+  { "Western Digital Black Mobile", // tested with WDC WD7500BPKX-22HPJT0/01.01A01
+    "WDC WD((16|25|32)00BE|(50|75)00BP)KX-.*",
     "", "", ""
   },
   { "Western Digital Elements / My Passport (USB)", // tested with WDC WD5000BMVW-11AMCS0/01.01A01

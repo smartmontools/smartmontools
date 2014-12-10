@@ -1,5 +1,15 @@
 $Id$
 
+2014-12-10  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital Blue: Rename, *AZLX variant
+	- Western Digital RE4: *FBYZ variant
+	- Western Digital Green: Rename, add 5TB, 6TB
+	- Western Digital AV: Rename, add 1TB, *BUCT variant
+	- Western Digital Red: Rename, add 750GB, 5TB, 6TB
+	- Western Digital Black Mobile
+
 2014-12-08  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
