@@ -2,6 +2,19 @@ $Id$
 
 2014-12-13  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- USB: SanDisk SDCZ80 Flash Drive (0x0781:0x5580)
+	- USB: WD My Passport: Merge entries, add 0x1058:0x0810
+	- USB: WD Elements Desktop: Merge entries, add 0x1058:0x107c
+	- USB: WD Elements: Merge entries
+	- USB: JMicron JMS539 (0x152d:0x0539): 2.06 and 28.03 support SAT
+	  (ticket #504)
+	- USB: JMicron JMS567 (0x152d:0x0567) (ticket #504)
+	- USB: JMicron JMS566 (0x152d:0x2566)
+	- USB: Hitachi Touro (0x4971:0x1014)
+
+2014-12-13  Christian Franke  <franke@computer.org>
+
 	utility.cpp, utility.h: Remove unused functions Calloc() and
 	CheckFree().
 
