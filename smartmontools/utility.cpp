@@ -651,35 +651,15 @@ int64_t bytes = 0;
 // Helps debugging.  If the second argument is non-negative, then
 // decrement bytes by that amount.  Else decrement bytes by (one plus)
 // length of null terminated string.
-void *FreeNonZero1(void *address, int size, int line, const char* file){
+void *FreeNonZero(void *address, int size, int /*line*/, const char* /*file*/){
   if (address) {
     if (size<0)
       bytes-=1+strlen((char*)address);
     else
       bytes-=size;
-    return CheckFree1(address, line, file);
+    free(address);
   }
   return NULL;
-}
-
-// To help with memory checking.  Use when it is known that address is
-// NOT null.
-void *CheckFree1(void *address, int /*whatline*/, const char* /*file*/){
-  if (address){
-    free(address);
-    return NULL;
-  }
-  throw std::runtime_error("Internal error in CheckFree()");
-}
-
-// A custom version of calloc() that tracks memory use
-void *Calloc(size_t nmemb, size_t size) { 
-  void *ptr=calloc(nmemb, size);
-  
-  if (ptr)
-    bytes+=nmemb*size;
-
-  return ptr;
 }
 
 // A custom version of strdup() that keeps track of how much memory is

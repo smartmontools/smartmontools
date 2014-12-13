@@ -1,5 +1,10 @@
 $Id$
 
+2014-12-13  Christian Franke  <franke@computer.org>
+
+	utility.cpp, utility.h: Remove unused functions Calloc() and
+	CheckFree().
+
 2014-12-10  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

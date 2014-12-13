@@ -98,18 +98,6 @@ int split_report_arg(char *s, int *i);
 // Function for processing -t selective... option in smartctl
 int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 
-
-// Guess device type (ata or scsi) based on device name 
-// Guessing will now use Controller Type defines below
-
-// Moved to C++ interface
-//int guess_device_type(const char * dev_name);
-
-// Create and return the list of devices to probe automatically
-// if the DEVICESCAN option is in the smartd config file
-// Moved to C++ interface
-//int make_device_names (char ***devlist, const char* name);
-
 // Replacement for exit(status)
 // (exit is not compatible with C++ destructors)
 #define EXIT(status) { throw (int)(status); }
@@ -117,30 +105,13 @@ int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 
 #ifdef OLD_INTERFACE
 
-// replacement for calloc() that tracks memory usage
-void *Calloc(size_t nmemb, size_t size);
-
 // Utility function to free memory
-void *FreeNonZero1(void* address, int size, int whatline, const char* file);
-
-// Typesafe version of above
-template <class T>
-inline T * FreeNonZero(T * address, int size, int whatline, const char* file)
-  { return (T *)FreeNonZero1((void *)address, size, whatline, file); }
+void *FreeNonZero(void* address, int size, int whatline, const char* file);
 
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
 // try to duplicate a NULL string.
 char *CustomStrDup(const char *ptr, int mustexist, int whatline, const char* file);
-
-// To help with memory checking.  Use when it is known that address is
-// NOT null.
-void *CheckFree1(void *address, int whatline, const char* file);
-
-// Typesafe version of above
-template <class T>
-inline T * CheckFree(T * address, int whatline, const char* file)
-  { return (T *)CheckFree1((void *)address, whatline, file); }
 
 #endif // OLD_INTERFACE
 
@@ -162,17 +133,6 @@ void check_config();
 // SCSI Primary Commands, ANSI INCITS 301:1997.  It is also used in
 // the ATA standard for packet devices to define the device type.
 const char *packetdevicetype(int type);
-
-// Moved to C++ interface
-//int deviceopen(const char *pathname, char *type);
-
-//int deviceclose(int fd);
-
-// Optional functions of os_*.c
-#ifdef HAVE_GET_OS_VERSION_STR
-// Return build host and OS version as static string
-//const char * get_os_version_str(void);
-#endif
 
 // returns true if any of the n bytes are nonzero, else zero.
 bool nonempty(const void * data, int size);
