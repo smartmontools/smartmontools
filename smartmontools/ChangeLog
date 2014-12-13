@@ -1,4 +1,9 @@
-$Id: ChangeLog 4026 2014-12-10 21:52:50Z chrfranke $
+$Id: ChangeLog 4028 2014-12-13 14:59:48Z chrfranke $
+
+2014-12-13  Christian Franke  <franke@computer.org>
+
+	utility.cpp, utility.h: Remove unused functions Calloc() and
+	CheckFree().
 
 2014-12-10  Christian Franke  <franke@computer.org>
 
