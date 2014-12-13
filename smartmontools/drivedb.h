@@ -3340,6 +3340,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // SanDisk
+  { "USB: SanDisk SDCZ80 Flash Drive; Fujitsu",
+    "0x0781:0x5580",
+    "",
+    "",
+    "-d sat"
+  },
   // Freecom
   { "USB: Freecom Mobile Drive XXS; JMicron",
     "0x07ab:0xfc88",
@@ -3610,13 +3617,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   { "USB: WD My Passport; ",
-    "0x1058:0x07(0[245a]|30)",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Passport USB 3.0; ",
-    "0x1058:0x0(74[0128a]|7a8|820)",
+    "0x1058:0x0(70[245a]|730|74[0128a]|7a8|8[12]0)",
     "",
     "",
     "-d sat"
@@ -3634,44 +3635,14 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: WD Elements Desktop; ",
-    "0x1058:0x1001",
-    "", // 0x0104
-    "",
-    "-d sat"
-  },
-  { "USB: WD Elements Desktop WDE1UBK...; ",
-    "0x1058:0x1003",
-    "", // 0x0175
+    "0x1058:0x10(01|03|21|7c)",
+    "", // 01=0x0104, 03=0x0175, 21=0x2002, 7c=0x1065
     "",
     "-d sat"
   },
   { "USB: WD Elements; ",
-    "0x1058:0x10(10|48|a2)",
-    "", // 0x0105
-    "",
-    "-d sat"
-  },
-  { "USB: WD Elements Desktop; ", // 2TB
-    "0x1058:0x1021",
-    "", // 0x2002
-    "",
-    "-d sat"
-  },
-  { "USB: WD Elements SE; ", // 1TB
-    "0x1058:0x1023",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: WD Elements SE USB 3.0; ",
-    "0x1058:0x1042",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: WD Elements; ",
-    "0x1058:0x10[ab]8", // a=1TB, b=2TB
-    "", // a=0x1042, b=0x1007
+    "0x1058:0x10(10|23|42|48|a2|a8|b8)",
+    "", // 10=0x0105, a8=0x1042, b8=0x1007
     "",
     "-d sat"
   },
@@ -3808,9 +3779,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron JMS539", // USB2/3->SATA (new firmware)
     "0x152d:0x0539",
-    "0x0205|"  //  2.05, ticket #338
-    "0x2812",  // 28.12, Mediasonic ProBox H82-SU3S2 (port multiplier)
-    "",
+    "0x020[56]|"   //  2.05, ticket #338
+    "0x28(03|12)", // 28.03, Mediasonic ProBox HF2-SU3S2 Rev 2 (port multiplier, ticket #504)
+    "",            // 28.12, Mediasonic ProBox H82-SU3S2 (port multiplier)
     "-d sat"
   },
   { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
@@ -3818,6 +3789,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0100
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: ; JMicron JMS567", // USB2/3->SATA
+    "0x152d:0x0567",
+    "", // 0x0114
+    "", // 0x0205, 2.05, Mediasonic ProBox HF2-SU3S2 Rev 3 (port multiplier, ticket #504)
+    "-d sat"
   },
   { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
     "0x152d:0x0602",
@@ -3870,6 +3847,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron", // USB->SATA
     "0x152d:0x2509",
     "", // 0x0100
+    "",
+    "-d usbjmicron,x"
+  },
+  { "USB: ; JMicron JMS566", // USB3->SATA
+    "0x152d:0x2566", // e.g. Chieftec CEB-7035S
+    "", // 0x0114
     "",
     "-d usbjmicron,x"
   },
@@ -3986,8 +3969,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron"
   },
-  { "USB: Hitachi Touro Desk 3.0; ", // 2TB
-    "0x4971:0x1015",
+  { "USB: Hitachi Touro; ",
+    "0x4971:0x101[45]", // 14=1TB, 15=2TB
     "", // 0x0000
     "",
     "-d sat" // ATA output registers missing
