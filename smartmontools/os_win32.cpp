@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2012    Hank Wu <hank@areca.com.tw>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -101,7 +101,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4010 2014-11-29 17:17:41Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4033 2015-01-24 15:05:34Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -653,6 +653,7 @@ std::string win_smart_interface::get_os_version_str()
         case 0x61: w = (ws ? "win7"  : "2008r2"); break;
         case 0x62: w = (ws ? "win8"  : "2012"  ); break;
         case 0x63: w = (ws ? "win8.1": "2012r2"); break;
+        case 0x64: w = (ws ? "win10" : "w10srv"); break;
       }
     }
   }

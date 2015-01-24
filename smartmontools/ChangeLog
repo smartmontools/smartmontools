@@ -1,4 +1,8 @@
-$Id: ChangeLog 4031 2015-01-01 10:47:48Z chrfranke $
+$Id: ChangeLog 4033 2015-01-24 15:05:34Z chrfranke $
+
+2015-01-24  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add Windows 10 to get_os_version_str().
 
 2015-01-01  Christian Franke  <franke@computer.org>
 
