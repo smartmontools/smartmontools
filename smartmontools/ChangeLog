@@ -1,4 +1,10 @@
-$Id: ChangeLog 4033 2015-01-24 15:05:34Z chrfranke $
+$Id: ChangeLog 4034 2015-01-25 17:51:02Z chrfranke $
+
+2015-01-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- JMicron based SSDs: Transcend SSD340 (ticket #348)
+	- SiliconMotion based SSDs: Transcend SSD370 (ticket #468)
 
 2015-01-24  Christian Franke  <franke@computer.org>
 
