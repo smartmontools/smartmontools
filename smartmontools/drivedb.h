@@ -886,7 +886,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 234,raw24/raw24:w01234,Avg/Max_Erase_Count "
     "-v 235,raw24/raw24:w01z23,Good/Sys_Block_Count"
   },
-  { "JMicron based SSDs", // JMicron JMF61x, JMF661
+  { "JMicron based SSDs", // JMicron JMF61x, JMF66x, JMF670
     "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
     "ADATA SP600|"  // tested with ADATA SP600/2.4 (JMicron JMF661)
     "APPLE SSD TS(064|128|256|512)C|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
@@ -901,28 +901,34 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
                                // tested with Toshiba 128GB 2.5" SSD (built in MacBooks)
     "TOSHIBA THNSNC128GMLJ|" // tested with THNSNC128GMLJ/CJTA0202 (built in Toshiba Protege/Dynabook)
-    "TS(8|16|32|64|128|192|256|512)GSSD25S?-(MD?|S)", // Transcend IDE and SATA (JMF612), tested with
+    "TS(8|16|32|64|128|192|256|512)GSSD25S?-(MD?|S)|" // Transcend IDE and SATA, JMF612, tested with
       // TS256GSSD25S-M/101028, TS32GSSD25-M/20101227
+    "TS(32|64|128|256)G(SSD|MSA)340", // Transcend SSD340 SATA/mSATA, JMF667/670, tested with
+      // TS256GSSD340/SVN263, TS256GSSD340/SVN423b, TS256GMSA340/SVN263
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
-    "-v 3,raw48,Unknown_Attribute "
+    "-v 3,raw48,Unknown_JMF_Attribute "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
-    "-v 7,raw48,Unknown_Attribute "
-    "-v 8,raw48,Unknown_Attribute "
+    "-v 7,raw48,Unknown_JMF_Attribute "
+    "-v 8,raw48,Unknown_JMF_Attribute "
   //"-v 9,raw24(raw8),Power_On_Hours "
-    "-v 10,raw48,Unknown_Attribute "
+    "-v 10,raw48,Unknown_JMF_Attribute "
   //"-v 12,raw48,Power_Cycle_Count "
-  //"-v 167,raw48,Unknown_Attribute "
+    "-v 167,raw48,Unknown_JMF_Attribute "
     "-v 168,raw48,SATA_Phy_Error_Count "
-  //"-v 169,raw48,Unknown_Attribute "
+    "-v 169,raw48,Unknown_JMF_Attribute "
     "-v 170,raw16,Bad_Block_Count "
     "-v 173,raw16,Erase_Count " // JMF661: different?
     "-v 175,raw48,Bad_Cluster_Table_Count "
     "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 197,raw48,Current_Pending_Sector "
-    "-v 240,raw48,Unknown_Attribute"
+    "-v 233,raw48,Unknown_JMF_Attribute " // FW SVN423b
+    "-v 234,raw48,Unknown_JMF_Attribute " // FW SVN423b
+    "-v 240,raw48,Unknown_JMF_Attribute "
+  //"-v 241,raw48,Total_LBAs_Written "    // FW SVN423b
+  //"-v 242,raw48,Total_LBAs_Read "       // FW SVN423b
   },
   { "Plextor M3/M5 (Pro) Series SSDs", // Marvell 88SS9174 (M3, M5S), 88SS9187 (M5P, M5Pro), tested with
       // PLEXTOR PX-128M3/1.01, PX-128M3P/1.04, PX-256M3/1.05, PX-128M5S/1.02, PX-256M5S/1.03,
@@ -1037,6 +1043,43 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 241,raw48,Total_LBAs_Written "
   //"-v 242,raw48,Total_LBAs_Read "
     "-v 244,raw48,Thermal_Throttle "
+  },
+  { "SiliconMotion based SSDs", // SM2246EN (Transcend TS6500)
+    "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)370", // Transcend SSD370 SATA/mSATA, TS6500, tested with
+      // TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516, TS256GSSD370/N0815B
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 2,raw48,Throughput_Performance "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Valid_Spare_Block_Cnt "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Max_Erase_Count_of_Spec "
+    "-v 169,raw48,Remaining_Lifetime_Perc "
+  //"-v 175,raw48,Program_Fail_Count_Chip "
+  //"-v 176,raw48,Erase_Fail_Count_Chip "
+  //"-v 177,raw48,Wear_Leveling_Count "
+    "-v 178,raw48,Runtime_Invalid_Blk_Cnt "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 182,raw48,Erase_Fail_Count_Total "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB " // FW 20140402
+  //"-v 232,raw48,Available_Reservd_Space "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 245,raw48,Unkn_SiliconMotion_Attr" // FW N0815B
   },
   { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
     "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
