@@ -1,5 +1,11 @@
 $Id$
 
+2015-01-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- JMicron based SSDs: Transcend SSD340 (ticket #348)
+	- SiliconMotion based SSDs: Transcend SSD370 (ticket #468)
+
 2015-01-24  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Add Windows 10 to get_os_version_str().
