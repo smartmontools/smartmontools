@@ -3492,7 +3492,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Expansion Portable; ",
-    "0x0bc2:0x23(00|12)",
+    "0x0bc2:0x23(00|12|20|21)",
     "",
     "",
     "-d sat"
@@ -3515,8 +3515,14 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat,12"
   },
-  { "USB: Seagate Expansion External; ", // 2TB, 3TB
-    "0x0bc2:0x33(00|12|20|32)",
+  { "USB: Seagate FreeAgent XTreme; ",
+    "0x0bc2:0x3101",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate Expansion External; ",
+    "0x0bc2:0x33(00|12|20|21|32)", // 0x3321: Expansion Desktop 4TB
     "",
     "",
     "-d sat"
@@ -3540,7 +3546,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate FreeAgent GoFlex USB 3.0; ", // 2TB
-    "0x0bc2:0x5071",
+    "0x0bc2:0x507[01]",
     "",
     "",
     "-d sat"
@@ -3551,9 +3557,15 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat,12" // "-d sat" does not work (ticket #151)
   },
-  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 4TB
-    "0x0bc2:0x50a5",
+  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 2TB, 4TB
+    "0x0bc2:0x50a[57]",
     "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate FreeAgent GoFlex Pro for Mac; ",
+    "0x0bc2:0x6121",
+    "", // 0x0148
     "",
     "-d sat"
   },
@@ -3569,8 +3581,14 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Seagate Slim Portable Drive; ", // SRD00F1
+    "0x0bc2:0xab00",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: Seagate Backup Plus Slim USB 3.0; ", // (ticket #443)
-    "0x0bc2:0xab24",
+    "0x0bc2:0xab2[14]",
     "", // 0x0100
     "",
     "-d sat"
@@ -3734,19 +3752,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ADATA
   { "USB: ADATA; ",
-    "0x125f:0xa[13]1a", // 1=Classic CH11 1TB, 3=DashDrive HV620 2TB
-    "", // 0x0100
+    "0x125f:0xa(11|31|35)a", // 0xa11a: Classic CH11 1TB, 0xa31a: HV620 2TB (0x0100)
+    "", // 0xa35a: HD650 2TB (0x6503)
     "",
     "-d sat"
   },
-  { "USB: A-DATA SH93; Cypress",
-    "0x125f:0xa93a",
-    "", // 0x0150
-    "",
-    "-d usbcypress"
-  },
-  { "USB: A-DATA DashDrive; Cypress",
-    "0x125f:0xa94a",
+  { "USB: ADATA; Cypress",
+    "0x125f:0xa9[34]a", // 0xa93a: SH93 (0x0150)
     "",
     "",
     "-d usbcypress"
@@ -3899,6 +3911,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: ; JMicron JMS567", // USB2/3->SATA
+    "0x152d:0x3562",
+    "", // 0x0310, StarTech S358BU33ERM (port multiplier, ticket #508)
+    "",
+    "-d sat"
+  },
   // ASMedia
   { "USB: ; ASMedia ASM1051",
     "0x174c:0x5106", // 0x174c:0x55aa after firmware update
@@ -3992,8 +4010,14 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Innostor
-  { "USB: ; Innostor IS888", // Sharkoon SATA QuickDeck Pro USB 3.0
-    "0x1f75:0x0888",
+  { "USB: ; Innostor IS621", // USB3->SATA
+    "0x1f75:0x0621", // Dynex 2.5" USB 3.0 Exclosure DX-HD302513
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: ; Innostor IS888", // USB3->SATA
+    "0x1f75:0x0888", // Sharkoon SATA QuickDeck Pro USB 3.0
     "", // 0x0034
     "",
     "" // unsupported

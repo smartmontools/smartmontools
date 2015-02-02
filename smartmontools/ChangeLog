@@ -1,5 +1,18 @@
 $Id$
 
+2015-02-02  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Seagate FreeAgent XTreme (0x0bc2:0x3101)
+	- USB: Seagate Expansion Portable (0x0bc2:0x232[01])
+	- USB: Seagate Expansion External (0x0bc2:0x3321)
+	- USB: Seagate FreeAgent GoFlex (0x0bc2:0x5070, 0x50a7, 0x6121)
+	- USB: Seagate Slim Portable Drive (0x0bc2:0xab00) (ticket #517)
+	- USB: Seagate Backup Plus Slim (0x0bc2:0xab21)
+	- USB: ADATA HD650 (0x125f:0xa35a)
+	- USB: JMicron JMS567 (0x152d:0x3562) (ticket #508)
+	- USB: Innostor IS621 (0x1f75:0x0621) (ticket #517)
+
 2015-01-25  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
