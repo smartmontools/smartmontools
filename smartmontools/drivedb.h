@@ -3043,6 +3043,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Buffalo Drivestation Duo; ",
+    "0x0411:0x01ce",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: Buffalo MiniStation Stealth HD-PCTU2; ",
     "0x0411:0x01d9",
     "", // 0x0108
@@ -3076,6 +3082,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Toshiba Canvio Basics; ", // TOSHIBA MQ01UBD...
+    "0x0480:0x0201",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: Toshiba Canvio 500GB; SunPlus",
     "0x0480:0xa004",
     "",
@@ -3083,19 +3095,19 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbsunplus"
   },
   { "USB: Toshiba Canvio Basics; ",
-    "0x0480:0xa006",
-    "", // 0x0001
+    "0x0480:0xa00[6d]",
+    "", // 0x0001, 0x0407
     "",
     "-d sat"
   },
-  { "USB: Toshiba Canvio 3.0 Portable Hard Drive; ", // 1TB
+  { "USB: Toshiba Canvio 3.0 Portable Hard Drive; ", // TOSHIBA MQ01UBD...
     "0x0480:0xa007",
     "", // 0x0001
     "",
     "-d sat"
   },
-  { "USB: Toshiba Stor.E Basics; ", // 1TB
-    "0x0480:0xa009",
+  { "USB: Toshiba Stor.E Basics; ",
+    "0x0480:0xa00[9c]",
     "",
     "",
     "-d sat"
@@ -3106,8 +3118,14 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Toshiba Canvio Desktop; ", // 2TB
-    "0x0480:0xd010",
+  { "USB: Toshiba Canvio ALU; ", // 2TB USB 3.0
+    "0x0480:0xa100",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Toshiba Canvio Desktop; ",
+    "0x0480:0xd0(00|10)",
     "",
     "",
     "-d sat"
@@ -3148,7 +3166,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Samsung
   { "USB: Samsung S2 Portable; JMicron",
-    "0x04e8:0x1f0[568]",
+    "0x04e8:0x1f0[568a]", // 0x1f0a: SAMSUNG HN-M101XBB
     "",
     "",
     "-d usbjmicron"
@@ -3198,6 +3216,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Samsung M3 Portable USB 3.0; ",
     "0x04e8:0x61b[456]", // 4=2TB, 5=1.5TB, 6=1TB
     "", // 0x0e00
+    "",
+    "-d sat"
+  },
+  { "USB: Samsung S3 Portable; ",
+    "0x04e8:0x61c8", // ST1000LM025 HN-M101ABB
+    "", // 0x1301
     "",
     "-d sat"
   },
@@ -3275,6 +3299,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbjmicron"
+  },
+  { "USB: LaCie Rugged Triple Interface; ",
+    "0x059f:0x100c",
+    "", // 0x0001
+    "",
+    "-d sat"
   },
   { "USB: LaCie hard disk (Neil Poulton design);",
     "0x059f:0x1018",
@@ -3818,6 +3848,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; Initio", // Seagate Expansion Portable SRD00F1
+    "0x13fd:0x3910",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // Super Top
   { "USB: Super Top generic enclosure; Cypress",
     "0x14cd:0x6116",
@@ -3924,17 +3960,23 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: ; ASMedia USB 3.0", // MEDION HDDrive-n-GO, LaCie Rikiki USB 3.0,
+  { "USB: ; ASMedia AS2105", // Icy Box IB-AC603A-U3
+    "0x174c:0x5136",
+    "", // 0x0001
+    "",
+    "-d sat"
+  },
+  { "USB: ; ASMedia", // Vantec NexStar USB 3.0 & SATA dual drive doch
+    "0x174c:0x5516",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: ; ASMedia", // MEDION HDDrive-n-GO, LaCie Rikiki USB 3.0,
       // Silicon Power Armor A80 (ticket #237)
       // reported as unsupported: BYTECC T-200U3, Kingwin USB 3.0 docking station
     "0x174c:0x55aa",
     "", // 0x0100
-    "",
-    "-d sat"
-  },
-  { "USB: ; ASMedia AS2105", // Icy Box IB-AC603A-U3
-    "0x174c:0x5136",
-    "", // 0x0001
     "",
     "-d sat"
   },
@@ -4010,6 +4052,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Innostor
+  { "USB: ; Innostor IS611", // USB3->SATA+PATA
+    "0x1f75:0x0611", // SMART access via PATA does not work
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: ; Innostor IS621", // USB3->SATA
     "0x1f75:0x0621", // Dynex 2.5" USB 3.0 Exclosure DX-HD302513
     "",
