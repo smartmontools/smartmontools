@@ -1,5 +1,11 @@
 $Id$
 
+2015-03-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.cpp, scsiprint.cpp
+	- SCSI: when READ DEFECT yields sense of "... defect list not found"
+	  bypass the corresponding report quietly. (ticket #343)
+
 2015-02-08  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

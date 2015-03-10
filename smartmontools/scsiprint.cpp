@@ -339,7 +339,9 @@ scsiPrintGrownDefectListLen(scsi_device * device)
                 return;
             } else
                 got_rd12 = 0;
-        } else {
+        } else if (101 == err)    /* Defect list not found, leave quietly */
+            return;
+        else {
             if (scsi_debugmode > 0) {
                 print_on();
                 pout("Read defect list (12) Failed: %s\n", scsiErrString(err));

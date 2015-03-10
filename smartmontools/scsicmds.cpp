@@ -1072,7 +1072,8 @@ scsiTestUnitReady(scsi_device * device)
 }
 
 /* READ DEFECT (10) command. Returns 0 if ok, 1 if NOT READY, 2 if
- * command not supported, 3 if field in command not supported or returns
+ * command not supported, 3 if field in command not supported, 101 if
+ * defect list not found (e.g. SSD may not have defect list) or returns
  * negated errno. SBC-2 section 5.12 (rev 16) */
 int
 scsiReadDefect10(scsi_device * device, int req_plist, int req_glist,
@@ -1102,11 +1103,15 @@ scsiReadDefect10(scsi_device * device, int req_plist, int req_glist,
     if (!device->scsi_pass_through(&io_hdr))
       return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
+    /* Look for "(Primary|Grown) defect list not found" */
+    if ((sinfo.resp_code >= 0x70) && (0x1c == sinfo.asc))
+        return 101;
     return scsiSimpleSenseFilter(&sinfo);
 }
 
 /* READ DEFECT (12) command. Returns 0 if ok, 1 if NOT READY, 2 if
- * command not supported, 3 if field in command not supported or returns
+ * command not supported, 3 if field in command not supported, 101 if
+ * defect list not found (e.g. SSD may not have defect list) or returns
  * negated errno. SBC-3 section 5.18 (rev 35; vale Mark Evans) */
 int
 scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
@@ -1142,6 +1147,9 @@ scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
     if (!device->scsi_pass_through(&io_hdr))
       return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
+    /* Look for "(Primary|Grown) defect list not found" */
+    if ((sinfo.resp_code >= 0x70) && (0x1c == sinfo.asc))
+        return 101;
     return scsiSimpleSenseFilter(&sinfo);
 }
 
