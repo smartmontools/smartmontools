@@ -1,4 +1,10 @@
-$Id: ChangeLog 4038 2015-02-08 13:50:38Z chrfranke $
+$Id: ChangeLog 4040 2015-03-10 22:30:44Z dpgilbert $
+
+2015-03-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.cpp, scsiprint.cpp
+	- SCSI: when READ DEFECT yields sense of "... defect list not found"
+	  bypass the corresponding report quietly. (ticket #343)
 
 2015-02-08  Christian Franke  <franke@computer.org>
 

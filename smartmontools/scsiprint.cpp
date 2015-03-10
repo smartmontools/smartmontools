@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 3898 2014-04-30 17:44:13Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4040 2015-03-10 22:30:44Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -339,7 +339,9 @@ scsiPrintGrownDefectListLen(scsi_device * device)
                 return;
             } else
                 got_rd12 = 0;
-        } else {
+        } else if (101 == err)    /* Defect list not found, leave quietly */
+            return;
+        else {
             if (scsi_debugmode > 0) {
                 print_on();
                 pout("Read defect list (12) Failed: %s\n", scsiErrString(err));
