@@ -203,6 +203,25 @@ sat_device::~sat_device() throw()
 // des[11]: lba_high (7:0)
 // des[12]: device
 // des[13]: status
+//
+//
+// ATA registers returned via fixed format sense (allowed >= SAT-2)
+// fxs[0]: info_valid (bit 7); response_code (6:0)
+// fxs[1]: (obsolete)
+// fxs[2]: sense_key (3:0) --> recovered error (formerly 'no sense')
+// fxs[3]: information (31:24) --> ATA Error register
+// fxs[4]: information (23:16) --> ATA Status register
+// fxs[5]: information (15:8) --> ATA Device register
+// fxs[6]: information (7:0) --> ATA Count (7:0)
+// fxs[7]: additional sense length [should be >= 10]
+// fxs[8]: command specific info (31:24) --> Extend (7), count_upper_nonzero
+//         (6), lba_upper_nonzero(5), log_index (3:0)
+// fxs[9]: command specific info (23:16) --> ATA LBA (7:0)
+// fxs[10]: command specific info (15:8) --> ATA LBA (15:8)
+// fxs[11]: command specific info (7:0) --> ATA LBA (23:16)
+// fxs[12]: additional sense code (asc) --> 0x0
+// fxs[13]: additional sense code qualifier (ascq) --> 0x1d
+//          asc,ascq = 0x0,0x1d --> 'ATA pass through information available'
 
 
 
@@ -243,7 +262,7 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     unsigned char cdb[SAT_ATA_PASSTHROUGH_16LEN];
     unsigned char sense[32];
     const unsigned char * ardp;
-    int status, ard_len, have_sense;
+    int ard_len, have_sense;
     int extend = 0;
     int ck_cond = 0;    /* set to 1 to read register(s) back */
     int protocol = 3;   /* non-data */
@@ -251,6 +270,7 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     int byte_block = 1; /* 0 -> bytes, 1 -> 512 byte blocks */
     int t_length = 0;   /* 0 -> no data transferred */
     int passthru_size = DEF_SAT_ATA_PASSTHRU_SIZE;
+    bool sense_descriptor = true;
 
     memset(cdb, 0, sizeof(cdb));
     memset(sense, 0, sizeof(sense));
@@ -358,20 +378,23 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     have_sense = sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len,
                                          &ssh);
     if (have_sense) {
-        /* look for SAT ATA Return Descriptor */
-        ardp = sg_scsi_sense_desc_find(io_hdr.sensep,
-                                       io_hdr.resp_sense_len,
-                                       ATA_RETURN_DESCRIPTOR);
-        if (ardp) {
-            ard_len = ardp[1] + 2;
-            if (ard_len < 12)
-                ard_len = 12;
-            else if (ard_len > 14)
-                ard_len = 14;
+        sense_descriptor = ssh.response_code >= 0x72;
+        if (sense_descriptor) {
+            /* look for SAT ATA Return Descriptor */
+            ardp = sg_scsi_sense_desc_find(io_hdr.sensep,
+                                           io_hdr.resp_sense_len,
+                                           ATA_RETURN_DESCRIPTOR);
+            if (ardp) {
+                ard_len = ardp[1] + 2;
+                if (ard_len < 12)
+                    ard_len = 12;
+                else if (ard_len > 14)
+                    ard_len = 14;
+            }
         }
         scsi_do_sense_disect(&io_hdr, &sinfo);
-        status = scsiSimpleSenseFilter(&sinfo);
-        if (0 != status) {
+        int status = scsiSimpleSenseFilter(&sinfo);
+        if (0 != status) {  /* other than no_sense and recovered_error */
             if (scsi_debugmode > 0) {
                 pout("sat_device::ata_pass_through: scsi error: %s\n",
                      scsiErrString(status));
@@ -408,26 +431,56 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
                     hi.lba_mid      = ardp[ 8];
                     hi.lba_high     = ardp[10];
                 }
+            } else if ((! sense_descriptor) &&
+                       (0 == ssh.asc) &&
+                       (SCSI_ASCQ_ATA_PASS_THROUGH == ssh.ascq)) {
+                /* in SAT-2 and later, ATA registers may be passed back via
+                 * fixed format sense data [ref: sat3r07 section 12.2.2.7] */
+                ata_out_regs & lo = out.out_regs;
+                lo.error        = io_hdr.sensep[ 3];
+                lo.status       = io_hdr.sensep[ 4];
+                lo.device       = io_hdr.sensep[ 5];
+                lo.sector_count = io_hdr.sensep[ 6];
+                lo.lba_low      = io_hdr.sensep[ 9];
+                lo.lba_mid      = io_hdr.sensep[10];
+                lo.lba_high     = io_hdr.sensep[11];
+                if (in.in_regs.is_48bit_cmd()) {
+                    if (0 == (0x60 & io_hdr.sensep[8])) {
+                        ata_out_regs & hi = out.out_regs.prev;
+                        hi.sector_count = 0;
+                        hi.lba_low      = 0;
+                        hi.lba_mid      = 0;
+                        hi.lba_high     = 0;
+                    } else {
+                        /* getting the "hi." values when either
+                         * count_upper_nonzero or lba_upper_nonzero are set
+                         * involves fetching the SCSI ATA PASS-THROUGH
+                         * Results log page and decoding the descriptor with
+                         * the matching log_index field. Painful. */ 
+                    }
+                }
             }
         }
-        if (ardp == NULL)
-            ck_cond = 0;       /* not the type of sense data expected */
-    }
-    if (0 == ck_cond) {
+    } else {    /* ck_cond == 0 */
         if (have_sense) {
-            if ((ssh.response_code >= 0x72) &&
-                ((SCSI_SK_NO_SENSE == ssh.sense_key) ||
+            if (((SCSI_SK_NO_SENSE == ssh.sense_key) ||
                  (SCSI_SK_RECOVERED_ERR == ssh.sense_key)) &&
                 (0 == ssh.asc) &&
                 (SCSI_ASCQ_ATA_PASS_THROUGH == ssh.ascq)) {
-                if (ardp) {
-                    if (scsi_debugmode > 0) {
+                if (scsi_debugmode > 0) {
+                    if (sense_descriptor && ardp) {
                         pout("Values from ATA Return Descriptor are:\n");
                         dStrHex((const char *)ardp, ard_len, 1);
+                    } else if (! sense_descriptor) {
+                        pout("Values from ATA fixed format sense are:\n");
+                        pout("  Error: 0x%x\n", io_hdr.sensep[3]);
+                        pout("  Status: 0x%x\n", io_hdr.sensep[4]);
+                        pout("  Device: 0x%x\n", io_hdr.sensep[5]);
+                        pout("  Count: 0x%x\n", io_hdr.sensep[6]);
                     }
-                    return set_err(EIO, "SAT command failed");
                 }
             }
+            return set_err(EIO, "SAT command failed");
         }
     }
     return true;

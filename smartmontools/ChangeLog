@@ -1,5 +1,13 @@
 $Id$
 
+2015-03-13  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiata.cpp
+	- SCSI to ATA translation: from SAT-2 and later a SAT layer may
+	  return ATA registers via fixed format sense data. Change to
+	  additionally accept (partial) fixed format sense. In response
+	  to ticket #296 and FreeBSD Bug 191717.
+
 2015-03-10  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsicmds.cpp, scsiprint.cpp
