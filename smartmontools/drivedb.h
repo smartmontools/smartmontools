@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -270,8 +270,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
-  { "Crucial/Micron MX100/M500/M510/M550/M600 Client SSDs",
+  { "Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs",
     "Crucial_CT(128|256|512)MX100SSD1|"// tested with Crucial_CT256MX100SSD1/MU01
+    "Crucial_CT(256|512|1024)MX200SSD[1346]|" // tested with Crucial_CT1024MX200SSD1/MU01
     "Crucial_CT(120|240|480|960)M500SSD1|" // tested with Crucial_CT960M500SSD1/MU03
     "Crucial_CT(128|256|512|1024)M550SSD[13]|" // tested with Crucial_CT512M550SSD3/MU01, Crucial_CT1024M550SSD1/MU01
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
@@ -338,6 +339,7 @@ const drive_settings builtin_knowndrives[] = {
     "ADATA SSD S[PX]900 (64|128|256|512)GB-DL2|" // tested with ADATA SSD SP900 256GB-DL2/5.0.6,
       // ADATA SSD SX900 512GB-DL2/5.8.2
     "ADATA XM11 (128|256)GB|" // tested with ADATA XM11 128GB/5.0.1
+    "ATP Velocity MIV (60|120|240|480)GB|" // tested with ATP Velocity MIV 480GB/110719
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
     "Corsair Force ((3 |LS )?SSD|GS|GT)|" // SF-2281, tested with
@@ -356,8 +358,8 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SMS200S3(30|60|120)G|" // mSATA, SF-2241, tested with SMS200S3120G/KC3ABBF0
     "KINGSTON SMS450S3(32|64|128)G|" // mSATA, SF-2281, tested with SMS450S3128G/503ABBF0
     "KINGSTON (SV300|SKC100|SE100)S3.*G|" // other SF-2281
-    "MKNSSDCR(45|60|90|120|180|240|480)GB(-DX)?|" // Mushkin Chronos (deluxe), SF-2281,
-      // tested with MKNSSDCR120GB
+    "MKNSSDCR(45|60|90|120|180|240|480)GB(-[DM]X)?|" // Mushkin Chronos (Deluxe/Enhanced), SF-2281,
+      // tested with MKNSSDCR120GB, MKNSSDCR120GB-MX/560ABBF0
     "MKNSSDAT(30|40|60|120|180|240|480)GB(-(DX|V))?|" // Mushkin Atlas (Deluxe/Value), mSATA, SF-2281,
       // tested with MKNSSDAT120GB-V/540ABBF0
     "Mushkin MKNSSDCL(40|60|80|90|115|120|180|240|480)GB-DX2?|" // Mushkin Callisto deluxe,
@@ -889,6 +891,7 @@ const drive_settings builtin_knowndrives[] = {
   { "JMicron based SSDs", // JMicron JMF61x, JMF66x, JMF670
     "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
     "ADATA SP600|"  // tested with ADATA SP600/2.4 (JMicron JMF661)
+    "ADATA SP310|"  // Premier Pro SP310 mSATA, JMF667, tested with ADATA SP310/3.04
     "APPLE SSD TS(064|128|256|512)C|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series (2. Generation, JMF618),
                                     // tested with KINGSTON SNV425S264GB/C091126a
@@ -930,26 +933,40 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 241,raw48,Total_LBAs_Written "    // FW SVN423b
   //"-v 242,raw48,Total_LBAs_Read "       // FW SVN423b
   },
-  { "Plextor M3/M5 (Pro) Series SSDs", // Marvell 88SS9174 (M3, M5S), 88SS9187 (M5P, M5Pro), tested with
-      // PLEXTOR PX-128M3/1.01, PX-128M3P/1.04, PX-256M3/1.05, PX-128M5S/1.02, PX-256M5S/1.03,
-      // PX-128M5M/1.05, PX-128M5S/1.05, PX-128M5Pro/1.05, PX-512M5Pro/1.06, PX-256M5P/1.01
+  { "Plextor M3/M5/M6 Series SSDs", // Marvell 88SS9174 (M3, M5S), 88SS9187 (M5P, M5Pro), 88SS9188 (M6M/S),
+      // tested with PLEXTOR PX-128M3/1.01, PX-128M3P/1.04, PX-256M3/1.05, PX-128M5S/1.02, PX-256M5S/1.03,
+      // PX-128M5M/1.05, PX-128M5S/1.05, PX-128M5Pro/1.05, PX-512M5Pro/1.06, PX-256M5P/1.01, PX-128M6S/1.03
       // (1.04/5 Firmware self-test log lifetime unit is bogus, possibly 1/256 hours)
-    "PLEXTOR PX-(64|128|256|512)M(3P?|5[MPS]|5Pro)",
+    "PLEXTOR PX-(64|128|256|512|768)M(3P?|5[MPS]|5Pro|6[MS])",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Unknown_Plextor_Attrib "  // M6S/1.03
+    "-v 171,raw48,Unknown_Plextor_Attrib "  // M6S/1.03
+    "-v 172,raw48,Unknown_Plextor_Attrib "  // M6S/1.03
+    "-v 173,raw48,Unknown_Plextor_Attrib "  // M6S/1.03
+    "-v 174,raw48,Unknown_Plextor_Attrib "  // M6S/1.03
+  //"-v 175,raw48,Program_Fail_Count_Chip " // M6S/1.03
+  //"-v 176,raw48,Erase_Fail_Count_Chip "   // M6S/1.03
   //"-v 177,raw48,Wear_Leveling_Count "
   //"-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip "
+  //"-v 179,raw48,Used_Rsvd_Blk_Cnt_Tot "   // M6S/1.03
+  //"-v 180,raw48,Unused_Rsvd_Blk_Cnt_Tot " // M6S/1.03
   //"-v 181,raw48,Program_Fail_Cnt_Total "
   //"-v 182,raw48,Erase_Fail_Count_Total "
+  //"-v 183,raw48,Runtime_Bad_Block "       // M6S/1.03
+  //"-v 184,raw48,End-to-End_Error "        // M6S/1.03
   //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 188,raw48,Command_Timeout "         // M6S/1.03
   //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 195,raw48,Hardware_ECC_Recovered "  // MS6/1.03
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
   //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator " // MS6/1.03
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB"
   },
