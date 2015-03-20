@@ -5,6 +5,8 @@ $Id$
 	drivedb.h:
 	- Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs: Rename, add MX200
 	- Sandforce Driven SSDs: ATP Velocity MIV, Mushkin Chronos Enhanced
+	- Indilinx Barefoot 3 based SSDs: OCZ VERTEX 460, OCZ AMD Radeon R7
+	- Intel 530 Series SSDs: mSATA variant
 	- JMicron based SSDs: ADATA SP310
 	- Plextor M3/M5/M6 Series SSDs: Rename, add M6M, M6S
 
