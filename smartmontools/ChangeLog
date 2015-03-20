@@ -1,4 +1,12 @@
-$Id: ChangeLog 4041 2015-03-14 00:50:20Z dpgilbert $
+$Id: ChangeLog 4042 2015-03-20 06:33:45Z chrfranke $
+
+2015-03-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs: Rename, add MX200
+	- Sandforce Driven SSDs: ATP Velocity MIV, Mushkin Chronos Enhanced
+	- JMicron based SSDs: ADATA SP310
+	- Plextor M3/M5/M6 Series SSDs: Rename, add M6M, M6S
 
 2015-03-13  Douglas Gilbert  <dgilbert@interlog.com>
 
