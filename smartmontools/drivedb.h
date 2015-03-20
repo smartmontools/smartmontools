@@ -477,7 +477,7 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ-PETROL|" // Everest 1, tested with OCZ-PETROL/3.12
     "OCZ-AGILITY4|" // Everest 2, tested with OCZ-AGILITY4/1.5.2
     "OCZ-VERTEX4", // Everest 2, tested with OCZ-VERTEX4/1.5
-    "", "", ""
+    "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
@@ -488,10 +488,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
   { "Indilinx Barefoot 3 based SSDs",
-    "OCZ-VECTOR|" // tested with OCZ-VECTOR/1.03
-    "OCZ-VECTOR150|" // tested with OCZ-VECTOR150/1.2
-    "OCZ-VERTEX450", // tested with OCZ-VERTEX450/1.0 (Barefoot 3 M10)
-    "", "", ""
+    "OCZ-VECTOR(150)?|" // tested with OCZ-VECTOR/1.03, OCZ-VECTOR150/1.2
+    "OCZ-VERTEX4[56]0|" // Barefoot 3 M10, tested with OCZ-VERTEX450/1.0, OCZ-VERTEX460/1.0
+    "Radeon R7", // Barefoot 3 M00, tested with Radeon R7/1.00
+    "", "",
     "-v 5,raw48,Runtime_Bad_Block "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -506,13 +506,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 208,raw48,Average_Erase_Count "
     "-v 210,raw48,SATA_CRC_Error_Count "
     "-v 233,raw48,Remaining_Lifetime_Perc "
-    "-v 241,raw48,Host_Writes_GiB " // M10
-    "-v 242,raw48,Host_Reads_GiB "  // M10
+    "-v 241,raw48,Host_Writes_GiB " // M00/M10
+    "-v 242,raw48,Host_Reads_GiB "  // M00/M10
     "-v 249,raw48,Total_NAND_Prog_Ct_GiB"
   },
   { "OCZ Intrepid 3000 SSDs", // tested with OCZ INTREPID 3600/1.4.3.6, 3800/1.4.3.0
     "OCZ INTREPID 3[68]00",
-    "", "", ""
+    "", "",
     "-v 5,raw48,Runtime_Bad_Block "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -774,8 +774,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
-  { "Intel 530 Series SSDs", // tested with INTEL SSDSC2BW180A4/DC12, SSDSC2BW240A4/DC12
-    "INTEL SSDSC2BW(080|120|180|240|360|480)A4",
+  { "Intel 530 Series SSDs", // tested with INTEL SSDSC2BW180A4/DC12, SSDSC2BW240A4/DC12,
+      // INTEL SSDMCEAW120A4/DC33, INTEL SSDMCEAW240A4/DC33
+    "INTEL SSD(MCEA|SC2B)W(080|120|180|240|360|480)A4", // MCEA = mSATA
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
     "-v 9,msec24hour32,Power_On_Hours_and_Msec "
