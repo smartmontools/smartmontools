@@ -4,7 +4,7 @@
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3948 2014-07-13 16:53:30Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4046 2015-03-21 16:25:38Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -1507,7 +1507,7 @@ static void Usage()
   PrintOut(LOG_INFO,"        [default is %s]\n\n", configfile);
 #ifdef HAVE_LIBCAP_NG
   PrintOut(LOG_INFO,"  -C, --capabilities\n");
-  PrintOut(LOG_INFO,"        Use capabilities.\n"
+  PrintOut(LOG_INFO,"        Drop unneeded Linux process capabilities.\n"
                     "        Warning: Mail notification does not work when used.\n\n");
 #endif
   PrintOut(LOG_INFO,"  -d, --debug\n");

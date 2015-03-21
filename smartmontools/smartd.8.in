@@ -1,8 +1,8 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.8.in 4013 2014-11-29 21:49:02Z chrfranke $
+$Id: smartd.8.in 4046 2015-03-21 16:25:38Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -189,7 +189,8 @@ to perform quick and simple checks without a configuration file.
 .\" %IF ENABLE_CAPABILITIES
 .TP
 .B \-C, \-\-capabilities
-Use \fBcapabilities\fP(7).
+[Linux only] Use libcap-ng to drop unneeded Linux process \fBcapabilities\fP(7).
+The following capabilities are kept: CAP_SYS_ADMIN, CAP_SYS_RAWIO, CAP_MKNOD.
 
 Warning: Mail notification does not work when used.
 .\" %ENDIF ENABLE_CAPABILITIES
@@ -790,4 +791,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 4013 2014-11-29 21:49:02Z chrfranke $
+$Id: smartd.8.in 4046 2015-03-21 16:25:38Z chrfranke $
