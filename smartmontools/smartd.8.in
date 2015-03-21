@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
 $Id$
 
@@ -189,7 +189,8 @@ to perform quick and simple checks without a configuration file.
 .\" %IF ENABLE_CAPABILITIES
 .TP
 .B \-C, \-\-capabilities
-Use \fBcapabilities\fP(7).
+[Linux only] Use libcap-ng to drop unneeded Linux process \fBcapabilities\fP(7).
+The following capabilities are kept: CAP_SYS_ADMIN, CAP_SYS_RAWIO, CAP_MKNOD.
 
 Warning: Mail notification does not work when used.
 .\" %ENDIF ENABLE_CAPABILITIES

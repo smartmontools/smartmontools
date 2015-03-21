@@ -1,5 +1,10 @@
 $Id$
 
+2015-03-21  Christian Franke  <franke@computer.org>
+
+	smartd.8.in, smartd.cpp: Clarify smartd '--capabilities' option
+	(ticket #523).
+
 2015-03-20  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
