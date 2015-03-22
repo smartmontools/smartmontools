@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
 $Id$
 
@@ -87,27 +87,17 @@ Section below!
 .nf
 .B ################################################
 .B # This is an example smartd startup config file
-.B # /usr/local/etc/smartd.conf for monitoring three
-.B # ATA disks, three SCSI disks, six ATA disks
-.B # behind two 3ware controllers, three SATA disks
-.B # directly connected to the HighPoint Rocket-
-.B # RAID controller, two SATA disks connected to
-.B # the HighPoint RocketRAID controller via a pmport
-.B # device, four SATA disks connected to an Areca
-.B # RAID controller, and one SATA disk.
+.B # /usr/local/etc/smartd.conf
 .B #
-.B # First ATA disk on two different interfaces. On
-.B # the second disk, start a long self-test every
+.B # On the second disk, start a long self-test every
 .B # Sunday between 3 and 4 am.
 .B #
-.B \ \ /dev/hda -a -m admin@example.com,root@localhost 
-.B \ \ /dev/hdc -a -I 194 -I 5 -i 12 -s L/../../7/03
+.B \ \ /dev/sda -a -m admin@example.com,root@localhost
+.B \ \ /dev/sdb -a -I 194 -I 5 -i 12 -s L/../../7/03
 .B #
-.B # SCSI disks.  Send a TEST warning email to admin on
-.B # startup.
+.B # Send a TEST warning email to admin on startup.
 .B #
-.B \ \ /dev/sda
-.B \ \ /dev/sdb -m admin@example.com -M test
+.B \ \ /dev/sdc -m admin@example.com -M test
 .B #
 .B # Strange device.  It\'s SCSI. Start a scheduled
 .B # long self test between 5 and 6 am Monday/Thursday
@@ -217,7 +207,7 @@ Section below!
 .B # and Usage Attributes, apart from Attributes
 .B # 9, 194, and 231, and shows  continued lines:
 .B #
-.B \ \ /dev/hdd\ -l\ error\ \e
+.B \ \ /dev/sdd\ -l\ error\ \e
 .B \ \ \ \ \ \ \ \ \ \ \ -l\ selftest\ \e
 .B \ \ \ \ \ \ \ \ \ \ \ -t\ \e\ \ \ \ \ \ # Attributes not tracked:
 .B \ \ \ \ \ \ \ \ \ \ \ -I\ 194\ \e\ \ # temperature
@@ -980,7 +970,7 @@ exported by \fBsmartd\fP are:
 is set to the argument of \-M exec, if present or else to \'mail\'
 (examples: /usr/local/bin/mail, mail).
 .IP \fBSMARTD_DEVICE\fP 4
-is set to the device path (examples: /dev/hda, /dev/sdb).
+is set to the device path (example: /dev/sda).
 .IP \fBSMARTD_DEVICETYPE\fP 4
 is set to the device type specified by \'-d\' directive or
 \'auto\' if none.

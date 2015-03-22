@@ -4789,7 +4789,7 @@ static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_devic
       PrintOut(LOG_CRIT,"In the system's table of devices NO devices found to scan\n");
   } 
   else
-    PrintOut(LOG_CRIT,"Configuration file %s parsed but has no entries (like /dev/hda)\n",configfile);
+    PrintOut(LOG_CRIT, "Configuration file %s parsed but has no entries\n", configfile);
   
   return conf_entries.size();
 }

@@ -85,11 +85,8 @@ Refer to the "INSTALL" file for detailed installation instructions.
 == GETTING STARTED ==
 
 To examine SMART data from a disk, try:
-  smartctl -a /dev/hda
-for ATA disks, or
   smartctl -a /dev/sda
-for SCSI disks.  See the manual page 'man smartctl' for more
-information.
+See the manual page 'man smartctl' for more information.
 
 To start automatic monitoring of your disks with the smartd daemon,
 try:

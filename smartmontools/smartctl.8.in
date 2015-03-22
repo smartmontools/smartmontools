@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2004-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
 $Id$
 
@@ -52,11 +52,9 @@ option (for more information see the section on "ATA, SCSI command sets
 and SAT" below). Device paths are as follows:
 .\" %IF OS Linux
 .IP \fBLINUX\fP: 9
-Use the forms \fB"/dev/hd[a\-t]"\fP for IDE/ATA devices, and
-\fB"/dev/sd[a\-z]"\fP for SCSI devices. For SCSI Tape Drives and
-Changers with TapeAlert support use the devices \fB"/dev/nst*"\fP and
-\fB"/dev/sg*"\fP.  For SATA disks accessed with libata, use
-\fB"/dev/sd[a\-z]"\fP and append \fB"\-d ata"\fP. For disks behind
+Use the forms \fB"/dev/sd[a\-z]"\fP for ATA/SATA and SCSI/SAS devices.
+For SCSI Tape Drives and Changers with TapeAlert support use the
+devices \fB"/dev/nst*"\fP and \fB"/dev/sg*"\fP.  For disks behind
 3ware controllers you may need \fB"/dev/sd[a\-z]"\fP or
 \fB"/dev/twe[0\-9]"\fP, \fB"/dev/twa[0\-9]"\fP or \fB"/dev/twl[0\-9]"\fP: see details
 below. For disks behind HighPoint RocketRAID controllers you may need
@@ -1793,25 +1791,25 @@ a disk can be specified by N\-\fBmax\fP.
 
 For example the commands:
 .nf
-  smartctl \-t select,10\-20 /dev/hda
-  smartctl \-t select,10+11 /dev/hda
+  smartctl \-t select,10\-20 /dev/sda
+  smartctl \-t select,10+11 /dev/sda
 .fi
 both runs a self test on one span consisting of LBAs ten to twenty
 (inclusive). The command:
 .nf
-  smartctl \-t select,100000000\-max /dev/hda
+  smartctl \-t select,100000000\-max /dev/sda
 .fi
 run a self test from LBA 100000000 up to the end of the disk.
 The \'\-t\' option can be given up to five times, to test
 up to five spans.  For example the command:
 .nf
-  smartctl \-t select,0\-100 \-t select,1000\-2000 /dev/hda
+  smartctl \-t select,0\-100 \-t select,1000\-2000 /dev/sda
 .fi
 runs a self test on two spans.  The first span consists of 101 LBAs
 and the second span consists of 1001 LBAs.  Note that the spans can
 overlap partially or completely, for example:
 .nf
-  smartctl \-t select,0\-10 \-t select,5\-15 \-t select,10\-20 /dev/hda
+  smartctl \-t select,0\-10 \-t select,5\-15 \-t select,10\-20 /dev/sda
 .fi
 The results of the selective self-test can be obtained (both during
 and after the test) by printing the SMART self-test log, using the
@@ -1838,15 +1836,15 @@ argument.
 
 For example the commands:
 .nf
-  smartctl \-t select,10\-20 /dev/hda
-  smartctl \-t select,redo /dev/hda
-  smartctl \-t select,redo+20 /dev/hda
+  smartctl \-t select,10\-20 /dev/sda
+  smartctl \-t select,redo /dev/sda
+  smartctl \-t select,redo+20 /dev/sda
 .fi
 have the same effect as:
 .nf
-  smartctl \-t select,10\-20 /dev/hda
-  smartctl \-t select,10\-20 /dev/hda
-  smartctl \-t select,10\-29 /dev/hda
+  smartctl \-t select,10\-20 /dev/sda
+  smartctl \-t select,10\-20 /dev/sda
+  smartctl \-t select,10\-29 /dev/sda
 .fi
 
 .I select,next[+SIZE]
@@ -1857,15 +1855,15 @@ optional +SIZE argument.
 
 For example the commands:
 .nf
-  smartctl \-t select,0\-999 /dev/hda
-  smartctl \-t select,next /dev/hda
-  smartctl \-t select,next+2000 /dev/hda
+  smartctl \-t select,0\-999 /dev/sda
+  smartctl \-t select,next /dev/sda
+  smartctl \-t select,next+2000 /dev/sda
 .fi
 have the same effect as:
 .nf
-  smartctl \-t select,0\-999 /dev/hda
-  smartctl \-t select,1000\-1999 /dev/hda
-  smartctl \-t select,2000\-3999 /dev/hda
+  smartctl \-t select,0\-999 /dev/sda
+  smartctl \-t select,1000\-1999 /dev/sda
+  smartctl \-t select,2000\-3999 /dev/sda
 .fi
 
 If the last test ended at the last LBA of the disk, the new range starts
@@ -1988,62 +1986,55 @@ browser.
 
 .SH EXAMPLES
 .nf
-.B smartctl \-a /dev/hda
+.B smartctl \-a /dev/sda
 .fi
-Print a large amount of SMART information for drive /dev/hda which is
-typically an ATA (IDE) or SATA disk in Linux.
+Print a large amount of SMART information for drive /dev/sda .
 .PP
 .nf
-.B smartctl \-a /dev/sdb
+.B smartctl \-s off /dev/sdd
 .fi
-Print a large amount of SMART information for drive /dev/sdb . This may
-be a SCSI disk or an ATA (SATA) disk.
+Disable SMART monitoring and data log collection on drive /dev/sdd .
 .PP
 .nf
-.B smartctl \-s off /dev/hdd
+.B smartctl \-\-smart=on \-\-offlineauto=on \-\-saveauto=on /dev/sda
 .fi
-Disable SMART monitoring and data log collection on drive /dev/hdd .
-.PP
-.nf
-.B smartctl \-\-smart=on \-\-offlineauto=on \-\-saveauto=on /dev/hda
-.fi
-Enable SMART on drive /dev/hda, enable automatic offline
+Enable SMART on drive /dev/sda, enable automatic offline
 testing every four hours, and enable autosaving of
 SMART Attributes.  This is a good start-up line for your system\'s
 init files.  You can issue this command on a running system.
 .PP
 .nf
-.B smartctl \-t long /dev/hdc
+.B smartctl \-t long /dev/sdc
 .fi
-Begin an extended self-test of drive /dev/hdc.  You can issue this
+Begin an extended self-test of drive /dev/sdc.  You can issue this
 command on a running system.  The results can be seen in the self-test
 log visible with the \'\-l selftest\' option after it has completed.
 .PP
 .nf
-.B smartctl \-s on \-t offline /dev/hda
+.B smartctl \-s on \-t offline /dev/sda
 .fi
 Enable SMART on the disk, and begin an immediate offline test of
-drive /dev/hda.  You can issue this command on a running system.  The
+drive /dev/sda.  You can issue this command on a running system.  The
 results are only used to update the SMART Attributes, visible
 with the \'\-A\' option.  If any device errors occur, they are logged to
 the SMART error log, which can be seen with the \'\-l error\' option.
 .PP
 .nf
-.B smartctl \-A \-v 9,minutes /dev/hda
+.B smartctl \-A \-v 9,minutes /dev/sda
 .fi
 Shows the vendor Attributes, when the disk stores its power-on time
 internally in minutes rather than hours.
 .PP
 .nf
-.B smartctl \-q errorsonly \-H \-l selftest /dev/hda
+.B smartctl \-q errorsonly \-H \-l selftest /dev/sda
 .fi
 Produces output only if the device returns failing SMART status,
 or if some of the logged self-tests ended with errors.
 .PP
 .nf
-.B smartctl \-q silent \-a /dev/hda
+.B smartctl \-q silent \-a /dev/sda
 .fi
-Examine all SMART data for device /dev/hda, but produce no
+Examine all SMART data for device /dev/sda, but produce no
 printed output.  You must use the exit status (the
 .B $?
 shell variable) to learn if any Attributes are out of bound, if the
@@ -2102,7 +2093,7 @@ Start a short self-test on the (S)ATA disk connected to second pmport on the
 first channel of the first HighPoint RocketRAID controller card.
 .PP
 .nf
-.B smartctl \-t select,10\-100 \-t select,30\-300 \-t afterselect,on \-t pending,45 /dev/hda
+.B smartctl \-t select,10\-100 \-t select,30\-300 \-t afterselect,on \-t pending,45 /dev/sda
 .fi
 Run a selective self-test on LBAs 10 to 100 and 30 to 300.  After the
 these LBAs have been tested, read-scan the remainder of the disk.  If the disk is

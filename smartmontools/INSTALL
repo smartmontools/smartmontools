@@ -567,8 +567,8 @@ man smartd.conf
 man smartctl
 man smartd
 
-/usr/sbin/smartctl -s on -o on -S on /dev/hda (only root can do this)
-/usr/sbin/smartctl -a /dev/hda (only root can do this)
+/usr/sbin/smartctl -s on -o on -S on /dev/sda (only root can do this)
+/usr/sbin/smartctl -a /dev/sda (only root can do this)
 
 Note that the default location for the manual pages are
 /usr/share/man/man5 and /usr/share/man/man8.  If "man" doesn't find

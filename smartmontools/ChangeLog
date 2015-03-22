@@ -1,5 +1,11 @@
 $Id$
 
+2015-03-22  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp, smartctl.8.in, smartd.8.in, smartd.conf, smartd.conf.5.in,
+	smartd.cpp: Remove old Linux IDE device names (/dev/hdX) in man pages
+	and help texts.
+
 2015-03-21  Christian Franke  <franke@computer.org>
 
 	smartd.8.in, smartd.cpp: Clarify smartd '--capabilities' option

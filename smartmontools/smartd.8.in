@@ -98,7 +98,7 @@ devices that support SMART.  The scanning is done as follows:
 .IP \fBLINUX:\fP 9
 Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a-z]"\fP, \fB"/dev/sd[a-c][a-z]"\fP
-for SCSI or SATA devices.
+for ATA/SATA or SCSI/SAS devices.
 Disks behind RAID controllers are not included.
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD
@@ -183,7 +183,7 @@ can be used to verify the existence of the default configuration file.
 By using \'\-\' for FILE, the configuration is read from standard
 input. This is useful for commands like:
 .nf
-.B echo /dev/hdb \-m user@home \-M test | smartd \-c \- \-q onecheck
+.B echo /dev/sdb \-m user@home \-M test | smartd \-c \- \-q onecheck
 .fi
 to perform quick and simple checks without a configuration file.
 .\" %IF ENABLE_CAPABILITIES
@@ -487,7 +487,7 @@ or
 .B \'\-u\'
 Directives. For example:
 .nf
-.B \'Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93\'
+.B \'Device: /dev/sda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93\'
 .fi
 Note that in this message, the value given is the \'Normalized\' not the \'Raw\' 
 Attribute value (the disk temperature in this case is about 22
@@ -498,7 +498,7 @@ and
 Directives modify this behavior, so that the information is printed
 with the Raw values as well, for example:
 .nf
-.B \'Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 [Raw 22] to 93 [Raw 23]\'
+.B \'Device: /dev/sda, SMART Attribute: 194 Temperature_Celsius changed from 94 [Raw 22] to 93 [Raw 23]\'
 .fi
 Here the Raw values are the actual disk temperatures in Celsius.  The
 way in which the Raw values are printed, and the names under which the
@@ -516,7 +516,7 @@ will make log entries at loglevel
 .B LOG_CRIT
 if a SMART Attribute has failed, for example:
 .nf
-.B \'Device: /dev/hdc, Failed SMART Attribute: 5 Reallocated_Sector_Ct\'
+.B \'Device: /dev/sdc, Failed SMART Attribute: 5 Reallocated_Sector_Ct\'
 .fi
  This loglevel is used for reporting enabled by the
 .B \'\-H\', \-f\', \'\-l\ selftest\',
