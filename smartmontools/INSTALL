@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL 3935 2014-07-05 16:28:06Z chrfranke $
+$Id: INSTALL 4047 2015-03-22 16:16:24Z chrfranke $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -567,8 +567,8 @@ man smartd.conf
 man smartctl
 man smartd
 
-/usr/sbin/smartctl -s on -o on -S on /dev/hda (only root can do this)
-/usr/sbin/smartctl -a /dev/hda (only root can do this)
+/usr/sbin/smartctl -s on -o on -S on /dev/sda (only root can do this)
+/usr/sbin/smartctl -a /dev/sda (only root can do this)
 
 Note that the default location for the manual pages are
 /usr/share/man/man5 and /usr/share/man/man8.  If "man" doesn't find

@@ -3,7 +3,7 @@ smartmontools - S.M.A.R.T. utility toolset for Darwin/Mac
 OSX, FreeBSD, Linux, NetBSD, OpenBSD, Solaris, and Windows.
 ==========================================================
 
-$Id: README 3949 2014-07-13 17:23:40Z chrfranke $
+$Id: README 4047 2015-03-22 16:16:24Z chrfranke $
 
 == HOME ==
 The home for smartmontools is located at:
@@ -85,11 +85,8 @@ Refer to the "INSTALL" file for detailed installation instructions.
 == GETTING STARTED ==
 
 To examine SMART data from a disk, try:
-  smartctl -a /dev/hda
-for ATA disks, or
   smartctl -a /dev/sda
-for SCSI disks.  See the manual page 'man smartctl' for more
-information.
+See the manual page 'man smartctl' for more information.
 
 To start automatic monitoring of your disks with the smartd daemon,
 try:

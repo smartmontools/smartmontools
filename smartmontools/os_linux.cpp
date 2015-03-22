@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2003-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -99,7 +99,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4023 2014-12-07 17:44:49Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4047 2015-03-22 16:16:24Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -194,11 +194,11 @@ bool linux_smart_device::close()
 // examples for smartctl
 static const char  smartctl_examples[] =
 		  "=================================================== SMARTCTL EXAMPLES =====\n\n"
-		  "  smartctl --all /dev/hda                    (Prints all SMART information)\n\n"
-		  "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
+		  "  smartctl --all /dev/sda                    (Prints all SMART information)\n\n"
+		  "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/sda\n"
 		  "                                              (Enables SMART on first disk)\n\n"
-		  "  smartctl --test=long /dev/hda          (Executes extended disk self-test)\n\n"
-		  "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
+		  "  smartctl --test=long /dev/sda          (Executes extended disk self-test)\n\n"
+		  "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/sda\n"
 		  "                                      (Prints Self-Test & Attribute errors)\n"
 		  "  smartctl --all --device=3ware,2 /dev/sda\n"
 		  "  smartctl --all --device=3ware,2 /dev/twe0\n"
@@ -2701,8 +2701,7 @@ std::string linux_smart_interface::get_app_examples(const char * appname)
 }
 
 // we are going to take advantage of the fact that Linux's devfs will only
-// have device entries for devices that exist.  So if we get the equivalent of
-// ls /dev/hd[a-t], we have all the ATA devices on the system
+// have device entries for devices that exist.
 bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
   const char * pattern, bool scan_ata, bool scan_scsi,
   const char * req_type, bool autodetect)

@@ -106,7 +106,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4046 2015-03-21 16:25:38Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4047 2015-03-22 16:16:24Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -4789,7 +4789,7 @@ static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_devic
       PrintOut(LOG_CRIT,"In the system's table of devices NO devices found to scan\n");
   } 
   else
-    PrintOut(LOG_CRIT,"Configuration file %s parsed but has no entries (like /dev/hda)\n",configfile);
+    PrintOut(LOG_CRIT, "Configuration file %s parsed but has no entries\n", configfile);
   
   return conf_entries.size();
 }
