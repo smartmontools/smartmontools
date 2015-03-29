@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -786,7 +786,7 @@ bool ataReadSmartLog(ata_device * device, unsigned char logaddr,
                      void * data, unsigned nsectors);
 // Read SMART Extended Comprehensive Error Log
 bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
-                        unsigned nsectors, firmwarebug_defs firwarebugs);
+                        unsigned page, unsigned nsectors, firmwarebug_defs firmwarebugs);
 // Read SMART Extended Self-test Log
 bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
                            unsigned nsectors);

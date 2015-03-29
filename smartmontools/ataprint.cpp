@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -1832,7 +1832,9 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
 }
 
 // Print SMART Extended Comprehensive Error Log (GP Log 0x03)
-static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
+static int PrintSmartExtErrorLog(ata_device * device,
+                                 const firmwarebug_defs & firmwarebugs,
+                                 const ata_smart_exterrlog * log,
                                  unsigned nsectors, unsigned max_errors)
 {
   pout("SMART Extended Comprehensive Error Log Version: %u (%u sectors)\n",
@@ -1893,11 +1895,30 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
        "DDd+hh:mm:SS.sss where DD=days, hh=hours, mm=minutes,\n"
        "SS=sec, and sss=millisec. It \"wraps\" after 49.710 days.\n\n");
 
+  // Recently read log page
+  ata_smart_exterrlog log_buf;
+  unsigned log_buf_page = ~0;
+
   // Iterate through circular buffer in reverse direction
   for (unsigned i = 0, errnum = log->device_error_count;
        i < errcnt; i++, errnum--, erridx = (erridx > 0 ? erridx - 1 : nentries - 1)) {
 
-    const ata_smart_exterrlog_error_log & entry = log[erridx / 4].error_logs[erridx % 4];
+    // Read log page if needed
+    const ata_smart_exterrlog * log_p;
+    unsigned page = erridx / 4;
+    if (page == 0)
+      log_p = log;
+    else {
+      if (page != log_buf_page) {
+        memset(&log_buf, 0, sizeof(log_buf));
+        if (!ataReadExtErrorLog(device, &log_buf, page, 1, firmwarebugs))
+          break;
+        log_buf_page = page;
+      }
+      log_p = &log_buf;
+    }
+
+    const ata_smart_exterrlog_error_log & entry = log_p->error_logs[erridx % 4];
 
     // Skip unused entries
     if (!nonempty(&entry, sizeof(entry))) {
@@ -3182,17 +3203,16 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     unsigned nsectors = GetNumLogSectors(gplogdir, 0x03, true);
     if (!nsectors)
       pout("SMART Extended Comprehensive Error Log (GP Log 0x03) not supported\n\n");
-    else if (nsectors >= 256)
-      pout("SMART Extended Comprehensive Error Log size %u not supported\n\n", nsectors);
     else {
-      raw_buffer log_03_buf(nsectors * 512);
-      ata_smart_exterrlog * log_03 = (ata_smart_exterrlog *)log_03_buf.data();
-      if (!ataReadExtErrorLog(device, log_03, nsectors, firmwarebugs)) {
+      // Read only first sector to get error count and index
+      // Print function will read more sectors as needed
+      ata_smart_exterrlog log_03; memset(&log_03, 0, sizeof(log_03));
+      if (!ataReadExtErrorLog(device, &log_03, 0, 1, firmwarebugs)) {
         pout("Read SMART Extended Comprehensive Error Log failed\n\n");
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       }
       else {
-        if (PrintSmartExtErrorLog(log_03, nsectors, options.smart_ext_error_log))
+        if (PrintSmartExtErrorLog(device, firmwarebugs, &log_03, nsectors, options.smart_ext_error_log))
           returnval |= FAILERR;
         ok = true;
       }

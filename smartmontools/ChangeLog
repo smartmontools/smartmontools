@@ -1,5 +1,12 @@
 $Id$
 
+2015-03-29  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Read only required log pages of Extended Comprehensive
+	Error log.  This adds support for logs with many pages (ticket #498).
+	atacmds.cpp, atacmds.h, smartd.cpp: Add 'page' parameter to function
+	ataReadExtErrorLog().
+
 2015-03-22  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp, smartctl.8.in, smartd.8.in, smartd.conf, smartd.conf.5.in,

@@ -1591,7 +1591,7 @@ static int read_ata_error_count(ata_device * device, const char * name,
   }
   else {
     ata_smart_exterrlog logx;
-    if (!ataReadExtErrorLog(device, &logx, 1 /*first sector only*/, firmwarebugs)) {
+    if (!ataReadExtErrorLog(device, &logx, 0, 1 /*first sector only*/, firmwarebugs)) {
       PrintOut(LOG_INFO,"Device: %s, Read Extended Comprehensive SMART Error Log failed\n",name);
       return -1;
     }
