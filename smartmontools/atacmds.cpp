@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3998 2014-10-06 15:20:25Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4048 2015-03-29 16:09:04Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -1466,9 +1466,9 @@ static void fix_exterrlog_lba(ata_smart_exterrlog * log, unsigned nsectors)
 
 // Read Extended Comprehensive Error Log
 bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
-                        unsigned nsectors, firmwarebug_defs firmwarebugs)
+                        unsigned page, unsigned nsectors, firmwarebug_defs firmwarebugs)
 {
-  if (!ataReadLogExt(device, 0x03, 0x00, 0, log, nsectors))
+  if (!ataReadLogExt(device, 0x03, 0x00, page, log, nsectors))
     return false;
 
   check_multi_sector_sum(log, nsectors, "SMART Extended Comprehensive Error Log Structure");

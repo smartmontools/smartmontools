@@ -1,4 +1,11 @@
-$Id: ChangeLog 4047 2015-03-22 16:16:24Z chrfranke $
+$Id: ChangeLog 4048 2015-03-29 16:09:04Z chrfranke $
+
+2015-03-29  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Read only required log pages of Extended Comprehensive
+	Error log.  This adds support for logs with many pages (ticket #498).
+	atacmds.cpp, atacmds.h, smartd.cpp: Add 'page' parameter to function
+	ataReadExtErrorLog().
 
 2015-03-22  Christian Franke  <franke@computer.org>
 
