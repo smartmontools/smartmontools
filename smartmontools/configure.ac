@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4049 2015-04-08 20:10:38Z chrfranke $
+# $Id: configure.ac 4050 2015-04-08 20:35:14Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 6.4, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4049 2015-04-08 20:10:38Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4050 2015-04-08 20:35:14Z chrfranke $'`
 smartmontools_release_date=2014-07-26
 smartmontools_release_time="09:49:11 UTC"
 
@@ -312,7 +312,7 @@ AC_ARG_WITH(libcap-ng,
 use_libcap_ng=no
 if test "$with_libcap_ng" != "no"; then
   AC_CHECK_LIB(cap-ng, capng_clear,
-    [AC_DEFINE(HAVE_LIBCAP_NG, 1, [Define to 1 if you have the `cap-ng' library (-lcap-ng).])
+    [AC_DEFINE(HAVE_LIBCAP_NG, 1, [Define to 1 if you have the `cap-ng' library (-lcap-ng).]) dnl `vim syntax
      CAPNG_LDADD="-lcap-ng"; use_libcap_ng=yes])
 
   if test "$use_libcap_ng" = "yes"; then
@@ -358,7 +358,7 @@ AC_ARG_WITH(working-snprintf,
   [libc_have_working_snprintf=$withval])
 
 if test "$libc_have_working_snprintf" = "yes"; then
-  AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane])
+  AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane.]) dnl `vim syntax
 fi
 
 if test "$prefix" = "NONE"; then
