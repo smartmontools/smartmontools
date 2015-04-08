@@ -1,5 +1,10 @@
 $Id$
 
+2015-04-08  Christian Franke  <franke@computer.org>
+
+	configure.ac: Print 'deprecated' warning if autoconf 2.5x or
+	--with-docdir option is used.
+
 2015-03-29  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Read only required log pages of Extended Comprehensive
