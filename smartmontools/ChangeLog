@@ -4,6 +4,7 @@ $Id$
 
 	configure.ac: Print 'deprecated' warning if autoconf 2.5x or
 	--with-docdir option is used.
+	Add comments to fix vim syntax coloring.
 
 2015-03-29  Christian Franke  <franke@computer.org>
 

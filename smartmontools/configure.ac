@@ -312,7 +312,7 @@ AC_ARG_WITH(libcap-ng,
 use_libcap_ng=no
 if test "$with_libcap_ng" != "no"; then
   AC_CHECK_LIB(cap-ng, capng_clear,
-    [AC_DEFINE(HAVE_LIBCAP_NG, 1, [Define to 1 if you have the `cap-ng' library (-lcap-ng).])
+    [AC_DEFINE(HAVE_LIBCAP_NG, 1, [Define to 1 if you have the `cap-ng' library (-lcap-ng).]) dnl `vim syntax
      CAPNG_LDADD="-lcap-ng"; use_libcap_ng=yes])
 
   if test "$use_libcap_ng" = "yes"; then
@@ -358,7 +358,7 @@ AC_ARG_WITH(working-snprintf,
   [libc_have_working_snprintf=$withval])
 
 if test "$libc_have_working_snprintf" = "yes"; then
-  AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane])
+  AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane.]) dnl `vim syntax
 fi
 
 if test "$prefix" = "NONE"; then
