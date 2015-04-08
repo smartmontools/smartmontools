@@ -130,8 +130,8 @@ For disks behind an Intel ICHxR controller with RST driver use
 \fB"/dev/csmi[0\-9],N"\fP where N specifies the port behind the logical
 scsi controller "\\\\.\\Scsi[0\-9]:".
 
-[NEW EXPERIMENTAL SMARTCTL FEATURE] For SATA or SAS disks behind an Areca
-controller use \fB"/dev/arcmsr[0\-9]"\fP, see \'\-d areca,N[/E]\' below.
+For SATA or SAS disks behind an Areca controller use
+\fB"/dev/arcmsr[0\-9]"\fP, see \'\-d areca,N[/E]\' below.
 
 The prefix \fB"/dev/"\fP is optional.
 .\" %ENDIF OS Windows Cygwin
@@ -326,7 +326,6 @@ CAUTION: Specifying \',x\' for a device which does not support it results
 in I/O errors and may disconnect the drive.  The same applies if the specified
 PORT does not exist or is not connected to a disk.
 
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 The Prolific PL2507/3507 USB bridges with older firmware support a pass-through
 command similar to JMicron and work with \'\-d usbjmicron,0\'.
 Newer Prolific firmware requires a modified command which can be selected by
@@ -495,7 +494,7 @@ On FreeBSD use syntax such as:
 .fi
 .\" %ENDIF OS FreeBSD
 .\" %IF OS Windows Cygwin
-[NEW EXPERIMENTAL SMARTCTL FEATURE] On Windows and Cygwin use syntax such as:
+On Windows and Cygwin use syntax such as:
 .nf
 \fBsmartctl \-a \-d areca,2 /dev/arcmsr0\fP
 .fi
@@ -526,8 +525,8 @@ later.  Lower-numbered firmware versions will give (harmless) SCSI
 error messages and no SMART information.
 
 .I areca,N/E
-\- [FreeBSD, Linux, Windows and Cygwin only] [NEW EXPERIMENTAL SMARTCTL FEATURE] the
-device consists of one or more SATA or SAS disks connected to an Areca SAS RAID controller.
+\- [FreeBSD, Linux, Windows and Cygwin only] the device consists of one
+or more SATA or SAS disks connected to an Areca SAS RAID controller.
 The integer N (range 1 to 128) denotes the channel (slot) and E (range
 1 to 8) denotes the enclosure.
 Important: This requires Areca SAS controller firmware version 1.51 or later.
@@ -885,13 +884,11 @@ the drive.  The setting of the standby timer is not affected.
 The write cache is usually enabled by default.
 
 .I wcache[,on|off]
-\- [SCSI] [NEW EXPERIMENTAL SMARTCTL FEATURE]
-Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
+\- [SCSI] Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
 The write cache is usually enabled by default.
 
 .I wcreorder[,on|off]
-\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
-Gets/sets Write Cache Reordering.
+\- [ATA only] Gets/sets Write Cache Reordering.
 If it is disabled (off), disk write scheduling is executed on a 
 first-in-first-out (FIFO) basis. If Write Cache Reordering is enabled (on),
 then disk write scheduling may be reordered by the drive. If write cache is
@@ -901,9 +898,8 @@ The state of Write Cache Reordering has no effect on either NCQ or LCQ queued
 commands.
 
 .I rcache[,on|off]
-\- [SCSI only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
-Gets/sets the \'Read Cache Disable\' (RCE) bit. \'Off\' value disables read cache
-(if supported).
+\- [SCSI only] Gets/sets the \'Read Cache Disable\' (RCE) bit.
+\'Off\' value disables read cache (if supported).
 The read cache is usually enabled by default.
 
 .TP

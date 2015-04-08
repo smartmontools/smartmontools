@@ -414,7 +414,6 @@ forced by SIGUSR1. After a normal check cycle, a file is only rewritten if
 an important change (which usually results in a SYSLOG output) occurred.
 .TP
 .B \-w PATH, \-\-warnexec=PATH
-[NEW EXPERIMENTAL SMARTD FEATURE]
 Run the executable PATH instead of the default script when smartd
 needs to send warning messages.  PATH must point to an executable binary
 file or script.

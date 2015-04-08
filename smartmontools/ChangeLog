@@ -5,6 +5,8 @@ $Id$
 	configure.ac: Print 'deprecated' warning if autoconf 2.5x or
 	--with-docdir option is used.
 	Add comments to fix vim syntax coloring.
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in:
+	Remove EXPERIMENTAL notes for features added before 6.3.
 
 2015-03-29  Christian Franke  <franke@computer.org>
 
