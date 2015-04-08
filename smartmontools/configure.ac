@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 3977 2014-07-26 11:03:24Z chrfranke $
+# $Id: configure.ac 4049 2015-04-08 20:10:38Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 6.4, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 3977 2014-07-26 11:03:24Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4049 2015-04-08 20:10:38Z chrfranke $'`
 smartmontools_release_date=2014-07-26
 smartmontools_release_time="09:49:11 UTC"
 
@@ -214,8 +214,9 @@ case "${host}" in
 esac
 AC_SUBST(initdfile)
 
+autoconf_25x=${docdir:-yes}
 AC_ARG_WITH(docdir,
-  [AS_HELP_STRING([--with-docdir=DIR], [Location of documentation [DATADIR/doc/smartmontools]])],
+  [AS_HELP_STRING([--with-docdir=DIR], [Deprecated (use --docdir=DIR instead)])],
   [docdir="$withval"],
   [ if test -z "$docdir"; then
       # autoconf 2.5x without '--docdir' support
@@ -361,7 +362,7 @@ if test "$libc_have_working_snprintf" = "yes"; then
 fi
 
 if test "$prefix" = "NONE"; then
-    dnl no prefix and no mandir, so use ${prefix}/share/man as default
+    # Fix mandir default set by autoconf 2.5x
     if test "$mandir" = '${prefix}/man'; then
     	AC_SUBST([mandir], ['${prefix}/share/man'])
     fi
@@ -620,3 +621,13 @@ case "$host_os" in
     ;;
 esac
 echo "-----------------------------------------------------------------------------" >&AS_MESSAGE_FD
+
+if test "$autoconf_25x" = "yes"; then
+ echo "WARNING:" >&AS_MESSAGE_FD
+ echo "Support for old autoconf 2.5x versions will be removed in a future" >&AS_MESSAGE_FD
+ echo "release of smartmontools." >&AS_MESSAGE_FD
+elif test "${with_docdir+set}" = "set"; then
+ echo "WARNING:" >&AS_MESSAGE_FD
+ echo "Option --with-docdir is deprecated and will be removed in a future" >&AS_MESSAGE_FD
+ echo "release of smartmontools.  Use --docdir instead." >&AS_MESSAGE_FD
+fi
