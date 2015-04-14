@@ -39,20 +39,20 @@ typep()
 }
 
 test -x "$AUTOMAKE" ||
-    AUTOMAKE=`typep automake-1.14` ||
+    AUTOMAKE=`typep automake-1.15` || AUTOMAKE=`typep automake-1.14` ||
     AUTOMAKE=`typep automake-1.13` || AUTOMAKE=`typep automake-1.12` ||
     AUTOMAKE=`typep automake-1.11` || AUTOMAKE=`typep automake-1.10` ||
     AUTOMAKE=`typep automake-1.9` || AUTOMAKE=`typep automake-1.8` ||
     AUTOMAKE=`typep automake-1.7` || AUTOMAKE=`typep automake17` ||
 {
 echo
-echo "You must have at least GNU Automake 1.7 (up to 1.14) installed"
+echo "You must have at least GNU Automake 1.7 (up to 1.15) installed"
 echo "in order to bootstrap smartmontools from SVN. Download the"
 echo "appropriate package for your distribution, or the source tarball"
 echo "from ftp://ftp.gnu.org/gnu/automake/ ."
 echo
 echo "Also note that support for new Automake series (anything newer"
-echo "than 1.14) is only added after extensive tests. If you live in"
+echo "than 1.15) is only added after extensive tests. If you live in"
 echo "the bleeding edge, you should know what you're doing, mainly how"
 echo "to test it before the developers. Be patient."
 exit 1;
@@ -97,7 +97,7 @@ case "$ver" in
     # OK
     ;;
 
-  1.14|1.14.1)
+  1.14|1.14.1|1.15)
     # TODO: Enable 'subdir-objects' in configure.ac
     # For now, suppress 'subdir-objects' forward-incompatibility warning
     test -n "$warnings" || amwarnings="--warnings=no-unsupported"

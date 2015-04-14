@@ -1,5 +1,9 @@
 $Id$
 
+2015-04-14  Christian Franke  <franke@computer.org>
+
+	autogen.sh: automake 1.15 works.
+
 2015-04-08  Christian Franke  <franke@computer.org>
 
 	configure.ac: Print 'deprecated' warning if autoconf 2.5x or
