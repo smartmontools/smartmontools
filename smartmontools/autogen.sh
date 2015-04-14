@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh 4052 2015-04-14 20:01:06Z chrfranke $
+# $Id: autogen.sh 4053 2015-04-14 20:18:50Z chrfranke $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -106,6 +106,14 @@ case "$ver" in
   *)
     echo "Note: GNU Automake version ${ver} was not tested by the developers."
     echo "Please report success/failure to the smartmontools-support mailing list."
+esac
+
+# Warn if Automake version is too old
+case "$ver" in
+  1.[789]|1.[789].*)
+    echo "WARNING:"
+    echo "The use of GNU Automake version $ver is deprecated.  Support for Automake"
+    echo "versions 1.7 - 1.9.x will be removed in a future release of smartmontools."
 esac
 
 # Install pkg-config macros
