@@ -108,6 +108,14 @@ case "$ver" in
     echo "Please report success/failure to the smartmontools-support mailing list."
 esac
 
+# Warn if Automake version is too old
+case "$ver" in
+  1.[789]|1.[789].*)
+    echo "WARNING:"
+    echo "The use of GNU Automake version $ver is deprecated.  Support for Automake"
+    echo "versions 1.7 - 1.9.x will be removed in a future release of smartmontools."
+esac
+
 # Install pkg-config macros
 # (Don't use 'aclocal -I m4 --install' to keep support for automake < 1.10)
 test -d m4 || mkdir m4 || exit 1

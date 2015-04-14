@@ -3,6 +3,7 @@ $Id$
 2015-04-14  Christian Franke  <franke@computer.org>
 
 	autogen.sh: automake 1.15 works.
+	Print 'deprecated' warning if automake < 1.10 is used.
 
 2015-04-08  Christian Franke  <franke@computer.org>
 
