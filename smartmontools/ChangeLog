@@ -1,5 +1,10 @@
 $Id$
 
+2015-04-15  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, update-smart-drivedb.8.in:
+	Add REPORTING BUGS section.
+
 2015-04-14  Christian Franke  <franke@computer.org>
 
 	autogen.sh: automake 1.15 works.

@@ -2190,8 +2190,6 @@ University of Wisconsin \- Milwaukee Physics Department
 .br
 \fBChristian Franke\fP (Windows interface, C++ redesign, most enhancements
 since 2009)
-.br
-\fBsmartmontools\-support@lists.sourceforge.net\fP
 
 The following have made large contributions to smartmontools:
 .br
@@ -2232,6 +2230,15 @@ Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
 Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
+
+.SH REPORTING BUGS
+To submit a bug report, create a ticket in smartmontools wiki:
+.br
+<\fBhttp://www.smartmontools.org/\fP>.
+.br
+Alternatively send the info to the smartmontools support mailing list:
+.br
+<\fBhttps://lists.sourceforge.net/lists/listinfo/smartmontools-support\fB>.
 
 .SH SEE ALSO
 \fBsmartd\fP(8), \fBupdate-smart-drivedb\fP(8).

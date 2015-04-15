@@ -660,7 +660,7 @@ Please report this problem to \fB smartmontools-support@lists.sourceforge.net\fP
 An inconsistency was found in \fBsmartd\fP\'s internal data
 structures. This should never happen.  It must be due to either a
 coding or compiler bug.  \fIPlease\fP report such failures to
-smartmontools-support@lists.sourceforge.net.
+smartmontools developers, see REPORTING BUGS below.
 .TP
 .B 16:
 A device explicitly listed in
@@ -721,8 +721,6 @@ University of Wisconsin \- Milwaukee Physics Department
 .br
 \fBChristian Franke\fP (Windows interface, C++ redesign, most enhancements
 since 2009)
-.br
-\fBsmartmontools\-support@lists.sourceforge.net\fP
 
 The following have made large contributions to smartmontools:
 .br
@@ -761,6 +759,15 @@ Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
 of Engineering, University of California, Santa
 Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
+
+.SH REPORTING BUGS
+To submit a bug report, create a ticket in smartmontools wiki:
+.br
+<\fBhttp://www.smartmontools.org/\fP>.
+.br
+Alternatively send the info to the smartmontools support mailing list:
+.br
+<\fBhttps://lists.sourceforge.net/lists/listinfo/smartmontools-support\fB>.
 
 .SH SEE ALSO
 \fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBupdate-smart-drivedb\fP(8).

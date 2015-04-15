@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2014-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
 $Id$
 
@@ -85,17 +85,23 @@ new drive database rejected due to syntax errors.
 .B /usr/local/share/smartmontools/drivedb.h.lastcheck
 empty file created if downloaded file was identical.
 
-.SH "SEE ALSO"
-.BR smartctl (8),
-.BR smartd (8).
-
 .SH AUTHORS
-\fBChristian Franke\fP
-.br
-\fBsmartmontools\-support@lists.sourceforge.net\fP
+\fBChristian Franke\fP.
 .br
 This manual page was originally written by
 .BR "Hannes von Haugwitz <hannes@vonhaugwitz.com>" .
+
+.SH REPORTING BUGS
+To submit a bug report, create a ticket in smartmontools wiki:
+.br
+<\fBhttp://www.smartmontools.org/\fP>.
+.br
+Alternatively send the info to the smartmontools support mailing list:
+.br
+<\fBhttps://lists.sourceforge.net/lists/listinfo/smartmontools-support\fB>.
+
+.SH SEE ALSO
+\fBsmartctl\fP(8), \fBsmartd\fP(8).
 
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
