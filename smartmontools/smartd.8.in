@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.8.in 4054 2015-04-15 19:04:49Z chrfranke $
+$Id: smartd.8.in 4055 2015-04-15 19:25:33Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -651,11 +651,6 @@ Config file exists, but cannot be read.
 \fBsmartd\fP
 ran out of memory during startup.
 .TP
-.B 9:
-A compile time constant of\fB smartd\fP was too small.  This can be caused by an
-excessive number of disks, or by lines in \fB /usr/local/etc/smartd.conf\fP that are too long.
-Please report this problem to \fB smartmontools-support@lists.sourceforge.net\fP.
-.TP
 .B 10:
 An inconsistency was found in \fBsmartd\fP\'s internal data
 structures. This should never happen.  It must be due to either a
@@ -797,4 +792,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 4054 2015-04-15 19:04:49Z chrfranke $
+$Id: smartd.8.in 4055 2015-04-15 19:25:33Z chrfranke $

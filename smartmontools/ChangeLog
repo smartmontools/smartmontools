@@ -1,9 +1,10 @@
-$Id: ChangeLog 4054 2015-04-15 19:04:49Z chrfranke $
+$Id: ChangeLog 4055 2015-04-15 19:25:33Z chrfranke $
 
 2015-04-15  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, update-smart-drivedb.8.in:
 	Add REPORTING BUGS section.
+	smartd.8.in: Remove no longer used exit status 9.
 
 2015-04-14  Christian Franke  <franke@computer.org>
 
