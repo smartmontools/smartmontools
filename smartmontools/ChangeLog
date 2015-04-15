@@ -4,6 +4,8 @@ $Id$
 
 	smartctl.8.in, smartd.8.in, update-smart-drivedb.8.in:
 	Add REPORTING BUGS section.
+	smartctl.8.in, smartd.8.in:
+	Rename RETURN VALUE section to EXIT STATUS.
 	smartd.8.in: Remove no longer used exit status 9.
 
 2015-04-14  Christian Franke  <franke@computer.org>

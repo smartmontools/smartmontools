@@ -621,10 +621,8 @@ set using \fB/etc/localtime\fP. The work-around \fIfails\fP if the
 time-zone is set using the \'\fBTZ\fP\' variable (or a file that it
 points to).
 
-.SH RETURN VALUES
-The return value (exit status) of 
-\fBsmartd\fP
-can have the following values:
+.SH EXIT STATUS
+The exit status (return value) of \fBsmartd\fP can have the following values:
 .TP
 .B 0:
 Daemon startup successful, or \fBsmartd\fP was killed by a SIGTERM (or in debug mode, a SIGQUIT).

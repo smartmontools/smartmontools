@@ -261,7 +261,7 @@ which failed either now or in the past.
 
 .I silent
 \- print no output.  The only way to learn about what was found is to
-use the exit status of \fBsmartctl\fP (see RETURN VALUES below).
+use the exit status of \fBsmartctl\fP (see EXIT STATUS below).
 
 .I noserial
 \- Do not print the serial number of the device.
@@ -688,7 +688,7 @@ behaviour. This is does not work for SCSI devices yet.
 checks when the device is in a low-power mode. It may be used to prevent
 a disk from being spun-up by \fBsmartctl\fP. The power mode is ignored by
 default.  A nonzero exit status is returned if the device is in one of the
-specified low-power modes (see RETURN VALUES below).
+specified low-power modes (see EXIT STATUS below).
 
 Note: If this option is used it may also be necessary to specify the device
 type with the \'\-d\' option.  Otherwise the device may spin up due to
@@ -2102,13 +2102,13 @@ device is restored.
 Examine all SMART data for the first SCSI disk connected to a cciss
 RAID controller card.
 
-.SH RETURN VALUES
-The return values of \fBsmartctl\fP are defined by a bitmask.  If all
-is well with the disk, the return value (exit status) of
+.SH EXIT STATUS
+The exit statuses of \fBsmartctl\fP are defined by a bitmask.
+If all is well with the disk, the exit status (return value) of
 \fBsmartctl\fP is 0 (all bits turned off).  If a problem occurs, or an
 error, potential error, or fault is detected, then a non-zero status
-is returned.  In this case, the eight different bits in the return
-value have the following meanings for ATA disks; some of these values
+is returned.  In this case, the eight different bits in the exit status
+have the following meanings for ATA disks; some of these values
 may also be returned for SCSI disks.
 .TP
 .B Bit 0:
