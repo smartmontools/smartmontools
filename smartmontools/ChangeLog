@@ -1,4 +1,9 @@
-$Id: ChangeLog 4053 2015-04-14 20:18:50Z chrfranke $
+$Id: ChangeLog 4054 2015-04-15 19:04:49Z chrfranke $
+
+2015-04-15  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, update-smart-drivedb.8.in:
+	Add REPORTING BUGS section.
 
 2015-04-14  Christian Franke  <franke@computer.org>
 

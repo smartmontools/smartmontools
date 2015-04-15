@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 Copyright (C) 2004-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.8.in 4051 2015-04-08 21:20:34Z chrfranke $
+$Id: smartd.8.in 4054 2015-04-15 19:04:49Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -660,7 +660,7 @@ Please report this problem to \fB smartmontools-support@lists.sourceforge.net\fP
 An inconsistency was found in \fBsmartd\fP\'s internal data
 structures. This should never happen.  It must be due to either a
 coding or compiler bug.  \fIPlease\fP report such failures to
-smartmontools-support@lists.sourceforge.net.
+smartmontools developers, see REPORTING BUGS below.
 .TP
 .B 16:
 A device explicitly listed in
@@ -721,8 +721,6 @@ University of Wisconsin \- Milwaukee Physics Department
 .br
 \fBChristian Franke\fP (Windows interface, C++ redesign, most enhancements
 since 2009)
-.br
-\fBsmartmontools\-support@lists.sourceforge.net\fP
 
 The following have made large contributions to smartmontools:
 .br
@@ -762,6 +760,15 @@ Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 of Engineering, University of California, Santa
 Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
 
+.SH REPORTING BUGS
+To submit a bug report, create a ticket in smartmontools wiki:
+.br
+<\fBhttp://www.smartmontools.org/\fP>.
+.br
+Alternatively send the info to the smartmontools support mailing list:
+.br
+<\fBhttps://lists.sourceforge.net/lists/listinfo/smartmontools-support\fB>.
+
 .SH SEE ALSO
 \fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBupdate-smart-drivedb\fP(8).
 
@@ -790,4 +797,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 4051 2015-04-08 21:20:34Z chrfranke $
+$Id: smartd.8.in 4054 2015-04-15 19:04:49Z chrfranke $
