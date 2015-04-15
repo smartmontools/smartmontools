@@ -651,11 +651,6 @@ Config file exists, but cannot be read.
 \fBsmartd\fP
 ran out of memory during startup.
 .TP
-.B 9:
-A compile time constant of\fB smartd\fP was too small.  This can be caused by an
-excessive number of disks, or by lines in \fB /usr/local/etc/smartd.conf\fP that are too long.
-Please report this problem to \fB smartmontools-support@lists.sourceforge.net\fP.
-.TP
 .B 10:
 An inconsistency was found in \fBsmartd\fP\'s internal data
 structures. This should never happen.  It must be due to either a
