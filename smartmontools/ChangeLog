@@ -1,5 +1,9 @@
 $Id$
 
+2015-04-17  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Detect SAT layer of certain Intel AHCI drivers.
+
 2015-04-15  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, update-smart-drivedb.8.in:

@@ -2047,6 +2047,13 @@ static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONIN
   switch ((int)data.desc.BusType) {
     case BusTypeAta:
     case 0x0b: // BusTypeSata
+      // Certain Intel AHCI drivers (C600+/C220+) have broken
+      // IOCTL_ATA_PASS_THROUGH support and a working SAT layer
+      if (   data.desc.VendorIdOffset
+          && !strcmp(data.raw + data.desc.VendorIdOffset, "ATA     "))
+        // Allow SAT autodetection
+        return DEV_SCSI;
+
       if (ata_version_ex)
         memset(ata_version_ex, 0, sizeof(*ata_version_ex));
       return DEV_ATA;
