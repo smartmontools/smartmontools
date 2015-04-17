@@ -1,4 +1,8 @@
-$Id: ChangeLog 4056 2015-04-15 20:40:45Z chrfranke $
+$Id: ChangeLog 4057 2015-04-17 19:38:17Z chrfranke $
+
+2015-04-17  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Detect SAT layer of certain Intel AHCI drivers.
 
 2015-04-15  Christian Franke  <franke@computer.org>
 

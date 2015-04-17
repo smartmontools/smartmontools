@@ -101,7 +101,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4033 2015-01-24 15:05:34Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4057 2015-04-17 19:38:17Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -2047,6 +2047,13 @@ static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONIN
   switch ((int)data.desc.BusType) {
     case BusTypeAta:
     case 0x0b: // BusTypeSata
+      // Certain Intel AHCI drivers (C600+/C220+) have broken
+      // IOCTL_ATA_PASS_THROUGH support and a working SAT layer
+      if (   data.desc.VendorIdOffset
+          && !strcmp(data.raw + data.desc.VendorIdOffset, "ATA     "))
+        // Allow SAT autodetection
+        return DEV_SCSI;
+
       if (ata_version_ex)
         memset(ata_version_ex, 0, sizeof(*ata_version_ex));
       return DEV_ATA;
