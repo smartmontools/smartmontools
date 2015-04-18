@@ -106,7 +106,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4048 2015-03-29 16:09:04Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4059 2015-04-18 17:01:31Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -1849,8 +1849,12 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   if (ataEnableSmart(atadev)) {
     // Enable SMART command has failed
     PrintOut(LOG_INFO,"Device: %s, could not enable SMART capability\n",name);
-    CloseDevice(atadev, name);
-    return 2; 
+
+    if (ataIsSmartEnabled(&drive) <= 0) {
+      CloseDevice(atadev, name);
+      return 2;
+    }
+    PrintOut(LOG_INFO, "Device: %s, proceeding since SMART is already enabled\n", name);
   }
   
   // disable device attribute autosave...
