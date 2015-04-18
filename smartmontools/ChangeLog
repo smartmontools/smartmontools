@@ -1,4 +1,9 @@
-$Id: ChangeLog 4057 2015-04-17 19:38:17Z chrfranke $
+$Id: ChangeLog 4058 2015-04-18 16:47:36Z chrfranke $
+
+2015-04-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add SAT autodetection based on info from
+	IOCTL_STORAGE_QUERY_PROPERTY.
 
 2015-04-17  Christian Franke  <franke@computer.org>
 
