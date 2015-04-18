@@ -2,8 +2,10 @@ $Id$
 
 2015-04-18  Christian Franke  <franke@computer.org>
 
-	os_win32.cpp: Add SAT autodetection based on info from
+	os_win32.cpp: Add SAT autodetection based on vendor string from
 	IOCTL_STORAGE_QUERY_PROPERTY.
+	smartd.cpp: If SMART ENABLE command failed, continue if SMART is
+	already enabled.
 
 2015-04-17  Christian Franke  <franke@computer.org>
 

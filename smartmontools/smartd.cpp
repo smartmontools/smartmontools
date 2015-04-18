@@ -1849,8 +1849,12 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   if (ataEnableSmart(atadev)) {
     // Enable SMART command has failed
     PrintOut(LOG_INFO,"Device: %s, could not enable SMART capability\n",name);
-    CloseDevice(atadev, name);
-    return 2; 
+
+    if (ataIsSmartEnabled(&drive) <= 0) {
+      CloseDevice(atadev, name);
+      return 2;
+    }
+    PrintOut(LOG_INFO, "Device: %s, proceeding since SMART is already enabled\n", name);
   }
   
   // disable device attribute autosave...
