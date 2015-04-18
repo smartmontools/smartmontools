@@ -703,7 +703,7 @@ int64_t win_smart_interface::get_timer_usec()
 
 
 // Return value for device detection functions
-enum win_dev_type { DEV_UNKNOWN = 0, DEV_ATA, DEV_SCSI, DEV_USB };
+enum win_dev_type { DEV_UNKNOWN = 0, DEV_ATA, DEV_SCSI, DEV_SAT, DEV_USB };
 
 static win_dev_type get_phy_drive_type(int drive);
 static win_dev_type get_phy_drive_type(int drive, GETVERSIONINPARAMS_EX * ata_version_ex);
@@ -863,8 +863,12 @@ smart_device * win_smart_interface::autodetect_smart_device(const char * name)
 
   if (type == DEV_ATA)
     return new win_ata_device(this, name, "");
+
   if (type == DEV_SCSI)
     return new win_scsi_device(this, name, "");
+
+  if (type == DEV_SAT)
+    return get_sat_device("sat", new win_scsi_device(this, name, ""));
 
   if (type == DEV_USB) {
     // Get USB bridge ID
@@ -912,29 +916,33 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
   }
 
   // Set valid types
-  bool ata, scsi, usb, csmi;
+  bool ata, scsi, sat, usb, csmi;
   if (!type) {
-    ata = scsi = usb = csmi = true;
+    ata = scsi = usb = sat = csmi = true;
   }
   else {
-    ata = scsi = usb = csmi = false;
+    ata = scsi = usb = sat = csmi = false;
     if (!strcmp(type, "ata"))
       ata = true;
     else if (!strcmp(type, "scsi"))
       scsi = true;
+    else if (!strcmp(type, "sat"))
+      sat = true;
     else if (!strcmp(type, "usb"))
       usb = true;
     else if (!strcmp(type, "csmi"))
       csmi = true;
     else {
-      set_err(EINVAL, "Invalid type '%s', valid arguments are: ata[,pd], scsi[,pd], usb[,pd], csmi, pd", type);
+      set_err(EINVAL,
+              "Invalid type '%s', valid arguments are: ata[,pd], scsi[,pd], sat[,pd], usb[,pd], csmi, pd",
+              type);
       return false;
     }
   }
 
   char name[20];
 
-  if (ata || scsi || usb) {
+  if (ata || scsi || sat || usb) {
     // Scan up to 128 drives and 2 3ware controllers
     const int max_raid = 2;
     bool raid_seen[max_raid] = {false, false};
@@ -982,6 +990,13 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
           if (!scsi)
             continue;
           devlist.push_back( new win_scsi_device(this, name, "scsi") );
+          break;
+
+        case DEV_SAT:
+          // STORAGE_QUERY_PROPERTY returned VendorId "ATA     "
+          if (!sat)
+            continue;
+          devlist.push_back( get_sat_device("sat", new win_scsi_device(this, name, "")) );
           break;
 
         case DEV_USB:
@@ -2022,6 +2037,16 @@ static int storage_predict_failure_ioctl(HANDLE hdevice, char * data = 0)
 
 /////////////////////////////////////////////////////////////////////////////
 
+// Return true if ATA drive behind a SAT layer
+static bool is_sat(const STORAGE_DEVICE_DESCRIPTOR_DATA * data)
+{
+  if (!data->desc.VendorIdOffset)
+    return false;
+  if (strcmp(data->raw + data->desc.VendorIdOffset, "ATA     "))
+    return false;
+  return true;
+}
+
 // Return true if Intel ICHxR RAID volume
 static bool is_intel_raid_volume(const STORAGE_DEVICE_DESCRIPTOR_DATA * data)
 {
@@ -2049,10 +2074,8 @@ static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONIN
     case 0x0b: // BusTypeSata
       // Certain Intel AHCI drivers (C600+/C220+) have broken
       // IOCTL_ATA_PASS_THROUGH support and a working SAT layer
-      if (   data.desc.VendorIdOffset
-          && !strcmp(data.raw + data.desc.VendorIdOffset, "ATA     "))
-        // Allow SAT autodetection
-        return DEV_SCSI;
+      if (is_sat(&data))
+        return DEV_SAT;
 
       if (ata_version_ex)
         memset(ata_version_ex, 0, sizeof(*ata_version_ex));
@@ -2060,16 +2083,23 @@ static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONIN
 
     case BusTypeScsi:
     case BusTypeRAID:
+      if (is_sat(&data))
+        return DEV_SAT;
+
       // Intel ICHxR RAID volume: reports SMART_GET_VERSION but does not support SMART_*
       if (is_intel_raid_volume(&data))
         return DEV_SCSI;
       // LSI/3ware RAID volume: supports SMART_*
       if (admin && smart_get_version(hdevice, ata_version_ex) >= 0)
         return DEV_ATA;
+
       return DEV_SCSI;
 
     case 0x09: // BusTypeiScsi
     case 0x0a: // BusTypeSas
+      if (is_sat(&data))
+        return DEV_SAT;
+
       return DEV_SCSI;
 
     case BusTypeUsb:

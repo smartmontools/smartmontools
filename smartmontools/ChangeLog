@@ -1,5 +1,10 @@
 $Id$
 
+2015-04-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add SAT autodetection based on info from
+	IOCTL_STORAGE_QUERY_PROPERTY.
+
 2015-04-17  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Detect SAT layer of certain Intel AHCI drivers.
