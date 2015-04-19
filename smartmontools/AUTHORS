@@ -1,13 +1,5 @@
 $Id$
 
-This code was originally developed as a Senior Thesis by Michael
-Cornwell at the Concurrent Systems Laboratory (now part of the Storage
-Systems Research Center), Jack Baskin School of Engineering, University
-of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-
-This package is meant to be an up-to-date replacement for the
-ucsc-smartsuite and smartsuite packages, and is derived from that code.
-
 Maintainers / Developers:
 
 Bruce Allen             <...>
@@ -37,3 +29,6 @@ Sergey Svishchev        <svs@ropnet.ru>
 Phil Williams           <...>
 Shengfeng Zhou          <linux@highpoint-tech.com>
 Richard Zybert          <richard.zybert@zybert.co.uk>
+
+The first smartmontools code was derived from the smartsuite package,
+written by Michael Cornwell and Andre Hedrick.
