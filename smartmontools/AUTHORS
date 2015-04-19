@@ -1,7 +1,8 @@
 $Id$
 
-Maintainers / Developers:
+Developers / Maintainers / Contributors:
 
+Raghava Aditya          <...>
 Bruce Allen             <...>
 Erik Inge Bolsø         <...>
 Stanislav Brabec        <sbrabec@suse.cz>
@@ -17,6 +18,7 @@ Jordan Hargrave         <jordan_hargrave@dell.com>
 Joerg Hering            <...>
 Geoff Keating           <geoffk@geoffk.org>
 Dr. David Kirkby        <...>
+Dan Lukes               <dan+smartmontools.changelog@obluda.cz>
 Kai Mäkisara            <kai.makisara@kolumbus.fi>
 Eduard Martinescu       <martines@rochester.rr.com>
 Frédéric L. W. Meunier  <...>
@@ -26,7 +28,10 @@ Manfred Schwarb         <manfred99@gmx.ch>
 Tomas Smetana           <tsmetana@redhat.com>
 David Snyder            <dasnyderx@yahoo.com>
 Sergey Svishchev        <svs@ropnet.ru>
+Tommy Vestermark        <tommy.vestermark@gmail.com>
+Roger Willcocks         <roger@filmlight.ltd.uk>
 Phil Williams           <...>
+Hank Wu                 <hank@areca.com.tw>
 Shengfeng Zhou          <linux@highpoint-tech.com>
 Richard Zybert          <richard.zybert@zybert.co.uk>
 
