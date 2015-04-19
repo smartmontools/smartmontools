@@ -1,4 +1,9 @@
-$Id: ChangeLog 4059 2015-04-18 17:01:31Z chrfranke $
+$Id: ChangeLog 4060 2015-04-19 16:39:36Z chrfranke $
+
+2015-04-19  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Remove smartmontools-support list address.
+	Remove defunct mail addresses.
 
 2015-04-18  Christian Franke  <franke@computer.org>
 
