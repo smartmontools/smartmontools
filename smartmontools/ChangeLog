@@ -5,6 +5,7 @@ $Id$
 	AUTHORS: Remove smartmontools-support list address.
 	Remove defunct mail addresses.  Update smartsuite info.
 	Add recent contributors.
+	README: Refer to AUTHORS.
 
 2015-04-18  Christian Franke  <franke@computer.org>
 

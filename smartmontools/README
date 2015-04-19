@@ -19,8 +19,8 @@ You will find a mailing list for support and other questions at:
 
 
 == COPYING ==
-Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-9 Bruce Allen
+Copyright (C) 2004-15 Christian Franke
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -32,10 +32,7 @@ example COPYING).  If not, see <http://www.gnu.org/licenses/>.
 
 
 == CREDITS ==
-This code was originally developed as a Senior Thesis by Michael Cornwell
-at the Concurrent Systems Laboratory (now part of the Storage Systems
-Research Center), Jack Baskin School of Engineering, University of
-California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+See AUTHORS file.
 
 
 == OVERVIEW ==
