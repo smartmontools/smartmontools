@@ -1,5 +1,10 @@
 $Id$
 
+2015-04-19  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Remove smartmontools-support list address.
+	Remove defunct mail addresses.
+
 2015-04-18  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Add SAT autodetection based on vendor string from
