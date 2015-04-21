@@ -1,5 +1,11 @@
 $Id$
 
+2015-04-21  Christian Franke  <franke@computer.org>
+
+	configure.ac: Print 'deprecated' warning for '--disable-drivedb',
+	'--enable-savestates', '--enable-attributelog' options.
+	Add 'yes|no' support to corresponding '--with-...' options.
+
 2015-04-19  Christian Franke  <franke@computer.org>
 
 	AUTHORS: Remove smartmontools-support list address.

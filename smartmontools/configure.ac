@@ -230,16 +230,18 @@ AC_ARG_WITH(exampledir,
   [exampledir="$withval"], [exampledir='${docdir}/examplescripts'])
 AC_SUBST(exampledir)
 
+used_deprecated_option=no
 AC_ARG_ENABLE(drivedb,
-  [AS_HELP_STRING([--disable-drivedb], [Disables drive database file])],
-  [], [enable_drivedb=yes])
+  [AS_HELP_STRING([--disable-drivedb], [Deprecated (use --without-drivedbdir instead)])],
+  [used_deprecated_option=yes], [enable_drivedb=yes])
 
+drivedbdir=
 AC_ARG_WITH(drivedbdir,
-  [AS_HELP_STRING([--with-drivedbdir=DIR], [Location of drive database file [DATADIR/smartmontools]])],
-  [drivedbdir="$withval"; enable_drivedb=yes],
-  [drivedbdir=; test "$enable_drivedb" = "yes" && drivedbdir='${datadir}/${PACKAGE}'])
+  [AS_HELP_STRING([--with-drivedbdir=@<:@DIR|no@:>@], [Location of drive database file [DATADIR/smartmontools]])],
+  [test "$withval" != "no" && drivedbdir="$withval"],
+  [test "$enable_drivedb" != "no" && drivedbdir='${datadir}/${PACKAGE}'])
 AC_SUBST(drivedbdir)
-AM_CONDITIONAL(ENABLE_DRIVEDB, [test "$enable_drivedb" = "yes"])
+AM_CONDITIONAL(ENABLE_DRIVEDB, [test -n "$drivedbdir"])
 
 AC_ARG_WITH(smartdscriptdir,
   [AS_HELP_STRING([--with-smartdscriptdir=DIR], [Location of smartd_warning.sh script [SYSCONFDIR]])],
@@ -253,29 +255,35 @@ AC_ARG_WITH(smartdplugindir,
   [smartdplugindir='${smartdscriptdir}/smartd_warning.d'])
 AC_SUBST(smartdplugindir)
 
-AC_ARG_ENABLE(savestates, [AS_HELP_STRING([--enable-savestates], [Enables default smartd state files])])
+AC_ARG_ENABLE(savestates,
+  [AS_HELP_STRING([--enable-savestates], [Deprecated (use --with-savestates@<:@=yes@:>@ instead)])],
+  [used_deprecated_option=yes], [enable_savestates=no])
 
+savestates='${localstatedir}/lib/${PACKAGE}/smartd.'
 AC_ARG_WITH(savestates,
-  [AS_HELP_STRING([--with-savestates=PREFIX],
-    [Prefix for default smartd state files (implies --enable-savestates) [LOCALSTATEDIR/lib/smartmontools/smartd.]])],
-  [savestates="$withval"; enable_savestates="yes"],
-  [savestates=; test "$enable_savestates" = "yes" && savestates='${localstatedir}/lib/${PACKAGE}/smartd.'])
+  [AS_HELP_STRING([--with-savestates@<:@=PREFIX|yes|no@:>@],
+    [Enable default smartd state files [no] (yes=LOCALSTATEDIR/lib/smartmontools/smartd.)])],
+  [case "$withval" in yes) ;; no) savestates= ;; *) savestates="$withval" ;; esac],
+  [test "$enable_savestates" != "yes" && savestates=])
 savestatesdir="${savestates%/*}"
 AC_SUBST(savestates)
 AC_SUBST(savestatesdir)
-AM_CONDITIONAL(ENABLE_SAVESTATES, [test "$enable_savestates" = "yes"])
+AM_CONDITIONAL(ENABLE_SAVESTATES, [test -n "$savestates"])
 
-AC_ARG_ENABLE(attributelog, [AS_HELP_STRING([--enable-attributelog], [Enables default smartd attribute log files])])
+AC_ARG_ENABLE(attributelog,
+  [AS_HELP_STRING([--enable-attributelog], [Deprecated (use --with-attributelog@<:@=yes@:>@ instead)])],
+  [used_deprecated_option=yes], [enable_attributelog=no])
 
+attributelog='${localstatedir}/lib/${PACKAGE}/attrlog.'
 AC_ARG_WITH(attributelog,
-  [AS_HELP_STRING([--with-attributelog=PREFIX],
-    [Prefix for default smartd attribute log files (implies --enable-attributelog) [LOCALSTATEDIR/lib/smartmontools/attrlog.]])],
-  [attributelog="$withval"; enable_attributelog="yes"],
-  [attributelog=; test "$enable_attributelog" = "yes" && attributelog='${localstatedir}/lib/${PACKAGE}/attrlog.'])
+  [AS_HELP_STRING([--with-attributelog@<:@=PREFIX|yes|no@:>@],
+    [Enable default smartd attribute log files [no] (yes=LOCALSTATEDIR/lib/smartmontools/attrlog.)])],
+  [case "$withval" in yes) ;; no) attributelog= ;; *) attributelog="$withval" ;; esac],
+  [test "$enable_attributelog" != "yes" && attributelog=])
 attributelogdir="${attributelog%/*}"
 AC_SUBST(attributelog)
 AC_SUBST(attributelogdir)
-AM_CONDITIONAL(ENABLE_ATTRIBUTELOG, [test "$enable_attributelog" = "yes"])
+AM_CONDITIONAL(ENABLE_ATTRIBUTELOG, [test -n "$attributelog"])
 
 AC_ARG_ENABLE(sample,
   [AS_HELP_STRING([--enable-sample], [Enables appending .sample to the installed smartd rc script and configuration file])],
@@ -630,4 +638,11 @@ elif test "${with_docdir+set}" = "set"; then
  echo "WARNING:" >&AS_MESSAGE_FD
  echo "Option --with-docdir is deprecated and will be removed in a future" >&AS_MESSAGE_FD
  echo "release of smartmontools.  Use --docdir instead." >&AS_MESSAGE_FD
+fi
+
+if test "$used_deprecated_option" = "yes"; then
+  echo "WARNING:" >&AS_MESSAGE_FD
+  echo "Options --disable-drivedb, --enable-savestates, --enable-attributelog are" >&AS_MESSAGE_FD
+  echo "deprecated and will be removed in a future release of smartmontools." >&AS_MESSAGE_FD
+  echo "Use --without-drivedb, --with-savestates, --with-attributelog instead." >&AS_MESSAGE_FD
 fi
