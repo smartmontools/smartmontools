@@ -349,7 +349,6 @@ fi
 
 AC_MSG_CHECKING([whether to use libcap-ng])
 AC_SUBST(CAPNG_LDADD)
-AM_CONDITIONAL(ENABLE_CAPABILITIES, [test "$use_libcap_ng" = "yes"])
 AC_MSG_RESULT([$use_libcap_ng])
 
 # Assume broken snprintf only on Windows with MSVCRT (MinGW without ANSI stdio support)

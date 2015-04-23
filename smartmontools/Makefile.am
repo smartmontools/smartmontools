@@ -551,30 +551,6 @@ install-data-local: installdirs-local
 #
 # Build man pages
 #
-if ENABLE_CAPABILITIES
-MAN_CAPABILITIES = cat
-else
-MAN_CAPABILITIES = sed '/^\.\\" %IF ENABLE_CAPABILITIES/,/^\.\\" %ENDIF ENABLE_CAPABILITIES/ s,^,.\\"\# ,'
-endif
-
-if ENABLE_DRIVEDB
-MAN_DRIVEDB = sed "s|/usr/local/share/smartmontools/drivedb\\.h|$(drivedbdir)/drivedb.h|g"
-else
-MAN_DRIVEDB = sed '/^\.\\" %IF ENABLE_DRIVEDB/,/^\.\\" %ENDIF ENABLE_DRIVEDB/ s,^,.\\"\# ,'
-endif
-
-if ENABLE_SAVESTATES
-MAN_SAVESTATES = sed "s|/usr/local/var/lib/smartmontools/smartd\\.|$(savestates)|g"
-else
-MAN_SAVESTATES = sed '/^\.\\" %IF ENABLE_SAVESTATES/,/^\.\\" %ENDIF ENABLE_SAVESTATES/ s,^,.\\"\# ,'
-endif
-
-if ENABLE_ATTRIBUTELOG
-MAN_ATTRIBUTELOG = sed "s|/usr/local/var/lib/smartmontools/attrlog\\.|$(attributelog)|g"
-else
-MAN_ATTRIBUTELOG = sed '/^\.\\" %IF ENABLE_ATTRIBUTELOG/,/^\.\\" %ENDIF ENABLE_ATTRIBUTELOG/ s,^,.\\"\# ,'
-endif
-
 MAN_FILTER = \
     sed -e 's|CURRENT_SVN_VERSION|$(releaseversion)|g' \
         -e "s|CURRENT_SVN_DATE|`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g" \
@@ -592,15 +568,31 @@ MAN_FILTER = \
         -e 's|\\'\''mail\\'\''|\\'\''$(os_mailer)\\'\''|g' \
         -e 's|/usr/bin/mail|/usr/bin/$(os_mailer)|g' \
         -e 's|RELEASE_6_0_DRIVEDB|@DRIVEDB_BRANCH@|g' | \
+    if test -n '$(drivedbdir)'; then \
+      sed 's|/usr/local/share/smartmontools/drivedb\.h|$(drivedbdir)/drivedb.h|g' ; \
+    else \
+      sed '/^\.\\" %IF ENABLE_DRIVEDB/,/^\.\\" %ENDIF ENABLE_DRIVEDB/ s,^,.\\"\# ,' ; \
+    fi | \
+    if test -n '$(savestates)'; then \
+      sed 's|/usr/local/var/lib/smartmontools/smartd\.|$(savestates)|g' ; \
+    else \
+      sed '/^\.\\" %IF ENABLE_SAVESTATES/,/^\.\\" %ENDIF ENABLE_SAVESTATES/ s,^,.\\"\# ,' ; \
+    fi | \
+    if test -n '$(attributelog)'; then \
+      sed 's|/usr/local/var/lib/smartmontools/attrlog\.|$(attributelog)|g' ; \
+    else \
+      sed '/^\.\\" %IF ENABLE_ATTRIBUTELOG/,/^\.\\" %ENDIF ENABLE_ATTRIBUTELOG/ s,^,.\\"\# ,' ; \
+    fi | \
     if test -n '$(smartdplugindir)'; then \
       sed 's|/usr/local/etc/smartd_warning\.d|$(smartdplugindir)|g' ; \
     else \
       sed '/^\.\\" %IF ENABLE_SMARTDPLUGINDIR/,/^\.\\" %ENDIF ENABLE_SMARTDPLUGINDIR/ s,^,.\\"\# ,' ; \
     fi | \
-    $(MAN_ATTRIBUTELOG) | \
-    $(MAN_CAPABILITIES) | \
-    $(MAN_DRIVEDB) | \
-    $(MAN_SAVESTATES) | \
+    if test -n '$(CAPNG_LDADD)'; then \
+      cat; \
+    else \
+      sed '/^\.\\" %IF ENABLE_CAPABILITIES/,/^\.\\" %ENDIF ENABLE_CAPABILITIES/ s,^,.\\"\# ,' ; \
+    fi | \
     if test -n '$(os_man_filter)'; then \
       sed -e 's,OS_MAN_FILTER,$(os_man_filter),g' \
           -e '/^\.\\" %IF NOT OS .*$(os_man_filter)/,/^.\\" %ENDIF NOT OS .*$(os_man_filter)/ s,^,.\\"\# ,' \
