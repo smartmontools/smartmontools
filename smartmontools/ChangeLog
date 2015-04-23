@@ -1,5 +1,9 @@
 $Id$
 
+2015-04-23  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add '--with-systemdenvfile=auto' option as new default.
+
 2015-04-21  Christian Franke  <franke@computer.org>
 
 	configure.ac: Print 'deprecated' warning for '--disable-drivedb',
