@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4065 2015-04-23 19:34:47Z chrfranke $
+# $Id: configure.ac 4067 2015-04-23 20:15:54Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 6.4, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4065 2015-04-23 19:34:47Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4067 2015-04-23 20:15:54Z chrfranke $'`
 smartmontools_release_date=2014-07-26
 smartmontools_release_time="09:49:11 UTC"
 
@@ -349,7 +349,6 @@ fi
 
 AC_MSG_CHECKING([whether to use libcap-ng])
 AC_SUBST(CAPNG_LDADD)
-AM_CONDITIONAL(ENABLE_CAPABILITIES, [test "$use_libcap_ng" = "yes"])
 AC_MSG_RESULT([$use_libcap_ng])
 
 # Assume broken snprintf only on Windows with MSVCRT (MinGW without ANSI stdio support)

@@ -1,9 +1,11 @@
-$Id: ChangeLog 4066 2015-04-23 19:42:46Z chrfranke $
+$Id: ChangeLog 4067 2015-04-23 20:15:54Z chrfranke $
 
 2015-04-23  Christian Franke  <franke@computer.org>
 
 	configure.ac: Add '--with-systemdenvfile=auto' option as new default.
+	Remove no longer needed ENABLE_CAPABILITIES conditional.
 	Makefile.am: Silence build of smartd.service file.
+	Integrate all ENABLE_* conditionals in MAN_FILTER script.
 
 2015-04-21  Christian Franke  <franke@computer.org>
 
