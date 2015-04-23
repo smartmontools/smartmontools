@@ -526,7 +526,8 @@ systemdsystemunit_DATA = smartd.service
 endif
 
 smartd.service: smartd.service.in Makefile
-	cat $(srcdir)/smartd.service.in | \
+	@echo '  cat $(srcdir)/smartd.service.in | $$(SMARTD_SERVICE_FILTER) > $@'
+	@cat $(srcdir)/smartd.service.in | \
 	sed 's|/usr/local/sbin/smartd|$(sbindir)/smartd|' | \
 	if test -n '$(systemdenvfile)'; then \
 	  sed 's|/usr/local/etc/sysconfig/smartmontools|$(systemdenvfile)|'; \
