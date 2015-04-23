@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4064 2015-04-21 20:19:07Z chrfranke $
+# $Id: configure.ac 4065 2015-04-23 19:34:47Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 6.4, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4064 2015-04-21 20:19:07Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4065 2015-04-23 19:34:47Z chrfranke $'`
 smartmontools_release_date=2014-07-26
 smartmontools_release_time="09:49:11 UTC"
 
@@ -149,16 +149,9 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(ASFLAGS)
 
-AC_ARG_WITH(systemdenvfile,
-  [AS_HELP_STRING([--with-systemdenvfile=@<:@FILE|no@:>@],
-    [Path of systemd EnvironmentFile (implies --with-systemdsystemunitdir=yes) [SYSCONFDIR/sysconfig/smartmontools]])],
-  [systemdenvfile=; test "$withval" != "no" && systemdenvfile="$withval"; systemd_default=yes],
-  [systemdenvfile='${sysconfdir}/sysconfig/smartmontools'; systemd_default=auto])
-AC_SUBST(systemdenvfile)
-
 AC_ARG_WITH(systemdsystemunitdir,
   [AS_HELP_STRING([--with-systemdsystemunitdir@<:@=DIR|auto|yes|no@:>@], [Location of systemd service files [auto]])],
-  [], [with_systemdsystemunitdir=$systemd_default])
+  [], [with_systemdsystemunitdir=auto])
 
 systemdsystemunitdir=
 case "$with_systemdsystemunitdir" in
@@ -178,6 +171,30 @@ case "$with_systemdsystemunitdir" in
 esac
 AC_SUBST(systemdsystemunitdir)
 AM_CONDITIONAL(INSTALL_SYSTEMDUNIT, [test -n "$systemdsystemunitdir"])
+
+AC_ARG_WITH(systemdenvfile,
+  [AS_HELP_STRING([--with-systemdenvfile@<:@=FILE|auto|yes|no@:>@], [Path of systemd EnvironmentFile [auto]])],
+  [], [with_systemdenvfile=auto])
+
+systemdenvfile=
+case "$with_systemdenvfile:$cross_compiling:$systemdsystemunitdir" in
+  auto:no:?*|yes:*:?*)
+    AC_MSG_CHECKING([for path of systemd EnvironmentFile])
+    for dir in sysconfig default; do
+      if test -d /etc/$dir; then
+        systemdenvfile='${sysconfdir}'/$dir/smartmontools
+        break
+      fi
+    done
+    AC_MSG_RESULT([${systemdenvfile:-no}])
+    case "$with_systemdenvfile:$systemdenvfile" in
+      yes:) AC_MSG_ERROR([Path of systemd EnvironmentFile not found]) ;;
+    esac ;;
+  auto:*|no:*) ;;
+  *:*:) AC_MSG_ERROR([Location of systemd service files not found]) ;;
+  *) systemdenvfile="$with_systemdenvfile"
+esac
+AC_SUBST(systemdenvfile)
 
 AC_ARG_WITH(initscriptdir,
   [AS_HELP_STRING([--with-initscriptdir@<:@=DIR|auto|yes|no@:>@], [Location of init scripts [auto]])],

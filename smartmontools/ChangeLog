@@ -1,4 +1,8 @@
-$Id: ChangeLog 4064 2015-04-21 20:19:07Z chrfranke $
+$Id: ChangeLog 4065 2015-04-23 19:34:47Z chrfranke $
+
+2015-04-23  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add '--with-systemdenvfile=auto' option as new default.
 
 2015-04-21  Christian Franke  <franke@computer.org>
 
