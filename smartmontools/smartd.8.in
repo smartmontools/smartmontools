@@ -1,6 +1,6 @@
 .ig
-Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-10 Bruce Allen
+Copyright (C) 2004-15 Christian Franke
 
 $Id$
 
@@ -708,50 +708,21 @@ optional local drive database (see \'\-B\' option).
 
 .\" %ENDIF NOT OS Windows
 .SH AUTHORS
-\fBBruce Allen\fP
+\fBBruce Allen\fP (project initiator),
 .br
-University of Wisconsin \- Milwaukee Physics Department
+\fBChristian Franke\fP (project manager, Windows port and all sort of things),
 .br
-\fBChristian Franke\fP (Windows interface, C++ redesign, most enhancements
-since 2009)
+\fBDouglas Gilbert\fP (SCSI subsystem),
+.br
+\fBGabriele Pohl\fP (wiki & development team support),
+.br
+\fBAlex Samorukov\fP (FreeBSD port and more, new Trac wiki).
 
-The following have made large contributions to smartmontools:
-.br
-\fBCasper Dik\fP (Solaris SCSI interface)
-.br
-\fBDouglas Gilbert\fP (SCSI subsystem)
-.br
-\fBGuido Guenther\fP (Autoconf/Automake packaging)
-.br
-\fBGeoffrey Keating\fP (Darwin ATA interface)
-.br
-\fBEduard Martinescu\fP (FreeBSD interface)
-.br
-\fBFr\['e]d\['e]ric L. W. Meunier\fP (Web site and Mailing list)
-.br
-\fBGabriele Pohl\fP (Web site and Wiki, conversion from CVS to SVN)
-.br
-\fBKeiji Sawada\fP (Solaris ATA interface)
-.br
-\fBManfred Schwarb\fP (Drive database)
-.br
-\fBSergey Svishchev\fP (NetBSD interface)
-.br
-\fBDavid Snyder and Sergey Svishchev\fP (OpenBSD interface)
-.br
-\fBPhil Williams\fP (User interface and drive database)
-.br
-\fBShengfeng Zhou\fP (Linux/FreeBSD HighPoint RocketRAID interface)
-.br
-Many other individuals have made smaller contributions and corrections.
+Many other individuals have made contributions and corrections,
+see AUTHORS, ChangeLog and repository files.
 
 The first smartmontools code was derived from the smartsuite package,
-written by Michael Cornwell, and from the previous UCSC smartsuite package.
-This code was originally developed as a
-Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
-(now part of the Storage Systems Research Center), Jack Baskin School
-of Engineering, University of California, Santa
-Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
+written by Michael Cornwell and Andre Hedrick.
 
 .SH REPORTING BUGS
 To submit a bug report, create a ticket in smartmontools wiki:

@@ -1,5 +1,9 @@
 $Id$
 
+2015-04-24  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in: Rework AUTHORS section.
+
 2015-04-23  Christian Franke  <franke@computer.org>
 
 	configure.ac: Add '--with-systemdenvfile=auto' option as new default.
