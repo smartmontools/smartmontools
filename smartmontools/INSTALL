@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL 4047 2015-03-22 16:16:24Z chrfranke $
+$Id: INSTALL 4069 2015-04-24 20:09:37Z chrfranke $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -598,7 +598,6 @@ The following files are installed if ./configure has no options:
 /usr/local/share/doc/smartmontools/NEWS                 [Significant bugs discovered in old versions]
 /usr/local/share/doc/smartmontools/README               [Overview]
 /usr/local/share/doc/smartmontools/TODO                 [Things that need to be done/fixed]
-/usr/local/share/doc/smartmontools/WARNINGS             [Systems where lockups or other serious problems were reported]
 /usr/local/share/doc/smartmontools/smartd.conf          [Example configuration file for smartd]
 /usr/local/share/doc/smartmontools/examplescripts/      [Executable scripts for -M exec of smartd.conf (4 files)]
 /usr/local/share/smartmontools/drivedb.h                [Drive database]

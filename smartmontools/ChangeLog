@@ -1,8 +1,11 @@
-$Id: ChangeLog 4068 2015-04-24 19:35:00Z chrfranke $
+$Id: ChangeLog 4069 2015-04-24 20:09:37Z chrfranke $
 
 2015-04-24  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in: Rework AUTHORS section.
+	INSTALL, Makefile.am, os_win32/installer.nsi:
+	Remove WARNINGS file.
+	WARNINGS: Remove this file.
 
 2015-04-23  Christian Franke  <franke@computer.org>
 
