@@ -1,4 +1,8 @@
-$Id: ChangeLog 4067 2015-04-23 20:15:54Z chrfranke $
+$Id: ChangeLog 4068 2015-04-24 19:35:00Z chrfranke $
+
+2015-04-24  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in: Rework AUTHORS section.
 
 2015-04-23  Christian Franke  <franke@computer.org>
 
