@@ -3,7 +3,7 @@
 ;
 ; Home page of code is: http://smartmontools.sourceforge.net
 ;
-; Copyright (C) 2006-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; Copyright (C) 2006-15 Christian Franke
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -182,7 +182,6 @@ Section "!Documentation" DOC_SECTION
   File "${INPDIR}\doc\NEWS.txt"
   File "${INPDIR}\doc\README.txt"
   File "${INPDIR}\doc\TODO.txt"
-  File "${INPDIR}\doc\WARNINGS.txt"
 !ifdef INPDIR64
   StrCmp $X64 "" +3
     File "${INPDIR64}\doc\checksums64.txt"
@@ -444,7 +443,6 @@ Section "Uninstall"
   Delete "$INSTDIR\doc\NEWS.txt"
   Delete "$INSTDIR\doc\README.txt"
   Delete "$INSTDIR\doc\TODO.txt"
-  Delete "$INSTDIR\doc\WARNINGS.txt"
   Delete "$INSTDIR\doc\checksums*.txt"
   Delete "$INSTDIR\doc\smartctl.8.html"
   Delete "$INSTDIR\doc\smartctl.8.txt"

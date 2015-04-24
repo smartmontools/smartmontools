@@ -3,6 +3,9 @@ $Id$
 2015-04-24  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in: Rework AUTHORS section.
+	INSTALL, Makefile.am, os_win32/installer.nsi:
+	Remove WARNINGS file.
+	WARNINGS: Remove this file.
 
 2015-04-23  Christian Franke  <franke@computer.org>
 

@@ -302,7 +302,6 @@ docs_DATA = \
         NEWS \
         README \
         TODO \
-        WARNINGS \
         smartd.conf
 
 examplesdir=$(exampledir)
@@ -765,7 +764,6 @@ FILES_WIN32 = \
         $(docdir_win32)/NEWS.txt \
         $(docdir_win32)/README.txt \
         $(docdir_win32)/TODO.txt \
-        $(docdir_win32)/WARNINGS.txt \
         $(docdir_win32)/checksums$(win_bits).txt \
         $(docdir_win32)/smartd.conf \
         $(docdir_win32)/smartctl.8.html \
