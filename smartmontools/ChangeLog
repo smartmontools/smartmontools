@@ -1,5 +1,10 @@
 $Id$
 
+2015-04-26  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Use make variables instead of autoconf variables
+	if possible.
+
 2015-04-24  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in: Rework AUTHORS section.

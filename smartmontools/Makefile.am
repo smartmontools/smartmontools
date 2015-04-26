@@ -78,8 +78,8 @@ smartctl_SOURCES = \
         utility.cpp \
         utility.h
 
-smartctl_LDADD = @os_deps@ @os_libs@
-smartctl_DEPENDENCIES = @os_deps@
+smartctl_LDADD = $(os_deps) $(os_libs)
+smartctl_DEPENDENCIES = $(os_deps)
 
 EXTRA_smartctl_SOURCES = \
         os_darwin.cpp \
@@ -138,8 +138,8 @@ smartd_SOURCES = \
         utility.cpp \
         utility.h
 
-smartd_LDADD = @os_deps@ @os_libs@ @CAPNG_LDADD@
-smartd_DEPENDENCIES = @os_deps@
+smartd_LDADD = $(os_deps) $(os_libs) $(CAPNG_LDADD)
+smartd_DEPENDENCIES = $(os_deps)
 
 EXTRA_smartd_SOURCES = \
         os_darwin.cpp \
@@ -490,10 +490,10 @@ uninstall-initdDATA-darwin:
 
 else
 
-initd_DATA = @initdfile@
+initd_DATA = $(initdfile)
 
-@initdfile@: $(srcdir)/@initdfile@.in Makefile
-	sed "s|/usr/local/sbin/|$(sbindir)/|g" $(srcdir)/@initdfile@.in > $@
+$(initdfile): $(srcdir)/$(initdfile).in Makefile
+	sed 's|/usr/local/sbin/|$(sbindir)/|g' $(srcdir)/$(initdfile).in > $@
 
 initd_install_name = smartd$(smartd_suffix)
 
@@ -502,7 +502,7 @@ initd_DATA_uninstall = uninstall-initdDATA-generic
 
 install-initdDATA-generic: $(initd_DATA)
 	$(mkinstalldirs) '$(DESTDIR)$(initddir)'
-	$(INSTALL_SCRIPT) '$(top_builddir)/@initdfile@' '$(DESTDIR)$(initddir)/smartd$(smartd_suffix)'
+	$(INSTALL_SCRIPT) '$(top_builddir)/$(initdfile)' '$(DESTDIR)$(initddir)/smartd$(smartd_suffix)'
 
 uninstall-initdDATA-generic:
 	rm -f '$(DESTDIR)$(initddir)/$(initd_install_name)'
@@ -566,7 +566,7 @@ MAN_FILTER = \
         -e 's|\\fBmail\\fP|\\fB$(os_mailer)\\fP|g' \
         -e 's|\\'\''mail\\'\''|\\'\''$(os_mailer)\\'\''|g' \
         -e 's|/usr/bin/mail|/usr/bin/$(os_mailer)|g' \
-        -e 's|RELEASE_6_0_DRIVEDB|@DRIVEDB_BRANCH@|g' | \
+        -e 's|RELEASE_6_0_DRIVEDB|$(DRIVEDB_BRANCH)|g' | \
     if test -n '$(drivedbdir)'; then \
       sed 's|/usr/local/share/smartmontools/drivedb\.h|$(drivedbdir)/drivedb.h|g' ; \
     else \
