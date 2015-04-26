@@ -1,10 +1,9 @@
 #!/bin/bash
 #
 # do a smartmontools release
-# (C) 2003-11 Bruce Allen <ballen4705@users.sourceforge.net>,
-#             Guido Guenther <agx@sigxcpu.org>
-# (C) 2006-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
-# $Id: do_release 3765 2013-02-05 17:17:13Z chrfranke $
+# (C) 2003-11 Bruce Allen, Guido Guenther
+# (C) 2006-15 Christian Franke
+# $Id: do_release 4071 2015-04-26 18:25:12Z chrfranke $
 
 # Notes on generating releases:
 # (1) update NEWS
@@ -15,8 +14,8 @@
 
 set -e
 
-# Smartmontools Signing Key (through 2014)
-KEYID=0x8F6ED8AA
+# Smartmontools Signing Key (through 2016)
+KEYID=0xC4A4903A
 
 inc_release()
 {
