@@ -1,4 +1,9 @@
-$Id: ChangeLog 4069 2015-04-24 20:09:37Z chrfranke $
+$Id: ChangeLog 4070 2015-04-26 17:54:23Z chrfranke $
+
+2015-04-26  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Use make variables instead of autoconf variables
+	if possible.
 
 2015-04-24  Christian Franke  <franke@computer.org>
 
