@@ -1,5 +1,10 @@
 $Id$
 
+2015-04-28  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Fix possible loss of user PATH environment
+	variable with length greater than NSIS max string length.
+
 2015-04-26  Christian Franke  <franke@computer.org>
 
 	do_release: New Signing Key.
