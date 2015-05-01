@@ -1,4 +1,8 @@
-$Id: ChangeLog 4072 2015-04-28 20:35:15Z chrfranke $
+$Id: ChangeLog 4074 2015-05-01 16:03:50Z chrfranke $
+
+2015-05-01  Christian Franke  <franke@computer.org>
+
+	ataidentify.cpp: ACS-3/4 updates.
 
 2015-04-28  Christian Franke  <franke@computer.org>
 
