@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2012-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2012-15 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,8 @@ const char * ataidentify_cpp_cvsid = "$Id$"
 // Tables 16 and 18 of T13/1532D (ATA/ATAPI-7) Volume 1 Revision 4b, April 21, 2004
 // Tables 29 and 39 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
 // Tables 50 and 61 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
-// Tables 51 and 56 of T13/2161-D (ACS-3) Revision 4g, February 27, 2013
+// Tables 45 and 50 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
+// Table 44 of T13/BSR INCITS 529 (ACS-4) Revision 08, April 28, 2015 (ATAPI removed)
 
 const char * const identify_descriptions[] = {
   "  0 General configuration",
@@ -42,7 +43,7 @@ const char * const identify_descriptions[] = {
     ". 14 ATAPI: Must be set to 0",
     ". 13 ATAPI: Reserved",
     ". 12:8 ATAPI: Command set: 0x05 = CD/DVD",
-    ". 7 Removable media device",
+    ". 7 Removable media device [OBS-8]",
     ". 6 ATA: Not removable controller and/or device [OBS-6]",
     ". 5:3 ATA: Vendor specific [RET-3]",
     ". 6:5 ATAPI: DRQ after PACKET cmd: 0x0 = 3ms, 0x2 = 50us",
@@ -88,7 +89,8 @@ const char * const identify_descriptions[] = {
     ". 10 IORDY may be disabled",
     ". 9 LBA supported",
     ". 8 DMA supported",
-    ". 7:0 Vendor specific [RET-4]",
+    ". 7:2 Reserved", // ATA-3: Vendor specific, ATA-8: Retired
+    ". 1:0 Long Phy Sector Alignment Error reporting", // ACS-2
 
   " 50 Capabilities",
     ". 15:14 Must be set to 0x1",
@@ -116,7 +118,9 @@ const char * const identify_descriptions[] = {
     ". 14 OVERWRITE EXT supported",
     ". 13 CRYPTO SCRAMBLE EXT supported",
     ". 12 Sanitize Device feature set supported",
-    ". 11:9 Reserved",
+    ". 11 Cmds during sanitize as specified by this standard", // ACS-3
+    ". 10 SANITIZE ANTIFREEZE LOCK EXT supported", // ACS-3
+    ". 9 Reserved",
     ". 8 Bits 7:0 are valid",
     ". 7:0 Current sectors per DRQ on READ/WRITE MULTIPLE",
 
@@ -157,8 +161,8 @@ const char * const identify_descriptions[] = {
     ". 5 Trimmed LBA range(s) returning zeroed data supported",
     ". 4 Device encrypts all user data",
     ". 3 Extended number of user addressable sectors supported",
-    ". 2 All write cache is non-volatile",
-    ". 1:0 Reserved",
+    ". 2 All write cache is non-volatile", // ACS-3
+    ". 1:0 Zoned Capabilities", // ACS-4
 
   " 70 Reserved",
   " 71-74 ATA: Reserved for IDENTIFY PACKET DEVICE",
@@ -216,7 +220,8 @@ const char * const identify_descriptions[] = {
     ". 0 Must be set to 0",
 
   " 80 Major version number",
-    ". 15:11 Reserved",
+    ". 15:12 Reserved",
+    ". 11 ACS-4 supported",
     ". 10 ACS-3 supported",
     ". 9 ACS-2 supported",
     ". 8 ATA8-ACS supported",
@@ -257,7 +262,7 @@ const char * const identify_descriptions[] = {
     ". 10 48-bit Address feature set supported",
     ". 9 AAM feature set supported [OBS-ACS-2]",
     ". 8 SET MAX security extension supported [OBS-ACS-3]",
-    ". 7 Reserved for Address Offset Reserved Area Boot Method",
+    ". 7 Reserved for Addr Offset Resvd Area Boot [OBS-ACS-3]",
     ". 6 SET FEATURES subcommand required to spin-up",
     ". 5 PUIS feature set supported",
     ". 4 Removable Media Status Notification supported [OBS-8]",
@@ -278,7 +283,7 @@ const char * const identify_descriptions[] = {
     ". 5 GPL feature set supported",
     ". 4 Streaming feature set supported [OBS-ACS-3]",
     ". 3 Media Card Pass Through Command supported [OBS-ACS-2]",
-    ". 2 Media serial number supported", // ACS-3 r3 or later: Reserved
+    ". 2 Media serial number supported [RES-ACS-3]",
     ". 1 SMART self-test supported",
     ". 0 SMART error logging supported",
 
@@ -309,7 +314,7 @@ const char * const identify_descriptions[] = {
     ". 10 48-bit Address features set supported",
     ". 9 AAM feature set enabled [OBS-ACS-2]",
     ". 8 SET MAX security extension enabled [OBS-ACS-3]",
-    ". 7 Reserved for Address Offset Reserved Area Boot Method",
+    ". 7 Reserved for Addr Offset Resvd Area Boot [OBS-ACS-3]",
     ". 6 SET FEATURES subcommand required to spin-up",
     ". 5 PUIS feature set enabled",
     ". 4 Removable Media Status Notification enabled [OBS-8]",
@@ -353,9 +358,18 @@ const char * const identify_descriptions[] = {
     ". 0 Ultra DMA mode 0 supported",
 
   " 89 SECURITY ERASE UNIT time",
+    ". 15 Bits 14:8 of value are valid", // ACS-3
+    ". 14:0 SECURITY ERASE UNIT time value", // value*2 minutes
+
   " 90 ENHANCED SECURITY ERASE UNIT time",
+    ". 15 Bits 14:8 of value are valid", // ACS-3
+    ". 14:0 ENHANCED SECURITY ERASE UNIT time value", // value*2 minutes
+
   " 91 Current APM level",
-  " 92 Master password revision code",
+    ". 15:8 Reserved", // ACS-3
+    ". 7:0 Current APM level value",
+
+  " 92 Master Password Identifier", // ATA-7: Master Password Revision Code
 
   " 93 Hardware reset result (PATA)",
     ". 15:14 Must be set to 0x1",
@@ -393,7 +407,7 @@ const char * const identify_descriptions[] = {
 
   "107 Inter-seek delay for ISO 7779 acoustic testing",
   "108-111 64-bit World Wide Name",
-  "112-115 Reserved for a 128-bit World Wide Name",
+  "112-115 Reserved", // ATA-7: Reserved for world wide name extension to 128 bits
   "116 Reserved for TLC [OBS-ACS-3]",
   "117-118 Logical sector size (DWord)",
 
@@ -459,7 +473,7 @@ const char * const identify_descriptions[] = {
     ". 15:4 Reserved",
     ". 3:0 Nominal form factor: -, 5.25, 3.5, 2.5, 1.8, <1.8",
 
-  "169 Data Set Management support",
+  "169 DATA SET MANAGEMENT command support",
     ". 15:1 Reserved",
     ". 0 Trim bit in DATA SET MANAGEMENT command supported",
 
@@ -468,7 +482,7 @@ const char * const identify_descriptions[] = {
   "176-205 Current media serial number (String)",
 
   "206 SCT Command Transport",
-    ". 15:12 Vendor Specific",
+    ". 15:12 Vendor specific",
     ". 11:8 Reserved",
     ". 7 Reserved for Serial ATA",
     ". 6 Reserved",
@@ -479,7 +493,7 @@ const char * const identify_descriptions[] = {
     ". 1 SCT Read/Write Long supported [OBS-ACS-2]",
     ". 0 SCT Command Transport supported",
 
-  "207-208 Reserved for CE-ATA",
+  "207-208 Reserved", // ATA-8: Reserved for CE-ATA
 
   "209 Alignment of logical sectors",
     ". 15:14 Must be set to 0x1",
@@ -512,8 +526,9 @@ const char * const identify_descriptions[] = {
   "221 Reserved",
 
   "222 Transport major version number",
-    ". 15:12 Transport type: 0x0 = Parallel, 0x1 = Serial",
-    ". 11:7 Reserved    | Reserved",
+    ". 15:12 Transport: 0x0 = Parallel, 0x1 = Serial, 0xe = PCIe", // PCIe: ACS-4
+    ". 11:8 Reserved    | Reserved",
+    ". 7 Reserved    | SATA 3.2",
     ". 6 Reserved    | SATA 3.1",
     ". 5 Reserved    | SATA 3.0",
     ". 4 Reserved    | SATA 2.6",

@@ -1,5 +1,9 @@
 $Id$
 
+2015-05-01  Christian Franke  <franke@computer.org>
+
+	ataidentify.cpp: ACS-3/4 updates.
+
 2015-04-28  Christian Franke  <franke@computer.org>
 
 	os_win32/installer.nsi: Fix possible loss of user PATH environment
