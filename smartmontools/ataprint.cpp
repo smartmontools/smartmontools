@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen
+ * Copyright (C) 2008-15 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -460,7 +460,7 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
   // Table 10 of X3T13/2008D (ATA-3) Revision 7b, January 27, 1997
   // Table 28 of T13/1410D (ATA/ATAPI-6) Revision 3b, February 26, 2002
   // Table 31 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
-  // Table 45 of T13/BSR INCITS 529 (ACS-4) Revision 04, August 25, 2014
+  // Table 46 of T13/BSR INCITS 529 (ACS-4) Revision 08, April 28, 2015
   switch (drive->minor_rev_num) {
     case 0x0001: return "ATA-1 X3T9.2/781D prior to revision 4";
     case 0x0002: return "ATA-1 published, ANSI X3.221-1994";
@@ -511,11 +511,15 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
 
     case 0x0052: return "ATA8-ACS T13/1699-D revision 3b";
 
+    case 0x005e: return "ACS-4 T13/BSR INCITS 529 revision 5";
+
     case 0x006d: return "ACS-3 T13/2161-D revision 5";
 
     case 0x0082: return "ACS-2 published, ANSI INCITS 482-2012";
 
     case 0x0107: return "ATA8-ACS T13/1699-D revision 2d";
+
+    case 0x010a: return "ACS-3 published, ANSI INCITS 522-2014";
 
     case 0x0110: return "ACS-2 T13/2015-D revision 3";
 
@@ -1149,7 +1153,7 @@ static unsigned GetNumLogSectors(const ata_smart_log_directory * logdir, unsigne
 // Get name of log.
 static const char * GetLogName(unsigned logaddr)
 {
-    // Table 201 of T13/BSR INCITS 529 (ACS-4) Revision 04, August 25, 2014
+    // Table 205 of T13/BSR INCITS 529 (ACS-4) Revision 08, April 28, 2015
     // Table 112 of Serial ATA Revision 3.2, August 7, 2013
     switch (logaddr) {
       case 0x00: return "Log Directory";
@@ -1167,6 +1171,7 @@ static const char * GetLogName(unsigned logaddr)
       case 0x0c: return "Pending Defects log"; // ACS-4
       case 0x0d: return "LPS Mis-alignment log"; // ACS-2
 
+      case 0x0f: return "Sense Data for Successful NCQ Cmds log"; // ACS-4
       case 0x10: return "SATA NCQ Queued Error log";
       case 0x11: return "SATA Phy Event Counters log";
     //case 0x12: return "SATA NCQ Queue Management log"; // SATA 3.0/3.1
@@ -1205,7 +1210,7 @@ static const char * get_log_rw(unsigned logaddr)
 {
    if (   (                   logaddr <= 0x08)
        || (0x0c <= logaddr && logaddr <= 0x0d)
-       || (0x10 <= logaddr && logaddr <= 0x14)
+       || (0x0f <= logaddr && logaddr <= 0x14)
        || (0x19 == logaddr)
        || (0x20 <= logaddr && logaddr <= 0x25)
        || (0x30 == logaddr))

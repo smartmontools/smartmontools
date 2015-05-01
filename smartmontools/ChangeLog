@@ -3,6 +3,8 @@ $Id$
 2015-05-01  Christian Franke  <franke@computer.org>
 
 	ataidentify.cpp: ACS-3/4 updates.
+	ataprint.cpp: Add recent ACS-3/4 minor revisions.
+	Add ACS-4 log 0x0f.
 
 2015-04-28  Christian Franke  <franke@computer.org>
 
