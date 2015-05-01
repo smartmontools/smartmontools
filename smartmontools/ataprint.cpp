@@ -1340,9 +1340,8 @@ static void PrintLogPages(const char * type, const unsigned char * data,
 ///////////////////////////////////////////////////////////////////////
 // Device statistics (Log 0x04)
 
-// See Section A.5 of
-//   ATA/ATAPI Command Set - 3 (ACS-3)
-//   T13/2161-D Revision 2, February 21, 2012.
+// Section A.5 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
+// Section 9.5 of T13/BSR INCITS 529 (ACS-4) Revision 08, April 28, 2015
 
 struct devstat_entry_info
 {
@@ -1358,12 +1357,15 @@ const devstat_entry_info devstat_info_0x00[] = {
 const devstat_entry_info devstat_info_0x01[] = {
   {  2, "General Statistics" },
   {  4, "Lifetime Power-On Resets" },
-  {  4, "Power-on Hours" }, // spec says no flags(?)
+  {  4, "Power-on Hours" },
   {  6, "Logical Sectors Written" },
   {  6, "Number of Write Commands" },
   {  6, "Logical Sectors Read" },
   {  6, "Number of Read Commands" },
   {  6, "Date and Time TimeStamp" }, // ACS-3
+  {  4, "Pending Error Count" }, // ACS-4
+  {  2, "Workload Utilization" }, // ACS-4
+  {  6, "Utilization Usage Rate" }, // ACS-4 (TODO: field provides 3 values)
   {  0, 0 }
 };
 
@@ -1383,6 +1385,7 @@ const devstat_entry_info devstat_info_0x03[] = {
   {  4, "Read Recovery Attempts" },
   {  4, "Number of Mechanical Start Failures" },
   {  4, "Number of Realloc. Candidate Logical Sectors" }, // ACS-3
+  {  4, "Number of High Priority Unload Events" }, // ACS-3
   {  0, 0 }
 };
 
@@ -1439,11 +1442,20 @@ const devstat_entry_info * devstat_infos[] = {
 
 const int num_devstat_infos = sizeof(devstat_infos)/sizeof(devstat_infos[0]);
 
+static const char * get_device_statistics_page_name(int page)
+{
+  if (page < num_devstat_infos)
+    return devstat_infos[page][0].name;
+  if (page == 0xff)
+    return "Vendor Specific Statistics"; // ACS-4
+  return "Unknown Statistics";
+}
+
 static void print_device_statistics_page(const unsigned char * data, int page,
   bool & need_trailer)
 {
   const devstat_entry_info * info = (page < num_devstat_infos ? devstat_infos[page] : 0);
-  const char * name = (info ? info[0].name : "Unknown Statistics");
+  const char * name = get_device_statistics_page_name(page);
 
   // Check page number in header
   static const char line[] = "  =====  =                =  == ";
@@ -1504,7 +1516,9 @@ static void print_device_statistics_page(const unsigned char * data, int page,
       (flags & 0x1f ? '+' : ' '), // unknown flags
       valstr,
       (flags & 0x20 ? '~' : ' '), // normalized flag
-      (info ? info[i].name : "Unknown"));
+      (info         ? info[i].name :
+       page == 0xff ? "Vendor Specific" // ACS-4
+                    : "Unknown"        ));
     if (flags & 0x20)
       need_trailer = true;
   }
@@ -1566,8 +1580,7 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
     pout("Page Description\n");
     for (i = 0; i < nentries; i++) {
       int page = page_0[8+1+i];
-      pout("%3d  %s\n", page,
-        (page < num_devstat_infos ? devstat_infos[page][0].name : "Unknown Statistics"));
+      pout("%3d  %s\n", page, get_device_statistics_page_name(page));
     }
     pout("\n");
   }

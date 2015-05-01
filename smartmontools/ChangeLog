@@ -4,7 +4,8 @@ $Id$
 
 	ataidentify.cpp: ACS-3/4 updates.
 	ataprint.cpp: Add recent ACS-3/4 minor revisions.
-	Add ACS-4 log 0x0f.
+	Add ACS-4 log 0x0f.  Add ACS-4 device statistics values and
+	vendor specific statistics page.
 
 2015-04-28  Christian Franke  <franke@computer.org>
 
