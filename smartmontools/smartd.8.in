@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-15 Christian Franke
 
-$Id: smartd.8.in 4068 2015-04-24 19:35:00Z chrfranke $
+$Id: smartd.8.in 4077 2015-05-02 14:38:24Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -714,6 +714,8 @@ optional local drive database (see \'\-B\' option).
 .br
 \fBDouglas Gilbert\fP (SCSI subsystem),
 .br
+\fBVolker Kuhlmann\fP (moderator of support and database mailing list),
+.br
 \fBGabriele Pohl\fP (wiki & development team support),
 .br
 \fBAlex Samorukov\fP (FreeBSD port and more, new Trac wiki).
@@ -761,4 +763,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 4068 2015-04-24 19:35:00Z chrfranke $
+$Id: smartd.8.in 4077 2015-05-02 14:38:24Z chrfranke $
