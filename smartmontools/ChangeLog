@@ -2,6 +2,8 @@ $Id$
 
 2015-05-02  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp: Print Transport Type for PATA and PCIe.
+	Print diagnostic values if SATA version or speed is unknown.
 	smartctl.8.in, smartd.8.in: Add Volker Kuhlmann to AUTHORS section.
 
 2015-05-01  Christian Franke  <franke@computer.org>

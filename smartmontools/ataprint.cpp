@@ -529,13 +529,22 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
   }
 }
 
-static const char * get_sata_version(const ata_identify_device * drive)
+static const char * get_pata_version(unsigned short word222, char (& buf)[32])
 {
-  unsigned short word222 = drive->words088_255[222-88];
-  if ((word222 & 0xf000) != 0x1000)
-    return 0;
+  switch (word222 & 0x0fff) {
+    default: snprintf(buf, sizeof(buf),
+                       "Unknown (0x%03x)", word222 & 0x0fff); return buf;
+    case 0x001:
+    case 0x003: return "ATA8-APT";
+    case 0x002: return "ATA/ATAPI-7";
+  }
+}
+
+static const char * get_sata_version(unsigned short word222, char (& buf)[32])
+{
   switch (find_msb(word222 & 0x0fff)) {
-    default: return "SATA >3.2";
+    default: snprintf(buf, sizeof(buf),
+                    "SATA >3.2 (0x%03x)", word222 & 0x0fff); return buf;
     case 7:  return "SATA 3.2";
     case 6:  return "SATA 3.1";
     case 5:  return "SATA 3.0";
@@ -544,7 +553,7 @@ static const char * get_sata_version(const ata_identify_device * drive)
     case 2:  return "SATA II Ext";
     case 1:  return "SATA 1.0a";
     case 0:  return "ATA8-AST";
-    case -1: return 0;
+    case -1: return "Unknown";
   }
 }
 
@@ -553,7 +562,10 @@ static const char * get_sata_speed(int level)
   if (level <= 0)
     return 0;
   switch (level) {
-    default: return ">6.0 Gb/s";
+    default: return ">6.0 Gb/s (7)";
+    case 6:  return ">6.0 Gb/s (6)";
+    case 5:  return ">6.0 Gb/s (5)";
+    case 4:  return ">6.0 Gb/s (4)";
     case 3:  return "6.0 Gb/s";
     case 2:  return "3.0 Gb/s";
     case 1:  return "1.5 Gb/s";
@@ -682,15 +694,30 @@ static void print_drive_info(const ata_identify_device * drive,
   }
   pout("ATA Version is:   %s\n", infofound(ataver.c_str()));
 
-  // If SATA drive print SATA version and speed
-  const char * sataver = get_sata_version(drive);
-  if (sataver) {
-    const char * maxspeed = get_sata_maxspeed(drive);
-    const char * curspeed = get_sata_curspeed(drive);
-    pout("SATA Version is:  %s%s%s%s%s%s\n", sataver,
-         (maxspeed ? ", " : ""), (maxspeed ? maxspeed : ""),
-         (curspeed ? " (current: " : ""), (curspeed ? curspeed : ""),
-         (curspeed ? ")" : ""));
+  // Print Transport specific version
+  char buf[32] = "";
+  unsigned short word222 = drive->words088_255[222-88];
+  if (word222 != 0x0000 && word222 != 0xffff) switch (word222 >> 12) {
+    case 0x0: // PATA
+      pout("Transport Type:   Parallel, %s\n", get_pata_version(word222, buf));
+      break;
+    case 0x1: // SATA
+      {
+        const char * sataver = get_sata_version(word222, buf);
+        const char * maxspeed = get_sata_maxspeed(drive);
+        const char * curspeed = get_sata_curspeed(drive);
+        pout("SATA Version is:  %s%s%s%s%s%s\n", sataver,
+             (maxspeed ? ", " : ""), (maxspeed ? maxspeed : ""),
+             (curspeed ? " (current: " : ""), (curspeed ? curspeed : ""),
+             (curspeed ? ")" : ""));
+      }
+      break;
+    case 0xe: // PCIe (ACS-4)
+      pout("Transport Type:   PCIe (0x%03x)\n", word222 & 0x0fff);
+      break;
+    default:
+      pout("Transport Type:   Unknown (0x%04x)\n", word222);
+      break;
   }
 
   // print current time and date and timezone
