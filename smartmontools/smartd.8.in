@@ -714,6 +714,8 @@ optional local drive database (see \'\-B\' option).
 .br
 \fBDouglas Gilbert\fP (SCSI subsystem),
 .br
+\fBVolker Kuhlmann\fP (moderator of support and database mailing list),
+.br
 \fBGabriele Pohl\fP (wiki & development team support),
 .br
 \fBAlex Samorukov\fP (FreeBSD port and more, new Trac wiki).
