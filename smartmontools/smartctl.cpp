@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen
+ * Copyright (C) 2008-15 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -51,7 +51,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3936 2014-07-05 17:16:23Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4080 2015-05-05 20:31:22Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -503,10 +503,14 @@ static const char * parse_options(int argc, char** argv,
         sscanf(optarg, "devstat%n,%u%n", &n1, &val, &n2);
         if (n1 == len)
           ataopts.devstat_all_pages = true;
-        else if (n2 == len && val <= 255)
-          ataopts.devstat_pages.push_back(val);
-        else
-          badarg = true;
+        else {
+            if (n2 != len) // retry with hex
+              sscanf(optarg, "devstat,0x%x%n", &val, &n2);
+            if (n2 == len && val <= 0xff)
+              ataopts.devstat_pages.push_back(val);
+            else
+              badarg = true;
+        }
 
       } else if (!strncmp(optarg, "xerror", sizeof("xerror")-1)) {
         int n1 = -1, n2 = -1, len = strlen(optarg);

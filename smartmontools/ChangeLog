@@ -1,9 +1,10 @@
-$Id: ChangeLog 4079 2015-05-05 20:08:16Z chrfranke $
+$Id: ChangeLog 4080 2015-05-05 20:31:22Z chrfranke $
 
 2015-05-05  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Print ACS-3 device statistics DSN flags.
 	Print device statistics page numbers in hex.
+	smartctl.cpp: Allow hex argument for '-l devstat,PAGE'.
 
 2015-05-02  Christian Franke  <franke@computer.org>
 
