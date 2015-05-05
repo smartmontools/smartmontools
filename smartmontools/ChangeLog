@@ -4,6 +4,7 @@ $Id$
 
 	ataprint.cpp: Print ACS-3 device statistics DSN flags.
 	Print device statistics page numbers in hex.
+	smartctl.cpp: Allow hex argument for '-l devstat,PAGE'.
 
 2015-05-02  Christian Franke  <franke@computer.org>
 
