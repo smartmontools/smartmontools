@@ -1478,24 +1478,23 @@ static const char * get_device_statistics_page_name(int page)
   return "Unknown Statistics";
 }
 
-static void print_device_statistics_page(const unsigned char * data, int page,
-  bool & need_trailer)
+static void print_device_statistics_page(const unsigned char * data, int page)
 {
   const devstat_entry_info * info = (page < num_devstat_infos ? devstat_infos[page] : 0);
   const char * name = get_device_statistics_page_name(page);
 
   // Check page number in header
-  static const char line[] = "  =====  =                =  == ";
+  static const char line[] = "  =====  =               =  ===  == ";
   if (!data[2]) {
-    pout("%3d%s%s (empty) ==\n", page, line, name);
+    pout("0x%02x%s%s (empty) ==\n", page, line, name);
     return;
   }
   if (data[2] != page) {
-    pout("%3d%s%s (invalid page %d in header) ==\n", page, line, name, data[2]);
+    pout("0x%02x%s%s (invalid page 0x%02x in header) ==\n", page, line, name, data[2]);
     return;
   }
 
-  pout("%3d%s%s (rev %d) ==\n", page, line, name, data[0]);
+  pout("0x%02x%s%s (rev %d) ==\n", page, line, name, data[0] | (data[1] << 8));
 
   // Print entries
   for (int i = 1, offset = 8; offset < 512-7; i++, offset+=8) {
@@ -1510,7 +1509,7 @@ static void print_device_statistics_page(const unsigned char * data, int page,
 
     // Stop if unknown entries contain garbage data due to buggy firmware
     if (!info && (data[offset+5] || data[offset+6])) {
-      pout("%3d  0x%03x  -                -  [Trailing garbage ignored]\n", page, offset);
+      pout("0x%02x  0x%03x  -               -  [Trailing garbage ignored]\n", page, offset);
       break;
     }
 
@@ -1537,17 +1536,17 @@ static void print_device_statistics_page(const unsigned char * data, int page,
       valstr[0] = '-'; valstr[1] = 0;
     }
 
-    pout("%3d  0x%03x  %d%c %15s%c %s\n",
+    pout("0x%02x  0x%03x  %d %15s  %c%c%c%c %s\n",
       page, offset,
       abs(size),
-      (flags & 0x1f ? '+' : ' '), // unknown flags
       valstr,
-      (flags & 0x20 ? '~' : ' '), // normalized flag
+      (flags & 0x20 ? 'N' : '-'), // normalized statistics
+      (flags & 0x10 ? 'D' : '-'), // supports DSN (ACS-3)
+      (flags & 0x08 ? 'C' : '-'), // monitored condition met (ACS-3)
+      (flags & 0x07 ? '+' : ' '), // reserved flags
       (info         ? info[i].name :
        page == 0xff ? "Vendor Specific" // ACS-4
                     : "Unknown"        ));
-    if (flags & 0x20)
-      need_trailer = true;
   }
 }
 
@@ -1564,13 +1563,13 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
   else
     rc = ataReadSmartLog(device, 0x04, page_0, 1);
   if (!rc) {
-    pout("Read Device Statistics page 0 failed\n\n");
+    pout("Read Device Statistics page 0x00 failed\n\n");
     return false;
   }
 
   unsigned char nentries = page_0[8];
   if (!(page_0[2] == 0 && nentries > 0)) {
-    pout("Device Statistics page 0 is invalid (page=%d, nentries=%d)\n\n", page_0[2], nentries);
+    pout("Device Statistics page 0x00 is invalid (page=0x%02x, nentries=%d)\n\n", page_0[2], nentries);
     return false;
   }
 
@@ -1589,14 +1588,14 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
   // Add manually specified pages
   bool print_page_0 = false;
   for (i = 0; i < single_pages.size() || ssd_page; i++) {
-    int page = (i < single_pages.size() ? single_pages[i] : 7);
+    int page = (i < single_pages.size() ? single_pages[i] : 0x07);
     if (!page)
       print_page_0 = true;
     else if (page >= (int)nsectors)
-      pout("Device Statistics Log has only %u pages\n", nsectors);
+      pout("Device Statistics Log has only 0x%02x pages\n", nsectors);
     else
       pages.push_back(page);
-    if (page == 7)
+    if (page == 0x07)
       ssd_page = false;
   }
 
@@ -1604,10 +1603,10 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
   if (print_page_0) {
     pout("Device Statistics (%s Log 0x04) supported pages\n", 
       use_gplog ? "GP" : "SMART");
-    pout("Page Description\n");
+    pout("Page  Description\n");
     for (i = 0; i < nentries; i++) {
       int page = page_0[8+1+i];
-      pout("%3d  %s\n", page, get_device_statistics_page_name(page));
+      pout("0x%02x  %s\n", page, get_device_statistics_page_name(page));
     }
     pout("\n");
   }
@@ -1616,8 +1615,7 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
   if (!pages.empty()) {
     pout("Device Statistics (%s Log 0x04)\n",
       use_gplog ? "GP" : "SMART");
-    pout("Page Offset Size         Value  Description\n");
-    bool need_trailer = false;
+    pout("Page  Offset Size        Value Flags Description\n");
     int max_page = 0;
 
     if (!use_gplog)
@@ -1629,8 +1627,8 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
 
     raw_buffer pages_buf((max_page+1) * 512);
 
-     if (!use_gplog && !ataReadSmartLog(device, 0x04, pages_buf.data(), max_page+1)) {
-      pout("Read Device Statistics pages 0-%d failed\n\n", max_page);
+    if (!use_gplog && !ataReadSmartLog(device, 0x04, pages_buf.data(), max_page+1)) {
+      pout("Read Device Statistics pages 0x00-0x%02x failed\n\n", max_page);
       return false;
     }
 
@@ -1638,7 +1636,7 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
       int page = pages[i];
       if (use_gplog) {
         if (!ataReadLogExt(device, 0x04, 0, page, pages_buf.data(), 1)) {
-          pout("Read Device Statistics page %d failed\n\n", page);
+          pout("Read Device Statistics page 0x%02x failed\n\n", page);
           return false;
         }
       }
@@ -1646,12 +1644,12 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
         continue;
 
       int offset = (use_gplog ? 0 : page * 512);
-      print_device_statistics_page(pages_buf.data() + offset, page, need_trailer);
+      print_device_statistics_page(pages_buf.data() + offset, page);
     }
 
-    if (need_trailer)
-      pout("%30s|_ ~ normalized value\n", "");
-    pout("\n");
+    pout("%32s|||_ C monitored condition met\n", "");
+    pout("%32s||__ D supports DSN\n", "");
+    pout("%32s|___ N normalized value\n\n", "");
   }
 
   return true;
