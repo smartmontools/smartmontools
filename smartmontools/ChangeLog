@@ -1,4 +1,9 @@
-$Id: ChangeLog 4078 2015-05-02 15:09:05Z chrfranke $
+$Id: ChangeLog 4079 2015-05-05 20:08:16Z chrfranke $
+
+2015-05-05  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print ACS-3 device statistics DSN flags.
+	Print device statistics page numbers in hex.
 
 2015-05-02  Christian Franke  <franke@computer.org>
 
