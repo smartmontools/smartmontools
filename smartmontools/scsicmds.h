@@ -3,11 +3,11 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-13 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-15 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -385,9 +385,6 @@ int scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info
 
 int scsiSendDiagnostic(scsi_device * device, int functioncode, UINT8 *pBuf, int bufLen);
 
-int scsiReceiveDiagnostic(scsi_device * device, int pcv, int pagenum, UINT8 *pBuf,
-                      int bufLen);
-
 int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist, int dl_format,
                      UINT8 *pBuf, int bufLen);
 
@@ -432,8 +429,6 @@ int scsiGetProtPBInfo(scsi_device * device, unsigned char * rc16_12_31p);
 const char* scsiGetIEString(UINT8 asc, UINT8 ascq);
 int scsiGetTemp(scsi_device * device, UINT8 *currenttemp, UINT8 *triptemp);
 
-
-int scsiSmartIBMOfflineTest(scsi_device * device);
 
 int scsiSmartDefaultSelfTest(scsi_device * device);
 int scsiSmartShortSelfTest(scsi_device * device);

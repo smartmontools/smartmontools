@@ -1,5 +1,11 @@
 $Id$
 
+2015-05-10  Christian Franke  <franke@computer.org>
+
+	scsicmds.cpp, scsicmds.h: Remove unused functions
+	scsiReceiveDiagnostic() and scsiSmartIBMOfflineTest().
+	Found by cppcheck.
+
 2015-05-05  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Print ACS-3 device statistics DSN flags.
