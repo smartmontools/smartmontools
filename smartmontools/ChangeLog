@@ -1,4 +1,10 @@
-$Id: ChangeLog 4080 2015-05-05 20:31:22Z chrfranke $
+$Id: ChangeLog 4081 2015-05-10 16:42:50Z chrfranke $
+
+2015-05-10  Christian Franke  <franke@computer.org>
+
+	scsicmds.cpp, scsicmds.h: Remove unused functions
+	scsiReceiveDiagnostic() and scsiSmartIBMOfflineTest().
+	Found by cppcheck.
 
 2015-05-05  Christian Franke  <franke@computer.org>
 
