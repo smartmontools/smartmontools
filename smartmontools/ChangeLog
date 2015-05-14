@@ -9,6 +9,10 @@ $Id$
 	- Marvell based SanDisk SSDs: Extreme Pro, Ultra II (ticket #544)
 	- Marvell based SanDisk SSDs: X110 mSATA, X300
 	- SanDisk based SSDs: pSSD (USB), U110
+	- USB: Samsung D3 Station 4TB (0x04e8:0x6125) (ticket #549)
+	- USB: Seagate Backup Plus USB 3.0 (0x0bc2:0xa003)
+	- USB: Seagate Backup Plus Desktop USB 3.0 5TB (0x0bc2:0xab31)
+	- USB: JMicron (0x152d:0x3569) (ticket #546)
 
 2015-05-10  Christian Franke  <franke@computer.org>
 

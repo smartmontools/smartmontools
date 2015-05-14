@@ -3242,9 +3242,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Samsung D3 Station; ", // 3TB
-    "0x04e8:0x6124",
-    "", // 0x200
+  { "USB: Samsung D3 Station; ",
+    "0x04e8:0x612[45]", // 3TB, 4TB
+    "", // 0x200, 0x202
     "",
     "-d sat"
   },
@@ -3635,13 +3635,13 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Backup Plus USB 3.0; ", // 1TB
-    "0x0bc2:0xa013",
+    "0x0bc2:0xa0[01]3",
     "", // 0x0100
     "",
     "-d sat"
   },
-  { "USB: Seagate Backup Plus Desktop USB 3.0; ", // 4TB, 3TB (8 LBA/1 PBA offset)
-    "0x0bc2:0xa0a[14]",
+  { "USB: Seagate Backup Plus Desktop USB 3.0; ",
+    "0x0bc2:0xa(0a[14]|b31)", // 4TB, 3TB (8 LBA/1 PBA offset), 5TB
     "",
     "",
     "-d sat"
@@ -3985,6 +3985,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron JMS567", // USB2/3->SATA
     "0x152d:0x3562",
     "", // 0x0310, StarTech S358BU33ERM (port multiplier, ticket #508)
+    "",
+    "-d sat"
+  },
+  { "USB: ; JMicron", // USB3->SATA
+    "0x152d:0x3569",
+    "", // 0x0203
     "",
     "-d sat"
   },
