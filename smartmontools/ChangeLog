@@ -1,5 +1,12 @@
 $Id$
 
+2015-05-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Marvell based SanDisk SSDs: Extreme Pro, Ultra II (ticket #544)
+	- Marvell based SanDisk SSDs: X110 mSATA, X300
+	- SanDisk based SSDs: pSSD (USB), U110
+
 2015-05-10  Christian Franke  <franke@computer.org>
 
 	scsicmds.cpp, scsicmds.h: Remove unused functions
