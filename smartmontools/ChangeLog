@@ -3,6 +3,9 @@ $Id$
 2015-05-14  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs:
+	  MX200 *00 sizes (ticket #545)
+	- Samsung based SSDs: PM851, SM841N, 850 EVO
 	- Marvell based SanDisk SSDs: Extreme Pro, Ultra II (ticket #544)
 	- Marvell based SanDisk SSDs: X110 mSATA, X300
 	- SanDisk based SSDs: pSSD (USB), U110
