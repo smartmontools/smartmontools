@@ -1,4 +1,11 @@
-$Id: ChangeLog 4081 2015-05-10 16:42:50Z chrfranke $
+$Id: ChangeLog 4082 2015-05-14 15:54:22Z chrfranke $
+
+2015-05-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Marvell based SanDisk SSDs: Extreme Pro, Ultra II (ticket #544)
+	- Marvell based SanDisk SSDs: X110 mSATA, X300
+	- SanDisk based SSDs: pSSD (USB), U110
 
 2015-05-10  Christian Franke  <franke@computer.org>
 
