@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -272,7 +272,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs",
     "Crucial_CT(128|256|512)MX100SSD1|"// tested with Crucial_CT256MX100SSD1/MU01
-    "Crucial_CT(256|512|1024)MX200SSD[1346]|" // tested with Crucial_CT1024MX200SSD1/MU01
+    "Crucial_CT(200|256|500|512|1000|1024)MX200SSD[1346]|" // tested with Crucial_CT500MX200SSD1/MU01,
+      // Crucial_CT1024MX200SSD1/MU01
     "Crucial_CT(120|240|480|960)M500SSD1|" // tested with Crucial_CT960M500SSD1/MU03
     "Crucial_CT(128|256|512|1024)M550SSD[13]|" // tested with Crucial_CT512M550SSD3/MU01, Crucial_CT1024M550SSD1/MU01
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
@@ -972,12 +973,15 @@ const drive_settings builtin_knowndrives[] = {
   { "Samsung based SSDs",
     "SAMSUNG SSD PM800 .*GB|"  // SAMSUNG PM800 SSDs, tested with SAMSUNG SSD PM800 TH 64GB/VBM25D1Q
     "SAMSUNG SSD PM810 .*GB|"  // SAMSUNG PM810 (470 series) SSDs, tested with SAMSUNG SSD PM810 2.5" 128GB/AXM06D1Q
+    "SAMSUNG SSD PM851 (mSATA )?(128|256|512)GB|" // tested with SAMSUNG SSD PM851 mSATA 128GB
+    "SAMSUNG SSD SM841N (mSATA )?(128|256|512)GB|" // tested with SAMSUNG SSD SM841N mSATA 256GB
     "SAMSUNG 470 Series SSD|"  // tested with SAMSUNG 470 Series SSD 64GB/AXM09B1Q
     "SAMSUNG SSD 830 Series|"  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
     "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
       // Samsung SSD 840 Series/DXT06B0Q
-    "Samsung SSD 840 EVO ((120|250|500)G|1T)B( mSATA)?|" // tested with Samsung SSD 840 EVO (120|250|500)GB/EXT0AB0Q,
-      // Samsung SSD 840 EVO (120|250)GB/EXT0BB6Q, 1TB/EXT0BB0Q, 120GB mSATA/EXT41B6Q
+    "Samsung SSD 8[45]0 EVO ((120|250|500)G|1T)B( mSATA)?|" // tested with Samsung SSD 840 EVO (120|250|500)GB/EXT0AB0Q,
+      // Samsung SSD 840 EVO (120|250)GB/EXT0BB6Q, 1TB/EXT0BB0Q, 120GB mSATA/EXT41B6Q,
+      // Samsung SSD 850 EVO 250GB/EMT01B6Q
     "Samsung SSD 850 PRO ((128|256|512)G|1T)B|" // tested with Samsung SSD 850 PRO 128GB/EXM01B6Q,
       // Samsung SSD 850 PRO 1TB/EXM01B6Q
     "SAMSUNG MZ7WD((120|240)HAFV|480HAGM|960HAGP)-00003|" // SM843T Series, tested with
@@ -1006,56 +1010,69 @@ const drive_settings builtin_knowndrives[] = {
     "-v 199,raw48,CRC_Error_Count "
     "-v 201,raw48,Supercap_Status "
     "-v 202,raw48,Exception_Mode_Status "
-    "-v 235,raw48,POR_Recovery_Count " // 830/840 Series
-  //"-v 241,raw48,Total_LBAs_Written"
+    "-v 235,raw48,POR_Recovery_Count " // 830/840/850 Series
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read " // PM851, SM841N
   },
   { "Marvell based SanDisk SSDs",
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
-    "SanDisk SD6SB[12]M[0-9]*G(1022I)?|" // X110/X210 (88SS9175), tested with SanDisk SD6SB1M064G1022I/X231600,
-      // SanDisk SD6SB1M256G1022I/X231600, SanDisk SD6SB2M512G1022I/X210400
+    "SanDisk SD6S[BF][12]M[0-9]*G(1022I?)?|" // X110/X210 (88SS9175/187?), tested with SanDisk SD6SB1M064G1022I/X231600,
+      // SanDisk SD6SB1M256G1022I/X231600, SanDisk SD6SF1M128G1022/X231200, SanDisk SD6SB2M512G1022I/X210400
+    "SanDisk SD7SB6S(128|256|512)G1122|" // X300 (88SS9189?), tested with SanDisk SD7SB6S128G1122/X3310000
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
-    "SanDisk SDSSDXP[0-9]*G", // Extreme II (88SS9187), tested with SanDisk SDSSDXP480G/R1311
+    "SanDisk SDSSDHII[0-9]*G|" // Ultra II (88SS9190/88SS9189), tested with SanDisk SDSSDHII120G/X31200RL
+    "SanDisk SDSSDXPS?[0-9]*G", // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
+      // SanDisk SDSSDXPS480G/X21200RL
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
+    "-v 165,raw48,Total_Write/Erase_Count "
     "-v 166,raw48,Min_W/E_Cycle "
     "-v 167,raw48,Min_Bad_Block/Die "
     "-v 168,raw48,Maximum_Erase_Cycle "
     "-v 169,raw48,Total_Bad_Block "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
-    "-v 173,raw48,Avg_Write_Erase_Ct "
+    "-v 173,raw48,Avg_Write/Erase_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 188,raw48,Command_Timeout "
   //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 199,raw48,SATA_CRC_Error "
     "-v 212,raw48,SATA_PHY_Error "
-    "-v 230,raw48,Perc_Write_Erase_Count "
+    "-v 230,raw48,Perc_Write/Erase_Count "
     "-v 232,raw48,Perc_Avail_Resrvd_Space "
     "-v 233,raw48,Total_NAND_Writes_GiB "
+    "-v 234,raw48,Perc_Write/Erase_Ct_BC "
     "-v 241,raw48,Total_Writes_GiB "
     "-v 242,raw48,Total_Reads_GiB "
   //"-v 243,raw48,Unknown_Attribute "
+    "-v 244,raw48,Thermal_Throttle "
   },
   { "SanDisk based SSDs", // see also #463 for the vendor attribute description
     "SanDisk iSSD P4 [0-9]*GB|" // tested with SanDisk iSSD P4 16GB/SSD 9.14
+    "SanDisk pSSD|" // tested with SandDisk pSSD/3 (62.7 GB, SanDisk Extreme USB3.0 SDCZ80-064G-J57, 0x0781:0x5580)
     "SanDisk SDSSDP[0-9]*G|" // tested with SanDisk SDSSDP064G/1.0.0, SDSSDP128G/2.0.0
     "SanDisk SSD i100 [0-9]*GB|" // tested with SanDisk SSD i100 8GB/11.56.04, 24GB/11.56.04
     "SanDisk SSD U100 ([0-9]*GB|SMG2)|" // tested with SanDisk SSD U100 8GB/10.56.00, 256GB/10.01.02, SMG2/10.56.04
+    "SanDisk SSD U110 (8|16|24|32|64|128)GB|" // tested with SanDisk SSD U110 32GB/U221000
     "SanDisk SD7[SU]B[23]Q(064|128|256|512)G.*", // tested with SD7SB3Q064G1122/SD7UB3Q256G1122/SD7SB3Q128G/SD7UB2Q512G1122
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
+    "-v 165,raw48,Total_Write/Erase_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
-    "-v 173,raw48,Avg_Write_Erase_Ct "
+    "-v 173,raw48,Avg_Write/Erase_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
   //"-v 187,raw48,Reported_Uncorrect "
     "-v 212,raw48,SATA_PHY_Error "
-    "-v 230,raw48,Perc_Write_Erase_Count "
+    "-v 230,raw48,Perc_Write/Erase_Count "
     "-v 232,raw48,Perc_Avail_Resrvd_Space "
-    "-v 234,raw48,Perc_Write_Erase_Ct_BC "
+    "-v 234,raw48,Perc_Write/Erase_Ct_BC "
   //"-v 241,raw48,Total_LBAs_Written "
   //"-v 242,raw48,Total_LBAs_Read "
     "-v 244,raw48,Thermal_Throttle "
@@ -3220,9 +3237,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Samsung D3 Station; ", // 3TB
-    "0x04e8:0x6124",
-    "", // 0x200
+  { "USB: Samsung D3 Station; ",
+    "0x04e8:0x612[45]", // 3TB, 4TB
+    "", // 0x200, 0x202
     "",
     "-d sat"
   },
@@ -3427,7 +3444,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // SanDisk
-  { "USB: SanDisk SDCZ80 Flash Drive; Fujitsu",
+  { "USB: SanDisk SDCZ80 Flash Drive; Fujitsu", // ATA ID: SanDisk pSSD
     "0x0781:0x5580",
     "",
     "",
@@ -3613,13 +3630,13 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Backup Plus USB 3.0; ", // 1TB
-    "0x0bc2:0xa013",
+    "0x0bc2:0xa0[01]3",
     "", // 0x0100
     "",
     "-d sat"
   },
-  { "USB: Seagate Backup Plus Desktop USB 3.0; ", // 4TB, 3TB (8 LBA/1 PBA offset)
-    "0x0bc2:0xa0a[14]",
+  { "USB: Seagate Backup Plus Desktop USB 3.0; ",
+    "0x0bc2:0xa(0a[14]|b31)", // 4TB, 3TB (8 LBA/1 PBA offset), 5TB
     "",
     "",
     "-d sat"
@@ -3963,6 +3980,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron JMS567", // USB2/3->SATA
     "0x152d:0x3562",
     "", // 0x0310, StarTech S358BU33ERM (port multiplier, ticket #508)
+    "",
+    "-d sat"
+  },
+  { "USB: ; JMicron", // USB3->SATA
+    "0x152d:0x3569",
+    "", // 0x0203
     "",
     "-d sat"
   },
