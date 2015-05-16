@@ -1,5 +1,25 @@
 $Id$
 
+2015-05-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Samsung SpinPoint T166: 250GB
+	- Seagate Samsung SpinPoint M8 (AF): Rename, add Apple OEM
+	- Seagate Samsung SpinPoint M9T
+	- Seagate Samsung SpinPoint M9TU (USB)
+	- Hitachi/HGST Travelstar Z5K320
+	- HGST Travelstar Z5K1000
+	- HGST Deskstar NAS: 128MB cache variants
+	- HGST Ultrastar He6
+	- Seagate Laptop Thin HDD: 7200 rpm variants
+	- Seagate Constellation ES.2 (SATA 6Gb/s): HP OEM
+	- Seagate Constellation.2 (SATA): HP OEM
+	- Seagate Enterprise Capacity 3.5 HDD
+	- Seagate Archive HDD
+	- Western Digital AV-GP (AF): 500MB, EURX variants
+	- Western Digital Red Pro
+	- Western Digital Purple
+
 2015-05-14  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

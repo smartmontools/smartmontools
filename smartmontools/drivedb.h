@@ -1488,8 +1488,8 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HD(250KD|(30[01]|320|40[01])L[DJ])",
     "", "", ""
   },
-  { "SAMSUNG SpinPoint T166", // tested with HD501LJ/CR100-1[01]
-    "SAMSUNG HD(080G|160H|32[01]K|403L|50[01]L)J",
+  { "SAMSUNG SpinPoint T166", // tested with HD252KJ/CM100-11, HD501LJ/CR100-1[01]
+    "SAMSUNG HD(080G|160H|252K|32[01]K|403L|50[01]L)J",
     "", "",
     "-v 197,increasing" // at least HD501LJ/CR100-11
   },
@@ -1573,9 +1573,11 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HN-M(250|320|500|640|750|101)MBB",
     "", "", ""
   },
-  { "Seagate Momentus SpinPoint M8 (AF)", // tested with
-      // ST750LM022 HN-M750MBB/2AR10001, ST320LM001 HN-M320MBB/2AR10002
-    "ST(250|320|500|640|750|1000)LM0[012][124] HN-M[0-9]*MBB",
+  { "Seagate Samsung SpinPoint M8 (AF)", // tested with
+      // ST750LM022 HN-M750MBB/2AR10001, ST320LM001 HN-M320MBB/2AR10002,
+      // APPLE HDD ST500LM012/2BA30003
+    "ST(250|320|500|640|750|1000)LM0[012][124] HN-M[0-9]*MBB|"
+    "APPLE HDD ST500LM012",
     "", "", ""
   },
   { "SAMSUNG SpinPoint M8U (USB)", // tested with HN-M500XBB/2AR10001
@@ -1584,6 +1586,16 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Samsung SpinPoint M8U (USB)", // tested with ST1000LM025 HN-M101ABB/2AR10001
     "ST(250|320|500|640|750|1000)LM0[012][3459] HN-M[0-9]*ABB",
+    "", "", ""
+  },
+  { "Seagate Samsung SpinPoint M9T", // tested with ST2000LM003 HN-M201RAD/2BC10003
+      // (Seagate Expansion Portable)
+    "ST(1500|2000)LM0(03|04|06|07|10) HN-M[0-9]*RAD",
+    "", "", ""
+  },
+  { "Seagate Samsung SpinPoint M9TU (USB)", // tested with ST1500LM008 HN-M151AAD/2BC10001
+       // (0x04e8:0x61b5), ST2000LM005 HN-M201AAD2BC10001 (0x04e8:0x61b4)
+    "ST(1500|2000)LM00[58] HN-M[0-9]*AAD",
     "", "", ""
   },
   { "SAMSUNG SpinPoint MP5", // tested with HM250HJ/2AK10001
@@ -1990,6 +2002,10 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi |HITACHI )?HT(S|E)5432(80|12|16|25|32)L9(A3(00)?|SA0[012])",
     "", "", ""
   },
+  { "Hitachi/HGST Travelstar Z5K320", // tested with Hitachi HTS543232A7A384/ES2OA70K
+    "(Hitachi|HGST) HT[ES]5432(16|25|32)A7A38[145]",
+    "", "", ""
+  },
   { "Hitachi Travelstar 5K500.B", // tested with Hitachi HTS545050B9SA00/PB4OC60X
     "(Hitachi )?HT[ES]5450(12|16|25|32|40|50)B9(A30[01]|SA00)",
     "", "", ""
@@ -2007,6 +2023,10 @@ const drive_settings builtin_knowndrives[] = {
   { "HGST Travelstar 5K1000", // tested with HGST HTS541010A9E680/JA0OA560,
       // HGST HTS541075A9E680/JA2OA560
     "HGST HT[ES]5410(64|75|10)A9E68[01]",
+    "", "", ""
+  },
+  { "HGST Travelstar Z5K1000", // tested with HGST HTS541010A7E630/SE0OA4A0
+    "HGST HTS5410(75|10)A7E63[015]",
     "", "", ""
   },
   { "HGST Travelstar 5K1500", // tested with HGST HTS541515A9E630/KA0OA500
@@ -2162,8 +2182,9 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HDS724040ALE640",
     "", "", ""
   },
-  { "HGST Deskstar NAS", // tested with HGST HDN724040ALE640/MJAOA5E0
-    "HGST HDN72(4030|4040|6050|6060)ALE640",
+  { "HGST Deskstar NAS", // tested with HGST HDN724040ALE640/MJAOA5E0,
+       // HGST HDN726050ALE610/APGNT517, HGST HDN726060ALE610/APGNT517
+    "HGST HDN72(4030|4040|6050|6060)ALE6[14]0",
     "", "", ""
   },
   { "Hitachi Ultrastar A7K1000", // tested with
@@ -2183,6 +2204,10 @@ const drive_settings builtin_knowndrives[] = {
   { "Hitachi/HGST Ultrastar 7K4000", // tested with Hitachi HUS724040ALE640/MJAOA3B0,
       // HGST HUS724040ALE640/MJAOA580, HGST HUS724020ALA640/MF6OAA70
     "(Hitachi|HGST) HUS7240(20|30|40)AL[AE]64[01]",
+    "", "", ""
+  },
+  { "HGST Ultrastar He6", // tested with HGST HUS726060ALA640/AHGNT1E2
+    "HGST HUS726060ALA64[01]",
     "", "", ""
   },
   { "HGST MegaScale 4000", // tested with HGST HMS5C4040ALE640/MPAOA580
@@ -2398,8 +2423,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST(160|250|320)LT0(07|09|11|14)-.*",
     "", "", ""
   },
-  { "Seagate Laptop Thin HDD", // tested with ST500LT012-9WS142/0001SDM1
-    "ST(250|320|500)LT0(12|15|25)-.*",
+  { "Seagate Laptop Thin HDD", // tested with ST500LT012-9WS142/0001SDM1,
+      // ST500LM021-1KJ152/0002LIM1
+    "ST((250|320|500)LT0(12|15|25)|(320|500)LM0(10|21))-.*",
     "", "", ""
   },
   { "Seagate Laptop SSHD", // tested with ST500LM000-1EJ162/SM11
@@ -2664,8 +2690,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST(5|10|20)00NM0011",
     "", "", ""
   },
-  { "Seagate Constellation ES.2 (SATA 6Gb/s)", // tested with ST32000645NS/0004, ST33000650NS
-    "ST3(2000645|300065[012])NS",
+  { "Seagate Constellation ES.2 (SATA 6Gb/s)", // tested with ST32000645NS/0004, ST33000650NS,
+      // MB3000EBKAB/HPG6
+    "ST3(2000645|300065[012])NS|"
+    "MB3000EBKAB", // HP OEM
     "", "", ""
   },
   { "Seagate Constellation ES.3", // tested with ST1000NM0033-9ZM173/0001, ST4000NM0033-9ZM170/SN03
@@ -2676,12 +2704,21 @@ const drive_settings builtin_knowndrives[] = {
     "ST(1000|2000|3000)NC00[0-3](-.*)?",
     "", "", ""
   },
-  { "Seagate Constellation.2 (SATA)", // 2.5", tested with ST91000640NS/SN02
-    "ST9(25061|50062|100064)[012]NS", // *SS = SAS
+  { "Seagate Constellation.2 (SATA)", // 2.5", tested with ST91000640NS/SN02, MM1000GBKAL/HPGB
+    "ST9(25061|50062|100064)[012]NS|" // *SS = SAS
+    "MM1000GBKAL", // HP OEM
+    "", "", ""
+  },
+  { "Seagate Enterprise Capacity 3.5 HDD", // tested with ST6000NM0024-1HT17Z/SN02
+    "ST[2456]000NM0[01][248]4-.*", // *[069]4 = 4Kn
     "", "", ""
   },
   { "Seagate NAS HDD", // tested with ST2000VN000-1H3164/SC42, ST3000VN000-1H4167/SC43
     "ST[234]000VN000-.*",
+    "", "", ""
+  },
+  { "Seagate Archive HDD", // tested with ST8000AS0002-1NA17Z/AR13
+    "ST[568]000AS00[01][12]-.*",
     "", "", ""
   },
   { "Seagate Pipeline HD 5900.1",
@@ -2839,7 +2876,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Blue", // tested with WDC WD5000AZLX-00K4KA0/80.00A80,
-      // WDC WD10EZEX-00RKKA0/80.00A80,
+      // WDC WD10EZEX-00RKKA0/80.00A80, WDC WD10EZEX-75M2NA0/01.01A01
     "WDC WD((25|32|50)00AAK|5000AZL|7500AAL|10EAL|10EZE)X-.*",
     "", "", ""
   },
@@ -2916,8 +2953,9 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((16|25|32|50|64|75)00AV[CDV]S|(10|15|20)EV[CDV]S)-.*",
     "", "", ""
   },
-  { "Western Digital AV-GP (AF)", // tested with WDC WD10EURS-630AB1/80.00A80, WDC WD10EUCX-63YZ1Y0/51.0AB52
-    "WDC WD(7500AURS|10EU[CR]X|(10|15|20|25|30)EURS)-.*",
+  { "Western Digital AV-GP (AF)", // tested with WDC WD10EURS-630AB1/80.00A80,
+      // WDC WD10EUCX-63YZ1Y0/51.0AB52, WDC WD20EURX-64HYZY0/80.00A80
+    "WDC WD(5000AUDX|7500AURS|10EUCX|(10|15|20|25|30)EUR[SX])-.*",
     "", "", ""
   },
   { "Western Digital AV", // tested with DC WD10JUCT-63CYNY0/01.01A01
@@ -2973,6 +3011,14 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD40EFRX-68WT0N0/80.00A80,
       // WDC WD60EFRX-68MYMN1/82.00A82
     "WDC WD(7500BFC|10JFC|(10|20|30|40|50|60)EFR)X-.*",
+    "", "", ""
+  },
+  { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81
+    "WDC WD[234]001FFSX-.*",
+    "", "", ""
+  },
+  { "Western Digital Purple", // tested with WDC WD40PURX-64GVNY0/80.00A80
+    "WDC WD[123456]0PURX-.*",
     "", "", ""
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03
@@ -3248,7 +3294,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Samsung M3 Portable USB 3.0; ",
+  { "USB: Samsung M3 Portable USB 3.0; ", // 1.5/2TB: SpinPoint M9TU
     "0x04e8:0x61b[456]", // 4=2TB, 5=1.5TB, 6=1TB
     "", // 0x0e00
     "",
