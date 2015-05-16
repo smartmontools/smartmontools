@@ -2238,6 +2238,12 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK8050GACY",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD MK..51GSY", // tested with TOSHIBA MK1251GSY/LD101D
+    "TOSHIBA MK(80|12|16|25)51GSY",
+    "",
+    "",
+    "-v 9,minutes"
+  },
   { "Toshiba 2.5\" HDD MK..52GSX",
     "TOSHIBA MK(80|12|16|25|32)52GSX",
     "", "", ""
@@ -2260,13 +2266,24 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(75|10)59GSM",
     "", "", ""
   },
-  { "Toshiba 2.5\" HDD MK..61GSY[N]", // tested with TOSHIBA MK5061GSY/MC102E, MK5061GSYN/MH000A
+  { "Toshiba 2.5\" HDD MK..61GSY[N]", // tested with TOSHIBA MK5061GSY/MC102E, MK5061GSYN/MH000A,
+      // TOSHIBA MK2561GSYN/MH000D
     "TOSHIBA MK(16|25|32|50|64)61GSYN?",
+    "",
+    "",
+    "-v 9,minutes" // TOSHIBA MK2561GSYN/MH000D
+  },
+  { "Toshiba 2.5\" HDD MK..61GSYB", // tested with TOSHIBA MK5061GSYB/ME0A
+    "TOSHIBA MK(16|25|32|50|64)61GSYB",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..65GSX", // tested with TOSHIBA MK5065GSX/GJ003A, MK3265GSXN/GH012H,
       // MK5065GSXF/GP006B, MK2565GSX H/GJ003A
     "TOSHIBA MK(16|25|32|50|64)65GSX[FN]?( H)?", // "... H" = USB ?
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MK..75GSX", // tested with TOSHIBA MK7575GSX/GT001C
+    "TOSHIBA MK(32|50|64|75)75GSX",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..76GSX", // tested with TOSHIBA MK3276GSX/GS002D
@@ -2275,11 +2292,28 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,minutes"
   },
+  { "Toshiba 2.5\" HDD MQ01ABB...", // tested with TOSHIBA MQ01ABB200/AY000U
+    "TOSHIBA MQ01ABB(100|150|200)",
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MQ01ABC...", // tested with TOSHIBA MQ01ABC150/AQ001U
+    "TOSHIBA MQ01ABC(100|150|200)",
+    "", "", ""
+  },
   { "Toshiba 2.5\" HDD MQ01ABD...", // tested with TOSHIBA MQ01ABD100/AX001U
     "TOSHIBA MQ01ABD(025|032|050|064|075|100)",
     "", "", ""
   },
-  { "Toshiba 2.5\" HDD MQ01UBD... (USB 3.0)", // tested with TOSHIBA MQ01ABD100/AX001U
+  { "Toshiba 2.5\" HDD MQ01ABF...", // tested with TOSHIBA MQ01ABF050/AM001J
+    "TOSHIBA MQ01ABF(050|075|100)",
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MQ01UBB... (USB 3.0)", // tested with TOSHIBA MQ01UBB200/AY000U (0x0480:0xa100)
+    "TOSHIBA MQ01UBB200",
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MQ01UBD... (USB 3.0)", // tested with TOSHIBA MQ01UBD050/AX001U (0x0480:0xa007),
+      // TOSHIBA MQ01UBD100/AX001U (0x0480:0x0201)
     "TOSHIBA MQ01UBD(050|075|100)",
     "", "", ""
   },
@@ -2291,7 +2325,15 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MG03ACA[1234]00Y?",
     "", "", ""
   },
-  { "Toshiba 3.5\" HDD DT01ACA...", // tested with TOSHIBA DT01ACA100/MS2OA750,
+  { "Toshiba 3.5\" MD04ACA... Enterprise HDD", // tested with TOSHIBA MD04ACA500/FP1A
+    "TOSHIBA MD04ACA[2345]00",
+    "", "", ""
+  },
+  { "Toshiba 3.5\" DT01ABA... Desktop HDD", // tested with TOSHIBA DT01ABA300/MZ6OABB0
+    "TOSHIBA DT01ABA(100|150|200|300)",
+    "", "", ""
+  },
+  { "Toshiba 3.5\" DT01ACA... Desktop HDD", // tested with TOSHIBA DT01ACA100/MS2OA750,
       // TOSHIBA DT01ACA200/MX4OABB0, TOSHIBA DT01ACA300/MX6OABB0
     "TOSHIBA DT01ACA(025|032|050|075|100|150|200|300)",
     "", "", ""
@@ -3157,13 +3199,13 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Toshiba
-  { "USB: Toshiba Stor.E Slim USB 3.0; ", // 1TB, MQ01UBD100
+  { "USB: Toshiba Stor.E Slim USB 3.0; ", // TOSHIBA MQ01UBD100
     "0x0480:0x0100",
     "", // 0x0000
     "",
     "-d sat"
   },
-  { "USB: Toshiba Canvio Basics; ", // TOSHIBA MQ01UBD...
+  { "USB: Toshiba Canvio Basics; ", // TOSHIBA MQ01UBD100
     "0x0480:0x0201",
     "",
     "",
@@ -3181,7 +3223,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Toshiba Canvio 3.0 Portable Hard Drive; ", // TOSHIBA MQ01UBD...
+  { "USB: Toshiba Canvio 3.0 Portable Hard Drive; ", // TOSHIBA MQ01UBD050
     "0x0480:0xa007",
     "", // 0x0001
     "",
@@ -3199,7 +3241,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Toshiba Canvio ALU; ", // 2TB USB 3.0
+  { "USB: Toshiba Canvio ALU; ", // TOSHIBA MQ01UBB200
     "0x0480:0xa100",
     "",
     "",

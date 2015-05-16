@@ -11,6 +11,16 @@ $Id$
 	- HGST Travelstar Z5K1000
 	- HGST Deskstar NAS: 128MB cache variants
 	- HGST Ultrastar He6
+	- Toshiba 2.5" HDD MK..51GSY
+	- Toshiba 2.5" HDD MK..61GSY[N]: -v 9,minutes
+	- Toshiba 2.5" HDD MK..61GSYB
+	- Toshiba 2.5" HDD MK..75GSX
+	- Toshiba 2.5" HDD MQ01ABB...
+	- Toshiba 2.5" HDD MQ01ABC...
+	- Toshiba 2.5" HDD MQ01ABF...
+	- Toshiba 2.5" HDD MQ01UBB... (USB 3.0)
+	- Toshiba 3.5" MD04ACA... Enterprise HDD
+	- Toshiba 3.5" DT01ABA... Desktop HDD
 	- Seagate Laptop Thin HDD: 7200 rpm variants
 	- Seagate Constellation ES.2 (SATA 6Gb/s): HP OEM
 	- Seagate Constellation.2 (SATA): HP OEM
