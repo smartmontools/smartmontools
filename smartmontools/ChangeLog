@@ -1,5 +1,29 @@
 $Id$
 
+2015-05-17  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: ViPowER USB3.0 Storage (0x0350:0x0038)
+	- USB: Buffalo DriveStation HD-LBU2 (0x0411:0x01ea)
+	- USB: Toshiba Stor.E Basics; (0x0480:0xa00e)
+	- USB: Toshiba Canvio Desktop (0x0480:0xd011)
+	- USB: Samsung M3 Portable USB 3.0 (0x04e8:0x61b3)
+	- USB: Iomega (0x059b:0x0575)
+	- USB: Genesys Logic GL3310 (0x05e3:0x0731)
+	- USB: Freecom HD (0x07ab:0xfcd6)
+	- USB: Apricorn SATA Wire (0x0984:0x0040)
+	- USB: WD My Passport (0x1058:0x0830)
+	- USB: WD My Book: Merge entries, add 0x1058:0x0900, 0x1058:0x1104
+	- USB: Initio (0x13fd:0x3940)
+	- USB: Super Top (0x14cd:0x6116): change to -d sat
+	- USB: JMicron (0x152d:0x2590) (ticket #550)
+	- USB: ASMedia ASM1053/1153 (0x174c:0x1[01]53)
+	- USB: Verbatim Pocket Hard Drive (0x18a5:0x0237)
+	- USB: Verbatim External Hard Drive (0x18a5:0x0400)
+	- USB: VIA VL701 (0x2109:0x0701)
+	- USB: Unknown (0x2537:0x106[68])
+	- USB: Hitachi Touro Mobile (0x4971:0x1020)
+
 2015-05-16  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

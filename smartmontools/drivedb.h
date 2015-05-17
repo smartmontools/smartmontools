@@ -3138,6 +3138,13 @@ const drive_settings builtin_knowndrives[] = {
   // USB ID entries
   ////////////////////////////////////////////////////
 
+  // 0x0350 (?)
+  { "USB: ViPowER USB3.0 Storage; ",
+    "0x0350:0x0038",
+    "", // 0x1905
+    "",
+    "-d sat,12" // ATA output registers missing
+  },
   // Hewlett-Packard
   { "USB: HP Desktop HD BD07; ", // 2TB
     "0x03f0:0xbd07",
@@ -3168,6 +3175,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Buffalo Drivestation Duo; ",
     "0x0411:0x01ce",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Buffalo DriveStation HD-LBU2 ; Medialogic MLDU11",
+    "0x0411:0x01ea",
     "",
     "",
     "-d sat"
@@ -3230,8 +3243,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Toshiba Stor.E Basics; ",
-    "0x0480:0xa00[9c]",
-    "",
+    "0x0480:0xa00[9ce]",
+    "", // 0x0000 (0xa00e)
     "",
     "-d sat"
   },
@@ -3248,8 +3261,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Toshiba Canvio Desktop; ",
-    "0x0480:0xd0(00|10)",
-    "",
+    "0x0480:0xd0(00|10|11)",
+    "", // 0x0316 (0xd011)
     "",
     "-d sat"
   },
@@ -3292,7 +3305,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x04e8:0x1f0[568a]", // 0x1f0a: SAMSUNG HN-M101XBB
     "",
     "",
-    "-d usbjmicron"
+    "-d usbjmicron" // 0x1f0a: works also with "-d sat"
   },
   { "USB: Samsung S1 Portable; JMicron",
     "0x04e8:0x2f03",
@@ -3337,7 +3350,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Samsung M3 Portable USB 3.0; ", // 1.5/2TB: SpinPoint M9TU
-    "0x04e8:0x61b[456]", // 4=2TB, 5=1.5TB, 6=1TB
+    "0x04e8:0x61b[3456]", // 500MB, 2TB, 1.5TB, 1TB
     "", // 0x0e00
     "",
     "-d sat"
@@ -3398,9 +3411,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
-  { "USB: Iomega GDHDU2; JMicron",
-    "0x059b:0x0475",
-    "", // 0x0100
+  { "USB: Iomega; JMicron",
+    "0x059b:0x0[45]75", // 0x0475: Iomega GDHDU2 (0x0100), 0x0575: LDHD-UP
+    "",
     "",
     "-d usbjmicron"
   },
@@ -3503,6 +3516,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; Genesys Logic GL3310",
+    "0x05e3:0x0731", // Chieftec USB 3.0 2.5" case
+    "",
+    "",
+    "-d sat"
+  },
   // Micron
   { "USB: Micron USB SSD; ",
     "0x0634:0x0655",
@@ -3568,8 +3587,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: Freecom HD 500GB; JMicron",
-    "0x07ab:0xfcda",
+  { "USB: Freecom HD; JMicron", // 500GB
+    "0x07ab:0xfcd[6a]",
     "",
     "",
     "-d usbjmicron"
@@ -3625,6 +3644,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  // Apricorn
+  { "USB: Apricorn SATA Wire; ",
+    "0x0984:0x0040",
+    "",
+    "",
+    "-d sat"
+  },
   // Seagate
   { "USB: Seagate External Drive; Cypress",
     "0x0bc2:0x0503",
@@ -3646,7 +3672,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Seagate Expansion Portable; ",
     "0x0bc2:0x23(00|12|20|21)",
-    "",
+    "", // 0x0219 (0x2312)
     "",
     "-d sat"
   },
@@ -3831,20 +3857,14 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   { "USB: WD My Passport; ",
-    "0x1058:0x0(70[245a]|730|74[0128a]|7a8|8[12]0)",
+    "0x1058:0x0(70[245a]|730|74[0128a]|7a8|8[123]0)",
     "",
     "",
     "-d sat"
   },
-  { "USB: WD My Book ES; ",
-    "0x1058:0x0906",
-    "", // 0x0012
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Book Essential; ",
-    "0x1058:0x0910",
-    "", // 0x0106
+  { "USB: WD My Book; ",
+    "0x1058:0x09(00|06|10)",
+    "", // 06=0x0012, 10=0x0106
     "",
     "-d sat"
   },
@@ -3860,39 +3880,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: WD My Book Essential; ",
-    "0x1058:0x1100",
-    "", // 0x0165
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Book Office Edition; ", // 1TB
-    "0x1058:0x1101",
-    "", // 0x0165
-    "",
-    "-d sat"
-  },
   { "USB: WD My Book; ",
-    "0x1058:0x1102",
-    "", // 0x1028
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Book Studio II; ", // 2x1TB
-    "0x1058:0x1105",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Book Essential; ",
-    "0x1058:0x1110",
-    "", // 0x1030
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Book Essential USB 3.0; ", // 3TB
-    "0x1058:0x11[34]0",
-    "", // 0x1012/0x1003
+    "0x1058:0x11(00|01|02|04|05|10|30|40)",
+    "", // 00/01=0x0165, 02=0x1028, 10=0x1030, 30=0x1012, 40=0x1003
     "",
     "-d sat"
   },
@@ -3971,18 +3961,18 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: ; Initio", // Seagate Expansion Portable SRD00F1
-    "0x13fd:0x3910",
-    "", // 0x0100
+  { "USB: ; Initio",
+    "0x13fd:0x39[14]0", // 0x3910: Seagate Expansion Portable SRD00F1 (0x0100)
+    "", // 0x3940: MS-TECH LU-275S (0x0306)
     "",
     "-d sat"
   },
   // Super Top
-  { "USB: Super Top generic enclosure; Cypress",
+  { "USB: Super Top generic enclosure; ",
     "0x14cd:0x6116",
+    "", // 0x0150, older report suggests -d usbcypress
     "", // 0x0160 also reported as unsupported
-    "",
-    "-d usbcypress"
+    "-d sat"
   },
   // JMicron
   { "USB: ; JMicron JMS539", // USB2/3->SATA (old firmware)
@@ -4070,6 +4060,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: ; JMicron",
+    "0x152d:0x2590",
+    "", // 0x0x8105 (ticket #550)
+    "",
+    "-d sat"
+  },
   { "USB: ; JMicron JMS567", // USB2/3->SATA
     "0x152d:0x3562",
     "", // 0x0310, StarTech S358BU33ERM (port multiplier, ticket #508)
@@ -4083,6 +4079,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // ASMedia
+  { "USB: ; ASMedia ASM1053/1153",
+    "0x174c:0x1[01]53",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: ; ASMedia ASM1051",
     "0x174c:0x5106", // 0x174c:0x55aa after firmware update
     "",
@@ -4095,7 +4097,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: ; ASMedia", // Vantec NexStar USB 3.0 & SATA dual drive doch
+  { "USB: ; ASMedia", // Vantec NexStar USB 3.0 & SATA dual drive dock
     "0x174c:0x5516",
     "",
     "",
@@ -4159,6 +4161,18 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron"
   },
+  { "USB: Verbatim Pocket Hard Drive; ", // 1TB USB 3.0
+    "0x18a5:0x0237",
+    "",
+    "",
+    "-d sat,12"
+  },
+  { "USB: Verbatim External Hard Drive; ", // 3TB USB 3.0
+    "0x18a5:0x0400",
+    "",
+    "",
+    "-d sat"
+  },
   // Silicon Image
   { "USB: Vantec NST-400MX-SR; Silicon Image 5744",
     "0x1a4a:0x1670",
@@ -4199,6 +4213,20 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
+  // VIA Labs
+  { "USB: ; VIA VL701", // USB2/3->SATA
+    "0x2109:0x0701", // Intenso 2,5" 1TB USB3
+    "", // 0x0107
+    "",
+    "-d sat" // ATA output registers missing
+  },
+  // 0x2537 (?)
+  { "USB: ; ", // USB 3.0
+    "0x2537:0x106[68]", // 0x1066: Orico 2599US3, 0x1068: Fantec ER-35U3
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // Power Quotient International
   { "USB: PQI H560; ",
     "0x3538:0x0902",
@@ -4218,6 +4246,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0000
     "",
     "-d sat" // ATA output registers missing
+  },
+  { "USB: Hitachi Touro Mobile; ", // 1TB
+    "0x4971:0x1020",
+    "",
+    "",
+    "-d sat"
   },
   { "USB: Hitachi/SimpleTech; JMicron", // 1TB
     "0x4971:0xce17",
