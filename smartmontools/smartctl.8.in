@@ -906,12 +906,7 @@ The read cache is usually enabled by default.
 .B SMART READ AND DISPLAY DATA OPTIONS:
 .TP
 .B \-H, \-\-health
-Check: Ask the device to report its SMART health status or pending
-TapeAlert messages.  SMART status is based on
-information that it has gathered from online and offline
-tests, which were used to determine/update its
-SMART vendor-specific Attribute values. TapeAlert status is obtained
-by reading the TapeAlert log page.
+Prints the health status of the device or pending TapeAlert messages.
 
 If the device reports failing health status, this means
 .B either
@@ -920,6 +915,26 @@ that the device has already failed,
 that it is predicting its own failure within the next 24 hours.  If
 this happens, use the \'\-a\' option to get more information, and
 .B get your data off the disk and to someplace safe as soon as you can.
+
+[ATA] Health status is obtained by checking the (boolean) result returned
+by the SMART RETURN STATUS command.
+The return value of this ATA command may be unknown due to limitations or
+bugs in some layer (e.g. RAID controller or USB bridge firmware) between
+disk and operating system.
+In this case, \fBsmartctl\fP prints a warning and checks whether any
+Prefailure SMART Attribute value is less than or equal to its threshold
+(see \'\-A\' below).
+
+[SCSI] Health status is obtained by checking the Additional Sense Code
+(ASC) and Additional Sense Code Qualifier (ASCQ) from Informal Exceptions
+(IE) log page (if supported) and/or from SCSI sense data.
+
+[SCSI tape drive or changer] TapeAlert status is obtained by reading the
+TapeAlert log page.
+Please note that the TapeAlert log page flags are cleared for the initiator
+when the page is read.
+This means that each alert condition is reported only once by \fBsmartctl\fP
+for each initiator for each activation of the condition.
 .TP
 .B \-c, \-\-capabilities
 [ATA only] Prints only the generic SMART capabilities.  These
@@ -2177,12 +2192,6 @@ drive database (see \'\-B\' option).
 optional local drive database (see \'\-B\' option).
 
 .\" %ENDIF NOT OS Windows
-.SH NOTES
-The TapeAlert log page flags are cleared for the initiator when the
-page is read. This means that each alert condition is reported only
-once by \fBsmartctl\fP for each initiator for each activation of the
-condition.
-
 .SH AUTHORS
 \fBBruce Allen\fP (project initiator),
 .br

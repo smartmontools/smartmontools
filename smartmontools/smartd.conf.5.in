@@ -564,8 +564,9 @@ Directive are \fIon\fP and \fIoff\fP.  Also affects SCSI devices.
 [Please see the \fBsmartctl \-S\fP command-line option.]
 .TP
 .B \-H
-[ATA only] Check the SMART health status of the disk.  If any Prefailure
-Attributes are less than or equal to their threshold values, then disk
+[ATA only] Check the health status of the disk with the SMART RETURN
+STATUS command.
+If this command reports a failing health status, then disk
 failure is predicted in less than 24 hours, and a message at loglevel
 .B \'LOG_CRIT\'
 will be logged to syslog.  [Please see the
