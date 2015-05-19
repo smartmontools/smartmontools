@@ -604,6 +604,7 @@ static void print_drive_info(const ata_identify_device * drive,
     pout("Model Family:     %s\n", dbentry->modelfamily);
 
   pout("Device Model:     %s\n", infofound(model));
+
   if (!dont_print_serial_number) {
     pout("Serial Number:    %s\n", infofound(serial));
 
@@ -611,16 +612,17 @@ static void print_drive_info(const ata_identify_device * drive,
     int naa = ata_get_wwn(drive, oui, unique_id);
     if (naa >= 0)
       pout("LU WWN Device Id: %x %06x %09" PRIx64 "\n", naa, oui, unique_id);
-
-    // Additional Product Identifier (OEM Id) string in words 170-173
-    // (e08130r1, added in ACS-2 Revision 1, December 17, 2008)
-    if (0x2020 <= drive->words088_255[170-88] && drive->words088_255[170-88] <= 0x7e7e) {
-      char add[8+1];
-      ata_format_id_string(add, (const unsigned char *)(drive->words088_255+170-88), sizeof(add)-1);
-      if (add[0])
-        pout("Add. Product Id:  %s\n", add);
-    }
   }
+
+  // Additional Product Identifier (OEM Id) string in words 170-173
+  // (e08130r1, added in ACS-2 Revision 1, December 17, 2008)
+  if (0x2020 <= drive->words088_255[170-88] && drive->words088_255[170-88] <= 0x7e7e) {
+    char add[8+1];
+    ata_format_id_string(add, (const unsigned char *)(drive->words088_255+170-88), sizeof(add)-1);
+    if (add[0])
+      pout("Add. Product Id:  %s\n", add);
+  }
+
   pout("Firmware Version: %s\n", infofound(firmware));
 
   if (sizes.capacity) {

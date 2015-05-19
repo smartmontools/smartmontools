@@ -2,6 +2,9 @@ $Id$
 
 2015-05-19  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp: Print the Additional Product Identifier (OEM Id)
+	regardless of '-q noserial' option.
+
 	smartctl.8.in, smartd.conf.5.in: Clarify '-H' option and directive.
 
 2015-05-17  Christian Franke  <franke@computer.org>
