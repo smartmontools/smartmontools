@@ -1,4 +1,8 @@
-$Id: ChangeLog 4089 2015-05-17 17:06:17Z chrfranke $
+$Id: ChangeLog 4091 2015-05-19 20:04:41Z chrfranke $
+
+2015-05-19  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in: Clarify '-H' option and directive.
 
 2015-05-17  Christian Franke  <franke@computer.org>
 
