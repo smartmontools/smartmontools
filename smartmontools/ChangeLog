@@ -1,8 +1,10 @@
-$Id: ChangeLog 4093 2015-05-27 20:57:10Z chrfranke $
+$Id: ChangeLog 4094 2015-05-27 21:41:17Z chrfranke $
 
 2015-05-27  Christian Franke  <franke@computer.org>
 
 	INSTALL: Update ./configure description.
+	Remove info about old Linux kernel series.
+	Update Windows info.
 
 2015-05-19  Christian Franke  <franke@computer.org>
 
