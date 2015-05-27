@@ -210,22 +210,31 @@ Table of contents:
     make install (you may need to be root to do this)
 
     As shown (with no options to ./configure) this defaults to the
-    following set of installation directories:
+    following set of installation directories and other settings:
+
     --prefix=/usr/local
-    --sbindir=/usr/local/sbin
-    --sysconfdir=/usr/local/etc
-    --mandir=/usr/local/share/man
-    --docdir=/usr/local/share/doc/smartmontools
-    --with-exampledir=/usr/local/share/doc/smartmontools/examplescripts
-    --with-drivedbdir=/usr/local/share/smartmontools
-    --with-initscriptdir=auto
-    --with-systemdsystemunitdir=auto
-    --enable-drivedb
-    --disable-attributelog
+    --exec-prefix='${prefix}'
+    --sbindir='${exec_prefix}/sbin'
+    --sysconfdir='${prefix}/etc'
+    --localstatedir='${prefix}/var'
+    --datarootdir='${prefix}/share'
+    --datadir='${datarootdir}'
+    --mandir='${datarootdir}/man'
+    --docdir='${datarootdir}/doc/smartmontools'
     --disable-sample
-    --disable-savestates
-    --with-libcap-ng=auto
+    --with-systemdsystemunitdir=auto
+    --with-systemdenvfile=auto
+    --with-initscriptdir=auto
+    --with-exampledir='${docdir}/examplescripts'
+    --with-drivedbdir='${datadir}/smartmontools'
+    --with-smartdscriptdir='${sysconfdir}'
+    --with-smartdplugindir='${smartdscriptdir}/smartd_warning.d'
+    --without-savestates
+    --without-attributelog
+    --with-os-deps='os_linux.o dev_areca.o' (platform specific)
     --without-selinux
+    --with-libcap-ng=auto
+    --with-working-snprintf
 
     These will usually not overwrite existing "distribution" installations on
     Linux Systems since the FHS reserves this area for use by the system
@@ -587,20 +596,29 @@ The following files are installed if ./configure has no options:
 /usr/local/sbin/smartd                                  [Executable daemon]
 /usr/local/sbin/update-smart-drivedb                    [Drive database update script]
 /usr/local/etc/smartd.conf                              [Configuration file for smartd daemon]
-/usr/local/etc/rc.d/init.d/smartd                       [Init/Startup script for smartd]
+/usr/local/etc/smartd_warning.sh                        [Warning skript for smartd daemon]
 /usr/local/share/man/man5/smartd.conf.5                 [Manual page]
 /usr/local/share/man/man8/smartctl.8                    [Manual page]
 /usr/local/share/man/man8/smartd.8                      [Manual page]
+/usr/local/share/man/man8/update-smart-drivedb.8        [Manual page]
 /usr/local/share/doc/smartmontools/AUTHORS              [Information about the authors and developers]
 /usr/local/share/doc/smartmontools/ChangeLog            [A log of changes. Also see SVN]
 /usr/local/share/doc/smartmontools/COPYING              [GNU General Public License Version 2]
 /usr/local/share/doc/smartmontools/INSTALL              [Installation instructions: what you're reading!]
-/usr/local/share/doc/smartmontools/NEWS                 [Significant bugs discovered in old versions]
+/usr/local/share/doc/smartmontools/NEWS                 [Significant enhancements and fixes]
 /usr/local/share/doc/smartmontools/README               [Overview]
 /usr/local/share/doc/smartmontools/TODO                 [Things that need to be done/fixed]
 /usr/local/share/doc/smartmontools/smartd.conf          [Example configuration file for smartd]
 /usr/local/share/doc/smartmontools/examplescripts/      [Executable scripts for -M exec of smartd.conf (4 files)]
 /usr/local/share/smartmontools/drivedb.h                [Drive database]
+
+Due to checks done by '--with-systemdsystemunitdir=auto' and '--with-initscriptdir=auto',
+one of the following files may also be installed:
+
+/usr/local/lib/systemd/system/smartd.service            [Systemd service file for smartd]
+/usr/local/etc/rc.d/init.d/smartd                       [Init/Startup script for smartd]
+/usr/local/etc/init.d/smartd                            [Init/Startup script for smartd]
+/usr/local/etc/rc.d/smartd                              [Init/Startup script for smartd]
 
 If /usr/local/etc/smartd.conf exists and differs from the
 default then the default configuration file is installed as
@@ -639,52 +657,23 @@ a documentation file doc/latex/refman.pdf:
 ===========================================================
 
 When you type:
-./configure [options]
-there are six particularly important variables that affect where the
-smartmontools software is installed.  The variables are listed here,
-with their default values in square brackets, and the quantities that
-they affect described following that.  This is a very wide table: please read
-it in a wide window.
+./configure --help
+a description of available configure options is printed
+[with defaults in square brackets].  See also section [3] above.
 
-OPTIONS              DEFAULT                                      AFFECTS
--------              -------                                      -------
---prefix             /usr/local                                   Please see below
---sbindir            ${prefix}/sbin                               Directory for smartd/smartctl executables;
-                                                                  Contents of smartd/smartctl man pages
---docdir             ${prefix}/share/doc/smartmontools            Location of the documentation
-                                                                  (autoconf >= 2.60 only, see also --with-docdir below)
---mandir             ${prefix}/share/man                          Directory for smartctl/smartd/smartd.conf man pages
---sysconfdir         ${prefix}/etc                                Directory for smartd.conf;
-                                                                  Contents of smartd executable;
-                                                                  Contents of smartd/smartd.conf man pages;
-                                                                  Directory for rc.d/init.d/smartd init script
---with-initscriptdir           auto                               Location of init scripts
---with-systemdsystemunitdir    auto                               Location of systemd service files
---with-systemdenvfile ${sysconfdir}/sysconfig/smartmontools       Path of environment file for system service
---with-docdir         ${prefix}/share/doc/smartmontools           Location of the documentation
---with-exampledir     ${docdir}/examplescripts                    Location of example scripts
---enable-sample       --disable-sample                            Adds the string '.sample' to the names of the smartd.conf file and the smartd RC file
---with-os-deps        os_<guessed>.o                              OS dependent module(s)
---with-selinux        --without-selinux                           Enables SELinux support.  If smartmontools has to create the /dev/tw[ae] device
-                                                                  nodes for 3ware/AMCC controllers, this option ensures that the nodes are created
-                                                                  with correct SELinux file contexts.
---with-libcap-ng      --with-libcap-ng=auto                       Enables/disables libcap-ng support. If enabled and libcap-ng is
-                                                                  available, option --capabilities is added to smartd.
---disable-drivedb     --enable-drivedb                            Disables default drive database file '${drivedbdir}/drivedb.h'
---with-drivedbdir     ${prefix}/share/smartmontools               Directory for 'drivedb.h' (implies --enable-drivedb)
---with-smartdscriptdir    ${sysconfdir}                           Directory for 'smartd_warning.sh' script
---with-smartdplugindir    ${sysconfdir}/smartd_warning.d          Directory for 'smartd_warning.sh' plugin scripts
---enable-savestates   --disable-savestates                        Enables default smartd state files '${savestates}MODEL-SERIAL.ata.state'
---with-savestates     ${prefix}/var/lib/smartmontools/smartd.     Prefix for smartd state files (implies --enable-savestates)
---enable-attributelog --disable-attributelog                      Enables default smartd attribute log files
---with-attributelog   ${prefix}/var/lib/smartmontools/attrlog.    Prefix for smartd attribute log files (implies --enable-attributelog)
---with-working-snprintf    MinGW:guessed,others:yes               Function snprintf() handles output truncation as specified by C99
 
-Please note that in previous versions of smartmontools (<= 5.39) the
-default for --with-docdir was
-  ${prefix}/share/doc/smartmontools-VERSION
-This was changed to make it consistent with the default of the
-new --docdir option added in autoconf 2.60.
+The following old configure options are deprecated and will be removed
+in a future release of smartmontools:
+
+Old option                 Replacement
+--with-docdir=DIR          --docdir=DIR (autoconf >= 2.60)
+--enable-drivedb           [no option needed]
+--disable-drivedb          --without-drivedbdir
+--enable-savestates        --with-savestates[=yes]
+--disable-savestates       [no option needed]
+--enable-attrbutelog       --with-attributelog[=yes]
+--disable-savestates       [no option needed]
+
 
 The defaults for --with-initscriptdir and --with-systemdsystemunitdir are
 guessed such that the following rules apply:
@@ -730,30 +719,6 @@ else
 
 --with-initscriptdir         [disabled]
 --with-systemdsystemunitdir  [disabled]
-
-This is useful for test installs in a harmless subdirectory somewhere.
-
-Here are the four possible cases for the four variables above:
-
-Case 1:
---prefix not set
---variable not set
-===> VARIABLE gets default value above
-
-Case 2:
---prefix set
---variable not set
-===> VARIABLE gets PREFIX/ prepended to default value above
-
-Case 3:
---prefix not set
---variable set
-===> VARIABLE gets value that is set
-
-Case 4:
---prefix is set
---variable is set
-===> PREFIX is IGNORED, VARIABLE gets value that is set
 
 
 Here are the differences with and without --enable-sample, assuming

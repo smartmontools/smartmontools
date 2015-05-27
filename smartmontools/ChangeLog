@@ -1,5 +1,9 @@
 $Id$
 
+2015-05-27  Christian Franke  <franke@computer.org>
+
+	INSTALL: Update ./configure description.
+
 2015-05-19  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Print the Additional Product Identifier (OEM Id)
