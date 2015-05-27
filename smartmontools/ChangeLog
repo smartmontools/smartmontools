@@ -3,6 +3,8 @@ $Id$
 2015-05-27  Christian Franke  <franke@computer.org>
 
 	INSTALL: Update ./configure description.
+	Remove info about old Linux kernel series.
+	Update Windows info.
 
 2015-05-19  Christian Franke  <franke@computer.org>
 

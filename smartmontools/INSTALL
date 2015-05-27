@@ -32,49 +32,6 @@ Table of contents:
     kernel version greater than or equal to 2.2.14. So any recent
     Linux distribution should support smartmontools.
 
-    There are two parts of smartmontools that may require a patched or
-    nonstandard kernel:
-
-    (1) To get the ATA RETURN SMART STATUS command, the kernel needs
-    to support the HDIO_DRIVE_TASK ioctl().
-
-    (2) To run Selective Self-tests, the kernel needs to support the
-    HDIO_DRIVE_TASKFILE ioctl().
-
-    If your kernel does not support one or both of these ioctls, then
-    smartmontools will "mostly" work.  The things that don't work will
-    give you harmless warning messages.
-
-    For item (1) above, any 2.4 or 2.6 series kernel will provide
-    HDIO_DRIVE_TASK support.  Some 2.2.20 and later kernels also
-    provide this support IF they're properly patched and
-    configured. [Andre Hedrick's IDE patches may be found at
-    http://www.nic.funet.fi/pub/linux/kernel/people/hedrick/ide-2.2.20/
-    or are available from your local kernel.org mirror.  They are not
-    updated for 2.2.21 or later, and may contain a few bugs.].
-    If the configuration option CONFIG_IDE_TASK_IOCTL
-    exists in your 2.2.X kernel source code tree, then your 2.2.X
-    kernel will probably support this ioctl. [Note that this kernel
-    configuration option does NOT need to be enabled. Its presence
-    merely indicates that the required HDIO_DRIVE_TASK ioctl() is
-    supported.]
-
-    For item (2) above, your kernel must be configured with the kernel
-    configuration option CONFIG_IDE_TASKFILE_IO enabled.  This
-    configuration option is present in all 2.4 and 2.6 series
-    kernels. Some 2.2.20 and later kernels also provide this support
-    IF they're properly patched and configured as described above.
-
-    Please see FAQ section of the URL above for additional details.
-
-    If you are using 3ware controllers, for full functionality you
-    must either use version 1.02.00.037 or greater of the 3w-xxxx
-    driver, or patch earlier 3ware 3w-xxxx drivers.  See
-    http://smartmontools.sourceforge.net/3w-xxxx.txt
-    for the patch.  The version 1.02.00.037 3w-xxxx.c driver was
-    incorporated into kernel 2.4.23-bk2 on 3 December 2003 and into
-    kernel 2.6.0-test5-bk11 on 23 September 2003.
-
     B) FreeBSD
 
     For FreeBSD support, a 5-current kernel that includes ATAng is
@@ -106,9 +63,9 @@ Table of contents:
 
     F) Windows
 
-    The code was tested on Windows XP SP3, 2003, Vista, Windows 7 and
-    Windows 8 Release Preview.  Support von Windows 9x/ME and NT4 was removed
-    after smartmontools 5.43.
+    The code was tested on Windows XP SP3, 2003, Vista, Windows 7, 8, 8.1
+    and Windows 10 Release Preview.  Support von Windows 9x/ME and NT4 was
+    removed after smartmontools 5.43.
 
     ATA or SATA devices are supported if the device driver implements
     the SMART IOCTLs or IOCTL_IDE_PASS_THROUGH or IOCTL_ATA_PASS_THROUGH.
@@ -179,7 +136,7 @@ Table of contents:
     The code was tested on eComStation 1.1, but it should work on all versions
     of OS/2.
     Innotek LibC 0.5 runtime is required.
-    Currently only ATA disks are supported, SCSI support will be added.
+    Only ATA disks are supported.
 
 [2] Installing from SVN
 =======================
@@ -424,35 +381,17 @@ To compile the Windows release with MinGW gcc on MSYS, use:
   Instead of using "make install", copy the .exe files into
   some directory in the PATH.
 
-Cross-compile statically linked 32-bit version with MinGW-w64:
+Cross-compile statically linked 32-bit and 64-bit versions with MinGW-w64:
 
   ./configure --build=$(./config.guess) \
               --host=i686-w64-mingw32 \
               LDFLAGS=-static
 
-  Tested on Cygwin and Debian Linux.
-
-Cross-compile statically linked 64-bit version with MinGW-w64:
-
   ./configure --build=$(./config.guess) \
               --host=x86_64-w64-mingw32 \
               LDFLAGS=-static
 
-  Tested on Cygwin and Debian Linux with MinGW-w64 from
-  http://mingw-w64.sourceforge.net/.
-
-Cross-compile on Cygwin with old gcc-mingw 3.x:
-
-  ./configure --build=$(./config.guess) \
-              --host=i686-pc-mingw32 \
-               CC='gcc-3 -mno-cygwin' \
-              CXX='g++-3 -mno-cygwin' \
-              CXXFLAGS='-g -O2 -Wall -W -Wno-format'
-
-Cross-compile on Debian Linux with gcc-mingw32:
-
-  ./configure --build=$(./config.guess) \
-              --host=i586-mingw32msvc
+  Tested on Cygwin, Debian and Fedora.
 
 
 To build the Windows binary distribution, use:
@@ -481,7 +420,8 @@ To create a Windows installer, use:
   download location.
 
   It is also possible to (cross-)build the installer on Linux.
-  This was successfully tested on Debian with package "nsis".
+  This was successfully tested on Debian and Fedora with package
+  "nsis".
 
 To create a combined 32-/64-bit installer, use this in 32-bit build
 directory if 64-build directory is at ../build64:
@@ -497,14 +437,6 @@ To both create and run the (interactive) installer, use:
 
   The binary distribution includes all documentation files converted
   to DOS text file format and *.html and *.txt preformatted man pages.
-  The tools unix2dos.exe (package cygutils) and zip.exe (package zip
-  or a native Win32 release of Info-ZIP, http://www.info-zip.org) are
-  necessary but may be not installed by Cygwin's default settings.
-
-  The event message file tool syslogevt.exe (see smartd man page) is
-  included in the binary distribution if message compiler (windmc)
-  and resource compiler (windres) are available. This may be disabled
-  by passing 'WINDMC=no' to configure.
 
 To prepare os_win32 directory for MS Visual Studio C++ 2010 [Express],
 use the following on MSYS or Cygwin:
@@ -515,9 +447,9 @@ use the following on MSYS or Cygwin:
 
   The MSVC project files (os_win32/vc10/*) are included in SVN (but not
   in source tarball). The target config-vc10 from a Makefile configured
-  for MinGW creates os_win32/vc10/{config,svnversion}.h from
-  ./{config,svnversion}.h. The configure skript must be run outside
-  of the source directory to avoid inclusion of the original config.h.
+  for MinGW creates os_win32/vc10/{config.h,smart*.rc,svnversion.h}.
+  The configure skript must be run outside of the source directory to
+  avoid inclusion of the original config.h.
 
 
 [11] Guidelines for OS/2, eComStation
