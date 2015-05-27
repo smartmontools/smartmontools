@@ -1,4 +1,8 @@
-$Id: ChangeLog 4092 2015-05-19 20:14:36Z chrfranke $
+$Id: ChangeLog 4093 2015-05-27 20:57:10Z chrfranke $
+
+2015-05-27  Christian Franke  <franke@computer.org>
+
+	INSTALL: Update ./configure description.
 
 2015-05-19  Christian Franke  <franke@computer.org>
 
