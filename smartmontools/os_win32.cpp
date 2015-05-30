@@ -887,7 +887,7 @@ smart_device * win_smart_interface::get_custom_smart_device(const char * name, c
   if (   sscanf(type, "aacraid,%u,%u,%u%n", &ctrnum, &lun, &target, &n1) >= 3
       && n1 == (int)strlen(type)) {
 #define aacraid_MAX_CTLR_NUM  16
-    if (ctrnum > aacraid_MAX_CTLR_NUM) {
+    if (ctrnum >= aacraid_MAX_CTLR_NUM) {
       set_err(EINVAL, "aacraid: invalid host number %u", ctrnum);
       return 0;
     }
@@ -897,7 +897,7 @@ smart_device * win_smart_interface::get_custom_smart_device(const char * name, c
     2. map ARCX into "\\\\.\\scsiX"
     */
     memset(devpath, 0, sizeof(devpath));
-    unsigned ctlrindex = 1;
+    unsigned ctlrindex = 0;
     for (int portNum = 0; portNum < aacraid_MAX_CTLR_NUM; portNum++){
       char subKey[63];
       snprintf(subKey, sizeof(subKey), "HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port %d", portNum);

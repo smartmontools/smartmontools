@@ -11,6 +11,7 @@ $Id$
 	Fix info_name and dev_type parameter order.
 	Improve error handling.  Avoid unsafe sprintf().
 	Remove unused variables.  Add help text.
+	Use 0 as number of first aacraid controller as on Linux.
 
 2015-05-30  Nidhi Malhotra  <nidhi.malhotra@pmcs.com>
 
