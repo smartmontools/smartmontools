@@ -1,4 +1,4 @@
-$Id: ChangeLog 4096 2015-05-30 16:16:19Z chrfranke $
+$Id: ChangeLog 4098 2015-05-30 16:37:37Z chrfranke $
 
 2015-05-30  Christian Franke  <franke@computer.org>
 
@@ -11,6 +11,7 @@ $Id: ChangeLog 4096 2015-05-30 16:16:19Z chrfranke $
 	Fix info_name and dev_type parameter order.
 	Improve error handling.  Avoid unsafe sprintf().
 	Remove unused variables.  Add help text.
+	Use 0 as number of first aacraid controller as on Linux.
 
 2015-05-30  Nidhi Malhotra  <nidhi.malhotra@pmcs.com>
 
