@@ -14,6 +14,7 @@ $Id$
 	Use 0 as number of first aacraid controller as on Linux.
 
 	smartctl.8.in, smartd.conf.5.in: Update '-d aacraid' documentation.
+	AUTHORS: Add Nidhi Malhotra.
 
 2015-05-30  Nidhi Malhotra  <nidhi.malhotra@pmcs.com>
 
