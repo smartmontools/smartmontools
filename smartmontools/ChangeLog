@@ -1,4 +1,9 @@
-$Id: ChangeLog 4094 2015-05-27 21:41:17Z chrfranke $
+$Id: ChangeLog 4095 2015-05-30 13:48:10Z chrfranke $
+
+2015-05-30  Nidhi Malhotra  <nidhi.malhotra@pmcs.com>
+
+	aacraid.h, os_win32.cpp:
+	Add aacraid support for Windows (ticket #496).
 
 2015-05-27  Christian Franke  <franke@computer.org>
 
