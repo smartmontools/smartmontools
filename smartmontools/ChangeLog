@@ -1,4 +1,4 @@
-$Id: ChangeLog 4098 2015-05-30 16:37:37Z chrfranke $
+$Id: ChangeLog 4099 2015-05-30 17:32:13Z chrfranke $
 
 2015-05-30  Christian Franke  <franke@computer.org>
 
@@ -12,6 +12,8 @@ $Id: ChangeLog 4098 2015-05-30 16:37:37Z chrfranke $
 	Improve error handling.  Avoid unsafe sprintf().
 	Remove unused variables.  Add help text.
 	Use 0 as number of first aacraid controller as on Linux.
+
+	smartctl.8.in, smartd.conf.5.in: Update '-d aacraid' documentation.
 
 2015-05-30  Nidhi Malhotra  <nidhi.malhotra@pmcs.com>
 
