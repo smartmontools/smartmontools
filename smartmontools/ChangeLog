@@ -1,5 +1,17 @@
 $Id$
 
+2015-05-30  Christian Franke  <franke@computer.org>
+
+	Fixes for aacraid patch:
+	aacraid.h: Fix _WIN32/_WIN64 checks.
+	os_win32.cpp: Clarify copyright info in GPL header.
+	Improve source code formatting.
+	Fix build on Cygwin.  Fix HKEY leak.
+	Fix member initialization order.
+	Fix info_name and dev_type parameter order.
+	Improve error handling.  Avoid unsafe sprintf().
+	Remove unused variables.  Add help text.
+
 2015-05-30  Nidhi Malhotra  <nidhi.malhotra@pmcs.com>
 
 	aacraid.h, os_win32.cpp:

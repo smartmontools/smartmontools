@@ -13,8 +13,8 @@
  */
 
 // Check windows
-#if _WIN32 || _WIN64
-#if _WIN64
+#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN64
   #define ENVIRONMENT64
 #else
   #define ENVIRONMENT32
