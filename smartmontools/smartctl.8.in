@@ -371,24 +371,32 @@ For PERC2/3/4 controllers: \fBmegadevN\fP
 .br
 For PERC5/6 controllers: \fBmegaraid_sas_ioctlN\fP
 
+.\" %ENDIF OS Linux
+.\" %IF OS Linux Windows Cygwin
 .I aacraid,H,L,ID
-\- [Linux only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [Linux, Windows and Cygwin only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
 the device consists of one or more SCSI/SAS disks connected to an AacRaid controller.
 The non-negative integers H,L,ID (Host number, Lun, ID) denote which disk
 on the controller is monitored.
 Use syntax such as:
 .nf
-\fBsmartctl \-a \-d aacraid,0,0,66 /dev/sda\fP
+\fBsmartctl \-a \-d aacraid,0,0,2 /dev/sda\fP
 .fi
 .nf
-\fBsmartctl \-a \-d aacraid,0,0,66 /dev/sdb\fP
+\fBsmartctl \-a \-d aacraid,1,0,4 /dev/sdb\fP
 .fi
-The L and ID numbers of a disk can be found in /proc/scsi/scsi
 
-The following entry in /proc/devices must exist: \fBaac\fP.
+.\" %ENDIF OS Linux Windows Cygwin
+.\" %IF OS Linux
+On Linux, the following entry in /proc/devices must exist: \fBaac\fP.
 Character device nodes /dev/aacH (H=Host number) are created if required.
 
 .\" %ENDIF OS Linux
+.\" %IF OS Windows Cygwin
+On Windows, the device name parameter /dev/sdX is ignored if \'-d aacraid\'
+is specified.
+
+.\" %ENDIF OS Windows Cygwin
 .\" %IF OS FreeBSD Linux
 .I 3ware,N
 \- [FreeBSD and Linux only] the device consists of one or more ATA disks

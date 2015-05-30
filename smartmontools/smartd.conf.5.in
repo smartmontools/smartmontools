@@ -1,6 +1,6 @@
 .ig
-Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-Copyright (C) 2004-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-10 Bruce Allen
+Copyright (C) 2004-15 Christian Franke
 
 $Id$
 
@@ -388,15 +388,17 @@ It is possible to set RAID device name as /dev/bus/N, where N is a SCSI bus
 number.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
+.\" %ENDIF OS Linux
+.\" %IF OS Linux Windows Cygwin
 .I aacraid,H,L,ID
-\- [Linux only] [NEW EXPERIMENTAL SMARTD FEATURE]
+\- [Linux, Windows and Cygwin only] [NEW EXPERIMENTAL SMARTD FEATURE]
 the device consists of one or more SCSI/SAS disks connected to an AacRaid controller.
 The non-negative integers H,L,ID (Host number, Lun, ID) denote which disk
 on the controller is monitored.
 In log files and email messages this disk will be identified as aacraid_disk_HH_LL_ID.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
-.\" %ENDIF OS Linux
+.\" %ENDIF OS Linux Windows Cygwin
 .\" %IF OS FreeBSD Linux
 .I 3ware,N
 \- [FreeBSD and Linux only] the device consists of one or more ATA disks
