@@ -82,6 +82,7 @@
     <ClInclude Include="..\..\getopt\getopt.h">
       <Filter>getopt</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\aacraid.h" />
     <ClInclude Include="..\..\atacmdnames.h" />
     <ClInclude Include="..\..\atacmds.h" />
     <ClInclude Include="..\..\ataprint.h" />

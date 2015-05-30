@@ -171,6 +171,7 @@
     <ClCompile Include="..\..\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\aacraid.h" />
     <ClInclude Include="..\..\ataidentify.h" />
     <ClInclude Include="..\..\dev_areca.h" />
     <ClInclude Include="config.h" />
