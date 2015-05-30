@@ -5,6 +5,7 @@
  *
  * Copyright (C) 2004-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2012    Hank Wu <hank@areca.com.tw>
+ * Copyright (C) 2015    Nidhi Malhotra <Nidhi.Malhotra@pmcs.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,6 +76,9 @@
 
 // CSMI support
 #include "csmisas.h"
+
+//aacraid support
+#include "aacraid.h"
 
 // Silence -Wunused-local-typedefs warning from g++ >= 4.8
 #if __GNUC__ >= 4
@@ -498,6 +502,35 @@ private:
   ata_smart_values m_smart_buf;
 };
 
+/////////////////////////////////////////////////////////////////////////////
+//// PMC aacraid Support
+
+///////////////////////////////////////////////////////////////////////
+class win_aacraid_device
+:public /*implements*/ scsi_device,
+public /*extends*/ win_smart_device
+{
+public:
+  win_aacraid_device(smart_interface *intf, const char *dev_name,unsigned int ctrnum, unsigned int target, unsigned int lun);
+  
+  virtual ~win_aacraid_device() throw();
+  
+  virtual bool open();
+
+  virtual bool scsi_pass_through(struct scsi_cmnd_io *iop);
+  
+private:
+  //Device Host number
+  int m_ctrnum;
+
+  //Channel(Lun) of the device
+  int m_lun;
+
+  //Id of the device
+  int m_target;
+};
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 /// Areca RAID support
@@ -837,6 +870,58 @@ smart_device * win_smart_interface::get_custom_smart_device(const char * name, c
       set_err(EINVAL, "Option -d areca,N/E requires device name /dev/arcmsrX");
   }
 
+  //aacraid?
+  unsigned int ctrnum;
+  unsigned int target;
+  int lun = -1;
+  
+  if(sscanf(type, "aacraid,%d,%d,%d",&ctrnum, &lun, &target)==3){
+#define aacraid_MAX_CTLR_NUM  16
+if(ctrnum > aacraid_MAX_CTLR_NUM){
+  set_err(EINVAL, "Controller number is invalid");
+  }
+  else{
+    int ctlrindex = 1;
+    /*
+    1. scan from "\\\\.\\scsi[0]:" up to "\\\\.\\scsi[AACRAID_MAX_CTLR_NUM]:" and
+    2. map ARCX into "\\\\.\\scsiX"
+    */
+    memset(devpath, 0, sizeof(devpath));
+    char  driverName[20];
+    char  subKey[63] ;
+    DWORD	lastError = 0;
+    HKEY    hScsiKey;
+    for (int portNum = 0; portNum < aacraid_MAX_CTLR_NUM; portNum++){
+      sprintf(subKey, "HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port %d", portNum);
+      long regStatus = RegOpenKeyExA(HKEY_LOCAL_MACHINE, subKey, 0, KEY_READ, &hScsiKey);
+      if (regStatus == ERROR_SUCCESS){
+        DWORD driverNameSize = sizeof(driverName);
+        DWORD regType = 0;
+        regStatus = RegQueryValueExA(hScsiKey, "Driver", NULL, &regType, (LPBYTE) driverName, &driverNameSize);
+        if (regStatus == ERROR_SUCCESS){
+          if (regType == REG_SZ){
+            if (stricmp(driverName, "arcsas") == 0){
+              if(ctrnum == ctlrindex){
+                snprintf(devpath, sizeof(devpath), "\\\\.\\Scsi%d:", portNum);
+                break;
+              }
+              else{
+                ctlrindex++;
+              }
+            }
+          }
+        }
+      }
+    }
+    if(strlen(devpath)){
+      return get_sat_device("sat,auto",
+        (new win_aacraid_device(this, devpath, ctrnum, target, lun)));
+      }
+      else{
+        set_err(EINVAL, "Option -d aacraid,HOST,LUN,ID requires correct host ,lun and target ID");
+      }
+    }
+  }
   return 0;
 }
 
@@ -3875,6 +3960,171 @@ bool win_areca_ata_device::arcmsr_unlock()
   return true;
 }
 
+win_aacraid_device::win_aacraid_device(smart_interface *intf,
+  const char *dev_name, unsigned int ctrnumIN, unsigned int targetIN, unsigned int lunIN)
+   : smart_device(intf,dev_name,"aacraid","aacraid"),m_ctrnum(ctrnumIN), m_target(targetIN), m_lun(lunIN)
+{
+  set_info().info_name = strprintf("%s [aacraid_disk_%02d_%02d_%d]",dev_name,m_ctrnum,m_target,m_lun);
+  set_info().dev_type  = strprintf("aacraid,%d,%d,%d",m_ctrnum,m_target,m_lun);
+}
+
+win_aacraid_device::~win_aacraid_device() throw()
+{
+}
+
+bool win_aacraid_device::open()
+{
+  if(is_open()){
+  return true;
+  }
+  HANDLE hFh = CreateFile( get_dev_name(),
+          GENERIC_READ|GENERIC_WRITE,
+          FILE_SHARE_READ|FILE_SHARE_WRITE,
+          NULL,
+          OPEN_EXISTING,
+          0,
+          0);
+  if(hFh == INVALID_HANDLE_VALUE){
+    return false;
+  }
+  set_fh(hFh);
+  return true;
+}
+
+bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
+{
+  int report = scsi_debugmode;
+  if (report > 0)
+  {
+    int k, j;
+    const unsigned char * ucp = iop->cmnd;
+    const char * np;
+    char buff[256];
+    const int sz = (int)sizeof(buff);
+    np = scsi_get_opcode_name(ucp[0]);
+    j  = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
+    for (k = 0; k < (int)iop->cmnd_len; ++k)
+      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
+    if ((report > 1) &&
+      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
+        "data, len=%d%s:\n", (int)iop->dxfer_len,
+        (trunc ? " [only first 256 bytes shown]" : ""));
+        dStrHex((const char *)iop->dxferp,
+        (trunc ? 256 : (int)iop->dxfer_len) , 1);
+      }
+    else
+      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
+      pout("buff %s\n",buff);
+  }
+  char ioBuffer[1000];
+  SRB_IO_CONTROL * pSrbIO = (SRB_IO_CONTROL *) ioBuffer;
+  SCSI_REQUEST_BLOCK * pScsiIO = (SCSI_REQUEST_BLOCK *) (ioBuffer + sizeof(SRB_IO_CONTROL));
+  DWORD scsiRequestBlockSize = sizeof(SCSI_REQUEST_BLOCK);
+  char *pRequestSenseIO = (char *) (ioBuffer + sizeof(SRB_IO_CONTROL) + scsiRequestBlockSize);
+  DWORD dataOffset = (sizeof(SRB_IO_CONTROL) + scsiRequestBlockSize  + 7) & 0xfffffff8;
+  char *pDataIO = (char *) (ioBuffer + dataOffset);
+  memset(pScsiIO, 0, scsiRequestBlockSize);
+  pScsiIO->Length    = (USHORT) scsiRequestBlockSize;
+  pScsiIO->Function  = SRB_FUNCTION_EXECUTE_SCSI;
+  pScsiIO->PathId    = 0;
+  pScsiIO->TargetId  = m_target;
+  pScsiIO->Lun       = m_lun;
+  pScsiIO->CdbLength = (int)iop->cmnd_len;
+  switch(iop->dxfer_dir){
+    case DXFER_NONE:
+      pScsiIO->SrbFlags = SRB_NoDataXfer;
+      break;
+    case DXFER_FROM_DEVICE:
+      pScsiIO->SrbFlags |= SRB_DataIn;
+      break;
+    case DXFER_TO_DEVICE:
+      pScsiIO->SrbFlags |= SRB_DataOut;
+      break;
+    default:
+      pout("aacraid: bad dxfer_dir\n");
+      return set_err(EINVAL, "aacraid: bad dxfer_dir\n");
+  }
+  pScsiIO->DataTransferLength = (ULONG)iop->dxfer_len;
+  pScsiIO->TimeOutValue = iop->timeout;
+  UCHAR *pCdb = (UCHAR *) pScsiIO->Cdb;
+  memcpy(pCdb, iop->cmnd, 16);
+  if (iop->max_sense_len){
+    memset(pRequestSenseIO, 0, iop->max_sense_len);
+  }
+  if (pScsiIO->SrbFlags & SRB_FLAGS_DATA_OUT){
+    memcpy(pDataIO, iop->dxferp, iop->dxfer_len);
+  }
+  else if (pScsiIO->SrbFlags & SRB_FLAGS_DATA_IN){
+    memset(pDataIO, 0, iop->dxfer_len);
+  }
+   
+  BOOL bIoctlReturn = false;
+  DWORD lastError = 0 ,bytesReturned = 0;
+  lastError = ERROR_SUCCESS;
+  memset(pSrbIO, 0, sizeof(SRB_IO_CONTROL));
+  pSrbIO->HeaderLength = sizeof(SRB_IO_CONTROL);
+  memcpy(pSrbIO->Signature, "AACAPI", 7);
+  pSrbIO->ControlCode = ARCIOCTL_SEND_RAW_SRB;
+  pSrbIO->Length = (dataOffset + iop->dxfer_len - sizeof(SRB_IO_CONTROL) + 7) & 0xfffffff8;
+  pSrbIO->Timeout = 3*60;
+  bIoctlReturn = DeviceIoControl(
+                   get_fh(),
+                   IOCTL_SCSI_MINIPORT,
+                   ioBuffer,
+                   sizeof(SRB_IO_CONTROL) + pSrbIO->Length,
+                   ioBuffer,
+                   sizeof(SRB_IO_CONTROL) + pSrbIO->Length,
+                   &bytesReturned,
+                   NULL);
+
+  if(!bIoctlReturn){
+    lastError = GetLastError();
+  pout("last error = %ld \n",lastError);
+  }
+  else
+  {
+    iop->scsi_status = pScsiIO->ScsiStatus ;
+    if(SCSI_STATUS_CHECK_CONDITION & iop->scsi_status){
+      int slen = sizeof(pRequestSenseIO) + 8;
+      if(slen > (int)sizeof(pRequestSenseIO))
+        slen = sizeof(pRequestSenseIO);
+      if(slen > (int)iop->max_sense_len)
+        slen = (int)iop->max_sense_len;
+      memcpy(iop->sensep, pRequestSenseIO, slen);
+      iop->resp_sense_len = slen;
+      if(report){
+        if(report > 1){
+          pout("  >>> Sense buffer, len=%d:\n", slen);
+          dStrHex(iop->sensep, slen , 1);
+        }
+        if((iop->sensep[0] & 0x7f) > 0x71)
+          pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
+          iop->scsi_status, iop->sensep[1] & 0xf,
+          iop->sensep[2], iop->sensep[3]);
+        else
+          pout("  status=%x: sense_key=%x asc=%x ascq=%x\n",
+          iop->scsi_status, iop->sensep[2] & 0xf,
+          iop->sensep[12], iop->sensep[13]);
+          }
+       } 
+       else{
+         iop->resp_sense_len = 0;
+       }
+  }
+  if (iop->dxfer_dir == DXFER_FROM_DEVICE){
+     memcpy(iop->dxferp,pDataIO, iop->dxfer_len);
+  }
+  if((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)){
+    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+    pout("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
+      (trunc ? " [only first 256 bytes shown]" : ""));
+    dStrHex((CHAR*)pDataIO, (trunc ? 256 : (int)(iop->dxfer_len)) , 1);
+  }
+  return true;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
