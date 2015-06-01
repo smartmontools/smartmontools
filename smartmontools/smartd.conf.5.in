@@ -1073,10 +1073,6 @@ It it set to empty on \'\-M once\' and set to \'1\' on \'\-M daily\'.
 .\" They define a non-existent option; useful because man2html can't correctly reset the margins.
 .TP
 .B \&
-The shell which is used to run PATH is system-dependent. For vanilla
-Linux/glibc it\'s bash. For other systems, the man page for
-\fBpopen\fP(3) should say what shell is used.
-
 If the \'\-m ADD\' Directive is given with a normal address argument,
 then the executable pointed to by PATH will be run in a shell with
 STDIN receiving the body of the email message, and with the same

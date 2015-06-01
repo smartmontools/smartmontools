@@ -4,6 +4,7 @@ $Id$
 
 	Makefile.am, smartd.8.in: Hide initscript documentation if
 	initscriptdir is not configured.
+	smartd.conf.5.in: Remove outdated info about default shell.
 
 2015-05-30  Christian Franke  <franke@computer.org>
 
