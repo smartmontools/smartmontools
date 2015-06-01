@@ -1,9 +1,10 @@
-$Id: ChangeLog 4102 2015-06-01 19:25:47Z chrfranke $
+$Id: ChangeLog 4103 2015-06-01 19:51:18Z chrfranke $
 
 2015-06-01  Christian Franke  <franke@computer.org>
 
 	Makefile.am, smartd.8.in: Hide initscript documentation if
 	initscriptdir is not configured.
+	smartd.conf.5.in: Remove outdated info about default shell.
 
 2015-05-30  Christian Franke  <franke@computer.org>
 
