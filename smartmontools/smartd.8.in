@@ -281,7 +281,7 @@ log output is redirected as follows:
 .TP
 .B \-n, \-\-no\-fork
 Do not fork into background; this is useful when executed from modern
-init methods like initng, minit or supervise.
+init methods like initng, minit, supervise or systemd.
 .\" %IF OS Cygwin
 
 On Cygwin, this allows running \fBsmartd\fP as service via cygrunsrv,
@@ -461,6 +461,7 @@ once. The exit status (the shell
 variable) will be zero if all went well, and nonzero if no devices
 were detected or some other problem was encountered.
 
+.\" %IF ENABLE_INITSCRIPT
 Note that \fBsmartmontools\fP provides a start-up script in
 \fB/usr/local/etc/rc.d/init.d/smartd\fP which is responsible for starting and
 stopping the daemon via the normal init interface.  Using this script,
@@ -473,6 +474,7 @@ and stop it by using the command:
 .B /usr/local/etc/rc.d/init.d/smartd stop
 .fi
 
+.\" %ENDIF ENABLE_INITSCRIPT
 .SH CONFIGURATION
 The syntax of the \fBsmartd.conf\fP(5) file is discussed separately.
 
@@ -546,14 +548,17 @@ see the \fBsmartd\fP '\-l' command-line option described above.
 .\" %ENDIF OS Solaris
 .\" %IF OS Cygwin
 The Cygwin Version of \fBsmartd\fP can be run as a service via the
-cygrunsrv tool. The start-up script provides Cygwin-specific commands
-to install and remove the service:
+cygrunsrv tool.
+.\" %IF ENABLE_INITSCRIPT
+The start-up script provides Cygwin-specific commands to install and
+remove the service:
 .nf
 .B /usr/local/etc/rc.d/init.d/smartd install [options]
 .B /usr/local/etc/rc.d/init.d/smartd remove
 .fi
 The service can be started and stopped by the start-up script as usual
 (see \fBEXAMPLES\fP above).
+.\" %ENDIF ENABLE_INITSCRIPT
 
 .\" %ENDIF OS Cygwin
 .\" %IF OS Windows

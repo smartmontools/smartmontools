@@ -1,5 +1,10 @@
 $Id$
 
+2015-06-01  Christian Franke  <franke@computer.org>
+
+	Makefile.am, smartd.8.in: Hide initscript documentation if
+	initscriptdir is not configured.
+
 2015-05-30  Christian Franke  <franke@computer.org>
 
 	Fixes for aacraid patch:

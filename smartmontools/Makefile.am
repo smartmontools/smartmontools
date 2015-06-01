@@ -556,7 +556,6 @@ MAN_FILTER = \
         -e "s|CURRENT_SVN_REV|`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`|g" \
         -e 's|/usr/local/share/man/|$(mandir)/|g' \
         -e 's|/usr/local/sbin/|$(sbindir)/|g' \
-        -e 's|/usr/local/etc/rc\.d/init.d/|$(initddir)/|g' \
         -e 's|/usr/local/share/doc/smartmontools/examplescripts/|!exampledir!|g' \
         -e 's|/usr/local/share/doc/smartmontools/|$(docsdir)/|g' \
         -e 's|!exampledir!|$(exampledir)/|g' \
@@ -571,6 +570,11 @@ MAN_FILTER = \
       sed 's|/usr/local/share/smartmontools/drivedb\.h|$(drivedbdir)/drivedb.h|g' ; \
     else \
       sed '/^\.\\" %IF ENABLE_DRIVEDB/,/^\.\\" %ENDIF ENABLE_DRIVEDB/ s,^,.\\"\# ,' ; \
+    fi | \
+    if test -n '$(initddir)'; then \
+      sed 's|/usr/local/etc/rc\.d/init\.d/|$(initddir)/|g' ; \
+    else \
+      sed '/^\.\\" %IF ENABLE_INITSCRIPT/,/^\.\\" %ENDIF ENABLE_INITSCRIPT/ s,^,.\\"\# ,' ; \
     fi | \
     if test -n '$(savestates)'; then \
       sed 's|/usr/local/var/lib/smartmontools/smartd\.|$(savestates)|g' ; \
