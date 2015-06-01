@@ -1,4 +1,9 @@
-$Id: ChangeLog 4100 2015-05-30 17:36:11Z chrfranke $
+$Id: ChangeLog 4102 2015-06-01 19:25:47Z chrfranke $
+
+2015-06-01  Christian Franke  <franke@computer.org>
+
+	Makefile.am, smartd.8.in: Hide initscript documentation if
+	initscriptdir is not configured.
 
 2015-05-30  Christian Franke  <franke@computer.org>
 
