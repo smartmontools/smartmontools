@@ -1,5 +1,11 @@
 $Id$
 
+2015-06-03  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Read General Purpose Log Directory only if GPL
+	feature set is supported.  Improve support check of old logs
+	for older drives which return empty SMART Log Directory.
+
 2015-06-01  Christian Franke  <franke@computer.org>
 
 	Makefile.am, smartd.8.in: Hide initscript documentation if

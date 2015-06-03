@@ -3152,7 +3152,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // If GP Log is supported use smart log directory for
   // error and selftest log support check.
-  if (   isGeneralPurposeLoggingCapable(&drive)
+  bool gp_log_supported = !!isGeneralPurposeLoggingCapable(&drive);
+  if (   gp_log_supported
       && (   options.smart_error_log || options.smart_selftest_log
           || options.retry_error_log || options.retry_selftest_log))
     need_smart_logdir = true;
@@ -3176,6 +3177,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (need_gp_logdir) {
     if (firmwarebugs.is_set(BUG_NOLOGDIR))
       gplogdir = fake_logdir(&gplogdir_buf, options);
+    else if (!gp_log_supported && !is_permissive()) {
+      if (options.gp_logdir)
+        pout("General Purpose Log Directory not supported\n\n");
+    }
     else if (ataReadLogDirectory(device, &gplogdir_buf, true)) {
       pout("Read GP Log Directory failed\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -3273,9 +3278,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print SMART error log
   if (do_smart_error_log) {
-    if (!(   ( smartlogdir && GetNumLogSectors(smartlogdir, 0x01, false))
-          || (!smartlogdir && isSmartErrorLogCapable(&smartval, &drive) )
-          || is_permissive()                                             )) {
+    if (!(   GetNumLogSectors(smartlogdir, 0x01, false)
+          || (   !(smartlogdir && gp_log_supported)
+              && isSmartErrorLogCapable(&smartval, &drive))
+          || is_permissive()                               )) {
       pout("SMART Error Log not supported\n\n");
     }
     else {
@@ -3326,9 +3332,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print SMART self-test log
   if (do_smart_selftest_log) {
-    if (!(   ( smartlogdir && GetNumLogSectors(smartlogdir, 0x06, false))
-          || (!smartlogdir && isSmartTestLogCapable(&smartval, &drive)  )
-          || is_permissive()                                             )) {
+    if (!(   GetNumLogSectors(smartlogdir, 0x06, false)
+          || (   !(smartlogdir && gp_log_supported)
+              && isSmartTestLogCapable(&smartval, &drive))
+          || is_permissive()                              )) {
       pout("SMART Self-test Log not supported\n\n");
     }
     else {
