@@ -569,6 +569,31 @@ const drive_settings builtin_knowndrives[] = {
     "-v 236,raw48,Unstable_Power_Count "
     "-v 240,raw48,Write_Head"
   },
+  { "InnoDisk iCF 9000 CompactFlash Cards", // tested with InnoDisk Corp. - iCF9000 1GB/140808,
+       // ..., InnoDisk Corp. - iCF9000 64GB/140808
+    "InnoDisk Corp\\. - iCF9000 (1|2|4|8|16|32|64)GB",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Valid_Spare_Block_Cnt "
+    "-v 162,raw48,Child_Pair_Count "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+  //"-v 229,raw48,Flash_ID " // only in spec
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB"
+  },
   { "Intel X25-E SSDs",
     "SSDSA2SH(032|064)G1.* INTEL",  // G1 = first generation
     "", "",
@@ -1057,6 +1082,7 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk iSSD P4 [0-9]*GB|" // tested with SanDisk iSSD P4 16GB/SSD 9.14
     "SanDisk pSSD|" // tested with SandDisk pSSD/3 (62.7 GB, SanDisk Extreme USB3.0 SDCZ80-064G-J57, 0x0781:0x5580)
     "SanDisk SDSSDP[0-9]*G|" // tested with SanDisk SDSSDP064G/1.0.0, SDSSDP128G/2.0.0
+    "SanDisk SDSSDRC032G|" // tested with SanDisk SanDisk SDSSDRC032G/3.1.0
     "SanDisk SSD i100 [0-9]*GB|" // tested with SanDisk SSD i100 8GB/11.56.04, 24GB/11.56.04
     "SanDisk SSD U100 ([0-9]*GB|SMG2)|" // tested with SanDisk SSD U100 8GB/10.56.00, 256GB/10.01.02, SMG2/10.56.04
     "SanDisk SSD U110 (8|16|24|32|64|128)GB|" // tested with SanDisk SSD U110 32GB/U221000
@@ -2313,7 +2339,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MQ01UBD... (USB 3.0)", // tested with TOSHIBA MQ01UBD050/AX001U (0x0480:0xa007),
-      // TOSHIBA MQ01UBD100/AX001U (0x0480:0x0201)
+      // TOSHIBA MQ01UBD100/AX001U (0x0480:0x0201, 0x0480:0xa200)
     "TOSHIBA MQ01UBD(050|075|100)",
     "", "", ""
   },
@@ -2642,8 +2668,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.14 (AF)", // different part number, tested with
       // ST1000DM003-1CH162/CC47, ST1000DM003-1CH162/CC49, ST2000DM001-1CH164/CC24,
-      // ST1000DM000-9TS15E/CC92
-    "ST(1000|1500|2000|2500|3000)DM00[0-3]-.*",
+      // ST1000DM000-9TS15E/CC92, APPLE HDD ST3000DM001/AP15 (no attr 240)
+    "ST(1000|1500|2000|2500|3000)DM00[0-3]-.*|"
+    "APPLE HDD ST3000DM001",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -3219,7 +3246,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Toshiba Canvio Basics; ", // TOSHIBA MQ01UBD100
-    "0x0480:0x0201",
+    "0x0480:0x(0201|a200)",
     "",
     "",
     "-d sat"
@@ -3542,7 +3569,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbprolific"
   },
-  { "USB: ; Prolific PL3507", // USB+IEE1394->PATA
+  { "USB: ; Prolific PL3507", // USB+IEEE1394->PATA
     "0x067b:0x3507",
     "", // 0x0001
     "",
@@ -4131,7 +4158,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
-  { "USB: Verbatim FW/USB160; Oxford OXUF934SSA-LQAG", // USB+IEE1394->SATA
+  { "USB: Verbatim FW/USB160; Oxford OXUF934SSA-LQAG", // USB+IEEE1394->SATA
     "0x18a5:0x0215",
     "", // 0x0001
     "",
