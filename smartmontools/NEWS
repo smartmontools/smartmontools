@@ -29,7 +29,7 @@ Summary: smartmontools release 6.4
 - Linux: '/dev/megaraid_sas_ioctl_node' fd leak fix.
 - Darwin: '-S' command implemented, '-l devstat' should work now.
 - Cygwin: Compile fix.
-- Windows: Device type '-d accraid' for ACCRAID controllers.
+- Windows: Device type '-d aacraid' for AACRAID controllers.
 - Windows: SAT autodetection based on IOCTL_STORAGE_QUERY_PROPERTY.
 - Windows installer: Fix possible loss of user PATH environment variable.
 
