@@ -1,6 +1,12 @@
-$Id: ChangeLog 4104 2015-06-03 18:50:39Z chrfranke $
+$Id: ChangeLog 4105 2015-06-03 19:32:30Z chrfranke $
 
 2015-06-03  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- InnoDisk iCF 9000 CompactFlash Cards
+	- SanDisk based SSDs: ReadyCache SSD
+	- Seagate Barracuda 7200.14 (AF): Apple OEM
+	- USB: Toshiba Canvio Basics (0x0480:0xa200)
 
 	ataprint.cpp: Read General Purpose Log Directory only if GPL
 	feature set is supported.  Improve support check of old logs
