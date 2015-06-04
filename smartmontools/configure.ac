@@ -3,7 +3,7 @@
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
-AC_INIT(smartmontools, 6.4, smartmontools-support@lists.sourceforge.net)
+AC_INIT(smartmontools, 6.5, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_cvs_tag=`echo '$Id$'`
