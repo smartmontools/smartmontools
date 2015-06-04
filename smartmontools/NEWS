@@ -5,7 +5,7 @@ $Id$
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
-Date <Not released yet, please try current SVN>
+Date 2015-06-04
 Summary: smartmontools release 6.4
 -----------------------------------------------------------
 - Device type '-d usbprolific' for Prolific PL2571/277x USB bridges.
