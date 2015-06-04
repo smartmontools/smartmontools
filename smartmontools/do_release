@@ -1,0 +1,145 @@
+#!/bin/bash
+#
+# do a smartmontools release
+# (C) 2003-11 Bruce Allen, Guido Guenther
+# (C) 2006-15 Christian Franke
+# $Id$
+
+# Notes on generating releases:
+# (1) update NEWS
+# (2) update ChangeLog -- put in release number
+# (3) update release number in configure.ac
+# (4) to test, run without '--commit'
+# (5) when satisfied, add option '--commit'
+
+set -e
+
+# Smartmontools Signing Key (through 2016)
+KEYID=0xC4A4903A
+
+inc_release()
+{
+  MINOR=`echo $VERSION | cut -d. -f2`
+  MAJOR=`echo $VERSION | cut -d. -f1`
+  PERL_OLD=$MAJOR\\.$MINOR
+  ((++MINOR))
+  NEW_VERSION=$MAJOR.$MINOR
+  PERL_NEW=$MAJOR\\.$MINOR	
+  NEW_RELEASE="RELEASE_${NEW_VERSION//\./_}"
+  echo "New Version: $NEW_VERSION"
+  echo "New Release: $NEW_RELEASE"
+}
+
+COMMIT=
+RC=
+
+case "$1" in
+  --commit) COMMIT=yes; shift ;;
+esac
+
+case "$*" in
+  RC[1-9]) RC="$1" ;;
+  FINAL) ;;
+  *) echo "Usage: $0 [--commit] RC[1-9]|FINAL"; exit 1 ;;
+esac
+
+# Check workdir
+case "`/bin/pwd`" in
+  */trunk/smartmontools)      WDROOT="../..";    DIRPAT="trunk"      ;;
+  */branches/*/smartmontools) WDROOT="../../.."; DIRPAT="branches/*" ;;
+  *) echo "`/bin/pwd`: no trunk or branch working dir"; exit 1 ;;
+esac
+
+if [ ! -d "$WDROOT/tags" ]; then
+  echo "tags directory missing"; exit 1
+fi
+
+REVX="`(cd $WDROOT && svnversion)`" || exit 1
+REV="${REVX/%[PM]/}"; REV="${REV/%[PM]/}"
+if [ -n "${REV//[0-9]/}" ]; then
+  echo "Working directory not clean: $REVX"; exit 1
+fi
+
+(cd $WDROOT && svn status) | while read s; do
+  case "`echo $s | tr -s ' '`" in
+    "M "$DIRPAT/smartmontools/ChangeLog)    echo "$s: OK";;
+    "M "$DIRPAT/smartmontools/NEWS)         echo "$s: OK";;
+    "M "$DIRPAT/smartmontools/configure.ac) echo "$s: OK";;
+    *) echo "$s: not allowed"; exit 1;;
+  esac
+done
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+# Get release number
+VERSION=`sed -n 's|^AC_INIT[^,]*, *\([0-9.]*\) *,.*$|\1|p' configure.ac`
+if [ -z "$VERSION" ]; then
+  echo "AC_INIT not found in configure.ac"; exit 1
+fi
+VERSIONRC="$VERSION"
+RELEASE="RELEASE_${VERSION//\./_}"
+
+if [ "$RC" ]; then
+  VERSIONRC="${VERSION}-${RC/#RC/rc}"
+  RELEASE="${RELEASE}_${RC}"
+fi
+
+if [ -e "$WDROOT/tags/$RELEASE" ]; then
+  echo "tags/$RELEASE exists"; exit 1
+fi
+
+echo "r$REV: Release $VERSIONRC $RELEASE"
+
+# Update timestamp
+smartmontools_release_date=`date -u +"%Y-%m-%d"`
+smartmontools_release_time=`date -u +"%T %Z"`
+cat configure.ac  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
+cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.ac
+rm -f configure.tmp
+
+# Review changes
+svn diff
+echo "==================================================================="
+echo ">>> Continuing in 20 seconds ..."
+sleep 20
+set -v
+
+# Create tag and commit
+if [ "$COMMIT" = "yes" ]; then
+  svn mkdir $WDROOT/tags/$RELEASE
+  svn copy ../smartmontools $WDROOT/tags/$RELEASE/smartmontools
+  svn commit -m "Release $VERSIONRC $RELEASE" $WDROOT
+fi
+
+# Build
+./autogen.sh
+
+mkdir build
+cd build
+../configure
+make distcheck || exit 1
+make maintainer-clean
+cd ..
+
+TARFILE=smartmontools-$VERSIONRC.tar.gz
+
+mv -f build/smartmontools-$VERSION.tar.gz $TARFILE
+rm -rvf build
+
+md5sum $TARFILE > $TARFILE.md5
+
+# Increase release number
+if [ -z "$RC" -a "$DIRPAT" = "trunk" ]; then
+  inc_release
+  if [ "$COMMIT" = "yes" ]; then
+    perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.ac
+    # svn commit -m "Bump release number to $NEW_VERSION" configure.ac
+  fi
+fi
+
+# Sign tarball
+if [ -n "$KEYID" ] && gpg --list-secret-keys $KEYID >/dev/null 2>/dev/null; then
+  gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSIONRC.tar.gz
+fi
+
