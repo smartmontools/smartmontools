@@ -1,14 +1,14 @@
 #
-# $Id: configure.ac 4067 2015-04-23 20:15:54Z chrfranke $
+# $Id: configure.ac 4109 2015-06-04 16:30:15Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 6.4, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4067 2015-04-23 20:15:54Z chrfranke $'`
-smartmontools_release_date=2014-07-26
-smartmontools_release_time="09:49:11 UTC"
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4109 2015-06-04 16:30:15Z chrfranke $'`
+smartmontools_release_date=2015-06-04
+smartmontools_release_time="16:29:41 UTC"
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",            [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE,   "$smartmontools_release_date",   [smartmontools Release Date])
