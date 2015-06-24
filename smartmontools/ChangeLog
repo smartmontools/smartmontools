@@ -1,5 +1,10 @@
 $Id$
 
+2015-06-24  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- USB: SimpleTech 3.0 bridge (0x4971:0x8017), reported in #554
+
 2015-06-04  Christian Franke  <franke@computer.org>
 
 	smartmontools 6.4
