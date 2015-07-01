@@ -4286,6 +4286,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: SimpleTech;", // USB 3.0 HDD BOX Agestar,  Rock External HDD 3,5" UASP
+    "0x4971:0x8017",
+    "",
+    "",
+    "-d sat"
+  },
   // OnSpec
   { "USB: ; OnSpec", // USB->PATA
     "0x55aa:0x2b00",
