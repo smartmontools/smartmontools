@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4106 2015-06-03 19:38:45Z chrfranke $",
+  { "$Id: drivedb.h 4112 2015-07-01 19:44:20Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4285,6 +4285,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: SimpleTech;", // USB 3.0 HDD BOX Agestar,  Rock External HDD 3,5" UASP
+    "0x4971:0x8017",
+    "",
+    "",
+    "-d sat"
   },
   // OnSpec
   { "USB: ; OnSpec", // USB->PATA
