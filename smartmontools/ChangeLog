@@ -1,4 +1,9 @@
-$Id: ChangeLog 4111 2015-06-24 06:39:18Z samm2 $
+$Id: ChangeLog 4113 2015-07-15 20:02:29Z chrfranke $
+
+2015-07-15  Christian Franke  <franke@computer.org>
+
+	configure.ac: Drop support for autoconf 2.5x.
+	Remove --with-docdir option.
 
 2015-06-24  Alex Samorukov <samm@os2.kiev.ua>
 
