@@ -4,7 +4,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.5, smartmontools-support@lists.sourceforge.net)
-AC_CONFIG_SRCDIR(smartctl.cpp)
+AM_INIT_AUTOMAKE([1.10 foreign])
 
 smartmontools_cvs_tag=`echo '$Id$'`
 smartmontools_release_date=2015-06-04
@@ -16,9 +16,8 @@ AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME,   "$smartmontools_release_time", 
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",        [smartmontools CVS Tag])
 AC_DEFINE_UNQUOTED(PACKAGE_HOMEPAGE,             "http://smartmontools.sourceforge.net/", [smartmontools Home Page])
 
+AC_CONFIG_SRCDIR([smartctl.cpp])
 AC_CONFIG_HEADER([config.h])
-
-AM_INIT_AUTOMAKE([foreign])
 
 AM_MAINTAINER_MODE
 

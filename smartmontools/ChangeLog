@@ -2,7 +2,9 @@ $Id$
 
 2015-07-15  Christian Franke  <franke@computer.org>
 
+	autogen.sh: Drop support for automake 1.7 - 1.9.x.
 	configure.ac: Drop support for autoconf 2.5x.
+	Drop support for automake 1.7 - 1.9.x.
 	Remove --with-docdir option.
 
 2015-06-24  Alex Samorukov <samm@os2.kiev.ua>
