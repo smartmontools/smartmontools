@@ -23,49 +23,35 @@ test -x /usr/bin/uname && /usr/bin/uname | grep -i CYGWIN >/dev/null &&
     rm -f dostest.tmp
 }
 
-typep()
-{
-    cmd=$1 ; TMP=$IFS ; IFS=: ; set $PATH
-    for dir
-    do
-	if [ -x "$dir/$cmd" ]; then
-	    echo "$dir/$cmd"
-	    IFS=$TMP
-	    return 0
-        fi
-    done
-    IFS=$TMP
-    return 1
-}
+# Find automake
+if [ -n "$AUTOMAKE" ]; then
+  ver=$("$AUTOMAKE" --version) || exit 1
+else
+  maxver=
+  for v in 1.15 1.14 1.13 1.12 1.11 1.10; do
+    minver=$v; test -n "$maxver" || maxver=$v
+    ver=$(automake-$v --version 2>/dev/null) || continue
+    AUTOMAKE="automake-$v"
+    break
+  done
+  if [ -z "$AUTOMAKE" ]; then
+    echo "GNU Automake $minver (up to $maxver) is required to bootstrap smartmontools from SVN."
+    exit 1;
+  fi
+fi
 
-test -x "$AUTOMAKE" ||
-    AUTOMAKE=`typep automake-1.15` || AUTOMAKE=`typep automake-1.14` ||
-    AUTOMAKE=`typep automake-1.13` || AUTOMAKE=`typep automake-1.12` ||
-    AUTOMAKE=`typep automake-1.11` || AUTOMAKE=`typep automake-1.10` ||
-{
-echo
-echo "You must have at least GNU Automake 1.10 (up to 1.15) installed"
-echo "in order to bootstrap smartmontools from SVN. Download the"
-echo "appropriate package for your distribution, or the source tarball"
-echo "from ftp://ftp.gnu.org/gnu/automake/ ."
-echo
-echo "Also note that support for new Automake series (anything newer"
-echo "than 1.15) is only added after extensive tests. If you live in"
-echo "the bleeding edge, you should know what you're doing, mainly how"
-echo "to test it before the developers. Be patient."
-exit 1;
-}
+ver=$(echo "$ver" | sed -n '1s,^.*[^.0-9]\([12]\.[0-9][-.0-9pl]*\).*$,\1,p')
+if [ -z "$ver" ]; then
+  echo "$AUTOMAKE: Unable to determine automake version."
+  exit 1
+fi
 
-test -x "$ACLOCAL" || ACLOCAL="aclocal`echo "$AUTOMAKE" | sed 's/.*automake//'`" && ACLOCAL=`typep "$ACLOCAL"` ||
-{
-echo
-echo "autogen.sh found automake-1.X, but not the respective aclocal-1.X."
-echo "Your installation of GNU Automake is broken or incomplete."
-exit 2;
-}
+# Check aclocal
+if [ -z "$ACLOCAL" ]; then
+  ACLOCAL="aclocal$(echo "$AUTOMAKE" | sed -n 's,^.*automake\(-[.0-9]*\),\1,p')"
+fi
 
-ver="`$AUTOMAKE --version | sed -n '1s,^.*[^.0-9]\([12]\.[0-9][-.0-9pl]*\).*$,\1,p'`"
-ver="${ver:-?.?.?}"
+"$ACLOCAL" --version >/dev/null || exit 1
 
 # Warn if Automake version was not tested
 amwarnings=$warnings
