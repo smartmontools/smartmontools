@@ -1,5 +1,10 @@
 $Id$
 
+2015-07-15  Christian Franke  <franke@computer.org>
+
+	configure.ac: Drop support for autoconf 2.5x.
+	Remove --with-docdir option.
+
 2015-06-24  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
