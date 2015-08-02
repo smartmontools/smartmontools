@@ -235,16 +235,10 @@ AC_ARG_WITH(exampledir,
   [exampledir="$withval"], [exampledir='${docdir}/examplescripts'])
 AC_SUBST(exampledir)
 
-used_deprecated_option=no
-AC_ARG_ENABLE(drivedb,
-  [AS_HELP_STRING([--disable-drivedb], [Deprecated (use --without-drivedbdir instead)])],
-  [used_deprecated_option=yes], [enable_drivedb=yes])
-
-drivedbdir=
+drivedbdir='${datadir}/${PACKAGE}'
 AC_ARG_WITH(drivedbdir,
-  [AS_HELP_STRING([--with-drivedbdir=@<:@DIR|no@:>@], [Location of drive database file [DATADIR/smartmontools]])],
-  [test "$withval" != "no" && drivedbdir="$withval"],
-  [test "$enable_drivedb" != "no" && drivedbdir='${datadir}/${PACKAGE}'])
+  [AS_HELP_STRING([--with-drivedbdir@<:@=DIR|yes|no@:>@], [Location of drive database file [DATADIR/smartmontools]])],
+  [case "$withval" in yes) ;; no) drivedbdir= ;; *) drivedbdir="$withval" ;; esac])
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test -n "$drivedbdir"])
 
@@ -260,31 +254,23 @@ AC_ARG_WITH(smartdplugindir,
   [smartdplugindir='${smartdscriptdir}/smartd_warning.d'])
 AC_SUBST(smartdplugindir)
 
-AC_ARG_ENABLE(savestates,
-  [AS_HELP_STRING([--enable-savestates], [Deprecated (use --with-savestates@<:@=yes@:>@ instead)])],
-  [used_deprecated_option=yes], [enable_savestates=no])
-
-savestates='${localstatedir}/lib/${PACKAGE}/smartd.'
+savestates=
 AC_ARG_WITH(savestates,
   [AS_HELP_STRING([--with-savestates@<:@=PREFIX|yes|no@:>@],
     [Enable default smartd state files [no] (yes=LOCALSTATEDIR/lib/smartmontools/smartd.)])],
-  [case "$withval" in yes) ;; no) savestates= ;; *) savestates="$withval" ;; esac],
-  [test "$enable_savestates" != "yes" && savestates=])
+  [case "$withval" in yes) savestates='${localstatedir}/lib/${PACKAGE}/smartd.' ;;
+                      no) ;; *) savestates="$withval" ;; esac])
 savestatesdir="${savestates%/*}"
 AC_SUBST(savestates)
 AC_SUBST(savestatesdir)
 AM_CONDITIONAL(ENABLE_SAVESTATES, [test -n "$savestates"])
 
-AC_ARG_ENABLE(attributelog,
-  [AS_HELP_STRING([--enable-attributelog], [Deprecated (use --with-attributelog@<:@=yes@:>@ instead)])],
-  [used_deprecated_option=yes], [enable_attributelog=no])
-
-attributelog='${localstatedir}/lib/${PACKAGE}/attrlog.'
+attributelog=
 AC_ARG_WITH(attributelog,
   [AS_HELP_STRING([--with-attributelog@<:@=PREFIX|yes|no@:>@],
     [Enable default smartd attribute log files [no] (yes=LOCALSTATEDIR/lib/smartmontools/attrlog.)])],
-  [case "$withval" in yes) ;; no) attributelog= ;; *) attributelog="$withval" ;; esac],
-  [test "$enable_attributelog" != "yes" && attributelog=])
+  [case "$withval" in yes) attributelog='${localstatedir}/lib/${PACKAGE}/attrlog.' ;;
+                      no) ;; *) attributelog="$withval" ;; esac])
 attributelogdir="${attributelog%/*}"
 AC_SUBST(attributelog)
 AC_SUBST(attributelogdir)
@@ -373,9 +359,21 @@ if test "$libc_have_working_snprintf" = "yes"; then
   AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane.]) dnl `vim syntax
 fi
 
+# TODO: Remove after smartmontools 6.5
 AC_ARG_WITH(docdir,
   [AS_HELP_STRING([--with-docdir=DIR], [(removed, use --docdir=DIR instead)])],
   [AC_MSG_ERROR([--with-docdir is no longer supported, use --docdir instead])])
+AC_ARG_ENABLE(drivedb,
+  [AS_HELP_STRING([--disable-drivedb], [(removed, use --without-drivedbdir instead)])])
+AC_ARG_ENABLE(savestates,
+  [AS_HELP_STRING([--enable-savestates], [(removed, use --with-savestates@<:@=yes@:>@ instead)])])
+AC_ARG_ENABLE(attributelog,
+  [AS_HELP_STRING([--enable-attributelog], [(removed, use --with-attributelog@<:@=yes@:>@ instead)])])
+if test -n "${enable_drivedb+set}${enable_savestates+set}${enable_attributelog+set}"; then
+  AC_MSG_ERROR([Options --disable-drivedb, --enable-savestates, --enable-attributelog are no longer supported.
+Use --without-drivedbdir, --with-savestates, --with-attributelog instead.])
+fi
+
 
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
@@ -630,10 +628,3 @@ case "$host_os" in
     ;;
 esac
 echo "-----------------------------------------------------------------------------" >&AS_MESSAGE_FD
-
-if test "$used_deprecated_option" = "yes"; then
-  echo "WARNING:" >&AS_MESSAGE_FD
-  echo "Options --disable-drivedb, --enable-savestates, --enable-attributelog are" >&AS_MESSAGE_FD
-  echo "deprecated and will be removed in a future release of smartmontools." >&AS_MESSAGE_FD
-  echo "Use --without-drivedb, --with-savestates, --with-attributelog instead." >&AS_MESSAGE_FD
-fi

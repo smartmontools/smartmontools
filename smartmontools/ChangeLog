@@ -1,5 +1,11 @@
 $Id$
 
+2015-08-02  Christian Franke  <franke@computer.org>
+
+	configure.ac: Remove '--disable-drivedb',
+	'--enable-savestates', '--enable-attributelog'.
+	Print error message if used.
+
 2015-07-15  Christian Franke  <franke@computer.org>
 
 	autogen.sh: Drop support for automake 1.7 - 1.9.x.
