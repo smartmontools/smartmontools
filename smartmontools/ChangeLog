@@ -1,4 +1,10 @@
-$Id: ChangeLog 4115 2015-07-15 20:52:26Z chrfranke $
+$Id: ChangeLog 4116 2015-08-02 17:21:32Z chrfranke $
+
+2015-08-02  Christian Franke  <franke@computer.org>
+
+	configure.ac: Remove '--disable-drivedb',
+	'--enable-savestates', '--enable-attributelog'.
+	Print error message if used.
 
 2015-07-15  Christian Franke  <franke@computer.org>
 
