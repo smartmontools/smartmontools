@@ -1,4 +1,9 @@
-$Id: ChangeLog 4117 2015-08-08 17:27:28Z chrfranke $
+$Id: ChangeLog 4118 2015-08-17 19:59:10Z chrfranke $
+
+2015-08-17  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Ignore bogus SCSI sense_key if ATA status in
+	SAT ATA Return Descriptor indicates success (ticket #548).
 
 2015-08-08  Christian Franke  <franke@computer.org>
 
