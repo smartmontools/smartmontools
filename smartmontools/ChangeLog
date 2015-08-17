@@ -1,5 +1,10 @@
 $Id$
 
+2015-08-17  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Ignore bogus SCSI sense_key if ATA status in
+	SAT ATA Return Descriptor indicates success (ticket #548).
+
 2015-08-08  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Fix get_os_version_str() for Windows >= 8.1.

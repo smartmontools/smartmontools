@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2006-12 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2009-15 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -394,6 +394,16 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         }
         scsi_do_sense_disect(&io_hdr, &sinfo);
         int status = scsiSimpleSenseFilter(&sinfo);
+
+        // Workaround for bogus sense_key in sense data with SAT ATA Return Descriptor
+        if (   status && ck_cond && ardp && ard_len > 13
+            && (ardp[13] & 0xc1) == 0x40 /* !BSY && DRDY && !ERR */) {
+            if (scsi_debugmode > 0)
+                pout("ATA status (0x%02x) indicates success, ignoring SCSI sense_key\n",
+                     ardp[13]);
+            status = 0;
+        }
+
         if (0 != status) {  /* other than no_sense and recovered_error */
             if (scsi_debugmode > 0) {
                 pout("sat_device::ata_pass_through: scsi error: %s\n",
