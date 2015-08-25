@@ -22,6 +22,7 @@
 #include <mach/mach.h>
 #include <mach/mach_error.h>
 #include <mach/mach_init.h>
+#include <sys/utsname.h>
 #include <IOKit/IOCFPlugIn.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/IOReturn.h>
@@ -488,6 +489,8 @@ class darwin_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
+  virtual std::string get_os_version_str();
+
   virtual std::string get_app_examples(const char * appname);
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
@@ -504,6 +507,15 @@ protected:
 
 
 //////////////////////////////////////////////////////////////////////
+
+std::string darwin_smart_interface::get_os_version_str()
+{
+  // now we are just getting darwin runtime version, to get OSX version more things needs to be done, see
+  // http://stackoverflow.com/questions/11072804/how-do-i-determine-the-os-version-at-runtime-in-os-x-or-ios-without-using-gesta
+  struct utsname osname;
+  uname(&osname);
+  return strprintf("%s %s %s", osname.sysname, osname.release, osname.machine);
+}
 
 std::string darwin_smart_interface::get_app_examples(const char * appname)
 {

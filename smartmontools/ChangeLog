@@ -1,5 +1,9 @@
 $Id$
 
+2015-08-26  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_darwin.cpp: Implement get_os_version_str() for the darwin.
+
 2015-08-17  Christian Franke  <franke@computer.org>
 
 	scsiata.cpp: Ignore bogus SCSI sense_key if ATA status in
