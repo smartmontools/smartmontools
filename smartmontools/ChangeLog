@@ -1,4 +1,8 @@
-$Id: ChangeLog 4118 2015-08-17 19:59:10Z chrfranke $
+$Id: ChangeLog 4119 2015-08-25 23:03:22Z samm2 $
+
+2015-08-26  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_darwin.cpp: Implement get_os_version_str() for the darwin.
 
 2015-08-17  Christian Franke  <franke@computer.org>
 

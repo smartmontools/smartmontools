@@ -22,6 +22,7 @@
 #include <mach/mach.h>
 #include <mach/mach_error.h>
 #include <mach/mach_init.h>
+#include <sys/utsname.h>
 #include <IOKit/IOCFPlugIn.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/IOReturn.h>
@@ -45,7 +46,7 @@
 #include "dev_interface.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 3982 2014-08-16 21:07:19Z samm2 $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4119 2015-08-25 23:03:22Z samm2 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -77,7 +78,7 @@ static struct {
   IOATASMARTInterface **smartIf;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 3982 2014-08-16 21:07:19Z samm2 $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4119 2015-08-25 23:03:22Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -488,6 +489,8 @@ class darwin_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
+  virtual std::string get_os_version_str();
+
   virtual std::string get_app_examples(const char * appname);
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
@@ -504,6 +507,15 @@ protected:
 
 
 //////////////////////////////////////////////////////////////////////
+
+std::string darwin_smart_interface::get_os_version_str()
+{
+  // now we are just getting darwin runtime version, to get OSX version more things needs to be done, see
+  // http://stackoverflow.com/questions/11072804/how-do-i-determine-the-os-version-at-runtime-in-os-x-or-ios-without-using-gesta
+  struct utsname osname;
+  uname(&osname);
+  return strprintf("%s %s %s", osname.sysname, osname.release, osname.machine);
+}
 
 std::string darwin_smart_interface::get_app_examples(const char * appname)
 {
