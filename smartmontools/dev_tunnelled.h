@@ -18,7 +18,7 @@
 #ifndef DEV_TUNNELLED_H
 #define DEV_TUNNELLED_H
 
-#define DEV_TUNNELLED_H_CVSID "$Id: dev_tunnelled.h,v 1.1 2008/07/25 21:16:00 chrfranke Exp $\n"
+#define DEV_TUNNELLED_H_CVSID "$Id$"
 
 #include "dev_interface.h"
 

@@ -18,7 +18,7 @@
 #ifndef DEV_ATA_CMD_SET_H
 #define DEV_ATA_CMD_SET_H
 
-#define DEV_ATA_CMD_SET_H_CVSID "$Id: dev_ata_cmd_set.h,v 1.3 2008/08/23 21:32:12 chrfranke Exp $\n"
+#define DEV_ATA_CMD_SET_H_CVSID "$Id$"
 
 #include "atacmds.h" // smart_command_set
 #include "dev_interface.h"

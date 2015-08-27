@@ -22,7 +22,7 @@
 
 #include <errno.h>
 
-const char * dev_ata_cmd_set_cpp_cvsid = "$Id: dev_ata_cmd_set.cpp,v 1.4 2008/10/24 21:49:23 manfred99 Exp $"
+const char * dev_ata_cmd_set_cpp_cvsid = "$Id$"
   DEV_ATA_CMD_SET_H_CVSID;
 
 
