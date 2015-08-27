@@ -1,7 +1,7 @@
 /*
  * os_netbsd.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-8 Sergey Svishchev <smartmontools-support@lists.sourceforge.net>
  *
@@ -24,7 +24,7 @@
 #ifndef OS_NETBSD_H_
 #define OS_NETBSD_H_
 
-#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h 3728 2012-12-13 17:57:50Z chrfranke $\n"
+#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 #include <sys/device.h>
 #include <sys/param.h>

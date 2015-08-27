@@ -1,7 +1,7 @@
 /*
  * os_win32/wmiquery.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2011-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 
-const char * wmiquery_cpp_cvsid = "$Id: wmiquery.cpp 3802 2013-03-24 18:36:21Z chrfranke $"
+const char * wmiquery_cpp_cvsid = "$Id: wmiquery.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   WMIQUERY_H_CVSID;
 
 

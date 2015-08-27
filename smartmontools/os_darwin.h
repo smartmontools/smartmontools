@@ -1,7 +1,7 @@
 /*
  * os_generic.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Geoff Keating <geoffk@geoffk.org>
  *
@@ -24,7 +24,7 @@
 #ifndef OS_DARWIN_H_
 #define OS_DARWIN_H_
 
-#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 3728 2012-12-13 17:57:50Z chrfranke $\n"
+#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 // Isn't in 10.3.9?
 

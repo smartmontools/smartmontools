@@ -1,7 +1,7 @@
 /*
  * atacmdnames.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-8 Philip Williams
  * Copyright (C) 2012 Christian Franke <smartmontools-support@lists.sourceforge.net>
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-const char * atacmdnames_cpp_cvsid = "$Id: atacmdnames.cpp 3670 2012-10-31 22:00:50Z chrfranke $"
+const char * atacmdnames_cpp_cvsid = "$Id: atacmdnames.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";

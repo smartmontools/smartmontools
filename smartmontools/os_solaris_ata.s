@@ -1,7 +1,7 @@
 ! 
 !   os_solaris_ata.s
 ! 
-!   Home page of code is: http://smartmontools.sourceforge.net
+!   Home page of code is: http://www.smartmontools.org
 ! 
 !   Copyright (C) 2003-8 SAWADA Keiji <smartmontools-support@lists.sourceforge.net>
 ! 
@@ -97,7 +97,7 @@
 	.section	".rodata"
 	.align 8
 .LLC0:
-	.asciz	"$Id: os_solaris_ata.s 3728 2012-12-13 17:57:50Z chrfranke $"
+	.asciz	"$Id: os_solaris_ata.s 4120 2015-08-27 16:12:21Z samm2 $"
 	.global os_solaris_ata_s_cvsid
 	.section	".data"
 	.align 4

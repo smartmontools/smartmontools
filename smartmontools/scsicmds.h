@@ -1,7 +1,7 @@
 /*
  * scsicmds.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 4081 2015-05-10 16:42:50Z chrfranke $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 #include <stdio.h>
 #include <stdlib.h>

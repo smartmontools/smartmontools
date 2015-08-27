@@ -3,12 +3,12 @@ smartmontools - S.M.A.R.T. utility toolset for Darwin/Mac
 OSX, FreeBSD, Linux, NetBSD, OpenBSD, Solaris, and Windows.
 ==========================================================
 
-$Id: README 4063 2015-04-19 17:34:25Z chrfranke $
+$Id: README 4120 2015-08-27 16:12:21Z samm2 $
 
 == HOME ==
 The home for smartmontools is located at:
     
-    http://smartmontools.sourceforge.net/
+    http://www.smartmontools.org/
 
 Please see this web site for updates, documentation, and for submitting
 patches and bug reports.

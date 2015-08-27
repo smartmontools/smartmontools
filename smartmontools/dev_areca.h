@@ -1,7 +1,7 @@
 /*
  * dev_areca.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2012 Hank Wu <hank@areca.com.tw>
  *
@@ -18,7 +18,7 @@
 #ifndef DEV_ARECA_H
 #define DEV_ARECA_H
 
-#define DEV_ARECA_H_CVSID "$Id: dev_areca.h 3854 2013-09-12 05:36:20Z chrfranke $"
+#define DEV_ARECA_H_CVSID "$Id: dev_areca.h 4120 2015-08-27 16:12:21Z samm2 $"
 
 /////////////////////////////////////////////////////////////////////////////
 /// Areca RAID support

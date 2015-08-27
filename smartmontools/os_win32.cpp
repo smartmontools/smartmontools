@@ -1,7 +1,7 @@
 /*
  * os_win32.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2004-15 Christian Franke
  *
@@ -111,7 +111,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4117 2015-08-08 17:27:28Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4120 2015-08-27 16:12:21Z samm2 $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files

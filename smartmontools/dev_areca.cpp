@@ -1,7 +1,7 @@
 /*
  * dev_areca.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2012 Hank Wu <hank@areca.com.tw>
  *
@@ -21,7 +21,7 @@
 #include "dev_interface.h"
 #include "dev_areca.h"
 
-const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 3872 2014-02-03 21:07:51Z chrfranke $"
+const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   DEV_ARECA_H_CVSID;
 
 #include "atacmds.h"

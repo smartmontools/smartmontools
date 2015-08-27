@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-15 Christian Franke
 
-$Id: smartctl.8.in 4099 2015-05-30 17:32:13Z chrfranke $
+$Id: smartctl.8.in 4120 2015-08-27 16:12:21Z samm2 $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -2233,7 +2233,7 @@ Alternatively send the info to the smartmontools support mailing list:
 
 .SH REFERENCES
 Please see the following web site for more info:
-\fBhttp://smartmontools.sourceforge.net/\fP
+\fBhttp://www.smartmontools.org/\fP
 
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
@@ -2256,4 +2256,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4099 2015-05-30 17:32:13Z chrfranke $
+$Id: smartctl.8.in 4120 2015-08-27 16:12:21Z samm2 $

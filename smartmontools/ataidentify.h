@@ -1,7 +1,7 @@
 /*
  * ataidentify.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2012 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
@@ -18,7 +18,7 @@
 #ifndef ATAIDENTIFY_H
 #define ATAIDENTIFY_H
 
-#define ATAIDENTIFY_H_CVSID "$Id: ataidentify.h 3610 2012-09-20 21:27:19Z chrfranke $"
+#define ATAIDENTIFY_H_CVSID "$Id: ataidentify.h 4120 2015-08-27 16:12:21Z samm2 $"
 
 void ata_print_identify_data(const void * id, bool all_words, int bit_level);
 

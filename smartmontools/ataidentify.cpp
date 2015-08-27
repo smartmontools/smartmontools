@@ -1,7 +1,7 @@
 /*
  * ataidentify.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2012-15 Christian Franke
  *
@@ -18,7 +18,7 @@
 #include "config.h"
 #include "ataidentify.h"
 
-const char * ataidentify_cpp_cvsid = "$Id: ataidentify.cpp 4074 2015-05-01 16:03:50Z chrfranke $"
+const char * ataidentify_cpp_cvsid = "$Id: ataidentify.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   ATAIDENTIFY_H_CVSID;
 
 #include "int64.h"

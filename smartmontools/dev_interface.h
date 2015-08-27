@@ -1,7 +1,7 @@
 /*
  * dev_interface.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 3663 2012-10-24 20:35:55Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 #include "utility.h"
 

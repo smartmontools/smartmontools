@@ -1,7 +1,7 @@
 /*
  * os_darwin.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Geoffrey Keating <geoffk@geoffk.org>
  * Copyright (C) 2014 Alex Samorukov <samm@os2.kiev.ua>
@@ -46,7 +46,7 @@
 #include "dev_interface.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4119 2015-08-25 23:03:22Z samm2 $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4120 2015-08-27 16:12:21Z samm2 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -78,7 +78,7 @@ static struct {
   IOATASMARTInterface **smartIf;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4119 2015-08-25 23:03:22Z samm2 $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////

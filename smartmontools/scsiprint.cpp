@@ -1,7 +1,7 @@
 /*
  * scsiprint.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4040 2015-03-10 22:30:44Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4120 2015-08-27 16:12:21Z samm2 $"
                                  SCSIPRINT_H_CVSID;
 
 

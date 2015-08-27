@@ -1,7 +1,7 @@
 /*
  * smartctl.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
@@ -26,7 +26,7 @@
 #ifndef SMARTCTL_H_
 #define SMARTCTL_H_
 
-#define SMARTCTL_H_CVSID "$Id: smartctl.h 3727 2012-12-13 17:23:06Z samm2 $\n"
+#define SMARTCTL_H_CVSID "$Id: smartctl.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 // Return codes (bitmask)
 

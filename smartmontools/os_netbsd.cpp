@@ -1,7 +1,7 @@
 /*
  * os_netbsd.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-8 Sergey Svishchev <smartmontools-support@lists.sourceforge.net>
  *
@@ -26,7 +26,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 3806 2013-03-29 20:17:03Z chrfranke $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   OS_NETBSD_H_CVSID;
 
 /* global variable holding byte count of allocated memory */

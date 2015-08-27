@@ -1,7 +1,7 @@
 /*
  * ataprint.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
@@ -25,7 +25,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h 3825 2013-07-06 21:38:25Z samm2 $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 #include <vector>
 

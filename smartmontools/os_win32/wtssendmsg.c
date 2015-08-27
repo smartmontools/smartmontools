@@ -1,7 +1,7 @@
 /*
  * WTSSendMessage() command line tool
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2012 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
@@ -18,7 +18,7 @@
 #define WINVER 0x0500
 #define _WIN32_WINNT WINVER
 
-char svnid[] = "$Id: wtssendmsg.c 3714 2012-11-24 16:34:47Z chrfranke $";
+char svnid[] = "$Id: wtssendmsg.c 4120 2015-08-27 16:12:21Z samm2 $";
 
 #include <stdio.h>
 #include <string.h>
@@ -30,7 +30,7 @@ char svnid[] = "$Id: wtssendmsg.c 3714 2012-11-24 16:34:47Z chrfranke $";
 
 static int usage()
 {
-  printf("wtssendmsg $Revision: 3714 $ - Display a message box on client desktops\n"
+  printf("wtssendmsg $Revision: 4120 $ - Display a message box on client desktops\n"
          "Copyright (C) 2012 Christian Franke, smartmontools.org\n\n"
          "Usage: wtssendmsg [-cas] [-v] [\"Caption\"] \"Message\"|-\n"
          "       wtssendmsg -v\n\n"

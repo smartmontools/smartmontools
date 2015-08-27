@@ -1,7 +1,7 @@
 /*
  * scsiprint.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
@@ -29,7 +29,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 3776 2013-02-17 04:25:42Z dpgilbert $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 // Options for scsiPrintMain
 struct scsi_print_options

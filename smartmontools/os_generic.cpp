@@ -1,7 +1,7 @@
 /*
  * os_generic.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) YEAR YOUR_NAME <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
@@ -83,7 +83,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char * os_XXXX_cpp_cvsid="$Id: os_generic.cpp 3579 2012-07-20 17:50:12Z chrfranke $"
+const char * os_XXXX_cpp_cvsid="$Id: os_generic.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
 
 // This is here to prevent compiler warnings for unused arguments of

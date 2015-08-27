@@ -1,7 +1,7 @@
 /*
  * os_openbsd.c
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2004-10 David Snyder <smartmontools-support@lists.sourceforge.net>
  *
@@ -27,7 +27,7 @@
 
 #include <errno.h>
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 3727 2012-12-13 17:23:06Z samm2 $"
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   OS_OPENBSD_H_CVSID;
 
 /* global variable holding byte count of allocated memory */

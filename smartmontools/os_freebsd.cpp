@@ -1,7 +1,7 @@
 /*
  * os_freebsd.c
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-10 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
  *
@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3902 2014-05-23 19:14:15Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4120 2015-08-27 16:12:21Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0

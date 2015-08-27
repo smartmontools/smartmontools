@@ -1,7 +1,7 @@
 ;/*
 ; * os_win32/syslogevt.mc
 ; *
-; * Home page of code is: http://smartmontools.sourceforge.net
+; * Home page of code is: http://www.smartmontools.org
 ; *
 ; * Copyright (C) 2004-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ; *
@@ -16,7 +16,7 @@
 ; *
 ; */
 ;
-;// $Id: syslogevt.mc 3727 2012-12-13 17:23:06Z samm2 $
+;// $Id: syslogevt.mc 4120 2015-08-27 16:12:21Z samm2 $
 ;
 ;// Use message compiler "mc" or "windmc" to generate
 ;//   syslogevt.rc, syslogevt.h, msg00001.bin

@@ -1,7 +1,7 @@
 /*
  * knowndrives.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
@@ -20,7 +20,7 @@
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h 3597 2012-09-04 21:10:37Z chrfranke $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 // Structure to store drive database entries, see drivedb.h for a description.
 struct drive_settings {

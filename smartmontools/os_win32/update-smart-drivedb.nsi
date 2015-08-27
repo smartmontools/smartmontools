@@ -1,7 +1,7 @@
 ;
 ; smartmontools drive database update NSIS script
 ;
-; Home page of code is: http://smartmontools.sourceforge.net
+; Home page of code is: http://www.smartmontools.org
 ;
 ; Copyright (C) 2011-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ;
@@ -13,7 +13,7 @@
 ; You should have received a copy of the GNU General Public License
 ; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
-; $Id: update-smart-drivedb.nsi 3815 2013-06-06 17:31:59Z chrfranke $
+; $Id: update-smart-drivedb.nsi 4120 2015-08-27 16:12:21Z samm2 $
 ;
 
 

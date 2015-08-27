@@ -1,7 +1,7 @@
 /*
  * smartctl.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2008-15 Christian Franke
@@ -51,7 +51,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4080 2015-05-05 20:31:22Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing

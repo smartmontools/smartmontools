@@ -1,7 +1,7 @@
 /*
  * atacmds.cpp
  * 
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4048 2015-03-29 16:09:04Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4120 2015-08-27 16:12:21Z samm2 $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?

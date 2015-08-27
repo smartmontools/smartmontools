@@ -1,7 +1,7 @@
 /*
  * utility.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4028 2014-12-13 14:59:48Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4120 2015-08-27 16:12:21Z samm2 $"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)

@@ -1,7 +1,7 @@
 /*
  * os_win32/daemon_win32.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2004-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
@@ -20,7 +20,7 @@
 
 #include "daemon_win32.h"
 
-const char * daemon_win32_cpp_cvsid = "$Id: daemon_win32.cpp 3959 2014-07-18 19:22:18Z chrfranke $"
+const char * daemon_win32_cpp_cvsid = "$Id: daemon_win32.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   DAEMON_WIN32_H_CVSID;
 
 #include <stdio.h>

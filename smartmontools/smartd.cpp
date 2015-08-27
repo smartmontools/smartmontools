@@ -1,5 +1,5 @@
 /*
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
@@ -106,7 +106,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4059 2015-04-18 17:01:31Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   CONFIG_H_CVSID;
 
 // smartd exit codes

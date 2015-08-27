@@ -1,7 +1,7 @@
 /*
  * drivedb.h - smartmontools drive database file
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
  * Copyright (C) 2008-15 Christian Franke
@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4111 2015-06-24 06:39:18Z samm2 $",
+  { "$Id: drivedb.h 4120 2015-08-27 16:12:21Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""

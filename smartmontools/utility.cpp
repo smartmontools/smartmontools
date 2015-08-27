@@ -1,7 +1,7 @@
 /*
  * utility.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-12 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
@@ -52,7 +52,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4031 2015-01-01 10:47:48Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4120 2015-08-27 16:12:21Z samm2 $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {

@@ -1,7 +1,7 @@
 /*
  * dev_interface.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
@@ -32,7 +32,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 3741 2013-01-02 17:06:54Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////

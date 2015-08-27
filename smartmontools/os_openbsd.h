@@ -1,7 +1,7 @@
 /*
  * os_openbsd.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2004-8 David Snyder <smartmontools-support@lists.sourceforge.net>
  *
@@ -26,7 +26,7 @@
 #ifndef OS_OPENBSD_H_
 #define OS_OPENBSD_H_
 
-#define OS_OPENBSD_H_CVSID "$Id: os_openbsd.h 3728 2012-12-13 17:57:50Z chrfranke $\n"
+#define OS_OPENBSD_H_CVSID "$Id: os_openbsd.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 /* from NetBSD: atareg.h,v 1.17, by Manuel Bouyer */
 /* Actually fits _perfectly_ into OBSDs wdcreg.h, but... */

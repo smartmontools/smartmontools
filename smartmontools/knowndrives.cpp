@@ -1,7 +1,7 @@
 /*
  * knowndrives.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
@@ -33,7 +33,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 3719 2012-12-03 21:19:33Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 4120 2015-08-27 16:12:21Z samm2 $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40

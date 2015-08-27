@@ -1,7 +1,7 @@
 /*
  * os_freebsd.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-8 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
  *
@@ -82,7 +82,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h 3727 2012-12-13 17:23:06Z samm2 $"
+#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h 4120 2015-08-27 16:12:21Z samm2 $"
 
 #define MAX_NUM_DEV 26
 

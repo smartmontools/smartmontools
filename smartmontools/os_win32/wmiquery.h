@@ -1,7 +1,7 @@
 /*
  * os_win32/wmiquery.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2011 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
@@ -18,7 +18,7 @@
 #ifndef WMIQUERY_H
 #define WMIQUERY_H
 
-#define WMIQUERY_H_CVSID "$Id: wmiquery.h 3475 2011-11-10 21:43:40Z chrfranke $"
+#define WMIQUERY_H_CVSID "$Id: wmiquery.h 4120 2015-08-27 16:12:21Z samm2 $"
 
 #ifdef HAVE_WBEMCLI_H
 #include <wbemcli.h>

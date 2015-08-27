@@ -1,7 +1,7 @@
 /*
  * Run console command and wait for user input
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2011 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
@@ -15,7 +15,7 @@
  *
  */
 
-char svnid[] = "$Id: runcmd.c 3453 2011-10-16 12:45:27Z chrfranke $";
+char svnid[] = "$Id: runcmd.c 4120 2015-08-27 16:12:21Z samm2 $";
 
 #include <stdio.h>
 #include <windows.h>

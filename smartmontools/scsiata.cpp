@@ -1,7 +1,7 @@
 /*
  * scsiata.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
  * Copyright (C) 2009-15 Christian Franke
@@ -62,7 +62,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4118 2015-08-17 19:59:10Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4120 2015-08-27 16:12:21Z samm2 $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea

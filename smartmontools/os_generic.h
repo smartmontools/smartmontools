@@ -1,7 +1,7 @@
 /*
  * os_generic.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) YEAR YOUR_NAME <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
@@ -25,7 +25,7 @@
 // In the three following lines, change 'GENERIC' to your OS name
 #ifndef OS_GENERIC_H_
 #define OS_GENERIC_H_
-#define OS_GENERIC_H_CVSID "$Id: os_generic.h 3728 2012-12-13 17:57:50Z chrfranke $\n"
+#define OS_GENERIC_H_CVSID "$Id: os_generic.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include

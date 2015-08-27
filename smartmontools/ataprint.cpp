@@ -1,7 +1,7 @@
 /*
  * ataprint.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2008-15 Christian Franke
@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4104 2015-06-03 18:50:39Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4120 2015-08-27 16:12:21Z samm2 $"
                                   ATAPRINT_H_CVSID;
 
 

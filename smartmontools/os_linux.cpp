@@ -1,7 +1,7 @@
 /*
  *  os_linux.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
@@ -99,7 +99,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4047 2015-03-22 16:16:24Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 

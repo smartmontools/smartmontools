@@ -1,7 +1,7 @@
 /*
  * scsicmds.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
@@ -49,7 +49,7 @@
 #include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4081 2015-05-10 16:42:50Z chrfranke $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4120 2015-08-27 16:12:21Z samm2 $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?

@@ -1,7 +1,7 @@
 /*
  * atacmds.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 4048 2015-03-29 16:09:04Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 4120 2015-08-27 16:12:21Z samm2 $"
 
 #include "dev_interface.h" // ata_device
 

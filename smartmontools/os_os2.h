@@ -1,7 +1,7 @@
 /*
  * os_os2.c
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Yuri Dario <smartmontools-support@lists.sourceforge.net>
  *
@@ -18,7 +18,7 @@
 #ifndef OS_OS2_H_
 #define OS_OS2_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_os2.h 3728 2012-12-13 17:57:50Z chrfranke $\n"
+#define OS_XXXX_H_CVSID "$Id: os_os2.h 4120 2015-08-27 16:12:21Z samm2 $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include
