@@ -745,7 +745,7 @@ Alternatively send the info to the smartmontools support mailing list:
 
 .SH REFERENCES
 Please see the following web site for more info:
-\fBhttp://smartmontools.sourceforge.net/\fP
+\fBhttp://www.smartmontools.org/\fP
 
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,

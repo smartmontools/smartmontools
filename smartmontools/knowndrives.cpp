@@ -1,7 +1,7 @@
 /*
  * knowndrives.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen

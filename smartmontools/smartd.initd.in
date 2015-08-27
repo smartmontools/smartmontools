@@ -540,7 +540,7 @@ elif uname | grep -i CYGWIN > /dev/null 2>&1 ; then
 Controls and monitors storage devices using the Self-Monitoring \
 Analysis and Reporting Technology System (S.M.A.R.T.) \
 built into ATA and SCSI Hard Drives. \
-http://smartmontools.sourceforge.net/"
+http://www.smartmontools.org/"
 
     # Source configuration file.  This should define the shell variable smartd_opts.
     # Email smartmontools-support@lists.sourceforge.net if there is a better choice

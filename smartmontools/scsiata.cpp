@@ -1,7 +1,7 @@
 /*
  * scsiata.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
  * Copyright (C) 2009-15 Christian Franke

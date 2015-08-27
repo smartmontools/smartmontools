@@ -1,7 +1,7 @@
 /*
  * os_win32/wbemcli_small.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * This file was extracted from wbemcli.h of the w64 mingw-runtime package
  * (http://mingw-w64.sourceforge.net/). See original copyright below.

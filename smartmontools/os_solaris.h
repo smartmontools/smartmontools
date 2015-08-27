@@ -1,7 +1,7 @@
 /*
  * os_solaris.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-8 SAWADA Keiji <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-8 Casper Dik <smartmontools-support@lists.sourceforge.net>

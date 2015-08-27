@@ -1,7 +1,7 @@
 /*
  * atacmdnames.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-8 Philip Williams
  * Copyright (C) 2012 Christian Franke <smartmontools-support@lists.sourceforge.net>

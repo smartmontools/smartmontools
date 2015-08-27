@@ -1,7 +1,7 @@
 /*
  * Run console command and wait for user input
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2011 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *

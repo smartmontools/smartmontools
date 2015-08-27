@@ -1,7 +1,7 @@
 /*
  * os_os2.c
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Yuri Dario <smartmontools-support@lists.sourceforge.net>
  *

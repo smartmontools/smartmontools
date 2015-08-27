@@ -1,7 +1,7 @@
 /*
  * os_darwin.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Geoffrey Keating <geoffk@geoffk.org>
  * Copyright (C) 2014 Alex Samorukov <samm@os2.kiev.ua>

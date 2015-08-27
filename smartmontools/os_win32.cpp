@@ -1,7 +1,7 @@
 /*
  * os_win32.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2004-15 Christian Franke
  *

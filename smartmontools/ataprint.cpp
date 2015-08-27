@@ -1,7 +1,7 @@
 /*
  * ataprint.cpp
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2008-15 Christian Franke

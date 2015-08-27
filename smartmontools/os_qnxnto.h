@@ -1,7 +1,7 @@
 /*
  * os_generic.h
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) Joerg Hering       <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>

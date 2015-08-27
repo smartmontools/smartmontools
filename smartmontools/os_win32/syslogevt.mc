@@ -1,7 +1,7 @@
 ;/*
 ; * os_win32/syslogevt.mc
 ; *
-; * Home page of code is: http://smartmontools.sourceforge.net
+; * Home page of code is: http://www.smartmontools.org
 ; *
 ; * Copyright (C) 2004-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ; *
