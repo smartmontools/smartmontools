@@ -1,5 +1,9 @@
 $Id$
 
+2015-08-27  Alex Samorukov <samm@os2.kiev.ua>
+
+       Homepage URL updated from the sourceforge to smartmontools.org (r4120)
+
 2015-08-26  Alex Samorukov <samm@os2.kiev.ua>
 
 	os_darwin.cpp: Implement get_os_version_str() for the darwin.
