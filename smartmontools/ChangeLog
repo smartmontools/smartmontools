@@ -1,5 +1,10 @@
 $Id$
 
+2015-09-03 Alex Samorukov <samm@os2.kiev.ua>
+
+	os_darwin: Initial import of the files required to build
+	OSX/smartmontools native package (see #555).
+
 2015-08-27  Alex Samorukov <samm@os2.kiev.ua>
 
        Homepage URL updated from the sourceforge to smartmontools.org (r4120)
