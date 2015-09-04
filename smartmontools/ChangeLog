@@ -1,5 +1,9 @@
 $Id$
 
+2015-09-04 Alex Samorukov <samm@os2.kiev.ua>
+	
+	Makefile.am: integrate darwin dmg build process to the Makefile
+
 2015-09-03 Alex Samorukov <samm@os2.kiev.ua>
 
 	os_darwin: Initial import of the files required to build
@@ -7,7 +11,7 @@ $Id$
 
 2015-08-27  Alex Samorukov <samm@os2.kiev.ua>
 
-       Homepage URL updated from the sourceforge to smartmontools.org (r4120)
+	Homepage URL updated from the sourceforge to smartmontools.org (r4120)
 
 2015-08-26  Alex Samorukov <samm@os2.kiev.ua>
 

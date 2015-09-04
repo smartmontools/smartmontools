@@ -365,6 +365,11 @@ EXTRA_DIST = \
         os_darwin/SMART.in \
         os_darwin/StartupParameters.plist \
         os_darwin/English_Localizable.strings \
+        os_darwin/pkg/PackageInfo.in \
+        os_darwin/pkg/Distribution.in \
+        os_darwin/pkg/do_package.sh \
+        os_darwin/pkg/installer/README.html \
+        os_darwin/pkg/root/usr/sbin/smart-pkg-uninstall \
         os_win32/installer.nsi \
         os_win32/runcmd.c \
         os_win32/runcmda.exe.manifest \
@@ -941,4 +946,41 @@ $(srcdir)/os_win32/vc10/smartctl_res.rc: smartctl_res.rc
 $(srcdir)/os_win32/vc10/smartd_res.rc: smartd_res.rc
 	cp $< $@
 
+endif
+if OS_DARWIN
+# Definitions for OSX distribution
+distdir_darwin  = $(PACKAGE)-$(VERSION).darwin
+dmg_darwin =  $(PACKAGE)-$(VERSION).dmg
+pkg_darwin = $(PACKAGE)-$(VERSION).pkg
+
+# build darwin installer 
+$(pkg_darwin):
+	${MAKE} install DESTDIR=$(distdir_darwin)/root
+	@cp os_darwin/pkg/root/usr/sbin/smart-pkg-uninstall $(distdir_darwin)/root/usr/sbin/
+	@mkdir -p $(distdir_darwin)/pkg
+	@( cd $(distdir_darwin)/root && find . | cpio -o --format odc --owner 0:80 | gzip -c ) > $(distdir_darwin)/pkg/Payload
+	PAYLOAD_FILES=`find $(distdir_darwin)/root | wc -l` &&\
+	PAYLOAD_SIZEKB=`du -BK  -s $(distdir_darwin)/root|${AWK} '{print $$1}'|tr -d 'K'` &&\
+	sed -e "s|@version@|$(VERSION)|" -e "s|@files@|$${PAYLOAD_FILES}|" \
+		-e "s|@size@|$${PAYLOAD_SIZEKB}|" os_darwin/pkg/PackageInfo.in \
+		> $(distdir_darwin)/pkg/PackageInfo &&\
+	sed -e "s|@version@|$(VERSION)|" -e "s|@files@|$${PAYLOAD_FILES}|" -e "s|@size@|$${PAYLOAD_SIZEKB}|" \
+		os_darwin/pkg/Distribution.in > $(distdir_darwin)/pkg/Distribution
+	@mkdir -p $(distdir_darwin)/pkg/Resources/English.lproj
+	@cp COPYING $(distdir_darwin)/pkg/Resources/English.lproj/license.txt
+	@mkbom -u 0 -g 80 $(distdir_darwin)/root $(distdir_darwin)/pkg/Bom
+	@mkdir -p $(distdir_darwin)/dmg
+	@( cd $(distdir_darwin)/pkg && xar --compression none -cf "../dmg/$(pkg_darwin)" * )
+
+# build darwon dmg image
+$(dmg_darwin):
+	@cp os_darwin/pkg/installer/README.html $(distdir_darwin)/dmg
+	@mkisofs -V 'smartmontools' -no-pad -r -apple -o $(distdir_darwin)/smartmontools-$(VERSION).iso \
+		-hfs-bless "$(distdir_darwin)/dmg/" "$(distdir_darwin)/dmg/"
+	@dmg dmg $(distdir_darwin)/smartmontools-$(VERSION).iso $(distdir_darwin)/$(dmg_darwin)
+
+install-darwin: install-darwin-cleanup $(pkg_darwin) $(dmg_darwin)
+
+install-darwin-cleanup: 
+	@rm -rf $(distdir_darwin)
 endif
