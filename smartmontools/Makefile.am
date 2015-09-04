@@ -976,7 +976,7 @@ $(dmg_darwin):
 	@cp os_darwin/pkg/installer/README.html $(distdir_darwin)/dmg
 	@mkisofs -V 'smartmontools' -no-pad -r -apple -o $(distdir_darwin)/smartmontools-$(VERSION).iso \
 		-hfs-bless "$(distdir_darwin)/dmg/" "$(distdir_darwin)/dmg/"
-	@dmg dmg $(distdir_darwin)/smartmontools-$(VERSION).iso $(distdir_darwin)/$(dmg_darwin)
+	@dmg dmg $(distdir_darwin)/smartmontools-$(VERSION).iso $(dmg_darwin)
 
 install-darwin: install-darwin-cleanup $(pkg_darwin) $(dmg_darwin)
 
