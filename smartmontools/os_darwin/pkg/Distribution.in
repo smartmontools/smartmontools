@@ -14,7 +14,7 @@
   </choices-outline>
   <choice id="default"/>
   <choice id="com.smartmontools.pkg" visible="false">
-    <pkg-ref version="@version@" installKBytes="@size@" id="com.smartmontools.pkg">smartmontools.pkg</pkg-ref>
+    <pkg-ref version="@version@" installKBytes="@size@" id="com.smartmontools.pkg">@pkgname@</pkg-ref>
   </choice>
   <domains enable_localSystem="true"/>
   <options customize="never" rootVolumeOnly="true"/>
