@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4124 2015-09-04 12:17:06Z samm2 $
+# $Id: Makefile.am 4125 2015-09-04 12:20:50Z samm2 $
 #
 
 @SET_MAKE@
@@ -367,7 +367,6 @@ EXTRA_DIST = \
         os_darwin/English_Localizable.strings \
         os_darwin/pkg/PackageInfo.in \
         os_darwin/pkg/Distribution.in \
-        os_darwin/pkg/do_package.sh \
         os_darwin/pkg/installer/README.html \
         os_darwin/pkg/root/usr/sbin/smart-pkg-uninstall \
         os_win32/installer.nsi \
