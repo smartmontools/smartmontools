@@ -2780,7 +2780,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Enterprise Capacity 3.5 HDD", // tested with ST6000NM0024-1HT17Z/SN02
     "ST[2456]000NM0[01][248]4-.*", // *[069]4 = 4Kn
-    "", "", ""
+    "", "", 
+    "-v 188,raw16"
   },
   { "Seagate NAS HDD", // tested with ST2000VN000-1H3164/SC42, ST3000VN000-1H4167/SC43
     "ST[234]000VN000-.*",

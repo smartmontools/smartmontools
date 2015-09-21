@@ -1,7 +1,12 @@
 $Id$
 
+2015-09-21 Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: decode 188 attribute for the "Seagate Enterprise Capacity
+	3.5 HDD" drives family, (see #551).
+
 2015-09-04 Alex Samorukov <samm@os2.kiev.ua>
-	
+
 	Makefile.am: integrate darwin dmg build process to the Makefile
 
 2015-09-03 Alex Samorukov <samm@os2.kiev.ua>
