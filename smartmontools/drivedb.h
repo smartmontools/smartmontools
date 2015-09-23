@@ -3590,6 +3590,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Innostor IS631; ", // No Name USB3->SATA Enclosure
+	"0x07ab:0x0621",
+	"",
+	"",
+	"-d sat"
+  },
   // Freecom
   { "USB: Freecom Mobile Drive XXS; JMicron",
     "0x07ab:0xfc88",
