@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4128 2015-09-21 13:39:10Z samm2 $",
+  { "$Id: drivedb.h 4129 2015-09-23 20:16:30Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3589,6 +3589,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d sat"
+  },
+  { "USB: Innostor IS631; ", // No Name USB3->SATA Enclosure
+	"0x07ab:0x0621",
+	"",
+	"",
+	"-d sat"
   },
   // Freecom
   { "USB: Freecom Mobile Drive XXS; JMicron",

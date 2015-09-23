@@ -1,4 +1,8 @@
-$Id: ChangeLog 4128 2015-09-21 13:39:10Z samm2 $
+$Id: ChangeLog 4129 2015-09-23 20:16:30Z samm2 $
+
+2015-09-23 Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: Innostor USB3.0 to SATAIII bridge (#611)
 
 2015-09-21 Alex Samorukov <samm@os2.kiev.ua>
 
