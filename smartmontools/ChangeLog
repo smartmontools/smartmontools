@@ -1,5 +1,10 @@
 $Id$
 
+2015-09-25  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Ignore SAT ATA PASS-THROUGH fixed format sense data if no
+	ATA status bit is set (ticket #612).
+
 2015-09-23 Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h: Innostor USB3.0 to SATAIII bridge (#611)
