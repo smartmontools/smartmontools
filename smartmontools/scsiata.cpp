@@ -62,7 +62,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4120 2015-08-27 16:12:21Z samm2 $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4130 2015-09-25 15:08:06Z chrfranke $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -443,7 +443,8 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
                 }
             } else if ((! sense_descriptor) &&
                        (0 == ssh.asc) &&
-                       (SCSI_ASCQ_ATA_PASS_THROUGH == ssh.ascq)) {
+                       (SCSI_ASCQ_ATA_PASS_THROUGH == ssh.ascq) &&
+                       (0 != io_hdr.sensep[4] /* Some ATA STATUS bit must be set */)) {
                 /* in SAT-2 and later, ATA registers may be passed back via
                  * fixed format sense data [ref: sat3r07 section 12.2.2.7] */
                 ata_out_regs & lo = out.out_regs;
