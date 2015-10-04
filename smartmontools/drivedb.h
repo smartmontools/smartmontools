@@ -3314,8 +3314,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  // Fujitsu chip on DeLock 42475 
-  { "USB: Fujitsu  SATA-to-USB3.0 bridge chip", // USB 3.0
+  { "USB: ; Fujitsu", // DeLock 42475, USB 3.0
     "0x04c5:0x201d",
     "", // 0x0001
     "",
@@ -3550,6 +3549,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; Genesys Logic",
+    "0x05e3:0x0735",
+    "", // 0x1003
+    "",
+    "-d sat"
+  },
   // Micron
   { "USB: Micron USB SSD; ",
     "0x0634:0x0655",
@@ -3590,13 +3595,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Innostor IS631; ", // No Name USB3->SATA Enclosure
-	"0x07ab:0x0621",
-	"",
-	"",
-	"-d sat"
-  },
   // Freecom
+  { "USB: ; Innostor IS631", // No Name USB3->SATA Enclosure
+    "0x07ab:0x0621",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: Freecom Mobile Drive XXS; JMicron",
     "0x07ab:0xfc88",
     "", // 0x0101
@@ -3806,6 +3811,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Addonics
+  { "USB: Addonics HDMU3; ", // (ticket #609)
+    "0x0bf6:0x1001",
+    "", // 0x0100
+    "",
+    ""
+  },
   // Dura Micro
   { "USB: Dura Micro; Cypress",
     "0x0c0b:0xb001",
@@ -3996,9 +4008,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; Initio",
-    "0x13fd:0x39[14]0", // 0x3910: Seagate Expansion Portable SRD00F1 (0x0100)
+    "0x13fd:0x39[124]0", // 0x3910: Seagate Expansion Portable SRD00F1 (0x0100)
+    "", // 0x3920: ezDISK EZ370 (0x0205)
     "", // 0x3940: MS-TECH LU-275S (0x0306)
-    "",
     "-d sat"
   },
   // Super Top
@@ -4027,6 +4039,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0100
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: ; JMicron", // USB2/3->2xSATA
+    "0x152d:0x0565",
+    "", // 0x9114, Akasa DuoDock X (ticket #607)
+    "",
+    "-d sat"
   },
   { "USB: ; JMicron JMS567", // USB2/3->SATA
     "0x152d:0x0567",
@@ -4254,6 +4272,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat" // ATA output registers missing
   },
+  { "USB: ; VIA VL711", // USB2/3->SATA
+    "0x2109:0x0711",
+    "", // 0x0114, Mediasonic ProBox K32-SU3 (ticket #594)
+    "",
+    "" // unsupported
+  },
   // 0x2537 (?)
   { "USB: ; ", // USB 3.0
     "0x2537:0x106[68]", // 0x1066: Orico 2599US3, 0x1068: Fantec ER-35U3
@@ -4282,7 +4306,13 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat" // ATA output registers missing
   },
   { "USB: Hitachi Touro Mobile; ", // 1TB
-    "0x4971:0x1020",
+    "0x4971:0x102[04]",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: SimpleTech;", // USB 3.0 HDD BOX Agestar,  Rock External HDD 3,5" UASP
+    "0x4971:0x8017",
     "",
     "",
     "-d sat"
@@ -4292,12 +4322,6 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbjmicron,x"
-  },
-  { "USB: SimpleTech;", // USB 3.0 HDD BOX Agestar,  Rock External HDD 3,5" UASP
-    "0x4971:0x8017",
-    "",
-    "",
-    "-d sat"
   },
   // OnSpec
   { "USB: ; OnSpec", // USB->PATA
