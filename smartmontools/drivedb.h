@@ -1,7 +1,7 @@
 /*
  * drivedb.h - smartmontools drive database file
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
  * Copyright (C) 2008-15 Christian Franke
@@ -2780,7 +2780,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Enterprise Capacity 3.5 HDD", // tested with ST6000NM0024-1HT17Z/SN02
     "ST[2456]000NM0[01][248]4-.*", // *[069]4 = 4Kn
-    "", "", ""
+    "", "", 
+    "-v 188,raw16"
   },
   { "Seagate NAS HDD", // tested with ST2000VN000-1H3164/SC42, ST3000VN000-1H4167/SC43
     "ST[234]000VN000-.*",
@@ -3313,8 +3314,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  // Fujitsu chip on DeLock 42475 
-  { "USB: Fujitsu  SATA-to-USB3.0 bridge chip", // USB 3.0
+  { "USB: ; Fujitsu", // DeLock 42475, USB 3.0
     "0x04c5:0x201d",
     "", // 0x0001
     "",
@@ -3549,6 +3549,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; Genesys Logic",
+    "0x05e3:0x0735",
+    "", // 0x1003
+    "",
+    "-d sat"
+  },
   // Micron
   { "USB: Micron USB SSD; ",
     "0x0634:0x0655",
@@ -3590,6 +3596,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Freecom
+  { "USB: ; Innostor IS631", // No Name USB3->SATA Enclosure
+    "0x07ab:0x0621",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: Freecom Mobile Drive XXS; JMicron",
     "0x07ab:0xfc88",
     "", // 0x0101
@@ -3799,6 +3811,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Addonics
+  { "USB: Addonics HDMU3; ", // (ticket #609)
+    "0x0bf6:0x1001",
+    "", // 0x0100
+    "",
+    ""
+  },
   // Dura Micro
   { "USB: Dura Micro; Cypress",
     "0x0c0b:0xb001",
@@ -3989,9 +4008,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; Initio",
-    "0x13fd:0x39[14]0", // 0x3910: Seagate Expansion Portable SRD00F1 (0x0100)
+    "0x13fd:0x39[124]0", // 0x3910: Seagate Expansion Portable SRD00F1 (0x0100)
+    "", // 0x3920: ezDISK EZ370 (0x0205)
     "", // 0x3940: MS-TECH LU-275S (0x0306)
-    "",
     "-d sat"
   },
   // Super Top
@@ -4004,22 +4023,28 @@ const drive_settings builtin_knowndrives[] = {
   // JMicron
   { "USB: ; JMicron JMS539", // USB2/3->SATA (old firmware)
     "0x152d:0x0539",
-    "0x0100",  //  1.00
-    "",
-    "-d usbjmicron"
+    "0x0100",      // 1.00, various devices support -d usbjmicron
+    "",            // 1.00, SSI SI-1359RUS3 supports -d sat,
+    ""             //       -d usbjmicron may disconnect drive (ticket #552)
   },
   { "USB: ; JMicron JMS539", // USB2/3->SATA (new firmware)
     "0x152d:0x0539",
-    "0x020[56]|"   //  2.05, ticket #338
+    "0x020[56]|"   //  2.05, ZTC USB 3.0 enclosure (ticket #338)
     "0x28(03|12)", // 28.03, Mediasonic ProBox HF2-SU3S2 Rev 2 (port multiplier, ticket #504)
     "",            // 28.12, Mediasonic ProBox H82-SU3S2 (port multiplier)
     "-d sat"
   },
   { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
-    "0x152d:0x0551",
+    "0x152d:0x0551",   // JMS539? (old firmware may use 0x152d:0x0539, ticket #552)
     "", // 0x0100
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: ; JMicron", // USB2/3->2xSATA
+    "0x152d:0x0565",
+    "", // 0x9114, Akasa DuoDock X (ticket #607)
+    "",
+    "-d sat"
   },
   { "USB: ; JMicron JMS567", // USB2/3->SATA
     "0x152d:0x0567",
@@ -4247,6 +4272,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat" // ATA output registers missing
   },
+  { "USB: ; VIA VL711", // USB2/3->SATA
+    "0x2109:0x0711",
+    "", // 0x0114, Mediasonic ProBox K32-SU3 (ticket #594)
+    "",
+    "" // unsupported
+  },
   // 0x2537 (?)
   { "USB: ; ", // USB 3.0
     "0x2537:0x106[68]", // 0x1066: Orico 2599US3, 0x1068: Fantec ER-35U3
@@ -4275,7 +4306,13 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat" // ATA output registers missing
   },
   { "USB: Hitachi Touro Mobile; ", // 1TB
-    "0x4971:0x1020",
+    "0x4971:0x102[04]",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: SimpleTech;", // USB 3.0 HDD BOX Agestar,  Rock External HDD 3,5" UASP
+    "0x4971:0x8017",
     "",
     "",
     "-d sat"
@@ -4285,12 +4322,6 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbjmicron,x"
-  },
-  { "USB: SimpleTech;", // USB 3.0 HDD BOX Agestar,  Rock External HDD 3,5" UASP
-    "0x4971:0x8017",
-    "",
-    "",
-    "-d sat"
   },
   // OnSpec
   { "USB: ; OnSpec", // USB->PATA
