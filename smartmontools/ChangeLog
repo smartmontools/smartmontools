@@ -1,5 +1,11 @@
 $Id$
 
+2015-10-04  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- JMicron JMS539 (0x152d:0x0539, 0x0100): Set from -d usbjmicron to
+	  unsupported because some devices may require -d sat instead (ticket #552).
+
 2015-09-25  Christian Franke  <franke@computer.org>
 
 	scsiata.cpp: Ignore SAT ATA PASS-THROUGH fixed format sense data if no
