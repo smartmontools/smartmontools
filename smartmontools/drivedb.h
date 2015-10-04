@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4129 2015-09-23 20:16:30Z samm2 $",
+  { "$Id: drivedb.h 4131 2015-10-04 15:13:04Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4011,19 +4011,19 @@ const drive_settings builtin_knowndrives[] = {
   // JMicron
   { "USB: ; JMicron JMS539", // USB2/3->SATA (old firmware)
     "0x152d:0x0539",
-    "0x0100",  //  1.00
-    "",
-    "-d usbjmicron"
+    "0x0100",      // 1.00, various devices support -d usbjmicron
+    "",            // 1.00, SSI SI-1359RUS3 supports -d sat,
+    ""             //       -d usbjmicron may disconnect drive (ticket #552)
   },
   { "USB: ; JMicron JMS539", // USB2/3->SATA (new firmware)
     "0x152d:0x0539",
-    "0x020[56]|"   //  2.05, ticket #338
+    "0x020[56]|"   //  2.05, ZTC USB 3.0 enclosure (ticket #338)
     "0x28(03|12)", // 28.03, Mediasonic ProBox HF2-SU3S2 Rev 2 (port multiplier, ticket #504)
     "",            // 28.12, Mediasonic ProBox H82-SU3S2 (port multiplier)
     "-d sat"
   },
   { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
-    "0x152d:0x0551",
+    "0x152d:0x0551",   // JMS539? (old firmware may use 0x152d:0x0539, ticket #552)
     "", // 0x0100
     "",
     "-d usbjmicron,x"

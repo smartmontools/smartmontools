@@ -1,4 +1,10 @@
-$Id: ChangeLog 4130 2015-09-25 15:08:06Z chrfranke $
+$Id: ChangeLog 4131 2015-10-04 15:13:04Z chrfranke $
+
+2015-10-04  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- JMicron JMS539 (0x152d:0x0539, 0x0100): Set from -d usbjmicron to
+	  unsupported because some devices may require -d sat instead (ticket #552).
 
 2015-09-25  Christian Franke  <franke@computer.org>
 
