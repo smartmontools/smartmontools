@@ -2355,8 +2355,8 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
         pout("  +-> \"%s\" [0x%04x:0x%04x]\n", devid.c_str(), prev_usb_venid, prev_usb_proid);
       continue;
     }
-    else if (str_starts_with(devid, "USBSTOR\\\\")) {
-      // USBSTOR device found
+    else if (str_starts_with(devid, "USBSTOR\\\\") || str_starts_with(devid, "SCSI\\\\")) {
+      // USBSTORage or SCSI device found
       if (debug)
         pout("  +--> \"%s\"\n", devid.c_str());
 

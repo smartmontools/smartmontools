@@ -1,5 +1,10 @@
 $Id$
 
+2015-10-10  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Detect USB ID if WMI reports type name "SCSI" instead
+	of "USBSTOR".
+
 2015-10-04  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
