@@ -23,14 +23,17 @@
   information on each class and method.
 
   @section Links Other Resources
-  - Smartmontools homepage:<br>
+  - Smartmontools homepage<br>
   http://smartmontools.sourceforge.net/<br>
 
-  - Description of the software package at sourceforge.net:<br>
+  - Description of the software package at sourceforge.net<br>
   http://sourceforge.net/projects/smartmontools/
 
-  - Browse the current version in SVN-Repository:<br>
+  - Browse the current version in SVN-Repository<br>
   http://sourceforge.net/apps/trac/smartmontools/browser/trunk/smartmontools
+
+  - Daily builds (Linux, Darwin, Windows)<br>
+  http://builds.smartmontools.org
 
   - Smartmontools Trac (bug/issue tracking system and wiki)<br>
   http://sourceforge.net/apps/trac/smartmontools/
