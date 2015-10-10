@@ -4,6 +4,7 @@ $Id$
 
 	os_win32.cpp: Detect USB ID if WMI reports type name "SCSI" instead
 	of "USBSTOR".
+	Detect USB ID also if drive letter is specified as device name.
 
 2015-10-04  Christian Franke  <franke@computer.org>
 

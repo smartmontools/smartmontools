@@ -727,7 +727,8 @@ enum win_dev_type { DEV_UNKNOWN = 0, DEV_ATA, DEV_SCSI, DEV_SAT, DEV_USB };
 static win_dev_type get_phy_drive_type(int drive);
 static win_dev_type get_phy_drive_type(int drive, GETVERSIONINPARAMS_EX * ata_version_ex);
 static win_dev_type get_log_drive_type(int drive);
-static bool get_usb_id(int drive, unsigned short & vendor_id,
+static bool get_usb_id(int phydrive, int logdrive,
+                       unsigned short & vendor_id,
                        unsigned short & product_id);
 
 static const char * ata_get_def_options(void);
@@ -784,9 +785,10 @@ static int sdxy_to_phydrive(const char (& xy)[2+1])
   return phydrive;
 }
 
-static win_dev_type get_dev_type(const char * name, int & phydrive)
+static win_dev_type get_dev_type(const char * name, int & phydrive, int & logdrive)
 {
-  phydrive = -1;
+  phydrive = logdrive = -1;
+
   name = skipdev(name);
   if (!strncmp(name, "st", 2))
     return DEV_SCSI;
@@ -795,7 +797,7 @@ static win_dev_type get_dev_type(const char * name, int & phydrive)
   if (!strncmp(name, "tape", 4))
     return DEV_SCSI;
 
-  int logdrive = drive_letter(name);
+  logdrive = drive_letter(name);
   if (logdrive >= 0) {
     win_dev_type type = get_log_drive_type(logdrive);
     return (type != DEV_UNKNOWN ? type : DEV_SCSI);
@@ -807,9 +809,9 @@ static win_dev_type get_dev_type(const char * name, int & phydrive)
     return get_phy_drive_type(phydrive);
   }
 
-  phydrive = -1;
   if (sscanf(name, "pd%d", &phydrive) == 1 && phydrive >= 0)
     return get_phy_drive_type(phydrive);
+
   return DEV_UNKNOWN;
 }
 
@@ -926,8 +928,8 @@ smart_device * win_smart_interface::autodetect_smart_device(const char * name)
   if (str_starts_with(testname, "csmi"))
     return new win_csmi_device(this, name, "");
 
-  int phydrive = -1;
-  win_dev_type type = get_dev_type(name, phydrive);
+  int phydrive = -1, logdrive = -1;
+  win_dev_type type = get_dev_type(name, phydrive, logdrive);
 
   if (type == DEV_ATA)
     return new win_ata_device(this, name, "");
@@ -941,7 +943,7 @@ smart_device * win_smart_interface::autodetect_smart_device(const char * name)
   if (type == DEV_USB) {
     // Get USB bridge ID
     unsigned short vendor_id = 0, product_id = 0;
-    if (!(phydrive >= 0 && get_usb_id(phydrive, vendor_id, product_id))) {
+    if (!get_usb_id(phydrive, logdrive, vendor_id, product_id)) {
       set_err(EINVAL, "Unable to read USB device ID");
       return 0;
     }
@@ -1075,7 +1077,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
             // TODO: Use common function for this and autodetect_smart_device()
             // Get USB bridge ID
             unsigned short vendor_id = 0, product_id = 0;
-            if (!get_usb_id(i, vendor_id, product_id))
+            if (!get_usb_id(i, -1, vendor_id, product_id))
               continue;
             // Get type name for this ID
             const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id);
@@ -2291,8 +2293,10 @@ static bool get_serial_from_wmi(int drive, ata_identify_device * id)
 /////////////////////////////////////////////////////////////////////////////
 // USB ID detection using WMI
 
-// Get USB ID for a physical drive number
-static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & product_id)
+// Get USB ID for a physical or logical drive number
+static bool get_usb_id(int phydrive, int logdrive,
+                       unsigned short & vendor_id,
+                       unsigned short & product_id)
 {
   bool debug = (scsi_debugmode > 1);
 
@@ -2304,13 +2308,41 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
   }
 
   // Get device name
+  std::string name;
+
   wbem_object wo;
-  if (!ws.query1(wo, "SELECT Model FROM Win32_DiskDrive WHERE DeviceID=\"\\\\\\\\.\\\\PHYSICALDRIVE%d\"", drive))
+  if (0 <= logdrive && logdrive <= 'Z'-'A') {
+    // Drive letter -> Partition info
+    if (!ws.query1(wo, "ASSOCIATORS OF {Win32_LogicalDisk.DeviceID=\"%c:\"} WHERE ResultClass = Win32_DiskPartition",
+                   'A'+logdrive))
+      return false;
+
+    std::string partid = wo.get_str("DeviceID");
+    if (debug)
+      pout("%c: --> \"%s\" -->\n", 'A'+logdrive, partid.c_str());
+
+    // Partition ID -> Physical drive info
+    if (!ws.query1(wo, "ASSOCIATORS OF {Win32_DiskPartition.DeviceID=\"%s\"} WHERE ResultClass = Win32_DiskDrive",
+                   partid.c_str()))
+      return false;
+
+    name = wo.get_str("Model");
+    if (debug)
+      pout("%s --> \"%s\":\n", wo.get_str("DeviceID").c_str(), name.c_str());
+  }
+
+  else if (phydrive >= 0) {
+    // Physical drive number -> Physical drive info
+    if (!ws.query1(wo, "SELECT Model FROM Win32_DiskDrive WHERE DeviceID=\"\\\\\\\\.\\\\PHYSICALDRIVE%d\"", phydrive))
+      return false;
+
+    name = wo.get_str("Model");
+    if (debug)
+      pout("\\.\\\\PHYSICALDRIVE%d --> \"%s\":\n", phydrive, name.c_str());
+  }
+  else
     return false;
 
-  std::string name = wo.get_str("Model");
-  if (debug)
-    pout("PhysicalDrive%d, \"%s\":\n", drive, name.c_str());
 
   // Get USB_CONTROLLER -> DEVICE associations
   wbem_enumerator we;
@@ -2353,7 +2385,6 @@ static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & p
       prev_usb_ant = ant;
       if (debug)
         pout("  +-> \"%s\" [0x%04x:0x%04x]\n", devid.c_str(), prev_usb_venid, prev_usb_proid);
-      continue;
     }
     else if (str_starts_with(devid, "USBSTOR\\\\") || str_starts_with(devid, "SCSI\\\\")) {
       // USBSTORage or SCSI device found
