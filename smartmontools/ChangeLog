@@ -2,6 +2,9 @@ $Id$
 
 2015-10-10  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Use MKDIR_P to create directories
+	(available since automake 1.10).
+
 	os_win32.cpp: Detect USB ID if WMI reports type name "SCSI" instead
 	of "USBSTOR".
 	Detect USB ID also if drive letter is specified as device name.

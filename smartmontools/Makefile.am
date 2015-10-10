@@ -255,8 +255,8 @@ endif
 all-local: $(extra_MANS)
 install-man: $(extra_MANS)
 	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) '$(DESTDIR)$(mandir)/man4'
-	$(mkinstalldirs) '$(DESTDIR)$(mandir)/man1m'
+	$(MKDIR_P) '$(DESTDIR)$(mandir)/man4'
+	$(MKDIR_P) '$(DESTDIR)$(mandir)/man1m'
 	for i in $(extra_MANS); do \
 	  if test -f $(srcdir)/$$i; then file=$(srcdir)/$$i; \
 	  else file=$$i; fi; \
@@ -319,7 +319,7 @@ sysconf_DATA = smartd.conf
 
 # If modified smartd.conf exists install smartd.conf.sample instead
 install-sysconfDATA: $(sysconf_DATA)
-	$(mkinstalldirs) '$(DESTDIR)$(sysconfdir)'
+	$(MKDIR_P) '$(DESTDIR)$(sysconfdir)'
 	@s="$(srcdir)/smartd.conf"; \
 	f="$(DESTDIR)$(sysconfdir)/smartd.conf$(smartd_suffix)"; \
 	if test -z "$(smartd_suffix)" && test -f "$$f"; then \
@@ -420,7 +420,6 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/depcomp \
         $(srcdir)/install-sh \
         $(srcdir)/missing \
-        $(srcdir)/mkinstalldirs \
         $(srcdir)/m4/pkg.m4
 
 utility.o: svnversion.h
@@ -476,15 +475,15 @@ SMART : os_darwin/SMART.in
 	sed "s|/usr/sbin/|$(sbindir)/|" $< > $@
 
 install-initdDATA-darwin: $(initd_DATA)
-	$(mkinstalldirs) $(DESTDIR)$(initddir)
-	$(mkinstalldirs) $(DESTDIR)$(initddir)/SMART
-	$(mkinstalldirs) $(DESTDIR)$(initddir)/SMART/Resources
+	$(MKDIR_P) $(DESTDIR)$(initddir)
+	$(MKDIR_P) $(DESTDIR)$(initddir)/SMART
+	$(MKDIR_P) $(DESTDIR)$(initddir)/SMART/Resources
 	$(INSTALL_SCRIPT) $(top_builddir)/SMART $(DESTDIR)$(initddir)/SMART
 	$(INSTALL_DATA) $(srcdir)/os_darwin/StartupParameters.plist \
 	    $(DESTDIR)$(initddir)/SMART/StartupParameters.plist
 	for i in English ; do \
 	  RDIR=$(DESTDIR)$(initddir)/SMART/Resources/$${i}.lproj ; \
-	  $(mkinstalldirs) $$RDIR ;\
+	  $(MKDIR_P) $$RDIR ;\
 	  $(INSTALL_DATA) $(srcdir)/os_darwin/$${i}_Localizable.strings \
 	    $$RDIR/Localizable.strings ; \
 	done
@@ -505,7 +504,7 @@ initd_DATA_install = install-initdDATA-generic
 initd_DATA_uninstall = uninstall-initdDATA-generic
 
 install-initdDATA-generic: $(initd_DATA)
-	$(mkinstalldirs) '$(DESTDIR)$(initddir)'
+	$(MKDIR_P) '$(DESTDIR)$(initddir)'
 	$(INSTALL_SCRIPT) '$(top_builddir)/$(initdfile)' '$(DESTDIR)$(initddir)/smartd$(smartd_suffix)'
 
 uninstall-initdDATA-generic:
@@ -541,12 +540,11 @@ smartd.service: smartd.service.in Makefile
 
 # Create empty directories if configured.
 # Default install rules no longer create empty directories since automake 1.11.
-# Uses $(mkinstalldirs) instead of $(MKDIR_P) to preserve support for automake 1.7 - 1.9.
 installdirs-local:
 	@for d in '$(smartdplugindir)' '$(savestatesdir)' '$(attributelogdir)'; do \
 	  test -n "$$d" || continue; \
-	  echo " $(mkinstalldirs) '$(DESTDIR)$$d'"; \
-	  $(mkinstalldirs) "$(DESTDIR)$$d" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$$d'"; \
+	  $(MKDIR_P) "$(DESTDIR)$$d" || exit 1; \
 	done
 
 install-data-local: installdirs-local
