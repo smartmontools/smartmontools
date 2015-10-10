@@ -1,9 +1,10 @@
-$Id: ChangeLog 4134 2015-10-10 17:02:24Z chrfranke $
+$Id: ChangeLog 4135 2015-10-10 18:38:57Z chrfranke $
 
 2015-10-10  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Detect USB ID if WMI reports type name "SCSI" instead
 	of "USBSTOR".
+	Detect USB ID also if drive letter is specified as device name.
 
 2015-10-04  Christian Franke  <franke@computer.org>
 
