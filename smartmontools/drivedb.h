@@ -1106,8 +1106,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 244,raw48,Thermal_Throttle "
   },
   { "SiliconMotion based SSDs", // SM2246EN (Transcend TS6500)
-    "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)370", // Transcend SSD370 SATA/mSATA, TS6500, tested with
-      // TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516, TS256GSSD370/N0815B
+    "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420I?)", // Transcend SSD370/420 SATA/mSATA, TS6500,
+      // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
+      // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -1140,7 +1141,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
-    "-v 245,raw48,Unkn_SiliconMotion_Attr" // FW N0815B
+    "-v 245,raw48,Flash_Writes_32MiB" // FW N0815B, N1114H
   },
   { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
     "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
