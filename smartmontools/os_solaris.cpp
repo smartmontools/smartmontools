@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2003-8 SAWADA Keiji <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-8 Casper Dik <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-08 SAWADA Keiji
+ * Copyright (C) 2003-15 Casper Dik
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,6 +99,7 @@ void print_smartctl_examples(){
 static const char *uscsidrvrs[] = {
         "sd",
         "ssd",
+        "disk",       // SATA devices
         "st"
 };
 
@@ -395,7 +396,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   default:
     return -EINVAL;
   }
-  uscsi.uscsi_flags |= (USCSI_ISOLATE | USCSI_RQENABLE);
+  uscsi.uscsi_flags |= (USCSI_ISOLATE | USCSI_RQENABLE | USCSI_SILENT);
 
   if (ioctl(fd, USCSICMD, &uscsi)) {
     int err = errno;
