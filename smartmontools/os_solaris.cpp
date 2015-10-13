@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2003-8 SAWADA Keiji <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-8 Casper Dik <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-08 SAWADA Keiji
+ * Copyright (C) 2003-15 Casper Dik
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,9 +39,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp 4120 2015-08-27 16:12:21Z samm2 $";
+static const char *filenameandversion="$Id: os_solaris.cpp 4140 2015-10-13 05:59:52Z chrfranke $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 4120 2015-08-27 16:12:21Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 4140 2015-10-13 05:59:52Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -99,6 +99,7 @@ void print_smartctl_examples(){
 static const char *uscsidrvrs[] = {
         "sd",
         "ssd",
+        "disk",       // SATA devices
         "st"
 };
 
@@ -395,7 +396,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   default:
     return -EINVAL;
   }
-  uscsi.uscsi_flags |= (USCSI_ISOLATE | USCSI_RQENABLE);
+  uscsi.uscsi_flags |= (USCSI_ISOLATE | USCSI_RQENABLE | USCSI_SILENT);
 
   if (ioctl(fd, USCSICMD, &uscsi)) {
     int err = errno;

@@ -1,4 +1,11 @@
-$Id: ChangeLog 4138 2015-10-11 17:33:14Z chrfranke $
+$Id: ChangeLog 4140 2015-10-13 05:59:52Z chrfranke $
+
+2015-10-13  Casper Dik  <...>
+
+	os_solaris.cpp: Detect SATA devices as SCSI devices.  This adds
+	support for auto detection of SATA devices behind SAT layer.
+	Set USCSI_SILENT flag to suppress /dev/console messages on command
+	error.
 
 2015-10-11  Christian Franke  <franke@computer.org>
 
