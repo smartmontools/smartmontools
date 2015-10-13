@@ -1,4 +1,8 @@
-$Id: ChangeLog 4140 2015-10-13 05:59:52Z chrfranke $
+$Id: ChangeLog 4141 2015-10-13 19:35:29Z chrfranke $
+
+2015-10-13  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Fix error handling in various shell scripts.
 
 2015-10-13  Casper Dik  <...>
 
