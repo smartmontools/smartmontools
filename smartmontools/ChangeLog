@@ -1,5 +1,9 @@
 $Id$
 
+2015-10-13  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Fix error handling in various shell scripts.
+
 2015-10-13  Casper Dik  <...>
 
 	os_solaris.cpp: Detect SATA devices as SCSI devices.  This adds
