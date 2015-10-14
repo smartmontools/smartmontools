@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4141 2015-10-13 19:35:29Z chrfranke $
+# $Id: Makefile.am 4142 2015-10-14 19:05:19Z chrfranke $
 #
 
 @SET_MAKE@
@@ -96,7 +96,6 @@ EXTRA_smartctl_SOURCES = \
         os_qnxnto.h \
         os_solaris.cpp \
         os_solaris.h \
-        os_solaris_ata.s \
         os_win32.cpp \
         os_generic.cpp \
         os_generic.h \
@@ -156,7 +155,6 @@ EXTRA_smartd_SOURCES = \
         os_qnxnto.h \
         os_solaris.cpp \
         os_solaris.h \
-        os_solaris_ata.s \
         os_win32.cpp \
         os_generic.cpp \
         os_generic.h \
@@ -182,6 +180,9 @@ smartd_DEPENDENCIES += smartd_res.o
 
 endif
 
+# Exclude from source tarball
+nodist_EXTRA_smartctl_SOURCES = os_solaris_ata.s
+nodist_EXTRA_smartd_SOURCES   = os_solaris_ata.s
 
 if NEED_GETOPT_LONG
 

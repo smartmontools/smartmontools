@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4120 2015-08-27 16:12:21Z samm2 $
+# $Id: configure.ac 4142 2015-10-14 19:05:19Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.5, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4120 2015-08-27 16:12:21Z samm2 $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4142 2015-10-14 19:05:19Z chrfranke $'`
 smartmontools_release_date=2015-06-04
 smartmontools_release_time="16:29:41 UTC"
 
@@ -325,6 +325,21 @@ AC_MSG_CHECKING([whether to use libcap-ng])
 AC_SUBST(CAPNG_LDADD)
 AC_MSG_RESULT([$use_libcap_ng])
 
+AC_ARG_WITH(solaris-sparc-ata,
+  [AS_HELP_STRING([--with-solaris-sparc-ata@<:@=yes|no@:>@],
+    [Enable legacy ATA support on Solaris SPARC (requires os_solaris_ata.s from SVN repository) [no]])])
+
+case "$host:$with_solaris_sparc_ata" in
+  sparc-*-solaris*:yes)
+    if test ! -f "$srcdir/os_solaris_ata.s"; then
+      AC_MSG_ERROR([Missing source file: $srcdir/os_solaris_ata.s
+This file is no longer included in the source tarball but still
+available in the SVN repository.])
+    fi
+    AC_DEFINE(WITH_SOLARIS_SPARC_ATA, 1, [Define to 1 to enable legacy ATA support on Solaris SPARC.])
+    ;;
+esac
+
 # Assume broken snprintf only on Windows with MSVCRT (MinGW without ANSI stdio support)
 libc_have_working_snprintf=yes
 
@@ -407,7 +422,9 @@ case "${host}" in
     os_man_filter=FreeBSD
     ;;
   sparc-*-solaris*)
-    os_deps='os_solaris.o os_solaris_ata.o'
+    os_deps='os_solaris.o'
+    test "$with_solaris_sparc_ata" = "yes" \
+      && os_deps="$os_deps os_solaris_ata.o"
     os_mailer='mailx'
     os_solaris=yes
     os_man_filter=Solaris
@@ -628,3 +645,15 @@ case "$host_os" in
     ;;
 esac
 echo "-----------------------------------------------------------------------------" >&AS_MESSAGE_FD
+
+# TODO: Remove after smartmontools 6.5
+case "$host:${with_solaris_sparc_ata+set}" in
+  sparc-*-solaris*:)
+    AC_MSG_WARN([
+Legacy ATA support is no longer enabled by default on Solaris SPARC.
+The required source file 'os_solaris_ata.s' no longer included in
+the source tarball but still available in the SVN repository.
+Use option '--with-solaris-sparc-ata' to enable legacy ATA support.
+Use option '--without-solaris-sparc-ata' to suppress this warning.])
+    ;;
+esac
