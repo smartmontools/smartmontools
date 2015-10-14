@@ -4,7 +4,8 @@ $Id$
 
 	configure.ac: Disable os_solaris_ata.o by default.
 	Add --with-solaris-sparc-ata option to enable.
-	Makefile.am: Exclude os_solaris_ata.s from source tarball.
+	Makefile.am: Exclude os_solaris_ata.s from source tarball
+	(Debian bug 729842).
 	os_solaris.cpp: Check for WITH_SOLARIS_SPARC_ATA instead of __sparc.
 
 2015-10-13  Christian Franke  <franke@computer.org>
