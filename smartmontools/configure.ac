@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4142 2015-10-14 19:05:19Z chrfranke $
+# $Id: configure.ac 4144 2015-10-14 21:38:34Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.5, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4142 2015-10-14 19:05:19Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4144 2015-10-14 21:38:34Z chrfranke $'`
 smartmontools_release_date=2015-06-04
 smartmontools_release_time="16:29:41 UTC"
 
@@ -651,7 +651,7 @@ case "$host:${with_solaris_sparc_ata+set}" in
   sparc-*-solaris*:)
     AC_MSG_WARN([
 Legacy ATA support is no longer enabled by default on Solaris SPARC.
-The required source file 'os_solaris_ata.s' no longer included in
+The required source file 'os_solaris_ata.s' is no longer included in
 the source tarball but still available in the SVN repository.
 Use option '--with-solaris-sparc-ata' to enable legacy ATA support.
 Use option '--without-solaris-sparc-ata' to suppress this warning.])
