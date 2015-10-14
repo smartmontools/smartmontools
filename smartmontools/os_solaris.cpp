@@ -272,7 +272,7 @@ int deviceclose(int fd){
     return close(fd);
 }
 
-#if defined(__sparc)
+#if defined(WITH_SOLARIS_SPARC_ATA)
 // swap each 2-byte pairs in a sector
 static void swap_sector(void *p)
 {
@@ -287,7 +287,7 @@ static void swap_sector(void *p)
 
 // Interface to ATA devices.  See os_linux.c
 int ata_command_interface(int fd, smart_command_set command, int select, char *data){
-#if defined(__sparc)
+#if defined(WITH_SOLARIS_SPARC_ATA)
     int err;
  
     switch (command){
@@ -329,7 +329,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 	EXIT(1);
 	break;
     }
-#else /* __sparc */
+#else /* WITH_SOLARIS_SPARC_ATA */
     ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
 
     /* Above smart_* routines uses undocumented ioctls of "dada"

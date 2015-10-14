@@ -1,5 +1,12 @@
 $Id$
 
+2015-10-14  Christian Franke  <franke@computer.org>
+
+	configure.ac: Disable os_solaris_ata.o by default.
+	Add --with-solaris-sparc-ata option to enable.
+	Makefile.am: Exclude os_solaris_ata.s from source tarball.
+	os_solaris.cpp: Check for WITH_SOLARIS_SPARC_ATA instead of __sparc.
+
 2015-10-13  Christian Franke  <franke@computer.org>
 
 	Makefile.am: Fix error handling in various shell scripts.
