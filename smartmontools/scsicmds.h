@@ -5,8 +5,6 @@
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
- *
- * Additional SCSI work:
  * Copyright (C) 2003-15 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -322,7 +320,7 @@ class scsi_device;
 class supported_vpd_pages
 {
 public:
-    supported_vpd_pages(scsi_device * device);
+    explicit supported_vpd_pages(scsi_device * device);
     ~supported_vpd_pages() { num_valid = 0; }
 
     bool is_supported(int vpd_page_num) const;

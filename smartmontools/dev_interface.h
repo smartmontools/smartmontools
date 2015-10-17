@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ protected:
   enum do_not_use_in_implementation_classes { never_called };
   /// Dummy constructor for abstract classes.
   /// Must never be called in implementation classes.
-  smart_device(do_not_use_in_implementation_classes);
+  explicit smart_device(do_not_use_in_implementation_classes);
 
 public:
   virtual ~smart_device() throw();
