@@ -1,5 +1,10 @@
 $Id$
 
+2015-10-17  Christian Franke  <franke@computer.org>
+
+	Various fixes suggested by cppcheck.
+	Close FILE pointer before reopening it (cppcheck: publicAllocationError).
+
 2015-10-14  Christian Franke  <franke@computer.org>
 
 	configure.ac: Disable os_solaris_ata.o by default.

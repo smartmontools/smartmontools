@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen
+ * Copyright (C) 2008-15 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -194,6 +194,8 @@ public:
 
   bool open(const char * name, const char * mode)
     {
+      if (m_file && m_owner)
+        fclose(m_file);
       m_file = fopen(name, mode);
       m_owner = true;
       return !!m_file;
@@ -201,6 +203,8 @@ public:
 
   void open(FILE * f, bool owner = false)
     {
+      if (m_file && m_owner)
+        fclose(m_file);
       m_file = f;
       m_owner = owner;
     }
