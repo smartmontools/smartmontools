@@ -3,8 +3,8 @@
  * 
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen
+ * Copyright (C) 2008-15 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -617,7 +617,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
 
   // If requested, invalidate serial number before any printing is done
   if ((command == IDENTIFY || command == PIDENTIFY) && !retval && dont_print_serial_number)
-    invalidate_serno((ata_identify_device *)data);
+    invalidate_serno( reinterpret_cast<ata_identify_device *>(data) );
 
   // If reporting is enabled, say what output was produced by the command
   if (ata_debugmode) {

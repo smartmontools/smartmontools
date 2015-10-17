@@ -2969,7 +2969,7 @@ linux_smart_interface::megasas_pd_add_list(int bus_no, smart_device_list & devli
   */
   megasas_pd_list * list = 0;
   for (unsigned list_size = 1024; ; ) {
-    list = (megasas_pd_list *)realloc(list, list_size);
+    list = reinterpret_cast<megasas_pd_list *>(realloc(list, list_size));
     if (!list)
       throw std::bad_alloc();
     bzero(list, list_size);
