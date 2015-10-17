@@ -9,6 +9,7 @@ $Id$
 	Remove redundant assignments (cppcheck: redundantAssignment).
 	Clarify calculation precedence (cppcheck: clarifyCalculation).
 	Use C++-style casts for pointer types (cppcheck: cstyleCast).
+	Remove duplicate on both sides of '||' (cppcheck: duplicateExpression).
 
 2015-10-14  Christian Franke  <franke@computer.org>
 

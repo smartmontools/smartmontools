@@ -1976,10 +1976,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     pout("\n"); // END OF THE ENABLE/DISABLE SECTION OF THE CODE
 
     // START OF READ-ONLY OPTIONS APART FROM -V and -i
-    if (    options.smart_check_status  || options.smart_ss_media_log
-           || options.smart_vendor_attrib || options.smart_error_log
-           || options.smart_selftest_log  || options.smart_vendor_attrib
-           || options.smart_background_log || options.sasphy
+    if (   options.smart_check_status  || options.smart_ss_media_log
+        || options.smart_vendor_attrib || options.smart_error_log
+        || options.smart_selftest_log  || options.smart_background_log
+        || options.sasphy
          )
     pout("=== START OF READ SMART DATA SECTION ===\n");
 
