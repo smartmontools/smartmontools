@@ -3,11 +3,9 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
- *
- * Additional SCSI work:
- * Copyright (C) 2003-13 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-15 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4120 2015-08-27 16:12:21Z samm2 $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4147 2015-10-17 12:27:15Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1482,8 +1480,7 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
     avail_len = gBuf[4] + 5;
     len = (avail_len < req_len) ? avail_len : req_len;
     peri_dt = gBuf[0] & 0x1f;
-    if (peripheral_type)
-        *peripheral_type = peri_dt;
+    *peripheral_type = peri_dt;
 
     if (len < 36) {
         print_on();
