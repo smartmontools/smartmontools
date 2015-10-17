@@ -1,4 +1,4 @@
-$Id: ChangeLog 4148 2015-10-17 15:21:12Z chrfranke $
+$Id: ChangeLog 4149 2015-10-17 15:38:01Z chrfranke $
 
 2015-10-17  Christian Franke  <franke@computer.org>
 
@@ -7,6 +7,7 @@ $Id: ChangeLog 4148 2015-10-17 15:21:12Z chrfranke $
 	Add missing member initializations to ctors (cppcheck: uninitMemberVar).
 	Remove redundant nullptr check (cppcheck: nullPointerRedundantCheck).
 	Remove redundant assignments (cppcheck: redundantAssignment).
+	Clarify calculation precedence (cppcheck: clarifyCalculation).
 
 2015-10-14  Christian Franke  <franke@computer.org>
 
