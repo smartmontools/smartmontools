@@ -111,7 +111,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4135 2015-10-10 18:38:57Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4148 2015-10-17 15:21:12Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -3897,10 +3897,8 @@ bool win_areca_ata_device::open()
 
 smart_device * win_areca_ata_device::autodetect_open()
 {
-  int is_ata = 1;
-
   // autodetect device type
-  is_ata = arcmsr_get_dev_type();
+  int is_ata = arcmsr_get_dev_type();
   if(is_ata < 0)
   {
     set_err(EIO);

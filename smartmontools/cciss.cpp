@@ -38,7 +38,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char * cciss_cpp_cvsid = "$Id: cciss.cpp 3945 2014-07-13 15:29:05Z chrfranke $"
+const char * cciss_cpp_cvsid = "$Id: cciss.cpp 4148 2015-10-17 15:21:12Z chrfranke $"
   CCISS_H_CVSID;
 
 typedef struct _ReportLUNdata_struct
@@ -73,10 +73,9 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
      unsigned char pBuf[512] = {0};
      unsigned char phylun[8] = {0};
      int iBufLen = 512;
-     int status = -1;
      int len = 0; // used later in the code.
  
-     status = cciss_getlun(device, target, phylun, report);
+     int status = cciss_getlun(device, target, phylun, report);
      if (report > 0)
          printf("  cciss_getlun(%d, %d) = 0x%x; scsi3addr: %02x %02x %02x %02x %02x %02x %02x %02x\n", 
 	     device, target, status, 

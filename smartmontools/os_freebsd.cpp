@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4146 2015-10-17 12:12:49Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4148 2015-10-17 15:21:12Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1123,10 +1123,8 @@ freebsd_areca_ata_device::freebsd_areca_ata_device(smart_interface * intf, const
 
 smart_device * freebsd_areca_ata_device::autodetect_open()
 {
-  int is_ata = 1;
-
   // autodetect device type
-  is_ata = arcmsr_get_dev_type();
+  int is_ata = arcmsr_get_dev_type();
   if(is_ata < 0)
   {
     set_err(EIO);

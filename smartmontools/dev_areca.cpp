@@ -21,7 +21,7 @@
 #include "dev_interface.h"
 #include "dev_areca.h"
 
-const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4120 2015-08-27 16:12:21Z samm2 $"
+const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4148 2015-10-17 15:21:12Z chrfranke $"
   DEV_ARECA_H_CVSID;
 
 #include "atacmds.h"
@@ -297,7 +297,7 @@ int generic_areca_device::arcmsr_ui_handler(unsigned char *areca_packet, int are
   if (expected==-3) {
     return set_err(EIO);
   }
-  expected = arcmsr_command_handler(ARCMSR_CLEAR_WQBUFFER, NULL, 0);
+  arcmsr_command_handler(ARCMSR_CLEAR_WQBUFFER, NULL, 0);
   expected = arcmsr_command_handler(ARCMSR_WRITE_WQBUFFER, areca_packet, areca_packet_len);
   if ( expected > 0 )
   {
