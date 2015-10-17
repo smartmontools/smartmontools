@@ -1199,7 +1199,7 @@ bool linux_megaraid_device::open()
   int   mjr;
   int report = scsi_debugmode;
 
-  if(sscanf(get_dev_name(),"/dev/bus/%d", &m_hba) == 0) {
+  if (sscanf(get_dev_name(), "/dev/bus/%u", &m_hba) == 0) {
     if (!linux_smart_device::open())
       return false;
     /* Get device HBA */
@@ -2826,7 +2826,7 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
   if (dp != NULL)
   {
     while ((ep = readdir (dp)) != NULL) {
-      if (!sscanf(ep->d_name, "host%d", &host_no)) 
+      if (!sscanf(ep->d_name, "host%u", &host_no))
         continue;
       /* proc_name should be megaraid_sas */
       snprintf(sysfsdir, sizeof(sysfsdir) - 1,
@@ -3179,12 +3179,11 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   }
 
   //aacraid?
-  unsigned int device;
-  unsigned int host;
-  if(sscanf(type, "aacraid,%d,%d,%d", &host, &channel, &device)==3) {
+  unsigned host, chan, device;
+  if (sscanf(type, "aacraid,%u,%u,%u", &host, &chan, &device) == 3) {
     //return new linux_aacraid_device(this,name,channel,device);
     return get_sat_device("sat,auto",
-      new linux_aacraid_device(this, name, host, channel, device));
+      new linux_aacraid_device(this, name, host, chan, device));
 
   }
 

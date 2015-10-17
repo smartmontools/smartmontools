@@ -13,6 +13,8 @@ $Id$
 	Declare ctors with one argument as 'explicit'
 	(cppcheck: noExplicitConstructor).
 	Remove unread variables and assignments (cppcheck: unreadVariable).
+	Fix signedness of sscanf() formats strings
+	(cppcheck: invalidScanfArgType_int).
 
 2015-10-14  Christian Franke  <franke@computer.org>
 
