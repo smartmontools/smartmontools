@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2011 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2011-15 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 #ifndef WMIQUERY_H
 #define WMIQUERY_H
 
-#define WMIQUERY_H_CVSID "$Id: wmiquery.h 4120 2015-08-27 16:12:21Z samm2 $"
+#define WMIQUERY_H_CVSID "$Id: wmiquery.h 4152 2015-10-17 16:08:21Z chrfranke $"
 
 #ifdef HAVE_WBEMCLI_H
 #include <wbemcli.h>
@@ -45,7 +45,7 @@ class com_bstr
 {
 public:
   /// Construct from string.
-  com_bstr(const char * str);
+  explicit com_bstr(const char * str);
 
   /// Destructor frees BSTR.
   ~com_bstr()
