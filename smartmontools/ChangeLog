@@ -12,6 +12,7 @@ $Id$
 	Remove duplicate on both sides of '||' (cppcheck: duplicateExpression).
 	Declare ctors with one argument as 'explicit'
 	(cppcheck: noExplicitConstructor).
+	Remove unread variables and assignments (cppcheck: unreadVariable).
 
 2015-10-14  Christian Franke  <franke@computer.org>
 

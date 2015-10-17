@@ -1813,11 +1813,10 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   union ccb ccb;
   int bus=-1;
   int i,c;
-  int len;
   const char * test_name = name;
 
   // if dev_name null, or string length zero
-  if (!name || !(len = strlen(name)))
+  if (!name || !*name)
     return 0;
 
   // Dereference symlinks

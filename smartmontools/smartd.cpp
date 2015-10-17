@@ -4004,8 +4004,8 @@ static int ParseToken(char * token, dev_config & cfg)
     break;
   case 'W':
     // track Temperature
-    if ((val=Get3Integers(arg=strtok(NULL,delim), name, token, lineno, configfile,
-                          &cfg.tempdiff, &cfg.tempinfo, &cfg.tempcrit))<0)
+    if (Get3Integers(arg=strtok(NULL, delim), name, token, lineno, configfile,
+                     &cfg.tempdiff, &cfg.tempinfo, &cfg.tempcrit) < 0)
       return -1;
     break;
   case 'v':

@@ -2651,7 +2651,6 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
       close();
       return set_err(ENOSYS);
     }
-    devmap = 0x0f;
   }
   m_smartver_state = 1;
 

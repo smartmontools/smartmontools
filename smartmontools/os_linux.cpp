@@ -356,7 +356,6 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
     unsigned char task[sizeof(ide_task_request_t)+512];
     ide_task_request_t *reqtask=(ide_task_request_t *) task;
     task_struct_t      *taskfile=(task_struct_t *) reqtask->io_ports;
-    int retval;
 
     memset(task,      0, sizeof(task));
 
@@ -377,7 +376,7 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
     // copy user data into the task request structure
     memcpy(task+sizeof(ide_task_request_t), data, 512);
 
-    if ((retval=ioctl(get_fd(), HDIO_DRIVE_TASKFILE, task))) {
+    if (ioctl(get_fd(), HDIO_DRIVE_TASKFILE, task)) {
       if (errno==-EINVAL)
         pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASKFILE_IO set\n");
       return -1;
@@ -388,8 +387,6 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
   // one is this:
   if (command==STATUS_CHECK || command==AUTOSAVE || command==AUTO_OFFLINE){
-    int retval;
-
     // NOT DOCUMENTED in /usr/src/linux/include/linux/hdreg.h. You
     // have to read the IDE driver source code.  Sigh.
     // buff[0]: ATA COMMAND CODE REGISTER
@@ -405,7 +402,7 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
     buff[4]=normal_lo;
     buff[5]=normal_hi;
 
-    if ((retval=ioctl(get_fd(), HDIO_DRIVE_TASK, buff))) {
+    if (ioctl(get_fd(), HDIO_DRIVE_TASK, buff)) {
       if (errno==-EINVAL) {
         pout("Error SMART Status command via HDIO_DRIVE_TASK failed");
         pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support added\n");
@@ -1325,7 +1322,6 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
 {
   struct megasas_pthru_frame	*pthru;
   struct megasas_iocpacket	uio;
-  int rc;
 
   memset(&uio, 0, sizeof(uio));
   pthru = &uio.frame.pthru;
