@@ -1542,13 +1542,13 @@ static void print_device_statistics_page(const unsigned char * data, int page)
       page, offset,
       abs(size),
       valstr,
-      (flags & 0x20 ? 'N' : '-'), // normalized statistics
-      (flags & 0x10 ? 'D' : '-'), // supports DSN (ACS-3)
-      (flags & 0x08 ? 'C' : '-'), // monitored condition met (ACS-3)
-      (flags & 0x07 ? '+' : ' '), // reserved flags
-      (info         ? info[i].name :
-       page == 0xff ? "Vendor Specific" // ACS-4
-                    : "Unknown"        ));
+      ((flags & 0x20) ? 'N' : '-'), // normalized statistics
+      ((flags & 0x10) ? 'D' : '-'), // supports DSN (ACS-3)
+      ((flags & 0x08) ? 'C' : '-'), // monitored condition met (ACS-3)
+      ((flags & 0x07) ? '+' : ' '), // reserved flags
+      ( info          ? info[i].name :
+       (page == 0xff) ? "Vendor Specific" // ACS-4
+                      : "Unknown"        ));
   }
 }
 
@@ -1714,7 +1714,7 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
       case 0x010: name = "R_ERR response for host-to-device data FIS, non-CRC"; break;
       case 0x012: name = "R_ERR response for host-to-device non-data FIS, CRC"; break;
       case 0x013: name = "R_ERR response for host-to-device non-data FIS, non-CRC"; break;
-      default:    name = (id & 0x8000 ? "Vendor specific" : "Unknown"); break;
+      default:    name = ((id & 0x8000) ? "Vendor specific" : "Unknown"); break;
     }
 
     // Counters stop at max value, add '+' in this case

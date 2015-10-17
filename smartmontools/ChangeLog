@@ -7,6 +7,7 @@ $Id$
 	Add missing member initializations to ctors (cppcheck: uninitMemberVar).
 	Remove redundant nullptr check (cppcheck: nullPointerRedundantCheck).
 	Remove redundant assignments (cppcheck: redundantAssignment).
+	Clarify calculation precedence (cppcheck: clarifyCalculation).
 
 2015-10-14  Christian Franke  <franke@computer.org>
 
