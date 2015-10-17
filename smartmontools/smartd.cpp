@@ -106,7 +106,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4153 2015-10-17 16:33:52Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4155 2015-10-17 18:33:45Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -385,21 +385,21 @@ struct persistent_dev_state
   
   // SCSI ONLY
 
-  struct scsi_error_counter {
+  struct scsi_error_counter_t {
     struct scsiErrorCounter errCounter;
     unsigned char found;
-    scsi_error_counter() : found(0)
+    scsi_error_counter_t() : found(0)
       { memset(&errCounter, 0, sizeof(errCounter)); }
   };
-  scsi_error_counter scsi_error_counters[3];
+  scsi_error_counter_t scsi_error_counters[3];
 
-  struct scsi_nonmedium_error {
+  struct scsi_nonmedium_error_t {
     struct scsiNonMediumError nme;
     unsigned char found;
-    scsi_nonmedium_error() : found(0)
+    scsi_nonmedium_error_t() : found(0)
       { memset(&nme, 0, sizeof(nme)); }
   };
-  scsi_nonmedium_error scsi_nonmedium_error;
+  scsi_nonmedium_error_t scsi_nonmedium_error;
 
   persistent_dev_state();
 };
