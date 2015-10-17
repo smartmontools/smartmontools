@@ -297,7 +297,7 @@ int generic_areca_device::arcmsr_ui_handler(unsigned char *areca_packet, int are
   if (expected==-3) {
     return set_err(EIO);
   }
-  expected = arcmsr_command_handler(ARCMSR_CLEAR_WQBUFFER, NULL, 0);
+  arcmsr_command_handler(ARCMSR_CLEAR_WQBUFFER, NULL, 0);
   expected = arcmsr_command_handler(ARCMSR_WRITE_WQBUFFER, areca_packet, areca_packet_len);
   if ( expected > 0 )
   {

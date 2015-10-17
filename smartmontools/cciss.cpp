@@ -73,10 +73,9 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
      unsigned char pBuf[512] = {0};
      unsigned char phylun[8] = {0};
      int iBufLen = 512;
-     int status = -1;
      int len = 0; // used later in the code.
  
-     status = cciss_getlun(device, target, phylun, report);
+     int status = cciss_getlun(device, target, phylun, report);
      if (report > 0)
          printf("  cciss_getlun(%d, %d) = 0x%x; scsi3addr: %02x %02x %02x %02x %02x %02x %02x %02x\n", 
 	     device, target, status, 

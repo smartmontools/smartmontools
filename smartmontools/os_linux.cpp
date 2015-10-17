@@ -3,9 +3,9 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2003-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -1367,9 +1367,8 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
     uio.sgl[0].iov_len = dataLen;
   }
 
-  rc = 0;
   errno = 0;
-  rc = ioctl(m_fd, MEGASAS_IOC_FIRMWARE, &uio);
+  int rc = ioctl(m_fd, MEGASAS_IOC_FIRMWARE, &uio);
   if (pthru->cmd_status || rc != 0) {
     if (pthru->cmd_status == 12) {
       return set_err(EIO, "megasas_cmd: Device %d does not exist\n", m_disknum);
@@ -1991,10 +1990,8 @@ linux_areca_ata_device::linux_areca_ata_device(smart_interface * intf, const cha
 
 smart_device * linux_areca_ata_device::autodetect_open()
 {
-  int is_ata = 1;
-
   // autodetect device type
-  is_ata = arcmsr_get_dev_type();
+  int is_ata = arcmsr_get_dev_type();
   if(is_ata < 0)
   {
     set_err(EIO);
