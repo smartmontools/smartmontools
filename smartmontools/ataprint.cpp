@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4149 2015-10-17 15:38:01Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4150 2015-10-17 15:49:39Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -3310,7 +3310,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("SMART Extended Self-test Log size %u not supported\n\n", nsectors);
     else {
       raw_buffer log_07_buf(nsectors * 512);
-      ata_smart_extselftestlog * log_07 = (ata_smart_extselftestlog *)log_07_buf.data();
+      ata_smart_extselftestlog * log_07 = reinterpret_cast<ata_smart_extselftestlog *>(log_07_buf.data());
       if (!ataReadExtSelfTestLog(device, log_07, nsectors)) {
         pout("Read SMART Extended Self-test Log failed\n\n");
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);

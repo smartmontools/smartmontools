@@ -111,7 +111,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4148 2015-10-17 15:21:12Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4150 2015-10-17 15:49:39Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -2904,9 +2904,10 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         break;
       case 'f':
         if (in.in_regs.command == ATA_IDENTIFY_DEVICE) {
-            rc = get_identify_from_device_property(get_fh(), (ata_identify_device *)data);
+            ata_identify_device * id = reinterpret_cast<ata_identify_device *>(data);
+            rc = get_identify_from_device_property(get_fh(), id);
             if (rc == 0 && m_phydrive >= 0)
-              get_serial_from_wmi(m_phydrive, (ata_identify_device *)data);
+              get_serial_from_wmi(m_phydrive, id);
             id_is_cached = true;
         }
         else if (in.in_regs.command == ATA_SMART_CMD) switch (in.in_regs.features) {

@@ -99,7 +99,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4148 2015-10-17 15:21:12Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4150 2015-10-17 15:49:39Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -2969,7 +2969,7 @@ linux_smart_interface::megasas_pd_add_list(int bus_no, smart_device_list & devli
   */
   megasas_pd_list * list = 0;
   for (unsigned list_size = 1024; ; ) {
-    list = (megasas_pd_list *)realloc(list, list_size);
+    list = reinterpret_cast<megasas_pd_list *>(realloc(list, list_size));
     if (!list)
       throw std::bad_alloc();
     bzero(list, list_size);
