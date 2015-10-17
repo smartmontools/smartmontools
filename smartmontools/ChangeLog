@@ -1,9 +1,10 @@
-$Id: ChangeLog 4145 2015-10-17 12:01:38Z chrfranke $
+$Id: ChangeLog 4146 2015-10-17 12:12:49Z chrfranke $
 
 2015-10-17  Christian Franke  <franke@computer.org>
 
 	Various fixes suggested by cppcheck.
 	Close FILE pointer before reopening it (cppcheck: publicAllocationError).
+	Add missing member initializations to ctors (cppcheck: uninitMemberVar).
 
 2015-10-14  Christian Franke  <franke@computer.org>
 

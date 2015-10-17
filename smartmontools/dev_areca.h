@@ -18,7 +18,7 @@
 #ifndef DEV_ARECA_H
 #define DEV_ARECA_H
 
-#define DEV_ARECA_H_CVSID "$Id: dev_areca.h 4120 2015-08-27 16:12:21Z samm2 $"
+#define DEV_ARECA_H_CVSID "$Id: dev_areca.h 4146 2015-10-17 12:12:49Z chrfranke $"
 
 /////////////////////////////////////////////////////////////////////////////
 /// Areca RAID support
@@ -118,9 +118,10 @@ public:
   virtual bool arcmsr_ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
 protected:
-  generic_areca_device() : smart_device(never_called)
-  {
-  }
+  generic_areca_device()
+    : smart_device(never_called),
+      m_disknum(-1), m_encnum(-1)
+      { }
 
   void set_disknum(int disknum)
   {m_disknum = disknum;}
