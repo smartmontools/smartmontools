@@ -111,7 +111,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4150 2015-10-17 15:49:39Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4153 2015-10-17 16:33:52Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -2651,7 +2651,6 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
       close();
       return set_err(ENOSYS);
     }
-    devmap = 0x0f;
   }
   m_smartver_state = 1;
 

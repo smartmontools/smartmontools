@@ -1,4 +1,4 @@
-$Id: ChangeLog 4152 2015-10-17 16:08:21Z chrfranke $
+$Id: ChangeLog 4153 2015-10-17 16:33:52Z chrfranke $
 
 2015-10-17  Christian Franke  <franke@computer.org>
 
@@ -12,6 +12,7 @@ $Id: ChangeLog 4152 2015-10-17 16:08:21Z chrfranke $
 	Remove duplicate on both sides of '||' (cppcheck: duplicateExpression).
 	Declare ctors with one argument as 'explicit'
 	(cppcheck: noExplicitConstructor).
+	Remove unread variables and assignments (cppcheck: unreadVariable).
 
 2015-10-14  Christian Franke  <franke@computer.org>
 

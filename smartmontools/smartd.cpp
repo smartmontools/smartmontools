@@ -106,7 +106,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4146 2015-10-17 12:12:49Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4153 2015-10-17 16:33:52Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -4004,8 +4004,8 @@ static int ParseToken(char * token, dev_config & cfg)
     break;
   case 'W':
     // track Temperature
-    if ((val=Get3Integers(arg=strtok(NULL,delim), name, token, lineno, configfile,
-                          &cfg.tempdiff, &cfg.tempinfo, &cfg.tempcrit))<0)
+    if (Get3Integers(arg=strtok(NULL, delim), name, token, lineno, configfile,
+                     &cfg.tempdiff, &cfg.tempinfo, &cfg.tempcrit) < 0)
       return -1;
     break;
   case 'v':

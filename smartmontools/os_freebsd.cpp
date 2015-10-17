@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4148 2015-10-17 15:21:12Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4153 2015-10-17 16:33:52Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1813,11 +1813,10 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   union ccb ccb;
   int bus=-1;
   int i,c;
-  int len;
   const char * test_name = name;
 
   // if dev_name null, or string length zero
-  if (!name || !(len = strlen(name)))
+  if (!name || !*name)
     return 0;
 
   // Dereference symlinks
