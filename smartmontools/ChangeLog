@@ -1,4 +1,4 @@
-$Id: ChangeLog 4153 2015-10-17 16:33:52Z chrfranke $
+$Id: ChangeLog 4154 2015-10-17 16:47:21Z chrfranke $
 
 2015-10-17  Christian Franke  <franke@computer.org>
 
@@ -13,6 +13,8 @@ $Id: ChangeLog 4153 2015-10-17 16:33:52Z chrfranke $
 	Declare ctors with one argument as 'explicit'
 	(cppcheck: noExplicitConstructor).
 	Remove unread variables and assignments (cppcheck: unreadVariable).
+	Fix signedness of sscanf() formats strings
+	(cppcheck: invalidScanfArgType_int).
 
 2015-10-14  Christian Franke  <franke@computer.org>
 
