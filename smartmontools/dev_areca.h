@@ -118,9 +118,10 @@ public:
   virtual bool arcmsr_ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
 protected:
-  generic_areca_device() : smart_device(never_called)
-  {
-  }
+  generic_areca_device()
+    : smart_device(never_called),
+      m_disknum(-1), m_encnum(-1)
+      { }
 
   void set_disknum(int disknum)
   {m_disknum = disknum;}

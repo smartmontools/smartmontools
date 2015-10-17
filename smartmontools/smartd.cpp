@@ -1,10 +1,10 @@
 /*
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -388,14 +388,16 @@ struct persistent_dev_state
   struct scsi_error_counter {
     struct scsiErrorCounter errCounter;
     unsigned char found;
-    scsi_error_counter() : found(0) { }
+    scsi_error_counter() : found(0)
+      { memset(&errCounter, 0, sizeof(errCounter)); }
   };
   scsi_error_counter scsi_error_counters[3];
 
   struct scsi_nonmedium_error {
     struct scsiNonMediumError nme;
     unsigned char found;
-    scsi_nonmedium_error() : found(0) { }
+    scsi_nonmedium_error() : found(0)
+      { memset(&nme, 0, sizeof(nme)); }
   };
   scsi_nonmedium_error scsi_nonmedium_error;
 

@@ -4,6 +4,7 @@ $Id$
 
 	Various fixes suggested by cppcheck.
 	Close FILE pointer before reopening it (cppcheck: publicAllocationError).
+	Add missing member initializations to ctors (cppcheck: uninitMemberVar).
 
 2015-10-14  Christian Franke  <franke@computer.org>
 
