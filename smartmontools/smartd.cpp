@@ -385,21 +385,21 @@ struct persistent_dev_state
   
   // SCSI ONLY
 
-  struct scsi_error_counter {
+  struct scsi_error_counter_t {
     struct scsiErrorCounter errCounter;
     unsigned char found;
-    scsi_error_counter() : found(0)
+    scsi_error_counter_t() : found(0)
       { memset(&errCounter, 0, sizeof(errCounter)); }
   };
-  scsi_error_counter scsi_error_counters[3];
+  scsi_error_counter_t scsi_error_counters[3];
 
-  struct scsi_nonmedium_error {
+  struct scsi_nonmedium_error_t {
     struct scsiNonMediumError nme;
     unsigned char found;
-    scsi_nonmedium_error() : found(0)
+    scsi_nonmedium_error_t() : found(0)
       { memset(&nme, 0, sizeof(nme)); }
   };
-  scsi_nonmedium_error scsi_nonmedium_error;
+  scsi_nonmedium_error_t scsi_nonmedium_error;
 
   persistent_dev_state();
 };
