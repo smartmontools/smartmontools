@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4147 2015-10-17 12:27:15Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4151 2015-10-17 15:57:08Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1976,10 +1976,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     pout("\n"); // END OF THE ENABLE/DISABLE SECTION OF THE CODE
 
     // START OF READ-ONLY OPTIONS APART FROM -V and -i
-    if (    options.smart_check_status  || options.smart_ss_media_log
-           || options.smart_vendor_attrib || options.smart_error_log
-           || options.smart_selftest_log  || options.smart_vendor_attrib
-           || options.smart_background_log || options.sasphy
+    if (   options.smart_check_status  || options.smart_ss_media_log
+        || options.smart_vendor_attrib || options.smart_error_log
+        || options.smart_selftest_log  || options.smart_background_log
+        || options.sasphy
          )
     pout("=== START OF READ SMART DATA SECTION ===\n");
 
