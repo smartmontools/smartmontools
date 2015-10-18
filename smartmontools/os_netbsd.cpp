@@ -26,7 +26,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4120 2015-08-27 16:12:21Z samm2 $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4156 2015-10-18 12:20:40Z samm2 $"
   OS_NETBSD_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -132,7 +132,14 @@ get_dev_names(char ***names, const char *prefix)
     n++;
   }
 
-  mp = (char **)realloc(mp, n * (sizeof(char *)));
+  void * tmp = (char **)realloc(mp, n * (sizeof(char *)));
+  if (NULL == tmp) {
+    pout("Out of memory constructing scan device list\n");
+    free(mp);
+    return -1;
+  }
+  else
+    mp = tmp;
   bytes += (n) * (sizeof(char *));
   *names = mp;
   return n;

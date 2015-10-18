@@ -38,7 +38,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char * cciss_cpp_cvsid = "$Id: cciss.cpp 4148 2015-10-17 15:21:12Z chrfranke $"
+const char * cciss_cpp_cvsid = "$Id: cciss.cpp 4156 2015-10-18 12:20:40Z samm2 $"
   CCISS_H_CVSID;
 
 typedef struct _ReportLUNdata_struct
@@ -180,7 +180,7 @@ static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
 
     if ((err = ioctl(fd, CCISS_PASSTHRU, &iocommand))) 
     {
-        fprintf(stderr, "CCISS ioctl error %d (fd %d CDBLen %d buf_size %d)\n",
+        fprintf(stderr, "CCISS ioctl error %d (fd %d CDBLen %u buf_size %u)\n",
 	    fd, err, CDBlen, size);
     }
     return err;

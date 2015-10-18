@@ -99,7 +99,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4154 2015-10-17 16:47:21Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4156 2015-10-18 12:20:40Z samm2 $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -2830,7 +2830,7 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
         continue;
       /* proc_name should be megaraid_sas */
       snprintf(sysfsdir, sizeof(sysfsdir) - 1,
-        "/sys/class/scsi_host/host%d/proc_name", host_no);
+        "/sys/class/scsi_host/host%u/proc_name", host_no);
       if((fp = fopen(sysfsdir, "r")) == NULL)
         continue;
       if(fgets(line, sizeof(line), fp) != NULL && !strncmp(line,"megaraid_sas",12)) {

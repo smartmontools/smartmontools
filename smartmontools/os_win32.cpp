@@ -111,7 +111,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4153 2015-10-17 16:33:52Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4156 2015-10-18 12:20:40Z samm2 $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -1043,7 +1043,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
             raid_seen[vers_ex.wControllerId] = true;
             // Add physical drives
             int len = strlen(name);
-            for (int pi = 0; pi < 32; pi++) {
+            for (unsigned int pi = 0; pi < 32; pi++) {
               if (vers_ex.dwDeviceMapEx & (1L << pi)) {
                 snprintf(name+len, sizeof(name)-1-len, ",%u", pi);
                 devlist.push_back( new win_ata_device(this, name, "ata") );

@@ -1,4 +1,10 @@
-$Id: ChangeLog 4154 2015-10-17 16:47:21Z chrfranke $
+$Id: ChangeLog 4156 2015-10-18 12:20:40Z samm2 $
+
+2015-10-18  Alex Samorukov <samm@os2.kiev.ua>
+
+	fixes suggested by cppcheck:
+	Check realloc result to avoid memory leak (memleakOnRealloc)
+	Fix printf() signednsess (invalidPrintfArgType_sint)
 
 2015-10-17  Christian Franke  <franke@computer.org>
 
