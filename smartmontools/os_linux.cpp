@@ -2830,7 +2830,7 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
         continue;
       /* proc_name should be megaraid_sas */
       snprintf(sysfsdir, sizeof(sysfsdir) - 1,
-        "/sys/class/scsi_host/host%d/proc_name", host_no);
+        "/sys/class/scsi_host/host%u/proc_name", host_no);
       if((fp = fopen(sysfsdir, "r")) == NULL)
         continue;
       if(fgets(line, sizeof(line), fp) != NULL && !strncmp(line,"megaraid_sas",12)) {

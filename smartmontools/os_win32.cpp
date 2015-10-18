@@ -1043,7 +1043,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
             raid_seen[vers_ex.wControllerId] = true;
             // Add physical drives
             int len = strlen(name);
-            for (int pi = 0; pi < 32; pi++) {
+            for (unsigned int pi = 0; pi < 32; pi++) {
               if (vers_ex.dwDeviceMapEx & (1L << pi)) {
                 snprintf(name+len, sizeof(name)-1-len, ",%u", pi);
                 devlist.push_back( new win_ata_device(this, name, "ata") );

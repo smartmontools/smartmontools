@@ -180,7 +180,7 @@ static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
 
     if ((err = ioctl(fd, CCISS_PASSTHRU, &iocommand))) 
     {
-        fprintf(stderr, "CCISS ioctl error %d (fd %d CDBLen %d buf_size %d)\n",
+        fprintf(stderr, "CCISS ioctl error %d (fd %d CDBLen %u buf_size %u)\n",
 	    fd, err, CDBlen, size);
     }
     return err;

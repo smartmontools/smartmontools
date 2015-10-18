@@ -136,7 +136,14 @@ get_dev_names(char ***names, const char *prefix)
     n++;
   }
 
-  mp = (char **)realloc(mp, n * (sizeof(char *)));
+  void * tmp = (char **)realloc(mp, n * (sizeof(char *)));
+  if (NULL == tmp) {
+    pout("Out of memory constructing scan device list\n");
+    free(mp);
+    return -1;
+  }
+  else
+    mp = tmp;
   bytes += (n) * (sizeof(char *));
   *names = mp;
   return n;
