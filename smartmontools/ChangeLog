@@ -4,6 +4,8 @@ $Id$
 
 	Reduce variable scope where possible (cppcheck: variableScope).
 
+	Makefile.am: Remove *.s from files used to generate svnversion.h.
+
 2015-10-18  Alex Samorukov <samm@os2.kiev.ua>
 
 	fixes suggested by cppcheck:
