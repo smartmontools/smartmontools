@@ -242,8 +242,7 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
 static void
 scsiGetStartStopData(scsi_device * device)
 {
-    UINT32 u;
-    int err, len, k, extra, pc;
+    int err, len, k, extra;
     unsigned char * ucp;
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, 0, gBuf,
@@ -269,7 +268,8 @@ scsiGetStartStopData(scsi_device * device)
             return;
         }
         extra = ucp[3] + 4;
-        pc = (ucp[0] << 8) + ucp[1];
+        int pc = (ucp[0] << 8) + ucp[1];
+        UINT32 u;
         switch (pc) {
         case 1:
             if (10 == extra)
@@ -319,7 +319,7 @@ scsiGetStartStopData(scsi_device * device)
 static void
 scsiPrintGrownDefectListLen(scsi_device * device)
 {
-    int err, dl_format, got_rd12, generation;
+    int err, dl_format, got_rd12;
     unsigned int dl_len, div;
 
     memset(gBuf, 0, 8);
@@ -351,7 +351,7 @@ scsiPrintGrownDefectListLen(scsi_device * device)
         got_rd12 = 1;
 
     if (got_rd12) {
-        generation = (gBuf[2] << 8) + gBuf[3];
+        int generation = (gBuf[2] << 8) + gBuf[3];
         if ((generation > 1) && (scsi_debugmode > 0)) {
             print_on();
             pout("Read defect list (12): generation=%d\n", generation);
@@ -403,9 +403,8 @@ scsiPrintGrownDefectListLen(scsi_device * device)
 static void
 scsiPrintSeagateCacheLPage(scsi_device * device)
 {
-    int k, j, num, pl, pc, err, len;
+    int num, pl, pc, err, len;
     unsigned char * ucp;
-    unsigned char * xp;
     uint64_t ull;
 
     if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, 0, gBuf,
@@ -458,14 +457,14 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
                        "> segment size"); break;
         default: pout("  Unknown Seagate parameter code [0x%x]", pc); break;
         }
-        k = pl - 4;
-        xp = ucp + 4;
+        int k = pl - 4;
+        unsigned char * xp = ucp + 4;
         if (k > (int)sizeof(ull)) {
             xp += (k - (int)sizeof(ull));
             k = (int)sizeof(ull);
         }
         ull = 0;
-        for (j = 0; j < k; ++j) {
+        for (int j = 0; j < k; ++j) {
             if (j > 0)
                 ull <<= 8;
             ull |= xp[j];
@@ -480,9 +479,8 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
 static void
 scsiPrintSeagateFactoryLPage(scsi_device * device)
 {
-    int k, j, num, pl, pc, len, err, good, bad;
+    int num, pl, pc, len, err, good, bad;
     unsigned char * ucp;
-    unsigned char * xp;
     uint64_t ull;
 
     if ((err = scsiLogSense(device, SEAGATE_FACTORY_LPAGE, 0, gBuf,
@@ -550,14 +548,14 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
             break;
         }
         if (good) {
-            k = pl - 4;
-            xp = ucp + 4;
+            int k = pl - 4;
+            unsigned char * xp = ucp + 4;
             if (k > (int)sizeof(ull)) {
                 xp += (k - (int)sizeof(ull));
                 k = (int)sizeof(ull);
             }
             ull = 0;
-            for (j = 0; j < k; ++j) {
+            for (int j = 0; j < k; ++j) {
                 if (j > 0)
                     ull <<= 8;
                 ull |= xp[j];
@@ -578,10 +576,7 @@ scsiPrintErrorCounterLog(scsi_device * device)
 {
     struct scsiErrorCounter errCounterArr[3];
     struct scsiErrorCounter * ecp;
-    struct scsiNonMediumError nme;
     int found[3] = {0, 0, 0};
-    const char * pageNames[3] = {"read:   ", "write:  ", "verify: "};
-    double processed_gb;
 
     if (gReadECounterLPage && (0 == scsiLogSense(device,
                 READ_ERROR_COUNTER_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
@@ -616,10 +611,11 @@ scsiPrintErrorCounterLog(scsi_device * device)
             if (! found[k])
                 continue;
             ecp = &errCounterArr[k];
+            static const char * const pageNames[3] = {"read:   ", "write:  ", "verify: "};
             pout("%s%8" PRIu64 " %8" PRIu64 "  %8" PRIu64 "  %8" PRIu64 "   %8" PRIu64,
                  pageNames[k], ecp->counter[0], ecp->counter[1],
                  ecp->counter[2], ecp->counter[3], ecp->counter[4]);
-            processed_gb = ecp->counter[5] / 1000000000.0;
+            double processed_gb = ecp->counter[5] / 1000000000.0;
             pout("   %12.3f    %8" PRIu64 "\n", processed_gb, ecp->counter[6]);
         }
     }
@@ -627,6 +623,7 @@ scsiPrintErrorCounterLog(scsi_device * device)
         pout("Error Counter logging not supported\n");
     if (gNonMediumELPage && (0 == scsiLogSense(device,
                 NON_MEDIUM_ERROR_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
+        struct scsiNonMediumError nme;
         scsiDecodeNonMediumErrPage(gBuf, &nme);
         if (nme.gotPC0)
             pout("\nNon-medium error count: %8" PRIu64 "\n", nme.counterPC0);
@@ -718,7 +715,7 @@ static const char * self_test_result[] = {
 static int
 scsiPrintSelfTest(scsi_device * device)
 {
-    int num, k, n, res, err, durationSec;
+    int num, k, err, durationSec;
     int noheader = 1;
     int retval = 0;
     UINT8 * ucp;
@@ -760,7 +757,7 @@ scsiPrintSelfTest(scsi_device * device)
         int i;
 
         // timestamp in power-on hours (or zero if test in progress)
-        n = (ucp[6] << 8) | ucp[7];
+        int n = (ucp[6] << 8) | ucp[7];
 
         // The spec says "all 20 bytes will be zero if no test" but
         // DG has found otherwise.  So this is a heuristic.
@@ -783,6 +780,7 @@ scsiPrintSelfTest(scsi_device * device)
 
         // check the self-test result nibble, using the self-test results
         // field table from T10/1416-D (SPC-3) Rev. 23, section 7.2.10:
+        int res;
         switch ((res = ucp[4] & 0xf)) {
         case 0x3:
             // an unknown error occurred while the device server
@@ -901,7 +899,7 @@ static const char * reassign_status[] = {
 static int
 scsiPrintBackgroundResults(scsi_device * device)
 {
-    int num, j, m, err, pc, pl, truncated;
+    int num, j, m, err, truncated;
     int noheader = 1;
     int firstresult = 1;
     int retval = 0;
@@ -935,9 +933,9 @@ scsiPrintBackgroundResults(scsi_device * device)
     ucp = gBuf + 4;
     num -= 4;
     while (num > 3) {
-        pc = (ucp[0] << 8) | ucp[1];
+        int pc = (ucp[0] << 8) | ucp[1];
         // pcb = ucp[2];
-        pl = ucp[3] + 4;
+        int pl = ucp[3] + 4;
         switch (pc) {
         case 0:
             if (noheader) {
@@ -1010,7 +1008,7 @@ scsiPrintBackgroundResults(scsi_device * device)
 static int
 scsiPrintSSMedia(scsi_device * device)
 {
-    int num, err, pc, pl, truncated;
+    int num, err, truncated;
     int retval = 0;
     UINT8 * ucp;
 
@@ -1041,9 +1039,9 @@ scsiPrintSSMedia(scsi_device * device)
     ucp = gBuf + 4;
     num -= 4;
     while (num > 3) {
-        pc = (ucp[0] << 8) | ucp[1];
+        int pc = (ucp[0] << 8) | ucp[1];
         // pcb = ucp[2];
-        pl = ucp[3] + 4;
+        int pl = ucp[3] + 4;
         switch (pc) {
         case 1:
             if (pl < 8) {
@@ -1200,7 +1198,6 @@ show_sas_port_param(unsigned char * ucp, int param_len)
     int j, m, n, nphys, t, sz, spld_len;
     unsigned char * vcp;
     uint64_t ull;
-    unsigned int ui;
     char s[64];
 
     sz = sizeof(s);
@@ -1297,6 +1294,7 @@ show_sas_port_param(unsigned char * ucp, int param_len)
         }
         pout("    attached SAS address = 0x%" PRIx64 "\n", ull);
         pout("    attached phy identifier = %d\n", vcp[24]);
+        unsigned int ui;
         ui = (vcp[32] << 24) | (vcp[33] << 16) | (vcp[34] << 8) | vcp[35];
         pout("    Invalid DWORD count = %u\n", ui);
         ui = (vcp[36] << 24) | (vcp[37] << 16) | (vcp[38] << 8) | vcp[39];
@@ -1306,15 +1304,16 @@ show_sas_port_param(unsigned char * ucp, int param_len)
         ui = (vcp[44] << 24) | (vcp[45] << 16) | (vcp[46] << 8) | vcp[47];
         pout("    Phy reset problem = %u\n", ui);
         if (spld_len > 51) {
-            int num_ped, peis;
+            int num_ped;
             unsigned char * xcp;
-            unsigned int pvdt;
 
             num_ped = vcp[51];
             if (num_ped > 0)
                pout("    Phy event descriptors:\n");
             xcp = vcp + 52;
             for (m = 0; m < (num_ped * 12); m += 12, xcp += 12) {
+                int peis;
+                unsigned int pvdt;
                 peis = xcp[3];
                 ui = (xcp[4] << 24) | (xcp[5] << 16) | (xcp[6] << 8) |
                      xcp[7];
@@ -1330,12 +1329,12 @@ show_sas_port_param(unsigned char * ucp, int param_len)
 static int
 show_protocol_specific_page(unsigned char * resp, int len)
 {
-    int k, num, param_len;
+    int k, num;
     unsigned char * ucp;
 
     num = len - 4;
     for (k = 0, ucp = resp + 4; k < num; ) {
-        param_len = ucp[3] + 4;
+        int param_len = ucp[3] + 4;
         if (6 != (0xf & ucp[4]))
             return 0;   /* only decode SAS log page */
         if (0 == k)
@@ -1451,10 +1450,9 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
 {
     char timedatetz[DATEANDEPOCHLEN];
     struct scsi_iec_mode_page iec;
-    int err, iec_err, len, req_len, avail_len, n, scsi_version;
+    int err, iec_err, len, req_len, avail_len, scsi_version;
     int is_tape = 0;
     int peri_dt = 0;
-    int returnval = 0;
     int transport = -1;
     int form_factor = 0;
     int haw_zbc = 0;
@@ -1523,13 +1521,12 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
     if (! is_tape) {    /* only do this for disks */
         unsigned int lb_size = 0;
         unsigned char lb_prov_resp[8];
-        char cap_str[64];
-        char si_str[64];
         char lb_str[16];
         int lb_per_pb_exp = 0;
         uint64_t capacity = scsiGetSize(device, &lb_size, &lb_per_pb_exp);
 
         if (capacity) {
+            char cap_str[64], si_str[64];
             format_with_thousands_sep(cap_str, sizeof(cap_str), capacity);
             format_capacity(si_str, sizeof(si_str), capacity);
             pout("User Capacity:        %s bytes [%s]\n", cap_str, si_str);
@@ -1547,7 +1544,7 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
                     snprintf(lb_str, sizeof(lb_str) - 1, "%u",
                              (lb_size * (1 << lb_per_pb_exp)));
                     pout("Physical block size:  %s bytes\n", lb_str);
-                    n = ((rc16_12[2] & 0x3f) << 8) + rc16_12[3];
+                    int n = ((rc16_12[2] & 0x3f) << 8) + rc16_12[3];
                     if (n > 0)  // not common so cut the clutter
                         pout("Lowest aligned LBA:   %d\n", n);
                 }
@@ -1733,6 +1730,7 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
             pout("device Test Unit Ready  [%s]\n", scsiErrString(err));
             print_off();
         }
+        int returnval = 0; // TODO: exit with FAILID if failuretest returns
         failuretest(MANDATORY_CMD, returnval|=FAILID);
     }
 

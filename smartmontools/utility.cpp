@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2002-12 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-12 Bruce Allen
+ * Copyright (C) 2008-15 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -291,9 +291,6 @@ void dateandtimezoneepoch(char *buffer, time_t tval){
   const char *timezonename;
   char datebuffer[DATEANDEPOCHLEN];
   int lenm1;
-#ifdef _WIN32
-  char tzfixbuf[6+1];
-#endif
 
   FixGlibcTimeZoneBug();
   
@@ -323,6 +320,8 @@ void dateandtimezoneepoch(char *buffer, time_t tval){
 
 #ifdef _WIN32
   // Fix long non-ascii timezone names
+    // cppcheck-suppress variableScope
+  char tzfixbuf[6+1] = "";
   if (!getenv("TZ"))
     timezonename=fixtzname(tzfixbuf, sizeof(tzfixbuf), timezonename);
 #endif

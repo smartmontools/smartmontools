@@ -1058,13 +1058,13 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   env[11].set("SMARTD_NEXTDAYS", dates);
 
   // now construct a command to send this as EMAIL
-  char command[2048];
   if (!*executable)
     executable = "<mail>";
   const char * newadd = (!address.empty()? address.c_str() : "<nomailer>");
   const char * newwarn = (which? "Warning via" : "Test of");
 
 #ifndef _WIN32
+  char command[2048];
   snprintf(command, sizeof(command), "%s 2>&1", warning_script.c_str());
   
   // tell SYSLOG what we are about to do...
@@ -1111,12 +1111,9 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 	       errno?strerror(errno):"");
     else {
       // mail process apparently succeeded. Check and report exit status
-      int status8;
-
       if (WIFEXITED(status)) {
 	// exited 'normally' (but perhaps with nonzero status)
-	status8=WEXITSTATUS(status);
-	
+        int status8 = WEXITSTATUS(status);
 	if (status8>128)  
 	  PrintOut(LOG_CRIT,"%s %s to %s: failed (32-bit/8-bit exit status: %d/%d) perhaps caught signal %d [%s]\n", 
 		   newwarn, executable, newadd, status, status8, status8-128, strsignal(status8-128));
@@ -1142,6 +1139,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   
 #else // _WIN32
   {
+    char command[2048];
     snprintf(command, sizeof(command), "cmd /c \"%s\"", warning_script.c_str());
 
     char stdoutbuf[800]; // < buffer in syslog_win32::vsyslog()
@@ -2162,7 +2160,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 // please.
 static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scsidev)
 {
-  int k, err, req_len, avail_len, version, len;
+  int err, req_len, avail_len, version, len;
   const char *device = cfg.name.c_str();
   struct scsi_iec_mode_page iec;
   UINT8  tBuf[64];
@@ -2291,7 +2289,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   // Flag that certain log pages are supported (information may be
   // available from other sources).
   if (0 == scsiLogSense(scsidev, SUPPORTED_LPAGES, 0, tBuf, sizeof(tBuf), 0)) {
-    for (k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
+    for (int k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
       switch (tBuf[k]) { 
       case TEMPERATURE_LPAGE:
         state.TempPageSupported = 1;
@@ -3227,9 +3225,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     UINT8 asc, ascq;
     UINT8 currenttemp;
     UINT8 triptemp;
-    UINT8  tBuf[252];
     const char * name = cfg.name.c_str();
-    const char *cp;
 
     // If the user has asked for it, test the email warning system
     if (cfg.emailtest)
@@ -3257,7 +3253,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
         }
     }
     if (asc > 0) {
-        cp = scsiGetIEString(asc, ascq);
+        const char * cp = scsiGetIEString(asc, ascq);
         if (cp) {
             PrintOut(LOG_CRIT, "Device: %s, SMART Failure: %s\n", name, cp);
             MailWarning(cfg, state, 1,"Device: %s, SMART Failure: %s", name, cp);
@@ -3284,6 +3280,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     }
     if (!cfg.attrlog_file.empty()){
       // saving error counters to state
+      UINT8 tBuf[252];
       if (state.ReadECounterPageSupported && (0 == scsiLogSense(scsidev,
           READ_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
           scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[0].errCounter);

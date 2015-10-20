@@ -2817,18 +2817,17 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
     return false;
 
   // getting bus numbers with megasas devices
-  struct dirent *ep;
-  unsigned int host_no = 0;
-  char sysfsdir[256];
-
-  /* we are using sysfs to get list of all scsi hosts */
+  // we are using sysfs to get list of all scsi hosts
   DIR * dp = opendir ("/sys/class/scsi_host/");
   if (dp != NULL)
   {
+    struct dirent *ep;
     while ((ep = readdir (dp)) != NULL) {
+      unsigned int host_no = 0;
       if (!sscanf(ep->d_name, "host%u", &host_no))
         continue;
       /* proc_name should be megaraid_sas */
+      char sysfsdir[256];
       snprintf(sysfsdir, sizeof(sysfsdir) - 1,
         "/sys/class/scsi_host/host%u/proc_name", host_no);
       if((fp = fopen(sysfsdir, "r")) == NULL)

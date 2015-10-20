@@ -1,5 +1,9 @@
 $Id$
 
+2015-10-20  Christian Franke  <franke@computer.org>
+
+	Reduce variable scope where possible (cppcheck: variableScope).
+
 2015-10-18  Alex Samorukov <samm@os2.kiev.ua>
 
 	fixes suggested by cppcheck:
@@ -8,7 +12,7 @@ $Id$
 
 2015-10-17  Christian Franke  <franke@computer.org>
 
-	Various fixes suggested by cppcheck.
+	Various fixes suggested by cppcheck:
 	Close FILE pointer before reopening it (cppcheck: publicAllocationError).
 	Add missing member initializations to ctors (cppcheck: uninitMemberVar).
 	Remove redundant nullptr check (cppcheck: nullPointerRedundantCheck).

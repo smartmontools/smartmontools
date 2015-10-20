@@ -697,6 +697,7 @@ static void print_drive_info(const ata_identify_device * drive,
   pout("ATA Version is:   %s\n", infofound(ataver.c_str()));
 
   // Print Transport specific version
+    // cppcheck-suppress variableScope
   char buf[32] = "";
   unsigned short word222 = drive->words088_255[222-88];
   if (word222 != 0x0000 && word222 != 0xffff) switch (word222 >> 12) {
@@ -1812,7 +1813,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
   for (int k = 4; k >= 0; k-- ) {
 
     // The error log data structure entries are a circular buffer
-    int j, i=(data->error_log_pointer+k)%5;
+    int i = (data->error_log_pointer + k) % 5;
     const ata_smart_errorlog_struct * elog = data->errorlog_struct+i;
     const ata_smart_errorlog_error_struct * summary = &(elog->error_struct);
 
@@ -1848,7 +1849,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
       pout("  Commands leading to the command that caused the error were:\n"
            "  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name\n"
            "  -- -- -- -- -- -- -- --  ----------------  --------------------\n");
-      for ( j = 4; j >= 0; j--){
+      for (int j = 4; j >= 0; j--) {
         const ata_smart_errorlog_command_struct * thiscommand = elog->commands+j;
 
         // Spec says: unused data command structures shall be zero filled
