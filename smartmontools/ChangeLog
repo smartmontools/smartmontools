@@ -1,8 +1,10 @@
-$Id: ChangeLog 4157 2015-10-20 16:03:57Z chrfranke $
+$Id: ChangeLog 4158 2015-10-20 18:54:34Z chrfranke $
 
 2015-10-20  Christian Franke  <franke@computer.org>
 
 	Reduce variable scope where possible (cppcheck: variableScope).
+
+	Makefile.am: Remove *.s from files used to generate svnversion.h.
 
 2015-10-18  Alex Samorukov <samm@os2.kiev.ua>
 
