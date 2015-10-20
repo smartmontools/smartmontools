@@ -35,7 +35,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4150 2015-10-17 15:49:39Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4157 2015-10-20 16:03:57Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -831,9 +831,9 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
     packet = true;
   }
 
-  unsigned i;
   if (fix_swapped_id) {
     // Swap ID strings
+    unsigned i;
     for (i = 0; i < sizeof(buf->serial_no)-1; i += 2)
       swap2((char *)(buf->serial_no+i));
     for (i = 0; i < sizeof(buf->fw_rev)-1; i += 2)
@@ -851,14 +851,12 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
   // NetBSD kernel delivers IDENTIFY data in host byte order
   // TODO: Handle NetBSD case in os_netbsd.cpp
   if (isbigendian()){
-    
     // swap various capability words that are needed
+    unsigned i;
     for (i=0; i<33; i++)
       swap2((char *)(buf->words047_079+i));
-    
     for (i=80; i<=87; i++)
       swap2((char *)(rawshort+i));
-    
     for (i=0; i<168; i++)
       swap2((char *)(buf->words088_255+i));
   }

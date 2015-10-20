@@ -99,7 +99,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4156 2015-10-18 12:20:40Z samm2 $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4157 2015-10-20 16:03:57Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -2817,18 +2817,17 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
     return false;
 
   // getting bus numbers with megasas devices
-  struct dirent *ep;
-  unsigned int host_no = 0;
-  char sysfsdir[256];
-
-  /* we are using sysfs to get list of all scsi hosts */
+  // we are using sysfs to get list of all scsi hosts
   DIR * dp = opendir ("/sys/class/scsi_host/");
   if (dp != NULL)
   {
+    struct dirent *ep;
     while ((ep = readdir (dp)) != NULL) {
+      unsigned int host_no = 0;
       if (!sscanf(ep->d_name, "host%u", &host_no))
         continue;
       /* proc_name should be megaraid_sas */
+      char sysfsdir[256];
       snprintf(sysfsdir, sizeof(sysfsdir) - 1,
         "/sys/class/scsi_host/host%u/proc_name", host_no);
       if((fp = fopen(sysfsdir, "r")) == NULL)
