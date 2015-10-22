@@ -1,5 +1,14 @@
 $Id$
 
+2015-10-22  Paul Grabinar  <pgrabinar@ocz.com>
+
+	drivedb.h:
+	- SandForce Driven SSDs: OCZ RevoDrive 350, Z-Drive 4500
+	- Indilinx Barefoot 3 based SSDs: Add attributes,
+	  OCZ ARC 100, Saber 1000, Vector 180, Vertex 460A
+	- OCZ Intrepid 3000 SSDs: Intrepid 3700
+	- OCZ Trion
+
 2015-10-20  Christian Franke  <franke@computer.org>
 
 	Reduce variable scope where possible (cppcheck: variableScope).
