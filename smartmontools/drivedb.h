@@ -370,6 +370,7 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ-NOCTI|" // mSATA, SF-2100, tested with OCZ-NOCTI/2.15
     "OCZ-REVODRIVE3?( X2)?|" // PCIe, SF-1200/2281, tested with
       // OCZ-REVODRIVE( X2)?/1.20, OCZ-REVODRIVE3 X2/2.11
+    "OCZ-REVODRIVE350|"
     "OCZ[ -](VELO|VERTEX2[ -](EX|PRO))( [123]\\..*)?|" // SF-1500, tested with
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
     "D2[CR]STK251...-....|" // OCZ Deneva 2 C/R, SF-22xx/25xx,
@@ -378,6 +379,7 @@ const drive_settings builtin_knowndrives[] = {
       // OCZ-AGILITY3/2.11, OCZ-SOLID3/2.15, OCZ-VERTEX3 MI/2.15
     "OCZ Z-DRIVE R4 [CR]M8[48]|" // PCIe, SF-2282/2582, tested with OCZ Z-DRIVE R4 CM84/2.13
       // (Bogus attributes under Linux)
+    "OCZ Z-DRIVE 4500|"
     "TALOS2|" // OCZ Talos 2 C/R, SAS (works with -d sat), 2*SF-2282, tested with TALOS2/3.20E
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
@@ -489,8 +491,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
   { "Indilinx Barefoot 3 based SSDs",
-    "OCZ-VECTOR(150)?|" // tested with OCZ-VECTOR/1.03, OCZ-VECTOR150/1.2
-    "OCZ-VERTEX4[56]0|" // Barefoot 3 M10, tested with OCZ-VERTEX450/1.0, OCZ-VERTEX460/1.0
+    "OCZ-VECTOR(1[58]0)?|" // tested with OCZ-VECTOR/1.03, OCZ-VECTOR150/1.2, OCZ-VECTOR180
+    "OCZ-VERTEX4[56]0A?|" // Barefoot 3 M10, tested with OCZ-VERTEX450/1.0, OCZ-VERTEX460/1.0, VERTEX460A
+    "OCZ-SABER1000|"
+    "OCZ-ARC100|"
     "Radeon R7", // Barefoot 3 M00, tested with Radeon R7/1.00
     "", "",
     "-v 5,raw48,Runtime_Bad_Block "
@@ -504,15 +508,27 @@ const drive_settings builtin_knowndrives[] = {
     "-v 197,raw48,Total_Unc_Read_Failures "
     "-v 198,raw48,Host_Reads_GiB "
     "-v 199,raw48,Host_Writes_GiB "
+    "-v 205,raw48,Max_Rated_PE_Count "
+    "-v 206,raw48,Min_Erase_Count "
+    "-v 207,raw48,Max_Erase_Count "
     "-v 208,raw48,Average_Erase_Count "
     "-v 210,raw48,SATA_CRC_Error_Count "
+    "-v 212,raw48,Pages_Requiring_Rd_Rtry "
+    "-v 213,raw48,Snmple_Retry_Attempts "
+    "-v 214,raw48,Adaptive_Retry_Attempts "
+    "-v 222,raw48,RAID_Recovery_Count "
+    "-v 224,raw48,In_Warranty "
+    "-v 225,raw48,DAS_Polarity "
+    "-v 226,raw48,Partial_Pfail "
+    "-v 230,raw48,Write_Throttling "
     "-v 233,raw48,Remaining_Lifetime_Perc "
     "-v 241,raw48,Host_Writes_GiB " // M00/M10
     "-v 242,raw48,Host_Reads_GiB "  // M00/M10
-    "-v 249,raw48,Total_NAND_Prog_Ct_GiB"
+    "-v 249,raw48,Total_NAND_Prog_Ct_GiB "
+    "-v 251,raw48,Total_NAND_Read_Ct_GiB"
   },
-  { "OCZ Intrepid 3000 SSDs", // tested with OCZ INTREPID 3600/1.4.3.6, 3800/1.4.3.0
-    "OCZ INTREPID 3[68]00",
+  { "OCZ Intrepid 3000 SSDs", // tested with OCZ INTREPID 3600/1.4.3.6, 3800/1.4.3.0, 3700/1.5.0.4
+    "OCZ INTREPID 3[678]00",
     "", "",
     "-v 5,raw48,Runtime_Bad_Block "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -544,6 +560,19 @@ const drive_settings builtin_knowndrives[] = {
     "-v 233,raw48,Remaining_Lifetime_Perc "
     "-v 249,raw48,Total_NAND_Prog_Ct_GiB "
     "-v 251,raw48,Total_NAND_Read_Ct_GiB"
+  },
+  {
+    "OCZ Trion",
+    "OCZ-TRION100", // tested with OCZ-TRION100/SAFM11.2
+    "", "",
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 167,raw48,SSD_Protect_Mode "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 169,raw48,Bad_Block_Count "
+    "-v 173,raw48,Erase_Count "
+    "-v 192,raw48,Unexpect_Power_Loss_Ct"
+  //"-v 194,tempminmax,Temperature_Celsius "
   },
   { "InnoDisk InnoLite SATADOM D150QV-L SSDs", // tested with InnoLite SATADOM D150QV-L/120319
     "InnoLite SATADOM D150QV-L",
