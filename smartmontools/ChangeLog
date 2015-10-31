@@ -1,5 +1,10 @@
 $Id$
 
+2015-10-31  Christian Franke  <franke@computer.org>
+
+	Create branch RELEASE_6_4_DRIVEDB with last drivedb.h file
+	compatible with smartmontools 6.4.
+
 2015-10-22  Paul Grabinar  <pgrabinar@ocz.com>
 
 	drivedb.h:
