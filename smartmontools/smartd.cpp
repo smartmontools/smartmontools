@@ -106,7 +106,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4157 2015-10-20 16:03:57Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4162 2015-10-31 16:36:16Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -4445,7 +4445,7 @@ static void ParseOpts(int argc, char **argv)
 
   opterr=optopt=0;
   bool badarg = false;
-  bool no_defaultdb = false; // set true on '-B FILE'
+  bool use_default_db = true; // set false on '-B FILE'
 
   // Parse input options.
   int optchar;
@@ -4586,7 +4586,7 @@ static void ParseOpts(int argc, char **argv)
         if (*path == '+' && path[1])
           path++;
         else
-          no_defaultdb = true;
+          use_default_db = false;
         unsigned char savedebug = debugmode; debugmode = 1;
         if (!read_drive_database(path))
           EXIT(EXIT_BADCMD);
@@ -4691,9 +4691,9 @@ static void ParseOpts(int argc, char **argv)
 #endif
 
   // Read or init drive database
-  if (!no_defaultdb) {
+  {
     unsigned char savedebug = debugmode; debugmode = 1;
-    if (!read_default_drive_databases())
+    if (!init_drive_database(use_default_db))
         EXIT(EXIT_BADCMD);
     debugmode = savedebug;
   }

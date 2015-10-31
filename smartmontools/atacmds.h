@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen
+ * Copyright (C) 2008-15 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 4120 2015-08-27 16:12:21Z samm2 $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 4162 2015-10-31 16:36:16Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -684,9 +684,11 @@ enum ata_attr_raw_format
 
 // Attribute flags
 enum {
-  ATTRFLAG_INCREASING = 0x01,   // Value not reset (for reallocated/pending counts)
-  ATTRFLAG_NO_NORMVAL = 0x02,   // Normalized value not valid
-  ATTRFLAG_NO_WORSTVAL = 0x04   // Worst value not valid
+  ATTRFLAG_INCREASING  = 0x01, // Value not reset (for reallocated/pending counts)
+  ATTRFLAG_NO_NORMVAL  = 0x02, // Normalized value not valid
+  ATTRFLAG_NO_WORSTVAL = 0x04, // Worst value not valid
+  ATTRFLAG_HDD_ONLY    = 0x08, // DEFAULT setting for HDD only
+  ATTRFLAG_SSD_ONLY    = 0x10, // DEFAULT setting for SSD only
 };
 
 // Vendor attribute display defs for all attribute ids
