@@ -2,6 +2,15 @@ $Id$
 
 2015-10-31  Christian Franke  <franke@computer.org>
 
+	atacmds.cpp, atacmds.h, knowndrives.cpp, knowndrives.h:
+	Read default SMART attribute settings from drivedb.h (ticket #465).
+	Remove hard-coded attribute names and format settings.
+
+	drivedb.h: Uncomment default settings to create the "DEFAULT" entry.
+	Add ",HDD" or ",SSD" to HDD/SSD specific settings.
+
+	smartctl.cpp, smartd.cpp: Use new database initialization function.
+
 	Create branch RELEASE_6_4_DRIVEDB with last drivedb.h file
 	compatible with smartmontools 6.4.
 

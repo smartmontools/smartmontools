@@ -2,10 +2,9 @@
  * knowndrives.cpp
  *
  * Home page of code is: http://www.smartmontools.org
- * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-15 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +50,8 @@ const drive_settings builtin_knowndrives[] = {
 #include "drivedb.h"
 };
 
+const unsigned builtin_knowndrives_size =
+  sizeof(builtin_knowndrives) / sizeof(builtin_knowndrives[0]);
 
 /// Drive database class. Stores custom entries read from file.
 /// Provides transparent access to concatenation of custom and
@@ -140,16 +141,26 @@ const char * drive_database::copy_string(const char * src)
 static drive_database knowndrives;
 
 
-// Return true if modelfamily string describes entry for USB ID
-static bool is_usb_modelfamily(const char * modelfamily)
+enum dbentry_type {
+  DBENTRY_ATA_DEFAULT,
+  DBENTRY_ATA,
+  DBENTRY_USB
+};
+
+// Return type of entry
+static dbentry_type get_modelfamily_type(const char * modelfamily)
 {
-  return !strncmp(modelfamily, "USB:", 4);
+  if (modelfamily[0] == 'D' && !strcmp(modelfamily, "DEFAULT"))
+    return DBENTRY_ATA_DEFAULT;
+  else if(modelfamily[0] == 'U' && str_starts_with(modelfamily, "USB:"))
+    return DBENTRY_USB;
+  else
+    return DBENTRY_ATA;
 }
 
-// Return true if entry for USB ID
-static inline bool is_usb_entry(const drive_settings * dbentry)
+static inline dbentry_type get_dbentry_type(const drive_settings * dbentry)
 {
-  return is_usb_modelfamily(dbentry->modelfamily);
+  return get_modelfamily_type(dbentry->modelfamily);
 }
 
 // Compile regular expression, print message on failure.
@@ -185,8 +196,8 @@ static const drive_settings * lookup_drive(const char * model, const char * firm
     firmware = "";
 
   for (unsigned i = 0; i < knowndrives.size(); i++) {
-    // Skip USB entries
-    if (is_usb_entry(&knowndrives[i]))
+    // Skip DEFAULT and USB entries
+    if (get_dbentry_type(&knowndrives[i]) != DBENTRY_ATA)
       continue;
 
     // Check whether model matches the regular expression in knowndrives[i].
@@ -219,8 +230,8 @@ static bool parse_db_presets(const char * presets, ata_vendor_attr_defs * defs,
     if (!(sscanf(presets+i, "-%c %80[^ ]%n", &opt, arg, &len) >= 2 && len > 0))
       return false;
     if (opt == 'v' && defs) {
-      // Parse "-v N,format[,name]"
-      if (!parse_attribute_def(arg, *defs, PRIOR_DATABASE))
+      // Parse "-v N,format[,name[,HDD|SSD]]"
+      if (!parse_attribute_def(arg, *defs, (firmwarebugs ? PRIOR_DATABASE : PRIOR_DEFAULT)))
         return false;
     }
     else if (opt == 'F' && firmwarebugs) {
@@ -241,6 +252,13 @@ static bool parse_db_presets(const char * presets, ata_vendor_attr_defs * defs,
     i += len;
   }
   return true;
+}
+
+// Parse '-v' options in default preset string, return false on error.
+static inline bool parse_default_presets(const char * presets,
+                                         ata_vendor_attr_defs & defs)
+{
+  return parse_db_presets(presets, &defs, 0, 0);
 }
 
 // Parse '-v' and '-F' options in preset string, return false on error.
@@ -287,7 +305,7 @@ int lookup_usb_device(int vendor_id, int product_id, int bcd_device,
     const drive_settings & dbentry = knowndrives[i];
 
     // Skip drive entries
-    if (!is_usb_entry(&dbentry))
+    if (get_dbentry_type(&dbentry) != DBENTRY_USB)
       continue;
 
     // Check whether USB vendor:product ID matches
@@ -341,7 +359,8 @@ static int showonepreset(const drive_settings * dbentry)
     return 1;
   }
 
-  bool usb = is_usb_entry(dbentry);
+  dbentry_type type = get_dbentry_type(dbentry);
+  bool usb = (type == DBENTRY_USB);
 
   // print and check model and firmware regular expressions
   int errcnt = 0;
@@ -364,12 +383,21 @@ static int showonepreset(const drive_settings * dbentry)
     bool first_preset = true;
     if (*dbentry->presets) {
       ata_vendor_attr_defs defs;
-      if (!parse_presets(dbentry->presets, defs, firmwarebugs)) {
-        pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
-        errcnt++;
+      if (type == DBENTRY_ATA_DEFAULT) {
+        if (!parse_default_presets(dbentry->presets, defs)) {
+          pout("Syntax error in DEFAULT option string \"%s\"\n", dbentry->presets);
+          errcnt++;
+        }
       }
+      else {
+        if (!parse_presets(dbentry->presets, defs, firmwarebugs)) {
+          pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
+          errcnt++;
+        }
+      }
+
       for (int i = 0; i < MAX_ATTRIBUTE_NUM; i++) {
-        if (defs[i].priority != PRIOR_DEFAULT) {
+        if (defs[i].priority != PRIOR_DEFAULT || !defs[i].name.empty()) {
           std::string name = ata_get_smart_attr_name(i, defs);
           // Use leading zeros instead of spaces so that everything lines up.
           pout("%-*s %03d %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "",
@@ -767,19 +795,29 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
             break;
           case 4:
             if (!token.value.empty()) {
-              if (!is_usb_modelfamily(values[0].c_str())) {
-                ata_vendor_attr_defs defs; firmwarebug_defs fix;
-                if (!parse_presets(token.value.c_str(), defs, fix)) {
-                  pout("%s(%d): Syntax error in preset option string\n", path, token.line);
-                  ok = false;
-                }
-              }
-              else {
-                std::string type;
-                if (!parse_usb_type(token.value.c_str(), type)) {
-                  pout("%s(%d): Syntax error in USB type string\n", path, token.line);
-                  ok = false;
-                }
+              // Syntax check
+              switch (get_modelfamily_type(values[0].c_str())) {
+                case DBENTRY_ATA_DEFAULT: {
+                  ata_vendor_attr_defs defs;
+                  if (!parse_default_presets(token.value.c_str(), defs)) {
+                    pout("%s(%d): Syntax error in DEFAULT option string\n", path, token.line);
+                    ok = false;
+                  }
+                } break;
+                default: { // DBENTRY_ATA
+                  ata_vendor_attr_defs defs; firmwarebug_defs fix;
+                  if (!parse_presets(token.value.c_str(), defs, fix)) {
+                    pout("%s(%d): Syntax error in preset option string\n", path, token.line);
+                    ok = false;
+                  }
+                } break;
+                case DBENTRY_USB: {
+                  std::string type;
+                  if (!parse_usb_type(token.value.c_str(), type)) {
+                    pout("%s(%d): Syntax error in USB type string\n", path, token.line);
+                    ok = false;
+                  }
+                } break;
               }
             }
             break;
@@ -857,7 +895,7 @@ const char * get_drivedb_path_default()
 #endif
 
 // Read drive databases from standard places.
-bool read_default_drive_databases()
+static bool read_default_drive_databases()
 {
   // Read file for local additions: /{,usr/local/}etc/smart_drivedb.h
   const char * db1 = get_drivedb_path_add();
@@ -877,9 +915,60 @@ bool read_default_drive_databases()
 #endif
   {
     // Append builtin table.
-    knowndrives.append(builtin_knowndrives,
-      sizeof(builtin_knowndrives)/sizeof(builtin_knowndrives[0]));
+    knowndrives.append(builtin_knowndrives, builtin_knowndrives_size);
   }
 
   return true;
+}
+
+static ata_vendor_attr_defs default_attr_defs;
+
+// Initialize default_attr_defs.
+static bool init_default_attr_defs()
+{
+  // Lookup default entry
+  const drive_settings * entry = 0;
+  for (unsigned i = 0; i < knowndrives.size(); i++) {
+    if (get_dbentry_type(&knowndrives[i]) != DBENTRY_ATA_DEFAULT)
+      continue;
+    entry = &knowndrives[i];
+    break;
+  }
+
+  if (!entry) {
+    // Fall back to builtin database
+    for (unsigned i = 0; i < builtin_knowndrives_size; i++) {
+      if (get_dbentry_type(&builtin_knowndrives[i]) != DBENTRY_ATA_DEFAULT)
+        continue;
+      entry = &builtin_knowndrives[i];
+      break;
+    }
+
+    if (!entry)
+      throw std::logic_error("DEFAULT entry missing in builtin drive database");
+
+    pout("Warning: DEFAULT entry missing in drive database file(s)\n");
+  }
+
+  if (!parse_default_presets(entry->presets, default_attr_defs)) {
+    pout("Syntax error in DEFAULT drive database entry\n");
+    return false;
+  }
+
+  return true;
+}
+
+// Init default db entry and optionally read drive databases from standard places.
+bool init_drive_database(bool use_default_db)
+{
+  if (use_default_db && !read_default_drive_databases())
+    return false;
+
+  return init_default_attr_defs();
+}
+
+// Get vendor attribute options from default db entry.
+const ata_vendor_attr_defs & get_default_attr_defs()
+{
+  return default_attr_defs;
 }

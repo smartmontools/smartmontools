@@ -313,7 +313,7 @@ static const char * parse_options(int argc, char** argv,
   opterr=optopt=0;
 
   const char * type = 0; // set to -d optarg
-  bool no_defaultdb = false; // set true on '-B FILE'
+  bool use_default_db = true; // set false on '-B FILE'
   bool output_format_set = false; // set true on '-f FORMAT'
   int scan = 0; // set by --scan, --scan-open
   bool badarg = false, captive = false;
@@ -665,7 +665,7 @@ static const char * parse_options(int argc, char** argv,
       } else if (!strcmp(optarg, "show")) {
         ataopts.show_presets = true;
       } else if (!strcmp(optarg, "showall")) {
-        if (!no_defaultdb && !read_default_drive_databases())
+        if (!init_drive_database(use_default_db))
           EXIT(FAILCMD);
         if (optind < argc) { // -P showall MODEL [FIRMWARE]
           int cnt = showmatchingpresets(argv[optind], (optind+1<argc ? argv[optind+1] : NULL));
@@ -805,7 +805,7 @@ static const char * parse_options(int argc, char** argv,
         if (*path == '+' && path[1])
           path++;
         else
-          no_defaultdb = true;
+          use_default_db = false;
         if (!read_drive_database(path))
           EXIT(FAILCMD);
       }
@@ -1001,7 +1001,7 @@ static const char * parse_options(int argc, char** argv,
   // Special handling of --scan, --scanopen
   if (scan) {
     // Read or init drive database to allow USB ID check.
-    if (!no_defaultdb && !read_default_drive_databases())
+    if (!init_drive_database(use_default_db))
       EXIT(FAILCMD);
     scan_devices(type, (scan == opt_scan_open), argv + optind);
     EXIT(0);
@@ -1079,7 +1079,7 @@ static const char * parse_options(int argc, char** argv,
   }
 
   // Read or init drive database
-  if (!no_defaultdb && !read_default_drive_databases())
+  if (!init_drive_database(use_default_db))
     EXIT(FAILCMD);
 
   return type;

@@ -32,6 +32,7 @@
 #include "config.h"
 #include "int64.h"
 #include "atacmds.h"
+#include "knowndrives.h"  // get_default_attr_defs()
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
@@ -170,7 +171,7 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
   // Parse option
   int len = strlen(opt);
   int id = 0, n1 = -1, n2 = -1;
-  char fmtname[32+1], attrname[32+1];
+  char fmtname[32+1], attrname[32+1], hddssd[3+1];
   if (opt[0] == 'N') {
     // "N,format[,name]"
     if (!(   sscanf(opt, "N,%32[^,]%n,%32[^,]%n", fmtname, &n1, attrname, &n2) >= 1
@@ -178,13 +179,20 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
       return false;
   }
   else {
-    // "id,format[+][,name]"
-    if (!(   sscanf(opt, "%d,%32[^,]%n,%32[^,]%n", &id, fmtname, &n1, attrname, &n2) >= 2
-          && 1 <= id && id <= 255 && (n1 == len || n2 == len)))
+    // "id,format[+][,name[,HDD|SSD]]"
+    int n3 = -1;
+    if (!(   sscanf(opt, "%d,%32[^,]%n,%32[^,]%n,%3[DHS]%n",
+                    &id, fmtname, &n1, attrname, &n2, hddssd, &n3) >= 2
+          && 1 <= id && id <= 255
+          && (    n1 == len || n2 == len
+                  // ",HDD|SSD" for DEFAULT settings only
+              || (n3 == len && priority == PRIOR_DEFAULT))))
       return false;
   }
   if (n1 == len)
-    attrname[0] = 0;
+    attrname[0] = hddssd[0] = 0;
+  else if (n2 == len)
+    hddssd[0] = 0;
 
   unsigned flags = 0;
   // For "-v 19[78],increasing" above
@@ -196,6 +204,9 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
   // Split "format[:byteorder]"
   char byteorder[8+1] = "";
   if (strchr(fmtname, ':')) {
+    if (priority == PRIOR_DEFAULT)
+      // TODO: Allow Byteorder in DEFAULT entry
+      return false;
     n1 = n2 = -1;
     if (!(   sscanf(fmtname, "%*[^:]%n:%8[012345rvwz]%n", &n1, byteorder, &n2) >= 1
           && n2 == (int)strlen(fmtname)))
@@ -219,6 +230,16 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
   // 64-bit formats use the normalized and worst value bytes.
   if (!*byteorder && (format == RAWFMT_RAW64 || format == RAWFMT_HEX64))
     flags |= (ATTRFLAG_NO_NORMVAL|ATTRFLAG_NO_WORSTVAL);
+
+  // ",HDD|SSD" suffix for DEFAULT settings
+  if (hddssd[0]) {
+    if (!strcmp(hddssd, "HDD"))
+      flags |= ATTRFLAG_HDD_ONLY;
+    else if (!strcmp(hddssd, "SSD"))
+      flags |= ATTRFLAG_SSD_ONLY;
+    else
+      return false;
+  }
 
   if (!id) {
     // "N,format" -> set format for all entries
@@ -1857,35 +1878,12 @@ ata_attr_state ata_get_attr_state(const ata_smart_attribute & attr,
   return ATTRSTATE_OK;
 }
 
-// Get default raw value print format
-static ata_attr_raw_format get_default_raw_format(unsigned char id)
-{
-  switch (id) {
-  case 3:   // Spin-up time
-    return RAWFMT_RAW16_OPT_AVG16;
-
-  case 5:   // Reallocated sector count
-  case 196: // Reallocated event count
-    return RAWFMT_RAW16_OPT_RAW16;
-
-  case 9:   // Power on hours
-  case 240: // Head flying hours
-    return RAWFMT_RAW24_OPT_RAW8;
-
-  case 190: // Temperature
-  case 194:
-    return RAWFMT_TEMPMINMAX;
-
-  default:
-    return RAWFMT_RAW48;
-  }
-}
-
 // Get attribute raw value.
 uint64_t ata_get_attr_raw_value(const ata_smart_attribute & attr,
                                 const ata_vendor_attr_defs & defs)
 {
   const ata_vendor_attr_defs::entry & def = defs[attr.id];
+  // TODO: Allow Byteorder in DEFAULT entry
 
   // Use default byteorder if not specified
   const char * byteorder = def.byteorder;
@@ -1976,8 +1974,13 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
 
   // Get print format
   ata_attr_raw_format format = defs[attr.id].raw_format;
-  if (format == RAWFMT_DEFAULT)
-    format = get_default_raw_format(attr.id);
+  if (format == RAWFMT_DEFAULT) {
+     // Get format from DEFAULT entry
+     format = get_default_attr_defs()[attr.id].raw_format;
+     if (format == RAWFMT_DEFAULT)
+       // Unknown Attribute
+       format = RAWFMT_RAW48;
+  }
 
   // Print
   std::string s;
@@ -2156,212 +2159,23 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
   return s;
 }
 
-// Attribute names shouldn't be longer than 23 chars, otherwise they break the
-// output of smartctl.
-static const char * get_default_attr_name(unsigned char id, int rpm)
-{
-  bool hdd = (rpm > 1), ssd = (rpm == 1);
-
-  static const char Unknown_HDD_Attribute[] = "Unknown_HDD_Attribute";
-  static const char Unknown_SSD_Attribute[] = "Unknown_SSD_Attribute";
-
-  switch (id) {
-  case 1:
-    return "Raw_Read_Error_Rate";
-  case 2:
-    return "Throughput_Performance";
-  case 3:
-    return "Spin_Up_Time";
-  case 4:
-    return "Start_Stop_Count";
-  case 5:
-    return "Reallocated_Sector_Ct";
-  case 6:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Read_Channel_Margin";
-  case 7:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Seek_Error_Rate";
-  case 8:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Seek_Time_Performance";
-  case 9:
-    return "Power_On_Hours";
-  case 10:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Spin_Retry_Count";
-  case 11:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Calibration_Retry_Count";
-  case 12:
-    return "Power_Cycle_Count";
-  case 13:
-    return "Read_Soft_Error_Rate";
-  case 175:
-    if (hdd) return Unknown_HDD_Attribute;
-    return "Program_Fail_Count_Chip";
-  case 176:
-    if (hdd) return Unknown_HDD_Attribute;
-    return "Erase_Fail_Count_Chip";
-  case 177:
-    if (hdd) return Unknown_HDD_Attribute;
-    return "Wear_Leveling_Count";
-  case 178:
-    if (hdd) return Unknown_HDD_Attribute;
-    return "Used_Rsvd_Blk_Cnt_Chip";
-  case 179:
-    if (hdd) return Unknown_HDD_Attribute;
-    return "Used_Rsvd_Blk_Cnt_Tot";
-  case 180:
-    if (hdd) return Unknown_HDD_Attribute;
-    return "Unused_Rsvd_Blk_Cnt_Tot";
-  case 181:
-    return "Program_Fail_Cnt_Total";
-  case 182:
-    if (hdd) return Unknown_HDD_Attribute;
-    return "Erase_Fail_Count_Total";
-  case 183:
-    return "Runtime_Bad_Block";
-  case 184:
-    return "End-to-End_Error";
-  case 187:
-    return "Reported_Uncorrect";
-  case 188:
-    return "Command_Timeout";
-  case 189:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "High_Fly_Writes";
-  case 190:
-    // Western Digital uses this for temperature.
-    // It's identical to Attribute 194 except that it
-    // has a failure threshold set to correspond to the
-    // max allowed operating temperature of the drive, which 
-    // is typically 55C.  So if this attribute has failed
-    // in the past, it indicates that the drive temp exceeded
-    // 55C sometime in the past.
-    return "Airflow_Temperature_Cel";
-  case 191:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "G-Sense_Error_Rate";
-  case 192:
-    return "Power-Off_Retract_Count";
-  case 193:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Load_Cycle_Count";
-  case 194:
-    return "Temperature_Celsius";
-  case 195:
-    // Fujitsu: "ECC_On_The_Fly_Count";
-    return "Hardware_ECC_Recovered";
-  case 196:
-    return "Reallocated_Event_Count";
-  case 197:
-    return "Current_Pending_Sector";
-  case 198:
-    return "Offline_Uncorrectable";
-  case 199:
-    return "UDMA_CRC_Error_Count";
-  case 200:
-    if (ssd) return Unknown_SSD_Attribute;
-    // Western Digital
-    return "Multi_Zone_Error_Rate";
-  case 201:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Soft_Read_Error_Rate";
-  case 202:
-    if (ssd) return Unknown_SSD_Attribute;
-    // Fujitsu: "TA_Increase_Count"
-    return "Data_Address_Mark_Errs";
-  case 203:
-    // Fujitsu
-    return "Run_Out_Cancel";
-    // Maxtor: ECC Errors
-  case 204:
-    // Fujitsu: "Shock_Count_Write_Opern"
-    return "Soft_ECC_Correction";
-  case 205:
-    // Fujitsu: "Shock_Rate_Write_Opern"
-    return "Thermal_Asperity_Rate";
-  case 206:
-    // Fujitsu
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Flying_Height";
-  case 207:
-    // Maxtor
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Spin_High_Current";
-  case 208:
-    // Maxtor
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Spin_Buzz";
-  case 209:
-    // Maxtor
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Offline_Seek_Performnce";
-  case 220:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Disk_Shift";
-  case 221:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "G-Sense_Error_Rate";
-  case 222:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Loaded_Hours";
-  case 223:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Load_Retry_Count";
-  case 224:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Load_Friction";
-  case 225:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Load_Cycle_Count";
-  case 226:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Load-in_Time";
-  case 227:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Torq-amp_Count";
-  case 228:
-    return "Power-off_Retract_Count";
-  case 230:
-    // seen in IBM DTPA-353750
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Head_Amplitude";
-  case 231:
-    return "Temperature_Celsius";
-  case 232:
-    // seen in Intel X25-E SSD
-    return "Available_Reservd_Space";
-  case 233:
-    // seen in Intel X25-E SSD
-    if (hdd) return Unknown_HDD_Attribute;
-    return "Media_Wearout_Indicator";
-  case 240:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Head_Flying_Hours";
-  case 241:
-    return "Total_LBAs_Written";
-  case 242:
-    return "Total_LBAs_Read";
-  case 250:
-    return "Read_Error_Retry_Rate";
-  case 254:
-    if (ssd) return Unknown_SSD_Attribute;
-    return "Free_Fall_Sensor";
-  default:
-    return "Unknown_Attribute";
-  }
-}
-
 // Get attribute name
 std::string ata_get_smart_attr_name(unsigned char id, const ata_vendor_attr_defs & defs,
                                     int rpm /* = 0 */)
 {
   if (!defs[id].name.empty())
     return defs[id].name;
-  else
-    return get_default_attr_name(id, rpm);
+  else {
+     const ata_vendor_attr_defs::entry & def = get_default_attr_defs()[id];
+     if (def.name.empty())
+       return "Unknown_Attribute";
+     else if ((def.flags & ATTRFLAG_HDD_ONLY) && rpm == 1)
+       return "Unknown_SSD_Attribute";
+     else if ((def.flags & ATTRFLAG_SSD_ONLY) && rpm > 1)
+       return "Unknown_HDD_Attribute";
+     else
+       return def.name;
+  }
 }
 
 // Find attribute index for attribute id, -1 if not found.
