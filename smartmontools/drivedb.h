@@ -305,9 +305,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 247,raw48,Host_Program_Page_Count "
     "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
-  { "Micron M500DC Enterprise SSDs",
-    "Micron_M500DC_(EE|MT)FDDA[AK](120|240|480|800)MBB", // tested with
+  { "Micron M500DC/M510DC Enterprise SSDs",
+    "Micron_M500DC_(EE|MT)FDDA[AK](120|240|480|800)MBB|" // tested with
       // Micron_M500DC_EEFDDAA120MBB/129, Micron_M500DC_MTFDDAK800MBB/0129
+    "MICRON_M510DC_(EE|MT)FDDAK(120|240|480|800|960)MBP", // tested with
+      // Micron_M510DC_MTFDDAK240MBP/0005
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocated_Block_Count "
@@ -359,8 +361,9 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SMS200S3(30|60|120)G|" // mSATA, SF-2241, tested with SMS200S3120G/KC3ABBF0
     "KINGSTON SMS450S3(32|64|128)G|" // mSATA, SF-2281, tested with SMS450S3128G/503ABBF0
     "KINGSTON (SV300|SKC100|SE100)S3.*G|" // other SF-2281
-    "MKNSSDCR(45|60|90|120|180|240|480)GB(-[DM]X)?|" // Mushkin Chronos (Deluxe/Enhanced), SF-2281,
-      // tested with MKNSSDCR120GB, MKNSSDCR120GB-MX/560ABBF0
+    "MKNSSDCR(45|60|90|120|180|240|360|480)GB(-(7|DX7?|MX|G2))?|" // Mushkin Chronos (7mm/Deluxe/MX/G2),
+      // SF-2281, tested with MKNSSDCR120GB, MKNSSDCR120GB-MX/560ABBF0, MKNSSDCR480GB-DX7/603ABBF0
+    "MKNSSDEC(60|120|240|480|512)GB|" // Mushkin Enhanced ECO2, tested with MKNSSDEC120GB/604ABBF0
     "MKNSSDAT(30|40|60|120|180|240|480)GB(-(DX|V))?|" // Mushkin Atlas (Deluxe/Value), mSATA, SF-2281,
       // tested with MKNSSDAT120GB-V/540ABBF0
     "Mushkin MKNSSDCL(40|60|80|90|115|120|180|240|480)GB-DX2?|" // Mushkin Callisto deluxe,
@@ -597,6 +600,45 @@ const drive_settings builtin_knowndrives[] = {
     "-v 235,raw48,Later_Bad_Block "
     "-v 236,raw48,Unstable_Power_Count "
     "-v 240,raw48,Write_Head"
+  },
+  { "Innodisk 3MG2-P SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
+      // 2.5" SATA SSD 3IE2-P/M150821, SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114
+    "(2.5\" SATA SSD |SATA Slim |M\\.2 \\(S80\\) )3(MG|IE)2-P",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 2,raw48,Throughput_Performance "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Number_of_Pure_Spare "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Max_Erase_Count_of_Spec "
+    "-v 169,raw48,Remaining_Lifetime_Perc "
+  //"-v 175,raw48,Program_Fail_Count_Chip "
+  //"-v 176,raw48,Erase_Fail_Count_Chip "
+  //"-v 177,raw48,Wear_Leveling_Count "
+    "-v 178,raw48,Runtime_Invalid_Blk_Cnt "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 182,raw48,Erase_Fail_Count_Total "
+  //"-v 187,raw48,Reported_Uncorrect " // ] only in spec
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "  // ]
+  //"-v 232,raw48,Available_Reservd_Space "
+    "-v 233,raw48,Flash_Writes_32MiB " // ]
+    "-v 234,raw48,Flash_Reads_32MiB "  // ]
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 245,raw48,Flash_Writes_32MiB"
   },
   { "InnoDisk iCF 9000 CompactFlash Cards", // tested with InnoDisk Corp. - iCF9000 1GB/140808,
        // ..., InnoDisk Corp. - iCF9000 64GB/140808
@@ -1135,6 +1177,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 244,raw48,Thermal_Throttle "
   },
   { "SiliconMotion based SSDs", // SM2246EN (Transcend TS6500)
+    "CT(120|250|500|1000)BX100SSD1|" // Crucial BX100, tested with CT250BX100SSD1/MU02,
+      // CT500BX100SSD1/MU02, CT1000BX100SSD1/MU02
     "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420I?)", // Transcend SSD370/420 SATA/mSATA, TS6500,
       // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
       // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H
