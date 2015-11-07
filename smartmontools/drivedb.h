@@ -603,6 +603,45 @@ const drive_settings builtin_knowndrives[] = {
     "-v 236,raw48,Unstable_Power_Count "
     "-v 240,raw48,Write_Head"
   },
+  { "Innodisk 3MG2-P SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
+      // 2.5" SATA SSD 3IE2-P/M150821, SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114
+    "(2.5\" SATA SSD |SATA Slim |M\\.2 \\(S80\\) )3(MG|IE)2-P",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 2,raw48,Throughput_Performance "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Number_of_Pure_Spare "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Max_Erase_Count_of_Spec "
+    "-v 169,raw48,Remaining_Lifetime_Perc "
+  //"-v 175,raw48,Program_Fail_Count_Chip "
+  //"-v 176,raw48,Erase_Fail_Count_Chip "
+  //"-v 177,raw48,Wear_Leveling_Count "
+    "-v 178,raw48,Runtime_Invalid_Blk_Cnt "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 182,raw48,Erase_Fail_Count_Total "
+  //"-v 187,raw48,Reported_Uncorrect " // ] only in spec
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "  // ]
+  //"-v 232,raw48,Available_Reservd_Space "
+    "-v 233,raw48,Flash_Writes_32MiB " // ]
+    "-v 234,raw48,Flash_Reads_32MiB "  // ]
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 245,raw48,Flash_Writes_32MiB"
+  },
   { "InnoDisk iCF 9000 CompactFlash Cards", // tested with InnoDisk Corp. - iCF9000 1GB/140808,
        // ..., InnoDisk Corp. - iCF9000 64GB/140808
     "InnoDisk Corp\\. - iCF9000 (1|2|4|8|16|32|64)GB",
