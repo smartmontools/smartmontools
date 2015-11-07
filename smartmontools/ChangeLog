@@ -1,4 +1,11 @@
-$Id: ChangeLog 4162 2015-10-31 16:36:16Z chrfranke $
+$Id: ChangeLog 4165 2015-11-07 17:58:29Z chrfranke $
+
+2015-11-07  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Micron M500DC/M510DC Enterprise SSDs: Rename, add M510DC
+	- SandForce Driven SSDs: Mushkin Chronos 7mm/MX/G2, Enhanced ECO2
+	- SiliconMotion based SSDs: Crucial BX100 (ticket #597)
 
 2015-10-31  Christian Franke  <franke@computer.org>
 
