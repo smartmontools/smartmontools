@@ -110,8 +110,8 @@ EXTRA_smartctl_SOURCES = \
 
 if OS_WIN32_MINGW
 
-smartctl_LDADD        += smartctl_res.o
-smartctl_DEPENDENCIES += smartctl_res.o
+smartctl_LDADD        += smartctl_res.o $(os_win32_manifest)
+smartctl_DEPENDENCIES += smartctl_res.o $(os_win32_manifest)
 
 endif
 
@@ -175,8 +175,8 @@ smartd_SOURCES += \
         os_win32/syslog_win32.cpp \
         os_win32/syslog.h
 
-smartd_LDADD        += smartd_res.o
-smartd_DEPENDENCIES += smartd_res.o
+smartd_LDADD        += smartd_res.o $(os_win32_manifest)
+smartd_DEPENDENCIES += smartd_res.o $(os_win32_manifest)
 
 endif
 
@@ -370,10 +370,9 @@ EXTRA_DIST = \
         os_darwin/pkg/Distribution.in \
         os_darwin/pkg/installer/README.html \
         os_darwin/pkg/root/usr/sbin/smart-pkg-uninstall \
+        os_win32/default.manifest \
         os_win32/installer.nsi \
         os_win32/runcmd.c \
-        os_win32/runcmda.exe.manifest \
-        os_win32/runcmdu.exe.manifest \
         os_win32/smartctl_res.rc.in \
         os_win32/smartd_res.rc.in \
         os_win32/smartd_warning.cmd \
@@ -729,6 +728,17 @@ smartd_res.rc: os_win32/smartd_res.rc.in Makefile svnversion.h
 syslogevt.rc: os_win32/syslogevt.mc
 	$(WINDMC) -b $<
 
+# Application manifests
+
+default.manifest.o: os_win32/default.manifest
+	echo '1 24 "$<"' | $(WINDRES) -J rc -o $@
+
+defadmin.manifest.o: defadmin.manifest
+	echo '1 24 "$<"' | $(WINDRES) -J rc -o $@
+
+defadmin.manifest: os_win32/default.manifest
+	sed 's,"asInvoker","requireAdministrator",' $< > $@
+
 # Definitions for Windows distribution
 
 if OS_WIN64
@@ -777,9 +787,7 @@ FILES_WIN32 = \
         $(docdir_win32)/smartd.8.html \
         $(docdir_win32)/smartd.8.txt \
         $(docdir_win32)/smartd.conf.5.html \
-        $(docdir_win32)/smartd.conf.5.txt \
-        $(exedir_win32)/runcmda.exe.manifest \
-        $(exedir_win32)/runcmdu.exe.manifest
+        $(docdir_win32)/smartd.conf.5.txt
 
 if ENABLE_DRIVEDB
 FILES_WIN32 += \
@@ -788,15 +796,15 @@ endif
 
 CLEANFILES += \
         $(FILES_WIN32) \
-        runcmdu.exe \
+        defadmin.manifest \
+        distdir.mkdir \
+        runcmda.exe runcmdu.exe \
         smartctl-nc.exe smartctl-nc.exe.tmp \
-        smartctl_res.rc smartctl_res.o \
-        smartd_res.rc smartd_res.o \
-        syslogevt.h syslogevt.o \
+        smartctl_res.rc smartd_res.rc \
+        syslogevt.h \
         syslogevt.rc syslogevt_*.bin \
-        wtssendmsg.exe \
         update-smart-drivedb.exe \
-        distdir.mkdir
+        wtssendmsg.exe
 
 # Note: Only use without options to be compatible with all variants
 UNIX2DOS = unix2dos
@@ -861,15 +869,7 @@ $(exedir_win32)/%.exe: %.exe
 $(exedir_win32)/update-smart-drivedb.exe: update-smart-drivedb.exe
 	cp -p $< $@
 
-# runcmd?.exe only differ by .exe.manifest files
-$(exedir_win32)/runcmda.exe: $(exedir_win32)/runcmdu.exe
-	cp -p $< $@
-
 $(exedir_win32)/%.h: $(srcdir)/%.h
-	$(UNIX2DOS) < $< > $@
-	touch -r $< $@
-
-$(exedir_win32)/%.exe.manifest: $(srcdir)/os_win32/%.exe.manifest
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
 
@@ -914,11 +914,17 @@ smartctl-nc.exe: smartctl.exe
 	mv -f $@.tmp $@
 
 # Build runcmd?.exe and wtssendmsg.exe
-runcmdu.exe: os_win32/runcmd.c
-	$(CC) -Os -o $@ $<
+runcmd.o: os_win32/runcmd.c
+	$(CC) -c -Os $<
 
-wtssendmsg.exe: os_win32/wtssendmsg.c
-	$(CC) -Os -o $@ $< -lwtsapi32
+runcmdu.exe: runcmd.o $(os_win32_manifest)
+	$(CC) -o $@ $^
+
+runcmda.exe: runcmd.o defadmin.manifest.o
+	$(CC) -o $@ $^
+
+wtssendmsg.exe: os_win32/wtssendmsg.c $(os_win32_manifest)
+	$(CC) -Os -o $@ $< $(os_win32_manifest) -lwtsapi32
 
 # Build os_win32/vc10/{config.h,smart*.rc,svnversion.h} for MSVC10 from MinGW files
 

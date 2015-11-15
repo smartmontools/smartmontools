@@ -374,6 +374,26 @@ if test "$libc_have_working_snprintf" = "yes"; then
   AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane.]) dnl `vim syntax
 fi
 
+os_win32_manifest=
+case "$host" in
+  *-*-mingw*)
+    # Newer MinGW may add a default manifest
+    AC_MSG_CHECKING([whether $CC adds an application manifest])
+    cc_adds_manifest=no
+    AC_LINK_IFELSE([AC_LANG_PROGRAM()], [
+        if "$WINDRES" -O rc conftest.exe | grep '^1.*RT_MANIFEST' >/dev/null 2>&1; then
+          cc_adds_manifest=incomplete
+          # Manifest must provide a Win 10 compatibility ID
+          if "$WINDRES" -O rc conftest.exe | grep '{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}' >/dev/null 2>&1; then
+            cc_adds_manifest=yes
+          fi
+        fi],
+      [AC_MSG_ERROR([test compile failed])])
+    AC_MSG_RESULT([$cc_adds_manifest])
+    test "$cc_adds_manifest" = "yes" || os_win32_manifest='default.manifest.o'
+    ;;
+esac
+
 # TODO: Remove after smartmontools 6.5
 AC_ARG_WITH(docdir,
   [AS_HELP_STRING([--with-docdir=DIR], [(removed, use --docdir=DIR instead)])],
@@ -505,6 +525,7 @@ AC_SUBST([os_hostname])
 AC_SUBST([os_dnsdomainname])
 AC_SUBST([os_nisdomainname])
 AC_SUBST([os_man_filter])
+AC_SUBST([os_win32_manifest])
 
 # Create drivedb.h update branch name from version: 5.41[.X] -> RELEASE_5_41_DRIVEDB
 DRIVEDB_BRANCH=`echo $VERSION | sed 's,^\([[0-9]]*\.[[0-9]]*\)\..*$,\1,' \
@@ -576,6 +597,7 @@ echo "OS specific modules:    $os_deps $os_libs $LIBS" >&AS_MESSAGE_FD
 
 case "$host_os" in
   mingw*)
+    echo "application manifest:   ${os_win32_manifest:-built-in}" >&AS_MESSAGE_FD
     echo "resource compiler:      $WINDRES" >&AS_MESSAGE_FD
     echo "message compiler:       $WINDMC" >&AS_MESSAGE_FD
     echo "NSIS compiler:          $MAKENSIS" >&AS_MESSAGE_FD
