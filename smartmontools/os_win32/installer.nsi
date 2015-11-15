@@ -674,7 +674,7 @@ Function AddToPath
 
   ${If} $4 = 234 ; ERROR_MORE_DATA
     DetailPrint "AddToPath: original length $2 > ${NSIS_MAX_STRLEN}"
-    MessageBox MB_OK "PATH not updated, original length $2 > ${NSIS_MAX_STRLEN}"
+    MessageBox MB_OK "PATH not updated, original length $2 > ${NSIS_MAX_STRLEN}" /SD IDOK
     Goto done
   ${EndIf}
 
@@ -705,7 +705,7 @@ Function AddToPath
   IntOp $2 $2 + 2 ; $2 = strlen(dir) + strlen(PATH) + sizeof(";")
   ${If} $2 > ${NSIS_MAX_STRLEN}
     DetailPrint "AddToPath: new length $2 > ${NSIS_MAX_STRLEN}"
-    MessageBox MB_OK "PATH not updated, new length $2 > ${NSIS_MAX_STRLEN}."
+    MessageBox MB_OK "PATH not updated, new length $2 > ${NSIS_MAX_STRLEN}." /SD IDOK
     Goto done
   ${EndIf}
 
