@@ -13,7 +13,7 @@
 ; You should have received a copy of the GNU General Public License
 ; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
-; $Id: installer.nsi 4168 2015-11-15 15:38:58Z chrfranke $
+; $Id: installer.nsi 4169 2015-11-15 15:45:22Z chrfranke $
 ;
 
 
@@ -674,7 +674,7 @@ Function AddToPath
 
   ${If} $4 = 234 ; ERROR_MORE_DATA
     DetailPrint "AddToPath: original length $2 > ${NSIS_MAX_STRLEN}"
-    MessageBox MB_OK "PATH not updated, original length $2 > ${NSIS_MAX_STRLEN}"
+    MessageBox MB_OK "PATH not updated, original length $2 > ${NSIS_MAX_STRLEN}" /SD IDOK
     Goto done
   ${EndIf}
 
@@ -705,7 +705,7 @@ Function AddToPath
   IntOp $2 $2 + 2 ; $2 = strlen(dir) + strlen(PATH) + sizeof(";")
   ${If} $2 > ${NSIS_MAX_STRLEN}
     DetailPrint "AddToPath: new length $2 > ${NSIS_MAX_STRLEN}"
-    MessageBox MB_OK "PATH not updated, new length $2 > ${NSIS_MAX_STRLEN}."
+    MessageBox MB_OK "PATH not updated, new length $2 > ${NSIS_MAX_STRLEN}." /SD IDOK
     Goto done
   ${EndIf}
 

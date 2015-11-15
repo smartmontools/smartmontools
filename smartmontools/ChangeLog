@@ -1,8 +1,9 @@
-$Id: ChangeLog 4168 2015-11-15 15:38:58Z chrfranke $
+$Id: ChangeLog 4169 2015-11-15 15:45:22Z chrfranke $
 
 2015-11-15  Christian Franke  <franke@computer.org>
 
 	os_win32/installer.nsi: Use macros from 'LogicLib.nsh' where possible.
+	Add missing MessageBox /SD options.
 
 2015-11-07  Christian Franke  <franke@computer.org>
 
