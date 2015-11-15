@@ -1,9 +1,17 @@
-$Id: ChangeLog 4169 2015-11-15 15:45:22Z chrfranke $
+$Id: ChangeLog 4170 2015-11-15 16:57:50Z chrfranke $
 
 2015-11-15  Christian Franke  <franke@computer.org>
 
+	configure.ac: Check whether MinGW adds an application manifest.
+
+	Makefile.am: Add default manifest for MinGW builds.
+
+	os_win32/default.manifest: New default application manifest.
+	Remove external application manifests.
+
 	os_win32/installer.nsi: Use macros from 'LogicLib.nsh' where possible.
 	Add missing MessageBox /SD options.
+	Remove external application manifests.
 
 2015-11-07  Christian Franke  <franke@computer.org>
 
