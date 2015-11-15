@@ -1,5 +1,9 @@
 $Id$
 
+2015-11-15  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Use macros from 'LogicLib.nsh' where possible.
+
 2015-11-07  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

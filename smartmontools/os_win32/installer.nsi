@@ -1,5 +1,5 @@
 ;
-; smartmontools install NSIS script
+; os_win32/installer.nsi - smartmontools install NSIS script
 ;
 ; Home page of code is: http://www.smartmontools.org
 ;
@@ -36,6 +36,8 @@
 Name "smartmontools"
 OutFile "${OUTFILE}"
 
+RequestExecutionLevel admin
+
 SetCompressor /solid lzma
 
 XPStyle on
@@ -56,12 +58,9 @@ Var EDITOR
 LicenseData "${INPDIR}\doc\COPYING.txt"
 
 !include "FileFunc.nsh"
+!include "LogicLib.nsh"
 !include "Sections.nsh"
 
-!insertmacro GetParameters
-!insertmacro GetOptions
-
-RequestExecutionLevel admin
 
 ;--------------------------------------------------------------------
 ; Pages
@@ -97,14 +96,15 @@ SectionGroup "!Program files"
   !macro FileExe path option
     !ifdef INPDIR64
       ; Use dummy SetOutPath to control archive location of executables
-      StrCmp $X64 "" +5
+      ${If} $X64 != ""
         Goto +2
           SetOutPath "$INSTDIR\bin64"
         File ${option} '${INPDIR64}\${path}'
-      GoTo +4
+      ${Else}
         Goto +2
           SetOutPath "$INSTDIR\bin"
         File ${option} '${INPDIR}\${path}'
+      ${EndIf}
     !else
       File ${option} '${INPDIR}\${path}'
     !endif
@@ -127,11 +127,12 @@ SectionGroup "!Program files"
 
     ; Stop service ?
     StrCpy $1 ""
-    IfFileExists "$INSTDIR\bin\smartd.exe" 0 nosrv
+    ${If} ${FileExists} "$INSTDIR\bin\smartd.exe"
       ReadRegStr $0 HKLM "System\CurrentControlSet\Services\smartd" "ImagePath"
-      StrCmp $0 "" nosrv
+      ${If} $0 != ""
         ExecWait "net stop smartd" $1
-  nosrv:
+      ${EndIf}
+    ${EndIf}
     !insertmacro FileExe "bin\smartd.exe" ""
 
     IfFileExists "$INSTDIR\bin\smartd.conf" 0 +2
@@ -142,9 +143,10 @@ SectionGroup "!Program files"
     !insertmacro FileExe "bin\wtssendmsg.exe" ""
 
     ; Restart service ?
-    StrCmp $1 "0" 0 +3
+    ${If} $1 == "0"
       MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Restart smartd service ?" /SD IDNO IDYES 0 IDNO +2
         ExecWait "net start smartd"
+    ${EndIf}
 
   SectionEnd
 
@@ -183,10 +185,11 @@ Section "!Documentation" DOC_SECTION
   File "${INPDIR}\doc\README.txt"
   File "${INPDIR}\doc\TODO.txt"
 !ifdef INPDIR64
-  StrCmp $X64 "" +3
+  ${If} $X64 != ""
     File "${INPDIR64}\doc\checksums64.txt"
-  GoTo +2
+  ${Else}
     File "${INPDIR}\doc\checksums32.txt"
+  ${EndIf}
 !else
   File "${INPDIR}\doc\checksums??.txt"
 !endif
@@ -210,8 +213,9 @@ Section "Uninstaller" UNINST_SECTION
   ; Keep old Install_Dir registry entry for GSmartControl
   ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\GSmartControl" "InstallLocation"
   ReadRegStr $1 HKLM "Software\smartmontools" "Install_Dir"
-  StrCmp "$0$1" "" +2 0
+  ${If} "$0$1" != ""
     WriteRegStr HKLM "Software\smartmontools" "Install_Dir" "$INSTDIR"
+  ${EndIf}
 
   ; Write uninstall keys and program
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayName" "smartmontools"
@@ -245,15 +249,15 @@ Section "Start Menu Shortcuts" MENU_SECTION
   !macroend
 
   ; runcmdu
-  IfFileExists "$INSTDIR\bin\smartctl.exe" 0 +2
-  IfFileExists "$INSTDIR\bin\smartd.exe" 0 noruncmd
+  ${If}   ${FileExists} "$INSTDIR\bin\smartctl.exe"
+  ${OrIf} ${FileExists} "$INSTDIR\bin\smartd.exe"
     SetOutPath "$INSTDIR\bin"
     !insertmacro FileExe "bin\runcmdu.exe" ""
     File "${INPDIR}\bin\runcmdu.exe.manifest"
-  noruncmd:
+  ${EndIf}
 
   ; smartctl
-  IfFileExists "$INSTDIR\bin\smartctl.exe" 0 noctl
+  ${If} ${FileExists} "$INSTDIR\bin\smartctl.exe"
     SetOutPath "$INSTDIR\bin"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl (Admin CMD).lnk" "$WINDIR\system32\cmd.exe" '/k PATH=$INSTDIR\bin;%PATH%&cd /d "$INSTDIR\bin"'
     CreateDirectory "$SMPROGRAMS\smartmontools\smartctl Examples"
@@ -273,10 +277,10 @@ Section "Start Menu Shortcuts" MENU_SECTION
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Stop(Abort) selftest (-X).lnk"        "$INSTDIR\bin\runcmdu.exe" "smartctl -X sda"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Turn SMART off (-s off).lnk"          "$INSTDIR\bin\runcmdu.exe" "smartctl -s off sda"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Turn SMART on (-s on).lnk"            "$INSTDIR\bin\runcmdu.exe" "smartctl -s on sda"
-  noctl:
+  ${EndIf}
 
   ; smartd
-  IfFileExists "$INSTDIR\bin\smartd.exe" 0 nod
+  ${If} ${FileExists} "$INSTDIR\bin\smartd.exe"
     SetOutPath "$INSTDIR\bin"
     CreateDirectory "$SMPROGRAMS\smartmontools\smartd Examples"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Daemon start, smartd.log.lnk"           "$INSTDIR\bin\runcmdu.exe" "smartd -l local0"
@@ -295,10 +299,10 @@ Section "Start Menu Shortcuts" MENU_SECTION
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service remove.lnk"                     "$INSTDIR\bin\runcmdu.exe" "smartd remove"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service start.lnk"                      "$INSTDIR\bin\runcmdu.exe" "net start smartd"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service stop.lnk"                       "$INSTDIR\bin\runcmdu.exe" "net stop smartd"
-  nod:
+  ${EndIf}
 
   ; Documentation
-  IfFileExists "$INSTDIR\doc\README.TXT" 0 nodoc
+  ${If} ${FileExists} "$INSTDIR\doc\README.TXT"
     SetOutPath "$INSTDIR\doc"
     CreateDirectory "$SMPROGRAMS\smartmontools\Documentation"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartctl manual page (html).lnk"    "$INSTDIR\doc\smartctl.8.html"
@@ -308,30 +312,30 @@ Section "Start Menu Shortcuts" MENU_SECTION
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd manual page (txt).lnk"       "$INSTDIR\doc\smartd.8.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd.conf manual page (txt).lnk"  "$INSTDIR\doc\smartd.conf.5.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd.conf sample.lnk" "$EDITOR" "$INSTDIR\doc\smartd.conf"
-    IfFileExists "$INSTDIR\bin\drivedb.h" 0 nodb
+    ${If} ${FileExists} "$INSTDIR\bin\drivedb.h"
         CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb.h (view).lnk" "$EDITOR" "$INSTDIR\bin\drivedb.h"
         !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb-add.h (create, edit).lnk" "$EDITOR" "$INSTDIR\bin\drivedb-add.h"
-    nodb:
+    ${EndIf}
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\ChangeLog.lnk" "$INSTDIR\doc\ChangeLog.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\COPYING.lnk"   "$INSTDIR\doc\COPYING.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\NEWS.lnk"      "$INSTDIR\doc\NEWS.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\Windows version download page.lnk" "http://smartmontools.no-ip.org/"
-  nodoc:
+  ${EndIf}
 
   ; Homepage
   CreateShortCut "$SMPROGRAMS\smartmontools\smartmontools Home Page.lnk" "http://www.smartmontools.org/"
 
   ; drivedb.h update
-  IfFileExists "$INSTDIR\bin\update-smart-drivedb.exe" 0 noupdb
+  ${If} ${FileExists} "$INSTDIR\bin\update-smart-drivedb.exe"
     SetOutPath "$INSTDIR\bin"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\drivedb.h update.lnk" "$INSTDIR\bin\update-smart-drivedb.exe" ""
-  noupdb:
+  ${EndIf}
 
   ; Uninstall
-  IfFileExists "$INSTDIR\uninst-smartmontools.exe" 0 noinst
+  ${If} ${FileExists} "$INSTDIR\uninst-smartmontools.exe"
     SetOutPath "$INSTDIR"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\Uninstall smartmontools.lnk" "$INSTDIR\uninst-smartmontools.exe" ""
-  noinst:
+  ${EndIf}
 
 SectionEnd
 
@@ -385,37 +389,40 @@ SectionGroupEnd
 Section "Uninstall"
   
   ; Stop & remove service
-  IfFileExists "$INSTDIR\bin\smartd.exe" 0 nosrv
+  ${If} ${FileExists} "$INSTDIR\bin\smartd.exe"
     ReadRegStr $0 HKLM "System\CurrentControlSet\Services\smartd" "ImagePath"
-    StrCmp $0 "" nosrv
+    ${If} $0 != ""
       ExecWait "net stop smartd"
-      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Remove smartd service ?" /SD IDNO IDYES 0 IDNO nosrv
+      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Remove smartd service ?" /SD IDNO IDYES 0 IDNO +2
         ExecWait "$INSTDIR\bin\smartd.exe remove"
-  nosrv:
+    ${EndIf}
+  ${EndIf}
 
   ; Remove installer registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools"
   DeleteRegKey HKLM "Software\smartmontools"
 
   ; Remove conf file ?
-  IfFileExists "$INSTDIR\bin\smartd.conf" 0 noconf
+  ${If} ${FileExists} "$INSTDIR\bin\smartd.conf"
     ; Assume unchanged if timestamp is equal to sample file
     GetFileTime "$INSTDIR\bin\smartd.conf" $0 $1
     GetFileTime "$INSTDIR\doc\smartd.conf" $2 $3
     StrCmp "$0:$1" "$2:$3" +2 0
-      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete configuration file$\n$INSTDIR\bin\smartd.conf ?" /SD IDNO IDYES 0 IDNO noconf
+      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete configuration file$\n$INSTDIR\bin\smartd.conf ?" /SD IDNO IDYES 0 IDNO +2
         Delete "$INSTDIR\bin\smartd.conf"
-  noconf:
+  ${EndIf}
 
   ; Remove log file ?
-  IfFileExists "$INSTDIR\bin\smartd.log" 0 +3
+  ${If} ${FileExists} "$INSTDIR\bin\smartd.log"
     MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete log file$\n$INSTDIR\bin\smartd.log ?" /SD IDNO IDYES 0 IDNO +2
       Delete "$INSTDIR\bin\smartd.log"
+  ${EndIf}
 
   ; Remove drivedb-add file ?
-  IfFileExists "$INSTDIR\bin\drivedb-add.h" 0 +3
+  ${If} ${FileExists} "$INSTDIR\bin\drivedb-add.h"
     MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Delete local drive database file$\n$INSTDIR\bin\drivedb-add.h ?" /SD IDNO IDYES 0 IDNO +2
       Delete "$INSTDIR\bin\drivedb-add.h"
+  ${EndIf}
 
   ; Remove files
   Delete "$INSTDIR\bin\smartctl.exe"
@@ -477,14 +484,15 @@ Section "Uninstall"
   !insertmacro DriveMenuRemove
 
   ; Check for still existing entries
-  IfFileExists "$INSTDIR\bin\smartd.exe" 0 +3
+  ${If} ${FileExists} "$INSTDIR\bin\smartd.exe"
     MessageBox MB_OK|MB_ICONEXCLAMATION "$INSTDIR\bin\smartd.exe could not be removed.$\nsmartd is possibly still running." /SD IDOK
-    Goto +3
-  IfFileExists "$INSTDIR" 0 +2
+  ${ElseIf} ${FileExists} "$INSTDIR"
     MessageBox MB_OK "Note: $INSTDIR could not be removed." /SD IDOK
+  ${EndIf}
 
-  IfFileExists "$SMPROGRAMS\smartmontools" 0 +2
+  ${If} ${FileExists} "$SMPROGRAMS\smartmontools"
     MessageBox MB_OK "Note: $SMPROGRAMS\smartmontools could not be removed." /SD IDOK
+  ${EndIf}
 
 SectionEnd
 
@@ -500,17 +508,19 @@ SectionEnd
 Function .onInit
 
   ; Set default install directories
-  StrCmp $INSTDIR "" 0 endinst ; /D=PATH option specified ?
-  ReadRegStr $INSTDIR HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation"
-  StrCmp $INSTDIR "" 0 endinst ; Already installed ?
-  ReadRegStr $INSTDIR HKLM "Software\smartmontools" "Install_Dir"
-  StrCmp $INSTDIR "" 0 endinst ; Already installed ?
-    StrCpy $INSTDIR "$PROGRAMFILES\smartmontools"
+  ${If} $INSTDIR == "" ; /D=PATH option specified ?
+    ReadRegStr $INSTDIR HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation"
+    ${If} $INSTDIR == "" ; Already installed ?
+      ReadRegStr $INSTDIR HKLM "Software\smartmontools" "Install_Dir"
+      ${If} $INSTDIR == "" ; Already installed (smartmontools < r3911/6.3) ?
+        StrCpy $INSTDIR "$PROGRAMFILES\smartmontools"
 !ifdef INPDIR64
-    StrCpy $INSTDIR32 $INSTDIR
-    StrCpy $INSTDIR64 "$PROGRAMFILES64\smartmontools"
+        StrCpy $INSTDIR32 $INSTDIR
+        StrCpy $INSTDIR64 "$PROGRAMFILES64\smartmontools"
 !endif
-  endinst:
+      ${EndIf}
+    ${EndIf}
+  ${EndIf}
 
 !ifdef INPDIR64
   ; Sizes of binary sections include 32-bit and 64-bit executables
@@ -521,8 +531,9 @@ Function .onInit
 
   ; Use Notepad++ if installed
   StrCpy $EDITOR "$PROGRAMFILES\Notepad++\notepad++.exe"
-  IfFileExists "$EDITOR" +2 0
+  ${IfNot} ${FileExists} "$EDITOR"
     StrCpy $EDITOR "notepad.exe"
+  ${EndIf}
 
   Call ParseCmdLine
 FunctionEnd
@@ -533,18 +544,19 @@ FunctionEnd
 Function CheckX64
   SectionGetFlags ${X64_SECTION} $0
   IntOp $0 $0 & ${SF_SELECTED}
-  IntCmp $0 ${SF_SELECTED} x64
+  ${If} $0 <> ${SF_SELECTED}
     StrCpy $X64 ""
-    StrCmp $INSTDIR32 "" +3
+    ${If} $INSTDIR32 != ""
       StrCpy $INSTDIR $INSTDIR32
       StrCpy $INSTDIR32 ""
-    Goto done
-  x64:
+    ${EndIf}
+  ${Else}
     StrCpy $X64 "t"
-    StrCmp $INSTDIR64 "" +3
+    ${If} $INSTDIR64 != ""
       StrCpy $INSTDIR $INSTDIR64
       StrCpy $INSTDIR64 ""
-  done:
+    ${EndIf}
+  ${EndIf}
 FunctionEnd
 !endif
 
@@ -555,13 +567,12 @@ FunctionEnd
   Push ",${name},"
   Call StrStr
   Pop $0
-  StrCmp $0 "" 0 sel_${name}
-  !insertmacro UnselectSection ${section}
-  Goto done_${name}
-sel_${name}:
-  !insertmacro SelectSection ${section}
-  StrCpy $nomatch ""
-done_${name}:
+  ${If} $0 == ""
+    !insertmacro UnselectSection ${section}
+  ${Else}
+    !insertmacro SelectSection ${section}
+    StrCpy $nomatch ""
+  ${EndIf}
 !macroend
 
 Function ParseCmdLine
@@ -569,8 +580,9 @@ Function ParseCmdLine
   Var /global opts
   ${GetParameters} $R0
   ${GetOptions} $R0 "/SO" $opts
-  IfErrors 0 +2
+  ${If} ${Errors}
     Return
+  ${EndIf}
   Var /global allopts
   StrCpy $allopts ""
   Var /global nomatch
@@ -579,8 +591,9 @@ Function ParseCmdLine
 !ifdef INPDIR64
   !insertmacro CheckCmdLineOption "x64" ${X64_SECTION}
   Call CheckX64
-  StrCmp $opts "x64" 0 +2
+  ${If} $opts == "x64"
     Return ; leave sections unchanged if only "x64" is specified
+  ${EndIf}
 !endif
   !insertmacro CheckCmdLineOption "smartctl" ${SMARTCTL_SECTION}
   !insertmacro CheckCmdLineOption "smartd" ${SMARTD_SECTION}
@@ -597,22 +610,23 @@ Function ParseCmdLine
   !insertmacro CheckCmdLineOption "drive3" ${DRIVE_3_SECTION}
   !insertmacro CheckCmdLineOption "drive4" ${DRIVE_4_SECTION}
   !insertmacro CheckCmdLineOption "drive5" ${DRIVE_5_SECTION}
-  StrCmp $opts "-" done
-  StrCmp $nomatch "" done
-    StrCpy $0 "$allopts,-" "" 1
-    MessageBox MB_OK "Usage: smartmontools-VERSION.win32-setup [/S] [/SO component,...] [/D=INSTDIR]$\n$\ncomponents:$\n  $0"
-    Abort
-done:
+  ${If} $opts != "-"
+    ${If} $nomatch != ""
+      StrCpy $0 "$allopts,-" "" 1
+      MessageBox MB_OK "Usage: smartmontools-VERSION.win32-setup [/S] [/SO component,...] [/D=INSTDIR]$\n$\ncomponents:$\n  $0"
+      Abort
+    ${EndIf}
+  ${EndIf}
 FunctionEnd
 
 ; Install runcmda.exe if missing
 
 Function CheckRunCmdA
-  IfFileExists "$INSTDIR\bin\runcmda.exe" done 0
+  ${IfNot} ${FileExists} "$INSTDIR\bin\runcmda.exe"
     SetOutPath "$INSTDIR\bin"
     !insertmacro FileExe "bin\runcmda.exe" ""
     File "${INPDIR}\bin\runcmda.exe.manifest"
-  done:
+  ${EndIf}
 FunctionEnd
 
 
@@ -658,16 +672,19 @@ Function AddToPath
   System::Call "advapi32::RegQueryValueEx(i $3, t'PATH', i 0, i 0, t.r1, *i ${NSIS_MAX_STRLEN} r2) i.r4"
   System::Call "advapi32::RegCloseKey(i $3)"
 
-  IntCmp $4 234 0 +4 +4 ; $4 == ERROR_MORE_DATA
+  ${If} $4 = 234 ; ERROR_MORE_DATA
     DetailPrint "AddToPath: original length $2 > ${NSIS_MAX_STRLEN}"
     MessageBox MB_OK "PATH not updated, original length $2 > ${NSIS_MAX_STRLEN}"
     Goto done
+  ${EndIf}
 
-  IntCmp $4 0 +5 ; $4 != NO_ERROR
-    IntCmp $4 2 +3 ; $4 != ERROR_FILE_NOT_FOUND
+  ${If} $4 <> 0 ; NO_ERROR
+    ${If} $4 <> 2 ; ERROR_FILE_NOT_FOUND
       DetailPrint "AddToPath: unexpected error code $4"
       Goto done
+    ${EndIf}
     StrCpy $1 ""
+  ${EndIf}
 
   ; Check if already in PATH
   Push "$1;"
@@ -686,18 +703,21 @@ Function AddToPath
   StrLen $3 $1
   IntOp $2 $2 + $3
   IntOp $2 $2 + 2 ; $2 = strlen(dir) + strlen(PATH) + sizeof(";")
-  IntCmp $2 ${NSIS_MAX_STRLEN} +4 +4 0
+  ${If} $2 > ${NSIS_MAX_STRLEN}
     DetailPrint "AddToPath: new length $2 > ${NSIS_MAX_STRLEN}"
     MessageBox MB_OK "PATH not updated, new length $2 > ${NSIS_MAX_STRLEN}."
     Goto done
+  ${EndIf}
 
   ; Append dir to PATH
   DetailPrint "Add to PATH: $0"
   StrCpy $2 $1 1 -1
-  StrCmp $2 ";" 0 +2
+  ${If} $2 == ";"
     StrCpy $1 $1 -1 ; remove trailing ';'
-  StrCmp $1 "" +2   ; no leading ';'
+  ${EndIf}
+  ${If} $1 != "" ; no leading ';'
     StrCpy $0 "$1;$0"
+  ${EndIf}
   WriteRegExpandStr ${Environ} "PATH" $0
   SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 
@@ -727,8 +747,9 @@ Function un.RemoveFromPath
 
   ReadRegStr $1 ${Environ} "PATH"
   StrCpy $5 $1 1 -1
-  StrCmp $5 ";" +2
+  ${If} $5 != ";"
     StrCpy $1 "$1;" ; ensure trailing ';'
+  ${EndIf}
   Push $1
   Push "$0;"
   Call un.StrStr
@@ -742,8 +763,9 @@ Function un.RemoveFromPath
   StrCpy $6 $2 "" $3 ; $6 is now the part after the path to remove
   StrCpy $3 "$5$6"
   StrCpy $5 $3 1 -1
-  StrCmp $5 ";" 0 +2
+  ${If} $5 == ";"
     StrCpy $3 $3 -1 ; remove trailing ';'
+  ${EndIf}
   WriteRegExpandStr ${Environ} "PATH" $3
   SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 
@@ -778,13 +800,12 @@ Function ${un}StrStr
   StrCpy $R4 0
   ; $R1=substring, $R2=string, $R3=strlen(substring)
   ; $R4=count, $R5=tmp
-  loop:
+  ${Do}
     StrCpy $R5 $R2 $R3 $R4
-    StrCmp $R5 $R1 done
-    StrCmp $R5 "" done
+    ${IfThen} $R5 == $R1 ${|} ${ExitDo} ${|}
+    ${IfThen} $R5 == ""  ${|} ${ExitDo} ${|}
     IntOp $R4 $R4 + 1
-    Goto loop
-done:
+  ${Loop}
   StrCpy $R1 $R2 "" $R4
   Pop $R5
   Pop $R4
@@ -803,8 +824,6 @@ FunctionEnd
 ; Slightly modified version from:
 ; http://nsis.sourceforge.net/IShellLink_Set_RunAs_flag
 ;
-
-!include "LogicLib.nsh"
 
 !define IPersistFile {0000010b-0000-0000-c000-000000000046}
 !define CLSID_ShellLink {00021401-0000-0000-C000-000000000046}
@@ -852,5 +871,5 @@ Function ShellLinkSetRunAs
   ${Else}
     DetailPrint "Set RunAsAdmin: $9"
   ${EndIf}
-  System::Store L ; push $0-$9, $R0-$R9
+  System::Store L ; pop $R9-$R0, $9-$0
 FunctionEnd
