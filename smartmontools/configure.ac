@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4170 2015-11-15 16:57:50Z chrfranke $
+# $Id: configure.ac 4171 2015-11-15 18:26:36Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.5, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4170 2015-11-15 16:57:50Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4171 2015-11-15 18:26:36Z chrfranke $'`
 smartmontools_release_date=2015-06-04
 smartmontools_release_time="16:29:41 UTC"
 
@@ -381,10 +381,10 @@ case "$host" in
     AC_MSG_CHECKING([whether $CC adds an application manifest])
     cc_adds_manifest=no
     AC_LINK_IFELSE([AC_LANG_PROGRAM()], [
-        if "$WINDRES" -O rc conftest.exe | grep '^1.*RT_MANIFEST' >/dev/null 2>&1; then
+        if "$WINDRES" -O rc conftest.exe 2>/dev/null | grep '^1.*RT_MANIFEST' >/dev/null 2>&1; then
           cc_adds_manifest=incomplete
           # Manifest must provide a Win 10 compatibility ID
-          if "$WINDRES" -O rc conftest.exe | grep '{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}' >/dev/null 2>&1; then
+          if "$WINDRES" -O rc conftest.exe 2>/dev/null | grep '{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}' >/dev/null 2>&1; then
             cc_adds_manifest=yes
           fi
         fi],
