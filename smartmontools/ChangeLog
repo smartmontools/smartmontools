@@ -1,4 +1,8 @@
-$Id: ChangeLog 4166 2015-11-07 18:14:33Z chrfranke $
+$Id: ChangeLog 4168 2015-11-15 15:38:58Z chrfranke $
+
+2015-11-15  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Use macros from 'LogicLib.nsh' where possible.
 
 2015-11-07  Christian Franke  <franke@computer.org>
 
