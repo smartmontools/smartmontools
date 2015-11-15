@@ -381,10 +381,10 @@ case "$host" in
     AC_MSG_CHECKING([whether $CC adds an application manifest])
     cc_adds_manifest=no
     AC_LINK_IFELSE([AC_LANG_PROGRAM()], [
-        if "$WINDRES" -O rc conftest.exe | grep '^1.*RT_MANIFEST' >/dev/null 2>&1; then
+        if "$WINDRES" -O rc conftest.exe 2>/dev/null | grep '^1.*RT_MANIFEST' >/dev/null 2>&1; then
           cc_adds_manifest=incomplete
           # Manifest must provide a Win 10 compatibility ID
-          if "$WINDRES" -O rc conftest.exe | grep '{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}' >/dev/null 2>&1; then
+          if "$WINDRES" -O rc conftest.exe 2>/dev/null | grep '{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}' >/dev/null 2>&1; then
             cc_adds_manifest=yes
           fi
         fi],
