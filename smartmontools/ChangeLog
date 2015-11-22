@@ -1,6 +1,8 @@
-$Id: ChangeLog 4174 2015-11-22 16:19:29Z chrfranke $
+$Id: ChangeLog 4175 2015-11-22 16:35:52Z chrfranke $
 
 2015-11-22  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add NEWS file to svnversion.h target.
 
 	os_win32/installer.nsi: Select 64-bit version on 64-bit Windows.
 	Fix installation of runcmda.exe.  Update links.
