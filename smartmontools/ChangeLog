@@ -3,6 +3,7 @@ $Id$
 2015-11-22  Christian Franke  <franke@computer.org>
 
 	os_win32/installer.nsi: Select 64-bit version on 64-bit Windows.
+	Fix installation of runcmda.exe.
 
 2015-11-15  Christian Franke  <franke@computer.org>
 
