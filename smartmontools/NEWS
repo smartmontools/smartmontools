@@ -5,6 +5,26 @@ $Id$
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
+Date <Not released yet, please try current SVN or daily builds>
+Summary: smartmontools release 6.5
+-----------------------------------------------------------
+- SAT: Improved heuristics to detect bogus sense data from SAT layer.
+- configure options '--disable-drivedb', '--enable-savestates',
+  '--enable-attributelog' and '--with-docdir' are no longer supported.
+- autoconf < 2.60 and automake < 1.10 are no longer supported.
+- Drive database file now also includes the DEFAULT setting
+  for each attribute.
+- HDD, SSD and USB additions to drive database.
+- Darwin: New support files for package installer.
+  New makefile target 'install-darwin' builds DMG image.
+- Solaris: Auto detection of SATA devices behind SAT layer.
+- Solaris SPARC: Legacy ATA support disabled by default.
+  New configure option '--with-solaris-sparc-ata' enables it.
+  File os_solaris_ata.s is no longer included in source tarball.
+- Windows: Auto detection of USB devices specified by drive letter.
+- Windows: New application manifests indicating Win 10 support.
+- Windows installer: Defaults to 64-bit version on 64-bit Windows.
+
 Date 2015-06-04
 Summary: smartmontools release 6.4
 -----------------------------------------------------------
