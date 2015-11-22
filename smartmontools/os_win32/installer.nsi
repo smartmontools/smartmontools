@@ -45,7 +45,7 @@ InstallColors /windows
 
 ; Set in .onInit
 ;InstallDir "$PROGRAMFILES\smartmontools"
-;InstallDirRegKey HKLM "Software\smartmontools" "Install_Dir"
+;InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation"
 
 Var EDITOR
 
@@ -80,6 +80,11 @@ UninstPage instfiles
 InstType "Full"
 InstType "Extract files only"
 InstType "Drive menu"
+!ifdef INPDIR64
+InstType "Full (x64)"
+InstType "Extract files only (x64)"
+InstType "Drive menu (x64)"
+!endif
 
 
 ;--------------------------------------------------------------------
@@ -87,8 +92,17 @@ InstType "Drive menu"
 
 !ifdef INPDIR64
   Section "64-bit version" X64_SECTION
+    SectionIn 4 5 6
     ; Handled in Function CheckX64
   SectionEnd
+
+  !define FULL_TYPES "1 4"
+  !define EXTRACT_TYPES  "2 5"
+  !define DRIVEMENU_TYPE     "3 6"
+!else
+  !define FULL_TYPES "1"
+  !define EXTRACT_TYPES  "2"
+  !define DRIVEMENU_TYPE     "3"
 !endif
 
 SectionGroup "!Program files"
@@ -112,7 +126,7 @@ SectionGroup "!Program files"
 
   Section "smartctl" SMARTCTL_SECTION
 
-    SectionIn 1 2
+    SectionIn ${FULL_TYPES} ${EXTRACT_TYPES}
 
     SetOutPath "$INSTDIR\bin"
     !insertmacro FileExe "bin\smartctl.exe" ""
@@ -121,7 +135,7 @@ SectionGroup "!Program files"
 
   Section "smartd" SMARTD_SECTION
 
-    SectionIn 1 2
+    SectionIn ${FULL_TYPES} ${EXTRACT_TYPES}
 
     SetOutPath "$INSTDIR\bin"
 
@@ -152,7 +166,7 @@ SectionGroup "!Program files"
 
   Section "smartctl-nc (GSmartControl)" SMARTCTL_NC_SECTION
 
-    SectionIn 1 2
+    SectionIn ${FULL_TYPES} ${EXTRACT_TYPES}
 
     SetOutPath "$INSTDIR\bin"
     !insertmacro FileExe "bin\smartctl-nc.exe" ""
@@ -161,7 +175,7 @@ SectionGroup "!Program files"
 
   Section "drivedb.h (Drive Database)" DRIVEDB_SECTION
 
-    SectionIn 1 2
+    SectionIn ${FULL_TYPES} ${EXTRACT_TYPES}
 
     SetOutPath "$INSTDIR\bin"
     File "${INPDIR}\bin\drivedb.h"
@@ -173,7 +187,7 @@ SectionGroupEnd
 
 Section "!Documentation" DOC_SECTION
 
-  SectionIn 1 2
+  SectionIn ${FULL_TYPES} ${EXTRACT_TYPES}
 
   SetOutPath "$INSTDIR\doc"
   File "${INPDIR}\doc\AUTHORS.txt"
@@ -205,7 +219,7 @@ SectionEnd
 
 Section "Uninstaller" UNINST_SECTION
 
-  SectionIn 1
+  SectionIn ${FULL_TYPES}
   AddSize 40
 
   CreateDirectory "$INSTDIR"
@@ -236,7 +250,7 @@ SectionEnd
 
 Section "Start Menu Shortcuts" MENU_SECTION
 
-  SectionIn 1
+  SectionIn ${FULL_TYPES}
 
   SetShellVarContext all
 
@@ -341,7 +355,7 @@ SectionEnd
 
 Section "Add install dir to PATH" PATH_SECTION
 
-  SectionIn 1
+  SectionIn ${FULL_TYPES}
 
   Push "$INSTDIR\bin"
   Call AddToPath
@@ -361,13 +375,13 @@ SectionGroup "Add smartctl to drive menu"
 !macroend
 
   Section "Remove existing entries first" DRIVE_REMOVE_SECTION
-    SectionIn 3
+    SectionIn ${DRIVEMENU_TYPE}
     !insertmacro DriveMenuRemove
   SectionEnd
 
 !macro DriveSection id name args
   Section 'smartctl ${args} ...' DRIVE_${id}_SECTION
-    SectionIn 3
+    SectionIn ${DRIVEMENU_TYPE}
     Call CheckRunCmdA
     DetailPrint 'Add drive menu entry "${name}": smartctl ${args} ...'
     WriteRegStr HKCR "Drive\shell\smartctl${id}" "" "${name}"
@@ -508,11 +522,11 @@ SectionEnd
 Function .onInit
 
   ; Set default install directories
-  ${If} $INSTDIR == "" ; /D=PATH option specified ?
+  ${If} $INSTDIR == "" ; /D=PATH option not specified ?
     ReadRegStr $INSTDIR HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation"
-    ${If} $INSTDIR == "" ; Already installed ?
+    ${If} $INSTDIR == "" ; Not already installed ?
       ReadRegStr $INSTDIR HKLM "Software\smartmontools" "Install_Dir"
-      ${If} $INSTDIR == "" ; Already installed (smartmontools < r3911/6.3) ?
+      ${If} $INSTDIR == "" ; Not already installed (smartmontools < r3911/6.3) ?
         StrCpy $INSTDIR "$PROGRAMFILES\smartmontools"
 !ifdef INPDIR64
         StrCpy $INSTDIR32 $INSTDIR
@@ -523,6 +537,17 @@ Function .onInit
   ${EndIf}
 
 !ifdef INPDIR64
+  ; Check for 64-bit unless already installed in 32-bit location
+  ${If} $INSTDIR64 != ""
+  ${OrIf} $INSTDIR != "$PROGRAMFILES\smartmontools"
+    ; $1 = IsWow64Process(GetCurrentProcess(), ($0=FALSE, &$0))
+    System::Call "kernel32::GetCurrentProcess() i.s"
+    System::Call "kernel32::IsWow64Process(i s, *i 0 r0) i.r1"
+    ${If} "$0 $1" == "1 1" ; 64-bit Windows ?
+      !insertmacro SelectSection ${X64_SECTION}
+    ${EndIf}
+  ${EndIf}
+
   ; Sizes of binary sections include 32-bit and 64-bit executables
   !insertmacro AdjustSectionSize ${SMARTCTL_SECTION}
   !insertmacro AdjustSectionSize ${SMARTD_SECTION}
@@ -536,42 +561,51 @@ Function .onInit
   ${EndIf}
 
   Call ParseCmdLine
+
+!ifdef INPDIR64
+  Call CheckX64
+!endif
 FunctionEnd
 
 ; Check x64 section and update INSTDIR accordingly
 
 !ifdef INPDIR64
 Function CheckX64
-  SectionGetFlags ${X64_SECTION} $0
-  IntOp $0 $0 & ${SF_SELECTED}
-  ${If} $0 <> ${SF_SELECTED}
+  ${IfNot} ${SectionIsSelected} ${X64_SECTION}
     StrCpy $X64 ""
     ${If} $INSTDIR32 != ""
+    ${AndIf} $INSTDIR == $INSTDIR64
       StrCpy $INSTDIR $INSTDIR32
-      StrCpy $INSTDIR32 ""
     ${EndIf}
   ${Else}
     StrCpy $X64 "t"
     ${If} $INSTDIR64 != ""
+    ${AndIf} $INSTDIR == $INSTDIR32
       StrCpy $INSTDIR $INSTDIR64
-      StrCpy $INSTDIR64 ""
     ${EndIf}
   ${EndIf}
 FunctionEnd
 !endif
 
 ; Command line parsing
-!macro CheckCmdLineOption name section
-  StrCpy $allopts "$allopts,${name}"
+
+!macro GetCmdLineOption var name
   Push ",$opts,"
   Push ",${name},"
   Call StrStr
-  Pop $0
+  Pop ${var}
+  ${If} ${var} != ""
+    StrCpy $nomatch ""
+  ${EndIf}
+!macroend
+
+!macro CheckCmdLineOption name section
+  StrCpy $allopts "$allopts,${name}"
+  !insertmacro GetCmdLineOption $0 ${name}
   ${If} $0 == ""
     !insertmacro UnselectSection ${section}
   ${Else}
     !insertmacro SelectSection ${section}
-    StrCpy $nomatch ""
   ${EndIf}
 !macroend
 
@@ -584,17 +618,26 @@ Function ParseCmdLine
     Return
   ${EndIf}
   Var /global allopts
-  StrCpy $allopts ""
   Var /global nomatch
   StrCpy $nomatch "t"
-  ; turn sections on or off
 !ifdef INPDIR64
-  !insertmacro CheckCmdLineOption "x64" ${X64_SECTION}
-  Call CheckX64
-  ${If} $opts == "x64"
-    Return ; leave sections unchanged if only "x64" is specified
+  ; Change previous 64-bit setting
+  StrCpy $allopts ",x32|x64"
+  !insertmacro GetCmdLineOption $0 "x32"
+  ${If} $0 != ""
+    !insertmacro UnselectSection ${X64_SECTION}
+  ${EndIf}
+  !insertmacro GetCmdLineOption $0 "x64"
+  ${If} $0 != ""
+    !insertmacro SelectSection ${X64_SECTION}
+  ${EndIf}
+  ; Leave other sections unchanged if only "x32" or "x64" is specified
+  ${If}   $opts == "x32"
+  ${OrIf} $opts == "x64"
+    Return
   ${EndIf}
 !endif
+  ; Turn sections on or off
   !insertmacro CheckCmdLineOption "smartctl" ${SMARTCTL_SECTION}
   !insertmacro CheckCmdLineOption "smartd" ${SMARTD_SECTION}
   !insertmacro CheckCmdLineOption "smartctlnc" ${SMARTCTL_NC_SECTION}

@@ -1,5 +1,9 @@
 $Id$
 
+2015-11-22  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Select 64-bit version on 64-bit Windows.
+
 2015-11-15  Christian Franke  <franke@computer.org>
 
 	configure.ac: Check whether MinGW adds an application manifest.
