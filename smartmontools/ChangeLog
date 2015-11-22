@@ -1,8 +1,9 @@
-$Id: ChangeLog 4172 2015-11-22 15:48:20Z chrfranke $
+$Id: ChangeLog 4173 2015-11-22 16:04:32Z chrfranke $
 
 2015-11-22  Christian Franke  <franke@computer.org>
 
 	os_win32/installer.nsi: Select 64-bit version on 64-bit Windows.
+	Fix installation of runcmda.exe.
 
 2015-11-15  Christian Franke  <franke@computer.org>
 

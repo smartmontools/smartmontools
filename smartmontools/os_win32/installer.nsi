@@ -13,7 +13,7 @@
 ; You should have received a copy of the GNU General Public License
 ; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
-; $Id: installer.nsi 4172 2015-11-22 15:48:20Z chrfranke $
+; $Id: installer.nsi 4173 2015-11-22 16:04:32Z chrfranke $
 ;
 
 
@@ -662,10 +662,12 @@ Function ParseCmdLine
   ${EndIf}
 FunctionEnd
 
-; Install runcmda.exe if missing
+; Install runcmda.exe only once
 
 Function CheckRunCmdA
-  ${IfNot} ${FileExists} "$INSTDIR\bin\runcmda.exe"
+  Var /global runcmda
+  ${If} $runcmda == ""
+    StrCpy $runcmda "t"
     SetOutPath "$INSTDIR\bin"
     !insertmacro FileExe "bin\runcmda.exe" ""
     Delete "$INSTDIR\bin\runcmda.exe.manifest" ; TODO: Remove after smartmontools 6.5
