@@ -1,4 +1,8 @@
-$Id: ChangeLog 4170 2015-11-15 16:57:50Z chrfranke $
+$Id: ChangeLog 4172 2015-11-22 15:48:20Z chrfranke $
+
+2015-11-22  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Select 64-bit version on 64-bit Windows.
 
 2015-11-15  Christian Franke  <franke@computer.org>
 
