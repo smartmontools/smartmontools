@@ -1,4 +1,8 @@
-$Id: ChangeLog 4175 2015-11-22 16:35:52Z chrfranke $
+$Id: ChangeLog 4177 2015-11-23 18:06:28Z chrfranke $
+
+2015-11-23  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Fix GLTSD bit set/cleared info messages (ticket #621).
 
 2015-11-22  Christian Franke  <franke@computer.org>
 

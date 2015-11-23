@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4157 2015-10-20 16:03:57Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4177 2015-11-23 18:06:28Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1925,7 +1925,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
       else {
-         pout("Autosave enabled (GLTSD bit set).\n");
+        pout("Autosave enabled (GLTSD bit cleared).\n");
       }
       any_output = true;
     }
@@ -1965,7 +1965,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
       else {
-         pout("Autosave disabled (GLTSD bit cleared).\n");
+        pout("Autosave disabled (GLTSD bit set).\n");
       }
       any_output = true;
     }
