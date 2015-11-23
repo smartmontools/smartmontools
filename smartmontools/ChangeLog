@@ -1,5 +1,9 @@
 $Id$
 
+2015-11-23  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Fix GLTSD bit set/cleared info messages (ticket #621).
+
 2015-11-22  Christian Franke  <franke@computer.org>
 
 	Makefile.am: Add NEWS file to svnversion.h target.

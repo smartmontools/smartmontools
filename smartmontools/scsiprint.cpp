@@ -1925,7 +1925,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
       else {
-         pout("Autosave enabled (GLTSD bit set).\n");
+        pout("Autosave enabled (GLTSD bit cleared).\n");
       }
       any_output = true;
     }
@@ -1965,7 +1965,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
       else {
-         pout("Autosave disabled (GLTSD bit cleared).\n");
+        pout("Autosave disabled (GLTSD bit set).\n");
       }
       any_output = true;
     }
