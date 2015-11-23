@@ -1,6 +1,9 @@
-$Id: ChangeLog 4177 2015-11-23 18:06:28Z chrfranke $
+$Id: ChangeLog 4178 2015-11-23 18:44:27Z chrfranke $
 
 2015-11-23  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: parse_attribute_def(): Init buffers before sscanf() call
+	(cppcheck-1.71: uninitvar).
 
 	scsiprint.cpp: Fix GLTSD bit set/cleared info messages (ticket #621).
 

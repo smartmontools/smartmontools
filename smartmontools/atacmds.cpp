@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4162 2015-10-31 16:36:16Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4178 2015-11-23 18:44:27Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -172,6 +172,8 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
   int len = strlen(opt);
   int id = 0, n1 = -1, n2 = -1;
   char fmtname[32+1], attrname[32+1], hddssd[3+1];
+  attrname[0] = hddssd[0] = 0;
+
   if (opt[0] == 'N') {
     // "N,format[,name]"
     if (!(   sscanf(opt, "N,%32[^,]%n,%32[^,]%n", fmtname, &n1, attrname, &n2) >= 1
@@ -189,10 +191,6 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
               || (n3 == len && priority == PRIOR_DEFAULT))))
       return false;
   }
-  if (n1 == len)
-    attrname[0] = hddssd[0] = 0;
-  else if (n2 == len)
-    hddssd[0] = 0;
 
   unsigned flags = 0;
   // For "-v 19[78],increasing" above
