@@ -172,6 +172,8 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
   int len = strlen(opt);
   int id = 0, n1 = -1, n2 = -1;
   char fmtname[32+1], attrname[32+1], hddssd[3+1];
+  attrname[0] = hddssd[0] = 0;
+
   if (opt[0] == 'N') {
     // "N,format[,name]"
     if (!(   sscanf(opt, "N,%32[^,]%n,%32[^,]%n", fmtname, &n1, attrname, &n2) >= 1
@@ -189,10 +191,6 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
               || (n3 == len && priority == PRIOR_DEFAULT))))
       return false;
   }
-  if (n1 == len)
-    attrname[0] = hddssd[0] = 0;
-  else if (n2 == len)
-    hddssd[0] = 0;
 
   unsigned flags = 0;
   // For "-v 19[78],increasing" above
