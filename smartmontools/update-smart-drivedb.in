@@ -175,6 +175,15 @@ download()
       vrun2 "$f" lynx -stderr -noredir -source "$u" || rc=$?
       ;;
 
+    svn)
+      vrun svn $q export \
+        --non-interactive --no-auth-cache \
+        ${cacert:+--config-option "servers:global:ssl-trust-default-ca=no"} \
+        ${cacert:+--config-option "servers:global:ssl-authority-files=$cacert"} \
+        ${insecure:+--trust-server-cert} \
+        "$u" "$f" || rc=$?
+      ;;
+
     fetch) # FreeBSD
       vrun fetch $q --no-redirect \
         ${cacert:+--ca-cert "$cacert"} \
@@ -259,6 +268,13 @@ fi
 test -n "$url" || selecturl "svn"
 
 # Check option compatibility
+case "$tool:$url" in
+  svn:http*://svn.code.sf.net*) ;;
+  svn:*) error "'-t svn' requires '-u svn' or '-u svni'" ;;
+esac
+case "$tool:${capath:+set}" in
+  svn:set) warning "'--capath' is ignored if '-t svn' is used" ;;
+esac
 case "${insecure:-f}:$url" in
   t:http:*) insecure= ;;
   ?:https:*) ;;

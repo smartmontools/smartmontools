@@ -416,7 +416,7 @@ AC_SUBST(smartmontools_release_time)
 
 # Set platform-specific modules and symbols
 os_libs=
-os_dltools='curl wget lynx'
+os_dltools='curl wget lynx svn'
 os_mailer=mail
 os_hostname="'hostname'"
 os_dnsdomainname=
@@ -437,7 +437,7 @@ case "${host}" in
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
     os_deps='os_freebsd.o cciss.o dev_areca.o'
     os_libs='-lcam'
-    os_dltools='curl wget lynx fetch'
+    os_dltools='curl wget lynx fetch svn'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
     os_man_filter=FreeBSD
     ;;
@@ -463,7 +463,7 @@ case "${host}" in
   *-*-openbsd*)
     os_deps='os_openbsd.o'
     os_libs='-lutil'
-    os_dltools='curl wget lynx ftp'
+    os_dltools='curl wget lynx ftp svn'
     os_man_filter=OpenBSD
     ;;
   *-*-cygwin*)
