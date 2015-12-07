@@ -2,7 +2,7 @@
 #
 # smartmontools drive database update script
 #
-# Copyright (C) 2010-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+# Copyright (C) 2010-15 Christian Franke
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,86 +34,296 @@ os_dltools="@os_dltools@"
 BRANCH="@DRIVEDB_BRANCH@"
 
 # Default drivedb location
-DEST="$drivedbdir/drivedb.h"
+DRIVEDB="$drivedbdir/drivedb.h"
 
 # Smartctl used for syntax check
 SMARTCTL="$sbindir/smartctl"
 
-# Download URL for sourceforge code browser
-SRCEXPR='http://sourceforge.net/p/smartmontools/code/HEAD/tree/$location/smartmontools/drivedb.h?format=raw'
+myname=$0
 
-# Parse options
-q="-q "
-case "$1" in
-  -v) q=; shift ;;
-esac
-
-case "$*" in
-  -*|*\ *)
-    cat <<EOF
+usage()
+{
+  cat <<EOF
 smartmontools $VERSION drive database update script
 
-Usage: $0 [-v] [DESTFILE]
+Usage: $myname [OPTIONS] [DESTFILE]
 
-  -v    verbose output
+  -t TOOL         Use TOOL for download: $os_dltools
+                  [default: first one found in PATH]
+  -u LOCATION     Use URL of LOCATION for download:
+                    sf (Sourceforge code browser via HTTP)
+                    svn (SVN repository via HTTPS) [default]
+                    svni (SVN repository via HTTP)
+                    trac (Trac code browser via HTTPS)
+  --cacert FILE   Use CA certificates from FILE to verify the peer
+  --capath DIR    Use CA certificate files from DIR to verify the peer
+  --insecure      Don't abort download if certificate verification fails
+  --dryrun        Print download commands only
+  -v              Verbose output
 
-Updates $DEST
+Updates $DRIVEDB
 or DESTFILE from smartmontools SVN repository.
 Tries to download first from branch $BRANCH
 and then from trunk.
 EOF
-    exit 1
-    ;;
+  exit 1
+}
 
-  "") ;;
-  *)  DEST="$1" ;;
+error()
+{
+  echo "$myname: $*" >&2
+  exit 1
+}
+
+warning()
+{
+  echo "$myname: (Warning) $*" >&2
+}
+
+selecturl()
+{
+  case $1 in
+    sf)   url='http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/drivedb.h?format=raw' ;;
+    svn)  url='https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
+    svni) url='http://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
+    trac) url='https://www.smartmontools.org/export/HEAD/trunk/smartmontools/drivedb.h' ;;
+    *) usage ;;
+  esac
+}
+
+inpath()
+{
+  local d rc save
+  rc=1
+  save=$IFS
+  IFS=':'
+  for d in $PATH; do
+    test -f "$d/$1" || continue
+    test -x "$d/$1" || continue
+    rc=0
+    break
+  done
+  IFS=$save
+  return $rc
+}
+
+vecho()
+{
+  test -n "$q" || echo "$*"
+}
+
+# vrun COMMAND ARGS...
+vrun()
+{
+  if [ -n "$dryrun" ]; then
+    echo "$*"
+  elif [ -n "$q" ]; then
+    "$@" 2>/dev/null
+  else
+    echo "$*"
+    "$@"
+  fi
+}
+
+# vrun2 OUTFILE COMMAND ARGS...
+vrun2()
+{
+  local f err rc
+  f=$1; shift
+  rc=0
+  if [ -n "$dryrun" ]; then
+    echo "$* > $f"
+  else
+    vecho "$* > $f"
+    err=`"$@" 2>&1 > $f` || rc=$?
+    if [ -n "$err" ]; then
+      vecho "$err" >&2
+      test $rc != 0 || rc=42
+    fi
+  fi
+  return $rc
+}
+
+# download URL FILE
+download()
+{
+  local f u se rc
+  u=$1; f=$2
+  rc=0
+
+  case $tool in
+    curl)
+      vrun curl ${q:+-s} -f --max-redirs 0 \
+        ${cacert:+--cacert "$cacert"} \
+        ${capath:+--capath "$capath"} \
+        ${insecure:+--insecure} \
+        -o "$f" "$u" || rc=$?
+      ;;
+
+    wget)
+      vrun wget $q --max-redirect=0 \
+        ${cacert:+--ca-certificate="$cacert"} \
+        ${capath:+--ca-directory="$capath"} \
+        ${insecure:+--no-check-certificate} \
+        -O "$f" "$u" || rc=$?
+      ;;
+
+    lynx)
+      test -z "$cacert" || vrun export SSL_CERT_FILE="$cacert"
+      test -z "$capath" || vrun export SSL_CERT_DIR="$capath"
+      # Check also stderr as lynx does not return != 0 on HTTP error
+      vrun2 "$f" lynx -stderr -noredir -source "$u" || rc=$?
+      ;;
+
+    fetch) # FreeBSD
+      vrun fetch $q --no-redirect \
+        ${cacert:+--ca-cert "$cacert"} \
+        ${capath:+--ca-path "$capath"} \
+        ${insecure:+--no-verify-hostname} \
+        -o "$f" "$u" || rc=$?
+      ;;
+
+    ftp) # OpenBSD
+      vrun ftp \
+        ${cacert:+-S cafile="$cacert"} \
+        ${capath:+-S capath="$capath"} \
+        ${insecure:+-S dont} \
+        -o "$f" "$u" || rc=$?
+      ;;
+
+    *) error "$tool: unknown (internal error)" ;;
+  esac
+  return $rc
+}
+
+# Parse options
+tool=
+url=
+q="-q"
+dryrun=
+cacert=
+capath=
+insecure=
+
+while true; do case $1 in
+  -t)
+    shift
+    case $1 in *\ *) usage ;; esac
+    case " $os_dltools " in *\ $1\ *) ;; *) usage ;; esac
+    tool=$1 ;;
+
+  -u)
+    shift; selecturl "$1" ;;
+
+  -v)
+    q= ;;
+
+  --dryrun)
+    dryrun=t ;;
+
+  --cacert)
+    shift; test -n "$1" || usage
+    cacert=$1 ;;
+
+  --capath)
+    shift; test -n "$1" || usage
+    capath=$1 ;;
+
+  --insecure)
+    insecure=t ;;
+
+  -*)
+    usage ;;
+
+  *)
+    break ;;
+esac; shift; done
+
+case $# in
+  0) DEST=$DRIVEDB ;;
+  1) DEST=$1 ;;
+  *) usage ;;
 esac
 
-# Abort if 'which' is not available
-which which >/dev/null || exit 1
-
-# Find download tool
-DOWNLOAD=
-for t in $os_dltools; do
-  if which $t >/dev/null 2>/dev/null; then
-    case $t in
-      curl)  DOWNLOAD="curl ${q:+-s }"'-f -o "$DEST.new" "$SRC"' ;;
-      lynx)  DOWNLOAD='lynx -source "$SRC" >"$DEST.new"' ;;
-      wget)  DOWNLOAD="wget $q"'-O "$DEST.new" "$SRC"' ;;
-      fetch) DOWNLOAD='fetch -o "$DEST.new" "$SRC"' ;; # FreeBSD
-      ftp)   DOWNLOAD='ftp -o "$DEST.new" "$SRC"' ;; # OpenBSD
-    esac
-    break
-  fi
-done
-if [ -z "$DOWNLOAD" ]; then
-  echo "$0: found none of: $os_dltools" >&2; exit 1
+if [ -z "$tool" ]; then
+  # Find download tool in PATH
+  for t in $os_dltools; do
+    if inpath "$t"; then
+      tool=$t
+      break
+    fi
+  done
+  test -n "$tool" || error "found none of: $os_dltools"
 fi
 
+test -n "$url" || selecturl "svn"
+
+# Check option compatibility
+case "${insecure:-f}:$url" in
+  t:http:*) insecure= ;;
+  ?:https:*) ;;
+  *) error "'-u sf' and '-u svni' require '--insecure'" ;;
+esac
+case "$tool:$insecure" in
+  lynx:t) warning "'--insecure' is ignored if '-t lynx' is used" ;;
+esac
+
 # Try possible branch first, then trunk
+errmsg=
+errmsg2=
 for location in "branches/$BRANCH" "trunk"; do
-  test -n "$q" || echo "Download from $location"
+  test -z "$errmsg" || errmsg2=$errmsg
+  vecho "Download from $location with $tool"
+
+  # Adjust URL
+  case $location in
+    trunk) src=$url ;;
+    *)     src=`echo "$url" | sed "s,/trunk/,/$location/,"` ;;
+  esac
+
+  # Download
+  test -n "$dryrun" || rm -f "$DEST.new" || exit 1
+  rc=0
+  download "$src" "$DEST.new" || rc=$?
+  test -z "$dryrun" || continue
 
   errmsg=
-  rm -f "$DEST.new"
-  SRC="`eval echo "$SRCEXPR"`"
-
-  if (eval $DOWNLOAD); then :; else
-    errmsg="download from $location failed (HTTP error)"
+  if [ $rc != 0 ]; then
+    errmsg="download from $location failed ($tool: exit $rc)"
     continue
   fi
-  if grep -i '<title>.*Error has Occurred' "$DEST.new" >/dev/null; then
-    errmsg="download from $location failed (SF code browser error)"
+
+  # Check file contents
+  case `sed 1q "$DEST.new"` in
+    /*) ;;
+    \<*)
+      errmsg="download from $location failed (HTML error message)"
+      continue ;;
+    *)
+      errmsg="download from $location failed (Unknown file contents)"
+      continue ;;
+  esac
+
+  # Check file size
+  size=`wc -c < "$DEST.new"`
+  if [ "$size" -lt 10000 ]; then
+    errmsg="download from $location failed (too small file size $size bytes)"
     continue
+  fi
+  if [ "$size" -gt 1000000 ]; then
+    errmsg="download from $location failed (too large file size $size bytes)"
+    break
   fi
 
   break
 done
 
+test -z "$dryrun" || exit 0
+
 if [ -n "$errmsg" ]; then
   rm -f "$DEST.new"
-  echo "$0: $errmsg" >&2
-  exit 1
+  test -z "$errmsg2" || echo "$myname: $errmsg2" >&2
+  error "$errmsg"
 fi
 
 # Adjust timestamp and permissions

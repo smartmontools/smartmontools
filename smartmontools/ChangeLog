@@ -1,5 +1,12 @@
 $Id$
 
+2015-12-07  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Use HTTPS download by default.
+	Add options '-t TOOL', '-u LOCATION', '--cacert FILE',
+	'--capath DIR', '--insecure' and '--dryrun'.
+	Remove usage of 'which' command.
+
 2015-11-23  Christian Franke  <franke@computer.org>
 
 	atacmds.cpp: parse_attribute_def(): Init buffers before sscanf() call
