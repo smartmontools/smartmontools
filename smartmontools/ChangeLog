@@ -8,6 +8,7 @@ $Id$
 	Add options '-t TOOL', '-u LOCATION', '--cacert FILE',
 	'--capath DIR', '--insecure' and '--dryrun'.
 	Add 'svn' as new download tool.
+	Ignore differences in SVN Id string (re-added).
 	Remove usage of 'which' command.
 
 2015-11-23  Christian Franke  <franke@computer.org>

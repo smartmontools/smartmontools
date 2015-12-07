@@ -354,10 +354,11 @@ if "$SMARTCTL" -B "$DEST.new" -P showall >/dev/null; then :; else
   exit 1
 fi
 
-# Keep old file if identical
+# Keep old file if identical, ignore differences in Id string
 rm -f "$DEST.lastcheck"
 if [ -f "$DEST" ]; then
-  if cmp "$DEST" "$DEST.new" >/dev/null 2>/dev/null; then
+  if cat "$DEST" | sed 's|\$''Id''[^$]*\$|$''Id''$|' \
+     | cmp - "$DEST.new" >/dev/null 2>/dev/null; then
     rm -f "$DEST.new"
     touch "$DEST.lastcheck"
     echo "$DEST is already up to date"
