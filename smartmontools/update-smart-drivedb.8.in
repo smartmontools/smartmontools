@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-15 Christian Franke <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2014-15 Christian Franke
 
 $Id$
 
@@ -19,7 +19,7 @@ update-smart-drivedb \- update smartmontools drive database
 
 .SH "SYNOPSIS"
 .B update-smart-drivedb
-.RB [ -v ]
+.RI [ OPTIONS ]
 .RI [ DESTFILE ]
 
 .SH "DESCRIPTION"
@@ -33,18 +33,22 @@ from smartmontools SVN repository.
 It tries to download first from the current branch and then from
 trunk. The tools used for downloading are either
 .BR curl (1),
-.BR wget "(1) or"
-.BR lynx (1).
+.BR wget (1),
+.\" %IF NOT OS FreeBSD OpenBSD
+.BR lynx (1)
+.\" %ENDIF NOT OS FreeBSD OpenBSD
 .\" %IF OS FreeBSD
-On FreeBSD,
+.BR lynx (1),
 .BR fetch (1)
-is used as a fallback.
+[FreeBSD only]
 .\" %ENDIF OS FreeBSD
 .\" %IF OS OpenBSD
-On OpenBSD,
+.BR lynx (1),
 .BR ftp (1)
-is used as a fallback.
+[OpenBSD only]
 .\" %ENDIF OS OpenBSD
+or
+.BR svn (1).
 
 The old file is kept if the downloaded file is identical (ignoring
 the differences in Id string) otherwise it is moved to
@@ -52,8 +56,52 @@ the differences in Id string) otherwise it is moved to
 
 .SH "OPTIONS"
 .TP
-\-v
-verbose output
+.B \-t TOOL
+Use TOOL for download.
+TOOL is one of:
+.I curl wget lynx
+.\" %IF OS FreeBSD
+.I fetch
+.\" %ENDIF OS FreeBSD
+.\" %IF OS OpenBSD
+.I ftp
+.\" %ENDIF OS OpenBSD
+.IR svn .
+The default is the first one found in PATH.
+.TP
+.B \-u LOCATION
+Use URL of LOCATION for download. LOCATION is one of:
+.br
+.I sf
+(Sourceforge code browser via HTTP),
+.br
+.I svn
+(SVN repository via HTTPS),
+.br
+.I svni
+(SVN repository via HTTP),
+.br
+.I trac
+(Trac code browser via HTTPS).
+.br
+The default is
+.IR svn .
+.TP
+.B \-\-cacert FILE
+Use CA certificates from FILE to verify the peer.
+.TP
+.B \-\-capath DIR
+Use CA certificate files from DIR to verify the peer.
+.TP
+.B \-\-insecure
+Don't abort download if certificate verification fails.
+This option is also required if a HTTP URL is selected with \'-u\' option.
+.TP
+.B \-\-dryrun
+Print download commands only.
+.TP
+.B \-v
+Verbose output.
 
 .SH "EXAMPLES"
 .nf

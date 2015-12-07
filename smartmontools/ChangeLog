@@ -11,6 +11,8 @@ $Id$
 	Ignore differences in SVN Id string (re-added).
 	Remove usage of 'which' command.
 
+	update-smart-drivedb.8.in: Document the new options.
+
 2015-11-23  Christian Franke  <franke@computer.org>
 
 	atacmds.cpp: parse_attribute_def(): Init buffers before sscanf() call
