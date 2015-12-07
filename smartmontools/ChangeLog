@@ -1,4 +1,4 @@
-$Id: ChangeLog 4181 2015-12-07 20:58:40Z chrfranke $
+$Id: ChangeLog 4182 2015-12-07 22:01:39Z chrfranke $
 
 2015-12-07  Christian Franke  <franke@computer.org>
 
@@ -8,6 +8,7 @@ $Id: ChangeLog 4181 2015-12-07 20:58:40Z chrfranke $
 	Add options '-t TOOL', '-u LOCATION', '--cacert FILE',
 	'--capath DIR', '--insecure' and '--dryrun'.
 	Add 'svn' as new download tool.
+	Ignore differences in SVN Id string (re-added).
 	Remove usage of 'which' command.
 
 2015-11-23  Christian Franke  <franke@computer.org>
