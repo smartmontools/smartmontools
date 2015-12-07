@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4171 2015-11-15 18:26:36Z chrfranke $
+# $Id: configure.ac 4181 2015-12-07 20:58:40Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.5, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4171 2015-11-15 18:26:36Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4181 2015-12-07 20:58:40Z chrfranke $'`
 smartmontools_release_date=2015-06-04
 smartmontools_release_time="16:29:41 UTC"
 
@@ -416,7 +416,7 @@ AC_SUBST(smartmontools_release_time)
 
 # Set platform-specific modules and symbols
 os_libs=
-os_dltools='curl wget lynx'
+os_dltools='curl wget lynx svn'
 os_mailer=mail
 os_hostname="'hostname'"
 os_dnsdomainname=
@@ -437,7 +437,7 @@ case "${host}" in
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
     os_deps='os_freebsd.o cciss.o dev_areca.o'
     os_libs='-lcam'
-    os_dltools='curl wget lynx fetch'
+    os_dltools='curl wget lynx fetch svn'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
     os_man_filter=FreeBSD
     ;;
@@ -463,7 +463,7 @@ case "${host}" in
   *-*-openbsd*)
     os_deps='os_openbsd.o'
     os_libs='-lutil'
-    os_dltools='curl wget lynx ftp'
+    os_dltools='curl wget lynx ftp svn'
     os_man_filter=OpenBSD
     ;;
   *-*-cygwin*)
