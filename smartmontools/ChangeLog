@@ -1,4 +1,4 @@
-$Id: ChangeLog 4182 2015-12-07 22:01:39Z chrfranke $
+$Id: ChangeLog 4183 2015-12-07 22:08:37Z chrfranke $
 
 2015-12-07  Christian Franke  <franke@computer.org>
 
@@ -10,6 +10,8 @@ $Id: ChangeLog 4182 2015-12-07 22:01:39Z chrfranke $
 	Add 'svn' as new download tool.
 	Ignore differences in SVN Id string (re-added).
 	Remove usage of 'which' command.
+
+	update-smart-drivedb.8.in: Document the new options.
 
 2015-11-23  Christian Franke  <franke@computer.org>
 
