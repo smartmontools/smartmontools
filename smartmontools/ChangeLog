@@ -2,6 +2,13 @@ $Id$
 
 2015-12-14  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Intel 320 Series SSDs: 1.8" microSATA
+	- Intel 53x and Pro 2500 Series SSDs: Rename, add 535 (ticket #625),
+	  add Pro 2500
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: Rename,
+	  add S3510/3610, 1.2TB, 1.6TB
+
 	update-smart-drivedb.in: Add '-s SMARTCTL' option.
 	update-smart-drivedb.8.in: Document it.
 
