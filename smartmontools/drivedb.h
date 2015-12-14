@@ -3605,6 +3605,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: LaCie; ",
+    "0x059f:0x106f",
+    "", // 0x0001
+    "",
+    "-d sat"
+  },
   // In-System Design
   { "USB: ; In-System/Cypress ISD-300A1",
     "0x05ab:0x0060",
@@ -3985,7 +3991,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   { "USB: WD My Passport; ",
-    "0x1058:0x0(70[245a]|730|74[0128a]|7a8|8[123]0)",
+    "0x1058:0x0(70[245a]|71a|730|74[0128a]|7a8|8(10|16|20|30))",
     "",
     "",
     "-d sat"
@@ -4072,8 +4078,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; Initio",
-    "0x13fd:0x1640",
-    "", // 0x0864
+    "0x13fd:0x16[45]0",
+    "", // 0x1640: 0x0864, 0x1650: 0x0436
     "",
     "-d sat,12" // some SMART commands fail, see ticket #295
   },
@@ -4416,6 +4422,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Sharkoon 2-Bay RAID Box; ", // USB 3.0
     "0x6795:0x2756",
     "", // 0x0100
+    "",
+    "-d sat"
+  },
+  // 0xabcd (?)
+  { "USB: ; ",
+    "0xabcd:0x6103", // LogiLink AU0028A V1.0 USB 3.0 to IDE & SATA Adapter
+    "",
     "",
     "-d sat"
   },

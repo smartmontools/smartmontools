@@ -8,6 +8,10 @@ $Id$
 	  add Pro 2500
 	- Intel 730 and DC S35x0/3610/3700 Series SSDs: Rename,
 	  add S3510/3610, 1.2TB, 1.6TB
+	- USB: LaCie (0x059f:0x106f) (ticket #624)
+	- USB: WD My Passport (0x1058:0x071a, 0x1058:0x0816)
+	- USB: Initio (0x13fd:0x1650)
+	- USB: Unknown (0xabcd:0x6103)
 
 	update-smart-drivedb.in: Add '-s SMARTCTL' option.
 	update-smart-drivedb.8.in: Document it.
