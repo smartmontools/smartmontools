@@ -48,6 +48,8 @@ smartmontools $VERSION drive database update script
 
 Usage: $myname [OPTIONS] [DESTFILE]
 
+  -s SMARTCTL     Use SMARTCTL for syntax check ('-s -' to disable)
+                  [default: $SMARTCTL]
   -t TOOL         Use TOOL for download: $os_dltools
                   [default: first one found in PATH]
   -u LOCATION     Use URL of LOCATION for download:
@@ -206,6 +208,7 @@ download()
 }
 
 # Parse options
+smtctl=$SMARTCTL
 tool=
 url=
 q="-q"
@@ -215,6 +218,10 @@ capath=
 insecure=
 
 while true; do case $1 in
+  -s)
+    shift; test -n "$1" || usage
+    smtctl=$1 ;;
+
   -t)
     shift
     case $1 in *\ *) usage ;; esac
@@ -346,12 +353,16 @@ fi
 touch "$DEST.new"
 chmod 0644 "$DEST.new"
 
-# Check syntax
-rm -f "$DEST.error"
-if "$SMARTCTL" -B "$DEST.new" -P showall >/dev/null; then :; else
-  mv "$DEST.new" "$DEST.error"
-  echo "$DEST.error: rejected by $SMARTCTL, probably no longer compatible" >&2
-  exit 1
+if [ "$smtctl" != "-" ]; then
+  # Check syntax
+  rm -f "$DEST.error"
+  if "$smtctl" -B "$DEST.new" -P showall >/dev/null; then
+    test -n "$q" || echo "$smtctl: syntax OK"
+  else
+    mv "$DEST.new" "$DEST.error"
+    echo "$DEST.error: rejected by $smtctl, probably no longer compatible" >&2
+    exit 1
+  fi
 fi
 
 # Keep old file if identical, ignore differences in Id string

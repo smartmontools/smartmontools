@@ -1,5 +1,10 @@
 $Id$
 
+2015-12-14  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add '-s SMARTCTL' option.
+	update-smart-drivedb.8.in: Document it.
+
 2015-12-07  Christian Franke  <franke@computer.org>
 
 	configure.ac: Append 'svn' to list of download tools.

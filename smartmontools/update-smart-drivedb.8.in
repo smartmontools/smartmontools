@@ -56,6 +56,14 @@ the differences in Id string) otherwise it is moved to
 
 .SH "OPTIONS"
 .TP
+.B \-s SMARTCTL
+Use the
+.BR smartctl (8)
+executable at path SMARTCTL for drive database syntax check.
+The form \'\-s \-\' disables the syntax check.
+The default is
+.BR /usr/local/sbin/smartctl .
+.TP
 .B \-t TOOL
 Use TOOL for download.
 TOOL is one of:
@@ -128,7 +136,7 @@ current drive database.
 previous drive database.
 .TP
 .B /usr/local/share/smartmontools/drivedb.h.error
-new drive database rejected due to syntax errors.
+new drive database if rejected due to syntax errors.
 .TP
 .B /usr/local/share/smartmontools/drivedb.h.lastcheck
 empty file created if downloaded file was identical.
