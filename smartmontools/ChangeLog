@@ -1,4 +1,9 @@
-$Id: ChangeLog 4183 2015-12-07 22:08:37Z chrfranke $
+$Id: ChangeLog 4184 2015-12-14 19:20:44Z chrfranke $
+
+2015-12-14  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add '-s SMARTCTL' option.
+	update-smart-drivedb.8.in: Document it.
 
 2015-12-07  Christian Franke  <franke@computer.org>
 

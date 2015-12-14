@@ -2,7 +2,7 @@
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
 Copyright (C) 2014-15 Christian Franke
 
-$Id: update-smart-drivedb.8.in 4183 2015-12-07 22:08:37Z chrfranke $
+$Id: update-smart-drivedb.8.in 4184 2015-12-14 19:20:44Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -55,6 +55,14 @@ the differences in Id string) otherwise it is moved to
 .BR drivedb.h.old .
 
 .SH "OPTIONS"
+.TP
+.B \-s SMARTCTL
+Use the
+.BR smartctl (8)
+executable at path SMARTCTL for drive database syntax check.
+The form \'\-s \-\' disables the syntax check.
+The default is
+.BR /usr/local/sbin/smartctl .
 .TP
 .B \-t TOOL
 Use TOOL for download.
@@ -128,7 +136,7 @@ current drive database.
 previous drive database.
 .TP
 .B /usr/local/share/smartmontools/drivedb.h.error
-new drive database rejected due to syntax errors.
+new drive database if rejected due to syntax errors.
 .TP
 .B /usr/local/share/smartmontools/drivedb.h.lastcheck
 empty file created if downloaded file was identical.
@@ -154,4 +162,4 @@ Alternatively send the info to the smartmontools support mailing list:
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: update-smart-drivedb.8.in 4183 2015-12-07 22:08:37Z chrfranke $
+$Id: update-smart-drivedb.8.in 4184 2015-12-14 19:20:44Z chrfranke $
