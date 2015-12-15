@@ -1,4 +1,9 @@
-$Id: ChangeLog 4186 2015-12-14 20:51:03Z chrfranke $
+$Id: ChangeLog 4188 2015-12-15 00:37:04Z dpgilbert $
+
+2015-12-14  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: fix compiler warning for is_tape. Clean code around
+	handling of tape drives.
 
 2015-12-14  Christian Franke  <franke@computer.org>
 
