@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4188 2015-12-15 00:37:04Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4189 2015-12-16 14:53:41Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -2000,7 +2000,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
 
-    if (options.smart_ss_media_log) {
+    if (is_disk && options.smart_ss_media_log) {
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(device);
         res = 0;

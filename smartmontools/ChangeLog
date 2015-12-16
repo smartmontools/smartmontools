@@ -1,4 +1,9 @@
-$Id: ChangeLog 4188 2015-12-15 00:37:04Z dpgilbert $
+$Id: ChangeLog 4189 2015-12-16 14:53:41Z dpgilbert $
+
+2015-12-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: stop tape drive looking for Solid State media
+	log page (ticket #314).
 
 2015-12-14  Douglas Gilbert  <dgilbert@interlog.com>
 
