@@ -2000,7 +2000,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
 
-    if (options.smart_ss_media_log) {
+    if (is_disk && options.smart_ss_media_log) {
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(device);
         res = 0;

@@ -1,5 +1,10 @@
 $Id$
 
+2015-12-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: stop tape drive looking for Solid State media
+	log page (ticket #314).
+
 2015-12-14  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: fix compiler warning for is_tape. Clean code around
