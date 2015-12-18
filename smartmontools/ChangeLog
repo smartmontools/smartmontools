@@ -1,5 +1,10 @@
 $Id$
 
+2015-12-18  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_netbsd.cpp, os_openbsd.cpp: fix ioctl returtn value check
+	os_darwin.cpp: fix error handling
+
 2015-12-16  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: stop tape drive looking for Solid State media

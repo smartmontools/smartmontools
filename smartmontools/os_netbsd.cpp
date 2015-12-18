@@ -327,7 +327,8 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     return 0;
   }
 
-  if ((retval = ioctl(fd, ATAIOCCOMMAND, &req))) {
+  retval = ioctl(fd, ATAIOCCOMMAND, &req);
+  if (retval < 0) {
     perror("Failed command");
     return -1;
   }

@@ -312,9 +312,9 @@ static int make_device_names (char*** devlist, const char* name) {
 
   // Create an array of service names.
   IOIteratorReset (i);
-  *devlist = (char**)calloc (result, sizeof (char *)); 
-  if (! *devlist)
+  if (! result)
     goto error;
+  *devlist = (char**)calloc (result, sizeof (char *)); 
   index = 0;
   while ((device = IOIteratorNext (i)) != MACH_PORT_NULL) {
     if (is_smart_capable (device))
@@ -455,7 +455,7 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
         if (select != SHORT_SELF_TEST && select != EXTEND_SELF_TEST)
         {
           errno = EINVAL;
-          err = -1;
+          return set_err(ENOSYS, "Unsupported SMART self-test mode");
         }
         err = smartIf->SMARTExecuteOffLineImmediate (ifp, 
           select == EXTEND_SELF_TEST);
