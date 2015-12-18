@@ -27,7 +27,7 @@
 
 #include <errno.h>
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4156 2015-10-18 12:20:40Z samm2 $"
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4190 2015-12-18 11:24:55Z samm2 $"
   OS_OPENBSD_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -323,7 +323,8 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
 
     unsigned const short normal = WDSMART_CYL, failed = 0x2cf4;
 
-    if ((retval = ioctl(fd, ATAIOCCOMMAND, &req))) {
+    retval = ioctl(fd, ATAIOCCOMMAND, &req);
+    if (retval < 0) {
       perror("Failed command");
       return -1;
     }

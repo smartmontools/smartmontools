@@ -1,4 +1,9 @@
-$Id: ChangeLog 4189 2015-12-16 14:53:41Z dpgilbert $
+$Id: ChangeLog 4190 2015-12-18 11:24:55Z samm2 $
+
+2015-12-18  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_netbsd.cpp, os_openbsd.cpp: fix ioctl returtn value check
+	os_darwin.cpp: fix error handling
 
 2015-12-16  Douglas Gilbert  <dgilbert@interlog.com>
 
