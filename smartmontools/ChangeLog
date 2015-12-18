@@ -4,6 +4,7 @@ $Id$
 
 	os_netbsd.cpp, os_openbsd.cpp: fix ioctl returtn value check
 	os_darwin.cpp: fix error handling
+	os_darwin: use /usr/local/ prefix to install on 10.11 (El Capitan)
 
 2015-12-16  Douglas Gilbert  <dgilbert@interlog.com>
 
