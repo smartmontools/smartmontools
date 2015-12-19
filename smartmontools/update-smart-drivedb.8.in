@@ -23,6 +23,11 @@ update-smart-drivedb \- update smartmontools drive database
 .RI [ DESTFILE ]
 
 .SH "DESCRIPTION"
+.\" %IF NOT OS ALL
+.\"! [This man page is generated for the OS_MAN_FILTER version of smartmontools.
+.\"! It does not contain info specific to other platforms.]
+.\"! .PP
+.\" %ENDIF NOT OS ALL
 .B update-smart-drivedb
 updates
 .B /usr/local/share/smartmontools/drivedb.h
@@ -34,18 +39,14 @@ It tries to download first from the current branch and then from
 trunk. The tools used for downloading are either
 .BR curl (1),
 .BR wget (1),
-.\" %IF NOT OS FreeBSD OpenBSD
-.BR lynx (1)
-.\" %ENDIF NOT OS FreeBSD OpenBSD
-.\" %IF OS FreeBSD
 .BR lynx (1),
+.\" %IF OS FreeBSD
 .BR fetch (1)
-[FreeBSD only]
+[FreeBSD only],
 .\" %ENDIF OS FreeBSD
 .\" %IF OS OpenBSD
-.BR lynx (1),
 .BR ftp (1)
-[OpenBSD only]
+[OpenBSD only],
 .\" %ENDIF OS OpenBSD
 or
 .BR svn (1).

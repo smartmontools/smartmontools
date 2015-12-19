@@ -4,6 +4,8 @@ $Id$
 
 	Makefile.am: Fix path of 'smart-pkg-uninstall' (Regression from r4190).
 
+	update-smart-drivedb.8.in: Fix platform specific formatting.
+
 2015-12-18  Alex Samorukov <samm@os2.kiev.ua>
 
 	os_netbsd.cpp, os_openbsd.cpp: fix ioctl returtn value check
