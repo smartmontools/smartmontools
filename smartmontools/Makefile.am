@@ -369,7 +369,7 @@ EXTRA_DIST = \
         os_darwin/pkg/PackageInfo.in \
         os_darwin/pkg/Distribution.in \
         os_darwin/pkg/installer/README.html \
-        os_darwin/pkg/root/usr/sbin/smart-pkg-uninstall \
+        os_darwin/pkg/root/usr/local/sbin/smart-pkg-uninstall \
         os_win32/default.manifest \
         os_win32/installer.nsi \
         os_win32/runcmd.c \
@@ -957,7 +957,7 @@ pkg_darwin = $(PACKAGE)-$(VERSION).pkg
 # build darwin installer 
 $(pkg_darwin):
 	${MAKE} install DESTDIR=$(distdir_darwin)/root
-	@cp $(srcdir)/os_darwin/pkg/root/usr/sbin/smart-pkg-uninstall $(distdir_darwin)/root/usr/sbin/
+	@cp $(srcdir)/os_darwin/pkg/root/usr/local/sbin/smart-pkg-uninstall $(distdir_darwin)/root$(sbindir)
 	@mkdir -p $(distdir_darwin)/pkg
 	@( cd $(distdir_darwin)/root && find . | cpio -o --format odc --owner 0:80 | gzip -c ) > $(distdir_darwin)/pkg/Payload
 	PAYLOAD_FILES=`find $(distdir_darwin)/root | wc -l` &&\
