@@ -1,5 +1,9 @@
 $Id$
 
+2016-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year! Update copyright year in version info.
+
 2015-12-19  Christian Franke  <franke@computer.org>
 
 	Makefile.am: Fix path of 'smart-pkg-uninstall' (Regression from r4190).
