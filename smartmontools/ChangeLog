@@ -1,4 +1,4 @@
-$Id: ChangeLog 4196 2016-01-06 21:10:43Z chrfranke $
+$Id: ChangeLog 4198 2016-01-06 21:43:56Z chrfranke $
 
 2016-01-06  Christian Franke  <franke@computer.org>
 
@@ -7,6 +7,8 @@ $Id: ChangeLog 4196 2016-01-06 21:10:43Z chrfranke $
 	  (ticket #628)
 	- Innodisk 3MG2-P SSDs: 1.8" variant
 	- Innodisk 3ME3 SSDs
+	- USB: Seagate Expansion Portable (0x0bc2:0x2322) (ticket #627)
+	- USB: Jess-Link (0x0dbf:0x9001)
 
 2016-01-01  Christian Franke  <franke@computer.org>
 
