@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-15 Christian Franke
+ * Copyright (C) 2008-16 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -335,6 +335,33 @@ const drive_settings builtin_knowndrives[] = {
     "-v 247,raw48,Host_Program_Page_Count "
     "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
+  { "SandForce Driven SSDs", // Corsair Force LS with buggy firmware only
+    "Corsair Force LS SSD", // tested with Corsair Force LS SSD/S9FM01.8
+    "S9FM01\\.8",
+    "A firmware update is available for this drive.\n"
+    "It is HIGHLY RECOMMENDED for drives with specific serial numbers.\n"
+    "See the following web pages for details:\n"
+    "http://www.corsair.com/en-us/force-series-ls-60gb-sata-3-6gb-s-ssd\n"
+    "https://www.smartmontools.org/ticket/628",
+    "-v 1,raw24/raw32,Raw_Read_Error_Rate "
+    "-v 5,raw48,Retired_Block_Count "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 162,raw48,Unknown_SandForce_Attr "
+    "-v 170,raw48,Reserve_Block_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Unknown_SandForce_Attr "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 181,raw48,Program_Fail_Count "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+    "-v 218,raw48,Unknown_SandForce_Attr "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB"
+  },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
     "ADATA SSD S(396|510|599) .?..GB|" // tested with ADATA SSD S510 60GB/320ABBF0,
@@ -348,7 +375,8 @@ const drive_settings builtin_knowndrives[] = {
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
     "Corsair Force ((3 |LS )?SSD|GS|GT)|" // SF-2281, tested with
-      // Corsair Force SSD/5.05, 3 SSD/1.3.2, GT/1.3.3, GS/5.03, LS SSD/S8FM06.5
+      // Corsair Force SSD/5.05, 3 SSD/1.3.2, GT/1.3.3, GS/5.03,
+      // Corsair Force LS SSD/S8FM06.5, S9FM01.8, S9FM02.0
     "FM-25S2S-(60|120|240)GBP2|" // G.SKILL Phoenix Pro, SF-1200, tested with
       // FM-25S2S-240GBP2/4.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
@@ -416,9 +444,11 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 13,raw24/raw32,Soft_Read_Error_Rate "
     "-v 100,raw48,Gigabytes_Erased "
+    "-v 162,raw48,Unknown_SandForce_Attr " // Corsair Force LS SSD/S9FM01.8, *2.0
     "-v 170,raw48,Reserve_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Unknown_SandForce_Attr " // Corsair Force LS SSD/S9FM01.8, *2.0
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 177,raw48,Wear_Range_Delta "
     "-v 181,raw48,Program_Fail_Count "
@@ -426,6 +456,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 184,raw48,IO_Error_Detect_Code_Ct "
   //"-v 187,raw48,Reported_Uncorrect "
     "-v 189,tempminmax,Airflow_Temperature_Cel "
+  //"-v 192,raw48,Power-Off_Retract_Count "
   //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw24/raw32,ECC_Uncorr_Error_Count "
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
@@ -433,6 +464,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 199,raw48,SATA_CRC_Error_Count "
     "-v 201,raw24/raw32,Unc_Soft_Read_Err_Rate "
     "-v 204,raw24/raw32,Soft_ECC_Correct_Rate "
+    "-v 218,raw48,Unknown_SandForce_Attr " // Corsair Force LS SSD/S9FM01.8, *2.0
     "-v 230,raw48,Life_Curve_Status "
     "-v 231,raw48,SSD_Life_Left "
   //"-v 232,raw48,Available_Reservd_Space "

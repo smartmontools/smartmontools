@@ -1,5 +1,11 @@
 $Id$
 
+2016-01-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Extra warning entry for buggy Corsair Force LS
+	  (ticket #628)
+
 2016-01-01  Christian Franke  <franke@computer.org>
 
 	Happy New Year! Update copyright year in version info.
