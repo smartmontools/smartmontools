@@ -638,7 +638,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Innodisk 3MG2-P SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
       // 1.8 SATA SSD 3IE2-P/M150821, 2.5" SATA SSD 3IE2-P/M150821,
       // SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114
-    "((1\\.8|2\\.5)\"? SATA SSD |SATA Slim |M\\.2 \\(S80\\) )3(MG|IE)2-P",
+    "((1\\.8|2\\.5)\"? SATA SSD|SATA Slim|M\\.2 \\(S80\\)) 3(MG|IE)2-P",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -676,10 +676,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 245,raw48,Flash_Writes_32MiB"
   },
   { "Innodisk 3ME3 SSDs", // tested with  2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
-      // InnoDisk Corp. - mSATA 3ME3/S15A19, mSATA mini 3ME3/S15A19, SATA Slim 3ME3/S15A19,
-      // SATADOM-MH 3ME3/S15A19, SATADOM-ML 3ME3/S15A19, SATADOM-MV 3ME3/S15A19,
-      // SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19
-    "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|mSATA mini|SATA Slim|SATADOM-(MH|ML|MV|SL|SV)) 3ME3",
+      // InnoDisk Corp. - mSATA 3ME3/S15A19, mSATA mini 3ME3/S15A19, M.2 (S42) 3ME3,
+      // SATA Slim 3ME3/S15A19, SATADOM-MH 3ME3/S15A19, SATADOM-ML 3ME3/S15A19,
+      // SATADOM-MV 3ME3/S15A19, SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19
+    "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|mSATA mini|"
+    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-(MH|ML|MV|SL|SV)) 3ME3",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
