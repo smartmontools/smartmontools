@@ -636,8 +636,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,raw48,Write_Head"
   },
   { "Innodisk 3MG2-P SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
-      // 2.5" SATA SSD 3IE2-P/M150821, SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114
-    "(2.5\" SATA SSD |SATA Slim |M\\.2 \\(S80\\) )3(MG|IE)2-P",
+      // 1.8 SATA SSD 3IE2-P/M150821, 2.5" SATA SSD 3IE2-P/M150821,
+      // SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114
+    "((1\\.8|2\\.5)\"? SATA SSD |SATA Slim |M\\.2 \\(S80\\) )3(MG|IE)2-P",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -673,6 +674,43 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 245,raw48,Flash_Writes_32MiB"
+  },
+  { "Innodisk 3ME3 SSDs", // tested with  2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
+      // InnoDisk Corp. - mSATA 3ME3/S15A19, mSATA mini 3ME3/S15A19, SATA Slim 3ME3/S15A19,
+      // SATADOM-MH 3ME3/S15A19, SATADOM-ML 3ME3/S15A19, SATADOM-MV 3ME3/S15A19,
+      // SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19
+    "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|mSATA mini|SATA Slim|SATADOM-(MH|ML|MV|SL|SV)) 3ME3",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 2,raw48,Throughput_Performance "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
+    "-v 5,raw48,Later_Bad_Block "
+    "-v 7,raw48,Seek_Error_Rate "       // ?
+    "-v 8,raw48,Seek_Time_Performance " // ?
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 10,raw48,Spin_Retry_Count "     // ?
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 163,raw48,Total_Bad_Block_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 169,raw48,Remaining_Lifetime_Perc "
+    "-v 170,raw48,Spare_Block_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 175,raw48,Bad_Cluster_Table_Count "
+    "-v 176,raw48,RANGE_RECORD_Count "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 197,raw48,Current_Pending_Sector "
+    "-v 225,raw48,Data_Log_Write_Count "
+    "-v 229,hex48,Flash_ID "
+    "-v 232,raw48,Spares_Remaining_Perc "
+    "-v 235,raw16,Later_Bad_Blk_Inf_R/W/E " // Read/Write/Erase
+    "-v 240,raw48,Write_Head "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB"
   },
   { "InnoDisk iCF 9000 CompactFlash Cards", // tested with InnoDisk Corp. - iCF9000 1GB/140808,
        // ..., InnoDisk Corp. - iCF9000 64GB/140808

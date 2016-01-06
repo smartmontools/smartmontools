@@ -5,6 +5,8 @@ $Id$
 	drivedb.h:
 	- SandForce Driven SSDs: Extra warning entry for buggy Corsair Force LS
 	  (ticket #628)
+	- Innodisk 3MG2-P SSDs: 1.8" variant
+	- Innodisk 3ME3 SSDs
 
 2016-01-01  Christian Franke  <franke@computer.org>
 
