@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-15 Christian Franke
+ * Copyright (C) 2008-16 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -333,6 +333,33 @@ const drive_settings builtin_knowndrives[] = {
     "-v 247,raw48,Host_Program_Page_Count "
     "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
+  { "SandForce Driven SSDs", // Corsair Force LS with buggy firmware only
+    "Corsair Force LS SSD", // tested with Corsair Force LS SSD/S9FM01.8
+    "S9FM01\\.8",
+    "A firmware update is available for this drive.\n"
+    "It is HIGHLY RECOMMENDED for drives with specific serial numbers.\n"
+    "See the following web pages for details:\n"
+    "http://www.corsair.com/en-us/force-series-ls-60gb-sata-3-6gb-s-ssd\n"
+    "https://www.smartmontools.org/ticket/628",
+    "-v 1,raw24/raw32,Raw_Read_Error_Rate "
+    "-v 5,raw48,Retired_Block_Count "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 162,raw48,Unknown_SandForce_Attr "
+    "-v 170,raw48,Reserve_Block_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Unknown_SandForce_Attr "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 181,raw48,Program_Fail_Count "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+    "-v 218,raw48,Unknown_SandForce_Attr "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB"
+  },
   { "SandForce Driven SSDs",
     "SandForce 1st Ed\\.|" // Demo Drive, tested with firmware 320A13F0
     "ADATA SSD S(396|510|599) .?..GB|" // tested with ADATA SSD S510 60GB/320ABBF0,
@@ -346,7 +373,8 @@ const drive_settings builtin_knowndrives[] = {
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
     "Corsair Force ((3 |LS )?SSD|GS|GT)|" // SF-2281, tested with
-      // Corsair Force SSD/5.05, 3 SSD/1.3.2, GT/1.3.3, GS/5.03, LS SSD/S8FM06.5
+      // Corsair Force SSD/5.05, 3 SSD/1.3.2, GT/1.3.3, GS/5.03,
+      // Corsair Force LS SSD/S8FM06.5, S9FM01.8, S9FM02.0
     "FM-25S2S-(60|120|240)GBP2|" // G.SKILL Phoenix Pro, SF-1200, tested with
       // FM-25S2S-240GBP2/4.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
@@ -414,9 +442,11 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 13,raw24/raw32,Soft_Read_Error_Rate "
     "-v 100,raw48,Gigabytes_Erased "
+    "-v 162,raw48,Unknown_SandForce_Attr " // Corsair Force LS SSD/S9FM01.8, *2.0
     "-v 170,raw48,Reserve_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Unknown_SandForce_Attr " // Corsair Force LS SSD/S9FM01.8, *2.0
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 177,raw48,Wear_Range_Delta "
     "-v 181,raw48,Program_Fail_Count "
@@ -424,6 +454,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 184,raw48,IO_Error_Detect_Code_Ct "
   //"-v 187,raw48,Reported_Uncorrect "
     "-v 189,tempminmax,Airflow_Temperature_Cel "
+  //"-v 192,raw48,Power-Off_Retract_Count "
   //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw24/raw32,ECC_Uncorr_Error_Count "
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
@@ -431,6 +462,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 199,raw48,SATA_CRC_Error_Count "
     "-v 201,raw24/raw32,Unc_Soft_Read_Err_Rate "
     "-v 204,raw24/raw32,Soft_ECC_Correct_Rate "
+    "-v 218,raw48,Unknown_SandForce_Attr " // Corsair Force LS SSD/S9FM01.8, *2.0
     "-v 230,raw48,Life_Curve_Status "
     "-v 231,raw48,SSD_Life_Left "
   //"-v 232,raw48,Available_Reservd_Space "
@@ -602,8 +634,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,raw48,Write_Head"
   },
   { "Innodisk 3MG2-P SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
-      // 2.5" SATA SSD 3IE2-P/M150821, SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114
-    "(2.5\" SATA SSD |SATA Slim |M\\.2 \\(S80\\) )3(MG|IE)2-P",
+      // 1.8 SATA SSD 3IE2-P/M150821, 2.5" SATA SSD 3IE2-P/M150821,
+      // SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114
+    "((1\\.8|2\\.5)\"? SATA SSD|SATA Slim|M\\.2 \\(S80\\)) 3(MG|IE)2-P",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -639,6 +672,44 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 245,raw48,Flash_Writes_32MiB"
+  },
+  { "Innodisk 3ME3 SSDs", // tested with  2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
+      // InnoDisk Corp. - mSATA 3ME3/S15A19, mSATA mini 3ME3/S15A19, M.2 (S42) 3ME3,
+      // SATA Slim 3ME3/S15A19, SATADOM-MH 3ME3/S15A19, SATADOM-ML 3ME3/S15A19,
+      // SATADOM-MV 3ME3/S15A19, SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19
+    "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|mSATA mini|"
+    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-(MH|ML|MV|SL|SV)) 3ME3",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 2,raw48,Throughput_Performance "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
+    "-v 5,raw48,Later_Bad_Block "
+    "-v 7,raw48,Seek_Error_Rate "       // ?
+    "-v 8,raw48,Seek_Time_Performance " // ?
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 10,raw48,Spin_Retry_Count "     // ?
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 163,raw48,Total_Bad_Block_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 169,raw48,Remaining_Lifetime_Perc "
+    "-v 170,raw48,Spare_Block_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 175,raw48,Bad_Cluster_Table_Count "
+    "-v 176,raw48,RANGE_RECORD_Count "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 197,raw48,Current_Pending_Sector "
+    "-v 225,raw48,Data_Log_Write_Count "
+    "-v 229,hex48,Flash_ID "
+    "-v 232,raw48,Spares_Remaining_Perc "
+    "-v 235,raw16,Later_Bad_Blk_Inf_R/W/E " // Read/Write/Erase
+    "-v 240,raw48,Write_Head "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB"
   },
   { "InnoDisk iCF 9000 CompactFlash Cards", // tested with InnoDisk Corp. - iCF9000 1GB/140808,
        // ..., InnoDisk Corp. - iCF9000 64GB/140808
@@ -3789,8 +3860,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Expansion Portable; ",
-    "0x0bc2:0x23(00|12|20|21)",
-    "", // 0x0219 (0x2312)
+    "0x0bc2:0x23(00|12|20|21|22)",
+    "", // 12=0x0219, 22=0x0000
     "",
     "-d sat"
   },
@@ -3952,6 +4023,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0122
     "",
     "-d sat"
+  },
+  // Jess-Link International
+  { "USB: ; Cypress", // Medion HDDrive2Go
+    "0x0dbf:0x9001",
+    "", // 0x0240
+    "",
+    "-d usbcypress"
   },
   // Oyen Digital
   { "USB: Oyen Digital MiniPro USB 3.0; ",
