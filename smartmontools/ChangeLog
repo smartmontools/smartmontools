@@ -7,6 +7,8 @@ $Id$
 	  (ticket #628)
 	- Innodisk 3MG2-P SSDs: 1.8" variant
 	- Innodisk 3ME3 SSDs
+	- USB: Seagate Expansion Portable (0x0bc2:0x2322) (ticket #627)
+	- USB: Jess-Link (0x0dbf:0x9001)
 
 2016-01-01  Christian Franke  <franke@computer.org>
 

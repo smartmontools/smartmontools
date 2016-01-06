@@ -3869,8 +3869,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Expansion Portable; ",
-    "0x0bc2:0x23(00|12|20|21)",
-    "", // 0x0219 (0x2312)
+    "0x0bc2:0x23(00|12|20|21|22)",
+    "", // 12=0x0219, 22=0x0000
     "",
     "-d sat"
   },
@@ -4032,6 +4032,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0122
     "",
     "-d sat"
+  },
+  // Jess-Link International
+  { "USB: ; Cypress", // Medion HDDrive2Go
+    "0x0dbf:0x9001",
+    "", // 0x0240
+    "",
+    "-d usbcypress"
   },
   // Oyen Digital
   { "USB: Oyen Digital MiniPro USB 3.0; ",
