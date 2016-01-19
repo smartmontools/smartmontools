@@ -1,4 +1,8 @@
-$Id: ChangeLog 4198 2016-01-06 21:43:56Z chrfranke $
+$Id: ChangeLog 4200 2016-01-19 13:11:51Z samm2 $
+
+2016-01-19  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: Samsung PM871 SSD family (ticket #636)
 
 2016-01-06  Christian Franke  <franke@computer.org>
 
