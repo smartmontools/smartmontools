@@ -5,6 +5,7 @@ $Id$
 	drivedb.h:
 	 - Samsung PM871 SSD family (ticket #636)
 	 - Fixed detection for Samsung SSD 850 EVO mSATA 120GB (ticket #635)
+	 - Fixed Western Digital Caviar Black regexp, extended WD Black (ticket #631)
 
 2016-01-06  Christian Franke  <franke@computer.org>
 
