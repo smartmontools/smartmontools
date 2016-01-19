@@ -1,5 +1,9 @@
 $Id$
 
+2016-01-19  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: Samsung PM871 SSD family (ticket #636)
+
 2016-01-06  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
