@@ -2,9 +2,9 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
+ * Copyright (C) 2008-16 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-15 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1808,6 +1808,12 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     }
   }
 
+  // Check for ATA Security LOCK
+  unsigned short word128 = drive.words088_255[128-88];
+  bool locked = ((word128 & 0x0007) == 0x0007); // LOCKED|ENABLED|SUPPORTED
+  if (locked)
+    PrintOut(LOG_INFO, "Device: %s, ATA Security is **LOCKED**\n", name);
+
   // Set default '-C 197[+]' if no '-C ID' is specified.
   if (!cfg.curr_pending_set)
     cfg.curr_pending_id = get_unc_attr_id(false, cfg.attribute_defs, cfg.curr_pending_incr);
@@ -2109,6 +2115,9 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   if (cfg.sct_erc_set) {
     if (!isSCTErrorRecoveryControlCapable(&drive))
       PrintOut(LOG_INFO, "Device: %s, no SCT Error Recovery Control support, ignoring -l scterc\n",
+               name);
+    else if (locked)
+      PrintOut(LOG_INFO, "Device: %s, no SCT support if ATA Security is LOCKED, ignoring -l scterc\n",
                name);
     else if (   ataSetSCTErrorRecoveryControltime(atadev, 1, cfg.sct_erc_readtime )
              || ataSetSCTErrorRecoveryControltime(atadev, 2, cfg.sct_erc_writetime))

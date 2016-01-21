@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-15 Christian Franke
+ * Copyright (C) 2008-16 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -2776,13 +2776,21 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        !(drive.cfs_enable_1 & 0x0020) ? "Disabled" : "Enabled"); // word085
   }
 
-  // Print ATA security status
+  // Check for ATA Security LOCK
+  unsigned short word128 = drive.words088_255[128-88];
+  bool locked = ((word128 & 0x0007) == 0x0007); // LOCKED|ENABLED|SUPPORTED
+
+  // Print ATA Security status
   if (options.get_security)
-    print_ata_security_status("ATA Security is:  ", drive.words088_255[128-88]);
+    print_ata_security_status("ATA Security is:  ", word128);
 
   // Print write cache reordering status
   if (options.sct_wcache_reorder_get) {
-    if (isSCTFeatureControlCapable(&drive)) {
+    if (!isSCTFeatureControlCapable(&drive))
+      pout("Wt Cache Reorder: Unavailable\n");
+    else if (locked)
+      pout("Wt Cache Reorder: Unknown (SCT not supported if ATA Security is LOCKED)\n");
+    else {
       int wcache_reorder = ataGetSetSCTWriteCacheReordering(device,
         false /*enable*/, false /*persistent*/, false /*set*/);
 
@@ -2794,8 +2802,6 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       else
         pout("Wt Cache Reorder: Unknown (0x%02x)\n", wcache_reorder);
     }
-    else
-      pout("Wt Cache Reorder: Unavailable\n");
   }
 
   // Print remaining drive info
@@ -2886,6 +2892,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     bool enable = (options.sct_wcache_reorder_set > 0);
     if (!isSCTFeatureControlCapable(&drive))
       pout("Write cache reordering %sable failed: SCT Feature Control command not supported\n",
+        (enable ? "en" : "dis"));
+    else if (locked)
+      pout("Write cache reordering %sable failed: SCT not supported if ATA Security is LOCKED\n",
         (enable ? "en" : "dis"));
     else if (ataGetSetSCTWriteCacheReordering(device,
                enable, false /*persistent*/, true /*set*/) < 0) {
@@ -3379,9 +3388,15 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Check if SCT commands available
   bool sct_ok = isSCTCapable(&drive);
-  if(!sct_ok && (options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int
-                 || options.sct_erc_get || options.sct_erc_set                        ))
-    pout("SCT Commands not supported\n\n");
+  if (   options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int
+      || options.sct_erc_get  || options.sct_erc_set                          ) {
+    if (!sct_ok)
+      pout("SCT Commands not supported\n\n");
+    else if (locked) {
+      pout("SCT Commands not supported if ATA Security is LOCKED\n\n");
+      sct_ok = false;
+    }
+  }
 
   // Print SCT status and temperature history table
   if (sct_ok && (options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int)) {
