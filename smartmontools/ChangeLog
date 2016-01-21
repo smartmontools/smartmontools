@@ -1,4 +1,9 @@
-$Id: ChangeLog 4202 2016-01-19 14:09:03Z samm2 $
+$Id: ChangeLog 4203 2016-01-21 20:42:39Z chrfranke $
+
+2016-01-21  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, smartd.cpp: Don't issue SCT commands if ATA Security
+	is locked (ticket #637).
 
 2016-01-19  Alex Samorukov <samm@os2.kiev.ua>
 
