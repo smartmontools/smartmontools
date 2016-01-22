@@ -3231,9 +3231,6 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
 static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_device * scsidev, bool allow_selftests)
 {
-    UINT8 asc, ascq;
-    UINT8 currenttemp;
-    UINT8 triptemp;
     const char * name = cfg.name.c_str();
 
     // If the user has asked for it, test the email warning system
@@ -3249,9 +3246,9 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     } else if (debugmode)
         PrintOut(LOG_INFO,"Device: %s, opened SCSI device\n", name);
     reset_warning_mail(cfg, state, 9, "open device worked again");
-    currenttemp = 0;
-    asc = 0;
-    ascq = 0;
+
+    UINT8 asc = 0, ascq = 0;
+    UINT8 currenttemp = 0, triptemp = 0;
     if (!state.SuppressReport) {
         if (scsiCheckIE(scsidev, state.SmartPageSupported, state.TempPageSupported,
                         &asc, &ascq, &currenttemp, &triptemp)) {
@@ -4308,7 +4305,6 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
         if (scandevice==-2)
           return -1;
         // the final line is part of a continuation line
-        cont=0;
         entry+=scandevice;
       }
       break;

@@ -4,6 +4,7 @@ $Id$
 
 	Various fixes suggested by clang analyser (ticket #640):
 	smartd.cpp: Fix crash on missing argument to '-s' directive.
+	Add missing variable initialization.  Remove redundant assignment.
 
 2016-01-21  Alex Samorukov <samm@os2.kiev.ua>
 
