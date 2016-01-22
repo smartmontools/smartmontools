@@ -26,14 +26,14 @@
 #include <errno.h>
 #include <unistd.h>
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4190 2015-12-18 11:24:55Z samm2 $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4205 2016-01-22 15:22:53Z samm2 $"
   OS_NETBSD_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
 extern long long bytes;
 
 enum warnings {
-  BAD_SMART, NO_3WARE, NO_ARECA, MAX_MSG
+  BAD_SMART, MAX_MSG
 };
 
 /* Utility function for printing warnings */
