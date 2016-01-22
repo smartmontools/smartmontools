@@ -34,7 +34,7 @@ const char * os_openbsd_cpp_cvsid = "$Id$"
 extern long long bytes;
 
 enum warnings {
-  BAD_SMART, NO_3WARE, NO_ARECA, MAX_MSG
+  BAD_SMART, MAX_MSG
 };
 
 /* Utility function for printing warnings */

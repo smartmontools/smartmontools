@@ -3,6 +3,8 @@ $Id$
 2016-01-21  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h: Added ADATA SP550 SSD (ticket #638)
+	os_freebsd.cpp: Reduce variable scope where possible (cppcheck: variableScope)
+	os_openbsd/os_netbsd - removed never used warning code defines (cppcheck)
 
 2016-01-21  Christian Franke  <franke@computer.org>
 
