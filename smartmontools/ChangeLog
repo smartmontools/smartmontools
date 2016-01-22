@@ -1,4 +1,8 @@
-$Id: ChangeLog 4203 2016-01-21 20:42:39Z chrfranke $
+$Id: ChangeLog 4204 2016-01-22 13:52:06Z samm2 $
+
+2016-01-21  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: Added ADATA SP550 SSD (ticket #638)
 
 2016-01-21  Christian Franke  <franke@computer.org>
 
