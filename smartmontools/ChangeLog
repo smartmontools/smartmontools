@@ -1,5 +1,9 @@
 $Id$
 
+2016-01-21  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: Added ADATA SP550 SSD (ticket #638)
+
 2016-01-21  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp, smartd.cpp: Don't issue SCT commands if ATA Security
