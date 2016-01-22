@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-15 Christian Franke
+ * Copyright (C) 2008-16 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -591,7 +591,7 @@ class stdin_iterator
 {
 public:
   explicit stdin_iterator(FILE * f)
-    : m_f(f) { get(); get(); }
+    : m_f(f), m_next(0) { get(); get(); }
 
   stdin_iterator & operator++()
     { get(); return *this; }
