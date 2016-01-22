@@ -106,7 +106,7 @@ typedef int pid_t;
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4203 2016-01-21 20:42:39Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4206 2016-01-22 18:59:02Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
@@ -3910,13 +3910,13 @@ static int ParseToken(char * token, dev_config & cfg)
                  configfile, lineno, name, arg, cfg.test_regex.get_errmsg());
         return -1;
       }
+      // Do a bit of sanity checking and warn user if we think that
+      // their regexp is "strange". User probably confused about shell
+      // glob(3) syntax versus regular expression syntax regexp(7).
+      if (arg[(val = strspn(arg, "0123456789/.-+*|()?^$[]SLCOcnr"))])
+        PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, character %d (%c) looks odd in extended regular expression %s\n",
+                 configfile, lineno, name, val+1, arg[val], arg);
     }
-    // Do a bit of sanity checking and warn user if we think that
-    // their regexp is "strange". User probably confused about shell
-    // glob(3) syntax versus regular expression syntax regexp(7).
-    if (arg[(val = strspn(arg, "0123456789/.-+*|()?^$[]SLCOcnr"))])
-      PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, character %d (%c) looks odd in extended regular expression %s\n",
-               configfile, lineno, name, val+1, arg[val], arg);
     break;
   case 'm':
     // send email to address that follows
