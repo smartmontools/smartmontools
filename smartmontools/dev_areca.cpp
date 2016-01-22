@@ -21,7 +21,7 @@
 #include "dev_interface.h"
 #include "dev_areca.h"
 
-const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4148 2015-10-17 15:21:12Z chrfranke $"
+const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4209 2016-01-22 20:49:44Z chrfranke $"
   DEV_ARECA_H_CVSID;
 
 #include "atacmds.h"
@@ -304,7 +304,7 @@ int generic_areca_device::arcmsr_ui_handler(unsigned char *areca_packet, int are
     expected = arcmsr_command_handler(ARCMSR_READ_RQBUFFER, return_buff, sizeof(return_buff));
   }
 
-  if ( expected < 0 )
+  if ( expected < 3 + 1 ) // Prefix + Checksum
   {
     return -1;
   }
