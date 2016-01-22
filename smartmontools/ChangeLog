@@ -1,9 +1,10 @@
-$Id: ChangeLog 4206 2016-01-22 18:59:02Z chrfranke $
+$Id: ChangeLog 4207 2016-01-22 19:35:10Z chrfranke $
 
 2016-01-22  Christian Franke  <franke@computer.org>
 
 	Various fixes suggested by clang analyser (ticket #640):
 	smartd.cpp: Fix crash on missing argument to '-s' directive.
+	Add missing variable initialization.  Remove redundant assignment.
 
 2016-01-21  Alex Samorukov <samm@os2.kiev.ua>
 
