@@ -1,8 +1,9 @@
-$Id: ChangeLog 4207 2016-01-22 19:35:10Z chrfranke $
+$Id: ChangeLog 4208 2016-01-22 19:45:35Z chrfranke $
 
 2016-01-22  Christian Franke  <franke@computer.org>
 
 	Various fixes suggested by clang analyser (ticket #640):
+	knowndrives.cpp: Add missing member initialization.
 	smartd.cpp: Fix crash on missing argument to '-s' directive.
 	Add missing variable initialization.  Remove redundant assignment.
 
