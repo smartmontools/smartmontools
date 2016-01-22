@@ -304,7 +304,7 @@ int generic_areca_device::arcmsr_ui_handler(unsigned char *areca_packet, int are
     expected = arcmsr_command_handler(ARCMSR_READ_RQBUFFER, return_buff, sizeof(return_buff));
   }
 
-  if ( expected < 0 )
+  if ( expected < 3 + 1 ) // Prefix + Checksum
   {
     return -1;
   }

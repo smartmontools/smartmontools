@@ -3,6 +3,7 @@ $Id$
 2016-01-22  Christian Franke  <franke@computer.org>
 
 	Various fixes suggested by clang analyser (ticket #640):
+	dev_areca.cpp: Fix check of ARCMSR_READ_RQBUFFER result.
 	knowndrives.cpp: Add missing member initialization.
 	smartd.cpp: Fix crash on missing argument to '-s' directive.
 	Add missing variable initialization.  Remove redundant assignment.
