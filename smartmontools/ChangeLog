@@ -1,5 +1,10 @@
 $Id$
 
+2016-01-22  Christian Franke  <franke@computer.org>
+
+	Various fixes suggested by clang analyser (ticket #640):
+	smartd.cpp: Fix crash on missing argument to '-s' directive.
+
 2016-01-21  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h: Added ADATA SP550 SSD (ticket #638)

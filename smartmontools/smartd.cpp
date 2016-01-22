@@ -3910,13 +3910,13 @@ static int ParseToken(char * token, dev_config & cfg)
                  configfile, lineno, name, arg, cfg.test_regex.get_errmsg());
         return -1;
       }
+      // Do a bit of sanity checking and warn user if we think that
+      // their regexp is "strange". User probably confused about shell
+      // glob(3) syntax versus regular expression syntax regexp(7).
+      if (arg[(val = strspn(arg, "0123456789/.-+*|()?^$[]SLCOcnr"))])
+        PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, character %d (%c) looks odd in extended regular expression %s\n",
+                 configfile, lineno, name, val+1, arg[val], arg);
     }
-    // Do a bit of sanity checking and warn user if we think that
-    // their regexp is "strange". User probably confused about shell
-    // glob(3) syntax versus regular expression syntax regexp(7).
-    if (arg[(val = strspn(arg, "0123456789/.-+*|()?^$[]SLCOcnr"))])
-      PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, character %d (%c) looks odd in extended regular expression %s\n",
-               configfile, lineno, name, val+1, arg[val], arg);
     break;
   case 'm':
     // send email to address that follows
