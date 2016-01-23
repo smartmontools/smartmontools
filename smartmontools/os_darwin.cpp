@@ -46,7 +46,7 @@
 #include "dev_interface.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4190 2015-12-18 11:24:55Z samm2 $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4210 2016-01-23 01:32:51Z samm2 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -78,7 +78,7 @@ static struct {
   IOATASMARTInterface **smartIf;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4190 2015-12-18 11:24:55Z samm2 $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4210 2016-01-23 01:32:51Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -343,6 +343,9 @@ static int make_device_names (char*** devlist, const char* name) {
       free ((*devlist)[index]);
       free (*devlist);
     }
+  if(!result) // no devs found
+    return 0;
+
   return -1;
 }
 

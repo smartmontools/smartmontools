@@ -1,4 +1,9 @@
-$Id: ChangeLog 4209 2016-01-22 20:49:44Z chrfranke $
+$Id: ChangeLog 4210 2016-01-23 01:32:51Z samm2 $
+
+2016-01-23  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp: do not print bogus memory allocation error message if
+	  there are no devices found
 
 2016-01-22  Christian Franke  <franke@computer.org>
 
