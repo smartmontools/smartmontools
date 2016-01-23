@@ -343,6 +343,9 @@ static int make_device_names (char*** devlist, const char* name) {
       free ((*devlist)[index]);
       free (*devlist);
     }
+  if(!result) // no devs found
+    return 0;
+
   return -1;
 }
 
