@@ -77,7 +77,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4205 2016-01-22 15:22:53Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4211 2016-01-24 07:56:06Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1596,9 +1596,11 @@ int get_dev_names_ata(char*** names) {
         n++;
       };
     };
-  };  
+  };
+  if (n <= 0)
+    goto end;
   mp = (char **)reallocf(mp,n*(sizeof (char*))); // shrink to correct size
-  if (mp == NULL && n > 0 ) { // reallocf never fail for size=0, but may return NULL
+  if (mp == NULL) {
     serrno=errno;
     pout("Out of memory constructing scan device list (on line %d)\n", __LINE__);
     n = -1;
