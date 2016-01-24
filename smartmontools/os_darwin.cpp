@@ -46,7 +46,7 @@
 #include "dev_interface.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4210 2016-01-23 01:32:51Z samm2 $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4214 2016-01-24 22:53:37Z samm2 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -78,7 +78,7 @@ static struct {
   IOATASMARTInterface **smartIf;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4210 2016-01-23 01:32:51Z samm2 $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4214 2016-01-24 22:53:37Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -182,8 +182,8 @@ bool darwin_smart_device::open()
   
   if (strcmp (type, "ATA") != 0)
     {
-      errno = EINVAL;
-      return -1;
+      set_err (EINVAL);
+      return false;
     }
   
   // Find a free device number.
@@ -192,8 +192,8 @@ bool darwin_smart_device::open()
       break;
   if (devnum == sizeof (devices) / sizeof (devices[0]))
     {
-      errno = EMFILE;
-      return -1;
+      set_err (EMFILE);
+      return false;
     }
   
   devname = NULL;
@@ -219,8 +219,8 @@ bool darwin_smart_device::open()
 
   if (! disk)
     {
-      errno = ENOENT;
-      return -1;
+      set_err(ENOENT);
+      return false;
     }
   
   // Find a SMART-capable driver which is a parent of this device.
@@ -233,9 +233,9 @@ bool darwin_smart_device::open()
       err = IORegistryEntryGetParentEntry (disk, kIOServicePlane, &disk);
       if (err != kIOReturnSuccess || ! disk)
       {
-        errno = ENODEV;
+        set_err(ENODEV);
         IOObjectRelease (prevdisk);
-        return -1;
+        return false;
       }
     }
   
@@ -258,8 +258,8 @@ bool darwin_smart_device::open()
       CFUUIDGetUUIDBytes ( kIOATASMARTInterfaceID),
       (void **)&devices[devnum].smartIf);
   }
-  
-  
+
+
   m_fd = devnum;
   if (m_fd < 0) {
     set_err((errno==ENOENT || errno==ENOTDIR) ? ENODEV : errno);
