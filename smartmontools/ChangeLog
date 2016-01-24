@@ -4,6 +4,7 @@ $Id$
 
 	os_freebsd.cpp: fix possible reallocf with 0 bytes arg (ticket #640)
 	drivedb.h: add Corsair Extreme SSD (ticket #642)
+	os_darwin.cpp: fix error reporting if open fails
 
 2016-01-23  Alex Samorukov  <samm@os2.kiev.ua>
 

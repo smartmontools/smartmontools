@@ -182,8 +182,8 @@ bool darwin_smart_device::open()
   
   if (strcmp (type, "ATA") != 0)
     {
-      errno = EINVAL;
-      return -1;
+      set_err (EINVAL);
+      return false;
     }
   
   // Find a free device number.
@@ -192,8 +192,8 @@ bool darwin_smart_device::open()
       break;
   if (devnum == sizeof (devices) / sizeof (devices[0]))
     {
-      errno = EMFILE;
-      return -1;
+      set_err (EMFILE);
+      return false;
     }
   
   devname = NULL;
@@ -219,8 +219,8 @@ bool darwin_smart_device::open()
 
   if (! disk)
     {
-      errno = ENOENT;
-      return -1;
+      set_err(ENOENT);
+      return false;
     }
   
   // Find a SMART-capable driver which is a parent of this device.
@@ -233,9 +233,9 @@ bool darwin_smart_device::open()
       err = IORegistryEntryGetParentEntry (disk, kIOServicePlane, &disk);
       if (err != kIOReturnSuccess || ! disk)
       {
-        errno = ENODEV;
+        set_err(ENODEV);
         IOObjectRelease (prevdisk);
-        return -1;
+        return false;
       }
     }
   
@@ -258,8 +258,8 @@ bool darwin_smart_device::open()
       CFUUIDGetUUIDBytes ( kIOATASMARTInterfaceID),
       (void **)&devices[devnum].smartIf);
   }
-  
-  
+
+
   m_fd = devnum;
   if (m_fd < 0) {
     set_err((errno==ENOENT || errno==ENOTDIR) ? ENODEV : errno);
