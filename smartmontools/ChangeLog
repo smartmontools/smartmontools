@@ -1,5 +1,9 @@
 $Id$
 
+2016-01-24  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: fix possible reallocf with 0 bytes arg (ticket #640)
+
 2016-01-23  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_darwin.cpp: do not print bogus memory allocation error message if
