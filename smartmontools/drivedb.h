@@ -476,6 +476,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Indilinx Barefoot based SSDs",
     "Corsair CSSD-V(32|60|64|128|256)GB2|" // Corsair Nova, tested with Corsair CSSD-V32GB2/2.2
+    "Corsair CMFSSD-(32|64|128|256)D1|" // Corsair Extreme, tested with Corsair CMFSSD-128D1/1.0
     "CRUCIAL_CT(64|128|256)M225|" // tested with CRUCIAL_CT64M225/1571
     "G.SKILL FALCON (64|128|256)GB SSD|" // tested with G.SKILL FALCON 128GB SSD/2030
     "OCZ[ -](AGILITY|ONYX|VERTEX( 1199|-TURBO| v1\\.10)?)|" // tested with
