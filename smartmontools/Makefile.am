@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4217 2016-01-25 17:24:04Z samm2 $
+# $Id: Makefile.am 4218 2016-01-25 17:32:11Z samm2 $
 #
 
 @SET_MAKE@
@@ -473,10 +473,10 @@ com.smartmontools.smartd.plist : os_darwin/com.smartmontools.smartd.plist.in
 
 install-initdDATA-darwin: $(initd_DATA)
 	$(MKDIR_P) '$(DESTDIR)$(initddir)'
-	$(INSTALL_DATA) $(top_builddir)/com.smartmontools.smartd.plist $(DESTDIR)$(initddir)/com.smartmontools.smartd.plist
+	$(INSTALL_DATA) $(top_builddir)/$(initd_DATA) $(DESTDIR)$(initddir)/$(initd_DATA)
 
 uninstall-initdDATA-darwin:
-	rm -rf $(DESTDIR)$(initddir)/$(initd_install_name)
+	rm -f $(DESTDIR)$(initddir)/$(initd_DATA)
 
 else
 
