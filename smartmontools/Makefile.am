@@ -473,10 +473,10 @@ com.smartmontools.smartd.plist : os_darwin/com.smartmontools.smartd.plist.in
 
 install-initdDATA-darwin: $(initd_DATA)
 	$(MKDIR_P) '$(DESTDIR)$(initddir)'
-	$(INSTALL_DATA) $(top_builddir)/com.smartmontools.smartd.plist $(DESTDIR)$(initddir)/com.smartmontools.smartd.plist
+	$(INSTALL_DATA) $(top_builddir)/$(initd_DATA) $(DESTDIR)$(initddir)/$(initd_DATA)
 
 uninstall-initdDATA-darwin:
-	rm -rf $(DESTDIR)$(initddir)/$(initd_install_name)
+	rm -f $(DESTDIR)$(initddir)/$(initd_DATA)
 
 else
 
