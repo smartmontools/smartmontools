@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4181 2015-12-07 20:58:40Z chrfranke $
+# $Id: configure.ac 4216 2016-01-25 17:12:37Z samm2 $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.5, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4181 2015-12-07 20:58:40Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4216 2016-01-25 17:12:37Z samm2 $'`
 smartmontools_release_date=2015-06-04
 smartmontools_release_time="16:29:41 UTC"
 
@@ -223,6 +223,9 @@ AM_CONDITIONAL(INSTALL_INITSCRIPT, [test -n "$initddir"])
 case "${host}" in
   *-*-freebsd*)
     initdfile="smartd.freebsd.initd"
+    ;;
+  *-apple-darwin*)
+    initdfile="com.smartmontools.smartd.plist"
     ;;
   *)
     initdfile="smartd.initd"
@@ -638,7 +641,7 @@ case "$host_os" in
       echo "smartd plugin path:     [[disabled]]" >&AS_MESSAGE_FD
     fi
     if test -n "$initddir"; then
-      echo "smartd initd script:    `eval eval eval echo $initddir`/smartd${smartd_suffix}" >&AS_MESSAGE_FD
+      echo "smartd initd script:    `eval eval eval echo $initddir`/${initdfile}" >&AS_MESSAGE_FD
     elif test -z "$systemdsystemunitdir"; then
       echo "smartd initd script:    [[disabled]]" >&AS_MESSAGE_FD
     fi

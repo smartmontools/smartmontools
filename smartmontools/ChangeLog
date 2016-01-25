@@ -1,4 +1,9 @@
-$Id: ChangeLog 4214 2016-01-24 22:53:37Z samm2 $
+$Id: ChangeLog 4216 2016-01-25 17:12:37Z samm2 $
+
+2016-01-25  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin: add launchctl script for the smartd and remove depricated one.
+	"On current systems there is only one recommend way: launchd"
 
 2016-01-24  Alex Samorukov  <samm@os2.kiev.ua>
 
