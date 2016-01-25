@@ -363,9 +363,7 @@ EXTRA_DIST = \
         update-smart-drivedb.in \
         update-smart-drivedb.8.in \
         m4/pkg.m4 \
-        os_darwin/SMART.in \
-        os_darwin/StartupParameters.plist \
-        os_darwin/English_Localizable.strings \
+        os_darwin/com.smartmontools.smartd.plist.in \
         os_darwin/pkg/PackageInfo.in \
         os_darwin/pkg/Distribution.in \
         os_darwin/pkg/installer/README.html \
@@ -465,31 +463,17 @@ smartd_warning.sh: smartd_warning.sh.in config.status
 
 if INSTALL_INITSCRIPT
 if OS_DARWIN
-initd_DATA = SMART                            \
-	os_darwin/StartupParameters.plist     \
-	os_darwin/English_Localizable.strings
-
-initd_install_name = SMART
+initd_DATA = com.smartmontools.smartd.plist
 
 initd_DATA_install = install-initdDATA-darwin
 initd_DATA_uninstall = uninstall-initdDATA-darwin
 
-SMART : os_darwin/SMART.in
+com.smartmontools.smartd.plist : os_darwin/com.smartmontools.smartd.plist.in
 	sed "s|/usr/sbin/|$(sbindir)/|" $< > $@
 
 install-initdDATA-darwin: $(initd_DATA)
-	$(MKDIR_P) $(DESTDIR)$(initddir)
-	$(MKDIR_P) $(DESTDIR)$(initddir)/SMART
-	$(MKDIR_P) $(DESTDIR)$(initddir)/SMART/Resources
-	$(INSTALL_SCRIPT) $(top_builddir)/SMART $(DESTDIR)$(initddir)/SMART
-	$(INSTALL_DATA) $(srcdir)/os_darwin/StartupParameters.plist \
-	    $(DESTDIR)$(initddir)/SMART/StartupParameters.plist
-	for i in English ; do \
-	  RDIR=$(DESTDIR)$(initddir)/SMART/Resources/$${i}.lproj ; \
-	  $(MKDIR_P) $$RDIR ;\
-	  $(INSTALL_DATA) $(srcdir)/os_darwin/$${i}_Localizable.strings \
-	    $$RDIR/Localizable.strings ; \
-	done
+	$(MKDIR_P) '$(DESTDIR)$(initddir)'
+	$(INSTALL_SCRIPT) $(top_builddir)/com.smartmontools.smartd.plist $(DESTDIR)$(initddir)/com.smartmontools.smartd.plist
 
 uninstall-initdDATA-darwin:
 	rm -rf $(DESTDIR)$(initddir)/$(initd_install_name)

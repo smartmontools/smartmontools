@@ -224,6 +224,9 @@ case "${host}" in
   *-*-freebsd*)
     initdfile="smartd.freebsd.initd"
     ;;
+  *-apple-darwin*)
+    initdfile="com.smartmontools.smartd.plist"
+    ;;
   *)
     initdfile="smartd.initd"
     ;;
@@ -638,7 +641,7 @@ case "$host_os" in
       echo "smartd plugin path:     [[disabled]]" >&AS_MESSAGE_FD
     fi
     if test -n "$initddir"; then
-      echo "smartd initd script:    `eval eval eval echo $initddir`/smartd${smartd_suffix}" >&AS_MESSAGE_FD
+      echo "smartd initd script:    `eval eval eval echo $initddir`/${initdfile}" >&AS_MESSAGE_FD
     elif test -z "$systemdsystemunitdir"; then
       echo "smartd initd script:    [[disabled]]" >&AS_MESSAGE_FD
     fi

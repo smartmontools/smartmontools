@@ -1,5 +1,10 @@
 $Id$
 
+2016-01-25  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin: add launchctl script for the smartd and remove depricated one.
+	"On current systems there is only one recommend way: launchd"
+
 2016-01-24  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: fix possible reallocf with 0 bytes arg (ticket #640)
