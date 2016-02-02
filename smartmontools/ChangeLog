@@ -1,4 +1,9 @@
-$Id: ChangeLog 4219 2016-02-02 21:33:52Z chrfranke $
+$Id: ChangeLog 4221 2016-02-02 23:51:03Z dpgilbert $
+
+2016-02-02  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: output unavailable rather than 255C for Drive
+        Trip temperature; skip background scan lpage for tape drives
 
 2016-02-02  Christian Franke  <franke@computer.org>
 
