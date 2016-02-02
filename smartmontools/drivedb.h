@@ -274,10 +274,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs",
     "Crucial_CT(128|256|512)MX100SSD1|"// tested with Crucial_CT256MX100SSD1/MU01
-    "Crucial_CT(200|256|500|512|1000|1024)MX200SSD[1346]|" // tested with Crucial_CT500MX200SSD1/MU01,
-      // Crucial_CT1024MX200SSD1/MU01
-    "Crucial_CT(120|240|480|960)M500SSD1|" // tested with Crucial_CT960M500SSD1/MU03
-    "Crucial_CT(128|256|512|1024)M550SSD[13]|" // tested with Crucial_CT512M550SSD3/MU01, Crucial_CT1024M550SSD1/MU01
+    "Crucial_CT(200|250|256|500|512|1000|1024)MX200SSD[1346]|" // tested with Crucial_CT500MX200SSD1/MU01,
+      // Crucial_CT1024MX200SSD1/MU01, Crucial_CT250MX200SSD3/MU01, Crucial_CT250MX200SSD1/MU03
+    "Crucial_CT(120|240|480|960)M500SSD[134]|" // tested with Crucial_CT960M500SSD1/MU03,
+      // Crucial_CT240M500SSD4/MU05
+    "Crucial_CT(128|256|512|1024)M550SSD[13]|" // tested with Crucial_CT512M550SSD3/MU01,
+      // Crucial_CT1024M550SSD1/MU01
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
     "(Micron_)?M510[_-]MTFDDA[KTV](128|256)MAZ|" // tested with M510-MTFDDAK256MAZ/MU01
     "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY|" // tested with M550-MTFDDAK256MAY/MU01
@@ -600,8 +602,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 251,raw48,Total_NAND_Read_Ct_GiB"
   },
   {
-    "OCZ Trion",
-    "OCZ-TRION100", // tested with OCZ-TRION100/SAFM11.2
+    "OCZ Trion SSDs",
+    "OCZ-TRION1[05]0", // tested with OCZ-TRION100/SAFM11.2A, TRION150/SAFZ72.2
     "", "",
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -609,8 +611,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 168,raw48,SATA_PHY_Error_Count "
     "-v 169,raw48,Bad_Block_Count "
     "-v 173,raw48,Erase_Count "
-    "-v 192,raw48,Unexpect_Power_Loss_Ct"
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 241,raw48,Host_Writes"
   },
   { "InnoDisk InnoLite SATADOM D150QV-L SSDs", // tested with InnoLite SATADOM D150QV-L/120319
     "InnoLite SATADOM D150QV-L",
@@ -679,9 +682,11 @@ const drive_settings builtin_knowndrives[] = {
   { "Innodisk 3ME3 SSDs", // tested with  2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
       // InnoDisk Corp. - mSATA 3ME3/S15A19, mSATA mini 3ME3/S15A19, M.2 (S42) 3ME3,
       // SATA Slim 3ME3/S15A19, SATADOM-MH 3ME3/S15A19, SATADOM-ML 3ME3/S15A19,
-      // SATADOM-MV 3ME3/S15A19, SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19
+      // SATADOM-MV 3ME3/S15A19, SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19,
+      // SATADOM-SL 3IE3/S151019N
     "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|mSATA mini|"
-    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-(MH|ML|MV|SL|SV)) 3ME3",
+    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-(MH|ML|MV|SL|SV)) 3ME3|"
+    "SATADOM-SL 3IE3",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
