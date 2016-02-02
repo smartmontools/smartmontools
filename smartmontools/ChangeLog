@@ -1,4 +1,12 @@
-$Id: ChangeLog 4216 2016-01-25 17:12:37Z samm2 $
+$Id: ChangeLog 4219 2016-02-02 21:33:52Z chrfranke $
+
+2016-02-02  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs: 250GB MX200
+	  (ticket #644), M500 mSATA and M.2
+	- OCZ Trion SSDs: Rename, add Trion 150
+	- Innodisk 3ME3 SSDs: SATADOM-SL 3IE3
 
 2016-01-25  Alex Samorukov  <samm@os2.kiev.ua>
 
