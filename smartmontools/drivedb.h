@@ -272,10 +272,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs",
     "Crucial_CT(128|256|512)MX100SSD1|"// tested with Crucial_CT256MX100SSD1/MU01
-    "Crucial_CT(200|256|500|512|1000|1024)MX200SSD[1346]|" // tested with Crucial_CT500MX200SSD1/MU01,
-      // Crucial_CT1024MX200SSD1/MU01
-    "Crucial_CT(120|240|480|960)M500SSD1|" // tested with Crucial_CT960M500SSD1/MU03
-    "Crucial_CT(128|256|512|1024)M550SSD[13]|" // tested with Crucial_CT512M550SSD3/MU01, Crucial_CT1024M550SSD1/MU01
+    "Crucial_CT(200|250|256|500|512|1000|1024)MX200SSD[1346]|" // tested with Crucial_CT500MX200SSD1/MU01,
+      // Crucial_CT1024MX200SSD1/MU01, Crucial_CT250MX200SSD3/MU01, Crucial_CT250MX200SSD1/MU03
+    "Crucial_CT(120|240|480|960)M500SSD[134]|" // tested with Crucial_CT960M500SSD1/MU03,
+      // Crucial_CT240M500SSD4/MU05
+    "Crucial_CT(128|256|512|1024)M550SSD[13]|" // tested with Crucial_CT512M550SSD3/MU01,
+      // Crucial_CT1024M550SSD1/MU01
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
     "(Micron_)?M510[_-]MTFDDA[KTV](128|256)MAZ|" // tested with M510-MTFDDAK256MAZ/MU01
     "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY|" // tested with M550-MTFDDAK256MAY/MU01
@@ -474,6 +476,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Indilinx Barefoot based SSDs",
     "Corsair CSSD-V(32|60|64|128|256)GB2|" // Corsair Nova, tested with Corsair CSSD-V32GB2/2.2
+    "Corsair CMFSSD-(32|64|128|256)D1|" // Corsair Extreme, tested with Corsair CMFSSD-128D1/1.0
     "CRUCIAL_CT(64|128|256)M225|" // tested with CRUCIAL_CT64M225/1571
     "G.SKILL FALCON (64|128|256)GB SSD|" // tested with G.SKILL FALCON 128GB SSD/2030
     "OCZ[ -](AGILITY|ONYX|VERTEX( 1199|-TURBO| v1\\.10)?)|" // tested with
@@ -597,8 +600,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 251,raw48,Total_NAND_Read_Ct_GiB"
   },
   {
-    "OCZ Trion",
-    "OCZ-TRION100", // tested with OCZ-TRION100/SAFM11.2
+    "OCZ Trion SSDs",
+    "OCZ-TRION1[05]0", // tested with OCZ-TRION100/SAFM11.2A, TRION150/SAFZ72.2
     "", "",
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -606,8 +609,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 168,raw48,SATA_PHY_Error_Count "
     "-v 169,raw48,Bad_Block_Count "
     "-v 173,raw48,Erase_Count "
-    "-v 192,raw48,Unexpect_Power_Loss_Ct"
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 241,raw48,Host_Writes"
   },
   { "InnoDisk InnoLite SATADOM D150QV-L SSDs", // tested with InnoLite SATADOM D150QV-L/120319
     "InnoLite SATADOM D150QV-L",
@@ -676,9 +680,11 @@ const drive_settings builtin_knowndrives[] = {
   { "Innodisk 3ME3 SSDs", // tested with  2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
       // InnoDisk Corp. - mSATA 3ME3/S15A19, mSATA mini 3ME3/S15A19, M.2 (S42) 3ME3,
       // SATA Slim 3ME3/S15A19, SATADOM-MH 3ME3/S15A19, SATADOM-ML 3ME3/S15A19,
-      // SATADOM-MV 3ME3/S15A19, SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19
+      // SATADOM-MV 3ME3/S15A19, SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19,
+      // SATADOM-SL 3IE3/S151019N
     "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|mSATA mini|"
-    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-(MH|ML|MV|SL|SV)) 3ME3",
+    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-(MH|ML|MV|SL|SV)) 3ME3|"
+    "SATADOM-SL 3IE3",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -1154,15 +1160,17 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG SSD 830 Series|"  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
     "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
       // Samsung SSD 840 Series/DXT06B0Q
-    "Samsung SSD 8[45]0 EVO ((120|250|500)G|1T)B( mSATA)?|" // tested with Samsung SSD 840 EVO (120|250|500)GB/EXT0AB0Q,
+    "Samsung SSD 8[45]0 EVO (mSATA )?((120|250|500)G|1T)B( mSATA)?|" // tested with Samsung SSD 840 EVO (120|250|500)GB/EXT0AB0Q,
       // Samsung SSD 840 EVO (120|250)GB/EXT0BB6Q, 1TB/EXT0BB0Q, 120GB mSATA/EXT41B6Q,
       // Samsung SSD 850 EVO 250GB/EMT01B6Q
+      // Samsung SSD 850 EVO mSATA 120GB/EMT41B6Q
     "Samsung SSD 850 PRO ((128|256|512)G|1T)B|" // tested with Samsung SSD 850 PRO 128GB/EXM01B6Q,
       // Samsung SSD 850 PRO 1TB/EXM01B6Q
     "SAMSUNG MZ7WD((120|240)HAFV|480HAGM|960HAGP)-00003|" // SM843T Series, tested with
       // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q
-    "SAMSUNG MZ7GE(240HMGR|(480|960)HMHP)-00003", // SM853T Series, tested with
+    "SAMSUNG MZ7GE(240HMGR|(480|960)HMHP)-00003|" // SM853T Series, tested with
       // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
+    "SAMSUNG MZ[7N]LN(128|256|512)HC(HP|GR|JH)-.*", // PM871 Series, tested with SAMSUNG MZ7LN128HCHP
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -1256,9 +1264,10 @@ const drive_settings builtin_knowndrives[] = {
   { "SiliconMotion based SSDs", // SM2246EN (Transcend TS6500)
     "CT(120|250|500|1000)BX100SSD1|" // Crucial BX100, tested with CT250BX100SSD1/MU02,
       // CT500BX100SSD1/MU02, CT1000BX100SSD1/MU02
-    "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420I?)", // Transcend SSD370/420 SATA/mSATA, TS6500,
+    "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420I?)|" // Transcend SSD370/420 SATA/mSATA, TS6500,
       // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
       // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H
+    "ADATA SP550", // ADATA SP550/O0803B5a
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -3153,13 +3162,21 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar Black",
-    "WDC WD((500|640|750)1AAL|1001FA[EL]|2001FAS)S-.*",
+    "WDC WD((500|640|750)1AAL|1001FA[EL]|2001FAS)S-.*|"
+    "WDC WD(2002|7502|1502|5003|1002|5002)(FAE|AAE|AZE|AAL)X-.*", // could be
+    // WD2002FAEX, WD7502AAEX, WD1502FAEX, WD5003AZEX, WD1002FAEX, WD5002AALX
     "", "", ""
   },
   { "Western Digital Black", // tested with
       // WDC WD5003AZEX-00RKKA0/80.00A80, WDC WD1003FZEX-00MK2A0/01.01A01,
       // WDC WD3001FAEX-00MJRA0/01.01L01, WDC WD4001FAEX-00MJRA0/01.01L01
-    "WDC WD(5002AAL|5003AZE|(64|75)02AAE|((10|15|20)0[23]|[34]001)F[AZ]E)X-.*",
+      // WDC WD4003FZEX-00Z4SA0/01.01A01
+    "WDC WD(6001|2003|5001|1003|4003|5003|3003|3001)(FZW|FZE|AZE)X-.*|" // could be
+    // new series  WD6001FZWX WD2003FZEX WD5001FZWX WD1003FZEX
+    //             WD4003FZEX WD5003AZEX WD3003FZEX
+    "WDC WD(4001|3001|2002|1002|5003|7500|5000|3200|2500|1600)(FAE|AZE|B[PE]K)[XT]-.*",
+    // old series: WD4001FAEX WD3001FAEX WD2002FAEX WD1002FAEX  WD5003AZEX
+    //             WD7500BPKT  WD5000BPKT WD3200BEKT WD2500BEKT WD1600BEKT
     "", "", ""
   },
   { "Western Digital AV ATA", // tested with WDC WD3200AVJB-63J5A0/01.03E01
