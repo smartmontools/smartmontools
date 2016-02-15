@@ -1,4 +1,8 @@
-$Id: ChangeLog 4221 2016-02-02 23:51:03Z dpgilbert $
+$Id: ChangeLog 4222 2016-02-15 18:38:33Z samm2 $
+
+2016-02-15  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: APPLE SSD TS064E (ticket #655)
 
 2016-02-02  Douglas Gilbert  <dgilbert@interlog.com>
 
