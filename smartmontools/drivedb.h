@@ -168,6 +168,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Err_Ct "
   },
+  { "Apple MacBook Air SSD", // probably Toshiba
+    "APPLE SSD TS(064|128)E", // tested with APPLE SSD TS064E/TQAABBF0
+    "", "",
+    "-v 173,raw48,Wear_Leveling_Count " //  ]
+    "-v 241,raw48,Host_Writes_GiB "     //  ]  guessed (ticket #655)
+    "-v 242,raw48,Host_Reades_GiB "     //  ]
+  },
   { "Apple SD/SM/TS...E/F SSDs", // SanDisk/Samsung/Toshiba?
     "APPLE SSD (S[DM]|TS)0?(128|256|512|768)[EF]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
      // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q, TS0256F/109L0704
