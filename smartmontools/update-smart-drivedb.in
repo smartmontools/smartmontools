@@ -2,7 +2,7 @@
 #
 # smartmontools drive database update script
 #
-# Copyright (C) 2010-15 Christian Franke
+# Copyright (C) 2010-16 Christian Franke
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ Usage: $myname [OPTIONS] [DESTFILE]
   -t TOOL         Use TOOL for download: $os_dltools
                   [default: first one found in PATH]
   -u LOCATION     Use URL of LOCATION for download:
-                    sf (Sourceforge code browser via HTTP)
+                    sf (Sourceforge code browser via HTTPS)
                     svn (SVN repository via HTTPS) [default]
                     svni (SVN repository via HTTP)
                     trac (Trac code browser via HTTPS)
@@ -85,7 +85,7 @@ warning()
 selecturl()
 {
   case $1 in
-    sf)   url='http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/drivedb.h?format=raw' ;;
+    sf)   url='https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/drivedb.h?format=raw' ;;
     svn)  url='https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
     svni) url='http://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
     trac) url='https://www.smartmontools.org/export/HEAD/trunk/smartmontools/drivedb.h' ;;
@@ -285,7 +285,7 @@ esac
 case "${insecure:-f}:$url" in
   t:http:*) insecure= ;;
   ?:https:*) ;;
-  *) error "'-u sf' and '-u svni' require '--insecure'" ;;
+  *) error "'-u svni' requires '--insecure'" ;;
 esac
 case "$tool:$insecure" in
   lynx:t) warning "'--insecure' is ignored if '-t lynx' is used" ;;

@@ -1,5 +1,10 @@
 $Id$
 
+2016-02-26  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Use HTTPS for '-u sf' (ticket #659).
+	update-smart-drivedb.8.in: Document changed URL.
+
 2016-02-15  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: APPLE SSD TS064E (ticket #655)

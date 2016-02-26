@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-15 Christian Franke
+Copyright (C) 2014-16 Christian Franke
 
 $Id$
 
@@ -82,7 +82,7 @@ The default is the first one found in PATH.
 Use URL of LOCATION for download. LOCATION is one of:
 .br
 .I sf
-(Sourceforge code browser via HTTP),
+(Sourceforge code browser via HTTPS),
 .br
 .I svn
 (SVN repository via HTTPS),
