@@ -6,6 +6,9 @@ $Id$
 	Improve file modification check.
 	update-smart-drivedb.8.in: Document changed URL.
 
+	os_win32/vc10/smartctl.vcxproj: Workaround for missing support of
+	'__func__' (included in C99 and C++11, but not in C++03).
+
 2016-02-15  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: APPLE SSD TS064E (ticket #655)
