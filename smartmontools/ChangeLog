@@ -1,10 +1,13 @@
-$Id: ChangeLog 4224 2016-02-26 20:29:24Z chrfranke $
+$Id: ChangeLog 4225 2016-02-26 20:51:48Z chrfranke $
 
 2016-02-26  Christian Franke  <franke@computer.org>
 
 	update-smart-drivedb.in: Use HTTPS for '-u sf' (ticket #659).
 	Improve file modification check.
 	update-smart-drivedb.8.in: Document changed URL.
+
+	os_win32/vc10/smartctl.vcxproj: Workaround for missing support of
+	'__func__' (included in C99 and C++11, but not in C++03).
 
 2016-02-15  Alex Samorukov  <samm@os2.kiev.ua>
 
