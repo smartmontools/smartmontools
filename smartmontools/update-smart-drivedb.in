@@ -365,11 +365,12 @@ if [ "$smtctl" != "-" ]; then
   fi
 fi
 
-# Keep old file if identical, ignore differences in Id string
+# Keep old file if identical, ignore missing Id keyword expansion in new file
 rm -f "$DEST.lastcheck"
 if [ -f "$DEST" ]; then
-  if cat "$DEST" | sed 's|\$''Id''[^$]*\$|$''Id''$|' \
-     | cmp - "$DEST.new" >/dev/null 2>/dev/null; then
+  if    cmp "$DEST" "$DEST.new" >/dev/null 2>/dev/null \
+     || cat "$DEST" | sed 's|\$''Id''[^$]*\$|$''Id''$|' \
+        | cmp - "$DEST.new" >/dev/null 2>/dev/null; then
     rm -f "$DEST.new"
     touch "$DEST.lastcheck"
     echo "$DEST is already up to date"
