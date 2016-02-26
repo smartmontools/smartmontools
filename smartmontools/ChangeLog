@@ -1,8 +1,9 @@
-$Id: ChangeLog 4223 2016-02-26 20:18:40Z chrfranke $
+$Id: ChangeLog 4224 2016-02-26 20:29:24Z chrfranke $
 
 2016-02-26  Christian Franke  <franke@computer.org>
 
 	update-smart-drivedb.in: Use HTTPS for '-u sf' (ticket #659).
+	Improve file modification check.
 	update-smart-drivedb.8.in: Document changed URL.
 
 2016-02-15  Alex Samorukov  <samm@os2.kiev.ua>
