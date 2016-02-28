@@ -426,7 +426,7 @@ const drive_settings builtin_knowndrives[] = {
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
-    "OWC Aura Pro 6G SSD|" // tested with OWC Aura Pro 6G SSD/507ABBF0
+    "OWC Aura Pro( 6G SSD)?|" // tested with OWC Aura Pro 6G SSD/507ABBF0, OWC Aura Pro/603ABBF0
     "OWC Mercury Electra (Pro )?[36]G SSD|" // tested with
       // OWC Mercury Electra 6G SSD/502ABBF0, OWC Mercury Electra Pro 3G SSD/541ABBF0
     "OWC Mercury E(xtreme|XTREME) Pro (6G |RE )?SSD|" // tested with
