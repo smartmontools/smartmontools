@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4222 2016-02-15 18:38:33Z samm2 $",
+  { "$Id: drivedb.h 4226 2016-02-28 09:33:36Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -426,7 +426,7 @@ const drive_settings builtin_knowndrives[] = {
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
-    "OWC Aura Pro 6G SSD|" // tested with OWC Aura Pro 6G SSD/507ABBF0
+    "OWC Aura Pro( 6G SSD)?|" // tested with OWC Aura Pro 6G SSD/507ABBF0, OWC Aura Pro/603ABBF0
     "OWC Mercury Electra (Pro )?[36]G SSD|" // tested with
       // OWC Mercury Electra 6G SSD/502ABBF0, OWC Mercury Electra Pro 3G SSD/541ABBF0
     "OWC Mercury E(xtreme|XTREME) Pro (6G |RE )?SSD|" // tested with

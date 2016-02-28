@@ -1,4 +1,8 @@
-$Id: ChangeLog 4225 2016-02-26 20:51:48Z chrfranke $
+$Id: ChangeLog 4226 2016-02-28 09:33:36Z samm2 $
+
+2016-02-28  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: OWC Aura Pro 480 GB (ticket #660)
 
 2016-02-26  Christian Franke  <franke@computer.org>
 
