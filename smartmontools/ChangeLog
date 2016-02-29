@@ -1,4 +1,8 @@
-$Id: ChangeLog 4226 2016-02-28 09:33:36Z samm2 $
+$Id: ChangeLog 4227 2016-02-29 21:02:48Z samm2 $
+
+2016-02-29  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: PM863 Series (ticket #661)
 
 2016-02-28  Alex Samorukov  <samm@os2.kiev.ua>
 

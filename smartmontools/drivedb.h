@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4226 2016-02-28 09:33:36Z samm2 $",
+  { "$Id: drivedb.h 4227 2016-02-29 21:02:48Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1179,6 +1179,8 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q
     "SAMSUNG MZ7GE(240HMGR|(480|960)HMHP)-00003|" // SM853T Series, tested with
       // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
+    "SAMSUNG MZ7LM(3T8|1T9|960|480|240|120)HC(JM|HP|GR|FD)|" // PM863 Series, tested with
+      // SAMSUNG MZ7LM960HCHP-0E003/GXT3003Q
     "SAMSUNG MZ[7N]LN(128|256|512)HC(HP|GR|JH)-.*", // PM871 Series, tested with SAMSUNG MZ7LN128HCHP
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -1205,6 +1207,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 235,raw48,POR_Recovery_Count " // 830/840/850 Series
   //"-v 241,raw48,Total_LBAs_Written "
   //"-v 242,raw48,Total_LBAs_Read " // PM851, SM841N
+    "-v 243,raw48,SATA_Downshift_Ct " // PM863
+    "-v 244,raw48,Thermal_Throttle_St " // PM863
+    "-v 245,raw48,Timed_Workload_Media_Wear " // PM863
+    "-v 246,raw48,Timed_Workload_RdWr_Ratio " // PM863
+    "-v 246,raw48,Timed_Workload_Timer " // PM863
+    "-v 251,raw48,NAND_Writes" // PM863
   },
   { "Marvell based SanDisk SSDs",
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
