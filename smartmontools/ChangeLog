@@ -1,5 +1,9 @@
 $Id$
 
+2016-03-03  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Adata HD710 1TB USB3 (ticket #662)
+
 2016-02-29  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: PM863 Series (ticket #661)

@@ -4139,8 +4139,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ADATA
   { "USB: ADATA; ",
-    "0x125f:0xa(11|31|35)a", // 0xa11a: Classic CH11 1TB, 0xa31a: HV620 2TB (0x0100)
-    "", // 0xa35a: HD650 2TB (0x6503)
+    "0x125f:0xa(11|31|35|15)a", // 0xa11a: Classic CH11 1TB, 0xa31a: HV620 2TB (0x0100)
+    "", // 0xa35a: HD650 2TB (0x6503), 0xa15a: HD710 1TB
     "",
     "-d sat"
   },
