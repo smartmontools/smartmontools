@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4227 2016-02-29 21:02:48Z samm2 $",
+  { "$Id: drivedb.h 4228 2016-03-03 14:14:04Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4139,8 +4139,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ADATA
   { "USB: ADATA; ",
-    "0x125f:0xa(11|31|35)a", // 0xa11a: Classic CH11 1TB, 0xa31a: HV620 2TB (0x0100)
-    "", // 0xa35a: HD650 2TB (0x6503)
+    "0x125f:0xa(11|31|35|15)a", // 0xa11a: Classic CH11 1TB, 0xa31a: HV620 2TB (0x0100)
+    "", // 0xa35a: HD650 2TB (0x6503), 0xa15a: HD710 1TB
     "",
     "-d sat"
   },

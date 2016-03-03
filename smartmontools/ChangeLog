@@ -1,4 +1,8 @@
-$Id: ChangeLog 4227 2016-02-29 21:02:48Z samm2 $
+$Id: ChangeLog 4228 2016-03-03 14:14:04Z samm2 $
+
+2016-03-03  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Adata HD710 1TB USB3 (ticket #662)
 
 2016-02-29  Alex Samorukov  <samm@os2.kiev.ua>
 
