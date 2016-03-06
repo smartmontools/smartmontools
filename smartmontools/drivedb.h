@@ -166,6 +166,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Err_Ct "
   },
+  { "Apple MacBook Air SSD", // probably Toshiba
+    "APPLE SSD TS(064|128)E", // tested with APPLE SSD TS064E/TQAABBF0
+    "", "",
+    "-v 173,raw48,Wear_Leveling_Count " //  ]
+    "-v 241,raw48,Host_Writes_GiB "     //  ]  guessed (ticket #655)
+    "-v 242,raw48,Host_Reades_GiB "     //  ]
+  },
   { "Apple SD/SM/TS...E/F SSDs", // SanDisk/Samsung/Toshiba?
     "APPLE SSD (S[DM]|TS)0?(128|256|512|768)[EF]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
      // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q, TS0256F/109L0704
@@ -417,7 +424,7 @@ const drive_settings builtin_knowndrives[] = {
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
     "(DENR|DRSAK|EC188|NIMR|PSIR|TRSAK).*|" // other OCZ SF-1500
-    "OWC Aura Pro 6G SSD|" // tested with OWC Aura Pro 6G SSD/507ABBF0
+    "OWC Aura Pro( 6G SSD)?|" // tested with OWC Aura Pro 6G SSD/507ABBF0, OWC Aura Pro/603ABBF0
     "OWC Mercury Electra (Pro )?[36]G SSD|" // tested with
       // OWC Mercury Electra 6G SSD/502ABBF0, OWC Mercury Electra Pro 3G SSD/541ABBF0
     "OWC Mercury E(xtreme|XTREME) Pro (6G |RE )?SSD|" // tested with
@@ -1168,6 +1175,8 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q
     "SAMSUNG MZ7GE(240HMGR|(480|960)HMHP)-00003|" // SM853T Series, tested with
       // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
+    "SAMSUNG MZ7LM(120|240|480|960|1T9|3T8)HC(JM|HP|GR|FD)-.*|" // PM863 Series, tested with
+      // SAMSUNG MZ7LM960HCHP-0E003/GXT3003Q
     "SAMSUNG MZ[7N]LN(128|256|512)HC(HP|GR|JH)-.*", // PM871 Series, tested with SAMSUNG MZ7LN128HCHP
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -1194,6 +1203,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 235,raw48,POR_Recovery_Count " // 830/840/850 Series
   //"-v 241,raw48,Total_LBAs_Written "
   //"-v 242,raw48,Total_LBAs_Read " // PM851, SM841N
+    "-v 243,raw48,SATA_Downshift_Ct " // PM863
+    "-v 244,raw48,Thermal_Throttle_St " // PM863
+    "-v 245,raw48,Timed_Workld_Media_Wear " // PM863
+    "-v 246,raw48,Timed_Workld_RdWr_Ratio " // PM863
+    "-v 247,raw48,Timed_Workld_Timer " // PM863
+    "-v 251,raw48,NAND_Writes" // PM863
   },
   { "Marvell based SanDisk SSDs",
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
@@ -4117,8 +4132,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ADATA
   { "USB: ADATA; ",
-    "0x125f:0xa(11|31|35)a", // 0xa11a: Classic CH11 1TB, 0xa31a: HV620 2TB (0x0100)
-    "", // 0xa35a: HD650 2TB (0x6503)
+    "0x125f:0xa(11|31|35|15)a", // 0xa11a: Classic CH11 1TB, 0xa31a: HV620 2TB (0x0100)
+    "", // 0xa35a: HD650 2TB (0x6503), 0xa15a: HD710 1TB
     "",
     "-d sat"
   },
