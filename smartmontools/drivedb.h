@@ -1179,7 +1179,7 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q
     "SAMSUNG MZ7GE(240HMGR|(480|960)HMHP)-00003|" // SM853T Series, tested with
       // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
-    "SAMSUNG MZ7LM(3T8|1T9|960|480|240|120)HC(JM|HP|GR|FD)|" // PM863 Series, tested with
+    "SAMSUNG MZ7LM(120|240|480|960|1T9|3T8)HC(JM|HP|GR|FD)-.*|" // PM863 Series, tested with
       // SAMSUNG MZ7LM960HCHP-0E003/GXT3003Q
     "SAMSUNG MZ[7N]LN(128|256|512)HC(HP|GR|JH)-.*", // PM871 Series, tested with SAMSUNG MZ7LN128HCHP
     "", "",
@@ -1209,9 +1209,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 242,raw48,Total_LBAs_Read " // PM851, SM841N
     "-v 243,raw48,SATA_Downshift_Ct " // PM863
     "-v 244,raw48,Thermal_Throttle_St " // PM863
-    "-v 245,raw48,Timed_Workload_Media_Wear " // PM863
-    "-v 246,raw48,Timed_Workload_RdWr_Ratio " // PM863
-    "-v 246,raw48,Timed_Workload_Timer " // PM863
+    "-v 245,raw48,Timed_Workld_Media_Wear " // PM863
+    "-v 246,raw48,Timed_Workld_RdWr_Ratio " // PM863
+    "-v 247,raw48,Timed_Workld_Timer " // PM863
     "-v 251,raw48,NAND_Writes" // PM863
   },
   { "Marvell based SanDisk SSDs",

@@ -1,5 +1,10 @@
 $Id$
 
+2016-03-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Samsung based SSDs: Fix PM863 regexp, attribute IDs and
+	name length (regression from r4227).
+
 2016-03-03  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: Adata HD710 1TB USB3 (ticket #662)
