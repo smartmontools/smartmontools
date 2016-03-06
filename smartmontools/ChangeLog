@@ -1,4 +1,9 @@
-$Id: ChangeLog 4228 2016-03-03 14:14:04Z samm2 $
+$Id: ChangeLog 4229 2016-03-06 14:47:58Z chrfranke $
+
+2016-03-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Samsung based SSDs: Fix PM863 regexp, attribute IDs and
+	name length (regression from r4227).
 
 2016-03-03  Alex Samorukov  <samm@os2.kiev.ua>
 
