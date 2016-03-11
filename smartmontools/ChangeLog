@@ -1,4 +1,8 @@
-$Id: ChangeLog 4229 2016-03-06 14:47:58Z chrfranke $
+$Id: ChangeLog 4231 2016-03-11 21:06:55Z samm2 $
+
+2016-03-11  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Add Kingston UV300 SSD series
 
 2016-03-06  Christian Franke  <franke@computer.org>
 
