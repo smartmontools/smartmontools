@@ -1,5 +1,12 @@
 $Id$
 
+2016-03-12  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Add Phison Driven SSDs:
+	 - Kingston UV300 SSD series (ticket #663)
+	 - Kingston SSDNow KC310/V310
+	 - HyperX Savage
+
 2016-03-11  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: Add Kingston UV300 SSD series

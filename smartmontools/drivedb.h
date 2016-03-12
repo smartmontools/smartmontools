@@ -400,7 +400,6 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SMS200S3(30|60|120)G|" // mSATA, SF-2241, tested with SMS200S3120G/KC3ABBF0
     "KINGSTON SMS450S3(32|64|128)G|" // mSATA, SF-2281, tested with SMS450S3128G/503ABBF0
     "KINGSTON (SV300|SKC100|SE100)S3.*G|" // other SF-2281
-    "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "MKNSSDCR(45|60|90|120|180|240|360|480)GB(-(7|DX7?|MX|G2))?|" // Mushkin Chronos (7mm/Deluxe/MX/G2),
       // SF-2281, tested with MKNSSDCR120GB, MKNSSDCR120GB-MX/560ABBF0, MKNSSDCR480GB-DX7/603ABBF0
     "MKNSSDEC(60|120|240|480|512)GB|" // Mushkin Enhanced ECO2, tested with MKNSSDEC120GB/604ABBF0
@@ -483,6 +482,43 @@ const drive_settings builtin_knowndrives[] = {
     "-v 235,raw48,SuperCap_Health "
     "-v 241,raw48,Lifetime_Writes_GiB "
     "-v 242,raw48,Lifetime_Reads_GiB"
+  },
+  { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
+    "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
+    "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
+    "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
+    "KINGSTON SHSS3B?7A(120|240|480|960)G", // HyperX Savage
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 2,raw48,Not_In_Use "
+    "-v 3,raw48,Not_In_Use "
+    "-v 5,raw48,Not_In_Use "
+    "-v 7,raw48,Not_In_Use "
+    "-v 8,raw48,Not_In_Use "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 5,raw48,Retired_Block_Count "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 10,raw48,Not_In_Use "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 168,raw48,SATA_Phy_Error_Count "
+    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Erl/Lat " // Early bad block/Later bad block
+    "-v 173,raw16(avg16),MaxAvgErase_Ct "
+    "-v 175,raw48,Not_In_Use "
+  //"-v 187,raw48,Reported_Uncorrect "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 196,raw48,Not_In_Use "
+    "-v 197,raw48,Not_In_Use "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 218,raw48,CRC_Error_Count "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 233,raw48,Lifetime_Flash_Writes_GiB "
+    "-v 240,raw48,Not_In_Use "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB"
+    "-v 244,raw48,Average_Erase_Count "
+    "-v 245,raw48,Max_Erase_Count "
+    "-v 246,raw48,Total_Erase_Count "
   },
   { "Indilinx Barefoot based SSDs",
     "Corsair CSSD-V(32|60|64|128|256)GB2|" // Corsair Nova, tested with Corsair CSSD-V32GB2/2.2
