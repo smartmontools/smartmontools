@@ -1580,16 +1580,31 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
                 lbprz = !! (rc16_12[2] & 0x40);
             }
         }
+        /* Thin Provisioning VPD page renamed Logical Block Provisioning VPD
+         * page in sbc3r25; some fields changed their meaning so that the
+         * new page covered both thin and resource provisioned LUs. */
         if (0 == scsiInquiryVpd(device, SCSI_VPD_LOGICAL_BLOCK_PROVISIONING,
                                 lb_prov_resp, sizeof(lb_prov_resp))) {
-            int prov_type = lb_prov_resp[6] & 0x7;
+            int prov_type = lb_prov_resp[6] & 0x7;      /* added sbc3r27 */
+            int vpd_lbprz = ((lb_prov_resp[5]  >> 2) & 0x7);  /* sbc4r07 */
 
             if (-1 == lbprz)
-                lbprz = !! (lb_prov_resp[5] & 0x4);
+                lbprz = vpd_lbprz;
+            else if ((0 == vpd_lbprz) && (1 == lbprz))
+                ;  /* vpd_lbprz introduced in sbc3r27, expanded in sbc4r07 */
+            else
+                lbprz = vpd_lbprz;
             switch (prov_type) {
             case 0:
-                pout("LB provisioning type: unreported, LBPME=%d, LBPRZ=%d\n",
-                     lbpme, lbprz);
+                if (lbpme <= 0) {
+                    pout("LU is fully provisioned");
+                    if (lbprz)
+                        pout(" [LBPRZ=%d]\n", lbprz);
+                    else
+                        pout("\n");
+                } else
+                     pout("LB provisioning type: not reported [LBPME=1, "
+                          "LBPRZ=%d]\n", lbprz);
                 break;
             case 1:
                 pout("LU is resource provisioned, LBPRZ=%d\n", lbprz);
@@ -1602,8 +1617,11 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
                      prov_type, lbprz);
                 break;
             }
-        } else if (1 == lbpme)
+        } else if (1 == lbpme) {
+            if (scsi_debugmode > 0)
+                pout("rcap_16 sets LBPME but no LB provisioning VPD page\n");
             pout("Logical block provisioning enabled, LBPRZ=%d\n", lbprz);
+        }
 
         int rpm = scsiGetRPM(device, modese_len, &form_factor, &haw_zbc);
         if (rpm >= 0) {
