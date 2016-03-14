@@ -1,4 +1,8 @@
-$Id: ChangeLog 4233 2016-03-12 20:04:35Z samm2 $
+$Id: ChangeLog 4235 2016-03-14 16:51:42Z samm2 $
+
+2016-03-14  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: extend Apple SSD regexp (ticket #668)
 
 2016-03-12  Alex Samorukov  <samm@os2.kiev.ua>
 
