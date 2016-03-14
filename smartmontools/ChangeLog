@@ -1,4 +1,9 @@
-$Id: ChangeLog 4236 2016-03-14 17:10:13Z samm2 $
+$Id: ChangeLog 4237 2016-03-14 18:50:38Z dpgilbert $
+
+2016-03-14  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: work on LB provisioning corner cases; LBPRZ now
+	3 bits wide (in response to ticket #664)
 
 2016-03-14  Alex Samorukov  <samm@os2.kiev.ua>
 
