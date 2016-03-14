@@ -1,8 +1,10 @@
-$Id: ChangeLog 4235 2016-03-14 16:51:42Z samm2 $
+$Id: ChangeLog 4236 2016-03-14 17:10:13Z samm2 $
 
 2016-03-14  Alex Samorukov  <samm@os2.kiev.ua>
 
-	drivedb.h: extend Apple SSD regexp (ticket #668)
+	drivedb.h:
+	 - extend Apple SSD regexp (ticket #668)
+	 - Add OCZ VeloDrive R (ticket #667)
 
 2016-03-12  Alex Samorukov  <samm@os2.kiev.ua>
 
