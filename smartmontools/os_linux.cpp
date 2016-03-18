@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-15 Christian Franke
+ * Copyright (C) 2008-16 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -92,6 +92,9 @@
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
 #include "dev_areca.h"
+
+// "include/uapi/linux/nvme_ioctl.h" from Linux kernel sources
+#include "linux_nvme_ioctl.h" // nvme_passthru_cmd, NVME_IOCTL_ADMIN_CMD
 
 #ifndef ENOTSUP
 #define ENOTSUP ENOSYS
@@ -2589,6 +2592,76 @@ smart_device * linux_scsi_device::autodetect_open()
   return this;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+/// NVMe support
+
+class linux_nvme_device
+: public /*implements*/ nvme_device,
+  public /*extends*/ linux_smart_device
+{
+public:
+  linux_nvme_device(smart_interface * intf, const char * dev_name,
+    const char * req_type, unsigned nsid);
+
+  virtual bool open();
+
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+};
+
+linux_nvme_device::linux_nvme_device(smart_interface * intf, const char * dev_name,
+  const char * req_type, unsigned nsid)
+: smart_device(intf, dev_name, "nvme", req_type),
+  nvme_device(nsid),
+  linux_smart_device(O_RDONLY | O_NONBLOCK)
+{
+}
+
+bool linux_nvme_device::open()
+{
+  if (!linux_smart_device::open())
+    return false;
+
+  if (!get_nsid()) {
+    // Use actual NSID (/dev/nvmeXnN) if available,
+    // else use broadcast namespace (/dev/nvmeX)
+    int nsid = ioctl(get_fd(), NVME_IOCTL_ID, (void*)0);
+    set_nsid(nsid);
+  }
+
+  return true;
+}
+
+bool linux_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
+{
+  nvme_passthru_cmd pt;
+  memset(&pt, 0, sizeof(pt));
+
+  pt.opcode = in.opcode;
+  pt.nsid = in.nsid;
+  pt.addr = (uint64_t)in.buffer;
+  pt.data_len = in.size;
+  pt.cdw10 = in.cdw10;
+  pt.cdw11 = in.cdw11;
+  pt.cdw12 = in.cdw12;
+  pt.cdw13 = in.cdw13;
+  pt.cdw14 = in.cdw14;
+  pt.cdw15 = in.cdw15;
+  // Kernel default for NVMe admin commands is 60 seconds
+  // pt.timeout_ms = 60 * 1000;
+
+  int status = ioctl(get_fd(), NVME_IOCTL_ADMIN_CMD, &pt);
+
+  if (status < 0)
+    return set_err(errno, "NVME_IOCTL_ADMIN_CMD: %s", strerror(errno));
+
+  if (status > 0)
+    return set_nvme_err(out, status);
+
+  out.result = pt.result;
+  return true;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 // USB bridge ID detection
 
@@ -2660,6 +2733,9 @@ protected:
   virtual ata_device * get_ata_device(const char * name, const char * type);
 
   virtual scsi_device * get_scsi_device(const char * name, const char * type);
+
+  virtual nvme_device * get_nvme_device(const char * name, const char * type,
+    unsigned nsid);
 
   virtual smart_device * autodetect_smart_device(const char * name);
 
@@ -2892,6 +2968,12 @@ scsi_device * linux_smart_interface::get_scsi_device(const char * name, const ch
   return new linux_scsi_device(this, name, type);
 }
 
+nvme_device * linux_smart_interface::get_nvme_device(const char * name, const char * type,
+  unsigned nsid)
+{
+  return new linux_nvme_device(this, name, type, nsid);
+}
+
 smart_device * linux_smart_interface::missing_option(const char * opt)
 {
   set_err(EINVAL, "requires option '%s'", opt);
@@ -3076,6 +3158,10 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
   // form /dev/nos* or nos*
   if (str_starts_with(test_name, "nos"))
     return new linux_scsi_device(this, name, "");
+
+  // form /dev/nvme* or nvme*
+  if (str_starts_with(test_name, "nvme"))
+    return new linux_nvme_device(this, name, "", 0 /* use default nsid */);
 
   // form /dev/tw[ael]* or tw[ael]*
   if (str_starts_with(test_name, "tw") && strchr("ael", test_name[2]))

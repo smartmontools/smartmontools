@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-15 Christian Franke
+Copyright (C) 2004-16 Christian Franke
 
 $Id$
 
@@ -69,6 +69,8 @@ the hpahcisr and hpsa drivers, the device nodes you need are \fB"/dev/sg[0\-9]*"
 ("lsscsi \-g" is helpful in determining which scsi generic device node corresponds
 to which device.)  Use the nodes corresponding to the RAID controllers,
 not the nodes corresponding to logical drives.  See the \fB\-d\fP option below, as well.
+Use the forms \fB"/dev/nvme[0\-9]"\fP (broadcast namespace) or
+\fB"/dev/nvme[0\-9]n[1\-9]"\fP (specific namespace 1\-9) for NVMe devices.
 .\" %ENDIF OS Linux
 .\" %IF OS Darwin
 .IP \fBDARWIN\fP: 9
@@ -181,6 +183,12 @@ than the potential maximum drive capacity.)  Indicates if the drive is
 in the smartmontools database (see \'\-v\' options below).  If so, the
 drive model family may also be printed. If \'\-n\' (see below) is
 specified, the power mode of the drive is printed.
+.\" %IF OS Linux
+
+[NVMe] [Linux only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+For NVMe devices the information is obtained from the Identify Controller
+data structure.
+.\" %ENDIF OS Linux
 .TP
 .B \-\-identify[=[w][nvb]]
 [ATA only] Prints an annotated table of the IDENTIFY DEVICE data.
@@ -206,6 +214,12 @@ and for SCSI, this is equivalent to
 .nf
 \'\-H \-i \-A \-l error \-l selftest\'.
 .fi
+.\" %IF OS Linux
+For NVMe, this is equivalent to
+.nf
+\'\-H \-i \-A'.
+.fi
+.\" %ENDIF OS Linux
 Note that for ATA disks this does \fBnot\fP enable the non-SMART options
 and the SMART options which require support for 48-bit ATA commands.
 .TP
@@ -220,6 +234,12 @@ and for SCSI, this is equivalent to
 .nf
 \'\-H \-i \-A \-l error \-l selftest \-l background \-l sasphy\'.
 .fi
+.\" %IF OS Linux
+For NVMe, this is equivalent to
+.nf
+\'\-H \-i \-A'.
+.fi
+.\" %ENDIF OS Linux
 .TP
 .B \-\-scan
 Scans for devices and prints each device name, device type and protocol
@@ -292,6 +312,18 @@ from issuing SCSI commands to an ATA device.
 \fBsmartctl\fP
 from issuing ATA commands to a SCSI device.
 
+.\" %ENDIF NOT OS Darwin
+.\" %IF OS Linux
+.I nvme[,NSID]
+\- [Linux only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+the device type is NVM Express (NVMe).
+The optional parameter NSID specifies the namespace id (in hex) passed
+to the driver.
+Use 0xffffffff for the broadcast namespace id.
+The default for NSID is the namespace id addressed by the device name.
+
+.\" %ENDIF OS Linux
+.\" %IF NOT OS Darwin
 .I sat[,auto][,N]
 \- the device type is SCSI to ATA Translation (SAT).
 This is for ATA disks that have a SCSI to ATA Translation (SAT) Layer
@@ -943,6 +975,12 @@ Please note that the TapeAlert log page flags are cleared for the initiator
 when the page is read.
 This means that each alert condition is reported only once by \fBsmartctl\fP
 for each initiator for each activation of the condition.
+.\" %IF OS Linux
+
+[NVMe] [Linux only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+NVMe status is obtained by reading the "Critical Warning" byte from
+the SMART/Health Information log.
+.\" %ENDIF OS Linux
 .TP
 .B \-c, \-\-capabilities
 [ATA only] Prints only the generic SMART capabilities.  These
@@ -1052,6 +1090,12 @@ the drive is already in the smartmontools drive database.
 and start-stop cycle counter log pages. Certain vendor specific
 attributes are listed if recognised. The attributes are output in a
 relatively free format (compared with ATA disk attributes).
+.\" %IF OS Linux
+
+[NVMe] [Linux only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+For NVMe devices the attributes are obtained from the SMART/Health
+Information log.
+.\" %ENDIF OS Linux
 .TP
 .B \-f FORMAT, \-\-format=FORMAT
 [ATA only] Selects the output format of the attributes:
