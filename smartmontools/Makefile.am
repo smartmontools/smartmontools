@@ -70,6 +70,10 @@ smartctl_SOURCES = \
         int64.h \
         knowndrives.cpp \
         knowndrives.h \
+        nvmecmds.cpp \
+        nvmecmds.h \
+        nvmeprint.cpp \
+        nvmeprint.h \
         scsicmds.cpp \
         scsicmds.h \
         scsiata.cpp \
@@ -131,6 +135,7 @@ smartd_SOURCES = \
         int64.h \
         knowndrives.cpp \
         knowndrives.h \
+        nvmecmds.h \
         scsicmds.cpp \
         scsicmds.h \
         scsiata.cpp \

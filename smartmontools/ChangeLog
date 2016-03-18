@@ -1,5 +1,16 @@
 $Id$
 
+2016-03-18  Christian Franke  <franke@computer.org>
+
+	Add basic NVMe support for smartctl (-i -H -A):
+	Makefile.am: Add new files.
+	dev_interface.cpp, dev_interface.h: Add class nvme_device.
+	nvmecmds.cpp, nvmecmds.h: New module with NVMe command wrapper
+	functions for smartctl and smartd.
+	nvmeprint.cpp, nvmeprint.h: New module with nvmePrintMain().
+	smartctl.cpp: Add nvmePrintMain() support.
+	os_win32/vc10/smart*.vcxproj*: Add new files.
+
 2016-03-14  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: work on LB provisioning corner cases; LBPRZ now

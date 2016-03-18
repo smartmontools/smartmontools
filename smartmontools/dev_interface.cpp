@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2008-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-16 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,12 +41,12 @@ const char * dev_interface_cpp_cvsid = "$Id$"
 smart_device::smart_device(smart_interface * intf, const char * dev_name,
     const char * dev_type, const char * req_type)
 : m_intf(intf), m_info(dev_name, dev_type, req_type),
-  m_ata_ptr(0), m_scsi_ptr(0)
+  m_ata_ptr(0), m_scsi_ptr(0), m_nvme_ptr(0)
 {
 }
 
 smart_device::smart_device(do_not_use_in_implementation_classes)
-: m_intf(0), m_ata_ptr(0), m_scsi_ptr(0)
+: m_intf(0), m_ata_ptr(0), m_scsi_ptr(0), m_nvme_ptr(0)
 {
   throw std::logic_error("smart_device: wrong constructor called in implementation class");
 }
@@ -195,6 +195,20 @@ bool ata_device::ata_identify_is_cached() const
 
 
 /////////////////////////////////////////////////////////////////////////////
+// nvme_device
+
+bool nvme_device::set_nvme_err(nvme_cmd_out & out, unsigned status, const char * msg /* = 0 */)
+{
+  if (!status)
+    throw std::logic_error("nvme_device: set_nvme_err() called with status=0");
+
+  out.status = status;
+  out.status_valid = true;
+  return set_err(EIO, "%sNVMe Status 0x%02x", (msg ? msg : ""), status);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
 // tunnelled_device_base
 
 tunnelled_device_base::tunnelled_device_base(smart_device * tunnel_dev)
@@ -258,7 +272,8 @@ std::string smart_interface::get_valid_dev_types_str()
 {
   // default
   std::string s =
-    "ata, scsi, sat[,auto][,N][+TYPE], usbcypress[,X], usbjmicron[,p][,x][,N], usbsunplus";
+    "ata, scsi, nvme[,NSID], sat[,auto][,N][+TYPE], "
+    "usbcypress[,X], usbjmicron[,p][,x][,N], usbsunplus";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
   if (!s2.empty()) {
@@ -364,6 +379,17 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
   else if (!strcmp(type, "scsi"))
     dev = get_scsi_device(name, type);
 
+  else if (str_starts_with(type, "nvme")) {
+    int n1 = -1, n2 = -1, len = strlen(type);
+    unsigned nsid = 0; // invalid namespace id -> use default
+    sscanf(type, "nvme%n,0x%x%n", &n1, &nsid, &n2);
+    if (!(n1 == len || n2 == len)) {
+      set_err(EINVAL, "Invalid NVMe namespace id in '%s'", type);
+      return 0;
+    }
+    dev = get_nvme_device(name, type, nsid);
+  }
+
   else if (  ((!strncmp(type, "sat", 3) && (!type[3] || strchr(",+", type[3])))
            || (!strncmp(type, "usb", 3)))) {
     // Split "sat...+base..." -> ("sat...", "base...")
@@ -398,6 +424,12 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
   if (!dev && !get_errno())
     set_err(EINVAL, "Not a device of type '%s'", type);
   return dev;
+}
+
+nvme_device * smart_interface::get_nvme_device(const char * /*name*/, const char * /*type*/, unsigned /*nsid*/)
+{
+  set_err(ENOSYS, "NVMe devices are not supported in this version of smartmontools");
+  return 0;
 }
 
 smart_device * smart_interface::get_custom_smart_device(const char * /*name*/, const char * /*type*/)

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2008-15 Christian Franke
+ * Copyright (C) 2008-16 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 class smart_interface;
 class ata_device;
 class scsi_device;
+class nvme_device;
 
 /// Base class for all devices
 class smart_device
@@ -94,6 +95,9 @@ public:
   /// Return true if SCSI device
   bool is_scsi() const
     { return !!m_scsi_ptr; }
+  /// Return true if NVMe device
+  bool is_nvme() const
+    { return !!m_nvme_ptr; }
 
   /// Downcast to ATA device.
   ata_device * to_ata()
@@ -107,6 +111,12 @@ public:
   /// Downcast to SCSI device (const).
   const scsi_device * to_scsi() const
     { return m_scsi_ptr; }
+  /// Downcast to NVMe device.
+  nvme_device * to_nvme()
+    { return m_nvme_ptr; }
+  /// Downcast to NVMe device (const).
+  const nvme_device * to_nvme() const
+    { return m_nvme_ptr; }
 
   ///////////////////////////////////////////////
   // Device information
@@ -215,12 +225,14 @@ private:
   device_info m_info;
   error_info m_err;
 
-  // Pointers for to_ata(), to_scsi(),
-  // set by ATA/SCSI interface classes.
+  // Pointers for to_ata(), to_scsi(), to_nvme()
+  // set by ATA/SCSI/NVMe interface classes.
   friend class ata_device;
   ata_device * m_ata_ptr;
   friend class scsi_device;
   scsi_device * m_scsi_ptr;
+  friend class nvme_device;
+  nvme_device * m_nvme_ptr;
 
   // Prevent copy/assigment
   smart_device(const smart_device &);
@@ -574,6 +586,94 @@ protected:
 
 
 /////////////////////////////////////////////////////////////////////////////
+// NVMe specific interface
+
+/// NVMe pass through input parameters
+struct nvme_cmd_in
+{
+  unsigned char opcode; ///< Opcode (CDW0 07:00)
+  unsigned nsid; ///< Namespace ID
+  unsigned cdw10, cdw11, cdw12, cdw13, cdw14, cdw15; ///< Cmd specific
+
+  void * buffer; ///< Pointer to data buffer
+  unsigned size; ///< Size of buffer
+
+  enum {
+    no_data = 0x0, data_out = 0x1, data_in = 0x2, data_io = 0x3
+  };
+
+  /// Get I/O direction from opcode
+  unsigned char direction() const
+    { return (opcode & 0x3); }
+
+  // Prepare for DATA IN command
+  void set_data_in(unsigned char op, void * buf, unsigned sz)
+    {
+      opcode = op;
+      if (direction() != data_in)
+        throw std::logic_error("invalid opcode for DATA IN");
+      buffer = buf;
+      size = sz;
+    }
+
+  nvme_cmd_in()
+    : opcode(0), nsid(0),
+      cdw10(0), cdw11(0), cdw12(0), cdw13(0), cdw14(0), cdw15(0),
+      buffer(0), size(0)
+    { }
+};
+
+/// NVMe pass through output parameters
+struct nvme_cmd_out
+{
+   unsigned result; ///< Command specific result (DW0)
+   unsigned short status; ///< Status Field (DW3 31:17)
+   bool status_valid; ///< true if status is valid
+
+   nvme_cmd_out()
+     : result(0), status(0), status_valid(false)
+     { }
+};
+
+/// NVMe device access
+class nvme_device
+: virtual public /*extends*/ smart_device
+{
+public:
+  /// NVMe pass through.
+  /// Return false on error.
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) = 0;
+
+  /// Get namespace id.
+  unsigned get_nsid() const
+    { return m_nsid; }
+
+protected:
+  /// Hide/unhide NVMe interface.
+  void hide_nvme(bool hide = true)
+    { m_nvme_ptr = (!hide ? this : 0); }
+
+  /// Constructor requires namespace ID, registers device as NVMe.
+  explicit nvme_device(unsigned nsid)
+    : smart_device(never_called),
+      m_nsid(nsid)
+    { hide_nvme(false); }
+
+  /// Set namespace id.
+  /// Should be called in open() function if get_nsid() returns 0.
+  void set_nsid(unsigned nsid)
+    { m_nsid = nsid; }
+
+  /// Set last error number and message if pass-through returns NVMe error status.
+  /// Returns false always to allow use as a return expression.
+  bool set_nvme_err(nvme_cmd_out & out, unsigned status, const char * msg = 0);
+
+private:
+  unsigned m_nsid;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
 /// Smart pointer class for device pointers
 
 template <class Dev>
@@ -660,6 +760,7 @@ private:
 typedef any_device_auto_ptr<smart_device> smart_device_auto_ptr;
 typedef any_device_auto_ptr<ata_device>   ata_device_auto_ptr;
 typedef any_device_auto_ptr<scsi_device>  scsi_device_auto_ptr;
+typedef any_device_auto_ptr<nvme_device>  nvme_device_auto_ptr;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -830,6 +931,11 @@ protected:
 
   /// Return standard SCSI device.
   virtual scsi_device * get_scsi_device(const char * name, const char * type) = 0;
+
+  /// Return standard NVMe device.
+  /// Default implementation returns 0.
+  virtual nvme_device * get_nvme_device(const char * name, const char * type,
+    unsigned nsid);
 
   /// Autodetect device if no device type specified.
   virtual smart_device * autodetect_smart_device(const char * name) = 0;

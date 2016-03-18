@@ -65,6 +65,8 @@
     <ClCompile Include="..\..\utility.cpp" />
     <ClCompile Include="..\..\ataidentify.cpp" />
     <ClCompile Include="..\..\dev_areca.cpp" />
+    <ClCompile Include="..\..\nvmecmds.cpp" />
+    <ClCompile Include="..\..\nvmeprint.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\wbemcli_small.h">
@@ -102,6 +104,8 @@
     <ClInclude Include="..\..\dev_areca.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="svnversion.h" />
+    <ClInclude Include="..\..\nvmecmds.h" />
+    <ClInclude Include="..\..\nvmeprint.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\installer.nsi">
