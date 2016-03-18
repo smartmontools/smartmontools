@@ -85,6 +85,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\ataidentify.cpp" />
     <ClCompile Include="..\..\dev_areca.cpp" />
+    <ClCompile Include="..\..\nvmecmds.cpp" />
+    <ClCompile Include="..\..\nvmeprint.cpp" />
     <ClCompile Include="..\daemon_win32.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -174,6 +176,8 @@
     <ClInclude Include="..\..\aacraid.h" />
     <ClInclude Include="..\..\ataidentify.h" />
     <ClInclude Include="..\..\dev_areca.h" />
+    <ClInclude Include="..\..\nvmecmds.h" />
+    <ClInclude Include="..\..\nvmeprint.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="svnversion.h" />
     <CustomBuildStep Include="..\daemon_win32.h">
