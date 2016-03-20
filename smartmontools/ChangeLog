@@ -4,7 +4,7 @@ $Id$
 
 	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp, nvmeprint.h, smartctl.cpp:
 	Add option '-l error[,NUM]' for NVMe devices.
-	smartctl.8.in: Document '-l error[,NUM]'.
+	smartctl.8.in: Document '-l error[,NUM]' and '-r nvmeioctl'.
 
 2016-03-18  Christian Franke  <franke@computer.org>
 

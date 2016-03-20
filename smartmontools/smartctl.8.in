@@ -709,6 +709,12 @@ shows the SCSI commands in hex and the corresponding status. Invoking
 it a second time adds a hex listing of the first 64 bytes of data send to, 
 or received from the device.
 
+.\" %IF OS Linux
+.I nvmeioctl
+\- [Linux only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+report only ioctl() transactions with NVMe devices.
+
+.\" %ENDIF OS Linux
 Any argument may include a positive integer to specify the level of detail
 that should be reported.  The argument should be followed by a comma then
 the integer with no spaces.  For example, 
