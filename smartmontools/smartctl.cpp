@@ -52,7 +52,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4238 2016-03-18 20:56:53Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4240 2016-03-20 14:01:48Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -456,8 +456,17 @@ static const char * parse_options(int argc, char** argv,
       ataopts.smart_vendor_attrib = scsiopts.smart_vendor_attrib = nvmeopts.smart_vendor_attrib = true;
       break;
     case 'l':
-      if (!strcmp(optarg,"error")) {
+      if (str_starts_with(optarg, "error")) {
+        int n1 = -1, n2 = -1, len = strlen(optarg);
+        unsigned val = ~0;
+        sscanf(optarg, "error%n,%u%n", &n1, &val, &n2);
         ataopts.smart_error_log = scsiopts.smart_error_log = true;
+        if (n1 == len)
+          nvmeopts.error_log_entries = 16;
+        else if (n2 == len && val > 0)
+          nvmeopts.error_log_entries = val;
+        else
+          badarg = true;
       } else if (!strcmp(optarg,"selftest")) {
         ataopts.smart_selftest_log = scsiopts.smart_selftest_log = true;
       } else if (!strcmp(optarg, "selective")) {
@@ -615,6 +624,7 @@ static const char * parse_options(int argc, char** argv,
       ataopts.smart_general_values = true;
       ataopts.smart_vendor_attrib  = scsiopts.smart_vendor_attrib = nvmeopts.smart_vendor_attrib = true;
       ataopts.smart_error_log      = scsiopts.smart_error_log     = true;
+      nvmeopts.error_log_entries   = 16;
       ataopts.smart_selftest_log   = scsiopts.smart_selftest_log  = true;
       ataopts.smart_selective_selftest_log = true;
       /* scsiopts.smart_background_log = true; */
@@ -627,6 +637,7 @@ static const char * parse_options(int argc, char** argv,
       ataopts.smart_vendor_attrib  = scsiopts.smart_vendor_attrib = nvmeopts.smart_vendor_attrib = true;
       ataopts.smart_ext_error_log  = 8;
       ataopts.retry_error_log      = true;
+      nvmeopts.error_log_entries   = 16;
       ataopts.smart_ext_selftest_log = 25;
       ataopts.retry_selftest_log   = true;
       scsiopts.smart_error_log     = scsiopts.smart_selftest_log    = true;
