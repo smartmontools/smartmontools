@@ -25,6 +25,7 @@ const char * nvmeprint_cvsid = "$Id$"
 #include "utility.h"
 #include "dev_interface.h"
 #include "nvmecmds.h"
+#include "scsicmds.h" // dStrHex()
 #include "smartctl.h"
 
 using namespace smartmontools;
@@ -222,7 +223,8 @@ static void print_error_log(const nvme_error_log_page * error_log,
 int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
 {
    if (!(   options.drive_info || options.smart_check_status
-         || options.smart_vendor_attrib || options.error_log_entries)) {
+         || options.smart_vendor_attrib || options.error_log_entries
+         || options.log_page_size                                   )) {
      pout("NVMe device successfully opened\n\n"
           "Use 'smartctl -a' (or '-x') to print SMART (and more) information\n\n");
      return 0;
@@ -278,6 +280,22 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     }
 
     print_error_log(error_log, num_entries, options.error_log_entries);
+  }
+
+  // Dump log page
+  if (options.log_page_size) {
+    // Align size to dword boundary
+    unsigned size = ((options.log_page_size + 4-1) / 4) * 4;
+    raw_buffer log_buf(size);
+
+    if (!nvme_read_log_page(device, options.log_page, log_buf.data(), size)) {
+      pout("Read NVMe Log 0x%02x failed: %s\n\n", options.log_page, device->get_errmsg());
+      return retval | FAILSMART;
+    }
+
+    pout("NVMe Log 0x%02x (0x%04x bytes)\n", options.log_page, size);
+    dStrHex(log_buf.data(), size, 0);
+    pout("\n");
   }
 
   return retval;

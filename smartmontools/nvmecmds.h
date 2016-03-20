@@ -187,6 +187,9 @@ extern unsigned char nvme_debugmode;
 // Read NVMe Identify Controller data structure.
 bool nvme_read_id_ctrl(nvme_device * device, smartmontools::nvme_id_ctrl & id_ctrl);
 
+// Read NVMe log page with identifier LID.
+bool nvme_read_log_page(nvme_device * device, unsigned char lid, void * data, unsigned size);
+
 // Read NVMe Error Information Log.
 bool nvme_read_error_log(nvme_device * device, smartmontools::nvme_error_log_page * error_log,
   unsigned num_entries);

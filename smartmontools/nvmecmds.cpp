@@ -145,10 +145,9 @@ bool nvme_read_id_ctrl(nvme_device * device, nvme_id_ctrl & id_ctrl)
 }
 
 // Read NVMe log page with identifier LID.
-static bool nvme_read_log_page(nvme_device * device, unsigned char lid,
-  void * data, unsigned size)
+bool nvme_read_log_page(nvme_device * device, unsigned char lid, void * data, unsigned size)
 {
-  if (!(size / 4))
+  if (!(4 <= size && size <= 0x4000 && (size % 4) == 0))
     throw std::logic_error("nvme_read_log_page(): invalid size");
 
   memset(data, 0, size);

@@ -1405,6 +1405,17 @@ This command:
 writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
 
+.\" %IF OS Linux
+.I nvmelog,PAGE,SIZE
+\- [NVMe only] [Linux only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints a hex dump of the first SIZE bytes from the NVMe log with
+identifier PAGE.
+PAGE is a hexadecimal number in the range from 0x1 to 0xff.
+SIZE is a hexadecimal number in the range from 0x4 to 0x4000 (16 KiB).
+\fBWARNING: Do not specify the identifier of an unknown log page.
+Reading a log page may have undesirable side effects.\fP
+
+.\" %ENDIF OS Linux
 .I ssd
 \- [ATA] prints the Solid State Device Statistics log page.
 This has the same effect as \'\-l devstat,7\', see above.

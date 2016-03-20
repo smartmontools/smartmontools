@@ -141,7 +141,8 @@ static void Usage()
 "                               background, sasphy[,reset], sataphy[,reset],\n"
 "                               scttemp[sts,hist], scttempint,N[,p],\n"
 "                               scterc[,N,M], devstat[,N], ssd,\n"
-"                               gplog,N[,RANGE], smartlog,N[,RANGE]\n\n"
+"                               gplog,N[,RANGE], smartlog,N[,RANGE],\n"
+"                               nvmelog,N,SIZE\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -206,8 +207,8 @@ static std::string getvalidarglist(int opt)
            "background, sasphy[,reset], sataphy[,reset], "
            "scttemp[sts,hist], scttempint,N[,p], "
            "scterc[,N,M], devstat[,N], ssd, "
-           "gplog,N[,RANGE], smartlog,N[,RANGE]";
-
+           "gplog,N[,RANGE], smartlog,N[,RANGE], "
+           "nvmelog,N,SIZE";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -595,7 +596,20 @@ static const char * parse_options(int argc, char** argv,
           req.nsectors = (sign == '-' ? nsectors-page+1 : nsectors);
           ataopts.log_requests.push_back(req);
         }
-      } else {
+      }
+
+      else if (str_starts_with(optarg, "nvmelog,")) {
+        int n = -1, len = strlen(optarg);
+        unsigned page = 0, size = 0;
+        sscanf(optarg, "nvmelog,0x%x,0x%x%n", &page, &size, &n);
+        if (n == len && page <= 0xff && 0 < size && size <= 0x4000) {
+          nvmeopts.log_page = page; nvmeopts.log_page_size = size;
+        }
+        else
+          badarg = true;
+      }
+
+      else {
         badarg = true;
       }
       break;
