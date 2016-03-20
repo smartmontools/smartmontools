@@ -1,10 +1,11 @@
-$Id: ChangeLog 4242 2016-03-20 18:04:07Z chrfranke $
+$Id: ChangeLog 4243 2016-03-20 18:29:36Z chrfranke $
 
 2016-03-20  Christian Franke  <franke@computer.org>
 
 	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp, nvmeprint.h, smartctl.cpp:
 	Add options '-l error[,NUM]' and '-l nvmelog,PAGE,SIZE' for NVMe
 	devices.
+	scsicmds.cpp: dStrHex(): Don't print trailing spaces.
 	smartctl.8.in: Document '-l error[,NUM]', '-l nvmelog,PAGE,SIZE'
 	and '-r nvmeioctl'.
 
