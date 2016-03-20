@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-15 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-16 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,6 +120,9 @@ dStrHex(const char* str, int len, int no_ascii)
         }
         if (cpos > (cpstart+15))
         {
+            while (cpos > 0 && buff[cpos-1] == ' ')
+              cpos--;
+            buff[cpos] = 0;
             pout("%s\n", buff);
             bpos = bpstart;
             cpos = cpstart;
@@ -131,6 +134,9 @@ dStrHex(const char* str, int len, int no_ascii)
     }
     if (cpos > cpstart)
     {
+        while (cpos > 0 && buff[cpos-1] == ' ')
+          cpos--;
+        buff[cpos] = 0;
         pout("%s\n", buff);
     }
 }
