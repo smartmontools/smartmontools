@@ -18,7 +18,7 @@
 #ifndef NVMEPRINT_H
 #define NVMEPRINT_H
 
-#define NVMEPRINT_H_CVSID "$Id: nvmeprint.h 4240 2016-03-20 14:01:48Z chrfranke $"
+#define NVMEPRINT_H_CVSID "$Id: nvmeprint.h 4242 2016-03-20 18:04:07Z chrfranke $"
 
 #include "nvmecmds.h"
 
@@ -29,12 +29,16 @@ struct nvme_print_options
   bool smart_check_status;
   bool smart_vendor_attrib;
   unsigned error_log_entries;
+  unsigned char log_page;
+  unsigned log_page_size;
 
   nvme_print_options()
     : drive_info(false),
       smart_check_status(false),
       smart_vendor_attrib(false),
-      error_log_entries(0)
+      error_log_entries(0),
+      log_page(0),
+      log_page_size(0)
     { }
 };
 
