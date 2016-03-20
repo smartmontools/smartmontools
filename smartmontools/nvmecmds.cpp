@@ -30,6 +30,7 @@ using namespace smartmontools;
 
 // Check nvme_* struct sizes
 ASSERT_SIZEOF_STRUCT(nvme_id_ctrl, 4096);
+ASSERT_SIZEOF_STRUCT(nvme_error_log_page, 64);
 ASSERT_SIZEOF_STRUCT(nvme_smart_log, 512);
 
 
@@ -143,10 +144,13 @@ bool nvme_read_id_ctrl(nvme_device * device, nvme_id_ctrl & id_ctrl)
   return true;
 }
 
-// Read NVMe log page for with identifier LID.
+// Read NVMe log page with identifier LID.
 static bool nvme_read_log_page(nvme_device * device, unsigned char lid,
   void * data, unsigned size)
 {
+  if (!(size / 4))
+    throw std::logic_error("nvme_read_log_page(): invalid size");
+
   memset(data, 0, size);
   nvme_cmd_in in;
   in.set_data_in(nvme_admin_get_log_page, data, size);
@@ -156,10 +160,31 @@ static bool nvme_read_log_page(nvme_device * device, unsigned char lid,
   return nvme_pass_through(device, in);
 }
 
+// Read NVMe Error Information Log.
+bool nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_log, unsigned num_entries)
+{
+  if (!nvme_read_log_page(device, 0x01, error_log, num_entries * sizeof(*error_log)))
+    return false;
+
+  if (isbigendian()) {
+    for (unsigned i = 0; i < num_entries; i++) {
+      swapx(&error_log[i].error_count);
+      swapx(&error_log[i].sqid);
+      swapx(&error_log[i].cmdid);
+      swapx(&error_log[i].status_field);
+      swapx(&error_log[i].parm_error_location);
+      swapx(&error_log[i].lba);
+      swapx(&error_log[i].nsid);
+    }
+  }
+
+  return true;
+}
+
 // Read NVMe SMART/Health Information log.
 bool nvme_read_smart_log(nvme_device * device, nvme_smart_log & smart_log)
 {
-  if (!nvme_read_log_page(device, 0x2, &smart_log, sizeof(smart_log)))
+  if (!nvme_read_log_page(device, 0x02, &smart_log, sizeof(smart_log)))
     return false;
 
   if (isbigendian()) {

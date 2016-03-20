@@ -217,7 +217,7 @@ and for SCSI, this is equivalent to
 .\" %IF OS Linux
 For NVMe, this is equivalent to
 .nf
-\'\-H \-i \-A'.
+\'\-H \-i \-A \-l error'.
 .fi
 .\" %ENDIF OS Linux
 Note that for ATA disks this does \fBnot\fP enable the non-SMART options
@@ -237,7 +237,7 @@ and for SCSI, this is equivalent to
 .\" %IF OS Linux
 For NVMe, this is equivalent to
 .nf
-\'\-H \-i \-A'.
+\'\-H \-i \-A \-l error'.
 .fi
 .\" %ENDIF OS Linux
 .TP
@@ -1202,6 +1202,16 @@ receives a command which is not implemented or is not valid.
 \- [SCSI] prints the error counter log pages for reads, write and verifies.
 The verify row is only output if it has an element other than zero.
 
+.\" %IF OS Linux
+.I error[,NUM]
+\- [NVMe] [Linux only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints the NVMe Error Information log.
+Only the 16 most recent log entries are printed by default.
+This number can be changed by the optional parameter NUM.
+The maximum number of log entries is vendor specific
+(in the range from 1 to 256 inclusive).
+
+.\" %ENDIF OS Linux
 .I xerror[,NUM][,error]
 \- [ATA only] prints the Extended Comprehensive SMART error log
 (General Purpose Log address 0x03).  Unlike the Summary SMART error

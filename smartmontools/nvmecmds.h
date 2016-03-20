@@ -47,6 +47,18 @@ namespace smartmontools {
  * more details.
  */
 
+struct nvme_error_log_page {
+  uint64_t        error_count;
+  unsigned short  sqid;
+  unsigned short  cmdid;
+  unsigned short  status_field;
+  unsigned short  parm_error_location;
+  uint64_t        lba;
+  unsigned int    nsid;
+  unsigned char   vs;
+  unsigned char   resv[35];
+};
+
 struct nvme_id_power_state {
   unsigned short  max_power; // centiwatts
   unsigned char   rsvd2;
@@ -174,6 +186,10 @@ extern unsigned char nvme_debugmode;
 
 // Read NVMe Identify Controller data structure.
 bool nvme_read_id_ctrl(nvme_device * device, smartmontools::nvme_id_ctrl & id_ctrl);
+
+// Read NVMe Error Information Log.
+bool nvme_read_error_log(nvme_device * device, smartmontools::nvme_error_log_page * error_log,
+  unsigned num_entries);
 
 // Read NVMe SMART/Health Information log.
 bool nvme_read_smart_log(nvme_device * device, smartmontools::nvme_smart_log & smart_log);

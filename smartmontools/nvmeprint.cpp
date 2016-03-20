@@ -184,26 +184,73 @@ static void print_smart_log(const nvme_smart_log & smart_log, unsigned nsid)
   pout("\n");
 }
 
+static void print_error_log(const nvme_error_log_page * error_log,
+  unsigned num_entries, unsigned print_entries)
+{
+  pout("Error Information (NVMe Log 0x01, max %u entries)\n", num_entries);
+
+  unsigned cnt = 0;
+  for (unsigned i = 0; i < num_entries; i++) {
+    const nvme_error_log_page & e = error_log[i];
+    if (!e.error_count)
+      continue; // unused or invalid entry
+    if (++cnt > print_entries)
+      continue;
+
+    if (cnt == 1)
+      pout("Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS\n");
+
+    char sq[16] = "-", cm[16] = "-", pe[16] = "-";
+    if (e.sqid != 0xffff)
+      snprintf(sq, sizeof(sq), "%d", e.sqid);
+    if (e.cmdid != 0xffff)
+      snprintf(cm, sizeof(cm), "0x%04x", e.cmdid);
+    if (e.parm_error_location != 0xffff)
+      snprintf(pe, sizeof(pe), "0x%03x", e.parm_error_location);
+
+    pout("%3u %10" PRIu64 " %5s %7s  0x%04x %6s %12" PRIu64 "  %4d  0x%02x\n",
+         i, e.error_count, sq, cm, e.status_field, pe, e.lba, (int)e.nsid, e.vs);
+  }
+
+  if (!cnt)
+    pout("No Errors Logged\n");
+  else if (cnt > print_entries)
+    pout("... (%u entries not shown)\n", cnt - print_entries);
+  pout("\n");
+}
+
 int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
 {
+   if (!(   options.drive_info || options.smart_check_status
+         || options.smart_vendor_attrib || options.error_log_entries)) {
+     pout("NVMe device successfully opened\n\n"
+          "Use 'smartctl -a' (or '-x') to print SMART (and more) information\n\n");
+     return 0;
+   }
+
+  // Read Identify Controller always
   nvme_id_ctrl id_ctrl;
   if (!nvme_read_id_ctrl(device, id_ctrl)) {
     pout("Read NVMe Identify Controller failed: %s\n", device->get_errmsg());
     return FAILID;
   }
 
+  // Print Identify Controller
   if (options.drive_info) {
     pout("=== START OF INFORMATION SECTION ===\n");
     print_id_ctrl(id_ctrl);
   }
 
-  int retval = 0;
-  if (options.smart_check_status || options.smart_vendor_attrib) {
+  if (   options.smart_check_status || options.smart_vendor_attrib
+      || options.error_log_entries)
     pout("=== START OF SMART DATA SECTION ===\n");
 
+  // Print SMART Status and SMART/Health Information
+  int retval = 0;
+  if (options.smart_check_status || options.smart_vendor_attrib) {
     nvme_smart_log smart_log;
     if (!nvme_read_smart_log(device, smart_log)) {
-      pout("Read NVMe SMART/Health Information failed: %s\n", device->get_errmsg());
+      pout("Read NVMe SMART/Health Information failed: %s\n\n", device->get_errmsg());
       return FAILSMART;
     }
 
@@ -216,6 +263,21 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     if (options.smart_vendor_attrib) {
       print_smart_log(smart_log, device->get_nsid());
     }
+  }
+
+  // Print Error Information Log
+  if (options.error_log_entries) {
+    unsigned num_entries = id_ctrl.elpe + 1; // 0-based value
+    raw_buffer error_log_buf(num_entries * sizeof(nvme_error_log_page));
+    nvme_error_log_page * error_log =
+      reinterpret_cast<nvme_error_log_page *>(error_log_buf.data());
+
+    if (!nvme_read_error_log(device, error_log, num_entries)) {
+      pout("Read Error Information Log failed: %s\n\n", device->get_errmsg());
+      return retval | FAILSMART;
+    }
+
+    print_error_log(error_log, num_entries, options.error_log_entries);
   }
 
   return retval;
