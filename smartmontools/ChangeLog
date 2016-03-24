@@ -1,5 +1,9 @@
 $Id$
 
+2016-03-24  Christian Franke  <franke@computer.org>
+
+	nvmecmds.cpp, nvmeprint.cpp: Add support for '-q noserial'.
+
 2016-03-20  Christian Franke  <franke@computer.org>
 
 	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp, nvmeprint.h, smartctl.cpp:

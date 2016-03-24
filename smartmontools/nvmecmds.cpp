@@ -22,7 +22,7 @@ const char * nvmecmds_cvsid = "$Id$"
   NVMECMDS_H_CVSID;
 
 #include "dev_interface.h"
-#include "atacmds.h" // swapx(), ASSERT_*()
+#include "atacmds.h" // swapx(), ASSERT_*(), dont_print_serial_number
 #include "scsicmds.h" // dStrHex()
 #include "utility.h"
 
@@ -55,6 +55,13 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
   }
 
   bool ok = device->nvme_pass_through(in, out);
+
+  if (   dont_print_serial_number && ok
+      && in.opcode == nvme_admin_identify && in.cdw10 == 0x01) {
+        // Invalidate serial number
+        nvme_id_ctrl & id_ctrl = *reinterpret_cast<nvme_id_ctrl *>(in.buffer);
+        memset(id_ctrl.sn, 'X', sizeof(id_ctrl.sn));
+  }
 
   if (nvme_debugmode) {
     if (start_usec >= 0) {

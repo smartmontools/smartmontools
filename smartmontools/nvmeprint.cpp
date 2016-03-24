@@ -25,6 +25,7 @@ const char * nvmeprint_cvsid = "$Id$"
 #include "utility.h"
 #include "dev_interface.h"
 #include "nvmecmds.h"
+#include "atacmds.h" // dont_print_serial_number
 #include "scsicmds.h" // dStrHex()
 #include "smartctl.h"
 
@@ -113,7 +114,8 @@ static void print_id_ctrl(const nvme_id_ctrl & id_ctrl)
 {
   char buf[64];
   pout("Model Number:                       %s\n", ary_to_str(buf, id_ctrl.mn));
-  pout("Serial Number:                      %s\n", ary_to_str(buf, id_ctrl.sn));
+  if (!dont_print_serial_number)
+    pout("Serial Number:                      %s\n", ary_to_str(buf, id_ctrl.sn));
   pout("Firmware Version:                   %s\n", ary_to_str(buf, id_ctrl.fr));
   pout("PCI Vendor ID:                      0x%04x:0x%04x\n", id_ctrl.vid, id_ctrl.ssvid);
   pout("IEEE OUI Identifier:                0x%02x%02x%02x\n",
