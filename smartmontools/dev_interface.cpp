@@ -32,7 +32,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4238 2016-03-18 20:56:53Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4247 2016-03-24 22:25:03Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -273,7 +273,7 @@ std::string smart_interface::get_valid_dev_types_str()
   // default
   std::string s =
     "ata, scsi, nvme[,NSID], sat[,auto][,N][+TYPE], "
-    "usbcypress[,X], usbjmicron[,p][,x][,N], usbsunplus";
+    "usbcypress[,X], usbjmicron[,p][,x][,N], usbprolific, usbsunplus";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
   if (!s2.empty()) {

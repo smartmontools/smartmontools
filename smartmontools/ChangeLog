@@ -1,6 +1,8 @@
-$Id: ChangeLog 4246 2016-03-24 21:56:07Z chrfranke $
+$Id: ChangeLog 4247 2016-03-24 22:25:03Z chrfranke $
 
 2016-03-24  Christian Franke  <franke@computer.org>
+
+	dev_interface.cpp: Add missing 'usbprolific' to help text.
 
 	nvmecmds.cpp, nvmeprint.cpp: Add support for '-q noserial'.
 
