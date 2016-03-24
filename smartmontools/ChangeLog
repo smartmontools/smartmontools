@@ -2,6 +2,8 @@ $Id$
 
 2016-03-24  Christian Franke  <franke@computer.org>
 
+	dev_interface.cpp: Add missing 'usbprolific' to help text.
+
 	nvmecmds.cpp, nvmeprint.cpp: Add support for '-q noserial'.
 
 	smartd.cpp: Remove outdated declaration of getdomainname().
