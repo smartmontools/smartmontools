@@ -52,7 +52,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4194 2016-01-01 13:46:00Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4245 2016-03-24 21:47:20Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -96,17 +96,14 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
   if (!full)
     return info;
 
-  info += strprintf(
-    "\n"
-    "%s comes with ABSOLUTELY NO WARRANTY. This is free\n"
+  info += "\n";
+  info += prog_name;
+  info += " comes with ABSOLUTELY NO WARRANTY. This is free\n"
     "software, and you are welcome to redistribute it under\n"
     "the terms of the GNU General Public License; either\n"
     "version 2, or (at your option) any later version.\n"
     "See http://www.gnu.org for further details.\n"
-    "\n",
-    prog_name
-  );
-  info +=
+    "\n"
     "smartmontools release " PACKAGE_VERSION
       " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n"
 #ifdef SMARTMONTOOLS_SVN_REV
@@ -116,13 +113,24 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "smartmontools SVN rev is unknown\n"
 #endif
     "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n"
-#if defined(__GNUC__) && defined(__VERSION__) // works also with CLang
-    "smartmontools build with: GCC " __VERSION__ "\n"
+    "smartmontools build with: "
+#if   __cplusplus > 201402
+                               "C++17"
+#elif __cplusplus > 201103
+                               "C++14"
+#elif __cplusplus > 199711
+                               "C++11"
+#else
+                               "C++98"
 #endif
-    "smartmontools configure arguments: "
+#if defined(__GNUC__) && defined(__VERSION__) // works also with CLang
+                                     ", GCC " __VERSION__
+#endif
+                                                          "\n"
+    "smartmontools configure arguments:"
   ;
   info += (sizeof(SMARTMONTOOLS_CONFIGURE_ARGS) > 1 ?
-           SMARTMONTOOLS_CONFIGURE_ARGS : "[no arguments given]");
+           SMARTMONTOOLS_CONFIGURE_ARGS : " [no arguments given]");
   info += '\n';
 
   return info;
