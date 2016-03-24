@@ -1,8 +1,10 @@
-$Id: ChangeLog 4245 2016-03-24 21:47:20Z chrfranke $
+$Id: ChangeLog 4246 2016-03-24 21:56:07Z chrfranke $
 
 2016-03-24  Christian Franke  <franke@computer.org>
 
 	nvmecmds.cpp, nvmeprint.cpp: Add support for '-q noserial'.
+
+	smartd.cpp: Remove outdated declaration of getdomainname().
 
 	utility.cpp: Add C++ language version to output of -V option.
 

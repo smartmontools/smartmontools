@@ -102,11 +102,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-#if defined (__SVR4) && defined (__sun)
-extern "C" int getdomainname(char *, int); // no declaration in header files!
-#endif
-
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4207 2016-01-22 19:35:10Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4246 2016-03-24 21:56:07Z chrfranke $"
   CONFIG_H_CVSID;
 
 // smartd exit codes
