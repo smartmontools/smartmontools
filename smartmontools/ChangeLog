@@ -4,6 +4,8 @@ $Id$
 
 	nvmecmds.cpp, nvmeprint.cpp: Add support for '-q noserial'.
 
+	smartd.cpp: Remove outdated declaration of getdomainname().
+
 	utility.cpp: Add C++ language version to output of -V option.
 
 2016-03-20  Christian Franke  <franke@computer.org>
