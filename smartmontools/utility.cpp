@@ -628,20 +628,6 @@ int split_selective_arg(char *s, uint64_t *start,
 
 int64_t bytes = 0;
 
-// Helps debugging.  If the second argument is non-negative, then
-// decrement bytes by that amount.  Else decrement bytes by (one plus)
-// length of null terminated string.
-void *FreeNonZero(void *address, int size, int /*line*/, const char* /*file*/){
-  if (address) {
-    if (size<0)
-      bytes-=1+strlen((char*)address);
-    else
-      bytes-=size;
-    free(address);
-  }
-  return NULL;
-}
-
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
 // try to duplicate a NULL string.

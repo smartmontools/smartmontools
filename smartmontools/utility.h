@@ -102,9 +102,6 @@ int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 
 #ifdef OLD_INTERFACE
 
-// Utility function to free memory
-void *FreeNonZero(void* address, int size, int whatline, const char* file);
-
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
 // try to duplicate a NULL string.
