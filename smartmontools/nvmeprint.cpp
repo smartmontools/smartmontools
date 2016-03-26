@@ -31,35 +31,6 @@ const char * nvmeprint_cvsid = "$Id$"
 
 using namespace smartmontools;
 
-// Format char array for printing.
-// Replace invalid characters, remove trailing blanks.
-static const char * ary_to_str(char (& str)[64], const char * ary, int size)
-{
-  int i;
-  for (i = 0; i < size; i++) {
-    if (i+1 >= (int)sizeof(str))
-      break;
-    char c = ary[i];
-    if (!c)
-      break;
-    str[i] = (' ' <= c && c <= '~' ? c : '?');
-  }
-
-  while (i > 0 && str[i-1] == ' ')
-    i--;
-
-  str[i] = 0;
-  return str;
-}
-
-// Format char array for printing.
-// Version for fixed size arrays.
-template<size_t SIZE>
-static inline const char * ary_to_str(char (& str)[64], const char (& ary)[SIZE])
-{
-  return ary_to_str(str, ary, (int)SIZE);
-}
-
 // Format 128 bit LE integer for printing.
 // Add value with SI prefixes if BYTES_PER_UNIT is specified.
 static const char * le128_to_str(char (& str)[64], const unsigned char (& val)[16],
@@ -113,10 +84,10 @@ static inline unsigned le16_to_uint(const unsigned char (& val)[2])
 static void print_id_ctrl(const nvme_id_ctrl & id_ctrl)
 {
   char buf[64];
-  pout("Model Number:                       %s\n", ary_to_str(buf, id_ctrl.mn));
+  pout("Model Number:                       %s\n", format_char_array(buf, id_ctrl.mn));
   if (!dont_print_serial_number)
-    pout("Serial Number:                      %s\n", ary_to_str(buf, id_ctrl.sn));
-  pout("Firmware Version:                   %s\n", ary_to_str(buf, id_ctrl.fr));
+    pout("Serial Number:                      %s\n", format_char_array(buf, id_ctrl.sn));
+  pout("Firmware Version:                   %s\n", format_char_array(buf, id_ctrl.fr));
   pout("PCI Vendor ID:                      0x%04x:0x%04x\n", id_ctrl.vid, id_ctrl.ssvid);
   pout("IEEE OUI Identifier:                0x%02x%02x%02x\n",
        id_ctrl.ieee[0], id_ctrl.ieee[1], id_ctrl.ieee[2]);

@@ -707,6 +707,28 @@ bool nonempty(const void * data, int size)
   return false;
 }
 
+// Copy not null terminated char array to null terminated string.
+// Replace non-ascii characters.  Remove trailing blanks.
+const char * format_char_array(char * str, int strsize, const char * chr, int chrsize)
+{
+  int n = 0;
+  while (n < chrsize && chr[n])
+    n++;
+  while (n > 0 && chr[n-1] == ' ')
+    n--;
+
+  if (n >= strsize)
+    n = strsize-1;
+
+  for (int i = 0; i < n; i++) {
+    char c = chr[i];
+    str[i] = (' ' <= c && c <= '~' ? c : '?');
+  }
+
+  str[n] = 0;
+  return str;
+}
+
 // Format integer with thousands separator
 const char * format_with_thousands_sep(char * str, int strsize, uint64_t val,
                                        const char * thousands_sep /* = 0 */)
