@@ -52,7 +52,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4248 2016-03-26 12:49:47Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4250 2016-03-26 15:57:35Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -516,33 +516,6 @@ bool regular_expression::compile()
 
   m_errmsg.clear();
   return true;
-}
-
-// Splits an argument to the -r option into a name part and an (optional) 
-// positive integer part.  s is a pointer to a string containing the
-// argument.  After the call, s will point to the name part and *i the
-// integer part if there is one or 1 otherwise.  Note that the string s may
-// be changed by this function.  Returns zero if successful and non-zero
-// otherwise.
-int split_report_arg(char *s, int *i)
-{
-  if ((s = strchr(s, ','))) {
-    // Looks like there's a name part and an integer part.
-    char *tailptr;
-
-    *s++ = '\0';
-    if (*s == '0' || !isdigit((int)*s))  // The integer part must be positive
-      return 1;
-    errno = 0;
-    *i = (int) strtol(s, &tailptr, 10);
-    if (errno || *tailptr != '\0')
-      return 1;
-  } else {
-    // There's no integer part.
-    *i = 1;
-  }
-
-  return 0;
 }
 
 #ifndef HAVE_STRTOULL

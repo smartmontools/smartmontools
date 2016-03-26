@@ -1,6 +1,9 @@
-$Id: ChangeLog 4249 2016-03-26 13:24:13Z chrfranke $
+$Id: ChangeLog 4250 2016-03-26 15:57:35Z chrfranke $
 
 2016-03-26  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp, smartd.cpp, utility.cpp, utility.h:
+	Remove split_report_arg(), use sscanf() instead.
 
 	Add basic NVMe support for smartd (-H -l error -W):
 	Makefile.am, os_win32/vc10/smartd.vcxproj: Add nvmecmds.cpp to smartd.
