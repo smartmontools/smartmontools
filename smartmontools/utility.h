@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-15 Christian Franke
+ * Copyright (C) 2008-16 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4145 2015-10-17 12:01:38Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4248 2016-03-26 12:49:47Z chrfranke $"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -139,6 +139,15 @@ bool nonempty(const void * data, int size);
 
 // needed to fix glibc bug
 void FixGlibcTimeZoneBug();
+
+// Copy not null terminated char array to null terminated string.
+// Replace non-ascii characters.  Remove trailing blanks.
+const char * format_char_array(char * str, int strsize, const char * chr, int chrsize);
+
+// Version for fixed size buffers.
+template<size_t STRSIZE, size_t CHRSIZE>
+inline const char * format_char_array(char (& str)[STRSIZE], const char (& chr)[CHRSIZE])
+  { return format_char_array(str, (int)STRSIZE, chr, (int)CHRSIZE); }
 
 // Format integer with thousands separator
 const char * format_with_thousands_sep(char * str, int strsize, uint64_t val,

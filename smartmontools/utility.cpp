@@ -52,7 +52,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4245 2016-03-24 21:47:20Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4248 2016-03-26 12:49:47Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -705,6 +705,28 @@ bool nonempty(const void * data, int size)
     if (((const unsigned char *)data)[i])
       return true;
   return false;
+}
+
+// Copy not null terminated char array to null terminated string.
+// Replace non-ascii characters.  Remove trailing blanks.
+const char * format_char_array(char * str, int strsize, const char * chr, int chrsize)
+{
+  int n = 0;
+  while (n < chrsize && chr[n])
+    n++;
+  while (n > 0 && chr[n-1] == ' ')
+    n--;
+
+  if (n >= strsize)
+    n = strsize-1;
+
+  for (int i = 0; i < n; i++) {
+    char c = chr[i];
+    str[i] = (' ' <= c && c <= '~' ? c : '?');
+  }
+
+  str[n] = 0;
+  return str;
 }
 
 // Format integer with thousands separator

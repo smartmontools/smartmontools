@@ -1,4 +1,9 @@
-$Id: ChangeLog 4247 2016-03-24 22:25:03Z chrfranke $
+$Id: ChangeLog 4248 2016-03-26 12:49:47Z chrfranke $
+
+2016-03-26  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Remove ary_to_str().
+	utility.cpp, utility.h: Add format_char_array().
 
 2016-03-24  Christian Franke  <franke@computer.org>
 
