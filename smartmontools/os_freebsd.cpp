@@ -77,7 +77,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4211 2016-01-24 07:56:06Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4253 2016-03-26 19:47:47Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -124,8 +124,6 @@ void printwarning(int msgNo, const char* extra) {
 
 #define ARGUSED(x) ((void)(x))
 
-// global variable holding byte count of allocated memory
-long long bytes;
 extern unsigned char failuretest_permissive;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1592,7 +1590,6 @@ int get_dev_names_ata(char*** names) {
           n = -1;
           goto end;
         };
-        bytes+=1+strlen(mp[n]);
         n++;
       };
     };
@@ -1606,7 +1603,6 @@ int get_dev_names_ata(char*** names) {
     n = -1;
     goto end;
   };
-  bytes += (n)*(sizeof(char*)); // and set allocated byte count
 
 end:
   if (fd>=0)

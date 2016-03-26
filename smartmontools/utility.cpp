@@ -52,7 +52,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4252 2016-03-26 17:29:12Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4253 2016-03-26 19:47:47Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -623,13 +623,6 @@ int split_selective_arg(char *s, uint64_t *start,
   }
   return 0;
 }
-
-#ifdef OLD_INTERFACE
-
-int64_t bytes = 0;
-
-#endif // OLD_INTERFACE
-
 
 // Returns true if region of memory contains non-zero entries
 bool nonempty(const void * data, int size)
