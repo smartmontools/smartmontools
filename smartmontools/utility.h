@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4251 2016-03-26 16:48:32Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4252 2016-03-26 17:29:12Z chrfranke $"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -98,16 +98,6 @@ int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 // Replacement for exit(status)
 // (exit is not compatible with C++ destructors)
 #define EXIT(status) { throw (int)(status); }
-
-
-#ifdef OLD_INTERFACE
-
-// A custom version of strdup() that keeps track of how much memory is
-// being allocated. If mustexist is set, it also throws an error if we
-// try to duplicate a NULL string.
-char *CustomStrDup(const char *ptr, int mustexist, int whatline, const char* file);
-
-#endif // OLD_INTERFACE
 
 // Compile time check of byte ordering
 // (inline const function allows compiler to remove dead code)

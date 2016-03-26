@@ -1,6 +1,9 @@
-$Id: ChangeLog 4251 2016-03-26 16:48:32Z chrfranke $
+$Id: ChangeLog 4252 2016-03-26 17:29:12Z chrfranke $
 
 2016-03-26  Christian Franke  <franke@computer.org>
+
+	os_solaris.cpp, utility.cpp, utility.h:
+	Remove CustomStrDup(), use strdup() instead.
 
 	dev_legacy.cpp, utility.cpp, utility.h:
 	Remove FreeNonZero(), use free() instead.

@@ -39,9 +39,7 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp 4142 2015-10-14 19:05:19Z chrfranke $";
-
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 4142 2015-10-14 19:05:19Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 4252 2016-03-26 17:29:12Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -169,7 +167,7 @@ addpath(const char *path, struct pathlist *res)
                         return -1;
                 bytes += 16*sizeof(char *);
         }
-        if (!(res->names[res->nnames-1] = CustomStrDup((char *)path, 1, __LINE__, filenameandversion)))
+        if (!(res->names[res->nnames-1] = strdup(path)))
                 return -1;
         return 0;
 }
