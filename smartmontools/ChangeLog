@@ -2,6 +2,11 @@ $Id$
 
 2016-03-26  Christian Franke  <franke@computer.org>
 
+	Add basic NVMe support for smartd (-H -l error -W):
+	Makefile.am, os_win32/vc10/smartd.vcxproj: Add nvmecmds.cpp to smartd.
+	smartd.cpp: Add NVMeDeviceScan() and NVMeCheckDevice().
+	smartd.8.in, smartd.conf.5.in: Document NVMe support.
+
 	nvmeprint.cpp: Remove ary_to_str().
 	utility.cpp, utility.h: Add format_char_array().
 

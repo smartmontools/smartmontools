@@ -136,6 +136,7 @@ smartd_SOURCES = \
         int64.h \
         knowndrives.cpp \
         knowndrives.h \
+        nvmecmds.cpp \
         nvmecmds.h \
         scsicmds.cpp \
         scsicmds.h \
