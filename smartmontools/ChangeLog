@@ -1,6 +1,9 @@
-$Id: ChangeLog 4253 2016-03-26 19:47:47Z chrfranke $
+$Id: ChangeLog 4254 2016-03-26 20:55:58Z chrfranke $
 
 2016-03-26  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Rearrange code such that no forward declarations
+	are needed.
 
 	os_freebsd.cpp, os_netbsd.cpp, os_openbsd.cpp, os_solaris.cpp,
 	utility.cpp: Remove variable 'bytes'.  Only used for a memory
