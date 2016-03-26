@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4250 2016-03-26 15:57:35Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4251 2016-03-26 16:48:32Z chrfranke $"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -101,9 +101,6 @@ int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 
 
 #ifdef OLD_INTERFACE
-
-// Utility function to free memory
-void *FreeNonZero(void* address, int size, int whatline, const char* file);
 
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we

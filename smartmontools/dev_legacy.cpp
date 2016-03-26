@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2008-11 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-16 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 
 #include <errno.h>
 
-const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 4120 2015-08-27 16:12:21Z samm2 $"
+const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 4251 2016-03-26 16:48:32Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -275,10 +275,13 @@ smart_device * legacy_smart_interface::autodetect_smart_device(const char * name
 
 static void free_devnames(char * * devnames, int numdevs)
 {
-  static const char version[] = "$Id: dev_legacy.cpp 4120 2015-08-27 16:12:21Z samm2 $";
-  for (int i = 0; i < numdevs; i++)
-    FreeNonZero(devnames[i], -1,__LINE__, version);
-  FreeNonZero(devnames, (sizeof (char*) * numdevs),__LINE__, version);
+  if (!devnames)
+    return;
+  for (int i = 0; i < numdevs; i++) {
+    if (devnames[i])
+      free(devnames[i]);
+  }
+  free(devnames);
 }
 
 bool legacy_smart_interface::scan_smart_devices(smart_device_list & devlist,

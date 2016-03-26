@@ -1,6 +1,9 @@
-$Id: ChangeLog 4250 2016-03-26 15:57:35Z chrfranke $
+$Id: ChangeLog 4251 2016-03-26 16:48:32Z chrfranke $
 
 2016-03-26  Christian Franke  <franke@computer.org>
+
+	dev_legacy.cpp, utility.cpp, utility.h:
+	Remove FreeNonZero(), use free() instead.
 
 	smartctl.cpp, smartd.cpp, utility.cpp, utility.h:
 	Remove split_report_arg(), use sscanf() instead.
