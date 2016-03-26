@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4239 2016-03-18 21:17:05Z chrfranke $
+# $Id: Makefile.am 4249 2016-03-26 13:24:13Z chrfranke $
 #
 
 @SET_MAKE@
@@ -136,6 +136,7 @@ smartd_SOURCES = \
         int64.h \
         knowndrives.cpp \
         knowndrives.h \
+        nvmecmds.cpp \
         nvmecmds.h \
         scsicmds.cpp \
         scsicmds.h \
