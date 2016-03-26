@@ -2,6 +2,9 @@ $Id$
 
 2016-03-26  Christian Franke  <franke@computer.org>
 
+	os_win32.cpp: Rearrange code such that no forward declarations
+	are needed.
+
 	os_freebsd.cpp, os_netbsd.cpp, os_openbsd.cpp, os_solaris.cpp,
 	utility.cpp: Remove variable 'bytes'.  Only used for a memory
 	leak check which was removed in r2629 (2008-08-29).
