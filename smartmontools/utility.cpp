@@ -628,32 +628,6 @@ int split_selective_arg(char *s, uint64_t *start,
 
 int64_t bytes = 0;
 
-// A custom version of strdup() that keeps track of how much memory is
-// being allocated. If mustexist is set, it also throws an error if we
-// try to duplicate a NULL string.
-char *CustomStrDup(const char *ptr, int mustexist, int /*whatline*/, const char* /*file*/){
-  char *tmp;
-
-  // report error if ptr is NULL and mustexist is set
-  if (ptr==NULL){
-    if (mustexist)
-      throw std::runtime_error("Internal error in CustomStrDup()");
-    else
-      return NULL;
-  }
-
-  // make a copy of the string...
-  tmp=strdup(ptr);
-  
-  if (!tmp)
-    throw std::bad_alloc();
-  
-  // and track memory usage
-  bytes+=1+strlen(ptr);
-  
-  return tmp;
-}
-
 #endif // OLD_INTERFACE
 
 

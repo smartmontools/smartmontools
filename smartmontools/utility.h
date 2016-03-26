@@ -99,16 +99,6 @@ int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 // (exit is not compatible with C++ destructors)
 #define EXIT(status) { throw (int)(status); }
 
-
-#ifdef OLD_INTERFACE
-
-// A custom version of strdup() that keeps track of how much memory is
-// being allocated. If mustexist is set, it also throws an error if we
-// try to duplicate a NULL string.
-char *CustomStrDup(const char *ptr, int mustexist, int whatline, const char* file);
-
-#endif // OLD_INTERFACE
-
 // Compile time check of byte ordering
 // (inline const function allows compiler to remove dead code)
 inline bool isbigendian()
