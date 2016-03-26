@@ -518,33 +518,6 @@ bool regular_expression::compile()
   return true;
 }
 
-// Splits an argument to the -r option into a name part and an (optional) 
-// positive integer part.  s is a pointer to a string containing the
-// argument.  After the call, s will point to the name part and *i the
-// integer part if there is one or 1 otherwise.  Note that the string s may
-// be changed by this function.  Returns zero if successful and non-zero
-// otherwise.
-int split_report_arg(char *s, int *i)
-{
-  if ((s = strchr(s, ','))) {
-    // Looks like there's a name part and an integer part.
-    char *tailptr;
-
-    *s++ = '\0';
-    if (*s == '0' || !isdigit((int)*s))  // The integer part must be positive
-      return 1;
-    errno = 0;
-    *i = (int) strtol(s, &tailptr, 10);
-    if (errno || *tailptr != '\0')
-      return 1;
-  } else {
-    // There's no integer part.
-    *i = 1;
-  }
-
-  return 0;
-}
-
 #ifndef HAVE_STRTOULL
 // Replacement for missing strtoull() (Linux with libc < 6, MSVC)
 // Functionality reduced to requirements of smartd and split_selective_arg().

@@ -92,9 +92,6 @@ void pout(const char *fmt, ...)
 // replacement for perror() with redirected output.
 void syserror(const char *message);
 
-// Function for processing -r option in smartctl and smartd
-int split_report_arg(char *s, int *i);
-
 // Function for processing -t selective... option in smartctl
 int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 

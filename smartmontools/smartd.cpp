@@ -4744,23 +4744,11 @@ static void ParseOpts(int argc, char **argv)
     case 'r':
       // report IOCTL transactions
       {
-        int i;
-        char *s;
-
-        // split_report_arg() may modify its first argument string, so use a
-        // copy of optarg in case we want optarg for an error message.
-        if (!(s = strdup(optarg))) {
-          PrintOut(LOG_CRIT, "No memory to process -r option - exiting\n");
-          EXIT(EXIT_NOMEM);
-        }
-        if (split_report_arg(s, &i)) {
+        int n1 = -1, n2 = -1, len = strlen(optarg);
+        char s[9+1]; unsigned i = 1;
+        sscanf(optarg, "%9[a-z]%n,%u%n", s, &n1, &i, &n2);
+        if (!((n1 == len || n2 == len) && 1 <= i && i <= 4)) {
           badarg = true;
-        } else if (i<1 || i>3) {
-          debugmode=1;
-          PrintHead();
-          PrintOut(LOG_CRIT, "======> INVALID REPORT LEVEL: %s <=======\n", optarg);
-          PrintOut(LOG_CRIT, "======> LEVEL MUST BE INTEGER BETWEEN 1 AND 3<=======\n");
-          EXIT(EXIT_BADCMD);
         } else if (!strcmp(s,"ioctl")) {
           ata_debugmode = scsi_debugmode = nvme_debugmode = i;
         } else if (!strcmp(s,"ataioctl")) {
@@ -4772,7 +4760,6 @@ static void ParseOpts(int argc, char **argv)
         } else {
           badarg = true;
         }
-        free(s);  // TODO: use std::string
       }
       break;
     case 'c':

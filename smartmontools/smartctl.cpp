@@ -378,18 +378,13 @@ static const char * parse_options(int argc, char** argv,
       break;
     case 'r':
       {
-        int i;
-        char *s;
-
-        // split_report_arg() may modify its first argument string, so use a
-        // copy of optarg in case we want optarg for an error message.
-        if (!(s = strdup(optarg))) {
-          throw std::bad_alloc();
-        }
-        if (split_report_arg(s, &i)) {
+        int n1 = -1, n2 = -1, len = strlen(optarg);
+        char s[9+1]; unsigned i = 1;
+        sscanf(optarg, "%9[a-z]%n,%u%n", s, &n1, &i, &n2);
+        if (!((n1 == len || n2 == len) && 1 <= i && i <= 4)) {
           badarg = true;
         } else if (!strcmp(s,"ioctl")) {
-          ata_debugmode  = scsi_debugmode = nvme_debugmode = i;
+          ata_debugmode = scsi_debugmode = nvme_debugmode = i;
         } else if (!strcmp(s,"ataioctl")) {
           ata_debugmode = i;
         } else if (!strcmp(s,"scsiioctl")) {
@@ -399,7 +394,6 @@ static const char * parse_options(int argc, char** argv,
         } else {
           badarg = true;
         }
-        free(s);
       }
       break;
 
