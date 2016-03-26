@@ -29,9 +29,6 @@
 const char * os_netbsd_cpp_cvsid = "$Id$"
   OS_NETBSD_H_CVSID;
 
-/* global variable holding byte count of allocated memory */
-extern long long bytes;
-
 enum warnings {
   BAD_SMART, MAX_MSG
 };
@@ -128,7 +125,6 @@ get_dev_names(char ***names, const char *prefix)
       return -1;
     }
     sprintf(mp[n], "%s%s%c", net_dev_prefix, p, 'a' + getrawpartition());
-    bytes += strlen(mp[n]) + 1;
     n++;
   }
 
@@ -140,7 +136,6 @@ get_dev_names(char ***names, const char *prefix)
   }
   else
     mp = tmp;
-  bytes += (n) * (sizeof(char *));
   *names = mp;
   return n;
 }

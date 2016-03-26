@@ -124,8 +124,6 @@ void printwarning(int msgNo, const char* extra) {
 
 #define ARGUSED(x) ((void)(x))
 
-// global variable holding byte count of allocated memory
-long long bytes;
 extern unsigned char failuretest_permissive;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1592,7 +1590,6 @@ int get_dev_names_ata(char*** names) {
           n = -1;
           goto end;
         };
-        bytes+=1+strlen(mp[n]);
         n++;
       };
     };
@@ -1606,7 +1603,6 @@ int get_dev_names_ata(char*** names) {
     n = -1;
     goto end;
   };
-  bytes += (n)*(sizeof(char*)); // and set allocated byte count
 
 end:
   if (fd>=0)

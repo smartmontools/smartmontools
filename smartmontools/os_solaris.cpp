@@ -37,8 +37,6 @@
 
 #define ARGUSED(x) ((void)(x))
 
-extern long long bytes;
-
 const char *os_XXXX_c_cvsid="$Id$" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
@@ -165,7 +163,6 @@ addpath(const char *path, struct pathlist *res)
                 res->names = static_cast<char**>(realloc(res->names, res->maxnames * sizeof (char *)));
                 if (res->names == NULL)
                         return -1;
-                bytes += 16*sizeof(char *);
         }
         if (!(res->names[res->nnames-1] = strdup(path)))
                 return -1;
@@ -247,7 +244,6 @@ int make_device_names (char*** devlist, const char* name) {
 
 	// shrink array to min possible size
 	res.names = static_cast<char**>(realloc(res.names, res.nnames * sizeof (char *)));
-	bytes -= sizeof(char *)*(res.maxnames-res.nnames);
 
 	// pass list back
 	*devlist = res.names;
