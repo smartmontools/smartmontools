@@ -1,5 +1,9 @@
 $Id$
 
+2016-03-28  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: Add initial FreeBSD NVMe support (ticket #657)
+
 2016-03-27  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Support POWER MODE values introduced in ATA ACS-2

@@ -70,6 +70,9 @@
 #include <dev/usb/usbhid.h>
 #endif
 
+// based on "/sys/dev/nvme/nvme.h" from FreeBSD kernel sources
+#include "freebsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
+
 #define CONTROLLER_3WARE_9000_CHAR      0x01
 #define CONTROLLER_3WARE_678K_CHAR      0x02
 
@@ -467,6 +470,112 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
 }
 
 #endif
+
+/////////////////////////////////////////////////////////////////////////////
+/// NVMe support
+
+class freebsd_nvme_device
+: public /*implements*/ nvme_device,
+  public /*extends*/ freebsd_smart_device
+{
+public:
+  freebsd_nvme_device(smart_interface * intf, const char * dev_name,
+    const char * req_type, unsigned nsid);
+
+  virtual bool open();
+
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+};
+
+freebsd_nvme_device::freebsd_nvme_device(smart_interface * intf, const char * dev_name,
+  const char * req_type, unsigned nsid)
+: smart_device(intf, dev_name, "nvme", req_type),
+  nvme_device(nsid),
+  freebsd_smart_device()
+{
+}
+
+bool freebsd_nvme_device::open()
+{
+  const char *dev = get_dev_name();
+  if (!strnstr(dev, NVME_CTRLR_PREFIX, strlen(NVME_CTRLR_PREFIX))) {
+  	set_err(EINVAL, "NVMe controller controller/namespace ids must begin with '%s'", 
+  		NVME_CTRLR_PREFIX);
+  	return false;
+  }
+  
+  int nsid = -1, ctrlid = -1;
+  char tmp;
+  
+  if(sscanf(dev, NVME_CTRLR_PREFIX"%d%c", &ctrlid, &tmp) == 1)
+  {
+  	if(ctrlid < 0) {
+  		set_err(EINVAL, "Invalid NVMe controller number");
+  		return false;
+  	}
+  	nsid = 0xFFFFFFFF; // broadcast id
+  }
+  else if (sscanf(dev, NVME_CTRLR_PREFIX"%d"NVME_NS_PREFIX"%d%c", 
+  	&ctrlid, &nsid, &tmp) == 2) 
+  {
+  	if(ctrlid < 0 || nsid < 0) {
+  		set_err(EINVAL, "Invalid NVMe controller/namespace number");
+  		return false;
+  	}
+  }
+  else {
+  	set_err(EINVAL, "Invalid NVMe controller/namespace syntax");
+  	return false;
+  }
+  
+  // we should always open controller, not namespace device
+  char	full_path[64];
+  snprintf(full_path, sizeof(full_path), NVME_CTRLR_PREFIX"%d", ctrlid);
+  
+  int fd; 
+  if ((fd = ::open(full_path, O_RDWR))<0) {
+    set_err(errno);
+    return false;
+  }
+  set_fd(fd);
+  
+  if (!get_nsid()) {
+    set_nsid(nsid);
+  }
+  
+  return true;
+}
+
+bool freebsd_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
+{
+  // nvme_passthru_cmd pt;
+  struct nvme_pt_command pt;
+  memset(&pt, 0, sizeof(pt));
+
+  pt.cmd.opc = in.opcode;
+  pt.cmd.nsid = in.nsid;
+  pt.buf = in.buffer;
+  pt.len = in.size;
+  pt.cmd.cdw10 = in.cdw10;
+  pt.cmd.cdw11 = in.cdw11;
+  pt.cmd.cdw12 = in.cdw12;
+  pt.cmd.cdw13 = in.cdw13;
+  pt.cmd.cdw14 = in.cdw14;
+  pt.cmd.cdw15 = in.cdw15;
+  pt.is_read = 1; // should we use in.direction()?
+  
+  int status = ioctl(get_fd(), NVME_PASSTHROUGH_CMD, &pt);
+
+  if (status < 0)
+    return set_err(errno, "NVME_PASSTHROUGH_CMD: %s", strerror(errno));
+
+  out.result=pt.cpl.cdw0; // Command specific result (DW0)
+
+  if (nvme_completion_is_error(&pt.cpl))
+    return set_nvme_err(out, nvme_completion_is_error(&pt.cpl));
+
+  return true;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 /// Implement AMCC/3ware RAID support
@@ -1360,6 +1469,9 @@ protected:
 #endif
 
   virtual scsi_device * get_scsi_device(const char * name, const char * type);
+ 
+  virtual nvme_device * get_nvme_device(const char * name, const char * type,
+    unsigned nsid);
 
   virtual smart_device * autodetect_smart_device(const char * name);
 
@@ -1400,6 +1512,12 @@ ata_device * freebsd_smart_interface::get_atacam_device(const char * name, const
 scsi_device * freebsd_smart_interface::get_scsi_device(const char * name, const char * type)
 {
   return new freebsd_scsi_device(this, name, type);
+}
+
+nvme_device * freebsd_smart_interface::get_nvme_device(const char * name, const char * type,
+  unsigned nsid)
+{
+  return new freebsd_nvme_device(this, name, type, nsid);
 }
 
 // we are using CAM subsystem XPT enumerator to found all CAM (scsi/usb/ada/...)
@@ -1911,6 +2029,11 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   // device is LSI raid supported by mfi driver
   if(!strncmp("/dev/mfid", test_name, strlen("/dev/mfid")))
     set_err(EINVAL, "To monitor disks on LSI RAID load mfip.ko module and run 'smartctl -a /dev/passX' to show SMART information");
+
+  // form /dev/nvme* or nvme*
+  if(!strncmp("/dev/nvme", test_name, strlen("/dev/nvme")))
+    return new freebsd_nvme_device(this, name, "", 0 /* use default nsid */);
+
   // device type unknown
   return 0;
 }
