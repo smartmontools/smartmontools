@@ -434,6 +434,7 @@ struct temp_dev_state
 
   bool powermodefail;                     // true if power mode check failed
   int powerskipcnt;                       // Number of checks skipped due to idle or standby mode
+  int lastpowermodeskipped;               // the last power mode that was skipped
 
   // SCSI ONLY
   unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
@@ -466,6 +467,7 @@ temp_dev_state::temp_dev_state()
   tempmin_delay(0),
   powermodefail(false),
   powerskipcnt(0),
+  lastpowermodeskipped(0),
   SmartPageSupported(false),
   TempPageSupported(false),
   ReadECounterPageSupported(false),
@@ -2079,7 +2081,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
       PrintOut(LOG_CRIT, "Device: %s, no ATA CHECK POWER STATUS support, ignoring -n Directive\n", name);
       cfg.powermode=0;
     } 
-    else if (powermode!=0 && powermode!=0x80 && powermode!=0xff) {
+    else if (powermode!=0x00 && powermode!=0x01
+        && powermode!=0x40 && powermode!=0x41
+        && powermode!=0x80 && powermode!=0x81 && powermode!=0x82 && powermode!=0x83
+        && powermode!=0xff) {
       PrintOut(LOG_CRIT, "Device: %s, CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Directive\n",
 	       name, powermode);
       cfg.powermode=0;
@@ -3170,9 +3175,15 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       if (cfg.powermode>=1)
         dontcheck=1;
       break;
-    case 0:
+    case 0x00:
       // STANDBY
       mode="STANDBY";
+      if (cfg.powermode>=2)
+        dontcheck=1;
+      break;
+    case 0x01:
+      // STANDBY_Y
+      mode="STANDBY_Y";
       if (cfg.powermode>=2)
         dontcheck=1;
       break;
@@ -3182,8 +3193,30 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       if (cfg.powermode>=3)
         dontcheck=1;
       break;
+    case 0x81:
+      // IDLE_A
+      mode="IDLE_A";
+      if (cfg.powermode>=3)
+        dontcheck=1;
+      break;
+    case 0x82:
+      // IDLE_B
+      mode="IDLE_B";
+      if (cfg.powermode>=3)
+        dontcheck=1;
+      break;
+    case 0x83:
+      // IDLE_C
+      mode="IDLE_C";
+      if (cfg.powermode>=3)
+        dontcheck=1;
+      break;
     case 0xff:
       // ACTIVE/IDLE
+    case 0x40:
+      // ACTIVE
+    case 0x41:
+      // ACTIVE
       mode="ACTIVE or IDLE";
       break;
     default:
@@ -3199,8 +3232,11 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       // skip at most powerskipmax checks
       if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
         CloseDevice(atadev, name);
-        if (!state.powerskipcnt && !cfg.powerquiet) // report first only and avoid waking up system disk
+        // report first only except if state has changed, avoid waking up system disk
+        if ((!state.powerskipcnt || state.lastpowermodeskipped != powermode) && !cfg.powerquiet) {
           PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, mode);
+          state.lastpowermodeskipped = powermode;
+        }
         state.powerskipcnt++;
         return 0;
       }
