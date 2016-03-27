@@ -1,4 +1,8 @@
-$Id: ChangeLog 4256 2016-03-27 16:51:32Z chrfranke $
+$Id: ChangeLog 4257 2016-03-27 23:32:54Z samm2 $
+
+2016-03-28  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: Add initial FreeBSD NVMe support (ticket #657)
 
 2016-03-27  Christian Franke  <franke@computer.org>
 
