@@ -1,5 +1,10 @@
 $Id$
 
+2016-03-27  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Support POWER MODE values introduced in ATA ACS-2
+	(ticket #184, smartctl only).
+
 2016-03-27  Thomas Gatterweh  <thomas_gatterweh@hotmail.com>
 
 	atacmds.cpp, smartd.cpp: Support POWER MODE values introduced

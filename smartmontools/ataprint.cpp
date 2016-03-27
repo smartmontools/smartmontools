@@ -2532,6 +2532,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (options.powermode) {
     unsigned char powerlimit = 0xff;
     int powermode = ataCheckPowerMode(device);
+    // TODO: Move to new function used by smartctl and smartd.
     switch (powermode) {
       case -1:
         if (device->is_syscall_unsup()) {
@@ -2539,12 +2540,28 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         }
         powername = "SLEEP";   powerlimit = 2;
         break;
-      case 0:
+      // Table 215 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
+      // Table 293 of T13/BSR INCITS 529 (ACS-4) Revision 12, February 18, 2016
+      case 0x00: // PM2:Standby, EPC unavailable or Standby_z power condition
         powername = "STANDBY"; powerlimit = 3; break;
-      case 0x80:
+      case 0x01: // PM2:Standby, Standby_y power condition
+        powername = "STANDBY_Y"; powerlimit = 3; break;
+      case 0x80: // PM1:Idle, EPC unavailable
         powername = "IDLE";    powerlimit = 4; break;
-      case 0xff:
+      case 0x81: // PM1:Idle, Idle_a power condition
+        powername = "IDLE_A";  powerlimit = 4; break;
+      case 0x82: // PM1:Idle, Idle_b power condition
+        powername = "IDLE_B";  powerlimit = 4; break;
+      case 0x83: // PM1:Idle, Idle_c power condition
+        powername = "IDLE_C";  powerlimit = 4; break;
+      // 0x40/41 were declared obsolete in ACS-3 Revision 1
+      case 0x40: // PM0:Active, NV Cache power mode enabled, spun down
+        powername = "ACTIVE_NV_DOWN"; break;
+      case 0x41: // PM0:Active, NV Cache power mode enabled, spun up
+        powername = "ACTIVE_NV_UP"  ; break;
+      case 0xff: // PM0:Active or PM1:Idle
         powername = "ACTIVE or IDLE"; break;
+
       default:
         pout("CHECK POWER MODE returned unknown value 0x%02x, ignoring -n option\n", powermode);
         break;
