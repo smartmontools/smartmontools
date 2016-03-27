@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4178 2015-11-23 18:44:27Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4255 2016-03-27 16:43:38Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -797,7 +797,10 @@ int ataCheckPowerMode(ata_device * device) {
   if ((smartcommandhandler(device, CHECK_POWER_MODE, 0, (char *)&result)))
     return -1;
 
-  if (result!=0 && result!=0x80 && result!=0xff)
+  if (result!=0x00 && result!=0x01
+      && result!=0x40 && result!=0x41
+      && result!=0x80 && result!=0x81 && result!=0x82 && result!=0x83
+      && result!=0xff)
     pout("ataCheckPowerMode(): ATA CHECK POWER MODE returned unknown Sector Count Register value %02x\n", result);
 
   return (int)result;
