@@ -1,4 +1,8 @@
-$Id: ChangeLog 4257 2016-03-27 23:32:54Z samm2 $
+$Id: ChangeLog 4260 2016-03-28 16:46:08Z chrfranke $
+
+2016-03-28  Christian Franke  <franke@computer.org>
+
+	configure.ac: Write configuration summary also to config.log.
 
 2016-03-28  Alex Samorukov  <samm@os2.kiev.ua>
 
