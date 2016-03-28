@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-16 Christian Franke
 
-$Id: smartd.8.in 4249 2016-03-26 13:24:13Z chrfranke $
+$Id: smartd.8.in 4261 2016-03-28 17:24:04Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -377,12 +377,12 @@ this option are:
 .I scsiioctl
 \- report only ioctl() transactions with SCSI devices.
 
-.\" %IF OS Linux
+.\" %IF OS FreeBSD Linux
 .I nvmeioctl
-\- [Linux only] [NEW EXPERIMENTAL SMARTD FEATURE]
+\- [FreeBSD and Linux only] [NEW EXPERIMENTAL SMARTD FEATURE]
 report only ioctl() transactions with NVMe devices.
 
-.\" %ENDIF OS Linux
+.\" %ENDIF OS FreeBSD Linux
 Any argument may include a positive integer to specify the level of
 detail that should be reported.  The argument should be followed by a
 comma then the integer with no spaces.  For example, \fIataioctl,2\fP
@@ -774,4 +774,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 4249 2016-03-26 13:24:13Z chrfranke $
+$Id: smartd.8.in 4261 2016-03-28 17:24:04Z chrfranke $

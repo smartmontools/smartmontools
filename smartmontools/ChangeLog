@@ -1,6 +1,9 @@
-$Id: ChangeLog 4260 2016-03-28 16:46:08Z chrfranke $
+$Id: ChangeLog 4261 2016-03-28 17:24:04Z chrfranke $
 
 2016-03-28  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Enable NVMe
+	sections also for FreeBSD.
 
 	configure.ac: Write configuration summary also to config.log.
 
