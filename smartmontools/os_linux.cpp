@@ -2745,7 +2745,9 @@ protected:
 
 private:
   bool get_dev_list(smart_device_list & devlist, const char * pattern,
-    bool scan_ata, bool scan_scsi, const char * req_type, bool autodetect);
+    bool scan_ata, bool scan_scsi, bool scan_nvme,
+    const char * req_type, bool autodetect);
+
   bool get_dev_megasas(smart_device_list & devlist);
   smart_device * missing_option(const char * opt);
   int megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
@@ -2772,7 +2774,7 @@ std::string linux_smart_interface::get_app_examples(const char * appname)
 // we are going to take advantage of the fact that Linux's devfs will only
 // have device entries for devices that exist.
 bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
-  const char * pattern, bool scan_ata, bool scan_scsi,
+  const char * pattern, bool scan_ata, bool scan_scsi, bool scan_nvme,
   const char * req_type, bool autodetect)
 {
   // Use glob to look for any directory entries matching the pattern
@@ -2855,6 +2857,8 @@ bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
         dev = autodetect_smart_device(name);
       else if (is_scsi)
         dev = new linux_scsi_device(this, name, req_type, true /*scanning*/);
+      else if (scan_nvme)
+        dev = new linux_nvme_device(this, name, req_type, 0 /* use default nsid */);
       else
         dev = new linux_ata_device(this, name, req_type);
       if (dev) // autodetect_smart_device() may return nullptr.
@@ -2935,18 +2939,31 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
   bool scan_ata  = (!*type || !strcmp(type, "ata" ));
   // "sat" detection will be later handled in linux_scsi_device::autodetect_open()
   bool scan_scsi = (!*type || !strcmp(type, "scsi") || !strcmp(type, "sat"));
-  if (!(scan_ata || scan_scsi))
-    return true;
+
+#ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
+  bool scan_nvme = (!*type || !strcmp(type, "nvme"));
+#else
+  bool scan_nvme = (          !strcmp(type, "nvme"));
+#endif
+
+  if (!(scan_ata || scan_scsi || scan_nvme)) {
+    set_err(EINVAL, "Invalid type '%s', valid arguments are: ata, scsi, sat, nvme", type);
+    return false;
+  }
 
   if (scan_ata)
-    get_dev_list(devlist, "/dev/hd[a-t]", true, false, type, false);
+    get_dev_list(devlist, "/dev/hd[a-t]", true, false, false, type, false);
   if (scan_scsi) {
     bool autodetect = !*type; // Try USB autodetection if no type specifed
-    get_dev_list(devlist, "/dev/sd[a-z]", false, true, type, autodetect);
+    get_dev_list(devlist, "/dev/sd[a-z]", false, true, false, type, autodetect);
     // Support up to 104 devices
-    get_dev_list(devlist, "/dev/sd[a-c][a-z]", false, true, type, autodetect);
+    get_dev_list(devlist, "/dev/sd[a-c][a-z]", false, true, false, type, autodetect);
     // get device list from the megaraid device
     get_dev_megasas(devlist);
+  }
+  if (scan_nvme) {
+    get_dev_list(devlist, "/dev/nvme[0-9]", false, false, true, type, false);
+    get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, false, true, type, false);
   }
 
   // if we found traditional links, we are done
@@ -2955,7 +2972,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   // else look for devfs entries without traditional links
   // TODO: Add udev support
-  return get_dev_list(devlist, "/dev/discs/disc*", scan_ata, scan_scsi, type, false);
+  return get_dev_list(devlist, "/dev/discs/disc*", scan_ata, scan_scsi, false, type, false);
 }
 
 ata_device * linux_smart_interface::get_ata_device(const char * name, const char * type)

@@ -2,6 +2,12 @@ $Id$
 
 2016-03-28  Christian Franke  <franke@computer.org>
 
+	Add NVMe DEVICESCAN support for Linux:
+	configure.ac: Add --with-nvme-devicescan option.
+	os_linux.cpp: Scan for '/dev/nvme[0-99]' if '-d nvme' is specified
+	or --with-nvme-devicescan is set.
+	smartctl.cpp: Add "NVMe" to --scan info.
+
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Enable NVMe
 	sections also for FreeBSD.
 

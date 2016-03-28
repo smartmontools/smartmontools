@@ -1177,10 +1177,13 @@ void checksumwarning(const char * string)
 // Return info string about device protocol
 static const char * get_protocol_info(const smart_device * dev)
 {
-  switch ((int)dev->is_ata() | ((int)dev->is_scsi() << 1)) {
+  switch (   (int)dev->is_ata()
+          | ((int)dev->is_scsi() << 1)
+          | ((int)dev->is_nvme() << 2)) {
     case 0x1: return "ATA";
     case 0x2: return "SCSI";
     case 0x3: return "ATA+SCSI";
+    case 0x4: return "NVMe";
     default:  return "Unknown";
   }
 }

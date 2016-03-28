@@ -328,6 +328,15 @@ AC_MSG_CHECKING([whether to use libcap-ng])
 AC_SUBST(CAPNG_LDADD)
 AC_MSG_RESULT([$use_libcap_ng])
 
+# TODO: Remove when NVMe support is no longer EXPERIMENTAL
+AC_ARG_WITH(nvme-devicescan,
+  [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
+    [Include NVMe devices in smartd DEVICESCAN [no]])])
+AC_SUBST(with_nvme_devicescan)
+if test "$with_nvme_devicescan" = "yes"; then
+  AC_DEFINE(WITH_NVME_DEVICESCAN, 1, [Define to 1 to include NVMe devices in smartd DEVICESCAN.])
+fi
+
 AC_ARG_WITH(solaris-sparc-ata,
   [AS_HELP_STRING([--with-solaris-sparc-ata@<:@=yes|no@:>@],
     [Enable legacy ATA support on Solaris SPARC (requires os_solaris_ata.s from SVN repository) [no]])])
@@ -667,6 +676,9 @@ info=$(
       echo "libcap-ng support:      $use_libcap_ng"
       case "$host_os" in
         linux*) echo "SELinux support:        ${with_selinux-no}" ;;
+      esac ;
+      case "$host_os" in
+        linux*) echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-no}" ;;
       esac
       ;;
   esac
@@ -676,6 +688,18 @@ info=$(
 AC_MSG_NOTICE([
 $info
 ])
+
+# TODO: Remove when NVMe support is no longer EXPERIMENTAL
+case "$host_os:${with_nvme_devicescan+set}" in
+  linux*:)
+    AC_MSG_WARN([
+This version of smartmontools provides NVMe support which is still
+EXPERIMENTAL.  NVMe devices are not yet included in smartd.conf
+'DEVICESCAN' and 'smartctl --scan' unless '-d nvme' is specified.
+Use option '--with-nvme-devicescan' to include NVMe devices.
+Use option '--without-nvme-devicescan' to suppress this warning.])
+    ;;
+esac
 
 # TODO: Remove after smartmontools 6.5
 case "$host:${with_solaris_sparc_ata+set}" in
