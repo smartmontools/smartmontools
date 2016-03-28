@@ -52,7 +52,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4250 2016-03-26 15:57:35Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4262 2016-03-28 19:16:30Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -1177,10 +1177,13 @@ void checksumwarning(const char * string)
 // Return info string about device protocol
 static const char * get_protocol_info(const smart_device * dev)
 {
-  switch ((int)dev->is_ata() | ((int)dev->is_scsi() << 1)) {
+  switch (   (int)dev->is_ata()
+          | ((int)dev->is_scsi() << 1)
+          | ((int)dev->is_nvme() << 2)) {
     case 0x1: return "ATA";
     case 0x2: return "SCSI";
     case 0x3: return "ATA+SCSI";
+    case 0x4: return "NVMe";
     default:  return "Unknown";
   }
 }
