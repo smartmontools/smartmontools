@@ -1,5 +1,9 @@
 $Id$
 
+2016-03-28  Christian Franke  <franke@computer.org>
+
+	configure.ac: Write configuration summary also to config.log.
+
 2016-03-28  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: Add initial FreeBSD NVMe support (ticket #657)
