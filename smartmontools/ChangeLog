@@ -2,6 +2,9 @@ $Id$
 
 2016-03-30  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Add man page support for --with-nvme-devicescan.
+	smartd.8.in: Document NVMe DEVICESCAN for Linux.
+
 	configure.ac: Use `...` instead of $(...) due to possible parsing
 	problems since r4260.  Remove workaround for related bash bug.
 

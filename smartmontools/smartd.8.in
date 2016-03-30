@@ -100,6 +100,11 @@ Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a-z]"\fP, \fB"/dev/sd[a-c][a-z]"\fP
 for ATA/SATA or SCSI/SAS devices.
 Disks behind RAID controllers are not included.
+.\" %IF ENABLE_NVME_DEVICESCAN
+
+[NEW EXPERIMENTAL SMARTD FEATURE]
+Examine all entries \fB"/dev/nvme[0-99]"\fP for NVMe devices.
+.\" %ENDIF ENABLE_NVME_DEVICESCAN
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD
 .IP \fBFREEBSD:\fP 9
