@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4249 2016-03-26 13:24:13Z chrfranke $
+# $Id: Makefile.am 4264 2016-03-30 18:40:29Z chrfranke $
 #
 
 @SET_MAKE@
@@ -592,6 +592,11 @@ MAN_FILTER = { \
       cat; \
     else \
       sed '/^\.\\" %IF ENABLE_CAPABILITIES/,/^\.\\" %ENDIF ENABLE_CAPABILITIES/ s,^,.\\"\# ,' ; \
+    fi | \
+    if test '$(with_nvme_devicescan)' = 'yes'; then \
+      cat; \
+    else \
+      sed '/^\.\\" %IF ENABLE_NVME_DEVICESCAN/,/^\.\\" %ENDIF ENABLE_NVME_DEVICESCAN/ s,^,.\\"\# ,' ; \
     fi | \
     if test -n '$(os_man_filter)'; then \
       sed -e 's,OS_MAN_FILTER,$(os_man_filter),g' \
