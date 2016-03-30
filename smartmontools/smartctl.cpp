@@ -261,7 +261,7 @@ enum checksum_err_mode_t {
 
 static checksum_err_mode_t checksum_err_mode = CHECKSUM_ERR_WARN;
 
-static void scan_devices(const char * type, bool with_open, char ** argv);
+static void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv);
 
 
 /*      Takes command options and sets features to be run */    
@@ -315,6 +315,7 @@ static const char * parse_options(int argc, char** argv,
   opterr=optopt=0;
 
   const char * type = 0; // set to -d optarg
+  smart_devtype_list scan_types; // multiple -d TYPE options for --scan
   bool use_default_db = true; // set false on '-B FILE'
   bool output_format_set = false; // set true on '-f FORMAT'
   int scan = 0; // set by --scan, --scan-open
@@ -347,8 +348,14 @@ static const char * parse_options(int argc, char** argv,
     case 'd':
       if (!strcmp(optarg, "test"))
         print_type_only = true;
-      else
-        type = (strcmp(optarg, "auto") ? optarg : (char *)0);
+      else if (!strcmp(optarg, "auto")) {
+        type = 0;
+        scan_types.clear();
+      }
+      else {
+        type = optarg;
+        scan_types.push_back(optarg);
+      }
       break;
     case 'T':
       if (!strcmp(optarg,"normal")) {
@@ -1025,7 +1032,7 @@ static const char * parse_options(int argc, char** argv,
     // Read or init drive database to allow USB ID check.
     if (!init_drive_database(use_default_db))
       EXIT(FAILCMD);
-    scan_devices(type, (scan == opt_scan_open), argv + optind);
+    scan_devices(scan_types, (scan == opt_scan_open), argv + optind);
     EXIT(0);
   }
 
@@ -1034,6 +1041,15 @@ static const char * parse_options(int argc, char** argv,
   // turned off
   if (printing_is_switchable)
     printing_is_off = true;
+
+  // Check for multiple -d TYPE options
+  if (scan_types.size() > 1) {
+    printing_is_off = false;
+    printslogan();
+    pout("ERROR: multiple -d TYPE options are only allowed with --scan\n");
+    UsageSummary();
+    EXIT(FAILCMD);
+  }
 
   // error message if user has asked for more than one test
   if (testcnt > 1) {
@@ -1190,7 +1206,7 @@ static const char * get_protocol_info(const smart_device * dev)
 
 // Device scan
 // smartctl [-d type] --scan[-open] -- [PATTERN] [smartd directive ...]
-void scan_devices(const char * type, bool with_open, char ** argv)
+void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv)
 {
   bool dont_print = !(ata_debugmode || scsi_debugmode);
 
@@ -1201,7 +1217,7 @@ void scan_devices(const char * type, bool with_open, char ** argv)
 
   smart_device_list devlist;
   printing_is_off = dont_print;
-  bool ok = smi()->scan_smart_devices(devlist, type , pattern);
+  bool ok = smi()->scan_smart_devices(devlist, types, pattern);
   printing_is_off = false;
 
   if (!ok) {

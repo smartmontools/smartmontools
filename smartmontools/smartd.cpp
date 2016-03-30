@@ -3909,7 +3909,7 @@ static const char * strtok_dequote(const char * delimiters)
 // This function returns 1 if it has correctly parsed one token (and
 // any arguments), else zero if no tokens remain.  It returns -1 if an
 // error was encountered.
-static int ParseToken(char * token, dev_config & cfg)
+static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_types)
 {
   char sym;
   const char * name = cfg.name.c_str();
@@ -3981,8 +3981,10 @@ static int ParseToken(char * token, dev_config & cfg)
       cfg.removable = true;
     } else if (!strcmp(arg, "auto")) {
       cfg.dev_type = "";
+      scan_types.clear();
     } else {
       cfg.dev_type = arg;
+      scan_types.push_back(arg);
     }
     break;
   case 'F':
@@ -4382,7 +4384,8 @@ static int ParseToken(char * token, dev_config & cfg)
 // -2: found an error
 //
 // Note: this routine modifies *line from the caller!
-static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & default_conf, int lineno, /*const*/ char * line)
+static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & default_conf,
+  smart_devtype_list & scan_types, int lineno, /*const*/ char * line)
 {
   const char *delim = " \n\t";
 
@@ -4411,7 +4414,7 @@ static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & defaul
 
   // parse tokens one at a time from the file.
   while (char * token = strtok(0, delim)) {
-    int rc = ParseToken(token, cfg);
+    int rc = ParseToken(token, cfg, scan_types);
     if (rc < 0)
       // error found on the line
       return -2;
@@ -4421,6 +4424,13 @@ static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & defaul
       break;
 
     // PrintOut(LOG_INFO,"Parsed token %s\n",token);
+  }
+
+  // Check for multiple -d TYPE directives
+  if (retval != -1 && scan_types.size() > 1) {
+    PrintOut(LOG_CRIT, "Drive: %s, invalid multiple -d TYPE Directives on line %d of file %s\n",
+             cfg.name.c_str(), cfg.lineno, configfile);
+    return -2;
   }
 
   // Don't perform checks below for DEFAULT entries
@@ -4479,7 +4489,7 @@ static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & defaul
 // Empty configuration file ==> conf_entries.empty()
 // No configuration file    ==> conf_entries[0].lineno == 0
 // SCANDIRECTIVE found      ==> conf_entries.back().lineno != 0 (size >= 1)
-static int ParseConfigFile(dev_config_vector & conf_entries)
+static int ParseConfigFile(dev_config_vector & conf_entries, smart_devtype_list & scan_types)
 {
   // maximum line length in configuration file
   const int MAXLINELEN = 256;
@@ -4508,7 +4518,7 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
   if (!f) {
     char fakeconfig[] = SCANDIRECTIVE " -a"; // TODO: Remove this hack, build cfg_entry.
 
-    if (ParseConfigLine(conf_entries, default_conf, 0, fakeconfig) != -1)
+    if (ParseConfigLine(conf_entries, default_conf, scan_types, 0, fakeconfig) != -1)
       throw std::logic_error("Internal error parsing " SCANDIRECTIVE);
     return 0;
   }
@@ -4540,7 +4550,7 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     // are we at the end of the file?
     if (!code){
       if (cont) {
-        scandevice = ParseConfigLine(conf_entries, default_conf, contlineno, fullline);
+        scandevice = ParseConfigLine(conf_entries, default_conf, scan_types, contlineno, fullline);
         // See if we found a SCANDIRECTIVE directive
         if (scandevice==-1)
           return 0;
@@ -4593,7 +4603,8 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     }
 
     // Not a continuation line. Parse it
-    scandevice = ParseConfigLine(conf_entries, default_conf, contlineno, fullline);
+    scan_types.clear();
+    scandevice = ParseConfigLine(conf_entries, default_conf, scan_types, contlineno, fullline);
 
     // did we find a scandevice directive?
     if (scandevice==-1)
@@ -4943,14 +4954,17 @@ static void ParseOpts(int argc, char **argv)
 // SCANDIRECTIVE Directive was found.  It makes entries for device
 // names returned by scan_smart_devices() in os_OSNAME.cpp
 static int MakeConfigEntries(const dev_config & base_cfg,
-  dev_config_vector & conf_entries, smart_device_list & scanned_devs, const char * type)
+  dev_config_vector & conf_entries, smart_device_list & scanned_devs,
+  const smart_devtype_list & types)
 {
   // make list of devices
   smart_device_list devlist;
-  if (!smi()->scan_smart_devices(devlist, (*type ? type : 0)))
-    PrintOut(LOG_CRIT,"Problem creating device name scan list\n");
+  if (!smi()->scan_smart_devices(devlist, types)) {
+    PrintOut(LOG_CRIT, "DEVICESCAN failed: %s\n", smi()->get_errmsg());
+    return 0;
+  }
   
-  // if no devices, or error constructing list, return
+  // if no devices, return
   if (devlist.size() <= 0)
     return 0;
 
@@ -4969,7 +4983,7 @@ static int MakeConfigEntries(const dev_config & base_cfg,
     dev_config & cfg = conf_entries.back();
     cfg.name = dev->get_info().info_name;
     cfg.dev_name = dev->get_info().dev_name;
-    cfg.dev_type = type;
+    cfg.dev_type = dev->get_info().dev_type;
   }
   
   return devlist.size();
@@ -4994,7 +5008,8 @@ static void CanNotRegister(const char *name, const char *type, int line, bool sc
 static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_device_list & scanned_devs)
 {
   // parse configuration file configfile (normally /etc/smartd.conf)  
-  int entries = ParseConfigFile(conf_entries);
+  smart_devtype_list scan_types;
+  int entries = ParseConfigFile(conf_entries, scan_types);
 
   if (entries < 0) {
     // There was an error reading the configuration file.
@@ -5022,7 +5037,7 @@ static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_devic
       PrintOut(LOG_INFO,"No configuration file %s found, scanning devices\n", configfile);
     
     // make config list of devices to search for
-    MakeConfigEntries(first, conf_entries, scanned_devs, first.dev_type.c_str());
+    MakeConfigEntries(first, conf_entries, scanned_devs, scan_types);
 
     // warn user if scan table found no devices
     if (conf_entries.empty())

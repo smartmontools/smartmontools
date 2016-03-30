@@ -259,6 +259,10 @@ For example:
 .nf
 smartctl \-\-scan\-open \-\- \-a \-W 4,45,50 \-m admin@work > smartd.conf
 .fi
+
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Multiple \'\-d TYPE\' options may be specified with \'\-\-scan[\-open]\'
+to combine the scan results of more than one TYPE.
 .TP
 .B \-g NAME, \-\-get=NAME
 Get non-SMART device settings.  See \'\-s, \-\-set\' below for further info.

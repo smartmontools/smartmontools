@@ -815,6 +815,17 @@ public:
       return dev;
     }
 
+  void append(smart_device_list & devlist)
+    {
+      for (unsigned i = 0; i < devlist.size(); i++) {
+        smart_device * dev = devlist.at(i);
+        if (!dev)
+          continue;
+        push_back(dev);
+        devlist.m_list.at(i) = 0;
+      }
+    }
+
 // Implementation
 private:
   std::vector<smart_device *> m_list;
@@ -823,6 +834,10 @@ private:
   smart_device_list(const smart_device_list &);
   void operator=(const smart_device_list &);
 };
+
+
+/// List of types for DEVICESCAN
+typedef std::vector<std::string> smart_devtype_list;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -921,9 +936,19 @@ public:
 
   /// Fill 'devlist' with devices of some 'type' with device names
   /// specified by some optional 'pattern'.
+  /// Use platform specific default if 'type' is empty or 0.
   /// Return false on error.
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0) = 0;
+
+  /// Fill 'devlist' with devices of all 'types' with device names
+  /// specified by some optional 'pattern'.
+  /// Use platform specific default if 'types' is empty.
+  /// Return false on error.
+  /// Default implementation calls above function for all types
+  /// and concatenates the results.
+  virtual bool scan_smart_devices(smart_device_list & devlist,
+    const smart_devtype_list & types, const char * pattern = 0);
 
 protected:
   /// Return standard ATA device.

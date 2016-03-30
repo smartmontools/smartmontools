@@ -2,6 +2,13 @@ $Id$
 
 2016-03-30  Christian Franke  <franke@computer.org>
 
+	Add support for multiple '-d TYPE' options for device scanning:
+	dev_interface.cpp, dev_interface.cpp: Add new version of
+	scan_smart_devices() which accepts list of types.
+	smartctl.cpp, smartd.cpp: Allow multiple '-d TYPE' options.
+	Use new scan_smart_devices().
+	smartctl.8.in, smartd.conf.5.in: Document it.
+
 	Makefile.am: Add man page support for --with-nvme-devicescan.
 	smartd.8.in: Document NVMe DEVICESCAN for Linux.
 

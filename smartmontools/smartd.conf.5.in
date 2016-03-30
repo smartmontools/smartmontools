@@ -1516,6 +1516,10 @@ will do the same, but restricts the scan to ATA devices only.
 will do the same, but only monitors the SMART health status of the
 devices, (rather than the default \-a, which monitors all SMART
 properties).
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+Multiple \'\-d TYPE\' options may be specified with DEVICESCAN
+to combine the scan results of more than one TYPE.
 
 Configuration entries for specific devices may precede the \fBDEVICESCAN\fP entry.
 For example

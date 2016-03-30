@@ -426,6 +426,25 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
   return dev;
 }
 
+bool smart_interface::scan_smart_devices(smart_device_list & devlist,
+  const smart_devtype_list & types, const char * pattern /* = 0 */)
+{
+  unsigned n = types.size();
+  if (n == 0)
+    return scan_smart_devices(devlist, (const char *)0, pattern);
+  if (n == 1)
+    return scan_smart_devices(devlist, types.front().c_str(), pattern);
+
+  for (unsigned i = 0; i < n; i++) {
+    smart_device_list tmplist;
+    if (!scan_smart_devices(tmplist, types[i].c_str(), pattern))
+      return false;
+    devlist.append(tmplist);
+  }
+
+  return true;
+}
+
 nvme_device * smart_interface::get_nvme_device(const char * /*name*/, const char * /*type*/, unsigned /*nsid*/)
 {
   set_err(ENOSYS, "NVMe devices are not supported in this version of smartmontools");
