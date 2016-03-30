@@ -32,7 +32,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4247 2016-03-24 22:25:03Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4265 2016-03-30 19:58:27Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -424,6 +424,25 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
   if (!dev && !get_errno())
     set_err(EINVAL, "Not a device of type '%s'", type);
   return dev;
+}
+
+bool smart_interface::scan_smart_devices(smart_device_list & devlist,
+  const smart_devtype_list & types, const char * pattern /* = 0 */)
+{
+  unsigned n = types.size();
+  if (n == 0)
+    return scan_smart_devices(devlist, (const char *)0, pattern);
+  if (n == 1)
+    return scan_smart_devices(devlist, types.front().c_str(), pattern);
+
+  for (unsigned i = 0; i < n; i++) {
+    smart_device_list tmplist;
+    if (!scan_smart_devices(tmplist, types[i].c_str(), pattern))
+      return false;
+    devlist.append(tmplist);
+  }
+
+  return true;
 }
 
 nvme_device * smart_interface::get_nvme_device(const char * /*name*/, const char * /*type*/, unsigned /*nsid*/)
