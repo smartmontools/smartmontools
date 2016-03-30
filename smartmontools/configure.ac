@@ -596,7 +596,8 @@ AC_CONFIG_FILES(Makefile)
 AC_OUTPUT
 AC_PROG_MAKE_SET
 
-info=$(
+# Note: Use `...` here as some shells do not properly parse '$(... case $x in X) ...)'
+info=`
   echo "-----------------------------------------------------------------------------"
   echo "${PACKAGE}-${VERSION} configuration:"
   echo "host operating system:  $host"
@@ -623,67 +624,67 @@ info=$(
         echo "drive database file:    [[disabled]]"
       fi
       if test -n "$savestates"; then
-        echo "smartd save files:      `eval eval eval echo $savestates`MODEL-SERIAL.TYPE.state"
+        echo "smartd save files:      \`eval eval eval echo $savestates\`MODEL-SERIAL.TYPE.state"
       fi
       if test -n "$attributelog"; then
-        echo "smartd attribute logs:  `eval eval eval echo $attributelog`MODEL-SERIAL.TYPE.csv"
+        echo "smartd attribute logs:  \`eval eval eval echo $attributelog\`MODEL-SERIAL.TYPE.csv"
       fi
       ;;
 
     *)
-      echo "binary install path:    `eval eval eval echo $sbindir`"
-      echo "man page install path:  `eval eval eval echo $mandir`"
-      echo "doc file install path:  `eval eval eval echo $docdir`"
-      echo "examples install path:  `eval eval eval echo $exampledir`"
+      echo "binary install path:    \`eval eval eval echo $sbindir\`"
+      echo "man page install path:  \`eval eval eval echo $mandir\`"
+      echo "doc file install path:  \`eval eval eval echo $docdir\`"
+      echo "examples install path:  \`eval eval eval echo $exampledir\`"
       if test -n "$drivedbdir"; then
-        echo "drive database file:    `eval eval eval echo $drivedbdir`/drivedb.h"
-        echo "database update script: `eval eval eval echo $sbindir`/update-smart-drivedb"
-        echo "download tools:         `eval eval eval echo $os_dltools`"
+        echo "drive database file:    \`eval eval eval echo $drivedbdir\`/drivedb.h"
+        echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"
+        echo "download tools:         \`eval eval eval echo $os_dltools\`"
       else
         echo "drive database file:    [[disabled]]"
       fi
-      echo "local drive database:   `eval eval eval echo $sysconfdir`/smart_drivedb.h"
-      echo "smartd config file:     `eval eval eval echo $sysconfdir`/smartd.conf${smartd_suffix}"
-      echo "smartd warning script:  `eval eval eval echo $smartdscriptdir`/smartd_warning.sh"
+      echo "local drive database:   \`eval eval eval echo $sysconfdir\`/smart_drivedb.h"
+      echo "smartd config file:     \`eval eval eval echo $sysconfdir\`/smartd.conf${smartd_suffix}"
+      echo "smartd warning script:  \`eval eval eval echo $smartdscriptdir\`/smartd_warning.sh"
       if test -n "$smartdplugindir"; then
-        echo "smartd plugin path:     `eval eval eval echo $smartdplugindir`"
+        echo "smartd plugin path:     \`eval eval eval echo $smartdplugindir\`"
       else
         echo "smartd plugin path:     [[disabled]]"
       fi
       if test -n "$initddir"; then
-        echo "smartd initd script:    `eval eval eval echo $initddir`/${initdfile}"
+        echo "smartd initd script:    \`eval eval eval echo $initddir\`/${initdfile}"
       elif test -z "$systemdsystemunitdir"; then
         echo "smartd initd script:    [[disabled]]"
       fi
       if test -n "$systemdsystemunitdir"; then
-        echo "smartd systemd file:    `eval eval eval echo $systemdsystemunitdir`/smartd.service"
+        echo "smartd systemd file:    \`eval eval eval echo $systemdsystemunitdir\`/smartd.service"
         if test -n "$systemdenvfile"; then
-          echo "smartd environ file:    `eval eval eval echo $systemdenvfile`"
+          echo "smartd environ file:    \`eval eval eval echo $systemdenvfile\`"
         else
           echo "smartd environ file:    [[disabled]]"
         fi
       fi
       if test -n "$savestates"; then
-        echo "smartd save files:      `eval eval eval echo $savestates`MODEL-SERIAL.TYPE.state"
+        echo "smartd save files:      \`eval eval eval echo $savestates\`MODEL-SERIAL.TYPE.state"
       else
         echo "smartd save files:      [[disabled]]"
       fi
       if test -n "$attributelog"; then
-        echo "smartd attribute logs:  `eval eval eval echo $attributelog`MODEL-SERIAL.TYPE.csv"
+        echo "smartd attribute logs:  \`eval eval eval echo $attributelog\`MODEL-SERIAL.TYPE.csv"
       else
         echo "smartd attribute logs:  [[disabled]]"
       fi
       echo "libcap-ng support:      $use_libcap_ng"
       case "$host_os" in
         linux*) echo "SELinux support:        ${with_selinux-no}" ;;
-      esac ;
+      esac
       case "$host_os" in
         linux*) echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-no}" ;;
       esac
       ;;
   esac
   echo "-----------------------------------------------------------------------------"
-)
+`
 
 AC_MSG_NOTICE([
 $info
