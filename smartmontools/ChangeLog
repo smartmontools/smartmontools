@@ -1,4 +1,9 @@
-$Id: ChangeLog 4262 2016-03-28 19:16:30Z chrfranke $
+$Id: ChangeLog 4263 2016-03-30 05:33:47Z chrfranke $
+
+2016-03-30  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use `...` instead of $(...) due to possible parsing
+	problems since r4260.  Remove workaround for related bash bug.
 
 2016-03-28  Christian Franke  <franke@computer.org>
 
