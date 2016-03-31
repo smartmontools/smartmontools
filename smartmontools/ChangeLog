@@ -1,4 +1,4 @@
-$Id: ChangeLog 4269 2016-03-31 16:24:56Z samm2 $
+$Id: ChangeLog 4270 2016-03-31 16:43:44Z samm2 $
 
 2016-03-31  Alex Samorukov  <samm@os2.kiev.ua>
 
@@ -8,6 +8,7 @@ $Id: ChangeLog 4269 2016-03-31 16:24:56Z samm2 $
 	   by the reporter)
 	 - add SanDisk SSD Plus series (ticket #674)
 	 - add XceedIOPS SSD series (ticket #672)
+	 - add Crucial BX200 SSD (ticket #643)
 
 2016-03-30  Christian Franke  <franke@computer.org>
 
