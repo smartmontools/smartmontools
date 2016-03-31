@@ -1,4 +1,8 @@
-$Id: ChangeLog 4265 2016-03-30 19:58:27Z chrfranke $
+$Id: ChangeLog 4266 2016-03-31 15:54:02Z samm2 $
+
+2016-03-31  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add samsung SAMSUNG-MZ7PC series (ticket #679)
 
 2016-03-30  Christian Franke  <franke@computer.org>
 
