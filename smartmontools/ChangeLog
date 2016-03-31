@@ -1,4 +1,4 @@
-$Id: ChangeLog 4268 2016-03-31 16:09:28Z samm2 $
+$Id: ChangeLog 4269 2016-03-31 16:24:56Z samm2 $
 
 2016-03-31  Alex Samorukov  <samm@os2.kiev.ua>
 
@@ -7,6 +7,7 @@ $Id: ChangeLog 4268 2016-03-31 16:09:28Z samm2 $
 	 - add KINGSTON SKC400S37128G (SSDNow KC400) (ticket #673, patch provided
 	   by the reporter)
 	 - add SanDisk SSD Plus series (ticket #674)
+	 - add XceedIOPS SSD series (ticket #672)
 
 2016-03-30  Christian Franke  <franke@computer.org>
 
