@@ -1324,6 +1324,7 @@ const drive_settings builtin_knowndrives[] = {
   { "SiliconMotion based SSDs", // SM2246EN (Transcend TS6500)
     "CT(120|250|500|1000)BX100SSD1|" // Crucial BX100, tested with CT250BX100SSD1/MU02,
       // CT500BX100SSD1/MU02, CT1000BX100SSD1/MU02
+    "CT(240|480|960)BX200SSD1|" // Crucial BX200 Solid State Drive, tested with CT480BX200SSD1/MU02.6
     "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420I?)|" // Transcend SSD370/420 SATA/mSATA, TS6500,
       // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
       // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H
@@ -1333,6 +1334,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 2,raw48,Throughput_Performance "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
+    "-v 148,raw48,Total_SLC_Erase_Ct "
+    "-v 149,raw48,Max_SLC_Erase_Ct "
+    "-v 150,raw48,Min_SLC_Erase_Ct "
+    "-v 151,raw48,Average_SLC_Erase_Ct "
     "-v 160,raw48,Uncorrectable_Error_Cnt "
     "-v 161,raw48,Valid_Spare_Block_Cnt "
     "-v 163,raw48,Initial_Bad_Block_Count "
@@ -1360,7 +1365,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
-    "-v 245,raw48,Flash_Writes_32MiB" // FW N0815B, N1114H
+    "-v 245,raw48,TLC_Writes_32MiB " // FW N0815B, N1114H
+    "-v 246,raw48,SLC_Writes_32MiB "
+    "-v 247,raw48,Raid_Recoverty_Ct"
   },
   { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
     "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
