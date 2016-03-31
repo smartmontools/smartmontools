@@ -1,8 +1,11 @@
-$Id: ChangeLog 4266 2016-03-31 15:54:02Z samm2 $
+$Id: ChangeLog 4267 2016-03-31 15:59:37Z samm2 $
 
 2016-03-31  Alex Samorukov  <samm@os2.kiev.ua>
 
-	drivedb.h: add samsung SAMSUNG-MZ7PC series (ticket #679)
+	drivedb.h: 
+	 - add samsung SAMSUNG-MZ7PC series (ticket #679)
+	 - add KINGSTON SKC400S37128G (SSDNow KC400) (ticket #673, patch provided
+	   by the reporter)
 
 2016-03-30  Christian Franke  <franke@computer.org>
 
