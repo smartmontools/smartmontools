@@ -6,6 +6,7 @@ $Id$
 	 - add samsung SAMSUNG-MZ7PC series (ticket #679)
 	 - add KINGSTON SKC400S37128G (SSDNow KC400) (ticket #673, patch provided
 	   by the reporter)
+	 - add SanDisk SSD Plus series (ticket #674)
 
 2016-03-30  Christian Franke  <franke@computer.org>
 
