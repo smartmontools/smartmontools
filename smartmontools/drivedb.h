@@ -447,6 +447,7 @@ const drive_settings builtin_knowndrives[] = {
       // TS128GSSD320, TS256GSSD720/5.2.0
     "UGB(88P|99S)GC...H[BF].|" // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
+    "SG9XCS(1F|2D)(50|100|200|400)GE01|" // XceedIOPS, tested with SG9XCS2D50GE01/SA03F34V
     "VisionTek GoDrive (60|120|240|480)GB", // tested with VisionTek GoDrive 480GB/506ABBF0
     "", "",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
