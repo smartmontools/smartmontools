@@ -1,6 +1,10 @@
-$Id: ChangeLog 4273 2016-04-02 15:21:13Z chrfranke $
+$Id: ChangeLog 4274 2016-04-02 15:41:26Z chrfranke $
 
 2016-04-02  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: linux_megaraid_device: Remove unused member variable
+	'm_busnum' (clang++: -Wunused-private-field) and the related ctor
+	parameter.
 
 	os_linux.cpp: Fixes suggested by clang analyser:
 	Add or remove inconsistent nullptr checks.
