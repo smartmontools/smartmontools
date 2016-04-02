@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4275 2016-04-02 18:59:52Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4276 2016-04-02 19:13:39Z chrfranke $\n"
 
 #include "utility.h"
 
@@ -981,7 +981,9 @@ protected:
   /// Default implementation returns empty string.
   virtual std::string get_valid_custom_dev_types_str();
 
-  /// Return ATA->SCSI filter for SAT or USB.
+  /// Return ATA->SCSI filter for a SAT or USB 'type'.
+  /// Device 'scsidev' is used for SCSI access.
+  /// Return 0 and delete 'scsidev' on error.
   /// Override only if platform needs special handling.
   virtual ata_device * get_sat_device(const char * type, scsi_device * scsidev);
   //{ implemented in scsiata.cpp }
