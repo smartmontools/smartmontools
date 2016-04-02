@@ -1,4 +1,10 @@
-$Id: ChangeLog 4272 2016-04-02 00:03:09Z dpgilbert $
+$Id: ChangeLog 4273 2016-04-02 15:21:13Z chrfranke $
+
+2016-04-02  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Fixes suggested by clang analyser:
+	Add or remove inconsistent nullptr checks.
+	Remove dead increments.
 
 2016-04-01  Douglas Gilbert  <dgilbert@interlog.com>
 
