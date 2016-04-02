@@ -1,4 +1,9 @@
-$Id: ChangeLog 4270 2016-03-31 16:43:44Z samm2 $
+$Id: ChangeLog 4272 2016-04-02 00:03:09Z dpgilbert $
+
+2016-04-01  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: add missing commas in peripheral_dt_arr and
+        add number of elements (2**5) so that won't happen again.
 
 2016-03-31  Alex Samorukov  <samm@os2.kiev.ua>
 

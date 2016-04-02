@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4237 2016-03-14 18:50:38Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4272 2016-04-02 00:03:09Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1390,7 +1390,7 @@ scsiPrintSasPhy(scsi_device * device, int reset)
 }
 
 
-static const char * peripheral_dt_arr[] = {
+static const char * peripheral_dt_arr[32] = {
         "disk",
         "tape",
         "printer",
@@ -1406,23 +1406,23 @@ static const char * peripheral_dt_arr[] = {
         "storage array",
         "enclosure",
         "simplified disk",
-        "optical card reader"
-        "reserved [0x10]"
-        "object based storage"
-        "automation/driver interface"
-        "security manager device"
-        "host managed zoned block device"
-        "reserved [0x15]"
-        "reserved [0x16]"
-        "reserved [0x17]"
-        "reserved [0x18]"
-        "reserved [0x19]"
-        "reserved [0x1a]"
-        "reserved [0x1b]"
-        "reserved [0x1c]"
-        "reserved [0x1d]"
-        "well known logical unit"
-        "unknown or no device type"
+        "optical card reader",
+        "reserved [0x10]",
+        "object based storage",
+        "automation/driver interface",
+        "security manager device",
+        "host managed zoned block device",
+        "reserved [0x15]",
+        "reserved [0x16]",
+        "reserved [0x17]",
+        "reserved [0x18]",
+        "reserved [0x19]",
+        "reserved [0x1a]",
+        "reserved [0x1b]",
+        "reserved [0x1c]",
+        "reserved [0x1d]",
+        "well known logical unit",
+        "unknown or no device type",
 };
 
 static const char * transport_proto_arr[] = {
