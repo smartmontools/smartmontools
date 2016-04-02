@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-15 Christian Franke
+ * Copyright (C) 2009-16 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1486,6 +1486,13 @@ using namespace sat;
 
 ata_device * smart_interface::get_sat_device(const char * type, scsi_device * scsidev)
 {
+  if (!scsidev)
+    throw std::logic_error("smart_interface: get_sat_device() called with scsidev=0");
+
+  // Take temporary ownership of 'scsidev' to delete it on error
+  scsi_device_auto_ptr scsidev_holder(scsidev);
+  ata_device * satdev = 0;
+
   if (!strncmp(type, "sat", 3)) {
     const char * t = type + 3;
     bool enable_auto = false;
@@ -1499,7 +1506,7 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
       set_err(EINVAL, "Option '-d sat[,auto][,N]' requires N to be 0, 12 or 16");
       return 0;
     }
-    return new sat_device(this, scsidev, type, ptlen, enable_auto);
+    satdev = new sat_device(this, scsidev, type, ptlen, enable_auto);
   }
 
   else if (!strncmp(type, "usbcypress", 10)) {
@@ -1510,7 +1517,7 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
                       "an hexadecimal number between 0x0 and 0xff");
       return 0;
     }
-    return new usbcypress_device(this, scsidev, type, signature);
+    satdev = new usbcypress_device(this, scsidev, type, signature);
   }
 
   else if (!strncmp(type, "usbjmicron", 10)) {
@@ -1531,21 +1538,25 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
       set_err(EINVAL, "Option '-d usbjmicron[,p][,x],<n>' requires <n> to be 0 or 1");
       return 0;
     }
-    return new usbjmicron_device(this, scsidev, type, prolific, ata_48bit_support, port);
+    satdev = new usbjmicron_device(this, scsidev, type, prolific, ata_48bit_support, port);
   }
 
   else if (!strcmp(type, "usbprolific")) {
-    return new usbprolific_device(this, scsidev, type);
+    satdev = new usbprolific_device(this, scsidev, type);
   }
 
   else if (!strcmp(type, "usbsunplus")) {
-    return new usbsunplus_device(this, scsidev, type);
+    satdev = new usbsunplus_device(this, scsidev, type);
   }
 
   else {
     set_err(EINVAL, "Unknown USB device type '%s'", type);
     return 0;
   }
+
+  // 'scsidev' is now owned by 'satdev'
+  scsidev_holder.release();
+  return satdev;
 }
 
 // Try to detect a SAT device behind a SCSI interface.

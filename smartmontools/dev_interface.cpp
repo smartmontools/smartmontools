@@ -414,11 +414,7 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
       return 0;
     }
     // Attach SAT tunnel
-    ata_device * satdev = get_sat_device(sattype.c_str(), basedev->to_scsi());
-    if (!satdev)
-      return 0;
-    basedev.release();
-    return satdev;
+    return get_sat_device(sattype.c_str(), basedev.release()->to_scsi());
   }
 
   else {

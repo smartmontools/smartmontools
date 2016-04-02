@@ -981,7 +981,9 @@ protected:
   /// Default implementation returns empty string.
   virtual std::string get_valid_custom_dev_types_str();
 
-  /// Return ATA->SCSI filter for SAT or USB.
+  /// Return ATA->SCSI filter for a SAT or USB 'type'.
+  /// Device 'scsidev' is used for SCSI access.
+  /// Return 0 and delete 'scsidev' on error.
   /// Override only if platform needs special handling.
   virtual ata_device * get_sat_device(const char * type, scsi_device * scsidev);
   //{ implemented in scsiata.cpp }

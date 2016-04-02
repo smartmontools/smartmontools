@@ -2,6 +2,12 @@ $Id$
 
 2016-04-02  Christian Franke  <franke@computer.org>
 
+	Fix memory leak if get_sat_device() is called with unknown 'type':
+	scsiata.cpp: get_sat_device(): Delete 'scsidev' on error.
+	dev_interface.h: Update documentation of get_sat_device().
+	dev_interface.cpp: Fix use of get_sat_device().
+	(All other uses of get_sat_device() are already sane).
+
 	dev_interface.cpp, dev_interface.h: Add counter for objects derived
 	from 'smart_device'.
 	smartctl.cpp, smartd.cpp: Print error message if any objects remain
