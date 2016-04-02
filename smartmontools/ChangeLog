@@ -1,5 +1,11 @@
 $Id$
 
+2016-04-02  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Fixes suggested by clang analyser:
+	Add or remove inconsistent nullptr checks.
+	Remove dead increments.
+
 2016-04-01  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: add missing commas in peripheral_dt_arr and
