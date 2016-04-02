@@ -32,17 +32,20 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4265 2016-03-30 19:58:27Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4275 2016-04-02 18:59:52Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
 // smart_device
+
+int smart_device::s_num_objects = 0;
 
 smart_device::smart_device(smart_interface * intf, const char * dev_name,
     const char * dev_type, const char * req_type)
 : m_intf(intf), m_info(dev_name, dev_type, req_type),
   m_ata_ptr(0), m_scsi_ptr(0), m_nvme_ptr(0)
 {
+  s_num_objects++;
 }
 
 smart_device::smart_device(do_not_use_in_implementation_classes)
@@ -53,6 +56,7 @@ smart_device::smart_device(do_not_use_in_implementation_classes)
 
 smart_device::~smart_device() throw()
 {
+  s_num_objects--;
 }
 
 bool smart_device::is_syscall_unsup() const

@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4265 2016-03-30 19:58:27Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4275 2016-04-02 18:59:52Z chrfranke $\n"
 
 #include "utility.h"
 
@@ -179,6 +179,10 @@ public:
   /// Message is retrieved from interface's get_msg_for_errno(no).
   bool set_err(int no);
 
+  /// Get current number of allocated 'smart_device' objects.
+  static int get_num_objects()
+    { return s_num_objects; }
+
 // Operations
 public:
   ///////////////////////////////////////////////
@@ -233,6 +237,9 @@ private:
   scsi_device * m_scsi_ptr;
   friend class nvme_device;
   nvme_device * m_nvme_ptr;
+
+  // Number of objects.
+  static int s_num_objects;
 
   // Prevent copy/assigment
   smart_device(const smart_device &);
