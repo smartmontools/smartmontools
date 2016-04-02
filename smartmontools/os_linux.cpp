@@ -1112,7 +1112,7 @@ class linux_megaraid_device
 {
 public:
   linux_megaraid_device(smart_interface *intf, const char *name, 
-    unsigned int bus, unsigned int tgt);
+    unsigned int tgt);
 
   virtual ~linux_megaraid_device() throw();
 
@@ -1125,7 +1125,6 @@ public:
 
 private:
   unsigned int m_disknum;
-  unsigned int m_busnum;
   unsigned int m_hba;
   int m_fd;
 
@@ -1138,10 +1137,10 @@ private:
 };
 
 linux_megaraid_device::linux_megaraid_device(smart_interface *intf,
-  const char *dev_name, unsigned int bus, unsigned int tgt)
+  const char *dev_name, unsigned int tgt)
  : smart_device(intf, dev_name, "megaraid", "megaraid"),
    linux_smart_device(O_RDWR | O_NONBLOCK),
-   m_disknum(tgt), m_busnum(bus), m_hba(0),
+   m_disknum(tgt), m_hba(0),
    m_fd(-1), pt_cmd(0)
 {
   set_info().info_name = strprintf("%s [megaraid_disk_%02d]", dev_name, m_disknum);
@@ -3083,7 +3082,7 @@ linux_smart_interface::megasas_pd_add_list(int bus_no, smart_device_list & devli
       continue; /* non disk device found */
     char line[128];
     snprintf(line, sizeof(line) - 1, "/dev/bus/%d", bus_no);
-    smart_device * dev = new linux_megaraid_device(this, line, 0, list->addr[i].device_id);
+    smart_device * dev = new linux_megaraid_device(this, line, list->addr[i].device_id);
     devlist.push_back(dev);
   }
   free(list);
@@ -3276,7 +3275,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
 
   // MegaRAID ?
   if (sscanf(type, "megaraid,%d", &disknum) == 1) {
-    return new linux_megaraid_device(this, name, 0, disknum);
+    return new linux_megaraid_device(this, name, disknum);
   }
 
   //aacraid?
