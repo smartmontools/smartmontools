@@ -897,10 +897,6 @@ static int Goodbye(int status)
   // delete PID file, if one was created
   RemovePidFile();
 
-  // if we are exiting because of a code bug, tell user
-  if (status==EXIT_BADCODE)
-        PrintOut(LOG_CRIT, "Please inform " PACKAGE_BUGREPORT ", including output of smartd -V.\n");
-
   // and this should be the final output from smartd before it exits
   PrintOut(status?LOG_CRIT:LOG_INFO, "smartd is exiting (exit status %d)\n", status);
 
@@ -5423,6 +5419,16 @@ static int smartd_main(int argc, char **argv)
     PrintOut(LOG_CRIT, "Smartd: Exception: %s\n", ex.what());
     status = EXIT_BADCODE;
   }
+
+  // Check for remaining device objects
+  if (smart_device::get_num_objects() != 0) {
+    PrintOut(LOG_CRIT, "Smartd: Internal Error: %d device object(s) left at exit.\n",
+             smart_device::get_num_objects());
+    status = EXIT_BADCODE;
+  }
+
+  if (status == EXIT_BADCODE)
+    PrintOut(LOG_CRIT, "Please inform " PACKAGE_BUGREPORT ", including output of smartd -V.\n");
 
   if (is_initialized)
     status = Goodbye(status);

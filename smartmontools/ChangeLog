@@ -2,6 +2,11 @@ $Id$
 
 2016-04-02  Christian Franke  <franke@computer.org>
 
+	dev_interface.cpp, dev_interface.h: Add counter for objects derived
+	from 'smart_device'.
+	smartctl.cpp, smartd.cpp: Print error message if any objects remain
+	on exit.
+
 	os_linux.cpp: linux_megaraid_device: Remove unused member variable
 	'm_busnum' (clang++: -Wunused-private-field) and the related ctor
 	parameter.

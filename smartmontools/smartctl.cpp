@@ -1346,6 +1346,8 @@ static int main_worker(int argc, char **argv)
 int main(int argc, char **argv)
 {
   int status;
+  bool badcode = false;
+
   try {
     // Do the real work ...
     status = main_worker(argc, argv);
@@ -1362,8 +1364,21 @@ int main(int argc, char **argv)
   catch (const std::exception & ex) {
     // Other fatal errors
     printf("Smartctl: Exception: %s\n", ex.what());
+    badcode = true;
     status = FAILCMD;
   }
+
+  // Check for remaining device objects
+  if (smart_device::get_num_objects() != 0) {
+    printf("Smartctl: Internal Error: %d device object(s) left at exit.\n",
+           smart_device::get_num_objects());
+    badcode = true;
+    status = FAILCMD;
+  }
+
+  if (badcode)
+     printf("Please inform " PACKAGE_BUGREPORT ", including output of smartctl -V.\n");
+
   return status;
 }
 
