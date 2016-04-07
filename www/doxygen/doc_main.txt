@@ -1,9 +1,9 @@
 /*
  * $Id$
  *
- * Home page of code is: http://smartmontools.sourceforge.net
+ * Home page of code is: http://www.smartmontools.org/
  *
- * Copyright (C) 2009 Gabriele Pohl
+ * Copyright (C) 2009-2014 Gabriele Pohl
  * <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,29 +23,26 @@
   information on each class and method.
 
   @section Links Other Resources
-  - Smartmontools homepage<br>
-  http://smartmontools.sourceforge.net/<br>
+  - Smartmontools homepage: (bug/issue tracking system and wiki)<br>
+  http://www.smartmontools.org/<br>
 
-  - Description of the software package at sourceforge.net<br>
+  - Description of the software package at sourceforge.net:<br>
   http://sourceforge.net/projects/smartmontools/
 
-  - Browse the current version in SVN-Repository<br>
-  http://sourceforge.net/apps/trac/smartmontools/browser/trunk/smartmontools
+  - Browse the current version in SVN-Repository:<br>
+  http://www.smartmontools.org/browser/trunk/smartmontools
 
   - Daily builds (Linux, Darwin, Windows)<br>
   http://builds.smartmontools.org
-
-  - Smartmontools Trac (bug/issue tracking system and wiki)<br>
-  http://sourceforge.net/apps/trac/smartmontools/
 
   @section Introduction
   The smartmontools package contains two utility programs (<b>smartctl</b> 
   and <b>smartd</b>) to control and monitor storage systems using the 
   <em>Self-Monitoring, Analysis and Reporting Technology System
-  (SMART)</em> built into most modern ATA and SCSI harddisks.  
+  (SMART)</em> built into most modern ATA, SCSI and NVMe disks.
 
-  Smartmontools supports ATA/ATAPI/SATA-3 to -8 disks and SCSI disks and 
-  tape devices. It should run on any modern Darwin (Mac OS X), Linux, FreeBSD,
+  Smartmontools supports ATA/ATAPI/SATA-3 to -8 disks, SCSI disks and 
+  tape devices and NVMe devices. It should run on any modern Darwin (Mac OS X), Linux, FreeBSD,
   NetBSD, OpenBSD, Solaris, OS/2, Cygwin, QNX, eComStation or Windows system. 
 
   @section Architecture Software Architecture
@@ -61,9 +58,9 @@
   - os_freebsd.cpp
   - os_linux.cpp
   - os_win32.cpp
+  - os_darwin.cpp 
 
   Still working with old interface
-  - os_darwin.cpp 
   - os_netbsd.cpp
   - os_openbsd.cpp
   - os_os2.cpp
@@ -95,9 +92,9 @@
      'unsupported()'.<br><br>
   -# Wiki page DeveloperHowToMigrate gives detail instructions on
      how to migrate old os_youros.cpp to new class interface<br>
-     http://sourceforge.net/apps/trac/smartmontools/wiki/DeveloperHowToMigrate<br><br>
+     http://smartmontools.org/wiki/DeveloperHowToMigrate<br><br>
   -# We also started a page about CodingStyle<br>
-     http://sourceforge.net/apps/trac/smartmontools/wiki/CodingStyle<br><br>
+     http://smartmontools.org/wiki/CodingStyle<br><br>
   -# Contact smartmontools-support@lists.sourceforge.net to see
      about checking your code into the smartmontools SVN archive.
 
@@ -110,6 +107,7 @@
   - smart_device
   - ata_device
   - scsi_device
+  - nvme_device
   - smart_interface (The Factory)
 
   <hr>
@@ -120,19 +118,21 @@
   the old os-specific legacy drivers, until they will be replaced by 
   their new implementations of ata_device or scsi_device.
   @image html classata__device__with__command__set__coll__graph.png "Collaboration diagram for new ATA pass through old interface"
-
   <hr>
 
   @subsection scsi-driver SCSI Devices
   Here we use the SCSI instruction set.
   @image html classscsi__device__coll__graph.png "Collaboration diagram for SCSI devices" 
-  @image latex classscsi__device__coll__graph.eps "Collaboration diagram for SCSI devices" 
+  <hr>
+
+  @subsection nvme-driver NVMe Devices
+  Here we use the NVME instruction set.
+  @image html classnvme__device__coll__graph.png "Collaboration diagram for NVMe devices" 
   <hr>
 
   @subsection tunnel-driver Tunneling ATA via SCSI 
   If a controller understands ATA pass through SCSI, 
   we use this driver.
   @image html classtunnelled__device__base__coll__graph.png "Collaboration diagram for tunneling protocols"
-  @image latex classtunnelled__device__base__coll__graph.eps "Collaboration diagram for tunneling protocols"
 */
 
