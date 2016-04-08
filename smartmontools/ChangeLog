@@ -1,5 +1,13 @@
 $Id$
 
+2016-04-08  Christian Franke  <franke@computer.org>
+
+	os_win.cpp: Add initial NVMe support for Windows.
+	Successfully tested with Intel driver.
+	Does not work with Samsung driver.
+
+	Thanks to Minkyu Kim for testing.
+
 2016-04-02  Christian Franke  <franke@computer.org>
 
 	Fix memory leak if get_sat_device() is called with unknown 'type':

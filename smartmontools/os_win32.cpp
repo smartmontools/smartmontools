@@ -28,6 +28,7 @@
 #include "int64.h"
 #include "atacmds.h"
 #include "scsicmds.h"
+#include "nvmecmds.h"
 #include "utility.h"
 #include "smartctl.h" // TODO: Do not use smartctl only variables here
 
@@ -313,6 +314,39 @@ typedef struct _SENDCMDINPARAMS_EX {
 
 ASSERT_SIZEOF(GETVERSIONINPARAMS_EX, sizeof(GETVERSIONINPARAMS));
 ASSERT_SIZEOF(SENDCMDINPARAMS_EX, sizeof(SENDCMDINPARAMS));
+
+
+// NVME_PASS_THROUGH
+
+#ifndef NVME_PASS_THROUGH_SRB_IO_CODE
+
+#define NVME_SIG_STR "NvmeMini"
+#define NVME_STORPORT_DRIVER 0xe000
+
+#define NVME_PASS_THROUGH_SRB_IO_CODE \
+  CTL_CODE(NVME_STORPORT_DRIVER, 0x0800, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+#pragma pack(1)
+typedef struct _NVME_PASS_THROUGH_IOCTL
+{
+  SRB_IO_CONTROL SrbIoCtrl;
+  ULONG VendorSpecific[6];
+  ULONG NVMeCmd[16]; // Command DW[0...15]
+  ULONG CplEntry[4]; // Completion DW[0...3]
+  ULONG Direction; // 0=No, 1=Out, 2=In, 3=I/O
+  ULONG QueueId; // 0=AdminQ
+  ULONG DataBufferLen; // sizeof(DataBuffer) if Data In
+  ULONG MetaDataLen;
+  ULONG ReturnBufferLen; // offsetof(DataBuffer), plus sizeof(DataBuffer) if Data Out
+  UCHAR DataBuffer[1];
+} NVME_PASS_THROUGH_IOCTL;
+#pragma pack()
+
+#endif // NVME_PASS_THROUGH_SRB_IO_CODE
+
+ASSERT_CONST(NVME_PASS_THROUGH_SRB_IO_CODE, (int)0xe0002000);
+ASSERT_SIZEOF(NVME_PASS_THROUGH_IOCTL, 152+1);
+ASSERT_SIZEOF(NVME_PASS_THROUGH_IOCTL, offsetof(NVME_PASS_THROUGH_IOCTL, DataBuffer)+1);
 
 
 // CSMI structs
@@ -3469,6 +3503,196 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
 
 
 /////////////////////////////////////////////////////////////////////////////
+// win_nvme_device
+
+class win_nvme_device
+: public /*implements*/ nvme_device,
+  public /*extends*/ win_smart_device
+{
+public:
+  win_nvme_device(smart_interface * intf, const char * dev_name,
+    const char * req_type, unsigned nsid);
+
+  virtual bool open();
+
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+
+  bool open_scsi(int n);
+
+  bool probe();
+
+private:
+  int m_scsi_no;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+win_nvme_device::win_nvme_device(smart_interface * intf, const char * dev_name,
+  const char * req_type, unsigned nsid)
+: smart_device(intf, dev_name, "nvme", req_type),
+  nvme_device(nsid),
+  m_scsi_no(-1)
+{
+}
+
+bool win_nvme_device::open_scsi(int n)
+{
+  // TODO: Use common open function for all devices using "\\.\ScsiN:"
+  char devpath[32];
+  snprintf(devpath, sizeof(devpath)-1, "\\\\.\\Scsi%d:", n);
+
+  HANDLE h = CreateFileA(devpath, GENERIC_READ|GENERIC_WRITE,
+    FILE_SHARE_READ|FILE_SHARE_WRITE,
+    (SECURITY_ATTRIBUTES *)0, OPEN_EXISTING, 0, 0);
+
+  if (h == INVALID_HANDLE_VALUE) {
+    long err = GetLastError();
+    if (nvme_debugmode > 1)
+      pout("  %s: Open failed, Error=%ld\n", devpath, err);
+    if (err == ERROR_FILE_NOT_FOUND)
+      set_err(ENOENT, "%s: not found", devpath);
+    else if (err == ERROR_ACCESS_DENIED)
+      set_err(EACCES, "%s: access denied", devpath);
+    else
+      set_err(EIO, "%s: Error=%ld", devpath, err);
+    return false;
+  }
+
+  if (nvme_debugmode > 1)
+    pout("  %s: successfully opened\n", devpath);
+
+  set_fh(h);
+  return true;
+}
+
+// Check if NVMe pass-through works
+bool win_nvme_device::probe()
+{
+  smartmontools::nvme_id_ctrl id_ctrl;
+  nvme_cmd_in in;
+  in.set_data_in(smartmontools::nvme_admin_identify, &id_ctrl, sizeof(id_ctrl));
+  in.nsid = 0xffffffff;
+  in.cdw10 = 0x1;
+  nvme_cmd_out out;
+
+  bool ok = nvme_pass_through(in, out);
+  if (!ok && nvme_debugmode > 1)
+    pout("  nvme probe failed: %s\n", get_errmsg());
+  return ok;
+}
+
+bool win_nvme_device::open()
+{
+  if (m_scsi_no < 0) {
+    // First open -> search of NVMe devices
+    const char * name = skipdev(get_dev_name());
+    char s[2+1] = ""; int n1 = -1, n2 = -1, len = strlen(name);
+    unsigned no = ~0, nsid = 0xffffffff;
+    sscanf(name, "nvm%2[es]%u%nn%u%n", s, &no, &n1, &nsid, &n2);
+
+    if (!(   (n1 == len || (n2 == len && nsid > 0))
+          && s[0] == 'e' && (!s[1] || s[1] == 's') ))
+      return set_err(EINVAL);
+
+    if (!s[1]) {
+      // /dev/nvmeN* -> search for nth NVMe device
+      unsigned nvme_cnt = 0;
+      for (int i = 0; i < 32; i++) {
+        if (!open_scsi(i)) {
+          if (get_errno() == EACCES)
+            return false;
+          continue;
+        }
+        // Done if pass-through works and correct number
+        if (probe() && nvme_cnt == no) {
+          m_scsi_no = i;
+          break;
+        }
+        close();
+        nvme_cnt++;
+      }
+
+      if (!is_open())
+        return set_err(ENOENT);
+      clear_err();
+    }
+    else {
+      // /dev/nvmesN* -> use "\\.\ScsiN:"
+      if (!open_scsi(no))
+        return false;
+      m_scsi_no = no;
+    }
+
+    if (!get_nsid())
+      set_nsid(nsid);
+  }
+  else {
+    // Reopen same "\\.\ScsiN:"
+    if (!open_scsi(m_scsi_no))
+      return false;
+  }
+
+  return true;
+}
+
+bool win_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
+{
+  // Create buffer with appropriate size
+  raw_buffer pthru_raw_buf(offsetof(NVME_PASS_THROUGH_IOCTL, DataBuffer) + in.size);
+  NVME_PASS_THROUGH_IOCTL * pthru =
+    reinterpret_cast<NVME_PASS_THROUGH_IOCTL *>(pthru_raw_buf.data());
+
+  // Set NVMe command
+  pthru->SrbIoCtrl.HeaderLength = sizeof(SRB_IO_CONTROL);
+  memcpy(pthru->SrbIoCtrl.Signature, NVME_SIG_STR, sizeof(NVME_SIG_STR));
+  pthru->SrbIoCtrl.Timeout = 60;
+  pthru->SrbIoCtrl.ControlCode = NVME_PASS_THROUGH_SRB_IO_CODE;
+  pthru->SrbIoCtrl.ReturnCode = 0;
+  pthru->SrbIoCtrl.Length = pthru_raw_buf.size() - sizeof(SRB_IO_CONTROL);
+
+  pthru->NVMeCmd[0] = in.opcode;
+  pthru->NVMeCmd[1] = in.nsid;
+  pthru->NVMeCmd[10] = in.cdw10;
+  pthru->NVMeCmd[11] = in.cdw11;
+  pthru->NVMeCmd[12] = in.cdw12;
+  pthru->NVMeCmd[13] = in.cdw13;
+  pthru->NVMeCmd[14] = in.cdw14;
+  pthru->NVMeCmd[15] = in.cdw15;
+
+  pthru->Direction = in.direction();
+  // pthru->QueueId = 0; // AdminQ
+  // pthru->DataBufferLen = 0;
+  if (in.direction() & nvme_cmd_in::data_out) {
+    pthru->DataBufferLen = in.size;
+    memcpy(pthru->DataBuffer, in.buffer, in.size);
+  }
+  // pthru->MetaDataLen = 0;
+  pthru->ReturnBufferLen = pthru_raw_buf.size();
+
+  // Call NVME_PASS_THROUGH
+  DWORD num_out = 0;
+  BOOL ok = DeviceIoControl(get_fh(), IOCTL_SCSI_MINIPORT,
+    pthru, pthru_raw_buf.size(), pthru, pthru_raw_buf.size(),
+    &num_out, (OVERLAPPED*)0);
+
+  // Check status
+  unsigned status = pthru->CplEntry[3] >> 17;
+  if (status)
+    return set_nvme_err(out, status);
+
+  if (!ok)
+    return set_err(EIO, "NVME_PASS_THROUGH failed, Error=%u", (unsigned)GetLastError());
+
+  if (in.direction() & nvme_cmd_in::data_in)
+    memcpy(in.buffer, pthru->DataBuffer, in.size);
+
+  out.result = pthru->CplEntry[0];
+  return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
 // win_smart_interface
 // Platform specific interface
 
@@ -3493,6 +3717,8 @@ protected:
   virtual ata_device * get_ata_device(const char * name, const char * type);
 
   virtual scsi_device * get_scsi_device(const char * name, const char * type);
+
+  virtual nvme_device * get_nvme_device(const char * name, const char * type, unsigned nsid);
 
   virtual smart_device * autodetect_smart_device(const char * name);
 
@@ -3622,6 +3848,12 @@ ata_device * win_smart_interface::get_ata_device(const char * name, const char *
 scsi_device * win_smart_interface::get_scsi_device(const char * name, const char * type)
 {
   return new win_scsi_device(this, name, type);
+}
+
+nvme_device * win_smart_interface::get_nvme_device(const char * name, const char * type,
+  unsigned nsid)
+{
+  return new win_nvme_device(this, name, type, nsid);
 }
 
 
@@ -3886,6 +4118,9 @@ smart_device * win_smart_interface::autodetect_smart_device(const char * name)
 
   if (str_starts_with(testname, "csmi"))
     return new win_csmi_device(this, name, "");
+
+  if (str_starts_with(testname, "nvme"))
+    return new win_nvme_device(this, name, "", 0 /* use default nsid */);
 
   int phydrive = -1, logdrive = -1;
   win_dev_type type = get_dev_type(name, phydrive, logdrive);
