@@ -1,4 +1,12 @@
-$Id: ChangeLog 4276 2016-04-02 19:13:39Z chrfranke $
+$Id: ChangeLog 4278 2016-04-08 18:42:55Z chrfranke $
+
+2016-04-08  Christian Franke  <franke@computer.org>
+
+	os_win.cpp: Add initial NVMe support for Windows.
+	Successfully tested with Intel driver.
+	Does not work with Samsung driver.
+
+	Thanks to Minkyu Kim for testing.
 
 2016-04-02  Christian Franke  <franke@computer.org>
 
