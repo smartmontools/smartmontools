@@ -382,12 +382,13 @@ this option are:
 .I scsiioctl
 \- report only ioctl() transactions with SCSI devices.
 
-.\" %IF OS FreeBSD Linux
+.\" %IF OS FreeBSD Linux Windows Cygwin
 .I nvmeioctl
-\- [FreeBSD and Linux only] [NEW EXPERIMENTAL SMARTD FEATURE]
+\- [FreeBSD, Linux, Windows and Cygwin only]
+[NEW EXPERIMENTAL SMARTD FEATURE]
 report only ioctl() transactions with NVMe devices.
 
-.\" %ENDIF OS FreeBSD Linux
+.\" %ENDIF OS FreeBSD Linux Windows Cygwin
 Any argument may include a positive integer to specify the level of
 detail that should be reported.  The argument should be followed by a
 comma then the integer with no spaces.  For example, \fIataioctl,2\fP

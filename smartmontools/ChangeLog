@@ -2,6 +2,9 @@ $Id$
 
 2016-04-09  Christian Franke  <franke@computer.org>
 
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Document NVMe
+	support for Windows.
+
 	nvmecmds.cpp, os_win32.cpp: Use NSID=0 for Identify Controller
 	command.  This fixes NVMe access via Samsung driver on Windows.
 
