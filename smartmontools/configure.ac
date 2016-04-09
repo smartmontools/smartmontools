@@ -629,6 +629,7 @@ info=`
       if test -n "$attributelog"; then
         echo "smartd attribute logs:  \`eval eval eval echo $attributelog\`MODEL-SERIAL.TYPE.csv"
       fi
+      echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-no}"
       ;;
 
     *)
@@ -679,7 +680,7 @@ info=`
         linux*) echo "SELinux support:        ${with_selinux-no}" ;;
       esac
       case "$host_os" in
-        linux*) echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-no}" ;;
+        linux*|cygwin*) echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-no}" ;;
       esac
       ;;
   esac
@@ -692,7 +693,7 @@ $info
 
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 case "$host_os:${with_nvme_devicescan+set}" in
-  linux*:)
+  linux*:|cygwin*:|mingw*:)
     AC_MSG_WARN([
 This version of smartmontools provides NVMe support which is still
 EXPERIMENTAL.  NVMe devices are not yet included in smartd.conf

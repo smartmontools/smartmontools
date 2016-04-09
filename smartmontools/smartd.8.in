@@ -100,11 +100,13 @@ Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a-z]"\fP, \fB"/dev/sd[a-c][a-z]"\fP
 for ATA/SATA or SCSI/SAS devices.
 Disks behind RAID controllers are not included.
-.\" %IF ENABLE_NVME_DEVICESCAN
 
 [NEW EXPERIMENTAL SMARTD FEATURE]
-Examine all entries \fB"/dev/nvme[0-99]"\fP for NVMe devices.
+If directive \'\-d nvme\'
+.\" %IF ENABLE_NVME_DEVICESCAN
+or no \'\-d\' directive
 .\" %ENDIF ENABLE_NVME_DEVICESCAN
+is specified, examine all entries \fB"/dev/nvme[0-99]"\fP for NVMe devices.
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD
 .IP \fBFREEBSD:\fP 9
@@ -141,6 +143,13 @@ examine all entries \fB"/dev/csmi[0\-9],N"\fP for drives behind an Intel
 ICHxR controller with RST driver.
 
 Disks behind Areca RAID controllers are not included.
+
+[NEW EXPERIMENTAL SMARTD FEATURE]
+If directive \'\-d nvme\'
+.\" %IF ENABLE_NVME_DEVICESCAN
+or no \'\-d\' directive
+.\" %ENDIF ENABLE_NVME_DEVICESCAN
+is specified, examine all entries \fB"/dev/nvme[0-9]"\fP for NVMe devices.
 .\" %ENDIF OS Windows Cygwin
 .PP
 \fBsmartd\fP then monitors

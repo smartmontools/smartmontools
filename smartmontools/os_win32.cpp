@@ -4179,12 +4179,17 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
   }
 
   // Set valid types
-  bool ata, scsi, sat, usb, csmi;
+  bool ata, scsi, sat, usb, csmi, nvme;
   if (!type) {
     ata = scsi = usb = sat = csmi = true;
+#ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
+    nvme = true;
+#else
+    nvme = false;
+#endif
   }
   else {
-    ata = scsi = usb = sat = csmi = false;
+    ata = scsi = usb = sat = csmi = nvme = false;
     if (!strcmp(type, "ata"))
       ata = true;
     else if (!strcmp(type, "scsi"))
@@ -4195,10 +4200,12 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
       usb = true;
     else if (!strcmp(type, "csmi"))
       csmi = true;
+    else if (!strcmp(type, "nvme"))
+      nvme = true;
     else {
       set_err(EINVAL,
-              "Invalid type '%s', valid arguments are: ata[,pd], scsi[,pd], sat[,pd], usb[,pd], csmi, pd",
-              type);
+              "Invalid type '%s', valid arguments are: ata[,pd], scsi[,pd], "
+              "sat[,pd], usb[,pd], csmi, nvme, pd", type);
       return false;
     }
   }
@@ -4309,6 +4316,30 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
         snprintf(name, sizeof(name)-1, "/dev/csmi%d,%d", i, pi);
         devlist.push_back( new win_csmi_device(this, name, "ata") );
       }
+    }
+  }
+
+  if (nvme) {
+    // Scan \\.\Scsi[0-31] for up to 10 NVMe devices
+    int nvme_cnt = 0;
+    for (int i = 0; i < 32; i++) {
+      snprintf(name, sizeof(name)-1, "/dev/nvme%d", i);
+      win_nvme_device test_dev(this, name, "", 0);
+      if (!test_dev.open_scsi(i)) {
+        if (test_dev.get_errno() == EACCES)
+          break;
+        continue;
+      }
+
+      if (!test_dev.probe())
+        continue;
+      if (++nvme_cnt >= 10)
+        break;
+    }
+
+    for (int i = 0; i < nvme_cnt; i++) {
+      snprintf(name, sizeof(name)-1, "/dev/nvme%d", i);
+      devlist.push_back( new win_nvme_device(this, name, "nvme", 0) );
     }
   }
   return true;

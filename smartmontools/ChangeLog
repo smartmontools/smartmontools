@@ -2,6 +2,9 @@ $Id$
 
 2016-04-09  Christian Franke  <franke@computer.org>
 
+	configure.ac, os_win32.cpp, smartd.8.in: Add NVMe DEVICESCAN
+	support for Windows.
+
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Document NVMe
 	support for Windows.
 
