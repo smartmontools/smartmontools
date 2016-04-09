@@ -104,12 +104,13 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in)
 }
 
 // Read NVMe identify info with controller/namespace field CNS.
-static bool nvme_read_identify(nvme_device * device, unsigned char cns, void * data, unsigned size)
+static bool nvme_read_identify(nvme_device * device, unsigned nsid,
+  unsigned char cns, void * data, unsigned size)
 {
   memset(data, 0, size);
   nvme_cmd_in in;
   in.set_data_in(nvme_admin_identify, data, size);
-  in.nsid = device->get_nsid();
+  in.nsid = nsid;
   in.cdw10 = cns;
 
   return nvme_pass_through(device, in);
@@ -118,7 +119,7 @@ static bool nvme_read_identify(nvme_device * device, unsigned char cns, void * d
 // Read NVMe Identify Controller data structure.
 bool nvme_read_id_ctrl(nvme_device * device, nvme_id_ctrl & id_ctrl)
 {
-  if (!nvme_read_identify(device, 0x1, &id_ctrl, sizeof(id_ctrl)))
+  if (!nvme_read_identify(device, 0, 0x01, &id_ctrl, sizeof(id_ctrl)))
     return false;
 
   if (isbigendian()) {

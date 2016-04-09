@@ -3572,7 +3572,7 @@ bool win_nvme_device::probe()
   smartmontools::nvme_id_ctrl id_ctrl;
   nvme_cmd_in in;
   in.set_data_in(smartmontools::nvme_admin_identify, &id_ctrl, sizeof(id_ctrl));
-  in.nsid = 0xffffffff;
+  // in.nsid = 0;
   in.cdw10 = 0x1;
   nvme_cmd_out out;
 
