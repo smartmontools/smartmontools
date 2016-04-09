@@ -112,7 +112,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4278 2016-04-08 18:42:55Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4279 2016-04-09 09:50:30Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -3572,7 +3572,7 @@ bool win_nvme_device::probe()
   smartmontools::nvme_id_ctrl id_ctrl;
   nvme_cmd_in in;
   in.set_data_in(smartmontools::nvme_admin_identify, &id_ctrl, sizeof(id_ctrl));
-  in.nsid = 0xffffffff;
+  // in.nsid = 0;
   in.cdw10 = 0x1;
   nvme_cmd_out out;
 
