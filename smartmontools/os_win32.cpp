@@ -3817,7 +3817,7 @@ std::string win_smart_interface::get_os_version_str()
       case 0x62: w = (ws ? "win8"  : "2012"  ); break;
       case 0x63: w = (ws ? "win8.1": "2012r2"); break;
       case 0x64: w = (ws ? "w10tp" : "w10tps"); break; //  6.4 = Win 10 Technical Preview
-      case 0xa0: w = (ws ? "win10" : "w10srv"); break; // 10.0 = Win 10 Final
+      case 0xa0: w = (ws ? "win10" : "2016"  ); break; // 10.0 = Win 10 : Win Server 2016 (TP only?)
     }
   }
 
