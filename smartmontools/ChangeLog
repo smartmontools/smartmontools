@@ -1,4 +1,8 @@
-$Id: ChangeLog 4283 2016-04-10 12:55:59Z chrfranke $
+$Id: ChangeLog 4284 2016-04-10 13:11:57Z chrfranke $
+
+2016-04-10  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Check is_powered_down() also with '-n sleep'.
 
 2016-04-10  Thomas Gatterweh  <thomas_gatterweh@hotmail.com>
 
