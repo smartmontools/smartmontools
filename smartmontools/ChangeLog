@@ -1,5 +1,9 @@
 $Id$
 
+2016-04-10  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Check is_powered_down() also with '-n sleep'.
+
 2016-04-10  Thomas Gatterweh  <thomas_gatterweh@hotmail.com>
 
 	Prevent drive spin up by '-n standby' check on Windows (ticket #677):

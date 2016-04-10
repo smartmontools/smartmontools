@@ -3139,7 +3139,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   // alone if it is in idle or standby mode.  In this case check the
   // power mode first before opening the device for full access,
   // and exit without check if disk is reported in standby.
-  if (cfg.powermode>=2 && !state.powermodefail) {
+  if (cfg.powermode && !state.powermodefail) {
     // Note that 'is_powered_down()' handles opening the device itself, and
     // can be used before calling 'open()' (that's the whole point of 'is_powered_down()'!).
     if (atadev->is_powered_down())
