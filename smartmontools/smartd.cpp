@@ -3135,6 +3135,28 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   if (cfg.emailtest)
     MailWarning(cfg, state, 0, "TEST EMAIL from smartd for device: %s", name);
 
+  // User may have requested (with the -n Directive) to leave the disk
+  // alone if it is in idle or standby mode.  In this case check the
+  // power mode first before opening the device for full access,
+  // and exit without check if disk is reported in standby.
+  if (cfg.powermode>=2 && !state.powermodefail) {
+    // Note that 'is_powered_down()' handles opening the device itself, and
+    // can be used before calling 'open()' (that's the whole point of 'is_powered_down()'!).
+    if (atadev->is_powered_down())
+    {
+      // skip at most powerskipmax checks
+      if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
+        // report first only except if state has changed, avoid waking up system disk
+        if ((!state.powerskipcnt || state.lastpowermodeskipped != -1) && !cfg.powerquiet) {
+          PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, "STANDBY (OS)");
+          state.lastpowermodeskipped = -1;
+        }
+        state.powerskipcnt++;
+        return 0;
+      }
+    }
+  }
+
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it.  ATAPI
   // cd/dvd devices will hang awaiting media if O_NONBLOCK is not

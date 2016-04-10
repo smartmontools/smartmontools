@@ -1304,6 +1304,11 @@ static int main_worker(int argc, char **argv)
     pout("%s: Device of type '%s' [%s] detected\n",
          dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev.get()));
 
+  if (dev->is_ata() && ataopts.powermode>=2 && dev->is_powered_down()) {
+    pout( "%s: Device is in %s mode, exit(%d)\n", dev->get_info_name(), "STANDBY (OS)", FAILPOWER );
+    return FAILPOWER;
+  }
+
   // Open device
   {
     // Save old info

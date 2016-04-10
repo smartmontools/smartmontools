@@ -205,6 +205,17 @@ public:
   virtual smart_device * autodetect_open();
 
   ///////////////////////////////////////////////
+  // Support for checking power mode reported by operating system
+
+  /// Early test if device is powered up or down.
+  /// Can be used without calling 'open()' first!
+  /// Return true when device is powered down, false when
+  /// powered up. If this function is not implemented or
+  /// the mode cannot be determined, return false.
+  /// Default implementation returns false.
+  virtual bool is_powered_down();
+
+  ///////////////////////////////////////////////
   // Support for tunnelled devices
 
   /// Return true if other device is owned by this device.

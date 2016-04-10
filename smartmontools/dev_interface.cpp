@@ -92,6 +92,11 @@ smart_device * smart_device::autodetect_open()
   return this;
 }
 
+bool smart_device::is_powered_down()
+{
+  return false;
+}
+
 bool smart_device::owns(const smart_device * /*dev*/) const
 {
   return false;

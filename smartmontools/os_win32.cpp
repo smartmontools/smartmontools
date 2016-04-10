@@ -1398,12 +1398,16 @@ public:
 
   virtual bool open();
 
+  virtual bool is_powered_down();
+
   virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
   virtual bool ata_identify_is_cached() const;
 
 private:
-  bool open(int phydrive, int logdrive, const char * options, int port);
+  bool open(bool query_device);
+
+  bool open(int phydrive, int logdrive, const char * options, int port, bool query_device);
 
   std::string m_options;
   bool m_usr_options; // options set by user?
@@ -1444,37 +1448,43 @@ static const char * ata_get_def_options()
 
 bool win_ata_device::open()
 {
+  // Open device for r/w operations
+  return open(false);
+}
+
+bool win_ata_device::open(bool query_device)
+{
   const char * name = skipdev(get_dev_name()); int len = strlen(name);
   // [sh]d[a-z]([a-z])?(:[saicmfp]+)? => Physical drive 0-701, with options
   char drive[2+1] = "", options[8+1] = ""; int n1 = -1, n2 = -1;
   if (   sscanf(name, "%*[sh]d%2[a-z]%n:%6[saimfp]%n", drive, &n1, options, &n2) >= 1
       && ((n1 == len && !options[0]) || n2 == len)                                   ) {
-    return open(sdxy_to_phydrive(drive), -1, options, -1);
+    return open(sdxy_to_phydrive(drive), -1, options, -1, query_device);
   }
   // [sh]d[a-z],N(:[saicmfp3]+)? => Physical drive 0-701, RAID port N, with options
   drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
   unsigned port = ~0;
   if (   sscanf(name, "%*[sh]d%2[a-z],%u%n:%7[saimfp3]%n", drive, &port, &n1, options, &n2) >= 2
       && port < 32 && ((n1 == len && !options[0]) || n2 == len)                                  ) {
-    return open(sdxy_to_phydrive(drive), -1, options, port);
+    return open(sdxy_to_phydrive(drive), -1, options, port, query_device);
   }
   // pd<m>,N => Physical drive <m>, RAID port N
   int phydrive = -1; port = ~0; n1 = -1; n2 = -1;
   if (   sscanf(name, "pd%d%n,%u%n", &phydrive, &n1, &port, &n2) >= 1
       && phydrive >= 0 && ((n1 == len && (int)port < 0) || (n2 == len && port < 32))) {
-    return open(phydrive, -1, "", (int)port);
+    return open(phydrive, -1, "", (int)port, query_device);
   }
   // [a-zA-Z]: => Physical drive behind logical drive 0-25
   int logdrive = drive_letter(name);
   if (logdrive >= 0) {
-    return open(-1, logdrive, "", -1);
+    return open(-1, logdrive, "", -1, query_device);
   }
 
   return set_err(EINVAL);
 }
 
 
-bool win_ata_device::open(int phydrive, int logdrive, const char * options, int port)
+bool win_ata_device::open(int phydrive, int logdrive, const char * options, int port, bool query_device)
 {
   m_phydrive = -1;
   char devpath[30];
@@ -1487,7 +1497,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
 
   // Open device
   HANDLE h = INVALID_HANDLE_VALUE;
-  if (!(*options && !options[strspn(options, "fp")])) {
+  if (!(*options && !options[strspn(options, "fp")]) && !query_device) {
     // Open with admin rights
     m_admin = true;
     h = CreateFileA(devpath, GENERIC_READ|GENERIC_WRITE,
@@ -1514,7 +1524,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   set_fh(h);
 
   // Warn once if admin rights are missing
-  if (!m_admin) {
+  if (!m_admin && !query_device) {
     static bool noadmin_warning = false;
     if (!noadmin_warning) {
       pout("Warning: Limited functionality due to missing admin rights\n");
@@ -1592,6 +1602,23 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   return true;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+
+// Query OS if device is powered up or down.
+bool win_ata_device::is_powered_down()
+{
+  // To check power mode, we open device for query operations only.
+  // Opening for SMART r/w operations can already spin up the disk.
+  bool self_open = !is_open();
+  if (self_open)
+    if (!open(true))
+      return false;
+  int rc = get_device_power_state(get_fh());
+  if (self_open)
+    close();
+  return !rc;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
