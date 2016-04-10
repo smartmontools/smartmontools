@@ -3752,6 +3752,9 @@ protected:
   virtual smart_device * get_custom_smart_device(const char * name, const char * type);
 
   virtual std::string get_valid_custom_dev_types_str();
+
+private:
+  ata_device * get_usb_device(const char * name, int phydrive, int logdrive = -1);
 };
 
 
@@ -4134,6 +4137,25 @@ static win_dev_type get_dev_type(const char * name, int & phydrive, int & logdri
 }
 
 
+ata_device * win_smart_interface::get_usb_device(const char * name,
+  int phydrive, int logdrive /* = -1 */)
+{
+  // Get USB bridge ID
+  unsigned short vendor_id = 0, product_id = 0;
+  if (!get_usb_id(phydrive, logdrive, vendor_id, product_id)) {
+    set_err(EINVAL, "Unable to read USB device ID");
+    return 0;
+  }
+
+  // Get type name for this ID
+  const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id);
+  if (!usbtype)
+    return 0;
+
+  // Return SAT/USB device for this type
+  return get_sat_device(usbtype, new win_scsi_device(this, name, ""));
+}
+
 smart_device * win_smart_interface::autodetect_smart_device(const char * name)
 {
   const char * testname = skipdev(name);
@@ -4161,20 +4183,8 @@ smart_device * win_smart_interface::autodetect_smart_device(const char * name)
   if (type == DEV_SAT)
     return get_sat_device("sat", new win_scsi_device(this, name, ""));
 
-  if (type == DEV_USB) {
-    // Get USB bridge ID
-    unsigned short vendor_id = 0, product_id = 0;
-    if (!get_usb_id(phydrive, logdrive, vendor_id, product_id)) {
-      set_err(EINVAL, "Unable to read USB device ID");
-      return 0;
-    }
-    // Get type name for this ID
-    const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id);
-    if (!usbtype)
-      return 0;
-    // Return SAT/USB device for this type
-    return get_sat_device(usbtype, new win_scsi_device(this, name, ""));
-  }
+  if (type == DEV_USB)
+    return get_usb_device(name, phydrive, logdrive);
 
   return 0;
 }
@@ -4254,6 +4264,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
                  i / ('z'-'a'+1) - 1 + 'a',
                  i % ('z'-'a'+1)     + 'a');
 
+      smart_device * dev = 0;
       GETVERSIONINPARAMS_EX vers_ex;
 
       switch (get_phy_drive_type(i, (ata ? &vers_ex : 0))) {
@@ -4276,52 +4287,42 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
                 devlist.push_back( new win_ata_device(this, name, "ata") );
               }
             }
+            continue;
           }
-          else {
-            devlist.push_back( new win_ata_device(this, name, "ata") );
-          }
+
+          dev = new win_ata_device(this, name, "ata");
           break;
 
         case DEV_SCSI:
           // STORAGE_QUERY_PROPERTY returned SCSI/SAS/...
           if (!scsi)
             continue;
-          devlist.push_back( new win_scsi_device(this, name, "scsi") );
+          dev = new win_scsi_device(this, name, "scsi");
           break;
 
         case DEV_SAT:
           // STORAGE_QUERY_PROPERTY returned VendorId "ATA     "
           if (!sat)
             continue;
-          devlist.push_back( get_sat_device("sat", new win_scsi_device(this, name, "")) );
+          dev = get_sat_device("sat", new win_scsi_device(this, name, ""));
           break;
 
         case DEV_USB:
           // STORAGE_QUERY_PROPERTY returned USB
           if (!usb)
             continue;
-          {
-            // TODO: Use common function for this and autodetect_smart_device()
-            // Get USB bridge ID
-            unsigned short vendor_id = 0, product_id = 0;
-            if (!get_usb_id(i, -1, vendor_id, product_id))
-              continue;
-            // Get type name for this ID
-            const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id);
-            if (!usbtype)
-              continue;
-            // Return SAT/USB device for this type
-            ata_device * dev = get_sat_device(usbtype, new win_scsi_device(this, name, ""));
-            if (!dev)
-              continue;
-            devlist.push_back(dev);
-          }
+          dev = get_usb_device(name, i);
+          if (!dev)
+            // Unknown or unsupported USB ID, return as SCSI
+            dev = new win_scsi_device(this, name, "");
           break;
 
         default:
           // Unknown type
-          break;
+          continue;
       }
+
+      devlist.push_back(dev);
     }
   }
 
