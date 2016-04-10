@@ -1,4 +1,13 @@
-$Id: ChangeLog 4281 2016-04-09 12:21:00Z chrfranke $
+$Id: ChangeLog 4283 2016-04-10 12:55:59Z chrfranke $
+
+2016-04-10  Thomas Gatterweh  <thomas_gatterweh@hotmail.com>
+
+	Prevent drive spin up by '-n standby' check on Windows (ticket #677):
+	dev_interface.cpp, dev_interface.h:
+	Add smart_device::is_powered_down().
+	os_win32.cpp: Add win_ata_device::is_powered_down().  Open device
+	without READ or WRITE access to prevent spin up.
+	smartctl.cpp, smartd.cpp: Add check for is_powered_down().
 
 2016-04-09  Christian Franke  <franke@computer.org>
 

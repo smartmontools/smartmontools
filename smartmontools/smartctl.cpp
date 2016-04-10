@@ -52,7 +52,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4275 2016-04-02 18:59:52Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4283 2016-04-10 12:55:59Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -1303,6 +1303,11 @@ static int main_worker(int argc, char **argv)
     // Report result of first autodetection
     pout("%s: Device of type '%s' [%s] detected\n",
          dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev.get()));
+
+  if (dev->is_ata() && ataopts.powermode>=2 && dev->is_powered_down()) {
+    pout( "%s: Device is in %s mode, exit(%d)\n", dev->get_info_name(), "STANDBY (OS)", FAILPOWER );
+    return FAILPOWER;
+  }
 
   // Open device
   {

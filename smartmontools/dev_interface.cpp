@@ -32,7 +32,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4276 2016-04-02 19:13:39Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4283 2016-04-10 12:55:59Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -90,6 +90,11 @@ smart_device * smart_device::autodetect_open()
 {
   open();
   return this;
+}
+
+bool smart_device::is_powered_down()
+{
+  return false;
 }
 
 bool smart_device::owns(const smart_device * /*dev*/) const

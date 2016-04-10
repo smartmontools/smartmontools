@@ -103,7 +103,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4275 2016-04-02 18:59:52Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4283 2016-04-10 12:55:59Z chrfranke $"
   CONFIG_H_CVSID;
 
 using namespace smartmontools;
@@ -3134,6 +3134,28 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   // If user has asked, test the email warning system
   if (cfg.emailtest)
     MailWarning(cfg, state, 0, "TEST EMAIL from smartd for device: %s", name);
+
+  // User may have requested (with the -n Directive) to leave the disk
+  // alone if it is in idle or standby mode.  In this case check the
+  // power mode first before opening the device for full access,
+  // and exit without check if disk is reported in standby.
+  if (cfg.powermode>=2 && !state.powermodefail) {
+    // Note that 'is_powered_down()' handles opening the device itself, and
+    // can be used before calling 'open()' (that's the whole point of 'is_powered_down()'!).
+    if (atadev->is_powered_down())
+    {
+      // skip at most powerskipmax checks
+      if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
+        // report first only except if state has changed, avoid waking up system disk
+        if ((!state.powerskipcnt || state.lastpowermodeskipped != -1) && !cfg.powerquiet) {
+          PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, "STANDBY (OS)");
+          state.lastpowermodeskipped = -1;
+        }
+        state.powerskipcnt++;
+        return 0;
+      }
+    }
+  }
 
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it.  ATAPI

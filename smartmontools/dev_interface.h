@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4276 2016-04-02 19:13:39Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4283 2016-04-10 12:55:59Z chrfranke $\n"
 
 #include "utility.h"
 
@@ -203,6 +203,17 @@ public:
   /// In this case, the original pointer is no longer valid.
   /// Default implementation calls 'open()' and returns 'this'.
   virtual smart_device * autodetect_open();
+
+  ///////////////////////////////////////////////
+  // Support for checking power mode reported by operating system
+
+  /// Early test if device is powered up or down.
+  /// Can be used without calling 'open()' first!
+  /// Return true when device is powered down, false when
+  /// powered up. If this function is not implemented or
+  /// the mode cannot be determined, return false.
+  /// Default implementation returns false.
+  virtual bool is_powered_down();
 
   ///////////////////////////////////////////////
   // Support for tunnelled devices
