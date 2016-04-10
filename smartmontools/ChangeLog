@@ -1,9 +1,10 @@
-$Id: ChangeLog 4286 2016-04-10 17:00:11Z chrfranke $
+$Id: ChangeLog 4287 2016-04-10 17:18:03Z chrfranke $
 
 2016-04-10  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Include also unknown and unsupported USB devices
 	in device scan result.  Move USB device handling to new function.
+	Add Windows Server 2016 to get_os_version_str().
 
 	AUTHORS: Add Thomas Gatterweh.
 	smartd.cpp: Check is_powered_down() also with '-n sleep'.

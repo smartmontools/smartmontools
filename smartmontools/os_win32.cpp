@@ -112,7 +112,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4286 2016-04-10 17:00:11Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4287 2016-04-10 17:18:03Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -3817,7 +3817,7 @@ std::string win_smart_interface::get_os_version_str()
       case 0x62: w = (ws ? "win8"  : "2012"  ); break;
       case 0x63: w = (ws ? "win8.1": "2012r2"); break;
       case 0x64: w = (ws ? "w10tp" : "w10tps"); break; //  6.4 = Win 10 Technical Preview
-      case 0xa0: w = (ws ? "win10" : "w10srv"); break; // 10.0 = Win 10 Final
+      case 0xa0: w = (ws ? "win10" : "2016"  ); break; // 10.0 = Win 10 : Win Server 2016 (TP only?)
     }
   }
 
