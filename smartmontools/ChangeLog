@@ -2,6 +2,7 @@ $Id$
 
 2016-04-10  Christian Franke  <franke@computer.org>
 
+	AUTHORS: Add Thomas Gatterweh.
 	smartd.cpp: Check is_powered_down() also with '-n sleep'.
 
 2016-04-10  Thomas Gatterweh  <thomas_gatterweh@hotmail.com>
