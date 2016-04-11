@@ -1224,6 +1224,7 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
     "SAMSUNG MZ7LM(120|240|480|960|1T9|3T8)HC(JM|HP|GR|FD)-.*|" // PM863 Series, tested with
       // SAMSUNG MZ7LM960HCHP-0E003/GXT3003Q
+    "SAMSUNG MZ7KM(120|240|480|960|1T9)HA(JM|HP|GR|FD|JM)-.*|" // SM863, tested with MZ7KM480HAHP-0E005/GXM1003Q
     "SAMSUNG MZ[7N]LN(128|256|512)HC(HP|GR|JH)-.*", // PM871 Series, tested with SAMSUNG MZ7LN128HCHP
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -1255,6 +1256,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 245,raw48,Timed_Workld_Media_Wear " // PM863
     "-v 246,raw48,Timed_Workld_RdWr_Ratio " // PM863
     "-v 247,raw48,Timed_Workld_Timer " // PM863
+    "-v 250,raw48,SATA_Iface_Downshift " // from the spec
     "-v 251,raw48,NAND_Writes" // PM863
   },
   { "Marvell based SanDisk SSDs",
