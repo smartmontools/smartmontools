@@ -174,8 +174,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reades_GiB "     //  ]
   },
   { "Apple SD/SM/TS...E/F SSDs", // SanDisk/Samsung/Toshiba?
-    "APPLE SSD (S[DM]|TS)0?(128|256|512|768)[EF]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
-     // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q, TS0256F/109L0704
+    "APPLE SSD (S[DM]|TS)0?(128|256|512|768)[EFG]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
+     // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q, TS0256F/109L0704, SM0512G/BXW1SA0Q
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -420,6 +420,7 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ Z-DRIVE R4 [CR]M8[48]|" // PCIe, SF-2282/2582, tested with OCZ Z-DRIVE R4 CM84/2.13
       // (Bogus attributes under Linux)
     "OCZ Z-DRIVE 4500|"
+    "OCZ-VELO DRIVE|" // VeloDrive R, PCIe, tested with OCZ-VELO DRIVE/1.33
     "TALOS2|" // OCZ Talos 2 C/R, SAS (works with -d sat), 2*SF-2282, tested with TALOS2/3.20E
     "(APOC|DENC|DENEVA|FTNC|GFGC|MANG|MMOC|NIMC|TMSC).*|" // other OCZ SF-1200,
       // tested with DENCSTE251M11-0120/1.33, DENEVA PCI-E/1.33
@@ -432,6 +433,7 @@ const drive_settings builtin_knowndrives[] = {
     "Patriot Pyro|" // tested with Patriot Pyro/332ABBF0
     "SanDisk SDSSDX(60|120|240|480)GG25|" // SanDisk Extreme, SF-2281, tested with
       // SDSSDX240GG25/R201
+    "SanDisk SDSSDA(120|240|480)G|" // SanDisk SSD Plus, tested with SanDisk SDSSDA240G/U21010RL
     "SuperSSpeed S301 [0-9]*GB|" // SF-2281, tested with SuperSSpeed S301 128GB/503
     "SG9XCS2D(0?50|100|200|400)GESLT|" // Smart Storage Systems XceedIOPS2, tested with
       // SG9XCS2D200GESLT/SA03L370
@@ -443,6 +445,7 @@ const drive_settings builtin_knowndrives[] = {
       // TS128GSSD320, TS256GSSD720/5.2.0
     "UGB(88P|99S)GC...H[BF].|" // Unigen, tested with
       // UGB88PGC100HF2/MP Rev2, UGB99SGC100HB3/RC Rev3
+    "SG9XCS(1F|2D)(50|100|200|400)GE01|" // XceedIOPS, tested with SG9XCS2D50GE01/SA03F34V
     "VisionTek GoDrive (60|120|240|480)GB", // tested with VisionTek GoDrive 480GB/506ABBF0
     "", "",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
@@ -480,6 +483,45 @@ const drive_settings builtin_knowndrives[] = {
     "-v 235,raw48,SuperCap_Health "
     "-v 241,raw48,Lifetime_Writes_GiB "
     "-v 242,raw48,Lifetime_Reads_GiB"
+  },
+  { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
+    "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
+    "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
+    "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
+    "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
+    "KINGSTON SHSS3B?7A(120|240|480|960)G", // HyperX Savage
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 2,raw48,Not_In_Use "
+    "-v 3,raw48,Not_In_Use "
+    "-v 5,raw48,Not_In_Use "
+    "-v 7,raw48,Not_In_Use "
+    "-v 8,raw48,Not_In_Use "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 5,raw48,Retired_Block_Count "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 10,raw48,Not_In_Use "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 168,raw48,SATA_Phy_Error_Count "
+    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Erl/Lat " // Early bad block/Later bad block
+    "-v 173,raw16(avg16),MaxAvgErase_Ct "
+    "-v 175,raw48,Not_In_Use "
+    "-v 183,raw48,Unknown_Attribute "
+  //"-v 187,raw48,Reported_Uncorrect "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 196,raw48,Not_In_Use "
+    "-v 197,raw48,Not_In_Use "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 218,raw48,CRC_Error_Count "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 233,raw48,Flash_Writes_GiB "
+    "-v 240,raw48,Not_In_Use "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB "
+    "-v 244,raw48,Average_Erase_Count "
+    "-v 245,raw48,Max_Erase_Count "
+    "-v 246,raw48,Total_Erase_Count "
   },
   { "Indilinx Barefoot based SSDs",
     "Corsair CSSD-V(32|60|64|128|256)GB2|" // Corsair Nova, tested with Corsair CSSD-V32GB2/2.2
@@ -1165,6 +1207,7 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG SSD SM841N (mSATA )?(128|256|512)GB|" // tested with SAMSUNG SSD SM841N mSATA 256GB
     "SAMSUNG 470 Series SSD|"  // tested with SAMSUNG 470 Series SSD 64GB/AXM09B1Q
     "SAMSUNG SSD 830 Series|"  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
+    "MZ7PC(512|256|128|064)HA(GH|FU|DR)-000.*|" // probably PM830, tested with SAMSUNG MZ7PC128HAFU-000L1/CXM04L1Q
     "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
       // Samsung SSD 840 Series/DXT06B0Q
     "Samsung SSD 8[45]0 EVO (mSATA )?((120|250|500)G|1T)B( mSATA)?|" // tested with Samsung SSD 840 EVO (120|250|500)GB/EXT0AB0Q,
@@ -1179,6 +1222,7 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
     "SAMSUNG MZ7LM(120|240|480|960|1T9|3T8)HC(JM|HP|GR|FD)-.*|" // PM863 Series, tested with
       // SAMSUNG MZ7LM960HCHP-0E003/GXT3003Q
+    "SAMSUNG MZ7KM(120|240|480|960|1T9)HA(JM|HP|GR|FD|JM)-.*|" // SM863, tested with MZ7KM480HAHP-0E005/GXM1003Q
     "SAMSUNG MZ[7N]LN(128|256|512)HC(HP|GR|JH)-.*", // PM871 Series, tested with SAMSUNG MZ7LN128HCHP
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -1210,6 +1254,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 245,raw48,Timed_Workld_Media_Wear " // PM863
     "-v 246,raw48,Timed_Workld_RdWr_Ratio " // PM863
     "-v 247,raw48,Timed_Workld_Timer " // PM863
+    "-v 250,raw48,SATA_Iface_Downshift " // from the spec
     "-v 251,raw48,NAND_Writes" // PM863
   },
   { "Marvell based SanDisk SSDs",
@@ -1279,6 +1324,7 @@ const drive_settings builtin_knowndrives[] = {
   { "SiliconMotion based SSDs", // SM2246EN (Transcend TS6500)
     "CT(120|250|500|1000)BX100SSD1|" // Crucial BX100, tested with CT250BX100SSD1/MU02,
       // CT500BX100SSD1/MU02, CT1000BX100SSD1/MU02
+    "CT(240|480|960)BX200SSD1|" // Crucial BX200 Solid State Drive, tested with CT480BX200SSD1/MU02.6
     "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420I?)|" // Transcend SSD370/420 SATA/mSATA, TS6500,
       // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
       // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H
@@ -1288,6 +1334,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 2,raw48,Throughput_Performance "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
+    "-v 148,raw48,Total_SLC_Erase_Ct "
+    "-v 149,raw48,Max_SLC_Erase_Ct "
+    "-v 150,raw48,Min_SLC_Erase_Ct "
+    "-v 151,raw48,Average_SLC_Erase_Ct "
     "-v 160,raw48,Uncorrectable_Error_Cnt "
     "-v 161,raw48,Valid_Spare_Block_Cnt "
     "-v 163,raw48,Initial_Bad_Block_Count "
@@ -1315,7 +1365,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
-    "-v 245,raw48,Flash_Writes_32MiB" // FW N0815B, N1114H
+    "-v 245,raw48,TLC_Writes_32MiB " // FW N0815B, N1114H
+    "-v 246,raw48,SLC_Writes_32MiB "
+    "-v 247,raw48,Raid_Recoverty_Ct"
   },
   { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
     "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
