@@ -1,5 +1,10 @@
 $Id$
 
+2016-04-12  Alex Samorukov  <samm@os2.kiev.ua>
+
+	scsiprint.cpp, smartd.cpp: workaround for the buggy ST8000NM0075/E001,
+	request log page list with a fixed length (ticket #678).
+
 2016-04-11  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: add Samsung SM863 series, ticket #681
