@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4272 2016-04-02 00:03:09Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4289 2016-04-12 16:31:17Z samm2 $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -85,7 +85,15 @@ scsiGetSupportedLogPages(scsi_device * device)
         if (scsi_debugmode > 0)
             pout("Log Sense for supported pages failed [%s]\n",
                  scsiErrString(err));
-        return;
+        /* try one more time with defined length, workaround for the bug #678
+        found with ST8000NM0075/E001 */
+        err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
+                            LOG_RESP_LEN, 68); /* 64 max pages + 4b header */
+        if (scsi_debugmode > 0)
+            pout("Log Sense for supported pages failed (second attempt) [%s]\n",
+                 scsiErrString(err));
+        if (err)
+            return;
     }
 
     for (i = 4; i < gBuf[3] + LOGPAGEHDRSIZE; i++) {

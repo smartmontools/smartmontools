@@ -103,7 +103,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4284 2016-04-10 13:11:57Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4289 2016-04-12 16:31:17Z samm2 $"
   CONFIG_H_CVSID;
 
 using namespace smartmontools;
@@ -2307,7 +2307,10 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   
   // Flag that certain log pages are supported (information may be
   // available from other sources).
-  if (0 == scsiLogSense(scsidev, SUPPORTED_LPAGES, 0, tBuf, sizeof(tBuf), 0)) {
+  if (0 == scsiLogSense(scsidev, SUPPORTED_LPAGES, 0, tBuf, sizeof(tBuf), 0) ||
+      0 == scsiLogSense(scsidev, SUPPORTED_LPAGES, 0, tBuf, sizeof(tBuf), 64))
+      /* workaround for the bug #678 on ST8000NM0075/E001 */
+  {
     for (int k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
       switch (tBuf[k]) { 
       case TEMPERATURE_LPAGE:
