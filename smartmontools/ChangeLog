@@ -1,4 +1,9 @@
-$Id: ChangeLog 4289 2016-04-12 16:31:17Z samm2 $
+$Id: ChangeLog 4292 2016-04-12 23:06:59Z dpgilbert $
+
+2016-04-12  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: improve handling when no tape cartridge is
+	in the tape drive.
 
 2016-04-12  Alex Samorukov  <samm@os2.kiev.ua>
 
