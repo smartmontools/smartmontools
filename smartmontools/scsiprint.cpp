@@ -1743,11 +1743,14 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
             else
                 pout("device is NOT READY (e.g. no tape)\n");
             print_off();
-         } else if (SIMPLE_ERR_NO_MEDIUM == err) {
+        } else if (SIMPLE_ERR_NO_MEDIUM == err) {
             print_on();
-            pout("NO MEDIUM present on device\n");
+            if (is_tape)
+                pout("NO tape present in drive\n");
+            else
+                pout("NO MEDIUM present in device\n");
             print_off();
-         } else if (SIMPLE_ERR_BECOMING_READY == err) {
+        } else if (SIMPLE_ERR_BECOMING_READY == err) {
             print_on();
             pout("device becoming ready (wait)\n");
             print_off();
@@ -1756,8 +1759,11 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
             pout("device Test Unit Ready  [%s]\n", scsiErrString(err));
             print_off();
         }
-        int returnval = 0; // TODO: exit with FAILID if failuretest returns
-        failuretest(MANDATORY_CMD, returnval|=FAILID);
+        if (! is_tape) {
+            int returnval = 0; // TODO: exit with FAILID if failuretest returns
+
+            failuretest(MANDATORY_CMD, returnval|=FAILID);
+        }
     }
 
     if (iec_err) {
