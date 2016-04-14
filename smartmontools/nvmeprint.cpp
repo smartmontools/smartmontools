@@ -137,8 +137,8 @@ static void print_smart_log(const nvme_smart_log & smart_log, unsigned nsid)
   pout("Available Spare:                    %u%%\n", smart_log.avail_spare);
   pout("Available Spare Threshold:          %u%%\n", smart_log.spare_thresh);
   pout("Percentage Used:                    %u%%\n", smart_log.percent_used);
-  pout("Data Units Read:                    %s\n", le128_to_str(buf, smart_log.data_units_read, 512));
-  pout("Data Units Written:                 %s\n", le128_to_str(buf, smart_log.data_units_written, 512));
+  pout("Data Units Read:                    %s\n", le128_to_str(buf, smart_log.data_units_read, 1000*512));
+  pout("Data Units Written:                 %s\n", le128_to_str(buf, smart_log.data_units_written, 1000*512));
   pout("Host Read Commands:                 %s\n", le128_to_str(buf, smart_log.host_reads));
   pout("Host Write Commands:                %s\n", le128_to_str(buf, smart_log.host_writes));
   pout("Controller Busy Time:               %s\n", le128_to_str(buf, smart_log.ctrl_busy_time));

@@ -1,5 +1,12 @@
 $Id$
 
+2016-04-14  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Fix size factor of Data Units Read/Written counters.
+	os_win32.cpp: Fix device count in win_nvme_device::open().
+
+	Thanks to Oliver Bruchmann for bug reports and testing.
+
 2016-04-12  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: improve handling when no tape cartridge is

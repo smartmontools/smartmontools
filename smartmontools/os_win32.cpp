@@ -3632,12 +3632,14 @@ bool win_nvme_device::open()
           continue;
         }
         // Done if pass-through works and correct number
-        if (probe() && nvme_cnt == no) {
-          m_scsi_no = i;
-          break;
+        if (probe()) {
+          if (nvme_cnt == no) {
+            m_scsi_no = i;
+            break;
+          }
+          nvme_cnt++;
         }
         close();
-        nvme_cnt++;
       }
 
       if (!is_open())
