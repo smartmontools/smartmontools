@@ -112,7 +112,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4287 2016-04-10 17:18:03Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4293 2016-04-14 19:33:05Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -3632,12 +3632,14 @@ bool win_nvme_device::open()
           continue;
         }
         // Done if pass-through works and correct number
-        if (probe() && nvme_cnt == no) {
-          m_scsi_no = i;
-          break;
+        if (probe()) {
+          if (nvme_cnt == no) {
+            m_scsi_no = i;
+            break;
+          }
+          nvme_cnt++;
         }
         close();
-        nvme_cnt++;
       }
 
       if (!is_open())
