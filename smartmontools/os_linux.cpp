@@ -381,7 +381,7 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
 
     if (ioctl(get_fd(), HDIO_DRIVE_TASKFILE, task)) {
       if (errno==EINVAL)
-        pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASKFILE_IO set\n");
+        pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASK_IOCTL set\n");
       return -1;
     }
     return 0;
@@ -2365,7 +2365,6 @@ int linux_highpoint_device::ata_command_interface(smart_command_set command, int
     unsigned int *hpt_tf = (unsigned int *)task;
     ide_task_request_t *reqtask = (ide_task_request_t *)(&task[4*sizeof(int)]);
     task_struct_t *taskfile = (task_struct_t *)reqtask->io_ports;
-    int retval;
 
     memset(task, 0, sizeof(task));
 
@@ -2390,16 +2389,13 @@ int linux_highpoint_device::ata_command_interface(smart_command_set command, int
 
     memcpy(task+sizeof(ide_task_request_t)+4*sizeof(int), data, 512);
 
-    if ((retval=ioctl(get_fd(), HPTIO_CTL, task))) {
-      if (retval==-EINVAL)
-        pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASKFILE_IO set\n");
+    if (ioctl(get_fd(), HPTIO_CTL, task))
       return -1;
-    }
+
     return 0;
   }
 
   if (command==STATUS_CHECK){
-    int retval;
     unsigned const char normal_lo=0x4f, normal_hi=0xc2;
     unsigned const char failed_lo=0xf4, failed_hi=0x2c;
     buff[4]=normal_lo;
@@ -2407,15 +2403,8 @@ int linux_highpoint_device::ata_command_interface(smart_command_set command, int
 
     hpt[2] = HDIO_DRIVE_TASK;
 
-    if ((retval=ioctl(get_fd(), HPTIO_CTL, hpt_buff))) {
-      if (retval==-EINVAL) {
-        pout("Error SMART Status command via HDIO_DRIVE_TASK failed");
-        pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support added\n");
-      }
-      else
-        syserror("Error SMART Status command failed");
+    if (ioctl(get_fd(), HPTIO_CTL, hpt_buff))
       return -1;
-    }
 
     if (buff[4]==normal_lo && buff[5]==normal_hi)
       return 0;
