@@ -8,7 +8,25 @@ http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 Date <Not released yet, please try current SVN or daily builds>
 Summary: smartmontools release 6.5
 -----------------------------------------------------------
+- Experimental support for NVMe devices on FreeBSD, Linux and Windows.
+- smartctl '-i', '-H' and '-l error': NVMe support.
+- smartctl '-l nvmelog': New option for NVMe.
+- smartd.conf '-H', '-l error' and '-W': NVMe support.
+- Optional NVMe device scanning support on Linux and Windows.
+- configure option '--with-nvme-devicescan' to include NVMe in
+  default device scanning result.
+- Device scanning now allows to specify multiple '-d TYPE' options.
+- ATA: Added new POWER MODE values introduced in ATA ACS-2.
+- ATA: SCT commands are no longer issued if ATA Security is locked.
+- SCSI: LB provisioning improvements.
+- SCSI: Fixed GLTSD bit set/cleared info messages.
+- SCSI: Solid State media log page is no longer checked for tapes.
+- SCSI: Improved handling when no tape cartridge in drive.
+- SCSI: Workaround for buggy Seagate firmware.
 - SAT: Improved heuristics to detect bogus sense data from SAT layer.
+- update-smart-drivedb: Now uses HTTPS for download by default.
+- update-smart-drivedb: New options to select URL and download tool.
+- update-smart-drivedb: New download tool 'svn'.
 - configure options '--disable-drivedb', '--enable-savestates',
   '--enable-attributelog' and '--with-docdir' are no longer supported.
 - autoconf < 2.60 and automake < 1.10 are no longer supported.
@@ -22,8 +40,11 @@ Summary: smartmontools release 6.5
   New configure option '--with-solaris-sparc-ata' enables it.
   File os_solaris_ata.s is no longer included in source tarball.
 - Windows: Auto detection of USB devices specified by drive letter.
+- Windows: Device scanning does no longer ignore unknown USB devices.
+- Windows: Prevent drive spin up by '-n standby' check.
 - Windows: New application manifests indicating Win 10 support.
 - Windows installer: Defaults to 64-bit version on 64-bit Windows.
+- Various code changes suggested by Clang Static Analyser and Cppcheck.
 
 Date 2015-06-04
 Summary: smartmontools release 6.4
