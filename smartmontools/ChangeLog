@@ -1,5 +1,11 @@
 $Id$
 
+2016-04-15  Yuriy M. Kaminskiy  <yumkam@gmail.com>
+
+	os_linux.cpp: Fix harmless bug in errno check of HDIO_DRIVE_TASK*
+	ioctl() calls.  Bug was introduced 12 years ago in r1609, the fix
+	in r4003 was incomplete.
+
 2016-04-14  Christian Franke  <franke@computer.org>
 
 	nvmeprint.cpp: Fix size factor of Data Units Read/Written counters.

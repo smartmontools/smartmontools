@@ -380,7 +380,7 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
     memcpy(task+sizeof(ide_task_request_t), data, 512);
 
     if (ioctl(get_fd(), HDIO_DRIVE_TASKFILE, task)) {
-      if (errno==-EINVAL)
+      if (errno==EINVAL)
         pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASKFILE_IO set\n");
       return -1;
     }
@@ -406,7 +406,7 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
     buff[5]=normal_hi;
 
     if (ioctl(get_fd(), HDIO_DRIVE_TASK, buff)) {
-      if (errno==-EINVAL) {
+      if (errno==EINVAL) {
         pout("Error SMART Status command via HDIO_DRIVE_TASK failed");
         pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support added\n");
       }
