@@ -30,6 +30,7 @@ using namespace smartmontools;
 
 // Check nvme_* struct sizes
 ASSERT_SIZEOF_STRUCT(nvme_id_ctrl, 4096);
+ASSERT_SIZEOF_STRUCT(nvme_id_ns, 4096);
 ASSERT_SIZEOF_STRUCT(nvme_error_log_page, 64);
 ASSERT_SIZEOF_STRUCT(nvme_smart_log, 512);
 
@@ -73,12 +74,12 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
     if (!ok) {
       pout(" [NVMe call failed: ");
       if (out.status_valid)
-        pout("NVMe Status=%04x", out.status);
+        pout("NVMe Status=0x%04x", out.status);
       else
         pout("%s", device->get_errmsg());
     }
     else {
-      pout(" [NVMe call succeeded: result=%08x", out.result);
+      pout(" [NVMe call succeeded: result=0x%08x", out.result);
       if (nvme_debugmode > 1 && in.direction() == nvme_cmd_in::data_in) {
         pout("\n");
         const unsigned limit = 512;
@@ -147,6 +148,29 @@ bool nvme_read_id_ctrl(nvme_device * device, nvme_id_ctrl & id_ctrl)
       swapx(&id_ctrl.psd[i].idle_power);
       swapx(&id_ctrl.psd[i].active_power);
     }
+  }
+
+  return true;
+}
+
+// Read NVMe Identify Namespace data structure for namespace NSID.
+bool nvme_read_id_ns(nvme_device * device, unsigned nsid, nvme_id_ns & id_ns)
+{
+  if (!nvme_read_identify(device, nsid, 0x00, &id_ns, sizeof(id_ns)))
+    return false;
+
+  if (isbigendian()) {
+    swapx(&id_ns.nsze);
+    swapx(&id_ns.ncap);
+    swapx(&id_ns.nuse);
+    swapx(&id_ns.nawun);
+    swapx(&id_ns.nawupf);
+    swapx(&id_ns.nacwu);
+    swapx(&id_ns.nabsn);
+    swapx(&id_ns.nabo);
+    swapx(&id_ns.nabspf);
+    for (int i = 0; i < 16; i++)
+      swapx(&id_ns.lbaf[i].ms);
   }
 
   return true;

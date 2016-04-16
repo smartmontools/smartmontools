@@ -1,5 +1,9 @@
 $Id$
 
+2016-04-16  Christian Franke  <franke@computer.org>
+
+	nvmecmds.cpp, nvmecmds.h: Add Identify Namespace support.
+
 2016-04-15  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp: Fix harmless bug in errno check of HPTIO_CTL ioctl()

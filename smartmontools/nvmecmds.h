@@ -131,6 +131,42 @@ struct nvme_id_ctrl {
   unsigned char   vs[1024];
 };
 
+struct nvme_lbaf {
+  unsigned short  ms;
+  unsigned char   ds;
+  unsigned char   rp;
+};
+
+struct nvme_id_ns {
+  uint64_t        nsze;
+  uint64_t        ncap;
+  uint64_t        nuse;
+  unsigned char   nsfeat;
+  unsigned char   nlbaf;
+  unsigned char   flbas;
+  unsigned char   mc;
+  unsigned char   dpc;
+  unsigned char   dps;
+  unsigned char   nmic;
+  unsigned char   rescap;
+  unsigned char   fpi;
+  unsigned char   rsvd33;
+  unsigned short  nawun;
+  unsigned short  nawupf;
+  unsigned short  nacwu;
+  unsigned short  nabsn;
+  unsigned short  nabo;
+  unsigned short  nabspf;
+  unsigned char   rsvd46[2];
+  unsigned char   nvmcap[16];
+  unsigned char   rsvd64[40];
+  unsigned char   nguid[16];
+  unsigned char   eui64[8];
+  struct nvme_lbaf  lbaf[16];
+  unsigned char   rsvd192[192];
+  unsigned char   vs[3712];
+};
+
 struct nvme_smart_log {
   unsigned char  critical_warning;
   unsigned char  temperature[2];
@@ -186,6 +222,9 @@ extern unsigned char nvme_debugmode;
 
 // Read NVMe Identify Controller data structure.
 bool nvme_read_id_ctrl(nvme_device * device, smartmontools::nvme_id_ctrl & id_ctrl);
+
+// Read NVMe Identify Namespace data structure for namespace NSID.
+bool nvme_read_id_ns(nvme_device * device, unsigned nsid, smartmontools::nvme_id_ns & id_ns);
 
 // Read NVMe log page with identifier LID.
 bool nvme_read_log_page(nvme_device * device, unsigned char lid, void * data, unsigned size);
