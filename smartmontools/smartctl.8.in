@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-16 Christian Franke
 
-$Id: smartctl.8.in 4280 2016-04-09 11:18:49Z chrfranke $
+$Id: smartctl.8.in 4299 2016-04-16 19:45:57Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1766,6 +1766,7 @@ If
 .\"! \fBEXEDIR/drivedb.h\fP
 .\" %ENDIF OS Windows
 is present, the contents of this file is used instead of the built in table.
+.\" %IF ENABLE_UPDATE_SMART_DRIVEDB
 
 Run
 .\" %IF NOT OS Windows
@@ -1778,6 +1779,7 @@ Run
 .\"! \fBEXEDIR/update-smart-drivedb.exe\fP
 .\" %ENDIF OS Windows
 to update this file from the smartmontools SVN repository.
+.\" %ENDIF ENABLE_UPDATE_SMART_DRIVEDB
 .\" %ENDIF ENABLE_DRIVEDB
 
 The database files use the same C/C++ syntax that is used to initialize
@@ -2318,7 +2320,11 @@ Alternatively send the info to the smartmontools support mailing list:
 <\fBhttps://lists.sourceforge.net/lists/listinfo/smartmontools-support\fB>.
 
 .SH SEE ALSO
-\fBsmartd\fP(8), \fBupdate-smart-drivedb\fP(8).
+\fBsmartd\fP(8).
+.\" %IF ENABLE_UPDATE_SMART_DRIVEDB
+.br
+\fBupdate-smart-drivedb\fP(8).
+.\" %ENDIF ENABLE_UPDATE_SMART_DRIVEDB
 
 .SH REFERENCES
 Please see the following web site for more info:
@@ -2345,4 +2351,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4280 2016-04-09 11:18:49Z chrfranke $
+$Id: smartctl.8.in 4299 2016-04-16 19:45:57Z chrfranke $

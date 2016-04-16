@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4281 2016-04-09 12:21:00Z chrfranke $
+# $Id: configure.ac 4299 2016-04-16 19:45:57Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.5, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4281 2016-04-09 12:21:00Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4299 2016-04-16 19:45:57Z chrfranke $'`
 smartmontools_release_date=2015-06-04
 smartmontools_release_time="16:29:41 UTC"
 
@@ -244,6 +244,13 @@ AC_ARG_WITH(drivedbdir,
   [case "$withval" in yes) ;; no) drivedbdir= ;; *) drivedbdir="$withval" ;; esac])
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test -n "$drivedbdir"])
+
+AC_ARG_WITH(update-smart_drivedb,
+  [AS_HELP_STRING([--with-update-smart-drivedb@<:@=yes|no@:>@], [Install update-smart-drivedb script [yes]])],
+  [], [with_update_smart_drivedb=yes])
+test -n "$drivedbdir" || with_update_smart_drivedb=no
+AC_SUBST(with_update_smart_drivedb)
+AM_CONDITIONAL(ENABLE_UPDATE_SMART_DRIVEDB, [test "$with_update_smart_drivedb" = "yes"])
 
 AC_ARG_WITH(smartdscriptdir,
   [AS_HELP_STRING([--with-smartdscriptdir=DIR], [Location of smartd_warning.sh script [SYSCONFDIR]])],
@@ -639,8 +646,12 @@ info=`
       echo "examples install path:  \`eval eval eval echo $exampledir\`"
       if test -n "$drivedbdir"; then
         echo "drive database file:    \`eval eval eval echo $drivedbdir\`/drivedb.h"
-        echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"
-        echo "download tools:         \`eval eval eval echo $os_dltools\`"
+        if test "$with_update_smart_drivedb" = "yes"; then
+          echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"
+          echo "download tools:         \`eval eval eval echo $os_dltools\`"
+        else
+          echo "database update script: [[disabled]]"
+        fi
       else
         echo "drive database file:    [[disabled]]"
       fi

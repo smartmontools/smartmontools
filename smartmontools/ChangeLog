@@ -1,6 +1,13 @@
-$Id: ChangeLog 4298 2016-04-16 17:02:45Z chrfranke $
+$Id: ChangeLog 4299 2016-04-16 19:45:57Z chrfranke $
 
 2016-04-16  Christian Franke  <franke@computer.org>
+
+	configure.ac, Makefile.am: Add '--with-update-smart-drivedb=no'
+	option to disable drive database update script.  Useful if
+	maintainers do not want the script due to security concerns
+	and/or want to provide database updates as a separate package
+	(Debian bug 804299, FreeBSD Bugzilla 208398).
+	smartctl.8.in, smartd.8.in: Hide references to script if disabled.
 
 	nvmeprint.cpp: Add Power State and Namespace info to '-i' output.
 	Do not print unset or duplicate info unless debug mode is enabled.
