@@ -1208,7 +1208,7 @@ static const char * get_protocol_info(const smart_device * dev)
 // smartctl [-d type] --scan[-open] -- [PATTERN] [smartd directive ...]
 void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv)
 {
-  bool dont_print = !(ata_debugmode || scsi_debugmode);
+  bool dont_print = !(ata_debugmode || scsi_debugmode || nvme_debugmode);
 
   const char * pattern = 0;
   int ai = 0;
@@ -1318,7 +1318,8 @@ static int main_worker(int argc, char **argv)
     dev.replace( dev->autodetect_open() );
 
     // Report if type has changed
-    if ((type || print_type_only) && oldinfo.dev_type != dev->get_dev_type())
+    if (   (ata_debugmode || scsi_debugmode || nvme_debugmode || print_type_only)
+        && oldinfo.dev_type != dev->get_dev_type()                               )
       pout("%s: Device open changed type from '%s' to '%s'\n",
         dev->get_info_name(), oldinfo.dev_type.c_str(), dev->get_dev_type());
   }

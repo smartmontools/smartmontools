@@ -2,6 +2,10 @@ $Id$
 
 2016-04-16  Christian Franke  <franke@computer.org>
 
+	smartctl.cpp: Allow NVMe debug messages during --scan.
+	Suppress "Device open changed type ..." message unless debug
+	mode is enabled.
+
 	atacmds.cpp: Remove duplicate POWER MODE error message.
 
 	smartd.cpp: Remove dead increment (cppcheck: unreadVariable).
