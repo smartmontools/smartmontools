@@ -1,7 +1,9 @@
-$Id: ChangeLog 4297 2016-04-16 16:48:01Z chrfranke $
+$Id: ChangeLog 4298 2016-04-16 17:02:45Z chrfranke $
 
 2016-04-16  Christian Franke  <franke@computer.org>
 
+	nvmeprint.cpp: Add Power State and Namespace info to '-i' output.
+	Do not print unset or duplicate info unless debug mode is enabled.
 	nvmecmds.cpp, nvmecmds.h: Add Identify Namespace support.
 
 2016-04-15  Christian Franke  <franke@computer.org>
