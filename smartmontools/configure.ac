@@ -245,6 +245,13 @@ AC_ARG_WITH(drivedbdir,
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test -n "$drivedbdir"])
 
+AC_ARG_WITH(update-smart_drivedb,
+  [AS_HELP_STRING([--with-update-smart-drivedb@<:@=yes|no@:>@], [Install update-smart-drivedb script [yes]])],
+  [], [with_update_smart_drivedb=yes])
+test -n "$drivedbdir" || with_update_smart_drivedb=no
+AC_SUBST(with_update_smart_drivedb)
+AM_CONDITIONAL(ENABLE_UPDATE_SMART_DRIVEDB, [test "$with_update_smart_drivedb" = "yes"])
+
 AC_ARG_WITH(smartdscriptdir,
   [AS_HELP_STRING([--with-smartdscriptdir=DIR], [Location of smartd_warning.sh script [SYSCONFDIR]])],
   [smartdscriptdir="$withval"], [smartdscriptdir='${sysconfdir}'])
@@ -639,8 +646,12 @@ info=`
       echo "examples install path:  \`eval eval eval echo $exampledir\`"
       if test -n "$drivedbdir"; then
         echo "drive database file:    \`eval eval eval echo $drivedbdir\`/drivedb.h"
-        echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"
-        echo "download tools:         \`eval eval eval echo $os_dltools\`"
+        if test "$with_update_smart_drivedb" = "yes"; then
+          echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"
+          echo "download tools:         \`eval eval eval echo $os_dltools\`"
+        else
+          echo "database update script: [[disabled]]"
+        fi
       else
         echo "drive database file:    [[disabled]]"
       fi

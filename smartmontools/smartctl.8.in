@@ -1766,6 +1766,7 @@ If
 .\"! \fBEXEDIR/drivedb.h\fP
 .\" %ENDIF OS Windows
 is present, the contents of this file is used instead of the built in table.
+.\" %IF ENABLE_UPDATE_SMART_DRIVEDB
 
 Run
 .\" %IF NOT OS Windows
@@ -1778,6 +1779,7 @@ Run
 .\"! \fBEXEDIR/update-smart-drivedb.exe\fP
 .\" %ENDIF OS Windows
 to update this file from the smartmontools SVN repository.
+.\" %ENDIF ENABLE_UPDATE_SMART_DRIVEDB
 .\" %ENDIF ENABLE_DRIVEDB
 
 The database files use the same C/C++ syntax that is used to initialize
@@ -2318,7 +2320,11 @@ Alternatively send the info to the smartmontools support mailing list:
 <\fBhttps://lists.sourceforge.net/lists/listinfo/smartmontools-support\fB>.
 
 .SH SEE ALSO
-\fBsmartd\fP(8), \fBupdate-smart-drivedb\fP(8).
+\fBsmartd\fP(8).
+.\" %IF ENABLE_UPDATE_SMART_DRIVEDB
+.br
+\fBupdate-smart-drivedb\fP(8).
+.\" %ENDIF ENABLE_UPDATE_SMART_DRIVEDB
 
 .SH REFERENCES
 Please see the following web site for more info:

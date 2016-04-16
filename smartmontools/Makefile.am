@@ -42,7 +42,7 @@ sbin_PROGRAMS = \
         smartctl \
         smartd
 
-if ENABLE_DRIVEDB
+if ENABLE_UPDATE_SMART_DRIVEDB
 if OS_WIN32_MINGW
 else
 sbin_SCRIPTS = update-smart-drivedb
@@ -258,7 +258,7 @@ if OS_SOLARIS
 extra_MANS =      smartd.conf.4 \
                   smartctl.1m   \
                   smartd.1m
-if ENABLE_DRIVEDB
+if ENABLE_UPDATE_SMART_DRIVEDB
 extra_MANS += update-smart-drivedb.1m
 endif
 
@@ -296,7 +296,7 @@ man_MANS =        smartd.conf.5 \
                   smartctl.8    \
                   smartd.8
 
-if ENABLE_DRIVEDB
+if ENABLE_UPDATE_SMART_DRIVEDB
 man_MANS += update-smart-drivedb.8
 endif
 
@@ -568,6 +568,11 @@ MAN_FILTER = { \
       sed 's|/usr/local/share/smartmontools/drivedb\.h|$(drivedbdir)/drivedb.h|g' ; \
     else \
       sed '/^\.\\" %IF ENABLE_DRIVEDB/,/^\.\\" %ENDIF ENABLE_DRIVEDB/ s,^,.\\"\# ,' ; \
+    fi | \
+    if test '$(with_update_smart_drivedb)' = 'yes'; then \
+      cat; \
+    else \
+      sed '/^\.\\" %IF ENABLE_UPDATE_SMART_DRIVEDB/,/^\.\\" %ENDIF ENABLE_UPDATE_SMART_DRIVEDB/ s,^,.\\"\# ,' ; \
     fi | \
     if test -n '$(initddir)'; then \
       sed 's|/usr/local/etc/rc\.d/init\.d/|$(initddir)/|g' ; \

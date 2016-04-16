@@ -762,7 +762,11 @@ Alternatively send the info to the smartmontools support mailing list:
 <\fBhttps://lists.sourceforge.net/lists/listinfo/smartmontools-support\fB>.
 
 .SH SEE ALSO
-\fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBupdate-smart-drivedb\fP(8).
+\fBsmartd.conf\fP(5), \fBsmartctl\fP(8).
+.\" %IF ENABLE_UPDATE_SMART_DRIVEDB
+.br
+\fBupdate-smart-drivedb\fP(8).
+.\" %ENDIF ENABLE_UPDATE_SMART_DRIVEDB
 
 .SH REFERENCES
 Please see the following web site for more info:
