@@ -797,12 +797,6 @@ int ataCheckPowerMode(ata_device * device) {
   if ((smartcommandhandler(device, CHECK_POWER_MODE, 0, (char *)&result)))
     return -1;
 
-  if (result!=0x00 && result!=0x01
-      && result!=0x40 && result!=0x41
-      && result!=0x80 && result!=0x81 && result!=0x82 && result!=0x83
-      && result!=0xff)
-    pout("ataCheckPowerMode(): ATA CHECK POWER MODE returned unknown Sector Count Register value %02x\n", result);
-
   return (int)result;
 }
 

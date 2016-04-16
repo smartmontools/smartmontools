@@ -2,6 +2,8 @@ $Id$
 
 2016-04-16  Christian Franke  <franke@computer.org>
 
+	atacmds.cpp: Remove duplicate POWER MODE error message.
+
 	smartd.cpp: Remove dead increment (cppcheck: unreadVariable).
 	Do not write localized decimal point to syslog().
 
