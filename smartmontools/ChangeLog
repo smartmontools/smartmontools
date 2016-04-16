@@ -1,6 +1,9 @@
-$Id: ChangeLog 4299 2016-04-16 19:45:57Z chrfranke $
+$Id: ChangeLog 4300 2016-04-16 20:25:09Z chrfranke $
 
 2016-04-16  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Remove dead increment (cppcheck: unreadVariable).
+	Do not write localized decimal point to syslog().
 
 	configure.ac, Makefile.am: Add '--with-update-smart-drivedb=no'
 	option to disable drive database update script.  Useful if
