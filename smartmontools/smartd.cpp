@@ -637,7 +637,7 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
     else
       return false;
   }
-  else if (match[m+=7].rm_so >= 0)
+  else if (match[m+7].rm_so >= 0)
     state.nvme_err_log_entries = val;
   else
     return false;
@@ -2246,7 +2246,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   uint64_t capacity = scsiGetSize(scsidev, &lb_size, NULL);
 
   if (capacity)
-    format_capacity(si_str, sizeof(si_str), capacity);
+    format_capacity(si_str, sizeof(si_str), capacity, ".");
   else
     si_str[0] = '\0';
 
