@@ -1,8 +1,11 @@
-$Id: ChangeLog 4303 2016-04-23 14:44:58Z chrfranke $
+$Id: ChangeLog 4305 2016-04-23 18:37:54Z chrfranke $
 
 2016-04-23  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Innodisk 3ME SSDs
+	- Innodisk 3IE2/3MG2/3SE2-P SSDs: Rename, add 3SE2-P
+	- Innodisk 3IE3/3ME3 SSDs: Rename, add 3IE3
 	- USB: Buffalo MiniStation HD-PNFU3 (0x0411:0x0251) (ticket #683)
 	- USB: Renesas uPD720231A (0x045b:0x022a)
 	- USB: Toshiba Canvio (0x0480:0x0210, 0x0480:0xa20c)
