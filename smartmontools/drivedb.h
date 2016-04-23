@@ -3339,7 +3339,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Elements / My Passport (USB, AF)", // tested with
       // WDC WD5000KMVV-11TK7S1/01.01A01, WDC WD10TMVW-11ZSMS5/01.01A01,
-      // WDC WD10JMVW-11S5XS1/01.01A01, WDC WD20NMVW-11W68S0/01.01A01
+      // WDC WD10JMVW-11S5XS1/01.01A01, WDC WD20NMVW-11W68S0/01.01A01,
+      // WDC WD10JMVW-11AJGS2/01.01A01 (0x1058:0x10b8),
+      // WDC WD10JMVW-11AJGS4/01.01A01 (0x1058:0x25a2)
+      // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
     "WDC WD(5000[LK]|7500K|10[JT]|20N)MV[VW]-.*", // *W-* = USB 3.0
     "", "", ""
   },
@@ -3455,12 +3458,25 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Buffalo MiniStation Safe HD-PNFU3; ", // 1TB
+    "0x0411:0x0251",
+    "",
+    "",
+    "-d sat"
+  },
   // LG Electronics
   { "USB: LG Mini HXD5; JMicron",
     "0x043e:0x70f1",
     "", // 0x0100
     "",
     "-d usbjmicron"
+  },
+  // Hitachi (?)
+  { "USB: ; Renesas uPD720231A", // USB2/3->SATA
+    "0x045b:0x022a", // DeLock 62652 converter SATA 6GB/s > USB 3.0
+    "",
+    "",
+    "-d sat"
   },
   // Philips
   { "USB: Philips; ", // SDE3273FC/97 2.5" SATA HDD enclosure
@@ -3476,8 +3492,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Toshiba Canvio Basics; ", // TOSHIBA MQ01UBD100
-    "0x0480:0x(0201|a200)",
+  { "USB: Toshiba Canvio; ", // 0x0210: TOSHIBA MQ03UBB300
+    "0x0480:0x02(01|10)",
     "",
     "",
     "-d sat"
@@ -3500,21 +3516,15 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Toshiba Stor.E Basics; ",
-    "0x0480:0xa00[9ce]",
+  { "USB: Toshiba Stor.E; ",
+    "0x0480:0xa00[9ace]",
     "", // 0x0000 (0xa00e)
     "",
     "-d sat"
   },
-  { "USB: Toshiba Stor.E Plus", // 2TB
-    "0x0480:0xa00a",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Toshiba Canvio ALU; ", // TOSHIBA MQ01UBB200
-    "0x0480:0xa100",
-    "",
+  { "USB: Toshiba Canvio; ",
+    "0x0480:0xa(100|20[0c])", // 0xa100: TOSHIBA MQ01UBB200, 0xa200: TOSHIBA MQ01UBD100,
+    "",  // 0xa20c: TOSHIBA MQ01ABB200
     "",
     "-d sat"
   },
@@ -3578,9 +3588,15 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Samsung G2 Portable; JMicron",
     "0x04e8:0x6032",
+    "0x0000",
     "",
+    "-d usbjmicron" // ticket #132
+  },
+  { "USB: Samsung G2 Portable; ",
+    "0x04e8:0x6032",
+    "0x...[1-9]", // >= 0x0001
     "",
-    "-d usbjmicron"
+    "-d sat"
   },
   { "USB: Samsung Story Station 3.0; ",
     "0x04e8:0x6052",
@@ -3656,9 +3672,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: Iomega MDHD-UE; ",
-    "0x059b:0x0277",
-    "",
+  { "USB: Iomega; JMicron",
+    "0x059b:0x027[78]",  // 0x0277: MDHD-UE, 0x0278: LDHD-UPS
+    "", // 0x0000
     "",
     "-d usbjmicron"
   },
@@ -3669,7 +3685,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbsunplus"
   },
   { "USB: Iomega; JMicron",
-    "0x059b:0x0[45]75", // 0x0475: Iomega GDHDU2 (0x0100), 0x0575: LDHD-UP
+    "0x059b:0x0(47[05]|575)", // 0x0470: LPHD-UP, 0x0475: GDHDU2 (0x0100), 0x0575: LDHD-UP
     "",
     "",
     "-d usbjmicron"
@@ -3699,9 +3715,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: LaCie hard disk (Neil Poulton design);",
-    "0x059f:0x1018",
-    "",
+  { "USB: LaCie Desktop Hard Drive; ",
+    "0x059f:0x101[68]", // 0x1016: SAMSUNG HD103UJ
+    "", // 0x0001
     "",
     "-d sat"
   },
@@ -3826,7 +3842,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // SanDisk
   { "USB: SanDisk SDCZ80 Flash Drive; Fujitsu", // ATA ID: SanDisk pSSD
-    "0x0781:0x5580",
+    "0x0781:0x558[08]",
     "",
     "",
     "-d sat"
@@ -4041,8 +4057,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Seagate Backup Plus Slim USB 3.0; ", // (ticket #443)
-    "0x0bc2:0xab2[14]",
+  { "USB: Seagate Backup Plus USB 3.0; ",
+    "0x0bc2:0xab2[0145]", // 0xab24: Slim (ticket #443), 0xab25: Mac
     "", // 0x0100
     "",
     "-d sat"
@@ -4146,8 +4162,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   { "USB: WD My Passport; ",
-    "0x1058:0x0(70[245a]|71a|730|74[0128a]|7a8|8(10|16|20|30))",
-    "",
+    "0x1058:0x0(70[245a]|71a|730|74[0128a]|7a8|8(10|16|20|22|30))",
+    "", // 822=0x1007
     "",
     "-d sat"
   },
@@ -4172,6 +4188,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: WD My Book; ",
     "0x1058:0x11(00|01|02|04|05|10|30|40)",
     "", // 00/01=0x0165, 02=0x1028, 10=0x1030, 30=0x1012, 40=0x1003
+    "",
+    "-d sat"
+  },
+  { "USB: WD Elements; ",
+    "0x1058:0x25a2",
+    "", // 0x1004
     "",
     "-d sat"
   },
@@ -4300,6 +4322,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "" // unsupported
+  },
+  { "USB: ; JMicron JMS561", // USB2/3->2xSATA
+    "0x152d:0x1561",
+    "", // 0x0106, Sabrent USB 3.0 to SATA Dual Bay Docking Station
+    "",
+    "-d sat"
   },
   { "USB: ; JMicron JM20329", // USB->SATA
     "0x152d:0x2329",
@@ -4518,8 +4546,8 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; VIA VL711", // USB2/3->SATA
     "0x2109:0x0711",
     "", // 0x0114, Mediasonic ProBox K32-SU3 (ticket #594)
-    "",
-    "" // unsupported
+    "", // 0x0507, Intenso 2,5" Memory Case 2TB USB3
+    "-d sat"
   },
   // 0x2537 (?)
   { "USB: ; ", // USB 3.0
@@ -4534,6 +4562,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0000
     "",
     "-d sat"
+  },
+  // Sharkoon
+  { "USB: Sharkoon QuickPort XT USB 3.0; ",
+     "0x357d:0x7788",
+     "",
+     "",
+     "-d sat"
   },
   // Hitachi/SimpleTech
   { "USB: Hitachi Touro Desk; JMicron", // 3TB
