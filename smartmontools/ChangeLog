@@ -1,5 +1,23 @@
 $Id$
 
+2016-04-23  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Buffalo MiniStation HD-PNFU3 (0x0411:0x0251) (ticket #683)
+	- USB: Renesas uPD720231A (0x045b:0x022a)
+	- USB: Toshiba Canvio (0x0480:0x0210, 0x0480:0xa20c)
+	- USB: Samsung G2 Portable (0x04e8:0x6032): 2nd entry with -d sat
+	- USB: Iomega LDHD-UPS (0x059b:0x0278)
+	- USB: Iomega LPHD-UP (0x059b:0x0470)
+	- USB: LaCie Desktop Hard Drive (0x059f:0x1016)
+	- USB: SanDisk SDCZ80 Flash Drive (0x0781:0x5588)
+	- USB: Seagate Backup Plus USB 3.0 (0x0bc2:0xab2[05])
+	- USB: WD My Passport Ultra (0x1058:0x0822)
+	- USB: WD Elements (0x1058:0x25a2)
+	- USB: JMicron JMS561 (0x152d:0x1561)
+	- USB: VIA VL711 (0x2109:0x0711): change to -d sat (ticket #594)
+	- USB: Sharkoon QuickPort XT USB 3.0 (0x357d:0x7788)
+
 2016-04-16  Christian Franke  <franke@computer.org>
 
 	smartctl.cpp: Allow NVMe debug messages during --scan.
