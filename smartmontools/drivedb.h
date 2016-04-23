@@ -688,10 +688,37 @@ const drive_settings builtin_knowndrives[] = {
     "-v 236,raw48,Unstable_Power_Count "
     "-v 240,raw48,Write_Head"
   },
-  { "Innodisk 3MG2-P SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
+  { "Innodisk 3ME SSDs", // tested with 2.5" SATA SSD 3ME/S140714
+    "((1\\.8|2\\.5)\"? SATA SSD|SATA Slim) 3ME",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 2,raw48,Throughput_Performance "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
+  //"-v 5,raw48,Reallocated_Sector_Count "
+    "-v 7,raw48,Seek_Error_Rate "       // ?
+    "-v 8,raw48,Seek_Time_Performance " // ?
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 10,raw48,Spin_Retry_Count "     // ?
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 169,raw48,Unknown_Innodisk_Attr "
+    "-v 170,raw16,Bad_Block_Count "
+    "-v 173,raw16,Erase_Count "
+    "-v 175,raw48,Bad_Cluster_Table_Count "
+    "-v 176,raw48,Uncorr_RECORD_Count "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius " // ] only in spec
+  //"-v 197,raw48,Current_Pending_Sector "
+    "-v 225,raw48,Unknown_Innodisk_Attr "
+    "-v 229,hex48,Flash_ID "
+    "-v 235,raw48,Later_Bad_Block "
+    "-v 236,raw48,Unstable_Power_Count "
+    "-v 240,raw48,Write_Head"
+  },
+  { "Innodisk 3IE2/3MG2/3SE2-P SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
       // 1.8 SATA SSD 3IE2-P/M150821, 2.5" SATA SSD 3IE2-P/M150821,
-      // SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114
-    "((1\\.8|2\\.5)\"? SATA SSD|SATA Slim|M\\.2 \\(S80\\)) 3(MG|IE)2-P",
+      // SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114, M.2 (S42) 3SE2-P/M150821
+    "((1\\.8|2\\.5)\"? SATA SSD|SATA Slim|M\\.2 \\(S(42|80)\\)) 3(IE|MG|SE)2-P",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -728,14 +755,16 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 245,raw48,Flash_Writes_32MiB"
   },
-  { "Innodisk 3ME3 SSDs", // tested with  2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
+  { "Innodisk 3IE3/3ME3 SSDs", // tested with 2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
       // InnoDisk Corp. - mSATA 3ME3/S15A19, mSATA mini 3ME3/S15A19, M.2 (S42) 3ME3,
       // SATA Slim 3ME3/S15A19, SATADOM-MH 3ME3/S15A19, SATADOM-ML 3ME3/S15A19,
       // SATADOM-MV 3ME3/S15A19, SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19,
-      // SATADOM-SL 3IE3/S151019N
-    "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|mSATA mini|"
-    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-(MH|ML|MV|SL|SV)) 3ME3|"
-    "SATADOM-SL 3IE3",
+      // SATADOM-SL 3IE3/S151019N, 2.5" SATA SSD 3IE3/S15C14i, CFast 3IE3/S15C14i,
+      // InnoDisk Corp. - mSATA 3IE3/S15C14i, Mini PCIeDOM 1IE3/S15C14i,
+      // mSATA mini 3IE3/S15C14i, M.2 (S42) 3IE3/S15C14i, SATA Slim 3IE3/S15C14i,
+      // SATADOM-SH 3IE3 V2/S15C14i, SATADOM-SL 3IE3 V2/S15A19i, SATADOM-SV 3IE3 V2/S15C14i
+    "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|Mini PCIeDOM|mSATA mini|"
+    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-[MS][HLV]) 3[IM]E3( V2)?",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
