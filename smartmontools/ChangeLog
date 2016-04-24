@@ -2,6 +2,8 @@ $Id$
 
 2016-04-24  Christian Franke  <franke@computer.org>
 
+	nvmeprint.cpp: Fix formatting of error log with unset LBA fields.
+
 	utility.cpp, utility.h: Skip leading blanks in format_char_array().
 	Some NVMe devices return right aligned text fields.
 

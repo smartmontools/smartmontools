@@ -273,16 +273,25 @@ static void print_error_log(const nvme_error_log_page * error_log,
     if (cnt == 1)
       pout("Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS\n");
 
-    char sq[16] = "-", cm[16] = "-", pe[16] = "-";
+    char sq[16] = "-", cm[16] = "-", st[16] = "-", pe[16] = "-";
+    char lb[32] = "-", ns[16] = "-", vs[8] = "-";
     if (e.sqid != 0xffff)
       snprintf(sq, sizeof(sq), "%d", e.sqid);
     if (e.cmdid != 0xffff)
       snprintf(cm, sizeof(cm), "0x%04x", e.cmdid);
+    if (e.status_field != 0xffff)
+      snprintf(st, sizeof(st), "0x%04x", e.status_field);
     if (e.parm_error_location != 0xffff)
       snprintf(pe, sizeof(pe), "0x%03x", e.parm_error_location);
+    if (e.lba != 0xffffffffffffffffULL)
+      snprintf(lb, sizeof(lb), "%" PRIu64, e.lba);
+    if (e.nsid != 0xffffffffU)
+      snprintf(ns, sizeof(ns), "%u", e.nsid);
+    if (e.vs != 0x00)
+      snprintf(vs, sizeof(vs), "0x%02x", e.vs);
 
-    pout("%3u %10" PRIu64 " %5s %7s  0x%04x %6s %12" PRIu64 "  %4d  0x%02x\n",
-         i, e.error_count, sq, cm, e.status_field, pe, e.lba, (int)e.nsid, e.vs);
+    pout("%3u %10" PRIu64 " %5s %7s %7s %6s %12s %5s %5s\n",
+         i, e.error_count, sq, cm, st, pe, lb, ns, vs);
   }
 
   if (!cnt)
