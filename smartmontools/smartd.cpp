@@ -51,9 +51,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
 
 #ifdef _WIN32
 #ifdef _MSC_VER
@@ -103,7 +100,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4307 2016-04-24 12:37:31Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4308 2016-04-24 13:36:10Z chrfranke $"
   CONFIG_H_CVSID;
 
 using namespace smartmontools;

@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4299 2016-04-16 19:45:57Z chrfranke $
+# $Id: configure.ac 4308 2016-04-24 13:36:10Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.5, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4299 2016-04-16 19:45:57Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4308 2016-04-24 13:36:10Z chrfranke $'`
 smartmontools_release_date=2015-06-04
 smartmontools_release_time="16:29:41 UTC"
 
@@ -83,7 +83,6 @@ AC_MSG_RESULT([$is_svn_build])
 dnl Checks for header files.
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([dev/ata/atavar.h])
-AC_CHECK_HEADERS([netdb.h])
 dnl we need [u]int64_t and friends.
 AC_CHECK_HEADERS([inttypes.h])		dnl C99, UNIX98, solaris 2.6+
 AC_CHECK_HEADERS([stdint.h])		dnl C99
