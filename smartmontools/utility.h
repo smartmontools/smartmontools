@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4252 2016-03-26 17:29:12Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4309 2016-04-24 14:59:15Z chrfranke $"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -125,7 +125,7 @@ bool nonempty(const void * data, int size);
 void FixGlibcTimeZoneBug();
 
 // Copy not null terminated char array to null terminated string.
-// Replace non-ascii characters.  Remove trailing blanks.
+// Replace non-ascii characters.  Remove leading and trailing blanks.
 const char * format_char_array(char * str, int strsize, const char * chr, int chrsize);
 
 // Version for fixed size buffers.
