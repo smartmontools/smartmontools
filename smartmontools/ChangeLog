@@ -2,6 +2,9 @@ $Id$
 
 2016-04-24  Christian Franke  <franke@computer.org>
 
+	utility.cpp, utility.h: Skip leading blanks in format_char_array().
+	Some NVMe devices return right aligned text fields.
+
 	configure.ac, smartd.cpp: Remove include of netdb.h.
 	No longer needed since r3712.
 

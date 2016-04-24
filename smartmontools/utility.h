@@ -125,7 +125,7 @@ bool nonempty(const void * data, int size);
 void FixGlibcTimeZoneBug();
 
 // Copy not null terminated char array to null terminated string.
-// Replace non-ascii characters.  Remove trailing blanks.
+// Replace non-ascii characters.  Remove leading and trailing blanks.
 const char * format_char_array(char * str, int strsize, const char * chr, int chrsize);
 
 // Version for fixed size buffers.

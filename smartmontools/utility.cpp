@@ -634,20 +634,23 @@ bool nonempty(const void * data, int size)
 }
 
 // Copy not null terminated char array to null terminated string.
-// Replace non-ascii characters.  Remove trailing blanks.
+// Replace non-ascii characters.  Remove leading and trailing blanks.
 const char * format_char_array(char * str, int strsize, const char * chr, int chrsize)
 {
+  int b = 0;
+  while (b < chrsize && chr[b] == ' ')
+    b++;
   int n = 0;
-  while (n < chrsize && chr[n])
+  while (b+n < chrsize && chr[b+n])
     n++;
-  while (n > 0 && chr[n-1] == ' ')
+  while (n > 0 && chr[b+n-1] == ' ')
     n--;
 
   if (n >= strsize)
     n = strsize-1;
 
   for (int i = 0; i < n; i++) {
-    char c = chr[i];
+    char c = chr[b+i];
     str[i] = (' ' <= c && c <= '~' ? c : '?');
   }
 
