@@ -917,8 +917,6 @@ sessions, and \'\fBconnected\fP\' specifies the console session and
 all connected (active or waiting for login) remote sessions.
 This is handled by the script EXEDIR/smartd_warning.cmd which runs
 the tool EXEDIR/wtssendmsg.exe (see also \'\-M exec\' below).
-The addresses \'\fBmsgbox\fP\' and \'\fBsysmsgbox\fP\' are now
-deprecated and have the same effect as \'\fBconsole\fP\'.
 .\" %ENDIF OS Windows
 .TP
 .B \-M TYPE

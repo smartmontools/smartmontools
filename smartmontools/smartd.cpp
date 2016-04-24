@@ -4189,17 +4189,13 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
       if (!cfg.emailaddress.empty())
         PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous Address Directive -m %s\n",
                  configfile, lineno, name, cfg.emailaddress.c_str());
-#ifdef _WIN32
+#ifdef _WIN32 // TODO: Remove after smartmontools 6.5
       if (   !strcmp(arg, "msgbox")          || !strcmp(arg, "sysmsgbox")
           || str_starts_with(arg, "msgbox,") || str_starts_with(arg, "sysmsgbox,")) {
-        cfg.emailaddress = "console";
-        const char * arg2 = strchr(arg, ',');
-        if (arg2)
-          cfg.emailaddress += arg2;
-        PrintOut(LOG_INFO, "File %s line %d (drive %s): Deprecated -m %s changed to -m %s\n",
-                 configfile, lineno, name, arg, cfg.emailaddress.c_str());
+        PrintOut(LOG_CRIT, "File %s line %d (drive %s): -m %s is no longer supported, use -m console[,...] instead\n",
+                 configfile, lineno, name, arg);
+        return -1;
       }
-      else
 #endif
       cfg.emailaddress = arg;
     }
