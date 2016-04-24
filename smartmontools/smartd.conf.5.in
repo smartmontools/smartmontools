@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-16 Christian Franke
 
-$Id: smartd.conf.5.in 4280 2016-04-09 11:18:49Z chrfranke $
+$Id: smartd.conf.5.in 4307 2016-04-24 12:37:31Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -917,8 +917,6 @@ sessions, and \'\fBconnected\fP\' specifies the console session and
 all connected (active or waiting for login) remote sessions.
 This is handled by the script EXEDIR/smartd_warning.cmd which runs
 the tool EXEDIR/wtssendmsg.exe (see also \'\-M exec\' below).
-The addresses \'\fBmsgbox\fP\' and \'\fBsysmsgbox\fP\' are now
-deprecated and have the same effect as \'\fBconsole\fP\'.
 .\" %ENDIF OS Windows
 .TP
 .B \-M TYPE
@@ -1615,4 +1613,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 4280 2016-04-09 11:18:49Z chrfranke $
+$Id: smartd.conf.5.in 4307 2016-04-24 12:37:31Z chrfranke $

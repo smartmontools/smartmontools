@@ -1,4 +1,8 @@
-$Id: ChangeLog 4305 2016-04-23 18:37:54Z chrfranke $
+$Id: ChangeLog 4307 2016-04-24 12:37:31Z chrfranke $
+
+2016-04-24  Christian Franke  <franke@computer.org>
+
+	smartd.cpp, smartd.conf.5.in: Remove support for '-m [sys]msgbox'.
 
 2016-04-23  Christian Franke  <franke@computer.org>
 

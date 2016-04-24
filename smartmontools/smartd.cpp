@@ -103,7 +103,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4300 2016-04-16 20:25:09Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4307 2016-04-24 12:37:31Z chrfranke $"
   CONFIG_H_CVSID;
 
 using namespace smartmontools;
@@ -4189,17 +4189,13 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
       if (!cfg.emailaddress.empty())
         PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous Address Directive -m %s\n",
                  configfile, lineno, name, cfg.emailaddress.c_str());
-#ifdef _WIN32
+#ifdef _WIN32 // TODO: Remove after smartmontools 6.5
       if (   !strcmp(arg, "msgbox")          || !strcmp(arg, "sysmsgbox")
           || str_starts_with(arg, "msgbox,") || str_starts_with(arg, "sysmsgbox,")) {
-        cfg.emailaddress = "console";
-        const char * arg2 = strchr(arg, ',');
-        if (arg2)
-          cfg.emailaddress += arg2;
-        PrintOut(LOG_INFO, "File %s line %d (drive %s): Deprecated -m %s changed to -m %s\n",
-                 configfile, lineno, name, arg, cfg.emailaddress.c_str());
+        PrintOut(LOG_CRIT, "File %s line %d (drive %s): -m %s is no longer supported, use -m console[,...] instead\n",
+                 configfile, lineno, name, arg);
+        return -1;
       }
-      else
 #endif
       cfg.emailaddress = arg;
     }
