@@ -51,9 +51,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
 
 #ifdef _WIN32
 #ifdef _MSC_VER

@@ -2,6 +2,9 @@ $Id$
 
 2016-04-24  Christian Franke  <franke@computer.org>
 
+	configure.ac, smartd.cpp: Remove include of netdb.h.
+	No longer needed since r3712.
+
 	smartd.cpp, smartd.conf.5.in: Remove support for '-m [sys]msgbox'.
 
 2016-04-23  Christian Franke  <franke@computer.org>

@@ -83,7 +83,6 @@ AC_MSG_RESULT([$is_svn_build])
 dnl Checks for header files.
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([dev/ata/atavar.h])
-AC_CHECK_HEADERS([netdb.h])
 dnl we need [u]int64_t and friends.
 AC_CHECK_HEADERS([inttypes.h])		dnl C99, UNIX98, solaris 2.6+
 AC_CHECK_HEADERS([stdint.h])		dnl C99
