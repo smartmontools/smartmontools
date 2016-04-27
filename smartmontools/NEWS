@@ -9,7 +9,7 @@ Date <Not released yet, please try current SVN or daily builds>
 Summary: smartmontools release 6.5
 -----------------------------------------------------------
 - Experimental support for NVMe devices on FreeBSD, Linux and Windows.
-- smartctl '-i', '-H' and '-l error': NVMe support.
+- smartctl '-i', '-c', '-H' and '-l error': NVMe support.
 - smartctl '-l nvmelog': New option for NVMe.
 - smartd.conf '-H', '-l error' and '-W': NVMe support.
 - Optional NVMe device scanning support on Linux and Windows.
@@ -24,9 +24,12 @@ Summary: smartmontools release 6.5
 - SCSI: Improved handling when no tape cartridge in drive.
 - SCSI: Workaround for buggy Seagate firmware.
 - SAT: Improved heuristics to detect bogus sense data from SAT layer.
+- smartd: Fixed crash on missing argument to '-s' directive.
 - update-smart-drivedb: Now uses HTTPS for download by default.
 - update-smart-drivedb: New options to select URL and download tool.
 - update-smart-drivedb: New download tool 'svn'.
+- configure option '--without-update-smart-drivedb' to disable
+  update-smart-drivedb script.
 - configure options '--disable-drivedb', '--enable-savestates',
   '--enable-attributelog' and '--with-docdir' are no longer supported.
 - autoconf < 2.60 and automake < 1.10 are no longer supported.
@@ -43,6 +46,7 @@ Summary: smartmontools release 6.5
 - Windows: Device scanning does no longer ignore unknown USB devices.
 - Windows: Prevent drive spin up by '-n standby' check.
 - Windows: New application manifests indicating Win 10 support.
+- Windows smartd: '-m [sys]msgbox' is no longer supported.
 - Windows installer: Defaults to 64-bit version on 64-bit Windows.
 - Various code changes suggested by Clang Static Analyser and Cppcheck.
 
