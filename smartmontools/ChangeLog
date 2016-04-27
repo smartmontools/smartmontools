@@ -1,5 +1,11 @@
 $Id$
 
+2016-04-27  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp, nvmeprint.h, smartctl.cpp, smartctl.8.in:
+	Add NVMe support for 'smartctl -c'.  Print various drive and
+	namespace capabilites.  Remove related info from '-i' output.
+
 2016-04-24  Christian Franke  <franke@computer.org>
 
 	nvmeprint.cpp: Fix formatting of error log with unset LBA fields.

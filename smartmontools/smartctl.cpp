@@ -129,7 +129,7 @@ static void Usage()
 "======================================= READ AND DISPLAY DATA OPTIONS =====\n\n"
 "  -H, --health\n"
 "        Show device SMART health status\n\n"
-"  -c, --capabilities                                                  (ATA)\n"
+"  -c, --capabilities                                            (ATA, NVMe)\n"
 "        Show device SMART capabilities\n\n"
 "  -A, --attributes\n"
 "        Show device SMART vendor-specific Attributes and values\n\n"
@@ -452,7 +452,7 @@ static const char * parse_options(int argc, char** argv,
         badarg = true;
       break;
     case 'c':
-      ataopts.smart_general_values = true;
+      ataopts.smart_general_values = nvmeopts.drive_capabilities = true;
       break;
     case 'A':
       ataopts.smart_vendor_attrib = scsiopts.smart_vendor_attrib = nvmeopts.smart_vendor_attrib = true;
@@ -636,7 +636,7 @@ static const char * parse_options(int argc, char** argv,
     case 'a':
       ataopts.drive_info           = scsiopts.drive_info          = nvmeopts.drive_info          = true;
       ataopts.smart_check_status   = scsiopts.smart_check_status  = nvmeopts.smart_check_status  = true;
-      ataopts.smart_general_values = true;
+      ataopts.smart_general_values =                                nvmeopts.drive_capabilities  = true;
       ataopts.smart_vendor_attrib  = scsiopts.smart_vendor_attrib = nvmeopts.smart_vendor_attrib = true;
       ataopts.smart_error_log      = scsiopts.smart_error_log     = true;
       nvmeopts.error_log_entries   = 16;
@@ -648,7 +648,7 @@ static const char * parse_options(int argc, char** argv,
     case 'x':
       ataopts.drive_info           = scsiopts.drive_info          = nvmeopts.drive_info          = true;
       ataopts.smart_check_status   = scsiopts.smart_check_status  = nvmeopts.smart_check_status  = true;
-      ataopts.smart_general_values = true;
+      ataopts.smart_general_values =                                nvmeopts.drive_capabilities  = true;
       ataopts.smart_vendor_attrib  = scsiopts.smart_vendor_attrib = nvmeopts.smart_vendor_attrib = true;
       ataopts.smart_ext_error_log  = 8;
       ataopts.retry_error_log      = true;

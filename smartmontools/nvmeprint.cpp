@@ -103,7 +103,7 @@ static inline unsigned le16_to_uint(const unsigned char (& val)[2])
   return ((val[1] << 8) | val[0]);
 }
 
-static void print_id_ctrl_ns(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id_ns,
+static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id_ns,
   unsigned nsid, bool show_all)
 {
   char buf[64];
@@ -130,71 +130,130 @@ static void print_id_ctrl_ns(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
     pout("Unallocated NVM Capacity:           %s\n", le128_to_str(buf, id_ctrl.unvmcap, 1));
   }
 
-  if (show_all || id_ctrl.mdts) {
-    if (id_ctrl.mdts)
-      pout("Maximum Data Transfer Size:         %u Pages\n", (1U << id_ctrl.mdts));
-    else
-      pout("Maximum Data Transfer Size:         [no limit]\n");
-  }
-
   pout("Controller ID:                      %d\n", id_ctrl.cntlid);
-
-  // Temperature thresholds are optional
-  if (show_all || id_ctrl.wctemp)
-    pout("Warning  Comp. Temp. Threshold:     %s\n", kelvin_to_str(buf, id_ctrl.wctemp));
-  if (show_all || id_ctrl.cctemp)
-    pout("Critical Comp. Temp. Threshold:     %s\n", kelvin_to_str(buf, id_ctrl.cctemp));
-
-  // Print Power States
-  if (show_all || id_ctrl.npss || id_ctrl.psd[0].max_power) {
-    for (int i = 0; i <= id_ctrl.npss /* 1-based */ && i < 32; i++) {
-      if (id_ctrl.psd[i].flags & 0x01)
-        snprintf(buf, sizeof(buf), "%d.%04d", id_ctrl.psd[i].max_power / 10000,
-                                              id_ctrl.psd[i].max_power % 10000);
-      else
-        snprintf(buf, sizeof(buf), "%d.%02d", id_ctrl.psd[i].max_power / 100,
-                                              id_ctrl.psd[i].max_power % 100);
-      pout("Power State %d Maximum Power:       %s%s W%s\n", i, (i < 10 ? " " : ""),
-           buf, (id_ctrl.npss && !(id_ctrl.psd[i].flags & 0x02) ? " (active)" : ""));
-    }
-  }
 
   // Print namespace info if available
   pout("Number of Namespaces:               %u\n", id_ctrl.nn);
 
   if (nsid && id_ns.nsze) {
-    const char * align = "  " + (nsid < 10 ? 0 : (nsid < 100 ? 1 : 2));
+    const char * align = &("  "[nsid < 10 ? 0 : (nsid < 100 ? 1 : 2)]);
     int fmt_lba_bits = id_ns.lbaf[id_ns.flbas & 0xf].ds;
 
-    pout("Namespace %u Size:                 %s%s\n", nsid, align,
-         lbacap_to_str(buf, id_ns.nsze, fmt_lba_bits));
-    // Capacity and Utilization may be always equal if thin provisioning is not supported
-    if (show_all || id_ns.ncap != id_ns.nsze)
+    // Size and Capacity are equal if thin provisioning is not supported
+    if (show_all || id_ns.ncap != id_ns.nsze || (id_ns.nsfeat & 0x01)) {
+      pout("Namespace %u Size:                 %s%s\n", nsid, align,
+           lbacap_to_str(buf, id_ns.nsze, fmt_lba_bits));
       pout("Namespace %u Capacity:             %s%s\n", nsid, align,
            lbacap_to_str(buf, id_ns.ncap, fmt_lba_bits));
-    if (show_all || id_ns.nuse != id_ns.ncap)
+    }
+    else {
+      pout("Namespace %u Size/Capacity:        %s%s\n", nsid, align,
+           lbacap_to_str(buf, id_ns.nsze, fmt_lba_bits));
+    }
+    // Utilization may be always equal to Capacity if thin provisioning is not supported
+    if (show_all || id_ns.nuse != id_ns.ncap || (id_ns.nsfeat & 0x01))
       pout("Namespace %u Utilization:          %s%s\n", nsid, align,
            lbacap_to_str(buf, id_ns.nuse, fmt_lba_bits));
 
-    // Get LBA range
-    int min_lba_bits = id_ns.lbaf[0].ds, max_lba_bits = min_lba_bits;
-    for (int i = 1; i <= id_ns.nlbaf /* 1-based */ && i < 16; i++) {
-      int bits = id_ns.lbaf[i].ds;
-      if (min_lba_bits > bits)
-        min_lba_bits = bits;
-      else if (max_lba_bits < bits)
-        max_lba_bits = bits;
-    }
-    if (show_all || min_lba_bits != max_lba_bits)
-      pout("Namespace %u Formatted LBA Size:   %s%d (supported: %d - %d)\n", nsid, align,
-           (1 << fmt_lba_bits), (1 << min_lba_bits), (1 << max_lba_bits));
-    else
-      pout("Namespace %u Formatted LBA Size:   %s%d\n", nsid, align, (1 << fmt_lba_bits));
+    pout("Namespace %u Formatted LBA Size:   %s%u\n", nsid, align, (1U << fmt_lba_bits));
   }
 
   char td[DATEANDEPOCHLEN]; dateandtimezone(td);
   pout("Local Time is:                      %s\n", td);
-  pout("\n");
+}
+
+// Format scaled power value.
+static const char * format_power(char (& str)[16], unsigned power, unsigned scale)
+{
+  switch (scale & 0x3) {
+    case 0: // not reported
+      str[0] = '-'; str[1] = ' '; str[2] = 0; break;
+    case 1: // 0.0001W
+      snprintf(str, sizeof(str), "%u.%04uW", power / 10000, power % 10000); break;
+    case 2: // 0.01W
+      snprintf(str, sizeof(str), "%u.%02uW", power / 100, power % 100); break;
+    default: // reserved
+      str[0] = '?'; str[1] = 0; break;
+  }
+  return str;
+}
+
+static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id_ns,
+  unsigned nsid, bool show_all)
+{
+  pout("Firmware Updates (0x%02x):            %d Slot%s%s%s\n", id_ctrl.frmw,
+       ((id_ctrl.frmw >> 1) & 0x7), (((id_ctrl.frmw >> 1) & 0x7) != 1 ? "s" : ""),
+       ((id_ctrl.frmw & 0x01) ? ", Slot 1 R/O" : ""),
+       ((id_ctrl.frmw & 0x10) ? ", no Reset required" : ""));
+
+  if (show_all || id_ctrl.oacs)
+    pout("Optional Admin Commands (0x%04x):  %s%s%s%s%s%s\n", id_ctrl.oacs,
+         (!id_ctrl.oacs ? " -" : ""),
+         ((id_ctrl.oacs & 0x0001) ? " Security" : ""),
+         ((id_ctrl.oacs & 0x0002) ? " Format" : ""),
+         ((id_ctrl.oacs & 0x0004) ? " Frmw_DL" : ""),
+         ((id_ctrl.oacs & 0x0008) ? " NS_Mngmt" : ""),
+         ((id_ctrl.oacs & ~0x000f) ? " *Other*" : ""));
+
+  if (show_all || id_ctrl.oncs)
+    pout("Optional NVM Commands (0x%04x):    %s%s%s%s%s%s%s%s\n", id_ctrl.oncs,
+         (!id_ctrl.oncs ? " -" : ""),
+         ((id_ctrl.oncs & 0x0001) ? " Comp" : ""),
+         ((id_ctrl.oncs & 0x0002) ? " Wr_Unc" : ""),
+         ((id_ctrl.oncs & 0x0004) ? " DS_Mngmt" : ""),
+         ((id_ctrl.oncs & 0x0008) ? " Wr_Zero" : ""),
+         ((id_ctrl.oncs & 0x0010) ? " Sav/Sel_Feat" : ""),
+         ((id_ctrl.oncs & 0x0020) ? " Resv" : ""),
+         ((id_ctrl.oncs & ~0x003f) ? " *Other*" : ""));
+
+  if (id_ctrl.mdts)
+    pout("Maximum Data Transfer Size:         %u Pages\n", (1U << id_ctrl.mdts));
+  else if (show_all)
+    pout("Maximum Data Transfer Size:         -\n");
+
+  // Temperature thresholds are optional
+  char buf[64];
+  if (show_all || id_ctrl.wctemp)
+    pout("Warning  Comp. Temp. Threshold:     %s\n", kelvin_to_str(buf, id_ctrl.wctemp));
+  if (show_all || id_ctrl.cctemp)
+    pout("Critical Comp. Temp. Threshold:     %s\n", kelvin_to_str(buf, id_ctrl.cctemp));
+
+  if (nsid && (show_all || id_ns.nsfeat)) {
+    const char * align = &("  "[nsid < 10 ? 0 : (nsid < 100 ? 1 : 2)]);
+    pout("Namespace %u Features (0x%02x):     %s%s%s%s%s%s\n", nsid, id_ns.nsfeat, align,
+         (!id_ns.nsfeat ? " -" : ""),
+         ((id_ns.nsfeat & 0x01) ? " Thin_Prov" : ""),
+         ((id_ns.nsfeat & 0x02) ? " NA_Fields" : ""),
+         ((id_ns.nsfeat & 0x04) ? " Dea/Unw_Error" : ""),
+         ((id_ns.nsfeat & ~0x07) ? " *Other*" : ""));
+  }
+
+  // Print Power States
+  pout("\nSupported Power States\n");
+  pout("St Op     Max   Active     Idle   RL RT WL WT  Ent_Lat  Ex_Lat\n");
+  for (int i = 0; i <= id_ctrl.npss /* 1-based */ && i < 32; i++) {
+    char p1[16], p2[16], p3[16];
+    const nvme_id_power_state & ps = id_ctrl.psd[i];
+    pout("%2d %c %9s %8s %8s %3d %2d %2d %2d %8u %7u\n", i,
+         ((ps.flags & 0x02) ? '-' : '+'),
+         format_power(p1, ps.max_power, ((ps.flags & 0x01) ? 1 : 2)),
+         format_power(p2, ps.active_power, ps.active_work_scale),
+         format_power(p3, ps.idle_power, ps.idle_scale),
+         ps.read_lat & 0x1f, ps.read_tput & 0x1f,
+         ps.write_lat & 0x1f, ps.write_tput & 0x1f,
+         ps.entry_lat, ps.exit_lat);
+  }
+
+  // Print LBA sizes
+  if (nsid && id_ns.lbaf[0].ds) {
+    pout("\nSupported LBA Sizes (NSID 0x%x)\n", nsid);
+    pout("Id Fmt  Data  Metadt  Rel_Perf\n");
+    for (int i = 0; i <= id_ns.nlbaf /* 1-based */ && i < 16; i++) {
+      const nvme_lbaf & lba = id_ns.lbaf[i];
+      pout("%2d %c %7u %7d %9d\n", i, (i == id_ns.flbas ? '+' : '-'),
+           (1U << lba.ds), lba.ms, lba.rp);
+    }
+  }
 }
 
 static void print_critical_warning(unsigned char w)
@@ -303,13 +362,13 @@ static void print_error_log(const nvme_error_log_page * error_log,
 
 int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
 {
-   if (!(   options.drive_info || options.smart_check_status
-         || options.smart_vendor_attrib || options.error_log_entries
-         || options.log_page_size                                   )) {
-     pout("NVMe device successfully opened\n\n"
-          "Use 'smartctl -a' (or '-x') to print SMART (and more) information\n\n");
-     return 0;
-   }
+  if (!(   options.drive_info || options.drive_capabilities
+        || options.smart_check_status || options.smart_vendor_attrib
+        || options.error_log_entries || options.log_page_size       )) {
+    pout("NVMe device successfully opened\n\n"
+         "Use 'smartctl -a' (or '-x') to print SMART (and more) information\n\n");
+    return 0;
+  }
 
   // Show unset optional values only if debugging is enabled
   bool show_all = (nvme_debugmode > 0);
@@ -322,7 +381,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
   }
 
   // Print Identify Controller/Namespace info
-  if (options.drive_info) {
+  if (options.drive_info || options.drive_capabilities) {
     pout("=== START OF INFORMATION SECTION ===\n");
     nvme_id_ns id_ns; memset(&id_ns, 0, sizeof(id_ns));
 
@@ -344,7 +403,11 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
         }
     }
 
-    print_id_ctrl_ns(id_ctrl, id_ns, nsid, show_all);
+    if (options.drive_info)
+      print_drive_info(id_ctrl, id_ns, nsid, show_all);
+    if (options.drive_capabilities)
+      print_drive_capabilities(id_ctrl, id_ns, nsid, show_all);
+    pout("\n");
   }
 
   if (   options.smart_check_status || options.smart_vendor_attrib

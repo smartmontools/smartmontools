@@ -195,7 +195,7 @@ specified, the power mode of the drive is printed.
 [NVMe] [FreeBSD, Linux, Windows and Cygwin only]
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 For NVMe devices the information is obtained from the Identify Controller
-data structure.
+and the Identify Namespace data structure.
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .TP
 .B \-\-identify[=[w][nvb]]
@@ -225,7 +225,7 @@ and for SCSI, this is equivalent to
 .\" %IF OS FreeBSD Linux Windows Cygwin
 For NVMe, this is equivalent to
 .nf
-\'\-H \-i \-A \-l error'.
+\'\-H \-i \-c \-A \-l error'.
 .fi
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 Note that for ATA disks this does \fBnot\fP enable the non-SMART options
@@ -245,7 +245,7 @@ and for SCSI, this is equivalent to
 .\" %IF OS FreeBSD Linux Windows Cygwin
 For NVMe, this is equivalent to
 .nf
-\'\-H \-i \-A \-l error'.
+\'\-H \-i \-c \-A \-l error'.
 .fi
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .TP
@@ -1004,7 +1004,7 @@ the SMART/Health Information log.
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .TP
 .B \-c, \-\-capabilities
-[ATA only] Prints only the generic SMART capabilities.  These
+[ATA] Prints only the generic SMART capabilities.  These
 show what SMART features are implemented and how the device will
 respond to some of the different SMART commands.  For example it
 shows if the device logs errors, if it supports offline surface
@@ -1019,6 +1019,13 @@ then the time may jump to a larger value and then count down as the
 Immediate Offline Test is carried out.  Please see REFERENCES below
 for further information about the the flags and capabilities described
 by this option.
+.\" %IF OS FreeBSD Linux Windows Cygwin
+
+[NVMe] [FreeBSD, Linux, Windows and Cygwin only]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Prints various NVMe device capabilities obtained from the Identify Controller
+and the Identify Namespace data structure.
+.\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .TP
 .B \-A, \-\-attributes
 [ATA] Prints only the vendor specific SMART Attributes.  The Attributes
