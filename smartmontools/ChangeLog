@@ -1,4 +1,10 @@
-$Id: ChangeLog 4310 2016-04-24 15:34:09Z chrfranke $
+$Id: ChangeLog 4311 2016-04-27 21:03:01Z chrfranke $
+
+2016-04-27  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp, nvmeprint.h, smartctl.cpp, smartctl.8.in:
+	Add NVMe support for 'smartctl -c'.  Print various drive and
+	namespace capabilites.  Remove related info from '-i' output.
 
 2016-04-24  Christian Franke  <franke@computer.org>
 
