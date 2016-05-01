@@ -2,6 +2,12 @@ $Id$
 
 2016-05-01  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Samsung based SSDs: 840 EVO 750GB (ticket #692), 850 EVO M.2,
+	  SM843T *HCFV* variant
+	- USB: WD My Passport (0x1058:0x07ae) (ticket #686)
+	- USB: JMicron JMS561 (0x152d:0x9561)
+
 	nvmecmds.cpp: Enhance debug hex dump to sizeof Identify structs.
 	Do not dump trailing zero bytes.
 
