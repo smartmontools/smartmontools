@@ -1239,14 +1239,16 @@ const drive_settings builtin_knowndrives[] = {
     "MZ7PC(512|256|128|064)HA(GH|FU|DR)-000.*|" // probably PM830, tested with SAMSUNG MZ7PC128HAFU-000L1/CXM04L1Q
     "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
       // Samsung SSD 840 Series/DXT06B0Q
-    "Samsung SSD 8[45]0 EVO (mSATA )?((120|250|500)G|1T)B( mSATA)?|" // tested with Samsung SSD 840 EVO (120|250|500)GB/EXT0AB0Q,
+    "Samsung SSD 8[45]0 EVO (mSATA |M\\.2 )?((120|250|500|750)G|1T)B( mSATA)?|" // tested with
+      // Samsung SSD 840 EVO (120|250|500|750)GB/EXT0AB0Q,
       // Samsung SSD 840 EVO (120|250)GB/EXT0BB6Q, 1TB/EXT0BB0Q, 120GB mSATA/EXT41B6Q,
       // Samsung SSD 850 EVO 250GB/EMT01B6Q
+      // Samsung SSD 850 EVO M.2 250GB/EMT21B6Q
       // Samsung SSD 850 EVO mSATA 120GB/EMT41B6Q
     "Samsung SSD 850 PRO ((128|256|512)G|1T)B|" // tested with Samsung SSD 850 PRO 128GB/EXM01B6Q,
       // Samsung SSD 850 PRO 1TB/EXM01B6Q
-    "SAMSUNG MZ7WD((120|240)HAFV|480HAGM|960HAGP)-00003|" // SM843T Series, tested with
-      // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q
+    "SAMSUNG MZ7WD((120|240)H[AC]FV|480HAGM|960HAGP)-00003|" // SM843T Series, tested with
+      // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q, SAMSUNG MZ7WD120HCFV-00003/DXM9203Q
     "SAMSUNG MZ7GE(240HMGR|(480|960)HMHP)-00003|" // SM853T Series, tested with
       // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
     "SAMSUNG MZ7LM(120|240|480|960|1T9|3T8)HC(JM|HP|GR|FD)-.*|" // PM863 Series, tested with
@@ -3374,9 +3376,10 @@ const drive_settings builtin_knowndrives[] = {
   { "Western Digital Elements / My Passport (USB, AF)", // tested with
       // WDC WD5000KMVV-11TK7S1/01.01A01, WDC WD10TMVW-11ZSMS5/01.01A01,
       // WDC WD10JMVW-11S5XS1/01.01A01, WDC WD20NMVW-11W68S0/01.01A01,
+      // WDC WD5000LMVW-11CKRS0/01.01A01 (0x1058:0x07ae),
+      // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
       // WDC WD10JMVW-11AJGS2/01.01A01 (0x1058:0x10b8),
       // WDC WD10JMVW-11AJGS4/01.01A01 (0x1058:0x25a2)
-      // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
     "WDC WD(5000[LK]|7500K|10[JT]|20N)MV[VW]-.*", // *W-* = USB 3.0
     "", "", ""
   },
@@ -4196,7 +4199,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   { "USB: WD My Passport; ",
-    "0x1058:0x0(70[245a]|71a|730|74[0128a]|7a8|8(10|16|20|22|30))",
+    "0x1058:0x0(70[245a]|71a|730|74[0128a]|7a[8e]|8(10|16|20|22|30))",
     "", // 822=0x1007
     "",
     "-d sat"
@@ -4358,8 +4361,8 @@ const drive_settings builtin_knowndrives[] = {
     "" // unsupported
   },
   { "USB: ; JMicron JMS561", // USB2/3->2xSATA
-    "0x152d:0x1561",
-    "", // 0x0106, Sabrent USB 3.0 to SATA Dual Bay Docking Station
+    "0x152d:0x[19]561", // 0x1561(0x0106), Sabrent USB 3.0 Dual Bay SATA Dock
+    "",  // 0x9561(0x0105), Orico 6629US3-C USB 3.0 Dual Bay SATA Dock
     "",
     "-d sat"
   },
