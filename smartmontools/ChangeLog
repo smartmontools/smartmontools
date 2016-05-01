@@ -1,4 +1,9 @@
-$Id: ChangeLog 4311 2016-04-27 21:03:01Z chrfranke $
+$Id: ChangeLog 4313 2016-05-01 16:17:53Z chrfranke $
+
+2016-05-01  Christian Franke  <franke@computer.org>
+
+	nvmecmds.cpp: Enhance debug hex dump to sizeof Identify structs.
+	Do not dump trailing zero bytes.
 
 2016-04-27  Christian Franke  <franke@computer.org>
 
