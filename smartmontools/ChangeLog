@@ -1,5 +1,10 @@
 $Id$
 
+2016-05-01  Christian Franke  <franke@computer.org>
+
+	nvmecmds.cpp: Enhance debug hex dump to sizeof Identify structs.
+	Do not dump trailing zero bytes.
+
 2016-04-27  Christian Franke  <franke@computer.org>
 
 	nvmeprint.cpp, nvmeprint.h, smartctl.cpp, smartctl.8.in:

@@ -38,6 +38,29 @@ ASSERT_SIZEOF_STRUCT(nvme_smart_log, 512);
 // Print NVMe debug messages?
 unsigned char nvme_debugmode = 0;
 
+// Dump up to 4096 bytes, do not dump trailing zero bytes.
+// TODO: Handle this by new unified function in utility.cpp
+static void debug_hex_dump(const void * data, unsigned size)
+{
+  const unsigned char * p = (const unsigned char *)data;
+  const unsigned limit = 4096; // sizeof(nvme_id_ctrl)
+  unsigned sz = (size <= limit ? size : limit);
+
+  while (sz > 0x10 && !p[sz-1])
+    sz--;
+  if (sz < size) {
+    if (sz & 0x0f)
+      sz = (sz & ~0x0f) + 0x10;
+    sz += 0x10;
+    if (sz > size)
+      sz = size;
+  }
+
+  dStrHex(p, sz, 0);
+  if (sz < size)
+    pout(" ...\n");
+}
+
 // Call NVMe pass-through and print debug info if requested.
 static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
   nvme_cmd_out & out)
@@ -82,11 +105,7 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
       pout(" [NVMe call succeeded: result=0x%08x", out.result);
       if (nvme_debugmode > 1 && in.direction() == nvme_cmd_in::data_in) {
         pout("\n");
-        const unsigned limit = 512;
-        dStrHex((const unsigned char *)in.buffer,
-                (in.size <= limit ? in.size : limit), 0);
-        if (in.size > limit)
-          pout(" ...\n");
+        debug_hex_dump(in.buffer, in.size);
         pout(" ");
       }
     }
