@@ -1789,8 +1789,8 @@ const drive_settings builtin_knowndrives[] = {
     "May need -F samsung3 enabled; see manual for details.",
     ""
   },
-  { "SAMSUNG SpinPoint P80 SD", // tested with HD160JJ/ZM100-33
-    "SAMSUNG HD(080H|120I|160J)J",
+  { "SAMSUNG SpinPoint P80 SD", // tested with HD160JJ/ZM100-33, SAMSUNG HD080HJ/P/ZH100-34
+    "SAMSUNG HD(080H|120I|160J)J(/P)?",
     "", "", ""
   },
   { "SAMSUNG SpinPoint P80", // BH100-35 firmware, tested with SP0842N/BH100-35
@@ -1847,6 +1847,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SAMSUNG SpinPoint M7E (AF)", // tested with HM321HI/2AJ10001, HM641JI/2AJ10001
     "SAMSUNG HM(161G|(251|321)H|501I|641J)I",
+    "", "", ""
+  },
+  { "Seagate Samsung SpinPoint M7E", // tested with ST640LM000 HM641JI/2AJ10001
+    "ST(160|250|320|500|640)LM00[01] HM[0-9]*[GHIJ]I",
     "", "", ""
   },
   { "SAMSUNG SpinPoint M7U (USB)", // tested with HM252HX/2AC101C4
@@ -2295,8 +2299,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi/HGST Travelstar Z5K500", // tested with HGST HTS545050A7E380/GG2OAC90,
-      // Hitachi HTS545032A7E380/GGBOA7A0, APPLE HDD HTS545050A7E362/GG2AB990
-    "(Hitachi|HGST|APPLE HDD) HT[ES]5450(25|32|50)A7E3(62|8[01])",
+      // Hitachi HTS545032A7E380/GGBOA7A0, HGST HTS545050A7E680/GR2OA230,
+      // APPLE HDD HTS545050A7E362/GG2AB990
+    "(Hitachi|HGST|APPLE HDD) HT[ES]5450(25|32|50)A7E(362|38[01]|680)",
     "", "", ""
   },
   { "Hitachi/HGST Travelstar 5K750", // tested with Hitachi HTS547575A9E384/JE4OA60A,
@@ -2346,12 +2351,13 @@ const drive_settings builtin_knowndrives[] = {
     "(HITACHI )?HT[ES]7232(16|25|32)A7A36[145]",
     "", "", ""
   },
-  { "Hitachi Travelstar 7K500", // tested with Hitachi HTS725050A9A360/PC4OC70D
-    "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[02-5]",
+  { "Hitachi Travelstar 7K500", // tested with Hitachi HTS725050A9A360/PC4OC70D,
+    // HITACHI HTS725032A9A364/PC3ZC70F
+    "(Hitachi |HITACHI )?HT[ES]7250(12|16|25|32|50)A9A36[02-5]",
     "", "", ""
   },
   { "Hitachi/HGST Travelstar Z7K500", // tested with HITACHI HTS725050A7E630/GH2ZB390,
-      // HGST HTS725050A7E630/GH2OA420
+      // HGST HTS725050A7E630/GH2OA420, HGST HTS725050A7E630/GH2OA530
     "(HITACHI|HGST) HT[ES]7250(25|32|50)A7E63[015]",
     "", "", ""
   },
@@ -2481,8 +2487,9 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HUA7220(50|10|20)[AC]LA33[01].*",
     "", "", ""
   },
-  { "Hitachi Ultrastar 7K3000", // tested with HUA723030ALA640/MKAOA580
-    "Hitachi HUA7230(20|30)ALA640",
+  { "Hitachi Ultrastar 7K3000", // tested with Hitachi HUA723030ALA640/MKAOA580,
+      // Hitachi HUA723020ALA641/MK7OA840
+    "Hitachi HUA7230(20|30)ALA64[01]",
     "", "", ""
   },
   { "Hitachi/HGST Ultrastar 7K4000", // tested with Hitachi HUS724040ALE640/MJAOA3B0,
@@ -2492,6 +2499,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HGST Ultrastar He6", // tested with HGST HUS726060ALA640/AHGNT1E2
     "HGST HUS726060ALA64[01]",
+    "", "", ""
+  },
+  { "HGST Ultrastar He8", // tested with HGST HUH728060ALE600/GR2OA230
+    "HGST HUH7280(60|80)AL[EN]60[014]",
     "", "", ""
   },
   { "HGST MegaScale 4000", // tested with HGST HMS5C4040ALE640/MPAOA580
@@ -2584,8 +2595,9 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MQ01ABC(100|150|200)",
     "", "", ""
   },
-  { "Toshiba 2.5\" HDD MQ01ABD...", // tested with TOSHIBA MQ01ABD100/AX001U
-    "TOSHIBA MQ01ABD(025|032|050|064|075|100)",
+  { "Toshiba 2.5\" HDD MQ01ABD...", // tested with TOSHIBA MQ01ABD100/AX001U,
+      // TOSHIBA MQ01ABD100V/AX001Q
+    "TOSHIBA MQ01ABD(025|032|050|064|075|100)V?",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MQ01ABF...", // tested with TOSHIBA MQ01ABF050/AM001J
@@ -2937,13 +2949,13 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
-  { "Seagate Desktop HDD.15", // tested with ST4000DM000-1CD168/CC43
-    "ST4000DM000-.*",
+  { "Seagate Desktop HDD.15", // tested with ST4000DM000-1CD168/CC43, ST5000DM000-1FK178/CC44
+    "ST[45]000DM000-.*",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Desktop SSHD", // tested with ST2000DX001-1CM164/CC43
-    "ST(1000|2000|4000)DX001-.*",
+    "ST[124]000DX001-.*",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -3077,16 +3089,20 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(160815|250820|320620|500630|750640)[AS]V",
     "", "", ""
   },
+  { "Seagate SV35.3", // tested with ST3500320SV/SV16
+    "ST3(500320|750330|1000340)SV",
+    "", "", ""
+  },
   { "Seagate SV35.5", // tested with ST31000525SV/CV12
     "ST3(250311|500410|1000525)SV",
     "", "", ""
   },
-  { "Seagate SV35", // tested with ST2000VX000-9YW164/CV12
-    "ST([123]000VX00[20]|31000526SV|3500411SV)(-.*)?",
+  { "Seagate SV35", // tested with ST1000VX001-1HH162/CV11, ST2000VX000-9YW164/CV12
+    "ST([123]000VX00[012]|31000526SV|3500411SV)(-.*)?",
     "", "", ""
   },
-  { "Seagate DB35", // tested with ST3250823ACE/3.03
-    "ST3(200826|250823|300831|400832)ACE",
+  { "Seagate DB35", // tested with ST3250823ACE/3.03, ST3300831SCE/3.03
+    "ST3(200826|250823|300831|400832)[AS]CE",
     "", "", ""
   },
   { "Seagate DB35.2", // tested with ST3160212SCE/3.ACB
@@ -3204,8 +3220,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Blue", // tested with WDC WD5000AZLX-00K4KA0/80.00A80,
-      // WDC WD10EZEX-00RKKA0/80.00A80, WDC WD10EZEX-75M2NA0/01.01A01
-    "WDC WD((25|32|50)00AAK|5000AZL|7500AAL|10EAL|10EZE)X-.*",
+      // WDC WD10EZEX-00RKKA0/80.00A80, WDC WD10EZEX-75M2NA0/01.01A01, WDC WD40EZRZ-00WN9B0/80.00A80
+    "WDC WD((25|32|50)00AAKX|5000AZ(LX|RZ)|7500A(AL|ZE)X|10E(AL|ZE)X|[1-6]0EZRZ)-.*",
     "", "", ""
   },
   { "Western Digital RE Serial ATA",
@@ -3229,21 +3245,24 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((25|50)03ABYX|1003FBY[XZ]|(15|20)03FYYS)-.*",
     "", "", ""
   },
-  { "Western Digital RE4-GP", // tested with WDC WD2002FYPS-02W3B0/04.01G01
-    "WDC WD2002FYPS-.*",
+  { "Western Digital RE4-GP", // tested with WDC WD2002FYPS-02W3B0/04.01G01,
+      // WD2003FYPS-27W9B0/01.01D02
+    "(WDC )?WD200[23]FYPS-.*",
     "", "", ""
   },
-  { "Western Digital RE4 (SATA 6Gb/s)", // tested with WDC WD2000FYYZ-01UL1B0/01.01K01,
-      // WD2000FYYX/00.0D1K2
-    "WDC WD(20|30|40)00FYYZ-.*|WD2000FYYX",
+  { "Western Digital Re", // tested with WDC WD1004FBYZ-01YCBB0/RR02,
+      // WDC WD2000FYYZ-01UL1B0/01.01K01, WDC WD2000FYYZ-01UL1B1/01.01K02,
+      // WDC WD4000FYYZ-01UL1B2/01.01K03, WD2000FYYX/00.0D1K2
+    "WDC WD([12]004FBYZ|[1-6]00[01M]F[SXY]YZ)-.*|WD2000FYYX",
     "", "", ""
   },
   { "Western Digital Se", // tested with WDC WD2000F9YZ-09N20L0/01.01A01
     "WDC WD(1002|2000|3000|4000)F9YZ-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Green",
-    "WDC WD((50|64|75)00AA(C|V)S|(50|64|75)00AADS|10EA(C|V)S|(10|15|20)EADS)-.*",
+  { "Western Digital Caviar Green", // tested with WDC WD7500AADS-00M2B0/01.00A01,
+       // WDC WD10EADX/77.04D77
+    "WDC WD((50|64|75)00AA[CV]S|(50|64|75)00AADS|10EA[CV]S|(10|15|20)EAD[SX])-.*",
     "",
     "",
     "-F xerrorlba" // tested with WDC WD7500AADS-00M2B0/01.00A01
@@ -3259,16 +3278,16 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(7500AA|(10|15|20)EA|(10|20|25|30|40|50|60)EZ)RX-.*",
     "", "", ""
   },
-  { "Western Digital Caviar Black",
-    "WDC WD((500|640|750)1AAL|1001FA[EL]|2001FAS)S-.*|"
+  { "Western Digital Caviar Black", // tested with WDC WD7501AAES/06.01D06
+    "WDC WD((500|640)1AAL|7501AA[EL]|1001FA[EL]|2001FAS)S-.*|"
     "WDC WD(2002|7502|1502|5003|1002|5002)(FAE|AAE|AZE|AAL)X-.*", // could be
     // WD2002FAEX, WD7502AAEX, WD1502FAEX, WD5003AZEX, WD1002FAEX, WD5002AALX
     "", "", ""
   },
   { "Western Digital Black", // tested with
-      // WDC WD5003AZEX-00RKKA0/80.00A80, WDC WD1003FZEX-00MK2A0/01.01A01,
-      // WDC WD3001FAEX-00MJRA0/01.01L01, WDC WD4001FAEX-00MJRA0/01.01L01
-      // WDC WD4003FZEX-00Z4SA0/01.01A01
+      // WDC WD1003FZEX-00MK2A0/01.01A01, WDC WD3001FAEX-00MJRA0/01.01L01,
+      // WDC WD3003FZEX-00Z4SA0/01.01A01, WDC WD4001FAEX-00MJRA0/01.01L01
+      // WDC WD4003FZEX-00Z4SA0/01.01A01, WDC WD5003AZEX-00RKKA0/80.00A80,
     "WDC WD(6001|2003|5001|1003|4003|5003|3003|3001)(FZW|FZE|AZE)X-.*|" // could be
     // new series  WD6001FZWX WD2003FZEX WD5001FZWX WD1003FZEX
     //             WD4003FZEX WD5003AZEX WD3003FZEX
@@ -3357,8 +3376,9 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD[123456]0PURX-.*",
     "", "", ""
   },
-  { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03
-    "WDC WD((25|32|50|75)00[BLM]|10[JS])P[CV][TX]-.*",
+  { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
+      // WDC WD20NPVZ-00WFZT0/01.01A01
+    "WDC WD((25|32|50|75)00[BLM]|10[JS]|20N)P[CV][TXZ]-.*",
     "", "", ""
   },
   { "Western Digital Green Mobile", // tested with WDC WD20NPVX-00EA4T0/01.01A01
@@ -3374,13 +3394,18 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Elements / My Passport (USB, AF)", // tested with
-      // WDC WD5000KMVV-11TK7S1/01.01A01, WDC WD10TMVW-11ZSMS5/01.01A01,
-      // WDC WD10JMVW-11S5XS1/01.01A01, WDC WD20NMVW-11W68S0/01.01A01,
+      // WDC WD5000KMVV-11TK7S1/01.01A01,
       // WDC WD5000LMVW-11CKRS0/01.01A01 (0x1058:0x07ae),
-      // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
+      // WDC WD5000LMVW-11VEDS0/01.01A01 (0x1058:0x0816),
+      // WDC WD7500BMVW-11AJGS2/01.01A01,
       // WDC WD10JMVW-11AJGS2/01.01A01 (0x1058:0x10b8),
-      // WDC WD10JMVW-11AJGS4/01.01A01 (0x1058:0x25a2)
-    "WDC WD(5000[LK]|7500K|10[JT]|20N)MV[VW]-.*", // *W-* = USB 3.0
+      // WDC WD10JMVW-11AJGS4/01.01A01 (0x1058:0x25a2),
+      // WDC WD10JMVW-11S5XS1/01.01A01,
+      // WDC WD10TMVW-11ZSMS5/01.01A01,
+      // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
+      // WDC WD20NMVW-11W68S0/01.01A01,
+      // WDC WD30NMVW-11C3NS4/01.01A01
+    "WDC WD(5000[LK]|7500[BK]|10[JT]|[23]0N)MV[VW]-.*", // *W-* = USB 3.0
     "", "", ""
   },
   { "Quantum Bigfoot", // tested with TS10.0A/A21.0G00, TS12.7A/A21.0F00
