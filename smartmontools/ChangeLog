@@ -1,5 +1,27 @@
 $Id$
 
+2016-05-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Samsung SpinPoint P80 SD: *J/P variant
+	- Seagate Samsung SpinPoint M7E
+	- Hitachi/HGST Travelstar Z5K500: *E680 variant
+	- Hitachi Travelstar 7K500: HITACHI variant
+	- Hitachi Ultrastar 7K3000: *A641 variant
+	- HGST Ultrastar He8
+	- Toshiba 2.5" HDD MQ01ABD...: *V variant
+	- Seagate Desktop HDD.15: 5TB
+	- Seagate SV35.3
+	- Seagate SV35: *0001 variant
+	- Seagate DB35: SATA variant
+	- Western Digital Blue: 2-6TB, *Z variant
+	- Western Digital RE4-GP: *2003* variant
+	- Western Digital Re: Rename, 2-6TB
+	- Western Digital Caviar Green: SATA 6Gb/s variant
+	- Western Digital Caviar Black: *7501AAES*
+	- Western Digital Blue Mobile: 2TB
+	- Western Digital Elements / My Passport (USB, AF): *7500B*, 3TB
+
 2016-05-01  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
