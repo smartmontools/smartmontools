@@ -1,0 +1,26 @@
+<html>
+<body>
+<h2>About this package</h2>
+The smartmontools package contains two utility programs (smartctl and smartd) to control 
+and monitor storage systems using the Self-Monitoring, Analysis and Reporting
+Technology System (SMART) built into most modern ATA and SCSI harddisks.
+In many cases, these utilities will provide advanced warning of disk degradation and failure.
+<h2>Installing</h2>
+To install package click on the smartmontools.pkg icon and follow installation process. Files will be installed to the <b>/usr/local/</b> directory.
+<h2>Usage</h2>
+ If you are having trouble understanding the output of smartctl or smartd, please first read the manual pages installed on your system:
+<pre>
+  man 8 smartctl
+  man 8 smartd
+  man 8 update-smart-drivedb
+  man 5 smartd.conf
+</pre>
+To use smartmontools with USB drives please download and install 
+<a href="https://github.com/kasbert/OS-X-SAT-SMART-Driver">Max OS X kernel driver for providing access to external drive SMART data</a>. SAT SMART Driver is a free open source project (published under Apple Public Source License) by Jarkko Sonninen.
+If you are using OS X El Capitan 10.11+ it is recommended to use signed version available from <a href="http://binaryfruit.com/drivedx/usb-drive-support/">DriveDx web site</a>.
+<p>
+More information could be found on the <a href="https://www.smartmontools.org">www.smartmontools.org</a> website.
+<h2>Uninstalling</h2>
+If you want to uninstall already installed package run <tt>'sudo smart-pkg-uninstall'</tt> in the terminal.
+</body>
+</html>
