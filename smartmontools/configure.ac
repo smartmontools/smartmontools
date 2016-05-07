@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4318 2016-05-07 11:18:20Z chrfranke $
+# $Id: configure.ac 4319 2016-05-07 12:14:20Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
-AC_INIT(smartmontools, 6.5, smartmontools-support@lists.sourceforge.net)
+AC_INIT(smartmontools, 6.6, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4318 2016-05-07 11:18:20Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4319 2016-05-07 12:14:20Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
