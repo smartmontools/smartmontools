@@ -26,7 +26,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4253 2016-03-26 19:47:47Z chrfranke $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4320 2016-05-10 13:39:19Z chrfranke $"
   OS_NETBSD_H_CVSID;
 
 enum warnings {
@@ -54,7 +54,7 @@ printwarning(int msgNo, const char *extra)
   return;
 }
 
-static const char *net_dev_prefix = "/dev/";
+static const char *net_dev_prefix = "/dev/r";
 static const char *net_dev_ata_disk = "wd";
 static const char *net_dev_scsi_disk = "sd";
 static const char *net_dev_scsi_tape = "enrst";
@@ -128,7 +128,7 @@ get_dev_names(char ***names, const char *prefix)
     n++;
   }
 
-  void * tmp = (char **)realloc(mp, n * (sizeof(char *)));
+  char ** tmp = (char **)realloc(mp, n * (sizeof(char *)));
   if (NULL == tmp) {
     pout("Out of memory constructing scan device list\n");
     free(mp);
