@@ -1,5 +1,12 @@
 $Id$
 
+2016-05-10  Christian Franke  <franke@computer.org>
+
+	os_netbsd.cpp: Apply patch-os__netbsd.cpp 1.3 (2016-05-08) from
+	pkgsrc.se/sysutils/smartmontools:
+	- Compile fix (regression from r4156).
+	- Use a raw disk device file on NetBSD.
+
 2016-05-07  Christian Franke  <franke@computer.org>
 
 	smartmontools 6.5
