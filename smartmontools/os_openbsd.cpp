@@ -27,7 +27,7 @@
 
 #include <errno.h>
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4253 2016-03-26 19:47:47Z chrfranke $"
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4321 2016-05-10 13:43:10Z chrfranke $"
   OS_OPENBSD_H_CVSID;
 
 enum warnings {
@@ -132,7 +132,7 @@ get_dev_names(char ***names, const char *prefix)
     n++;
   }
 
-  void * tmp = (char **)realloc(mp, n * (sizeof(char *)));
+  char ** tmp = (char **)realloc(mp, n * (sizeof(char *)));
   if (NULL == tmp) {
     pout("Out of memory constructing scan device list\n");
     free(mp);
