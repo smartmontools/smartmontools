@@ -3408,6 +3408,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD10JMVW-11S5XS1/01.01A01,
       // WDC WD10TMVW-11ZSMS5/01.01A01,
       // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
+      // WDC WD20NMVW-11AV3S3/01.01A01 (0x1058:0x0837),
       // WDC WD20NMVW-11W68S0/01.01A01,
       // WDC WD30NMVW-11C3NS4/01.01A01
     "WDC WD(5000[LK]|7500[BK]|10[JT]|[23]0N)MV[VW]-.*", // *W-* = USB 3.0
@@ -4229,8 +4230,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   { "USB: WD My Passport; ",
-    "0x1058:0x0(70[245a]|71a|730|74[0128a]|7a[8e]|8(10|16|20|22|30))",
-    "", // 822=0x1007
+    "0x1058:0x0(70[245a]|71a|730|74[0128a]|7a[8e]|81[06]|82[02]|83[37a])",
+    "", // 822=0x1007, 837=0x1072
     "",
     "-d sat"
   },
@@ -4253,8 +4254,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: WD My Book; ",
-    "0x1058:0x11(00|01|02|04|05|10|30|40)",
-    "", // 00/01=0x0165, 02=0x1028, 10=0x1030, 30=0x1012, 40=0x1003
+    "0x1058:0x11(0[01245]|1[0d]|30|40)",
+    "", // 00/01=0x0165, 02=0x1028, 10=0x1030, 1d=0x1020, 30=0x1012, 40=0x1003
     "",
     "-d sat"
   },

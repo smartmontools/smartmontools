@@ -5,6 +5,9 @@ $Id$
 	drivedb.h:
 	- HGST Ultrastar He6/He8: attribute 22 "Helium_Level"
 	- Western Digital Red: 8TB, attribute 22 "Helium_Level"
+	- USB: WD My Passport Ultra (0x1058:0x0837) (ticket #696)
+	- USB: WD My Passport (0x1058:0x083a)
+	- USB: WD My Book (0x1058:0x111d)
 
 2016-05-10  Christian Franke  <franke@computer.org>
 
