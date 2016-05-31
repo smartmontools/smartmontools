@@ -2501,11 +2501,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HGST Ultrastar He6", // tested with HGST HUS726060ALA640/AHGNT1E2
     "HGST HUS726060ALA64[01]",
-    "", "", ""
+    "", "",
+    "-v 22,raw48,Helium_Level"
   },
   { "HGST Ultrastar He8", // tested with HGST HUH728060ALE600/GR2OA230
     "HGST HUH7280(60|80)AL[EN]60[014]",
-    "", "", ""
+    "", "",
+    "-v 22,raw48,Helium_Level"
   },
   { "HGST MegaScale 4000", // tested with HGST HMS5C4040ALE640/MPAOA580
     "HGST HMS5C4040[AB]LE64[01]", // B = DC 4000.B
@@ -3366,9 +3368,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Red", // tested with WDC WD10EFRX-68JCSN0/01.01A01,
       // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD40EFRX-68WT0N0/80.00A80,
-      // WDC WD60EFRX-68MYMN1/82.00A82
-    "WDC WD(7500BFC|10JFC|(10|20|30|40|50|60)EFR)X-.*",
-    "", "", ""
+      // WDC WD60EFRX-68MYMN1/82.00A82, WDC WD80EFZX-68UW8N0/83.H0A83
+    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80EFZ)X-.*",
+    "", "",
+    "-v 22,raw48,Helium_Level" // WD80EFZX
   },
   { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81
     "WDC WD[234]001FFSX-.*",

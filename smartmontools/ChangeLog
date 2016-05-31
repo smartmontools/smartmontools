@@ -1,5 +1,11 @@
 $Id$
 
+2016-05-31  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- HGST Ultrastar He6/He8: attribute 22 "Helium_Level"
+	- Western Digital Red: 8TB, attribute 22 "Helium_Level"
+
 2016-05-10  Christian Franke  <franke@computer.org>
 
 	os_openbsd.cpp: Compile fix (regression from r4156).
