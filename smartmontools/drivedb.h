@@ -885,8 +885,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 228,raw48,Workload_Minutes"
   },
   { "Intel 311/313 Series SSDs", // tested with INTEL SSDSA2VP020G2/2CV102M5,
-      // INTEL SSDSA2VP020G3/9CV10379,
-    "INTEL SSDSA2VP(020|024)G[23]", // G3 = 313 Series
+      // INTEL SSDSA2VP020G3/9CV10379, INTEL SSDMAEXC024G3H/9CV10379
+    "INTEL SSD(SA2VP|MAEXC)(020|024)G[23]H?",
+      // SA2VP = 2.5", MAEXC = mSATA, G2 = 311, G3 = 313
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
@@ -976,8 +977,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
   //"-v 233,raw48,Media_Wearout_Indicator"
   },
-  { "Intel 520 Series SSDs", // tested with INTEL SSDSC2CW120A3/400i, SSDSC2BW480A3F/400i
-    "INTEL SSDSC2[BC]W(060|120|180|240|480)A3F?",
+  { "Intel 520 Series SSDs", // tested with INTEL SSDSC2CW120A3/400i, SSDSC2BW480A3F/400i,
+      // INTEL SSDSC2BW180A3L/LB3i
+    "INTEL SSDSC2[BC]W(060|120|180|240|480)A3[FL]?",
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
     "-v 9,msec24hour32,Power_On_Hours_and_Msec "
@@ -2496,11 +2498,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HGST Ultrastar He6", // tested with HGST HUS726060ALA640/AHGNT1E2
     "HGST HUS726060ALA64[01]",
-    "", "", ""
+    "", "",
+    "-v 22,raw48,Helium_Level"
   },
   { "HGST Ultrastar He8", // tested with HGST HUH728060ALE600/GR2OA230
     "HGST HUH7280(60|80)AL[EN]60[014]",
-    "", "", ""
+    "", "",
+    "-v 22,raw48,Helium_Level"
   },
   { "HGST MegaScale 4000", // tested with HGST HMS5C4040ALE640/MPAOA580
     "HGST HMS5C4040[AB]LE64[01]", // B = DC 4000.B
@@ -3357,9 +3361,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Red", // tested with WDC WD10EFRX-68JCSN0/01.01A01,
       // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD40EFRX-68WT0N0/80.00A80,
-      // WDC WD60EFRX-68MYMN1/82.00A82
-    "WDC WD(7500BFC|10JFC|(10|20|30|40|50|60)EFR)X-.*",
-    "", "", ""
+      // WDC WD60EFRX-68MYMN1/82.00A82, WDC WD80EFZX-68UW8N0/83.H0A83
+    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80EFZ)X-.*",
+    "", "",
+    "-v 22,raw48,Helium_Level" // WD80EFZX
   },
   { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81
     "WDC WD[234]001FFSX-.*",
@@ -3396,6 +3401,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD10JMVW-11S5XS1/01.01A01,
       // WDC WD10TMVW-11ZSMS5/01.01A01,
       // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
+      // WDC WD20NMVW-11AV3S3/01.01A01 (0x1058:0x0837),
       // WDC WD20NMVW-11W68S0/01.01A01,
       // WDC WD30NMVW-11C3NS4/01.01A01
     "WDC WD(5000[LK]|7500[BK]|10[JT]|[23]0N)MV[VW]-.*", // *W-* = USB 3.0
@@ -4217,8 +4223,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   { "USB: WD My Passport; ",
-    "0x1058:0x0(70[245a]|71a|730|74[0128a]|7a[8e]|8(10|16|20|22|30))",
-    "", // 822=0x1007
+    "0x1058:0x0(70[245a]|71a|730|74[0128a]|7a[8e]|81[06]|82[02]|83[37a])",
+    "", // 822=0x1007, 837=0x1072
     "",
     "-d sat"
   },
@@ -4241,8 +4247,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: WD My Book; ",
-    "0x1058:0x11(00|01|02|04|05|10|30|40)",
-    "", // 00/01=0x0165, 02=0x1028, 10=0x1030, 30=0x1012, 40=0x1003
+    "0x1058:0x11(0[01245]|1[0d]|30|40)",
+    "", // 00/01=0x0165, 02=0x1028, 10=0x1030, 1d=0x1020, 30=0x1012, 40=0x1003
     "",
     "-d sat"
   },
