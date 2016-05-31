@@ -3,6 +3,8 @@ $Id$
 2016-05-31  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Intel 311/313 Series SSDs: mSATA, *H (HP) variant
+	- Intel 520 Series SSDs: *L (Lenovo) variant
 	- HGST Ultrastar He6/He8: attribute 22 "Helium_Level"
 	- Western Digital Red: 8TB, attribute 22 "Helium_Level"
 	- USB: WD My Passport Ultra (0x1058:0x0837) (ticket #696)
