@@ -1,6 +1,8 @@
-$Id: ChangeLog 4330 2016-08-06 21:26:17Z chrfranke $
+$Id: ChangeLog 4331 2016-08-06 21:36:26Z chrfranke $
 
 2016-08-06  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add Windows 10 build number to get_os_version_str().
 
 	Update MSVC10 (VS2010) for VC14 (VS2015):
 	os_win32/vc14/*: Move from os_win32/vc10/*.
