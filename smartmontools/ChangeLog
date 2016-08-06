@@ -5,6 +5,7 @@ $Id$
 	Update MSVC10 (VS2010) for VC14 (VS2015):
 	os_win32/vc14/*: Move from os_win32/vc10/*.
 	os_win32/vc14/*.vcxproj: Update for VC14.
+	Remove '__func__' workaround (revert r4225).
 	Makefile.am: Rename and update config-vc14 target.
 	utility.cpp: Add workaround for missing 'tzname'.
 
