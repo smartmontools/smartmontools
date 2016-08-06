@@ -3806,6 +3806,7 @@ std::string win_smart_interface::get_os_version_str()
   }
 
   const char * w = 0;
+  unsigned build = 0;
   if (   vi.dwPlatformId == VER_PLATFORM_WIN32_NT
       && vi.dwMajorVersion <= 0xf && vi.dwMinorVersion <= 0xf) {
     bool ws = (vi.wProductType <= VER_NT_WORKSTATION);
@@ -3819,7 +3820,8 @@ std::string win_smart_interface::get_os_version_str()
       case 0x62: w = (ws ? "win8"  : "2012"  ); break;
       case 0x63: w = (ws ? "win8.1": "2012r2"); break;
       case 0x64: w = (ws ? "w10tp" : "w10tps"); break; //  6.4 = Win 10 Technical Preview
-      case 0xa0: w = (ws ? "win10" : "2016"  ); break; // 10.0 = Win 10 : Win Server 2016 (TP only?)
+      case 0xa0: w = (ws ? "w10"   : "2016"  );        // 10.0 = Win 10 : Win Server 2016 (TP only?)
+                 build = vi.dwBuildNumber;      break;
     }
   }
 
@@ -3833,6 +3835,8 @@ std::string win_smart_interface::get_os_version_str()
     snprintf(vptr, vlen, "-%s%u.%u%s",
       (vi.dwPlatformId==VER_PLATFORM_WIN32_NT ? "nt" : "??"),
       (unsigned)vi.dwMajorVersion, (unsigned)vi.dwMinorVersion, w64);
+  else if (build)
+    snprintf(vptr, vlen, "-%s%s-b%u", w, w64, build);
   else if (vi.wServicePackMinor)
     snprintf(vptr, vlen, "-%s%s-sp%u.%u", w, w64, vi.wServicePackMajor, vi.wServicePackMinor);
   else if (vi.wServicePackMajor)

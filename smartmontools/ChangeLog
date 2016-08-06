@@ -2,6 +2,8 @@ $Id$
 
 2016-08-06  Christian Franke  <franke@computer.org>
 
+	os_win32.cpp: Add Windows 10 build number to get_os_version_str().
+
 	Update MSVC10 (VS2010) for VC14 (VS2015):
 	os_win32/vc14/*: Move from os_win32/vc10/*.
 	os_win32/vc14/*.vcxproj: Update for VC14.
