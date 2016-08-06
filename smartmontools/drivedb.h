@@ -3840,8 +3840,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: LaCie; ",
-    "0x059f:0x106f",
-    "", // 0x0001
+    "0x059f:0x10(6f|75)",
+    "", // 6f=0x0001, 75=0x0000
     "",
     "-d sat"
   },
@@ -4062,7 +4062,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Expansion External; ",
-    "0x0bc2:0x33(00|12|20|21|32)", // 0x3321: Expansion Desktop 4TB
+    "0x0bc2:0x33(00|12|2[012]|32)", // 0x3321: Expansion Desktop 4TB
     "",
     "",
     "-d sat"
@@ -4070,6 +4070,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Seagate FreeAgent GoFlex USB 2.0; ",
     "0x0bc2:0x502[01]",
     "",
+    "",
+    "-d sat"
+  },
+  { "USB: Seagate FreeAgent GoFlex USB 3.0; ",
+    "0x0bc2:0x5030",
+    "", // 0x0100
     "",
     "-d sat"
   },
@@ -4116,7 +4122,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Backup Plus Desktop USB 3.0; ",
-    "0x0bc2:0xa(0a[14]|b31)", // 4TB, 3TB (8 LBA/1 PBA offset), 5TB
+    "0x0bc2:0xa(0a[14]|b3[14])", // 4TB, 3TB (8 LBA/1 PBA offset), 5TB, ?
     "",
     "",
     "-d sat"

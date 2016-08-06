@@ -1,5 +1,13 @@
 $Id$
 
+2016-08-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: LaCie (0x059f:0x1075) (ticket #718)
+	- USB: Seagate Expansion External (0x0bc2:0x3322) (ticket #706)
+	- USB: Seagate FreeAgent GoFlex (0x0bc2:0x5030) (ticket #720)
+	- USB: Seagate Backup Plus Desktop (0x0bc2:0xab34) (ticket #700)
+
 2016-05-31  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
