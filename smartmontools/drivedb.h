@@ -651,8 +651,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 251,raw48,Total_NAND_Read_Ct_GiB"
   },
   {
-    "OCZ Trion SSDs",
-    "OCZ-TRION1[05]0", // tested with OCZ-TRION100/SAFM11.2A, TRION150/SAFZ72.2
+    "OCZ/Toshiba Trion SSDs",
+    "OCZ-TRION1[05]0|" // tested with OCZ-TRION100/SAFM11.2A, TRION150/SAFZ72.2
+    "TOSHIBA-TR150", // tested with TOSHIBA-TR150/SAFZ12.3
     "", "",
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -2501,6 +2502,10 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi|HGST) HUS7240(20|30|40)AL[AE]64[01]",
     "", "", ""
   },
+  { "HGST Ultrastar 7K6000", // tested with HGST HUS726060ALE614/APGNW517
+    "HGST HUS7260[2456]0AL[AEN]61[014]",
+    "", "", ""
+  },
   { "HGST Ultrastar He6", // tested with HGST HUS726060ALA640/AHGNT1E2
     "HGST HUS726060ALA64[01]",
     "", "",
@@ -2508,6 +2513,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HGST Ultrastar He8", // tested with HGST HUH728060ALE600/GR2OA230
     "HGST HUH7280(60|80)AL[EN]60[014]",
+    "", "",
+    "-v 22,raw48,Helium_Level"
+  },
+  { "HGST Ultrastar He10", // tested with HGST HUH7210100ALE600/0F27452
+    "HGST HUH7210(08|10)AL[EN]60[014]",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
@@ -2955,8 +2965,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
-  { "Seagate Desktop HDD.15", // tested with ST4000DM000-1CD168/CC43, ST5000DM000-1FK178/CC44
-    "ST[45]000DM000-.*",
+  { "Seagate Desktop HDD.15", // tested with ST4000DM000-1CD168/CC43, ST5000DM000-1FK178/CC44,
+      // ST6000DM001-1XY17Z/CC48
+    "ST[4568]000DM00[012]-.*",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -3054,10 +3065,11 @@ const drive_settings builtin_knowndrives[] = {
     "MM1000GBKAL", // HP OEM
     "", "", ""
   },
-  { "Seagate Enterprise Capacity 3.5 HDD", // tested with ST6000NM0024-1HT17Z/SN02
-    "ST[2456]000NM0[01][248]4-.*", // *[069]4 = 4Kn
+  { "Seagate Enterprise Capacity 3.5 HDD", // tested with ST6000NM0024-1HT17Z/SN02,
+      // ST10000NM0016-1TT101/SNB0
+    "ST([24568]|10)000NM0[01][1248][46]-.*", // *[069]4 = 4Kn
     "", "", 
-    "-v 188,raw16"
+    "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate NAS HDD", // tested with ST2000VN000-1H3164/SC42, ST3000VN000-1H4167/SC43
     "ST[234]000VN000-.*",
@@ -3103,8 +3115,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(250311|500410|1000525)SV",
     "", "", ""
   },
-  { "Seagate SV35", // tested with ST1000VX001-1HH162/CV11, ST2000VX000-9YW164/CV12
-    "ST([123]000VX00[012]|31000526SV|3500411SV)(-.*)?",
+  { "Seagate SV35", // tested with ST1000VX001-1HH162/CV11, ST2000VX000-9YW164/CV12,
+      // ST4000VX000-1F4168/CV14
+    "ST([1-4]000VX00[012]|31000526SV|3500411SV)(-.*)?",
     "", "", ""
   },
   { "Seagate DB35", // tested with ST3250823ACE/3.03, ST3300831SCE/3.03
@@ -3381,6 +3394,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Purple", // tested with WDC WD40PURX-64GVNY0/80.00A80
     "WDC WD[123456]0PURX-.*",
+    "", "", ""
+  },
+  { "Western Digital Gold", // tested with WDC WD4002FYYZ-01B7CB0/01.01M02
+    "WDC WD(101KR|[68]002FR|4002FY)YZ-.*",
     "", "", ""
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,

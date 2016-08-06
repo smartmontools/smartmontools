@@ -3,6 +3,14 @@ $Id$
 2016-08-06  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- OCZ/Toshiba Trion SSDs: Rename, add TOSHIBA-TR150 (ticket #722)
+	- HGST Ultrastar 7K6000 (ticket #708)
+	- HGST Ultrastar He10
+	- Seagate Desktop HDD.15: 6TB, 8TB
+	- Seagate Enterprise Capacity 3.5 HDD: 8TB, 10TB (ticket #717),
+	  attribute 240
+	- Seagate SV35: 4TB
+	- Western Digital Gold (ticket #711)
 	- USB: LaCie (0x059f:0x1075) (ticket #718)
 	- USB: Seagate Expansion External (0x0bc2:0x3322) (ticket #706)
 	- USB: Seagate FreeAgent GoFlex (0x0bc2:0x5030) (ticket #720)
