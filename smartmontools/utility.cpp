@@ -314,7 +314,12 @@ void dateandtimezoneepoch(char *buffer, time_t tval){
   // Remove newline
   lenm1=strlen(datebuffer)-1;
   datebuffer[lenm1>=0?lenm1:0]='\0';
-  
+
+#if defined(_WIN32) && defined(_MSC_VER)
+  // tzname is missing in MSVC14
+  #define tzname _tzname
+#endif
+
   // correct timezone name
   if (tmval->tm_isdst==0)
     // standard time zone

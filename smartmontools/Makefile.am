@@ -929,28 +929,35 @@ runcmda.exe: runcmd.o defadmin.manifest.o
 wtssendmsg.exe: os_win32/wtssendmsg.c $(os_win32_manifest)
 	$(CC) -Os -o $@ $< $(os_win32_manifest) -lwtsapi32
 
-# Build os_win32/vc10/{config.h,smart*.rc,svnversion.h} for MSVC10 from MinGW files
+# Build os_win32/vc14/{config.h,smart*.rc,svnversion.h} for MSVC14 from MinGW files
 
-config-vc10: $(srcdir)/os_win32/vc10/config.h \
-             $(srcdir)/os_win32/vc10/smartctl_res.rc \
-             $(srcdir)/os_win32/vc10/smartd_res.rc \
-             $(srcdir)/os_win32/vc10/svnversion.h
+vcver = 14
 
-$(srcdir)/os_win32/vc10/config.h: config.h Makefile
-	sed -e '1i/* os_win32/vc10/config.h.  Generated from config.h by Makefile.  */' \
-	    -e 's,^#define HAVE_\(ATTR_PACKED\|GETTIMEOFDAY\|INTTYPES_H\|[DK_]*NTDDDISK_H\|STRINGS_H\|STRTOULL\|UNISTD_H\|WORKING_SNPRINTF\) 1$$,/* #undef HAVE_\1 */,' \
-	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc10,' $< > $@
+CONFIG_VC_FILES = \
+        $(srcdir)/os_win32/vc$(vcver)/config.h \
+        $(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc \
+        $(srcdir)/os_win32/vc$(vcver)/smartd_res.rc \
+        $(srcdir)/os_win32/vc$(vcver)/svnversion.h
 
-$(srcdir)/os_win32/vc10/svnversion.h: svnversion.h
+config-vc$(vcver): $(CONFIG_VC_FILES)
+
+$(srcdir)/os_win32/vc$(vcver)/config.h: config.h Makefile
+	sed -e '1i/* os_win32/vc$(vcver)/config.h.  Generated from config.h by Makefile.  */' \
+	    -e 's,^#define HAVE_\(ATTR_PACKED\|GETTIMEOFDAY\|[DK_]*NTDDDISK_H\|STRINGS_H\|UNISTD_H\|WORKING_SNPRINTF\) 1$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
+	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc$(vcver),' $< > $@
+
+$(srcdir)/os_win32/vc$(vcver)/svnversion.h: svnversion.h
 	cp $< $@
 
-$(srcdir)/os_win32/vc10/smartctl_res.rc: smartctl_res.rc
+$(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc: smartctl_res.rc
 	cp $< $@
 
-$(srcdir)/os_win32/vc10/smartd_res.rc: smartd_res.rc
+$(srcdir)/os_win32/vc$(vcver)/smartd_res.rc: smartd_res.rc
 	cp $< $@
 
 endif
+
+
 if OS_DARWIN
 # Definitions for OSX distribution
 distdir_darwin  = $(PACKAGE)-$(VERSION).darwin

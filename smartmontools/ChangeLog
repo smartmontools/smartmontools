@@ -2,6 +2,12 @@ $Id$
 
 2016-08-06  Christian Franke  <franke@computer.org>
 
+	Update MSVC10 (VS2010) for VC14 (VS2015):
+	os_win32/vc14/*: Move from os_win32/vc10/*.
+	os_win32/vc14/*.vcxproj: Update for VC14.
+	Makefile.am: Rename and update config-vc14 target.
+	utility.cpp: Add workaround for missing 'tzname'.
+
 	drivedb.h:
 	- OCZ/Toshiba Trion SSDs: Rename, add TOSHIBA-TR150 (ticket #722)
 	- HGST Ultrastar 7K6000 (ticket #708)
