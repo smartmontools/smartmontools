@@ -52,7 +52,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4309 2016-04-24 14:59:15Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4329 2016-08-06 21:08:50Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -314,7 +314,12 @@ void dateandtimezoneepoch(char *buffer, time_t tval){
   // Remove newline
   lenm1=strlen(datebuffer)-1;
   datebuffer[lenm1>=0?lenm1:0]='\0';
-  
+
+#if defined(_WIN32) && defined(_MSC_VER)
+  // tzname is missing in MSVC14
+  #define tzname _tzname
+#endif
+
   // correct timezone name
   if (tmval->tm_isdst==0)
     // standard time zone
