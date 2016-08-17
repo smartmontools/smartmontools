@@ -2941,12 +2941,13 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("Write cache reordering %sable failed: SCT not supported if ATA Security is LOCKED\n",
         (enable ? "en" : "dis"));
     else if (ataGetSetSCTWriteCacheReordering(device,
-               enable, false /*persistent*/, true /*set*/) < 0) {
+               enable, options.sct_wcache_reorder_set_pers, true /*set*/) < 0) {
       pout("Write cache reordering %sable failed: %s\n", (enable ? "en" : "dis"), device->get_errmsg());
       returnval |= FAILSMART;
     }
     else
-      pout("Write cache reordering %sabled\n", (enable ? "en" : "dis"));
+      pout("Write cache reordering %sabled (%s)\n", (enable ? "en" : "dis"),
+           (options.sct_wcache_reorder_set_pers ? "persistent" : "volatile"));
   }
 
   // Enable/Disable write cache in SCT

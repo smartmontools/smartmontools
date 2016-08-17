@@ -957,7 +957,7 @@ the setting of wcache[,on|off] is ignored by the drive. SCT Feature Control
 usually sets write cache as "Controlled by ATA" by default. If ´,p´ is
 specified, the setting is preserved across power cycles.
 
-.I wcreorder[,on|off]
+.I wcreorder[,on|off[,p]]
 \- [ATA only] Gets/sets Write Cache Reordering.
 If it is disabled (off), disk write scheduling is executed on a 
 first-in-first-out (FIFO) basis. If Write Cache Reordering is enabled (on),
@@ -965,7 +965,7 @@ then disk write scheduling may be reordered by the drive. If write cache is
 disabled, the current Write Cache Reordering state is remembered but has
 no effect on non-cached writes, which are always written in the order received.
 The state of Write Cache Reordering has no effect on either NCQ or LCQ queued
-commands.
+commands. If ´,p´ is specified, the setting is preserved across power cycles.
 
 .I rcache[,on|off]
 \- [SCSI only] Gets/sets the \'Read Cache Disable\' (RCE) bit.

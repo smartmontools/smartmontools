@@ -123,7 +123,7 @@ static void Usage()
 "  -s NAME[,VALUE], --set=NAME[,VALUE]\n"
 "        Enable/disable/change device setting: aam,[N|off], apm,[N|off],\n"
 "        lookahead,[on|off], security-freeze, standby,[N|off|now],\n"
-"        wcache,[on|off], rcache,[on|off], wcreorder,[on|off]\n"
+"        wcache,[on|off], rcache,[on|off], wcreorder,[on|off[,p]]\n"
 "        wcache-sct,[ata|on|off[,p]]\n\n"
   );
   printf(
@@ -225,7 +225,7 @@ static std::string getvalidarglist(int opt)
     return "aam, apm, lookahead, security, wcache, rcache, wcreorder, wcache-sct";
   case opt_set:
     return "aam,[N|off], apm,[N|off], lookahead,[on|off], security-freeze, "
-           "standby,[N|off|now], wcache,[on|off], rcache,[on|off], wcreorder,[on|off], "
+           "standby,[N|off|now], wcache,[on|off], rcache,[on|off], wcreorder,[on|off[,p]], "
            "wcache-sct,[ata|on|off[,p]]";
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
@@ -872,7 +872,8 @@ static const char * parse_options(int argc, char** argv,
               len2 = strlen(optarg+n2) - 2;
 
               // the ,p option only works for set of SCT Feature Control command
-              if (strcmp(name, "wcache-sct") != 0)
+              if (strcmp(name, "wcache-sct") != 0 &&
+                  strcmp(name, "wcreorder") != 0)
                 badarg = true;
             }
             on  = !strncmp(optarg+n2, "on", len2);
@@ -924,6 +925,7 @@ static const char * parse_options(int argc, char** argv,
               badarg = true;
           }
           else if (!strcmp(name, "wcreorder")) {
+            ataopts.sct_wcache_reorder_set_pers = persistent;
             if (get) {
               ataopts.sct_wcache_reorder_get = true;
             }
