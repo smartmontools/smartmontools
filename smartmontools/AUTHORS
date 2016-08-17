@@ -1,4 +1,4 @@
-$Id: AUTHORS 4285 2016-04-10 13:17:11Z chrfranke $
+$Id: AUTHORS 4335 2016-08-17 21:42:38Z chrfranke $
 
 Developers / Maintainers / Contributors:
 
@@ -19,6 +19,7 @@ Jordan Hargrave         <jordan_hargrave@dell.com>
 Joerg Hering            <...>
 Geoff Keating           <geoffk@geoffk.org>
 Dr. David Kirkby        <...>
+Song Liu                <songliubraving@fb.com>
 Dan Lukes               <dan+smartmontools.changelog@obluda.cz>
 Kai Mäkisara            <kai.makisara@kolumbus.fi>
 Nidhi Malhotra          <nidhi.malhotra@pmcs.com>

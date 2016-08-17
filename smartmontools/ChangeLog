@@ -1,6 +1,8 @@
-$Id: ChangeLog 4334 2016-08-17 21:37:48Z chrfranke $
+$Id: ChangeLog 4335 2016-08-17 21:42:38Z chrfranke $
 
 2016-08-17  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Add Song Liu.
 
 	smartctl.cpp: Reduce scope of 'persistent' flag
 	(cppcheck: variableScope).
