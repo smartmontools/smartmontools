@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 4162 2015-10-31 16:36:16Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 4332 2016-08-17 21:16:29Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -843,6 +843,12 @@ int ataSmartSupport(const ata_identify_device * drive);
 //  2: Write Cache Reordering disabled
 // -1: error
 int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool persistent, bool set);
+
+// Return values:
+// 1: Write cache controled by ATA Set Features command
+// 2: Force enable write cache
+// 3: Force disable write cache
+int ataGetSetSCTWriteCache(ata_device * device, unsigned short state, bool persistent, bool set);
 
 // Return values:
 //  1: SMART enabled

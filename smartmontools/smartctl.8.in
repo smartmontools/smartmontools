@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-16 Christian Franke
 
-$Id: smartctl.8.in 4311 2016-04-27 21:03:01Z chrfranke $
+$Id: smartctl.8.in 4332 2016-08-17 21:16:29Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -946,6 +946,16 @@ The write cache is usually enabled by default.
 .I wcache[,on|off]
 \- [SCSI] Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
 The write cache is usually enabled by default.
+
+.I wcache-sct[,ata|on|off[,p]]
+\- [ATA only] Gets/sets the write cache feature through SCT Feature Control
+(if supported). The state of write cache in SCT Feature Control could be
+"Controlled by ATA", "Force Enabled", or "Force Disabled". SCT Feature control
+overwrites the setting by ATA Set Features command (wcache[,on|off] option).
+If SCT Feature Control sets write cache as "Force Enabled" or "Force Disabled",
+the setting of wcache[,on|off] is ignored by the drive. SCT Feature Control
+usually sets write cache as "Controlled by ATA" by default. If ´,p´ is
+specified, the setting is preserved across power cycles.
 
 .I wcreorder[,on|off]
 \- [ATA only] Gets/sets Write Cache Reordering.
@@ -2358,4 +2368,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4311 2016-04-27 21:03:01Z chrfranke $
+$Id: smartctl.8.in 4332 2016-08-17 21:16:29Z chrfranke $

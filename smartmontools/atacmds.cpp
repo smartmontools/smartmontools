@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4301 2016-04-16 20:48:29Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4332 2016-08-17 21:16:29Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -2307,8 +2307,10 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
   return 0;
 }
 
-// Get/Set Write Cache Reordering
-int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool persistent, bool set)
+// Common function for Get/Set SCT Feature Control:
+// Write Cache, Write Cache Reordering, etc.
+static int ataGetSetSCTFeatureControl(ata_device * device, unsigned short feature_code,
+                                      unsigned short state, bool persistent, bool set)
 {
   // Check initial status
   ata_sct_status_response sts;
@@ -2327,8 +2329,8 @@ int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool pers
   // CAUTION: DO NOT CHANGE THIS VALUE (SOME ACTION CODES MAY ERASE DISK)
   cmd.action_code   = 4; // Feature Control command
   cmd.function_code  = (set ? 1 : 2); // 1=Set, 2=Get
-  cmd.feature_code  = 2; //  Enable/Disable Write Cache Reordering 
-  cmd.state         = (enable ? 1 : 2); // 1 enable, 2 disable
+  cmd.feature_code  = feature_code;
+  cmd.state         = state;
   cmd.option_flags  = (persistent ? 0x01 : 0x00);
 
   // swap endian order if needed
@@ -2359,7 +2361,7 @@ int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool pers
       (!set ? 'G' : 'S'), device->get_errmsg());
     return -1;
   }
-  int state = out.out_regs.sector_count | (out.out_regs.lba_low << 8);
+  state = out.out_regs.sector_count | (out.out_regs.lba_low << 8);
 
   // re-read and check SCT status
   if (ataReadSCTStatus(device, &sts))
@@ -2373,6 +2375,19 @@ int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool pers
   return state;
 }
 
+// Get/Set Write Cache Reordering
+int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool persistent, bool set)
+{
+  return ataGetSetSCTFeatureControl(device, 2 /* Enable/Disable Write Cache Reordering */,
+                                    (enable ? 1 : 2), persistent, set);
+}
+
+// Get/Set Write Cache (force enable, force disable,
+int ataGetSetSCTWriteCache(ata_device * device, unsigned short state, bool persistent, bool set)
+{
+  return ataGetSetSCTFeatureControl(device, 1 /* Enable/Disable Write Cache */,
+                                    state, persistent, set);
+}
 
 // Set SCT Temperature Logging Interval
 int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persistent)

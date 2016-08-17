@@ -1,4 +1,11 @@
-$Id: ChangeLog 4331 2016-08-06 21:36:26Z chrfranke $
+$Id: ChangeLog 4332 2016-08-17 21:16:29Z chrfranke $
+
+2016-08-17  Song Liu  <songliubraving@fb.com>
+
+	atacmds.cpp, atacmds.h, ataprint.cpp, ataprint.h, smartctl.cpp,
+	smartctl.8.in: Add ability to control ATA drive write cache through
+	SCT Feature control.  The new smartctl options are
+	'-s wcache-sct,ata|on|off[,p]' and '-g wcache-sct' (ticket #723).
 
 2016-08-06  Christian Franke  <franke@computer.org>
 
