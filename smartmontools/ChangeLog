@@ -1,5 +1,10 @@
 $Id$
 
+2016-08-17  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Reduce scope of 'persistent' flag
+	(cppcheck: variableScope).
+
 2016-08-17  Song Liu  <songliubraving@fb.com>
 
 	ataprint.cpp, ataprint.h, smartctl.cpp, smartctl.8.in:

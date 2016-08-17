@@ -856,12 +856,12 @@ static const char * parse_options(int argc, char** argv,
         bool get = (optchar == 'g');
         char name[16+1]; unsigned val;
         int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
-        bool persistent = false;
         if (sscanf(optarg, "%16[^,=]%n%*[,=]%n%u%n", name, &n1, &n2, &val, &n3) >= 1
             && (n1 == len || (!get && n2 > 0))) {
           bool on  = false;
           bool off = false;
           bool ata = false;
+          bool persistent = false;
 
           if (n2 > 0) {
             int len2 = strlen(optarg + n2);
