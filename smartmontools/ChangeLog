@@ -2,6 +2,8 @@ $Id$
 
 2016-08-17  Christian Franke  <franke@computer.org>
 
+	AUTHORS: Add Song Liu.
+
 	smartctl.cpp: Reduce scope of 'persistent' flag
 	(cppcheck: variableScope).
 
