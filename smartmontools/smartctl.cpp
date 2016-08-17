@@ -87,7 +87,7 @@ static void Usage()
 "  --identify[=[w][nvb]]\n"
 "         Show words and bits from IDENTIFY DEVICE data                (ATA)\n\n"
 "  -g NAME, --get=NAME\n"
-"        Get device setting: all, aam, apm, lookahead, security, wcache, rcache, wcreorder\n\n"
+"        Get device setting: all, aam, apm, lookahead, security, wcache, rcache, wcreorder, wcache-sct\n\n"
 "  -a, --all\n"
 "         Show all SMART information for device\n\n"
 "  -x, --xall\n"
@@ -123,7 +123,8 @@ static void Usage()
 "  -s NAME[,VALUE], --set=NAME[,VALUE]\n"
 "        Enable/disable/change device setting: aam,[N|off], apm,[N|off],\n"
 "        lookahead,[on|off], security-freeze, standby,[N|off|now],\n"
-"        wcache,[on|off], rcache,[on|off], wcreorder,[on|off]\n\n"
+"        wcache,[on|off], rcache,[on|off], wcreorder,[on|off]\n"
+"        wcache-sct,[ata|on|off[,p]]\n\n"
   );
   printf(
 "======================================= READ AND DISPLAY DATA OPTIONS =====\n\n"
@@ -221,10 +222,11 @@ static std::string getvalidarglist(int opt)
   case 'f':
     return "old, brief, hex[,id|val]";
   case 'g':
-    return "aam, apm, lookahead, security, wcache, rcache, wcreorder";
+    return "aam, apm, lookahead, security, wcache, rcache, wcreorder, wcache-sct";
   case opt_set:
     return "aam,[N|off], apm,[N|off], lookahead,[on|off], security-freeze, "
-           "standby,[N|off|now], wcache,[on|off], rcache,[on|off], wcreorder,[on|off]";
+           "standby,[N|off|now], wcache,[on|off], rcache,[on|off], wcreorder,[on|off], "
+           "wcache-sct,[ata|on|off[,p]]";
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
   case opt_identify:
@@ -854,10 +856,29 @@ static const char * parse_options(int argc, char** argv,
         bool get = (optchar == 'g');
         char name[16+1]; unsigned val;
         int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
+        bool persistent = false;
         if (sscanf(optarg, "%16[^,=]%n%*[,=]%n%u%n", name, &n1, &n2, &val, &n3) >= 1
             && (n1 == len || (!get && n2 > 0))) {
-          bool on  = (n2 > 0 && !strcmp(optarg+n2, "on"));
-          bool off = (n2 > 0 && !strcmp(optarg+n2, "off"));
+          bool on  = false;
+          bool off = false;
+          bool ata = false;
+
+          if (n2 > 0) {
+            int len2 = strlen(optarg + n2);
+            char * tmp = strstr(optarg+n2, ",p");
+            // handle ",p" in persistent options like: wcache-sct,[ata|on|off],p
+            if (tmp && (strlen(tmp) == 2)) {
+              persistent = true;
+              len2 = strlen(optarg+n2) - 2;
+
+              // the ,p option only works for set of SCT Feature Control command
+              if (strcmp(name, "wcache-sct") != 0)
+                badarg = true;
+            }
+            on  = !strncmp(optarg+n2, "on", len2);
+            off = !strncmp(optarg+n2, "off", len2);
+            ata = !strncmp(optarg+n2, "ata", len2);
+          }
           if (n3 != len)
             val = ~0U;
 
@@ -910,6 +931,20 @@ static const char * parse_options(int argc, char** argv,
               ataopts.sct_wcache_reorder_set = -1;
             else if (on)
               ataopts.sct_wcache_reorder_set = 1;
+            else
+              badarg = true;
+          }
+          else if (!strcmp(name, "wcache-sct")) {
+            ataopts.sct_wcache_sct_set_pers = persistent;
+            if (get) {
+              ataopts.sct_wcache_sct_get = true;
+            }
+            else if (off)
+              ataopts.sct_wcache_sct_set = 3;
+            else if (on)
+              ataopts.sct_wcache_sct_set = 2;
+            else if (ata)
+              ataopts.sct_wcache_sct_set = 1;
             else
               badarg = true;
           }

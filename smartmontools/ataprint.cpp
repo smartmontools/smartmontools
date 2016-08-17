@@ -2638,6 +2638,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        || options.sct_erc_set
        || options.sct_wcache_reorder_get
        || options.sct_wcache_reorder_set
+       || options.sct_wcache_sct_get
+       || options.sct_wcache_sct_set
   );
 
   // Exit if no further options specified
@@ -2821,6 +2823,31 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
   }
 
+  const char * sct_write_cache_state_desc[4] = {
+    "Unknown",            // 0: not defined in standard but returned on some drives if not set
+    "Controlled by ATA",  // 1: controlled ATA Set Features command
+    "Force Enabled",      // 2
+    "Force Disabled"      // 3
+  };
+
+  // Print SCT feature control of write cache
+  if (options.sct_wcache_sct_get) {
+    if (!isSCTFeatureControlCapable(&drive))
+      pout("SCT Write Cache Control: Unavailable\n");
+    else if (locked)
+      pout("SCT Write Cache Control: Unknown (SCT not supported if ATA Security is LOCKED)\n");
+    else {
+      int state = ataGetSetSCTWriteCache(device, 1, false /*persistent*/, false /*set*/);
+      if (-1 <= state && state <= 3)
+        pout("SCT Write Cache Control: %s\n",
+             (state == -1 ? "Unknown (SCT Feature Control command failed)" :
+              sct_write_cache_state_desc[state]));
+      else
+        pout("SCT Write Cache Control: Unknown (0x%02x)\n", state);
+    }
+  }
+
+
   // Print remaining drive info
   if (options.drive_info) {
     // Print the (now possibly changed) power mode if available
@@ -2839,7 +2866,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       || options.smart_auto_offl_disable || options.smart_auto_offl_enable
       || options.set_aam || options.set_apm || options.set_lookahead
       || options.set_wcache || options.set_security_freeze || options.set_standby
-      || options.sct_wcache_reorder_set)
+      || options.sct_wcache_reorder_set || options.sct_wcache_sct_set)
     pout("=== START OF ENABLE/DISABLE COMMANDS SECTION ===\n");
   
   // Enable/Disable AAM
@@ -2920,6 +2947,23 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     else
       pout("Write cache reordering %sabled\n", (enable ? "en" : "dis"));
+  }
+
+  // Enable/Disable write cache in SCT
+  if (options.sct_wcache_sct_set) {
+    if (!isSCTFeatureControlCapable(&drive))
+      pout("SCT Feature Control of write cache failed: SCT Feature Control command not supported\n");
+    else if (locked)
+      pout("SCT Feature Control of write cache failed: SCT not supported if ATA Security is LOCKED\n");
+    else if (ataGetSetSCTWriteCache(device,
+               options.sct_wcache_sct_set, options.sct_wcache_sct_set_pers, true /*set*/) < 0) {
+      pout("SCT Feature Control of write cache failed: %s\n", device->get_errmsg());
+      returnval |= FAILSMART;
+    }
+    else
+      pout("Write cache SCT Feature Control is set to: %s (%s)\n",
+           sct_write_cache_state_desc[options.sct_wcache_sct_set],
+           (options.sct_wcache_sct_set_pers ? "persistent" : "volatile"));
   }
 
   // Freeze ATA security

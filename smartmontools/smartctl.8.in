@@ -947,6 +947,16 @@ The write cache is usually enabled by default.
 \- [SCSI] Gets/sets the \'Write Cache Enable\' (WCE) bit (if supported).
 The write cache is usually enabled by default.
 
+.I wcache-sct[,ata|on|off[,p]]
+\- [ATA only] Gets/sets the write cache feature through SCT Feature Control
+(if supported). The state of write cache in SCT Feature Control could be
+"Controlled by ATA", "Force Enabled", or "Force Disabled". SCT Feature control
+overwrites the setting by ATA Set Features command (wcache[,on|off] option).
+If SCT Feature Control sets write cache as "Force Enabled" or "Force Disabled",
+the setting of wcache[,on|off] is ignored by the drive. SCT Feature Control
+usually sets write cache as "Controlled by ATA" by default. If ´,p´ is
+specified, the setting is preserved across power cycles.
+
 .I wcreorder[,on|off]
 \- [ATA only] Gets/sets Write Cache Reordering.
 If it is disabled (off), disk write scheduling is executed on a 

@@ -108,6 +108,9 @@ struct ata_print_options
   int set_wcache; // disable(-1), enable(1) write cache
   bool sct_wcache_reorder_get; // print write cache reordering status
   int sct_wcache_reorder_set; // disable(-1), enable(1) write cache reordering
+  bool sct_wcache_sct_get; // print SCT Feature Control of write cache status
+  int sct_wcache_sct_set; // determined by ata set features command(1), force enable(2), force disable(3)
+  bool sct_wcache_sct_set_pers; // persistent or volatile
 
   ata_print_options()
     : drive_info(false),
@@ -145,7 +148,9 @@ struct ata_print_options
       set_standby(0), set_standby_now(false),
       get_security(false), set_security_freeze(false),
       get_wcache(false), set_wcache(0),
-      sct_wcache_reorder_get(false), sct_wcache_reorder_set(0)
+      sct_wcache_reorder_get(false), sct_wcache_reorder_set(0),
+      sct_wcache_sct_get(false), sct_wcache_sct_set(0),
+      sct_wcache_sct_set_pers(false)
     { }
 };
 

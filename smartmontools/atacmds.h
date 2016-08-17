@@ -845,6 +845,12 @@ int ataSmartSupport(const ata_identify_device * drive);
 int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool persistent, bool set);
 
 // Return values:
+// 1: Write cache controled by ATA Set Features command
+// 2: Force enable write cache
+// 3: Force disable write cache
+int ataGetSetSCTWriteCache(ata_device * device, unsigned short state, bool persistent, bool set);
+
+// Return values:
 //  1: SMART enabled
 //  0: SMART disabled
 // -1: can't tell if SMART is enabled -- try issuing ataDoesSmartWork command to see

@@ -1,5 +1,12 @@
 $Id$
 
+2016-08-17  Song Liu  <songliubraving@fb.com>
+
+	atacmds.cpp, atacmds.h, ataprint.cpp, ataprint.h, smartctl.cpp,
+	smartctl.8.in: Add ability to control ATA drive write cache through
+	SCT Feature control.  The new smartctl options are
+	'-s wcache-sct,ata|on|off[,p]' and '-g wcache-sct' (ticket #723).
+
 2016-08-06  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Add Windows 10 build number to get_os_version_str().
