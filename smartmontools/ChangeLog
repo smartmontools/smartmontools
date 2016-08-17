@@ -1,6 +1,9 @@
-$Id: ChangeLog 4332 2016-08-17 21:16:29Z chrfranke $
+$Id: ChangeLog 4333 2016-08-17 21:28:11Z chrfranke $
 
 2016-08-17  Song Liu  <songliubraving@fb.com>
+
+	ataprint.cpp, ataprint.h, smartctl.cpp, smartctl.8.in:
+	Add persistent option ',p' to '-s wcreorder,on|off' (ticket #726).
 
 	atacmds.cpp, atacmds.h, ataprint.cpp, ataprint.h, smartctl.cpp,
 	smartctl.8.in: Add ability to control ATA drive write cache through
