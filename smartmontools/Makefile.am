@@ -381,6 +381,8 @@ EXTRA_DIST = \
         os_win32/installer.nsi \
         os_win32/runcmd.c \
         os_win32/smartctl_res.rc.in \
+        os_win32/smartd_mailer.ps1 \
+        os_win32/smartd_mailer.conf.sample.ps1 \
         os_win32/smartd_res.rc.in \
         os_win32/smartd_warning.cmd \
         os_win32/syslogevt.mc \
@@ -761,6 +763,8 @@ EXEFILES_WIN32 = \
         $(exedir_win32)/smartctl.exe \
         $(exedir_win32)/smartctl-nc.exe \
         $(exedir_win32)/smartd.exe \
+        $(exedir_win32)/smartd_mailer.ps1 \
+        $(exedir_win32)/smartd_mailer.conf.sample.ps1 \
         $(exedir_win32)/smartd_warning.cmd \
         $(exedir_win32)/runcmda.exe \
         $(exedir_win32)/runcmdu.exe \
@@ -877,6 +881,10 @@ $(exedir_win32)/%.h: $(srcdir)/%.h
 	touch -r $< $@
 
 $(exedir_win32)/%.cmd: $(srcdir)/os_win32/%.cmd
+	$(UNIX2DOS) < $< > $@
+	touch -r $< $@
+
+$(exedir_win32)/%.ps1: $(srcdir)/os_win32/%.ps1
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
 

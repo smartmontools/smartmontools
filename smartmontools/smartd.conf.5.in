@@ -875,10 +875,17 @@ executable (for example /usr/local/bin/mail) or a custom script to
 run, please use the \'\-M exec\' Directive below.
 
 .\" %IF OS Windows
-On Windows, the \'\fBBlat\fP\' mailer
+[Windows only] On Windows, the \'\fBBlat\fP\' mailer
 (\fBhttp://blat.sourceforge.net/\fP) is used by default.
 This mailer uses a different command line syntax, see
 \'\-M exec\' below.
+
+[NEW EXPERIMENTAL SMARTD FEATURE]
+If the file EXEDIR/smartd_mailer.conf.ps1 is present and \'\-M exec\'
+is not specified, the script smartd_mailer.ps1 is used instead.
+This script uses the Send-MailMessage cmdlet to send mail.
+See EXEDIR/smartd_mailer.conf.sample.ps1 for info about the format of
+the configuration file.
 
 .\" %ENDIF OS Windows
 Note also that there is a special argument

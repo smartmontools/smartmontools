@@ -2,7 +2,9 @@
 ::
 :: smartd warning script
 ::
-:: Copyright (C) 2012-13 Christian Franke <smartmontools-support@lists.sourceforge.net>
+:: Home page of code is: http://www.smartmontools.org
+::
+:: Copyright (C) 2012-16 Christian Franke
 ::
 :: This program is free software; you can redistribute it and/or modify
 :: it under the terms of the GNU General Public License as published by
@@ -15,21 +17,27 @@
 :: $Id$
 ::
 
+setlocal
 set err=
+
+:: Change to script directory (not necessary if run from smartd service)
+cd /d %~dp0
+if errorlevel 1 goto ERROR
 
 :: Parse options
 set dryrun=
 if "%1" == "--dryrun" (
-  set dryrun=t
+  set dryrun=--dryrun
   shift
 )
+if not "%dryrun%" == "" echo cd /d %cd%
 
 if not "%1" == "" (
   echo smartd warning message script
   echo.
   echo Usage:
   echo set SMARTD_MAILER='Path to external script, empty for "blat"'
-  echo set SMARTD_ADDRESS='Space separated mail adresses, empty if none'
+  echo set SMARTD_ADDRESS='Space separated mail addresses, empty if none'
   echo set SMARTD_MESSAGE='Error Message'
   echo set SMARTD_FAILTYPE='Type of failure, "EMailTest" for tests'
   echo set SMARTD_TFIRST='Date of first message sent, empty if none'
@@ -42,12 +50,12 @@ if not "%1" == "" (
   echo :: set SMARTD_DEVICETYPE='Device type from -d directive, "auto" if none'
 
   echo smartd_warning.cmd [--dryrun]
-  goto EOF
+  goto ERROR
 )
 
 if "%SMARTD_ADDRESS%%SMARTD_MAILER%" == "" (
   echo smartd_warning.cmd: SMARTD_ADDRESS or SMARTD_MAILER must be set
-  goto EOF
+  goto ERROR
 )
 
 :: USERDNSDOMAIN may be unset if running as service
@@ -94,6 +102,7 @@ if     "%TMP%" == "" set SMARTD_FULLMSGFILE=smartd_warning-%RANDOM%.txt
     ))
   )
 ) > "%SMARTD_FULLMSGFILE%"
+if errorlevel 1 goto ERROR
 
 if not "%dryrun%" == "" (
   echo %SMARTD_FULLMSGFILE%:
@@ -108,7 +117,6 @@ set wtssend=
 if "%first%" == "console"   set wtssend=-c
 if "%first%" == "active"    set wtssend=-a
 if "%first%" == "connected" set wtssend=-s
-set first=
 
 if not "%wtssend%" == "" (
   :: Show Message box(es) via WTSSendMessage()
@@ -121,24 +129,41 @@ if not "%wtssend%" == "" (
   :: Remove first address
   for /F "tokens=1*" %%a in ("%SMARTD_ADDRESS%") do (set SMARTD_ADDRESS=%%b)
 )
-set wtssend=
 
 :: Make comma separated address list
 set SMARTD_ADDRCSV=
 if not "%SMARTD_ADDRESS%" == "" set SMARTD_ADDRCSV=%SMARTD_ADDRESS: =,%
 
-:: Use blat mailer by default
-if not "%SMARTD_ADDRESS%" == "" if "%SMARTD_MAILER%" == "" set SMARTD_MAILER=blat
+:: Default mailer is smartd_mailer.ps1 (if configured) or blat.exe
+if not "%SMARTD_ADDRESS%" == "" if "%SMARTD_MAILER%" == "" (
+  if not exist smartd_mailer.conf.ps1 set SMARTD_MAILER=blat
+)
 
 :: Send mail or run command
 if not "%SMARTD_ADDRCSV%" == "" (
 
   :: Send mail
-  if not "%dryrun%" == "" (
-    echo call "%SMARTD_MAILER%" - -q -subject "%SMARTD_SUBJECT%" -to "%SMARTD_ADDRCSV%" ^< "%SMARTD_FULLMSGFILE%"
-  ) else (
-    call "%SMARTD_MAILER%" - -q -subject "%SMARTD_SUBJECT%" -to "%SMARTD_ADDRCSV%" < "%SMARTD_FULLMSGFILE%"
+  if "%SMARTD_MAILER%" == "" (
+
+    :: Use smartd_mailer.ps1
+    if not "%dryrun%" == "" (
+      echo PowerShell -NoProfile -ExecutionPolicy Bypass .\smartd_mailer.ps1
+      echo ==========
+    )
+    PowerShell -NoProfile -ExecutionPolicy Bypass -Command .\smartd_mailer.ps1 %dryrun%
     if errorlevel 1 set err=t
+    if not "%dryrun%" == "" echo ==========
+
+  ) else (
+
+    :: Use blat mailer or compatible
+    if not "%dryrun%" == "" (
+      echo call "%SMARTD_MAILER%" - -q -subject "%SMARTD_SUBJECT%" -to "%SMARTD_ADDRCSV%" ^< "%SMARTD_FULLMSGFILE%"
+    ) else (
+      call "%SMARTD_MAILER%" - -q -subject "%SMARTD_SUBJECT%" -to "%SMARTD_ADDRCSV%" < "%SMARTD_FULLMSGFILE%"
+      if errorlevel 1 set err=t
+    )
+
   )
 
 ) else ( if not "%SMARTD_MAILER%" == "" (
@@ -155,5 +180,10 @@ if not "%SMARTD_ADDRCSV%" == "" (
 
 del "%SMARTD_FULLMSGFILE%" >nul 2>nul
 
-:EOF
-if not "%err%" == "" goto ERROR 2>nul
+if not "%err%" == "" goto ERROR
+endlocal
+exit /b 0
+
+:ERROR
+endlocal
+exit /b 1

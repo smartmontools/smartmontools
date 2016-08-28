@@ -1,5 +1,16 @@
 $Id$
 
+2016-08-28  Christian Franke  <franke@computer.org>
+
+	Send warning mails via PowerShell script on Windows (ticket #731):
+	Makefile.am, os_win32/installer.nsi: Add new files.
+	os_win32/smartd_mailer.ps1: New PowerShell script using Send-MailMessage
+	cmdlet to send mail.
+	os_win32/smartd_mailer.conf.sample.ps1: New sample config file.
+	os_win32/smartd_warning.cmd: Call new script if configured.
+	Improve error handling.  Add setlocal.
+	smartd.conf.5.in: Document it.
+
 2016-08-17  Christian Franke  <franke@computer.org>
 
 	AUTHORS: Add Song Liu.

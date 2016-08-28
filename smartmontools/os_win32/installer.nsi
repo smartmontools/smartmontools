@@ -3,7 +3,7 @@
 ;
 ; Home page of code is: http://www.smartmontools.org
 ;
-; Copyright (C) 2006-15 Christian Franke
+; Copyright (C) 2006-16 Christian Franke
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -153,6 +153,8 @@ SectionGroup "!Program files"
       MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "Replace existing configuration file$\n$INSTDIR\bin\smartd.conf ?" /SD IDNO IDYES 0 IDNO +2
         File "${INPDIR}\doc\smartd.conf"
 
+    File "${INPDIR}\bin\smartd_mailer.ps1"
+    File "${INPDIR}\bin\smartd_mailer.conf.sample.ps1"
     File "${INPDIR}\bin\smartd_warning.cmd"
     !insertmacro FileExe "bin\wtssendmsg.exe" ""
 
@@ -305,6 +307,8 @@ Section "Start Menu Shortcuts" MENU_SECTION
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\smartd.conf (edit).lnk" "$EDITOR" "$INSTDIR\bin\smartd.conf"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\smartd.conf (view).lnk"                   "$EDITOR" "$INSTDIR\bin\smartd.conf"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\smartd.log (view).lnk"                    "$EDITOR" "$INSTDIR\bin\smartd.log"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\smartd_mailer.conf.sample.ps1 (view).lnk" "$EDITOR" '"$INSTDIR\bin\smartd_mailer.conf.sample.ps1"'
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\smartd_mailer.conf.ps1 (create, edit).lnk" "$EDITOR" '"$INSTDIR\bin\smartd_mailer.conf.ps1"'
 
     ; smartd service
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, eventlog, 30min.lnk"   "$INSTDIR\bin\runcmdu.exe" "smartd install"
@@ -438,10 +442,18 @@ Section "Uninstall"
       Delete "$INSTDIR\bin\drivedb-add.h"
   ${EndIf}
 
+  ; Remove smartd_mailer.conf.ps1 file ?
+  ${If} ${FileExists} "$INSTDIR\bin\smartd_mailer.conf.ps1"
+    MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "Delete mailer configuration file$\n$INSTDIR\bin\smartd_mailer.conf.ps1 ?" /SD IDNO IDYES 0 IDNO +2
+      Delete "$INSTDIR\bin\smartd_mailer.conf.ps1"
+  ${EndIf}
+
   ; Remove files
   Delete "$INSTDIR\bin\smartctl.exe"
   Delete "$INSTDIR\bin\smartctl-nc.exe"
   Delete "$INSTDIR\bin\smartd.exe"
+  Delete "$INSTDIR\bin\smartd_mailer.ps1"
+  Delete "$INSTDIR\bin\smartd_mailer.conf.sample.ps1"
   Delete "$INSTDIR\bin\smartd_warning.cmd" ; TODO: Check for modifications?
   Delete "$INSTDIR\bin\drivedb.h"
   Delete "$INSTDIR\bin\drivedb.h.error"
