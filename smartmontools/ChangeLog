@@ -1,6 +1,8 @@
-$Id: ChangeLog 4336 2016-08-28 18:26:56Z chrfranke $
+$Id: ChangeLog 4337 2016-08-28 18:38:13Z chrfranke $
 
 2016-08-28  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Fix quoting of EDITOR shortcuts.
 
 	Send warning mails via PowerShell script on Windows (ticket #731):
 	Makefile.am, os_win32/installer.nsi: Add new files.
