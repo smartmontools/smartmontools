@@ -42,8 +42,24 @@ set SMARTD_FULLMSGFILE='X:\PATH\TO\Message.txt'
   exit 1
 }
 
+# Set default sender address
+if ($env:COMPUTERNAME -match '^[-_A-Za-z0-9]+$') {
+  $hostname = $env:COMPUTERNAME.ToLower()
+} else {
+  $hostname = "unknown"
+}
+if ($env:USERDNSDOMAIN -match '^[-._A-Za-z0-9]+$') {
+  $hostname += ".$($env:USERDNSDOMAIN.ToLower())"
+} elseif (     ($env:USERDOMAIN -match '^[-_A-Za-z0-9]+$') `
+          -and ($env:USERDOMAIN -ne $env:COMPUTERNAME)    ) {
+  $hostname += ".$($env:USERDOMAIN.ToLower()).local"
+} else {
+  $hostname += ".local"
+}
+
+$from = "smartd daemon <root@$hostname>"
+
 # Read configuration
-$from = "smartd daemon <root@$($env:COMPUTERNAME.ToLower()).local>"
 . .\smartd_mailer.conf.ps1
 
 # Create parameters

@@ -8,7 +8,7 @@ $smtpServer = "smtp.domain.local"
 
 # Optional settings [default values in square brackets]
 
-# Sender address ["smartd daemon <root@$($env:COMPUTERNAME.ToLower()).local>"]
+# Sender address ["smartd daemon <root@$hostname>"]
 #$from = "Administrator <root@domain.local>"
 
 # SMTP Port [25]
