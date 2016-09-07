@@ -14,7 +14,7 @@
 :: You should have received a copy of the GNU General Public License
 :: (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ::
-:: $Id: smartd_warning.cmd 4336 2016-08-28 18:26:56Z chrfranke $
+:: $Id: smartd_warning.cmd 4338 2016-09-07 19:31:28Z chrfranke $
 ::
 
 setlocal
@@ -60,8 +60,10 @@ if "%SMARTD_ADDRESS%%SMARTD_MAILER%" == "" (
 
 :: USERDNSDOMAIN may be unset if running as service
 if "%USERDNSDOMAIN%" == "" (
-  for /f "delims== tokens=2 usebackq" %%d in (`WMIC PATH Win32_Computersystem WHERE "PartOfDomain=TRUE" GET Domain /VALUE 2^>nul ^| find "Domain=" 2^>nul`) do set USERDNSDOMAIN=%%~d
+  for /f "delims== tokens=2 usebackq" %%d in (`wmic PATH Win32_Computersystem WHERE "PartOfDomain=TRUE" GET Domain /VALUE ^<nul 2^>nul`) do set USERDNSDOMAIN=%%~d
 )
+:: Remove possible trailing \r appended by above command
+set USERDNSDOMAIN=%USERDNSDOMAIN%
 
 :: Format subject
 set SMARTD_SUBJECT=SMART error (%SMARTD_FAILTYPE%) detected on host: %COMPUTERNAME%

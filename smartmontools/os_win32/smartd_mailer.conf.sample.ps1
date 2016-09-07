@@ -1,14 +1,14 @@
 # Sample file for smartd_mailer.conf.ps1
 #
 # Home page of code is: http://www.smartmontools.org
-# $Id: smartd_mailer.conf.sample.ps1 4336 2016-08-28 18:26:56Z chrfranke $
+# $Id: smartd_mailer.conf.sample.ps1 4338 2016-09-07 19:31:28Z chrfranke $
 
 # SMTP Server
 $smtpServer = "smtp.domain.local"
 
 # Optional settings [default values in square brackets]
 
-# Sender address ["smartd daemon <root@$($env:COMPUTERNAME.ToLower()).local>"]
+# Sender address ["smartd daemon <root@$hostname>"]
 #$from = "Administrator <root@domain.local>"
 
 # SMTP Port [25]

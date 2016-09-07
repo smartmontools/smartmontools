@@ -1,4 +1,10 @@
-$Id: ChangeLog 4337 2016-08-28 18:38:13Z chrfranke $
+$Id: ChangeLog 4338 2016-09-07 19:31:28Z chrfranke $
+
+2016-09-07  Christian Franke  <franke@computer.org>
+
+	os_win32/smartd_mailer.ps1: Use domainname for default sender address.
+	os_win32/smartd_mailer.conf.sample.ps1: Update related comment.
+	os_win32/smartd_warning.cmd: Remove trailing '\r' from USERDNSDOMAIN.
 
 2016-08-28  Christian Franke  <franke@computer.org>
 
