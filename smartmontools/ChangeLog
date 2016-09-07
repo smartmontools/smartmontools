@@ -1,6 +1,8 @@
-$Id: ChangeLog 4338 2016-09-07 19:31:28Z chrfranke $
+$Id: ChangeLog 4339 2016-09-07 20:09:55Z chrfranke $
 
 2016-09-07  Christian Franke  <franke@computer.org>
+
+	os_win32/smartd_warning.cmd: Use delayed variable expansion.
 
 	os_win32/smartd_mailer.ps1: Use domainname for default sender address.
 	os_win32/smartd_mailer.conf.sample.ps1: Update related comment.
