@@ -2,6 +2,8 @@ $Id$
 
 2016-09-07  Christian Franke  <franke@computer.org>
 
+	os_win32.cpp: Decode Windows 10 build number.
+
 	os_win32/smartd_warning.cmd: Use delayed variable expansion.
 
 	os_win32/smartd_mailer.ps1: Use domainname for default sender address.

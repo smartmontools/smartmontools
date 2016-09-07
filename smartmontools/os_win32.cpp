@@ -3809,19 +3809,31 @@ std::string win_smart_interface::get_os_version_str()
   unsigned build = 0;
   if (   vi.dwPlatformId == VER_PLATFORM_WIN32_NT
       && vi.dwMajorVersion <= 0xf && vi.dwMinorVersion <= 0xf) {
-    bool ws = (vi.wProductType <= VER_NT_WORKSTATION);
-    switch (vi.dwMajorVersion << 4 | vi.dwMinorVersion) {
-      case 0x50: w =       "2000";              break;
-      case 0x51: w =       "xp";                break;
-      case 0x52: w = (!GetSystemMetrics(89/*SM_SERVERR2*/)
-                         ? "2003"  : "2003r2"); break;
-      case 0x60: w = (ws ? "vista" : "2008"  ); break;
-      case 0x61: w = (ws ? "win7"  : "2008r2"); break;
-      case 0x62: w = (ws ? "win8"  : "2012"  ); break;
-      case 0x63: w = (ws ? "win8.1": "2012r2"); break;
-      case 0x64: w = (ws ? "w10tp" : "w10tps"); break; //  6.4 = Win 10 Technical Preview
-      case 0xa0: w = (ws ? "w10"   : "2016"  );        // 10.0 = Win 10 : Win Server 2016 (TP only?)
-                 build = vi.dwBuildNumber;      break;
+    switch (  (vi.dwMajorVersion << 4 | vi.dwMinorVersion) << 1
+            | (vi.wProductType > VER_NT_WORKSTATION ? 1 : 0)   ) {
+      case 0x50<<1    :
+      case 0x50<<1 | 1: w = "2000";     break;
+      case 0x51<<1    : w = "xp";       break;
+      case 0x52<<1    : w = "xp64";     break;
+      case 0x52<<1 | 1: w = (!GetSystemMetrics(89/*SM_SERVERR2*/)
+                          ? "2003"
+                          : "2003r2");  break;
+      case 0x60<<1    : w = "vista";    break;
+      case 0x60<<1 | 1: w = "2008";     break;
+      case 0x61<<1    : w = "win7";     break;
+      case 0x61<<1 | 1: w = "2008r2";   break;
+      case 0x62<<1    : w = "win8";     break;
+      case 0x62<<1 | 1: w = "2012";     break;
+      case 0x63<<1    : w = "win8.1";   break;
+      case 0x63<<1 | 1: w = "2012r2";   break;
+      case 0xa0<<1    :
+        switch (vi.dwBuildNumber) {
+          case 10240:   w = "w10-1507"; break;
+          case 10586:   w = "w10-1511"; break;
+          case 14393:   w = "w10-1607"; break;
+          default:      w = "w10";  build = vi.dwBuildNumber; break;
+        } break;
+      case 0xa0<<1 | 1: w = "2016"; build = vi.dwBuildNumber; break;
     }
   }
 
