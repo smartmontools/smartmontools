@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4336 2016-08-28 18:26:56Z chrfranke $
+# $Id: Makefile.am 4341 2016-09-07 20:42:17Z chrfranke $
 #
 
 @SET_MAKE@
@@ -962,6 +962,20 @@ $(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc: smartctl_res.rc
 
 $(srcdir)/os_win32/vc$(vcver)/smartd_res.rc: smartd_res.rc
 	cp $< $@
+
+clean-vc$(vcver):
+	rm -f $(srcdir)/os_win32/vc$(vcver)/smartmontools.VC.VC.opendb
+	rm -f $(srcdir)/os_win32/vc$(vcver)/smartmontools.VC.db
+	rm -f $(srcdir)/os_win32/vc$(vcver)/syslogevt.h
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/Release
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/x64
+
+distclean-vc$(vcver): clean-vc$(vcver)
+	rm -f $(CONFIG_VC_FILES)
+
+maintainer-clean-vc$(vcver): distclean-vc$(vcver)
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs
 
 endif
 
