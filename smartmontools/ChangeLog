@@ -2,6 +2,8 @@ $Id$
 
 2016-09-07  Christian Franke  <franke@computer.org>
 
+	Makefile.am: clean-vc14 targets.
+
 	os_win32.cpp: Decode Windows 10 build number.
 
 	os_win32/smartd_warning.cmd: Use delayed variable expansion.
