@@ -5,6 +5,19 @@ $Id$
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
+Date <Not released yet, please try current SVN or daily builds>
+Summary: smartmontools release 6.6
+-----------------------------------------------------------
+- smartctl: Control ATA write cache through SCT Feature Control
+  with '-s wcache-sct,ata|on|off[,p]' and '-g wcache-sct'.
+- smartctl '-s wcreorder,on|off': New persistent flag ',p'.
+- HDD, SSD and USB additions to drive database.
+- NetBSD: Compile fix.
+- NetBSD: Use a raw disk device file.
+- OpenBSD: Compile fix.
+- Windows: New PowerShell script to send smartd warning emails
+  without external tools.
+
 Date 2016-05-07
 Summary: smartmontools release 6.5
 -----------------------------------------------------------
