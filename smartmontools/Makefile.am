@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4341 2016-09-07 20:42:17Z chrfranke $
+# $Id: Makefile.am 4343 2016-09-25 16:46:49Z chrfranke $
 #
 
 @SET_MAKE@
@@ -174,6 +174,7 @@ EXTRA_smartd_SOURCES = \
         dev_legacy.cpp \
         linux_nvme_ioctl.h \
         freebsd_nvme_ioctl.h \
+        netbsd_nvme_ioctl.h \
         megaraid.h
 
 if OS_WIN32_MINGW
