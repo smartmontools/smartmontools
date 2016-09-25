@@ -1,5 +1,14 @@
 $Id$
 
+2016-09-25  Kimihiro Nonaka  <...>
+
+	os_netbsd.cpp: Migrate to new dev_interface (ticket #101).
+	Add NVMe support (ticket #728).
+	Implement netbsd_ata_device::ata_pass_through().
+	netbsd_nvme_ioctl.h: New file based on "sys/dev/ic/nvmeio.h" from
+	NetBSD kernel sources.
+	Makefile.am: Add new file.
+
 2016-09-07  Christian Franke  <franke@computer.org>
 
 	Makefile.am: clean-vc14 targets.
