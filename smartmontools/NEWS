@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 4342 2016-09-07 20:48:51Z chrfranke $
+$Id: NEWS 4345 2016-09-25 16:56:37Z chrfranke $
 
 The most up-to-date version of this file is:
 http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
@@ -12,6 +12,8 @@ Summary: smartmontools release 6.6
   with '-s wcache-sct,ata|on|off[,p]' and '-g wcache-sct'.
 - smartctl '-s wcreorder,on|off': New persistent flag ',p'.
 - HDD, SSD and USB additions to drive database.
+- NetBSD: NVMe support.
+- NetBSD: Full 28-bit ATA support.
 - NetBSD: Compile fix.
 - NetBSD: Use a raw disk device file.
 - OpenBSD: Compile fix.
