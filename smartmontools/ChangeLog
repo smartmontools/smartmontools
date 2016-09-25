@@ -1,5 +1,9 @@
 $Id$
 
+2016-09-25  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Add Kimihiro Nonaka.
+
 2016-09-25  Kimihiro Nonaka  <...>
 
 	os_netbsd.cpp: Migrate to new dev_interface (ticket #101).
