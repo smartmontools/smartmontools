@@ -12,6 +12,8 @@ Summary: smartmontools release 6.6
   with '-s wcache-sct,ata|on|off[,p]' and '-g wcache-sct'.
 - smartctl '-s wcreorder,on|off': New persistent flag ',p'.
 - HDD, SSD and USB additions to drive database.
+- NetBSD: NVMe support.
+- NetBSD: Full 28-bit ATA support.
 - NetBSD: Compile fix.
 - NetBSD: Use a raw disk device file.
 - OpenBSD: Compile fix.
