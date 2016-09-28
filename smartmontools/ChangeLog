@@ -1,5 +1,16 @@
 $Id$
 
+2016-09-28  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Buffalo MiniStation HD-PZU3 (0x0411:0x01f9) (ticket #739)
+	- USB: Iomega Prestige (0x059b:0x0571)
+	- USB: LaCie P9223 (0x059f:0x1070)
+	- USB: Seagate Expansion Desktop (0x0bc2:0x331a) (ticket #725)
+	- USB: Seagate Backup Plus (0x0bc2:0xab28) (ticket #738)
+	- USB: WD My Passport Ultra (0x1058:0x259d) (ticket #736)
+	- USB: ASMedia ASM1351 (0x174c:0x1351)
+
 2016-09-25  Christian Franke  <franke@computer.org>
 
 	AUTHORS: Add Kimihiro Nonaka.
