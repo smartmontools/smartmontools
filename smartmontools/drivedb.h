@@ -1872,7 +1872,8 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HN-M(320|500|750|101)XBB",
     "", "", ""
   },
-  { "Seagate Samsung SpinPoint M8U (USB)", // tested with ST1000LM025 HN-M101ABB/2AR10001
+  { "Seagate Samsung SpinPoint M8U (USB)", // tested with ST1000LM025 HN-M101ABB/2AR10001,
+      // ST1000LM025 HN-M101ABB/2BA30003 (0x04e8:0x61b6)
     "ST(250|320|500|640|750|1000)LM0[012][3459] HN-M[0-9]*ABB",
     "", "", ""
   },
@@ -3419,6 +3420,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD10TMVW-11ZSMS5/01.01A01,
       // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
       // WDC WD20NMVW-11AV3S3/01.01A01 (0x1058:0x0837),
+      // WDC WD20NMVW-11EDZS7/01.01A01 (0x1058:0x259d),
       // WDC WD20NMVW-11W68S0/01.01A01,
       // WDC WD30NMVW-11C3NS4/01.01A01
     "WDC WD(5000[LK]|7500[BK]|10[JT]|[23]0N)MV[VW]-.*", // *W-* = USB 3.0
@@ -3524,20 +3526,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Buffalo MiniStation Stealth HD-PCTU2; ",
-    "0x0411:0x01d9",
-    "", // 0x0108
-    "",
-    "-d sat"
-  },
-  { "USB: Buffalo MiniStationHD-PCFU3; ",
-    "0x0411:0x0240",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Buffalo MiniStation Safe HD-PNFU3; ", // 1TB
-    "0x0411:0x0251",
+  { "USB: Buffalo MiniStation; ",
+    "0x0411:0x0(1[df]9|240|251)", // 0x01d9: HD-PCTU2 (0x0108),
+      // 0x01f9: HD-PZU3 (0x0100), 0x0240: HD-PCFU3, 0x0251: HD-PNFU3
     "",
     "",
     "-d sat"
@@ -3763,7 +3754,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbsunplus"
   },
   { "USB: Iomega; JMicron",
-    "0x059b:0x0(47[05]|575)", // 0x0470: LPHD-UP, 0x0475: GDHDU2 (0x0100), 0x0575: LDHD-UP
+    "0x059b:0x0(47[05]|57[15])", // 0x0470: LPHD-UP, 0x0475: GDHDU2 (0x0100),
+      // 0x0575: LDHD-UP
     "",
     "",
     "-d usbjmicron"
@@ -3847,9 +3839,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: LaCie; ",
-    "0x059f:0x10(6f|75)",
-    "", // 6f=0x0001, 75=0x0000
+  { "USB: LaCie; ", // 0x1070: ASMedia 1053 ?
+    "0x059f:0x10(6f|7[05])",
+    "", // 6f/70=0x0001, 75=0x0000
     "",
     "-d sat"
   },
@@ -4069,9 +4061,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Seagate Expansion External; ",
-    "0x0bc2:0x33(00|12|2[012]|32)", // 0x3321: Expansion Desktop 4TB
-    "",
+  { "USB: Seagate Expansion Desktop; ",
+    "0x0bc2:0x33(00|1[2a]|2[012]|32)", // 1a=5TB, 21=4TB
+    "", // 1a=0x0909
     "",
     "-d sat"
   },
@@ -4142,7 +4134,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Backup Plus USB 3.0; ",
-    "0x0bc2:0xab2[0145]", // 0xab24: Slim (ticket #443), 0xab25: Mac
+    "0x0bc2:0xab2[01458]", // 0xab24: Slim (ticket #443), 0xab25: Mac
     "", // 0x0100
     "",
     "-d sat"
@@ -4275,9 +4267,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: WD Elements; ",
-    "0x1058:0x25a2",
-    "", // 0x1004
+  { "USB: WD Elements / My Passport; ",
+    "0x1058:0x25(9d|a2)",
+    "", // 9d=0x1005, a2=0x1004
     "",
     "-d sat"
   },
@@ -4486,8 +4478,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // ASMedia
-  { "USB: ; ASMedia ASM1053/1153",
-    "0x174c:0x1[01]53",
+  { "USB: ; ASMedia ASM1053/1153/1351",
+    "0x174c:0x1([01]53|351)",
     "",
     "",
     "-d sat"
