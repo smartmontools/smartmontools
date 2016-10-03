@@ -1,6 +1,8 @@
-$Id: ChangeLog 4348 2016-10-03 12:48:27Z chrfranke $
+$Id: ChangeLog 4350 2016-10-03 13:57:36Z chrfranke $
 
 2016-10-03  Christian Franke  <franke@computer.org>
+
+	os_win32/vc14/*.vcxproj: Add platform x64.
 
 	os_win32.cpp: Use new enhanced version of IOCTL_STORAGE_QUERY_PROPERTY
 	to access NVMe info.  This works with Windows 10 NVMe driver
