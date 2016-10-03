@@ -17,6 +17,7 @@ Summary: smartmontools release 6.6
 - NetBSD: Compile fix.
 - NetBSD: Use a raw disk device file.
 - OpenBSD: Compile fix.
+- Windows: Support for Windows 10 NVMe driver (stornvme.sys).
 - Windows: New PowerShell script to send smartd warning emails
   without external tools.
 
