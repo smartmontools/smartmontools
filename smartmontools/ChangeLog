@@ -1,5 +1,12 @@
 $Id$
 
+2016-10-03  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Use new enhanced version of IOCTL_STORAGE_QUERY_PROPERTY
+	to access NVMe info.  This works with Windows 10 NVMe driver
+	(stornvme.sys) (ticket #691).
+	smartctl.8.in, smartd.8.in: Document device names.
+
 2016-09-28  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

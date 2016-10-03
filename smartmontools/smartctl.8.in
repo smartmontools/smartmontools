@@ -141,6 +141,11 @@ Use the forms \fB"/dev/nvme[0\-9]"\fP (broadcast namespace) or
 second, ..., NVMe device.
 Alternatively use the forms \fB"/dev/nvmes[0\-9][n[1\-9]]"\fP for NVMe devices
 behind the logical scsi controller "\\\\.\\Scsi[0\-9]:".
+Both forms require a NVMe driver which supports NVME_PASS_THROUGH_IOCTL.
+
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Use the forms \fB"/dev/sd[...]"\fP or \fB"/dev/pd[...]"\fP (see above)
+for NVMe devices behind Windows 10 NVMe driver (stornvme.sys).
 
 The prefix \fB"/dev/"\fP is optional.
 .\" %ENDIF OS Windows Cygwin

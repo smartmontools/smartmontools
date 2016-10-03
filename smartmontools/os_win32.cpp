@@ -276,6 +276,45 @@ ASSERT_SIZEOF(STORAGE_DEVICE_DESCRIPTOR, 36+1+3);
 ASSERT_SIZEOF(STORAGE_PROPERTY_QUERY, 8+1+3);
 
 
+// IOCTL_STORAGE_QUERY_PROPERTY: Windows 10 enhancements
+
+namespace win10 {
+
+  // enum STORAGE_PROPERTY_ID: new values
+  const STORAGE_PROPERTY_ID StorageAdapterProtocolSpecificProperty = (STORAGE_PROPERTY_ID)49;
+  const STORAGE_PROPERTY_ID StorageDeviceProtocolSpecificProperty = (STORAGE_PROPERTY_ID)50;
+
+  typedef enum _STORAGE_PROTOCOL_TYPE {
+    ProtocolTypeUnknown = 0,
+    ProtocolTypeScsi,
+    ProtocolTypeAta,
+    ProtocolTypeNvme,
+    ProtocolTypeSd
+  } STORAGE_PROTOCOL_TYPE;
+
+  typedef enum _STORAGE_PROTOCOL_NVME_DATA_TYPE {
+    NVMeDataTypeUnknown = 0,
+    NVMeDataTypeIdentify,
+    NVMeDataTypeLogPage,
+    NVMeDataTypeFeature
+  } STORAGE_PROTOCOL_NVME_DATA_TYPE;
+
+  typedef struct _STORAGE_PROTOCOL_SPECIFIC_DATA {
+    STORAGE_PROTOCOL_TYPE ProtocolType;
+    ULONG DataType;
+    ULONG ProtocolDataRequestValue;
+    ULONG ProtocolDataRequestSubValue;
+    ULONG ProtocolDataOffset;
+    ULONG ProtocolDataLength;
+    ULONG FixedProtocolReturnData;
+    ULONG Reserved[3];
+  } STORAGE_PROTOCOL_SPECIFIC_DATA;
+
+  ASSERT_SIZEOF(STORAGE_PROTOCOL_SPECIFIC_DATA, 40);
+
+} // namespace win10
+
+
 // IOCTL_STORAGE_PREDICT_FAILURE
 
 ASSERT_CONST(IOCTL_STORAGE_PREDICT_FAILURE, 0x002d1100);
@@ -3722,6 +3761,169 @@ bool win_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & o
 
 
 /////////////////////////////////////////////////////////////////////////////
+// win10_nvme_device
+
+class win10_nvme_device
+: public /*implements*/ nvme_device,
+  public /*extends*/ win_smart_device
+{
+public:
+  win10_nvme_device(smart_interface * intf, const char * dev_name,
+    const char * req_type, unsigned nsid);
+
+  virtual bool open();
+
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+
+private:
+  bool open(int phydrive);
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+win10_nvme_device::win10_nvme_device(smart_interface * intf, const char * dev_name,
+  const char * req_type, unsigned nsid)
+: smart_device(intf, dev_name, "nvme", req_type),
+  nvme_device(nsid)
+{
+}
+
+bool win10_nvme_device::open()
+{
+  // TODO: Use common /dev/ parsing functions
+  const char * name = skipdev(get_dev_name()); int len = strlen(name);
+  // sd[a-z]([a-z])? => Physical drive 0-701
+  char drive[2 + 1] = ""; int n = -1;
+  if (sscanf(name, "sd%2[a-z]%n", drive, &n) == 1 && n == len)
+    return open(sdxy_to_phydrive(drive));
+
+  // pdN => Physical drive N
+  int phydrive = -1; n = -1;
+  if (sscanf(name, "pd%d%n", &phydrive, &n) == 1 && phydrive >= 0 && n == len)
+    return open(phydrive);
+
+  return set_err(EINVAL);
+}
+
+bool win10_nvme_device::open(int phydrive)
+{
+  // TODO: Use common open function for all devices using "\\.\PhysicalDriveN"
+  char devpath[64];
+  snprintf(devpath, sizeof(devpath) - 1, "\\\\.\\PhysicalDrive%d", phydrive);
+
+  // No GENERIC_READ/WRITE access required, this works without admin rights
+  HANDLE h = CreateFileA(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
+    (SECURITY_ATTRIBUTES *)0, OPEN_EXISTING, 0, (HANDLE)0);
+
+  if (h == INVALID_HANDLE_VALUE) {
+    long err = GetLastError();
+    if (nvme_debugmode > 1)
+      pout("  %s: Open failed, Error=%ld\n", devpath, err);
+    if (err == ERROR_FILE_NOT_FOUND)
+      set_err(ENOENT, "%s: not found", devpath);
+    else if (err == ERROR_ACCESS_DENIED)
+      set_err(EACCES, "%s: access denied", devpath);
+    else
+      set_err(EIO, "%s: Error=%ld", devpath, err);
+    return false;
+  }
+
+  if (nvme_debugmode > 1)
+    pout("  %s: successfully opened\n", devpath);
+
+  set_fh(h);
+
+  // Use broadcast namespace if no NSID specified
+  // TODO: Get NSID of current device
+  if (!get_nsid())
+    set_nsid(0xffffffff);
+  return true;
+}
+
+struct STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER
+{
+  struct { // STORAGE_PROPERTY_QUERY without AdditionalsParameters[1]
+    STORAGE_PROPERTY_ID PropertyId;
+    STORAGE_QUERY_TYPE QueryType;
+  } PropertyQuery;
+  win10::STORAGE_PROTOCOL_SPECIFIC_DATA ProtocolSpecific;
+  BYTE DataBuffer[1];
+};
+
+bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
+{
+  // Create buffer with appropriate size
+  raw_buffer spsq_raw_buf(offsetof(STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER, DataBuffer) + in.size);
+  STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER * spsq =
+    reinterpret_cast<STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER *>(spsq_raw_buf.data());
+
+  // Set NVMe specifc STORAGE_PROPERTY_QUERY
+  spsq->PropertyQuery.QueryType = PropertyStandardQuery;
+  spsq->ProtocolSpecific.ProtocolType = win10::ProtocolTypeNvme;
+
+  switch (in.opcode) {
+    case smartmontools::nvme_admin_identify:
+      if (!in.nsid) // Identify controller
+        spsq->PropertyQuery.PropertyId = win10::StorageAdapterProtocolSpecificProperty;
+      else
+        spsq->PropertyQuery.PropertyId = win10::StorageDeviceProtocolSpecificProperty;
+      spsq->ProtocolSpecific.DataType = win10::NVMeDataTypeIdentify;
+      spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10;
+      break;
+    case smartmontools::nvme_admin_get_log_page:
+      spsq->PropertyQuery.PropertyId = win10::StorageDeviceProtocolSpecificProperty;
+      spsq->ProtocolSpecific.DataType = win10::NVMeDataTypeLogPage;
+      spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10 & 0xff; // LID only ?
+      break;
+    // TODO: nvme_admin_get_features
+    default:
+      return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
+  }
+
+  spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid; // ?
+  spsq->ProtocolSpecific.ProtocolDataOffset = sizeof(spsq->ProtocolSpecific);
+  spsq->ProtocolSpecific.ProtocolDataLength = in.size;
+
+  if (in.direction() & nvme_cmd_in::data_out)
+    memcpy(spsq->DataBuffer, in.buffer, in.size);
+
+  if (nvme_debugmode > 1)
+    pout("  [STORAGE_QUERY_PROPERTY: Id=%u, Type=%u, Value=0x%08x, SubVal=0x%08x]\n",
+         (unsigned)spsq->PropertyQuery.PropertyId,
+         (unsigned)spsq->ProtocolSpecific.DataType,
+         (unsigned)spsq->ProtocolSpecific.ProtocolDataRequestValue,
+         (unsigned)spsq->ProtocolSpecific.ProtocolDataRequestSubValue);
+
+  // Call IOCTL_STORAGE_QUERY_PROPERTY
+  DWORD num_out = 0;
+  long err = 0;
+  if (!DeviceIoControl(get_fh(), IOCTL_STORAGE_QUERY_PROPERTY,
+        spsq, spsq_raw_buf.size(), spsq, spsq_raw_buf.size(),
+        &num_out, (OVERLAPPED*)0)) {
+    err = GetLastError();
+  }
+
+  if (nvme_debugmode > 1)
+    pout("  [STORAGE_QUERY_PROPERTY: ReturnData=0x%08x, Reserved[3]={0x%x, 0x%x, 0x%x}]\n",
+    (unsigned)spsq->ProtocolSpecific.FixedProtocolReturnData,
+      (unsigned)spsq->ProtocolSpecific.Reserved[0],
+      (unsigned)spsq->ProtocolSpecific.Reserved[1],
+      (unsigned)spsq->ProtocolSpecific.Reserved[2]);
+
+  // NVMe status is checked by IOCTL
+  if (err)
+    return set_err(EIO, "IOCTL_STORAGE_QUERY_PROPERTY(NVMe) failed, Error=%ld", err);
+
+  if (in.direction() & nvme_cmd_in::data_in)
+    memcpy(in.buffer, spsq->DataBuffer, in.size);
+
+  out.result = spsq->ProtocolSpecific.FixedProtocolReturnData; // Completion DW0 ?
+  return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
 // win_smart_interface
 // Platform specific interface
 
@@ -3901,7 +4103,9 @@ scsi_device * win_smart_interface::get_scsi_device(const char * name, const char
 nvme_device * win_smart_interface::get_nvme_device(const char * name, const char * type,
   unsigned nsid)
 {
-  return new win_nvme_device(this, name, type, nsid);
+  if (str_starts_with(skipdev(name), "nvme"))
+    return new win_nvme_device(this, name, type, nsid);
+  return new win10_nvme_device(this, name, type, nsid);
 }
 
 
@@ -4007,7 +4211,7 @@ std::string win_smart_interface::get_valid_custom_dev_types_str()
 
 
 // Return value for device detection functions
-enum win_dev_type { DEV_UNKNOWN = 0, DEV_ATA, DEV_SCSI, DEV_SAT, DEV_USB };
+enum win_dev_type { DEV_UNKNOWN = 0, DEV_ATA, DEV_SCSI, DEV_SAT, DEV_USB, DEV_NVME };
 
 // Return true if ATA drive behind a SAT layer
 static bool is_sat(const STORAGE_DEVICE_DESCRIPTOR_DATA * data)
@@ -4076,6 +4280,9 @@ static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONIN
 
     case BusTypeUsb:
       return DEV_USB;
+
+    case 0x11: // BusTypeNVMe?
+      return DEV_NVME;
 
     default:
       return DEV_UNKNOWN;
@@ -4204,6 +4411,9 @@ smart_device * win_smart_interface::autodetect_smart_device(const char * name)
   if (type == DEV_USB)
     return get_usb_device(name, phydrive, logdrive);
 
+  if (type == DEV_NVME)
+    return new win10_nvme_device(this, name, "", 0 /* use default nsid */);
+
   return 0;
 }
 
@@ -4267,7 +4477,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   char name[20];
 
-  if (ata || scsi || sat || usb) {
+  if (ata || scsi || sat || usb || nvme) {
     // Scan up to 128 drives and 2 3ware controllers
     const int max_raid = 2;
     bool raid_seen[max_raid] = {false, false};
@@ -4333,6 +4543,13 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
           if (!dev)
             // Unknown or unsupported USB ID, return as SCSI
             dev = new win_scsi_device(this, name, "");
+          break;
+
+        case DEV_NVME:
+          // STORAGE_QUERY_PROPERTY returned NVMe
+          if (!nvme)
+            continue;
+          dev = new win10_nvme_device(this, name, "", 0 /* use default nsid */);
           break;
 
         default:

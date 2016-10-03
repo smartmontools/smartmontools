@@ -149,7 +149,8 @@ If directive \'\-d nvme\'
 .\" %IF ENABLE_NVME_DEVICESCAN
 or no \'\-d\' directive
 .\" %ENDIF ENABLE_NVME_DEVICESCAN
-is specified, examine all entries \fB"/dev/nvme[0-9]"\fP for NVMe devices.
+is specified, examine all entries \fB"/dev/sd[...]"\fP (see above)
+and all entries \fB"/dev/nvme[0-9]"\fP for NVMe devices.
 .\" %ENDIF OS Windows Cygwin
 .PP
 \fBsmartd\fP then monitors
