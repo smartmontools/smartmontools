@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-16 Christian Franke
 
-$Id: smartctl.8.in 4333 2016-08-17 21:28:11Z chrfranke $
+$Id: smartctl.8.in 4348 2016-10-03 12:48:27Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -141,6 +141,11 @@ Use the forms \fB"/dev/nvme[0\-9]"\fP (broadcast namespace) or
 second, ..., NVMe device.
 Alternatively use the forms \fB"/dev/nvmes[0\-9][n[1\-9]]"\fP for NVMe devices
 behind the logical scsi controller "\\\\.\\Scsi[0\-9]:".
+Both forms require a NVMe driver which supports NVME_PASS_THROUGH_IOCTL.
+
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Use the forms \fB"/dev/sd[...]"\fP or \fB"/dev/pd[...]"\fP (see above)
+for NVMe devices behind Windows 10 NVMe driver (stornvme.sys).
 
 The prefix \fB"/dev/"\fP is optional.
 .\" %ENDIF OS Windows Cygwin
@@ -2368,4 +2373,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4333 2016-08-17 21:28:11Z chrfranke $
+$Id: smartctl.8.in 4348 2016-10-03 12:48:27Z chrfranke $

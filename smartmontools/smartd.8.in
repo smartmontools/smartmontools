@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-16 Christian Franke
 
-$Id: smartd.8.in 4299 2016-04-16 19:45:57Z chrfranke $
+$Id: smartd.8.in 4348 2016-10-03 12:48:27Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -149,7 +149,8 @@ If directive \'\-d nvme\'
 .\" %IF ENABLE_NVME_DEVICESCAN
 or no \'\-d\' directive
 .\" %ENDIF ENABLE_NVME_DEVICESCAN
-is specified, examine all entries \fB"/dev/nvme[0-9]"\fP for NVMe devices.
+is specified, examine all entries \fB"/dev/sd[...]"\fP (see above)
+and all entries \fB"/dev/nvme[0-9]"\fP for NVMe devices.
 .\" %ENDIF OS Windows Cygwin
 .PP
 \fBsmartd\fP then monitors
@@ -793,4 +794,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 4299 2016-04-16 19:45:57Z chrfranke $
+$Id: smartd.8.in 4348 2016-10-03 12:48:27Z chrfranke $
