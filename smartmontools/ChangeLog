@@ -1,4 +1,9 @@
-$Id: ChangeLog 4350 2016-10-03 13:57:36Z chrfranke $
+$Id: ChangeLog 4351 2016-10-17 18:53:40Z chrfranke $
+
+2016-10-17  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add --with-scriptpath option.
+	smartd_warning.sh.in, update-smart-drivedb.in: Set PATH variable.
 
 2016-10-03  Christian Franke  <franke@computer.org>
 

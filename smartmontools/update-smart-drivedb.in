@@ -2,6 +2,8 @@
 #
 # smartmontools drive database update script
 #
+# Home page of code is: http://www.smartmontools.org
+#
 # Copyright (C) 2010-16 Christian Franke
 #
 # This program is free software; you can redistribute it and/or modify
@@ -12,12 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: update-smart-drivedb.in 4224 2016-02-26 20:29:24Z chrfranke $
+# $Id: update-smart-drivedb.in 4351 2016-10-17 18:53:40Z chrfranke $
 #
 
 set -e
 
 # Set by config.status
+@ENABLE_SCRIPTPATH_TRUE@export PATH="@scriptpath@"
 PACKAGE="@PACKAGE@"
 VERSION="@VERSION@"
 prefix="@prefix@"

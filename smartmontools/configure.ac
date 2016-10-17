@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4319 2016-05-07 12:14:20Z chrfranke $
+# $Id: configure.ac 4351 2016-10-17 18:53:40Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4319 2016-05-07 12:14:20Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4351 2016-10-17 18:53:40Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -262,6 +262,14 @@ AC_ARG_WITH(smartdplugindir,
   [smartdplugindir=; test "$withval" != "no" && smartdplugindir="$withval"],
   [smartdplugindir='${smartdscriptdir}/smartd_warning.d'])
 AC_SUBST(smartdplugindir)
+
+AC_ARG_WITH(scriptpath,
+  [AS_HELP_STRING([--with-scriptpath=@<:@PATH|no@:>@],
+    [PATH variable set within scripts [/usr/bin:/bin]])],
+  [scriptpath=; test "$withval" != "no" && scriptpath="$withval"],
+  [scriptpath="/usr/bin:/bin"])
+AC_SUBST(scriptpath)
+AM_CONDITIONAL(ENABLE_SCRIPTPATH, [test -n "$scriptpath"])
 
 savestates=
 AC_ARG_WITH(savestates,
@@ -661,6 +669,11 @@ info=`
         echo "smartd plugin path:     \`eval eval eval echo $smartdplugindir\`"
       else
         echo "smartd plugin path:     [[disabled]]"
+      fi
+      if test -n "$scriptpath"; then
+        echo "PATH within scripts:    \`eval eval eval echo $scriptpath\`"
+      else
+        echo "PATH within scripts:    [[inherited]]"
       fi
       if test -n "$initddir"; then
         echo "smartd initd script:    \`eval eval eval echo $initddir\`/${initdfile}"
