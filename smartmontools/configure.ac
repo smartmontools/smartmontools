@@ -263,6 +263,14 @@ AC_ARG_WITH(smartdplugindir,
   [smartdplugindir='${smartdscriptdir}/smartd_warning.d'])
 AC_SUBST(smartdplugindir)
 
+AC_ARG_WITH(scriptpath,
+  [AS_HELP_STRING([--with-scriptpath=@<:@PATH|no@:>@],
+    [PATH variable set within scripts [/usr/bin:/bin]])],
+  [scriptpath=; test "$withval" != "no" && scriptpath="$withval"],
+  [scriptpath="/usr/bin:/bin"])
+AC_SUBST(scriptpath)
+AM_CONDITIONAL(ENABLE_SCRIPTPATH, [test -n "$scriptpath"])
+
 savestates=
 AC_ARG_WITH(savestates,
   [AS_HELP_STRING([--with-savestates@<:@=PREFIX|yes|no@:>@],
@@ -661,6 +669,11 @@ info=`
         echo "smartd plugin path:     \`eval eval eval echo $smartdplugindir\`"
       else
         echo "smartd plugin path:     [[disabled]]"
+      fi
+      if test -n "$scriptpath"; then
+        echo "PATH within scripts:    \`eval eval eval echo $scriptpath\`"
+      else
+        echo "PATH within scripts:    [[inherited]]"
       fi
       if test -n "$initddir"; then
         echo "smartd initd script:    \`eval eval eval echo $initddir\`/${initdfile}"

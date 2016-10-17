@@ -2,6 +2,8 @@
 #
 # smartmontools drive database update script
 #
+# Home page of code is: http://www.smartmontools.org
+#
 # Copyright (C) 2010-16 Christian Franke
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,6 +20,7 @@
 set -e
 
 # Set by config.status
+@ENABLE_SCRIPTPATH_TRUE@export PATH="@scriptpath@"
 PACKAGE="@PACKAGE@"
 VERSION="@VERSION@"
 prefix="@prefix@"

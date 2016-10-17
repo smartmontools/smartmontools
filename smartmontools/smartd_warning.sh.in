@@ -2,7 +2,9 @@
 #
 # smartd warning script
 #
-# Copyright (C) 2012-14 Christian Franke <smartmontools-support@lists.sourceforge.net>
+# Home page of code is: http://www.smartmontools.org
+#
+# Copyright (C) 2012-16 Christian Franke
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +20,7 @@
 set -e
 
 # Set by config.status
+@ENABLE_SCRIPTPATH_TRUE@export PATH="@scriptpath@"
 PACKAGE="@PACKAGE@"
 VERSION="@VERSION@"
 prefix="@prefix@"
