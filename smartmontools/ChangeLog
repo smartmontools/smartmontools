@@ -1,5 +1,21 @@
 $Id$
 
+2016-10-23  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Toshiba 3.5" MG04ACA... Enterprise HDD (ticket #732)
+	- Toshiba X300 (ticket #716)
+	- Seagate Laptop HDD: Rename, add 3/4TB (ticket #738)
+	- Seagate Constellation ES: HP OEM
+	- Western Digital RE4: *ABYZ variant
+	- Western Digital Re: Add attribute 16 (ticket #742)
+	- Western Digital Black: Remove *BEK[TX] variants
+	- Western Digital Black Mobile: 1TB, *BEKT, *LPLX variants
+	- Western Digital Elements / My Passport (USB, AF): 4TB
+	- USB: Neodio Technologies (0x0aec:0x3050)
+	- USB: Dura Micro (0x0c0b:0xb136)
+	- USB: My Passport Ultra 4TB (0x1058:0x2599)
+
 2016-10-17  Christian Franke  <franke@computer.org>
 
 	configure.ac: Add --with-scriptpath option.

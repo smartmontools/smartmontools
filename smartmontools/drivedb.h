@@ -2642,6 +2642,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MD04ACA[2345]00",
     "", "", ""
   },
+  { "Toshiba 3.5\" MG04ACA... Enterprise HDD", // tested with TOSHIBA MG04ACA600A/FS2B
+    "TOSHIBA MG04ACA[23456]00[AE]",
+    "", "", ""
+  },
   { "Toshiba 3.5\" DT01ABA... Desktop HDD", // tested with TOSHIBA DT01ABA300/MZ6OABB0
     "TOSHIBA DT01ABA(100|150|200|300)",
     "", "", ""
@@ -2649,6 +2653,10 @@ const drive_settings builtin_knowndrives[] = {
   { "Toshiba 3.5\" DT01ACA... Desktop HDD", // tested with TOSHIBA DT01ACA100/MS2OA750,
       // TOSHIBA DT01ACA200/MX4OABB0, TOSHIBA DT01ACA300/MX6OABB0
     "TOSHIBA DT01ACA(025|032|050|075|100|150|200|300)",
+    "", "", ""
+  },
+  { "Toshiba X300", // tested with TOSHIBA HDWE160/FS2A
+    "TOSHIBA HDWE1[456]0",
     "", "", ""
   },
   { "Toshiba 1.8\" HDD",
@@ -2778,9 +2786,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST(160|250|320)LT0(07|09|11|14)-.*",
     "", "", ""
   },
-  { "Seagate Laptop Thin HDD", // tested with ST500LT012-9WS142/0001SDM1,
-      // ST500LM021-1KJ152/0002LIM1
-    "ST((250|320|500)LT0(12|15|25)|(320|500)LM0(10|21))-.*",
+  { "Seagate Laptop HDD", // tested with ST500LT012-9WS142/0001SDM1,
+      // ST500LM021-1KJ152/0002LIM1, ST4000LM016-1N2170/0003
+    "ST((25|32|50)0LT0(12|15|25)|(32|50)0LM0(10|21)|[34]00LM016)-.*",
     "", "", ""
   },
   { "Seagate Laptop SSHD", // tested with ST500LM000-1EJ162/SM11
@@ -3039,12 +3047,16 @@ const drive_settings builtin_knowndrives[] = {
     "ST9(160511|500530)NS",
     "", "", ""
   },
-  { "Seagate Constellation ES (SATA)", // tested with ST31000524NS/SN11
-    "ST3(50051|100052|200064)4NS",
+  { "Seagate Constellation ES (SATA)", // tested with ST31000524NS/SN11,
+      // MB0500EAMZD/HPG1
+    "ST3(50051|100052|200064)4NS|"
+    "MB0500EAMZD", // HP OEM
     "", "", ""
   },
-  { "Seagate Constellation ES (SATA 6Gb/s)", // tested with ST1000NM0011/SN02
-    "ST(5|10|20)00NM0011",
+  { "Seagate Constellation ES (SATA 6Gb/s)", // tested with ST1000NM0011/SN02,
+      // MB1000GCEEK/HPG1
+    "ST(5|10|20)00NM0011|"
+    "MB1000GCEEK", // HP OEM
     "", "", ""
   },
   { "Seagate Constellation ES.2 (SATA 6Gb/s)", // tested with ST32000645NS/0004, ST33000650NS,
@@ -3053,8 +3065,10 @@ const drive_settings builtin_knowndrives[] = {
     "MB3000EBKAB", // HP OEM
     "", "", ""
   },
-  { "Seagate Constellation ES.3", // tested with ST1000NM0033-9ZM173/0001, ST4000NM0033-9ZM170/SN03
-    "ST[1234]000NM00[35]3-.*",
+  { "Seagate Constellation ES.3", // tested with ST1000NM0033-9ZM173/0001,
+      // ST4000NM0033-9ZM170/SN03, MB1000GCWCV/HPGC
+    "ST[1234]000NM00[35]3-.*|"
+    "MB1000GCWCV", // HP OEM
     "", "", ""
   },
   { "Seagate Constellation CS", // tested with ST3000NC000/CE02, ST3000NC002-1DY166/CN02
@@ -3262,7 +3276,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital RE4", // tested with WDC WD2003FYYS-18W0B0/01.01D02,
       // WDC WD1003FBYZ-010FB0/01.01V03
-    "WDC WD((25|50)03ABYX|1003FBY[XZ]|(15|20)03FYYS)-.*",
+      // WDC WD5003ABYZ-011FA0/01.01S03
+    "WDC WD((25|50)03ABY[XZ]|1003FBY[XZ]|(15|20)03FYYS)-.*",
     "", "", ""
   },
   { "Western Digital RE4-GP", // tested with WDC WD2002FYPS-02W3B0/04.01G01,
@@ -3272,9 +3287,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Re", // tested with WDC WD1004FBYZ-01YCBB0/RR02,
       // WDC WD2000FYYZ-01UL1B0/01.01K01, WDC WD2000FYYZ-01UL1B1/01.01K02,
-      // WDC WD4000FYYZ-01UL1B2/01.01K03, WD2000FYYX/00.0D1K2
+      // WDC WD4000FYYZ-01UL1B2/01.01K03, WD2000FYYX/00.0D1K2,
+      // WDC WD1004FBYZ-01YCBB1/RR04
     "WDC WD([12]004FBYZ|[1-6]00[01M]F[SXY]YZ)-.*|WD2000FYYX",
-    "", "", ""
+    "", "",
+    "-v 16,raw48,Total_LBAs_Read" // WDC WD1004FBYZ-01YCBB1/RR04
   },
   { "Western Digital Se", // tested with WDC WD2000F9YZ-09N20L0/01.01A01
     "WDC WD(1002|2000|3000|4000)F9YZ-.*",
@@ -3311,9 +3328,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(6001|2003|5001|1003|4003|5003|3003|3001)(FZW|FZE|AZE)X-.*|" // could be
     // new series  WD6001FZWX WD2003FZEX WD5001FZWX WD1003FZEX
     //             WD4003FZEX WD5003AZEX WD3003FZEX
-    "WDC WD(4001|3001|2002|1002|5003|7500|5000|3200|2500|1600)(FAE|AZE|B[PE]K)[XT]-.*",
+    "WDC WD(4001|3001|2002|1002|5003|7500|5000|3200|2500|1600)(FAE|AZE)X-.*",
     // old series: WD4001FAEX WD3001FAEX WD2002FAEX WD1002FAEX  WD5003AZEX
-    //             WD7500BPKT  WD5000BPKT WD3200BEKT WD2500BEKT WD1600BEKT
     "", "", ""
   },
   { "Western Digital AV ATA", // tested with WDC WD3200AVJB-63J5A0/01.03E01
@@ -3410,8 +3426,9 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(15|20)NPV[TX]-.*",
     "", "", ""
   },
-  { "Western Digital Black Mobile", // tested with WDC WD7500BPKX-22HPJT0/01.01A01
-    "WDC WD((16|25|32)00BE|(50|75)00BP)KX-.*",
+  { "Western Digital Black Mobile", // tested with WDC WD7500BPKX-22HPJT0/01.01A01,
+      // WDC WD10JPLX-00MBPT0/01.01H01
+    "WDC WD((16|25|32)00BEK[TX]|(25|32|50|75)00(BPK|LPL)X|10JPLX)-.*",
     "", "", ""
   },
   { "Western Digital Elements / My Passport (USB)", // tested with WDC WD5000BMVW-11AMCS0/01.01A01
@@ -3431,8 +3448,9 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD20NMVW-11AV3S3/01.01A01 (0x1058:0x0837),
       // WDC WD20NMVW-11EDZS7/01.01A01 (0x1058:0x259d),
       // WDC WD20NMVW-11W68S0/01.01A01,
-      // WDC WD30NMVW-11C3NS4/01.01A01
-    "WDC WD(5000[LK]|7500[BK]|10[JT]|[23]0N)MV[VW]-.*", // *W-* = USB 3.0
+      // WDC WD30NMVW-11C3NS4/01.01A01,
+      // WDC WD40NMZW-11GX6S1/01.01A01 (0x1058:0x2599)
+    "WDC WD(5000[LK]|7500[BK]|10[JT]|[234]0N)M[VZ][VW]-.*", // *W-* = USB 3.0
     "", "", ""
   },
   { "Quantum Bigfoot", // tested with TS10.0A/A21.0G00, TS12.7A/A21.0F00
@@ -4021,6 +4039,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Neodio Technologies
+  { "USB: Neodio; Initio INIC-1810PL",
+    "0x0aec:0x3050",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // Seagate
   { "USB: Seagate External Drive; Cypress",
     "0x0bc2:0x0503",
@@ -4162,6 +4187,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
+  { "USB: Dura Micro; Initio",
+    "0x0c0b:0xb136",
+    "", // 0x0108
+    "",
+    "-d sat"
+  },
   { "USB: Dura Micro 509; Sunplus",
     "0x0c0b:0xb159",
     "", // 0x0103
@@ -4277,8 +4308,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: WD Elements / My Passport; ",
-    "0x1058:0x25(9d|a2)",
-    "", // 9d=0x1005, a2=0x1004
+    "0x1058:0x25(99|9d|a2)",
+    "", // 99=0x1012, 9d=0x1005, a2=0x1004
     "",
     "-d sat"
   },
