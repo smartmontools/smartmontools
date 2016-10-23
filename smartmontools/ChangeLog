@@ -1,6 +1,8 @@
-$Id: ChangeLog 4352 2016-10-23 15:17:15Z chrfranke $
+$Id: ChangeLog 4354 2016-10-23 15:48:09Z chrfranke $
 
 2016-10-23  Christian Franke  <franke@computer.org>
+
+	configure.ac, os_netbsd.cpp: Add --with-nvme-devicescan for NetBSD.
 
 	drivedb.h:
 	- Toshiba 3.5" MG04ACA... Enterprise HDD (ticket #732)

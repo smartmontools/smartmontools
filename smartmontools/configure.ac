@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4351 2016-10-17 18:53:40Z chrfranke $
+# $Id: configure.ac 4354 2016-10-23 15:48:09Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4351 2016-10-17 18:53:40Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4354 2016-10-23 15:48:09Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -716,7 +716,7 @@ $info
 
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 case "$host_os:${with_nvme_devicescan+set}" in
-  linux*:|cygwin*:|mingw*:)
+  linux*:|netbsd*:|cygwin*:|mingw*:)
     AC_MSG_WARN([
 This version of smartmontools provides NVMe support which is still
 EXPERIMENTAL.  NVMe devices are not yet included in smartd.conf
