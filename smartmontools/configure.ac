@@ -703,7 +703,7 @@ info=`
         linux*) echo "SELinux support:        ${with_selinux-no}" ;;
       esac
       case "$host_os" in
-        linux*|cygwin*) echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-no}" ;;
+        linux*|netbsd*|cygwin*) echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-no}" ;;
       esac
       ;;
   esac
