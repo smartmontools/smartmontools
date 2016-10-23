@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4354 2016-10-23 15:48:09Z chrfranke $
+# $Id: configure.ac 4355 2016-10-23 15:55:55Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4354 2016-10-23 15:48:09Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4355 2016-10-23 15:55:55Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -703,7 +703,7 @@ info=`
         linux*) echo "SELinux support:        ${with_selinux-no}" ;;
       esac
       case "$host_os" in
-        linux*|cygwin*) echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-no}" ;;
+        linux*|netbsd*|cygwin*) echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-no}" ;;
       esac
       ;;
   esac
