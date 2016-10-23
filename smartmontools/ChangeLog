@@ -1,6 +1,8 @@
-$Id: ChangeLog 4356 2016-10-23 16:17:33Z chrfranke $
+$Id: ChangeLog 4357 2016-10-23 16:24:20Z chrfranke $
 
 2016-10-23  Christian Franke  <franke@computer.org>
+
+	smartd.8.in: Document Windows PARAMCHANGE service control command.
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Enable NVMe sections
 	for NetBSD.

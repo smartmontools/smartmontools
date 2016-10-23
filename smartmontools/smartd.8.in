@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-16 Christian Franke
 
-$Id: smartd.8.in 4356 2016-10-23 16:17:33Z chrfranke $
+$Id: smartd.8.in 4357 2016-10-23 16:24:20Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -627,7 +627,9 @@ Pausing the service (\'\fBnet pause smartd\fP\') sets the interval between
 disk checks (\'\-i N\') to infinite.
 
 Continuing the paused service (\'\fBnet continue smartd\fP\') resets the
-interval and rereads the configuration file immediately (like \fBSIGHUP\fP):
+interval and rereads the configuration file immediately (like \fBSIGHUP\fP).
+The \'PARAMCHANGE\' service control command (\'\fBsc control smartd
+paramchange\fP\') has the same effect regardless of paused state.
 
 Continuing a still running service (\'\fBnet continue smartd\fP\' without
 preceding \'\fBnet pause smartd\fP\') does not reread configuration but
@@ -794,4 +796,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 4356 2016-10-23 16:17:33Z chrfranke $
+$Id: smartd.8.in 4357 2016-10-23 16:24:20Z chrfranke $
