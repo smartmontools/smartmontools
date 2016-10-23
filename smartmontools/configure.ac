@@ -716,7 +716,7 @@ $info
 
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 case "$host_os:${with_nvme_devicescan+set}" in
-  linux*:|cygwin*:|mingw*:)
+  linux*:|netbsd*:|cygwin*:|mingw*:)
     AC_MSG_WARN([
 This version of smartmontools provides NVMe support which is still
 EXPERIMENTAL.  NVMe devices are not yet included in smartd.conf
