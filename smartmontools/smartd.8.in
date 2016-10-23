@@ -627,7 +627,9 @@ Pausing the service (\'\fBnet pause smartd\fP\') sets the interval between
 disk checks (\'\-i N\') to infinite.
 
 Continuing the paused service (\'\fBnet continue smartd\fP\') resets the
-interval and rereads the configuration file immediately (like \fBSIGHUP\fP):
+interval and rereads the configuration file immediately (like \fBSIGHUP\fP).
+The \'PARAMCHANGE\' service control command (\'\fBsc control smartd
+paramchange\fP\') has the same effect regardless of paused state.
 
 Continuing a still running service (\'\fBnet continue smartd\fP\' without
 preceding \'\fBnet pause smartd\fP\') does not reread configuration but
