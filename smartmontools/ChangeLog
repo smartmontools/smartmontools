@@ -1,10 +1,17 @@
-$Id: ChangeLog 4359 2016-11-04 20:28:50Z chrfranke $
+$Id: ChangeLog 4360 2016-11-04 21:24:28Z chrfranke $
 
 2016-11-04  Christian Franke  <franke@computer.org>
 
 	Add authentication to update-smart-drivedb (ticket #751):
 	Create missing branches RELEASE_6_5_DRIVEDB and RELEASE_6_6_DRIVEDB.
 	Add signature files drivedb.h.raw.asc to each maintained branch.
+
+	update-smart-drivedb.in: Include new public key block ID DFD22559.
+	Download also drivedb.h.raw.asc.
+	Do no longer download from trunk if branch does not exist.
+	Create drivedb.h.raw.  Verify signature.
+	Add options '--trunk', '--no-verify' and '--export-key'.
+	update-smart-drivedb.8.in: Document new behaviour and options.
 
 2016-10-23  Christian Franke  <franke@computer.org>
 
