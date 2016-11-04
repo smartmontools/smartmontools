@@ -1,4 +1,9 @@
-$Id: ChangeLog 4357 2016-10-23 16:24:20Z chrfranke $
+$Id: ChangeLog 4358 2016-11-04 20:09:23Z chrfranke $
+
+2016-11-04  Christian Franke  <franke@computer.org>
+
+	Add authentication to update-smart-drivedb (ticket #751):
+	Create missing branches RELEASE_6_5_DRIVEDB and RELEASE_6_6_DRIVEDB.
 
 2016-10-23  Christian Franke  <franke@computer.org>
 
