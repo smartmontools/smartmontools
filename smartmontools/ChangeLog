@@ -4,6 +4,7 @@ $Id$
 
 	Add authentication to update-smart-drivedb (ticket #751):
 	Create missing branches RELEASE_6_5_DRIVEDB and RELEASE_6_6_DRIVEDB.
+	Add signature files drivedb.h.raw.asc to each maintained branch.
 
 2016-10-23  Christian Franke  <franke@computer.org>
 
