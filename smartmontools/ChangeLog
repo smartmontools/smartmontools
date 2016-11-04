@@ -6,6 +6,13 @@ $Id$
 	Create missing branches RELEASE_6_5_DRIVEDB and RELEASE_6_6_DRIVEDB.
 	Add signature files drivedb.h.raw.asc to each maintained branch.
 
+	update-smart-drivedb.in: Include new public key block ID DFD22559.
+	Download also drivedb.h.raw.asc.
+	Do no longer download from trunk if branch does not exist.
+	Create drivedb.h.raw.  Verify signature.
+	Add options '--trunk', '--no-verify' and '--export-key'.
+	update-smart-drivedb.8.in: Document new behaviour and options.
+
 2016-10-23  Christian Franke  <franke@computer.org>
 
 	smartd.8.in: Document Windows PARAMCHANGE service control command.

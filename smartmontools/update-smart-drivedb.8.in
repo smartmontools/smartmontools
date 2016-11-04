@@ -33,10 +33,9 @@ updates
 .B /usr/local/share/smartmontools/drivedb.h
 or
 .I DESTFILE
-from smartmontools SVN repository.
+from branches/RELEASE_6_0_DRIVEDB of smartmontools SVN repository.
 
-It tries to download first from the current branch and then from
-trunk. The tools used for downloading are either
+The tools used for downloading are either
 .BR curl (1),
 .BR wget (1),
 .BR lynx (1),
@@ -50,6 +49,9 @@ trunk. The tools used for downloading are either
 .\" %ENDIF OS OpenBSD
 or
 .BR svn (1).
+
+The downloaded file is verified with OpenPGP/GPG key ID DFD22559.
+The public key block is included in the script.
 
 The old file is kept if the downloaded file is identical (ignoring
 the differences in Id string) otherwise it is moved to
@@ -96,6 +98,11 @@ Use URL of LOCATION for download. LOCATION is one of:
 The default is
 .IR svn .
 .TP
+.B \-\-trunk
+Download from SVN trunk.
+This requires '--no-verify' unless the trunk version is still identical
+to branches/RELEASE_6_0_DRIVEDB.
+.TP
 .B \-\-cacert FILE
 Use CA certificates from FILE to verify the peer.
 .TP
@@ -105,6 +112,12 @@ Use CA certificate files from DIR to verify the peer.
 .B \-\-insecure
 Don't abort download if certificate verification fails.
 This option is also required if a HTTP URL is selected with \'-u\' option.
+.TP
+.B \-\-no-verify
+Don't verify signature with GnuPG.
+.TP
+.B \-\-export-key
+Print the OpenPGP/GPG public key block.
 .TP
 .B \-\-dryrun
 Print download commands only.
@@ -133,11 +146,17 @@ used to check syntax of new drive database.
 .B /usr/local/share/smartmontools/drivedb.h
 current drive database.
 .TP
-.B /usr/local/share/smartmontools/drivedb.h.old
-previous drive database.
+.B /usr/local/share/smartmontools/drivedb.h.raw
+current drive database with unexpanded SVN Id string.
 .TP
-.B /usr/local/share/smartmontools/drivedb.h.error
-new drive database if rejected due to syntax errors.
+.B /usr/local/share/smartmontools/drivedb.h.raw.asc
+signature file.
+.TP
+.B /usr/local/share/smartmontools/drivedb.h.*old*
+previous files.
+.TP
+.B /usr/local/share/smartmontools/drivedb.h.*error*
+new files if rejected due to errors.
 .TP
 .B /usr/local/share/smartmontools/drivedb.h.lastcheck
 empty file created if downloaded file was identical.
