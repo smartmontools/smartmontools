@@ -2,6 +2,10 @@ $Id$
 
 2016-11-05  Christian Franke  <franke@computer.org>
 
+	configure.ac: Add '--with-update-smart-drivedb=X.Y' option to
+	backport drive database update script and man page to older
+	version X.Y.
+
 	configure.ac: Remove checks for no longer supported options
 	--disable-drivedb, --enable-savestates and --enable-attributelog.
 

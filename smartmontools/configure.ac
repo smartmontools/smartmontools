@@ -244,9 +244,17 @@ AC_ARG_WITH(drivedbdir,
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test -n "$drivedbdir"])
 
+drivedb_version=$VERSION
 AC_ARG_WITH(update-smart_drivedb,
-  [AS_HELP_STRING([--with-update-smart-drivedb@<:@=yes|no@:>@], [Install update-smart-drivedb script [yes]])],
-  [], [with_update_smart_drivedb=yes])
+  [AS_HELP_STRING([--with-update-smart-drivedb@<:@=yes|no|X.Y@:>@],
+    [Install update-smart-drivedb script (and backport it to branches/RELEASE_X_Y_DRIVEDB) [yes]])],
+  [ case "$withval" in
+      yes|no) ;;
+      5.4[[0-3]]|6.[[0-9]]) drivedb_version=$withval; with_update_smart_drivedb=yes ;;
+      *) AC_MSG_ERROR([Invalid drivedb branch version: $withval]) ;;
+    esac
+  ],
+  [with_update_smart_drivedb=yes])
 test -n "$drivedbdir" || with_update_smart_drivedb=no
 AC_SUBST(with_update_smart_drivedb)
 AM_CONDITIONAL(ENABLE_UPDATE_SMART_DRIVEDB, [test "$with_update_smart_drivedb" = "yes"])
@@ -539,10 +547,10 @@ AC_SUBST([os_man_filter])
 AC_SUBST([os_win32_manifest])
 
 # Create drivedb.h update branch name from version: 5.41[.X] -> RELEASE_5_41_DRIVEDB
-DRIVEDB_BRANCH=`echo $VERSION | sed 's,^\([[0-9]]*\.[[0-9]]*\)\..*$,\1,' \
+DRIVEDB_BRANCH=`echo "$drivedb_version" | sed 's,^\([[0-9]]*\.[[0-9]]*\)\..*$,\1,' \
                 | sed -n 's,^\([[0-9]][[0-9]]*\)\.\([[0-9]][[0-9]]*\)$,RELEASE_\1_\2_DRIVEDB,p'`
 if test -z "$DRIVEDB_BRANCH"; then
-  AC_MSG_ERROR([Unable to create DRIVEDB_BRANCH from VERSION=$VERSION])
+  AC_MSG_ERROR([Unable to create DRIVEDB_BRANCH for version: $drivedb_version])
 fi
 AC_SUBST([DRIVEDB_BRANCH])
 
@@ -640,6 +648,9 @@ info=`
         echo "drive database file:    \`eval eval eval echo $drivedbdir\`/drivedb.h"
         if test "$with_update_smart_drivedb" = "yes"; then
           echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"
+          if test "$drivedb_version" != "$VERSION"; then
+            echo "... backported to:      branches/$DRIVEDB_BRANCH"
+          fi
           echo "download tools:         \`eval eval eval echo $os_dltools\`"
         else
           echo "database update script: [[disabled]]"
