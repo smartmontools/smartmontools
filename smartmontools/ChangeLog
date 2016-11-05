@@ -1,4 +1,9 @@
-$Id: ChangeLog 4360 2016-11-04 21:24:28Z chrfranke $
+$Id: ChangeLog 4361 2016-11-05 12:13:19Z chrfranke $
+
+2016-11-05  Christian Franke  <franke@computer.org>
+
+	configure.ac: Remove checks for no longer supported options
+	--disable-drivedb, --enable-savestates and --enable-attributelog.
 
 2016-11-04  Christian Franke  <franke@computer.org>
 

@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4355 2016-10-23 15:55:55Z chrfranke $
+# $Id: configure.ac 4361 2016-11-05 12:13:19Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4355 2016-10-23 15:55:55Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4361 2016-11-05 12:13:19Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -420,21 +420,6 @@ case "$host" in
     ;;
 esac
 
-# TODO: Remove after smartmontools 6.5
-AC_ARG_WITH(docdir,
-  [AS_HELP_STRING([--with-docdir=DIR], [(removed, use --docdir=DIR instead)])],
-  [AC_MSG_ERROR([--with-docdir is no longer supported, use --docdir instead])])
-AC_ARG_ENABLE(drivedb,
-  [AS_HELP_STRING([--disable-drivedb], [(removed, use --without-drivedbdir instead)])])
-AC_ARG_ENABLE(savestates,
-  [AS_HELP_STRING([--enable-savestates], [(removed, use --with-savestates@<:@=yes@:>@ instead)])])
-AC_ARG_ENABLE(attributelog,
-  [AS_HELP_STRING([--enable-attributelog], [(removed, use --with-attributelog@<:@=yes@:>@ instead)])])
-if test -n "${enable_drivedb+set}${enable_savestates+set}${enable_attributelog+set}"; then
-  AC_MSG_ERROR([Options --disable-drivedb, --enable-savestates, --enable-attributelog are no longer supported.
-Use --without-drivedbdir, --with-savestates, --with-attributelog instead.])
-fi
-
 
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
@@ -726,7 +711,7 @@ Use option '--without-nvme-devicescan' to suppress this warning.])
     ;;
 esac
 
-# TODO: Remove after smartmontools 6.5
+# TODO: Remove after smartmontools 6.6
 case "$host:${with_solaris_sparc_ata+set}" in
   sparc-*-solaris*:)
     AC_MSG_WARN([
