@@ -499,17 +499,21 @@ fi
 # Keep old file if identical, ignore missing Id keyword expansion in new file
 rm -f "$DEST.lastcheck"
 if [ -f "$DEST" ]; then
-  if    cmp "$DEST.raw"     "$DEST.new.raw"     >/dev/null 2>&1 \
-     && cmp "$DEST.raw.asc" "$DEST.new.raw.asc" >/dev/null 2>&1 \
-     && {   cmp "$DEST"     "$DEST.new" >/dev/null 2>&1 \
-         || cmp "$DEST.raw" "$DEST.new" >/dev/null 2>&1; }
-  then
-    rm -f "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
-    touch "$DEST.lastcheck"
-    echo "$DEST is already up to date"
-    exit 0
+  if [ -f "$DEST.raw" ] && [ -f "$DEST.raw.asc" ]; then
+    if    cmp "$DEST.raw"     "$DEST.new.raw"     >/dev/null 2>&1 \
+       && cmp "$DEST.raw.asc" "$DEST.new.raw.asc" >/dev/null 2>&1 \
+       && {   cmp "$DEST"     "$DEST.new" >/dev/null 2>&1 \
+           || cmp "$DEST.raw" "$DEST.new" >/dev/null 2>&1; }
+    then
+      rm -f "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
+      touch "$DEST.lastcheck"
+      echo "$DEST is already up to date"
+      exit 0
+    fi
+    mv_all "$DEST" "" ".old"
+  else
+    mv "$DEST" "$DEST.old"
   fi
-  mv_all "$DEST" "" ".old"
 fi
 
 mv_all "$DEST" ".new" ""

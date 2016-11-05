@@ -2,6 +2,9 @@ $Id$
 
 2016-11-05  Christian Franke  <franke@computer.org>
 
+	update-smart-drivedb.in: Fix 'mv' error on first update with new
+	script.
+
 	configure.ac, update-smart-drivedb.in: Add '--with-gnupg' option.
 
 	configure.ac: Add '--with-update-smart-drivedb=X.Y' option to
