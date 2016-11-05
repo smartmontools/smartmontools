@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: update-smart-drivedb.in 4360 2016-11-04 21:24:28Z chrfranke $
+# $Id: update-smart-drivedb.in 4363 2016-11-05 13:42:02Z chrfranke $
 #
 
 set -e
@@ -40,7 +40,7 @@ BRANCH="@DRIVEDB_BRANCH@"
 DRIVEDB="$drivedbdir/drivedb.h"
 
 # GnuPG used to verify signature (disabled if empty)
-GPG=gpg
+GPG="@gnupg@"
 
 # Smartctl used for syntax check
 SMARTCTL="$sbindir/smartctl"

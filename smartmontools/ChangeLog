@@ -1,6 +1,8 @@
-$Id: ChangeLog 4362 2016-11-05 13:07:30Z chrfranke $
+$Id: ChangeLog 4363 2016-11-05 13:42:02Z chrfranke $
 
 2016-11-05  Christian Franke  <franke@computer.org>
+
+	configure.ac, update-smart-drivedb.in: Add '--with-gnupg' option.
 
 	configure.ac: Add '--with-update-smart-drivedb=X.Y' option to
 	backport drive database update script and man page to older

@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4362 2016-11-05 13:07:30Z chrfranke $
+# $Id: configure.ac 4363 2016-11-05 13:42:02Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4362 2016-11-05 13:07:30Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4363 2016-11-05 13:42:02Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -258,6 +258,21 @@ AC_ARG_WITH(update-smart_drivedb,
 test -n "$drivedbdir" || with_update_smart_drivedb=no
 AC_SUBST(with_update_smart_drivedb)
 AM_CONDITIONAL(ENABLE_UPDATE_SMART_DRIVEDB, [test "$with_update_smart_drivedb" = "yes"])
+
+gnupg="gpg"
+# Also check for '--with-gnupg[=yes]' because 'yes' is a valid command with infinite output
+AC_ARG_WITH(gnupg,
+  [AS_HELP_STRING([--with-gnupg@<:@=FILE|yes|no@:>@], [GnuPG used to verify drivedb.h [gpg]])],
+  [case "$withval" in yes) ;; no) gnupg= ;; *) gnupg="$withval" ;; esac], [])
+AC_SUBST(gnupg)
+
+case "$with_update_smart_drivedb:$gnupg" in
+  no:?*)
+    AC_MSG_ERROR([
+'--without-update-smart-drivedb' now requires '--without-gnupg'.
+NEWS: update-smart-drivedb now verifies the downloaded drivedb.h file with GnuPG.])
+    ;;
+esac
 
 AC_ARG_WITH(smartdscriptdir,
   [AS_HELP_STRING([--with-smartdscriptdir=DIR], [Location of smartd_warning.sh script [SYSCONFDIR]])],
@@ -652,6 +667,11 @@ info=`
             echo "... backported to:      branches/$DRIVEDB_BRANCH"
           fi
           echo "download tools:         \`eval eval eval echo $os_dltools\`"
+          if test -n "$gnupg"; then
+            echo "GnuPG for verification: \`eval eval eval echo $gnupg\`"
+          else
+            echo "GnuPG for verification: [[disabled]]"
+          fi
         else
           echo "database update script: [[disabled]]"
         fi
