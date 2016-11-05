@@ -40,7 +40,7 @@ BRANCH="@DRIVEDB_BRANCH@"
 DRIVEDB="$drivedbdir/drivedb.h"
 
 # GnuPG used to verify signature (disabled if empty)
-GPG=gpg
+GPG="@gnupg@"
 
 # Smartctl used for syntax check
 SMARTCTL="$sbindir/smartctl"

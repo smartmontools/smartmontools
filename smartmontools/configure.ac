@@ -259,6 +259,21 @@ test -n "$drivedbdir" || with_update_smart_drivedb=no
 AC_SUBST(with_update_smart_drivedb)
 AM_CONDITIONAL(ENABLE_UPDATE_SMART_DRIVEDB, [test "$with_update_smart_drivedb" = "yes"])
 
+gnupg="gpg"
+# Also check for '--with-gnupg[=yes]' because 'yes' is a valid command with infinite output
+AC_ARG_WITH(gnupg,
+  [AS_HELP_STRING([--with-gnupg@<:@=FILE|yes|no@:>@], [GnuPG used to verify drivedb.h [gpg]])],
+  [case "$withval" in yes) ;; no) gnupg= ;; *) gnupg="$withval" ;; esac], [])
+AC_SUBST(gnupg)
+
+case "$with_update_smart_drivedb:$gnupg" in
+  no:?*)
+    AC_MSG_ERROR([
+'--without-update-smart-drivedb' now requires '--without-gnupg'.
+NEWS: update-smart-drivedb now verifies the downloaded drivedb.h file with GnuPG.])
+    ;;
+esac
+
 AC_ARG_WITH(smartdscriptdir,
   [AS_HELP_STRING([--with-smartdscriptdir=DIR], [Location of smartd_warning.sh script [SYSCONFDIR]])],
   [smartdscriptdir="$withval"], [smartdscriptdir='${sysconfdir}'])
@@ -652,6 +667,11 @@ info=`
             echo "... backported to:      branches/$DRIVEDB_BRANCH"
           fi
           echo "download tools:         \`eval eval eval echo $os_dltools\`"
+          if test -n "$gnupg"; then
+            echo "GnuPG for verification: \`eval eval eval echo $gnupg\`"
+          else
+            echo "GnuPG for verification: [[disabled]]"
+          fi
         else
           echo "database update script: [[disabled]]"
         fi
