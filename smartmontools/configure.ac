@@ -420,21 +420,6 @@ case "$host" in
     ;;
 esac
 
-# TODO: Remove after smartmontools 6.5
-AC_ARG_WITH(docdir,
-  [AS_HELP_STRING([--with-docdir=DIR], [(removed, use --docdir=DIR instead)])],
-  [AC_MSG_ERROR([--with-docdir is no longer supported, use --docdir instead])])
-AC_ARG_ENABLE(drivedb,
-  [AS_HELP_STRING([--disable-drivedb], [(removed, use --without-drivedbdir instead)])])
-AC_ARG_ENABLE(savestates,
-  [AS_HELP_STRING([--enable-savestates], [(removed, use --with-savestates@<:@=yes@:>@ instead)])])
-AC_ARG_ENABLE(attributelog,
-  [AS_HELP_STRING([--enable-attributelog], [(removed, use --with-attributelog@<:@=yes@:>@ instead)])])
-if test -n "${enable_drivedb+set}${enable_savestates+set}${enable_attributelog+set}"; then
-  AC_MSG_ERROR([Options --disable-drivedb, --enable-savestates, --enable-attributelog are no longer supported.
-Use --without-drivedbdir, --with-savestates, --with-attributelog instead.])
-fi
-
 
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
@@ -726,7 +711,7 @@ Use option '--without-nvme-devicescan' to suppress this warning.])
     ;;
 esac
 
-# TODO: Remove after smartmontools 6.5
+# TODO: Remove after smartmontools 6.6
 case "$host:${with_solaris_sparc_ata+set}" in
   sparc-*-solaris*:)
     AC_MSG_WARN([
