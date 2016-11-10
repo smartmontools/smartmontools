@@ -1,4 +1,11 @@
-$Id: ChangeLog 4364 2016-11-05 15:34:04Z chrfranke $
+$Id: ChangeLog 4365 2016-11-10 19:42:24Z chrfranke $
+
+2016-11-10  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Don't detect devices behind hpsa driver as regular
+	SCSI devices.  Suggest to use '-d cciss,N' instead.
+
+	Based on patch provided by Stanislav Brabec.
 
 2016-11-05  Christian Franke  <franke@computer.org>
 
