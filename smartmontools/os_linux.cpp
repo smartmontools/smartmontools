@@ -3091,6 +3091,50 @@ static unsigned get_kernel_release()
   return x * 100000 + y * 1000 + z;
 }
 
+// Check for SCSI host proc_name "hpsa"
+static bool is_hpsa(const char * name)
+{
+  char path[128];
+  snprintf(path, sizeof(path), "/sys/block/%s/device", name);
+  char * syshostpath = canonicalize_file_name(path);
+  if (!syshostpath)
+    return false;
+
+  char * syshost = strrchr(syshostpath, '/');
+  if (!syshost) {
+    free(syshostpath);
+    return false;
+  }
+
+  char * hostsep = strchr(++syshost, ':');
+  if (hostsep)
+    *hostsep = 0;
+
+  snprintf(path, sizeof(path), "/sys/class/scsi_host/host%s/proc_name", syshost);
+  free(syshostpath);
+  int fd = open(path, O_RDONLY);
+  if (fd < 0)
+    return false;
+
+  char proc_name[32];
+  ssize_t n = read(fd, proc_name, sizeof(proc_name) - 1);
+  close(fd);
+  if (n < 4)
+    return false;
+
+  proc_name[n] = 0;
+  if (proc_name[n - 1] == '\n')
+    proc_name[n - 1] = 0;
+
+  if (scsi_debugmode > 1)
+    pout("%s -> %s: \"%s\"\n", name, path, proc_name);
+
+  if (strcmp(proc_name, "hpsa"))
+    return false;
+
+  return true;
+}
+
 // Guess device type (ata or scsi) based on device name (Linux
 // specific) SCSI device name in linux can be sd, sr, scd, st, nst,
 // osst, nosst and sg.
@@ -3143,7 +3187,11 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
       return get_sat_device(usbtype, new linux_scsi_device(this, name, ""));
     }
 
-    // No USB bridge found, assume regular SCSI device
+    // Fail if hpsa driver
+    if (is_hpsa(test_name))
+      return missing_option("-d cciss,N");
+
+    // No USB bridge or hpsa driver found, assume regular SCSI device
     return new linux_scsi_device(this, name, "");
   }
 
