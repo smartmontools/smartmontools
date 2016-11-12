@@ -74,7 +74,9 @@ typedef enum {
 #define ATA_IDLE                        0xe3
 #define ATA_SMART_CMD                   0xb0
 #define ATA_SECURITY_FREEZE_LOCK        0xf5
+#ifndef ATA_SET_FEATURES
 #define ATA_SET_FEATURES                0xef
+#endif
 #define ATA_STANDBY_IMMEDIATE           0xe0
 
 // SET_FEATURES subcommands

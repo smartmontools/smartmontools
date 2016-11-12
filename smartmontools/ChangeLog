@@ -1,5 +1,13 @@
 $Id$
 
+2016-11-12  Christian Franke  <franke@computer.org>
+
+	atacmds.h, freebsd_nvme_ioctl.h: Apply patch-atacmds.h 1.1
+	and patch-freebsd_nvme_ioctl.h 1.1 (2016-11-04) from
+	pkgsrc.se/sysutils/smartmontools:
+	Build fix for FreeBSD-11 and newer.  Don't redefine now
+	existing things, ATA_SET_FEATURES and nvme_command.
+
 2016-11-10  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp: Don't detect devices behind hpsa driver as regular
