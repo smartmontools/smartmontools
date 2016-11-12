@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 4332 2016-08-17 21:16:29Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 4366 2016-11-12 10:39:25Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -74,7 +74,9 @@ typedef enum {
 #define ATA_IDLE                        0xe3
 #define ATA_SMART_CMD                   0xb0
 #define ATA_SECURITY_FREEZE_LOCK        0xf5
+#ifndef ATA_SET_FEATURES
 #define ATA_SET_FEATURES                0xef
+#endif
 #define ATA_STANDBY_IMMEDIATE           0xe0
 
 // SET_FEATURES subcommands
