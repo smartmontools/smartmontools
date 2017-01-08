@@ -1,4 +1,9 @@
-$Id: ChangeLog 4367 2017-01-01 10:30:44Z chrfranke $
+$Id: ChangeLog 4369 2017-01-08 23:20:17Z samm2 $
+
+2017-01-09  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: fix panic on INVARIANTS enabled kernel, patch
+	provided (#780) by Oliver Pinter <oliver.pinter@hardenedbsd.org>
 
 2017-01-01  Christian Franke  <franke@computer.org>
 
