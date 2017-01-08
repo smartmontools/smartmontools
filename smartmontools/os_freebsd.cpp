@@ -1936,6 +1936,8 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   int i;
   const char * test_name = name;
 
+  memset(&ccb, 0, sizeof(ccb));
+
   // if dev_name null, or string length zero
   if (!name || !*name)
     return 0;
