@@ -8,10 +8,20 @@ http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 Date <Not released yet, please try current SVN or daily builds>
 Summary: smartmontools release 6.6
 -----------------------------------------------------------
+- Device type '-d intelliprop,N' for IntelliProp controllers.
 - smartctl: Control ATA write cache through SCT Feature Control
   with '-s wcache-sct,ata|on|off[,p]' and '-g wcache-sct'.
 - smartctl '-s wcreorder,on|off': New persistent flag ',p'.
+- update-smart-drivedb: Now authenticates downloaded file with GnuPG.
+- update-smart-drivedb: New options '--trunk', '--no-verify' and
+  '--export-key'.
+- configure: New options '--with-gnupg', '--with-scriptpath' and
+  '--with-update-smart-drivedb=X.Y'
 - HDD, SSD and USB additions to drive database.
+- Linux: Devices behind hpsa driver are no longer detected as regular
+  SCSI devices.
+- FreeBSD: Fix panic on INVARIANTS enabled kernel.
+- FreeBSD: Compile fix for FreeBSD-11 and newer.
 - NetBSD: NVMe support.
 - NetBSD: Full 28-bit ATA support.
 - NetBSD: Compile fix.
