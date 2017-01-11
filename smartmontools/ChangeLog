@@ -1,5 +1,9 @@
 $Id$
 
+2017-01-11  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Add Casey Biemiller
+
 2017-01-11  Casey Biemiller  <cbiemiller@intelliprop.com>
 
 	Add '-d intelliprop' device type for drives behind IntelliProp
