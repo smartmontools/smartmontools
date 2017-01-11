@@ -2,6 +2,10 @@ $Id$
 
 2017-01-11  Christian Franke  <franke@computer.org>
 
+	smartctl.8.in: Make '-d intelliprop' visible on all platforms.
+	Add warning.
+	smartd.conf.5.in: Document '-d intelliprop'.
+
 	os_win32/vc14/smart*.vcxproj*: Add new files.
 
 	AUTHORS: Add Casey Biemiller

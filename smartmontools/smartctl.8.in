@@ -646,7 +646,6 @@ the disks derived from the HighPoint RocketRAID controllers under Linux and
 under FreeBSD, it is the character device which the driver registered (eg,
 /dev/hptrr, /dev/hptmv6).
 .\" %ENDIF OS FreeBSD Linux
-.\" %IF OS Linux
 
 .I intelliprop,N[+TYPE]
 \- [NEW EXPERIMENTAL SMARTCTL FEATURE] the device consists of multiple ATA
@@ -661,8 +660,9 @@ Use syntax such as:
 .nf
 \fBsmartctl \-a \-d intelliprop,1+sat /dev/sda\fP    (under Linux)
 .fi
-.\" %ENDIF OS Linux
-
+\fBWARNING: The disks are selected by write commands to the ATA Device
+Vendor Specific Log at address 0xc0.
+Using this option with other devices may have undesirable side effects.\fP
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART

@@ -485,6 +485,12 @@ to the default value 1.
 Please see the \fBsmartctl\fP(8) man page for further details.
 
 .\" %ENDIF OS FreeBSD Linux
+.I intelliprop,N[+TYPE]
+\- [NEW EXPERIMENTAL SMARTD FEATURE] the device consists of multiple ATA
+disks connected to an Intelliprop controller.
+The integer N is the port number from 0 to 3 of the ATA drive to be targeted.
+Please see the \fBsmartctl\fP(8) man page for further details.
+
 .I ignore
 \- the device specified by this configuration entry should be ignored.
 This allows to ignore specific devices which are detected by a following
