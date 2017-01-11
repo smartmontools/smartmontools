@@ -1097,6 +1097,36 @@ bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
   return true;
 }
 
+// Write GP Log page(s)
+bool ataWriteLogExt(ata_device * device, unsigned char logaddr,
+                    unsigned page, void * data, unsigned nsectors)
+{
+  ata_cmd_in in;
+  in.in_regs.command      = ATA_WRITE_LOG_EXT;
+  in.set_data_out(data, nsectors);
+  in.in_regs.lba_low      = logaddr;
+  in.in_regs.lba_mid_16   = page;
+  in.set_data_out(data, nsectors);
+
+  ata_cmd_out out;
+  if (!device->ata_pass_through(in, out)) { // TODO: Debug output
+    if (nsectors <= 1) {
+      pout("ATA_WRITE_LOG_EXT (addr=0x%02x, page=%u, n=%u) failed: %s\n",
+           logaddr, page, nsectors, device->get_errmsg());
+      return false;
+    }
+
+    // Recurse to retry with single sectors,
+    // multi-sector reads may not be supported by ioctl.
+    for (unsigned i = 0; i < nsectors; i++) {
+      if (!ataWriteLogExt(device, logaddr, page + i,
+                         (char *)data + 512*i, 1))
+        return false;
+    }
+  }
+
+  return true;
+}
 
 // Read GP Log page(s)
 bool ataReadLogExt(ata_device * device, unsigned char logaddr,

@@ -1,5 +1,15 @@
 $Id$
 
+2017-01-11  Casey Biemiller  <cbiemiller@intelliprop.com>
+
+	Add '-d intelliprop' device type for drives behind IntelliProp
+	RAID controllers (ticket #730):
+	atacmds.cpp, atacmds.h: Add function ataWriteLogExt().
+	dev_intelliprop.cpp, dev_intelliprop.h: New files.
+	dev_interface.cpp: Add '-d intelliprop,N[+TYPE]' option.
+	Makefile.am: Add new files.
+	smartctl.8.in, smartd.conf.5.in: Document it.
+
 2017-01-09  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: fix panic on INVARIANTS enabled kernel, patch

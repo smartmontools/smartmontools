@@ -646,6 +646,23 @@ the disks derived from the HighPoint RocketRAID controllers under Linux and
 under FreeBSD, it is the character device which the driver registered (eg,
 /dev/hptrr, /dev/hptmv6).
 .\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
+
+.I intelliprop,N[+TYPE]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE] the device consists of multiple ATA
+disks connected to an Intelliprop controller. The integer N is the port number
+from 0 to 3 of the ATA drive to be targeted. The TYPE can be ata(default),
+sat, or a USB controller listed above. Note: if a type of ATA does not
+work, try a type of sat.
+Use syntax such as:
+.nf
+\fBsmartctl \-a \-d intelliprop,1 /dev/sda\fP    (under Linux)
+.fi
+.nf
+\fBsmartctl \-a \-d intelliprop,1+sat /dev/sda\fP    (under Linux)
+.fi
+.\" %ENDIF OS Linux
+
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART

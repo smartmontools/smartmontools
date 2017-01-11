@@ -187,6 +187,24 @@ Section below!
 .B \ \ /dev/hptrr -d hpt,1/4/2 -a -s L/../../7/02
 .B #
 .\" %ENDIF OS FreeBSD
+.B # Two SATA disks on an Intelliprop controller.
+.B # Start short self-tests daily between 1-2, 2-3, and
+.B # 3-4 am.
+.\" %IF OS Linux
+.B # under Linux
+.B \ \ /dev/sde -d intelliprop,0+sat -a -s S/../.././01
+.B \ \ /dev/sde -d intelliprop,1+sat -a -s S/../.././02
+.\" %ENDIF OS Linux
+.B # Four SATA disks on an Intelliprop controller.
+.B # Start long self-tests daily between 1-2, 2-3,
+.B # 3-4, and 4-5 am.
+.\" %IF OS Linux
+.B # under Linux
+.B \ \ /dev/sde -d intelliprop,0+sat -a -s L/../.././01
+.B \ \ /dev/sde -d intelliprop,1+sat -a -s L/../.././02
+.B \ \ /dev/sde -d intelliprop,2+sat -a -s L/../.././03
+.B \ \ /dev/sde -d intelliprop,3+sat -a -s L/../.././04
+.\" %ENDIF OS Linux
 .B # Three SATA disks connected to an Areca
 .B # RAID controller. Start long self-tests Sundays
 .B # between midnight and 3 am.

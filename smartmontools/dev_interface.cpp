@@ -18,6 +18,7 @@
 #include "config.h"
 #include "int64.h"
 #include "dev_interface.h"
+#include "dev_intelliprop.h"
 #include "dev_tunnelled.h"
 #include "atacmds.h" // ATA_SMART_CMD/STATUS
 #include "utility.h"
@@ -281,8 +282,8 @@ std::string smart_interface::get_valid_dev_types_str()
 {
   // default
   std::string s =
-    "ata, scsi, nvme[,NSID], sat[,auto][,N][+TYPE], "
-    "usbcypress[,X], usbjmicron[,p][,x][,N], usbprolific, usbsunplus";
+    "ata, scsi, nvme[,NSID], sat[,auto][,N][+TYPE], usbcypress[,X], "
+    "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, intelliprop,N[+TYPE]";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
   if (!s2.empty()) {
@@ -420,6 +421,31 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     }
     // Attach SAT tunnel
     return get_sat_device(sattype.c_str(), basedev.release()->to_scsi());
+  }
+
+  else if (str_starts_with(type, "intelliprop")) {
+    // Parse "intelliprop,N[+base...]"
+    unsigned phydrive = ~0; int n = -1; char c = 0;
+    sscanf(type, "intelliprop,%u%n%c", &phydrive, &n, &c);
+    if (!((n == (int)strlen(type) || c == '+') && phydrive <= 3)) {
+      set_err(EINVAL, "Option '-d intelliprop,N' requires N between 0 and 3");
+      return 0;
+    }
+    const char * basetype = (type[n] ? type + n + 1 : "");
+    // Recurse to allocate base device, default is standard ATA
+    if (!*basetype)
+      basetype = "ata";
+    smart_device_auto_ptr basedev( get_smart_device(name, basetype) );
+    if (!basedev) {
+      set_err(EINVAL, "Type '%s': %s", type, get_errmsg());
+      return 0;
+    }
+    // Result must be ATA
+    if (!basedev->is_ata()) {
+      set_err(EINVAL, "Type '%s': Device type '%s' is not ATA", type, basetype);
+      return 0;
+    }
+    return get_intelliprop_device(this, phydrive, basedev.release()->to_ata());
   }
 
   else {

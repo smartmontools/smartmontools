@@ -63,6 +63,8 @@ smartctl_SOURCES = \
         ataprint.h \
         dev_ata_cmd_set.cpp \
         dev_ata_cmd_set.h \
+        dev_intelliprop.cpp \
+        dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
         dev_tunnelled.h \
@@ -129,6 +131,8 @@ smartd_SOURCES = \
         atacmds.h \
         dev_ata_cmd_set.cpp \
         dev_ata_cmd_set.h \
+        dev_intelliprop.cpp \
+        dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
         dev_tunnelled.h \
