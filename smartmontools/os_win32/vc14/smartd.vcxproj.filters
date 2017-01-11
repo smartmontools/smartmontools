@@ -67,6 +67,7 @@
     <ClCompile Include="..\..\dev_areca.cpp" />
     <ClCompile Include="..\..\nvmecmds.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp" />
+    <ClCompile Include="..\..\dev_intelliprop.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\daemon_win32.h">
@@ -109,6 +110,7 @@
     <ClInclude Include="svnversion.h" />
     <ClInclude Include="..\..\nvmecmds.h" />
     <ClInclude Include="..\..\nvmeprint.h" />
+    <ClInclude Include="..\..\dev_intelliprop.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\installer.nsi">

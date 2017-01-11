@@ -2,6 +2,8 @@ $Id$
 
 2017-01-11  Christian Franke  <franke@computer.org>
 
+	os_win32/vc14/smart*.vcxproj*: Add new files.
+
 	AUTHORS: Add Casey Biemiller
 
 2017-01-11  Casey Biemiller  <cbiemiller@intelliprop.com>
