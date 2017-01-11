@@ -1,4 +1,14 @@
-$Id: ChangeLog 4369 2017-01-08 23:20:17Z samm2 $
+$Id: ChangeLog 4370 2017-01-11 20:35:38Z chrfranke $
+
+2017-01-11  Casey Biemiller  <cbiemiller@intelliprop.com>
+
+	Add '-d intelliprop' device type for drives behind IntelliProp
+	RAID controllers (ticket #730):
+	atacmds.cpp, atacmds.h: Add function ataWriteLogExt().
+	dev_intelliprop.cpp, dev_intelliprop.h: New files.
+	dev_interface.cpp: Add '-d intelliprop,N[+TYPE]' option.
+	Makefile.am: Add new files.
+	smartctl.8.in, smartd.conf.5.in: Document it.
 
 2017-01-09  Alex Samorukov  <samm@os2.kiev.ua>
 

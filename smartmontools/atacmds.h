@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 4366 2016-11-12 10:39:25Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 4370 2017-01-11 20:35:38Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -91,6 +91,7 @@ typedef enum {
 
 // 48-bit commands
 #define ATA_READ_LOG_EXT                0x2F
+#define ATA_WRITE_LOG_EXT               0x3F
 
 // ATA Specification Feature Register Values (SMART Subcommands).
 // Note that some are obsolete as of ATA-7.
@@ -780,6 +781,10 @@ int ataReadSelfTestLog(ata_device * device, ata_smart_selftestlog * data,
                        firmwarebug_defs firmwarebugs);
 int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_test_log *data);
 int ataReadLogDirectory(ata_device * device, ata_smart_log_directory *, bool gpl);
+
+// Write GP Log page(s)
+bool ataWriteLogExt(ata_device * device, unsigned char logaddr,
+                    unsigned page, void * data, unsigned nsectors);
 
 // Read GP Log page(s)
 bool ataReadLogExt(ata_device * device, unsigned char logaddr,

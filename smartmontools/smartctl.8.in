@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-16 Christian Franke
 
-$Id: smartctl.8.in 4356 2016-10-23 16:17:33Z chrfranke $
+$Id: smartctl.8.in 4370 2017-01-11 20:35:38Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -646,6 +646,23 @@ the disks derived from the HighPoint RocketRAID controllers under Linux and
 under FreeBSD, it is the character device which the driver registered (eg,
 /dev/hptrr, /dev/hptmv6).
 .\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
+
+.I intelliprop,N[+TYPE]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE] the device consists of multiple ATA
+disks connected to an Intelliprop controller. The integer N is the port number
+from 0 to 3 of the ATA drive to be targeted. The TYPE can be ata(default),
+sat, or a USB controller listed above. Note: if a type of ATA does not
+work, try a type of sat.
+Use syntax such as:
+.nf
+\fBsmartctl \-a \-d intelliprop,1 /dev/sda\fP    (under Linux)
+.fi
+.nf
+\fBsmartctl \-a \-d intelliprop,1+sat /dev/sda\fP    (under Linux)
+.fi
+.\" %ENDIF OS Linux
+
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART
@@ -2373,4 +2390,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4356 2016-10-23 16:17:33Z chrfranke $
+$Id: smartctl.8.in 4370 2017-01-11 20:35:38Z chrfranke $

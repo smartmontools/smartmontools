@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4343 2016-09-25 16:46:49Z chrfranke $
+# $Id: Makefile.am 4370 2017-01-11 20:35:38Z chrfranke $
 #
 
 @SET_MAKE@
@@ -63,6 +63,8 @@ smartctl_SOURCES = \
         ataprint.h \
         dev_ata_cmd_set.cpp \
         dev_ata_cmd_set.h \
+        dev_intelliprop.cpp \
+        dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
         dev_tunnelled.h \
@@ -129,6 +131,8 @@ smartd_SOURCES = \
         atacmds.h \
         dev_ata_cmd_set.cpp \
         dev_ata_cmd_set.h \
+        dev_intelliprop.cpp \
+        dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
         dev_tunnelled.h \
