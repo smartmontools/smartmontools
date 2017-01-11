@@ -1,6 +1,10 @@
-$Id: ChangeLog 4372 2017-01-11 20:56:08Z chrfranke $
+$Id: ChangeLog 4373 2017-01-11 21:36:39Z chrfranke $
 
 2017-01-11  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Make '-d intelliprop' visible on all platforms.
+	Add warning.
+	smartd.conf.5.in: Document '-d intelliprop'.
 
 	os_win32/vc14/smart*.vcxproj*: Add new files.
 
