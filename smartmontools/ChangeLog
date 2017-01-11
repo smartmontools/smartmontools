@@ -1,6 +1,8 @@
-$Id: ChangeLog 4371 2017-01-11 20:48:22Z chrfranke $
+$Id: ChangeLog 4372 2017-01-11 20:56:08Z chrfranke $
 
 2017-01-11  Christian Franke  <franke@computer.org>
+
+	os_win32/vc14/smart*.vcxproj*: Add new files.
 
 	AUTHORS: Add Casey Biemiller
 
