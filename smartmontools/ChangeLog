@@ -1,5 +1,11 @@
 $Id$
 
+2017-01-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Innodisk 1ME3/3ME/3SE SSDs: Rename, add 1ME3 (ticket #713), 3SE
+	- Innodisk 3IE2/3ME2/3MG2/3SE2 SSDs: Rename, add 3ME2
+
 2017-01-11  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in: Make '-d intelliprop' visible on all platforms.

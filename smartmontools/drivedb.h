@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-16 Christian Franke
+ * Copyright (C) 2008-17 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -689,8 +689,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 236,raw48,Unstable_Power_Count "
     "-v 240,raw48,Write_Head"
   },
-  { "Innodisk 3ME SSDs", // tested with 2.5" SATA SSD 3ME/S140714
-    "((1\\.8|2\\.5)\"? SATA SSD|SATA Slim) 3ME",
+  { "Innodisk 1ME3/3ME/3SE SSDs", // tested with 2.5" SATA SSD 3ME/S140714,
+      // Mini PCIeDOM 1ME3/S15604, InnoDisk Corp. - mSATA 3SE/S130710
+    "((1\\.8|2\\.5)\"? SATA SSD|InnoDisk Corp\\. - mSATA|Mini PCIeDOM|SATA Slim) (1ME3|3[MS]E)",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -702,7 +703,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 10,raw48,Spin_Retry_Count "     // ?
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 168,raw48,SATA_PHY_Error_Count "
-    "-v 169,raw48,Unknown_Innodisk_Attr "
+    "-v 169,hex48,Unknown_Innodisk_Attr "
     "-v 170,raw16,Bad_Block_Count "
     "-v 173,raw16,Erase_Count "
     "-v 175,raw48,Bad_Cluster_Table_Count "
@@ -716,10 +717,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 236,raw48,Unstable_Power_Count "
     "-v 240,raw48,Write_Head"
   },
-  { "Innodisk 3IE2/3MG2/3SE2-P SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
+  { "Innodisk 3IE2/3ME2/3MG2/3SE2 SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
       // 1.8 SATA SSD 3IE2-P/M150821, 2.5" SATA SSD 3IE2-P/M150821,
-      // SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114, M.2 (S42) 3SE2-P/M150821
-    "((1\\.8|2\\.5)\"? SATA SSD|SATA Slim|M\\.2 \\(S(42|80)\\)) 3(IE|MG|SE)2-P",
+      // SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114, M.2 (S42) 3SE2-P/M150821,
+      // M.2 (S42) 3ME2/M151013
+    "((1\\.8|2\\.5)\"? SATA SSD|SATA Slim|M\\.2 \\(S(42|80)\\)) 3(IE|ME|MG|SE)2(-P)?",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
