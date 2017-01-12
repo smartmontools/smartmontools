@@ -5,6 +5,9 @@ $Id$
 	drivedb.h:
 	- Innodisk 1ME3/3ME/3SE SSDs: Rename, add 1ME3 (ticket #713), 3SE
 	- Innodisk 3IE2/3ME2/3MG2/3SE2 SSDs: Rename, add 3ME2
+	- Samsung based SSDs: 750 EVO, PM810(470), 840, PM830, PM851,
+	  CM871 (ticket #754), CM871a, PM871a (tickets #745, #775),
+	  SM951 (ticket #704)
 
 2017-01-11  Christian Franke  <franke@computer.org>
 
