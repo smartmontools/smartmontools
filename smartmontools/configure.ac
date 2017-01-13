@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4363 2016-11-05 13:42:02Z chrfranke $
+# $Id: configure.ac 4379 2017-01-13 22:30:30Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4363 2016-11-05 13:42:02Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4379 2017-01-13 22:30:30Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -577,37 +577,39 @@ AM_CONDITIONAL(OS_WIN32_MINGW, [test "$os_win32_mingw" = "yes"])
 AM_CONDITIONAL(OS_WIN32_NSIS, [test -n "$MAKENSIS"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
 
-dnl Add -Wall and -W if using g++ and its not already specified.
+# Add -Wall and -W[extra] if using g++ and its not already specified.
 if test "$GXX" = "yes"; then
-  if test -z "`echo "$CXXFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
-      CXXFLAGS="$CXXFLAGS -Wall"
-  fi
-# In the next line, do NOT delete the 2 spaces inside double quotes.
-  if test -z "`echo "$CXXFLAGS " | grep "\-W " 2> /dev/null`" ; then
-      CXXFLAGS="$CXXFLAGS -W"
-  fi
-
+  case " $CXXFLAGS " in
+    *\ -Wall\ *) ;;
+    *) CXXFLAGS="$CXXFLAGS -Wall" ;;
+  esac
+  case " $CXXFLAGS " in
+    *\ -W\ *|*\ -Wextra\ *) ;;
+    *) CXXFLAGS="$CXXFLAGS -W" ;;
+  esac
 else
- dnl We are NOT using gcc, so enable host-specific compiler flags
- case "${host}" in
-	sparc*-*-solaris*) 
-          dnl set CXXFLAGS for Solaris/SPARC C++ compiler
-          if test -z "`echo "$CXXFLAGS" | grep "\-xmemalign" 2> /dev/null`" ; then
-            dnl we have to tell the compilers about packed ATA structures
-            CXXFLAGS="-xmemalign=1i $CXXFLAGS"
-          fi
- esac
- case "${host}" in
-	*-*-solaris*) 
-          if test -z "`echo "$CXXFLAGS" | grep "\-xO" 2> /dev/null`" ; then
-            dnl turn on optimization if user has not explicitly set its value
-            CXXFLAGS="-xO2 $CXXFLAGS"
-          fi
-          if test -z "`echo "$CXXFLAGS" | grep "\-erroff" 2> /dev/null`" ; then
-	    dnl suppress trivial warnings
-	    CXXFLAGS="-erroff=%none,wbadinitl,wbadasgl,badargtypel2w,badargtype2w $CXXFLAGS"
-	  fi
- esac
+  # We are NOT using gcc, so enable host-specific compiler flags
+  case "${host}" in
+    sparc*-*-solaris*)
+      # Tell the Solaris/SPARC C++ compiler about packed ATA structures
+      case " $CXXFLAGS" in
+        *\ -xmemalign*) ;;
+        *) CXXFLAGS="-xmemalign=1i $CXXFLAGS" ;;
+      esac ;;
+  esac
+  case "${host}" in
+    *-*-solaris*)
+      # Turn on optimization if user has not explicitly set its value
+      case " $CXXFLAGS" in
+        *\ -xO*) ;;
+        *) CXXFLAGS="-xO2 $CXXFLAGS" ;;
+      esac
+      # Suppress trivial warnings
+      case " $CXXFLAGS" in
+        *\ -erroff*) ;;
+        *) CXXFLAGS="-erroff=%none,wbadinitl,wbadasgl,badargtypel2w,badargtype2w $CXXFLAGS" ;;
+      esac ;;
+  esac
 fi
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                       [smartmontools Build Host])
