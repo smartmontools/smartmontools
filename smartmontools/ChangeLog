@@ -2,6 +2,8 @@ $Id$
 
 2017-01-13  Christian Franke  <franke@computer.org>
 
+	configure.ac: Rework CXXFLAGS settings, use shell intrinsics.
+
 	os_win32.cpp: Fix harmless buffer overflow bug
 	(found by VC14 code analyser).
 
