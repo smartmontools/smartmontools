@@ -3713,7 +3713,7 @@ bool win_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & o
 
   // Set NVMe command
   pthru->SrbIoCtrl.HeaderLength = sizeof(SRB_IO_CONTROL);
-  memcpy(pthru->SrbIoCtrl.Signature, NVME_SIG_STR, sizeof(NVME_SIG_STR));
+  memcpy(pthru->SrbIoCtrl.Signature, NVME_SIG_STR, sizeof(NVME_SIG_STR)-1);
   pthru->SrbIoCtrl.Timeout = 60;
   pthru->SrbIoCtrl.ControlCode = NVME_PASS_THROUGH_SRB_IO_CODE;
   pthru->SrbIoCtrl.ReturnCode = 0;
