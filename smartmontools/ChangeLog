@@ -1,4 +1,9 @@
-$Id: ChangeLog 4376 2017-01-12 21:00:33Z chrfranke $
+$Id: ChangeLog 4378 2017-01-13 22:00:05Z chrfranke $
+
+2017-01-13  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Fix harmless buffer overflow bug
+	(found by VC14 code analyser).
 
 2017-01-12  Christian Franke  <franke@computer.org>
 
