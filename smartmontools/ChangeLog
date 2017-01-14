@@ -1,4 +1,9 @@
-$Id: ChangeLog 4379 2017-01-13 22:30:30Z chrfranke $
+$Id: ChangeLog 4380 2017-01-14 18:21:26Z chrfranke $
+
+2017-01-14  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, ataprint.h, smartctl.cpp, smartctl.8.in:
+	Add STATUS parameter to '-n POWERMODE' option (ticket #697).
 
 2017-01-13  Christian Franke  <franke@computer.org>
 
