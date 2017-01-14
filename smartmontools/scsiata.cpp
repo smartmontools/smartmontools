@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-16 Christian Franke
+ * Copyright (C) 2009-17 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4276 2016-04-02 19:13:39Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4381 2017-01-14 19:47:53Z chrfranke $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -1170,7 +1170,6 @@ bool usbjmicron_device::get_registers(unsigned short addr,
   io_hdr.dxfer_len = size;
   io_hdr.dxferp = buf;
   io_hdr.cmnd = cdb;
-  io_hdr.cmnd_len = sizeof(cdb);
   io_hdr.cmnd_len = (!m_prolific ? 12 : 14);
 
   scsi_device * scsidev = get_tunnel_dev();
