@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-16 Christian Franke
+ * Copyright (C) 2008-17 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -2568,8 +2568,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     if (powername) {
       if (options.powermode >= powerlimit) {
-        pout("Device is in %s mode, exit(%d)\n", powername, FAILPOWER);
-        return FAILPOWER;
+        pout("Device is in %s mode, exit(%d)\n", powername, options.powerexit);
+        return options.powerexit;
       }
       powerchg = (powermode != 0xff); // SMART tests will spin up drives
     }

@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-16 Christian Franke
+Copyright (C) 2004-17 Christian Franke
 
 $Id$
 
@@ -765,16 +765,27 @@ reconstructed from the debug report read from stdin.
 Then \fBsmartctl\fP internally simulates an ATA device with the same
 behaviour. This is does not work for SCSI devices yet.
 .TP
-.B \-n POWERMODE, \-\-nocheck=POWERMODE
+.B \-n POWERMODE[,STATUS], \-\-nocheck=POWERMODE[,STATUS]
 [ATA only] Specifies if \fBsmartctl\fP should exit before performing any
 checks when the device is in a low-power mode. It may be used to prevent
 a disk from being spun-up by \fBsmartctl\fP. The power mode is ignored by
-default.  A nonzero exit status is returned if the device is in one of the
-specified low-power modes (see EXIT STATUS below).
+default.
 
 Note: If this option is used it may also be necessary to specify the device
 type with the \'\-d\' option.  Otherwise the device may spin up due to
 commands issued during device type autodetection.
+
+By default, exit status 2 is returned if the device is in one of the
+specified low-power modes.
+This status is also returned if the device open or identification failed
+(see EXIT STATUS below).
+
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+The optional STATUS parameter allows to override this default.
+STATUS is an integer in the range from 0 to 255 inclusive.
+For example use \'-n standby,0\' to return success if a device is in SLEEP or
+STANDBY mode.
+Use \'-n standby,3\' to return a unique exit status in this case.
 
 The valid arguments to this option are:
 
@@ -782,15 +793,15 @@ The valid arguments to this option are:
 \- check the device always, but print the power mode if \'\-i\' is
 specified.
 
-.I sleep
+.I sleep[,STATUS]
 \- check the device unless it is in SLEEP mode.
 
-.I standby
+.I standby[,STATUS]
 \- check the device unless it is in SLEEP or STANDBY mode.  In
 these modes most disks are not spinning, so if you want to prevent
 a disk from spinning up, this is probably what you want.
 
-.I idle
+.I idle[,STATUS]
 \- check the device unless it is in SLEEP, STANDBY or IDLE mode.
 In the IDLE state, most disks are still spinning, so this is probably
 not what you want.

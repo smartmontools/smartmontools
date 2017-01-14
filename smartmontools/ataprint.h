@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-12 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-09 Bruce Allen
+ * Copyright (C) 2008-17 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -92,6 +92,7 @@ struct ata_print_options
   bool ignore_presets; // Ignore presets from drive database
   bool show_presets; // Show presets and exit
   unsigned char powermode; // Skip check, if disk in idle or standby mode
+  unsigned char powerexit; // exit() code for low power mode
 
   bool get_set_used; // true if any get/set command is used
   bool get_aam; // print Automatic Acoustic Management status
@@ -141,7 +142,7 @@ struct ata_print_options
       fix_swapped_id(false),
       ignore_presets(false),
       show_presets(false),
-      powermode(0),
+      powermode(0), powerexit(0),
       get_set_used(false),
       get_aam(false), set_aam(0),
       get_apm(false), set_apm(0),

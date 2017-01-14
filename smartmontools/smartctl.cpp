@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-16 Christian Franke
+ * Copyright (C) 2008-17 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -109,7 +109,7 @@ static void Usage()
 "         Set action on bad checksum to one of: warn, exit, ignore\n\n"
 "  -r TYPE, --report=TYPE\n"
 "         Report transactions (see man page)\n\n"
-"  -n MODE, --nocheck=MODE                                             (ATA)\n"
+"  -n MODE[,STATUS], --nocheck=MODE[,STATUS]                           (ATA)\n"
 "         No check if: never, sleep, standby, idle (see man page)\n\n",
   getvalidarglist('d').c_str()); // TODO: Use this function also for other options ?
   printf(
@@ -218,7 +218,7 @@ static std::string getvalidarglist(int opt)
   case 'F':
     return std::string(get_valid_firmwarebug_args()) + ", swapid";
   case 'n':
-    return "never, sleep, standby, idle";
+    return "never, sleep[,STATUS], standby[,STATUS], idle[,STATUS]";
   case 'f':
     return "old, brief, hex[,id|val]";
   case 'g':
@@ -800,16 +800,25 @@ static const char * parse_options(int argc, char** argv,
       break;
     case 'n':
       // skip disk check if in low-power mode
-      if (!strcmp(optarg, "never"))
+      if (!strcmp(optarg, "never")) {
         ataopts.powermode = 1; // do not skip, but print mode
-      else if (!strcmp(optarg, "sleep"))
-        ataopts.powermode = 2;
-      else if (!strcmp(optarg, "standby"))
-        ataopts.powermode = 3;
-      else if (!strcmp(optarg, "idle"))
-        ataopts.powermode = 4;
-      else
-        badarg = true;
+      }
+      else {
+        int n1 = -1, n2 = -1, len = strlen(optarg);
+        char s[7+1]; unsigned i = FAILPOWER;
+        sscanf(optarg, "%9[a-z]%n,%u%n", s, &n1, &i, &n2);
+        if (!((n1 == len || n2 == len) && i <= 255))
+          badarg = true;
+        else if (!strcmp(s, "sleep"))
+          ataopts.powermode = 2;
+        else if (!strcmp(s, "standby"))
+          ataopts.powermode = 3;
+        else if (!strcmp(s, "idle"))
+          ataopts.powermode = 4;
+        else
+          badarg = true;
+        ataopts.powerexit = i;
+      }
       break;
     case 'f':
       if (!strcmp(optarg, "old")) {
@@ -1342,8 +1351,8 @@ static int main_worker(int argc, char **argv)
          dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev.get()));
 
   if (dev->is_ata() && ataopts.powermode>=2 && dev->is_powered_down()) {
-    pout( "%s: Device is in %s mode, exit(%d)\n", dev->get_info_name(), "STANDBY (OS)", FAILPOWER );
-    return FAILPOWER;
+    pout("Device is in STANDBY (OS) mode, exit(%d)\n", ataopts.powerexit);
+    return ataopts.powerexit;
   }
 
   // Open device
