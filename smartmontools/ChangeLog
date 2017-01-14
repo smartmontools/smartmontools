@@ -2,6 +2,9 @@ $Id$
 
 2017-01-14  Christian Franke  <franke@computer.org>
 
+	scsiata.cpp: Remove redundant assignment
+	(cppcheck: redundantAssignment).
+
 	ataprint.cpp, ataprint.h, smartctl.cpp, smartctl.8.in:
 	Add STATUS parameter to '-n POWERMODE' option (ticket #697).
 

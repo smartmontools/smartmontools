@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-16 Christian Franke
+ * Copyright (C) 2009-17 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1170,7 +1170,6 @@ bool usbjmicron_device::get_registers(unsigned short addr,
   io_hdr.dxfer_len = size;
   io_hdr.dxferp = buf;
   io_hdr.cmnd = cdb;
-  io_hdr.cmnd_len = sizeof(cdb);
   io_hdr.cmnd_len = (!m_prolific ? 12 : 14);
 
   scsi_device * scsidev = get_tunnel_dev();
