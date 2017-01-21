@@ -1,5 +1,17 @@
 $Id$
 
+2017-01-21  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Renesas uPD720231A (0x045b:0x0229)
+	- USB: Maxtor D3 Station 5TB (0x0bc2:0x6126)
+	- USB: Seagate Backup Plus 8TB (0x0bc2:0xab38) (ticket #786)
+	- USB: WD Elements / My Passport (0x1058:0x107d) (ticket #772)
+	- USB: WD Elements / My Passport (0x1058:0x25a1) (ticket #773)
+	- USB: WD My Book 4TB (0x1058:0x25a3) (ticket #784)
+	- USB: WD Elements / My Passport: Merge entries
+	- USB: WD My Book: Merge entries
+
 2017-01-14  Christian Franke  <franke@computer.org>
 
 	scsiata.cpp: Remove redundant assignment
