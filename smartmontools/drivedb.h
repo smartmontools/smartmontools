@@ -1323,9 +1323,12 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
     "SanDisk SD6S[BF][12]M[0-9]*G(1022I?)?|" // X110/X210 (88SS9175/187?), tested with SanDisk SD6SB1M064G1022I/X231600,
       // SanDisk SD6SB1M256G1022I/X231600, SanDisk SD6SF1M128G1022/X231200, SanDisk SD6SB2M512G1022I/X210400
-    "SanDisk SD7SB6S(128|256|512)G1122|" // X300 (88SS9189?), tested with SanDisk SD7SB6S128G1122/X3310000
+    "SanDisk SD7S[BN]6S-?(128|256|512)G(1122|-1006)|" // X300 (88SS9189?), tested with
+      // SanDisk SD7SB6S128G1122/X3310000, SanDisk SD7SN6S-512G-1006/X3511006
+    "SanDisk SD8SB8U((128|256|512)G|1T00)1122|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
-    "SanDisk SDSSDHII[0-9]*G|" // Ultra II (88SS9190/88SS9189), tested with SanDisk SDSSDHII120G/X31200RL
+    "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
+      // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
     "SanDisk SDSSDXPS?[0-9]*G", // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
     "", "",

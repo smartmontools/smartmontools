@@ -3,6 +3,8 @@ $Id$
 2017-01-21  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Marvell based SanDisk SSDs: X300 OEM (ticket #747),
+	  X400 (ticket #715), Ultra II (ticket #744)
 	- USB: Renesas uPD720231A (0x045b:0x0229)
 	- USB: Maxtor D3 Station 5TB (0x0bc2:0x6126)
 	- USB: Seagate Backup Plus 8TB (0x0bc2:0xab38) (ticket #786)
