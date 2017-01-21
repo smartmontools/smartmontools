@@ -1318,9 +1318,12 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
     "SanDisk SD6S[BF][12]M[0-9]*G(1022I?)?|" // X110/X210 (88SS9175/187?), tested with SanDisk SD6SB1M064G1022I/X231600,
       // SanDisk SD6SB1M256G1022I/X231600, SanDisk SD6SF1M128G1022/X231200, SanDisk SD6SB2M512G1022I/X210400
-    "SanDisk SD7SB6S(128|256|512)G1122|" // X300 (88SS9189?), tested with SanDisk SD7SB6S128G1122/X3310000
+    "SanDisk SD7S[BN]6S-?(128|256|512)G(1122|-1006)|" // X300 (88SS9189?), tested with
+      // SanDisk SD7SB6S128G1122/X3310000, SanDisk SD7SN6S-512G-1006/X3511006
+    "SanDisk SD8SB8U((128|256|512)G|1T00)1122|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
-    "SanDisk SDSSDHII[0-9]*G|" // Ultra II (88SS9190/88SS9189), tested with SanDisk SDSSDHII120G/X31200RL
+    "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
+      // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
     "SanDisk SDSSDXPS?[0-9]*G", // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
     "", "",
@@ -3463,8 +3466,9 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD10TMVW-11ZSMS5/01.01A01,
       // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
       // WDC WD20NMVW-11AV3S3/01.01A01 (0x1058:0x0837),
-      // WDC WD20NMVW-11EDZS7/01.01A01 (0x1058:0x259d),
+      // WDC WD20NMVW-11EDZS7/01.01A01 (0x1058:0x259d/25a1),
       // WDC WD20NMVW-11W68S0/01.01A01,
+      // WDC WD20NMVW-59AV3S3/01.01A01 (0x1058:0x107d),
       // WDC WD30NMVW-11C3NS4/01.01A01,
       // WDC WD40NMZW-11GX6S1/01.01A01 (0x1058:0x2599)
     "WDC WD(5000[LK]|7500[BK]|10[JT]|[234]0N)M[VZ][VW]-.*", // *W-* = USB 3.0
@@ -3586,7 +3590,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Hitachi (?)
   { "USB: ; Renesas uPD720231A", // USB2/3->SATA
-    "0x045b:0x022a", // DeLock 62652 converter SATA 6GB/s > USB 3.0
+    // 0x0229: Pi-102 Raspberry Pi USB to mSATA Converter Board
+    // 0x022a: DeLock 62652 converter SATA 6GB/s > USB 3.0
+    "0x045b:0x022[9a]",
     "",
     "",
     "-d sat"
@@ -4160,9 +4166,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Seagate FreeAgent GoFlex Pro for Mac; ",
-    "0x0bc2:0x6121",
-    "", // 0x0148
+  { "USB: Seagate FreeAgent GoFlex; ",
+    // 0x6121: Seagate FreeAgent GoFlex Pro for Mac (0x0148)
+    // 0x6126: Maxtor D3 Station 5TB (0x0209)
+    "0x0bc2:0x612[16]",
+    "",
     "",
     "-d sat"
   },
@@ -4185,8 +4193,11 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Backup Plus USB 3.0; ",
-    "0x0bc2:0xab2[01458]", // 0xab24: Slim (ticket #443), 0xab25: Mac
-    "", // 0x0100
+    // 0xab24: Seagate Backup Plus Slim (0x0100) (ticket #443)
+    // 0xab25: Seagate Backup Plus for Mac (0x0100)
+    // 0xab38: Seagate Backup Plus 8TB (0x0100) (ticket #786)
+    "0x0bc2:0xab(2[01458]|38)",
+    "",
     "",
     "-d sat"
   },
@@ -4294,39 +4305,28 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
-  { "USB: WD My Passport; ",
-    "0x1058:0x0(70[245a]|71a|730|74[0128a]|7a[8e]|81[06]|82[02]|83[37a])",
-    "", // 822=0x1007, 837=0x1072
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Book; ",
-    "0x1058:0x09(00|06|10)",
-    "", // 06=0x0012, 10=0x0106
-    "",
-    "-d sat"
-  },
   { "USB: WD Elements Desktop; ",
     "0x1058:0x10(01|03|21|7c)",
     "", // 01=0x0104, 03=0x0175, 21=0x2002, 7c=0x1065
     "",
     "-d sat"
   },
-  { "USB: WD Elements; ",
-    "0x1058:0x10(10|23|42|48|a2|a8|b8)",
-    "", // 10=0x0105, a8=0x1042, b8=0x1007
+  { "USB: WD Elements / My Passport; ",
+    "0x1058:0x(07(0[245a]|1a|30|4[0128a]|a[8e])|"
+              "08(1[06]|2[02]|3[37a])|"
+              "10(10|23|4[28]|7d|a[28]|b8)|"
+              "25(9[9d]|a[12]))",
+    "", // 0x0822=0x1007, 37=0x1072
+        // 0x1010=0x0105, 7d=0x1073, a8=0x1042, b8=0x1007
+        // 0x2599=0x1012, 9d/a1=0x1005, a2=0x1004
     "",
     "-d sat"
   },
   { "USB: WD My Book; ",
-    "0x1058:0x11(0[01245]|1[0d]|30|40)",
-    "", // 00/01=0x0165, 02=0x1028, 10=0x1030, 1d=0x1020, 30=0x1012, 40=0x1003
-    "",
-    "-d sat"
-  },
-  { "USB: WD Elements / My Passport; ",
-    "0x1058:0x25(99|9d|a2)",
-    "", // 99=0x1012, 9d=0x1005, a2=0x1004
+    "0x1058:0x(09(0[06]|10)|11(0[01245]|1[0d]|30|40)|25a3)",
+    "", // 0x0906=0x0012, 10=0x0106
+        // 0x1100/01=0x0165, 02=0x1028, 10=0x1030, 1d=0x1020, 30=0x1012, 40=0x1003
+        // 0x25a3=0x1013
     "",
     "-d sat"
   },
