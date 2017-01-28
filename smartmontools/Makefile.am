@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4370 2017-01-11 20:35:38Z chrfranke $
+# $Id: Makefile.am 4385 2017-01-28 15:31:50Z chrfranke $
 #
 
 @SET_MAKE@
@@ -365,6 +365,7 @@ uninstall-sysconfDATA:
 smartdscript_SCRIPTS = smartd_warning.sh
 
 EXTRA_DIST = \
+        .editorconfig \
         autogen.sh \
         smartd.initd.in \
         smartd.freebsd.initd.in \
