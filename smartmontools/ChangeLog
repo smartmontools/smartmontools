@@ -5,7 +5,7 @@ $Id$
 	os_win32.cpp, scsiata.cpp, scsicmds.cpp, scsiprint.cpp: Fix 'if'
 	and 'else' clause indentations (g++ 6.3: -Wmisleading-indentation).
 
-	Add ident style configuration for EditorConfig
+	Add indent style configuration for EditorConfig
 	(http://editorconfig.org/):
 	.editorconfig: New file.
 	Makefile.am: Add new file to source tarball.
