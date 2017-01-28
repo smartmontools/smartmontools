@@ -1,5 +1,12 @@
 $Id$
 
+2017-01-28  Christian Franke  <franke@computer.org>
+
+	Add ident style configuration for EditorConfig
+	(http://editorconfig.org/):
+	.editorconfig: New file.
+	Makefile.am: Add new file to source tarball.
+
 2017-01-21  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

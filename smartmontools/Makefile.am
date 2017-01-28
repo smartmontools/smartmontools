@@ -365,6 +365,7 @@ uninstall-sysconfDATA:
 smartdscript_SCRIPTS = smartd_warning.sh
 
 EXTRA_DIST = \
+        .editorconfig \
         autogen.sh \
         smartd.initd.in \
         smartd.freebsd.initd.in \
