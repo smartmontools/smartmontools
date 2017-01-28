@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2012-15 Christian Franke
+ * Copyright (C) 2012-17 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 #include "config.h"
 #include "ataidentify.h"
 
-const char * ataidentify_cpp_cvsid = "$Id: ataidentify.cpp 4120 2015-08-27 16:12:21Z samm2 $"
+const char * ataidentify_cpp_cvsid = "$Id: ataidentify.cpp 4388 2017-01-28 22:29:31Z chrfranke $"
   ATAIDENTIFY_H_CVSID;
 
 #include "int64.h"
@@ -626,7 +626,7 @@ void ata_print_identify_data(const void * id, bool all_words, int bit_level)
     if (bit >= 0) {
       int b;
       if (bit2 >= 0)
-        b = (w >> bit2) & ~(~0 << (bit-bit2+1));
+        b = (w >> bit2) & ~(~0U << (bit-bit2+1));
       else
         b = (w >> bit) & 1;
 

@@ -1,6 +1,9 @@
-$Id: ChangeLog 4387 2017-01-28 22:21:26Z chrfranke $
+$Id: ChangeLog 4388 2017-01-28 22:29:31Z chrfranke $
 
 2017-01-28  Christian Franke  <franke@computer.org>
+
+	ataidentify.cpp: Don't shift negative values
+	(g++ 6.3: -Wshift-negative-value, cppcheck 1.77: shiftNegativeLHS).
 
 	os_win32.cpp, scsiata.cpp, scsicmds.cpp, scsiprint.cpp: Fix 'if'
 	and 'else' clause indentations (g++ 6.3: -Wmisleading-indentation).
