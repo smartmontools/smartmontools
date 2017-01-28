@@ -47,7 +47,7 @@
 #include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4243 2016-03-20 18:29:36Z chrfranke $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4386 2017-01-28 16:35:06Z chrfranke $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?
@@ -1453,7 +1453,7 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
             if (iecp->gotChangeable &&
                 (iecp->raw_chg[offset + 2] & DEXCPT_ENABLE))
                 rout[offset + 2] |= DEXCPT_ENABLE;
-                rout[offset + 2] &= TEST_DISABLE;/* clear TEST bit for spec */
+            rout[offset + 2] &= TEST_DISABLE; /* clear TEST bit for spec */
         }
     }
     if (10 == iecp->modese_len)

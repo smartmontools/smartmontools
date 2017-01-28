@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4292 2016-04-12 23:06:59Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4386 2017-01-28 16:35:06Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1942,13 +1942,13 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     if (options.smart_enable) {
         if (scsiSmartEnable(device))
             failuretest(MANDATORY_CMD, returnval |= FAILSMART);
-            any_output = true;
+        any_output = true;
     }
 
     if (options.smart_disable) {
         if (scsiSmartDisable(device))
             failuretest(MANDATORY_CMD,returnval |= FAILSMART);
-            any_output = true;
+        any_output = true;
     }
 
     if (options.smart_auto_save_enable) {

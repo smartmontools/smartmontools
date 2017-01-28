@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2004-16 Christian Franke
+ * Copyright (C) 2004-17 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2015    Nidhi Malhotra <nidhi.malhotra@pmcs.com>
@@ -112,7 +112,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4378 2017-01-13 22:00:05Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4386 2017-01-28 16:35:06Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -3461,7 +3461,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
       }
     else
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-      pout("buff %s\n",buff);
+    pout("buff %s\n",buff);
   }
 
   char ioBuffer[1000];
