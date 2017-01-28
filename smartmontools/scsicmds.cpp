@@ -1453,7 +1453,7 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
             if (iecp->gotChangeable &&
                 (iecp->raw_chg[offset + 2] & DEXCPT_ENABLE))
                 rout[offset + 2] |= DEXCPT_ENABLE;
-                rout[offset + 2] &= TEST_DISABLE;/* clear TEST bit for spec */
+            rout[offset + 2] &= TEST_DISABLE; /* clear TEST bit for spec */
         }
     }
     if (10 == iecp->modese_len)

@@ -1942,13 +1942,13 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     if (options.smart_enable) {
         if (scsiSmartEnable(device))
             failuretest(MANDATORY_CMD, returnval |= FAILSMART);
-            any_output = true;
+        any_output = true;
     }
 
     if (options.smart_disable) {
         if (scsiSmartDisable(device))
             failuretest(MANDATORY_CMD,returnval |= FAILSMART);
-            any_output = true;
+        any_output = true;
     }
 
     if (options.smart_auto_save_enable) {

@@ -247,14 +247,14 @@ sat_device::~sat_device() throw()
 
 bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
-  if (!ata_cmd_is_supported(in,
-    ata_device::supports_data_out |
-    ata_device::supports_output_regs |
-    ata_device::supports_multi_sector |
-    ata_device::supports_48bit,
-    "SAT")
-  )
-    return false;
+    if (!ata_cmd_is_supported(in,
+      ata_device::supports_data_out |
+      ata_device::supports_output_regs |
+      ata_device::supports_multi_sector |
+      ata_device::supports_48bit,
+      "SAT")
+    )
+      return false;
 
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
