@@ -397,15 +397,16 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request, bool is_48bi
   union ccb ccb;
   int camflags;
 
-  // FIXME:
   // 48bit commands are broken in ATACAM before r242422/HEAD
   // and may cause system hang
-  // Waiting for MFC to make sure that bug is fixed,
-  // later version check needs to be added
+  // First version with working support should be FreeBSD 9.2.0/RELEASE
+
+#if (FREEBSDVER < 902001)
   if(!strcmp("ata",m_camdev->sim_name) && is_48bit_cmd) {
     set_err(ENOSYS, "48-bit ATA commands not implemented for legacy controllers");
     return -1;
   }
+#endif
 
   memset(&ccb, 0, sizeof(ccb));
 

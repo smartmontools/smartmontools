@@ -1,5 +1,10 @@
 $Id$
 
+2017-01-30  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: unblock 48bit ATACAM commands for the legacy controllers
+	if FreeBSD version is >= 9.2-RELEASE, tested on FreeBSD 10.3
+
 2017-01-28  Christian Franke  <franke@computer.org>
 
 	ataidentify.cpp: Don't shift negative values
