@@ -1997,6 +1997,8 @@ class csmi_device
 : virtual public /*extends*/ smart_device
 {
 public:
+  enum { max_number_of_ports = 32 };
+
   /// Get bitmask of used ports
   unsigned get_ports_used();
 
@@ -2005,8 +2007,10 @@ protected:
     : smart_device(never_called)
     { memset(&m_phy_ent, 0, sizeof(m_phy_ent)); }
 
-  /// Get phy info
-  bool get_phy_info(CSMI_SAS_PHY_INFO & phy_info);
+  typedef signed char port_2_index_map[max_number_of_ports];
+
+  /// Get phy info and port mapping, return #ports or -1 on error
+  int get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p2i);
 
   /// Select physical drive
   bool select_port(int port);
@@ -2026,13 +2030,18 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
-bool csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info)
+int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p2i)
 {
+  // max_number_of_ports must match CSMI_SAS_PHY_INFO.Phy[] array size
+  typedef char ASSERT_phy_info_size[
+    (int)(sizeof(phy_info.Phy) / sizeof(phy_info.Phy[0])) == max_number_of_ports ? 1 : -1]
+    ATTR_UNUSED;
+
   // Get driver info to check CSMI support
   CSMI_SAS_DRIVER_INFO_BUFFER driver_info_buf;
   memset(&driver_info_buf, 0, sizeof(driver_info_buf));
   if (!csmi_ioctl(CC_CSMI_SAS_GET_DRIVER_INFO, &driver_info_buf.IoctlHeader, sizeof(driver_info_buf)))
-    return false;
+    return -1;
 
   if (scsi_debugmode > 1) {
     const CSMI_SAS_DRIVER_INFO & driver_info = driver_info_buf.Information;
@@ -2046,26 +2055,78 @@ bool csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info)
   CSMI_SAS_PHY_INFO_BUFFER phy_info_buf;
   memset(&phy_info_buf, 0, sizeof(phy_info_buf));
   if (!csmi_ioctl(CC_CSMI_SAS_GET_PHY_INFO, &phy_info_buf.IoctlHeader, sizeof(phy_info_buf)))
-    return false;
+    return -1;
 
   phy_info = phy_info_buf.Information;
 
-  const int max_number_of_phys = sizeof(phy_info.Phy) / sizeof(phy_info.Phy[0]);
-  if (phy_info.bNumberOfPhys > max_number_of_phys)
-    return set_err(EIO, "CSMI_SAS_PHY_INFO: Bogus NumberOfPhys=%d", phy_info.bNumberOfPhys);
+  if (phy_info.bNumberOfPhys > max_number_of_ports) {
+    set_err(EIO, "CSMI_SAS_PHY_INFO: Bogus NumberOfPhys=%d", phy_info.bNumberOfPhys);
+    return -1;
+  }
+
+  // Create port -> index map
+  //                                 IRST Release
+  // Phy[i].Value               9.x   10.4   14.8   15.2
+  // ---------------------------------------------------
+  // bPortIdentifier           0xff   0xff   port   0x00
+  // Identify.bPhyIdentifier   port   port   port   port
+  // Attached.bPhyIdentifier   0x00   0x00   0x00   port
+  // Empty ports in Phy[]?     no     ?      yes    yes
+
+  int number_of_ports;
+  for (int mode = 0; ; mode++) {
+     for (int i = 0; i < max_number_of_ports; i++)
+       p2i[i] = -1;
+
+     number_of_ports = 0;
+     bool unique = true;
+     for (int i = 0; i < max_number_of_ports; i++) {
+        const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
+        if (pe.Identify.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
+          continue;
+
+        // Use a bPhyIdentifier or the bPortIdentifier if unique,
+        // otherwise use table index
+        int port;
+        switch (mode) {
+          case 0:  port = pe.Attached.bPhyIdentifier; break;
+          case 1:  port = pe.Identify.bPhyIdentifier; break;
+          case 2:  port = pe.bPortIdentifier; break;
+          default: port = i; break;
+        }
+        if (!(port < max_number_of_ports && p2i[port] == -1)) {
+          unique = false;
+          break;
+        }
+
+        p2i[port] = i;
+        if (number_of_ports <= port)
+          number_of_ports = port + 1;
+     }
+
+     if (unique || mode > 2)
+       break;
+  }
 
   if (scsi_debugmode > 1) {
     pout("CSMI_SAS_PHY_INFO: NumberOfPhys=%d\n", phy_info.bNumberOfPhys);
-    for (int i = 0; i < max_number_of_phys; i++) {
+    for (int i = 0; i < max_number_of_ports; i++) {
       const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
       const CSMI_SAS_IDENTIFY & id = pe.Identify, & at = pe.Attached;
       if (id.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
         continue;
 
-      pout("Phy[%d] Port:   0x%02x\n", i, pe.bPortIdentifier);
+      int port = -1;
+      for (int p = 0; p < max_number_of_ports && port < 0; p++) {
+        if (p2i[p] == i)
+          port = p;
+      }
+
+      pout("Phy[%d] Port:   %d\n", i, port);
       pout("  Type:        0x%02x, 0x%02x\n", id.bDeviceType, at.bDeviceType);
       pout("  InitProto:   0x%02x, 0x%02x\n", id.bInitiatorPortProtocol, at.bInitiatorPortProtocol);
       pout("  TargetProto: 0x%02x, 0x%02x\n", id.bTargetPortProtocol, at.bTargetPortProtocol);
+      pout("  PortIdent:   0x%02x\n", pe.bPortIdentifier);
       pout("  PhyIdent:    0x%02x, 0x%02x\n", id.bPhyIdentifier, at.bPhyIdentifier);
       const unsigned char * b = id.bSASAddress;
       pout("  SASAddress:  %02x %02x %02x %02x %02x %02x %02x %02x, ",
@@ -2076,20 +2137,23 @@ bool csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info)
     }
   }
 
-  return true;
+  return number_of_ports;
 }
 
 unsigned csmi_device::get_ports_used()
 {
   CSMI_SAS_PHY_INFO phy_info;
-  if (!get_phy_info(phy_info))
+  port_2_index_map p2i;
+  int number_of_ports = get_phy_info(phy_info, p2i);
+  if (number_of_ports < 0)
     return 0;
 
   unsigned ports_used = 0;
-  for (unsigned i = 0; i < sizeof(phy_info.Phy) / sizeof(phy_info.Phy[0]); i++) {
-    const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
-    if (pe.Identify.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
+  for (int p = 0; p < max_number_of_ports; p++) {
+    int i = p2i[p];
+    if (i < 0)
       continue;
+    const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
     if (pe.Attached.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
       continue;
     switch (pe.Attached.bTargetPortProtocol) {
@@ -2100,55 +2164,30 @@ unsigned csmi_device::get_ports_used()
         continue;
     }
 
-    if (pe.bPortIdentifier == 0xff)
-      // Older (<= 9.*) Intel RST driver
-      ports_used |= (1 << i);
-    else
-      ports_used |= (1 << pe.bPortIdentifier);
+    ports_used |= (1 << p);
   }
 
   return ports_used;
 }
 
-
 bool csmi_device::select_port(int port)
 {
+  if (!(0 <= port && port < max_number_of_ports))
+    return set_err(EINVAL, "Invalid port number %d", port);
+
   CSMI_SAS_PHY_INFO phy_info;
-  if (!get_phy_info(phy_info))
+  port_2_index_map p2i;
+  int number_of_ports = get_phy_info(phy_info, p2i);
+  if (number_of_ports < 0)
     return false;
 
-  // Find port
-  int max_port = -1, port_index = -1;
-  for (unsigned i = 0; i < sizeof(phy_info.Phy) / sizeof(phy_info.Phy[0]); i++) {
-    const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
-    if (pe.Identify.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
-      continue;
-
-    if (pe.bPortIdentifier == 0xff) {
-      // Older (<= 9.*) Intel RST driver
-      max_port = phy_info.bNumberOfPhys - 1;
-      if (i >= phy_info.bNumberOfPhys)
-        break;
-      if ((int)i != port)
-        continue;
-    }
-    else {
-      if (pe.bPortIdentifier > max_port)
-        max_port = pe.bPortIdentifier;
-      if (pe.bPortIdentifier != port)
-        continue;
-    }
-
-    port_index = i;
-    break;
-  }
-
+  int port_index = p2i[port];
   if (port_index < 0) {
-    if (port <= max_port)
+    if (port < number_of_ports)
       return set_err(ENOENT, "Port %d is disabled", port);
     else
       return set_err(ENOENT, "Port %d does not exist (#ports: %d)", port,
-        max_port + 1);
+        number_of_ports);
   }
 
   const CSMI_SAS_PHY_ENTITY & phy_ent = phy_info.Phy[port_index];
@@ -2194,7 +2233,7 @@ bool csmi_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     ata_device::supports_output_regs |
     ata_device::supports_multi_sector |
     ata_device::supports_48bit,
-    "CMSI")
+    "CSMI")
   )
     return false;
 
