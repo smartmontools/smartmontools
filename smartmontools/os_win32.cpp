@@ -4074,7 +4074,11 @@ std::string win_smart_interface::get_os_version_str()
           case 14393:   w = "w10-1607"; break;
           default:      w = "w10";  build = vi.dwBuildNumber; break;
         } break;
-      case 0xa0<<1 | 1: w = "2016"; build = vi.dwBuildNumber; break;
+      case 0xa0<<1 | 1:
+        switch (vi.dwBuildNumber) {
+          case 14393:   w = "2016-1607"; break;
+          default:      w = "2016"; build = vi.dwBuildNumber; break;
+        } break;
     }
   }
 
