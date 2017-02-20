@@ -1,4 +1,9 @@
-$Id: ChangeLog 4389 2017-01-30 18:43:11Z samm2 $
+$Id: ChangeLog 4390 2017-02-20 21:10:54Z chrfranke $
+
+2017-02-20  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Rework CSMI port mapping.  This fixes access to
+	ports != 0 behind IRST driver 15.2 (ticket #804).
 
 2017-01-30  Alex Samorukov  <samm@os2.kiev.ua>
 
