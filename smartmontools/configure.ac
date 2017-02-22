@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4379 2017-01-13 22:30:30Z chrfranke $
+# $Id: configure.ac 4392 2017-02-22 21:42:54Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4379 2017-01-13 22:30:30Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4392 2017-02-22 21:42:54Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -423,11 +423,43 @@ if test "$libc_have_working_snprintf" = "yes"; then
   AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane.]) dnl `vim syntax
 fi
 
+AC_ARG_WITH(mingw-aslr,
+  [AS_HELP_STRING([--with-mingw-aslr@<:@=auto|yes|low|no@:>@], [Enable ASLR for MinGW executables [auto]])],
+  [], [with_mingw_aslr=auto])
+
+case "$host" in
+  *-*-mingw*) # By default, link statically and indicate DEP and TS compatibility
+    case "$LDFLAGS" in
+      ''|-static) LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
+    esac ;;
+esac
+
+case "$host:$with_mingw_aslr" in
+  x86_64-*-mingw*:auto)
+    AC_MSG_CHECKING([whether $CXX supports --high-entropy-va])
+    save_LDFLAGS=$LDFLAGS
+    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM()], [with_mingw_aslr=yes], [with_mingw_aslr=no])
+    LDFLAGS=$save_LDFLAGS
+    AC_MSG_RESULT([$with_mingw_aslr])
+    test "$with_mingw_aslr" = "yes" || with_mingw_aslr=low
+    ;;
+esac
+
+case "$host:$with_mingw_aslr" in
+  x86_64-*-mingw*:yes)
+    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000" ;;
+  x86_64-*-mingw*:low)
+    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-emainCRTStartup" ;;
+  *-*-mingw*:auto|*-*-mingw*:yes|*-*-mingw*:low)
+    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-e_mainCRTStartup" ;;
+esac
+
 os_win32_manifest=
 case "$host" in
   *-*-mingw*)
     # Newer MinGW may add a default manifest
-    AC_MSG_CHECKING([whether $CC adds an application manifest])
+    AC_MSG_CHECKING([whether $CXX adds an application manifest])
     cc_adds_manifest=no
     AC_LINK_IFELSE([AC_LANG_PROGRAM()], [
         if "$WINDRES" -O rc conftest.exe 2>/dev/null | grep '^1.*RT_MANIFEST' >/dev/null 2>&1; then

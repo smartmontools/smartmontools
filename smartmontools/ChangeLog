@@ -1,4 +1,10 @@
-$Id: ChangeLog 4391 2017-02-20 21:32:05Z chrfranke $
+$Id: ChangeLog 4392 2017-02-22 21:42:54Z chrfranke $
+
+2017-02-22  Christian Franke  <franke@computer.org>
+
+	configure.ac: Set various default LDFLAGS for MinGW builds:
+	Link statically, indicate DEP and TS compatibility, enable ASLR.
+	Add '--with-mingw-aslr' option.
 
 2017-02-20  Christian Franke  <franke@computer.org>
 
