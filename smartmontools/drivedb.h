@@ -193,11 +193,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 199,raw48,UDMA_CRC_Error_Count "
   //"-v 240,raw48,Unknown_SSD_Attribute "
   },
-  { "Crucial/Micron RealSSD C300/M500", // Marvell 88SS91xx
-    "C300-CTFDDA[AC](064|128|256)MAG|" // Marvell 88SS9174 BJP2, tested with C300-CTFDDAC128MAG/0002,
+  { "Crucial/Micron RealSSD C300/P300", // Marvell 88SS9174
+    "C300-CTFDDA[AC](064|128|256)MAG|" // tested with C300-CTFDDAC128MAG/0002,
       // C300-CTFDDAC064MAG/0006
-    "Crucial_CT(120|240|480)M500SSD[13]", // Marvell 88SS9187 BLD2, tested with Crucial_CT120M500SSD3/MU02,
-      // Crucial_CT120M500SSD1/MU02, Crucial_CT240M500SSD1/MU03, Crucial_CT480M500SSD1/MU03
+    "P300-MTFDDAC(050|100|200)SAL", // tested with P300-MTFDDAC100SAL/0003
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -222,16 +221,13 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 202,raw48,Percent_Lifetime_Used "
     "-v 206,raw48,Write_Error_Rate "
-    "-v 210,raw48,Success_RAIN_Recov_Cnt "
-    "-v 246,raw48,Total_Host_Sector_Write "
-    "-v 247,raw48,Host_Program_Page_Count "
-    "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
   { "Crucial/Micron RealSSD m4/C400/P400", // Marvell 9176, fixed firmware
     "C400-MTFDDA[ACK](064|128|256|512)MAM|"
     "M4-CT(064|128|256|512)M4SSD[123]|" // tested with M4-CT512M4SSD2/0309
-    "MTFDDAK(064|128|256|512|050|100|200|400)MA[MNR]-1[JKS]1.*", // tested with
-       // MTFDDAK256MAR-1K1AA/MA52, MTFDDAK256MAM-1K12/08TH
+    "MTFDDA[AK](064|128|256|512|050|100|200|400)MA[MNR]-1[JKS]1.*", // tested with
+       // MTFDDAK256MAR-1K1AA/MA52, MTFDDAK256MAM-1K12/08TH,
+       // MTFDDAA064MAR-1J1AB  49Y5835 49Y5838IBM/MA49 (P400e)
     "030[9-Z]|03[1-Z].|0[4-Z]..|[1-Z]....*", // >= "0309"
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -256,7 +252,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 202,raw48,Perc_Rated_Life_Used "
-    "-v 206,raw48,Write_Error_Rate"
+    "-v 206,raw48,Write_Error_Rate "
+    "-v 225,raw48,Unknown_Marvell_Attr " // P400e
+    "-v 231,raw48,Unknown_Marvell_Attr " // P400e
+    "-v 242,raw48,Host_Reads" // P400e: 2MiB?
   },
   { "Crucial/Micron RealSSD m4/C400", // Marvell 9176, buggy or unknown firmware
     "C400-MTFDDA[ACK](064|128|256|512)MAM|" // tested with C400-MTFDDAC256MAM/0002
@@ -279,18 +278,24 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
-  { "Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs",
-    "Crucial_CT(128|256|512)MX100SSD1|"// tested with Crucial_CT256MX100SSD1/MU01
-    "Crucial_CT(200|250|256|500|512|1000|1024)MX200SSD[1346]|" // tested with Crucial_CT500MX200SSD1/MU01,
-      // Crucial_CT1024MX200SSD1/MU01, Crucial_CT250MX200SSD3/MU01, Crucial_CT250MX200SSD1/MU03
-    "Crucial_CT(120|240|480|960)M500SSD[134]|" // tested with Crucial_CT960M500SSD1/MU03,
-      // Crucial_CT240M500SSD4/MU05
-    "Crucial_CT(128|256|512|1024)M550SSD[13]|" // tested with Crucial_CT512M550SSD3/MU01,
-      // Crucial_CT1024M550SSD1/MU01
+  { "Crucial/Micron MX1/2/300, M5/600, 1100 Client SSDs",
+    "Crucial_CT(128|256|512)MX100SSD1|"// Marvell 88SS9189, tested with Crucial_CT256MX100SSD1/MU01
+    "Crucial_CT(200|250|256|500|512|1000|1024)MX200SSD[1346]|" // Marvell 88SS9189, tested with
+      // Crucial_CT500MX200SSD1/MU01, Crucial_CT1024MX200SSD1/MU01, Crucial_CT250MX200SSD3/MU01,
+      // Crucial_CT250MX200SSD1/MU03
+    "Crucial_CT(275|525|1050|2050)MX300SSD[14]|" // Marvell 88SS1074, tested with
+      // Crucial_CT525MX300SSD1/M0CR021, Crucial_CT2050MX300SSD1/M0CR031, Crucial_CT275MX300SSD1/M0CR040
+    "Crucial_CT(120|240|480|960)M500SSD[134]|" // Marvell 88SS9187, tested with
+      // Crucial_CT120M500SSD1/MU02, Crucial_CT120M500SSD3/MU02, Crucial_CT240M500SSD1/MU03,
+      // Crucial_CT480M500SSD1/MU03, Crucial_CT960M500SSD1/MU03, Crucial_CT240M500SSD4/MU05
+    "Crucial_CT(128|256|512|1024)M550SSD[134]|" // tested with Crucial_CT512M550SSD3/MU01,
+      // Crucial_CT1024M550SSD1/MU01, Crucial_CT128M550SSD4/MU02
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
     "(Micron_)?M510[_-]MTFDDA[KTV](128|256)MAZ|" // tested with M510-MTFDDAK256MAZ/MU01
     "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY|" // tested with M550-MTFDDAK256MAY/MU01
-    "Micron_M600_(EE|MT)FDDA[KTV](128|256|512|1T0)MBF[25Z]?", // tested with Micron_M600_MTFDDAK1T0MBF/MU01
+    "Micron_M600_(EE|MT)FDDA[KTV](128|256|512|1T0)MBF[25Z]?|" // tested with Micron_M600_MTFDDAK1T0MBF/MU01
+    "Micron_1100_MTFDDA[KV](256|512|1T0|2T0)TBN", // Marvell 88SS1074, tested with
+      // Micron_1100_MTFDDAK256TBN/M0MU020
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
