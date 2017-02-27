@@ -1,5 +1,14 @@
 $Id$
 
+2017-02-27  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300/P300: Rename, add P300, remove M500
+	- Crucial/Micron RealSSD m4/C400/P400: P400e micro SATA
+	- Crucial/Micron MX1/2/300, M5/600, 1100 Client SSDs: Rename,
+	  add MX300 (tickets #763, #791), M550 M.2 (ticket #810),
+	  1100 (ticket #783)
+
 2017-02-22  Christian Franke  <franke@computer.org>
 
 	configure.ac: Set various default LDFLAGS for MinGW builds:
