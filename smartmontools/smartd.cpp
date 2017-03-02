@@ -157,7 +157,11 @@ static std::string configfile_alt;
 static std::string warning_script;
 
 // command-line: when should we exit?
-static int quit=0;
+enum quit_t {
+  QUIT_NODEV, QUIT_NODEVSTARTUP, QUIT_NEVER, QUIT_ONECHECK,
+  QUIT_SHOWTESTS, QUIT_ERRORS
+};
+static quit_t quit = QUIT_NODEV;
 
 // command-line; this is the default syslog(3) log facility to use.
 static int facility=LOG_DAEMON;
@@ -4730,23 +4734,24 @@ static void ParseOpts(int argc, char **argv)
     switch(optchar) {
     case 'q':
       // when to quit
-      if (!(strcmp(optarg,"nodev"))) {
-        quit=0;
-      } else if (!(strcmp(optarg,"nodevstartup"))) {
-        quit=1;
-      } else if (!(strcmp(optarg,"never"))) {
-        quit=2;
-      } else if (!(strcmp(optarg,"onecheck"))) {
-        quit=3;
-        debugmode=1;
-      } else if (!(strcmp(optarg,"showtests"))) {
-        quit=4;
-        debugmode=1;
-      } else if (!(strcmp(optarg,"errors"))) {
-        quit=5;
-      } else {
-        badarg = true;
+      if (!strcmp(optarg, "nodev"))
+        quit = QUIT_NODEV;
+      else if (!strcmp(optarg, "nodevstartup"))
+        quit = QUIT_NODEVSTARTUP;
+      else if (!strcmp(optarg, "never"))
+        quit = QUIT_NEVER;
+      else if (!strcmp(optarg, "onecheck")) {
+        quit = QUIT_ONECHECK;
+        debugmode = 1;
       }
+      else if (!strcmp(optarg, "showtests")) {
+        quit = QUIT_SHOWTESTS;
+        debugmode = 1;
+      }
+      else if (!strcmp(optarg, "errors"))
+        quit = QUIT_ERRORS;
+      else
+        badarg = true;
       break;
     case 'l':
       // set the log facility level
@@ -5224,7 +5229,7 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
       // if device is explictly listed and we can't register it, then
       // exit unless the user has specified that the device is removable
       if (!scanning) {
-        if (!(cfg.removable || quit == 2)) {
+        if (!(cfg.removable || quit == QUIT_NEVER)) {
           PrintOut(LOG_CRIT, "Unable to register device %s (no Directive -d removable). Exiting.\n", cfg.name.c_str());
           EXIT(EXIT_BADDEV);
         }
@@ -5332,7 +5337,8 @@ static int main_worker(int argc, char **argv)
           if (!(configs.size() == devices.size() && configs.size() == states.size()))
             throw std::logic_error("Invalid result from RegisterDevices");
         }
-        else if (quit==2 || ((quit==0 || quit==1) && !firstpass)) {
+        else if (   quit == QUIT_NEVER
+                 || ((quit == QUIT_NODEV || quit == QUIT_NODEVSTARTUP) && !firstpass)) {
           // user has asked to continue on error in configuration file
           if (!firstpass)
             PrintOut(LOG_INFO,"Reusing previous configuration\n");
@@ -5344,7 +5350,7 @@ static int main_worker(int argc, char **argv)
       }
 
       // Log number of devices we are monitoring...
-      if (devices.size() > 0 || quit==2 || (quit==1 && !firstpass)) {
+      if (devices.size() > 0 || quit == QUIT_NEVER || (quit == QUIT_NODEVSTARTUP && !firstpass)) {
         int numata = 0, numscsi = 0;
         for (unsigned i = 0; i < devices.size(); i++) {
           const smart_device * dev = devices.at(i);
@@ -5361,7 +5367,7 @@ static int main_worker(int argc, char **argv)
         return EXIT_NODEV;
       }
 
-      if (quit==4) {
+      if (quit == QUIT_SHOWTESTS) {
         // user has asked to print test schedule
         PrintTestSchedule(configs, states, devices);
         return 0;
@@ -5387,7 +5393,7 @@ static int main_worker(int argc, char **argv)
 
     // check all devices once,
     // self tests are not started in first pass unless '-q onecheck' is specified
-    CheckDevicesOnce(configs, states, devices, firstpass, (!firstpass || quit==3));
+    CheckDevicesOnce(configs, states, devices, firstpass, (!firstpass || quit == QUIT_ONECHECK));
 
      // Write state files
     if (!state_path_prefix.empty())
@@ -5399,7 +5405,7 @@ static int main_worker(int argc, char **argv)
       write_all_dev_attrlogs(configs, states);
 
     // user has asked us to exit after first check
-    if (quit==3) {
+    if (quit == QUIT_ONECHECK) {
       PrintOut(LOG_INFO,"Started with '-q onecheck' option. All devices sucessfully checked once.\n"
                "smartd is exiting (exit status 0)\n");
       return 0;
