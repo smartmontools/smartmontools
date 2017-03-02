@@ -2,7 +2,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-16 Christian Franke
+ * Copyright (C) 2008-17 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -100,7 +100,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4395 2017-03-02 20:24:04Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4396 2017-03-02 20:48:19Z chrfranke $"
   CONFIG_H_CVSID;
 
 using namespace smartmontools;
@@ -5229,6 +5229,8 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
           EXIT(EXIT_BADDEV);
         }
         PrintOut(LOG_INFO, "Device: %s, not available\n", cfg.name.c_str());
+        // Prevent retry of registration
+        ignored_entries.push_back(cfg);
       }
       continue;
     }
