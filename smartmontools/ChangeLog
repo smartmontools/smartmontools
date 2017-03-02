@@ -1,5 +1,11 @@
 $Id$
 
+2017-03-02  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Move single device registration to new function.
+	Exit smartd on device open error unless '-q never' or '-d removable'
+	is specified (regression from r2602).
+
 2017-02-27  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

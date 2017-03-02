@@ -5101,6 +5101,78 @@ static bool is_duplicate_device(const smart_device * dev,
   return false;
 }
 
+// Register one device, return false on error
+static bool register_device(dev_config & cfg, dev_state & state, smart_device_auto_ptr & dev)
+{
+  bool scanning;
+  if (!dev) {
+    // Get device of appropriate type
+    dev = smi()->get_smart_device(cfg.name.c_str(), cfg.dev_type.c_str());
+    if (!dev) {
+      if (cfg.dev_type.empty())
+        PrintOut(LOG_INFO, "Device: %s, unable to autodetect device type\n", cfg.name.c_str());
+      else
+        PrintOut(LOG_INFO, "Device: %s, unsupported device type '%s'\n", cfg.name.c_str(), cfg.dev_type.c_str());
+      return false;
+    }
+    scanning = false;
+  }
+  else {
+    // Use device from device scan
+    scanning = true;
+  }
+
+  // Save old info
+  smart_device::device_info oldinfo = dev->get_info();
+
+  // Open with autodetect support, may return 'better' device
+  dev.replace( dev->autodetect_open() );
+
+  // Report if type has changed
+  if (oldinfo.dev_type != dev->get_dev_type())
+    PrintOut(LOG_INFO, "Device: %s, type changed from '%s' to '%s'\n",
+      cfg.name.c_str(), oldinfo.dev_type.c_str(), dev->get_dev_type());
+
+  // Return if autodetect_open() failed
+  if (!dev->is_open()) {
+    if (debugmode || !scanning)
+      PrintOut(LOG_INFO, "Device: %s, open() failed: %s\n", dev->get_info_name(), dev->get_errmsg());
+    return false;
+  }
+
+  // Update informal name
+  cfg.name = dev->get_info().info_name;
+  PrintOut(LOG_INFO, "Device: %s, opened\n", cfg.name.c_str());
+
+  // register ATA device
+  if (dev->is_ata()){
+    if (ATADeviceScan(cfg, state, dev->to_ata())) {
+      CanNotRegister(cfg.name.c_str(), "ATA", cfg.lineno, scanning);
+      return false;
+    }
+  }
+  // or register SCSI device
+  else if (dev->is_scsi()){
+    if (SCSIDeviceScan(cfg, state, dev->to_scsi())) {
+      CanNotRegister(cfg.name.c_str(), "SCSI", cfg.lineno, scanning);
+      return false;
+    }
+  }
+  // or register NVMe device
+  else if (dev->is_nvme()) {
+    if (NVMeDeviceScan(cfg, state, dev->to_nvme())) {
+      CanNotRegister(cfg.name.c_str(), "NVMe", cfg.lineno, scanning);
+      return false;
+    }
+  }
+  else {
+    PrintOut(LOG_INFO, "Device: %s, neither ATA, SCSI nor NVMe device\n", cfg.name.c_str());
+    return false;
+  }
+
+  return true;
+}
+
 // This function tries devices from conf_entries.  Each one that can be
 // registered is moved onto the [ata|scsi]devices lists and removed
 // from the conf_entries list.
@@ -5129,11 +5201,10 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
       continue;
     }
 
-    // get device of appropriate type
     smart_device_auto_ptr dev;
-    bool scanning = false;
 
     // Device may already be detected during devicescan
+    bool scanning = false;
     if (i < scanned_devs.size()) {
       dev = scanned_devs.release(i);
       if (dev) {
@@ -5147,88 +5218,27 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
       }
     }
 
-    if (!dev) {
-      dev = smi()->get_smart_device(cfg.name.c_str(), cfg.dev_type.c_str());
-      if (!dev) {
-        if (cfg.dev_type.empty())
-          PrintOut(LOG_INFO,"Device: %s, unable to autodetect device type\n", cfg.name.c_str());
-        else
-          PrintOut(LOG_INFO,"Device: %s, unsupported device type '%s'\n", cfg.name.c_str(), cfg.dev_type.c_str());
-        continue;
+    // Register device
+    dev_state state;
+    if (!register_device(cfg, state, dev)) {
+      // if device is explictly listed and we can't register it, then
+      // exit unless the user has specified that the device is removable
+      if (!scanning) {
+        if (!(cfg.removable || quit == 2)) {
+          PrintOut(LOG_CRIT, "Unable to register device %s (no Directive -d removable). Exiting.\n", cfg.name.c_str());
+          EXIT(EXIT_BADDEV);
+        }
+        PrintOut(LOG_INFO, "Device: %s, not available\n", cfg.name.c_str());
       }
-    }
-
-    // Save old info
-    smart_device::device_info oldinfo = dev->get_info();
-
-    // Open with autodetect support, may return 'better' device
-    dev.replace( dev->autodetect_open() );
-
-    // Report if type has changed
-    if (oldinfo.dev_type != dev->get_dev_type())
-      PrintOut(LOG_INFO,"Device: %s, type changed from '%s' to '%s'\n",
-        cfg.name.c_str(), oldinfo.dev_type.c_str(), dev->get_dev_type());
-
-    if (!dev->is_open()) {
-      // For linux+devfs, a nonexistent device gives a strange error
-      // message.  This makes the error message a bit more sensible.
-      // If no debug and scanning - don't print errors
-      if (debugmode || !scanning)
-        PrintOut(LOG_INFO, "Device: %s, open() failed: %s\n", dev->get_info_name(), dev->get_errmsg());
       continue;
     }
 
-    // Update informal name
-    cfg.name = dev->get_info().info_name;
-    PrintOut(LOG_INFO, "Device: %s, opened\n", cfg.name.c_str());
-
-    // Prepare initial state
-    dev_state state;
-
-    // register ATA devices
-    if (dev->is_ata()){
-      if (ATADeviceScan(cfg, state, dev->to_ata())) {
-        CanNotRegister(cfg.name.c_str(), "ATA", cfg.lineno, scanning);
-        dev.reset();
-      }
-    }
-    // or register SCSI devices
-    else if (dev->is_scsi()){
-      if (SCSIDeviceScan(cfg, state, dev->to_scsi())) {
-        CanNotRegister(cfg.name.c_str(), "SCSI", cfg.lineno, scanning);
-        dev.reset();
-      }
-    }
-    // or register NVMe devices
-    else if (dev->is_nvme()) {
-      if (NVMeDeviceScan(cfg, state, dev->to_nvme())) {
-        CanNotRegister(cfg.name.c_str(), "NVMe", cfg.lineno, scanning);
-        dev.reset();
-      }
-    }
-    else {
-      PrintOut(LOG_INFO, "Device: %s, neither ATA, SCSI nor NVMe device\n", cfg.name.c_str());
-      dev.reset();
-    }
-
-    if (dev) {
-      // move onto the list of devices
-      configs.push_back(cfg);
-      states.push_back(state);
-      devices.push_back(dev);
-      if (!scanning)
-        numnoscan = devices.size();
-    }
-    // if device is explictly listed and we can't register it, then
-    // exit unless the user has specified that the device is removable
-    else if (!scanning) {
-      if (cfg.removable || quit==2)
-        PrintOut(LOG_INFO, "Device %s not available\n", cfg.name.c_str());
-      else {
-        PrintOut(LOG_CRIT, "Unable to register device %s (no Directive -d removable). Exiting.\n", cfg.name.c_str());
-        EXIT(EXIT_BADDEV);
-      }
-    }
+    // move onto the list of devices
+    configs.push_back(cfg);
+    states.push_back(state);
+    devices.push_back(dev);
+    if (!scanning)
+      numnoscan = devices.size();
   }
 
   init_disable_standby_check(configs);
