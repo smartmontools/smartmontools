@@ -5,6 +5,7 @@ $Id$
 	smartd.cpp: Move single device registration to new function.
 	Exit smartd on device open error unless '-q never' or '-d removable'
 	is specified (regression from r2602).
+	Prevent retry if registration failed and '-q never' is specified.
 
 2017-02-27  Christian Franke  <franke@computer.org>
 
