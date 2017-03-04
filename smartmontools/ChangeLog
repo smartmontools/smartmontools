@@ -2,6 +2,8 @@ $Id$
 
 2017-03-04  Christian Franke  <franke@computer.org>
 
+	smartctl.cpp, smartd.cpp: Fix help text for '-B' option.
+
 	smartd.cpp: Unify indent style, replace tabs.
 	Move ATA/SCSI/NVMe device open to new common function.
 	Suppress warning emails and repeated log messages on open error if

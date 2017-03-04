@@ -1476,6 +1476,8 @@ static const char *GetValidArgList(char opt)
   case 'A':
   case 's':
     return "<PATH_PREFIX>";
+  case 'B':
+    return "[+]<FILE_NAME>";
   case 'c':
     return "<FILE_NAME>, -";
   case 'l':
@@ -1484,7 +1486,6 @@ static const char *GetValidArgList(char opt)
     return "nodev, errors, nodevstartup, never, onecheck, showtests";
   case 'r':
     return "ioctl[,N], ataioctl[,N], scsiioctl[,N], nvmeioctl[,N]";
-  case 'B':
   case 'p':
   case 'w':
     return "<FILE_NAME>";

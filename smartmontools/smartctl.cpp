@@ -196,6 +196,8 @@ static std::string getvalidarglist(int opt)
     return "normal, conservative, permissive, verypermissive";
   case 'b':
     return "warn, exit, ignore";
+  case 'B':
+    return "[+]<FILE_NAME>";
   case 'r':
     return "ioctl[,N], ataioctl[,N], scsiioctl[,N], nvmeioctl[,N]";
   case opt_smart:
