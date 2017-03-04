@@ -505,6 +505,11 @@ that it should continue (instead of exiting, which is the default
 behavior) if the device does not appear to be present when
 \fBsmartd\fP is started.  This Directive may be used in conjunction
 with the other \'\-d\' Directives.
+[NEW EXPERIMENTAL SMARTD FEATURE]
+This directive also suppresses warning emails and repeated log messages
+if the device is removed after startup.
+\fBWARNING: Removing a device and connecting a different one to same interface
+is not supported and may result in bogus warnings until smartd is restarted.\fR
 .TP
 .B \-n POWERMODE[,N][,q]
 [ATA only] This \'nocheck\' Directive is used to prevent a disk from

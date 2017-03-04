@@ -433,6 +433,8 @@ struct temp_dev_state
   unsigned char temperature;              // last recorded Temperature (in Celsius)
   time_t tempmin_delay;                   // time where Min Temperature tracking will start
 
+  bool removed;                           // true if open() failed for removable device
+
   bool powermodefail;                     // true if power mode check failed
   int powerskipcnt;                       // Number of checks skipped due to idle or standby mode
   int lastpowermodeskipped;               // the last power mode that was skipped
@@ -466,6 +468,7 @@ temp_dev_state::temp_dev_state()
   not_cap_selective(false),
   temperature(0),
   tempmin_delay(0),
+  removed(false),
   powermodefail(false),
   powerskipcnt(0),
   lastpowermodeskipped(0),
@@ -2548,7 +2551,7 @@ static bool open_device(const dev_config & cfg, dev_state & state, smart_device 
   // alone if it is in idle or standby mode.  In this case check the
   // power mode first before opening the device for full access,
   // and exit without check if disk is reported in standby.
-  if (device->is_ata() && cfg.powermode && !state.powermodefail) {
+  if (device->is_ata() && cfg.powermode && !state.powermodefail && !state.removed) {
     // Note that 'is_powered_down()' handles opening the device itself, and
     // can be used before calling 'open()' (that's the whole point of 'is_powered_down()'!).
     if (device->is_powered_down())
@@ -2569,14 +2572,30 @@ static bool open_device(const dev_config & cfg, dev_state & state, smart_device 
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it
   if (!device->open()) {
-    PrintOut(LOG_INFO, "Device: %s, open() of %s device failed: %s\n", name, type, device->get_errmsg());
-    MailWarning(cfg, state, 9, "Device: %s, unable to open %s device", name, type);
+    // For removable devices, print error message only once and suppress email
+    if (!cfg.removable) {
+      PrintOut(LOG_INFO, "Device: %s, open() of %s device failed: %s\n", name, type, device->get_errmsg());
+      MailWarning(cfg, state, 9, "Device: %s, unable to open %s device", name, type);
+    }
+    else if (!state.removed) {
+      PrintOut(LOG_INFO, "Device: %s, removed %s device: %s\n", name, type, device->get_errmsg());
+      state.removed = true;
+    }
+    else if (debugmode)
+      PrintOut(LOG_INFO, "Device: %s, %s device still removed: %s\n", name, type, device->get_errmsg());
     return false;
   }
 
   if (debugmode)
     PrintOut(LOG_INFO,"Device: %s, opened %s device\n", name, type);
-  reset_warning_mail(cfg, state, 9, "open of %s device worked again", type);
+
+  if (!cfg.removable)
+    reset_warning_mail(cfg, state, 9, "open of %s device worked again", type);
+  else if (state.removed) {
+    PrintOut(LOG_INFO, "Device: %s, reconnected %s device\n", name, type);
+    state.removed = false;
+  }
+
   return true;
 }
 
