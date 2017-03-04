@@ -1088,7 +1088,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   if (!(pfp=popen(command, "r")))
     // failed to popen() mail process
     PrintOut(LOG_CRIT,"%s %s to %s: failed (fork or pipe failed, or no memory) %s\n", 
-	     newwarn,  executable, newadd, errno?strerror(errno):"");
+             newwarn,  executable, newadd, errno?strerror(errno):"");
   else {
     // pipe suceeded!
     int len, status;
@@ -1100,50 +1100,50 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
       int newlen = len<EBUFLEN ? len : EBUFLEN-1;
       buffer[newlen]='\0';
       PrintOut(LOG_CRIT,"%s %s to %s produced unexpected output (%s%d bytes) to STDOUT/STDERR: \n%s\n", 
-	       newwarn, executable, newadd, len!=newlen?"here truncated to ":"", newlen, buffer);
+               newwarn, executable, newadd, len!=newlen?"here truncated to ":"", newlen, buffer);
       
       // flush pipe if needed
       while (fread(buffer, 1, EBUFLEN, pfp) && count<EBUFLEN)
-	count++;
+        count++;
 
       // tell user that pipe was flushed, or that something is really wrong
       if (count && count<EBUFLEN)
-	PrintOut(LOG_CRIT,"%s %s to %s: flushed remaining STDOUT/STDERR\n", 
-		 newwarn, executable, newadd);
+        PrintOut(LOG_CRIT,"%s %s to %s: flushed remaining STDOUT/STDERR\n",
+                 newwarn, executable, newadd);
       else if (count)
-	PrintOut(LOG_CRIT,"%s %s to %s: more than 1 MB STDOUT/STDERR flushed, breaking pipe\n", 
-		 newwarn, executable, newadd);
+        PrintOut(LOG_CRIT,"%s %s to %s: more than 1 MB STDOUT/STDERR flushed, breaking pipe\n",
+                 newwarn, executable, newadd);
     }
     
     // if something went wrong with mail process, print warning
     errno=0;
     if (-1==(status=pclose(pfp)))
       PrintOut(LOG_CRIT,"%s %s to %s: pclose(3) failed %s\n", newwarn, executable, newadd,
-	       errno?strerror(errno):"");
+               errno?strerror(errno):"");
     else {
       // mail process apparently succeeded. Check and report exit status
       if (WIFEXITED(status)) {
-	// exited 'normally' (but perhaps with nonzero status)
+        // exited 'normally' (but perhaps with nonzero status)
         int status8 = WEXITSTATUS(status);
-	if (status8>128)  
-	  PrintOut(LOG_CRIT,"%s %s to %s: failed (32-bit/8-bit exit status: %d/%d) perhaps caught signal %d [%s]\n", 
-		   newwarn, executable, newadd, status, status8, status8-128, strsignal(status8-128));
-	else if (status8)  
-	  PrintOut(LOG_CRIT,"%s %s to %s: failed (32-bit/8-bit exit status: %d/%d)\n", 
-		   newwarn, executable, newadd, status, status8);
-	else
-	  PrintOut(LOG_INFO,"%s %s to %s: successful\n", newwarn, executable, newadd);
+        if (status8>128)
+          PrintOut(LOG_CRIT,"%s %s to %s: failed (32-bit/8-bit exit status: %d/%d) perhaps caught signal %d [%s]\n",
+                   newwarn, executable, newadd, status, status8, status8-128, strsignal(status8-128));
+        else if (status8)
+          PrintOut(LOG_CRIT,"%s %s to %s: failed (32-bit/8-bit exit status: %d/%d)\n",
+                   newwarn, executable, newadd, status, status8);
+        else
+          PrintOut(LOG_INFO,"%s %s to %s: successful\n", newwarn, executable, newadd);
       }
       
       if (WIFSIGNALED(status))
-	PrintOut(LOG_INFO,"%s %s to %s: exited because of uncaught signal %d [%s]\n", 
-		 newwarn, executable, newadd, WTERMSIG(status), strsignal(WTERMSIG(status)));
+        PrintOut(LOG_INFO,"%s %s to %s: exited because of uncaught signal %d [%s]\n",
+                 newwarn, executable, newadd, WTERMSIG(status), strsignal(WTERMSIG(status)));
       
       // this branch is probably not possible. If subprocess is
       // stopped then pclose() should not return.
       if (WIFSTOPPED(status)) 
-      	PrintOut(LOG_CRIT,"%s %s to %s: process STOPPED because it caught signal %d [%s]\n",
-		 newwarn, executable, newadd, WSTOPSIG(status), strsignal(WSTOPSIG(status)));
+        PrintOut(LOG_CRIT,"%s %s to %s: process STOPPED because it caught signal %d [%s]\n",
+                 newwarn, executable, newadd, WSTOPSIG(status), strsignal(WSTOPSIG(status)));
       
     }
   }
@@ -1296,19 +1296,19 @@ void checksumwarning(const char * string)
 // that the daemon is really up and running and has a pid to kill it
 static bool WaitForPidFile()
 {
-    int waited, max_wait = 10;
-    struct stat stat_buf;
+  int waited, max_wait = 10;
+  struct stat stat_buf;
 
-    if (pid_file.empty() || debugmode)
-    	return true;
+  if (pid_file.empty() || debugmode)
+    return true;
 
-    for(waited = 0; waited < max_wait; ++waited) {
-	if (!stat(pid_file.c_str(), &stat_buf)) {
-		return true;
-	} else
-		sleep(1);
-    }
-    return false;
+  for(waited = 0; waited < max_wait; ++waited) {
+    if (!stat(pid_file.c_str(), &stat_buf)) {
+      return true;
+    } else
+      sleep(1);
+  }
+  return false;
 }
 
 #endif // _WIN32
@@ -1337,7 +1337,7 @@ static void DaemonInit()
       // we are the parent process, wait for pid file, then exit cleanly
       if(!WaitForPidFile()) {
         PrintOut(LOG_CRIT,"PID file %s didn't show up!\n", pid_file.c_str());
-     	EXIT(EXIT_STARTUP);
+        EXIT(EXIT_STARTUP);
       } else
         EXIT(0);
     }
@@ -2086,7 +2086,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
         && powermode!=0x80 && powermode!=0x81 && powermode!=0x82 && powermode!=0x83
         && powermode!=0xff) {
       PrintOut(LOG_CRIT, "Device: %s, CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Directive\n",
-	       name, powermode);
+               name, powermode);
       cfg.powermode=0;
     }
   }
@@ -2199,17 +2199,17 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
     req_len = 64;
     if ((err = scsiStdInquiry(scsidev, inqBuf, req_len))) {
       PrintOut(LOG_INFO, "Device: %s, Both 36 and 64 byte INQUIRY failed; "
-	       "skip device\n", device);
+               "skip device\n", device);
       return 2;
     }
   }
-  version = (inqBuf[2] & 0x7f);	/* Accept old ISO/IEC 9316:1995 variants */
+  version = (inqBuf[2] & 0x7f); /* Accept old ISO/IEC 9316:1995 variants */
 
   avail_len = inqBuf[4] + 5;
   len = (avail_len < req_len) ? avail_len : req_len;
   if (len < 36) {
     PrintOut(LOG_INFO, "Device: %s, INQUIRY response less than 36 bytes; "
-	     "skip device\n", device);
+             "skip device\n", device);
     return 2;
   }
 
@@ -2232,17 +2232,17 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   if ((version >= 0x3) && (version < 0x8)) {
     /* SPC to SPC-5 */
     if (0 == scsiInquiryVpd(scsidev, SCSI_VPD_DEVICE_IDENTIFICATION,
-			    vpdBuf, sizeof(vpdBuf))) {
+                            vpdBuf, sizeof(vpdBuf))) {
       len = vpdBuf[3];
       scsi_decode_lu_dev_id(vpdBuf + 4, len, lu_id, sizeof(lu_id), NULL);
     }
   }
   serial[0] = '\0';
   if (0 == scsiInquiryVpd(scsidev, SCSI_VPD_UNIT_SERIAL_NUMBER,
-			  vpdBuf, sizeof(vpdBuf))) {
-  	  len = vpdBuf[3];
-  	  vpdBuf[4 + len] = '\0';
-  	  scsi_format_id_string(serial, (const unsigned char *)&vpdBuf[4], len);
+                          vpdBuf, sizeof(vpdBuf))) {
+          len = vpdBuf[3];
+          vpdBuf[4 + len] = '\0';
+          scsi_format_id_string(serial, (const unsigned char *)&vpdBuf[4], len);
   }
 
   unsigned int lb_size;
@@ -2303,7 +2303,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   // smart if it is off). This may change to be the same as the ATA side.
   if (!scsi_IsExceptionControlEnabled(&iec)) {
     PrintOut(LOG_INFO, "Device: %s, IE (SMART) not enabled, skip device\n"
-	               "Try 'smartctl -s on %s' to turn on SMART features\n", 
+                       "Try 'smartctl -s on %s' to turn on SMART features\n",
                         device, device);
     CloseDevice(scsidev, device);
     return 3;
@@ -3440,74 +3440,74 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
 static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_device * scsidev, bool allow_selftests)
 {
-    if (!open_device(cfg, state, scsidev, "SCSI"))
-      return 1;
+  if (!open_device(cfg, state, scsidev, "SCSI"))
+    return 1;
 
-    const char * name = cfg.name.c_str();
+  const char * name = cfg.name.c_str();
 
-    UINT8 asc = 0, ascq = 0;
-    UINT8 currenttemp = 0, triptemp = 0;
-    if (!state.SuppressReport) {
-        if (scsiCheckIE(scsidev, state.SmartPageSupported, state.TempPageSupported,
-                        &asc, &ascq, &currenttemp, &triptemp)) {
-            PrintOut(LOG_INFO, "Device: %s, failed to read SMART values\n",
-                      name);
-            MailWarning(cfg, state, 6, "Device: %s, failed to read SMART values", name);
-            state.SuppressReport = 1;
-        }
+  UINT8 asc = 0, ascq = 0;
+  UINT8 currenttemp = 0, triptemp = 0;
+  if (!state.SuppressReport) {
+    if (scsiCheckIE(scsidev, state.SmartPageSupported, state.TempPageSupported,
+                    &asc, &ascq, &currenttemp, &triptemp)) {
+      PrintOut(LOG_INFO, "Device: %s, failed to read SMART values\n",
+               name);
+      MailWarning(cfg, state, 6, "Device: %s, failed to read SMART values", name);
+      state.SuppressReport = 1;
     }
-    if (asc > 0) {
-        const char * cp = scsiGetIEString(asc, ascq);
-        if (cp) {
-            PrintOut(LOG_CRIT, "Device: %s, SMART Failure: %s\n", name, cp);
-            MailWarning(cfg, state, 1,"Device: %s, SMART Failure: %s", name, cp);
-        } else if (asc == 4 && ascq == 9) {
-            PrintOut(LOG_INFO,"Device: %s, self-test in progress\n", name);  
-        } else if (debugmode)
-            PrintOut(LOG_INFO,"Device: %s, non-SMART asc,ascq: %d,%d\n",
-                     name, (int)asc, (int)ascq);  
+  }
+  if (asc > 0) {
+    const char * cp = scsiGetIEString(asc, ascq);
+    if (cp) {
+      PrintOut(LOG_CRIT, "Device: %s, SMART Failure: %s\n", name, cp);
+      MailWarning(cfg, state, 1,"Device: %s, SMART Failure: %s", name, cp);
+    } else if (asc == 4 && ascq == 9) {
+      PrintOut(LOG_INFO,"Device: %s, self-test in progress\n", name);
     } else if (debugmode)
-        PrintOut(LOG_INFO,"Device: %s, SMART health: passed\n", name);  
+      PrintOut(LOG_INFO,"Device: %s, non-SMART asc,ascq: %d,%d\n",
+               name, (int)asc, (int)ascq);
+  } else if (debugmode)
+    PrintOut(LOG_INFO,"Device: %s, SMART health: passed\n", name);
 
-    // check temperature limits
-    if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit || !cfg.attrlog_file.empty())
-      CheckTemperature(cfg, state, currenttemp, triptemp);
+  // check temperature limits
+  if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit || !cfg.attrlog_file.empty())
+    CheckTemperature(cfg, state, currenttemp, triptemp);
 
-    // check if number of selftest errors has increased (note: may also DECREASE)
-    if (cfg.selftest)
-      CheckSelfTestLogs(cfg, state, scsiCountFailedSelfTests(scsidev, 0));
-    
-    if (allow_selftests && !cfg.test_regex.empty()) {
-      char testtype = next_scheduled_test(cfg, state, true/*scsi*/);
-      if (testtype)
-        DoSCSISelfTest(cfg, state, scsidev, testtype);
+  // check if number of selftest errors has increased (note: may also DECREASE)
+  if (cfg.selftest)
+    CheckSelfTestLogs(cfg, state, scsiCountFailedSelfTests(scsidev, 0));
+
+  if (allow_selftests && !cfg.test_regex.empty()) {
+    char testtype = next_scheduled_test(cfg, state, true/*scsi*/);
+    if (testtype)
+      DoSCSISelfTest(cfg, state, scsidev, testtype);
+  }
+  if (!cfg.attrlog_file.empty()){
+    // saving error counters to state
+    UINT8 tBuf[252];
+    if (state.ReadECounterPageSupported && (0 == scsiLogSense(scsidev,
+      READ_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+      scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[0].errCounter);
+      state.scsi_error_counters[0].found=1;
     }
-    if (!cfg.attrlog_file.empty()){
-      // saving error counters to state
-      UINT8 tBuf[252];
-      if (state.ReadECounterPageSupported && (0 == scsiLogSense(scsidev,
-          READ_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-          scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[0].errCounter);
-          state.scsi_error_counters[0].found=1;
-      }
-      if (state.WriteECounterPageSupported && (0 == scsiLogSense(scsidev,
-          WRITE_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-          scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[1].errCounter);
-          state.scsi_error_counters[1].found=1;
-      }
-      if (state.VerifyECounterPageSupported && (0 == scsiLogSense(scsidev,
-          VERIFY_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-          scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[2].errCounter);
-          state.scsi_error_counters[2].found=1;
-      }
-      if (state.NonMediumErrorPageSupported && (0 == scsiLogSense(scsidev,
-          NON_MEDIUM_ERROR_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-          scsiDecodeNonMediumErrPage(tBuf, &state.scsi_nonmedium_error.nme);
-          state.scsi_nonmedium_error.found=1;
-      }
+    if (state.WriteECounterPageSupported && (0 == scsiLogSense(scsidev,
+      WRITE_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+      scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[1].errCounter);
+      state.scsi_error_counters[1].found=1;
     }
-    CloseDevice(scsidev, name);
-    return 0;
+    if (state.VerifyECounterPageSupported && (0 == scsiLogSense(scsidev,
+      VERIFY_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+      scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[2].errCounter);
+      state.scsi_error_counters[2].found=1;
+    }
+    if (state.NonMediumErrorPageSupported && (0 == scsiLogSense(scsidev,
+      NON_MEDIUM_ERROR_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
+      scsiDecodeNonMediumErrPage(tBuf, &state.scsi_nonmedium_error.nme);
+      state.scsi_nonmedium_error.found=1;
+    }
+  }
+  CloseDevice(scsidev, name);
+  return 0;
 }
 
 static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_device * nvmedev)

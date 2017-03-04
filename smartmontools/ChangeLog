@@ -2,7 +2,8 @@ $Id$
 
 2017-03-04  Christian Franke  <franke@computer.org>
 
-	smartd.cpp: Move ATA/SCSI/NVMe device open to new common function.
+	smartd.cpp: Unify indent style, replace tabs.
+	Move ATA/SCSI/NVMe device open to new common function.
 	Suppress warning emails and repeated log messages on open error if
 	'-d removable' is specified (Debian Bug 770872, Ubuntu Bug 1451572).
 	smartd.conf.5.in: Document new behaviour of '-d removable'.
