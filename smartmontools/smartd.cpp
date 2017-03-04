@@ -2534,6 +2534,52 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   return 0;
 }
 
+// Open device for next check, return false on error
+static bool open_device(const dev_config & cfg, dev_state & state, smart_device * device,
+                        const char * type)
+{
+  const char * name = cfg.name.c_str();
+
+  // If user has asked, test the email warning system
+  if (cfg.emailtest)
+    MailWarning(cfg, state, 0, "TEST EMAIL from smartd for device: %s", name);
+
+  // User may have requested (with the -n Directive) to leave the disk
+  // alone if it is in idle or standby mode.  In this case check the
+  // power mode first before opening the device for full access,
+  // and exit without check if disk is reported in standby.
+  if (device->is_ata() && cfg.powermode && !state.powermodefail) {
+    // Note that 'is_powered_down()' handles opening the device itself, and
+    // can be used before calling 'open()' (that's the whole point of 'is_powered_down()'!).
+    if (device->is_powered_down())
+    {
+      // skip at most powerskipmax checks
+      if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
+        // report first only except if state has changed, avoid waking up system disk
+        if ((!state.powerskipcnt || state.lastpowermodeskipped != -1) && !cfg.powerquiet) {
+          PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, "STANDBY (OS)");
+          state.lastpowermodeskipped = -1;
+        }
+        state.powerskipcnt++;
+        return false;
+      }
+    }
+  }
+
+  // if we can't open device, fail gracefully rather than hard --
+  // perhaps the next time around we'll be able to open it
+  if (!device->open()) {
+    PrintOut(LOG_INFO, "Device: %s, open() of %s device failed: %s\n", name, type, device->get_errmsg());
+    MailWarning(cfg, state, 9, "Device: %s, unable to open %s device", name, type);
+    return false;
+  }
+
+  if (debugmode)
+    PrintOut(LOG_INFO,"Device: %s, opened %s device\n", name, type);
+  reset_warning_mail(cfg, state, 9, "open of %s device worked again", type);
+  return true;
+}
+
 // If the self-test log has got more self-test errors (or more recent
 // self-test errors) recorded, then notify user.
 static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int newi)
@@ -3133,46 +3179,10 @@ static void check_attribute(const dev_config & cfg, dev_state & state,
 static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device * atadev,
                           bool firstpass, bool allow_selftests)
 {
-  const char * name = cfg.name.c_str();
-
-  // If user has asked, test the email warning system
-  if (cfg.emailtest)
-    MailWarning(cfg, state, 0, "TEST EMAIL from smartd for device: %s", name);
-
-  // User may have requested (with the -n Directive) to leave the disk
-  // alone if it is in idle or standby mode.  In this case check the
-  // power mode first before opening the device for full access,
-  // and exit without check if disk is reported in standby.
-  if (cfg.powermode && !state.powermodefail) {
-    // Note that 'is_powered_down()' handles opening the device itself, and
-    // can be used before calling 'open()' (that's the whole point of 'is_powered_down()'!).
-    if (atadev->is_powered_down())
-    {
-      // skip at most powerskipmax checks
-      if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
-        // report first only except if state has changed, avoid waking up system disk
-        if ((!state.powerskipcnt || state.lastpowermodeskipped != -1) && !cfg.powerquiet) {
-          PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, "STANDBY (OS)");
-          state.lastpowermodeskipped = -1;
-        }
-        state.powerskipcnt++;
-        return 0;
-      }
-    }
-  }
-
-  // if we can't open device, fail gracefully rather than hard --
-  // perhaps the next time around we'll be able to open it.  ATAPI
-  // cd/dvd devices will hang awaiting media if O_NONBLOCK is not
-  // given (see linux cdrom driver).
-  if (!atadev->open()) {
-    PrintOut(LOG_INFO, "Device: %s, open() failed: %s\n", name, atadev->get_errmsg());
-    MailWarning(cfg, state, 9, "Device: %s, unable to open device", name);
+  if (!open_device(cfg, state, atadev, "ATA"))
     return 1;
-  }
-  if (debugmode)
-    PrintOut(LOG_INFO,"Device: %s, opened ATA device\n", name);
-  reset_warning_mail(cfg, state, 9, "open device worked again");
+
+  const char * name = cfg.name.c_str();
 
   // user may have requested (with the -n Directive) to leave the disk
   // alone if it is in idle or sleeping mode.  In this case check the
@@ -3411,21 +3421,10 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
 static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_device * scsidev, bool allow_selftests)
 {
-    const char * name = cfg.name.c_str();
-
-    // If the user has asked for it, test the email warning system
-    if (cfg.emailtest)
-      MailWarning(cfg, state, 0, "TEST EMAIL from smartd for device: %s", name);
-
-    // if we can't open device, fail gracefully rather than hard --
-    // perhaps the next time around we'll be able to open it
-    if (!scsidev->open()) {
-      PrintOut(LOG_INFO, "Device: %s, open() failed: %s\n", name, scsidev->get_errmsg());
-      MailWarning(cfg, state, 9, "Device: %s, unable to open device", name);
+    if (!open_device(cfg, state, scsidev, "SCSI"))
       return 1;
-    } else if (debugmode)
-        PrintOut(LOG_INFO,"Device: %s, opened SCSI device\n", name);
-    reset_warning_mail(cfg, state, 9, "open device worked again");
+
+    const char * name = cfg.name.c_str();
 
     UINT8 asc = 0, ascq = 0;
     UINT8 currenttemp = 0, triptemp = 0;
@@ -3494,21 +3493,10 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
 
 static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_device * nvmedev)
 {
-  const char * name = cfg.name.c_str();
-
-  // TODO: Use common open function for ATA/SCSI/NVMe
-  // If user has asked, test the email warning system
-  if (cfg.emailtest)
-    MailWarning(cfg, state, 0, "TEST EMAIL from smartd for device: %s", name);
-
-  if (!nvmedev->open()) {
-    PrintOut(LOG_INFO, "Device: %s, open() failed: %s\n", name, nvmedev->get_errmsg());
-    MailWarning(cfg, state, 9, "Device: %s, unable to open device", name);
+  if (!open_device(cfg, state, nvmedev, "NVMe"))
     return 1;
-  }
-  if (debugmode)
-    PrintOut(LOG_INFO,"Device: %s, opened NVMe device\n", name);
-  reset_warning_mail(cfg, state, 9, "open device worked again");
+
+  const char * name = cfg.name.c_str();
 
   // Read SMART/Health log
   nvme_smart_log smart_log;

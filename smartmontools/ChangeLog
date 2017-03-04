@@ -1,5 +1,9 @@
 $Id$
 
+2017-03-04  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Move ATA/SCSI/NVMe device open to new common function.
+
 2017-03-02  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Move single device registration to new function.
