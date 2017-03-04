@@ -1,4 +1,8 @@
-$Id: ChangeLog 4397 2017-03-02 21:09:07Z chrfranke $
+$Id: ChangeLog 4398 2017-03-04 14:57:58Z chrfranke $
+
+2017-03-04  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Move ATA/SCSI/NVMe device open to new common function.
 
 2017-03-02  Christian Franke  <franke@computer.org>
 
