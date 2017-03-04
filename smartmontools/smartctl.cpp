@@ -52,7 +52,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4380 2017-01-14 18:21:26Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4401 2017-03-04 15:54:25Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -196,6 +196,8 @@ static std::string getvalidarglist(int opt)
     return "normal, conservative, permissive, verypermissive";
   case 'b':
     return "warn, exit, ignore";
+  case 'B':
+    return "[+]<FILE_NAME>";
   case 'r':
     return "ioctl[,N], ataioctl[,N], scsiioctl[,N], nvmeioctl[,N]";
   case opt_smart:

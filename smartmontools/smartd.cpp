@@ -100,7 +100,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4400 2017-03-04 15:50:16Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4401 2017-03-04 15:54:25Z chrfranke $"
   CONFIG_H_CVSID;
 
 using namespace smartmontools;
@@ -1476,6 +1476,8 @@ static const char *GetValidArgList(char opt)
   case 'A':
   case 's':
     return "<PATH_PREFIX>";
+  case 'B':
+    return "[+]<FILE_NAME>";
   case 'c':
     return "<FILE_NAME>, -";
   case 'l':
@@ -1484,7 +1486,6 @@ static const char *GetValidArgList(char opt)
     return "nodev, errors, nodevstartup, never, onecheck, showtests";
   case 'r':
     return "ioctl[,N], ataioctl[,N], scsiioctl[,N], nvmeioctl[,N]";
-  case 'B':
   case 'p':
   case 'w':
     return "<FILE_NAME>";
