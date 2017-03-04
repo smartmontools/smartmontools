@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-16 Christian Franke
 
-$Id: smartd.conf.5.in 4373 2017-01-11 21:36:39Z chrfranke $
+$Id: smartd.conf.5.in 4399 2017-03-04 15:13:08Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -505,6 +505,11 @@ that it should continue (instead of exiting, which is the default
 behavior) if the device does not appear to be present when
 \fBsmartd\fP is started.  This Directive may be used in conjunction
 with the other \'\-d\' Directives.
+[NEW EXPERIMENTAL SMARTD FEATURE]
+This directive also suppresses warning emails and repeated log messages
+if the device is removed after startup.
+\fBWARNING: Removing a device and connecting a different one to same interface
+is not supported and may result in bogus warnings until smartd is restarted.\fR
 .TP
 .B \-n POWERMODE[,N][,q]
 [ATA only] This \'nocheck\' Directive is used to prevent a disk from
@@ -1644,4 +1649,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 4373 2017-01-11 21:36:39Z chrfranke $
+$Id: smartd.conf.5.in 4399 2017-03-04 15:13:08Z chrfranke $
