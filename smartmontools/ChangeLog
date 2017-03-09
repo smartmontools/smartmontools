@@ -1,5 +1,9 @@
 $Id$
 
+2017-03-09  Jean Delvare  <...>
+
+	smartctl.8.in: Fix documentation of the '-q' option.
+
 2017-03-09  Christian Franke  <franke@computer.org>
 
 	AUTHORS: Add Jonghwan Choi.

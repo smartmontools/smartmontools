@@ -284,7 +284,7 @@ Get non-SMART device settings.  See \'\-s, \-\-set\' below for further info.
 .B RUN-TIME BEHAVIOR OPTIONS:
 .TP
 .B \-q TYPE, \-\-quietmode=TYPE
-Specifies that \fBsmartctl\fP should run in one of the two quiet modes
+Specifies that \fBsmartctl\fP should run in one of the quiet modes
 described here.  The valid arguments to this option are:
 
 .I errorsonly
