@@ -113,6 +113,8 @@ struct ata_print_options
   bool sct_wcache_sct_get; // print SCT Feature Control of write cache status
   int sct_wcache_sct_set; // determined by ata set features command(1), force enable(2), force disable(3)
   bool sct_wcache_sct_set_pers; // persistent or volatile
+  bool get_dsn; // print DSN status
+  int set_dsn; // disable(02h), enable(01h) DSN
 
   ata_print_options()
     : drive_info(false),
@@ -153,7 +155,8 @@ struct ata_print_options
       sct_wcache_reorder_get(false), sct_wcache_reorder_set(0),
       sct_wcache_reorder_set_pers(false),
       sct_wcache_sct_get(false), sct_wcache_sct_set(0),
-      sct_wcache_sct_set_pers(false)
+      sct_wcache_sct_set_pers(false),
+      get_dsn(false), set_dsn(0)
     { }
 };
 

@@ -2795,6 +2795,18 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        !(drive.cfs_enable_1 & 0x0020) ? "Disabled" : "Enabled"); // word085
   }
 
+  // Print DSN status
+  unsigned short word120 = drive.words088_255[120-88];
+  if (options.get_dsn) {
+    if (!(drive.word086 & 0x8000) // word086
+       || ((word120 & 0xc000) != 0x4000)) // word120
+      pout("DSN feature is:   Unavailable\n");
+    else if (word120 & 0x200) // word120
+      pout("DSN feature is:   Enabled\n");
+    else
+      pout("DSN feature is:   Disabled\n");
+  }
+
   // Check for ATA Security LOCK
   unsigned short word128 = drive.words088_255[128-88];
   bool locked = ((word128 & 0x0007) == 0x0007); // LOCKED|ENABLED|SUPPORTED
@@ -2866,7 +2878,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       || options.smart_auto_offl_disable || options.smart_auto_offl_enable
       || options.set_aam || options.set_apm || options.set_lookahead
       || options.set_wcache || options.set_security_freeze || options.set_standby
-      || options.sct_wcache_reorder_set || options.sct_wcache_sct_set)
+      || options.sct_wcache_reorder_set || options.sct_wcache_sct_set || options.set_dsn)
     pout("=== START OF ENABLE/DISABLE COMMANDS SECTION ===\n");
   
   // Enable/Disable AAM
@@ -2929,6 +2941,17 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     else
       pout("Write cache %sabled\n", (enable ? "en" : "dis"));
+  }
+
+  // Enable/Disable DSN
+  if (options.set_dsn) {
+    bool enable = (options.set_dsn > 0);
+    if (!ata_set_features(device, ATA_ENABLE_DISABLE_DSN, (enable ? 0x1 : 0x2))) {
+        pout("DSN %sable failed: %s\n", (enable ? "en" : "dis"), device->get_errmsg());
+        returnval |= FAILSMART;
+    }
+    else
+      pout("DSN %sabled\n", (enable ? "en" : "dis"));
   }
 
   // Enable/Disable write cache reordering
@@ -3100,7 +3123,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       || options.smart_auto_offl_disable || options.smart_auto_offl_enable
       || options.set_aam || options.set_apm || options.set_lookahead
       || options.set_wcache || options.set_security_freeze || options.set_standby
-      || options.sct_wcache_reorder_set)
+      || options.sct_wcache_reorder_set || options.set_dsn)
     pout("\n");
 
   // START OF READ-ONLY OPTIONS APART FROM -V and -i

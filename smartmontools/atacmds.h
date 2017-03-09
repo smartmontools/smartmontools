@@ -88,6 +88,7 @@ typedef enum {
 #define ATA_ENABLE_APM                  0x05
 #define ATA_ENABLE_WRITE_CACHE          0x02
 #define ATA_ENABLE_READ_LOOK_AHEAD      0xaa
+#define ATA_ENABLE_DISABLE_DSN          0x63
 
 // 48-bit commands
 #define ATA_READ_LOG_EXT                0x2F

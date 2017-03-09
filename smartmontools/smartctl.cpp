@@ -87,7 +87,7 @@ static void Usage()
 "  --identify[=[w][nvb]]\n"
 "         Show words and bits from IDENTIFY DEVICE data                (ATA)\n\n"
 "  -g NAME, --get=NAME\n"
-"        Get device setting: all, aam, apm, lookahead, security, wcache, rcache, wcreorder, wcache-sct\n\n"
+"        Get device setting: all, aam, apm, dsn, lookahead, security, wcache, rcache, wcreorder, wcache-sct\n\n"
 "  -a, --all\n"
 "         Show all SMART information for device\n\n"
 "  -x, --xall\n"
@@ -122,7 +122,7 @@ static void Usage()
 "        Enable/disable Attribute autosave on device (on/off)\n\n"
 "  -s NAME[,VALUE], --set=NAME[,VALUE]\n"
 "        Enable/disable/change device setting: aam,[N|off], apm,[N|off],\n"
-"        lookahead,[on|off], security-freeze, standby,[N|off|now],\n"
+"        dsn,[on|off], lookahead,[on|off], security-freeze, standby,[N|off|now],\n"
 "        wcache,[on|off], rcache,[on|off], wcreorder,[on|off[,p]]\n"
 "        wcache-sct,[ata|on|off[,p]]\n\n"
   );
@@ -224,9 +224,9 @@ static std::string getvalidarglist(int opt)
   case 'f':
     return "old, brief, hex[,id|val]";
   case 'g':
-    return "aam, apm, lookahead, security, wcache, rcache, wcreorder, wcache-sct";
+    return "aam, apm, dsn, lookahead, security, wcache, rcache, wcreorder, wcache-sct";
   case opt_set:
-    return "aam,[N|off], apm,[N|off], lookahead,[on|off], security-freeze, "
+    return "aam,[N|off], apm,[N|off], dsn,[on|off], lookahead,[on|off], security-freeze, "
            "standby,[N|off|now], wcache,[on|off], rcache,[on|off], wcreorder,[on|off[,p]], "
            "wcache-sct,[ata|on|off[,p]]";
   case 's':
@@ -897,7 +897,7 @@ static const char * parse_options(int argc, char** argv,
           if (get && !strcmp(name, "all")) {
             ataopts.get_aam = ataopts.get_apm = true;
             ataopts.get_security = true;
-            ataopts.get_lookahead = ataopts.get_wcache = true;
+            ataopts.get_lookahead = ataopts.get_wcache = ataopts.get_dsn = true;
             scsiopts.get_rcd = scsiopts.get_wce = true;
           }
           else if (!strcmp(name, "aam")) {
@@ -1002,6 +1002,19 @@ static const char * parse_options(int argc, char** argv,
             else if (on) {
               ataopts.set_wcache = 1;
               scsiopts.set_wce = 1;
+            }
+            else
+              badarg = true;
+          }
+          else if (!strcmp(name, "dsn")) {
+            if (get) {
+              ataopts.get_dsn = true;
+            }
+            else if (off) {
+              ataopts.set_dsn = -1;
+            }
+            else if (on) {
+              ataopts.set_dsn = 1;
             }
             else
               badarg = true;

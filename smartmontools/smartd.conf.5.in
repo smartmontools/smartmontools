@@ -742,6 +742,9 @@ IDLE mode.
 
 .I wcache,[on|off]
 \- [ATA only] Sets the volatile write cache feature.
+
+.I dsn,[on|off]
+\- [ATA only] Sets the DSN feature.
 .TP
 .B \-s REGEXP
 Run Self-Tests or Offline Immediate Tests, at scheduled times.  A

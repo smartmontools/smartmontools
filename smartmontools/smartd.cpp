@@ -281,6 +281,7 @@ struct dev_config
   int set_standby; // set(1..255->0..254) standby timer
   bool set_security_freeze; // Freeze ATA security
   int set_wcache; // disable(-1), enable(1) write cache
+  int set_dsn; // disable(0x2), enable(0x1) DSN
 
   bool sct_erc_set;                       // set SCT ERC to:
   unsigned short sct_erc_readtime;        // ERC read time (deciseconds)
@@ -328,7 +329,7 @@ dev_config::dev_config()
   set_lookahead(0),
   set_standby(0),
   set_security_freeze(false),
-  set_wcache(0),
+  set_wcache(0), set_dsn(0),
   sct_erc_set(false),
   sct_erc_readtime(0), sct_erc_writetime(0),
   curr_pending_id(0), offl_pending_id(0),
@@ -1438,8 +1439,8 @@ static void Directives()
            "  -l TYPE Monitor SMART log or self-test status:\n"
            "          error, selftest, xerror, offlinests[,ns], selfteststs[,ns]\n"
            "  -l scterc,R,W  Set SCT Error Recovery Control\n"
-           "  -e      Change device setting: aam,[N|off], apm,[N|off], lookahead,[on|off],\n"
-           "          security-freeze, standby,[N|off], wcache,[on|off]\n"
+           "  -e      Change device setting: aam,[N|off], apm,[N|off], dsn,[on|off],\n"
+           "          lookahead,[on|off], security-freeze, standby,[N|off], wcache,[on|off]\n"
            "  -f      Monitor 'Usage' Attributes, report failures\n"
            "  -m ADD  Send email warning to address ADD\n"
            "  -M TYPE Modify email warning behavior (see man page)\n"
@@ -2113,6 +2114,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   if (cfg.set_wcache)
     format_set_result_msg(msg, "Wr-cache", ata_set_features(atadev,
       (cfg.set_wcache > 0? ATA_ENABLE_WRITE_CACHE : ATA_DISABLE_WRITE_CACHE)), cfg.set_wcache);
+
+  if (cfg.set_dsn)
+    format_set_result_msg(msg, "DSN", ata_set_features(atadev,
+      ATA_ENABLE_DISABLE_DSN, (cfg.set_dsn > 0 ? 0x1 : 0x2)));
 
   if (cfg.set_security_freeze)
     format_set_result_msg(msg, "Security freeze",
@@ -3843,7 +3848,7 @@ static void printoutvaliddirectiveargs(int priority, char d)
     PrintOut(priority, "%s", get_valid_firmwarebug_args());
     break;
   case 'e':
-    PrintOut(priority, "aam,[N|off], apm,[N|off], lookahead,[on|off], "
+    PrintOut(priority, "aam,[N|off], apm,[N|off], lookahead,[on|off], dsn,[on|off] "
                        "security-freeze, standby,[N|off], wcache,[on|off]");
     break;
   }
@@ -4362,6 +4367,14 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
             cfg.set_wcache = -1;
           else if (on)
             cfg.set_wcache = 1;
+          else
+            badarg = true;
+        }
+        else if (!strcmp(arg2, "dsn")) {
+          if (off)
+            cfg.set_dsn = -1;
+          else if (on)
+            cfg.set_dsn = 1;
           else
             badarg = true;
         }

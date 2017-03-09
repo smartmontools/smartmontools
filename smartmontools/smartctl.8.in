@@ -1005,6 +1005,10 @@ commands. If ´,p´ is specified, the setting is preserved across power cycles.
 \'Off\' value disables read cache (if supported).
 The read cache is usually enabled by default.
 
+.I dsn[,on|off]
+\- [ATA only] Gets/sets the DSN feature (if supported).
+The dsn is usually disabled by default.
+
 .TP
 .B SMART READ AND DISPLAY DATA OPTIONS:
 .TP

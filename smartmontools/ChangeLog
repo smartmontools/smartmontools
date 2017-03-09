@@ -1,5 +1,14 @@
 $Id$
 
+2017-03-09  Jonghwan Choi  <jhbird.choi@gmail.com>
+
+	Add options to get/set ATA DSN (Device Statistics Notification)
+	feature (ticket #815):
+	atacmds.h: Add DSN feature subcommand code.
+	ataprint.cpp, ataprint.h, smartctl.cpp: Add '-g/s dsn' options.
+	smartd.cpp: Add '-e dsn' directive.
+	smartctl.8.in, smartd.conf.5.in: Document the new options.
+
 2017-03-04  Christian Franke  <franke@computer.org>
 
 	smartctl.cpp, smartd.cpp: Fix help text for '-B' option.
