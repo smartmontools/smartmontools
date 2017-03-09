@@ -1,4 +1,8 @@
-$Id: ChangeLog 4403 2017-03-09 20:31:15Z chrfranke $
+$Id: ChangeLog 4404 2017-03-09 20:40:47Z chrfranke $
+
+2017-03-09  Jean Delvare  <...>
+
+	smartctl.8.in: Fix documentation of the '-q' option.
 
 2017-03-09  Christian Franke  <franke@computer.org>
 

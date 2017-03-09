@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-17 Christian Franke
 
-$Id: smartctl.8.in 4402 2017-03-09 20:20:48Z chrfranke $
+$Id: smartctl.8.in 4404 2017-03-09 20:40:47Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -284,7 +284,7 @@ Get non-SMART device settings.  See \'\-s, \-\-set\' below for further info.
 .B RUN-TIME BEHAVIOR OPTIONS:
 .TP
 .B \-q TYPE, \-\-quietmode=TYPE
-Specifies that \fBsmartctl\fP should run in one of the two quiet modes
+Specifies that \fBsmartctl\fP should run in one of the quiet modes
 described here.  The valid arguments to this option are:
 
 .I errorsonly
@@ -2405,4 +2405,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4402 2017-03-09 20:20:48Z chrfranke $
+$Id: smartctl.8.in 4404 2017-03-09 20:40:47Z chrfranke $
