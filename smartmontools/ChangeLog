@@ -1,5 +1,9 @@
 $Id$
 
+2017-03-09  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Add Jonghwan Choi.
+
 2017-03-09  Jonghwan Choi  <jhbird.choi@gmail.com>
 
 	Add options to get/set ATA DSN (Device Statistics Notification)
