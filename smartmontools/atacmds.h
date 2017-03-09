@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 4370 2017-01-11 20:35:38Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 4402 2017-03-09 20:20:48Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -88,6 +88,7 @@ typedef enum {
 #define ATA_ENABLE_APM                  0x05
 #define ATA_ENABLE_WRITE_CACHE          0x02
 #define ATA_ENABLE_READ_LOOK_AHEAD      0xaa
+#define ATA_ENABLE_DISABLE_DSN          0x63
 
 // 48-bit commands
 #define ATA_READ_LOG_EXT                0x2F
