@@ -923,7 +923,7 @@ Note that the \'\-\-set\' option shares its short option \'\-s\' with
 .I all
 \- Gets all values. This is equivalent to
 .nf
-\'-g aam -g apm -g lookahead -g security -g wcache\'
+\'-g aam -g apm -g lookahead -g security -g wcache -g rcache -g dsn\'
 .fi
 
 .I aam[,N|off]
