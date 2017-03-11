@@ -1,4 +1,8 @@
-$Id: ChangeLog 4405 2017-03-11 11:55:23Z chrfranke $
+$Id: ChangeLog 4406 2017-03-11 15:12:56Z chrfranke $
+
+2017-03-11  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Add '-g dsn' to '-x' output.
 
 2017-03-11  Jonghwan Choi  <jhbird.choi@gmail.com>
 
