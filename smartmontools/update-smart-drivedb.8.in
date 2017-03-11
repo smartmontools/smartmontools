@@ -2,7 +2,7 @@
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
 Copyright (C) 2014-17 Christian Franke
 
-$Id: update-smart-drivedb.8.in 4408 2017-03-11 16:20:42Z chrfranke $
+$Id: update-smart-drivedb.8.in 4409 2017-03-11 18:00:26Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -171,7 +171,7 @@ This manual page was originally written by
 .SH REPORTING BUGS
 To submit a bug report, create a ticket in smartmontools wiki:
 .br
-<\fBhttp://www.smartmontools.org/\fP>.
+<\fBhttps://www.smartmontools.org/\fP>.
 .br
 Alternatively send the info to the smartmontools support mailing list:
 .br
@@ -183,4 +183,4 @@ Alternatively send the info to the smartmontools support mailing list:
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: update-smart-drivedb.8.in 4408 2017-03-11 16:20:42Z chrfranke $
+$Id: update-smart-drivedb.8.in 4409 2017-03-11 18:00:26Z chrfranke $
