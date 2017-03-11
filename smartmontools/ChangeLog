@@ -1,5 +1,9 @@
 $Id$
 
+2017-03-11  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Add '-g dsn' to '-x' output.
+
 2017-03-11  Jonghwan Choi  <jhbird.choi@gmail.com>
 
 	ataprint.cpp: Fix false positive DSN support detection.

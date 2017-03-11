@@ -671,6 +671,7 @@ static const char * parse_options(int argc, char** argv,
       ataopts.get_aam = ataopts.get_apm = true;
       ataopts.get_security = true;
       ataopts.get_lookahead = ataopts.get_wcache = true;
+      ataopts.get_dsn = true;
       scsiopts.get_rcd = scsiopts.get_wce = true;
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
@@ -897,7 +898,8 @@ static const char * parse_options(int argc, char** argv,
           if (get && !strcmp(name, "all")) {
             ataopts.get_aam = ataopts.get_apm = true;
             ataopts.get_security = true;
-            ataopts.get_lookahead = ataopts.get_wcache = ataopts.get_dsn = true;
+            ataopts.get_lookahead = ataopts.get_wcache = true;
+            ataopts.get_dsn = true;
             scsiopts.get_rcd = scsiopts.get_wce = true;
           }
           else if (!strcmp(name, "aam")) {
