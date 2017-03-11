@@ -909,7 +909,7 @@ run, please use the \'\-M exec\' Directive below.
 
 .\" %IF OS Windows
 [Windows only] On Windows, the \'\fBBlat\fP\' mailer
-(\fBhttp://blat.sourceforge.net/\fP) is used by default.
+(<\fBhttp://blat.sourceforge.net/\fP>) is used by default.
 This mailer uses a different command line syntax, see
 \'\-M exec\' below.
 

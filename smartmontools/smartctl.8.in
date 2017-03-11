@@ -2372,7 +2372,7 @@ written by Michael Cornwell and Andre Hedrick.
 .SH REPORTING BUGS
 To submit a bug report, create a ticket in smartmontools wiki:
 .br
-<\fBhttp://www.smartmontools.org/\fP>.
+<\fBhttps://www.smartmontools.org/\fP>.
 .br
 Alternatively send the info to the smartmontools support mailing list:
 .br
@@ -2387,12 +2387,12 @@ Alternatively send the info to the smartmontools support mailing list:
 
 .SH REFERENCES
 Please see the following web site for more info:
-\fBhttp://www.smartmontools.org/\fP
+<\fBhttps://www.smartmontools.org/\fP>
 
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
-pages 74-77. This is \fBhttp://www.linuxjournal.com/article/6983\fP
-online.
+pages 74-77.
+See <\fBhttps://www.linuxjournal.com/article/6983\fP>.
 
 If you would like to understand better how SMART works, and what it
 does, a good place to start is with Sections 4.8 and 6.54 of the first
@@ -2405,7 +2405,7 @@ revision 2 and the SFF-8055i revision 1.4 specifications.  These are
 publications of the Small Form Factors (SFF) Committee.
 
 Links to these and other documents may be found on the Links page of the
-\fBsmartmontools\fP Wiki at \fBhttp://www.smartmontools.org/wiki/Links\fP .
+\fBsmartmontools\fP Wiki at <\fBhttps://www.smartmontools.org/wiki/Links\fP>.
 
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV

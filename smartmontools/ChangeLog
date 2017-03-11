@@ -2,8 +2,9 @@ $Id$
 
 2017-03-11  Christian Franke  <franke@computer.org>
 
-	smartctl.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
-	Update EXPERIMENTAL notes.
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in,
+	update-smart-drivedb.8.in: Update EXPERIMENTAL notes.
+	Update links.
 
 	smartctl.8.in: Fix documentation of the '-g all' option.
 
