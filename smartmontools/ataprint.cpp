@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4402 2017-03-09 20:20:48Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4405 2017-03-11 11:55:23Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2797,8 +2797,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print DSN status
   unsigned short word120 = drive.words088_255[120-88];
+  unsigned short word119 = drive.words088_255[119-88];
   if (options.get_dsn) {
     if (!(drive.word086 & 0x8000) // word086
+       || ((word119 & 0xc200) != 0x4200) // word119
        || ((word120 & 0xc000) != 0x4000)) // word120
       pout("DSN feature is:   Unavailable\n");
     else if (word120 & 0x200) // word120
