@@ -4,7 +4,7 @@ $Id$
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in,
 	update-smart-drivedb.8.in: Update EXPERIMENTAL notes.
-	Update links.
+	Update links.  Update or remove various outdated info.
 
 	smartctl.8.in: Fix documentation of the '-g all' option.
 

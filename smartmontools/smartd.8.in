@@ -461,7 +461,6 @@ See NOTES below for details.
 .B \-V, \-\-version, \-\-license, \-\-copyright
 Prints version, copyright, license, home page and SVN revision
 information for your copy of \fBsmartd\fP to STDOUT and then exits.
-Please include this information if you are reporting bugs or problems.
 
 .SH EXAMPLES
 .B smartd
@@ -718,8 +717,8 @@ full path of this executable.
 configuration file (see \fBsmartd.conf\fP(5) man page).
 .TP
 .B /usr/local/etc/smartd_warning.sh
-script run on warnings (see \'\-M exec\' directive on
-\fBsmartd.conf\fP(5) man page).
+script run on warnings (see \'\-w\' option above and \'\-M exec\' directive
+on \fBsmartd.conf\fP(5) man page).
 .\" %IF ENABLE_SMARTDPLUGINDIR
 .TP
 .B /usr/local/etc/smartd_warning.d/

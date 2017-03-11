@@ -158,9 +158,8 @@ if \'\-\' is specified as the device path, \fBsmartctl\fP reads and
 interprets it's own debug output from standard input.
 See \'\-r ataioctl\' below for details.
 .PP
-Based on the device path, \fBsmartctl\fP will guess the device type
-(ATA or SCSI).  If necessary, the \'\-d\' option can be used to override
-this guess
+\fBsmartctl\fP guesses the device type if possible.
+If necessary, the \'\-d\' option can be used to override this guess.
 
 Note that the printed output of \fBsmartctl\fP displays most numerical
 values in base 10 (decimal), but some values are displayed in base 16
@@ -182,7 +181,6 @@ Prints a usage message to STDOUT and exits.
 .B \-V, \-\-version, \-\-copyright, \-\-license
 Prints version, copyright, license, home page and SVN revision
 information for your copy of \fBsmartctl\fP to STDOUT and then exits.
-Please include this information if you are reporting bugs or problems.
 .TP
 .B \-i, \-\-info
 Prints the device model number, serial number, firmware version, and
@@ -314,7 +312,7 @@ a matching USB ID entry in the drive database.
 This is the default.
 
 .I test
-\- prints the guessed type, then opens the device and prints the
+\- prints the guessed TYPE, then opens the device and prints the
 (possibly changed) TYPE name and then exists without performing
 any further commands.
 
@@ -344,8 +342,8 @@ The default for NSID is the namespace id addressed by the device name.
 .\" %IF NOT OS Darwin
 .I sat[,auto][,N]
 \- the device type is SCSI to ATA Translation (SAT).
-This is for ATA disks that have a SCSI to ATA Translation (SAT) Layer
-(SATL) between the disk and the operating system.
+This is for ATA disks that have a SCSI to ATA Translation Layer (SATL)
+between the disk and the operating system.
 SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
 the other 16 bytes long.  The default is the 16 byte variant which can be
 overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
@@ -1200,9 +1198,7 @@ This is the default if the '\-x\' option is specified.
 \- Same as \'\-f hex,id \-f hex,val\'.
 .TP
 .B \-l TYPE, \-\-log=TYPE
-Prints either the SMART Error Log, the SMART Self-Test Log, the SMART
-Selective Self-Test Log [ATA only], the Log Directory [ATA only], or
-the Background Scan Results Log [SCSI only].
+Prints various device logs.
 The valid arguments to this option are:
 
 .I error
@@ -1324,9 +1320,7 @@ test remaining is shown.  The time at which the test took place,
 measured in hours of disk lifetime, is also printed. [Note: this time
 stamp wraps after 2^16 hours, or 2730 days and 16 hours, or about 7.5
 years.] If any errors were detected, the Logical Block Address (LBA)
-of the first error is printed in decimal notation.  On Linux systems the
-smartmontools web page has instructions about how to convert this LBA
-address to the name of the disk file containing the erroneous block.
+of the first error is printed in decimal notation.
 
 .I selftest
 \- [SCSI] the self-test log for a SCSI device has a slightly different
@@ -1342,11 +1336,9 @@ of either the number of the segment that failed during the test, or
 the number of the test that failed and the number of the segment in
 which the test was run, using a vendor-specific method of putting both
 numbers into a single byte.  The Logical Block Address (LBA) of the
-first error is printed in hexadecimal notation.  On Linux systems the
-smartmontools web page has instructions about how to convert this LBA
-address to the name of the disk file containing the erroneous block.
+first error is printed in hexadecimal notation.
 If provided, the SCSI Sense Key (SK), Additional Sense Code (ASC) and
-Additional Sense Code Qualifier (ASQ) are also printed. The self tests
+Additional Sense Code Qualifier (ASCQ) are also printed. The self tests
 can be run using the \'\-t\' option described below (using the ATA
 test terminology).
 
@@ -1806,7 +1798,7 @@ Optional entries are read from the file
 \fB/usr/local/etc/smart_drivedb.h\fP
 .\" %ENDIF NOT OS Windows
 .\" %IF OS ALL
- (Windows: \fBEXEDIR/drivedb-add.h\fP)
+(Windows: \fBEXEDIR/drivedb-add.h\fP)
 .\" %ENDIF OS ALL
 .\" %IF OS Windows
 .\"! \fBEXEDIR/drivedb-add.h\fP.
@@ -1934,8 +1926,8 @@ use the \'\-c\' option to monitor progress.
 \- [SCSI] runs the "Background short" self-test.
 
 .I long
-\- [ATA] runs SMART Extended Self Test (tens of minutes). This is a
-longer and more thorough version of the Short Self Test described
+\- [ATA] runs SMART Extended Self Test (tens of minutes to several hours).
+This is a longer and more thorough version of the Short Self Test described
 above.  Note that this command can be given during normal
 system operation (unless run in captive mode \- see the \'\-C\' option below).
 
