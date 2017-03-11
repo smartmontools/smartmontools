@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-16 Christian Franke
+Copyright (C) 2004-17 Christian Franke
 
 $Id$
 
@@ -393,9 +393,8 @@ Newer Prolific firmware requires a modified command which can be selected by
 Note that this does not yet support the SMART status command.
 
 .I usbprolific
-\- [NEW EXPERIMENTAL SMARTD FEATURE]
-this device type is for SATA disks that are behind a Prolific PL2571/2771/2773/2775
-USB to SATA bridge.
+\- this device type is for SATA disks that are behind a Prolific
+PL2571/2771/2773/2775 USB to SATA bridge.
 
 .I usbsunplus
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
@@ -421,8 +420,8 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 .\" %ENDIF OS Linux
 .\" %IF OS Linux Windows Cygwin
 .I aacraid,H,L,ID
-\- [Linux, Windows and Cygwin only] [NEW EXPERIMENTAL SMARTD FEATURE]
-the device consists of one or more SCSI/SAS disks connected to an AacRaid controller.
+\- [Linux, Windows and Cygwin only] the device consists of one or more
+SCSI/SAS disks connected to an AacRaid controller.
 The non-negative integers H,L,ID (Host number, Lun, ID) denote which disk
 on the controller is monitored.
 In log files and email messages this disk will be identified as aacraid_disk_HH_LL_ID.
@@ -744,7 +743,9 @@ IDLE mode.
 \- [ATA only] Sets the volatile write cache feature.
 
 .I dsn,[on|off]
-\- [ATA only] Sets the DSN feature.
+\- [ATA only]
+[NEW EXPERIMENTAL SMARTD FEATURE]
+Sets the DSN feature.
 .TP
 .B \-s REGEXP
 Run Self-Tests or Offline Immediate Tests, at scheduled times.  A

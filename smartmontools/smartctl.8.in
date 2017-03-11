@@ -383,9 +383,8 @@ Newer Prolific firmware requires a modified command which can be selected by
 Note that this does not yet support the SMART status command.
 
 .I usbprolific
-\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
-this device type is for SATA disks that are behind a Prolific PL2571/2771/2773/2775
-USB to SATA bridge.
+\- this device type is for SATA disks that are behind a Prolific
+PL2571/2771/2773/2775 USB to SATA bridge.
 
 .I usbsunplus
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
@@ -424,8 +423,8 @@ For PERC5/6 controllers: \fBmegaraid_sas_ioctlN\fP
 .\" %ENDIF OS Linux
 .\" %IF OS Linux Windows Cygwin
 .I aacraid,H,L,ID
-\- [Linux, Windows and Cygwin only] [NEW EXPERIMENTAL SMARTCTL FEATURE]
-the device consists of one or more SCSI/SAS disks connected to an AacRaid controller.
+\- [Linux, Windows and Cygwin only] the device consists of one or more
+SCSI/SAS disks connected to an AacRaid controller.
 The non-negative integers H,L,ID (Host number, Lun, ID) denote which disk
 on the controller is monitored.
 Use syntax such as:
@@ -981,7 +980,9 @@ The write cache is usually enabled by default.
 The write cache is usually enabled by default.
 
 .I wcache-sct[,ata|on|off[,p]]
-\- [ATA only] Gets/sets the write cache feature through SCT Feature Control
+\- [ATA only]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Gets/sets the write cache feature through SCT Feature Control
 (if supported). The state of write cache in SCT Feature Control could be
 "Controlled by ATA", "Force Enabled", or "Force Disabled". SCT Feature control
 overwrites the setting by ATA Set Features command (wcache[,on|off] option).
@@ -998,7 +999,9 @@ then disk write scheduling may be reordered by the drive. If write cache is
 disabled, the current Write Cache Reordering state is remembered but has
 no effect on non-cached writes, which are always written in the order received.
 The state of Write Cache Reordering has no effect on either NCQ or LCQ queued
-commands. If ´,p´ is specified, the setting is preserved across power cycles.
+commands.
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+If ´,p´ is specified, the setting is preserved across power cycles.
 
 .I rcache[,on|off]
 \- [SCSI only] Gets/sets the \'Read Cache Disable\' (RCE) bit.
@@ -1006,7 +1009,9 @@ commands. If ´,p´ is specified, the setting is preserved across power cycles.
 The read cache is usually enabled by default.
 
 .I dsn[,on|off]
-\- [ATA only] Gets/sets the DSN feature (if supported).
+\- [ATA only]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Gets/sets the DSN feature (if supported).
 The dsn is usually disabled by default.
 
 .TP
