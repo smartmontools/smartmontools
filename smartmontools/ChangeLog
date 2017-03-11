@@ -1,6 +1,9 @@
-$Id: ChangeLog 4407 2017-03-11 15:22:32Z chrfranke $
+$Id: ChangeLog 4408 2017-03-11 16:20:42Z chrfranke $
 
 2017-03-11  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
+	Update EXPERIMENTAL notes.
 
 	smartctl.8.in: Fix documentation of the '-g all' option.
 

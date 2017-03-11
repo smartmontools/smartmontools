@@ -1,8 +1,8 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-16 Christian Franke
+Copyright (C) 2014-17 Christian Franke
 
-$Id: update-smart-drivedb.8.in 4360 2016-11-04 21:24:28Z chrfranke $
+$Id: update-smart-drivedb.8.in 4408 2017-03-11 16:20:42Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@ The tools used for downloading are either
 or
 .BR svn (1).
 
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
 The downloaded file is verified with OpenPGP/GPG key ID DFD22559.
 The public key block is included in the script.
 
@@ -182,4 +183,4 @@ Alternatively send the info to the smartmontools support mailing list:
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: update-smart-drivedb.8.in 4360 2016-11-04 21:24:28Z chrfranke $
+$Id: update-smart-drivedb.8.in 4408 2017-03-11 16:20:42Z chrfranke $
