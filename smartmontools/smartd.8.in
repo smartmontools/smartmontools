@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-17 Christian Franke
 
-$Id: smartd.8.in 4409 2017-03-11 18:00:26Z chrfranke $
+$Id: smartd.8.in 4410 2017-03-11 20:05:07Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -461,7 +461,6 @@ See NOTES below for details.
 .B \-V, \-\-version, \-\-license, \-\-copyright
 Prints version, copyright, license, home page and SVN revision
 information for your copy of \fBsmartd\fP to STDOUT and then exits.
-Please include this information if you are reporting bugs or problems.
 
 .SH EXAMPLES
 .B smartd
@@ -718,8 +717,8 @@ full path of this executable.
 configuration file (see \fBsmartd.conf\fP(5) man page).
 .TP
 .B /usr/local/etc/smartd_warning.sh
-script run on warnings (see \'\-M exec\' directive on
-\fBsmartd.conf\fP(5) man page).
+script run on warnings (see \'\-w\' option above and \'\-M exec\' directive
+on \fBsmartd.conf\fP(5) man page).
 .\" %IF ENABLE_SMARTDPLUGINDIR
 .TP
 .B /usr/local/etc/smartd_warning.d/
@@ -796,4 +795,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 4409 2017-03-11 18:00:26Z chrfranke $
+$Id: smartd.8.in 4410 2017-03-11 20:05:07Z chrfranke $
