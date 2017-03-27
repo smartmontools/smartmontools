@@ -100,7 +100,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4411 2017-03-27 20:24:03Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4412 2017-03-27 20:37:59Z chrfranke $"
   CONFIG_H_CVSID;
 
 using namespace smartmontools;
@@ -2358,11 +2358,12 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
                     &asc, &ascq, &currenttemp, &triptemp)) {
       PrintOut(LOG_INFO, "Device: %s, unexpectedly failed to read SMART values\n", device);
       state.SuppressReport = 1;
-      if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
-        PrintOut(LOG_INFO, "Device: %s, can't monitor Temperature, ignoring -W %d,%d,%d\n",
-                 device, cfg.tempdiff, cfg.tempinfo, cfg.tempcrit);
-        cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
-      }
+    }
+    if (   (state.SuppressReport || !currenttemp)
+        && (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)) {
+      PrintOut(LOG_INFO, "Device: %s, can't monitor Temperature, ignoring -W %d,%d,%d\n",
+               device, cfg.tempdiff, cfg.tempinfo, cfg.tempcrit);
+      cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
     }
   }
   
