@@ -4,6 +4,7 @@ $Id$
 
 	smartd.cpp: Always suppress "failed to read Temperature" message
 	if SCSI device does not support temperature (ticket #817).
+	Fix initial check for SCSI temperature support.
 
 2017-03-11  Christian Franke  <franke@computer.org>
 
