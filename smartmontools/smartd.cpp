@@ -100,7 +100,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4412 2017-03-27 20:37:59Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4413 2017-03-27 20:47:24Z chrfranke $"
   CONFIG_H_CVSID;
 
 using namespace smartmontools;
@@ -802,8 +802,8 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
     fprintf(f, "\tnon-medium-errors;%" PRIu64 ";", state.scsi_nonmedium_error.nme.counterPC0);
   }
   // write SCSI current temperature if it is monitored
-  if(state.TempPageSupported && state.temperature)
-     fprintf(f, "\ttemperature;%d;", state.temperature);
+  if (state.temperature)
+    fprintf(f, "\ttemperature;%d;", state.temperature);
   // end of line
   fprintf(f, "\n");
   return true;
