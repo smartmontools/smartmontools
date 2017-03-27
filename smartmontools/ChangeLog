@@ -1,4 +1,9 @@
-$Id: ChangeLog 4410 2017-03-11 20:05:07Z chrfranke $
+$Id: ChangeLog 4411 2017-03-27 20:24:03Z chrfranke $
+
+2017-03-27  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Always suppress "failed to read Temperature" message
+	if SCSI device does not support temperature (ticket #817).
 
 2017-03-11  Christian Franke  <franke@computer.org>
 
