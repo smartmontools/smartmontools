@@ -47,7 +47,7 @@
 #include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4386 2017-01-28 16:35:06Z chrfranke $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4414 2017-03-27 21:00:46Z chrfranke $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?
@@ -1493,7 +1493,6 @@ scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
     UINT8 tBuf[252];
     struct scsi_sense_disect sense_info;
     int err;
-    int temperatureSet = 0;
     UINT8 currTemp, trTemp;
 
     *asc = 0;
@@ -1534,7 +1533,7 @@ scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
     }
     *asc = sense_info.asc;
     *ascq = sense_info.ascq;
-    if ((! temperatureSet) && hasTempLogPage) {
+    if (hasTempLogPage) {
         if (0 == scsiGetTemp(device, &currTemp, &trTemp)) {
             *currenttemp = currTemp;
             *triptemp = trTemp;
