@@ -2,6 +2,9 @@ $Id$
 
 2017-03-27  Christian Franke  <franke@computer.org>
 
+	scsicmds.cpp: Remove useless variable
+	(cppcheck 1.77: knownConditionTrueFalse).
+
 	smartd.cpp: Always suppress "failed to read Temperature" message
 	if SCSI device does not support temperature (ticket #817).
 	Fix initial check for SCSI temperature support.
