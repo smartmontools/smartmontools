@@ -2,6 +2,9 @@ $Id$
 
 2017-03-27  Christian Franke  <franke@computer.org>
 
+	scsiprint.cpp: Suppress "SAS address" if '-q noserial' is
+	specified (ticket #822).
+
 	scsicmds.cpp: Remove useless variable
 	(cppcheck 1.77: knownConditionTrueFalse).
 

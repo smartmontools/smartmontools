@@ -1205,7 +1205,6 @@ show_sas_port_param(unsigned char * ucp, int param_len)
 {
     int j, m, n, nphys, t, sz, spld_len;
     unsigned char * vcp;
-    uint64_t ull;
     char s[64];
 
     sz = sizeof(s);
@@ -1293,14 +1292,17 @@ show_sas_port_param(unsigned char * ucp, int param_len)
                !! (vcp[6] & 8), !! (vcp[6] & 4), !! (vcp[6] & 2));
         pout("    attached target port: ssp=%d stp=%d smp=%d\n",
                !! (vcp[7] & 8), !! (vcp[7] & 4), !! (vcp[7] & 2));
-        for (n = 0, ull = vcp[8]; n < 8; ++n) {
-            ull <<= 8; ull |= vcp[8 + n];
+        if (!dont_print_serial_number) {
+            uint64_t ull;
+            for (n = 0, ull = vcp[8]; n < 8; ++n) {
+                ull <<= 8; ull |= vcp[8 + n];
+            }
+            pout("    SAS address = 0x%" PRIx64 "\n", ull);
+            for (n = 0, ull = vcp[16]; n < 8; ++n) {
+                ull <<= 8; ull |= vcp[16 + n];
+            }
+            pout("    attached SAS address = 0x%" PRIx64 "\n", ull);
         }
-        pout("    SAS address = 0x%" PRIx64 "\n", ull);
-        for (n = 0, ull = vcp[16]; n < 8; ++n) {
-            ull <<= 8; ull |= vcp[16 + n];
-        }
-        pout("    attached SAS address = 0x%" PRIx64 "\n", ull);
         pout("    attached phy identifier = %d\n", vcp[24]);
         unsigned int ui;
         ui = (vcp[32] << 24) | (vcp[33] << 16) | (vcp[34] << 8) | vcp[35];
