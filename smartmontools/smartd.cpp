@@ -802,8 +802,8 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
     fprintf(f, "\tnon-medium-errors;%" PRIu64 ";", state.scsi_nonmedium_error.nme.counterPC0);
   }
   // write SCSI current temperature if it is monitored
-  if(state.TempPageSupported && state.temperature)
-     fprintf(f, "\ttemperature;%d;", state.temperature);
+  if (state.temperature)
+    fprintf(f, "\ttemperature;%d;", state.temperature);
   // end of line
   fprintf(f, "\n");
   return true;
