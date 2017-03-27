@@ -3476,7 +3476,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     PrintOut(LOG_INFO,"Device: %s, SMART health: passed\n", name);
 
   // check temperature limits
-  if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit || !cfg.attrlog_file.empty())
+  if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
     CheckTemperature(cfg, state, currenttemp, triptemp);
 
   // check if number of selftest errors has increased (note: may also DECREASE)
@@ -3511,6 +3511,9 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
       scsiDecodeNonMediumErrPage(tBuf, &state.scsi_nonmedium_error.nme);
       state.scsi_nonmedium_error.found=1;
     }
+    // store temperature if not done by CheckTemperature() above
+    if (!(cfg.tempdiff || cfg.tempinfo || cfg.tempcrit))
+      state.temperature = currenttemp;
   }
   CloseDevice(scsidev, name);
   return 0;
