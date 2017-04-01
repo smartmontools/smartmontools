@@ -91,6 +91,14 @@ ps, txt, etc.
 <toc></toc>
 -->
 
+  <sect1 id="eol">
+      <title>ATTENTION: This document is outdated!</title>
+<para>
+The content was moved to smartmontools Trac wiki:
+<ulink url="https://www.smartmontools.org/wiki/BadBlockHowto"></ulink>
+</para>
+</sect1>
+
   <sect1 id="intro">
       <title>Introduction</title>
 <para>

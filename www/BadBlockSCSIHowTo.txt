@@ -1,3 +1,9 @@
+ATTENTION: This document is outdated! 
+
+The content was moved to smartmontools Trac wiki:
+https://www.smartmontools.org/wiki/BadBlockHowto
+
+
 Introduction
 ============
 This document supplies some extra information, mainly associated with
