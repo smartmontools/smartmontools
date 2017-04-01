@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-15 Christian Franke
+ * Copyright (C) 2008-17 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -550,7 +550,8 @@ struct ata_sct_status_response
   unsigned int over_limit_count;    // 206-209: # intervals since last reset with temperature > Max Op Limit
   unsigned int under_limit_count;   // 210-213: # intervals since last reset with temperature < Min Op Limit
   unsigned short smart_status;      // 214-215: LBA(32:8) of SMART RETURN STATUS (0, 0x2cf4, 0xc24f) (ACS-4)
-  unsigned char bytes216_479[479-216+1]; // 216-479: reserved
+  unsigned short min_erc_time;      // 216-217: Minimum supported value for ERC (ACS-4)
+  unsigned char bytes216_479[479-218+1]; // 218-479: reserved
   unsigned char vendor_specific[32];// 480-511: vendor specific
 } ATTR_PACKED;
 #pragma pack()

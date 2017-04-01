@@ -2325,7 +2325,8 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
     // T13/e06152r0-3 (Additional SCT Temperature Statistics), August - October 2006
     // Table 60 of T13/1699-D (ATA8-ACS) Revision 3f, December 2006  (format version 2)
     // Table 80 of T13/1699-D (ATA8-ACS) Revision 6a, September 2008 (format version 3)
-    // Table 182 of T13/BSR INCITS 529 (ACS-4) Revision 02a, May 22, 2014 (smart_status field)
+    // Table 185 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
+    // (smart_status, min_erc_time)
     pout("Current Temperature:                    %s Celsius\n",
       sct_ptemp(sts->hda_temp, buf1));
     pout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
@@ -2342,6 +2343,10 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
       pout("SMART Status:                        0x%04x (%s)\n", sts->smart_status,
            (sts->smart_status == 0x2cf4 ? "FAILED" :
             sts->smart_status == 0xc24f ? "PASSED" : "Reserved"));
+
+    if (sts->min_erc_time) // ACS-4
+      pout("Minimum supported ERC Time Limit:    %d (%0.1f seconds)\n",
+           sts->min_erc_time, sts->min_erc_time/10.0);
 
     if (nonempty(sts->vendor_specific, sizeof(sts->vendor_specific))) {
       pout("Vendor specific:\n");

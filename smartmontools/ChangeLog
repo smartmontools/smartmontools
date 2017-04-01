@@ -2,6 +2,9 @@ $Id$
 
 2017-04-01  Christian Franke  <franke@computer.org>
 
+	atacmds.cpp, atacmds.h, ataprint.cpp: Print minimum supported ERC
+	Time Limit from SCT Status.
+
 	ataidentify.cpp, ataprint.cpp: Add ACS-4 and SATA 3.3 major
 	versions, log pages, device statistic values and feature bits.
 
