@@ -440,7 +440,13 @@ static int find_msb(unsigned short word)
 
 static const char * get_ata_major_version(const ata_identify_device * drive)
 {
+  // Table 13 of T13/1153D (ATA/ATAPI-4) revision 18, August 19, 1998
+  // Table 48 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
   switch (find_msb(drive->major_rev_num)) {
+    case 14: return "ACS >4 (14)";
+    case 13: return "ACS >4 (13)";
+    case 12: return "ACS >4 (12)";
+    case 11: return "ACS-4";
     case 10: return "ACS-3";
     case  9: return "ACS-2";
     case  8: return "ATA8-ACS";
@@ -540,20 +546,22 @@ static const char * get_pata_version(unsigned short word222, char (& buf)[32])
   }
 }
 
-static const char * get_sata_version(unsigned short word222, char (& buf)[32])
+static const char * get_sata_version(unsigned short word222)
 {
   switch (find_msb(word222 & 0x0fff)) {
-    default: snprintf(buf, sizeof(buf),
-                    "SATA >3.2 (0x%03x)", word222 & 0x0fff); return buf;
-    case 7:  return "SATA 3.2";
-    case 6:  return "SATA 3.1";
-    case 5:  return "SATA 3.0";
-    case 4:  return "SATA 2.6";
-    case 3:  return "SATA 2.5";
-    case 2:  return "SATA II Ext";
-    case 1:  return "SATA 1.0a";
-    case 0:  return "ATA8-AST";
-    case -1: return "Unknown";
+    case 11: return "SATA >3.3 (11)";
+    case 10: return "SATA >3.3 (10)";
+    case  9: return "SATA >3.3 (9)";
+    case  8: return "SATA 3.3";
+    case  7: return "SATA 3.2";
+    case  6: return "SATA 3.1";
+    case  5: return "SATA 3.0";
+    case  4: return "SATA 2.6";
+    case  3: return "SATA 2.5";
+    case  2: return "SATA II Ext";
+    case  1: return "SATA 1.0a";
+    case  0: return "ATA8-AST";
+    default: return "Unknown";
   }
 }
 
@@ -697,16 +705,17 @@ static void print_drive_info(const ata_identify_device * drive,
   pout("ATA Version is:   %s\n", infofound(ataver.c_str()));
 
   // Print Transport specific version
-    // cppcheck-suppress variableScope
-  char buf[32] = "";
   unsigned short word222 = drive->words088_255[222-88];
   if (word222 != 0x0000 && word222 != 0xffff) switch (word222 >> 12) {
     case 0x0: // PATA
-      pout("Transport Type:   Parallel, %s\n", get_pata_version(word222, buf));
+      {
+        char buf[32] = "";
+        pout("Transport Type:   Parallel, %s\n", get_pata_version(word222, buf));
+      }
       break;
     case 0x1: // SATA
       {
-        const char * sataver = get_sata_version(word222, buf);
+        const char * sataver = get_sata_version(word222);
         const char * maxspeed = get_sata_maxspeed(drive);
         const char * curspeed = get_sata_curspeed(drive);
         pout("SATA Version is:  %s%s%s%s%s%s\n", sataver,
@@ -1183,8 +1192,10 @@ static unsigned GetNumLogSectors(const ata_smart_log_directory * logdir, unsigne
 // Get name of log.
 static const char * GetLogName(unsigned logaddr)
 {
-    // Table 205 of T13/BSR INCITS 529 (ACS-4) Revision 08, April 28, 2015
+    // Table A.2 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
     // Table 112 of Serial ATA Revision 3.2, August 7, 2013
+    // Table A.2 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
+    // Table 204 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
     switch (logaddr) {
       case 0x00: return "Log Directory";
       case 0x01: return "Summary SMART error log";
@@ -1200,15 +1211,15 @@ static const char * GetLogName(unsigned logaddr)
       case 0x0b: return "Reserved for CFA"; // ACS-3
       case 0x0c: return "Pending Defects log"; // ACS-4
       case 0x0d: return "LPS Mis-alignment log"; // ACS-2
-
+      case 0x0e: return "Reserved for ZAC-2"; // ACS-4
       case 0x0f: return "Sense Data for Successful NCQ Cmds log"; // ACS-4
-      case 0x10: return "SATA NCQ Queued Error log";
+      case 0x10: return "NCQ Command Error log";
       case 0x11: return "SATA Phy Event Counters log";
-    //case 0x12: return "SATA NCQ Queue Management log"; // SATA 3.0/3.1
-      case 0x12: return "SATA NCQ NON-DATA log"; // SATA 3.2
-      case 0x13: return "SATA NCQ Send and Receive log"; // SATA 3.1
-      case 0x14: return "SATA Hybrid Information log"; // SATA 3.2
-      case 0x15: return "SATA Rebuild Assist log"; // SATA 3.2
+    //case 0x12: return "SATA NCQ Queue Management log"; // SATA 3.0/3.1, ACS-3
+      case 0x12: return "SATA NCQ Non-Data log"; // SATA 3.2, ACS-4
+      case 0x13: return "SATA NCQ Send and Receive log"; // SATA 3.1, ACS-3
+      case 0x14: return "Hybrid Information log"; // SATA 3.2, ACS-4
+      case 0x15: return "Rebuild Assist log"; // SATA 3.2, ACS-4
       case 0x16:
       case 0x17: return "Reserved for Serial ATA";
 
@@ -1221,6 +1232,7 @@ static const char * GetLogName(unsigned logaddr)
       case 0x24: return "Current Device Internal Status Data log"; // ACS-3
       case 0x25: return "Saved Device Internal Status Data log"; // ACS-3
 
+      case 0x2f: return "Set Sector Configuration";; // ACS-4
       case 0x30: return "IDENTIFY DEVICE data log"; // ACS-3
 
       case 0xe0: return "SCT Command/Status";
@@ -1371,7 +1383,7 @@ static void PrintLogPages(const char * type, const unsigned char * data,
 // Device statistics (Log 0x04)
 
 // Section A.5 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
-// Section 9.5 of T13/BSR INCITS 529 (ACS-4) Revision 08, April 28, 2015
+// Section 9.5 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
 
 struct devstat_entry_info
 {
@@ -1396,6 +1408,8 @@ const devstat_entry_info devstat_info_0x01[] = {
   {  4, "Pending Error Count" }, // ACS-4
   {  2, "Workload Utilization" }, // ACS-4
   {  6, "Utilization Usage Rate" }, // ACS-4 (TODO: field provides 3 values)
+  {  2, "Resource Availability" }, // ACS-4
+  {  1, "Random Write Resources Used" }, // ACS-4
   {  0, 0 }
 };
 
@@ -1468,6 +1482,7 @@ const devstat_entry_info * devstat_infos[] = {
   devstat_info_0x05,
   devstat_info_0x06,
   devstat_info_0x07
+  // TODO: 0x08 Zoned Device Statistics (T13/f16136r0, June 2016)
 };
 
 const int num_devstat_infos = sizeof(devstat_infos)/sizeof(devstat_infos[0]);

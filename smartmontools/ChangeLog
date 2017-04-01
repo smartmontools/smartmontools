@@ -1,5 +1,10 @@
 $Id$
 
+2017-04-01  Christian Franke  <franke@computer.org>
+
+	ataidentify.cpp, ataprint.cpp: Add ACS-4 and SATA 3.3 major
+	versions, log pages, device statistic values and feature bits.
+
 2017-03-27  Christian Franke  <franke@computer.org>
 
 	scsiprint.cpp: Suppress "SAS address" if '-q noserial' is

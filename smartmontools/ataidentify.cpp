@@ -34,7 +34,7 @@ const char * ataidentify_cpp_cvsid = "$Id$"
 // Tables 29 and 39 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
 // Tables 50 and 61 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
 // Tables 45 and 50 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
-// Table 44 of T13/BSR INCITS 529 (ACS-4) Revision 08, April 28, 2015 (ATAPI removed)
+// Table 48 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017 (ATAPI removed)
 
 const char * const identify_descriptions[] = {
   "  0 General configuration",
@@ -121,8 +121,8 @@ const char * const identify_descriptions[] = {
     ". 11 Cmds during sanitize as specified by this standard", // ACS-3
     ". 10 SANITIZE ANTIFREEZE LOCK EXT supported", // ACS-3
     ". 9 Reserved",
-    ". 8 Bits 7:0 are valid",
-    ". 7:0 Current sectors per DRQ on READ/WRITE MULTIPLE",
+    ". 8 Bits 7:0 are valid [OBS-ACS-4]",
+    ". 7:0 Current number of sectors per DRQ [OBS-ACS-4]",
 
   " 60-61 User addressable sectors for 28-bit commands (DWord)",
   " 62 Single Word DMA modes [OBS-3]",
@@ -190,7 +190,9 @@ const char * const identify_descriptions[] = {
     ". 0 Must be set to 0",
 
   " 77 Serial ATA additional capabilities", // ACS-3
-    ". 15:7 Reserved for Serial ATA",
+    ". 15:9 Reserved for Serial ATA",
+    ". 8 Power Disable feature always enabled", // ACS-4
+    ". 7 DevSleep to ReducedPwrState supported", // ACS-4
     ". 6 RECEIVE/SEND FPDMA QUEUED supported",
     ". 5 NCQ Queue Management supported",
     ". 4 NCQ Streaming supported",
@@ -198,7 +200,12 @@ const char * const identify_descriptions[] = {
     ". 0 Must be set to 0",
 
   " 78 Serial ATA features supported",
-    ". 15:8 Reserved for Serial ATA",
+    ". 15:13 Reserved for Serial ATA",
+    ". 12 Power Disable feature supported", // ACS-4
+    ". 11 Rebuild Assist feature set supported", // ACS-4
+    ". 10 Reserved for Serial ATA",
+    ". 9 Hybrid Information supported", // ACS-4
+    ". 8 Device Sleep feature supported", // ACS-4
     ". 7 NCQ Autosense supported", // ACS-3
     ". 6 Software Settings Preservation supported",
     ". 5 Hardware Feature Control supported", // ACS-3
@@ -209,7 +216,11 @@ const char * const identify_descriptions[] = {
     ". 0 Must be set to 0",
 
   " 79 Serial ATA features enabled",
-    ". 15:8 Reserved for Serial ATA",
+    ". 15:12 Reserved for Serial ATA",
+    ". 11 Rebuild Assist feature set enabled", // ACS-4
+    ". 10 Power Disable feature enabled", // ACS-4
+    ". 9 Hybrid Information enabled", // ACS-4
+    ". 8 Device Sleep feature enabled", // ACS-4
     ". 7 Automatic Partial to Slumber transitions enabled", // ACS-3
     ". 6 Software Settings Preservation enabled",
     ". 5 Hardware Feature Control enabled", // ACS-3
@@ -278,7 +289,7 @@ const char * const identify_descriptions[] = {
     ". 10 URG bit for WRITE STREAM (DMA) EXT supported [OBS-8]",
     ". 9 URG bit for READ STREAM (DMA) EXT supported [OBS-8]",
     ". 8 64-bit World Wide Name supported",
-    ". 7 WRITE DMA QUEUED FUA EXT supported",
+    ". 7 WRITE DMA QUEUED FUA EXT supported [OBS-ACS-2]",
     ". 6 WRITE DMA/MULTIPLE FUA EXT supported",
     ". 5 GPL feature set supported",
     ". 4 Streaming feature set supported [OBS-ACS-3]",
@@ -527,10 +538,11 @@ const char * const identify_descriptions[] = {
 
   "222 Transport major version number",
     ". 15:12 Transport: 0x0 = Parallel, 0x1 = Serial, 0xe = PCIe", // PCIe: ACS-4
-    ". 11:8 Reserved    | Reserved",
-    ". 7 Reserved    | SATA 3.2",
-    ". 6 Reserved    | SATA 3.1",
-    ". 5 Reserved    | SATA 3.0",
+    ". 11:9 Reserved    | Reserved",
+    ". 8 Reserved    | SATA 3.3", // ACS-4
+    ". 7 Reserved    | SATA 3.2", // ACS-4
+    ". 6 Reserved    | SATA 3.1", // ACS-3
+    ". 5 Reserved    | SATA 3.0", // ACS-2
     ". 4 Reserved    | SATA 2.6",
     ". 3 Reserved    | SATA 2.5",
     ". 2 Reserved    | SATA II: Extensions",
