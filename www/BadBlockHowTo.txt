@@ -1,3 +1,10 @@
+ATTENTION: This document is outdated!
+
+The content was moved to smartmontools Trac wiki:
+https://www.smartmontools.org/wiki/BadBlockHowto
+
+--------------
+
 THIS DOCUMENT SHOWS HOW TO IDENTIFY THE FILE ASSOCIATED WITH AN
 UNREADABLE DISK SECTOR, AND HOW TO FORCE THAT SECTOR TO REALLOCATE.
 

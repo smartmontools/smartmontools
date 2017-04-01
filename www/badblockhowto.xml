@@ -91,6 +91,14 @@ ps, txt, etc.
 <toc></toc>
 -->
 
+  <sect1 id="eol">
+      <title>ATTENTION: This document is outdated!</title>
+<para>
+The content was moved to smartmontools Trac wiki:
+<ulink url="https://www.smartmontools.org/wiki/BadBlockHowto"></ulink>
+</para>
+</sect1>
+
   <sect1 id="intro">
       <title>Introduction</title>
 <para>
@@ -1264,7 +1272,7 @@ disk later (not unlike the way a replacement disk from a manufacturer
 might be used).
 </para>
 <para>
-$Id: badblockhowto.xml 2873 2009-08-11 21:46:20Z dipohl $
+$Id: badblockhowto.xml 4416 2017-04-01 10:47:44Z dipohl $
 </para>
 </sect3>
 </sect2>
@@ -1280,7 +1288,7 @@ dummy
 </para>
 
 <para>
-$Id: badblockhowto.xml 2873 2009-08-11 21:46:20Z dipohl $
+$Id: badblockhowto.xml 4416 2017-04-01 10:47:44Z dipohl $
 </para>
 </sect1>
 </appendix>
