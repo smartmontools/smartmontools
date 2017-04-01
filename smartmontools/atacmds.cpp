@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-15 Christian Franke
+ * Copyright (C) 2008-17 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4370 2017-01-11 20:35:38Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4418 2017-04-01 15:24:34Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -2266,6 +2266,7 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
     swapx(&sts->over_limit_count);
     swapx(&sts->under_limit_count);
     swapx(&sts->smart_status);
+    swapx(&sts->min_erc_time);
   }
 
   // Check format version
