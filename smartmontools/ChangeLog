@@ -1,4 +1,10 @@
-$Id: ChangeLog 4418 2017-04-01 15:24:34Z chrfranke $
+$Id: ChangeLog 4419 2017-04-17 13:20:31Z chrfranke $
+
+2017-04-17  Christian Franke  <franke@computer.org>
+
+	atacmds.h, ataprint.cpp: Use STANDBY instead of IDLE command if
+	'-s standby,[N|off]' and '-s standby,now' are both specified.
+	smartctl.8.in: Document new behaviour of '-s standby,*'.
 
 2017-04-01  Christian Franke  <franke@computer.org>
 
