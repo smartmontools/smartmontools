@@ -1,6 +1,8 @@
-$Id: ChangeLog 4419 2017-04-17 13:20:31Z chrfranke $
+$Id: ChangeLog 4420 2017-04-17 13:29:26Z chrfranke $
 
 2017-04-17  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 1703 build number.
 
 	atacmds.h, ataprint.cpp: Use STANDBY instead of IDLE command if
 	'-s standby,[N|off]' and '-s standby,now' are both specified.

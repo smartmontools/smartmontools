@@ -112,7 +112,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4391 2017-02-20 21:32:05Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4420 2017-04-17 13:29:26Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -4072,6 +4072,7 @@ std::string win_smart_interface::get_os_version_str()
           case 10240:   w = "w10-1507"; break;
           case 10586:   w = "w10-1511"; break;
           case 14393:   w = "w10-1607"; break;
+          case 15063:   w = "w10-1703"; break;
           default:      w = "w10";  build = vi.dwBuildNumber; break;
         } break;
       case 0xa0<<1 | 1:
