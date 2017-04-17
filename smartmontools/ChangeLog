@@ -2,6 +2,8 @@ $Id$
 
 2017-04-17  Christian Franke  <franke@computer.org>
 
+	os_win32.cpp: Decode Windows 10 1703 build number.
+
 	atacmds.h, ataprint.cpp: Use STANDBY instead of IDLE command if
 	'-s standby,[N|off]' and '-s standby,now' are both specified.
 	smartctl.8.in: Document new behaviour of '-s standby,*'.
