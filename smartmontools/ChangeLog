@@ -1,5 +1,11 @@
 $Id$
 
+2017-04-17  Christian Franke  <franke@computer.org>
+
+	atacmds.h, ataprint.cpp: Use STANDBY instead of IDLE command if
+	'-s standby,[N|off]' and '-s standby,now' are both specified.
+	smartctl.8.in: Document new behaviour of '-s standby,*'.
+
 2017-04-01  Christian Franke  <franke@computer.org>
 
 	atacmds.cpp, atacmds.h, ataprint.cpp: Print minimum supported ERC

@@ -964,10 +964,18 @@ Value 253 specifies a vendor specific time between 8 and 12 hours.  Value
 255 specifies 21 minutes and 15 seconds.  Some drives may use a vendor
 specific interpretation for the values.  Note that there is no get option
 because ATA standards do not specify a method to read the standby timer.
+.br
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+If \'\-s standby,now\' is also specified, the drive is immediately placed
+in the STANDBY mode without temporarily placing it in the IDLE mode.
+Note that ATA standards do not specify a command to set the standby timer
+without affecting the power mode.
 
 .I standby,now
-\- [ATA only] Places the drive in the STANDBY mode.  This usually spins down
-the drive.  The setting of the standby timer is not affected.
+\- [ATA only] Places the drive in the STANDBY mode.
+This usually spins down the drive.
+The setting of the standby timer is not affected unless
+\'\-s standby,[N|off]\' is also specified.
 
 .I wcache[,on|off]
 \- [ATA] Gets/sets the volatile write cache feature (if supported).

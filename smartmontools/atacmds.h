@@ -77,6 +77,7 @@ typedef enum {
 #ifndef ATA_SET_FEATURES
 #define ATA_SET_FEATURES                0xef
 #endif
+#define ATA_STANDBY                     0xe2
 #define ATA_STANDBY_IMMEDIATE           0xe0
 
 // SET_FEATURES subcommands

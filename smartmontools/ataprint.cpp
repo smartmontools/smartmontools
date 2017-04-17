@@ -3022,11 +3022,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("ATA Security set to frozen mode\n");
   }
 
-  // Set standby timer
-  if (options.set_standby) {
+  // Set standby timer unless immediate standby is also requested
+  if (options.set_standby && !options.set_standby_now) {
     if (!ata_nodata_command(device, ATA_IDLE, options.set_standby-1)) {
-        pout("ATA IDLE command failed: %s\n", device->get_errmsg());
-        returnval |= FAILSMART;
+      pout("ATA IDLE command failed: %s\n", device->get_errmsg());
+      returnval |= FAILSMART;
     }
     else
       print_standby_timer("Standby timer set to ", options.set_standby-1, drive);
@@ -3646,15 +3646,27 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
   }
 
-  // Set to standby (spindown) mode
+  // Set to standby (spindown) mode and set standby timer if not done above
   // (Above commands may spinup drive)
   if (options.set_standby_now) {
-    if (!ata_nodata_command(device, ATA_STANDBY_IMMEDIATE)) {
+    if (options.set_standby) {
+      if (!ata_nodata_command(device, ATA_STANDBY, options.set_standby-1)) {
+        pout("ATA STANDBY command failed: %s\n", device->get_errmsg());
+        returnval |= FAILSMART;
+      }
+      else {
+        print_standby_timer("Standby timer set to ", options.set_standby-1, drive);
+        pout("Device placed in STANDBY mode\n");
+      }
+    }
+    else {
+      if (!ata_nodata_command(device, ATA_STANDBY_IMMEDIATE)) {
         pout("ATA STANDBY IMMEDIATE command failed: %s\n", device->get_errmsg());
         returnval |= FAILSMART;
+      }
+      else
+        pout("Device placed in STANDBY mode\n");
     }
-    else
-      pout("Device placed in STANDBY mode\n");
   }
 
   // START OF THE TESTING SECTION OF THE CODE.  IF NO TESTING, RETURN
