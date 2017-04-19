@@ -28,7 +28,6 @@
 #define INCL_DOS
 #include <os2.h>
 
-#include "os_os2\hdreg.h"
 #include "os_linux.h"
 
 #pragma pack(1)
@@ -40,10 +39,10 @@
 #define DSKSP_SMART_GETSTATUS       0x23  /* get SMART status (pass/fail) */
 #define DSKSP_SMART_GET_ATTRIBUTES  0x24  /* get SMART attributes table */
 #define DSKSP_SMART_GET_THRESHOLDS  0x25  /* get SMART thresholds table */
-#define DSKSP_SMART_READ_LOG        0x26  
-#define DSKSP_SMART_WRITE_LOG       0x27  
-#define DSKSP_SMART_READ_LOG_EXT    0x28  
-#define DSKSP_SMART_WRITE_LOG_EXT   0x29  
+#define DSKSP_SMART_READ_LOG        0x26
+#define DSKSP_SMART_WRITE_LOG       0x27
+#define DSKSP_SMART_READ_LOG_EXT    0x28
+#define DSKSP_SMART_WRITE_LOG_EXT   0x29
 #define DSKSP_SMART_EOLI            0x30  /* EXECUTE OFF-LINE IMMEDIATE */
 
 #define SMART_CMD_ON      1   /* on  value for related SMART functions */

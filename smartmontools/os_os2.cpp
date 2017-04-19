@@ -22,6 +22,10 @@
  */
 
 // These are needed to define prototypes for the functions defined below
+#include "config.h"
+#include "int64.h"
+
+#include <ctype.h>
 #include <errno.h>
 #include "atacmds.h"
 #include "scsicmds.h"
@@ -44,19 +48,6 @@ static HFILE hDevice;
 // functions in this file that you can not (or choose not to)
 // implement.
 
-#include "config.h"
-
-typedef struct _IDEREGS {
-	UCHAR  bFeaturesReg;
-	UCHAR  bSectorCountReg;
-	UCHAR  bSectorNumberReg;
-	UCHAR  bCylLowReg;
-	UCHAR  bCylHighReg;
-	UCHAR  bDriveHeadReg;
-	UCHAR  bCommandReg;
-	UCHAR  bReserved;
-} IDEREGS, *PIDEREGS, *LPIDEREGS;
-
 static void unsupported(int which){
   static int warninggiven[4];
 
@@ -64,7 +55,7 @@ static void unsupported(int which){
     return;
 
   if (!warninggiven[which]) {
-    char msg;
+    char *msg = "?";
     warninggiven[which]=1;
 
     switch (which) {
@@ -81,8 +72,9 @@ static void unsupported(int which){
       msg="interface to SCSI devices";
       break;
     }
-    pout("Under OS/2, smartmontools can not %s\n");
+    pout("Under OS/2, smartmontools can not %s\n", msg);
   }
+
   return;
 }
 
@@ -129,8 +121,6 @@ int guess_device_type (const char* dev_name) {
    dev_name = skipdev(dev_name);
 	if (!strncmp(dev_name, "hd", 2))
 		return CONTROLLER_ATA;
-	if (!strncmp(dev_name, "scsi", 4))
-		return CONTROLLER_SCSI;
   return CONTROLLER_UNKNOWN;
 }
 
@@ -140,7 +130,7 @@ int guess_device_type (const char* dev_name) {
 // other N arrays each contain null-terminated character strings.  In
 // the case N==0, no arrays are allocated because the array of 0
 // pointers has zero length, equivalent to calling malloc(0).
-int make_device_names (char*** devlist, const char* name) {
+int make_device_names (char*** /* devlist */, const char* /* name */) {
   unsupported(0);
   return 0;
 }
@@ -151,33 +141,33 @@ int make_device_names (char*** devlist, const char* name) {
 // array within this file (see os_freebsd.cpp for an example).  If you
 // can not open the device (permission denied, does not exist, etc)
 // set errno as open() does and return <0.
-int deviceopen(const char *pathname, char *type){
+int deviceopen(const char *pathname, char * /* type */ ){
 
   int fd;
   APIRET rc;
   ULONG ActionTaken;
 
   //printf( "deviceopen pathname %s\n", pathname);
-  rc = DosOpen ("\\DEV\\IBMS506$", &hDevice, &ActionTaken, 0,  FILE_SYSTEM,
+  rc = DosOpen ((const unsigned char *)"\\DEV\\IBMS506$", &hDevice, &ActionTaken, 0,  FILE_SYSTEM,
 	       OPEN_ACTION_OPEN_IF_EXISTS, OPEN_SHARE_DENYNONE |
 	       OPEN_FLAGS_NOINHERIT | OPEN_ACCESS_READONLY, NULL);
   if (rc) {
     char errmsg[256];
-    snprintf(errmsg,256,"Smartctl open driver IBMS506$ failed (%d)", rc);
+    snprintf(errmsg,256,"Smartctl open driver IBMS506$ failed (%lu)", rc);
     errmsg[255]='\0';
     syserror(errmsg);
     return -1;
   }
 
   pathname = skipdev(pathname);
-  fd = tolower(pathname[2]) - 'a';
+  fd = pathname[2] - '0' + 0x80;
 
   return fd;
 }
 
 // Like close().  Acts only on integer handles returned by
 // deviceopen() above.
-int deviceclose(int fd){
+int deviceclose(int /* fd */){
 
   DosClose( hDevice);
   hDevice = NULL;
@@ -185,43 +175,34 @@ int deviceclose(int fd){
   return 0;
 }
 
-static void print_ide_regs(const IDEREGS * r, int out)
-{
-	pout("%s=0x%02x,%s=0x%02x, SC=0x%02x, NS=0x%02x, CL=0x%02x, CH=0x%02x, SEL=0x%02x\n",
-	(out?"STS":"CMD"), r->bCommandReg, (out?"ERR":" FR"), r->bFeaturesReg,
-	r->bSectorCountReg, r->bSectorNumberReg, r->bCylLowReg, r->bCylHighReg, r->bDriveHeadReg);
-}
-
 //
 // OS/2 direct ioctl interface to IBMS506$
 //
-int dani_ioctl( int device, int request, void* arg)
+static int dani_ioctl( int device, int request, void* arg)
 {
    unsigned char* buff = (unsigned char*) arg;
    APIRET rc;
    DSKSP_CommandParameters Parms;
    ULONG PLen = 1;
    ULONG DLen = 512; //sizeof (*buf);
-   UCHAR temp;
    ULONG value = 0;
-   IDEREGS  regs;
 
-   //printf( "device %d, request 0x%x, arg[0] 0x%x, arg[2] 0x%x\n", device, request, buff[0], buff[2]);
+   // printf( "device %d, request 0x%x, arg[0] 0x%x, arg[2] 0x%x\n", device, request, buff[0], buff[2]);
 
    Parms.byPhysicalUnit = device;
    switch( buff[0]) {
-   case WIN_IDENTIFY:
+   case ATA_IDENTIFY_DEVICE:
       rc = DosDevIOCtl (hDevice, DSKSP_CAT_GENERIC, DSKSP_GET_INQUIRY_DATA,
-   		     (PVOID)&Parms, PLen, &PLen, (PVOID)arg+4, DLen, &DLen);
+   		     (PVOID)&Parms, PLen, &PLen, (UCHAR *)arg+4, DLen, &DLen);
       if (rc != 0)
       {
-          printf ("DANIS506 ATA GET HD Failed (%d,0x%x)\n", rc, rc);
+          printf ("DANIS506 ATA GET HD Failed (%lu)\n", rc);
           return -1;
       }
       break;
-   case WIN_SMART:
+   case ATA_SMART_CMD:
       switch( buff[2]) {
-      case SMART_STATUS:
+      case ATA_SMART_STATUS:
          DLen = sizeof(value);
          // OS/2 already checks CL/CH in IBM1S506 code!! see s506rte.c (ddk)
          // value: -1=not supported, 0=ok, 1=failing
@@ -229,88 +210,88 @@ int dani_ioctl( int device, int request, void* arg)
       		     (PVOID)&Parms, PLen, &PLen, (PVOID)&value, DLen, &DLen);
          if (rc)
          {
-             printf ("DANIS506 ATA GET SMART_STATUS failed (%d,0x%x)\n", rc, rc);
+             printf ("DANIS506 ATA GET SMART_STATUS failed (%lu)\n", rc);
              return -1;
          }
          buff[4] = (unsigned char)value;
          break;
-      case SMART_READ_VALUES:
+      case ATA_SMART_READ_VALUES:
          rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_GET_ATTRIBUTES,
-      		     (PVOID)&Parms, PLen, &PLen, (PVOID)arg+4, DLen, &DLen);
+      		     (PVOID)&Parms, PLen, &PLen, (UCHAR *)arg+4, DLen, &DLen);
          if (rc)
          {
-             printf ("DANIS506 ATA GET DSKSP_SMART_GET_ATTRIBUTES failed (%d,0x%x)\n", rc, rc);
+             printf ("DANIS506 ATA GET DSKSP_SMART_GET_ATTRIBUTES failed (%lu)\n", rc);
              return -1;
          }
          break;
-      case SMART_READ_THRESHOLDS:
+      case ATA_SMART_READ_THRESHOLDS:
          rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_GET_THRESHOLDS,
-      		     (PVOID)&Parms, PLen, &PLen, (PVOID)arg+4, DLen, &DLen);
+      		     (PVOID)&Parms, PLen, &PLen, (UCHAR *)arg+4, DLen, &DLen);
          if (rc)
          {
-             printf ("DANIS506 ATA GET DSKSP_SMART_GET_THRESHOLDS failed (%d,0x%x)\n", rc, rc);
+             printf ("DANIS506 ATA GET DSKSP_SMART_GET_THRESHOLDS failed (%lu)\n", rc);
              return -1;
          }
          break;
-      case SMART_READ_LOG_SECTOR:
+      case ATA_SMART_READ_LOG_SECTOR:
          buff[4] = buff[1]; // copy select field
          rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_READ_LOG,
-      		     (PVOID)&Parms, PLen, &PLen, (PVOID)arg+4, DLen, &DLen);
+      		     (PVOID)&Parms, PLen, &PLen, (UCHAR *)arg+4, DLen, &DLen);
          if (rc)
          {
-             printf ("DANIS506 ATA GET DSKSP_SMART_READ_LOG failed (%d,0x%x)\n", rc, rc);
+             printf ("DANIS506 ATA GET DSKSP_SMART_READ_LOG failed (%lu)\n", rc);
              return -1;
          }
          break;
-      case SMART_ENABLE:
+      case ATA_SMART_ENABLE:
          buff[0] = 1; // enable
          DLen = 1;
          rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_ONOFF,
 		            (PVOID)&Parms, PLen, &PLen, (PVOID)buff, DLen, &DLen);
          if (rc) {
-             printf ("DANIS506 ATA GET DSKSP_SMART_ONOFF failed (%d,0x%x)\n", rc, rc);
+             printf ("DANIS506 ATA GET DSKSP_SMART_ONOFF failed (%lu)\n", rc);
              return -1;
          }
          break;
-      case SMART_DISABLE:
+      case ATA_SMART_DISABLE:
          buff[0] = 0; // disable
          DLen = 1;
          rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_ONOFF,
 		            (PVOID)&Parms, PLen, &PLen, (PVOID)buff, DLen, &DLen);
          if (rc) {
-             printf ("DANIS506 ATA GET DSKSP_SMART_ONOFF failed (%d,0x%x)\n", rc, rc);
+             printf ("DANIS506 ATA GET DSKSP_SMART_ONOFF failed (%lu)\n", rc);
              return -1;
          }
          break;
 #if 0
-      case SMART_AUTO_OFFLINE:
+      case ATA_SMART_AUTO_OFFLINE:
          buff[0] = buff[3];   // select field
          DLen = 1;
          rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_AUTO_OFFLINE,
 		            (PVOID)&Parms, PLen, &PLen, (PVOID)buff, DLen, &DLen);
          if (rc) {
-             printf ("DANIS506 ATA GET DSKSP_SMART_ONOFF failed (%d,0x%x)\n", rc, rc);
+             printf ("DANIS506 ATA GET DSKSP_SMART_ONOFF failed (%lu)\n", rc);
              return -1;
          }
          break;
 #endif
-      case SMART_AUTOSAVE:
+      case ATA_SMART_AUTOSAVE:
          buff[0] = buff[3];   // select field
          DLen = 1;
          rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_AUTOSAVE_ONOFF,
 		            (PVOID)&Parms, PLen, &PLen, (PVOID)buff, DLen, &DLen);
          if (rc) {
-             printf ("DANIS506 ATA DSKSP_SMART_AUTOSAVE_ONOFF failed (%d,0x%x)\n", rc, rc);
+             printf ("DANIS506 ATA DSKSP_SMART_AUTOSAVE_ONOFF failed (%lu)\n", rc);
              return -1;
          }
          break;
-      case SMART_IMMEDIATE_OFFLINE:
+      case ATA_SMART_IMMEDIATE_OFFLINE:
          buff[0] = buff[1];   // select field
          DLen = 1;
          rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_EOLI,
 		            (PVOID)&Parms, PLen, &PLen, (PVOID)buff, DLen, &DLen);
          if (rc) {
-             printf ("DANIS506 ATA GET DSKSP_SMART_EXEC_OFFLINE failed (%d,0x%x)\n", rc, rc);
+             printf ("DANIS506 ATA GET DSKSP_SMART_EXEC_OFFLINE failed (%lu)\n", rc);
              return -1;
          }
          break;
@@ -450,43 +431,6 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     return -1;
   }
 
-#if 0
-  // This command uses the HDIO_DRIVE_TASKFILE ioctl(). This is the
-  // only ioctl() that can be used to WRITE data to the disk.
-  if (command==WRITE_LOG) {
-    unsigned char task[sizeof(ide_task_request_t)+512];
-    ide_task_request_t *reqtask=(ide_task_request_t *) task;
-    task_struct_t      *taskfile=(task_struct_t *) reqtask->io_ports;
-    int retval;
-
-    memset(task,      0, sizeof(task));
-
-    taskfile->data           = 0;
-    taskfile->feature        = ATA_SMART_WRITE_LOG_SECTOR;
-    taskfile->sector_count   = 1;
-    taskfile->sector_number  = select;
-    taskfile->low_cylinder   = 0x4f;
-    taskfile->high_cylinder  = 0xc2;
-    taskfile->device_head    = 0;
-    taskfile->command        = ATA_SMART_CMD;
-
-    reqtask->data_phase      = TASKFILE_OUT;
-    reqtask->req_cmd         = IDE_DRIVE_TASK_OUT;
-    reqtask->out_size        = 512;
-    reqtask->in_size         = 0;
-
-    // copy user data into the task request structure
-    memcpy(task+sizeof(ide_task_request_t), data, 512);
-
-    if ((retval=dani_ioctl(device, HDIO_DRIVE_TASKFILE, task))) {
-      if (retval==-EINVAL)
-	pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASKFILE_IO set\n");
-      return -1;
-    }
-    return 0;
-  }
-#endif // 0
-
   // We are now doing the HDIO_DRIVE_CMD type ioctl.
   if ((dani_ioctl(device, HDIO_DRIVE_CMD, buff)))
     return -1;
@@ -494,8 +438,6 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
   // one is this:
   if (command==STATUS_CHECK){
-    int retval;
-
     // Cyl low and Cyl high unchanged means "Good SMART status"
     if (buff[4]==0)
       return 0;
@@ -523,7 +465,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 }
 
 // Interface to SCSI devices.  See os_linux.c
-int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report) {
+int do_scsi_cmnd_io(int /* fd */, struct scsi_cmnd_io * /* iop */, int /* report */) {
   unsupported(3);
   return -ENOSYS;
 }

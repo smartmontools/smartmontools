@@ -563,6 +563,9 @@ case "${host}" in
   *-*-nto-qnx*)
     os_deps='os_qnxnto.o'
     ;;
+  *-*-os2-*)
+    os_deps='os_os2.o'
+    ;;
   *)
     os_deps='os_generic.o'
     ;;

@@ -1,5 +1,13 @@
 $Id$
 
+2017-04-19  Alex Samorukov  <samm@os2.kiev.ua>
+
+	OS/2 - many fixes:
+	 - autodetect and build os_os2.o on OS/2
+	 - fix os_os2.cpp/os_os2.h compilation (thanks to franke@)
+	 - get rid from the os_os/hdreg.h - use constants from the atacmd.h
+	 - remove most of the dead code and unused functions
+
 2017-04-17  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 10 1703 build number.
