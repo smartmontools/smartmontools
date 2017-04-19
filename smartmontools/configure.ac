@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4392 2017-02-22 21:42:54Z chrfranke $
+# $Id: configure.ac 4421 2017-04-19 08:50:03Z samm2 $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@lists.sourceforge.net)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4392 2017-02-22 21:42:54Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4421 2017-04-19 08:50:03Z samm2 $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -562,6 +562,9 @@ case "${host}" in
     ;;
   *-*-nto-qnx*)
     os_deps='os_qnxnto.o'
+    ;;
+  *-*-os2-*)
+    os_deps='os_os2.o'
     ;;
   *)
     os_deps='os_generic.o'

@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4385 2017-01-28 15:31:50Z chrfranke $
+# $Id: Makefile.am 4421 2017-04-19 08:50:03Z samm2 $
 #
 
 @SET_MAKE@
@@ -98,6 +98,8 @@ EXTRA_smartctl_SOURCES = \
         os_netbsd.h \
         os_openbsd.cpp \
         os_openbsd.h \
+        os_os2.cpp \
+        os_os2.h \
         os_qnxnto.cpp \
         os_qnxnto.h \
         os_solaris.cpp \
@@ -162,6 +164,8 @@ EXTRA_smartd_SOURCES = \
         os_netbsd.h \
         os_openbsd.cpp \
         os_openbsd.h \
+        os_os2.cpp \
+        os_os2.h \
         os_qnxnto.cpp \
         os_qnxnto.h \
         os_solaris.cpp \
