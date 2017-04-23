@@ -65,4 +65,9 @@ struct SMART_ParamExt {
   ULONG      reserved;        // reserved. must be set to 0
 };
 
+const char * danisdev="\\DEV\\IBMS506$"; // DANIS506
+const char * danispref="hd";
+const char * ahcidev="\\DEV\\OS2AHCI$";  // OS2AHCI
+const char * ahcipref="ahci";
+
 #endif /* OS_GENERIC_H_ */

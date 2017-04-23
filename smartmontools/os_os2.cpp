@@ -91,9 +91,110 @@ int guess_device_type (const char* dev_name) {
 // the case N==0, no arrays are allocated because the array of 0
 // pointers has zero length, equivalent to calling malloc(0).
 
-int make_device_names (char*** /* devlist */, const char* /* name */) {
-  pout("device scan is not yet implemented\n");
-  return 0;
+int make_device_names (char*** devlist, const char* name) {
+
+  int result;
+  int index;
+  const int max_dev = 32; // scan only first 32 devices
+
+  // SCSI is not supported
+  if (strcmp (name, "ATA") != 0)
+    return 0;
+  
+  // try to open DANIS
+  APIRET rc;
+  ULONG ActionTaken;
+  HFILE danisDev, ahciDev;
+  bool is_danis = 0, is_ahci = 0;
+
+  rc = DosOpen ((const char unsigned *)danisdev, &danisDev, &ActionTaken, 0,  FILE_SYSTEM,
+	       OPEN_ACTION_OPEN_IF_EXISTS, OPEN_SHARE_DENYNONE |
+	       OPEN_FLAGS_NOINHERIT | OPEN_ACCESS_READONLY, NULL);
+  if (!rc)
+    is_danis = 1;
+
+  rc = DosOpen ((const char unsigned *)ahcidev, &ahciDev, &ActionTaken, 0,  FILE_SYSTEM,
+	       OPEN_ACTION_OPEN_IF_EXISTS, OPEN_SHARE_DENYNONE |
+	       OPEN_FLAGS_NOINHERIT | OPEN_ACCESS_READONLY, NULL);
+  if (!rc)
+    is_ahci = 1;
+ 
+  // Count the devices.
+  result = 0;
+  
+  DSKSP_CommandParameters Parms;
+  ULONG PLen = 1;
+  ULONG IDLen = 512;
+  struct ata_identify_device Id;
+
+  for(int i = 0; i < max_dev; i++) {
+    if (is_ahci) {
+      Parms.byPhysicalUnit = i;
+      rc = DosDevIOCtl (ahciDev, DSKSP_CAT_GENERIC, DSKSP_GET_INQUIRY_DATA,
+   		     (PVOID)&Parms, PLen, &PLen, (PVOID)&Id, IDLen, &IDLen);
+      if (!rc) result++;
+    }
+    if (is_danis) {
+      Parms.byPhysicalUnit = i + 0x80;
+      rc = DosDevIOCtl (danisDev, DSKSP_CAT_GENERIC, DSKSP_GET_INQUIRY_DATA,
+   		     (PVOID)&Parms, PLen, &PLen, (PVOID)&Id, IDLen, &IDLen);
+      if (!rc) result++;
+    }
+  }
+  *devlist = (char**)calloc (result, sizeof (char *));
+  if (! *devlist)
+    goto error;
+  index = 0;
+
+  // add devices
+  for(int i = 0; i < max_dev; i++) {
+    if (is_ahci) {
+      Parms.byPhysicalUnit = i;
+      rc = DosDevIOCtl (ahciDev, DSKSP_CAT_GENERIC, DSKSP_GET_INQUIRY_DATA,
+   		     (PVOID)&Parms, PLen, &PLen, (PVOID)&Id, IDLen, &IDLen);
+      if (!rc) {
+        asprintf(&(*devlist)[index], "ahci%d", i);
+        if (! (*devlist)[index])
+          goto error;
+        index++;
+      }
+    }
+    if (is_danis) {
+      Parms.byPhysicalUnit = i + 0x80;
+      rc = DosDevIOCtl (danisDev, DSKSP_CAT_GENERIC, DSKSP_GET_INQUIRY_DATA,
+   		     (PVOID)&Parms, PLen, &PLen, (PVOID)&Id, IDLen, &IDLen);
+      if (!rc) {
+        asprintf(&(*devlist)[index], "hd%d", i);
+        if (! (*devlist)[index])
+          goto error;
+        index++;
+      }
+    }
+  }
+
+  if (is_danis)
+      DosClose( danisDev);
+
+  if (is_ahci)
+      DosClose( ahciDev);
+
+  return result;
+
+ error:
+  if (*devlist)
+    {
+      for (index = 0; index < result; index++)
+        if ((*devlist)[index])
+          free ((*devlist)[index]);
+      free (*devlist);
+    }
+  if (is_danis)
+      DosClose( danisDev);
+
+  if (is_ahci)
+      DosClose( ahciDev);
+
+  return -1;
 }
 
 // Like open().  Return non-negative integer handle, only used by the
@@ -107,11 +208,7 @@ int deviceopen(const char *pathname, char * /* type */ ){
   int fd = 0;
   APIRET rc;
   ULONG ActionTaken;
-  const char * danisdev="\\DEV\\IBMS506$";
-  const char * danispref="hd";
-  const char * ahcidev="\\DEV\\OS2AHCI$";
-  const char * ahcipref="ahci";
-  
+ 
   char * activedev = NULL;
 
   pathname = skipdev(pathname);
@@ -129,7 +226,7 @@ int deviceopen(const char *pathname, char * /* type */ ){
   }
 
   if(!activedev) {
-     syserror("please specify hdX or ahciX device name");
+     pout("Error: please specify hdX or ahciX device name\n");
      return -1;
   }
   //printf( "deviceopen pathname %s\n", pathname);
@@ -178,7 +275,7 @@ static int dani_ioctl( int device, void* arg)
    		     (PVOID)&Parms, PLen, &PLen, (UCHAR *)arg+4, DLen, &DLen);
       if (rc != 0)
       {
-          printf ("DANIS506 ATA GET HD Failed (%lu)\n", rc);
+          printf ("DANIS506 ATA DSKSP_GET_INQUIRY_DATA failed (%lu)\n", rc);
           return -1;
       }
       break;

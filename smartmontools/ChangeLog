@@ -6,6 +6,7 @@ $Id$
          - code cleanup
          - add os2ahci driver initial support
          - fix selftest command
+         - add device scan support
 
 2017-04-19  Alex Samorukov  <samm@os2.kiev.ua>
 
