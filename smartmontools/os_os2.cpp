@@ -41,43 +41,6 @@ ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 // global handle to device driver
 static HFILE hDevice;
 
-// Please eliminate the following block: both the two #includes and
-// the 'unsupported()' function.  They are only here to warn
-// unsuspecting users that their Operating System is not supported! If
-// you wish, you can use a similar warning mechanism for any of the
-// functions in this file that you can not (or choose not to)
-// implement.
-
-static void unsupported(int which){
-  static int warninggiven[4];
-
-  if (which<0 || which>3)
-    return;
-
-  if (!warninggiven[which]) {
-    char *msg = "?";
-    warninggiven[which]=1;
-
-    switch (which) {
-    case 0:
-      msg="generate a list of devices";
-      break;
-    case 1:
-      msg="interface to Marvell-based SATA controllers";
-      break;
-    case 2:
-      msg="interface to 3ware-based RAID controllers";
-      break;
-    case 3:
-      msg="interface to SCSI devices";
-      break;
-    }
-    pout("Under OS/2, smartmontools can not %s\n", msg);
-  }
-
-  return;
-}
-
 // print examples for smartctl.  You should modify this function so
 // that the device paths are sensible for your OS, and to eliminate
 // unsupported commands (eg, 3ware controllers).
@@ -85,24 +48,21 @@ void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
 #ifdef HAVE_GETOPT_LONG
   printf(
-         "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
-         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
+         "  smartctl -a hd0                       (Prints all SMART information)\n\n"
+         "  smartctl --smart=on --offlineauto=on --saveauto=on hd0\n"
          "                                              (Enables SMART on first disk)\n\n"
-         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
-         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
+         "  smartctl -t long hd0              (Executes extended disk self-test)\n\n"
+         "  smartctl --attributes --log=selftest --quietmode=errorsonly hd0\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
-         "  smartctl -a --device=3ware,2 /dev/sda\n"
-         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
          );
 #else
   printf(
-         "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
-         "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
-         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
-         "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
+         "  smartctl -a hd0                       (Prints all SMART on first disk with DANIS506)\n"
+         "  smartctl -a ahci0                     (Prints all SMART on first disk with OS2AHCI)\n"
+         "  smartctl -s on -o on -S on hd0         (Enables SMART on first disk)\n"
+         "  smartctl -t long hd0              (Executes extended disk self-test)\n"
+         "  smartctl -A -l selftest -q errorsonly hd0\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
-         "  smartctl -a -d 3ware,2 /dev/sda\n"
-         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
          );
 #endif
   return;
@@ -119,7 +79,7 @@ int guess_device_type (const char* dev_name) {
 
    //printf( "dev_name %s\n", dev_name);
    dev_name = skipdev(dev_name);
-	if (!strncmp(dev_name, "hd", 2))
+	if (!strncmp(dev_name, "hd", 2) || !strncmp(dev_name, "ahci", 4))
 		return CONTROLLER_ATA;
   return CONTROLLER_UNKNOWN;
 }
@@ -130,8 +90,9 @@ int guess_device_type (const char* dev_name) {
 // other N arrays each contain null-terminated character strings.  In
 // the case N==0, no arrays are allocated because the array of 0
 // pointers has zero length, equivalent to calling malloc(0).
+
 int make_device_names (char*** /* devlist */, const char* /* name */) {
-  unsupported(0);
+  pout("device scan is not yet implemented\n");
   return 0;
 }
 
@@ -143,24 +104,45 @@ int make_device_names (char*** /* devlist */, const char* /* name */) {
 // set errno as open() does and return <0.
 int deviceopen(const char *pathname, char * /* type */ ){
 
-  int fd;
+  int fd = 0;
   APIRET rc;
   ULONG ActionTaken;
+  const char * danisdev="\\DEV\\IBMS506$";
+  const char * danispref="hd";
+  const char * ahcidev="\\DEV\\OS2AHCI$";
+  const char * ahcipref="ahci";
+  
+  char * activedev = NULL;
 
+  pathname = skipdev(pathname);
+  // DANIS506 driver
+  if(strlen(pathname) > strlen(danispref)
+    && strncmp(pathname, danispref, strlen(danispref)) == 0) {
+    fd = strtol(pathname + strlen(danispref), NULL, 10) + 0x80;
+    activedev = (char *)danisdev;
+  }
+  // OS2AHCI driver
+  if(strlen(pathname) > strlen(ahcipref)
+    && strncmp(pathname, ahcipref, strlen(ahcipref)) == 0) {
+    fd = strtol(pathname + strlen(ahcipref), NULL, 10);
+    activedev = (char *)ahcidev;
+  }
+
+  if(!activedev) {
+     syserror("please specify hdX or ahciX device name");
+     return -1;
+  }
   //printf( "deviceopen pathname %s\n", pathname);
-  rc = DosOpen ((const unsigned char *)"\\DEV\\IBMS506$", &hDevice, &ActionTaken, 0,  FILE_SYSTEM,
+  rc = DosOpen ((const char unsigned *)activedev, &hDevice, &ActionTaken, 0,  FILE_SYSTEM,
 	       OPEN_ACTION_OPEN_IF_EXISTS, OPEN_SHARE_DENYNONE |
 	       OPEN_FLAGS_NOINHERIT | OPEN_ACCESS_READONLY, NULL);
   if (rc) {
     char errmsg[256];
-    snprintf(errmsg,256,"Smartctl open driver IBMS506$ failed (%lu)", rc);
+    snprintf(errmsg,256,"Smartctl open driver %s failed (%lu)", activedev, rc);
     errmsg[255]='\0';
     syserror(errmsg);
     return -1;
   }
-
-  pathname = skipdev(pathname);
-  fd = pathname[2] - '0' + 0x80;
 
   return fd;
 }
@@ -176,9 +158,9 @@ int deviceclose(int /* fd */){
 }
 
 //
-// OS/2 direct ioctl interface to IBMS506$
+// OS/2 direct ioctl interface to IBMS506$/OS2AHCI$
 //
-static int dani_ioctl( int device, int request, void* arg)
+static int dani_ioctl( int device, void* arg)
 {
    unsigned char* buff = (unsigned char*) arg;
    APIRET rc;
@@ -235,11 +217,11 @@ static int dani_ioctl( int device, int request, void* arg)
          break;
       case ATA_SMART_READ_LOG_SECTOR:
          buff[4] = buff[1]; // copy select field
-         rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_READ_LOG,
+         rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_GET_LOG,
       		     (PVOID)&Parms, PLen, &PLen, (UCHAR *)arg+4, DLen, &DLen);
          if (rc)
          {
-             printf ("DANIS506 ATA GET DSKSP_SMART_READ_LOG failed (%lu)\n", rc);
+             printf ("DANIS506 ATA GET DSKSP_SMART_GET_LOG failed (%lu)\n", rc);
              return -1;
          }
          break;
@@ -288,7 +270,7 @@ static int dani_ioctl( int device, int request, void* arg)
       case ATA_SMART_IMMEDIATE_OFFLINE:
          buff[0] = buff[1];   // select field
          DLen = 1;
-         rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_EOLI,
+         rc = DosDevIOCtl (hDevice, DSKSP_CAT_SMART, DSKSP_SMART_EXEC_OFFLINE,
 		            (PVOID)&Parms, PLen, &PLen, (PVOID)buff, DLen, &DLen);
          if (rc) {
              printf ("DANIS506 ATA GET DSKSP_SMART_EXEC_OFFLINE failed (%lu)\n", rc);
@@ -297,7 +279,7 @@ static int dani_ioctl( int device, int request, void* arg)
          break;
 
       default:
-         fprintf( stderr, "device %d, request 0x%x, arg[0] 0x%x, arg[2] 0x%x\n", device, request, buff[0], buff[2]);
+         fprintf( stderr, "device %d, arg[0] 0x%x, arg[2] 0x%x\n", device, buff[0], buff[2]);
          fprintf( stderr, "unknown ioctl\n");
          return -1;
          break;
@@ -431,8 +413,9 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     return -1;
   }
 
-  // We are now doing the HDIO_DRIVE_CMD type ioctl.
-  if ((dani_ioctl(device, HDIO_DRIVE_CMD, buff)))
+  // We are now calling ioctl wrapper to the driver.
+  // TODO: use PASSTHRU in case of OS2AHCI driver
+  if ((dani_ioctl(device, buff)))
     return -1;
 
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
@@ -464,8 +447,8 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   return 0;
 }
 
-// Interface to SCSI devices.  See os_linux.c
+// Interface to SCSI devices. N/A under OS/2
 int do_scsi_cmnd_io(int /* fd */, struct scsi_cmnd_io * /* iop */, int /* report */) {
-  unsupported(3);
+  pout("SCSI interface is not implemented\n");
   return -ENOSYS;
 }

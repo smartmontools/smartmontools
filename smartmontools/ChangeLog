@@ -1,5 +1,12 @@
 $Id$
 
+2017-04-23  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_os2.cpp: 
+         - code cleanup
+         - add os2ahci driver initial support
+         - fix selftest command
+
 2017-04-19  Alex Samorukov  <samm@os2.kiev.ua>
 
 	OS/2 - many fixes:
