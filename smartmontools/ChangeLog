@@ -1,4 +1,4 @@
-$Id: ChangeLog 4422 2017-04-23 13:13:02Z samm2 $
+$Id: ChangeLog 4423 2017-04-23 19:14:02Z samm2 $
 
 2017-04-23  Alex Samorukov  <samm@os2.kiev.ua>
 
@@ -6,6 +6,7 @@ $Id: ChangeLog 4422 2017-04-23 13:13:02Z samm2 $
          - code cleanup
          - add os2ahci driver initial support
          - fix selftest command
+         - add device scan support
 
 2017-04-19  Alex Samorukov  <samm@os2.kiev.ua>
 

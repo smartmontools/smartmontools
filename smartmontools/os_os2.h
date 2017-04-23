@@ -18,7 +18,7 @@
 #ifndef OS_OS2_H_
 #define OS_OS2_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_os2.h 4422 2017-04-23 13:13:02Z samm2 $\n"
+#define OS_XXXX_H_CVSID "$Id: os_os2.h 4423 2017-04-23 19:14:02Z samm2 $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include
@@ -64,5 +64,10 @@ struct SMART_ParamExt {
                               // for details
   ULONG      reserved;        // reserved. must be set to 0
 };
+
+const char * danisdev="\\DEV\\IBMS506$"; // DANIS506
+const char * danispref="hd";
+const char * ahcidev="\\DEV\\OS2AHCI$";  // OS2AHCI
+const char * ahcipref="ahci";
 
 #endif /* OS_GENERIC_H_ */
