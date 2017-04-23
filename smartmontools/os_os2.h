@@ -18,7 +18,7 @@
 #ifndef OS_OS2_H_
 #define OS_OS2_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_os2.h 4421 2017-04-19 08:50:03Z samm2 $\n"
+#define OS_XXXX_H_CVSID "$Id: os_os2.h 4422 2017-04-23 13:13:02Z samm2 $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include
@@ -32,6 +32,7 @@
 
 #pragma pack(1)
 
+/* IOCTL definitions from s506oem.h (primarily required for SMART calls) */
 #define DSKSP_CAT_SMART             0x80  /* SMART IOCTL category */
 #define DSKSP_SMART_ONOFF           0x20  /* turn SMART on or off */
 #define DSKSP_SMART_AUTOSAVE_ONOFF  0x21  /* turn SMART autosave on or off */
@@ -39,11 +40,9 @@
 #define DSKSP_SMART_GETSTATUS       0x23  /* get SMART status (pass/fail) */
 #define DSKSP_SMART_GET_ATTRIBUTES  0x24  /* get SMART attributes table */
 #define DSKSP_SMART_GET_THRESHOLDS  0x25  /* get SMART thresholds table */
-#define DSKSP_SMART_READ_LOG        0x26
-#define DSKSP_SMART_WRITE_LOG       0x27
-#define DSKSP_SMART_READ_LOG_EXT    0x28
-#define DSKSP_SMART_WRITE_LOG_EXT   0x29
-#define DSKSP_SMART_EOLI            0x30  /* EXECUTE OFF-LINE IMMEDIATE */
+#define DSKSP_SMART_GET_LOG         0x26  /* get SMART log        table */
+#define DSKSP_SMART_AUTO_OFFLINE    0x27  /* set SMART offline autosave timer */
+#define DSKSP_SMART_EXEC_OFFLINE 0x28 /* execute SMART immediate offline */
 
 #define SMART_CMD_ON      1   /* on  value for related SMART functions */
 #define SMART_CMD_OFF     0   /* off value for related SMART functions */

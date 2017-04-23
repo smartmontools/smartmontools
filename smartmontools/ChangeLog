@@ -1,4 +1,11 @@
-$Id: ChangeLog 4421 2017-04-19 08:50:03Z samm2 $
+$Id: ChangeLog 4422 2017-04-23 13:13:02Z samm2 $
+
+2017-04-23  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_os2.cpp: 
+         - code cleanup
+         - add os2ahci driver initial support
+         - fix selftest command
 
 2017-04-19  Alex Samorukov  <samm@os2.kiev.ua>
 
