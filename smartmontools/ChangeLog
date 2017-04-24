@@ -1,4 +1,8 @@
-$Id: ChangeLog 4424 2017-04-23 19:16:12Z samm2 $
+$Id: ChangeLog 4425 2017-04-24 16:34:16Z samm2 $
+
+2017-04-24  Alex Samorukov  <samm@os2.kiev.ua>
+	os_freebsd.cpp: remove duplicated code which checks ATA SMART
+	status (#746)
 
 2017-04-23  Alex Samorukov  <samm@os2.kiev.ua>
 
