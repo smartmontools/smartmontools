@@ -1,5 +1,9 @@
 $Id$
 
+2017-04-24  Alex Samorukov  <samm@os2.kiev.ua>
+	os_freebsd.cpp: remove duplicated code which checks ATA SMART
+	status (#746)
+
 2017-04-23  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_os2.cpp:
