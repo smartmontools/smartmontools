@@ -42,12 +42,12 @@ ACS-3, ACS-2, ATA8-ACS, ATA/ATAPI-7 and earlier standards
 (see \fBREFERENCES\fP below).
 
 \fBsmartd\fP will attempt to enable SMART monitoring on ATA devices
-(equivalent to \fBsmartctl -s on\fP) and polls these and SCSI devices
+(equivalent to \fBsmartctl \-s on\fP) and polls these and SCSI devices
 every 30 minutes (configurable), logging SMART errors and changes of
 SMART Attributes via the SYSLOG interface.  The default location for
 these SYSLOG notifications and warnings is system-dependent
 (typically \fB/var/log/messages\fP or \fB/var/log/syslog\fP).
-To change this default location, please see the \fB\'-l\'\fP
+To change this default location, please see the \fB\'\-l\'\fP
 command-line option described below.
 
 In addition to logging to a file, \fBsmartd\fP can also be configured
@@ -60,8 +60,8 @@ detected, please see the \fBsmartctl\fP manual page and the
 
 If you send a \fBUSR1\fP signal to \fBsmartd\fP it will immediately
 check the status of the disks, and then return to polling the disks
-every 30 minutes. See the \fB\'\-i\'\fP option below for additional
-details.
+every 30 minutes.
+See the \fB\'\-i\'\fP option below for additional details.
 
 \fBsmartd\fP can be configured at start-up using the configuration
 file \fB/usr/local/etc/smartd.conf\fP (Windows: \fBEXEDIR/smartd.conf\fP).
@@ -69,14 +69,14 @@ If the configuration file is subsequently modified, \fBsmartd\fP
 can be told to re-read the configuration file by sending it a
 \fBHUP\fP signal, for example with the command:
 .br
-\fBkillall -HUP smartd\fP.
+\fBkillall \-HUP smartd\fP.
 .br
 .\" %IF OS Windows
 (Windows: See NOTES below.)
 .\" %ENDIF OS Windows
 
 On startup, if \fBsmartd\fP finds a syntax error in the configuration
-file, it will print an error message and then exit. However if
+file, it will print an error message and then exit.  However if
 \fBsmartd\fP is already running, then is told with a \fBHUP\fP signal
 to re-read the configuration file, and then find a syntax error in
 this file, it will print an error message and then continue, ignoring
@@ -86,7 +86,8 @@ signal had never been received.
 When \fBsmartd\fP is running in debug mode, the \fBINT\fP signal
 (normally generated from a shell with CONTROL-C) is treated in the
 same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
-configuration file. To exit \fBsmartd\fP use CONTROL-\e
+configuration file.
+To exit \fBsmartd\fP use CONTROL-\e.
 .\" %IF OS Windows
 (Windows: CONTROL-Break).
 .\" %ENDIF OS Windows
@@ -96,8 +97,8 @@ On startup, in the absence of the configuration file
 devices that support SMART.  The scanning is done as follows:
 .\" %IF OS Linux
 .IP \fBLINUX:\fP 9
-Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
-devices, and \fB"/dev/sd[a-z]"\fP, \fB"/dev/sd[a-c][a-z]"\fP
+Examine all entries \fB"/dev/hd[a\-t]"\fP for IDE/ATA
+devices, and \fB"/dev/sd[a\-z]"\fP, \fB"/dev/sd[a\-c][a\-z]"\fP
 for ATA/SATA or SCSI/SAS devices.
 Disks behind RAID controllers are not included.
 
@@ -106,16 +107,17 @@ If directive \'\-d nvme\'
 .\" %IF ENABLE_NVME_DEVICESCAN
 or no \'\-d\' directive
 .\" %ENDIF ENABLE_NVME_DEVICESCAN
-is specified, examine all entries \fB"/dev/nvme[0-99]"\fP for NVMe devices.
+is specified, examine all entries \fB"/dev/nvme[0\-99]"\fP for NVMe devices.
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD
 .IP \fBFREEBSD:\fP 9
-Authoritative list of disk devices is obtained from SCSI (CAM) and ATA subsystems.
+Authoritative list of disk devices is obtained from SCSI (CAM) and ATA
+subsystems.
 Disks behind RAID controllers are not included.
 .\" %ENDIF OS FreeBSD
 .\" %IF OS NetBSD OpenBSD
 .IP \fBNETBSD/OPENBSD:\fP 9
-Authoritative list of disk devices is obtained from sysctl 
+Authoritative list of disk devices is obtained from sysctl
 \'hw.disknames\'.
 .\" %ENDIF OS NetBSD OpenBSD
 .\" %IF OS Solaris
@@ -136,7 +138,8 @@ IDE/(S)ATA and SCSI disk devices.
 If a 3ware 9000 controller is installed, examine all entries
 \fB"/dev/sdX,N"\fP for the first logical drive (\'unit\'
 \fB"/dev/sdX"\fP) and all physical disks (\'ports\' \fB",N"\fP)
-detected behind this controller. Same for a second controller if present.
+detected behind this controller.
+Same for a second controller if present.
 
 If directive \'\-d csmi\' or no \'\-d\' directive is specified,
 examine all entries \fB"/dev/csmi[0\-9],N"\fP for drives behind an Intel
@@ -150,7 +153,7 @@ If directive \'\-d nvme\'
 or no \'\-d\' directive
 .\" %ENDIF ENABLE_NVME_DEVICESCAN
 is specified, examine all entries \fB"/dev/sd[...]"\fP (see above)
-and all entries \fB"/dev/nvme[0-9]"\fP for NVMe devices.
+and all entries \fB"/dev/nvme[0\-9]"\fP for NVMe devices.
 .\" %ENDIF OS Windows Cygwin
 .PP
 \fBsmartd\fP then monitors
@@ -161,24 +164,26 @@ Directive in the configuration file; see the \fBsmartd.conf\fP(5) man page).
 .TP
 .B \-A PREFIX, \-\-attributelog=PREFIX
 Writes \fBsmartd\fP attribute information (normalized and raw
-attribute values) to files \'PREFIX\'\'MODEL\-SERIAL.ata.csv\' or \'PREFIX\'\'VENDOR\-MODEL\-SERIAL.scsi.csv\'.  At each
-check cycle attributes are logged as a line of semicolon separated triplets
-of the form "attribute-ID;attribute-norm-value;attribute-raw-value;".
-For SCSI devices error counters and temperature recorded in the form "counter-name;counter-value;"
+attribute values) to files \'PREFIX\'\'MODEL\-SERIAL.ata.csv\'
+or \'PREFIX\'\'VENDOR\-MODEL\-SERIAL.scsi.csv\'.
+At each check cycle attributes are logged as a line of semicolon separated
+triplets of the form "attribute-ID;attribute-norm-value;attribute-raw-value;".
+For SCSI devices error counters and temperature recorded in the form
+"counter-name;counter-value;".
 Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
 
 .\" %IF ENABLE_ATTRIBUTELOG
 If this option is not specified, attribute information is written to files
 \'/usr/local/var/lib/smartmontools/attrlog.MODEL\-SERIAL.ata.csv\'.
 To disable attribute log files, specify this option with an empty string
-argument: \'-A ""\'.
+argument: \'\-A ""\'.
 .\" %ENDIF ENABLE_ATTRIBUTELOG
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
 
-If the PREFIX has the form \'/path/dir/\' (e.g. \'/var/lib/smartd/\'), then
+If the PREFIX has the form \'/path/dir/\' (e.g.\& \'/var/lib/smartd/\'), then
 files \'MODEL\-SERIAL.ata.csv\' are created in directory \'/path/dir\'.
-If the PREFIX has the form \'/path/name\' (e.g. \'/var/lib/misc/attrlog\-\'),
+If the PREFIX has the form \'/path/name\' (e.g.\& \'/var/lib/misc/attrlog\-\'),
 then files 'nameMODEL\-SERIAL.ata.csv' are created in directory '/path/'.
 The path must be absolute, except if debug mode is enabled.
 .TP
@@ -190,13 +195,14 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 .TP
 .B \-c FILE, \-\-configfile=FILE
 Read \fBsmartd\fP configuration Directives from FILE, instead of from
-the default location \fB/usr/local/etc/smartd.conf\fP (Windows: \fBEXEDIR/smartd.conf\fP).
+the default location \fB/usr/local/etc/smartd.conf\fP
+(Windows: \fBEXEDIR/smartd.conf\fP).
 If FILE does \fBnot\fP exist, then \fBsmartd\fP will print an error
 message and exit with nonzero status.  Thus, \'\-c /usr/local/etc/smartd.conf\'
 can be used to verify the existence of the default configuration file.
 
-By using \'\-\' for FILE, the configuration is read from standard
-input. This is useful for commands like:
+By using \'\-\' for FILE, the configuration is read from standard input.
+This is useful for commands like:
 .nf
 .B echo /dev/sdb \-m user@home \-M test | smartd \-c \- \-q onecheck
 .fi
@@ -211,20 +217,20 @@ Warning: Mail notification does not work when used.
 .\" %ENDIF ENABLE_CAPABILITIES
 .TP
 .B \-d, \-\-debug
-Runs \fBsmartd\fP in "debug" mode. In this mode, it displays status
+Runs \fBsmartd\fP in "debug" mode.  In this mode, it displays status
 information to STDOUT rather than logging it to SYSLOG and does not
 \fBfork\fP(2) into the background and detach from the controlling
 terminal.  In this mode, \fBsmartd\fP also prints more verbose
 information about what it is doing than when operating in "daemon"
-mode. In this mode, the \fBINT\fP signal (normally generated from a
+mode.  In this mode, the \fBINT\fP signal (normally generated from a
 terminal with CONTROL-C) makes \fBsmartd\fP reload its configuration
 file.  Please use CONTROL-\e to exit
 .\" %IF OS Windows
 (Windows: CONTROL-Break).
 
 [Windows only] The "debug" mode can be toggled by the command
-\fBsmartd sigusr2\fP. A new console for debug output is opened when
-debug mode is enabled.
+\fBsmartd sigusr2\fP.
+A new console for debug output is opened when debug mode is enabled.
 .\" %ENDIF OS Windows
 .TP
 .B \-D, \-\-showdirectives
@@ -240,18 +246,18 @@ Prints usage message to STDOUT and exits.
 Sets the interval between disk checks to \fIN\fP seconds, where
 \fIN\fP is a decimal integer.  The minimum allowed value is ten and
 the maximum is the largest positive integer that can be represented on
-your system (often 2^31-1).  The default is 1800 seconds.
+your system (often 2^31\-1).  The default is 1800 seconds.
 
 Note that the superuser can make \fBsmartd\fP check the status of the
 disks at any time by sending it the \fBSIGUSR1\fP signal, for example
 with the command:
 .nf
-.B kill -SIGUSR1 <pid>
+.B kill \-SIGUSR1 <pid>
 .fi
 where \fB<pid>\fP is the process id number of \fBsmartd\fP.  One may
 also use:
 .nf
-.B killall -USR1 smartd
+.B killall \-USR1 smartd
 .fi
 for the same purpose.
 .br
@@ -286,12 +292,12 @@ Windows: Some \fBsyslog\fP functionality is implemented
 internally in \fBsmartd\fP as follows: If no \'\-l\' option
 (or \'\-l daemon\') is specified, messages are written to Windows
 event log or to file \fB./smartd.log\fP if event log is not available
-(access denied). By specifying other values of FACILITY,
-log output is redirected as follows:
+(access denied).
+By specifying other values of FACILITY, log output is redirected as follows:
 \'\-l local0\' to file \fB./smartd.log\fP,
 \'\-l local1\' to standard output (redirect with \'>\' to any file),
 \'\-l local2\' to standard error,
-\'\-l local[3-7]\': to file \fB./smartd[1-5].log\fP.
+\'\-l local[3\-7]\': to file \fB./smartd[1\-5].log\fP.
 .\" %ENDIF OS Windows
 .TP
 .B \-n, \-\-no\-fork
@@ -335,7 +341,7 @@ reloaded.
 
 .I never
 \- Only exit if a fatal error occurs (no remaining system memory,
-invalid command line arguments). In this mode, even if there are no
+invalid command line arguments).  In this mode, even if there are no
 devices to monitor, or if the configuration file
 \fB/usr/local/etc/smartd.conf\fP has errors, \fBsmartd\fP will continue to run,
 waiting to load a configuration file listing valid devices.
@@ -354,7 +360,7 @@ scripts should wait a reasonable length of time (say ten seconds).  If
 should send \fBsmartd\fP a SIGTERM or SIGKILL and assume that
 \fBsmartd\fP will not operate correctly on the host.  Conversely, if
 \fBsmartd\fP exits with zero status, then it is safe to run
-\fBsmartd\fP in normal daemon mode. If \fBsmartd\fP is unable to
+\fBsmartd\fP in normal daemon mode.  If \fBsmartd\fP is unable to
 monitor any devices or encounters other problems then it will return
 with non-zero exit status.
 
@@ -365,8 +371,8 @@ exit status if all of these steps worked correctly.
 Device's SMART status is not checked.
 
 This option is intended to test whether the '\-s REGEX' directives in
-smartd.conf will have the desired effect. The output lists the next test
-schedules, limited to 5 tests per type and device. This is followed by a
+smartd.conf will have the desired effect.  The output lists the next test
+schedules, limited to 5 tests per type and device.  This is followed by a
 summary of all tests of each device within the next 90 days.
 .TP
 .B \-r TYPE, \-\-report=TYPE
@@ -407,7 +413,8 @@ equivalent.
 .TP
 .B \-s PREFIX, \-\-savestates=PREFIX
 Reads/writes \fBsmartd\fP state information from/to files
-\'PREFIX\'\'MODEL\-SERIAL.ata.state\' or \'PREFIX\'\'VENDOR\-MODEL\-SERIAL.scsi.state\'. 
+\'PREFIX\'\'MODEL\-SERIAL.ata.state\' or
+\'PREFIX\'\'VENDOR\-MODEL\-SERIAL.scsi.state\'.
 This preserves SMART attributes, drive min and max temperatures (\-W directive),
 info about last sent warning email
 (\-m directive), and the time of next check of the self-test REGEXP
@@ -415,24 +422,26 @@ info about last sent warning email
 
 .\" %IF ENABLE_SAVESTATES
 If this option is not specified, state information is maintained in files
-\'/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\' for ATA devices and
-\'/usr/local/var/lib/smartmontools/smartd.VENDOR\-MODEL\-SERIAL.scsi.state\' for SCSI devices.
+\'/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\' for ATA
+devices and
+\'/usr/local/var/lib/smartmontools/smartd.VENDOR\-MODEL\-SERIAL.scsi.state\'
+for SCSI devices.
 To disable state files, specify this option with an empty string
 argument: \'\-s ""\'.
 .\" %ENDIF ENABLE_SAVESTATES
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
 
-If the PREFIX has the form \'/path/dir/\' (e.g. \'/var/lib/smartd/\'), then
+If the PREFIX has the form \'/path/dir/\' (e.g.\& \'/var/lib/smartd/\'), then
 files \'MODEL\-SERIAL.ata.state\' are created in directory \'/path/dir\'.
-If the PREFIX has the form \'/path/name\' (e.g. \'/var/lib/misc/smartd\-\'),
+If the PREFIX has the form \'/path/name\' (e.g.\& \'/var/lib/misc/smartd\-\'),
 then files 'nameMODEL\-SERIAL.ata.state' are created in directory '/path/'.
 The path must be absolute, except if debug mode is enabled.
 
-The state information files are read on smartd startup. The files are
+The state information files are read on smartd startup.  The files are
 always (re)written after reading the configuration file, before rereading
 the configuration file (SIGHUP), before smartd shutdown, and after a check
-forced by SIGUSR1. After a normal check cycle, a file is only rewritten if
+forced by SIGUSR1.  After a normal check cycle, a file is only rewritten if
 an important change (which usually results in a SYSLOG output) occurred.
 .TP
 .B \-w PATH, \-\-warnexec=PATH
@@ -454,7 +463,8 @@ The default script is
 .B \-\-service
 [Windows only] Enables \fBsmartd\fP to run as a Windows service.
 The option must be specified in the service command line as the first
-argument. It should not be used from console.
+argument.
+It should not be used from console.
 See NOTES below for details.
 .\" %ENDIF OS Windows
 .TP
@@ -465,19 +475,20 @@ information for your copy of \fBsmartd\fP to STDOUT and then exits.
 .SH EXAMPLES
 .B smartd
 .br
-Runs the daemon in forked mode. This is the normal way to run
+Runs the daemon in forked mode.  This is the normal way to run
 \fBsmartd\fP.
 Entries are logged to SYSLOG.
 
-.B smartd -d -i 30
+.B smartd \-d \-i 30
 .br
 Run in foreground (debug) mode, checking the disk status
 every 30 seconds.
 
-.B smartd -q onecheck
+.B smartd \-q onecheck
 .br
 Registers devices, and checks the status of the devices exactly
-once. The exit status (the shell
+once.
+The exit status (the shell
 .B $?
 variable) will be zero if all went well, and nonzero if no devices
 were detected or some other problem was encountered.
@@ -501,22 +512,23 @@ The syntax of the \fBsmartd.conf\fP(5) file is discussed separately.
 
 .SH NOTES
 \fBsmartd\fP
-will make log entries at loglevel 
+will make log entries at loglevel
 .B LOG_INFO
 if the Normalized SMART Attribute values have changed, as reported using the
 .B \'\-t\', \'\-p\',
 or
 .B \'\-u\'
-Directives. For example:
+Directives.
+For example:
 .nf
 .B \'Device: /dev/sda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93\'
 .fi
-Note that in this message, the value given is the \'Normalized\' not the \'Raw\' 
+Note that in this message, the value given is the \'Normalized\' not the \'Raw\'
 Attribute value (the disk temperature in this case is about 22
-Celsius).  The 
-.B \'-R\'
-and 
-.B \'-r\'
+Celsius).  The
+.B \'\-R\'
+and
+.B \'\-r\'
 Directives modify this behavior, so that the information is printed
 with the Raw values as well, for example:
 .nf
@@ -525,7 +537,7 @@ with the Raw values as well, for example:
 Here the Raw values are the actual disk temperatures in Celsius.  The
 way in which the Raw values are printed, and the names under which the
 Attributes are reported, is governed by the various
-.B \'-v Num,Description\'
+.B \'\-v Num,Description\'
 Directives described previously.
 
 Please see the
@@ -544,10 +556,10 @@ if a SMART Attribute has failed, for example:
 .B \'\-H\', \-f\', \'\-l\ selftest\',
 and
 .B \'\-l\ error\'
-Directives. Entries reporting failure of SMART Prefailure Attributes
+Directives.  Entries reporting failure of SMART Prefailure Attributes
 should not be ignored: they mean that the disk is failing.  Use the
 .B smartctl
-utility to investigate. 
+utility to investigate.
 
 .\" %IF OS Solaris
 Under Solaris with the default \fB/etc/syslog.conf\fP configuration,
@@ -613,8 +625,8 @@ event viewer.
 event message entries from the registry.
 
 Upon startup, the smartd service changes the working directory
-to its own installation path. If smartd.conf and blat.exe are stored
-in this directory, no \'-c\' option and \'-M exec\' directive is needed.
+to its own installation path.  If smartd.conf and blat.exe are stored
+in this directory, no \'\-c\' option and \'\-M exec\' directive is needed.
 
 The debug mode (\'\-d\', \'\-q onecheck\') does not work if smartd is
 running as service.
@@ -645,7 +657,7 @@ a laptop to a new time-zone and don't reboot it).  Due to a bug in the
 \fBtzset\fP(3) function of many unix standard C libraries, the
 time-zone stamps of \fBsmartd\fP might not change.  For some systems,
 \fBsmartd\fP will work around this problem \fIif\fP the time-zone is
-set using \fB/etc/localtime\fP. The work-around \fIfails\fP if the
+set using \fB/etc/localtime\fP.  The work-around \fIfails\fP if the
 time-zone is set using the \'\fBTZ\fP\' variable (or a file that it
 points to).
 
@@ -653,7 +665,8 @@ points to).
 The exit status (return value) of \fBsmartd\fP can have the following values:
 .TP
 .B 0:
-Daemon startup successful, or \fBsmartd\fP was killed by a SIGTERM (or in debug mode, a SIGQUIT).
+Daemon startup successful, or \fBsmartd\fP was killed by a SIGTERM
+(or in debug mode, a SIGQUIT).
 .TP
 .B 1:
 Commandline did not parse.
@@ -668,7 +681,8 @@ Forking the daemon failed.
 Couldn\'t create PID file.
 .TP
 .B 5:
-Config file does not exist (only returned in conjunction with the \'\-c\' option).
+Config file does not exist (only returned in conjunction with the \'\-c\'
+option).
 .TP
 .B 6:
 Config file exists, but cannot be read.
@@ -679,7 +693,7 @@ ran out of memory during startup.
 .TP
 .B 10:
 An inconsistency was found in \fBsmartd\fP\'s internal data
-structures. This should never happen.  It must be due to either a
+structures.  This should never happen.  It must be due to either a
 coding or compiler bug.  \fIPlease\fP report such failures to
 smartmontools developers, see REPORTING BUGS below.
 .TP
@@ -697,7 +711,7 @@ When in daemon mode,
 \fBsmartd\fP
 received a SIGINT or SIGQUIT.  (Note that in debug mode, SIGINT has
 the same effect as SIGHUP, and makes \fBsmartd\fP reload its
-configuration file. SIGQUIT has the same effect as SIGTERM and causes
+configuration file.  SIGQUIT has the same effect as SIGTERM and causes
 \fBsmartd\fP to exit with zero exit status.
 .TP
 .B 132 and above
@@ -776,7 +790,7 @@ Please see the following web site for more info:
 
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
-pages 74-77.
+pages 74\(en77.
 See <\fBhttps://www.linuxjournal.com/article/6983\fP>.
 
 If you would like to understand better how SMART works, and what it

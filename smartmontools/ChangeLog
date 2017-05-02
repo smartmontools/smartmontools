@@ -1,6 +1,19 @@
 $Id$
 
+2017-05-02  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in,
+	update-smart-drivedb.8.in:
+	Various man/groff syntax fixes (ticket #656):
+	Split long lines.
+	Insert two spaces or newline between sentences.
+	Use ' for apostrophes.
+	Use \- (minus sign) for options and examples.
+	Use \(en (en-dash) for numeric ranges.
+	Protect . with \& if not at end of sentence.
+
 2017-04-24  Alex Samorukov  <samm@os2.kiev.ua>
+
 	os_freebsd.cpp: remove duplicated code which checks ATA SMART
 	status (#746)
 

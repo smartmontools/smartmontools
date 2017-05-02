@@ -82,7 +82,8 @@ TOOL is one of:
 The default is the first one found in PATH.
 .TP
 .B \-u LOCATION
-Use URL of LOCATION for download. LOCATION is one of:
+Use URL of LOCATION for download.
+LOCATION is one of:
 .br
 .I sf
 (Sourceforge code browser via HTTPS),
@@ -101,7 +102,7 @@ The default is
 .TP
 .B \-\-trunk
 Download from SVN trunk.
-This requires '--no-verify' unless the trunk version is still identical
+This requires \'\-\-no\-verify\' unless the trunk version is still identical
 to branches/RELEASE_6_0_DRIVEDB.
 .TP
 .B \-\-cacert FILE
@@ -112,12 +113,12 @@ Use CA certificate files from DIR to verify the peer.
 .TP
 .B \-\-insecure
 Don't abort download if certificate verification fails.
-This option is also required if a HTTP URL is selected with \'-u\' option.
+This option is also required if a HTTP URL is selected with \'\-u\' option.
 .TP
-.B \-\-no-verify
+.B \-\-no\-verify
 Don't verify signature with GnuPG.
 .TP
-.B \-\-export-key
+.B \-\-export\-key
 Print the OpenPGP/GPG public key block.
 .TP
 .B \-\-dryrun
@@ -134,7 +135,8 @@ Verbose output.
 
 .SH "EXIT STATUS"
 The exit status is 0 if the database has been successfully
-updated. If an error occurs the exit status is 1.
+updated.
+If an error occurs the exit status is 1.
 
 .SH FILES
 .TP

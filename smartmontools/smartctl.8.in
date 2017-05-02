@@ -46,18 +46,20 @@ ACS-3, ACS-2, ATA8-ACS, ATA/ATAPI-7 and earlier standards
 from SCSI tape drives and changers.
 
 The user must specify the device to be controlled or interrogated as
-the final argument to \fBsmartctl\fP. The command set used by the device
+the final argument to \fBsmartctl\fP.  The command set used by the device
 is often derived from the device path but may need help with the \'\-d\'
 option (for more information see the section on "ATA, SCSI command sets
-and SAT" below). Device paths are as follows:
+and SAT" below).
+Device paths are as follows:
 .\" %IF OS Linux
 .IP \fBLINUX\fP: 9
 Use the forms \fB"/dev/sd[a\-z]"\fP for ATA/SATA and SCSI/SAS devices.
 For SCSI Tape Drives and Changers with TapeAlert support use the
 devices \fB"/dev/nst*"\fP and \fB"/dev/sg*"\fP.  For disks behind
 3ware controllers you may need \fB"/dev/sd[a\-z]"\fP or
-\fB"/dev/twe[0\-9]"\fP, \fB"/dev/twa[0\-9]"\fP or \fB"/dev/twl[0\-9]"\fP: see details
-below. For disks behind HighPoint RocketRAID controllers you may need
+\fB"/dev/twe[0\-9]"\fP, \fB"/dev/twa[0\-9]"\fP or \fB"/dev/twl[0\-9]"\fP:
+see details below.
+For disks behind HighPoint RocketRAID controllers you may need
 \fB"/dev/sd[a\-z]"\fP.  For disks behind Areca SATA RAID controllers,
 you need \fB"/dev/sg[2\-9]"\fP (note that smartmontools interacts with
 the Areca controllers via a SCSI generic device which is different
@@ -65,18 +67,22 @@ than the SCSI device used for reading and writing data)!  For HP Smart
 Array RAID controllers, there are three currently supported drivers: cciss,
 hpsa, and hpahcisr.  For disks accessed via the cciss driver the device nodes
 are of the form \fB"/dev/cciss/c[0\-9]d0"\fP.  For disks accessed via
-the hpahcisr and hpsa drivers, the device nodes you need are \fB"/dev/sg[0\-9]*"\fP.
-("lsscsi \-g" is helpful in determining which scsi generic device node corresponds
-to which device.)  Use the nodes corresponding to the RAID controllers,
-not the nodes corresponding to logical drives.  See the \fB\-d\fP option below, as well.
+the hpahcisr and hpsa drivers, the device nodes you need are
+\fB"/dev/sg[0\-9]*"\fP.
+("lsscsi \-g" is helpful in determining which scsi generic device node
+corresponds to which device.)
+Use the nodes corresponding to the RAID controllers, not the nodes
+corresponding to logical drives.
+See the \fB\-d\fP option below, as well.
 Use the forms \fB"/dev/nvme[0\-9]"\fP (broadcast namespace) or
 \fB"/dev/nvme[0\-9]n[1\-9]"\fP (specific namespace 1\-9) for NVMe devices.
 .\" %ENDIF OS Linux
 .\" %IF OS Darwin
 .IP \fBDARWIN\fP: 9
-Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or equivalently
-\fB/dev/rdisk[0\-9]\fP.  Long forms are also available: please use \'\-h\' to see some
-examples. Note that there is currently no Darwin SCSI support.
+Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or
+equivalently \fB/dev/rdisk[0\-9]\fP.
+Long forms are also available: please use \'\-h\' to see some examples.
+Note that there is currently no Darwin SCSI support.
 
 Use the OS X SAT SMART Driver to access SMART data on SAT capable USB and
 Firewire devices (see INSTALL file).
@@ -86,15 +92,15 @@ Firewire devices (see INSTALL file).
 Use the forms \fB"/dev/ad[0\-9]+"\fP for IDE/ATA
 devices and \fB"/dev/da[0\-9]+"\fP or \fB"/dev/pass[0\-9]+"\fP for SCSI devices.
 For SATA devices on AHCI bus use \fB"/dev/ada[0\-9]+"\fP format.  For HP Smart
-Array RAID controllers, use \fB"/dev/ciss[0\-9]"\fP (and see the \fB-d\fP option,
-below).
+Array RAID controllers, use \fB"/dev/ciss[0\-9]"\fP (and see the \fB\-d\fP
+option, below).
 .\" %ENDIF OS FreeBSD
 .\" %IF OS NetBSD OpenBSD
 .IP \fBNETBSD/OPENBSD\fP: 9
 Use the form \fB"/dev/wd[0\-9]+c"\fP for IDE/ATA
 devices.  For SCSI disk and tape devices, use the device names
-\fB"/dev/sd[0\-9]+c"\fP and \fB"/dev/st[0\-9]+c"\fP respectively.  
-Be sure to specify the correct "whole disk" partition letter for 
+\fB"/dev/sd[0\-9]+c"\fP and \fB"/dev/st[0\-9]+c"\fP respectively.
+Be sure to specify the correct "whole disk" partition letter for
 your architecture.
 .\" %ENDIF OS NetBSD OpenBSD
 .\" %IF OS Solaris
@@ -110,7 +116,7 @@ Use \fB"/dev/sd[a\-z][a\-z]"\fP for "\\\\.\\PhysicalDrive[26\-...]".
 These disks can also be referred to as \fB"/dev/pd[0\-255]"\fP for
 "\\\\.\\PhysicalDrive[0\-255]".
 ATA disks can also be referred to as \fB"/dev/hd[a\-z]"\fP for
-"\\\\.\\PhysicalDrive[0\-25]". 
+"\\\\.\\PhysicalDrive[0\-25]".
 Use one the forms \fB"/dev/tape[0\-255]"\fP, \fB"/dev/st[0\-255]"\fP,
 or \fB"/dev/nst[0\-255]"\fP for SCSI tape drives "\\\\.\\Tape[0\-255]".
 
@@ -122,9 +128,9 @@ For disks behind 3ware 9000 controllers use \fB"/dev/sd[a\-z],N"\fP where
 N specifies the disk number (3ware \'port\') behind the controller
 providing the logical drive (\'unit\') specified by \fB"/dev/sd[a\-z]"\fP.
 Alternatively, use \fB"/dev/tw_cli/cx/py"\fP for controller x, port y
-to run the \'tw_cli\' tool and parse the output. This provides limited
+to run the \'tw_cli\' tool and parse the output.  This provides limited
 monitoring (\'\-i\', \'\-c\', \'\-A\' below) if SMART support is missing
-in the driver. Use \fB"/dev/tw_cli/stdin"\fP or \fB"/dev/tw_cli/clip"\fP
+in the driver.  Use \fB"/dev/tw_cli/stdin"\fP or \fB"/dev/tw_cli/clip"\fP
 to parse CLI or 3DM output from standard input or clipboard.
 The option \'\-d 3ware,N\' is not necessary on Windows.
 
@@ -164,8 +170,8 @@ If necessary, the \'\-d\' option can be used to override this guess.
 Note that the printed output of \fBsmartctl\fP displays most numerical
 values in base 10 (decimal), but some values are displayed in base 16
 (hexadecimal).  To distinguish them, the base 16 values are always
-displayed with a leading \fB"0x"\fP, for example: "0xff". This man
-page follows the same convention.
+displayed with a leading \fB"0x"\fP, for example: "0xff".
+This man page follows the same convention.
 
 .SH OPTIONS
 The options are grouped below into several categories.  \fBsmartctl\fP
@@ -187,12 +193,12 @@ Prints the device model number, serial number, firmware version, and
 ATA Standard version/revision information.  Says if the device
 supports SMART, and if so, whether SMART support is currently enabled
 or disabled.  If the device supports Logical Block Address mode (LBA
-mode) print current user drive capacity in bytes. (If drive is has a
+mode) print current user drive capacity in bytes.  (If drive is has a
 user protected area reserved, or is "clipped", this may be smaller
 than the potential maximum drive capacity.)  Indicates if the drive is
 in the smartmontools database (see \'\-v\' options below).  If so, the
-drive model family may also be printed. If \'\-n\' (see below) is
-specified, the power mode of the drive is printed.
+drive model family may also be printed.
+If \'\-n\' (see below) is specified, the power mode of the drive is printed.
 .\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
 
 [NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
@@ -207,7 +213,7 @@ By default, only valid words (words not equal to 0x0000 or 0xffff)
 and nonzero bits and bit fields are printed.
 This can be changed by the optional argument which consists of one or
 two characters from the set \'wnvb\'.
-The character \'w\' enables printing of all 256 words. The character
+The character \'w\' enables printing of all 256 words.  The character
 \'n\' suppresses printing of bits, \'v\' enables printing of all bits
 from valid words, \'b\' enables printing of all bits.
 For example \'\-\-identify=n\' (valid words, no bits) produces the
@@ -235,8 +241,8 @@ Note that for ATA disks this does \fBnot\fP enable the non-SMART options
 and the SMART options which require support for 48-bit ATA commands.
 .TP
 .B \-x, \-\-xall
-Prints all SMART and non-SMART information about the device. For ATA
-devices this is equivalent to
+Prints all SMART and non-SMART information about the device.
+For ATA devices this is equivalent to
 .nf
 \'\-H \-i \-g all \-c \-A \-f brief \-l xerror,error \-l xselftest,selftest
 \-l selective \-l directory \-l scttemp \-l scterc \-l devstat \-l sataphy\'.
@@ -361,11 +367,11 @@ you're running the risk of damage to the device or filesystems on it.
 
 .I usbjmicron[,p][,x][,PORT]
 \- this device type is for SATA disks that are behind a JMicron USB to
-PATA/SATA bridge.  The 48-bit ATA commands (required e.g. for \'\-l xerror\',
+PATA/SATA bridge.  The 48-bit ATA commands (required e.g.\& for \'\-l xerror\',
 see below) do not work with all of these bridges and are therefore disabled by
 default.  These commands can be enabled by \'\-d usbjmicron,x\'.
-If two disks are connected to a bridge with two ports, an error message is printed
-if no PORT is specified.
+If two disks are connected to a bridge with two ports, an error message is
+printed if no PORT is specified.
 The port can be specified by \'\-d usbjmicron[,x],PORT\' where PORT is 0
 (master) or 1 (slave).  This is not necessary if the device uses a port
 multiplier to connect multiple disks to one port.  The disks appear under
@@ -440,7 +446,7 @@ Character device nodes /dev/aacH (H=Host number) are created if required.
 
 .\" %ENDIF OS Linux
 .\" %IF OS Windows Cygwin
-On Windows, the device name parameter /dev/sdX is ignored if \'-d aacraid\'
+On Windows, the device name parameter /dev/sdX is ignored if \'\-d aacraid\'
 is specified.
 
 .\" %ENDIF OS Windows Cygwin
@@ -475,8 +481,8 @@ kernel in the near future.  The final form, which refers to devices
 /dev/twa0\-15, must be used with 3ware 9000 series controllers, which
 use the 3w\-9xxx driver.
 
-The devices /dev/twl0\-15 [Linux] or /dev/tws0\-15 [FreeBSD] must be used with the 3ware/LSI 9750 series
-controllers which use the 3w-sas driver.
+The devices /dev/twl0\-15 [Linux] or /dev/tws0\-15 [FreeBSD] must be used
+with the 3ware/LSI 9750 series controllers which use the 3w-sas driver.
 
 Note that if the special character device nodes /dev/tw[ls]?, /dev/twa?
 and /dev/twe? do not exist, or exist with the incorrect major or minor
@@ -519,16 +525,18 @@ later of the 3w-xxxx driver, or by applying a patch to older
 versions.  Alternatively, use the character device /dev/twe0\-15 interface.
 
 The selective self-test functions (\'\-t select,A\-B\') are only supported
-using the character device interface /dev/twl0\-15, /dev/tws0\-15, /dev/twa0\-15 and /dev/twe0\-15.
+using the character device interface /dev/twl0\-15, /dev/tws0\-15,
+/dev/twa0\-15 and /dev/twe0\-15.
 The necessary WRITE LOG commands can not be passed through the SCSI
 interface.
 
 .\" %ENDIF OS FreeBSD Linux
 .\" %IF OS FreeBSD Linux Windows Cygwin
 .I areca,N
-\- [FreeBSD, Linux, Windows and Cygwin only] the device consists of one or more SATA disks
-connected to an Areca SATA RAID controller.  The positive integer N (in the range
-from 1 to 24 inclusive) denotes which disk on the controller is monitored.
+\- [FreeBSD, Linux, Windows and Cygwin only] the device consists of one or
+more SATA disks connected to an Areca SATA RAID controller.
+The positive integer N (in the range from 1 to 24 inclusive) denotes which
+disk on the controller is monitored.
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS Linux
 On Linux use syntax such as:
@@ -558,9 +566,10 @@ On Windows and Cygwin use syntax such as:
 .fi
 .\" %ENDIF OS Windows Cygwin
 .\" %IF OS FreeBSD Linux Windows Cygwin
-The first line above addresses the second disk on the first Areca RAID controller.
+The first line above addresses the second disk on the first Areca RAID
+controller.
 The second line addresses the third disk on the second Areca RAID
-controller.  
+controller.
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS Linux
 To help identify the correct device on Linux, use the command:
@@ -589,9 +598,10 @@ Important: This requires Areca SAS controller firmware version 1.51 or later.
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS FreeBSD Linux
 .I cciss,N
-\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS or SATA disks
-connected to a cciss RAID controller.  The non-negative integer N (in the range
-from 0 to 15 inclusive) denotes which disk on the controller is monitored.
+\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS or
+SATA disks connected to a cciss RAID controller.
+The non-negative integer N (in the range from 0 to 15 inclusive) denotes
+which disk on the controller is monitored.
 
 To look at disks behind HP Smart Array controllers, use syntax
 such as:
@@ -646,10 +656,10 @@ under FreeBSD, it is the character device which the driver registered (eg,
 
 .I intelliprop,N[+TYPE]
 \- [NEW EXPERIMENTAL SMARTCTL FEATURE] the device consists of multiple ATA
-disks connected to an Intelliprop controller. The integer N is the port number
-from 0 to 3 of the ATA drive to be targeted. The TYPE can be ata(default),
-sat, or a USB controller listed above. Note: if a type of ATA does not
-work, try a type of sat.
+disks connected to an Intelliprop controller.
+The integer N is the port number from 0 to 3 of the ATA drive to be targeted.
+The TYPE can be ata(default), sat, or a USB controller listed above.
+Note: if a type of ATA does not work, try a type of sat.
 Use syntax such as:
 .nf
 \fBsmartctl \-a \-d intelliprop,1 /dev/sda\fP    (under Linux)
@@ -663,10 +673,10 @@ Using this option with other devices may have undesirable side effects.\fP
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART
-command failures. 
+command failures.
 
 The behavior of \fBsmartctl\fP depends upon whether the command is
-"\fBoptional\fP" or "\fBmandatory\fP". Here "\fBmandatory\fP" means
+"\fBoptional\fP" or "\fBmandatory\fP".  Here "\fBmandatory\fP" means
 "required by the ATA Specification if the device implements
 the SMART command set" and "\fBoptional\fP" means "not required by the
 ATA Specification even if the device implements the SMART
@@ -736,10 +746,10 @@ arguments to this option are:
 \- report only ioctl() transactions with ATA devices.
 
 .I scsiioctl
-\- report only ioctl() transactions with SCSI devices. Invoking this once
-shows the SCSI commands in hex and the corresponding status. Invoking
-it a second time adds a hex listing of the first 64 bytes of data send to, 
-or received from the device.
+\- report only ioctl() transactions with SCSI devices.
+Invoking this once shows the SCSI commands in hex and the corresponding status.
+Invoking it a second time adds a hex listing of the first 64 bytes of data
+send to, or received from the device.
 
 .\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
 .I nvmeioctl
@@ -750,7 +760,7 @@ report only ioctl() transactions with NVMe devices.
 .\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
 Any argument may include a positive integer to specify the level of detail
 that should be reported.  The argument should be followed by a comma then
-the integer with no spaces.  For example, 
+the integer with no spaces.  For example,
 .I ataioctl,2
 The default
 level is 1, so \'\-r ataioctl,1\' and \'\-r ataioctl\' are equivalent.
@@ -760,13 +770,14 @@ by \fBsmartctl\fP itself if \'\-\' is used as device path argument.
 The ATA command input parameters, sector data and return values are
 reconstructed from the debug report read from stdin.
 Then \fBsmartctl\fP internally simulates an ATA device with the same
-behaviour. This is does not work for SCSI devices yet.
+behaviour.
+This is does not work for SCSI devices yet.
 .TP
 .B \-n POWERMODE[,STATUS], \-\-nocheck=POWERMODE[,STATUS]
 [ATA only] Specifies if \fBsmartctl\fP should exit before performing any
-checks when the device is in a low-power mode. It may be used to prevent
-a disk from being spun-up by \fBsmartctl\fP. The power mode is ignored by
-default.
+checks when the device is in a low-power mode.
+It may be used to prevent a disk from being spun-up by \fBsmartctl\fP.
+The power mode is ignored by default.
 
 Note: If this option is used it may also be necessary to specify the device
 type with the \'\-d\' option.  Otherwise the device may spin up due to
@@ -780,9 +791,9 @@ This status is also returned if the device open or identification failed
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 The optional STATUS parameter allows to override this default.
 STATUS is an integer in the range from 0 to 255 inclusive.
-For example use \'-n standby,0\' to return success if a device is in SLEEP or
+For example use \'\-n standby,0\' to return success if a device is in SLEEP or
 STANDBY mode.
-Use \'-n standby,3\' to return a unique exit status in this case.
+Use \'\-n standby,3\' to return a unique exit status in this case.
 
 The valid arguments to this option are:
 
@@ -806,29 +817,30 @@ not what you want.
 .TP
 .B SMART FEATURE ENABLE/DISABLE COMMANDS:
 .IP
-.B Note: 
+.B Note:
 if multiple options are used to both enable and disable a
-feature, then 
+feature, then
 .B both
 the enable and disable commands will be issued.  The enable command
 will always be issued
 .B before
 the corresponding disable command.
 .TP
-.B \-s VALUE, \-\-smart=VALUE 
+.B \-s VALUE, \-\-smart=VALUE
 Enables or disables SMART on device.  The valid arguments to
 this option are \fIon\fP and \fIoff\fP.  Note that the command \'\-s on\'
 (perhaps used with with the \'\-o on\' and \'\-S on\' options) should be
 placed in a start-up script for your machine, for example in rc.local or
-rc.sysinit. In principle the SMART feature settings are preserved over
-power-cycling, but it doesn\'t hurt to be sure. It is not necessary (or
-useful) to enable SMART to see the TapeAlert messages.
+rc.sysinit.
+In principle the SMART feature settings are preserved over power-cycling,
+but it doesn't hurt to be sure.
+It is not necessary (or useful) to enable SMART to see the TapeAlert messages.
 .TP
 .B \-o VALUE, \-\-offlineauto=VALUE
 [ATA only] Enables or disables SMART automatic offline test, which scans the
-drive every four hours for disk defects. This command can be given during
-normal system operation.  The valid arguments to this option are \fIon\fP
-and \fIoff\fP.
+drive every four hours for disk defects.
+This command can be given during normal system operation.
+The valid arguments to this option are \fIon\fP and \fIoff\fP.
 
 Note that the SMART automatic offline test command is listed as
 "Obsolete" in every version of the ATA and ATA/ATAPI Specifications.
@@ -844,9 +856,9 @@ SMART provides \fBthree\fP basic categories of testing.  The
 \fBfirst\fP category, called "online" testing, has no effect on the
 performance of the device.  It is turned on by the \'\-s on\' option.
 
-The \fBsecond\fP category of testing is called "offline" testing. This
-type of test can, in principle, degrade the device performance.  The
-\'\-o on\' option causes this offline testing to be carried out,
+The \fBsecond\fP category of testing is called "offline" testing.
+This type of test can, in principle, degrade the device performance.
+The \'\-o on\' option causes this offline testing to be carried out,
 automatically, on a regular scheduled basis.  Normally, the disk will
 suspend offline testing while disk accesses are taking place, and then
 automatically resume it when the disk would otherwise be idle, so in
@@ -865,8 +877,8 @@ The results of this automatic or immediate offline testing (data
 collection) are reflected in the values of the SMART Attributes.
 Thus, if problems or errors are detected, the values of these
 Attributes will go below their failure thresholds; some types of
-errors may also appear in the SMART error log. These are visible with
-the \'\-A\' and \'\-l error\' options respectively.
+errors may also appear in the SMART error log.
+These are visible with the \'\-A\' and \'\-l error\' options respectively.
 
 Some SMART attribute values are updated only during off-line data
 collection activities; the rest are updated during normal operation of
@@ -887,28 +899,29 @@ SMART self-test log, which can be examined using the \'\-l selftest\'
 option.
 
 \fBNote:\fP in this manual page, the word \fB"Test"\fP is used in
-connection with the second category just described, e.g. for the
+connection with the second category just described, e.g.\& for the
 "offline" testing.  The words \fB"Self-test"\fP are used in
 connection with the third category.
 .TP
 .B \-S VALUE, \-\-saveauto=VALUE
 [ATA] Enables or disables SMART autosave of device vendor-specific
-Attributes. The valid arguments to this option are \fIon\fP
+Attributes.  The valid arguments to this option are \fIon\fP
 and \fIoff\fP.  Note that this feature is preserved across disk power
 cycles, so you should only need to issue it once.
 
 The ATA standard does not specify a method to check whether SMART
-autosave is enabled. Unlike SCSI (below), smartctl is unable to print
-a warning if autosave is disabled.
+autosave is enabled.
+Unlike SCSI (below), smartctl is unable to print a warning if autosave is
+disabled.
 
 [SCSI] For SCSI devices this toggles the value of the Global Logging
-Target Save Disabled (GLTSD) bit in the Control Mode Page. Some disk
-manufacturers set this bit by default. This prevents error counters,
+Target Save Disabled (GLTSD) bit in the Control Mode Page.  Some disk
+manufacturers set this bit by default.  This prevents error counters,
 power-up hours and other useful data from being placed in non-volatile
 storage, so these values may be reset to zero the next time the device
 is power-cycled.  If the GLTSD bit is set then \'smartctl \-a\' will
-issue a warning. Use \fIon\fP to clear the GLTSD bit and thus enable
-saving counters to non-volatile storage. For extreme streaming-video
+issue a warning.  Use \fIon\fP to clear the GLTSD bit and thus enable
+saving counters to non-volatile storage.  For extreme streaming-video
 type applications you might consider using \fIoff\fP to set the GLTSD
 bit.
 .TP
@@ -918,9 +931,10 @@ Note that the \'\-\-set\' option shares its short option \'\-s\' with
 \'\-\-smart\'.  Valid arguments are:
 
 .I all
-\- Gets all values. This is equivalent to
+\- Gets all values.
+This is equivalent to
 .nf
-\'-g aam -g apm -g lookahead -g security -g wcache -g rcache -g dsn\'
+\'\-g aam \-g apm \-g lookahead \-g security \-g wcache \-g rcache \-g dsn\'
 .fi
 
 .I aam[,N|off]
@@ -988,20 +1002,21 @@ The write cache is usually enabled by default.
 .I wcache-sct[,ata|on|off[,p]]
 \- [ATA only]
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
-Gets/sets the write cache feature through SCT Feature Control
-(if supported). The state of write cache in SCT Feature Control could be
-"Controlled by ATA", "Force Enabled", or "Force Disabled". SCT Feature control
-overwrites the setting by ATA Set Features command (wcache[,on|off] option).
+Gets/sets the write cache feature through SCT Feature Control (if supported).
+The state of write cache in SCT Feature Control could be "Controlled by ATA",
+"Force Enabled", or "Force Disabled".
+SCT Feature control overwrites the setting by ATA Set Features command
+(wcache[,on|off] option).
 If SCT Feature Control sets write cache as "Force Enabled" or "Force Disabled",
-the setting of wcache[,on|off] is ignored by the drive. SCT Feature Control
-usually sets write cache as "Controlled by ATA" by default. If ´,p´ is
-specified, the setting is preserved across power cycles.
+the setting of wcache[,on|off] is ignored by the drive.
+SCT Feature Control usually sets write cache as "Controlled by ATA" by default.
+If ´,p´ is specified, the setting is preserved across power cycles.
 
 .I wcreorder[,on|off[,p]]
 \- [ATA only] Gets/sets Write Cache Reordering.
-If it is disabled (off), disk write scheduling is executed on a 
-first-in-first-out (FIFO) basis. If Write Cache Reordering is enabled (on),
-then disk write scheduling may be reordered by the drive. If write cache is
+If it is disabled (off), disk write scheduling is executed on a
+first-in-first-out (FIFO) basis.  If Write Cache Reordering is enabled (on),
+then disk write scheduling may be reordered by the drive.  If write cache is
 disabled, the current Write Cache Reordering state is remembered but has
 no effect on non-cached writes, which are always written in the order received.
 The state of Write Cache Reordering has no effect on either NCQ or LCQ queued
@@ -1028,8 +1043,8 @@ Prints the health status of the device or pending TapeAlert messages.
 
 If the device reports failing health status, this means
 .B either
-that the device has already failed, 
-.B or 
+that the device has already failed,
+.B or
 that it is predicting its own failure within the next 24 hours.  If
 this happens, use the \'\-a\' option to get more information, and
 .B get your data off the disk and to someplace safe as soon as you can.
@@ -1037,7 +1052,7 @@ this happens, use the \'\-a\' option to get more information, and
 [ATA] Health status is obtained by checking the (boolean) result returned
 by the SMART RETURN STATUS command.
 The return value of this ATA command may be unknown due to limitations or
-bugs in some layer (e.g. RAID controller or USB bridge firmware) between
+bugs in some layer (e.g.\& RAID controller or USB bridge firmware) between
 disk and operating system.
 In this case, \fBsmartctl\fP prints a warning and checks whether any
 Prefailure SMART Attribute value is less than or equal to its threshold
@@ -1087,8 +1102,8 @@ and the Identify Namespace data structure.
 .TP
 .B \-A, \-\-attributes
 [ATA] Prints only the vendor specific SMART Attributes.  The Attributes
-are numbered from 1 to 253 and have specific names and ID numbers. For
-example Attribute 12 is "power cycle count": how many times has the
+are numbered from 1 to 253 and have specific names and ID numbers.
+For example Attribute 12 is "power cycle count": how many times has the
 disk been powered up.
 
 Each Attribute has a "Raw" value, printed under the heading
@@ -1105,12 +1120,12 @@ types, values, and thresholds as read from the device.  It does
 values: this is done by the disk\'s firmware.
 
 The conversion from Raw value to a quantity with physical units is
-not specified by the SMART standard. In most cases, the values printed
+not specified by the SMART standard.  In most cases, the values printed
 by \fBsmartctl\fP are sensible.  For example the temperature Attribute
 generally has its raw value equal to the temperature in Celsius.
 However in some cases vendors use unusual conventions.  For example
 the Hitachi disk on my laptop reports its power-on hours in minutes,
-not hours. Some IBM disks track three temperatures rather than one, in
+not hours.  Some IBM disks track three temperatures rather than one, in
 their raw values.  And so on.
 
 Each Attribute also has a Threshold value (whose range is 0 to 255)
@@ -1126,7 +1141,7 @@ enabled.  [Note however that some vendors firmware may actually
 \fBincrease\fP the "Worst" value for some "rate-type" Attributes.]
 
 The Attribute table printed out by \fBsmartctl\fP also shows the
-"TYPE" of the Attribute. Attributes are one of two possible types:
+"TYPE" of the Attribute.  Attributes are one of two possible types:
 Pre-failure or Old age.  Pre-failure Attributes are ones which, if
 less than or equal to their threshold values, indicate pending disk
 failure.  Old age, or usage Attributes, are ones which indicate
@@ -1139,7 +1154,7 @@ equal to the threshold value.
 
 If the Attribute\'s current Normalized value is less than or equal to
 the threshold value, then the "WHEN_FAILED" column will display
-"FAILING_NOW". If not, but the worst recorded value is less than or
+"FAILING_NOW".  If not, but the worst recorded value is less than or
 equal to the threshold value, then this column will display
 "In_the_past".  If the "WHEN_FAILED" column has no entry (indicated by
 a dash: \'\-\') then this Attribute is OK now (not failing) and has
@@ -1154,7 +1169,7 @@ So to summarize: the Raw Attribute values are the ones that might have
 a real physical interpretation, such as "Temperature Celsius",
 "Hours", or "Start-Stop Cycles".  Each manufacturer converts these,
 using their detailed knowledge of the disk\'s operations and failure
-modes, to Normalized Attribute values in the range 1\-254.  The
+modes, to Normalized Attribute values in the range 1\(en254.  The
 current and worst (lowest measured) of these Normalized Attribute
 values are stored on the disk, along with a Threshold value that the
 manufacturer has determined will indicate that the disk is going to
@@ -1173,9 +1188,10 @@ In this case the attribute name printed by smartctl is incorrect unless
 the drive is already in the smartmontools drive database.
 
 [SCSI] For SCSI devices the "attributes" are obtained from the temperature
-and start-stop cycle counter log pages. Certain vendor specific
-attributes are listed if recognised. The attributes are output in a
-relatively free format (compared with ATA disk attributes).
+and start-stop cycle counter log pages.
+Certain vendor specific attributes are listed if recognised.
+The attributes are output in a relatively free format (compared with ATA
+disk attributes).
 .\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
 
 [NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
@@ -1188,8 +1204,8 @@ Information log.
 [ATA only] Selects the output format of the attributes:
 
 .I old
-\- Old smartctl format. This is the default unless the \'\-x\' option is
-specified.
+\- Old smartctl format.
+This is the default unless the \'\-x\' option is specified.
 
 .I brief
 \- New format which fits into 80 colums (except in some rare cases).
@@ -1211,12 +1227,12 @@ The valid arguments to this option are:
 
 .I error
 \- [ATA] prints the Summary SMART error log.  SMART disks maintain a log
-of the most recent five non-trivial errors. For each of these errors, the
+of the most recent five non-trivial errors.  For each of these errors, the
 disk power-on lifetime at which the error occurred is recorded, as is
 the device status (idle, standby, etc) at the time of the error.  For
 some common types of errors, the Error Register (ER) and Status
-Register (SR) values are decoded and printed as text. The meanings of these
-are:
+Register (SR) values are decoded and printed as text.
+The meanings of these are:
 .nf
    \fBABRT\fP:  Command \fBAB\fPo\fBRT\fPed
    \fBAMNF\fP:  \fBA\fPddress \fBM\fPark \fBN\fPot \fBF\fPound
@@ -1235,7 +1251,7 @@ are:
 .fi
 In addition, up to the last five commands that preceded the error are
 listed, along with a timestamp measured from the start of the
-corresponding power cycle. This is displayed in the form
+corresponding power cycle.  This is displayed in the form
 Dd+HH:MM:SS.msec where D is the number of days, HH is hours, MM is
 minutes, SS is seconds and msec is milliseconds.  [Note: this time
 stamp wraps after 2^32 milliseconds, or 49 days 17 hours 2 minutes and
@@ -1264,7 +1280,7 @@ Checking and Correction (ECC) codes are inconsistent.  In effect, this
 means that the data can not be read.
 .br
 \fBIDNF\fP (\fBID N\fPot \fBF\fPound): user-accessible address could
-not be found. For READ LOG type commands, \fBIDNF\fP can also indicate
+not be found.  For READ LOG type commands, \fBIDNF\fP can also indicate
 that a device data log structure checksum was incorrect.
 
 If the command that caused the error was a READ or WRITE command, then
@@ -1273,8 +1289,8 @@ printed in base 10 and base 16.  The LBA is a linear address, which
 counts 512-byte sectors on the disk, starting from zero.  (Because of
 the limitations of the SMART error log, if the LBA is greater than
 0xfffffff, then either no error log entry will be made, or the error
-log entry will have an incorrect LBA. This may happen for drives with
-a capacity greater than 128 GiB or 137 GB.) On Linux systems the
+log entry will have an incorrect LBA.  This may happen for drives with
+a capacity greater than 128 GiB or 137 GB.)  On Linux systems the
 smartmontools web page has instructions about how to convert the LBA
 address to the name of the disk file containing the erroneous disk
 sector.
@@ -1304,8 +1320,8 @@ The maximum number of log entries is vendor specific
 log (see \'\-l error\' above), it provides sufficient space to log
 the contents of the 48-bit LBA register set introduced with ATA-6.
 It also supports logs with more than one sector.  Each sector holds
-up to 4 log entries. The actual number of log sectors is vendor
-specific.
+up to 4 log entries.
+The actual number of log sectors is vendor specific.
 
 Only the 8 most recent error log entries are printed by default.
 This number can be changed by the optional parameter NUM.
@@ -1325,16 +1341,17 @@ twenty-one self-tests, the log shows the type of test (short or
 extended, off-line or captive) and the final status of the test.  If
 the test did not complete successfully, then the percentage of the
 test remaining is shown.  The time at which the test took place,
-measured in hours of disk lifetime, is also printed. [Note: this time
+measured in hours of disk lifetime, is also printed.  [Note: this time
 stamp wraps after 2^16 hours, or 2730 days and 16 hours, or about 7.5
-years.] If any errors were detected, the Logical Block Address (LBA)
+years.]
+If any errors were detected, the Logical Block Address (LBA)
 of the first error is printed in decimal notation.
 
 .I selftest
 \- [SCSI] the self-test log for a SCSI device has a slightly different
 format than for an ATA device.  For each of the most recent twenty
 self-tests, it shows the type of test and the status (final or in
-progress) of the test. SCSI standards use the terms "foreground" and
+progress) of the test.  SCSI standards use the terms "foreground" and
 "background" (rather than ATA\'s corresponding "captive" and
 "off-line") and "short" and "long" (rather than ATA\'s corresponding
 "short" and "extended") to describe the type of the test.  The printed
@@ -1346,19 +1363,19 @@ which the test was run, using a vendor-specific method of putting both
 numbers into a single byte.  The Logical Block Address (LBA) of the
 first error is printed in hexadecimal notation.
 If provided, the SCSI Sense Key (SK), Additional Sense Code (ASC) and
-Additional Sense Code Qualifier (ASCQ) are also printed. The self tests
+Additional Sense Code Qualifier (ASCQ) are also printed.  The self tests
 can be run using the \'\-t\' option described below (using the ATA
 test terminology).
 
 .I xselftest[,NUM][,selftest]
 \- [ATA only] prints the Extended SMART self-test log (General Purpose
-Log address 0x07). Unlike the SMART self-test log (see \'\-l selftest\'
+Log address 0x07).  Unlike the SMART self-test log (see \'\-l selftest\'
 above), it supports 48-bit LBA and logs with more than one sector.
-Each sector holds up to 19 log entries. The actual number of log sectors
-is vendor specific.
+Each sector holds up to 19 log entries.
+The actual number of log sectors is vendor specific.
 
-Only the 25 most recent log entries are printed by default. This number
-can be changed by the optional parameter NUM.
+Only the 25 most recent log entries are printed by default.
+This number can be changed by the optional parameter NUM.
 
 If ',selftest' is appended and the Extended SMART self-test log is not
 supported, the old SMART self-test log is printed.
@@ -1389,20 +1406,21 @@ and
 arguments to this option.
 If your version of smartctl supports 48-bit ATA commands, both the
 General Purpose Log (GPL) and SMART Log (SL) directories are printed in
-one combined table. The output can be restricted to the GPL directory or
+one combined table.  The output can be restricted to the GPL directory or
 SL directory by \'\-l directory,q\' or \'\-l directory,s\' respectively.
 
 .I background
 \- [SCSI only] the background scan results log outputs information derived
 from Background Media Scans (BMS) done after power up and/or periodically
-(e.g. every 24 hours) on recent SCSI disks. If supported, the BMS status
+(e.g.\& every 24 hours) on recent SCSI disks.  If supported, the BMS status
 is output first, indicating whether a background scan is currently
 underway (and if so a progress percentage), the amount of time the disk
-has been powered up and the number of scans already completed. Then there
-is a header and a line for each background scan "event". These will
-typically be either recovered or unrecoverable errors. That latter group
-may need some attention. There is a description of the background scan
-mechanism in section 4.18 of SBC-3 revision 6 (see www.t10.org ).
+has been powered up and the number of scans already completed.
+Then there is a header and a line for each background scan "event".
+These will typically be either recovered or unrecoverable errors.
+That latter group may need some attention.
+There is a description of the background scan mechanism in section 4.18 of
+SBC-3 revision 6 (see www.t10.org ).
 
 .I scttemp, scttempsts, scttemphist
 \- [ATA only] prints the disk temperature information provided by the
@@ -1427,12 +1445,13 @@ is vendor specific, typical values are 1, 2, or 5 minutes.
 
 .I scterc[,READTIME,WRITETIME]
 \- [ATA only] prints values and descriptions of the SCT Error Recovery
-Control settings. These are equivalent to TLER (as used by Western
-Digital), CCTL (as used by Samsung and Hitachi/HGST) and ERC (as used by
-Seagate). READTIME and WRITETIME arguments (deciseconds) set the
-specified values. Values of 0 disable the feature, other values less
-than 65 are probably not supported. For RAID configurations, this is
-typically set to 70,70 deciseconds.
+Control settings.
+These are equivalent to TLER (as used by Western Digital), CCTL (as used
+by Samsung and Hitachi/HGST) and ERC (as used by Seagate).
+READTIME and WRITETIME arguments (deciseconds) set the specified values.
+Values of 0 disable the feature, other values less than 65 are probably not
+supported.
+For RAID configurations, this is typically set to 70,70 deciseconds.
 
 .I devstat[,PAGE]
 \- [ATA only] prints values and descriptions of the ATA Device Statistics
@@ -1467,16 +1486,16 @@ Log command.  See \'\-l gplog,...\' above for parameter syntax.
 
 For example, all these commands:
 .nf
-  smartctl \-l gplog,0x80,10-15 /dev/sda
+  smartctl \-l gplog,0x80,10\-15 /dev/sda
   smartctl \-l gplog,0x80,10+6 /dev/sda
-  smartctl \-l smartlog,0x80,10-15 /dev/sda
+  smartctl \-l smartlog,0x80,10\-15 /dev/sda
 .fi
-print pages 10-15 of log 0x80 (first host vendor specific log).
+print pages 10\(en15 of log 0x80 (first host vendor specific log).
 
 The hex dump format is compatible with the \'xxd \-r\' command.
 This command:
 .nf
-  smartctl \-l gplog,0x11 /dev/sda | grep ^0 | xxd -r >log.bin
+  smartctl \-l gplog,0x11 /dev/sda | grep ^0 | xxd \-r >log.bin
 .fi
 writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
@@ -1499,20 +1518,21 @@ This has the same effect as \'\-l devstat,7\', see above.
 
 .I ssd
 \- [SCSI] prints the Solid State Media percentage used endurance
-indicator. A value of 0 indicates as new condition while 100
+indicator.  A value of 0 indicates as new condition while 100
 indicates the device is at the end of its lifetime as projected by the
-manufacturer. The value may reach 255.
+manufacturer.
+The value may reach 255.
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME], \-\-vendorattribute=ID,FORMAT[:BYTEORDER][,NAME]
 [ATA only] Sets a vendor-specific raw value print FORMAT, an optional
 BYTEORDER and an optional NAME for Attribute ID.
 This option may be used multiple times.
 
-The Attribute ID can be in the range 1 to 255. If \'N\' is specified as
-ID, the settings for all Attributes are changed.
+The Attribute ID can be in the range 1 to 255.
+If \'N\' is specified as ID, the settings for all Attributes are changed.
 
 The optional BYTEORDER consists of 1 to 8 characters from the
-set \'012345rvwz\'. The characters \'0\' to \'5\' select the byte 0
+set \'012345rvwz\'.  The characters \'0\' to \'5\' select the byte 0
 to 5 from the 48-bit raw value, \'r\' selects the reserved byte of
 the attribute data block, \'v\' selects the normalized value, \'w\'
 selects the worst value and \'z\' inserts a zero byte.
@@ -1569,21 +1589,21 @@ This raw format is used by some SSD devices with Indilinx controller.
 .I min2hour
 \- Raw Attribute is power-on time in minutes.  Its raw value
 will be displayed in the form "Xh+Ym".  Here X is hours, and Y is
-minutes in the range 0\-59 inclusive.  Y is always printed with two
+minutes in the range 0\(en59 inclusive.  Y is always printed with two
 digits, for example "06" or "31" or "00".
 
 .I sec2hour
 \- Raw Attribute is power-on time in seconds.  Its raw value
 will be displayed in the form "Xh+Ym+Zs".  Here X is hours, Y is
-minutes in the range 0\-59 inclusive, and Z is seconds in the range
-0\-59 inclusive.  Y and Z are always printed with two digits, for
+minutes in the range 0\(en59 inclusive, and Z is seconds in the range
+0\(en59 inclusive.  Y and Z are always printed with two digits, for
 example "06" or "31" or "00".
 
 .I halfmin2hour
 \- Raw Attribute is power-on time, measured in units of 30
 seconds.  This format is used by some Samsung disks.  Its raw value
 will be displayed in the form "Xh+Ym".  Here X is hours, and Y is
-minutes in the range 0\-59 inclusive.  Y is always printed with two
+minutes in the range 0\(en59 inclusive.  Y is always printed with two
 digits, for example "06" or "31" or "00".
 
 .I msec24hour32
@@ -1618,11 +1638,11 @@ This is the default for Attribute 3.
 for Attribute 9.
 
 .I raw24/raw24
-\- Raw Attribute contains two 24-bit values. The first is the
+\- Raw Attribute contains two 24-bit values.  The first is the
 number of load cycles.  The second is the number of unload cycles.
 The difference between these two values is the number of times that
 the drive was unexpectedly powered off (also called an emergency
-unload). As a rule of thumb, the mechanical stress created by one
+unload).  As a rule of thumb, the mechanical stress created by one
 emergency unload is equivalent to that created by one hundred normal
 unloads.
 
@@ -1723,7 +1743,7 @@ are (1) no self-test log printed, even though you have run self-tests;
 .I samsung2
 \- In some Samsung disks the number of ATA errors reported is byte swapped.
 Enabling this option tells \fBsmartctl\fP to evaluate this quantity in
-byte-reversed order. An indication that your Samsung disk needs this
+byte-reversed order.  An indication that your Samsung disk needs this
 option is that the self-test log is printed correctly, but there are a
 very large number of errors in the SMART error log.  This is because
 the error count is byte swapped.  Thus a disk with five errors
@@ -1732,7 +1752,7 @@ the error count is byte swapped.  Thus a disk with five errors
 .I samsung3
 \- Some Samsung disks (at least SP2514N with Firmware VF100-37) report
 a self-test still in progress with 0% remaining when the test was already
-completed. Enabling this option modifies the output of the self-test
+completed.  Enabling this option modifies the output of the self-test
 execution status (see options \'\-c\' or \'\-a\' above) accordingly.
 
 .I xerrorlba
@@ -1746,7 +1766,7 @@ firmware version) returned by some buggy device drivers.
 .TP
 .B \-P TYPE, \-\-presets=TYPE
 [ATA only] Specifies whether \fBsmartctl\fP should use any preset options
-that are available for this drive. By default, if the drive is recognized
+that are available for this drive.  By default, if the drive is recognized
 in the \fBsmartmontools\fP database, then the presets are used.
 
 The argument
@@ -1765,7 +1785,7 @@ The valid arguments to this option are:
 
 .I use
 \- if a drive is recognized, then use the stored presets for it.  This
-is the default. Note that presets will NOT override additional
+is the default.  Note that presets will NOT override additional
 Attribute interpretation (\'\-v N,something\') command-line options or
 explicit \'\-F\' command-line options..
 
@@ -1782,7 +1802,8 @@ then exit.  This also checks the drive database regular expressions
 and settings for syntax errors.
 
 The \'\-P showall\' option takes up to two optional arguments to
-match a specific drive type and firmware version. The command:
+match a specific drive type and firmware version.
+The command:
 .nf
   smartctl \-P showall
 .fi
@@ -1842,7 +1863,8 @@ to update this file from the smartmontools SVN repository.
 .\" %ENDIF ENABLE_DRIVEDB
 
 The database files use the same C/C++ syntax that is used to initialize
-the built in database array. C/C++ style comments are allowed.
+the built in database array.
+C/C++ style comments are allowed.
 Example:
 
 .nf
@@ -1915,8 +1937,8 @@ try to track the progress of the test with \'\-c\', as it will abort
 the test.
 
 .I offline
-\- [SCSI] runs the default self test in foreground. No entry is placed
-in the self test log.
+\- [SCSI] runs the default self test in foreground.
+No entry is placed in the self test log.
 
 .I short
 \- [ATA] runs SMART Short Self Test (usually under ten minutes).
@@ -1927,8 +1949,8 @@ tests.  The "Self" tests check the electrical and mechanical
 performance as well as the read performance of the disk.  Their
 results are reported in the Self Test Error Log, readable with
 the \'\-l selftest\' option.  Note that on some disks the progress of the
-self-test can be monitored by watching this log during the self-test; with other disks
-use the \'\-c\' option to monitor progress.
+self-test can be monitored by watching this log during the self-test;
+with other disks use the \'\-c\' option to monitor progress.
 
 .I short
 \- [SCSI] runs the "Background short" self-test.
@@ -1945,7 +1967,7 @@ system operation (unless run in captive mode \- see the \'\-C\' option below).
 .I conveyance
 \- [ATA only] runs a SMART Conveyance Self Test (minutes).  This
 self-test routine is intended to identify damage incurred during
-transporting of the device. This self-test routine should take on the
+transporting of the device.  This self-test routine should take on the
 order of minutes to complete.  Note that this command can be given
 during normal system operation (unless run in captive mode \- see the
 \'\-C\' option below).
@@ -1955,8 +1977,9 @@ during normal system operation (unless run in captive mode \- see the
 of disk Logical Block Addresses (LBAs), rather than the entire disk.
 Each range of LBAs that is checked is called a "span" and is specified
 by a starting LBA (N) and an ending LBA (M) with N less than or equal
-to M. The range can also be specified as N+SIZE. A span at the end of
-a disk can be specified by N\-\fBmax\fP.
+to M.
+The range can also be specified as N+SIZE.
+A span at the end of a disk can be specified by N\-\fBmax\fP.
 
 For example the commands:
 .nf
@@ -1964,7 +1987,8 @@ For example the commands:
   smartctl \-t select,10+11 /dev/sda
 .fi
 both runs a self test on one span consisting of LBAs ten to twenty
-(inclusive). The command:
+(inclusive).
+The command:
 .nf
   smartctl \-t select,100000000\-max /dev/sda
 .fi
@@ -1999,9 +2023,9 @@ on the ranges from past tests already stored on the disk:
 
 .I select,redo[+SIZE]
 \- [ATA only] redo the last SMART Selective Self Test using the same LBA
-range. The starting LBA is identical to the LBA used by last test, same
-for ending LBA unless a new span size is specified by optional +SIZE
-argument.
+range.
+The starting LBA is identical to the LBA used by last test, same for ending
+LBA unless a new span size is specified by optional +SIZE argument.
 
 For example the commands:
 .nf
@@ -2018,9 +2042,9 @@ have the same effect as:
 
 .I select,next[+SIZE]
 \- [ATA only] runs a SMART Selective Self Test on the LBA range which
-follows the range of the last test. The starting LBA is set to (ending
-LBA +1) of the last test. A new span size may be specified by the
-optional +SIZE argument.
+follows the range of the last test.
+The starting LBA is set to (ending LBA +1) of the last test.
+A new span size may be specified by the optional +SIZE argument.
 
 For example the commands:
 .nf
@@ -2036,19 +2060,19 @@ have the same effect as:
 .fi
 
 If the last test ended at the last LBA of the disk, the new range starts
-at LBA 0. The span size of the last span of a disk is adjusted such that
+at LBA 0.  The span size of the last span of a disk is adjusted such that
 the total number of spans to check the full disk will not be changed
 by future uses of \'\-t select,next\'.
 
 .I select,cont[+SIZE]
 \- [ATA only] performs a \'redo\' (above) if the self test status reports
-that the last test was aborted by the host. Otherwise it run the \'next\'
-(above) test.
+that the last test was aborted by the host.
+Otherwise it run the \'next\' (above) test.
 
 .I afterselect,on
 \- [ATA only] perform an offline read scan after a Selective self-test
-has completed. This option must be used together with one or more of
-the \fIselect,N\-M\fP options above. If the LBAs that have been
+has completed.  This option must be used together with one or more of
+the \fIselect,N\-M\fP options above.  If the LBAs that have been
 specified in the Selective self-test pass the test with no errors
 found, then read scan the \fBremainder\fP of the disk.  If the device
 is powered-cycled while this read scan is in progress, the read scan
@@ -2062,23 +2086,23 @@ Selective self-test has completed.  This option must be use together
 with one or more of the \fIselect,N\-M\fP options above.  The value of this
 option is preserved between selective self-tests.
 
-.I pending,N 
+.I pending,N
 \- [ATA only] set the pending offline read scan timer to N minutes.
 Here N is an integer in the range from 0 to 65535 inclusive.  If the
 device is powered off during a read scan after a Selective self-test,
 then resume the test automatically N minutes after power-up.  This
 option must be use together with one or more of the \fIselect,N\-M\fP
-options above. The value of this option is preserved between selective
-self-tests.
+options above.
+The value of this option is preserved between selective self-tests.
 
 .I vendor,N
 \- [ATA only] issues the ATA command SMART EXECUTE OFF-LINE IMMEDIATE
-with subcommand N in LBA LOW register. The subcommand is specified as
-a hex value in the range 0x00 to 0xff.  Subcommands 0x40-0x7e and
-0x90-0xff are reserved for vendor specific use, see table 61 of
+with subcommand N in LBA LOW register.  The subcommand is specified as
+a hex value in the range 0x00 to 0xff.  Subcommands 0x40\(en0x7e and
+0x90\(en0xff are reserved for vendor specific use, see table 61 of
 T13/1699-D Revision 6a (ATA8-ACS).  Note that the subcommands
-0x00-0x04,0x7f,0x81-0x84 are supported by other smartctl options
-(e.g. 0x01: \'\-t short\', 0x7f: \'\-X\', 0x82: \'\-C \-t long\').
+0x00\(en0x04, 0x7f, 0x81\(en0x84 are supported by other smartctl options
+(e.g.\& 0x01: \'\-t short\', 0x7f: \'\-X\', 0x82: \'\-C \-t long\').
 
 \fBWARNING: Only run subcommands documented by the vendor of the
 device.\fP
@@ -2111,58 +2135,58 @@ disk has the "Abort Offline collection upon new command" capability.
 
 .SH ATA, SCSI command sets and SAT
 In the past there has been a clear distinction between storage devices
-that used the ATA and SCSI command sets. This distinction was often
-reflected in their device naming and hardware. Now various SCSI
-transports (e.g. SAS, FC and iSCSI) can interconnect to both SCSI
-disks (e.g. FC and SAS) and ATA disks (especially SATA). USB and
+that used the ATA and SCSI command sets.  This distinction was often
+reflected in their device naming and hardware.  Now various SCSI
+transports (e.g.\& SAS, FC and iSCSI) can interconnect to both SCSI
+disks (e.g.\& FC and SAS) and ATA disks (especially SATA).  USB and
 IEEE 1394 storage devices use the SCSI command set externally but
-almost always contain ATA or SATA disks (or flash). The storage
+almost always contain ATA or SATA disks (or flash).  The storage
 subsystems in some operating systems have started to remove the
 distinction between ATA and SCSI in their device naming policies.
 .PP
 99% of operations that an OS performs on a disk involve the SCSI INQUIRY,
-READ CAPACITY, READ and WRITE commands, or their ATA equivalents. Since
+READ CAPACITY, READ and WRITE commands, or their ATA equivalents.  Since
 the SCSI commands are slightly more general than their ATA equivalents,
 many OSes are generating SCSI commands (mainly READ and WRITE) and
 letting a lower level translate them to their ATA equivalents as the
-need arises. An important note here is that "lower level" may be in
+need arises.  An important note here is that "lower level" may be in
 external equipment and hence outside the control of an OS.
 .PP
 SCSI to ATA Translation (SAT) is a standard (ANSI INCITS 431-2007) that
-specifies how this translation is done. For the other 1% of operations
-that an OS performs on a disk, SAT provides two options. First is an
-optional ATA PASS-THROUGH SCSI command (there are two variants). The
-second is a translation from the closest SCSI command. Most current
-interest is in the "pass-through" option.
+specifies how this translation is done.  For the other 1% of operations
+that an OS performs on a disk, SAT provides two options.  First is an
+optional ATA PASS-THROUGH SCSI command (there are two variants).
+The second is a translation from the closest SCSI command.
+Most current interest is in the "pass-through" option.
 .PP
 The relevance to smartmontools (and hence smartctl) is that its
-interactions with disks fall solidly into the "1%" category. So even
+interactions with disks fall solidly into the "1%" category.  So even
 if the OS can happily treat (and name) a disk as "SCSI", smartmontools
 needs to detect the native command set and act accordingly.
 As more storage manufacturers (including external SATA drives) comply
 with SAT, smartmontools is able to automatically distinguish the native
-command set of the device. In some cases the '\-d sat' option is needed
-on the command line.
+command set of the device.
+In some cases the '\-d sat' option is needed on the command line.
 .PP
 There are also virtual disks which typically have no useful information
-to convey to smartmontools, but could conceivably in the future. An
-example of a virtual disk is the OS's view of a RAID 1 box. There are
-most likely two SATA disks inside a RAID 1 box. Addressing those SATA
-disks from a distant OS is a challenge for smartmontools. Another
+to convey to smartmontools, but could conceivably in the future.  An
+example of a virtual disk is the OS's view of a RAID 1 box.  There are
+most likely two SATA disks inside a RAID 1 box.  Addressing those SATA
+disks from a distant OS is a challenge for smartmontools.  Another
 approach is running a tool like smartmontools inside the RAID 1 box (e.g.
 a Network Attached Storage (NAS) box) and fetching the logs via a
-browser. 
+browser.
 
 .SH EXAMPLES
 .nf
 .B smartctl \-a /dev/sda
 .fi
-Print a large amount of SMART information for drive /dev/sda .
+Print a large amount of SMART information for drive /dev/sda.
 .PP
 .nf
 .B smartctl \-s off /dev/sdd
 .fi
-Disable SMART monitoring and data log collection on drive /dev/sdd .
+Disable SMART monitoring and data log collection on drive /dev/sdd.
 .PP
 .nf
 .B smartctl \-\-smart=on \-\-offlineauto=on \-\-saveauto=on /dev/sda
@@ -2250,8 +2274,8 @@ controller addressed by /dev/sg2.
 .B smartctl \-a \-d hpt,1/3 /dev/sda    (under Linux)
 .B smartctl \-a \-d hpt,1/3 /dev/hptrr    (under FreeBSD)
 .fi
-Examine all SMART data for the (S)ATA disk directly connected to the third channel of the
-first HighPoint RocketRAID controller card.
+Examine all SMART data for the (S)ATA disk directly connected to the third
+channel of the first HighPoint RocketRAID controller card.
 .nf
 .PP
 .nf
@@ -2265,9 +2289,9 @@ first channel of the first HighPoint RocketRAID controller card.
 .B smartctl \-t select,10\-100 \-t select,30\-300 \-t afterselect,on \-t pending,45 /dev/sda
 .fi
 Run a selective self-test on LBAs 10 to 100 and 30 to 300.  After the
-these LBAs have been tested, read-scan the remainder of the disk.  If the disk is
-power-cycled during the read-scan, resume the scan 45 minutes after power to the
-device is restored.
+these LBAs have been tested, read-scan the remainder of the disk.
+If the disk is power-cycled during the read-scan, resume the scan 45 minutes
+after power to the device is restored.
 .PP
 .nf
 .B smartctl \-a \-d cciss,0 /dev/cciss/c0d0
@@ -2304,7 +2328,7 @@ We found prefail Attributes <= threshold.
 .B Bit 5:
 SMART status check returned "DISK OK" but we found that some (usage
 or prefail) Attributes have been <= threshold at some time in the
-past. 
+past.
 .TP
 .B Bit 6:
 The device error log contains records of errors.
@@ -2391,7 +2415,7 @@ Please see the following web site for more info:
 
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
-pages 74-77.
+pages 74\(en77.
 See <\fBhttps://www.linuxjournal.com/article/6983\fP>.
 
 If you would like to understand better how SMART works, and what it
