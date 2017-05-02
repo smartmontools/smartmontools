@@ -13,6 +13,9 @@ You should have received a copy of the GNU General Public License
 (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 
 ..
+.\" Use groff extension \(aq (apostrophe quote, ASCII 0x27) if possible
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .TH UPDATE-SMART-DRIVEDB 8 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
 .SH NAME
 update-smart-drivedb \- update smartmontools drive database
@@ -64,7 +67,7 @@ the differences in Id string) otherwise it is moved to
 Use the
 .BR smartctl (8)
 executable at path SMARTCTL for drive database syntax check.
-The form \'\-s \-\' disables the syntax check.
+The form \*(Aq\-s \-\*(Aq disables the syntax check.
 The default is
 .BR /usr/local/sbin/smartctl .
 .TP
@@ -102,8 +105,8 @@ The default is
 .TP
 .B \-\-trunk
 Download from SVN trunk.
-This requires \'\-\-no\-verify\' unless the trunk version is still identical
-to branches/RELEASE_6_0_DRIVEDB.
+This requires \*(Aq\-\-no\-verify\*(Aq unless the trunk version is still
+identical to branches/RELEASE_6_0_DRIVEDB.
 .TP
 .B \-\-cacert FILE
 Use CA certificates from FILE to verify the peer.
@@ -113,7 +116,8 @@ Use CA certificate files from DIR to verify the peer.
 .TP
 .B \-\-insecure
 Don't abort download if certificate verification fails.
-This option is also required if a HTTP URL is selected with \'\-u\' option.
+This option is also required if a HTTP URL is selected with \*(Aq\-u\*(Aq
+option.
 .TP
 .B \-\-no\-verify
 Don't verify signature with GnuPG.

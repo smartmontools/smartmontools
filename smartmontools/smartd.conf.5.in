@@ -18,6 +18,9 @@ Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
+.\" Use groff extension \(aq (apostrophe quote, ASCII 0x27) if possible
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .TH SMARTD.CONF 5 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File\fP
@@ -43,7 +46,7 @@ running.
 In the absence of a configuration file
 \fBsmartd\fP will try to open all available devices
 (see \fBsmartd\fP(8) man page).
-A configuration file with a single line \fB\'DEVICESCAN \-a\'\fP
+A configuration file with a single line \fB\*(AqDEVICESCAN \-a\*(Aq\fP
 would have the same effect.
 
 This can be annoying if you have an ATA or SCSI device that hangs or
@@ -68,13 +71,13 @@ The syntax of the file is as follows:
 There should be one device listed per line, although you may have
 lines that are entirely comments or white space.
 .IP \(bu 4
-Any text following a hash sign \'#\' and up to the end of the line is
+Any text following a hash sign \*(Aq#\*(Aq and up to the end of the line is
 taken to be a comment, and ignored.
 .IP \(bu 4
-Lines may be continued by using a backslash \'\e\' as the last
+Lines may be continued by using a backslash \*(Aq\e\*(Aq as the last
 non-whitespace or non-comment item on a line.
 .IP \(bu 4
-Note: a line whose first character is a hash sign \'#\' is treated as
+Note: a line whose first character is a hash sign \*(Aq#\*(Aq is treated as
 a white-space blank line, \fBnot\fP as a non-existent line, and will
 \fBend\fP a continuation line.
 .PP
@@ -291,28 +294,30 @@ name.
 
 .B For an ATA device,
 if no Directives appear, then the device will be monitored
-as if the \'\-a\' Directive (monitor all SMART properties) had been given.
+as if the \*(Aq\-a\*(Aq Directive (monitor all SMART properties) had been given.
 
 .B If a SCSI disk is listed,
 it will be monitored at the maximum implemented level: roughly
-equivalent to using the \'\-H \-l selftest\' options for an ATA disk.
-So with the exception of \'\-d\', \'\-m\', \'\-l selftest\', \'\-s\', and
-\'\-M\', the Directives below are ignored for SCSI disks.  For SCSI
-disks, the \'\-m\' Directive sends a warning email if the SMART status
-indicates a disk failure or problem, if the SCSI inquiry about disk
+equivalent to using the \*(Aq\-H \-l selftest\*(Aq options for an ATA disk.
+So with the exception of \*(Aq\-d\*(Aq, \*(Aq\-m\*(Aq, \*(Aq\-l selftest\*(Aq,
+\*(Aq\-s\*(Aq, and \*(Aq\-M\*(Aq, the Directives below are ignored for SCSI disks.
+For SCSI disks, the \*(Aq\-m\*(Aq Directive sends a warning email if the SMART
+status indicates a disk failure or problem, if the SCSI inquiry about disk
 status fails, or if new errors appear in the self-test log.
 
 .B If a 3ware controller is used
 then the corresponding SCSI (/dev/sd?) or character device (/dev/twe?,
-/dev/twa?, /dev/twl? or /dev/tws?) must be listed, along with the \'\-d 3ware,N\'
-Directive (see below).  The individual ATA disks hosted by the 3ware
-controller appear to \fBsmartd\fP as normal ATA devices.  Hence all
-the ATA directives can be used for these disks (but see note below).
+/dev/twa?, /dev/twl? or /dev/tws?) must be listed, along with the
+\*(Aq\-d 3ware,N\*(Aq Directive (see below).
+The individual ATA disks hosted by the 3ware controller appear to \fBsmartd\fP
+as normal ATA devices.
+Hence all the ATA directives can be used for these disks (but see note below).
 
 .\" %IF OS Linux FreeBSD
 .B If an Areca controller is used
 then the corresponding device (SCSI /dev/sg? on Linux or /dev/arcmsr0 on
-FreeBSD) must be listed, along with the \'\-d areca,N\' Directive (see below).
+FreeBSD) must be listed, along with the \*(Aq\-d areca,N\*(Aq Directive
+(see below).
 The individual SATA disks hosted by the Areca controller appear to \fBsmartd\fP
 as normal ATA devices.  Hence all the ATA directives can be used for
 these disks.  Areca firmware version 1.46 or later which supports
@@ -360,38 +365,39 @@ This is for ATA disks that have a SCSI to ATA Translation Layer (SATL)
 between the disk and the operating system.
 SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
 the other 16 bytes long.  The default is the 16 byte variant which can be
-overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
+overridden with either \*(Aq\-d sat,12\*(Aq or \*(Aq\-d sat,16\*(Aq.
 
-If \'\-d sat,auto\' is specified, device type SAT (for ATA/SATA disks) is
-only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
+If \*(Aq\-d sat,auto\*(Aq is specified, device type SAT (for ATA/SATA disks)
+is only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
 Otherwise device type SCSI (for SCSI/SAS disks) is used.
 
 .I usbcypress
 \- this device type is for ATA disks that are behind a Cypress USB to PATA
 bridge.  This will use the ATACB proprietary scsi pass through command.
 The default SCSI operation code is 0x24, but although it can be overridden
-with \'\-d usbcypress,0xN\', where N is the scsi operation code,
+with \*(Aq\-d usbcypress,0xN\*(Aq, where N is the scsi operation code,
 you're running the risk of damage to the device or filesystems on it.
 
 .I usbjmicron[,p][,x][,PORT]
 \- this device type is for SATA disks that are behind a JMicron USB to
-PATA/SATA bridge.  The 48-bit ATA commands (required e.g.\& for \'\-l xerror\',
-see below) do not work with all of these bridges and are therefore disabled by
-default.  These commands can be enabled by \'\-d usbjmicron,x\'.
+PATA/SATA bridge.
+The 48-bit ATA commands (required e.g.\& for \*(Aq\-l xerror\*(Aq, see below)
+do not work with all of these bridges and are therefore disabled by default.
+These commands can be enabled by \*(Aq\-d usbjmicron,x\*(Aq.
 If two disks are connected to a bridge with two ports, an error message is
 printed if no PORT is specified.
-The port can be specified by \'\-d usbjmicron[,x],PORT\' where PORT is 0
+The port can be specified by \*(Aq\-d usbjmicron[,x],PORT\*(Aq where PORT is 0
 (master) or 1 (slave).  This is not necessary if the device uses a port
 multiplier to connect multiple disks to one port.  The disks appear under
 separate /dev/ice names then.
-CAUTION: Specifying \',x\' for a device which does not support it results
+CAUTION: Specifying \*(Aq,x\*(Aq for a device which does not support it results
 in I/O errors and may disconnect the drive.  The same applies if the specified
 PORT does not exist or is not connected to a disk.
 
 The Prolific PL2507/3507 USB bridges with older firmware support a pass-through
-command similar to JMicron and work with \'\-d usbjmicron,0\'.
+command similar to JMicron and work with \*(Aq\-d usbjmicron,0\*(Aq.
 Newer Prolific firmware requires a modified command which can be selected by
-\'\-d usbjmicron,p\'.
+\*(Aq\-d usbjmicron,p\*(Aq.
 Note that this does not yet support the SMART status command.
 
 .I usbprolific
@@ -500,7 +506,8 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 This allows to ignore specific devices which are detected by a following
 DEVICESCAN configuration line.
 It may also be used to temporary disable longer multi-line configuration entries.
-This Directive may be used in conjunction with the other \'\-d\' Directives.
+This Directive may be used in conjunction with the other \*(Aq\-d\*(Aq
+Directives.
 
 .I removable
 \- the device or its media is removable.  This indicates to
@@ -508,7 +515,7 @@ This Directive may be used in conjunction with the other \'\-d\' Directives.
 that it should continue (instead of exiting, which is the default
 behavior) if the device does not appear to be present when
 \fBsmartd\fP is started.  This Directive may be used in conjunction
-with the other \'\-d\' Directives.
+with the other \*(Aq\-d\*(Aq Directives.
 [NEW EXPERIMENTAL SMARTD FEATURE]
 This directive also suppresses warning emails and repeated log messages
 if the device is removed after startup.
@@ -516,15 +523,17 @@ if the device is removed after startup.
 is not supported and may result in bogus warnings until smartd is restarted.\fR
 .TP
 .B \-n POWERMODE[,N][,q]
-[ATA only] This \'nocheck\' Directive is used to prevent a disk from
+[ATA only] This \*(Aqnocheck\*(Aq Directive is used to prevent a disk from
 being spun-up when it is periodically polled by \fBsmartd\fP.
 
 ATA disks have five different power states.  In order of increasing
-power consumption they are: \'OFF\', \'SLEEP\', \'STANDBY\', \'IDLE\',
-and \'ACTIVE\'.  Typically in the OFF, SLEEP, and STANDBY modes the
-disk's platters are not spinning.  But usually, in response to SMART
-commands issued by \fBsmartd\fP, the disk platters are spun up.  So if
-this option is not used, then a disk which is in a low-power mode may
+power consumption they are: \*(AqOFF\*(Aq, \*(AqSLEEP\*(Aq,
+\*(AqSTANDBY\*(Aq, \*(AqIDLE\*(Aq, and \*(AqACTIVE\*(Aq.
+Typically in the OFF, SLEEP, and STANDBY modes the disk's platters are not
+spinning.
+But usually, in response to SMART commands issued by \fBsmartd\fP, the disk
+platters are spun up.
+So if this option is not used, then a disk which is in a low-power mode may
 be spun up and put into a higher-power mode when it is periodically
 polled by \fBsmartd\fP.
 
@@ -534,7 +543,7 @@ be registered as a device for \fBsmartd\fP to monitor.  If a disk is in
 any other low-power mode, then the commands issued by \fBsmartd\fP to
 register the disk will probably cause it to spin-up.
 
-The \'\fB\-n\fP\' (nocheck) Directive specifies if \fBsmartd\fP's
+The \*(Aq\fB\-n\fP\*(Aq (nocheck) Directive specifies if \fBsmartd\fP's
 periodic checks should still be carried out when the device is in a
 low-power mode.  It may be used to prevent a disk from being spun-up
 by periodic \fBsmartd\fP polling.  The allowed values of POWERMODE
@@ -561,16 +570,17 @@ In the IDLE state, most disks are still spinning, so this is probably
 not what you want.
 
 Maximum number of skipped checks (in a row) can be specified by
-appending positive number \',N\' to POWERMODE (like \'\-n standby,15\').
+appending positive number \*(Aq,N\*(Aq to POWERMODE (like
+\*(Aq\-n standby,15\*(Aq).
 After N checks are skipped in a row, powermode is ignored and the
 check is performed anyway.
 
 When a periodic test is skipped, \fBsmartd\fP normally writes an
 informal log message.  The message can be suppressed by appending
-the option \',q\' to POWERMODE (like \'\-n standby,q\').
+the option \*(Aq,q\*(Aq to POWERMODE (like \*(Aq\-n standby,q\*(Aq).
 This prevents a laptop disk from spinning up due to this message.
 
-Both \',N\' and \',q\' can be specified together.
+Both \*(Aq,N\*(Aq and \*(Aq,q\*(Aq can be specified together.
 .TP
 .B \-T TYPE
 Specifies how tolerant
@@ -615,7 +625,7 @@ Directive are \fIon\fP and \fIoff\fP.  Also affects SCSI devices.
 STATUS command.
 If this command reports a failing health status, then disk
 failure is predicted in less than 24 hours, and a message at loglevel
-.B \'LOG_CRIT\'
+.B \*(AqLOG_CRIT\*(Aq
 will be logged to syslog.  [Please see the
 .B smartctl \-H
 command-line option.]
@@ -624,7 +634,7 @@ command-line option.]
 [NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
 [NEW EXPERIMENTAL SMARTD FEATURE]
 Checks the "Critical Warning" byte from the SMART/Health Information log.
-If any warning bit is set, a message at loglevel \fB\'LOG_CRIT\'\fP
+If any warning bit is set, a message at loglevel \fB\*(AqLOG_CRIT\*(Aq\fP
 will be logged to syslog.
 .\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
 .TP
@@ -648,8 +658,8 @@ SMART/Health Information log has increased since the last check.
 \- [ATA] report if the number of ATA errors reported in the Extended
 Comprehensive SMART error log has increased since the last check.
 
-If both \'\-l error\' and \'\-l xerror\' are specified, smartd checks
-the maximum of both values.
+If both \*(Aq\-l error\*(Aq and \*(Aq\-l xerror\*(Aq are specified, smartd
+checks the maximum of both values.
 
 [Please see the \fBsmartctl \-l xerror\fP command-line option.]
 
@@ -657,7 +667,7 @@ the maximum of both values.
 .I xerror
 \- [NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
 [NEW EXPERIMENTAL SMARTD FEATURE]
-same as \'\-l error\'.
+same as \*(Aq\-l error\*(Aq.
 .\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
 
 .I selftest
@@ -666,10 +676,10 @@ Self-Test Log has increased since the last check, or if the timestamp
 associated with the most recent failed test has increased.  Note that
 such errors will \fBonly\fP be logged if you run self-tests on the
 disk (and it fails a test!).  Self-Tests can be run automatically by
-\fBsmartd\fP: please see the \fB\'\-s\'\fP Directive below.
-Self-Tests can also be run manually by using the \fB\'\-t\ short\'\fP
-and \fB\'\-t\ long\'\fP options of \fBsmartctl\fP and the results of
-the testing can be observed using the \fBsmartctl \'\-l\ selftest\'\fP
+\fBsmartd\fP: please see the \*(Aq\-s\*(Aq Directive below.
+Self-Tests can also be run manually by using the \*(Aq\-t short\*(Aq
+and \fB\*(Aq\-t\ long\*(Aq\fP options of \fBsmartctl\fP and the results of
+the testing can be observed using the \fBsmartctl \*(Aq\-l\ selftest\*(Aq\fP
 command-line option.
 [Please see the \fBsmartctl \-l\fP and \fB\-t\fP command-line
 options.]
@@ -683,16 +693,16 @@ an extended self-test is run after all bad sectors have been reallocated.
 \- [ATA only] report if the Offline Data Collection status has changed
 since the last check.  The report will be logged as LOG_CRIT if the new
 status indicates an error.  With some drives the status often changes,
-therefore \'\-l offlinests\' is not enabled by \'\-a\' Directive.
+therefore \*(Aq\-l offlinests\*(Aq is not enabled by \*(Aq\-a\*(Aq Directive.
 .\" %IF NOT OS Cygwin Windows
 .\"! Appending ',ns' (no standby) to this directive is not implemented
 .\"! on OS_MAN_FILTER.
 .\" %ENDIF NOT OS Cygwin Windows
 .\" %IF OS Cygwin Windows
 
-[Windows and Cygwin only] If \',ns\' (no standby) is appended to this
+[Windows and Cygwin only] If \*(Aq,ns\*(Aq (no standby) is appended to this
 directive, smartd disables system auto standby as long as an Offline
-Data Collection is in progress.  See \'\-l selfteststs,ns\' below.
+Data Collection is in progress.  See \*(Aq\-l selfteststs,ns\*(Aq below.
 .\" %ENDIF OS Cygwin Windows
 
 .I selfteststs[,ns]
@@ -705,11 +715,11 @@ status indicates an error.
 .\" %ENDIF NOT OS Cygwin Windows
 .\" %IF OS Cygwin Windows
 
-[Windows and Cygwin only] If \',ns\' (no standby) is appended to this
+[Windows and Cygwin only] If \*(Aq,ns\*(Aq (no standby) is appended to this
 directive, smartd disables system auto standby as long as a Self-Test
 is in progress.  This prevents that a Self-Test is aborted because the
 OS sets the system to a standby/sleep mode when idle.  Smartd check
-interval (\'\-i\' option) should be shorter than the configured idle
+interval (\*(Aq\-i\*(Aq option) should be shorter than the configured idle
 timeout.  Auto standby is not disabled if the system is running on
 battery.
 .\" %ENDIF OS Cygwin Windows
@@ -760,21 +770,21 @@ match the extended regular expression \fBREGEXP\fP.  Here:
 .RS 7
 .IP \fBT\fP 4
 is the type of the test.  The values that \fBsmartd\fP will try to
-match (in turn) are: \'L\' for a \fBL\fPong Self-Test, \'S\' for a
-\fBS\fPhort Self-Test, \'C\' for a \fBC\fPonveyance Self-Test (ATA
-only), and \'O\' for an \fBO\fPffline Immediate Test (ATA only).  As
+match (in turn) are: \*(AqL\*(Aq for a \fBL\fPong Self-Test, \*(AqS\*(Aq for a
+\fBS\fPhort Self-Test, \*(AqC\*(Aq for a \fBC\fPonveyance Self-Test (ATA
+only), and \*(AqO\*(Aq for an \fBO\fPffline Immediate Test (ATA only).  As
 soon as a match is found, the test will be started and no additional
 matches will be sought for that device and that polling cycle.
 
-To run scheduled Selective Self-Tests, use \'n\' for \fBn\fPext span,
-\'r\' to \fBr\fPedo last span, or \'c\' to \fBc\fPontinue with next span
-or redo last span based on status of last test.
+To run scheduled Selective Self-Tests, use \*(Aqn\*(Aq for \fBn\fPext span,
+\*(Aqr\*(Aq to \fBr\fPedo last span, or \*(Aqc\*(Aq to \fBc\fPontinue with
+next span or redo last span based on status of last test.
 The LBA range is based on the first span from the last test.
 See the \fBsmartctl \-t select,[next|redo|cont]\fP options for
 further info.
 
 Some disks (e.g.\& WD) do not preserve the selective self test log across
-power cycles.  If state persistence (\'\-s\' option) is enabled, the last
+power cycles.  If state persistence (\*(Aq\-s\*(Aq option) is enabled, the last
 test span is preserved by smartd and used if (and only if) the selective
 self test log is empty.
 .IP \fBMM\fP 4
@@ -799,8 +809,8 @@ single decimal digit or the match will always fail!
 .TP
 .B \&
 Some examples follow.  In reading these, keep in mind that in extended
-regular expressions a dot \fB\'.\'\fP matches any single character, and
-a parenthetical expression such as \fB\'(A|B|C)\'\fP denotes any one
+regular expressions a dot \fB\*(Aq.\*(Aq\fP matches any single character, and
+a parenthetical expression such as \fB\*(Aq(A|B|C)\*(Aq\fP denotes any one
 of the three possibilities \fBA\fP, \fBB\fP, or \fBC\fP.
 
 To schedule a short Self-Test between 2\(en3 am every morning, use:
@@ -840,7 +850,7 @@ Scheduled tests are run immediately following the regularly-scheduled
 device polling, if the current local date, time, and test type, match
 \fBREGEXP\fP.  By default the regularly-scheduled device polling
 occurs every thirty minutes after starting \fBsmartd\fP.  Take caution
-if you use the \'\-i\' option to make this polling interval more than
+if you use the \*(Aq\-i\*(Aq option to make this polling interval more than
 sixty minutes: the poll times may fail to coincide with any of the
 testing times that you have specified with \fBREGEXP\fP.  In this case
 the test will be run following the next device polling.
@@ -855,22 +865,22 @@ test was already started or run in the same hour.
 
 To avoid performance problems during system boot, \fBsmartd\fP will
 not attempt to run any scheduled tests following the very first
-device polling (unless \'\-q onecheck\' is specified).
+device polling (unless \*(Aq\-q onecheck\*(Aq is specified).
 
 Each time a test is run, \fBsmartd\fP will log an entry to SYSLOG.
-You can use these or the \'\-q showtests\' command-line option to verify
+You can use these or the \*(Aq\-q showtests\*(Aq command-line option to verify
 that you constructed \fBREGEXP\fP correctly.  The matching order
 (\fBL\fP before \fBS\fP before \fBC\fP before \fBO\fP) ensures that
 if multiple test types are all scheduled for the same hour, the
 longer test type has precedence.  This is usually the desired behavior.
 
 If the scheduled tests are used in conjunction with state persistence
-(\'\-s\' option), smartd will also try to match the hours since last
+(\*(Aq\-s\*(Aq option), smartd will also try to match the hours since last
 shutdown (or 90 days at most).  If any test would have been started
 during downtime, the longest (see above) of these tests is run after
 second device polling.
 
-If the \'\-n\' directive is used and any test would have been started
+If the \*(Aq\-n\*(Aq directive is used and any test would have been started
 during disk standby time, the longest of these tests is run when the
 disk is active again.
 
@@ -882,22 +892,23 @@ in \fBREGEXP\fP that appear to indicate that you have made this
 mistake.
 .TP
 .B \-m ADD
-Send a warning email to the email address \fBADD\fP if the \'\-H\',
-\'\-l\', \'\-f\', \'\-C\', or \'\-O\' Directives detect a failure or a
-new error, or if a SMART command to the disk fails.  This Directive
-only works in conjunction with these other Directives (or with the
-equivalent default \'\-a\' Directive).
+Send a warning email to the email address \fBADD\fP if the \*(Aq\-H\*(Aq,
+\*(Aq\-l\*(Aq, \*(Aq\-f\*(Aq, \*(Aq\-C\*(Aq, or \*(Aq\-O\*(Aq Directives
+detect a failure or a new error, or if a SMART command to the disk fails.
+This Directive only works in conjunction with these other Directives
+(or with the equivalent default \*(Aq\-a\*(Aq Directive).
 
 To prevent your email in-box from getting filled up with warning
-messages, by default only a single warning and (depending on \'\-s\' option)
-daily reminder emails will be sent for each of the enabled alert types.
-See the \'\-M\' Directive below for details.
+messages, by default only a single warning and (depending on
+\*(Aq\-s\*(Aq option) daily reminder emails will be sent for each of
+the enabled alert types.
+See the \*(Aq\-M\*(Aq Directive below for details.
 
 To send email to more than one user, please use the following "comma
 separated" form for the address: \fBuser1@add1,user2@add2,...,userN@addN\fP
 (with no spaces).
 
-To test that email is being sent correctly, use the \'\-M test\'
+To test that email is being sent correctly, use the \*(Aq\-M test\*(Aq
 Directive described below to send one test email message on
 \fBsmartd\fP
 startup.
@@ -908,16 +919,16 @@ executable must be in the path of the shell or environment from which
 \fBsmartd\fP
 was started.  If you wish to specify an explicit path to the mail
 executable (for example /usr/local/bin/mail) or a custom script to
-run, please use the \'\-M exec\' Directive below.
+run, please use the \*(Aq\-M exec\*(Aq Directive below.
 
 .\" %IF OS Windows
-[Windows only] On Windows, the \'\fBBlat\fP\' mailer
+[Windows only] On Windows, the \*(Aq\fBBlat\fP\*(Aq mailer
 (<\fBhttp://blat.sourceforge.net/\fP>) is used by default.
 This mailer uses a different command line syntax, see
-\'\-M exec\' below.
+\*(Aq\-M exec\*(Aq below.
 
 [NEW EXPERIMENTAL SMARTD FEATURE]
-If the file EXEDIR/smartd_mailer.conf.ps1 is present and \'\-M exec\'
+If the file EXEDIR/smartd_mailer.conf.ps1 is present and \*(Aq\-M exec\*(Aq
 is not specified, the script smartd_mailer.ps1 is used instead.
 This script uses the Send-MailMessage cmdlet to send mail.
 See EXEDIR/smartd_mailer.conf.sample.ps1 for info about the format of
@@ -926,27 +937,28 @@ the configuration file.
 .\" %ENDIF OS Windows
 Note also that there is a special argument
 .B <nomailer>
-which can be given to the \'\-m\' Directive in conjunction with the \'\-M
-exec\' Directive.  Please see below for an explanation of its effect.
+which can be given to the \*(Aq\-m\*(Aq Directive in conjunction with the
+\*(Aq\-M exec\*(Aq Directive.
+Please see below for an explanation of its effect.
 
 If the mailer or the shell running it produces any STDERR/STDOUT
 output, then a snippet of that output will be copied to SYSLOG.  The
 remainder of the output is discarded.  If problems are encountered in
 sending mail, this should help you to understand and fix them.  If
 you have mail problems, we recommend running \fBsmartd\fP in debug
-mode with the \'\-d\' flag, using the \'\-M test\' Directive described
-below.
+mode with the \*(Aq\-d\*(Aq flag, using the \*(Aq\-M test\*(Aq Directive
+described below.
 .\" %IF ENABLE_SMARTDPLUGINDIR
 .\" %IF NOT OS Windows
 
-If a word of the comma separated list has the form \'@plugin\', a custom
+If a word of the comma separated list has the form \*(Aq@plugin\*(Aq, a custom
 script /usr/local/etc/smartd_warning.d/plugin is run and the word is
-removed from the list before sending mail.  The string \'plugin\' may be any
-valid name except \'ALL\'.
-If \'@ALL\' is specified, all scripts in /usr/local/etc/smartd_warning.d/*
+removed from the list before sending mail.  The string \*(Aqplugin\*(Aq may
+be any valid name except \*(AqALL\*(Aq.
+If \*(Aq@ALL\*(Aq is specified, all scripts in /usr/local/etc/smartd_warning.d/*
 are run instead.
 This is handled by the script /usr/local/etc/smartd_warning.sh
-(see also \'\-M exec\' below).
+(see also \*(Aq\-M exec\*(Aq below).
 .\" %ENDIF NOT OS Windows
 .\" %ENDIF ENABLE_SMARTDPLUGINDIR
 .\" %IF OS Windows
@@ -954,19 +966,19 @@ This is handled by the script /usr/local/etc/smartd_warning.sh
 [Windows only] If one of the following words are used as the first address
 in the comma separated list, warning messages are sent via WTSSendMessage().
 This displays message boxes on the desktops of the selected sessions.
-Address \'\fBconsole\fP\' specifies the console session only,
-\'\fBactive\fP\' specifies the console session and all active remote
-sessions, and \'\fBconnected\fP\' specifies the console session and
+Address \*(Aq\fBconsole\fP\*(Aq specifies the console session only,
+\*(Aq\fBactive\fP\*(Aq specifies the console session and all active remote
+sessions, and \*(Aq\fBconnected\fP\*(Aq specifies the console session and
 all connected (active or waiting for login) remote sessions.
 This is handled by the script EXEDIR/smartd_warning.cmd which runs
-the tool EXEDIR/wtssendmsg.exe (see also \'\-M exec\' below).
+the tool EXEDIR/wtssendmsg.exe (see also \*(Aq\-M exec\*(Aq below).
 .\" %ENDIF OS Windows
 .TP
 .B \-M TYPE
 These Directives modify the behavior of the
 \fBsmartd\fP
-email warnings enabled with the \'\-m\' email Directive described above.
-These \'\-M\' Directives only work in conjunction with the \'\-m\'
+email warnings enabled with the \*(Aq\-m\*(Aq email Directive described above.
+These \*(Aq\-M\*(Aq Directives only work in conjunction with the \*(Aq\-m\*(Aq
 Directive and can not be used without it.
 
 Multiple \-M Directives may be given.  If more than one of the
@@ -978,12 +990,12 @@ three):
 
 .I once
 \- send only one warning email for each type of disk problem detected.  This
-is the default unless state persistence (\'\-s\' option) is enabled.
+is the default unless state persistence (\*(Aq\-s\*(Aq option) is enabled.
 
 .I daily
 \- send additional warning reminder emails, once per day, for each type
 of disk problem detected.  This is the default if state persistence
-(\'\-s\' option) is enabled.
+(\*(Aq\-s\*(Aq option) is enabled.
 
 .I diminishing
 \- send additional warning reminder emails, after a one-day interval,
@@ -1003,8 +1015,8 @@ immediately upon
 startup.  This allows one to verify that email is delivered correctly.
 Note that if this Directive is used,
 \fBsmartd\fP
-will also send the normal email warnings that were enabled with the \'\-m\'
-Directive, in addition to the single test email!
+will also send the normal email warnings that were enabled with the
+\*(Aq\-m\*(Aq Directive, in addition to the single test email!
 
 .I exec PATH
 \- run the executable PATH instead of the default mail command, when
@@ -1043,13 +1055,13 @@ control the executable's behavior.  The environment variables
 exported by \fBsmartd\fP are:
 .RS 7
 .IP \fBSMARTD_MAILER\fP 4
-is set to the argument of \-M exec, if present or else to \'mail\'
+is set to the argument of \-M exec, if present or else to \*(Aqmail\*(Aq
 (examples: /usr/local/bin/mail, mail).
 .IP \fBSMARTD_DEVICE\fP 4
 is set to the device path (example: /dev/sda).
 .IP \fBSMARTD_DEVICETYPE\fP 4
-is set to the device type specified by \'\-d\' directive or
-\'auto\' if none.
+is set to the device type specified by \*(Aq\-d\*(Aq directive or
+\*(Aqauto\*(Aq if none.
 .IP \fBSMARTD_DEVICESTRING\fP 4
 is set to the device description.
 It starts with SMARTD_DEVICE and may be followed by an optional controller
@@ -1093,7 +1105,7 @@ failed.
 .br
 \fIFailedOpenDevice\fP: the open() command to the device failed.
 .IP \fBSMARTD_ADDRESS\fP 4
-is determined by the address argument ADD of the \'\-m\' Directive.
+is determined by the address argument ADD of the \*(Aq\-m\*(Aq Directive.
 If ADD is \fB<nomailer>\fP, then \fBSMARTD_ADDRESS\fP is not set.
 Otherwise, it is set to the comma-separated-list of email addresses
 given by the argument ADD, with the commas replaced by spaces
@@ -1139,23 +1151,24 @@ is an integer, which is the unix epoch (number of seconds since Jan 1,
 1970) for \fBSMARTD_TFIRST\fP.
 .IP \fBSMARTD_PREVCNT\fP 4
 is an integer specifying the number of previous messages sent.
-It is set to \'0\' for the first message.
+It is set to \*(Aq0\*(Aq for the first message.
 .IP \fBSMARTD_NEXTDAYS\fP 4
 is an integer specifying the number of days until the next message will be sent.
-It it set to empty on \'\-M once\' and set to \'1\' on \'\-M daily\'.
+It it set to empty on \*(Aq\-M once\*(Aq and set to \*(Aq1\*(Aq on
+\*(Aq\-M daily\*(Aq.
 .RE
 .\"  The following two lines are a workaround for a man2html bug.  Please leave them.
 .\" They define a non-existent option; useful because man2html can't correctly reset the margins.
 .TP
 .B \&
-If the \'\-m ADD\' Directive is given with a normal address argument,
+If the \*(Aq\-m ADD\*(Aq Directive is given with a normal address argument,
 then the executable pointed to by PATH will be run in a shell with
 STDIN receiving the body of the email message, and with the same
 command-line arguments:
 .nf
 -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS
 .fi
-that would normally be provided to \'mail\'.  Examples include:
+that would normally be provided to \*(Aqmail\*(Aq.  Examples include:
 .nf
 .B \-m user@home \-M exec /usr/bin/mail
 .B \-m admin@work \-M exec /usr/local/bin/mailto
@@ -1163,14 +1176,14 @@ that would normally be provided to \'mail\'.  Examples include:
 .fi
 
 .\" %IF OS Windows
-[Windows only] On Windows, the syntax of the \'\fBBlat\fP\' mailer is
+[Windows only] On Windows, the syntax of the \*(Aq\fBBlat\fP\*(Aq mailer is
 used:
 .nf
 \- \-q \-subject "%SMARTD_SUBJECT%" \-to %SMARTD_ADDRCSV%
 .fi
 
 .\" %ENDIF OS Windows
-If the \'\-m ADD\' Directive is given with the special address argument
+If the \*(Aq\-m ADD\*(Aq Directive is given with the special address argument
 .B <nomailer>
 then the executable pointed to by PATH is run in a shell with
 .B no
@@ -1185,7 +1198,7 @@ assumes that something is going wrong, and a snippet of that output
 will be copied to SYSLOG.  The remainder of the output is then
 discarded.
 
-Some EXAMPLES of scripts that can be used with the \'\-M exec\'
+Some EXAMPLES of scripts that can be used with the \*(Aq\-M exec\*(Aq
 Directive are given below.
 .\" %IF NOT OS Windows
 Some sample scripts are also included in
@@ -1217,7 +1230,7 @@ SMARTD_SUBJECT and SMARTD_FULLMESSAGE
 are set by the script before running the executable.
 .TP
 .B \-f
-[ATA only] Check for \'failure\' of any Usage Attributes.  If these
+[ATA only] Check for \*(Aqfailure\*(Aq of any Usage Attributes.  If these
 Attributes are less than or equal to the threshold, it does NOT indicate
 imminent disk failure.  It "indicates an advisory condition where the usage
 or age of the device has exceeded its intended design life period."
@@ -1236,14 +1249,15 @@ since the last check.  [Please see the
 command-line option.]
 .TP
 .B \-t
-[ATA only] Equivalent to turning on the two previous flags \'\-p\' and \'\-u\'.
+[ATA only] Equivalent to turning on the two previous flags \*(Aq\-p\*(Aq
+and \*(Aq\-u\*(Aq.
 Tracks changes in \fIall\fP device Attributes (both Prefailure and
 Usage).  [Please see the \fBsmartctl\fP \-A command-line option.]
 .TP
 .B \-i ID
 [ATA only] Ignore device Attribute number \fBID\fP when checking for failure
 of Usage Attributes.  \fBID\fP must be a decimal integer in the range
-from 1 to 255.  This Directive modifies the behavior of the \'\-f\'
+from 1 to 255.  This Directive modifies the behavior of the \*(Aq\-f\*(Aq
 Directive and has no effect without it.
 
 This is useful, for example, if you have a very old disk and don't
@@ -1254,9 +1268,9 @@ times for a single device, if you want to ignore multiple Attributes.
 .B \-I ID
 [ATA only] Ignore device Attribute \fBID\fP when tracking changes in the
 Attribute values.  \fBID\fP must be a decimal integer in the range
-from 1 to 255.  This Directive modifies the behavior of the \'\-p\',
-\'\-u\', and \'\-t\' tracking Directives and has no effect without one
-of them.
+from 1 to 255.  This Directive modifies the behavior of the \*(Aq\-p\*(Aq,
+\*(Aq\-u\*(Aq, and \*(Aq\-t\*(Aq tracking Directives and has no effect
+without one of them.
 
 This is useful, for example, if one of the device Attributes is the disk
 temperature (usually Attribute 194 or 231).  It's annoying to get reports
@@ -1267,27 +1281,27 @@ times for a single device, if you want to ignore multiple Attributes.
 [ATA only] When tracking, report the \fIRaw\fP value of Attribute \fBID\fP
 along with its (normally reported) \fINormalized\fP value.  \fBID\fP must
 be a decimal integer in the range from 1 to 255.  This Directive modifies
-the behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives
-and has no effect without one of them.  This Directive may be given
-multiple times.
+the behavior of the \*(Aq\-p\*(Aq, \*(Aq\-u\*(Aq, and \*(Aq\-t\*(Aq tracking
+Directives and has no effect without one of them.
+This Directive may be given multiple times.
 
 A common use of this Directive is to track the device Temperature
 (often ID=194 or 231).
 
-If the optional flag \'!\' is appended, a change of the Normalized
+If the optional flag \*(Aq!\*(Aq is appended, a change of the Normalized
 value is considered critical.  The report will be logged as LOG_CRIT
-and a warning email will be sent if \'\-m\' is specified.
+and a warning email will be sent if \*(Aq\-m\*(Aq is specified.
 .TP
 .B \-R ID[!]
 [ATA only] When tracking, report whenever the \fIRaw\fP value of Attribute
 \fBID\fP changes.  (Normally \fBsmartd\fP only tracks/reports changes
 of the \fINormalized\fP Attribute values.)  \fBID\fP must be a decimal
 integer in the range from 1 to 255.  This Directive modifies the
-behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives and
-has no effect without one of them.  This Directive may be given
-multiple times.
+behavior of the \*(Aq\-p\*(Aq, \*(Aq\-u\*(Aq, and \*(Aq\-t\*(Aq tracking
+Directives and has no effect without one of them.
+This Directive may be given multiple times.
 
-If this Directive is given, it automatically implies the \'\-r\'
+If this Directive is given, it automatically implies the \*(Aq\-r\*(Aq
 Directive for the same Attribute, so that the Raw value of the
 Attribute is reported.
 
@@ -1296,10 +1310,10 @@ A common use of this Directive is to track the device Temperature
 different types of system behavior affects the values of certain
 Attributes.
 
-If the optional flag \'!\' is appended, a change of the Raw
+If the optional flag \*(Aq!\*(Aq is appended, a change of the Raw
 value is considered critical.  The report will be logged as
-LOG_CRIT and a warning email will be sent if \'\-m\' is specified.
-An example is \'\-R 5!\' to warn when new sectors are reallocated.
+LOG_CRIT and a warning email will be sent if \*(Aq\-m\*(Aq is specified.
+An example is \*(Aq\-R 5!\*(Aq to warn when new sectors are reallocated.
 .TP
 .B \-C ID[+]
 [ATA only] Report if the current number of pending sectors is
@@ -1309,13 +1323,13 @@ value is the Current Pending Sector count.  The allowed range of
 ID\ =\ 0.  If the \fB\-C ID\fP option is not given, then it defaults to
 \fB\-C 197\fP (since Attribute 197 is generally used to monitor
 pending sectors).  If the name of this Attribute is changed by a
-\'\-v 197,FORMAT,NAME\' directive, the default is changed to
+\*(Aq\-v 197,FORMAT,NAME\*(Aq directive, the default is changed to
 \fB\-C 0\fP.
 
-If \'+\' is specified, a report is only printed if the number of sectors
+If \*(Aq+\*(Aq is specified, a report is only printed if the number of sectors
 has increased between two check cycles.  Some disks do not reset this
 attribute when a bad sector is reallocated.
-See also \'\-v 197,increasing\' below.
+See also \*(Aq\-v 197,increasing\*(Aq below.
 
 The warning email counter is reset if the number of pending sectors
 dropped to 0.  This typically happens when all pending sectors have
@@ -1341,13 +1355,14 @@ value is the Offline Uncorrectable Sector count.  The allowed range of
 ID\ =\ 0.  If the \fB\-U ID\fP option is not given, then it defaults to
 \fB\-U 198\fP (since Attribute 198 is generally used to monitor
 offline uncorrectable sectors).  If the name of this Attribute is changed
-by a \'\-v 198,FORMAT,NAME\' (except \'\-v 198,FORMAT,Offline_Scan_UNC_SectCt\'),
-directive, the default is changed to \fB\-U 0\fP.
+by a \*(Aq\-v 198,FORMAT,NAME\*(Aq (except
+\*(Aq\-v 198,FORMAT,Offline_Scan_UNC_SectCt\*(Aq), directive, the default
+is changed to \fB\-U 0\fP.
 
-If \'+\' is specified, a report is only printed if the number of sectors
+If \*(Aq+\*(Aq is specified, a report is only printed if the number of sectors
 has increased since the last check cycle.  Some disks do not reset this
 attribute when a bad sector is reallocated.
-See also \'\-v 198,increasing\' below.
+See also \*(Aq\-v 198,increasing\*(Aq below.
 
 The warning email counter is reset if the number of offline uncorrectable
 sectors dropped to 0.  This typically happens when all offline uncorrectable
@@ -1356,7 +1371,7 @@ sectors have been reallocated or could be read again.
 An offline uncorrectable sector is a disk sector which was not
 readable during an off-line scan or a self-test.  This is important
 to know, because if you have data stored in this disk sector, and you
-need to read it, the read will fail.  Please see the previous \'\-C\'
+need to read it, the read will fail.  Please see the previous \*(Aq\-C\*(Aq
 option for more details.
 .TP
 .B \-W DIFF[,INFO[,CRIT]]
@@ -1365,21 +1380,21 @@ degrees since last report, or if new min or max temperature is detected.
 Report or Warn if the temperature is greater or equal than one of
 \fBINFO\fP or \fBCRIT\fP degrees Celsius.
 If the limit \fBCRIT\fP is reached, a message with loglevel
-\fB\'LOG_CRIT\'\fP will be logged to syslog and a warning email
-will be send if \'\-m\' is specified.  If only the limit \fBINFO\fP is
-reached, a message with loglevel \fB\'LOG_INFO\'\fP will be logged.
+\fB\*(AqLOG_CRIT\*(Aq\fP will be logged to syslog and a warning email
+will be send if \*(Aq\-m\*(Aq is specified.  If only the limit \fBINFO\fP is
+reached, a message with loglevel \fB\*(AqLOG_INFO\*(Aq\fP will be logged.
 
 The warning email counter is reset if the temperature dropped below
 \fBINFO\fP or \fBCRIT\fP-5 if \fBINFO\fP is not specified.
 
 If this directive is used in conjunction with state persistence
-(\'\-s\' option), the min and max temperature values are preserved
+(\*(Aq\-s\*(Aq option), the min and max temperature values are preserved
 across boot cycles.  The minimum temperature value is not updated
 during the first 30 minutes after startup.
 
 To disable any of the 3 reports, set the corresponding limit to 0.
 Trailing zero arguments may be omitted.  By default, all temperature
-reports are disabled (\'\-W 0\').
+reports are disabled (\*(Aq\-W 0\*(Aq).
 
 To track temperature changes of at least 2 degrees, use:
 .nf
@@ -1400,7 +1415,7 @@ To combine all of the above reports, use:
 
 For ATA devices, smartd interprets Attribute 194 or 190 as Temperature Celsius
 by default.  This can be changed to Attribute 9 or 220 by the drive
-database or by the \'\-v 9,temp\' or \'\-v 220,temp\' directive.
+database or by the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
 .\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
 
 [NEW EXPERIMENTAL SMARTD FEATURE]
@@ -1415,7 +1430,7 @@ multiple times.  The valid arguments are:
 
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This
-is the default, unless the device has presets for \'\-F\' in the
+is the default, unless the device has presets for \*(Aq\-F\*(Aq in the
 drive database.  Using this directive will override any preset values.
 
 .I nologdir
@@ -1442,7 +1457,7 @@ byte-reversed order.
 \- Some Samsung disks (at least SP2514N with Firmware VF100-37) report
 a self-test still in progress with 0% remaining when the test was already
 completed.  If this directive is specified, \fBsmartd\fP will not skip the
-next scheduled self-test (see Directive \'\-s\' above) in this case.
+next scheduled self-test (see Directive \*(Aq\-s\*(Aq above) in this case.
 
 .I xerrorlba
 \- This only affects \fBsmartctl\fP.
@@ -1459,13 +1474,13 @@ The following arguments affect smartd warning output:
 
 .I 197,increasing
 \- Raw Attribute number 197 (Current Pending Sector Count) is not
-reset if uncorrectable sectors are reallocated.  This sets \'\-C 197+\'
-if no other \'\-C\' directive is specified.
+reset if uncorrectable sectors are reallocated.  This sets \*(Aq\-C 197+\*(Aq
+if no other \*(Aq\-C\*(Aq directive is specified.
 
 .I 198,increasing
 \- Raw Attribute number 198 (Offline Uncorrectable Sector Count) is not
-reset if uncorrectable sectors are reallocated.  This sets \'\-U 198+\'
-if no other \'\-U\' directive is specified.
+reset if uncorrectable sectors are reallocated.  This sets \*(Aq\-U 198+\*(Aq
+if no other \*(Aq\-U\*(Aq directive is specified.
 .TP
 .B \-P TYPE
 [ATA only] Specifies whether \fBsmartd\fP should use any preset options
@@ -1490,21 +1505,21 @@ command-line option.]
 .TP
 .B \-a
 Equivalent to turning on all of the following Directives:
-.B \'\-H\'
+.B \*(Aq\-H\*(Aq
 to check the SMART health status,
-.B \'\-f\'
+.B \*(Aq\-f\*(Aq
 to report failures of Usage (rather than Prefail) Attributes,
-.B \'\-t\'
+.B \*(Aq\-t\*(Aq
 to track changes in both Prefailure and Usage Attributes,
-.B \'\-l\ error\'
+.B \*(Aq\-l\ error\*(Aq
 to report increases in the number of ATA errors,
-.B \'\-l\ selftest\'
+.B \*(Aq\-l\ selftest\*(Aq
 to report increases in the number of Self-Test Log errors,
-.B \'\-l\ selfteststs\'
+.B \*(Aq\-l\ selfteststs\*(Aq
 to report changes of Self-Test execution status,
-.B \'\-C 197\'
+.B \*(Aq\-C 197\*(Aq
 to report nonzero values of the current pending sector count, and
-.B \'\-U 198\'
+.B \*(Aq\-U 198\*(Aq
 to report nonzero values of the offline pending sector count.
 
 Note that \-a is the default for ATA devices.  If none of these other
@@ -1562,7 +1577,7 @@ devices, (rather than the default \-a, which monitors all SMART
 properties).
 .br
 [NEW EXPERIMENTAL SMARTD FEATURE]
-Multiple \'\-d TYPE\' options may be specified with DEVICESCAN
+Multiple \*(Aq\-d TYPE\*(Aq options may be specified with DEVICESCAN
 to combine the scan results of more than one TYPE.
 
 Configuration entries for specific devices may precede the \fBDEVICESCAN\fP
@@ -1581,13 +1596,13 @@ Device /dev/sdc will be ignored.
 Warning emails will be sent for all monitored devices.
 
 .TP
-.B EXAMPLES OF SHELL SCRIPTS FOR \'\-M exec\'
-These are two examples of shell scripts that can be used with the \'\-M
-exec PATH\' Directive described previously.  The paths to these scripts
-and similar executables is the PATH argument to the \'\-M exec PATH\'
+.B EXAMPLES OF SHELL SCRIPTS FOR \*(Aq\-M exec\*(Aq
+These are two examples of shell scripts that can be used with the \*(Aq\-M
+exec PATH\*(Aq Directive described previously.  The paths to these scripts
+and similar executables is the PATH argument to the \*(Aq\-M exec PATH\*(Aq
 Directive.
 
-Example 1: This script is for use with \'\-m ADDRESS \-M exec PATH\'.
+Example 1: This script is for use with \*(Aq\-m ADDRESS \-M exec PATH\*(Aq.
 It appends the output of
 .B smartctl \-a
 to the output of the smartd email warning message and sends it to ADDRESS.
@@ -1607,8 +1622,8 @@ cat > /root/msg
 \fP
 .fi
 
-Example 2: This script is for use with \'\-m <nomailer> \-M exec
-PATH\'.  It warns all users about a disk problem, waits 30 seconds, and
+Example 2: This script is for use with \*(Aq\-m <nomailer> \-M exec
+PATH\*(Aq.  It warns all users about a disk problem, waits 30 seconds, and
 then powers down the machine.
 
 .nf

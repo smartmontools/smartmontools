@@ -18,6 +18,9 @@ Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
+.\" Use groff extension \(aq (apostrophe quote, ASCII 0x27) if possible
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .TH SMARTD 8 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
@@ -47,13 +50,13 @@ every 30 minutes (configurable), logging SMART errors and changes of
 SMART Attributes via the SYSLOG interface.  The default location for
 these SYSLOG notifications and warnings is system-dependent
 (typically \fB/var/log/messages\fP or \fB/var/log/syslog\fP).
-To change this default location, please see the \fB\'\-l\'\fP
+To change this default location, please see the \*(Aq\-l\*(Aq
 command-line option described below.
 
 In addition to logging to a file, \fBsmartd\fP can also be configured
 to send email warnings if problems are detected.  Depending upon the
 type of problem, you may want to run self-tests on the disk, back up
-the disk, replace the disk, or use a manufacturer\'s utility to force
+the disk, replace the disk, or use a manufacturer's utility to force
 reallocation of bad or unreadable disk sectors.  If disk problems are
 detected, please see the \fBsmartctl\fP manual page and the
 \fBsmartmontools\fP web page/FAQ for further guidance.
@@ -61,7 +64,7 @@ detected, please see the \fBsmartctl\fP manual page and the
 If you send a \fBUSR1\fP signal to \fBsmartd\fP it will immediately
 check the status of the disks, and then return to polling the disks
 every 30 minutes.
-See the \fB\'\-i\'\fP option below for additional details.
+See the \*(Aq\-i\*(Aq option below for additional details.
 
 \fBsmartd\fP can be configured at start-up using the configuration
 file \fB/usr/local/etc/smartd.conf\fP (Windows: \fBEXEDIR/smartd.conf\fP).
@@ -103,9 +106,9 @@ for ATA/SATA or SCSI/SAS devices.
 Disks behind RAID controllers are not included.
 
 [NEW EXPERIMENTAL SMARTD FEATURE]
-If directive \'\-d nvme\'
+If directive \*(Aq\-d nvme\*(Aq
 .\" %IF ENABLE_NVME_DEVICESCAN
-or no \'\-d\' directive
+or no \*(Aq\-d\*(Aq directive
 .\" %ENDIF ENABLE_NVME_DEVICESCAN
 is specified, examine all entries \fB"/dev/nvme[0\-99]"\fP for NVMe devices.
 .\" %ENDIF OS Linux
@@ -118,7 +121,7 @@ Disks behind RAID controllers are not included.
 .\" %IF OS NetBSD OpenBSD
 .IP \fBNETBSD/OPENBSD:\fP 9
 Authoritative list of disk devices is obtained from sysctl
-\'hw.disknames\'.
+\*(Aqhw.disknames\*(Aq.
 .\" %ENDIF OS NetBSD OpenBSD
 .\" %IF OS Solaris
 .IP \fBSOLARIS:\fP 9
@@ -136,36 +139,36 @@ and \fB"/dev/sdd[a\-x]"\fP ("\\\\.\\PhysicalDrive[0\-127]") for
 IDE/(S)ATA and SCSI disk devices.
 
 If a 3ware 9000 controller is installed, examine all entries
-\fB"/dev/sdX,N"\fP for the first logical drive (\'unit\'
-\fB"/dev/sdX"\fP) and all physical disks (\'ports\' \fB",N"\fP)
+\fB"/dev/sdX,N"\fP for the first logical drive (\*(Aqunit\*(Aq
+\fB"/dev/sdX"\fP) and all physical disks (\*(Aqports\*(Aq \fB",N"\fP)
 detected behind this controller.
 Same for a second controller if present.
 
-If directive \'\-d csmi\' or no \'\-d\' directive is specified,
+If directive \*(Aq\-d csmi\*(Aq or no \*(Aq\-d\*(Aq directive is specified,
 examine all entries \fB"/dev/csmi[0\-9],N"\fP for drives behind an Intel
 ICHxR controller with RST driver.
 
 Disks behind Areca RAID controllers are not included.
 
 [NEW EXPERIMENTAL SMARTD FEATURE]
-If directive \'\-d nvme\'
+If directive \*(Aq\-d nvme\*(Aq
 .\" %IF ENABLE_NVME_DEVICESCAN
-or no \'\-d\' directive
+or no \*(Aq\-d\*(Aq directive
 .\" %ENDIF ENABLE_NVME_DEVICESCAN
 is specified, examine all entries \fB"/dev/sd[...]"\fP (see above)
 and all entries \fB"/dev/nvme[0\-9]"\fP for NVMe devices.
 .\" %ENDIF OS Windows Cygwin
 .PP
 \fBsmartd\fP then monitors
-for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
+for \fIall\fP possible SMART errors (corresponding to the \*(Aq\-a\*(Aq
 Directive in the configuration file; see the \fBsmartd.conf\fP(5) man page).
 
 .SH OPTIONS
 .TP
 .B \-A PREFIX, \-\-attributelog=PREFIX
 Writes \fBsmartd\fP attribute information (normalized and raw
-attribute values) to files \'PREFIX\'\'MODEL\-SERIAL.ata.csv\'
-or \'PREFIX\'\'VENDOR\-MODEL\-SERIAL.scsi.csv\'.
+attribute values) to files \*(AqPREFIX\*(Aq\*(AqMODEL\-SERIAL.ata.csv\*(Aq
+or \*(AqPREFIX\*(Aq\*(AqVENDOR\-MODEL\-SERIAL.scsi.csv\*(Aq.
 At each check cycle attributes are logged as a line of semicolon separated
 triplets of the form "attribute-ID;attribute-norm-value;attribute-raw-value;".
 For SCSI devices error counters and temperature recorded in the form
@@ -174,23 +177,26 @@ Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
 
 .\" %IF ENABLE_ATTRIBUTELOG
 If this option is not specified, attribute information is written to files
-\'/usr/local/var/lib/smartmontools/attrlog.MODEL\-SERIAL.ata.csv\'.
+\*(Aq/usr/local/var/lib/smartmontools/attrlog.MODEL\-SERIAL.ata.csv\*(Aq.
 To disable attribute log files, specify this option with an empty string
-argument: \'\-A ""\'.
+argument: \*(Aq\-A ""\*(Aq.
 .\" %ENDIF ENABLE_ATTRIBUTELOG
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
 
-If the PREFIX has the form \'/path/dir/\' (e.g.\& \'/var/lib/smartd/\'), then
-files \'MODEL\-SERIAL.ata.csv\' are created in directory \'/path/dir\'.
-If the PREFIX has the form \'/path/name\' (e.g.\& \'/var/lib/misc/attrlog\-\'),
-then files 'nameMODEL\-SERIAL.ata.csv' are created in directory '/path/'.
+If the PREFIX has the form \*(Aq/path/dir/\*(Aq (e.g.\&
+\*(Aq/var/lib/smartd/\*(Aq), then files \*(AqMODEL\-SERIAL.ata.csv\*(Aq are
+created in directory \*(Aq/path/dir\*(Aq.
+If the PREFIX has the form \*(Aq/path/name\*(Aq (e.g.\&
+\*(Aq/var/lib/misc/attrlog\-\*(Aq),
+then files \*(AqnameMODEL\-SERIAL.ata.csv\*(Aq are created in directory
+\*(Aq/path/\*(Aq.
 The path must be absolute, except if debug mode is enabled.
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
 [ATA only] Read the drive database from FILE.  The new database replaces
-the built in database by default.  If \'+\' is specified, then the new entries
-prepend the built in entries.
+the built in database by default.  If \*(Aq+\*(Aq is specified, then the new
+entries prepend the built in entries.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .TP
 .B \-c FILE, \-\-configfile=FILE
@@ -198,10 +204,11 @@ Read \fBsmartd\fP configuration Directives from FILE, instead of from
 the default location \fB/usr/local/etc/smartd.conf\fP
 (Windows: \fBEXEDIR/smartd.conf\fP).
 If FILE does \fBnot\fP exist, then \fBsmartd\fP will print an error
-message and exit with nonzero status.  Thus, \'\-c /usr/local/etc/smartd.conf\'
-can be used to verify the existence of the default configuration file.
+message and exit with nonzero status.
+Thus, \*(Aq\-c /usr/local/etc/smartd.conf\*(Aq can be used to verify the
+existence of the default configuration file.
 
-By using \'\-\' for FILE, the configuration is read from standard input.
+By using \*(Aq\-\*(Aq for FILE, the configuration is read from standard input.
 This is useful for commands like:
 .nf
 .B echo /dev/sdb \-m user@home \-M test | smartd \-c \- \-q onecheck
@@ -273,31 +280,31 @@ then by default messages from \fBsmartd\fP are logged to the facility
 \fIdaemon\fP.
 
 If you would like to have \fBsmartd\fP messages logged somewhere other
-than the default location, include (for example) \'\-l local3\' in its
+than the default location, include (for example) \*(Aq\-l local3\*(Aq in its
 start up argument list.
 Tell the syslog daemon to log all messages from facility \fBlocal3\fP
-to (for example) \'/var/log/smartd.log\'.
+to (for example) \*(Aq/var/log/smartd.log\*(Aq.
 
 For more detailed information, please refer to the man pages for
 the local syslog daemon, typically \fBsyslogd\fP(8), \fBsyslog-ng\fP(8)
 or \fBrsyslogd\fP(8).
 .\" %IF OS Cygwin
 
-Cygwin: If no \fBsyslogd\fP is running, the \'\-l\' option has no effect.
+Cygwin: If no \fBsyslogd\fP is running, the \*(Aq\-l\*(Aq option has no effect.
 In this case, all \fBsyslog\fP messages are written to Windows event log.
 .\" %ENDIF OS Cygwin
 .\" %IF OS Windows
 
 Windows: Some \fBsyslog\fP functionality is implemented
-internally in \fBsmartd\fP as follows: If no \'\-l\' option
-(or \'\-l daemon\') is specified, messages are written to Windows
+internally in \fBsmartd\fP as follows: If no \*(Aq\-l\*(Aq option
+(or \*(Aq\-l daemon\*(Aq) is specified, messages are written to Windows
 event log or to file \fB./smartd.log\fP if event log is not available
 (access denied).
 By specifying other values of FACILITY, log output is redirected as follows:
-\'\-l local0\' to file \fB./smartd.log\fP,
-\'\-l local1\' to standard output (redirect with \'>\' to any file),
-\'\-l local2\' to standard error,
-\'\-l local[3\-7]\': to file \fB./smartd[1\-5].log\fP.
+\*(Aq\-l local0\*(Aq to file \fB./smartd.log\fP,
+\*(Aq\-l local1\*(Aq to standard output (redirect with \*(Aq>\*(Aq to any file),
+\*(Aq\-l local2\*(Aq to standard error,
+\*(Aq\-l local[3\-7]\*(Aq: to file \fB./smartd[1\-5].log\fP.
 .\" %ENDIF OS Windows
 .TP
 .B \-n, \-\-no\-fork
@@ -310,7 +317,7 @@ see NOTES below.
 .\" %ENDIF OS Cygwin
 .\" %IF OS Windows
 
-On Windows, this option is not available, use \'\-\-service\' instead.
+On Windows, this option is not available, use \*(Aq\-\-service\*(Aq instead.
 .\" %ENDIF OS Windows
 .TP
 .B \-p NAME, \-\-pidfile=NAME
@@ -348,13 +355,13 @@ waiting to load a configuration file listing valid devices.
 
 .I onecheck
 \- Start \fBsmartd\fP in debug mode, then register devices, then check
-device\'s SMART status once, and then exit with zero exit status if all
+device's SMART status once, and then exit with zero exit status if all
 of these steps worked correctly.
 
-This last option is intended for \'distribution-writers\' who want to
+This last option is intended for \*(Aqdistribution-writers\*(Aq who want to
 create automated scripts to determine whether or not to automatically
 start up \fBsmartd\fP after installing smartmontools.  After starting
-\fBsmartd\fP with this command-line option, the distribution\'s install
+\fBsmartd\fP with this command-line option, the distribution's install
 scripts should wait a reasonable length of time (say ten seconds).  If
 \fBsmartd\fP has not exited with zero status by that time, the script
 should send \fBsmartd\fP a SIGTERM or SIGKILL and assume that
@@ -370,7 +377,7 @@ a list of future scheduled self tests to stdout, and then exit with zero
 exit status if all of these steps worked correctly.
 Device's SMART status is not checked.
 
-This option is intended to test whether the '\-s REGEX' directives in
+This option is intended to test whether the \*(Aq\-s REGEX\*(Aq directives in
 smartd.conf will have the desired effect.  The output lists the next test
 schedules, limited to 5 tests per type and device.  This is followed by a
 summary of all tests of each device within the next 90 days.
@@ -408,13 +415,13 @@ report only ioctl() transactions with NVMe devices.
 Any argument may include a positive integer to specify the level of
 detail that should be reported.  The argument should be followed by a
 comma then the integer with no spaces.  For example, \fIataioctl,2\fP
-The default level is 1, so \'\-r ataioctl,1\' and \'\-r ataioctl\' are
-equivalent.
+The default level is 1, so \*(Aq\-r ataioctl,1\*(Aq and
+\*(Aq\-r ataioctl\*(Aq are equivalent.
 .TP
 .B \-s PREFIX, \-\-savestates=PREFIX
 Reads/writes \fBsmartd\fP state information from/to files
-\'PREFIX\'\'MODEL\-SERIAL.ata.state\' or
-\'PREFIX\'\'VENDOR\-MODEL\-SERIAL.scsi.state\'.
+\*(AqPREFIX\*(Aq\*(AqMODEL\-SERIAL.ata.state\*(Aq or
+\*(AqPREFIX\*(Aq\*(AqVENDOR\-MODEL\-SERIAL.scsi.state\*(Aq.
 This preserves SMART attributes, drive min and max temperatures (\-W directive),
 info about last sent warning email
 (\-m directive), and the time of next check of the self-test REGEXP
@@ -422,20 +429,23 @@ info about last sent warning email
 
 .\" %IF ENABLE_SAVESTATES
 If this option is not specified, state information is maintained in files
-\'/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\' for ATA
-devices and
-\'/usr/local/var/lib/smartmontools/smartd.VENDOR\-MODEL\-SERIAL.scsi.state\'
+\*(Aq/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\*(Aq
+for ATA devices and
+\*(Aq/usr/local/var/lib/smartmontools/smartd.VENDOR\-MODEL\-SERIAL.scsi.state\*(Aq
 for SCSI devices.
 To disable state files, specify this option with an empty string
-argument: \'\-s ""\'.
+argument: \*(Aq\-s ""\*(Aq.
 .\" %ENDIF ENABLE_SAVESTATES
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
 
-If the PREFIX has the form \'/path/dir/\' (e.g.\& \'/var/lib/smartd/\'), then
-files \'MODEL\-SERIAL.ata.state\' are created in directory \'/path/dir\'.
-If the PREFIX has the form \'/path/name\' (e.g.\& \'/var/lib/misc/smartd\-\'),
-then files 'nameMODEL\-SERIAL.ata.state' are created in directory '/path/'.
+If the PREFIX has the form \*(Aq/path/dir/\*(Aq (e.g.\&
+\*(Aq/var/lib/smartd/\*(Aq), then files \*(AqMODEL\-SERIAL.ata.state\*(Aq are
+created in directory \*(Aq/path/dir\*(Aq.
+If the PREFIX has the form \*(Aq/path/name\*(Aq (e.g.\&
+\*(Aq/var/lib/misc/smartd\-\*(Aq),
+then files \*(AqnameMODEL\-SERIAL.ata.state\*(Aq are created in directory
+\*(Aq/path/\*(Aq.
 The path must be absolute, except if debug mode is enabled.
 
 The state information files are read on smartd startup.  The files are
@@ -515,29 +525,29 @@ The syntax of the \fBsmartd.conf\fP(5) file is discussed separately.
 will make log entries at loglevel
 .B LOG_INFO
 if the Normalized SMART Attribute values have changed, as reported using the
-.B \'\-t\', \'\-p\',
+.B \*(Aq\-t\*(Aq, \*(Aq\-p\*(Aq,
 or
-.B \'\-u\'
+.B \*(Aq\-u\*(Aq
 Directives.
 For example:
 .nf
-.B \'Device: /dev/sda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93\'
+.B \*(AqDevice: /dev/sda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93\*(Aq
 .fi
-Note that in this message, the value given is the \'Normalized\' not the \'Raw\'
-Attribute value (the disk temperature in this case is about 22
+Note that in this message, the value given is the \*(AqNormalized\*(Aq not the
+\*(AqRaw\*(Aq Attribute value (the disk temperature in this case is about 22
 Celsius).  The
-.B \'\-R\'
+.B \*(Aq\-R\*(Aq
 and
-.B \'\-r\'
+.B \*(Aq\-r\*(Aq
 Directives modify this behavior, so that the information is printed
 with the Raw values as well, for example:
 .nf
-.B \'Device: /dev/sda, SMART Attribute: 194 Temperature_Celsius changed from 94 [Raw 22] to 93 [Raw 23]\'
+.B \*(AqDevice: /dev/sda, SMART Attribute: 194 Temperature_Celsius changed from 94 [Raw 22] to 93 [Raw 23]\*(Aq
 .fi
 Here the Raw values are the actual disk temperatures in Celsius.  The
 way in which the Raw values are printed, and the names under which the
 Attributes are reported, is governed by the various
-.B \'\-v Num,Description\'
+.B \*(Aq\-v Num,Description\*(Aq
 Directives described previously.
 
 Please see the
@@ -550,12 +560,12 @@ will make log entries at loglevel
 .B LOG_CRIT
 if a SMART Attribute has failed, for example:
 .nf
-.B \'Device: /dev/sdc, Failed SMART Attribute: 5 Reallocated_Sector_Ct\'
+.B \*(AqDevice: /dev/sdc, Failed SMART Attribute: 5 Reallocated_Sector_Ct\*(Aq
 .fi
  This loglevel is used for reporting enabled by the
-.B \'\-H\', \-f\', \'\-l\ selftest\',
+.B \*(Aq\-H\*(Aq, \-f\*(Aq, \*(Aq\-l\ selftest\*(Aq,
 and
-.B \'\-l\ error\'
+.B \*(Aq\-l\ error\*(Aq
 Directives.  Entries reporting failure of SMART Prefailure Attributes
 should not be ignored: they mean that the disk is failing.  Use the
 .B smartctl
@@ -576,7 +586,7 @@ to read:
        ...;daemon.info;...          /var/adm/messages
 .fi
 Alternatively, you can use a local facility to log messages: please
-see the \fBsmartd\fP '\-l' command-line option described above.
+see the \fBsmartd\fP \*(Aq\-l\*(Aq command-line option described above.
 
 .\" %ENDIF OS Solaris
 .\" %IF OS Cygwin
@@ -596,61 +606,63 @@ The service can be started and stopped by the start-up script as usual
 .\" %ENDIF OS Cygwin
 .\" %IF OS Windows
 On Windows, the log messages are written to the event log or to a file.
-See documentation of the '\-l FACILITY' option above for details.
+See documentation of the \*(Aq\-l FACILITY\*(Aq option above for details.
 
 On Windows, the following built-in commands can be used to control
 \fBsmartd\fP, if running as a daemon:
 
-\'\fBsmartd status\fP\' \- check status
+\*(Aq\fBsmartd status\fP\*(Aq \- check status
 
-\'\fBsmartd stop\fP\' \- stop smartd
+\*(Aq\fBsmartd stop\fP\*(Aq \- stop smartd
 
-\'\fBsmartd reload\fP\' \- reread config file
+\*(Aq\fBsmartd reload\fP\*(Aq \- reread config file
 
-\'\fBsmartd restart\fP\' \- restart smartd
+\*(Aq\fBsmartd restart\fP\*(Aq \- restart smartd
 
-\'\fBsmartd sigusr1\fP\' \- check disks now
+\*(Aq\fBsmartd sigusr1\fP\*(Aq \- check disks now
 
-\'\fBsmartd sigusr2\fP\' \- toggle debug mode
+\*(Aq\fBsmartd sigusr2\fP\*(Aq \- toggle debug mode
 
 The Windows Version of \fBsmartd\fP has buildin support for services:
 
-\'\fBsmartd install [options]\fP\' installs a service
+\*(Aq\fBsmartd install [options]\fP\*(Aq installs a service
 named "smartd" (display name "SmartD Service") using the command line
-\'/INSTALLPATH/smartd.exe \-\-service [options]\'.
+\*(Aq/INSTALLPATH/smartd.exe \-\-service [options]\*(Aq.
 This also installs smartd.exe as a event message file for the Windows
 event viewer.
 
-\'\fBsmartd remove\fP\' can later be used to remove the service and
+\*(Aq\fBsmartd remove\fP\*(Aq can later be used to remove the service and
 event message entries from the registry.
 
 Upon startup, the smartd service changes the working directory
 to its own installation path.  If smartd.conf and blat.exe are stored
-in this directory, no \'\-c\' option and \'\-M exec\' directive is needed.
+in this directory, no \*(Aq\-c\*(Aq option and \*(Aq\-M exec\*(Aq directive
+is needed.
 
-The debug mode (\'\-d\', \'\-q onecheck\') does not work if smartd is
-running as service.
+The debug mode (\*(Aq\-d\*(Aq, \*(Aq\-q onecheck\*(Aq) does not work if
+smartd is running as service.
 
-The service can be controlled as usual with Windows commands \'net\'
-or \'sc\' (\'\fBnet start smartd\fP\', \'\fBnet stop smartd\fP\').
+The service can be controlled as usual with Windows commands \*(Aqnet\*(Aq
+or \*(Aqsc\*(Aq (\*(Aq\fBnet start smartd\fP\*(Aq,
+\*(Aq\fBnet stop smartd\fP\*(Aq).
 
-Pausing the service (\'\fBnet pause smartd\fP\') sets the interval between
-disk checks (\'\-i N\') to infinite.
+Pausing the service (\*(Aq\fBnet pause smartd\fP\*(Aq) sets the interval
+between disk checks (\*(Aq\-i N\*(Aq) to infinite.
 
-Continuing the paused service (\'\fBnet continue smartd\fP\') resets the
+Continuing the paused service (\*(Aq\fBnet continue smartd\fP\*(Aq) resets the
 interval and rereads the configuration file immediately (like \fBSIGHUP\fP).
-The \'PARAMCHANGE\' service control command (\'\fBsc control smartd
-paramchange\fP\') has the same effect regardless of paused state.
+The \*(AqPARAMCHANGE\*(Aq service control command (\*(Aq\fBsc control smartd
+paramchange\fP\*(Aq) has the same effect regardless of paused state.
 
-Continuing a still running service (\'\fBnet continue smartd\fP\' without
-preceding \'\fBnet pause smartd\fP\') does not reread configuration but
+Continuing a still running service (\*(Aq\fBnet continue smartd\fP\*(Aq without
+preceding \*(Aq\fBnet pause smartd\fP\*(Aq) does not reread configuration but
 checks disks immediately (like \fBSIGUSR1\fP).
 
 .\" %ENDIF OS Windows
 .SH LOG TIMESTAMP TIMEZONE
 When \fBsmartd\fP makes log entries, these are time-stamped.  The time
 stamps are in the computer's local time zone, which is generally set
-using either the environment variable \'\fBTZ\fP\' or using a
+using either the environment variable \*(Aq\fBTZ\fP\*(Aq or using a
 time-zone file such as \fB/etc/localtime\fP.  You may wish to change
 the timezone while \fBsmartd\fP is running (for example, if you carry
 a laptop to a new time-zone and don't reboot it).  Due to a bug in the
@@ -658,7 +670,7 @@ a laptop to a new time-zone and don't reboot it).  Due to a bug in the
 time-zone stamps of \fBsmartd\fP might not change.  For some systems,
 \fBsmartd\fP will work around this problem \fIif\fP the time-zone is
 set using \fB/etc/localtime\fP.  The work-around \fIfails\fP if the
-time-zone is set using the \'\fBTZ\fP\' variable (or a file that it
+time-zone is set using the \*(Aq\fBTZ\fP\*(Aq variable (or a file that it
 points to).
 
 .SH EXIT STATUS
@@ -678,10 +690,10 @@ There was a syntax error in the config file.
 Forking the daemon failed.
 .TP
 .B 4:
-Couldn\'t create PID file.
+Couldn't create PID file.
 .TP
 .B 5:
-Config file does not exist (only returned in conjunction with the \'\-c\'
+Config file does not exist (only returned in conjunction with the \*(Aq\-c\*(Aq
 option).
 .TP
 .B 6:
@@ -692,7 +704,7 @@ Config file exists, but cannot be read.
 ran out of memory during startup.
 .TP
 .B 10:
-An inconsistency was found in \fBsmartd\fP\'s internal data
+An inconsistency was found in \fBsmartd\fP's internal data
 structures.  This should never happen.  It must be due to either a
 coding or compiler bug.  \fIPlease\fP report such failures to
 smartmontools developers, see REPORTING BUGS below.
@@ -700,11 +712,11 @@ smartmontools developers, see REPORTING BUGS below.
 .B 16:
 A device explicitly listed in
 .B /usr/local/etc/smartd.conf
-can\'t be monitored.
+can't be monitored.
 .TP
 .B 17:
 \fBsmartd\fP
-didn\'t find any devices to monitor.
+didn't find any devices to monitor.
 .TP
 .B 254:
 When in daemon mode,
@@ -731,22 +743,22 @@ full path of this executable.
 configuration file (see \fBsmartd.conf\fP(5) man page).
 .TP
 .B /usr/local/etc/smartd_warning.sh
-script run on warnings (see \'\-w\' option above and \'\-M exec\' directive
-on \fBsmartd.conf\fP(5) man page).
+script run on warnings (see \*(Aq\-w\*(Aq option above and \*(Aq\-M exec\*(Aq
+directive on \fBsmartd.conf\fP(5) man page).
 .\" %IF ENABLE_SMARTDPLUGINDIR
 .TP
 .B /usr/local/etc/smartd_warning.d/
-plugin directory for smartd warning script (see \'\-m\' directive on
+plugin directory for smartd warning script (see \*(Aq\-m\*(Aq directive on
 \fBsmartd.conf\fP(5) man page).
 .\" %ENDIF ENABLE_SMARTDPLUGINDIR
 .\" %IF ENABLE_DRIVEDB
 .TP
 .B /usr/local/share/smartmontools/drivedb.h
-drive database (see \'\-B\' option).
+drive database (see \*(Aq\-B\*(Aq option).
 .\" %ENDIF ENABLE_DRIVEDB
 .TP
 .B /usr/local/etc/smart_drivedb.h
-optional local drive database (see \'\-B\' option).
+optional local drive database (see \*(Aq\-B\*(Aq option).
 
 .\" %ENDIF NOT OS Windows
 .SH AUTHORS
@@ -795,7 +807,7 @@ See <\fBhttps://www.linuxjournal.com/article/6983\fP>.
 
 If you would like to understand better how SMART works, and what it
 does, a good place to start is with Sections 4.8 and 6.54 of the first
-volume of the \'AT Attachment with Packet Interface-7\' (ATA/ATAPI-7)
+volume of the \*(AqAT Attachment with Packet Interface-7\*(Aq (ATA/ATAPI-7)
 specification Revision 4b.  This documents the SMART functionality which the
 \fBsmartmontools\fP utilities provide access to.
 

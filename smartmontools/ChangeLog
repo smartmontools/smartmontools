@@ -8,6 +8,8 @@ $Id$
 	Split long lines.
 	Insert two spaces or newline between sentences.
 	Use ' for apostrophes.
+	Use groff extension \(aq (apostrophe quote, ASCII 0x27)
+	or ' for quotes.
 	Use \- (minus sign) for options and examples.
 	Use \(en (en-dash) for numeric ranges.
 	Protect . with \& if not at end of sentence.
