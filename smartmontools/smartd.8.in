@@ -18,6 +18,16 @@ Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
+.\" Macros borrowed from pages generated with Pod::Man
+.de Vb \" Begin verbatim text
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve \" End verbatim text
+.ft R
+.fi
+..
 .\" Use groff extension \(aq (apostrophe quote, ASCII 0x27) if possible
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
@@ -210,9 +220,9 @@ existence of the default configuration file.
 
 By using \*(Aq\-\*(Aq for FILE, the configuration is read from standard input.
 This is useful for commands like:
-.nf
+.br
 .B echo /dev/sdb \-m user@home \-M test | smartd \-c \- \-q onecheck
-.fi
+.br
 to perform quick and simple checks without a configuration file.
 .\" %IF ENABLE_CAPABILITIES
 .TP
@@ -258,14 +268,14 @@ your system (often 2^31\-1).  The default is 1800 seconds.
 Note that the superuser can make \fBsmartd\fP check the status of the
 disks at any time by sending it the \fBSIGUSR1\fP signal, for example
 with the command:
-.nf
+.br
 .B kill \-SIGUSR1 <pid>
-.fi
+.br
 where \fB<pid>\fP is the process id number of \fBsmartd\fP.  One may
 also use:
-.nf
+.br
 .B killall \-USR1 smartd
-.fi
+.br
 for the same purpose.
 .br
 .\" %IF OS Windows
@@ -508,13 +518,13 @@ Note that \fBsmartmontools\fP provides a start-up script in
 \fB/usr/local/etc/rc.d/init.d/smartd\fP which is responsible for starting and
 stopping the daemon via the normal init interface.  Using this script,
 you can start \fBsmartd\fP by giving the command:
-.nf
+.br
 .B /usr/local/etc/rc.d/init.d/smartd start
-.fi
+.br
 and stop it by using the command:
-.nf
+.br
 .B /usr/local/etc/rc.d/init.d/smartd stop
-.fi
+.br
 
 .\" %ENDIF ENABLE_INITSCRIPT
 .SH CONFIGURATION
@@ -530,9 +540,9 @@ or
 .B \*(Aq\-u\*(Aq
 Directives.
 For example:
-.nf
+.br
 .B \*(AqDevice: /dev/sda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93\*(Aq
-.fi
+.br
 Note that in this message, the value given is the \*(AqNormalized\*(Aq not the
 \*(AqRaw\*(Aq Attribute value (the disk temperature in this case is about 22
 Celsius).  The
@@ -541,9 +551,9 @@ and
 .B \*(Aq\-r\*(Aq
 Directives modify this behavior, so that the information is printed
 with the Raw values as well, for example:
-.nf
+.br
 .B \*(AqDevice: /dev/sda, SMART Attribute: 194 Temperature_Celsius changed from 94 [Raw 22] to 93 [Raw 23]\*(Aq
-.fi
+.br
 Here the Raw values are the actual disk temperatures in Celsius.  The
 way in which the Raw values are printed, and the names under which the
 Attributes are reported, is governed by the various
@@ -559,9 +569,9 @@ Normalized and Raw Attribute values.
 will make log entries at loglevel
 .B LOG_CRIT
 if a SMART Attribute has failed, for example:
-.nf
+.br
 .B \*(AqDevice: /dev/sdc, Failed SMART Attribute: 5 Reallocated_Sector_Ct\*(Aq
-.fi
+.br
  This loglevel is used for reporting enabled by the
 .B \*(Aq\-H\*(Aq, \-f\*(Aq, \*(Aq\-l\ selftest\*(Aq,
 and
@@ -578,13 +588,13 @@ Hence all \fBsmartd\fP messages with loglevel \fBLOG_INFO\fP will be
 lost.  If you want to use the existing daemon facility to log all
 messages from \fBsmartd\fP, you should change \fB/etc/syslog.conf\fP
 from:
-.nf
+.Vb 1
        ...;daemon.notice;...        /var/adm/messages
-.fi
+.Ve
 to read:
-.nf
+.Vb 1
        ...;daemon.info;...          /var/adm/messages
-.fi
+.Ve
 Alternatively, you can use a local facility to log messages: please
 see the \fBsmartd\fP \*(Aq\-l\*(Aq command-line option described above.
 
@@ -595,10 +605,11 @@ cygrunsrv tool.
 .\" %IF ENABLE_INITSCRIPT
 The start-up script provides Cygwin-specific commands to install and
 remove the service:
-.nf
+.br
 .B /usr/local/etc/rc.d/init.d/smartd install [options]
+.br
 .B /usr/local/etc/rc.d/init.d/smartd remove
-.fi
+.br
 The service can be started and stopped by the start-up script as usual
 (see \fBEXAMPLES\fP above).
 .\" %ENDIF ENABLE_INITSCRIPT
@@ -612,15 +623,15 @@ On Windows, the following built-in commands can be used to control
 \fBsmartd\fP, if running as a daemon:
 
 \*(Aq\fBsmartd status\fP\*(Aq \- check status
-
+.br
 \*(Aq\fBsmartd stop\fP\*(Aq \- stop smartd
-
+.br
 \*(Aq\fBsmartd reload\fP\*(Aq \- reread config file
-
+.br
 \*(Aq\fBsmartd restart\fP\*(Aq \- restart smartd
-
+.br
 \*(Aq\fBsmartd sigusr1\fP\*(Aq \- check disks now
-
+.br
 \*(Aq\fBsmartd sigusr2\fP\*(Aq \- toggle debug mode
 
 The Windows Version of \fBsmartd\fP has buildin support for services:

@@ -18,6 +18,16 @@ Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
+.\" Macros borrowed from pages generated with Pod::Man
+.de Vb \" Begin verbatim text
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve \" End verbatim text
+.ft R
+.fi
+..
 .\" Use groff extension \(aq (apostrophe quote, ASCII 0x27) if possible
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
@@ -230,18 +240,18 @@ the longest output.
 Prints all SMART information about the disk, or TapeAlert information
 about the tape drive or changer.  For ATA devices this is equivalent
 to
-.nf
+.br
 \*(Aq\-H \-i \-c \-A \-l error \-l selftest \-l selective\*(Aq
-.fi
+.br
 and for SCSI, this is equivalent to
-.nf
+.br
 \*(Aq\-H \-i \-A \-l error \-l selftest\*(Aq.
-.fi
+.br
 .\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
-.nf
+.br
 \*(Aq\-H \-i \-c \-A \-l error\*(Aq.
-.fi
+.br
 .\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
 Note that for ATA disks this does \fBnot\fP enable the non-SMART options
 and the SMART options which require support for 48-bit ATA commands.
@@ -249,19 +259,18 @@ and the SMART options which require support for 48-bit ATA commands.
 .B \-x, \-\-xall
 Prints all SMART and non-SMART information about the device.
 For ATA devices this is equivalent to
-.nf
+.br
 \*(Aq\-H \-i \-g all \-c \-A \-f brief \-l xerror,error \-l xselftest,selftest
 \-l selective \-l directory \-l scttemp \-l scterc \-l devstat \-l sataphy\*(Aq.
-.fi
+.br
 and for SCSI, this is equivalent to
-.nf
+.br
 \*(Aq\-H \-i \-A \-l error \-l selftest \-l background \-l sasphy\*(Aq.
-.fi
+.br
 .\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
-.nf
+.br
 \*(Aq\-H \-i \-c \-A \-l error\*(Aq.
-.fi
 .\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-\-scan
@@ -279,9 +288,9 @@ to autodetection (see also \*(Aq\-d test\*(Aq).
 This option can be used to create a draft \fBsmartd.conf\fP file.
 All options after \*(Aq\-\-\*(Aq are appended to each output line.
 For example:
-.nf
+.Vb 1
 smartctl \-\-scan\-open \-\- \-a \-W 4,45,50 \-m admin@work > smartd.conf
-.fi
+.Ve
 
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 Multiple \*(Aq\-d TYPE\*(Aq options may be specified with
@@ -413,15 +422,13 @@ controllers (using the Marvell rather than libata driver).
 to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
 127 inclusive) denotes which disk on the controller is monitored.
 Use syntax such as:
-.nf
+.br
 \fBsmartctl \-a \-d megaraid,2 /dev/sda\fP
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d megaraid,0 /dev/sdb\fP
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d megaraid,0 /dev/bus/0\fP
-.fi
+.br
 This interface will also work for Dell PERC controllers.
 It is possible to set RAID device name as /dev/bus/N, where N is a SCSI bus
 number.
@@ -440,12 +447,10 @@ SCSI/SAS disks connected to an AacRaid controller.
 The non-negative integers H,L,ID (Host number, Lun, ID) denote which disk
 on the controller is monitored.
 Use syntax such as:
-.nf
+.br
 \fBsmartctl \-a \-d aacraid,0,0,2 /dev/sda\fP
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d aacraid,1,0,4 /dev/sdb\fP
-.fi
 
 .\" %ENDIF OS Linux Windows Cygwin
 .\" %IF OS Linux
@@ -465,21 +470,17 @@ connected to a 3ware RAID controller.  The non-negative integer N
 (in the range from 0 to 127 inclusive) denotes which disk on the controller
 is monitored.
 Use syntax such as:
-.nf
+.br
 \fBsmartctl \-a \-d 3ware,2 /dev/sda\fP  [Linux only]
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d 3ware,0 /dev/twe0\fP
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d 3ware,1 /dev/twa0\fP
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d 3ware,1 /dev/twl0\fP [Linux only]
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d 3ware,1 /dev/tws0\fP [FreeBSD only]
-.fi
+.br
 The first two forms, which refer to devices /dev/sda\-z and /dev/twe0\-15,
 may be used with 3ware series 6000, 7000, and 8000 series controllers
 that use the 3x-xxxx driver.
@@ -548,30 +549,27 @@ disk on the controller is monitored.
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS Linux
 On Linux use syntax such as:
-.nf
+.br
 \fBsmartctl \-a \-d areca,2 /dev/sg2\fP
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d areca,3 /dev/sg3\fP
-.fi
+.br
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD
 On FreeBSD use syntax such as:
-.nf
+.br
 \fBsmartctl \-a \-d areca,2 /dev/arcmsr1\fP
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d areca,3 /dev/arcmsr2\fP
-.fi
+.br
 .\" %ENDIF OS FreeBSD
 .\" %IF OS Windows Cygwin
 On Windows and Cygwin use syntax such as:
-.nf
+.br
 \fBsmartctl \-a \-d areca,2 /dev/arcmsr0\fP
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d areca,3 /dev/arcmsr1\fP
-.fi
+.br
 .\" %ENDIF OS Windows Cygwin
 .\" %IF OS FreeBSD Linux Windows Cygwin
 The first line above addresses the second disk on the first Areca RAID
@@ -581,9 +579,9 @@ controller.
 .\" %ENDIF OS FreeBSD Linux Windows Cygwin
 .\" %IF OS Linux
 To help identify the correct device on Linux, use the command:
-.nf
+.br
 \fBcat /proc/scsi/sg/device_hdr /proc/scsi/sg/devices\fP
-.fi
+.br
 to show the SCSI generic devices (one per line, starting with
 /dev/sg0).  The correct SCSI generic devices to address for
 smartmontools are the ones with the type field equal to 3.  If the
@@ -615,17 +613,14 @@ To look at disks behind HP Smart Array controllers, use syntax
 such as:
 .\" %ENDIF OS FreeBSD Linux
 .\" %IF OS Linux
-.nf
+.br
 \fBsmartctl \-a \-d cciss,0 /dev/cciss/c0d0\fP    (cciss driver under Linux)
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d cciss,0 /dev/sg2\fP    (hpsa or hpahcisr drivers under Linux)
-.fi
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD
-.nf
+.br
 \fBsmartctl \-a \-d cciss,0 /dev/ciss0\fP    (under FreeBSD)
-.fi
 .\" %ENDIF OS FreeBSD
 .\" %IF OS FreeBSD Linux
 
@@ -640,22 +635,19 @@ of the HighPoint RocketRAID controller.
 Use syntax such as:
 .\" %ENDIF OS FreeBSD Linux
 .\" %IF OS Linux
-.nf
+.br
 \fBsmartctl \-a \-d hpt,1/3 /dev/sda\fP    (under Linux)
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d hpt,1/2/3 /dev/sda\fP    (under Linux)
-.fi
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD
-.nf
+.br
 \fBsmartctl \-a \-d hpt,1/3 /dev/hptrr\fP    (under FreeBSD)
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d hpt,1/2/3 /dev/hptrr\fP    (under FreeBSD)
-.fi
 .\" %ENDIF OS FreeBSD
 .\" %IF OS FreeBSD Linux
+.br
 Note that the /dev/sda\-z form should be the device node which stands for
 the disks derived from the HighPoint RocketRAID controllers under Linux and
 under FreeBSD, it is the character device which the driver registered (eg,
@@ -669,12 +661,11 @@ The integer N is the port number from 0 to 3 of the ATA drive to be targeted.
 The TYPE can be ata(default), sat, or a USB controller listed above.
 Note: if a type of ATA does not work, try a type of sat.
 Use syntax such as:
-.nf
+.br
 \fBsmartctl \-a \-d intelliprop,1 /dev/sda\fP    (under Linux)
-.fi
-.nf
+.br
 \fBsmartctl \-a \-d intelliprop,1+sat /dev/sda\fP    (under Linux)
-.fi
+.br
 \fBWARNING: The disks are selected by write commands to the ATA Device
 Vendor Specific Log at address 0xc0.
 Using this option with other devices may have undesirable side effects.\fP
@@ -943,9 +934,8 @@ Valid arguments are:
 .I all
 \- Gets all values.
 This is equivalent to
-.nf
+.br
 \*(Aq\-g aam \-g apm \-g lookahead \-g security \-g wcache \-g rcache \-g dsn\*(Aq
-.fi
 
 .I aam[,N|off]
 \- [ATA only] Gets/sets the Automatic Acoustic Management (AAM) feature
@@ -1243,7 +1233,7 @@ the device status (idle, standby, etc) at the time of the error.  For
 some common types of errors, the Error Register (ER) and Status
 Register (SR) values are decoded and printed as text.
 The meanings of these are:
-.nf
+.Vb 5
    \fBABRT\fP:  Command \fBAB\fPo\fBRT\fPed
    \fBAMNF\fP:  \fBA\fPddress \fBM\fPark \fBN\fPot \fBF\fPound
    \fBCCTO\fP:  \fBC\fPommand \fBC\fPompletion \fBT\fPimed \fBO\fPut
@@ -1258,7 +1248,7 @@ The meanings of these are:
    \fBTK0NF\fP: \fBT\fPrac\fBK 0 N\fPot \fBF\fPound
    \fBUNC\fP:   \fBUNC\fPorrectable Error in Data
    \fBWP\fP:    Media is \fBW\fPrite \fBP\fProtected
-.fi
+.Ve
 In addition, up to the last five commands that preceded the error are
 listed, along with a timestamp measured from the start of the
 corresponding power cycle.  This is displayed in the form
@@ -1496,18 +1486,18 @@ LAST can be set to \*(Aqmax\*(Aq to specify the last page of the log.
 Log command.  See \*(Aq\-l gplog,...\*(Aq above for parameter syntax.
 
 For example, all these commands:
-.nf
+.Vb 3
   smartctl \-l gplog,0x80,10\-15 /dev/sda
   smartctl \-l gplog,0x80,10+6 /dev/sda
   smartctl \-l smartlog,0x80,10\-15 /dev/sda
-.fi
+.Ve
 print pages 10\(en15 of log 0x80 (first host vendor specific log).
 
 The hex dump format is compatible with the \*(Aqxxd \-r\*(Aq command.
 This command:
-.nf
+.Vb 1
   smartctl \-l gplog,0x11 /dev/sda | grep ^0 | xxd \-r >log.bin
-.fi
+.Ve
 writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
 
@@ -1818,17 +1808,17 @@ and settings for syntax errors.
 The \*(Aq\-P showall\*(Aq option takes up to two optional arguments to
 match a specific drive type and firmware version.
 The command:
-.nf
+.Vb 1
   smartctl \-P showall
-.fi
+.Ve
 lists all entries, the command:
-.nf
+.Vb 1
   smartctl \-P showall \*(AqMODEL\*(Aq
-.fi
+.Ve
 lists all entries matching MODEL, and the command:
-.nf
+.Vb 1
   smartctl \-P showall \*(AqMODEL\*(Aq \*(AqFIRMWARE\*(Aq
-.fi
+.Ve
 lists all entries for this MODEL and a specific FIRMWARE version.
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
@@ -1881,7 +1871,7 @@ the built in database array.
 C/C++ style comments are allowed.
 Example:
 
-.nf
+.Vb 8
   /* Full entry: */
   {
     "Model family",    // Info about model family/series.
@@ -1907,7 +1897,7 @@ Example:
     "\-d sat"           // String with device type option.
   },
   /* ... */
-.fi
+.Ve
 
 .TP
 .B SMART RUN/ABORT OFFLINE TEST AND self-test OPTIONS:
@@ -1997,28 +1987,28 @@ The range can also be specified as N+SIZE.
 A span at the end of a disk can be specified by N\-\fBmax\fP.
 
 For example the commands:
-.nf
+.Vb 2
   smartctl \-t select,10\-20 /dev/sda
   smartctl \-t select,10+11 /dev/sda
-.fi
+.Ve
 both runs a self test on one span consisting of LBAs ten to twenty
 (inclusive).
 The command:
-.nf
+.Vb 1
   smartctl \-t select,100000000\-max /dev/sda
-.fi
+.Ve
 run a self test from LBA 100000000 up to the end of the disk.
 The \*(Aq\-t\*(Aq option can be given up to five times, to test
 up to five spans.  For example the command:
-.nf
+.Vb 1
   smartctl \-t select,0\-100 \-t select,1000\-2000 /dev/sda
-.fi
+.Ve
 runs a self test on two spans.  The first span consists of 101 LBAs
 and the second span consists of 1001 LBAs.  Note that the spans can
 overlap partially or completely, for example:
-.nf
+.Vb 1
   smartctl \-t select,0\-10 \-t select,5\-15 \-t select,10\-20 /dev/sda
-.fi
+.Ve
 The results of the selective self-test can be obtained (both during
 and after the test) by printing the SMART self-test log, using the
 \*(Aq\-l selftest\*(Aq option to smartctl.
@@ -2043,17 +2033,17 @@ The starting LBA is identical to the LBA used by last test, same for ending
 LBA unless a new span size is specified by optional +SIZE argument.
 
 For example the commands:
-.nf
+.Vb 3
   smartctl \-t select,10\-20 /dev/sda
   smartctl \-t select,redo /dev/sda
   smartctl \-t select,redo+20 /dev/sda
-.fi
+.Ve
 have the same effect as:
-.nf
+.Vb 3
   smartctl \-t select,10\-20 /dev/sda
   smartctl \-t select,10\-20 /dev/sda
   smartctl \-t select,10\-29 /dev/sda
-.fi
+.Ve
 
 .I select,next[+SIZE]
 \- [ATA only] runs a SMART Selective Self Test on the LBA range which
@@ -2062,17 +2052,17 @@ The starting LBA is set to (ending LBA +1) of the last test.
 A new span size may be specified by the optional +SIZE argument.
 
 For example the commands:
-.nf
+.Vb 3
   smartctl \-t select,0\-999 /dev/sda
   smartctl \-t select,next /dev/sda
   smartctl \-t select,next+2000 /dev/sda
-.fi
+.Ve
 have the same effect as:
-.nf
+.Vb 3
   smartctl \-t select,0\-999 /dev/sda
   smartctl \-t select,1000\-1999 /dev/sda
   smartctl \-t select,2000\-3999 /dev/sda
-.fi
+.Ve
 
 If the last test ended at the last LBA of the disk, the new range starts
 at LBA 0.  The span size of the last span of a disk is adjusted such that
@@ -2194,55 +2184,47 @@ a Network Attached Storage (NAS) box) and fetching the logs via a
 browser.
 
 .SH EXAMPLES
-.nf
 .B smartctl \-a /dev/sda
-.fi
+.br
 Print a large amount of SMART information for drive /dev/sda.
 .PP
-.nf
 .B smartctl \-s off /dev/sdd
-.fi
+.br
 Disable SMART monitoring and data log collection on drive /dev/sdd.
 .PP
-.nf
 .B smartctl \-\-smart=on \-\-offlineauto=on \-\-saveauto=on /dev/sda
-.fi
+.br
 Enable SMART on drive /dev/sda, enable automatic offline
 testing every four hours, and enable autosaving of
 SMART Attributes.  This is a good start-up line for your system's
 init files.  You can issue this command on a running system.
 .PP
-.nf
 .B smartctl \-t long /dev/sdc
-.fi
+.br
 Begin an extended self-test of drive /dev/sdc.  You can issue this
 command on a running system.  The results can be seen in the self-test
 log visible with the \*(Aq\-l selftest\*(Aq option after it has completed.
 .PP
-.nf
 .B smartctl \-s on \-t offline /dev/sda
-.fi
+.br
 Enable SMART on the disk, and begin an immediate offline test of
 drive /dev/sda.  You can issue this command on a running system.  The
 results are only used to update the SMART Attributes, visible
 with the \*(Aq\-A\*(Aq option.  If any device errors occur, they are logged to
 the SMART error log, which can be seen with the \*(Aq\-l error\*(Aq option.
 .PP
-.nf
 .B smartctl \-A \-v 9,minutes /dev/sda
-.fi
+.br
 Shows the vendor Attributes, when the disk stores its power-on time
 internally in minutes rather than hours.
 .PP
-.nf
 .B smartctl \-q errorsonly \-H \-l selftest /dev/sda
-.fi
+.br
 Produces output only if the device returns failing SMART status,
 or if some of the logged self-tests ended with errors.
 .PP
-.nf
 .B smartctl \-q silent \-a /dev/sda
-.fi
+.br
 Examine all SMART data for device /dev/sda, but produce no
 printed output.  You must use the exit status (the
 .B $?
@@ -2250,68 +2232,59 @@ shell variable) to learn if any Attributes are out of bound, if the
 SMART status is failing, if there are errors recorded in the
 self-test log, or if there are errors recorded in the disk error log.
 .PP
-.nf
 .B smartctl \-a \-d 3ware,0 /dev/sda
-.fi
+.br
 Examine all SMART data for the first ATA disk connected to a 3ware
 RAID controller card.
 .PP
-.nf
 .B smartctl \-a \-d 3ware,0 /dev/twe0
-.fi
+.br
 Examine all SMART data for the first ATA disk connected to a 3ware
 RAID 6000/7000/8000 controller card.
 .PP
-.nf
 .B smartctl \-a \-d 3ware,0 /dev/twa0
-.fi
+.br
 Examine all SMART data for the first ATA disk connected to a
 3ware RAID 9000 controller card.
 .PP
-.nf
 .B smartctl \-a \-d 3ware,0 /dev/twl0
-.fi
+.br
 Examine all SMART data for the first SATA (not SAS) disk connected to a
 3ware RAID 9750 controller card.
 .PP
-.nf
 .B smartctl \-t short \-d 3ware,3 /dev/sdb
-.fi
+.br
 Start a short self-test on the fourth ATA disk connected to the 3ware RAID
 controller card which is the second SCSI device /dev/sdb.
 .PP
-.nf
 .B smartctl \-t long \-d areca,4 /dev/sg2
-.fi
+.br
 Start a long self-test on the fourth SATA disk connected to an Areca RAID
 controller addressed by /dev/sg2.
 .PP
-.nf
 .B smartctl \-a \-d hpt,1/3 /dev/sda    (under Linux)
+.br
 .B smartctl \-a \-d hpt,1/3 /dev/hptrr    (under FreeBSD)
-.fi
+.br
 Examine all SMART data for the (S)ATA disk directly connected to the third
 channel of the first HighPoint RocketRAID controller card.
-.nf
 .PP
-.nf
 .B smartctl \-t short \-d hpt,1/1/2 /dev/sda    (under Linux)
+.br
 .B smartctl \-t short \-d hpt,1/1/2 /dev/hptrr    (under FreeBSD)
-.fi
+.br
 Start a short self-test on the (S)ATA disk connected to second pmport on the
 first channel of the first HighPoint RocketRAID controller card.
 .PP
-.nf
 .B smartctl \-t select,10\-100 \-t select,30\-300 \-t afterselect,on \-t pending,45 /dev/sda
-.fi
+.br
 Run a selective self-test on LBAs 10 to 100 and 30 to 300.  After the
 these LBAs have been tested, read-scan the remainder of the disk.
 If the disk is power-cycled during the read-scan, resume the scan 45 minutes
 after power to the device is restored.
 .PP
-.nf
 .B smartctl \-a \-d cciss,0 /dev/cciss/c0d0
-.fi
+.br
 Examine all SMART data for the first SCSI disk connected to a cciss
 RAID controller card.
 
@@ -2357,9 +2330,9 @@ self-test are ignored.
 To test within the shell for whether or not the different bits are
 turned on or off, you can use the following type of construction
 (which should work with any POSIX compatible shell):
-.nf
+.br
 .B smartstat=$(($? & 8))
-.fi
+.br
 This looks at only at bit 3 of the exit status
 .B $?
 (since 8=2^3).  The shell variable
@@ -2367,13 +2340,13 @@ $smartstat will be nonzero if SMART status check returned "disk
 failing" and zero otherwise.
 .PP
 This shell script prints all status bits:
-.nf
+.Vb 5
 val=$?; mask=1
 for i in 0 1 2 3 4 5 6 7; do
   echo "Bit $i: $(((val & mask) && 1))"
   mask=$((mask << 1))
 done
-.fi
+.Ve
 
 .\" %IF NOT OS Windows
 .SH FILES

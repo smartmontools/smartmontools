@@ -2,6 +2,14 @@ $Id$
 
 2017-05-03  Christian Franke  <franke@computer.org>
 
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in,
+	update-smart-drivedb.8.in:
+	Rework '.nf...fi' (no-fill) sections for better formatting with
+	various tools (groff, mandoc, man2html) and output formats
+	(text, pdf, html).
+	Use '.br' instead of '.nf...fi' where applicable.
+	Use CW font in remaining no-fill sections.
+
 	smartctl.8.in: Replace UTF-8 quotes.
 
 2017-05-02  Christian Franke  <franke@computer.org>

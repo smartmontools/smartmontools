@@ -13,6 +13,16 @@ You should have received a copy of the GNU General Public License
 (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 
 ..
+.\" Macros borrowed from pages generated with Pod::Man
+.de Vb \" Begin verbatim text
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve \" End verbatim text
+.ft R
+.fi
+..
 .\" Use groff extension \(aq (apostrophe quote, ASCII 0x27) if possible
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
@@ -132,10 +142,11 @@ Print download commands only.
 Verbose output.
 
 .SH "EXAMPLES"
-.nf
+.Vb 2
 # update-smart-drivedb
-/usr/local/share/smartmontools/drivedb.h updated from branches/RELEASE_6_0_DRIVEDB
-.fi
+/usr/local/share/smartmontools/drivedb.h updated from \e
+branches/RELEASE_6_0_DRIVEDB
+.Ve
 
 .SH "EXIT STATUS"
 The exit status is 0 if the database has been successfully
