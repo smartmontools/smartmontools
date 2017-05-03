@@ -1,5 +1,9 @@
 $Id$
 
+2017-05-03  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Replace UTF-8 quotes.
+
 2017-05-02  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in,
