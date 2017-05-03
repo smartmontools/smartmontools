@@ -1,4 +1,8 @@
-$Id: ChangeLog 4427 2017-05-02 20:15:58Z chrfranke $
+$Id: ChangeLog 4428 2017-05-03 15:11:48Z chrfranke $
+
+2017-05-03  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Replace UTF-8 quotes.
 
 2017-05-02  Christian Franke  <franke@computer.org>
 

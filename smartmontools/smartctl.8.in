@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-17 Christian Franke
 
-$Id: smartctl.8.in 4427 2017-05-02 20:15:58Z chrfranke $
+$Id: smartctl.8.in 4428 2017-05-03 15:11:48Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1020,7 +1020,7 @@ SCT Feature control overwrites the setting by ATA Set Features command
 If SCT Feature Control sets write cache as "Force Enabled" or "Force Disabled",
 the setting of wcache[,on|off] is ignored by the drive.
 SCT Feature Control usually sets write cache as "Controlled by ATA" by default.
-If ´,p´ is specified, the setting is preserved across power cycles.
+If \*(Aq,p\*(Aq is specified, the setting is preserved across power cycles.
 
 .I wcreorder[,on|off[,p]]
 \- [ATA only] Gets/sets Write Cache Reordering.
@@ -1032,7 +1032,7 @@ no effect on non-cached writes, which are always written in the order received.
 The state of Write Cache Reordering has no effect on either NCQ or LCQ queued
 commands.
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
-If ´,p´ is specified, the setting is preserved across power cycles.
+If \*(Aq,p\*(Aq is specified, the setting is preserved across power cycles.
 
 .I rcache[,on|off]
 \- [SCSI only] Gets/sets the \*(AqRead Cache Disable\*(Aq (RCE) bit.
@@ -2450,4 +2450,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4427 2017-05-02 20:15:58Z chrfranke $
+$Id: smartctl.8.in 4428 2017-05-03 15:11:48Z chrfranke $
