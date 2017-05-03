@@ -1,12 +1,14 @@
-$Id: ChangeLog 4429 2017-05-03 15:20:12Z chrfranke $
+$Id: ChangeLog 4430 2017-05-03 19:22:24Z chrfranke $
 
 2017-05-03  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in,
 	update-smart-drivedb.8.in:
-	Rework '.nf...fi' (no-fill) sections for better formatting with
-	various tools (groff, mandoc, man2html) and output formats
-	(text, pdf, html).
+	Rework vertical space and '.nf...fi' (no-fill) sections
+	for better formatting with various tools (groff, mandoc,
+	man2html) and output formats (text, pdf, html).
+	Use default vertical space instead of an empty line
+	between paragraphs.
 	Use '.br' instead of '.nf...fi' where applicable.
 	Use CW font in remaining no-fill sections.
 
