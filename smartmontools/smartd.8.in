@@ -19,6 +19,10 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
+.de Sp \" Vertical space (when we can't use .PP)
+.if t .sp 0.4v
+.if n .sp
+..
 .de Vb \" Begin verbatim text
 .ft CW
 .nf
@@ -53,7 +57,7 @@ self-tests.
 This version of \fBsmartd\fP is compatible with
 ACS-3, ACS-2, ATA8-ACS, ATA/ATAPI-7 and earlier standards
 (see \fBREFERENCES\fP below).
-
+.PP
 \fBsmartd\fP will attempt to enable SMART monitoring on ATA devices
 (equivalent to \fBsmartctl \-s on\fP) and polls these and SCSI devices
 every 30 minutes (configurable), logging SMART errors and changes of
@@ -62,7 +66,7 @@ these SYSLOG notifications and warnings is system-dependent
 (typically \fB/var/log/messages\fP or \fB/var/log/syslog\fP).
 To change this default location, please see the \*(Aq\-l\*(Aq
 command-line option described below.
-
+.PP
 In addition to logging to a file, \fBsmartd\fP can also be configured
 to send email warnings if problems are detected.  Depending upon the
 type of problem, you may want to run self-tests on the disk, back up
@@ -70,12 +74,12 @@ the disk, replace the disk, or use a manufacturer's utility to force
 reallocation of bad or unreadable disk sectors.  If disk problems are
 detected, please see the \fBsmartctl\fP manual page and the
 \fBsmartmontools\fP web page/FAQ for further guidance.
-
+.PP
 If you send a \fBUSR1\fP signal to \fBsmartd\fP it will immediately
 check the status of the disks, and then return to polling the disks
 every 30 minutes.
 See the \*(Aq\-i\*(Aq option below for additional details.
-
+.PP
 \fBsmartd\fP can be configured at start-up using the configuration
 file \fB/usr/local/etc/smartd.conf\fP (Windows: \fBEXEDIR/smartd.conf\fP).
 If the configuration file is subsequently modified, \fBsmartd\fP
@@ -87,7 +91,7 @@ can be told to re-read the configuration file by sending it a
 .\" %IF OS Windows
 (Windows: See NOTES below.)
 .\" %ENDIF OS Windows
-
+.PP
 On startup, if \fBsmartd\fP finds a syntax error in the configuration
 file, it will print an error message and then exit.  However if
 \fBsmartd\fP is already running, then is told with a \fBHUP\fP signal
@@ -95,7 +99,7 @@ to re-read the configuration file, and then find a syntax error in
 this file, it will print an error message and then continue, ignoring
 the contents of the (faulty) configuration file, as if the \fBHUP\fP
 signal had never been received.
-
+.PP
 When \fBsmartd\fP is running in debug mode, the \fBINT\fP signal
 (normally generated from a shell with CONTROL-C) is treated in the
 same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
@@ -104,7 +108,7 @@ To exit \fBsmartd\fP use CONTROL-\e.
 .\" %IF OS Windows
 (Windows: CONTROL-Break).
 .\" %ENDIF OS Windows
-
+.PP
 On startup, in the absence of the configuration file
 \fB/usr/local/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
 devices that support SMART.  The scanning is done as follows:
@@ -114,7 +118,7 @@ Examine all entries \fB"/dev/hd[a\-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a\-z]"\fP, \fB"/dev/sd[a\-c][a\-z]"\fP
 for ATA/SATA or SCSI/SAS devices.
 Disks behind RAID controllers are not included.
-
+.Sp
 [NEW EXPERIMENTAL SMARTD FEATURE]
 If directive \*(Aq\-d nvme\*(Aq
 .\" %IF ENABLE_NVME_DEVICESCAN
@@ -147,19 +151,19 @@ The IOService plane is scanned for ATA block storage devices.
 Examine all entries \fB"/dev/sd[a\-z]"\fP, \fB"/dev/sd[a\-c][a\-z]"\fP
 and \fB"/dev/sdd[a\-x]"\fP ("\\\\.\\PhysicalDrive[0\-127]") for
 IDE/(S)ATA and SCSI disk devices.
-
+.Sp
 If a 3ware 9000 controller is installed, examine all entries
 \fB"/dev/sdX,N"\fP for the first logical drive (\*(Aqunit\*(Aq
 \fB"/dev/sdX"\fP) and all physical disks (\*(Aqports\*(Aq \fB",N"\fP)
 detected behind this controller.
 Same for a second controller if present.
-
+.Sp
 If directive \*(Aq\-d csmi\*(Aq or no \*(Aq\-d\*(Aq directive is specified,
 examine all entries \fB"/dev/csmi[0\-9],N"\fP for drives behind an Intel
 ICHxR controller with RST driver.
-
+.Sp
 Disks behind Areca RAID controllers are not included.
-
+.Sp
 [NEW EXPERIMENTAL SMARTD FEATURE]
 If directive \*(Aq\-d nvme\*(Aq
 .\" %IF ENABLE_NVME_DEVICESCAN
@@ -172,7 +176,7 @@ and all entries \fB"/dev/nvme[0\-9]"\fP for NVMe devices.
 \fBsmartd\fP then monitors
 for \fIall\fP possible SMART errors (corresponding to the \*(Aq\-a\*(Aq
 Directive in the configuration file; see the \fBsmartd.conf\fP(5) man page).
-
+.Sp
 .SH OPTIONS
 .TP
 .B \-A PREFIX, \-\-attributelog=PREFIX
@@ -184,7 +188,7 @@ triplets of the form "attribute-ID;attribute-norm-value;attribute-raw-value;".
 For SCSI devices error counters and temperature recorded in the form
 "counter-name;counter-value;".
 Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
-
+.Sp
 .\" %IF ENABLE_ATTRIBUTELOG
 If this option is not specified, attribute information is written to files
 \*(Aq/usr/local/var/lib/smartmontools/attrlog.MODEL\-SERIAL.ata.csv\*(Aq.
@@ -193,7 +197,7 @@ argument: \*(Aq\-A ""\*(Aq.
 .\" %ENDIF ENABLE_ATTRIBUTELOG
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
-
+.Sp
 If the PREFIX has the form \*(Aq/path/dir/\*(Aq (e.g.\&
 \*(Aq/var/lib/smartd/\*(Aq), then files \*(AqMODEL\-SERIAL.ata.csv\*(Aq are
 created in directory \*(Aq/path/dir\*(Aq.
@@ -217,7 +221,7 @@ If FILE does \fBnot\fP exist, then \fBsmartd\fP will print an error
 message and exit with nonzero status.
 Thus, \*(Aq\-c /usr/local/etc/smartd.conf\*(Aq can be used to verify the
 existence of the default configuration file.
-
+.Sp
 By using \*(Aq\-\*(Aq for FILE, the configuration is read from standard input.
 This is useful for commands like:
 .br
@@ -229,7 +233,7 @@ to perform quick and simple checks without a configuration file.
 .B \-C, \-\-capabilities
 [Linux only] Use libcap-ng to drop unneeded Linux process \fBcapabilities\fP(7).
 The following capabilities are kept: CAP_SYS_ADMIN, CAP_SYS_RAWIO, CAP_MKNOD.
-
+.Sp
 Warning: Mail notification does not work when used.
 .\" %ENDIF ENABLE_CAPABILITIES
 .TP
@@ -244,7 +248,7 @@ terminal with CONTROL-C) makes \fBsmartd\fP reload its configuration
 file.  Please use CONTROL-\e to exit
 .\" %IF OS Windows
 (Windows: CONTROL-Break).
-
+.Sp
 [Windows only] The "debug" mode can be toggled by the command
 \fBsmartd sigusr2\fP.
 A new console for debug output is opened when debug mode is enabled.
@@ -264,7 +268,7 @@ Sets the interval between disk checks to \fIN\fP seconds, where
 \fIN\fP is a decimal integer.  The minimum allowed value is ten and
 the maximum is the largest positive integer that can be represented on
 your system (often 2^31\-1).  The default is 1800 seconds.
-
+.Sp
 Note that the superuser can make \fBsmartd\fP check the status of the
 disks at any time by sending it the \fBSIGUSR1\fP signal, for example
 with the command:
@@ -288,23 +292,23 @@ Here FACILITY is one of \fIlocal0\fP, \fIlocal1\fP, ..., \fIlocal7\fP,
 or \fIdaemon\fP [default].  If this command-line option is not used,
 then by default messages from \fBsmartd\fP are logged to the facility
 \fIdaemon\fP.
-
+.Sp
 If you would like to have \fBsmartd\fP messages logged somewhere other
 than the default location, include (for example) \*(Aq\-l local3\*(Aq in its
 start up argument list.
 Tell the syslog daemon to log all messages from facility \fBlocal3\fP
 to (for example) \*(Aq/var/log/smartd.log\*(Aq.
-
+.Sp
 For more detailed information, please refer to the man pages for
 the local syslog daemon, typically \fBsyslogd\fP(8), \fBsyslog-ng\fP(8)
 or \fBrsyslogd\fP(8).
 .\" %IF OS Cygwin
-
+.Sp
 Cygwin: If no \fBsyslogd\fP is running, the \*(Aq\-l\*(Aq option has no effect.
 In this case, all \fBsyslog\fP messages are written to Windows event log.
 .\" %ENDIF OS Cygwin
 .\" %IF OS Windows
-
+.Sp
 Windows: Some \fBsyslog\fP functionality is implemented
 internally in \fBsmartd\fP as follows: If no \*(Aq\-l\*(Aq option
 (or \*(Aq\-l daemon\*(Aq) is specified, messages are written to Windows
@@ -321,12 +325,12 @@ By specifying other values of FACILITY, log output is redirected as follows:
 Do not fork into background; this is useful when executed from modern
 init methods like initng, minit, supervise or systemd.
 .\" %IF OS Cygwin
-
+.Sp
 On Cygwin, this allows running \fBsmartd\fP as service via cygrunsrv,
 see NOTES below.
 .\" %ENDIF OS Cygwin
 .\" %IF OS Windows
-
+.Sp
 On Windows, this option is not available, use \*(Aq\-\-service\*(Aq instead.
 .\" %ENDIF OS Windows
 .TP
@@ -341,33 +345,33 @@ pidfile is removed.
 .B \-q WHEN, \-\-quit=WHEN
 Specifies when, if ever, \fBsmartd\fP should exit.  The valid
 arguments are to this option are:
-
+.Sp
 .I nodev
 \- Exit if there are no devices to monitor, or if any errors are found
 at startup in the configuration file.  This is the default.
-
+.Sp
 .I errors
 \- Exit if there are no devices to monitor, or if any errors are found
 in the configuration file /usr/local/etc/smartd.conf at startup or whenever it
 is reloaded.
-
+.Sp
 .I nodevstartup
 \- Exit if there are no devices to monitor at startup.  But continue
 to run if no devices are found whenever the configuration file is
 reloaded.
-
+.Sp
 .I never
 \- Only exit if a fatal error occurs (no remaining system memory,
 invalid command line arguments).  In this mode, even if there are no
 devices to monitor, or if the configuration file
 \fB/usr/local/etc/smartd.conf\fP has errors, \fBsmartd\fP will continue to run,
 waiting to load a configuration file listing valid devices.
-
+.Sp
 .I onecheck
 \- Start \fBsmartd\fP in debug mode, then register devices, then check
 device's SMART status once, and then exit with zero exit status if all
 of these steps worked correctly.
-
+.Sp
 This last option is intended for \*(Aqdistribution-writers\*(Aq who want to
 create automated scripts to determine whether or not to automatically
 start up \fBsmartd\fP after installing smartmontools.  After starting
@@ -380,13 +384,13 @@ should send \fBsmartd\fP a SIGTERM or SIGKILL and assume that
 \fBsmartd\fP in normal daemon mode.  If \fBsmartd\fP is unable to
 monitor any devices or encounters other problems then it will return
 with non-zero exit status.
-
+.Sp
 .I showtests
 \- Start \fBsmartd\fP in debug mode, then register devices, then write
 a list of future scheduled self tests to stdout, and then exit with zero
 exit status if all of these steps worked correctly.
 Device's SMART status is not checked.
-
+.Sp
 This option is intended to test whether the \*(Aq\-s REGEX\*(Aq directives in
 smartd.conf will have the desired effect.  The output lists the next test
 schedules, limited to 5 tests per type and device.  This is followed by a
@@ -405,22 +409,22 @@ When used just once, it shows a record of the ioctl() transactions
 with the device.  When used more than once, the detail of these ioctl()
 transactions are reported in greater detail.  The valid arguments to
 this option are:
-
+.Sp
 .I ioctl
 \- report all ioctl() transactions.
-
+.Sp
 .I ataioctl
 \- report only ioctl() transactions with ATA devices.
-
+.Sp
 .I scsiioctl
 \- report only ioctl() transactions with SCSI devices.
-
+.Sp
 .\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
 .I nvmeioctl
 \- [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
 [NEW EXPERIMENTAL SMARTD FEATURE]
 report only ioctl() transactions with NVMe devices.
-
+.Sp
 .\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
 Any argument may include a positive integer to specify the level of
 detail that should be reported.  The argument should be followed by a
@@ -436,7 +440,7 @@ This preserves SMART attributes, drive min and max temperatures (\-W directive),
 info about last sent warning email
 (\-m directive), and the time of next check of the self-test REGEXP
 (\-s directive) across boot cycles.
-
+.Sp
 .\" %IF ENABLE_SAVESTATES
 If this option is not specified, state information is maintained in files
 \*(Aq/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\*(Aq
@@ -448,7 +452,7 @@ argument: \*(Aq\-s ""\*(Aq.
 .\" %ENDIF ENABLE_SAVESTATES
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
-
+.Sp
 If the PREFIX has the form \*(Aq/path/dir/\*(Aq (e.g.\&
 \*(Aq/var/lib/smartd/\*(Aq), then files \*(AqMODEL\-SERIAL.ata.state\*(Aq are
 created in directory \*(Aq/path/dir\*(Aq.
@@ -457,7 +461,7 @@ If the PREFIX has the form \*(Aq/path/name\*(Aq (e.g.\&
 then files \*(AqnameMODEL\-SERIAL.ata.state\*(Aq are created in directory
 \*(Aq/path/\*(Aq.
 The path must be absolute, except if debug mode is enabled.
-
+.Sp
 The state information files are read on smartd startup.  The files are
 always (re)written after reading the configuration file, before rereading
 the configuration file (SIGHUP), before smartd shutdown, and after a check
@@ -491,19 +495,19 @@ See NOTES below for details.
 .B \-V, \-\-version, \-\-license, \-\-copyright
 Prints version, copyright, license, home page and SVN revision
 information for your copy of \fBsmartd\fP to STDOUT and then exits.
-
+.Sp
 .SH EXAMPLES
 .B smartd
 .br
 Runs the daemon in forked mode.  This is the normal way to run
 \fBsmartd\fP.
 Entries are logged to SYSLOG.
-
+.Sp
 .B smartd \-d \-i 30
 .br
 Run in foreground (debug) mode, checking the disk status
 every 30 seconds.
-
+.Sp
 .B smartd \-q onecheck
 .br
 Registers devices, and checks the status of the devices exactly
@@ -512,8 +516,8 @@ The exit status (the shell
 .B $?
 variable) will be zero if all went well, and nonzero if no devices
 were detected or some other problem was encountered.
-
 .\" %IF ENABLE_INITSCRIPT
+.Sp
 Note that \fBsmartmontools\fP provides a start-up script in
 \fB/usr/local/etc/rc.d/init.d/smartd\fP which is responsible for starting and
 stopping the daemon via the normal init interface.  Using this script,
@@ -524,12 +528,11 @@ you can start \fBsmartd\fP by giving the command:
 and stop it by using the command:
 .br
 .B /usr/local/etc/rc.d/init.d/smartd stop
-.br
-
 .\" %ENDIF ENABLE_INITSCRIPT
+.Sp
 .SH CONFIGURATION
 The syntax of the \fBsmartd.conf\fP(5) file is discussed separately.
-
+.Sp
 .SH NOTES
 \fBsmartd\fP
 will make log entries at loglevel
@@ -559,12 +562,12 @@ way in which the Raw values are printed, and the names under which the
 Attributes are reported, is governed by the various
 .B \*(Aq\-v Num,Description\*(Aq
 Directives described previously.
-
+.PP
 Please see the
 .B smartctl
 manual page for further explanation of the differences between
 Normalized and Raw Attribute values.
-
+.PP
 \fBsmartd\fP
 will make log entries at loglevel
 .B LOG_CRIT
@@ -580,8 +583,8 @@ Directives.  Entries reporting failure of SMART Prefailure Attributes
 should not be ignored: they mean that the disk is failing.  Use the
 .B smartctl
 utility to investigate.
-
 .\" %IF OS Solaris
+.PP
 Under Solaris with the default \fB/etc/syslog.conf\fP configuration,
 messages below loglevel \fBLOG_NOTICE\fP will \fBnot\fP be recorded.
 Hence all \fBsmartd\fP messages with loglevel \fBLOG_INFO\fP will be
@@ -597,9 +600,9 @@ to read:
 .Ve
 Alternatively, you can use a local facility to log messages: please
 see the \fBsmartd\fP \*(Aq\-l\*(Aq command-line option described above.
-
 .\" %ENDIF OS Solaris
 .\" %IF OS Cygwin
+.PP
 The Cygwin Version of \fBsmartd\fP can be run as a service via the
 cygrunsrv tool.
 .\" %IF ENABLE_INITSCRIPT
@@ -613,15 +616,15 @@ remove the service:
 The service can be started and stopped by the start-up script as usual
 (see \fBEXAMPLES\fP above).
 .\" %ENDIF ENABLE_INITSCRIPT
-
 .\" %ENDIF OS Cygwin
 .\" %IF OS Windows
+.PP
 On Windows, the log messages are written to the event log or to a file.
 See documentation of the \*(Aq\-l FACILITY\*(Aq option above for details.
-
+.PP
 On Windows, the following built-in commands can be used to control
 \fBsmartd\fP, if running as a daemon:
-
+.PP
 \*(Aq\fBsmartd status\fP\*(Aq \- check status
 .br
 \*(Aq\fBsmartd stop\fP\*(Aq \- stop smartd
@@ -633,43 +636,43 @@ On Windows, the following built-in commands can be used to control
 \*(Aq\fBsmartd sigusr1\fP\*(Aq \- check disks now
 .br
 \*(Aq\fBsmartd sigusr2\fP\*(Aq \- toggle debug mode
-
+.PP
 The Windows Version of \fBsmartd\fP has buildin support for services:
-
+.PP
 \*(Aq\fBsmartd install [options]\fP\*(Aq installs a service
 named "smartd" (display name "SmartD Service") using the command line
 \*(Aq/INSTALLPATH/smartd.exe \-\-service [options]\*(Aq.
 This also installs smartd.exe as a event message file for the Windows
 event viewer.
-
+.PP
 \*(Aq\fBsmartd remove\fP\*(Aq can later be used to remove the service and
 event message entries from the registry.
-
+.PP
 Upon startup, the smartd service changes the working directory
 to its own installation path.  If smartd.conf and blat.exe are stored
 in this directory, no \*(Aq\-c\*(Aq option and \*(Aq\-M exec\*(Aq directive
 is needed.
-
+.PP
 The debug mode (\*(Aq\-d\*(Aq, \*(Aq\-q onecheck\*(Aq) does not work if
 smartd is running as service.
-
+.PP
 The service can be controlled as usual with Windows commands \*(Aqnet\*(Aq
 or \*(Aqsc\*(Aq (\*(Aq\fBnet start smartd\fP\*(Aq,
 \*(Aq\fBnet stop smartd\fP\*(Aq).
-
+.PP
 Pausing the service (\*(Aq\fBnet pause smartd\fP\*(Aq) sets the interval
 between disk checks (\*(Aq\-i N\*(Aq) to infinite.
-
+.PP
 Continuing the paused service (\*(Aq\fBnet continue smartd\fP\*(Aq) resets the
 interval and rereads the configuration file immediately (like \fBSIGHUP\fP).
 The \*(AqPARAMCHANGE\*(Aq service control command (\*(Aq\fBsc control smartd
 paramchange\fP\*(Aq) has the same effect regardless of paused state.
-
+.PP
 Continuing a still running service (\*(Aq\fBnet continue smartd\fP\*(Aq without
 preceding \*(Aq\fBnet pause smartd\fP\*(Aq) does not reread configuration but
 checks disks immediately (like \fBSIGUSR1\fP).
-
 .\" %ENDIF OS Windows
+.Sp
 .SH LOG TIMESTAMP TIMEZONE
 When \fBsmartd\fP makes log entries, these are time-stamped.  The time
 stamps are in the computer's local time zone, which is generally set
@@ -683,7 +686,7 @@ time-zone stamps of \fBsmartd\fP might not change.  For some systems,
 set using \fB/etc/localtime\fP.  The work-around \fIfails\fP if the
 time-zone is set using the \*(Aq\fBTZ\fP\*(Aq variable (or a file that it
 points to).
-
+.Sp
 .SH EXIT STATUS
 The exit status (return value) of \fBsmartd\fP can have the following values:
 .TP
@@ -743,7 +746,7 @@ was killed by a signal that is not explicitly listed above.  The exit
 status is then 128 plus the signal number.  For example if
 \fBsmartd\fP
 is killed by SIGKILL (signal 9) then the exit status is 137.
-
+.Sp
 .\" %IF NOT OS Windows
 .SH FILES
 .TP
@@ -770,7 +773,7 @@ drive database (see \*(Aq\-B\*(Aq option).
 .TP
 .B /usr/local/etc/smart_drivedb.h
 optional local drive database (see \*(Aq\-B\*(Aq option).
-
+.Sp
 .\" %ENDIF NOT OS Windows
 .SH AUTHORS
 \fBBruce Allen\fP (project initiator),
@@ -784,13 +787,13 @@ optional local drive database (see \*(Aq\-B\*(Aq option).
 \fBGabriele Pohl\fP (wiki & development team support),
 .br
 \fBAlex Samorukov\fP (FreeBSD port and more, new Trac wiki).
-
+.PP
 Many other individuals have made contributions and corrections,
 see AUTHORS, ChangeLog and repository files.
-
+.PP
 The first smartmontools code was derived from the smartsuite package,
 written by Michael Cornwell and Andre Hedrick.
-
+.Sp
 .SH REPORTING BUGS
 To submit a bug report, create a ticket in smartmontools wiki:
 .br
@@ -799,36 +802,36 @@ To submit a bug report, create a ticket in smartmontools wiki:
 Alternatively send the info to the smartmontools support mailing list:
 .br
 <\fBhttps://lists.sourceforge.net/lists/listinfo/smartmontools-support\fB>.
-
+.Sp
 .SH SEE ALSO
 \fBsmartd.conf\fP(5), \fBsmartctl\fP(8).
 .\" %IF ENABLE_UPDATE_SMART_DRIVEDB
 .br
 \fBupdate-smart-drivedb\fP(8).
 .\" %ENDIF ENABLE_UPDATE_SMART_DRIVEDB
-
+.Sp
 .SH REFERENCES
 Please see the following web site for more info:
 <\fBhttps://www.smartmontools.org/\fP>
-
+.PP
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
 pages 74\(en77.
 See <\fBhttps://www.linuxjournal.com/article/6983\fP>.
-
+.PP
 If you would like to understand better how SMART works, and what it
 does, a good place to start is with Sections 4.8 and 6.54 of the first
 volume of the \*(AqAT Attachment with Packet Interface-7\*(Aq (ATA/ATAPI-7)
 specification Revision 4b.  This documents the SMART functionality which the
 \fBsmartmontools\fP utilities provide access to.
-
+.PP
 The functioning of SMART was originally defined by the SFF-8035i
 revision 2 and the SFF-8055i revision 1.4 specifications.  These are
 publications of the Small Form Factors (SFF) Committee.
-
+.PP
 Links to these and other documents may be found on the Links page of the
 \fBsmartmontools\fP Wiki at <\fBhttps://www.smartmontools.org/wiki/Links\fP>.
-
+.Sp
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
