@@ -1,6 +1,9 @@
-$Id: ChangeLog 4431 2017-08-08 19:38:15Z chrfranke $
+$Id: ChangeLog 4432 2017-08-08 20:03:25Z chrfranke $
 
 2017-08-08  Christian Franke  <franke@computer.org>
+
+	configure.ac: Detect MinGW libstdc++ problems with high
+	'--image-base'.
 
 	Update smartmontools-support mailing list address.
 	Remove old mailing list address from all source files.
