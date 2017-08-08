@@ -2488,7 +2488,7 @@ static void print_ata_security_status(const char * msg, unsigned short state)
     }
     else {
       s1 = "ENABLED, PW level ";
-      if (!(state & 0x0020))
+      if (!(state & 0x0100))
         s2 = "HIGH";
       else
         s2 = "MAX";
