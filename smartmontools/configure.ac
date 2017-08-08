@@ -439,7 +439,11 @@ case "$host:$with_mingw_aslr" in
     AC_MSG_CHECKING([whether $CXX supports --high-entropy-va])
     save_LDFLAGS=$LDFLAGS
     LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000"
-    AC_LINK_IFELSE([AC_LANG_PROGRAM()], [with_mingw_aslr=yes], [with_mingw_aslr=no])
+    # Link libstdc++ to detect MinGW 6.3.0 problems with high --image-base
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+        #include <string>
+        std::string s(42, '.');]])],
+      [with_mingw_aslr=yes], [with_mingw_aslr=no])
     LDFLAGS=$save_LDFLAGS
     AC_MSG_RESULT([$with_mingw_aslr])
     test "$with_mingw_aslr" = "yes" || with_mingw_aslr=low

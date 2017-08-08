@@ -2,6 +2,9 @@ $Id$
 
 2017-08-08  Christian Franke  <franke@computer.org>
 
+	configure.ac: Detect MinGW libstdc++ problems with high
+	'--image-base'.
+
 	Update smartmontools-support mailing list address.
 	Remove old mailing list address from all source files.
 
