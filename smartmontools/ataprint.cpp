@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4419 2017-04-17 13:20:31Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4433 2017-08-08 20:09:48Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2488,7 +2488,7 @@ static void print_ata_security_status(const char * msg, unsigned short state)
     }
     else {
       s1 = "ENABLED, PW level ";
-      if (!(state & 0x0020))
+      if (!(state & 0x0100))
         s2 = "HIGH";
       else
         s2 = "MAX";

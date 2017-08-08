@@ -1,6 +1,8 @@
-$Id: ChangeLog 4432 2017-08-08 20:03:25Z chrfranke $
+$Id: ChangeLog 4433 2017-08-08 20:09:48Z chrfranke $
 
 2017-08-08  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Fix ATA Security Level check.
 
 	configure.ac: Detect MinGW libstdc++ problems with high
 	'--image-base'.
