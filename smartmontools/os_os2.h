@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2004-8 Yuri Dario <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-8 Yuri Dario
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

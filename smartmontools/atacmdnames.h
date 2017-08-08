@@ -5,7 +5,6 @@
  * specification, which is available from http://www.t13.org/#FTP_site
  *
  * Home page of code is: http://www.smartmontools.org
- * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
  * Copyright (C) 2003-8 Philip Williams
  *

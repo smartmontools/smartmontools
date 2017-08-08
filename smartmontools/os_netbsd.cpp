@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2003-8 Sergey Svishchev <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-8 Sergey Svishchev
  * Copyright (C) 2016 Kimihiro Nonaka
  *
  * This program is free software; you can redistribute it and/or modify

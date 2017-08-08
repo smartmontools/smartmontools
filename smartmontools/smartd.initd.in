@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # smartmontools init file for smartd
-# Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+# Copyright (C) 2002-8 Bruce Allen
 # $Id$
 
 # For RedHat and cousins:
@@ -45,7 +45,7 @@ report_unsupported () {
     echo "Currently the smartmontools package has no init script for"
     echo "the $1 OS/distribution. If you can provide one or this"
     echo "one works after removing some ifdefs, please contact"
-    echo "smartmontools-support@lists.sourceforge.net."
+    echo "smartmontools-support@listi.jpberlin.de."
     exit 1
 }
 
@@ -147,7 +147,7 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 elif [ -f /etc/slackware-version ] ; then
 
     # Source configuration file.  This should define the shell variable smartd_opts.
-    # Email smartmontools-support@lists.sourceforge.net if there is a better choice
+    # Email smartmontools-support mailing list if there is a better choice
     # of path for Slackware.
 
     [ -r /etc/sysconfig/smartmontools ] && . /etc/sysconfig/smartmontools
@@ -494,7 +494,7 @@ elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
 elif uname -a | grep SunOS > /dev/null 2>&1 ; then
 
     # Source configuration file.  This should define the shell variable smartd_opts.
-    # Email smartmontools-support@lists.sourceforge.net if there is a better choice
+    # Email smartmontools-support mailing list if there is a better choice
     # of path for Solaris
 
     [ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
@@ -543,7 +543,7 @@ built into ATA and SCSI Hard Drives. \
 http://www.smartmontools.org/"
 
     # Source configuration file.  This should define the shell variable smartd_opts.
-    # Email smartmontools-support@lists.sourceforge.net if there is a better choice
+    # Email smartmontools-support mailing list if there is a better choice
     # of path for Cygwin
 
     [ -r /etc/sysconfig/smartmontools ] && . /etc/sysconfig/smartmontools
@@ -658,5 +658,5 @@ fi
 # One should NEVER arrive here, except for a badly written case above,
 # that fails to exit.
 echo "SOMETHING IS WRONG WITH THE SMARTD STARTUP SCRIPT"
-echo "PLEASE CONTACT smartmontools-support@lists.sourceforge.net"
+echo "PLEASE CONTACT smartmontools-support@listi.jpberlin.de"
 exit 1

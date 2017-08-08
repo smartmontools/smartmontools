@@ -3,9 +3,9 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) YEAR YOUR_NAME <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) YEAR YOUR_NAME
+ * Copyright (C) 2003-8 Bruce Allen
+ * Copyright (C) 2008 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 
  To port smartmontools to the OS of your choice, please:
 
- [0] Contact smartmontools-support@lists.sourceforge.net to check
+ [0] Contact smartmontools-support@listi.jpberlin.de to check
      that it's not already been done.
 
  [1] Make copies of os_generic.h and os_generic.cpp called os_myOS.h
@@ -56,7 +56,7 @@
      skeletons below.  You can entirely eliminate the function
      'unsupported()'.
 
- [5] Contact smartmontools-support@lists.sourceforge.net to see
+ [5] Contact smartmontools-support@listi.jpberlin.de to see
      about checking your code into the smartmontools CVS archive.
 */
 

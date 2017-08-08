@@ -1,5 +1,10 @@
 $Id$
 
+2017-08-08  Christian Franke  <franke@computer.org>
+
+	Update smartmontools-support mailing list address.
+	Remove old mailing list address from all source files.
+
 2017-05-03  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in,
