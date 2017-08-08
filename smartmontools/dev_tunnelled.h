@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2008 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 #ifndef DEV_TUNNELLED_H
 #define DEV_TUNNELLED_H
 
-#define DEV_TUNNELLED_H_CVSID "$Id: dev_tunnelled.h 4122 2015-08-27 19:08:07Z chrfranke $"
+#define DEV_TUNNELLED_H_CVSID "$Id: dev_tunnelled.h 4431 2017-08-08 19:38:15Z chrfranke $"
 
 #include "dev_interface.h"
 

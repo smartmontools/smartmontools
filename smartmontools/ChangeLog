@@ -1,4 +1,9 @@
-$Id: ChangeLog 4430 2017-05-03 19:22:24Z chrfranke $
+$Id: ChangeLog 4431 2017-08-08 19:38:15Z chrfranke $
+
+2017-08-08  Christian Franke  <franke@computer.org>
+
+	Update smartmontools-support mailing list address.
+	Remove old mailing list address from all source files.
 
 2017-05-03  Christian Franke  <franke@computer.org>
 

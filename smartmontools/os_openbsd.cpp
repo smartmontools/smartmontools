@@ -3,9 +3,9 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2004-10 David Snyder <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-10 David Snyder
  *
- * Derived from os_netbsd.cpp by Sergey Svishchev <smartmontools-support@lists.sourceforge.net>, Copyright (C) 2003-8 
+ * Derived from os_netbsd.cpp by Sergey Svishchev, Copyright (C) 2003-8
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 #include <errno.h>
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4321 2016-05-10 13:43:10Z chrfranke $"
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4431 2017-08-08 19:38:15Z chrfranke $"
   OS_OPENBSD_H_CVSID;
 
 enum warnings {

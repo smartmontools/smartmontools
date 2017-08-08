@@ -5,7 +5,6 @@
  * specification, which is available from http://www.t13.org/#FTP_site
  *
  * Home page of code is: http://www.smartmontools.org
- * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
  * Copyright (C) 2003-8 Philip Williams
  *
@@ -23,7 +22,7 @@
 #ifndef ATACMDNAMES_H_
 #define ATACMDNAMES_H_
 
-#define ATACMDNAMES_H_CVSID "$Id: atacmdnames.h 4120 2015-08-27 16:12:21Z samm2 $\n"
+#define ATACMDNAMES_H_CVSID "$Id: atacmdnames.h 4431 2017-08-08 19:38:15Z chrfranke $\n"
 
 /* Returns the name of the command (and possibly sub-command) with the given
    command code and feature register values. */

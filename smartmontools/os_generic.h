@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) YEAR YOUR_NAME <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) YEAR YOUR_NAME
+ * Copyright (C) 2003-8 Bruce Allen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 // In the three following lines, change 'GENERIC' to your OS name
 #ifndef OS_GENERIC_H_
 #define OS_GENERIC_H_
-#define OS_GENERIC_H_CVSID "$Id: os_generic.h 4120 2015-08-27 16:12:21Z samm2 $\n"
+#define OS_GENERIC_H_CVSID "$Id: os_generic.h 4431 2017-08-08 19:38:15Z chrfranke $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include

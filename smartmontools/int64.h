@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2002-11 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2004-11 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h 4120 2015-08-27 16:12:21Z samm2 $"
+#define INT64_H_CVSID "$Id: int64.h 4431 2017-08-08 19:38:15Z chrfranke $"
 
 // 64 bit integer typedefs and format strings
 

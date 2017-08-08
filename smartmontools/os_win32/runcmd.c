@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2011 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2011 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  */
 
-char svnid[] = "$Id: runcmd.c 4120 2015-08-27 16:12:21Z samm2 $";
+char svnid[] = "$Id: runcmd.c 4431 2017-08-08 19:38:15Z chrfranke $";
 
 #include <stdio.h>
 #include <windows.h>

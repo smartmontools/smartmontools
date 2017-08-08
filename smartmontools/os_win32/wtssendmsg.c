@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2012 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2012 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 #define WINVER 0x0500
 #define _WIN32_WINNT WINVER
 
-char svnid[] = "$Id: wtssendmsg.c 4120 2015-08-27 16:12:21Z samm2 $";
+char svnid[] = "$Id: wtssendmsg.c 4431 2017-08-08 19:38:15Z chrfranke $";
 
 #include <stdio.h>
 #include <string.h>
@@ -30,7 +30,7 @@ char svnid[] = "$Id: wtssendmsg.c 4120 2015-08-27 16:12:21Z samm2 $";
 
 static int usage()
 {
-  printf("wtssendmsg $Revision: 4120 $ - Display a message box on client desktops\n"
+  printf("wtssendmsg $Revision: 4431 $ - Display a message box on client desktops\n"
          "Copyright (C) 2012 Christian Franke, smartmontools.org\n\n"
          "Usage: wtssendmsg [-cas] [-v] [\"Caption\"] \"Message\"|-\n"
          "       wtssendmsg -v\n\n"

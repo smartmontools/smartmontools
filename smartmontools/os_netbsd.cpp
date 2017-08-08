@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2003-8 Sergey Svishchev <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-8 Sergey Svishchev
  * Copyright (C) 2016 Kimihiro Nonaka
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4354 2016-10-23 15:48:09Z chrfranke $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4431 2017-08-08 19:38:15Z chrfranke $"
   OS_NETBSD_H_CVSID;
 
 enum warnings {

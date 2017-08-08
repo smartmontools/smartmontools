@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2004-8 Yuri Dario <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-8 Yuri Dario
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 4423 2017-04-23 19:14:02Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 4431 2017-08-08 19:38:15Z chrfranke $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver
