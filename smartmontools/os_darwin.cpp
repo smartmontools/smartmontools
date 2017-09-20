@@ -41,6 +41,7 @@
 #include "int64.h"
 #include "atacmds.h"
 #include "scsicmds.h"
+#include "nvmecmds.h"
 #include "utility.h"
 #include "os_darwin.h"
 #include "dev_interface.h"
@@ -75,7 +76,8 @@ static const char  smartctl_examples[] =
 static struct {
   io_object_t ioob;
   IOCFPlugInInterface **plugin;
-  IOATASMARTInterface **smartIf;
+  IOATASMARTInterface **smartIf; // ATA devices
+  IONVMeSMARTInterface **smartIfNVMe;
 } devices[20];
 
 const char * dev_darwin_cpp_cvsid = "$Id$"
@@ -109,7 +111,6 @@ protected:
   int get_fd() const
     { return m_fd; }
     
-
 private:
   int m_fd; ///< filedesc, -1 if not open.
   const char * m_mode; ///< Mode string for deviceopen().
@@ -128,15 +129,24 @@ bool darwin_smart_device::is_open() const
 }
 
 // Determine whether 'dev' is a SMART-capable device.
-static bool is_smart_capable (io_object_t dev) {
-  CFTypeRef smartCapableKey;
+static bool is_smart_capable (io_object_t dev, const char * type) {
+  CFTypeRef smartCapableKey = NULL;
   CFDictionaryRef diskChars;
 
   // If the device has kIOPropertySMARTCapableKey, then it's capable,
   // no matter what it looks like.
+  if (!strcmp("ATA", type))  {
   smartCapableKey = IORegistryEntryCreateCFProperty
     (dev, CFSTR (kIOPropertySMARTCapableKey),
      kCFAllocatorDefault, 0);
+  }
+
+  else if (!strcmp("NVME", type)) {
+    smartCapableKey = IORegistryEntryCreateCFProperty
+      (dev, CFSTR (kIOPropertyNVMeSMARTCapableKey),
+       kCFAllocatorDefault, 0);
+  }
+
   if (smartCapableKey)
     {
       CFRelease (smartCapableKey);
@@ -145,6 +155,7 @@ static bool is_smart_capable (io_object_t dev) {
 
   // If it's an kIOATABlockStorageDeviceClass then we're successful
   // only if its ATA features indicate it supports SMART.
+  // This will be broken for NVMe, however it is not needed
   if (IOObjectConformsTo (dev, kIOATABlockStorageDeviceClass)
     && (diskChars = (CFDictionaryRef)IORegistryEntryCreateCFProperty                                                                                                           
       (dev, CFSTR (kIOPropertyDeviceCharacteristicsKey),
@@ -180,7 +191,7 @@ bool darwin_smart_device::open()
   const char *pathname = get_dev_name();
   char *type = const_cast<char*>(m_mode);
   
-  if (strcmp (type, "ATA") != 0)
+  if (!(strcmp("ATA", type) || strcmp("NVME", type)))
     {
       set_err (EINVAL);
       return false;
@@ -205,7 +216,7 @@ bool darwin_smart_device::open()
     // allow user to just say 'disk0'
     devname = pathname;
 
-  // Find the device.
+  // Find the device. This part should be the same for the NVMe and ATA
   if (devname)
     {
       CFMutableDictionaryRef matcher;
@@ -224,7 +235,7 @@ bool darwin_smart_device::open()
     }
   
   // Find a SMART-capable driver which is a parent of this device.
-  while (! is_smart_capable (disk))
+  while (! is_smart_capable (disk, type))
     {
       IOReturn err;
       io_object_t prevdisk = disk;
@@ -246,17 +257,35 @@ bool darwin_smart_device::open()
   
     devices[devnum].plugin = NULL;
     devices[devnum].smartIf = NULL;
+    devices[devnum].smartIfNVMe = NULL;
+
+    CFUUIDRef pluginType = NULL;
+    CFUUIDRef smartInterfaceId = NULL;
+    void ** SMARTptr = NULL;
+
+    if (!strcmp("ATA", type))  {
+      pluginType = kIOATASMARTUserClientTypeID;
+      smartInterfaceId = kIOATASMARTInterfaceID;
+      SMARTptr = (void **)&devices[devnum].smartIf;
+    }
+    else if (!strcmp("NVME", type)) {
+      pluginType = kIONVMeSMARTUserClientTypeID;
+      smartInterfaceId = kIONVMeSMARTInterfaceID;
+      SMARTptr = (void **)&devices[devnum].smartIfNVMe;
+    }
 
     // Create an interface to the ATA SMART library.
     if (IOCreatePlugInInterfaceForService (disk,
-      kIOATASMARTUserClientTypeID,
+      pluginType,
       kIOCFPlugInInterfaceID,
       &devices[devnum].plugin,
       &dummy) == kIOReturnSuccess)
     (*devices[devnum].plugin)->QueryInterface
     (devices[devnum].plugin,
-      CFUUIDGetUUIDBytes ( kIOATASMARTInterfaceID),
-      (void **)&devices[devnum].smartIf);
+      CFUUIDGetUUIDBytes ( smartInterfaceId),
+      SMARTptr);
+    else
+      return set_err(ENOSYS, "IOCreatePlugInInterfaceForService failed");
   }
 
 
@@ -273,6 +302,8 @@ bool darwin_smart_device::close()
   int fd = m_fd; m_fd = -1;
   if (devices[fd].smartIf)
     (*devices[fd].smartIf)->Release (devices[fd].smartIf);
+  if (devices[fd].smartIf)
+    (*devices[fd].smartIfNVMe)->Release (devices[fd].smartIfNVMe);
   if (devices[fd].plugin)
     IODestroyPlugInInterface (devices[fd].plugin);
   IOObjectRelease (devices[fd].ioob);
@@ -305,7 +336,7 @@ static int make_device_names (char*** devlist, const char* name) {
   // Count the devices.
   result = 0;
   while ((device = IOIteratorNext (i)) != MACH_PORT_NULL) {
-    if (is_smart_capable (device))
+    if (is_smart_capable (device, name))
       result++;
     IOObjectRelease (device);
   }
@@ -317,7 +348,7 @@ static int make_device_names (char*** devlist, const char* name) {
   *devlist = (char**)calloc (result, sizeof (char *)); 
   index = 0;
   while ((device = IOIteratorNext (i)) != MACH_PORT_NULL) {
-    if (is_smart_capable (device))
+    if (is_smart_capable (device, name))
     {
       io_string_t devName;
       IORegistryEntryGetPath(device, kIOServicePlane, devName);
@@ -504,11 +535,63 @@ protected:
   
   virtual scsi_device * get_scsi_device(const char * name, const char * type);
 
+  virtual nvme_device * get_nvme_device(const char * name, const char * type,
+    unsigned nsid);
+
   virtual smart_device * autodetect_smart_device(const char * name);
 
 };
 
+/////////////////////////////////////////////////////////////////////////////
+/// NVMe support
 
+class darwin_nvme_device
+: public /*implements*/ nvme_device,
+  public /*extends*/ darwin_smart_device
+{
+public:
+  darwin_nvme_device(smart_interface * intf, const char * dev_name,
+    const char * req_type, unsigned nsid);
+
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+};
+
+darwin_nvme_device::darwin_nvme_device(smart_interface * intf, const char * dev_name,
+  const char * req_type, unsigned nsid)
+: smart_device(intf, dev_name, "nvme", req_type),
+  nvme_device(nsid),
+  darwin_smart_device("NVME")
+{
+}
+
+bool darwin_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
+{
+  int fd = get_fd();
+  IONVMeSMARTInterface **ifp = devices[fd].smartIfNVMe;
+  IONVMeSMARTInterface *smartIfNVMe ;
+  IOReturn err = 0;
+  unsigned int page = in.cdw10 & 0xff;
+
+  if (! ifp)
+    return -1;
+  smartIfNVMe = *ifp;
+  // currently only GetIdentifyData and SMARTReadData are supported
+  switch (in.opcode) {
+    case smartmontools::nvme_admin_identify:
+      err = smartIfNVMe->GetIdentifyData(ifp, (struct nvme_id_ctrl *) in.buffer, in.nsid); // FIXME
+      break;
+    case smartmontools::nvme_admin_get_log_page:
+       if(page == 0x02)
+         err = smartIfNVMe->SMARTReadData(ifp, (struct nvme_smart_log *) in.buffer);
+       else /* GetLogPage() is not working yet */
+         return set_err(ENOSYS, "NVMe admin command:0x%02x/page:0x%02x is not supported",
+          in.opcode, page);
+      break;
+    default:
+      return set_err(ENOSYS, "NVMe admin command 0x%02x is not supported", in.opcode);
+  }
+  return true;
+}
 //////////////////////////////////////////////////////////////////////
 
 std::string darwin_smart_interface::get_os_version_str()
@@ -537,6 +620,11 @@ scsi_device * darwin_smart_interface::get_scsi_device(const char *, const char *
   return 0; // scsi devices are not supported [yet]
 }
 
+nvme_device * darwin_smart_interface::get_nvme_device(const char * name, const char * type,
+  unsigned nsid)
+{
+  return new darwin_nvme_device(this, name, type, nsid);
+}
 
 smart_device * darwin_smart_interface::autodetect_smart_device(const char * name)
 {

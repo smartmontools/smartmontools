@@ -8,6 +8,9 @@ http://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 Date <Not released yet, please try current SVN or daily builds>
 Summary: smartmontools release 6.6
 -----------------------------------------------------------
+- OS/2: Support for the OS2AHCI driver, updating source code,
+  adding autoscan support, adding self-test support
+- Darwin: Initial NVMe support based on undocumented API.
 - Device type '-d intelliprop,N' for IntelliProp controllers.
 - smartctl: Control ATA write cache through SCT Feature Control
   with '-s wcache-sct,ata|on|off[,p]' and '-g wcache-sct'.
