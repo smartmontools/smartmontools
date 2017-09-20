@@ -1,4 +1,4 @@
-$Id: ChangeLog 4438 2017-09-20 18:00:42Z samm2 $
+$Id: ChangeLog 4439 2017-09-20 19:45:25Z samm2 $
 
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
@@ -7,6 +7,7 @@ $Id: ChangeLog 4438 2017-09-20 18:00:42Z samm2 $
 	os_darwin: 
 	 - initial NVMe support for the darwin platform.
 	 - NVMe device scan support
+	 - Add device type autodetection
 
 2017-08-08  Christian Franke  <franke@computer.org>
 
