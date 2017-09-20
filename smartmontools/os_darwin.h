@@ -24,7 +24,9 @@
 #ifndef OS_DARWIN_H_
 #define OS_DARWIN_H_
 
-#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 4436 2017-09-20 17:29:52Z samm2 $\n"
+#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 4438 2017-09-20 18:00:42Z samm2 $\n"
+
+#define kIOATABlockStorageDeviceClass   "IOATABlockStorageDevice"
 
 // Isn't in 10.3.9?
 
