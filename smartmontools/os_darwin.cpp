@@ -45,7 +45,7 @@
 
 #define ARGUSED(x) ((void)(x))
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4439 2017-09-20 19:45:25Z samm2 $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4440 2017-09-20 20:59:09Z samm2 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -78,7 +78,7 @@ static struct {
   IONVMeSMARTInterface **smartIfNVMe;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4439 2017-09-20 19:45:25Z samm2 $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4440 2017-09-20 20:59:09Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -298,7 +298,7 @@ bool darwin_smart_device::close()
   int fd = m_fd; m_fd = -1;
   if (devices[fd].smartIf)
     (*devices[fd].smartIf)->Release (devices[fd].smartIf);
-  if (devices[fd].smartIf)
+  if (devices[fd].smartIfNVMe)
     (*devices[fd].smartIfNVMe)->Release (devices[fd].smartIfNVMe);
   if (devices[fd].plugin)
     IODestroyPlugInInterface (devices[fd].plugin);
