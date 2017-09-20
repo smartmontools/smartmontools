@@ -7,6 +7,7 @@ $Id$
 	os_darwin: 
 	 - initial NVMe support for the darwin platform.
 	 - NVMe device scan support
+	 - Add device type autodetection
 
 2017-08-08  Christian Franke  <franke@computer.org>
 

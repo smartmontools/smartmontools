@@ -225,13 +225,11 @@ bool darwin_smart_device::open()
     {
       disk = IORegistryEntryFromPath (kIOMasterPortDefault, pathname);
     }
-
   if (! disk)
     {
       set_err(ENOENT);
       return false;
     }
-  
   // Find a SMART-capable driver which is a parent of this device.
   while (! is_smart_capable (disk, type))
     {
@@ -626,7 +624,71 @@ nvme_device * darwin_smart_interface::get_nvme_device(const char * name, const c
 }
 
 smart_device * darwin_smart_interface::autodetect_smart_device(const char * name)
-{
+{ // TODO - refactor as a function
+  // Acceptable device names are:
+  // /dev/disk*
+  // /dev/rdisk*
+  // disk*
+  // IOService:*
+  // IODeviceTree:*
+  const char *devname = NULL;
+  io_object_t disk;
+  
+  if (strncmp (name, "/dev/rdisk", 10) == 0)
+    devname = name + 6;
+  else if (strncmp (name, "/dev/disk", 9) == 0)
+    devname = name + 5;
+  else if (strncmp (name, "disk", 4) == 0)
+    // allow user to just say 'disk0'
+    devname = name;
+  // Find the device. This part should be the same for the NVMe and ATA
+  if (devname) {
+      CFMutableDictionaryRef matcher;
+      matcher = IOBSDNameMatching (kIOMasterPortDefault, 0, devname);
+      disk = IOServiceGetMatchingService (kIOMasterPortDefault, matcher);
+  }
+  else {
+      disk = IORegistryEntryFromPath (kIOMasterPortDefault, name);
+  }
+  if (! disk) {
+      return 0;
+  }
+  io_registry_entry_t tmpdisk=disk;
+  
+  
+  while (! is_smart_capable (tmpdisk, "ATA"))
+    {
+      IOReturn err;
+      io_object_t prevdisk = tmpdisk;
+
+      // Find this device's parent and try again.
+      err = IORegistryEntryGetParentEntry (tmpdisk, kIOServicePlane, &tmpdisk);
+      if (err != kIOReturnSuccess || ! tmpdisk)
+      {
+        IOObjectRelease (prevdisk);
+        break;
+      }
+    }
+    if (tmpdisk)
+      return new darwin_ata_device(this, name, "");
+    tmpdisk=disk;
+    while (! is_smart_capable (tmpdisk, "NVME"))
+      {
+        IOReturn err;
+        io_object_t prevdisk = tmpdisk;
+
+        // Find this device's parent and try again.
+        err = IORegistryEntryGetParentEntry (tmpdisk, kIOServicePlane, &tmpdisk);
+        if (err != kIOReturnSuccess || ! tmpdisk)
+        {
+          IOObjectRelease (prevdisk);
+          break;
+        }
+      }  
+    if (tmpdisk)
+      return new darwin_nvme_device(this, name, "", 0);
+
+  // try ATA as a last option, for compatibility
   return new darwin_ata_device(this, name, "");
 }
 
