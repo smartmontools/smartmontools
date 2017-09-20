@@ -144,7 +144,6 @@ struct nvme_pt_command {
 	 */
 	struct mtx *		driver_lock;
 };
-#endif
 #else
 #include <dev/nvme/nvme.h>
 #endif
