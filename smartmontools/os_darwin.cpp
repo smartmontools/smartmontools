@@ -298,7 +298,7 @@ bool darwin_smart_device::close()
   int fd = m_fd; m_fd = -1;
   if (devices[fd].smartIf)
     (*devices[fd].smartIf)->Release (devices[fd].smartIf);
-  if (devices[fd].smartIf)
+  if (devices[fd].smartIfNVMe)
     (*devices[fd].smartIfNVMe)->Release (devices[fd].smartIfNVMe);
   if (devices[fd].plugin)
     IODestroyPlugInInterface (devices[fd].plugin);
