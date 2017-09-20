@@ -1,5 +1,10 @@
 $Id$
 
+
+2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd: use /dev/nvme/nvme.h on the recent versions
+
 2017-08-08  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Fix ATA Security Level check.
