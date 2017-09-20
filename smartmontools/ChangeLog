@@ -1,9 +1,10 @@
-$Id: ChangeLog 4435 2017-09-20 09:39:40Z samm2 $
+$Id: ChangeLog 4436 2017-09-20 17:29:52Z samm2 $
 
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd: use /dev/nvme/nvme.h on the recent versions
+	os_darwin: initial NVMe support for the darwin platform.
 
 2017-08-08  Christian Franke  <franke@computer.org>
 
