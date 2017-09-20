@@ -34,9 +34,6 @@
 #include <IOKit/storage/ata/ATASMARTLib.h>
 #include <CoreFoundation/CoreFoundation.h>
 
-  // No, I don't know why there isn't a header for this.
-#define kIOATABlockStorageDeviceClass   "IOATABlockStorageDevice"
-
 #include "config.h"
 #include "int64.h"
 #include "atacmds.h"
@@ -46,6 +43,7 @@
 #include "os_darwin.h"
 #include "dev_interface.h"
 
+#define ARGUSED(x) ((void)(x))
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
 const char *os_darwin_cpp_cvsid="$Id$" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
@@ -324,9 +322,9 @@ static int make_device_names (char*** devlist, const char* name) {
   int result;
   int index;
 
-  // We treat all devices as ATA so long as they support SMARTLib.
-  if (strcmp (name, "ATA") != 0)
+  if (!(strcmp("ATA", name) || strcmp("NVME", name))) {
     return 0;
+  }
 
   err = IOServiceGetMatchingServices 
     (kIOMasterPortDefault, IOServiceMatching (kIOBlockStorageDeviceClass), &i);
@@ -566,6 +564,7 @@ darwin_nvme_device::darwin_nvme_device(smart_interface * intf, const char * dev_
 
 bool darwin_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
 {
+  ARGUSED(out);
   int fd = get_fd();
   IONVMeSMARTInterface **ifp = devices[fd].smartIfNVMe;
   IONVMeSMARTInterface *smartIfNVMe ;
@@ -655,6 +654,14 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
       return false;
     }
   }
+  char * * nvmenames = 0; int numnvme = 0;
+  if (!type || !strcmp(type, "NVME")) {
+    numnvme = make_device_names(&nvmenames, "NVME");
+    if (numnvme < 0) {
+      set_err(ENOMEM);
+      return false;
+    }
+  }
 
   // Add to devlist
   int i;
@@ -666,6 +673,14 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
       devlist.push_back(atadev);
   }
   free_devnames(atanames, numata);
+
+  for (i = 0; i < numnvme; i++) {
+    nvme_device * nvmedev = get_nvme_device(nvmenames[i], type, 0); // default nsid
+    if (nvmedev)
+      devlist.push_back(nvmedev);
+  }  
+  free_devnames(nvmenames, numnvme);
+
   return true;
 }
 

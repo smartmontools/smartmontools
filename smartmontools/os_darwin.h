@@ -26,6 +26,8 @@
 
 #define OS_DARWIN_H_CVSID "$Id$\n"
 
+#define kIOATABlockStorageDeviceClass   "IOATABlockStorageDevice"
+
 // Isn't in 10.3.9?
 
 #ifndef kIOPropertySMARTCapableKey
