@@ -1,4 +1,9 @@
-$Id: ChangeLog 4433 2017-08-08 20:09:48Z chrfranke $
+$Id: ChangeLog 4435 2017-09-20 09:39:40Z samm2 $
+
+
+2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd: use /dev/nvme/nvme.h on the recent versions
 
 2017-08-08  Christian Franke  <franke@computer.org>
 

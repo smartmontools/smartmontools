@@ -145,6 +145,9 @@ struct nvme_pt_command {
 	struct mtx *		driver_lock;
 };
 #endif
+#else
+#include <dev/nvme/nvme.h>
+#endif
 
 #define nvme_completion_is_error(cpl)					\
 	((cpl)->status.sc != 0 || (cpl)->status.sct != 0)
