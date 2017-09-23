@@ -294,13 +294,16 @@ const drive_settings builtin_knowndrives[] = {
     "(Micron_)?M510[_-]MTFDDA[KTV](128|256)MAZ|" // tested with M510-MTFDDAK256MAZ/MU01
     "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY|" // tested with M550-MTFDDAK256MAY/MU01
     "Micron_M600_(EE|MT)FDDA[KTV](128|256|512|1T0)MBF[25Z]?|" // tested with Micron_M600_MTFDDAK1T0MBF/MU01
-    "Micron_1100_MTFDDA[KV](256|512|1T0|2T0)TBN", // Marvell 88SS1074, tested with
-      // Micron_1100_MTFDDAK256TBN/M0MU020
+    "Micron_M500DC_(EE|MT)FDDA[AK](120|240|480|800)MBB|" // tested with Micron_M500DC_EEFDDAA120MBB/129, Micron_M500DC_MTFDDAK800MBB/0129
+    "Micron_1100_MTFDDA[KV](256|512|1T0|2T0)TBN|" // Marvell 88SS1074, tested Micron_1100_MTFDDAK256TBN/M0MU020
+    "MICRON_M510DC_(EE|MT)FDDAK(120|240|480|800|960)MBP|" // Micron_M510DC_MTFDDAK240MBP/0005
+    "Micron_5100_(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)", // tested with Micron_5100_MTFDDAK1T9TBY
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Reserved_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw48,Ave_Block-Erase_Count "
@@ -308,6 +311,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 180,raw48,Unused_Reserve_NAND_Blk "
     "-v 183,raw48,SATA_Interfac_Downshift "
     "-v 184,raw48,Error_Correction_Count "
+    "-v 195,raw48,Cumulativ_Corrected_ECC "
   //"-v 187,raw48,Reported_Uncorrect "
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
