@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4462 2017-09-23 09:08:15Z samm2 $",
+  { "$Id: drivedb.h 4463 2017-09-23 09:11:19Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2554,6 +2554,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Hitachi CinemaStar 5K320", // tested with Hitachi HCS5C3225SLA380/STBOA37H
     "Hitachi HCS5C32(25|32)SLA380",
+    "", "", ""
+  },
+  { "Hitachi CinemaStar 5K1000", // Hitachi HCS5C1010CLA382/JC4OA3EA
+    "Hitachi HCS5C10(10|75|50|32|25|16)CLA382",
     "", "", ""
   },
   { "Hitachi Deskstar 5K3000", // tested with HDS5C3030ALA630/MEAOA5C0,
