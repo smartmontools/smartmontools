@@ -11,6 +11,7 @@ $Id$
 	- Added Toshiba HG6 Series SSD (#721)
 	- Added Hynix SSD series
 	- Added AMD Radeon Solid State Drives (#762)
+	- Added USB Bridge 0x3538:0x0064 (#855)
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 

@@ -4749,6 +4749,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Power Quotient International
+  { "USB: PQI bridge; ",
+    "0x3538:0x0064",
+    "",
+    "",
+    "-d usbsunplus"
+  },
   // Sharkoon
   { "USB: Sharkoon QuickPort XT USB 3.0; ",
      "0x357d:0x7788",
