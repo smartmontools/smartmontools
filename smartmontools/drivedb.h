@@ -2022,7 +2022,7 @@ const drive_settings builtin_knowndrives[] = {
     "ST(500|1000|2000)LX0(01|15|25)-",
     "", "", ""
   },
-  { "Seagate FireCuda 3.5", //
+  { "Seagate FireCuda 3.5", // ST2000DX002-2DV164/CC41
     "ST[12]000DX002",
     "", "", ""
   },
