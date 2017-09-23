@@ -2720,6 +2720,15 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK6022GAX",
     "", "", ""
   },
+  { "Toshiba HG6 Series SSD", // TOSHIBA THNSNJ512GCST/JTRA0102
+    // http://www.farnell.com/datasheets/1852757.pdf
+    "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN]",
+    "", "", 
+    "-v 167,raw48,SSD_Protect_Mode "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 169,raw48,Bad_Block_Count "
+    "-v 173,raw48,Erase_Count "
+  },
   { "", // TOSHIBA MK6409MAV
     "TOSHIBA MK6409MAV",
     "", "", ""
