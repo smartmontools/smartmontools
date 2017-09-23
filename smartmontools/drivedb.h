@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4455 2017-09-23 07:21:58Z samm2 $",
+  { "$Id: drivedb.h 4456 2017-09-23 07:35:44Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1973,6 +1973,16 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Samsung SpinPoint M9T", // tested with ST2000LM003 HN-M201RAD/2BC10003
       // (Seagate Expansion Portable)
     "ST(1500|2000)LM0(03|04|06|07|10) HN-M[0-9]*RAD",
+    "", "", ""
+  },
+  // Flash accelerated, no SMART info in the specs
+  // ST1000LX015-1U7172/SDM1
+  { "Seagate FireCuda 2.5", // 
+    "ST(500|1000|2000)LX0(01|15|25)-",
+    "", "", ""
+  },
+  { "Seagate FireCuda 3.5", //
+    "ST[12]000DX002",
     "", "", ""
   },
   { "Seagate Samsung SpinPoint M9TU (USB)", // tested with ST1500LM008 HN-M151AAD/2BC10001
