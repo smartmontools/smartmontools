@@ -2730,6 +2730,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba HG6 Series SSD", // TOSHIBA THNSNJ512GCST/JTRA0102
     // http://www.farnell.com/datasheets/1852757.pdf
+    // TOSHIBA THNSFJ256GCSU/JULA1102
     "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN]",
     "", "", 
     "-v 167,raw48,SSD_Protect_Mode "
