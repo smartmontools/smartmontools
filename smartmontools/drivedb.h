@@ -1392,6 +1392,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 244,raw48,Thermal_Throttle "
   },
   { "SiliconMotion based SSDs", // SM2246EN (Transcend TS6500)
+    "R3SL(120|240|480|960)G|" // AMD Radeon Solid State Drives,
     "CT(120|250|500|1000)BX100SSD1|" // Crucial BX100, tested with CT250BX100SSD1/MU02,
       // CT500BX100SSD1/MU02, CT1000BX100SSD1/MU02
     "CT(240|480|960)BX200SSD1|" // Crucial BX200 Solid State Drive, tested with CT480BX200SSD1/MU02.6
