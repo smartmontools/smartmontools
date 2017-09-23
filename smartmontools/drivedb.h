@@ -1948,6 +1948,12 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HS(122H|2[05]YJ)Z",
     "", "", ""
   },
+  { "SK hynix SSD SC300", // tested with HFS256G32MND-3210A/20100P00 
+    //                                   HFS512G32MND-3210A/20100P00
+    "HFS(128|256|512)G32MND-3210A",
+    "", "",
+    "-v 231,raw48,SSD_Life_Left "
+  },
   { "Maxtor Fireball 541DX",
     "Maxtor 2B0(0[468]|1[05]|20)H1",
     "",
