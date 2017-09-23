@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4442 2017-09-23 02:17:08Z samm2 $",
+  { "$Id: drivedb.h 4443 2017-09-23 02:29:19Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2407,7 +2407,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "HGST Travelstar 7K1000", // tested with HGST HTS721010A9E630/JB0OA3B0
-    "HGST HTS721010A9E630",
+    // HGST HTS721075A9E630/JB2OA3J0
+    "HGST HT[ES]7210(10|75)A9E63[01]",
     "", "", ""
   },
   { "IBM Deskstar 14GXP and 16GP",
