@@ -1,4 +1,4 @@
-$Id: ChangeLog 4446 2017-09-23 03:12:58Z samm2 $
+$Id: ChangeLog 4447 2017-09-23 03:43:35Z samm2 $
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
@@ -8,6 +8,7 @@ $Id: ChangeLog 4446 2017-09-23 03:12:58Z samm2 $
 	- Added Seagate Barracuda 2.5 5400 series (#882)
 	- Added Toshiba P300 series (#881)
 	- Added SK hynix SSD SC300 series (#699)
+	- Added Toshiba HG6 Series SSD (#721)
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
