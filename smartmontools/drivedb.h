@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4452 2017-09-23 04:41:59Z samm2 $",
+  { "$Id: drivedb.h 4453 2017-09-23 06:50:55Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4748,6 +4748,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0000
     "",
     "-d sat"
+  },
+  // Power Quotient International
+  { "USB: PQI bridge; ",
+    "0x3538:0x0064",
+    "",
+    "",
+    "-d usbsunplus"
   },
   // Sharkoon
   { "USB: Sharkoon QuickPort XT USB 3.0; ",
