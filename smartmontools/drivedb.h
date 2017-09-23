@@ -1087,7 +1087,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-540s-series-spec.html
   // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-540s-series-m2-spec.html
-  { "Intel 540 Series SSDs", // INTEL SSDSC2KW120H6/LSF036C
+  { "Intel 540 Series SSDs", // INTEL SSDSC2KW120H6/LSF036C, INTEL SSDSC2KW480H6/LSF036C
     "INTEL SSDSC[K2]KW(120H|180H|240H|360H|480H|010X)6", 
     "", "",
     "-v 9,msec24hour32,Power_On_Hours_and_Msec "
@@ -1138,6 +1138,23 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 243,raw48,NAND_Writes_32MiB " // S3510/3610
     "-F xerrorlba" // tested with SSDSC2BB600G4/D2010355
+  },
+  { "Intel 3710 Series SSDs", // INTEL SSDSC2BA200G4R/G201DL2B (dell)
+    "INTEL SSDSC2BA(200G|400G|800G|012T)4", 
+    "", "",
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 183,raw48,SATA_Downshift_Count "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes "
+    "-v 234,raw24/raw32:04321,Thermal_Throttle "
+    "-v 243,raw48,NAND_Writes_32MiB "
   },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",

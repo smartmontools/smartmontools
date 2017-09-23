@@ -18,6 +18,7 @@ $Id$
 	- Added Seagate FireCuda drives (#825)
 	- Added Transcend-MTS400 drives (#847)
 	- Added Intel 540 Series SSDs (#803)
+	- Added Intel 3710 Series SSDs (#824)
 	
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
