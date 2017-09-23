@@ -1391,6 +1391,59 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 242,raw48,Total_LBAs_Read "
     "-v 244,raw48,Thermal_Throttle "
   },
+  //  SDLF1DAR-480G-1HAW/ZR07RE41
+  { "Sandisk SATA Cloudspeed Max and GEN2 ESS SSDs",
+   "SD[A-Z0-9]{2}[1-3][A-Z]{3}-?[0-9]{3}[GT]-?1[A-Z0-9]{3}",
+   "","",
+   "-v 13,raw48,Lifetime_UECC_Ct "
+   "-v 32,raw48,Lifetime_Write_AmpFctr "
+   "-v 33,raw48,Write_AmpFctr "
+   "-v 170,raw48,Reserve_Erase_BlkCt "
+   "-v 171,raw48,Program_Fail_Ct "
+   "-v 172,raw48,Erase_Fail_Ct "
+   "-v 173,raw48,Percent_Life_Used "
+   "-v 174,raw48,Unexpect_Power_Loss "
+   "-v 175,raw48,Lifetime_Die_Failure_Ct "
+   "-v 177,raw48,Lifetime_Remaining% "
+   "-v 178,raw48,SSD_LifeLeft(0.01%) "
+   "-v 180,raw48,Undetected_Data_Err_Ct "
+   "-v 183,raw48,LT_Link_Rate_DwnGrd_Ct "
+   "-v 191,raw48,Clean_Shutdown_Ct "
+   "-v 192,raw48,Unclean_Shutdown_Ct "
+   "-v 196,raw48,Lifetime_Retried_Blk_Ct "
+   "-v 204,raw48,Average_Block-Erase_Ct "
+   "-v 205,raw48,Read_Retry_Enable_Ct "
+   "-v 206,raw48,Successful_RaidRecov_Ct "
+   "-v 207,raw48,Trimmed_Sector_Ct "
+   "-v 211,raw48,Read_Disturb_ReallocEvt "
+   "-v 233,raw48,Lifetime_Nand_Writes "
+   "-v 235,raw48,Capacitor_Health "
+   "-v 244,raw48,Therm_Throt_Activation "
+   "-v 245,raw48,Drive_Life_Remaining% "
+   "-v 253,raw48,SPI_Test_Remaining "
+ },
+ { "Sandisk SATA CS1K GEN1 ESS SSDs",
+   "SD[A-Z0-9]{2}[NO][A-Z0-9]{3}-?[0-9]{3}[GT]-?1[A-Z0-9]{3}",
+   "","",
+   "-v 1,raw48,UECC_Ct "
+   "-v 2,raw48,Internal_File_Check "
+   "-v 5,raw16(raw16),Retried_Blk_Ct "
+   "-v 32,raw48,Write_Ampflication "
+   "-v 170,raw48,Reserve_Blk_Remaining "
+   "-v 171,raw48,Program_Fail_Ct "
+   "-v 172,raw48,Erase_Fail_Ct "
+   "-v 173,raw48,Drive_Life_Used% "
+   "-v 174,raw48,Unexpect_PwrLoss_Ct "
+   "-v 175,raw48,PwrLoss_ProtectionFail "
+   "-v 177,raw48,DriveLife_Remaining% "
+   "-v 178,raw48,SSD_Life_Left "
+   "-v 180,raw48,End_to_End_Err_Detect "
+   "-v 190,raw48,Drive_Temp_Warning "
+   "-v 195,raw48,Uncorrectable_Err_Ct "
+   "-v 202,raw48,Exception_Mode_Status "
+   "-v 233,raw48,Number_Of_Write_Ct "
+   "-v 245,raw48,DriveLife_Used% "
+ },
   { "SiliconMotion based SSDs", // SM2246EN (Transcend TS6500)
     "R3SL(120|240|480|960)G|" // AMD Radeon Solid State Drives,
     "CT(120|250|500|1000)BX100SSD1|" // Crucial BX100, tested with CT250BX100SSD1/MU02,

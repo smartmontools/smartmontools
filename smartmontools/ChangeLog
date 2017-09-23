@@ -13,6 +13,8 @@ $Id$
 	- Added AMD Radeon Solid State Drives (#762)
 	- Added USB Bridge 0x3538:0x0064 (#855)
 	- Added Seagate ST4000NM0085 to the Capacity family
+	- Added Sandisk SATA Cloudspeed Max and GEN2 ESS SSDs and Sandisk SATA CS1K
+	  GEN1 ESS SSDs (#846)
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
