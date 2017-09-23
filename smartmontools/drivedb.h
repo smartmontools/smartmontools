@@ -3057,6 +3057,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
     "", "", ""
   },
+  { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1
+    "ST(100|500|2000)LM0(15|48|30)",
+    "", "", ""
+  },
   { "Seagate Barracuda ES.2", // fixed firmware
     "ST3(25031|50032|75033|100034)0NS",
     "SN[01]6|"         // http://knowledge.seagate.com/articles/en_US/FAQ/207963en
