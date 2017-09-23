@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4453 2017-09-23 06:50:55Z samm2 $",
+  { "$Id: drivedb.h 4454 2017-09-23 07:05:18Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3155,7 +3155,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Enterprise Capacity 3.5 HDD", // tested with ST6000NM0024-1HT17Z/SN02,
       // ST10000NM0016-1TT101/SNB0
-    "ST([24568]|10)000NM0[01][1248][46]-.*", // *[069]4 = 4Kn
+      // ST4000NM0085-1YY107/ZC11SXPH
+    "ST([24568]|10)000NM0[01][1248][456]-.*", // *[069]4 = 4Kn
     "", "", 
     "-v 188,raw16 -v 240,msec24hour32"
   },
