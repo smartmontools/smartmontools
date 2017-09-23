@@ -2698,6 +2698,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA HDWE1[456]0",
     "", "", ""
   },
+  { "Toshiba P300", // tested with TOSHIBA HDWD120/MX4OACF0
+    "TOSHIBA HDWD1(30|20|10|05)",
+    "", "", ""
+  },
   { "Toshiba 1.8\" HDD",
     "TOSHIBA MK[23468]00[4-9]GA[HL]",
     "", "", ""
