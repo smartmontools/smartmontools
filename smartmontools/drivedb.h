@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4443 2017-09-23 02:29:19Z samm2 $",
+  { "$Id: drivedb.h 4444 2017-09-23 02:40:09Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3055,6 +3055,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda ES",
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
+    "", "", ""
+  },
+  { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1
+    "ST(100|500|2000)LM0(15|48|30)",
     "", "", ""
   },
   { "Seagate Barracuda ES.2", // fixed firmware
