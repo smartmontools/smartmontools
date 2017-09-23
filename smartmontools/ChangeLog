@@ -6,6 +6,7 @@ $Id$
 	- Add Toshiba MQ03ABB300 (#884)
 	- Fixed Hitachi 7K1000 (#883)
 	- Added Seagate Barracuda 2.5 5400 series (#882)
+	- Added new Seagate Barracuda 3.5 7200 series (#880)
 	- Added Toshiba P300 series (#881)
 	- Added SK hynix SSD SC300 series (#699)
 	- Added Toshiba HG6 Series SSD (#721)
