@@ -20,8 +20,8 @@ $Id$
 	- Added Intel 540 Series SSDs (#803)
 	- Added Intel 3710 Series SSDs (#824)
 	- Added Micron 5100 ECO, PRO, and MAX Models (#861)
-	- Samsung EVO SSD series - make regexp match less strict (#806)
-	
+	- Added Samsung EVO SSD series - make regexp match less strict (#806)
+  - Added Hitachi CinemaStar 5K1000	series (#758)
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd: use /dev/nvme/nvme.h on the recent versions

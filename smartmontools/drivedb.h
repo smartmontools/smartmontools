@@ -2556,6 +2556,10 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HCS5C32(25|32)SLA380",
     "", "", ""
   },
+  { "Hitachi CinemaStar 5K1000", // Hitachi HCS5C1010CLA382/JC4OA3EA
+    "Hitachi HCS5C10(10|75|50|32|25|16)CLA382",
+    "", "", ""
+  },
   { "Hitachi Deskstar 5K3000", // tested with HDS5C3030ALA630/MEAOA5C0,
        // Hitachi HDS5C3020BLE630/MZ4OAAB0 (OEM, Toshiba Canvio Desktop)
     "(Hitachi )?HDS5C30(15|20|30)(ALA|BLE)63[02].*",
