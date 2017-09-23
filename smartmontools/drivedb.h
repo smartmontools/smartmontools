@@ -1497,6 +1497,7 @@ const drive_settings builtin_knowndrives[] = {
       // TS256GMTS400
     "TS(16|32|64|128|512|256)GMTS400S?|"
     "TS(120|240)GMTS420|" // Transcend MTS420, TS(120|240)GMTS420
+    "TS(128G|256G|512G|1T)SSD230S|" // TS128GSSD230S/P1025F8
     "ADATA SP550", // ADATA SP550/O0803B5a
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
