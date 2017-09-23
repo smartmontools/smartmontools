@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4466 2017-09-23 11:55:41Z samm2 $",
+  { "$Id: drivedb.h 4467 2017-09-23 12:39:33Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2060,7 +2060,11 @@ const drive_settings builtin_knowndrives[] = {
     // HFS512G32MND-3210A/20100P00
     // SK hynix SC210 mSATA 256GB
     // SK hynix SC308 SATA 128GB
-    "(HFS(128|256|512)G32MND-3210A|SK hynix SC(210|308)|SKhynix SC(300|313))",
+    // HFS250G32TND-N1A2A/30000P10
+    "HFS(128|256|512)G32MND-3210A|"
+    "SK hynix SC(210|308)|"
+    "HFS(120|250|500)G32TND-N1A2A|"
+    "SKhynix SC(300|313)",
     "", "",
     "-v 100,raw48,Total_Erase_Count "
     "-v 171,raw48,Program_Fail_Count "
