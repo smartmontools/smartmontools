@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4448 2017-09-23 04:08:38Z samm2 $",
+  { "$Id: drivedb.h 4449 2017-09-23 04:17:59Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2730,6 +2730,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba HG6 Series SSD", // TOSHIBA THNSNJ512GCST/JTRA0102
     // http://www.farnell.com/datasheets/1852757.pdf
+    // TOSHIBA THNSFJ256GCSU/JULA1102
     "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN]",
     "", "", 
     "-v 167,raw48,SSD_Protect_Mode "
