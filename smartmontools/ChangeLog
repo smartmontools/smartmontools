@@ -27,6 +27,7 @@ $Id$
 	- Added Samsung SSD 845DC EVO series (#866)
 	- Added SK hynix SL308 family (#808)
 	- Added WD Blue PC SSD family (#767)
+	- Corrected Crucial M4 drivedb entry to include 32Gb model (#844)
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 

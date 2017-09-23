@@ -224,7 +224,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Crucial/Micron RealSSD m4/C400/P400", // Marvell 9176, fixed firmware
     "C400-MTFDDA[ACK](064|128|256|512)MAM|"
-    "M4-CT(064|128|256|512)M4SSD[123]|" // tested with M4-CT512M4SSD2/0309
+    // M4-CT032M4SSD3/04MH
+    "M4-CT(032|064|128|256|512)M4SSD[123]|" // tested with M4-CT512M4SSD2/0309
     "MTFDDA[AK](064|128|256|512|050|100|200|400)MA[MNR]-1[JKS]1.*", // tested with
        // MTFDDAK256MAR-1K1AA/MA52, MTFDDAK256MAM-1K12/08TH,
        // MTFDDAA064MAR-1J1AB  49Y5835 49Y5838IBM/MA49 (P400e)
@@ -259,7 +260,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Crucial/Micron RealSSD m4/C400", // Marvell 9176, buggy or unknown firmware
     "C400-MTFDDA[ACK](064|128|256|512)MAM|" // tested with C400-MTFDDAC256MAM/0002
-    "M4-CT(064|128|256|512)M4SSD[123]", // tested with M4-CT064M4SSD2/0002,
+    "M4-CT(032|064|128|256|512)M4SSD[123]", // tested with M4-CT064M4SSD2/0002,
       // M4-CT064M4SSD2/0009, M4-CT256M4SSD3/000F
     "",
     "This drive may hang after 5184 hours of power-on time:\n"
