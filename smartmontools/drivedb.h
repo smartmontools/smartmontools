@@ -1948,11 +1948,19 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HS(122H|2[05]YJ)Z",
     "", "", ""
   },
-  { "SK hynix SSD SC300", // tested with HFS256G32MND-3210A/20100P00 
-    //                                   HFS512G32MND-3210A/20100P00
-    "HFS(128|256|512)G32MND-3210A",
+  { "SK hynix SSD", // tested with HFS256G32MND-3210A/20100P00 
+    // HFS512G32MND-3210A/20100P00
+    // SK hynix SC210 mSATA 256GB
+    "(HFS(128|256|512)G32MND-3210A|SK hynix SC210)",
     "", "",
+    "-v 100,raw48,Total_Erase_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 231,raw48,SSD_Life_Left "
+    "-v 241,raw48,Total_Writes_GiB "
+    "-v 242,raw48,Total_Reads_GiB "
+    "-v 250,raw48,Read_Retry_Count "
   },
   { "Maxtor Fireball 541DX",
     "Maxtor 2B0(0[468]|1[05]|20)H1",
