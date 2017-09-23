@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4444 2017-09-23 02:40:09Z samm2 $",
+  { "$Id: drivedb.h 4445 2017-09-23 02:55:09Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2696,6 +2696,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba X300", // tested with TOSHIBA HDWE160/FS2A
     "TOSHIBA HDWE1[456]0",
+    "", "", ""
+  },
+  { "Toshiba P300", // tested with TOSHIBA HDWD120/MX4OACF0
+    "TOSHIBA HDWD1(30|20|10|05)",
     "", "", ""
   },
   { "Toshiba 1.8\" HDD",
