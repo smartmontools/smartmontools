@@ -2064,6 +2064,8 @@ const drive_settings builtin_knowndrives[] = {
     // SK hynix SC308 SATA 128GB
     // HFS250G32TND-N1A2A/30000P10
     "HFS(128|256|512)G32MND-3210A|"
+    // SC210, tested on HFS128G32MND-2200A/20200L00
+    "HFS(512|256|128)G32MND-2200A|"
     "SK hynix SC(210|308)|"
     "HFS(120|250|500)G32TND-N1A2A|"
     "SKhynix SC(300|313)",
