@@ -4,6 +4,7 @@ $Id$
  	drivedb.h: 
 	- Fix HGST HDS724040ALE640 (#885)
 	- Add Toshiba MQ03ABB300 (#884)
+	- Fixed Hitachi 7K1000 (#883)
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 

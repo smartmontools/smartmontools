@@ -2407,7 +2407,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "HGST Travelstar 7K1000", // tested with HGST HTS721010A9E630/JB0OA3B0
-    "HGST HTS721010A9E630",
+    // HGST HTS721075A9E630/JB2OA3J0
+    "HGST HT[ES]7210(10|75)A9E63[01]",
     "", "", ""
   },
   { "IBM Deskstar 14GXP and 16GP",
