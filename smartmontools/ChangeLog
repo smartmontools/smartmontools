@@ -1,7 +1,9 @@
 $Id$
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
- 	drivedb.h: fix HGST HDS724040ALE640 (#885)
+ 	drivedb.h: 
+	- Fix HGST HDS724040ALE640 (#885)
+	- Add Toshiba MQ03ABB300 (#884)
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
