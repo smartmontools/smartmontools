@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4441 2017-09-23 02:08:45Z samm2 $",
+  { "$Id: drivedb.h 4442 2017-09-23 02:17:08Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2662,6 +2662,10 @@ const drive_settings builtin_knowndrives[] = {
   { "Toshiba 2.5\" HDD MQ01UBD... (USB 3.0)", // tested with TOSHIBA MQ01UBD050/AX001U (0x0480:0xa007),
       // TOSHIBA MQ01UBD100/AX001U (0x0480:0x0201, 0x0480:0xa200)
     "TOSHIBA MQ01UBD(050|075|100)",
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MQ03ABB...", // tested with TOSHIBA MQ03ABB300
+    "TOSHIBA MQ03ABB[23]00",
     "", "", ""
   },
   { "Toshiba 3.5\" HDD MK.002TSKB", // tested with TOSHIBA MK1002TSKB/MT1A
