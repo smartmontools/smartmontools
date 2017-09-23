@@ -15,7 +15,8 @@ $Id$
 	- Added Seagate ST4000NM0085 to the Capacity family
 	- Added Sandisk SATA Cloudspeed Max and GEN2 ESS SSDs and Sandisk SATA CS1K
 	  GEN1 ESS SSDs (#846)
-
+	- Added Seagate FireCuda drives (#825)
+	
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd: use /dev/nvme/nvme.h on the recent versions

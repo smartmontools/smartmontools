@@ -1975,6 +1975,16 @@ const drive_settings builtin_knowndrives[] = {
     "ST(1500|2000)LM0(03|04|06|07|10) HN-M[0-9]*RAD",
     "", "", ""
   },
+  // Flash accelerated, no SMART info in the specs
+  // ST1000LX015-1U7172/SDM1
+  { "Seagate FireCuda 2.5", // 
+    "ST(500|1000|2000)LX0(01|15|25)-",
+    "", "", ""
+  },
+  { "Seagate FireCuda 3.5", //
+    "ST[12]000DX002",
+    "", "", ""
+  },
   { "Seagate Samsung SpinPoint M9TU (USB)", // tested with ST1500LM008 HN-M151AAD/2BC10001
        // (0x04e8:0x61b5), ST2000LM005 HN-M201AAD2BC10001 (0x04e8:0x61b4)
     "ST(1500|2000)LM00[58] HN-M[0-9]*AAD",
