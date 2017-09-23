@@ -1,4 +1,4 @@
-$Id: ChangeLog 4460 2017-09-23 09:00:58Z samm2 $
+$Id: ChangeLog 4462 2017-09-23 09:08:15Z samm2 $
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
@@ -20,6 +20,7 @@ $Id: ChangeLog 4460 2017-09-23 09:00:58Z samm2 $
 	- Added Intel 540 Series SSDs (#803)
 	- Added Intel 3710 Series SSDs (#824)
 	- Added Micron 5100 ECO, PRO, and MAX Models (#861)
+	- Samsung EVO SSD series - make regexp match less strict (#806)
 	
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
