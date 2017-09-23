@@ -1,4 +1,4 @@
-$Id: ChangeLog 4447 2017-09-23 03:43:35Z samm2 $
+$Id: ChangeLog 4448 2017-09-23 04:08:38Z samm2 $
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
@@ -9,6 +9,7 @@ $Id: ChangeLog 4447 2017-09-23 03:43:35Z samm2 $
 	- Added Toshiba P300 series (#881)
 	- Added SK hynix SSD SC300 series (#699)
 	- Added Toshiba HG6 Series SSD (#721)
+	- Added Hynix SC210 SSD (#724)
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
