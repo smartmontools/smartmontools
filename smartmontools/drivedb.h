@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4460 2017-09-23 09:00:58Z samm2 $",
+  { "$Id: drivedb.h 4461 2017-09-23 09:04:56Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2022,7 +2022,7 @@ const drive_settings builtin_knowndrives[] = {
     "ST(500|1000|2000)LX0(01|15|25)-",
     "", "", ""
   },
-  { "Seagate FireCuda 3.5", //
+  { "Seagate FireCuda 3.5", // ST2000DX002-2DV164/CC41
     "ST[12]000DX002",
     "", "", ""
   },
