@@ -19,6 +19,7 @@ $Id$
 	- Added Transcend MTS400 drives (#847)
 	- Added Transcend MTS420 drives (#869)
 	- Added Transcend SSD230 drives (#879)
+	- Added Transcend SSD220S drives (#821)
 	- Added Intel 540 Series SSDs (#803)
 	- Added Intel 3710 Series SSDs (#824)
 	- Added Micron 5100 ECO, PRO, and MAX Models (#861)
