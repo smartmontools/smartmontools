@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4468 2017-09-23 12:45:10Z samm2 $",
+  { "$Id: drivedb.h 4469 2017-09-23 12:54:13Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3344,6 +3344,35 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate ST1.2 CompactFlash", // tested with ST68022CF/3.01
     "ST6[468]022CF",
     "", "", ""
+  },
+  { "WD Blue PC SSD", // tested with WDC WDS100T1B0A-00H9H0
+    "WDC WDS...[TG]1B0[AB].*",
+    "", "",
+  //"-v 5,raw48,Reallocated_Sector_Ct " // Reassigned Block Count
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 165,raw48,Block_Erase_Count "
+    "-v 166,raw48,Minimum_PE_Cycles_TLC "
+    "-v 167,raw48,Max_Bad_Blocks_per_Die "
+    "-v 168,raw48,Maximum_PE_Cycles_TLC "
+    "-v 169,raw48,Total_Bad_Blocks "
+    "-v 170,raw48,Grown_Bad_Blocks "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Average_PE_Cycles_TLC "
+    "-v 174,raw48,Unexpected_Power_Loss "
+  //"-v 184,raw48,End-to-end_Error " // Detection/Correction Count
+  //"-v 187,raw48,Reported_Uncorrect " // Uncorrectable Errors
+  //"-v 188,raw48,Command_Timeout
+  //"-v 194,tempminmax,Temperature_Celsius " 
+  //"-v 199,raw48,UDMA_CRC_Error_Count  // SATA CRC Errors 
+    "-v 230,hex48,Media_Wearout_Indicator " // Maybe hex16
+  //"-v 232,raw48,Available_Reserve_Space"
+    "-v 233,raw48,NAND_GB_Written_TLC "
+    "-v 234,raw48,NAND_GB_Written_SLC "
+    "-v 241,raw48,Total_Host_GB_Written "
+    "-v 242,raw48,Total_Host_GB_Read "
+    "-v 244,raw48,Temp_Throttle_Status "
   },
   { "Western Digital Protege",
   /* Western Digital drives with this comment all appear to use Attribute 9 in

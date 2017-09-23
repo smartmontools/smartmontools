@@ -1,4 +1,4 @@
-$Id: ChangeLog 4467 2017-09-23 12:39:33Z samm2 $
+$Id: ChangeLog 4469 2017-09-23 12:54:13Z samm2 $
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
@@ -26,6 +26,7 @@ $Id: ChangeLog 4467 2017-09-23 12:39:33Z samm2 $
 	- Added WDC WD4004FZWX disk to the Digital Black family (#765)
 	- Added Samsung SSD 845DC EVO series (#866)
 	- Added SK hynix SL308 family (#808)
+	- Added WD Blue PC SSD family (#767)
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
