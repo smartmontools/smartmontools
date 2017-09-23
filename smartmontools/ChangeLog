@@ -25,6 +25,7 @@ $Id$
   - Added Hitachi CinemaStar 5K1000	series (#758)
 	- Added WDC WD4004FZWX disk to the Digital Black family (#765)
 	- Added Samsung SSD 845DC EVO series (#866)
+	- Added SK hynix SL308 family (#808)
 
 2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
 
