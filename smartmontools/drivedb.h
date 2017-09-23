@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4445 2017-09-23 02:55:09Z samm2 $",
+  { "$Id: drivedb.h 4446 2017-09-23 03:12:58Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1947,6 +1947,12 @@ const drive_settings builtin_knowndrives[] = {
   { "SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS)", // tested with HS25YJZ/3AU10-01
     "SAMSUNG HS(122H|2[05]YJ)Z",
     "", "", ""
+  },
+  { "SK hynix SSD SC300", // tested with HFS256G32MND-3210A/20100P00 
+    //                                   HFS512G32MND-3210A/20100P00
+    "HFS(128|256|512)G32MND-3210A",
+    "", "",
+    "-v 231,raw48,SSD_Life_Left "
   },
   { "Maxtor Fireball 541DX",
     "Maxtor 2B0(0[468]|1[05]|20)H1",
