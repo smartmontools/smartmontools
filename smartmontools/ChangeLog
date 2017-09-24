@@ -2,7 +2,7 @@ $Id$
 
 2017-09-24  Alex Samorukov  <samm@os2.kiev.ua>
   drivedb.h:
-  - Added Toshiba MK..34GSX series (#886)
+  - Added Toshiba MK..34GSX series (#886) and MK..32GSX series (#887)
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
