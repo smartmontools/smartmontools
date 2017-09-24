@@ -1,10 +1,11 @@
-$Id: ChangeLog 4479 2017-09-24 09:35:34Z samm2 $
+$Id: ChangeLog 4480 2017-09-24 09:41:38Z samm2 $
 
 2017-09-24  Alex Samorukov  <samm@os2.kiev.ua>
   drivedb.h:
   - Added Toshiba MK..34GSX series (#886) and MK..32GSX series (#887)
   - Added GOODRAM CX200 SSD (#838)
-  - Added Mushkin SSD family (#797) 
+  - Added Mushkin SSD family (#797)
+  - Added Samsung PM871 to the Samsung SSD family (#798)
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
