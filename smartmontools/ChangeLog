@@ -1,4 +1,4 @@
-$Id: ChangeLog 4482 2017-09-24 18:54:09Z samm2 $
+$Id: ChangeLog 4483 2017-09-24 19:02:21Z samm2 $
 
 2017-09-24  Alex Samorukov  <samm@os2.kiev.ua>
   drivedb.h:
@@ -8,6 +8,7 @@ $Id: ChangeLog 4482 2017-09-24 18:54:09Z samm2 $
   - Added Samsung PM871 to the Samsung SSD family (#798)
   - Added PNY CS1311 family (#890)
   - Added 0x152d:0x0578 Jmicron USB->SATA
+  - Added Transcend MTS800 drives (#787)
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
