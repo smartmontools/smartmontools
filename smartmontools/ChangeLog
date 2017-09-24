@@ -6,6 +6,7 @@ $Id$
   - Added GOODRAM CX200 SSD (#838)
   - Added Mushkin SSD family (#797)
   - Added Samsung PM871 to the Samsung SSD family (#798)
+  - Added PNY CS1311 family (#890)
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
