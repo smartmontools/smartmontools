@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4485 2017-09-24 19:16:57Z samm2 $",
+  { "$Id: drivedb.h 4486 2017-09-24 19:24:02Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2649,8 +2649,9 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HDS722020ALA330",
     "", "", ""
   },
+  // Hitachi HDS723030BLE640
   { "Hitachi Deskstar 7K3000", // tested with HDS723030ALA640/MKAOA3B0
-    "Hitachi HDS7230((15|20)BLA642|30ALA640)",
+    "Hitachi HDS7230((15|20)BLA642|30ALA640|30BLE640)",
     "", "", ""
   },
   { "Hitachi/HGST Deskstar 7K4000", // tested with Hitachi HDS724040ALE640/MJAOA250
