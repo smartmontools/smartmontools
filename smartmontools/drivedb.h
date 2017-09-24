@@ -2722,6 +2722,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK8050GACY",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD MK..34GSX", // tested with TOSHIBA MK8034GSX/AH301E
+    "TOSHIBA MK(80|12|10)34GSX",
+    "", "", ""
+  },
   { "Toshiba 2.5\" HDD MK..51GSY", // tested with TOSHIBA MK1251GSY/LD101D
     "TOSHIBA MK(80|12|16|25)51GSY",
     "",
