@@ -501,6 +501,7 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
     "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
+    "GOODRAM|" // GOODRAM/SAFM12.2 (CX200), model name is missing in the SMART!
     "KINGSTON SHSS3B?7A(120|240|480|960)G", // HyperX Savage
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
