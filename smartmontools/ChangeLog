@@ -3,7 +3,8 @@ $Id$
 2017-09-24  Alex Samorukov  <samm@os2.kiev.ua>
   drivedb.h:
   - Added Toshiba MK..34GSX series (#886) and MK..32GSX series (#887)
-  - Added GOODRAM CX200 SSD (#838). 
+  - Added GOODRAM CX200 SSD (#838)
+  - Added Mushkin SSD family (#797) 
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
