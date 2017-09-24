@@ -9,6 +9,7 @@ $Id$
   - Added PNY CS1311 family (#890)
   - Added 0x152d:0x0578 Jmicron USB->SATA
   - Added Transcend MTS800 drives (#787)
+  - Added Transcend MSA 630 series (#759)
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
