@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4474 2017-09-23 13:40:30Z samm2 $",
+  { "$Id: drivedb.h 4475 2017-09-24 06:19:45Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3162,7 +3162,7 @@ const drive_settings builtin_knowndrives[] = {
   // should be ST4000DM005, ST3000DM008,ST3000DM009,ST2000DM006,ST2000DM007
   // ST1000DM010, ST500DM009
   { "Seagate Barracuda 3.5", // tested on ST1000DM010-2EP102/Z9ACZM97
-    "ST(4000DM005|3000DM008|3000DM009|2000DM006|2000DM007)-"
+    "ST(4000DM005|3000DM008|3000DM009|2000DM006|2000DM007)-",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
