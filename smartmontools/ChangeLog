@@ -10,6 +10,7 @@ $Id$
   - Added 0x152d:0x0578 Jmicron USB->SATA
   - Added Transcend MTS800 drives (#787)
   - Added Transcend MSA 630 series (#759)
+  - Extended Hitachi Deskstar 7K3000 regexp (#858)
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
