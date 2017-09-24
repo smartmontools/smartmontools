@@ -4759,6 +4759,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; JMicron JMS578", // USB->SATA
+    "0x152d:0x0578",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // ASMedia
   { "USB: ; ASMedia ASM1053/1153/1351",
     "0x174c:0x1([01]53|351)",
