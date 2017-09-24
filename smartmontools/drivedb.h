@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4481 2017-09-24 18:48:14Z samm2 $",
+  { "$Id: drivedb.h 4482 2017-09-24 18:54:09Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4756,6 +4756,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron", // USB3->SATA
     "0x152d:0x3569",
     "", // 0x0203
+    "",
+    "-d sat"
+  },
+  { "USB: ; JMicron JMS578", // USB->SATA
+    "0x152d:0x0578",
+    "", // 0x0100
     "",
     "-d sat"
   },
