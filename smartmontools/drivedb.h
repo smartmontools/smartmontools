@@ -1437,6 +1437,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 244,raw48,Thermal_Throttle "
   },
   //  SDLF1DAR-480G-1HAW/ZR07RE41
+  // SDLF1DAR-480G-1JA1/RP41ZH06
   { "Sandisk SATA Cloudspeed Max and GEN2 ESS SSDs",
    "SD[A-Z0-9]{2}[1-3][A-Z]{3}-?[0-9]{3}[GT]-?1[A-Z0-9]{3}",
    "","",
