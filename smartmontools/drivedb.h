@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4476 2017-09-24 06:30:16Z samm2 $",
+  { "$Id: drivedb.h 4477 2017-09-24 06:37:27Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2724,6 +2724,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba 2.5\" HDD MK..34GSX", // tested with TOSHIBA MK8034GSX/AH301E
     "TOSHIBA MK(80|12|10)34GSX",
+    "", "", ""
+  },
+  //
+  { "Toshiba 2.5\" HDD MK..32GSX", // tested with TOSHIBA MK1032GSX/AS021G
+    "TOSHIBA MK(10|80|60|40)32GSX",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..51GSY", // tested with TOSHIBA MK1251GSY/LD101D

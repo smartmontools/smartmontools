@@ -1,8 +1,8 @@
-$Id: ChangeLog 4476 2017-09-24 06:30:16Z samm2 $
+$Id: ChangeLog 4477 2017-09-24 06:37:27Z samm2 $
 
 2017-09-24  Alex Samorukov  <samm@os2.kiev.ua>
   drivedb.h:
-  - Added Toshiba MK..34GSX series (#886)
+  - Added Toshiba MK..34GSX series (#886) and MK..32GSX series (#887)
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
