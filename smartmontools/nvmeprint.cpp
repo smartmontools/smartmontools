@@ -18,7 +18,7 @@
 #include "config.h"
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4311 2016-04-27 21:03:01Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4488 2017-09-25 11:54:15Z samm2 $"
   NVMEPRINT_H_CVSID;
 
 #include "int64.h"
@@ -313,6 +313,14 @@ static void print_smart_log(const nvme_smart_log & smart_log, unsigned nsid,
       pout("Temperature Sensor %d:               %s\n", i + 1,
            kelvin_to_str(buf, smart_log.temp_sensor[i]));
   }
+  if (show_all || smart_log.thm_temp1_trans_count)
+    pout("Thermal Temp. 1 Transition Count:   %d\n", smart_log.thm_temp1_trans_count);
+  if (show_all || smart_log.thm_temp2_trans_count)
+    pout("Thermal Temp. 2 Transition Count:   %d\n", smart_log.thm_temp2_trans_count);
+  if (show_all || smart_log.thm_temp1_total_time)
+    pout("Thermal Temp. 1 Total Time:         %d\n", smart_log.thm_temp1_total_time);
+  if (show_all || smart_log.thm_temp2_total_time)
+    pout("Thermal Temp. 2 Total Time:         %d\n", smart_log.thm_temp2_total_time);
   pout("\n");
 }
 
