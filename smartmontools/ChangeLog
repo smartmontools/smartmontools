@@ -1,16 +1,20 @@
 $Id$
 
+2017-09-25  Alex Samorukov  <samm@os2.kiev.ua>
+	drivedb.h:
+	- Added support for more LaCie and Freecom devices (patch from #891)
+
 2017-09-24  Alex Samorukov  <samm@os2.kiev.ua>
-  drivedb.h:
-  - Added Toshiba MK..34GSX series (#886) and MK..32GSX series (#887)
-  - Added GOODRAM CX200 SSD (#838)
-  - Added Mushkin SSD family (#797)
-  - Added Samsung PM871 to the Samsung SSD family (#798)
-  - Added PNY CS1311 family (#890)
-  - Added 0x152d:0x0578 Jmicron USB->SATA
-  - Added Transcend MTS800 drives (#787)
-  - Added Transcend MSA 630 series (#759)
-  - Extended Hitachi Deskstar 7K3000 regexp (#858)
+	drivedb.h:
+	- Added Toshiba MK..34GSX series (#886) and MK..32GSX series (#887)
+	- Added GOODRAM CX200 SSD (#838)
+	- Added Mushkin SSD family (#797)
+	- Added Samsung PM871 to the Samsung SSD family (#798)
+	- Added PNY CS1311 family (#890)
+	- Added 0x152d:0x0578 Jmicron USB->SATA
+	- Added Transcend MTS800 drives (#787)
+	- Added Transcend MSA 630 series (#759)
+	- Extended Hitachi Deskstar 7K3000 regexp (#858)
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
  	drivedb.h: 
