@@ -92,7 +92,8 @@ struct nvme_id_ctrl {
   unsigned int    rtd3r;
   unsigned int    rtd3e;
   unsigned int    oaes;
-  unsigned char   rsvd96[160];
+  unsigned int    ctratt;
+  unsigned char   rsvd100[156];
   unsigned short  oacs;
   unsigned char   acl;
   unsigned char   aerl;
@@ -110,10 +111,18 @@ struct nvme_id_ctrl {
   unsigned char   tnvmcap[16];
   unsigned char   unvmcap[16];
   unsigned int    rpmbs;
-  unsigned char   rsvd316[196];
+  unsigned short  edstt;
+  unsigned char   dsto;
+  unsigned char   fwug;
+  unsigned short  kas;
+  unsigned short  hctma;
+  unsigned short  mntmt;
+  unsigned short  mxtmt;
+  unsigned int    sanicap;
+  unsigned char   rsvd332[180];
   unsigned char   sqes;
   unsigned char   cqes;
-  unsigned char   rsvd514[2];
+  unsigned short  maxcmd;
   unsigned int    nn;
   unsigned short  oncs;
   unsigned short  fuses;
@@ -126,7 +135,15 @@ struct nvme_id_ctrl {
   unsigned short  acwu;
   unsigned char   rsvd534[2];
   unsigned int    sgls;
-  unsigned char   rsvd540[1508];
+  unsigned char   rsvd540[228];
+  char			      subnqn[256];
+  unsigned char   rsvd1024[768];
+  unsigned int    ioccsz;
+  unsigned int    iorcsz;
+  unsigned short  icdoff;
+  unsigned char   ctrattr;
+  unsigned char   msdbd;
+  unsigned char   rsvd1804[244];
   struct nvme_id_power_state  psd[32];
   unsigned char   vs[1024];
 };
@@ -187,7 +204,11 @@ struct nvme_smart_log {
   unsigned int   warning_temp_time;
   unsigned int   critical_comp_time;
   unsigned short temp_sensor[8];
-  unsigned char  rsvd216[296];
+  unsigned int   thm_temp1_trans_count;
+  unsigned int   thm_temp2_trans_count;
+  unsigned int   thm_temp1_total_time;
+  unsigned int   thm_temp2_total_time;
+  unsigned char  rsvd232[280];
 };
 
 enum nvme_admin_opcode {
