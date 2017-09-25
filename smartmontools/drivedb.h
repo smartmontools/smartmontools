@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4486 2017-09-24 19:24:02Z samm2 $",
+  { "$Id: drivedb.h 4487 2017-09-25 07:41:00Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4052,6 +4052,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
+  { "USB: LaCie d2 Quadra; Oxford OXUF934SSA-LQAG ", // USB+IEEE1394+eSATA->SATA
+    "0x059f:0x0828",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: LaCie hard disk; JMicron",
     "0x059f:0x0951",
     "",
@@ -4063,6 +4069,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0001
     "",
     "-d sat"
+  },
+  { "USB: LaCie Desktop Hard Drive;",
+    "0x059f:0x1010",
+    "",
+    "",
+    "-d usbsunplus"
   },
   { "USB: LaCie Desktop Hard Drive; ",
     "0x059f:0x101[68]", // 0x1016: SAMSUNG HD103UJ
@@ -4099,6 +4111,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: LaCie D2 USB2; LucidPort USB300 ",
+    "0x059f:0x103d",
+    "",
+    "",
+    "-d sat"
   },
   { "USB: LaCie rikiki USB 3.0; ",
     "0x059f:0x10(49|57)",
@@ -4199,6 +4217,12 @@ const drive_settings builtin_knowndrives[] = {
   // Freecom
   { "USB: ; Innostor IS631", // No Name USB3->SATA Enclosure
     "0x07ab:0x0621",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Freecom Quattro 3.0; ", // USB3.0+IEEE1394+eSATA->SATA
+    "0x07ab:0xfc77",
     "",
     "",
     "-d sat"
