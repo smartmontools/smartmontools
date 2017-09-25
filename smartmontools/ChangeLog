@@ -1,6 +1,9 @@
 $Id$
 
 2017-09-25  Alex Samorukov  <samm@os2.kiev.ua>
+  NVME: 
+	 - extend controller and smart log page structures to match 1.3 specification.
+	 - Print thermal temperature transition statistic
 	drivedb.h:
 	- Added support for more LaCie and Freecom devices (patch from #891)
 
