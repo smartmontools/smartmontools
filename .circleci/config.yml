@@ -24,17 +24,18 @@ references:
         ./autogen.sh
         ./configure
         make -j2
-  sm_insall: &sm_install
+  sm_install: &sm_install
     run:
       name: Install
       command: |
         cd smartmontools
         mkdir -p /opt/smartmontools
+        SVNREV=`git log -n1 |grep git-svn-id|awk '{print $2}'|sed -E s'|.*@||'`
         make DESTDIR="/opt/smartmontools" install
         cd /opt/
-        tar -cvzf smartontools-linux.tgz smartmontools
+        tar -cvzf smartontools-linux-r${SVNREV}.tgz smartmontools
         mkdir -p /tmp/artefacts
-        mv smartontools-linux.tgz /tmp/artefacts
+        mv smartontools-linux-r${SVNREV}.tgz /tmp/artefacts/
 
 jobs:
 
@@ -68,4 +69,3 @@ workflows:
     jobs:
       - test_ubuntu_latest
       - test_centos_latest
-
