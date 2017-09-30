@@ -72,4 +72,4 @@ workflows:
 
 notify:
   webhooks:
-    - url: https://builds-ci.smartmontools.org/hook.php?testtoken=123
+    - url: https://builds-ci.smartmontools.org/hook.php?token=${WEBHOOK_TOKEN}
