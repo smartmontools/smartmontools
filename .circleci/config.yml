@@ -20,7 +20,7 @@ references:
     run:
       name: Compile package
       command: |
-        pwd
+        cd smartmontools
         ./autogen.sh
         ./configure
         make -j2
@@ -28,6 +28,7 @@ references:
     run:
       name: Install
       command: |
+        cd smartmontools
         mkdir -p /opt/smartmontools
         make DESTDIR="/opt/smartmontools" install
         cd /opt/
@@ -40,7 +41,7 @@ jobs:
   test_ubuntu_latest:
     docker:
       - image: ubuntu:latest
-    working_directory: ~/smartmontools/smartmontools
+    working_directory: ~/smartmontools
     steps:
       - *ubuntu_deps
       - checkout
@@ -53,7 +54,7 @@ jobs:
   test_centos_latest:
     docker:
       - image: centos:latest
-    working_directory: ~/smartmontools/smartmontools
+    working_directory: ~/smartmontools
     steps:
       - *centos_deps
       - checkout
