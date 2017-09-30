@@ -1,0 +1,73 @@
+version: 2
+
+references:
+
+  ubuntu_deps: &ubuntu_deps
+    run:
+      name: Install dependencies on Ubuntu.
+      command: |
+        apt-get update -qy
+        apt-get install -y git automake g\+\+ make
+
+  centos_deps: &centos_deps
+    run:
+      name: Install dependencies on CentOS.
+      command: |
+        yum update -y
+        yum install -y gcc git make gcc-c++ automake
+
+  sm_compile: &sm_compile
+    run:
+      name: Compile package
+      command: |
+        cd smartmontools
+        ./autogen.sh
+        ./configure
+        make -j2
+  sm_insall: &sm_install
+    run:
+      name: Install
+      command: |
+        cd smartmontools
+        mkdir -p /opt/smartmontools
+        make DESTDIR="/opt/smartmontools" install
+        cd /opt/
+        tar -cvzf smartontools-linux.tgz smartmontools
+        mkdir -p /tmp/artefacts
+        mv smartontools-linux.tgz /tmp/artefacts
+
+jobs:
+
+  test_ubuntu_latest:
+    docker:
+      - image: ubuntu:latest
+    working_directory: ~/smartmontools
+    steps:
+      - *ubuntu_deps
+      - checkout
+      - *sm_compile
+      - *sm_install
+      - store_artifacts:
+          path: /tmp/artefacts
+          destination: builds
+
+  test_centos_latest:
+    docker:
+      - image: centos:latest
+    working_directory: ~/smartmontools
+    steps:
+      - *centos_deps
+      - checkout
+      - *sm_compile
+      - *sm_install
+#      - *deploy
+
+workflows:
+
+  version: 2
+  test-matrix:
+    jobs:
+      - test_ubuntu_latest
+      - test_centos_latest
+#      - test_archlinux
+
