@@ -20,6 +20,7 @@ references:
     run:
       name: Compile package
       command: |
+        pwd
         ./autogen.sh
         ./configure
         make -j2
