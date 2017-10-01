@@ -1,13 +1,15 @@
 $Id$
 
 2017-09-25  Alex Samorukov  <samm@os2.kiev.ua>
-  NVME: 
-	 - extend controller and smart log page structures to match 1.3 specification.
-	 - Print thermal temperature transition statistic
+
+	NVME:
+	- extend controller and smart log page structures to match 1.3 specification.
+	- Print thermal temperature transition statistic
 	drivedb.h:
 	- Added support for more LaCie and Freecom devices (patch from #891)
 
 2017-09-24  Alex Samorukov  <samm@os2.kiev.ua>
+
 	drivedb.h:
 	- Added Toshiba MK..34GSX series (#886) and MK..32GSX series (#887)
 	- Added GOODRAM CX200 SSD (#838)
@@ -20,7 +22,8 @@ $Id$
 	- Extended Hitachi Deskstar 7K3000 regexp (#858)
 
 2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
- 	drivedb.h: 
+
+	drivedb.h:
 	- Fix HGST HDS724040ALE640 (#885)
 	- Add Toshiba MQ03ABB300 (#884)
 	- Fixed Hitachi 7K1000 (#883)
@@ -44,7 +47,7 @@ $Id$
 	- Added Intel 3710 Series SSDs (#824)
 	- Added Micron 5100 ECO, PRO, and MAX Models (#861)
 	- Added Samsung EVO SSD series - make regexp match less strict (#806)
-  - Added Hitachi CinemaStar 5K1000	series (#758)
+	- Added Hitachi CinemaStar 5K1000 series (#758)
 	- Added WDC WD4004FZWX disk to the Digital Black family (#765)
 	- Added Samsung SSD 845DC EVO series (#866)
 	- Added SK hynix SL308 family (#808)
