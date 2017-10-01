@@ -5,6 +5,7 @@ $Id$
 	drivedb.h:
 	- Fix regexp from tickets #714, #721, #759, #789, #797, #798, #806,
 	  #824, #825, #866, #872, #880.
+	- SK hynix SATA SSDs (based on patch from ticket #874)
 
 2017-09-25  Alex Samorukov  <samm@os2.kiev.ua>
 

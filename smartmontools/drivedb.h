@@ -2067,25 +2067,34 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HS(122H|2[05]YJ)Z",
     "", "", ""
   },
-  { "SK hynix SSD", // tested with HFS256G32MND-3210A/20100P00 
-    // HFS512G32MND-3210A/20100P00
-    // SK hynix SC210 mSATA 256GB
-    // SK hynix SC308 SATA 128GB
-    // HFS250G32TND-N1A2A/30000P10
-    "HFS(128|256|512)G32MND-3210A|"
-    // SC210, tested on HFS128G32MND-2200A/20200L00
-    "HFS(512|256|128)G32MND-2200A|"
-    "SK hynix SC(210|308)|"
-    "HFS(120|250|500)G32TND-N1A2A|"
-    "SKhynix SC(300|313)",
+  { "SK hynix SATA SSDs",
+    "SK ?hynix SC(210|300|308|313).*|" // tested with
+      // SK hynix SC210 mSATA 256GB/20002L00,
+      // SKhynix SC300 HFS256G32MND-3210A/20131P00,
+      // SK hynix SC308 SATA 128GB/30001P10,
+      // SK hynix SC313 HFS256G32TNF-N3A0A/70000P10
+    "HFS(128|256|512)G32MND-(2200|3210)A|" // HFS128G32MND-2200A/20200L00,
+      // HFS512G32MND-3210A/20100P00
+    "HFS(120|250|500)G32TND-N1A2A", // HFS500G32TND-N1A2A/30000P10
     "", "",
+    "-v 5,raw48,Retired_Block_Count "
     "-v 100,raw48,Total_Erase_Count "
+    "-v 168,raw48,Min_Erase_Count "
+    "-v 169,raw48,Max_Erase_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Wear_Leveling_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 176,raw48,Unused_Rsvd_Blk_Cnt_Tot "
+    "-v 180,raw48,Erase_Fail_Count "
+    "-v 181,raw48,Non4k_Aligned_Access "
+    "-v 183,raw48,SATA_Downshift_Count "
+    "-v 201,raw48,Percent_Lifetime_Remain "
+    "-v 212,raw48,Phy_Error_Count "
     "-v 231,raw48,SSD_Life_Left "
     "-v 241,raw48,Total_Writes_GiB "
     "-v 242,raw48,Total_Reads_GiB "
+    "-v 243,raw48,Total_Media_Writes "
     "-v 250,raw48,Read_Retry_Count "
   },
   { "Maxtor Fireball 541DX",
