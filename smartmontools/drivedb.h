@@ -1145,7 +1145,7 @@ const drive_settings builtin_knowndrives[] = {
     "-F xerrorlba" // tested with SSDSC2BB600G4/D2010355
   },
   { "Intel 3710 Series SSDs", // INTEL SSDSC2BA200G4R/G201DL2B (dell)
-    "INTEL SSDSC2BA(200G|400G|800G|012T)4", 
+    "INTEL SSDSC2BA(200G|400G|800G|012T)4.?",
     "", "",
     "-v 9,msec24hour32,Power_On_Hours_and_Msec "
     "-v 170,raw48,Available_Reservd_Space "
@@ -1293,7 +1293,7 @@ const drive_settings builtin_knowndrives[] = {
     "MZ7PC(512|256|128|064)HA(GH|FU|DR)-000.*|" // probably PM830, tested with SAMSUNG MZ7PC128HAFU-000L1/CXM04L1Q
     "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
       // Samsung SSD 840 Series/DXT06B0Q
-    "Samsung SSD 8[45]0 EVO |" // tested with
+    "Samsung SSD 8[45]0 EVO .*|" // tested with
       // Samsung SSD 840 EVO (120|250|500|750)GB/EXT0AB0Q,
       // Samsung SSD 840 EVO (120|250)GB/EXT0BB6Q, 1TB/EXT0BB0Q, 120GB mSATA/EXT41B6Q,
       // Samsung SSD 850 EVO 250GB/EMT01B6Q
@@ -1303,7 +1303,7 @@ const drive_settings builtin_knowndrives[] = {
     "Samsung SSD 850 PRO ((128|256|512)G|1T)B|" // tested with Samsung SSD 850 PRO 128GB/EXM01B6Q,
       // Samsung SSD 850 PRO 1TB/EXM01B6Q
     "SAMSUNG MZ7PA256HMDR-.*|" // PM810 (470 Series), tested with SAMSUNG MZ7PA256HMDR-010H1/AXM07H1Q
-    "Samsung SSD 845DC EVO |" // Samsung SSD 845DC EVO 960GB/EXT03X3Q
+    "Samsung SSD 845DC EVO .*|" // Samsung SSD 845DC EVO 960GB/EXT03X3Q
     "SAMSUNG MZ[7M]PC(032|064|128|256|512)HBCD-.*|" // PM830, tested with SAMSUNG MZMPC032HBCD-000L1/CXM12L1Q
     "SAMSUNG MZ7TD(128|256)HAFV-.*|" // 840 Series, tested with SAMSUNG MZ7TD256HAFV-000L7/DXT06L6Q
     "SAMSUNG MZ7WD((120|240)H[AC]FV|480HAGM|960HAGP)-00003|" // SM843T Series, tested with
@@ -1318,7 +1318,7 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG MZN(LF|TY)(128|256)H[CD]HP-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
       // SAMSUNG MZNTY256HDHP-000/MAT21K0Q
     "SAMSUNG MZ[7N]LN(128|256|512)H[CM](GR|HP|JH|JP)-.*|" // PM871/871a, tested with SAMSUNG MZ7LN128HCHP,
-    "SAMSUNG SSD PM871 |" // SAMSUNG SSD PM871 2.5 7mm 256GB/EMT02D0Q
+    "SAMSUNG SSD PM871 .*|" // SAMSUNG SSD PM871 2.5 7mm 256GB/EMT02D0Q
       // SAMSUNG MZ7LN256HMJP-00000/MAV0100Q, SAMSUNG MZ7LN512HMJP-00000/MAV0100Q
     "SAMSUNG MZHPV(128|256|512)HDGL-.*", // SM951, tested with SAMSUNG MZHPV512HDGL-00000/BXW2500Q
     "", "",
@@ -1502,7 +1502,7 @@ const drive_settings builtin_knowndrives[] = {
     "TS(128G|256G|512G|1T)SSD230S|" // TS128GSSD230S/P1025F8
     "TS(120|240|480|960)GSSD220S|" // TS480GSSD220S/P0520AA
     "TS(16G|32G|64G|128G|256G|512G|1T)MTS800S?|" // MTS800, tested with TS1TMTS800/O1225H1
-    "TS(16|32|64)GMSA630" // MSA630 mSATA SSD, tested with TS32GMSA630/N0113E1
+    "TS(16|32|64)GMSA630|" // MSA630 mSATA SSD, tested with TS32GMSA630/N0113E1
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // MKNSSDRE256GB/N1007C
     "ADATA SP550", // ADATA SP550/O0803B5a
     "", "",
@@ -2030,12 +2030,12 @@ const drive_settings builtin_knowndrives[] = {
   // Flash accelerated, no SMART info in the specs
   // ST1000LX015-1U7172/SDM1
   { "Seagate FireCuda 2.5", // 
-    "ST(500|1000|2000)LX0(01|15|25)-",
+    "ST(500|1000|2000)LX0(01|15|25)-.*",
     "", "", "-v 240,msec24hour32 "
   },
   // ST1000DX002/CC41
   { "Seagate FireCuda 3.5", // ST2000DX002-2DV164/CC41
-    "ST[12]000DX002",
+    "ST[12]000DX002-.*",
     "", "", "-v 240,msec24hour32 "
   },
   { "Seagate Samsung SpinPoint M9TU (USB)", // tested with ST1500LM008 HN-M151AAD/2BC10001
@@ -2065,25 +2065,34 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HS(122H|2[05]YJ)Z",
     "", "", ""
   },
-  { "SK hynix SSD", // tested with HFS256G32MND-3210A/20100P00 
-    // HFS512G32MND-3210A/20100P00
-    // SK hynix SC210 mSATA 256GB
-    // SK hynix SC308 SATA 128GB
-    // HFS250G32TND-N1A2A/30000P10
-    "HFS(128|256|512)G32MND-3210A|"
-    // SC210, tested on HFS128G32MND-2200A/20200L00
-    "HFS(512|256|128)G32MND-2200A|"
-    "SK hynix SC(210|308)|"
-    "HFS(120|250|500)G32TND-N1A2A|"
-    "SKhynix SC(300|313)",
+  { "SK hynix SATA SSDs",
+    "SK ?hynix SC(210|300|308|313).*|" // tested with
+      // SK hynix SC210 mSATA 256GB/20002L00,
+      // SKhynix SC300 HFS256G32MND-3210A/20131P00,
+      // SK hynix SC308 SATA 128GB/30001P10,
+      // SK hynix SC313 HFS256G32TNF-N3A0A/70000P10
+    "HFS(128|256|512)G32MND-(2200|3210)A|" // HFS128G32MND-2200A/20200L00,
+      // HFS512G32MND-3210A/20100P00
+    "HFS(120|250|500)G32TND-N1A2A", // HFS500G32TND-N1A2A/30000P10
     "", "",
+    "-v 5,raw48,Retired_Block_Count "
     "-v 100,raw48,Total_Erase_Count "
+    "-v 168,raw48,Min_Erase_Count "
+    "-v 169,raw48,Max_Erase_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Wear_Leveling_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 176,raw48,Unused_Rsvd_Blk_Cnt_Tot "
+    "-v 180,raw48,Erase_Fail_Count "
+    "-v 181,raw48,Non4k_Aligned_Access "
+    "-v 183,raw48,SATA_Downshift_Count "
+    "-v 201,raw48,Percent_Lifetime_Remain "
+    "-v 212,raw48,Phy_Error_Count "
     "-v 231,raw48,SSD_Life_Left "
     "-v 241,raw48,Total_Writes_GiB "
     "-v 242,raw48,Total_Reads_GiB "
+    "-v 243,raw48,Total_Media_Writes "
     "-v 250,raw48,Read_Retry_Count "
   },
   { "Maxtor Fireball 541DX",
@@ -2834,7 +2843,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Toshiba 3.5\" MG04ACA... Enterprise HDD", // tested with TOSHIBA MG04ACA600A/FS2B
-    "TOSHIBA MG04ACA[23456]00[AE]",
+    "TOSHIBA MG04ACA[23456]00[AE].?",
     "", "", ""
   },
   { "Toshiba 3.5\" DT01ABA... Desktop HDD", // tested with TOSHIBA DT01ABA300/MZ6OABB0
@@ -2869,7 +2878,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Toshiba HG6 Series SSD", // TOSHIBA THNSNJ512GCST/JTRA0102
     // http://www.farnell.com/datasheets/1852757.pdf
     // TOSHIBA THNSFJ256GCSU/JULA1102
-    "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN]",
+    "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN][TU]",
     "", "", 
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Error_Count "
@@ -3177,7 +3186,7 @@ const drive_settings builtin_knowndrives[] = {
   // should be ST4000DM005, ST3000DM008,ST3000DM009,ST2000DM006,ST2000DM007
   // ST1000DM010, ST500DM009
   { "Seagate Barracuda 3.5", // tested on ST1000DM010-2EP102/Z9ACZM97
-    "ST(4000DM005|3000DM008|3000DM009|2000DM006|2000DM007)-",
+    "ST(4000DM00[45]|3000DM008|3000DM009|2000DM006|2000DM007|1000DM010|500DM009)-.*",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
