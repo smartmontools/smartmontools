@@ -3,6 +3,8 @@ $Id$
 2017-10-01  Christian Franke  <franke@computer.org>
 
 	configure.ac: Set default LDFLAGS for MinGW only if LDFLAGS is unset.
+	Add '-Wformat=2 -fstack-protector-strong' if supported and CXXFLAGS
+	is unset.
 
 	drivedb.h:
 	- Fix regexp from tickets #714, #721, #759, #789, #797, #798, #806,

@@ -614,8 +614,8 @@ AM_CONDITIONAL(OS_WIN32_MINGW, [test "$os_win32_mingw" = "yes"])
 AM_CONDITIONAL(OS_WIN32_NSIS, [test -n "$MAKENSIS"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
 
-# Add -Wall and -W[extra] if using g++ and its not already specified.
 if test "$GXX" = "yes"; then
+  # Add -Wall and -W[extra] if its not already specified
   case " $CXXFLAGS " in
     *\ -Wall\ *) ;;
     *) CXXFLAGS="$CXXFLAGS -Wall" ;;
@@ -623,6 +623,19 @@ if test "$GXX" = "yes"; then
   case " $CXXFLAGS " in
     *\ -W\ *|*\ -Wextra\ *) ;;
     *) CXXFLAGS="$CXXFLAGS -W" ;;
+  esac
+  # Add -Wformat=2 -fstack-protector-strong if supported and CXXFLAGS
+  # was not set in configure cmdline (TODO: -Wformat-signedness)
+  case "${ac_test_CXXFLAGS+set}:$ac_test_CXXFLAGS" in
+    set:)
+      for option in "-Wformat=2" "-fstack-protector-strong"; do
+        AC_MSG_CHECKING([whether $CXX supports $option])
+        save_CXXFLAGS=$CXXFLAGS
+        CXXFLAGS="$CXXFLAGS $option"
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
+        AC_MSG_RESULT([$res])
+      done
+      ;;
   esac
 else
   # We are NOT using gcc, so enable host-specific compiler flags
