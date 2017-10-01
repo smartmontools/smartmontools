@@ -427,11 +427,9 @@ AC_ARG_WITH(mingw-aslr,
   [AS_HELP_STRING([--with-mingw-aslr@<:@=auto|yes|low|no@:>@], [Enable ASLR for MinGW executables [auto]])],
   [], [with_mingw_aslr=auto])
 
-case "$host" in
-  *-*-mingw*) # By default, link statically and indicate DEP and TS compatibility
-    case "$LDFLAGS" in
-      ''|-static) LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
-    esac ;;
+case "$host:${LDFLAGS+set}" in
+  *-*-mingw*:) # MinGW defaults: link statically and indicate DEP and TS compatibility
+    LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
 esac
 
 case "$host:$with_mingw_aslr" in
