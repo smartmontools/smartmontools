@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4432 2017-08-08 20:03:25Z chrfranke $
+# $Id: configure.ac 4502 2017-10-01 20:22:25Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@listi.jpberlin.de)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4432 2017-08-08 20:03:25Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4502 2017-10-01 20:22:25Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -427,11 +427,9 @@ AC_ARG_WITH(mingw-aslr,
   [AS_HELP_STRING([--with-mingw-aslr@<:@=auto|yes|low|no@:>@], [Enable ASLR for MinGW executables [auto]])],
   [], [with_mingw_aslr=auto])
 
-case "$host" in
-  *-*-mingw*) # By default, link statically and indicate DEP and TS compatibility
-    case "$LDFLAGS" in
-      ''|-static) LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
-    esac ;;
+case "$host:${LDFLAGS+set}" in
+  *-*-mingw*:) # MinGW defaults: link statically and indicate DEP and TS compatibility
+    LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
 esac
 
 case "$host:$with_mingw_aslr" in
