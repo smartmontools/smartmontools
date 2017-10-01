@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4502 2017-10-01 20:22:25Z chrfranke $
+# $Id: configure.ac 4503 2017-10-01 20:31:26Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@listi.jpberlin.de)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4502 2017-10-01 20:22:25Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4503 2017-10-01 20:31:26Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -614,8 +614,8 @@ AM_CONDITIONAL(OS_WIN32_MINGW, [test "$os_win32_mingw" = "yes"])
 AM_CONDITIONAL(OS_WIN32_NSIS, [test -n "$MAKENSIS"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
 
-# Add -Wall and -W[extra] if using g++ and its not already specified.
 if test "$GXX" = "yes"; then
+  # Add -Wall and -W[extra] if its not already specified
   case " $CXXFLAGS " in
     *\ -Wall\ *) ;;
     *) CXXFLAGS="$CXXFLAGS -Wall" ;;
@@ -623,6 +623,19 @@ if test "$GXX" = "yes"; then
   case " $CXXFLAGS " in
     *\ -W\ *|*\ -Wextra\ *) ;;
     *) CXXFLAGS="$CXXFLAGS -W" ;;
+  esac
+  # Add -Wformat=2 -fstack-protector-strong if supported and CXXFLAGS
+  # was not set in configure cmdline (TODO: -Wformat-signedness)
+  case "${ac_test_CXXFLAGS+set}:$ac_test_CXXFLAGS" in
+    set:)
+      for option in "-Wformat=2" "-fstack-protector-strong"; do
+        AC_MSG_CHECKING([whether $CXX supports $option])
+        save_CXXFLAGS=$CXXFLAGS
+        CXXFLAGS="$CXXFLAGS $option"
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
+        AC_MSG_RESULT([$res])
+      done
+      ;;
   esac
 else
   # We are NOT using gcc, so enable host-specific compiler flags
