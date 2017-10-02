@@ -1321,14 +1321,13 @@ static bool WaitForPidFile()
 static void DaemonInit()
 {
 #ifndef _WIN32
-  pid_t pid;
-  int i;  
 
   // flush all buffered streams.  Else we might get two copies of open
   // streams since both parent and child get copies of the buffers.
   fflush(NULL);
 
   if (do_fork) {
+    pid_t pid;
     if ((pid=fork()) < 0) {
       // unable to fork!
       PrintOut(LOG_CRIT,"smartd unable to fork daemon process!\n");
@@ -1360,21 +1359,16 @@ static void DaemonInit()
   }
 
   // close any open file descriptors
-  for (i=getdtablesize();i>=0;--i)
+  for (int i = getdtablesize(); --i >= 0; )
     close(i);
   
-#define NO_warn_unused_result(cmd) { if (cmd) {} ; }
-
-  // redirect any IO attempts to /dev/null for stdin
-  i=open("/dev/null",O_RDWR);
-  if (i>=0) {
-    // stdout
-    NO_warn_unused_result(dup(i));
-    // stderr
-    NO_warn_unused_result(dup(i));
-  };
+  // redirect any IO attempts to /dev/null and change to root directory
+  int fd = open("/dev/null", O_RDWR);
+  if (!(fd == 0 && dup(fd) == 1 && dup(fd) == 2 && !chdir("/"))) {
+    PrintOut(LOG_CRIT, "smartd unable to redirect to /dev/null or to chdir to root!\n");
+    EXIT(EXIT_STARTUP);
+  }
   umask(0022);
-  NO_warn_unused_result(chdir("/"));
 
   if (do_fork)
     PrintOut(LOG_INFO, "smartd has fork()ed into background mode. New PID=%d.\n", (int)getpid());

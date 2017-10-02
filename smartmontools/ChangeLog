@@ -2,6 +2,8 @@ $Id$
 
 2017-10-02  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Add strict tests of /dev/null redirection and chdir("/").
+
 	configure.ac: Use '-fstack-protector' if '-strong' is not supported.
 
 2017-10-01  Christian Franke  <franke@computer.org>
