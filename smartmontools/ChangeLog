@@ -1,4 +1,8 @@
-$Id: ChangeLog 4503 2017-10-01 20:31:26Z chrfranke $
+$Id: ChangeLog 4504 2017-10-02 20:27:02Z chrfranke $
+
+2017-10-02  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use '-fstack-protector' if '-strong' is not supported.
 
 2017-10-01  Christian Franke  <franke@computer.org>
 

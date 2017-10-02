@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4503 2017-10-01 20:31:26Z chrfranke $
+# $Id: configure.ac 4504 2017-10-02 20:27:02Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@listi.jpberlin.de)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4503 2017-10-01 20:31:26Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4504 2017-10-02 20:27:02Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -624,11 +624,12 @@ if test "$GXX" = "yes"; then
     *\ -W\ *|*\ -Wextra\ *) ;;
     *) CXXFLAGS="$CXXFLAGS -W" ;;
   esac
-  # Add -Wformat=2 -fstack-protector-strong if supported and CXXFLAGS
-  # was not set in configure cmdline (TODO: -Wformat-signedness)
+  # Add -Wformat=2 (GCC 3.0) -fstack-protector[-strong] (GCC 4.1[4.9]) if supported
+  # and CXXFLAGS was not set in configure cmdline (TODO: -Wformat-signedness)
   case "${ac_test_CXXFLAGS+set}:$ac_test_CXXFLAGS" in
     set:)
-      for option in "-Wformat=2" "-fstack-protector-strong"; do
+      for option in "-Wformat=2" "-fstack-protector-strong" "-fstack-protector"; do
+        case " $CXXFLAGS:$option" in *\ -fstack-p*:-fstack-p*) continue ;; esac
         AC_MSG_CHECKING([whether $CXX supports $option])
         save_CXXFLAGS=$CXXFLAGS
         CXXFLAGS="$CXXFLAGS $option"
