@@ -624,11 +624,12 @@ if test "$GXX" = "yes"; then
     *\ -W\ *|*\ -Wextra\ *) ;;
     *) CXXFLAGS="$CXXFLAGS -W" ;;
   esac
-  # Add -Wformat=2 -fstack-protector-strong if supported and CXXFLAGS
-  # was not set in configure cmdline (TODO: -Wformat-signedness)
+  # Add -Wformat=2 (GCC 3.0) -fstack-protector[-strong] (GCC 4.1[4.9]) if supported
+  # and CXXFLAGS was not set in configure cmdline (TODO: -Wformat-signedness)
   case "${ac_test_CXXFLAGS+set}:$ac_test_CXXFLAGS" in
     set:)
-      for option in "-Wformat=2" "-fstack-protector-strong"; do
+      for option in "-Wformat=2" "-fstack-protector-strong" "-fstack-protector"; do
+        case " $CXXFLAGS:$option" in *\ -fstack-p*:-fstack-p*) continue ;; esac
         AC_MSG_CHECKING([whether $CXX supports $option])
         save_CXXFLAGS=$CXXFLAGS
         CXXFLAGS="$CXXFLAGS $option"

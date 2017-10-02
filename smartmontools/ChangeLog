@@ -1,5 +1,9 @@
 $Id$
 
+2017-10-02  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use '-fstack-protector' if '-strong' is not supported.
+
 2017-10-01  Christian Franke  <franke@computer.org>
 
 	configure.ac: Set default LDFLAGS for MinGW only if LDFLAGS is unset.
