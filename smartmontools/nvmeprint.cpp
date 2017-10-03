@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2016 Christian Franke
+ * Copyright (C) 2016-17 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -187,16 +187,21 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
        ((id_ctrl.frmw & 0x10) ? ", no Reset required" : ""));
 
   if (show_all || id_ctrl.oacs)
-    pout("Optional Admin Commands (0x%04x):  %s%s%s%s%s%s\n", id_ctrl.oacs,
+    pout("Optional Admin Commands (0x%04x):  %s%s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oacs,
          (!id_ctrl.oacs ? " -" : ""),
          ((id_ctrl.oacs & 0x0001) ? " Security" : ""),
          ((id_ctrl.oacs & 0x0002) ? " Format" : ""),
          ((id_ctrl.oacs & 0x0004) ? " Frmw_DL" : ""),
          ((id_ctrl.oacs & 0x0008) ? " NS_Mngmt" : ""),
-         ((id_ctrl.oacs & ~0x000f) ? " *Other*" : ""));
+         ((id_ctrl.oacs & 0x0010) ? " Self_Test" : ""), // NVMe 1.3 ...
+         ((id_ctrl.oacs & 0x0020) ? " Directvs" : ""),
+         ((id_ctrl.oacs & 0x0040) ? " MI_Snd/Rec" : ""),
+         ((id_ctrl.oacs & 0x0080) ? " Vrt_Mngmt" : ""),
+         ((id_ctrl.oacs & 0x0100) ? " Drbl_Bf_Cfg" : ""),
+         ((id_ctrl.oacs & ~0x01ff) ? " *Other*" : ""));
 
   if (show_all || id_ctrl.oncs)
-    pout("Optional NVM Commands (0x%04x):    %s%s%s%s%s%s%s%s\n", id_ctrl.oncs,
+    pout("Optional NVM Commands (0x%04x):    %s%s%s%s%s%s%s%s%s\n", id_ctrl.oncs,
          (!id_ctrl.oncs ? " -" : ""),
          ((id_ctrl.oncs & 0x0001) ? " Comp" : ""),
          ((id_ctrl.oncs & 0x0002) ? " Wr_Unc" : ""),
@@ -204,7 +209,8 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
          ((id_ctrl.oncs & 0x0008) ? " Wr_Zero" : ""),
          ((id_ctrl.oncs & 0x0010) ? " Sav/Sel_Feat" : ""),
          ((id_ctrl.oncs & 0x0020) ? " Resv" : ""),
-         ((id_ctrl.oncs & ~0x003f) ? " *Other*" : ""));
+         ((id_ctrl.oncs & 0x0040) ? " Timestmp" : ""), // NVMe 1.3
+         ((id_ctrl.oncs & ~0x007f) ? " *Other*" : ""));
 
   if (id_ctrl.mdts)
     pout("Maximum Data Transfer Size:         %u Pages\n", (1U << id_ctrl.mdts));
@@ -220,12 +226,13 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
 
   if (nsid && (show_all || id_ns.nsfeat)) {
     const char * align = &("  "[nsid < 10 ? 0 : (nsid < 100 ? 1 : 2)]);
-    pout("Namespace %u Features (0x%02x):     %s%s%s%s%s%s\n", nsid, id_ns.nsfeat, align,
+    pout("Namespace %u Features (0x%02x):     %s%s%s%s%s%s%s\n", nsid, id_ns.nsfeat, align,
          (!id_ns.nsfeat ? " -" : ""),
          ((id_ns.nsfeat & 0x01) ? " Thin_Prov" : ""),
          ((id_ns.nsfeat & 0x02) ? " NA_Fields" : ""),
          ((id_ns.nsfeat & 0x04) ? " Dea/Unw_Error" : ""),
-         ((id_ns.nsfeat & ~0x07) ? " *Other*" : ""));
+         ((id_ns.nsfeat & 0x08) ? " No_ID_Reuse" : ""), // NVMe 1.3
+         ((id_ns.nsfeat & ~0x0f) ? " *Other*" : ""));
   }
 
   // Print Power States
