@@ -3,6 +3,7 @@ $Id$
 2017-10-04  Alex Samorukov  <samm@os2.kiev.uq>
 
 	smartctl.8.in: update information about NVMe in Darwin and OS/2 support
+	smartd.cpp, utility.cpp: fix compiler warnings related to vprintf
 
 2017-10-03  Christian Franke  <franke@computer.org>
 

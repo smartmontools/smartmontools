@@ -1207,6 +1207,7 @@ static void reset_warning_mail(const dev_config & cfg, dev_state & state, int wh
 #ifndef _WIN32
 
 // Output multiple lines via separate syslog(3) calls.
+__attribute_format_printf(2, 0)
 static void vsyslog_lines(int priority, const char * fmt, va_list ap)
 {
   char buf[512+EBUFLEN]; // enough space for exec cmd output in MailWarning()
