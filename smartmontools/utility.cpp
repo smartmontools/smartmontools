@@ -52,7 +52,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4367 2017-01-01 10:30:44Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4509 2017-10-04 20:31:35Z samm2 $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -738,7 +738,7 @@ const char * format_capacity(char * str, int strsize, uint64_t val,
 }
 
 // return (v)sprintf() formatted std::string
-
+__attribute_format_printf(1, 0)
 std::string vstrprintf(const char * fmt, va_list ap)
 {
   char buf[512];

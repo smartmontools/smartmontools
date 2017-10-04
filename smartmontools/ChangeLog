@@ -1,8 +1,9 @@
-$Id: ChangeLog 4508 2017-10-04 18:52:42Z samm2 $
+$Id: ChangeLog 4509 2017-10-04 20:31:35Z samm2 $
 
 2017-10-04  Alex Samorukov  <samm@os2.kiev.uq>
 
 	smartctl.8.in: update information about NVMe in Darwin and OS/2 support
+	smartd.cpp, utility.cpp: fix compiler warnings related to vprintf
 
 2017-10-03  Christian Franke  <franke@computer.org>
 

@@ -100,7 +100,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4505 2017-10-02 20:42:31Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4509 2017-10-04 20:31:35Z samm2 $"
   CONFIG_H_CVSID;
 
 using namespace smartmontools;
@@ -1207,6 +1207,7 @@ static void reset_warning_mail(const dev_config & cfg, dev_state & state, int wh
 #ifndef _WIN32
 
 // Output multiple lines via separate syslog(3) calls.
+__attribute_format_printf(2, 0)
 static void vsyslog_lines(int priority, const char * fmt, va_list ap)
 {
   char buf[512+EBUFLEN]; // enough space for exec cmd output in MailWarning()
