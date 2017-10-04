@@ -99,7 +99,12 @@ Use the forms \fB"/dev/nvme[0\-9]"\fP (broadcast namespace) or
 Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or
 equivalently \fB/dev/rdisk[0\-9]\fP.
 Long forms are also available: please use \*(Aq\-h\*(Aq to see some examples.
-Note that there is currently no Darwin SCSI support.
+.Sp
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+There is NVMe support based on the undocumented SMART API in OSX. Currently only
+SMART and Controller information pages are supported.
+
+Note that Darwin SCSI support is not yet implemented.
 .Sp
 Use the OS X SAT SMART Driver to access SMART data on SAT capable USB and
 Firewire devices (see INSTALL file).
@@ -176,7 +181,9 @@ The prefix \fB"/dev/"\fP is optional.
 .\" %ENDIF OS Windows Cygwin
 .\" %IF OS OS2
 .IP \fBOS/2,eComStation\fP: 9
-Use the form \fB"/dev/hd[a\-z]"\fP for IDE/ATA devices.
+Use the form \fB"/dev/hd[a\-z]"\fP for ATA/SATA devices using DANIS506 driver.
+
+Use the form \fB"/dev/ahci[a\-z]"\fP for ATA/SATA devices using OS2AHCI driver.
 .\" %ENDIF OS OS2
 .PP
 if \*(Aq\-\*(Aq is specified as the device path, \fBsmartctl\fP reads and
