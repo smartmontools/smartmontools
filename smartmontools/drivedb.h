@@ -2817,7 +2817,8 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MQ01ABF(050|075|100)",
     "", "", ""
   },
-  { "Toshiba 2.5\" HDD MQ01UBB... (USB 3.0)", // tested with TOSHIBA MQ01UBB200/AY000U (0x0480:0xa100)
+  { "Toshiba 2.5\" HDD MQ01UBB... (USB 3.0)", // tested with TOSHIBA MQ01UBB200/AY000U (0x0480:0xa100),
+      // TOSHIBA MQ01UBB200/34MATMZ5T (0x05ac:0x8406)
     "TOSHIBA MQ01UBB200",
     "", "", ""
   },
@@ -3656,8 +3657,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Red", // tested with WDC WD10EFRX-68JCSN0/01.01A01,
       // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD40EFRX-68WT0N0/80.00A80,
-      // WDC WD60EFRX-68MYMN1/82.00A82, WDC WD80EFZX-68UW8N0/83.H0A83
-    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80EFZ)X-.*",
+      // WDC WD60EFRX-68MYMN1/82.00A82, WDC WD80EFAX-68LHPN0/83.H0A83,
+      // WDC WD80EFZX-68UW8N0/83.H0A83
+    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80EF[AZ])X-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD80EFZX
   },
@@ -3702,11 +3704,12 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD10TMVW-11ZSMS5/01.01A01,
       // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
       // WDC WD20NMVW-11AV3S3/01.01A01 (0x1058:0x0837),
+      // WDC WD20NMVW-11EDZS6/01.01A01 (0x1058-0x259f),
       // WDC WD20NMVW-11EDZS7/01.01A01 (0x1058:0x259d/25a1),
       // WDC WD20NMVW-11W68S0/01.01A01,
       // WDC WD20NMVW-59AV3S3/01.01A01 (0x1058:0x107d),
       // WDC WD30NMVW-11C3NS4/01.01A01,
-      // WDC WD40NMZW-11GX6S1/01.01A01 (0x1058:0x2599)
+      // WDC WD40NMZW-11GX6S1/01.01A01 (0x1058:0x2599/25e2/25fa)
     "WDC WD(5000[LK]|7500[BK]|10[JT]|[234]0N)M[VZ][VW]-.*", // *W-* = USB 3.0
     "", "", ""
   },
@@ -3865,12 +3868,6 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Toshiba Canvio 3.0 Portable Hard Drive; ", // TOSHIBA MQ01UBD050
-    "0x0480:0xa007",
-    "", // 0x0001
-    "",
-    "-d sat"
-  },
   { "USB: Toshiba Stor.E; ",
     "0x0480:0xa00[9ace]",
     "", // 0x0000 (0xa00e)
@@ -3878,8 +3875,10 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Toshiba Canvio; ",
-    "0x0480:0xa(100|20[0c])", // 0xa100: TOSHIBA MQ01UBB200, 0xa200: TOSHIBA MQ01UBD100,
-    "",  // 0xa20c: TOSHIBA MQ01ABB200
+    "0x0480:0x(a(007|100|20[0c])|" // 0xa007 TOSHIBA MQ01UBD050,
+              "b207)", // 0xa100: TOSHIBA MQ01UBB200, 0xa200: TOSHIBA MQ01UBD100,
+        // 0xa20c: TOSHIBA MQ01ABB200, 0xb207: TOSHIBA MQ03UBB200
+    "", // 0x0001 (0xa007)
     "",
     "-d sat"
   },
@@ -4156,6 +4155,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
+  // Apple
+  { "USB: Apple; ",
+    "0x05ac:0x8406", // TOSHIBA MQ01UBB200
+    "",
+    "",
+    "-d sat"
+  },
   // Genesys Logic
   { "USB: ; Genesys Logic GL881E",
     "0x05e3:0x0702",
@@ -4349,8 +4355,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Expansion Portable; ",
-    "0x0bc2:0x23(00|12|20|21|22)",
-    "", // 12=0x0219, 22=0x0000
+    "0x0bc2:0x23(00|12|1a|20|21|22)",
+    "", // 12=0x0219, 1a=0x0707, 22=0x0000
     "",
     "-d sat"
   },
@@ -4430,6 +4436,12 @@ const drive_settings builtin_knowndrives[] = {
     // 0x6121: Seagate FreeAgent GoFlex Pro for Mac (0x0148)
     // 0x6126: Maxtor D3 Station 5TB (0x0209)
     "0x0bc2:0x612[16]",
+    "",
+    "",
+    "-d sat"
+  },
+  { "USB: Maxtor M3 Portable; ",
+    "0x0bc2:0x61b7", // Maxtor M3 Portable 4TB (0x0000)
     "",
     "",
     "-d sat"
@@ -4571,22 +4583,22 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: WD Elements / My Passport; ",
+  { "USB: WD Elements / My Passport; ", // 2.5" with integrated USB
     "0x1058:0x(07(0[245a]|1a|30|4[0128a]|a[8e])|"
               "08(1[06]|2[02]|3[37a])|"
               "10(10|23|4[28]|7d|a[28]|b8)|"
-              "25(9[9d]|a[12]))",
+              "25(9[9df]|a[12]|e2|fa))",
     "", // 0x0822=0x1007, 37=0x1072
         // 0x1010=0x0105, 7d=0x1073, a8=0x1042, b8=0x1007
-        // 0x2599=0x1012, 9d/a1=0x1005, a2=0x1004
+        // 0x2599=0x1012, 9d/a1=0x1005, 9f/a2=0x1004
     "",
     "-d sat"
   },
-  { "USB: WD My Book; ",
-    "0x1058:0x(09(0[06]|10)|11(0[01245]|1[0d]|30|40)|25a3)",
+  { "USB: WD My Book / Easystore; ", // 3.5"
+    "0x1058:0x(09(0[06]|10)|11(0[01245]|1[0d]|30|40)|1230|25(a3|fb))",
     "", // 0x0906=0x0012, 10=0x0106
         // 0x1100/01=0x0165, 02=0x1028, 10=0x1030, 1d=0x1020, 30=0x1012, 40=0x1003
-        // 0x25a3=0x1013
+        // 0x1230=0x1065, 0x25a3=0x1013, 0x25fb=0x3004
     "",
     "-d sat"
   },
@@ -4710,6 +4722,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0205, 2.05, Mediasonic ProBox HF2-SU3S2 Rev 3 (port multiplier, ticket #504)
     "-d sat"
   },
+  { "USB: ; JMicron JMS578", // USB->SATA
+    "0x152d:0x0578",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
     "0x152d:0x0602",
     "",
@@ -4794,9 +4812,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: ; JMicron JMS578", // USB->SATA
-    "0x152d:0x0578",
-    "", // 0x0100
+  { "USB: ; JMicron JMS561U", // USB3->2xSATA
+    "0x152d:0x8561",
+    "", // 0x0107
     "",
     "-d sat"
   },
@@ -4930,10 +4948,10 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; Innostor IS888", // USB3->SATA
-    "0x1f75:0x0888", // Sharkoon SATA QuickDeck Pro USB 3.0
-    "", // 0x0034
-    "",
-    "" // unsupported
+    "0x1f75:0x0888",
+    "", // 0x0034, Sharkoon SATA QuickDeck Pro USB 3.0 (unsupported)
+    "", // 0x0036, works with -d sat (ticket #827)
+    "-d sat"
   },
   // VIA Labs
   { "USB: ; VIA VL701", // USB2/3->SATA
