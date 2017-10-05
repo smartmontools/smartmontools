@@ -1,5 +1,9 @@
 $Id$
 
+2017-10-05  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add StorFly CFast SATA 6Gbps SSDs (#911)
+
 2017-10-05  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
@@ -16,7 +20,7 @@ $Id$
 	- USB: JMicron JMS561U (0x152d:0x8561) (ticket #860)
 	- USB: Innostor IS888 (0x1f75:0x0888): -d sat works (ticket #827)
 
-2017-10-04  Alex Samorukov  <samm@os2.kiev.uq>
+2017-10-04  Alex Samorukov  <samm@os2.kiev.ua>
 
 	smartctl.8.in: update information about NVMe in Darwin and OS/2 support
 	smartd.cpp, utility.cpp: fix compiler warnings related to vprintf
