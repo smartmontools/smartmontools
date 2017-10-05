@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4511 2017-10-05 19:58:15Z chrfranke $",
+  { "$Id: drivedb.h 4512 2017-10-05 20:02:08Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -495,6 +495,22 @@ const drive_settings builtin_knowndrives[] = {
     "-v 235,raw48,SuperCap_Health "
     "-v 241,raw48,Lifetime_Writes_GiB "
     "-v 242,raw48,Lifetime_Reads_GiB"
+  },
+  {
+    "StorFly CFast SATA 6Gbps SSDs",
+    // http://datasheet.octopart.com/VSFCS2CC060G-100-Virtium-datasheet-82287733.pdf
+    // tested with StorFly VSFCS2CC060G-100/0409-000
+    "StorFly VSFCS2C[CI](016|030|060|120|240)G-...",
+    // C - commercial, I industrial
+    "", "",
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Spares_Remaining_Perc "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB"
+    "-v 169,raw48,Lifetime_Remaining% "
+    "-v 248,raw48,Lifetime_Remaining% "
+    "-v 161,raw48,Spares_Remaining_Perc "
   },
   { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
