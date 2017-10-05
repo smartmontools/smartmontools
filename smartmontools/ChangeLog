@@ -1,5 +1,21 @@
 $Id$
 
+2017-10-05  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital Red: WD80EFAX (tickets #857, #899)
+	- USB: Toshiba Canvio (0x0480:0xb207)
+	- USB: Apple/TOSHIBA MQ01UBB200 (0x05ac:0x8406)
+	- USB: Seagate Expansion Portable 2TB (0x0bc2:0x231a)
+	- USB: Maxtor M3 Portable 4TB (0x0bc2:0x61b7) (ticket #875)
+	- USB: WD Elements / My Passport (0x1058:0x259f) (ticket #833)
+	- USB: WD Elements / My Passport (0x1058:0x25e2)
+	- USB: WD Elements / My Passport (0x1058:0x25fa) (ticket #840)
+	- USB: WD My Book / Easystore (0x1058:0x1230) (ticket #835)
+	- USB: WD My Book / Easystore (0x1058:0x25fb) (tickets #857, #899)
+	- USB: JMicron JMS561U (0x152d:0x8561) (ticket #860)
+	- USB: Innostor IS888 (0x1f75:0x0888): -d sat works (ticket #827)
+
 2017-10-04  Alex Samorukov  <samm@os2.kiev.uq>
 
 	smartctl.8.in: update information about NVMe in Darwin and OS/2 support
