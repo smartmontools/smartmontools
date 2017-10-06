@@ -505,12 +505,13 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 160,raw48,Uncorrectable_Error_Cnt "
-    "-v 161,raw48,Spares_Remaining_Perc "
+    // 0729 - remaining in block life. In 0828  remaining is normalized to 100% then decreases
+    "-v 161,raw48,Spares_Remaining " 
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB"
     "-v 169,raw48,Lifetime_Remaining% "
-    "-v 248,raw48,Lifetime_Remaining% "
-    "-v 161,raw48,Spares_Remaining_Perc "
+    "-v 248,raw48,Lifetime_Remaining% " //  later then 0409 FW.
+    "-v 249,raw48,Spares_Remaining_Perc " //  later then 0409 FW.
   },
   { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
