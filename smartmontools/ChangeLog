@@ -1,8 +1,9 @@
-$Id: ChangeLog 4515 2017-10-06 19:10:03Z chrfranke $
+$Id: ChangeLog 4516 2017-10-06 19:24:36Z chrfranke $
 
 2017-10-06  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- SMART Modular Technologies mSATA XL+ SSDs (patch from ticket #802)
 	- StorFly CFast SATA: Add missing space.
 	- Fix regexp from tickets #882, #885.
 
