@@ -508,7 +508,7 @@ const drive_settings builtin_knowndrives[] = {
     // 0729 - remaining in block life. In 0828  remaining is normalized to 100% then decreases
     "-v 161,raw48,Spares_Remaining " 
     "-v 241,raw48,Host_Writes_32MiB "
-    "-v 242,raw48,Host_Reads_32MiB"
+    "-v 242,raw48,Host_Reads_32MiB "
     "-v 169,raw48,Lifetime_Remaining% "
     "-v 248,raw48,Lifetime_Remaining% " //  later then 0409 FW.
     "-v 249,raw48,Spares_Remaining_Perc " //  later then 0409 FW.
@@ -2675,13 +2675,14 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HDS722020ALA330",
     "", "", ""
   },
-  // Hitachi HDS723030BLE640
-  { "Hitachi Deskstar 7K3000", // tested with HDS723030ALA640/MKAOA3B0
+  { "Hitachi Deskstar 7K3000", // tested with Hitachi HDS723030ALA640/MKAOA3B0,
+      // Hitachi HDS723030BLE640/MX6OAAB0
     "Hitachi HDS7230((15|20)BLA642|30ALA640|30BLE640)",
     "", "", ""
   },
-  { "Hitachi/HGST Deskstar 7K4000", // tested with Hitachi HDS724040ALE640/MJAOA250
-    "(Hitachi )?HDS724040ALE640",
+  { "Hitachi/HGST Deskstar 7K4000", // tested with Hitachi HDS724040ALE640/MJAOA250,
+      // HGST HDS724040ALE640/MJAOA580
+    "(Hitachi|HGST) HDS724040ALE640",
     "", "", ""
   },
   { "HGST Deskstar NAS", // tested with HGST HDN724040ALE640/MJAOA5E0,
@@ -3260,7 +3261,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1
-    "ST(100|500|2000)LM0(15|48|30)",
+    "ST(100|500|2000)LM0(15|48|30)-.*",
     "", "", ""
   },
   { "Seagate Barracuda ES.2", // fixed firmware

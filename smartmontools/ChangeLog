@@ -1,5 +1,11 @@
 $Id$
 
+2017-10-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- StorFly CFast SATA: Add missing space.
+	- Fix regexp from tickets #882, #885.
+
 2017-10-05  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: add StorFly CFast SATA 6Gbps SSDs (#911)
