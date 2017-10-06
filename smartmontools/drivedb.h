@@ -496,6 +496,23 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Lifetime_Writes_GiB "
     "-v 242,raw48,Lifetime_Reads_GiB"
   },
+  {
+    "StorFly CFast SATA 6Gbps SSDs",
+    // http://datasheet.octopart.com/VSFCS2CC060G-100-Virtium-datasheet-82287733.pdf
+    // tested with StorFly VSFCS2CC060G-100/0409-000
+    "StorFly VSFCS2C[CI](016|030|060|120|240)G-...",
+    // C - commercial, I industrial
+    "", "",
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    // 0729 - remaining in block life. In 0828  remaining is normalized to 100% then decreases
+    "-v 161,raw48,Spares_Remaining " 
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 169,raw48,Lifetime_Remaining% "
+    "-v 248,raw48,Lifetime_Remaining% " //  later then 0409 FW.
+    "-v 249,raw48,Spares_Remaining_Perc " //  later then 0409 FW.
+  },
   { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
@@ -1546,6 +1563,39 @@ const drive_settings builtin_knowndrives[] = {
     "-v 245,raw48,TLC_Writes_32MiB " // FW N0815B, N1114H
     "-v 246,raw48,SLC_Writes_32MiB "
     "-v 247,raw48,Raid_Recoverty_Ct"
+  },
+  { "SMART Modular Technologies mSATA XL+ SLC SSDs", // tested with SH9MST6D16GJSI01
+    "SH9MST6D[0-9]*GJSI?[0-9]*", // based on http://www.smartm.com/salesLiterature/embedded/mSATA_overview.pdf
+    "", "", // attributes info from http://www.mouser.com/ds/2/723/smartmodular_09302015_SH9MST6DxxxGJSxxx_rA[1]-770719.pdf
+    "-v 1,raw48,Uncorrectable_ECC_Cnt "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 9,raw48,Power_On_Hours " // override default raw24(raw8) format
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 14,raw48,Device_Capacity_LBAs "
+    "-v 15,raw48,User_Capacity_LBAs " // spec DecID is wrong, HexID is right
+    "-v 16,raw48,Init_Spare_Blocks_Avail " // spec DecID is wrong, HexID is right
+    "-v 17,raw48,Spare_Blocks_Remaining " // spec DecID is wrong, HexID is right
+    "-v 100,raw48,Total_Erase_Count "
+    "-v 168,raw48,SATA_PHY_Err_Ct "
+    "-v 170,raw48,Initial_Bad_Block_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Max_Erase_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 175,raw48,Average_Erase_Count "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 197,raw48,Not_In_Use "
+    "-v 198,raw48,Not_In_Use "
+    "-v 199,raw48,SATA_CRC_Error_Count "
+    "-v 202,raw48,Perc_Rated_Life_Used "
+    "-v 231,raw48,Perc_Rated_Life_Remain "
+    "-v 232,raw48,Read_Fail_Count "
+    "-v 234,raw48,Flash_Reads_LBAs "
+    "-v 235,raw48,Flash_Writes_LBAs "
+    "-v 241,raw48,Host_Writes_LBAs "
+    "-v 242,raw48,Host_Reads_LBAs"
+    //  247-248 Missing in specification from April 2015
   },
   { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
     "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
@@ -2658,13 +2708,14 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HDS722020ALA330",
     "", "", ""
   },
-  // Hitachi HDS723030BLE640
-  { "Hitachi Deskstar 7K3000", // tested with HDS723030ALA640/MKAOA3B0
+  { "Hitachi Deskstar 7K3000", // tested with Hitachi HDS723030ALA640/MKAOA3B0,
+      // Hitachi HDS723030BLE640/MX6OAAB0
     "Hitachi HDS7230((15|20)BLA642|30ALA640|30BLE640)",
     "", "", ""
   },
-  { "Hitachi/HGST Deskstar 7K4000", // tested with Hitachi HDS724040ALE640/MJAOA250
-    "(Hitachi )?HDS724040ALE640",
+  { "Hitachi/HGST Deskstar 7K4000", // tested with Hitachi HDS724040ALE640/MJAOA250,
+      // HGST HDS724040ALE640/MJAOA580
+    "(Hitachi|HGST) HDS724040ALE640",
     "", "", ""
   },
   { "HGST Deskstar NAS", // tested with HGST HDN724040ALE640/MJAOA5E0,
@@ -3243,7 +3294,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1
-    "ST(100|500|2000)LM0(15|48|30)",
+    "ST(100|500|2000)LM0(15|48|30)-.*",
     "", "", ""
   },
   { "Seagate Barracuda ES.2", // fixed firmware
