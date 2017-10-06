@@ -1564,6 +1564,39 @@ const drive_settings builtin_knowndrives[] = {
     "-v 246,raw48,SLC_Writes_32MiB "
     "-v 247,raw48,Raid_Recoverty_Ct"
   },
+  { "SMART Modular Technologies mSATA XL+ SLC SSDs", // tested with SH9MST6D16GJSI01
+    "SH9MST6D[0-9]*GJSI?[0-9]*", // based on http://www.smartm.com/salesLiterature/embedded/mSATA_overview.pdf
+    "", "", // attributes info from http://www.mouser.com/ds/2/723/smartmodular_09302015_SH9MST6DxxxGJSxxx_rA[1]-770719.pdf
+    "-v 1,raw48,Uncorrectable_ECC_Cnt "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 9,raw48,Power_On_Hours " // override default raw24(raw8) format
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 14,raw48,Device_Capacity_LBAs "
+    "-v 15,raw48,User_Capacity_LBAs " // spec DecID is wrong, HexID is right
+    "-v 16,raw48,Init_Spare_Blocks_Avail " // spec DecID is wrong, HexID is right
+    "-v 17,raw48,Spare_Blocks_Remaining " // spec DecID is wrong, HexID is right
+    "-v 100,raw48,Total_Erase_Count "
+    "-v 168,raw48,SATA_PHY_Err_Ct "
+    "-v 170,raw48,Initial_Bad_Block_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Max_Erase_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 175,raw48,Average_Erase_Count "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 197,raw48,Not_In_Use "
+    "-v 198,raw48,Not_In_Use "
+    "-v 199,raw48,SATA_CRC_Error_Count "
+    "-v 202,raw48,Perc_Rated_Life_Used "
+    "-v 231,raw48,Perc_Rated_Life_Remain "
+    "-v 232,raw48,Read_Fail_Count "
+    "-v 234,raw48,Flash_Reads_LBAs "
+    "-v 235,raw48,Flash_Writes_LBAs "
+    "-v 241,raw48,Host_Writes_LBAs "
+    "-v 242,raw48,Host_Reads_LBAs"
+    //  247-248 Missing in specification from April 2015
+  },
   { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
     "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
     "",
