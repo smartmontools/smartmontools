@@ -1,4 +1,10 @@
-$Id: ChangeLog 4512 2017-10-05 20:02:08Z samm2 $
+$Id: ChangeLog 4515 2017-10-06 19:10:03Z chrfranke $
+
+2017-10-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- StorFly CFast SATA: Add missing space.
+	- Fix regexp from tickets #882, #885.
 
 2017-10-05  Alex Samorukov  <samm@os2.kiev.ua>
 
