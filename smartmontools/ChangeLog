@@ -2,6 +2,9 @@ $Id$
 
 2017-10-06  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Add PDF man page formatting.
+	os_win32/installer.nsi: Add PDF man pages, remove TXT man pages.
+
 	drivedb.h:
 	- SMART Modular Technologies mSATA XL+ SSDs (patch from ticket #802)
 	- StorFly CFast SATA: Add missing space.

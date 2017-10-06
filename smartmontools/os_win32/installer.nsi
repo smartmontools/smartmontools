@@ -3,7 +3,7 @@
 ;
 ; Home page of code is: http://www.smartmontools.org
 ;
-; Copyright (C) 2006-16 Christian Franke
+; Copyright (C) 2006-17 Christian Franke
 ;
 ; This program is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -210,12 +210,15 @@ Section "!Documentation" DOC_SECTION
   File "${INPDIR}\doc\checksums??.txt"
 !endif
   File "${INPDIR}\doc\smartctl.8.html"
-  File "${INPDIR}\doc\smartctl.8.txt"
+  File "${INPDIR}\doc\smartctl.8.pdf"
+  Delete "$INSTDIR\doc\smartctl.8.txt" ; TODO: Remove after smartmontools 6.6
   File "${INPDIR}\doc\smartd.8.html"
-  File "${INPDIR}\doc\smartd.8.txt"
+  File "${INPDIR}\doc\smartd.8.pdf"
+  Delete "$INSTDIR\doc\smartd.8.txt" ; TODO: Remove after smartmontools 6.6
   File "${INPDIR}\doc\smartd.conf"
   File "${INPDIR}\doc\smartd.conf.5.html"
-  File "${INPDIR}\doc\smartd.conf.5.txt"
+  File "${INPDIR}\doc\smartd.conf.5.pdf"
+  Delete "$INSTDIR\doc\smartd.conf.5.txt" ; TODO: Remove after smartmontools 6.6
 
 SectionEnd
 
@@ -326,9 +329,9 @@ Section "Start Menu Shortcuts" MENU_SECTION
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartctl manual page (html).lnk"    "$INSTDIR\doc\smartctl.8.html"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd manual page (html).lnk"      "$INSTDIR\doc\smartd.8.html"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd.conf manual page (html).lnk" "$INSTDIR\doc\smartd.conf.5.html"
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartctl manual page (txt).lnk"     "$INSTDIR\doc\smartctl.8.txt"
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd manual page (txt).lnk"       "$INSTDIR\doc\smartd.8.txt"
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd.conf manual page (txt).lnk"  "$INSTDIR\doc\smartd.conf.5.txt"
+    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartctl manual page (pdf).lnk"     "$INSTDIR\doc\smartctl.8.pdf"
+    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd manual page (pdf).lnk"       "$INSTDIR\doc\smartd.8.pdf"
+    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd.conf manual page (pdf).lnk"  "$INSTDIR\doc\smartd.conf.5.pdf"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartd.conf sample.lnk" "$EDITOR" '"$INSTDIR\doc\smartd.conf"'
     ${If} ${FileExists} "$INSTDIR\bin\drivedb.h"
       CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb.h (view).lnk" "$EDITOR" '"$INSTDIR\bin\drivedb.h"'
@@ -478,12 +481,15 @@ Section "Uninstall"
   Delete "$INSTDIR\doc\TODO.txt"
   Delete "$INSTDIR\doc\checksums*.txt"
   Delete "$INSTDIR\doc\smartctl.8.html"
-  Delete "$INSTDIR\doc\smartctl.8.txt"
+  Delete "$INSTDIR\doc\smartctl.8.pdf"
+  Delete "$INSTDIR\doc\smartctl.8.txt" ; TODO: Remove after smartmontools 6.6
   Delete "$INSTDIR\doc\smartd.8.html"
-  Delete "$INSTDIR\doc\smartd.8.txt"
+  Delete "$INSTDIR\doc\smartd.8.pdf"
+  Delete "$INSTDIR\doc\smartd.8.txt"  ; TODO: Remove after smartmontools 6.6
   Delete "$INSTDIR\doc\smartd.conf"
   Delete "$INSTDIR\doc\smartd.conf.5.html"
-  Delete "$INSTDIR\doc\smartd.conf.5.txt"
+  Delete "$INSTDIR\doc\smartd.conf.5.pdf"
+  Delete "$INSTDIR\doc\smartd.conf.5.txt" ; TODO: Remove after smartmontools 6.6
   Delete "$INSTDIR\uninst-smartmontools.exe"
 
   ; Remove shortcuts
