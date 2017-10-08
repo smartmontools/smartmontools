@@ -1,6 +1,12 @@
-$Id: ChangeLog 4519 2017-10-08 15:41:54Z chrfranke $
+$Id: ChangeLog 4520 2017-10-08 16:15:36Z chrfranke $
 
 2017-10-08  Christian Franke  <franke@computer.org>
+
+	configure.ac: Check for compiler option to accept C++11.
+	If none found, print warning and ask user to provide info.
+	Add '--with-cxx11-option' to suppress this warning.
+	This is intended to check whether C++11 could be used in some
+	future smartmontools release.  The current build is not affected.
 
 	configure.ac, Makefile.am: Add Windows VERSIONINFO resource also to
 	runcmd*.exe and wtssendmsg.exe.  Include application manifests if
