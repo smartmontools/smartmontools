@@ -477,6 +477,49 @@ case "$host" in
     ;;
 esac
 
+AC_ARG_WITH(cxx11-option,
+  [AS_HELP_STRING([--with-cxx11-option@<:@=OPTION|auto|no@:>@],
+    [Compiler option to enable C++11 support for future versions of smartmontools, 'no' if unsupported [auto]])],
+  [], [with_cxx11_option=auto])
+
+check_cxx11_support()
+{
+  save_CXXFLAGS=$CXXFLAGS
+  CXXFLAGS=$1
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #if __cplusplus < 201103L
+      #error false
+      #endif
+      // use some C++11 features (and return v * 42 :-)
+      auto cxx11(long v) noexcept -> decltype(v) {
+        typedef decltype(v) t; t r = v;
+        static const t a[] = { -7, -1, 1, 2, 3 };
+        static_assert(sizeof(r) == sizeof(a[0]), "fail");
+        auto f = [](t x, t y){ return x * y; };
+        for (const auto & e : a) r = f(r, e);
+        return r;
+      }]])],
+    [CXXFLAGS=$save_CXXFLAGS; return 0], [CXXFLAGS=$save_CXXFLAGS; return 1])
+}
+
+case "$with_cxx11_option" in
+  no) ;;
+  auto)
+    AC_MSG_CHECKING([for $CXX option to accept C++11])
+    with_cxx11_option=unknown
+    for option in "" "-std=gnu++11" "-std=gnu++0x" "-std=c++11" "-std=c++0x"; do
+      if check_cxx11_support "$option"; then with_cxx11_option=$option; break; fi
+    done
+    AC_MSG_RESULT([${with_cxx11_option:-none needed}])
+    ;;
+  *)
+    AC_MSG_CHECKING([whether $CXX $with_cxx11_option supports C++11])
+    res=no; check_cxx11_support "$with_cxx11_option" && res=yes
+    AC_MSG_RESULT([$res])
+    test "$res" = "yes" || AC_MSG_ERROR([$CXX $with_cxx11_option does support C++11])
+    ;;
+esac
+
 
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
@@ -791,7 +834,8 @@ This version of smartmontools provides NVMe support which is still
 EXPERIMENTAL.  NVMe devices are not yet included in smartd.conf
 'DEVICESCAN' and 'smartctl --scan' unless '-d nvme' is specified.
 Use option '--with-nvme-devicescan' to include NVMe devices.
-Use option '--without-nvme-devicescan' to suppress this warning.])
+Use option '--without-nvme-devicescan' to suppress this warning.
+])
     ;;
 esac
 
@@ -803,6 +847,24 @@ Legacy ATA support is no longer enabled by default on Solaris SPARC.
 The required source file 'os_solaris_ata.s' is no longer included in
 the source tarball but still available in the SVN repository.
 Use option '--with-solaris-sparc-ata' to enable legacy ATA support.
-Use option '--without-solaris-sparc-ata' to suppress this warning.])
+Use option '--without-solaris-sparc-ata' to suppress this warning.
+])
+    ;;
+esac
+
+# TODO: Turn to AC_MSG_ERROR after smartmontools 6.6
+case "$with_cxx11_option" in
+  unknown)
+    AC_MSG_WARN([
+This version of smartmontools does not use C++11 features, but future
+versions possibly will.
+This script was unable to determine a compiler option to enable C++11.
+Use option '--with-cxx11-option=OPTION' to specify the compiler option
+(it will be checked, but not used in the actual build).
+Use option '--without-cxx11-option' to suppress this warning if the
+compiler lacks C++11 support.
+In both cases, please send info about compiler and platform to
+$PACKAGE_BUGREPORT - Thanks!
+])
     ;;
 esac

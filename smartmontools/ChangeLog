@@ -2,6 +2,12 @@ $Id$
 
 2017-10-08  Christian Franke  <franke@computer.org>
 
+	configure.ac: Check for compiler option to accept C++11.
+	If none found, print warning and ask user to provide info.
+	Add '--with-cxx11-option' to suppress this warning.
+	This is intended to check whether C++11 could be used in some
+	future smartmontools release.  The current build is not affected.
+
 	configure.ac, Makefile.am: Add Windows VERSIONINFO resource also to
 	runcmd*.exe and wtssendmsg.exe.  Include application manifests if
 	needed.  This also fixes manifests with older MinGW binutils which
