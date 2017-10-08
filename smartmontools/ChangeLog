@@ -1,8 +1,10 @@
-$Id: ChangeLog 4521 2017-10-08 18:34:41Z samm2 $
+$Id: ChangeLog 4522 2017-10-08 18:40:51Z samm2 $
 
 2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
 
-	drivedb.h: Add TOSHIBA MQ03UBB... series (#901)
+	drivedb.h: 
+	- Add TOSHIBA MQ03UBB... series (#901)
+	- extend TOSHIBA THNSF regexp (#790)
 
 2017-10-08  Christian Franke  <franke@computer.org>
 
