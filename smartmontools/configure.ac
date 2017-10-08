@@ -1,12 +1,12 @@
 #
-# $Id: configure.ac 4504 2017-10-02 20:27:02Z chrfranke $
+# $Id: configure.ac 4519 2017-10-08 15:41:54Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.6, smartmontools-support@listi.jpberlin.de)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4504 2017-10-02 20:27:02Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4519 2017-10-08 15:41:54Z chrfranke $'`
 smartmontools_release_date=2016-05-07
 smartmontools_release_time="11:17:46 UTC"
 
@@ -473,7 +473,7 @@ case "$host" in
         fi],
       [AC_MSG_ERROR([test compile failed])])
     AC_MSG_RESULT([$cc_adds_manifest])
-    test "$cc_adds_manifest" = "yes" || os_win32_manifest='default.manifest.o'
+    test "$cc_adds_manifest" = "yes" || os_win32_manifest='os_win32/default.manifest'
     ;;
 esac
 
