@@ -1,5 +1,9 @@
 $Id$
 
+2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: Add TOSHIBA MQ03UBB... series (#901)
+
 2017-10-08  Christian Franke  <franke@computer.org>
 
 	configure.ac: Check for compiler option to accept C++11.

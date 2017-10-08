@@ -2884,6 +2884,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MQ03ABB[23]00",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD MQ03UBB...", // tested with TOSHIBA MQ03UBB200/37I7T0NJT
+    "TOSHIBA MQ03UBB(300|200|250)",
+    "", "", ""
+  },
   { "Toshiba 3.5\" HDD MK.002TSKB", // tested with TOSHIBA MK1002TSKB/MT1A
     "TOSHIBA MK(10|20)02TSKB",
     "", "", ""
