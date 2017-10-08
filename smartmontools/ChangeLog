@@ -2,7 +2,9 @@ $Id$
 
 2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
 
-	drivedb.h: Add TOSHIBA MQ03UBB... series (#901)
+	drivedb.h: 
+	- Add TOSHIBA MQ03UBB... series (#901)
+	- extend TOSHIBA THNSF regexp (#790)
 
 2017-10-08  Christian Franke  <franke@computer.org>
 
