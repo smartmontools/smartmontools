@@ -1,5 +1,13 @@
 $Id$
 
+2017-10-08  Christian Franke  <franke@computer.org>
+
+	configure.ac, Makefile.am: Add Windows VERSIONINFO resource also to
+	runcmd*.exe and wtssendmsg.exe.  Include application manifests if
+	needed.  This also fixes manifests with older MinGW binutils which
+	do not support more than one resource objects.
+	os_win32/smart*_res.rc.in: Replace by os_win32/versioninfo.rc.in.
+
 2017-10-06  Christian Franke  <franke@computer.org>
 
 	Makefile.am: Add PDF man page formatting.

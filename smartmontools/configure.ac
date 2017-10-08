@@ -473,7 +473,7 @@ case "$host" in
         fi],
       [AC_MSG_ERROR([test compile failed])])
     AC_MSG_RESULT([$cc_adds_manifest])
-    test "$cc_adds_manifest" = "yes" || os_win32_manifest='default.manifest.o'
+    test "$cc_adds_manifest" = "yes" || os_win32_manifest='os_win32/default.manifest'
     ;;
 esac
 

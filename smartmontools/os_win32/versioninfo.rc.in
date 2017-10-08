@@ -1,5 +1,5 @@
 //
-// os_win32/smartctl_res.rc.in
+// os_win32/versioninfo.rc.in
 //
 // $Id$
 //
@@ -18,11 +18,11 @@ BEGIN
         BLOCK "04090000"
         BEGIN
             VALUE "CompanyName", "www.smartmontools.org"
-            VALUE "FileDescription", "Control and Monitor Utility for SMART Disks"
+            VALUE "FileDescription", "@DESC@"
             VALUE "FileVersion", "@TEXT_VERSION@"
-            VALUE "InternalName", "smartctl"
+            VALUE "InternalName", "@NAME@"
             VALUE "LegalCopyright", "(C) 2002-@YY@, Bruce Allen, Christian Franke, www.smartmontools.org"
-            VALUE "OriginalFilename", "smartctl.exe"
+            VALUE "OriginalFilename", "@NAME@.exe"
             VALUE "ProductName", "smartmontools"
             VALUE "ProductVersion", "@TEXT_VERSION@"
         END
