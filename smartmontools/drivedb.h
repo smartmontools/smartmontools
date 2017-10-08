@@ -2936,7 +2936,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Toshiba HG6 Series SSD", // TOSHIBA THNSNJ512GCST/JTRA0102
     // http://www.farnell.com/datasheets/1852757.pdf
     // TOSHIBA THNSFJ256GCSU/JULA1102
-    // TOSHIBA THNSFJ256GDNU A
+    // TOSHIBA THNSFJ256GDNU A/JYLA1102
     "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN][TU].*",
     "", "", 
     "-v 167,raw48,SSD_Protect_Mode "
@@ -3367,6 +3367,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Enterprise Capacity 3.5 HDD", // tested with ST6000NM0024-1HT17Z/SN02,
       // ST10000NM0016-1TT101/SNB0
       // ST4000NM0085-1YY107/ZC11SXPH
+      // ST8000NM0045-1RL112/NN02
     "ST([24568]|10)000NM0[01][1248][456]-.*", // *[069]4 = 4Kn
     "", "", 
     "-v 188,raw16 -v 240,msec24hour32"
