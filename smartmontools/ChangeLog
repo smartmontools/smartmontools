@@ -1,4 +1,4 @@
-$Id: ChangeLog 4546 2017-10-09 22:38:00Z samm2 $
+$Id: ChangeLog 4547 2017-10-09 22:46:51Z samm2 $
 
 2017-10-09  Alex Samorukov <samm@os2.kiev.ua>
 
@@ -12,6 +12,7 @@ $Id: ChangeLog 4546 2017-10-09 22:38:00Z samm2 $
 	- Add Seagate IronWolf HDD  series (#760)
 	- Fix attribute 183 for the Seagate Barracuda 2.5 5400 HDD (#816)
 	- Added Mushkin Triactor series (#905)
+	- Extend Samsung PM830 regexp (#897) 
 
 2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
 
