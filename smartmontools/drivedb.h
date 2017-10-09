@@ -2884,6 +2884,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MQ03ABB[23]00",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD MQ03UBB...", // tested with TOSHIBA MQ03UBB200/37I7T0NJT
+    "TOSHIBA MQ03UBB(300|200|250)",
+    "", "", ""
+  },
   { "Toshiba 3.5\" HDD MK.002TSKB", // tested with TOSHIBA MK1002TSKB/MT1A
     "TOSHIBA MK(10|20)02TSKB",
     "", "", ""
@@ -2932,7 +2936,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Toshiba HG6 Series SSD", // TOSHIBA THNSNJ512GCST/JTRA0102
     // http://www.farnell.com/datasheets/1852757.pdf
     // TOSHIBA THNSFJ256GCSU/JULA1102
-    "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN][TU]",
+    // TOSHIBA THNSFJ256GDNU A/JYLA1102
+    "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN][TU].*",
     "", "", 
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Error_Count "
@@ -3195,7 +3200,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45,
       // ST3500413AS/JC4B, ST3750525AS/JC4B
-    "ST3(160318|25031[128]|320418|50041[038]|750(518|52[358])|100052[348])AS",
+      // ST3160316AS/JC45
+      // Possible options: ST31000524AS, ST3500413AS, ST3250312AS ,
+      // ST3750525AS, ST3320413AS, ST3160316AS
+    "ST3(160318|25031[128]|320418|50041[038]|750(518|52[358])|100052[348]|320413|160316)AS",
     "", "", ""
   },
   { "Seagate Barracuda XT", // tested with ST32000641AS/CC13,
@@ -3239,6 +3247,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // should be ST4000DM005, ST3000DM008,ST3000DM009,ST2000DM006,ST2000DM007
   // ST1000DM010, ST500DM009
+  // tested: ST3000DM008-2DM166/CC26
   { "Seagate Barracuda 3.5", // tested on ST1000DM010-2EP102/Z9ACZM97
     "ST(4000DM00[45]|3000DM008|3000DM009|2000DM006|2000DM007|1000DM010|500DM009)-.*",
     "", "",
@@ -3293,8 +3302,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
     "", "", ""
   },
+  // ST5000LM000, ST4000LM024, ST3000LM024, ST2000LM015, ST1000LM048, ST500LM030
   { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1
-    "ST(100|500|2000)LM0(15|48|30)-.*",
+    "ST(5000LM000|[34]000LM024|2000LM015|1000LM048|500LM030)-.*",
     "", "", ""
   },
   { "Seagate Barracuda ES.2", // fixed firmware
@@ -3359,17 +3369,33 @@ const drive_settings builtin_knowndrives[] = {
     "MM1000GBKAL", // HP OEM
     "", "", ""
   },
+  // ST6000NM0004, ST6000NM0024, ST6000NM0044, ST6000NM0084, ST5000NM0024,
+  // ST5000NM0044, ST4000NM0024, ST4000NM0044, ST2000NM0024, ST2000NM0044
+  // ST4000NM0035, ST3000NM0005, ST2000NM0055, ST1000NM0055, ST4000NM0045,
+  // ST3000NM0015, ST2000NM0065, ST1000NM0065, ST4000NM0105, ST3000NM0055
   { "Seagate Enterprise Capacity 3.5 HDD", // tested with ST6000NM0024-1HT17Z/SN02,
       // ST10000NM0016-1TT101/SNB0
       // ST4000NM0085-1YY107/ZC11SXPH
-    "ST([24568]|10)000NM0[01][1248][456]-.*", // *[069]4 = 4Kn
+      // ST8000NM0045-1RL112/NN02
+      // ST6000NM0004-1FT17Z/NN01
+      // ST4000NM0035-1V4107/TNC3
+    "ST([24568]|10)000NM0[01][01248][456]-.*", // *[069]4 = 4Kn
     "", "", 
     "-v 188,raw16 -v 240,msec24hour32"
   },
+  // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
+  //             ST8000VN0012, ST6000VN0031, ST4000VN003
+  // tested with ST8000VN0002-1Z8112/ZA13YGNF
   { "Seagate NAS HDD", // tested with ST2000VN000-1H3164/SC42, ST3000VN000-1H4167/SC43
-    "ST[234]000VN000-.*",
+    "ST([234]000VN000|[468]000VN00(02|21|12|31|3))-.*",
     "", "", ""
   },
+  // ST10000VN0004, ST8000VN0022, ST6000VN0041, ST4000VN008, ST3000VN007,
+  // ST2000VN004, ST1000VN002
+  { "Seagate IronWolf", // tested with ST6000VN0041-2EL11C/SC61
+    "ST(10|8|6|4|3|2|1)000VN00(04|22|41|8|7|2|4)-.*",
+    "", "", ""
+  },  
   { "Seagate Archive HDD", // tested with ST8000AS0002-1NA17Z/AR13
     "ST[568]000AS00[01][12]-.*",
     "", "", ""
@@ -3410,9 +3436,12 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(250311|500410|1000525)SV",
     "", "", ""
   },
-  { "Seagate SV35", // tested with ST1000VX001-1HH162/CV11, ST2000VX000-9YW164/CV12,
-      // ST4000VX000-1F4168/CV14
-    "ST([1-4]000VX00[012]|31000526SV|3500411SV)(-.*)?",
+  // ST6000VX0001,ST6000VX0011,ST5000VX0001,ST5000VX0011,ST4000VX000
+  // ST4000VX002, ST3000VX002, ST2000VX003, ST1000VX001, ST1000VX002
+  // ST3000VX000, ST3000VX004, ST2000VX000, ST2000VX004, ST1000VX000
+  { "Seagate Surveillance", // tested with ST1000VX001-1HH162/CV11, ST2000VX000-9YW164/CV12,
+      // ST4000VX000-1F4168/CV14, ST2000VX003-1HH164/CV12
+    "ST([1-6]000VX00[01234]1?|31000526SV|3500411SV)(-.*)?",
     "", "", ""
   },
   { "Seagate DB35", // tested with ST3250823ACE/3.03, ST3300831SCE/3.03
