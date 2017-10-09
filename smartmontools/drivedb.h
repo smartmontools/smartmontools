@@ -3303,9 +3303,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   // ST5000LM000, ST4000LM024, ST3000LM024, ST2000LM015, ST1000LM048, ST500LM030
-  { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1
+  { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1, ST4000LM024-2AN17V/0001
     "ST(5000LM000|[34]000LM024|2000LM015|1000LM048|500LM030)-.*",
-    "", "", ""
+    "",
+    "",
+    "-v 183,raw48,SATA_Downshift_Count "
   },
   { "Seagate Barracuda ES.2", // fixed firmware
     "ST3(25031|50032|75033|100034)0NS",
