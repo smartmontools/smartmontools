@@ -41,7 +41,7 @@ references:
         mkdir ~/build && cd ~/build
         tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
         cd smartmontools-${SM_VER} && mkdir build && cd build
-        ../configure && make -j2
+        ../configure && make -j2 && make check
         mkdir inst && make DESTDIR="$(pwd)/inst" install
         (cd inst && tar czf "/artefacts/smartmontools-linux-${SM_VER}-r${SVNREV}.tar.gz" *)
         rm -rf ~/build
