@@ -28,7 +28,7 @@ references:
         svn --config-option 'config:miscellany:use-commit-times=yes' checkout
         https://svn.code.sf.net/p/smartmontools/code/tags/${rel}/smartmontools
         ~/smartmontools &&
-        svn cat https://svn.code.sf.net/p/smartmontools/code/branches/${CIRCLE_BRANCH#origin/}@`cat ~/SVNREV` >
+        svn cat https://svn.code.sf.net/p/smartmontools/code/branches/${CIRCLE_BRANCH#origin/}/smartmontools/drivedb.h@`cat ~/SVNREV` >
         ~/smartmontools/drivedb.h
 
   sm_distfile: &sm_distfile
