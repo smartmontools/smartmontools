@@ -1,4 +1,4 @@
-$Id: ChangeLog 4541 2017-10-09 20:49:14Z samm2 $
+$Id: ChangeLog 4542 2017-10-09 20:58:48Z samm2 $
 
 2017-10-09  Alex Samorukov <samm@os2.kiev.ua>
 
@@ -7,6 +7,8 @@ $Id: ChangeLog 4541 2017-10-09 20:49:14Z samm2 $
 	- Extend Seagate NAS HDD regexp (#778)
 	- Extend Seagate Surveillance regexp (#807)
 	- Extend Seagate Enterprise Capacity 3.5 HDD regexp (#864, #913)
+	- Fix Seagate Barracuda 2.5 5400 regexp to add new models and
+	  avoid false matches (#796)
 
 2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
 
