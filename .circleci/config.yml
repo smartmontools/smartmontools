@@ -20,40 +20,24 @@ references:
         sed -E "s|.*git-svn-id: http://svn.code.sf.net/p/smartmontools/code/branches/${CIRCLE_BRANCH#origin/}@([0-9]+).*|\1|" >
         ~/SVNREV && test "`cat ~/SVNREV`" -gt "0" && echo SVN revision: r`cat ~/SVNREV`
 
-  svn_checkout: &svn_checkout
+  sf_getfiles: &sf_getfiles
     run:
-      name: Checkout from the SF.net
+      name: Downloading files from the SF.net
       command: >
-        rel=${CIRCLE_BRANCH#origin/} && rel=${rel%_DRIVEDB} && echo $rel > ~/SM_REL &&
-        svn --config-option 'config:miscellany:use-commit-times=yes' checkout
-        https://svn.code.sf.net/p/smartmontools/code/tags/${rel}/smartmontools
-        ~/smartmontools &&
+        ver=${CIRCLE_BRANCH#origin/RELEASE_} && ver=${ver%_DRIVEDB} && ver=${rel/_/.} &&
+        echo ${ver} > ~/SM_VER && cd ~/ &&
+        wget https://downloads.sourceforge.net/project/smartmontools/smartmontools/${ver}/smartmontools-${ver}.tar.gz &&
+        tar -xvzf /smartmontools-${ver}.tar.gz &&
         svn cat https://svn.code.sf.net/p/smartmontools/code/branches/${CIRCLE_BRANCH#origin/}/smartmontools/drivedb.h@`cat ~/SVNREV` >
-        ~/smartmontools/drivedb.h
-
-  sm_distfile: &sm_distfile
-    run:
-      name: Creating src.tar.gz
-      command: |
-        cd ~/smartmontools
-        sed -n 's|^AC_INIT[^,]*, *\([0-9.]*\) *,.*$|\1|p' "configure.ac" > ~/SM_VER
-        SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV`
-        ./autogen.sh --force
-        mkdir build && cd build
-        ../configure
-        make dist
-        mkdir /artefacts && mv smartmontools-${SM_VER}.tar.gz /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
+        ~/smartmontools-${ver}/drivedb.h
 
   sm_comple_linux: &sm_compile_linux
     run:
       name: Checking drivedb.h with a specific smartmontools version
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV`
-        mkdir ~/build && cd ~/build
-        tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
         cd smartmontools-${SM_VER} && mkdir build && cd build
         ../configure && make -j2 && make check
-        rm -rf ~/build
 
 jobs:
 
@@ -63,8 +47,7 @@ jobs:
     working_directory: ~/smartmontools
     steps:
       - *get_svn_commit
-      - *svn_checkout
-      - *sm_distfile
+      - *sf_getfiles
       - *sm_compile_linux
 
 workflows:
