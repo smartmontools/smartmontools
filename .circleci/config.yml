@@ -1,0 +1,68 @@
+version: 2
+
+references:
+
+  get_svn_commit: &get_svn_commit
+    run:
+      name: Get SVN revision from the git SHA1 using github API
+      command: >
+        curl --silent
+        https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/commits/${CIRCLE_SHA1} |
+        jq .commit.message |
+        sed -E 's|.*git-svn-id: http://svn.code.sf.net/p/smartmontools/code/trunk@([0-9]+).*|\1|' >
+        ~/SVNREV && test "`cat ~/SVNREV`" -gt "0" && echo SVN revision: r`cat ~/SVNREV`
+
+  svn_checkout: &svn_checkout
+    run:
+      name: Checkout from the SF.net
+      command: >
+        svn --config-option 'config:miscellany:use-commit-times=yes' checkout
+        https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools@`cat ~/SVNREV`
+        ~/smartmontools
+
+  sm_distfile: &sm_distfile
+    run:
+      name: Creating src.tar.gz
+      command: |
+        cd ~/smartmontools
+        sed -n 's|^AC_INIT[^,]*, *\([0-9.]*\) *,.*$|\1|p' "configure.ac" > ~/SM_VER
+        SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV`
+        ./autogen.sh --force
+        mkdir build && cd build
+        ../configure
+        make dist
+        mkdir /artefacts && mv smartmontools-${SM_VER}.tar.gz /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
+
+  sm_comple_linux: &sm_compile_linux
+    run:
+      name: Checking drivedb.h against 
+      command: |
+        SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV`
+        mkdir ~/build && cd ~/build
+        tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
+        cd smartmontools-${SM_VER} && mkdir build && cd build
+        ../configure && make -j2 && make check
+        rm -rf ~/build
+
+jobs:
+
+  test_ubuntu_latest:
+    docker:
+      - image: sammcz/docker-build:latest
+    working_directory: ~/smartmontools
+    steps:
+      - *get_svn_commit
+      - *svn_checkout
+      - *sm_distfile
+      - *sm_compile_linux
+
+workflows:
+
+  version: 2
+  test-matrix:
+    jobs:
+      - test_ubuntu_latest
+
+#notify:
+#  webhooks:
+#    - url: https://builds-ci.smartmontools.org/hook.php
