@@ -1,5 +1,13 @@
 version: 2
 
+# this yml is for checking drivedb.h validity and should be used only inside branches
+# steps: 
+# 1. get and build smartmontools of the specific version
+# 2. fetch drivedb.h from the appropriate branch
+# 3. run `make check` on the working tree to check drivedb.h validity
+#
+
+
 references:
 
   get_svn_commit: &get_svn_commit
@@ -9,16 +17,19 @@ references:
         curl --silent
         https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/commits/${CIRCLE_SHA1} |
         jq .commit.message |
-        sed -E 's|.*git-svn-id: http://svn.code.sf.net/p/smartmontools/code/trunk@([0-9]+).*|\1|' >
+        sed -E "s|.*git-svn-id: http://svn.code.sf.net/p/smartmontools/code/branches/${CIRCLE_BRANCH#origin/}@([0-9]+).*|\1|" >
         ~/SVNREV && test "`cat ~/SVNREV`" -gt "0" && echo SVN revision: r`cat ~/SVNREV`
 
   svn_checkout: &svn_checkout
     run:
       name: Checkout from the SF.net
       command: >
+        rel=${CIRCLE_BRANCH#origin/} && rel=${rel%_DRIVEDB} && echo $rel > ~/SM_REL &&
         svn --config-option 'config:miscellany:use-commit-times=yes' checkout
-        https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools@`cat ~/SVNREV`
-        ~/smartmontools
+        https://svn.code.sf.net/p/smartmontools/code/tags/${rel}/smartmontools
+        ~/smartmontools &&
+        svn cat https://svn.code.sf.net/p/smartmontools/code/branches/${CIRCLE_BRANCH#origin/}@`cat ~/SVNREV` >
+        ~/smartmontools/drivedb.h
 
   sm_distfile: &sm_distfile
     run:
