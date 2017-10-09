@@ -3375,8 +3375,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "", 
     "-v 188,raw16 -v 240,msec24hour32"
   },
+  // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
+  //             ST8000VN0012, ST6000VN0031, ST4000VN003
+  // tested with ST8000VN0002-1Z8112/ZA13YGNF
   { "Seagate NAS HDD", // tested with ST2000VN000-1H3164/SC42, ST3000VN000-1H4167/SC43
-    "ST[234]000VN000-.*",
+    "ST([234]000VN000|[468]000VN00(02|21|12|31|3))-.*",
     "", "", ""
   },
   { "Seagate Archive HDD", // tested with ST8000AS0002-1NA17Z/AR13
