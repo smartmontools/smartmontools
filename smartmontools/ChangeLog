@@ -1,9 +1,10 @@
-$Id: ChangeLog 4536 2017-10-09 20:14:35Z samm2 $
+$Id: ChangeLog 4537 2017-10-09 20:25:00Z samm2 $
 
 2017-10-09  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
 	- Extend Seagate Barracuda 7200.12 regexp (#910)
+	- Extend Seagate NAS HDD regexp (#778)
 
 2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
 
