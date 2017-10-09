@@ -11,6 +11,7 @@ $Id$
 	  avoid false matches (#796)
 	- Add Seagate IronWolf HDD  series (#760)
 	- Fix attribute 183 for the Seagate Barracuda 2.5 5400 HDD (#816)
+	- Added Mushkin Triactor series (#905)
 
 2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
 
