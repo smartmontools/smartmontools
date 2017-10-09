@@ -10,7 +10,7 @@ references:
         https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/commits/${CIRCLE_SHA1} |
         jq .commit.message |
         sed -E 's|.*git-svn-id: http://svn.code.sf.net/p/smartmontools/code/trunk@([0-9]+).*|\1|' >
-        ~/SVNREV && test "`cat ~/SVNREV`" -gt "0"
+        ~/SVNREV && test "`cat ~/SVNREV`" -gt "0" && echo SVN revision: r`cat ~/SVNREV`
 
   svn_checkout: &svn_checkout
     run:
