@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4545 2017-10-09 21:48:02Z samm2 $",
+  { "$Id: drivedb.h 4546 2017-10-09 22:38:00Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1523,6 +1523,7 @@ const drive_settings builtin_knowndrives[] = {
     "TS(16G|32G|64G|128G|256G|512G|1T)MTS800S?|" // MTS800, tested with TS1TMTS800/O1225H1
     "TS(16|32|64)GMSA630|" // MSA630 mSATA SSD, tested with TS32GMSA630/N0113E1
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // MKNSSDRE256GB/N1007C
+    "MKNSSDTR(240|500|250|120|480|240)GB(-LT)?|" // MKNSSDTR500GB/O1126A
     "ADATA SP550", // ADATA SP550/O0803B5a
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
