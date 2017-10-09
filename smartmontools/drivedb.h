@@ -3200,7 +3200,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45,
       // ST3500413AS/JC4B, ST3750525AS/JC4B
-    "ST3(160318|25031[128]|320418|50041[038]|750(518|52[358])|100052[348])AS",
+      // ST3160316AS/JC45
+      // Possible options: ST31000524AS, ST3500413AS, ST3250312AS ,
+      // ST3750525AS, ST3320413AS, ST3160316AS
+    "ST3(160318|25031[128]|320418|50041[038]|750(518|52[358])|100052[348]|320413|160316)AS",
     "", "", ""
   },
   { "Seagate Barracuda XT", // tested with ST32000641AS/CC13,
