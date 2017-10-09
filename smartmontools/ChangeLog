@@ -1,4 +1,9 @@
-$Id: ChangeLog 4522 2017-10-08 18:40:51Z samm2 $
+$Id: ChangeLog 4536 2017-10-09 20:14:35Z samm2 $
+
+2017-10-09  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Extend Seagate Barracuda 7200.12 regexp (#910)
 
 2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
 
