@@ -9,6 +9,7 @@ $Id$
 	- Extend Seagate Enterprise Capacity 3.5 HDD regexp (#864, #913)
 	- Fix Seagate Barracuda 2.5 5400 regexp to add new models and
 	  avoid false matches (#796)
+	- Add Seagate IronWolf HDD  series (#760)
 
 2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
 
