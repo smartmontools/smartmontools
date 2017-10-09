@@ -46,7 +46,7 @@ references:
 
   sm_comple_linux: &sm_compile_linux
     run:
-      name: Checking drivedb.h against 
+      name: Checking drivedb.h with a specific smartmontools version
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV`
         mkdir ~/build && cd ~/build
