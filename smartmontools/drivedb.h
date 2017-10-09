@@ -3367,11 +3367,14 @@ const drive_settings builtin_knowndrives[] = {
     "MM1000GBKAL", // HP OEM
     "", "", ""
   },
+  // ST6000NM0004, ST6000NM0024, ST6000NM0044, ST6000NM0084, ST5000NM0024,
+  // ST5000NM0044, ST4000NM0024, ST4000NM0044, ST2000NM0024, ST2000NM0044
   { "Seagate Enterprise Capacity 3.5 HDD", // tested with ST6000NM0024-1HT17Z/SN02,
       // ST10000NM0016-1TT101/SNB0
       // ST4000NM0085-1YY107/ZC11SXPH
       // ST8000NM0045-1RL112/NN02
-    "ST([24568]|10)000NM0[01][1248][456]-.*", // *[069]4 = 4Kn
+      // ST6000NM0004-1FT17Z/NN01
+    "ST([24568]|10)000NM0[01][01248][456]-.*", // *[069]4 = 4Kn
     "", "", 
     "-v 188,raw16 -v 240,msec24hour32"
   },
