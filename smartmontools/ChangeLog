@@ -5,6 +5,7 @@ $Id$
 	drivedb.h:
 	- Extend Seagate Barracuda 7200.12 regexp (#910)
 	- Extend Seagate NAS HDD regexp (#778)
+	- Extend Seagate Surveillance regexp (#807)
 
 2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
 
