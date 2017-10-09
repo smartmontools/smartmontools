@@ -27,7 +27,7 @@ references:
         ver=${CIRCLE_BRANCH#origin/RELEASE_} && ver=${ver%_DRIVEDB} && ver=${ver/_/.} &&
         echo ${ver} > ~/SM_VER && cd ~/ &&
         wget https://downloads.sourceforge.net/project/smartmontools/smartmontools/${ver}/smartmontools-${ver}.tar.gz &&
-        tar -xvzf /smartmontools-${ver}.tar.gz &&
+        tar -xvzf smartmontools-${ver}.tar.gz &&
         svn cat https://svn.code.sf.net/p/smartmontools/code/branches/${CIRCLE_BRANCH#origin/}/smartmontools/drivedb.h@`cat ~/SVNREV` >
         ~/smartmontools-${ver}/drivedb.h
 
