@@ -36,7 +36,7 @@ references:
       name: Checking drivedb.h with a specific smartmontools version
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV`
-        cd smartmontools-${SM_VER} && mkdir build && cd build
+        cd ~/smartmontools-${SM_VER} && mkdir build && cd build
         ../configure && make -j2 && make check
 
 jobs:
