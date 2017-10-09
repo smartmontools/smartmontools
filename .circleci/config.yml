@@ -24,7 +24,7 @@ references:
     run:
       name: Downloading files from the SF.net
       command: >
-        ver=${CIRCLE_BRANCH#origin/RELEASE_} && ver=${ver%_DRIVEDB} && ver=${rel/_/.} &&
+        ver=${CIRCLE_BRANCH#origin/RELEASE_} && ver=${ver%_DRIVEDB} && ver=${ver/_/.} &&
         echo ${ver} > ~/SM_VER && cd ~/ &&
         wget https://downloads.sourceforge.net/project/smartmontools/smartmontools/${ver}/smartmontools-${ver}.tar.gz &&
         tar -xvzf /smartmontools-${ver}.tar.gz &&
