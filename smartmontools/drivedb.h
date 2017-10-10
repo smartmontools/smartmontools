@@ -1304,6 +1304,7 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG 470 Series SSD|"  // tested with SAMSUNG 470 Series SSD 64GB/AXM09B1Q
     "Samsung SSD 750 EVO (120|250|500)GB|" // tested with Samsung SSD 750 EVO 250GB/MAT01B6Q
     "SAMSUNG SSD 830 Series|"  // tested with SAMSUNG SSD 830 Series 64GB/CXM03B1Q
+    "SAMSUNG SSD PM830 .*|" // SAMSUNG SSD PM830 2.5" 7mm 128GB/CXM03D1Q
     "MZ7PC(512|256|128|064)HA(GH|FU|DR)-000.*|" // probably PM830, tested with SAMSUNG MZ7PC128HAFU-000L1/CXM04L1Q
     "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
       // Samsung SSD 840 Series/DXT06B0Q
@@ -1518,6 +1519,7 @@ const drive_settings builtin_knowndrives[] = {
     "TS(16G|32G|64G|128G|256G|512G|1T)MTS800S?|" // MTS800, tested with TS1TMTS800/O1225H1
     "TS(16|32|64)GMSA630|" // MSA630 mSATA SSD, tested with TS32GMSA630/N0113E1
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // MKNSSDRE256GB/N1007C
+    "MKNSSDTR(240|500|250|120|480|240)GB(-LT)?|" // MKNSSDTR500GB/O1126A
     "ADATA SP550", // ADATA SP550/O0803B5a
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -3297,9 +3299,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   // ST5000LM000, ST4000LM024, ST3000LM024, ST2000LM015, ST1000LM048, ST500LM030
-  { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1
+  { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1, ST4000LM024-2AN17V/0001
     "ST(5000LM000|[34]000LM024|2000LM015|1000LM048|500LM030)-.*",
-    "", "", ""
+    "",
+    "",
+    "-v 183,raw48,SATA_Downshift_Count "
   },
   { "Seagate Barracuda ES.2", // fixed firmware
     "ST3(25031|50032|75033|100034)0NS",
