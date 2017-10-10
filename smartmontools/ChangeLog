@@ -1,5 +1,11 @@
 $Id$
 
+2017-10-10  Christian Franke  <franke@computer.org>
+
+	configure.ac, os_darwin.cpp: Align Darwin NVMe device scanning with
+	other platforms: Disable unless '--with-nvme-devicescan' or '-d nvme'
+	is specified.  Print related configure warning.
+
 2017-10-09  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
