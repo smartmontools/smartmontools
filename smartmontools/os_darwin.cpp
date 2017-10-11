@@ -720,6 +720,8 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
   if (
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
       !type ||
+#else
+      type &&
 #endif
                !strcmp(type, "nvme")) {
     numnvme = make_device_names(&nvmenames, "NVME");

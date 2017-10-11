@@ -1,5 +1,9 @@
 $Id$
 
+2017-10-11  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp: fix crash on --scan (regression from r4549)
+
 2017-10-10  Christian Franke  <franke@computer.org>
 
 	configure.ac, os_darwin.cpp: Align Darwin NVMe device scanning with
