@@ -1,62 +1,26 @@
 version: 2
 
-# this yml is for checking drivedb.h validity and should be used only inside branches
-# steps: 
-# 1. get and build smartmontools of the specific version
-# 2. fetch drivedb.h from the appropriate branch
-# 3. run `make check` on the working tree to check drivedb.h validity
-#
-
+# emtpy test, to keep circle ci silent. Please replace with a normal trunk
+# yml after 6.6 RELEASE
 
 references:
 
-  get_svn_commit: &get_svn_commit
+  dummy_item: &dummy_item
     run:
-      name: Get SVN revision from the git SHA1 using github API
-      command: >
-        curl --silent
-        https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/commits/${CIRCLE_SHA1} |
-        jq .commit.message |
-        sed -E "s|.*git-svn-id: http://svn.code.sf.net/p/smartmontools/code/branches/${CIRCLE_BRANCH#origin/}@([0-9]+).*|\1|" >
-        ~/SVNREV && test "`cat ~/SVNREV`" -gt "0" && echo SVN revision: r`cat ~/SVNREV`
-
-  sf_getfiles: &sf_getfiles
-    run:
-      name: Downloading files from the SF.net
-      command: >
-        ver=${CIRCLE_BRANCH#origin/RELEASE_} && ver=${ver%_DRIVEDB} && ver=${ver/_/.} &&
-        echo ${ver} > ~/SM_VER && cd ~/ &&
-        wget https://downloads.sourceforge.net/project/smartmontools/smartmontools/${ver}/smartmontools-${ver}.tar.gz &&
-        tar -xvzf smartmontools-${ver}.tar.gz &&
-        svn cat https://svn.code.sf.net/p/smartmontools/code/branches/${CIRCLE_BRANCH#origin/}/smartmontools/drivedb.h@`cat ~/SVNREV` >
-        ~/smartmontools-${ver}/drivedb.h
-
-  sm_comple_linux: &sm_compile_linux
-    run:
-      name: Checking drivedb.h with a specific smartmontools version
-      command: |
-        SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV`
-        cd ~/smartmontools-${SM_VER} && mkdir build && cd build
-        ../configure && make -j2 && make check
+      name: Return true to keep circle ci happy
+      command: /bin/true
 
 jobs:
 
-  test_ubuntu_latest:
+  dummy_job:
     docker:
-      - image: sammcz/docker-build:latest
-    working_directory: ~/smartmontools
+      - image: busybox:latest
     steps:
-      - *get_svn_commit
-      - *sf_getfiles
-      - *sm_compile_linux
+      - *dummy_item
 
 workflows:
 
   version: 2
   test-matrix:
     jobs:
-      - test_ubuntu_latest
-
-#notify:
-#  webhooks:
-#    - url: https://builds-ci.smartmontools.org/hook.php
+      - dummy_job
