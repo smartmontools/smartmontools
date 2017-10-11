@@ -45,7 +45,7 @@
 
 #define ARGUSED(x) ((void)(x))
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4549 2017-10-10 19:09:54Z chrfranke $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4552 2017-10-11 10:11:35Z samm2 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -78,7 +78,7 @@ static struct {
   IONVMeSMARTInterface **smartIfNVMe;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4549 2017-10-10 19:09:54Z chrfranke $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4552 2017-10-11 10:11:35Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -720,6 +720,8 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
   if (
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
       !type ||
+#else
+      type &&
 #endif
                !strcmp(type, "nvme")) {
     numnvme = make_device_names(&nvmenames, "NVME");

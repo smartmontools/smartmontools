@@ -1,4 +1,8 @@
-$Id: ChangeLog 4549 2017-10-10 19:09:54Z chrfranke $
+$Id: ChangeLog 4552 2017-10-11 10:11:35Z samm2 $
+
+2017-10-11  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp: fix crash on --scan (regression from r4549)
 
 2017-10-10  Christian Franke  <franke@computer.org>
 
