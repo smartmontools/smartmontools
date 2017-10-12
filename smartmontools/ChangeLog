@@ -1,5 +1,11 @@
 $Id$
 
+2017-10-12  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_linux.cpp: implemented support for the SG_IO V4 API. This should
+	fix kernel warnings and other issues on the /dev/bsg SCSI devices.
+	Based on the patch created by Circuitsoft (#782)
+
 2017-10-11  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_darwin.cpp: fix crash on --scan (regression from r4549)

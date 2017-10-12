@@ -63,6 +63,7 @@
 #include <scsi/scsi.h>
 #include <scsi/scsi_ioctl.h>
 #include <scsi/sg.h>
+#include <linux/bsg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
@@ -510,28 +511,32 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
 #define SCSI_IOCTL_SEND_COMMAND 1
 #endif
 
-#define SG_IO_PRESENT_UNKNOWN 0
-#define SG_IO_PRESENT_YES 1
-#define SG_IO_PRESENT_NO 2
+#define SG_IO_USE_DETECT 0
+#define SG_IO_UNSUPP 1
+#define SG_IO_USE_V3 3
+#define SG_IO_USE_V4 4
 
 static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
-                         int unknown);
+                         int sgio_ver);
 static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
 
-static int sg_io_state = SG_IO_PRESENT_UNKNOWN;
+static int sg_io_state = SG_IO_USE_DETECT;
 
 /* Preferred implementation for issuing SCSI commands in linux. This
  * function uses the SG_IO ioctl. Return 0 if command issued successfully
  * (various status values should still be checked). If the SCSI command
  * cannot be issued then a negative errno value is returned. */
 static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
-                         int unknown)
+                         int sg_io_ver)
 {
 #ifndef SG_IO
     ARGUSED(dev_fd); ARGUSED(iop); ARGUSED(report);
     return -ENOTTY;
 #else
-    struct sg_io_hdr io_hdr;
+
+    /* we are filling structures for both versions, but using only one requested */
+    struct sg_io_hdr io_hdr_v3;
+    struct sg_io_v4  io_hdr_v4;
 
     if (report > 0) {
         int k, j;
@@ -540,6 +545,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         char buff[256];
         const int sz = (int)sizeof(buff);
 
+        pout(">>>> do_scsi_cmnd_io: sg_io_ver=%d\n", sg_io_ver);
         np = scsi_get_opcode_name(ucp[0]);
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < (int)iop->cmnd_len; ++k)
@@ -558,47 +564,111 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
         pout("%s", buff);
     }
-    memset(&io_hdr, 0, sizeof(struct sg_io_hdr));
-    io_hdr.interface_id = 'S';
-    io_hdr.cmd_len = iop->cmnd_len;
-    io_hdr.mx_sb_len = iop->max_sense_len;
-    io_hdr.dxfer_len = iop->dxfer_len;
-    io_hdr.dxferp = iop->dxferp;
-    io_hdr.cmdp = iop->cmnd;
-    io_hdr.sbp = iop->sensep;
+    memset(&io_hdr_v3, 0, sizeof(struct sg_io_hdr));
+    memset(&io_hdr_v4, 0, sizeof(struct sg_io_v4));
+
+    io_hdr_v3.interface_id =       'S';
+    io_hdr_v3.cmd_len =            iop->cmnd_len;
+    io_hdr_v3.mx_sb_len =          iop->max_sense_len;
+    io_hdr_v3.dxfer_len =          iop->dxfer_len;
+    io_hdr_v3.dxferp =             iop->dxferp;
+    io_hdr_v3.cmdp =               iop->cmnd;
+    io_hdr_v3.sbp =                iop->sensep;
     /* sg_io_hdr interface timeout has millisecond units. Timeout of 0
        defaults to 60 seconds. */
-    io_hdr.timeout = ((0 == iop->timeout) ? 60 : iop->timeout) * 1000;
+    io_hdr_v3.timeout =         ((0 == iop->timeout) ? 60 : iop->timeout) * 1000;
+
+    io_hdr_v4.guard =              'Q';
+    io_hdr_v4.request_len =        iop->cmnd_len;
+    io_hdr_v4.request =            __u64(iop->cmnd);
+    io_hdr_v4.max_response_len =   iop->max_sense_len;
+    io_hdr_v4.response =           __u64(iop->sensep);
+    io_hdr_v4.timeout =            ((0 == iop->timeout) ? 60 : iop->timeout) * 1000; // msec
+
     switch (iop->dxfer_dir) {
         case DXFER_NONE:
-            io_hdr.dxfer_direction = SG_DXFER_NONE;
+            io_hdr_v3.dxfer_direction = SG_DXFER_NONE;
             break;
         case DXFER_FROM_DEVICE:
-            io_hdr.dxfer_direction = SG_DXFER_FROM_DEV;
+            io_hdr_v3.dxfer_direction = SG_DXFER_FROM_DEV;
+            io_hdr_v4.din_xfer_len =    iop->dxfer_len;
+            io_hdr_v4.din_xferp =       __u64(iop->dxferp);
             break;
         case DXFER_TO_DEVICE:
-            io_hdr.dxfer_direction = SG_DXFER_TO_DEV;
+            io_hdr_v3.dxfer_direction = SG_DXFER_TO_DEV;
+            io_hdr_v4.dout_xfer_len =   iop->dxfer_len;
+            io_hdr_v4.dout_xferp =      __u64(iop->dxferp);
             break;
         default:
             pout("do_scsi_cmnd_io: bad dxfer_dir\n");
             return -EINVAL;
     }
+
     iop->resp_sense_len = 0;
     iop->scsi_status = 0;
     iop->resid = 0;
-    if (ioctl(dev_fd, SG_IO, &io_hdr) < 0) {
-        if (report && (! unknown))
-            pout("  SG_IO ioctl failed, errno=%d [%s]\n", errno,
-                 strerror(errno));
+
+    void * io_hdr = NULL;
+
+    switch (sg_io_ver) {
+      case SG_IO_USE_V3:
+          io_hdr = &io_hdr_v3;
+          break;
+      case SG_IO_USE_V4:
+          io_hdr = &io_hdr_v4;
+          break;
+      default:
+          // should never be reached
+          errno = EOPNOTSUPP;
+          return -errno;
+    }
+
+    if (ioctl(dev_fd, SG_IO, io_hdr) < 0) {
+        if (report)
+            pout("  SG_IO ioctl failed, errno=%d [%s], SG_IO_V%d\n", errno,
+                 strerror(errno), sg_io_ver);
         return -errno;
     }
-    iop->resid = io_hdr.resid;
-    iop->scsi_status = io_hdr.status;
+
+    unsigned int sg_driver_status = 0,  sg_transport_status = 0, sg_info = 0,
+        sg_duration = 0;
+
+    if (sg_io_ver == SG_IO_USE_V3) {
+        iop->resid =            io_hdr_v3.resid;
+        iop->scsi_status =      io_hdr_v3.status;
+        sg_driver_status =      io_hdr_v3.driver_status;
+        sg_transport_status =   io_hdr_v3.host_status;
+        sg_info =               io_hdr_v3.info;
+        iop->resp_sense_len =   io_hdr_v3.sb_len_wr;
+        sg_duration =           io_hdr_v3.duration;
+    }
+
+    if (sg_io_ver == SG_IO_USE_V4) {
+       switch (iop->dxfer_dir) {
+           case DXFER_NONE:
+               iop->resid = 0;
+               break;
+           case DXFER_FROM_DEVICE:
+               iop->resid = io_hdr_v4.din_resid;
+               break;
+           case DXFER_TO_DEVICE:
+               iop->resid = io_hdr_v4.dout_resid;
+               break;
+       }
+       iop->scsi_status =       io_hdr_v4.device_status;
+       sg_driver_status =       io_hdr_v4.driver_status;
+       sg_transport_status =    io_hdr_v4.transport_status;
+       sg_info =                io_hdr_v4.info;
+       iop->resp_sense_len =    io_hdr_v4.response_len;
+       sg_duration =            io_hdr_v4.duration;
+    }
+
     if (report > 0) {
-        pout("  scsi_status=0x%x, host_status=0x%x, driver_status=0x%x\n"
-             "  info=0x%x  duration=%d milliseconds  resid=%d\n", io_hdr.status,
-             io_hdr.host_status, io_hdr.driver_status, io_hdr.info,
-             io_hdr.duration, io_hdr.resid);
+        pout("  scsi_status=0x%x, sg_transport_status=0x%x, sg_driver_status=0x%x\n"
+             "  sg_info=0x%x  sg_duration=%d milliseconds  resid=%d\n", iop->scsi_status,
+             sg_transport_status, sg_driver_status, sg_info,
+             sg_duration, iop->resid);
+
         if (report > 1) {
             if (DXFER_FROM_DEVICE == iop->dxfer_dir) {
                 int trunc, len;
@@ -616,17 +686,17 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         }
     }
 
-    if (io_hdr.info & SG_INFO_CHECK) { /* error or warning */
-        int masked_driver_status = (LSCSI_DRIVER_MASK & io_hdr.driver_status);
+    if (sg_info & SG_INFO_CHECK) { /* error or warning */
+        int masked_driver_status = (LSCSI_DRIVER_MASK & sg_driver_status);
 
-        if (0 != io_hdr.host_status) {
-            if ((LSCSI_DID_NO_CONNECT == io_hdr.host_status) ||
-                (LSCSI_DID_BUS_BUSY == io_hdr.host_status) ||
-                (LSCSI_DID_TIME_OUT == io_hdr.host_status))
+        if (0 != sg_transport_status) {
+            if ((LSCSI_DID_NO_CONNECT == sg_transport_status) ||
+                (LSCSI_DID_BUS_BUSY == sg_transport_status) ||
+                (LSCSI_DID_TIME_OUT == sg_transport_status))
                 return -ETIMEDOUT;
             else
                /* Check for DID_ERROR - workaround for aacraid driver quirk */
-               if (LSCSI_DID_ERROR != io_hdr.host_status) {
+               if (LSCSI_DID_ERROR != sg_transport_status) {
                        return -EIO; /* catch all if not DID_ERR */
                }
         }
@@ -638,7 +708,6 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         }
         if (LSCSI_DRIVER_SENSE == masked_driver_status)
             iop->scsi_status = SCSI_STATUS_CHECK_CONDITION;
-        iop->resp_sense_len = io_hdr.sb_len_wr;
         if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) &&
             iop->sensep && (iop->resp_sense_len > 0)) {
             if (report > 1) {
@@ -807,22 +876,33 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
      * other than ENODEV (no device) or permission then assume
      * SCSI_IOCTL_SEND_COMMAND is the only option. */
     switch (sg_io_state) {
-    case SG_IO_PRESENT_UNKNOWN:
+    case SG_IO_USE_DETECT:
         /* ignore report argument */
-        if (0 == (res = sg_io_cmnd_io(dev_fd, iop, report, 1))) {
-            sg_io_state = SG_IO_PRESENT_YES;
+        /* Try SG_IO V3 first */
+        if (0 == (res = sg_io_cmnd_io(dev_fd, iop, report, SG_IO_USE_V3))) {
+            sg_io_state = SG_IO_USE_V3;
             return 0;
         } else if ((-ENODEV == res) || (-EACCES == res) || (-EPERM == res))
             return res;         /* wait until we see a device */
-        sg_io_state = SG_IO_PRESENT_NO;
+        /* See if we can use SG_IO V4 * */
+        if (0 == (res = sg_io_cmnd_io(dev_fd, iop, report, SG_IO_USE_V4))) {
+            sg_io_state = SG_IO_USE_V4;
+            return 0;
+        } else if ((-ENODEV == res) || (-EACCES == res) || (-EPERM == res))
+            return res;         /* wait until we see a device */
+        /* fallback to the SCSI_IOCTL_SEND_COMMAND */
+        sg_io_state = SG_IO_UNSUPP;
         /* drop through by design */
-    case SG_IO_PRESENT_NO:
+    case SG_IO_UNSUPP:
+        /* depricated SCSI_IOCTL_SEND_COMMAND ioctl */
         return sisc_cmnd_io(dev_fd, iop, report);
-    case SG_IO_PRESENT_YES:
-        return sg_io_cmnd_io(dev_fd, iop, report, 0);
+    case SG_IO_USE_V3:
+    case SG_IO_USE_V4:
+        /* use SG_IO V3 or V4 ioctl, depending on availabiliy */
+        return sg_io_cmnd_io(dev_fd, iop, report, sg_io_state);
     default:
         pout(">>>> do_scsi_cmnd_io: bad sg_io_state=%d\n", sg_io_state);
-        sg_io_state = SG_IO_PRESENT_UNKNOWN;
+        sg_io_state = SG_IO_USE_DETECT;
         return -EIO;    /* report error and reset state */
     }
 }
@@ -3197,6 +3277,10 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
 
   // form /dev/scsi/* or scsi/*
   if (str_starts_with(test_name, "scsi/"))
+    return new linux_scsi_device(this, name, "");
+
+  // form /dev/bsg/* or bsg/*
+  if (str_starts_with(test_name, "bsg/"))
     return new linux_scsi_device(this, name, "");
 
   // form /dev/ns* or ns*
