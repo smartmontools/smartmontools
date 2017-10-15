@@ -1,4 +1,10 @@
-$Id: ChangeLog 4554 2017-10-12 20:12:03Z samm2 $
+$Id: ChangeLog 4555 2017-10-15 15:06:00Z chrfranke $
+
+2017-10-15  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Don't pass possibly unaligned pointers to swapx().
+	This silences '-Waddress-of-packed-member' warning from clang++ 4.0
+	(ticket #915).
 
 2017-10-12  Alex Samorukov  <samm@os2.kiev.ua>
 
