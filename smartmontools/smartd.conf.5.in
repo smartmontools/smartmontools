@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-17 Christian Franke
 
-$Id: smartd.conf.5.in 4430 2017-05-03 19:22:24Z chrfranke $
+$Id: smartd.conf.5.in 4556 2017-10-15 17:31:30Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1608,6 +1608,14 @@ Device /dev/sda will also be monitored, but only a short test will be run.
 Device /dev/sdc will be ignored.
 Warning emails will be sent for all monitored devices.
 .Sp
+A device is ignored by DEVICESCAN if a configuration line with the same
+device name exists.
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+A device name is also ignored if another device with same identify
+information (vendor, model, firmware version, serial number, WWN) already
+exits.
+.Sp
 .TP
 .B EXAMPLES OF SHELL SCRIPTS FOR \*(Aq\-M exec\*(Aq
 These are two examples of shell scripts that can be used with the \*(Aq\-M
@@ -1683,4 +1691,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 4430 2017-05-03 19:22:24Z chrfranke $
+$Id: smartd.conf.5.in 4556 2017-10-15 17:31:30Z chrfranke $
