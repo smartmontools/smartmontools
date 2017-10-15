@@ -2,6 +2,9 @@ $Id$
 
 2017-10-15  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Use also device identify information to detect for
+	duplicate devices (ticket #313).
+
 	atacmds.cpp: Don't pass possibly unaligned pointers to swapx().
 	This silences '-Waddress-of-packed-member' warning from clang++ 4.0
 	(ticket #915).

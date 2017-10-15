@@ -1608,6 +1608,14 @@ Device /dev/sda will also be monitored, but only a short test will be run.
 Device /dev/sdc will be ignored.
 Warning emails will be sent for all monitored devices.
 .Sp
+A device is ignored by DEVICESCAN if a configuration line with the same
+device name exists.
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+A device name is also ignored if another device with same identify
+information (vendor, model, firmware version, serial number, WWN) already
+exits.
+.Sp
 .TP
 .B EXAMPLES OF SHELL SCRIPTS FOR \*(Aq\-M exec\*(Aq
 These are two examples of shell scripts that can be used with the \*(Aq\-M

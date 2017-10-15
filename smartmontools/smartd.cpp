@@ -242,6 +242,7 @@ struct dev_config
   std::string state_file;                 // Path of the persistent state file, empty if none
   std::string attrlog_file;               // Path of the persistent attrlog file, empty if none
   bool ignore;                            // Ignore this entry
+  bool id_is_unique;                      // True if dev_idinfo is unique (includes S/N or WWN)
   bool smartcheck;                        // Check SMART status
   bool usagefailed;                       // Check for failed Usage Attributes
   bool prefail;                           // Track changes in Prefail Attributes
@@ -302,6 +303,7 @@ struct dev_config
 dev_config::dev_config()
 : lineno(0),
   ignore(false),
+  id_is_unique(false),
   smartcheck(false),
   usagefailed(false),
   prefail(false),
@@ -1748,12 +1750,32 @@ static void format_set_result_msg(std::string & msg, const char * name, bool ok,
     msg += ":on";
 }
 
+// Return true and print message if CFG.dev_idinfo is already in PREV_CFGS
+static bool is_duplicate_dev_idinfo(const dev_config & cfg, const dev_config_vector & prev_cfgs)
+{
+  if (!cfg.id_is_unique)
+    return false;
+
+  for (unsigned i = 0; i < prev_cfgs.size(); i++) {
+    if (!prev_cfgs[i].id_is_unique)
+      continue;
+    if (cfg.dev_idinfo != prev_cfgs[i].dev_idinfo.c_str())
+      continue;
+
+    PrintOut(LOG_INFO, "Device: %s, same identity as %s, ignored\n",
+             cfg.dev_name.c_str(), prev_cfgs[i].dev_name.c_str());
+    return true;
+  }
+
+  return false;
+}
 
 // TODO: Add '-F swapid' directive
 const bool fix_swapped_id = false;
 
 // scan to see what ata devices there are, and if they support SMART
-static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atadev)
+static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atadev,
+                         const dev_config_vector * prev_cfgs)
 {
   int supported=0;
   struct ata_identify_device drive;
@@ -1795,8 +1817,15 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   char cap[32];
   cfg.dev_idinfo = strprintf("%s, S/N:%s, %sFW:%s, %s", model, serial, wwn, firmware,
                      format_capacity(cap, sizeof(cap), sizes.capacity, "."));
+  cfg.id_is_unique = true; // TODO: Check serial?
 
   PrintOut(LOG_INFO, "Device: %s, %s\n", name, cfg.dev_idinfo.c_str());
+
+  // Check for duplicates
+  if (prev_cfgs && is_duplicate_dev_idinfo(cfg, *prev_cfgs)) {
+    CloseDevice(atadev, name);
+    return 1;
+  }
 
   // Show if device in database, and use preset vendor attribute
   // options unless user has requested otherwise.
@@ -2182,7 +2211,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
 // on success, return 0. On failure, return >0.  Never return <0,
 // please.
-static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scsidev)
+static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scsidev,
+                          const dev_config_vector * prev_cfgs)
 {
   int err, req_len, avail_len, version, len;
   const char *device = cfg.name.c_str();
@@ -2261,11 +2291,18 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
                      (lu_id[0] ? ", lu id: " : ""), (lu_id[0] ? lu_id : ""),
                      (serial[0] ? ", S/N: " : ""), (serial[0] ? serial : ""),
                      (si_str[0] ? ", " : ""), (si_str[0] ? si_str : ""));
-  
+  cfg.id_is_unique = (lu_id[0] || serial[0]);
+
   // format "model" string
   scsi_format_id_string(vendor, (const unsigned char *)&inqBuf[8], 8);
   scsi_format_id_string(model, (const unsigned char *)&inqBuf[16], 16);
   PrintOut(LOG_INFO, "Device: %s, %s\n", device, cfg.dev_idinfo.c_str());
+
+  // Check for duplicates
+  if (prev_cfgs && is_duplicate_dev_idinfo(cfg, *prev_cfgs)) {
+    CloseDevice(scsidev, device);
+    return 1;
+  }
 
   // check that device is ready for commands. IE stores its stuff on
   // the media.
@@ -2451,7 +2488,8 @@ static int nvme_get_max_temp_kelvin(const nvme_smart_log & smart_log)
   return k;
 }
 
-static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvmedev)
+static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvmedev,
+                          const dev_config_vector * prev_cfgs)
 {
   const char *name = cfg.name.c_str();
 
@@ -2481,8 +2519,15 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
     format_capacity(capstr, sizeof(capstr), capacity, ".");
   cfg.dev_idinfo = strprintf("%s, S/N:%s, FW:%s%s%s%s", model, serial, firmware,
                              nsstr, (capstr[0] ? ", " : ""), capstr);
+  cfg.id_is_unique = true; // TODO: Check serial?
 
   PrintOut(LOG_INFO, "Device: %s, %s\n", name, cfg.dev_idinfo.c_str());
+
+  // Check for duplicates
+  if (prev_cfgs && is_duplicate_dev_idinfo(cfg, *prev_cfgs)) {
+    CloseDevice(nvmedev, name);
+    return 1;
+  }
 
   // Read SMART/Health log
   nvme_smart_log smart_log;
@@ -5028,20 +5073,6 @@ static int MakeConfigEntries(const dev_config & base_cfg,
   return devlist.size();
 }
  
-static void CanNotRegister(const char *name, const char *type, int line, bool scandirective)
-{
-  if (!debugmode && scandirective)
-    return;
-  if (line)
-    PrintOut(scandirective?LOG_INFO:LOG_CRIT,
-             "Unable to register %s device %s at line %d of file %s\n",
-             type, name, line, configfile);
-  else
-    PrintOut(LOG_INFO,"Unable to register %s device %s\n",
-             type, name);
-  return;
-}
-
 // Returns negative value (see ParseConfigFile()) if config file
 // had errors, else number of entries which may be zero or positive. 
 static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_device_list & scanned_devs)
@@ -5127,7 +5158,8 @@ static bool is_duplicate_device(const smart_device * dev,
 }
 
 // Register one device, return false on error
-static bool register_device(dev_config & cfg, dev_state & state, smart_device_auto_ptr & dev)
+static bool register_device(dev_config & cfg, dev_state & state, smart_device_auto_ptr & dev,
+                            const dev_config_vector * prev_cfgs)
 {
   bool scanning;
   if (!dev) {
@@ -5169,29 +5201,39 @@ static bool register_device(dev_config & cfg, dev_state & state, smart_device_au
   cfg.name = dev->get_info().info_name;
   PrintOut(LOG_INFO, "Device: %s, opened\n", cfg.name.c_str());
 
+  int status;
+  const char * typemsg;
   // register ATA device
   if (dev->is_ata()){
-    if (ATADeviceScan(cfg, state, dev->to_ata())) {
-      CanNotRegister(cfg.name.c_str(), "ATA", cfg.lineno, scanning);
-      return false;
-    }
+    typemsg = "ATA";
+    status = ATADeviceScan(cfg, state, dev->to_ata(), prev_cfgs);
   }
   // or register SCSI device
   else if (dev->is_scsi()){
-    if (SCSIDeviceScan(cfg, state, dev->to_scsi())) {
-      CanNotRegister(cfg.name.c_str(), "SCSI", cfg.lineno, scanning);
-      return false;
-    }
+    typemsg = "SCSI";
+    status = SCSIDeviceScan(cfg, state, dev->to_scsi(), prev_cfgs);
   }
   // or register NVMe device
   else if (dev->is_nvme()) {
-    if (NVMeDeviceScan(cfg, state, dev->to_nvme())) {
-      CanNotRegister(cfg.name.c_str(), "NVMe", cfg.lineno, scanning);
-      return false;
-    }
+    typemsg = "NVMe";
+    status = NVMeDeviceScan(cfg, state, dev->to_nvme(), prev_cfgs);
   }
   else {
     PrintOut(LOG_INFO, "Device: %s, neither ATA, SCSI nor NVMe device\n", cfg.name.c_str());
+    return false;
+  }
+
+  if (status) {
+    if (!scanning || debugmode) {
+      if (cfg.lineno)
+        PrintOut(scanning ? LOG_INFO : LOG_CRIT,
+          "Unable to register %s device %s at line %d of file %s\n",
+          typemsg, cfg.name.c_str(), cfg.lineno, configfile);
+      else
+        PrintOut(LOG_INFO, "Unable to register %s device %s\n",
+          typemsg, cfg.name.c_str());
+    }
+
     return false;
   }
 
@@ -5244,8 +5286,9 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
     }
 
     // Register device
+    // If scanning, pass dev_idinfo of previous devices for duplicate check
     dev_state state;
-    if (!register_device(cfg, state, dev)) {
+    if (!register_device(cfg, state, dev, (scanning ? &configs : 0))) {
       // if device is explictly listed and we can't register it, then
       // exit unless the user has specified that the device is removable
       if (!scanning) {
