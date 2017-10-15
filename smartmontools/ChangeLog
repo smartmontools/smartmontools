@@ -1,5 +1,11 @@
 $Id$
 
+2017-10-15  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Don't pass possibly unaligned pointers to swapx().
+	This silences '-Waddress-of-packed-member' warning from clang++ 4.0
+	(ticket #915).
+
 2017-10-12  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_linux.cpp: implemented support for the SG_IO V4 API. This should
