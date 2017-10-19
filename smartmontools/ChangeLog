@@ -1,5 +1,10 @@
 $Id$
 
+2017-10-19  Alex Samorukov <samm@os2.kiev.ua>
+
+	scsicmds.h: increase SCSI_TIMEOUT_DEFAULT to 1 minute to work on the
+	big JBOD arrays (#917)
+
 2017-10-15  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Use also device identify information to detect for
