@@ -1,5 +1,10 @@
 $Id$
 
+2017-10-22  Christian Franke  <franke@computer.org>
+
+	configure.ac: Fail instead of warn if no compiler option to accept
+	C++11 found and '--with-cxx11-option' is not specified.
+
 2017-10-19  Alex Samorukov <samm@os2.kiev.ua>
 
 	scsicmds.h: increase SCSI_TIMEOUT_DEFAULT to 1 minute to work on the

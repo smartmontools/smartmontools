@@ -511,12 +511,22 @@ case "$with_cxx11_option" in
       if check_cxx11_support "$option"; then with_cxx11_option=$option; break; fi
     done
     AC_MSG_RESULT([${with_cxx11_option:-none needed}])
+    test "$with_cxx11_option" != "unknown" || AC_MSG_ERROR([
+This version of smartmontools does not use C++11 features, but future
+versions possibly will.
+This script was unable to determine a compiler option to enable C++11.
+Use option '--with-cxx11-option=OPTION' to specify the compiler option
+(it will be checked, but not used in the actual build).
+Use option '--without-cxx11-option' to suppress this error message if the
+compiler lacks C++11 support.
+In both cases, please send info about compiler and platform to
+$PACKAGE_BUGREPORT - Thanks!])
     ;;
   *)
-    AC_MSG_CHECKING([whether $CXX $with_cxx11_option supports C++11])
+    AC_MSG_CHECKING([whether $CXX $with_cxx11_option accepts C++11])
     res=no; check_cxx11_support "$with_cxx11_option" && res=yes
     AC_MSG_RESULT([$res])
-    test "$res" = "yes" || AC_MSG_ERROR([$CXX $with_cxx11_option does support C++11])
+    test "$res" = "yes" || AC_MSG_ERROR([$CXX $with_cxx11_option does not accept C++11])
     ;;
 esac
 
@@ -849,23 +859,6 @@ The required source file 'os_solaris_ata.s' is no longer included in
 the source tarball but still available in the SVN repository.
 Use option '--with-solaris-sparc-ata' to enable legacy ATA support.
 Use option '--without-solaris-sparc-ata' to suppress this warning.
-])
-    ;;
-esac
-
-# TODO: Turn to AC_MSG_ERROR after smartmontools 6.6
-case "$with_cxx11_option" in
-  unknown)
-    AC_MSG_WARN([
-This version of smartmontools does not use C++11 features, but future
-versions possibly will.
-This script was unable to determine a compiler option to enable C++11.
-Use option '--with-cxx11-option=OPTION' to specify the compiler option
-(it will be checked, but not used in the actual build).
-Use option '--without-cxx11-option' to suppress this warning if the
-compiler lacks C++11 support.
-In both cases, please send info about compiler and platform to
-$PACKAGE_BUGREPORT - Thanks!
 ])
     ;;
 esac
