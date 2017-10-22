@@ -2,6 +2,8 @@ $Id$
 
 2017-10-22  Christian Franke  <franke@computer.org>
 
+	os_win32.cpp: Decode Windows 10 1709 build number.
+
 	configure.ac: Fail instead of warn if no compiler option to accept
 	C++11 found and '--with-cxx11-option' is not specified.
 
