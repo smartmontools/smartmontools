@@ -1,4 +1,9 @@
-$Id: ChangeLog 4557 2017-10-19 19:17:29Z samm2 $
+$Id: ChangeLog 4558 2017-10-22 16:05:16Z chrfranke $
+
+2017-10-22  Christian Franke  <franke@computer.org>
+
+	configure.ac: Fail instead of warn if no compiler option to accept
+	C++11 found and '--with-cxx11-option' is not specified.
 
 2017-10-19  Alex Samorukov <samm@os2.kiev.ua>
 
