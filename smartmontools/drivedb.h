@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4561 2017-10-24 06:18:54Z samm2 $",
+  { "$Id: drivedb.h 4562 2017-10-24 06:36:08Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2784,6 +2784,11 @@ const drive_settings builtin_knowndrives[] = {
       // HGST HUS724040ALE640/MJAOA580, HGST HUS724020ALA640/MF6OAA70
     "(Hitachi|HGST) HUS7240(20|30|40)AL[AE]64[01]",
     "", "", ""
+  },
+  { "Hitachi/HGST Ultrastar 7K2", //
+    "(Hitachi|HGST) HUS722T[12]TALA604",
+    "", "",
+    "-v 16,raw48,Gas_Gauge"
   },
   { "HGST Ultrastar 7K6000", // tested with HGST HUS726060ALE614/APGNW517
     "HGST HUS7260[2456]0AL[AEN]61[014]",
