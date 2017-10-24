@@ -1,4 +1,9 @@
-$Id: ChangeLog 4563 2017-10-24 08:43:32Z samm2 $
+$Id: ChangeLog 4565 2017-10-24 20:51:15Z chrfranke $
+
+2017-10-24  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add new mailing list address to database
+	signing key.
 
 2017-10-24  Alex Samorukov <samm@os2.kiev.ua>
 
