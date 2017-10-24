@@ -1,4 +1,4 @@
-$Id: ChangeLog 4562 2017-10-24 06:36:08Z samm2 $
+$Id: ChangeLog 4563 2017-10-24 08:43:32Z samm2 $
 
 2017-10-24  Alex Samorukov <samm@os2.kiev.ua>
 
@@ -6,6 +6,7 @@ $Id: ChangeLog 4562 2017-10-24 06:36:08Z samm2 $
 	 - add USB Voyager GTX (#893)
 	 - add Phison based OEM SSD based on the firmware name (#853, #831)
 	 - add Ultrastar 7K2 series (#892)
+	 - add LITEON ZETA (LMH-*V2M-*) (#794)
 
 2017-10-22  Christian Franke  <franke@computer.org>
 

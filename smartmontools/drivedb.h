@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4562 2017-10-24 06:36:08Z samm2 $",
+  { "$Id: drivedb.h 4563 2017-10-24 08:43:32Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1565,6 +1565,7 @@ const drive_settings builtin_knowndrives[] = {
     "TS(16|32|64)GMSA630|" // MSA630 mSATA SSD, tested with TS32GMSA630/N0113E1
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // MKNSSDRE256GB/N1007C
     "MKNSSDTR(240|500|250|120|480|240)GB(-LT)?|" // MKNSSDTR500GB/O1126A
+    "LITEON LMH-(128|256|512)V2M-.*|" // LITEON LMH-256V2M-11 MSATA 256GB/FM8110C
     "ADATA SP550", // ADATA SP550/O0803B5a
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
