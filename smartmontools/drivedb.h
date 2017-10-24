@@ -4204,7 +4204,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
-  { "USB: LaCie D2 USB2; LucidPort USB300 ",
+  { "USB: LaCie D2 USB3; LucidPort USB300 ",
     "0x059f:0x103d",
     "",
     "",
@@ -5005,6 +5005,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "" // unsupported
+  },
+  // Corsair
+  { "USB: Voyager GTX; ",
+    "0x1b1c:0x1a0e",
+    "",
+    "",
+    "-d sat"
   },
   // SunplusIT
   { "USB: ; SunplusIT",
