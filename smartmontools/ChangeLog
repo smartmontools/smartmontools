@@ -1,5 +1,10 @@
 $Id$
 
+2017-10-24  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add new mailing list address to database
+	signing key.
+
 2017-10-24  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
