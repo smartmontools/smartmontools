@@ -1,6 +1,8 @@
-$Id: ChangeLog 4565 2017-10-24 20:51:15Z chrfranke $
+$Id: ChangeLog 4566 2017-10-24 21:01:10Z chrfranke $
 
 2017-10-24  Christian Franke  <franke@computer.org>
+
+	do_release: Update code signing key id.
 
 	update-smart-drivedb.in: Add new mailing list address to database
 	signing key.
