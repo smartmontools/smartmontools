@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4560 2017-10-24 06:03:17Z samm2 $",
+  { "$Id: drivedb.h 4561 2017-10-24 06:18:54Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -522,6 +522,46 @@ const drive_settings builtin_knowndrives[] = {
     "PNY CS1311 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122
     "KINGSTON SHSS3B?7A(120|240|480|960)G", // HyperX Savage
     "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 2,raw48,Not_In_Use "
+    "-v 3,raw48,Not_In_Use "
+    "-v 5,raw48,Not_In_Use "
+    "-v 7,raw48,Not_In_Use "
+    "-v 8,raw48,Not_In_Use "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 5,raw48,Retired_Block_Count "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 10,raw48,Not_In_Use "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 168,raw48,SATA_Phy_Error_Count "
+    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Erl/Lat " // Early bad block/Later bad block
+    "-v 173,raw16(avg16),MaxAvgErase_Ct "
+    "-v 175,raw48,Not_In_Use "
+    "-v 183,raw48,Unknown_Attribute "
+  //"-v 187,raw48,Reported_Uncorrect "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 196,raw48,Not_In_Use "
+    "-v 197,raw48,Not_In_Use "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 218,raw48,CRC_Error_Count "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 233,raw48,Flash_Writes_GiB "
+    "-v 240,raw48,Not_In_Use "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB "
+    "-v 244,raw48,Average_Erase_Count "
+    "-v 245,raw48,Max_Erase_Count "
+    "-v 246,raw48,Total_Erase_Count "
+  },
+  // this is a copy of the Phison bases record for the OEM drives with a very
+  // weak information in the model. Detection is based on Firmware.
+  // Tested with FoxLine flssd240x4se (SATA SSD/SBFM10.5) and Supermicro 
+  // SSD-DM032-PHI (SATA SSD/S9FM02.1)
+  { "Phison Driven OEM SSDs", // see MKP_521_Phison_SMART_attribute.pdf
+    "SATA SSD",
+    "(S9FM02\\.1|SBFM10\\.5)",
+    "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
     "-v 3,raw48,Not_In_Use "
