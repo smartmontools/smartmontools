@@ -391,6 +391,7 @@ const drive_settings builtin_knowndrives[] = {
     "ATP Velocity MIV (60|120|240|480)GB|" // tested with ATP Velocity MIV 480GB/110719
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
+    "Corsair Voyager GTX|" // Corsair Voyager GTX/S9FM02J6
     "Corsair Force ((3 |LS )?SSD|GS|GT)|" // SF-2281, tested with
       // Corsair Force SSD/5.05, 3 SSD/1.3.2, GT/1.3.3, GS/5.03,
       // Corsair Force LS SSD/S8FM06.5, S9FM01.8, S9FM02.0
@@ -1373,7 +1374,9 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG MZ7KM(120|240|480|960|1T9)HA(JM|HP|GR|FD|JM)-.*|" // SM863, tested with MZ7KM480HAHP-0E005/GXM1003Q
     "SAMSUNG MZN(LF|TY)(128|256)H[CD]HP-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
       // SAMSUNG MZNTY256HDHP-000/MAT21K0Q
-    "SAMSUNG MZ[7N]LN(128|256|512)H[CM](GR|HP|JH|JP)-.*|" // PM871/871a, tested with SAMSUNG MZ7LN128HCHP,
+    "SAMSUNG MZ[7N]LN(128|256|512|1T0)H[ACM](GR|HP|HQ|J[HPQ]|LR)-.*|" // PM871/871a/b, tested with
+      // SAMSUNG MZ7LN128HCHP-00000/EMT0100Q, SAMSUNG MZ7LN256HAHQ-000H1/MVT03H6Q,
+      // SAMSUNG MZNLN256HMHQ-000H1/MAV21H3Q
     "SAMSUNG SSD PM871 .*|" // SAMSUNG SSD PM871 2.5 7mm 256GB/EMT02D0Q
       // SAMSUNG MZ7LN256HMJP-00000/MAV0100Q, SAMSUNG MZ7LN512HMJP-00000/MAV0100Q
     "SAMSUNG MZHPV(128|256|512)HDGL-.*", // SM951, tested with SAMSUNG MZHPV512HDGL-00000/BXW2500Q
@@ -3424,7 +3427,7 @@ const drive_settings builtin_knowndrives[] = {
       // ST8000NM0045-1RL112/NN02
       // ST6000NM0004-1FT17Z/NN01
       // ST4000NM0035-1V4107/TNC3
-    "ST([24568]|10)000NM0[01][01248][456]-.*", // *[069]4 = 4Kn
+    "ST([24568]|10)000NM0[01][0-48][456]-.*", // *[069]4 = 4Kn
     "", "", 
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -3788,8 +3791,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level" // WD80EFZX
   },
-  { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81
-    "WDC WD[234]001FFSX-.*",
+  { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81,
+      // WDC WD6002FFWX-68TZ4N0/83.H0A83
+    "WDC WD([2-68]00[12])FF[SW]X-.*",
     "", "", ""
   },
   { "Western Digital Purple", // tested with WDC WD40PURX-64GVNY0/80.00A80
