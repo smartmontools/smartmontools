@@ -1,5 +1,10 @@
 $Id$
 
+2017-10-25  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	 - add SATA Voyager GTX (#893)
+
 2017-10-24  Christian Franke  <franke@computer.org>
 
 	do_release: Update code signing key id.
