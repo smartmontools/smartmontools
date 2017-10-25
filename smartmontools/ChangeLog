@@ -2,6 +2,11 @@ $Id$
 
 2017-10-25  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Samsung based SSDs: PM871b (tickets #895, #903)
+	- Seagate Enterprise Capacity 3.5 HDD: 4TB (fix for #913)
+	- Western Digital Red Pro: 6TB (ticket #785)
+
 	os_win32/smartd_warning.cmd: Add ability to run PowerShell scripts
 	with '-M exec'.
 	smartd.conf.5.in: Document new functionality.  Fix typo.
