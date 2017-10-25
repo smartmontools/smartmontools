@@ -1,4 +1,10 @@
-$Id: ChangeLog 4568 2017-10-25 19:10:07Z samm2 $
+$Id: ChangeLog 4569 2017-10-25 20:13:11Z chrfranke $
+
+2017-10-25  Christian Franke  <franke@computer.org>
+
+	os_win32/smartd_warning.cmd: Add ability to run PowerShell scripts
+	with '-M exec'.
+	smartd.conf.5.in: Document new functionality.  Fix typo.
 
 2017-10-25  Alex Samorukov <samm@os2.kiev.ua>
 
