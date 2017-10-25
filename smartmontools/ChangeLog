@@ -1,5 +1,11 @@
 $Id$
 
+2017-10-25  Christian Franke  <franke@computer.org>
+
+	os_win32/smartd_warning.cmd: Add ability to run PowerShell scripts
+	with '-M exec'.
+	smartd.conf.5.in: Document new functionality.  Fix typo.
+
 2017-10-25  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:

@@ -1188,7 +1188,7 @@ that would normally be provided to \*(Aqmail\*(Aq.  Examples include:
 .Sp
 .\" %IF OS Windows
 [Windows only] On Windows, the syntax of the \*(Aq\fBBlat\fP\*(Aq mailer is
-used:
+used (except for \*(Aq.ps1\*(Aq scripts):
 .Vb 1
 \ \ \- \-q \-subject "%SMARTD_SUBJECT%" \-to %SMARTD_ADDRCSV%
 .Ve
@@ -1205,6 +1205,18 @@ command-line arguments, for example:
 \ \ \-m <nomailer> \-M exec /Example_2/shell/script/below
 .Ve
 .Sp
+.\" %IF OS Windows
+[Windows only]
+[NEW EXPERIMENTAL SMARTD FEATURE]
+If a PATH with extension \*(Aq.ps1\*(Aq is specified with \*(Aq\-M exec\*(Aq,
+the script is run as follows with no STDIN, regardless of \*(Aq\-m ADD\*(Aq
+setting:
+.Vb 2
+\ \ PowerShell -NoProfile -ExecutionPolicy Bypass ^
+\ \ \ \ \ \ \ \ \ \ \ \ \ -Command ^& \*(Aq%SMARTD_MAILER%\*(Aq
+.Ve
+.Sp
+.\" %ENDIF OS Windows
 If the executable produces any STDERR/STDOUT output, then \fBsmartd\fP
 assumes that something is going wrong, and a snippet of that output
 will be copied to SYSLOG.  The remainder of the output is then
@@ -1614,7 +1626,7 @@ device name exists.
 [NEW EXPERIMENTAL SMARTD FEATURE]
 A device name is also ignored if another device with same identify
 information (vendor, model, firmware version, serial number, WWN) already
-exits.
+exists.
 .Sp
 .TP
 .B EXAMPLES OF SHELL SCRIPTS FOR \*(Aq\-M exec\*(Aq
