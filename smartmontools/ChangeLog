@@ -1,4 +1,9 @@
-$Id: ChangeLog 4566 2017-10-24 21:01:10Z chrfranke $
+$Id: ChangeLog 4568 2017-10-25 19:10:07Z samm2 $
+
+2017-10-25  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	 - add SATA Voyager GTX (#893)
 
 2017-10-24  Christian Franke  <franke@computer.org>
 

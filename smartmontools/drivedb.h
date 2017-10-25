@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4563 2017-10-24 08:43:32Z samm2 $",
+  { "$Id: drivedb.h 4568 2017-10-25 19:10:07Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -393,6 +393,7 @@ const drive_settings builtin_knowndrives[] = {
     "ATP Velocity MIV (60|120|240|480)GB|" // tested with ATP Velocity MIV 480GB/110719
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
+    "Corsair Voyager GTX|" // Corsair Voyager GTX/S9FM02J6
     "Corsair Force ((3 |LS )?SSD|GS|GT)|" // SF-2281, tested with
       // Corsair Force SSD/5.05, 3 SSD/1.3.2, GT/1.3.3, GS/5.03,
       // Corsair Force LS SSD/S8FM06.5, S9FM01.8, S9FM02.0
