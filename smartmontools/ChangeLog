@@ -2,6 +2,9 @@ $Id$
 
 2017-10-29  Christian Franke  <franke@computer.org>
 
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Enable NVMe sections
+	for Darwin.
+
 	os_win32/installer.nsi: Update links.
 	Remove outdated uninstall commands.
 

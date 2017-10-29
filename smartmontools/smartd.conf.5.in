@@ -359,17 +359,16 @@ from issuing SCSI commands to an ATA device.
 from issuing ATA commands to a SCSI device.
 .Sp
 .\" %ENDIF NOT OS Darwin
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvme[,NSID]
-\- [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
 the device type is NVM Express (NVMe).
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
 Use 0xffffffff for the broadcast namespace id.
 The default for NSID is the namespace id addressed by the device name.
 .Sp
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .\" %IF NOT OS Darwin
 .I sat[,auto][,N]
 \- the device type is SCSI to ATA Translation (SAT).
@@ -641,14 +640,14 @@ failure is predicted in less than 24 hours, and a message at loglevel
 will be logged to syslog.  [Please see the
 .B smartctl \-H
 command-line option.]
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
+[NVMe]
 [NEW EXPERIMENTAL SMARTD FEATURE]
 Checks the "Critical Warning" byte from the SMART/Health Information log.
 If any warning bit is set, a message at loglevel \fB\*(AqLOG_CRIT\*(Aq\fP
 will be logged to syslog.
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-l TYPE
 Reports increases in the number of errors in one of three SMART logs.  The
@@ -658,14 +657,14 @@ valid arguments to this Directive are:
 \- [ATA] report if the number of ATA errors reported in the Summary SMART
 error log has increased since the last check.
 .Sp
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I error
-\- [NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
+\- [NVMe]
 [NEW EXPERIMENTAL SMARTD FEATURE]
 report if the "Number of Error Information Log Entries" from the
 SMART/Health Information log has increased since the last check.
 .Sp
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I xerror
 \- [ATA] report if the number of ATA errors reported in the Extended
 Comprehensive SMART error log has increased since the last check.
@@ -675,12 +674,12 @@ checks the maximum of both values.
 .Sp
 [Please see the \fBsmartctl \-l xerror\fP command-line option.]
 .Sp
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I xerror
-\- [NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
+\- [NVMe]
 [NEW EXPERIMENTAL SMARTD FEATURE]
 same as \*(Aq\-l error\*(Aq.
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I selftest
 \- report if the number of failed tests reported in the SMART
@@ -1439,12 +1438,12 @@ To combine all of the above reports, use:
 For ATA devices, smartd interprets Attribute 194 or 190 as Temperature Celsius
 by default.  This can be changed to Attribute 9 or 220 by the drive
 database or by the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 [NEW EXPERIMENTAL SMARTD FEATURE]
 For NVMe devices, smartd checks the maximum of the Composite Temperature value
 and all Temperature Sensor values reported by SMART/Health Information log.
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-F TYPE
 [ATA only] Modifies the behavior of \fBsmartd\fP to compensate for some

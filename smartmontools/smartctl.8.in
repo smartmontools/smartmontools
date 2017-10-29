@@ -103,7 +103,7 @@ Long forms are also available: please use \*(Aq\-h\*(Aq to see some examples.
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 There is NVMe support based on the undocumented SMART API in OSX. Currently only
 SMART and Controller information pages are supported.
-
+.Sp
 Note that Darwin SCSI support is not yet implemented.
 .Sp
 Use the OS X SAT SMART Driver to access SMART data on SAT capable USB and
@@ -182,7 +182,7 @@ The prefix \fB"/dev/"\fP is optional.
 .\" %IF OS OS2
 .IP \fBOS/2,eComStation\fP: 9
 Use the form \fB"/dev/hd[a\-z]"\fP for ATA/SATA devices using DANIS506 driver.
-
+.Sp
 Use the form \fB"/dev/ahci[a\-z]"\fP for ATA/SATA devices using OS2AHCI driver.
 .\" %ENDIF OS OS2
 .PP
@@ -226,13 +226,13 @@ in the smartmontools database (see \*(Aq\-v\*(Aq options below).  If so, the
 drive model family may also be printed.
 If \*(Aq\-n\*(Aq (see below) is specified, the power mode of the drive is
 printed.
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
+[NVMe]
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 For NVMe devices the information is obtained from the Identify Controller
 and the Identify Namespace data structure.
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-\-identify[=[w][nvb]]
 [ATA only] Prints an annotated table of the IDENTIFY DEVICE data.
@@ -258,12 +258,12 @@ and for SCSI, this is equivalent to
 .br
 \*(Aq\-H \-i \-A \-l error \-l selftest\*(Aq.
 .br
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
 .br
 \*(Aq\-H \-i \-c \-A \-l error\*(Aq.
 .br
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 Note that for ATA disks this does \fBnot\fP enable the non-SMART options
 and the SMART options which require support for 48-bit ATA commands.
 .TP
@@ -278,11 +278,11 @@ and for SCSI, this is equivalent to
 .br
 \*(Aq\-H \-i \-A \-l error \-l selftest \-l background \-l sasphy\*(Aq.
 .br
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
 .br
 \*(Aq\-H \-i \-c \-A \-l error\*(Aq.
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-\-scan
 Scans for devices and prints each device name, device type and protocol
@@ -361,17 +361,16 @@ from issuing SCSI commands to an ATA device.
 from issuing ATA commands to a SCSI device.
 .Sp
 .\" %ENDIF NOT OS Darwin
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvme[,NSID]
-\- [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
 the device type is NVM Express (NVMe).
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
 Use 0xffffffff for the broadcast namespace id.
 The default for NSID is the namespace id addressed by the device name.
 .Sp
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .\" %IF NOT OS Darwin
 .I sat[,auto][,N]
 \- the device type is SCSI to ATA Translation (SAT).
@@ -761,13 +760,12 @@ Invoking this once shows the SCSI commands in hex and the corresponding status.
 Invoking it a second time adds a hex listing of the first 64 bytes of data
 send to, or received from the device.
 .Sp
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvmeioctl
-\- [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
 report only ioctl() transactions with NVMe devices.
 .Sp
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 Any argument may include a positive integer to specify the level of detail
 that should be reported.  The argument should be followed by a comma then
 the integer with no spaces.  For example,
@@ -1079,13 +1077,13 @@ Please note that the TapeAlert log page flags are cleared for the initiator
 when the page is read.
 This means that each alert condition is reported only once by \fBsmartctl\fP
 for each initiator for each activation of the condition.
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
+[NVMe]
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 NVMe status is obtained by reading the "Critical Warning" byte from
 the SMART/Health Information log.
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-c, \-\-capabilities
 [ATA] Prints only the generic SMART capabilities.  These
@@ -1103,13 +1101,13 @@ option, then the time may jump to a larger value and then count down as the
 Immediate Offline Test is carried out.  Please see REFERENCES below
 for further information about the the flags and capabilities described
 by this option.
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
+[NVMe]
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 Prints various NVMe device capabilities obtained from the Identify Controller
 and the Identify Namespace data structure.
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-A, \-\-attributes
 [ATA] Prints only the vendor specific SMART Attributes.  The Attributes
@@ -1203,13 +1201,13 @@ and start-stop cycle counter log pages.
 Certain vendor specific attributes are listed if recognised.
 The attributes are output in a relatively free format (compared with ATA
 disk attributes).
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
+[NVMe]
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 For NVMe devices the attributes are obtained from the SMART/Health
 Information log.
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-f FORMAT, \-\-format=FORMAT
 [ATA only] Selects the output format of the attributes:
@@ -1314,9 +1312,9 @@ receives a command which is not implemented or is not valid.
 \- [SCSI] prints the error counter log pages for reads, write and verifies.
 The verify row is only output if it has an element other than zero.
 .Sp
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I error[,NUM]
-\- [NVMe] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
+\- [NVMe]
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 prints the NVMe Error Information log.
 Only the 16 most recent log entries are printed by default.
@@ -1324,7 +1322,7 @@ This number can be changed by the optional parameter NUM.
 The maximum number of log entries is vendor specific
 (in the range from 1 to 256 inclusive).
 .Sp
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I xerror[,NUM][,error]
 \- [ATA only] prints the Extended Comprehensive SMART error log
 (General Purpose Log address 0x03).  Unlike the Summary SMART error
@@ -1522,9 +1520,9 @@ This command:
 writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
 .Sp
-.\" %IF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvmelog,PAGE,SIZE
-\- [NVMe only] [FreeBSD, Linux, NetBSD, Windows and Cygwin only]
+\- [NVMe only]
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 prints a hex dump of the first SIZE bytes from the NVMe log with
 identifier PAGE.
@@ -1533,7 +1531,7 @@ SIZE is a hexadecimal number in the range from 0x4 to 0x4000 (16 KiB).
 \fBWARNING: Do not specify the identifier of an unknown log page.
 Reading a log page may have undesirable side effects.\fP
 .Sp
-.\" %ENDIF OS FreeBSD Linux NetBSD Windows Cygwin
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I ssd
 \- [ATA] prints the Solid State Device Statistics log page.
 This has the same effect as \*(Aq\-l devstat,7\*(Aq, see above.
