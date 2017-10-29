@@ -837,16 +837,13 @@ the corresponding disable command.
 .B \-s VALUE, \-\-smart=VALUE
 Enables or disables SMART on device.  The valid arguments to
 this option are \fIon\fP and \fIoff\fP.
-Note that the command \*(Aq\-s on\*(Aq (perhaps used with with the
-\*(Aq\-o on\*(Aq and \*(Aq\-S on\*(Aq options) should be placed in a
-start-up script for your machine, for example in rc.local or rc.sysinit.
-In principle the SMART feature settings are preserved over power-cycling,
-but it doesn't hurt to be sure.
-It is not necessary (or useful) to enable SMART to see the TapeAlert messages.
 .Sp
 [ATA]
 Note that the ATA commands SMART ENABLE/DISABLE OPERATIONS were declared obsolete
 in ATA ACS-4 Revision 10 (Nov 2015).
+.Sp
+[SCSI tape drive or changer]
+It is not necessary (or useful) to enable SMART to see the TapeAlert messages.
 .TP
 .B \-o VALUE, \-\-offlineauto=VALUE
 [ATA only] Enables or disables SMART automatic offline test, which scans the
@@ -1099,15 +1096,6 @@ respond to some of the different SMART commands.  For example it
 shows if the device logs errors, if it supports offline surface
 scanning, and so on.  If the device can carry out self-tests, this
 option also shows the estimated time required to run those tests.
-.Sp
-Note that the time required to run the Self-tests (listed in minutes)
-are fixed.  However the time required to run the Immediate Offline
-Test (listed in seconds) is variable.  This means that if you issue a
-command to perform an Immediate Offline test with the \*(Aq\-t offline\*(Aq
-option, then the time may jump to a larger value and then count down as the
-Immediate Offline Test is carried out.  Please see REFERENCES below
-for further information about the the flags and capabilities described
-by this option.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 [NVMe]
