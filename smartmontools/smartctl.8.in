@@ -843,6 +843,10 @@ start-up script for your machine, for example in rc.local or rc.sysinit.
 In principle the SMART feature settings are preserved over power-cycling,
 but it doesn't hurt to be sure.
 It is not necessary (or useful) to enable SMART to see the TapeAlert messages.
+.Sp
+[ATA]
+Note that the ATA commands SMART ENABLE/DISABLE OPERATIONS were declared obsolete
+in ATA ACS-4 Revision 10 (Nov 2015).
 .TP
 .B \-o VALUE, \-\-offlineauto=VALUE
 [ATA only] Enables or disables SMART automatic offline test, which scans the
@@ -922,6 +926,9 @@ The ATA standard does not specify a method to check whether SMART
 autosave is enabled.
 Unlike SCSI (below), smartctl is unable to print a warning if autosave is
 disabled.
+.Sp
+Note that the ATA commands SMART ENABLE/DISABLE AUTOSAVE were declared
+obsolete in ATA ACS-4 Revision 10 (Nov 2015).
 .Sp
 [SCSI] For SCSI devices this toggles the value of the Global Logging
 Target Save Disabled (GLTSD) bit in the Control Mode Page.  Some disk
@@ -1195,6 +1202,9 @@ the option of printing the Attribute values.
 Solid-state drives use different meanings for some of the attributes.
 In this case the attribute name printed by smartctl is incorrect unless
 the drive is already in the smartmontools drive database.
+.Sp
+Note that the ATA command SMART READ DATA was declared obsolete in
+ATA ACS-4 Revision 10 (Nov 2015).
 .Sp
 [SCSI] For SCSI devices the "attributes" are obtained from the temperature
 and start-stop cycle counter log pages.
@@ -1939,6 +1949,10 @@ of a test.  These impacts may vary from device to device.
 .Sp
 If a test failure occurs then the device may discontinue the testing
 and report the result immediately.
+.Sp
+[ATA]
+Note that the ATA command SMART EXECUTE OFF-LINE IMMEDIATE (the command to
+start a test) was declared obsolete in ATA ACS-4 Revision 10 (Nov 2015).
 .Sp
 The valid arguments to this option are:
 .Sp
