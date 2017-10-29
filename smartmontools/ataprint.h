@@ -64,6 +64,9 @@ struct ata_print_options
   bool devstat_all_pages, devstat_ssd_page;
   std::vector<int> devstat_pages;
 
+  bool pending_defects_info;
+  unsigned pending_defects_log;
+
   bool sct_temp_sts, sct_temp_hist;
   bool sct_erc_get;
   bool sct_erc_set;
@@ -130,6 +133,7 @@ struct ata_print_options
       smart_ext_selftest_log(0),
       retry_error_log(false), retry_selftest_log(false),
       devstat_all_pages(false), devstat_ssd_page(false),
+      pending_defects_info(false), pending_defects_log(0),
       sct_temp_sts(false), sct_temp_hist(false),
       sct_erc_get(false),
       sct_erc_set(false),

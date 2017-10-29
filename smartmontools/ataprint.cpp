@@ -1675,6 +1675,77 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
 
 
 ///////////////////////////////////////////////////////////////////////
+// Pending Defects log (Log 0x0c)
+
+// TODO: Move to utility.h:
+static inline unsigned le32_to_uint(const unsigned char * val)
+{
+  return (   (unsigned)val[0]
+          | ((unsigned)val[1] <<  8)
+          | ((unsigned)val[2] << 16)
+          | ((unsigned)val[3] << 24));
+}
+
+static inline uint64_t le64_to_uint(const unsigned char * val)
+{
+  return (le32_to_uint(val) | ((uint64_t)le32_to_uint(val + 4) << 32));
+}
+
+static bool print_pending_defects_log(ata_device * device, unsigned nsectors,
+  unsigned max_entries)
+{
+  // Read #entries from page 0
+  unsigned char page_buf[512] = {0, };
+  if (!ataReadLogExt(device, 0x0c, 0, 0, page_buf, 1)) {
+    pout("Read Pending Defects log page 0x00 failed\n\n");
+    return false;
+  }
+
+  pout("Pending Defects log (GP Log 0x0c)\n");
+  unsigned nentries = le32_to_uint(page_buf);
+  if (!nentries) {
+    pout("No Defects Logged\n\n");
+    return true;
+  }
+
+  // Print entries
+  pout("Index                LBA    Hours\n");
+  for (unsigned i = 0, pi = 1, page = 0; i < nentries && i < max_entries; i++, pi++) {
+    // Read new page if required
+    if (pi >= 32) {
+      if (++page >= nsectors) {
+        pout("Pending Defects count %u exceeds log size (#pages=%u)\n\n",
+             nentries, nsectors);
+        return false;
+      }
+      if (!ataReadLogExt(device, 0x0c, 0, page, page_buf, 1)) {
+        pout("Read Pending Defects log page 0x%02x failed\n\n", page);
+        return false;
+      }
+      pi = 0;
+    }
+
+    const unsigned char * entry = page_buf + 16 * pi;
+    unsigned hours = le32_to_uint(entry);
+    char hourstr[32];
+    if (hours != 0xffffffffU)
+      snprintf(hourstr, sizeof(hourstr), "%u", hours);
+    else
+      hourstr[0] = '-', hourstr[1] = 0;
+    uint64_t lba = le64_to_uint(entry + 8);
+    pout("%5u %18" PRIu64 " %8s\n", i, lba, hourstr);
+  }
+
+  if (nentries > max_entries)
+    pout("... (%u entries not shown)\n", nentries - max_entries);
+  // TODO: Remove when no longer EXPERIMENTAL
+  pout("Please send sample output of above table to:\n" PACKAGE_BUGREPORT "\n");
+  pout("\n");
+  return true;
+}
+
+
+///////////////////////////////////////////////////////////////////////
 
 // Print log 0x11
 static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
@@ -2639,6 +2710,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        || options.devstat_all_pages
        || options.devstat_ssd_page
        || !options.devstat_pages.empty()
+       || options.pending_defects_log
   );
 
   unsigned i;
@@ -3621,6 +3693,17 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("Device Statistics (GP/SMART Log 0x04) not supported\n\n");
     else if (!print_device_statistics(device, nsectors, options.devstat_pages,
                options.devstat_all_pages, options.devstat_ssd_page, use_gplog))
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+  }
+
+  // Print Pending Defects log
+  if (options.pending_defects_log || options.pending_defects_info) {
+    unsigned nsectors = GetNumLogSectors(gplogdir, 0x0c, true);
+    if (!nsectors)
+      pout("Pending Defects log (GP Log 0x0c) not supported\n\n");
+    else if (!options.pending_defects_log) // TODO: Remove when no longer EXPERIMENTAL
+      pout("Pending Defects log (GP Log 0x0c) supported [please try: '-l defects']\n\n");
+    else if (!print_pending_defects_log(device, nsectors, options.pending_defects_log))
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   }
 

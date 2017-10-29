@@ -1472,6 +1472,16 @@ entries from all supported pages are printed.  If PAGE 0 is specified,
 the list of supported pages is printed.  Device Statistics was
 introduced in ACS-2 and is only supported by some recent devices.
 .Sp
+.I defects[,NUM]
+\- [ATA only]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints LBA and hours values from the ATA Pending Defects log
+(General Purpose Log address 0x0c).
+Only the 31 entries from first log page are printed by default.
+This number can be changed by the optional parameter NUM.
+The size of the log and the order of the entries are vendor specific.
+The Pending Defects log was introduced in ACS-4 Revision 01 (Mar 2014).
+.Sp
 .I sataphy[,reset]
 \- [SATA only] prints values and descriptions of the SATA Phy Event
 Counters (General Purpose Log address 0x11).  If \*(Aq\-l sataphy,reset\*(Aq
