@@ -1383,7 +1383,7 @@ static void PrintLogPages(const char * type, const unsigned char * data,
 // Device statistics (Log 0x04)
 
 // Section A.5 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
-// Section 9.5 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
+// Section 9.5 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
 
 struct devstat_entry_info
 {
@@ -1438,6 +1438,7 @@ const devstat_entry_info devstat_info_0x04[] = {
   {  4, "Number of Reported Uncorrectable Errors" },
 //{  4, "Number of Resets Between Command Acceptance and Command Completion" },
   {  4, "Resets Between Cmd Acceptance and Completion" },
+  {  4, "Physical Element Status Changed" }, // ACS-4
   {  0, 0 }
 };
 
@@ -1482,7 +1483,7 @@ const devstat_entry_info * devstat_infos[] = {
   devstat_info_0x05,
   devstat_info_0x06,
   devstat_info_0x07
-  // TODO: 0x08 Zoned Device Statistics (T13/f16136r0, June 2016)
+  // TODO: 0x08 Zoned Device Statistics (T13/f16136r7, January 2017)
 };
 
 const int num_devstat_infos = sizeof(devstat_infos)/sizeof(devstat_infos[0]);
@@ -1676,6 +1677,8 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
 
 ///////////////////////////////////////////////////////////////////////
 // Pending Defects log (Log 0x0c)
+
+// Section 9.26 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
 
 // TODO: Move to utility.h:
 static inline unsigned le32_to_uint(const unsigned char * val)

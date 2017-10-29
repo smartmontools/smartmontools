@@ -2,6 +2,8 @@ $Id$
 
 2017-10-29  Christian Franke  <franke@computer.org>
 
+	ataidentify.cpp, ataprint.cpp: Minor ACS-4 additions.
+
 	ataprint.cpp, ataprint.h, smartctl.cpp: Add option '-l defects'
 	to print ATA ACS-4 Pending Defects log (ticket #909).
 	smartctl.8.in: Document '-l defects'.

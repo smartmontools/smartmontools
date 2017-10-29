@@ -34,7 +34,7 @@ const char * ataidentify_cpp_cvsid = "$Id$"
 // Tables 29 and 39 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
 // Tables 50 and 61 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
 // Tables 45 and 50 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
-// Table 48 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017 (ATAPI removed)
+// Table 55 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017 (ATAPI removed)
 
 const char * const identify_descriptions[] = {
   "  0 General configuration",
@@ -236,9 +236,9 @@ const char * const identify_descriptions[] = {
     ". 10 ACS-3 supported",
     ". 9 ACS-2 supported",
     ". 8 ATA8-ACS supported",
-    ". 7 ATA/ATAPI-7 supported",
-    ". 6 ATA/ATAPI-6 supported",
-    ". 5 ATA/ATAPI-5 supported",
+    ". 7 ATA/ATAPI-7 supported [OBS-ACS-4]",
+    ". 6 ATA/ATAPI-6 supported [OBS-ACS-4]",
+    ". 5 ATA/ATAPI-5 supported [OBS-ACS-4]",
     ". 4 ATA/ATAPI-4 supported [OBS-8]",
     ". 3 ATA-3 supported [OBS-7]",
     ". 2 ATA-2 supported [OBS-6]",
@@ -292,7 +292,7 @@ const char * const identify_descriptions[] = {
     ". 7 WRITE DMA QUEUED FUA EXT supported [OBS-ACS-2]",
     ". 6 WRITE DMA/MULTIPLE FUA EXT supported",
     ". 5 GPL feature set supported",
-    ". 4 Streaming feature set supported [OBS-ACS-3]",
+    ". 4 Streaming feature set supported",
     ". 3 Media Card Pass Through Command supported [OBS-ACS-2]",
     ". 2 Media serial number supported [RES-ACS-3]",
     ". 1 SMART self-test supported",
@@ -417,7 +417,7 @@ const char * const identify_descriptions[] = {
     ". 3:0 2^X logical sectors per physical sector",
 
   "107 Inter-seek delay for ISO 7779 acoustic testing",
-  "108-111 64-bit World Wide Name",
+  "108-111 World Wide Name",
   "112-115 Reserved", // ATA-7: Reserved for world wide name extension to 128 bits
   "116 Reserved for TLC [OBS-ACS-3]",
   "117-118 Logical sector size (DWord)",
@@ -482,7 +482,7 @@ const char * const identify_descriptions[] = {
 
   "168 Form factor",
     ". 15:4 Reserved",
-    ". 3:0 Nominal form factor: -, 5.25, 3.5, 2.5, 1.8, <1.8",
+    ". 3:0 Nominal form factor: -, 5.25, 3.5, 2.5, 1.8, ...", // <1.8, ACS-4: mSATA, M.2, ...
 
   "169 DATA SET MANAGEMENT command support",
     ". 15:1 Reserved",
