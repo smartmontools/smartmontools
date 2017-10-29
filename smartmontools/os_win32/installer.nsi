@@ -13,7 +13,7 @@
 ; You should have received a copy of the GNU General Public License
 ; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
-; $Id: installer.nsi 4518 2017-10-06 21:16:31Z chrfranke $
+; $Id: installer.nsi 4575 2017-10-29 16:06:18Z chrfranke $
 ;
 
 
@@ -245,8 +245,8 @@ Section "Uninstaller" UNINST_SECTION
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "UninstallString" '"$INSTDIR\uninst-smartmontools.exe"'
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "Publisher"     "smartmontools.org"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLInfoAbout"  "https://www.smartmontools.org/"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "HelpLink"      "http://sourceforge.net/projects/smartmontools/support"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLUpdateInfo" "http://builds.smartmontools.org/"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "HelpLink"      "https://www.smartmontools.org/wiki/Help"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLUpdateInfo" "https://builds.smartmontools.org/"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "NoRepair" 1
   WriteUninstaller "uninst-smartmontools.exe"
@@ -344,7 +344,7 @@ Section "Start Menu Shortcuts" MENU_SECTION
 
   ; Homepage
   CreateShortCut "$SMPROGRAMS\smartmontools\smartmontools Home Page.lnk" "https://www.smartmontools.org/"
-  CreateShortCut "$SMPROGRAMS\smartmontools\smartmontools Daily Builds.lnk" "http://builds.smartmontools.org/"
+  CreateShortCut "$SMPROGRAMS\smartmontools\smartmontools Daily Builds.lnk" "https://builds.smartmontools.org/"
 
   ; drivedb.h update
   ${If} ${FileExists} "$INSTDIR\bin\update-smart-drivedb.exe"
@@ -463,9 +463,6 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\drivedb.h.lastcheck"
   Delete "$INSTDIR\bin\drivedb.h.old"
   Delete "$INSTDIR\bin\update-smart-drivedb.exe"
-  Delete "$INSTDIR\bin\smartctl-run.bat"
-  Delete "$INSTDIR\bin\smartd-run.bat"
-  Delete "$INSTDIR\bin\net-run.bat"
   Delete "$INSTDIR\bin\runcmda.exe"
   Delete "$INSTDIR\bin\runcmda.exe.manifest" ; TODO: Remove after smartmontools 6.5
   Delete "$INSTDIR\bin\runcmdu.exe"

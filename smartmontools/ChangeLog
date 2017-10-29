@@ -1,6 +1,9 @@
-$Id: ChangeLog 4574 2017-10-29 15:41:13Z chrfranke $
+$Id: ChangeLog 4575 2017-10-29 16:06:18Z chrfranke $
 
 2017-10-29  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Update links.
+	Remove outdated uninstall commands.
 
 	INSTALL: Update ./configure description and OS info.
 
