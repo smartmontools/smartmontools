@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-17 Christian Franke
 
-$Id: smartctl.8.in 4508 2017-10-04 18:52:42Z samm2 $
+$Id: smartctl.8.in 4572 2017-10-29 14:36:00Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1472,6 +1472,16 @@ entries from all supported pages are printed.  If PAGE 0 is specified,
 the list of supported pages is printed.  Device Statistics was
 introduced in ACS-2 and is only supported by some recent devices.
 .Sp
+.I defects[,NUM]
+\- [ATA only]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints LBA and hours values from the ATA Pending Defects log
+(General Purpose Log address 0x0c).
+Only the 31 entries from first log page are printed by default.
+This number can be changed by the optional parameter NUM.
+The size of the log and the order of the entries are vendor specific.
+The Pending Defects log was introduced in ACS-4 Revision 01 (Mar 2014).
+.Sp
 .I sataphy[,reset]
 \- [SATA only] prints values and descriptions of the SATA Phy Event
 Counters (General Purpose Log address 0x11).  If \*(Aq\-l sataphy,reset\*(Aq
@@ -2434,4 +2444,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4508 2017-10-04 18:52:42Z samm2 $
+$Id: smartctl.8.in 4572 2017-10-29 14:36:00Z chrfranke $

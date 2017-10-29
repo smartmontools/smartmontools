@@ -1,4 +1,10 @@
-$Id: ChangeLog 4570 2017-10-25 20:52:35Z chrfranke $
+$Id: ChangeLog 4572 2017-10-29 14:36:00Z chrfranke $
+
+2017-10-29  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, ataprint.h, smartctl.cpp: Add option '-l defects'
+	to print ATA ACS-4 Pending Defects log (ticket #909).
+	smartctl.8.in: Document '-l defects'.
 
 2017-10-25  Christian Franke  <franke@computer.org>
 

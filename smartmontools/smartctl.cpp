@@ -52,7 +52,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4406 2017-03-11 15:12:56Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4572 2017-10-29 14:36:00Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -141,7 +141,7 @@ static void Usage()
 "                               xerror[,N][,error], xselftest[,N][,selftest],\n"
 "                               background, sasphy[,reset], sataphy[,reset],\n"
 "                               scttemp[sts,hist], scttempint,N[,p],\n"
-"                               scterc[,N,M], devstat[,N], ssd,\n"
+"                               scterc[,N,M], devstat[,N], defects[,N], ssd,\n"
 "                               gplog,N[,RANGE], smartlog,N[,RANGE],\n"
 "                               nvmelog,N,SIZE\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
@@ -209,7 +209,7 @@ static std::string getvalidarglist(int opt)
            "xerror[,N][,error], xselftest[,N][,selftest], "
            "background, sasphy[,reset], sataphy[,reset], "
            "scttemp[sts,hist], scttempint,N[,p], "
-           "scterc[,N,M], devstat[,N], ssd, "
+           "scterc[,N,M], devstat[,N], defects[,N], ssd, "
            "gplog,N[,RANGE], smartlog,N[,RANGE], "
            "nvmelog,N,SIZE";
   case 'P':
@@ -530,6 +530,17 @@ static const char * parse_options(int argc, char** argv,
               badarg = true;
         }
 
+      } else if (str_starts_with(optarg, "defects")) {
+        int n1 = -1, n2 = -1, len = strlen(optarg);
+        unsigned val = ~0;
+        sscanf(optarg, "defects%n,%u%n", &n1, &val, &n2);
+        if (n1 == len)
+          ataopts.pending_defects_log = 31; // Entries of first page
+        else if (n2 == len && val <= 0xffff * 32 - 1)
+          ataopts.pending_defects_log = val;
+        else
+          badarg = true;
+
       } else if (!strncmp(optarg, "xerror", sizeof("xerror")-1)) {
         int n1 = -1, n2 = -1, len = strlen(optarg);
         unsigned val = 8;
@@ -666,6 +677,8 @@ static const char * parse_options(int argc, char** argv,
       ataopts.sct_erc_get = true;
       ataopts.sct_wcache_reorder_get = true;
       ataopts.devstat_all_pages = true;
+      // ataopts.pending_defects_log = 31; // TODO: Add if no longer EXPERIMENTAL
+      ataopts.pending_defects_info = true; // TODO: Remove then
       ataopts.sataphy = true;
       ataopts.get_set_used = true;
       ataopts.get_aam = ataopts.get_apm = true;
