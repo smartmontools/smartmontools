@@ -2,6 +2,9 @@ $Id$
 
 2017-10-29  Christian Franke  <franke@computer.org>
 
+	os_win32/installer.nsi: Update links.
+	Remove outdated uninstall commands.
+
 	INSTALL: Update ./configure description and OS info.
 
 	ataidentify.cpp, ataprint.cpp: Minor ACS-4 additions.
