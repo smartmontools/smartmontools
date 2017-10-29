@@ -1,8 +1,9 @@
-$Id: ChangeLog 4577 2017-10-29 18:27:51Z chrfranke $
+$Id: ChangeLog 4578 2017-10-29 18:39:57Z chrfranke $
 
 2017-10-29  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in: Add notes about SMART commands obsoleted in ACS-4.
+	Remove some outdated info.
 
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Enable NVMe sections
 	for Darwin.
