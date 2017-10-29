@@ -1,6 +1,8 @@
-$Id: ChangeLog 4573 2017-10-29 15:13:58Z chrfranke $
+$Id: ChangeLog 4574 2017-10-29 15:41:13Z chrfranke $
 
 2017-10-29  Christian Franke  <franke@computer.org>
+
+	INSTALL: Update ./configure description and OS info.
 
 	ataidentify.cpp, ataprint.cpp: Minor ACS-4 additions.
 
