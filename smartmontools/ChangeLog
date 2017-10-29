@@ -2,6 +2,8 @@ $Id$
 
 2017-10-29  Christian Franke  <franke@computer.org>
 
+	INSTALL: Update ./configure description and OS info.
+
 	ataidentify.cpp, ataprint.cpp: Minor ACS-4 additions.
 
 	ataprint.cpp, ataprint.h, smartctl.cpp: Add option '-l defects'

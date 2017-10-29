@@ -54,8 +54,8 @@ Table of contents:
 
     E) Cygwin
 
-    The code was tested on Cygwin 1.7.15-1.  It should also work on other
-    recent releases.
+    The code was tested on Cygwin 2.9.0-3 x86 and x86_64. It should also
+    work on other recent releases.
 
     Both Cygwin and Windows versions of smartmontools share the same code
     to access the IDE/ATA or SCSI devices. The information in the "Windows"
@@ -64,7 +64,7 @@ Table of contents:
     F) Windows
 
     The code was tested on Windows XP SP3, 2003, Vista, Windows 7, 8, 8.1
-    and Windows 10 Release Preview.  Support von Windows 9x/ME and NT4 was
+    and Windows 10 up to 1709.  Support von Windows 9x/ME and NT4 was
     removed after smartmontools 5.43.
 
     ATA or SATA devices are supported if the device driver implements
@@ -72,15 +72,10 @@ Table of contents:
     Only the latter provides full pass-through support which is needed
     for all smartmontools features.
 
+    SATA devices behind a Intel RST driver are accessed through CSMI.
+
     SCSI and USB devices are accessed through SPTI. Special driver support
     is not required.
-
-    3ware 9000 RAID controllers are supported using features available
-    in the Windows driver release 9.4.0 (3wareDrv.sys 3.0.2.70) or later.
-    Older drivers provide SMART access to the first physical drive (port)
-    of each logical drive (unit). If driver support is not available
-    (7000/8000 series, 9000 on XP 64), smartctl can be used to parse SMART
-    data output from CLI or 3DM.
 
     G) MacOS/Darwin
 
@@ -149,11 +144,9 @@ Table of contents:
     and continue with step [3] below, skipping the "unpack the tarball" step.
 
     The autogen.sh command is ONLY required when installing from
-    SVN. You need GNU Autoconf (version 2.50 or greater), GNU Automake
-    (version 1.7 or greater) and their dependencies installed in order
-    to run it.  You can get these here:
-    http://directory.fsf.org/project/autoconf/
-    http://directory.fsf.org/project/automake/
+    SVN. You need GNU Autoconf (version 2.60 or greater), GNU Automake
+    (version 1.10 or greater) and their dependencies installed in order
+    to run it.
 
 [3] Installing from the source tarball
 ======================================
@@ -184,14 +177,21 @@ Table of contents:
     --with-initscriptdir=auto
     --with-exampledir='${docdir}/examplescripts'
     --with-drivedbdir='${datadir}/smartmontools'
+    --with-update-smart-drivedb
+    --with-gnupg
     --with-smartdscriptdir='${sysconfdir}'
     --with-smartdplugindir='${smartdscriptdir}/smartd_warning.d'
+    --with-scriptpath='/bin:/usr/bin'
     --without-savestates
     --without-attributelog
     --with-os-deps='os_linux.o dev_areca.o' (platform specific)
     --without-selinux
     --with-libcap-ng=auto
-    --with-working-snprintf
+    --without-nvme-devicescan
+    --without-solaris-sparc-ata (Solaris SPARC only)
+    --with-working-snprintf (Windows: guessed)
+    --with-mingw-aslr=auto (Windows only)
+    --with-cxx11-option=auto
 
     These will usually not overwrite existing "distribution" installations on
     Linux Systems since the FHS reserves this area for use by the system
@@ -200,10 +200,8 @@ Table of contents:
     For different installation locations or distributions, simply add
     arguments to ./configure as shown in [4] below.
 
-    If you wish to alter the default C++ compiler flags, set an
-    environment variable CXXFLAGS='your options' before doing
-    ./configure, or else do:
-    make CXXFLAGS='your options'
+    If you wish to alter the default C++ compiler flags, add
+    CXXFLAGS='your options' to ./configure command.
 
     The first output line of smartctl and smartd provides information
     about release number, last SVN checkin date and revison, platform,
@@ -373,7 +371,7 @@ Same as Red Hat:
 [10] Guidelines for Windows
 ===========================
 
-To compile the Windows release with MinGW gcc on MSYS, use:
+To compile statically linked Windows release with MinGW gcc on MSYS, use:
 
   ./configure
   make
@@ -384,12 +382,10 @@ To compile the Windows release with MinGW gcc on MSYS, use:
 Cross-compile statically linked 32-bit and 64-bit versions with MinGW-w64:
 
   ./configure --build=$(./config.guess) \
-              --host=i686-w64-mingw32 \
-              LDFLAGS=-static
+              --host=i686-w64-mingw32
 
   ./configure --build=$(./config.guess) \
-              --host=x86_64-w64-mingw32 \
-              LDFLAGS=-static
+              --host=x86_64-w64-mingw32
 
   Tested on Cygwin, Debian and Fedora.
 
@@ -438,16 +434,16 @@ To both create and run the (interactive) installer, use:
   The binary distribution includes all documentation files converted
   to DOS text file format and *.html and *.txt preformatted man pages.
 
-To prepare os_win32 directory for MS Visual Studio C++ 2010 [Express],
+To prepare os_win32/vc14 directory for MS Visual Studio C++ 2015 builds,
 use the following on MSYS or Cygwin:
 
   mkdir vctmp && cd vctmp
   ../configure [... any MinGW option set from above ...]
-  make config-vc10
+  make config-vc14
 
-  The MSVC project files (os_win32/vc10/*) are included in SVN (but not
-  in source tarball). The target config-vc10 from a Makefile configured
-  for MinGW creates os_win32/vc10/{config.h,smart*.rc,svnversion.h}.
+  The MSVC project files (os_win32/vc14/*) are included in SVN (but not
+  in source tarball). The target config-vc14 from a Makefile configured
+  for MinGW creates os_win32/vc14/{config.h,smart*.rc,svnversion.h}.
   The configure skript must be run outside of the source directory to
   avoid inclusion of the original config.h.
 
@@ -457,7 +453,7 @@ use the following on MSYS or Cygwin:
 
 To compile the OS/2 code, please run
 
-  ./os_os2/configure.os2
+  ./configure
   make
   make install
 
@@ -559,13 +555,14 @@ default then the default configuration file is installed as
 The commands:
 
 make htmlman
+make pdfman
 make txtman
 
-may be used to build .html and .txt preformatted man pages.
+may be used to build .html, .pdf and .txt preformatted man pages.
 These are used by the dist-win32 make target to build the Windows
 distribution.
 The commands also work on other operating system configurations
-if suitable versions of man2html, groff and grotty are installed.
+if suitable versions of man, man2html and groff are installed.
 On systems without man2html, the following command should work
 if groff is available:
 
@@ -594,8 +591,7 @@ a description of available configure options is printed
 [with defaults in square brackets].  See also section [3] above.
 
 
-The following old configure options are deprecated and will be removed
-in a future release of smartmontools:
+The following old configure options are no longer supported:
 
 Old option                 Replacement
 --with-docdir=DIR          --docdir=DIR (autoconf >= 2.60)
@@ -670,4 +666,4 @@ Case 2:
         /usr/local/etc/rc.d/init.d/smartd
 
 Additional information about using configure can be found here:
-http://www.gnu.org/software/autoconf/manual/autoconf.html#Running-configure-Scripts
+https://www.gnu.org/software/autoconf/manual/autoconf.html#Running-configure-Scripts
