@@ -103,7 +103,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4554 2017-10-12 20:12:03Z samm2 $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4581 2017-11-03 19:58:02Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -1052,7 +1052,7 @@ bool linux_aacraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     j  = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < (int)iop->cmnd_len; ++k)
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-      if ((report > 1) &&
+    if ((report > 1) &&
         (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
         int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 

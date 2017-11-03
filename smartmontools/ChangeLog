@@ -1,6 +1,8 @@
-$Id: ChangeLog 4580 2017-11-03 19:41:14Z chrfranke $
+$Id: ChangeLog 4581 2017-11-03 19:58:02Z chrfranke $
 
 2017-11-03  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Fix indentation (g++ 6.3: -Wmisleading-indentation).
 
 	nvmeprint.cpp: Print IEEE EUI-64 of namespace.
 
