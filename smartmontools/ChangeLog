@@ -1,6 +1,9 @@
-$Id: ChangeLog 4581 2017-11-03 19:58:02Z chrfranke $
+$Id: ChangeLog 4582 2017-11-03 20:54:56Z chrfranke $
 
 2017-11-03  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp, dev_areca.cpp, os_linux.cpp: Add comments to silence
+	g++ 7.1 -Wimplicit-fallthrough=[1-4] warnings.
 
 	os_linux.cpp: Fix indentation (g++ 6.3: -Wmisleading-indentation).
 

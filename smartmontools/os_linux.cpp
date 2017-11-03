@@ -103,7 +103,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4581 2017-11-03 19:58:02Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4582 2017-11-03 20:54:56Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -892,7 +892,7 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
             return res;         /* wait until we see a device */
         /* fallback to the SCSI_IOCTL_SEND_COMMAND */
         sg_io_state = SG_IO_UNSUPP;
-        /* drop through by design */
+        /* FALLTHRU */
     case SG_IO_UNSUPP:
         /* depricated SCSI_IOCTL_SEND_COMMAND ioctl */
         return sisc_cmnd_io(dev_fd, iop, report);

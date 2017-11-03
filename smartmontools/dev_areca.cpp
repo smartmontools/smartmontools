@@ -21,7 +21,7 @@
 #include "dev_interface.h"
 #include "dev_areca.h"
 
-const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4209 2016-01-22 20:49:44Z chrfranke $"
+const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4582 2017-11-03 20:54:56Z chrfranke $"
   DEV_ARECA_H_CVSID;
 
 #include "atacmds.h"
@@ -157,6 +157,7 @@ int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsig
       sBuf.srbioctl.Length = data_len;
       memcpy((unsigned char *)sBuf.ioctldatabuffer, (unsigned char *)data, data_len);
     }
+    /* FALLTHRU */
     // commands for clearing related buffer of driver
   case ARCMSR_CLEAR_RQBUFFER:
   case ARCMSR_CLEAR_WQBUFFER:

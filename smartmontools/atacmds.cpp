@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4555 2017-10-15 15:06:00Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4582 2017-11-03 20:54:56Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -548,6 +548,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         break;
       case STATUS_CHECK:
         in.out_needed.lba_high = in.out_needed.lba_mid = true; // Status returned here
+        /* FALLTHRU */
       case STATUS:
         in.in_regs.features = ATA_SMART_STATUS;
         break;
