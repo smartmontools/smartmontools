@@ -156,6 +156,11 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
            lbacap_to_str(buf, id_ns.nuse, fmt_lba_bits));
 
     pout("Namespace %u Formatted LBA Size:   %s%u\n", nsid, align, (1U << fmt_lba_bits));
+
+    if (show_all || nonempty(id_ns.eui64, sizeof(id_ns.eui64)))
+      pout("Namespace %u IEEE EUI-64:          %s%02x%02x%02x %02x%02x%02x%02x%02x\n",
+           nsid, align, id_ns.eui64[0], id_ns.eui64[1], id_ns.eui64[2], id_ns.eui64[3],
+           id_ns.eui64[4], id_ns.eui64[5], id_ns.eui64[6], id_ns.eui64[7]);
   }
 
   char td[DATEANDEPOCHLEN]; dateandtimezone(td);
