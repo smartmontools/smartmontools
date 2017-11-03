@@ -1,4 +1,8 @@
-$Id: ChangeLog 4578 2017-10-29 18:39:57Z chrfranke $
+$Id: ChangeLog 4580 2017-11-03 19:41:14Z chrfranke $
+
+2017-11-03  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Print IEEE EUI-64 of namespace.
 
 2017-10-29  Christian Franke  <franke@computer.org>
 
