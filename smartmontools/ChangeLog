@@ -2,6 +2,8 @@ $Id$
 
 2017-11-03  Christian Franke  <franke@computer.org>
 
+	os_linux.cpp: Fix indentation (g++ 6.3: -Wmisleading-indentation).
+
 	nvmeprint.cpp: Print IEEE EUI-64 of namespace.
 
 2017-10-29  Christian Franke  <franke@computer.org>

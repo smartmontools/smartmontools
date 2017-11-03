@@ -1052,7 +1052,7 @@ bool linux_aacraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     j  = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < (int)iop->cmnd_len; ++k)
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-      if ((report > 1) &&
+    if ((report > 1) &&
         (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
         int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
