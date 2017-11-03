@@ -2,6 +2,8 @@ $Id$
 
 2017-11-03  Christian Franke  <franke@computer.org>
 
+	utility.cpp: Silence g++ 7.1 -Wformat-truncation warning.
+
 	atacmds.cpp, dev_areca.cpp, os_linux.cpp: Add comments to silence
 	g++ 7.1 -Wimplicit-fallthrough=[1-4] warnings.
 

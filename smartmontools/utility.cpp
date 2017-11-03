@@ -787,7 +787,14 @@ int safe_snprintf(char *buf, int size, const char *fmt, ...)
   return i;
 }
 
-#else // HAVE_WORKING_SNPRINTF
+static void check_snprintf() {}
+
+#elif defined(__GNUC__) && (__GNUC__ >= 7)
+
+// G++ 7+: Assume sane implementation and avoid -Wformat-truncation warning
+static void check_snprintf() {}
+
+#else
 
 static void check_snprintf()
 {
@@ -795,8 +802,7 @@ static void check_snprintf()
   int n1 = snprintf(buf, 8, "123456789");
   int n2 = snprintf(buf, 0, "X");
   if (!(!strcmp(buf, "1234567") && n1 == 9 && n2 == 1))
-    throw std::logic_error("Function snprintf() does not conform to C99,\n"
-                           "please contact " PACKAGE_BUGREPORT);
+    throw std::logic_error("Function snprintf() does not conform to C99");
 }
 
 #endif // HAVE_WORKING_SNPRINTF
@@ -805,7 +811,5 @@ static void check_snprintf()
 void check_config()
 {
   check_endianness();
-#ifdef HAVE_WORKING_SNPRINTF
   check_snprintf();
-#endif
 }
