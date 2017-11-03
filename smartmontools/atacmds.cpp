@@ -548,6 +548,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         break;
       case STATUS_CHECK:
         in.out_needed.lba_high = in.out_needed.lba_mid = true; // Status returned here
+        /* FALLTHRU */
       case STATUS:
         in.in_regs.features = ATA_SMART_STATUS;
         break;

@@ -892,7 +892,7 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
             return res;         /* wait until we see a device */
         /* fallback to the SCSI_IOCTL_SEND_COMMAND */
         sg_io_state = SG_IO_UNSUPP;
-        /* drop through by design */
+        /* FALLTHRU */
     case SG_IO_UNSUPP:
         /* depricated SCSI_IOCTL_SEND_COMMAND ioctl */
         return sisc_cmnd_io(dev_fd, iop, report);

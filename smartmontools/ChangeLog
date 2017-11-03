@@ -2,6 +2,9 @@ $Id$
 
 2017-11-03  Christian Franke  <franke@computer.org>
 
+	atacmds.cpp, dev_areca.cpp, os_linux.cpp: Add comments to silence
+	g++ 7.1 -Wimplicit-fallthrough=[1-4] warnings.
+
 	os_linux.cpp: Fix indentation (g++ 6.3: -Wmisleading-indentation).
 
 	nvmeprint.cpp: Print IEEE EUI-64 of namespace.

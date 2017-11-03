@@ -157,6 +157,7 @@ int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsig
       sBuf.srbioctl.Length = data_len;
       memcpy((unsigned char *)sBuf.ioctldatabuffer, (unsigned char *)data, data_len);
     }
+    /* FALLTHRU */
     // commands for clearing related buffer of driver
   case ARCMSR_CLEAR_RQBUFFER:
   case ARCMSR_CLEAR_WQBUFFER:
