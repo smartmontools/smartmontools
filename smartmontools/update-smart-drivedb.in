@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: update-smart-drivedb.in 4565 2017-10-24 20:51:15Z chrfranke $
+# $Id: update-smart-drivedb.in 4584 2017-11-03 22:43:32Z chrfranke $
 #
 
 set -e
@@ -249,7 +249,7 @@ unexpand_svn_id()
 }
 
 # Smartmontools Signing Key (through 2018)
-# <smartmontools-database@lists.sourceforge.net>
+# <smartmontools-database@listi.jpberlin.de>
 # Key ID DFD22559
 public_key="\
 -----BEGIN PGP PUBLIC KEY BLOCK-----

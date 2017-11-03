@@ -1,6 +1,9 @@
-$Id: ChangeLog 4583 2017-11-03 21:10:09Z chrfranke $
+$Id: ChangeLog 4584 2017-11-03 22:43:32Z chrfranke $
 
 2017-11-03  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.8.in: Update mailing list link.
+	update-smart-drivedb.in: Update mailing list comment.
 
 	utility.cpp: Silence g++ 7.1 -Wformat-truncation warning.
 
