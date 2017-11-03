@@ -2,6 +2,9 @@ $Id$
 
 2017-11-03  Christian Franke  <franke@computer.org>
 
+	update-smart-drivedb.8.in: Update mailing list link.
+	update-smart-drivedb.in: Update mailing list comment.
+
 	utility.cpp: Silence g++ 7.1 -Wformat-truncation warning.
 
 	atacmds.cpp, dev_areca.cpp, os_linux.cpp: Add comments to silence

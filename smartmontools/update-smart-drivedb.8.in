@@ -192,7 +192,7 @@ To submit a bug report, create a ticket in smartmontools wiki:
 .br
 Alternatively send the info to the smartmontools support mailing list:
 .br
-<\fBhttps://lists.sourceforge.net/lists/listinfo/smartmontools-support\fB>.
+<\fBhttps://listi.jpberlin.de/mailman/listinfo/smartmontools-support\fB>.
 .Sp
 .SH SEE ALSO
 \fBsmartctl\fP(8), \fBsmartd\fP(8).

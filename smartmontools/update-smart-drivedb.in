@@ -249,7 +249,7 @@ unexpand_svn_id()
 }
 
 # Smartmontools Signing Key (through 2018)
-# <smartmontools-database@lists.sourceforge.net>
+# <smartmontools-database@listi.jpberlin.de>
 # Key ID DFD22559
 public_key="\
 -----BEGIN PGP PUBLIC KEY BLOCK-----
