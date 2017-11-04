@@ -3,6 +3,7 @@ $Id$
 2017-11-04  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in: Add '-g' to '-x' documentation.
+	Avoid a very long line.
 
 	smartctl.cpp: Improve help text formatting.
 

@@ -1542,7 +1542,7 @@ indicates the device is at the end of its lifetime as projected by the
 manufacturer.
 The value may reach 255.
 .TP
-.B \-v ID,FORMAT[:BYTEORDER][,NAME], \-\-vendorattribute=ID,FORMAT[:BYTEORDER][,NAME]
+.B \-v ID,FORMAT[:BYTEORDER][,NAME], \-\-vendorattribute=ID,FORMAT...
 [ATA only] Sets a vendor-specific raw value print FORMAT, an optional
 BYTEORDER and an optional NAME for Attribute ID.
 This option may be used multiple times.
