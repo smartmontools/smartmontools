@@ -1,5 +1,9 @@
 $Id$
 
+2017-11-04  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Improve help text formatting.
+
 2017-11-03  Christian Franke  <franke@computer.org>
 
 	update-smart-drivedb.8.in: Update mailing list link.
