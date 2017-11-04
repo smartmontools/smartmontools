@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-17 Christian Franke
 
-$Id: smartctl.8.in 4578 2017-10-29 18:39:57Z chrfranke $
+$Id: smartctl.8.in 4586 2017-11-04 14:03:39Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -271,12 +271,13 @@ and the SMART options which require support for 48-bit ATA commands.
 Prints all SMART and non-SMART information about the device.
 For ATA devices this is equivalent to
 .br
-\*(Aq\-H \-i \-g all \-c \-A \-f brief \-l xerror,error \-l xselftest,selftest
-\-l selective \-l directory \-l scttemp \-l scterc \-l devstat \-l sataphy\*(Aq.
+\*(Aq\-H \-i \-g all \-g wcreorder \-c \-A \-f brief \-l xerror,error
+\-l xselftest,selftest \-l selective \-l directory \-l scttemp \-l scterc
+\-l devstat \-l sataphy\*(Aq.
 .br
 and for SCSI, this is equivalent to
 .br
-\*(Aq\-H \-i \-A \-l error \-l selftest \-l background \-l sasphy\*(Aq.
+\*(Aq\-H \-i \-g all \-A \-l error \-l selftest \-l background \-l sasphy\*(Aq.
 .br
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
@@ -2444,4 +2445,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4578 2017-10-29 18:39:57Z chrfranke $
+$Id: smartctl.8.in 4586 2017-11-04 14:03:39Z chrfranke $
