@@ -2,6 +2,16 @@ $Id$
 
 2017-11-04  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- USB: Toshiba Canvio (0x0480:0xa202, 0xa207)
+	- USB: Seagate Expansion Desktop (0x0bc2:0x3330)
+	- USB: Maxtor D3 Station 3TB (0x0bc2:0x6123)
+	- USB: Seagate Backup Plus 4TB (0x0bc2:0xab1e)
+	- USB: JMicron (0x152d:0x0579)
+	- USB: Hitachi Touro Mobile (0x4971:0x1023)
+	- USB: JMicron JMS566 (0xa152:0xb566)
+	- USB: LogiLink PCCloneEX Lite (0xabcd:0x6104)
+
 	smartd.conf.5.in: Fix conditionals of platform specific samples.
 
 	smartctl.8.in, smartd.conf.5.in: Shorten or remove info about

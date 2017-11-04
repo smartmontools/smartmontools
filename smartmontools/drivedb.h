@@ -2927,7 +2927,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MQ01UBD... (USB 3.0)", // tested with TOSHIBA MQ01UBD050/AX001U (0x0480:0xa007),
-      // TOSHIBA MQ01UBD100/AX001U (0x0480:0x0201, 0x0480:0xa200)
+      // TOSHIBA MQ01UBD100/AX001U (0x0480:0x0201, 0x0480:0xa200),
+      // TOSHIBA MQ01UBD050/AX101U (0x0480:0xa202)
     "TOSHIBA MQ01UBD(050|075|100)",
     "", "", ""
   },
@@ -4011,8 +4012,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Toshiba Canvio; ",
-    "0x0480:0x(a(007|100|20[0c])|" // 0xa007 TOSHIBA MQ01UBD050,
+    "0x0480:0x(a(007|100|20[027c])|" // 0xa007 TOSHIBA MQ01UBD050,
               "b207)", // 0xa100: TOSHIBA MQ01UBB200, 0xa200: TOSHIBA MQ01UBD100,
+        // 0xa202: TOSHIBA MQ01UBD050, 0xa207: TOSHIBA MQ01ABD100,
         // 0xa20c: TOSHIBA MQ01ABB200, 0xb207: TOSHIBA MQ03UBB200
     "", // 0x0001 (0xa007)
     "",
@@ -4521,7 +4523,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Expansion Desktop; ",
-    "0x0bc2:0x33(00|1[2a]|2[012]|32)", // 1a=5TB, 21=4TB
+    "0x0bc2:0x33(00|1[2a]|2[012]|3[02])", // 1a=5TB, 21=4TB
     "", // 1a=0x0909
     "",
     "-d sat"
@@ -4568,10 +4570,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Seagate FreeAgent GoFlex; ",
+  { "USB: Seagate FreeAgent / Maxtor D3; ",
     // 0x6121: Seagate FreeAgent GoFlex Pro for Mac (0x0148)
+    // 0x6123: Maxtor D3 Station 3TB (0x0209)
     // 0x6126: Maxtor D3 Station 5TB (0x0209)
-    "0x0bc2:0x612[16]",
+    "0x0bc2:0x612[136]",
     "",
     "",
     "-d sat"
@@ -4601,10 +4604,11 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Seagate Backup Plus USB 3.0; ",
+    // 0xab1e: Seagate Backup Plus 4TB
     // 0xab24: Seagate Backup Plus Slim (0x0100) (ticket #443)
     // 0xab25: Seagate Backup Plus for Mac (0x0100)
     // 0xab38: Seagate Backup Plus 8TB (0x0100) (ticket #786)
-    "0x0bc2:0xab(2[01458]|38)",
+    "0x0bc2:0xab(1e|2[01458]|38)",
     "",
     "",
     "-d sat"
@@ -4860,6 +4864,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron JMS578", // USB->SATA
     "0x152d:0x0578",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: ; JMicron",
+    "0x152d:0x0579", // Intenso External
     "", // 0x0100
     "",
     "-d sat"
@@ -5151,7 +5161,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat" // ATA output registers missing
   },
   { "USB: Hitachi Touro Mobile; ", // 1TB
-    "0x4971:0x102[04]",
+    "0x4971:0x102[034]",
     "", // 0x0100
     "",
     "-d sat"
@@ -5182,9 +5192,17 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // JMicron II
+  { "USB: ; JMicron JMS566",
+    "0xa152:0xb566",
+    "", // 0x0223
+    "",
+    "-d sat"
+  },
   // 0xabcd (?)
   { "USB: ; ",
-    "0xabcd:0x6103", // LogiLink AU0028A V1.0 USB 3.0 to IDE & SATA Adapter
+    "0xabcd:0x610[34]", // 0x6103: LogiLink AU0028A V1.0 USB 3.0 to IDE & SATA Adapter
+      // 0x6104: LogiLink PCCloneEX Lite
     "",
     "",
     "-d sat"
