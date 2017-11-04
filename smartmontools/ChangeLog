@@ -3,6 +3,10 @@ $Id$
 2017-11-04  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Apple SD/SM/TS...E/F/G SSDs: Rename, add 1TB
+	- Innodisk 3IE3/3ME3/3ME4 SSDs: Rename, add 3ME4
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: 150GB, *G7
+	  (ticket #750)
 	- USB: Toshiba Canvio (0x0480:0xa202, 0xa207)
 	- USB: Seagate Expansion Desktop (0x0bc2:0x3330)
 	- USB: Maxtor D3 Station 3TB (0x0bc2:0x6123)

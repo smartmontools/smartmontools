@@ -175,15 +175,15 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Host_Writes_GiB "     //  ]  guessed (ticket #655)
     "-v 242,raw48,Host_Reades_GiB "     //  ]
   },
-  { "Apple SD/SM/TS...E/F SSDs", // SanDisk/Samsung/Toshiba?
-    "APPLE SSD (S[DM]|TS)0?(128|256|512|768)[EFG]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
-     // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q, TS0256F/109L0704, SM0512G/BXW1SA0Q
+  { "Apple SD/SM/TS...E/F/G SSDs", // SanDisk/Samsung/Toshiba?
+    "APPLE SSD (S[DM]|TS)0?(128|256|512|768|1024)[EFG]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
+     // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q, TS0256F/109L0704, SM0512G/BXW1SA0Q, SM1024G/BXW1SA0Q
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
-  //"-v 169,raw48,Unknown_Attribute "
+    "-v 169,raw48,Unknown_Apple_Attrib "
     "-v 173,raw48,Wear_Leveling_Count " // ]
     "-v 174,raw48,Host_Reads_MiB "      // ] guessed (ticket #342), S[DM]*F only
     "-v 175,raw48,Host_Writes_MiB "     // ]
@@ -828,7 +828,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 245,raw48,Flash_Writes_32MiB"
   },
-  { "Innodisk 3IE3/3ME3 SSDs", // tested with 2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
+  { "Innodisk 3IE3/3ME3/3ME4 SSDs", // tested with 2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
       // InnoDisk Corp. - mSATA 3ME3/S15A19, mSATA mini 3ME3/S15A19, M.2 (S42) 3ME3,
       // SATA Slim 3ME3/S15A19, SATADOM-MH 3ME3/S15A19, SATADOM-ML 3ME3/S15A19,
       // SATADOM-MV 3ME3/S15A19, SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19,
@@ -836,8 +836,10 @@ const drive_settings builtin_knowndrives[] = {
       // InnoDisk Corp. - mSATA 3IE3/S15C14i, Mini PCIeDOM 1IE3/S15C14i,
       // mSATA mini 3IE3/S15C14i, M.2 (S42) 3IE3/S15C14i, SATA Slim 3IE3/S15C14i,
       // SATADOM-SH 3IE3 V2/S15C14i, SATADOM-SL 3IE3 V2/S15A19i, SATADOM-SV 3IE3 V2/S15C14i
-    "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|Mini PCIeDOM|mSATA mini|"
-    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-[MS][HLV]) 3[IM]E3( V2)?",
+      // mSATA 3ME4/L16711, M.2 (S42) 3ME4/L16711, SATADOM-MH 3ME4/L16B01,
+      // SATADOM-SH 3ME4/L16B01, SATADOM-SH Type C 3ME4/L16B01, SATADOM-SH Type D 3ME4/L16B01
+    "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|Mini PCIeDOM|mSATA( mini)?|"
+    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-[MS][HLV]( Type [CD])?) 3([IM]E3|ME4)( V2)?",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -1170,8 +1172,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Intel 730 and DC S35x0/3610/3700 Series SSDs", // tested with INTEL SSDSC2BP480G4, SSDSC2BB120G4/D2010355,
       // INTEL SSDSC2BB800G4T, SSDSC2BA200G3/5DV10250, SSDSC2BB080G6/G2010130,  SSDSC2BX200G4/G2010110,
-      // INTEL SSDSC2BB016T6/G2010140, SSDSC2BX016T4/G2010140
-    "INTEL SSDSC(1N|2B)[ABPX]((080|100|120|160|200|240|300|400|480|600|800)G[346]T?|(012|016)T[46])",
+      // INTEL SSDSC2BB016T6/G2010140, SSDSC2BX016T4/G2010140, SSDSC2BB150G7/N2010101
+    "INTEL SSDSC(1N|2B)[ABPX]((080|100|120|150|160|200|240|300|400|480|600|800)G[3467]T?|(012|016)T[46])",
       // A = S3700, B*4 = S3500, B*6 = S3510, P = 730, X = S3610
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
