@@ -1,6 +1,9 @@
-$Id: ChangeLog 4587 2017-11-04 14:13:13Z chrfranke $
+$Id: ChangeLog 4588 2017-11-04 15:15:32Z chrfranke $
 
 2017-11-04  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in: Shorten or remove info about
+	very old 3ware controllers.
 
 	smartctl.8.in: Add '-g' to '-x' documentation.
 	Avoid a very long line.
