@@ -492,63 +492,17 @@ Use syntax such as:
 .br
 \fBsmartctl \-a \-d 3ware,1 /dev/tws0\fP [FreeBSD only]
 .br
-The first two forms, which refer to devices /dev/sda\-z and /dev/twe0\-15,
-may be used with 3ware series 6000, 7000, and 8000 series controllers
-that use the 3x-xxxx driver.
-\fBNote that the /dev/sda\-z form is deprecated\fP starting with
-the Linux 2.6 kernel series and may not be supported by the Linux
-kernel in the near future.  The final form, which refers to devices
-/dev/twa0\-15, must be used with 3ware 9000 series controllers, which
-use the 3w\-9xxx driver.
-.Sp
+The first two forms, which refer to devices /dev/sda\-z (deprecated)
+and /dev/twe0\-15, may be used with 3ware series 6000, 7000, and 8000
+series controllers that use the 3x-xxxx driver.
+The devices /dev/twa0\-15, must be used with 3ware 9000 series controllers,
+which use the 3w\-9xxx driver.
 The devices /dev/twl0\-15 [Linux] or /dev/tws0\-15 [FreeBSD] must be used
 with the 3ware/LSI 9750 series controllers which use the 3w-sas driver.
 .Sp
 Note that if the special character device nodes /dev/tw[ls]?, /dev/twa?
 and /dev/twe? do not exist, or exist with the incorrect major or minor
-numbers, smartctl will recreate them on the fly.  Typically /dev/twa0
-refers to the first 9000-series controller, /dev/twa1 refers to the
-second 9000 series controller, and so on.  The /dev/twl0 devices refers
-to the first 9750 series controller, /dev/twl1 resfers to the second
-9750 series controller, and so on.  Likewise /dev/twe0 refers to
-the first 6/7/8000-series controller, /dev/twe1 refers to the second
-6/7/8000 series controller, and so on.
-.Sp
-Note that for the 6/7/8000 controllers, \fBany\fP of the physical
-disks can be queried or examined using \fBany\fP of the 3ware's SCSI
-logical device /dev/sd?  entries.  Thus, if logical device /dev/sda is
-made up of two physical disks (3ware ports zero and one) and logical
-device /dev/sdb is made up of two other physical disks (3ware ports
-two and three) then you can examine the SMART data on \fBany\fP of the
-four physical disks using \fBeither\fP SCSI device /dev/sda \fBor\fP
-/dev/sdb.  If you need to know which logical SCSI device a particular
-physical disk (3ware port) is associated with, use the dmesg or SYSLOG
-output to show which SCSI ID corresponds to a particular 3ware unit,
-and then use the 3ware CLI or 3dm tool to determine which ports
-(physical disks) correspond to particular 3ware units.
-.Sp
-If the value of N corresponds to a port that does \fBnot\fP exist on
-the 3ware controller, or to a port that does not physically have a
-disk attached to it, the behavior of \fBsmartctl\fP depends upon the
-specific controller model, firmware, Linux kernel and platform.  In
-some cases you will get a warning message that the device does not
-exist.  In other cases you will be presented with \*(Aqvoid\*(Aq data for a
-non-existent device.
-.Sp
-Note that if the /dev/sd? addressing form is used, then older 3w-xxxx
-drivers do not pass the "Enable Autosave" (\*(Aq\-S on\*(Aq) and
-"Enable Automatic Offline" (\*(Aq\-o on\*(Aq) commands
-to the disk, and produce these types of harmless syslog error
-messages instead: "\fB3w-xxxx: tw_ioctl(): Passthru size (123392) too
-big\fP".  This can be fixed by upgrading to version 1.02.00.037 or
-later of the 3w-xxxx driver, or by applying a patch to older
-versions.  Alternatively, use the character device /dev/twe0\-15 interface.
-.Sp
-The selective self-test functions (\*(Aq\-t select,A\-B\*(Aq) are only supported
-using the character device interface /dev/twl0\-15, /dev/tws0\-15,
-/dev/twa0\-15 and /dev/twe0\-15.
-The necessary WRITE LOG commands can not be passed through the SCSI
-interface.
+numbers, smartctl will recreate them on the fly.
 .Sp
 .\" %ENDIF OS FreeBSD Linux
 .\" %IF OS FreeBSD Linux Windows Cygwin
@@ -2254,30 +2208,10 @@ shell variable) to learn if any Attributes are out of bound, if the
 SMART status is failing, if there are errors recorded in the
 self-test log, or if there are errors recorded in the disk error log.
 .PP
-.B smartctl \-a \-d 3ware,0 /dev/sda
-.br
-Examine all SMART data for the first ATA disk connected to a 3ware
-RAID controller card.
-.PP
-.B smartctl \-a \-d 3ware,0 /dev/twe0
-.br
-Examine all SMART data for the first ATA disk connected to a 3ware
-RAID 6000/7000/8000 controller card.
-.PP
-.B smartctl \-a \-d 3ware,0 /dev/twa0
-.br
-Examine all SMART data for the first ATA disk connected to a
-3ware RAID 9000 controller card.
-.PP
 .B smartctl \-a \-d 3ware,0 /dev/twl0
 .br
 Examine all SMART data for the first SATA (not SAS) disk connected to a
 3ware RAID 9750 controller card.
-.PP
-.B smartctl \-t short \-d 3ware,3 /dev/sdb
-.br
-Start a short self-test on the fourth ATA disk connected to the 3ware RAID
-controller card which is the second SCSI device /dev/sdb.
 .PP
 .B smartctl \-t long \-d areca,4 /dev/sg2
 .br

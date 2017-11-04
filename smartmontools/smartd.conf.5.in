@@ -145,31 +145,16 @@ Section below!
 /dev/sda \-d aacraid,0,0,68 \-a \-s S/../.././03
 #
 .\" %ENDIF OS Linux
-# Four ATA disks on a 3ware 6/7/8000 controller.
-# Start short self\-tests daily between midnight and 1 am,
-# 1\-2, 2\-3, and 3\-4 am.  Starting with the Linux 2.6
-# kernel series, /dev/sdX is deprecated in favor of
-# /dev/tweN.  For example replace /dev/sdc by /dev/twe0
-# and /dev/sdd by /dev/twe1.
-/dev/sdc \-d 3ware,0 \-a \-s S/../.././00
-/dev/sdc \-d 3ware,1 \-a \-s S/../.././01
-/dev/sdd \-d 3ware,2 \-a \-s S/../.././02
-/dev/sdd \-d 3ware,3 \-a \-s S/../.././03
-#
-# Two ATA disks on a 3ware 9000 controller.
-# Start long self\-tests Sundays between midnight and
-# 1 am and 2\-3 am
-/dev/twa0 \-d 3ware,0 \-a \-s L/../../7/00
-/dev/twa0 \-d 3ware,1 \-a \-s L/../../7/02
-#
 # Two SATA (not SAS) disks on a 3ware 9750 controller.
 # Start long self\-tests Sundays between midnight and
 # 1 am and 2\-3 am
 .\" %IF OS Linux
+# under Linux
 /dev/twl0 \-d 3ware,0 \-a \-s L/../../7/00
 /dev/twl0 \-d 3ware,1 \-a \-s L/../../7/02
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD
+# under FreeBSD
 /dev/tws0 \-d 3ware,0 \-a \-s L/../../7/00
 /dev/tws0 \-d 3ware,1 \-a \-s L/../../7/02
 .\" %ENDIF OS FreeBSD
@@ -316,6 +301,7 @@ So with the exception of \*(Aq\-d\*(Aq, \*(Aq\-m\*(Aq, \*(Aq\-l selftest\*(Aq,
 For SCSI disks, the \*(Aq\-m\*(Aq Directive sends a warning email if the SMART
 status indicates a disk failure or problem, if the SCSI inquiry about disk
 status fails, or if new errors appear in the self-test log.
+.\" %IF OS FreeBSD Linux
 .PP
 .B If a 3ware controller is used
 then the corresponding SCSI (/dev/sd?) or character device (/dev/twe?,
@@ -325,7 +311,6 @@ The individual ATA disks hosted by the 3ware controller appear to \fBsmartd\fP
 as normal ATA devices.
 Hence all the ATA directives can be used for these disks (but see note below).
 .PP
-.\" %IF OS Linux FreeBSD
 .B If an Areca controller is used
 then the corresponding device (SCSI /dev/sg? on Linux or /dev/arcmsr0 on
 FreeBSD) must be listed, along with the \*(Aq\-d areca,N\*(Aq Directive
@@ -335,7 +320,7 @@ as normal ATA devices.  Hence all the ATA directives can be used for
 these disks.  Areca firmware version 1.46 or later which supports
 smartmontools must be used; Please see the \fBsmartctl\fP(8) man page
 for further details.
-.\" %ENDIF OS Linux FreeBSD
+.\" %ENDIF OS FreeBSD Linux
 .TP
 .B \-d TYPE
 Specifies the type of the device.
