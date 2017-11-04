@@ -271,12 +271,13 @@ and the SMART options which require support for 48-bit ATA commands.
 Prints all SMART and non-SMART information about the device.
 For ATA devices this is equivalent to
 .br
-\*(Aq\-H \-i \-g all \-c \-A \-f brief \-l xerror,error \-l xselftest,selftest
-\-l selective \-l directory \-l scttemp \-l scterc \-l devstat \-l sataphy\*(Aq.
+\*(Aq\-H \-i \-g all \-g wcreorder \-c \-A \-f brief \-l xerror,error
+\-l xselftest,selftest \-l selective \-l directory \-l scttemp \-l scterc
+\-l devstat \-l sataphy\*(Aq.
 .br
 and for SCSI, this is equivalent to
 .br
-\*(Aq\-H \-i \-A \-l error \-l selftest \-l background \-l sasphy\*(Aq.
+\*(Aq\-H \-i \-g all \-A \-l error \-l selftest \-l background \-l sasphy\*(Aq.
 .br
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
