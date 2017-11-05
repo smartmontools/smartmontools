@@ -3,7 +3,7 @@
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
-AC_INIT(smartmontools, 6.6, smartmontools-support@listi.jpberlin.de)
+AC_INIT(smartmontools, 6.7, smartmontools-support@listi.jpberlin.de)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
 smartmontools_cvs_tag=`echo '$Id$'`
