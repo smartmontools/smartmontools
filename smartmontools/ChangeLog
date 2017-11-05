@@ -1,4 +1,8 @@
-$Id: ChangeLog 4591 2017-11-04 22:40:53Z chrfranke $
+$Id: ChangeLog 4594 2017-11-05 15:21:35Z chrfranke $
+
+2017-11-05  Christian Franke  <franke@computer.org>
+
+	smartmontools 6.6
 
 2017-11-04  Christian Franke  <franke@computer.org>
 

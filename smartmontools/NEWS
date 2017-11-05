@@ -1,11 +1,11 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 4593 2017-11-05 12:28:09Z chrfranke $
+$Id: NEWS 4594 2017-11-05 15:21:35Z chrfranke $
 
 The most up-to-date version of this file is:
 https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
-Date <Not released yet, please try current SVN or daily builds>
+Date 2017-11-05
 Summary: smartmontools release 6.6
 -----------------------------------------------------------
 - smartctl '-i' and '--identify': ATA ACS-4 and SATA 3.3 enhancements.
