@@ -1,4 +1,8 @@
-$Id: ChangeLog 4594 2017-11-05 15:21:35Z chrfranke $
+$Id: ChangeLog 4596 2017-11-05 16:50:03Z chrfranke $
+
+2017-11-05  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add separate version number for drivedb.h branch.
 
 2017-11-05  Christian Franke  <franke@computer.org>
 
