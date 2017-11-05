@@ -11,13 +11,14 @@ Summary: smartmontools release 6.6
 - smartctl '-i' and '--identify': ATA ACS-4 and SATA 3.3 enhancements.
 - smartctl: Control ATA write cache through SCT Feature Control
   with '-s wcache-sct,ata|on|off[,p]' and '-g wcache-sct'.
+- smartctl: Print ATA Pending Defects log with '-l defects'.
 - smartctl '-s wcreorder,on|off': New persistent flag ',p'.
 - smartctl '-s standby': Prevent temporary drive spinup.
 - smartctl '-n POWERMODE': New parameter to set exit status.
 - smartctl '-g security': ATA Security Level check fixed.
-- smartctl '-l defects': Print ATA Pending Defects log.
 - smartctl '-l scttemp*': Print minimum supported ERC Time Limit.
 - smartctl '-q noserial': Now also suppresses "SAS address" output.
+- smartctl '-i': Print IEEE EUI-64 of NVMe namespace.
 - smartctl '-c': Print NVMe 1.3 feature flags.
 - smartctl '-A': Print NVMe 1.3 thermal temperature transition
   statistic.
