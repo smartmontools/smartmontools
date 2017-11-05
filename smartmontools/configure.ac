@@ -6,6 +6,9 @@ AC_PREREQ([2.60])
 AC_INIT(smartmontools, 6.7, smartmontools-support@listi.jpberlin.de)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
+# Version of drive database branch
+smartmontools_drivedb_version=6.6
+
 smartmontools_cvs_tag=`echo '$Id$'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
@@ -244,7 +247,7 @@ AC_ARG_WITH(drivedbdir,
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test -n "$drivedbdir"])
 
-drivedb_version=$VERSION
+drivedb_version=$smartmontools_drivedb_version
 AC_ARG_WITH(update-smart_drivedb,
   [AS_HELP_STRING([--with-update-smart-drivedb@<:@=yes|no|X.Y@:>@],
     [Install update-smart-drivedb script (and backport it to branches/RELEASE_X_Y_DRIVEDB) [yes]])],
@@ -769,7 +772,9 @@ info=`
         echo "drive database file:    \`eval eval eval echo $drivedbdir\`/drivedb.h"
         if test "$with_update_smart_drivedb" = "yes"; then
           echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"
-          if test "$drivedb_version" != "$VERSION"; then
+          if test "$drivedb_version" = "$smartmontools_drivedb_version"; then
+            echo "database update branch: branches/$DRIVEDB_BRANCH"
+          else
             echo "... backported to:      branches/$DRIVEDB_BRANCH"
           fi
           echo "download tools:         \`eval eval eval echo $os_dltools\`"

@@ -2,6 +2,10 @@ $Id$
 
 2017-11-05  Christian Franke  <franke@computer.org>
 
+	configure.ac: Add separate version number for drivedb.h branch.
+
+2017-11-05  Christian Franke  <franke@computer.org>
+
 	smartmontools 6.6
 
 2017-11-04  Christian Franke  <franke@computer.org>
