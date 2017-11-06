@@ -103,7 +103,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4582 2017-11-03 20:54:56Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4599 2017-11-06 22:06:52Z samm2 $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -3010,7 +3010,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
   bool scan_nvme = (!*type || !strcmp(type, "nvme"));
 #else
-  bool scan_nvme = (          !strcmp(type, "nvme"));
+  bool scan_nvme = (type   &&  !strcmp(type, "nvme"));
 #endif
 
   if (!(scan_ata || scan_scsi || scan_nvme)) {

@@ -32,7 +32,7 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4431 2017-08-08 19:38:15Z chrfranke $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4599 2017-11-06 22:06:52Z samm2 $"
   OS_NETBSD_H_CVSID;
 
 enum warnings {
@@ -754,7 +754,7 @@ bool netbsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
   bool scan_nvme = !*type || !strcmp(type, "nvme");
 #else
-  bool scan_nvme =           !strcmp(type, "nvme");
+  bool scan_nvme = type && !strcmp(type, "nvme");
 #endif
 
   // Make namelists
