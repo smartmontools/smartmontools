@@ -2035,6 +2035,8 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   // form /dev/nvme* or nvme*
   if(!strncmp("/dev/nvme", test_name, strlen("/dev/nvme")))
     return new freebsd_nvme_device(this, name, "", 0 /* use default nsid */);
+  if(!strncmp("/dev/nvd", test_name, strlen("/dev/nvd")))
+    set_err(EINVAL, "To monitor NVMe disks use /dev/nvme* device names");
 
   // device type unknown
   return 0;
