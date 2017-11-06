@@ -1,5 +1,10 @@
 $Id$
 
+2017-11-06  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_linux.cpp/os_netbsd.cpp: fix crash on --scan if WITH_NVME_DEVICESCAN
+	is not set and '-d <type>' is not specified
+
 2017-11-05  Christian Franke  <franke@computer.org>
 
 	configure.ac: Add separate version number for drivedb.h branch.

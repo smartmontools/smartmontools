@@ -754,7 +754,7 @@ bool netbsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
   bool scan_nvme = !*type || !strcmp(type, "nvme");
 #else
-  bool scan_nvme =           !strcmp(type, "nvme");
+  bool scan_nvme = type && !strcmp(type, "nvme");
 #endif
 
   // Make namelists
