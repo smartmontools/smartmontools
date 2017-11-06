@@ -1,8 +1,9 @@
-$Id: ChangeLog 4601 2017-11-06 22:29:56Z samm2 $
+$Id: ChangeLog 4602 2017-11-06 22:49:28Z samm2 $
 
 2017-11-06  Alex Samorukov <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: implement NVMe device scan (#687)
+	os_freebsd.cpp: show hint if /dev/nvd* is specified as device name
 
 2017-11-05  Christian Franke  <franke@computer.org>
 
