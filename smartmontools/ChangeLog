@@ -1,4 +1,8 @@
-$Id: ChangeLog 4600 2017-11-06 22:26:42Z samm2 $
+$Id: ChangeLog 4601 2017-11-06 22:29:56Z samm2 $
+
+2017-11-06  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: implement NVMe device scan (#687)
 
 2017-11-05  Christian Franke  <franke@computer.org>
 
