@@ -1,5 +1,9 @@
 $Id$
 
+2017-11-06  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: implement NVMe device scan (#687)
+
 2017-11-05  Christian Franke  <franke@computer.org>
 
 	configure.ac: Add separate version number for drivedb.h branch.
