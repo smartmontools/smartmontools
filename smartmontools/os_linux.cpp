@@ -3176,7 +3176,7 @@ static bool is_hpsa(const char * name)
 {
   char path[128];
   snprintf(path, sizeof(path), "/sys/block/%s/device", name);
-  char * syshostpath = canonicalize_file_name(path);
+  char * syshostpath = realpath(name, (char *)0);
   if (!syshostpath)
     return false;
 
