@@ -3687,7 +3687,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     bool use_gplog = true;
     unsigned nsectors = 0;
     if (gplogdir) 
-      nsectors = GetNumLogSectors(gplogdir, 0x04, false);
+      nsectors = GetNumLogSectors(gplogdir, 0x04, true);
     else if (smartlogdir){ // for systems without ATA_READ_LOG_EXT
       nsectors = GetNumLogSectors(smartlogdir, 0x04, false);
       use_gplog = false;

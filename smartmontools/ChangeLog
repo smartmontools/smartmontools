@@ -2,6 +2,9 @@ $Id$
 
 2017-11-08  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp: Fix detection of Device Statistics log with
+	256 sectors (#922).
+
 	os_linux.cpp: Use 'realpath()' (BSD, POSIX) instead of
 	'canonicalize_file_name()' (GNU extension).
 	This fixes build on systems with musl libc (#921).
