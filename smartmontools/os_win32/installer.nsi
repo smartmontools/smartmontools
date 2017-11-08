@@ -13,7 +13,7 @@
 ; You should have received a copy of the GNU General Public License
 ; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
-; $Id: installer.nsi 4607 2017-11-08 18:46:30Z chrfranke $
+; $Id: installer.nsi 4608 2017-11-08 21:13:17Z chrfranke $
 ;
 
 
@@ -560,10 +560,13 @@ Function .onInit
   !insertmacro AdjustSectionSize ${SMARTCTL_NC_SECTION}
 !endif
 
-  ; Use Notepad++ if installed
+  ; Use 32-bit or 64-bit Notepad++ if installed
   StrCpy $EDITOR "$PROGRAMFILES\Notepad++\notepad++.exe"
   ${IfNot} ${FileExists} "$EDITOR"
-    StrCpy $EDITOR "notepad.exe"
+    StrCpy $EDITOR "$PROGRAMFILES64\Notepad++\notepad++.exe"
+    ${IfNot} ${FileExists} "$EDITOR"
+      StrCpy $EDITOR "notepad.exe"
+    ${EndIf}
   ${EndIf}
 
   Call ParseCmdLine
