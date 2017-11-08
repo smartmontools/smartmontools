@@ -4,6 +4,7 @@ $Id$
 
 	os_win32/installer.nsi: Remove get/set of old 'Install_Dir' registry
 	entry.  No longer needed for recent versions of GSmartControl.
+	Remove deletion of old .exe.manifest files.
 
 	ataprint.cpp: Fix detection of Device Statistics log with
 	256 sectors (#922).

@@ -270,7 +270,6 @@ Section "Start Menu Shortcuts" MENU_SECTION
   ${OrIf} ${FileExists} "$INSTDIR\bin\smartd.exe"
     SetOutPath "$INSTDIR\bin"
     !insertmacro FileExe "bin\runcmdu.exe" ""
-    Delete "$INSTDIR\bin\runcmdu.exe.manifest" ; TODO: Remove after smartmontools 6.5
   ${EndIf}
 
   ; smartctl
@@ -461,9 +460,7 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\drivedb.h.old"
   Delete "$INSTDIR\bin\update-smart-drivedb.exe"
   Delete "$INSTDIR\bin\runcmda.exe"
-  Delete "$INSTDIR\bin\runcmda.exe.manifest" ; TODO: Remove after smartmontools 6.5
   Delete "$INSTDIR\bin\runcmdu.exe"
-  Delete "$INSTDIR\bin\runcmdu.exe.manifest" ; TODO: Remove after smartmontools 6.5
   Delete "$INSTDIR\bin\wtssendmsg.exe"
   Delete "$INSTDIR\doc\AUTHORS.txt"
   Delete "$INSTDIR\doc\ChangeLog.txt"
@@ -679,7 +676,6 @@ Function CheckRunCmdA
     StrCpy $runcmda "t"
     SetOutPath "$INSTDIR\bin"
     !insertmacro FileExe "bin\runcmda.exe" ""
-    Delete "$INSTDIR\bin\runcmda.exe.manifest" ; TODO: Remove after smartmontools 6.5
   ${EndIf}
 FunctionEnd
 
