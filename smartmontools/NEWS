@@ -5,6 +5,13 @@ $Id$
 The most up-to-date version of this file is:
 https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
+Date <Not released yet, please try current SVN or daily builds>
+Summary: smartmontools release 6.7
+-----------------------------------------------------------
+- smartctl '-l devstat': Fix for logs with 256 sectors.
+- Linux: Compile fix for systems with musl libc.
+- FreeBSD: NVMe device scanning.
+
 Date 2017-11-05
 Summary: smartmontools release 6.6
 -----------------------------------------------------------
