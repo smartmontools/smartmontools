@@ -13,7 +13,7 @@
 ; You should have received a copy of the GNU General Public License
 ; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
 ;
-; $Id: installer.nsi 4608 2017-11-08 21:13:17Z chrfranke $
+; $Id: installer.nsi 4609 2017-11-08 22:07:35Z chrfranke $
 ;
 
 
@@ -46,6 +46,19 @@ InstallColors /windows
 ; Set in .onInit
 ;InstallDir "$PROGRAMFILES\smartmontools"
 ;InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation"
+
+!ifdef VERSION
+  VIProductVersion "${VERSION}"
+  VIAddVersionKey /LANG=1033-English "CompanyName" "www.smartmontools.org"
+  VIAddVersionKey /LANG=1033-English "FileDescription" "SMART Monitoring Tools"
+  VIAddVersionKey /LANG=1033-English "FileVersion" "${VERSION}"
+ !ifdef YY
+  VIAddVersionKey /LANG=1033-English "LegalCopyright" "(C) 2002-20${YY}, Bruce Allen, Christian Franke, www.smartmontools.org"
+ !endif
+  VIAddVersionKey /LANG=1033-English "OriginalFilename" "${OUTFILE}"
+  VIAddVersionKey /LANG=1033-English "ProductName" "smartmontools"
+  VIAddVersionKey /LANG=1033-English "ProductVersion" "${VERSION}"
+!endif
 
 Var EDITOR
 
