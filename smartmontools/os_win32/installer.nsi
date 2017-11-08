@@ -560,10 +560,13 @@ Function .onInit
   !insertmacro AdjustSectionSize ${SMARTCTL_NC_SECTION}
 !endif
 
-  ; Use Notepad++ if installed
+  ; Use 32-bit or 64-bit Notepad++ if installed
   StrCpy $EDITOR "$PROGRAMFILES\Notepad++\notepad++.exe"
   ${IfNot} ${FileExists} "$EDITOR"
-    StrCpy $EDITOR "notepad.exe"
+    StrCpy $EDITOR "$PROGRAMFILES64\Notepad++\notepad++.exe"
+    ${IfNot} ${FileExists} "$EDITOR"
+      StrCpy $EDITOR "notepad.exe"
+    ${EndIf}
   ${EndIf}
 
   Call ParseCmdLine
