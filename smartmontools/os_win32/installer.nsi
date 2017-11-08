@@ -47,6 +47,19 @@ InstallColors /windows
 ;InstallDir "$PROGRAMFILES\smartmontools"
 ;InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation"
 
+!ifdef VERSION
+  VIProductVersion "${VERSION}"
+  VIAddVersionKey /LANG=1033-English "CompanyName" "www.smartmontools.org"
+  VIAddVersionKey /LANG=1033-English "FileDescription" "SMART Monitoring Tools"
+  VIAddVersionKey /LANG=1033-English "FileVersion" "${VERSION}"
+ !ifdef YY
+  VIAddVersionKey /LANG=1033-English "LegalCopyright" "(C) 2002-20${YY}, Bruce Allen, Christian Franke, www.smartmontools.org"
+ !endif
+  VIAddVersionKey /LANG=1033-English "OriginalFilename" "${OUTFILE}"
+  VIAddVersionKey /LANG=1033-English "ProductName" "smartmontools"
+  VIAddVersionKey /LANG=1033-English "ProductVersion" "${VERSION}"
+!endif
+
 Var EDITOR
 
 !ifdef INPDIR64

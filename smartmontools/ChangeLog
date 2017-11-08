@@ -2,6 +2,9 @@ $Id$
 
 2017-11-08  Christian Franke  <franke@computer.org>
 
+	Makefile.am, os_win32/installer.nsi: Add VERSIONINFO resource to
+	installer.
+
 	os_win32/installer.nsi: Remove get/set of old 'Install_Dir' registry
 	entry.  No longer needed for recent versions of GSmartControl.
 	Remove deletion of old .exe.manifest files.
