@@ -229,18 +229,16 @@ Section "Uninstaller" UNINST_SECTION
 
   CreateDirectory "$INSTDIR"
 
-  ; Keep old Install_Dir registry entry for GSmartControl
-  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\GSmartControl" "InstallLocation"
-  ReadRegStr $1 HKLM "Software\smartmontools" "Install_Dir"
-  ${If} "$0$1" != ""
-    WriteRegStr HKLM "Software\smartmontools" "Install_Dir" "$INSTDIR"
-  ${EndIf}
+  ; Remove old "Install_Dir" registry entry (smartmontools < r3911/6.3)
+  ; No longer needed for GSmartControl
+  DeleteRegKey HKLM "Software\smartmontools" ; TODO: Remove after smartmontools 6.7
 
   ; Write uninstall keys and program
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayName" "smartmontools"
 !ifdef VERSTR
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayVersion" "${VERSTR}"
 !endif
+  ; Important: GSmartControl (>= 1.0.0) reads "InstallLocation" to detect location of bin\smartctl-nc.exe
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation" "$INSTDIR"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "UninstallString" '"$INSTDIR\uninst-smartmontools.exe"'
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "Publisher"     "smartmontools.org"
@@ -419,9 +417,8 @@ Section "Uninstall"
     ${EndIf}
   ${EndIf}
 
-  ; Remove installer registry keys
+  ; Remove installer registry key
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools"
-  DeleteRegKey HKLM "Software\smartmontools"
 
   ; Remove conf file ?
   ${If} ${FileExists} "$INSTDIR\bin\smartd.conf"
@@ -540,14 +537,11 @@ Function .onInit
   ${If} $INSTDIR == "" ; /D=PATH option not specified ?
     ReadRegStr $INSTDIR HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "InstallLocation"
     ${If} $INSTDIR == "" ; Not already installed ?
-      ReadRegStr $INSTDIR HKLM "Software\smartmontools" "Install_Dir"
-      ${If} $INSTDIR == "" ; Not already installed (smartmontools < r3911/6.3) ?
-        StrCpy $INSTDIR "$PROGRAMFILES\smartmontools"
+      StrCpy $INSTDIR "$PROGRAMFILES\smartmontools"
 !ifdef INPDIR64
-        StrCpy $INSTDIR32 $INSTDIR
-        StrCpy $INSTDIR64 "$PROGRAMFILES64\smartmontools"
+      StrCpy $INSTDIR32 $INSTDIR
+      StrCpy $INSTDIR64 "$PROGRAMFILES64\smartmontools"
 !endif
-      ${EndIf}
     ${EndIf}
   ${EndIf}
 
