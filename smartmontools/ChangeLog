@@ -1,4 +1,8 @@
-$Id: ChangeLog 4609 2017-11-08 22:07:35Z chrfranke $
+$Id: ChangeLog 4610 2017-11-10 21:20:32Z samm2 $
+
+2017-11-10  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add SanDisk iSSD SDIS6BM (#923)
 
 2017-11-08  Christian Franke  <franke@computer.org>
 
