@@ -1,5 +1,9 @@
 $Id$
 
+2017-11-10  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add SanDisk iSSD SDIS6BM (#923)
+
 2017-11-08  Christian Franke  <franke@computer.org>
 
 	Makefile.am, os_win32/installer.nsi: Add VERSIONINFO resource to
