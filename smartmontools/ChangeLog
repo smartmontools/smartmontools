@@ -1,4 +1,10 @@
-$Id: ChangeLog 4611 2017-11-13 20:38:50Z chrfranke $
+$Id: ChangeLog 4612 2017-11-13 20:47:34Z chrfranke $
+
+2017-11-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital Red: WD80EZZX
+	- USB: WD My Book (0x1058:0x25ee) (Red Hat Bugzilla 1446533)
 
 2017-11-13  Matt Coates  <me@mattjackets.com>
 
