@@ -1442,8 +1442,9 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
-    "SanDisk SDSSDXPS?[0-9]*G", // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
+    "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
+    "SSD SATAIII 16GB", // SSD SATAIII 16GB/i221100 (see #923)
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -3797,7 +3798,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD40EFRX-68WT0N0/80.00A80,
       // WDC WD60EFRX-68MYMN1/82.00A82, WDC WD80EFAX-68LHPN0/83.H0A83,
       // WDC WD80EFZX-68UW8N0/83.H0A83
-    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80EF[AZ])X-.*",
+      // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee)
+    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80E[FZ][AZ])X-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD80EFZX
   },
@@ -4610,7 +4612,8 @@ const drive_settings builtin_knowndrives[] = {
     // 0xab24: Seagate Backup Plus Slim (0x0100) (ticket #443)
     // 0xab25: Seagate Backup Plus for Mac (0x0100)
     // 0xab38: Seagate Backup Plus 8TB (0x0100) (ticket #786)
-    "0x0bc2:0xab(1e|2[01458]|38)",
+    // 0xab43: Seagate Backup Plus 4TB (0x1404)
+    "0x0bc2:0xab(1e|2[01458]|38|43)",
     "",
     "",
     "-d sat"
@@ -4737,10 +4740,10 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: WD My Book / Easystore; ", // 3.5"
-    "0x1058:0x(09(0[06]|10)|11(0[01245]|1[0d]|30|40)|1230|25(a3|fb))",
+    "0x1058:0x(09(0[06]|10)|11(0[01245]|1[0d]|30|40)|1230|25(a3|ee|fb))",
     "", // 0x0906=0x0012, 10=0x0106
         // 0x1100/01=0x0165, 02=0x1028, 10=0x1030, 1d=0x1020, 30=0x1012, 40=0x1003
-        // 0x1230=0x1065, 0x25a3=0x1013, 0x25fb=0x3004
+        // 0x1230=0x1065, 0x25a3=0x1013, 0x25ee=0x4004, 0x25fb=0x3004
     "",
     "-d sat"
   },
