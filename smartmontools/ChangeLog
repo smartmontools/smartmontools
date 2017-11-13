@@ -1,5 +1,9 @@
 $Id$
 
+2017-11-13  Matt Coates  <me@mattjackets.com>
+
+	drivedb.h: USB: Seagate Backup Plus 4TB (0x0bc2:0xab43) (#926)
+
 2017-11-10  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: add SanDisk iSSD SDIS6BM (#923)
