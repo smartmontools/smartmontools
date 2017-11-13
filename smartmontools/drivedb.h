@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4610 2017-11-10 21:20:32Z samm2 $",
+  { "$Id: drivedb.h 4611 2017-11-13 20:38:50Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4611,7 +4611,8 @@ const drive_settings builtin_knowndrives[] = {
     // 0xab24: Seagate Backup Plus Slim (0x0100) (ticket #443)
     // 0xab25: Seagate Backup Plus for Mac (0x0100)
     // 0xab38: Seagate Backup Plus 8TB (0x0100) (ticket #786)
-    "0x0bc2:0xab(1e|2[01458]|38)",
+    // 0xab43: Seagate Backup Plus 4TB (0x1404)
+    "0x0bc2:0xab(1e|2[01458]|38|43)",
     "",
     "",
     "-d sat"
