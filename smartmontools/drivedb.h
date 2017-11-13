@@ -3798,7 +3798,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD40EFRX-68WT0N0/80.00A80,
       // WDC WD60EFRX-68MYMN1/82.00A82, WDC WD80EFAX-68LHPN0/83.H0A83,
       // WDC WD80EFZX-68UW8N0/83.H0A83
-    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80EF[AZ])X-.*",
+      // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee)
+    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80E[FZ][AZ])X-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD80EFZX
   },
@@ -4739,10 +4740,10 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: WD My Book / Easystore; ", // 3.5"
-    "0x1058:0x(09(0[06]|10)|11(0[01245]|1[0d]|30|40)|1230|25(a3|fb))",
+    "0x1058:0x(09(0[06]|10)|11(0[01245]|1[0d]|30|40)|1230|25(a3|ee|fb))",
     "", // 0x0906=0x0012, 10=0x0106
         // 0x1100/01=0x0165, 02=0x1028, 10=0x1030, 1d=0x1020, 30=0x1012, 40=0x1003
-        // 0x1230=0x1065, 0x25a3=0x1013, 0x25fb=0x3004
+        // 0x1230=0x1065, 0x25a3=0x1013, 0x25ee=0x4004, 0x25fb=0x3004
     "",
     "-d sat"
   },

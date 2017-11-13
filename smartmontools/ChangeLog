@@ -1,5 +1,11 @@
 $Id$
 
+2017-11-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital Red: WD80EZZX
+	- USB: WD My Book (0x1058:0x25ee) (Red Hat Bugzilla 1446533)
+
 2017-11-13  Matt Coates  <me@mattjackets.com>
 
 	drivedb.h: USB: Seagate Backup Plus 4TB (0x0bc2:0xab43) (#926)
