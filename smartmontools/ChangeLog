@@ -3,6 +3,7 @@ $Id$
 2017-11-15  Christian Franke  <franke@computer.org>
 
 	configure.ac: Make some header checks platform specific.
+	Print '--with-nvme-devicescan' warning also on FreeBSD.
 
 	examplescripts/Example6: Add enhancements from Fedora package.
 
