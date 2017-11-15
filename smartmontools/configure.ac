@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4619 2017-11-15 22:25:00Z chrfranke $
+# $Id: configure.ac 4620 2017-11-15 22:44:15Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4619 2017-11-15 22:25:00Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4620 2017-11-15 22:44:15Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -131,7 +131,6 @@ AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
 AC_CHECK_FUNCS([regcomp], [need_regex=no], [need_regex=yes])
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
-AC_CHECK_FUNCS([sigset])
 AC_CHECK_FUNCS([strtoull])
 AC_CHECK_FUNCS([uname])
 AC_CHECK_FUNCS([clock_gettime ftime gettimeofday])
@@ -388,6 +387,23 @@ available in the SVN repository.])
     fi
     AC_DEFINE(WITH_SOLARIS_SPARC_ATA, 1, [Define to 1 to enable legacy ATA support on Solaris SPARC.])
     ;;
+esac
+
+AC_ARG_WITH(signal-func,
+  [AS_HELP_STRING([--with-signal-func=@<:@sigaction|sigset|signal@:>@],
+    [Function to set signal(2) action [sigaction]])],
+  [], [with_signal_func=sigaction])
+
+case "$host:$with_signal_func" in
+  *-*-mingw*:*) ;;
+  *:sigaction)
+    AC_CHECK_FUNCS([sigaction], [], AC_MSG_ERROR([Missing function 'sigaction()'.
+Try '--with-signal-func=sigset' or '--with-signal-func=signal'.
+Please send info about your system to $PACKAGE_BUGREPORT.])) ;;
+  *:sigset)
+    AC_CHECK_FUNCS([sigset], [], AC_MSG_ERROR([Missing function 'sigset()'])) ;;
+  *:signal) ;;
+  *) AC_MSG_ERROR([Invalid option '--with-signal-func=$with_signal_func']) ;;
 esac
 
 # Assume broken snprintf only on Windows with MSVCRT (MinGW without ANSI stdio support)
