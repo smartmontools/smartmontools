@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4618 2017-11-15 21:18:42Z chrfranke $
+# $Id: configure.ac 4619 2017-11-15 22:25:00Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4618 2017-11-15 21:18:42Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4619 2017-11-15 22:25:00Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -204,27 +204,15 @@ case "$with_systemdenvfile:$cross_compiling:$systemdsystemunitdir" in
 esac
 AC_SUBST(systemdenvfile)
 
-AC_ARG_WITH(initscriptdir,
-  [AS_HELP_STRING([--with-initscriptdir@<:@=DIR|auto|yes|no@:>@], [Location of init scripts [auto]])],
-  [], [with_initscriptdir=auto])
-
 initddir=
-case "$with_initscriptdir:$cross_compiling:$systemdsystemunitdir" in
-  auto:no:|yes:*)
-    AC_MSG_CHECKING([for init (rc) directory])
-    for dir in rc.d/init.d init.d rc.d; do
-      if test -d /etc/$dir; then
-        initddir='${sysconfdir}'/$dir
-        break
-      fi
-    done
-    AC_MSG_RESULT([${initddir:-no}])
-    case "$with_initscriptdir:$initddir" in
-      yes:) AC_MSG_ERROR([Location of init scripts not found]) ;;
-    esac ;;
-  auto:*|no:*) ;;
-  *) initddir="$with_initscriptdir" ;;
-esac
+AC_ARG_WITH(initscriptdir,
+  [AS_HELP_STRING([--with-initscriptdir=@<:@DIR|no@:>@], [Location of init scripts [no]])],
+  [ case "$withval" in
+      auto|yes) AC_MSG_ERROR(['--with-initscriptdir=$withval' is no longer supported]) ;;
+      no) ;;
+      *) initddir="$withval" ;;
+    esac
+  ])
 AC_SUBST(initddir)
 AM_CONDITIONAL(INSTALL_INITSCRIPT, [test -n "$initddir"])
 
@@ -813,7 +801,7 @@ info=`
         echo "PATH within scripts:    [[inherited]]"
       fi
       if test -n "$initddir"; then
-        echo "smartd initd script:    \`eval eval eval echo $initddir\`/${initdfile}"
+        echo "smartd initd script:    \`eval eval eval echo $initddir\`/smartd"
       elif test -z "$systemdsystemunitdir"; then
         echo "smartd initd script:    [[disabled]]"
       fi
