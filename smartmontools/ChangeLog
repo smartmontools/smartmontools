@@ -1,4 +1,8 @@
-$Id: ChangeLog 4612 2017-11-13 20:47:34Z chrfranke $
+$Id: ChangeLog 4614 2017-11-15 20:01:59Z chrfranke $
+
+2017-11-15  Christian Franke  <franke@computer.org>
+
+	examplescripts/Example6: Add enhancements from Fedora package.
 
 2017-11-13  Christian Franke  <franke@computer.org>
 
