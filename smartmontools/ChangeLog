@@ -2,6 +2,10 @@ $Id$
 
 2017-11-15  Christian Franke  <franke@computer.org>
 
+	configure.ac: Remove '-with-initscriptdir=[auto|yes]' heuristics.
+	The default init script is no longer useful on most platforms.
+	INSTALL: Update related documentation.
+
 	configure.ac, Makefile.am: Use smartd.cygwin.initd.in on Cygwin.
 	smartd.cygwin.initd.in: New file.
 	smartd.initd.in: Remove Cygwin section.

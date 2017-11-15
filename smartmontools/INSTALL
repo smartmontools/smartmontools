@@ -174,7 +174,7 @@ Table of contents:
     --disable-sample
     --with-systemdsystemunitdir=auto
     --with-systemdenvfile=auto
-    --with-initscriptdir=auto
+    --without-initscriptdir
     --with-exampledir='${docdir}/examplescripts'
     --with-drivedbdir='${datadir}/smartmontools'
     --with-update-smart-drivedb
@@ -346,16 +346,8 @@ SuSE:
 [9] Guidelines for Cygwin
 =========================
 
-Same as Red Hat:
   ./configure --prefix=/usr                 \
               --sysconfdir=/etc             \
-              --mandir='${prefix}/share/man'
-
-  OR EQUIVALENTLY
-  ./configure --sbindir=/usr/sbin                               \
-              --sysconfdir=/etc                                 \
-              --mandir=/usr/share/man                           \
-              --docdir=/usr/share/doc/smartmontools             \
               --with-initscriptdir=/etc/rc.d/init.d
 
   Using DOS text file type as default for the working directories ("textmode"
@@ -540,13 +532,9 @@ The following files are installed if ./configure has no options:
 /usr/local/share/doc/smartmontools/examplescripts/      [Executable scripts for -M exec of smartd.conf (4 files)]
 /usr/local/share/smartmontools/drivedb.h                [Drive database]
 
-Due to checks done by '--with-systemdsystemunitdir=auto' and '--with-initscriptdir=auto',
-one of the following files may also be installed:
+Due to checks done by '--with-systemdsystemunitdir=auto', the following file may also be installed:
 
 /usr/local/lib/systemd/system/smartd.service            [Systemd service file for smartd]
-/usr/local/etc/rc.d/init.d/smartd                       [Init/Startup script for smartd]
-/usr/local/etc/init.d/smartd                            [Init/Startup script for smartd]
-/usr/local/etc/rc.d/smartd                              [Init/Startup script for smartd]
 
 If /usr/local/etc/smartd.conf exists and differs from the
 default then the default configuration file is installed as
@@ -601,14 +589,9 @@ Old option                 Replacement
 --disable-savestates       [no option needed]
 --enable-attrbutelog       --with-attributelog[=yes]
 --disable-savestates       [no option needed]
+--with-initscriptdir[=yes] --with-initscriptdir=DIR
+--with-initscriptdir=auto  --with-initscriptdir=DIR
 
-
-The defaults for --with-initscriptdir and --with-systemdsystemunitdir are
-guessed such that the following rules apply:
-- If --prefix=/usr --sysconfdir=/etc is specified, the guessed directories
-  should be the defaults used by the current OS or distribution.
-- If --sysconfdir=/etc is NOT specified, the guessed directories should
-  always be below ${prefix} or below ${sysconfdir}.
 
 Here's an example:
 If you set --prefix=/home/joe and none of the other four
@@ -619,33 +602,16 @@ variables then the different directories that are used would be:
 --sysconfdir          /home/joe/etc
 --with-exampledir     /home/joe/share/doc/smartmontools/examplescripts
 --with-drivedbdir     /home/joe/share/smartmontools
---with-initscriptdir         [see below]
+--with-initscriptdir         [disabled]
 --with-systemdsystemunitdir  [see below]
 
 If systemd is present (and pkg-config reports /lib/systemd/system
 as the systemdsystemunitdir):
 
---with-initscriptdir         [disabled]
 --with-systemdsystemunitdir  /home/joe/lib/systemd/system
-
-else if /etc/rc.d/init.d exists:
-
---with-initscriptdir         /home/joe/etc/rc.d/init.d
---with-systemdsystemunitdir  [disabled]
-
-else if /etc/init.d exists:
-
---with-initscriptdir         /home/joe/etc/init.d
---with-systemdsystemunitdir  [disabled]
-
-else if /etc/rc.d exists:
-
---with-initscriptdir         /home/joe/etc/rc.d
---with-systemdsystemunitdir  [disabled]
 
 else
 
---with-initscriptdir         [disabled]
 --with-systemdsystemunitdir  [disabled]
 
 

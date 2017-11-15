@@ -204,27 +204,15 @@ case "$with_systemdenvfile:$cross_compiling:$systemdsystemunitdir" in
 esac
 AC_SUBST(systemdenvfile)
 
-AC_ARG_WITH(initscriptdir,
-  [AS_HELP_STRING([--with-initscriptdir@<:@=DIR|auto|yes|no@:>@], [Location of init scripts [auto]])],
-  [], [with_initscriptdir=auto])
-
 initddir=
-case "$with_initscriptdir:$cross_compiling:$systemdsystemunitdir" in
-  auto:no:|yes:*)
-    AC_MSG_CHECKING([for init (rc) directory])
-    for dir in rc.d/init.d init.d rc.d; do
-      if test -d /etc/$dir; then
-        initddir='${sysconfdir}'/$dir
-        break
-      fi
-    done
-    AC_MSG_RESULT([${initddir:-no}])
-    case "$with_initscriptdir:$initddir" in
-      yes:) AC_MSG_ERROR([Location of init scripts not found]) ;;
-    esac ;;
-  auto:*|no:*) ;;
-  *) initddir="$with_initscriptdir" ;;
-esac
+AC_ARG_WITH(initscriptdir,
+  [AS_HELP_STRING([--with-initscriptdir=@<:@DIR|no@:>@], [Location of init scripts [no]])],
+  [ case "$withval" in
+      auto|yes) AC_MSG_ERROR(['--with-initscriptdir=$withval' is no longer supported]) ;;
+      no) ;;
+      *) initddir="$withval" ;;
+    esac
+  ])
 AC_SUBST(initddir)
 AM_CONDITIONAL(INSTALL_INITSCRIPT, [test -n "$initddir"])
 
@@ -813,7 +801,7 @@ info=`
         echo "PATH within scripts:    [[inherited]]"
       fi
       if test -n "$initddir"; then
-        echo "smartd initd script:    \`eval eval eval echo $initddir\`/${initdfile}"
+        echo "smartd initd script:    \`eval eval eval echo $initddir\`/smartd"
       elif test -z "$systemdsystemunitdir"; then
         echo "smartd initd script:    [[disabled]]"
       fi
