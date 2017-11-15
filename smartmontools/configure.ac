@@ -236,6 +236,9 @@ case "${host}" in
   *-apple-darwin*)
     initdfile="com.smartmontools.smartd.plist"
     ;;
+  *-*-cygwin*)
+    initdfile="smartd.cygwin.initd"
+    ;;
   *)
     initdfile="smartd.initd"
     ;;
