@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4596 2017-11-05 16:50:03Z chrfranke $
+# $Id: configure.ac 4615 2017-11-15 20:04:42Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4596 2017-11-05 16:50:03Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4615 2017-11-15 20:04:42Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -85,35 +85,42 @@ AC_MSG_RESULT([$is_svn_build])
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([locale.h])
-AC_CHECK_HEADERS([dev/ata/atavar.h])
 dnl we need [u]int64_t and friends.
 AC_CHECK_HEADERS([inttypes.h])		dnl C99, UNIX98, solaris 2.6+
 AC_CHECK_HEADERS([stdint.h])		dnl C99
 AC_CHECK_HEADERS([sys/inttypes.h])	dnl pre-UNIX98
 AC_CHECK_HEADERS([sys/int_types.h])	dnl pre-UNIX98, solaris 2.6+
-dnl Check for FreeBSD twe include files...currently missing on 5.2, but should be there
-AC_CHECK_HEADERS([sys/tweio.h])
-AC_CHECK_HEADERS([sys/twereg.h])
-dnl Check for FreeBSD twa include files...
-AC_CHECK_HEADERS([sys/tw_osl_ioctl.h])
-dnl This header file is needed for cciss_ioctl.h at least on SuSE LINUX
-AC_CHECK_HEADERS([linux/compiler.h])
-dnl Check for the FreeBSD CCISS system header and use internal one if not found
-AC_CHECK_HEADERS([dev/ciss/cissio.h],
-    [AC_DEFINE([CISS_LOCATION],[<dev/ciss/cissio.h>],[freebsd ciss header location])],
-    [AC_DEFINE([CISS_LOCATION],["cissio_freebsd.h"],[freebsd ciss header location])]
-    )
-dnl Check for Linux CCISS include file
-AC_CHECK_HEADERS([linux/cciss_ioctl.h], [], [], [AC_INCLUDES_DEFAULT
+
+case "$host" in
+  *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
+    # Check for FreeBSD twe and twa include files
+    AC_CHECK_HEADERS([sys/tweio.h sys/twereg.h sys/tw_osl_ioctl.h])
+    # Check for the FreeBSD CCISS system header and use internal one if not found
+    AC_CHECK_HEADERS([dev/ciss/cissio.h],
+      [AC_DEFINE([CISS_LOCATION],[<dev/ciss/cissio.h>],[freebsd ciss header location])],
+      [AC_DEFINE([CISS_LOCATION],["cissio_freebsd.h"],[freebsd ciss header location])])
+    ;;
+  *-*-linux*)
+    # This header file is needed for cciss_ioctl.h at least on SuSE LINUX
+    AC_CHECK_HEADERS([linux/compiler.h])
+    # Check for Linux CCISS include file
+    AC_CHECK_HEADERS([linux/cciss_ioctl.h], [], [], [AC_INCLUDES_DEFAULT
 #ifdef HAVE_LINUX_COMPILER_H
 # include <linux/compiler.h>
 #endif
 ])
-dnl Check for Windows DDK and WMI header files
-AC_CHECK_HEADERS([ntdddisk.h ddk/ntdddisk.h], [], [], [AC_INCLUDES_DEFAULT
+    ;;
+  *-*-netbsd*|*-*-openbsd*)
+    AC_CHECK_HEADERS([dev/ata/atavar.h])
+    ;;
+  *-*-cygwin*|*-*-mingw*)
+    # Check for Windows DDK and WMI header files
+    AC_CHECK_HEADERS([ntdddisk.h ddk/ntdddisk.h], [], [], [AC_INCLUDES_DEFAULT
 #include <windows.h>
 ])
-AC_CHECK_HEADERS([wbemcli.h])
+    AC_CHECK_HEADERS([wbemcli.h])
+    ;;
+esac
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_TYPES([int64_t, uint64_t])

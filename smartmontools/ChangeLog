@@ -1,6 +1,8 @@
-$Id: ChangeLog 4614 2017-11-15 20:01:59Z chrfranke $
+$Id: ChangeLog 4615 2017-11-15 20:04:42Z chrfranke $
 
 2017-11-15  Christian Franke  <franke@computer.org>
+
+	configure.ac: Make some header checks platform specific.
 
 	examplescripts/Example6: Add enhancements from Fedora package.
 
