@@ -861,16 +861,3 @@ Use option '--without-nvme-devicescan' to suppress this warning.
 ])
     ;;
 esac
-
-# TODO: Remove after smartmontools 6.6
-case "$host:${with_solaris_sparc_ata+set}" in
-  sparc-*-solaris*:)
-    AC_MSG_WARN([
-Legacy ATA support is no longer enabled by default on Solaris SPARC.
-The required source file 'os_solaris_ata.s' is no longer included in
-the source tarball but still available in the SVN repository.
-Use option '--with-solaris-sparc-ata' to enable legacy ATA support.
-Use option '--without-solaris-sparc-ata' to suppress this warning.
-])
-    ;;
-esac

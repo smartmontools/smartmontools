@@ -4,6 +4,7 @@ $Id$
 
 	configure.ac: Make some header checks platform specific.
 	Print '--with-nvme-devicescan' warning also on FreeBSD.
+	Remove '--with-solaris-sparc-ata' warning.
 
 	examplescripts/Example6: Add enhancements from Fedora package.
 
