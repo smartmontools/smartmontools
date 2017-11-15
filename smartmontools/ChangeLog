@@ -2,6 +2,11 @@ $Id$
 
 2017-11-15  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Use 'sigaction()' instead of deprecated 'sigset()'
+	or 'signal()'.
+	configure.ac: Add '--with-signal-func' to select old function
+	if needed.
+
 	configure.ac: Remove '-with-initscriptdir=[auto|yes]' heuristics.
 	The default init script is no longer useful on most platforms.
 	INSTALL: Update related documentation.

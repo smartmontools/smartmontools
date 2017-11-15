@@ -78,19 +78,9 @@ typedef int pid_t;
 #include "nvmecmds.h"
 #include "utility.h"
 
-// This is for solaris, where signal() resets the handler to SIG_DFL
-// after the first signal is caught.
-#ifdef HAVE_SIGSET
-#define SIGNALFN sigset
-#else
-#define SIGNALFN signal
-#endif
-
 #ifdef _WIN32
 // fork()/signal()/initd simulation for native Windows
 #include "daemon_win32.h" // daemon_main/detach/signal()
-#undef SIGNALFN
-#define SIGNALFN  daemon_signal
 #define strsignal daemon_strsignal
 #define sleep     daemon_sleep
 // SIGQUIT does not exist, CONTROL-Break signals SIGBREAK.
@@ -102,6 +92,43 @@ typedef int pid_t;
 
 const char * smartd_cpp_cvsid = "$Id$"
   CONFIG_H_CVSID;
+
+extern "C" {
+  typedef void (*signal_handler_type)(int);
+}
+
+static void set_signal_if_not_ignored(int sig, signal_handler_type handler)
+{
+#if defined(_WIN32)
+  // signal() emulation
+  daemon_signal(sig, handler);
+
+#elif defined(HAVE_SIGACTION)
+  // SVr4, POSIX.1-2001, POSIX.1-2008
+  struct sigaction sa;
+  sa.sa_handler = SIG_DFL;
+  sigaction(sig, (struct sigaction *)0, &sa);
+  if (sa.sa_handler == SIG_IGN)
+    return;
+
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = handler;
+  sa.sa_flags = SA_RESTART; // BSD signal() semantics
+  sigaction(sig, &sa, (struct sigaction *)0);
+
+#elif defined(HAVE_SIGSET)
+  // SVr4, POSIX.1-2001, obsoleted in POSIX.1-2008
+  if (sigset(sig, handler) == SIG_IGN)
+    sigset(sig, SIG_IGN);
+
+#else
+  // POSIX.1-2001, POSIX.1-2008, C89, C99, undefined semantics.
+  // Important: BSD semantics is required.  Traditional signal()
+  // resets the handler to SIG_DFL after the first signal is caught.
+  if (signal(sig, handler) == SIG_IGN)
+    signal(sig, SIG_IGN);
+#endif
+}
 
 using namespace smartmontools;
 
@@ -3742,28 +3769,20 @@ static void Initialize(time_t *wakeuptime)
   if (!debugmode)
     WritePidFile();
   
-  // install signal handlers.  On Solaris, can't use signal() because
-  // it resets the handler to SIG_DFL after each call.  So use sigset()
-  // instead.  So SIGNALFN()==signal() or SIGNALFN()==sigset().
-  
+  // install signal handlers.
+
   // normal and abnormal exit
-  if (SIGNALFN(SIGTERM, sighandler)==SIG_IGN)
-    SIGNALFN(SIGTERM, SIG_IGN);
-  if (SIGNALFN(SIGQUIT, sighandler)==SIG_IGN)
-    SIGNALFN(SIGQUIT, SIG_IGN);
+  set_signal_if_not_ignored(SIGTERM, sighandler);
+  set_signal_if_not_ignored(SIGQUIT, sighandler);
   
   // in debug mode, <CONTROL-C> ==> HUP
-  if (SIGNALFN(SIGINT, debugmode?HUPhandler:sighandler)==SIG_IGN)
-    SIGNALFN(SIGINT, SIG_IGN);
+  set_signal_if_not_ignored(SIGINT, (debugmode ? HUPhandler : sighandler));
   
   // Catch HUP and USR1
-  if (SIGNALFN(SIGHUP, HUPhandler)==SIG_IGN)
-    SIGNALFN(SIGHUP, SIG_IGN);
-  if (SIGNALFN(SIGUSR1, USR1handler)==SIG_IGN)
-    SIGNALFN(SIGUSR1, SIG_IGN);
+  set_signal_if_not_ignored(SIGHUP, HUPhandler);
+  set_signal_if_not_ignored(SIGUSR1, USR1handler);
 #ifdef _WIN32
-  if (SIGNALFN(SIGUSR2, USR2handler)==SIG_IGN)
-    SIGNALFN(SIGUSR2, SIG_IGN);
+  set_signal_if_not_ignored(SIGUSR2, USR2handler);
 #endif
 
   // initialize wakeup time to CURRENT time
