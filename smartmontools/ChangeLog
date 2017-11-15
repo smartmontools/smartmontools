@@ -1,6 +1,10 @@
-$Id: ChangeLog 4617 2017-11-15 20:27:23Z chrfranke $
+$Id: ChangeLog 4618 2017-11-15 21:18:42Z chrfranke $
 
 2017-11-15  Christian Franke  <franke@computer.org>
+
+	configure.ac, Makefile.am: Use smartd.cygwin.initd.in on Cygwin.
+	smartd.cygwin.initd.in: New file.
+	smartd.initd.in: Remove Cygwin section.
 
 	configure.ac: Make some header checks platform specific.
 	Print '--with-nvme-devicescan' warning also on FreeBSD.

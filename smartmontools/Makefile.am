@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4609 2017-11-08 22:07:35Z chrfranke $
+# $Id: Makefile.am 4618 2017-11-15 21:18:42Z chrfranke $
 #
 
 @SET_MAKE@
@@ -372,6 +372,7 @@ EXTRA_DIST = \
         .editorconfig \
         autogen.sh \
         smartd.initd.in \
+        smartd.cygwin.initd.in \
         smartd.freebsd.initd.in \
         smartd.8.in \
         smartctl.8.in \
@@ -422,6 +423,7 @@ CLEANFILES = \
         smartd.conf.5.pdf \
         smartd.conf.5.txt \
         smartd.initd \
+        smartd.cygwin.initd \
         smartd.freebsd.initd \
         smartd.service \
         smartd_warning.sh \

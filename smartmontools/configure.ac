@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4617 2017-11-15 20:27:23Z chrfranke $
+# $Id: configure.ac 4618 2017-11-15 21:18:42Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4617 2017-11-15 20:27:23Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4618 2017-11-15 21:18:42Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -235,6 +235,9 @@ case "${host}" in
     ;;
   *-apple-darwin*)
     initdfile="com.smartmontools.smartd.plist"
+    ;;
+  *-*-cygwin*)
+    initdfile="smartd.cygwin.initd"
     ;;
   *)
     initdfile="smartd.initd"
