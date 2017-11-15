@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4616 2017-11-15 20:19:44Z chrfranke $
+# $Id: configure.ac 4617 2017-11-15 20:27:23Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4616 2017-11-15 20:19:44Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4617 2017-11-15 20:27:23Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -858,19 +858,6 @@ EXPERIMENTAL.  NVMe devices are not yet included in smartd.conf
 'DEVICESCAN' and 'smartctl --scan' unless '-d nvme' is specified.
 Use option '--with-nvme-devicescan' to include NVMe devices.
 Use option '--without-nvme-devicescan' to suppress this warning.
-])
-    ;;
-esac
-
-# TODO: Remove after smartmontools 6.6
-case "$host:${with_solaris_sparc_ata+set}" in
-  sparc-*-solaris*:)
-    AC_MSG_WARN([
-Legacy ATA support is no longer enabled by default on Solaris SPARC.
-The required source file 'os_solaris_ata.s' is no longer included in
-the source tarball but still available in the SVN repository.
-Use option '--with-solaris-sparc-ata' to enable legacy ATA support.
-Use option '--without-solaris-sparc-ata' to suppress this warning.
 ])
     ;;
 esac

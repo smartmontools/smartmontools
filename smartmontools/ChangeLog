@@ -1,9 +1,10 @@
-$Id: ChangeLog 4616 2017-11-15 20:19:44Z chrfranke $
+$Id: ChangeLog 4617 2017-11-15 20:27:23Z chrfranke $
 
 2017-11-15  Christian Franke  <franke@computer.org>
 
 	configure.ac: Make some header checks platform specific.
 	Print '--with-nvme-devicescan' warning also on FreeBSD.
+	Remove '--with-solaris-sparc-ata' warning.
 
 	examplescripts/Example6: Add enhancements from Fedora package.
 
