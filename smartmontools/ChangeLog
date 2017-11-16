@@ -3,7 +3,7 @@ $Id$
 2017-11-16  Christian Franke  <franke@computer.org>
 
 	update-smart-drivedb.in: Include configured PATH in help and
-	error messages.
+	error messages.  Allow digits in SVN Id user name.
 
 	configure.ac: Prepend '/usr/local/bin' to default for
 	'--with-scriptpath' (#941).
