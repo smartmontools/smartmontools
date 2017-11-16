@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-16 Christian Franke
+ * Copyright (C) 2008-17 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -1626,10 +1626,11 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
       pout("Error initializing contexts database for /dev");
     if (getfscreatecon(&orig_context) < 0) {
       pout("Error retrieving original SELinux fscreate context");
-      if (selinux_enforced)
+      if (selinux_enforced) {
         matchpathcon_fini();
         return 6;
       }
+    }
   }
 #endif
   /* Now check if nodes are correct */

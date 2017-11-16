@@ -2,6 +2,10 @@ $Id$
 
 2017-11-16  Christian Franke  <franke@computer.org>
 
+	os_linux.cpp: Add missing braces to 3ware SELinux code.
+	This possibly harmless bug was introduced ~10 years ago in r2510.
+	It is now detected by g++ 6.3 -Wmisleading-indentation warning.
+
 	update-smart-drivedb.in: Include configured PATH in help and
 	error messages.  Allow digits in SVN Id user name.
 
