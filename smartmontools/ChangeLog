@@ -1,4 +1,9 @@
-$Id: ChangeLog 4620 2017-11-15 22:44:15Z chrfranke $
+$Id: ChangeLog 4621 2017-11-16 18:05:45Z chrfranke $
+
+2017-11-16  Christian Franke  <franke@computer.org>
+
+	configure.ac: Prepend '/usr/local/bin' to default for
+	'--with-scriptpath' (#941).
 
 2017-11-15  Christian Franke  <franke@computer.org>
 

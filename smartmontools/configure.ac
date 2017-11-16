@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4620 2017-11-15 22:44:15Z chrfranke $
+# $Id: configure.ac 4621 2017-11-16 18:05:45Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4620 2017-11-15 22:44:15Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4621 2017-11-16 18:05:45Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -288,9 +288,9 @@ AC_SUBST(smartdplugindir)
 
 AC_ARG_WITH(scriptpath,
   [AS_HELP_STRING([--with-scriptpath=@<:@PATH|no@:>@],
-    [PATH variable set within scripts [/usr/bin:/bin]])],
+    [PATH variable set within scripts [/usr/local/bin:/usr/bin:/bin]])],
   [scriptpath=; test "$withval" != "no" && scriptpath="$withval"],
-  [scriptpath="/usr/bin:/bin"])
+  [scriptpath="/usr/local/bin:/usr/bin:/bin"])
 AC_SUBST(scriptpath)
 AM_CONDITIONAL(ENABLE_SCRIPTPATH, [test -n "$scriptpath"])
 
