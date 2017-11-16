@@ -288,9 +288,9 @@ AC_SUBST(smartdplugindir)
 
 AC_ARG_WITH(scriptpath,
   [AS_HELP_STRING([--with-scriptpath=@<:@PATH|no@:>@],
-    [PATH variable set within scripts [/usr/bin:/bin]])],
+    [PATH variable set within scripts [/usr/local/bin:/usr/bin:/bin]])],
   [scriptpath=; test "$withval" != "no" && scriptpath="$withval"],
-  [scriptpath="/usr/bin:/bin"])
+  [scriptpath="/usr/local/bin:/usr/bin:/bin"])
 AC_SUBST(scriptpath)
 AM_CONDITIONAL(ENABLE_SCRIPTPATH, [test -n "$scriptpath"])
 
