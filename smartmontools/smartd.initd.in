@@ -436,61 +436,6 @@ elif [ -f /etc/environment.corel ] ; then
 
 # PLEASE ADD OTHER LINUX DISTRIBUTIONS JUST BEFORE THIS LINE, USING elif
 
-elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
-    # following is replaced by port install
-    PREFIX=@@PREFIX@@
-
-    # Updated to try both the RCNG version of things from 5.x, or fallback to
-    # oldfashioned rc.conf
-
-    if [ -r /etc/rc.subr ]; then
-	# This is RC-NG, pick up our values
-	. /etc/rc.subr
-	name="smartd"
-	rcvar="smartd_enable"
-	command="$SMARTD_BIN"
-	load_rc_config $name
-    elif [ -r /etc/defaults/rc.conf ]; then
-	# Not a 5.x system, try the default location for variables
-	. /etc/defaults/rc.conf
-	source_rc_confs
-    elif [ -r /etc/rc.conf ]; then
-	# Worst case, fallback to system config file
-	. /etc/rc.conf
-    fi
-
-    if [ -r /etc/rc.subr ]; then
-	# Use new functionality from RC-NG
-	run_rc_command "$1"
-    else
-	PID_FILE=/var/run/smartd.pid
-	case "$1" in
-	    start)
-		$SMARTD_BIN -p $PID_FILE $smartd_flags
-		echo -n " smartd"
-		;;
-	    stop)
-		kill `cat $PID_FILE`
-		echo -n " smartd"
-		;;
-	    restart)
-		$0 stop
-		sleep 1
-		$0 start
-		;;
-	    reload)
-		kill -s HUP `cat $PID_FILE`
-		;;
-	    report)
-		kill -s USR1 `cat $PID_FILE`
-		;;
-	    *)
-		echo "Usage: $0 {start|stop|restart|reload|report}"
-		exit 1
-	esac
-	exit 0
-    fi
-
 elif uname -a | grep SunOS > /dev/null 2>&1 ; then
 
     # Source configuration file.  This should define the shell variable smartd_opts.
