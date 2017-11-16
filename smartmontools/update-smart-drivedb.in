@@ -45,10 +45,16 @@ GPG="@gnupg@"
 # Smartctl used for syntax check
 SMARTCTL="$sbindir/smartctl"
 
+# PATH information for help and error messages
+@ENABLE_SCRIPTPATH_FALSE@pathinfo='$PATH'
+@ENABLE_SCRIPTPATH_TRUE@pathinfo="'$PATH'"
+
 myname=$0
 
 usage()
 {
+@ENABLE_SCRIPTPATH_TRUE@  pathinfo="
+@ENABLE_SCRIPTPATH_TRUE@                   $pathinfo"
   cat <<EOF
 smartmontools $VERSION drive database update script
 
@@ -57,7 +63,7 @@ Usage: $myname [OPTIONS] [DESTFILE]
   -s SMARTCTL     Use SMARTCTL for syntax check ('-s -' to disable)
                   [default: $SMARTCTL]
   -t TOOL         Use TOOL for download: $os_dltools
-                  [default: first one found in PATH]
+                  [default: first one found in $pathinfo]
   -u LOCATION     Use URL of LOCATION for download:
                     sf (Sourceforge code browser via HTTPS)
                     svn (SVN repository via HTTPS) [default]
@@ -83,6 +89,14 @@ error()
 {
   echo "$myname: $*" >&2
   exit 1
+}
+
+err_notfound()
+{
+  case $1 in
+    */*) error "$1: not found $2" ;;
+    *)   error "$1: not found in $pathinfo $2" ;;
+  esac
 }
 
 warning()
@@ -410,7 +424,7 @@ if [ -z "$tool" ]; then
       break
     fi
   done
-  test -n "$tool" || error "found none of: $os_dltools"
+  test -n "$tool" || error "found none of '$os_dltools' in $pathinfo"
 fi
 
 test -n "$url" || selecturl "svn"
@@ -435,7 +449,7 @@ esac
 # Check for smartctl
 if [ "$smtctl" != "-" ]; then
   "$smtctl" -V >/dev/null 2>&1 \
-  || error "$smtctl: not found ('-s -' to ignore)"
+  || err_notfound "$smtctl" "('-s -' to ignore)"
 fi
 
 # Check for GnuPG
@@ -443,7 +457,7 @@ if [ -z "$no_verify" ]; then
   test -n "$GPG" \
   || error "GnuPG is not available ('--no-verify' to ignore)"
   "$GPG" --version >/dev/null 2>&1 \
-  || error "$GPG: not found ('--no-verify' to ignore)"
+  || err_notfound "$GPG" "('--no-verify' to ignore)"
 fi
 
 # Use destination directory as temp directory for gpg
