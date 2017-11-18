@@ -1,8 +1,10 @@
-$Id: ChangeLog 4626 2017-11-18 13:30:43Z samm2 $
+$Id: ChangeLog 4627 2017-11-18 13:46:44Z samm2 $
 
 2017-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 
-	drivedb.h: add Swissbit C440 industrial cf card series (#942)
+	drivedb.h:
+	- Add Swissbit C440 industrial cf card series (#942)
+	- Fix Innolite Satadom D150QV entry (#939)
 
 2017-11-16  Christian Franke  <franke@computer.org>
 
