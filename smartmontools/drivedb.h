@@ -748,8 +748,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 194,tempminmax,Temperature_Celsius "
     "-v 241,raw48,Host_Writes"
   },
-  { "InnoDisk InnoLite SATADOM D150QV-L SSDs", // tested with InnoLite SATADOM D150QV-L/120319
-    "InnoLite SATADOM D150QV-L",
+  { "InnoDisk InnoLite SATADOM D150QV SSDs", // tested with InnoLite SATADOM D150QV-L/120319
+                                             // InnoLite SATADOM D150QV/120319
+    "InnoLite SATADOM D150QV.*",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -757,18 +758,18 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 7,raw48,Seek_Error_Rate " // from InnoDisk iSMART Linux tool, useless for SSD
   //"-v 8,raw48,Seek_Time_Performance "
-  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 9,raw48,Power_On_Hours "
   //"-v 10,raw48,Spin_Retry_Count "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 168,raw48,SATA_PHY_Error_Count "
-    "-v 170,raw48,Bad_Block_Count "
-    "-v 173,raw48,Erase_Count "
+    "-v 170,raw16,Bad_Block_Count_New/Tot "
+    "-v 173,raw16,Erase_Count_Max/Avg "
     "-v 175,raw48,Bad_Cluster_Table_Count "
     "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 197,raw48,Current_Pending_Sector "
     "-v 229,hex48,Flash_ID "
-    "-v 235,raw48,Later_Bad_Block "
+    "-v 235,raw16,Lat_Bad_Blk_Era/Wri/Rea "
     "-v 236,raw48,Unstable_Power_Count "
     "-v 240,raw48,Write_Head"
   },
