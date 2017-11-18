@@ -1,4 +1,8 @@
-$Id: ChangeLog 4625 2017-11-16 21:55:46Z chrfranke $
+$Id: ChangeLog 4626 2017-11-18 13:30:43Z samm2 $
+
+2017-11-18  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add Swissbit C440 industrial cf card series (#942)
 
 2017-11-16  Christian Franke  <franke@computer.org>
 

@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4612 2017-11-13 20:47:34Z chrfranke $",
+  { "$Id: drivedb.h 4626 2017-11-18 13:30:43Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -154,6 +154,19 @@ const drive_settings builtin_knowndrives[] = {
     "-v 250,raw48,Read_Error_Retry_Rate "
     //  251-253 Unknown_Attribute
     "-v 254,raw48,Free_Fall_Sensor,HDD"
+  },
+  { "Swissbit C440 Industrial CompactFlash Card",
+    // spec v1.23 found at http://www.farnell.com/datasheets/1821167.pdf
+    // tested with SFCF4096H2BU4TO-I-MS-527-STD
+    "SFCF(2048|4096|8192|16GB|32GB|64GB)H[0-9]BU[24]TO-(C|I)-(MS|QT|NU)-5[0-9]7-STD",
+    "", "",
+    "-v 196,raw24/raw24,Spare_Blocks "
+    "-v 213,raw24/raw24,Spare_Blocks_Worst_Chip "
+    "-v 229,raw48,Erase_Count "
+    "-v 203,raw48,Total_ECC_Errors "
+    "-v 232,raw48,Total_Number_of_Reads "
+    "-v 214,raw48,Reserved_Attribute " // Spec says "to be determined"
+    "-v 215,raw48,Current_TRIM_Percent "
   },
   { "Apacer SSD",
     "(2|4|8|16|32)GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D, APSDM004G13AN-AT/SFDE001A
