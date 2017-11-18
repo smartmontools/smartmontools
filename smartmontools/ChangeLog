@@ -1,5 +1,9 @@
 $Id$
 
+2017-11-18  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add Swissbit C440 industrial cf card series (#942)
+
 2017-11-16  Christian Franke  <franke@computer.org>
 
 	smartd.initd.in: Remove FreeBSD section.
