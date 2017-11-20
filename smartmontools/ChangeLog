@@ -1,10 +1,12 @@
-$Id: ChangeLog 4628 2017-11-20 06:18:07Z samm2 $
+$Id: ChangeLog 4629 2017-11-20 10:21:42Z samm2 $
 
 2017-11-20  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_netbsd.cpp (fix regressions in smartmontools 6.6)
-	 - fix BE platforms support, tested on sparc64
-	 - fix name based device type detection
+	 - fix BE platforms support, tested on sparc64 (#943)
+	 - fix name based device type detection (#943)
+	 - Add byte-swapping for IDENTIFY command and remove related hacks from the
+	   atacmds.cpp (#117)
 
 2017-11-18  Alex Samorukov  <samm@os2.kiev.ua>
 

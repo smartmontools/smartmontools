@@ -32,7 +32,7 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4628 2017-11-20 06:18:07Z samm2 $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4629 2017-11-20 10:21:42Z samm2 $"
   OS_NETBSD_H_CVSID;
 
 enum warnings {
@@ -240,7 +240,11 @@ bool netbsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   out.out_regs.lba_mid = req.cylinder;
   out.out_regs.lba_high = req.cylinder >> 8;
   out.out_regs.status = req.command;
-
+  /* Undo byte-swapping for IDENTIFY */
+  if (in.in_regs.command == ATA_IDENTIFY_DEVICE && isbigendian()) {
+     for (int i = 0; i < 256; i+=2)
+      swap2 ((char *)req.databuf + i);
+  }
   return true;
 }
 
