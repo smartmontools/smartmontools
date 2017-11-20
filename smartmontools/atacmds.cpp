@@ -362,17 +362,13 @@ static void invalidate_serno(ata_identify_device * id)
     sum += b[i]; sum -= b[i] = 0x00;
   }
 
-#ifndef __NetBSD__
   bool must_swap = !!isbigendian();
   if (must_swap)
     SWAPV(id->words088_255[255-88]);
-#endif
   if ((id->words088_255[255-88] & 0x00ff) == 0x00a5)
     id->words088_255[255-88] += sum << 8;
-#ifndef __NetBSD__
   if (must_swap)
     SWAPV(id->words088_255[255-88]);
-#endif
 }
 
 static const char * const commandstrings[]={
@@ -779,12 +775,6 @@ static void trim(char * out, const char * in)
 void ata_format_id_string(char * out, const unsigned char * in, int n)
 {
   bool must_swap = true;
-#ifdef __NetBSD__
-  /* NetBSD kernel delivers IDENTIFY data in host byte order (but all else is LE) */
-  // TODO: Handle NetBSD case in os_netbsd.cpp
-  if (isbigendian())
-    must_swap = !must_swap;
-#endif
 
   char tmp[65];
   n = n > 64 ? 64 : n;
@@ -873,10 +863,7 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
   if (raw_buf)
     memcpy(raw_buf, buf, sizeof(*buf));
 
-#ifndef __NetBSD__
   // if machine is big-endian, swap byte order as needed
-  // NetBSD kernel delivers IDENTIFY data in host byte order
-  // TODO: Handle NetBSD case in os_netbsd.cpp
   if (isbigendian()){
     // swap various capability words that are needed
     unsigned i;
@@ -887,7 +874,6 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
     for (i=0; i<168; i++)
       swap2((char *)(buf->words088_255+i));
   }
-#endif
   
   // If there is a checksum there, validate it
   if ((rawshort[255] & 0x00ff) == 0x00a5 && checksum(rawbyte))
