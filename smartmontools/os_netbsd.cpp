@@ -32,33 +32,8 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4629 2017-11-20 10:21:42Z samm2 $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4630 2017-11-21 20:36:06Z samm2 $"
   OS_NETBSD_H_CVSID;
-
-enum warnings {
-  BAD_SMART, MAX_MSG
-};
-
-/* Utility function for printing warnings */
-void
-printwarning(int msgNo, const char *extra)
-{
-  static int printed[] = {0, 0};
-  static const char *message[] = {
-    "Error: SMART Status command failed.\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
-    PACKAGE_STRING " does not currently support twe(4) and twa(4) devices (3ware Escalade, Apache)\n",
-  };
-
-  if (msgNo >= 0 && msgNo <= MAX_MSG) {
-    if (!printed[msgNo]) {
-      printed[msgNo] = 1;
-      pout("%s", message[msgNo]);
-      if (extra)
-        pout("%s", extra);
-    }
-  }
-  return;
-}
 
 #define ARGUSED(x) ((void)(x))
 
