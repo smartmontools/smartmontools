@@ -80,7 +80,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4602 2017-11-06 22:49:28Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4631 2017-11-21 20:41:17Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1776,7 +1776,6 @@ bool freebsd_smart_interface::get_nvme_devlist(smart_device_list & devlist,
     const char * type)
 {
   char ctrlpath[64];
-  nvme_device * nvmedev;
 
   for (int ctrlr = 0;; ctrlr++) {
     sprintf(ctrlpath, "%s%d", NVME_CTRLR_PREFIX, ctrlr);
@@ -1784,7 +1783,7 @@ bool freebsd_smart_interface::get_nvme_devlist(smart_device_list & devlist,
     if (fd < 0)
        break;
     ::close(fd);
-    nvmedev = get_nvme_device(ctrlpath, type, 0);
+    nvme_device * nvmedev = get_nvme_device(ctrlpath, type, 0);
     if (nvmedev)
         devlist.push_back(nvmedev);
     else
