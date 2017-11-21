@@ -35,31 +35,6 @@
 const char * os_netbsd_cpp_cvsid = "$Id$"
   OS_NETBSD_H_CVSID;
 
-enum warnings {
-  BAD_SMART, MAX_MSG
-};
-
-/* Utility function for printing warnings */
-void
-printwarning(int msgNo, const char *extra)
-{
-  static int printed[] = {0, 0};
-  static const char *message[] = {
-    "Error: SMART Status command failed.\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
-    PACKAGE_STRING " does not currently support twe(4) and twa(4) devices (3ware Escalade, Apache)\n",
-  };
-
-  if (msgNo >= 0 && msgNo <= MAX_MSG) {
-    if (!printed[msgNo]) {
-      printed[msgNo] = 1;
-      pout("%s", message[msgNo]);
-      if (extra)
-        pout("%s", extra);
-    }
-  }
-  return;
-}
-
 #define ARGUSED(x) ((void)(x))
 
 /////////////////////////////////////////////////////////////////////////////
