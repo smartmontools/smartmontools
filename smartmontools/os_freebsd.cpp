@@ -1776,7 +1776,6 @@ bool freebsd_smart_interface::get_nvme_devlist(smart_device_list & devlist,
     const char * type)
 {
   char ctrlpath[64];
-  nvme_device * nvmedev;
 
   for (int ctrlr = 0;; ctrlr++) {
     sprintf(ctrlpath, "%s%d", NVME_CTRLR_PREFIX, ctrlr);
@@ -1784,7 +1783,7 @@ bool freebsd_smart_interface::get_nvme_devlist(smart_device_list & devlist,
     if (fd < 0)
        break;
     ::close(fd);
-    nvmedev = get_nvme_device(ctrlpath, type, 0);
+    nvme_device * nvmedev = get_nvme_device(ctrlpath, type, 0);
     if (nvmedev)
         devlist.push_back(nvmedev);
     else
