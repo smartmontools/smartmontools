@@ -47,6 +47,20 @@ references:
         (cd inst && tar czf "/artefacts/smartmontools-linux-x86_64-static-${SM_VER}-r${SVNREV}.tar.gz" *)
         rm -rf ~/build
 
+  sm_comple_linux: &sm_compile_linux32
+    run:
+      name: Creating static i386 linux binaries
+      command: |
+        SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV`
+        BUILD_INFO='"(CircleCI)"'
+        mkdir ~/build && cd ~/build
+        tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
+        cd smartmontools-${SM_VER} && mkdir build && cd build
+        ../configure LDFLAGS="-static" CXXFLAGS="-m32 -Wall" CFLAGS="-m32 -Wall" && make -j2 BUILD_INFO="$BUILD_INFO" && make check
+        mkdir inst && make DESTDIR="$(pwd)/inst" install
+        (cd inst && tar czf "/artefacts/smartmontools-linux-i386-static-${SM_VER}-r${SVNREV}.tar.gz" *)
+        rm -rf ~/build
+
   sm_comple_win: &sm_compile_win
     run:
       name: Creating Windows installer
@@ -104,6 +118,7 @@ jobs:
       - *svn_checkout
       - *sm_distfile
       - *sm_compile_linux
+      - *sm_compile_linux32
       - *sm_compile_win
       - *sm_compile_darwin
       - store_artifacts:
