@@ -44,7 +44,7 @@ references:
         cd smartmontools-${SM_VER} && mkdir build && cd build
         ../configure LDFLAGS="-static" && make -j2 BUILD_INFO="$BUILD_INFO" && make check
         mkdir inst && make DESTDIR="$(pwd)/inst" install
-        (cd inst && tar czf "/artefacts/smartmontools-linux-86_64-static-${SM_VER}-r${SVNREV}.tar.gz" *)
+        (cd inst && tar czf "/artefacts/smartmontools-linux-x86_64-static-${SM_VER}-r${SVNREV}.tar.gz" *)
         rm -rf ~/build
 
   sm_comple_win: &sm_compile_win
