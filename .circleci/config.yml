@@ -35,16 +35,16 @@ references:
 
   sm_comple_linux: &sm_compile_linux
     run:
-      name: Creating normal linux binary
+      name: Creating static x86_64 linux binaries
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV`
         BUILD_INFO='"(CircleCI)"'
         mkdir ~/build && cd ~/build
         tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
         cd smartmontools-${SM_VER} && mkdir build && cd build
-        ../configure && make -j2 BUILD_INFO="$BUILD_INFO" && make check
+        ../configure LDFLAGS="-static" && make -j2 BUILD_INFO="$BUILD_INFO" && make check
         mkdir inst && make DESTDIR="$(pwd)/inst" install
-        (cd inst && tar czf "/artefacts/smartmontools-linux-${SM_VER}-r${SVNREV}.tar.gz" *)
+        (cd inst && tar czf "/artefacts/smartmontools-linux-86_64-static-${SM_VER}-r${SVNREV}.tar.gz" *)
         rm -rf ~/build
 
   sm_comple_win: &sm_compile_win
