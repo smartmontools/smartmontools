@@ -1,5 +1,10 @@
 $Id$
 
+2017-12-02  Christian Franke  <franke@computer.org>
+
+	configure.ac, os_linux.cpp: Always include <sys/sysmacros.h> if available.
+	This silences a 'deprecated' warning from glibc 2.25 headers.
+
 2017-11-20  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_netbsd.cpp (fix regressions in smartmontools 6.6)

@@ -101,8 +101,8 @@ case "$host" in
       [AC_DEFINE([CISS_LOCATION],["cissio_freebsd.h"],[freebsd ciss header location])])
     ;;
   *-*-linux*)
-    # This header file is needed for cciss_ioctl.h at least on SuSE LINUX
-    AC_CHECK_HEADERS([linux/compiler.h])
+    # <linux/compiler.h> is needed for cciss_ioctl.h at least on SuSE LINUX
+    AC_CHECK_HEADERS([sys/sysmacros.h linux/compiler.h])
     # Check for Linux CCISS include file
     AC_CHECK_HEADERS([linux/cciss_ioctl.h], [], [], [AC_INCLUDES_DEFAULT
 #ifdef HAVE_LINUX_COMPILER_H
