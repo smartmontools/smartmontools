@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4618 2017-11-15 21:18:42Z chrfranke $
+# $Id: Makefile.am 4640 2017-12-02 22:25:46Z chrfranke $
 #
 
 @SET_MAKE@
@@ -70,6 +70,8 @@ smartctl_SOURCES = \
         dev_tunnelled.h \
         drivedb.h \
         int64.h \
+        json.cpp \
+        json.h \
         knowndrives.cpp \
         knowndrives.h \
         nvmecmds.cpp \

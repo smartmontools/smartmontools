@@ -157,6 +157,7 @@
     <ClCompile Include="..\..\ataidentify.cpp" />
     <ClCompile Include="..\..\dev_areca.cpp" />
     <ClCompile Include="..\..\dev_intelliprop.cpp" />
+    <ClCompile Include="..\..\json.cpp" />
     <ClCompile Include="..\..\nvmecmds.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp" />
     <ClCompile Include="..\daemon_win32.cpp">
@@ -283,6 +284,7 @@
     <ClInclude Include="..\..\ataidentify.h" />
     <ClInclude Include="..\..\dev_areca.h" />
     <ClInclude Include="..\..\dev_intelliprop.h" />
+    <ClInclude Include="..\..\json.h" />
     <ClInclude Include="..\..\nvmecmds.h" />
     <ClInclude Include="..\..\nvmeprint.h" />
     <ClInclude Include="config.h" />

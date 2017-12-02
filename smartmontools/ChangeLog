@@ -1,6 +1,15 @@
-$Id: ChangeLog 4639 2017-12-02 15:36:15Z chrfranke $
+$Id: ChangeLog 4640 2017-12-02 22:25:46Z chrfranke $
 
 2017-12-02  Christian Franke  <franke@computer.org>
+
+	Add initial support for smartctl JSON output mode (#766):
+	json.cpp, json.h: New files with JSON support class.
+	Makefile.am, os_win32/vc14/smartctl.vcxproj*: Add new files.
+	ataprint.cpp: Add initial JSON support for -i, -H, -A and -l [x]error.
+	scsiprint.cpp: Add initial JSON support for -i and -H.
+	smartctl.cpp, smartctl.h: Add '-j, --json' option, global JSON object
+	and new print functions.
+	smartctl.8.in: Document new functionality.
 
 	atacmds.cpp: Remove no longer needed variable 'must_swap'.
 

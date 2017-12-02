@@ -2,7 +2,7 @@
 Copyright (C) 2002-10 Bruce Allen
 Copyright (C) 2004-17 Christian Franke
 
-$Id: smartctl.8.in 4588 2017-11-04 15:15:32Z chrfranke $
+$Id: smartctl.8.in 4640 2017-12-02 22:25:46Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -314,6 +314,25 @@ info.
 .Sp
 .TP
 .B RUN-TIME BEHAVIOR OPTIONS:
+.TP
+.B \-j, \-\-json[=aiu]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Enables JSON output mode.
+The output could be enhanced by the optional argument which consists of one
+or more characters from the set \*(Aqaiu\*(Aq:
+.br
+\*(Aqa\*(Aq: Includes the full original plaintext output of \fBsmartctl\fR as
+a JSON \fBa\fRrray \*(Aqsmartctl.output[]\*(Aq.
+.Sp
+The following two arguments are primarily indented for development:
+.br
+\*(Aqi\*(Aq: Includes lines from the plaintext output which print info already
+\fBi\fRmplemented for JSON output.
+The lines appear as objects with key \*(Aqsmartctl_NNNN_i\*(Aq.
+.br
+\*(Aqu\*(Aq: Includes lines from the plaintext output which print info still
+\fBu\fRnimplemented for JSON output.
+The lines appear as objects with key \*(Aqsmartctl_NNNN_u\*(Aq.
 .TP
 .B \-q TYPE, \-\-quietmode=TYPE
 Specifies that \fBsmartctl\fP should run in one of the quiet modes
@@ -2379,4 +2398,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4588 2017-11-04 15:15:32Z chrfranke $
+$Id: smartctl.8.in 4640 2017-12-02 22:25:46Z chrfranke $
