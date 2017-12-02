@@ -19,6 +19,7 @@
 #define JSON_H_CVSID "$Id$"
 
 #include <stdio.h>
+#include <string>
 #include <vector>
 #include <map>
 
