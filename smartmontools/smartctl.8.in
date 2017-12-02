@@ -315,6 +315,25 @@ info.
 .TP
 .B RUN-TIME BEHAVIOR OPTIONS:
 .TP
+.B \-j, \-\-json[=aiu]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Enables JSON output mode.
+The output could be enhanced by the optional argument which consists of one
+or more characters from the set \*(Aqaiu\*(Aq:
+.br
+\*(Aqa\*(Aq: Includes the full original plaintext output of \fBsmartctl\fR as
+a JSON \fBa\fRrray \*(Aqsmartctl.output[]\*(Aq.
+.Sp
+The following two arguments are primarily indented for development:
+.br
+\*(Aqi\*(Aq: Includes lines from the plaintext output which print info already
+\fBi\fRmplemented for JSON output.
+The lines appear as objects with key \*(Aqsmartctl_NNNN_i\*(Aq.
+.br
+\*(Aqu\*(Aq: Includes lines from the plaintext output which print info still
+\fBu\fRnimplemented for JSON output.
+The lines appear as objects with key \*(Aqsmartctl_NNNN_u\*(Aq.
+.TP
 .B \-q TYPE, \-\-quietmode=TYPE
 Specifies that \fBsmartctl\fP should run in one of the quiet modes
 described here.  The valid arguments to this option are:

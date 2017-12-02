@@ -173,16 +173,25 @@ scsiGetSmartData(scsi_device * device, bool attribs)
     if (cp) {
         err = -2;
         print_on();
-        pout("SMART Health Status: %s [asc=%x, ascq=%x]\n", cp, asc, ascq);
+        jout("SMART Health Status: %s [asc=%x, ascq=%x]\n", cp, asc, ascq);
         print_off();
-    } else if (gIecMPage)
-        pout("SMART Health Status: OK\n");
+        jglb["smart_status"]["passed"] = false;
+        jglb["smart_status"]["scsi"]["asc"] = asc;
+        jglb["smart_status"]["scsi"]["ascq"] = ascq;
+        jglb["smart_status"]["scsi"]["ie_string"] = cp;
+    }
+    else if (gIecMPage) {
+        jout("SMART Health Status: OK\n");
+        jglb["smart_status"]["passed"] = true;
+    }
 
     if (attribs && !gTempLPage) {
         if (255 == currenttemp)
             pout("Current Drive Temperature:     <not available>\n");
-        else
-            pout("Current Drive Temperature:     %d C\n", currenttemp);
+        else {
+            jout("Current Drive Temperature:     %d C\n", currenttemp);
+            jglb["temperature"]["current"] = currenttemp;
+        }
         if (255 == triptemp)
             pout("Drive Trip Temperature:        <not available>\n");
         else
@@ -1458,7 +1467,6 @@ static const char * transport_proto_arr[] = {
 static int
 scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
 {
-    char timedatetz[DATEANDEPOCHLEN];
     struct scsi_iec_mode_page iec;
     int err, iec_err, len, req_len, avail_len, scsi_version;
     bool is_tape = false;
@@ -1510,10 +1518,16 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
         scsi_format_id_string(revision, (const unsigned char *)&gBuf[32], 4);
 
         pout("=== START OF INFORMATION SECTION ===\n");
-        pout("Vendor:               %.8s\n", vendor);
-        pout("Product:              %.16s\n", product);
-        if (gBuf[32] >= ' ')
-            pout("Revision:             %.4s\n", revision);
+        jout("Vendor:               %.8s\n", vendor);
+        jglb["vendor"] = vendor;
+        jout("Product:              %.16s\n", product);
+        jglb["product"] = product;
+        jglb["model_name"] = strprintf("%s%s%s",
+          vendor, (*vendor && *product ? " " : ""), product);
+        if (gBuf[32] >= ' ') {
+            jout("Revision:             %.4s\n", revision);
+            jglb["firmware_version"] = revision;
+        }
         if (scsi_version == 0x6)
             pout("Compliance:           SPC-4\n");
         else if (scsi_version == 0x7)
@@ -1534,7 +1548,6 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
     if (! is_tape) {    /* assume disk if not tape drive (or tape changer) */
         unsigned int lb_size = 0;
         unsigned char lb_prov_resp[8];
-        char lb_str[16];
         int lb_per_pb_exp = 0;
         uint64_t capacity = scsiGetSize(device, &lb_size, &lb_per_pb_exp);
 
@@ -1542,9 +1555,10 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
             char cap_str[64], si_str[64];
             format_with_thousands_sep(cap_str, sizeof(cap_str), capacity);
             format_capacity(si_str, sizeof(si_str), capacity);
-            pout("User Capacity:        %s bytes [%s]\n", cap_str, si_str);
-            snprintf(lb_str, sizeof(lb_str) - 1, "%u", lb_size);
-            pout("Logical block size:   %s bytes\n", lb_str);
+            jout("User Capacity:        %s bytes [%s]\n", cap_str, si_str);
+            jglb["user_capacity"] = capacity;
+            jout("Logical block size:   %u bytes\n", lb_size);
+            jglb["logical_block_size"] = lb_size;
         }
         int lbpme = -1;
         int lbprz = -1;
@@ -1554,9 +1568,9 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
             if (0 == scsiGetProtPBInfo(device, rc16_12)) {
                 lb_per_pb_exp = rc16_12[1] & 0xf;       /* just in case */
                 if (lb_per_pb_exp > 0) {
-                    snprintf(lb_str, sizeof(lb_str) - 1, "%u",
-                             (lb_size * (1 << lb_per_pb_exp)));
-                    pout("Physical block size:  %s bytes\n", lb_str);
+                    unsigned pb_size = lb_size * (1 << lb_per_pb_exp);
+                    jout("Physical block size:  %u bytes\n", pb_size);
+                    jglb["physical_block_size"] = pb_size;
                     int n = ((rc16_12[2] & 0x3f) << 8) + rc16_12[3];
                     if (n > 0)  // not common so cut the clutter
                         pout("Lowest aligned LBA:   %d\n", n);
@@ -1638,11 +1652,12 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
             if (0 == rpm)
                 ;       // Not reported
             else if (1 == rpm)
-                pout("Rotation Rate:        Solid State Device\n");
+                jout("Rotation Rate:        Solid State Device\n");
             else if ((rpm <= 0x400) || (0xffff == rpm))
                 ;       // Reserved
             else
-                pout("Rotation Rate:        %d rpm\n", rpm);
+                jout("Rotation Rate:        %d rpm\n", rpm);
+            jglb["rotation_rate"] = (rpm == 1 ? 0 : rpm);
         }
         if (form_factor > 0) {
             const char * cp = NULL;
@@ -1664,8 +1679,11 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
                 cp = "< 1.8";
                 break;
             }
-            if (cp)
-                pout("Form Factor:          %s inches\n", cp);
+            jglb["form_factor"]["scsi_value"] = form_factor;
+            if (cp) {
+                jout("Form Factor:          %s inches\n", cp);
+                jglb["form_factor"]["name"] = strprintf("%s inches", cp);
+            }
         }
         if (haw_zbc > 0)
             pout("Host aware zoned block capable\n");
@@ -1708,7 +1726,8 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
 
             gBuf[4 + len] = '\0';
             scsi_format_id_string(serial, &gBuf[4], len);
-            pout("Serial number:        %s\n", serial);
+            jout("Serial number:        %s\n", serial);
+            jglb["serial_number"] = serial;
         } else if (scsi_debugmode > 0) {
             print_on();
             if (SIMPLE_ERR_BAD_RESP == err)
@@ -1720,11 +1739,14 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
     }
 
     // print SCSI peripheral device type
+    jglb["device_type"]["scsi_value"] = peri_dt;
     if (peri_dt < (int)(sizeof(peripheral_dt_arr) /
-                        sizeof(peripheral_dt_arr[0])))
-        pout("Device type:          %s\n", peripheral_dt_arr[peri_dt]);
+                        sizeof(peripheral_dt_arr[0]))) {
+        jout("Device type:          %s\n", peripheral_dt_arr[peri_dt]);
+        jglb["device_type"]["name"] = peripheral_dt_arr[peri_dt];
+    }
     else
-        pout("Device type:          <%d>\n", peri_dt);
+        jout("Device type:          <%d>\n", peri_dt);
 
     // See if transport protocol is known
     if (transport < 0)
@@ -1733,8 +1755,11 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
         pout("Transport protocol:   %s\n", transport_proto_arr[transport]);
 
     // print current time and date and timezone
-    dateandtimezone(timedatetz);
-    pout("Local Time is:        %s\n", timedatetz);
+    time_t now = time(0);
+    char timedatetz[DATEANDEPOCHLEN]; dateandtimezoneepoch(timedatetz, now);
+    jout("Local Time is:        %s\n", timedatetz);
+    jglb["local_time"]["time_t"] = now;
+    jglb["local_time"]["asctime"] = timedatetz;
 
     // See if unit accepts SCSI commmands from us
     if ((err = scsiTestUnitReady(device))) {
@@ -1875,8 +1900,10 @@ scsiPrintTemp(scsi_device * device)
 
     if (255 == temp)
         pout("Current Drive Temperature:     <not available>\n");
-    else
-        pout("Current Drive Temperature:     %d C\n", temp);
+    else {
+        jout("Current Drive Temperature:     %d C\n", temp);
+        jglb["temperature"]["current"] = temp;
+    }
     if (255 == trip)
         pout("Drive Trip Temperature:        <not available>\n");
     else
@@ -1888,6 +1915,8 @@ scsiPrintTemp(scsi_device * device)
 int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 {
+    jglb["protocol"] = "scsi";
+
     int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;
     int returnval = 0;

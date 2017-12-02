@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-10 Bruce Allen
- * Copyright (C) 2008-10 Christian Franke
+ * Copyright (C) 2008-17 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -94,5 +94,23 @@ inline void print_off()
   if (printing_is_switchable)
     printing_is_off = true;
 }
+
+// The singleton global JSON object
+#include "json.h"
+extern json jglb;
+
+#include "utility.h" // __attribute_format_printf()
+// TODO: move this to a new include file?
+
+// Version of pout() for items already included in JSON output
+void jout(const char *fmt, ...)
+  __attribute_format_printf(1, 2);
+// Version of pout() for info/warning/error messages
+void jinf(const char *fmt, ...)
+  __attribute_format_printf(1, 2);
+void jwrn(const char *fmt, ...)
+__attribute_format_printf(1, 2);
+void jerr(const char *fmt, ...)
+__attribute_format_printf(1, 2);
 
 #endif

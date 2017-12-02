@@ -51,6 +51,7 @@
 #include "nvmeprint.h"
 #include "smartctl.h"
 #include "utility.h"
+#include "svnversion.h"
 
 const char * smartctl_cpp_cvsid = "$Id$"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
@@ -59,9 +60,16 @@ const char * smartctl_cpp_cvsid = "$Id$"
 bool printing_is_switchable = false;
 bool printing_is_off = false;
 
+// Control JSON output
+json jglb;
+static bool print_as_json = false;
+static bool print_as_json_output = false;
+static bool print_as_json_impl = false;
+static bool print_as_json_unimpl = false;
+
 static void printslogan()
 {
-  pout("%s\n", format_version_info("smartctl").c_str());
+  jout("%s\n", format_version_info("smartctl").c_str());
 }
 
 static void UsageSummary()
@@ -70,13 +78,45 @@ static void UsageSummary()
   return;
 }
 
+static void js_initialize(int argc, char **argv)
+{
+  if (jglb.is_enabled())
+    return;
+  jglb.enable();
+
+  // Major.minor version of JSON format
+  jglb["json_format_version"][0] = 0;
+  jglb["json_format_version"][1] = 1;
+
+  // Smartctl version info
+  json::ref jref = jglb["smartctl"];
+  int ver[3] = { 0, 0, 0 };
+  sscanf(PACKAGE_VERSION, "%d.%d.%d", ver, ver+1, ver+2);
+  jref["version"][0] = ver[0];
+  jref["version"][1] = ver[1];
+  if (ver[2] > 0)
+    jref["version"][2] = ver[2];
+
+#ifdef SMARTMONTOOLS_SVN_REV
+  jref["svn_revision"] = SMARTMONTOOLS_SVN_REV;
+#endif
+  jref["platform_info"] = smi()->get_os_version_str();
+#ifdef BUILD_INFO
+  jref["build_info"] = BUILD_INFO;
+#endif
+
+  jref["argv"][0] = "smartctl";
+  for (int i = 1; i < argc; i++)
+    jref["argv"][i] = argv[i];
+}
+
 static std::string getvalidarglist(int opt);
 
 /*  void prints help information for command syntax */
 static void Usage()
 {
-  printf("Usage: smartctl [options] device\n\n");
-  printf(
+  pout("Usage: smartctl [options] device\n\n");
+  pout(
 "============================================ SHOW INFORMATION OPTIONS =====\n\n"
 "  -h, --help, --usage\n"
 "         Display this help and exit\n\n"
@@ -98,8 +138,10 @@ static void Usage()
 "  --scan-open\n"
 "         Scan for devices and try to open each device\n\n"
   );
-  printf(
+  pout(
 "================================== SMARTCTL RUN-TIME BEHAVIOR OPTIONS =====\n\n"
+"  -j, --json[=[aiu]]\n"
+"         Print output in JSON format\n\n"
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
 "         Set smartctl quiet mode to one of: errorsonly, silent, noserial\n\n"
 "  -d TYPE, --device=TYPE\n"
@@ -114,7 +156,7 @@ static void Usage()
 "  -n MODE[,STATUS], --nocheck=MODE[,STATUS]                           (ATA)\n"
 "         No check if: never, sleep, standby, idle (see man page)\n\n",
   getvalidarglist('d').c_str()); // TODO: Use this function also for other options ?
-  printf(
+  pout(
 "============================== DEVICE FEATURE ENABLE/DISABLE COMMANDS =====\n\n"
 "  -s VALUE, --smart=VALUE\n"
 "        Enable/disable SMART on device (on/off)\n\n"
@@ -128,7 +170,7 @@ static void Usage()
 "        standby,[N|off|now], wcache,[on|off], rcache,[on|off],\n"
 "        wcreorder,[on|off[,p]], wcache-sct,[ata|on|off[,p]]\n\n"
   );
-  printf(
+  pout(
 "======================================= READ AND DISPLAY DATA OPTIONS =====\n\n"
 "  -H, --health\n"
 "        Show device SMART health status\n\n"
@@ -158,13 +200,13 @@ static void Usage()
     get_drivedb_path_add()
   );
 #ifdef SMARTMONTOOLS_DRIVEDBDIR
-  printf(
+  pout(
                       "\n"
 "         and then    %s",
     get_drivedb_path_default()
   );
 #endif
-  printf(
+  pout(
          "]\n\n"
 "============================================ DEVICE SELF-TEST OPTIONS =====\n\n"
 "  -t TEST, --test=TEST\n"
@@ -177,7 +219,7 @@ static void Usage()
 );
   std::string examples = smi()->get_app_examples("smartctl");
   if (!examples.empty())
-    printf("%s\n", examples.c_str());
+    pout("%s\n", examples.c_str());
 }
 
 // Values for  --long only options, see parse_options()
@@ -231,6 +273,8 @@ static std::string getvalidarglist(int opt)
            "wcache-sct,[ata|on|off[,p]]";
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
+  case 'j':
+    return "a, i, u";
   case opt_identify:
     return "n, wn, w, v, wv, wb";
   case 'v':
@@ -274,7 +318,7 @@ static const char * parse_options(int argc, char** argv,
   nvme_print_options & nvmeopts, bool & print_type_only)
 {
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iaxv:P:t:CXF:n:B:f:g:";
+  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iaxv:P:t:CXF:n:B:f:g:j";
   // Please update getvalidarglist() if you edit longopts
   struct option longopts[] = {
     { "help",            no_argument,       0, 'h' },
@@ -307,6 +351,7 @@ static const char * parse_options(int argc, char** argv,
     { "drivedb",         required_argument, 0, 'B' },
     { "format",          required_argument, 0, 'f' },
     { "get",             required_argument, 0, 'g' },
+    { "json",            optional_argument, 0, 'j' },
     { "identify",        optional_argument, 0, opt_identify },
     { "set",             required_argument, 0, opt_set },
     { "scan",            no_argument,       0, opt_scan      },
@@ -1047,6 +1092,23 @@ static const char * parse_options(int argc, char** argv,
       scan = optchar;
       break;
 
+    case 'j':
+      print_as_json = true;
+      print_as_json_output = false;
+      print_as_json_impl = print_as_json_unimpl = false;
+      if (optarg) {
+        for (int i = 0; optarg[i]; i++) {
+          switch (optarg[i]) {
+            case 'a': print_as_json_output = true; break;
+            case 'i': print_as_json_impl = true; break;
+            case 'u': print_as_json_unimpl = true; break;
+            default: badarg = true;
+          }
+        }
+      }
+      js_initialize(argc, argv);
+      break;
+
     case '?':
     default:
       printing_is_off = false;
@@ -1199,28 +1261,129 @@ static const char * parse_options(int argc, char** argv,
   return type;
 }
 
-// Printing function (controlled by global printing_is_off)
-// [From GLIBC Manual: Since the prototype doesn't specify types for
-// optional arguments, in a call to a variadic function the default
-// argument promotions are performed on the optional argument
-// values. This means the objects of type char or short int (whether
-// signed or not) are promoted to either int or unsigned int, as
-// appropriate.]
-void pout(const char *fmt, ...){
-  va_list ap;
-  
-  // initialize variable argument list 
-  va_start(ap,fmt);
-  if (printing_is_off) {
-    va_end(ap);
-    return;
-  }
+// Printing functions
 
-  // print out
-  vprintf(fmt,ap);
+static void vjpout(bool is_js_impl, const char * msg_severity,
+                   const char *fmt, va_list ap)
+{
+  if (!print_as_json) {
+    // Print out directly
+    vprintf(fmt, ap);
+    fflush(stdout);
+  }
+  else {
+    // Add lines to JSON output
+    static char buf[1024];
+    static char * bufnext = buf;
+    vsnprintf(bufnext, sizeof(buf) - (bufnext - buf), fmt, ap);
+    for (char * p = buf, *q; ; p = q) {
+      if (!(q = strchr(p, '\n'))) {
+        // Keep remaining line for next call
+        for (bufnext = buf; *p; bufnext++, p++)
+          *bufnext = *p;
+        break;
+      }
+      *q++ = 0; // '\n' -> '\0'
+
+      static int lineno = 0;
+      lineno++;
+      if (print_as_json_output) {
+        // Collect full output in array
+        static int outindex = 0;
+        jglb["smartctl"]["output"][outindex++] = p;
+      }
+      if (!*p)
+        continue; // Skip empty line
+
+      if (msg_severity) {
+        // Collect non-empty messages in array
+        static int errindex = 0;
+        json::ref jref = jglb["smartctl"]["messages"][errindex++];
+        jref["string"] = p;
+        jref["severity"] = msg_severity;
+      }
+
+      if (   ( is_js_impl && print_as_json_impl  )
+          || (!is_js_impl && print_as_json_unimpl)) {
+        // Add (un)implemented non-empty lines to global object
+        jglb[strprintf("smartctl_%04d_%c", lineno,
+                     (is_js_impl ? 'i' : 'u')).c_str()] = p;
+      }
+    }
+  }
+}
+
+// Default: print to stdout
+// --json: ignore
+// --json=a: append to "output" array
+// --json=u: add "smartctl_NNNN_u" element(s)
+void pout(const char *fmt, ...)
+{
+  if (printing_is_off)
+    return;
+  if (print_as_json && !(print_as_json_output
+      || print_as_json_impl || print_as_json_unimpl))
+    return;
+
+  va_list ap;
+  va_start(ap, fmt);
+  vjpout(false, 0, fmt, ap);
   va_end(ap);
-  fflush(stdout);
-  return;
+}
+
+// Default: Print to stdout
+// --json: ignore
+// --json=a: append to "output" array
+// --json=i: add "smartctl_NNNN_i" element(s)
+void jout(const char *fmt, ...)
+{
+  if (printing_is_off)
+    return;
+  if (print_as_json && !(print_as_json_output
+      || print_as_json_impl || print_as_json_unimpl))
+    return;
+
+  va_list ap;
+  va_start(ap, fmt);
+  vjpout(true, 0, fmt, ap);
+  va_end(ap);
+}
+
+// Default: print to stdout
+// --json: append to "messages"
+// --json=a: append to "output" array
+// --json=i: add "smartctl_NNNN_i" element(s)
+void jinf(const char *fmt, ...)
+{
+  if (printing_is_off)
+    return;
+
+  va_list ap;
+  va_start(ap, fmt);
+  vjpout(true, "information", fmt, ap);
+  va_end(ap);
+}
+
+void jwrn(const char *fmt, ...)
+{
+  if (printing_is_off)
+    return;
+
+  va_list ap;
+  va_start(ap, fmt);
+  vjpout(true, "warning", fmt, ap);
+  va_end(ap);
+}
+
+void jerr(const char *fmt, ...)
+{
+  if (printing_is_off)
+    return;
+
+  va_list ap;
+  va_start(ap, fmt);
+  vjpout(true, "error", fmt, ap);
+  va_end(ap);
 }
 
 // Globals to set failuretest() policy
@@ -1366,7 +1529,7 @@ static int main_worker(int argc, char **argv)
     dev = smi()->get_smart_device(name, type);
 
   if (!dev) {
-    pout("%s: %s\n", name, smi()->get_errmsg());
+    jerr("%s: %s\n", name, smi()->get_errmsg());
     if (type)
       printvalidarglistmessage('d');
     else
@@ -1381,7 +1544,7 @@ static int main_worker(int argc, char **argv)
          dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev.get()));
 
   if (dev->is_ata() && ataopts.powermode>=2 && dev->is_powered_down()) {
-    pout("Device is in STANDBY (OS) mode, exit(%d)\n", ataopts.powerexit);
+    jinf("Device is in STANDBY (OS) mode, exit(%d)\n", ataopts.powerexit);
     return ataopts.powerexit;
   }
 
@@ -1400,7 +1563,7 @@ static int main_worker(int argc, char **argv)
         dev->get_info_name(), oldinfo.dev_type.c_str(), dev->get_dev_type());
   }
   if (!dev->is_open()) {
-    pout("Smartctl open device: %s failed: %s\n", dev->get_info_name(), dev->get_errmsg());
+    jerr("Smartctl open device: %s failed: %s\n", dev->get_info_name(), dev->get_errmsg());
     return FAILDEV;
   }
 
@@ -1431,12 +1594,17 @@ int main(int argc, char **argv)
   bool badcode = false;
 
   try {
-    // Do the real work ...
-    status = main_worker(argc, argv);
-  }
-  catch (int ex) {
-    // EXIT(status) arrives here
-    status = ex;
+    try {
+      // Do the real work ...
+      status = main_worker(argc, argv);
+    }
+    catch (int ex) {
+      // EXIT(status) arrives here
+      status = ex;
+    }
+    // Print JSON if enabled
+    jglb["smartctl"]["exit_status"] = status;
+    jglb.print(stdout);
   }
   catch (const std::bad_alloc & /*ex*/) {
     // Memory allocation failed (also thrown by std::operator new)

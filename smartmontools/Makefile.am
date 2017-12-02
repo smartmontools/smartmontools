@@ -70,6 +70,8 @@ smartctl_SOURCES = \
         dev_tunnelled.h \
         drivedb.h \
         int64.h \
+        json.cpp \
+        json.h \
         knowndrives.cpp \
         knowndrives.h \
         nvmecmds.cpp \

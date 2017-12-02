@@ -608,18 +608,26 @@ static void print_drive_info(const ata_identify_device * drive,
   ata_format_id_string(firmware, drive->fw_rev, sizeof(firmware)-1);
 
   // Print model family if known
-  if (dbentry && *dbentry->modelfamily)
-    pout("Model Family:     %s\n", dbentry->modelfamily);
+  if (dbentry && *dbentry->modelfamily) {
+    jout("Model Family:     %s\n", dbentry->modelfamily);
+    jglb["model_family"] = dbentry->modelfamily;
+  }
 
-  pout("Device Model:     %s\n", infofound(model));
+  jout("Device Model:     %s\n", infofound(model));
+  jglb["model_name"] = model;
 
   if (!dont_print_serial_number) {
-    pout("Serial Number:    %s\n", infofound(serial));
+    jout("Serial Number:    %s\n", infofound(serial));
+    jglb["serial_number"] = serial;
 
     unsigned oui = 0; uint64_t unique_id = 0;
     int naa = ata_get_wwn(drive, oui, unique_id);
-    if (naa >= 0)
-      pout("LU WWN Device Id: %x %06x %09" PRIx64 "\n", naa, oui, unique_id);
+    if (naa >= 0) {
+      jout("LU WWN Device Id: %x %06x %09" PRIx64 "\n", naa, oui, unique_id);
+      jglb["wwn"]["naa"] = naa;
+      jglb["wwn"]["oui"] = oui;
+      jglb["wwn"]["id"]  = unique_id;
+    }
   }
 
   // Additional Product Identifier (OEM Id) string in words 170-173
@@ -627,39 +635,47 @@ static void print_drive_info(const ata_identify_device * drive,
   if (0x2020 <= drive->words088_255[170-88] && drive->words088_255[170-88] <= 0x7e7e) {
     char add[8+1];
     ata_format_id_string(add, (const unsigned char *)(drive->words088_255+170-88), sizeof(add)-1);
-    if (add[0])
-      pout("Add. Product Id:  %s\n", add);
+    if (add[0]) {
+      jout("Add. Product Id:  %s\n", add);
+      jglb["ata_additional_product_id"] = add;
+    }
   }
 
-  pout("Firmware Version: %s\n", infofound(firmware));
+  jout("Firmware Version: %s\n", infofound(firmware));
+  jglb["firmware_version"] = firmware;
 
   if (sizes.capacity) {
     // Print capacity
     char num[64], cap[32];
-    pout("User Capacity:    %s bytes [%s]\n",
+    jout("User Capacity:    %s bytes [%s]\n",
       format_with_thousands_sep(num, sizeof(num), sizes.capacity),
       format_capacity(cap, sizeof(cap), sizes.capacity));
+    jglb["user_capacity"] = sizes.capacity;
 
     // Print sector sizes.
     if (sizes.phy_sector_size == sizes.log_sector_size)
-      pout("Sector Size:      %u bytes logical/physical\n", sizes.log_sector_size);
+      jout("Sector Size:      %u bytes logical/physical\n", sizes.log_sector_size);
     else {
-      pout("Sector Sizes:     %u bytes logical, %u bytes physical",
-         sizes.log_sector_size, sizes.phy_sector_size);
+      jout("Sector Sizes:     %u bytes logical, %u bytes physical",
+        sizes.log_sector_size, sizes.phy_sector_size);
       if (sizes.log_sector_offset)
         pout(" (offset %u bytes)", sizes.log_sector_offset);
-      pout("\n");
+      jout("\n");
     }
+    jglb["logical_block_size"]  = sizes.log_sector_size;
+    jglb["physical_block_size"] = sizes.phy_sector_size;
   }
 
   // Print nominal media rotation rate if reported
   if (rpm) {
     if (rpm == 1)
-      pout("Rotation Rate:    Solid State Device\n");
+      jout("Rotation Rate:    Solid State Device\n");
     else if (rpm > 1)
-      pout("Rotation Rate:    %d rpm\n", rpm);
+      jout("Rotation Rate:    %d rpm\n", rpm);
     else
       pout("Rotation Rate:    Unknown (0x%04x)\n", -rpm);
+    if (rpm > 0)
+      jglb["rotation_rate"] = (rpm == 1 ? 0 : rpm);
   }
 
   // Print form factor if reported
@@ -667,15 +683,18 @@ static void print_drive_info(const ata_identify_device * drive,
   if (word168) {
     const char * form_factor = get_form_factor(word168);
     if (form_factor)
-      pout("Form Factor:      %s\n", form_factor);
+      jout("Form Factor:      %s\n", form_factor);
     else
-      pout("Form Factor:      Unknown (0x%04x)\n", word168);
+      jout("Form Factor:      Unknown (0x%04x)\n", word168);
+    jglb["form_factor"]["ata_value"] = word168;
+    jglb["form_factor"]["name"] = form_factor;
   }
 
   // See if drive is recognized
-  pout("Device is:        %s\n", !dbentry ?
+  jout("Device is:        %s\n", !dbentry ?
        "Not in smartctl database [for details use: -P showall]":
        "In smartctl database [for details use: -P show]");
+  jglb["in_smartctl_database"] = !!dbentry;
 
   // Print ATA version
   std::string ataver;
@@ -702,7 +721,12 @@ static void print_drive_info(const ata_identify_device * drive,
         ataver += " (minor revision not indicated)";
     }
   }
-  pout("ATA Version is:   %s\n", infofound(ataver.c_str()));
+  jout("ATA Version is:   %s\n", infofound(ataver.c_str()));
+  if (!ataver.empty()) {
+    jglb["ata_version"]["string"] = ataver;
+    jglb["ata_version"]["major_value"] = drive->major_rev_num;
+    jglb["ata_version"]["minor_value"] = drive->minor_rev_num;
+  }
 
   // Print Transport specific version
   unsigned short word222 = drive->words088_255[222-88];
@@ -718,10 +742,17 @@ static void print_drive_info(const ata_identify_device * drive,
         const char * sataver = get_sata_version(word222);
         const char * maxspeed = get_sata_maxspeed(drive);
         const char * curspeed = get_sata_curspeed(drive);
-        pout("SATA Version is:  %s%s%s%s%s%s\n", sataver,
+        jout("SATA Version is:  %s%s%s%s%s%s\n", sataver,
              (maxspeed ? ", " : ""), (maxspeed ? maxspeed : ""),
              (curspeed ? " (current: " : ""), (curspeed ? curspeed : ""),
              (curspeed ? ")" : ""));
+        if (sataver)
+          jglb["sata_version"]["string"] = sataver;
+        jglb["sata_version"]["value"] = word222 & 0x0fff;
+        if (maxspeed)
+          jglb["interface_speed"]["max"]["string"] = maxspeed;
+        if (curspeed)
+          jglb["interface_speed"]["current"]["string"] = curspeed;
       }
       break;
     case 0xe: // PCIe (ACS-4)
@@ -733,8 +764,11 @@ static void print_drive_info(const ata_identify_device * drive,
   }
 
   // print current time and date and timezone
-  char timedatetz[DATEANDEPOCHLEN]; dateandtimezone(timedatetz);
-  pout("Local Time is:    %s\n", timedatetz);
+  time_t now = time(0);
+  char timedatetz[DATEANDEPOCHLEN]; dateandtimezoneepoch(timedatetz, now);
+  jout("Local Time is:    %s\n", timedatetz);
+  jglb["local_time"]["time_t"] = now;
+  jglb["local_time"]["asctime"] = timedatetz;
 
   // Print warning message, if there is one
   if (dbentry && *dbentry->warningmsg)
@@ -1026,7 +1060,7 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
   bool needheader = true;
 
   // step through all vendor attributes
-  for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+  for (int i = 0, ji = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
     const ata_smart_attribute & attr = data->vendor_attributes[i];
 
     // Check attribute and threshold
@@ -1045,14 +1079,15 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     // print header only if needed
     if (needheader) {
       if (!onlyfailed) {
-        pout("SMART Attributes Data Structure revision number: %d\n",(int)data->revnumber);
-        pout("Vendor Specific SMART Attributes with Thresholds:\n");
+        jout("SMART Attributes Data Structure revision number: %d\n",(int)data->revnumber);
+        jglb["ata_smart_attributes"]["revision"] = data->revnumber;
+        jout("Vendor Specific SMART Attributes with Thresholds:\n");
       }
       if (!brief)
-        pout("ID#%s ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE\n",
+        jout("ID#%s ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE\n",
              (!hexid ? "" : " "));
       else
-        pout("ID#%s ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE\n",
+        jout("ID#%s ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE\n",
              (!hexid ? "" : " "));
       needheader = false;
     }
@@ -1082,7 +1117,7 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     std::string rawstr = ata_format_attr_raw_value(attr, defs);
 
     if (!brief)
-      pout("%s %-24s0x%04x   %-4s  %-4s  %-4s   %-10s%-9s%-12s%s\n",
+      jout("%s %-24s0x%04x   %-4s  %-4s  %-4s   %-10s%-9s%-12s%s\n",
            idstr.c_str(), attrname.c_str(), attr.flags,
            valstr.c_str(), worstr.c_str(), threstr.c_str(),
            (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags) ? "Pre-fail" : "Old_age"),
@@ -1092,7 +1127,7 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
                                            : "    -"        ) ,
             rawstr.c_str());
     else
-      pout("%s %-24s%c%c%c%c%c%c%c  %-4s  %-4s  %-4s   %-5s%s\n",
+      jout("%s %-24s%c%c%c%c%c%c%c  %-4s  %-4s  %-4s   %-5s%s\n",
            idstr.c_str(), attrname.c_str(),
            (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags)     ? 'P' : '-'),
            (ATTRIBUTE_FLAGS_ONLINE(attr.flags)         ? 'O' : '-'),
@@ -1107,12 +1142,42 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
                                            : "-"     ),
             rawstr.c_str());
 
+    if (!jglb.is_enabled())
+      continue;
+
+    json::ref jref = jglb["ata_smart_attributes"]["attrs"][ji++];
+    jref["id"] = attr.id;
+    jref["name"] = attrname;
+    if (state > ATTRSTATE_NO_NORMVAL)
+      jref["value"] = attr.current;
+    if (!(defs[attr.id].flags & ATTRFLAG_NO_WORSTVAL))
+      jref["worst"] = attr.worst;
+    if (state > ATTRSTATE_NO_THRESHOLD) {
+      jref["thresh"] = threshold;
+      jref["when_failed"] = (state == ATTRSTATE_FAILED_NOW  ? "now" :
+                           state == ATTRSTATE_FAILED_PAST ? "past"
+                                                          : ""     );
+    }
+    jref["flags"]["value"] = attr.flags;
+    {
+      static const char * const fnames[6] =
+        { "P", "O", "S", "R", "C", "K" };
+      int ai = 0;
+      for (int bi = 0; bi < 6; bi++) {
+        if (attr.flags & (1 << bi))
+          jref["flags"]["set"][ai++] = fnames[bi];
+      }
+      if (ATTRIBUTE_FLAGS_OTHER(attr.flags))
+        jref["flags"]["set"][ai] = "+";
+    }
+    jref["raw"]["value"] = ata_get_attr_raw_value(attr, defs);
+    jref["raw"]["string"] = rawstr;
   }
 
   if (!needheader) {
     if (!onlyfailed && brief) {
         int n = (!hexid ? 28 : 29);
-        pout("%*s||||||_ K auto-keep\n"
+        jout("%*s||||||_ K auto-keep\n"
              "%*s|||||__ C event count\n"
              "%*s||||___ R error rate\n"
              "%*s|||____ S speed/performance\n"
@@ -1122,6 +1187,14 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     }
     pout("\n");
   }
+
+  if (!jglb.is_enabled())
+    return;
+
+  // Protocol independent temperature
+  unsigned char t = ata_return_temperature_value(data, defs);
+  if (t)
+    jglb["temperature"]["current"] = t;
 }
 
 // Print SMART related SCT capabilities
@@ -1855,11 +1928,14 @@ static const char * get_error_log_state_desc(unsigned state)
 static int PrintSmartErrorlog(const ata_smart_errorlog *data,
                               firmwarebug_defs firmwarebugs)
 {
-  pout("SMART Error Log Version: %d\n", (int)data->revnumber);
-  
+  json::ref jref = jglb["ata_smart_error_log"]["summary"];
+  jout("SMART Error Log Version: %d\n", (int)data->revnumber);
+  jref["revision"] = data->revnumber;
+
   // if no errors logged, return
   if (!data->error_log_pointer){
-    pout("No Errors Logged\n\n");
+    jout("No Errors Logged\n\n");
+    jref["count"] = 0;
     return 0;
   }
   print_on();
@@ -1879,10 +1955,11 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
   
   // starting printing error log info
   if (data->ata_error_count<=5)
-    pout( "ATA Error Count: %d\n", (int)data->ata_error_count);
+    jout( "ATA Error Count: %d\n", (int)data->ata_error_count);
   else
     pout( "ATA Error Count: %d (device log contains only the most recent five errors)\n",
            (int)data->ata_error_count);
+  jglb["count"] = data->ata_error_count;
   print_off();
   pout("\tCR = Command Register [HEX]\n"
        "\tFR = Features Register [HEX]\n"
@@ -1972,11 +2049,15 @@ static int PrintSmartExtErrorLog(ata_device * device,
                                  const ata_smart_exterrlog * log,
                                  unsigned nsectors, unsigned max_errors)
 {
-  pout("SMART Extended Comprehensive Error Log Version: %u (%u sectors)\n",
+  json::ref jref = jglb["ata_smart_error_log"]["extended"];
+  jout("SMART Extended Comprehensive Error Log Version: %u (%u sectors)\n",
        log->version, nsectors);
+  jref["revision"] = log->version;
+  jref["sectors"] = nsectors;
 
   if (!log->device_error_count) {
-    pout("No Errors Logged\n\n");
+    jout("No Errors Logged\n\n");
+    jref["count"] = 0;
     return 0;
   }
   print_on();
@@ -2004,12 +2085,13 @@ static int PrintSmartExtErrorLog(ata_device * device,
   unsigned errcnt = log->device_error_count;
 
   if (errcnt <= nentries)
-    pout("Device Error Count: %u\n", log->device_error_count);
+    jout("Device Error Count: %u\n", log->device_error_count);
   else {
     errcnt = nentries;
     pout("Device Error Count: %u (device log contains only the most recent %u errors)\n",
          log->device_error_count, errcnt);
   }
+  jref["count"] = errcnt;
 
   if (max_errors < errcnt)
     errcnt = max_errors;
@@ -2376,6 +2458,7 @@ static const char * sct_device_state_msg(unsigned char state)
 // Print SCT Status
 static int ataPrintSCTStatus(const ata_sct_status_response * sts)
 {
+  json::ref jref = jglb["ata_sct_status"];
   pout("SCT Status Version:                  %u\n", sts->format_version);
   pout("SCT Version (vendor specific):       %u (0x%04x)\n", sts->sct_version, sts->sct_version);
   pout("SCT Support Level:                   %u\n", sts->sct_spec);
@@ -2401,8 +2484,13 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
     // Table 80 of T13/1699-D (ATA8-ACS) Revision 6a, September 2008 (format version 3)
     // Table 185 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
     // (smart_status, min_erc_time)
-    pout("Current Temperature:                    %s Celsius\n",
+    jout("Current Temperature:                    %s Celsius\n",
       sct_ptemp(sts->hda_temp, buf1));
+    if (sts->hda_temp != -128) {
+      jref["temperature"]["current"] = sts->hda_temp;
+      // Protocol independent value
+      jglb["temperature"]["current"] = sts->hda_temp;
+    }
     pout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
       sct_ptemp(sts->min_temp, buf1), sct_ptemp(sts->max_temp, buf2));
     pout("Lifetime    Min/Max Temperature:     %s/%s Celsius\n",
@@ -2620,6 +2708,8 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
+  jglb["protocol"] = "ata";
+
   // If requested, check power mode first
   const char * powername = 0;
   bool powerchg = false;
@@ -2662,7 +2752,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     if (powername) {
       if (options.powermode >= powerlimit) {
-        pout("Device is in %s mode, exit(%d)\n", powername, options.powerexit);
+        jinf("Device is in %s mode, exit(%d)\n", powername, options.powerexit);
         return options.powerexit;
       }
       powerchg = (powermode != 0xff); // SMART tests will spin up drives
@@ -3238,7 +3328,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
     case 0:
       // The case where the disk health is OK
-      pout("SMART overall-health self-assessment test result: PASSED\n");
+      jout("SMART overall-health self-assessment test result: PASSED\n");
+      jglb["smart_status"]["passed"] = true;
       if (smart_thres_ok && find_failed_attr(&smartval, &smartthres, attribute_defs, 0)) {
         if (options.smart_vendor_attrib)
           pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
@@ -3256,8 +3347,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     case 1:
       // The case where the disk health is NOT OK
       print_on();
-      pout("SMART overall-health self-assessment test result: FAILED!\n"
+      jout("SMART overall-health self-assessment test result: FAILED!\n"
            "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
+      jglb["smart_status"]["passed"] = false;
       print_off();
       if (smart_thres_ok && find_failed_attr(&smartval, &smartthres, attribute_defs, 1)) {
         returnval|=FAILATTR;
@@ -3293,9 +3385,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       }
       else if (find_failed_attr(&smartval, &smartthres, attribute_defs, 1)) {
         print_on();
-        pout("SMART overall-health self-assessment test result: FAILED!\n"
+        jout("SMART overall-health self-assessment test result: FAILED!\n"
              "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
-        pout("Warning: This result is based on an Attribute check.\n");
+        jwrn("Warning: This result is based on an Attribute check.\n");
+        jglb["smart_status"]["passed"] = false;
         print_off();
         returnval|=FAILATTR;
         returnval|=FAILSTATUS;
@@ -3308,8 +3401,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         }
       }
       else {
-        pout("SMART overall-health self-assessment test result: PASSED\n");
-        pout("Warning: This result is based on an Attribute check.\n");
+        jout("SMART overall-health self-assessment test result: PASSED\n");
+        jwrn("Warning: This result is based on an Attribute check.\n");
+        jglb["smart_status"]["passed"] = true;
         if (find_failed_attr(&smartval, &smartthres, attribute_defs, 0)) {
           if (options.smart_vendor_attrib)
             pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
