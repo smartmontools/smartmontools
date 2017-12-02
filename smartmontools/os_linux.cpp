@@ -74,7 +74,10 @@
 #include <sys/uio.h>
 #include <sys/types.h>
 #include <dirent.h>
-#ifndef makedev // old versions of types.h do not include sysmacros.h
+#ifdef HAVE_SYS_SYSMACROS_H
+// glibc 2.25: The inclusion of <sys/sysmacros.h> by <sys/types.h> is
+// deprecated.  A warning is printed if major(), minor() or makedev()
+// is used but <sys/sysmacros.h> is not included.
 #include <sys/sysmacros.h>
 #endif
 #ifdef WITH_SELINUX
@@ -103,7 +106,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4624 2017-11-16 21:38:28Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4636 2017-12-02 15:01:22Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 

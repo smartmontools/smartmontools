@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4621 2017-11-16 18:05:45Z chrfranke $
+# $Id: configure.ac 4636 2017-12-02 15:01:22Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4621 2017-11-16 18:05:45Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4636 2017-12-02 15:01:22Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -101,8 +101,8 @@ case "$host" in
       [AC_DEFINE([CISS_LOCATION],["cissio_freebsd.h"],[freebsd ciss header location])])
     ;;
   *-*-linux*)
-    # This header file is needed for cciss_ioctl.h at least on SuSE LINUX
-    AC_CHECK_HEADERS([linux/compiler.h])
+    # <linux/compiler.h> is needed for cciss_ioctl.h at least on SuSE LINUX
+    AC_CHECK_HEADERS([sys/sysmacros.h linux/compiler.h])
     # Check for Linux CCISS include file
     AC_CHECK_HEADERS([linux/cciss_ioctl.h], [], [], [AC_INCLUDES_DEFAULT
 #ifdef HAVE_LINUX_COMPILER_H
