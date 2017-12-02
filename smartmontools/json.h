@@ -16,9 +16,10 @@
  */
 
 #ifndef JSON_H_CVSID
-#define JSON_H_CVSID "$Id: json.h 4640 2017-12-02 22:25:46Z chrfranke $"
+#define JSON_H_CVSID "$Id: json.h 4642 2017-12-02 22:55:50Z chrfranke $"
 
 #include <stdio.h>
+#include <string>
 #include <vector>
 #include <map>
 
