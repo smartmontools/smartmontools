@@ -1,6 +1,8 @@
-$Id: ChangeLog 4638 2017-12-02 15:25:36Z chrfranke $
+$Id: ChangeLog 4639 2017-12-02 15:36:15Z chrfranke $
 
 2017-12-02  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Remove no longer needed variable 'must_swap'.
 
 	os_win32.cpp: Remove include of smartctl.h, add extern declaration.
 	Decode Windows Server 1709 build number.
