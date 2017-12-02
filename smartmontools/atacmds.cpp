@@ -362,12 +362,11 @@ static void invalidate_serno(ata_identify_device * id)
     sum += b[i]; sum -= b[i] = 0x00;
   }
 
-  bool must_swap = !!isbigendian();
-  if (must_swap)
+  if (isbigendian())
     SWAPV(id->words088_255[255-88]);
   if ((id->words088_255[255-88] & 0x00ff) == 0x00a5)
     id->words088_255[255-88] += sum << 8;
-  if (must_swap)
+  if (isbigendian())
     SWAPV(id->words088_255[255-88]);
 }
 
@@ -774,14 +773,9 @@ static void trim(char * out, const char * in)
 // Convenience function for formatting strings from ata_identify_device
 void ata_format_id_string(char * out, const unsigned char * in, int n)
 {
-  bool must_swap = true;
-
   char tmp[65];
   n = n > 64 ? 64 : n;
-  if (!must_swap)
-    strncpy(tmp, (const char *)in, n);
-  else
-    swapbytes(tmp, (const char *)in, n);
+  swapbytes(tmp, (const char *)in, n);
   tmp[n] = '\0';
   trim(out, tmp);
 }
