@@ -454,7 +454,7 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/missing \
         $(srcdir)/m4/pkg.m4
 
-utility.o: svnversion.h
+smartctl.o utility.o: svnversion.h
 
 if IS_SVN_BUILD
 # Get version info from SVN
