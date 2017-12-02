@@ -30,13 +30,15 @@
 #include "scsicmds.h"
 #include "nvmecmds.h"
 #include "utility.h"
-#include "smartctl.h" // TODO: Do not use smartctl only variables here
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
 #include "dev_areca.h"
 
 #include "os_win32/wmiquery.h"
+
+// TODO: Move from smartctl.h to other include file
+extern unsigned char failuretest_permissive;
 
 #include <errno.h>
 
@@ -112,7 +114,7 @@
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4559 2017-10-22 16:17:50Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4637 2017-12-02 15:22:36Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
