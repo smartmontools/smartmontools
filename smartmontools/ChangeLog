@@ -2,6 +2,8 @@ $Id$
 
 2017-12-02  Christian Franke  <franke@computer.org>
 
+	os_win32.cpp: Remove include of smartctl.h, add extern declaration.
+
 	configure.ac, os_linux.cpp: Always include <sys/sysmacros.h> if available.
 	This silences a 'deprecated' warning from glibc 2.25 headers.
 
