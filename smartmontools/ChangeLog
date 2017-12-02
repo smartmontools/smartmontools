@@ -1,8 +1,9 @@
-$Id: ChangeLog 4637 2017-12-02 15:22:36Z chrfranke $
+$Id: ChangeLog 4638 2017-12-02 15:25:36Z chrfranke $
 
 2017-12-02  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Remove include of smartctl.h, add extern declaration.
+	Decode Windows Server 1709 build number.
 
 	configure.ac, os_linux.cpp: Always include <sys/sysmacros.h> if available.
 	This silences a 'deprecated' warning from glibc 2.25 headers.
