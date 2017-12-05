@@ -1451,6 +1451,15 @@ static const char * get_protocol_info(const smart_device * dev)
   }
 }
 
+// Add JSON device info
+static void js_device_info(json::ref jref, const smart_device * dev)
+{
+  jref["name"] = dev->get_dev_name();
+  jref["info_name"] = dev->get_info_name();
+  jref["type"] = dev->get_dev_type();
+  jref["protocol"] = get_protocol_info(dev);
+}
+
 // Device scan
 // smartctl [-d type] --scan[-open] -- [PATTERN] [smartd directive ...]
 void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv)
@@ -1474,27 +1483,31 @@ void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv
 
   for (unsigned i = 0; i < devlist.size(); i++) {
     smart_device_auto_ptr dev( devlist.release(i) );
+    json::ref jref = jglb["devices"][i];
 
     if (with_open) {
       printing_is_off = dont_print;
       dev.replace ( dev->autodetect_open() );
       printing_is_off = false;
-
-      if (!dev->is_open()) {
-        pout("# %s -d %s # %s, %s device open failed: %s\n", dev->get_dev_name(),
-          dev->get_dev_type(), dev->get_info_name(),
-          get_protocol_info(dev.get()), dev->get_errmsg());
-        continue;
-      }
     }
 
-    pout("%s -d %s", dev->get_dev_name(), dev->get_dev_type());
+    js_device_info(jref, dev.get());
+
+    if (with_open && !dev->is_open()) {
+      jout("# %s -d %s # %s, %s device open failed: %s\n", dev->get_dev_name(),
+           dev->get_dev_type(), dev->get_info_name(),
+           get_protocol_info(dev.get()), dev->get_errmsg());
+      jref["open_error"] = dev->get_errmsg();
+      continue;
+    }
+
+    jout("%s -d %s", dev->get_dev_name(), dev->get_dev_type());
     if (!argv[ai])
-      pout(" # %s, %s device\n", dev->get_info_name(), get_protocol_info(dev.get()));
+      jout(" # %s, %s device\n", dev->get_info_name(), get_protocol_info(dev.get()));
     else {
       for (int j = ai; argv[j]; j++)
-        pout(" %s", argv[j]);
-      pout("\n");
+        jout(" %s", argv[j]);
+      jout("\n");
     }
 
     if (dev->is_open())
@@ -1575,10 +1588,13 @@ static int main_worker(int argc, char **argv)
     return FAILDEV;
   }
 
+  // Add JSON info similar to --scan output
+  js_device_info(jglb["device"], dev.get());
+
   // now call appropriate ATA or SCSI routine
   int retval = 0;
   if (print_type_only)
-    pout("%s: Device of type '%s' [%s] opened\n",
+    jout("%s: Device of type '%s' [%s] opened\n",
          dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev.get()));
   else if (dev->is_ata())
     retval = ataPrintMain(dev->to_ata(), ataopts);

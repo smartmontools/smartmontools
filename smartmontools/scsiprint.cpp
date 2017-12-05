@@ -1915,8 +1915,6 @@ scsiPrintTemp(scsi_device * device)
 int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 {
-    jglb["protocol"] = "scsi";
-
     int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;
     int returnval = 0;

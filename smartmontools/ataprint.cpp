@@ -2708,8 +2708,6 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
-  jglb["protocol"] = "ata";
-
   // If requested, check power mode first
   const char * powername = 0;
   bool powerchg = false;
