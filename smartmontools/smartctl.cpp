@@ -375,6 +375,14 @@ static const char * parse_options(int argc, char** argv,
   char *arg;
 
   while ((optchar = getopt_long(argc, argv, shortopts, longopts, 0)) != -1) {
+
+    // Clang analyzer: Workaround for false positive messages
+    // 'Dereference of null pointer' and 'Null pointer argument'
+    bool optarg_is_set = !!optarg;
+    #ifdef __clang_analyzer__
+    if (!optarg_is_set) optarg = (char *)"";
+    #endif
+
     switch (optchar){
     case 'V':
       printing_is_off = false;
@@ -680,7 +688,7 @@ static const char * parse_options(int argc, char** argv,
 
     case opt_identify:
       ataopts.identify_word_level = ataopts.identify_bit_level = 0;
-      if (optarg) {
+      if (optarg_is_set) {
         for (int i = 0; optarg[i]; i++) {
           switch (optarg[i]) {
             case 'w': ataopts.identify_word_level = 1; break;
@@ -1096,7 +1104,7 @@ static const char * parse_options(int argc, char** argv,
       print_as_json = true;
       print_as_json_output = false;
       print_as_json_impl = print_as_json_unimpl = false;
-      if (optarg) {
+      if (optarg_is_set) {
         for (int i = 0; optarg[i]; i++) {
           switch (optarg[i]) {
             case 'a': print_as_json_output = true; break;

@@ -1,5 +1,9 @@
 $Id$
 
+2017-12-05  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Silence false positive warnings from clang analyzer.
+
 2017-12-02  Christian Franke  <franke@computer.org>
 
 	Add initial support for smartctl JSON output mode (#766):
