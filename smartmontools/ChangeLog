@@ -2,6 +2,8 @@ $Id$
 
 2017-12-05  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp: Add JSON support for '-l sataphy'.
+
 	smartctl.cpp: Add JSON support for '--scan'.
 	Add similar device info to regular JSON output.
 	ataprint.cpp, scsiprint.cpp: Remove now duplicate "protocol" element.

@@ -1828,13 +1828,13 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
 {
   if (checksum(data))
     checksumwarning("SATA Phy Event Counters");
-  pout("SATA Phy Event Counters (GP Log 0x11)\n");
+  jout("SATA Phy Event Counters (GP Log 0x11)\n");
   if (data[0] || data[1] || data[2] || data[3])
     pout("[Reserved: 0x%02x 0x%02x 0x%02x 0x%02x]\n",
     data[0], data[1], data[2], data[3]);
-  pout("ID      Size     Value  Description\n");
+  jout("ID      Size     Value  Description\n");
 
-  for (unsigned i = 4; ; ) {
+  for (unsigned i = 4, ji = 0; ; ) {
     // Get counter id and size (bits 14:12)
     unsigned id = data[i] | (data[i+1] << 8);
     unsigned size = ((id >> 12) & 0x7) << 1;
@@ -1881,12 +1881,20 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
     }
 
     // Counters stop at max value, add '+' in this case
-    pout("0x%04x  %u %12" PRIu64 "%c %s\n", id, size, val,
+    jout("0x%04x  %u %12" PRIu64 "%c %s\n", id, size, val,
       (val == max_val ? '+' : ' '), name);
+
+    json::ref jref = jglb["sata_phy_event_counters"]["table"][ji++];
+    jref["id"] = id;
+    jref["name"] = name;
+    jref["size"] = size;
+    jref["value"] = val;
+    jref["overflow"] = (val == max_val);
   }
   if (reset)
-    pout("All counters reset\n");
-  pout("\n");
+    jout("All counters reset\n");
+  jout("\n");
+  jglb["sata_phy_event_counters"]["reset"] = reset;
 }
 
 // Format milliseconds from error log entry as "DAYS+H:M:S.MSEC"
