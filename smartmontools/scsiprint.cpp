@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4640 2017-12-02 22:25:46Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4644 2017-12-05 20:32:05Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1915,8 +1915,6 @@ scsiPrintTemp(scsi_device * device)
 int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 {
-    jglb["protocol"] = "scsi";
-
     int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;
     int returnval = 0;

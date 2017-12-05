@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4640 2017-12-02 22:25:46Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4644 2017-12-05 20:32:05Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2708,8 +2708,6 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
-  jglb["protocol"] = "ata";
-
   // If requested, check power mode first
   const char * powername = 0;
   bool powerchg = false;

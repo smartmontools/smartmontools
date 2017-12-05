@@ -1,6 +1,10 @@
-$Id: ChangeLog 4643 2017-12-05 18:41:58Z chrfranke $
+$Id: ChangeLog 4644 2017-12-05 20:32:05Z chrfranke $
 
 2017-12-05  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Add JSON support for '--scan'.
+	Add similar device info to regular JSON output.
+	ataprint.cpp, scsiprint.cpp: Remove now duplicate "protocol" element.
 
 	smartctl.cpp: Silence false positive warnings from clang analyzer.
 
