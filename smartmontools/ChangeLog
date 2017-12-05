@@ -1,6 +1,8 @@
-$Id: ChangeLog 4644 2017-12-05 20:32:05Z chrfranke $
+$Id: ChangeLog 4645 2017-12-05 20:54:26Z chrfranke $
 
 2017-12-05  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add JSON support for '-l sataphy'.
 
 	smartctl.cpp: Add JSON support for '--scan'.
 	Add similar device info to regular JSON output.
