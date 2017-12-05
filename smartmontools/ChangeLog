@@ -1,4 +1,8 @@
-$Id: ChangeLog 4640 2017-12-02 22:25:46Z chrfranke $
+$Id: ChangeLog 4643 2017-12-05 18:41:58Z chrfranke $
+
+2017-12-05  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Silence false positive warnings from clang analyzer.
 
 2017-12-02  Christian Franke  <franke@computer.org>
 
