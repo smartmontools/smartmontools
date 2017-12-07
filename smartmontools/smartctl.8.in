@@ -315,15 +315,22 @@ info.
 .TP
 .B RUN-TIME BEHAVIOR OPTIONS:
 .TP
-.B \-j, \-\-json[=aisu]
+.B \-j, \-\-json[=agisu]
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 Enables JSON output mode.
 .Sp
 The output could be modified or enhanced by the optional argument which
-consists of one or more characters from the set \*(Aqaisu\*(Aq:
+consists of one or more characters from the set \*(Aqagisu\*(Aq:
 .br
 \*(Aqa\*(Aq: Includes the full original plaintext output of \fBsmartctl\fR as
 a JSON \fBa\fRrray \*(Aqsmartctl.output[]\*(Aq.
+.br
+\*(Aqg\*(Aq: Outputs JSON structure as single assignments to allow the usage
+of \fBg\fRrep.
+Each assignment reflects the absolute path of a value.
+The syntax is compatible with \fBgron\fR:
+.br
+\*(Aqjson.KEY1[INDEX2].KEY3 = VALUE;\*(Aq.
 .br
 \*(Aqs\*(Aq: Outputs JSON object elements \fBs\fRorted by key.
 By default, object elements are ordered as generated internally.

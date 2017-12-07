@@ -64,6 +64,7 @@ bool printing_is_off = false;
 json jglb;
 static bool print_as_json = false;
 static bool print_as_json_sorted = false;
+static bool print_as_json_flat = false;
 static bool print_as_json_output = false;
 static bool print_as_json_impl = false;
 static bool print_as_json_unimpl = false;
@@ -141,7 +142,7 @@ static void Usage()
   );
   pout(
 "================================== SMARTCTL RUN-TIME BEHAVIOR OPTIONS =====\n\n"
-"  -j, --json[=[aisu]]\n"
+"  -j, --json[=[agisu]]\n"
 "         Print output in JSON format\n\n"
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
 "         Set smartctl quiet mode to one of: errorsonly, silent, noserial\n\n"
@@ -275,7 +276,7 @@ static std::string getvalidarglist(int opt)
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
   case 'j':
-    return "a, i, s, u";
+    return "a, g, i, s, u";
   case opt_identify:
     return "n, wn, w, v, wv, wb";
   case 'v':
@@ -1103,13 +1104,14 @@ static const char * parse_options(int argc, char** argv,
 
     case 'j':
       print_as_json = true;
-      print_as_json_sorted = false;
+      print_as_json_sorted = print_as_json_flat = false;
       print_as_json_output = false;
       print_as_json_impl = print_as_json_unimpl = false;
       if (optarg_is_set) {
         for (int i = 0; optarg[i]; i++) {
           switch (optarg[i]) {
             case 'a': print_as_json_output = true; break;
+            case 'g': print_as_json_flat = true; break;
             case 'i': print_as_json_impl = true; break;
             case 's': print_as_json_sorted = true; break;
             case 'u': print_as_json_unimpl = true; break;
@@ -1631,7 +1633,7 @@ int main(int argc, char **argv)
     }
     // Print JSON if enabled
     jglb["smartctl"]["exit_status"] = status;
-    jglb.print(stdout, print_as_json_sorted);
+    jglb.print(stdout, print_as_json_sorted, print_as_json_flat);
   }
   catch (const std::bad_alloc & /*ex*/) {
     // Memory allocation failed (also thrown by std::operator new)

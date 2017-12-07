@@ -148,6 +148,12 @@ bool json::node::const_iterator::at_end() const
     return (m_child_idx >= m_node_p->childs.size());
 }
 
+unsigned json::node::const_iterator::array_index() const
+{
+  jassert(m_node_p->type == nt_array);
+  return m_child_idx;
+}
+
 void json::node::const_iterator::operator++()
 {
   if (m_use_map)
@@ -266,7 +272,7 @@ static void print_string(FILE * f, const char * s)
   putc('"', f);
 }
 
-void json::print_worker(FILE * f, bool sorted, const node * p, int level)
+void json::print_json(FILE * f, bool sorted, const node * p, int level)
 {
   if (!p->key.empty())
     fprintf(f, "\"%s\" : ", p->key.c_str());
@@ -287,7 +293,7 @@ void json::print_worker(FILE * f, bool sorted, const node * p, int level)
           }
           else {
             // Recurse
-            print_worker(f, sorted, p2, level + 1);
+            print_json(f, sorted, p2, level + 1);
           }
           delim = ",";
         }
@@ -312,11 +318,67 @@ void json::print_worker(FILE * f, bool sorted, const node * p, int level)
   }
 }
 
-void json::print(FILE * f, bool sorted) const
+void json::print_flat(FILE * f, bool sorted, const node * p, std::string & path)
+{
+  switch (p->type) {
+    case nt_object:
+    case nt_array:
+      fprintf(f, "%s = %s;\n", path.c_str(), (p->type == nt_object ? "{}" : "[]"));
+      if (!p->childs.empty()) {
+        unsigned len = path.size();
+        for (node::const_iterator it(p, sorted); !it.at_end(); ++it) {
+          const node * p2 = *it;
+          if (p->type == nt_array) {
+            char buf[10]; snprintf(buf, sizeof(buf), "[%u]", it.array_index());
+            path += buf;
+          }
+          else {
+            path += '.'; path += p2->key;
+          }
+          if (!p2) {
+            // Unset element of sparse array
+            jassert(p->type == nt_array);
+            fprintf(f, "%s = null;\n", path.c_str());
+          }
+          else {
+            // Recurse
+            print_flat(f, sorted, p2, path);
+          }
+          path.erase(len);
+        }
+      }
+      break;
+
+    case nt_bool:
+      fprintf(f, "%s = %s;\n", path.c_str(), (p->intval ? "true" : "false"));
+      break;
+
+    case nt_int:
+      fprintf(f, "%s = %lld;\n", path.c_str(), p->intval);
+      break;
+
+    case nt_string:
+      fprintf(f, "%s = ", path.c_str());
+      print_string(f, p->strval.c_str());
+      fputs(";\n", f);
+      break;
+
+    default: jassert(false);
+  }
+}
+
+void json::print(FILE * f, bool sorted, bool flat) const
 {
   if (m_root_node.type == nt_unset)
     return;
   jassert(m_root_node.type == nt_object);
-  print_worker(f, sorted, &m_root_node, 0);
-  putc('\n', f);
+
+  if (!flat) {
+    print_json(f, sorted, &m_root_node, 0);
+    putc('\n', f);
+  }
+  else {
+    std::string path("json");
+    print_flat(f, sorted, &m_root_node, path);
+  }
 }

@@ -93,7 +93,7 @@ public:
     { return m_enabled; }
 
   /// Print JSON tree to a file.
-  void print(FILE * f, bool sorted) const;
+  void print(FILE * f, bool sorted, bool flat) const;
 
 private:
   enum node_type { nt_unset, nt_object, nt_array, nt_bool, nt_int, nt_string };
@@ -119,6 +119,7 @@ private:
     public:
       const_iterator(const node * node_p, bool sorted);
       bool at_end() const;
+      unsigned array_index() const;
       void operator++();
       const node * operator*() const;
 
@@ -146,7 +147,8 @@ private:
   void set_int(const node_path & path, long long value);
   void set_string(const node_path & path, const std::string & value);
 
-  static void print_worker(FILE * f, bool sorted, const node * p, int level);
+  static void print_json(FILE * f, bool sorted, const node * p, int level);
+  static void print_flat(FILE * f, bool sorted, const node * p, std::string & path);
 };
 
 #endif // JSON_H_CVSID
