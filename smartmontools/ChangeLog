@@ -1,5 +1,10 @@
 $Id$
 
+2017-12-07  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h, smartctl.cpp, smartctl.8.in: Add '--json=s' option.
+	Outputs JSON object elements sorted by key.
+
 2017-12-05  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add JSON support for '-l sataphy'.

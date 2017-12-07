@@ -315,14 +315,18 @@ info.
 .TP
 .B RUN-TIME BEHAVIOR OPTIONS:
 .TP
-.B \-j, \-\-json[=aiu]
+.B \-j, \-\-json[=aisu]
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
 Enables JSON output mode.
-The output could be enhanced by the optional argument which consists of one
-or more characters from the set \*(Aqaiu\*(Aq:
+.Sp
+The output could be modified or enhanced by the optional argument which
+consists of one or more characters from the set \*(Aqaisu\*(Aq:
 .br
 \*(Aqa\*(Aq: Includes the full original plaintext output of \fBsmartctl\fR as
 a JSON \fBa\fRrray \*(Aqsmartctl.output[]\*(Aq.
+.br
+\*(Aqs\*(Aq: Outputs JSON object elements \fBs\fRorted by key.
+By default, object elements are ordered as generated internally.
 .Sp
 The following two arguments are primarily indented for development:
 .br

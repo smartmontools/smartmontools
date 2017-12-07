@@ -112,10 +112,56 @@ json::ref & json::ref::operator=(const char * value)
   return operator=(std::string(value));
 }
 
+json::node::node()
+: type(nt_unset),
+  intval(0)
+{
+}
+
+json::node::node(const std::string & key_)
+: type(nt_unset),
+  intval(0),
+  key(key_)
+{
+}
+
 json::node::~node()
 {
   for (size_t i = 0; i < childs.size(); i++)
     delete childs[i];
+}
+
+json::node::const_iterator::const_iterator(const json::node * node_p, bool sorted)
+: m_node_p(node_p),
+  m_use_map(sorted && node_p->type == nt_object),
+  m_child_idx(0)
+{
+  if (m_use_map)
+    m_key_iter = node_p->key2index.cbegin();
+}
+
+bool json::node::const_iterator::at_end() const
+{
+  if (m_use_map)
+    return (m_key_iter == m_node_p->key2index.cend());
+  else
+    return (m_child_idx >= m_node_p->childs.size());
+}
+
+void json::node::const_iterator::operator++()
+{
+  if (m_use_map)
+    ++m_key_iter;
+  else
+    ++m_child_idx;
+}
+
+const json::node * json::node::const_iterator::operator*() const
+{
+  if (m_use_map)
+    return m_node_p->childs[m_key_iter->second];
+  else
+    return m_node_p->childs[m_child_idx];
 }
 
 json::node * json::find_or_create_node(const json::node_path & path, node_type type)
@@ -220,7 +266,7 @@ static void print_string(FILE * f, const char * s)
   putc('"', f);
 }
 
-void json::print_worker(FILE * f, const node * p, int level) const
+void json::print_worker(FILE * f, bool sorted, const node * p, int level)
 {
   if (!p->key.empty())
     fprintf(f, "\"%s\" : ", p->key.c_str());
@@ -230,9 +276,10 @@ void json::print_worker(FILE * f, const node * p, int level) const
     case nt_array:
       putc((p->type == nt_object ? '{' : '['), f);
       if (!p->childs.empty()) {
-        for (unsigned i = 0; i < p->childs.size(); i++) {
-          fprintf(f, "%s\n%*s", (i > 0 ? "," : ""), (level + 1) * 2, "");
-          node * p2 = p->childs[i];
+        const char * delim = "";
+        for (node::const_iterator it(p, sorted); !it.at_end(); ++it) {
+          fprintf(f, "%s\n%*s", delim, (level + 1) * 2, "");
+          const node * p2 = *it;
           if (!p2) {
             // Unset element of sparse array
             jassert(p->type == nt_array);
@@ -240,8 +287,9 @@ void json::print_worker(FILE * f, const node * p, int level) const
           }
           else {
             // Recurse
-            print_worker(f, p2, level + 1);
+            print_worker(f, sorted, p2, level + 1);
           }
+          delim = ",";
         }
         fprintf(f, "\n%*s", level * 2, "");
       }
@@ -264,11 +312,11 @@ void json::print_worker(FILE * f, const node * p, int level) const
   }
 }
 
-void json::print(FILE * f) const
+void json::print(FILE * f, bool sorted) const
 {
   if (m_root_node.type == nt_unset)
     return;
   jassert(m_root_node.type == nt_object);
-  print_worker(f, &m_root_node, 0);
+  print_worker(f, sorted, &m_root_node, 0);
   putc('\n', f);
 }

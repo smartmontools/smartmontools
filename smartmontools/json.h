@@ -93,17 +93,15 @@ public:
     { return m_enabled; }
 
   /// Print JSON tree to a file.
-  void print(FILE * f) const;
+  void print(FILE * f, bool sorted) const;
 
 private:
   enum node_type { nt_unset, nt_object, nt_array, nt_bool, nt_int, nt_string };
 
   struct node
   {
-    node()
-      : type(nt_unset), intval(0) { }
-    explicit node(const std::string & key_)
-      : type(nt_unset), intval(0), key(key_) { }
+    node();
+    explicit node(const std::string & key_);
     ~node();
 
     node_type type;
@@ -115,6 +113,21 @@ private:
     std::vector<node *> childs;
     typedef std::map<std::string, unsigned> keymap;
     keymap key2index;
+
+    class const_iterator
+    {
+    public:
+      const_iterator(const node * node_p, bool sorted);
+      bool at_end() const;
+      void operator++();
+      const node * operator*() const;
+
+    private:
+      const node * m_node_p;
+      bool m_use_map;
+      unsigned m_child_idx;
+      keymap::const_iterator m_key_iter;
+    };
 
 #if __cplusplus >= 201103
     node(const node &) = delete;
@@ -133,7 +146,7 @@ private:
   void set_int(const node_path & path, long long value);
   void set_string(const node_path & path, const std::string & value);
 
-  void print_worker(FILE * f, const node * p, int level) const;
+  static void print_worker(FILE * f, bool sorted, const node * p, int level);
 };
 
 #endif // JSON_H_CVSID
