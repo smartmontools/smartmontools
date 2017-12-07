@@ -2,6 +2,9 @@ $Id$
 
 2017-12-07  Christian Franke  <franke@computer.org>
 
+	json.cpp: Avoid 'cbegin()' and 'cend()' to fix build with older
+	libstdc++.
+
 	json.cpp, json.h, smartctl.cpp, smartctl.8.in: Add '--json=s' option.
 	Outputs JSON object elements sorted by key.
 	Add '--json=g' option.  Outputs JSON structure suitable for grep.
