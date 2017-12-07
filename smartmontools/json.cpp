@@ -18,7 +18,7 @@
 #include "config.h"
 #include "json.h"
 
-const char * json_cvsid = "$Id: json.cpp 4647 2017-12-07 21:47:53Z chrfranke $"
+const char * json_cvsid = "$Id: json.cpp 4648 2017-12-07 22:03:17Z chrfranke $"
   JSON_H_CVSID;
 
 #include <stdexcept>
@@ -137,13 +137,13 @@ json::node::const_iterator::const_iterator(const json::node * node_p, bool sorte
   m_child_idx(0)
 {
   if (m_use_map)
-    m_key_iter = node_p->key2index.cbegin();
+    m_key_iter = node_p->key2index.begin();
 }
 
 bool json::node::const_iterator::at_end() const
 {
   if (m_use_map)
-    return (m_key_iter == m_node_p->key2index.cend());
+    return (m_key_iter == m_node_p->key2index.end());
   else
     return (m_child_idx >= m_node_p->childs.size());
 }
