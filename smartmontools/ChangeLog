@@ -1,4 +1,9 @@
-$Id: ChangeLog 4648 2017-12-07 22:03:17Z chrfranke $
+$Id: ChangeLog 4649 2017-12-13 19:27:42Z chrfranke $
+
+2017-12-13  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp, atacmds.h: Change return type of capability checks to
+	bool.  Declare simple checks inline.
 
 2017-12-07  Christian Franke  <franke@computer.org>
 
