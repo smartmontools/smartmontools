@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 4649 2017-12-13 19:27:42Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 4651 2017-12-13 20:48:00Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -997,21 +997,6 @@ const char * get_valid_firmwarebug_args();
 
 // This function is exported to give low-level capability
 int smartcommandhandler(ata_device * device, smart_command_set command, int select, char *data);
-
-// Print one self-test log entry.
-// Returns:
-// -1: failed self-test
-//  1: extended self-test completed without error
-//  0: otherwise
-int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
-                               unsigned char test_status,
-                               unsigned short timestamp,
-                               uint64_t failing_lba,
-                               bool print_error_only, bool & print_header);
-
-// Print Smart self-test log, used by smartctl and smartd.
-int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries,
-                             firmwarebug_defs firmwarebugs);
 
 // Get capacity and sector sizes from IDENTIFY data
 struct ata_size_info
