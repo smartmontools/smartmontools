@@ -290,7 +290,7 @@ static std::string getvalidarglist(int opt)
 static void printvalidarglistmessage(int opt)
 {
   if (opt=='v'){
-    pout("=======> VALID ARGUMENTS ARE:\n\thelp\n%s\n<=======\n",
+    jerr("=======> VALID ARGUMENTS ARE:\n\thelp\n%s\n<=======\n",
          create_vendor_attribute_arg_list().c_str());
   }
   else {
@@ -298,7 +298,7 @@ static void printvalidarglistmessage(int opt)
   // need to figure out which to get the formatting right.
     std::string s = getvalidarglist(opt);
     char separator = strchr(s.c_str(), '\n') ? '\n' : ' ';
-    pout("=======> VALID ARGUMENTS ARE:%c%s%c<=======\n", separator, s.c_str(), separator);
+    jerr("=======> VALID ARGUMENTS ARE:%c%s%c<=======\n", separator, s.c_str(), separator);
   }
 
   return;
@@ -1132,10 +1132,10 @@ static const char * parse_options(int argc, char** argv,
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
         if (optopt && (optopt >= opt_scan || strchr(shortopts, optopt))) {
-          pout("=======> ARGUMENT REQUIRED FOR OPTION: %s\n", arg+2);
+          jerr("=======> ARGUMENT REQUIRED FOR OPTION: %s\n", arg+2);
           printvalidarglistmessage(optopt);
         } else
-          pout("=======> UNRECOGNIZED OPTION: %s\n",arg+2);
+          jerr("=======> UNRECOGNIZED OPTION: %s\n",arg+2);
 	if (extraerror[0])
 	  pout("=======> %s", extraerror);
         UsageSummary();
@@ -1146,10 +1146,10 @@ static const char * parse_options(int argc, char** argv,
         // missing.  Note (BA) this logic seems to fail using Solaris
         // getopt!
         if (strchr(shortopts, optopt) != NULL) {
-          pout("=======> ARGUMENT REQUIRED FOR OPTION: %c\n", optopt);
+          jerr("=======> ARGUMENT REQUIRED FOR OPTION: %c\n", optopt);
           printvalidarglistmessage(optopt);
         } else
-          pout("=======> UNRECOGNIZED OPTION: %c\n",optopt);
+          jerr("=======> UNRECOGNIZED OPTION: %c\n",optopt);
 	if (extraerror[0])
 	  pout("=======> %s", extraerror);
         UsageSummary();
@@ -1166,10 +1166,11 @@ static const char * parse_options(int argc, char** argv,
       // here, but we just print the short form.  Please fix this if you know
       // a clean way to do it.
       char optstr[] = { (char)optchar, 0 };
-      pout("=======> INVALID ARGUMENT TO -%s: %s\n",
+      jerr("=======> INVALID ARGUMENT TO -%s: %s\n",
         (optchar == opt_identify ? "-identify" :
          optchar == opt_set ? "-set" :
-         optchar == opt_smart ? "-smart" : optstr), optarg);
+         optchar == opt_smart ? "-smart" :
+         optchar == 'j' ? "-json" : optstr), optarg);
       printvalidarglistmessage(optchar);
       if (extraerror[0])
 	pout("=======> %s", extraerror);
@@ -1197,7 +1198,7 @@ static const char * parse_options(int argc, char** argv,
   if (scan_types.size() > 1) {
     printing_is_off = false;
     printslogan();
-    pout("ERROR: multiple -d TYPE options are only allowed with --scan\n");
+    jerr("ERROR: multiple -d TYPE options are only allowed with --scan\n");
     UsageSummary();
     EXIT(FAILCMD);
   }
@@ -1206,7 +1207,7 @@ static const char * parse_options(int argc, char** argv,
   if (testcnt > 1) {
     printing_is_off = false;
     printslogan();
-    pout("\nERROR: smartctl can only run a single test type (or abort) at a time.\n");
+    jerr("\nERROR: smartctl can only run a single test type (or abort) at a time.\n");
     UsageSummary();
     EXIT(FAILCMD);
   }
@@ -1218,9 +1219,9 @@ static const char * parse_options(int argc, char** argv,
     printing_is_off = false;
     printslogan();
     if (ataopts.smart_selective_args.pending_time)
-      pout("\nERROR: smartctl -t pending,N must be used with -t select,N-M.\n");
+      jerr("\nERROR: smartctl -t pending,N must be used with -t select,N-M.\n");
     else
-      pout("\nERROR: smartctl -t afterselect,(on|off) must be used with -t select,N-M.\n");
+      jerr("\nERROR: smartctl -t afterselect,(on|off) must be used with -t select,N-M.\n");
     UsageSummary();
     EXIT(FAILCMD);
   }
@@ -1251,7 +1252,7 @@ static const char * parse_options(int argc, char** argv,
   
   // Warn if the user has provided no device name
   if (argc-optind<1){
-    pout("ERROR: smartctl requires a device name as the final command-line argument.\n\n");
+    jerr("ERROR: smartctl requires a device name as the final command-line argument.\n\n");
     UsageSummary();
     EXIT(FAILCMD);
   }
@@ -1259,7 +1260,7 @@ static const char * parse_options(int argc, char** argv,
   // Warn if the user has provided more than one device name
   if (argc-optind>1){
     int i;
-    pout("ERROR: smartctl takes ONE device name as the final command-line argument.\n");
+    jerr("ERROR: smartctl takes ONE device name as the final command-line argument.\n");
     pout("You have provided %d device names:\n",argc-optind);
     for (i=0; i<argc-optind; i++)
       pout("%s\n",argv[optind+i]);

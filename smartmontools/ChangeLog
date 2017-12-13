@@ -2,6 +2,8 @@ $Id$
 
 2017-12-13  Christian Franke  <franke@computer.org>
 
+	smartctl.cpp: Show command line error messages in JSON output.
+
 	ataprint.cpp: Add JSON support for '-l [x]selftest' and
 	'-l directory'.
 
