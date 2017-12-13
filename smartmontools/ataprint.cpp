@@ -807,14 +807,22 @@ static const char *OfflineDataCollectionStatus(unsigned char status_byte)
 //  prints verbose value Off-line data collection status byte
 static void PrintSmartOfflineStatus(const ata_smart_values * data)
 {
-  pout("Offline data collection status:  (0x%02x)\t",
+  json::ref jref = jglb["ata_smart_data"]["offline_data_collection"]["status"];
+
+  jout("Offline data collection status:  (0x%02x)\t",
        (int)data->offline_data_collection_status);
+  jref["value"] = data->offline_data_collection_status;
     
   // Off-line data collection status byte is not a reserved
   // or vendor specific value
-  pout("Offline data collection activity\n"
+  jout("Offline data collection activity\n"
        "\t\t\t\t\t%s.\n", OfflineDataCollectionStatus(data->offline_data_collection_status));
-  
+  jref["string"] = OfflineDataCollectionStatus(data->offline_data_collection_status);
+  switch (data->offline_data_collection_status & 0x7f) {
+    case 0x02: jref["passed"] = true; break;
+    case 0x06: jref["passed"] = false; break;
+  }
+
   // Report on Automatic Data Collection Status.  Only IBM documents
   // this bit.  See SFF 8035i Revision 2 for details.
   if (data->offline_data_collection_status & 0x80)
@@ -828,198 +836,230 @@ static void PrintSmartOfflineStatus(const ata_smart_values * data)
 static void PrintSmartSelfExecStatus(const ata_smart_values * data,
                                      firmwarebug_defs firmwarebugs)
 {
-   pout("Self-test execution status:      ");
-   
-   switch (data->self_test_exec_status >> 4)
-   {
-      case 0:
-        pout("(%4d)\tThe previous self-test routine completed\n\t\t\t\t\t",
-                (int)data->self_test_exec_status);
-        pout("without error or no self-test has ever \n\t\t\t\t\tbeen run.\n");
-        break;
-       case 1:
-         pout("(%4d)\tThe self-test routine was aborted by\n\t\t\t\t\t",
-                 (int)data->self_test_exec_status);
-         pout("the host.\n");
-         break;
-       case 2:
-         pout("(%4d)\tThe self-test routine was interrupted\n\t\t\t\t\t",
-                 (int)data->self_test_exec_status);
-         pout("by the host with a hard or soft reset.\n");
-         break;
-       case 3:
-          pout("(%4d)\tA fatal error or unknown test error\n\t\t\t\t\t",
-                  (int)data->self_test_exec_status);
-          pout("occurred while the device was executing\n\t\t\t\t\t");
-          pout("its self-test routine and the device \n\t\t\t\t\t");
-          pout("was unable to complete the self-test \n\t\t\t\t\t");
-          pout("routine.\n");
-          break;
-       case 4:
-          pout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t",
-                  (int)data->self_test_exec_status);
-          pout("a test element that failed and the test\n\t\t\t\t\t");
-          pout("element that failed is not known.\n");
-          break;
-       case 5:
-          pout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t",
-                  (int)data->self_test_exec_status);
-          pout("the electrical element of the test\n\t\t\t\t\t");
-          pout("failed.\n");
-          break;
-       case 6:
-          pout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t",
-                  (int)data->self_test_exec_status);
-          pout("the servo (and/or seek) element of the \n\t\t\t\t\t");
-          pout("test failed.\n");
-          break;
-       case 7:
-          pout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t",
-                  (int)data->self_test_exec_status);
-          pout("the read element of the test failed.\n");
-          break;
-       case 8:
-          pout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t",
-                  (int)data->self_test_exec_status);
-          pout("a test element that failed and the\n\t\t\t\t\t");
-          pout("device is suspected of having handling\n\t\t\t\t\t");
-          pout("damage.\n");
-          break;
-       case 15:
-          if (firmwarebugs.is_set(BUG_SAMSUNG3) && data->self_test_exec_status == 0xf0) {
-            pout("(%4d)\tThe previous self-test routine completed\n\t\t\t\t\t",
-                    (int)data->self_test_exec_status);
-            pout("with unknown result or self-test in\n\t\t\t\t\t");
-            pout("progress with less than 10%% remaining.\n");
-          }
-          else {
-            pout("(%4d)\tSelf-test routine in progress...\n\t\t\t\t\t",
-                    (int)data->self_test_exec_status);
-            pout("%1d0%% of test remaining.\n", 
-                  (int)(data->self_test_exec_status & 0x0f));
-          }
-          break;
-       default:
-          pout("(%4d)\tReserved.\n",
-                  (int)data->self_test_exec_status);
-          break;
-   }
-        
+  unsigned char status = data->self_test_exec_status;
+  jout("Self-test execution status:      ");
+
+  switch (data->self_test_exec_status >> 4) {
+    case 0:
+      jout("(%4d)\tThe previous self-test routine completed\n\t\t\t\t\t", status);
+      jout("without error or no self-test has ever \n\t\t\t\t\tbeen run.\n");
+      break;
+    case 1:
+      jout("(%4d)\tThe self-test routine was aborted by\n\t\t\t\t\t", status);
+      jout("the host.\n");
+      break;
+    case 2:
+      jout("(%4d)\tThe self-test routine was interrupted\n\t\t\t\t\t", status);
+      jout("by the host with a hard or soft reset.\n");
+      break;
+    case 3:
+      jout("(%4d)\tA fatal error or unknown test error\n\t\t\t\t\t", status);
+      jout("occurred while the device was executing\n\t\t\t\t\t");
+      jout("its self-test routine and the device \n\t\t\t\t\t");
+      jout("was unable to complete the self-test \n\t\t\t\t\t");
+      jout("routine.\n");
+      break;
+    case 4:
+      jout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t", status);
+      jout("a test element that failed and the test\n\t\t\t\t\t");
+      jout("element that failed is not known.\n");
+      break;
+    case 5:
+      jout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t", status);
+      jout("the electrical element of the test\n\t\t\t\t\t");
+      jout("failed.\n");
+      break;
+    case 6:
+      jout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t", status);
+      jout("the servo (and/or seek) element of the \n\t\t\t\t\t");
+      jout("test failed.\n");
+      break;
+    case 7:
+      jout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t", status);
+      jout("the read element of the test failed.\n");
+      break;
+    case 8:
+      jout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t", status);
+      jout("a test element that failed and the\n\t\t\t\t\t");
+      jout("device is suspected of having handling\n\t\t\t\t\t");
+      jout("damage.\n");
+      break;
+    case 15:
+      if (firmwarebugs.is_set(BUG_SAMSUNG3) && data->self_test_exec_status == 0xf0) {
+        pout("(%4d)\tThe previous self-test routine completed\n\t\t\t\t\t", status);
+        pout("with unknown result or self-test in\n\t\t\t\t\t");
+        pout("progress with less than 10%% remaining.\n");
+      }
+      else {
+        jout("(%4d)\tSelf-test routine in progress...\n\t\t\t\t\t", status);
+        jout("%1d0%% of test remaining.\n", status & 0x0f);
+      }
+      break;
+    default:
+      jout("(%4d)\tReserved.\n", status);
+      break;
+  }
+
+  json::ref jref = jglb["ata_smart_data"]["self_test"]["status"];
+
+  jref["value"] = status;
+  const char * msg;
+  // TODO: Use common function for smartctl/smartd
+  switch (status >> 4) {
+    case 0x0: msg = "completed without error"; break;
+    case 0x1: msg = "was aborted by the host"; break;
+    case 0x2: msg = "was interrupted by the host with a reset"; break;
+    case 0x3: msg = "could not complete due to a fatal or unknown error"; break;
+    case 0x4: msg = "completed with error (unknown test element)"; break;
+    case 0x5: msg = "completed with error (electrical test element)"; break;
+    case 0x6: msg = "completed with error (servo/seek test element)"; break;
+    case 0x7: msg = "completed with error (read test element)"; break;
+    case 0x8: msg = "completed with error (handling damage?)"; break;
+    default:  msg = 0;
+  }
+  if (msg) {
+    jref["string"] = msg;
+    switch (status >> 4) {
+      case 0x1: case 0x2: case 0x3: break; // aborted -> unknown
+      default: jref["passed"] = ((status >> 4) == 0x0);
+    }
+  }
+  else if ((status >> 4) == 0xf) {
+    jref["string"] = strprintf("in progress, %u0%% remaining", status & 0xf);
+    jref["remaining_percent"] = (status & 0xf) * 10;
+  }
 }
 
 static void PrintSmartTotalTimeCompleteOffline (const ata_smart_values * data)
 {
-  pout("Total time to complete Offline \n");
-  pout("data collection: \t\t(%5d) seconds.\n", 
+  jout("Total time to complete Offline \n");
+  jout("data collection: \t\t(%5d) seconds.\n",
        (int)data->total_time_to_complete_off_line);
+
+  jglb["ata_smart_data"]["offline_data_collection"]["completion_seconds"] =
+      data->total_time_to_complete_off_line;
 }
 
 static void PrintSmartOfflineCollectCap(const ata_smart_values *data)
 {
-  pout("Offline data collection\n");
-  pout("capabilities: \t\t\t (0x%02x) ",
+  json::ref jref = jglb["ata_smart_data"]["capabilities"];
+
+  jout("Offline data collection\n");
+  jout("capabilities: \t\t\t (0x%02x) ",
        (int)data->offline_data_collection_capability);
+  jref["values"][0] = data->offline_data_collection_capability;
   
   if (data->offline_data_collection_capability == 0x00){
-    pout("\tOffline data collection not supported.\n");
+    jout("\tOffline data collection not supported.\n");
   } 
   else {
-    pout( "%s\n", isSupportExecuteOfflineImmediate(data)?
+    jout( "%s\n", isSupportExecuteOfflineImmediate(data)?
           "SMART execute Offline immediate." :
           "No SMART execute Offline immediate.");
-    
+    jref["exec_offline_immediate_supported"] = isSupportExecuteOfflineImmediate(data);
+
+    // TODO: Bit 1 is vendor specific
     pout( "\t\t\t\t\t%s\n", isSupportAutomaticTimer(data)? 
           "Auto Offline data collection on/off support.":
           "No Auto Offline data collection support.");
-    
-    pout( "\t\t\t\t\t%s\n", isSupportOfflineAbort(data)? 
+
+    jout( "\t\t\t\t\t%s\n", isSupportOfflineAbort(data)?
           "Abort Offline collection upon new\n\t\t\t\t\tcommand.":
           "Suspend Offline collection upon new\n\t\t\t\t\tcommand.");
-    
-    pout( "\t\t\t\t\t%s\n", isSupportOfflineSurfaceScan(data)? 
+    jref["offline_is_aborted_upon_new_cmd"] = isSupportOfflineAbort(data);
+
+    jout( "\t\t\t\t\t%s\n", isSupportOfflineSurfaceScan(data)?
           "Offline surface scan supported.":
           "No Offline surface scan supported.");
-    
-    pout( "\t\t\t\t\t%s\n", isSupportSelfTest(data)? 
+    jref["offline_surface_scan_supported"] = isSupportOfflineSurfaceScan(data);
+
+    jout( "\t\t\t\t\t%s\n", isSupportSelfTest(data)?
           "Self-test supported.":
           "No Self-test supported.");
+    jref["self_tests_supported"] = isSupportSelfTest(data);
 
-    pout( "\t\t\t\t\t%s\n", isSupportConveyanceSelfTest(data)? 
+    jout( "\t\t\t\t\t%s\n", isSupportConveyanceSelfTest(data)?
           "Conveyance Self-test supported.":
           "No Conveyance Self-test supported.");
+    jref["conveyance_self_test_supported"] = isSupportConveyanceSelfTest(data);
 
-    pout( "\t\t\t\t\t%s\n", isSupportSelectiveSelfTest(data)? 
+    jout( "\t\t\t\t\t%s\n", isSupportSelectiveSelfTest(data)?
           "Selective Self-test supported.":
           "No Selective Self-test supported.");
+    jref["selective_self_test_supported"] = isSupportSelectiveSelfTest(data);
   }
 }
 
 static void PrintSmartCapability(const ata_smart_values *data)
 {
-   pout("SMART capabilities:            ");
-   pout("(0x%04x)\t", (int)data->smart_capability);
-   
-   if (data->smart_capability == 0x00)
-   {
-       pout("Automatic saving of SMART data\t\t\t\t\tis not implemented.\n");
-   } 
-   else 
-   {
-        
-      pout( "%s\n", (data->smart_capability & 0x01)? 
-              "Saves SMART data before entering\n\t\t\t\t\tpower-saving mode.":
-              "Does not save SMART data before\n\t\t\t\t\tentering power-saving mode.");
-                
-      if ( data->smart_capability & 0x02 )
-      {
-          pout("\t\t\t\t\tSupports SMART auto save timer.\n");
-      }
-   }
+  json::ref jref = jglb["ata_smart_data"]["capabilities"];
+
+  jout("SMART capabilities:            ");
+  jout("(0x%04x)\t", (int)data->smart_capability);
+  jref["values"][1] = data->smart_capability;
+
+  if (data->smart_capability == 0x00)
+    jout("Automatic saving of SMART data\t\t\t\t\tis not implemented.\n");
+  else {
+    jout("%s\n", (data->smart_capability & 0x01)?
+         "Saves SMART data before entering\n\t\t\t\t\tpower-saving mode.":
+         "Does not save SMART data before\n\t\t\t\t\tentering power-saving mode.");
+    jref["attribute_autosave_enabled"] = !!(data->smart_capability & 0x01);
+
+    // TODO: Info possibly invalid or misleading
+    // ATA-3 - ATA-5: Bit shall be set
+    // ATA-6 - ACS-3: Bit shall be set to indicate support for
+    // SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE
+    if (data->smart_capability & 0x02)
+      pout("\t\t\t\t\tSupports SMART auto save timer.\n");
+  }
 }
 
 static void PrintSmartErrorLogCapability(const ata_smart_values * data, const ata_identify_device * identity)
 {
-   pout("Error logging capability:       ");
-    
-   if ( isSmartErrorLogCapable(data, identity) )
-   {
-      pout(" (0x%02x)\tError logging supported.\n",
-               (int)data->errorlog_capability);
-   }
-   else {
-       pout(" (0x%02x)\tError logging NOT supported.\n",
-                (int)data->errorlog_capability);
-   }
+  bool capable = isSmartErrorLogCapable(data, identity);
+  jout("Error logging capability:        (0x%02x)\tError logging %ssupported.\n",
+       data->errorlog_capability, (capable ? "" : "NOT "));
+  jglb["ata_smart_data"]["capabilities"]["error_logging_supported"] = capable;
 }
 
 static void PrintSmartShortSelfTestPollingTime(const ata_smart_values * data)
 {
-  pout("Short self-test routine \n");
-  if (isSupportSelfTest(data))
-    pout("recommended polling time: \t (%4d) minutes.\n", 
+  jout("Short self-test routine \n");
+  if (isSupportSelfTest(data)) {
+    jout("recommended polling time: \t (%4d) minutes.\n",
          (int)data->short_test_completion_time);
+    jglb["ata_smart_data"]["self_test"]["polling_minutes"]["short"] =
+        data->short_test_completion_time;
+  }
   else
-    pout("recommended polling time: \t        Not Supported.\n");
+    jout("recommended polling time: \t        Not Supported.\n");
 }
 
 static void PrintSmartExtendedSelfTestPollingTime(const ata_smart_values * data)
 {
-  pout("Extended self-test routine\n");
-  if (isSupportSelfTest(data))
-    pout("recommended polling time: \t (%4d) minutes.\n", 
+  jout("Extended self-test routine\n");
+  if (isSupportSelfTest(data)) {
+    jout("recommended polling time: \t (%4d) minutes.\n",
          TestTime(data, EXTEND_SELF_TEST));
+    jglb["ata_smart_data"]["self_test"]["polling_minutes"]["extended"] =
+        TestTime(data, EXTEND_SELF_TEST);
+  }
   else
-    pout("recommended polling time: \t        Not Supported.\n");
+    jout("recommended polling time: \t        Not Supported.\n");
 }
 
 static void PrintSmartConveyanceSelfTestPollingTime(const ata_smart_values * data)
 {
-  pout("Conveyance self-test routine\n");
-  if (isSupportConveyanceSelfTest(data))
-    pout("recommended polling time: \t (%4d) minutes.\n", 
+  jout("Conveyance self-test routine\n");
+  if (isSupportConveyanceSelfTest(data)) {
+    jout("recommended polling time: \t (%4d) minutes.\n",
          (int)data->conveyance_test_completion_time);
+    jglb["ata_smart_data"]["self_test"]["polling_minutes"]["conveyance"] =
+        data->conveyance_test_completion_time;
+  }
   else
-    pout("recommended polling time: \t        Not Supported.\n");
+    jout("recommended polling time: \t        Not Supported.\n");
 }
 
 // Check SMART attribute table for Threshold failure
@@ -1203,20 +1243,25 @@ static void ataPrintSCTCapability(const ata_identify_device *drive)
   unsigned short sctcaps = drive->words088_255[206-88];
   if (!(sctcaps & 0x01))
     return;
-  pout("SCT capabilities: \t       (0x%04x)\tSCT Status supported.\n", sctcaps);
+  json::ref jref = jglb["ata_sct_capabilities"];
+  jout("SCT capabilities: \t       (0x%04x)\tSCT Status supported.\n", sctcaps);
+  jref["value"] = sctcaps;
   if (sctcaps & 0x08)
-    pout("\t\t\t\t\tSCT Error Recovery Control supported.\n");
+    jout("\t\t\t\t\tSCT Error Recovery Control supported.\n");
+  jref["error_recovery_control_supported"] = !!(sctcaps & 0x08);
   if (sctcaps & 0x10)
-    pout("\t\t\t\t\tSCT Feature Control supported.\n");
+    jout("\t\t\t\t\tSCT Feature Control supported.\n");
+  jref["feature_control_supported"] = !!(sctcaps & 0x10);
   if (sctcaps & 0x20)
-    pout("\t\t\t\t\tSCT Data Table supported.\n");
+    jout("\t\t\t\t\tSCT Data Table supported.\n");
+  jref["data_table_supported"] = !!(sctcaps & 0x20);
 }
 
 
 static void PrintGeneralSmartValues(const ata_smart_values *data, const ata_identify_device *drive,
                                     firmwarebug_defs firmwarebugs)
 {
-  pout("General SMART Values:\n");
+  jout("General SMART Values:\n");
   
   PrintSmartOfflineStatus(data); 
   
@@ -1230,9 +1275,11 @@ static void PrintGeneralSmartValues(const ata_smart_values *data, const ata_iden
   
   PrintSmartErrorLogCapability(data, drive);
 
-  pout( "\t\t\t\t\t%s\n", isGeneralPurposeLoggingCapable(drive)?
+  jout( "\t\t\t\t\t%s\n", isGeneralPurposeLoggingCapable(drive)?
         "General Purpose Logging supported.":
         "No General Purpose Logging support.");
+  jglb["ata_smart_data"]["capabilities"]["gp_logging_supported"] =
+       isGeneralPurposeLoggingCapable(drive);
 
   if (isSupportSelfTest(data)){
     PrintSmartShortSelfTestPollingTime (data);
@@ -1243,7 +1290,7 @@ static void PrintGeneralSmartValues(const ata_smart_values *data, const ata_iden
 
   ataPrintSCTCapability(drive);
 
-  pout("\n");
+  jout("\n");
 }
 
 // Get # sectors of a log addr, 0 if log does not exist.
@@ -3444,7 +3491,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // If GP Log is supported use smart log directory for
   // error and selftest log support check.
-  bool gp_log_supported = !!isGeneralPurposeLoggingCapable(&drive);
+  bool gp_log_supported = isGeneralPurposeLoggingCapable(&drive);
   if (   gp_log_supported
       && (   options.smart_error_log || options.smart_selftest_log
           || options.retry_error_log || options.retry_selftest_log))

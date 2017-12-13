@@ -2,6 +2,8 @@ $Id$
 
 2017-12-13  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp: Add JSON support for '-c'.
+
 	atacmds.cpp, atacmds.h: Change return type of capability checks to
 	bool.  Declare simple checks inline.
 
