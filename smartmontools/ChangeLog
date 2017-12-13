@@ -1,6 +1,8 @@
-$Id: ChangeLog 4651 2017-12-13 20:48:00Z chrfranke $
+$Id: ChangeLog 4652 2017-12-13 21:04:43Z chrfranke $
 
 2017-12-13  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add JSON support for '-l [x]selftest'.
 
 	atacmds.cpp, atacmds.h: Move self-test print functions to ...
 	ataprint.cpp: ... here.
