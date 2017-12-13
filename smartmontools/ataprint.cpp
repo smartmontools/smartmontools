@@ -2277,7 +2277,8 @@ static int PrintSmartExtErrorLog(ata_device * device,
 // -1: self-test failed
 //  1: extended self-test completed without error
 //  0: otherwise
-static int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
+static int ataPrintSmartSelfTestEntry(json::ref jref,
+                                      unsigned testnum, unsigned char test_type,
                                       unsigned char test_status,
                                       unsigned short timestamp,
                                       uint64_t failing_lba,
@@ -2337,7 +2338,7 @@ static int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
   // Print header once
   if (print_header) {
     print_header = false;
-    pout("Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error\n");
+    jout("Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error\n");
   }
 
   char msglba[32];
@@ -2347,8 +2348,25 @@ static int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
     msglba[0] = '-'; msglba[1] = 0;
   }
 
-  pout("#%2u  %-19s %-29s %1d0%%  %8u         %s\n", testnum,
+  jout("#%2u  %-19s %-29s %1d0%%  %8u         %s\n", testnum,
        msgtest.c_str(), msgstat.c_str(), test_status & 0x0f, timestamp, msglba);
+
+  jref["type"]["value"] = test_type;
+  jref["type"]["string"] = msgtest;
+
+  jref["status"]["value"] = test_status;
+  jref["status"]["string"] = msgstat;
+  if (test_status & 0x0f)
+    jref["status"]["remaining_percent"] = (test_status & 0x0f) * 10;
+  switch (test_status >> 4) {
+    case 0x1: case 0x2: case 0x3: break; // aborted -> unknown
+    default: jref["status"]["passed"] = (retval >= 0);
+  }
+
+  jref["lifetime_hours"] = timestamp;
+
+  if (retval < 0 && failing_lba < 0xffffffffffffULL)
+    jref["lba"] = failing_lba;
 
   return retval;
 }
@@ -2357,22 +2375,26 @@ static int ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
 static int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * log, bool allentries,
                                     firmwarebug_defs firmwarebugs)
 {
+  json::ref jref = jglb["ata_smart_self_test_log"]["standard"];
+
   if (allentries)
-    pout("SMART Self-test log structure revision number %d\n", log->revnumber);
+    jout("SMART Self-test log structure revision number %d\n", log->revnumber);
+  jref["revision"] = log->revnumber;
   if (log->revnumber != 0x0001 && allentries && !firmwarebugs.is_set(BUG_SAMSUNG))
     pout("Warning: ATA Specification requires self-test log structure revision number = 1\n");
   if (!log->mostrecenttest){
     if (allentries)
-      pout("No self-tests have been logged.  [To run self-tests, use: smartctl -t]\n");
+      jout("No self-tests have been logged.  [To run self-tests, use: smartctl -t]\n");
+    jref["count"] = 0;
     return 0;
   }
 
   bool noheaderprinted = true;
   int errcnt = 0, igncnt = 0;
-  int ext_ok_testnum = -1;
+  int testnum = 1, ext_ok_testnum = -1;
 
   // Iterate through circular buffer in reverse direction
-  for (int i = 20, testnum = 1; i >= 0; i--) {
+  for (int i = 20, ji = 0; i >= 0; i--) {
     int j = (i + log->mostrecenttest) % 21;
     const ata_smart_selftestlog_struct & entry = log->selftest_struct[j];
 
@@ -2385,8 +2407,8 @@ static int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * log, bool alle
                       entry.lbafirstfailure : 0xffffffffffffULL);
 
     // Print entry
-    int state = ataPrintSmartSelfTestEntry(testnum,
-      entry.selftestnumber, entry.selfteststatus,
+    int state = ataPrintSmartSelfTestEntry(jref["table"][ji++],
+      testnum, entry.selftestnumber, entry.selfteststatus,
       entry.timestamp, lba48, !allentries, noheaderprinted);
 
     if (state < 0) {
@@ -2405,11 +2427,14 @@ static int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * log, bool alle
   }
 
   if (igncnt)
-    pout("%d of %d failed self-tests are outdated by newer successful extended offline self-test #%2d\n",
+    jout("%d of %d failed self-tests are outdated by newer successful extended offline self-test #%2d\n",
       igncnt, igncnt+errcnt, ext_ok_testnum);
+  jref["count"] = testnum - 1;
+  jref["error_count_total"] = igncnt + errcnt;
+  jref["error_count_outdated"] = igncnt;
 
   if (!allentries && !noheaderprinted)
-    pout("\n");
+    jout("\n");
 
   return errcnt;
 }
@@ -2418,11 +2443,16 @@ static int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * log, bool alle
 static int PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
                                     unsigned nsectors, unsigned max_entries)
 {
-  pout("SMART Extended Self-test Log Version: %u (%u sectors)\n",
+  json::ref jref = jglb["ata_smart_self_test_log"]["extended"];
+
+  jout("SMART Extended Self-test Log Version: %u (%u sectors)\n",
        log->version, nsectors);
+  jref["revision"] = log->version;
+  jref["sectors"] = nsectors;
 
   if (!log->log_desc_index){
-    pout("No self-tests have been logged.  [To run self-tests, use: smartctl -t]\n\n");
+    jout("No self-tests have been logged.  [To run self-tests, use: smartctl -t]\n\n");
+    jref["count"] = 0;
     return 0;
   }
 
@@ -2441,10 +2471,10 @@ static int PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
   bool print_header = true;
   int errcnt = 0, igncnt = 0;
   int ext_ok_testnum = -1;
+  unsigned testnum = 1;
 
   // Iterate through circular buffer in reverse direction
-  for (unsigned i = 0, testnum = 1;
-       i < nentries && testnum <= max_entries;
+  for (unsigned i = 0, ji = 0; i < nentries && testnum <= max_entries;
        i++, logidx = (logidx > 0 ? logidx - 1 : nentries - 1)) {
 
     const ata_smart_extselftestlog_desc & entry = log[logidx / 19].log_descs[logidx % 19];
@@ -2463,7 +2493,8 @@ static int PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
         | ((uint64_t)b[5] << 40);
 
     // Print entry
-    int state = ataPrintSmartSelfTestEntry(testnum, entry.self_test_type,
+    int state = ataPrintSmartSelfTestEntry(jref["table"][ji++],
+      testnum, entry.self_test_type,
       entry.self_test_status, entry.timestamp, lba48,
       false /*!print_error_only*/, print_header);
 
@@ -2483,10 +2514,13 @@ static int PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
   }
 
   if (igncnt)
-    pout("%d of %d failed self-tests are outdated by newer successful extended offline self-test #%2d\n",
+    jout("%d of %d failed self-tests are outdated by newer successful extended offline self-test #%2d\n",
       igncnt, igncnt+errcnt, ext_ok_testnum);
+  jref["count"] = testnum - 1;
+  jref["error_count_total"] = igncnt + errcnt;
+  jref["error_count_outdated"] = igncnt;
 
-  pout("\n");
+  jout("\n");
   return errcnt;
 }
 
