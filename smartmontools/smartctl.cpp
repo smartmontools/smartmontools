@@ -142,7 +142,7 @@ static void Usage()
   );
   pout(
 "================================== SMARTCTL RUN-TIME BEHAVIOR OPTIONS =====\n\n"
-"  -j, --json[=[agisu]]\n"
+"  -j, --json[=[giosu]]\n"
 "         Print output in JSON format\n\n"
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
 "         Set smartctl quiet mode to one of: errorsonly, silent, noserial\n\n"
@@ -276,7 +276,7 @@ static std::string getvalidarglist(int opt)
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
   case 'j':
-    return "a, g, i, s, u";
+    return "g, i, o, s, u";
   case opt_identify:
     return "n, wn, w, v, wv, wb";
   case 'v':
@@ -1110,9 +1110,9 @@ static const char * parse_options(int argc, char** argv,
       if (optarg_is_set) {
         for (int i = 0; optarg[i]; i++) {
           switch (optarg[i]) {
-            case 'a': print_as_json_output = true; break;
             case 'g': print_as_json_flat = true; break;
             case 'i': print_as_json_impl = true; break;
+            case 'o': print_as_json_output = true; break;
             case 's': print_as_json_sorted = true; break;
             case 'u': print_as_json_unimpl = true; break;
             default: badarg = true;
