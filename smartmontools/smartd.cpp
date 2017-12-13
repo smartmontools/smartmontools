@@ -1648,9 +1648,34 @@ static int SelfTestErrorCount(ata_device * device, const char * name,
     PrintOut(LOG_INFO,"Device: %s, Read SMART Self Test Log Failed\n",name);
     return -1;
   }
-  
-  // return current number of self-test errors
-  return ataPrintSmartSelfTestlog(&log, false, firmwarebugs);
+
+  if (!log.mostrecenttest)
+    // No tests logged
+    return 0;
+
+  // Count failed self-tests
+  int errcnt = 0, hours = 0;
+  for (int i = 20; i >= 0; i--) {
+    int j = (i + log.mostrecenttest) % 21;
+    const ata_smart_selftestlog_struct & entry = log.selftest_struct[j];
+    if (!nonempty(&entry, sizeof(entry)))
+      continue;
+
+    int status = entry.selfteststatus >> 4;
+    if (status == 0x0 && (entry.selftestnumber & 0x7f) == 0x02)
+      // First successful extended self-test, stop count
+      break;
+
+    if (0x3 <= status && status <= 0x8) {
+      // Self-test showed an error
+      errcnt++;
+      // Keep track of time of most recent error
+      if (!hours)
+        hours = entry.timestamp;
+    }
+  }
+
+  return ((hours << 8) | errcnt);
 }
 
 #define SELFTEST_ERRORCOUNT(x) (x & 0xff)

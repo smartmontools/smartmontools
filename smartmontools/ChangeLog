@@ -2,6 +2,10 @@ $Id$
 
 2017-12-13  Christian Franke  <franke@computer.org>
 
+	atacmds.cpp, atacmds.h: Move self-test print functions to ...
+	ataprint.cpp: ... here.
+	smartd.cpp: Rework self-test error counting.
+
 	ataprint.cpp: Add JSON support for '-c'.
 
 	atacmds.cpp, atacmds.h: Change return type of capability checks to
