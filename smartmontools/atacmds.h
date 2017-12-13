@@ -868,25 +868,39 @@ int ataIsSmartEnabled(const ata_identify_device * drive);
 
 int ataSmartStatus2(ata_device * device);
 
-int isSmartErrorLogCapable(const ata_smart_values * data, const ata_identify_device * identity);
+bool isSmartErrorLogCapable(const ata_smart_values * data, const ata_identify_device * identity);
 
-int isSmartTestLogCapable(const ata_smart_values * data, const ata_identify_device * identity);
+bool isSmartTestLogCapable(const ata_smart_values * data, const ata_identify_device * identity);
 
-int isGeneralPurposeLoggingCapable(const ata_identify_device * identity);
+bool isGeneralPurposeLoggingCapable(const ata_identify_device * identity);
 
-int isSupportExecuteOfflineImmediate(const ata_smart_values * data);
+// SMART self-test capability is also indicated in bit 1 of DEVICE
+// IDENTIFY word 87 (if top two bits of word 87 match pattern 01).
+// However this was only introduced in ATA-6 (but self-test log was in
+// ATA-5).
+inline bool isSupportExecuteOfflineImmediate(const ata_smart_values *data)
+  { return !!(data->offline_data_collection_capability & 0x01); }
 
-int isSupportAutomaticTimer(const ata_smart_values * data);
+// TODO: Remove uses of this check.  Bit 1 is vendor specific since ATA-4.
+// Automatic timer support was only documented for very old IBM drives
+// (for example IBM Travelstar 40GNX).
+inline bool isSupportAutomaticTimer(const ata_smart_values * data)
+  { return !!(data->offline_data_collection_capability & 0x02); }
 
-int isSupportOfflineAbort(const ata_smart_values * data);
+inline bool isSupportOfflineAbort(const ata_smart_values *data)
+  { return !!(data->offline_data_collection_capability & 0x04); }
 
-int isSupportOfflineSurfaceScan(const ata_smart_values * data);
+inline bool isSupportOfflineSurfaceScan(const ata_smart_values * data)
+  { return !!(data->offline_data_collection_capability & 0x08); }
 
-int isSupportSelfTest(const ata_smart_values * data);
+inline bool isSupportSelfTest(const ata_smart_values * data)
+  { return !!(data->offline_data_collection_capability & 0x10); }
 
-int isSupportConveyanceSelfTest(const ata_smart_values * data);
+inline bool isSupportConveyanceSelfTest(const ata_smart_values * data)
+  { return !!(data->offline_data_collection_capability & 0x20); }
 
-int isSupportSelectiveSelfTest(const ata_smart_values * data);
+inline bool isSupportSelectiveSelfTest(const ata_smart_values * data)
+  { return !!(data->offline_data_collection_capability & 0x40); }
 
 inline bool isSCTCapable(const ata_identify_device *drive)
   { return !!(drive->words088_255[206-88] & 0x01); } // 0x01 = SCT support

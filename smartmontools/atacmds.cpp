@@ -1740,7 +1740,7 @@ int TestTime(const ata_smart_values *data, int testtype)
 // word 84 and 87.  Top two bits must match the pattern 01. BEFORE
 // ATA-6 these top two bits still had to match the pattern 01, but the
 // remaining bits were reserved (==0).
-int isSmartErrorLogCapable (const ata_smart_values * data, const ata_identify_device * identity)
+bool isSmartErrorLogCapable(const ata_smart_values * data, const ata_identify_device * identity)
 {
   unsigned short word84=identity->command_set_extension;
   unsigned short word87=identity->csf_default;
@@ -1748,18 +1748,18 @@ int isSmartErrorLogCapable (const ata_smart_values * data, const ata_identify_de
   int isata7=identity->major_rev_num & (0x01<<7);
 
   if ((isata6 || isata7) && (word84>>14) == 0x01 && (word84 & 0x01))
-    return 1;
+    return true;
   
   if ((isata6 || isata7) && (word87>>14) == 0x01 && (word87 & 0x01))
-    return 1;
+    return true;
   
   // otherwise we'll use the poorly documented capability bit
-  return data->errorlog_capability & 0x01;
+  return !!(data->errorlog_capability & 0x01);
 }
 
 // See previous function.  If the error log exists then the self-test
 // log should (must?) also exist.
-int isSmartTestLogCapable (const ata_smart_values * data, const ata_identify_device *identity)
+bool isSmartTestLogCapable(const ata_smart_values * data, const ata_identify_device *identity)
 {
   unsigned short word84=identity->command_set_extension;
   unsigned short word87=identity->csf_default;
@@ -1767,18 +1767,18 @@ int isSmartTestLogCapable (const ata_smart_values * data, const ata_identify_dev
   int isata7=identity->major_rev_num & (0x01<<7);
 
   if ((isata6 || isata7) && (word84>>14) == 0x01 && (word84 & 0x02))
-    return 1;
+    return true;
   
   if ((isata6 || isata7) && (word87>>14) == 0x01 && (word87 & 0x02))
-    return 1;
+    return true;
 
 
   // otherwise we'll use the poorly documented capability bit
-  return data->errorlog_capability & 0x01;
+  return !!(data->errorlog_capability & 0x01);
 }
 
 
-int isGeneralPurposeLoggingCapable(const ata_identify_device *identity)
+bool isGeneralPurposeLoggingCapable(const ata_identify_device *identity)
 {
   unsigned short word84=identity->command_set_extension;
   unsigned short word87=identity->csf_default;
@@ -1790,7 +1790,7 @@ int isGeneralPurposeLoggingCapable(const ata_identify_device *identity)
   if ((word84>>14) == 0x01)
     // If bit 5 of word 84 is set to one, the device supports the
     // General Purpose Logging feature set.
-    return (word84 & (0x01 << 5));
+    return !!(word84 & (0x01 << 5));
   
   // If bit 14 of word 87 is set to one and bit 15 of word 87 is
   // cleared to zero, the contents of words (87:85) contain valid
@@ -1798,50 +1798,10 @@ int isGeneralPurposeLoggingCapable(const ata_identify_device *identity)
   if ((word87>>14) == 0x01)
     // If bit 5 of word 87 is set to one, the device supports
     // the General Purpose Logging feature set.
-    return (word87 & (0x01 << 5));
+    return !!(word87 & (0x01 << 5));
 
   // not capable
-  return 0;
-}
-
-
-// SMART self-test capability is also indicated in bit 1 of DEVICE
-// IDENTIFY word 87 (if top two bits of word 87 match pattern 01).
-// However this was only introduced in ATA-6 (but self-test log was in
-// ATA-5).
-int isSupportExecuteOfflineImmediate(const ata_smart_values *data)
-{
-  return data->offline_data_collection_capability & 0x01;
-}
-
-// Note in the ATA-5 standard, the following bit is listed as "Vendor
-// Specific".  So it may not be reliable. The only use of this that I
-// have found is in IBM drives, where it is well-documented.  See for
-// example page 170, section 13.32.1.18 of the IBM Travelstar 40GNX
-// hard disk drive specifications page 164 Revision 1.1 22 Apr 2002.
-int isSupportAutomaticTimer(const ata_smart_values * data)
-{
-  return data->offline_data_collection_capability & 0x02;
-}
-int isSupportOfflineAbort(const ata_smart_values *data)
-{
-  return data->offline_data_collection_capability & 0x04;
-}
-int isSupportOfflineSurfaceScan(const ata_smart_values * data)
-{
-   return data->offline_data_collection_capability & 0x08;
-}
-int isSupportSelfTest (const ata_smart_values * data)
-{
-   return data->offline_data_collection_capability & 0x10;
-}
-int isSupportConveyanceSelfTest(const ata_smart_values * data)
-{
-   return data->offline_data_collection_capability & 0x20;
-}
-int isSupportSelectiveSelfTest(const ata_smart_values * data)
-{
-   return data->offline_data_collection_capability & 0x40;
+  return false;
 }
 
 // Get attribute state

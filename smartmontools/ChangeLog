@@ -1,5 +1,10 @@
 $Id$
 
+2017-12-13  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp, atacmds.h: Change return type of capability checks to
+	bool.  Declare simple checks inline.
+
 2017-12-07  Christian Franke  <franke@computer.org>
 
 	json.cpp: Avoid 'cbegin()' and 'cend()' to fix build with older
