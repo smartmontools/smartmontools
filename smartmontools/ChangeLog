@@ -1,6 +1,8 @@
-$Id: ChangeLog 4654 2017-12-13 21:41:05Z chrfranke $
+$Id: ChangeLog 4655 2017-12-13 21:43:53Z chrfranke $
 
 2017-12-13  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp, smartctl.8.in: Rename '--json=a' to '--json=o'.
 
 	smartctl.cpp: Show command line error messages in JSON output.
 
