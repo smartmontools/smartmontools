@@ -1410,16 +1410,22 @@ const ata_smart_log_directory * fake_logdir(ata_smart_log_directory * logdir,
 static void PrintLogDirectories(const ata_smart_log_directory * gplogdir,
                                 const ata_smart_log_directory * smartlogdir)
 {
-  if (gplogdir)
-    pout("General Purpose Log Directory Version %u\n", gplogdir->logversion);
-  if (smartlogdir)
-    pout("SMART %sLog Directory Version %u%s\n",
+  json::ref jref = jglb["ata_log_directory"];
+  if (gplogdir) {
+    jout("General Purpose Log Directory Version %u\n", gplogdir->logversion);
+    jref["gp_dir_version"] = gplogdir->logversion;
+  }
+  if (smartlogdir) {
+    jout("SMART %sLog Directory Version %u%s\n",
          (gplogdir ? "          " : ""), smartlogdir->logversion,
          (smartlogdir->logversion==1 ? " [multi-sector log support]" : ""));
+    jref["smart_dir_version"] = smartlogdir->logversion;
+    jref["smart_dir_multi_sector"] = (smartlogdir->logversion == 1);
+  }
 
-  pout("Address    Access  R/W   Size  Description\n");
+  jout("Address    Access  R/W   Size  Description\n");
 
-  for (unsigned i = 0; i <= 0xff; i++) {
+  for (unsigned i = 0, ji = 0; i <= 0xff; i++) {
     // Get number of sectors
     unsigned smart_numsect = GetNumLogSectors(smartlogdir, i, false);
     unsigned gp_numsect    = GetNumLogSectors(gplogdir   , i, true );
@@ -1458,19 +1464,34 @@ static void PrintLogDirectories(const ata_smart_log_directory * gplogdir,
     const char * name = GetLogName(i);
     const char * rw = get_log_rw(i);
 
-    if (i2 > i) {
-      pout("0x%02x-0x%02x  %-6s  %-3s  %5u  %s\n", i, i2, acc, rw, size, name);
-      i = i2;
-    }
+    if (i2 > i)
+      jout("0x%02x-0x%02x  %-6s  %-3s  %5u  %s\n", i, i2, acc, rw, size, name);
     else if (acc)
-      pout(  "0x%02x       %-6s  %-3s  %5u  %s\n", i, acc, rw, size, name);
+      jout(  "0x%02x       %-6s  %-3s  %5u  %s\n", i, acc, rw, size, name);
     else {
       // GPL and SL support different sizes
-      pout(  "0x%02x       %-6s  %-3s  %5u  %s\n", i, "GPL", rw, gp_numsect, name);
-      pout(  "0x%02x       %-6s  %-3s  %5u  %s\n", i, "SL", rw, smart_numsect, name);
+      jout(  "0x%02x       %-6s  %-3s  %5u  %s\n", i, "GPL", rw, gp_numsect, name);
+      jout(  "0x%02x       %-6s  %-3s  %5u  %s\n", i, "SL", rw, smart_numsect, name);
+    }
+
+    for (;;) {
+      json::ref jrefi = jref["table"][ji++];
+      jrefi["address"] = i;
+      jrefi["name"] = name;
+      if (rw[0] == 'R' && rw[1] && rw[2]) {
+        jrefi["read"] = true;
+        jrefi["write"] = (rw[2] == 'W');
+      }
+      if (gp_numsect)
+        jrefi["gp_sectors"] = gp_numsect;
+      if (smart_numsect)
+        jrefi["smart_sectors"] = smart_numsect;
+      if (i >= i2)
+        break;
+      i++;
     }
   }
-  pout("\n");
+  jout("\n");
 }
 
 // Print hexdump of log pages.

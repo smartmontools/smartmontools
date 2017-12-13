@@ -2,7 +2,8 @@ $Id$
 
 2017-12-13  Christian Franke  <franke@computer.org>
 
-	ataprint.cpp: Add JSON support for '-l [x]selftest'.
+	ataprint.cpp: Add JSON support for '-l [x]selftest' and
+	'-l directory'.
 
 	atacmds.cpp, atacmds.h: Move self-test print functions to ...
 	ataprint.cpp: ... here.
