@@ -1,6 +1,9 @@
-$Id: ChangeLog 4656 2017-12-14 21:44:58Z chrfranke $
+$Id: ChangeLog 4657 2017-12-14 22:21:18Z chrfranke $
 
 2017-12-14  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: JSON '-A' output: Add booleans and string for attribute
+	flags.  Remove string array.  Rename table.
 
 	ataprint.cpp: Add JSON support for '-l [x]error'.
 
