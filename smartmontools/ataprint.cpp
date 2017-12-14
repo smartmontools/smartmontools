@@ -2033,11 +2033,13 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
   if (data->ata_error_count<=5)
     jout( "ATA Error Count: %d\n", (int)data->ata_error_count);
   else
-    pout( "ATA Error Count: %d (device log contains only the most recent five errors)\n",
+    jout( "ATA Error Count: %d (device log contains only the most recent five errors)\n",
            (int)data->ata_error_count);
-  jglb["count"] = data->ata_error_count;
+  jref["count"] = data->ata_error_count;
+  jref["logged_count"] = (data->ata_error_count <= 5 ? data->ata_error_count : 5);
+
   print_off();
-  pout("\tCR = Command Register [HEX]\n"
+  jout("\tCR = Command Register [HEX]\n"
        "\tFR = Features Register [HEX]\n"
        "\tSC = Sector Count Register [HEX]\n"
        "\tSN = Sector Number Register [HEX]\n"
@@ -2052,7 +2054,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
        "SS=sec, and sss=millisec. It \"wraps\" after 49.710 days.\n\n");
   
   // now step through the five error log data structures (table 39 of spec)
-  for (int k = 4; k >= 0; k-- ) {
+  for (int k = 4, ji = 0; k >= 0; k--) {
 
     // The error log data structure entries are a circular buffer
     int i = (data->error_log_pointer + k) % 5;
@@ -2067,11 +2069,16 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
 
       // See table 42 of ATA5 spec
       print_on();
-      pout("Error %d occurred at disk power-on lifetime: %d hours (%d days + %d hours)\n",
+      jout("Error %d occurred at disk power-on lifetime: %d hours (%d days + %d hours)\n",
              (int)(data->ata_error_count+k-4), (int)summary->timestamp, days, (int)(summary->timestamp-24*days));
       print_off();
-      pout("  When the command that caused the error occurred, the device was %s.\n\n",msgstate);
-      pout("  After command completion occurred, registers were:\n"
+
+      json::ref jrefi = jref["table"][ji++];
+      jrefi["error_number"] = data->ata_error_count + k - 4;
+      jrefi["lifetime_hours"] = summary->timestamp;
+
+      jout("  When the command that caused the error occurred, the device was %s.\n\n", msgstate);
+      jout("  After command completion occurred, registers were:\n"
            "  ER ST SC SN CL CH DH\n"
            "  -- -- -- -- -- -- --\n"
            "  %02x %02x %02x %02x %02x %02x %02x",
@@ -2082,21 +2089,36 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
            (int)summary->cylinder_low,
            (int)summary->cylinder_high,
            (int)summary->drive_head);
+
+      {
+        json::ref jrefir = jrefi["completion_registers"];
+        jrefir["error"] = summary->error_register;
+        jrefir["status"] = summary->status;
+        jrefir["count"] = summary->sector_count;
+        jrefir["lba"] = (summary->sector_number      )
+                      | (summary->cylinder_low  <<  8)
+                      | (summary->cylinder_high << 16);
+        jrefir["device"] = summary->drive_head;
+      }
+
       // Add a description of the contents of the status and error registers
       // if possible
       std::string st_er_desc = format_st_er_desc(elog);
-      if (!st_er_desc.empty())
-        pout("  %s", st_er_desc.c_str());
-      pout("\n\n");
-      pout("  Commands leading to the command that caused the error were:\n"
+      if (!st_er_desc.empty()) {
+        jout("  %s", st_er_desc.c_str());
+        jrefi["error_description"] = st_er_desc;
+      }
+      jout("\n\n");
+      jout("  Commands leading to the command that caused the error were:\n"
            "  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name\n"
            "  -- -- -- -- -- -- -- --  ----------------  --------------------\n");
-      for (int j = 4; j >= 0; j--) {
+      for (int j = 4, jj = 0; j >= 0; j--) {
         const ata_smart_errorlog_command_struct * thiscommand = elog->commands+j;
 
         // Spec says: unused data command structures shall be zero filled
         if (nonempty(thiscommand, sizeof(*thiscommand))) {
-          pout("  %02x %02x %02x %02x %02x %02x %02x %02x  %16s  %s\n",
+          const char * atacmd = look_up_ata_command(thiscommand->commandreg, thiscommand->featuresreg);
+          jout("  %02x %02x %02x %02x %02x %02x %02x %02x  %16s  %s\n",
                (int)thiscommand->commandreg,
                (int)thiscommand->featuresreg,
                (int)thiscommand->sector_count,
@@ -2106,10 +2128,23 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
                (int)thiscommand->drive_head,
                (int)thiscommand->devicecontrolreg,
                format_milliseconds(thiscommand->timestamp).c_str(),
-               look_up_ata_command(thiscommand->commandreg, thiscommand->featuresreg));
-	}
+               atacmd);
+
+          json::ref jrefic = jrefi["previous_commands"][jj++];
+          json::ref jreficr = jrefic["registers"];
+          jreficr["command"] = thiscommand->commandreg;
+          jreficr["features"] = thiscommand->featuresreg,
+          jreficr["count"] = thiscommand->sector_count;
+          jreficr["lba"] = (thiscommand->sector_number      )
+                         | (thiscommand->cylinder_low   << 8)
+                         | (thiscommand->cylinder_high << 16);
+          jreficr["device"] = thiscommand->drive_head;
+          jreficr["device_control"] = thiscommand->devicecontrolreg;
+          jrefic["powerup_milliseconds"] = thiscommand->timestamp;
+          jrefic["command_name"] = atacmd;
+        }
       }
-      pout("\n");
+      jout("\n");
     }
   }
   print_on();
@@ -2164,16 +2199,17 @@ static int PrintSmartExtErrorLog(ata_device * device,
     jout("Device Error Count: %u\n", log->device_error_count);
   else {
     errcnt = nentries;
-    pout("Device Error Count: %u (device log contains only the most recent %u errors)\n",
+    jout("Device Error Count: %u (device log contains only the most recent %u errors)\n",
          log->device_error_count, errcnt);
   }
-  jref["count"] = errcnt;
+  jref["count"] = log->device_error_count;
+  jref["logged_count"] = errcnt;
 
   if (max_errors < errcnt)
     errcnt = max_errors;
 
   print_off();
-  pout("\tCR     = Command Register\n"
+  jout("\tCR     = Command Register\n"
        "\tFEATR  = Features Register\n"
        "\tCOUNT  = Count (was: Sector Count) Register\n"
        "\tLBA_48 = Upper bytes of LBA High/Mid/Low Registers ]  ATA-8\n"
@@ -2213,24 +2249,31 @@ static int PrintSmartExtErrorLog(ata_device * device,
 
     const ata_smart_exterrlog_error_log & entry = log_p->error_logs[erridx % 4];
 
+    json::ref jrefi = jref["table"][i];
+    jrefi["error_number"] = errnum;
+    jrefi["log_index"] = erridx;
+
     // Skip unused entries
     if (!nonempty(&entry, sizeof(entry))) {
-      pout("Error %u [%u] log entry is empty\n", errnum, erridx);
+      jout("Error %u [%u] log entry is empty\n", errnum, erridx);
       continue;
     }
 
     // Print error information
     print_on();
     const ata_smart_exterrlog_error & err = entry.error;
-    pout("Error %u [%u] occurred at disk power-on lifetime: %u hours (%u days + %u hours)\n",
+    jout("Error %u [%u] occurred at disk power-on lifetime: %u hours (%u days + %u hours)\n",
          errnum, erridx, err.timestamp, err.timestamp / 24, err.timestamp % 24);
     print_off();
+    jrefi["lifetime_hours"] = err.timestamp;
 
-    pout("  When the command that caused the error occurred, the device was %s.\n\n",
-      get_error_log_state_desc(err.state));
+    const char * msgstate = get_error_log_state_desc(err.state);
+    jout("  When the command that caused the error occurred, the device was %s.\n\n", msgstate);
+    jrefi["device_state"]["value"] = err.state;
+    jrefi["device_state"]["string"] = msgstate;
 
     // Print registers
-    pout("  After command completion occurred, registers were:\n"
+    jout("  After command completion occurred, registers were:\n"
          "  ER -- ST COUNT  LBA_48  LH LM LL DV DC\n"
          "  -- -- -- == -- == == == -- -- -- -- --\n"
          "  %02x -- %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
@@ -2247,18 +2290,35 @@ static int PrintSmartExtErrorLog(ata_device * device,
          err.device_register,
          err.device_control_register);
 
+    {
+      json::ref jrefir = jrefi["completion_registers"];
+      jrefir["error"] = err.error_register;
+      jrefir["status"] = err.status_register,
+      jrefir["count"] = (err.count_register_hi << 8) | err.count_register;
+      jrefir["lba"] = ((uint64_t)err.lba_high_register_hi << 40)
+                    | ((uint64_t)err.lba_mid_register_hi  << 32)
+                    | ((uint64_t)err.lba_low_register_hi  << 24)
+                    | ((unsigned)err.lba_high_register    << 16)
+                    | ((unsigned)err.lba_mid_register     <<  8)
+                    | ((unsigned)err.lba_low_register          );
+      jrefir["device"] = err.device_register;
+      jrefir["device_control"] = err.device_control_register;
+    }
+
     // Add a description of the contents of the status and error registers
     // if possible
     std::string st_er_desc = format_st_er_desc(&entry);
-    if (!st_er_desc.empty())
-      pout("  %s", st_er_desc.c_str());
-    pout("\n\n");
+    if (!st_er_desc.empty()) {
+      jout("  %s", st_er_desc.c_str());
+      jrefi["error_description"] = st_er_desc;
+    }
+    jout("\n\n");
 
     // Print command history
-    pout("  Commands leading to the command that caused the error were:\n"
+    jout("  Commands leading to the command that caused the error were:\n"
          "  CR FEATR COUNT  LBA_48  LH LM LL DV DC  Powered_Up_Time  Command/Feature_Name\n"
          "  -- == -- == -- == == == -- -- -- -- --  ---------------  --------------------\n");
-    for (int ci = 4; ci >= 0; ci--) {
+    for (int ci = 4, cji = 0; ci >= 0; ci--) {
       const ata_smart_exterrlog_command & cmd = entry.commands[ci];
 
       // Skip unused entries
@@ -2266,7 +2326,8 @@ static int PrintSmartExtErrorLog(ata_device * device,
         continue;
 
       // Print registers, timestamp and ATA command name
-      pout("  %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %16s  %s\n",
+      const char * atacmd = look_up_ata_command(cmd.command_register, cmd.features_register);
+      jout("  %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %16s  %s\n",
            cmd.command_register,
            cmd.features_register_hi,
            cmd.features_register,
@@ -2281,9 +2342,25 @@ static int PrintSmartExtErrorLog(ata_device * device,
            cmd.device_register,
            cmd.device_control_register,
            format_milliseconds(cmd.timestamp).c_str(),
-           look_up_ata_command(cmd.command_register, cmd.features_register));
+           atacmd);
+
+      json::ref jrefic = jrefi["previous_commands"][cji++];
+      json::ref jreficr = jrefic["registers"];
+      jreficr["command"] = cmd.command_register;
+      jreficr["features"] = (cmd.features_register_hi << 8) | cmd.features_register;
+      jreficr["count"] = (cmd.count_register_hi << 8) | cmd.count_register;
+      jreficr["lba"] = ((uint64_t)cmd.lba_high_register_hi << 40)
+                     | ((uint64_t)cmd.lba_mid_register_hi  << 32)
+                     | ((uint64_t)cmd.lba_low_register_hi  << 24)
+                     | ((unsigned)cmd.lba_high_register    << 16)
+                     | ((unsigned)cmd.lba_mid_register     <<  8)
+                     | ((unsigned)cmd.lba_low_register          );
+      jreficr["device"] = cmd.device_register;
+      jreficr["device_control"] = cmd.device_control_register;
+      jrefic["powerup_milliseconds"] = cmd.timestamp;
+      jrefic["command_name"] = atacmd;
     }
-    pout("\n");
+    jout("\n");
   }
 
   print_on();
