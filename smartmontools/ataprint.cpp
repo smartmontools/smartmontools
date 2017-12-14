@@ -1156,6 +1156,17 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     std::string attrname = ata_get_smart_attr_name(attr.id, defs, rpm);
     std::string rawstr = ata_format_attr_raw_value(attr, defs);
 
+    char flagstr[] = {
+      (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags)     ? 'P' : '-'),
+      (ATTRIBUTE_FLAGS_ONLINE(attr.flags)         ? 'O' : '-'),
+      (ATTRIBUTE_FLAGS_PERFORMANCE(attr.flags)    ? 'S' : '-'),
+      (ATTRIBUTE_FLAGS_ERRORRATE(attr.flags)      ? 'R' : '-'),
+      (ATTRIBUTE_FLAGS_EVENTCOUNT(attr.flags)     ? 'C' : '-'),
+      (ATTRIBUTE_FLAGS_SELFPRESERVING(attr.flags) ? 'K' : '-'),
+      (ATTRIBUTE_FLAGS_OTHER(attr.flags)          ? '+' : ' '),
+      0
+    };
+
     if (!brief)
       jout("%s %-24s0x%04x   %-4s  %-4s  %-4s   %-10s%-9s%-12s%s\n",
            idstr.c_str(), attrname.c_str(), attr.flags,
@@ -1167,15 +1178,8 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
                                            : "    -"        ) ,
             rawstr.c_str());
     else
-      jout("%s %-24s%c%c%c%c%c%c%c  %-4s  %-4s  %-4s   %-5s%s\n",
-           idstr.c_str(), attrname.c_str(),
-           (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags)     ? 'P' : '-'),
-           (ATTRIBUTE_FLAGS_ONLINE(attr.flags)         ? 'O' : '-'),
-           (ATTRIBUTE_FLAGS_PERFORMANCE(attr.flags)    ? 'S' : '-'),
-           (ATTRIBUTE_FLAGS_ERRORRATE(attr.flags)      ? 'R' : '-'),
-           (ATTRIBUTE_FLAGS_EVENTCOUNT(attr.flags)     ? 'C' : '-'),
-           (ATTRIBUTE_FLAGS_SELFPRESERVING(attr.flags) ? 'K' : '-'),
-           (ATTRIBUTE_FLAGS_OTHER(attr.flags)          ? '+' : ' '),
+      jout("%s %-24s%s  %-4s  %-4s  %-4s   %-5s%s\n",
+           idstr.c_str(), attrname.c_str(), flagstr,
            valstr.c_str(), worstr.c_str(), threstr.c_str(),
            (state == ATTRSTATE_FAILED_NOW  ? "NOW"  :
             state == ATTRSTATE_FAILED_PAST ? "Past"
@@ -1185,7 +1189,7 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     if (!jglb.is_enabled())
       continue;
 
-    json::ref jref = jglb["ata_smart_attributes"]["attrs"][ji++];
+    json::ref jref = jglb["ata_smart_attributes"]["table"][ji++];
     jref["id"] = attr.id;
     jref["name"] = attrname;
     if (state > ATTRSTATE_NO_NORMVAL)
@@ -1195,21 +1199,22 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     if (state > ATTRSTATE_NO_THRESHOLD) {
       jref["thresh"] = threshold;
       jref["when_failed"] = (state == ATTRSTATE_FAILED_NOW  ? "now" :
-                           state == ATTRSTATE_FAILED_PAST ? "past"
-                                                          : ""     );
+                             state == ATTRSTATE_FAILED_PAST ? "past"
+                                                            : ""     );
     }
-    jref["flags"]["value"] = attr.flags;
-    {
-      static const char * const fnames[6] =
-        { "P", "O", "S", "R", "C", "K" };
-      int ai = 0;
-      for (int bi = 0; bi < 6; bi++) {
-        if (attr.flags & (1 << bi))
-          jref["flags"]["set"][ai++] = fnames[bi];
-      }
-      if (ATTRIBUTE_FLAGS_OTHER(attr.flags))
-        jref["flags"]["set"][ai] = "+";
-    }
+
+    json::ref jreff = jref["flags"];
+    jreff["value"] = attr.flags;
+    jreff["string"] = flagstr;
+    jreff["prefailure"]     = !!ATTRIBUTE_FLAGS_PREFAILURE(attr.flags);
+    jreff["updated_online"] = !!ATTRIBUTE_FLAGS_ONLINE(attr.flags);
+    jreff["performance"]    = !!ATTRIBUTE_FLAGS_PERFORMANCE(attr.flags);
+    jreff["error_rate"]     = !!ATTRIBUTE_FLAGS_ERRORRATE(attr.flags);
+    jreff["event_count"]    = !!ATTRIBUTE_FLAGS_EVENTCOUNT(attr.flags);
+    jreff["auto_keep"]      = !!ATTRIBUTE_FLAGS_SELFPRESERVING(attr.flags);
+    if (ATTRIBUTE_FLAGS_OTHER(attr.flags))
+      jreff["other"] = ATTRIBUTE_FLAGS_OTHER(attr.flags);
+
     jref["raw"]["value"] = ata_get_attr_raw_value(attr, defs);
     jref["raw"]["string"] = rawstr;
   }
