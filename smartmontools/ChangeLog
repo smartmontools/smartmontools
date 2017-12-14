@@ -1,4 +1,8 @@
-$Id: ChangeLog 4655 2017-12-13 21:43:53Z chrfranke $
+$Id: ChangeLog 4656 2017-12-14 21:44:58Z chrfranke $
+
+2017-12-14  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add JSON support for '-l [x]error'.
 
 2017-12-13  Christian Franke  <franke@computer.org>
 
