@@ -2754,6 +2754,14 @@ static const char * sct_ptemp(signed char x, char (& buf)[20])
   return buf;
 }
 
+static void sct_jtemp2(json::ref jref, const char * name, signed char x)
+{
+  if (x == -128 /*0x80 = unknown*/)
+    return;
+  jglb["temperature"][name] = x;
+  jref["temperature"][name] = x;
+}
+
 static const char * sct_pbar(int x, char (& buf)[64])
 {
   if (x <= 19)
@@ -2793,14 +2801,20 @@ static const char * sct_device_state_msg(unsigned char state)
 static int ataPrintSCTStatus(const ata_sct_status_response * sts)
 {
   json::ref jref = jglb["ata_sct_status"];
-  pout("SCT Status Version:                  %u\n", sts->format_version);
-  pout("SCT Version (vendor specific):       %u (0x%04x)\n", sts->sct_version, sts->sct_version);
+
+  jout("SCT Status Version:                  %u\n", sts->format_version);
+  jref["format_version"] = sts->format_version;
+  jout("SCT Version (vendor specific):       %u (0x%04x)\n", sts->sct_version, sts->sct_version);
+  jref["sct_version"] = sts->sct_version;
   // SCT Support Level (1) from original SCT draft was later declared obsolete in ATA-8 ACS.
   // Drives typically return 0 or 1.  Print only if unknown value is returned.
   if (sts->sct_spec > 1)
     pout("SCT Support Level:                   %u\n", sts->sct_spec);
-  pout("Device State:                        %s (%u)\n",
-    sct_device_state_msg(sts->device_state), sts->device_state);
+  const char * statestr = sct_device_state_msg(sts->device_state);
+  jout("Device State:                        %s (%u)\n", statestr, sts->device_state);
+  jref["device_state"]["value"] = sts->device_state;
+  jref["device_state"]["string"] = statestr;
+
   char buf1[20], buf2[20];
   if (   !sts->min_temp && !sts->life_min_temp
       && !sts->under_limit_count && !sts->over_limit_count) {
@@ -2823,34 +2837,47 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
     // (smart_status, min_erc_time)
     jout("Current Temperature:                    %s Celsius\n",
       sct_ptemp(sts->hda_temp, buf1));
-    if (sts->hda_temp != -128) {
-      jref["temperature"]["current"] = sts->hda_temp;
-      // Protocol independent value
-      jglb["temperature"]["current"] = sts->hda_temp;
-    }
-    pout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
+    sct_jtemp2(jref, "current", sts->hda_temp);
+    jout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
       sct_ptemp(sts->min_temp, buf1), sct_ptemp(sts->max_temp, buf2));
-    pout("Lifetime    Min/Max Temperature:     %s/%s Celsius\n",
+    sct_jtemp2(jref, "power_cycle_min", sts->min_temp);
+    sct_jtemp2(jref, "power_cycle_max", sts->max_temp);
+    jout("Lifetime    Min/Max Temperature:     %s/%s Celsius\n",
       sct_ptemp(sts->life_min_temp, buf1), sct_ptemp(sts->life_max_temp, buf2));
+    sct_jtemp2(jref, "lifetime_min", sts->life_min_temp);
+    sct_jtemp2(jref, "lifetime_max", sts->life_max_temp);
+
     signed char avg = sts->byte205; // Average Temperature from e06152r0-2, removed in e06152r3
     if (0 < avg && sts->life_min_temp <= avg && avg <= sts->life_max_temp)
       pout("Lifetime    Average Temperature:        %2d Celsius\n", avg);
-    pout("Under/Over Temperature Limit Count:  %2u/%u\n",
+    jout("Under/Over Temperature Limit Count:  %2u/%u\n",
       sts->under_limit_count, sts->over_limit_count);
+    jref["temperature"]["under_limit_count"] = sts->under_limit_count;
+    jref["temperature"]["over_limit_count"] = sts->over_limit_count;
 
-    if (sts->smart_status) // ACS-4
-      pout("SMART Status:                        0x%04x (%s)\n", sts->smart_status,
-           (sts->smart_status == 0x2cf4 ? "FAILED" :
-            sts->smart_status == 0xc24f ? "PASSED" : "Reserved"));
+    if (sts->smart_status) { // ACS-4
+      int passed = (sts->smart_status == 0x2cf4 ? 0 :
+                    sts->smart_status == 0xc24f ? 1 : -1);
+      jout("SMART Status:                        0x%04x (%s)\n", sts->smart_status,
+           (passed == 0 ? "FAILED" : passed > 0 ? "PASSED" : "Reserved"));
+      if (passed >= 0) {
+        jref["smart_status"]["passed"] = !!passed;
+        jglb["smart_status"]["passed"] = !!passed;
+      }
+      else
+        jref["smart_status"]["reserved_value"] = sts->smart_status;
+    }
 
     if (sts->min_erc_time) // ACS-4
       pout("Minimum supported ERC Time Limit:    %d (%0.1f seconds)\n",
            sts->min_erc_time, sts->min_erc_time/10.0);
 
     if (nonempty(sts->vendor_specific, sizeof(sts->vendor_specific))) {
-      pout("Vendor specific:\n");
-      for (unsigned i = 0; i < sizeof(sts->vendor_specific); i++)
-        pout("%02x%c", sts->vendor_specific[i], ((i & 0xf) != 0xf ? ' ' : '\n'));
+      jout("Vendor specific:\n");
+      for (unsigned i = 0; i < sizeof(sts->vendor_specific); i++) {
+        jout("%02x%c", sts->vendor_specific[i], ((i & 0xf) != 0xf ? ' ' : '\n'));
+        jref["vendor_specific"][i] = sts->vendor_specific[i];
+      }
     }
   }
   return 0;
@@ -2859,18 +2886,30 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
 // Print SCT Temperature History Table
 static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
 {
+  json::ref jref = jglb["ata_sct_temperature_history"];
+
   char buf1[20], buf2[20], buf3[64];
-  pout("SCT Temperature History Version:     %u%s\n", tmh->format_version,
+  jout("SCT Temperature History Version:     %u%s\n", tmh->format_version,
        (tmh->format_version != 2 ? " (Unknown, should be 2)" : ""));
-  pout("Temperature Sampling Period:         %u minute%s\n",
+  jref["version"] = tmh->format_version;
+  jout("Temperature Sampling Period:         %u minute%s\n",
     tmh->sampling_period, (tmh->sampling_period==1?"":"s"));
-  pout("Temperature Logging Interval:        %u minute%s\n",
+  jref["sampling_period_minutes"] = tmh->sampling_period;
+  jout("Temperature Logging Interval:        %u minute%s\n",
     tmh->interval,        (tmh->interval==1?"":"s"));
-  pout("Min/Max recommended Temperature:     %s/%s Celsius\n",
+  jref["logging_interval_minutes"] = tmh->interval;
+
+  jout("Min/Max recommended Temperature:     %s/%s Celsius\n",
     sct_ptemp(tmh->min_op_limit, buf1), sct_ptemp(tmh->max_op_limit, buf2));
-  pout("Min/Max Temperature Limit:           %s/%s Celsius\n",
+  sct_jtemp2(jref, "op_limit_min", tmh->min_op_limit);
+  sct_jtemp2(jref, "op_limit_max", tmh->max_op_limit);
+  jout("Min/Max Temperature Limit:           %s/%s Celsius\n",
     sct_ptemp(tmh->under_limit, buf1), sct_ptemp(tmh->over_limit, buf2));
-  pout("Temperature History Size (Index):    %u (%u)\n", tmh->cb_size, tmh->cb_index);
+  sct_jtemp2(jref, "limit_min", tmh->under_limit);
+  sct_jtemp2(jref, "limit_max", tmh->over_limit);
+  jout("Temperature History Size (Index):    %u (%u)\n", tmh->cb_size, tmh->cb_index);
+  jref["size"] = tmh->cb_size;
+  jref["index"] = tmh->cb_index;
 
   if (!(0 < tmh->cb_size && tmh->cb_size <= sizeof(tmh->cb) && tmh->cb_index < tmh->cb_size)) {
     if (!tmh->cb_size)
@@ -2881,7 +2920,7 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
   }
 
   // Print table
-  pout("\nIndex    Estimated Time   Temperature Celsius\n");
+  jout("\nIndex    Estimated Time   Temperature Celsius\n");
   unsigned n = 0, i = (tmh->cb_index+1) % tmh->cb_size;
   unsigned interval = (tmh->interval > 0 ? tmh->interval : 1);
   time_t t = time(0) - (tmh->cb_size-1) * interval * 60;
@@ -2898,13 +2937,15 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
         char date[30];
         // TODO: Don't print times < boot time
         strftime(date, sizeof(date), "%Y-%m-%d %H:%M", localtime(&t));
-        pout(" %3u    %s    %s  %s\n", i, date,
+        jout(" %3u    %s    %s  %s\n", i, date,
           sct_ptemp(tmh->cb[i], buf1), sct_pbar(tmh->cb[i], buf3));
       }
       else if (n == n1+1) {
-        pout(" ...    ..(%3u skipped).    ..  %s\n",
+        jout(" ...    ..(%3u skipped).    ..  %s\n",
           n2-n1-2, sct_pbar(tmh->cb[i], buf3));
       }
+      if (tmh->cb[i] != -128)
+        jref["table"][n] = tmh->cb[i];
       t += interval * 60; i = (i+1) % tmh->cb_size; n++;
     }
   }
