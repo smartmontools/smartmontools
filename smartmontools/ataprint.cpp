@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4661 2017-12-17 17:59:19Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4662 2017-12-17 22:41:53Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -3368,7 +3368,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     if ((drive.command_set_2 & 0xc200) != 0x4200) // word083
       pout("AAM feature is:   Unavailable\n");
     else if (!(drive.word086 & 0x0200)) {
-      pout("AAM feature is:   Disabled\n");
+      jout("AAM feature is:   Disabled\n");
       jglb["ata_aam"]["enabled"] = false;
     }
     else
