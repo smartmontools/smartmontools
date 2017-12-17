@@ -3368,7 +3368,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     if ((drive.command_set_2 & 0xc200) != 0x4200) // word083
       pout("AAM feature is:   Unavailable\n");
     else if (!(drive.word086 & 0x0200)) {
-      pout("AAM feature is:   Disabled\n");
+      jout("AAM feature is:   Disabled\n");
       jglb["ata_aam"]["enabled"] = false;
     }
     else
