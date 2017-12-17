@@ -2996,9 +2996,16 @@ static void print_aam_level(const char * msg, int level, int recommended = -1)
     s = "reserved";
 
   if (recommended >= 0)
-    pout("%s%d (%s), recommended: %d\n", msg, level, s, recommended);
+    jout("%s%d (%s), recommended: %d\n", msg, level, s, recommended);
   else
-    pout("%s%d (%s)\n", msg, level, s);
+    jout("%s%d (%s)\n", msg, level, s);
+
+  json::ref jref = jglb["ata_aam"];
+  jref["enabled"] = true;
+  jref["level"] = level;
+  jref["string"] = s;
+  if (recommended >= 0)
+    jref["recommended_level"] = recommended;
 }
 
 static void print_apm_level(const char * msg, int level)
@@ -3018,45 +3025,73 @@ static void print_apm_level(const char * msg, int level)
   else
     s = "maximum performance";
 
-  pout("%s%d (%s)\n", msg, level, s);
+  jout("%s%d (%s)\n", msg, level, s);
+
+  json::ref jref = jglb["ata_apm"];
+  jref["enabled"] = true;
+  jref["level"] = level;
+  jref["string"] = s;
+  if (1 <= level && level <= 254) {
+    jref["max_performance"] = (level == 254);
+    jref["min_power"] = (level == 1 || level == 128);
+    jref["with_standby"] = (level < 128);
+  }
 }
 
 static void print_ata_security_status(const char * msg, unsigned short state)
 {
-    const char * s1, * s2 = "", * s3 = "", * s4 = "";
+  // Table 6 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
+  if (!(state & 0x0001)) {
+    pout("%sUnavailable\n", msg);
+    return;
+  }
 
-    // Table 6 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
-    if (!(state & 0x0001))
-      s1 = "Unavailable";
-    else if (!(state & 0x0002)) {
-      s1 = "Disabled, ";
+  const char * s1, * s2 = "", * s3 = "", * s4 = "";
+  bool enabled = false, locked = false;
+  if (!(state & 0x0002)) {
+    s1 = "Disabled, ";
+    if (!(state & 0x0008))
+      s2 = "NOT FROZEN [SEC1]";
+    else
+      s2 = "frozen [SEC2]";
+  }
+  else {
+    enabled = true;
+    s1 = "ENABLED, PW level ";
+    if (!(state & 0x0100))
+      s2 = "HIGH";
+    else
+      s2 = "MAX";
+
+    if (!(state & 0x0004)) {
+      s3 = ", not locked, ";
       if (!(state & 0x0008))
-        s2 = "NOT FROZEN [SEC1]";
+        s4 = "not frozen [SEC5]";
       else
-        s2 = "frozen [SEC2]";
+        s4 = "frozen [SEC6]";
     }
     else {
-      s1 = "ENABLED, PW level ";
-      if (!(state & 0x0100))
-        s2 = "HIGH";
-      else
-        s2 = "MAX";
-
-      if (!(state & 0x0004)) {
-         s3 = ", not locked, ";
-        if (!(state & 0x0008))
-          s4 = "not frozen [SEC5]";
-        else
-          s4 = "frozen [SEC6]";
-      }
-      else {
-        s3 = ", **LOCKED** [SEC4]";
-        if (state & 0x0010)
-          s4 = ", PW ATTEMPTS EXCEEDED";
-      }
+      locked = true;
+      s3 = ", **LOCKED** [SEC4]";
+      if (state & 0x0010)
+        s4 = ", PW ATTEMPTS EXCEEDED";
     }
+  }
 
-    pout("%s%s%s%s%s\n", msg, s1, s2, s3, s4);
+  jout("%s%s%s%s%s\n", msg, s1, s2, s3, s4);
+
+  json::ref jref = jglb["ata_security"];
+  jref["state"] = state;
+  jref["string"] = strprintf("%s%s%s%s", s1, s2, s3, s4);
+  jref["enabled"] = enabled;
+  if (!enabled || !locked)
+    jref["frozen"] = !!(state & 0x0008);
+  if (enabled) {
+    jref["pw_level_max"] = !!(state & 0x0100);
+    jref["locked"] = locked;
+    if (locked)
+      jref["pw_attempts_exceeded"] = !!(state & 0x0010);
+  }
 }
 
 static void print_standby_timer(const char * msg, int timer, const ata_identify_device & drive)
@@ -3332,8 +3367,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (options.get_aam) {
     if ((drive.command_set_2 & 0xc200) != 0x4200) // word083
       pout("AAM feature is:   Unavailable\n");
-    else if (!(drive.word086 & 0x0200))
+    else if (!(drive.word086 & 0x0200)) {
       pout("AAM feature is:   Disabled\n");
+      jglb["ata_aam"]["enabled"] = false;
+    }
     else
       print_aam_level("AAM level is:     ", drive.words088_255[94-88] & 0xff,
         drive.words088_255[94-88] >> 8);
@@ -3343,26 +3380,36 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (options.get_apm) {
     if ((drive.command_set_2 & 0xc008) != 0x4008) // word083
       pout("APM feature is:   Unavailable\n");
-    else if (!(drive.word086 & 0x0008))
-      pout("APM feature is:   Disabled\n");
+    else if (!(drive.word086 & 0x0008)) {
+      jout("APM feature is:   Disabled\n");
+      jglb["ata_apm"]["enabled"] = false;
+    }
     else
       print_apm_level("APM level is:     ", drive.words088_255[91-88] & 0xff);
   }
 
   // Print read look-ahead status
   if (options.get_lookahead) {
-    pout("Rd look-ahead is: %s\n",
-      (   (drive.command_set_2 & 0xc000) != 0x4000 // word083
-       || !(drive.command_set_1 & 0x0040)) ? "Unavailable" : // word082
-       !(drive.cfs_enable_1 & 0x0040) ? "Disabled" : "Enabled"); // word085
+    if (   (drive.command_set_2 & 0xc000) != 0x4000 // word083
+        || !(drive.command_set_1 & 0x0040)         ) // word082
+      pout("Rd look-ahead is: Unavailable\n");
+    else {
+      bool enabled = !!(drive.cfs_enable_1 & 0x0040); // word085
+      jout("Rd look-ahead is: %sabled\n", (enabled ? "En" : "Dis"));
+      jglb["read_lookahead"]["enabled"] = enabled;
+    }
   }
 
   // Print write cache status
   if (options.get_wcache) {
-    pout("Write cache is:   %s\n",
-      (   (drive.command_set_2 & 0xc000) != 0x4000 // word083
-       || !(drive.command_set_1 & 0x0020)) ? "Unavailable" : // word082
-       !(drive.cfs_enable_1 & 0x0020) ? "Disabled" : "Enabled"); // word085
+    if (   (drive.command_set_2 & 0xc000) != 0x4000 // word083
+        || !(drive.command_set_1 & 0x0020)         ) // word082
+      pout("Write cache is:   Unavailable\n");
+    else {
+      bool enabled = !!(drive.cfs_enable_1 & 0x0020); // word085
+      jout("Write cache is:   %sabled\n", (enabled ? "En" : "Dis"));
+      jglb["write_cache"]["enabled"] = enabled;
+    }
   }
 
   // Print DSN status
@@ -3373,10 +3420,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        || ((word119 & 0xc200) != 0x4200) // word119
        || ((word120 & 0xc000) != 0x4000)) // word120
       pout("DSN feature is:   Unavailable\n");
-    else if (word120 & 0x200) // word120
-      pout("DSN feature is:   Enabled\n");
-    else
-      pout("DSN feature is:   Disabled\n");
+    else {
+      bool enabled = !!(word120 & 0x200);
+      jout("DSN feature is:   %sabled\n", (enabled ? "En" : "Dis"));
+      jglb["ata_dsn"]["enabled"] = enabled;
+    }
   }
 
   // Check for ATA Security LOCK
