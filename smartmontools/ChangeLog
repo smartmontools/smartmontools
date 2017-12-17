@@ -1,4 +1,8 @@
-$Id: ChangeLog 4657 2017-12-14 22:21:18Z chrfranke $
+$Id: ChangeLog 4658 2017-12-17 14:19:15Z chrfranke $
+
+2017-12-17  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Don't print obsolete SCT Support Level (#940).
 
 2017-12-14  Christian Franke  <franke@computer.org>
 
