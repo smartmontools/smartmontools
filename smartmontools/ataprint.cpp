@@ -2795,7 +2795,10 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
   json::ref jref = jglb["ata_sct_status"];
   pout("SCT Status Version:                  %u\n", sts->format_version);
   pout("SCT Version (vendor specific):       %u (0x%04x)\n", sts->sct_version, sts->sct_version);
-  pout("SCT Support Level:                   %u\n", sts->sct_spec);
+  // SCT Support Level (1) from original SCT draft was later declared obsolete in ATA-8 ACS.
+  // Drives typically return 0 or 1.  Print only if unknown value is returned.
+  if (sts->sct_spec > 1)
+    pout("SCT Support Level:                   %u\n", sts->sct_spec);
   pout("Device State:                        %s (%u)\n",
     sct_device_state_msg(sts->device_state), sts->device_state);
   char buf1[20], buf2[20];
