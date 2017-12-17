@@ -1,8 +1,8 @@
-$Id: ChangeLog 4659 2017-12-17 16:12:11Z chrfranke $
+$Id: ChangeLog 4660 2017-12-17 16:26:42Z chrfranke $
 
 2017-12-17  Christian Franke  <franke@computer.org>
 
-	ataprint.cpp: Add JSON support for '-l scttemp'.
+	ataprint.cpp: Add JSON support for '-l scterc' and '-l scttemp'.
 
 	ataprint.cpp: Don't print obsolete SCT Support Level (#940).
 

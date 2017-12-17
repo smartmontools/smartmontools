@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4659 2017-12-17 16:12:11Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4660 2017-12-17 16:26:42Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2957,15 +2957,24 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
 // Print SCT Error Recovery Control timers
 static void ataPrintSCTErrorRecoveryControl(bool set, unsigned short read_timer, unsigned short write_timer)
 {
-  pout("SCT Error Recovery Control%s:\n", (set ? " set to" : ""));
+  json::ref jref = jglb["ata_sct_erc"];
+  jout("SCT Error Recovery Control%s:\n", (set ? " set to" : ""));
+
+  jref["read"]["enabled"] = !!read_timer;
   if (!read_timer)
-    pout("           Read: Disabled\n");
-  else
-    pout("           Read: %6d (%0.1f seconds)\n", read_timer, read_timer/10.0);
+    jout("           Read: Disabled\n");
+  else {
+    jout("           Read: %6d (%0.1f seconds)\n", read_timer, read_timer/10.0);
+    jref["read"]["deciseconds"] = read_timer;
+  }
+
+  jref["write"]["enabled"] = !!write_timer;
   if (!write_timer)
-    pout("          Write: Disabled\n");
-  else
-    pout("          Write: %6d (%0.1f seconds)\n", write_timer, write_timer/10.0);
+    jout("          Write: Disabled\n");
+  else {
+    jout("          Write: %6d (%0.1f seconds)\n", write_timer, write_timer/10.0);
+    jref["write"]["deciseconds"] = write_timer;
+  }
 }
 
 static void print_aam_level(const char * msg, int level, int recommended = -1)
