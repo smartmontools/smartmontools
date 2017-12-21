@@ -75,6 +75,272 @@ static int gIecMPage = 1;     /* N.B. assume it until we know otherwise */
 static int modese_len = 0;
 
 
+/* Borrowed from the Linux kernel, via mhvtl */
+
+/* In the first section below, functions that copy unsigned integers in a
+ * computer's native format, to and from an unaligned big endian sequence of
+ * bytes. Big endian byte format "on the wire" is the default used by SCSI
+ * standards (www.t10.org). Big endian is also the network byte order. */
+
+static inline uint16_t __get_unaligned_be16(const uint8_t *p)
+{
+        return p[0] << 8 | p[1];
+}
+
+static inline uint32_t __get_unaligned_be32(const uint8_t *p)
+{
+        return p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3];
+}
+
+/* Assume 48 bit value placed in uint64_t */
+static inline uint64_t __get_unaligned_be48(const uint8_t *p)
+{
+        return (uint64_t)__get_unaligned_be16(p) << 32 |
+               __get_unaligned_be32(p + 2);
+}
+
+static inline uint64_t __get_unaligned_be64(const uint8_t *p)
+{
+        return (uint64_t)__get_unaligned_be32(p) << 32 |
+               __get_unaligned_be32(p + 4);
+}
+
+static inline void __put_unaligned_be16(uint16_t val, uint8_t *p)
+{
+        *p++ = val >> 8;
+        *p++ = val;
+}
+
+static inline void __put_unaligned_be32(uint32_t val, uint8_t *p)
+{
+        __put_unaligned_be16(val >> 16, p);
+        __put_unaligned_be16(val, p + 2);
+}
+
+/* Assume 48 bit value placed in uint64_t */
+static inline void __put_unaligned_be48(uint64_t val, uint8_t *p)
+{
+        __put_unaligned_be16(val >> 32, p);
+        __put_unaligned_be32(val, p + 2);
+}
+
+static inline void __put_unaligned_be64(uint64_t val, uint8_t *p)
+{
+        __put_unaligned_be32(val >> 32, p);
+        __put_unaligned_be32(val, p + 4);
+}
+
+static inline uint16_t get_unaligned_be16(const void *p)
+{
+        return __get_unaligned_be16((const uint8_t *)p);
+}
+
+static inline uint32_t get_unaligned_be24(const uint8_t *p)
+{
+        return p[0] << 16 | p[1] << 8 | p[2];
+}
+
+static inline uint32_t get_unaligned_be32(const void *p)
+{
+        return __get_unaligned_be32((const uint8_t *)p);
+}
+
+/* Assume 48 bit value placed in uint64_t */
+static inline uint64_t get_unaligned_be48(const void *p)
+{
+        return __get_unaligned_be48((const uint8_t *)p);
+}
+
+static inline uint64_t get_unaligned_be64(const void *p)
+{
+        return __get_unaligned_be64((const uint8_t *)p);
+}
+
+/* Returns 0 if 'num_bytes' is less than or equal to 0 or greater than
+ * 8 (i.e. sizeof(uint64_t)). Else returns result in uint64_t which is
+ * an 8 byte unsigned integer. */
+static inline uint64_t get_unaligned_be(int num_bytes, const void *p)
+{
+        if ((num_bytes <= 0) || (num_bytes > (int)sizeof(uint64_t)))
+                return 0;
+        else {
+                const uint8_t * xp = (const uint8_t *)p;
+                uint64_t res = *xp;
+
+                for (++xp; num_bytes > 1; ++xp, --num_bytes)
+                        res = (res << 8) | *xp;
+                return res;
+        }
+}
+
+static inline void put_unaligned_be16(uint16_t val, void *p)
+{
+        __put_unaligned_be16(val, (uint8_t *)p);
+}
+
+static inline void put_unaligned_be24(uint32_t val, void *p)
+{
+        ((uint8_t *)p)[0] = (val >> 16) & 0xff;
+        ((uint8_t *)p)[1] = (val >> 8) & 0xff;
+        ((uint8_t *)p)[2] = val & 0xff;
+}
+
+static inline void put_unaligned_be32(uint32_t val, void *p)
+{
+        __put_unaligned_be32(val, (uint8_t *)p);
+}
+
+/* Assume 48 bit value placed in uint64_t */
+static inline void put_unaligned_be48(uint64_t val, void *p)
+{
+        __put_unaligned_be48(val, (uint8_t *)p);
+}
+
+static inline void put_unaligned_be64(uint64_t val, void *p)
+{
+        __put_unaligned_be64(val, (uint8_t *)p);
+}
+
+/* Below are the little endian equivalents of the big endian functions
+ * above. Little endian is used by ATA, PCI and NVMe.
+ */
+
+static inline uint16_t __get_unaligned_le16(const uint8_t *p)
+{
+        return p[1] << 8 | p[0];
+}
+
+static inline uint32_t __get_unaligned_le32(const uint8_t *p)
+{
+        return p[3] << 24 | p[2] << 16 | p[1] << 8 | p[0];
+}
+
+static inline uint64_t __get_unaligned_le64(const uint8_t *p)
+{
+        return (uint64_t)__get_unaligned_le32(p + 4) << 32 |
+               __get_unaligned_le32(p);
+}
+
+static inline void __put_unaligned_le16(uint16_t val, uint8_t *p)
+{
+        *p++ = val;
+        *p++ = val >> 8;
+}
+
+static inline void __put_unaligned_le32(uint32_t val, uint8_t *p)
+{
+        __put_unaligned_le16(val >> 16, p + 2);
+        __put_unaligned_le16(val, p);
+}
+
+static inline void __put_unaligned_le64(uint64_t val, uint8_t *p)
+{
+        __put_unaligned_le32(val >> 32, p + 4);
+        __put_unaligned_le32(val, p);
+}
+
+static inline uint16_t get_unaligned_le16(const void *p)
+{
+        return __get_unaligned_le16((const uint8_t *)p);
+}
+
+static inline uint32_t get_unaligned_le24(const void *p)
+{
+        return (uint32_t)__get_unaligned_le16((const uint8_t *)p) |
+               ((const uint8_t *)p)[2] << 16;
+}
+
+static inline uint32_t get_unaligned_le32(const void *p)
+{
+        return __get_unaligned_le32((const uint8_t *)p);
+}
+
+/* Assume 48 bit value placed in uint64_t */
+static inline uint64_t get_unaligned_le48(const void *p)
+{
+        return (uint64_t)__get_unaligned_le16((const uint8_t *)p + 4) << 32 |
+               __get_unaligned_le32((const uint8_t *)p);
+}
+
+static inline uint64_t get_unaligned_le64(const void *p)
+{
+        return __get_unaligned_le64((const uint8_t *)p);
+}
+
+/* Returns 0 if 'num_bytes' is less than or equal to 0 or greater than
+ * 8 (i.e. sizeof(uint64_t)). Else returns result in uint64_t which is
+ * an 8 byte unsigned integer. */
+static inline uint64_t get_unaligned_le(int num_bytes, const void *p)
+{
+        if ((num_bytes <= 0) || (num_bytes > (int)sizeof(uint64_t)))
+                return 0;
+        else {
+                const uint8_t * xp = (const uint8_t *)p + (num_bytes - 1);
+                uint64_t res = *xp;
+
+                for (--xp; num_bytes > 1; --xp, --num_bytes)
+                        res = (res << 8) | *xp;
+                return res;
+        }
+}
+
+static inline void put_unaligned_le16(uint16_t val, void *p)
+{
+        __put_unaligned_le16(val, (uint8_t *)p);
+}
+
+static inline void put_unaligned_le24(uint32_t val, void *p)
+{
+        ((uint8_t *)p)[2] = (val >> 16) & 0xff;
+        ((uint8_t *)p)[1] = (val >> 8) & 0xff;
+        ((uint8_t *)p)[0] = val & 0xff;
+}
+
+static inline void put_unaligned_le32(uint32_t val, void *p)
+{
+        __put_unaligned_le32(val, (uint8_t *)p);
+}
+
+/* Assume 48 bit value placed in uint64_t */
+static inline void put_unaligned_le48(uint64_t val, void *p)
+{
+        ((uint8_t *)p)[5] = (val >> 40) & 0xff;
+        ((uint8_t *)p)[4] = (val >> 32) & 0xff;
+        ((uint8_t *)p)[3] = (val >> 24) & 0xff;
+        ((uint8_t *)p)[2] = (val >> 16) & 0xff;
+        ((uint8_t *)p)[1] = (val >> 8) & 0xff;
+        ((uint8_t *)p)[0] = val & 0xff;
+}
+
+static inline void put_unaligned_le64(uint64_t val, void *p)
+{
+        __put_unaligned_le64(val, (uint8_t *)p);
+}
+
+static bool
+all_zeros(const uint8_t * bp, int b_len)
+{
+    if ((NULL == bp) || (b_len <= 0))
+        return false;
+    for (--b_len; b_len >= 0; --b_len) {
+        if (0x0 != bp[b_len])
+            return false;
+    }
+    return true;
+}
+
+static bool
+all_ffs(const uint8_t * bp, int b_len)
+{
+    if ((NULL == bp) || (b_len <= 0))
+        return false;
+    for (--b_len; b_len >= 0; --b_len) {
+        if (0xff != bp[b_len])
+            return false;
+    }
+    return true;
+}
+
 static void
 scsiGetSupportedLogPages(scsi_device * device)
 {
@@ -286,7 +552,8 @@ scsiGetStartStopData(scsi_device * device)
         }
         extra = ucp[3] + 4;
         int pc = (ucp[0] << 8) + ucp[1];
-        UINT32 u;
+        UINT32 u = (extra > 7) ? get_unaligned_be32(ucp + 4) : 0;
+	bool is_all_ffs = (extra > 7) ? all_ffs(ucp + 4, 4) : false;
         switch (pc) {
         case 1:
             if (10 == extra)
@@ -297,34 +564,21 @@ scsiGetStartStopData(scsi_device * device)
             /* ignore Accounting date */
             break;
         case 3:
-            if (extra > 7) {
-                u = (ucp[4] << 24) | (ucp[5] << 16) | (ucp[6] << 8) | ucp[7];
-                if (0xffffffff != u)
-                    pout("Specified cycle count over device lifetime:  %u\n",
-                         u);
-            }
+            if ((extra > 7) && (! is_all_ffs))
+	        pout("Specified cycle count over device lifetime:  %u\n", u);
             break;
         case 4:
-            if (extra > 7) {
-                u = (ucp[4] << 24) | (ucp[5] << 16) | (ucp[6] << 8) | ucp[7];
-                if (0xffffffff != u)
-                    pout("Accumulated start-stop cycles:  %u\n", u);
-            }
+            if ((extra > 7) && (! is_all_ffs))
+	        pout("Accumulated start-stop cycles:  %u\n", u);
             break;
         case 5:
-            if (extra > 7) {
-                u = (ucp[4] << 24) | (ucp[5] << 16) | (ucp[6] << 8) | ucp[7];
-                if (0xffffffff != u)
-                    pout("Specified load-unload count over device "
-                         "lifetime:  %u\n", u);
-            }
+            if ((extra > 7) && (! is_all_ffs))
+	        pout("Specified load-unload count over device lifetime:  "
+		     "%u\n", u);
             break;
         case 6:
-            if (extra > 7) {
-                u = (ucp[4] << 24) | (ucp[5] << 16) | (ucp[6] << 8) | ucp[7];
-                if (0xffffffff != u)
-                    pout("Accumulated load-unload cycles:  %u\n", u);
-            }
+            if ((extra > 7) && (! is_all_ffs))
+	        pout("Accumulated load-unload cycles:  %u\n", u);
             break;
         default:
             /* ignore */
@@ -374,10 +628,9 @@ scsiPrintGrownDefectListLen(scsi_device * device)
             pout("Read defect list (12): generation=%d\n", generation);
             print_off();
         }
-        dl_len = (gBuf[4] << 24) + (gBuf[5] << 16) + (gBuf[6] << 8) + gBuf[7];
-    } else {
-        dl_len = (gBuf[2] << 8) + gBuf[3];
-    }
+        dl_len = get_unaligned_be32(gBuf + 4);
+    } else
+        dl_len = get_unaligned_be16(gBuf + 2);
     if (0x8 != (gBuf[1] & 0x18)) {
         print_on();
         pout("Read defect list: asked for grown list but didn't get it\n");
@@ -437,11 +690,11 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
         print_off();
         return;
     }
-    len = ((gBuf[2] << 8) | gBuf[3]) + 4;
+    len = get_unaligned_be16(gBuf + 2) + 4;
     num = len - 4;
     ucp = &gBuf[0] + 4;
     while (num > 3) {
-        pc = (ucp[0] << 8) | ucp[1];
+        pc = get_unaligned_be16(ucp + 0);
         pl = ucp[3] + 4;
         switch (pc) {
         case 0: case 1: case 2: case 3: case 4:
@@ -462,7 +715,7 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
     num = len - 4;
     ucp = &gBuf[0] + 4;
     while (num > 3) {
-        pc = (ucp[0] << 8) | ucp[1];
+        pc = get_unaligned_be16(ucp + 0);
         pl = ucp[3] + 4;
         switch (pc) {
         case 0: pout("  Blocks sent to initiator"); break;
@@ -475,17 +728,13 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
         default: pout("  Unknown Seagate parameter code [0x%x]", pc); break;
         }
         int k = pl - 4;
+	const int sz_ull = (int)sizeof(ull);
         unsigned char * xp = ucp + 4;
-        if (k > (int)sizeof(ull)) {
-            xp += (k - (int)sizeof(ull));
-            k = (int)sizeof(ull);
+        if (k > sz_ull) {
+            xp += (k - sz_ull);
+            k = sz_ull;
         }
-        ull = 0;
-        for (int j = 0; j < k; ++j) {
-            if (j > 0)
-                ull <<= 8;
-            ull |= xp[j];
-        }
+        ull = get_unaligned_be(k, xp + 0);
         pout(" = %" PRIu64 "\n", ull);
         num -= pl;
         ucp += pl;
@@ -736,7 +985,7 @@ scsiPrintSelfTest(scsi_device * device)
     int noheader = 1;
     int retval = 0;
     UINT8 * ucp;
-    uint64_t ull=0;
+    uint64_t ull;
     struct scsi_sense_disect sense_info;
 
     // check if test is running
@@ -771,8 +1020,6 @@ scsiPrintSelfTest(scsi_device * device)
     }
     // loop through the twenty possible entries
     for (k = 0, ucp = gBuf + 4; k < 20; ++k, ucp += 20 ) {
-        int i;
-
         // timestamp in power-on hours (or zero if test in progress)
         int n = (ucp[6] << 8) | ucp[7];
 
@@ -849,12 +1096,10 @@ scsiPrintSelfTest(scsi_device * device)
             pout("   %5d", n);
 
         // construct 8-byte integer address of first failure
-        for (i = 0; i < 8; i++) {
-            ull <<= 8;
-            ull |= ucp[i+8];
-        }
+	ull = get_unaligned_be64(ucp + 8);
+	bool is_all_ffs = all_ffs(ucp + 8, 8);
         // print Address of First Failure, if sensible
-        if ((~(uint64_t)0 != ull) && (res > 0) && (res < 0xf)) {
+        if ((! is_all_ffs) && (res > 0) && (res < 0xf)) {
             char buff[32];
 
             // was hex but change to decimal to conform with ATA
@@ -1212,7 +1457,7 @@ show_sas_phy_event_info(int peis, unsigned int val, unsigned thresh_val)
 static void
 show_sas_port_param(unsigned char * ucp, int param_len)
 {
-    int j, m, n, nphys, t, sz, spld_len;
+    int j, m, nphys, t, sz, spld_len;
     unsigned char * vcp;
     char s[64];
 
@@ -1302,25 +1547,21 @@ show_sas_port_param(unsigned char * ucp, int param_len)
         pout("    attached target port: ssp=%d stp=%d smp=%d\n",
                !! (vcp[7] & 8), !! (vcp[7] & 4), !! (vcp[7] & 2));
         if (!dont_print_serial_number) {
-            uint64_t ull;
-            for (n = 0, ull = vcp[8]; n < 8; ++n) {
-                ull <<= 8; ull |= vcp[8 + n];
-            }
+            uint64_t ull = get_unaligned_be64(vcp + 8);
+
             pout("    SAS address = 0x%" PRIx64 "\n", ull);
-            for (n = 0, ull = vcp[16]; n < 8; ++n) {
-                ull <<= 8; ull |= vcp[16 + n];
-            }
+            ull = get_unaligned_be64(vcp + 16);
             pout("    attached SAS address = 0x%" PRIx64 "\n", ull);
         }
         pout("    attached phy identifier = %d\n", vcp[24]);
-        unsigned int ui;
-        ui = (vcp[32] << 24) | (vcp[33] << 16) | (vcp[34] << 8) | vcp[35];
+        unsigned int ui = get_unaligned_be32(vcp + 32);
+
         pout("    Invalid DWORD count = %u\n", ui);
-        ui = (vcp[36] << 24) | (vcp[37] << 16) | (vcp[38] << 8) | vcp[39];
+        ui = get_unaligned_be32(vcp + 36);
         pout("    Running disparity error count = %u\n", ui);
-        ui = (vcp[40] << 24) | (vcp[41] << 16) | (vcp[42] << 8) | vcp[43];
+        ui = get_unaligned_be32(vcp + 40);
         pout("    Loss of DWORD synchronization = %u\n", ui);
-        ui = (vcp[44] << 24) | (vcp[45] << 16) | (vcp[46] << 8) | vcp[47];
+        ui = get_unaligned_be32(vcp + 44);
         pout("    Phy reset problem = %u\n", ui);
         if (spld_len > 51) {
             int num_ped;
@@ -1526,12 +1767,16 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
           vendor, (*vendor && *product ? " " : ""), product);
         if (gBuf[32] >= ' ') {
             jout("Revision:             %.4s\n", revision);
-            jglb["firmware_version"] = revision;
+            // jglb["firmware_version"] = revision;
+            jglb["revision"] = revision;
         }
-        if (scsi_version == 0x6)
-            pout("Compliance:           SPC-4\n");
-        else if (scsi_version == 0x7)
-            pout("Compliance:           SPC-5\n");
+	if ((scsi_version > 0x3) && (scsi_version < 0x8)) {
+	    char sv_arr[8];
+
+	    snprintf(sv_arr, sizeof(sv_arr), "SPC-%d", scsi_version - 2);
+            jout("Compliance:           %s\n", sv_arr);
+	    jglb["scsi_version"] = sv_arr;
+	}
     }
 
     if (!*device->get_req_type()/*no type requested*/ &&
@@ -1594,10 +1839,15 @@ scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
                         break;
                     }
                     int p_i_exp = ((rc16_12[1] >> 4) & 0xf);
+		    int p_i_per_lb = (1 << p_i_exp);
+		    const int pi_sz = 8;	/* ref-tag(4 bytes),
+						   app-tag(2), tag-mask(2) */
 
                     if (p_i_exp > 0)
                         pout("%d protection information intervals per "
-                             "logical block\n", (1 << p_i_exp));
+                             "logical block\n", p_i_per_lb);
+		    pout("%d bytes of protection information per logical "
+			 "block\n", pi_sz * p_i_per_lb);
                 }
                 /* Pick up some LB provisioning info since its available */
                 lbpme = !! (rc16_12[2] & 0x80);
