@@ -1,4 +1,9 @@
-$Id: ChangeLog 4661 2017-12-17 17:59:19Z chrfranke $
+$Id: ChangeLog 4663 2017-12-21 14:07:06Z dpgilbert $
+
+2017-12-21  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: Start some JSON work. Other cleanups and helper
+	functions; potentially new header for those helpers.
 
 2017-12-17  Christian Franke  <franke@computer.org>
 
