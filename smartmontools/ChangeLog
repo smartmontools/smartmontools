@@ -1,4 +1,7 @@
-$Id: ChangeLog 4663 2017-12-21 14:07:06Z dpgilbert $
+$Id: ChangeLog 4664 2017-12-22 07:46:55Z samm2 $
+
+2017-12-22  Alex Samorukov  <samm@os2.kiev.ua>
+	configure.ac: add -lsbuf to FreeBSD libs to fix static builds.
 
 2017-12-21  Douglas Gilbert  <dgilbert@interlog.com>
 
