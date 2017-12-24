@@ -135,6 +135,8 @@ jobs:
       - *sm_compile_linux32
       - *sm_compile_win
       - *sm_compile_darwin
+      - *sm_compile_freebsd
+
       - store_artifacts:
           path: /artefacts
           destination: builds
