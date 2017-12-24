@@ -99,7 +99,7 @@ references:
         mv smartmontools-${SM_VER}-r${SVNREV}.dmg "/artefacts/" &&
         rm -rf ~/build
 
-  sm_comple_freebsd: &sm_compile_freebd
+  sm_compile_freebsd: &sm_compile_freebd
     run:
       name: Creating static FreeBSD-10.4/amd64 binaries
       command: |
