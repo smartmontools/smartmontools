@@ -1,5 +1,8 @@
 $Id$
 
+2017-12-24  Alex Samorukov  <samm@os2.kiev.ua>
+	CircleCI: add FreeBSD cross compilation
+
 2017-12-22  Alex Samorukov  <samm@os2.kiev.ua>
 	configure.ac: add -lsbuf to FreeBSD libs to fix static builds.
 
