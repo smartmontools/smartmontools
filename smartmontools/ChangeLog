@@ -1,4 +1,12 @@
-$Id: ChangeLog 4670 2017-12-27 05:50:47Z dpgilbert $
+$Id: ChangeLog 4671 2017-12-27 07:12:50Z dpgilbert $
+
+2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
+
+	nvmecmds.cpp: according to NVMe 1.3a spec, the SMART/
+	health information log page is global and should take
+	the global nsid (all ff_s). It also says the Error
+	info lpage is "global. Broke WD Black PCIe (NVMe)
+	SSD but worked on Intel SSDs. Fix; could break others.
 
 2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
 

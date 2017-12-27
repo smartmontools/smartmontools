@@ -21,7 +21,7 @@
 #ifndef NVMECMDS_H
 #define NVMECMDS_H
 
-#define NVMECMDS_H_CVSID "$Id: nvmecmds.h 4488 2017-09-25 11:54:15Z samm2 $"
+#define NVMECMDS_H_CVSID "$Id: nvmecmds.h 4671 2017-12-27 07:12:50Z dpgilbert $"
 
 #include "int64.h"
 
@@ -248,7 +248,8 @@ bool nvme_read_id_ctrl(nvme_device * device, smartmontools::nvme_id_ctrl & id_ct
 bool nvme_read_id_ns(nvme_device * device, unsigned nsid, smartmontools::nvme_id_ns & id_ns);
 
 // Read NVMe log page with identifier LID.
-bool nvme_read_log_page(nvme_device * device, unsigned char lid, void * data, unsigned size);
+bool nvme_read_log_page(nvme_device * device, unsigned char lid, void * data,
+	       		unsigned size, bool broadcast_nsid);
 
 // Read NVMe Error Information Log.
 bool nvme_read_error_log(nvme_device * device, smartmontools::nvme_error_log_page * error_log,
