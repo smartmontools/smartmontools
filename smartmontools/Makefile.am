@@ -84,7 +84,8 @@ smartctl_SOURCES = \
         scsiprint.cpp \
         scsiprint.h \
         utility.cpp \
-        utility.h
+        utility.h \
+        unaligned.h
 
 smartctl_LDADD = $(os_deps) $(os_libs)
 smartctl_DEPENDENCIES = $(os_deps)
@@ -150,7 +151,8 @@ smartd_SOURCES = \
         scsicmds.h \
         scsiata.cpp \
         utility.cpp \
-        utility.h
+        utility.h \
+        unaligned.h
 
 smartd_LDADD = $(os_deps) $(os_libs) $(CAPNG_LDADD)
 smartd_DEPENDENCIES = $(os_deps)

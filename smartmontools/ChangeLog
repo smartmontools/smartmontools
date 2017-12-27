@@ -1,5 +1,9 @@
 $Id$
 
+2017-12-27  Alex Samorukov <samm@os2.kiev.ua>
+
+	Add unaligned.h header file to the Makefile.am
+
 2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
 
 	Add unaligned.h header file; has get and put variants of
