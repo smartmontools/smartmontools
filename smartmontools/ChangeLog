@@ -1,4 +1,8 @@
-$Id: ChangeLog 4673 2017-12-27 17:44:24Z dpgilbert $
+$Id: ChangeLog 4674 2017-12-27 18:18:41Z samm2 $
+
+2017-12-27  Alex Samorukov <samm@os2.kiev.ua>
+
+	Add unaligned.h header file to the Makefile.am
 
 2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
 
