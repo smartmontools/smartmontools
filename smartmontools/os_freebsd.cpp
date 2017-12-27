@@ -80,7 +80,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4631 2017-11-21 20:41:17Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4670 2017-12-27 05:50:47Z dpgilbert $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -519,6 +519,7 @@ bool freebsd_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out
 {
   // nvme_passthru_cmd pt;
   struct nvme_pt_command pt;
+  struct nvme_completion *cp_p;
   memset(&pt, 0, sizeof(pt));
 
   pt.cmd.opc = in.opcode;
@@ -538,10 +539,14 @@ bool freebsd_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out
   if (status < 0)
     return set_err(errno, "NVME_PASSTHROUGH_CMD: %s", strerror(errno));
 
-  out.result=pt.cpl.cdw0; // Command specific result (DW0)
+  cp_p = &pt.cpl;
+  out.result=cp_p->cdw0; // Command specific result (DW0)
 
-  if (nvme_completion_is_error(&pt.cpl))
-    return set_nvme_err(out, nvme_completion_is_error(&pt.cpl));
+  if (nvme_completion_is_error(cp_p)) {  /* ignore DNR and More bits */
+    uint16_t nvme_status = ((cp_p->status.sct << 8) | cp_p->status.sc) & 0x3ff;
+
+    return set_nvme_err(out, nvme_status);
+  }
 
   return true;
 }
