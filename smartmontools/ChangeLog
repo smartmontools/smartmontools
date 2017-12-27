@@ -2,6 +2,11 @@ $Id$
 
 2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
 
+	Remove UINT8, INT8, UINT32 and INT32 typedefs in favour
+	of the types from <stdint.h>; for example uint8_t
+
+2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
+
 	nvmecmds.cpp: according to NVMe 1.3a spec, the SMART/
 	health information log page is global and should take
 	the global nsid (all ff_s). It also says the Error

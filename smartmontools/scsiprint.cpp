@@ -44,7 +44,7 @@ const char * scsiprint_c_cvsid = "$Id$"
                                  SCSIPRINT_H_CVSID;
 
 
-UINT8 gBuf[GBUF_SIZE];
+uint8_t gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
 #define LOG_RESP_LONG_LEN ((62 * 256) + 252)
 #define LOG_RESP_TAPE_ALERT_LEN 0x144
@@ -421,10 +421,10 @@ scsiGetSupportedLogPages(scsi_device * device)
 static int
 scsiGetSmartData(scsi_device * device, bool attribs)
 {
-    UINT8 asc;
-    UINT8 ascq;
-    UINT8 currenttemp = 255;
-    UINT8 triptemp = 255;
+    uint8_t asc;
+    uint8_t ascq;
+    uint8_t currenttemp = 255;
+    uint8_t triptemp = 255;
     const char * cp;
     int err = 0;
     print_on();
@@ -552,7 +552,7 @@ scsiGetStartStopData(scsi_device * device)
         }
         extra = ucp[3] + 4;
         int pc = (ucp[0] << 8) + ucp[1];
-        UINT32 u = (extra > 7) ? get_unaligned_be32(ucp + 4) : 0;
+        uint32_t u = (extra > 7) ? get_unaligned_be32(ucp + 4) : 0;
 	bool is_all_ffs = (extra > 7) ? all_ffs(ucp + 4, 4) : false;
         switch (pc) {
         case 1:
@@ -984,7 +984,7 @@ scsiPrintSelfTest(scsi_device * device)
     int num, k, err, durationSec;
     int noheader = 1;
     int retval = 0;
-    UINT8 * ucp;
+    uint8_t * ucp;
     uint64_t ull;
     struct scsi_sense_disect sense_info;
 
@@ -1165,7 +1165,7 @@ scsiPrintBackgroundResults(scsi_device * device)
     int noheader = 1;
     int firstresult = 1;
     int retval = 0;
-    UINT8 * ucp;
+    uint8_t * ucp;
 
     if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1272,7 +1272,7 @@ scsiPrintSSMedia(scsi_device * device)
 {
     int num, err, truncated;
     int retval = 0;
-    UINT8 * ucp;
+    uint8_t * ucp;
 
     if ((err = scsiLogSense(device, SS_MEDIA_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1706,7 +1706,7 @@ static const char * transport_proto_arr[] = {
 
 /* Returns 0 on success, 1 on general error and 2 for early, clean exit */
 static int
-scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, bool all)
+scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
 {
     struct scsi_iec_mode_page iec;
     int err, iec_err, len, req_len, avail_len, scsi_version;
@@ -2142,8 +2142,8 @@ scsiSmartDisable(scsi_device * device)
 static void
 scsiPrintTemp(scsi_device * device)
 {
-    UINT8 temp = 255;
-    UINT8 trip = 255;
+    uint8_t temp = 255;
+    uint8_t trip = 255;
 
     if (scsiGetTemp(device, &temp, &trip))
         return;
@@ -2166,7 +2166,7 @@ int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 {
     int checkedSupportedLogPages = 0;
-    UINT8 peripheral_type = 0;
+    uint8_t peripheral_type = 0;
     int returnval = 0;
     int res, durationSec;
     struct scsi_sense_disect sense_info;

@@ -742,7 +742,7 @@ struct linux_ioctl_send_command
 {
     int inbufsize;
     int outbufsize;
-    UINT8 buff[MAX_DXFER_LEN + 16];
+    uint8_t buff[MAX_DXFER_LEN + 16];
 };
 
 /* The Linux SCSI_IOCTL_SEND_COMMAND ioctl is primitive and it doesn't

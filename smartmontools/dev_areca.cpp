@@ -131,8 +131,8 @@ int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsig
   struct scsi_cmnd_io iop;
   int dir = DXFER_TO_DEVICE;
 
-  UINT8 cdb[10]={0};
-  UINT8 sense[32]={0};
+  uint8_t cdb[10]={0};
+  uint8_t sense[32]={0};
 
   unsigned char *areca_return_packet;
   int total = 0;

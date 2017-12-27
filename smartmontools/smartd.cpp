@@ -2269,9 +2269,9 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   int err, req_len, avail_len, version, len;
   const char *device = cfg.name.c_str();
   struct scsi_iec_mode_page iec;
-  UINT8  tBuf[64];
-  UINT8  inqBuf[96];
-  UINT8  vpdBuf[252];
+  uint8_t  tBuf[64];
+  uint8_t  inqBuf[96];
+  uint8_t  vpdBuf[252];
   char lu_id[64], serial[256], vendor[40], model[40];
 
   // Device must be open
@@ -2433,10 +2433,10 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   
   // Check if scsiCheckIE() is going to work
   {
-    UINT8 asc = 0;
-    UINT8 ascq = 0;
-    UINT8 currenttemp = 0;
-    UINT8 triptemp = 0;
+    uint8_t asc = 0;
+    uint8_t ascq = 0;
+    uint8_t currenttemp = 0;
+    uint8_t triptemp = 0;
     
     if (scsiCheckIE(scsidev, state.SmartPageSupported, state.TempPageSupported,
                     &asc, &ascq, &currenttemp, &triptemp)) {
@@ -3544,8 +3544,8 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
 
   const char * name = cfg.name.c_str();
 
-  UINT8 asc = 0, ascq = 0;
-  UINT8 currenttemp = 0, triptemp = 0;
+  uint8_t asc = 0, ascq = 0;
+  uint8_t currenttemp = 0, triptemp = 0;
   if (!state.SuppressReport) {
     if (scsiCheckIE(scsidev, state.SmartPageSupported, state.TempPageSupported,
                     &asc, &ascq, &currenttemp, &triptemp)) {
@@ -3583,7 +3583,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
   }
   if (!cfg.attrlog_file.empty()){
     // saving error counters to state
-    UINT8 tBuf[252];
+    uint8_t tBuf[252];
     if (state.ReadECounterPageSupported && (0 == scsiLogSense(scsidev,
       READ_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
       scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[0].errCounter);

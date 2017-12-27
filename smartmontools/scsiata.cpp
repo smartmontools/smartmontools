@@ -1567,7 +1567,9 @@ ata_device * smart_interface::autodetect_sat_device(scsi_device * scsidev,
     return 0;
 
   // SAT ?
-  if (inqdata && inqsize >= 36 && !memcmp(inqdata + 8, "ATA     ", 8)) { // TODO: Linux-specific?
+  if (inqdata && inqsize >= 36 && !memcmp(inqdata + 8, "ATA     ", 8)) {
+    // TODO: Linux-specific? No, all SAT standards say the 'T10 Vendor
+    // Identification' field shall be 'ATA     '.
     ata_device_auto_ptr atadev( new sat_device(this, scsidev, "") , scsidev);
     if (has_sat_pass_through(atadev.get()))
       return atadev.release(); // Detected SAT

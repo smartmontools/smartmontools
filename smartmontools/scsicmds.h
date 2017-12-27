@@ -34,6 +34,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
@@ -102,10 +103,6 @@
 #define SAT_ATA_PASSTHROUGH_16 0x85
 #endif
 
-typedef unsigned char UINT8;
-typedef signed char INT8;
-typedef unsigned int UINT32;
-typedef int INT32;
 
 #define DXFER_NONE        0
 #define DXFER_FROM_DEVICE 1
@@ -113,58 +110,58 @@ typedef int INT32;
 
 struct scsi_cmnd_io
 {
-    UINT8 * cmnd;       /* [in]: ptr to SCSI command block (cdb) */
+    uint8_t * cmnd;     /* [in]: ptr to SCSI command block (cdb) */
     size_t  cmnd_len;   /* [in]: number of bytes in SCSI command */
     int dxfer_dir;      /* [in]: DXFER_NONE, DXFER_FROM_DEVICE, or
                                  DXFER_TO_DEVICE */
-    UINT8 * dxferp;     /* [in]: ptr to outgoing or incoming data buffer */
+    uint8_t * dxferp;   /* [in]: ptr to outgoing or incoming data buffer */
     size_t dxfer_len;   /* [in]: bytes to be transferred to/from dxferp */
-    UINT8 * sensep;     /* [in]: ptr to sense buffer, filled when
+    uint8_t * sensep;   /* [in]: ptr to sense buffer, filled when
                                  CHECK CONDITION status occurs */
     size_t max_sense_len; /* [in]: max number of bytes to write to sensep */
     unsigned timeout;   /* [in]: seconds, 0-> default timeout (60 seconds?) */
     size_t resp_sense_len;  /* [out]: sense buffer length written */
-    UINT8 scsi_status;  /* [out]: 0->ok, 2->CHECK CONDITION, etc ... */
+    uint8_t scsi_status;  /* [out]: 0->ok, 2->CHECK CONDITION, etc ... */
     int resid;          /* [out]: Number of bytes requested to be transferred
                                   less actual number transferred (0 if not
                                    supported) */
 };
 
 struct scsi_sense_disect {
-    UINT8 resp_code;
-    UINT8 sense_key;
-    UINT8 asc;
-    UINT8 ascq;
+    uint8_t resp_code;
+    uint8_t sense_key;
+    uint8_t asc;
+    uint8_t ascq;
     int progress; /* -1 -> N/A, 0-65535 -> available */
 };
 
 /* Useful data from Informational Exception Control mode page (0x1c) */
 #define SCSI_IECMP_RAW_LEN 64
 struct scsi_iec_mode_page {
-    UINT8 requestedCurrent;
-    UINT8 gotCurrent;
-    UINT8 requestedChangeable;
-    UINT8 gotChangeable;
-    UINT8 modese_len;   /* 0 (don't know), 6 or 10 */
-    UINT8 raw_curr[SCSI_IECMP_RAW_LEN];
-    UINT8 raw_chg[SCSI_IECMP_RAW_LEN];
+    uint8_t requestedCurrent;
+    uint8_t gotCurrent;
+    uint8_t requestedChangeable;
+    uint8_t gotChangeable;
+    uint8_t modese_len;   /* 0 (don't know), 6 or 10 */
+    uint8_t raw_curr[SCSI_IECMP_RAW_LEN];
+    uint8_t raw_chg[SCSI_IECMP_RAW_LEN];
 };
 
 /* Carrier for Error counter log pages (e.g. read, write, verify ...) */
 struct scsiErrorCounter {
-    UINT8 gotPC[7];
-    UINT8 gotExtraPC;
+    uint8_t gotPC[7];
+    uint8_t gotExtraPC;
     uint64_t counter[8];
 };
 
 /* Carrier for Non-medium error log page */
 struct scsiNonMediumError {
-    UINT8 gotPC0;
-    UINT8 gotExtraPC;
+    uint8_t gotPC0;
+    uint8_t gotExtraPC;
     uint64_t counterPC0;
-    UINT8 gotTFE_H;
+    uint8_t gotTFE_H;
     uint64_t counterTFE_H; /* Track following errors [Hitachi] */
-    UINT8 gotPE_H;
+    uint8_t gotPE_H;
     uint64_t counterPE_H;  /* Positioning errors [Hitachi] */
 };
 
@@ -358,46 +355,46 @@ int scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s,
 /* STANDARD SCSI Commands  */
 int scsiTestUnitReady(scsi_device * device);
 
-int scsiStdInquiry(scsi_device * device, UINT8 *pBuf, int bufLen);
+int scsiStdInquiry(scsi_device * device, uint8_t *pBuf, int bufLen);
 
-int scsiInquiryVpd(scsi_device * device, int vpd_page, UINT8 *pBuf, int bufLen);
+int scsiInquiryVpd(scsi_device * device, int vpd_page, uint8_t *pBuf, int bufLen);
 
-int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
+int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
                  int bufLen, int known_resp_len);
 
 int scsiLogSelect(scsi_device * device, int pcr, int sp, int pc, int pagenum,
-                  int subpagenum, UINT8 *pBuf, int bufLen);
+                  int subpagenum, uint8_t *pBuf, int bufLen);
 
 int scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
-                  UINT8 *pBuf, int bufLen);
+                  uint8_t *pBuf, int bufLen);
 
-int scsiModeSelect(scsi_device * device, int sp, UINT8 *pBuf, int bufLen);
+int scsiModeSelect(scsi_device * device, int sp, uint8_t *pBuf, int bufLen);
 
 int scsiModeSense10(scsi_device * device, int pagenum, int subpagenum, int pc,
-                    UINT8 *pBuf, int bufLen);
+                    uint8_t *pBuf, int bufLen);
 
-int scsiModeSelect10(scsi_device * device, int sp, UINT8 *pBuf, int bufLen);
+int scsiModeSelect10(scsi_device * device, int sp, uint8_t *pBuf, int bufLen);
 
-int scsiModePageOffset(const UINT8 * resp, int len, int modese_len);
+int scsiModePageOffset(const uint8_t * resp, int len, int modese_len);
 
 int scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info);
 
-int scsiSendDiagnostic(scsi_device * device, int functioncode, UINT8 *pBuf, int bufLen);
+int scsiSendDiagnostic(scsi_device * device, int functioncode, uint8_t *pBuf, int bufLen);
 
 int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist, int dl_format,
-                     UINT8 *pBuf, int bufLen);
+                     uint8_t *pBuf, int bufLen);
 
 int scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
-                     int dl_format, int addrDescIndex, UINT8 *pBuf, int bufLen);
+                     int dl_format, int addrDescIndex, uint8_t *pBuf, int bufLen);
 
 int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbp,
                        unsigned int * lb_sizep);
 
-int scsiReadCapacity16(scsi_device * device, UINT8 *pBuf, int bufLen);
+int scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen);
 
 /* SMART specific commands */
-int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage, UINT8 *asc,
-                UINT8 *ascq, UINT8 *currenttemp, UINT8 *triptemp);
+int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage, uint8_t *asc,
+                uint8_t *ascq, uint8_t *currenttemp, uint8_t *triptemp);
 
 int scsiFetchIECmpage(scsi_device * device, struct scsi_iec_mode_page *iecp,
                       int modese_len);
@@ -425,8 +422,8 @@ uint64_t scsiGetSize(scsi_device * device, unsigned int * lb_sizep,
 int scsiGetProtPBInfo(scsi_device * device, unsigned char * rc16_12_31p);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
-const char* scsiGetIEString(UINT8 asc, UINT8 ascq);
-int scsiGetTemp(scsi_device * device, UINT8 *currenttemp, UINT8 *triptemp);
+const char* scsiGetIEString(uint8_t asc, uint8_t ascq);
+int scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp);
 
 
 int scsiSmartDefaultSelfTest(scsi_device * device);
@@ -439,7 +436,7 @@ int scsiSmartSelfTestAbort(scsi_device * device);
 const char * scsiTapeAlertsTapeDevice(unsigned short code);
 const char * scsiTapeAlertsChangerDevice(unsigned short code);
 
-const char * scsi_get_opcode_name(UINT8 opcode);
+const char * scsi_get_opcode_name(uint8_t opcode);
 void scsi_format_id_string(char * out, const unsigned char * in, int n);
 
 void dStrHex(const char* str, int len, int no_ascii);
