@@ -21,7 +21,7 @@
 #include "dev_interface.h"
 #include "dev_areca.h"
 
-const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4582 2017-11-03 20:54:56Z chrfranke $"
+const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4672 2017-12-27 16:22:21Z dpgilbert $"
   DEV_ARECA_H_CVSID;
 
 #include "atacmds.h"
@@ -131,8 +131,8 @@ int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsig
   struct scsi_cmnd_io iop;
   int dir = DXFER_TO_DEVICE;
 
-  UINT8 cdb[10]={0};
-  UINT8 sense[32]={0};
+  uint8_t cdb[10]={0};
+  uint8_t sense[32]={0};
 
   unsigned char *areca_return_packet;
   int total = 0;

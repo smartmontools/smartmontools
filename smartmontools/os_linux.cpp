@@ -106,7 +106,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4636 2017-12-02 15:01:22Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4672 2017-12-27 16:22:21Z dpgilbert $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -742,7 +742,7 @@ struct linux_ioctl_send_command
 {
     int inbufsize;
     int outbufsize;
-    UINT8 buff[MAX_DXFER_LEN + 16];
+    uint8_t buff[MAX_DXFER_LEN + 16];
 };
 
 /* The Linux SCSI_IOCTL_SEND_COMMAND ioctl is primitive and it doesn't

@@ -1,4 +1,9 @@
-$Id: ChangeLog 4671 2017-12-27 07:12:50Z dpgilbert $
+$Id: ChangeLog 4672 2017-12-27 16:22:21Z dpgilbert $
+
+2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
+
+	Remove UINT8, INT8, UINT32 and INT32 typedefs in favour
+	of the types from <stdint.h>; for example uint8_t
 
 2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
 

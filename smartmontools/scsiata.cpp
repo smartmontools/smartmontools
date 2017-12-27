@@ -62,7 +62,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4386 2017-01-28 16:35:06Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4672 2017-12-27 16:22:21Z dpgilbert $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -1567,7 +1567,9 @@ ata_device * smart_interface::autodetect_sat_device(scsi_device * scsidev,
     return 0;
 
   // SAT ?
-  if (inqdata && inqsize >= 36 && !memcmp(inqdata + 8, "ATA     ", 8)) { // TODO: Linux-specific?
+  if (inqdata && inqsize >= 36 && !memcmp(inqdata + 8, "ATA     ", 8)) {
+    // TODO: Linux-specific? No, all SAT standards say the 'T10 Vendor
+    // Identification' field shall be 'ATA     '.
     ata_device_auto_ptr atadev( new sat_device(this, scsidev, "") , scsidev);
     if (has_sat_pass_through(atadev.get()))
       return atadev.release(); // Detected SAT
