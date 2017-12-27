@@ -46,8 +46,9 @@
 #include "atacmds.h" // FIXME: for smart_command_set only
 #include "dev_interface.h"
 #include "utility.h"
+#include "unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4672 2017-12-27 16:22:21Z dpgilbert $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4673 2017-12-27 17:44:24Z dpgilbert $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?

@@ -1,4 +1,10 @@
-$Id: ChangeLog 4672 2017-12-27 16:22:21Z dpgilbert $
+$Id: ChangeLog 4673 2017-12-27 17:44:24Z dpgilbert $
+
+2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
+
+	Add unaligned.h header file; has get and put variants of
+	unaligned be16,24,32,48,64 and le16,24,32,48,64 copies
+	plus all_zeros() and all_ffs() helpers. All inline.
 
 2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
 
