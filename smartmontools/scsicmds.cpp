@@ -46,6 +46,7 @@
 #include "atacmds.h" // FIXME: for smart_command_set only
 #include "dev_interface.h"
 #include "utility.h"
+#include "unaligned.h"
 
 const char *scsicmds_c_cvsid="$Id$"
   SCSICMDS_H_CVSID;

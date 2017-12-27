@@ -2,6 +2,12 @@ $Id$
 
 2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
 
+	Add unaligned.h header file; has get and put variants of
+	unaligned be16,24,32,48,64 and le16,24,32,48,64 copies
+	plus all_zeros() and all_ffs() helpers. All inline.
+
+2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
+
 	Remove UINT8, INT8, UINT32 and INT32 typedefs in favour
 	of the types from <stdint.h>; for example uint8_t
 
