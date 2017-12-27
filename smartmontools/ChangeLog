@@ -1,5 +1,10 @@
 $Id$
 
+2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
+
+	os_freebsd.cpp: on error was setting set_nvme_err() to 1,
+	not the actual NVMe status value; fix.
+
 2017-12-24  Alex Samorukov  <samm@os2.kiev.ua>
 	CircleCI: add FreeBSD cross compilation
 
