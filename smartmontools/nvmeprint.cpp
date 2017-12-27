@@ -473,9 +473,21 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
   if (options.log_page_size) {
     // Align size to dword boundary
     unsigned size = ((options.log_page_size + 4-1) / 4) * 4;
+    bool broadcast_nsid;
     raw_buffer log_buf(size);
 
-    if (!nvme_read_log_page(device, options.log_page, log_buf.data(), size)) {
+    switch (options.log_page) {
+    case 1:
+    case 2:
+    case 3:
+      broadcast_nsid = true;
+      break;
+    default:
+      broadcast_nsid = false;
+      break;
+    }
+    if (!nvme_read_log_page(device, options.log_page, log_buf.data(),
+			    size, broadcast_nsid)) {
       pout("Read NVMe Log 0x%02x failed: %s\n\n", options.log_page, device->get_errmsg());
       return retval | FAILSMART;
     }
