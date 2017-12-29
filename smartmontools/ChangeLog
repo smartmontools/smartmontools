@@ -2,6 +2,17 @@ $Id$
 
 2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
 
+	Add --enable-scsi-cdb-check option to ./configure that
+	results in a SCSI cdb sanity check prior to SCSI generic
+	pass-through in Linux. [So it does not sanity check
+	Megaraid and 3ware (etc) pass-throughs (but could).] When
+	selected defines SCSI_CDB_CHECK in config.h . This may be
+	temporary. This patch is an attempt to catch strange
+	frames (perhaps SATA FIS) being sent to the SCSI
+	pass-through.
+
+2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
 	Rework scsiGetSize() and remove scsiGetProtPBInfo().
 	Convert scsicmds.cpp to use unaligned.h get and put.
 

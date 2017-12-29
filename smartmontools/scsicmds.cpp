@@ -142,6 +142,74 @@ dStrHex(const char* str, int len, int no_ascii)
     }
 }
 
+/* This is a heuristic that takes into account the command bytes and length
+ * to decide whether the presented unstructured sequence of bytes could be
+ * a SCSI command. If so it returns true otherwise false. Vendor specific
+ * SCSI commands (i.e. opcodes from 0xc0 to 0xff), if presented, are assumed
+ * to follow SCSI conventions (i.e. length of 6, 10, 12 or 16 bytes). The
+ * only SCSI commands considered above 16 bytes of length are the Variable
+ * Length Commands (opcode 0x7f) and the XCDB wrapped commands (opcode 0x7e).
+ * Both have an inbuilt length field which can be cross checked with clen.
+ * No NVMe commands (64 bytes long plus some extra added by some OSes) have
+ * opcodes 0x7e or 0x7f yet. ATA is register based but SATA has FIS
+ * structures that are sent across the wire. The FIS register structure is
+ * used to move a command from a SATA host to device, but the ATA 'command'
+ * is not the first byte. So it is harder to say what will happen if a
+ * FIS structure is presented as a SCSI command, hopfully there is a low
+ * probability this function will yield true in that case. */
+bool
+is_scsi_cdb(const uint8_t * cdbp, int clen)
+{
+    int ilen, sa;
+    uint8_t opcode;
+    uint8_t top3bits;
+
+    if (clen < 6)
+        return false;
+    opcode = cdbp[0];
+    top3bits = opcode >> 5;
+    if (0x3 == top3bits) {	/* Opcodes 0x60 to 0x7f */
+        if ((clen < 12) || (clen % 4))
+            return false;       /* must be modulo 4 and 12 or more bytes */
+        switch (opcode) {
+        case 0x7e:      /* Extended cdb (XCDB) */
+            ilen = 4 + get_unaligned_be16(cdbp + 2);
+            return (ilen == clen);
+        case 0x7f:      /* Variable Length cdb */
+            ilen = 8 + cdbp[7];
+            sa = get_unaligned_be16(cdbp + 8);
+            /* service action (sa) 0x0 is reserved */
+            return ((ilen == clen) && sa);
+        default:
+            return false;
+        }
+    } else if (clen <= 16) {
+        switch (clen) {
+        case 6:
+            if (top3bits > 0x5)         /* vendor */
+                return true;
+            return (0x0 == top3bits);   /* 6 byte cdb */
+        case 10:
+            if (top3bits > 0x5)         /* vendor */
+                return true;
+            return ((0x1 == top3bits) || (0x2 == top3bits)); /* 10 byte cdb */
+        case 16:
+            if (top3bits > 0x5)         /* vendor */
+                return true;
+            return (0x4 == top3bits);   /* 16 byte cdb */
+        case 12:
+            if (top3bits > 0x5)         /* vendor */
+                return true;
+            return (0x5 == top3bits);   /* 12 byte cdb */
+        default:
+            return false;
+        }
+    }
+    /* NVMe probably falls out here, clen > 16 and (opcode < 0x60 or
+     * opcode > 0x7f). */
+    return false;
+}
+
 struct scsi_opcode_name {
     uint8_t opcode;
     const char * name;

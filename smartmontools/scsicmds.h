@@ -346,6 +346,22 @@ private:
 
 extern supported_vpd_pages * supported_vpd_pages_p;
 
+/* This is a heuristic that takes into account the command bytes and length
+ * to decide whether the presented unstructured sequence of bytes could be
+ * a SCSI command. If so it returns true otherwise false. Vendor specific
+ * SCSI commands (i.e. opcodes from 0xc0 to 0xff), if presented, are assumed
+ * to follow SCSI conventions (i.e. length of 6, 10, 12 or 16 bytes). The
+ * only SCSI commands considered above 16 bytes of length are the Variable
+ * Length Commands (opcode 0x7f) and the XCDB wrapped commands (opcode 0x7e).
+ * Both have an inbuilt length field which can be cross checked with clen.
+ * No NVMe commands (64 bytes long plus some extra added by some OSes) have
+ * opcodes 0x7e or 0x7f yet. ATA is register based but SATA has FIS
+ * structures that are sent across the wire. The FIS register structure is
+ * used to move a command from a SATA host to device, but the ATA 'command'
+ * is not the first byte. So it is harder to say what will happen if a
+ * FIS structure is presented as a SCSI command, hopfully there is a low
+ * probability this function will yield true in that case. */
+bool is_scsi_cdb(const uint8_t * cdbp, int clen);
 
 // Print SCSI debug messages?
 extern unsigned char scsi_debugmode;

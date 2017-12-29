@@ -322,6 +322,11 @@ AC_ARG_ENABLE(sample,
   [smartd_suffix=;])
 AC_SUBST(smartd_suffix)
 
+AC_ARG_ENABLE([scsi-cdb-check],
+	      AC_HELP_STRING([--enable-scsi-cdb-check], [do sanity check on each SCSI cdb]),
+  AC_DEFINE_UNQUOTED(SCSI_CDB_CHECK, 1, [enable check on SCSI cdbs], )
+)
+
 AC_ARG_WITH(os-deps,
   [AS_HELP_STRING([--with-os-deps='os_module.o ...'], [Specify OS dependent module(s) [guessed]])],
   [ for x in $with_os_deps; do

@@ -541,6 +541,22 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
     struct sg_io_hdr io_hdr_v3;
     struct sg_io_v4  io_hdr_v4;
 
+#ifdef SCSI_CDB_CHECK
+    bool ok = is_scsi_cdb(iop->cmnd, iop->cmnd_len);
+    if (! ok) {
+	int n = iop->cmnd_len;
+	const unsigned char * ucp = iop->cmnd;
+
+	pout(">>>>>>>> %s: cdb seems invalid, opcode=0x%x, len=%d, cdb:\n",
+	     __func__, ((n > 0) ? ucp[0] : 0), n);
+        if (n > 0) {
+	    if (n > 16)
+	        pout("  <<truncating to first 16 bytes>>\n");
+	    dStrHex((const char *)ucp, ((n > 16) ? 16 : n), 1);
+	}
+     }
+#endif
+
     if (report > 0) {
         int k, j;
         const unsigned char * ucp = iop->cmnd;
