@@ -2328,9 +2328,9 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
           scsi_format_id_string(serial, (const unsigned char *)&vpdBuf[4], len);
   }
 
-  unsigned int lb_size;
   char si_str[64];
-  uint64_t capacity = scsiGetSize(scsidev, &lb_size, NULL);
+  struct scsi_readcap_resp srr;
+  uint64_t capacity = scsiGetSize(scsidev, false /* avoid_rcap16 */, &srr);
 
   if (capacity)
     format_capacity(si_str, sizeof(si_str), capacity, ".");

@@ -1526,10 +1526,12 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     protect = gBuf[5] & 0x1;    /* from and including SPC-3 */
 
     if (! is_tape) {    /* assume disk if not tape drive (or tape changer) */
-        unsigned int lb_size = 0;
+	struct scsi_readcap_resp srr;
+	int lbpme = -1;
+	int lbprz = -1;
         unsigned char lb_prov_resp[8];
-        int lb_per_pb_exp = 0;
-        uint64_t capacity = scsiGetSize(device, &lb_size, &lb_per_pb_exp);
+        uint64_t capacity = scsiGetSize(device, false /*avoid_rcap16 */,
+		       			&srr);
 
         if (capacity) {
             char cap_str[64], si_str[64];
@@ -1537,56 +1539,45 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
             format_capacity(si_str, sizeof(si_str), capacity);
             jout("User Capacity:        %s bytes [%s]\n", cap_str, si_str);
             jglb["user_capacity"] = capacity;
-            jout("Logical block size:   %u bytes\n", lb_size);
-            jglb["logical_block_size"] = lb_size;
-        }
-        int lbpme = -1;
-        int lbprz = -1;
-        if (protect || lb_per_pb_exp) {
-            unsigned char rc16_12[20] = {0, };
-
-            if (0 == scsiGetProtPBInfo(device, rc16_12)) {
-                lb_per_pb_exp = rc16_12[1] & 0xf;       /* just in case */
-                if (lb_per_pb_exp > 0) {
-                    unsigned pb_size = lb_size * (1 << lb_per_pb_exp);
+            jout("Logical block size:   %u bytes\n", srr.lb_size);
+            jglb["logical_block_size"] = srr.lb_size;
+            if (protect || srr.lb_p_pb_exp) {
+                if (srr.lb_p_pb_exp > 0) {
+                    unsigned pb_size = srr.lb_size * (1 << srr.lb_p_pb_exp);
                     jout("Physical block size:  %u bytes\n", pb_size);
                     jglb["physical_block_size"] = pb_size;
-                    int n = ((rc16_12[2] & 0x3f) << 8) + rc16_12[3];
-                    if (n > 0)  // not common so cut the clutter
-                        pout("Lowest aligned LBA:   %d\n", n);
+                    if (srr.l_a_lba > 0)  // not common so cut the clutter
+                        pout("Lowest aligned LBA:   %u\n", srr.l_a_lba);
                 }
-                if (rc16_12[0] & 0x1) { /* PROT_EN set */
-                    int p_type = ((rc16_12[0] >> 1) & 0x7);
-
-                    switch (p_type) {
-                    case 0 :
+                if (srr.prot_type > 0) {
+                    switch (srr.prot_type) {
+                    case 1 :
                         pout("Formatted with type 1 protection\n");
                         break;
-                    case 1 :
+                    case 2 :
                         pout("Formatted with type 2 protection\n");
                         break;
-                    case 2 :
+                    case 3 :
                         pout("Formatted with type 3 protection\n");
                         break;
                     default:
                         pout("Formatted with unknown protection type [%d]\n",
-                             p_type);
+                             srr.prot_type);
                         break;
                     }
-                    int p_i_exp = ((rc16_12[1] >> 4) & 0xf);
-		    int p_i_per_lb = (1 << p_i_exp);
-		    const int pi_sz = 8;	/* ref-tag(4 bytes),
+		    unsigned p_i_per_lb = (1 << srr.p_i_exp);
+		    const unsigned pi_sz = 8;	/* ref-tag(4 bytes),
 						   app-tag(2), tag-mask(2) */
 
-                    if (p_i_exp > 0)
+                    if (p_i_per_lb > 1)
                         pout("%d protection information intervals per "
                              "logical block\n", p_i_per_lb);
 		    pout("%d bytes of protection information per logical "
 			 "block\n", pi_sz * p_i_per_lb);
                 }
                 /* Pick up some LB provisioning info since its available */
-                lbpme = !! (rc16_12[2] & 0x80);
-                lbprz = !! (rc16_12[2] & 0x40);
+                lbpme = (int)srr.lbpme;
+                lbprz = (int)srr.lbprz;
             }
         }
         /* Thin Provisioning VPD page renamed Logical Block Provisioning VPD

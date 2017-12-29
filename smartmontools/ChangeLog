@@ -1,5 +1,10 @@
 $Id$
 
+2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	Rework scsiGetSize() and remove scsiGetProtPBInfo().
+	Convert scsicmds.cpp to use unaligned.h get and put.
+
 2017-12-27  Alex Samorukov <samm@os2.kiev.ua>
 
 	Add unaligned.h header file to the Makefile.am
