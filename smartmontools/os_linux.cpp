@@ -106,7 +106,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4672 2017-12-27 16:22:21Z dpgilbert $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4677 2017-12-29 17:41:15Z dpgilbert $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -540,6 +540,22 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
     /* we are filling structures for both versions, but using only one requested */
     struct sg_io_hdr io_hdr_v3;
     struct sg_io_v4  io_hdr_v4;
+
+#ifdef SCSI_CDB_CHECK
+    bool ok = is_scsi_cdb(iop->cmnd, iop->cmnd_len);
+    if (! ok) {
+	int n = iop->cmnd_len;
+	const unsigned char * ucp = iop->cmnd;
+
+	pout(">>>>>>>> %s: cdb seems invalid, opcode=0x%x, len=%d, cdb:\n",
+	     __func__, ((n > 0) ? ucp[0] : 0), n);
+        if (n > 0) {
+	    if (n > 16)
+	        pout("  <<truncating to first 16 bytes>>\n");
+	    dStrHex((const char *)ucp, ((n > 16) ? 16 : n), 1);
+	}
+     }
+#endif
 
     if (report > 0) {
         int k, j;
