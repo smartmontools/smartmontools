@@ -30,7 +30,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 4672 2017-12-27 16:22:21Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 4675 2017-12-29 06:08:26Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -163,6 +163,19 @@ struct scsiNonMediumError {
     uint64_t counterTFE_H; /* Track following errors [Hitachi] */
     uint8_t gotPE_H;
     uint64_t counterPE_H;  /* Positioning errors [Hitachi] */
+};
+
+struct scsi_readcap_resp {
+    uint64_t num_lblocks;       /* Number of Logical Blocks on device */
+    uint32_t lb_size;   /* should be available in all non-error cases */
+    /* following fields from READ CAPACITY(16) or set to 0 */
+    uint8_t prot_type;  /* 0, 1, 2 or 3 protection type, deduced from
+                         * READ CAPACITY(16) P_TYPE and PROT_EN fields */
+    uint8_t p_i_exp;    /* Protection information Intervals Exponent */
+    uint8_t lb_p_pb_exp;/* Logical Blocks per Physical Block Exponent */
+    bool lbpme;         /* Logical Block Provisioning Management Enabled */
+    bool lbprz;         /* Logical Block Provisioning Read Zeros */
+    uint16_t l_a_lba;   /* Lowest Aligned Logical Block Address */
 };
 
 /* SCSI Peripheral types (of interest) */
@@ -417,9 +430,8 @@ int scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp,
                int * haw_zbcp);
 int scsiGetSetCache(scsi_device * device,  int modese_len, short int * wce,
                     short int * rcd);
-uint64_t scsiGetSize(scsi_device * device, unsigned int * lb_sizep,
-                     int * lb_per_pb_expp);
-int scsiGetProtPBInfo(scsi_device * device, unsigned char * rc16_12_31p);
+uint64_t scsiGetSize(scsi_device * device, bool avoid_rcap16,
+                     struct scsi_readcap_resp * srrp);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 const char* scsiGetIEString(uint8_t asc, uint8_t ascq);

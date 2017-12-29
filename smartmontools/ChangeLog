@@ -1,4 +1,9 @@
-$Id: ChangeLog 4674 2017-12-27 18:18:41Z samm2 $
+$Id: ChangeLog 4675 2017-12-29 06:08:26Z dpgilbert $
+
+2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	Rework scsiGetSize() and remove scsiGetProtPBInfo().
+	Convert scsicmds.cpp to use unaligned.h get and put.
 
 2017-12-27  Alex Samorukov <samm@os2.kiev.ua>
 
