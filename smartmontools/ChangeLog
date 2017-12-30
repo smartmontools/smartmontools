@@ -2,6 +2,11 @@ $Id$
 
 2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
 
+	unaligned.h: fix inconsistency in function argument
+	of get_unaligned_be24()
+
+2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
 	Add --enable-scsi-cdb-check option to ./configure that
 	results in a SCSI cdb sanity check prior to SCSI generic
 	pass-through in Linux. [So it does not sanity check
