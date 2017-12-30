@@ -1,4 +1,9 @@
-$Id: ChangeLog 4677 2017-12-29 17:41:15Z dpgilbert $
+$Id: ChangeLog 4678 2017-12-30 03:43:14Z dpgilbert $
+
+2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	unaligned.h: fix inconsistency in function argument
+	of get_unaligned_be24()
 
 2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
 
