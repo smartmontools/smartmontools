@@ -185,30 +185,47 @@ struct scsi_readcap_resp {
 #define SCSI_PT_MEDIUM_CHANGER          0x8
 #define SCSI_PT_ENCLOSURE               0xd
 
-/* ANSI SCSI-3 Log Pages retrieved by LOG SENSE. */
-#define SUPPORTED_LPAGES                        0x00
-#define BUFFER_OVERRUN_LPAGE                    0x01
-#define WRITE_ERROR_COUNTER_LPAGE               0x02
-#define READ_ERROR_COUNTER_LPAGE                0x03
-#define READ_REVERSE_ERROR_COUNTER_LPAGE        0x04
-#define VERIFY_ERROR_COUNTER_LPAGE              0x05
-#define NON_MEDIUM_ERROR_LPAGE                  0x06
-#define LAST_N_ERROR_LPAGE                      0x07
-#define FORMAT_STATUS_LPAGE                     0x08
-#define LB_PROV_LPAGE                           0x0c   /* SBC-3 */
-#define TEMPERATURE_LPAGE                       0x0d
-#define STARTSTOP_CYCLE_COUNTER_LPAGE           0x0e
-#define APPLICATION_CLIENT_LPAGE                0x0f
-#define SELFTEST_RESULTS_LPAGE                  0x10
-#define SS_MEDIA_LPAGE                          0x11   /* SBC-3 */
-#define BACKGROUND_RESULTS_LPAGE                0x15   /* SBC-3 */
-#define NONVOL_CACHE_LPAGE                      0x17   /* SBC-3 */
-#define PROTOCOL_SPECIFIC_LPAGE                 0x18
-#define IE_LPAGE                                0x2f
+/* SCSI Log Pages retrieved by LOG SENSE. 0x0 to 0x3f, 0x30 to 0x3e vendor */
+#define SUPPORTED_LPAGES                    0x00
+#define BUFFER_OVERRUN_LPAGE                0x01
+#define WRITE_ERROR_COUNTER_LPAGE           0x02
+#define READ_ERROR_COUNTER_LPAGE            0x03
+#define READ_REVERSE_ERROR_COUNTER_LPAGE    0x04
+#define VERIFY_ERROR_COUNTER_LPAGE          0x05
+#define NON_MEDIUM_ERROR_LPAGE              0x06
+#define LAST_N_ERROR_LPAGE                  0x07
+#define FORMAT_STATUS_LPAGE                 0x08
+#define LAST_N_DEFERRED_LPAGE               0x0b   /* or async events */
+#define LB_PROV_LPAGE                       0x0c   /* SBC-3 */
+#define TEMPERATURE_LPAGE                   0x0d
+#define STARTSTOP_CYCLE_COUNTER_LPAGE       0x0e
+#define APPLICATION_CLIENT_LPAGE            0x0f
+#define SELFTEST_RESULTS_LPAGE              0x10
+#define SS_MEDIA_LPAGE                      0x11   /* SBC-3 */
+#define BACKGROUND_RESULTS_LPAGE            0x15   /* SBC-3 */
+#define ATA_PT_RESULTS_LPAGE                0x16   /* SAT */
+#define NONVOL_CACHE_LPAGE                  0x17   /* SBC-3 */
+#define PROTOCOL_SPECIFIC_LPAGE             0x18
+#define GEN_STATS_PERF_LPAGE                0x19
+#define POWER_COND_TRANS_LPAGE              0x1a
+#define IE_LPAGE                            0x2f
+
+/* SCSI Log subpages (8 bits), added spc4r05 2006, standardized SPC-4 2015 */
+#define NO_SUBPAGE_L_SPAGE              0x0     /* 0x0-0x3f,0x0 */
+#define LAST_N_INQ_DAT_L_SPAGE          0x1     /* 0xb,0x1 */
+#define LAST_N_MODE_PG_L_SPAGE          0x2     /* 0xb,0x2 */
+#define ENVIRO_REP_L_SPAGE              0x1     /* 0xd,0x1 */
+#define ENVIRO_LIMITS_L_SPAGE           0x2     /* 0xd,0x2 */
+#define UTILIZATION_L_SPAGE             0x1     /* 0xe,0x1 */
+#define ZB_DEV_STATS_L_SPAGE            0x1     /* 0x14,0x1 */
+#define PEND_DEFECTS_L_SPAGE            0x1     /* 0x15,0x1 */
+#define BACKGROUND_OP_L_SPAGE           0x2     /* 0x15,0x2 */
+#define LPS_MISALIGN_L_SPAGE            0x3     /* 0x15,0x3 */
+#define SUPP_SPAGE_L_SPAGE              0xff    /* 0x0,0xff pages+subpages */
 
 /* Seagate vendor specific log pages. */
-#define SEAGATE_CACHE_LPAGE                     0x37
-#define SEAGATE_FACTORY_LPAGE                   0x3e
+#define SEAGATE_CACHE_LPAGE                 0x37
+#define SEAGATE_FACTORY_LPAGE               0x3e
 
 /* Log page response lengths */
 #define LOG_RESP_SELF_TEST_LEN 0x194
@@ -300,7 +317,7 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SIMPLE_ERR_TRY_AGAIN            8       /* some warning, try again */
 #define SIMPLE_ERR_MEDIUM_HARDWARE      9       /* medium or hardware error */
 #define SIMPLE_ERR_UNKNOWN              10      /* unknown sense value */
-#define SIMPLE_ERR_ABORTED_COMMAND      11      /* most likely transport error */
+#define SIMPLE_ERR_ABORTED_COMMAND      11      /* probably transport error */
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
@@ -386,10 +403,11 @@ int scsiTestUnitReady(scsi_device * device);
 
 int scsiStdInquiry(scsi_device * device, uint8_t *pBuf, int bufLen);
 
-int scsiInquiryVpd(scsi_device * device, int vpd_page, uint8_t *pBuf, int bufLen);
+int scsiInquiryVpd(scsi_device * device, int vpd_page, uint8_t *pBuf,
+                   int bufLen);
 
-int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
-                 int bufLen, int known_resp_len);
+int scsiLogSense(scsi_device * device, int pagenum, int subpagenum,
+                 uint8_t *pBuf, int bufLen, int known_resp_len);
 
 int scsiLogSelect(scsi_device * device, int pcr, int sp, int pc, int pagenum,
                   int subpagenum, uint8_t *pBuf, int bufLen);
@@ -406,15 +424,18 @@ int scsiModeSelect10(scsi_device * device, int sp, uint8_t *pBuf, int bufLen);
 
 int scsiModePageOffset(const uint8_t * resp, int len, int modese_len);
 
-int scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info);
+int scsiRequestSense(scsi_device * device,
+                     struct scsi_sense_disect * sense_info);
 
-int scsiSendDiagnostic(scsi_device * device, int functioncode, uint8_t *pBuf, int bufLen);
+int scsiSendDiagnostic(scsi_device * device, int functioncode, uint8_t *pBuf,
+                       int bufLen);
 
-int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist, int dl_format,
-                     uint8_t *pBuf, int bufLen);
+int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist,
+                     int dl_format, uint8_t *pBuf, int bufLen);
 
 int scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
-                     int dl_format, int addrDescIndex, uint8_t *pBuf, int bufLen);
+                     int dl_format, int addrDescIndex, uint8_t *pBuf,
+                     int bufLen);
 
 int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbp,
                        unsigned int * lb_sizep);
@@ -422,8 +443,9 @@ int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbp,
 int scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen);
 
 /* SMART specific commands */
-int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage, uint8_t *asc,
-                uint8_t *ascq, uint8_t *currenttemp, uint8_t *triptemp);
+int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
+                uint8_t *asc, uint8_t *ascq, uint8_t *currenttemp,
+                uint8_t *triptemp);
 
 int scsiFetchIECmpage(scsi_device * device, struct scsi_iec_mode_page *iecp,
                       int modese_len);
@@ -475,7 +497,7 @@ inline void dStrHex(const unsigned char* str, int len, int no_ascii)
    given 'desc_type'. If found return pointer to start of sense data
    descriptor; otherwise (including fixed format sense data) returns NULL. */
 const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
-                                                     int sense_len, int desc_type);
+                                              int sense_len, int desc_type);
 
 
 /* SCSI command transmission interface function declaration. Its

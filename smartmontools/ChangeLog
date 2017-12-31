@@ -1,5 +1,14 @@
 $Id$
 
+2017-12-30  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsi subsystem: add code to check for both log pages
+	and subpages, subpages were not checked for previously.
+	Add decoding for Format Status log page. Associated
+	cleanups. Tighten checking for Seagate and Hitachi
+	vendor specific log pages; '-T permissive' will relax
+	checks back to the situation before this patch
+
 2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
 
 	unaligned.h: fix inconsistency in function argument

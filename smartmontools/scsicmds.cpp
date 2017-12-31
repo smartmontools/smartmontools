@@ -168,7 +168,7 @@ is_scsi_cdb(const uint8_t * cdbp, int clen)
         return false;
     opcode = cdbp[0];
     top3bits = opcode >> 5;
-    if (0x3 == top3bits) {	/* Opcodes 0x60 to 0x7f */
+    if (0x3 == top3bits) {      /* Opcodes 0x60 to 0x7f */
         if ((clen < 12) || (clen % 4))
             return false;       /* must be modulo 4 and 12 or more bytes */
         switch (opcode) {
@@ -508,30 +508,33 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
 }
 
 /* Sends LOG SENSE command. Returns 0 if ok, 1 if device NOT READY, 2 if
-   command not supported, 3 if field (within command) not supported or
-   returns negated errno.  SPC-3 sections 6.6 and 7.2 (rec 22a).
-   N.B. Sets PC==1 to fetch "current cumulative" log pages.
-   If known_resp_len > 0 then a single fetch is done for this response
-   length. If known_resp_len == 0 then twin fetches are performed, the
-   first to deduce the response length, then send the same command again
-   requesting the deduced response length. This protects certain fragile
-   HBAs. The twin fetch technique should not be used with the TapeAlert
-   log page since it clears its state flags after each fetch. */
+ * command not supported, 3 if field (within command) not supported or
+ * returns negated errno.  SPC-3 sections 6.6 and 7.2 (rec 22a).
+ * N.B. Sets PC==1 to fetch "current cumulative" log pages.
+ * If known_resp_len > 0 then a single fetch is done for this response
+ * length. If known_resp_len == 0 then twin fetches are performed, the
+ * first to deduce the response length, then send the same command again
+ * requesting the deduced response length. This protects certain fragile
+ * HBAs. The twin fetch technique should not be used with the TapeAlert
+ * log page since it clears its state flags after each fetch. If
+ * known_resp_len < 0 then does single fetch for BufLen bytes. */
 int
 scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
              int bufLen, int known_resp_len)
 {
+    int pageLen;
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
     uint8_t cdb[10];
     uint8_t sense[32];
-    int pageLen;
 
     if (known_resp_len > bufLen)
         return -EIO;
     if (known_resp_len > 0)
         pageLen = known_resp_len;
-    else {
+    else if (known_resp_len < 0)
+        pageLen = bufLen;
+    else {      /* 0 == known_resp_len */
         /* Starting twin fetch strategy: first fetch to find respone length */
         pageLen = 4;
         if (pageLen > bufLen)
@@ -583,6 +586,7 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
     io_hdr.dxferp = pBuf;
     cdb[0] = LOG_SENSE;
     cdb[2] = 0x40 | (pagenum & 0x3f);  /* Page control (PC)==1 */
+    cdb[3] = subpagenum;
     put_unaligned_be16(pageLen, cdb + 7);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
@@ -599,7 +603,7 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
     /* sanity check on response */
     if ((SUPPORTED_LPAGES != pagenum) && ((pBuf[0] & 0x3f) != pagenum))
         return SIMPLE_ERR_BAD_RESP;
-    if (0 == ((pBuf[2] << 8) + pBuf[3]))
+    if (0 == get_unaligned_be16(pBuf + 2))
         return SIMPLE_ERR_BAD_RESP;
     return 0;
 }
@@ -803,7 +807,7 @@ scsiModeSelect10(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
     uint8_t sense[32];
     int pg_offset, pg_len, hdr_plus_1_pg;
 
-    pg_offset = 8 + (pBuf[6] << 8) + pBuf[7];
+    pg_offset = 8 + get_unaligned_be16(pBuf + 6);
     if (pg_offset + 2 >= bufLen)
         return -EINVAL;
     pg_len = pBuf[pg_offset + 1] + 2;
@@ -1245,7 +1249,7 @@ scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen)
  * per Physical Block Exponent' pointer (lb_per_pb_expp,) is non-null then
  * the value is written. If 'Protection information Intervals Exponent'*/
 uint64_t
-scsiGetSize(scsi_device * device, bool avoid_rcap16, 
+scsiGetSize(scsi_device * device, bool avoid_rcap16,
             struct scsi_readcap_resp * srrp)
 {
     bool try_16 = false;
@@ -1298,7 +1302,7 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
                 srrp->lb_p_pb_exp = (rc16resp[13] & 0xf);
                 srrp->lbpme = !!(0x80 & rc16resp[14]);
                 srrp->lbprz = !!(0x40 & rc16resp[14]);
-                srrp->l_a_lba = get_unaligned_be16(rc16resp + 14) & 0x3fffffff;
+                srrp->l_a_lba = get_unaligned_be16(rc16resp + 14) & 0x3fff;
             }
         }
     }
@@ -2230,7 +2234,7 @@ scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
     if (offset < 0)
         return -EINVAL;
     if (buff[offset + 1] >= 0xa) {
-        int res = (buff[offset + 10] << 8) | buff[offset + 11];
+        int res = get_unaligned_be16(buff + offset + 10);
         *durationSec = res;
         return 0;
     }
@@ -2242,10 +2246,10 @@ void
 scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp)
 {
     memset(ecp, 0, sizeof(*ecp));
-    int num = (resp[2] << 8) | resp[3];
+    int num = get_unaligned_be16(resp + 2);
     unsigned char * ucp = &resp[0] + 4;
     while (num > 3) {
-        int pc = (ucp[0] << 8) | ucp[1];
+        int pc = get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
         uint64_t * ullp;
         switch (pc) {
@@ -2281,7 +2285,7 @@ scsiDecodeNonMediumErrPage(unsigned char *resp,
                            struct scsiNonMediumError *nmep)
 {
     memset(nmep, 0, sizeof(*nmep));
-    int num = (resp[2] << 8) | resp[3];
+    int num = get_unaligned_be16(resp + 2);
     unsigned char * ucp = &resp[0] + 4;
     int szof = sizeof(nmep->counterPC0);
     while (num > 3) {
@@ -2356,7 +2360,7 @@ scsiCountFailedSelfTests(scsi_device * fd, int noisy)
         return -1;
     }
     // compute page length
-    num = (resp[2] << 8) + resp[3];
+    num = get_unaligned_be16(resp + 2);
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
         if (noisy)
@@ -2490,7 +2494,7 @@ scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp,
             return -EINVAL;
     }
     offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
-    return (buff[offset + 20] << 8) | buff[offset + 21];
+    return get_unaligned_be16(buff + offset + 20);
 }
 
 /* Returns a non-zero value in case of error, wcep/rcdp == -1 - get value,
@@ -2578,7 +2582,7 @@ scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep,
 
     /* mask out DPOFUA device specific (disk) parameter bit */
     if (10 == modese_len) {
-        resp_len = (buff[0] << 8) + buff[1] + 2;
+        resp_len = get_unaligned_be16(buff + 0) + 2;
         buff[3] &= 0xef;
     } else {
         resp_len = buff[0] + 1;
@@ -2650,7 +2654,7 @@ scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len)
     /* mask out DPOFUA device specific (disk) parameter bit */
     if (10 == modese_len) {
         resp_len = get_unaligned_be16(buff + 0) + 2;
-        buff[3] &= 0xef;    
+        buff[3] &= 0xef;
     } else {
         resp_len = buff[0] + 1;
         buff[2] &= 0xef;
@@ -2749,7 +2753,7 @@ scsi_format_id_string(char * out, const unsigned char * in, int n)
     }
 
   if (first == -1) {
-    // There are no non-space characters.
+    // There are only space characters.
     out[0] = '\0';
     return;
   }
