@@ -1,4 +1,9 @@
-$Id: ChangeLog 4680 2018-01-01 10:30:47Z chrfranke $
+$Id: ChangeLog 4681 2018-01-01 21:11:52Z samm2 $
+
+2018-01-01  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: fix build with CLANG/6. Patch provided by
+	Dimitry Andric, PR 224826
 
 2018-01-01  Christian Franke  <franke@computer.org>
 
