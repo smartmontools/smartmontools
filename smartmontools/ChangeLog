@@ -1,5 +1,10 @@
 $Id$
 
+2018-01-01  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: fix build with CLANG/6. Patch provided by
+	Dimitry Andric, PR 224826
+
 2018-01-01  Christian Franke  <franke@computer.org>
 
 	Happy New Year! Update copyright year in version info.
