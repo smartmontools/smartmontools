@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-16 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-18 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@
 #include "utility.h"
 #include "unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4679 2017-12-31 04:29:16Z dpgilbert $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4682 2018-01-05 03:28:09Z dpgilbert $"
   SCSICMDS_H_CVSID;
 
 // Print SCSI debug messages?

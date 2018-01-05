@@ -1,4 +1,8 @@
-$Id: ChangeLog 4681 2018-01-01 21:11:52Z samm2 $
+$Id: ChangeLog 4682 2018-01-05 03:28:09Z dpgilbert $
+
+2018-01-04  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsi subsystem: preparation for decoding more log pages.
 
 2018-01-01  Alex Samorukov <samm@os2.kiev.ua>
 
