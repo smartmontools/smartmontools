@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-15 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-18 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -185,6 +185,22 @@ struct scsi_readcap_resp {
 #define SCSI_PT_MEDIUM_CHANGER          0x8
 #define SCSI_PT_ENCLOSURE               0xd
 
+/* Transport protocol identifiers or just Protocol identifiers */
+#define SCSI_TPROTO_FCP 0
+#define SCSI_TPROTO_SPI 1
+#define SCSI_TPROTO_SSA 2
+#define SCSI_TPROTO_1394 3
+#define SCSI_TPROTO_SRP 4            /* SCSI over RDMA */
+#define SCSI_TPROTO_ISCSI 5
+#define SCSI_TPROTO_SAS 6
+#define SCSI_TPROTO_ADT 7
+#define SCSI_TPROTO_ATA 8
+#define SCSI_TPROTO_UAS 9            /* USB attached SCSI */
+#define SCSI_TPROTO_SOP 0xa          /* SCSI over PCIe */
+#define SCSI_TPROTO_PCIE 0xb         /* includes NVMe */
+#define SCSI_TPROTO_NONE 0xf
+
+
 /* SCSI Log Pages retrieved by LOG SENSE. 0x0 to 0x3f, 0x30 to 0x3e vendor */
 #define SUPPORTED_LPAGES                    0x00
 #define BUFFER_OVERRUN_LPAGE                0x01
@@ -193,7 +209,7 @@ struct scsi_readcap_resp {
 #define READ_REVERSE_ERROR_COUNTER_LPAGE    0x04
 #define VERIFY_ERROR_COUNTER_LPAGE          0x05
 #define NON_MEDIUM_ERROR_LPAGE              0x06
-#define LAST_N_ERROR_LPAGE                  0x07
+#define LAST_N_ERROR_EVENTS_LPAGE           0x07
 #define FORMAT_STATUS_LPAGE                 0x08
 #define LAST_N_DEFERRED_LPAGE               0x0b   /* or async events */
 #define LB_PROV_LPAGE                       0x0c   /* SBC-3 */

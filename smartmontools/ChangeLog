@@ -1,5 +1,9 @@
 $Id$
 
+2018-01-04  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsi subsystem: preparation for decoding more log pages.
+
 2018-01-01  Alex Samorukov <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: fix build with CLANG/6. Patch provided by

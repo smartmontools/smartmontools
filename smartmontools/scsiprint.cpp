@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-15 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-18 Douglas Gilbert <dgilbert@interlog.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,12 +59,18 @@ static bool gReadECounterLPage = false;
 static bool gWriteECounterLPage = false;
 static bool gVerifyECounterLPage = false;
 static bool gNonMediumELPage = false;
-static bool gLastNErrorLPage = false;
+static bool gLastNErrorEvLPage = false;
 static bool gBackgroundResultsLPage = false;
 static bool gProtocolSpecificLPage = false;
 static bool gTapeAlertsLPage = false;
 static bool gSSMediaLPage = false;
 static bool gFormatStatusLPage = false;
+static bool gEnviroReportingLPage = false;
+static bool gEnviroLimitsLPage = false;
+static bool gUtilizationLPage = false;
+static bool gPendDefectsLPage = false;
+static bool gBackgroundOpLPage = false;
+static bool gLPSMisalignLPage = false;
 
 /* Vendor specific log pages */
 static bool gSeagateCacheLPage = false;
@@ -107,7 +113,7 @@ static void
 scsiGetSupportedLogPages(scsi_device * device)
 {
     bool got_subpages = false;
-    int k, bump, err, payload_len, num_unreported;
+    int k, bump, err, payload_len, num_unreported, num_unreported_spg;
     const uint8_t * up;
     uint8_t sup_lpgs[LOG_RESP_LEN];
 
@@ -163,6 +169,7 @@ scsiGetSupportedLogPages(scsi_device * device)
         up = sup_lpgs + LOGPAGEHDRSIZE;
     }
 
+    num_unreported_spg = 0;
     for (num_unreported = 0, k = 0; k < payload_len; k += bump, up += bump) {
         uint8_t pg_num = 0x3f & up[0];
         uint8_t sub_pg_num = (0x40 & up[0]) ? up[1] : 0;
@@ -186,17 +193,33 @@ scsiGetSupportedLogPages(scsi_device * device)
             case VERIFY_ERROR_COUNTER_LPAGE:
                 gVerifyECounterLPage = true;
                 break;
-            case LAST_N_ERROR_LPAGE:
-                gLastNErrorLPage = true;
+            case LAST_N_ERROR_EVENTS_LPAGE:
+                gLastNErrorEvLPage = true;
                 break;
             case NON_MEDIUM_ERROR_LPAGE:
                 gNonMediumELPage = true;
                 break;
             case TEMPERATURE_LPAGE:
-                gTempLPage = true;
+                if (NO_SUBPAGE_L_SPAGE == sub_pg_num)
+                    gTempLPage = true;
+                else if (ENVIRO_REP_L_SPAGE == sub_pg_num)
+                    gEnviroReportingLPage = true;
+                else if (ENVIRO_LIMITS_L_SPAGE == sub_pg_num)
+                    gEnviroLimitsLPage = true;
+                else {
+                    ++num_unreported;
+                    ++num_unreported_spg;
+                }
                 break;
             case STARTSTOP_CYCLE_COUNTER_LPAGE:
-                gStartStopLPage = true;
+                if (NO_SUBPAGE_L_SPAGE == sub_pg_num)
+                    gStartStopLPage = true;
+                else if (UTILIZATION_L_SPAGE == sub_pg_num)
+                    gUtilizationLPage = true;
+                else {
+                    ++num_unreported;
+                    ++num_unreported_spg;
+                }
                 break;
             case SELFTEST_RESULTS_LPAGE:
                 gSelfTestLPage = true;
@@ -205,7 +228,18 @@ scsiGetSupportedLogPages(scsi_device * device)
                 gSmartLPage = true;
                 break;
             case BACKGROUND_RESULTS_LPAGE:
-                gBackgroundResultsLPage = true;
+                if (NO_SUBPAGE_L_SPAGE == sub_pg_num)
+                    gBackgroundResultsLPage = true;
+                else if (PEND_DEFECTS_L_SPAGE == sub_pg_num)
+                    gPendDefectsLPage = true;
+                else if (BACKGROUND_OP_L_SPAGE == sub_pg_num)
+                    gBackgroundOpLPage = true;
+                else if (LPS_MISALIGN_L_SPAGE == sub_pg_num)
+                    gLPSMisalignLPage = true;
+                else {
+                    ++num_unreported;
+                    ++num_unreported_spg;
+                }
                 break;
             case PROTOCOL_SPECIFIC_LPAGE:
                 gProtocolSpecificLPage = true;
@@ -236,14 +270,17 @@ scsiGetSupportedLogPages(scsi_device * device)
                     gSeagateFactoryLPage = true;
                 break;
             default:
-                if (pg_num < 0x30)      /* don't count VS pages */
+                if (pg_num < 0x30) {     /* don't count VS pages */
                     ++num_unreported;
+                    if (sub_pg_num > 0)
+                        ++num_unreported_spg;
+                }
                 break;
         }
     }
     if (scsi_debugmode > 1)
-        pout("%s: number of unreported (standard) log pages: %d\n", __func__,
-             num_unreported);
+        pout("%s: number of unreported (standard) log pages: %d (sub-pages: "
+             "%d)\n", __func__, num_unreported, num_unreported_spg);
 }
 
 /* Returns 0 if ok, -1 if can't check IE, -2 if can check and bad
@@ -734,8 +771,8 @@ scsiPrintErrorCounterLog(scsi_device * device)
             pout("Positioning error count [Hitachi]: %8" PRIu64 "\n",
                  nme.counterPE_H);
     }
-    if (gLastNErrorLPage && (0 == scsiLogSense(device,
-                LAST_N_ERROR_LPAGE, 0, gBuf, LOG_RESP_LONG_LEN, 0))) {
+    if (gLastNErrorEvLPage && (0 == scsiLogSense(device,
+                LAST_N_ERROR_EVENTS_LPAGE, 0, gBuf, LOG_RESP_LONG_LEN, 0))) {
         int num = get_unaligned_be16(gBuf + 2) + 4;
         int truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
         if (truncated)
@@ -1536,7 +1573,7 @@ show_protocol_specific_page(unsigned char * resp, int len)
     num = len - 4;
     for (k = 0, ucp = resp + 4; k < num; ) {
         int param_len = ucp[3] + 4;
-        if (6 != (0xf & ucp[4]))
+        if (SCSI_TPROTO_SAS != (0xf & ucp[4]))
             return 0;   /* only decode SAS log page */
         if (0 == k)
             pout("Protocol Specific port log page for SAS SSP\n");
@@ -1626,6 +1663,7 @@ static const char * peripheral_dt_arr[32] = {
         "unknown or no device type",
 };
 
+/* Symbolic indexes to this array SCSI_TPROTO_* in scscmds.h */
 static const char * transport_proto_arr[] = {
         "Fibre channel (FCP-2)",
         "Parallel SCSI (SPI-4)",
@@ -1638,11 +1676,11 @@ static const char * transport_proto_arr[] = {
         "ATA (ACS-2)",
         "UAS",
         "SOP",
-        "0xb",
+        "PCIe",
         "0xc",
         "0xd",
         "0xe",
-        "0xf"
+        "None given [0xf]"
 };
 
 /* Returns 0 on success, 1 on general error and 2 for early, clean exit */
@@ -2252,6 +2290,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             failuretest(OPTIONAL_CMD, returnval|=res);
         if (gFormatStatusLPage)
             res = scsiPrintFormatStatus(device);
+        if (0 != res)
+            failuretest(OPTIONAL_CMD, returnval|=res);
         any_output = true;
     }
     if (options.smart_vendor_attrib) {
