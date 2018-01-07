@@ -96,6 +96,9 @@ static char scsi_vendor[8+1];
 #define T10_VENDOR_HITACHI_2 "HL-DT-ST"
 #define T10_VENDOR_HITACHI_3 "HGST"
 
+static const char * logSenStr = "Log Sense";
+static const char * logSenRspStr = "Log Sense response";
+
 
 static bool seagate_or_hitachi(void)
 {
@@ -121,15 +124,15 @@ scsiGetSupportedLogPages(scsi_device * device)
     if ((err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
         if (scsi_debugmode > 0)
-            pout("Log Sense for supported pages failed [%s]\n",
+            pout("%s for supported pages failed [%s]\n", logSenStr,
                  scsiErrString(err));
         /* try one more time with defined length, workaround for the bug #678
         found with ST8000NM0075/E001 */
         err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
                             LOG_RESP_LEN, 68); /* 64 max pages + 4b header */
         if (scsi_debugmode > 0)
-            pout("Log Sense for supported pages failed (second attempt) "
-                 "[%s]\n", scsiErrString(err));
+            pout("%s for supported pages failed (second attempt) [%s]\n",
+                 logSenStr, scsiErrString(err));
         if (err)
             return;
         memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
@@ -141,18 +144,18 @@ scsiGetSupportedLogPages(scsi_device * device)
                                 gBuf, LOG_RESP_LONG_LEN,
                                 -1 /* just single not double fetch */))) {
             if (scsi_debugmode > 0)
-                pout("Log Sense for supported pages and subpages failed "
-                     "[%s]\n", scsiErrString(err));
+                pout("%s for supported pages and subpages failed [%s]\n",
+                     logSenStr, scsiErrString(err));
         } else {
             if (0 == memcmp(gBuf, sup_lpgs, LOG_RESP_LEN)) {
                 if (scsi_debugmode > 0)
-                    pout("%s: Log Sense ignored subpage field, bad\n",
-                         __func__);
+                    pout("%s: %s ignored subpage field, bad\n",
+                         __func__, logSenRspStr);
             } else if (! ((0x40 & gBuf[0]) &&
                           (SUPP_SPAGE_L_SPAGE == gBuf[1]))) {
                 if (scsi_debugmode > 0)
-                    pout("Log Sense supported subpages response is bad "
-                         "SPF=%u SUBPG=%u\n", !! (0x40 & gBuf[0]), gBuf[2]);
+                    pout("%s supported subpages is bad SPF=%u SUBPG=%u\n",
+                         logSenRspStr, !! (0x40 & gBuf[0]), gBuf[2]);
             } else
                 got_subpages = true;
         }
@@ -357,7 +360,7 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
         return -1;
     }
     if (gBuf[0] != 0x2e) {
-        pout("TapeAlerts Log Sense Failed\n");
+        pout("TapeAlerts %s Failed\n", logSenStr);
         print_off();
         return -1;
     }
@@ -404,7 +407,7 @@ scsiGetStartStopData(scsi_device * device)
     }
     if ((gBuf[0] & 0x3f) != STARTSTOP_CYCLE_COUNTER_LPAGE) {
         print_on();
-        pout("StartStop Log Sense Failed, page mismatch\n");
+        pout("StartStop %s Failed, page mismatch\n", logSenStr);
         print_off();
         return;
     }
@@ -413,7 +416,7 @@ scsiGetStartStopData(scsi_device * device)
     for (k = len; k > 0; k -= extra, ucp += extra) {
         if (k < 3) {
             print_on();
-            pout("StartStop Log Sense Failed: short\n");
+            pout("StartStop %s: short\n", logSenRspStr);
             print_off();
             return;
         }
@@ -453,6 +456,80 @@ scsiGetStartStopData(scsi_device * device)
         }
     }
 }
+/* PENDING_DEFECTS_SUBPG [0x15,0x1]  introduced: SBC-4 */
+static void
+scsiPrintPendingDefectsLPage(scsi_device * device)
+{
+    int num, pl, pc, err;
+    uint32_t count;
+    const uint8_t * bp;
+    static const char * pDefStr = "Pending Defects";
+    static const char * jname = "pending_defects";
+
+    if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE,
+                            PEND_DEFECTS_L_SPAGE, gBuf, LOG_RESP_LONG_LEN,
+                            0))) {
+        print_on();
+        pout("%s Failed [%s]\n", __func__, scsiErrString(err));
+        print_off();
+        return;
+    }
+    if (((gBuf[0] & 0x3f) != BACKGROUND_RESULTS_LPAGE) &&
+        (gBuf[1] != PEND_DEFECTS_L_SPAGE)) {
+        print_on();
+        pout("%s %s, page mismatch\n", pDefStr, logSenRspStr);
+        print_off();
+        return;
+    }
+    num = get_unaligned_be16(gBuf + 2);
+    if (num > LOG_RESP_LONG_LEN) {
+        print_on();
+        pout("%s %s too long\n", pDefStr, logSenRspStr);
+        print_off();
+        return;
+    }
+    bp = gBuf + 4;
+    while (num > 3) {
+        pc = get_unaligned_be16(bp + 0);
+        pl = bp[3] + 4;
+        switch (pc) {
+        case 0x0:
+            printf("  Pending defect count:");
+            if ((pl < 8) || (num < 8)) {
+                print_on();
+                pout("%s truncated descriptor\n", pDefStr);
+                print_off();
+                return;
+            }
+            count = get_unaligned_be32(bp + 4);
+            jglb[jname]["count"] = count;
+            if (0 == count)
+                jout("0 %s\n", pDefStr);
+            else if (1 == count)
+                jout("1 Pending Defect, LBA and accumulated_power_on_hours "
+                     "follow\n");
+            else
+                jout("%u %s: index, LBA and accumulated_power_on_hours "
+                     "follow\n", count, pDefStr);
+            break;
+        default:
+            if ((pl < 16) || (num < 16)) {
+                print_on();
+                pout("%s truncated descriptor\n", pDefStr);
+                print_off();
+                return;
+            }
+            jout("  %4d:  0x%-16" PRIx64 ",  %5u\n", pc,
+                 get_unaligned_be64(bp + 8), get_unaligned_be32(bp + 4));
+            jglb[jname][pc]["LBA"] = get_unaligned_be64(bp + 8);
+            jglb[jname][pc]["accum_power_on_hours"] =
+                   get_unaligned_be32(bp + 4);
+            break;
+        }
+        num -= pl;
+        bp += pl;
+    }
+}
 
 static void
 scsiPrintGrownDefectListLen(scsi_device * device)
@@ -460,17 +537,20 @@ scsiPrintGrownDefectListLen(scsi_device * device)
     bool got_rd12;
     int err, dl_format;
     unsigned int dl_len, div;
+    static const char * hname = "Read defect list";
 
     memset(gBuf, 0, 8);
     if ((err = scsiReadDefect12(device, 0 /* req_plist */, 1 /* req_glist */,
                                 4 /* format: bytes from index */,
                                 0 /* addr desc index */, gBuf, 8))) {
         if (2 == err) { /* command not supported */
-            if ((err = scsiReadDefect10(device, 0 /* req_plist */, 1 /* req_glist */,
-                                        4 /* format: bytes from index */, gBuf, 4))) {
+            err = scsiReadDefect10(device, 0 /* req_plist */,
+                                   1 /* req_glist */,
+                                   4 /* format: bytes from index */, gBuf, 4);
+            if (err) {
                 if (scsi_debugmode > 0) {
                     print_on();
-                    pout("Read defect list (10) Failed: %s\n", scsiErrString(err));
+                    pout("%s (10) Failed: %s\n", hname, scsiErrString(err));
                     print_off();
                 }
                 return;
@@ -481,7 +561,7 @@ scsiPrintGrownDefectListLen(scsi_device * device)
         else {
             if (scsi_debugmode > 0) {
                 print_on();
-                pout("Read defect list (12) Failed: %s\n", scsiErrString(err));
+                pout("%s (12) Failed: %s\n", hname, scsiErrString(err));
                 print_off();
             }
             return;
@@ -493,7 +573,7 @@ scsiPrintGrownDefectListLen(scsi_device * device)
         int generation = get_unaligned_be16(gBuf + 2);
         if ((generation > 1) && (scsi_debugmode > 0)) {
             print_on();
-            pout("Read defect list (12): generation=%d\n", generation);
+            pout("%s (12): generation=%d\n", hname, generation);
             print_off();
         }
         dl_len = get_unaligned_be32(gBuf + 4);
@@ -501,7 +581,7 @@ scsiPrintGrownDefectListLen(scsi_device * device)
         dl_len = get_unaligned_be16(gBuf + 2);
     if (0x8 != (gBuf[1] & 0x18)) {
         print_on();
-        pout("Read defect list: asked for grown list but didn't get it\n");
+        pout("%s: asked for grown list but didn't get it\n", hname);
         print_off();
         return;
     }
@@ -544,12 +624,14 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
     int num, pl, pc, err, len;
     unsigned char * ucp;
     uint64_t ull;
+    static const char * seaCacStr = "Seagate Cache";
 
     if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
         if (scsi_debugmode > 0) {
             print_on();
-            pout("Seagate Cache Log Sense Failed: %s\n", scsiErrString(err));
+            pout("%s %s Failed: %s\n", seaCacStr, logSenStr,
+                 scsiErrString(err));
             print_off();
         }
         return;
@@ -557,7 +639,7 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
     if ((gBuf[0] & 0x3f) != SEAGATE_CACHE_LPAGE) {
         if (scsi_debugmode > 0) {
             print_on();
-            pout("Seagate Cache Log Sense Failed, page mismatch\n");
+            pout("%s %s, page mismatch\n", seaCacStr, logSenRspStr);
             print_off();
         }
         return;
@@ -574,8 +656,8 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
         default:
             if (scsi_debugmode > 0) {
                 print_on();
-                pout("Vendor (Seagate) cache lpage has unexpected parameter"
-                     ", skip\n");
+                pout("Vendor (%s) lpage has unexpected parameter, skip\n",
+                     seaCacStr);
                 print_off();
             }
             return;
@@ -583,7 +665,7 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
         num -= pl;
         ucp += pl;
     }
-    pout("Vendor (Seagate) cache information\n");
+    pout("Vendor (%s) information\n", seaCacStr);
     num = len - 4;
     ucp = &gBuf[0] + 4;
     while (num > 3) {
@@ -633,7 +715,7 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
     if ((gBuf[0] & 0x3f) != SEAGATE_FACTORY_LPAGE) {
         if (scsi_debugmode > 0) {
             print_on();
-            pout("Seagate/Hitachi Factory Log Sense Failed, page mismatch\n");
+            pout("Seagate/Hitachi Factory %s, page mismatch\n", logSenRspStr);
             print_off();
         }
         return;
@@ -748,12 +830,15 @@ scsiPrintErrorCounterLog(scsi_device * device)
             if (! found[k])
                 continue;
             ecp = &errCounterArr[k];
-            static const char * const pageNames[3] = {"read:   ", "write:  ", "verify: "};
-            pout("%s%8" PRIu64 " %8" PRIu64 "  %8" PRIu64 "  %8" PRIu64 "   %8" PRIu64,
-                 pageNames[k], ecp->counter[0], ecp->counter[1],
-                 ecp->counter[2], ecp->counter[3], ecp->counter[4]);
+            static const char * const pageNames[3] =
+                                 {"read:   ", "write:  ", "verify: "};
+            pout("%s%8" PRIu64 " %8" PRIu64 "  %8" PRIu64 "  %8" PRIu64
+                 "   %8" PRIu64, pageNames[k], ecp->counter[0],
+                 ecp->counter[1], ecp->counter[2], ecp->counter[3],
+                 ecp->counter[4]);
             double processed_gb = ecp->counter[5] / 1000000000.0;
-            pout("   %12.3f    %8" PRIu64 "\n", processed_gb, ecp->counter[6]);
+            pout("   %12.3f    %8" PRIu64 "\n", processed_gb,
+                 ecp->counter[6]);
         }
     }
     else
@@ -771,8 +856,9 @@ scsiPrintErrorCounterLog(scsi_device * device)
             pout("Positioning error count [Hitachi]: %8" PRIu64 "\n",
                  nme.counterPE_H);
     }
-    if (gLastNErrorEvLPage && (0 == scsiLogSense(device,
-                LAST_N_ERROR_EVENTS_LPAGE, 0, gBuf, LOG_RESP_LONG_LEN, 0))) {
+    if (gLastNErrorEvLPage &&
+        (0 == scsiLogSense(device, LAST_N_ERROR_EVENTS_LPAGE, 0, gBuf,
+                           LOG_RESP_LONG_LEN, 0))) {
         int num = get_unaligned_be16(gBuf + 2) + 4;
         int truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
         if (truncated)
@@ -794,7 +880,7 @@ scsiPrintErrorCounterLog(scsi_device * device)
                     if ((ucp[2] & 0x1) && (ucp[2] & 0x2)) {
                         pout("  Error event %d:\n", pc);
                         pout("    [binary]:\n");
-                        dStrHex((const char *)ucp + 4, pl - 4, 1);
+                        dStrHex((const uint8_t *)ucp + 4, pl - 4, 1);
                     } else if (ucp[2] & 0x1) {
                         pout("  Error event %d:\n", pc);
                         pout("    %.*s\n", pl - 4, (const char *)(ucp + 4));
@@ -802,7 +888,7 @@ scsiPrintErrorCounterLog(scsi_device * device)
                         if (scsi_debugmode > 0) {
                             pout("  Error event %d:\n", pc);
                             pout("    [data counter??]:\n");
-                            dStrHex((const char *)ucp + 4, pl - 4, 1);
+                            dStrHex((const uint8_t *)ucp + 4, pl - 4, 1);
                         }
                     }
                 }
@@ -858,12 +944,13 @@ scsiPrintSelfTest(scsi_device * device)
     uint8_t * ucp;
     uint64_t ull;
     struct scsi_sense_disect sense_info;
+    static const char * hname = "Self-test";
 
     // check if test is running
     if (!scsiRequestSense(device, &sense_info) &&
                         (sense_info.asc == 0x04 && sense_info.ascq == 0x09 &&
                         sense_info.progress != -1)) {
-        pout("Self-test execution status:\t\t%d%% of test remaining\n",
+        pout("%s execution status:\t\t%d%% of test remaining\n", hname,
              100 - ((sense_info.progress * 100) / 65535));
     }
 
@@ -876,7 +963,7 @@ scsiPrintSelfTest(scsi_device * device)
     }
     if ((gBuf[0] & 0x3f) != SELFTEST_RESULTS_LPAGE) {
         print_on();
-        pout("Self-test Log Sense Failed, page mismatch\n");
+        pout("%s %s, page mismatch\n", hname, logSenRspStr);
         print_off();
         return FAILSMART;
     }
@@ -885,7 +972,7 @@ scsiPrintSelfTest(scsi_device * device)
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
         print_on();
-        pout("Self-test Log Sense length is 0x%x not 0x190 bytes\n",num);
+        pout("%s %s length is 0x%x not 0x190 bytes\n", hname, logSenStr, num);
         print_off();
         return FAILSMART;
     }
@@ -901,7 +988,7 @@ scsiPrintSelfTest(scsi_device * device)
 
         // only print header if needed
         if (noheader) {
-            pout("SMART Self-test log\n");
+            pout("SMART %s log\n", hname);
             pout("Num  Test              Status                 segment  "
                    "LifeTime  LBA_first_err [SK ASC ASQ]\n");
             pout("     Description                              number   "
@@ -990,12 +1077,12 @@ scsiPrintSelfTest(scsi_device * device)
 
     // if header never printed, then there was no output
     if (noheader)
-        pout("No self-tests have been logged\n");
+        pout("No %ss have been logged\n", hname);
     else
     if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
                         modese_len)) && (durationSec > 0)) {
-        pout("\nLong (extended) Self Test duration: %d seconds "
-             "[%.1f minutes]\n", durationSec, durationSec / 60.0);
+        pout("\nLong (extended) %s duration: %d seconds "
+             "[%.1f minutes]\n", hname, durationSec, durationSec / 60.0);
     }
     pout("\n");
     return retval;
@@ -1037,6 +1124,7 @@ scsiPrintBackgroundResults(scsi_device * device)
     int firstresult = 1;
     int retval = 0;
     uint8_t * ucp;
+    static const char * hname = "Background scan results";
 
     if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1047,7 +1135,7 @@ scsiPrintBackgroundResults(scsi_device * device)
     }
     if ((gBuf[0] & 0x3f) != BACKGROUND_RESULTS_LPAGE) {
         print_on();
-        pout("Background scan results Log Sense Failed, page mismatch\n");
+        pout("%s %s, page mismatch\n", hname, logSenRspStr);
         print_off();
         return FAILSMART;
     }
@@ -1055,8 +1143,7 @@ scsiPrintBackgroundResults(scsi_device * device)
     num = get_unaligned_be16(gBuf + 2) + 4;
     if (num < 20) {
         print_on();
-        pout("Background scan results Log Sense length is %d, no scan "
-             "status\n", num);
+        pout("%s %s length is %d, no scan status\n", hname, logSenStr, num);
         print_off();
         return FAILSMART;
     }
@@ -1073,7 +1160,7 @@ scsiPrintBackgroundResults(scsi_device * device)
         case 0:
             if (noheader) {
                 noheader = 0;
-                pout("Background scan results log\n");
+                pout("%s log\n", hname);
             }
             pout("  Status: ");
             if ((pl < 16) || (num < 16)) {
@@ -1098,7 +1185,7 @@ scsiPrintBackgroundResults(scsi_device * device)
         default:
             if (noheader) {
                 noheader = 0;
-                pout("\nBackground scan results log\n");
+                pout("\n%s log\n", hname);
             }
             if (firstresult) {
                 firstresult = 0;
@@ -1144,6 +1231,7 @@ scsiPrintSSMedia(scsi_device * device)
     int num, err, truncated;
     int retval = 0;
     uint8_t * ucp;
+    static const char * hname = "Solid state media";
 
     if ((err = scsiLogSense(device, SS_MEDIA_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1154,7 +1242,7 @@ scsiPrintSSMedia(scsi_device * device)
     }
     if ((gBuf[0] & 0x3f) != SS_MEDIA_LPAGE) {
         print_on();
-        pout("Solid state media Log Sense Failed, page mismatch\n");
+        pout("%s %s, page mismatch\n", hname, logSenStr);
         print_off();
         return FAILSMART;
     }
@@ -1162,7 +1250,7 @@ scsiPrintSSMedia(scsi_device * device)
     num = get_unaligned_be16(gBuf + 2) + 4;
     if (num < 12) {
         print_on();
-        pout("Solid state media Log Sense length is %d, too short\n", num);
+        pout("%s %s length is %d, too short\n", hname, logSenStr, num);
         print_off();
         return FAILSMART;
     }
@@ -1179,8 +1267,8 @@ scsiPrintSSMedia(scsi_device * device)
         case 1:
             if (pl < 8) {
                 print_on();
-                pout("SS Media Percentage used endurance indicator parameter "
-                     "too short (pl=%d)\n", pl);
+                pout("%s Percentage used endurance indicator parameter "
+                     "too short (pl=%d)\n", hname, pl);
                 print_off();
                 return FAILSMART;
             }
@@ -1205,6 +1293,8 @@ scsiPrintFormatStatus(scsi_device * device)
     uint8_t * xp;
     const char * jout_str;
     const char * jglb_str;
+    static const char * hname = "Format Status";
+    static const char * jname = "format_status";
 
     if ((err = scsiLogSense(device, FORMAT_STATUS_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1215,7 +1305,7 @@ scsiPrintFormatStatus(scsi_device * device)
     }
     if ((gBuf[0] & 0x3f) != FORMAT_STATUS_LPAGE) {
         print_on();
-        jout("Format status Log Sense Failed, page mismatch\n");
+        jout("%s %s, page mismatch\n", hname, logSenRspStr);
         print_off();
         return FAILSMART;
     }
@@ -1223,7 +1313,7 @@ scsiPrintFormatStatus(scsi_device * device)
     num = get_unaligned_be16(gBuf + 2) + 4;
     if (num < 12) {
         print_on();
-        jout("Format status Log Sense length is %d, too short\n", num);
+        jout("%s %s length is %d, too short\n", hname, logSenStr, num);
         print_off();
         return FAILSMART;
     }
@@ -1250,7 +1340,7 @@ scsiPrintFormatStatus(scsi_device * device)
                         jout("Format data out: <not available>\n");
                     else {
                         jout("Format data out:\n");
-                        dStrHex((const char *)ucp + 4, pl - 4, 0);
+                        dStrHex((const uint8_t *)ucp + 4, pl - 4, 0);
                     }
                 }
             }
@@ -1275,7 +1365,7 @@ scsiPrintFormatStatus(scsi_device * device)
         default:
             if (scsi_debugmode > 3) {
                 pout("  Unknown Format parameter code = 0x%x\n", pc);
-                dStrHex((const char *)ucp, pl, 0);
+                dStrHex((const uint8_t *)ucp, pl, 0);
             }
             is_count = false;
             break;
@@ -1285,7 +1375,7 @@ scsiPrintFormatStatus(scsi_device * device)
             xp = ucp + 4;
             if (all_ffs(xp, k)) {
                 jout("%s <not available>\n", jout_str);
-                jglb["format_status"][jglb_str] = "not_available";
+                jglb[jname][jglb_str] = "not_available";
             } else {
                 if (k > (int)sizeof(ull)) {
                     xp += (k - sizeof(ull));
@@ -1293,7 +1383,7 @@ scsiPrintFormatStatus(scsi_device * device)
                 }
                 ull = get_unaligned_be(k, xp);
                 jout("%s = %" PRIu64 "\n", jout_str, ull);
-                jglb["format_status"][jglb_str] = ull;
+                jglb[jname][jglb_str] = ull;
             }
         } else
         num -= pl;
@@ -1592,17 +1682,19 @@ static int
 scsiPrintSasPhy(scsi_device * device, int reset)
 {
     int num, err;
+    static const char * hname = "Protocol specific port";
 
     if ((err = scsiLogSense(device, PROTOCOL_SPECIFIC_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
         print_on();
-        pout("%s Log Sense Failed [%s]\n\n", __func__, scsiErrString(err));
+        pout("%s %s Failed [%s]\n\n", __func__, logSenStr,
+             scsiErrString(err));
         print_off();
         return FAILSMART;
     }
     if ((gBuf[0] & 0x3f) != PROTOCOL_SPECIFIC_LPAGE) {
         print_on();
-        pout("Protocol specific Log Sense Failed, page mismatch\n\n");
+        pout("%s %s, page mismatch\n\n", hname, logSenRspStr);
         print_off();
         return FAILSMART;
     }
@@ -1610,7 +1702,7 @@ scsiPrintSasPhy(scsi_device * device, int reset)
     num = get_unaligned_be16(gBuf + 2);
     if (1 != show_protocol_specific_page(gBuf, num + 4)) {
         print_on();
-        pout("Only support protocol specific log page on SAS devices\n\n");
+        pout("Only support %s log page on SAS devices\n\n", hname);
         print_off();
         return FAILSMART;
     }
@@ -1703,7 +1795,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
         pout("Standard Inquiry (36 bytes) failed [%s]\n", scsiErrString(err));
         pout("Retrying with a 64 byte Standard Inquiry\n");
         print_off();
-        /* Marvell controllers fail on a 36 bytes StdInquiry, but 64 suffices */
+        /* Marvell controllers fail with 36 byte StdInquiry, but 64 is ok */
         req_len = 64;
         if ((err = scsiStdInquiry(device, gBuf, req_len))) {
             print_on();
@@ -1733,9 +1825,9 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
 
     if (all && (0 != strncmp((char *)&gBuf[8], "ATA", 3))) {
         char product[16+1], revision[4+1];
-        scsi_format_id_string(scsi_vendor, (const unsigned char *)&gBuf[8], 8);
-        scsi_format_id_string(product, (const unsigned char *)&gBuf[16], 16);
-        scsi_format_id_string(revision, (const unsigned char *)&gBuf[32], 4);
+        scsi_format_id_string(scsi_vendor, &gBuf[8], 8);
+        scsi_format_id_string(product, &gBuf[16], 16);
+        scsi_format_id_string(revision, &gBuf[32], 4);
 
         pout("=== START OF INFORMATION SECTION ===\n");
         jout("Vendor:               %.8s\n", scsi_vendor);
@@ -2016,7 +2108,8 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     if (iec_err) {
         if (!is_tape) {
             print_on();
-            pout("SMART support is:     Unavailable - device lacks SMART capability.\n");
+            pout("SMART support is:     Unavailable - device lacks SMART "
+                 "capability.\n");
             if (scsi_debugmode > 0)
                 pout(" [%s]\n", scsiErrString(iec_err));
             print_off();
@@ -2270,7 +2363,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             else
                 pout("TapeAlert Not Supported\n");
         } else { /* disk, cd/dvd, enclosure, etc */
-            if ((res = scsiGetSmartData(device, options.smart_vendor_attrib))) {
+            if ((res = scsiGetSmartData(device,
+                                        options.smart_vendor_attrib))) {
                 if (-2 == res)
                     returnval |= FAILSTATUS;
                 else
@@ -2314,6 +2408,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(device);
         scsiPrintErrorCounterLog(device);
+        if (gPendDefectsLPage)
+            scsiPrintPendingDefectsLPage(device);
         if (1 == scsiFetchControlGLTSD(device, modese_len, 1))
             pout("\n[GLTSD (Global Logging Target Save Disable) set. "
                  "Enable Save with '-S on']\n");

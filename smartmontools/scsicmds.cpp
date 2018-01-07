@@ -51,6 +51,8 @@
 const char *scsicmds_c_cvsid="$Id$"
   SCSICMDS_H_CVSID;
 
+static const char * logSenStr = "Log Sense";
+
 // Print SCSI debug messages?
 unsigned char scsi_debugmode = 0;
 
@@ -83,11 +85,11 @@ supported_vpd_pages::is_supported(int vpd_page_num) const
     return false;
 }
 
-/* output binary in hex and optionally ascii */
+/* output binary in ASCII hex and optionally ASCII. Uses pout() for output. */
 void
-dStrHex(const char* str, int len, int no_ascii)
+dStrHex(const uint8_t * up, int len, int no_ascii)
 {
-    const char* p = str;
+    const uint8_t * p = up;
     char buff[82];
     int a = 0;
     const int bpstart = 5;
@@ -106,11 +108,11 @@ dStrHex(const char* str, int len, int no_ascii)
 
     for(i = 0; i < len; i++)
     {
-        unsigned char c = *p++;
+        uint8_t c = *p++;
         bpos += 3;
         if (bpos == (bpstart + (9 * 3)))
             bpos++;
-        snprintf(buff+bpos, sizeof(buff)-bpos, "%.2x", (int)(unsigned char)c);
+        snprintf(buff+bpos, sizeof(buff)-bpos, "%.2x", (unsigned int)c);
         buff[bpos + 2] = ' ';
         if (no_ascii)
             buff[cpos++] = ' ';
@@ -548,8 +550,8 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
         io_hdr.dxfer_len = pageLen;
         io_hdr.dxferp = pBuf;
         cdb[0] = LOG_SENSE;
-        cdb[2] = 0x40 | (pagenum & 0x3f);  /* Page control (PC)==1 */
-        cdb[3] = subpagenum;
+        cdb[2] = 0x40 | (pagenum & 0x3f);       /* Page control (PC)==1 */
+        cdb[3] = subpagenum;                    /* 0 for no sub-page */
         put_unaligned_be16(pageLen, cdb + 7);
         io_hdr.cmnd = cdb;
         io_hdr.cmnd_len = sizeof(cdb);
@@ -719,7 +721,7 @@ scsiModeSelect(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
     hdr_plus_1_pg = pg_offset + pg_len;
     if (hdr_plus_1_pg > bufLen)
         return -EINVAL;
-    pBuf[0] = 0;    /* Length of returned mode sense data reserved for SELECT */
+    pBuf[0] = 0;  /* Length of returned mode sense data reserved for SELECT */
     pBuf[pg_offset] &= 0x7f;    /* Mask out PS bit from byte 0 of page data */
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
@@ -942,14 +944,15 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
     uint8_t cdb[6];
     uint8_t sense[32];
     uint8_t buff[18];
+    int sz_buff = sizeof(buff);
 
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
-    io_hdr.dxfer_len = sizeof(buff);
+    io_hdr.dxfer_len = sz_buff;
     io_hdr.dxferp = buff;
     cdb[0] = REQUEST_SENSE;
-    cdb[4] = sizeof(buff);
+    cdb[4] = sz_buff;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -979,8 +982,7 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
       case 0x70:
       case 0x71:
           sk = (buff[2] & 0xf);
-          if ((sizeof(buff) < 18) ||
-              ((SCSI_SK_NO_SENSE != sk) && (SCSI_SK_NOT_READY != sk))) {
+          if (! ((SCSI_SK_NO_SENSE == sk) || (SCSI_SK_NOT_READY == sk))) {
               break;
           }
           if (buff[15] & 0x80) {        /* SKSV bit set */
@@ -994,11 +996,11 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
           /* sense key specific progress (0x2) or progress descriptor (0xa) */
           sk = (buff[1] & 0xf);
           sk_pr = (SCSI_SK_NO_SENSE == sk) || (SCSI_SK_NOT_READY == sk);
-          if (sk_pr && ((ucp = sg_scsi_sense_desc_find(buff, sizeof(buff), 2))) &&
+          if (sk_pr && ((ucp = sg_scsi_sense_desc_find(buff, sz_buff, 2))) &&
               (0x6 == ucp[1]) && (0x80 & ucp[4])) {
               sense_info->progress = get_unaligned_be16(ucp + 5);
               break;
-          } else if (((ucp = sg_scsi_sense_desc_find(buff, sizeof(buff), 0xa))) &&
+          } else if (((ucp = sg_scsi_sense_desc_find(buff, sz_buff, 0xa))) &&
                      ((0x6 == ucp[1]))) {
               sense_info->progress = get_unaligned_be16(ucp + 6);
               break;
@@ -1310,7 +1312,8 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
         res = scsiReadCapacity10(device, &last_lba, &lb_size);
         if (res) {
             if (scsi_debugmode)
-                pout("%s: 2nd READ CAPACITY(10) failed, res=%d\n", __func__, res);
+                pout("%s: 2nd READ CAPACITY(10) failed, res=%d\n", __func__,
+                     res);
             return 0;
         } else {        /* rcap12 succeeded */
             ret_val = (uint64_t)last_lba + 1;
@@ -1482,7 +1485,7 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
         resp_len = rout[0] + 1;
         rout[2] &= 0xef;
     }
-    int sp = (rout[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
+    int sp = !! (rout[offset] & 0x80); /* PS bit becomes 'SELECT's SP bit */
     if (enabled) {
         rout[offset + 2] = SCSI_IEC_MP_BYTE2_ENABLED;
         if (scsi_debugmode > 2)
@@ -1540,7 +1543,8 @@ scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp)
                             sizeof(tBuf), 0))) {
         *currenttemp = 0;
         *triptemp = 0;
-        pout("Log Sense for temperature failed [%s]\n", scsiErrString(err));
+        pout("%s for temperature failed [%s]\n", logSenStr,
+             scsiErrString(err));
         return err;
     }
     *currenttemp = tBuf[9];
@@ -1554,7 +1558,8 @@ scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp)
  * (Celsius) implies that the temperature not available. */
 int
 scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
-            uint8_t *asc, uint8_t *ascq, uint8_t *currenttemp, uint8_t *triptemp)
+            uint8_t *asc, uint8_t *ascq, uint8_t *currenttemp,
+            uint8_t *triptemp)
 {
     uint8_t tBuf[252];
     struct scsi_sense_disect sense_info;
@@ -1570,13 +1575,14 @@ scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
     if (hasIELogPage) {
         if ((err = scsiLogSense(device, IE_LPAGE, 0, tBuf,
                                 sizeof(tBuf), 0))) {
-            pout("Log Sense failed, IE page [%s]\n", scsiErrString(err));
+            pout("%s failed, IE page [%s]\n", logSenStr, scsiErrString(err));
             return err;
         }
         // pull out page size from response, don't forget to add 4
         unsigned short pagesize = get_unaligned_be16(tBuf + 2) + 4;
         if ((pagesize < 4) || tBuf[4] || tBuf[5]) {
-            pout("Log Sense failed, IE page, bad parameter code or length\n");
+            pout("%s failed, IE page, bad parameter code or length\n",
+                 logSenStr);
             return SIMPLE_ERR_BAD_PARAM;
         }
         if (tBuf[7] > 1) {
@@ -1612,13 +1618,16 @@ scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
 static const char * TapeAlertsMessageTable[]= {
     " ",
     /* 0x01 */
-   "W: The tape drive is having problems reading data. No data has been lost,\n"
+   "W: The tape drive is having problems reading data. No data has been "
+   "lost,\n"
        "  but there has been a reduction in the performance of the tape.",
     /* 0x02 */
-   "W: The tape drive is having problems writing data. No data has been lost,\n"
+   "W: The tape drive is having problems writing data. No data has been "
+   "lost,\n"
        "  but there has been a reduction in the capacity of the tape.",
     /* 0x03 */
-   "W: The operation has stopped because an error has occurred while reading\n"
+   "W: The operation has stopped because an error has occurred while "
+   "reading\n"
        "  or writing data that the drive cannot correct.",
     /* 0x04 */
    "C: Your data is at risk:\n"
@@ -1633,17 +1642,20 @@ static const char * TapeAlertsMessageTable[]= {
        "  1. Use a good tape to test the drive.\n"
        "  2. If problem persists, call the tape drive supplier helpline.",
     /* 0x07 */
-   "W: The tape cartridge has reached the end of its calculated useful life:\n"
+   "W: The tape cartridge has reached the end of its calculated useful "
+   "life:\n"
        "  1. Copy data you need to another tape.\n"
        "  2. Discard the old tape.",
     /* 0x08 */
-   "W: The tape cartridge is not data-grade. Any data you back up to the tape\n"
+   "W: The tape cartridge is not data-grade. Any data you back up to the "
+   "tape\n"
        "  is at risk. Replace the cartridge with a data-grade tape.",
     /* 0x09 */
    "C: You are trying to write to a write-protected cartridge. Remove the\n"
        "  write-protection or use another tape.",
     /* 0x0a */
-   "I: You cannot eject the cartridge because the tape drive is in use. Wait\n"
+   "I: You cannot eject the cartridge because the tape drive is in use. "
+   "Wait\n"
        "  until the operation is complete before ejecting the cartridge.",
     /* 0x0b */
    "I: The tape in the drive is a cleaning cartridge.",
@@ -1651,27 +1663,32 @@ static const char * TapeAlertsMessageTable[]= {
    "I: You have tried to load a cartridge of a type which is not supported\n"
        "  by this drive.",
     /* 0x0d */
-   "C: The operation has failed because the tape in the drive has experienced\n"
+   "C: The operation has failed because the tape in the drive has "
+   "experienced\n"
        "  a mechanical failure:\n"
        "  1. Discard the old tape.\n"
        "  2. Restart the operation with a different tape.",
     /* 0x0e */
-   "C: The operation has failed because the tape in the drive has experienced\n"
+   "C: The operation has failed because the tape in the drive has "
+   "experienced\n"
        "  a mechanical failure:\n"
        "  1. Do not attempt to extract the tape cartridge\n"
        "  2. Call the tape drive supplier helpline.",
     /* 0x0f */
    "W: The memory in the tape cartridge has failed, which reduces\n"
-       "  performance. Do not use the cartridge for further write operations.",
+       "  performance. Do not use the cartridge for further write "
+       "operations.",
     /* 0x10 */
    "C: The operation has failed because the tape cartridge was manually\n"
        "  de-mounted while the tape drive was actively writing or reading.",
     /* 0x11 */
-   "W: You have loaded a cartridge of a type that is read-only in this drive.\n"
+   "W: You have loaded a cartridge of a type that is read-only in this "
+   "drive.\n"
        "  The cartridge will appear as write-protected.",
     /* 0x12 */
    "W: The tape directory on the tape cartridge has been corrupted. File\n"
-       "  search performance will be degraded. The tape directory can be rebuilt\n"
+       "  search performance will be degraded. The tape directory can be "
+       "rebuilt\n"
        "  by reading all the data on the cartridge.",
     /* 0x13 */
    "I: The tape cartridge is nearing the end of its calculated life. It is\n"
@@ -1681,15 +1698,19 @@ static const char * TapeAlertsMessageTable[]= {
        "  data from it.",
     /* 0x14 */
    "C: The tape drive needs cleaning:\n"
-       "  1. If the operation has stopped, eject the tape and clean the drive.\n"
-       "  2. If the operation has not stopped, wait for it to finish and then\n"
+       "  1. If the operation has stopped, eject the tape and clean the "
+       "drive.\n"
+       "  2. If the operation has not stopped, wait for it to finish and "
+       "then\n"
        "  clean the drive.\n"
-       "  Check the tape drive users manual for device specific cleaning instructions.",
+       "  Check the tape drive users manual for device specific cleaning "
+       "instructions.",
     /* 0x15 */
    "W: The tape drive is due for routine cleaning:\n"
        "  1. Wait for the current operation to finish.\n"
        "  2. The use a cleaning cartridge.\n"
-       "  Check the tape drive users manual for device specific cleaning instructions.",
+       "  Check the tape drive users manual for device specific cleaning "
+       "instructions.",
     /* 0x16 */
    "C: The last cleaning cartridge used in the tape drive has worn out:\n"
        "  1. Discard the worn out cleaning cartridge.\n"
@@ -1709,7 +1730,8 @@ static const char * TapeAlertsMessageTable[]= {
    "W: A tape drive cooling fan has failed",
     /* 0x1b */
    "W: A redundant power supply has failed inside the tape drive enclosure.\n"
-       "  Check the enclosure users manual for instructions on replacing the\n"
+       "  Check the enclosure users manual for instructions on replacing "
+       "the\n"
        "  failed power supply.",
     /* 0x1c */
    "W: The tape drive power consumption is outside the specified range.",
@@ -1753,10 +1775,12 @@ static const char * TapeAlertsMessageTable[]= {
        "  drive supplier helpline.",
     /* 0x27 */
    "W: The tape drive may have a hardware fault. Run extended diagnostics to\n"
-       "  verify and diagnose the problem. Check the tape drive users manual for\n"
+       "  verify and diagnose the problem. Check the tape drive users manual "
+       "for\n"
        "  device specific instructions on running extended diagnostic tests.",
     /* 0x28 */
-   "C: The changer mechanism is having difficulty communicating with the tape\n"
+   "C: The changer mechanism is having difficulty communicating with the "
+       "tape\n"
        "  drive:\n"
        "  1. Turn the autoloader off then on.\n"
        "  2. Restart the operation.\n"
@@ -1818,7 +1842,8 @@ static const char * TapeAlertsMessageTable[]= {
         "  and threaded.\n"
         "  1. Remove the cartridge, inspect it as specified in the product\n"
         "  manual, and retry the operation.\n"
-        "  2. If the problem persists, call the tape drive supplier help line.",
+        "  2. If the problem persists, call the tape drive supplier help "
+        "line.",
     /* 0x38 */
     "C: The operation has failed because the medium cannot be unloaded:\n"
         "  1. Do not attempt to extract the tape cartridge.\n"
@@ -1858,19 +1883,23 @@ static const char * ChangerTapeAlertsMessageTable[]= {
     "C: The library has a hardware fault:\n"
         "  1. Reset the library.\n"
         "  2. Restart the operation.\n"
-        "  Check the library users manual for device specific instructions on resetting\n"
+        "  Check the library users manual for device specific instructions on "
+        "resetting\n"
         "  the device.",
     /* 0x04 */
     "C: The library has a hardware fault:\n"
         "  1. Turn the library off then on again.\n"
         "  2. Restart the operation.\n"
         "  3. If the problem persists, call the library supplier help line.\n"
-        "  Check the library users manual for device specific instructions on turning the\n"
+        "  Check the library users manual for device specific instructions on "
+        "turning the\n"
         "  device power on and off.",
     /* 0x05 */
     "W: The library mechanism may have a hardware fault.\n"
-        "  Run extended diagnostics to verify and diagnose the problem. Check the library\n"
-        "  users manual for device specific instructions on running extended diagnostic\n"
+        "  Run extended diagnostics to verify and diagnose the problem. "
+        "Check the library\n"
+        "  users manual for device specific instructions on running extended "
+        "diagnostic\n"
         "  tests.",
     /* 0x06 */
     "C: The library has a problem with the host interface:\n"
@@ -1881,7 +1910,8 @@ static const char * ChangerTapeAlertsMessageTable[]= {
         "  supplier help line.",
     /* 0x08 */
     "W: Preventive maintenance of the library is required.\n"
-        "  Check the library users manual for device specific preventative maintenance\n"
+        "  Check the library users manual for device specific preventative "
+        "maintenance\n"
         "  tasks, or call your library supplier help line.",
     /* 0x09 */
     "C: General environmental conditions inside the library are outside the\n"
@@ -1897,7 +1927,8 @@ static const char * ChangerTapeAlertsMessageTable[]= {
     "C: A cartridge has been left inside the library by a previous hardware\n"
         "  fault:\n"
         "  1. Insert an empty magazine to clear the fault.\n"
-        "  2. If the fault does not clear, turn the library off and then on again.\n"
+        "  2. If the fault does not clear, turn the library off and then on "
+        "again.\n"
         "  3. If the problem persists, call the library supplier help line.",
     /* 0x0d */
     "W: There is a potential problem with the drive ejecting cartridges or\n"
@@ -1928,11 +1959,13 @@ static const char * ChangerTapeAlertsMessageTable[]= {
     "W: Library security has been compromised.",
     /* 0x14 */
     "I: The library security mode has been changed.\n"
-        "  The library has either been put into secure mode, or the library has exited\n"
+        "  The library has either been put into secure mode, or the library "
+        "has exited\n"
         "  the secure mode.\n"
         "  This is for information purposes only. No action is required.",
     /* 0x15 */
-    "I: The library has been manually turned offline and is unavailable for use.",
+    "I: The library has been manually turned offline and is unavailable for "
+    "use.",
     /* 0x16 */
     "I: A drive inside the library has been taken offline.\n"
         "  This is for information purposes only. No action is required.",
@@ -1945,7 +1978,8 @@ static const char * ChangerTapeAlertsMessageTable[]= {
     "C: The library has detected an inconsistency in its inventory.\n"
         "  1. Redo the library inventory to correct inconsistency.\n"
         "  2. Restart the operation.\n"
-        "  Check the applications users manual or the hardware users manual for\n"
+        "  Check the applications users manual or the hardware users manual "
+        "for\n"
         "  specific instructions on redoing the library inventory.",
     /* 0x19 */
     "W: A library operation has been attempted that is invalid at this time.",
@@ -1955,15 +1989,18 @@ static const char * ChangerTapeAlertsMessageTable[]= {
     "W: A library cooling fan has failed.",
     /* 0x1c */
     "W: A redundant power supply has failed inside the library. Check the\n"
-        "  library users manual for instructions on replacing the failed power supply.",
+        "  library users manual for instructions on replacing the failed "
+        "power supply.",
     /* 0x1d */
     "W: The library power consumption is outside the specified range.",
     /* 0x1e */
-    "C: A failure has occurred in the cartridge pass-through mechanism between\n"
+    "C: A failure has occurred in the cartridge pass-through mechanism "
+        "between\n"
         "  two library modules.",
     /* 0x1f */
     "C: A cartridge has been left in the pass-through mechanism from a\n"
-        "  previous hardware fault. Check the library users guide for instructions on\n"
+        "  previous hardware fault. Check the library users guide for "
+        "instructions on\n"
         "  clearing this fault.",
     /* 0x20 */
     "I: The library was unable to read the bar code on a cartridge.",
@@ -1975,7 +2012,8 @@ scsiTapeAlertsChangerDevice(unsigned short code)
     const int num = sizeof(ChangerTapeAlertsMessageTable) /
                         sizeof(ChangerTapeAlertsMessageTable[0]);
 
-    return (code < num) ?  ChangerTapeAlertsMessageTable[code] : "Unknown Alert";
+    return (code < num) ?  ChangerTapeAlertsMessageTable[code] :
+                           "Unknown Alert";
 }
 
 
@@ -2356,7 +2394,7 @@ scsiCountFailedSelfTests(scsi_device * fd, int noisy)
     }
     if ((resp[0] & 0x3f) != SELFTEST_RESULTS_LPAGE) {
         if (noisy)
-            pout("Self-test Log Sense Failed, page mismatch\n");
+            pout("Self-test %s Failed, page mismatch\n", logSenStr);
         return -1;
     }
     // compute page length
@@ -2364,7 +2402,8 @@ scsiCountFailedSelfTests(scsi_device * fd, int noisy)
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
         if (noisy)
-            pout("Self-test Log Sense length is 0x%x not 0x190 bytes\n", num);
+            pout("Self-test %s length is 0x%x not 0x190 bytes\n", logSenStr,
+                 num);
         return -1;
     }
     fails = 0;
@@ -2511,8 +2550,9 @@ scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep,
 
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
-        if ((err = scsiModeSense(device, CACHING_PAGE, 0, MPAGE_CONTROL_CURRENT,
-                                 buff, sizeof(buff)))) {
+        err = scsiModeSense(device, CACHING_PAGE, 0, MPAGE_CONTROL_CURRENT,
+                            buff, sizeof(buff));
+        if (err) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
             else {
@@ -2736,7 +2776,7 @@ sg_scsi_sense_desc_find(const unsigned char * sensep, int sense_len,
 
 // Convenience function for formatting strings from SCSI identify
 void
-scsi_format_id_string(char * out, const unsigned char * in, int n)
+scsi_format_id_string(char * out, const uint8_t * in, int n)
 {
   char tmp[65];
   n = n > 64 ? 64 : n;

@@ -2325,7 +2325,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
                           vpdBuf, sizeof(vpdBuf))) {
           len = vpdBuf[3];
           vpdBuf[4 + len] = '\0';
-          scsi_format_id_string(serial, (const unsigned char *)&vpdBuf[4], len);
+          scsi_format_id_string(serial, &vpdBuf[4], len);
   }
 
   char si_str[64];
@@ -2346,8 +2346,8 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   cfg.id_is_unique = (lu_id[0] || serial[0]);
 
   // format "model" string
-  scsi_format_id_string(vendor, (const unsigned char *)&inqBuf[8], 8);
-  scsi_format_id_string(model, (const unsigned char *)&inqBuf[16], 16);
+  scsi_format_id_string(vendor, &inqBuf[8], 8);
+  scsi_format_id_string(model, &inqBuf[16], 16);
   PrintOut(LOG_INFO, "Device: %s, %s\n", device, cfg.dev_idinfo.c_str());
 
   // Check for duplicates

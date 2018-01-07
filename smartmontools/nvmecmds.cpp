@@ -56,7 +56,7 @@ static void debug_hex_dump(const void * data, unsigned size)
       sz = size;
   }
 
-  dStrHex(p, sz, 0);
+  dStrHex((const uint8_t *)p, sz, 0);
   if (sz < size)
     pout(" ...\n");
 }

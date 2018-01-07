@@ -43,7 +43,7 @@
  * Note that in the latter case, this code does not solve the
  * addressing issue (i.e. which SATA disk to address behind the logical
  * SCSI (RAID) interface).
- * 
+ *
  */
 
 #include <stdio.h>
@@ -241,7 +241,7 @@ sat_device::~sat_device() throw()
 // RETURN VALUES
 //  -1 if the command failed
 //   0 if the command succeeded,
-//   STATUS_CHECK routine: 
+//   STATUS_CHECK routine:
 //  -1 if the command failed
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
@@ -411,7 +411,7 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
                      scsiErrString(status));
                 if (ardp && (scsi_debugmode > 1)) {
                     pout("Values from ATA Return Descriptor are:\n");
-                    dStrHex((const char *)ardp, ard_len, 1);
+                    dStrHex((const uint8_t *)ardp, ard_len, 1);
                 }
             }
             if (t_dir && (t_length > 0) && (in.direction == ata_cmd_in::data_in))
@@ -424,7 +424,7 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
             if (ardp) {
                 if (scsi_debugmode > 1) {
                     pout("Values from ATA Return Descriptor are:\n");
-                    dStrHex((const char *)ardp, ard_len, 1);
+                    dStrHex((const uint8_t *)ardp, ard_len, 1);
                 }
                 // Set output registers
                 ata_out_regs & lo = out.out_regs;
@@ -468,7 +468,7 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
                          * count_upper_nonzero or lba_upper_nonzero are set
                          * involves fetching the SCSI ATA PASS-THROUGH
                          * Results log page and decoding the descriptor with
-                         * the matching log_index field. Painful. */ 
+                         * the matching log_index field. Painful. */
                     }
                 }
             }
@@ -482,7 +482,7 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
                 if (scsi_debugmode > 0) {
                     if (sense_descriptor && ardp) {
                         pout("Values from ATA Return Descriptor are:\n");
-                        dStrHex((const char *)ardp, ard_len, 1);
+                        dStrHex((const uint8_t *)ardp, ard_len, 1);
                     } else if (! sense_descriptor) {
                         pout("Values from ATA fixed format sense are:\n");
                         pout("  Error: 0x%x\n", io_hdr.sensep[3]);
@@ -832,7 +832,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
 
     // if there is a sense the command failed or the
     // device doesn't support usbcypress
-    if (io_hdr.scsi_status == SCSI_STATUS_CHECK_CONDITION && 
+    if (io_hdr.scsi_status == SCSI_STATUS_CHECK_CONDITION &&
             sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len, NULL)) {
         return -1;
     }
@@ -873,7 +873,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
         }
         // if there is a sense the command failed or the
         // device doesn't support usbcypress
-        if (io_hdr.scsi_status == SCSI_STATUS_CHECK_CONDITION && 
+        if (io_hdr.scsi_status == SCSI_STATUS_CHECK_CONDITION &&
                 sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len, NULL)) {
             return -1;
         }
@@ -881,7 +881,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
 
         if (scsi_debugmode > 1) {
             pout("Values from ATA Return Descriptor are:\n");
-            dStrHex((const char *)ardp, ard_len, 1);
+            dStrHex((const uint8_t *)ardp, ard_len, 1);
         }
 
         if (ATA_CHECK_POWER_MODE == ata_command)
@@ -898,7 +898,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
             pout("Retry without other disc access\n");
             pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
             pout("Values from ATA Return Descriptor are:\n");
-            dStrHex((const char *)ardp, ard_len, 1);
+            dStrHex((const uint8_t *)ardp, ard_len, 1);
             return -1;
         }
     }

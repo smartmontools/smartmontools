@@ -3497,8 +3497,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
         "data, len=%d%s:\n", (int)iop->dxfer_len,
         (trunc ? " [only first 256 bytes shown]" : ""));
-        dStrHex((const char *)iop->dxferp,
-        (trunc ? 256 : (int)iop->dxfer_len) , 1);
+        dStrHex(iop->dxferp, (trunc ? 256 : (int)iop->dxfer_len) , 1);
       }
     else
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
@@ -3603,7 +3602,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
     int trunc = (iop->dxfer_len > 256) ? 1 : 0;
     pout("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
       (trunc ? " [only first 256 bytes shown]" : ""));
-    dStrHex((CHAR*)pDataIO, (trunc ? 256 : (int)(iop->dxfer_len)) , 1);
+    dStrHex((const uint8_t *)pDataIO, (trunc ? 256 : (int)(iop->dxfer_len)) , 1);
   }
   return true;
 }

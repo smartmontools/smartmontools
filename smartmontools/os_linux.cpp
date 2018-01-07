@@ -552,7 +552,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         if (n > 0) {
 	    if (n > 16)
 	        pout("  <<truncating to first 16 bytes>>\n");
-	    dStrHex((const char *)ucp, ((n > 16) ? 16 : n), 1);
+	    dStrHex((const uint8_t *)ucp, ((n > 16) ? 16 : n), 1);
 	}
      }
 #endif
@@ -576,8 +576,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
                      "data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex((const char *)iop->dxferp,
-                    (trunc ? 256 : iop->dxfer_len) , 1);
+            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
         }
         else
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
@@ -697,8 +696,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
                 if (len > 0) {
                     pout("  Incoming data, len=%d%s:\n", len,
                          (trunc ? " [only first 256 bytes shown]" : ""));
-                    dStrHex((const char*)iop->dxferp, (trunc ? 256 : len),
-                            1);
+                    dStrHex(iop->dxferp, (trunc ? 256 : len), 1);
                 } else
                     pout("  Incoming data trimmed to nothing by resid\n");
             }
@@ -732,7 +730,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
             if (report > 1) {
                 pout("  >>> Sense buffer, len=%d:\n",
                      (int)iop->resp_sense_len);
-                dStrHex((const char *)iop->sensep, iop->resp_sense_len , 1);
+                dStrHex(iop->sensep, iop->resp_sense_len , 1);
             }
         }
         if (report) {
@@ -790,8 +788,7 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
                      "data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex((const char *)iop->dxferp,
-                    (trunc ? 256 : iop->dxfer_len) , 1);
+            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
         }
         else
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
@@ -839,8 +836,7 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
 
                 pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
-                dStrHex((const char*)iop->dxferp,
-                        (trunc ? 256 : iop->dxfer_len) , 1);
+                dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
             }
         }
         return 0;
@@ -856,7 +852,7 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
         iop->resp_sense_len = len;
         if (report > 1) {
             pout("  >>> Sense buffer, len=%d:\n", (int)len);
-            dStrHex((const char *)wrk.buff, len , 1);
+            dStrHex(wrk.buff, len , 1);
         }
     }
     if (report) {
@@ -1078,8 +1074,7 @@ bool linux_aacraid_device::scsi_pass_through(scsi_cmnd_io *iop)
         snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
                  "data, len=%d%s:\n", (int)iop->dxfer_len,
                  (trunc ? " [only first 256 bytes shown]" : ""));
-        dStrHex((const char *)iop->dxferp,
-               (trunc ? 256 : iop->dxfer_len) , 1);
+        dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
     }
     else
       snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
@@ -1382,8 +1377,7 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
                      "data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex((const char *)iop->dxferp,
-                    (trunc ? 256 : iop->dxfer_len) , 1);
+            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
         }
         else
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");

@@ -98,7 +98,7 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
                  int trunc = (iop->dxfer_len > 256) ? 1 : 0;
                  printf("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                       (trunc ? " [only first 256 bytes shown]" : ""));
-                 dStrHex((const char*)iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+                 dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
              }
          }
          return 0;
@@ -116,7 +116,7 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
          if (report > 1)
          {
              printf("  >>> Sense buffer, len=%d:\n", (int)len);
-             dStrHex((const char *)pBuf, len , 1);
+             dStrHex((const uint8_t *)pBuf, len , 1);
          }
      }
      if (report)

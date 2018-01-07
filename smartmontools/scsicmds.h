@@ -503,11 +503,9 @@ const char * scsiTapeAlertsTapeDevice(unsigned short code);
 const char * scsiTapeAlertsChangerDevice(unsigned short code);
 
 const char * scsi_get_opcode_name(uint8_t opcode);
-void scsi_format_id_string(char * out, const unsigned char * in, int n);
+void scsi_format_id_string(char * out, const uint8_t * in, int n);
 
-void dStrHex(const char* str, int len, int no_ascii);
-inline void dStrHex(const unsigned char* str, int len, int no_ascii)
-  { dStrHex((const char *)str, len, no_ascii); }
+void dStrHex(const uint8_t * up, int len, int no_ascii);
 
 /* Attempt to find the first SCSI sense data descriptor that matches the
    given 'desc_type'. If found return pointer to start of sense data
