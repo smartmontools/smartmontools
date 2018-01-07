@@ -30,7 +30,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 4682 2018-01-05 03:28:09Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 4683 2018-01-07 22:46:30Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -503,11 +503,9 @@ const char * scsiTapeAlertsTapeDevice(unsigned short code);
 const char * scsiTapeAlertsChangerDevice(unsigned short code);
 
 const char * scsi_get_opcode_name(uint8_t opcode);
-void scsi_format_id_string(char * out, const unsigned char * in, int n);
+void scsi_format_id_string(char * out, const uint8_t * in, int n);
 
-void dStrHex(const char* str, int len, int no_ascii);
-inline void dStrHex(const unsigned char* str, int len, int no_ascii)
-  { dStrHex((const char *)str, len, no_ascii); }
+void dStrHex(const uint8_t * up, int len, int no_ascii);
 
 /* Attempt to find the first SCSI sense data descriptor that matches the
    given 'desc_type'. If found return pointer to start of sense data

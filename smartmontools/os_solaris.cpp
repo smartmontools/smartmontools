@@ -37,7 +37,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 4253 2016-03-26 19:47:47Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 4683 2018-01-07 22:46:30Z dpgilbert $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -363,7 +363,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
       pout("  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
            (trunc ? " [only first 256 bytes shown]" : ""));
-      dStrHex((char *)iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
     }
   }
   memset(&uscsi, 0, sizeof (uscsi));
@@ -420,7 +420,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
              iop->sensep[12], iop->sensep[13]);
       if (report > 1) {
           pout("  >>> Sense buffer, len=%d:\n", len);
-          dStrHex((const char *)iop->sensep, ((len > 252) ? 252 : len) , 1);
+          dStrHex(iop->sensep, ((len > 252) ? 252 : len) , 1);
       }
     } else if (iop->scsi_status)
       pout("  status=%x\n", iop->scsi_status);
@@ -432,7 +432,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
         trunc = (len > 256) ? 1 : 0;
         pout("  Incoming data, len=%d%s:\n", len,
              (trunc ? " [only first 256 bytes shown]" : ""));
-        dStrHex((char *)iop->dxferp, (trunc ? 256 : len) , 1);
+        dStrHex(iop->dxferp, (trunc ? 256 : len) , 1);
       }
     }
   }

@@ -18,7 +18,7 @@
 #include "config.h"
 #include "nvmecmds.h"
 
-const char * nvmecmds_cvsid = "$Id: nvmecmds.cpp 4671 2017-12-27 07:12:50Z dpgilbert $"
+const char * nvmecmds_cvsid = "$Id: nvmecmds.cpp 4683 2018-01-07 22:46:30Z dpgilbert $"
   NVMECMDS_H_CVSID;
 
 #include "dev_interface.h"
@@ -56,7 +56,7 @@ static void debug_hex_dump(const void * data, unsigned size)
       sz = size;
   }
 
-  dStrHex(p, sz, 0);
+  dStrHex((const uint8_t *)p, sz, 0);
   if (sz < size)
     pout(" ...\n");
 }
