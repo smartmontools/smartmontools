@@ -1452,7 +1452,7 @@ const drive_settings builtin_knowndrives[] = {
       // SanDisk SD6SB1M256G1022I/X231600, SanDisk SD6SF1M128G1022/X231200, SanDisk SD6SB2M512G1022I/X210400
     "SanDisk SD7S[BN]6S-?(128|256|512)G(1122|-1006)|" // X300 (88SS9189?), tested with
       // SanDisk SD7SB6S128G1122/X3310000, SanDisk SD7SN6S-512G-1006/X3511006
-    "SanDisk SD8SB8U((128|256|512)G|1T00)1122|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
+    "SanDisk SD8S[BN]8U-?((128|256|512)G|1T00)(1122|-1006)|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
@@ -1477,6 +1477,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 188,raw48,Command_Timeout "
   //"-v 194,tempminmax,Temperature_Celsius "
     "-v 199,raw48,SATA_CRC_Error "
+    "-v 201,raw48,Lifetime_Remaining% "
     "-v 212,raw48,SATA_PHY_Error "
     "-v 230,raw48,Perc_Write/Erase_Count "
     "-v 232,raw48,Perc_Avail_Resrvd_Space "
@@ -1486,6 +1487,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Total_Reads_GiB "
   //"-v 243,raw48,Unknown_Attribute "
     "-v 244,raw48,Thermal_Throttle "
+    "-v 249,raw48,TLC_NAND_GB_Writes"
   },
   { "SanDisk based SSDs", // see also #463 for the vendor attribute description
     "SanDisk iSSD P4 [0-9]*GB|" // tested with SanDisk iSSD P4 16GB/SSD 9.14
