@@ -1,5 +1,10 @@
 $Id$
 
+2018-02-08  Douglas Gilbert  <dgilbert@interlog.com>
+
+	nvme on windows: just some code comments. Seems as though
+	W10 tries to completely neuter the idea of a pass-through.
+
 2018-01-06  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsi subsystem: improve dStrHex() signature, adjust
