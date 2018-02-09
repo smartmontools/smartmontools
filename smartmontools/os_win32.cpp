@@ -114,7 +114,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4683 2018-01-07 22:46:30Z dpgilbert $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4684 2018-02-09 02:06:10Z dpgilbert $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -3672,7 +3672,12 @@ bool win_nvme_device::open_scsi(int n)
   return true;
 }
 
-// Check if NVMe pass-through works
+// Check if NVMe DeviceIoControl(IOCTL_SCSI_MINIPORT) pass-through works.
+// On Win10 and later that returns false with an errorNumber of 1
+// ("Incorrect function"). Win10 has new pass-through:
+// DeviceIoControl(IOCTL_STORAGE_PROTOCOL_COMMAND). However for commonly
+// requested NVMe commands like Identify and Get Features Microsoft want
+// "Protocol specific queries" sent.
 bool win_nvme_device::probe()
 {
   smartmontools::nvme_id_ctrl id_ctrl;
@@ -4328,9 +4333,12 @@ static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONIN
     case BusTypeUsb:
       return DEV_USB;
 
-    case 0x11: // BusTypeNVMe?
+    case 0x11: // BusTypeNvme
       return DEV_NVME;
 
+    case 0x12: //BusTypeSCM 
+    case 0x13: //BusTypeUfs
+    case 0x14: //BusTypeMax,
     default:
       return DEV_UNKNOWN;
   }

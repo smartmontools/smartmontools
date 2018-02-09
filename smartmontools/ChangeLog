@@ -1,4 +1,9 @@
-$Id: ChangeLog 4683 2018-01-07 22:46:30Z dpgilbert $
+$Id: ChangeLog 4684 2018-02-09 02:06:10Z dpgilbert $
+
+2018-02-08  Douglas Gilbert  <dgilbert@interlog.com>
+
+	nvme on windows: just some code comments. Seems as though
+	W10 tries to completely neuter the idea of a pass-through.
 
 2018-01-06  Douglas Gilbert  <dgilbert@interlog.com>
 
