@@ -1,5 +1,11 @@
 $Id$
 
+2018-02-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Default to '-d sat' for Seagate (0x0bc2).
+	Keep known exceptions.
+
 2018-02-08  Douglas Gilbert  <dgilbert@interlog.com>
 
 	nvme on windows: just some code comments. Seems as though

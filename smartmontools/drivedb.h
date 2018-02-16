@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-17 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -4498,65 +4498,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
-  { "USB: Seagate FreeAgent Go; ",
-    "0x0bc2:0x2(000|100|101)",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent Go FW; ",
-    "0x0bc2:0x2200",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Expansion Portable; ",
-    "0x0bc2:0x23(00|12|1a|20|21|22)",
-    "", // 12=0x0219, 1a=0x0707, 22=0x0000
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent Desktop; ",
-    "0x0bc2:0x3000",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent Desk; ",
-    "0x0bc2:0x3001",
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: Seagate FreeAgent Desk; ", // 1TB
     "0x0bc2:0x3008",
     "",
     "",
     "-d sat,12"
-  },
-  { "USB: Seagate FreeAgent XTreme; ",
-    "0x0bc2:0x3101",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Expansion Desktop; ",
-    "0x0bc2:0x33(00|1[2a]|2[012]|3[02])", // 1a=5TB, 21=4TB
-    "", // 1a=0x0909
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent GoFlex USB 2.0; ",
-    "0x0bc2:0x502[01]",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent GoFlex USB 3.0; ",
-    "0x0bc2:0x5030",
-    "", // 0x0100
-    "",
-    "-d sat"
   },
   { "USB: Seagate FreeAgent GoFlex USB 3.0; ",
     "0x0bc2:0x5031",
@@ -4564,70 +4510,14 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat,12"
   },
-  { "USB: Seagate FreeAgent; ",
-    "0x0bc2:0x5040",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent GoFlex USB 3.0; ", // 2TB
-    "0x0bc2:0x507[01]",
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 3TB
     "0x0bc2:0x50a1",
     "",
     "",
     "-d sat,12" // "-d sat" does not work (ticket #151)
   },
-  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 2TB, 4TB
-    "0x0bc2:0x50a[57]",
-    "", // 0x0100
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent / Maxtor D3; ",
-    // 0x6121: Seagate FreeAgent GoFlex Pro for Mac (0x0148)
-    // 0x6123: Maxtor D3 Station 3TB (0x0209)
-    // 0x6126: Maxtor D3 Station 5TB (0x0209)
-    "0x0bc2:0x612[136]",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Maxtor M3 Portable; ",
-    "0x0bc2:0x61b7", // Maxtor M3 Portable 4TB (0x0000)
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Backup Plus USB 3.0; ", // 1TB
-    "0x0bc2:0xa0[01]3",
-    "", // 0x0100
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Backup Plus Desktop USB 3.0; ",
-    "0x0bc2:0xa(0a[14]|b3[14])", // 4TB, 3TB (8 LBA/1 PBA offset), 5TB, ?
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Slim Portable Drive; ", // SRD00F1
-    "0x0bc2:0xab00",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Backup Plus USB 3.0; ",
-    // 0xab1e: Seagate Backup Plus 4TB
-    // 0xab24: Seagate Backup Plus Slim (0x0100) (ticket #443)
-    // 0xab25: Seagate Backup Plus for Mac (0x0100)
-    // 0xab38: Seagate Backup Plus 8TB (0x0100) (ticket #786)
-    // 0xab43: Seagate Backup Plus 4TB (0x1404)
-    "0x0bc2:0xab(1e|2[01458]|38|43)",
+  { "USB: Seagate; ",
+    "0x0bc2:0x....",
     "",
     "",
     "-d sat"
