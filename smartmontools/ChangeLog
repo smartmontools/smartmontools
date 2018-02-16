@@ -4,7 +4,7 @@ $Id$
 
 	drivedb.h:
 	- USB: Default to '-d sat' for Toshiba (0x0480), Seagate (0x0bc2),
-	Western Digital (0x1058), ASMedia (0x174c).
+	Western Digital (0x1058), Initio (0x13fd), ASMedia (0x174c).
 	Keep known exceptions.  Merge some entries.
 
 2018-02-08  Douglas Gilbert  <dgilbert@interlog.com>

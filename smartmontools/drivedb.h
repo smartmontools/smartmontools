@@ -4614,12 +4614,6 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: ; Initio", // Thermaltake BlacX
-    "0x13fd:0x0840",
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: ; Initio", // USB->SATA+PATA, Chieftec CEB-25I
     "0x13fd:0x1040",
     "", // 0x0106
@@ -4632,40 +4626,16 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: ; Initio", // USB->SATA
-    "0x13fd:0x1240",
-    "", // 0x0104
-    "",
-    "-d sat"
-  },
-  { "USB: ; Initio", // USB+SATA->SATA
-    "0x13fd:0x1340",
-    "", // 0x0208
-    "",
-    "-d sat"
-  },
   { "USB: ; Initio",
     "0x13fd:0x16[45]0",
     "", // 0x1640: 0x0864, 0x1650: 0x0436
     "",
     "-d sat,12" // some SMART commands fail, see ticket #295
   },
-  { "USB: Intenso Memory Station 2,5\"; Initio",
-    "0x13fd:0x1840",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: ; Initio", // NexStar CX USB enclosure
-    "0x13fd:0x1e40",
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: ; Initio",
-    "0x13fd:0x39[124]0", // 0x3910: Seagate Expansion Portable SRD00F1 (0x0100)
-    "", // 0x3920: ezDISK EZ370 (0x0205)
-    "", // 0x3940: MS-TECH LU-275S (0x0306)
+    "0x13fd:0x....",
+    "",
+    "",
     "-d sat"
   },
   // Super Top
