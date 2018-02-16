@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-17 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -3990,48 +3990,15 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Toshiba
-  { "USB: Toshiba Stor.E Slim USB 3.0; ", // TOSHIBA MQ01UBD100
-    "0x0480:0x0100",
-    "", // 0x0000
-    "",
-    "-d sat"
-  },
-  { "USB: Toshiba Canvio; ", // 0x0210: TOSHIBA MQ03UBB300
-    "0x0480:0x02(01|10)",
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: Toshiba Canvio 500GB; SunPlus",
     "0x0480:0xa004",
     "",
     "",
     "-d usbsunplus"
   },
-  { "USB: Toshiba Canvio Basics; ",
-    "0x0480:0xa00[6d]",
-    "", // 0x0001, 0x0407
+  { "USB: Toshiba; ",
+    "0x0480:0x....",
     "",
-    "-d sat"
-  },
-  { "USB: Toshiba Stor.E; ",
-    "0x0480:0xa00[9ace]",
-    "", // 0x0000 (0xa00e)
-    "",
-    "-d sat"
-  },
-  { "USB: Toshiba Canvio; ",
-    "0x0480:0x(a(007|100|20[027c])|" // 0xa007 TOSHIBA MQ01UBD050,
-              "b207)", // 0xa100: TOSHIBA MQ01UBB200, 0xa200: TOSHIBA MQ01UBD100,
-        // 0xa202: TOSHIBA MQ01UBD050, 0xa207: TOSHIBA MQ01ABD100,
-        // 0xa20c: TOSHIBA MQ01ABB200, 0xb207: TOSHIBA MQ03UBB200
-    "", // 0x0001 (0xa007)
-    "",
-    "-d sat"
-  },
-  { "USB: Toshiba Canvio Desktop; ",
-    "0x0480:0xd0(00|10|11)",
-    "", // 0x0316 (0xd011)
     "",
     "-d sat"
   },
@@ -4489,136 +4456,14 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
-  { "USB: Seagate FreeAgent Go; ",
-    "0x0bc2:0x2(000|100|101)",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent Go FW; ",
-    "0x0bc2:0x2200",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Expansion Portable; ",
-    "0x0bc2:0x23(00|12|1a|20|21|22)",
-    "", // 12=0x0219, 1a=0x0707, 22=0x0000
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent Desktop; ",
-    "0x0bc2:0x3000",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent Desk; ",
-    "0x0bc2:0x3001",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent Desk; ", // 1TB
-    "0x0bc2:0x3008",
-    "",
-    "",
-    "-d sat,12"
-  },
-  { "USB: Seagate FreeAgent XTreme; ",
-    "0x0bc2:0x3101",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Expansion Desktop; ",
-    "0x0bc2:0x33(00|1[2a]|2[012]|3[02])", // 1a=5TB, 21=4TB
-    "", // 1a=0x0909
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent GoFlex USB 2.0; ",
-    "0x0bc2:0x502[01]",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent GoFlex USB 3.0; ",
-    "0x0bc2:0x5030",
-    "", // 0x0100
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent GoFlex USB 3.0; ",
-    "0x0bc2:0x5031",
-    "",
-    "",
-    "-d sat,12"
-  },
   { "USB: Seagate FreeAgent; ",
-    "0x0bc2:0x5040",
+    "0x0bc2:0x(3008|50(31|a1))",
     "",
     "",
-    "-d sat"
+    "-d sat,12" // 0x50a1: "-d sat" does not work (ticket #151)
   },
-  { "USB: Seagate FreeAgent GoFlex USB 3.0; ", // 2TB
-    "0x0bc2:0x507[01]",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 3TB
-    "0x0bc2:0x50a1",
-    "",
-    "",
-    "-d sat,12" // "-d sat" does not work (ticket #151)
-  },
-  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 2TB, 4TB
-    "0x0bc2:0x50a[57]",
-    "", // 0x0100
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate FreeAgent / Maxtor D3; ",
-    // 0x6121: Seagate FreeAgent GoFlex Pro for Mac (0x0148)
-    // 0x6123: Maxtor D3 Station 3TB (0x0209)
-    // 0x6126: Maxtor D3 Station 5TB (0x0209)
-    "0x0bc2:0x612[136]",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Maxtor M3 Portable; ",
-    "0x0bc2:0x61b7", // Maxtor M3 Portable 4TB (0x0000)
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Backup Plus USB 3.0; ", // 1TB
-    "0x0bc2:0xa0[01]3",
-    "", // 0x0100
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Backup Plus Desktop USB 3.0; ",
-    "0x0bc2:0xa(0a[14]|b3[14])", // 4TB, 3TB (8 LBA/1 PBA offset), 5TB, ?
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Slim Portable Drive; ", // SRD00F1
-    "0x0bc2:0xab00",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Seagate Backup Plus USB 3.0; ",
-    // 0xab1e: Seagate Backup Plus 4TB
-    // 0xab24: Seagate Backup Plus Slim (0x0100) (ticket #443)
-    // 0xab25: Seagate Backup Plus for Mac (0x0100)
-    // 0xab38: Seagate Backup Plus 8TB (0x0100) (ticket #786)
-    // 0xab43: Seagate Backup Plus 4TB (0x1404)
-    "0x0bc2:0xab(1e|2[01458]|38|43)",
+  { "USB: Seagate; ",
+    "0x0bc2:0x....",
     "",
     "",
     "-d sat"
@@ -4727,28 +4572,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
-  { "USB: WD Elements Desktop; ",
-    "0x1058:0x10(01|03|21|7c)",
-    "", // 01=0x0104, 03=0x0175, 21=0x2002, 7c=0x1065
+  { "USB: Western Digital; ",
+    "0x1058:0x....",
     "",
-    "-d sat"
-  },
-  { "USB: WD Elements / My Passport; ", // 2.5" with integrated USB
-    "0x1058:0x(07(0[245a]|1a|30|4[0128a]|a[8e])|"
-              "08(1[06]|2[02]|3[37a])|"
-              "10(10|23|4[28]|7d|a[28]|b8)|"
-              "25(9[9df]|a[12]|e2|fa))",
-    "", // 0x0822=0x1007, 37=0x1072
-        // 0x1010=0x0105, 7d=0x1073, a8=0x1042, b8=0x1007
-        // 0x2599=0x1012, 9d/a1=0x1005, 9f/a2=0x1004
-    "",
-    "-d sat"
-  },
-  { "USB: WD My Book / Easystore; ", // 3.5"
-    "0x1058:0x(09(0[06]|10)|11(0[01245]|1[0d]|30|40)|1230|25(a3|ee|fb))",
-    "", // 0x0906=0x0012, 10=0x0106
-        // 0x1100/01=0x0165, 02=0x1028, 10=0x1030, 1d=0x1020, 30=0x1012, 40=0x1003
-        // 0x1230=0x1065, 0x25a3=0x1013, 0x25ee=0x4004, 0x25fb=0x3004
     "",
     "-d sat"
   },
@@ -4773,41 +4599,11 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   // Initio
-  { "USB: ; Initio 316000",
-    "0x13fd:0x0540",
-    "",
-    "",
+  { "USB: ; Initio",
+    "0x13fd:0x(054|1(04|15))0", // 0x0540: Initio 316000
+    "", // 0x1040 (0x0106): USB->SATA+PATA, Chieftec CEB-25I
+    "", // 0x1150: Initio 6Y120L0, CoolerMaster XCraft RX-3HU
     "" // unsupported
-  },
-  { "USB: ; Initio", // Thermaltake BlacX
-    "0x13fd:0x0840",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: ; Initio", // USB->SATA+PATA, Chieftec CEB-25I
-    "0x13fd:0x1040",
-    "", // 0x0106
-    "",
-    "" // unsupported
-  },
-  { "USB: ; Initio 6Y120L0", // CoolerMaster XCraft RX-3HU
-    "0x13fd:0x1150",
-    "",
-    "",
-    "" // unsupported
-  },
-  { "USB: ; Initio", // USB->SATA
-    "0x13fd:0x1240",
-    "", // 0x0104
-    "",
-    "-d sat"
-  },
-  { "USB: ; Initio", // USB+SATA->SATA
-    "0x13fd:0x1340",
-    "", // 0x0208
-    "",
-    "-d sat"
   },
   { "USB: ; Initio",
     "0x13fd:0x16[45]0",
@@ -4815,22 +4611,10 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat,12" // some SMART commands fail, see ticket #295
   },
-  { "USB: Intenso Memory Station 2,5\"; Initio",
-    "0x13fd:0x1840",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: ; Initio", // NexStar CX USB enclosure
-    "0x13fd:0x1e40",
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: ; Initio",
-    "0x13fd:0x39[124]0", // 0x3910: Seagate Expansion Portable SRD00F1 (0x0100)
-    "", // 0x3920: ezDISK EZ370 (0x0205)
-    "", // 0x3940: MS-TECH LU-275S (0x0306)
+    "0x13fd:0x....",
+    "",
+    "",
     "-d sat"
   },
   // Super Top
@@ -4975,35 +4759,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // ASMedia
-  { "USB: ; ASMedia ASM1053/1153/1351",
-    "0x174c:0x1([01]53|351)",
+  { "USB: ; ASMedia",
+    "0x174c:0x....",
     "",
-    "",
-    "-d sat"
-  },
-  { "USB: ; ASMedia ASM1051",
-    "0x174c:0x5106", // 0x174c:0x55aa after firmware update
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: ; ASMedia AS2105", // Icy Box IB-AC603A-U3
-    "0x174c:0x5136",
-    "", // 0x0001
-    "",
-    "-d sat"
-  },
-  { "USB: ; ASMedia", // Vantec NexStar USB 3.0 & SATA dual drive dock
-    "0x174c:0x5516",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: ; ASMedia", // MEDION HDDrive-n-GO, LaCie Rikiki USB 3.0,
-      // Silicon Power Armor A80 (ticket #237)
-      // reported as unsupported: BYTECC T-200U3, Kingwin USB 3.0 docking station
-    "0x174c:0x55aa",
-    "", // 0x0100
     "",
     "-d sat"
   },
