@@ -4498,23 +4498,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
-  { "USB: Seagate FreeAgent Desk; ", // 1TB
-    "0x0bc2:0x3008",
+  { "USB: Seagate FreeAgent; ",
+    "0x0bc2:0x(3008|50(31|a1))",
     "",
     "",
-    "-d sat,12"
-  },
-  { "USB: Seagate FreeAgent GoFlex USB 3.0; ",
-    "0x0bc2:0x5031",
-    "",
-    "",
-    "-d sat,12"
-  },
-  { "USB: Seagate FreeAgent GoFlex Desk USB 3.0; ", // 3TB
-    "0x0bc2:0x50a1",
-    "",
-    "",
-    "-d sat,12" // "-d sat" does not work (ticket #151)
+    "-d sat,12" // 0x50a1: "-d sat" does not work (ticket #151)
   },
   { "USB: Seagate; ",
     "0x0bc2:0x....",
