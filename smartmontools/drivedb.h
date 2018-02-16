@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4690 2018-02-16 20:30:20Z chrfranke $",
+  { "$Id: drivedb.h 4691 2018-02-16 20:41:05Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4608,22 +4608,10 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   // Initio
-  { "USB: ; Initio 316000",
-    "0x13fd:0x0540",
-    "",
-    "",
-    "" // unsupported
-  },
-  { "USB: ; Initio", // USB->SATA+PATA, Chieftec CEB-25I
-    "0x13fd:0x1040",
-    "", // 0x0106
-    "",
-    "" // unsupported
-  },
-  { "USB: ; Initio 6Y120L0", // CoolerMaster XCraft RX-3HU
-    "0x13fd:0x1150",
-    "",
-    "",
+  { "USB: ; Initio",
+    "0x13fd:0x(054|1(04|15))0", // 0x0540: Initio 316000
+    "", // 0x1040 (0x0106): USB->SATA+PATA, Chieftec CEB-25I
+    "", // 0x1150: Initio 6Y120L0, CoolerMaster XCraft RX-3HU
     "" // unsupported
   },
   { "USB: ; Initio",
