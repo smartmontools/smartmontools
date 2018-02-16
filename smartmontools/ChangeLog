@@ -1,10 +1,10 @@
-$Id: ChangeLog 4688 2018-02-16 20:10:10Z chrfranke $
+$Id: ChangeLog 4689 2018-02-16 20:17:47Z chrfranke $
 
 2018-02-16  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
 	- USB: Default to '-d sat' for Toshiba (0x0480), Seagate (0x0bc2),
-	Western Digital (0x1058).
+	Western Digital (0x1058), ASMedia (0x174c).
 	Keep known exceptions.  Merge some entries.
 
 2018-02-08  Douglas Gilbert  <dgilbert@interlog.com>
