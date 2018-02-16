@@ -1,4 +1,10 @@
-$Id: ChangeLog 4684 2018-02-09 02:06:10Z dpgilbert $
+$Id: ChangeLog 4685 2018-02-16 19:45:03Z chrfranke $
+
+2018-02-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Default to '-d sat' for Seagate (0x0bc2).
+	Keep known exceptions.
 
 2018-02-08  Douglas Gilbert  <dgilbert@interlog.com>
 
