@@ -4608,22 +4608,10 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   // Initio
-  { "USB: ; Initio 316000",
-    "0x13fd:0x0540",
-    "",
-    "",
-    "" // unsupported
-  },
-  { "USB: ; Initio", // USB->SATA+PATA, Chieftec CEB-25I
-    "0x13fd:0x1040",
-    "", // 0x0106
-    "",
-    "" // unsupported
-  },
-  { "USB: ; Initio 6Y120L0", // CoolerMaster XCraft RX-3HU
-    "0x13fd:0x1150",
-    "",
-    "",
+  { "USB: ; Initio",
+    "0x13fd:0x(054|1(04|15))0", // 0x0540: Initio 316000
+    "", // 0x1040 (0x0106): USB->SATA+PATA, Chieftec CEB-25I
+    "", // 0x1150: Initio 6Y120L0, CoolerMaster XCraft RX-3HU
     "" // unsupported
   },
   { "USB: ; Initio",
