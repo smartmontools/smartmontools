@@ -1,9 +1,9 @@
-$Id: ChangeLog 4687 2018-02-16 20:01:34Z chrfranke $
+$Id: ChangeLog 4688 2018-02-16 20:10:10Z chrfranke $
 
 2018-02-16  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
-	- USB: Default to '-d sat' for Seagate (0x0bc2),
+	- USB: Default to '-d sat' for Toshiba (0x0480), Seagate (0x0bc2),
 	Western Digital (0x1058).
 	Keep known exceptions.  Merge some entries.
 
