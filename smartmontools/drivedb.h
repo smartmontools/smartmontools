@@ -3999,48 +3999,15 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Toshiba
-  { "USB: Toshiba Stor.E Slim USB 3.0; ", // TOSHIBA MQ01UBD100
-    "0x0480:0x0100",
-    "", // 0x0000
-    "",
-    "-d sat"
-  },
-  { "USB: Toshiba Canvio; ", // 0x0210: TOSHIBA MQ03UBB300
-    "0x0480:0x02(01|10)",
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: Toshiba Canvio 500GB; SunPlus",
     "0x0480:0xa004",
     "",
     "",
     "-d usbsunplus"
   },
-  { "USB: Toshiba Canvio Basics; ",
-    "0x0480:0xa00[6d]",
-    "", // 0x0001, 0x0407
+  { "USB: Toshiba; ",
+    "0x0480:0x....",
     "",
-    "-d sat"
-  },
-  { "USB: Toshiba Stor.E; ",
-    "0x0480:0xa00[9ace]",
-    "", // 0x0000 (0xa00e)
-    "",
-    "-d sat"
-  },
-  { "USB: Toshiba Canvio; ",
-    "0x0480:0x(a(007|100|20[027c])|" // 0xa007 TOSHIBA MQ01UBD050,
-              "b207)", // 0xa100: TOSHIBA MQ01UBB200, 0xa200: TOSHIBA MQ01UBD100,
-        // 0xa202: TOSHIBA MQ01UBD050, 0xa207: TOSHIBA MQ01ABD100,
-        // 0xa20c: TOSHIBA MQ01ABB200, 0xb207: TOSHIBA MQ03UBB200
-    "", // 0x0001 (0xa007)
-    "",
-    "-d sat"
-  },
-  { "USB: Toshiba Canvio Desktop; ",
-    "0x0480:0xd0(00|10|11)",
-    "", // 0x0316 (0xd011)
     "",
     "-d sat"
   },
