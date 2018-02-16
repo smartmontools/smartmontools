@@ -4810,35 +4810,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // ASMedia
-  { "USB: ; ASMedia ASM1053/1153/1351",
-    "0x174c:0x1([01]53|351)",
+  { "USB: ; ASMedia",
+    "0x174c:0x....",
     "",
-    "",
-    "-d sat"
-  },
-  { "USB: ; ASMedia ASM1051",
-    "0x174c:0x5106", // 0x174c:0x55aa after firmware update
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: ; ASMedia AS2105", // Icy Box IB-AC603A-U3
-    "0x174c:0x5136",
-    "", // 0x0001
-    "",
-    "-d sat"
-  },
-  { "USB: ; ASMedia", // Vantec NexStar USB 3.0 & SATA dual drive dock
-    "0x174c:0x5516",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: ; ASMedia", // MEDION HDDrive-n-GO, LaCie Rikiki USB 3.0,
-      // Silicon Power Armor A80 (ticket #237)
-      // reported as unsupported: BYTECC T-200U3, Kingwin USB 3.0 docking station
-    "0x174c:0x55aa",
-    "", // 0x0100
     "",
     "-d sat"
   },
