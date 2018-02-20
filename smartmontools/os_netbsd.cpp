@@ -26,13 +26,14 @@
 
 #include <sys/drvctlio.h>
 #include <sys/utsname.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <unistd.h>
 
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4630 2017-11-21 20:36:06Z samm2 $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4695 2018-02-20 20:47:10Z chrfranke $"
   OS_NETBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))

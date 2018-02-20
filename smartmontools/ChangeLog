@@ -1,6 +1,9 @@
-$Id: ChangeLog 4694 2018-02-20 20:33:11Z chrfranke $
+$Id: ChangeLog 4695 2018-02-20 20:47:10Z chrfranke $
 
 2018-02-20  Christian Franke  <franke@computer.org>
+
+	os_netbsd.cpp: Apply patch-os_netbsd.cpp 1.1 (2017-12-15) from
+	pkgsrc.se/sysutils/smartmontools: Add missing <sys/stat.h>.
 
 	configure.ac, int64.h: Remove support for pre-C99 environments without
 	<inttypes.h> and <stdint.h>.
