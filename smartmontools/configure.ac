@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4693 2018-02-20 20:02:21Z chrfranke $
+# $Id: configure.ac 4694 2018-02-20 20:33:11Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4693 2018-02-20 20:02:21Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4694 2018-02-20 20:33:11Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -85,11 +85,6 @@ AC_MSG_RESULT([$is_svn_build])
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([locale.h])
-dnl we need [u]int64_t and friends.
-AC_CHECK_HEADERS([inttypes.h])		dnl C99, UNIX98, solaris 2.6+
-AC_CHECK_HEADERS([stdint.h])		dnl C99
-AC_CHECK_HEADERS([sys/inttypes.h])	dnl pre-UNIX98
-AC_CHECK_HEADERS([sys/int_types.h])	dnl pre-UNIX98, solaris 2.6+
 
 case "$host" in
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
@@ -121,9 +116,6 @@ case "$host" in
     AC_CHECK_HEADERS([wbemcli.h])
     ;;
 esac
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_TYPES([int64_t, uint64_t])
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
