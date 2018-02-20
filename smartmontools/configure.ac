@@ -85,11 +85,6 @@ AC_MSG_RESULT([$is_svn_build])
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([locale.h])
-dnl we need [u]int64_t and friends.
-AC_CHECK_HEADERS([inttypes.h])		dnl C99, UNIX98, solaris 2.6+
-AC_CHECK_HEADERS([stdint.h])		dnl C99
-AC_CHECK_HEADERS([sys/inttypes.h])	dnl pre-UNIX98
-AC_CHECK_HEADERS([sys/int_types.h])	dnl pre-UNIX98, solaris 2.6+
 
 case "$host" in
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
@@ -121,9 +116,6 @@ case "$host" in
     AC_CHECK_HEADERS([wbemcli.h])
     ;;
 esac
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_TYPES([int64_t, uint64_t])
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])

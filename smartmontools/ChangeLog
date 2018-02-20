@@ -2,6 +2,9 @@ $Id$
 
 2018-02-20  Christian Franke  <franke@computer.org>
 
+	configure.ac, int64.h: Remove support for pre-C99 environments without
+	<inttypes.h> and <stdint.h>.
+
 	configure.ac: Add '-Wformat=2 -fstack-protector-strong' unless
 	CXXFLAGS include other '-W' or '-f' options.
 
