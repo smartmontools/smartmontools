@@ -1,4 +1,9 @@
-$Id: ChangeLog 4690 2018-02-16 20:30:20Z chrfranke $
+$Id: ChangeLog 4693 2018-02-20 20:02:21Z chrfranke $
+
+2018-02-20  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add '-Wformat=2 -fstack-protector-strong' unless
+	CXXFLAGS include other '-W' or '-f' options.
 
 2018-02-16  Christian Franke  <franke@computer.org>
 

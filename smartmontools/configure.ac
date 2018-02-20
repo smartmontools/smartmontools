@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4677 2017-12-29 17:41:15Z dpgilbert $
+# $Id: configure.ac 4693 2018-02-20 20:02:21Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4677 2017-12-29 17:41:15Z dpgilbert $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4693 2018-02-20 20:02:21Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -690,6 +690,7 @@ AM_CONDITIONAL(OS_WIN32_NSIS, [test -n "$MAKENSIS"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
 
 if test "$GXX" = "yes"; then
+  orig_CXXFLAGS=$CXXFLAGS
   # Add -Wall and -W[extra] if its not already specified
   case " $CXXFLAGS " in
     *\ -Wall\ *) ;;
@@ -700,19 +701,16 @@ if test "$GXX" = "yes"; then
     *) CXXFLAGS="$CXXFLAGS -W" ;;
   esac
   # Add -Wformat=2 (GCC 3.0) -fstack-protector[-strong] (GCC 4.1[4.9]) if supported
-  # and CXXFLAGS was not set in configure cmdline (TODO: -Wformat-signedness)
-  case "${ac_test_CXXFLAGS+set}:$ac_test_CXXFLAGS" in
-    set:)
-      for option in "-Wformat=2" "-fstack-protector-strong" "-fstack-protector"; do
-        case " $CXXFLAGS:$option" in *\ -fstack-p*:-fstack-p*) continue ;; esac
-        AC_MSG_CHECKING([whether $CXX supports $option])
-        save_CXXFLAGS=$CXXFLAGS
-        CXXFLAGS="$CXXFLAGS $option"
-        AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
-        AC_MSG_RESULT([$res])
-      done
-      ;;
-  esac
+  # and no -W or -f option was set in configure cmdline (TODO: -Wformat-signedness)
+  for option in "-Wformat=2" "-fstack-protector-strong" "-fstack-protector"; do
+    case " $orig_CXXFLAGS:$option" in *\ -W*:-W*|*\ -f*:-f*) continue ;; esac
+    case " $CXXFLAGS:$option" in *\ -fstack-p*:-fstack-p*) continue ;; esac
+    AC_MSG_CHECKING([whether $CXX supports $option])
+    save_CXXFLAGS=$CXXFLAGS
+    CXXFLAGS="$CXXFLAGS $option"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
+    AC_MSG_RESULT([$res])
+  done
 else
   # We are NOT using gcc, so enable host-specific compiler flags
   case "${host}" in
