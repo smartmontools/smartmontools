@@ -26,6 +26,7 @@
 
 #include <sys/drvctlio.h>
 #include <sys/utsname.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <unistd.h>
 
