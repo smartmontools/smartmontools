@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4700 2018-02-26 20:37:18Z samm2 $",
+  { "$Id: drivedb.h 4701 2018-02-26 20:46:38Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2803,7 +2803,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HGST Deskstar NAS", // tested with HGST HDN724040ALE640/MJAOA5E0,
        // HGST HDN726050ALE610/APGNT517, HGST HDN726060ALE610/APGNT517
-    "HGST HDN72(4030|4040|6050|6060)ALE6[14]0",
+       // HGST HDN726060ALE614/K1HE594D
+    "HGST HDN72(4030|4040|6050|6060)ALE6(10|14|40|04)",
     "", "", ""
   },
   { "Hitachi Ultrastar A7K1000", // tested with
