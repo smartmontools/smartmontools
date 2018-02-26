@@ -1,4 +1,9 @@
-$Id: ChangeLog 4695 2018-02-20 20:47:10Z chrfranke $
+$Id: ChangeLog 4696 2018-02-26 17:24:36Z samm2 $
+
+2018-02-26  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- add Seagate XF1230 SSD (GH: issues/4)
 
 2018-02-20  Christian Franke  <franke@computer.org>
 
