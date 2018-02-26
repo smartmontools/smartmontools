@@ -1,5 +1,10 @@
 $Id$
 
+2018-02-26  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- add Seagate XF1230 SSD (GH: issues/4)
+
 2018-02-20  Christian Franke  <franke@computer.org>
 
 	os_netbsd.cpp: Apply patch-os_netbsd.cpp 1.1 (2017-12-15) from

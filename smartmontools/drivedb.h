@@ -3535,6 +3535,21 @@ const drive_settings builtin_knowndrives[] = {
     "ST6[468]022CF",
     "", "", ""
   },
+  { "Seagate Nytro XF1230 SATA SSD", // tested with XF1230-1A0480/ST200354
+    "XF1230-1A(0240|0480|0960|1920)",
+    "", "", 
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 180,raw48,End_to_End_Err_Detect "
+    "-v 183,raw48,SATA_Downshift_Count "
+    "-v 189,raw48,SSD_Health_Flags "
+    "-v 190,raw48,SATA_Error_Ct "
+    "-v 201,raw48,Read_Error_Rate "
+    "-v 231,raw48,SSD_Life_Left_Perc "
+    "-v 234,raw48,Lifetime_Nand_Gb "
+    "-v 241,raw48,Total_Writes_GiB "
+    "-v 242,raw48,Total_Reads_GiB "
+    "-v 245,raw48,Read_Error_Rate "
+  },
   { "WD Blue PC SSD", // tested with WDC WDS100T1B0A-00H9H0
     "WDC WDS...[TG]1B0[AB].*",
     "", "",
