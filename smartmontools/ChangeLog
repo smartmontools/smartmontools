@@ -4,6 +4,8 @@ $Id$
 
 	drivedb.h:
 	- add Seagate XF1230 SSD (GH: issues/4)
+	- add Intel SSD Pro 5400s Series (GH: pull/5)
+	- add SanDisk-SD8SN8U-256G-1006 (GH: pull/3)
 
 2018-02-20  Christian Franke  <franke@computer.org>
 
