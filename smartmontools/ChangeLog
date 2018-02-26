@@ -1,4 +1,4 @@
-$Id: ChangeLog 4701 2018-02-26 20:46:38Z samm2 $
+$Id: ChangeLog 4702 2018-02-26 20:56:32Z samm2 $
 
 2018-02-26  Alex Samorukov <samm@os2.kiev.ua>
 
@@ -8,6 +8,7 @@ $Id: ChangeLog 4701 2018-02-26 20:46:38Z samm2 $
 	- add SanDisk-SD8SN8U-256G-1006 (GH: pull/3)
 	- add Toshiba Q300 SSD series (#932)
 	- extend HGST Deskstar NAS regexp (#975)
+	- add KINGSTON SNS4151S316GD SSD (#902)
 
 2018-02-20  Christian Franke  <franke@computer.org>
 
