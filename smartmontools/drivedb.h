@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4699 2018-02-26 20:35:47Z samm2 $",
+  { "$Id: drivedb.h 4700 2018-02-26 20:37:18Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -737,7 +737,7 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ/Toshiba Trion SSDs",
     "OCZ-TRION1[05]0|" // tested with OCZ-TRION100/SAFM11.2A, TRION150/SAFZ72.2
     "TOSHIBA-TR150|" // tested with TOSHIBA-TR150/SAFZ12.3
-    "TOSHIBA Q300( Pro\.)?", // tested with TOSHIBA Q300 Pro./JYRA0101
+    "TOSHIBA Q300( Pro\\.)?", // tested with TOSHIBA Q300 Pro./JYRA0101
     "", "",
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
