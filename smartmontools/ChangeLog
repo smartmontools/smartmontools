@@ -1,9 +1,11 @@
-$Id: ChangeLog 4696 2018-02-26 17:24:36Z samm2 $
+$Id: ChangeLog 4697 2018-02-26 17:30:40Z samm2 $
 
 2018-02-26  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
 	- add Seagate XF1230 SSD (GH: issues/4)
+	- add Intel SSD Pro 5400s Series (GH: pull/5)
+	- add SanDisk-SD8SN8U-256G-1006 (GH: pull/3)
 
 2018-02-20  Christian Franke  <franke@computer.org>
 
