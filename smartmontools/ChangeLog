@@ -8,6 +8,7 @@ $Id$
 	- add SanDisk-SD8SN8U-256G-1006 (GH: pull/3)
 	- add Toshiba Q300 SSD series (#932)
 	- extend HGST Deskstar NAS regexp (#975)
+	- add KINGSTON SNS4151S316GD SSD (#902)
 
 2018-02-20  Christian Franke  <franke@computer.org>
 
