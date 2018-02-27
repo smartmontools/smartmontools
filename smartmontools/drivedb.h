@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4707 2018-02-27 11:24:02Z samm2 $",
+  { "$Id: drivedb.h 4708 2018-02-27 11:37:40Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3480,7 +3480,8 @@ const drive_settings builtin_knowndrives[] = {
       // ST8000NM0045-1RL112/NN02
       // ST6000NM0004-1FT17Z/NN01
       // ST4000NM0035-1V4107/TNC3
-    "ST([24568]|10)000NM0[01][0-48][456]-.*", // *[069]4 = 4Kn
+      // ST1000NM0055-1V410C/TN02
+    "ST([1234568]|10)000NM0[01][0-68][456]-.*", // *[069]4 = 4Kn
     "", "", 
     "-v 188,raw16 -v 240,msec24hour32"
   },
