@@ -1,4 +1,9 @@
-$Id: ChangeLog 4702 2018-02-26 20:56:32Z samm2 $
+$Id: ChangeLog 4703 2018-02-27 10:43:28Z samm2 $
+
+2018-02-27  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- extend PLEXTOR PX regexp (#934)
 
 2018-02-26  Alex Samorukov <samm@os2.kiev.ua>
 
