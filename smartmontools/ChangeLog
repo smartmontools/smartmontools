@@ -4,6 +4,7 @@ $Id$
 
 	drivedb.h:
 	- extend PLEXTOR PX regexp (#934)
+	- add Seagate Enterprise NAS HDD family (#946)
 
 2018-02-26  Alex Samorukov <samm@os2.kiev.ua>
 
