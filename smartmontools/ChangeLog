@@ -7,6 +7,7 @@ $Id$
 	- add Seagate Enterprise NAS HDD family (#946)
 	- add SanDisk SDSA6MM-* family (#965)
 	- fix Seagate Laptop HDD regexp (#955)
+	- add Seagate Barracuda Compute series (#927)
 
 2018-02-26  Alex Samorukov <samm@os2.kiev.ua>
 
