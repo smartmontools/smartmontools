@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4705 2018-02-27 11:11:22Z samm2 $",
+  { "$Id: drivedb.h 4706 2018-02-27 11:16:13Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3154,7 +3154,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Laptop HDD", // tested with ST500LT012-9WS142/0001SDM1,
       // ST500LM021-1KJ152/0002LIM1, ST4000LM016-1N2170/0003
-    "ST((25|32|50)0LT0(12|15|25)|(32|50)0LM0(10|21)|[34]00LM016)-.*",
+    "ST((25|32|50)0LT0(12|15|25)|(32|50)0LM0(10|21)|[34]000LM016)-.*",
     "", "", ""
   },
   { "Seagate Laptop SSHD", // tested with ST500LM000-1EJ162/SM11
