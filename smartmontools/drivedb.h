@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4703 2018-02-27 10:43:28Z samm2 $",
+  { "$Id: drivedb.h 4704 2018-02-27 11:04:55Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3482,6 +3482,14 @@ const drive_settings builtin_knowndrives[] = {
   // tested with ST8000VN0002-1Z8112/ZA13YGNF
   { "Seagate NAS HDD", // tested with ST2000VN000-1H3164/SC42, ST3000VN000-1H4167/SC43
     "ST([234]000VN000|[468]000VN00(02|21|12|31|3))-.*",
+    "", "", ""
+  },
+  // ST8000NE0001, ST8000NE0011, ST6000VN0001, ST6000VN0011, ST5000VN0001,
+  // ST5000VN0011, ST4000VN0001, ST4000VN0011, ST3000VN0001, ST3000VN0011,
+  // ST2000VN0001, ST2000VN0011
+  // tested with ST8000NE0001-1WN112/PNA2
+  { "Seagate Enterprise NAS HDD",
+    "ST(8000NE|[65432]000VN)00[01]1-.*",
     "", "", ""
   },
   // ST10000VN0004, ST8000VN0022, ST6000VN0041, ST4000VN008, ST3000VN007,

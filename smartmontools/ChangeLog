@@ -1,9 +1,10 @@
-$Id: ChangeLog 4703 2018-02-27 10:43:28Z samm2 $
+$Id: ChangeLog 4704 2018-02-27 11:04:55Z samm2 $
 
 2018-02-27  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
 	- extend PLEXTOR PX regexp (#934)
+	- add Seagate Enterprise NAS HDD family (#946)
 
 2018-02-26  Alex Samorukov <samm@os2.kiev.ua>
 
