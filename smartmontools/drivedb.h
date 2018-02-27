@@ -1343,7 +1343,8 @@ const drive_settings builtin_knowndrives[] = {
       // tested with PLEXTOR PX-128M3/1.01, PX-128M3P/1.04, PX-256M3/1.05, PX-128M5S/1.02, PX-256M5S/1.03,
       // PX-128M5M/1.05, PX-128M5S/1.05, PX-128M5Pro/1.05, PX-512M5Pro/1.06, PX-256M5P/1.01, PX-128M6S/1.03
       // (1.04/5 Firmware self-test log lifetime unit is bogus, possibly 1/256 hours)
-    "PLEXTOR PX-(64|128|256|512|768)M(3P?|5[MPS]|5Pro|6[MS])",
+      // PLEXTOR PX-256M6S+/1.00
+    "PLEXTOR PX-(64|128|256|512|768)M(3P?|5[MPS]|5Pro|6[MS])\\+?",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
