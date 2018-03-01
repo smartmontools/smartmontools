@@ -1,5 +1,9 @@
 $Id$
 
+2018-03-01  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: Fix build under -CURRENT (patch by cy@)
+
 2018-02-28  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
