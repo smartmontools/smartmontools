@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4708 2018-02-27 11:37:40Z samm2 $",
+  { "$Id: drivedb.h 4709 2018-03-01 06:17:52Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1476,6 +1476,7 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
+    "SanDisk SDSSDH2(128|256)G|" // SanDisk SDSSDH2128G/X211200
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
     "SSD SATAIII 16GB", // SSD SATAIII 16GB/i221100 (see #923)
