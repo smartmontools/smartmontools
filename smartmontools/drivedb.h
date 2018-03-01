@@ -1476,6 +1476,7 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
+    "SanDisk SDSSDH2(128|256)G|" // SanDisk SDSSDH2128G/X211200
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
     "SSD SATAIII 16GB", // SSD SATAIII 16GB/i221100 (see #923)

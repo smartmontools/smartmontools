@@ -1,5 +1,10 @@
 $Id$
 
+2018-02-28  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Add SanDisk SDSSDH2128G (#982)
+
 2018-02-27  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
