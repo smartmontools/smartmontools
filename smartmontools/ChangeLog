@@ -1,4 +1,8 @@
-$Id: ChangeLog 4709 2018-03-01 06:17:52Z samm2 $
+$Id: ChangeLog 4710 2018-03-01 17:31:54Z samm2 $
+
+2018-03-01  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: Fix build under -CURRENT (patch by cy@)
 
 2018-02-28  Alex Samorukov <samm@os2.kiev.ua>
 

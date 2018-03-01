@@ -148,8 +148,10 @@ struct nvme_pt_command {
 #include <dev/nvme/nvme.h>
 #endif
 
+#if __FreeBSD_version < 1200058
 #define nvme_completion_is_error(cpl)					\
 	((cpl)->status.sc != 0 || (cpl)->status.sct != 0)
+#endif
 
 #define NVME_CTRLR_PREFIX	"/dev/nvme"
 #define NVME_NS_PREFIX		"ns"
