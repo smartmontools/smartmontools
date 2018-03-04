@@ -1,4 +1,8 @@
-$Id: ChangeLog 4710 2018-03-01 17:31:54Z samm2 $
+$Id: ChangeLog 4711 2018-03-04 23:39:31Z samm2 $
+
+2018-03-05  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: add Seagate Barracuda Pro family (#981)
 
 2018-03-01  Alex Samorukov <samm@os2.kiev.ua>
 
