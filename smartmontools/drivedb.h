@@ -3351,6 +3351,11 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Barracuda Compute", // tested on ST8000DM004-2CX188/0001
     "ST(8000DM004|6000DM003|4000DM004|3000DM007|2000DM005)-.*",
     "", "",
+    ""
+  },
+  { "Seagate Barracuda Pro", // tested on ST8000DM004-2CX188/0001
+    "ST(8000DM005|6000DM004|4000DM006|2000DM009)-.*",
+    "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // < 1TB, tested with ST250DM000-1BC141

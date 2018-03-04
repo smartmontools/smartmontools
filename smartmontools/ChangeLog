@@ -1,5 +1,9 @@
 $Id$
 
+2018-03-05  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: add Seagate Barracuda Pro family (#981)
+
 2018-03-01  Alex Samorukov <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: Fix build under -CURRENT (patch by cy@)
