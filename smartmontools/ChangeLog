@@ -1,4 +1,9 @@
-$Id: ChangeLog 4711 2018-03-04 23:39:31Z samm2 $
+$Id: ChangeLog 4712 2018-03-05 13:52:58Z dipohl $
+
+2018-03-05  Gabriele Pohl <contact@dipohl.de>
+
+	drivedb.h:
+	- Add Seagate IronWolf 12TB ST12000VN0007-2GS116 (#988)
 
 2018-03-05  Alex Samorukov <samm@os2.kiev.ua>
 
