@@ -3508,8 +3508,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ST10000VN0004, ST8000VN0022, ST6000VN0041, ST4000VN008, ST3000VN007,
   // ST2000VN004, ST1000VN002
-  { "Seagate IronWolf", // tested with ST6000VN0041-2EL11C/SC61
-    "ST(10|8|6|4|3|2|1)000VN00(04|22|41|8|7|2|4)-.*",
+  { "Seagate IronWolf", // tested with ST6000VN0041-2EL11C/SC61,
+      // ST12000VN0007-2GS116/SC60
+    "ST(12|10|8|6|4|3|2|1)000VN00(04|07|22|41|8|7|2|4)-.*",
     "", "", ""
   },  
   { "Seagate Archive HDD", // tested with ST8000AS0002-1NA17Z/AR13

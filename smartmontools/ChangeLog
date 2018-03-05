@@ -1,5 +1,10 @@
 $Id$
 
+2018-03-05  Gabriele Pohl <contact@dipohl.de>
+
+	drivedb.h:
+	- Add Seagate IronWolf 12TB ST12000VN0007-2GS116 (#988)
+
 2018-03-05  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h: add Seagate Barracuda Pro family (#981)
