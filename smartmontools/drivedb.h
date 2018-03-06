@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4713 2018-03-06 21:01:49Z samm2 $",
+  { "$Id: drivedb.h 4714 2018-03-06 21:37:25Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3027,6 +3027,14 @@ const drive_settings builtin_knowndrives[] = {
   { "", // TOSHIBA MK6022GAX
     "TOSHIBA MK6022GAX",
     "", "", ""
+  },
+  { "Toshiba HK4R Series SSD", // TOSHIBA THNSN8960PCSE/8EET6101
+    "TOSHIBA THNSN8(120P|240P|480P|960P|1Q92)CSE",
+    "", "", 
+    "-v 167,raw48,SSD_Protect_Mode "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 169,raw48,Bad_Block_Count "
+    "-v 173,raw48,Erase_Count "
   },
   { "Toshiba HG6 Series SSD", // TOSHIBA THNSNJ512GCST/JTRA0102
     // http://www.farnell.com/datasheets/1852757.pdf
