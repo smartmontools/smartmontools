@@ -1,10 +1,11 @@
-$Id: ChangeLog 4714 2018-03-06 21:37:25Z samm2 $
+$Id: ChangeLog 4715 2018-03-06 21:54:23Z samm2 $
 
 2018-03-06  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h: 
 	- add Transcend PSD SSD family (#979)
 	- add Toshiba HK4R Series SSD (#898)
+	- extend Western Digital Re regexp (#896)
 
 2018-03-05  Gabriele Pohl <contact@dipohl.de>
 
