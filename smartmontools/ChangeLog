@@ -7,6 +7,7 @@ $Id$
 	- add Toshiba HK4R Series SSD (#898)
 	- extend Western Digital Re regexp (#896)
 	- extend Wester Digital Se regexp (#953)
+	- add Smartbuy ignition plus (#976)
 
 2018-03-05  Gabriele Pohl <contact@dipohl.de>
 
