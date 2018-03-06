@@ -3775,7 +3775,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 16,raw48,Total_LBAs_Read" // WDC WD1004FBYZ-01YCBB1/RR04
   },
   { "Western Digital Se", // tested with WDC WD2000F9YZ-09N20L0/01.01A01
-    "WDC WD(1002|2000|3000|4000)F9YZ-.*",
+    // WD6001F9YZ, WD5001F9YZ, WD4000F9YZ, WD3000F9YZ, WD2000F9YZ, WD1002F9YZ
+    "WDC WD(1002|2000|3000|4000|5001|6001)F9YZ-.*",
     "", "", ""
   },
   { "Western Digital Caviar Green", // tested with WDC WD7500AADS-00M2B0/01.00A01,
