@@ -5,6 +5,7 @@ $Id$
 	drivedb.h: 
 	- add Transcend PSD SSD family (#979)
 	- add Toshiba HK4R Series SSD (#898)
+	- extend Western Digital Re regexp (#896)
 
 2018-03-05  Gabriele Pohl <contact@dipohl.de>
 
