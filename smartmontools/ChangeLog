@@ -1,5 +1,9 @@
 $Id$
 
+2018-03-06  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: add Transcend PSD SSD family (#979)
+
 2018-03-05  Gabriele Pohl <contact@dipohl.de>
 
 	drivedb.h:
