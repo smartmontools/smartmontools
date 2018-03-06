@@ -1,4 +1,4 @@
-$Id: ChangeLog 4715 2018-03-06 21:54:23Z samm2 $
+$Id: ChangeLog 4716 2018-03-06 21:59:30Z samm2 $
 
 2018-03-06  Alex Samorukov <samm@os2.kiev.ua>
 
@@ -6,6 +6,7 @@ $Id: ChangeLog 4715 2018-03-06 21:54:23Z samm2 $
 	- add Transcend PSD SSD family (#979)
 	- add Toshiba HK4R Series SSD (#898)
 	- extend Western Digital Re regexp (#896)
+	- extend Wester Digital Se regexp (#953)
 
 2018-03-05  Gabriele Pohl <contact@dipohl.de>
 
