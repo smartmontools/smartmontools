@@ -1267,10 +1267,12 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
             if (scsi_debugmode)
                 pout("%s: READ CAPACITY(10) failed, res=%d\n", __func__, res);
             try_16 = true;
-        } else {        /* rcap12 succeeded */
-            if (0xffffffff == last_lba)
+        } else {        /* rcap10 succeeded */
+            if (0xffffffff == last_lba) {
+                /* so number of blocks needs > 32 bits to represent */
                 try_16 = true;
-            else {
+                device->set_rcap16_first();
+            } else {
                 ret_val = last_lba + 1;
                 if (srrp) {
                     memset(srrp, 0, sizeof(*srrp));
@@ -1315,7 +1317,7 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
                 pout("%s: 2nd READ CAPACITY(10) failed, res=%d\n", __func__,
                      res);
             return 0;
-        } else {        /* rcap12 succeeded */
+        } else {        /* rcap10 succeeded */
             ret_val = (uint64_t)last_lba + 1;
             if (srrp) {
                 memset(srrp, 0, sizeof(*srrp));

@@ -1,5 +1,19 @@
 $Id$
 
+2018-03-07  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartd.cpp:
+	- continue to use READ CAPACITY(10) first on unseen
+	  SCSI devices but once we discover the need for
+	  READ CAPACITY(16) use it for subsequent accesses
+	dev_interface.h: 
+	- struct scsi_device: add set_rcap16_first() and
+	  use_rcap16() const methods
+	scsicmds.cpp:
+	- use scsi_device::set_rcap16_first() when READ
+	  CAPACITY(10) reports 32 bits can't represent the
+	  number of blocks
+
 2018-03-06  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h: 

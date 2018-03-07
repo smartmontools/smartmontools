@@ -2330,7 +2330,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
 
   char si_str[64];
   struct scsi_readcap_resp srr;
-  uint64_t capacity = scsiGetSize(scsidev, false /* avoid_rcap16 */, &srr);
+  uint64_t capacity = scsiGetSize(scsidev, scsidev->use_rcap16(), &srr);
 
   if (capacity)
     format_capacity(si_str, sizeof(si_str), capacity, ".");
