@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4283 2016-04-10 12:55:59Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4718 2018-03-07 16:47:28Z dpgilbert $\n"
 
 #include "utility.h"
 
@@ -591,6 +591,14 @@ public:
   /// Returns false on error.
   virtual bool scsi_pass_through(scsi_cmnd_io * iop) = 0;
 
+  /// Always try READ CAPACITY(10) (rcap10) first but once we know
+  /// rcap16 is needed, use it instead.
+  void set_rcap16_first()
+    { rcap16_first = true; }
+
+  bool use_rcap16() const
+    { return rcap16_first; }
+
 protected:
   /// Hide/unhide SCSI interface.
   void hide_scsi(bool hide = true)
@@ -598,8 +606,12 @@ protected:
 
   /// Default constructor, registers device as SCSI.
   scsi_device()
-    : smart_device(never_called)
+    : smart_device(never_called),
+      rcap16_first(false)
     { hide_scsi(false); }
+
+private:
+  bool rcap16_first;
 };
 
 

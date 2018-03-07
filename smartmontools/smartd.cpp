@@ -90,7 +90,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4683 2018-01-07 22:46:30Z dpgilbert $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4718 2018-03-07 16:47:28Z dpgilbert $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -2330,7 +2330,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
 
   char si_str[64];
   struct scsi_readcap_resp srr;
-  uint64_t capacity = scsiGetSize(scsidev, false /* avoid_rcap16 */, &srr);
+  uint64_t capacity = scsiGetSize(scsidev, scsidev->use_rcap16(), &srr);
 
   if (capacity)
     format_capacity(si_str, sizeof(si_str), capacity, ".");
