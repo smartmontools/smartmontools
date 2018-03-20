@@ -2,6 +2,8 @@ $Id$
 
 2018-03-20  Christian Franke  <franke@computer.org>
 
+	nvmeprint.cpp: Add initial JSON support for '-i', '-H' and '-A'.
+
 	json.cpp, json.h: Add support for 64 and 128 bit unsigned
 	integers.  Add 'set_unsafe_*()' member functions to print unsigned
 	integers >= 53 bit as JSON number and string.
