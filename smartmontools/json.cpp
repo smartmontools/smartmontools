@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017 Christian Franke
+ * Copyright (C) 2017-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 
 const char * json_cvsid = "$Id$"
   JSON_H_CVSID;
+
+#include "unaligned.h"
 
 #include <stdexcept>
 
@@ -75,6 +77,12 @@ json::ref & json::ref::operator=(long long value)
   return *this;
 }
 
+json::ref & json::ref::operator=(unsigned long long value)
+{
+  m_js.set_uint(m_path, value);
+  return *this;
+}
+
 json::ref & json::ref::operator=(int value)
 {
   return operator=((long long)value);
@@ -82,7 +90,7 @@ json::ref & json::ref::operator=(int value)
 
 json::ref & json::ref::operator=(unsigned value)
 {
-  return operator=((long long)value);
+  return operator=((unsigned long long)value);
 }
 
 json::ref & json::ref::operator=(long value)
@@ -92,12 +100,7 @@ json::ref & json::ref::operator=(long value)
 
 json::ref & json::ref::operator=(unsigned long value)
 {
-  return operator=((long long)value);
-}
-
-json::ref & json::ref::operator=(unsigned long long value)
-{
-  return operator=((long long)value);
+  return operator=((unsigned long long)value);
 }
 
 json::ref & json::ref::operator=(const std::string & value)
@@ -112,15 +115,68 @@ json::ref & json::ref::operator=(const char * value)
   return operator=(std::string(value));
 }
 
+void json::ref::set_uint128(uint64_t value_hi, uint64_t value_lo)
+{
+  if (!value_hi)
+    operator=((unsigned long long)value_lo);
+  else
+    m_js.set_uint128(m_path, value_hi, value_lo);
+}
+
+void json::ref::set_unsafe_uint64(uint64_t value)
+{
+  // Output as number and string
+  operator[]("n") = (unsigned long long)value;
+  char s[32];
+  snprintf(s, sizeof(s), "%llu", (unsigned long long)value);
+  operator[]("s") = s;
+}
+
+static const char * uint128_to_str(char (& str)[64], uint64_t hi, uint64_t lo)
+{
+  snprintf(str, sizeof(str), "%.0f", hi * (0xffffffffffffffffULL + 1.0) + lo);
+  return str;
+}
+
+void json::ref::set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo)
+{
+  if (!value_hi)
+    set_unsafe_uint64(value_lo);
+  else {
+    // Output as number, string and LE byte array
+    operator[]("n").set_uint128(value_hi, value_lo);
+    char s[64];
+    operator[]("s") = uint128_to_str(s, value_hi, value_lo);
+
+    ref le = operator[]("le");
+    for (int i = 0; i < 8; i++)
+      le[i] = (value_lo >> (i << 3)) & 0xff;
+    for (int i = 0; i < 8; i++) {
+      uint64_t v = value_hi >> (i << 3);
+      if (!v)
+        break;
+      le[8 + i] = v & 0xff;
+    }
+  }
+}
+
+void json::ref::set_unsafe_le128(const void * pvalue)
+{
+  set_unsafe_uint128(get_unaligned_le64((const uint8_t *)pvalue + 8),
+                     get_unaligned_le64(                 pvalue    ));
+}
+
 json::node::node()
 : type(nt_unset),
-  intval(0)
+  intval(0),
+  intval_hi(0)
 {
 }
 
 json::node::node(const std::string & key_)
 : type(nt_unset),
   intval(0),
+  intval_hi(0),
   key(key_)
 {
 }
@@ -222,7 +278,9 @@ json::node * json::find_or_create_node(const json::node_path & path, node_type t
     }
   }
 
-  if (p->type == nt_unset)
+  if (   p->type == nt_unset
+      || (   nt_int <= p->type && p->type <= nt_uint128
+          && nt_int <=    type &&    type <= nt_uint128))
     p->type = type;
   else
     jassert(p->type == type); // Limit: type change not supported
@@ -246,6 +304,22 @@ void json::set_int(const node_path & path, long long value)
   if (!m_enabled)
     return;
   find_or_create_node(path, nt_int)->intval = value;
+}
+
+void json::set_uint(const node_path & path, unsigned long long value)
+{
+  if (!m_enabled)
+    return;
+  find_or_create_node(path, nt_uint)->intval = (long long)value;
+}
+
+void json::set_uint128(const node_path & path, uint64_t value_hi, uint64_t value_lo)
+{
+  if (!m_enabled)
+    return;
+  node * p = find_or_create_node(path, nt_uint128);
+  p->intval_hi = value_hi;
+  p->intval = (long long)value_lo;
 }
 
 void json::set_string(const node_path & path, const std::string & value)
@@ -310,6 +384,17 @@ void json::print_json(FILE * f, bool sorted, const node * p, int level)
       fprintf(f, "%lld", p->intval);
       break;
 
+    case nt_uint:
+      fprintf(f, "%llu", (unsigned long long)p->intval);
+      break;
+
+    case nt_uint128:
+      {
+        char buf[64];
+        fputs(uint128_to_str(buf, p->intval_hi, (uint64_t)p->intval), f);
+      }
+      break;
+
     case nt_string:
       print_string(f, p->strval.c_str());
       break;
@@ -355,6 +440,18 @@ void json::print_flat(FILE * f, bool sorted, const node * p, std::string & path)
 
     case nt_int:
       fprintf(f, "%s = %lld;\n", path.c_str(), p->intval);
+      break;
+
+    case nt_uint:
+      fprintf(f, "%s = %llu;\n", path.c_str(), (unsigned long long)p->intval);
+      break;
+
+    case nt_uint128:
+      {
+        char buf[64];
+        fprintf(f, "%s = %s\n", path.c_str(),
+                uint128_to_str(buf, p->intval_hi, (uint64_t)p->intval));
+      }
       break;
 
     case nt_string:

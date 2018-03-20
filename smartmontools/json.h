@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017 Christian Franke
+ * Copyright (C) 2017-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 #ifndef JSON_H_CVSID
 #define JSON_H_CVSID "$Id$"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -64,11 +65,17 @@ public:
     ref & operator=(unsigned value);
     ref & operator=(long value);
     ref & operator=(unsigned long value);
-    ref & operator=(long long  value);
+    ref & operator=(long long value);
     ref & operator=(unsigned long long value);
 
     ref & operator=(const char * value);
     ref & operator=(const std::string & value);
+
+    void set_uint128(uint64_t value_hi, uint64_t value_lo);
+
+    void set_unsafe_uint64(uint64_t value);
+    void set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo);
+    void set_unsafe_le128(const void * pvalue);
 
   private:
     friend class json;
@@ -96,7 +103,10 @@ public:
   void print(FILE * f, bool sorted, bool flat) const;
 
 private:
-  enum node_type { nt_unset, nt_object, nt_array, nt_bool, nt_int, nt_string };
+  enum node_type {
+    nt_unset, nt_object, nt_array,
+    nt_bool, nt_int, nt_uint, nt_uint128, nt_string
+  };
 
   struct node
   {
@@ -107,6 +117,7 @@ private:
     node_type type;
 
     long long intval;
+    uint64_t intval_hi;
     std::string strval;
 
     std::string key;
@@ -145,6 +156,8 @@ private:
 
   void set_bool(const node_path & path, bool value);
   void set_int(const node_path & path, long long value);
+  void set_uint(const node_path & path, unsigned long long value);
+  void set_uint128(const node_path & path, uint64_t value_hi, uint64_t value_lo);
   void set_string(const node_path & path, const std::string & value);
 
   static void print_json(FILE * f, bool sorted, const node * p, int level);
