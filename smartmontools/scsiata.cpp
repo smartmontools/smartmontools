@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-17 Christian Franke
+ * Copyright (C) 2009-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -658,7 +658,7 @@ protected:
 
 usbcypress_device::usbcypress_device(smart_interface * intf, scsi_device * scsidev,
   const char * req_type, unsigned char signature)
-: smart_device(intf, scsidev->get_dev_name(), "sat", req_type),
+: smart_device(intf, scsidev->get_dev_name(), "usbcypress", req_type),
   tunnelled_device<ata_device_with_command_set, scsi_device>(scsidev),
   m_signature(signature)
 {
