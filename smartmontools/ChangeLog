@@ -2,6 +2,9 @@ $Id$
 
 2018-03-28  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Ignore remaining percentage in initial check of
+	self-test execution status.
+
 	scsiata.cpp: Fix device type info for 'usbcypress'.
 
 	os_linux.cpp: Fix device scan crash on missing /proc/devices.
