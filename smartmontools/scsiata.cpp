@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-17 Christian Franke
+ * Copyright (C) 2009-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@
 #include "dev_tunnelled.h" // tunnelled_device<>
 #include "unaligned.h"
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4683 2018-01-07 22:46:30Z dpgilbert $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4724 2018-03-28 19:44:06Z chrfranke $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -658,7 +658,7 @@ protected:
 
 usbcypress_device::usbcypress_device(smart_interface * intf, scsi_device * scsidev,
   const char * req_type, unsigned char signature)
-: smart_device(intf, scsidev->get_dev_name(), "sat", req_type),
+: smart_device(intf, scsidev->get_dev_name(), "usbcypress", req_type),
   tunnelled_device<ata_device_with_command_set, scsi_device>(scsidev),
   m_signature(signature)
 {
