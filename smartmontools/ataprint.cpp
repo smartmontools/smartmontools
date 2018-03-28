@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-17 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -650,7 +650,8 @@ static void print_drive_info(const ata_identify_device * drive,
     jout("User Capacity:    %s bytes [%s]\n",
       format_with_thousands_sep(num, sizeof(num), sizes.capacity),
       format_capacity(cap, sizeof(cap), sizes.capacity));
-    jglb["user_capacity"] = sizes.capacity;
+    jglb["user_capacity"]["blocks"].set_unsafe_uint64(sizes.sectors);
+    jglb["user_capacity"]["bytes"].set_unsafe_uint64(sizes.capacity);
 
     // Print sector sizes.
     if (sizes.phy_sector_size == sizes.log_sector_size)

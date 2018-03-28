@@ -2,6 +2,10 @@ $Id$
 
 2018-03-28  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp, nvmeprint.cpp, scsiprint.cpp:
+	Output JSON 'user_capacity' as 'blocks' and 'bytes'.
+	Handle both as unsafe ints.
+
 	smartd.cpp: Ignore remaining percentage in initial check of
 	self-test execution status.
 
