@@ -2,7 +2,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-17 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -90,7 +90,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4718 2018-03-07 16:47:28Z dpgilbert $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4725 2018-03-28 19:55:08Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -3474,7 +3474,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       if (cfg.selfteststs) {
         if (   curval.self_test_exec_status != state.smartval.self_test_exec_status
             || state.selftest_started // test was started in previous call
-            || (firstpass && (debugmode || curval.self_test_exec_status != 0x00)))
+            || (firstpass && (debugmode || (curval.self_test_exec_status & 0xf0))))
           log_self_test_exec_status(name, curval.self_test_exec_status);
       }
 
