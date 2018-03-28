@@ -98,17 +98,20 @@ The default is the first one found in PATH.
 Use URL of LOCATION for download.
 LOCATION is one of:
 .br
+.I github
+(GitHub mirror of SVN repository),
+.br
 .I sf
-(Sourceforge code browser via HTTPS),
+(Sourceforge code browser),
 .br
 .I svn
-(SVN repository via HTTPS),
+(SVN repository),
 .br
 .I svni
-(SVN repository via HTTP),
+(SVN repository via HTTP instead of HTTPS),
 .br
 .I trac
-(Trac code browser via HTTPS).
+(Trac code browser).
 .br
 The default is
 .IR svn .

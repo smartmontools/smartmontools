@@ -1,5 +1,10 @@
 $Id$
 
+2018-03-28  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in, update-smart-drivedb.8.in:
+	Add option '-u github'.
+
 2018-03-20  Christian Franke  <franke@computer.org>
 
 	nvmeprint.cpp: Add initial JSON support for '-i', '-H' and '-A'.

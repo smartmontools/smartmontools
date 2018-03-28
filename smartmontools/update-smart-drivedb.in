@@ -65,10 +65,11 @@ Usage: $myname [OPTIONS] [DESTFILE]
   -t TOOL         Use TOOL for download: $os_dltools
                   [default: first one found in $pathinfo]
   -u LOCATION     Use URL of LOCATION for download:
-                    sf (Sourceforge code browser via HTTPS)
-                    svn (SVN repository via HTTPS) [default]
-                    svni (SVN repository via HTTP)
-                    trac (Trac code browser via HTTPS)
+                    github (GitHub mirror of SVN repository)
+                    sf (Sourceforge code browser)
+                    svn (SVN repository) [default]
+                    svni (SVN repository via HTTP instead of HTTPS)
+                    trac (Trac code browser)
   --trunk         Download from SVN trunk (may require '--no-verify')
   --cacert FILE   Use CA certificates from FILE to verify the peer
   --capath DIR    Use CA certificate files from DIR to verify the peer
@@ -107,6 +108,10 @@ warning()
 selecturl()
 {
   case $1 in
+    github)  # https://github.com/smartmontools/smartmontools/raw/origin/$BRANCH/smartmontools/drivedb.h
+             # https://github.com/smartmontools/smartmontools/raw/master/smartmontools/drivedb.h
+          # redirected to:
+          url='https://raw.githubusercontent.com/smartmontools/smartmontools/master/smartmontools/drivedb.h' ;;
     sf)   url='https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/drivedb.h?format=raw' ;;
     svn)  url='https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
     svni) url='http://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
@@ -464,7 +469,8 @@ fi
 tmpdir=`dirname "$DEST"`
 
 # Adjust URLs
-src=`echo "$url" | sed "s,/trunk/,/branches/$BRANCH/,"`
+src=`echo "$url" | sed -e "s,/trunk/,/branches/$BRANCH/," \
+                       -e "s,/master/,/origin/$BRANCH/,"`
 src_asc=`echo "$src" | sed "s,/drivedb\.h,/drivedb.h.raw.asc,"`
 test -z "$trunk" || src=$url
 
