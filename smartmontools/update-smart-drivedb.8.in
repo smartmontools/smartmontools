@@ -2,7 +2,7 @@
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
 Copyright (C) 2014-17 Christian Franke
 
-$Id: update-smart-drivedb.8.in 4584 2017-11-03 22:43:32Z chrfranke $
+$Id: update-smart-drivedb.8.in 4722 2018-03-28 19:30:45Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -98,17 +98,20 @@ The default is the first one found in PATH.
 Use URL of LOCATION for download.
 LOCATION is one of:
 .br
+.I github
+(GitHub mirror of SVN repository),
+.br
 .I sf
-(Sourceforge code browser via HTTPS),
+(Sourceforge code browser),
 .br
 .I svn
-(SVN repository via HTTPS),
+(SVN repository),
 .br
 .I svni
-(SVN repository via HTTP),
+(SVN repository via HTTP instead of HTTPS),
 .br
 .I trac
-(Trac code browser via HTTPS).
+(Trac code browser).
 .br
 The default is
 .IR svn .
@@ -200,4 +203,4 @@ Alternatively send the info to the smartmontools support mailing list:
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: update-smart-drivedb.8.in 4584 2017-11-03 22:43:32Z chrfranke $
+$Id: update-smart-drivedb.8.in 4722 2018-03-28 19:30:45Z chrfranke $
