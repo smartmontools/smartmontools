@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-17 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -2961,6 +2961,8 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
   char line[128];
   bool scan_megasas = false;
   FILE * fp = fopen("/proc/devices", "r");
+  if (!fp)
+    return false;
   while (fgets(line, sizeof(line), fp) != NULL) {
     n1=0;
     if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
