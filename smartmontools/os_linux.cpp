@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-17 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -106,7 +106,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4683 2018-01-07 22:46:30Z dpgilbert $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4723 2018-03-28 19:37:45Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -2961,6 +2961,8 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
   char line[128];
   bool scan_megasas = false;
   FILE * fp = fopen("/proc/devices", "r");
+  if (!fp)
+    return false;
   while (fgets(line, sizeof(line), fp) != NULL) {
     n1=0;
     if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
