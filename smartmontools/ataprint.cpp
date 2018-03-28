@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-17 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4662 2017-12-17 22:41:53Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4726 2018-03-28 20:55:02Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -650,7 +650,8 @@ static void print_drive_info(const ata_identify_device * drive,
     jout("User Capacity:    %s bytes [%s]\n",
       format_with_thousands_sep(num, sizeof(num), sizes.capacity),
       format_capacity(cap, sizeof(cap), sizes.capacity));
-    jglb["user_capacity"] = sizes.capacity;
+    jglb["user_capacity"]["blocks"].set_unsafe_uint64(sizes.sectors);
+    jglb["user_capacity"]["bytes"].set_unsafe_uint64(sizes.capacity);
 
     // Print sector sizes.
     if (sizes.phy_sector_size == sizes.log_sector_size)

@@ -18,7 +18,7 @@
 #include "config.h"
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4721 2018-03-20 22:29:55Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4726 2018-03-28 20:55:02Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "int64.h"
@@ -170,7 +170,7 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
     }
     lbacap_to_js(jrns["size"], id_ns.nsze, fmt_lba_bits);
     lbacap_to_js(jrns["capacity"], id_ns.ncap, fmt_lba_bits);
-    jglb["user_capacity"] = (id_ns.ncap << fmt_lba_bits); // TODO: use nsze?, unsafe int?
+    lbacap_to_js(jglb["user_capacity"], id_ns.ncap, fmt_lba_bits); // TODO: use nsze?
 
     // Utilization may be always equal to Capacity if thin provisioning is not supported
     if (show_all || id_ns.nuse != id_ns.ncap || (id_ns.nsfeat & 0x01))

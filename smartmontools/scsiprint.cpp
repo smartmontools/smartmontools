@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4683 2018-01-07 22:46:30Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4726 2018-03-28 20:55:02Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1874,7 +1874,9 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
             format_with_thousands_sep(cap_str, sizeof(cap_str), capacity);
             format_capacity(si_str, sizeof(si_str), capacity);
             jout("User Capacity:        %s bytes [%s]\n", cap_str, si_str);
-            jglb["user_capacity"] = capacity;
+            if (srr.lb_size)
+              jglb["user_capacity"]["blocks"].set_unsafe_uint64(capacity / srr.lb_size);
+            jglb["user_capacity"]["bytes"].set_unsafe_uint64(capacity);
             jout("Logical block size:   %u bytes\n", srr.lb_size);
             jglb["logical_block_size"] = srr.lb_size;
             if (protect || srr.lb_p_pb_exp) {
