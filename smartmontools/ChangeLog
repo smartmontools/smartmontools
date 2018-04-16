@@ -1,5 +1,23 @@
 $Id$
 
+2018-04-16  Douglas Franke  <dgilbert@interlog.com>
+
+	switch usage of unaligned.h to sg_unaligned.h which are functionally
+	the same. sg_unaligned.h is the same header used by libsgutils which
+	is the basis of the sg3_utils, sdparm and ddpt packages available on
+	many of the same architectures as smartmontools is. This change
+	introduces a "sg_" prefix on the inline functions defined
+	sg_unaligned.h . The new header has specializations for big and little
+	endian machines that depends on the non-standard bswap_16(), bswap_32()
+	and bswap_64() calls that are defined in the byteswap.h header which is
+	a GNU extension. According to the 'net both gcc and clang use intrinsics
+	{assembler ?} to implement these calls. If the byteswap.h header is not
+	present on the build machine, the generic implementations will be
+	used for the "unaligned" family of functions. Additionally the generic
+	implementations can be imposed with './configure --disable-fast-lebe'.
+	Developers may need to use './autogen.sh' prior to their normal build
+	sequence. Please report any problems to the author.
+
 2018-03-28  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp, nvmeprint.cpp, scsiprint.cpp:

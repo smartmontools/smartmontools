@@ -37,7 +37,7 @@
 #include "scsiprint.h"
 #include "smartctl.h"
 #include "utility.h"
-#include "unaligned.h"
+#include "sg_unaligned.h"
 
 #define GBUF_SIZE 65532
 
@@ -100,7 +100,8 @@ static const char * logSenStr = "Log Sense";
 static const char * logSenRspStr = "Log Sense response";
 
 
-static bool seagate_or_hitachi(void)
+static bool
+seagate_or_hitachi(void)
 {
     return ((0 == memcmp(scsi_vendor, T10_VENDOR_SEAGATE,
                          strlen(T10_VENDOR_SEAGATE))) ||
@@ -110,6 +111,18 @@ static bool seagate_or_hitachi(void)
                          strlen(T10_VENDOR_HITACHI_2))) ||
             (0 == memcmp(scsi_vendor, T10_VENDOR_HITACHI_3,
                          strlen(T10_VENDOR_HITACHI_3))));
+}
+
+static bool
+all_ffs(const uint8_t * bp, int b_len)
+{
+    if ((NULL == bp) || (b_len <= 0))
+        return false;
+    for (--b_len; b_len >= 0; --b_len) {
+        if (0xff != bp[b_len])
+            return false;
+    }
+    return true;
 }
 
 static void
@@ -163,7 +176,7 @@ scsiGetSupportedLogPages(scsi_device * device)
         memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
 
     if (got_subpages) {
-         payload_len = get_unaligned_be16(gBuf + 2);
+         payload_len = sg_get_unaligned_be16(gBuf + 2);
          bump = 2;
          up = gBuf + LOGPAGEHDRSIZE;
     } else {
@@ -364,11 +377,11 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
         print_off();
         return -1;
     }
-    pagelength = get_unaligned_be16(gBuf + 2);
+    pagelength = sg_get_unaligned_be16(gBuf + 2);
 
     for (s=severities; *s; s++) {
         for (i = 4; i < pagelength; i += 5) {
-            parametercode = get_unaligned_be16(gBuf + i);
+            parametercode = sg_get_unaligned_be16(gBuf + i);
 
             if (gBuf[i + 4]) {
                 ts = SCSI_PT_MEDIUM_CHANGER == peripheral_type ?
@@ -411,7 +424,7 @@ scsiGetStartStopData(scsi_device * device)
         print_off();
         return;
     }
-    len = get_unaligned_be16(gBuf + 2);
+    len = sg_get_unaligned_be16(gBuf + 2);
     ucp = gBuf + 4;
     for (k = len; k > 0; k -= extra, ucp += extra) {
         if (k < 3) {
@@ -421,8 +434,8 @@ scsiGetStartStopData(scsi_device * device)
             return;
         }
         extra = ucp[3] + 4;
-        int pc = get_unaligned_be16(ucp + 0);
-        uint32_t u = (extra > 7) ? get_unaligned_be32(ucp + 4) : 0;
+        int pc = sg_get_unaligned_be16(ucp + 0);
+        uint32_t u = (extra > 7) ? sg_get_unaligned_be32(ucp + 4) : 0;
         bool is_all_ffs = (extra > 7) ? all_ffs(ucp + 4, 4) : false;
         switch (pc) {
         case 1:
@@ -481,7 +494,7 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
         print_off();
         return;
     }
-    num = get_unaligned_be16(gBuf + 2);
+    num = sg_get_unaligned_be16(gBuf + 2);
     if (num > LOG_RESP_LONG_LEN) {
         print_on();
         pout("%s %s too long\n", pDefStr, logSenRspStr);
@@ -490,7 +503,7 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
     }
     bp = gBuf + 4;
     while (num > 3) {
-        pc = get_unaligned_be16(bp + 0);
+        pc = sg_get_unaligned_be16(bp + 0);
         pl = bp[3] + 4;
         switch (pc) {
         case 0x0:
@@ -501,7 +514,7 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
                 print_off();
                 return;
             }
-            count = get_unaligned_be32(bp + 4);
+            count = sg_get_unaligned_be32(bp + 4);
             jglb[jname]["count"] = count;
             if (0 == count)
                 jout("0 %s\n", pDefStr);
@@ -520,10 +533,10 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
                 return;
             }
             jout("  %4d:  0x%-16" PRIx64 ",  %5u\n", pc,
-                 get_unaligned_be64(bp + 8), get_unaligned_be32(bp + 4));
-            jglb[jname][pc]["LBA"] = get_unaligned_be64(bp + 8);
+                 sg_get_unaligned_be64(bp + 8), sg_get_unaligned_be32(bp + 4));
+            jglb[jname][pc]["LBA"] = sg_get_unaligned_be64(bp + 8);
             jglb[jname][pc]["accum_power_on_hours"] =
-                   get_unaligned_be32(bp + 4);
+                   sg_get_unaligned_be32(bp + 4);
             break;
         }
         num -= pl;
@@ -570,15 +583,15 @@ scsiPrintGrownDefectListLen(scsi_device * device)
         got_rd12 = true;
 
     if (got_rd12) {
-        int generation = get_unaligned_be16(gBuf + 2);
+        int generation = sg_get_unaligned_be16(gBuf + 2);
         if ((generation > 1) && (scsi_debugmode > 0)) {
             print_on();
             pout("%s (12): generation=%d\n", hname, generation);
             print_off();
         }
-        dl_len = get_unaligned_be32(gBuf + 4);
+        dl_len = sg_get_unaligned_be32(gBuf + 4);
     } else
-        dl_len = get_unaligned_be16(gBuf + 2);
+        dl_len = sg_get_unaligned_be16(gBuf + 2);
     if (0x8 != (gBuf[1] & 0x18)) {
         print_on();
         pout("%s: asked for grown list but didn't get it\n", hname);
@@ -644,11 +657,11 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
         }
         return;
     }
-    len = get_unaligned_be16(gBuf + 2) + 4;
+    len = sg_get_unaligned_be16(gBuf + 2) + 4;
     num = len - 4;
     ucp = &gBuf[0] + 4;
     while (num > 3) {
-        pc = get_unaligned_be16(ucp + 0);
+        pc = sg_get_unaligned_be16(ucp + 0);
         pl = ucp[3] + 4;
         switch (pc) {
         case 0: case 1: case 2: case 3: case 4:
@@ -669,7 +682,7 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
     num = len - 4;
     ucp = &gBuf[0] + 4;
     while (num > 3) {
-        pc = get_unaligned_be16(ucp + 0);
+        pc = sg_get_unaligned_be16(ucp + 0);
         pl = ucp[3] + 4;
         switch (pc) {
         case 0: pout("  Blocks sent to initiator"); break;
@@ -688,7 +701,7 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
             xp += (k - sz_ull);
             k = sz_ull;
         }
-        ull = get_unaligned_be(k, xp + 0);
+        ull = sg_get_unaligned_be(k, xp + 0);
         pout(" = %" PRIu64 "\n", ull);
         num -= pl;
         ucp += pl;
@@ -720,13 +733,13 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
         }
         return;
     }
-    len = get_unaligned_be16(gBuf + 2) + 4;
+    len = sg_get_unaligned_be16(gBuf + 2) + 4;
     num = len - 4;
     ucp = &gBuf[0] + 4;
     good = 0;
     bad = 0;
     while (num > 3) {
-        pc = get_unaligned_be16(ucp + 0);
+        pc = sg_get_unaligned_be16(ucp + 0);
         pl = ucp[3] + 4;
         switch (pc) {
         case 0: case 8:
@@ -752,7 +765,7 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
     num = len - 4;
     ucp = &gBuf[0] + 4;
     while (num > 3) {
-        pc = get_unaligned_be16(ucp + 0);
+        pc = sg_get_unaligned_be16(ucp + 0);
         pl = ucp[3] + 4;
         good = 0;
         switch (pc) {
@@ -778,7 +791,7 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
                 xp += (k - (int)sizeof(ull));
                 k = (int)sizeof(ull);
             }
-            ull = get_unaligned_be(k, xp + 0);
+            ull = sg_get_unaligned_be(k, xp + 0);
             if (0 == pc)
                 pout(" = %.2f\n", ull / 60.0 );
             else
@@ -859,7 +872,7 @@ scsiPrintErrorCounterLog(scsi_device * device)
     if (gLastNErrorEvLPage &&
         (0 == scsiLogSense(device, LAST_N_ERROR_EVENTS_LPAGE, 0, gBuf,
                            LOG_RESP_LONG_LEN, 0))) {
-        int num = get_unaligned_be16(gBuf + 2) + 4;
+        int num = sg_get_unaligned_be16(gBuf + 2) + 4;
         int truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
         if (truncated)
             num = LOG_RESP_LONG_LEN;
@@ -875,7 +888,7 @@ scsiPrintErrorCounterLog(scsi_device * device)
                     break;
                 }
                 pl = ucp[3] + 4;
-                int pc = get_unaligned_be16(ucp + 0);
+                int pc = sg_get_unaligned_be16(ucp + 0);
                 if (pl > 4) {
                     if ((ucp[2] & 0x1) && (ucp[2] & 0x2)) {
                         pout("  Error event %d:\n", pc);
@@ -968,7 +981,7 @@ scsiPrintSelfTest(scsi_device * device)
         return FAILSMART;
     }
     // compute page length
-    num = get_unaligned_be16(gBuf + 2);
+    num = sg_get_unaligned_be16(gBuf + 2);
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
         print_on();
@@ -979,7 +992,7 @@ scsiPrintSelfTest(scsi_device * device)
     // loop through the twenty possible entries
     for (k = 0, ucp = gBuf + 4; k < 20; ++k, ucp += 20 ) {
         // timestamp in power-on hours (or zero if test in progress)
-        int n = get_unaligned_be16(ucp + 6);
+        int n = sg_get_unaligned_be16(ucp + 6);
 
         // The spec says "all 20 bytes will be zero if no test" but
         // DG has found otherwise.  So this is a heuristic.
@@ -997,7 +1010,7 @@ scsiPrintSelfTest(scsi_device * device)
         }
 
         // print parameter code (test number) & self-test code text
-        pout("#%2d  %s", get_unaligned_be16(ucp + 0),
+        pout("#%2d  %s", sg_get_unaligned_be16(ucp + 0),
             self_test_code[(ucp[4] >> 5) & 0x7]);
 
         // check the self-test result nibble, using the self-test results
@@ -1054,7 +1067,7 @@ scsiPrintSelfTest(scsi_device * device)
             pout("   %5d", n);
 
         // construct 8-byte integer address of first failure
-        ull = get_unaligned_be64(ucp + 8);
+        ull = sg_get_unaligned_be64(ucp + 8);
         bool is_all_ffs = all_ffs(ucp + 8, 8);
         // print Address of First Failure, if sensible
         if ((! is_all_ffs) && (res > 0) && (res < 0xf)) {
@@ -1140,7 +1153,7 @@ scsiPrintBackgroundResults(scsi_device * device)
         return FAILSMART;
     }
     // compute page length
-    num = get_unaligned_be16(gBuf + 2) + 4;
+    num = sg_get_unaligned_be16(gBuf + 2) + 4;
     if (num < 20) {
         print_on();
         pout("%s %s length is %d, no scan status\n", hname, logSenStr, num);
@@ -1153,7 +1166,7 @@ scsiPrintBackgroundResults(scsi_device * device)
     ucp = gBuf + 4;
     num -= 4;
     while (num > 3) {
-        int pc = get_unaligned_be16(ucp + 0);
+        int pc = sg_get_unaligned_be16(ucp + 0);
         // pcb = ucp[2];
         int pl = ucp[3] + 4;
         switch (pc) {
@@ -1172,15 +1185,15 @@ scsiPrintBackgroundResults(scsi_device * device)
                 pout("%s\n", bms_status[j]);
             else
                 pout("unknown [0x%x] background scan status value\n", j);
-            j = get_unaligned_be32(ucp + 4);
+            j = sg_get_unaligned_be32(ucp + 4);
             pout("    Accumulated power on time, hours:minutes %d:%02d "
                  "[%d minutes]\n", (j / 60), (j % 60), j);
             pout("    Number of background scans performed: %d,  ",
-                 get_unaligned_be16(ucp + 10));
+                 sg_get_unaligned_be16(ucp + 10));
             pout("scan progress: %.2f%%\n",
-                 (double)get_unaligned_be16(ucp + 12) * 100.0 / 65536.0);
+                 (double)sg_get_unaligned_be16(ucp + 12) * 100.0 / 65536.0);
             pout("    Number of background medium scans performed: %d\n",
-                 get_unaligned_be16(ucp + 14));
+                 sg_get_unaligned_be16(ucp + 14));
             break;
         default:
             if (noheader) {
@@ -1198,7 +1211,7 @@ scsiPrintBackgroundResults(scsi_device * device)
                     pout("parameter length >= 24 expected, got %d\n", pl);
                 break;
             }
-            j = get_unaligned_be32(ucp + 4);
+            j = sg_get_unaligned_be32(ucp + 4);
             pout("%4d:%02d  ", (j / 60), (j % 60));
             for (m = 0; m < 8; ++m)
                 pout("%02x", ucp[16 + m]);
@@ -1247,7 +1260,7 @@ scsiPrintSSMedia(scsi_device * device)
         return FAILSMART;
     }
     // compute page length
-    num = get_unaligned_be16(gBuf + 2) + 4;
+    num = sg_get_unaligned_be16(gBuf + 2) + 4;
     if (num < 12) {
         print_on();
         pout("%s %s length is %d, too short\n", hname, logSenStr, num);
@@ -1260,7 +1273,7 @@ scsiPrintSSMedia(scsi_device * device)
     ucp = gBuf + 4;
     num -= 4;
     while (num > 3) {
-        int pc = get_unaligned_be16(ucp + 0);
+        int pc = sg_get_unaligned_be16(ucp + 0);
         // pcb = ucp[2];
         int pl = ucp[3] + 4;
         switch (pc) {
@@ -1310,7 +1323,7 @@ scsiPrintFormatStatus(scsi_device * device)
         return FAILSMART;
     }
     // compute page length
-    num = get_unaligned_be16(gBuf + 2) + 4;
+    num = sg_get_unaligned_be16(gBuf + 2) + 4;
     if (num < 12) {
         print_on();
         jout("%s %s length is %d, too short\n", hname, logSenStr, num);
@@ -1323,7 +1336,7 @@ scsiPrintFormatStatus(scsi_device * device)
     ucp = gBuf + 4;
     num -= 4;
     while (num > 3) {
-        int pc = get_unaligned_be16(ucp + 0);
+        int pc = sg_get_unaligned_be16(ucp + 0);
         // pcb = ucp[2];
         int pl = ucp[3] + 4;
 
@@ -1381,7 +1394,7 @@ scsiPrintFormatStatus(scsi_device * device)
                     xp += (k - sizeof(ull));
                     k = sizeof(ull);
                 }
-                ull = get_unaligned_be(k, xp);
+                ull = sg_get_unaligned_be(k, xp);
                 jout("%s = %" PRIu64 "\n", jout_str, ull);
                 jglb[jname][jglb_str] = ull;
             }
@@ -1533,7 +1546,7 @@ show_sas_port_param(unsigned char * ucp, int param_len)
 
     sz = sizeof(s);
     // pcb = ucp[2];
-    t = get_unaligned_be16(ucp + 0);
+    t = sg_get_unaligned_be16(ucp + 0);
     pout("relative target port id = %d\n", t);
     pout("  generation code = %d\n", ucp[6]);
     nphys = ucp[7];
@@ -1617,21 +1630,21 @@ show_sas_port_param(unsigned char * ucp, int param_len)
         pout("    attached target port: ssp=%d stp=%d smp=%d\n",
                !! (vcp[7] & 8), !! (vcp[7] & 4), !! (vcp[7] & 2));
         if (!dont_print_serial_number) {
-            uint64_t ull = get_unaligned_be64(vcp + 8);
+            uint64_t ull = sg_get_unaligned_be64(vcp + 8);
 
             pout("    SAS address = 0x%" PRIx64 "\n", ull);
-            ull = get_unaligned_be64(vcp + 16);
+            ull = sg_get_unaligned_be64(vcp + 16);
             pout("    attached SAS address = 0x%" PRIx64 "\n", ull);
         }
         pout("    attached phy identifier = %d\n", vcp[24]);
-        unsigned int ui = get_unaligned_be32(vcp + 32);
+        unsigned int ui = sg_get_unaligned_be32(vcp + 32);
 
         pout("    Invalid DWORD count = %u\n", ui);
-        ui = get_unaligned_be32(vcp + 36);
+        ui = sg_get_unaligned_be32(vcp + 36);
         pout("    Running disparity error count = %u\n", ui);
-        ui = get_unaligned_be32(vcp + 40);
+        ui = sg_get_unaligned_be32(vcp + 40);
         pout("    Loss of DWORD synchronization = %u\n", ui);
-        ui = get_unaligned_be32(vcp + 44);
+        ui = sg_get_unaligned_be32(vcp + 44);
         pout("    Phy reset problem = %u\n", ui);
         if (spld_len > 51) {
             int num_ped;
@@ -1645,8 +1658,8 @@ show_sas_port_param(unsigned char * ucp, int param_len)
                 int peis;
                 unsigned int pvdt;
                 peis = xcp[3];
-                ui = get_unaligned_be32(xcp + 4);
-                pvdt = get_unaligned_be32(xcp + 8);
+                ui = sg_get_unaligned_be32(xcp + 4);
+                pvdt = sg_get_unaligned_be32(xcp + 8);
                 show_sas_phy_event_info(peis, ui, pvdt);
             }
         }
@@ -1699,7 +1712,7 @@ scsiPrintSasPhy(scsi_device * device, int reset)
         return FAILSMART;
     }
     // compute page length
-    num = get_unaligned_be16(gBuf + 2);
+    num = sg_get_unaligned_be16(gBuf + 2);
     if (1 != show_protocol_specific_page(gBuf, num + 4)) {
         print_on();
         pout("Only support %s log page on SAS devices\n\n", hname);
@@ -1875,7 +1888,8 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
             format_capacity(si_str, sizeof(si_str), capacity);
             jout("User Capacity:        %s bytes [%s]\n", cap_str, si_str);
             if (srr.lb_size)
-              jglb["user_capacity"]["blocks"].set_unsafe_uint64(capacity / srr.lb_size);
+              jglb["user_capacity"]["blocks"].set_unsafe_uint64(capacity /
+                                                                srr.lb_size);
             jglb["user_capacity"]["bytes"].set_unsafe_uint64(capacity);
             jout("Logical block size:   %u bytes\n", srr.lb_size);
             jglb["logical_block_size"] = srr.lb_size;

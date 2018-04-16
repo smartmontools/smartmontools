@@ -28,7 +28,7 @@ const char * nvmeprint_cvsid = "$Id$"
 #include "atacmds.h" // dont_print_serial_number
 #include "scsicmds.h" // dStrHex()
 #include "smartctl.h"
-#include "unaligned.h"
+#include "sg_unaligned.h"
 
 using namespace smartmontools;
 
@@ -133,7 +133,7 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
 
   jout("IEEE OUI Identifier:                0x%02x%02x%02x\n",
        id_ctrl.ieee[2], id_ctrl.ieee[1], id_ctrl.ieee[0]);
-  jglb["nvme_ieee_oui_identifier"] = get_unaligned_le(3, id_ctrl.ieee);
+  jglb["nvme_ieee_oui_identifier"] = sg_get_unaligned_le(3, id_ctrl.ieee);
 
   // Capacity info is optional for devices without namespace management
   if (show_all || le128_is_non_zero(id_ctrl.tnvmcap) || le128_is_non_zero(id_ctrl.unvmcap)) {
@@ -186,8 +186,8 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
       jout("Namespace %u IEEE EUI-64:          %s%02x%02x%02x %02x%02x%02x%02x%02x\n",
            nsid, align, id_ns.eui64[0], id_ns.eui64[1], id_ns.eui64[2], id_ns.eui64[3],
            id_ns.eui64[4], id_ns.eui64[5], id_ns.eui64[6], id_ns.eui64[7]);
-      jrns["eui64"]["oui"]    = get_unaligned_be(3, id_ns.eui64);
-      jrns["eui64"]["ext_id"] = get_unaligned_be(5, id_ns.eui64 + 3);
+      jrns["eui64"]["oui"]    = sg_get_unaligned_be(3, id_ns.eui64);
+      jrns["eui64"]["ext_id"] = sg_get_unaligned_be(5, id_ns.eui64 + 3);
     }
   }
 
@@ -341,7 +341,7 @@ static void print_smart_log(const nvme_smart_log & smart_log, unsigned nsid,
   jout("Critical Warning:                   0x%02x\n", smart_log.critical_warning);
   jref["critical_warning"] = smart_log.critical_warning;
 
-  int k = get_unaligned_le16(smart_log.temperature);
+  int k = sg_get_unaligned_le16(smart_log.temperature);
   jout("Temperature:                        %s\n", kelvin_to_str(buf, k));
   if (k) {
     jref["temperature"] = k - 273;

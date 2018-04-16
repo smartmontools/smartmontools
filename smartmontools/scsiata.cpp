@@ -61,7 +61,7 @@
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
-#include "unaligned.h"
+#include "sg_unaligned.h"
 
 const char * scsiata_cpp_cvsid = "$Id$";
 
@@ -1080,7 +1080,7 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   cdb[ 0] = 0xdf;
   cdb[ 1] = (rwbit ? 0x10 : 0x00);
   cdb[ 2] = 0x00;
-  put_unaligned_be16(io_hdr.dxfer_len, cdb + 3);
+  sg_put_unaligned_be16(io_hdr.dxfer_len, cdb + 3);
   cdb[ 5] = in.in_regs.features;
   cdb[ 6] = in.in_regs.sector_count;
   cdb[ 7] = in.in_regs.lba_low;
@@ -1151,9 +1151,9 @@ bool usbjmicron_device::get_registers(unsigned short addr,
   cdb[ 0] = 0xdf;
   cdb[ 1] = 0x10;
   cdb[ 2] = 0x00;
-  put_unaligned_be16(size, cdb + 3);
+  sg_put_unaligned_be16(size, cdb + 3);
   cdb[ 5] = 0x00;
-  put_unaligned_be16(addr, cdb + 6);
+  sg_put_unaligned_be16(addr, cdb + 6);
   cdb[ 8] = 0x00;
   cdb[ 9] = 0x00;
   cdb[10] = 0x00;
@@ -1265,7 +1265,7 @@ bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
   cdb[ 3] = in.in_regs.features;        // Feature register (SMART command)
   cdb[ 4] = 0x06;         // Check Word (VendorID magic, Prolific: 0x067B)
   cdb[ 5] = 0x7B;         // Check Word (VendorID magic, Prolific: 0x067B)
-  put_unaligned_be32(io_hdr.dxfer_len, cdb + 6);
+  sg_put_unaligned_be32(io_hdr.dxfer_len, cdb + 6);
   cdb[10] = in.in_regs.sector_count;    // Sector Count
   cdb[11] = in.in_regs.lba_low;         // LBA Low (7:0)
   cdb[12] = in.in_regs.lba_mid;         // LBA Mid (15:8)

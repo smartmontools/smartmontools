@@ -46,7 +46,7 @@
 #include "atacmds.h" // FIXME: for smart_command_set only
 #include "dev_interface.h"
 #include "utility.h"
-#include "unaligned.h"
+#include "sg_unaligned.h"
 
 const char *scsicmds_c_cvsid="$Id$"
   SCSICMDS_H_CVSID;
@@ -65,7 +65,7 @@ supported_vpd_pages::supported_vpd_pages(scsi_device * device) : num_valid(0)
     memset(b, 0, sizeof(b));
     if (device && (0 == scsiInquiryVpd(device, SCSI_VPD_SUPPORTED_VPD_PAGES,
                    b, sizeof(b)))) {
-        num_valid = get_unaligned_be16(b + 2);
+        num_valid = sg_get_unaligned_be16(b + 2);
         int n = sizeof(pages);
         if (num_valid > n)
             num_valid = n;
@@ -175,11 +175,11 @@ is_scsi_cdb(const uint8_t * cdbp, int clen)
             return false;       /* must be modulo 4 and 12 or more bytes */
         switch (opcode) {
         case 0x7e:      /* Extended cdb (XCDB) */
-            ilen = 4 + get_unaligned_be16(cdbp + 2);
+            ilen = 4 + sg_get_unaligned_be16(cdbp + 2);
             return (ilen == clen);
         case 0x7f:      /* Variable Length cdb */
             ilen = 8 + cdbp[7];
-            sa = get_unaligned_be16(cdbp + 8);
+            sa = sg_get_unaligned_be16(cdbp + 8);
             /* service action (sa) 0x0 is reserved */
             return ((ilen == clen) && sa);
         default:
@@ -552,7 +552,7 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
         cdb[0] = LOG_SENSE;
         cdb[2] = 0x40 | (pagenum & 0x3f);       /* Page control (PC)==1 */
         cdb[3] = subpagenum;                    /* 0 for no sub-page */
-        put_unaligned_be16(pageLen, cdb + 7);
+        sg_put_unaligned_be16(pageLen, cdb + 7);
         io_hdr.cmnd = cdb;
         io_hdr.cmnd_len = sizeof(cdb);
         io_hdr.sensep = sense;
@@ -568,7 +568,7 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
         /* sanity check on response */
         if ((SUPPORTED_LPAGES != pagenum) && ((pBuf[0] & 0x3f) != pagenum))
             return SIMPLE_ERR_BAD_RESP;
-        uint16_t u = get_unaligned_be16(pBuf + 2);
+        uint16_t u = sg_get_unaligned_be16(pBuf + 2);
         if (0 == u)
             return SIMPLE_ERR_BAD_RESP;
         pageLen = u + 4;
@@ -589,7 +589,7 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
     cdb[0] = LOG_SENSE;
     cdb[2] = 0x40 | (pagenum & 0x3f);  /* Page control (PC)==1 */
     cdb[3] = subpagenum;
-    put_unaligned_be16(pageLen, cdb + 7);
+    sg_put_unaligned_be16(pageLen, cdb + 7);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -605,7 +605,7 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
     /* sanity check on response */
     if ((SUPPORTED_LPAGES != pagenum) && ((pBuf[0] & 0x3f) != pagenum))
         return SIMPLE_ERR_BAD_RESP;
-    if (0 == get_unaligned_be16(pBuf + 2))
+    if (0 == sg_get_unaligned_be16(pBuf + 2))
         return SIMPLE_ERR_BAD_RESP;
     return 0;
 }
@@ -633,7 +633,7 @@ scsiLogSelect(scsi_device * device, int pcr, int sp, int pc, int pagenum,
     cdb[1] = (pcr ? 2 : 0) | (sp ? 1 : 0);
     cdb[2] = ((pc << 6) & 0xc0) | (pagenum & 0x3f);
     cdb[3] = (subpagenum & 0xff);
-    put_unaligned_be16(bufLen, cdb + 7);
+    sg_put_unaligned_be16(bufLen, cdb + 7);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -764,7 +764,7 @@ scsiModeSense10(scsi_device * device, int pagenum, int subpagenum, int pc,
     cdb[0] = MODE_SENSE_10;
     cdb[2] = (pc << 6) | (pagenum & 0x3f);
     cdb[3] = subpagenum;
-    put_unaligned_be16(bufLen, cdb + 7);
+    sg_put_unaligned_be16(bufLen, cdb + 7);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -809,7 +809,7 @@ scsiModeSelect10(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
     uint8_t sense[32];
     int pg_offset, pg_len, hdr_plus_1_pg;
 
-    pg_offset = 8 + get_unaligned_be16(pBuf + 6);
+    pg_offset = 8 + sg_get_unaligned_be16(pBuf + 6);
     if (pg_offset + 2 >= bufLen)
         return -EINVAL;
     pg_len = pBuf[pg_offset + 1] + 2;
@@ -827,7 +827,7 @@ scsiModeSelect10(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
     cdb[0] = MODE_SELECT_10;
     cdb[1] = 0x10 | (sp & 1);      /* set PF (page format) bit always */
     /* make sure only one page sent */
-    put_unaligned_be16(hdr_plus_1_pg, cdb + 7);
+    sg_put_unaligned_be16(hdr_plus_1_pg, cdb + 7);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -859,7 +859,7 @@ scsiStdInquiry(scsi_device * device, uint8_t *pBuf, int bufLen)
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
     cdb[0] = INQUIRY;
-    put_unaligned_be16(bufLen, cdb + 3);
+    sg_put_unaligned_be16(bufLen, cdb + 3);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -904,7 +904,7 @@ try_again:
     cdb[0] = INQUIRY;
     cdb[1] = 0x1;       /* set EVPD bit (enable Vital Product Data) */
     cdb[2] = vpd_page;
-    put_unaligned_be16(bufLen, cdb + 3);
+    sg_put_unaligned_be16(bufLen, cdb + 3);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -986,7 +986,7 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
               break;
           }
           if (buff[15] & 0x80) {        /* SKSV bit set */
-              sense_info->progress = get_unaligned_be16(buff + 16);
+              sense_info->progress = sg_get_unaligned_be16(buff + 16);
               break;
           } else {
               break;
@@ -998,11 +998,11 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
           sk_pr = (SCSI_SK_NO_SENSE == sk) || (SCSI_SK_NOT_READY == sk);
           if (sk_pr && ((ucp = sg_scsi_sense_desc_find(buff, sz_buff, 2))) &&
               (0x6 == ucp[1]) && (0x80 & ucp[4])) {
-              sense_info->progress = get_unaligned_be16(ucp + 5);
+              sense_info->progress = sg_get_unaligned_be16(ucp + 5);
               break;
           } else if (((ucp = sg_scsi_sense_desc_find(buff, sz_buff, 0xa))) &&
                      ((0x6 == ucp[1]))) {
-              sense_info->progress = get_unaligned_be16(ucp + 6);
+              sense_info->progress = sg_get_unaligned_be16(ucp + 6);
               break;
           } else
               break;
@@ -1037,7 +1037,7 @@ scsiSendDiagnostic(scsi_device * device, int functioncode, uint8_t *pBuf,
         cdb[1] = (functioncode & 0x7) << 5; /* SelfTest _code_ */
     else   /* SCSI_DIAG_NO_SELF_TEST == functioncode */
         cdb[1] = 0x10;  /* PF bit */
-    put_unaligned_be16(bufLen, cdb + 3);
+    sg_put_unaligned_be16(bufLen, cdb + 3);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -1120,7 +1120,7 @@ scsiReadDefect10(scsi_device * device, int req_plist, int req_glist,
     cdb[0] = READ_DEFECT_10;
     cdb[2] = (unsigned char)(((req_plist << 4) & 0x10) |
                ((req_glist << 3) & 0x8) | (dl_format & 0x7));
-    put_unaligned_be16(bufLen, cdb + 7);
+    sg_put_unaligned_be16(bufLen, cdb + 7);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -1157,8 +1157,8 @@ scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
     cdb[0] = READ_DEFECT_12;
     cdb[1] = (unsigned char)(((req_plist << 4) & 0x10) |
                ((req_glist << 3) & 0x8) | (dl_format & 0x7));
-    put_unaligned_be32(addrDescIndex, cdb + 2);
-    put_unaligned_be32(bufLen, cdb + 6);
+    sg_put_unaligned_be32(addrDescIndex, cdb + 2);
+    sg_put_unaligned_be32(bufLen, cdb + 6);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -1208,9 +1208,9 @@ scsiReadCapacity10(scsi_device * device, unsigned int * last_lbap,
     if (res)
         return res;
     if (last_lbap)
-        *last_lbap = get_unaligned_be32(resp + 0);
+        *last_lbap = sg_get_unaligned_be32(resp + 0);
     if (lb_sizep)
-        *lb_sizep = get_unaligned_be32(resp + 4);
+        *lb_sizep = sg_get_unaligned_be32(resp + 4);
     return 0;
 }
 
@@ -1232,7 +1232,7 @@ scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen)
     io_hdr.dxferp = pBuf;
     cdb[0] = READ_CAPACITY_16;
     cdb[1] = SAI_READ_CAPACITY_16;
-    put_unaligned_be32(bufLen, cdb + 10);
+    sg_put_unaligned_be32(bufLen, cdb + 10);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -1294,8 +1294,8 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
             bool prot_en;
             uint8_t  p_type;
 
-            ret_val = get_unaligned_be64(rc16resp + 0) + 1;
-            lb_size = get_unaligned_be32(rc16resp + 8);
+            ret_val = sg_get_unaligned_be64(rc16resp + 0) + 1;
+            lb_size = sg_get_unaligned_be32(rc16resp + 8);
             if (srrp) {         /* writes to all fields */
                 srrp->num_lblocks = ret_val;
                 srrp->lb_size = lb_size;
@@ -1306,7 +1306,7 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
                 srrp->lb_p_pb_exp = (rc16resp[13] & 0xf);
                 srrp->lbpme = !!(0x80 & rc16resp[14]);
                 srrp->lbprz = !!(0x40 & rc16resp[14]);
-                srrp->l_a_lba = get_unaligned_be16(rc16resp + 14) & 0x3fff;
+                srrp->l_a_lba = sg_get_unaligned_be16(rc16resp + 14) & 0x3fff;
             }
         }
     }
@@ -1339,8 +1339,8 @@ scsiModePageOffset(const uint8_t * resp, int len, int modese_len)
     if (resp) {
         int resp_len, bd_len;
         if (10 == modese_len) {
-            resp_len = get_unaligned_be16(resp + 0) + 2;
-            bd_len = get_unaligned_be16(resp + 6);
+            resp_len = sg_get_unaligned_be16(resp + 0) + 2;
+            bd_len = sg_get_unaligned_be16(resp + 6);
             offset = bd_len + 8;
         } else {
             resp_len = resp[0] + 1;
@@ -1481,7 +1481,7 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
     memcpy(rout, iecp->raw_curr, SCSI_IECMP_RAW_LEN);
     /* mask out DPOFUA device specific (disk) parameter bit */
     if (10 == iecp->modese_len) {
-        resp_len = get_unaligned_be16(rout + 0) + 2;
+        resp_len = sg_get_unaligned_be16(rout + 0) + 2;
         rout[3] &= 0xef;
     } else {
         resp_len = rout[0] + 1;
@@ -1493,8 +1493,8 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
         if (scsi_debugmode > 2)
             rout[offset + 2] |= SCSI_IEC_MP_BYTE2_TEST_MASK;
         rout[offset + 3] = SCSI_IEC_MP_MRIE;
-        put_unaligned_be32(SCSI_IEC_MP_INTERVAL_T, rout + offset + 4);
-        put_unaligned_be32(SCSI_IEC_MP_REPORT_COUNT, rout + offset + 8);
+        sg_put_unaligned_be32(SCSI_IEC_MP_INTERVAL_T, rout + offset + 4);
+        sg_put_unaligned_be32(SCSI_IEC_MP_REPORT_COUNT, rout + offset + 8);
         if (iecp->gotChangeable) {
             uint8_t chg2 = iecp->raw_chg[offset + 2];
 
@@ -1581,7 +1581,7 @@ scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
             return err;
         }
         // pull out page size from response, don't forget to add 4
-        unsigned short pagesize = get_unaligned_be16(tBuf + 2) + 4;
+        unsigned short pagesize = sg_get_unaligned_be16(tBuf + 2) + 4;
         if ((pagesize < 4) || tBuf[4] || tBuf[5]) {
             pout("%s failed, IE page, bad parameter code or length\n",
                  logSenStr);
@@ -2274,7 +2274,7 @@ scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
     if (offset < 0)
         return -EINVAL;
     if (buff[offset + 1] >= 0xa) {
-        int res = get_unaligned_be16(buff + offset + 10);
+        int res = sg_get_unaligned_be16(buff + offset + 10);
         *durationSec = res;
         return 0;
     }
@@ -2286,10 +2286,10 @@ void
 scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp)
 {
     memset(ecp, 0, sizeof(*ecp));
-    int num = get_unaligned_be16(resp + 2);
+    int num = sg_get_unaligned_be16(resp + 2);
     unsigned char * ucp = &resp[0] + 4;
     while (num > 3) {
-        int pc = get_unaligned_be16(ucp + 0);
+        int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
         uint64_t * ullp;
         switch (pc) {
@@ -2314,7 +2314,7 @@ scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp)
             xp += (k - sizeof(*ullp));
             k = sizeof(*ullp);
         }
-        *ullp = get_unaligned_be(k, xp);
+        *ullp = sg_get_unaligned_be(k, xp);
         num -= pl;
         ucp += pl;
     }
@@ -2325,11 +2325,11 @@ scsiDecodeNonMediumErrPage(unsigned char *resp,
                            struct scsiNonMediumError *nmep)
 {
     memset(nmep, 0, sizeof(*nmep));
-    int num = get_unaligned_be16(resp + 2);
+    int num = sg_get_unaligned_be16(resp + 2);
     unsigned char * ucp = &resp[0] + 4;
     int szof = sizeof(nmep->counterPC0);
     while (num > 3) {
-        int pc = get_unaligned_be16(ucp + 0);
+        int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
         int k;
         unsigned char * xp;
@@ -2342,7 +2342,7 @@ scsiDecodeNonMediumErrPage(unsigned char *resp,
                     xp += (k - szof);
                     k = szof;
                 }
-                nmep->counterPC0 = get_unaligned_be(k, xp + 0);
+                nmep->counterPC0 = sg_get_unaligned_be(k, xp + 0);
                 break;
             case 0x8009:
                 nmep->gotTFE_H = 1;
@@ -2352,7 +2352,7 @@ scsiDecodeNonMediumErrPage(unsigned char *resp,
                     xp += (k - szof);
                     k = szof;
                 }
-                nmep->counterTFE_H = get_unaligned_be(k, xp + 0);
+                nmep->counterTFE_H = sg_get_unaligned_be(k, xp + 0);
                 break;
             case 0x8015:
                 nmep->gotPE_H = 1;
@@ -2362,7 +2362,7 @@ scsiDecodeNonMediumErrPage(unsigned char *resp,
                     xp += (k - szof);
                     k = szof;
                 }
-                nmep->counterPE_H = get_unaligned_be(k, xp + 0);
+                nmep->counterPE_H = sg_get_unaligned_be(k, xp + 0);
                 break;
         default:
                 nmep->gotExtraPC = 1;
@@ -2400,7 +2400,7 @@ scsiCountFailedSelfTests(scsi_device * fd, int noisy)
         return -1;
     }
     // compute page length
-    num = get_unaligned_be16(resp + 2);
+    num = sg_get_unaligned_be16(resp + 2);
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
         if (noisy)
@@ -2414,7 +2414,7 @@ scsiCountFailedSelfTests(scsi_device * fd, int noisy)
     for (k = 0, ucp = resp + 4; k < 20; ++k, ucp += 20 ) {
 
         // timestamp in power-on hours (or zero if test in progress)
-        int n = get_unaligned_be16(ucp + 6);
+        int n = sg_get_unaligned_be16(ucp + 6);
 
         // The spec says "all 20 bytes will be zero if no test" but
         // DG has found otherwise.  So this is a heuristic.
@@ -2424,7 +2424,7 @@ scsiCountFailedSelfTests(scsi_device * fd, int noisy)
         if ((res > 2) && (res < 8)) {
             fails++;
             if (1 == fails)
-                fail_hour = get_unaligned_be16(ucp + 6);
+                fail_hour = sg_get_unaligned_be16(ucp + 6);
         }
     }
     return (fail_hour << 8) + fails;
@@ -2445,7 +2445,7 @@ scsiSelfTestInProgress(scsi_device * fd, int * inProgress)
     if (resp[0] != SELFTEST_RESULTS_LPAGE)
         return -1;
     // compute page length
-    num = get_unaligned_be16(resp + 2);
+    num = sg_get_unaligned_be16(resp + 2);
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
         return -1;
@@ -2506,8 +2506,8 @@ scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp,
     memset(buff, 0, sizeof(buff));
     if ((0 == scsiInquiryVpd(device, SCSI_VPD_BLOCK_DEVICE_CHARACTERISTICS,
                              buff, sizeof(buff))) &&
-        ((get_unaligned_be16(buff + 2)) > 2)) {
-        int speed = get_unaligned_be16(buff + 4);
+        ((sg_get_unaligned_be16(buff + 2)) > 2)) {
+        int speed = sg_get_unaligned_be16(buff + 4);
         if (form_factorp)
             *form_factorp = buff[7] & 0xf;
         if (haw_zbcp)
@@ -2535,7 +2535,7 @@ scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp,
             return -EINVAL;
     }
     offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
-    return get_unaligned_be16(buff + offset + 20);
+    return sg_get_unaligned_be16(buff + offset + 20);
 }
 
 /* Returns a non-zero value in case of error, wcep/rcdp == -1 - get value,
@@ -2624,7 +2624,7 @@ scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep,
 
     /* mask out DPOFUA device specific (disk) parameter bit */
     if (10 == modese_len) {
-        resp_len = get_unaligned_be16(buff + 0) + 2;
+        resp_len = sg_get_unaligned_be16(buff + 0) + 2;
         buff[3] &= 0xef;
     } else {
         resp_len = buff[0] + 1;
@@ -2695,7 +2695,7 @@ scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len)
 
     /* mask out DPOFUA device specific (disk) parameter bit */
     if (10 == modese_len) {
-        resp_len = get_unaligned_be16(buff + 0) + 2;
+        resp_len = sg_get_unaligned_be16(buff + 0) + 2;
         buff[3] &= 0xef;
     } else {
         resp_len = buff[0] + 1;
