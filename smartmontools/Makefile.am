@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4674 2017-12-27 18:18:41Z samm2 $
+# $Id: Makefile.am 4727 2018-04-16 15:12:21Z dpgilbert $
 #
 
 @SET_MAKE@
@@ -85,7 +85,7 @@ smartctl_SOURCES = \
         scsiprint.h \
         utility.cpp \
         utility.h \
-        unaligned.h
+        sg_unaligned.h
 
 smartctl_LDADD = $(os_deps) $(os_libs)
 smartctl_DEPENDENCIES = $(os_deps)
@@ -152,7 +152,7 @@ smartd_SOURCES = \
         scsiata.cpp \
         utility.cpp \
         utility.h \
-        unaligned.h
+        sg_unaligned.h
 
 smartd_LDADD = $(os_deps) $(os_libs) $(CAPNG_LDADD)
 smartd_DEPENDENCIES = $(os_deps)

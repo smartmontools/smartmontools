@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4694 2018-02-20 20:33:11Z chrfranke $
+# $Id: configure.ac 4727 2018-04-16 15:12:21Z dpgilbert $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4694 2018-02-20 20:33:11Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4727 2018-04-16 15:12:21Z dpgilbert $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -85,6 +85,7 @@ AC_MSG_RESULT([$is_svn_build])
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([locale.h])
+AC_CHECK_HEADERS([byteswap.h], [], [], [])
 
 case "$host" in
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
@@ -318,6 +319,10 @@ AC_ARG_ENABLE([scsi-cdb-check],
 	      AC_HELP_STRING([--enable-scsi-cdb-check], [do sanity check on each SCSI cdb]),
   AC_DEFINE_UNQUOTED(SCSI_CDB_CHECK, 1, [enable check on SCSI cdbs], )
 )
+
+AC_ARG_ENABLE([fast-lebe],
+  AC_HELP_STRING([--disable-fast-lebe], [use generic little-endian/big-endian code instead]),
+  [AC_DEFINE_UNQUOTED(IGNORE_FAST_LEBE, 1, [use generic little-endian/big-endian instead], )], [])
 
 AC_ARG_WITH(os-deps,
   [AS_HELP_STRING([--with-os-deps='os_module.o ...'], [Specify OS dependent module(s) [guessed]])],

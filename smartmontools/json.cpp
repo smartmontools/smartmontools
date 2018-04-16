@@ -18,10 +18,10 @@
 #include "config.h"
 #include "json.h"
 
-const char * json_cvsid = "$Id: json.cpp 4720 2018-03-20 22:20:40Z chrfranke $"
+const char * json_cvsid = "$Id: json.cpp 4727 2018-04-16 15:12:21Z dpgilbert $"
   JSON_H_CVSID;
 
-#include "unaligned.h"
+#include "sg_unaligned.h"
 
 #include <stdexcept>
 
@@ -162,8 +162,8 @@ void json::ref::set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo)
 
 void json::ref::set_unsafe_le128(const void * pvalue)
 {
-  set_unsafe_uint128(get_unaligned_le64((const uint8_t *)pvalue + 8),
-                     get_unaligned_le64(                 pvalue    ));
+  set_unsafe_uint128(sg_get_unaligned_le64((const uint8_t *)pvalue + 8),
+                     sg_get_unaligned_le64(                 pvalue    ));
 }
 
 json::node::node()
