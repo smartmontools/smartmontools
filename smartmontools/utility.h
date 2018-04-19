@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-16 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -74,13 +74,11 @@ int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
 uint64_t strtoull(const char * p, char * * endp, int base);
 #endif
 
-// Utility function prints current date and time and timezone into a
-// character buffer of length>=64.  All the fuss is needed to get the
+// Utility function prints date and time and timezone into a character
+// buffer of length 64.  All the fuss is needed to get the
 // right timezone info (sigh).
 #define DATEANDEPOCHLEN 64
-void dateandtimezone(char *buffer);
-// Same, but for time defined by epoch tval
-void dateandtimezoneepoch(char *buffer, time_t tval);
+void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval);
 
 // like printf() except that we can control it better. Note --
 // although the prototype is given here in utility.h, the function

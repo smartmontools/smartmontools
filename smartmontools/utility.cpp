@@ -274,9 +274,10 @@ const char *packetdevicetype(int type){
 }
 
 // Utility function prints date and time and timezone into a character
-// buffer of length>=64.  All the fuss is needed to get the right
+// buffer of length 64.  All the fuss is needed to get the right
 // timezone info (sigh).
-void dateandtimezoneepoch(char *buffer, time_t tval){
+void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
+{
   struct tm *tmval;
   const char *timezonename;
   char datebuffer[DATEANDEPOCHLEN];
@@ -324,16 +325,6 @@ void dateandtimezoneepoch(char *buffer, time_t tval){
   // Finally put the information into the buffer as needed.
   snprintf(buffer, DATEANDEPOCHLEN, "%s %s", datebuffer, timezonename);
   
-  return;
-}
-
-// Date and timezone gets printed into string pointed to by buffer
-void dateandtimezone(char *buffer){
-  
-  // Get the epoch (time in seconds since Jan 1 1970)
-  time_t tval=time(NULL);
-  
-  dateandtimezoneepoch(buffer, tval);
   return;
 }
 
