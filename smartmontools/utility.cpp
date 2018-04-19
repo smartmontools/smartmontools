@@ -51,6 +51,7 @@
 
 #include "atacmds.h"
 #include "dev_interface.h"
+#include "sg_unaligned.h"
 
 const char * utility_cpp_cvsid = "$Id$"
                                  UTILITY_H_CVSID INT64_H_CVSID;
@@ -270,25 +271,6 @@ const char *packetdevicetype(int type){
     return "Reserved";
   
   return "Unknown";
-}
-
-// Runtime check of byte ordering, throws if different from isbigendian().
-static void check_endianness()
-{
-  union {
-    // Force compile error if int type is not 32bit.
-    unsigned char c[sizeof(unsigned) == 4 ? 4 : -1];
-    unsigned i;
-  } x = {{1,2,3,4}};
-
-  int big = -1;
-  switch (x.i) {
-    case 0x01020304: big = 1; break;
-    case 0x04030201: big = 0; break;
-  }
-
-  if (big != (isbigendian() ? 1 : 0))
-    throw std::logic_error("CPU endianness does not match compile time test");
 }
 
 // Utility function prints date and time and timezone into a character
@@ -755,6 +737,22 @@ std::string strprintf(const char * fmt, ...)
   return str;
 }
 
+// Runtime check of byte ordering, throws on error.
+static void check_endianness()
+{
+  const union {
+    // Force compile error if int type is not 32bit.
+    unsigned char c[sizeof(int) == 4 ? 8 : -1];
+    uint64_t i;
+  } x = {{1, 2, 3, 4, 5, 6, 7, 8}};
+  const uint64_t le = 0x0807060504030201ULL;
+  const uint64_t be = 0x0102030405060708ULL;
+
+  if (!(   x.i == (isbigendian() ? be : le)
+        && sg_get_unaligned_le64(x.c) == le
+        && sg_get_unaligned_be64(x.c) == be))
+    throw std::logic_error("CPU endianness does not match compile time test");
+}
 
 #ifndef HAVE_WORKING_SNPRINTF
 // Some versions of (v)snprintf() don't append null char (MSVCRT.DLL),

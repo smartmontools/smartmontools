@@ -1,5 +1,10 @@
 $Id$
 
+2018-04-19  Christian Franke  <franke@computer.org>
+
+	utility.cpp: Add check of sg_get_unaligned_[bl]e64() to
+	check_endianness().
+
 2018-04-16  Douglas Gilbert  <dgilbert@interlog.com>
 
 	switch usage of unaligned.h to sg_unaligned.h which is functionally
