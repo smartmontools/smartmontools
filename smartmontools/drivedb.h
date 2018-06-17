@@ -75,7 +75,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4717 2018-03-06 22:15:25Z samm2 $",
+  { "$Id: drivedb.h 4732 2018-06-17 17:45:04Z dipohl $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -576,7 +576,7 @@ const drive_settings builtin_knowndrives[] = {
   // SSD-DM032-PHI (SATA SSD/S9FM02.1)
   { "Phison Driven OEM SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "SATA SSD",
-    "(S9FM02\\.1|SBFM10\\.5)",
+    "(S9FM02\\.1|SBFM10\\.5|SBFM91\\.2)",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
