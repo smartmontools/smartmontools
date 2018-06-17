@@ -576,7 +576,7 @@ const drive_settings builtin_knowndrives[] = {
   // SSD-DM032-PHI (SATA SSD/S9FM02.1)
   { "Phison Driven OEM SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "SATA SSD",
-    "(S9FM02\\.1|SBFM10\\.5)",
+    "(S9FM02\\.1|SBFM10\\.5|SBFM91\\.2)",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
