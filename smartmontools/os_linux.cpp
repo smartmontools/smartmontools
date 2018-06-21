@@ -92,6 +92,7 @@
 #include "cciss.h"
 #include "megaraid.h"
 #include "aacraid.h"
+#include "nvmecmds.h"
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
@@ -2825,7 +2826,7 @@ protected:
   virtual std::string get_valid_custom_dev_types_str();
 
 private:
-  bool get_dev_list(smart_device_list & devlist, const char * pattern,
+  void get_dev_list(smart_device_list & devlist, const char * pattern,
     bool scan_ata, bool scan_scsi, bool scan_nvme,
     const char * req_type, bool autodetect);
 
@@ -2854,7 +2855,7 @@ std::string linux_smart_interface::get_app_examples(const char * appname)
 
 // we are going to take advantage of the fact that Linux's devfs will only
 // have device entries for devices that exist.
-bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
+void linux_smart_interface::get_dev_list(smart_device_list & devlist,
   const char * pattern, bool scan_ata, bool scan_scsi, bool scan_nvme,
   const char * req_type, bool autodetect)
 {
@@ -2866,21 +2867,12 @@ bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
     //  glob failed: free memory and return
     globfree(&globbuf);
 
-    if (retglob==GLOB_NOMATCH){
-      pout("glob(3) found no matches for pattern %s\n", pattern);
-      return true;
-    }
+    if (ata_debugmode || scsi_debugmode || nvme_debugmode)
+      pout("glob(3) error %d for pattern %s\n", retglob, pattern);
 
-    if (retglob==GLOB_NOSPACE)
-      set_err(ENOMEM, "glob(3) ran out of memory matching pattern %s", pattern);
-#ifdef GLOB_ABORTED // missing in old versions of glob.h
-    else if (retglob==GLOB_ABORTED)
-      set_err(EINVAL, "glob(3) aborted matching pattern %s", pattern);
-#endif
-    else
-      set_err(EINVAL, "Unexplained error in glob(3) of pattern %s", pattern);
-
-    return false;
+    if (retglob == GLOB_NOSPACE)
+      throw std::bad_alloc();
+    return;
   }
 
   // did we find too many paths?
@@ -2949,7 +2941,6 @@ bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
 
   // free memory
   globfree(&globbuf);
-  return true;
 }
 
 // getting devices from LSI SAS MegaRaid, if available
@@ -3055,7 +3046,9 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   // else look for devfs entries without traditional links
   // TODO: Add udev support
-  return get_dev_list(devlist, "/dev/discs/disc*", scan_ata, scan_scsi, false, type, false);
+  if (scan_ata || scan_scsi)
+    get_dev_list(devlist, "/dev/discs/disc*", scan_ata, scan_scsi, false, type, false);
+  return true;
 }
 
 ata_device * linux_smart_interface::get_ata_device(const char * name, const char * type)
