@@ -4531,7 +4531,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
     }
   }
 
-  char name[20];
+  char name[32];
 
   if (ata || scsi || sat || usb || nvme) {
     // Scan up to 128 drives and 2 3ware controllers

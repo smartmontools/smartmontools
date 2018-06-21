@@ -3,6 +3,7 @@ $Id$
 2018-06-21  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 10 1803 build number.
+	Silence g++ 7.3 -Wformat-truncation warning.
 
 2018-04-19  Christian Franke  <franke@computer.org>
 
