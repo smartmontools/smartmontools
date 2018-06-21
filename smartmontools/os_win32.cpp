@@ -114,7 +114,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4733 2018-06-21 19:15:30Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4734 2018-06-21 19:21:12Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -4531,7 +4531,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
     }
   }
 
-  char name[20];
+  char name[32];
 
   if (ata || scsi || sat || usb || nvme) {
     // Scan up to 128 drives and 2 3ware controllers
