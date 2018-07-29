@@ -2067,13 +2067,14 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
   }
 
   // Create port -> index map
-  //                                 IRST Release
-  // Phy[i].Value               9.x   10.4   14.8   15.2
-  // ---------------------------------------------------
-  // bPortIdentifier           0xff   0xff   port   0x00
-  // Identify.bPhyIdentifier   port   port   port   port
-  // Attached.bPhyIdentifier   0x00   0x00   0x00   port
-  // Empty ports in Phy[]?     no     ?      yes    yes
+  //                                     IRST Release
+  // Phy[i].Value               9.x   10.x   14.8   15.2   16.0
+  // ----------------------------------------------------------
+  // bPortIdentifier           0xff   0xff   port   0x00   port
+  // Identify.bPhyIdentifier   index? index? index  index  port
+  // Attached.bPhyIdentifier   0x00   0x00   0x00   index  0x00
+  //
+  // Empty ports with hotplug support may appear in Phy[].
 
   int number_of_ports;
   for (int mode = 0; ; mode++) {
@@ -2081,14 +2082,15 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
        p2i[i] = -1;
 
      number_of_ports = 0;
-     bool unique = true;
+     bool found = false;
      for (int i = 0; i < max_number_of_ports; i++) {
         const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
         if (pe.Identify.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
           continue;
 
-        // Use a bPhyIdentifier or the bPortIdentifier if unique,
-        // otherwise use table index
+        // Try to detect which field contains the actual port number.
+        // Use a bPhyIdentifier or the bPortIdentifier if unique
+        // and not always identical to table index, otherwise use index.
         int port;
         switch (mode) {
           case 0:  port = pe.Attached.bPhyIdentifier; break;
@@ -2097,16 +2099,18 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
           default: port = i; break;
         }
         if (!(port < max_number_of_ports && p2i[port] == -1)) {
-          unique = false;
+          found = false;
           break;
         }
 
         p2i[port] = i;
         if (number_of_ports <= port)
           number_of_ports = port + 1;
+        if (port != i)
+          found = true;
      }
 
-     if (unique || mode > 2)
+     if (found || mode > 2)
        break;
   }
 
