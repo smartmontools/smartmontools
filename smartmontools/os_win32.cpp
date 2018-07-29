@@ -4087,6 +4087,7 @@ std::string win_smart_interface::get_os_version_str()
         switch (vi.dwBuildNumber) {
           case 14393:   w = "2016-1607"; break;
           case 16299:   w = "wsrv-1709"; break;
+          case 17134:   w = "wsrv-1803"; break;
           default:      w = "wsrv"; build = vi.dwBuildNumber; break;
         } break;
     }

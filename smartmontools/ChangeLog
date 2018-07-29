@@ -1,5 +1,9 @@
 $Id$
 
+2018-07-29  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows Server 1803 build number.
+
 2018-06-21  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp: Rework handling of glob() return code.
