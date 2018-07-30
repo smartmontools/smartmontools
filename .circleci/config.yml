@@ -47,7 +47,7 @@ references:
         (cd inst && tar czf "/artefacts/smartmontools-linux-x86_64-static-${SM_VER}-r${SVNREV}.tar.gz" *)
         rm -rf ~/build
 
-  sm_comple_linux: &sm_compile_linux32
+  sm_comple_linux32: &sm_compile_linux32
     run:
       name: Creating static i386 linux binaries
       command: |
@@ -91,10 +91,10 @@ references:
         mkdir ~/build && cd ~/build &&
         tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
-        ../configure build_alias=$(../config.guess) host_alias=x86_64-apple-darwin14 
-        'CC=o64-clang' 'CXX=o64-clang++' 'CFLAGS=-arch i386 -arch x86_64'  
+        ../configure build_alias=$(../config.guess) host_alias=x86_64-apple-darwin14
+        'CC=o64-clang' 'CXX=o64-clang++' 'CFLAGS=-arch i386 -arch x86_64'
         'CXXFLAGS=-arch i386 -arch x86_64' '--sysconfdir=/private/etc' &&
-        make -j2 BUILD_INFO="$BUILD_INFO" && 
+        make -j2 BUILD_INFO="$BUILD_INFO" &&
         make pkg_darwin=smartmontools-${SM_VER}-r${SVNREV}.pkg dmg_darwin=smartmontools-${SM_VER}-r${SVNREV}.dmg install-darwin &&
         mv smartmontools-${SM_VER}-r${SVNREV}.dmg "/artefacts/" &&
         rm -rf ~/build
