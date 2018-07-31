@@ -2,6 +2,11 @@ $Id$
 
 2018-07-31  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Phison Driven SSDs: Kingston DC400 (#933, #1011), move GOODRAM to ...
+	- Phison Driven OEM SSDs: ... here, PC Engines msata16d (#967),
+	  INTENSO SATA III TOP (#1053)
+
 	json.cpp: Add missing ';' to '--json=g' output of 128-bit values.
 
 2018-07-29  Christian Franke  <franke@computer.org>

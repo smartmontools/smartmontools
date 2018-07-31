@@ -529,11 +529,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 249,raw48,Spares_Remaining_Perc " //  later then 0409 FW.
   },
   { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
+    "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
+      // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
     "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
-    "GOODRAM|" // GOODRAM/SAFM12.2 (CX200), model name is missing in the SMART!
     "PNY CS1311 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122
     "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
     "KINGSTON SHSS3B?7A(120|240|480|960)G", // HyperX Savage
@@ -572,11 +573,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   // this is a copy of the Phison bases record for the OEM drives with a very
   // weak information in the model. Detection is based on Firmware.
-  // Tested with FoxLine flssd240x4se (SATA SSD/SBFM10.5) and Supermicro 
-  // SSD-DM032-PHI (SATA SSD/S9FM02.1)
   { "Phison Driven OEM SSDs", // see MKP_521_Phison_SMART_attribute.pdf
-    "SATA SSD",
-    "(S9FM02\\.1|SBFM10\\.5|SBFM91\\.2)",
+    "GOODRAM|" // tested with GOODRAM CX200 (GOODRAM/SAFM12.2)
+    "INTENSO|" // tested with Intenso SSD SATA III Top (INTENSO/S9FM02.6, .../SAFM01.6)
+    "SATA SSD", // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
+      // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
+    "S9FM02\\.[136]|SAFM01\\.6|SAFM12\\.2|SBFM10\\.5|SBFM91\\.2",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
