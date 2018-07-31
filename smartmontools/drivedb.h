@@ -4219,6 +4219,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
+  { "USB: Iomega MDHD500-U; JMicron",
+    "0x059b:0x0274",
+    "", // 0x0000
+    "",
+    "-d usbjmicron,0"
+  },
   { "USB: Iomega MDHD500-U; ",
     "0x059b:0x0275",
     "", // 0x0001
@@ -4430,6 +4436,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; Innostor IS631", // No Name USB3->SATA Enclosure
     "0x07ab:0x0621",
     "",
+    "",
+    "-d sat"
+  },
+  { "USB: Freecom; ",
+    "0x07ab:0xfc17",
+    "", // 0x0100
     "",
     "-d sat"
   },
@@ -4719,15 +4731,21 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron JMS539", // USB2/3->SATA (new firmware)
     "0x152d:0x0539",
     "0x020[56]|"   //  2.05, ZTC USB 3.0 enclosure (ticket #338)
-    "0x28(03|12)", // 28.03, Mediasonic ProBox HF2-SU3S2 Rev 2 (port multiplier, ticket #504)
-    "",            // 28.12, Mediasonic ProBox H82-SU3S2 (port multiplier)
-    "-d sat"
+    "0x28(01|03|12)", // 28.01, DATOptic U3eSATA (USB3.0 bridge with port multiplier)
+    "",               // 28.03, Mediasonic ProBox HF2-SU3S2 Rev 2 (port multiplier, ticket #504)
+    "-d sat"          // 28.12, Mediasonic ProBox H82-SU3S2 (port multiplier)
   },
   { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
     "0x152d:0x0551",   // JMS539? (old firmware may use 0x152d:0x0539, ticket #552)
     "", // 0x0100
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: ; JMicron",
+    "0x152d:0x0561",
+    "", // 0x0003, ODROID CloudShell 2
+    "",
+    "-d sat"
   },
   { "USB: ; JMicron", // USB2/3->2xSATA
     "0x152d:0x0565",
@@ -4819,6 +4837,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: ; JMicron JMS567", // USB3->SATA
+    "0x152d:0x2567",
+    "", // 0x0117, Chieftec CEB-7053S
+    "",
+    "-d sat"
+  },
   { "USB: ; JMicron",
     "0x152d:0x2590",
     "", // 0x0x8105 (ticket #550)
@@ -4834,6 +4858,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron", // USB3->SATA
     "0x152d:0x3569",
     "", // 0x0203
+    "",
+    "-d sat"
+  },
+  { "USB: ; JMicron",
+    "0x152d:0x578e",
+    "", // 0x1402, Intenso Memory Center
     "",
     "-d sat"
   },
