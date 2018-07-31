@@ -527,11 +527,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 249,raw48,Spares_Remaining_Perc " //  later then 0409 FW.
   },
   { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
+    "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
+      // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
     "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
-    "GOODRAM|" // GOODRAM/SAFM12.2 (CX200), model name is missing in the SMART!
     "PNY CS1311 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122
     "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
     "KINGSTON SHSS3B?7A(120|240|480|960)G", // HyperX Savage
@@ -570,11 +571,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   // this is a copy of the Phison bases record for the OEM drives with a very
   // weak information in the model. Detection is based on Firmware.
-  // Tested with FoxLine flssd240x4se (SATA SSD/SBFM10.5) and Supermicro 
-  // SSD-DM032-PHI (SATA SSD/S9FM02.1)
   { "Phison Driven OEM SSDs", // see MKP_521_Phison_SMART_attribute.pdf
-    "SATA SSD",
-    "(S9FM02\\.1|SBFM10\\.5)",
+    "GOODRAM|" // tested with GOODRAM CX200 (GOODRAM/SAFM12.2)
+    "INTENSO|" // tested with Intenso SSD SATA III Top (INTENSO/S9FM02.6, .../SAFM01.6)
+    "SATA SSD", // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
+      // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
+    "S9FM02\\.[136]|SAFM01\\.6|SAFM12\\.2|SBFM10\\.5|SBFM91\\.2",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
@@ -4208,6 +4210,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
+  { "USB: Iomega MDHD500-U; JMicron",
+    "0x059b:0x0274",
+    "", // 0x0000
+    "",
+    "-d usbjmicron,0"
+  },
   { "USB: Iomega MDHD500-U; ",
     "0x059b:0x0275",
     "", // 0x0001
@@ -4419,6 +4427,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; Innostor IS631", // No Name USB3->SATA Enclosure
     "0x07ab:0x0621",
     "",
+    "",
+    "-d sat"
+  },
+  { "USB: Freecom; ",
+    "0x07ab:0xfc17",
+    "", // 0x0100
     "",
     "-d sat"
   },
@@ -4708,15 +4722,21 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron JMS539", // USB2/3->SATA (new firmware)
     "0x152d:0x0539",
     "0x020[56]|"   //  2.05, ZTC USB 3.0 enclosure (ticket #338)
-    "0x28(03|12)", // 28.03, Mediasonic ProBox HF2-SU3S2 Rev 2 (port multiplier, ticket #504)
-    "",            // 28.12, Mediasonic ProBox H82-SU3S2 (port multiplier)
-    "-d sat"
+    "0x28(01|03|12)", // 28.01, DATOptic U3eSATA (USB3.0 bridge with port multiplier)
+    "",               // 28.03, Mediasonic ProBox HF2-SU3S2 Rev 2 (port multiplier, ticket #504)
+    "-d sat"          // 28.12, Mediasonic ProBox H82-SU3S2 (port multiplier)
   },
   { "USB: ; JMicron ", // USB->SATA->4xSATA (port multiplier)
     "0x152d:0x0551",   // JMS539? (old firmware may use 0x152d:0x0539, ticket #552)
     "", // 0x0100
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: ; JMicron",
+    "0x152d:0x0561",
+    "", // 0x0003, ODROID CloudShell 2
+    "",
+    "-d sat"
   },
   { "USB: ; JMicron", // USB2/3->2xSATA
     "0x152d:0x0565",
@@ -4808,6 +4828,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  { "USB: ; JMicron JMS567", // USB3->SATA
+    "0x152d:0x2567",
+    "", // 0x0117, Chieftec CEB-7053S
+    "",
+    "-d sat"
+  },
   { "USB: ; JMicron",
     "0x152d:0x2590",
     "", // 0x0x8105 (ticket #550)
@@ -4823,6 +4849,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron", // USB3->SATA
     "0x152d:0x3569",
     "", // 0x0203
+    "",
+    "-d sat"
+  },
+  { "USB: ; JMicron",
+    "0x152d:0x578e",
+    "", // 0x1402, Intenso Memory Center
     "",
     "-d sat"
   },
