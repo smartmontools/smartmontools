@@ -1,4 +1,8 @@
-$Id: ChangeLog 4737 2018-07-29 17:29:31Z chrfranke $
+$Id: ChangeLog 4739 2018-07-31 04:32:13Z chrfranke $
+
+2018-07-31  Christian Franke  <franke@computer.org>
+
+	json.cpp: Add missing ';' to '--json=g' output of 128-bit values.
 
 2018-07-29  Christian Franke  <franke@computer.org>
 

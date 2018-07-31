@@ -18,7 +18,7 @@
 #include "config.h"
 #include "json.h"
 
-const char * json_cvsid = "$Id: json.cpp 4727 2018-04-16 15:12:21Z dpgilbert $"
+const char * json_cvsid = "$Id: json.cpp 4739 2018-07-31 04:32:13Z chrfranke $"
   JSON_H_CVSID;
 
 #include "sg_unaligned.h"
@@ -449,7 +449,7 @@ void json::print_flat(FILE * f, bool sorted, const node * p, std::string & path)
     case nt_uint128:
       {
         char buf[64];
-        fprintf(f, "%s = %s\n", path.c_str(),
+        fprintf(f, "%s = %s;\n", path.c_str(),
                 uint128_to_str(buf, p->intval_hi, (uint64_t)p->intval));
       }
       break;
