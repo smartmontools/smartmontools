@@ -1,5 +1,9 @@
 $Id$
 
+2018-07-31  Christian Franke  <franke@computer.org>
+
+	json.cpp: Add missing ';' to '--json=g' output of 128-bit values.
+
 2018-07-29  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows Server 1803 build number.

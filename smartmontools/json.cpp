@@ -449,7 +449,7 @@ void json::print_flat(FILE * f, bool sorted, const node * p, std::string & path)
     case nt_uint128:
       {
         char buf[64];
-        fprintf(f, "%s = %s\n", path.c_str(),
+        fprintf(f, "%s = %s;\n", path.c_str(),
                 uint128_to_str(buf, p->intval_hi, (uint64_t)p->intval));
       }
       break;
