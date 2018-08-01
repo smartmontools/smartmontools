@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2008-16 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4431 2017-08-08 19:38:15Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4743 2018-08-01 20:43:01Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -282,7 +282,7 @@ std::string smart_interface::get_valid_dev_types_str()
 {
   // default
   std::string s =
-    "ata, scsi, nvme[,NSID], sat[,auto][,N][+TYPE], usbcypress[,X], "
+    "ata, scsi[+TYPE], nvme[,NSID], sat[,auto][,N][+TYPE], usbcypress[,X], "
     "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, intelliprop,N[+TYPE]";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
@@ -400,8 +400,9 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     dev = get_nvme_device(name, type, nsid);
   }
 
-  else if (  ((!strncmp(type, "sat", 3) && (!type[3] || strchr(",+", type[3])))
-           || (!strncmp(type, "usb", 3)))) {
+  else if (  (str_starts_with(type, "sat") && (!type[3] || strchr(",+", type[3])))
+           || str_starts_with(type, "scsi+")
+           || str_starts_with(type, "usb")                                        ) {
     // Split "sat...+base..." -> ("sat...", "base...")
     unsigned satlen = strcspn(type, "+");
     std::string sattype(type, satlen);

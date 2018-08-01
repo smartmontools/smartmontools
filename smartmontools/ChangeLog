@@ -1,4 +1,10 @@
-$Id: ChangeLog 4741 2018-07-31 21:30:32Z chrfranke $
+$Id: ChangeLog 4743 2018-08-01 20:43:01Z chrfranke $
+
+2018-08-01  Christian Franke  <franke@computer.org>
+
+	dev_interface.cpp, scsiata.cpp, smartctl.8.in, smartd.conf.5.in:
+	Add option '-d scsi+TYPE' to disable SAT auto detection.
+	Useful in conjunction with TYPEs 'aacraid' and 'cciss' (#871).
 
 2018-07-31  Christian Franke  <franke@computer.org>
 
