@@ -113,8 +113,14 @@ class sat_device
   virtual public /*implements*/ scsi_device
 {
 public:
+  enum sat_scsi_mode {
+    sat_always,
+    sat_auto,
+    scsi_always
+  };
+
   sat_device(smart_interface * intf, scsi_device * scsidev,
-    const char * req_type, int passthrulen = 0, bool enable_auto = false);
+    const char * req_type, sat_scsi_mode mode = sat_always, int passthrulen = 0);
 
   virtual ~sat_device() throw();
 
@@ -126,27 +132,28 @@ public:
 
 private:
   int m_passthrulen;
-  bool m_enable_auto;
+  sat_scsi_mode m_mode;
 };
 
 
 sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
-  const char * req_type, int passthrulen /* = 0 */, bool enable_auto /* = false */)
+  const char * req_type, sat_scsi_mode mode /* = sat_always */,
+  int passthrulen /* = 0 */)
 : smart_device(intf, scsidev->get_dev_name(),
-    (enable_auto ? "sat,auto" : "sat"), req_type),
+    (mode == sat_always ? "sat" : mode == sat_auto ? "sat,auto" : "scsi"), req_type),
   tunnelled_device<ata_device, scsi_device>(scsidev),
   m_passthrulen(passthrulen),
-  m_enable_auto(enable_auto)
+  m_mode(mode)
 {
-  if (enable_auto)
+  if (mode != sat_always)
     hide_ata(); // Start as SCSI, switch to ATA in autodetect_open()
   else
     hide_scsi(); // ATA always
   if (strcmp(scsidev->get_dev_type(), "scsi"))
     set_info().dev_type += strprintf("+%s", scsidev->get_dev_type());
 
-  set_info().info_name = strprintf("%s [%sSAT]", scsidev->get_info_name(),
-                                   (enable_auto ? "SCSI/" : ""));
+  set_info().info_name = strprintf("%s [%s]", scsidev->get_info_name(),
+    (mode == sat_always ? "SAT" : mode == sat_auto ? "SCSI/SAT" : "SCSI"));
 }
 
 sat_device::~sat_device() throw()
@@ -510,7 +517,7 @@ bool sat_device::scsi_pass_through(scsi_cmnd_io * iop)
 
 smart_device * sat_device::autodetect_open()
 {
-  if (!open() || !m_enable_auto)
+  if (!open() || m_mode != sat_auto)
     return this;
 
   scsi_device * scsidev = get_tunnel_dev();
@@ -1489,10 +1496,10 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
 
   if (!strncmp(type, "sat", 3)) {
     const char * t = type + 3;
-    bool enable_auto = false;
+    sat_device::sat_scsi_mode mode = sat_device::sat_always;
     if (!strncmp(t, ",auto", 5)) {
       t += 5;
-      enable_auto = true;
+      mode = sat_device::sat_auto;
     }
     int ptlen = 0, n = -1;
     if (*t && !(sscanf(t, ",%d%n", &ptlen, &n) == 1 && n == (int)strlen(t)
@@ -1500,7 +1507,11 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
       set_err(EINVAL, "Option '-d sat[,auto][,N]' requires N to be 0, 12 or 16");
       return 0;
     }
-    satdev = new sat_device(this, scsidev, type, ptlen, enable_auto);
+    satdev = new sat_device(this, scsidev, type, mode, ptlen);
+  }
+
+  else if (!strcmp(type, "scsi")) {
+    satdev = new sat_device(this, scsidev, type, sat_device::scsi_always);
   }
 
   else if (!strncmp(type, "usbcypress", 10)) {

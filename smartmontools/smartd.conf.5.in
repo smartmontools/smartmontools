@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-17 Christian Franke
+Copyright (C) 2004-18 Christian Franke
 
 $Id$
 
@@ -425,7 +425,7 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 .\" %IF OS Linux Windows Cygwin
 .I aacraid,H,L,ID
 \- [Linux, Windows and Cygwin only] the device consists of one or more
-SCSI/SAS disks connected to an AacRaid controller.
+SCSI/SAS or SATA disks connected to an AacRaid controller.
 The non-negative integers H,L,ID (Host number, Lun, ID) denote which disk
 on the controller is monitored.
 In log files and email messages this disk will be identified as
