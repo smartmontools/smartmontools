@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4727 2018-04-16 15:12:21Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4744 2018-08-02 18:37:04Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -2268,7 +2268,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             failuretest(MANDATORY_CMD, returnval |= FAILID);
         any_output = true;
     }
-    is_disk = (SCSI_PT_DIRECT_ACCESS == peripheral_type);
+    is_disk = ((SCSI_PT_DIRECT_ACCESS == peripheral_type) ||
+               (SCSI_PT_HOST_MANAGED == peripheral_type));
     is_tape = ((SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type) ||
                (SCSI_PT_MEDIUM_CHANGER == peripheral_type));
 

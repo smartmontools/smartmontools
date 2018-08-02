@@ -30,7 +30,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 4683 2018-01-07 22:46:30Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 4744 2018-08-02 18:37:04Z chrfranke $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -184,6 +184,7 @@ struct scsi_readcap_resp {
 #define SCSI_PT_CDROM                   0x5
 #define SCSI_PT_MEDIUM_CHANGER          0x8
 #define SCSI_PT_ENCLOSURE               0xd
+#define SCSI_PT_HOST_MANAGED            0x14
 
 /* Transport protocol identifiers or just Protocol identifiers */
 #define SCSI_TPROTO_FCP 0
