@@ -2268,7 +2268,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             failuretest(MANDATORY_CMD, returnval |= FAILID);
         any_output = true;
     }
-    is_disk = (SCSI_PT_DIRECT_ACCESS == peripheral_type);
+    is_disk = ((SCSI_PT_DIRECT_ACCESS == peripheral_type) ||
+               (SCSI_PT_HOST_MANAGED == peripheral_type));
     is_tape = ((SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type) ||
                (SCSI_PT_MEDIUM_CHANGER == peripheral_type));
 

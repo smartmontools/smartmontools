@@ -1,5 +1,10 @@
 $Id$
 
+2018-08-02  Christian Franke  <franke@computer.org>
+
+	scsicmds.h, scsiprint.cpp: Add support for SAS host managed drives
+	(patch from #1045).
+
 2018-08-01  Christian Franke  <franke@computer.org>
 
 	dev_interface.cpp, scsiata.cpp, smartctl.8.in, smartd.conf.5.in:
