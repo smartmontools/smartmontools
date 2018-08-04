@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2008-16 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  */
 
 #include "config.h"
-#include "int64.h"
+
 #include "utility.h"
 #include "atacmds.h"
 #include "scsicmds.h"
@@ -25,7 +25,7 @@
 
 #include <errno.h>
 
-const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 4431 2017-08-08 19:38:15Z chrfranke $"
+const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////

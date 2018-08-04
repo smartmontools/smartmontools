@@ -5,7 +5,6 @@
 
 // These are needed to define prototypes and structures for the
 // functions defined below
-#include "int64.h"
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"
@@ -19,7 +18,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_qnxnto.cpp 3806 2013-03-29 20:17:03Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_qnxnto.cpp 4746 2018-08-04 19:09:46Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_QNXNTO_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 

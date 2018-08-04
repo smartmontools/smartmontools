@@ -23,7 +23,6 @@
 
 // These are needed to define prototypes for the functions defined below
 #include "config.h"
-#include "int64.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -35,7 +34,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 4431 2017-08-08 19:38:15Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 4746 2018-08-04 19:09:46Z chrfranke $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver

@@ -339,7 +339,6 @@
     <ClInclude Include="..\..\dev_interface.h" />
     <ClInclude Include="..\..\dev_tunnelled.h" />
     <ClInclude Include="..\..\drivedb.h" />
-    <ClInclude Include="..\..\int64.h" />
     <ClInclude Include="..\..\knowndrives.h" />
     <CustomBuildStep Include="..\..\megaraid.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

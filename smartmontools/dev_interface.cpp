@@ -16,7 +16,7 @@
  */
 
 #include "config.h"
-#include "int64.h"
+
 #include "dev_interface.h"
 #include "dev_intelliprop.h"
 #include "dev_tunnelled.h"
@@ -33,7 +33,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4743 2018-08-01 20:43:01Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////

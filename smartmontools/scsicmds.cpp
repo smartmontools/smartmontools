@@ -41,14 +41,14 @@
 #include <ctype.h>
 
 #include "config.h"
-#include "int64.h"
+
 #include "scsicmds.h"
 #include "atacmds.h" // FIXME: for smart_command_set only
 #include "dev_interface.h"
 #include "utility.h"
 #include "sg_unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4727 2018-04-16 15:12:21Z dpgilbert $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
   SCSICMDS_H_CVSID;
 
 static const char * logSenStr = "Log Sense";

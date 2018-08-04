@@ -22,9 +22,10 @@
  */
 
 #include "config.h"
-#include "int64.h"
+#define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
 
 // unconditionally included files
+#include <inttypes.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>   // umask
@@ -90,7 +91,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4725 2018-03-28 19:55:08Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {

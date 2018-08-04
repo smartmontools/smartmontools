@@ -25,13 +25,14 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4745 2018-08-04 15:18:44Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4746 2018-08-04 19:09:46Z chrfranke $"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
 #include <regex.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <string>

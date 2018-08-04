@@ -84,7 +84,6 @@
 #include <selinux/selinux.h>
 #endif
 
-#include "int64.h"
 #include "atacmds.h"
 #include "os_linux.h"
 #include "scsicmds.h"
@@ -107,7 +106,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4735 2018-06-21 19:33:11Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 

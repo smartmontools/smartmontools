@@ -23,14 +23,15 @@
  */
 
 #include "config.h"
+#define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
 
 #include <ctype.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "int64.h"
 #include "atacmdnames.h"
 #include "atacmds.h"
 #include "ataidentify.h"
@@ -40,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4726 2018-03-28 20:55:02Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 

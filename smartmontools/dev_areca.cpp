@@ -16,12 +16,11 @@
  */
 
 #include "config.h"
-#include "int64.h"
 
 #include "dev_interface.h"
 #include "dev_areca.h"
 
-const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4672 2017-12-27 16:22:21Z dpgilbert $"
+const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
   DEV_ARECA_H_CVSID;
 
 #include "atacmds.h"

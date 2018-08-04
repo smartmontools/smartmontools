@@ -5,7 +5,7 @@
  *
  * Copyright (C) YEAR YOUR_NAME
  * Copyright (C) 2003-8 Bruce Allen
- * Copyright (C) 2008 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,6 @@
 
 // These are needed to define prototypes and structures for the
 // functions defined below
-#include "int64.h"
 #include "atacmds.h"
 #include "utility.h"
 
@@ -83,7 +82,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char * os_XXXX_cpp_cvsid="$Id: os_generic.cpp 4431 2017-08-08 19:38:15Z chrfranke $"
+const char * os_XXXX_cpp_cvsid="$Id: os_generic.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
   ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
 
 // This is here to prevent compiler warnings for unused arguments of

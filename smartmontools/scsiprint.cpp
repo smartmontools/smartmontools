@@ -24,13 +24,15 @@
  */
 
 
+#include "config.h"
+#define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
+
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
 
-#include "config.h"
-#include "int64.h"
 #include "scsicmds.h"
 #include "atacmds.h" // smart_command_set
 #include "dev_interface.h"
@@ -41,7 +43,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4744 2018-08-02 18:37:04Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 

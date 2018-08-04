@@ -25,7 +25,6 @@
 #define WINVER 0x0502
 #define _WIN32_WINNT WINVER
 
-#include "int64.h"
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "nvmecmds.h"
@@ -114,7 +113,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4737 2018-07-29 17:29:31Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4746 2018-08-04 19:09:46Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files

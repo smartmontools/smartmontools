@@ -38,7 +38,7 @@
 #include <sys/utsname.h>
 
 #include "config.h"
-#include "int64.h"
+
 // set by /usr/include/sys/ata.h, suppress warning
 #undef ATA_READ_LOG_EXT
 #include "atacmds.h"
@@ -81,7 +81,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4710 2018-03-01 17:31:54Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4746 2018-08-04 19:09:46Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0

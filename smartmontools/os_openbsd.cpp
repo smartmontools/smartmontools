@@ -19,7 +19,7 @@
  */
 
 #include "config.h"
-#include "int64.h"
+
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"
@@ -27,7 +27,7 @@
 
 #include <errno.h>
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4431 2017-08-08 19:38:15Z chrfranke $"
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
   OS_OPENBSD_H_CVSID;
 
 enum warnings {

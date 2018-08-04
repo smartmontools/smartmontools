@@ -1,6 +1,8 @@
-$Id: ChangeLog 4745 2018-08-04 15:18:44Z chrfranke $
+$Id: ChangeLog 4746 2018-08-04 19:09:46Z chrfranke $
 
 2018-08-04  Christian Franke  <franke@computer.org>
+
+	Remove int64.h, use <inttypes.h> or <stdint.h> instead.
 
 	configure.ac, utility.cpp, utility.h: Add 128-bit unsigned integer
 	to string conversion.  Provides full integer precision if compiler

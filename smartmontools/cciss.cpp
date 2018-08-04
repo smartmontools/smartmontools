@@ -34,11 +34,10 @@
 
 #ifdef _HAVE_CCISS
 #include "cciss.h"
-#include "int64.h"
 #include "scsicmds.h"
 #include "utility.h"
 
-const char * cciss_cpp_cvsid = "$Id: cciss.cpp 4683 2018-01-07 22:46:30Z dpgilbert $"
+const char * cciss_cpp_cvsid = "$Id: cciss.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
   CCISS_H_CVSID;
 
 typedef struct _ReportLUNdata_struct

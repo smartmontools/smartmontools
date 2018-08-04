@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-16 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  */
 
 #include "config.h"
-#include "int64.h"
+
 #include <stdio.h>
 #include "atacmds.h"
 #include "knowndrives.h"
@@ -32,7 +32,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 4208 2016-01-22 19:45:35Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40

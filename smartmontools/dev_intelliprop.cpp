@@ -16,14 +16,14 @@
  */
 
 #include "config.h"
-#include "int64.h"
+
 #include "atacmds.h" //ATTR_PACKED and ASSERT_SIZEOF_STRUCT
 #include "dev_interface.h"
 #include "dev_intelliprop.h"
 #include "dev_tunnelled.h"
 #include <errno.h>
 
-const char * dev_intelliprop_cpp_cvsid = "$Id: dev_intelliprop.cpp 4370 2017-01-11 20:35:38Z chrfranke $"
+const char * dev_intelliprop_cpp_cvsid = "$Id: dev_intelliprop.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
   DEV_INTELLIPROP_H_CVSID;
 
 //Vendor Specific log addresses
