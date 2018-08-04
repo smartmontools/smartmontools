@@ -83,7 +83,7 @@
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
 const char * os_XXXX_cpp_cvsid="$Id$"
-  ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
+  ATACMDS_H_CVSID CONFIG_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
 
 // This is here to prevent compiler warnings for unused arguments of
 // functions.

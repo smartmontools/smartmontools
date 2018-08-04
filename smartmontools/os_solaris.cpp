@@ -38,7 +38,7 @@
 #define ARGUSED(x) ((void)(x))
 
 const char *os_XXXX_c_cvsid="$Id$" \
-ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+ATACMDS_H_CVSID CONFIG_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
 int printedout[2];
