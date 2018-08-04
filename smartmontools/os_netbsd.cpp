@@ -18,7 +18,7 @@
  */
 
 #include "config.h"
-#include "int64.h"
+
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"

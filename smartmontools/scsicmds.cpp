@@ -41,7 +41,7 @@
 #include <ctype.h>
 
 #include "config.h"
-#include "int64.h"
+
 #include "scsicmds.h"
 #include "atacmds.h" // FIXME: for smart_command_set only
 #include "dev_interface.h"

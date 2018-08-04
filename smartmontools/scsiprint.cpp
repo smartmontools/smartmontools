@@ -24,13 +24,15 @@
  */
 
 
+#include "config.h"
+#define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
+
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
 
-#include "config.h"
-#include "int64.h"
 #include "scsicmds.h"
 #include "atacmds.h" // smart_command_set
 #include "dev_interface.h"

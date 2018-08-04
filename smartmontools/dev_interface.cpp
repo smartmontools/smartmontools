@@ -16,7 +16,7 @@
  */
 
 #include "config.h"
-#include "int64.h"
+
 #include "dev_interface.h"
 #include "dev_intelliprop.h"
 #include "dev_tunnelled.h"

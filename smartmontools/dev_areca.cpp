@@ -16,7 +16,6 @@
  */
 
 #include "config.h"
-#include "int64.h"
 
 #include "dev_interface.h"
 #include "dev_areca.h"

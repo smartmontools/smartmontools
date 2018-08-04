@@ -38,7 +38,7 @@
 #include <sys/utsname.h>
 
 #include "config.h"
-#include "int64.h"
+
 // set by /usr/include/sys/ata.h, suppress warning
 #undef ATA_READ_LOG_EXT
 #include "atacmds.h"

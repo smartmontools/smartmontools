@@ -5,7 +5,6 @@
 
 // These are needed to define prototypes and structures for the
 // functions defined below
-#include "int64.h"
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"

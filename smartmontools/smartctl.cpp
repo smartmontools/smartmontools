@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-17 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,11 @@
  *
  */
 
+#include "config.h"
+#define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
+
 #include <errno.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
@@ -30,8 +34,6 @@
 #include <stdarg.h>
 #include <stdexcept>
 #include <getopt.h>
-
-#include "config.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -41,7 +43,6 @@
 #include <sys/param.h>
 #endif
 
-#include "int64.h"
 #include "atacmds.h"
 #include "dev_interface.h"
 #include "ataprint.h"

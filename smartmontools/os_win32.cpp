@@ -25,7 +25,6 @@
 #define WINVER 0x0502
 #define _WIN32_WINNT WINVER
 
-#include "int64.h"
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "nvmecmds.h"

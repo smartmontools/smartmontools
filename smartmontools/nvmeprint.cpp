@@ -16,12 +16,13 @@
  */
 
 #include "config.h"
+#define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
+
 #include "nvmeprint.h"
 
 const char * nvmeprint_cvsid = "$Id$"
   NVMEPRINT_H_CVSID;
 
-#include "int64.h"
 #include "utility.h"
 #include "dev_interface.h"
 #include "nvmecmds.h"
@@ -29,6 +30,8 @@ const char * nvmeprint_cvsid = "$Id$"
 #include "scsicmds.h" // dStrHex()
 #include "smartctl.h"
 #include "sg_unaligned.h"
+
+#include <inttypes.h>
 
 using namespace smartmontools;
 

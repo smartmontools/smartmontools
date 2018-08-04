@@ -35,7 +35,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 
 #include "config.h"
-#include "int64.h"
+
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "nvmecmds.h"

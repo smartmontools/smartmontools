@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2008 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  */
 
 #include "config.h"
-#include "int64.h"
+
 #include "atacmds.h"
 #include "dev_ata_cmd_set.h"
 

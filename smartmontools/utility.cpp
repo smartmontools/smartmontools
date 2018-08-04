@@ -27,7 +27,9 @@
 // SMARTCTL, OR BOTH.
 
 #include "config.h"
+#define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -46,7 +48,6 @@
 #include <stdexcept>
 
 #include "svnversion.h"
-#include "int64.h"
 #include "utility.h"
 
 #include "atacmds.h"
@@ -54,7 +55,7 @@
 #include "sg_unaligned.h"
 
 const char * utility_cpp_cvsid = "$Id$"
-                                 UTILITY_H_CVSID INT64_H_CVSID;
+  UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",

@@ -53,7 +53,7 @@
 #include <errno.h>
 
 #include "config.h"
-#include "int64.h"
+
 #include "scsicmds.h"
 #include "atacmds.h" // ataReadHDIdentity()
 #include "knowndrives.h" // lookup_usb_device()

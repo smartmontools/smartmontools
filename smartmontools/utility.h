@@ -32,6 +32,7 @@
 #include <sys/types.h> // for regex.h (according to POSIX)
 #include <regex.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <string>

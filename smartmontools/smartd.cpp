@@ -22,9 +22,10 @@
  */
 
 #include "config.h"
-#include "int64.h"
+#define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
 
 // unconditionally included files
+#include <inttypes.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>   // umask

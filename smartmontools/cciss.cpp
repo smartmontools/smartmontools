@@ -34,7 +34,6 @@
 
 #ifdef _HAVE_CCISS
 #include "cciss.h"
-#include "int64.h"
 #include "scsicmds.h"
 #include "utility.h"
 

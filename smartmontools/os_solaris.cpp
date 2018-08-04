@@ -27,7 +27,7 @@
 
 // These are needed to define prototypes for the functions defined below
 #include "config.h"
-#include "int64.h"
+
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2016 Christian Franke
+ * Copyright (C) 2016-18 Christian Franke
  *
  * Original code from <linux/nvme.h>:
  *   Copyright (C) 2011-2014 Intel Corporation
@@ -23,7 +23,7 @@
 
 #define NVMECMDS_H_CVSID "$Id$"
 
-#include "int64.h"
+#include <stdint.h>
 
 // The code below was orginally imported from <linux/nvme.h> include file from
 // Linux kernel sources.  Types from <linux/types.h> were replaced.

@@ -23,7 +23,6 @@
 
 // These are needed to define prototypes for the functions defined below
 #include "config.h"
-#include "int64.h"
 
 #include <ctype.h>
 #include <errno.h>

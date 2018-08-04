@@ -96,7 +96,6 @@
     <ClInclude Include="..\..\dev_interface.h" />
     <ClInclude Include="..\..\dev_tunnelled.h" />
     <ClInclude Include="..\..\drivedb.h" />
-    <ClInclude Include="..\..\int64.h" />
     <ClInclude Include="..\..\knowndrives.h" />
     <ClInclude Include="..\..\scsicmds.h" />
     <ClInclude Include="..\..\scsiprint.h" />
