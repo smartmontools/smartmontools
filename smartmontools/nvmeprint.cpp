@@ -18,7 +18,7 @@
 #include "config.h"
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4727 2018-04-16 15:12:21Z dpgilbert $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4745 2018-08-04 15:18:44Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "int64.h"
@@ -59,9 +59,11 @@ static const char * le128_to_str(char (& str)[64], uint64_t hi, uint64_t lo, uns
     }
   }
   else {
-    // More than 64-bit, print approximate value, prepend ~ flag
-    snprintf(str, sizeof(str), "~%.0f",
-             hi * (0xffffffffffffffffULL + 1.0) + lo);
+    // More than 64-bit, prepend '~' flag on low precision
+    int i = 0;
+    if (uint128_to_str_precision_bits() < 128)
+      str[i++] = '~';
+    uint128_hilo_to_str(str + i, (int)sizeof(str) - i, hi, lo);
   }
 
   return str;

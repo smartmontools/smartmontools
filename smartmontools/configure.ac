@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4727 2018-04-16 15:12:21Z dpgilbert $
+# $Id: configure.ac 4745 2018-08-04 15:18:44Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4727 2018-04-16 15:12:21Z dpgilbert $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4745 2018-08-04 15:18:44Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -83,7 +83,7 @@ AC_MSG_RESULT([$is_svn_build])
 # Check ommitted for now, gettimeofday() provides reasonable precision
 # AC_SEARCH_LIBS(clock_gettime, rt)
 
-dnl Checks for header files.
+# Checks for header files.
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([byteswap.h], [], [], [])
 
@@ -118,7 +118,11 @@ case "$host" in
     ;;
 esac
 
-dnl Checks for library functions.
+# Checks for typedefs, and compiler characteristics.
+AC_CHECK_TYPES([__int128])
+AC_TYPE_LONG_DOUBLE_WIDER
+
+# Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
 AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
 AC_CHECK_FUNCS([regcomp], [need_regex=no], [need_regex=yes])
