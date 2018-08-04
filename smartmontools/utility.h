@@ -27,6 +27,7 @@
 
 #define UTILITY_H_CVSID "$Id$"
 
+#include <float.h> // *DBL_MANT_DIG
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
 #include <regex.h>
@@ -283,6 +284,38 @@ private:
   void copy(const regular_expression & x);
   bool compile();
 };
+
+// 128-bit unsigned integer to string conversion.
+// Provides full integer precision if compiler supports '__int128'.
+// Otherwise precision depends on supported floating point data types.
+
+#if defined(HAVE_LONG_DOUBLE_WIDER) && \
+    (!defined(__MINGW32__) || defined(__USE_MINGW_ANSI_STDIO))
+    // MinGW 'long double' type does not work with MSVCRT *printf()
+#define HAVE_LONG_DOUBLE_WIDER_PRINTF 1
+#else
+#undef HAVE_LONG_DOUBLE_WIDER_PRINTF
+#endif
+
+// Return #bits precision provided by uint128_hilo_to_str().
+inline int uint128_to_str_precision_bits()
+{
+#if defined(HAVE___INT128)
+  return 128;
+#elif defined(HAVE_LONG_DOUBLE_WIDER_PRINTF)
+  return LDBL_MANT_DIG;
+#else
+  return DBL_MANT_DIG;
+#endif
+}
+
+// Convert 128-bit unsigned integer provided as two 64-bit halves to a string.
+const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uint64_t value_lo);
+
+// Version for fixed size buffers.
+template <size_t SIZE>
+inline const char * uint128_hilo_to_str(char (& str)[SIZE], uint64_t value_hi, uint64_t value_lo)
+  { return uint128_hilo_to_str(str, (int)SIZE, value_hi, value_lo); }
 
 #ifdef _WIN32
 // Get exe directory

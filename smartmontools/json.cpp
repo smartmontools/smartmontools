@@ -22,6 +22,7 @@ const char * json_cvsid = "$Id$"
   JSON_H_CVSID;
 
 #include "sg_unaligned.h"
+#include "utility.h" // uint128_*()
 
 #include <stdexcept>
 
@@ -132,12 +133,6 @@ void json::ref::set_unsafe_uint64(uint64_t value)
   operator[]("s") = s;
 }
 
-static const char * uint128_to_str(char (& str)[64], uint64_t hi, uint64_t lo)
-{
-  snprintf(str, sizeof(str), "%.0f", hi * (0xffffffffffffffffULL + 1.0) + lo);
-  return str;
-}
-
 void json::ref::set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo)
 {
   if (!value_hi)
@@ -146,7 +141,8 @@ void json::ref::set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo)
     // Output as number, string and LE byte array
     operator[]("n").set_uint128(value_hi, value_lo);
     char s[64];
-    operator[]("s") = uint128_to_str(s, value_hi, value_lo);
+    operator[]("s") = uint128_hilo_to_str(s, value_hi, value_lo);
+    operator[]("precision_bits") = uint128_to_str_precision_bits();
 
     ref le = operator[]("le");
     for (int i = 0; i < 8; i++)
@@ -391,7 +387,7 @@ void json::print_json(FILE * f, bool sorted, const node * p, int level)
     case nt_uint128:
       {
         char buf[64];
-        fputs(uint128_to_str(buf, p->intval_hi, (uint64_t)p->intval), f);
+        fputs(uint128_hilo_to_str(buf, p->intval_hi, (uint64_t)p->intval), f);
       }
       break;
 
@@ -450,7 +446,7 @@ void json::print_flat(FILE * f, bool sorted, const node * p, std::string & path)
       {
         char buf[64];
         fprintf(f, "%s = %s;\n", path.c_str(),
-                uint128_to_str(buf, p->intval_hi, (uint64_t)p->intval));
+                uint128_hilo_to_str(buf, p->intval_hi, (uint64_t)p->intval));
       }
       break;
 

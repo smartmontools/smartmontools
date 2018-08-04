@@ -728,6 +728,63 @@ std::string strprintf(const char * fmt, ...)
   return str;
 }
 
+#if defined(HAVE___INT128)
+// Compiler supports '__int128'.
+
+// Recursive 128-bit to string conversion function
+static int snprint_uint128(char * str, int strsize, unsigned __int128 value)
+{
+  if (strsize <= 0)
+    return -1;
+
+  if (value <= 0xffffffffffffffffULL) {
+    // Print leading digits as 64-bit value
+    return snprintf(str, (size_t)strsize, "%" PRIu64, (uint64_t)value);
+  }
+  else {
+    // Recurse to print leading digits
+    const uint64_t e19 = 10000000000000000000ULL; // 2^63 < 10^19 < 2^64
+    int len1 = snprint_uint128(str, strsize, value / e19);
+    if (len1 < 0)
+      return -1;
+
+    // Print 19 digits remainder as 64-bit value
+    int len2 = snprintf(str + (len1 < strsize ? len1 : strsize - 1),
+                        (size_t)(len1 < strsize ? strsize - len1 : 1),
+                        "%019" PRIu64, (uint64_t)(value % e19)        );
+    if (len2 < 0)
+      return -1;
+    return len1 + len2;
+  }
+}
+
+// Convert 128-bit unsigned integer provided as two 64-bit halves to a string.
+const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uint64_t value_lo)
+{
+  snprint_uint128(str, strsize, ((unsigned __int128)value_hi << 64) | value_lo);
+  return str;
+}
+
+#elif defined(HAVE_LONG_DOUBLE_WIDER_PRINTF)
+// Compiler and *printf() support 'long double' which is wider than 'double'.
+
+const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uint64_t value_lo)
+{
+  snprintf(str, strsize, "%.0Lf", value_hi * (0xffffffffffffffffULL + 1.0L) + value_lo);
+  return str;
+}
+
+#else // !HAVE_LONG_DOUBLE_WIDER_PRINTF
+// No '__int128' or 'long double' support, use 'double'.
+
+const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uint64_t value_lo)
+{
+  snprintf(str, strsize, "%.0f", value_hi * (0xffffffffffffffffULL + 1.0) + value_lo);
+  return str;
+}
+
+#endif // HAVE___INT128
+
 // Runtime check of byte ordering, throws on error.
 static void check_endianness()
 {

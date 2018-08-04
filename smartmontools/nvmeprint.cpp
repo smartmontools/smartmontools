@@ -59,9 +59,11 @@ static const char * le128_to_str(char (& str)[64], uint64_t hi, uint64_t lo, uns
     }
   }
   else {
-    // More than 64-bit, print approximate value, prepend ~ flag
-    snprintf(str, sizeof(str), "~%.0f",
-             hi * (0xffffffffffffffffULL + 1.0) + lo);
+    // More than 64-bit, prepend '~' flag on low precision
+    int i = 0;
+    if (uint128_to_str_precision_bits() < 128)
+      str[i++] = '~';
+    uint128_hilo_to_str(str + i, (int)sizeof(str) - i, hi, lo);
   }
 
   return str;
