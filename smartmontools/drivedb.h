@@ -1259,6 +1259,68 @@ const drive_settings builtin_knowndrives[] = {
     "-v 234,raw24/raw32:04321,Thermal_Throttle "
     "-v 243,raw48,NAND_Writes_32MiB "
   },
+  { "Intel S3520 Series SSDs", // INTEL SSDSC2BB960G7/N2010112, INTEL SSDSC2BB016T7/N2010112
+    "INTEL SSDSC(2|K)(J|B)B(240G|480G|960G|150G|760G|800G|012T|016T)7.?",
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unsafe_Shutdown_Count "
+    "-v 175,raw16(raw16),Power_Loss_Cap_Test "
+    "-v 183,raw48,SATA_Downshift_Count "
+    "-v 184,raw48,End-to-End_Error_Count "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+    "-v 190,tempminmax,Case_Temperature "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 194,tempminmax,Drive_Temperature "
+    "-v 197,raw48,Pending_Sector_Count "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 234,raw24/raw32:04321,Thermal_Throttle_Status "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 243,raw48,NAND_Writes_32MiB"
+  },
+  { "Intel S4510/S4610/S4500/S4600 Series SSDs", // INTEL SSDSC2KB480G7/SCV10100,
+      // INTEL SSDSC2KB960G7/SCV10100, INTEL SSDSC2KB038T7/SCV10100,
+      // INTEL SSDSC2KB038T7/SCV10121, INTEL SSDSC2KG240G7/SCV10100
+    "INTEL SSDSC2K(B|G)(240G|480G|960G|019T|038T)(7|8).?",
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unsafe_Shutdown_Count "
+    "-v 175,raw16(raw16),Power_Loss_Cap_Test "
+    "-v 183,raw48,SATA_Downshift_Count "
+    "-v 184,raw48,End-to-End_Error_Count "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+    "-v 190,tempminmax,Drive_Temperature "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 197,raw48,Pending_Sector_Count "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 234,raw24/raw32:04321,Thermal_Throttle_Status "
+    "-v 235,raw16(raw16),Power_Loss_Cap_Test "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 243,raw48,NAND_Writes_32MiB"
+  },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",
     "2CV102(J[89A-Z]|[K-Z].)", // >= "2CV102J8"

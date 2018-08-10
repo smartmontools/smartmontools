@@ -1,5 +1,11 @@
 $Id$
 
+2018-08-10  Zhdan Bybin  <zhdan.bybin@intel.com>
+
+	drivedb.h:
+	- Intel S3520 Series SSDs (#985)
+	- Intel S4510/S4610/S4500/S4600 Series SSDs (#912, #928, #1000)
+
 2018-08-04  Christian Franke  <franke@computer.org>
 
 	Remove int64.h, use <inttypes.h> or <stdint.h> instead.
