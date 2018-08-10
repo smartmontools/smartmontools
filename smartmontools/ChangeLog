@@ -1,4 +1,10 @@
-$Id: ChangeLog 4746 2018-08-04 19:09:46Z chrfranke $
+$Id: ChangeLog 4748 2018-08-10 20:02:11Z chrfranke $
+
+2018-08-10  Zhdan Bybin  <zhdan.bybin@intel.com>
+
+	drivedb.h:
+	- Intel S3520 Series SSDs (#985)
+	- Intel S4510/S4610/S4500/S4600 Series SSDs (#912, #928, #1000)
 
 2018-08-04  Christian Franke  <franke@computer.org>
 
