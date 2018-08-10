@@ -2,6 +2,9 @@ $Id$
 
 2018-08-10  Christian Franke  <franke@computer.org>
 
+	smartctl.cpp, os_win32/wmiquery.h: Add missing printf() format checks.
+	This also silences -Wformat-nonliteral warnings from clang++ 5.0.
+
 	os_win32.cpp: Increase IOCTL_ATA_PASS_THROUGH timeout to 60 seconds.
 
 2018-08-10  Zhdan Bybin  <zhdan.bybin@intel.com>
