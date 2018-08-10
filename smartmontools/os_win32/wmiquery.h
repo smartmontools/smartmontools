@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2011-15 Christian Franke
+ * Copyright (C) 2011-18 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 #ifndef WMIQUERY_H
 #define WMIQUERY_H
 
-#define WMIQUERY_H_CVSID "$Id: wmiquery.h 4152 2015-10-17 16:08:21Z chrfranke $"
+#define WMIQUERY_H_CVSID "$Id: wmiquery.h 4751 2018-08-10 20:52:19Z chrfranke $"
 
 #ifdef HAVE_WBEMCLI_H
 #include <wbemcli.h>
@@ -168,11 +168,13 @@ public:
 
   /// Execute query, get result list.
   /// Return false on error.
-  bool vquery(wbem_enumerator & result, const char * qstr, va_list args) /*const*/;
+  bool vquery(wbem_enumerator & result, const char * qstr, va_list args) /*const*/
+       __attribute_format_printf(3, 0);
 
   /// Execute query, get single result object.
   /// Return false on error or result size != 1.
-  bool vquery1(wbem_object & obj, const char * qstr, va_list args) /*const*/;
+  bool vquery1(wbem_object & obj, const char * qstr, va_list args) /*const*/
+       __attribute_format_printf(3, 0);
 
   /// Version of vquery() with printf() formatting.
   bool query(wbem_enumerator & result, const char * qstr, ...) /*const*/

@@ -54,7 +54,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4751 2018-08-10 20:52:19Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -1278,6 +1278,7 @@ static const char * parse_options(int argc, char** argv,
 
 // Printing functions
 
+__attribute_format_printf(3, 0)
 static void vjpout(bool is_js_impl, const char * msg_severity,
                    const char *fmt, va_list ap)
 {
@@ -1330,7 +1331,7 @@ static void vjpout(bool is_js_impl, const char * msg_severity,
 
 // Default: print to stdout
 // --json: ignore
-// --json=a: append to "output" array
+// --json=o: append to "output" array
 // --json=u: add "smartctl_NNNN_u" element(s)
 void pout(const char *fmt, ...)
 {
@@ -1348,7 +1349,7 @@ void pout(const char *fmt, ...)
 
 // Default: Print to stdout
 // --json: ignore
-// --json=a: append to "output" array
+// --json=o: append to "output" array
 // --json=i: add "smartctl_NNNN_i" element(s)
 void jout(const char *fmt, ...)
 {
@@ -1366,7 +1367,7 @@ void jout(const char *fmt, ...)
 
 // Default: print to stdout
 // --json: append to "messages"
-// --json=a: append to "output" array
+// --json=o: append to "output" array
 // --json=i: add "smartctl_NNNN_i" element(s)
 void jinf(const char *fmt, ...)
 {
