@@ -778,7 +778,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev
   //ab.apt.PathId = 0;
   //ab.apt.TargetId = 0;
   //ab.apt.Lun = 0;
-  ab.apt.TimeOutValue = 10;
+  ab.apt.TimeOutValue = 60; // seconds
   unsigned size = offsetof(ATA_PASS_THROUGH_EX_WITH_BUFFERS, ucDataBuf);
   ab.apt.DataBufferOffset = size;
 
