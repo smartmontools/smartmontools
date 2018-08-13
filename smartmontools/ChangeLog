@@ -1,4 +1,8 @@
-$Id: ChangeLog 4751 2018-08-10 20:52:19Z chrfranke $
+$Id: ChangeLog 4752 2018-08-13 19:41:06Z chrfranke $
+
+2018-08-13  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add JSON support for '-l devstat'.
 
 2018-08-10  Christian Franke  <franke@computer.org>
 
