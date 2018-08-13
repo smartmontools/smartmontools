@@ -2875,69 +2875,67 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
   jref["device_state"]["value"] = sts->device_state;
   jref["device_state"]["string"] = statestr;
 
+  // If "Reserved" fields not set, assume "old" format version 2:
+  // Table 11 of T13/1701DT-N (SMART Command Transport) Revision 5, February 2005
+  // Table 54 of T13/1699-D (ATA8-ACS) Revision 3e, July 2006
+  // ... else assume "new" format version 2 or version 3:
+  // T13/e06152r0-3 (Additional SCT Temperature Statistics), August - October 2006
+  // Table 60 of T13/1699-D (ATA8-ACS) Revision 3f, December 2006  (format version 2)
+  // Table 80 of T13/1699-D (ATA8-ACS) Revision 6a, September 2008 (format version 3)
+  // Table 185 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
+  // (smart_status, min_erc_time)
+  bool old_format_2 = (   !sts->min_temp && !sts->life_min_temp
+                       && !sts->under_limit_count && !sts->over_limit_count);
+
   char buf1[20], buf2[20];
-  if (   !sts->min_temp && !sts->life_min_temp
-      && !sts->under_limit_count && !sts->over_limit_count) {
-    // "Reserved" fields not set, assume "old" format version 2
-    // Table 11 of T13/1701DT-N (SMART Command Transport) Revision 5, February 2005
-    // Table 54 of T13/1699-D (ATA8-ACS) Revision 3e, July 2006
-    pout("Current Temperature:                 %s Celsius\n",
-      sct_ptemp(sts->hda_temp, buf1));
-    pout("Power Cycle Max Temperature:         %s Celsius\n",
-      sct_ptemp(sts->max_temp, buf2));
-    pout("Lifetime    Max Temperature:         %s Celsius\n",
-      sct_ptemp(sts->life_max_temp, buf2));
-  }
-  else {
-    // Assume "new" format version 2 or version 3
-    // T13/e06152r0-3 (Additional SCT Temperature Statistics), August - October 2006
-    // Table 60 of T13/1699-D (ATA8-ACS) Revision 3f, December 2006  (format version 2)
-    // Table 80 of T13/1699-D (ATA8-ACS) Revision 6a, September 2008 (format version 3)
-    // Table 185 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
-    // (smart_status, min_erc_time)
-    jout("Current Temperature:                    %s Celsius\n",
-      sct_ptemp(sts->hda_temp, buf1));
-    sct_jtemp2(jref, "current", sts->hda_temp);
-    jout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
-      sct_ptemp(sts->min_temp, buf1), sct_ptemp(sts->max_temp, buf2));
+  jout("Current Temperature:                    %s Celsius\n",
+  sct_ptemp(sts->hda_temp, buf1));
+  sct_jtemp2(jref, "current", sts->hda_temp);
+  jout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
+    (!old_format_2 ? sct_ptemp(sts->min_temp, buf1) : "--"),
+    sct_ptemp(sts->max_temp, buf2));
+  if (!old_format_2)
     sct_jtemp2(jref, "power_cycle_min", sts->min_temp);
-    sct_jtemp2(jref, "power_cycle_max", sts->max_temp);
-    jout("Lifetime    Min/Max Temperature:     %s/%s Celsius\n",
-      sct_ptemp(sts->life_min_temp, buf1), sct_ptemp(sts->life_max_temp, buf2));
+  sct_jtemp2(jref, "power_cycle_max", sts->max_temp);
+  jout("Lifetime    Min/Max Temperature:     %s/%s Celsius\n",
+    (!old_format_2 ? sct_ptemp(sts->life_min_temp, buf1) : "--"),
+    sct_ptemp(sts->life_max_temp, buf2));
+  if (!old_format_2)
     sct_jtemp2(jref, "lifetime_min", sts->life_min_temp);
-    sct_jtemp2(jref, "lifetime_max", sts->life_max_temp);
+  sct_jtemp2(jref, "lifetime_max", sts->life_max_temp);
+  if (old_format_2)
+    return 0;
 
-    signed char avg = sts->byte205; // Average Temperature from e06152r0-2, removed in e06152r3
-    if (0 < avg && sts->life_min_temp <= avg && avg <= sts->life_max_temp)
-      pout("Lifetime    Average Temperature:        %2d Celsius\n", avg);
-    jout("Under/Over Temperature Limit Count:  %2u/%u\n",
-      sts->under_limit_count, sts->over_limit_count);
-    jref["temperature"]["under_limit_count"] = sts->under_limit_count;
-    jref["temperature"]["over_limit_count"] = sts->over_limit_count;
+  signed char avg = sts->byte205; // Average Temperature from e06152r0-2, removed in e06152r3
+  if (0 < avg && sts->life_min_temp <= avg && avg <= sts->life_max_temp)
+    pout("Lifetime    Average Temperature:        %2d Celsius\n", avg);
+  jout("Under/Over Temperature Limit Count:  %2u/%u\n",
+    sts->under_limit_count, sts->over_limit_count);
+  jref["temperature"]["under_limit_count"] = sts->under_limit_count;
+  jref["temperature"]["over_limit_count"] = sts->over_limit_count;
 
-    if (sts->smart_status) { // ACS-4
-      int passed = (sts->smart_status == 0x2cf4 ? 0 :
-                    sts->smart_status == 0xc24f ? 1 : -1);
-      jout("SMART Status:                        0x%04x (%s)\n", sts->smart_status,
-           (passed == 0 ? "FAILED" : passed > 0 ? "PASSED" : "Reserved"));
-      if (passed >= 0) {
-        jref["smart_status"]["passed"] = !!passed;
-        jglb["smart_status"]["passed"] = !!passed;
-      }
-      else
-        jref["smart_status"]["reserved_value"] = sts->smart_status;
+  if (sts->smart_status) { // ACS-4
+    int passed = (sts->smart_status == 0x2cf4 ? 0 :
+                  sts->smart_status == 0xc24f ? 1 : -1);
+    jout("SMART Status:                        0x%04x (%s)\n", sts->smart_status,
+          (passed == 0 ? "FAILED" : passed > 0 ? "PASSED" : "Reserved"));
+    if (passed >= 0) {
+      jref["smart_status"]["passed"] = !!passed;
+      jglb["smart_status"]["passed"] = !!passed;
     }
+    else
+      jref["smart_status"]["reserved_value"] = sts->smart_status;
+  }
 
-    if (sts->min_erc_time) // ACS-4
-      pout("Minimum supported ERC Time Limit:    %d (%0.1f seconds)\n",
-           sts->min_erc_time, sts->min_erc_time/10.0);
+  if (sts->min_erc_time) // ACS-4
+    pout("Minimum supported ERC Time Limit:    %d (%0.1f seconds)\n",
+          sts->min_erc_time, sts->min_erc_time/10.0);
 
-    if (nonempty(sts->vendor_specific, sizeof(sts->vendor_specific))) {
-      jout("Vendor specific:\n");
-      for (unsigned i = 0; i < sizeof(sts->vendor_specific); i++) {
-        jout("%02x%c", sts->vendor_specific[i], ((i & 0xf) != 0xf ? ' ' : '\n'));
-        jref["vendor_specific"][i] = sts->vendor_specific[i];
-      }
+  if (nonempty(sts->vendor_specific, sizeof(sts->vendor_specific))) {
+    jout("Vendor specific:\n");
+    for (unsigned i = 0; i < sizeof(sts->vendor_specific); i++) {
+      jout("%02x%c", sts->vendor_specific[i], ((i & 0xf) != 0xf ? ' ' : '\n'));
+      jref["vendor_specific"][i] = sts->vendor_specific[i];
     }
   }
   return 0;

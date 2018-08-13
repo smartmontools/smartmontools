@@ -3,6 +3,7 @@ $Id$
 2018-08-13  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add JSON support for '-l devstat'.
+	Add JSON support also for old SCT Status format.
 
 2018-08-10  Christian Franke  <franke@computer.org>
 
