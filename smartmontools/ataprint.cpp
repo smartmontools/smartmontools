@@ -1645,7 +1645,22 @@ static const char * get_device_statistics_page_name(int page)
   return "Unknown Statistics";
 }
 
-static void print_device_statistics_page(const unsigned char * data, int page)
+static void set_json_globals_from_device_statistics(int page, int offset, int64_t val)
+{
+  switch (page) {
+    case 5:
+      switch (offset) {
+        case 0x008: jglb["temperature"]["current"] = val; break;
+        case 0x020: jglb["temperature"]["lifetime_max"] = val; break;
+        case 0x028: jglb["temperature"]["lifetime_min"] = val; break;
+        case 0x050: jglb["temperature"]["lifetime_over_limit_minutes"] = val; break;
+        case 0x060: jglb["temperature"]["lifetime_under_limit_minutes"] = val; break;
+      }
+      break;
+  }
+}
+
+static void print_device_statistics_page(const json::ref & jref, const unsigned char * data, int page)
 {
   const devstat_entry_info * info = (page < num_devstat_infos ? devstat_infos[page] : 0);
   const char * name = get_device_statistics_page_name(page);
@@ -1661,9 +1676,14 @@ static void print_device_statistics_page(const unsigned char * data, int page)
     return;
   }
 
-  pout("0x%02x%s%s (rev %d) ==\n", page, line, name, data[0] | (data[1] << 8));
+  int rev = data[0] | (data[1] << 8);
+  jout("0x%02x%s%s (rev %d) ==\n", page, line, name, rev);
+  jref["number"] = page;
+  jref["name"] = name;
+  jref["revision"] = rev;
 
   // Print entries
+  int ji = 0;
   for (int i = 1, offset = 8; offset < 512-7; i++, offset+=8) {
     // Check for last known entry
     if (info && !info[i].size)
@@ -1680,19 +1700,31 @@ static void print_device_statistics_page(const unsigned char * data, int page)
       break;
     }
 
+    // Get value name
+    const char * valname = (info           ? info[i].name :
+                            (page == 0xff) ? "Vendor Specific" // ACS-4
+                                           : "Unknown"        );
+
+
     // Get value size, default to max if unknown
     int size = (info ? info[i].size : 7);
 
+    // Get flags (supported flag already checked above)
+    bool valid = !!(flags & 0x40);
+    bool normalized = !!(flags & 0x20);
+    bool supports_dsn = !!(flags & 0x10); // ACS-3
+    bool monitored_condition_met = !!(flags & 0x08); // ACS-3
+    unsigned char reserved_flags = (flags & 0x07);
+
     // Format value
+    int64_t val = 0;
     char valstr[32];
-    if (flags & 0x40) { // valid flag
+    if (valid) {
       // Get value
-      int64_t val;
       if (size < 0) {
         val = (signed char)data[offset];
       }
       else {
-        val = 0;
         for (int j = 0; j < size; j++)
           val |= (int64_t)data[offset+j] << (j*8);
       }
@@ -1703,17 +1735,37 @@ static void print_device_statistics_page(const unsigned char * data, int page)
       valstr[0] = '-'; valstr[1] = 0;
     }
 
-    pout("0x%02x  0x%03x  %d %15s  %c%c%c%c %s\n",
-      page, offset,
-      abs(size),
-      valstr,
-      ((flags & 0x20) ? 'N' : '-'), // normalized statistics
-      ((flags & 0x10) ? 'D' : '-'), // supports DSN (ACS-3)
-      ((flags & 0x08) ? 'C' : '-'), // monitored condition met (ACS-3)
-      ((flags & 0x07) ? '+' : ' '), // reserved flags
-      ( info          ? info[i].name :
-       (page == 0xff) ? "Vendor Specific" // ACS-4
-                      : "Unknown"        ));
+    char flagstr[] = {
+      (valid ? 'V' : '-'), // JSON only
+      (normalized ? 'N' : '-'),
+      (supports_dsn ? 'D' : '-'),
+      (monitored_condition_met ? 'C' : '-'),
+      (reserved_flags ? '+' : ' '),
+      0
+    };
+
+    jout("0x%02x  0x%03x  %d %15s  %s %s\n",
+      page, offset, abs(size), valstr, flagstr+1, valname);
+
+    json::ref jrefi = jref["table"][ji++];
+    jrefi["offset"] = offset;
+    jrefi["name"] = valname;
+    jrefi["size"] = abs(size);
+    if (valid)
+      jrefi["value"] = val; // TODO: May be unsafe JSON int if size > 6
+
+    json::ref jreff = jrefi["flags"];
+    jreff["value"] = flags;
+    jreff["string"] = flagstr;
+    jreff["valid"] = valid;
+    jreff["normalized"] = normalized;
+    jreff["supports_dsn"] = supports_dsn;
+    jreff["monitored_condition_met"] = monitored_condition_met;
+    if (reserved_flags)
+      jreff["other"] = reserved_flags;
+
+    if (valid)
+      set_json_globals_from_device_statistics(page, offset, val);
   }
 }
 
@@ -1730,13 +1782,13 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
   else
     rc = ataReadSmartLog(device, 0x04, page_0, 1);
   if (!rc) {
-    pout("Read Device Statistics page 0x00 failed\n\n");
+    jerr("Read Device Statistics page 0x00 failed\n\n");
     return false;
   }
 
   unsigned char nentries = page_0[8];
   if (!(page_0[2] == 0 && nentries > 0)) {
-    pout("Device Statistics page 0x00 is invalid (page=0x%02x, nentries=%d)\n\n", page_0[2], nentries);
+    jerr("Device Statistics page 0x00 is invalid (page=0x%02x, nentries=%d)\n\n", page_0[2], nentries);
     return false;
   }
 
@@ -1766,23 +1818,28 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
       ssd_page = false;
   }
 
+  json::ref jref = jglb["ata_device_statistics"];
+
   // Print list of supported pages if requested
   if (print_page_0) {
     pout("Device Statistics (%s Log 0x04) supported pages\n", 
       use_gplog ? "GP" : "SMART");
-    pout("Page  Description\n");
+    jout("Page  Description\n");
     for (i = 0; i < nentries; i++) {
       int page = page_0[8+1+i];
-      pout("0x%02x  %s\n", page, get_device_statistics_page_name(page));
+      const char * name = get_device_statistics_page_name(page);
+      jout("0x%02x  %s\n", page, name);
+      jref["supported_pages"][i]["number"] = page;
+      jref["supported_pages"][i]["name"] = name;
     }
-    pout("\n");
+    jout("\n");
   }
 
   // Read & print pages
   if (!pages.empty()) {
     pout("Device Statistics (%s Log 0x04)\n",
       use_gplog ? "GP" : "SMART");
-    pout("Page  Offset Size        Value Flags Description\n");
+    jout("Page  Offset Size        Value Flags Description\n");
     int max_page = 0;
 
     if (!use_gplog)
@@ -1795,15 +1852,16 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
     raw_buffer pages_buf((max_page+1) * 512);
 
     if (!use_gplog && !ataReadSmartLog(device, 0x04, pages_buf.data(), max_page+1)) {
-      pout("Read Device Statistics pages 0x00-0x%02x failed\n\n", max_page);
+      jerr("Read Device Statistics pages 0x00-0x%02x failed\n\n", max_page);
       return false;
     }
 
+    int ji = 0;
     for (i = 0; i <  pages.size(); i++) {
       int page = pages[i];
       if (use_gplog) {
         if (!ataReadLogExt(device, 0x04, 0, page, pages_buf.data(), 1)) {
-          pout("Read Device Statistics page 0x%02x failed\n\n", page);
+          jerr("Read Device Statistics page 0x%02x failed\n\n", page);
           return false;
         }
       }
@@ -1811,12 +1869,12 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
         continue;
 
       int offset = (use_gplog ? 0 : page * 512);
-      print_device_statistics_page(pages_buf.data() + offset, page);
+      print_device_statistics_page(jref["pages"][ji++], pages_buf.data() + offset, page);
     }
 
-    pout("%32s|||_ C monitored condition met\n", "");
-    pout("%32s||__ D supports DSN\n", "");
-    pout("%32s|___ N normalized value\n\n", "");
+    jout("%32s|||_ C monitored condition met\n", "");
+    jout("%32s||__ D supports DSN\n", "");
+    jout("%32s|___ N normalized value\n\n", "");
   }
 
   return true;

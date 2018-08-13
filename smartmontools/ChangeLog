@@ -1,5 +1,9 @@
 $Id$
 
+2018-08-13  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add JSON support for '-l devstat'.
+
 2018-08-10  Christian Franke  <franke@computer.org>
 
 	smartctl.cpp, os_win32/wmiquery.h: Add missing printf() format checks.
