@@ -8,9 +8,36 @@ https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 Date <Not released yet, please try current SVN or daily builds>
 Summary: smartmontools release 6.7
 -----------------------------------------------------------
+- smartctl: New options '-j' and '--json[=giosu]' to enable experimental
+  JSON output mode.  Also supports an alternative flat format suitable
+  for grep ('--json=g').
 - smartctl '-l devstat': Fix for logs with 256 sectors.
+- smartctl '-l error': Prints SCSI Pending Defects log page if supported.
+- smartctl '-H': Prints SCSI Format Status log page if supported.
+- SCSI: Various improvements for the decoding of log pages.
+- SCSI: Improved handling of READ CAPACITY command.
+- SCSI: Support for SAS host managed drives.
+- New option '-d scsi+TYPE' to disable SAT auto detection for 'aacraid'
+  and 'cciss'.
+- update-smart-drivedb: New option '-u github'.
+- configure: Default for '--with-scriptpath' now includes '/usr/local/bin'.
+- configure: Options '-with-initscriptdir=[auto|yes]' are no longer
+  supported.
+- Reworked handling of unaligned LE and BE integers.
+- Dropped various backward compatibility fixes for very old compilers.
+- HDD, SSD and USB additions to drive database.
+- Always use '-d sat' for USB vendor IDs with known SAT support.
+- Linux: Fix device scan with multiple '-d TYPE' options.
+- Linux: Fix device scan crash on missing '/proc/devices'.
 - Linux: Compile fix for systems with musl libc.
 - FreeBSD: NVMe device scanning.
+- FreeBSD: Various compile fixes.
+- NetBSD: Fix regression in name based device type detection.
+- NetBSD big endian: Fix regression in ATA code.
+- NetBSD big endian: Fix byte ordering of ATA IDENTIFY data from USB/SAT
+  drives.
+- Windows: Improved search for actual CSMI port number.
+- Windows: Installer includes VERSIONINFO resource.
 
 Date 2017-11-05
 Summary: smartmontools release 6.6
