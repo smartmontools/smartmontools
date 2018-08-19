@@ -106,6 +106,15 @@
     <ClInclude Include="..\..\nvmeprint.h" />
     <ClInclude Include="..\..\dev_intelliprop.h" />
     <ClInclude Include="..\..\json.h" />
+    <ClInclude Include="..\..\getopt\getopt_int.h">
+      <Filter>getopt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\getopt\bits\getopt_core.h">
+      <Filter>getopt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\getopt\bits\getopt_ext.h">
+      <Filter>getopt</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\installer.nsi">

@@ -21,7 +21,36 @@
 #ifndef _GETOPT_H
 #define _GETOPT_H 1
 
+#ifndef _GETOPT_STANDALONE
 #include <features.h>
+#endif
+
+// From <sys/cdefs.h>:
+#ifndef __BEGIN_DECLS
+# ifdef __cplusplus
+#  define __BEGIN_DECLS extern "C" {
+#  define __END_DECLS   }
+# else
+#  define __BEGIN_DECLS
+#  define __END_DECLS
+# endif
+#endif
+#ifndef __THROW
+# ifdef __cplusplus
+#  define __THROW throw()
+# elif defined(__GNUC__)
+#  define __THROW __attribute__ ((__nothrow__))
+# else
+#  define __THROW
+# endif
+#endif
+#ifndef __nonnull
+# ifdef __GNUC__
+#  define __nonnull(x) __attribute__ ((__nonnull__ x))
+# else
+#  define __nonnull(x)
+# endif
+#endif
 
 /* The type of the 'argv' argument to getopt_long and getopt_long_only
    is properly 'char **', since both functions may write to the array

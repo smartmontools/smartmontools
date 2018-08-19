@@ -17,7 +17,7 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 
-#ifndef _LIBC
+#if !defined(_LIBC) && !defined(_REGEX_STANDALONE)
 # include <config.h>
 
 # if (__GNUC__ == 4 && 6 <= __GNUC_MINOR__) || 4 < __GNUC__

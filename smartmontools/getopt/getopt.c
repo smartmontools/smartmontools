@@ -17,7 +17,7 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#ifndef _LIBC
+#if !defined(_LIBC) && !defined(_GETOPT_STANDALONE)
 # include <config.h>
 #endif
 
@@ -26,7 +26,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _GETOPT_STANDALONE
 #include <unistd.h>
+#endif
 
 #ifdef _LIBC
 /* When used as part of glibc, error printing must be done differently
@@ -41,8 +43,12 @@
 # define flockfile(fp) _IO_flockfile (fp)
 # define funlockfile(fp) _IO_funlockfile (fp)
 #else
+#ifndef _GETOPT_STANDALONE
 # include "gettext.h"
 # define _(msgid) gettext (msgid)
+#else
+# define _(msgid) (msgid)
+#endif
 /* When used standalone, flockfile and funlockfile might not be
    available.  */
 # ifndef _POSIX_THREAD_SAFE_FUNCTIONS
@@ -373,6 +379,14 @@ process_long_option (int argc, char **argv, const char *optstring,
     }
   return pfound->val;
 }
+
+#ifndef _GL_UNUSED
+# ifdef __GNUC__
+#  define _GL_UNUSED __attribute__((__unused__))
+# else
+#  define _GL_UNUSED
+# endif
+#endif
 
 /* Initialize internal data upon the first call to getopt.  */
 
