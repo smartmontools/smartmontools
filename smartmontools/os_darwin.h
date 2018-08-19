@@ -5,26 +5,13 @@
  *
  * Copyright (C) 2004-8 Geoff Keating <geoffk@geoffk.org>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * This code was originally developed as a Senior Thesis by Michael Cornwell
- * at the Concurrent Systems Laboratory (now part of the Storage Systems
- * Research Center), Jack Baskin School of Engineering, University of
- * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef OS_DARWIN_H_
 #define OS_DARWIN_H_
 
-#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 4438 2017-09-20 18:00:42Z samm2 $\n"
+#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 4760 2018-08-19 18:45:53Z chrfranke $\n"
 
 #define kIOATABlockStorageDeviceClass   "IOATABlockStorageDevice"
 

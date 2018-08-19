@@ -7,25 +7,13 @@
  * Copyright (C) 2008-18 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
- *
- * This code was originally developed as a Senior Thesis by Michael Cornwell
- * at the Concurrent Systems Laboratory (now part of the Storage Systems
- * Research Center), Jack Baskin School of Engineering, University of
- * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4746 2018-08-04 19:09:46Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4760 2018-08-19 18:45:53Z chrfranke $"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>

@@ -5,20 +5,13 @@
  *
  * Copyright (C) 2012 Hank Wu <hank@areca.com.tw>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef DEV_INTELLIPROP_H
 #define DEV_INTELLIPROP_H
 
-#define DEV_INTELLIPROP_H_CVSID "$Id: dev_intelliprop.h 4370 2017-01-11 20:35:38Z chrfranke $"
+#define DEV_INTELLIPROP_H_CVSID "$Id: dev_intelliprop.h 4760 2018-08-19 18:45:53Z chrfranke $"
 
 ata_device * get_intelliprop_device(smart_interface * intf, unsigned phydrive, ata_device * atadev);
 

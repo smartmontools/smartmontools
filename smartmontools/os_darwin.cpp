@@ -6,14 +6,7 @@
  * Copyright (C) 2004-8 Geoffrey Keating <geoffk@geoffk.org>
  * Copyright (C) 2014 Alex Samorukov <samm@os2.kiev.ua>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with smartmontools.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include <stdbool.h>
@@ -45,7 +38,7 @@
 
 #define ARGUSED(x) ((void)(x))
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4747 2018-08-04 19:19:07Z chrfranke $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4760 2018-08-19 18:45:53Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -78,7 +71,7 @@ static struct {
   IONVMeSMARTInterface **smartIfNVMe;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4747 2018-08-04 19:19:07Z chrfranke $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////

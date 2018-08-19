@@ -5,20 +5,13 @@
  *
  * Copyright (C) 2004-8 Yuri Dario
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef OS_OS2_H_
 #define OS_OS2_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_os2.h 4431 2017-08-08 19:38:15Z chrfranke $\n"
+#define OS_XXXX_H_CVSID "$Id: os_os2.h 4760 2018-08-19 18:45:53Z chrfranke $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include

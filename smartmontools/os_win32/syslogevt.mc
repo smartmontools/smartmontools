@@ -5,18 +5,10 @@
 ; *
 ; * Copyright (C) 2004-10 Christian Franke
 ; *
-; * This program is free software; you can redistribute it and/or modify
-; * it under the terms of the GNU General Public License as published by
-; * the Free Software Foundation; either version 2, or (at your option)
-; * any later version.
-; *
-; * You should have received a copy of the GNU General Public License
-; * (for example COPYING); if not, write to the Free Software Foundation,
-; * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-; *
+; * SPDX-License-Identifier: GPL-2.0-or-later
 ; */
 ;
-;// $Id: syslogevt.mc 4431 2017-08-08 19:38:15Z chrfranke $
+;// $Id: syslogevt.mc 4760 2018-08-19 18:45:53Z chrfranke $
 ;
 ;// Use message compiler "mc" or "windmc" to generate
 ;//   syslogevt.rc, syslogevt.h, msg00001.bin

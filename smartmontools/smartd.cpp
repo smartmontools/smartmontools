@@ -6,19 +6,7 @@
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
- *
- * This code was originally developed as a Senior Thesis by Michael Cornwell
- * at the Concurrent Systems Laboratory (now part of the Storage Systems
- * Research Center), Jack Baskin School of Engineering, University of
- * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "config.h"
@@ -91,7 +79,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {

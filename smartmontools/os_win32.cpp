@@ -11,14 +11,7 @@
  * Original Areca code:
  *  Copyright (C) 2012    Hank Wu <hank@areca.com.tw>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "config.h"
@@ -113,7 +106,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4750 2018-08-10 20:38:33Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4760 2018-08-19 18:45:53Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files

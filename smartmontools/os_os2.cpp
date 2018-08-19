@@ -5,14 +5,7 @@
  *
  * Copyright (C) 2004-8 Yuri Dario
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 /*
@@ -34,7 +27,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 4746 2018-08-04 19:09:46Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 4760 2018-08-19 18:45:53Z chrfranke $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver

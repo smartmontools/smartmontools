@@ -6,15 +6,7 @@
  * Copyright (C) 2003-8 Sergey Svishchev
  * Copyright (C) 2016 Kimihiro Nonaka
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "config.h"
@@ -33,7 +25,7 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
   OS_NETBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))

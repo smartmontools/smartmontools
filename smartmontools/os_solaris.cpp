@@ -6,15 +6,7 @@
  * Copyright (C) 2003-08 SAWADA Keiji
  * Copyright (C) 2003-15 Casper Dik
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include <stdlib.h>
@@ -37,7 +29,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 4747 2018-08-04 19:19:07Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 4760 2018-08-19 18:45:53Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions

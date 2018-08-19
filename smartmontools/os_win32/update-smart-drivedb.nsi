@@ -5,15 +5,9 @@
 ;
 ; Copyright (C) 2011-13 Christian Franke
 ;
-; This program is free software; you can redistribute it and/or modify
-; it under the terms of the GNU General Public License as published by
-; the Free Software Foundation; either version 2, or (at your option)
-; any later version.
+; SPDX-License-Identifier: GPL-2.0-or-later
 ;
-; You should have received a copy of the GNU General Public License
-; (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
-;
-; $Id: update-smart-drivedb.nsi 4431 2017-08-08 19:38:15Z chrfranke $
+; $Id: update-smart-drivedb.nsi 4760 2018-08-19 18:45:53Z chrfranke $
 ;
 
 

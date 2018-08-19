@@ -7,26 +7,13 @@
  *
  * Derived from os_netbsd.c by Sergey Svishchev, Copyright (C) 2003-8
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * This code was originally developed as a Senior Thesis by Michael Cornwell
- * at the Concurrent Systems Laboratory (now part of the Storage Systems
- * Research Center), Jack Baskin School of Engineering, University of
- * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef OS_OPENBSD_H_
 #define OS_OPENBSD_H_
 
-#define OS_OPENBSD_H_CVSID "$Id: os_openbsd.h 4431 2017-08-08 19:38:15Z chrfranke $\n"
+#define OS_OPENBSD_H_CVSID "$Id: os_openbsd.h 4760 2018-08-19 18:45:53Z chrfranke $\n"
 
 /* from NetBSD: atareg.h,v 1.17, by Manuel Bouyer */
 /* Actually fits _perfectly_ into OBSDs wdcreg.h, but... */

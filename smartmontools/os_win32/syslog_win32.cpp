@@ -5,14 +5,7 @@
  *
  * Copyright (C) 2004-15 Christian Franke
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 // Win32 Emulation of syslog() for smartd
@@ -33,7 +26,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h> // RegisterEventSourceA(), ReportEventA(), ...
 
-const char *syslog_win32_cpp_cvsid = "$Id: syslog_win32.cpp 4149 2015-10-17 15:38:01Z chrfranke $"
+const char *syslog_win32_cpp_cvsid = "$Id: syslog_win32.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
   SYSLOG_H_CVSID;
 
 #ifdef _MSC_VER

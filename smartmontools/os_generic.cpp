@@ -7,14 +7,7 @@
  * Copyright (C) 2003-8 Bruce Allen
  * Copyright (C) 2008-18 Christian Franke
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 
@@ -82,7 +75,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char * os_XXXX_cpp_cvsid="$Id: os_generic.cpp 4747 2018-08-04 19:19:07Z chrfranke $"
+const char * os_XXXX_cpp_cvsid="$Id: os_generic.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
   ATACMDS_H_CVSID CONFIG_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
 
 // This is here to prevent compiler warnings for unused arguments of

@@ -6,15 +6,9 @@
 ::
 :: Copyright (C) 2012-17 Christian Franke
 ::
-:: This program is free software; you can redistribute it and/or modify
-:: it under the terms of the GNU General Public License as published by
-:: the Free Software Foundation; either version 2, or (at your option)
-:: any later version.
+:: SPDX-License-Identifier: GPL-2.0-or-later
 ::
-:: You should have received a copy of the GNU General Public License
-:: (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
-::
-:: $Id: smartd_warning.cmd 4569 2017-10-25 20:13:11Z chrfranke $
+:: $Id: smartd_warning.cmd 4760 2018-08-19 18:45:53Z chrfranke $
 ::
 
 verify other 2>nul

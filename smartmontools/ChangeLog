@@ -1,6 +1,9 @@
-$Id: ChangeLog 4759 2018-08-19 17:39:21Z chrfranke $
+$Id: ChangeLog 4760 2018-08-19 18:45:53Z chrfranke $
 
 2018-08-19  Christian Franke  <franke@computer.org>
+
+	Add SPDX-License-Identifier to all files with GPL header (#919).
+	Remove GPL headers.  Remove outdated info about smartsuite.
 
 	getopt/*, regex/*: Replace with current version from glibc 2.28
 	(2018-08-01).  Add _GETOPT/REGEX*_STANDALONE configurations.
