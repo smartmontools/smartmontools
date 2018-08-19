@@ -2,6 +2,9 @@ $Id$
 
 2018-08-19  Christian Franke  <franke@computer.org>
 
+	examplescripts/README: Update mailing list address.
+	os_solaris_ata.s: Remove old mailing list address.
+
 	os_win32/wbemcli_small.h: Remove this file.
 	The file <wbemcli.h> is usually provided by recent MinGW packages.
 	configure.ac: Remove check for <wbemcli.h>.
