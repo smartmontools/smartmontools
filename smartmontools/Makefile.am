@@ -398,7 +398,6 @@ EXTRA_DIST = \
         os_win32/smartd_warning.cmd \
         os_win32/syslogevt.mc \
         os_win32/update-smart-drivedb.nsi \
-        os_win32/wbemcli_small.h \
         os_win32/versioninfo.rc.in \
         os_win32/wtssendmsg.c \
         $(docs_DATA) \

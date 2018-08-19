@@ -301,7 +301,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </CustomBuildStep>
-    <ClInclude Include="..\wbemcli_small.h" />
     <ClInclude Include="..\wmiquery.h" />
     <ClInclude Include="..\..\regex\regex.h" />
     <ClInclude Include="..\..\regex\regex_internal.h" />

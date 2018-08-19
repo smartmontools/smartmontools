@@ -2,6 +2,12 @@ $Id$
 
 2018-08-19  Christian Franke  <franke@computer.org>
 
+	os_win32/wbemcli_small.h: Remove this file.
+	The file <wbemcli.h> is usually provided by recent MinGW packages.
+	configure.ac: Remove check for <wbemcli.h>.
+	Makefile.am, os_win32/wmiquery.h, os_win32/vc14/smart*.vcxproj*:
+	Remove usage of 'wbemcli_small.h'.
+
 	ataprint.cpp, nvmeprint.cpp: Add JSON values 'power_cycle_count'
 	and 'power_on_hours'.
 	json.cpp, json.h: Add 'set_if_safe_*' member functions.

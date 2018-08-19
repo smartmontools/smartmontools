@@ -110,11 +110,10 @@ case "$host" in
     AC_CHECK_HEADERS([dev/ata/atavar.h])
     ;;
   *-*-cygwin*|*-*-mingw*)
-    # Check for Windows DDK and WMI header files
+    # Check for Windows DDK header files
     AC_CHECK_HEADERS([ntdddisk.h ddk/ntdddisk.h], [], [], [AC_INCLUDES_DEFAULT
 #include <windows.h>
 ])
-    AC_CHECK_HEADERS([wbemcli.h])
     ;;
 esac
 

@@ -20,11 +20,7 @@
 
 #define WMIQUERY_H_CVSID "$Id$"
 
-#ifdef HAVE_WBEMCLI_H
 #include <wbemcli.h>
-#else
-#include "wbemcli_small.h"
-#endif
 
 #include <string>
 

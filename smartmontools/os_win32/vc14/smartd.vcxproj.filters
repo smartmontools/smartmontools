@@ -76,9 +76,6 @@
     <ClInclude Include="..\syslog.h">
       <Filter>os_win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\wbemcli_small.h">
-      <Filter>os_win32</Filter>
-    </ClInclude>
     <ClInclude Include="..\wmiquery.h">
       <Filter>os_win32</Filter>
     </ClInclude>
