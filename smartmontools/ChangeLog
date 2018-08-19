@@ -1,9 +1,11 @@
-$Id: ChangeLog 4758 2018-08-19 17:23:04Z chrfranke $
+$Id: ChangeLog 4759 2018-08-19 17:39:21Z chrfranke $
 
 2018-08-19  Christian Franke  <franke@computer.org>
 
 	getopt/*, regex/*: Replace with current version from glibc 2.28
-	(2018-08-01).
+	(2018-08-01).  Add _GETOPT/REGEX*_STANDALONE configurations.
+	Makefile.am, os_win32/vc14/smart*.vcxproj*: Set *_STANDALONE.
+	Add new files.
 
 	examplescripts/README: Update mailing list address.
 	os_solaris_ata.s: Remove old mailing list address.

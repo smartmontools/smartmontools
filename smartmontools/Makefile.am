@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4756 2018-08-19 16:51:21Z chrfranke $
+# $Id: Makefile.am 4759 2018-08-19 17:39:21Z chrfranke $
 #
 
 @SET_MAKE@
@@ -32,10 +32,10 @@ if OS_WIN32_MINGW
 AM_CPPFLAGS += -I$(srcdir)/os_win32
 endif
 if NEED_GETOPT_LONG
-AM_CPPFLAGS += -I$(srcdir)/getopt -DHAVE_GETOPT_LONG -D__GNU_LIBRARY__
+AM_CPPFLAGS += -I$(srcdir)/getopt -D_GETOPT_STANDALONE -DHAVE_GETOPT_LONG
 endif
 if NEED_REGEX
-AM_CPPFLAGS += -I$(srcdir)/regex
+AM_CPPFLAGS += -I$(srcdir)/regex -D_REGEX_STANDALONE
 endif
 
 sbin_PROGRAMS = \
@@ -209,12 +209,18 @@ if NEED_GETOPT_LONG
 smartctl_SOURCES += \
         getopt/getopt.c \
         getopt/getopt.h \
-        getopt/getopt1.c
+        getopt/getopt1.c \
+        getopt/getopt_int.h \
+        getopt/bits/getopt_core.h \
+        getopt/bits/getopt_ext.h
 
 smartd_SOURCES += \
         getopt/getopt.c \
         getopt/getopt.h \
-        getopt/getopt1.c
+        getopt/getopt1.c \
+        getopt/getopt_int.h \
+        getopt/bits/getopt_core.h \
+        getopt/bits/getopt_ext.h
 
 endif
 

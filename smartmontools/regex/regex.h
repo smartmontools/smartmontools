@@ -29,7 +29,7 @@ extern "C" {
 
 /* Define __USE_GNU to declare GNU extensions that violate the
    POSIX name space rules.  */
-#ifdef _GNU_SOURCE
+#if defined(_GNU_SOURCE) || defined(_REGEX_STANDALONE)
 # define __USE_GNU 1
 #endif
 

@@ -26,7 +26,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef _REGEX_STANDALONE
 #include <langinfo.h>
+#endif
 #include <locale.h>
 #include <wchar.h>
 #include <wctype.h>
@@ -35,7 +37,7 @@
 
 /* Properties of integers.  Although Gnulib has intprops.h, glibc does
    without for now.  */
-#ifndef _LIBC
+#if !defined(_LIBC) && !defined(_REGEX_STANDALONE)
 # include "intprops.h"
 #else
 /* True if the real type T is signed.  */
@@ -132,7 +134,11 @@
 # define RE_ENABLE_I18N
 #endif
 
+#ifdef __GNUC__
 #define BE(expr, val) __builtin_expect (expr, val)
+#else
+#define BE(expr, val) (expr)
+#endif
 
 /* Number of ASCII characters.  */
 #define ASCII_CHARS 0x80
