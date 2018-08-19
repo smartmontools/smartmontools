@@ -124,6 +124,27 @@ void json::ref::set_uint128(uint64_t value_hi, uint64_t value_lo)
     m_js.set_uint128(m_path, value_hi, value_lo);
 }
 
+bool json::ref::set_if_safe_uint(unsigned long long value)
+{
+  if (!is_safe_uint(value))
+    return false;
+  operator=(value);
+  return true;
+}
+
+bool json::ref::set_if_safe_uint128(uint64_t value_hi, uint64_t value_lo)
+{
+  if (value_hi)
+    return false;
+  return set_if_safe_uint(value_lo);
+}
+
+bool json::ref::set_if_safe_le128(const void * pvalue)
+{
+  return set_if_safe_uint128(sg_get_unaligned_le64((const uint8_t *)pvalue + 8),
+                             sg_get_unaligned_le64(                 pvalue    ));
+}
+
 void json::ref::set_unsafe_uint64(uint64_t value)
 {
   // Output as number and string

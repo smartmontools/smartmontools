@@ -1,5 +1,11 @@
 $Id$
 
+2018-08-19  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, nvmeprint.cpp: Add JSON values 'power_cycle_count'
+	and 'power_on_hours'.
+	json.cpp, json.h: Add 'set_if_safe_*' member functions.
+
 2018-08-13  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add JSON support for '-l devstat'.

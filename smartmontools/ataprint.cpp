@@ -1088,6 +1088,44 @@ static int find_failed_attr(const ata_smart_values * data,
   return 0;
 }
 
+static void set_json_globals_from_smart_attrib(int id, const char * name,
+                                               const ata_vendor_attr_defs & defs,
+                                               uint64_t rawval)
+{
+  switch (id) {
+    case 9:
+      if (!str_starts_with(name, "Power_On_"))
+        return;
+      switch (defs[id].raw_format) {
+        case RAWFMT_DEFAULT: case RAWFMT_RAW48: case RAWFMT_RAW64:
+        case RAWFMT_RAW16_OPT_RAW16: case RAWFMT_RAW24_OPT_RAW8: break;
+        case RAWFMT_SEC2HOUR: rawval /= 3600; break;
+        case RAWFMT_MIN2HOUR: rawval /= 60; break;
+        case RAWFMT_HALFMIN2HOUR: rawval /= 120; break;
+        case RAWFMT_MSEC24_HOUR32: rawval &= 0xffffffffULL; break;
+        default: return;
+      }
+      if (rawval > 0x00ffffffULL)
+        return; // assume bogus value
+      jglb["power_on_hours"] = rawval;
+      break;
+    case 12:
+      if (strcmp(name, "Power_Cycle_Count"))
+        return;
+      switch (defs[id].raw_format) {
+        case RAWFMT_DEFAULT: case RAWFMT_RAW48: case RAWFMT_RAW64:
+        case RAWFMT_RAW16_OPT_RAW16: case RAWFMT_RAW24_OPT_RAW8: break;
+        default: return;
+      }
+      if (rawval > 0x00ffffffULL)
+        return; // assume bogus value
+      jglb["power_cycle_count"] = rawval;
+      break;
+    //case 194:
+    // Temperature set separately from ata_return_temperature_value() below
+  }
+}
+
 // onlyfailed=0 : print all attribute values
 // onlyfailed=1:  just ones that are currently failed and have prefailure bit set
 // onlyfailed=2:  ones that are failed, or have failed with or without prefailure bit set
@@ -1217,8 +1255,11 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     if (ATTRIBUTE_FLAGS_OTHER(attr.flags))
       jreff["other"] = ATTRIBUTE_FLAGS_OTHER(attr.flags);
 
-    jref["raw"]["value"] = ata_get_attr_raw_value(attr, defs);
+    uint64_t rawval = ata_get_attr_raw_value(attr, defs);
+    jref["raw"]["value"] = rawval;
     jref["raw"]["string"] = rawstr;
+
+    set_json_globals_from_smart_attrib(attr.id, attrname.c_str(), defs, rawval);
   }
 
   if (!needheader) {
@@ -1648,6 +1689,12 @@ static const char * get_device_statistics_page_name(int page)
 static void set_json_globals_from_device_statistics(int page, int offset, int64_t val)
 {
   switch (page) {
+    case 1:
+      switch (offset) {
+        case 0x008: jglb["power_cycle_count"] = val; break; // ~= Lifetime Power-On Resets
+        case 0x010: jglb["power_on_hours"] = val; break;
+      }
+      break;
     case 5:
       switch (offset) {
         case 0x008: jglb["temperature"]["current"] = val; break;
@@ -1746,6 +1793,9 @@ static void print_device_statistics_page(const json::ref & jref, const unsigned 
 
     jout("0x%02x  0x%03x  %d %15s  %s %s\n",
       page, offset, abs(size), valstr, flagstr+1, valname);
+
+    if (!jglb.is_enabled())
+      continue;
 
     json::ref jrefi = jref["table"][ji++];
     jrefi["offset"] = offset;
