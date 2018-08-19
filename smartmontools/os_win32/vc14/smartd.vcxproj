@@ -307,7 +307,6 @@
     </ClInclude>
     <ClInclude Include="..\daemon_win32.h" />
     <ClInclude Include="..\syslog.h" />
-    <ClInclude Include="..\wbemcli_small.h" />
     <ClInclude Include="..\wmiquery.h" />
     <ClInclude Include="..\..\regex\regex.h" />
     <ClInclude Include="..\..\regex\regex_internal.h" />

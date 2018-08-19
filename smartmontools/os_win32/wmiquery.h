@@ -18,13 +18,9 @@
 #ifndef WMIQUERY_H
 #define WMIQUERY_H
 
-#define WMIQUERY_H_CVSID "$Id: wmiquery.h 4751 2018-08-10 20:52:19Z chrfranke $"
+#define WMIQUERY_H_CVSID "$Id: wmiquery.h 4756 2018-08-19 16:51:21Z chrfranke $"
 
-#ifdef HAVE_WBEMCLI_H
 #include <wbemcli.h>
-#else
-#include "wbemcli_small.h"
-#endif
 
 #include <string>
 

@@ -1,6 +1,12 @@
-$Id: ChangeLog 4755 2018-08-19 16:41:35Z chrfranke $
+$Id: ChangeLog 4756 2018-08-19 16:51:21Z chrfranke $
 
 2018-08-19  Christian Franke  <franke@computer.org>
+
+	os_win32/wbemcli_small.h: Remove this file.
+	The file <wbemcli.h> is usually provided by recent MinGW packages.
+	configure.ac: Remove check for <wbemcli.h>.
+	Makefile.am, os_win32/wmiquery.h, os_win32/vc14/smart*.vcxproj*:
+	Remove usage of 'wbemcli_small.h'.
 
 	ataprint.cpp, nvmeprint.cpp: Add JSON values 'power_cycle_count'
 	and 'power_on_hours'.

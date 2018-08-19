@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4746 2018-08-04 19:09:46Z chrfranke $
+# $Id: Makefile.am 4756 2018-08-19 16:51:21Z chrfranke $
 #
 
 @SET_MAKE@
@@ -398,7 +398,6 @@ EXTRA_DIST = \
         os_win32/smartd_warning.cmd \
         os_win32/syslogevt.mc \
         os_win32/update-smart-drivedb.nsi \
-        os_win32/wbemcli_small.h \
         os_win32/versioninfo.rc.in \
         os_win32/wtssendmsg.c \
         $(docs_DATA) \
