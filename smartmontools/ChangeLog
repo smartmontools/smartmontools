@@ -2,6 +2,9 @@ $Id$
 
 2018-08-19  Christian Franke  <franke@computer.org>
 
+	Add SPDX-License-Identifier to all files with GPL header (#919).
+	Remove GPL headers.  Remove outdated info about smartsuite.
+
 	getopt/*, regex/*: Replace with current version from glibc 2.28
 	(2018-08-01).  Add _GETOPT/REGEX*_STANDALONE configurations.
 	Makefile.am, os_win32/vc14/smart*.vcxproj*: Set *_STANDALONE.

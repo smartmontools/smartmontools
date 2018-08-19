@@ -6,15 +6,7 @@
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
  * Copyright (C) 2009-18 Christian Franke
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  * The code in this file is based on the SCSI to ATA Translation (SAT)
  * draft found at http://www.t10.org . The original draft used for this
  * code is sat-r08.pdf which is not too far away from becoming a

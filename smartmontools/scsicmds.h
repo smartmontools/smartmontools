@@ -7,19 +7,8 @@
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2003-18 Douglas Gilbert <dgilbert@interlog.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * This code was originally developed as a Senior Thesis by Michael Cornwell
- * at the Concurrent Systems Laboratory (now part of the Storage Systems
- * Research Center), Jack Baskin School of Engineering, University of
- * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
  *
  * N.B. What was formerly known as "SMART" are now called "informational
  * exceptions" in recent t10.org drafts (i.e. recent SCSI).
