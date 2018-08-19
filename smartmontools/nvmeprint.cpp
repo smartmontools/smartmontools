@@ -20,7 +20,7 @@
 
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4755 2018-08-19 16:41:35Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "utility.h"
@@ -371,8 +371,10 @@ static void print_smart_log(const nvme_smart_log & smart_log, unsigned nsid,
   jref["controller_busy_time"].set_unsafe_le128(smart_log.ctrl_busy_time);
   jout("Power Cycles:                       %s\n", le128_to_str(buf, smart_log.power_cycles));
   jref["power_cycles"].set_unsafe_le128(smart_log.power_cycles);
+  jglb["power_cycle_count"].set_if_safe_le128(smart_log.power_cycles);
   jout("Power On Hours:                     %s\n", le128_to_str(buf, smart_log.power_on_hours));
   jref["power_on_hours"].set_unsafe_le128(smart_log.power_on_hours);
+  jglb["power_on_hours"].set_if_safe_le128(smart_log.power_on_hours);
   jout("Unsafe Shutdowns:                   %s\n", le128_to_str(buf, smart_log.unsafe_shutdowns));
   jref["unsafe_shutdowns"].set_unsafe_le128(smart_log.unsafe_shutdowns);
   jout("Media and Data Integrity Errors:    %s\n", le128_to_str(buf, smart_log.media_errors));

@@ -16,7 +16,7 @@
  */
 
 #ifndef JSON_H_CVSID
-#define JSON_H_CVSID "$Id: json.h 4720 2018-03-20 22:20:40Z chrfranke $"
+#define JSON_H_CVSID "$Id: json.h 4755 2018-08-19 16:41:35Z chrfranke $"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -44,6 +44,11 @@ private:
   typedef std::vector<node_info> node_path;
 
 public:
+  /// Return true if value is a safe JSON integer.
+  /// Same as Number.isSafeInteger(value) in JavaScript.
+  static bool is_safe_uint(unsigned long long value)
+    { return (value < (1ULL << 53)); }
+
   json();
 
   /// Reference to a JSON element.
@@ -73,6 +78,12 @@ public:
 
     void set_uint128(uint64_t value_hi, uint64_t value_lo);
 
+    // Set only if safe integer.
+    bool set_if_safe_uint(unsigned long long value);
+    bool set_if_safe_uint128(uint64_t value_hi, uint64_t value_lo);
+    bool set_if_safe_le128(const void * pvalue);
+
+    // Set possible unsafe integer as { n(umber) , s(tring) }.
     void set_unsafe_uint64(uint64_t value);
     void set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo);
     void set_unsafe_le128(const void * pvalue);

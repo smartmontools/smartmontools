@@ -1,4 +1,10 @@
-$Id: ChangeLog 4753 2018-08-13 20:10:16Z chrfranke $
+$Id: ChangeLog 4755 2018-08-19 16:41:35Z chrfranke $
+
+2018-08-19  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, nvmeprint.cpp: Add JSON values 'power_cycle_count'
+	and 'power_on_hours'.
+	json.cpp, json.h: Add 'set_if_safe_*' member functions.
 
 2018-08-13  Christian Franke  <franke@computer.org>
 

@@ -18,7 +18,7 @@
 #include "config.h"
 #include "json.h"
 
-const char * json_cvsid = "$Id: json.cpp 4745 2018-08-04 15:18:44Z chrfranke $"
+const char * json_cvsid = "$Id: json.cpp 4755 2018-08-19 16:41:35Z chrfranke $"
   JSON_H_CVSID;
 
 #include "sg_unaligned.h"
@@ -122,6 +122,27 @@ void json::ref::set_uint128(uint64_t value_hi, uint64_t value_lo)
     operator=((unsigned long long)value_lo);
   else
     m_js.set_uint128(m_path, value_hi, value_lo);
+}
+
+bool json::ref::set_if_safe_uint(unsigned long long value)
+{
+  if (!is_safe_uint(value))
+    return false;
+  operator=(value);
+  return true;
+}
+
+bool json::ref::set_if_safe_uint128(uint64_t value_hi, uint64_t value_lo)
+{
+  if (value_hi)
+    return false;
+  return set_if_safe_uint(value_lo);
+}
+
+bool json::ref::set_if_safe_le128(const void * pvalue)
+{
+  return set_if_safe_uint128(sg_get_unaligned_le64((const uint8_t *)pvalue + 8),
+                             sg_get_unaligned_le64(                 pvalue    ));
 }
 
 void json::ref::set_unsafe_uint64(uint64_t value)
