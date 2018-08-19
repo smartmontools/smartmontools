@@ -1,5 +1,5 @@
 /* Extended regular expression matching and search library.
-   Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 2002-2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Isamu Hasegawa <isamu@yamato.ibm.com>.
 
@@ -14,36 +14,56 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-   MA 02110-1301 USA.  */
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
+#ifndef _LIBC
+# include <config.h>
+
+# if (__GNUC__ == 4 && 6 <= __GNUC_MINOR__) || 4 < __GNUC__
+#  pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
+# endif
+# if (__GNUC__ == 4 && 3 <= __GNUC_MINOR__) || 4 < __GNUC__
+#  pragma GCC diagnostic ignored "-Wold-style-definition"
+#  pragma GCC diagnostic ignored "-Wtype-limits"
+# endif
+#endif
+
+/* Make sure no one compiles this code with a C++ compiler.  */
+#if defined __cplusplus && defined _LIBC
+# error "This is C code, use a C compiler"
+#endif
 
 #ifdef _LIBC
 /* We have to keep the namespace clean.  */
-#  define regfree(preg) __regfree (preg)
-#  define regexec(pr, st, nm, pm, ef) __regexec (pr, st, nm, pm, ef)
-#  define regcomp(preg, pattern, cflags) __regcomp (preg, pattern, cflags)
-#  define regerror(errcode, preg, errbuf, errbuf_size) \
+# define regfree(preg) __regfree (preg)
+# define regexec(pr, st, nm, pm, ef) __regexec (pr, st, nm, pm, ef)
+# define regcomp(preg, pattern, cflags) __regcomp (preg, pattern, cflags)
+# define regerror(errcode, preg, errbuf, errbuf_size) \
 	__regerror(errcode, preg, errbuf, errbuf_size)
-#  define re_set_registers(bu, re, nu, st, en) \
+# define re_set_registers(bu, re, nu, st, en) \
 	__re_set_registers (bu, re, nu, st, en)
-#  define re_match_2(bufp, string1, size1, string2, size2, pos, regs, stop) \
+# define re_match_2(bufp, string1, size1, string2, size2, pos, regs, stop) \
 	__re_match_2 (bufp, string1, size1, string2, size2, pos, regs, stop)
-#  define re_match(bufp, string, size, pos, regs) \
+# define re_match(bufp, string, size, pos, regs) \
 	__re_match (bufp, string, size, pos, regs)
-#  define re_search(bufp, string, size, startpos, range, regs) \
+# define re_search(bufp, string, size, startpos, range, regs) \
 	__re_search (bufp, string, size, startpos, range, regs)
-#  define re_compile_pattern(pattern, length, bufp) \
+# define re_compile_pattern(pattern, length, bufp) \
 	__re_compile_pattern (pattern, length, bufp)
-#  define re_set_syntax(syntax) __re_set_syntax (syntax)
-#  define re_search_2(bufp, st1, s1, st2, s2, startpos, range, regs, stop) \
+# define re_set_syntax(syntax) __re_set_syntax (syntax)
+# define re_search_2(bufp, st1, s1, st2, s2, startpos, range, regs, stop) \
 	__re_search_2 (bufp, st1, s1, st2, s2, startpos, range, regs, stop)
-#  define re_compile_fastmap(bufp) __re_compile_fastmap (bufp)
+# define re_compile_fastmap(bufp) __re_compile_fastmap (bufp)
+
+# include "../locale/localeinfo.h"
 #endif
 
-/* POSIX says that <sys/types.h> must be included (by the caller) before
-   <regex.h>.  */
-#include <sys/types.h>
+/* On some systems, limits.h sets RE_DUP_MAX to a lower value than
+   GNU regex allows.  Include it before <regex.h>, which correctly
+   #undefs RE_DUP_MAX and sets it to the right value.  */
+#include <limits.h>
+
 #include <regex.h>
 #include "regex_internal.h"
 

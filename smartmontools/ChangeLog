@@ -2,6 +2,9 @@ $Id$
 
 2018-08-19  Christian Franke  <franke@computer.org>
 
+	getopt/*, regex/*: Replace with current version from glibc 2.28
+	(2018-08-01).
+
 	examplescripts/README: Update mailing list address.
 	os_solaris_ata.s: Remove old mailing list address.
 
