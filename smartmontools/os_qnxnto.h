@@ -1,16 +1,16 @@
 /*
- * os_generic.h
+ * os_qnxnto.h
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) Joerg Hering
+ * Copyright (C) 2007 Joerg Hering
  * Copyright (C) 2003-8 Bruce Allen
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 #ifndef OS_QNXNTO_H_
 #define OS_QNXNTO_H_
-#define OS_QNXNTO_H_CVSID "$Id: os_qnxnto.h 4760 2018-08-19 18:45:53Z chrfranke $\n"
+#define OS_QNXNTO_H_CVSID "$Id: os_qnxnto.h 4761 2018-08-20 19:33:04Z chrfranke $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include

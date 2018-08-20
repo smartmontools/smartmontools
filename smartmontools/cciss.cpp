@@ -1,3 +1,13 @@
+/*
+ * cciss.cpp
+ *
+ * Home page of code is: http://www.smartmontools.org
+ *
+ * Copyright (C) 2007 Sergey Svishchev
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -37,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char * cciss_cpp_cvsid = "$Id: cciss.cpp 4746 2018-08-04 19:09:46Z chrfranke $"
+const char * cciss_cpp_cvsid = "$Id: cciss.cpp 4761 2018-08-20 19:33:04Z chrfranke $"
   CCISS_H_CVSID;
 
 typedef struct _ReportLUNdata_struct

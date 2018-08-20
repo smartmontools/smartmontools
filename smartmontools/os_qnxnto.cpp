@@ -1,4 +1,12 @@
-
+/*
+ * os_qnxnto.cpp
+ *
+ * Home page of code is: http://www.smartmontools.org
+ *
+ * Copyright (C) 2007 Joerg Hering
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 // This is needed for the various HAVE_* macros and PROJECT_* macros.
 #include "config.h"
@@ -18,7 +26,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_qnxnto.cpp 4747 2018-08-04 19:19:07Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_qnxnto.cpp 4761 2018-08-20 19:33:04Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_QNXNTO_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
