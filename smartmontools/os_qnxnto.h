@@ -1,9 +1,9 @@
 /*
- * os_generic.h
+ * os_qnxnto.h
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) Joerg Hering
+ * Copyright (C) 2007 Joerg Hering
  * Copyright (C) 2003-8 Bruce Allen
  *
  * SPDX-License-Identifier: GPL-2.0-or-later

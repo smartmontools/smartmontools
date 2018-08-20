@@ -1,5 +1,9 @@
 $Id$
 
+2018-08-20  Christian Franke  <franke@computer.org>
+
+	Add missing license headers to some source files.
+
 2018-08-19  Christian Franke  <franke@computer.org>
 
 	Add SPDX-License-Identifier to all files with GPL header (#919).

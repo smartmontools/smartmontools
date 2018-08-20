@@ -1,4 +1,12 @@
-
+/*
+ * os_qnxnto.cpp
+ *
+ * Home page of code is: http://www.smartmontools.org
+ *
+ * Copyright (C) 2007 Joerg Hering
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 // This is needed for the various HAVE_* macros and PROJECT_* macros.
 #include "config.h"

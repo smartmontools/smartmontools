@@ -1,3 +1,13 @@
+/*
+ * megaraid.h
+ *
+ * Home page of code is: http://www.smartmontools.org
+ *
+ * Copyright (C) 2008 Jordan Hargrave
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 int megaraid_io_interface(int device, int target, struct scsi_cmnd_io *, int);
 
 #undef u32

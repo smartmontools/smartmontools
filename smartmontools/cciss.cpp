@@ -1,3 +1,13 @@
+/*
+ * cciss.cpp
+ *
+ * Home page of code is: http://www.smartmontools.org
+ *
+ * Copyright (C) 2007 Sergey Svishchev
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
