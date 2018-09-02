@@ -366,7 +366,7 @@ This is the default.
 .Sp
 .I test
 \- prints the guessed TYPE, then opens the device and prints the
-(possibly changed) TYPE name and then exists without performing
+(possibly changed) TYPE name and then exits without performing
 any further commands.
 .Sp
 .I ata
