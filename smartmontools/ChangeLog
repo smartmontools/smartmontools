@@ -1,6 +1,8 @@
-$Id: ChangeLog 4762 2018-09-02 13:07:18Z chrfranke $
+$Id: ChangeLog 4763 2018-09-02 13:11:48Z chrfranke $
 
 2018-09-02  Christian Franke  <franke@computer.org>
+
+	dev_intelliprop.h: Fix copyright info.
 
 	ataprint.cpp, nvmeprint.cpp: Change JSON value 'power_on_hours'
 	to 'power_on_time.hours'.  Add '.minutes' if available.
