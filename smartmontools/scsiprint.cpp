@@ -781,8 +781,11 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
                 k = (int)sizeof(ull);
             }
             ull = sg_get_unaligned_be(k, xp + 0);
-            if (0 == pc)
+            if (0 == pc) {
                 pout(" = %.2f\n", ull / 60.0 );
+                jglb["power_on_time"]["hours"] = ull / 60;
+                jglb["power_on_time"]["minutes"] = ull % 60;
+            }
             else
                 pout(" = %" PRIu64 "\n", ull);
         }
@@ -1177,6 +1180,8 @@ scsiPrintBackgroundResults(scsi_device * device)
             j = sg_get_unaligned_be32(ucp + 4);
             pout("    Accumulated power on time, hours:minutes %d:%02d "
                  "[%d minutes]\n", (j / 60), (j % 60), j);
+            jglb["power_on_time"]["hours"] = j / 60;
+            jglb["power_on_time"]["minutes"] = j % 60;
             pout("    Number of background scans performed: %d,  ",
                  sg_get_unaligned_be16(ucp + 10));
             pout("scan progress: %.2f%%\n",

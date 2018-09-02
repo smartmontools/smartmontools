@@ -367,7 +367,7 @@ static void print_smart_log(const nvme_smart_log & smart_log, unsigned nsid,
   jglb["power_cycle_count"].set_if_safe_le128(smart_log.power_cycles);
   jout("Power On Hours:                     %s\n", le128_to_str(buf, smart_log.power_on_hours));
   jref["power_on_hours"].set_unsafe_le128(smart_log.power_on_hours);
-  jglb["power_on_hours"].set_if_safe_le128(smart_log.power_on_hours);
+  jglb["power_on_time"]["hours"].set_if_safe_le128(smart_log.power_on_hours);
   jout("Unsafe Shutdowns:                   %s\n", le128_to_str(buf, smart_log.unsafe_shutdowns));
   jref["unsafe_shutdowns"].set_unsafe_le128(smart_log.unsafe_shutdowns);
   jout("Media and Data Integrity Errors:    %s\n", le128_to_str(buf, smart_log.media_errors));

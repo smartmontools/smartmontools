@@ -1,5 +1,12 @@
 $Id$
 
+2018-09-02  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, nvmeprint.cpp: Change JSON value 'power_on_hours'
+	to 'power_on_time.hours'.  Add '.minutes' if available.
+	scsiprint.cpp: Add JSON values 'power_on_time.hours/minutes' from
+	Seagate factory lpage or from background scan lpage.
+
 2018-08-20  Christian Franke  <franke@computer.org>
 
 	Add missing license headers to some source files.

@@ -1084,18 +1084,28 @@ static void set_json_globals_from_smart_attrib(int id, const char * name,
     case 9:
       if (!str_starts_with(name, "Power_On_"))
         return;
-      switch (defs[id].raw_format) {
-        case RAWFMT_DEFAULT: case RAWFMT_RAW48: case RAWFMT_RAW64:
-        case RAWFMT_RAW16_OPT_RAW16: case RAWFMT_RAW24_OPT_RAW8: break;
-        case RAWFMT_SEC2HOUR: rawval /= 3600; break;
-        case RAWFMT_MIN2HOUR: rawval /= 60; break;
-        case RAWFMT_HALFMIN2HOUR: rawval /= 120; break;
-        case RAWFMT_MSEC24_HOUR32: rawval &= 0xffffffffULL; break;
-        default: return;
+      {
+        int minutes = -1;
+        switch (defs[id].raw_format) {
+          case RAWFMT_DEFAULT: case RAWFMT_RAW48: case RAWFMT_RAW64:
+          case RAWFMT_RAW16_OPT_RAW16: case RAWFMT_RAW24_OPT_RAW8: break;
+          case RAWFMT_SEC2HOUR: minutes = (rawval / 60) % 60; rawval /= 60*60; break;
+          case RAWFMT_MIN2HOUR: minutes = rawval % 60; rawval /= 60; break;
+          case RAWFMT_HALFMIN2HOUR: minutes = (rawval / 2) % 60; rawval /= 2*60; break;
+          case RAWFMT_MSEC24_HOUR32:
+            minutes = (int)(rawval >> 32) / (1000*60);
+            if (minutes >= 60)
+              minutes = -1;
+            rawval &= 0xffffffffULL;
+            break;
+          default: return;
+        }
+        if (rawval > 0x00ffffffULL)
+          return; // assume bogus value
+        jglb["power_on_time"]["hours"] = rawval;
+        if (minutes >= 0)
+          jglb["power_on_time"]["minutes"] = minutes;
       }
-      if (rawval > 0x00ffffffULL)
-        return; // assume bogus value
-      jglb["power_on_hours"] = rawval;
       break;
     case 12:
       if (strcmp(name, "Power_Cycle_Count"))
@@ -1680,7 +1690,7 @@ static void set_json_globals_from_device_statistics(int page, int offset, int64_
     case 1:
       switch (offset) {
         case 0x008: jglb["power_cycle_count"] = val; break; // ~= Lifetime Power-On Resets
-        case 0x010: jglb["power_on_hours"] = val; break;
+        case 0x010: jglb["power_on_time"]["hours"]= val; break;
       }
       break;
     case 5:
@@ -1739,7 +1749,6 @@ static void print_device_statistics_page(const json::ref & jref, const unsigned 
     const char * valname = (info           ? info[i].name :
                             (page == 0xff) ? "Vendor Specific" // ACS-4
                                            : "Unknown"        );
-
 
     // Get value size, default to max if unknown
     int size = (info ? info[i].size : 7);
