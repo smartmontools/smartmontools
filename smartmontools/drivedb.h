@@ -292,6 +292,8 @@ const drive_settings builtin_knowndrives[] = {
       // Crucial_CT250MX200SSD1/MU03
     "Crucial_CT(275|525|1050|2050)MX300SSD[14]|" // Marvell 88SS1074, tested with
       // Crucial_CT525MX300SSD1/M0CR021, Crucial_CT2050MX300SSD1/M0CR031, Crucial_CT275MX300SSD1/M0CR040
+    "CT(120|240|480)BX300SSD1|" // Silicon Motion SM2258, same attributes as Marvell-based Crucial SSDs,
+      // tested with CT240BX300SSD1/M2CR010
     "Crucial_CT(120|240|480|960)M500SSD[134]|" // Marvell 88SS9187, tested with
       // Crucial_CT120M500SSD1/MU02, Crucial_CT120M500SSD3/MU02, Crucial_CT240M500SSD1/MU03,
       // Crucial_CT480M500SSD1/MU03, Crucial_CT960M500SSD1/MU03, Crucial_CT240M500SSD4/MU05
