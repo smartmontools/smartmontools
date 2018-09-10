@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4760 2018-08-19 18:45:53Z chrfranke $",
+  { "$Id: drivedb.h 4765 2018-09-10 21:12:10Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -530,7 +530,8 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
     "PNY CS1311 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122
     "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
-    "KINGSTON SHSS3B?7A(120|240|480|960)G", // HyperX Savage
+    "KINGSTON SHSS3B?7A(120|240|480|960)G|" // HyperX Savage
+    "KINGSTON SA400S37(120|240|480|960)G", // Kingston A400 SSD/SBFKB1D1
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
