@@ -1,5 +1,9 @@
 $Id$
 
+2018-09-10  David Purdy  <david.c.purdy@gmail.com>
+
+	drivedb.h: Phison Driven SSDs: Kingston A400 (#801)
+
 2018-09-02  Christian Franke  <franke@computer.org>
 
 	dev_intelliprop.h: Fix copyright info.
