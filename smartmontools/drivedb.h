@@ -3555,9 +3555,20 @@ const drive_settings builtin_knowndrives[] = {
       // ST6000NM0004-1FT17Z/NN01
       // ST4000NM0035-1V4107/TNC3
       // ST1000NM0055-1V410C/TN02
+      // ST8000NM0055-1RM112/SN04
     "ST([1234568]|10)000NM0[01][0-68][456]-.*", // *[069]4 = 4Kn
     "", "", 
     "-v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate Enterprise Capacity 3.5 HDD", // V5.1, ms in attribute 9
+    "ST[12]000NM0008-.*", // tested with ST1000NM0008-2F2100/SN01
+    "", "",
+    "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate Exos X12 HDD", // tested with ST12000NM0007-2A1101/SN02
+    "ST12000NM00[01]7-.*", // *17 = SED
+    "", "",
+    "-v 240,msec24hour32"
   },
   // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
   //             ST8000VN0012, ST6000VN0031, ST4000VN003
@@ -3908,7 +3919,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital VelociRaptor (AF)", // tested with WDC WD1000DHTZ-04N21V0/04.06A00
-    "WDC WD(2500H|5000H|1000D)HTZ-.*",
+    "WDC WD(2500H|5000B|5000H|1000D)HTZ-.*",
     "", "", ""
   },
   { "Western Digital Scorpio EIDE",

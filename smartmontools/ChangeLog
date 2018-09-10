@@ -1,5 +1,12 @@
 $Id$
 
+2018-09-10  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Enterprise Capacity 3.5 HDD: V5.1 (#1087)
+	- Seagate Exos X12 HDD (#1042, #1046)
+	- Western Digital VelociRaptor (AF): WD5000BHTZ (patch from #1041)
+
 2018-09-10  David Purdy  <david.c.purdy@gmail.com>
 
 	drivedb.h: Phison Driven SSDs: Kingston A400 (#801)
