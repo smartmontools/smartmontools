@@ -6,14 +6,7 @@
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
  * Copyright (C) 2008-18 Christian Franke
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 /*
@@ -535,7 +528,8 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
     "PNY CS1311 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122
     "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
-    "KINGSTON SHSS3B?7A(120|240|480|960)G", // HyperX Savage
+    "KINGSTON SHSS3B?7A(120|240|480|960)G|" // HyperX Savage
+    "KINGSTON SA400S37(120|240|480|960)G", // Kingston A400 SSD/SBFKB1D1
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
@@ -3559,9 +3553,20 @@ const drive_settings builtin_knowndrives[] = {
       // ST6000NM0004-1FT17Z/NN01
       // ST4000NM0035-1V4107/TNC3
       // ST1000NM0055-1V410C/TN02
+      // ST8000NM0055-1RM112/SN04
     "ST([1234568]|10)000NM0[01][0-68][456]-.*", // *[069]4 = 4Kn
     "", "", 
     "-v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate Enterprise Capacity 3.5 HDD", // V5.1, ms in attribute 9
+    "ST[12]000NM0008-.*", // tested with ST1000NM0008-2F2100/SN01
+    "", "",
+    "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate Exos X12 HDD", // tested with ST12000NM0007-2A1101/SN02
+    "ST12000NM00[01]7-.*", // *17 = SED
+    "", "",
+    "-v 240,msec24hour32"
   },
   // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
   //             ST8000VN0012, ST6000VN0031, ST4000VN003
@@ -3912,7 +3917,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital VelociRaptor (AF)", // tested with WDC WD1000DHTZ-04N21V0/04.06A00
-    "WDC WD(2500H|5000H|1000D)HTZ-.*",
+    "WDC WD(2500H|5000B|5000H|1000D)HTZ-.*",
     "", "", ""
   },
   { "Western Digital Scorpio EIDE",
