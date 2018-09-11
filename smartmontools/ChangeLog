@@ -1,4 +1,9 @@
-$Id: ChangeLog 4766 2018-09-10 21:17:18Z chrfranke $
+$Id: ChangeLog 4768 2018-09-11 08:14:58Z samm2 $
+
+
+2018-09-11  Oleksii Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: Fix build on FreeBSD 12, patch by fernape@
 
 2018-09-10  Christian Franke  <franke@computer.org>
 

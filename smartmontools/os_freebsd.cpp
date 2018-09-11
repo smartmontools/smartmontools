@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4760 2018-08-19 18:45:53Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4768 2018-09-11 08:14:58Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -516,7 +516,7 @@ bool freebsd_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out
   struct nvme_completion *cp_p;
   memset(&pt, 0, sizeof(pt));
 
-#if __FreeBSD_version >= 1200058
+#if __FreeBSD_version >= 1200058 && __FreeBSD_version < 1200081
   pt.cmd.opc_fuse = NVME_CMD_SET_OPC(in.opcode);
 #else
   pt.cmd.opc = in.opcode;
