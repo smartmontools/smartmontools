@@ -1,5 +1,10 @@
 $Id$
 
+
+2018-09-11  Oleksii Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: Fix build on FreeBSD 12, patch by fernape@
+
 2018-09-10  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

@@ -516,7 +516,7 @@ bool freebsd_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out
   struct nvme_completion *cp_p;
   memset(&pt, 0, sizeof(pt));
 
-#if __FreeBSD_version >= 1200058
+#if __FreeBSD_version >= 1200058 && __FreeBSD_version < 1200081
   pt.cmd.opc_fuse = NVME_CMD_SET_OPC(in.opcode);
 #else
   pt.cmd.opc = in.opcode;
