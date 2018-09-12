@@ -29,7 +29,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4774 2018-09-12 21:10:37Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4775 2018-09-12 21:23:31Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -1699,7 +1699,9 @@ static void set_json_globals_from_device_statistics(int page, int offset, int64_
         case 0x020: jglb["temperature"]["lifetime_max"] = val; break;
         case 0x028: jglb["temperature"]["lifetime_min"] = val; break;
         case 0x050: jglb["temperature"]["lifetime_over_limit_minutes"] = val; break;
+        case 0x058: jglb["temperature"]["op_limit_max"] = val; break;
         case 0x060: jglb["temperature"]["lifetime_under_limit_minutes"] = val; break;
+        case 0x068: jglb["temperature"]["op_limit_min"] = val; break;
       }
       break;
   }
