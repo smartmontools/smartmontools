@@ -46,15 +46,9 @@ static const char  smartctl_examples[] =
          "=================================================== SMARTCTL EXAMPLES =====\n\n"
          "  smartctl -a disk0                            (Prints all SMART information)\n\n"
          "  smartctl -t long /dev/disk0              (Executes extended disk self-test)\n\n"
-#ifdef HAVE_GETOPT_LONG
          "  smartctl --smart=on --saveauto=on /dev/rdisk0 (Enables SMART on first disk)\n\n"
          "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/disk0\n"
          "                                        (Prints Self-Test & Attribute errors)\n\n"
-#else
-         "  smartctl -s on -S on /dev/rdisk0              (Enables SMART on first disk)\n\n"
-         "  smartctl -A -l selftest -q errorsonly /dev/disk0\n"
-         "                                        (Prints Self-Test & Attribute errors)\n\n"
-#endif
          "  smartctl -a IOService:/MacRISC2PE/pci@f4000000/AppleMacRiscPCI/ata-6@D/AppleKauaiATA/ATADeviceNub@0/IOATABlockStorageDriver/IOATABlockStorageDevice\n"
          "                                                 (You can use IOService: ...)\n\n"
          "  smartctl -c IODeviceTree:/pci@f4000000/ata-6@D/@0:0\n"

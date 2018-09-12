@@ -2,6 +2,9 @@ $Id$
 
 2018-09-12  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Remove define of 'HAVE_GETOPT_LONG'.
+	os*.cpp: Remove remaining checks for 'HAVE_GETOPT_LONG'.
+
 	configure.ac: Remove check for 'uname()'.
 	os_generic.cpp, os_qnxnto.cpp: Remove function 'unsupported()'.
 

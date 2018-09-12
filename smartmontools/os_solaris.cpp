@@ -62,9 +62,7 @@ int printwarning(int which){
 
 // print examples for smartctl
 void print_smartctl_examples(){
-  printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
-#ifdef HAVE_GETOPT_LONG
-  printf(
+  printf("=================================================== SMARTCTL EXAMPLES =====\n\n"
          "  smartctl -a /dev/rdsk/c0t0d0s0             (Prints all SMART information)\n\n"
          "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/rdsk/c0t0d0s0\n"
          "                                              (Enables SMART on first disk)\n\n"
@@ -72,15 +70,6 @@ void print_smartctl_examples(){
          "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/rdsk/c0t0d0s0\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
          );
-#else
-  printf(
-         "  smartctl -a /dev/rdsk/c0t0d0s0               (Prints all SMART information)\n"
-         "  smartctl -s on -o on -S on /dev/rdsk/c0t0d0s0 (Enables SMART on first disk)\n"
-         "  smartctl -t long /dev/rdsk/c0t0d0s0      (Executes extended disk self-test)\n"
-         "  smartctl -A -l selftest -q errorsonly /dev/rdsk/c0t0d0s0\n"
-         "                                        (Prints Self-Test & Attribute errors)\n"
-         );
-#endif
   return;
 }
 

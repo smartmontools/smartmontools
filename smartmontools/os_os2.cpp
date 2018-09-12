@@ -37,9 +37,7 @@ static HFILE hDevice;
 // that the device paths are sensible for your OS, and to eliminate
 // unsupported commands (eg, 3ware controllers).
 void print_smartctl_examples(){
-  printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
-#ifdef HAVE_GETOPT_LONG
-  printf(
+  printf("=================================================== SMARTCTL EXAMPLES =====\n\n"
          "  smartctl -a hd0                       (Prints all SMART information)\n\n"
          "  smartctl --smart=on --offlineauto=on --saveauto=on hd0\n"
          "                                              (Enables SMART on first disk)\n\n"
@@ -47,16 +45,6 @@ void print_smartctl_examples(){
          "  smartctl --attributes --log=selftest --quietmode=errorsonly hd0\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
          );
-#else
-  printf(
-         "  smartctl -a hd0                       (Prints all SMART on first disk with DANIS506)\n"
-         "  smartctl -a ahci0                     (Prints all SMART on first disk with OS2AHCI)\n"
-         "  smartctl -s on -o on -S on hd0         (Enables SMART on first disk)\n"
-         "  smartctl -t long hd0              (Executes extended disk self-test)\n"
-         "  smartctl -A -l selftest -q errorsonly hd0\n"
-         "                                      (Prints Self-Test & Attribute errors)\n"
-         );
-#endif
   return;
 }
 

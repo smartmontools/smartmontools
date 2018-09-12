@@ -536,21 +536,13 @@ std::string netbsd_smart_interface::get_app_examples(const char * appname)
 
     p = 'a' + getrawpartition();
     return strprintf(
-        "=================================================== SMARTCTL EXAMPLES =====\n\n"
-#ifdef HAVE_GETOPT_LONG
+      "=================================================== SMARTCTL EXAMPLES =====\n\n"
       "  smartctl -a /dev/wd0%c                      (Prints all SMART information)\n\n"
       "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/wd0%c\n"
       "                                              (Enables SMART on first disk)\n\n"
       "  smartctl -t long /dev/wd0%c             (Executes extended disk self-test)\n\n"
       "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/wd0%c\n"
       "                                      (Prints Self-Test & Attribute errors)\n"
-#else
-      "  smartctl -a /dev/wd0%c                     (Prints all SMART information)\n"
-      "  smartctl -s on -o on -S on /dev/wd0%c        (Enables SMART on first disk)\n"
-      "  smartctl -t long /dev/wd0%c            (Executes extended disk self-test)\n"
-      "  smartctl -A -l selftest -q errorsonly /dev/wd0%c"
-      "                                      (Prints Self-Test & Attribute errors)\n"
-#endif
       , p, p, p, p);
   }
   return "";

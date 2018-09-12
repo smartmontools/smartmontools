@@ -412,9 +412,8 @@ print_smartctl_examples()
   char p;
 
   p = 'a' + getrawpartition();
-  printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
-#ifdef HAVE_GETOPT_LONG
   printf(
+    "=================================================== SMARTCTL EXAMPLES =====\n\n"
     "  smartctl -a /dev/wd0%c                      (Prints all SMART information)\n\n"
     "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/wd0%c\n"
     "                                              (Enables SMART on first disk)\n\n"
@@ -423,15 +422,5 @@ print_smartctl_examples()
     "                                      (Prints Self-Test & Attribute errors)\n",
     p, p, p, p
     );
-#else
-  printf(
-    "  smartctl -a /dev/wd0%c                     (Prints all SMART information)\n"
-    "  smartctl -s on -o on -S on /dev/wd0%c        (Enables SMART on first disk)\n"
-    "  smartctl -t long /dev/wd0%c            (Executes extended disk self-test)\n"
-    "  smartctl -A -l selftest -q errorsonly /dev/wd0%c"
-    "                                      (Prints Self-Test & Attribute errors)\n",
-    p, p, p, p
-    );
-#endif
   return;
 }

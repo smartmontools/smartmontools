@@ -85,9 +85,7 @@ const char * os_XXXX_cpp_cvsid="$Id$"
 // that the device paths are sensible for your OS, and to eliminate
 // unsupported commands (eg, 3ware controllers).
 static void print_smartctl_examples(){
-  printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
-#ifdef HAVE_GETOPT_LONG
-  printf(
+  printf("=================================================== SMARTCTL EXAMPLES =====\n\n"
          "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
          "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
          "                                              (Enables SMART on first disk)\n\n"
@@ -97,17 +95,6 @@ static void print_smartctl_examples(){
          "  smartctl -a --device=3ware,2 /dev/sda\n"
          "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
          );
-#else
-  printf(
-         "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
-         "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
-         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
-         "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
-         "                                      (Prints Self-Test & Attribute errors)\n"
-         "  smartctl -a -d 3ware,2 /dev/sda\n"
-         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
-         );
-#endif
   return;
 }
 

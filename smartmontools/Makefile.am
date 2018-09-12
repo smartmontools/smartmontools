@@ -32,7 +32,7 @@ if OS_WIN32_MINGW
 AM_CPPFLAGS += -I$(srcdir)/os_win32
 endif
 if NEED_GETOPT_LONG
-AM_CPPFLAGS += -I$(srcdir)/getopt -D_GETOPT_STANDALONE -DHAVE_GETOPT_LONG
+AM_CPPFLAGS += -I$(srcdir)/getopt -D_GETOPT_STANDALONE
 endif
 if NEED_REGEX
 AM_CPPFLAGS += -I$(srcdir)/regex -D_REGEX_STANDALONE
