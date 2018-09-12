@@ -1,4 +1,10 @@
-$Id: ChangeLog 4769 2018-09-12 10:46:05Z chrfranke $
+$Id: ChangeLog 4770 2018-09-12 11:14:55Z chrfranke $
+
+2018-09-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- HGST Deskstar NAS: *6040ALE614 (#935, #1089)
+	- HGST Ultrastar DC HC520 (He12) (#1086)
 
 2018-09-12  Anthony D'Atri  <anthony.datri@gmail.com>
 
