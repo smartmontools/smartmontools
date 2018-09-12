@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4759 2018-08-19 17:39:21Z chrfranke $
+# $Id: Makefile.am 4773 2018-09-12 20:14:44Z chrfranke $
 #
 
 @SET_MAKE@
@@ -32,7 +32,7 @@ if OS_WIN32_MINGW
 AM_CPPFLAGS += -I$(srcdir)/os_win32
 endif
 if NEED_GETOPT_LONG
-AM_CPPFLAGS += -I$(srcdir)/getopt -D_GETOPT_STANDALONE -DHAVE_GETOPT_LONG
+AM_CPPFLAGS += -I$(srcdir)/getopt -D_GETOPT_STANDALONE
 endif
 if NEED_REGEX
 AM_CPPFLAGS += -I$(srcdir)/regex -D_REGEX_STANDALONE

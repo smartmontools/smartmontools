@@ -38,7 +38,7 @@
 
 #define ARGUSED(x) ((void)(x))
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4760 2018-08-19 18:45:53Z chrfranke $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4773 2018-09-12 20:14:44Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -46,15 +46,9 @@ static const char  smartctl_examples[] =
          "=================================================== SMARTCTL EXAMPLES =====\n\n"
          "  smartctl -a disk0                            (Prints all SMART information)\n\n"
          "  smartctl -t long /dev/disk0              (Executes extended disk self-test)\n\n"
-#ifdef HAVE_GETOPT_LONG
          "  smartctl --smart=on --saveauto=on /dev/rdisk0 (Enables SMART on first disk)\n\n"
          "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/disk0\n"
          "                                        (Prints Self-Test & Attribute errors)\n\n"
-#else
-         "  smartctl -s on -S on /dev/rdisk0              (Enables SMART on first disk)\n\n"
-         "  smartctl -A -l selftest -q errorsonly /dev/disk0\n"
-         "                                        (Prints Self-Test & Attribute errors)\n\n"
-#endif
          "  smartctl -a IOService:/MacRISC2PE/pci@f4000000/AppleMacRiscPCI/ata-6@D/AppleKauaiATA/ATADeviceNub@0/IOATABlockStorageDriver/IOATABlockStorageDevice\n"
          "                                                 (You can use IOService: ...)\n\n"
          "  smartctl -c IODeviceTree:/pci@f4000000/ata-6@D/@0:0\n"
@@ -71,7 +65,7 @@ static struct {
   IONVMeSMARTInterface **smartIfNVMe;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4773 2018-09-12 20:14:44Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
