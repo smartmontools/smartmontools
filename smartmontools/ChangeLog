@@ -2,6 +2,9 @@ $Id$
 
 2018-09-12  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp: Get JSON values 'temperature.op_limit_min/max' from
+	Device Statistics.
+
 	atacmds.h, ataprint.cpp: Print ACS-4 max operating temperature
 	from SCT Status.
 

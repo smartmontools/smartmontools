@@ -1699,7 +1699,9 @@ static void set_json_globals_from_device_statistics(int page, int offset, int64_
         case 0x020: jglb["temperature"]["lifetime_max"] = val; break;
         case 0x028: jglb["temperature"]["lifetime_min"] = val; break;
         case 0x050: jglb["temperature"]["lifetime_over_limit_minutes"] = val; break;
+        case 0x058: jglb["temperature"]["op_limit_max"] = val; break;
         case 0x060: jglb["temperature"]["lifetime_under_limit_minutes"] = val; break;
+        case 0x068: jglb["temperature"]["op_limit_min"] = val; break;
       }
       break;
   }
