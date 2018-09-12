@@ -1,5 +1,11 @@
 $Id$
 
+2018-09-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- HGST Deskstar NAS: *6040ALE614 (#935, #1089)
+	- HGST Ultrastar DC HC520 (He12) (#1086)
+
 2018-09-12  Anthony D'Atri  <anthony.datri@gmail.com>
 
 	drivedb.h: Micron 5100 Pro / 5200 SSDs (#1071)

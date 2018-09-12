@@ -2899,8 +2899,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HGST Deskstar NAS", // tested with HGST HDN724040ALE640/MJAOA5E0,
        // HGST HDN726050ALE610/APGNT517, HGST HDN726060ALE610/APGNT517
-       // HGST HDN726060ALE614/K1HE594D
-    "HGST HDN72(4030|4040|6050|6060)ALE6(10|14|40|04)",
+       // HGST HDN726040ALE614/APGNW7JH, HGST HDN726060ALE614/K1HE594D
+    "HGST HDN72(4030|4040|6040|6050|6060)ALE6(10|14|40|04)",
     "", "", ""
   },
   { "Hitachi Ultrastar A7K1000", // tested with
@@ -2944,6 +2944,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HGST Ultrastar He10", // tested with HGST HUH7210100ALE600/0F27452
     "HGST HUH7210(08|10)AL[EN]60[014]",
+    "", "",
+    "-v 22,raw48,Helium_Level"
+  },
+  { "HGST Ultrastar DC HC520 (He12)", // tested with HGST HUH721212ALE600/LEGNT3D0
+    "HGST HUH721212AL[EN]60[014]",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
