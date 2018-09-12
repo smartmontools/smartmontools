@@ -2,6 +2,9 @@ $Id$
 
 2018-09-12  Christian Franke  <franke@computer.org>
 
+	configure.ac: Remove check for 'uname()'.
+	os_generic.cpp, os_qnxnto.cpp: Remove function 'unsupported()'.
+
 	drivedb.h:
 	- HGST Deskstar NAS: *6040ALE614 (#935, #1089)
 	- HGST Ultrastar DC HC520 (He12) (#1086)

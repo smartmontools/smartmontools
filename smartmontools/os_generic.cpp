@@ -46,8 +46,7 @@
      replace the 'stub' function calls provided in this file.
 
      Provide the functions defined in this file by fleshing out the
-     skeletons below.  You can entirely eliminate the function
-     'unsupported()'.
+     skeletons below.
 
  [5] Contact smartmontools-support@listi.jpberlin.de to see
      about checking your code into the smartmontools CVS archive.
@@ -81,46 +80,6 @@ const char * os_XXXX_cpp_cvsid="$Id$"
 // This is here to prevent compiler warnings for unused arguments of
 // functions.
 #define ARGUSED(x) ((void)(x))
-
-// Please eliminate the following block: both the #include and
-// the 'unsupported()' function.  They are only here to warn
-// unsuspecting users that their Operating System is not supported! If
-// you wish, you can use a similar warning mechanism for any of the
-// functions in this file that you can not (or choose not to)
-// implement.
-
-
-#ifdef HAVE_UNAME
-#include <sys/utsname.h>
-#endif
-
-static void unsupported(){
-  static int warninggiven;
-
-  if (!warninggiven) {
-    char *osname;
-    
-#ifdef HAVE_UNAME
-    struct utsname ostype;
-    uname(&ostype);
-    osname=ostype.sysname;
-#else
-    osname="host's";
-#endif
-
-    pout("\n"
-         "############################################################################\n"
-         "WARNING: smartmontools has not been ported to the %s Operating System.\n"
-         "Please see the files os_generic.cpp and os_generic.h for porting instructions.\n"
-         "############################################################################\n\n",
-         osname);
-    warninggiven=1;
-  }
-  
-  return;
-}
-// End of the 'unsupported()' block that you should eliminate.
-
 
 // print examples for smartctl.  You should modify this function so
 // that the device paths are sensible for your OS, and to eliminate
@@ -205,8 +164,6 @@ ata_device * generic_smart_interface::get_ata_device(const char * name, const ch
 {
   ARGUSED(name);
   ARGUSED(type);
-
-  unsupported();
   return NULL;
 }
 
@@ -216,8 +173,6 @@ scsi_device * generic_smart_interface::get_scsi_device(const char * name, const 
 {
   ARGUSED(name);
   ARGUSED(type);
-
-  unsupported();
   return NULL;
 }
 
@@ -226,9 +181,7 @@ scsi_device * generic_smart_interface::get_scsi_device(const char * name, const 
 smart_device * generic_smart_interface::autodetect_smart_device(const char * name)
 {
   ARGUSED(name);
-
   // for the given name return the apropriate device type 
-  unsupported();
   return NULL;
 }
 
@@ -240,8 +193,6 @@ bool generic_smart_interface::scan_smart_devices(smart_device_list & devlist,
   ARGUSED(devlist);
   ARGUSED(type);
   ARGUSED(pattern);
-
-  unsupported();
   return false;
 }
 
@@ -251,8 +202,6 @@ smart_device * generic_smart_interface::get_custom_smart_device(const char * nam
 {
   ARGUSED(name);
   ARGUSED(type);
-
-  unsupported();
   return NULL;
 }
 

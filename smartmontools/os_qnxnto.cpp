@@ -34,50 +34,11 @@ ATACMDS_H_CVSID CONFIG_H_CVSID OS_QNXNTO_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSI
 // functions.
 #define ARGUSED(x) ((void)(x))
 
-// Please eliminate the following block: both the #include and
-// the 'unsupported()' function.  They are only here to warn
-// unsuspecting users that their Operating System is not supported! If
-// you wish, you can use a similar warning mechanism for any of the
-// functions in this file that you can not (or choose not to)
-// implement.
-
-
-#ifdef HAVE_UNAME
-#include <sys/utsname.h>
-#endif
 //----------------------------------------------------------------------------------------------
 // private Functions
 static int ata_sense_data(void *sdata,int *error,int *key,int *asc,int *ascq);
 static int ata_interpret_sense(struct cam_pass_thru *cpt,void *sense,int *status,int rcount);
 static int ata_pass_thru(int fd,struct cam_pass_thru *pcpt);
-//----------------------------------------------------------------------------------------------
-static void unsupported(){
-  static int warninggiven;
-
-  if (!warninggiven) {
-    char *osname;
-
-#ifdef HAVE_UNAME
-    struct utsname ostype;
-    uname(&ostype);
-    osname=ostype.sysname;
-#else
-    osname="host's";
-#endif
-
-    pout("\n"
-         "############################################################################\n"
-         "WARNING: smartmontools has not been ported to the %s Operating System.\n"
-         "Please see the files os_generic.cpp and os_generic.h for porting instructions.\n"
-         "############################################################################\n\n",
-         osname);
-    warninggiven=1;
-  }
-
-  return;
-}
-// End of the 'unsupported()' block that you should eliminate.
-
 
 // print examples for smartctl.  You should modify this function so
 // that the device paths are sensible for your OS, and to eliminate
@@ -141,7 +102,6 @@ int len,dev_prefix_len;
 int make_device_names (char*** devlist, const char* name) {
   ARGUSED(devlist);
   ARGUSED(name);
-  unsupported();
   return 0;
 }
 
@@ -384,7 +344,6 @@ int do_scsi_cmnd_io(int fd,struct scsi_cmnd_io * iop,int report)
   ARGUSED(fd);
   ARGUSED(iop);
   ARGUSED(report);
-  unsupported();
   return -ENOSYS;
 }
 //----------------------------------------------------------------------------------------------
