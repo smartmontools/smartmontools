@@ -1,5 +1,8 @@
 $Id$
 
+2018-09-12  Anthony D'Atri  <anthony.datri@gmail.com>
+
+	drivedb.h: Micron 5100 Pro / 5200 SSDs (#1071)
 
 2018-09-11  Oleksii Samorukov  <samm@os2.kiev.ua>
 

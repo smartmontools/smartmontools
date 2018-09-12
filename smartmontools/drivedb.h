@@ -303,8 +303,7 @@ const drive_settings builtin_knowndrives[] = {
     "Micron_M600_(EE|MT)FDDA[KTV](128|256|512|1T0)MBF[25Z]?|" // tested with Micron_M600_MTFDDAK1T0MBF/MU01
     "Micron_M500DC_(EE|MT)FDDA[AK](120|240|480|800)MBB|" // tested with Micron_M500DC_EEFDDAA120MBB/129, Micron_M500DC_MTFDDAK800MBB/0129
     "Micron_1100_MTFDDA[KV](256|512|1T0|2T0)TBN|" // Marvell 88SS1074, tested Micron_1100_MTFDDAK256TBN/M0MU020
-    "MICRON_M510DC_(EE|MT)FDDAK(120|240|480|800|960)MBP|" // Micron_M510DC_MTFDDAK240MBP/0005
-    "Micron_5100_(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)", // tested with Micron_5100_MTFDDAK1T9TBY
+    "MICRON_M510DC_(EE|MT)FDDAK(120|240|480|800|960)MBP", // Micron_M510DC_MTFDDAK240MBP/0005
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
@@ -329,6 +328,39 @@ const drive_settings builtin_knowndrives[] = {
     "-v 206,raw48,Write_Error_Rate "
     "-v 210,raw48,Success_RAIN_Recov_Cnt "
     "-v 246,raw48,Total_Host_Sector_Write "
+    "-v 247,raw48,Host_Program_Page_Count "
+    "-v 248,raw48,Bckgnd_Program_Page_Cnt"
+  },
+  // Reference: https://www.micron.com/resource-details/feec878a-265e-49a7-8086-15137c5f9011
+  // TN-FD-34: 5100 SSD SMART Implementation
+  {
+    "Micron 5100 Pro / 5200 SSDs",
+    "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)|" // Matches both stock and Dell OEM
+    "(Micron_5200_)?MTFDDAK(480|960|1T9|3T8|7T6)TD(C|D|N)",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw48,Reallocated_Block_Count "
+  //"-v 9,raw24(raw8),Power_On_Hours "  // raw24(raw8)??
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Reserved_Block_Pct " // Percentage of remaining reserved blocks available
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Avg_Block-Erase_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 180,raw48,Reserved_Block_Count " // absolute count of remaining reserved blocks available
+    "-v 183,raw48,SATA_Int_Downshift_Ct " // SATA speed downshift count
+  //"-v 184,raw48,Error_Correction_Count "
+  //"-v 187,raw48,Reported_Uncorrect " // Number of UECC correction failures
+  //"-v 188,raw48,Command_Timeouts "
+  //"-v 194,tempminmax,Temperature_Celsius " // 100 - degrees C, wraps: 101 reported as 255
+  //"-v 195,raw48,Cumulativ_Corrected_ECC "
+  //"-v 196,raw48,Reallocation_Event_Ct "
+  //"-v 197,raw48,Current_Pending_Sector " // Use the raw value
+  //"-v 198,raw48,Offline_Uncorrectable "  // Use the raw value
+  //"-v 199,raw48,UDMA_CRC_Error_Count "   // Use the raw value
+    "-v 202,raw48,Percent_Lifetime_Remain " // Remaining endurance, trips at 10%
+    "-v 206,raw48,Write_Error_Rate "
+    "-v 210,raw48,RAIN_Success_Recovered "  // Total number of NAND pages recovered by RAIN
     "-v 247,raw48,Host_Program_Page_Count "
     "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
