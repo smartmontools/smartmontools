@@ -2,6 +2,9 @@ $Id$
 
 2018-09-12  Christian Franke  <franke@computer.org>
 
+	atacmds.h, ataprint.cpp: Print ACS-4 max operating temperature
+	from SCT Status.
+
 	Makefile.am: Remove define of 'HAVE_GETOPT_LONG'.
 	os*.cpp: Remove remaining checks for 'HAVE_GETOPT_LONG'.
 

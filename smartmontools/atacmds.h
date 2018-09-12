@@ -514,7 +514,7 @@ ASSERT_SIZEOF_STRUCT(ata_selective_self_test_log, 512);
 //   T13/1699-D Revision 3f (Working Draft), December 11, 2006.
 
 // SCT Status response (read with SMART_READ_LOG page 0xe0)
-// Table 182 of T13/BSR INCITS 529 (ACS-4) Revision 04, August 25, 2014
+// Table 194 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
 #pragma pack(1)
 struct ata_sct_status_response
 {
@@ -535,7 +535,7 @@ struct ata_sct_status_response
   signed char max_temp;             // 202: Maximum temperature this power cycle
   signed char life_min_temp;        // 203: Minimum lifetime temperature
   signed char life_max_temp;        // 204: Maximum lifetime temperature
-  unsigned char byte205;            // 205: reserved (T13/e06152r0-2: Average lifetime temperature)
+  signed char max_op_limit;         // 205: Specified maximum operating temperature (ACS-4)
   unsigned int over_limit_count;    // 206-209: # intervals since last reset with temperature > Max Op Limit
   unsigned int under_limit_count;   // 210-213: # intervals since last reset with temperature < Min Op Limit
   unsigned short smart_status;      // 214-215: LBA(32:8) of SMART RETURN STATUS (0, 0x2cf4, 0xc24f) (ACS-4)

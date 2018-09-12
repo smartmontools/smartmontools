@@ -2929,8 +2929,8 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
   // T13/e06152r0-3 (Additional SCT Temperature Statistics), August - October 2006
   // Table 60 of T13/1699-D (ATA8-ACS) Revision 3f, December 2006  (format version 2)
   // Table 80 of T13/1699-D (ATA8-ACS) Revision 6a, September 2008 (format version 3)
-  // Table 185 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
-  // (smart_status, min_erc_time)
+  // Table 194 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
+  // (max_op_limit, smart_status, min_erc_time)
   bool old_format_2 = (   !sts->min_temp && !sts->life_min_temp
                        && !sts->under_limit_count && !sts->over_limit_count);
 
@@ -2953,9 +2953,10 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
   if (old_format_2)
     return 0;
 
-  signed char avg = sts->byte205; // Average Temperature from e06152r0-2, removed in e06152r3
-  if (0 < avg && sts->life_min_temp <= avg && avg <= sts->life_max_temp)
-    pout("Lifetime    Average Temperature:        %2d Celsius\n", avg);
+  if (sts->max_op_limit > 0) { // e06152r0-2: "Average Temperature"
+    jout("Specified Max Operating Temperature:   %3d Celsius\n", sts->max_op_limit);
+    sct_jtemp2(jref, "op_limit_max", sts->max_op_limit);
+  }
   jout("Under/Over Temperature Limit Count:  %2u/%u\n",
     sts->under_limit_count, sts->over_limit_count);
   jref["temperature"]["under_limit_count"] = sts->under_limit_count;
