@@ -1,6 +1,9 @@
-$Id: ChangeLog 4781 2018-09-16 15:18:38Z chrfranke $
+$Id: ChangeLog 4782 2018-09-16 16:05:10Z chrfranke $
 
 2018-09-16  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Use unsigned int for bit shifts
+	(cppcheck 1.84: shiftTooManyBitsSigned).
 
 	Makefile.am: Set HAVE_WORKING_SNPRINTF also in VC14 config.h.
 
