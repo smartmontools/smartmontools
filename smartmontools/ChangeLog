@@ -2,6 +2,9 @@ $Id$
 
 2018-09-16  Christian Franke  <franke@computer.org>
 
+	os_netbsd.cpp: Add spaces between string literals and macros for
+	C++11 (g++ -Wliteral-suffix).
+
 	ataprint.cpp: Add JSON support for '-l selective'.
 
 	drivedb.h: Update or remove links in warning messages.

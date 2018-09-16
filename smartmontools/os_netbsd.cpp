@@ -260,7 +260,7 @@ bool netbsd_nvme_device::open()
     }
     nsid = 0xFFFFFFFF; // broadcast id
   }
-  else if (sscanf(dev, NVME_PREFIX"%d"NVME_NS_PREFIX"%d%c",
+  else if (sscanf(dev, NVME_PREFIX "%d" NVME_NS_PREFIX "%d%c",
     &ctrlid, &nsid, &tmp) == 2)
   {
     if(ctrlid < 0 || nsid <= 0) {
@@ -650,7 +650,7 @@ bool netbsd_smart_interface::get_nvme_devlist(smart_device_list & devlist,
 
     uint32_t n = 0;
     for (int nsid = 1; n < laa.l_children; nsid++) {
-      snprintf(nspath, sizeof(nspath), NVME_PREFIX"%d"NVME_NS_PREFIX"%d",
+      snprintf(nspath, sizeof(nspath), NVME_PREFIX "%d" NVME_NS_PREFIX "%d",
         ctrl, nsid);
       if (stat(nspath, &sb) == -1 || !S_ISCHR(sb.st_mode))
         break;
