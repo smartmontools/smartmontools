@@ -1,6 +1,9 @@
-$Id: ChangeLog 4779 2018-09-16 14:55:51Z chrfranke $
+$Id: ChangeLog 4780 2018-09-16 15:03:22Z chrfranke $
 
 2018-09-16  Christian Franke  <franke@computer.org>
+
+	os_netbsd.cpp: Add spaces between string literals and macros for
+	C++11 (g++ -Wliteral-suffix).
 
 	ataprint.cpp: Add JSON support for '-l selective'.
 

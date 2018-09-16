@@ -25,7 +25,7 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4773 2018-09-12 20:14:44Z chrfranke $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4780 2018-09-16 15:03:22Z chrfranke $"
   OS_NETBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))
@@ -260,7 +260,7 @@ bool netbsd_nvme_device::open()
     }
     nsid = 0xFFFFFFFF; // broadcast id
   }
-  else if (sscanf(dev, NVME_PREFIX"%d"NVME_NS_PREFIX"%d%c",
+  else if (sscanf(dev, NVME_PREFIX "%d" NVME_NS_PREFIX "%d%c",
     &ctrlid, &nsid, &tmp) == 2)
   {
     if(ctrlid < 0 || nsid <= 0) {
@@ -650,7 +650,7 @@ bool netbsd_smart_interface::get_nvme_devlist(smart_device_list & devlist,
 
     uint32_t n = 0;
     for (int nsid = 1; n < laa.l_children; nsid++) {
-      snprintf(nspath, sizeof(nspath), NVME_PREFIX"%d"NVME_NS_PREFIX"%d",
+      snprintf(nspath, sizeof(nspath), NVME_PREFIX "%d" NVME_NS_PREFIX "%d",
         ctrl, nsid);
       if (stat(nspath, &sb) == -1 || !S_ISCHR(sb.st_mode))
         break;
