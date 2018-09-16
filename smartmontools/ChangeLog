@@ -2,6 +2,8 @@ $Id$
 
 2018-09-16  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Set HAVE_WORKING_SNPRINTF also in VC14 config.h.
+
 	os_netbsd.cpp: Add spaces between string literals and macros for
 	C++11 (g++ -Wliteral-suffix).
 
