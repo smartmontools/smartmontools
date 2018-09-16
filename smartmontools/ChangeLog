@@ -1,6 +1,8 @@
-$Id: ChangeLog 4777 2018-09-16 13:56:56Z chrfranke $
+$Id: ChangeLog 4779 2018-09-16 14:55:51Z chrfranke $
 
 2018-09-16  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add JSON support for '-l selective'.
 
 	drivedb.h: Update or remove links in warning messages.
 
