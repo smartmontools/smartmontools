@@ -2,6 +2,9 @@ $Id$
 
 2018-09-16  Christian Franke  <franke@computer.org>
 
+	os_win32.cpp: Use unsigned int for bit shifts
+	(cppcheck 1.84: shiftTooManyBitsSigned).
+
 	Makefile.am: Set HAVE_WORKING_SNPRINTF also in VC14 config.h.
 
 	os_netbsd.cpp: Add spaces between string literals and macros for

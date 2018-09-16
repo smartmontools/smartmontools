@@ -1594,7 +1594,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   // 3ware RAID if vendor id present
   m_is_3ware = (vers_ex.wIdentifier == SMART_VENDOR_3WARE);
 
-  unsigned long portmap = 0;
+  unsigned portmap = 0;
   if (port >= 0 && devmap >= 0) {
     // 3ware RAID: check vendor id
     if (!m_is_3ware) {
@@ -1617,14 +1617,13 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
 
   {
     // 3ware RAID: update devicemap first
-
     if (!update_3ware_devicemap_ioctl(h)) {
       if (   smart_get_version(h, &vers_ex) >= 0
           && vers_ex.wIdentifier == SMART_VENDOR_3WARE    )
         portmap = vers_ex.dwDeviceMapEx;
     }
     // Check port existence
-    if (!(portmap & (1L << port))) {
+    if (!(portmap & (1U << port))) {
       if (!is_permissive()) {
         close();
         return set_err(ENOENT, "%s: Port %d is empty or does not exist", devpath, port);
@@ -2162,7 +2161,7 @@ unsigned csmi_device::get_ports_used()
         continue;
     }
 
-    ports_used |= (1 << p);
+    ports_used |= (1U << p);
   }
 
   return ports_used;
@@ -4563,7 +4562,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
             // Add physical drives
             int len = strlen(name);
             for (unsigned int pi = 0; pi < 32; pi++) {
-              if (vers_ex.dwDeviceMapEx & (1L << pi)) {
+              if (vers_ex.dwDeviceMapEx & (1U << pi)) {
                 snprintf(name+len, sizeof(name)-1-len, ",%u", pi);
                 devlist.push_back( new win_ata_device(this, name, "ata") );
               }
@@ -4627,7 +4626,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
         continue;
 
       for (int pi = 0; pi < 32; pi++) {
-        if (!(ports_used & (1 << pi)))
+        if (!(ports_used & (1U << pi)))
           continue;
         snprintf(name, sizeof(name)-1, "/dev/csmi%d,%d", i, pi);
         devlist.push_back( new win_csmi_device(this, name, "ata") );
