@@ -2604,7 +2604,7 @@ parsed_ata_device::parsed_ata_device(smart_interface * intf, const char * dev_na
 
 parsed_ata_device::~parsed_ata_device() throw()
 {
-  close();
+  parsed_ata_device::close();
 }
 
 bool parsed_ata_device::is_open() const

@@ -2,6 +2,9 @@ $Id$
 
 2018-09-16  Christian Franke  <franke@computer.org>
 
+	atacmds.cpp: Avoid possible virtual call in dtor
+	(cppcheck 1.84: virtualCallInConstructor).
+
 	os_win32.cpp: Use unsigned int for bit shifts
 	(cppcheck 1.84: shiftTooManyBitsSigned).
 
