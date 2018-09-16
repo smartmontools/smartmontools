@@ -270,10 +270,9 @@ const drive_settings builtin_knowndrives[] = {
       // M4-CT064M4SSD2/0009, M4-CT256M4SSD3/000F
     "",
     "This drive may hang after 5184 hours of power-on time:\n"
-    "http://www.tomshardware.com/news/Crucial-m4-Firmware-BSOD,14544.html\n"
-    "See the following web pages for firmware updates:\n"
-    "http://www.crucial.com/support/firmware.aspx\n"
-    "http://www.micron.com/products/solid-state-storage/client-ssd#software",
+    "https://www.tomshardware.com/news/Crucial-m4-Firmware-BSOD,14544.html\n"
+    "See the following web page for firmware updates:\n"
+    "http://www.crucial.com/usa/en/support-ssd",
     "-v 170,raw48,Grown_Failing_Block_Ct "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
@@ -407,7 +406,7 @@ const drive_settings builtin_knowndrives[] = {
     "A firmware update is available for this drive.\n"
     "It is HIGHLY RECOMMENDED for drives with specific serial numbers.\n"
     "See the following web pages for details:\n"
-    "http://www.corsair.com/en-us/force-series-ls-60gb-sata-3-6gb-s-ssd\n"
+    "https://www.corsair.com/en-us/force-series-ls-60gb-sata-3-6gb-s-ssd\n"
     "https://www.smartmontools.org/ticket/628",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
     "-v 5,raw48,Retired_Block_Count "
@@ -1008,7 +1007,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "This drive may require a firmware update to\n"
     "fix possible drive hangs when reading SMART self-test log:\n"
-    "http://downloadcenter.intel.com/Detail_Desc.aspx?DwnldID=18363",
+    "https://downloadcenter.intel.com/download/26491",
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
     "-v 226,raw48,Workld_Media_Wear_Indic "
@@ -2146,7 +2145,7 @@ const drive_settings builtin_knowndrives[] = {
     "Buggy and fixed firmware report same version number!\n"
     "See the following web pages for details:\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/223571en\n"
-    "http://www.smartmontools.org/wiki/SamsungF4EGBadBlocks",
+    "https://www.smartmontools.org/wiki/SamsungF4EGBadBlocks",
     ""
   },
   { "SAMSUNG SpinPoint S250", // tested with HD200HJ/KF100-06
@@ -3245,8 +3244,7 @@ const drive_settings builtin_knowndrives[] = {
     "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
     "see the following web pages for details:\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/215451en\n"
-    "http://forums.seagate.com/t5/Momentus-XT-Momentus-Momentus/Momentus-XT-corrupting-large-files-Linux/td-p/109008\n"
-    "http://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
+    "https://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
     ""
   },
   { "Seagate Momentus XT", // unknown firmware
@@ -3255,8 +3253,7 @@ const drive_settings builtin_knowndrives[] = {
     "These drives may corrupt large files,\n"
     "see the following web pages for details:\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/215451en\n"
-    "http://forums.seagate.com/t5/Momentus-XT-Momentus-Momentus/Momentus-XT-corrupting-large-files-Linux/td-p/109008\n"
-    "http://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
+    "https://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
     ""
   },
   { "Seagate Momentus XT (AF)", // tested with ST750LX003-1AC154/SM12
@@ -3379,7 +3376,7 @@ const drive_settings builtin_knowndrives[] = {
     "see the following web pages for details:\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/207951en\n"
-    "http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=632758",
+    "https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=632758",
     ""
   },
   { "Seagate Barracuda 7200.11", // unknown firmware
@@ -3532,7 +3529,7 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(25031|50032|75033|100034)0NS",
     "SN[01]6|"         // http://knowledge.seagate.com/articles/en_US/FAQ/207963en
     "MA(0[^7]|[^0].)", // http://dellfirmware.seagate.com/dell_firmware/DellFirmwareRequest.jsp
-    "",
+    "",                //        ^^^^^^^^^^^^ down (no DNS A record)
     "-F xerrorlba" // tested with ST31000340NS/SN06
   },
   { "Seagate Barracuda ES.2", // buggy firmware (Dell)
@@ -3540,8 +3537,7 @@ const drive_settings builtin_knowndrives[] = {
     "MA07",
     "There are known problems with these drives,\n"
     "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
-    "see the following Seagate web page:\n"
-    "http://dellfirmware.seagate.com/dell_firmware/DellFirmwareRequest.jsp",
+    "contact Dell support for a firmware update.",
     ""
   },
   { "Seagate Barracuda ES.2", // unknown firmware

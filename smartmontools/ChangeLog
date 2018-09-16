@@ -2,6 +2,8 @@ $Id$
 
 2018-09-16  Christian Franke  <franke@computer.org>
 
+	drivedb.h: Update or remove links in warning messages.
+
 	drivedb.h: Crucial/Micron BX300, MX1/2/3/500, M5/600, 1100 SSDs:
 	- Rename,
 	- Crucial BX300 (GH pull/16, #963),
