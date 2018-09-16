@@ -26,7 +26,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4783 2018-09-16 16:17:38Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -2604,7 +2604,7 @@ parsed_ata_device::parsed_ata_device(smart_interface * intf, const char * dev_na
 
 parsed_ata_device::~parsed_ata_device() throw()
 {
-  close();
+  parsed_ata_device::close();
 }
 
 bool parsed_ata_device::is_open() const
