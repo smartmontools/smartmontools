@@ -1,5 +1,16 @@
 $Id$
 
+2018-09-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Crucial/Micron BX300, MX1/2/3/500, M5/600, 1100 SSDs:
+	- Rename,
+	- Crucial BX300 (GH pull/16, #963),
+	- Crucial MX300 750GB,
+	- Crucial MX500 (#977, #994, #995, #1004, #1024),
+	- Micron M500IT (#958),
+	- Micron 1100 OEM (GH pull/17),
+	- fix name of attribute 202 and 248.
+
 2018-09-12  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Get JSON values 'temperature.op_limit_min/max' from

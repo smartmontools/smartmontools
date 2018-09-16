@@ -285,25 +285,33 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
-  { "Crucial/Micron MX1/2/300, M5/600, 1100 Client SSDs",
+  { "Crucial/Micron BX300, MX1/2/3/500, M5/600, 1100 SSDs",
     "Crucial_CT(128|256|512)MX100SSD1|"// Marvell 88SS9189, tested with Crucial_CT256MX100SSD1/MU01
     "Crucial_CT(200|250|256|500|512|1000|1024)MX200SSD[1346]|" // Marvell 88SS9189, tested with
       // Crucial_CT500MX200SSD1/MU01, Crucial_CT1024MX200SSD1/MU01, Crucial_CT250MX200SSD3/MU01,
       // Crucial_CT250MX200SSD1/MU03
-    "Crucial_CT(275|525|1050|2050)MX300SSD[14]|" // Marvell 88SS1074, tested with
-      // Crucial_CT525MX300SSD1/M0CR021, Crucial_CT2050MX300SSD1/M0CR031, Crucial_CT275MX300SSD1/M0CR040
+    "Crucial_CT(275|525|750|1050|2050)MX300SSD[14]|" // Marvell 88SS1074, tested with
+      // Crucial_CT275MX300SSD1/M0CR040, Crucial_CT525MX300SSD1/M0CR021, Crucial_CT750MX300SSD1/M0CR011,
+      // Crucial_CT2050MX300SSD1/M0CR031
     "Crucial_CT(120|240|480|960)M500SSD[134]|" // Marvell 88SS9187, tested with
       // Crucial_CT120M500SSD1/MU02, Crucial_CT120M500SSD3/MU02, Crucial_CT240M500SSD1/MU03,
       // Crucial_CT480M500SSD1/MU03, Crucial_CT960M500SSD1/MU03, Crucial_CT240M500SSD4/MU05
     "Crucial_CT(128|256|512|1024)M550SSD[134]|" // tested with Crucial_CT512M550SSD3/MU01,
       // Crucial_CT1024M550SSD1/MU01, Crucial_CT128M550SSD4/MU02
+    "CT(120|240|480)BX300SSD1|" // Silicon Motion SM2258, same attributes as Marvell-based Crucial SSDs,
+      // tested with CT240BX300SSD1/M2CR010
+    "CT(250|500|1000|2000)MX500SSD1|" // Silicon Motion SM2258, tested with CT250MX500SSD1/M3CR010
+      // CT500MX500SSD1/M3CR010, CT1000MX500SSD1/M3CR010, CT2000MX500SSD1/M3CR010
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
+    "Micron_M500DC_(EE|MT)FDDA[AK](120|240|480|800)MBB|" // tested with Micron_M500DC_EEFDDAA120MBB/129,
+      // Micron_M500DC_MTFDDAK800MBB/0129
+    "(Micron[_ ])?M500IT[_ ]MTFDDA[KTY](032|050|060|064|120|128|240|256)[MS]BD|" // tested with M500IT_MTFDDAK240MBD/MG02
     "(Micron_)?M510[_-]MTFDDA[KTV](128|256)MAZ|" // tested with M510-MTFDDAK256MAZ/MU01
+    "MICRON_M510DC_(EE|MT)FDDAK(120|240|480|800|960)MBP|" // tested with Micron_M510DC_MTFDDAK240MBP/0005
     "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY|" // tested with M550-MTFDDAK256MAY/MU01
     "Micron_M600_(EE|MT)FDDA[KTV](128|256|512|1T0)MBF[25Z]?|" // tested with Micron_M600_MTFDDAK1T0MBF/MU01
-    "Micron_M500DC_(EE|MT)FDDA[AK](120|240|480|800)MBB|" // tested with Micron_M500DC_EEFDDAA120MBB/129, Micron_M500DC_MTFDDAK800MBB/0129
-    "Micron_1100_MTFDDA[KV](256|512|1T0|2T0)TBN|" // Marvell 88SS1074, tested Micron_1100_MTFDDAK256TBN/M0MU020
-    "MICRON_M510DC_(EE|MT)FDDAK(120|240|480|800|960)MBP", // Micron_M510DC_MTFDDAK240MBP/0005
+    "(Micron_1100_)?MTFDDA[KV](256|512|1T0|2T0)TBN", // Marvell 88SS1074, tested with
+      // Micron_1100_MTFDDAK256TBN/M0MU020, MTFDDAK256TBN/M0MA020 (OEM)
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
@@ -317,26 +325,27 @@ const drive_settings builtin_knowndrives[] = {
     "-v 180,raw48,Unused_Reserve_NAND_Blk "
     "-v 183,raw48,SATA_Interfac_Downshift "
     "-v 184,raw48,Error_Correction_Count "
-    "-v 195,raw48,Cumulativ_Corrected_ECC "
   //"-v 187,raw48,Reported_Uncorrect "
   //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 195,raw48,Cumulativ_Corrected_ECC "
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
   //"-v 197,raw48,Current_Pending_Sector "
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
-    "-v 202,raw48,Percent_Lifetime_Used "
+    "-v 202,raw48,Percent_Lifetime_Remain "
     "-v 206,raw48,Write_Error_Rate "
     "-v 210,raw48,Success_RAIN_Recov_Cnt "
     "-v 246,raw48,Total_Host_Sector_Write "
     "-v 247,raw48,Host_Program_Page_Count "
-    "-v 248,raw48,Bckgnd_Program_Page_Cnt"
+    "-v 248,raw48,FTL_Program_Page_Count"
   },
   // Reference: https://www.micron.com/resource-details/feec878a-265e-49a7-8086-15137c5f9011
   // TN-FD-34: 5100 SSD SMART Implementation
   {
     "Micron 5100 Pro / 5200 SSDs",
     "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)|" // Matches both stock and Dell OEM
-    "(Micron_5200_)?MTFDDAK(480|960|1T9|3T8|7T6)TD(C|D|N)",
+      // tested with Micron_5100_MTFDDAK3T8TCB/D0MU410, MTFDDAK3T8TCB/D0MU410
+    "(Micron_5200_)?MTFDDAK(480|960|1T9|3T8|7T6)TD(C|D|N)", // tested with Micron_5200_MTFDDAK3T8TDD/D1MU505
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw48,Reallocated_Block_Count "
