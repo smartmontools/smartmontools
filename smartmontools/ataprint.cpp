@@ -2738,18 +2738,15 @@ static int PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
 
 static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log, const ata_smart_values * sv)
 {
-  int i,field1,field2;
-  const char *msg;
-  char tmp[64];
-  uint64_t maxl=0,maxr=0;
-  uint64_t current=log->currentlba;
-  uint64_t currentend=current+65535;
+  json::ref jref = jglb["ata_smart_selective_self_test_log"];
 
   // print data structure revision number
-  pout("SMART Selective self-test log data structure revision number %d\n",(int)log->logversion);
+  jout("SMART Selective self-test log data structure revision number %d\n", log->logversion);
+  jref["revision"] = log->logversion;
   if (1 != log->logversion)
     pout("Note: revision number not 1 implies that no selective self-test has ever been run\n");
   
+  const char *msg;
   switch((sv->self_test_exec_status)>>4){
   case  0:msg="Completed";
     break;
@@ -2777,11 +2774,14 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
 
   // find the number of columns needed for printing. If in use, the
   // start/end of span being read-scanned...
+  uint64_t maxl = 0, maxr = 0;
+  uint64_t current = log->currentlba;
+  uint64_t currentend = current + 0xffff;
   if (log->currentspan>5) {
     maxl=current;
     maxr=currentend;
   }
-  for (i=0; i<5; i++) {
+  for (int i = 0; i < 5; i++) {
     uint64_t start=log->span[i].start;
     uint64_t end  =log->span[i].end; 
     // ... plus max start/end of each of the five test spans.
@@ -2793,35 +2793,55 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
   
   // we need at least 7 characters wide fields to accomodate the
   // labels
+  int field1,field2;
+  char tmp[64];
   if ((field1=snprintf(tmp,64, "%" PRIu64, maxl))<7)
     field1=7;
   if ((field2=snprintf(tmp,64, "%" PRIu64, maxr))<7)
     field2=7;
 
   // now print the five test spans
-  pout(" SPAN  %*s  %*s  CURRENT_TEST_STATUS\n", field1, "MIN_LBA", field2, "MAX_LBA");
+  jout(" SPAN  %*s  %*s  CURRENT_TEST_STATUS\n", field1, "MIN_LBA", field2, "MAX_LBA");
 
-  for (i=0; i<5; i++) {
+  for (int i = 0; i < 5; i++) {
     uint64_t start=log->span[i].start;
     uint64_t end=log->span[i].end;
-    
-    if ((i+1)==(int)log->currentspan)
+    bool active = (i + 1 == log->currentspan);
+
+    if (active)
       // this span is currently under test
-      pout("    %d  %*" PRIu64 "  %*" PRIu64 "  %s [%01d0%% left] (%" PRIu64 "-%" PRIu64 ")\n",
-	   i+1, field1, start, field2, end, msg,
-	   (int)(sv->self_test_exec_status & 0xf), current, currentend);
+      jout("    %d  %*" PRIu64 "  %*" PRIu64 "  %s [%01d0%% left] (%" PRIu64 "-%" PRIu64 ")\n",
+           i + 1, field1, start, field2, end, msg,
+           (sv->self_test_exec_status & 0xf), current, currentend);
     else
       // this span is not currently under test
-      pout("    %d  %*" PRIu64 "  %*" PRIu64 "  Not_testing\n",
-	   i+1, field1, start, field2, end);
-  }  
-  
+      jout("    %d  %*" PRIu64 "  %*" PRIu64 "  Not_testing\n",
+           i + 1, field1, start, field2, end);
+
+    json::ref jrefi = jref["table"][i];
+    jrefi["lba_min"] = start;
+    jrefi["lba_max"] = end;
+    jrefi["status"]["value"] = sv->self_test_exec_status;
+    jrefi["status"]["string"] = (active ? msg : "Not_testing");
+    if (active) {
+      jrefi["status"]["remaining_percent"] = sv->self_test_exec_status & 0xf;
+      jrefi["current_lba_min"] = current;
+      jrefi["current_lba_max"] = currentend;
+    }
+  }
+
   // if we are currently read-scanning, print LBAs and the status of
   // the read scan
-  if (log->currentspan>5)
-    pout("%5d  %*" PRIu64 "  %*" PRIu64 "  Read_scanning %s\n",
-	 (int)log->currentspan, field1, current, field2, currentend,
-	 OfflineDataCollectionStatus(sv->offline_data_collection_status));
+  if (log->currentspan > 5) {
+    const char * ost = OfflineDataCollectionStatus(sv->offline_data_collection_status);
+    jout("%5d  %*" PRIu64 "  %*" PRIu64 "  Read_scanning %s\n",
+         log->currentspan, field1, current, field2, currentend, ost);
+    json::ref jrefc = jref["current_read_scan"];
+    jrefc["lba_min"] = current;
+    jrefc["lba_max"] = currentend;
+    jrefc["status"]["value"] = sv->offline_data_collection_status;
+    jrefc["status"]["string"] = ost;
+  }
   
   /* Print selective self-test flags.  Possible flag combinations are
      (numbering bits from 0-15):
@@ -2834,24 +2854,28 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
      1     1       1       Currently scanning
   */
   
-  pout("Selective self-test flags (0x%x):\n", (unsigned int)log->flags);
+  jout("Selective self-test flags (0x%x):\n", (unsigned)log->flags);
+  json::ref jreff = jref["flags"];
+  jreff["value"] = log->flags;
+  jreff["remainder_scan_enabled"] = !!(log->flags & SELECTIVE_FLAG_DOSCAN);
   if (log->flags & SELECTIVE_FLAG_DOSCAN) {
-    if (log->flags & SELECTIVE_FLAG_ACTIVE)
-      pout("  Currently read-scanning the remainder of the disk.\n");
-    else if (log->flags & SELECTIVE_FLAG_PENDING)
-      pout("  Read-scan of remainder of disk interrupted; will resume %d min after power-up.\n",
-	   (int)log->pendingtime);
-    else
-      pout("  After scanning selected spans, read-scan remainder of disk.\n");
+   if (log->flags & SELECTIVE_FLAG_ACTIVE)
+     jout("  Currently read-scanning the remainder of the disk.\n");
+   else if (log->flags & SELECTIVE_FLAG_PENDING)
+     jout("  Read-scan of remainder of disk interrupted; will resume %d min after power-up.\n",
+          log->pendingtime);
+   else
+     jout("  After scanning selected spans, read-scan remainder of disk.\n");
+   jreff["remainder_scan_active"] = !!(log->flags & SELECTIVE_FLAG_ACTIVE);
+   jreff["power_up_scan_pending"] = !!(log->flags & SELECTIVE_FLAG_PENDING);
   }
   else
-    pout("  After scanning selected spans, do NOT read-scan remainder of disk.\n");
+    jout("  After scanning selected spans, do NOT read-scan remainder of disk.\n");
   
   // print pending time
-  pout("If Selective self-test is pending on power-up, resume after %d minute delay.\n",
-       (int)log->pendingtime);
-
-  return; 
+  jout("If Selective self-test is pending on power-up, resume after %d minute delay.\n",
+       log->pendingtime);
+  jref["power_up_scan_resume_minutes"] = log->pendingtime;
 }
 
 // Format SCT Temperature value
