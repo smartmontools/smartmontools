@@ -1,6 +1,8 @@
-$Id: ChangeLog 4776 2018-09-16 13:15:42Z chrfranke $
+$Id: ChangeLog 4777 2018-09-16 13:56:56Z chrfranke $
 
 2018-09-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Update or remove links in warning messages.
 
 	drivedb.h: Crucial/Micron BX300, MX1/2/3/500, M5/600, 1100 SSDs:
 	- Rename,
