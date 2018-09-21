@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4788 2018-09-21 16:46:28Z chrfranke $
+# $Id: configure.ac 4789 2018-09-21 17:22:23Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4788 2018-09-21 16:46:28Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4789 2018-09-21 17:22:23Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -421,6 +421,7 @@ Please send info about your system to $PACKAGE_BUGREPORT.])) ;;
   *) AC_MSG_ERROR([Invalid option '--with-signal-func=$with_signal_func']) ;;
 esac
 
+# TODO: Remove after smartmontools 6.7
 AC_ARG_WITH(working-snprintf,
   [AS_HELP_STRING([--with-working-snprintf@<:@=yes|no@:>@],
     [Function snprintf() handles output truncation as specified by C99 [yes]])],
@@ -889,3 +890,12 @@ Use option '--without-nvme-devicescan' to suppress this warning.
 ])
     ;;
 esac
+
+# TODO: Remove after smartmontools 6.7
+if test "$with_working_snprintf" != "yes"; then
+  AC_MSG_WARN([
+The option '--without-working-snprintf' is deprecated and will be removed
+in a future version of smartmontools.  If you still need support for
+pre-C99 snprintf(), please inform $PACKAGE_BUGREPORT.
+])
+fi
