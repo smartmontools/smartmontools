@@ -68,7 +68,7 @@
 // is used but <sys/sysmacros.h> is not included.
 #include <sys/sysmacros.h>
 #endif
-#ifdef WITH_SELINUX
+#ifdef HAVE_LIBSELINUX
 #include <selinux/selinux.h>
 #endif
 
@@ -1589,7 +1589,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
   struct stat      stat_buf;
   FILE             *file;
   int              retval = 0;
-#ifdef WITH_SELINUX
+#ifdef HAVE_LIBSELINUX
   security_context_t orig_context = NULL;
   security_context_t node_context = NULL;
   int                selinux_enabled  = is_selinux_enabled();
@@ -1619,7 +1619,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
     pout("No major number for /dev/%s listed in /proc/devices. Is the %s driver loaded?\n", nodename, driver_name);
     return 2;
   }
-#ifdef WITH_SELINUX
+#ifdef HAVE_LIBSELINUX
   /* Prepare a database of contexts for files in /dev
    * and save the current context */
   if (selinux_enabled) {
@@ -1637,7 +1637,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
   /* Now check if nodes are correct */
   for (index=0; index<16; index++) {
     snprintf(nodestring, sizeof(nodestring), "/dev/%s%d", nodename, index);
-#ifdef WITH_SELINUX
+#ifdef HAVE_LIBSELINUX
     /* Get context of the node and set it as the default */
     if (selinux_enabled) {
       if (matchpathcon(nodestring, S_IRUSR | S_IWUSR, &node_context) < 0) {
@@ -1666,7 +1666,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
         retval = 3;
         break;
       } else {
-#ifdef WITH_SELINUX
+#ifdef HAVE_LIBSELINUX
 	if (selinux_enabled && node_context) {
 	  freecon(node_context);
 	  node_context = NULL;
@@ -1698,7 +1698,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
         break;
       }
     }
-#ifdef WITH_SELINUX
+#ifdef HAVE_LIBSELINUX
     if (selinux_enabled && node_context) {
       freecon(node_context);
       node_context = NULL;
@@ -1706,7 +1706,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
 #endif
   }
 
-#ifdef WITH_SELINUX
+#ifdef HAVE_LIBSELINUX
   if (selinux_enabled) {
     if(setfscreatecon(orig_context) < 0) {
       pout("Error re-setting original fscreate context");

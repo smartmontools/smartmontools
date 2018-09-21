@@ -2,6 +2,8 @@ $Id$
 
 2018-09-21  Christian Franke  <franke@computer.org>
 
+	configure.ac, os_linux.cpp: Remove redundant define WITH_SELINUX.
+
 	configure.ac: Rework __USE_MINGW_ANSI_STDIO test for MinGW runtime.
 
 	configure.ac: Check for 'libcap-ng' only on Linux.

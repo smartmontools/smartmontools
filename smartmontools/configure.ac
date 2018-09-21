@@ -296,10 +296,6 @@ AC_ARG_WITH(selinux,
       AC_CHECK_LIB(selinux, matchpathcon, [], [AC_MSG_ERROR([Missing or incorrect SELinux library files])])
     fi
   ],[])
-AC_SUBST(with_selinux)
-if test "$with_selinux" = "yes"; then
-  AC_DEFINE(WITH_SELINUX, 1, [Define to 1 if SELinux support is enabled])
-fi
 
 AC_ARG_WITH(libcap-ng,
   [AS_HELP_STRING([--with-libcap-ng@<:@=auto|yes|no@:>@], [Add Libcap-ng support to smartd [auto]])],
