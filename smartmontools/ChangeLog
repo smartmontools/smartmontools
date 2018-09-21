@@ -2,6 +2,8 @@ $Id$
 
 2018-09-21  Christian Franke  <franke@computer.org>
 
+	configure.ac: Check for 'libcap-ng' only on Linux.
+
 	Add systemd(1) notify support to smartd (#1081):
 	configure.ac: Add option '--with-libsystemd'.
 	Makefile.am: Add linker flag and man page conditional.
