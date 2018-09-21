@@ -1,6 +1,8 @@
-$Id: ChangeLog 4784 2018-09-21 09:15:06Z chrfranke $
+$Id: ChangeLog 4785 2018-09-21 09:51:40Z chrfranke $
 
 2018-09-21  Christian Franke  <franke@computer.org>
+
+	configure.ac: Check for 'libcap-ng' only on Linux.
 
 	Add systemd(1) notify support to smartd (#1081):
 	configure.ac: Add option '--with-libsystemd'.

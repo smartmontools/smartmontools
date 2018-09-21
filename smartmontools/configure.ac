@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4784 2018-09-21 09:15:06Z chrfranke $
+# $Id: configure.ac 4785 2018-09-21 09:51:40Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4784 2018-09-21 09:15:06Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4785 2018-09-21 09:51:40Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -306,21 +306,17 @@ AC_ARG_WITH(libcap-ng,
   [], [with_libcap_ng=auto])
 
 use_libcap_ng=no
-if test "$with_libcap_ng" != "no"; then
-  AC_CHECK_LIB(cap-ng, capng_clear,
-    [AC_DEFINE(HAVE_LIBCAP_NG, 1, [Define to 1 if you have the `cap-ng' library (-lcap-ng).]) dnl `vim syntax
-     CAPNG_LDADD="-lcap-ng"; use_libcap_ng=yes])
-
-  if test "$use_libcap_ng" = "yes"; then
-    AC_CHECK_HEADER(cap-ng.h, [], [AC_MSG_ERROR([libcap-ng libraries found but headers are missing])])
-  elif test "$with_libcap_ng" = "yes"; then
-    AC_MSG_ERROR([libcap-ng support was requested but the library was not found])
-  fi
-fi
-
-AC_MSG_CHECKING([whether to use libcap-ng])
+case "$with_libcap_ng:$host_os" in
+  auto:linux*|yes:*)
+    AC_CHECK_HEADERS([cap-ng.h], [AC_CHECK_LIB([cap-ng], [capng_clear],
+      [AC_DEFINE(HAVE_LIBCAP_NG, 1,
+        [Define to 1 if you have the `cap-ng' library (-lcap-ng).]) dnl `vim syntax
+       CAPNG_LDADD="-lcap-ng"; use_libcap_ng=yes],
+      [AC_MSG_ERROR([libcap-ng headers found but library is missing])])],
+      [test "$with_libcap_ng" != "yes" || AC_MSG_ERROR([Missing libcap-ng header files])])
+    ;;
+esac
 AC_SUBST(CAPNG_LDADD)
-AC_MSG_RESULT([$use_libcap_ng])
 
 AC_ARG_WITH(libsystemd,
   [AS_HELP_STRING([--with-libsystemd@<:@=auto|yes|no@:>@],
@@ -860,10 +856,10 @@ info=`
       else
         echo "smartd attribute logs:  [[disabled]]"
       fi
-      echo "libcap-ng support:      $use_libcap_ng"
       case "$host_os" in
         linux*)
           echo "SELinux support:        ${with_selinux-no}"
+          echo "libcap-ng support:      $use_libcap_ng"
           echo "systemd notify support: $use_libsystemd" ;;
       esac
       case "$host_os" in
