@@ -306,7 +306,6 @@ static inline bool notify_post_init()
 
 static inline void notify_init() { }
 static inline void notify_msg(const char *) { }
-static inline void notify_msg(const char *, bool)  { }
 static inline void notify_check(int, bool) { }
 static inline void notify_wait(time_t, int) { }
 static inline void notify_exit(int) { }
