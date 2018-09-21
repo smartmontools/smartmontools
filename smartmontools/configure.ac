@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4786 2018-09-21 11:40:51Z chrfranke $
+# $Id: configure.ac 4788 2018-09-21 16:46:28Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4786 2018-09-21 11:40:51Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4788 2018-09-21 16:46:28Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -296,10 +296,6 @@ AC_ARG_WITH(selinux,
       AC_CHECK_LIB(selinux, matchpathcon, [], [AC_MSG_ERROR([Missing or incorrect SELinux library files])])
     fi
   ],[])
-AC_SUBST(with_selinux)
-if test "$with_selinux" = "yes"; then
-  AC_DEFINE(WITH_SELINUX, 1, [Define to 1 if SELinux support is enabled])
-fi
 
 AC_ARG_WITH(libcap-ng,
   [AS_HELP_STRING([--with-libcap-ng@<:@=auto|yes|no@:>@], [Add Libcap-ng support to smartd [auto]])],
