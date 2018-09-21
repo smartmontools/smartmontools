@@ -4,9 +4,9 @@ $Id$
 
 	configure.ac, os_linux.cpp: Remove redundant define WITH_SELINUX.
 
-	configure.ac: Rework __USE_MINGW_ANSI_STDIO test for MinGW runtime.
-
 	configure.ac: Check for 'libcap-ng' only on Linux.
+	Rework __USE_MINGW_ANSI_STDIO test for MinGW runtime.
+	Print 'deprecated' warning for '--without-working-snprintf'.
 
 	Add systemd(1) notify support to smartd (#1081):
 	configure.ac: Add option '--with-libsystemd'.

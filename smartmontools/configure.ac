@@ -421,6 +421,7 @@ Please send info about your system to $PACKAGE_BUGREPORT.])) ;;
   *) AC_MSG_ERROR([Invalid option '--with-signal-func=$with_signal_func']) ;;
 esac
 
+# TODO: Remove after smartmontools 6.7
 AC_ARG_WITH(working-snprintf,
   [AS_HELP_STRING([--with-working-snprintf@<:@=yes|no@:>@],
     [Function snprintf() handles output truncation as specified by C99 [yes]])],
@@ -889,3 +890,12 @@ Use option '--without-nvme-devicescan' to suppress this warning.
 ])
     ;;
 esac
+
+# TODO: Remove after smartmontools 6.7
+if test "$with_working_snprintf" != "yes"; then
+  AC_MSG_WARN([
+The option '--without-working-snprintf' is deprecated and will be removed
+in a future version of smartmontools.  If you still need support for
+pre-C99 snprintf(), please inform $PACKAGE_BUGREPORT.
+])
+fi
