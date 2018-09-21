@@ -425,39 +425,45 @@ Please send info about your system to $PACKAGE_BUGREPORT.])) ;;
   *) AC_MSG_ERROR([Invalid option '--with-signal-func=$with_signal_func']) ;;
 esac
 
-# Assume broken snprintf only on Windows with MSVCRT (MinGW without ANSI stdio support)
-libc_have_working_snprintf=yes
-
-case "$host" in
-  *-*-mingw*)
-    case " $CPPFLAGS $CXXFLAGS" in
-      *\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
-        ;;
-      *)
-        # Older MinGW do not properly define PRI?64 if __USE_MINGW_ANSI_STDIO is set
-        # Newer MinGW set __USE_MINGW_ANSI_STDIO in first C++ include which may be too late
-        AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO is defined by C++ includes])
-        AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
-          #undef __USE_MINGW_ANSI_STDIO
-          #include <iostream>
-          #ifndef __USE_MINGW_ANSI_STDIO
-            #error false
-          #endif]])],
-        [CXXFLAGS="-D__USE_MINGW_ANSI_STDIO $CXXFLAGS"],
-        [libc_have_working_snprintf=no])
-        AC_MSG_RESULT([$libc_have_working_snprintf])
-        ;;
-    esac ;;
-esac
-
 AC_ARG_WITH(working-snprintf,
   [AS_HELP_STRING([--with-working-snprintf@<:@=yes|no@:>@],
-    [Function snprintf() handles output truncation as specified by C99 [MinGW:guessed,others:yes]])],
-  [libc_have_working_snprintf=$withval])
+    [Function snprintf() handles output truncation as specified by C99 [yes]])],
+  [], [with_working_snprintf=yes])
 
-if test "$libc_have_working_snprintf" = "yes"; then
+if test "$with_working_snprintf" = "yes"; then
   AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane.]) dnl `vim syntax
 fi
+
+case "$with_working_snprintf:$host_os: $CPPFLAGS $CXXFLAGS" in
+  yes:mingw*:*\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
+    ;;
+  yes:mingw*:*)
+    # Older MinGW (4.6.3) do not properly define PRI?64 if __USE_MINGW_ANSI_STDIO is set.
+    # Newer MinGW (4.9.1) set __USE_MINGW_ANSI_STDIO in first C++ include which may be too late.
+    # Set __USE_MINGW_ANSI_STDIO always and fail if not fully supported.
+    AC_MSG_CHECKING([whether $CXX supports __USE_MINGW_ANSI_STDIO])
+    save_CXXFLAGS=$CXXFLAGS
+    CXXFLAGS="-Wformat -Werror -D__USE_MINGW_ANSI_STDIO"
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+      #define __STDC_FORMAT_MACROS 1
+      #include <inttypes.h>
+      #include <stdio.h>
+      void f(char * buf1, char * buf2, size_t size) {
+        snprintf(buf1, size, "%lld", 42LL);
+        snprintf(buf2, size, "%" PRId64, (int64_t)42);
+      }]])],
+      [result=yes], [result=no])
+    AC_MSG_RESULT([$result])
+    if test "$result" != "yes"; then
+      AC_MSG_ERROR([
+This version of $CXX does not support __USE_MINGW_ANSI_STDIO.
+Use option '--without-working-snprintf' to skip this check.
+Please send info about your system to $PACKAGE_BUGREPORT.
+])
+    fi
+    CXXFLAGS="-D__USE_MINGW_ANSI_STDIO $save_CXXFLAGS"
+    ;;
+esac
 
 AC_ARG_WITH(mingw-aslr,
   [AS_HELP_STRING([--with-mingw-aslr@<:@=auto|yes|low|no@:>@], [Enable ASLR for MinGW executables [auto]])],
