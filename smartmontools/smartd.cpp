@@ -83,7 +83,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4784 2018-09-21 09:15:06Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4787 2018-09-21 11:56:49Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -306,7 +306,6 @@ static inline bool notify_post_init()
 
 static inline void notify_init() { }
 static inline void notify_msg(const char *) { }
-static inline void notify_msg(const char *, bool)  { }
 static inline void notify_check(int, bool) { }
 static inline void notify_wait(time_t, int) { }
 static inline void notify_exit(int) { }
