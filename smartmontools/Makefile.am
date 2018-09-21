@@ -152,7 +152,7 @@ smartd_SOURCES = \
         utility.h \
         sg_unaligned.h
 
-smartd_LDADD = $(os_deps) $(os_libs) $(CAPNG_LDADD)
+smartd_LDADD = $(os_deps) $(os_libs) $(CAPNG_LDADD) $(SYSTEMD_LDADD)
 smartd_DEPENDENCIES = $(os_deps)
 
 EXTRA_smartd_SOURCES = \
@@ -625,6 +625,11 @@ MAN_FILTER = { \
       cat; \
     else \
       sed '/^\.\\" %IF ENABLE_CAPABILITIES/,/^\.\\" %ENDIF ENABLE_CAPABILITIES/ s,^,.\\"\# ,' ; \
+    fi | \
+    if test -n '$(SYSTEMD_LDADD)'; then \
+      cat; \
+    else \
+      sed '/^\.\\" %IF ENABLE_SYSTEMD_NOTIFY/,/^\.\\" %ENDIF ENABLE_SYSTEMD_NOTIFY/ s,^,.\\"\# ,' ; \
     fi | \
     if test '$(with_nvme_devicescan)' = 'yes'; then \
       cat; \

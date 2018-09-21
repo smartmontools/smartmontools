@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-17 Christian Franke
+Copyright (C) 2004-18 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -97,6 +97,21 @@ To exit \fBsmartd\fP use CONTROL-\e.
 .\" %IF OS Windows
 (Windows: CONTROL-Break).
 .\" %ENDIF OS Windows
+.\" %IF ENABLE_SYSTEMD_NOTIFY
+.PP
+[Linux only]
+[NEW EXPERMIMENTAL SMARTD FEATURE]
+If \fBsmartd\fP is started as a \fBsystemd\fP(1) service and
+\*(AqType=Notify\*(Aq is specified in the service file, the service manager
+is notified after successful startup.
+Other state changes are reported via systemd notify STATUS messages.
+Notification of successful reloads (after \fBHUP\fP signal) is not supported.
+To detect this process start-up type, \fBsmartd\fP checks whether the
+environment variable \*(AqNOTIFY_SOCKET\*(Aq is set.
+Note that it is required to set the \*(Aq\-n\*(Aq (\*(Aq\-\-nofork\*(Aq)
+option in the \*(AqExecStart=/usr/local/sbin/smartd\*(Aq command line
+if \*(AqType=Notify\*(Aq is used.
+.\" %ENDIF ENABLE_SYSTEMD_NOTIFY
 .PP
 On startup, in the absence of the configuration file
 \fB/usr/local/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
@@ -797,6 +812,10 @@ Alternatively send the info to the smartmontools support mailing list:
 .br
 \fBupdate-smart-drivedb\fP(8).
 .\" %ENDIF ENABLE_UPDATE_SMART_DRIVEDB
+.\" %IF ENABLE_SYSTEMD_NOTIFY
+.br
+\fBsystemd.exec\fP(5).
+.\" %ENDIF ENABLE_SYSTEMD_NOTIFY
 .Sp
 .SH REFERENCES
 Please see the following web site for more info:

@@ -151,53 +151,6 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(ASFLAGS)
 
-AC_ARG_WITH(systemdsystemunitdir,
-  [AS_HELP_STRING([--with-systemdsystemunitdir@<:@=DIR|auto|yes|no@:>@], [Location of systemd service files [auto]])],
-  [], [with_systemdsystemunitdir=auto])
-
-systemdsystemunitdir=
-case "$with_systemdsystemunitdir" in
- auto|yes)
-   if test -n "$PKG_CONFIG"; then
-     AC_MSG_CHECKING([for systemdsystemunitdir])
-     systemdsystemunitdir=`$PKG_CONFIG --variable=systemdsystemunitdir systemd 2>/dev/null`
-     AC_MSG_RESULT([${systemdsystemunitdir:-no}])
-   fi
-   case "$with_systemdsystemunitdir:$sysconfdir:$systemdsystemunitdir" in
-     yes:*:) AC_MSG_ERROR([Location of systemd service files not found]) ;;
-     yes:*:*|auto:*:|auto:/etc:*) ;;
-     *) systemdsystemunitdir='${prefix}'$systemdsystemunitdir ;;
-   esac ;;
- no) ;;
- *) systemdsystemunitdir="$with_systemdsystemunitdir" ;;
-esac
-AC_SUBST(systemdsystemunitdir)
-AM_CONDITIONAL(INSTALL_SYSTEMDUNIT, [test -n "$systemdsystemunitdir"])
-
-AC_ARG_WITH(systemdenvfile,
-  [AS_HELP_STRING([--with-systemdenvfile@<:@=FILE|auto|yes|no@:>@], [Path of systemd EnvironmentFile [auto]])],
-  [], [with_systemdenvfile=auto])
-
-systemdenvfile=
-case "$with_systemdenvfile:$cross_compiling:$systemdsystemunitdir" in
-  auto:no:?*|yes:*:?*)
-    AC_MSG_CHECKING([for path of systemd EnvironmentFile])
-    for dir in sysconfig default; do
-      if test -d /etc/$dir; then
-        systemdenvfile='${sysconfdir}'/$dir/smartmontools
-        break
-      fi
-    done
-    AC_MSG_RESULT([${systemdenvfile:-no}])
-    case "$with_systemdenvfile:$systemdenvfile" in
-      yes:) AC_MSG_ERROR([Path of systemd EnvironmentFile not found]) ;;
-    esac ;;
-  auto:*|no:*) ;;
-  *:*:) AC_MSG_ERROR([Location of systemd service files not found]) ;;
-  *) systemdenvfile="$with_systemdenvfile"
-esac
-AC_SUBST(systemdenvfile)
-
 initddir=
 AC_ARG_WITH(initscriptdir,
   [AS_HELP_STRING([--with-initscriptdir=@<:@DIR|no@:>@], [Location of init scripts [no]])],
@@ -368,6 +321,72 @@ fi
 AC_MSG_CHECKING([whether to use libcap-ng])
 AC_SUBST(CAPNG_LDADD)
 AC_MSG_RESULT([$use_libcap_ng])
+
+AC_ARG_WITH(libsystemd,
+  [AS_HELP_STRING([--with-libsystemd@<:@=auto|yes|no@:>@],
+    [Add systemd 'Type=notify' support to smartd [auto]])],
+  [], [with_libsystemd=auto])
+
+use_libsystemd=no
+case "$with_libsystemd:$host_os" in
+  auto:linux*|yes:*)
+    AC_CHECK_HEADERS([systemd/sd-daemon.h], [AC_CHECK_LIB([systemd], [sd_notify],
+      [AC_DEFINE(HAVE_LIBSYSTEMD, 1,
+        [Define to 1 if you have the `systemd' library (-lsystemd).]) dnl `vim syntax
+       SYSTEMD_LDADD="-lsystemd"; use_libsystemd=yes],
+      [AC_MSG_ERROR([libsystemd headers found but library is missing])])],
+      [test "$with_libsystemd" != "yes" || AC_MSG_ERROR([Missing libsystemd header files])])
+    ;;
+esac
+AC_SUBST(SYSTEMD_LDADD)
+
+AC_ARG_WITH(systemdsystemunitdir,
+  [AS_HELP_STRING([--with-systemdsystemunitdir@<:@=DIR|auto|yes|no@:>@], [Location of systemd service files [auto]])],
+  [], [with_systemdsystemunitdir=auto])
+
+systemdsystemunitdir=
+case "$with_systemdsystemunitdir:$use_libsystemd" in
+  auto:yes|yes:yes)
+    if test -n "$PKG_CONFIG"; then
+      AC_MSG_CHECKING([for systemdsystemunitdir])
+      systemdsystemunitdir=`$PKG_CONFIG --variable=systemdsystemunitdir systemd 2>/dev/null`
+      AC_MSG_RESULT([${systemdsystemunitdir:-no}])
+    fi
+    case "$with_systemdsystemunitdir:$sysconfdir:$systemdsystemunitdir" in
+      yes:*:) AC_MSG_ERROR([Location of systemd service files not found]) ;;
+      yes:*:*|auto:*:|auto:/etc:*) ;;
+      *) systemdsystemunitdir='${prefix}'$systemdsystemunitdir ;;
+    esac ;;
+  auto:*|no:*) ;;
+  *:yes) systemdsystemunitdir="$with_systemdsystemunitdir" ;;
+  *) AC_MSG_ERROR(['--with-systemdsystemunitdir=$with_systemdsystemunitdir' now requires '--with-libsystemd']) ;;
+esac
+AC_SUBST(systemdsystemunitdir)
+AM_CONDITIONAL(INSTALL_SYSTEMDUNIT, [test -n "$systemdsystemunitdir"])
+
+AC_ARG_WITH(systemdenvfile,
+  [AS_HELP_STRING([--with-systemdenvfile@<:@=FILE|auto|yes|no@:>@], [Path of systemd EnvironmentFile [auto]])],
+  [], [with_systemdenvfile=auto])
+
+systemdenvfile=
+case "$with_systemdenvfile:$cross_compiling:$systemdsystemunitdir" in
+  auto:no:?*|yes:*:?*)
+    AC_MSG_CHECKING([for path of systemd EnvironmentFile])
+    for dir in sysconfig default; do
+      if test -d /etc/$dir; then
+        systemdenvfile='${sysconfdir}'/$dir/smartmontools
+        break
+      fi
+    done
+    AC_MSG_RESULT([${systemdenvfile:-no}])
+    case "$with_systemdenvfile:$systemdenvfile" in
+      yes:) AC_MSG_ERROR([Path of systemd EnvironmentFile not found]) ;;
+    esac ;;
+  auto:*|no:*) ;;
+  *:*:) AC_MSG_ERROR([Location of systemd service files not found]) ;;
+  *) systemdenvfile="$with_systemdenvfile"
+esac
+AC_SUBST(systemdenvfile)
 
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 AC_ARG_WITH(nvme-devicescan,
@@ -824,7 +843,7 @@ info=`
         echo "smartd initd script:    [[disabled]]"
       fi
       if test -n "$systemdsystemunitdir"; then
-        echo "smartd systemd file:    \`eval eval eval echo $systemdsystemunitdir\`/smartd.service"
+        echo "smartd service file:    \`eval eval eval echo $systemdsystemunitdir\`/smartd.service"
         if test -n "$systemdenvfile"; then
           echo "smartd environ file:    \`eval eval eval echo $systemdenvfile\`"
         else
@@ -843,7 +862,9 @@ info=`
       fi
       echo "libcap-ng support:      $use_libcap_ng"
       case "$host_os" in
-        linux*) echo "SELinux support:        ${with_selinux-no}" ;;
+        linux*)
+          echo "SELinux support:        ${with_selinux-no}"
+          echo "systemd notify support: $use_libsystemd" ;;
       esac
       case "$host_os" in
         linux*|darwin*|netbsd*|cygwin*)

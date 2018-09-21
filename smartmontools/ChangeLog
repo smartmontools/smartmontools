@@ -1,5 +1,15 @@
 $Id$
 
+2018-09-21  Christian Franke  <franke@computer.org>
+
+	Add systemd(1) notify support to smartd (#1081):
+	configure.ac: Add option '--with-libsystemd'.
+	Makefile.am: Add linker flag and man page conditional.
+	smartd.cpp: If environment variable NOTIFY_SOCKET is set, use
+	sd_notify(3) to inform the service manager about state changes.
+	smartd.service.in: Set 'Type=notify'.
+	smartd.8.in: Document new functionality.
+
 2018-09-16  Christian Franke  <franke@computer.org>
 
 	atacmds.cpp: Avoid possible virtual call in dtor

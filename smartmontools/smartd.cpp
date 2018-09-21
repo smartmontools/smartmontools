@@ -59,6 +59,10 @@ typedef int pid_t;
 #include <cap-ng.h>
 #endif // LIBCAP_NG
 
+#ifdef HAVE_LIBSYSTEMD
+#include <systemd/sd-daemon.h>
+#endif // HAVE_LIBSYSTEMD
+
 // locally included files
 #include "atacmds.h"
 #include "dev_interface.h"
@@ -213,6 +217,101 @@ static volatile int caughtsigEXIT=0;
 // This function prints either to stdout or to the syslog as needed.
 static void PrintOut(int priority, const char *fmt, ...)
                      __attribute_format_printf(2, 3);
+
+#ifdef HAVE_LIBSYSTEMD
+// systemd notify support
+
+static bool notify_enabled = false;
+
+static inline void notify_init()
+{
+  if (!getenv("NOTIFY_SOCKET"))
+    return;
+  notify_enabled = true;
+}
+
+static inline bool notify_post_init()
+{
+  if (!notify_enabled)
+    return true;
+  if (do_fork) {
+    PrintOut(LOG_CRIT, "Option -n (--no-fork) is required if 'Type=notify' is set.\n");
+    return false;
+  }
+  return true;
+}
+
+static void notify_msg(const char * msg, bool ready = false)
+{
+  if (!notify_enabled)
+    return;
+  if (debugmode) {
+    pout("sd_notify(0, \"%sSTATUS=%s\")\n", (ready ? "READY=1\\n" : ""), msg);
+    return;
+  }
+  sd_notifyf(0, "%sSTATUS=%s", (ready ? "READY=1\n" : ""), msg);
+}
+
+static void notify_check(int numdev, bool ready)
+{
+  if (!notify_enabled)
+    return;
+  char msg[32];
+  snprintf(msg, sizeof(msg), "Checking %d device%s ...",
+           numdev, (numdev != 1 ? "s" : ""));
+  notify_msg(msg, ready);
+}
+
+static void notify_wait(time_t wakeuptime, int numdev)
+{
+  if (!notify_enabled)
+    return;
+  char ts[16], msg[64];
+  strftime(ts, sizeof(ts), "%H:%M:%S", localtime(&wakeuptime));
+  snprintf(msg, sizeof(msg), "Next check of %d device%s will start at %s",
+           numdev, (numdev != 1 ? "s" : ""), ts);
+  notify_msg(msg);
+}
+
+static void notify_exit(int status)
+{
+  if (!notify_enabled)
+    return;
+  const char * msg;
+  switch (status) {
+    case 0:             msg = "Exiting ..."; break;
+    case EXIT_BADCMD:   msg = "Error in command line (see SYSLOG)"; break;
+    case EXIT_BADCONF: case EXIT_NOCONF:
+    case EXIT_READCONF: msg = "Error in config file (see SYSLOG)"; break;
+    case EXIT_BADDEV:   msg = "Unable to register a device (see SYSLOG)"; break;
+    case EXIT_NODEV:    msg = "No devices to monitor"; break;
+    default:            msg = "Error (see SYSLOG)"; break;
+  }
+  notify_msg(msg);
+}
+
+#else // HAVE_LIBSYSTEMD
+// No systemd notify support
+
+static inline bool notify_post_init()
+{
+#ifdef __linux__
+  if (getenv("NOTIFY_SOCKET")) {
+    PrintOut(LOG_CRIT, "This version of smartd was build without 'Type=notify' support.\n");
+    return false;
+  }
+#endif
+  return true;
+}
+
+static inline void notify_init() { }
+static inline void notify_msg(const char *) { }
+static inline void notify_msg(const char *, bool)  { }
+static inline void notify_check(int, bool) { }
+static inline void notify_wait(time_t, int) { }
+static inline void notify_exit(int) { }
+
+#endif // HAVE_LIBSYSTEMD
 
 // Attribute monitoring flags.
 // See monitor_attr_flags below.
@@ -1552,8 +1651,12 @@ static void Usage()
 #endif
 #ifndef _WIN32
   PrintOut(LOG_INFO,"  -n, --no-fork\n");
-  PrintOut(LOG_INFO,"        Do not fork into background\n\n");
-#endif  // _WIN32
+  PrintOut(LOG_INFO,"        Do not fork into background\n");
+#ifdef HAVE_LIBSYSTEMD
+  PrintOut(LOG_INFO,"        (systemd 'Type=notify' is assumed if $NOTIFY_SOCKET is set)\n");
+#endif // HAVE_LIBSYSTEMD
+  PrintOut(LOG_INFO,"\n");
+#endif // WIN32
   PrintOut(LOG_INFO,"  -p NAME, --pidfile=NAME\n");
   PrintOut(LOG_INFO,"        Write PID file NAME\n\n");
   PrintOut(LOG_INFO,"  -q WHEN, --quit=WHEN\n");
@@ -3831,7 +3934,7 @@ static void ToggleDebugMode()
 }
 #endif
 
-static time_t dosleep(time_t wakeuptime, bool & sigwakeup)
+static time_t dosleep(time_t wakeuptime, bool & sigwakeup, int numdev)
 {
   // If past wake-up-time, compute next wake-up-time
   time_t timenow=time(NULL);
@@ -3839,7 +3942,9 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup)
     int intervals=1+(timenow-wakeuptime)/checktime;
     wakeuptime+=intervals*checktime;
   }
-  
+
+  notify_wait(wakeuptime, numdev);
+
   // sleep until we catch SIGUSR1 or have completed sleeping
   int addtime = 0;
   while (timenow < wakeuptime+addtime && !caughtsigUSR1 && !caughtsigHUP && !caughtsigEXIT) {
@@ -5063,6 +5168,10 @@ static void ParseOpts(int argc, char **argv)
     debugmode = savedebug;
   }
 
+  // Check option compatibility of notify support
+  if (!notify_post_init())
+    EXIT(EXIT_BADCMD);
+
   // print header
   PrintHead();
 }
@@ -5356,6 +5465,9 @@ static int main_worker(int argc, char **argv)
   if (!smi())
     return 1;
 
+  // Check whether systemd notify is supported and enabled
+  notify_init();
+
   // is it our first pass through?
   bool firstpass = true;
 
@@ -5383,6 +5495,8 @@ static int main_worker(int argc, char **argv)
     capng_apply(CAPNG_SELECT_BOTH);
   }
 #endif
+
+  notify_msg("Initializing ...");
 
   // the main loop of the code
   for (;;) {
@@ -5419,6 +5533,7 @@ static int main_worker(int argc, char **argv)
                  "Signal HUP - rereading configuration file %s\n":
                  "\a\nSignal INT - rereading configuration file %s (" SIGQUIT_KEYNAME " quits)\n\n",
                  configfile);
+        notify_msg("Reloading ...");
       }
 
       {
@@ -5489,6 +5604,7 @@ static int main_worker(int argc, char **argv)
 
     // check all devices once,
     // self tests are not started in first pass unless '-q onecheck' is specified
+    notify_check((int)devices.size(), firstpass);
     CheckDevicesOnce(configs, states, devices, firstpass, (!firstpass || quit == QUIT_ONECHECK));
 
      // Write state files
@@ -5519,7 +5635,7 @@ static int main_worker(int argc, char **argv)
     }
     
     // sleep until next check time, or a signal arrives
-    wakeuptime = dosleep(wakeuptime, write_states_always);
+    wakeuptime = dosleep(wakeuptime, write_states_always, (int)devices.size());
   }
 }
 
@@ -5565,6 +5681,7 @@ static int smartd_main(int argc, char **argv)
   if (is_initialized)
     status = Goodbye(status);
 
+  notify_exit(status);
 #ifdef _WIN32
   daemon_winsvc_exitcode = status;
 #endif

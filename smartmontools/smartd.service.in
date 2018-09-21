@@ -4,6 +4,7 @@ Documentation=man:smartd(8) man:smartd.conf(5)
 After=syslog.target
 
 [Service]
+Type=notify
 EnvironmentFile=-/usr/local/etc/sysconfig/smartmontools
 ExecStart=/usr/local/sbin/smartd -n $smartd_opts
 ExecReload=/bin/kill -HUP $MAINPID
