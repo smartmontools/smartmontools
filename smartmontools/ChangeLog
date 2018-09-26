@@ -1,5 +1,11 @@
 $Id$
 
+2018-09-26  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Always ignore failure of ATA SMART ENABLE command if
+	'-T permissive' is specified.  Useful for testing on virtual
+	machines.
+
 2018-09-21  Christian Franke  <franke@computer.org>
 
 	configure.ac, os_linux.cpp: Remove redundant define WITH_SELINUX.
