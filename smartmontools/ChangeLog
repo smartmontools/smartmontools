@@ -1,6 +1,9 @@
-$Id: ChangeLog 4791 2018-09-26 20:36:03Z chrfranke $
+$Id: ChangeLog 4792 2018-09-26 20:42:09Z chrfranke $
 
 2018-09-26  Christian Franke  <franke@computer.org>
+
+	configure.ac: Print warning if systemd(1) is present but
+	libsystemd-dev package is missing.
 
 	smartd.cpp: Notify READY=1 to systemd just before first sleep() to
 	ensure that the signal handlers are set.

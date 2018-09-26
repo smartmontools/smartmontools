@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4789 2018-09-21 17:22:23Z chrfranke $
+# $Id: configure.ac 4792 2018-09-26 20:42:09Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4789 2018-09-21 17:22:23Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4792 2018-09-26 20:42:09Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -899,3 +899,14 @@ in a future version of smartmontools.  If you still need support for
 pre-C99 snprintf(), please inform $PACKAGE_BUGREPORT.
 ])
 fi
+
+case "$host_os:$with_libsystemd:$use_libsystemd:$PKG_CONFIG" in
+  linux*:auto:no:?*)
+    if $PKG_CONFIG systemd >/dev/null 2>&1; then
+      AC_MSG_WARN([
+systemd(1) is used on this system but smartd systemd notify support will
+not be available because libsystemd-dev[[el]] package is not installed.
+Use option '--without-libsystemd' to suppress this warning.
+])
+    fi ;;
+esac
