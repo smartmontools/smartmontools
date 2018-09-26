@@ -252,14 +252,14 @@ static void notify_msg(const char * msg, bool ready = false)
   sd_notifyf(0, "%sSTATUS=%s", (ready ? "READY=1\n" : ""), msg);
 }
 
-static void notify_check(int numdev, bool ready)
+static void notify_check(int numdev)
 {
   if (!notify_enabled)
     return;
   char msg[32];
   snprintf(msg, sizeof(msg), "Checking %d device%s ...",
            numdev, (numdev != 1 ? "s" : ""));
-  notify_msg(msg, ready);
+  notify_msg(msg);
 }
 
 static void notify_wait(time_t wakeuptime, int numdev)
@@ -270,7 +270,9 @@ static void notify_wait(time_t wakeuptime, int numdev)
   strftime(ts, sizeof(ts), "%H:%M:%S", localtime(&wakeuptime));
   snprintf(msg, sizeof(msg), "Next check of %d device%s will start at %s",
            numdev, (numdev != 1 ? "s" : ""), ts);
-  notify_msg(msg);
+  static bool ready = true; // first call notifies READY=1
+  notify_msg(msg, ready);
+  ready = false;
 }
 
 static void notify_exit(int status)
@@ -306,7 +308,7 @@ static inline bool notify_post_init()
 
 static inline void notify_init() { }
 static inline void notify_msg(const char *) { }
-static inline void notify_check(int, bool) { }
+static inline void notify_check(int) { }
 static inline void notify_wait(time_t, int) { }
 static inline void notify_exit(int) { }
 
@@ -5609,7 +5611,7 @@ static int main_worker(int argc, char **argv)
 
     // check all devices once,
     // self tests are not started in first pass unless '-q onecheck' is specified
-    notify_check((int)devices.size(), firstpass);
+    notify_check((int)devices.size());
     CheckDevicesOnce(configs, states, devices, firstpass, (!firstpass || quit == QUIT_ONECHECK));
 
      // Write state files

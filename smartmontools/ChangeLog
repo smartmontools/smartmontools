@@ -2,6 +2,9 @@ $Id$
 
 2018-09-26  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Notify READY=1 to systemd just before first sleep() to
+	ensure that the signal handlers are set.
+
 	smartd.cpp: Always ignore failure of ATA SMART ENABLE command if
 	'-T permissive' is specified.  Useful for testing on virtual
 	machines.
