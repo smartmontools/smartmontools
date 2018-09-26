@@ -899,3 +899,14 @@ in a future version of smartmontools.  If you still need support for
 pre-C99 snprintf(), please inform $PACKAGE_BUGREPORT.
 ])
 fi
+
+case "$host_os:$with_libsystemd:$use_libsystemd:$PKG_CONFIG" in
+  linux*:auto:no:?*)
+    if $PKG_CONFIG systemd >/dev/null 2>&1; then
+      AC_MSG_WARN([
+systemd(1) is used on this system but smartd systemd notify support will
+not be available because libsystemd-dev[[el]] package is not installed.
+Use option '--without-libsystemd' to suppress this warning.
+])
+    fi ;;
+esac
