@@ -83,7 +83,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4787 2018-09-21 11:56:49Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4790 2018-09-26 19:44:15Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -2037,10 +2037,16 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     PrintOut(LOG_INFO,"Device: %s, could not enable SMART capability\n",name);
 
     if (ataIsSmartEnabled(&drive) <= 0) {
-      CloseDevice(atadev, name);
-      return 2;
+      if (!cfg.permissive) {
+        PrintOut(LOG_INFO, "Device: %s, to proceed anyway, use '-T permissive' Directive.\n", name);
+        CloseDevice(atadev, name);
+        return 2;
+      }
+      PrintOut(LOG_INFO, "Device: %s, proceeding since '-T permissive' Directive given.\n", name);
     }
-    PrintOut(LOG_INFO, "Device: %s, proceeding since SMART is already enabled\n", name);
+    else {
+      PrintOut(LOG_INFO, "Device: %s, proceeding since SMART is already enabled\n", name);
+    }
   }
   
   // disable device attribute autosave...

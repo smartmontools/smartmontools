@@ -1,4 +1,10 @@
-$Id: ChangeLog 4789 2018-09-21 17:22:23Z chrfranke $
+$Id: ChangeLog 4790 2018-09-26 19:44:15Z chrfranke $
+
+2018-09-26  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Always ignore failure of ATA SMART ENABLE command if
+	'-T permissive' is specified.  Useful for testing on virtual
+	machines.
 
 2018-09-21  Christian Franke  <franke@computer.org>
 
