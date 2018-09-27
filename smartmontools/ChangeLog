@@ -1,6 +1,9 @@
-$Id: ChangeLog 4796 2018-09-27 19:24:50Z chrfranke $
+$Id: ChangeLog 4797 2018-09-27 19:40:24Z chrfranke $
 
 2018-09-27  Christian Franke  <franke@computer.org>
+
+	utility.cpp: Add check of sg_get_unaligned_[bl]e16() and *32 to
+	check_endianness().
 
 	utility.cpp, utility.h: Optionally use C++11 'std::regex' instead of
 	POSIX regex(3).
