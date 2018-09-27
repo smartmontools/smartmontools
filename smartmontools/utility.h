@@ -17,13 +17,18 @@
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
-#include <sys/types.h> // for regex.h (according to POSIX)
-#include <regex.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <string>
+
+#include <sys/types.h> // for regex.h (according to POSIX)
+#ifdef WITH_CXX11_REGEX
+#include <regex>
+#else
+#include <regex.h>
+#endif
 
 #ifndef __GNUC__
 #define __attribute_format_printf(x, y)  /**/
@@ -210,12 +215,16 @@ private:
   void operator=(const stdio_file &);
 };
 
-/// Wrapper class for regex(3).
+/// Wrapper class for POSIX regex(3) or std::regex
 /// Supports copy & assignment and is compatible with STL containers.
 class regular_expression
 {
 public:
   // Construction & assignment
+#ifdef WITH_CXX11_REGEX
+  regular_expression() = default;
+
+#else
   regular_expression();
 
   ~regular_expression();
@@ -223,6 +232,7 @@ public:
   regular_expression(const regular_expression & x);
 
   regular_expression & operator=(const regular_expression & x);
+#endif
 
   /// Construct with pattern, throw on error.
   explicit regular_expression(const char * pattern);
@@ -245,7 +255,11 @@ public:
   /// Return true if full string matches pattern
   bool full_match(const char * str) const;
 
+#ifdef WITH_CXX11_REGEX
+  struct match_range { int rm_so, rm_eo; };
+#else
   typedef regmatch_t match_range;
+#endif
 
   /// Return true if substring matches pattern, fill match_range array.
   bool execute(const char * str, unsigned nmatch, match_range * pmatch) const;
@@ -254,9 +268,14 @@ private:
   std::string m_pattern;
   std::string m_errmsg;
 
+#ifdef WITH_CXX11_REGEX
+  std::regex m_regex;
+#else
   regex_t m_regex_buf;
   void free_buf();
   void copy_buf(const regular_expression & x);
+#endif
+
   bool compile();
 };
 

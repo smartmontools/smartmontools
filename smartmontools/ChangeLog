@@ -2,6 +2,10 @@ $Id$
 
 2018-09-27  Christian Franke  <franke@computer.org>
 
+	utility.cpp, utility.h: Optionally use C++11 'std::regex' instead of
+	POSIX regex(3).
+	configure.ac: Add option '--with-cxx11-regex'.
+
 	utility.cpp, utility.h: Simplify 'class regular_expression', remove
 	unneeded flag parameters, remove unused function.
 	atacmds.cpp, knowndrives.cpp, os_win32.cpp, smartd.cpp: Adjust usage

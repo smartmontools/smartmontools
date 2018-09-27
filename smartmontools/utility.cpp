@@ -396,20 +396,13 @@ static const char * check_regex(const char * pattern)
   return (const char *)0;
 }
 
-// Wrapper class for regex(3)
+// Wrapper class for POSIX regex(3) or std::regex
+
+#ifndef WITH_CXX11_REGEX
 
 regular_expression::regular_expression()
 {
   memset(&m_regex_buf, 0, sizeof(m_regex_buf));
-}
-
-regular_expression::regular_expression(const char * pattern)
-: m_pattern(pattern)
-{
-  if (!compile())
-    throw std::runtime_error(strprintf(
-      "error in regular expression \"%s\": %s",
-      m_pattern.c_str(), m_errmsg.c_str()));
 }
 
 regular_expression::~regular_expression()
@@ -453,15 +446,38 @@ void regular_expression::copy_buf(const regular_expression & x)
   }
 }
 
+#endif // !WITH_CXX11_REGEX
+
+regular_expression::regular_expression(const char * pattern)
+: m_pattern(pattern)
+{
+  if (!compile())
+    throw std::runtime_error(strprintf(
+      "error in regular expression \"%s\": %s",
+      m_pattern.c_str(), m_errmsg.c_str()));
+}
+
 bool regular_expression::compile(const char * pattern)
 {
+#ifndef WITH_CXX11_REGEX
   free_buf();
+#endif
   m_pattern = pattern;
   return compile();
 }
 
 bool regular_expression::compile()
 {
+#ifdef WITH_CXX11_REGEX
+  try {
+    m_regex.assign(m_pattern, std::regex_constants::extended);
+  }
+  catch (std::regex_error & ex) {
+    m_errmsg = ex.what();
+    return false;
+  }
+
+#else
   int errcode = regcomp(&m_regex_buf, m_pattern.c_str(), REG_EXTENDED);
   if (errcode) {
     char errmsg[512];
@@ -470,11 +486,16 @@ bool regular_expression::compile()
     free_buf();
     return false;
   }
+#endif
 
   const char * errmsg = check_regex(m_pattern.c_str());
   if (errmsg) {
     m_errmsg = errmsg;
+#ifdef WITH_CXX11_REGEX
+    m_regex = std::regex();
+#else
     free_buf();
+#endif
     return false;
   }
 
@@ -484,14 +505,35 @@ bool regular_expression::compile()
 
 bool regular_expression::full_match(const char * str) const
 {
+#ifdef WITH_CXX11_REGEX
+  return std::regex_match(str, m_regex);
+#else
   match_range range;
   return (   !regexec(&m_regex_buf, str, 1, &range, 0)
           && range.rm_so == 0 && range.rm_eo == (int)strlen(str));
+#endif
 }
 
 bool regular_expression::execute(const char * str, unsigned nmatch, match_range * pmatch) const
 {
+#ifdef WITH_CXX11_REGEX
+  std::cmatch m;
+  if (!std::regex_search(str, m, m_regex))
+    return false;
+  unsigned sz = m.size();
+  for (unsigned i = 0; i < nmatch; i++) {
+    if (i < sz && *m[i].first) {
+      pmatch[i].rm_so = m[i].first  - str;
+      pmatch[i].rm_eo = m[i].second - str;
+    }
+    else
+      pmatch[i].rm_so = pmatch[i].rm_eo = -1;
+  }
+  return true;
+
+#else
   return !regexec(&m_regex_buf, str, nmatch, pmatch, 0);
+#endif
 }
 
 // Splits an argument to the -t option that is assumed to be of the form

@@ -124,8 +124,6 @@ AC_TYPE_LONG_DOUBLE_WIDER
 # Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
 AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
-AC_CHECK_FUNCS([regcomp], [need_regex=no], [need_regex=yes])
-AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
 AC_CHECK_FUNCS([clock_gettime ftime gettimeofday])
 
@@ -512,7 +510,7 @@ case "$host" in
 esac
 
 AC_ARG_WITH(cxx11-option,
-  [AS_HELP_STRING([--with-cxx11-option@<:@=OPTION|auto|no@:>@],
+  [AS_HELP_STRING([--with-cxx11-option=@<:@OPTION|auto|no@:>@],
     [Compiler option to enable C++11 support for future versions of smartmontools, 'no' if unsupported [auto]])],
   [], [with_cxx11_option=auto])
 
@@ -550,7 +548,7 @@ This version of smartmontools does not use C++11 features, but future
 versions possibly will.
 This script was unable to determine a compiler option to enable C++11.
 Use option '--with-cxx11-option=OPTION' to specify the compiler option
-(it will be checked, but not used in the actual build).
+(it will be used in the actual build only if '--with-cxx11-regex' is set).
 Use option '--without-cxx11-option' to suppress this error message if the
 compiler lacks C++11 support.
 In both cases, please send info about compiler and platform to
@@ -564,6 +562,22 @@ $PACKAGE_BUGREPORT - Thanks!])
     ;;
 esac
 
+AC_ARG_WITH(cxx11-regex,
+  [AS_HELP_STRING([--with-cxx11-regex@<:@=yes|no@:>@],
+    [Use C++11 std::regex instead of POSIX regex(3) [no]])])
+
+need_regex=no
+if test "$with_cxx11_regex" = "yes"; then
+  AC_DEFINE(WITH_CXX11_REGEX, 1, [Define to 1 to use C++11 std::regex instead of POSIX regex(3)])
+  case "$with_cxx11_option: $CXXFLAGS " in
+    no:*) AC_MSG_ERROR(['--with-cxx11-regex' requires C++11 support]) ;;
+    ?*:*\ $with_cxx11_option\ *) ;;
+    ?*:*) CXXFLAGS="$CXXFLAGS $with_cxx11_option" ;;
+  esac
+else
+  AC_CHECK_FUNCS([regcomp], [], [need_regex=yes])
+fi
+AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
