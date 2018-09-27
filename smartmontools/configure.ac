@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4793 2018-09-27 16:52:31Z chrfranke $
+# $Id: configure.ac 4794 2018-09-27 16:57:33Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4793 2018-09-27 16:52:31Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4794 2018-09-27 16:57:33Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -127,7 +127,6 @@ AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
 AC_CHECK_FUNCS([regcomp], [need_regex=no], [need_regex=yes])
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
-AC_CHECK_FUNCS([strtoull])
 AC_CHECK_FUNCS([clock_gettime ftime gettimeofday])
 
 # Check byte ordering (defines WORDS_BIGENDIAN)

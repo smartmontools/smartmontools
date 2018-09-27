@@ -13,7 +13,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4760 2018-08-19 18:45:53Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4794 2018-09-27 16:57:33Z chrfranke $"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
@@ -57,11 +57,6 @@ int safe_snprintf(char *buf, int size, const char *fmt, ...)
 int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
 #define snprintf  safe_snprintf
 #define vsnprintf safe_vsnprintf
-#endif
-
-#ifndef HAVE_STRTOULL
-// Replacement for missing strtoull() (Linux with libc < 6, MSVC)
-uint64_t strtoull(const char * p, char * * endp, int base);
 #endif
 
 // Utility function prints date and time and timezone into a character
