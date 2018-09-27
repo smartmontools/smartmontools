@@ -172,8 +172,8 @@ Table of contents:
     --mandir='${datarootdir}/man'
     --docdir='${datarootdir}/doc/smartmontools'
     --disable-sample
-    --with-systemdsystemunitdir=auto
-    --with-systemdenvfile=auto
+    --disable-scsi-cdb-check
+    --enable-fast-lebe
     --without-initscriptdir
     --with-exampledir='${docdir}/examplescripts'
     --with-drivedbdir='${datadir}/smartmontools'
@@ -181,17 +181,22 @@ Table of contents:
     --with-gnupg
     --with-smartdscriptdir='${sysconfdir}'
     --with-smartdplugindir='${smartdscriptdir}/smartd_warning.d'
-    --with-scriptpath='/bin:/usr/bin'
+    --with-scriptpath='/usr/local/bin:/bin:/usr/bin'
     --without-savestates
     --without-attributelog
     --with-os-deps='os_linux.o dev_areca.o' (platform specific)
     --without-selinux
     --with-libcap-ng=auto
-    --without-nvme-devicescan
+    --with-libsystemd=auto
+    --with-systemdsystemunitdir=auto
+    --with-systemdenvfile=auto
+    --with-nvme-devicescan (Linux, Windows: yes; Others: no)
     --without-solaris-sparc-ata (Solaris SPARC only)
-    --with-working-snprintf (Windows: guessed)
+    --with-signal-func=sigaction
+    --with-working-snprintf
     --with-mingw-aslr=auto (Windows only)
     --with-cxx11-option=auto
+    --with-cxx11-regex=no
 
     These will usually not overwrite existing "distribution" installations on
     Linux Systems since the FHS reserves this area for use by the system

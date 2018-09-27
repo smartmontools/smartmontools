@@ -2,6 +2,8 @@ $Id$
 
 2018-09-27  Christian Franke  <franke@computer.org>
 
+	INSTALL: Update list of default ./configure options.
+
 	utility.cpp: Add check of sg_get_unaligned_[bl]e16() and *32 to
 	check_endianness().
 
