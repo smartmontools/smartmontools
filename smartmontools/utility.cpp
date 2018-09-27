@@ -399,16 +399,14 @@ static const char * check_regex(const char * pattern)
 // Wrapper class for regex(3)
 
 regular_expression::regular_expression()
-: m_flags(0)
 {
   memset(&m_regex_buf, 0, sizeof(m_regex_buf));
 }
 
-regular_expression::regular_expression(const char * pattern, int flags,
-                                       bool throw_on_error /*= true*/)
+regular_expression::regular_expression(const char * pattern)
+: m_pattern(pattern)
 {
-  memset(&m_regex_buf, 0, sizeof(m_regex_buf));
-  if (!compile(pattern, flags) && throw_on_error)
+  if (!compile())
     throw std::runtime_error(strprintf(
       "error in regular expression \"%s\": %s",
       m_pattern.c_str(), m_errmsg.c_str()));
@@ -420,15 +418,19 @@ regular_expression::~regular_expression()
 }
 
 regular_expression::regular_expression(const regular_expression & x)
+: m_pattern(x.m_pattern),
+  m_errmsg(x.m_errmsg)
 {
   memset(&m_regex_buf, 0, sizeof(m_regex_buf));
-  copy(x);
+  copy_buf(x);
 }
 
 regular_expression & regular_expression::operator=(const regular_expression & x)
 {
+  m_pattern = x.m_pattern;
+  m_errmsg = x.m_errmsg;
   free_buf();
-  copy(x);
+  copy_buf(x);
   return *this;
 }
 
@@ -440,13 +442,9 @@ void regular_expression::free_buf()
   }
 }
 
-void regular_expression::copy(const regular_expression & x)
+void regular_expression::copy_buf(const regular_expression & x)
 {
-  m_pattern = x.m_pattern;
-  m_flags = x.m_flags;
-  m_errmsg = x.m_errmsg;
-
-  if (!m_pattern.empty() && m_errmsg.empty()) {
+  if (nonempty(&x.m_regex_buf, sizeof(x.m_regex_buf))) {
     // There is no POSIX compiled-regex-copy command.
     if (!compile())
       throw std::runtime_error(strprintf(
@@ -455,17 +453,16 @@ void regular_expression::copy(const regular_expression & x)
   }
 }
 
-bool regular_expression::compile(const char * pattern, int flags)
+bool regular_expression::compile(const char * pattern)
 {
   free_buf();
   m_pattern = pattern;
-  m_flags = flags;
   return compile();
 }
 
 bool regular_expression::compile()
 {
-  int errcode = regcomp(&m_regex_buf, m_pattern.c_str(), m_flags);
+  int errcode = regcomp(&m_regex_buf, m_pattern.c_str(), REG_EXTENDED);
   if (errcode) {
     char errmsg[512];
     regerror(errcode, &m_regex_buf, errmsg, sizeof(errmsg));
@@ -483,6 +480,18 @@ bool regular_expression::compile()
 
   m_errmsg.clear();
   return true;
+}
+
+bool regular_expression::full_match(const char * str) const
+{
+  match_range range;
+  return (   !regexec(&m_regex_buf, str, 1, &range, 0)
+          && range.rm_so == 0 && range.rm_eo == (int)strlen(str));
+}
+
+bool regular_expression::execute(const char * str, unsigned nmatch, match_range * pmatch) const
+{
+  return !regexec(&m_regex_buf, str, nmatch, pmatch, 0);
 }
 
 // Splits an argument to the -t option that is assumed to be of the form

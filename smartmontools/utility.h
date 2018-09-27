@@ -218,17 +218,17 @@ public:
   // Construction & assignment
   regular_expression();
 
-  regular_expression(const char * pattern, int flags,
-                     bool throw_on_error = true);
-
   ~regular_expression();
 
   regular_expression(const regular_expression & x);
 
   regular_expression & operator=(const regular_expression & x);
 
+  /// Construct with pattern, throw on error.
+  explicit regular_expression(const char * pattern);
+
   /// Set and compile new pattern, return false on error.
-  bool compile(const char * pattern, int flags);
+  bool compile(const char * pattern);
 
   // Get pattern from last compile().
   const char * get_pattern() const
@@ -242,30 +242,21 @@ public:
   bool empty() const
     { return (m_pattern.empty() || !m_errmsg.empty()); }
 
-  /// Return true if substring matches pattern
-  bool match(const char * str, int flags = 0) const
-    { return !regexec(&m_regex_buf, str, 0, (regmatch_t*)0, flags); }
-
   /// Return true if full string matches pattern
-  bool full_match(const char * str, int flags = 0) const
-    {
-      regmatch_t range;
-      return (   !regexec(&m_regex_buf, str, 1, &range, flags)
-              && range.rm_so == 0 && range.rm_eo == (int)strlen(str));
-    }
+  bool full_match(const char * str) const;
 
-  /// Return true if substring matches pattern, fill regmatch_t array.
-  bool execute(const char * str, unsigned nmatch, regmatch_t * pmatch, int flags = 0) const
-    { return !regexec(&m_regex_buf, str, nmatch, pmatch, flags); }
+  typedef regmatch_t match_range;
+
+  /// Return true if substring matches pattern, fill match_range array.
+  bool execute(const char * str, unsigned nmatch, match_range * pmatch) const;
 
 private:
   std::string m_pattern;
-  int m_flags;
-  regex_t m_regex_buf;
   std::string m_errmsg;
 
+  regex_t m_regex_buf;
   void free_buf();
-  void copy(const regular_expression & x);
+  void copy_buf(const regular_expression & x);
   bool compile();
 };
 

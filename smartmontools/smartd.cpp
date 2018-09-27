@@ -698,12 +698,11 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
       ")" // 16)
      "|(nvme-err-log-entries)" // (24)
      ")" // 1)
-     " *= *([0-9]+)[ \n]*$", // (25)
-    REG_EXTENDED
+     " *= *([0-9]+)[ \n]*$" // (25)
   );
 
   const int nmatch = 1+25;
-  regmatch_t match[nmatch];
+  regular_expression::match_range match[nmatch];
   if (!regex.execute(line, nmatch, match))
     return false;
   if (match[nmatch-1].rm_so < 0)
@@ -4370,7 +4369,7 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
     }
     // Compile regex
     else {
-      if (!cfg.test_regex.compile(arg, REG_EXTENDED)) {
+      if (!cfg.test_regex.compile(arg)) {
         // not a valid regular expression!
         PrintOut(LOG_CRIT, "File %s line %d (drive %s): -s argument \"%s\" is INVALID extended regular expression. %s.\n",
                  configfile, lineno, name, arg, cfg.test_regex.get_errmsg());
