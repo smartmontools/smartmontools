@@ -786,8 +786,12 @@ static void check_endianness()
   const uint64_t be = 0x0102030405060708ULL;
 
   if (!(   x.i == (isbigendian() ? be : le)
-        && sg_get_unaligned_le64(x.c) == le
-        && sg_get_unaligned_be64(x.c) == be))
+        && sg_get_unaligned_le16(x.c)   == (uint16_t)le
+        && sg_get_unaligned_be16(x.c+6) == (uint16_t)be
+        && sg_get_unaligned_le32(x.c)   == (uint32_t)le
+        && sg_get_unaligned_be32(x.c+4) == (uint32_t)be
+        && sg_get_unaligned_le64(x.c)   == le
+        && sg_get_unaligned_be64(x.c)   == be          ))
     throw std::logic_error("CPU endianness does not match compile time test");
 }
 
