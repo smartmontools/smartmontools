@@ -1,5 +1,10 @@
 $Id$
 
+2018-09-27  Christian Franke  <franke@computer.org>
+
+	configure.ac: Change default for '--with-nvme-devicescan' to 'yes'
+	on Linux and Windows.  Keep 'no' on FreeBSD, NetBSD and Darwin.
+
 2018-09-26  Christian Franke  <franke@computer.org>
 
 	configure.ac: Print warning if systemd(1) is present but
