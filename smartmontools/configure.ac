@@ -380,7 +380,7 @@ AC_SUBST(systemdenvfile)
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
-    [Include NVMe devices in smartd DEVICESCAN [no]])])
+    [Include NVMe devices in smartd DEVICESCAN [Linux,Windows:yes;Others:no]])])
 
 AC_ARG_WITH(solaris-sparc-ata,
   [AS_HELP_STRING([--with-solaris-sparc-ata@<:@=yes|no@:>@],
