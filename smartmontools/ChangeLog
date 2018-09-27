@@ -1,6 +1,11 @@
-$Id: ChangeLog 4794 2018-09-27 16:57:33Z chrfranke $
+$Id: ChangeLog 4795 2018-09-27 17:27:44Z chrfranke $
 
 2018-09-27  Christian Franke  <franke@computer.org>
+
+	utility.cpp, utility.h: Simplify 'class regular_expression', remove
+	unneeded flag parameters, remove unused function.
+	atacmds.cpp, knowndrives.cpp, os_win32.cpp, smartd.cpp: Adjust usage
+	accordingly.
 
 	configure.ac, utility.cpp, utility.h: Remove replacement for missing
 	'strtoull()'.

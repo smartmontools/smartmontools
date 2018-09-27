@@ -106,7 +106,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4782 2018-09-16 16:05:10Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4795 2018-09-27 17:27:44Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -1301,7 +1301,7 @@ static bool get_usb_id(int phydrive, int logdrive,
   std::string prev_usb_ant;
   std::string prev_ant, ant, dep;
 
-  const regular_expression regex("^.*PnPEntity\\.DeviceID=\"([^\"]*)\"", REG_EXTENDED);
+  const regular_expression regex("^.*PnPEntity\\.DeviceID=\"([^\"]*)\"");
 
   while (we.next(wo)) {
     prev_ant = ant;
@@ -1313,7 +1313,7 @@ static bool get_usb_id(int phydrive, int logdrive,
       pout(" %s:\n", ant.c_str());
 
     // Extract DeviceID
-    regmatch_t match[2];
+    regular_expression::match_range match[2];
     if (!(regex.execute(dep.c_str(), 2, match) && match[1].rm_so >= 0)) {
       if (debug)
         pout("  | (\"%s\")\n", dep.c_str());

@@ -25,7 +25,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 4795 2018-09-27 17:27:44Z chrfranke $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -159,7 +159,7 @@ static inline dbentry_type get_dbentry_type(const drive_settings * dbentry)
 // Compile regular expression, print message on failure.
 static bool compile(regular_expression & regex, const char *pattern)
 {
-  if (!regex.compile(pattern, REG_EXTENDED)) {
+  if (!regex.compile(pattern)) {
     pout("Internal error: unable to compile regular expression \"%s\": %s\n"
          "Please inform smartmontools developers at " PACKAGE_BUGREPORT "\n",
       pattern, regex.get_errmsg());
@@ -776,7 +776,7 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
           case 1: case 2:
             if (!token.value.empty()) {
               regular_expression regex;
-              if (!regex.compile(token.value.c_str(), REG_EXTENDED)) {
+              if (!regex.compile(token.value.c_str())) {
                 pout("%s(%d): Error in regular expression: %s\n", path, token.line, regex.get_errmsg());
                 ok = false;
               }
