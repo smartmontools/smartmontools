@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4796 2018-09-27 19:24:50Z chrfranke $
+# $Id: configure.ac 4798 2018-09-27 19:49:28Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4796 2018-09-27 19:24:50Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4798 2018-09-27 19:49:28Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -380,7 +380,7 @@ AC_SUBST(systemdenvfile)
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
-    [Include NVMe devices in smartd DEVICESCAN [no]])])
+    [Include NVMe devices in smartd DEVICESCAN [Linux,Windows:yes;Others:no]])])
 
 AC_ARG_WITH(solaris-sparc-ata,
   [AS_HELP_STRING([--with-solaris-sparc-ata@<:@=yes|no@:>@],
