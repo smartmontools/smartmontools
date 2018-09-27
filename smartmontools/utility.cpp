@@ -485,57 +485,6 @@ bool regular_expression::compile()
   return true;
 }
 
-#ifndef HAVE_STRTOULL
-// Replacement for missing strtoull() (Linux with libc < 6, MSVC)
-// Functionality reduced to requirements of smartd and split_selective_arg().
-
-uint64_t strtoull(const char * p, char * * endp, int base)
-{
-  uint64_t result, maxres;
-  int i = 0;
-  char c = p[i++];
-
-  if (!base) {
-    if (c == '0') {
-      if (p[i] == 'x' || p[i] == 'X') {
-        base = 16; i++;
-      }
-      else
-        base = 8;
-      c = p[i++];
-    }
-    else
-      base = 10;
-  }
-
-  result = 0;
-  maxres = ~(uint64_t)0 / (unsigned)base;
-  for (;;) {
-    unsigned digit;
-    if ('0' <= c && c <= '9')
-      digit = c - '0';
-    else if ('A' <= c && c <= 'Z')
-      digit = c - 'A' + 10;
-    else if ('a' <= c && c <= 'z')
-      digit = c - 'a' + 10;
-    else
-      break;
-    if (digit >= (unsigned)base)
-      break;
-    if (!(   result < maxres
-          || (result == maxres && digit <= ~(uint64_t)0 % (unsigned)base))) {
-      result = ~(uint64_t)0; errno = ERANGE; // return on overflow
-      break;
-    }
-    result = result * (unsigned)base + digit;
-    c = p[i++];
-  }
-  if (endp)
-    *endp = (char *)p + i - 1;
-  return result;
-}
-#endif // HAVE_STRTOLL
-
 // Splits an argument to the -t option that is assumed to be of the form
 // "selective,%lld-%lld" (prefixes of "0" (for octal) and "0x"/"0X" (for hex)
 // are allowed).  The first long long int is assigned to *start and the second

@@ -59,11 +59,6 @@ int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
 #define vsnprintf safe_vsnprintf
 #endif
 
-#ifndef HAVE_STRTOULL
-// Replacement for missing strtoull() (Linux with libc < 6, MSVC)
-uint64_t strtoull(const char * p, char * * endp, int base);
-#endif
-
 // Utility function prints date and time and timezone into a character
 // buffer of length 64.  All the fuss is needed to get the
 // right timezone info (sigh).
