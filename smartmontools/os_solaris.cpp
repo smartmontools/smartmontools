@@ -301,8 +301,8 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 	return smart_status_check(fd);
     default:
 	pout("Unrecognized command %d in ata_command_interface() of os_solaris.c\n", command);
-	EXIT(1);
-	break;
+        errno = EINVAL;
+        return -1;
     }
 #else /* WITH_SOLARIS_SPARC_ATA */
     ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);

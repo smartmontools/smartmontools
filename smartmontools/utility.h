@@ -83,10 +83,6 @@ void syserror(const char *message);
 // Function for processing -t selective... option in smartctl
 int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 
-// Replacement for exit(status)
-// (exit is not compatible with C++ destructors)
-#define EXIT(status) { throw (int)(status); }
-
 // Compile time check of byte ordering
 // (inline const function allows compiler to remove dead code)
 inline bool isbigendian()

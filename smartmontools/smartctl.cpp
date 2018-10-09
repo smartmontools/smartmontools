@@ -304,7 +304,7 @@ static void scan_devices(const smart_devtype_list & types, bool with_open, char 
 
 
 /*      Takes command options and sets features to be run */    
-static const char * parse_options(int argc, char** argv,
+static int parse_options(int argc, char** argv, const char * & type,
   ata_print_options & ataopts, scsi_print_options & scsiopts,
   nvme_print_options & nvmeopts, bool & print_type_only)
 {
@@ -354,7 +354,6 @@ static const char * parse_options(int argc, char** argv,
   memset(extraerror, 0, sizeof(extraerror));
   opterr=optopt=0;
 
-  const char * type = 0; // set to -d optarg
   smart_devtype_list scan_types; // multiple -d TYPE options for --scan
   bool use_default_db = true; // set false on '-B FILE'
   bool output_format_set = false; // set true on '-f FORMAT'
@@ -378,8 +377,7 @@ static const char * parse_options(int argc, char** argv,
     case 'V':
       printing_is_off = false;
       pout("%s", format_version_info("smartctl", true /*full*/).c_str());
-      EXIT(0);
-      break;
+      return 0;
     case 'q':
       if (!strcmp(optarg,"errorsonly")) {
         printing_is_switchable = true;
@@ -743,7 +741,7 @@ static const char * parse_options(int argc, char** argv,
         printslogan();
         pout("The valid arguments to -v are:\n\thelp\n%s\n",
              create_vendor_attribute_arg_list().c_str());
-        EXIT(0);
+        return 0;
       }
       if (!parse_attribute_def(optarg, ataopts.attribute_defs, PRIOR_USER))
         badarg = true;
@@ -757,14 +755,14 @@ static const char * parse_options(int argc, char** argv,
         ataopts.show_presets = true;
       } else if (!strcmp(optarg, "showall")) {
         if (!init_drive_database(use_default_db))
-          EXIT(FAILCMD);
+          return FAILCMD;
         if (optind < argc) { // -P showall MODEL [FIRMWARE]
           int cnt = showmatchingpresets(argv[optind], (optind+1<argc ? argv[optind+1] : NULL));
-          EXIT(cnt); // report #matches
+          return (cnt >= 0 ? cnt : 0);
         }
         if (showallpresets())
-          EXIT(FAILCMD); // report regexp syntax error
-        EXIT(0);
+          return FAILCMD; // report regexp syntax error
+        return 0;
       } else {
         badarg = true;
       }
@@ -907,15 +905,14 @@ static const char * parse_options(int argc, char** argv,
         else
           use_default_db = false;
         if (!read_drive_database(path))
-          EXIT(FAILCMD);
+          return FAILCMD;
       }
       break;
     case 'h':
       printing_is_off = false;
       printslogan();
       Usage();
-      EXIT(0);  
-      break;
+      return 0;
 
     case 'g':
     case_s_continued: // -s, see above
@@ -1128,7 +1125,7 @@ static const char * parse_options(int argc, char** argv,
 	if (extraerror[0])
 	  pout("=======> %s", extraerror);
         UsageSummary();
-        EXIT(FAILCMD);
+        return FAILCMD;
       }
       if (0 < optopt && optopt < '~') {
         // Iff optopt holds a valid option then argument must be
@@ -1142,10 +1139,10 @@ static const char * parse_options(int argc, char** argv,
 	if (extraerror[0])
 	  pout("=======> %s", extraerror);
         UsageSummary();
-        EXIT(FAILCMD);
+        return FAILCMD;
       }
       Usage();
-      EXIT(0);  
+      return 0;
     } // closes switch statement to process command-line options
     
     // Check to see if option had an unrecognized or incorrect argument.
@@ -1164,7 +1161,7 @@ static const char * parse_options(int argc, char** argv,
       if (extraerror[0])
 	pout("=======> %s", extraerror);
       UsageSummary();
-      EXIT(FAILCMD);
+      return FAILCMD;
     }
   }
 
@@ -1172,9 +1169,9 @@ static const char * parse_options(int argc, char** argv,
   if (scan) {
     // Read or init drive database to allow USB ID check.
     if (!init_drive_database(use_default_db))
-      EXIT(FAILCMD);
+      return FAILCMD;
     scan_devices(scan_types, (scan == opt_scan_open), argv + optind);
-    EXIT(0);
+    return 0;
   }
 
   // At this point we have processed all command-line options.  If the
@@ -1189,7 +1186,7 @@ static const char * parse_options(int argc, char** argv,
     printslogan();
     jerr("ERROR: multiple -d TYPE options are only allowed with --scan\n");
     UsageSummary();
-    EXIT(FAILCMD);
+    return FAILCMD;
   }
 
   // error message if user has asked for more than one test
@@ -1198,7 +1195,7 @@ static const char * parse_options(int argc, char** argv,
     printslogan();
     jerr("\nERROR: smartctl can only run a single test type (or abort) at a time.\n");
     UsageSummary();
-    EXIT(FAILCMD);
+    return FAILCMD;
   }
 
   // error message if user has set selective self-test options without
@@ -1212,7 +1209,7 @@ static const char * parse_options(int argc, char** argv,
     else
       jerr("\nERROR: smartctl -t afterselect,(on|off) must be used with -t select,N-M.\n");
     UsageSummary();
-    EXIT(FAILCMD);
+    return FAILCMD;
   }
 
   // If captive option was used, change test type if appropriate.
@@ -1243,7 +1240,7 @@ static const char * parse_options(int argc, char** argv,
   if (argc-optind<1){
     jerr("ERROR: smartctl requires a device name as the final command-line argument.\n\n");
     UsageSummary();
-    EXIT(FAILCMD);
+    return FAILCMD;
   }
   
   // Warn if the user has provided more than one device name
@@ -1254,14 +1251,15 @@ static const char * parse_options(int argc, char** argv,
     for (i=0; i<argc-optind; i++)
       pout("%s\n",argv[optind+i]);
     UsageSummary();
-    EXIT(FAILCMD);
+    return FAILCMD;
   }
 
   // Read or init drive database
   if (!init_drive_database(use_default_db))
-    EXIT(FAILCMD);
+    return FAILCMD;
 
-  return type;
+  // No error, continue in main_worker()
+  return -1;
 }
 
 // Printing functions
@@ -1404,7 +1402,7 @@ void failuretest(failure_type type, int returnvalue)
     if (!failuretest_conservative)
       return;
     pout("An optional SMART command failed: exiting. Remove '-T conservative' option to continue.\n");
-    EXIT(returnvalue);
+    throw int(returnvalue);
   }
 
   // If this is an error in a "mandatory" SMART command
@@ -1412,7 +1410,7 @@ void failuretest(failure_type type, int returnvalue)
     if (failuretest_permissive--)
       return;
     pout("A mandatory SMART command failed: exiting. To continue, add one or more '-T permissive' options.\n");
-    EXIT(returnvalue);
+    throw int(returnvalue);
   }
 
   throw std::logic_error("failuretest: Unknown type");
@@ -1430,7 +1428,7 @@ void checksumwarning(const char * string)
 
   // user has asked us to fail on checksum errors
   if (checksum_err_mode == CHECKSUM_ERR_EXIT)
-    EXIT(FAILSMART);
+    throw int(FAILSMART);
 }
 
 // Return info string about device protocol
@@ -1523,11 +1521,16 @@ static int main_worker(int argc, char **argv)
     return 1;
 
   // Parse input arguments
+  const char * type = 0;
   ata_print_options ataopts;
   scsi_print_options scsiopts;
   nvme_print_options nvmeopts;
   bool print_type_only = false;
-  const char * type = parse_options(argc, argv, ataopts, scsiopts, nvmeopts, print_type_only);
+  {
+    int status = parse_options(argc, argv, type, ataopts, scsiopts, nvmeopts, print_type_only);
+    if (status >= 0)
+      return status;
+  }
 
   const char * name = argv[argc-1];
 
@@ -1619,7 +1622,7 @@ int main(int argc, char **argv)
       status = main_worker(argc, argv);
     }
     catch (int ex) {
-      // EXIT(status) arrives here
+      // Exit status from checksumwarning() and failuretest() arrives here
       status = ex;
     }
     // Print JSON if enabled

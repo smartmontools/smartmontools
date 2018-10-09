@@ -1432,11 +1432,11 @@ static bool WaitForPidFile()
 
 #endif // _WIN32
 
-// Forks new process, closes ALL file descriptors, redirects stdin,
-// stdout, and stderr.  Not quite daemon().  See
-// http://www.linuxjournal.com/article/2335
+// Forks new process if needed, closes ALL file descriptors,
+// redirects stdin, stdout, and stderr.  Not quite daemon().
+// See https://www.linuxjournal.com/article/2335
 // for a good description of why we do things this way.
-static void DaemonInit()
+static int daemon_init()
 {
 #ifndef _WIN32
 
@@ -1449,15 +1449,15 @@ static void DaemonInit()
     if ((pid=fork()) < 0) {
       // unable to fork!
       PrintOut(LOG_CRIT,"smartd unable to fork daemon process!\n");
-      EXIT(EXIT_STARTUP);
+      return EXIT_STARTUP;
     }
-    else if (pid) {
+    if (pid) {
       // we are the parent process, wait for pid file, then exit cleanly
       if(!WaitForPidFile()) {
         PrintOut(LOG_CRIT,"PID file %s didn't show up!\n", pid_file.c_str());
-        EXIT(EXIT_STARTUP);
-      } else
-        EXIT(0);
+        return EXIT_STARTUP;
+      }
+      return 0;
     }
   
     // from here on, we are the child process.
@@ -1467,11 +1467,11 @@ static void DaemonInit()
     if ((pid=fork()) < 0) {
       // unable to fork!
       PrintOut(LOG_CRIT,"smartd unable to fork daemon process!\n");
-      EXIT(EXIT_STARTUP);
+      return EXIT_STARTUP;
     }
-    else if (pid)
+    if (pid)
       // we are the parent process -- exit cleanly
-      EXIT(0);
+      return 0;
 
     // Now we are the child's child...
   }
@@ -1484,7 +1484,7 @@ static void DaemonInit()
   int fd = open("/dev/null", O_RDWR);
   if (!(fd == 0 && dup(fd) == 1 && dup(fd) == 2 && !chdir("/"))) {
     PrintOut(LOG_CRIT, "smartd unable to redirect to /dev/null or to chdir to root!\n");
-    EXIT(EXIT_STARTUP);
+    return EXIT_STARTUP;
   }
   umask(0022);
 
@@ -1498,16 +1498,18 @@ static void DaemonInit()
   fflush(NULL);
   if (daemon_detach("smartd")) {
     PrintOut(LOG_CRIT,"smartd unable to detach from console!\n");
-    EXIT(EXIT_STARTUP);
+    return EXIT_STARTUP;
   }
   // stdin/out/err now closed if not redirected
 
 #endif // _WIN32
-  return;
+
+  // No error, continue in main_worker()
+  return -1;
 }
 
 // create a PID file containing the current process id
-static void WritePidFile()
+static bool write_pid_file()
 {
   if (!pid_file.empty()) {
     pid_t pid = getpid();
@@ -1523,10 +1525,11 @@ static void WritePidFile()
     umask(old_umask);
     if (!(f && fprintf(f, "%d\n", (int)pid) > 0 && f.close())) {
       PrintOut(LOG_CRIT, "unable to write PID file %s - exiting.\n", pid_file.c_str());
-      EXIT(EXIT_PID);
+      return false;
     }
     PrintOut(LOG_INFO, "file %s written containing PID %d\n", pid_file.c_str(), (int)pid);
   }
+  return true;
 }
 
 // Prints header identifying version of code and home
@@ -3883,14 +3886,14 @@ static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector
 static bool is_initialized = false;
 
 // Does initialization right after fork to daemon mode
-static void Initialize(time_t *wakeuptime)
+static bool initialize(time_t *wakeuptime)
 {
   // Call Goodbye() on exit
   is_initialized = true;
   
   // write PID file
-  if (!debugmode)
-    WritePidFile();
+  if (!debugmode && !write_pid_file())
+    return false;
   
   // install signal handlers.
 
@@ -3911,7 +3914,7 @@ static void Initialize(time_t *wakeuptime)
   // initialize wakeup time to CURRENT time
   *wakeuptime=time(NULL);
   
-  return;
+  return true;
 }
 
 #ifdef _WIN32
@@ -4864,23 +4867,23 @@ static void PrintValidArgs(char opt)
 }
 
 #ifndef _WIN32
-// Report error and exit if specified path is not absolute.
-static void check_abs_path(char option, const std::string & path)
+// Report error and return false if specified path is not absolute.
+static bool check_abs_path(char option, const std::string & path)
 {
   if (path.empty() || path[0] == '/')
-    return;
+    return true;
 
   debugmode = 1;
   PrintHead();
   PrintOut(LOG_CRIT, "=======> INVALID ARGUMENT TO -%c: %s <=======\n\n", option, path.c_str());
   PrintOut(LOG_CRIT, "Error: relative path names are not allowed\n\n");
-  EXIT(EXIT_BADCMD);
+  return false;
 }
 #endif // !_WIN32
 
 // Parses input line, prints usage message and
 // version/license/copyright messages
-static void ParseOpts(int argc, char **argv)
+static int parse_options(int argc, char **argv)
 {
   // Init default path names
 #ifndef _WIN32
@@ -4999,8 +5002,7 @@ static void ParseOpts(int argc, char **argv)
       // print summary of all valid directives
       debugmode = 1;
       Directives();
-      EXIT(0);
-      break;
+      return 0;
     case 'i':
       // Period (time interval) for checking
       // strtol will set errno in the event of overflow, so we'll check it.
@@ -5012,7 +5014,7 @@ static void ParseOpts(int argc, char **argv)
         PrintOut(LOG_CRIT, "======> INVALID INTERVAL: %s <=======\n", optarg);
         PrintOut(LOG_CRIT, "======> INTERVAL MUST BE INTEGER BETWEEN %d AND %d <=======\n", 10, INT_MAX);
         PrintOut(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
-        EXIT(EXIT_BADCMD);
+        return EXIT_BADCMD;
       }
       checktime = (int)lchecktime;
       break;
@@ -5065,7 +5067,7 @@ static void ParseOpts(int argc, char **argv)
           use_default_db = false;
         unsigned char savedebug = debugmode; debugmode = 1;
         if (!read_drive_database(path))
-          EXIT(EXIT_BADCMD);
+          return EXIT_BADCMD;
         debugmode = savedebug;
       }
       break;
@@ -5076,8 +5078,7 @@ static void ParseOpts(int argc, char **argv)
       // print version and CVS info
       debugmode = 1;
       PrintOut(LOG_INFO, "%s", format_version_info("smartd", true /*full*/).c_str());
-      EXIT(0);
-      break;
+      return 0;
 #ifdef HAVE_LIBCAP_NG
     case 'C':
       // enable capabilities
@@ -5089,8 +5090,7 @@ static void ParseOpts(int argc, char **argv)
       debugmode=1;
       PrintHead();
       Usage();
-      EXIT(0);
-      break;
+      return 0;
     case '?':
     default:
       // unrecognized option
@@ -5108,7 +5108,7 @@ static void ParseOpts(int argc, char **argv)
           PrintOut(LOG_CRIT, "=======> UNRECOGNIZED OPTION: %s <=======\n\n",arg+2);
         }
         PrintOut(LOG_CRIT, "\nUse smartd --help to get a usage summary\n\n");
-        EXIT(EXIT_BADCMD);
+        return EXIT_BADCMD;
       }
       if (optopt) {
         // Iff optopt holds a valid option then argument must be missing.
@@ -5119,10 +5119,10 @@ static void ParseOpts(int argc, char **argv)
           PrintOut(LOG_CRIT, "=======> UNRECOGNIZED OPTION: %c <=======\n\n",optopt);
         }
         PrintOut(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
-        EXIT(EXIT_BADCMD);
+        return EXIT_BADCMD;
       }
       Usage();
-      EXIT(0);
+      return 0;
     }
 
     // Check to see if option had an unrecognized or incorrect argument.
@@ -5135,7 +5135,7 @@ static void ParseOpts(int argc, char **argv)
       PrintOut(LOG_CRIT, "=======> INVALID ARGUMENT TO -%c: %s <======= \n", optchar, optarg);
       PrintValidArgs(optchar);
       PrintOut(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
-      EXIT(EXIT_BADCMD);
+      return EXIT_BADCMD;
     }
   }
 
@@ -5145,7 +5145,7 @@ static void ParseOpts(int argc, char **argv)
     PrintHead();
     PrintOut(LOG_CRIT, "=======> UNRECOGNIZED ARGUMENT: %s <=======\n\n", argv[optind]);
     PrintOut(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
-    EXIT(EXIT_BADCMD);
+    return EXIT_BADCMD;
   }
 
   // no pidfile in debug mode
@@ -5154,15 +5154,16 @@ static void ParseOpts(int argc, char **argv)
     PrintHead();
     PrintOut(LOG_CRIT, "=======> INVALID CHOICE OF OPTIONS: -d and -p <======= \n\n");
     PrintOut(LOG_CRIT, "Error: pid file %s not written in debug (-d) mode\n\n", pid_file.c_str());
-    EXIT(EXIT_BADCMD);
+    return EXIT_BADCMD;
   }
 
 #ifndef _WIN32
   if (!debugmode) {
-    // absolute path names are required due to chdir('/') after fork().
-    check_abs_path('p', pid_file);
-    check_abs_path('s', state_path_prefix);
-    check_abs_path('A', attrlog_path_prefix);
+    // absolute path names are required due to chdir('/') in daemon_init()
+    if (!(   check_abs_path('p', pid_file)
+          && check_abs_path('s', state_path_prefix)
+          && check_abs_path('A', attrlog_path_prefix)))
+      return EXIT_BADCMD;
   }
 #endif
 
@@ -5170,16 +5171,19 @@ static void ParseOpts(int argc, char **argv)
   {
     unsigned char savedebug = debugmode; debugmode = 1;
     if (!init_drive_database(use_default_db))
-        EXIT(EXIT_BADCMD);
+      return EXIT_BADCMD;
     debugmode = savedebug;
   }
 
   // Check option compatibility of notify support
   if (!notify_post_init())
-    EXIT(EXIT_BADCMD);
+    return EXIT_BADCMD;
 
   // print header
   PrintHead();
+
+  // No error, continue in main_worker()
+  return -1;
 }
 
 // Function we call if no configuration file was found or if the
@@ -5391,8 +5395,8 @@ static bool register_device(dev_config & cfg, dev_state & state, smart_device_au
 // This function tries devices from conf_entries.  Each one that can be
 // registered is moved onto the [ata|scsi]devices lists and removed
 // from the conf_entries list.
-static void RegisterDevices(const dev_config_vector & conf_entries, smart_device_list & scanned_devs,
-                            dev_config_vector & configs, dev_state_vector & states, smart_device_list & devices)
+static bool register_devices(const dev_config_vector & conf_entries, smart_device_list & scanned_devs,
+                             dev_config_vector & configs, dev_state_vector & states, smart_device_list & devices)
 {
   // start by clearing lists/memory of ALL existing devices
   configs.clear();
@@ -5442,7 +5446,7 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
       if (!scanning) {
         if (!(cfg.removable || quit == QUIT_NEVER)) {
           PrintOut(LOG_CRIT, "Unable to register device %s (no Directive -d removable). Exiting.\n", cfg.name.c_str());
-          EXIT(EXIT_BADDEV);
+          return false;
         }
         PrintOut(LOG_INFO, "Device: %s, not available\n", cfg.name.c_str());
         // Prevent retry of registration
@@ -5460,6 +5464,7 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
   }
 
   init_disable_standby_check(configs);
+  return true;
 }
 
 
@@ -5481,7 +5486,9 @@ static int main_worker(int argc, char **argv)
   time_t wakeuptime = 0;
 
   // parse input and print header and usage info if needed
-  ParseOpts(argc,argv);
+  int status = parse_options(argc,argv);
+  if (status >= 0)
+    return status;
   
   // Configuration for each device
   dev_config_vector configs;
@@ -5550,7 +5557,8 @@ static int main_worker(int argc, char **argv)
 
         if (entries>=0) {
           // checks devices, then moves onto ata/scsi list or deallocates.
-          RegisterDevices(conf_entries, scanned_devs, configs, states, devices);
+          if (!register_devices(conf_entries, scanned_devs, configs, states, devices))
+            return EXIT_BADDEV;
           if (!(configs.size() == devices.size() && configs.size() == states.size()))
             throw std::logic_error("Invalid result from RegisterDevices");
         }
@@ -5631,12 +5639,15 @@ static int main_worker(int argc, char **argv)
     
     // fork into background if needed
     if (firstpass && !debugmode) {
-      DaemonInit();
+      status = daemon_init();
+      if (status >= 0)
+        return status;
     }
 
     // set exit and signal handlers, write PID file, set wake-up time
     if (firstpass){
-      Initialize(&wakeuptime);
+      if (!initialize(&wakeuptime))
+        return EXIT_PID;
       firstpass = false;
     }
     
@@ -5658,10 +5669,6 @@ static int smartd_main(int argc, char **argv)
   try {
     // Do the real work ...
     status = main_worker(argc, argv);
-  }
-  catch (int ex) {
-    // EXIT(status) arrives here
-    status = ex;
   }
   catch (const std::bad_alloc & /*ex*/) {
     // Memory allocation failed (also thrown by std::operator new)

@@ -2266,8 +2266,8 @@ int linux_marvell_device::ata_command_interface(smart_command_set command, int s
     break;
   default:
     pout("Unrecognized command %d in mvsata_os_specific_handler()\n", command);
-    EXIT(1);
-    break;
+    errno = EINVAL;
+    return -1;
   }
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
   // one is this:

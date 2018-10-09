@@ -2,6 +2,11 @@ $Id$
 
 2018-10-09  Christian Franke  <franke@computer.org>
 
+	smartctl.cpp, smartd.cpp, os_linux.cpp, os_solaris.cpp:
+	Replace all uses of EXIT() macro.  Use early return where possible,
+	use throw otherwise.
+	utility.h: Remove EXIT() macro.
+
 	utility.cpp: Detect more C++ language versions for -V option.
 
 	drivedb.h:
