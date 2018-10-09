@@ -1,6 +1,8 @@
-$Id: ChangeLog 4805 2018-10-09 19:34:46Z chrfranke $
+$Id: ChangeLog 4806 2018-10-09 20:28:13Z chrfranke $
 
 2018-10-09  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Rework main loop.
 
 	smartctl.cpp, smartd.cpp, os_linux.cpp, os_solaris.cpp:
 	Replace all uses of EXIT() macro.  Use early return where possible,
