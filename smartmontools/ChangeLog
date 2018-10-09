@@ -1,6 +1,8 @@
-$Id: ChangeLog 4806 2018-10-09 20:28:13Z chrfranke $
+$Id: ChangeLog 4808 2018-10-09 21:04:11Z chrfranke $
 
 2018-10-09  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Move code for '--capabilities' to separate functions.
 
 	smartd.cpp: Rework main loop.
 
