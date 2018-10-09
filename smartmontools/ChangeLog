@@ -1,5 +1,11 @@
 $Id$
 
+2018-10-09  Anthony D'Atri  <anthony.datri@gmail.com>
+
+	drivedb.h: (#1096)
+	- Samsung based SSDs: Samsung PM863a (#951, #952, #961, #962, #972)
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: Dell-flavor S3500
+
 2018-10-09  Thomas Niedermeier  <tniedermeier@thomas-krenn.com>
 
 	drivedb.h: Samsung PM883 and SM883 (GH pull/19)
