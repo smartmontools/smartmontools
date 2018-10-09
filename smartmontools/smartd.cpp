@@ -5510,24 +5510,25 @@ static int main_worker(int argc, char **argv)
         }
       }
 
-      // Log number of devices we are monitoring...
-      if (devices.size() > 0 || quit == QUIT_NEVER || (quit == QUIT_NODEVSTARTUP && !firstpass)) {
-        int numata = 0, numscsi = 0;
-        for (unsigned i = 0; i < devices.size(); i++) {
-          const smart_device * dev = devices.at(i);
-          if (dev->is_ata())
-            numata++;
-          else if (dev->is_scsi())
-            numscsi++;
-        }
-        PrintOut(LOG_INFO,"Monitoring %d ATA/SATA, %d SCSI/SAS and %d NVMe devices\n",
-                 numata, numscsi, (int)devices.size() - numata - numscsi);
-      }
-      else {
-        PrintOut(LOG_INFO,"Unable to monitor any SMART enabled devices. Try debug (-d) option. Exiting...\n");
+      if (!(   devices.size() > 0 || quit == QUIT_NEVER
+            || (quit == QUIT_NODEVSTARTUP && !firstpass))) {
+        PrintOut(LOG_INFO, "Unable to monitor any SMART enabled devices. %sExiting...\n",
+                 (!debugmode ? "Try debug (-d) option. " : ""));
         status = EXIT_NODEV;
         break;
       }
+
+      // Log number of devices we are monitoring...
+      int numata = 0, numscsi = 0;
+      for (unsigned i = 0; i < devices.size(); i++) {
+        const smart_device * dev = devices.at(i);
+        if (dev->is_ata())
+          numata++;
+        else if (dev->is_scsi())
+          numscsi++;
+      }
+      PrintOut(LOG_INFO, "Monitoring %d ATA/SATA, %d SCSI/SAS and %d NVMe devices\n",
+               numata, numscsi, (int)devices.size() - numata - numscsi);
 
       if (quit == QUIT_SHOWTESTS) {
         // user has asked to print test schedule
