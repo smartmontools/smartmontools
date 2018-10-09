@@ -1,5 +1,15 @@
 $Id$
 
+2018-10-09  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs: Rename,
+	  BX500 (#1095)
+	- Seagate Samsung SpinPoint F4 EG (AF) (#1090)
+	- Seagate Momentus 5400.6: Add '-F xerrorlba' (#1094)
+	- USB: JMicron JM562 (0x152d:0x0562) (IDENTIFY only, see #966)
+	- USB: VIA VL715 (0x2109:0x0715) (#1098)
+
 2018-10-09  Anthony D'Atri  <anthony.datri@gmail.com>
 
 	drivedb.h: (#1096)

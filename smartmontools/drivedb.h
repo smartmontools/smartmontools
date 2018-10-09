@@ -284,7 +284,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
-  { "Crucial/Micron BX300, MX1/2/3/500, M5/600, 1100 SSDs",
+  { "Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs",
     "Crucial_CT(128|256|512)MX100SSD1|"// Marvell 88SS9189, tested with Crucial_CT256MX100SSD1/MU01
     "Crucial_CT(200|250|256|500|512|1000|1024)MX200SSD[1346]|" // Marvell 88SS9189, tested with
       // Crucial_CT500MX200SSD1/MU01, Crucial_CT1024MX200SSD1/MU01, Crucial_CT250MX200SSD3/MU01,
@@ -299,6 +299,7 @@ const drive_settings builtin_knowndrives[] = {
       // Crucial_CT1024M550SSD1/MU01, Crucial_CT128M550SSD4/MU02
     "CT(120|240|480)BX300SSD1|" // Silicon Motion SM2258, same attributes as Marvell-based Crucial SSDs,
       // tested with CT240BX300SSD1/M2CR010
+    "CT(120|240|480|960)BX500SSD1|" // Silicon Motion SM2258XT, tested with CT120BX500SSD1/M6CR013
     "CT(250|500|1000|2000)MX500SSD1|" // Silicon Motion SM2258, tested with CT250MX500SSD1/M3CR010
       // CT500MX500SSD1/M3CR010, CT1000MX500SSD1/M3CR010, CT2000MX500SSD1/M3CR010
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
@@ -2153,6 +2154,11 @@ const drive_settings builtin_knowndrives[] = {
     "https://www.smartmontools.org/wiki/SamsungF4EGBadBlocks",
     ""
   },
+  { "Seagate Samsung SpinPoint F4 EG (AF)", // later sold as Barracuda Green,
+       // tested with ST2000DL004 HD204UI/1AQ10001
+    "ST2000DL004 HD204UI",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint S250", // tested with HD200HJ/KF100-06
     "SAMSUNG HD(162|200|250)HJ",
     "", "", ""
@@ -3198,7 +3204,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus 5400.6",
     "ST9(80313|160(301|314)|(12|25)0315|250317|(320|500)325|500327|640320)ASG?",
-    "", "", ""
+    "", "",
+    "-F xerrorlba" // ST9500325AS/0002SDM1 (ticket #1094)
   },
   { "Seagate Momentus 5400.7",
     "ST9(160316|(250|320)310|(500|640)320)AS",
@@ -4861,6 +4868,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; JMicron JM562", // USB2/3+eSATA->2xSATA, USB2/3->3xSATA (RAID0/1)
+    "0x152d:0x0562",
+    "", // 0x0106, Fantec QB-X2US3R (ticket #966)
+    "", // only ATA IDENTIFY works, SMART commands don't work
+    "-d sat"
+  },
   { "USB: ; JMicron", // USB2/3->2xSATA
     "0x152d:0x0565",
     "", // 0x9114, Akasa DuoDock X (ticket #607)
@@ -5114,6 +5127,12 @@ const drive_settings builtin_knowndrives[] = {
     "0x2109:0x0711",
     "", // 0x0114, Mediasonic ProBox K32-SU3 (ticket #594)
     "", // 0x0507, Intenso 2,5" Memory Case 2TB USB3
+    "-d sat"
+  },
+  { "USB: ; VIA VL715", // USB2/3->SATA
+    "0x2109:0x0715",
+    "", // 0x0336
+    "",
     "-d sat"
   },
   // 0x2537 (?)
