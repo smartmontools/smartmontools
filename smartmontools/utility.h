@@ -13,7 +13,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4796 2018-09-27 19:24:50Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4805 2018-10-09 19:34:46Z chrfranke $"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
@@ -82,10 +82,6 @@ void syserror(const char *message);
 
 // Function for processing -t selective... option in smartctl
 int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
-
-// Replacement for exit(status)
-// (exit is not compatible with C++ destructors)
-#define EXIT(status) { throw (int)(status); }
 
 // Compile time check of byte ordering
 // (inline const function allows compiler to remove dead code)

@@ -29,7 +29,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 4773 2018-09-12 20:14:44Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp 4805 2018-10-09 19:34:46Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -301,8 +301,8 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 	return smart_status_check(fd);
     default:
 	pout("Unrecognized command %d in ata_command_interface() of os_solaris.c\n", command);
-	EXIT(1);
-	break;
+        errno = EINVAL;
+        return -1;
     }
 #else /* WITH_SOLARIS_SPARC_ATA */
     ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);

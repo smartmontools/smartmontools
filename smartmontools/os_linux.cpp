@@ -94,7 +94,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4788 2018-09-21 16:46:28Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4805 2018-10-09 19:34:46Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -2266,8 +2266,8 @@ int linux_marvell_device::ata_command_interface(smart_command_set command, int s
     break;
   default:
     pout("Unrecognized command %d in mvsata_os_specific_handler()\n", command);
-    EXIT(1);
-    break;
+    errno = EINVAL;
+    return -1;
   }
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
   // one is this:
