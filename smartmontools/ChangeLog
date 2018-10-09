@@ -1,4 +1,8 @@
-$Id: ChangeLog 4799 2018-09-27 20:00:47Z chrfranke $
+$Id: ChangeLog 4800 2018-10-09 16:19:58Z chrfranke $
+
+2018-10-09  Thomas Niedermeier  <tniedermeier@thomas-krenn.com>
+
+	drivedb.h: Samsung PM883 and SM883 (GH pull/19)
 
 2018-09-27  Christian Franke  <franke@computer.org>
 
