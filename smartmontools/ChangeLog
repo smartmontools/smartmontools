@@ -1,6 +1,8 @@
-$Id: ChangeLog 4802 2018-10-09 17:58:22Z chrfranke $
+$Id: ChangeLog 4804 2018-10-09 19:07:13Z chrfranke $
 
 2018-10-09  Christian Franke  <franke@computer.org>
+
+	utility.cpp: Detect more C++ language versions for -V option.
 
 	drivedb.h:
 	- Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs: Rename,
