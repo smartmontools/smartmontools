@@ -191,11 +191,6 @@ static int facility=LOG_DAEMON;
 static bool do_fork=true;
 #endif
 
-#ifdef HAVE_LIBCAP_NG
-// command-line: enable capabilities?
-static bool enable_capabilities = false;
-#endif
-
 // TODO: This smartctl only variable is also used in os_win32.cpp
 unsigned char failuretest_permissive = 0;
 
@@ -1001,6 +996,43 @@ static void sighandler(int sig)
 
 } // extern "C"
 
+#ifdef HAVE_LIBCAP_NG
+// capabilites(7) support
+
+static bool capabilities_enabled = false;
+
+static void capabilities_drop_now()
+{
+  if (!capabilities_enabled)
+    return;
+  capng_clear(CAPNG_SELECT_BOTH);
+  capng_updatev(CAPNG_ADD, (capng_type_t)(CAPNG_EFFECTIVE|CAPNG_PERMITTED),
+    CAP_SYS_ADMIN, CAP_MKNOD, CAP_SYS_RAWIO, -1);
+  capng_apply(CAPNG_SELECT_BOTH);
+}
+
+static void capabilities_check_config(dev_config_vector & configs)
+{
+  if (!capabilities_enabled)
+    return;
+  for (unsigned i = 0; i < configs.size(); i++) {
+    dev_config & cfg = configs[i];
+    if (!cfg.emailaddress.empty() || !cfg.emailcmdline.empty()) {
+      PrintOut(LOG_INFO, "Device: %s, --capabilites is set, mail will be suppressed.\n",
+               cfg.name.c_str());
+      cfg.emailaddress.clear(); cfg.emailcmdline.clear();
+    }
+  }
+}
+
+#else // HAVE_LIBCAP_NG
+// No capabilites(7) support
+
+static inline void capabilities_drop_now() { }
+static inline void capabilities_check_config(dev_config_vector &) { }
+
+#endif // HAVE_LIBCAP_NG
+
 // a replacement for setenv() which is not available on all platforms.
 // Note that the string passed to putenv must not be freed or made
 // invalid, since a pointer to it is kept by putenv(). This means that
@@ -1109,14 +1141,6 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     if  (epoch<(mail->lastsent+days))
       return;
   }
-
-#ifdef HAVE_LIBCAP_NG
-  if (enable_capabilities) {
-    PrintOut(LOG_ERR, "Sending a mail was supressed. "
-             "Mails can't be send when capabilites are enabled\n");
-    return;
-  }
-#endif
 
   // record the time of this mail message, and the first mail message
   if (!mail->logged)
@@ -5041,7 +5065,7 @@ static int parse_options(int argc, char **argv)
 #ifdef HAVE_LIBCAP_NG
     case 'C':
       // enable capabilities
-      enable_capabilities = true;
+      capabilities_enabled = true;
       break;
 #endif
     case 'h':
@@ -5450,15 +5474,8 @@ static int main_worker(int argc, char **argv)
   // Devices to monitor
   smart_device_list devices;
 
-#ifdef HAVE_LIBCAP_NG
-  // Drop capabilities
-  if (enable_capabilities) {
-    capng_clear(CAPNG_SELECT_BOTH);
-    capng_updatev(CAPNG_ADD, (capng_type_t)(CAPNG_EFFECTIVE|CAPNG_PERMITTED),
-                  CAP_SYS_ADMIN, CAP_MKNOD, CAP_SYS_RAWIO, -1);
-    capng_apply(CAPNG_SELECT_BOTH);
-  }
-#endif
+  // Drop capabilities if supported and enabled
+  capabilities_drop_now();
 
   notify_msg("Initializing ...");
 
@@ -5496,6 +5513,8 @@ static int main_worker(int argc, char **argv)
           }
           if (!(configs.size() == devices.size() && configs.size() == states.size()))
             throw std::logic_error("Invalid result from RegisterDevices");
+          // Handle limitations if capabilities are dropped
+          capabilities_check_config(configs);
         }
         else if (   quit == QUIT_NEVER
                  || ((quit == QUIT_NODEV || quit == QUIT_NODEVSTARTUP) && !firstpass)) {
@@ -5536,17 +5555,6 @@ static int main_worker(int argc, char **argv)
         // assert(firstpass);
         return 0;
       }
-
-#ifdef HAVE_LIBCAP_NG
-      if (enable_capabilities) {
-        for (unsigned i = 0; i < configs.size(); i++) {
-          if (!configs[i].emailaddress.empty() || !configs[i].emailcmdline.empty()) {
-            PrintOut(LOG_WARNING, "Mail can't be enabled together with --capabilities. All mail will be suppressed.\n");
-            break;
-          }
-        }
-      }
-#endif
 
       // reset signal
       caughtsigHUP=0;

@@ -2,6 +2,8 @@ $Id$
 
 2018-10-09  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Move code for '--capabilities' to separate functions.
+
 	smartd.cpp: Rework main loop.
 
 	smartctl.cpp, smartd.cpp, os_linux.cpp, os_solaris.cpp:
