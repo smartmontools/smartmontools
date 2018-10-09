@@ -2,6 +2,8 @@ $Id$
 
 2018-10-09  Christian Franke  <franke@computer.org>
 
+	utility.cpp: Detect more C++ language versions for -V option.
+
 	drivedb.h:
 	- Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs: Rename,
 	  BX500 (#1095)
