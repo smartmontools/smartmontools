@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4778 2018-09-16 14:16:01Z chrfranke $",
+  { "$Id: drivedb.h 4803 2018-10-09 18:28:33Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -282,7 +282,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
-  { "Crucial/Micron BX300, MX1/2/3/500, M5/600, 1100 SSDs",
+  { "Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs",
     "Crucial_CT(128|256|512)MX100SSD1|"// Marvell 88SS9189, tested with Crucial_CT256MX100SSD1/MU01
     "Crucial_CT(200|250|256|500|512|1000|1024)MX200SSD[1346]|" // Marvell 88SS9189, tested with
       // Crucial_CT500MX200SSD1/MU01, Crucial_CT1024MX200SSD1/MU01, Crucial_CT250MX200SSD3/MU01,
@@ -297,6 +297,7 @@ const drive_settings builtin_knowndrives[] = {
       // Crucial_CT1024M550SSD1/MU01, Crucial_CT128M550SSD4/MU02
     "CT(120|240|480)BX300SSD1|" // Silicon Motion SM2258, same attributes as Marvell-based Crucial SSDs,
       // tested with CT240BX300SSD1/M2CR010
+    "CT(120|240|480|960)BX500SSD1|" // Silicon Motion SM2258XT, tested with CT120BX500SSD1/M6CR013
     "CT(250|500|1000|2000)MX500SSD1|" // Silicon Motion SM2258, tested with CT250MX500SSD1/M3CR010
       // CT500MX500SSD1/M3CR010, CT1000MX500SSD1/M3CR010, CT2000MX500SSD1/M3CR010
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
@@ -1222,8 +1223,9 @@ const drive_settings builtin_knowndrives[] = {
   { "Intel 730 and DC S35x0/3610/3700 Series SSDs", // tested with INTEL SSDSC2BP480G4, SSDSC2BB120G4/D2010355,
       // INTEL SSDSC2BB800G4T, SSDSC2BA200G3/5DV10250, SSDSC2BB080G6/G2010130,  SSDSC2BX200G4/G2010110,
       // INTEL SSDSC2BB016T6/G2010140, SSDSC2BX016T4/G2010140, SSDSC2BB150G7/N2010101
-    "INTEL SSDSC(1N|2B)[ABPX]((080|100|120|150|160|200|240|300|400|480|600|800)G[3467]T?|(012|016)T[46])",
+    "INTEL SSDSC(1N|2B)[ABPX]((080|100|120|150|160|200|240|300|400|480|600|800)G[3467][RT]?|(012|016)T[46])",
       // A = S3700, B*4 = S3500, B*6 = S3510, P = 730, X = S3610
+      // Dell ships drives with model of the form SSDSC2BB120G4R
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
@@ -1505,7 +1507,11 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
     "SAMSUNG MZ7LM(120|240|480|960|1T9|3T8)HC(JM|HP|GR|FD)-.*|" // PM863 Series, tested with
       // SAMSUNG MZ7LM960HCHP-0E003/GXT3003Q
+    "SAMSUNG MZ7LM(240|480|960|1T9|3T8)HM(JP|HQ|LP)-.*|" // PM863a Series, tested with
+      // SAMSUNG MZ7LM3T8HMLP-00005/GXT5104Q
     "SAMSUNG MZ7KM(120|240|480|960|1T9)HA(JM|HP|GR|FD|JM)-.*|" // SM863, tested with MZ7KM480HAHP-0E005/GXM1003Q
+    "SAMSUNG MZ7LH(240|480|960|1T9|3T8|7T6)H[AM](HQ|JR|LT|LA)-.*|" //PM883, tested with SAMSUNG MZ7LH960HAJR-00005
+    "SAMSUNG MZ7KH(240|480|960|1T9|3T8)HA(HQ|JR|LS)-.*|" //SM883
     "SAMSUNG MZN(LF|TY)(128|256)H[CD]HP-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
       // SAMSUNG MZNTY256HDHP-000/MAT21K0Q
     "SAMSUNG MZ[7N]LN(128|256|512|1T0)H[ACM](GR|HP|HQ|J[HPQ]|LR)-.*|" // PM871/871a/b, tested with
@@ -2142,6 +2148,11 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/223571en\n"
     "https://www.smartmontools.org/wiki/SamsungF4EGBadBlocks",
     ""
+  },
+  { "Seagate Samsung SpinPoint F4 EG (AF)", // later sold as Barracuda Green,
+       // tested with ST2000DL004 HD204UI/1AQ10001
+    "ST2000DL004 HD204UI",
+    "", "", ""
   },
   { "SAMSUNG SpinPoint S250", // tested with HD200HJ/KF100-06
     "SAMSUNG HD(162|200|250)HJ",
@@ -4847,6 +4858,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; JMicron JM562", // USB2/3+eSATA->2xSATA, USB2/3->3xSATA (RAID0/1)
+    "0x152d:0x0562",
+    "", // 0x0106, Fantec QB-X2US3R (ticket #966)
+    "", // only ATA IDENTIFY works, SMART commands don't work
+    "-d sat"
+  },
   { "USB: ; JMicron", // USB2/3->2xSATA
     "0x152d:0x0565",
     "", // 0x9114, Akasa DuoDock X (ticket #607)
@@ -5100,6 +5117,12 @@ const drive_settings builtin_knowndrives[] = {
     "0x2109:0x0711",
     "", // 0x0114, Mediasonic ProBox K32-SU3 (ticket #594)
     "", // 0x0507, Intenso 2,5" Memory Case 2TB USB3
+    "-d sat"
+  },
+  { "USB: ; VIA VL715", // USB2/3->SATA
+    "0x2109:0x0715",
+    "", // 0x0336
+    "",
     "-d sat"
   },
   // 0x2537 (?)
