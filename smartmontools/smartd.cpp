@@ -961,18 +961,6 @@ static void write_all_dev_attrlogs(const dev_config_vector & configs,
   }
 }
 
-// remove the PID file
-static void RemovePidFile()
-{
-  if (!pid_file.empty()) {
-    if (unlink(pid_file.c_str()))
-      PrintOut(LOG_CRIT,"Can't unlink PID file %s (%s).\n", 
-               pid_file.c_str(), strerror(errno));
-    pid_file.clear();
-  }
-  return;
-}
-
 extern "C" { // signal handlers require C-linkage
 
 //  Note if we catch a SIGUSR1
@@ -1012,18 +1000,6 @@ static void sighandler(int sig)
 }
 
 } // extern "C"
-
-// Cleanup, print Goodbye message and remove pidfile
-static int Goodbye(int status)
-{
-  // delete PID file, if one was created
-  RemovePidFile();
-
-  // and this should be the final output from smartd before it exits
-  PrintOut(status?LOG_CRIT:LOG_INFO, "smartd is exiting (exit status %d)\n", status);
-
-  return status;
-}
 
 // a replacement for setenv() which is not available on all platforms.
 // Note that the string passed to putenv must not be freed or made
@@ -3882,21 +3858,9 @@ static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector
   do_disable_standby_check(configs, states);
 }
 
-// Set if Initialize() was called
-static bool is_initialized = false;
-
-// Does initialization right after fork to daemon mode
-static bool initialize(time_t *wakeuptime)
+// Install all signal handlers
+static void install_signal_handlers()
 {
-  // Call Goodbye() on exit
-  is_initialized = true;
-  
-  // write PID file
-  if (!debugmode && !write_pid_file())
-    return false;
-  
-  // install signal handlers.
-
   // normal and abnormal exit
   set_signal_if_not_ignored(SIGTERM, sighandler);
   set_signal_if_not_ignored(SIGQUIT, sighandler);
@@ -3910,11 +3874,6 @@ static bool initialize(time_t *wakeuptime)
 #ifdef _WIN32
   set_signal_if_not_ignored(SIGUSR2, USR2handler);
 #endif
-
-  // initialize wakeup time to CURRENT time
-  *wakeuptime=time(NULL);
-  
-  return true;
 }
 
 #ifdef _WIN32
@@ -5479,12 +5438,6 @@ static int main_worker(int argc, char **argv)
   // Check whether systemd notify is supported and enabled
   notify_init();
 
-  // is it our first pass through?
-  bool firstpass = true;
-
-  // next time to wake up
-  time_t wakeuptime = 0;
-
   // parse input and print header and usage info if needed
   int status = parse_options(argc,argv);
   if (status >= 0)
@@ -5496,8 +5449,6 @@ static int main_worker(int argc, char **argv)
   dev_state_vector states;
   // Devices to monitor
   smart_device_list devices;
-
-  bool write_states_always = true;
 
 #ifdef HAVE_LIBCAP_NG
   // Drop capabilities
@@ -5512,28 +5463,10 @@ static int main_worker(int argc, char **argv)
   notify_msg("Initializing ...");
 
   // the main loop of the code
-  for (;;) {
-
-    // are we exiting from a signal?
-    if (caughtsigEXIT) {
-      // are we exiting with SIGTERM?
-      int isterm=(caughtsigEXIT==SIGTERM);
-      int isquit=(caughtsigEXIT==SIGQUIT);
-      int isok=debugmode?isterm || isquit:isterm;
-      
-      PrintOut(isok?LOG_INFO:LOG_CRIT, "smartd received signal %d: %s\n",
-               caughtsigEXIT, strsignal(caughtsigEXIT));
-
-      if (!isok)
-        return EXIT_SIGNAL;
-
-      // Write state files
-      if (!state_path_prefix.empty())
-        write_all_dev_states(configs, states);
-
-      return 0;
-    }
-
+  bool firstpass = true, write_states_always = true;
+  time_t wakeuptime = 0;
+  // assert(status < 0);
+  do {
     // Should we (re)read the config file?
     if (firstpass || caughtsigHUP){
       if (!firstpass) {
@@ -5557,8 +5490,10 @@ static int main_worker(int argc, char **argv)
 
         if (entries>=0) {
           // checks devices, then moves onto ata/scsi list or deallocates.
-          if (!register_devices(conf_entries, scanned_devs, configs, states, devices))
-            return EXIT_BADDEV;
+          if (!register_devices(conf_entries, scanned_devs, configs, states, devices)) {
+            status = EXIT_BADDEV;
+            break;
+          }
           if (!(configs.size() == devices.size() && configs.size() == states.size()))
             throw std::logic_error("Invalid result from RegisterDevices");
         }
@@ -5570,7 +5505,8 @@ static int main_worker(int argc, char **argv)
         }
         else {
           // exit with configuration file error status
-          return (entries==-3 ? EXIT_READCONF : entries==-2 ? EXIT_NOCONF : EXIT_BADCONF);
+          status = (entries == -3 ? EXIT_READCONF : entries == -2 ? EXIT_NOCONF : EXIT_BADCONF);
+          break;
         }
       }
 
@@ -5589,12 +5525,14 @@ static int main_worker(int argc, char **argv)
       }
       else {
         PrintOut(LOG_INFO,"Unable to monitor any SMART enabled devices. Try debug (-d) option. Exiting...\n");
-        return EXIT_NODEV;
+        status = EXIT_NODEV;
+        break;
       }
 
       if (quit == QUIT_SHOWTESTS) {
         // user has asked to print test schedule
         PrintTestSchedule(configs, states, devices);
+        // assert(firstpass);
         return 0;
       }
 
@@ -5634,26 +5572,73 @@ static int main_worker(int argc, char **argv)
     if (quit == QUIT_ONECHECK) {
       PrintOut(LOG_INFO,"Started with '-q onecheck' option. All devices sucessfully checked once.\n"
                "smartd is exiting (exit status 0)\n");
+      // assert(firstpass);
       return 0;
     }
     
-    // fork into background if needed
-    if (firstpass && !debugmode) {
-      status = daemon_init();
-      if (status >= 0)
-        return status;
-    }
+    if (firstpass) {
+      if (!debugmode) {
+        // fork() into background if needed, close ALL file descriptors,
+        // redirect stdin, stdout, and stderr, chdir to "/".
+        status = daemon_init();
+        if (status >= 0)
+          return status;
 
-    // set exit and signal handlers, write PID file, set wake-up time
-    if (firstpass){
-      if (!initialize(&wakeuptime))
-        return EXIT_PID;
+        // Write PID file if configured
+        if (!write_pid_file())
+          return EXIT_PID;
+      }
+
+      // Set exit and signal handlers
+      install_signal_handlers();
+
+      // Initialize wakeup time to CURRENT time
+      wakeuptime = time(0);
+
       firstpass = false;
     }
-    
+
     // sleep until next check time, or a signal arrives
     wakeuptime = dosleep(wakeuptime, write_states_always, (int)devices.size());
+
+  } while (!caughtsigEXIT);
+
+  if (caughtsigEXIT && status < 0) {
+    // Loop exited on signal
+    if (caughtsigEXIT == SIGTERM || (debugmode && caughtsigEXIT == SIGQUIT)) {
+      PrintOut(LOG_INFO, "smartd received signal %d: %s\n",
+               caughtsigEXIT, strsignal(caughtsigEXIT));
+    }
+    else {
+      // Unexpected SIGINT or SIGQUIT
+      PrintOut(LOG_CRIT, "smartd received unexpected signal %d: %s\n",
+               caughtsigEXIT, strsignal(caughtsigEXIT));
+      status = EXIT_SIGNAL;
+    }
   }
+
+  // Status unset above implies success
+  if (status < 0)
+    status = 0;
+
+  if (!firstpass) {
+    // Loop exited after daemon_init() and write_pid_file()
+
+    // Write state files only on normal exit
+    if (!status && !state_path_prefix.empty())
+      write_all_dev_states(configs, states);
+
+    // Delete PID file, if one was created
+    if (!pid_file.empty() && unlink(pid_file.c_str()))
+        PrintOut(LOG_CRIT,"Can't unlink PID file %s (%s).\n",
+                 pid_file.c_str(), strerror(errno));
+
+    // and this should be the final output from smartd before it exits
+    PrintOut((status ? LOG_CRIT : LOG_INFO), "smartd is exiting (exit status %d)\n",
+             status);
+  }
+
+  return status;
 }
 
 
@@ -5690,9 +5675,6 @@ static int smartd_main(int argc, char **argv)
 
   if (status == EXIT_BADCODE)
     PrintOut(LOG_CRIT, "Please inform " PACKAGE_BUGREPORT ", including output of smartd -V.\n");
-
-  if (is_initialized)
-    status = Goodbye(status);
 
   notify_exit(status);
 #ifdef _WIN32
