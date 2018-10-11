@@ -1299,24 +1299,26 @@ bool linux_megaraid_device::open()
   }
   /* Perform mknod of device ioctl node */
   FILE * fp = fopen("/proc/devices", "r");
-  while (fgets(line, sizeof(line), fp) != NULL) {
-    int n1 = 0;
-    if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
-      n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR, makedev(mjr, 0));
-      if(report > 0)
-        pout("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
-      if (n1 >= 0 || errno == EEXIST)
-        break;
+  if (fp) {
+    while (fgets(line, sizeof(line), fp) != NULL) {
+      int n1 = 0;
+      if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
+        n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR, makedev(mjr, 0));
+        if(report > 0)
+          pout("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
+        if (n1 >= 0 || errno == EEXIST)
+          break;
+      }
+      else if (sscanf(line, "%d megadev%n", &mjr, &n1) == 1 && n1 == 11) {
+        n1=mknod("/dev/megadev0", S_IFCHR, makedev(mjr, 0));
+        if(report > 0)
+          pout("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
+        if (n1 >= 0 || errno == EEXIST)
+          break;
+      }
     }
-    else if (sscanf(line, "%d megadev%n", &mjr, &n1) == 1 && n1 == 11) {
-      n1=mknod("/dev/megadev0", S_IFCHR, makedev(mjr, 0));
-      if(report > 0)
-        pout("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
-      if (n1 >= 0 || errno == EEXIST)
-        break;
-    }
+    fclose(fp);
   }
-  fclose(fp);
 
   /* Open Device IOCTL node */
   if ((m_fd = ::open("/dev/megaraid_sas_ioctl_node", O_RDWR)) >= 0) {

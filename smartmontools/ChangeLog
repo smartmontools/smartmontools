@@ -1,5 +1,10 @@
 $Id$
 
+2018-10-11  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Fix '-d megaraid' open crash on missing /proc/devices.
+	There is no /proc/devices on ESXi (see #800) and WSL.
+
 2018-10-09  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Move code for '--capabilities' to separate functions.
