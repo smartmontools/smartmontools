@@ -1,4 +1,9 @@
-$Id: ChangeLog 4808 2018-10-09 21:04:11Z chrfranke $
+$Id: ChangeLog 4809 2018-10-11 18:51:35Z chrfranke $
+
+2018-10-11  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Fix '-d megaraid' open crash on missing /proc/devices.
+	There is no /proc/devices on ESXi (see #800) and WSL.
 
 2018-10-09  Christian Franke  <franke@computer.org>
 
