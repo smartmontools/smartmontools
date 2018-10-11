@@ -4032,10 +4032,7 @@ std::string win_smart_interface::get_os_version_str()
   assert(vptr == vstr+strlen(vstr) && vptr+vlen+1 == vstr+sizeof(vstr));
 
   // Starting with Windows 8.1, GetVersionEx() does no longer report the
-  // actual OS version, see:
-  // http://msdn.microsoft.com/en-us/library/windows/desktop/dn302074.aspx
-
-  // RtlGetVersion() is not affected
+  // actual OS version.  RtlGetVersion() is not affected.
   LONG /*NTSTATUS*/ (WINAPI /*NTAPI*/ * RtlGetVersion_p)(LPOSVERSIONINFOEXW) =
     (LONG (WINAPI *)(LPOSVERSIONINFOEXW))
     GetProcAddress(GetModuleHandleA("ntdll.dll"), "RtlGetVersion");
@@ -4076,14 +4073,20 @@ std::string win_smart_interface::get_os_version_str()
           case 15063:   w = "w10-1703"; break;
           case 16299:   w = "w10-1709"; break;
           case 17134:   w = "w10-1803"; break;
-          default:      w = "w10";  build = vi.dwBuildNumber; break;
+          case 17763:   w = "w10-1809"; break;
+          default:      w = "w10";
+                        build = vi.dwBuildNumber; break;
         } break;
       case 0xa0<<1 | 1:
         switch (vi.dwBuildNumber) {
-          case 14393:   w = "2016-1607"; break;
-          case 16299:   w = "wsrv-1709"; break;
-          case 17134:   w = "wsrv-1803"; break;
-          default:      w = "wsrv"; build = vi.dwBuildNumber; break;
+          case 14393:   w = "2016";      break;
+          case 16299:   w = "2016-1709"; break;
+          case 17134:   w = "2016-1803"; break;
+          case 17763:   w = "2019";      break;
+          default:      w = (vi.dwBuildNumber < 17763
+                          ? "2016"
+                          : "2019");
+                        build = vi.dwBuildNumber; break;
         } break;
     }
   }
@@ -4099,11 +4102,11 @@ std::string win_smart_interface::get_os_version_str()
       (vi.dwPlatformId==VER_PLATFORM_WIN32_NT ? "nt" : "??"),
       (unsigned)vi.dwMajorVersion, (unsigned)vi.dwMinorVersion, w64);
   else if (build)
-    snprintf(vptr, vlen, "-%s%s-b%u", w, w64, build);
+    snprintf(vptr, vlen, "-%s-b%u%s", w, build, w64);
   else if (vi.wServicePackMinor)
-    snprintf(vptr, vlen, "-%s%s-sp%u.%u", w, w64, vi.wServicePackMajor, vi.wServicePackMinor);
+    snprintf(vptr, vlen, "-%s-sp%u.%u%s", w, vi.wServicePackMajor, vi.wServicePackMinor, w64);
   else if (vi.wServicePackMajor)
-    snprintf(vptr, vlen, "-%s%s-sp%u", w, w64, vi.wServicePackMajor);
+    snprintf(vptr, vlen, "-%s-sp%u%s", w, vi.wServicePackMajor, w64);
   else
     snprintf(vptr, vlen, "-%s%s", w, w64);
   return vstr;

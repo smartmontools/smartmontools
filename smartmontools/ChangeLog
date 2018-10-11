@@ -2,6 +2,9 @@ $Id$
 
 2018-10-11  Christian Franke  <franke@computer.org>
 
+	os_win32.cpp: Decode Windows 10 1809 and Server 2019 build number.
+	Move "(64)" to end of version info.
+
 	os_linux.cpp: Fix '-d megaraid' open crash on missing /proc/devices.
 	There is no /proc/devices on ESXi (see #800) and WSL.
 
