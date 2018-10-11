@@ -108,7 +108,8 @@ references:
         mkdir ~/build && cd ~/build
         tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
         cd smartmontools-${SM_VER} && mkdir build && cd build
-        ../configure CC=clang CXX=clang++ LDFLAGS="-static" --host=x86_64-pc-freebsd10 CXXFLAGS="-target x86_64-unknown-freebsd10.0 --sysroot=/opt/cross-freebsd-10/"
+        TARGET="-target x86_64-unknown-freebsd10.0 --sysroot=/opt/cross-freebsd-10/"
+        ../configure CC="clang $TARGET" CXX="clang++ $TARGET" LDFLAGS="-static" --host=x86_64-pc-freebsd10
         make -j2 BUILD_INFO="$BUILD_INFO"
         mkdir inst && make DESTDIR="$(pwd)/inst" install
         (cd inst && tar czf "/artefacts/smartmontools-freebsd10.4-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *)
