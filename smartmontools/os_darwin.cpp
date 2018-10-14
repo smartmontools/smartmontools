@@ -354,9 +354,9 @@ static int make_device_names (char*** devlist, const char* name) {
   {
     for (index = 0; index < result; index++)
       if ((*devlist)[index])
-      free ((*devlist)[index]);
-      free (*devlist);
-    }
+        free ((*devlist)[index]);
+    free (*devlist);
+  }
   if(!result) // no devs found
     return 0;
 
@@ -457,8 +457,9 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
             err = -1; // thresholds exceeded condition
             out.out_regs.lba_high = 0x2c; out.out_regs.lba_mid = 0xf4;
           }
-          else
+          else {
             out.out_regs.lba_high = 0xc2; out.out_regs.lba_mid = 0x4f;
+          }
           break;
         }
         else err = 0;

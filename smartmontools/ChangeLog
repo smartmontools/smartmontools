@@ -1,5 +1,10 @@
 $Id$
 
+2018-10-14  Christian Franke  <franke@computer.org>
+
+	os_darwin.cpp: Add missing braces to SMART RETURN STATUS LBA register
+	setting.  Detected by g++ 7.3 -Wmisleading-indentation.
+
 2018-10-11  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 10 1809 and Server 2019 build number.
