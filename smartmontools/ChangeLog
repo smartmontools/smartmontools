@@ -2,6 +2,14 @@ $Id$
 
 2018-10-14  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs: MX500 M.2
+	- Samsung based SSDs: Samsung SM841 (#1043), PM841 (#1052),
+	  Samsung 860 EVO (#1034, #1040, #1051, #1059),
+	  Samsung 860 PRO (#1010, #1068, #1102, #1103, #1104),
+	  Samsung Portable SSD T5 (#1050)
+	- USB: Samsung Portable SSD T5 (0x04e8:0x61f5) (#1050)
+
 	os_darwin.cpp: Add missing braces to SMART RETURN STATUS LBA register
 	setting.  Detected by g++ 7.3 -Wmisleading-indentation.
 
