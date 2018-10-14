@@ -38,7 +38,7 @@
 
 #define ARGUSED(x) ((void)(x))
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4773 2018-09-12 20:14:44Z chrfranke $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4812 2018-10-14 15:29:20Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -65,7 +65,7 @@ static struct {
   IONVMeSMARTInterface **smartIfNVMe;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4773 2018-09-12 20:14:44Z chrfranke $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4812 2018-10-14 15:29:20Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -354,9 +354,9 @@ static int make_device_names (char*** devlist, const char* name) {
   {
     for (index = 0; index < result; index++)
       if ((*devlist)[index])
-      free ((*devlist)[index]);
-      free (*devlist);
-    }
+        free ((*devlist)[index]);
+    free (*devlist);
+  }
   if(!result) // no devs found
     return 0;
 
@@ -457,8 +457,9 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
             err = -1; // thresholds exceeded condition
             out.out_regs.lba_high = 0x2c; out.out_regs.lba_mid = 0xf4;
           }
-          else
+          else {
             out.out_regs.lba_high = 0xc2; out.out_regs.lba_mid = 0x4f;
+          }
           break;
         }
         else err = 0;
