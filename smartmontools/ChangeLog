@@ -1,10 +1,11 @@
-$Id: ChangeLog 4815 2018-10-17 04:34:25Z chrfranke $
+$Id: ChangeLog 4816 2018-10-17 04:41:39Z chrfranke $
 
 2018-10-17  Rick Chen  <juihsiang.chen@gmail.com>
 
 	scsiprint.cpp: Add SCSI information to JSON output as below:
 	- Drive trip temperature (#1079)
 	- Error counter log read/write/verify (#1079)
+	- Grown defect list (#1082)
 
 2018-10-14  Christian Franke  <franke@computer.org>
 
