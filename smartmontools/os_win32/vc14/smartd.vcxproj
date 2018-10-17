@@ -170,6 +170,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\daemon_win32.cpp" />
+    <ClCompile Include="..\popen_win32.cpp" />
     <ClCompile Include="..\syslog_win32.cpp" />
     <ClCompile Include="..\wmiquery.cpp" />
     <ClCompile Include="..\..\regex\regcomp.c">
@@ -309,6 +310,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\daemon_win32.h" />
+    <ClInclude Include="..\popen.h" />
     <ClInclude Include="..\syslog.h" />
     <ClInclude Include="..\wmiquery.h" />
     <ClInclude Include="..\..\regex\regex.h" />

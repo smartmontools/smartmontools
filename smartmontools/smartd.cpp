@@ -42,6 +42,7 @@
 #endif
 
 #ifdef _WIN32
+#include "os_win32/popen.h" // popen/pclose()
 #ifdef _MSC_VER
 #pragma warning(disable:4761) // "conversion supplied"
 typedef unsigned short mode_t;
@@ -73,7 +74,7 @@ typedef int pid_t;
 
 #ifdef _WIN32
 // fork()/signal()/initd simulation for native Windows
-#include "daemon_win32.h" // daemon_main/detach/signal()
+#include "os_win32/daemon_win32.h" // daemon_main/detach/signal()
 #define strsignal daemon_strsignal
 #define sleep     daemon_sleep
 // SIGQUIT does not exist, CONTROL-Break signals SIGBREAK.
@@ -1192,7 +1193,6 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   const char * newadd = (!address.empty()? address.c_str() : "<nomailer>");
   const char * newwarn = (which? "Warning via" : "Test of");
 
-#ifndef _WIN32
   char command[2048];
   snprintf(command, sizeof(command), "%s 2>&1", warning_script.c_str());
   
@@ -1265,29 +1265,6 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
       
     }
   }
-  
-#else // _WIN32
-  {
-    char command[2048];
-    snprintf(command, sizeof(command), "cmd /c \"%s\"", warning_script.c_str());
-
-    char stdoutbuf[800]; // < buffer in syslog_win32::vsyslog()
-    int rc;
-    // run command
-    PrintOut(LOG_INFO,"%s %s to %s ...\n",
-             (which?"Sending warning via":"Executing test of"), executable, newadd);
-    rc = daemon_spawn(command, "", 0, stdoutbuf, sizeof(stdoutbuf));
-    if (rc >= 0 && stdoutbuf[0])
-      PrintOut(LOG_CRIT,"%s %s to %s produced unexpected output (%d bytes) to STDOUT/STDERR:\n%s\n",
-        newwarn, executable, newadd, (int)strlen(stdoutbuf), stdoutbuf);
-    if (rc != 0)
-      PrintOut(LOG_CRIT,"%s %s to %s: failed, exit status %d\n",
-        newwarn, executable, newadd, rc);
-    else
-      PrintOut(LOG_INFO,"%s %s to %s: successful\n", newwarn, executable, newadd);
-  }
-
-#endif // _WIN32
 
   // increment mail sent counter
   mail->logged++;

@@ -166,6 +166,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\popen_win32.cpp" />
     <ClCompile Include="..\syslog_win32.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -290,6 +291,7 @@
     <ClInclude Include="..\..\json.h" />
     <ClInclude Include="..\..\nvmecmds.h" />
     <ClInclude Include="..\..\nvmeprint.h" />
+    <ClInclude Include="..\popen.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="svnversion.h" />
     <CustomBuildStep Include="..\daemon_win32.h">

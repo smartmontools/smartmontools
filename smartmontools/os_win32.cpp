@@ -28,6 +28,7 @@
 #include "dev_areca.h"
 
 #include "os_win32/wmiquery.h"
+#include "os_win32/popen.h"
 
 // TODO: Move from smartctl.h to other include file
 extern unsigned char failuretest_permissive;
@@ -2555,63 +2556,6 @@ static int get_clipboard(char * data, int datasize)
 }
 
 
-// Run a command, write stdout to dataout
-// TODO: Combine with daemon_win32.cpp:daemon_spawn()
-
-static int run_cmd(const char * cmd, char * dataout, int outsize)
-{
-  // Create stdout pipe
-  SECURITY_ATTRIBUTES sa = {sizeof(sa), 0, TRUE};
-  HANDLE pipe_out_w, h;
-  if (!CreatePipe(&h, &pipe_out_w, &sa/*inherit*/, outsize))
-    return -1;
-  HANDLE self = GetCurrentProcess();
-  HANDLE pipe_out_r;
-  if (!DuplicateHandle(self, h, self, &pipe_out_r,
-    GENERIC_READ, FALSE/*!inherit*/, DUPLICATE_CLOSE_SOURCE)) {
-    CloseHandle(pipe_out_w);
-    return -1;
-  }
-  HANDLE pipe_err_w;
-  if (!DuplicateHandle(self, pipe_out_w, self, &pipe_err_w,
-    0, TRUE/*inherit*/, DUPLICATE_SAME_ACCESS)) {
-    CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
-    return -1;
-  }
-
-  // Create process
-  STARTUPINFO si; memset(&si, 0, sizeof(si)); si.cb = sizeof(si);
-  si.hStdInput  = INVALID_HANDLE_VALUE;
-  si.hStdOutput = pipe_out_w; si.hStdError  = pipe_err_w;
-  si.dwFlags = STARTF_USESTDHANDLES;
-  PROCESS_INFORMATION pi;
-  if (!CreateProcess(
-    NULL, const_cast<char *>(cmd),
-    NULL, NULL, TRUE/*inherit*/,
-    CREATE_NO_WINDOW/*do not create a new console window*/,
-    NULL, NULL, &si, &pi)) {
-    CloseHandle(pipe_err_w); CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
-    return -1;
-  }
-  CloseHandle(pi.hThread);
-  CloseHandle(pipe_err_w); CloseHandle(pipe_out_w);
-
-  // Copy stdout to output buffer
-  int i = 0;
-  while (i < outsize) {
-    DWORD num_read;
-    if (!ReadFile(pipe_out_r, dataout+i, outsize-i, &num_read, NULL) || num_read == 0)
-      break;
-    i += num_read;
-  }
-  CloseHandle(pipe_out_r);
-  // Wait for process
-  WaitForSingleObject(pi.hProcess, INFINITE);
-  CloseHandle(pi.hProcess);
-  return i;
-}
-
-
 static const char * findstr(const char * str, const char * sub)
 {
   const char * s = strstr(str, sub);
@@ -2638,7 +2582,11 @@ bool win_tw_cli_device::open()
     snprintf(cmd, sizeof(cmd), "tw_cli /%s show all", name+n1);
     if (ata_debugmode > 1)
       pout("%s: Run: \"%s\"\n", name, cmd);
-    size = run_cmd(cmd, buffer, sizeof(buffer));
+    FILE * f = popen(cmd, "rb");
+    if (f) {
+      size = fread(buffer, 1, sizeof(buffer), f);
+      pclose(f);
+    }
   }
   else {
     return set_err(EINVAL);
