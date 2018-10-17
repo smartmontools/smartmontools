@@ -1297,7 +1297,8 @@ scsiPrintSSMedia(scsi_device * device)
                 print_off();
                 return FAILSMART;
             }
-            pout("Percentage used endurance indicator: %d%%\n", ucp[7]);
+            jout("Percentage used endurance indicator: %d%%\n", ucp[7]);
+            jglb["scsi_percentage_used_endurance_indicator"] = ucp[7];
         default:        /* ignore other parameter codes */
             break;
         }

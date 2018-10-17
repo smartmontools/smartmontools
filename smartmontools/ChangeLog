@@ -6,6 +6,7 @@ $Id$
 	- Drive trip temperature (#1079)
 	- Error counter log read/write/verify (#1079)
 	- Grown defect list (#1082)
+	- Percentage used endurance indicator (#1083)
 
 2018-10-14  Christian Franke  <franke@computer.org>
 
