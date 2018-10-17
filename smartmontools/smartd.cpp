@@ -84,7 +84,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4818 2018-10-17 05:32:17Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4819 2018-10-17 15:58:21Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -1193,9 +1193,14 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   const char * newadd = (!address.empty()? address.c_str() : "<nomailer>");
   const char * newwarn = (which? "Warning via" : "Test of");
 
-  char command[2048];
+  char command[256];
+#ifdef _WIN32
+  // Path may contain spaces
+  snprintf(command, sizeof(command), "\"%s\" 2>&1", warning_script.c_str());
+#else
   snprintf(command, sizeof(command), "%s 2>&1", warning_script.c_str());
-  
+#endif
+
   // tell SYSLOG what we are about to do...
   PrintOut(LOG_INFO,"%s %s to %s ...\n",
            which?"Sending warning via":"Executing test of", executable, newadd);

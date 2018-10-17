@@ -1,4 +1,4 @@
-$Id: ChangeLog 4818 2018-10-17 05:32:17Z chrfranke $
+$Id: ChangeLog 4819 2018-10-17 15:58:21Z chrfranke $
 
 2018-10-17  Christian Franke  <franke@computer.org>
 
@@ -9,8 +9,8 @@ $Id: ChangeLog 4818 2018-10-17 05:32:17Z chrfranke $
 	daemon_spawn().
 	smartd.cpp: Remove _WIN32 specific usage of daemon_spawn(),
 	use generic code with popen() also on Windows.
+	Place quotes around warning script path on Windows.
 	Makefile.am, os_win32/vc14/smart*.vcxproj*: Add new files.
-
 
 2018-10-17  Rick Chen  <juihsiang.chen@gmail.com>
 
