@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4784 2018-09-21 09:15:06Z chrfranke $
+# $Id: Makefile.am 4818 2018-10-17 05:32:17Z chrfranke $
 #
 
 @SET_MAKE@
@@ -121,6 +121,10 @@ EXTRA_smartctl_SOURCES = \
 
 if OS_WIN32_MINGW
 
+smartctl_SOURCES += \
+        os_win32/popen_win32.cpp \
+        os_win32/popen.h
+
 smartctl_LDADD        += smartctl_res.o
 smartctl_DEPENDENCIES += smartctl_res.o
 
@@ -192,6 +196,8 @@ if OS_WIN32_MINGW
 smartd_SOURCES += \
         os_win32/daemon_win32.cpp \
         os_win32/daemon_win32.h \
+        os_win32/popen_win32.cpp \
+        os_win32/popen.h \
         os_win32/syslog_win32.cpp \
         os_win32/syslog.h
 

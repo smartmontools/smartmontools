@@ -68,6 +68,9 @@
     <ClCompile Include="..\..\nvmecmds.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp" />
     <ClCompile Include="..\..\dev_intelliprop.cpp" />
+    <ClCompile Include="..\popen_win32.cpp">
+      <Filter>os_win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\daemon_win32.h">
@@ -115,6 +118,9 @@
     </ClInclude>
     <ClInclude Include="..\..\getopt\bits\getopt_ext.h">
       <Filter>getopt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\popen.h">
+      <Filter>os_win32</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
