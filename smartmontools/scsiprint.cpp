@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4816 2018-10-17 04:41:39Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4817 2018-10-17 04:49:47Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1297,7 +1297,8 @@ scsiPrintSSMedia(scsi_device * device)
                 print_off();
                 return FAILSMART;
             }
-            pout("Percentage used endurance indicator: %d%%\n", ucp[7]);
+            jout("Percentage used endurance indicator: %d%%\n", ucp[7]);
+            jglb["scsi_percentage_used_endurance_indicator"] = ucp[7];
         default:        /* ignore other parameter codes */
             break;
         }
