@@ -332,8 +332,10 @@ scsiGetSmartData(scsi_device * device, bool attribs)
         }
         if (255 == triptemp)
             pout("Drive Trip Temperature:        <not available>\n");
-        else
-            pout("Drive Trip Temperature:        %d C\n", triptemp);
+        else {
+            jout("Drive Trip Temperature:        %d C\n", triptemp);
+            jglb["temperature"]["drive_trip"] = triptemp;
+    }
     }
     pout("\n");
     return err;
@@ -831,19 +833,31 @@ scsiPrintErrorCounterLog(scsi_device * device)
              "algorithm      processed    uncorrected\n");
         pout("           fast | delayed   rewrites  corrected  "
              "invocations   [10^9 bytes]  errors\n");
+
+        json::ref jref = jglb["scsi_error_counter_log"];
         for (int k = 0; k < 3; ++k) {
             if (! found[k])
                 continue;
             ecp = &errCounterArr[k];
             static const char * const pageNames[3] =
                                  {"read:   ", "write:  ", "verify: "};
-            pout("%s%8" PRIu64 " %8" PRIu64 "  %8" PRIu64 "  %8" PRIu64
+            static const char * jpageNames[3] =
+                                 {"read", "write", "verify"};
+            jout("%s%8" PRIu64 " %8" PRIu64 "  %8" PRIu64 "  %8" PRIu64
                  "   %8" PRIu64, pageNames[k], ecp->counter[0],
                  ecp->counter[1], ecp->counter[2], ecp->counter[3],
                  ecp->counter[4]);
             double processed_gb = ecp->counter[5] / 1000000000.0;
-            pout("   %12.3f    %8" PRIu64 "\n", processed_gb,
+            jout("   %12.3f    %8" PRIu64 "\n", processed_gb,
                  ecp->counter[6]);
+            // Error counter log info
+            jref[jpageNames[k]]["errors_corrected_by_eccfast"] = ecp->counter[0];
+            jref[jpageNames[k]]["errors_corrected_by_eccdelayed"] = ecp->counter[1];
+            jref[jpageNames[k]]["errors_corrected_by_rereads_rewrites"] = ecp->counter[2];
+            jref[jpageNames[k]]["total_errors_corrected"] = ecp->counter[3];
+            jref[jpageNames[k]]["correction_algorithm_invocations"] = ecp->counter[4];
+            jref[jpageNames[k]]["gigabytes_processed"] = strprintf("%.3f", processed_gb);
+            jref[jpageNames[k]]["total_uncorrected_errors"] = ecp->counter[6];
         }
     }
     else
@@ -2229,8 +2243,10 @@ scsiPrintTemp(scsi_device * device)
     }
     if (255 == trip)
         pout("Drive Trip Temperature:        <not available>\n");
-    else
-        pout("Drive Trip Temperature:        %d C\n", trip);
+    else {
+        jout("Drive Trip Temperature:        %d C\n", trip);
+        jglb["temperature"]["drive_trip"] = trip;
+    }
     pout("\n");
 }
 
