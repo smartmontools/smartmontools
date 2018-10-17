@@ -611,14 +611,18 @@ scsiPrintGrownDefectListLen(scsi_device * device)
             print_off();
             break;
     }
-    if (0 == dl_len)
-        pout("Elements in grown defect list: 0\n\n");
+    if (0 == dl_len) {
+        jout("Elements in grown defect list: 0\n\n");
+        jglb["scsi_grown_defect_list"] = 0;
+    }
     else {
         if (0 == div)
             pout("Grown defect list length=%u bytes [unknown "
                  "number of elements]\n\n", dl_len);
-        else
-            pout("Elements in grown defect list: %u\n\n", dl_len / div);
+        else {
+            jout("Elements in grown defect list: %u\n\n", dl_len / div);
+            jglb["scsi_grown_defect_list"] = dl_len;
+        }
     }
 }
 
