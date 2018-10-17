@@ -9,8 +9,8 @@ $Id$
 	daemon_spawn().
 	smartd.cpp: Remove _WIN32 specific usage of daemon_spawn(),
 	use generic code with popen() also on Windows.
+	Place quotes around warning script path on Windows.
 	Makefile.am, os_win32/vc14/smart*.vcxproj*: Add new files.
-
 
 2018-10-17  Rick Chen  <juihsiang.chen@gmail.com>
 

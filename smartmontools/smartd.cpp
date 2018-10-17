@@ -1193,9 +1193,14 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   const char * newadd = (!address.empty()? address.c_str() : "<nomailer>");
   const char * newwarn = (which? "Warning via" : "Test of");
 
-  char command[2048];
+  char command[256];
+#ifdef _WIN32
+  // Path may contain spaces
+  snprintf(command, sizeof(command), "\"%s\" 2>&1", warning_script.c_str());
+#else
   snprintf(command, sizeof(command), "%s 2>&1", warning_script.c_str());
-  
+#endif
+
   // tell SYSLOG what we are about to do...
   PrintOut(LOG_INFO,"%s %s to %s ...\n",
            which?"Sending warning via":"Executing test of", executable, newadd);
