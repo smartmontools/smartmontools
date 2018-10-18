@@ -104,15 +104,31 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
 #endif
     "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n"
     "smartmontools build with: "
-#if   __cplusplus > 201402
+
+#define N2S_(s) #s
+#define N2S(s) "(" N2S_(s) ")"
+#if   __cplusplus >  201703
+                               "C++2x" N2S(__cplusplus)
+#elif __cplusplus == 201703
                                "C++17"
-#elif __cplusplus > 201103
+#elif __cplusplus >  201402
+                               "C++14" N2S(__cplusplus)
+#elif __cplusplus == 201402
                                "C++14"
-#elif __cplusplus > 199711
+#elif __cplusplus >  201103
+                               "C++11" N2S(__cplusplus)
+#elif __cplusplus == 201103
                                "C++11"
-#else
+#elif __cplusplus >  199711
+                               "C++98" N2S(__cplusplus)
+#elif __cplusplus == 199711
                                "C++98"
+#else
+                               "C++"   N2S(__cplusplus)
 #endif
+#undef N2S
+#undef N2S_
+
 #if defined(__GNUC__) && defined(__VERSION__) // works also with CLang
                                      ", GCC " __VERSION__
 #endif
@@ -396,22 +412,13 @@ static const char * check_regex(const char * pattern)
   return (const char *)0;
 }
 
-// Wrapper class for regex(3)
+// Wrapper class for POSIX regex(3) or std::regex
+
+#ifndef WITH_CXX11_REGEX
 
 regular_expression::regular_expression()
-: m_flags(0)
 {
   memset(&m_regex_buf, 0, sizeof(m_regex_buf));
-}
-
-regular_expression::regular_expression(const char * pattern, int flags,
-                                       bool throw_on_error /*= true*/)
-{
-  memset(&m_regex_buf, 0, sizeof(m_regex_buf));
-  if (!compile(pattern, flags) && throw_on_error)
-    throw std::runtime_error(strprintf(
-      "error in regular expression \"%s\": %s",
-      m_pattern.c_str(), m_errmsg.c_str()));
 }
 
 regular_expression::~regular_expression()
@@ -420,15 +427,19 @@ regular_expression::~regular_expression()
 }
 
 regular_expression::regular_expression(const regular_expression & x)
+: m_pattern(x.m_pattern),
+  m_errmsg(x.m_errmsg)
 {
   memset(&m_regex_buf, 0, sizeof(m_regex_buf));
-  copy(x);
+  copy_buf(x);
 }
 
 regular_expression & regular_expression::operator=(const regular_expression & x)
 {
+  m_pattern = x.m_pattern;
+  m_errmsg = x.m_errmsg;
   free_buf();
-  copy(x);
+  copy_buf(x);
   return *this;
 }
 
@@ -440,13 +451,9 @@ void regular_expression::free_buf()
   }
 }
 
-void regular_expression::copy(const regular_expression & x)
+void regular_expression::copy_buf(const regular_expression & x)
 {
-  m_pattern = x.m_pattern;
-  m_flags = x.m_flags;
-  m_errmsg = x.m_errmsg;
-
-  if (!m_pattern.empty() && m_errmsg.empty()) {
+  if (nonempty(&x.m_regex_buf, sizeof(x.m_regex_buf))) {
     // There is no POSIX compiled-regex-copy command.
     if (!compile())
       throw std::runtime_error(strprintf(
@@ -455,17 +462,39 @@ void regular_expression::copy(const regular_expression & x)
   }
 }
 
-bool regular_expression::compile(const char * pattern, int flags)
+#endif // !WITH_CXX11_REGEX
+
+regular_expression::regular_expression(const char * pattern)
+: m_pattern(pattern)
 {
+  if (!compile())
+    throw std::runtime_error(strprintf(
+      "error in regular expression \"%s\": %s",
+      m_pattern.c_str(), m_errmsg.c_str()));
+}
+
+bool regular_expression::compile(const char * pattern)
+{
+#ifndef WITH_CXX11_REGEX
   free_buf();
+#endif
   m_pattern = pattern;
-  m_flags = flags;
   return compile();
 }
 
 bool regular_expression::compile()
 {
-  int errcode = regcomp(&m_regex_buf, m_pattern.c_str(), m_flags);
+#ifdef WITH_CXX11_REGEX
+  try {
+    m_regex.assign(m_pattern, std::regex_constants::extended);
+  }
+  catch (std::regex_error & ex) {
+    m_errmsg = ex.what();
+    return false;
+  }
+
+#else
+  int errcode = regcomp(&m_regex_buf, m_pattern.c_str(), REG_EXTENDED);
   if (errcode) {
     char errmsg[512];
     regerror(errcode, &m_regex_buf, errmsg, sizeof(errmsg));
@@ -473,11 +502,16 @@ bool regular_expression::compile()
     free_buf();
     return false;
   }
+#endif
 
   const char * errmsg = check_regex(m_pattern.c_str());
   if (errmsg) {
     m_errmsg = errmsg;
+#ifdef WITH_CXX11_REGEX
+    m_regex = std::regex();
+#else
     free_buf();
+#endif
     return false;
   }
 
@@ -485,56 +519,38 @@ bool regular_expression::compile()
   return true;
 }
 
-#ifndef HAVE_STRTOULL
-// Replacement for missing strtoull() (Linux with libc < 6, MSVC)
-// Functionality reduced to requirements of smartd and split_selective_arg().
-
-uint64_t strtoull(const char * p, char * * endp, int base)
+bool regular_expression::full_match(const char * str) const
 {
-  uint64_t result, maxres;
-  int i = 0;
-  char c = p[i++];
-
-  if (!base) {
-    if (c == '0') {
-      if (p[i] == 'x' || p[i] == 'X') {
-        base = 16; i++;
-      }
-      else
-        base = 8;
-      c = p[i++];
-    }
-    else
-      base = 10;
-  }
-
-  result = 0;
-  maxres = ~(uint64_t)0 / (unsigned)base;
-  for (;;) {
-    unsigned digit;
-    if ('0' <= c && c <= '9')
-      digit = c - '0';
-    else if ('A' <= c && c <= 'Z')
-      digit = c - 'A' + 10;
-    else if ('a' <= c && c <= 'z')
-      digit = c - 'a' + 10;
-    else
-      break;
-    if (digit >= (unsigned)base)
-      break;
-    if (!(   result < maxres
-          || (result == maxres && digit <= ~(uint64_t)0 % (unsigned)base))) {
-      result = ~(uint64_t)0; errno = ERANGE; // return on overflow
-      break;
-    }
-    result = result * (unsigned)base + digit;
-    c = p[i++];
-  }
-  if (endp)
-    *endp = (char *)p + i - 1;
-  return result;
+#ifdef WITH_CXX11_REGEX
+  return std::regex_match(str, m_regex);
+#else
+  match_range range;
+  return (   !regexec(&m_regex_buf, str, 1, &range, 0)
+          && range.rm_so == 0 && range.rm_eo == (int)strlen(str));
+#endif
 }
-#endif // HAVE_STRTOLL
+
+bool regular_expression::execute(const char * str, unsigned nmatch, match_range * pmatch) const
+{
+#ifdef WITH_CXX11_REGEX
+  std::cmatch m;
+  if (!std::regex_search(str, m, m_regex))
+    return false;
+  unsigned sz = m.size();
+  for (unsigned i = 0; i < nmatch; i++) {
+    if (i < sz && *m[i].first) {
+      pmatch[i].rm_so = m[i].first  - str;
+      pmatch[i].rm_eo = m[i].second - str;
+    }
+    else
+      pmatch[i].rm_so = pmatch[i].rm_eo = -1;
+  }
+  return true;
+
+#else
+  return !regexec(&m_regex_buf, str, nmatch, pmatch, 0);
+#endif
+}
 
 // Splits an argument to the -t option that is assumed to be of the form
 // "selective,%lld-%lld" (prefixes of "0" (for octal) and "0x"/"0X" (for hex)
@@ -786,8 +802,12 @@ static void check_endianness()
   const uint64_t be = 0x0102030405060708ULL;
 
   if (!(   x.i == (isbigendian() ? be : le)
-        && sg_get_unaligned_le64(x.c) == le
-        && sg_get_unaligned_be64(x.c) == be))
+        && sg_get_unaligned_le16(x.c)   == (uint16_t)le
+        && sg_get_unaligned_be16(x.c+6) == (uint16_t)be
+        && sg_get_unaligned_le32(x.c)   == (uint32_t)le
+        && sg_get_unaligned_be32(x.c+4) == (uint32_t)be
+        && sg_get_unaligned_le64(x.c)   == le
+        && sg_get_unaligned_be64(x.c)   == be          ))
     throw std::logic_error("CPU endianness does not match compile time test");
 }
 

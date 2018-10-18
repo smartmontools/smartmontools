@@ -17,13 +17,18 @@
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
-#include <sys/types.h> // for regex.h (according to POSIX)
-#include <regex.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <string>
+
+#include <sys/types.h> // for regex.h (according to POSIX)
+#ifdef WITH_CXX11_REGEX
+#include <regex>
+#else
+#include <regex.h>
+#endif
 
 #ifndef __GNUC__
 #define __attribute_format_printf(x, y)  /**/
@@ -59,11 +64,6 @@ int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
 #define vsnprintf safe_vsnprintf
 #endif
 
-#ifndef HAVE_STRTOULL
-// Replacement for missing strtoull() (Linux with libc < 6, MSVC)
-uint64_t strtoull(const char * p, char * * endp, int base);
-#endif
-
 // Utility function prints date and time and timezone into a character
 // buffer of length 64.  All the fuss is needed to get the
 // right timezone info (sigh).
@@ -82,10 +82,6 @@ void syserror(const char *message);
 
 // Function for processing -t selective... option in smartctl
 int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
-
-// Replacement for exit(status)
-// (exit is not compatible with C++ destructors)
-#define EXIT(status) { throw (int)(status); }
 
 // Compile time check of byte ordering
 // (inline const function allows compiler to remove dead code)
@@ -215,25 +211,30 @@ private:
   void operator=(const stdio_file &);
 };
 
-/// Wrapper class for regex(3).
+/// Wrapper class for POSIX regex(3) or std::regex
 /// Supports copy & assignment and is compatible with STL containers.
 class regular_expression
 {
 public:
   // Construction & assignment
-  regular_expression();
+#ifdef WITH_CXX11_REGEX
+  regular_expression() = default;
 
-  regular_expression(const char * pattern, int flags,
-                     bool throw_on_error = true);
+#else
+  regular_expression();
 
   ~regular_expression();
 
   regular_expression(const regular_expression & x);
 
   regular_expression & operator=(const regular_expression & x);
+#endif
+
+  /// Construct with pattern, throw on error.
+  explicit regular_expression(const char * pattern);
 
   /// Set and compile new pattern, return false on error.
-  bool compile(const char * pattern, int flags);
+  bool compile(const char * pattern);
 
   // Get pattern from last compile().
   const char * get_pattern() const
@@ -247,30 +248,30 @@ public:
   bool empty() const
     { return (m_pattern.empty() || !m_errmsg.empty()); }
 
-  /// Return true if substring matches pattern
-  bool match(const char * str, int flags = 0) const
-    { return !regexec(&m_regex_buf, str, 0, (regmatch_t*)0, flags); }
-
   /// Return true if full string matches pattern
-  bool full_match(const char * str, int flags = 0) const
-    {
-      regmatch_t range;
-      return (   !regexec(&m_regex_buf, str, 1, &range, flags)
-              && range.rm_so == 0 && range.rm_eo == (int)strlen(str));
-    }
+  bool full_match(const char * str) const;
 
-  /// Return true if substring matches pattern, fill regmatch_t array.
-  bool execute(const char * str, unsigned nmatch, regmatch_t * pmatch, int flags = 0) const
-    { return !regexec(&m_regex_buf, str, nmatch, pmatch, flags); }
+#ifdef WITH_CXX11_REGEX
+  struct match_range { int rm_so, rm_eo; };
+#else
+  typedef regmatch_t match_range;
+#endif
+
+  /// Return true if substring matches pattern, fill match_range array.
+  bool execute(const char * str, unsigned nmatch, match_range * pmatch) const;
 
 private:
   std::string m_pattern;
-  int m_flags;
-  regex_t m_regex_buf;
   std::string m_errmsg;
 
+#ifdef WITH_CXX11_REGEX
+  std::regex m_regex;
+#else
+  regex_t m_regex_buf;
   void free_buf();
-  void copy(const regular_expression & x);
+  void copy_buf(const regular_expression & x);
+#endif
+
   bool compile();
 };
 

@@ -2573,7 +2573,8 @@ static int name2command(const char * s)
   return -1;
 }
 
-static bool matchcpy(char * dest, size_t size, const char * src, const regmatch_t & srcmatch)
+static bool matchcpy(char * dest, size_t size, const char * src,
+  const regular_expression::match_range & srcmatch)
 {
   if (srcmatch.rm_so < 0)
     return false;
@@ -2585,7 +2586,7 @@ static bool matchcpy(char * dest, size_t size, const char * src, const regmatch_
   return true;
 }
 
-static inline int matchtoi(const char * src, const regmatch_t & srcmatch, int defval)
+static inline int matchtoi(const char * src, const regular_expression::match_range & srcmatch, int defval)
 {
   if (srcmatch.rm_so < 0)
     return defval;
@@ -2651,7 +2652,7 @@ bool parsed_ata_device::open()
   ")"; // )
 
   // Compile regex
-  const regular_expression regex(pattern, REG_EXTENDED);
+  const regular_expression regex(pattern);
 
   // Parse buffer
   const char * errmsg = 0;
@@ -2661,7 +2662,7 @@ bool parsed_ata_device::open()
     if (!(line[0] == 'R' || line[0] == '=' || line[0] == ' '))
       continue;
     const int nmatch = 1+11;
-    regmatch_t match[nmatch];
+    regular_expression::match_range match[nmatch];
     if (!regex.execute(line, nmatch, match))
       continue;
 

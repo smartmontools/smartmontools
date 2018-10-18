@@ -28,6 +28,7 @@
 #include "dev_areca.h"
 
 #include "os_win32/wmiquery.h"
+#include "os_win32/popen.h"
 
 // TODO: Move from smartctl.h to other include file
 extern unsigned char failuretest_permissive;
@@ -1301,7 +1302,7 @@ static bool get_usb_id(int phydrive, int logdrive,
   std::string prev_usb_ant;
   std::string prev_ant, ant, dep;
 
-  const regular_expression regex("^.*PnPEntity\\.DeviceID=\"([^\"]*)\"", REG_EXTENDED);
+  const regular_expression regex("^.*PnPEntity\\.DeviceID=\"([^\"]*)\"");
 
   while (we.next(wo)) {
     prev_ant = ant;
@@ -1313,7 +1314,7 @@ static bool get_usb_id(int phydrive, int logdrive,
       pout(" %s:\n", ant.c_str());
 
     // Extract DeviceID
-    regmatch_t match[2];
+    regular_expression::match_range match[2];
     if (!(regex.execute(dep.c_str(), 2, match) && match[1].rm_so >= 0)) {
       if (debug)
         pout("  | (\"%s\")\n", dep.c_str());
@@ -2555,63 +2556,6 @@ static int get_clipboard(char * data, int datasize)
 }
 
 
-// Run a command, write stdout to dataout
-// TODO: Combine with daemon_win32.cpp:daemon_spawn()
-
-static int run_cmd(const char * cmd, char * dataout, int outsize)
-{
-  // Create stdout pipe
-  SECURITY_ATTRIBUTES sa = {sizeof(sa), 0, TRUE};
-  HANDLE pipe_out_w, h;
-  if (!CreatePipe(&h, &pipe_out_w, &sa/*inherit*/, outsize))
-    return -1;
-  HANDLE self = GetCurrentProcess();
-  HANDLE pipe_out_r;
-  if (!DuplicateHandle(self, h, self, &pipe_out_r,
-    GENERIC_READ, FALSE/*!inherit*/, DUPLICATE_CLOSE_SOURCE)) {
-    CloseHandle(pipe_out_w);
-    return -1;
-  }
-  HANDLE pipe_err_w;
-  if (!DuplicateHandle(self, pipe_out_w, self, &pipe_err_w,
-    0, TRUE/*inherit*/, DUPLICATE_SAME_ACCESS)) {
-    CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
-    return -1;
-  }
-
-  // Create process
-  STARTUPINFO si; memset(&si, 0, sizeof(si)); si.cb = sizeof(si);
-  si.hStdInput  = INVALID_HANDLE_VALUE;
-  si.hStdOutput = pipe_out_w; si.hStdError  = pipe_err_w;
-  si.dwFlags = STARTF_USESTDHANDLES;
-  PROCESS_INFORMATION pi;
-  if (!CreateProcess(
-    NULL, const_cast<char *>(cmd),
-    NULL, NULL, TRUE/*inherit*/,
-    CREATE_NO_WINDOW/*do not create a new console window*/,
-    NULL, NULL, &si, &pi)) {
-    CloseHandle(pipe_err_w); CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
-    return -1;
-  }
-  CloseHandle(pi.hThread);
-  CloseHandle(pipe_err_w); CloseHandle(pipe_out_w);
-
-  // Copy stdout to output buffer
-  int i = 0;
-  while (i < outsize) {
-    DWORD num_read;
-    if (!ReadFile(pipe_out_r, dataout+i, outsize-i, &num_read, NULL) || num_read == 0)
-      break;
-    i += num_read;
-  }
-  CloseHandle(pipe_out_r);
-  // Wait for process
-  WaitForSingleObject(pi.hProcess, INFINITE);
-  CloseHandle(pi.hProcess);
-  return i;
-}
-
-
 static const char * findstr(const char * str, const char * sub)
 {
   const char * s = strstr(str, sub);
@@ -2638,7 +2582,11 @@ bool win_tw_cli_device::open()
     snprintf(cmd, sizeof(cmd), "tw_cli /%s show all", name+n1);
     if (ata_debugmode > 1)
       pout("%s: Run: \"%s\"\n", name, cmd);
-    size = run_cmd(cmd, buffer, sizeof(buffer));
+    FILE * f = popen(cmd, "rb");
+    if (f) {
+      size = fread(buffer, 1, sizeof(buffer), f);
+      pclose(f);
+    }
   }
   else {
     return set_err(EINVAL);
@@ -4032,10 +3980,7 @@ std::string win_smart_interface::get_os_version_str()
   assert(vptr == vstr+strlen(vstr) && vptr+vlen+1 == vstr+sizeof(vstr));
 
   // Starting with Windows 8.1, GetVersionEx() does no longer report the
-  // actual OS version, see:
-  // http://msdn.microsoft.com/en-us/library/windows/desktop/dn302074.aspx
-
-  // RtlGetVersion() is not affected
+  // actual OS version.  RtlGetVersion() is not affected.
   LONG /*NTSTATUS*/ (WINAPI /*NTAPI*/ * RtlGetVersion_p)(LPOSVERSIONINFOEXW) =
     (LONG (WINAPI *)(LPOSVERSIONINFOEXW))
     GetProcAddress(GetModuleHandleA("ntdll.dll"), "RtlGetVersion");
@@ -4076,14 +4021,20 @@ std::string win_smart_interface::get_os_version_str()
           case 15063:   w = "w10-1703"; break;
           case 16299:   w = "w10-1709"; break;
           case 17134:   w = "w10-1803"; break;
-          default:      w = "w10";  build = vi.dwBuildNumber; break;
+          case 17763:   w = "w10-1809"; break;
+          default:      w = "w10";
+                        build = vi.dwBuildNumber; break;
         } break;
       case 0xa0<<1 | 1:
         switch (vi.dwBuildNumber) {
-          case 14393:   w = "2016-1607"; break;
-          case 16299:   w = "wsrv-1709"; break;
-          case 17134:   w = "wsrv-1803"; break;
-          default:      w = "wsrv"; build = vi.dwBuildNumber; break;
+          case 14393:   w = "2016";      break;
+          case 16299:   w = "2016-1709"; break;
+          case 17134:   w = "2016-1803"; break;
+          case 17763:   w = "2019";      break;
+          default:      w = (vi.dwBuildNumber < 17763
+                          ? "2016"
+                          : "2019");
+                        build = vi.dwBuildNumber; break;
         } break;
     }
   }
@@ -4099,11 +4050,11 @@ std::string win_smart_interface::get_os_version_str()
       (vi.dwPlatformId==VER_PLATFORM_WIN32_NT ? "nt" : "??"),
       (unsigned)vi.dwMajorVersion, (unsigned)vi.dwMinorVersion, w64);
   else if (build)
-    snprintf(vptr, vlen, "-%s%s-b%u", w, w64, build);
+    snprintf(vptr, vlen, "-%s-b%u%s", w, build, w64);
   else if (vi.wServicePackMinor)
-    snprintf(vptr, vlen, "-%s%s-sp%u.%u", w, w64, vi.wServicePackMajor, vi.wServicePackMinor);
+    snprintf(vptr, vlen, "-%s-sp%u.%u%s", w, vi.wServicePackMajor, vi.wServicePackMinor, w64);
   else if (vi.wServicePackMajor)
-    snprintf(vptr, vlen, "-%s%s-sp%u", w, w64, vi.wServicePackMajor);
+    snprintf(vptr, vlen, "-%s-sp%u%s", w, vi.wServicePackMajor, w64);
   else
     snprintf(vptr, vlen, "-%s%s", w, w64);
   return vstr;

@@ -124,10 +124,7 @@ AC_TYPE_LONG_DOUBLE_WIDER
 # Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
 AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
-AC_CHECK_FUNCS([regcomp], [need_regex=no], [need_regex=yes])
-AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
-AC_CHECK_FUNCS([strtoull])
 AC_CHECK_FUNCS([clock_gettime ftime gettimeofday])
 
 # Check byte ordering (defines WORDS_BIGENDIAN)
@@ -383,11 +380,7 @@ AC_SUBST(systemdenvfile)
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
-    [Include NVMe devices in smartd DEVICESCAN [no]])])
-AC_SUBST(with_nvme_devicescan)
-if test "$with_nvme_devicescan" = "yes"; then
-  AC_DEFINE(WITH_NVME_DEVICESCAN, 1, [Define to 1 to include NVMe devices in smartd DEVICESCAN.])
-fi
+    [Include NVMe devices in smartd DEVICESCAN [Linux,Windows:yes;Others:no]])])
 
 AC_ARG_WITH(solaris-sparc-ata,
   [AS_HELP_STRING([--with-solaris-sparc-ata@<:@=yes|no@:>@],
@@ -517,7 +510,7 @@ case "$host" in
 esac
 
 AC_ARG_WITH(cxx11-option,
-  [AS_HELP_STRING([--with-cxx11-option@<:@=OPTION|auto|no@:>@],
+  [AS_HELP_STRING([--with-cxx11-option=@<:@OPTION|auto|no@:>@],
     [Compiler option to enable C++11 support for future versions of smartmontools, 'no' if unsupported [auto]])],
   [], [with_cxx11_option=auto])
 
@@ -555,7 +548,7 @@ This version of smartmontools does not use C++11 features, but future
 versions possibly will.
 This script was unable to determine a compiler option to enable C++11.
 Use option '--with-cxx11-option=OPTION' to specify the compiler option
-(it will be checked, but not used in the actual build).
+(it will be used in the actual build only if '--with-cxx11-regex' is set).
 Use option '--without-cxx11-option' to suppress this error message if the
 compiler lacks C++11 support.
 In both cases, please send info about compiler and platform to
@@ -569,6 +562,22 @@ $PACKAGE_BUGREPORT - Thanks!])
     ;;
 esac
 
+AC_ARG_WITH(cxx11-regex,
+  [AS_HELP_STRING([--with-cxx11-regex@<:@=yes|no@:>@],
+    [Use C++11 std::regex instead of POSIX regex(3) [no]])])
+
+need_regex=no
+if test "$with_cxx11_regex" = "yes"; then
+  AC_DEFINE(WITH_CXX11_REGEX, 1, [Define to 1 to use C++11 std::regex instead of POSIX regex(3)])
+  case "$with_cxx11_option: $CXXFLAGS " in
+    no:*) AC_MSG_ERROR(['--with-cxx11-regex' requires C++11 support]) ;;
+    ?*:*\ $with_cxx11_option\ *) ;;
+    ?*:*) CXXFLAGS="$CXXFLAGS $with_cxx11_option" ;;
+  esac
+else
+  AC_CHECK_FUNCS([regcomp], [], [need_regex=yes])
+fi
+AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
@@ -587,12 +596,14 @@ os_win32=no
 os_win32_mingw=no
 os_win64=no
 os_man_filter=
+os_nvme_devicescan=
 case "${host}" in
   *-*-linux*)
     os_deps='os_linux.o cciss.o dev_areca.o'
     os_dnsdomainname="'dnsdomainname' 'hostname -d'"
     os_nisdomainname="'nisdomainname' 'hostname -y' 'domainname'"
     os_man_filter=Linux
+    os_nvme_devicescan=yes
     ;;
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
     os_deps='os_freebsd.o cciss.o dev_areca.o'
@@ -600,6 +611,7 @@ case "${host}" in
     os_dltools='curl wget lynx fetch svn'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
     os_man_filter=FreeBSD
+    os_nvme_devicescan=no
     ;;
   sparc-*-solaris*)
     os_deps='os_solaris.o'
@@ -619,6 +631,7 @@ case "${host}" in
     os_deps='os_netbsd.o'
     os_libs='-lutil'
     os_man_filter=NetBSD
+    os_nvme_devicescan=no
     ;;
   *-*-openbsd*)
     os_deps='os_openbsd.o'
@@ -634,6 +647,7 @@ case "${host}" in
     os_nisdomainname=
     os_win32=yes
     os_man_filter=Cygwin
+    os_nvme_devicescan=yes
     ;;
   x86_64-*-mingw*)
     os_deps='os_win32.o dev_areca.o'
@@ -641,18 +655,21 @@ case "${host}" in
     os_win32_mingw=yes
     os_win64=yes
     os_man_filter=Windows
+    os_nvme_devicescan=yes
     ;;
   *-*-mingw*)
     os_deps='os_win32.o dev_areca.o'
     os_win32=yes
     os_win32_mingw=yes
     os_man_filter=Windows
+    os_nvme_devicescan=yes
     ;;
   *-*-darwin*)
     os_deps='os_darwin.o'
     os_libs='-framework CoreFoundation -framework IOKit'
     os_darwin=yes
     os_man_filter=Darwin
+    os_nvme_devicescan=no
     ;;
   *-*-nto-qnx*)
     os_deps='os_qnxnto.o'
@@ -679,6 +696,19 @@ else
   AC_DEFINE(OLD_INTERFACE, 1, [Define to 1 if os_*.cpp still uses the old interface])
 fi
 AC_MSG_RESULT([$os_new_interface])
+
+# TODO: Remove when NVMe support is no longer EXPERIMENTAL
+case "$os_nvme_devicescan:${with_nvme_devicescan+set}" in
+  no:|yes:)
+    AC_MSG_CHECKING([whether NVMe device scanning could be safely enabled])
+    with_nvme_devicescan=$os_nvme_devicescan
+    AC_MSG_RESULT([$os_nvme_devicescan])
+    os_nvme_devicescan=used ;;
+esac
+AC_SUBST(with_nvme_devicescan)
+if test "$with_nvme_devicescan" = "yes"; then
+  AC_DEFINE(WITH_NVME_DEVICESCAN, 1, [Define to 1 to include NVMe devices in smartd DEVICESCAN.])
+fi
 
 AC_SUBST([os_deps])
 AC_SUBST([os_libs])
@@ -865,10 +895,7 @@ info=`
           echo "libcap-ng support:      $use_libcap_ng"
           echo "systemd notify support: $use_libsystemd" ;;
       esac
-      case "$host_os" in
-        linux*|darwin*|netbsd*|cygwin*)
-          echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-no}" ;;
-      esac
+      echo "NVMe DEVICESCAN:        ${with_nvme_devicescan-[[not implemented]]}"
       ;;
   esac
   echo "-----------------------------------------------------------------------------"
@@ -879,16 +906,21 @@ $info
 ])
 
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
-case "$host_os:${with_nvme_devicescan+set}" in
-  linux*:|darwin*:|freebsd*:|dragonfly*:|kfreebsd*-gnu*:|netbsd*:|cygwin*:|mingw*:)
-    AC_MSG_WARN([
+case "$os_nvme_devicescan:$with_nvme_devicescan" in
+  used:yes) AC_MSG_WARN([
+The default for the inclusion of NVME devices in smartd.conf
+'DEVICESCAN' and 'smartctl --scan' has been changed to 'yes' on
+this platform.  If '--without-nvme-devicescan' is still needed,
+please inform $PACKAGE_BUGREPORT.
+Use option '--with-nvme-devicescan' to suppress this warning.
+])  ;;
+  used:no) AC_MSG_WARN([
 This version of smartmontools provides NVMe support which is still
 EXPERIMENTAL.  NVMe devices are not yet included in smartd.conf
 'DEVICESCAN' and 'smartctl --scan' unless '-d nvme' is specified.
 Use option '--with-nvme-devicescan' to include NVMe devices.
 Use option '--without-nvme-devicescan' to suppress this warning.
-])
-    ;;
+])  ;;
 esac
 
 # TODO: Remove after smartmontools 6.7
@@ -899,3 +931,14 @@ in a future version of smartmontools.  If you still need support for
 pre-C99 snprintf(), please inform $PACKAGE_BUGREPORT.
 ])
 fi
+
+case "$host_os:$with_libsystemd:$use_libsystemd:$PKG_CONFIG" in
+  linux*:auto:no:?*)
+    if $PKG_CONFIG systemd >/dev/null 2>&1; then
+      AC_MSG_WARN([
+systemd(1) is used on this system but smartd systemd notify support will
+not be available because libsystemd-dev[[el]] package is not installed.
+Use option '--without-libsystemd' to suppress this warning.
+])
+    fi ;;
+esac
