@@ -309,7 +309,7 @@ info.
 Enables JSON output mode.
 .Sp
 The output could be modified or enhanced by the optional argument which
-consists of one or more characters from the set \*(Aqgiosu\*(Aq:
+consists of one or more characters from the set \*(Aqgiosuv\*(Aq:
 .br
 \*(Aqg\*(Aq: Outputs JSON structure as single assignments to allow the usage
 of \fBg\fRrep.
@@ -323,6 +323,15 @@ The syntax is compatible with \fBgron\fR:
 .br
 \*(Aqs\*(Aq: Outputs JSON object elements \fBs\fRorted by key.
 By default, object elements are ordered as generated internally.
+.br
+\*(Aqv\*(Aq: Enables verbose output of possible unsafe integers.
+If specified, values which may exceed JSON safe integer (53-bit) range are
+always output as a number (with some \*(AqKEY\*(Aq) and a string
+(\*(AqKEY_s\*(Aq), regardless of the actual value.
+Values which may exceed 64-bit range are also output as a little endian
+byte array (\*(AqKEY_le\*(Aq).
+By default, the additional elements are only output if the value actually
+exceeds the range.
 .Sp
 The following two arguments are primarily indented for development:
 .br

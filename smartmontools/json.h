@@ -69,14 +69,18 @@ public:
     ref & operator=(const char * value);
     ref & operator=(const std::string & value);
 
+    /// Return reference to element with KEY_SUFFIX appended to last key.
+    ref with_suffix(const char * key_suffix) const
+      { return ref(*this, "", key_suffix); }
+
     void set_uint128(uint64_t value_hi, uint64_t value_lo);
 
-    // Set only if safe integer.
+    // Output only if safe integer.
     bool set_if_safe_uint(unsigned long long value);
     bool set_if_safe_uint128(uint64_t value_hi, uint64_t value_lo);
     bool set_if_safe_le128(const void * pvalue);
 
-    // Set possible unsafe integer as { n(umber) , s(tring) }.
+    // If unsafe integer, output also as string with key "NUMBER_s".
     void set_unsafe_uint64(uint64_t value);
     void set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo);
     void set_unsafe_le128(const void * pvalue);
@@ -86,6 +90,7 @@ public:
     ref(json & js, const char * key);
     ref(const ref & base, const char * key);
     ref(const ref & base, int index);
+    ref(const ref & base, const char * /*dummy*/, const char * key_suffix);
 
     json & m_js;
     node_path m_path;
@@ -102,6 +107,14 @@ public:
   /// Return true if enabled.
   bool is_enabled() const
     { return m_enabled; }
+
+  /// Enable/disable extra string output for safe integers also.
+  void set_verbose(bool yes = true)
+    { m_verbose = yes; }
+
+  /// Return true if any 128-bit value has been output.
+  bool has_uint128_output() const
+    { return m_uint128_output; }
 
   /// Print JSON tree to a file.
   void print(FILE * f, bool sorted, bool flat) const;
@@ -154,6 +167,9 @@ private:
   };
 
   bool m_enabled;
+  bool m_verbose;
+  bool m_uint128_output;
+
   node m_root_node;
 
   node * find_or_create_node(const node_path & path, node_type type);

@@ -69,11 +69,13 @@ static void UsageSummary()
   return;
 }
 
-static void js_initialize(int argc, char **argv)
+static void js_initialize(int argc, char **argv, bool verbose)
 {
   if (jglb.is_enabled())
     return;
   jglb.enable();
+  if (verbose)
+    jglb.set_verbose();
 
   // Major.minor version of JSON format
   jglb["json_format_version"][0] = 0;
@@ -265,7 +267,7 @@ static std::string getvalidarglist(int opt)
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
   case 'j':
-    return "g, i, o, s, u";
+    return "g, i, o, s, u, v";
   case opt_identify:
     return "n, wn, w, v, wv, wb";
   case 'v':
@@ -1089,23 +1091,27 @@ static int parse_options(int argc, char** argv, const char * & type,
       break;
 
     case 'j':
-      print_as_json = true;
-      print_as_json_sorted = print_as_json_flat = false;
-      print_as_json_output = false;
-      print_as_json_impl = print_as_json_unimpl = false;
-      if (optarg_is_set) {
-        for (int i = 0; optarg[i]; i++) {
-          switch (optarg[i]) {
-            case 'g': print_as_json_flat = true; break;
-            case 'i': print_as_json_impl = true; break;
-            case 'o': print_as_json_output = true; break;
-            case 's': print_as_json_sorted = true; break;
-            case 'u': print_as_json_unimpl = true; break;
-            default: badarg = true;
+      {
+        print_as_json = true;
+        print_as_json_sorted = print_as_json_flat = false;
+        print_as_json_output = false;
+        print_as_json_impl = print_as_json_unimpl = false;
+        bool json_verbose = false;
+        if (optarg_is_set) {
+          for (int i = 0; optarg[i]; i++) {
+            switch (optarg[i]) {
+              case 'g': print_as_json_flat = true; break;
+              case 'i': print_as_json_impl = true; break;
+              case 'o': print_as_json_output = true; break;
+              case 's': print_as_json_sorted = true; break;
+              case 'u': print_as_json_unimpl = true; break;
+              case 'v': json_verbose = true; break;
+              default: badarg = true;
+            }
           }
         }
+        js_initialize(argc, argv, json_verbose);
       }
-      js_initialize(argc, argv);
       break;
 
     case '?':
@@ -1626,6 +1632,8 @@ int main(int argc, char **argv)
       status = ex;
     }
     // Print JSON if enabled
+    if (jglb.has_uint128_output())
+      jglb["smartctl"]["uint128_precision_bits"] = uint128_to_str_precision_bits();
     jglb["smartctl"]["exit_status"] = status;
     jglb.print(stdout, print_as_json_sorted, print_as_json_flat);
   }

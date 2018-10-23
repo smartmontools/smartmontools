@@ -59,6 +59,20 @@ json::ref::ref(const ref & base, int index)
   m_path.push_back(node_info(index));
 }
 
+json::ref::ref(const ref & base, const char * /*dummy*/, const char * key_suffix)
+: m_js(base.m_js), m_path(base.m_path)
+{
+  int n = (int)m_path.size(), i;
+  for (i = n; --i >= 0; ) {
+    std::string & base_key = m_path[i].key;
+    if (base_key.empty())
+      continue; // skip array
+    base_key += key_suffix;
+    break;
+  }
+  jassert(i >= 0); // Limit: top level element must be an object
+}
+
 json::ref & json::ref::operator=(bool value)
 {
   m_js.set_bool(m_path, value);
@@ -140,27 +154,33 @@ bool json::ref::set_if_safe_le128(const void * pvalue)
 
 void json::ref::set_unsafe_uint64(uint64_t value)
 {
-  // Output as number and string
-  operator[]("n") = (unsigned long long)value;
+  // Output as number "KEY"
+  operator=((unsigned long long)value);
+  if (!m_js.m_verbose && is_safe_uint(value))
+    return;
+  // Output as string "KEY_s"
   char s[32];
   snprintf(s, sizeof(s), "%llu", (unsigned long long)value);
-  operator[]("s") = s;
+  with_suffix("_s") = s;
 }
 
 void json::ref::set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo)
 {
-  if (!value_hi)
+  if (!m_js.m_verbose && !value_hi)
     set_unsafe_uint64(value_lo);
   else {
-    // Output as number, string and LE byte array
-    operator[]("n").set_uint128(value_hi, value_lo);
+    // Output as number "KEY", string "KEY_s" and LE byte array "KEY_le[]"
+    m_js.m_uint128_output = true;
+    set_uint128(value_hi, value_lo);
     char s[64];
-    operator[]("s") = uint128_hilo_to_str(s, value_hi, value_lo);
-    operator[]("precision_bits") = uint128_to_str_precision_bits();
-
-    ref le = operator[]("le");
-    for (int i = 0; i < 8; i++)
-      le[i] = (value_lo >> (i << 3)) & 0xff;
+    with_suffix("_s") = uint128_hilo_to_str(s, value_hi, value_lo);
+    ref le = with_suffix("_le");
+    for (int i = 0; i < 8; i++) {
+      uint64_t v = (value_lo >> (i << 3));
+      if (!v && !value_hi)
+        break;
+      le[i] = v & 0xff;
+    }
     for (int i = 0; i < 8; i++) {
       uint64_t v = value_hi >> (i << 3);
       if (!v)
@@ -298,7 +318,9 @@ json::node * json::find_or_create_node(const json::node_path & path, node_type t
 }
 
 json::json()
-: m_enabled(false)
+: m_enabled(false),
+  m_verbose(false),
+  m_uint128_output(false)
 {
 }
 
