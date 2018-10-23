@@ -1,4 +1,11 @@
-$Id: ChangeLog 4819 2018-10-17 15:58:21Z chrfranke $
+$Id: ChangeLog 4820 2018-10-23 21:25:37Z chrfranke $
+
+2018-10-23  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Change handling of unsafe and 128-bit integers:
+	Output as string 'KEY_s' and LE byte array 'KEY_le' if range exceeded
+	or verbose mode enabled.
+	smartctl.cpp, smartctl.8.in: Add '--json=v' option.
 
 2018-10-17  Christian Franke  <franke@computer.org>
 
