@@ -73,54 +73,50 @@ json::ref::ref(const ref & base, const char * /*dummy*/, const char * key_suffix
   jassert(i >= 0); // Limit: top level element must be an object
 }
 
-json::ref & json::ref::operator=(bool value)
+void json::ref::operator=(bool value)
 {
   m_js.set_bool(m_path, value);
-  return *this;
 }
 
-json::ref & json::ref::operator=(long long value)
+void json::ref::operator=(long long value)
 {
   m_js.set_int(m_path, value);
-  return *this;
 }
 
-json::ref & json::ref::operator=(unsigned long long value)
+void json::ref::operator=(unsigned long long value)
 {
   m_js.set_uint(m_path, value);
-  return *this;
 }
 
-json::ref & json::ref::operator=(int value)
+void json::ref::operator=(int value)
 {
-  return operator=((long long)value);
+  operator=((long long)value);
 }
 
-json::ref & json::ref::operator=(unsigned value)
+void json::ref::operator=(unsigned value)
 {
-  return operator=((unsigned long long)value);
+  operator=((unsigned long long)value);
 }
 
-json::ref & json::ref::operator=(long value)
+void json::ref::operator=(long value)
 {
-  return operator=((long long)value);
+  operator=((long long)value);
 }
 
-json::ref & json::ref::operator=(unsigned long value)
+void json::ref::operator=(unsigned long value)
 {
-  return operator=((unsigned long long)value);
+  operator=((unsigned long long)value);
 }
 
-json::ref & json::ref::operator=(const std::string & value)
+void json::ref::operator=(const std::string & value)
 {
   m_js.set_string(m_path, value);
-  return *this;
 }
 
-json::ref & json::ref::operator=(const char * value)
+void json::ref::operator=(const char * value)
 {
   jassert(value); // Limit: null not supported
-  return operator=(std::string(value));
+  operator=(std::string(value));
 }
 
 void json::ref::set_uint128(uint64_t value_hi, uint64_t value_lo)
