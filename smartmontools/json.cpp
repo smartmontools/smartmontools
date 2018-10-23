@@ -11,7 +11,7 @@
 #include "config.h"
 #include "json.h"
 
-const char * json_cvsid = "$Id: json.cpp 4821 2018-10-23 21:31:29Z chrfranke $"
+const char * json_cvsid = "$Id: json.cpp 4822 2018-10-23 21:35:02Z chrfranke $"
   JSON_H_CVSID;
 
 #include "sg_unaligned.h"
@@ -377,7 +377,7 @@ static void print_string(FILE * f, const char * s)
 void json::print_json(FILE * f, bool sorted, const node * p, int level)
 {
   if (!p->key.empty())
-    fprintf(f, "\"%s\" : ", p->key.c_str());
+    fprintf(f, "\"%s\": ", p->key.c_str());
 
   switch (p->type) {
     case nt_object:

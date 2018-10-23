@@ -1,6 +1,8 @@
-$Id: ChangeLog 4821 2018-10-23 21:31:29Z chrfranke $
+$Id: ChangeLog 4822 2018-10-23 21:35:02Z chrfranke $
 
 2018-10-23  Christian Franke  <franke@computer.org>
+
+	json.cpp: Remove extra space after JSON key names.
 
 	json.cpp, json.h: Remove return of self reference from operator=().
 
