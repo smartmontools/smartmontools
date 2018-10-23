@@ -9,7 +9,7 @@
  */
 
 #ifndef JSON_H_CVSID
-#define JSON_H_CVSID "$Id: json.h 4820 2018-10-23 21:25:37Z chrfranke $"
+#define JSON_H_CVSID "$Id: json.h 4821 2018-10-23 21:31:29Z chrfranke $"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -57,17 +57,17 @@ public:
       { return ref(*this, index); };
 
     // Assignment operators create or change element.
-    ref & operator=(bool value);
+    void operator=(bool value);
 
-    ref & operator=(int value);
-    ref & operator=(unsigned value);
-    ref & operator=(long value);
-    ref & operator=(unsigned long value);
-    ref & operator=(long long value);
-    ref & operator=(unsigned long long value);
+    void operator=(int value);
+    void operator=(unsigned value);
+    void operator=(long value);
+    void operator=(unsigned long value);
+    void operator=(long long value);
+    void operator=(unsigned long long value);
 
-    ref & operator=(const char * value);
-    ref & operator=(const std::string & value);
+    void operator=(const char * value);
+    void operator=(const std::string & value);
 
     /// Return reference to element with KEY_SUFFIX appended to last key.
     ref with_suffix(const char * key_suffix) const

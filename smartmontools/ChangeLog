@@ -1,6 +1,8 @@
-$Id: ChangeLog 4820 2018-10-23 21:25:37Z chrfranke $
+$Id: ChangeLog 4821 2018-10-23 21:31:29Z chrfranke $
 
 2018-10-23  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Remove return of self reference from operator=().
 
 	json.cpp, json.h: Change handling of unsafe and 128-bit integers:
 	Output as string 'KEY_s' and LE byte array 'KEY_le' if range exceeded
