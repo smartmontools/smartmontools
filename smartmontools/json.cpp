@@ -377,7 +377,7 @@ static void print_string(FILE * f, const char * s)
 void json::print_json(FILE * f, bool sorted, const node * p, int level)
 {
   if (!p->key.empty())
-    fprintf(f, "\"%s\" : ", p->key.c_str());
+    fprintf(f, "\"%s\": ", p->key.c_str());
 
   switch (p->type) {
     case nt_object:
