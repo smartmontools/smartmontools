@@ -1452,7 +1452,7 @@ static const char * get_protocol_info(const smart_device * dev)
 }
 
 // Add JSON device info
-static void js_device_info(json::ref jref, const smart_device * dev)
+static void js_device_info(const json::ref & jref, const smart_device * dev)
 {
   jref["name"] = dev->get_dev_name();
   jref["info_name"] = dev->get_info_name();

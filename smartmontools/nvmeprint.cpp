@@ -88,7 +88,7 @@ static const char * lbacap_to_str(char (& str)[64], uint64_t lba_cnt, int lba_bi
 }
 
 // Output capacity specified as 64bit LBA count to JSON
-static void lbacap_to_js(json::ref jref, uint64_t lba_cnt, int lba_bits)
+static void lbacap_to_js(const json::ref & jref, uint64_t lba_cnt, int lba_bits)
 {
   jref["blocks"].set_unsafe_uint64(lba_cnt);
   jref["bytes"].set_unsafe_uint128((lba_cnt >> (64 - lba_bits)), (lba_cnt << lba_bits));

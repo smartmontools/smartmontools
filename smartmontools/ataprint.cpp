@@ -2489,7 +2489,7 @@ static int PrintSmartExtErrorLog(ata_device * device,
 // -1: self-test failed
 //  1: extended self-test completed without error
 //  0: otherwise
-static int ataPrintSmartSelfTestEntry(json::ref jref,
+static int ataPrintSmartSelfTestEntry(const json::ref & jref,
                                       unsigned testnum, unsigned char test_type,
                                       unsigned char test_status,
                                       unsigned short timestamp,
@@ -2887,7 +2887,7 @@ static const char * sct_ptemp(signed char x, char (& buf)[20])
   return buf;
 }
 
-static void sct_jtemp2(json::ref jref, const char * name, signed char x)
+static void sct_jtemp2(const json::ref & jref, const char * name, signed char x)
 {
   if (x == -128 /*0x80 = unknown*/)
     return;

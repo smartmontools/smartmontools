@@ -2,6 +2,9 @@ $Id$
 
 2018-10-25  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp, nvmeprint.cpp, smartctl.cpp: Use const references
+	for json::ref function parameters.
+
 	json.cpp, json.h: Clean up usage of 'int64_t' and 'long long'.
 	Use PRI?64 instead of "ll?" in printf() format strings.
 	This re-enables build on older versions of MinGW.
