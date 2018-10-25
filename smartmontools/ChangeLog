@@ -1,6 +1,9 @@
-$Id: ChangeLog 4823 2018-10-25 19:07:35Z chrfranke $
+$Id: ChangeLog 4824 2018-10-25 19:20:30Z chrfranke $
 
 2018-10-25  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, nvmeprint.cpp, smartctl.cpp: Use const references
+	for json::ref function parameters.
 
 	json.cpp, json.h: Clean up usage of 'int64_t' and 'long long'.
 	Use PRI?64 instead of "ll?" in printf() format strings.

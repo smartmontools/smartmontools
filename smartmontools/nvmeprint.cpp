@@ -13,7 +13,7 @@
 
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4762 2018-09-02 13:07:18Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4824 2018-10-25 19:20:30Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "utility.h"
@@ -88,7 +88,7 @@ static const char * lbacap_to_str(char (& str)[64], uint64_t lba_cnt, int lba_bi
 }
 
 // Output capacity specified as 64bit LBA count to JSON
-static void lbacap_to_js(json::ref jref, uint64_t lba_cnt, int lba_bits)
+static void lbacap_to_js(const json::ref & jref, uint64_t lba_cnt, int lba_bits)
 {
   jref["blocks"].set_unsafe_uint64(lba_cnt);
   jref["bytes"].set_unsafe_uint128((lba_cnt >> (64 - lba_bits)), (lba_cnt << lba_bits));

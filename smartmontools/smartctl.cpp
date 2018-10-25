@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4820 2018-10-23 21:25:37Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4824 2018-10-25 19:20:30Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -1452,7 +1452,7 @@ static const char * get_protocol_info(const smart_device * dev)
 }
 
 // Add JSON device info
-static void js_device_info(json::ref jref, const smart_device * dev)
+static void js_device_info(const json::ref & jref, const smart_device * dev)
 {
   jref["name"] = dev->get_dev_name();
   jref["info_name"] = dev->get_info_name();
