@@ -76,7 +76,7 @@ public:
     void set_uint128(uint64_t value_hi, uint64_t value_lo);
 
     // Output only if safe integer.
-    bool set_if_safe_uint(unsigned long long value);
+    bool set_if_safe_uint64(uint64_t value);
     bool set_if_safe_uint128(uint64_t value_hi, uint64_t value_lo);
     bool set_if_safe_le128(const void * pvalue);
 
@@ -133,8 +133,7 @@ private:
 
     node_type type;
 
-    long long intval;
-    uint64_t intval_hi;
+    uint64_t intval, intval_hi;
     std::string strval;
 
     std::string key;
@@ -175,8 +174,8 @@ private:
   node * find_or_create_node(const node_path & path, node_type type);
 
   void set_bool(const node_path & path, bool value);
-  void set_int(const node_path & path, long long value);
-  void set_uint(const node_path & path, unsigned long long value);
+  void set_int64(const node_path & path, int64_t value);
+  void set_uint64(const node_path & path, uint64_t value);
   void set_uint128(const node_path & path, uint64_t value_hi, uint64_t value_lo);
   void set_string(const node_path & path, const std::string & value);
 

@@ -9,6 +9,8 @@
  */
 
 #include "config.h"
+#define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
+
 #include "json.h"
 
 const char * json_cvsid = "$Id$"
@@ -17,6 +19,7 @@ const char * json_cvsid = "$Id$"
 #include "sg_unaligned.h"
 #include "utility.h" // uint128_*()
 
+#include <inttypes.h>
 #include <stdexcept>
 
 static void jassert_failed(int line, const char * expr)
@@ -80,12 +83,12 @@ void json::ref::operator=(bool value)
 
 void json::ref::operator=(long long value)
 {
-  m_js.set_int(m_path, value);
+  m_js.set_int64(m_path, (int64_t)value);
 }
 
 void json::ref::operator=(unsigned long long value)
 {
-  m_js.set_uint(m_path, value);
+  m_js.set_uint64(m_path, (uint64_t)value);
 }
 
 void json::ref::operator=(int value)
@@ -127,11 +130,11 @@ void json::ref::set_uint128(uint64_t value_hi, uint64_t value_lo)
     m_js.set_uint128(m_path, value_hi, value_lo);
 }
 
-bool json::ref::set_if_safe_uint(unsigned long long value)
+bool json::ref::set_if_safe_uint64(uint64_t value)
 {
   if (!is_safe_uint(value))
     return false;
-  operator=(value);
+  operator=((unsigned long long)value);
   return true;
 }
 
@@ -139,7 +142,7 @@ bool json::ref::set_if_safe_uint128(uint64_t value_hi, uint64_t value_lo)
 {
   if (value_hi)
     return false;
-  return set_if_safe_uint(value_lo);
+  return set_if_safe_uint64(value_lo);
 }
 
 bool json::ref::set_if_safe_le128(const void * pvalue)
@@ -156,7 +159,7 @@ void json::ref::set_unsafe_uint64(uint64_t value)
     return;
   // Output as string "KEY_s"
   char s[32];
-  snprintf(s, sizeof(s), "%llu", (unsigned long long)value);
+  snprintf(s, sizeof(s), "%" PRIu64, value);
   with_suffix("_s") = s;
 }
 
@@ -327,18 +330,18 @@ void json::set_bool(const node_path & path, bool value)
   find_or_create_node(path, nt_bool)->intval = (value ? 1 : 0);
 }
 
-void json::set_int(const node_path & path, long long value)
+void json::set_int64(const node_path & path, int64_t value)
 {
   if (!m_enabled)
     return;
-  find_or_create_node(path, nt_int)->intval = value;
+  find_or_create_node(path, nt_int)->intval = (uint64_t)value;
 }
 
-void json::set_uint(const node_path & path, unsigned long long value)
+void json::set_uint64(const node_path & path, uint64_t value)
 {
   if (!m_enabled)
     return;
-  find_or_create_node(path, nt_uint)->intval = (long long)value;
+  find_or_create_node(path, nt_uint)->intval = value;
 }
 
 void json::set_uint128(const node_path & path, uint64_t value_hi, uint64_t value_lo)
@@ -347,7 +350,7 @@ void json::set_uint128(const node_path & path, uint64_t value_hi, uint64_t value
     return;
   node * p = find_or_create_node(path, nt_uint128);
   p->intval_hi = value_hi;
-  p->intval = (long long)value_lo;
+  p->intval = value_lo;
 }
 
 void json::set_string(const node_path & path, const std::string & value)
@@ -409,17 +412,17 @@ void json::print_json(FILE * f, bool sorted, const node * p, int level)
       break;
 
     case nt_int:
-      fprintf(f, "%lld", p->intval);
+      fprintf(f, "%" PRId64, (int64_t)p->intval);
       break;
 
     case nt_uint:
-      fprintf(f, "%llu", (unsigned long long)p->intval);
+      fprintf(f, "%" PRIu64, p->intval);
       break;
 
     case nt_uint128:
       {
         char buf[64];
-        fputs(uint128_hilo_to_str(buf, p->intval_hi, (uint64_t)p->intval), f);
+        fputs(uint128_hilo_to_str(buf, p->intval_hi, p->intval), f);
       }
       break;
 
@@ -467,18 +470,18 @@ void json::print_flat(FILE * f, bool sorted, const node * p, std::string & path)
       break;
 
     case nt_int:
-      fprintf(f, "%s = %lld;\n", path.c_str(), p->intval);
+      fprintf(f, "%s = %" PRId64 ";\n", path.c_str(), (int64_t)p->intval);
       break;
 
     case nt_uint:
-      fprintf(f, "%s = %llu;\n", path.c_str(), (unsigned long long)p->intval);
+      fprintf(f, "%s = %" PRIu64 ";\n", path.c_str(), p->intval);
       break;
 
     case nt_uint128:
       {
         char buf[64];
         fprintf(f, "%s = %s;\n", path.c_str(),
-                uint128_hilo_to_str(buf, p->intval_hi, (uint64_t)p->intval));
+                uint128_hilo_to_str(buf, p->intval_hi, p->intval));
       }
       break;
 
