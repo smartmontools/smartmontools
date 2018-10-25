@@ -1,4 +1,10 @@
-$Id: ChangeLog 4822 2018-10-23 21:35:02Z chrfranke $
+$Id: ChangeLog 4823 2018-10-25 19:07:35Z chrfranke $
+
+2018-10-25  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Clean up usage of 'int64_t' and 'long long'.
+	Use PRI?64 instead of "ll?" in printf() format strings.
+	This re-enables build on older versions of MinGW.
 
 2018-10-23  Christian Franke  <franke@computer.org>
 
