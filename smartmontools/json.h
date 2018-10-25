@@ -116,8 +116,17 @@ public:
   bool has_uint128_output() const
     { return m_uint128_output; }
 
+  /// Options for print().
+  struct print_options {
+    bool pretty; //< Pretty-print output.
+    bool sorted; //< Sort object keys.
+    bool flat;   //< Print flat format.
+    print_options()
+      : pretty(false), sorted(false), flat(false) { }
+  };
+
   /// Print JSON tree to a file.
-  void print(FILE * f, bool sorted, bool flat) const;
+  void print(FILE * f, const print_options & options) const;
 
 private:
   enum node_type {
@@ -179,7 +188,7 @@ private:
   void set_uint128(const node_path & path, uint64_t value_hi, uint64_t value_lo);
   void set_string(const node_path & path, const std::string & value);
 
-  static void print_json(FILE * f, bool sorted, const node * p, int level);
+  static void print_json(FILE * f, bool pretty, bool sorted, const node * p, int level);
   static void print_flat(FILE * f, bool sorted, const node * p, std::string & path);
 };
 

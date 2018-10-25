@@ -52,8 +52,7 @@ bool printing_is_off = false;
 // Control JSON output
 json jglb;
 static bool print_as_json = false;
-static bool print_as_json_sorted = false;
-static bool print_as_json_flat = false;
+static json::print_options print_as_json_options;
 static bool print_as_json_output = false;
 static bool print_as_json_impl = false;
 static bool print_as_json_unimpl = false;
@@ -133,7 +132,7 @@ static void Usage()
   );
   pout(
 "================================== SMARTCTL RUN-TIME BEHAVIOR OPTIONS =====\n\n"
-"  -j, --json[=[giosu]]\n"
+"  -j, --json[=[cgiosuv]]\n"
 "         Print output in JSON format\n\n"
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
 "         Set smartctl quiet mode to one of: errorsonly, silent, noserial\n\n"
@@ -267,7 +266,7 @@ static std::string getvalidarglist(int opt)
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
   case 'j':
-    return "g, i, o, s, u, v";
+    return "c, g, i, o, s, u, v";
   case opt_identify:
     return "n, wn, w, v, wv, wb";
   case 'v':
@@ -1093,17 +1092,20 @@ static int parse_options(int argc, char** argv, const char * & type,
     case 'j':
       {
         print_as_json = true;
-        print_as_json_sorted = print_as_json_flat = false;
+        print_as_json_options.pretty = true;
+        print_as_json_options.sorted = false;
+        print_as_json_options.flat = false;
         print_as_json_output = false;
         print_as_json_impl = print_as_json_unimpl = false;
         bool json_verbose = false;
         if (optarg_is_set) {
           for (int i = 0; optarg[i]; i++) {
             switch (optarg[i]) {
-              case 'g': print_as_json_flat = true; break;
+              case 'c': print_as_json_options.pretty = false; break;
+              case 'g': print_as_json_options.flat = true; break;
               case 'i': print_as_json_impl = true; break;
               case 'o': print_as_json_output = true; break;
-              case 's': print_as_json_sorted = true; break;
+              case 's': print_as_json_options.sorted = true; break;
               case 'u': print_as_json_unimpl = true; break;
               case 'v': json_verbose = true; break;
               default: badarg = true;
@@ -1635,7 +1637,7 @@ int main(int argc, char **argv)
     if (jglb.has_uint128_output())
       jglb["smartctl"]["uint128_precision_bits"] = uint128_to_str_precision_bits();
     jglb["smartctl"]["exit_status"] = status;
-    jglb.print(stdout, print_as_json_sorted, print_as_json_flat);
+    jglb.print(stdout, print_as_json_options);
   }
   catch (const std::bad_alloc & /*ex*/) {
     // Memory allocation failed (also thrown by std::operator new)

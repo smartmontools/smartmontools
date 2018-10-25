@@ -377,19 +377,22 @@ static void print_string(FILE * f, const char * s)
   putc('"', f);
 }
 
-void json::print_json(FILE * f, bool sorted, const node * p, int level)
+void json::print_json(FILE * f, bool pretty, bool sorted, const node * p, int level)
 {
   if (!p->key.empty())
-    fprintf(f, "\"%s\": ", p->key.c_str());
+    fprintf(f, "\"%s\":%s", p->key.c_str(), (pretty ? " " : ""));
 
   switch (p->type) {
     case nt_object:
     case nt_array:
       putc((p->type == nt_object ? '{' : '['), f);
       if (!p->childs.empty()) {
-        const char * delim = "";
+        bool first = true;
         for (node::const_iterator it(p, sorted); !it.at_end(); ++it) {
-          fprintf(f, "%s\n%*s", delim, (level + 1) * 2, "");
+          if (!first)
+            putc(',', f);
+          if (pretty)
+            fprintf(f, "\n%*s", (level + 1) * 2, "");
           const node * p2 = *it;
           if (!p2) {
             // Unset element of sparse array
@@ -398,11 +401,12 @@ void json::print_json(FILE * f, bool sorted, const node * p, int level)
           }
           else {
             // Recurse
-            print_json(f, sorted, p2, level + 1);
+            print_json(f, pretty, sorted, p2, level + 1);
           }
-          delim = ",";
+          first = false;
         }
-        fprintf(f, "\n%*s", level * 2, "");
+        if (pretty)
+          fprintf(f, "\n%*s", level * 2, "");
       }
       putc((p->type == nt_object ? '}' : ']'), f);
       break;
@@ -495,18 +499,19 @@ void json::print_flat(FILE * f, bool sorted, const node * p, std::string & path)
   }
 }
 
-void json::print(FILE * f, bool sorted, bool flat) const
+void json::print(FILE * f, const print_options & options) const
 {
   if (m_root_node.type == nt_unset)
     return;
   jassert(m_root_node.type == nt_object);
 
-  if (!flat) {
-    print_json(f, sorted, &m_root_node, 0);
-    putc('\n', f);
+  if (!options.flat) {
+    print_json(f, options.pretty, options.sorted, &m_root_node, 0);
+    if (options.pretty)
+      putc('\n', f);
   }
   else {
     std::string path("json");
-    print_flat(f, sorted, &m_root_node, path);
+    print_flat(f, options.sorted, &m_root_node, path);
   }
 }

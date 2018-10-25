@@ -2,6 +2,10 @@ $Id$
 
 2018-10-25  Christian Franke  <franke@computer.org>
 
+	json.cpp, json.h: Add 'pretty' print option.
+	smartctl.cpp, smartctl.8.in: Add '--json=c' option to disable
+	pretty-printing.
+
 	ataprint.cpp, nvmeprint.cpp, smartctl.cpp: Use const references
 	for json::ref function parameters.
 
