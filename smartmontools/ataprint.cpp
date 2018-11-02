@@ -26,6 +26,7 @@
 #include "dev_interface.h"
 #include "ataprint.h"
 #include "smartctl.h"
+#include "sg_unaligned.h"
 #include "utility.h"
 #include "knowndrives.h"
 
@@ -1935,20 +1936,6 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
 
 // Section 9.26 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
 
-// TODO: Move to utility.h:
-static inline unsigned le32_to_uint(const unsigned char * val)
-{
-  return (   (unsigned)val[0]
-          | ((unsigned)val[1] <<  8)
-          | ((unsigned)val[2] << 16)
-          | ((unsigned)val[3] << 24));
-}
-
-static inline uint64_t le64_to_uint(const unsigned char * val)
-{
-  return (le32_to_uint(val) | ((uint64_t)le32_to_uint(val + 4) << 32));
-}
-
 static bool print_pending_defects_log(ata_device * device, unsigned nsectors,
   unsigned max_entries)
 {
@@ -1960,7 +1947,7 @@ static bool print_pending_defects_log(ata_device * device, unsigned nsectors,
   }
 
   jout("Pending Defects log (GP Log 0x0c)\n");
-  unsigned nentries = le32_to_uint(page_buf);
+  unsigned nentries = sg_get_unaligned_le32(page_buf);
   json::ref jref = jglb["ata_pending_defects_log"];
   jref["size"] = nsectors * 32 - 1;
   jref["count"] = nentries;
@@ -1987,13 +1974,13 @@ static bool print_pending_defects_log(ata_device * device, unsigned nsectors,
     }
 
     const unsigned char * entry = page_buf + 16 * pi;
-    unsigned hours = le32_to_uint(entry);
+    unsigned hours = sg_get_unaligned_le32(entry);
     char hourstr[32];
     if (hours != 0xffffffffU)
       snprintf(hourstr, sizeof(hourstr), "%u", hours);
     else
       hourstr[0] = '-', hourstr[1] = 0;
-    uint64_t lba = le64_to_uint(entry + 8);
+    uint64_t lba = sg_get_unaligned_le64(entry + 8);
     jout("%5u %18" PRIu64 " %8s\n", i, lba, hourstr);
 
     json::ref jrefi = jref["table"][i];
