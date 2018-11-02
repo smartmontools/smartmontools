@@ -2,6 +2,8 @@ $Id$
 
 2018-11-02  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp: Add JSON support for '-l defects'.
+
 	ataprint.cpp, ataprint.h: Remove request to send '-l defects' output.
 	Remove 'pending_defects_info' flag.
 	smartctl.cpp, smartctl.8.in: Add '-l defects' to '-x' output.

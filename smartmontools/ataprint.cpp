@@ -1959,15 +1959,18 @@ static bool print_pending_defects_log(ata_device * device, unsigned nsectors,
     return false;
   }
 
-  pout("Pending Defects log (GP Log 0x0c)\n");
+  jout("Pending Defects log (GP Log 0x0c)\n");
   unsigned nentries = le32_to_uint(page_buf);
+  json::ref jref = jglb["ata_pending_defects_log"];
+  jref["size"] = nsectors * 32 - 1;
+  jref["count"] = nentries;
   if (!nentries) {
-    pout("No Defects Logged\n\n");
+    jout("No Defects Logged\n\n");
     return true;
   }
 
   // Print entries
-  pout("Index                LBA    Hours\n");
+  jout("Index                LBA    Hours\n");
   for (unsigned i = 0, pi = 1, page = 0; i < nentries && i < max_entries; i++, pi++) {
     // Read new page if required
     if (pi >= 32) {
@@ -1991,12 +1994,17 @@ static bool print_pending_defects_log(ata_device * device, unsigned nsectors,
     else
       hourstr[0] = '-', hourstr[1] = 0;
     uint64_t lba = le64_to_uint(entry + 8);
-    pout("%5u %18" PRIu64 " %8s\n", i, lba, hourstr);
+    jout("%5u %18" PRIu64 " %8s\n", i, lba, hourstr);
+
+    json::ref jrefi = jref["table"][i];
+    jrefi["lba"].set_unsafe_uint64(lba);
+    if (hours != 0xffffffffU)
+      jrefi["power_on_hours"] = hours;
   }
 
   if (nentries > max_entries)
     pout("... (%u entries not shown)\n", nentries - max_entries);
-  pout("\n");
+  jout("\n");
   return true;
 }
 
