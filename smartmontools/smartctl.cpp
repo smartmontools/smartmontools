@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4825 2018-10-25 19:47:35Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4826 2018-11-02 20:09:12Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -720,8 +720,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       ataopts.sct_erc_get = true;
       ataopts.sct_wcache_reorder_get = true;
       ataopts.devstat_all_pages = true;
-      // ataopts.pending_defects_log = 31; // TODO: Add if no longer EXPERIMENTAL
-      ataopts.pending_defects_info = true; // TODO: Remove then
+      ataopts.pending_defects_log = 31;
       ataopts.sataphy = true;
       ataopts.get_set_used = true;
       ataopts.get_aam = ataopts.get_apm = true;

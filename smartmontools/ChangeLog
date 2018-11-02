@@ -1,4 +1,10 @@
-$Id: ChangeLog 4825 2018-10-25 19:47:35Z chrfranke $
+$Id: ChangeLog 4826 2018-11-02 20:09:12Z chrfranke $
+
+2018-11-02  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, ataprint.h: Remove request to send '-l defects' output.
+	Remove 'pending_defects_info' flag.
+	smartctl.cpp, smartctl.8.in: Add '-l defects' to '-x' output.
 
 2018-10-25  Christian Franke  <franke@computer.org>
 
