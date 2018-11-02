@@ -3,6 +3,7 @@ $Id$
 2018-11-02  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add JSON support for '-l defects'.
+	Add numeric values to JSON 'interface_speed' info.
 	Replace local 'le*_to_uint()' with 'sg_get_unaligned_le*()'.
 
 	ataprint.cpp, ataprint.h: Remove request to send '-l defects' output.

@@ -551,15 +551,15 @@ static const char * get_sata_version(unsigned short word222)
     case  2: return "SATA II Ext";
     case  1: return "SATA 1.0a";
     case  0: return "ATA8-AST";
-    default: return "Unknown";
+    default: return 0;
   }
 }
 
-static const char * get_sata_speed(int level)
+static const char * get_sata_speed(int speed)
 {
-  if (level <= 0)
+  if (speed <= 0)
     return 0;
-  switch (level) {
+  switch (speed) {
     default: return ">6.0 Gb/s (7)";
     case 6:  return ">6.0 Gb/s (6)";
     case 5:  return ">6.0 Gb/s (5)";
@@ -570,22 +570,47 @@ static const char * get_sata_speed(int level)
   }
 }
 
-static const char * get_sata_maxspeed(const ata_identify_device * drive)
+static void jset_sata_speed(const char * key, int value, int speed, const char * str)
 {
-  unsigned short word076 = drive->words047_079[76-47];
-  if (word076 & 0x0001)
-    return 0;
-  return get_sata_speed(find_msb(word076 & 0x00fe));
+  if (speed <= 0)
+    return;
+  json::ref jref = jglb["interface_speed"][key];
+  jref["sata_value"] = value;
+  if (str)
+    jref["string"] = str;
+  int ups;
+  switch (speed) {
+    case 3: ups = 60; break;
+    case 2: ups = 30; break;
+    case 1: ups = 15; break;
+    default: return;
+  }
+  jref["units_per_second"] = ups;
+  jref["bits_per_unit"] = 100000000;
 }
 
-static const char * get_sata_curspeed(const ata_identify_device * drive)
+static void print_sata_version_and_speed(unsigned short word222,
+                                         unsigned short word076,
+                                         unsigned short word077)
 {
-  unsigned short word077 = drive->words047_079[77-47];
-  if (word077 & 0x0001)
-    return 0;
-  return get_sata_speed((word077 >> 1) & 0x7);
-}
+  int allspeeds = (!(word076 & 0x0001) ? (word076 & 0x00fe) : 0);
+  int maxspeed = (allspeeds ? find_msb(allspeeds) : 0);
+  int curspeed = (!(word077 & 0x0001) ? ((word077 >> 1) & 0x7) : 0);
 
+  const char * verstr = get_sata_version(word222);
+  const char * maxstr = get_sata_speed(maxspeed);
+  const char * curstr = get_sata_speed(curspeed);
+  jout("SATA Version is:  %s%s%s%s%s%s\n",
+       (verstr ? verstr : "Unknown"),
+       (maxstr ? ", " : ""), (maxstr ? maxstr : ""),
+       (curstr ? " (current: " : ""), (curstr ? curstr : ""),
+       (curstr ? ")" : ""));
+  if (verstr)
+    jglb["sata_version"]["string"] = verstr;
+  jglb["sata_version"]["value"] = word222 & 0x0fff;
+  jset_sata_speed("max", allspeeds, maxspeed, maxstr);
+  jset_sata_speed("current", curspeed, curspeed, curstr);
+}
 
 static void print_drive_info(const ata_identify_device * drive,
                              const ata_size_info & sizes, int rpm,
@@ -729,22 +754,9 @@ static void print_drive_info(const ata_identify_device * drive,
       }
       break;
     case 0x1: // SATA
-      {
-        const char * sataver = get_sata_version(word222);
-        const char * maxspeed = get_sata_maxspeed(drive);
-        const char * curspeed = get_sata_curspeed(drive);
-        jout("SATA Version is:  %s%s%s%s%s%s\n", sataver,
-             (maxspeed ? ", " : ""), (maxspeed ? maxspeed : ""),
-             (curspeed ? " (current: " : ""), (curspeed ? curspeed : ""),
-             (curspeed ? ")" : ""));
-        if (sataver)
-          jglb["sata_version"]["string"] = sataver;
-        jglb["sata_version"]["value"] = word222 & 0x0fff;
-        if (maxspeed)
-          jglb["interface_speed"]["max"]["string"] = maxspeed;
-        if (curspeed)
-          jglb["interface_speed"]["current"]["string"] = curspeed;
-      }
+      print_sata_version_and_speed(word222,
+                                   drive->words047_079[76-47],
+                                   drive->words047_079[77-47]);
       break;
     case 0xe: // PCIe (ACS-4)
       pout("Transport Type:   PCIe (0x%03x)\n", word222 & 0x0fff);
