@@ -262,7 +262,7 @@ For ATA devices this is equivalent to
 .br
 \*(Aq\-H \-i \-g all \-g wcreorder \-c \-A \-f brief \-l xerror,error
 \-l xselftest,selftest \-l selective \-l directory \-l scttemp \-l scterc
-\-l devstat \-l sataphy\*(Aq.
+\-l devstat \-l defects \-l sataphy\*(Aq.
 .br
 and for SCSI, this is equivalent to
 .br

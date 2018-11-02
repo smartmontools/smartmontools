@@ -1996,8 +1996,6 @@ static bool print_pending_defects_log(ata_device * device, unsigned nsectors,
 
   if (nentries > max_entries)
     pout("... (%u entries not shown)\n", nentries - max_entries);
-  // TODO: Remove when no longer EXPERIMENTAL
-  pout("Please send sample output of above table to:\n" PACKAGE_BUGREPORT "\n");
   pout("\n");
   return true;
 }
@@ -4359,12 +4357,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Print Pending Defects log
-  if (options.pending_defects_log || options.pending_defects_info) {
+  if (options.pending_defects_log) {
     unsigned nsectors = GetNumLogSectors(gplogdir, 0x0c, true);
     if (!nsectors)
       pout("Pending Defects log (GP Log 0x0c) not supported\n\n");
-    else if (!options.pending_defects_log) // TODO: Remove when no longer EXPERIMENTAL
-      pout("Pending Defects log (GP Log 0x0c) supported [please try: '-l defects']\n\n");
     else if (!print_pending_defects_log(device, nsectors, options.pending_defects_log))
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   }
