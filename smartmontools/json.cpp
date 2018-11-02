@@ -13,7 +13,7 @@
 
 #include "json.h"
 
-const char * json_cvsid = "$Id: json.cpp 4825 2018-10-25 19:47:35Z chrfranke $"
+const char * json_cvsid = "$Id: json.cpp 4830 2018-11-02 21:21:48Z chrfranke $"
   JSON_H_CVSID;
 
 #include "sg_unaligned.h"
@@ -370,8 +370,8 @@ static void print_string(FILE * f, const char * s)
     else if (c == '\t') {
       putc('\\', f); c = 't';
     }
-    else if (!(' ' <= c && c <= '~'))
-      c = '?'; // TODO: UTF-8 characters?
+    else if ((unsigned char)c < ' ')
+      c = '?'; // Not ' '-'~', '\t' or UTF-8
     putc(c, f);
   }
   putc('"', f);

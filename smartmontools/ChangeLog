@@ -1,6 +1,8 @@
-$Id: ChangeLog 4829 2018-11-02 21:16:45Z chrfranke $
+$Id: ChangeLog 4830 2018-11-02 21:21:48Z chrfranke $
 
 2018-11-02  Christian Franke  <franke@computer.org>
+
+	json.cpp: Allow UTF-8 characters in strings.
 
 	ataprint.cpp: Add JSON support for '-l defects'.
 	Add numeric values to JSON 'interface_speed' info.
