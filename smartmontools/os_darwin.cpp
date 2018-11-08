@@ -403,7 +403,7 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   int rc = 0;
   
   if (! ifp)
-    return -1;
+    return false;
   smartIf = *ifp;
   clear_err(); errno = 0;
   do {
@@ -558,7 +558,7 @@ bool darwin_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out 
   unsigned int page = in.cdw10 & 0xff;
 
   if (! ifp)
-    return -1;
+    return false;
   smartIfNVMe = *ifp;
   // currently only GetIdentifyData and SMARTReadData are supported
   switch (in.opcode) {
