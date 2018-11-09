@@ -38,7 +38,7 @@
 
 #define ARGUSED(x) ((void)(x))
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4812 2018-10-14 15:29:20Z chrfranke $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 4831 2018-11-09 07:18:23Z samm2 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -65,7 +65,7 @@ static struct {
   IONVMeSMARTInterface **smartIfNVMe;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4812 2018-10-14 15:29:20Z chrfranke $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 4831 2018-11-09 07:18:23Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -403,7 +403,7 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   int rc = 0;
   
   if (! ifp)
-    return -1;
+    return false;
   smartIf = *ifp;
   clear_err(); errno = 0;
   do {
@@ -558,7 +558,7 @@ bool darwin_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out 
   unsigned int page = in.cdw10 & 0xff;
 
   if (! ifp)
-    return -1;
+    return false;
   smartIfNVMe = *ifp;
   // currently only GetIdentifyData and SMARTReadData are supported
   switch (in.opcode) {

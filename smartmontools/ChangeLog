@@ -1,4 +1,9 @@
-$Id: ChangeLog 4830 2018-11-02 21:21:48Z chrfranke $
+$Id: ChangeLog 4831 2018-11-09 07:18:23Z samm2 $
+
+2018-11-02  Oleksii Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp, os_freebsd.cpp: fix return value in error paths
+	patch provided by rikard.falkeborn (github)
 
 2018-11-02  Christian Franke  <franke@computer.org>
 

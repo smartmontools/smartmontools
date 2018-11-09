@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4768 2018-09-11 08:14:58Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4831 2018-11-09 07:18:23Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -613,7 +613,7 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
 
   if (m_disknum < 0) {
     printwarning(NO_DISK_3WARE,NULL);
-    return -1;
+    return false;
   }
 
   memset(ioctl_buffer, 0, TW_IOCTL_BUFFER_SIZE);
