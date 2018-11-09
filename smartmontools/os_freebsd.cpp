@@ -613,7 +613,7 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
 
   if (m_disknum < 0) {
     printwarning(NO_DISK_3WARE,NULL);
-    return -1;
+    return false;
   }
 
   memset(ioctl_buffer, 0, TW_IOCTL_BUFFER_SIZE);
