@@ -2845,7 +2845,7 @@ std::string linux_smart_interface::get_app_examples(const char * appname)
 // we are going to take advantage of the fact that Linux's devfs will only
 // have device entries for devices that exist.
 void linux_smart_interface::get_dev_list(smart_device_list & devlist,
-  const char * pattern, bool scan_ata, bool scan_scsi, bool scan_nvme,
+  const char * pattern, bool /*scan_ata*/, bool scan_scsi, bool scan_nvme,
   const char * req_type, bool autodetect)
 {
   // Use glob to look for any directory entries matching the pattern
@@ -2873,59 +2873,22 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
     n = max_pathc;
   }
 
-  // now step through the list returned by glob.  If not a link, copy
-  // to list.  If it is a link, evaluate it and see if the path ends
-  // in "disc".
+  // now step through the list returned by glob.
   for (int i = 0; i < n; i++){
-    // see if path is a link
-    char linkbuf[1024];
-    int retlink = readlink(globbuf.gl_pathv[i], linkbuf, sizeof(linkbuf)-1);
-
-    char tmpname[1024]={0};
-    const char * name = 0;
-    bool is_scsi = scan_scsi;
-    // if not a link (or a strange link), keep it
-    if (retlink<=0 || retlink>1023)
-      name = globbuf.gl_pathv[i];
-    else {
-      // or if it's a link that points to a disc, follow it
-      linkbuf[retlink] = 0;
-      const char *p;
-      if ((p=strrchr(linkbuf, '/')) && !strcmp(p+1, "disc"))
-        // This is the branch of the code that gets followed if we are
-        // using devfs WITH traditional compatibility links. In this
-        // case, we add the traditional device name to the list that
-        // is returned.
-        name = globbuf.gl_pathv[i];
-      else {
-        // This is the branch of the code that gets followed if we are
-        // using devfs WITHOUT traditional compatibility links.  In
-        // this case, we check that the link to the directory is of
-        // the correct type, and then append "disc" to it.
-        bool match_ata  = strstr(linkbuf, "ide");
-        bool match_scsi = strstr(linkbuf, "scsi");
-        if (((match_ata && scan_ata) || (match_scsi && scan_scsi)) && !(match_ata && match_scsi)) {
-          is_scsi = match_scsi;
-          snprintf(tmpname, sizeof(tmpname), "%s/disc", globbuf.gl_pathv[i]);
-          name = tmpname;
-        }
-      }
+    const char * name = globbuf.gl_pathv[i];
+    smart_device * dev;
+    if (autodetect) {
+      dev = autodetect_smart_device(name);
+      if (!dev)
+        continue;
     }
-
-    if (name) {
-      // Found a name, add device to list.
-      smart_device * dev;
-      if (autodetect)
-        dev = autodetect_smart_device(name);
-      else if (is_scsi)
-        dev = new linux_scsi_device(this, name, req_type, true /*scanning*/);
-      else if (scan_nvme)
-        dev = new linux_nvme_device(this, name, req_type, 0 /* use default nsid */);
-      else
-        dev = new linux_ata_device(this, name, req_type);
-      if (dev) // autodetect_smart_device() may return nullptr.
-        devlist.push_back(dev);
-    }
+    else if (scan_scsi)
+      dev = new linux_scsi_device(this, name, req_type, true /*scanning*/);
+    else if (scan_nvme)
+      dev = new linux_nvme_device(this, name, req_type, 0 /* use default nsid */);
+    else
+      dev = new linux_ata_device(this, name, req_type);
+    devlist.push_back(dev);
   }
 
   // free memory
@@ -3029,14 +2992,6 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, false, true, type, false);
   }
 
-  // if we found traditional links, we are done
-  if (devlist.size() > 0)
-    return true;
-
-  // else look for devfs entries without traditional links
-  // TODO: Add udev support
-  if (scan_ata || scan_scsi)
-    get_dev_list(devlist, "/dev/discs/disc*", scan_ata, scan_scsi, false, type, false);
   return true;
 }
 
