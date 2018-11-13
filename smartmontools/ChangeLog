@@ -1,6 +1,8 @@
-$Id: ChangeLog 4832 2018-11-13 18:35:35Z chrfranke $
+$Id: ChangeLog 4833 2018-11-13 19:31:58Z chrfranke $
 
 2018-11-13  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Drop device scan support for obsolete devfs.
 
 	dev_interface.cpp, dev_interface.h: Add default implementation for
 	old version of scan_smart_devices().
