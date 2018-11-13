@@ -2797,8 +2797,8 @@ public:
 
   virtual std::string get_app_examples(const char * appname);
 
-  virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
-    const char * pattern = 0);
+  virtual bool scan_smart_devices(smart_device_list & devlist,
+    const smart_devtype_list & types, const char * pattern = 0);
 
 protected:
   virtual ata_device * get_ata_device(const char * name, const char * type);
@@ -2816,7 +2816,7 @@ protected:
 
 private:
   void get_dev_list(smart_device_list & devlist, const char * pattern,
-    bool scan_ata, bool scan_scsi, bool scan_nvme,
+    bool scan_scsi, bool scan_nvme,
     const char * req_type, bool autodetect);
 
   bool get_dev_megasas(smart_device_list & devlist);
@@ -2845,7 +2845,7 @@ std::string linux_smart_interface::get_app_examples(const char * appname)
 // we are going to take advantage of the fact that Linux's devfs will only
 // have device entries for devices that exist.
 void linux_smart_interface::get_dev_list(smart_device_list & devlist,
-  const char * pattern, bool /*scan_ata*/, bool scan_scsi, bool scan_nvme,
+  const char * pattern, bool scan_scsi, bool scan_nvme,
   const char * req_type, bool autodetect)
 {
   // Use glob to look for any directory entries matching the pattern
@@ -2952,44 +2952,55 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
 }
 
 bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
-  const char * type, const char * pattern /*= 0*/)
+  const smart_devtype_list & types, const char * pattern /*= 0*/)
 {
-  if (pattern) {
-    set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
-    return false;
-  }
+  if (pattern)
+    return set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
 
-  if (!type)
-    type = "";
-
-  bool scan_ata  = (!*type || !strcmp(type, "ata" ));
-  // "sat" detection will be later handled in linux_scsi_device::autodetect_open()
-  bool scan_scsi = (!*type || !strcmp(type, "scsi") || !strcmp(type, "sat"));
-
+  // Scan type list
+  const char * type_ata, * type_scsi, * type_sat, * type_nvme;
+  if (types.empty()) {
+     type_ata = type_scsi = type_sat = "";
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
-  bool scan_nvme = (!*type || !strcmp(type, "nvme"));
+     type_nvme = "";
 #else
-  bool scan_nvme = (          !strcmp(type, "nvme"));
+     type_nvme = 0;
 #endif
-
-  if (!(scan_ata || scan_scsi || scan_nvme)) {
-    set_err(EINVAL, "Invalid type '%s', valid arguments are: ata, scsi, sat, nvme", type);
-    return false;
+  }
+  else {
+    type_ata = type_scsi = type_sat = type_nvme = 0;
+    for (unsigned i = 0; i < types.size(); i++) {
+      const char * type = types[i].c_str();
+      if (!strcmp(type, "ata"))
+        type_ata = "ata";
+      else if (!strcmp(type, "scsi"))
+        type_scsi = "scsi";
+      else if (!strcmp(type, "sat"))
+        type_sat = "sat";
+      else if (!strcmp(type, "nvme"))
+        type_nvme = "nvme";
+      else
+        return set_err(EINVAL, "Invalid type '%s', valid arguments are: ata, scsi, sat, nvme",
+                       type);
+    }
   }
 
-  if (scan_ata)
-    get_dev_list(devlist, "/dev/hd[a-t]", true, false, false, type, false);
-  if (scan_scsi) {
-    bool autodetect = !*type; // Try USB autodetection if no type specifed
-    get_dev_list(devlist, "/dev/sd[a-z]", false, true, false, type, autodetect);
+  if (type_ata)
+    get_dev_list(devlist, "/dev/hd[a-t]", false, false, type_ata, false);
+  if (type_scsi || type_sat) {
+    // "sat" detection will be later handled in linux_scsi_device::autodetect_open()
+    const char * type_scsi_sat = ((type_scsi && type_sat) ? "" // detect both
+                                  : (type_scsi ? type_scsi : type_sat));
+    bool autodetect = !*type_scsi_sat; // If no type specified, detect USB also
+    get_dev_list(devlist, "/dev/sd[a-z]", true, false, type_scsi_sat, autodetect);
     // Support up to 104 devices
-    get_dev_list(devlist, "/dev/sd[a-c][a-z]", false, true, false, type, autodetect);
+    get_dev_list(devlist, "/dev/sd[a-c][a-z]", true, false, type_scsi_sat, autodetect);
     // get device list from the megaraid device
     get_dev_megasas(devlist);
   }
-  if (scan_nvme) {
-    get_dev_list(devlist, "/dev/nvme[0-9]", false, false, true, type, false);
-    get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, false, true, type, false);
+  if (type_nvme) {
+    get_dev_list(devlist, "/dev/nvme[0-9]", false, true, type_nvme, false);
+    get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, true, type_nvme, false);
   }
 
   return true;
