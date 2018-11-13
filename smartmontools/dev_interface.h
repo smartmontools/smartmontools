@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2008-16 Christian Franke
+ * Copyright (C) 2008-18 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -961,8 +961,9 @@ public:
   /// specified by some optional 'pattern'.
   /// Use platform specific default if 'type' is empty or 0.
   /// Return false on error.
+  /// Default implementation returns false;
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
-    const char * pattern = 0) = 0;
+    const char * pattern = 0);
 
   /// Fill 'devlist' with devices of all 'types' with device names
   /// specified by some optional 'pattern'.

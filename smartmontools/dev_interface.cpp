@@ -451,6 +451,12 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
   return dev;
 }
 
+bool smart_interface::scan_smart_devices(smart_device_list & /*devlist*/,
+  const char * /*type*/, const char * /*pattern*/ /* = 0 */)
+{
+  return set_err(ENOSYS);
+}
+
 bool smart_interface::scan_smart_devices(smart_device_list & devlist,
   const smart_devtype_list & types, const char * pattern /* = 0 */)
 {
