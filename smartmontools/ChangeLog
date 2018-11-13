@@ -1,4 +1,9 @@
-$Id: ChangeLog 4831 2018-11-09 07:18:23Z samm2 $
+$Id: ChangeLog 4832 2018-11-13 18:35:35Z chrfranke $
+
+2018-11-13  Christian Franke  <franke@computer.org>
+
+	dev_interface.cpp, dev_interface.h: Add default implementation for
+	old version of scan_smart_devices().
 
 2018-11-02  Oleksii Samorukov  <samm@os2.kiev.ua>
 

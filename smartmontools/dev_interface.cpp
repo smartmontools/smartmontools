@@ -26,7 +26,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4832 2018-11-13 18:35:35Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -449,6 +449,12 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
   if (!dev && !get_errno())
     set_err(EINVAL, "Not a device of type '%s'", type);
   return dev;
+}
+
+bool smart_interface::scan_smart_devices(smart_device_list & /*devlist*/,
+  const char * /*type*/, const char * /*pattern*/ /* = 0 */)
+{
+  return set_err(ENOSYS);
 }
 
 bool smart_interface::scan_smart_devices(smart_device_list & devlist,
