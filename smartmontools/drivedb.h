@@ -310,8 +310,9 @@ const drive_settings builtin_knowndrives[] = {
     "MICRON_M510DC_(EE|MT)FDDAK(120|240|480|800|960)MBP|" // tested with Micron_M510DC_MTFDDAK240MBP/0005
     "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY|" // tested with M550-MTFDDAK256MAY/MU01
     "Micron_M600_(EE|MT)FDDA[KTV](128|256|512|1T0)MBF[25Z]?|" // tested with Micron_M600_MTFDDAK1T0MBF/MU01
-    "(Micron_1100_)?MTFDDA[KV](256|512|1T0|2T0)TBN", // Marvell 88SS1074, tested with
+    "(Micron_1100_)?MTFDDA[KV](256|512|1T0|2T0)TBN|" // Marvell 88SS1074, tested with
       // Micron_1100_MTFDDAK256TBN/M0MU020, MTFDDAK256TBN/M0MA020 (OEM)
+    "Micron 1100 SATA (256G|512G|1T|2T)B", // tested with Micron 1100 SATA 256GB/M0DL022
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
@@ -438,6 +439,7 @@ const drive_settings builtin_knowndrives[] = {
       // ADATA SSD SX900 512GB-DL2/5.8.2
     "ADATA XM11 (128|256)GB|" // tested with ADATA XM11 128GB/5.0.1
     "ATP Velocity MIV (60|120|240|480)GB|" // tested with ATP Velocity MIV 480GB/110719
+    "Comay BladeDrive E28 (800|1600|3200)GB|" // LSI SF-2581, tested with Comay BladeDrive E28 800GB/2.71
     "Corsair CSSD-F(40|60|80|115|120|160|240)GBP?2.*|" // Corsair Force, tested with
       // Corsair CSSD-F40GB2/1.1, Corsair CSSD-F115GB2-A/2.1a
     "Corsair Voyager GTX|" // Corsair Voyager GTX/S9FM02J6
@@ -466,6 +468,7 @@ const drive_settings builtin_knowndrives[] = {
       // tested with MKNSSDAT120GB-V/540ABBF0
     "Mushkin MKNSSDCL(40|60|80|90|115|120|180|240|480)GB-DX2?|" // Mushkin Callisto deluxe,
       // SF-1200/1222, Mushkin MKNSSDCL60GB-DX/361A13F0
+    "MXSSD3MDSF-(60|120)G|" // MX-DS FUSION, tested with MXSSD3MDSF-60G/2.32
     "OCZ[ -](AGILITY2([ -]EX)?|COLOSSUS2|ONYX2|VERTEX(2|-LE))( [123]\\..*)?|" // SF-1200,
       // tested with OCZ-VERTEX2/1.11, OCZ-VERTEX2 3.5/1.11
     "OCZ-NOCTI|" // mSATA, SF-2100, tested with OCZ-NOCTI/2.15
@@ -474,10 +477,10 @@ const drive_settings builtin_knowndrives[] = {
     "OCZ-REVODRIVE350|"
     "OCZ[ -](VELO|VERTEX2[ -](EX|PRO))( [123]\\..*)?|" // SF-1500, tested with
       // OCZ VERTEX2-PRO/1.10 (Bogus thresholds for attribute 232 and 235)
-    "D2[CR]STK251...-....|" // OCZ Deneva 2 C/R, SF-22xx/25xx,
-      // tested with D2CSTK251M11-0240/2.08, D2CSTK251A10-0240/2.15
-    "OCZ-(AGILITY3|SOLID3|VERTEX3( MI)?)|"  // SF-2200, tested with OCZ-VERTEX3/2.02,
-      // OCZ-AGILITY3/2.11, OCZ-SOLID3/2.15, OCZ-VERTEX3 MI/2.15
+    "D2[CR]STK251...-....(\\.C)?|" // OCZ Deneva 2 C/R, SF-22xx/25xx,
+      // tested with D2CSTK251M11-0240/2.08, D2CSTK251A10-0240/2.15, D2RSTK251M11-0100.C/3.22
+    "OCZ-(AGILITY3|SOLID3|VERTEX3( LT| MI)?)|"  // SF-2200, tested with OCZ-VERTEX3/2.02,
+      // OCZ-AGILITY3/2.11, OCZ-SOLID3/2.15, OCZ-VERTEX3 MI/2.15, OCZ-VERTEX3 LT/2.22
     "OCZ Z-DRIVE R4 [CR]M8[48]|" // PCIe, SF-2282/2582, tested with OCZ Z-DRIVE R4 CM84/2.13
       // (Bogus attributes under Linux)
     "OCZ Z-DRIVE 4500|"
@@ -572,7 +575,9 @@ const drive_settings builtin_knowndrives[] = {
     "PNY CS1311 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122
     "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
     "KINGSTON SHSS3B?7A(120|240|480|960)G|" // HyperX Savage
-    "KINGSTON SA400S37(120|240|480|960)G", // Kingston A400 SSD/SBFKB1D1
+    "KINGSTON  ?SA400S37(120|240|480|960)G", // Kingston A400 SSD, tested with
+      // KINGSTON SA400S37240G/SBFK10D7, KINGSTON SA400S37120G/SBFK71E0, */SBFKB1D1
+      // KINGSTON  SA400S37480G/SBFK10D7 (two spaces)
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
@@ -1530,7 +1535,8 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZNLN256HMHQ-000H1/MAV21H3Q
     "SAMSUNG SSD PM871 .*|" // SAMSUNG SSD PM871 2.5 7mm 256GB/EMT02D0Q
       // SAMSUNG MZ7LN256HMJP-00000/MAV0100Q, SAMSUNG MZ7LN512HMJP-00000/MAV0100Q
-    "SAMSUNG MZHPV(128|256|512)HDGL-.*|" // SM951, tested with SAMSUNG MZHPV512HDGL-00000/BXW2500Q
+    "SAMSUNG MZHPV(128|256|512)HDG(L|M)-.*|" // SM951, tested with SAMSUNG MZHPV512HDGL-00000/BXW2500Q,
+      // SAMSUNG MZHPV128HDGM-00000 (BXW2500Q)
     "Samsung Portable SSD T5", // tested with Samsung Portable SSD T5 (0x04e8:0x61f5)
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -1709,6 +1715,7 @@ const drive_settings builtin_knowndrives[] = {
     "CT(120|250|500|1000)BX100SSD1|" // Crucial BX100, tested with CT250BX100SSD1/MU02,
       // CT500BX100SSD1/MU02, CT1000BX100SSD1/MU02
     "CT(240|480|960)BX200SSD1|" // Crucial BX200 Solid State Drive, tested with CT480BX200SSD1/MU02.6
+    "KingDian S400 (120|240|480)GB|" // SM2256EN, tested with KingDian S400 120GB/Q0607A
     "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420I?)|" // Transcend SSD370/420 SATA/mSATA, TS6500,
       // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
       // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H
@@ -4030,9 +4037,12 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD[123456]0PURX-.*",
     "", "", ""
   },
-  { "Western Digital Gold", // tested with WDC WD4002FYYZ-01B7CB0/01.01M02
-    "WDC WD(101KR|[68]002FR|4002FY)YZ-.*",
-    "", "", ""
+  { "Western Digital Gold", // tested with WDC WD1005FBYZ-01YCBB2/RR07,
+      // WDC WD2005FBYZ-01YCBB2/RR07, WDC WD4002FYYZ-01B7CB0/01.01M02,
+      // WDC WD8003FRYZ-01JPDB1/01.01H02, WDC WD121KRYZ-01W0RB0/01.01H01
+    "WDC WD([12]005FB|4002FY|6002FR|8003FR|1[02]1KR)YZ-.*",
+    "", "",
+    "-v 22,raw48,Helium_Level" // WD121KRYZ
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
       // WDC WD20NPVZ-00WFZT0/01.01A01

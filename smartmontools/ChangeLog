@@ -1,5 +1,18 @@
 $Id$
 
+2018-11-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs: Micron 1100
+	  alternative ID string (#1131)
+	- SandForce Driven SSDs: Comay BladeDrive E28 (#823),
+	  MX-DS FUSION (#900), OCZ Deneva 2 *.C (#1119), OCZ-VERTEX3 LT
+	- Phison Driven SSDs: Kingston A400 with extra space in ID (#801)
+	- Samsung based SSDs: SM951 *HDGM variant (patch from #1113)
+	- SiliconMotion based SSDs: KingDian S400 (#1116)
+	- Western Digital Gold: 1TB, 2TB (#1035, #1047), 8TB (#1033),
+	  12TB, attribute 22 "Helium_Level" (patch from #1115)
+
 2018-11-25  Cameron Costa  <cameron.costa@intel.com>
 
 	drivedb.h: Intel S4510 M.2 (#1121, #1122, #1123, #1133)
