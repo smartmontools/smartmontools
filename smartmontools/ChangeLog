@@ -1,5 +1,9 @@
 $Id$
 
+2018-11-25  Cameron Costa  <cameron.costa@intel.com>
+
+	drivedb.h: Intel S4510 M.2 (#1121, #1122, #1123, #1133)
+
 2018-11-13  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp: Drop device scan support for obsolete devfs.

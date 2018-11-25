@@ -1328,7 +1328,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Intel S4510/S4610/S4500/S4600 Series SSDs", // INTEL SSDSC2KB480G7/SCV10100,
       // INTEL SSDSC2KB960G7/SCV10100, INTEL SSDSC2KB038T7/SCV10100,
       // INTEL SSDSC2KB038T7/SCV10121, INTEL SSDSC2KG240G7/SCV10100
-    "INTEL SSDSC2K(B|G)(240G|480G|960G|019T|038T)(7|8).?",
+    "INTEL SSDSC(2K|KK)(B|G)(240G|480G|960G|019T|038T)(7|8).?",
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
