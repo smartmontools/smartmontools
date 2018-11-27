@@ -2748,17 +2748,21 @@ static bool read_id(const std::string & path, unsigned short & id)
   return ok;
 }
 
-// Get USB bridge ID for "sdX"
+// Get USB bridge ID for "sdX" or "sgN"
 static bool get_usb_id(const char * name, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 {
-  // Only "sdX" supported
-  if (!(!strncmp(name, "sd", 2) && !strchr(name, '/')))
+  // Only "sdX" or "sgN" supported
+  if (!(name[0] == 's' && (name[1] == 'd' || name[1] == 'g') && !strchr(name, '/')))
     return false;
 
-  // Start search at dir referenced by symlink "/sys/block/sdX/device"
+  // Start search at dir referenced by symlink
+  // "/sys/block/sdX/device" or
+  // "/sys/class/scsi_generic/sgN"
   // -> "/sys/devices/.../usb*/.../host*/target*/..."
-  std::string dir = strprintf("/sys/block/%s/device", name);
+  std::string dir = strprintf("/sys/%s/%s%s",
+    (name[1] == 'd' ? "block" : "class/scsi_generic"), name,
+    (name[1] == 'd' ? "/device" : ""));
 
   // Stop search at "/sys/devices"
   struct stat st;

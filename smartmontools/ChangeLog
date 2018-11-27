@@ -2,6 +2,8 @@ $Id$
 
 2018-11-27  Christian Franke  <franke@computer.org>
 
+	os_linux.cpp: Add USB ID detection for '/dev/sgN'.
+
 	smartd_warning.sh.in: Fix typo (#1138).
 
 2018-11-27  Harry Mallon  <hjmallon@gmail.com>
