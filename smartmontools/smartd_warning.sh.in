@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: smartd_warning.sh.in 4760 2018-08-19 18:45:53Z chrfranke $
+# $Id: smartd_warning.sh.in 4839 2018-11-27 18:26:08Z chrfranke $
 #
 
 set -e
@@ -39,7 +39,7 @@ smartd $VERSION warning message script
 
 Usage:
   export SMARTD_MAILER='Path to external script, empty for "$os_mailer"'
-  export SMARTD_ADDRESS='Space separated mail adresses, empty if none'
+  export SMARTD_ADDRESS='Space separated mail addresses, empty if none'
   export SMARTD_MESSAGE='Error Message'
   export SMARTD_FAILTYPE='Type of failure, "EMailTest" for tests'
   export SMARTD_TFIRST='Date of first message sent, empty if none'

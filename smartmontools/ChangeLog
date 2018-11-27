@@ -1,4 +1,8 @@
-$Id: ChangeLog 4838 2018-11-27 17:27:02Z chrfranke $
+$Id: ChangeLog 4839 2018-11-27 18:26:08Z chrfranke $
+
+2018-11-27  Christian Franke  <franke@computer.org>
+
+	smartd_warning.sh.in: Fix typo (#1138).
 
 2018-11-27  Harry Mallon  <hjmallon@gmail.com>
 
