@@ -28,7 +28,7 @@ if [ -n "$AUTOMAKE" ]; then
   ver=$("$AUTOMAKE" --version) || exit 1
 else
   maxver=
-  for v in 1.15 1.14 1.13 1.12 1.11 1.10; do
+  for v in 1.16 1.15 1.14 1.13 1.12 1.11 1.10; do
     minver=$v; test -n "$maxver" || maxver=$v
     ver=$(automake-$v --version 2>/dev/null) || continue
     AUTOMAKE="automake-$v"
@@ -60,7 +60,7 @@ case "$ver" in
     # OK
     ;;
 
-  1.14|1.14.1|1.15|1.15.1)
+  1.14|1.14.1|1.15|1.15.1|1.16|1.16.1)
     # TODO: Enable 'subdir-objects' in configure.ac
     # For now, suppress 'subdir-objects' forward-incompatibility warning
     test -n "$warnings" || amwarnings="--warnings=no-unsupported"

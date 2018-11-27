@@ -1,5 +1,9 @@
 $Id$
 
+2018-11-27  Harry Mallon  <hjmallon@gmail.com>
+
+	autogen.sh: allow automake 1.16 and 1.16.1.
+
 2018-11-25  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
