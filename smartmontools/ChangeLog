@@ -1,6 +1,8 @@
-$Id: ChangeLog 4839 2018-11-27 18:26:08Z chrfranke $
+$Id: ChangeLog 4840 2018-11-27 19:26:19Z chrfranke $
 
 2018-11-27  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Add USB ID detection for '/dev/sgN'.
 
 	smartd_warning.sh.in: Fix typo (#1138).
 
