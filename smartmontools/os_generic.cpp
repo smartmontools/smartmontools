@@ -168,7 +168,7 @@ scsi_device * generic_smart_interface::get_scsi_device(const char * name, const 
 smart_device * generic_smart_interface::autodetect_smart_device(const char * name)
 {
   ARGUSED(name);
-  // for the given name return the apropriate device type 
+  // for the given name return the appropriate device type 
   return NULL;
 }
 

@@ -33,7 +33,7 @@ printwarning(int msgNo, const char *extra)
   static int printed[] = {0, 0};
   static const char *message[] = {
     "Error: SMART Status command failed.\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
-    PACKAGE_STRING " does not currentlly support twe(4) devices (3ware Escalade)\n",
+    PACKAGE_STRING " does not currently support twe(4) devices (3ware Escalade)\n",
   };
 
   if (msgNo >= 0 && msgNo <= MAX_MSG) {

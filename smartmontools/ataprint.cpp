@@ -2797,7 +2797,7 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
       maxr=end;
   }
   
-  // we need at least 7 characters wide fields to accomodate the
+  // we need at least 7 characters wide fields to accommodate the
   // labels
   int field1,field2;
   char tmp[64];

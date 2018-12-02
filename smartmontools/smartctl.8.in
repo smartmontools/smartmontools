@@ -1207,7 +1207,7 @@ Information log.
 This is the default unless the \*(Aq\-x\*(Aq option is specified.
 .Sp
 .I brief
-\- New format which fits into 80 colums (except in some rare cases).
+\- New format which fits into 80 columns (except in some rare cases).
 This format also decodes four additional attribute flags.
 This is the default if the \*(Aq'\-x\*(Aq option is specified.
 .Sp
@@ -1771,7 +1771,7 @@ accordingly.
 .I xerrorlba
 \- Fixes LBA byte ordering in Extended Comprehensive SMART error log.
 Some disks use little endian byte ordering instead of ATA register
-ordering to specifiy the LBA addresses in the log entries.
+ordering to specify the LBA addresses in the log entries.
 .Sp
 .I swapid
 \- Fixes byte swapped ATA identify strings (device name, serial number,

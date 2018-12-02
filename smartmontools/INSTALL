@@ -209,7 +209,7 @@ Table of contents:
     CXXFLAGS='your options' to ./configure command.
 
     The first output line of smartctl and smartd provides information
-    about release number, last SVN checkin date and revison, platform,
+    about release number, last SVN checkin date and revision, platform,
     and package. The latter defaults to "(local build)" and can be
     changed by the variable BUILD_INFO, for example:
     make BUILD_INFO='"(Debian 5.39-2)"'

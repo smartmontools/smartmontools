@@ -80,7 +80,7 @@ AM_CONDITIONAL(IS_SVN_BUILD, [test "$is_svn_build" = "yes"])
 AC_MSG_RESULT([$is_svn_build])
 
 # Note: On Linux, clock_gettime() requires -lrt which implies -lpthreads
-# Check ommitted for now, gettimeofday() provides reasonable precision
+# Check omitted for now, gettimeofday() provides reasonable precision
 # AC_SEARCH_LIBS(clock_gettime, rt)
 
 # Checks for header files.

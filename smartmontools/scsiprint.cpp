@@ -1462,7 +1462,7 @@ show_sas_phy_event_info(int peis, unsigned int val, unsigned thresh_val)
         pout("     Received retry-class OPEN_REJECT count: %u\n", val);
         break;
     case 0x25:
-        pout("     Received AIP (WATING ON PARTIAL) count: %u\n", val);
+        pout("     Received AIP (WAITING ON PARTIAL) count: %u\n", val);
         break;
     case 0x26:
         pout("     Received AIP (WAITING ON CONNECTION) count: %u\n", val);
@@ -2102,7 +2102,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     jglb["local_time"]["time_t"] = now;
     jglb["local_time"]["asctime"] = timedatetz;
 
-    // See if unit accepts SCSI commmands from us
+    // See if unit accepts SCSI commands from us
     if ((err = scsiTestUnitReady(device))) {
         if (SIMPLE_ERR_NOT_READY == err) {
             print_on();

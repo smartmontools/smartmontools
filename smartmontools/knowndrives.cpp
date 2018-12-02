@@ -716,7 +716,7 @@ static parse_ptr get_token(parse_ptr src, token_info & token, const char * path,
           }
           token.value += c;
         }
-        // Lookahead to detect string constant concatentation
+        // Lookahead to detect string constant concatenation
         src = skip_white(++src, path, line);
       } while (*src == '"');
       break;

@@ -1075,7 +1075,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     /* datalen */ iop->dxfer_len,
     /* senselen */ iop->max_sense_len,
     /* cdblen */ iop->cmnd_len,
-    /* timout (converted to seconds) */ iop->timeout*1000);
+    /* timeout (converted to seconds) */ iop->timeout*1000);
   memcpy(ccb->csio.cdb_io.cdb_bytes,iop->cmnd,iop->cmnd_len);
 
   if (cam_send_ccb(m_camdev,ccb) < 0) {

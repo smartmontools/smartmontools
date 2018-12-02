@@ -547,7 +547,7 @@ smart_device * sat_device::autodetect_open()
 static bool has_sat_pass_through(ata_device * dev, bool packet_interface = false)
 {
     /* Note:  malloc() ensures the read buffer lands on a single
-       page.  This avoids some bugs seen on LSI controlers under
+       page.  This avoids some bugs seen on LSI controllers under
        FreeBSD */
     char *data = (char *)malloc(512);
     ata_cmd_in in;
@@ -849,7 +849,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
         cdb[2] = (1<<0); /* ask read taskfile */
         memset(sense, 0, sizeof(sense));
 
-        /* transfert 8 bytes */
+        /* transfer 8 bytes */
         memset(&io_hdr, 0, sizeof(io_hdr));
         io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
         io_hdr.dxfer_len = ard_len;

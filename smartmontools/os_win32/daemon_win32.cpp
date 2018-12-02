@@ -864,7 +864,7 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
       SERVICE_WIN32_OWN_PROCESS,
       SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, path,
       NULL/*no load ordering*/, NULL/*no tag id*/,
-      ""/*no depedencies*/, NULL/*local system account*/, NULL/*no pw*/))) {
+      ""/*no dependencies*/, NULL/*local system account*/, NULL/*no pw*/))) {
       if ((err = GetLastError()) == ERROR_SERVICE_EXISTS)
         puts(" the service is already installed");
       else if (err == ERROR_SERVICE_MARKED_FOR_DELETE)

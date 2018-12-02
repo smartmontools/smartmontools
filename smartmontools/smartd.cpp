@@ -998,7 +998,7 @@ static void sighandler(int sig)
 } // extern "C"
 
 #ifdef HAVE_LIBCAP_NG
-// capabilites(7) support
+// capabilities(7) support
 
 static bool capabilities_enabled = false;
 
@@ -1027,7 +1027,7 @@ static void capabilities_check_config(dev_config_vector & configs)
 }
 
 #else // HAVE_LIBCAP_NG
-// No capabilites(7) support
+// No capabilities(7) support
 
 static inline void capabilities_drop_now() { }
 static inline void capabilities_check_config(dev_config_vector &) { }
@@ -1213,7 +1213,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     PrintOut(LOG_CRIT,"%s %s to %s: failed (fork or pipe failed, or no memory) %s\n", 
              newwarn,  executable, newadd, errno?strerror(errno):"");
   else {
-    // pipe suceeded!
+    // pipe succeeded!
     int len, status;
     char buffer[EBUFLEN];
 
@@ -1678,7 +1678,7 @@ static int CloseDevice(smart_device * device, const char * name)
     PrintOut(LOG_INFO,"Device: %s, %s, close() failed\n", name, device->get_errmsg());
     return 1;
   }
-  // device sucessfully closed
+  // device successfully closed
   return 0;
 }
 
@@ -4680,7 +4680,7 @@ static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & defaul
 // -3:    config file exists but cannot be read
 //
 // In the case where the return value is 0, there are three
-// possiblities:
+// possibilities:
 // Empty configuration file ==> conf_entries.empty()
 // No configuration file    ==> conf_entries[0].lineno == 0
 // SCANDIRECTIVE found      ==> conf_entries.back().lineno != 0 (size >= 1)
@@ -5406,7 +5406,7 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
     // If scanning, pass dev_idinfo of previous devices for duplicate check
     dev_state state;
     if (!register_device(cfg, state, dev, (scanning ? &configs : 0))) {
-      // if device is explictly listed and we can't register it, then
+      // if device is explicitly listed and we can't register it, then
       // exit unless the user has specified that the device is removable
       if (!scanning) {
         if (!(cfg.removable || quit == QUIT_NEVER)) {
@@ -5561,7 +5561,7 @@ static int main_worker(int argc, char **argv)
 
     // user has asked us to exit after first check
     if (quit == QUIT_ONECHECK) {
-      PrintOut(LOG_INFO,"Started with '-q onecheck' option. All devices sucessfully checked once.\n"
+      PrintOut(LOG_INFO,"Started with '-q onecheck' option. All devices successfully checked once.\n"
                "smartd is exiting (exit status 0)\n");
       // assert(firstpass);
       return 0;

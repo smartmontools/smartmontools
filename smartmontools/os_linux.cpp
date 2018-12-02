@@ -26,7 +26,7 @@
  *
  *  Copyright (C) 1999-2003 3ware Inc.
  *
- *  Kernel compatablity By:     Andre Hedrick <andre@suse.com>
+ *  Kernel compatibility By:    Andre Hedrick <andre@suse.com>
  *  Non-Copyright (C) 2000      Andre Hedrick <andre@suse.com>
  *
  * Other ars of this file are derived from code that was
@@ -897,7 +897,7 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
         sg_io_state = SG_IO_UNSUPP;
         /* FALLTHRU */
     case SG_IO_UNSUPP:
-        /* depricated SCSI_IOCTL_SEND_COMMAND ioctl */
+        /* deprecated SCSI_IOCTL_SEND_COMMAND ioctl */
         return sisc_cmnd_io(dev_fd, iop, report);
     case SG_IO_USE_V3:
     case SG_IO_USE_V4:
@@ -1294,7 +1294,7 @@ bool linux_megaraid_device::open()
       int err = errno;
       linux_smart_device::close();
       return set_err(err, "can't get bus number");
-    } // we dont need this device anymore
+    } // we don't need this device anymore
     linux_smart_device::close();
   }
   /* Perform mknod of device ioctl node */

@@ -14,7 +14,7 @@
  *
  *  Copyright (C) 1999-2003 3ware Inc.
  *
- *  Kernel compatablity By:     Andre Hedrick <andre@suse.com>
+ *  Kernel compatibility By:    Andre Hedrick <andre@suse.com>
  *  Non-Copyright (C) 2000      Andre Hedrick <andre@suse.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later

@@ -43,7 +43,7 @@
 // Make version information string
 std::string format_version_info(const char * prog_name, bool full = false);
 
-// return (v)sprintf() formated std::string
+// return (v)sprintf() formatted std::string
 std::string strprintf(const char * fmt, ...)
     __attribute_format_printf(1, 2);
 std::string vstrprintf(const char * fmt, va_list ap);
@@ -322,4 +322,3 @@ std::string get_exe_dir();
 #endif
 
 #endif
-

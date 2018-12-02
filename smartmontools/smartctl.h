@@ -17,7 +17,7 @@
 
 // Return codes (bitmask)
 
-// command line did not parse, or internal error occured in smartctl
+// command line did not parse, or internal error occurred in smartctl
 #define FAILCMD   (0x01<<0)
 
 // device open failed

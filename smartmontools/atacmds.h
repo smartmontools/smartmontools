@@ -208,7 +208,7 @@ struct ata_smart_values {
   unsigned char offline_data_collection_status;
   unsigned char self_test_exec_status;  //IBM # segments for offline collection
   unsigned short int total_time_to_complete_off_line; // IBM different
-  unsigned char vendor_specific_366; // Maxtor & IBM curent segment pointer
+  unsigned char vendor_specific_366; // Maxtor & IBM current segment pointer
   unsigned char offline_data_collection_capability;
   unsigned short int smart_capability;
   unsigned char errorlog_capability;
@@ -843,7 +843,7 @@ int ataSmartSupport(const ata_identify_device * drive);
 int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool persistent, bool set);
 
 // Return values:
-// 1: Write cache controled by ATA Set Features command
+// 1: Write cache controlled by ATA Set Features command
 // 2: Force enable write cache
 // 3: Force disable write cache
 int ataGetSetSCTWriteCache(ata_device * device, unsigned short state, bool persistent, bool set);

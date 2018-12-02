@@ -548,7 +548,7 @@ static int smart_get_version(HANDLE hdevice, GETVERSIONINPARAMS_EX * ata_version
   assert(num_out == sizeof(GETVERSIONINPARAMS));
 
   if (ata_debugmode > 1) {
-    pout("  SMART_GET_VERSION suceeded, bytes returned: %u\n"
+    pout("  SMART_GET_VERSION succeeded, bytes returned: %u\n"
          "    Vers = %d.%d, Caps = 0x%x, DeviceMap = 0x%02x\n",
       (unsigned)num_out, vers.bVersion, vers.bRevision,
       (unsigned)vers.fCapabilities, vers.bIDEDeviceMap);
@@ -642,7 +642,7 @@ static int smart_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned dat
   }
 
   if (ata_debugmode > 1) {
-    pout("  %s suceeded, bytes returned: %u (buffer %u)\n", name,
+    pout("  %s succeeded, bytes returned: %u (buffer %u)\n", name,
       (unsigned)num_out, (unsigned)outpar->cBufferSize);
     print_ide_regs_io(regs, (regs->bFeaturesReg == ATA_SMART_STATUS ?
       (const IDEREGS *)(outpar->bBuffer) : NULL));
@@ -731,7 +731,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
   }
 
   if (ata_debugmode > 1) {
-    pout("  IOCTL_IDE_PASS_THROUGH suceeded, bytes returned: %u (buffer %u)\n",
+    pout("  IOCTL_IDE_PASS_THROUGH succeeded, bytes returned: %u (buffer %u)\n",
       (unsigned)num_out, (unsigned)buf->DataBufferSize);
     print_ide_regs_io(regs, &buf->IdeReg);
   }
@@ -848,7 +848,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev
   }
 
   if (ata_debugmode > 1) {
-    pout("  IOCTL_ATA_PASS_THROUGH suceeded, bytes returned: %u\n", (unsigned)num_out);
+    pout("  IOCTL_ATA_PASS_THROUGH succeeded, bytes returned: %u\n", (unsigned)num_out);
     print_ide_regs_io(regs, ctfregs);
   }
   *regs = *ctfregs;
@@ -979,7 +979,7 @@ static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, cha
   }
 
   if (ata_debugmode > 1) {
-    pout("  IOCTL_SCSI_MINIPORT_%s suceeded, bytes returned: %u (buffer %u)\n", name,
+    pout("  IOCTL_SCSI_MINIPORT_%s succeeded, bytes returned: %u (buffer %u)\n", name,
       (unsigned)num_out, (unsigned)sb.params.out.cBufferSize);
     print_ide_regs_io(regs, (code == IOCTL_SCSI_MINIPORT_RETURN_STATUS ?
                              (const IDEREGS *)(sb.params.out.bBuffer) : 0));
@@ -1046,7 +1046,7 @@ static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * d
     memcpy(data, sb.buffer, datasize);
 
   if (ata_debugmode > 1) {
-    pout("  ATA via IOCTL_SCSI_MINIPORT suceeded, bytes returned: %u\n", (unsigned)num_out);
+    pout("  ATA via IOCTL_SCSI_MINIPORT succeeded, bytes returned: %u\n", (unsigned)num_out);
     print_ide_regs_io(regs, &sb.regs);
   }
   *regs = sb.regs;
@@ -1087,7 +1087,7 @@ static int update_3ware_devicemap_ioctl(HANDLE hdevice)
     return -1;
   }
   if (ata_debugmode > 1)
-    pout("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT suceeded\n");
+    pout("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT succeeded\n");
   return 0;
 }
 
@@ -1138,7 +1138,7 @@ static int storage_query_property_ioctl(HANDLE hdevice, STORAGE_DEVICE_DESCRIPTO
 // IOCTL_STORAGE_PREDICT_FAILURE
 
 // Call IOCTL_STORAGE_PREDICT_FAILURE, return PredictFailure value
-// or -1 on error, opionally return VendorSpecific data.
+// or -1 on error, optionally return VendorSpecific data.
 // (This works without admin rights)
 
 static int storage_predict_failure_ioctl(HANDLE hdevice, char * data = 0)
@@ -3846,7 +3846,7 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER * spsq =
     reinterpret_cast<STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER *>(spsq_raw_buf.data());
 
-  // Set NVMe specifc STORAGE_PROPERTY_QUERY
+  // Set NVMe specific STORAGE_PROPERTY_QUERY
   spsq->PropertyQuery.QueryType = PropertyStandardQuery;
   spsq->ProtocolSpecific.ProtocolType = win10::ProtocolTypeNvme;
 

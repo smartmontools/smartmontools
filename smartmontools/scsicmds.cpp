@@ -146,7 +146,7 @@ dStrHex(const uint8_t * up, int len, int no_ascii)
  * structures that are sent across the wire. The FIS register structure is
  * used to move a command from a SATA host to device, but the ATA 'command'
  * is not the first byte. So it is harder to say what will happen if a
- * FIS structure is presented as a SCSI command, hopfully there is a low
+ * FIS structure is presented as a SCSI command, hopefully there is a low
  * probability this function will yield true in that case. */
 bool
 is_scsi_cdb(const uint8_t * cdbp, int clen)
@@ -963,7 +963,7 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
                 sense_info->ascq = buff[13];
             }
         }
-    // fill progrss indicator, if available
+    // fill progress indicator, if available
     sense_info->progress = -1;
     switch (resp_code) {
       const unsigned char * ucp;
@@ -2445,7 +2445,7 @@ scsiSelfTestInProgress(scsi_device * fd, int * inProgress)
     return 0;
 }
 
-/* Returns a negative value if failed to fetch Contol mode page or it was
+/* Returns a negative value if failed to fetch Control mode page or it was
    malformed. Returns 0 if GLTSD bit is zero and returns 1 if the GLTSD
    bit is set. Examines default mode page when current==0 else examines
    current mode page. */
@@ -2584,14 +2584,14 @@ scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep,
                               MPAGE_CONTROL_CHANGEABLE,
                               ch_buff, sizeof(ch_buff));
     if (err) {
-        device->set_err(EINVAL, "WCE/RCD bits not changable");
+        device->set_err(EINVAL, "WCE/RCD bits not changeable");
         return err;
     }
 
     // set WCE bit
     if(set_wce >= 0 && *wcep != set_wce) {
        if (0 == (ch_buff[offset + 2] & 0x04)) {
-         device->set_err(EINVAL, "WCE bit not changable");
+         device->set_err(EINVAL, "WCE bit not changeable");
          return 1;
        }
        if(set_wce)
@@ -2602,7 +2602,7 @@ scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep,
     // set RCD bit
     if(set_rcd >= 0 && *rcdp != set_rcd) {
        if (0 == (ch_buff[offset + 2] & 0x01)) {
-         device->set_err(EINVAL, "RCD bit not changable");
+         device->set_err(EINVAL, "RCD bit not changeable");
          return 1;
        }
        if(set_rcd)

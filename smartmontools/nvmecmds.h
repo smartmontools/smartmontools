@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 
-// The code below was orginally imported from <linux/nvme.h> include file from
+// The code below was originally imported from <linux/nvme.h> include file from
 // Linux kernel sources.  Types from <linux/types.h> were replaced.
 // Symbol names are unchanged but placed in a namespace to allow inclusion
 // of the original <linux/nvme.h>.

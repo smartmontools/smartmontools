@@ -169,7 +169,7 @@ static char *ReadSiteDefaultTimezone(){
 #endif
 
 // Make sure that this executable is aware if the user has changed the
-// time-zone since the last time we polled devices. The cannonical
+// time-zone since the last time we polled devices. The canonical
 // example is a user who starts smartd on a laptop, then flies across
 // time-zones with a laptop, and then changes the timezone, WITHOUT
 // restarting smartd. This is a work-around for a bug in

@@ -236,7 +236,7 @@ struct scsi_readcap_resp {
 /* Log page response lengths */
 #define LOG_RESP_SELF_TEST_LEN 0x194
 
-/* See the SSC-2 document at www.t10.org . Earler note: From IBM
+/* See the SSC-2 document at www.t10.org . Earlier note: From IBM
 Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define TAPE_ALERTS_LPAGE                        0x2e
 
@@ -382,7 +382,7 @@ extern supported_vpd_pages * supported_vpd_pages_p;
  * structures that are sent across the wire. The FIS register structure is
  * used to move a command from a SATA host to device, but the ATA 'command'
  * is not the first byte. So it is harder to say what will happen if a
- * FIS structure is presented as a SCSI command, hopfully there is a low
+ * FIS structure is presented as a SCSI command, hopefully there is a low
  * probability this function will yield true in that case. */
 bool is_scsi_cdb(const uint8_t * cdbp, int clen);
 

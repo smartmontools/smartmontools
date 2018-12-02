@@ -113,7 +113,7 @@ int deviceclose(int fd)
   return(close(fd));
 }
 //----------------------------------------------------------------------------------------------
-// Interface to ATA devices.  See os_linux.cpp for the cannonical example.
+// Interface to ATA devices.  See os_linux.cpp for the canonical example.
 // DETAILED DESCRIPTION OF ARGUMENTS
 //   device: is the integer handle provided by deviceopen()
 //   command: defines the different operations, see atacmds.h

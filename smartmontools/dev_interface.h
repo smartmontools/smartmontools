@@ -245,7 +245,7 @@ private:
   // Number of objects.
   static int s_num_objects;
 
-  // Prevent copy/assigment
+  // Prevent copy/assignment
   smart_device(const smart_device &);
   void operator=(const smart_device &);
 };
@@ -853,7 +853,7 @@ public:
 private:
   std::vector<smart_device *> m_list;
 
-  // Prevent copy/assigment
+  // Prevent copy/assignment
   smart_device_list(const smart_device_list &);
   void operator=(const smart_device_list &);
 };
@@ -1032,7 +1032,7 @@ private:
   friend smart_interface * smi(); // below
   static smart_interface * s_instance; ///< Pointer to the interface object.
 
-  // Prevent copy/assigment
+  // Prevent copy/assignment
   smart_interface(const smart_interface &);
   void operator=(const smart_interface &);
 };

@@ -42,7 +42,7 @@ bool dont_print_serial_number = false;
 
 // SMART RETURN STATUS yields SMART_CYL_HI,SMART_CYL_LOW to indicate drive
 // is healthy and SRET_STATUS_HI_EXCEEDED,SRET_STATUS_MID_EXCEEDED to
-// indicate that a threshhold exceeded condition has been detected.
+// indicate that a threshold exceeded condition has been detected.
 // Those values (byte pairs) are placed in ATA register "LBA 23:8".
 #define SRET_STATUS_HI_EXCEEDED 0x2C
 #define SRET_STATUS_MID_EXCEEDED 0xF4
@@ -257,7 +257,7 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
 
 
 // Return a multiline string containing a list of valid arguments for
-// parse_attribute_def().  The strings are preceeded by tabs and followed
+// parse_attribute_def().  The strings are preceded by tabs and followed
 // (except for the last) by newlines.
 std::string create_vendor_attribute_arg_list()
 {
@@ -1247,7 +1247,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
     int mode = args.span[i].mode;
     uint64_t start = args.span[i].start;
     uint64_t end   = args.span[i].end;
-    if (mode == SEL_CONT) {// redo or next dependig on last test status
+    if (mode == SEL_CONT) {// redo or next depending on last test status
       switch (sv->self_test_exec_status >> 4) {
         case 1: case 2: // Aborted/Interrupted by host
           pout("Continue Selective Self-Test: Redo last span\n");
@@ -1263,7 +1263,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
     if (   (mode == SEL_REDO || mode == SEL_NEXT)
         && prev_args && i < prev_args->num_spans
         && !data->span[i].start && !data->span[i].end) {
-      // Some drives do not preserve the selective self-test log accross
+      // Some drives do not preserve the selective self-test log across
       // power-cyles.  If old span on drive is cleared use span provided
       // by caller.  This is used by smartd (first span only).
       data->span[i].start = prev_args->span[i].start;

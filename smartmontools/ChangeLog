@@ -2,6 +2,8 @@ $Id$
 
 2018-12-02  Harry Mallon  <hjmallon@gmail.com>
 
+	Fix many typos.
+
 	ataprint.cpp: Fix Form Factor string with bits set in reserved area
 	- Happens with APPLE SSD SD0256F
 
