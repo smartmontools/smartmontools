@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4842 2018-12-02 16:07:26Z chrfranke $",
+  { "$Id: drivedb.h 4843 2018-12-02 16:51:15Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4488,6 +4488,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: LaCie Rugged Mini USB 3.0; ",
     "0x059f:0x1051",
     "", // 0x0000
+    "",
+    "-d sat"
+  },
+  { "USB: LaCie Rugged Mini HDD; ",
+    "0x059f:0x106b",
+    "",
     "",
     "-d sat"
   },
