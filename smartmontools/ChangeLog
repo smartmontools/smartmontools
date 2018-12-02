@@ -1,5 +1,10 @@
 $Id$
 
+2018-12-02  Harry Mallon  <hjmallon@gmail.com>
+
+	ataprint.cpp: Fix Form Factor string with bits set in reserved area
+	- Happens with APPLE SSD SD0256F
+
 2018-11-27  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp: Add USB ID detection for '/dev/sgN'.
