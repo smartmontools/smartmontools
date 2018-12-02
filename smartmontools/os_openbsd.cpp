@@ -19,7 +19,7 @@
 
 #include <errno.h>
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4773 2018-09-12 20:14:44Z chrfranke $"
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
   OS_OPENBSD_H_CVSID;
 
 enum warnings {
@@ -33,7 +33,7 @@ printwarning(int msgNo, const char *extra)
   static int printed[] = {0, 0};
   static const char *message[] = {
     "Error: SMART Status command failed.\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
-    PACKAGE_STRING " does not currentlly support twe(4) devices (3ware Escalade)\n",
+    PACKAGE_STRING " does not currently support twe(4) devices (3ware Escalade)\n",
   };
 
   if (msgNo >= 0 && msgNo <= MAX_MSG) {

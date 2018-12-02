@@ -26,7 +26,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_qnxnto.cpp 4773 2018-09-12 20:14:44Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_qnxnto.cpp 4842 2018-12-02 16:07:26Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_QNXNTO_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -113,7 +113,7 @@ int deviceclose(int fd)
   return(close(fd));
 }
 //----------------------------------------------------------------------------------------------
-// Interface to ATA devices.  See os_linux.cpp for the cannonical example.
+// Interface to ATA devices.  See os_linux.cpp for the canonical example.
 // DETAILED DESCRIPTION OF ARGUMENTS
 //   device: is the integer handle provided by deviceopen()
 //   command: defines the different operations, see atacmds.h

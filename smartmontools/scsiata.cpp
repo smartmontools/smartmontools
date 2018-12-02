@@ -55,7 +55,7 @@
 #include "dev_tunnelled.h" // tunnelled_device<>
 #include "sg_unaligned.h"
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4760 2018-08-19 18:45:53Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 4842 2018-12-02 16:07:26Z chrfranke $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -547,7 +547,7 @@ smart_device * sat_device::autodetect_open()
 static bool has_sat_pass_through(ata_device * dev, bool packet_interface = false)
 {
     /* Note:  malloc() ensures the read buffer lands on a single
-       page.  This avoids some bugs seen on LSI controlers under
+       page.  This avoids some bugs seen on LSI controllers under
        FreeBSD */
     char *data = (char *)malloc(512);
     ata_cmd_in in;
@@ -849,7 +849,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
         cdb[2] = (1<<0); /* ask read taskfile */
         memset(sense, 0, sizeof(sense));
 
-        /* transfert 8 bytes */
+        /* transfer 8 bytes */
         memset(&io_hdr, 0, sizeof(io_hdr));
         io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
         io_hdr.dxfer_len = ard_len;

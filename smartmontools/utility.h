@@ -13,7 +13,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4805 2018-10-09 19:34:46Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4842 2018-12-02 16:07:26Z chrfranke $"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
@@ -43,7 +43,7 @@
 // Make version information string
 std::string format_version_info(const char * prog_name, bool full = false);
 
-// return (v)sprintf() formated std::string
+// return (v)sprintf() formatted std::string
 std::string strprintf(const char * fmt, ...)
     __attribute_format_printf(1, 2);
 std::string vstrprintf(const char * fmt, va_list ap);
@@ -322,4 +322,3 @@ std::string get_exe_dir();
 #endif
 
 #endif
-

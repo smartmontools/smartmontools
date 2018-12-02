@@ -1,6 +1,8 @@
-$Id: ChangeLog 4841 2018-12-02 15:46:22Z chrfranke $
+$Id: ChangeLog 4842 2018-12-02 16:07:26Z chrfranke $
 
 2018-12-02  Harry Mallon  <hjmallon@gmail.com>
+
+	Fix many typos.
 
 	ataprint.cpp: Fix Form Factor string with bits set in reserved area
 	- Happens with APPLE SSD SD0256F

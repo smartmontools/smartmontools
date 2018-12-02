@@ -13,11 +13,11 @@
 #ifndef SMARTCTL_H_
 #define SMARTCTL_H_
 
-#define SMARTCTL_H_CVSID "$Id: smartctl.h 4760 2018-08-19 18:45:53Z chrfranke $\n"
+#define SMARTCTL_H_CVSID "$Id: smartctl.h 4842 2018-12-02 16:07:26Z chrfranke $\n"
 
 // Return codes (bitmask)
 
-// command line did not parse, or internal error occured in smartctl
+// command line did not parse, or internal error occurred in smartctl
 #define FAILCMD   (0x01<<0)
 
 // device open failed

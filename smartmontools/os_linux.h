@@ -14,7 +14,7 @@
  *
  *  Copyright (C) 1999-2003 3ware Inc.
  *
- *  Kernel compatablity By:     Andre Hedrick <andre@suse.com>
+ *  Kernel compatibility By:    Andre Hedrick <andre@suse.com>
  *  Non-Copyright (C) 2000      Andre Hedrick <andre@suse.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -24,7 +24,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_LINUX_H_CVSID "$Id: os_linux.h 4760 2018-08-19 18:45:53Z chrfranke $\n"
+#define OS_LINUX_H_CVSID "$Id: os_linux.h 4842 2018-12-02 16:07:26Z chrfranke $\n"
 
 /* 
    The following definitions/macros/prototypes are used for three

@@ -14,11 +14,11 @@
 #ifndef NVMECMDS_H
 #define NVMECMDS_H
 
-#define NVMECMDS_H_CVSID "$Id: nvmecmds.h 4760 2018-08-19 18:45:53Z chrfranke $"
+#define NVMECMDS_H_CVSID "$Id: nvmecmds.h 4842 2018-12-02 16:07:26Z chrfranke $"
 
 #include <stdint.h>
 
-// The code below was orginally imported from <linux/nvme.h> include file from
+// The code below was originally imported from <linux/nvme.h> include file from
 // Linux kernel sources.  Types from <linux/types.h> were replaced.
 // Symbol names are unchanged but placed in a namespace to allow inclusion
 // of the original <linux/nvme.h>.

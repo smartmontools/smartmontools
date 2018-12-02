@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL 4799 2018-09-27 20:00:47Z chrfranke $
+$Id: INSTALL 4842 2018-12-02 16:07:26Z chrfranke $
 
 Please also see the smartmontools home page:
 http://www.smartmontools.org/
@@ -209,7 +209,7 @@ Table of contents:
     CXXFLAGS='your options' to ./configure command.
 
     The first output line of smartctl and smartd provides information
-    about release number, last SVN checkin date and revison, platform,
+    about release number, last SVN checkin date and revision, platform,
     and package. The latter defaults to "(local build)" and can be
     changed by the variable BUILD_INFO, for example:
     make BUILD_INFO='"(Debian 5.39-2)"'

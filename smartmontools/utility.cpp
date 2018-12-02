@@ -42,7 +42,7 @@
 #include "dev_interface.h"
 #include "sg_unaligned.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4804 2018-10-09 19:07:13Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -169,7 +169,7 @@ static char *ReadSiteDefaultTimezone(){
 #endif
 
 // Make sure that this executable is aware if the user has changed the
-// time-zone since the last time we polled devices. The cannonical
+// time-zone since the last time we polled devices. The canonical
 // example is a user who starts smartd on a laptop, then flies across
 // time-zones with a laptop, and then changes the timezone, WITHOUT
 // restarting smartd. This is a work-around for a bug in

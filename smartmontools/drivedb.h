@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4836 2018-11-25 17:49:12Z chrfranke $",
+  { "$Id: drivedb.h 4842 2018-12-02 16:07:26Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -1389,7 +1389,7 @@ const drive_settings builtin_knowndrives[] = {
     "Kingston SSDNow V Series [0-9]*GB|" // tested with Kingston SSDNow V Series 64GB/B090522a
     "TS(2|4|8|16|32|64|128|192)GSSD(18|25)[MS]?-[MS]", // Transcend IDE and SATA, tested with
       // TS32GSSD25-M/V090331, TS32GSSD18M-M/v090331
-    "[BVv].*", // other Transcend SSD versions will be catched by subsequent entry
+    "[BVv].*", // other Transcend SSD versions will be caught by subsequent entry
     "",
   //"-v 9,raw24(raw8),Power_On_Hours " // raw value always 0?
   //"-v 12,raw48,Power_Cycle_Count "

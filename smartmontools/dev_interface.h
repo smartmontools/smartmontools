@@ -11,7 +11,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4832 2018-11-13 18:35:35Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4842 2018-12-02 16:07:26Z chrfranke $\n"
 
 #include "utility.h"
 
@@ -245,7 +245,7 @@ private:
   // Number of objects.
   static int s_num_objects;
 
-  // Prevent copy/assigment
+  // Prevent copy/assignment
   smart_device(const smart_device &);
   void operator=(const smart_device &);
 };
@@ -853,7 +853,7 @@ public:
 private:
   std::vector<smart_device *> m_list;
 
-  // Prevent copy/assigment
+  // Prevent copy/assignment
   smart_device_list(const smart_device_list &);
   void operator=(const smart_device_list &);
 };
@@ -1032,7 +1032,7 @@ private:
   friend smart_interface * smi(); // below
   static smart_interface * s_instance; ///< Pointer to the interface object.
 
-  // Prevent copy/assigment
+  // Prevent copy/assignment
   smart_interface(const smart_interface &);
   void operator=(const smart_interface &);
 };

@@ -74,7 +74,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char * os_XXXX_cpp_cvsid="$Id: os_generic.cpp 4773 2018-09-12 20:14:44Z chrfranke $"
+const char * os_XXXX_cpp_cvsid="$Id: os_generic.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
   ATACMDS_H_CVSID CONFIG_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
 
 // This is here to prevent compiler warnings for unused arguments of
@@ -168,7 +168,7 @@ scsi_device * generic_smart_interface::get_scsi_device(const char * name, const 
 smart_device * generic_smart_interface::autodetect_smart_device(const char * name)
 {
   ARGUSED(name);
-  // for the given name return the apropriate device type 
+  // for the given name return the appropriate device type 
   return NULL;
 }
 

@@ -27,7 +27,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 4773 2018-09-12 20:14:44Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 4842 2018-12-02 16:07:26Z chrfranke $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver
@@ -374,7 +374,7 @@ static int dani_ioctl( int device, void* arg)
    return 0;
 }
 
-// Interface to ATA devices.  See os_linux.cpp for the cannonical example.
+// Interface to ATA devices.  See os_linux.cpp for the canonical example.
 // DETAILED DESCRIPTION OF ARGUMENTS
 //   device: is the integer handle provided by deviceopen()
 //   command: defines the different operations, see atacmds.h

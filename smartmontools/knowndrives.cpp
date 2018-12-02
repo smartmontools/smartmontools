@@ -25,7 +25,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 4795 2018-09-27 17:27:44Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -716,7 +716,7 @@ static parse_ptr get_token(parse_ptr src, token_info & token, const char * path,
           }
           token.value += c;
         }
-        // Lookahead to detect string constant concatentation
+        // Lookahead to detect string constant concatenation
         src = skip_white(++src, path, line);
       } while (*src == '"');
       break;

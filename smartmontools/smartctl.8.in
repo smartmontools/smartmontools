@@ -4,7 +4,7 @@ Copyright (C) 2004-18 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 4826 2018-11-02 20:09:12Z chrfranke $
+$Id: smartctl.8.in 4842 2018-12-02 16:07:26Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1207,7 +1207,7 @@ Information log.
 This is the default unless the \*(Aq\-x\*(Aq option is specified.
 .Sp
 .I brief
-\- New format which fits into 80 colums (except in some rare cases).
+\- New format which fits into 80 columns (except in some rare cases).
 This format also decodes four additional attribute flags.
 This is the default if the \*(Aq'\-x\*(Aq option is specified.
 .Sp
@@ -1771,7 +1771,7 @@ accordingly.
 .I xerrorlba
 \- Fixes LBA byte ordering in Extended Comprehensive SMART error log.
 Some disks use little endian byte ordering instead of ATA register
-ordering to specifiy the LBA addresses in the log entries.
+ordering to specify the LBA addresses in the log entries.
 .Sp
 .I swapid
 \- Fixes byte swapped ATA identify strings (device name, serial number,
@@ -2416,4 +2416,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4826 2018-11-02 20:09:12Z chrfranke $
+$Id: smartctl.8.in 4842 2018-12-02 16:07:26Z chrfranke $

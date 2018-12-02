@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4798 2018-09-27 19:49:28Z chrfranke $
+# $Id: configure.ac 4842 2018-12-02 16:07:26Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=6.6
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4798 2018-09-27 19:49:28Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4842 2018-12-02 16:07:26Z chrfranke $'`
 smartmontools_release_date=2017-11-05
 smartmontools_release_time="15:20:58 UTC"
 
@@ -80,7 +80,7 @@ AM_CONDITIONAL(IS_SVN_BUILD, [test "$is_svn_build" = "yes"])
 AC_MSG_RESULT([$is_svn_build])
 
 # Note: On Linux, clock_gettime() requires -lrt which implies -lpthreads
-# Check ommitted for now, gettimeofday() provides reasonable precision
+# Check omitted for now, gettimeofday() provides reasonable precision
 # AC_SEARCH_LIBS(clock_gettime, rt)
 
 # Checks for header files.

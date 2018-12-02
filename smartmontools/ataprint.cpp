@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4841 2018-12-02 15:46:22Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2797,7 +2797,7 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
       maxr=end;
   }
   
-  // we need at least 7 characters wide fields to accomodate the
+  // we need at least 7 characters wide fields to accommodate the
   // labels
   int field1,field2;
   char tmp[64];
