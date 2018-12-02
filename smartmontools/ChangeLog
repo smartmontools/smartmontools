@@ -1,5 +1,9 @@
 $Id$
 
+2018-12-02  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Add Harry Mallon.
+
 2018-12-02  Harry Mallon  <hjmallon@gmail.com>
 
 	drivedb.h: USB: LaCie Rugged Mini HDD (0x059f:0x106b)
