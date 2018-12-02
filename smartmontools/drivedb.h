@@ -4491,6 +4491,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: LaCie Rugged Mini HDD; ",
+    "0x059f:0x106b",
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: LaCie; ", // 0x1070: ASMedia 1053 ?
     "0x059f:0x10(6f|7[05])",
     "", // 6f/70=0x0001, 75=0x0000
