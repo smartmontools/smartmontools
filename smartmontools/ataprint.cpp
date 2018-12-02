@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4829 2018-11-02 21:16:45Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4841 2018-12-02 15:46:22Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -404,9 +404,10 @@ static inline std::string format_st_er_desc(
 
 static const char * get_form_factor(unsigned short word168)
 {
+  // Bits 0:3 are the form factor
   // Table A.32 of T13/2161-D (ACS-3) Revision 4p, September 19, 2013
   // Table 236 of T13/BSR INCITS 529 (ACS-4) Revision 04, August 25, 2014
-  switch (word168) {
+  switch (word168 & 0xF) {
     case 0x1: return "5.25 inches";
     case 0x2: return "3.5 inches";
     case 0x3: return "2.5 inches";
