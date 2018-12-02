@@ -2,6 +2,15 @@ $Id$
 
 2018-12-02  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Samsung based SSDs: CM851 (#1109), SM863a (#1140)
+	- SiliconMotion based SSDs: Transcend 420K (GH issues/20),
+	  Transcend 630 (#1038)
+	- Western Digital Gold: Re-add 8TB *2 variant
+	- USB: Buffalo HD-PNTU3 (0x0411:0x01e7), HD-LC3 (0x0411:0x027e)
+	- USB: ADATA NH13 (0x125f:0xa13a), HD710P (0x125f:0xa75a)
+	- USB: Verbatim External Hard Drive (0x18a5:0x0408) (#1107)
+
 	AUTHORS: Add Harry Mallon.
 
 2018-12-02  Harry Mallon  <hjmallon@gmail.com>
