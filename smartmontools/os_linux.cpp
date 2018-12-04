@@ -2819,9 +2819,11 @@ protected:
   virtual std::string get_valid_custom_dev_types_str();
 
 private:
+  static const int devxy_to_n_max = 103; // Max value of devxy_to_n() below
+
   void get_dev_list(smart_device_list & devlist, const char * pattern,
-    bool scan_scsi, bool scan_nvme,
-    const char * req_type, bool autodetect);
+    bool scan_scsi, bool (* p_dev_sdxy_seen)[devxy_to_n_max+1],
+    bool scan_nvme, const char * req_type, bool autodetect);
 
   bool get_dev_megasas(smart_device_list & devlist);
   smart_device * missing_option(const char * opt);
@@ -2846,21 +2848,59 @@ std::string linux_smart_interface::get_app_examples(const char * appname)
   return "";
 }
 
-// we are going to take advantage of the fact that Linux's devfs will only
-// have device entries for devices that exist.
-void linux_smart_interface::get_dev_list(smart_device_list & devlist,
-  const char * pattern, bool scan_scsi, bool scan_nvme,
-  const char * req_type, bool autodetect)
+// "/dev/sdXY" -> 0-103
+// "/dev/disk/by-id/NAME" -> "../../sdXY" -> 0-103
+// Other -> -1
+static int devxy_to_n(const char * name, bool debug)
 {
+  const char * xy;
+  char dest[256];
+  if (str_starts_with(name, "/dev/sd")) {
+    // Assume "/dev/sdXY"
+    xy = name + sizeof("/dev/sd") - 1;
+  }
+  else {
+    // Assume "/dev/disk/by-id/NAME", check link target
+    int sz = readlink(name, dest, sizeof(dest)-1);
+    if (!(0 < sz && sz < (int)sizeof(dest)))
+      return -1;
+    dest[sz] = 0;
+    if (!str_starts_with(dest, "../../sd"))
+      return -1;
+    if (debug)
+      pout("%s -> %s\n", name, dest);
+    xy = dest + sizeof("../../sd") - 1;
+  }
+
+  char x = xy[0];
+  if (!('a' <= x && x <= 'z'))
+    return -1;
+  char y = xy[1];
+  if (!y)
+    // "[a-z]" -> 0-25
+    return x - 'a';
+
+  if (!(x <= 'c' && 'a' <= y && y <= 'z' && !xy[2]))
+    return -1;
+  // "[a-c][a-z]" -> 26-103
+  return (x - 'a' + 1) * ('z' - 'a' + 1) + (y - 'a');
+}
+
+void linux_smart_interface::get_dev_list(smart_device_list & devlist,
+  const char * pattern, bool scan_scsi, bool (* p_dev_sdxy_seen)[devxy_to_n_max+1],
+  bool scan_nvme, const char * req_type, bool autodetect)
+{
+  bool debug = (ata_debugmode || scsi_debugmode || nvme_debugmode);
+
   // Use glob to look for any directory entries matching the pattern
   glob_t globbuf;
   memset(&globbuf, 0, sizeof(globbuf));
   int retglob = glob(pattern, GLOB_ERR, NULL, &globbuf);
   if (retglob) {
-    //  glob failed: free memory and return
+    // glob failed: free memory and return
     globfree(&globbuf);
 
-    if (ata_debugmode || scsi_debugmode || nvme_debugmode)
+    if (debug)
       pout("glob(3) error %d for pattern %s\n", retglob, pattern);
 
     if (retglob == GLOB_NOSPACE)
@@ -2878,8 +2918,22 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
   }
 
   // now step through the list returned by glob.
-  for (int i = 0; i < n; i++){
+  for (int i = 0; i < n; i++) {
     const char * name = globbuf.gl_pathv[i];
+
+    if (p_dev_sdxy_seen) {
+      // Follow "/dev/disk/by-id/*" symlink and check for duplicate "/dev/sdXY"
+      int dev_n = devxy_to_n(name, debug);
+      if (!(0 <= dev_n && dev_n <= devxy_to_n_max))
+        continue;
+      if ((*p_dev_sdxy_seen)[dev_n]) {
+        if (debug)
+	  pout("%s: duplicate, ignored\n", name);
+        continue;
+      }
+      (*p_dev_sdxy_seen)[dev_n] = true;
+    }
+
     smart_device * dev;
     if (autodetect) {
       dev = autodetect_smart_device(name);
@@ -2962,49 +3016,60 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     return set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
 
   // Scan type list
-  const char * type_ata, * type_scsi, * type_sat, * type_nvme;
-  if (types.empty()) {
+  bool by_id = false;
+  const char * type_ata = 0, * type_scsi = 0, * type_sat = 0, * type_nvme = 0;
+  for (unsigned i = 0; i < types.size(); i++) {
+    const char * type = types[i].c_str();
+    if (!strcmp(type, "by-id"))
+      by_id = true;
+    else if (!strcmp(type, "ata"))
+      type_ata = "ata";
+    else if (!strcmp(type, "scsi"))
+      type_scsi = "scsi";
+    else if (!strcmp(type, "sat"))
+      type_sat = "sat";
+    else if (!strcmp(type, "nvme"))
+      type_nvme = "nvme";
+    else
+      return set_err(EINVAL, "Invalid type '%s', valid arguments are: by-id, ata, scsi, sat, nvme",
+                     type);
+  }
+  // Use default if no type specified
+  if (!(type_ata || type_scsi || type_sat || type_nvme)) {
      type_ata = type_scsi = type_sat = "";
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
      type_nvme = "";
-#else
-     type_nvme = 0;
 #endif
-  }
-  else {
-    type_ata = type_scsi = type_sat = type_nvme = 0;
-    for (unsigned i = 0; i < types.size(); i++) {
-      const char * type = types[i].c_str();
-      if (!strcmp(type, "ata"))
-        type_ata = "ata";
-      else if (!strcmp(type, "scsi"))
-        type_scsi = "scsi";
-      else if (!strcmp(type, "sat"))
-        type_sat = "sat";
-      else if (!strcmp(type, "nvme"))
-        type_nvme = "nvme";
-      else
-        return set_err(EINVAL, "Invalid type '%s', valid arguments are: ata, scsi, sat, nvme",
-                       type);
-    }
   }
 
   if (type_ata)
-    get_dev_list(devlist, "/dev/hd[a-t]", false, false, type_ata, false);
+    get_dev_list(devlist, "/dev/hd[a-t]", false, 0, false, type_ata, false);
+
   if (type_scsi || type_sat) {
     // "sat" detection will be later handled in linux_scsi_device::autodetect_open()
     const char * type_scsi_sat = ((type_scsi && type_sat) ? "" // detect both
                                   : (type_scsi ? type_scsi : type_sat));
     bool autodetect = !*type_scsi_sat; // If no type specified, detect USB also
-    get_dev_list(devlist, "/dev/sd[a-z]", true, false, type_scsi_sat, autodetect);
-    // Support up to 104 devices
-    get_dev_list(devlist, "/dev/sd[a-c][a-z]", true, false, type_scsi_sat, autodetect);
+
+    bool dev_sdxy_seen[devxy_to_n_max+1] = {false, };
+    bool (*p_dev_sdxy_seen)[devxy_to_n_max+1] = 0;
+    if (by_id) {
+      // Scan unique symlinks first
+      get_dev_list(devlist, "/dev/disk/by-id/*", true, &dev_sdxy_seen, false,
+                   type_scsi_sat, autodetect);
+      p_dev_sdxy_seen = &dev_sdxy_seen; // Check for duplicates below
+    }
+
+    get_dev_list(devlist, "/dev/sd[a-z]", true, p_dev_sdxy_seen, false, type_scsi_sat, autodetect);
+    get_dev_list(devlist, "/dev/sd[a-c][a-z]", true, p_dev_sdxy_seen, false, type_scsi_sat, autodetect);
+
     // get device list from the megaraid device
     get_dev_megasas(devlist);
   }
+
   if (type_nvme) {
-    get_dev_list(devlist, "/dev/nvme[0-9]", false, true, type_nvme, false);
-    get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, true, type_nvme, false);
+    get_dev_list(devlist, "/dev/nvme[0-9]", false, 0, true, type_nvme, false);
+    get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, 0, true, type_nvme, false);
   }
 
   return true;

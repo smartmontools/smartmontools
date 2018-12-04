@@ -1,5 +1,11 @@
 $Id$
 
+2018-12-04  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Add '-d by-id' option to device scanning.
+	If specified, scan '/dev/disk/by-id/*' for symlinks to '/dev/sdX'
+	and remove duplicates.
+
 2018-12-02  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
