@@ -4931,6 +4931,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
+    "0x152d:0x0583",
+    "",
+    "",
+    "" // smartmontools >= r4850: -d sntjmicron#please_try
+  },
   { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
     "0x152d:0x0602",
     "",
