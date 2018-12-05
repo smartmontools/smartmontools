@@ -80,6 +80,7 @@ smartctl_SOURCES = \
         scsicmds.cpp \
         scsicmds.h \
         scsiata.cpp \
+        scsinvme.cpp \
         scsiprint.cpp \
         scsiprint.h \
         utility.cpp \
@@ -152,6 +153,7 @@ smartd_SOURCES = \
         scsicmds.cpp \
         scsicmds.h \
         scsiata.cpp \
+        scsinvme.cpp \
         utility.cpp \
         utility.h \
         sg_unaligned.h

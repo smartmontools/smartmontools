@@ -596,40 +596,6 @@ static int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
     return 1;
 }
 
-
-// Call scsi_pass_through and check sense.
-// TODO: Provide as member function of class scsi_device (?)
-static bool scsi_pass_through_and_check(scsi_device * scsidev,  scsi_cmnd_io * iop,
-                                        const char * msg = "")
-{
-  // Provide sense buffer
-  unsigned char sense[32] = {0, };
-  iop->sensep = sense;
-  iop->max_sense_len = sizeof(sense);
-  iop->timeout = SCSI_TIMEOUT_DEFAULT;
-
-  // Run cmd
-  if (!scsidev->scsi_pass_through(iop)) {
-    if (scsi_debugmode > 0)
-      pout("%sscsi_pass_through() failed, errno=%d [%s]\n",
-           msg, scsidev->get_errno(), scsidev->get_errmsg());
-    return false;
-  }
-
-  // Check sense
-  scsi_sense_disect sinfo;
-  scsi_do_sense_disect(iop, &sinfo);
-  int err = scsiSimpleSenseFilter(&sinfo);
-  if (err) {
-    if (scsi_debugmode > 0)
-      pout("%sscsi error: %s\n", msg, scsiErrString(err));
-    return scsidev->set_err(EIO, "scsi error %s", scsiErrString(err));
-  }
-
-  return true;
-}
-
-
 /////////////////////////////////////////////////////////////////////////////
 
 namespace sat {
@@ -1095,7 +1061,7 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   io_hdr.cmnd_len = (!m_prolific ? 12 : 14);
 
   scsi_device * scsidev = get_tunnel_dev();
-  if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+  if (!scsidev->scsi_pass_through_and_check(&io_hdr,
          "usbjmicron_device::ata_pass_through: "))
     return set_err(scsidev->get_err());
 
@@ -1170,7 +1136,7 @@ bool usbjmicron_device::get_registers(unsigned short addr,
   io_hdr.cmnd_len = (!m_prolific ? 12 : 14);
 
   scsi_device * scsidev = get_tunnel_dev();
-  if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+  if (!scsidev->scsi_pass_through_and_check(&io_hdr,
          "usbjmicron_device::get_registers: "))
     return set_err(scsidev->get_err());
 
@@ -1277,7 +1243,7 @@ bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
   io_hdr.cmnd_len = 16;
 
   scsi_device * scsidev = get_tunnel_dev();
-  if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+  if (!scsidev->scsi_pass_through_and_check(&io_hdr,
          "usbprolific_device::ata_pass_through: "))
     return set_err(scsidev->get_err());
 
@@ -1296,7 +1262,7 @@ bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
 
-    if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+    if (!scsidev->scsi_pass_through_and_check(&io_hdr,
            "usbprolific_device::scsi_pass_through (get registers): "))
       return set_err(scsidev->get_err());
 
@@ -1384,7 +1350,7 @@ bool usbsunplus_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
     io_hdr.cmnd_len = sizeof(cdb);
 
     scsi_device * scsidev = get_tunnel_dev();
-    if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+    if (!scsidev->scsi_pass_through_and_check(&io_hdr,
            "usbsunplus_device::scsi_pass_through (presetting): "))
       return set_err(scsidev->get_err());
   }
@@ -1431,7 +1397,7 @@ bool usbsunplus_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   io_hdr.cmnd_len = sizeof(cdb);
 
   scsi_device * scsidev = get_tunnel_dev();
-  if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+  if (!scsidev->scsi_pass_through_and_check(&io_hdr,
          "usbsunplus_device::scsi_pass_through: "))
     // Returns sense key 0x03 (medium error) on ATA command error
     return set_err(scsidev->get_err());
@@ -1451,7 +1417,7 @@ bool usbsunplus_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
 
-    if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+    if (!scsidev->scsi_pass_through_and_check(&io_hdr,
            "usbsunplus_device::scsi_pass_through (get registers): "))
       return set_err(scsidev->get_err());
 

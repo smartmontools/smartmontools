@@ -64,6 +64,14 @@ protected:
       m_tunnel_dev(tunnel_dev)
     { }
 
+  // For nvme_device
+  explicit tunnelled_device(tunnel_device_type * tunnel_dev, unsigned nsid)
+    : smart_device(smart_device::never_called),
+      BaseDev(nsid),
+      tunnelled_device_base(tunnel_dev),
+      m_tunnel_dev(tunnel_dev)
+    { }
+
 public:
   virtual void release(const smart_device * dev)
     {

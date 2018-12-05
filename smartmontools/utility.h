@@ -94,6 +94,17 @@ inline bool isbigendian()
 #endif
 }
 
+void swap2(char *location);
+void swap4(char *location);
+void swap8(char *location);
+// Typesafe variants using overloading
+inline void swapx(unsigned short * p)
+  { swap2((char*)p); }
+inline void swapx(unsigned int * p)
+  { swap4((char*)p); }
+inline void swapx(uint64_t * p)
+  { swap8((char*)p); }
+
 // Runtime check of ./configure result, throws on error.
 void check_config();
 

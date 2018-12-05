@@ -14,6 +14,7 @@
 #include "dev_intelliprop.h"
 #include "dev_tunnelled.h"
 #include "atacmds.h" // ATA_SMART_CMD/STATUS
+#include "scsicmds.h" // scsi_cmnd_io
 #include "utility.h"
 
 #include <errno.h>
@@ -196,6 +197,38 @@ bool ata_device::ata_identify_is_cached() const
   return false;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// scsi_device
+
+bool scsi_device::scsi_pass_through_and_check(scsi_cmnd_io * iop,
+                                              const char * msg)
+{
+  // Provide sense buffer
+  unsigned char sense[32] = {0, };
+  iop->sensep = sense;
+  iop->max_sense_len = sizeof(sense);
+  iop->timeout = SCSI_TIMEOUT_DEFAULT;
+
+  // Run cmd
+  if (!scsi_pass_through(iop)) {
+    if (scsi_debugmode > 0)
+      pout("%sscsi_pass_through() failed, errno=%d [%s]\n",
+           msg, get_errno(), get_errmsg());
+    return false;
+  }
+
+  // Check sense
+  scsi_sense_disect sinfo;
+  scsi_do_sense_disect(iop, &sinfo);
+  int err = scsiSimpleSenseFilter(&sinfo);
+  if (err) {
+    if (scsi_debugmode > 0)
+      pout("%sscsi error: %s\n", msg, scsiErrString(err));
+    return set_err(EIO, "scsi error %s", scsiErrString(err));
+  }
+
+  return true;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // nvme_device
@@ -276,7 +309,8 @@ std::string smart_interface::get_valid_dev_types_str()
   // default
   std::string s =
     "ata, scsi[+TYPE], nvme[,NSID], sat[,auto][,N][+TYPE], usbcypress[,X], "
-    "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, intelliprop,N[+TYPE]";
+    "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, sntjmicron[,NSID], "
+    "intelliprop,N[+TYPE]";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
   if (!s2.empty()) {
@@ -417,6 +451,16 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     return get_sat_device(sattype.c_str(), basedev.release()->to_scsi());
   }
 
+  else if (str_starts_with(type, "snt")) {
+    smart_device_auto_ptr basedev( get_smart_device(name, "scsi") );
+    if (!basedev) {
+      set_err(EINVAL, "Type '%s': %s", type, get_errmsg());
+      return 0;
+    }
+
+    return get_snt_device(type, basedev.release()->to_scsi());
+  }
+
   else if (str_starts_with(type, "intelliprop")) {
     // Parse "intelliprop,N[+base...]"
     unsigned phydrive = ~0; int n = -1; char c = 0;
@@ -490,4 +534,13 @@ smart_device * smart_interface::get_custom_smart_device(const char * /*name*/, c
 std::string smart_interface::get_valid_custom_dev_types_str()
 {
   return "";
+}
+
+smart_device * smart_interface::get_scsi_passthrough_device(const char * type, scsi_device * scsidev)
+{
+  if (!strncmp(type, "snt", 3)) {
+    return get_snt_device(type, scsidev);
+  }
+
+  return get_sat_device(type, scsidev);
 }

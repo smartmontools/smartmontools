@@ -1004,17 +1004,6 @@ void ata_format_id_string(char * out, const unsigned char * in, int n);
 // Utility routines.
 unsigned char checksum(const void * data);
 
-void swap2(char *location);
-void swap4(char *location);
-void swap8(char *location);
-// Typesafe variants using overloading
-inline void swapx(unsigned short * p)
-  { swap2((char*)p); }
-inline void swapx(unsigned int * p)
-  { swap4((char*)p); }
-inline void swapx(uint64_t * p)
-  { swap8((char*)p); }
-
 // Return pseudo-device to parse "smartctl -r ataioctl,2 ..." output
 // and simulate an ATA device with same behaviour
 ata_device * get_parsed_ata_device(smart_interface * intf, const char * dev_name);

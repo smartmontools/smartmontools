@@ -2013,7 +2013,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
           if(usbdevlist(bus,vendor_id, product_id, version)){
             const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
             if (usbtype)
-              return get_sat_device(usbtype, new freebsd_scsi_device(this, test_name, ""));
+              return get_scsi_passthrough_device(usbtype, new freebsd_scsi_device(this, test_name, ""));
           }
           return 0;
         }

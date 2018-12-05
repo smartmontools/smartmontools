@@ -3297,7 +3297,7 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
 
       // Return SAT/USB device for this type
       // (Note: linux_scsi_device::autodetect_open() will not be called in this case)
-      return get_sat_device(usbtype, new linux_scsi_device(this, name, ""));
+      return get_scsi_passthrough_device(usbtype, new linux_scsi_device(this, name, ""));
     }
 
     // Fail if hpsa driver

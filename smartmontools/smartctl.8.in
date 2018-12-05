@@ -453,6 +453,13 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
 bridge.
 .Sp
+.I sntjmicron[,NSID]
+\- this device type is for NVMe disks that are behind a JMicron USB to NVMe
+bridge.
+The optional parameter NSID specifies the namespace id (in hex) passed
+to the driver.
+The default namespace id is the broadcast namespace id (0xffffffff).
+.Sp
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Linux
 .I marvell

@@ -3946,7 +3946,7 @@ protected:
   virtual std::string get_valid_custom_dev_types_str();
 
 private:
-  ata_device * get_usb_device(const char * name, int phydrive, int logdrive = -1);
+  smart_device * get_usb_device(const char * name, int phydrive, int logdrive = -1);
 };
 
 
@@ -4365,7 +4365,7 @@ static win_dev_type get_dev_type(const char * name, int & phydrive, int & logdri
 }
 
 
-ata_device * win_smart_interface::get_usb_device(const char * name,
+smart_device * win_smart_interface::get_usb_device(const char * name,
   int phydrive, int logdrive /* = -1 */)
 {
   // Get USB bridge ID
@@ -4381,7 +4381,7 @@ ata_device * win_smart_interface::get_usb_device(const char * name,
     return 0;
 
   // Return SAT/USB device for this type
-  return get_sat_device(usbtype, new win_scsi_device(this, name, ""));
+  return get_scsi_passthrough_device(usbtype, new win_scsi_device(this, name, ""));
 }
 
 smart_device * win_smart_interface::autodetect_smart_device(const char * name)

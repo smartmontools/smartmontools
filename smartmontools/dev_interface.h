@@ -584,6 +584,10 @@ public:
   /// Returns false on error.
   virtual bool scsi_pass_through(scsi_cmnd_io * iop) = 0;
 
+  // Call scsi_pass_through and check sense.
+  bool scsi_pass_through_and_check(scsi_cmnd_io * iop,
+                                   const char * msg = "");
+
   /// Always try READ CAPACITY(10) (rcap10) first but once we know
   /// rcap16 is needed, use it instead.
   void set_rcap16_first()
@@ -998,12 +1002,24 @@ protected:
   /// Default implementation returns empty string.
   virtual std::string get_valid_custom_dev_types_str();
 
+  /// Return ATA->SCSI of NVMe->SCSI filter for a SAT, SNT or USB 'type'.
+  /// Uses get_sat_device and get_snt_device.
+  /// Return 0 and delete 'scsidev' on error.
+  virtual smart_device * get_scsi_passthrough_device(const char * type, scsi_device * scsidev);
+
   /// Return ATA->SCSI filter for a SAT or USB 'type'.
   /// Device 'scsidev' is used for SCSI access.
   /// Return 0 and delete 'scsidev' on error.
   /// Override only if platform needs special handling.
   virtual ata_device * get_sat_device(const char * type, scsi_device * scsidev);
   //{ implemented in scsiata.cpp }
+
+  /// Return NVMe->SCSI filter for a SNT or USB 'type'.
+  /// Device 'scsidev' is used for SCSI access.
+  /// Return 0 and delete 'scsidev' on error.
+  /// Override only if platform needs special handling.
+  virtual nvme_device * get_snt_device(const char * type, scsi_device * scsidev);
+  //{ implemented in scsinvme.cpp }
 
 public:
   /// Try to detect a SAT device behind a SCSI interface.

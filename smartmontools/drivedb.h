@@ -4931,6 +4931,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+//   sntjmicron is currently in beta
+//   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
+//     "0x152d:0x0583",
+//     "",
+//     "",
+//     "-d sntjmicron"
+//   },
   { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
     "0x152d:0x0602",
     "",
