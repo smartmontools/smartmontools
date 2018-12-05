@@ -1,4 +1,9 @@
-$Id: ChangeLog 4847 2018-12-04 20:24:47Z chrfranke $
+$Id: ChangeLog 4848 2018-12-05 18:30:46Z chrfranke $
+
+2018-12-05  Harry Mallon  <hjmallon@gmail.com>
+
+	Add '-d sntjmicron[,NSID]' device type for NVMe drives behind
+	JMicron USB to NVMe bridges (JMS583).
 
 2018-12-04  Christian Franke  <franke@computer.org>
 

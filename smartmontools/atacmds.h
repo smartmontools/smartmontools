@@ -13,7 +13,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 4842 2018-12-02 16:07:26Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 4848 2018-12-05 18:30:46Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -1003,17 +1003,6 @@ void ata_format_id_string(char * out, const unsigned char * in, int n);
 
 // Utility routines.
 unsigned char checksum(const void * data);
-
-void swap2(char *location);
-void swap4(char *location);
-void swap8(char *location);
-// Typesafe variants using overloading
-inline void swapx(unsigned short * p)
-  { swap2((char*)p); }
-inline void swapx(unsigned int * p)
-  { swap4((char*)p); }
-inline void swapx(uint64_t * p)
-  { swap8((char*)p); }
 
 // Return pseudo-device to parse "smartctl -r ataioctl,2 ..." output
 // and simulate an ATA device with same behaviour

@@ -74,7 +74,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4842 2018-12-02 16:07:26Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4848 2018-12-05 18:30:46Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -2013,7 +2013,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
           if(usbdevlist(bus,vendor_id, product_id, version)){
             const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
             if (usbtype)
-              return get_sat_device(usbtype, new freebsd_scsi_device(this, test_name, ""));
+              return get_scsi_passthrough_device(usbtype, new freebsd_scsi_device(this, test_name, ""));
           }
           return 0;
         }

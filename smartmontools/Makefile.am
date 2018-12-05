@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4818 2018-10-17 05:32:17Z chrfranke $
+# $Id: Makefile.am 4848 2018-12-05 18:30:46Z chrfranke $
 #
 
 @SET_MAKE@
@@ -80,6 +80,7 @@ smartctl_SOURCES = \
         scsicmds.cpp \
         scsicmds.h \
         scsiata.cpp \
+        scsinvme.cpp \
         scsiprint.cpp \
         scsiprint.h \
         utility.cpp \
@@ -152,6 +153,7 @@ smartd_SOURCES = \
         scsicmds.cpp \
         scsicmds.h \
         scsiata.cpp \
+        scsinvme.cpp \
         utility.cpp \
         utility.h \
         sg_unaligned.h

@@ -13,7 +13,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 4842 2018-12-02 16:07:26Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 4848 2018-12-05 18:30:46Z chrfranke $"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
@@ -93,6 +93,17 @@ inline bool isbigendian()
   return false;
 #endif
 }
+
+void swap2(char *location);
+void swap4(char *location);
+void swap8(char *location);
+// Typesafe variants using overloading
+inline void swapx(unsigned short * p)
+  { swap2((char*)p); }
+inline void swapx(unsigned int * p)
+  { swap4((char*)p); }
+inline void swapx(uint64_t * p)
+  { swap8((char*)p); }
 
 // Runtime check of ./configure result, throws on error.
 void check_config();

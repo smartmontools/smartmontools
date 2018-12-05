@@ -11,7 +11,7 @@
 #ifndef DEV_TUNNELLED_H
 #define DEV_TUNNELLED_H
 
-#define DEV_TUNNELLED_H_CVSID "$Id: dev_tunnelled.h 4760 2018-08-19 18:45:53Z chrfranke $"
+#define DEV_TUNNELLED_H_CVSID "$Id: dev_tunnelled.h 4848 2018-12-05 18:30:46Z chrfranke $"
 
 #include "dev_interface.h"
 
@@ -60,6 +60,14 @@ public:
 protected:
   explicit tunnelled_device(tunnel_device_type * tunnel_dev)
     : smart_device(smart_device::never_called),
+      tunnelled_device_base(tunnel_dev),
+      m_tunnel_dev(tunnel_dev)
+    { }
+
+  // For nvme_device
+  explicit tunnelled_device(tunnel_device_type * tunnel_dev, unsigned nsid)
+    : smart_device(smart_device::never_called),
+      BaseDev(nsid),
       tunnelled_device_base(tunnel_dev),
       m_tunnel_dev(tunnel_dev)
     { }

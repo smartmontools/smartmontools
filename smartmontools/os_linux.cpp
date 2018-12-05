@@ -94,7 +94,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4847 2018-12-04 20:24:47Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4848 2018-12-05 18:30:46Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -3297,7 +3297,7 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
 
       // Return SAT/USB device for this type
       // (Note: linux_scsi_device::autodetect_open() will not be called in this case)
-      return get_sat_device(usbtype, new linux_scsi_device(this, name, ""));
+      return get_scsi_passthrough_device(usbtype, new linux_scsi_device(this, name, ""));
     }
 
     // Fail if hpsa driver
