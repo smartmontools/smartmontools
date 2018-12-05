@@ -1,6 +1,9 @@
-$Id: ChangeLog 4850 2018-12-05 20:14:40Z chrfranke $
+$Id: ChangeLog 4852 2018-12-05 21:00:40Z chrfranke $
 
 2018-12-05  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in: Mark '-d sntjmicron' as
+	EXPERIMENTAL.
 
 	drivedb.h: Enable JMicron JMS583 entry, use an internal -d option.
 	scsinvme.cpp: Detect this internal -d option and ask user to test

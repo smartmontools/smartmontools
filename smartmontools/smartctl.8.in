@@ -4,7 +4,7 @@ Copyright (C) 2004-18 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 4848 2018-12-05 18:30:46Z chrfranke $
+$Id: smartctl.8.in 4852 2018-12-05 21:00:40Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -454,7 +454,8 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 bridge.
 .Sp
 .I sntjmicron[,NSID]
-\- this device type is for NVMe disks that are behind a JMicron USB to NVMe
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
+this device type is for NVMe disks that are behind a JMicron USB to NVMe
 bridge.
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
@@ -2423,4 +2424,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4848 2018-12-05 18:30:46Z chrfranke $
+$Id: smartctl.8.in 4852 2018-12-05 21:00:40Z chrfranke $
