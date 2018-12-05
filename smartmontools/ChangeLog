@@ -2,6 +2,10 @@ $Id$
 
 2018-12-05  Christian Franke  <franke@computer.org>
 
+	drivedb.h: Enable JMicron JMS583 entry, use an internal -d option.
+	scsinvme.cpp: Detect this internal -d option and ask user to test
+	'-d sntjmicron'.
+
 	scsinvme.cpp: Add missing include of config.h.
 
 2018-12-05  Harry Mallon  <hjmallon@gmail.com>
