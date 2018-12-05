@@ -9,13 +9,15 @@
  *
  */
 
-#include <errno.h>
+#include "config.h"
 
 #include "dev_interface.h"
 #include "dev_tunnelled.h"
 #include "scsicmds.h"
 #include "sg_unaligned.h"
 #include "utility.h"
+
+#include <errno.h>
 
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
