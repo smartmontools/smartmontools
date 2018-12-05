@@ -231,6 +231,13 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
   scsi_device_auto_ptr scsidev_holder(scsidev);
   nvme_device * sntdev = 0;
 
+  // TODO: Remove this and adjust drivedb entry accordingly when no longer EXPERIMENTAL
+  if (!strcmp(type, "sntjmicron#please_try")) {
+    set_err(EINVAL, "USB to NVMe bridge [please try '-d sntjmicron' and report result to: "
+            PACKAGE_BUGREPORT "]");
+    return 0;
+  }
+
   if (!strncmp(type, "sntjmicron", 10)) {
     int n1 = -1, n2 = -1, len = strlen(type);
     unsigned nsid = 0; // invalid namespace id -> use default

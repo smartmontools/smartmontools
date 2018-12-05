@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4848 2018-12-05 18:30:46Z chrfranke $",
+  { "$Id: drivedb.h 4850 2018-12-05 20:14:40Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4931,13 +4931,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-//   sntjmicron is currently in beta
-//   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
-//     "0x152d:0x0583",
-//     "",
-//     "",
-//     "-d sntjmicron"
-//   },
+  { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
+    "0x152d:0x0583",
+    "",
+    "",
+    "-d sntjmicron#please_try" // TODO: Remove '#please_try' when no longer EXPERIMENTAL
+  },
   { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
     "0x152d:0x0602",
     "",
