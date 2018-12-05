@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4846 2018-12-02 18:34:36Z chrfranke $",
+  { "$Id: drivedb.h 4851 2018-12-05 20:36:52Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4920,6 +4920,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0100
     "",
     "-d sat"
+  },
+  { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
+    "0x152d:0x0583",
+    "",
+    "",
+    "" // smartmontools >= r4850: -d sntjmicron#please_try
   },
   { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
     "0x152d:0x0602",
