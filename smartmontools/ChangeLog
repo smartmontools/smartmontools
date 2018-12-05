@@ -1,5 +1,9 @@
 $Id$
 
+2018-12-05  Christian Franke  <franke@computer.org>
+
+	scsinvme.cpp: Add missing include of config.h.
+
 2018-12-05  Harry Mallon  <hjmallon@gmail.com>
 
 	Add '-d sntjmicron[,NSID]' device type for NVMe drives behind
