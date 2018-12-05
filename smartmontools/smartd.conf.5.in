@@ -394,7 +394,8 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 bridge.
 .Sp
 .I sntjmicron[,NSID]
-\- this device type is for NVMe disks that are behind a JMicron USB to NVMe
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+this device type is for NVMe disks that are behind a JMicron USB to NVMe
 bridge.
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
