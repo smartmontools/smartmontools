@@ -123,7 +123,6 @@ devices, and \fB"/dev/sd[a\-z]"\fP, \fB"/dev/sd[a\-c][a\-z]"\fP
 for ATA/SATA or SCSI/SAS devices.
 Disks behind RAID controllers are not included.
 .Sp
-[NEW EXPERIMENTAL SMARTD FEATURE]
 If directive \*(Aq\-d nvme\*(Aq
 .\" %IF ENABLE_NVME_DEVICESCAN
 or no \*(Aq\-d\*(Aq directive
@@ -168,7 +167,6 @@ ICHxR controller with RST driver.
 .Sp
 Disks behind Areca RAID controllers are not included.
 .Sp
-[NEW EXPERIMENTAL SMARTD FEATURE]
 If directive \*(Aq\-d nvme\*(Aq
 .\" %IF ENABLE_NVME_DEVICESCAN
 or no \*(Aq\-d\*(Aq directive
@@ -425,8 +423,7 @@ this option are:
 .Sp
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvmeioctl
-\- [NEW EXPERIMENTAL SMARTD FEATURE]
-report only ioctl() transactions with NVMe devices.
+\- report only ioctl() transactions with NVMe devices.
 .Sp
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 Any argument may include a positive integer to specify the level of

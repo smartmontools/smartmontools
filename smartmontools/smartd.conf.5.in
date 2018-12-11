@@ -335,8 +335,7 @@ from issuing ATA commands to a SCSI device.
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvme[,NSID]
-\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
-the device type is NVM Express (NVMe).
+\- the device type is NVM Express (NVMe).
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
 Use 0xffffffff for the broadcast namespace id.
@@ -624,9 +623,8 @@ will be logged to syslog.  [Please see the
 command-line option.]
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NVMe]
-[NEW EXPERIMENTAL SMARTD FEATURE]
-Checks the "Critical Warning" byte from the SMART/Health Information log.
+[NVMe] Checks the "Critical Warning" byte from the SMART/Health
+Information log.
 If any warning bit is set, a message at loglevel \fB\*(AqLOG_CRIT\*(Aq\fP
 will be logged to syslog.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
@@ -641,9 +639,7 @@ error log has increased since the last check.
 .Sp
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I error
-\- [NVMe]
-[NEW EXPERIMENTAL SMARTD FEATURE]
-report if the "Number of Error Information Log Entries" from the
+\- [NVMe] report if the "Number of Error Information Log Entries" from the
 SMART/Health Information log has increased since the last check.
 .Sp
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
@@ -658,9 +654,7 @@ checks the maximum of both values.
 .Sp
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I xerror
-\- [NVMe]
-[NEW EXPERIMENTAL SMARTD FEATURE]
-same as \*(Aq\-l error\*(Aq.
+\- [NVMe] same as \*(Aq\-l error\*(Aq.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I selftest
@@ -1422,7 +1416,6 @@ by default.  This can be changed to Attribute 9 or 220 by the drive
 database or by the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NEW EXPERIMENTAL SMARTD FEATURE]
 For NVMe devices, smartd checks the maximum of the Composite Temperature value
 and all Temperature Sensor values reported by SMART/Health Information log.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
@@ -1579,7 +1572,6 @@ will do the same, but only monitors the SMART health status of the
 devices, (rather than the default \-a, which monitors all SMART
 properties).
 .br
-[NEW EXPERIMENTAL SMARTD FEATURE]
 Multiple \*(Aq\-d TYPE\*(Aq options may be specified with DEVICESCAN
 to combine the scan results of more than one TYPE.
 .Sp

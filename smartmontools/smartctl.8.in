@@ -154,7 +154,6 @@ scsi controller "\\\\.\\Scsi[0\-9]:".
 For SATA or SAS disks behind an Areca controller use
 \fB"/dev/arcmsr[0\-9]"\fP, see \*(Aq\-d areca,N[/E]\*(Aq below.
 .Sp
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 Use the forms \fB"/dev/nvme[0\-9]"\fP (broadcast namespace) or
 \fB"/dev/nvme[0\-9]n[1\-9]"\fP (specific namespace 1\-9) for first,
 second, ..., NVMe device.
@@ -217,10 +216,8 @@ If \*(Aq\-n\*(Aq (see below) is specified, the power mode of the drive is
 printed.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NVMe]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-For NVMe devices the information is obtained from the Identify Controller
-and the Identify Namespace data structure.
+[NVMe] For NVMe devices the information is obtained from the Identify
+Controller and the Identify Namespace data structure.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-\-identify[=[w][nvb]]
@@ -293,7 +290,6 @@ For example:
 smartctl \-\-scan\-open \-\- \-a \-W 4,45,50 \-m admin@work > smartd.conf
 .Ve
 .Sp
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 Multiple \*(Aq\-d TYPE\*(Aq options may be specified with
 \*(Aq\-\-scan[\-open]\*(Aq to combine the scan results of more than one TYPE.
 .TP
@@ -395,8 +391,7 @@ from issuing ATA commands to a SCSI device.
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvme[,NSID]
-\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
-the device type is NVM Express (NVMe).
+\- the device type is NVM Express (NVMe).
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
 Use 0xffffffff for the broadcast namespace id.
@@ -762,8 +757,7 @@ send to, or received from the device.
 .Sp
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvmeioctl
-\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
-report only ioctl() transactions with NVMe devices.
+\- report only ioctl() transactions with NVMe devices.
 .Sp
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 Any argument may include a positive integer to specify the level of detail
@@ -1083,9 +1077,7 @@ This means that each alert condition is reported only once by \fBsmartctl\fP
 for each initiator for each activation of the condition.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NVMe]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-NVMe status is obtained by reading the "Critical Warning" byte from
+[NVMe] NVMe status is obtained by reading the "Critical Warning" byte from
 the SMART/Health Information log.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
@@ -1098,10 +1090,8 @@ scanning, and so on.  If the device can carry out self-tests, this
 option also shows the estimated time required to run those tests.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NVMe]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-Prints various NVMe device capabilities obtained from the Identify Controller
-and the Identify Namespace data structure.
+[NVMe] Prints various NVMe device capabilities obtained from the Identify
+Controller and the Identify Namespace data structure.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-A, \-\-attributes
@@ -1201,9 +1191,7 @@ The attributes are output in a relatively free format (compared with ATA
 disk attributes).
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-[NVMe]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-For NVMe devices the attributes are obtained from the SMART/Health
+[NVMe] For NVMe devices the attributes are obtained from the SMART/Health
 Information log.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
@@ -1312,9 +1300,7 @@ The verify row is only output if it has an element other than zero.
 .Sp
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I error[,NUM]
-\- [NVMe]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-prints the NVMe Error Information log.
+\- [NVMe] prints the NVMe Error Information log.
 Only the 16 most recent log entries are printed by default.
 This number can be changed by the optional parameter NUM.
 The maximum number of log entries is vendor specific
@@ -1520,10 +1506,8 @@ writes a binary representation of the one sector log 0x11
 .Sp
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvmelog,PAGE,SIZE
-\- [NVMe only]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-prints a hex dump of the first SIZE bytes from the NVMe log with
-identifier PAGE.
+\- [NVMe only] prints a hex dump of the first SIZE bytes from the NVMe
+log with identifier PAGE.
 PAGE is a hexadecimal number in the range from 0x1 to 0xff.
 SIZE is a hexadecimal number in the range from 0x4 to 0x4000 (16 KiB).
 \fBWARNING: Do not specify the identifier of an unknown log page.
