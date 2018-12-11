@@ -1,4 +1,10 @@
-$Id: ChangeLog 4853 2018-12-11 20:20:40Z chrfranke $
+$Id: ChangeLog 4854 2018-12-11 20:32:29Z chrfranke $
+
+2018-12-11  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Call realpath() with full /sys/* path instead of
+	device name (GH pull/23).  This fixes detection of hpsa devices
+	(regression from r4603).
 
 2018-12-11  Harry Mallon  <hjmallon@gmail.com>
 

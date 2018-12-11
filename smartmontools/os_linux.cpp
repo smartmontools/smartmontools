@@ -94,7 +94,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4848 2018-12-05 18:30:46Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4854 2018-12-11 20:32:29Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -3209,7 +3209,7 @@ static bool is_hpsa(const char * name)
 {
   char path[128];
   snprintf(path, sizeof(path), "/sys/block/%s/device", name);
-  char * syshostpath = realpath(name, (char *)0);
+  char * syshostpath = realpath(path, (char *)0);
   if (!syshostpath)
     return false;
 
