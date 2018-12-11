@@ -1,4 +1,8 @@
-$Id: ChangeLog 4852 2018-12-05 21:00:40Z chrfranke $
+$Id: ChangeLog 4853 2018-12-11 20:20:40Z chrfranke $
+
+2018-12-11  Harry Mallon  <hjmallon@gmail.com>
+
+	scsinvme.cpp: Fix debug message.
 
 2018-12-05  Christian Franke  <franke@computer.org>
 

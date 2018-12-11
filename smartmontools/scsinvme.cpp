@@ -197,7 +197,7 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
 
     scsi_device * scsidev = get_tunnel_dev();
     if (!scsidev->scsi_pass_through_and_check(&io_reply,
-         "sntjmicron_device::nvme_pass_through:Data: "))
+         "sntjmicron_device::nvme_pass_through:Reply: "))
       return set_err(scsidev->get_err());
 
     if (isbigendian())
