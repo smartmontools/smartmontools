@@ -2,6 +2,9 @@ $Id$
 
 2018-12-11  Christian Franke  <franke@computer.org>
 
+	smartd.conf.5.in: Update DEVICESCAN info and move it up to a
+	new section.  Add section header for DEFAULT SETTINGS.
+
 	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Remove EXPERIMENTAL
 	notes for features added before 6.5.
 

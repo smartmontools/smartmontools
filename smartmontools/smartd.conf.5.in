@@ -27,7 +27,7 @@ $Id$
 .TH SMARTD.CONF 5 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File\fP
-
+.Sp
 .SH DESCRIPTION
 .\" %IF NOT OS ALL
 .\"! [This man page is generated for the OS_MAN_FILTER version of smartmontools.
@@ -226,18 +226,66 @@ Section below!
 ################################################
 .Ve
 .Sp
-.SH CONFIGURATION FILE DIRECTIVES
+.SH DEVICESCAN
 If a non-comment entry in the configuration file is the text string
 .B DEVICESCAN
 in capital letters, then
 \fBsmartd\fP
 will ignore any remaining lines in the configuration file, and will
 scan for devices.
+If
+.B DEVICESCAN
+is not followed by any Directives, then \*(Aq\-a\*(Aq will apply to all
+devices.
+.PP
 .B DEVICESCAN
 may optionally be followed by Directives that will apply to all
-devices that are found in the scan.  Please see below for additional
-details.
+devices that are found in the scan.
+For example
 .PP
+.Vb
+\ \ DEVICESCAN \-m root@example.com
+.Ve
+.PP
+will scan for all devices, and then monitor them.
+It will send one email warning per device for any problems that are found.
+.PP
+.Vb
+\ \ DEVICESCAN \-H \-m root@example.com
+.Ve
+.PP
+will do the same, but only monitors the SMART health status of the
+devices, rather than the default \*(Aq\-a\*(Aq.
+.PP
+Multiple \*(Aq\-d TYPE\*(Aq options may be specified with DEVICESCAN
+to combine the scan results of more than one TYPE.
+.PP
+Configuration entries for specific devices may precede the \fBDEVICESCAN\fP
+entry.
+For example
+.PP
+.Vb 4
+\ \ DEFAULT \-m root@example.com
+\ \ /dev/sda \-s S/../.././02
+\ \ /dev/sdc \-d ignore
+\ \ DEVICESCAN \-s L/../.././02
+.Ve
+.PP
+will scan for all devices except /dev/sda and /dev/sdc, monitor them, and
+run a long test between 2\(en3 am every morning.
+Device /dev/sda will also be monitored, but only a short test will be run.
+Device /dev/sdc will be ignored.
+Warning emails will be sent for all monitored devices.
+.PP
+A device is ignored by DEVICESCAN if a configuration line with the same
+device name exists.
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+A device name is also ignored if another device with same identify
+information (vendor, model, firmware version, serial number, WWN) already
+exists.
+.Sp
+.SH DEFAULT SETTINGS
 If an entry in the configuration file starts with
 .B DEFAULT
 instead of a device name, then all directives in this entry are set
@@ -264,7 +312,8 @@ has the same effect as:
 \ \ /dev/sdd \-H \-m admin@example.com
 \ \ /dev/sde \-d removable \-H \-m admin@example.com
 .Ve
-.PP
+.Sp
+.SH CONFIGURATION FILE DIRECTIVES
 The following are the Directives that may appear following the device
 name or
 .B DEVICESCAN
@@ -1541,65 +1590,6 @@ configuration file Directives might be:
 \fB\-H \-l selftest \-l error \-f\fP.
 .br
 If you want more frequent information, use: \fB\-a\fP.
-.Sp
-.TP
-.B ADDITIONAL DETAILS ABOUT DEVICESCAN
-If a non-comment entry in the configuration file is the text
-string \fBDEVICESCAN\fP in capital letters, then \fBsmartd\fP will
-ignore any remaining lines in the configuration file, and will scan
-for devices (see also \fBsmartd\fP(8) man page).
-.Sp
-If \fBDEVICESCAN\fP is not followed by any Directives, then smartd
-will scan for both ATA and SCSI devices, and will monitor all possible
-SMART properties of any devices that are found.
-.Sp
-\fBDEVICESCAN\fP may optionally be followed by any valid Directives,
-which will be applied to all devices that are found in the scan.  For
-example
-.br
-.B DEVICESCAN \-m root@example.com
-.br
-will scan for all devices, and then monitor them.  It will send one
-email warning per device for any problems that are found.
-.br
-.B  DEVICESCAN \-d ata \-m root@example.com
-.br
-will do the same, but restricts the scan to ATA devices only.
-.br
-.B  DEVICESCAN \-H \-d ata \-m root@example.com
-.br
-will do the same, but only monitors the SMART health status of the
-devices, (rather than the default \-a, which monitors all SMART
-properties).
-.br
-Multiple \*(Aq\-d TYPE\*(Aq options may be specified with DEVICESCAN
-to combine the scan results of more than one TYPE.
-.Sp
-Configuration entries for specific devices may precede the \fBDEVICESCAN\fP
-entry.
-For example
-.br
-.B  DEFAULT \-m root@example.com
-.br
-.B  /dev/sda \-s S/../.././02
-.br
-.B  /dev/sdc \-d ignore
-.br
-.B  DEVICESCAN \-s L/../.././02
-.br
-will scan for all devices except /dev/sda and /dev/sdc, monitor them, and
-run a long test between 2\(en3 am every morning.
-Device /dev/sda will also be monitored, but only a short test will be run.
-Device /dev/sdc will be ignored.
-Warning emails will be sent for all monitored devices.
-.Sp
-A device is ignored by DEVICESCAN if a configuration line with the same
-device name exists.
-.br
-[NEW EXPERIMENTAL SMARTD FEATURE]
-A device name is also ignored if another device with same identify
-information (vendor, model, firmware version, serial number, WWN) already
-exists.
 .Sp
 .TP
 .B EXAMPLES OF SHELL SCRIPTS FOR \*(Aq\-M exec\*(Aq
