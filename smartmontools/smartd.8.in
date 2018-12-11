@@ -4,7 +4,7 @@ Copyright (C) 2004-18 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.8.in 4784 2018-09-21 09:15:06Z chrfranke $
+$Id: smartd.8.in 4855 2018-12-11 21:07:54Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -123,7 +123,6 @@ devices, and \fB"/dev/sd[a\-z]"\fP, \fB"/dev/sd[a\-c][a\-z]"\fP
 for ATA/SATA or SCSI/SAS devices.
 Disks behind RAID controllers are not included.
 .Sp
-[NEW EXPERIMENTAL SMARTD FEATURE]
 If directive \*(Aq\-d nvme\*(Aq
 .\" %IF ENABLE_NVME_DEVICESCAN
 or no \*(Aq\-d\*(Aq directive
@@ -168,7 +167,6 @@ ICHxR controller with RST driver.
 .Sp
 Disks behind Areca RAID controllers are not included.
 .Sp
-[NEW EXPERIMENTAL SMARTD FEATURE]
 If directive \*(Aq\-d nvme\*(Aq
 .\" %IF ENABLE_NVME_DEVICESCAN
 or no \*(Aq\-d\*(Aq directive
@@ -425,8 +423,7 @@ this option are:
 .Sp
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvmeioctl
-\- [NEW EXPERIMENTAL SMARTD FEATURE]
-report only ioctl() transactions with NVMe devices.
+\- report only ioctl() transactions with NVMe devices.
 .Sp
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 Any argument may include a positive integer to specify the level of
@@ -842,4 +839,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 4784 2018-09-21 09:15:06Z chrfranke $
+$Id: smartd.8.in 4855 2018-12-11 21:07:54Z chrfranke $
