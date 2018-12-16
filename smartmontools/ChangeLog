@@ -2,6 +2,8 @@ $Id$
 
 2018-12-16  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: [_WIN32] Remove check for '-m [sys]msgbox'.
+
 	nvmeprint.cpp: Don't print NSID in SMART/Health Information title
 	line.  This log is always read with broadcast NSID.
 
