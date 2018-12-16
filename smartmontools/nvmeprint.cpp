@@ -330,12 +330,12 @@ static void print_critical_warning(unsigned char w)
   jout("\n");
 }
 
-static void print_smart_log(const nvme_smart_log & smart_log, unsigned nsid,
+static void print_smart_log(const nvme_smart_log & smart_log,
   const nvme_id_ctrl & id_ctrl, bool show_all)
 {
   json::ref jref = jglb["nvme_smart_health_information_log"];
   char buf[64];
-  jout("SMART/Health Information (NVMe Log 0x02, NSID 0x%x)\n", nsid);
+  jout("SMART/Health Information (NVMe Log 0x02)\n");
   jout("Critical Warning:                   0x%02x\n", smart_log.critical_warning);
   jref["critical_warning"] = smart_log.critical_warning;
 
@@ -520,7 +520,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     }
 
     if (options.smart_vendor_attrib) {
-      print_smart_log(smart_log, device->get_nsid(), id_ctrl, show_all);
+      print_smart_log(smart_log, id_ctrl, show_all);
     }
   }
 

@@ -1,5 +1,10 @@
 $Id$
 
+2018-12-16  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Don't print NSID in SMART/Health Information title
+	line.  This log is always read with broadcast NSID.
+
 2018-12-16  Giuseppe Iuculano  <iuculano@debian.org>
 
 	cciss.cpp: Fix kFreeBSD build (Debian kfreebsd.patch).
