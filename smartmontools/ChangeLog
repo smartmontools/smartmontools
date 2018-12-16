@@ -2,6 +2,8 @@ $Id$
 
 2018-12-16  Giuseppe Iuculano  <iuculano@debian.org>
 
+	cciss.cpp: Fix kFreeBSD build (Debian kfreebsd.patch).
+
 	smartd.service.in: Declaring After=syslog.target is unnecessary by
 	now because syslog is socket-activated and will therefore be started
 	when needed (Debian removesyslogtarget.patch).

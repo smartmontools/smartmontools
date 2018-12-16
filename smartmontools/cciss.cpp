@@ -28,16 +28,8 @@
 #  ifndef be32toh
 #    define be32toh __be32_to_cpu
 #  endif
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #  include <sys/endian.h>
-#  include CISS_LOCATION
-#  define _HAVE_CCISS
-#elif defined(__FreeBSD_kernel__)
-#  include <endian.h>
-#  ifdef __GLIBC__
-#  include <bsd/sys/cdefs.h>
-#  include <stdint.h>
-#  endif
 #  include CISS_LOCATION
 #  define _HAVE_CCISS
 #endif
