@@ -1,4 +1,10 @@
-$Id: ChangeLog 4856 2018-12-11 21:42:16Z chrfranke $
+$Id: ChangeLog 4857 2018-12-16 17:55:44Z chrfranke $
+
+2018-12-16  Giuseppe Iuculano  <iuculano@debian.org>
+
+	smartd.service.in: Declaring After=syslog.target is unnecessary by
+	now because syslog is socket-activated and will therefore be started
+	when needed (Debian removesyslogtarget.patch).
 
 2018-12-11  Christian Franke  <franke@computer.org>
 
