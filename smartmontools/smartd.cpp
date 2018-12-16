@@ -84,7 +84,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4860 2018-12-16 18:15:41Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -4359,14 +4359,6 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
       if (!cfg.emailaddress.empty())
         PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous Address Directive -m %s\n",
                  configfile, lineno, name, cfg.emailaddress.c_str());
-#ifdef _WIN32 // TODO: Remove after smartmontools 6.5
-      if (   !strcmp(arg, "msgbox")          || !strcmp(arg, "sysmsgbox")
-          || str_starts_with(arg, "msgbox,") || str_starts_with(arg, "sysmsgbox,")) {
-        PrintOut(LOG_CRIT, "File %s line %d (drive %s): -m %s is no longer supported, use -m console[,...] instead\n",
-                 configfile, lineno, name, arg);
-        return -1;
-      }
-#endif
       cfg.emailaddress = arg;
     }
     break;
