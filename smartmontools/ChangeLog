@@ -1,5 +1,11 @@
 $Id$
 
+2018-12-16  Giuseppe Iuculano  <iuculano@debian.org>
+
+	smartd.service.in: Declaring After=syslog.target is unnecessary by
+	now because syslog is socket-activated and will therefore be started
+	when needed (Debian removesyslogtarget.patch).
+
 2018-12-11  Christian Franke  <franke@computer.org>
 
 	smartd.conf.5.in: Update DEVICESCAN info and move it up to a
