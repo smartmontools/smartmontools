@@ -2,6 +2,8 @@ $Id$
 
 2018-12-16  Christian Franke  <franke@computer.org>
 
+	smartd.8.in: Don't use empty lines before '.SH' macros.
+
 	smartd.cpp: [_WIN32] Remove check for '-m [sys]msgbox'.
 
 	nvmeprint.cpp: Don't print NSID in SMART/Health Information title

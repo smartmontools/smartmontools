@@ -27,10 +27,10 @@ $Id$
 .TH SMARTD 8 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
-
+.Sp
 .SH SYNOPSIS
 .B smartd [options]
-
+.Sp
 .SH DESCRIPTION
 .\" %IF NOT OS ALL
 .\"! [This man page is generated for the OS_MAN_FILTER version of smartmontools.
