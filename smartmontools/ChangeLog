@@ -1,6 +1,8 @@
-$Id: ChangeLog 4860 2018-12-16 18:15:41Z chrfranke $
+$Id: ChangeLog 4861 2018-12-16 18:24:57Z chrfranke $
 
 2018-12-16  Christian Franke  <franke@computer.org>
+
+	smartd.8.in: Don't use empty lines before '.SH' macros.
 
 	smartd.cpp: [_WIN32] Remove check for '-m [sys]msgbox'.
 
