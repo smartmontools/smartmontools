@@ -28,16 +28,8 @@
 #  ifndef be32toh
 #    define be32toh __be32_to_cpu
 #  endif
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #  include <sys/endian.h>
-#  include CISS_LOCATION
-#  define _HAVE_CCISS
-#elif defined(__FreeBSD_kernel__)
-#  include <endian.h>
-#  ifdef __GLIBC__
-#  include <bsd/sys/cdefs.h>
-#  include <stdint.h>
-#  endif
 #  include CISS_LOCATION
 #  define _HAVE_CCISS
 #endif
@@ -47,7 +39,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char * cciss_cpp_cvsid = "$Id: cciss.cpp 4761 2018-08-20 19:33:04Z chrfranke $"
+const char * cciss_cpp_cvsid = "$Id: cciss.cpp 4858 2018-12-16 17:59:59Z chrfranke $"
   CCISS_H_CVSID;
 
 typedef struct _ReportLUNdata_struct
