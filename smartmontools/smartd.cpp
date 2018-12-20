@@ -192,7 +192,7 @@ static int facility=LOG_DAEMON;
 static bool do_fork=true;
 #endif
 
-// TODO: This smartctl only variable is also used in os_win32.cpp
+// TODO: This smartctl only variable is also used in some os_*.cpp
 unsigned char failuretest_permissive = 0;
 
 // set to one if we catch a USR1 (check devices now)
@@ -1888,7 +1888,7 @@ static bool is_duplicate_dev_idinfo(const dev_config & cfg, const dev_config_vec
   for (unsigned i = 0; i < prev_cfgs.size(); i++) {
     if (!prev_cfgs[i].id_is_unique)
       continue;
-    if (cfg.dev_idinfo != prev_cfgs[i].dev_idinfo.c_str())
+    if (cfg.dev_idinfo != prev_cfgs[i].dev_idinfo)
       continue;
 
     PrintOut(LOG_INFO, "Device: %s, same identity as %s, ignored\n",
