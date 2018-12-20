@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4851 2018-12-05 20:36:52Z chrfranke $",
+  { "$Id: drivedb.h 4867 2018-12-20 16:09:40Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -458,6 +458,7 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SMS200S3(30|60|120)G|" // mSATA, SF-2241, tested with SMS200S3120G/KC3ABBF0
     "KINGSTON SMS450S3(32|64|128)G|" // mSATA, SF-2281, tested with SMS450S3128G/503ABBF0
     "KINGSTON (SV300|SKC100|SE100)S3.*G|" // other SF-2281
+    "KINGSTON SHFS37A(120|240|480)G|" // HyperX Fury, SF-2281, tested with KINGSTON SHFS37A240G/608ABBF0
     "KINGSTON SNS4151S316GD|" // KINGSTON SNS4151S316GD/S9FM01.6
     "MKNSSDCR(45|60|90|120|180|240|360|480)GB(-(7|DX7?|MX|G2))?|" // Mushkin Chronos (7mm/Deluxe/MX/G2),
       // SF-2281, tested with MKNSSDCR120GB, MKNSSDCR120GB-MX/560ABBF0, MKNSSDCR480GB-DX7/603ABBF0
@@ -570,7 +571,8 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
     "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
-    "PNY CS1311 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122
+    "PNY CS(13|22)11 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122,
+      // PNY CS2211 240GB SSD/CS221016
     "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
     "KINGSTON SHSS3B?7A(120|240|480|960)G|" // HyperX Savage
     "KINGSTON  ?SA400S37(120|240|480|960)G", // Kingston A400 SSD, Phison S11 or
@@ -1326,6 +1328,23 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 243,raw48,NAND_Writes_32MiB"
   },
+  { "Dell Certified Intel S3520 Series SSDs",
+    "SSDSC(2|K)(J|B)B(240G|480G|960G|120G|760G|800G|012T|016T)7R.?",
+    "", "",
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 174,raw48,Unsafe_Shutdown_Count "
+    "-v 195,raw48,Uncorrectable_Error_Cnt "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 201,raw16(raw16),Power_Loss_Cap_Test "
+    "-v 202,raw48,End_of_Life "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
+    "-v 233,raw48,Total_LBAs_Written "
+    "-v 234,raw24/raw32:04321,Thermal_Throttle_Status "
+    "-v 245,raw48,Percent_Life_Remaining"
+  },
   { "Intel S4510/S4610/S4500/S4600 Series SSDs", // INTEL SSDSC2KB480G7/SCV10100,
       // INTEL SSDSC2KB960G7/SCV10100, INTEL SSDSC2KB038T7/SCV10100,
       // INTEL SSDSC2KB038T7/SCV10121, INTEL SSDSC2KG240G7/SCV10100
@@ -1357,6 +1376,25 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 243,raw48,NAND_Writes_32MiB"
+  },
+  { "Dell Certified Intel S4x00/D3-S4x10 Series SSDs", // INTEL SSDSC2KB480G7R/SCV1DL58,
+      // INTEL SSDSC2KB960G7R/SCV1DL58, INTEL SSDSC2KB038T7R/SCV1DL58,
+      // INTEL SSDSC2KB038T7R/SCV1DL58, INTEL SSDSC2KG240G7R/SCV1DL58
+    "SSDSC(2K|KK)(B|G)(240G|480G|960G|019T|038T)(7R|8R).?",
+    "", "",
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 174,raw48,Unsafe_Shutdown_Count "
+    "-v 195,raw48,Uncorrectable_Error_Cnt "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 201,raw16(raw16),Power_Loss_Cap_Test "
+    "-v 202,raw48,End_of_Life "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
+    "-v 233,raw48,Total_LBAs_Written "
+    "-v 234,raw24/raw32:04321,Thermal_Throttle_Status "
+    "-v 245,raw48,Percent_Life_Remaining"
   },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",
@@ -1400,7 +1438,9 @@ const drive_settings builtin_knowndrives[] = {
     "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
     "ADATA SP600|"  // tested with ADATA SP600/2.4 (JMicron JMF661)
     "ADATA SP310|"  // Premier Pro SP310 mSATA, JMF667, tested with ADATA SP310/3.04
+    "ADATA SX930|"  // tested with ADATA SX930/6.8SE
     "APPLE SSD TS(064|128|256|512)C|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
+    "KingSpec KDM-SA\\.51-008GMJ|" // tested with KingSpec KDM-SA.51-008GMJ/1.092.37 (JMF605?)
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series (2. Generation, JMF618),
                                     // tested with KINGSTON SNV425S264GB/C091126a
     "KINGSTON SSDNOW 30GB|" // tested with KINGSTON SSDNOW 30GB/AJXA0202
@@ -1714,6 +1754,9 @@ const drive_settings builtin_knowndrives[] = {
       // CT500BX100SSD1/MU02, CT1000BX100SSD1/MU02
     "CT(240|480|960)BX200SSD1|" // Crucial BX200 Solid State Drive, tested with CT480BX200SSD1/MU02.6
     "KingDian S400 (120|240|480)GB|" // SM2256EN, tested with KingDian S400 120GB/Q0607A
+    "KingSpec KSD-[PS]A25\\.[1-9]-(016|032|064|128)(MS|SJ)|" // tested with KingSpec KSD-PA25.6-064MS/20140803
+    "T60|" // KingSpec T60, tested with T60/20151120
+    "TEAML5Lite3D(120G|240G|480G|1T)|" // Team Group L5Lite 3D, tested with TEAML5Lite3D240G/R0302A0
     "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420[IK]?)|" // Transcend SSD370/420 SATA/mSATA, TS6500,
       // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
       // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H,
@@ -1726,6 +1769,8 @@ const drive_settings builtin_knowndrives[] = {
     "TS(16|32|64)GMSA630|" // MSA630 mSATA SSD, tested with TS32GMSA630/N0113E1
     "TS(32|64|128)GPSD330|" // Transcend PSD SSD, tested with TS64GPSD330/20140121
     "TS(16|32|64|96|128|256)GSSD630|" // Transcend 630, tested with TS16GSSD630/N0113E1
+    "TS(128G|256G|512G|1T)ESD400K|" // Transcend ESD400 Portable, tested with
+      // TS256GESD400K/R0605AS (0x2174:0x2000)
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // MKNSSDRE256GB/N1007C
     "MKNSSDTR(240|500|250|120|480|240)GB(-LT)?|" // MKNSSDTR500GB/O1126A
     "LITEON LMH-(128|256|512)V2M-.*|" // LITEON LMH-256V2M-11 MSATA 256GB/FM8110C
@@ -5161,6 +5206,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; VIA VL715", // USB2/3->SATA
     "0x2109:0x0715",
     "", // 0x0336
+    "",
+    "-d sat"
+  },
+  // Transcend (?)
+  { "USB: Transcend ESD400; ",
+    "0x2174:0x2000", // TS256GESD400K
+    "", // 0x1000
     "",
     "-d sat"
   },
