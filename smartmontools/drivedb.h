@@ -1333,6 +1333,23 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 243,raw48,NAND_Writes_32MiB"
   },
+  { "Dell Certified Intel S3520 Series SSDs",
+    "SSDSC(2|K)(J|B)B(240G|480G|960G|120G|760G|800G|012T|016T)7R.?",
+    "", "",
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 174,raw48,Unsafe_Shutdown_Count "
+    "-v 195,raw48,Uncorrectable_Error_Cnt "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 201,raw16(raw16),Power_Loss_Cap_Test "
+    "-v 202,raw48,End_of_Life "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
+    "-v 233,raw48,Total_LBAs_Written "
+    "-v 234,raw24/raw32:04321,Thermal_Throttle_Status "
+    "-v 245,raw48,Percent_Life_Remaining"
+  },
   { "Intel S4510/S4610/S4500/S4600 Series SSDs", // INTEL SSDSC2KB480G7/SCV10100,
       // INTEL SSDSC2KB960G7/SCV10100, INTEL SSDSC2KB038T7/SCV10100,
       // INTEL SSDSC2KB038T7/SCV10121, INTEL SSDSC2KG240G7/SCV10100
@@ -1364,6 +1381,25 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 243,raw48,NAND_Writes_32MiB"
+  },
+  { "Dell Certified Intel S4x00/D3-S4x10 Series SSDs", // INTEL SSDSC2KB480G7R/SCV1DL58,
+      // INTEL SSDSC2KB960G7R/SCV1DL58, INTEL SSDSC2KB038T7R/SCV1DL58,
+      // INTEL SSDSC2KB038T7R/SCV1DL58, INTEL SSDSC2KG240G7R/SCV1DL58
+    "SSDSC(2K|KK)(B|G)(240G|480G|960G|019T|038T)(7R|8R).?",
+    "", "",
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 174,raw48,Unsafe_Shutdown_Count "
+    "-v 195,raw48,Uncorrectable_Error_Cnt "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 201,raw16(raw16),Power_Loss_Cap_Test "
+    "-v 202,raw48,End_of_Life "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
+    "-v 227,raw48,Workld_Host_Reads_Perc "  // Timed Workload Host Reads Percentage
+    "-v 228,raw48,Workload_Minutes " // 226,227,228 can be reset by 'smartctl -t vendor,0x40'
+    "-v 233,raw48,Total_LBAs_Written "
+    "-v 234,raw24/raw32:04321,Thermal_Throttle_Status "
+    "-v 245,raw48,Percent_Life_Remaining"
   },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",
