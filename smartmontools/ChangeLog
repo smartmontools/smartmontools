@@ -1,5 +1,10 @@
 $Id$
 
+2018-12-20  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use AS_HELP_STRING instead of AC_HELP_STRING
+	as suggested by autoupdate.  Add missing check for 'enableval'.
+
 2018-12-16  Christian Franke  <franke@computer.org>
 
 	smartd.8.in: Don't use empty lines before '.SH' macros.
