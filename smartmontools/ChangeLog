@@ -2,6 +2,15 @@ $Id$
 
 2018-12-20  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- SandForce Driven SSDs: Kingston HyperX Fury (#805)
+	- Phison Driven SSDs: PNY CS2211 (#992)
+	- JMicron based SSDs: ADATA SX390 (#818),
+	  KingSpec KDM-SA.51-008GMJ (#741)
+	- SiliconMotion based SSDs: KingSpec KSD, KingSpec T60,
+	  Team Group L5Lite 3D (#1144), Transcend ESD400
+	- USB: Transcend ESD400 (0x2174:0x2000)
+
 	smartd.cpp: Remove unneeded '.c_str()' call.  Update a comment.
 
 	configure.ac: Use AS_HELP_STRING instead of AC_HELP_STRING
