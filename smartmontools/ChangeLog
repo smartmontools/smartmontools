@@ -1,4 +1,10 @@
-$Id: ChangeLog 4865 2018-12-20 15:41:05Z chrfranke $
+$Id: ChangeLog 4866 2018-12-20 16:00:13Z chrfranke $
+
+2018-12-20  Donald Pierce  <...>
+
+	drivedb.h:
+	- Dell Certified Intel S3520 Series SSDs (#1147)
+	- Dell Certified Intel S4x00/D3-S4x10 Series SSDs (#1148)
 
 2018-12-20  Christian Franke  <franke@computer.org>
 
