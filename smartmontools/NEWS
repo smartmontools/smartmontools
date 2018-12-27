@@ -6,7 +6,7 @@ The most up-to-date version of this file is:
 https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
 Date <Not released yet, please try current SVN or daily builds>
-Summary: smartmontools release 6.7
+Summary: smartmontools release 7.0
 -----------------------------------------------------------
 - smartctl: New options '-j' and '--json[=giosu]' to enable experimental
   JSON output mode.  Also supports an alternative flat format suitable
@@ -15,8 +15,8 @@ Summary: smartmontools release 6.7
 - smartctl '-l error': Prints SCSI Pending Defects log page if supported.
 - smartctl '-H': Prints SCSI Format Status log page if supported.
 - smartctl '-x': Now includes '-l defects'.
-- NVMe/USB: Device type '-d sntjmicron' device type for NVMe drives behind
-  JMicron USB to NVMe bridges.
+- NVMe/USB: Device type '-d sntjmicron' for NVMe drives behind JMicron USB
+  to NVMe bridges.
 - NVMe: SMART/Health Information and Error Information are always read with
   broadcast NSID.
 - SCSI: Various improvements for the decoding of log pages.
