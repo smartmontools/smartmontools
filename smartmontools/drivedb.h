@@ -450,7 +450,8 @@ const drive_settings builtin_knowndrives[] = {
       // FM-25S2S-240GBP2/4.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
-    "KINGSTON SE50S3(100|240|480)G|" // tested with SE50S3100G/KE1ABBF0
+    "KINGSTON SE50S37?(100|240|480)G|" // tested with KINGSTON SE50S3100G/KE1ABBF0,
+      // KINGSTON SE50S37100G/61AABBF0 (E50)
     "KINGSTON SH10[03]S3(90|120|240|480)G|" // HyperX (3K), SF-2281, tested with
       // SH100S3240G/320ABBF0, SH103S3120G/505ABBF0
     "KINGSTON SKC(300S37A|380S3)(60|120|180|240|480)G|" // KC300, SF-2281, tested with
@@ -3029,6 +3030,13 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level"
   },
+  { "WDC HGST Ultrastar He10", // WD white label, tested with
+      // WDC WD80EMAZ-00WJTA0/83.H0A83, WDC WD80EZAZ-11TDBA0/83.H0A83,
+      // WDC WD100EZAZ-11TDBA0/83.H0A83
+    "WDC WD(80E[MZ]|100EZ)AZ-.*",
+    "", "",
+    "-v 22,raw48,Helium_Level"
+  },
   { "HGST Ultrastar DC HC520 (He12)", // tested with HGST HUH721212ALE600/LEGNT3D0
     "HGST HUH721212AL[EN]60[014]",
     "", "",
@@ -3151,6 +3159,10 @@ const drive_settings builtin_knowndrives[] = {
       // TOSHIBA MQ01UBD100/AX001U (0x0480:0x0201, 0x0480:0xa200),
       // TOSHIBA MQ01UBD050/AX101U (0x0480:0xa202)
     "TOSHIBA MQ01UBD(050|075|100)",
+    "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MQ04UBF... (USB 3.0)", // tested with TOSHIBA MQ04UBF100/JU000U (0x0480:0xa202)
+    "TOSHIBA MQ04UBF100",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MQ03ABB...", // tested with TOSHIBA MQ03ABB300
@@ -3424,8 +3436,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(402111?|80[28]110?|120[28]1[0134]|160[28]1[012]|200827|250[68]24|300[68]22|(320|400)[68]33|500[68](32|41))AS?.*",
     "", "", ""
   },
-  { "Seagate Barracuda 7200.10",
-    "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|360320|500[68]30|750[68]40)AS?",
+  { "Seagate Barracuda 7200.10", // tested with GB0160EAFJE/HPG0
+    "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|360320|500[68]30|750[68]40)AS?|"
+    "GB0160EAFJE", // HP OEM
     "", "", ""
   },
   { "Seagate Barracuda 7200.11", // unaffected firmware
@@ -3647,9 +3660,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Constellation ES.3", // tested with ST1000NM0033-9ZM173/0001,
-      // ST4000NM0033-9ZM170/SN03, MB1000GCWCV/HPGC
+      // ST4000NM0033-9ZM170/SN03, MB1000GCWCV/HPGC, MB4000GCWDC/HPGE
     "ST[1234]000NM00[35]3-.*|"
-    "MB1000GCWCV", // HP OEM
+    "MB[14]000GCW(CV|DC)", // HP OEM
     "", "", ""
   },
   { "Seagate Constellation CS", // tested with ST3000NC000/CE02, ST3000NC002-1DY166/CN02
@@ -3682,7 +3695,12 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
   },
-  { "Seagate Exos X12 HDD", // tested with ST12000NM0007-2A1101/SN02
+  { "Seagate Exos 5E8", // tested with ST8000AS0003-2HH188/0003
+    "ST8000AS0003-.*",
+    "", "",
+    "-v 9,msec24hour32 -v 240,msec24hour32"
+  },
+  { "Seagate Exos X12", // tested with ST12000NM0007-2A1101/SN02
     "ST12000NM00[01]7-.*", // *17 = SED
     "", "",
     "-v 240,msec24hour32"
@@ -3708,7 +3726,12 @@ const drive_settings builtin_knowndrives[] = {
       // ST12000VN0007-2GS116/SC60
     "ST(12|10|8|6|4|3|2|1)000VN00(04|07|22|41|8|7|2|4)-.*",
     "", "", ""
-  },  
+  },
+  { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
+      // ST8000NE0004-1ZF11G/EN01, ST8000NE0021-2EN112/EN02
+    "ST([24]000NE0025|6000NE0023|8000NE00(04|08|21)|(10|12|14)000NE000[478])-.*",
+    "", "", ""
+  },
   { "Seagate Archive HDD", // tested with ST8000AS0002-1NA17Z/AR13
     "ST[568]000AS00[01][12]-.*",
     "", "", ""
@@ -3792,8 +3815,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Total_Reads_GiB "
     "-v 245,raw48,Read_Error_Rate "
   },
-  { "WD Blue PC SSD", // tested with WDC WDS100T1B0A-00H9H0
-    "WDC WDS...[TG]1B0[AB].*",
+  { "WD Blue and Green SSDs", // tested with WDC WDS250G1B0A-00H9H0/X41000WD,
+      // WDC WDS250G1B0A-00H9H0/X41100WD, WDC WDS100T1B0A-00H9H0,
+      // WDC WDS120G2G0A-00JH30/UE360000, WDC WDS240G2G0A-00JH30/UF300000
+    "WDC WDS((120|240|250|480|500)G|100T)(1B|2G)0[AB]-.*", // *1B* = Blue, *2G* = Green
     "", "",
   //"-v 5,raw48,Reallocated_Sector_Ct " // Reassigned Block Count
   //"-v 9,raw48,Power_On_Hours "

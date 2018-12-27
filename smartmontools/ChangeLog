@@ -1,5 +1,17 @@
 $Id$
 
+2018-12-27  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Kingston E50 (#756)
+	- WDC HGST Ultrastar He10 (#959, #997, #1093, #1111)
+	- Toshiba 2.5" HDD MQ04UBF... (USB 3.0) (#937)
+	- Seagate Barracuda 7200.10: HP OEM 160GB (#1037)
+	- Seagate Constellation ES.3: HP OEM 4TB
+	- Seagate Exos 5E8 (#1058)
+	- Seagate IronWolf Pro (#1076, GH issues/10, GH issues/14)
+	- WD Blue and Green SSDs: Rename, add Green (#980, #1073)
+
 2018-12-20  Donald Pierce  <...>
 
 	drivedb.h:
