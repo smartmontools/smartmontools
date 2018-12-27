@@ -2,6 +2,8 @@ $Id$
 
 2018-12-27  Christian Franke  <franke@computer.org>
 
+	do_release: Add quotes to AC_INIT regex.
+
 	configure.ac: Update PACKAGE_HOMEPAGE.
 
 	configure.ac: Set release number to 7.0

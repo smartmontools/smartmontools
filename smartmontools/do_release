@@ -2,7 +2,7 @@
 #
 # do a smartmontools release
 # (C) 2003-11 Bruce Allen, Guido Guenther
-# (C) 2006-17 Christian Franke
+# (C) 2006-18 Christian Franke
 # $Id$
 
 # Notes on generating releases:
@@ -73,7 +73,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Get release number
-VERSION=`sed -n 's|^AC_INIT[^,]*, *\([0-9.]*\) *,.*$|\1|p' configure.ac`
+VERSION=`sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' configure.ac`
 if [ -z "$VERSION" ]; then
   echo "AC_INIT not found in configure.ac"; exit 1
 fi
