@@ -1,6 +1,8 @@
-$Id: ChangeLog 4873 2018-12-27 21:10:15Z chrfranke $
+$Id: ChangeLog 4875 2018-12-27 21:36:29Z chrfranke $
 
 2018-12-27  Christian Franke  <franke@computer.org>
+
+	do_release: Add quotes to AC_INIT regex.
 
 	configure.ac: Update PACKAGE_HOMEPAGE.
 
