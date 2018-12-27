@@ -77,8 +77,8 @@ static void js_initialize(int argc, char **argv, bool verbose)
     jglb.set_verbose();
 
   // Major.minor version of JSON format
-  jglb["json_format_version"][0] = 0;
-  jglb["json_format_version"][1] = 1;
+  jglb["json_format_version"][0] = 1;
+  jglb["json_format_version"][1] = 0;
 
   // Smartctl version info
   json::ref jref = jglb["smartctl"];
