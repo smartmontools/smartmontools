@@ -1400,8 +1400,7 @@ scsiPrintFormatStatus(scsi_device * device)
             k = pl - 4;
             xp = ucp + 4;
             if (all_ffs(xp, k)) {
-                jout("%s <not available>\n", jout_str);
-                jglb[jname][jglb_str] = "not_available";
+                pout("%s <not available>\n", jout_str);
             } else {
                 if (k > (int)sizeof(ull)) {
                     xp += (k - sizeof(ull));
