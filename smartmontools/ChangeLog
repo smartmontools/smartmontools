@@ -1,6 +1,8 @@
-$Id: ChangeLog 4870 2018-12-27 17:07:44Z chrfranke $
+$Id: ChangeLog 4871 2018-12-27 20:03:12Z chrfranke $
 
 2018-12-27  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Set JSON format version to 1.0 (#766).
 
 	scsiprint.cpp: Omit JSON values for unavailable counters from
 	Format Status log page.  This ensures that each JSON value always

@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4826 2018-11-02 20:09:12Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 4871 2018-12-27 20:03:12Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -77,8 +77,8 @@ static void js_initialize(int argc, char **argv, bool verbose)
     jglb.set_verbose();
 
   // Major.minor version of JSON format
-  jglb["json_format_version"][0] = 0;
-  jglb["json_format_version"][1] = 1;
+  jglb["json_format_version"][0] = 1;
+  jglb["json_format_version"][1] = 0;
 
   // Smartctl version info
   json::ref jref = jglb["smartctl"];
