@@ -25,7 +25,7 @@ references:
       name: Creating src.tar.gz
       command: |
         cd ~/smartmontools
-        sed -n 's|^AC_INIT[^,]*, *\([0-9.]*\) *,.*$|\1|p' "configure.ac" > ~/SM_VER
+        sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' configure.ac > ~/SM_VER
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV`
         ./autogen.sh --force
         mkdir build && cd build
