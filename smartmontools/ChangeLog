@@ -1,6 +1,8 @@
-$Id: ChangeLog 4872 2018-12-27 20:41:43Z chrfranke $
+$Id: ChangeLog 4873 2018-12-27 21:10:15Z chrfranke $
 
 2018-12-27  Christian Franke  <franke@computer.org>
+
+	configure.ac: Update PACKAGE_HOMEPAGE.
 
 	configure.ac: Set release number to 7.0
 
