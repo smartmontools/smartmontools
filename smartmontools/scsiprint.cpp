@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4870 2018-12-27 17:07:44Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -1400,8 +1400,7 @@ scsiPrintFormatStatus(scsi_device * device)
             k = pl - 4;
             xp = ucp + 4;
             if (all_ffs(xp, k)) {
-                jout("%s <not available>\n", jout_str);
-                jglb[jname][jglb_str] = "not_available";
+                pout("%s <not available>\n", jout_str);
             } else {
                 if (k > (int)sizeof(ull)) {
                     xp += (k - sizeof(ull));

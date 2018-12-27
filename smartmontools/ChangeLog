@@ -1,6 +1,10 @@
-$Id: ChangeLog 4868 2018-12-27 15:58:07Z chrfranke $
+$Id: ChangeLog 4870 2018-12-27 17:07:44Z chrfranke $
 
 2018-12-27  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Omit JSON values for unavailable counters from
+	Format Status log page.  This ensures that each JSON value always
+	has the same type.
 
 	drivedb.h:
 	- SandForce Driven SSDs: Kingston E50 (#756)
