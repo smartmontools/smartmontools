@@ -1,6 +1,8 @@
-$Id: ChangeLog 4871 2018-12-27 20:03:12Z chrfranke $
+$Id: ChangeLog 4872 2018-12-27 20:41:43Z chrfranke $
 
 2018-12-27  Christian Franke  <franke@computer.org>
+
+	configure.ac: Set release number to 7.0
 
 	smartctl.cpp: Set JSON format version to 1.0 (#766).
 
