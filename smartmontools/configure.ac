@@ -7,7 +7,7 @@ AC_INIT([smartmontools], [7.0], [smartmontools-support@listi.jpberlin.de])
 AM_INIT_AUTOMAKE([1.10 foreign])
 
 # Version of drive database branch
-smartmontools_drivedb_version=6.6
+smartmontools_drivedb_version=7.0
 
 smartmontools_cvs_tag=`echo '$Id$'`
 smartmontools_release_date=2017-11-05

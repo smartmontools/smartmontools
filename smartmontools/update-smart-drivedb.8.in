@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-17 Christian Franke
+Copyright (C) 2014-18 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -58,7 +58,7 @@ or
 .BR svn (1).
 .PP
 [NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
-The downloaded file is verified with OpenPGP/GPG key ID DFD22559.
+The downloaded file is verified with OpenPGP/GPG key ID 721042C5.
 The public key block is included in the script.
 .PP
 The old file is kept if the downloaded file is identical (ignoring

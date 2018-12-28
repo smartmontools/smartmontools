@@ -2,6 +2,10 @@ $Id$
 
 2018-12-28  Christian Franke  <franke@computer.org>
 
+	configure.ac: Set drivedb.h branch to 7.0.
+	update-smart-drivedb.in: Update public key block.
+	update-smart-drivedb.8.in: Update key ID.
+
 	Create new branch RELEASE_7_0_DRIVEDB.
 	Sign drivedb.h using new key ID 721042C5.
 
