@@ -1,5 +1,5 @@
 /*
- * drivedb.h - smartmontools drive database file
+ * drivedb.h - smartmontools 6.5-6.6 drive database file
  *
  * Home page of code is: http://www.smartmontools.org
  *
@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4869 2018-12-27 16:04:58Z chrfranke $",
+  { "$Id: drivedb.h 4878 2018-12-28 21:28:43Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
