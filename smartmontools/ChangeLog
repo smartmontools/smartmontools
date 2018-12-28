@@ -1,5 +1,10 @@
 $Id$
 
+2018-12-28  Christian Franke  <franke@computer.org>
+
+	Create new branch RELEASE_7_0_DRIVEDB.
+	Sign drivedb.h using new key ID 721042C5.
+
 2018-12-27  Christian Franke  <franke@computer.org>
 
 	do_release: Add quotes to AC_INIT regex.
