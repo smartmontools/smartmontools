@@ -1,4 +1,9 @@
-$Id: ChangeLog 4875 2018-12-27 21:36:29Z chrfranke $
+$Id: ChangeLog 4877 2018-12-28 21:18:01Z chrfranke $
+
+2018-12-28  Christian Franke  <franke@computer.org>
+
+	Create new branch RELEASE_7_0_DRIVEDB.
+	Sign drivedb.h using new key ID 721042C5.
 
 2018-12-27  Christian Franke  <franke@computer.org>
 
