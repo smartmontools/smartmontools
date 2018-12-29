@@ -1205,7 +1205,7 @@ This is the default unless the \*(Aq\-x\*(Aq option is specified.
 .I brief
 \- New format which fits into 80 columns (except in some rare cases).
 This format also decodes four additional attribute flags.
-This is the default if the \*(Aq'\-x\*(Aq option is specified.
+This is the default if the \*(Aq\-x\*(Aq option is specified.
 .Sp
 .I hex,id
 \- Print all attribute IDs as hexadecimal numbers.
