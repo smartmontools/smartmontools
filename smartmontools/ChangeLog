@@ -1,4 +1,8 @@
-$Id: ChangeLog 4879 2018-12-28 22:05:12Z chrfranke $
+$Id: ChangeLog 4880 2018-12-29 20:27:01Z chrfranke $
+
+2018-12-29  Christian Franke  <franke@computer.org>
+
+	INSTALL: Update or remove various outdated info.
 
 2018-12-28  Christian Franke  <franke@computer.org>
 
