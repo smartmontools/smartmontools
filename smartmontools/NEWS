@@ -25,6 +25,7 @@ Summary: smartmontools release 7.0
 - New option '-d scsi+TYPE' to disable SAT auto detection for 'aacraid'
   and 'cciss'.
 - update-smart-drivedb: New option '-u github'.
+- update-smart-drivedb: New signing key.
 - configure: New options '--with-cxx11-regex' and '--with-libsystemd'.
 - configure: Default for '--with-nvme-devicescan' is now 'yes' on Linux
   and Windows.
