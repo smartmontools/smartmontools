@@ -1,6 +1,8 @@
-$Id: ChangeLog 4880 2018-12-29 20:27:01Z chrfranke $
+$Id: ChangeLog 4882 2018-12-29 21:26:45Z chrfranke $
 
 2018-12-29  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Remove extra quote.
 
 	INSTALL: Update or remove various outdated info.
 

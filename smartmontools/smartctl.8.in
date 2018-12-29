@@ -4,7 +4,7 @@ Copyright (C) 2004-18 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 4855 2018-12-11 21:07:54Z chrfranke $
+$Id: smartctl.8.in 4882 2018-12-29 21:26:45Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1205,7 +1205,7 @@ This is the default unless the \*(Aq\-x\*(Aq option is specified.
 .I brief
 \- New format which fits into 80 columns (except in some rare cases).
 This format also decodes four additional attribute flags.
-This is the default if the \*(Aq'\-x\*(Aq option is specified.
+This is the default if the \*(Aq\-x\*(Aq option is specified.
 .Sp
 .I hex,id
 \- Print all attribute IDs as hexadecimal numbers.
@@ -2408,4 +2408,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4855 2018-12-11 21:07:54Z chrfranke $
+$Id: smartctl.8.in 4882 2018-12-29 21:26:45Z chrfranke $
