@@ -1,0 +1,3856 @@
+$Id$
+
+2018-12-30  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.0
+
+2018-12-29  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Remove extra quote.
+
+	INSTALL: Update or remove various outdated info.
+
+2018-12-28  Christian Franke  <franke@computer.org>
+
+	configure.ac: Set drivedb.h branch to 7.0.
+	update-smart-drivedb.in: Update public key block.
+	update-smart-drivedb.8.in: Update key ID.
+
+	Create new branch RELEASE_7_0_DRIVEDB.
+	Sign drivedb.h using new key ID 721042C5.
+
+2018-12-27  Christian Franke  <franke@computer.org>
+
+	do_release: Add quotes to AC_INIT regex.
+
+	configure.ac: Update PACKAGE_HOMEPAGE.
+
+	configure.ac: Set release number to 7.0
+
+	smartctl.cpp: Set JSON format version to 1.0 (#766).
+
+	scsiprint.cpp: Omit JSON values for unavailable counters from
+	Format Status log page.  This ensures that each JSON value always
+	has the same type.
+
+	drivedb.h:
+	- SandForce Driven SSDs: Kingston E50 (#756)
+	- WDC HGST Ultrastar He10 (#959, #997, #1093, #1111)
+	- Toshiba 2.5" HDD MQ04UBF... (USB 3.0) (#937)
+	- Seagate Barracuda 7200.10: HP OEM 160GB (#1037)
+	- Seagate Constellation ES.3: HP OEM 4TB
+	- Seagate Exos 5E8 (#1058)
+	- Seagate IronWolf Pro (#1076, GH issues/10, GH issues/14)
+	- WD Blue and Green SSDs: Rename, add Green (#980, #1073)
+
+2018-12-20  Donald Pierce  <...>
+
+	drivedb.h:
+	- Dell Certified Intel S3520 Series SSDs (#1147)
+	- Dell Certified Intel S4x00/D3-S4x10 Series SSDs (#1148)
+
+2018-12-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Kingston HyperX Fury (#805)
+	- Phison Driven SSDs: PNY CS2211 (#992)
+	- JMicron based SSDs: ADATA SX390 (#818),
+	  KingSpec KDM-SA.51-008GMJ (#741)
+	- SiliconMotion based SSDs: KingSpec KSD, KingSpec T60,
+	  Team Group L5Lite 3D (#1144), Transcend ESD400
+	- USB: Transcend ESD400 (0x2174:0x2000)
+
+	smartd.cpp: Remove unneeded '.c_str()' call.  Update a comment.
+
+	configure.ac: Use AS_HELP_STRING instead of AC_HELP_STRING
+	as suggested by autoupdate.  Add missing check for 'enableval'.
+
+2018-12-16  Christian Franke  <franke@computer.org>
+
+	smartd.8.in: Don't use empty lines before '.SH' macros.
+
+	smartd.cpp: [_WIN32] Remove check for '-m [sys]msgbox'.
+
+	nvmeprint.cpp: Don't print NSID in SMART/Health Information title
+	line.  This log is always read with broadcast NSID.
+
+2018-12-16  Giuseppe Iuculano  <iuculano@debian.org>
+
+	cciss.cpp: Fix kFreeBSD build (Debian kfreebsd.patch).
+
+	smartd.service.in: Declaring After=syslog.target is unnecessary by
+	now because syslog is socket-activated and will therefore be started
+	when needed (Debian removesyslogtarget.patch).
+
+2018-12-11  Christian Franke  <franke@computer.org>
+
+	smartd.conf.5.in: Update DEVICESCAN info and move it up to a
+	new section.  Add section header for DEFAULT SETTINGS.
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Remove EXPERIMENTAL
+	notes for features added before 6.5.
+
+	os_linux.cpp: Call realpath() with full /sys/* path instead of
+	device name (GH pull/23).  This fixes detection of hpsa devices
+	(regression from r4603).
+
+2018-12-11  Harry Mallon  <hjmallon@gmail.com>
+
+	scsinvme.cpp: Fix debug message.
+
+2018-12-05  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in: Mark '-d sntjmicron' as
+	EXPERIMENTAL.
+
+	drivedb.h: Enable JMicron JMS583 entry, use an internal -d option.
+	scsinvme.cpp: Detect this internal -d option and ask user to test
+	'-d sntjmicron'.
+
+	scsinvme.cpp: Add missing include of config.h.
+
+2018-12-05  Harry Mallon  <hjmallon@gmail.com>
+
+	Add '-d sntjmicron[,NSID]' device type for NVMe drives behind
+	JMicron USB to NVMe bridges (JMS583).
+
+2018-12-04  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Add '-d by-id' option to device scanning.
+	If specified, scan '/dev/disk/by-id/*' for symlinks to '/dev/sdX'
+	and remove duplicates.
+
+2018-12-02  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Samsung based SSDs: CM851 (#1109), SM863a (#1140)
+	- SiliconMotion based SSDs: Transcend 420K (GH issues/20),
+	  Transcend 630 (#1038)
+	- Western Digital Gold: Re-add 8TB *2 variant
+	- USB: Buffalo HD-PNTU3 (0x0411:0x01e7), HD-LC3 (0x0411:0x027e)
+	- USB: ADATA NH13 (0x125f:0xa13a), HD710P (0x125f:0xa75a)
+	- USB: Verbatim External Hard Drive (0x18a5:0x0408) (#1107)
+
+	AUTHORS: Add Harry Mallon.
+
+2018-12-02  Harry Mallon  <hjmallon@gmail.com>
+
+	drivedb.h: USB: LaCie Rugged Mini HDD (0x059f:0x106b)
+
+	Fix many typos.
+
+	ataprint.cpp: Fix Form Factor string with bits set in reserved area
+	- Happens with APPLE SSD SD0256F
+
+2018-11-27  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Add USB ID detection for '/dev/sgN'.
+
+	smartd_warning.sh.in: Fix typo (#1138).
+
+2018-11-27  Harry Mallon  <hjmallon@gmail.com>
+
+	autogen.sh: allow automake 1.16 and 1.16.1.
+
+2018-11-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs: Micron 1100
+	  alternative ID string (#1131)
+	- SandForce Driven SSDs: Comay BladeDrive E28 (#823),
+	  MX-DS FUSION (#900), OCZ Deneva 2 *.C (#1119), OCZ-VERTEX3 LT
+	- Phison Driven SSDs: Kingston A400 with extra space in ID (#801)
+	- Samsung based SSDs: SM951 *HDGM variant (patch from #1113)
+	- SiliconMotion based SSDs: KingDian S400 (#1116)
+	- Western Digital Gold: 1TB, 2TB (#1035, #1047), 8TB (#1033),
+	  12TB, attribute 22 "Helium_Level" (patch from #1115)
+
+2018-11-25  Cameron Costa  <cameron.costa@intel.com>
+
+	drivedb.h: Intel S4510 M.2 (#1121, #1122, #1123, #1133)
+
+2018-11-13  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Drop device scan support for obsolete devfs.
+	Implement new version of scan_smart_devices().  This avoids
+	duplicates if multiple '-d TYPE' options are specified.
+
+	dev_interface.cpp, dev_interface.h: Add default implementation for
+	old version of scan_smart_devices().
+
+2018-11-02  Oleksii Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp, os_freebsd.cpp: fix return value in error paths
+	patch provided by rikard.falkeborn (github)
+
+2018-11-02  Christian Franke  <franke@computer.org>
+
+	json.cpp: Allow UTF-8 characters in strings.
+
+	ataprint.cpp: Add JSON support for '-l defects'.
+	Add numeric values to JSON 'interface_speed' info.
+	Replace local 'le*_to_uint()' with 'sg_get_unaligned_le*()'.
+
+	ataprint.cpp, ataprint.h: Remove request to send '-l defects' output.
+	Remove 'pending_defects_info' flag.
+	smartctl.cpp, smartctl.8.in: Add '-l defects' to '-x' output.
+
+2018-10-25  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Add 'pretty' print option.
+	smartctl.cpp, smartctl.8.in: Add '--json=c' option to disable
+	pretty-printing.
+
+	ataprint.cpp, nvmeprint.cpp, smartctl.cpp: Use const references
+	for json::ref function parameters.
+
+	json.cpp, json.h: Clean up usage of 'int64_t' and 'long long'.
+	Use PRI?64 instead of "ll?" in printf() format strings.
+	This re-enables build on older versions of MinGW.
+
+2018-10-23  Christian Franke  <franke@computer.org>
+
+	json.cpp: Remove extra space after JSON key names.
+
+	json.cpp, json.h: Remove return of self reference from operator=().
+
+	json.cpp, json.h: Change handling of unsafe and 128-bit integers:
+	Output as string 'KEY_s' and LE byte array 'KEY_le' if range exceeded
+	or verbose mode enabled.
+	smartctl.cpp, smartctl.8.in: Add '--json=v' option.
+
+2018-10-17  Christian Franke  <franke@computer.org>
+
+	os_win32/popen_win32.cpp, os_win32/popen.h: New popen()/pclose()
+	for Windows.  Unlike MSVCRT _popen(), it does not open a new console.
+	os_win32.cpp: Remove run_cmd(), use popen() instead.
+	os_win32/daemon_win32.cpp, os_win32/daemon_win32.h: Remove
+	daemon_spawn().
+	smartd.cpp: Remove _WIN32 specific usage of daemon_spawn(),
+	use generic code with popen() also on Windows.
+	Place quotes around warning script path on Windows.
+	Makefile.am, os_win32/vc14/smart*.vcxproj*: Add new files.
+
+2018-10-17  Rick Chen  <juihsiang.chen@gmail.com>
+
+	scsiprint.cpp: Add SCSI information to JSON output as below:
+	- Drive trip temperature (#1079)
+	- Error counter log read/write/verify (#1079)
+	- Grown defect list (#1082)
+	- Percentage used endurance indicator (#1083)
+
+2018-10-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs: MX500 M.2
+	- Samsung based SSDs: Samsung SM841 (#1043), PM841 (#1052),
+	  Samsung 860 EVO (#1034, #1040, #1051, #1059),
+	  Samsung 860 PRO (#1010, #1068, #1102, #1103, #1104),
+	  Samsung Portable SSD T5 (#1050)
+	- USB: Samsung Portable SSD T5 (0x04e8:0x61f5) (#1050)
+
+	os_darwin.cpp: Add missing braces to SMART RETURN STATUS LBA register
+	setting.  Detected by g++ 7.3 -Wmisleading-indentation.
+
+2018-10-11  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 1809 and Server 2019 build number.
+	Move "(64)" to end of version info.
+
+	os_linux.cpp: Fix '-d megaraid' open crash on missing /proc/devices.
+	There is no /proc/devices on ESXi (see #800) and WSL.
+
+2018-10-09  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Move code for '--capabilities' to separate functions.
+
+	smartd.cpp: Rework main loop.
+
+	smartctl.cpp, smartd.cpp, os_linux.cpp, os_solaris.cpp:
+	Replace all uses of EXIT() macro.  Use early return where possible,
+	use throw otherwise.
+	utility.h: Remove EXIT() macro.
+
+	utility.cpp: Detect more C++ language versions for -V option.
+
+	drivedb.h:
+	- Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs: Rename,
+	  BX500 (#1095)
+	- Seagate Samsung SpinPoint F4 EG (AF) (#1090)
+	- Seagate Momentus 5400.6: Add '-F xerrorlba' (#1094)
+	- USB: JMicron JM562 (0x152d:0x0562) (IDENTIFY only, see #966)
+	- USB: VIA VL715 (0x2109:0x0715) (#1098)
+
+2018-10-09  Anthony D'Atri  <anthony.datri@gmail.com>
+
+	drivedb.h: (#1096)
+	- Samsung based SSDs: Samsung PM863a (#951, #952, #961, #962, #972)
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: Dell-flavor S3500
+
+2018-10-09  Thomas Niedermeier  <tniedermeier@thomas-krenn.com>
+
+	drivedb.h: Samsung PM883 and SM883 (GH pull/19)
+
+2018-09-27  Christian Franke  <franke@computer.org>
+
+	INSTALL: Update list of default ./configure options.
+
+	utility.cpp: Add check of sg_get_unaligned_[bl]e16() and *32 to
+	check_endianness().
+
+	utility.cpp, utility.h: Optionally use C++11 'std::regex' instead of
+	POSIX regex(3).
+	configure.ac: Add option '--with-cxx11-regex'.
+
+	utility.cpp, utility.h: Simplify 'class regular_expression', remove
+	unneeded flag parameters, remove unused function.
+	atacmds.cpp, knowndrives.cpp, os_win32.cpp, smartd.cpp: Adjust usage
+	accordingly.
+
+	configure.ac, utility.cpp, utility.h: Remove replacement for missing
+	'strtoull()'.
+
+	configure.ac: Change default for '--with-nvme-devicescan' to 'yes'
+	on Linux and Windows.  Keep 'no' on FreeBSD, NetBSD and Darwin.
+
+2018-09-26  Christian Franke  <franke@computer.org>
+
+	configure.ac: Print warning if systemd(1) is present but
+	libsystemd-dev package is missing.
+
+	smartd.cpp: Notify READY=1 to systemd just before first sleep() to
+	ensure that the signal handlers are set.
+
+	smartd.cpp: Always ignore failure of ATA SMART ENABLE command if
+	'-T permissive' is specified.  Useful for testing on virtual
+	machines.
+
+2018-09-21  Christian Franke  <franke@computer.org>
+
+	configure.ac, os_linux.cpp: Remove redundant define WITH_SELINUX.
+
+	configure.ac: Check for 'libcap-ng' only on Linux.
+	Rework __USE_MINGW_ANSI_STDIO test for MinGW runtime.
+	Print 'deprecated' warning for '--without-working-snprintf'.
+
+	Add systemd(1) notify support to smartd (#1081):
+	configure.ac: Add option '--with-libsystemd'.
+	Makefile.am: Add linker flag and man page conditional.
+	smartd.cpp: If environment variable NOTIFY_SOCKET is set, use
+	sd_notify(3) to inform the service manager about state changes.
+	smartd.service.in: Set 'Type=notify'.
+	smartd.8.in: Document new functionality.
+
+2018-09-16  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Avoid possible virtual call in dtor
+	(cppcheck 1.84: virtualCallInConstructor).
+
+	os_win32.cpp: Use unsigned int for bit shifts
+	(cppcheck 1.84: shiftTooManyBitsSigned).
+
+	Makefile.am: Set HAVE_WORKING_SNPRINTF also in VC14 config.h.
+
+	os_netbsd.cpp: Add spaces between string literals and macros for
+	C++11 (g++ -Wliteral-suffix).
+
+	ataprint.cpp: Add JSON support for '-l selective'.
+
+	drivedb.h: Update or remove links in warning messages.
+
+	drivedb.h: Crucial/Micron BX300, MX1/2/3/500, M5/600, 1100 SSDs:
+	- Rename,
+	- Crucial BX300 (GH pull/16, #963),
+	- Crucial MX300 750GB,
+	- Crucial MX500 (#977, #994, #995, #1004, #1024),
+	- Micron M500IT (#958),
+	- Micron 1100 OEM (GH pull/17),
+	- fix name of attribute 202 and 248.
+
+2018-09-12  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Get JSON values 'temperature.op_limit_min/max' from
+	Device Statistics.
+
+	atacmds.h, ataprint.cpp: Print ACS-4 max operating temperature
+	from SCT Status.
+
+	Makefile.am: Remove define of 'HAVE_GETOPT_LONG'.
+	os*.cpp: Remove remaining checks for 'HAVE_GETOPT_LONG'.
+
+	configure.ac: Remove check for 'uname()'.
+	os_generic.cpp, os_qnxnto.cpp: Remove function 'unsupported()'.
+
+	drivedb.h:
+	- HGST Deskstar NAS: *6040ALE614 (#935, #1089)
+	- HGST Ultrastar DC HC520 (He12) (#1086)
+
+2018-09-12  Anthony D'Atri  <anthony.datri@gmail.com>
+
+	drivedb.h: Micron 5100 Pro / 5200 SSDs (#1071)
+
+2018-09-11  Oleksii Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: Fix build on FreeBSD 12, patch by fernape@
+
+2018-09-10  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Enterprise Capacity 3.5 HDD: V5.1 (#1087)
+	- Seagate Exos X12 HDD (#1042, #1046)
+	- Western Digital VelociRaptor (AF): WD5000BHTZ (patch from #1041)
+
+2018-09-10  David Purdy  <david.c.purdy@gmail.com>
+
+	drivedb.h: Phison Driven SSDs: Kingston A400 (#801)
+
+2018-09-02  Christian Franke  <franke@computer.org>
+
+	dev_intelliprop.h: Fix copyright info.
+
+	ataprint.cpp, nvmeprint.cpp: Change JSON value 'power_on_hours'
+	to 'power_on_time.hours'.  Add '.minutes' if available.
+	scsiprint.cpp: Add JSON values 'power_on_time.hours/minutes' from
+	Seagate factory lpage or from background scan lpage.
+
+2018-08-20  Christian Franke  <franke@computer.org>
+
+	Add missing license headers to some source files.
+
+2018-08-19  Christian Franke  <franke@computer.org>
+
+	Add SPDX-License-Identifier to all files with GPL header (#919).
+	Remove GPL headers.  Remove outdated info about smartsuite.
+
+	getopt/*, regex/*: Replace with current version from glibc 2.28
+	(2018-08-01).  Add _GETOPT/REGEX*_STANDALONE configurations.
+	Makefile.am, os_win32/vc14/smart*.vcxproj*: Set *_STANDALONE.
+	Add new files.
+
+	examplescripts/README: Update mailing list address.
+	os_solaris_ata.s: Remove old mailing list address.
+
+	os_win32/wbemcli_small.h: Remove this file.
+	The file <wbemcli.h> is usually provided by recent MinGW packages.
+	configure.ac: Remove check for <wbemcli.h>.
+	Makefile.am, os_win32/wmiquery.h, os_win32/vc14/smart*.vcxproj*:
+	Remove usage of 'wbemcli_small.h'.
+
+	ataprint.cpp, nvmeprint.cpp: Add JSON values 'power_cycle_count'
+	and 'power_on_hours'.
+	json.cpp, json.h: Add 'set_if_safe_*' member functions.
+
+2018-08-13  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add JSON support for '-l devstat'.
+	Add JSON support also for old SCT Status format.
+
+2018-08-10  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp, os_win32/wmiquery.h: Add missing printf() format checks.
+	This also silences -Wformat-nonliteral warnings from clang++ 5.0.
+
+	os_win32.cpp: Increase IOCTL_ATA_PASS_THROUGH timeout to 60 seconds.
+
+2018-08-10  Zhdan Bybin  <zhdan.bybin@intel.com>
+
+	drivedb.h:
+	- Intel S3520 Series SSDs (#985)
+	- Intel S4510/S4610/S4500/S4600 Series SSDs (#912, #928, #1000)
+
+2018-08-04  Christian Franke  <franke@computer.org>
+
+	Remove int64.h, use <inttypes.h> or <stdint.h> instead.
+
+	configure.ac, utility.cpp, utility.h: Add 128-bit unsigned integer
+	to string conversion.  Provides full integer precision if compiler
+	supports '__int128' (e.g. x86_64 GCC and CLang).
+	json.cpp, nvmeprint.cpp: Use these new functions.
+	Makefile.am: Adjust config-vc14 target.
+
+2018-08-02  Christian Franke  <franke@computer.org>
+
+	scsicmds.h, scsiprint.cpp: Add support for SAS host managed drives
+	(patch from #1045).
+
+2018-08-01  Christian Franke  <franke@computer.org>
+
+	dev_interface.cpp, scsiata.cpp, smartctl.8.in, smartd.conf.5.in:
+	Add option '-d scsi+TYPE' to disable SAT auto detection.
+	Useful in conjunction with TYPEs 'aacraid' and 'cciss' (#871).
+
+2018-07-31  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: Kingston DC400 (#933, #1011), move GOODRAM to ...
+	- Phison Driven OEM SSDs: ... here, PC Engines msata16d (#967),
+	  INTENSO SATA III TOP (#1053)
+	- USB: Iomega MDHD500-U (0x059b:0x0274) (#1003)
+	- USB: Freecom (0x07ab:0xfc17) (#1049)
+	- USB: JMicron JMS539 (0x152d:0x0539/0x2801) (patch from #970)
+	- USB: JMicron (0x152d:0x0561) (#945)
+	- USB: JMicron JMS567 (0x152d:0x2567) (#948)
+	- USB: JMicron (0x152d:0x578e) (#987)
+
+	json.cpp: Add missing ';' to '--json=g' output of 128-bit values.
+
+2018-07-29  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows Server 1803 build number.
+	Improve search for actual CSMI port number.
+
+2018-06-21  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Rework handling of glob() return code.
+	Don't abort device scan on missing '/dev/discs' (#1036).
+
+	os_win32.cpp: Decode Windows 10 1803 build number.
+	Silence g++ 7.3 -Wformat-truncation warning.
+
+2018-04-19  Christian Franke  <franke@computer.org>
+
+	utility.cpp, utility.h: Use array reference for buffer parameter
+	of dateandtimezoneepoch().  Remove no longer used dateandtimezone().
+
+	utility.cpp: Add check of sg_get_unaligned_[bl]e64() to
+	check_endianness().
+
+2018-04-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	switch usage of unaligned.h to sg_unaligned.h which is functionally
+	the same. sg_unaligned.h is the same header used by libsgutils which
+	is the basis of the sg3_utils, sdparm and ddpt packages available on
+	many of the same architectures as smartmontools is. This change
+	introduces a "sg_" prefix on the inline functions defined
+	sg_unaligned.h . The new header has specializations for big and little
+	endian machines that depends on the non-standard bswap_16(), bswap_32()
+	and bswap_64() calls. They are defined in the byteswap.h header which is
+	a GNU extension. According to the 'net both gcc and clang use intrinsics
+	{assembler ?} to implement these calls. If the byteswap.h header is not
+	present on the build machine, the generic implementations will be
+	used for the "unaligned" family of functions. Additionally the generic
+	implementations can be imposed with './configure --disable-fast-lebe'.
+	Developers may need to use './autogen.sh' prior to their normal build
+	sequence. Please report any problems to the author.
+
+2018-03-28  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, nvmeprint.cpp, scsiprint.cpp:
+	Output JSON 'user_capacity' as 'blocks' and 'bytes'.
+	Handle both as unsafe ints.
+
+	smartd.cpp: Ignore remaining percentage in initial check of
+	self-test execution status.
+
+	scsiata.cpp: Fix device type info for 'usbcypress'.
+
+	os_linux.cpp: Fix device scan crash on missing /proc/devices.
+
+	update-smart-drivedb.in, update-smart-drivedb.8.in:
+	Add option '-u github'.
+
+2018-03-20  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Add initial JSON support for '-i', '-H' and '-A'.
+
+	json.cpp, json.h: Add support for 64 and 128 bit unsigned
+	integers.  Add 'set_unsafe_*()' member functions to print unsigned
+	integers >= 53 bit as JSON number and string.
+
+2018-03-07  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartd.cpp:
+	- continue to use READ CAPACITY(10) first on unseen
+	  SCSI devices but once we discover the need for
+	  READ CAPACITY(16) use it for subsequent accesses
+	dev_interface.h: 
+	- struct scsi_device: add set_rcap16_first() and
+	  use_rcap16() const methods
+	scsicmds.cpp:
+	- use scsi_device::set_rcap16_first() when READ
+	  CAPACITY(10) reports 32 bits can't represent the
+	  number of blocks
+
+2018-03-06  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: 
+	- add Transcend PSD SSD family (#979)
+	- add Toshiba HK4R Series SSD (#898)
+	- extend Western Digital Re regexp (#896)
+	- extend Wester Digital Se regexp (#953)
+	- add Smartbuy ignition plus (#976)
+
+2018-03-05  Gabriele Pohl <contact@dipohl.de>
+
+	drivedb.h:
+	- Add Seagate IronWolf 12TB ST12000VN0007-2GS116 (#988)
+
+2018-03-05  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: add Seagate Barracuda Pro family (#981)
+
+2018-03-01  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: Fix build under -CURRENT (patch by cy@)
+
+2018-02-28  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Add SanDisk SDSSDH2128G (#982)
+
+2018-02-27  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- extend PLEXTOR PX regexp (#934)
+	- add Seagate Enterprise NAS HDD family (#946)
+	- add SanDisk SDSA6MM-* family (#965)
+	- fix Seagate Laptop HDD regexp (#955)
+	- add Seagate Barracuda Compute series (#927)
+	- extend Seagate Enterprise Capacity 3.5 HDD regexp (#956)
+
+2018-02-26  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- add Seagate XF1230 SSD (GH: issues/4)
+	- add Intel SSD Pro 5400s Series (GH: pull/5)
+	- add SanDisk-SD8SN8U-256G-1006 (GH: pull/3)
+	- add Toshiba Q300 SSD series (#932)
+	- extend HGST Deskstar NAS regexp (#975)
+	- add KINGSTON SNS4151S316GD SSD (#902)
+
+2018-02-20  Christian Franke  <franke@computer.org>
+
+	os_netbsd.cpp: Apply patch-os_netbsd.cpp 1.1 (2017-12-15) from
+	pkgsrc.se/sysutils/smartmontools: Add missing <sys/stat.h>.
+
+	configure.ac, int64.h: Remove support for pre-C99 environments without
+	<inttypes.h> and <stdint.h>.
+
+	configure.ac: Add '-Wformat=2 -fstack-protector-strong' unless
+	CXXFLAGS include other '-W' or '-f' options.
+
+2018-02-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Default to '-d sat' for Toshiba (0x0480), Seagate (0x0bc2),
+	Western Digital (0x1058), Initio (0x13fd), ASMedia (0x174c).
+	Keep known exceptions.  Merge some entries.
+
+2018-02-08  Douglas Gilbert  <dgilbert@interlog.com>
+
+	nvme on windows: just some code comments. Seems as though
+	W10 tries to completely neuter the idea of a pass-through.
+
+2018-01-06  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsi subsystem: improve dStrHex() signature, adjust
+	invocations. Adjust scsi_format_id_string() signature.
+	Add smartctl support for Pending Defects (sub-)log page;
+	seems similar to 'smartctl -l defects' but that is ATA
+	only. Needs to be generalized (as it will probably appear
+	in NVMe also).
+
+2018-01-04  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsi subsystem: preparation for decoding more log pages.
+
+2018-01-01  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: fix build with CLANG/6. Patch provided by
+	Dimitry Andric, PR 224826
+
+2018-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year! Update copyright year in version info.
+
+2017-12-30  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsi subsystem: add code to check for both log pages
+	and subpages, subpages were not checked for previously.
+	Add decoding for Format Status log page. Associated
+	cleanups. Tighten checking for Seagate and Hitachi
+	vendor specific log pages; '-T permissive' will relax
+	checks back to the situation before this patch
+
+2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	unaligned.h: fix inconsistency in function argument
+	of get_unaligned_be24()
+
+2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	Add --enable-scsi-cdb-check option to ./configure that
+	results in a SCSI cdb sanity check prior to SCSI generic
+	pass-through in Linux. [So it does not sanity check
+	Megaraid and 3ware (etc) pass-throughs (but could).] When
+	selected defines SCSI_CDB_CHECK in config.h . This may be
+	temporary. This patch is an attempt to catch strange
+	frames (perhaps SATA FIS) being sent to the SCSI
+	pass-through.
+
+2017-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	Rework scsiGetSize() and remove scsiGetProtPBInfo().
+	Convert scsicmds.cpp to use unaligned.h get and put.
+
+2017-12-27  Alex Samorukov <samm@os2.kiev.ua>
+
+	Add unaligned.h header file to the Makefile.am
+
+2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
+
+	Add unaligned.h header file; has get and put variants of
+	unaligned be16,24,32,48,64 and le16,24,32,48,64 copies
+	plus all_zeros() and all_ffs() helpers. All inline.
+
+2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
+
+	Remove UINT8, INT8, UINT32 and INT32 typedefs in favour
+	of the types from <stdint.h>; for example uint8_t
+
+2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
+
+	nvmecmds.cpp: according to NVMe 1.3a spec, the SMART/
+	health information log page is global and should take
+	the global nsid (all ff_s). It also says the Error
+	info lpage is "global. Broke WD Black PCIe (NVMe)
+	SSD but worked on Intel SSDs. Fix; could break others.
+
+2017-12-27  Douglas Gilbert  <dgilbert@interlog.com>
+
+	os_freebsd.cpp: on error was setting set_nvme_err() to 1,
+	not the actual NVMe status value; fix.
+
+2017-12-24  Alex Samorukov  <samm@os2.kiev.ua>
+	CircleCI: add FreeBSD cross compilation
+
+2017-12-22  Alex Samorukov  <samm@os2.kiev.ua>
+	configure.ac: add -lsbuf to FreeBSD libs to fix static builds.
+
+2017-12-21  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: Start some JSON work. Other cleanups and helper
+	functions; potentially new header for those helpers.
+
+2017-12-17  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add JSON support for '-g all', '-l scterc' and
+	'-l scttemp'.
+
+	ataprint.cpp: Don't print obsolete SCT Support Level (#940).
+
+2017-12-14  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: JSON '-A' output: Add booleans and string for attribute
+	flags.  Remove string array.  Rename table.
+
+	ataprint.cpp: Add JSON support for '-l [x]error'.
+
+2017-12-13  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp, smartctl.8.in: Rename '--json=a' to '--json=o'.
+
+	smartctl.cpp: Show command line error messages in JSON output.
+
+	ataprint.cpp: Add JSON support for '-l [x]selftest' and
+	'-l directory'.
+
+	atacmds.cpp, atacmds.h: Move self-test print functions to ...
+	ataprint.cpp: ... here.
+	smartd.cpp: Rework self-test error counting.
+
+	ataprint.cpp: Add JSON support for '-c'.
+
+	atacmds.cpp, atacmds.h: Change return type of capability checks to
+	bool.  Declare simple checks inline.
+
+2017-12-07  Christian Franke  <franke@computer.org>
+
+	json.cpp: Avoid 'cbegin()' and 'cend()' to fix build with older
+	libstdc++.
+
+	json.cpp, json.h, smartctl.cpp, smartctl.8.in: Add '--json=s' option.
+	Outputs JSON object elements sorted by key.
+	Add '--json=g' option.  Outputs JSON structure suitable for grep.
+
+2017-12-05  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add JSON support for '-l sataphy'.
+
+	smartctl.cpp: Add JSON support for '--scan'.
+	Add similar device info to regular JSON output.
+	ataprint.cpp, scsiprint.cpp: Remove now duplicate "protocol" element.
+
+	smartctl.cpp: Silence false positive warnings from clang analyzer.
+
+2017-12-02  Christian Franke  <franke@computer.org>
+
+	Add initial support for smartctl JSON output mode (#766):
+	json.cpp, json.h: New files with JSON support class.
+	Makefile.am, os_win32/vc14/smartctl.vcxproj*: Add new files.
+	ataprint.cpp: Add initial JSON support for -i, -H, -A and -l [x]error.
+	scsiprint.cpp: Add initial JSON support for -i and -H.
+	smartctl.cpp, smartctl.h: Add '-j, --json' option, global JSON object
+	and new print functions.
+	smartctl.8.in: Document new functionality.
+
+	atacmds.cpp: Remove no longer needed variable 'must_swap'.
+
+	os_win32.cpp: Remove include of smartctl.h, add extern declaration.
+	Decode Windows Server 1709 build number.
+
+	configure.ac, os_linux.cpp: Always include <sys/sysmacros.h> if available.
+	This silences a 'deprecated' warning from glibc 2.25 headers.
+
+2017-11-20  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_netbsd.cpp (fix regressions in smartmontools 6.6)
+	 - fix BE platforms support, tested on sparc64 (#943)
+	 - fix name based device type detection (#943)
+	 - Add byte-swapping for IDENTIFY command and remove related hacks from the
+	   atacmds.cpp (#117)
+
+2017-11-18  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Add Swissbit C440 industrial cf card series (#942)
+	- Fix Innolite Satadom D150QV entry (#939)
+
+2017-11-16  Christian Franke  <franke@computer.org>
+
+	smartd.initd.in: Remove FreeBSD section.
+
+	os_linux.cpp: Add missing braces to 3ware SELinux code.
+	This possibly harmless bug was introduced ~10 years ago in r2510.
+	It is now detected by g++ 6.3 -Wmisleading-indentation warning.
+
+	update-smart-drivedb.in: Include configured PATH in help and
+	error messages.  Allow digits in SVN Id user name.
+
+	configure.ac: Prepend '/usr/local/bin' to default for
+	'--with-scriptpath' (#941).
+
+2017-11-15  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Use 'sigaction()' instead of deprecated 'sigset()'
+	or 'signal()'.
+	configure.ac: Add '--with-signal-func' to select old function
+	if needed.
+
+	configure.ac: Remove '-with-initscriptdir=[auto|yes]' heuristics.
+	The default init script is no longer useful on most platforms.
+	INSTALL: Update related documentation.
+
+	configure.ac, Makefile.am: Use smartd.cygwin.initd.in on Cygwin.
+	smartd.cygwin.initd.in: New file.
+	smartd.initd.in: Remove Cygwin section.
+
+	configure.ac: Make some header checks platform specific.
+	Print '--with-nvme-devicescan' warning also on FreeBSD.
+	Remove '--with-solaris-sparc-ata' warning.
+
+	examplescripts/Example6: Add enhancements from Fedora package.
+
+2017-11-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital Red: WD80EZZX
+	- USB: WD My Book (0x1058:0x25ee) (Red Hat Bugzilla 1446533)
+
+2017-11-13  Matt Coates  <me@mattjackets.com>
+
+	drivedb.h: USB: Seagate Backup Plus 4TB (0x0bc2:0xab43) (#926)
+
+2017-11-10  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add SanDisk iSSD SDIS6BM (#923)
+
+2017-11-08  Christian Franke  <franke@computer.org>
+
+	Makefile.am, os_win32/installer.nsi: Add VERSIONINFO resource to
+	installer.
+
+	os_win32/installer.nsi: Remove get/set of old 'Install_Dir' registry
+	entry.  No longer needed for recent versions of GSmartControl.
+	Remove deletion of old .exe.manifest files.
+	Search also for 64-bit version of Notepad++.
+
+	ataprint.cpp: Fix detection of Device Statistics log with
+	256 sectors (#922).
+
+	os_linux.cpp: Use 'realpath()' (BSD, POSIX) instead of
+	'canonicalize_file_name()' (GNU extension).
+	This fixes build on systems with musl libc (#921).
+
+2017-11-06  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: implement NVMe device scan (#687)
+	os_freebsd.cpp: show hint if /dev/nvd* is specified as device name
+
+2017-11-05  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add separate version number for drivedb.h branch.
+
+2017-11-05  Christian Franke  <franke@computer.org>
+
+	smartmontools 6.6
+
+2017-11-04  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apple SD/SM/TS...E/F/G SSDs: Rename, add 1TB
+	- Innodisk 3IE3/3ME3/3ME4 SSDs: Rename, add 3ME4
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: 150GB, *G7
+	  (ticket #750)
+	- USB: Toshiba Canvio (0x0480:0xa202, 0xa207)
+	- USB: Seagate Expansion Desktop (0x0bc2:0x3330)
+	- USB: Maxtor D3 Station 3TB (0x0bc2:0x6123)
+	- USB: Seagate Backup Plus 4TB (0x0bc2:0xab1e)
+	- USB: JMicron (0x152d:0x0579)
+	- USB: Hitachi Touro Mobile (0x4971:0x1023)
+	- USB: JMicron JMS566 (0xa152:0xb566)
+	- USB: LogiLink PCCloneEX Lite (0xabcd:0x6104)
+
+	smartd.conf.5.in: Fix conditionals of platform specific samples.
+
+	smartctl.8.in, smartd.conf.5.in: Shorten or remove info about
+	very old 3ware controllers.
+
+	smartctl.8.in: Add '-g' to '-x' documentation.
+	Avoid a very long line.
+
+	smartctl.cpp: Improve help text formatting.
+
+2017-11-03  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.8.in: Update mailing list link.
+	update-smart-drivedb.in: Update mailing list comment.
+
+	utility.cpp: Silence g++ 7.1 -Wformat-truncation warning.
+
+	atacmds.cpp, dev_areca.cpp, os_linux.cpp: Add comments to silence
+	g++ 7.1 -Wimplicit-fallthrough=[1-4] warnings.
+
+	os_linux.cpp: Fix indentation (g++ 6.3: -Wmisleading-indentation).
+
+	nvmeprint.cpp: Print IEEE EUI-64 of namespace.
+
+2017-10-29  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Add notes about SMART commands obsoleted in ACS-4.
+	Remove some outdated info.
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Enable NVMe sections
+	for Darwin.
+
+	os_win32/installer.nsi: Update links.
+	Remove outdated uninstall commands.
+
+	INSTALL: Update ./configure description and OS info.
+
+	ataidentify.cpp, ataprint.cpp: Minor ACS-4 additions.
+
+	ataprint.cpp, ataprint.h, smartctl.cpp: Add option '-l defects'
+	to print ATA ACS-4 Pending Defects log (ticket #909).
+	smartctl.8.in: Document '-l defects'.
+
+2017-10-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Samsung based SSDs: PM871b (tickets #895, #903)
+	- Seagate Enterprise Capacity 3.5 HDD: 4TB (fix for #913)
+	- Western Digital Red Pro: 6TB (ticket #785)
+
+	os_win32/smartd_warning.cmd: Add ability to run PowerShell scripts
+	with '-M exec'.
+	smartd.conf.5.in: Document new functionality.  Fix typo.
+
+2017-10-25  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	 - add SATA Voyager GTX (#893)
+
+2017-10-24  Christian Franke  <franke@computer.org>
+
+	do_release: Update code signing key id.
+
+	update-smart-drivedb.in: Add new mailing list address to database
+	signing key.
+
+2017-10-24  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	 - add USB Voyager GTX (#893)
+	 - add Phison based OEM SSD based on the firmware name (#853, #831)
+	 - add Ultrastar 7K2 series (#892)
+	 - add LITEON ZETA (LMH-*V2M-*) (#794)
+
+2017-10-22  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 1709 build number.
+
+	configure.ac: Fail instead of warn if no compiler option to accept
+	C++11 found and '--with-cxx11-option' is not specified.
+
+2017-10-19  Alex Samorukov <samm@os2.kiev.ua>
+
+	scsicmds.h: increase SCSI_TIMEOUT_DEFAULT to 1 minute to work on the
+	big JBOD arrays (#917)
+
+2017-10-15  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Use also device identify information to detect for
+	duplicate devices (ticket #313).
+
+	atacmds.cpp: Don't pass possibly unaligned pointers to swapx().
+	This silences '-Waddress-of-packed-member' warning from clang++ 4.0
+	(ticket #915).
+
+2017-10-12  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_linux.cpp: implemented support for the SG_IO V4 API. This should
+	fix kernel warnings and other issues on the /dev/bsg SCSI devices.
+	Based on the patch created by Circuitsoft (#782)
+
+2017-10-11  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp: fix crash on --scan (regression from r4549)
+
+2017-10-10  Christian Franke  <franke@computer.org>
+
+	configure.ac, os_darwin.cpp: Align Darwin NVMe device scanning with
+	other platforms: Disable unless '--with-nvme-devicescan' or '-d nvme'
+	is specified.  Print related configure warning.
+
+2017-10-09  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Extend Seagate Barracuda 7200.12 regexp (#910)
+	- Extend Seagate NAS HDD regexp (#778)
+	- Extend Seagate Surveillance regexp (#807)
+	- Extend Seagate Enterprise Capacity 3.5 HDD regexp (#864, #913)
+	- Fix Seagate Barracuda 2.5 5400 regexp to add new models and
+	  avoid false matches (#796)
+	- Add Seagate IronWolf HDD  series (#760)
+	- Fix attribute 183 for the Seagate Barracuda 2.5 5400 HDD (#816)
+	- Added Mushkin Triactor series (#905)
+	- Extend Samsung PM830 regexp (#897) 
+
+2017-10-08  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: 
+	- Add TOSHIBA MQ03UBB... series (#901)
+	- extend TOSHIBA THNSF regexp (#790)
+
+2017-10-08  Christian Franke  <franke@computer.org>
+
+	configure.ac: Check for compiler option to accept C++11.
+	If none found, print warning and ask user to provide info.
+	Add '--with-cxx11-option' to suppress this warning.
+	This is intended to check whether C++11 could be used in some
+	future smartmontools release.  The current build is not affected.
+
+	configure.ac, Makefile.am: Add Windows VERSIONINFO resource also to
+	runcmd*.exe and wtssendmsg.exe.  Include application manifests if
+	needed.  This also fixes manifests with older MinGW binutils which
+	do not support more than one resource objects.
+	os_win32/smart*_res.rc.in: Replace by os_win32/versioninfo.rc.in.
+
+2017-10-06  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add PDF man page formatting.
+	os_win32/installer.nsi: Add PDF man pages, remove TXT man pages.
+
+	drivedb.h:
+	- SMART Modular Technologies mSATA XL+ SSDs (patch from ticket #802)
+	- StorFly CFast SATA: Add missing space.
+	- Fix regexp from tickets #882, #885.
+
+2017-10-05  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add StorFly CFast SATA 6Gbps SSDs (#911)
+
+2017-10-05  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital Red: WD80EFAX (tickets #857, #899)
+	- USB: Toshiba Canvio (0x0480:0xb207)
+	- USB: Apple/TOSHIBA MQ01UBB200 (0x05ac:0x8406)
+	- USB: Seagate Expansion Portable 2TB (0x0bc2:0x231a)
+	- USB: Maxtor M3 Portable 4TB (0x0bc2:0x61b7) (ticket #875)
+	- USB: WD Elements / My Passport (0x1058:0x259f) (ticket #833)
+	- USB: WD Elements / My Passport (0x1058:0x25e2)
+	- USB: WD Elements / My Passport (0x1058:0x25fa) (ticket #840)
+	- USB: WD My Book / Easystore (0x1058:0x1230) (ticket #835)
+	- USB: WD My Book / Easystore (0x1058:0x25fb) (tickets #857, #899)
+	- USB: JMicron JMS561U (0x152d:0x8561) (ticket #860)
+	- USB: Innostor IS888 (0x1f75:0x0888): -d sat works (ticket #827)
+
+2017-10-04  Alex Samorukov  <samm@os2.kiev.ua>
+
+	smartctl.8.in: update information about NVMe in Darwin and OS/2 support
+	smartd.cpp, utility.cpp: fix compiler warnings related to vprintf
+
+2017-10-03  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Print new NVMe 1.3 feature flags.
+
+2017-10-02  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add strict tests of /dev/null redirection and chdir("/").
+
+	configure.ac: Use '-fstack-protector' if '-strong' is not supported.
+
+2017-10-01  Christian Franke  <franke@computer.org>
+
+	configure.ac: Set default LDFLAGS for MinGW only if LDFLAGS is unset.
+	Add '-Wformat=2 -fstack-protector-strong' if supported and CXXFLAGS
+	is unset.
+
+	drivedb.h:
+	- Fix regexp from tickets #714, #721, #759, #789, #797, #798, #806,
+	  #824, #825, #866, #872, #880.
+	- SK hynix SATA SSDs (based on patch from ticket #874)
+
+2017-09-25  Alex Samorukov  <samm@os2.kiev.ua>
+
+	NVME:
+	- extend controller and smart log page structures to match 1.3 specification.
+	- Print thermal temperature transition statistic
+	drivedb.h:
+	- Added support for more LaCie and Freecom devices (patch from #891)
+
+2017-09-24  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Added Toshiba MK..34GSX series (#886) and MK..32GSX series (#887)
+	- Added GOODRAM CX200 SSD (#838)
+	- Added Mushkin SSD family (#797)
+	- Added Samsung PM871 to the Samsung SSD family (#798)
+	- Added PNY CS1311 family (#890)
+	- Added 0x152d:0x0578 Jmicron USB->SATA
+	- Added Transcend MTS800 drives (#787)
+	- Added Transcend MSA 630 series (#759)
+	- Extended Hitachi Deskstar 7K3000 regexp (#858)
+
+2017-09-23  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Fix HGST HDS724040ALE640 (#885)
+	- Add Toshiba MQ03ABB300 (#884)
+	- Fixed Hitachi 7K1000 (#883)
+	- Added Seagate Barracuda 2.5 5400 series (#882)
+	- Added new Seagate Barracuda 3.5 7200 series (#880)
+	- Added Toshiba P300 series (#881)
+	- Added SK hynix SSD SC300 series (#699)
+	- Added Toshiba HG6 Series SSD (#721)
+	- Added Hynix SSD series
+	- Added AMD Radeon Solid State Drives (#762)
+	- Added USB Bridge 0x3538:0x0064 (#855)
+	- Added Seagate ST4000NM0085 to the Capacity family
+	- Added Sandisk SATA Cloudspeed Max and GEN2 ESS SSDs and Sandisk SATA CS1K
+	  GEN1 ESS SSDs (#846)
+	- Added Seagate FireCuda drives (#825)
+	- Added Transcend MTS400 drives (#847)
+	- Added Transcend MTS420 drives (#869)
+	- Added Transcend SSD230 drives (#879)
+	- Added Transcend SSD220S drives (#821)
+	- Added Intel 540 Series SSDs (#803)
+	- Added Intel 3710 Series SSDs (#824)
+	- Added Micron 5100 ECO, PRO, and MAX Models (#861)
+	- Added Samsung EVO SSD series - make regexp match less strict (#806)
+	- Added Hitachi CinemaStar 5K1000 series (#758)
+	- Added WDC WD4004FZWX disk to the Digital Black family (#765)
+	- Added Samsung SSD 845DC EVO series (#866)
+	- Added SK hynix SL308 family (#808)
+	- Added WD Blue PC SSD family (#767)
+	- Corrected Crucial M4 drivedb entry to include 32Gb model (#844)
+
+2017-09-20  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd: use /dev/nvme/nvme.h on the recent versions
+	os_darwin: 
+	 - initial NVMe support for the darwin platform.
+	 - NVMe device scan support
+	 - Add device type autodetection
+
+2017-08-08  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Fix ATA Security Level check.
+
+	configure.ac: Detect MinGW libstdc++ problems with high
+	'--image-base'.
+
+	Update smartmontools-support mailing list address.
+	Remove old mailing list address from all source files.
+
+2017-05-03  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in,
+	update-smart-drivedb.8.in:
+	Rework vertical space and '.nf...fi' (no-fill) sections
+	for better formatting with various tools (groff, mandoc,
+	man2html) and output formats (text, pdf, html).
+	Use default vertical space instead of an empty line
+	between paragraphs.
+	Use '.br' instead of '.nf...fi' where applicable.
+	Use CW font in remaining no-fill sections.
+
+	smartctl.8.in: Replace UTF-8 quotes.
+
+2017-05-02  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in,
+	update-smart-drivedb.8.in:
+	Various man/groff syntax fixes (ticket #656):
+	Split long lines.
+	Insert two spaces or newline between sentences.
+	Use ' for apostrophes.
+	Use groff extension \(aq (apostrophe quote, ASCII 0x27)
+	or ' for quotes.
+	Use \- (minus sign) for options and examples.
+	Use \(en (en-dash) for numeric ranges.
+	Protect . with \& if not at end of sentence.
+
+2017-04-24  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: remove duplicated code which checks ATA SMART
+	status (#746)
+
+2017-04-23  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_os2.cpp:
+	- code cleanup
+	- add os2ahci driver initial support
+	- fix selftest command
+	- add device scan support
+
+2017-04-19  Alex Samorukov  <samm@os2.kiev.ua>
+
+	OS/2 - many fixes:
+	 - autodetect and build os_os2.o on OS/2
+	 - fix os_os2.cpp/os_os2.h compilation (thanks to franke@)
+	 - get rid from the os_os/hdreg.h - use constants from the atacmd.h
+	 - remove most of the dead code and unused functions
+
+2017-04-17  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 1703 build number.
+
+	atacmds.h, ataprint.cpp: Use STANDBY instead of IDLE command if
+	'-s standby,[N|off]' and '-s standby,now' are both specified.
+	smartctl.8.in: Document new behaviour of '-s standby,*'.
+
+2017-04-01  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp, atacmds.h, ataprint.cpp: Print minimum supported ERC
+	Time Limit from SCT Status.
+
+	ataidentify.cpp, ataprint.cpp: Add ACS-4 and SATA 3.3 major
+	versions, log pages, device statistic values and feature bits.
+
+2017-03-27  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Suppress "SAS address" if '-q noserial' is
+	specified (ticket #822).
+
+	scsicmds.cpp: Remove useless variable
+	(cppcheck 1.77: knownConditionTrueFalse).
+
+	smartd.cpp: Always suppress "failed to read Temperature" message
+	if SCSI device does not support temperature (ticket #817).
+	Fix initial check for SCSI temperature support.
+	Log SCSI temperature regardless of its origin.
+
+2017-03-11  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in,
+	update-smart-drivedb.8.in: Update EXPERIMENTAL notes.
+	Update links.  Update or remove various outdated info.
+
+	smartctl.8.in: Fix documentation of the '-g all' option.
+
+	smartctl.cpp: Add '-g dsn' to '-x' output.
+
+2017-03-11  Jonghwan Choi  <jhbird.choi@gmail.com>
+
+	ataprint.cpp: Fix false positive DSN support detection.
+
+2017-03-09  Jean Delvare  <...>
+
+	smartctl.8.in: Fix documentation of the '-q' option.
+
+2017-03-09  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Add Jonghwan Choi.
+
+2017-03-09  Jonghwan Choi  <jhbird.choi@gmail.com>
+
+	Add options to get/set ATA DSN (Device Statistics Notification)
+	feature (ticket #815):
+	atacmds.h: Add DSN feature subcommand code.
+	ataprint.cpp, ataprint.h, smartctl.cpp: Add '-g/s dsn' options.
+	smartd.cpp: Add '-e dsn' directive.
+	smartctl.8.in, smartd.conf.5.in: Document the new options.
+
+2017-03-04  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp, smartd.cpp: Fix help text for '-B' option.
+
+	smartd.cpp: Unify indent style, replace tabs.
+	Move ATA/SCSI/NVMe device open to new common function.
+	Suppress warning emails and repeated log messages on open error if
+	'-d removable' is specified (Debian Bug 770872, Ubuntu Bug 1451572).
+	smartd.conf.5.in: Document new behaviour of '-d removable'.
+
+2017-03-02  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Move single device registration to new function.
+	Exit smartd on device open error unless '-q never' or '-d removable'
+	is specified (regression from r2602).
+	Prevent retry if registration failed and '-q never' is specified.
+	Add enum for '-q, --quit' option.
+
+2017-02-27  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300/P300: Rename, add P300, remove M500
+	- Crucial/Micron RealSSD m4/C400/P400: P400e micro SATA
+	- Crucial/Micron MX1/2/300, M5/600, 1100 Client SSDs: Rename,
+	  add MX300 (tickets #763, #791), M550 M.2 (ticket #810),
+	  1100 (ticket #783)
+
+2017-02-22  Christian Franke  <franke@computer.org>
+
+	configure.ac: Set various default LDFLAGS for MinGW builds:
+	Link statically, indicate DEP and TS compatibility, enable ASLR.
+	Add '--with-mingw-aslr' option.
+
+2017-02-20  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows Server 2016 build number.
+
+	os_win32.cpp: Rework CSMI port mapping.  This fixes access to
+	ports != 0 behind IRST driver 15.2 (ticket #804).
+
+2017-01-30  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: unblock 48bit ATACAM commands for the legacy controllers
+	if FreeBSD version is >= 9.2-RELEASE, tested on FreeBSD 10.3
+
+2017-01-28  Christian Franke  <franke@computer.org>
+
+	ataidentify.cpp: Don't shift negative values
+	(g++ 6.3: -Wshift-negative-value, cppcheck 1.77: shiftNegativeLHS).
+
+	os_win32.cpp, scsiata.cpp, scsicmds.cpp, scsiprint.cpp: Fix 'if'
+	and 'else' clause indentations (g++ 6.3: -Wmisleading-indentation).
+
+	Add indent style configuration for EditorConfig
+	(http://editorconfig.org/):
+	.editorconfig: New file.
+	Makefile.am: Add new file to source tarball.
+
+2017-01-21  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Marvell based SanDisk SSDs: X300 OEM (ticket #747),
+	  X400 (ticket #715), Ultra II (ticket #744)
+	- USB: Renesas uPD720231A (0x045b:0x0229)
+	- USB: Maxtor D3 Station 5TB (0x0bc2:0x6126)
+	- USB: Seagate Backup Plus 8TB (0x0bc2:0xab38) (ticket #786)
+	- USB: WD Elements / My Passport (0x1058:0x107d) (ticket #772)
+	- USB: WD Elements / My Passport (0x1058:0x25a1) (ticket #773)
+	- USB: WD My Book 4TB (0x1058:0x25a3) (ticket #784)
+	- USB: WD Elements / My Passport: Merge entries
+	- USB: WD My Book: Merge entries
+
+2017-01-14  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Remove redundant assignment
+	(cppcheck: redundantAssignment).
+
+	ataprint.cpp, ataprint.h, smartctl.cpp, smartctl.8.in:
+	Add STATUS parameter to '-n POWERMODE' option (ticket #697).
+
+2017-01-13  Christian Franke  <franke@computer.org>
+
+	configure.ac: Rework CXXFLAGS settings, use shell intrinsics.
+
+	os_win32.cpp: Fix harmless buffer overflow bug
+	(found by VC14 code analyser).
+
+2017-01-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Innodisk 1ME3/3ME/3SE SSDs: Rename, add 1ME3 (ticket #713), 3SE
+	- Innodisk 3IE2/3ME2/3MG2/3SE2 SSDs: Rename, add 3ME2
+	- Samsung based SSDs: 750 EVO, PM810(470), 840, PM830, PM851,
+	  CM871 (ticket #754), CM871a, PM871a (tickets #745, #775),
+	  SM951 (ticket #704)
+
+2017-01-11  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Make '-d intelliprop' visible on all platforms.
+	Add warning.
+	smartd.conf.5.in: Document '-d intelliprop'.
+
+	os_win32/vc14/smart*.vcxproj*: Add new files.
+
+	AUTHORS: Add Casey Biemiller
+
+2017-01-11  Casey Biemiller  <cbiemiller@intelliprop.com>
+
+	Add '-d intelliprop' device type for drives behind IntelliProp
+	RAID controllers (ticket #730):
+	atacmds.cpp, atacmds.h: Add function ataWriteLogExt().
+	dev_intelliprop.cpp, dev_intelliprop.h: New files.
+	dev_interface.cpp: Add '-d intelliprop,N[+TYPE]' option.
+	Makefile.am: Add new files.
+	smartctl.8.in, smartd.conf.5.in: Document it.
+
+2017-01-09  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: fix panic on INVARIANTS enabled kernel, patch
+	provided (#780) by Oliver Pinter <oliver.pinter@hardenedbsd.org>
+
+2017-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year! Update copyright year in version info.
+
+2016-11-12  Christian Franke  <franke@computer.org>
+
+	atacmds.h, freebsd_nvme_ioctl.h: Apply patch-atacmds.h 1.1
+	and patch-freebsd_nvme_ioctl.h 1.1 (2016-11-04) from
+	pkgsrc.se/sysutils/smartmontools:
+	Build fix for FreeBSD-11 and newer.  Don't redefine now
+	existing things, ATA_SET_FEATURES and nvme_command.
+
+2016-11-10  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Don't detect devices behind hpsa driver as regular
+	SCSI devices.  Suggest to use '-d cciss,N' instead.
+
+	Based on patch provided by Stanislav Brabec.
+
+2016-11-05  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Fix 'mv' error on first update with new
+	script.
+
+	configure.ac, update-smart-drivedb.in: Add '--with-gnupg' option.
+
+	configure.ac: Add '--with-update-smart-drivedb=X.Y' option to
+	backport drive database update script and man page to older
+	version X.Y.
+
+	configure.ac: Remove checks for no longer supported options
+	--disable-drivedb, --enable-savestates and --enable-attributelog.
+
+2016-11-04  Christian Franke  <franke@computer.org>
+
+	Add authentication to update-smart-drivedb (ticket #751):
+	Create missing branches RELEASE_6_5_DRIVEDB and RELEASE_6_6_DRIVEDB.
+	Add signature files drivedb.h.raw.asc to each maintained branch.
+
+	update-smart-drivedb.in: Include new public key block ID DFD22559.
+	Download also drivedb.h.raw.asc.
+	Do no longer download from trunk if branch does not exist.
+	Create drivedb.h.raw.  Verify signature.
+	Add options '--trunk', '--no-verify' and '--export-key'.
+	update-smart-drivedb.8.in: Document new behaviour and options.
+
+2016-10-23  Christian Franke  <franke@computer.org>
+
+	smartd.8.in: Document Windows PARAMCHANGE service control command.
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Enable NVMe sections
+	for NetBSD.
+
+	configure.ac, os_netbsd.cpp: Add --with-nvme-devicescan for NetBSD.
+
+	drivedb.h:
+	- Toshiba 3.5" MG04ACA... Enterprise HDD (ticket #732)
+	- Toshiba X300 (ticket #716)
+	- Seagate Laptop HDD: Rename, add 3/4TB (ticket #738)
+	- Seagate Constellation ES: HP OEM
+	- Western Digital RE4: *ABYZ variant
+	- Western Digital Re: Add attribute 16 (ticket #742)
+	- Western Digital Black: Remove *BEK[TX] variants
+	- Western Digital Black Mobile: 1TB, *BEKT, *LPLX variants
+	- Western Digital Elements / My Passport (USB, AF): 4TB
+	- USB: Neodio Technologies (0x0aec:0x3050)
+	- USB: Dura Micro (0x0c0b:0xb136)
+	- USB: My Passport Ultra 4TB (0x1058:0x2599)
+
+2016-10-17  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add --with-scriptpath option.
+	smartd_warning.sh.in, update-smart-drivedb.in: Set PATH variable.
+
+2016-10-03  Christian Franke  <franke@computer.org>
+
+	os_win32/vc14/*.vcxproj: Add platform x64.
+
+	os_win32.cpp: Use new enhanced version of IOCTL_STORAGE_QUERY_PROPERTY
+	to access NVMe info.  This works with Windows 10 NVMe driver
+	(stornvme.sys) (ticket #691).
+	smartctl.8.in, smartd.8.in: Document device names.
+
+2016-09-28  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Buffalo MiniStation HD-PZU3 (0x0411:0x01f9) (ticket #739)
+	- USB: Iomega Prestige (0x059b:0x0571)
+	- USB: LaCie P9223 (0x059f:0x1070)
+	- USB: Seagate Expansion Desktop (0x0bc2:0x331a) (ticket #725)
+	- USB: Seagate Backup Plus (0x0bc2:0xab28) (ticket #738)
+	- USB: WD My Passport Ultra (0x1058:0x259d) (ticket #736)
+	- USB: ASMedia ASM1351 (0x174c:0x1351)
+
+2016-09-25  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Add Kimihiro Nonaka.
+
+2016-09-25  Kimihiro Nonaka  <...>
+
+	os_netbsd.cpp: Migrate to new dev_interface (ticket #101).
+	Add NVMe support (ticket #728).
+	Implement netbsd_ata_device::ata_pass_through().
+	netbsd_nvme_ioctl.h: New file based on "sys/dev/ic/nvmeio.h" from
+	NetBSD kernel sources.
+	Makefile.am: Add new file.
+
+2016-09-07  Christian Franke  <franke@computer.org>
+
+	Makefile.am: clean-vc14 targets.
+
+	os_win32.cpp: Decode Windows 10 build number.
+
+	os_win32/smartd_warning.cmd: Use delayed variable expansion.
+
+	os_win32/smartd_mailer.ps1: Use domainname for default sender address.
+	os_win32/smartd_mailer.conf.sample.ps1: Update related comment.
+	os_win32/smartd_warning.cmd: Remove trailing '\r' from USERDNSDOMAIN.
+
+2016-08-28  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Fix quoting of EDITOR shortcuts.
+
+	Send warning mails via PowerShell script on Windows (ticket #731):
+	Makefile.am, os_win32/installer.nsi: Add new files.
+	os_win32/smartd_mailer.ps1: New PowerShell script using Send-MailMessage
+	cmdlet to send mail.
+	os_win32/smartd_mailer.conf.sample.ps1: New sample config file.
+	os_win32/smartd_warning.cmd: Call new script if configured.
+	Improve error handling.  Add setlocal.
+	smartd.conf.5.in: Document it.
+
+2016-08-17  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Add Song Liu.
+
+	smartctl.cpp: Reduce scope of 'persistent' flag
+	(cppcheck: variableScope).
+
+2016-08-17  Song Liu  <songliubraving@fb.com>
+
+	ataprint.cpp, ataprint.h, smartctl.cpp, smartctl.8.in:
+	Add persistent option ',p' to '-s wcreorder,on|off' (ticket #726).
+
+	atacmds.cpp, atacmds.h, ataprint.cpp, ataprint.h, smartctl.cpp,
+	smartctl.8.in: Add ability to control ATA drive write cache through
+	SCT Feature control.  The new smartctl options are
+	'-s wcache-sct,ata|on|off[,p]' and '-g wcache-sct' (ticket #723).
+
+2016-08-06  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add Windows 10 build number to get_os_version_str().
+
+	Update MSVC10 (VS2010) for VC14 (VS2015):
+	os_win32/vc14/*: Move from os_win32/vc10/*.
+	os_win32/vc14/*.vcxproj: Update for VC14.
+	Remove '__func__' workaround (revert r4225).
+	Makefile.am: Rename and update config-vc14 target.
+	utility.cpp: Add workaround for missing 'tzname'.
+
+	drivedb.h:
+	- OCZ/Toshiba Trion SSDs: Rename, add TOSHIBA-TR150 (ticket #722)
+	- HGST Ultrastar 7K6000 (ticket #708)
+	- HGST Ultrastar He10
+	- Seagate Desktop HDD.15: 6TB, 8TB
+	- Seagate Enterprise Capacity 3.5 HDD: 8TB, 10TB (ticket #717),
+	  attribute 240
+	- Seagate SV35: 4TB
+	- Western Digital Gold (ticket #711)
+	- USB: LaCie (0x059f:0x1075) (ticket #718)
+	- USB: Seagate Expansion External (0x0bc2:0x3322) (ticket #706)
+	- USB: Seagate FreeAgent GoFlex (0x0bc2:0x5030) (ticket #720)
+	- USB: Seagate Backup Plus Desktop (0x0bc2:0xab34) (ticket #700)
+
+2016-05-31  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 311/313 Series SSDs: mSATA, *H (HP) variant
+	- Intel 520 Series SSDs: *L (Lenovo) variant
+	- HGST Ultrastar He6/He8: attribute 22 "Helium_Level"
+	- Western Digital Red: 8TB, attribute 22 "Helium_Level"
+	- USB: WD My Passport Ultra (0x1058:0x0837) (ticket #696)
+	- USB: WD My Passport (0x1058:0x083a)
+	- USB: WD My Book (0x1058:0x111d)
+
+2016-05-10  Christian Franke  <franke@computer.org>
+
+	os_openbsd.cpp: Compile fix (regression from r4156).
+
+	os_netbsd.cpp: Apply patch-os__netbsd.cpp 1.3 (2016-05-08) from
+	pkgsrc.se/sysutils/smartmontools:
+	- Compile fix (regression from r4156).
+	- Use a raw disk device file on NetBSD.
+
+2016-05-07  Christian Franke  <franke@computer.org>
+
+	smartmontools 6.5
+
+2016-05-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Samsung SpinPoint P80 SD: *J/P variant
+	- Seagate Samsung SpinPoint M7E
+	- Hitachi/HGST Travelstar Z5K500: *E680 variant
+	- Hitachi Travelstar 7K500: HITACHI variant
+	- Hitachi Ultrastar 7K3000: *A641 variant
+	- HGST Ultrastar He8
+	- Toshiba 2.5" HDD MQ01ABD...: *V variant
+	- Seagate Desktop HDD.15: 5TB
+	- Seagate SV35.3
+	- Seagate SV35: *0001 variant
+	- Seagate DB35: SATA variant
+	- Western Digital Blue: 2-6TB, *Z variant
+	- Western Digital RE4-GP: *2003* variant
+	- Western Digital Re: Rename, 2-6TB
+	- Western Digital Caviar Green: SATA 6Gb/s variant
+	- Western Digital Caviar Black: *7501AAES*
+	- Western Digital Blue Mobile: 2TB
+	- Western Digital Elements / My Passport (USB, AF): *7500B*, 3TB
+
+2016-05-01  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Samsung based SSDs: 840 EVO 750GB (ticket #692), 850 EVO M.2,
+	  SM843T *HCFV* variant
+	- USB: WD My Passport (0x1058:0x07ae) (ticket #686)
+	- USB: JMicron JMS561 (0x152d:0x9561)
+
+	nvmecmds.cpp: Enhance debug hex dump to sizeof Identify structs.
+	Do not dump trailing zero bytes.
+
+2016-04-27  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp, nvmeprint.h, smartctl.cpp, smartctl.8.in:
+	Add NVMe support for 'smartctl -c'.  Print various drive and
+	namespace capabilites.  Remove related info from '-i' output.
+
+2016-04-24  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Fix formatting of error log with unset LBA fields.
+
+	utility.cpp, utility.h: Skip leading blanks in format_char_array().
+	Some NVMe devices return right aligned text fields.
+
+	configure.ac, smartd.cpp: Remove include of netdb.h.
+	No longer needed since r3712.
+
+	smartd.cpp, smartd.conf.5.in: Remove support for '-m [sys]msgbox'.
+
+2016-04-23  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Innodisk 3ME SSDs
+	- Innodisk 3IE2/3MG2/3SE2-P SSDs: Rename, add 3SE2-P
+	- Innodisk 3IE3/3ME3 SSDs: Rename, add 3IE3
+	- USB: Buffalo MiniStation HD-PNFU3 (0x0411:0x0251) (ticket #683)
+	- USB: Renesas uPD720231A (0x045b:0x022a)
+	- USB: Toshiba Canvio (0x0480:0x0210, 0x0480:0xa20c)
+	- USB: Samsung G2 Portable (0x04e8:0x6032): 2nd entry with -d sat
+	- USB: Iomega LDHD-UPS (0x059b:0x0278)
+	- USB: Iomega LPHD-UP (0x059b:0x0470)
+	- USB: LaCie Desktop Hard Drive (0x059f:0x1016)
+	- USB: SanDisk SDCZ80 Flash Drive (0x0781:0x5588)
+	- USB: Seagate Backup Plus USB 3.0 (0x0bc2:0xab2[05])
+	- USB: WD My Passport Ultra (0x1058:0x0822)
+	- USB: WD Elements (0x1058:0x25a2)
+	- USB: JMicron JMS561 (0x152d:0x1561)
+	- USB: VIA VL711 (0x2109:0x0711): change to -d sat (ticket #594)
+	- USB: Sharkoon QuickPort XT USB 3.0 (0x357d:0x7788)
+
+2016-04-16  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Allow NVMe debug messages during --scan.
+	Suppress "Device open changed type ..." message unless debug
+	mode is enabled.
+
+	atacmds.cpp: Remove duplicate POWER MODE error message.
+
+	smartd.cpp: Remove dead increment (cppcheck: unreadVariable).
+	Do not write localized decimal point to syslog().
+
+	configure.ac, Makefile.am: Add '--with-update-smart-drivedb=no'
+	option to disable drive database update script.  Useful if
+	maintainers do not want the script due to security concerns
+	and/or want to provide database updates as a separate package
+	(Debian bug 804299, FreeBSD Bugzilla 208398).
+	smartctl.8.in, smartd.8.in: Hide references to script if disabled.
+
+	nvmeprint.cpp: Add Power State and Namespace info to '-i' output.
+	Do not print unset or duplicate info unless debug mode is enabled.
+	nvmecmds.cpp, nvmecmds.h: Add Identify Namespace support.
+
+2016-04-15  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Fix harmless bug in errno check of HPTIO_CTL ioctl()
+	calls.  Bug was introduced 10 years ago in r2237.
+
+2016-04-15  Yuriy M. Kaminskiy  <yumkam@gmail.com>
+
+	os_linux.cpp: Fix harmless bug in errno check of HDIO_DRIVE_TASK*
+	ioctl() calls.  Bug was introduced 12 years ago in r1609, the fix
+	in r4003 was incomplete.
+
+2016-04-14  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Fix size factor of Data Units Read/Written counters.
+	os_win32.cpp: Fix device count in win_nvme_device::open().
+
+	Thanks to Oliver Bruchmann for bug reports and testing.
+
+2016-04-12  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: improve handling when no tape cartridge is
+	in the tape drive.
+
+2016-04-12  Alex Samorukov  <samm@os2.kiev.ua>
+
+	scsiprint.cpp, smartd.cpp: workaround for the buggy ST8000NM0075/E001,
+	request log page list with a fixed length (ticket #678).
+
+2016-04-11  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add Samsung SM863 series, ticket #681
+
+2016-04-10  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Include also unknown and unsupported USB devices
+	in device scan result.  Move USB device handling to new function.
+	Add Windows Server 2016 to get_os_version_str().
+
+	AUTHORS: Add Thomas Gatterweh.
+	smartd.cpp: Check is_powered_down() also with '-n sleep'.
+
+2016-04-10  Thomas Gatterweh  <thomas_gatterweh@hotmail.com>
+
+	Prevent drive spin up by '-n standby' check on Windows (ticket #677):
+	dev_interface.cpp, dev_interface.h:
+	Add smart_device::is_powered_down().
+	os_win32.cpp: Add win_ata_device::is_powered_down().  Open device
+	without READ or WRITE access to prevent spin up.
+	smartctl.cpp, smartd.cpp: Add check for is_powered_down().
+
+2016-04-09  Christian Franke  <franke@computer.org>
+
+	configure.ac, os_win32.cpp, smartd.8.in: Add NVMe DEVICESCAN
+	support for Windows.
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Document NVMe
+	support for Windows.
+
+	nvmecmds.cpp, os_win32.cpp: Use NSID=0 for Identify Controller
+	command.  This fixes NVMe access via Samsung driver on Windows.
+
+2016-04-08  Christian Franke  <franke@computer.org>
+
+	os_win.cpp: Add initial NVMe support for Windows.
+	Successfully tested with Intel driver.
+	Does not work with Samsung driver.
+
+	Thanks to Minkyu Kim for testing.
+
+2016-04-02  Christian Franke  <franke@computer.org>
+
+	Fix memory leak if get_sat_device() is called with unknown 'type':
+	scsiata.cpp: get_sat_device(): Delete 'scsidev' on error.
+	dev_interface.h: Update documentation of get_sat_device().
+	dev_interface.cpp: Fix use of get_sat_device().
+	(All other uses of get_sat_device() are already sane).
+
+	dev_interface.cpp, dev_interface.h: Add counter for objects derived
+	from 'smart_device'.
+	smartctl.cpp, smartd.cpp: Print error message if any objects remain
+	on exit.
+
+	os_linux.cpp: linux_megaraid_device: Remove unused member variable
+	'm_busnum' (clang++: -Wunused-private-field) and the related ctor
+	parameter.
+
+	os_linux.cpp: Fixes suggested by clang analyser:
+	Add or remove inconsistent nullptr checks.
+	Remove dead increments.
+
+2016-04-01  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: add missing commas in peripheral_dt_arr and
+        add number of elements (2**5) so that won't happen again.
+
+2016-03-31  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: 
+	 - add samsung SAMSUNG-MZ7PC series (ticket #679)
+	 - add KINGSTON SKC400S37128G (SSDNow KC400) (ticket #673, patch provided
+	   by the reporter)
+	 - add SanDisk SSD Plus series (ticket #674)
+	 - add XceedIOPS SSD series (ticket #672)
+	 - add Crucial BX200 SSD (ticket #643)
+
+2016-03-30  Christian Franke  <franke@computer.org>
+
+	Add support for multiple '-d TYPE' options for device scanning:
+	dev_interface.cpp, dev_interface.cpp: Add new version of
+	scan_smart_devices() which accepts list of types.
+	smartctl.cpp, smartd.cpp: Allow multiple '-d TYPE' options.
+	Use new scan_smart_devices().
+	smartctl.8.in, smartd.conf.5.in: Document it.
+
+	Makefile.am: Add man page support for --with-nvme-devicescan.
+	smartd.8.in: Document NVMe DEVICESCAN for Linux.
+
+	configure.ac: Use `...` instead of $(...) due to possible parsing
+	problems since r4260.  Remove workaround for related bash bug.
+
+2016-03-28  Christian Franke  <franke@computer.org>
+
+	Add NVMe DEVICESCAN support for Linux:
+	configure.ac: Add --with-nvme-devicescan option.
+	os_linux.cpp: Scan for '/dev/nvme[0-99]' if '-d nvme' is specified
+	or --with-nvme-devicescan is set.
+	smartctl.cpp: Add "NVMe" to --scan info.
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Enable NVMe
+	sections also for FreeBSD.
+
+	configure.ac: Write configuration summary also to config.log.
+
+2016-03-28  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: Add initial FreeBSD NVMe support (ticket #657)
+
+2016-03-27  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Support POWER MODE values introduced in ATA ACS-2
+	(ticket #184, smartctl only).
+
+2016-03-27  Thomas Gatterweh  <thomas_gatterweh@hotmail.com>
+
+	atacmds.cpp, smartd.cpp: Support POWER MODE values introduced
+	in ATA ACS-2 (ticket #184, smartd only).
+
+2016-03-26  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Rearrange code such that no forward declarations
+	are needed.
+
+	os_freebsd.cpp, os_netbsd.cpp, os_openbsd.cpp, os_solaris.cpp,
+	utility.cpp: Remove variable 'bytes'.  Only used for a memory
+	leak check which was removed in r2629 (2008-08-29).
+
+	os_solaris.cpp, utility.cpp, utility.h:
+	Remove CustomStrDup(), use strdup() instead.
+
+	dev_legacy.cpp, utility.cpp, utility.h:
+	Remove FreeNonZero(), use free() instead.
+
+	smartctl.cpp, smartd.cpp, utility.cpp, utility.h:
+	Remove split_report_arg(), use sscanf() instead.
+
+	Add basic NVMe support for smartd (-H -l error -W):
+	Makefile.am, os_win32/vc10/smartd.vcxproj: Add nvmecmds.cpp to smartd.
+	smartd.cpp: Add NVMeDeviceScan() and NVMeCheckDevice().
+	smartd.8.in, smartd.conf.5.in: Document NVMe support.
+
+	nvmeprint.cpp: Remove ary_to_str().
+	utility.cpp, utility.h: Add format_char_array().
+
+2016-03-24  Christian Franke  <franke@computer.org>
+
+	dev_interface.cpp: Add missing 'usbprolific' to help text.
+
+	nvmecmds.cpp, nvmeprint.cpp: Add support for '-q noserial'.
+
+	smartd.cpp: Remove outdated declaration of getdomainname().
+
+	utility.cpp: Add C++ language version to output of -V option.
+
+2016-03-20  Christian Franke  <franke@computer.org>
+
+	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp, nvmeprint.h, smartctl.cpp:
+	Add options '-l error[,NUM]' and '-l nvmelog,PAGE,SIZE' for NVMe
+	devices.
+	scsicmds.cpp: dStrHex(): Don't print trailing spaces.
+	smartctl.8.in: Document '-l error[,NUM]', '-l nvmelog,PAGE,SIZE'
+	and '-r nvmeioctl'.
+
+2016-03-18  Christian Franke  <franke@computer.org>
+
+	Add basic NVMe support for smartctl (-i -H -A) on Linux:
+	Makefile.am: Add new files.
+	dev_interface.cpp, dev_interface.h: Add class nvme_device.
+	linux_nvme_ioctl.h: New file imported from Linux kernel sources
+	(include/uapi/linux/nvme_ioctl.h 9d99a8d 2015-10-09).
+	nvmecmds.cpp, nvmecmds.h: New module with NVMe command wrapper
+	functions for smartctl and smartd.
+	nvmeprint.cpp, nvmeprint.h: New module with nvmePrintMain().
+	smartctl.cpp: Add nvmePrintMain() support.
+	os_linux.cpp: Add class linux_nvme_device.
+	os_win32/vc10/smart*.vcxproj*: Add new files.
+	smartctl.8.in: Document NVMe support.
+
+2016-03-14  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: work on LB provisioning corner cases; LBPRZ now
+	3 bits wide (in response to ticket #664)
+
+2016-03-14  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	 - extend Apple SSD regexp (ticket #668)
+	 - Add OCZ VeloDrive R (ticket #667)
+
+2016-03-12  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Add Phison Driven SSDs:
+	 - Kingston UV300 SSD series (ticket #663)
+	 - Kingston SSDNow KC310/V310
+	 - HyperX Savage
+
+2016-03-11  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Add Kingston UV300 SSD series
+
+2016-03-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Samsung based SSDs: Fix PM863 regexp, attribute IDs and
+	name length (regression from r4227).
+
+2016-03-03  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Adata HD710 1TB USB3 (ticket #662)
+
+2016-02-29  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: PM863 Series (ticket #661)
+
+2016-02-28  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: OWC Aura Pro 480 GB (ticket #660)
+
+2016-02-26  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Use HTTPS for '-u sf' (ticket #659).
+	Improve file modification check.
+	update-smart-drivedb.8.in: Document changed URL.
+
+	os_win32/vc10/smartctl.vcxproj: Workaround for missing support of
+	'__func__' (included in C99 and C++11, but not in C++03).
+
+2016-02-15  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: APPLE SSD TS064E (ticket #655)
+
+2016-02-02  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: output unavailable rather than 255C for Drive
+        Trip temperature; skip background scan lpage for tape drives
+
+2016-02-02  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs: 250GB MX200
+	  (ticket #644), M500 mSATA and M.2
+	- OCZ Trion SSDs: Rename, add Trion 150
+	- Innodisk 3ME3 SSDs: SATADOM-SL 3IE3
+
+2016-01-25  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin: add launchctl script for the smartd and remove depricated one.
+	"On current systems there is only one recommend way: launchd"
+
+2016-01-24  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: fix possible reallocf with 0 bytes arg (ticket #640)
+	drivedb.h: add Corsair Extreme SSD (ticket #642)
+	os_darwin.cpp: fix error reporting if open fails
+
+2016-01-23  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp: do not print bogus memory allocation error message if
+	  there are no devices found
+
+2016-01-22  Christian Franke  <franke@computer.org>
+
+	Various fixes suggested by clang analyser (ticket #640):
+	dev_areca.cpp: Fix check of ARCMSR_READ_RQBUFFER result.
+	knowndrives.cpp: Add missing member initialization.
+	smartd.cpp: Fix crash on missing argument to '-s' directive.
+	Add missing variable initialization.  Remove redundant assignment.
+
+2016-01-21  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: Added ADATA SP550 SSD (ticket #638)
+	os_freebsd.cpp: Reduce variable scope where possible (cppcheck: variableScope)
+	os_openbsd/os_netbsd - removed never used warning code defines (cppcheck)
+
+2016-01-21  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, smartd.cpp: Don't issue SCT commands if ATA Security
+	is locked (ticket #637).
+
+2016-01-19  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	 - Samsung PM871 SSD family (ticket #636)
+	 - Fixed detection for Samsung SSD 850 EVO mSATA 120GB (ticket #635)
+	 - Fixed Western Digital Caviar Black regexp, extended WD Black (ticket #631)
+
+2016-01-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Extra warning entry for buggy Corsair Force LS
+	  (ticket #628)
+	- Innodisk 3MG2-P SSDs: 1.8" variant
+	- Innodisk 3ME3 SSDs
+	- USB: Seagate Expansion Portable (0x0bc2:0x2322) (ticket #627)
+	- USB: Jess-Link (0x0dbf:0x9001)
+
+2016-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year! Update copyright year in version info.
+
+2015-12-19  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Fix path of 'smart-pkg-uninstall' (Regression from r4190).
+
+	update-smart-drivedb.8.in: Fix platform specific formatting.
+
+2015-12-18  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_netbsd.cpp, os_openbsd.cpp: fix ioctl returtn value check
+	os_darwin.cpp: fix error handling
+	os_darwin: use /usr/local/ prefix to install on 10.11 (El Capitan)
+
+2015-12-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: stop tape drive looking for Solid State media
+	log page (ticket #314).
+
+2015-12-14  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: fix compiler warning for is_tape. Clean code around
+	handling of tape drives.
+
+2015-12-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 320 Series SSDs: 1.8" microSATA
+	- Intel 53x and Pro 2500 Series SSDs: Rename, add 535 (ticket #625),
+	  add Pro 2500
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: Rename,
+	  add S3510/3610, 1.2TB, 1.6TB
+	- USB: LaCie (0x059f:0x106f) (ticket #624)
+	- USB: WD My Passport (0x1058:0x071a, 0x1058:0x0816)
+	- USB: Initio (0x13fd:0x1650)
+	- USB: Unknown (0xabcd:0x6103)
+
+	update-smart-drivedb.in: Add '-s SMARTCTL' option.
+	update-smart-drivedb.8.in: Document it.
+
+2015-12-07  Christian Franke  <franke@computer.org>
+
+	configure.ac: Append 'svn' to list of download tools.
+
+	update-smart-drivedb.in: Use HTTPS download by default.
+	Add options '-t TOOL', '-u LOCATION', '--cacert FILE',
+	'--capath DIR', '--insecure' and '--dryrun'.
+	Add 'svn' as new download tool.
+	Ignore differences in SVN Id string (re-added).
+	Remove usage of 'which' command.
+
+	update-smart-drivedb.8.in: Document the new options.
+
+2015-11-23  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: parse_attribute_def(): Init buffers before sscanf() call
+	(cppcheck-1.71: uninitvar).
+
+	scsiprint.cpp: Fix GLTSD bit set/cleared info messages (ticket #621).
+
+2015-11-22  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add NEWS file to svnversion.h target.
+
+	os_win32/installer.nsi: Select 64-bit version on 64-bit Windows.
+	Fix installation of runcmda.exe.  Update links.
+
+2015-11-15  Christian Franke  <franke@computer.org>
+
+	configure.ac: Check whether MinGW adds an application manifest.
+
+	Makefile.am: Add default manifest for MinGW builds.
+
+	os_win32/default.manifest: New default application manifest.
+	Remove external application manifests.
+
+	os_win32/installer.nsi: Use macros from 'LogicLib.nsh' where possible.
+	Add missing MessageBox /SD options.
+	Remove external application manifests.
+
+2015-11-07  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Micron M500DC/M510DC Enterprise SSDs: Rename, add M510DC
+	- SandForce Driven SSDs: Mushkin Chronos 7mm/MX/G2, Enhanced ECO2
+	- Innodisk 3MG2-P SSDs
+	- SiliconMotion based SSDs: Crucial BX100 (ticket #597)
+
+2015-10-31  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp, atacmds.h, knowndrives.cpp, knowndrives.h:
+	Read default SMART attribute settings from drivedb.h (ticket #465).
+	Remove hard-coded attribute names and format settings.
+
+	drivedb.h: Uncomment default settings to create the "DEFAULT" entry.
+	Add ",HDD" or ",SSD" to HDD/SSD specific settings.
+
+	smartctl.cpp, smartd.cpp: Use new database initialization function.
+
+	Create branch RELEASE_6_4_DRIVEDB with last drivedb.h file
+	compatible with smartmontools 6.4.
+
+2015-10-22  Paul Grabinar  <pgrabinar@ocz.com>
+
+	drivedb.h:
+	- SandForce Driven SSDs: OCZ RevoDrive 350, Z-Drive 4500
+	- Indilinx Barefoot 3 based SSDs: Add attributes,
+	  OCZ ARC 100, Saber 1000, Vector 180, Vertex 460A
+	- OCZ Intrepid 3000 SSDs: Intrepid 3700
+	- OCZ Trion
+
+2015-10-20  Christian Franke  <franke@computer.org>
+
+	Reduce variable scope where possible (cppcheck: variableScope).
+
+	Makefile.am: Remove *.s from files used to generate svnversion.h.
+
+2015-10-18  Alex Samorukov <samm@os2.kiev.ua>
+
+	fixes suggested by cppcheck:
+	Check realloc result to avoid memory leak (memleakOnRealloc)
+	Fix printf() signednsess (invalidPrintfArgType_sint)
+
+2015-10-17  Christian Franke  <franke@computer.org>
+
+	Various fixes suggested by cppcheck:
+	Close FILE pointer before reopening it (cppcheck: publicAllocationError).
+	Add missing member initializations to ctors (cppcheck: uninitMemberVar).
+	Remove redundant nullptr check (cppcheck: nullPointerRedundantCheck).
+	Remove redundant assignments (cppcheck: redundantAssignment).
+	Clarify calculation precedence (cppcheck: clarifyCalculation).
+	Use C++-style casts for pointer types (cppcheck: cstyleCast).
+	Remove duplicate on both sides of '||' (cppcheck: duplicateExpression).
+	Declare ctors with one argument as 'explicit'
+	(cppcheck: noExplicitConstructor).
+	Remove unread variables and assignments (cppcheck: unreadVariable).
+	Fix signedness of sscanf() formats strings
+	(cppcheck: invalidScanfArgType_int).
+
+2015-10-14  Christian Franke  <franke@computer.org>
+
+	configure.ac: Disable os_solaris_ata.o by default.
+	Add --with-solaris-sparc-ata option to enable.
+	Makefile.am: Exclude os_solaris_ata.s from source tarball
+	(Debian bug 729842).
+	os_solaris.cpp: Check for WITH_SOLARIS_SPARC_ATA instead of __sparc.
+
+2015-10-13  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Fix error handling in various shell scripts.
+
+2015-10-13  Casper Dik  <...>
+
+	os_solaris.cpp: Detect SATA devices as SCSI devices.  This adds
+	support for auto detection of SATA devices behind SAT layer.
+	Set USCSI_SILENT flag to suppress /dev/console messages on command
+	error.
+
+2015-10-11  Christian Franke  <franke@computer.org>
+
+	drivedb.h: SiliconMotion based SSDs: Transcend SSD370S, SSD420,
+	update attribute 245 (ticket #595, ticket #602).
+
+2015-10-10  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Use MKDIR_P to create directories
+	(available since automake 1.10).
+
+	os_win32.cpp: Detect USB ID if WMI reports type name "SCSI" instead
+	of "USBSTOR".
+	Detect USB ID also if drive letter is specified as device name.
+
+2015-10-04  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Genesys Logic (0x05e3:0x0735)
+	- USB: Addonics (0x0bf6:0x1001): unsupported (ticket #609)
+	- USB: Initio (0x13fd:0x3920)
+	- USB: JMicron JMS539 (0x152d:0x0539, 0x0100): Set from -d usbjmicron to
+	  unsupported because some devices may require -d sat instead (ticket #552).
+	- USB: JMicron (0x152d:0x0565) (ticket #607)
+	- USB: VIA VL711 (0x2109:0x0711): unsupported (ticket #594)
+	- USB: Hitachi Touro Mobile (0x4971:0x1024)
+
+2015-09-25  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Ignore SAT ATA PASS-THROUGH fixed format sense data if no
+	ATA status bit is set (ticket #612).
+
+2015-09-23 Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: Innostor USB3.0 to SATAIII bridge (#611)
+
+2015-09-21 Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: decode 188 attribute for the "Seagate Enterprise Capacity
+	3.5 HDD" drives family, (see #551).
+
+2015-09-04 Alex Samorukov <samm@os2.kiev.ua>
+
+	Makefile.am: integrate darwin dmg build process to the Makefile
+
+2015-09-03 Alex Samorukov <samm@os2.kiev.ua>
+
+	os_darwin: Initial import of the files required to build
+	OSX/smartmontools native package (see #555).
+
+2015-08-27  Alex Samorukov <samm@os2.kiev.ua>
+
+	Homepage URL updated from the sourceforge to smartmontools.org (r4120)
+
+2015-08-26  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_darwin.cpp: Implement get_os_version_str() for the darwin.
+
+2015-08-17  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Ignore bogus SCSI sense_key if ATA status in
+	SAT ATA Return Descriptor indicates success (ticket #548).
+
+2015-08-08  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Fix get_os_version_str() for Windows >= 8.1.
+	Add Windows 10 Final.
+
+2015-08-02  Christian Franke  <franke@computer.org>
+
+	configure.ac: Remove '--disable-drivedb',
+	'--enable-savestates', '--enable-attributelog'.
+	Print error message if used.
+
+2015-07-15  Christian Franke  <franke@computer.org>
+
+	autogen.sh: Drop support for automake 1.7 - 1.9.x.
+	Rework search for automake-VERSION.
+	configure.ac: Drop support for autoconf 2.5x.
+	Drop support for automake 1.7 - 1.9.x.
+	Remove --with-docdir option.
+
+2015-06-24  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- USB: SimpleTech 3.0 bridge (0x4971:0x8017), reported in #554
+
+2015-06-04  Christian Franke  <franke@computer.org>
+
+	smartmontools 6.4
+
+2015-06-03  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- InnoDisk iCF 9000 CompactFlash Cards
+	- SanDisk based SSDs: ReadyCache SSD
+	- Seagate Barracuda 7200.14 (AF): Apple OEM
+	- USB: Toshiba Canvio Basics (0x0480:0xa200)
+
+	ataprint.cpp: Read General Purpose Log Directory only if GPL
+	feature set is supported.  Improve support check of old logs
+	for older drives which return empty SMART Log Directory.
+
+2015-06-01  Christian Franke  <franke@computer.org>
+
+	Makefile.am, smartd.8.in: Hide initscript documentation if
+	initscriptdir is not configured.
+	smartd.conf.5.in: Remove outdated info about default shell.
+
+2015-05-30  Christian Franke  <franke@computer.org>
+
+	Fixes for aacraid patch:
+	aacraid.h: Fix _WIN32/_WIN64 checks.
+	os_win32.cpp: Clarify copyright info in GPL header.
+	Improve source code formatting.
+	Fix build on Cygwin.  Fix HKEY leak.
+	Fix member initialization order.
+	Fix info_name and dev_type parameter order.
+	Improve error handling.  Avoid unsafe sprintf().
+	Remove unused variables.  Add help text.
+	Use 0 as number of first aacraid controller as on Linux.
+
+	smartctl.8.in, smartd.conf.5.in: Update '-d aacraid' documentation.
+	AUTHORS: Add Nidhi Malhotra.
+
+2015-05-30  Nidhi Malhotra  <nidhi.malhotra@pmcs.com>
+
+	aacraid.h, os_win32.cpp:
+	Add aacraid support for Windows (ticket #496).
+
+2015-05-27  Christian Franke  <franke@computer.org>
+
+	INSTALL: Update ./configure description.
+	Remove info about old Linux kernel series.
+	Update Windows info.
+
+2015-05-19  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print the Additional Product Identifier (OEM Id)
+	regardless of '-q noserial' option.
+
+	smartctl.8.in, smartd.conf.5.in: Clarify '-H' option and directive.
+
+2015-05-17  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: ViPowER USB3.0 Storage (0x0350:0x0038)
+	- USB: Buffalo DriveStation HD-LBU2 (0x0411:0x01ea)
+	- USB: Toshiba Stor.E Basics; (0x0480:0xa00e)
+	- USB: Toshiba Canvio Desktop (0x0480:0xd011)
+	- USB: Samsung M3 Portable USB 3.0 (0x04e8:0x61b3)
+	- USB: Iomega (0x059b:0x0575)
+	- USB: Genesys Logic GL3310 (0x05e3:0x0731)
+	- USB: Freecom HD (0x07ab:0xfcd6)
+	- USB: Apricorn SATA Wire (0x0984:0x0040)
+	- USB: WD My Passport (0x1058:0x0830)
+	- USB: WD My Book: Merge entries, add 0x1058:0x0900, 0x1058:0x1104
+	- USB: Initio (0x13fd:0x3940)
+	- USB: Super Top (0x14cd:0x6116): change to -d sat
+	- USB: JMicron (0x152d:0x2590) (ticket #550)
+	- USB: ASMedia ASM1053/1153 (0x174c:0x1[01]53)
+	- USB: Verbatim Pocket Hard Drive (0x18a5:0x0237)
+	- USB: Verbatim External Hard Drive (0x18a5:0x0400)
+	- USB: VIA VL701 (0x2109:0x0701)
+	- USB: Unknown (0x2537:0x106[68])
+	- USB: Hitachi Touro Mobile (0x4971:0x1020)
+
+2015-05-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Samsung SpinPoint T166: 250GB
+	- Seagate Samsung SpinPoint M8 (AF): Rename, add Apple OEM
+	- Seagate Samsung SpinPoint M9T
+	- Seagate Samsung SpinPoint M9TU (USB)
+	- Hitachi/HGST Travelstar Z5K320
+	- HGST Travelstar Z5K1000
+	- HGST Deskstar NAS: 128MB cache variants
+	- HGST Ultrastar He6
+	- Toshiba 2.5" HDD MK..51GSY
+	- Toshiba 2.5" HDD MK..61GSY[N]: -v 9,minutes
+	- Toshiba 2.5" HDD MK..61GSYB
+	- Toshiba 2.5" HDD MK..75GSX
+	- Toshiba 2.5" HDD MQ01ABB...
+	- Toshiba 2.5" HDD MQ01ABC...
+	- Toshiba 2.5" HDD MQ01ABF...
+	- Toshiba 2.5" HDD MQ01UBB... (USB 3.0)
+	- Toshiba 3.5" MD04ACA... Enterprise HDD
+	- Toshiba 3.5" DT01ABA... Desktop HDD
+	- Seagate Laptop Thin HDD: 7200 rpm variants
+	- Seagate Constellation ES.2 (SATA 6Gb/s): HP OEM
+	- Seagate Constellation.2 (SATA): HP OEM
+	- Seagate Enterprise Capacity 3.5 HDD
+	- Seagate Archive HDD
+	- Western Digital AV-GP (AF): 500MB, EURX variants
+	- Western Digital Red Pro
+	- Western Digital Purple
+
+2015-05-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs:
+	  MX200 *00 sizes (ticket #545)
+	- Samsung based SSDs: PM851, SM841N, 850 EVO
+	- Marvell based SanDisk SSDs: Extreme Pro, Ultra II (ticket #544)
+	- Marvell based SanDisk SSDs: X110 mSATA, X300
+	- SanDisk based SSDs: pSSD (USB), U110
+	- USB: Samsung D3 Station 4TB (0x04e8:0x6125) (ticket #549)
+	- USB: Seagate Backup Plus USB 3.0 (0x0bc2:0xa003)
+	- USB: Seagate Backup Plus Desktop USB 3.0 5TB (0x0bc2:0xab31)
+	- USB: JMicron (0x152d:0x3569) (ticket #546)
+
+2015-05-10  Christian Franke  <franke@computer.org>
+
+	scsicmds.cpp, scsicmds.h: Remove unused functions
+	scsiReceiveDiagnostic() and scsiSmartIBMOfflineTest().
+	Found by cppcheck.
+
+2015-05-05  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print ACS-3 device statistics DSN flags.
+	Print device statistics page numbers in hex.
+	smartctl.cpp: Allow hex argument for '-l devstat,PAGE'.
+
+2015-05-02  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print Transport Type for PATA and PCIe.
+	Print diagnostic values if SATA version or speed is unknown.
+	smartctl.8.in, smartd.8.in: Add Volker Kuhlmann to AUTHORS section.
+
+2015-05-01  Christian Franke  <franke@computer.org>
+
+	ataidentify.cpp: ACS-3/4 updates.
+	ataprint.cpp: Add recent ACS-3/4 minor revisions.
+	Add ACS-4 log 0x0f.  Add ACS-4 device statistics values and
+	vendor specific statistics page.
+
+2015-04-28  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Fix possible loss of user PATH environment
+	variable with length greater than NSIS max string length.
+
+2015-04-26  Christian Franke  <franke@computer.org>
+
+	do_release: New Signing Key.
+	Makefile.am: Use make variables instead of autoconf variables
+	if possible.
+
+2015-04-24  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in: Rework AUTHORS section.
+	INSTALL, Makefile.am, os_win32/installer.nsi:
+	Remove WARNINGS file.
+	WARNINGS: Remove this file.
+
+2015-04-23  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add '--with-systemdenvfile=auto' option as new default.
+	Remove no longer needed ENABLE_CAPABILITIES conditional.
+	Makefile.am: Silence build of smartd.service file.
+	Integrate all ENABLE_* conditionals in MAN_FILTER script.
+
+2015-04-21  Christian Franke  <franke@computer.org>
+
+	configure.ac: Print 'deprecated' warning for '--disable-drivedb',
+	'--enable-savestates', '--enable-attributelog' options.
+	Add 'yes|no' support to corresponding '--with-...' options.
+
+2015-04-19  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Remove smartmontools-support list address.
+	Remove defunct mail addresses.  Update smartsuite info.
+	Add recent contributors.
+	README: Refer to AUTHORS.
+
+2015-04-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add SAT autodetection based on vendor string from
+	IOCTL_STORAGE_QUERY_PROPERTY.
+	smartd.cpp: If SMART ENABLE command failed, continue if SMART is
+	already enabled.
+
+2015-04-17  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Detect SAT layer of certain Intel AHCI drivers.
+
+2015-04-15  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, update-smart-drivedb.8.in:
+	Add REPORTING BUGS section.
+	smartctl.8.in, smartd.8.in:
+	Rename RETURN VALUE section to EXIT STATUS.
+	smartd.8.in: Remove no longer used exit status 9.
+
+2015-04-14  Christian Franke  <franke@computer.org>
+
+	autogen.sh: automake 1.15 works.
+	Print 'deprecated' warning if automake < 1.10 is used.
+
+2015-04-08  Christian Franke  <franke@computer.org>
+
+	configure.ac: Print 'deprecated' warning if autoconf 2.5x or
+	--with-docdir option is used.
+	Add comments to fix vim syntax coloring.
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in:
+	Remove EXPERIMENTAL notes for features added before 6.3.
+
+2015-03-29  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Read only required log pages of Extended Comprehensive
+	Error log.  This adds support for logs with many pages (ticket #498).
+	atacmds.cpp, atacmds.h, smartd.cpp: Add 'page' parameter to function
+	ataReadExtErrorLog().
+
+2015-03-22  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp, smartctl.8.in, smartd.8.in, smartd.conf, smartd.conf.5.in,
+	smartd.cpp: Remove old Linux IDE device names (/dev/hdX) in man pages
+	and help texts.
+
+2015-03-21  Christian Franke  <franke@computer.org>
+
+	smartd.8.in, smartd.cpp: Clarify smartd '--capabilities' option
+	(ticket #523).
+
+2015-03-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron MX100/MX200/M5x0/M600 Client SSDs: Rename, add MX200
+	- Sandforce Driven SSDs: ATP Velocity MIV, Mushkin Chronos Enhanced
+	- Indilinx Barefoot 3 based SSDs: OCZ VERTEX 460, OCZ AMD Radeon R7
+	- Intel 530 Series SSDs: mSATA variant
+	- JMicron based SSDs: ADATA SP310
+	- Plextor M3/M5/M6 Series SSDs: Rename, add M6M, M6S
+
+2015-03-13  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiata.cpp
+	- SCSI to ATA translation: from SAT-2 and later a SAT layer may
+	  return ATA registers via fixed format sense data. Change to
+	  additionally accept (partial) fixed format sense. In response
+	  to ticket #296 and FreeBSD Bug 191717.
+
+2015-03-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.cpp, scsiprint.cpp
+	- SCSI: when READ DEFECT yields sense of "... defect list not found"
+	  bypass the corresponding report quietly. (ticket #343)
+
+2015-02-08  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Buffalo Drivestation Duo (0x0411:0x01ce)
+	- USB: Toshiba Canvio Basics (0x0480:0x0201, 0xa00d)
+	- USB: Toshiba Stor.E Basics (0x0480:0xa00c)
+	- USB: Toshiba Canvio ALU (0x0480:0xa100)
+	- USB: Toshiba Canvio Desktop (0x0480:0xd000)
+	- USB: Samsung S2 Portable (0x04e8:0x1f0a)
+	- USB: Samsung S3 Portable (0x04e8:0x61c8)
+	- USB: LaCie Rugged Triple Interface (0x059f:0x100c)
+	- USB: Initio (0x13fd:0x3910)
+	- USB: ASMedia (0x174c:0x5516)
+	- USB: Innostor IS611 (0x1f75:0x0611)
+
+2015-02-02  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Seagate FreeAgent XTreme (0x0bc2:0x3101)
+	- USB: Seagate Expansion Portable (0x0bc2:0x232[01])
+	- USB: Seagate Expansion External (0x0bc2:0x3321)
+	- USB: Seagate FreeAgent GoFlex (0x0bc2:0x5070, 0x50a7, 0x6121)
+	- USB: Seagate Slim Portable Drive (0x0bc2:0xab00) (ticket #517)
+	- USB: Seagate Backup Plus Slim (0x0bc2:0xab21)
+	- USB: ADATA HD650 (0x125f:0xa35a)
+	- USB: JMicron JMS567 (0x152d:0x3562) (ticket #508)
+	- USB: Innostor IS621 (0x1f75:0x0621) (ticket #517)
+
+2015-01-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- JMicron based SSDs: Transcend SSD340 (ticket #348)
+	- SiliconMotion based SSDs: Transcend SSD370 (ticket #468)
+
+2015-01-24  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add Windows 10 to get_os_version_str().
+
+2015-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year! Update copyright year in version info.
+
+2014-12-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: SanDisk SDCZ80 Flash Drive (0x0781:0x5580)
+	- USB: WD My Passport: Merge entries, add 0x1058:0x0810
+	- USB: WD Elements Desktop: Merge entries, add 0x1058:0x107c
+	- USB: WD Elements: Merge entries
+	- USB: JMicron JMS539 (0x152d:0x0539): 2.06 and 28.03 support SAT
+	  (ticket #504)
+	- USB: JMicron JMS567 (0x152d:0x0567) (ticket #504)
+	- USB: JMicron JMS566 (0x152d:0x2566)
+	- USB: Hitachi Touro (0x4971:0x1014)
+
+2014-12-13  Christian Franke  <franke@computer.org>
+
+	utility.cpp, utility.h: Remove unused functions Calloc() and
+	CheckFree().
+
+2014-12-10  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital Blue: Rename, *AZLX variant
+	- Western Digital RE4: *FBYZ variant
+	- Western Digital Green: Rename, add 5TB, 6TB
+	- Western Digital AV: Rename, add 1TB, *BUCT variant
+	- Western Digital Red: Rename, add 750GB, 5TB, 6TB
+	- Western Digital Black Mobile
+
+2014-12-08  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Hitachi Travelstar 5K500.B: *SA00 variant
+	- Hitachi/HGST Travelstar Z5K500: Hitachi variant, Apple OEM
+	- HGST Travelstar 5K1000
+	- HGST Travelstar 5K1500
+	- Hitachi Travelstar 7K500: *A360 variant
+	- Hitachi CinemaStar 5K320
+	- Hitachi Deskstar 7K1000.C: SATA 6Gb/s variants
+	- HGST Deskstar NAS
+	- Hitachi/HGST Ultrastar 7K4000: Rename, add HGST
+	- HGST MegaScale 4000
+
+2014-12-07  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Fix fd leak in megasas_dcmd_cmd().  Found by cppcheck.
+
+2014-12-07  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron MX100/M500/M510/M550/M600 Client SSDs: M600 EE variant
+	- SandForce Driven SSDs: Kingston KC300 180GB
+	- Indilinx Barefoot 3 based SSDs: OCZ Vector 150
+	- JMicron based SSDs: Kingston SSDNow V+
+	- Plextor M3/M5 (Pro) Series SSDs: M5P
+	- Samsung based SSDs: 850 PRO, SM853T Series
+
+2014-12-06  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add quotes to parameters of INSTALL commands to allow path
+	names with spaces (this is supported since automake 1.8).
+	update-smart-drivedb.in: Add quotes to SMARTCTL variable (ticket #502).
+
+2014-11-30  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD m4/C400/P400: C400 *MAM variant
+	- Crucial/Micron MX100/M500/M510/M550/M600 Client SSDs: Rename,
+	add Crucial M500/M550, Micron M600
+	- SandForce Driven SSDs: ADATA SX900 (ticket #490), Mushkin Atlas
+	- Intel 311/313 Series SSDs: Rename, add 311 Series
+
+2014-11-30  Christian Franke  <franke@computer.org>
+
+	drivedb.h: USB: Prolific PL2571, PL2771, PL2775 (0x067b:0x2.7.)
+	(ticket #499).
+	smartctl.8.in, smartd.conf.5.in: Update '-d usbprolific' documentation.
+
+2014-11-29  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
+	Add package title to page header.  Move PACKAGE VERSION section to bottom
+	of page.  Remove SVN ID section header.
+
+2014-11-29  Tommy Vestermark  <tommy.vestermark@gmail.com>
+
+	scsiata.cpp: Add DATA OUT support for Prolific (ticket #482).
+	Add more ATA output registers.  SCT commands are now supported.
+
+2014-11-29  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add strnicmp() compatibility macro for newer Cygwin
+	releases.
+
+2014-11-16  Tommy Vestermark  <tommy.vestermark@gmail.com>
+
+	drivedb.h: USB: Prolific PL2773 (0x067b:0x2773) (ticket #482).
+
+2014-11-16  Christian Franke  <franke@computer.org>
+
+	Create branches RELEASE_6_[1-3]_DRIVEDB with last drivedb.h file
+	compatible with smartmontools 6.[1-3].
+
+2014-11-10  Tommy Vestermark  <tommy.vestermark@gmail.com>
+
+	scsiata.cpp: Add class usbprolific_device to support Prolific PL2773
+	USB bridges (ticket #482).
+	smartctl.8.in, smartd.conf.5.in: Document '-d usbprolific'.
+
+2014-11-09  Roger Willcocks  <roger@filmlight.ltd.uk>
+
+	os_linux.cpp: linux_aacraid_device: Fix ioctl data count
+	if dxfer_len == 0.  Return scsi sense data.  Together these
+	allow the SMART STATUS command to operate correctly.
+	Improve SRB status checks.
+	linux_ata_device: Fix very old bug in the error handling
+	of HDIO_DRIVE_TASKFILE.
+
+2014-10-07  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Added more attributes for SanDisk based SSDs based on SSD
+	Dashboard tool data (#463)
+
+2014-10-06  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add form factors from ACS-4.
+	Add ACS-2 and ACS-3 minor versions.
+	Update SATA log names.  Add SATA 3.2.
+	Avoid crash on device statistics page 0xff if SMART READ LOG is used.
+	Print vendor specific bytes from SCT Status.
+	atacmds.cpp, atacmds.h, ataprint.cpp: Print SMART STATUS info
+	from SCT Status.
+
+2014-10-06  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Exteneded regexp for SanDisk X300s (#463)
+
+2014-09-29  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Added Seagate Backup Plus Slim Portable USB 3.0 drive
+
+2014-08-29  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Fix regex syntax error (regression from r3988).
+
+2014-08-22  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- fixed SanDisk X210 regular expression
+
+2014-08-21  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- added SanDisk X300s SSD
+	- extended Apacer SSD support based on APSDM004G13AN-AT user report
+
+2014-08-16  Alex Samorukov  <samm@os2.kiev.ua>
+
+	ataprint.cpp: '-l devstat' - workaround for buggy firmware by provided
+	Christian Franke
+
+2014-08-15  Alex Samorukov  <samm@os2.kiev.ua>
+
+	ataprint.cpp: device statistic - use smart log if GP log is not available
+
+2014-08-15  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp:
+	- Migrated to the new interface
+	- Added multisector support
+	- Fixed smart autosave processing
+
+2014-07-26  Christian Franke  <franke@computer.org>
+
+	smartmontools 6.3
+
+2014-07-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apple SD/SM/TS...E/F SSDs: Rename, add TS*[EF]
+	- JMicron based SSDs: Fix regex for Apple TS*C
+	- Marvell based SanDisk SSDs: X210
+
+2014-07-25  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: Apple SM* SSD - add attribute 173 description (guessed)
+
+2014-07-23  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print SCT Status regardless of SCT Data Table support.
+	atacmds.cpp: ataReadSCTTempHist(): Do not reread initial SCT Status.
+	configure.ac: Fix typo in help text.  Add MinGW comment.
+
+2014-07-22  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apple SD/SM...E/F SSDs (ticket #342)
+	- Apple SSD SM128, Asus-Phison SSD: Remove (missing attribute info)
+
+2014-07-20  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Rework heuristics for 'tempminmax' format.
+	Now supports negative values (ticket #291) and WDC over temperature
+	counter.
+	Change default for Head_Flying_Hours to 'raw24(raw8)'.  This provides
+	more reasonable output for Seagate HDDs missing in drivedb.h.
+	drivedb.h: Comment new default for Head_Flying_Hours.
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in:
+	Fix usage of line breaks and empty lines.
+
+2014-07-19  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
+	Add FILES section.  Move FULL PATH info to FILES section.
+	Rename REFERENCES section.  Move HOME PAGE info to REFERENCES section.
+	Remove AUTHORS section from smartd.conf man page.
+	Update or remove various outdated info.
+
+2014-07-18  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use 'email' instead of 'mail' on Cygwin.
+	Remove outdated '-mno-cygwin' error check.
+	Makefile.am, smartd.conf.5.in: Replace 'mail' by actual platform
+	specific mailer.
+	examplescripts/README, examplescripts/Example[123]: Remove bashisms.
+	Use '/usr/bin/mail' instead of '/bin/mail'.
+	os_win32/daemon_win32.cpp: Support older MinGW headers with missing
+	struct SERVICE_DELAYED_AUTO_START_INFO.
+
+2014-07-17  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron MX100/M500/M510/M550 Client SSDs: Rename, add MX100,
+	  update MX510/550
+	- Indilinx Barefoot based SSDs: OCZ Vertex 1.10
+	- Intel 320 Series SSDs: 'L' variant
+	- JMicron based SSDs: Transcend *18M-M variant
+	- Plextor M3/M5 (Pro) Series SSDs: M5M (mSATA) variant
+	- Samsung based SSDs: 840 EVO
+
+2014-07-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Marvell based SanDisk SSDs: Extreme II (ticket #334), others
+	- SanDisk based SSDs: iSSD P4 (ticket #272), U100 (ticket #337), others
+	- USB: Iomega (0x059b:0x047a)
+	- USB: WD My Passport: Merge entries
+	- USB: WD My Passport USB 3.0 (0x1058:0x074a, 0x1058:0x0820)
+	- USB: ADATA (0x125f:0xa[13]1a)
+	- USB: JMicron JMS539 (0x152d:0x0539): New FW supports SAT (ticket #338)
+	- USB: TrekStor Datastation (0x1e68:0x0050) (Red Hat Bugzilla 954162)
+
+2014-07-13  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Add missing const and initialization.
+	Don't print extra '\n' if self-test log is empty.
+	ataprint.cpp: Add new ACS-4 log.
+	cciss.cpp: Fix C++11 builds on Linux.  GCC and CLang do not
+	predefine 'linux' when in '-std=c++11' mode.
+	smartd.cpp: Update description of Windows smartd service.
+	README: Update license info.  Remove outdated ATA references.
+
+2014-07-10  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Rework build of Solaris specific man pages.
+	This fixes some bogus and some missing replacements.
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Minor typo and syntax
+	fixes.
+
+2014-07-09  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Avoid '.SH' macros with no
+	argument.  Remove colons from section names.
+	Merge sections CONTRIBUTORS and CREDITS with AUTHORS.
+	Update SEE ALSO sections.
+
+2014-07-05  Christian Franke  <franke@computer.org>
+
+	configure.ac: Remove snprintf() compile time test.
+	Add '--with-working-snprintf' configure option.
+	Add __USE_MINGW_ANSI_STDIO test for MinGW GCC.
+	utility.cpp: Add snprintf() runtime test.
+	Add GCC version to output of -V option.
+	Makefile.am: Add update-smart-drivedb.1m for Solaris.
+
+2014-06-30  Christian Franke  <franke@computer.org>
+
+	configure.ac: Update macros as suggested by 'autoconf --warnings=obsolete'.
+	Makefile.am: Add creation of empty directories to install targets.
+
+2014-06-29  Christian Franke  <franke@computer.org>
+
+	configure.ac, Makefile.am, smartd.cpp, smartd_warning.sh.in:
+	Add '--with-smartdscriptdir' configure option to change location of
+	smartd_warning.sh (Debian bug 710815).
+	Add '--with-smartdplugindir' configure option to change (or disable)
+	smartd_warning.sh plugin location.
+	smartd.conf.5.in: Optionally hide the plugin documentation.
+
+2014-06-27  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add update-smart-drivedb.8 target.
+	update-smart-drivedb.8.in: Add copyright and version info.
+	Adjust path names for make target.
+	Add FreeBSD/OpenBSD specific info.
+
+2014-06-27  Hannes von Haugwitz  <hannes@vonhaugwitz.com>
+
+	update-smart-drivedb.8.in: New man page (Debian bug 708433).
+
+2014-06-27  Christian Franke  <franke@computer.org>
+
+	configure.ac: Suppress pkg-config warnings about missing 'systemd.pc'.
+	Makefile.am: Silence build of man pages and svnversion.h.
+	This makes '--enable-silent-rules' or 'make V=0' more effective
+	(available since automake 1.13).
+
+2014-06-27  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300/M500: New attributes (ticket #326)
+	- SandForce Driven SSDs: ADATA XM11, Corsair Force LS, OWC Aura Pro 6G
+	  OWC Mercury Electra Pro 3G, PNY Prevail Elite, Transcend SSD320/720
+
+2014-06-25  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Fix calculation of SCSI resid.
+
+2014-06-23  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: usbjmicron_device: Fix SMART Status check for USB bridges
+	which always return 0x01.  Add JMicron specific error messages.
+
+2014-06-22  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp, ataprint.cpp: Improve messages for unsupported SMART Status
+	command.
+	ataprint.cpp: Print form factor.
+
+2014-06-21  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron M500/M510/M550 Client SSDs
+	- Micron M500DC Enterprise SSDs
+	Based on patch provided by Clayton Hawkings from Micron.
+
+2014-06-20  Christian Franke  <franke@computer.org>
+
+	autogen.sh: automake 1.14.1 works.
+
+2014-06-20  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: usbjmicron_device: Check SCSI resid for SMART STATUS.
+	Some (Prolific) USB bridges do not transfer a status byte.
+	os_win32.cpp: Include SCSI resid in debug output.
+
+2014-06-19  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp:
+	- minor comment clean-up
+
+2014-06-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 730 and DC S3500/S3700 Series SSDs: rename, add 730 and S3700.
+	Remove extra S3700 entry.  Based on patch provided by Tim Small.
+
+2014-06-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Fix CSMI support for older Intel RST drivers which set
+	bPortIdentifier=0xff (regression from r3888).
+	os_win32/installer.nsi: Create standard InstallLocation registry entry.
+	Keep old Install_Dir entry if needed for GSmartControl.
+	Update links in registry and shortcuts.
+
+2014-06-18  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Buffalo MiniStationHD-PCFU3 (0x0411:0x0240)
+	- USB: Toshiba Stor.E Plus (0x0480:0xa00a) (Debian bug 734395)
+	- USB: Samsung D3 Station (0x04e8:0x6124) (ticket #332)
+	- USB: Samsung M3 Portable (0x04e8:0x61b[45])
+	- USB: Seagate Expansion Portable (0x0bc2:0x2312)
+	- USB: Seagate Expansion External (0x0bc2:0x3312) (ticket #320)
+	- USB: WD Elements (0x1058:0x10[ab]8) (ticket #331)
+	- USB: ASMedia AS2105 (0x174c:0x5136)
+
+2014-06-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Laptop Thin HDD
+	- Seagate Barracuda 7200.14 (AF): *DM000 variant
+	- Seagate Barracuda Green (AF): no warnings for newer firmware versions
+	- Seagate Constellation.2 (SATA)
+	- Seagate NAS HDD
+	- Seagate Video 3.5 HDD
+
+2014-06-15  Christian Franke  <franke@computer.org>
+
+	drivedb.h, smartctl.8.in, smartd.8.in, INSTALL, NEWS, TODO, WARNINGS:
+	Fix old Trac links.
+
+2014-05-23 Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: fixed #321 (compiler warning on 32 bit architectures),
+	patch provided by tijl
+
+2014-05-01  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Clarify copyright info in GPL header.
+	smartctl.8.in, smartd.conf.5.in: Update '-d aacraid' info.
+
+2014-04-30  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp:
+	- Lowest aligned LBA > 0 not common so only output in that case
+
+2014-04-28  Christian Franke  <franke@computer.org>
+
+	autogen.sh: Allow automake 1.14, suppress 'subdir-objects' warning.
+	Makefile.am: Add new 'compile' script to target 'maintainer-clean'.
+
+2014-04-28  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.h, scsicmds.cpp, scsiprint.h:
+	- improve handling of modern SCSI disks (SAS SSDs)
+	  show compliance (SCSI version), show 12 Gbps SAS-3
+	  speed, and flag ZBC presence
+
+2014-04-27  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Toshiba 3.5" MG03ACAxxx(Y) Enterprise HDD
+
+2014-04-27  Christian Franke  <franke@computer.org>
+
+	Fixes for aacraid patch:
+	aacraid.h: Fix typo which breaks 32-bit build.
+	os_linux.cpp:  Remove useless member variable afd.
+	Fix error handling of /proc/devices parsing.
+	Avoid unsafe sprintf().  Fix help text.
+
+2014-04-27  Raghava Aditya  <raghava.aditya@pmcs.com>
+
+	os_linux.cpp:
+	- Added support for aacraid drivers
+	- Created a new interface for aacraid
+	         smartctl -d aacraid,H,L,ID /dev/sdx
+
+2014-04-18  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.cpp:
+	- supported_vpd_pages(): lower response length to stop sense data
+          noise on old disks (pre SPC-3)
+
+2014-04-17  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital RE4 (SATA 6Gb/s): WD2000FYYX
+	- Western Digital Se
+	- Western Digital Caviar Green (AF, SATA 6Gb/s): 4TB
+	- Western Digital Black: Rename, add 3TB, AF, remove extra AF entry
+	- Western Digital Red: 4TB (ticket #322)
+	- Western Digital Blue Mobile
+
+2014-04-10  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Rework CSMI port scanning.
+	Use bPortIdentifier instead of Phy array index for addressing.
+	Ignore possibly bogus bNumberOfPhys (ticket #325).
+
+2014-04-09  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp:
+	- add guard to scsiPrintSasPhy() invocation; resolve ticket #204
+
+2014-04-06  Christian Franke  <franke@computer.org>
+
+	WARNINGS: Remove all entries.  Add link to Warnings page in Wiki.
+
+2014-03-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300/M500: *SSD1 variant
+	- SandForce Driven SSDs: ADATA SP300, ADATA SP800, ADATA SP900 DL2,
+	Corsair Force SSD, Kingston SE50S3, Kingston SKC380S3,
+	Smart Storage XceedIOPS2, VisionTek GoDrive
+	- Indilinx Barefoot 3 based SSDs: OCZ VERTEX 450
+	- JMicron based SSDs: ADATA SP600
+	- Plextor M3/M5 (Pro) Series SSDs: Rename, add M5S (ticket #297), M5Pro
+
+2014-03-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- OCZ Intrepid 3000 SSDs
+	- Intel 320 Series SSDs: 'D' variant (ticket #315)
+	- Intel DC S3500 Series SSDs: 'T' variant (ticket #315)
+
+2014-03-05  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Check SCT Feature Control support bit for '-g/-s wcreorder'.
+	This prevents bogus error messages if SCT support excludes SCT Feature
+	Control command.
+	atacmds.cpp: Fix error message text for SCT Feature Control command.
+
+2014-03-03  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in, smartd.conf.5.in: Remove bashisms from
+	shell script examples.
+
+2014-03-03  Christian Franke  <franke@computer.org>
+
+	Makefile.am, os_win32/smart*_res.rc.in: Set Copyright year in
+	Windows VERSIONINFO resource.
+
+2014-03-03  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Fix glob(3) max path count (ticket #317).
+
+2014-03-03  Christian Franke  <franke@computer.org>
+
+	configure.ac, Makefile.am: Add '--with-systemdenvfile=[FILE|no]'
+	configure option to change or remove (ticket #316) the systemd
+	EnvironmentFile setting.
+	smartd.service.in: Add a reference to documentation (ticket #316).
+
+2014-02-18  Alex Samorukov  <samm@os2.kiev.ua>
+	os_freebsd.cpp: use %lu for iop->resp_sense_len
+
+2014-02-16  Alex Samorukov  <samm@os2.kiev.ua>
+	os_freebsd.cpp: mass updates, provided by Tijl Coosemans
+	- Remove some unused private fields from some classes (found by Clang)
+	- In freebsd_scsi_device::scsi_pass_through:
+	* Make sure this function returns false on error instead of an error
+	  code that gets converted to true.
+	* Put printing of the "Incoming data" debug info right after the
+	  cam_send_ccb() call and before the error checking to make debugging 
+	  easier.
+	* When copying sense data make sure the fields in the CCB are actually
+	  valid with CAM_AUTOSNS_VALID.  Also make sure that the size of the 
+	  sense data doesn't overflow max_sense_len.  This was the real cause for
+	  the crash in ports/181836.
+	* Add some debug printing on the sense data.
+
+2014-02-03  Christian Franke  <franke@computer.org>
+
+	dev_areca.cpp: Check cmds index before use (ticket #312).
+	Make cmds array static const.
+
+2014-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year! Update copyright year in version info.
+
+2013-12-21  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 525 Series SSDs
+	- Intel 530 Series SSDs (ticket #308)
+
+2013-12-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Samsung Spinpoint F4
+	- Seagate Desktop SSHD
+	- Seagate Constellation CS
+	- Western Digital Red: *JFCX variant
+	- Western Digital Green Mobile
+	- Western Digital Elements / My Passport (USB): rename
+
+2013-12-19  Christian Franke  <franke@computer.org>
+
+	autogen.sh: automake 1.13.3 works.
+
+2013-12-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Toshiba 2.5" HDD MK..65GSX: "... H" (USB?) variant
+	- Toshiba 2.5" HDD MQ01UBD... (USB 3.0)
+	- USB: Toshiba Stor.E Slim USB 3.0 (0x0480:0x0100)
+	- USB: Toshiba Stor.E Basics (0x0480:0xa009)
+	- USB: Toshiba Stor.E (0x0939:0x0b15)
+	- USB: Seagate FreeAgent GoFlex (0x0bc2:0x5020)
+	- USB: WD My Passport Ultra (0x1058:0x0741)
+	- USB: WD Elements (0x1058:0x1048)
+	- USB: Initio (0x13fd:0x1640) (ticket #295)
+	- USB: LucidPORT (0x1759:0x5100)
+
+2013-12-08  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apacer SDM4: SFDDA01C firmware (ticket #304).
+	- Crucial/Micron RealSSD m4/C400/P400: M4 SSD1 (ticket #306).
+	- Seagate Barracuda 7200.14: Check part number to avoid bogus
+	firmware bug warning (ticket #298).
+
+2013-11-23  Christian Franke  <franke@computer.org>
+
+	configure.ac, utility.cpp: Remove __DATE__, __TIME__
+	and SMARTMONTOOLS_CONFIGURE_DATE.
+	This obsoletes OpenSUSE nobuild-date.patch.
+	Reproducible builds are now supported.
+
+2013-11-15  Alex Samorukov <samm@os2.kiev.ua>
+
+       os_freebsd.cpp: Fix crash on FreeBSD 9.2 caused by wrong
+       SCSI status check condition.
+       os_freebsd.cpp: Print debug info on errors only if requested.
+
+2013-11-07  Matt Kraai  <...>
+
+	smartctl.cpp: Add missing stdlib.h.
+	This fixes build on QNX 6.3.2 (ticket #300).
+
+2013-11-07  Roger Röhrig  <...>
+
+	drivedb.h: Intel DC S3500 Series SSDs: Add -F xerrorlba.
+
+2013-11-07  Roger Röhrig  <...>
+
+	atacmds.cpp: Fix Extended Comprehensive Error Log timestamp
+	byte order on big endian machines.
+
+2013-09-12  Christoph Egger  <christoph@debian.org>
+
+	dev_areca.h: Fix build on kFreeBSD (Debian bug 717567).
+	This obsoletes Debian kfreebsd.patch.
+
+2013-08-17  Christian Franke  <franke@computer.org>
+
+	examplescripts: Add scripts from Debian and Fedora packages.
+
+2013-08-17  Christian Franke  <franke@computer.org>
+
+	Add spaces between string literals and macro identifiers.
+	This avoids the interpretation as user-defined literals if
+	C++11 is enabled (g++ -std=gnu++11).
+
+2013-08-15 Dan Lukes  <dan+smartmontools.changelog@obluda.cz>
+
+	drivedb.h: Intel DC S3500 Series SSDs
+
+2013-08-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Intel 320 Series SSDs: Add attribute 183 and 199.
+
+2013-08-10  Christian Franke  <franke@computer.org>
+
+	autogen.sh: automake 1.10.3, 1.12.6, and 1.13.4 work.
+	The new automake 1.14 is left out for now due to the
+	'subdir-objects' warning and the new 'compile' script.
+	Add options '--force' and '--warnings=CATEGORY'.
+
+2013-07-26  Christian Franke  <franke@computer.org>
+
+	smartmontools 6.2
+
+2013-07-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: ADATA SP900
+	- Transcend CompactFlash Cards: *GCF150
+	- Hitachi/HGST Travelstar 5K750: Apple OEM
+	- Hitachi/HGST Travelstar Z7K500
+	- Hitachi/HGST Travelstar 7K750
+	- Hitachi Deskstar 5K3000: *BLE630 OEM
+	- Seagate Constellation ES.3
+	- Western Digital Caviar Blue (SATA): Rename, add WD1602ABKS
+	- Western Digital Caviar Blue (SATA 6Gb/s): Rename, add WD10EZEX
+	- USB: Toshiba Canvio 3.0 Portable Hard Drive (0x0480:0xa007)
+	- USB: Toshiba Canvio Desktop (0x0480:0xd010)
+	- USB: Seagate FreeAgent Desk (0x0bc2:0x3008)
+	- USB: Sharkoon 2-Bay RAID Box (0x6795:0x2756)
+
+2013-07-21  Christian Franke  <franke@computer.org>
+
+	utility.cpp: Add check for empty subexpressions in regular expressions.
+
+2013-07-21  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300/M500: Rename, add M500
+	- SandForce Driven SSDs: Kingston KC300, MS200
+	- Intel 320 Series SSDs: *A variant
+	- Intel 330/335 Series SSDs: Rename, add 335 Series
+	- Toshiba 2.5" HDD MK..46GSX
+	- Toshiba 2.5" HDD MK..61GSY[N]: Rename, add *GSY variant
+	- Toshiba 2.5" HDD MK..65GSX: *GSXF variant
+	- Toshiba 3.5" HDD DT01ACA...
+	- Seagate Laptop SSHD
+	- Seagate Constellation ES.2: 2GB
+	- USB: Seagate Expansion External (0x0bc2:0x3320)
+	- USB: Seagate Backup Plus Desktop USB 3.0 (0x0bc2:0xa0a1)
+	- USB: WD Elements (0x1058:0x10a2)
+
+2013-07-20  Christian Franke  <franke@computer.org>
+
+	dev_areca.cpp: Fix possible segfault on empty port.
+
+2013-07-20  Christian Franke  <franke@computer.org>
+
+	os_win32/daemon_win32.cpp: Do not install the service as interactive.
+	This is no longer supported since Vista and produces misleading error
+	messages in event log.
+
+2013-07-20  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Do not print 'SCT Commands not supported' if SCT is
+	not used (regression from r3825 r3826).
+	smartctl.8.in: Mark '-g/-s wcreorder' as EXPERIMENTAL.
+
+2013-07-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add Win-8.1 and 2012r2 to get_os_version_str(),
+	remove 9x/ME and NT4.
+
+2013-07-08  Alex Samorukov  <samm@os2.kiev.ua>
+
+	Add Automake 1.12.2 to the list of supported versions
+
+2013-07-07  Christian Franke  <franke@computer.org>
+
+	configure.ac: Support SVN 1.8 working copy format.
+
+2013-07-06  Alex Samorukov <samm@os2.kiev.ua>
+
+	smartctl: Added ATA Write Cache Reordering control using "-g wcreorder"
+	and "-s wcreorder[,on|off]" options (bug #221)
+	smartctl: minor formatting fixes
+
+2013-07-05  Alex Samorukov <samm@os2.kiev.ua>
+
+	HPT RAID support: maximum disk number now is 128 (#281)
+
+2013-06-28  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Apacer SDM4 2Gb SSD
+
+2013-06-17  Alex Samorukov <samm@os2.kiev.ua>
+
+	scsicmds.cpp: fix build on RedHat 9
+	os_freebsd.cpp: skip port multipliers on FreeBSD
+	drivedb.h:
+	 - OWC Mercury EXTREME Pro 6G SSD (from #277)
+	 - USB: Fujitsu  SATA-to-USB3.0 bridge chip (#280)
+
+2013-06-12  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- JMicron SSD: P400e/P400m series
+
+2013-06-09  Christian Franke  <franke@computer.org>
+
+	INSTALL, NEWS, README, WARNINGS: Update SVN repository URLs.
+
+2013-06-09  Christian Franke  <franke@computer.org>
+
+	os_win32/smartd_warning.cmd: Using %DATE% in temp file names
+	breaks the script if localized date contains '/'
+	(This fix is already included in smartmontools-6.1-2.win32-setup.exe).
+
+2013-06-06  Christian Franke  <franke@computer.org>
+
+	os_win32/update-smart-drivedb.nsi: Use new SVN repository for
+	download.
+
+2013-06-04  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Use new sourceforge code browser for
+	download.
+
+2013-04-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- InnoDisk InnoLite SATADOM D150QV-L SSDs
+	- Intel 313 Series SSDs
+	- Intel 330 Series SSDs: 240GB
+	- JMicron based SSDs: Kingston V200 (ticket #267)
+	- Samsung based SSDs: SM843T Series
+
+2013-04-20  Christian Franke  <franke@computer.org>
+
+	configure.ac: Linux: Try 'hostname -y' if 'nishostname' is missing.
+
+2013-04-18  Christian Franke  <franke@computer.org>
+
+	configure.ac, smartd_warning.sh.in: Add platform specific commands for
+	host and domain names.
+	os_win32/smartd_warning.cmd: Use WMI for DNS domain name.
+
+2013-04-18  Christian Franke  <franke@computer.org>
+
+	scsicmds.cpp, scsiprint.cpp: Silence -Wmaybe-uninitialized warning
+	(g++ 4.8.0 with -flto).
+
+2013-03-29  Christian Franke  <franke@computer.org>
+
+	os_darwin.cpp: Silence -Wself-assign warning (ticket #266).
+	os_darwin.cpp, os_netbsd.cpp, os_os2.cpp, os_qnxnto.cpp, os_solaris.cpp:
+	Remove dummy functions no longer called since r3192.
+
+2013-03-27  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Silence -Wunused-local-typedefs warning.
+
+2013-03-24  Christian Franke  <franke@computer.org>
+
+	dev_areca.cpp: Add casts to silence C++11 -Wnarrowing warning
+	from g++ 4.8.
+
+2013-03-24  Christian Franke  <franke@computer.org>
+
+	Windows: Compile fixes for 64-bit Cygwin.
+	It uses LP64 model instead of LLP64 (64-bit MSVC, MinGW).
+
+2013-03-16  Christian Franke  <franke@computer.org>
+
+	smartmontools 6.1
+
+2013-03-15  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Support device names /dev/sd[a-z][a-z] (ticket #240).
+	Enhance DEVICESCAN to 128 drives.  Add '-d [TYPE,]pd' option.
+	smartctl.8.in, smartd.8.in: Document these enhancements.
+
+2013-03-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Barracuda 7200.14: Fix regex for new firmware version.
+
+2013-03-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Prolific PL3507 (0x067b:0x3507): works with '-d usbjmicron,p'
+
+2013-03-13  Christian Franke  <franke@computer.org>
+
+	Create branch RELEASE_6_0_DRIVEDB with last drivedb.h file
+	compatible with smartmontools 6.0.
+
+2013-03-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Fix format of attribute 198 (ticket #258).
+	- SandForce Driven SSDs: Corsair Force GS
+	- Indilinx Barefoot_2/Everest/Martini based SSDs: OCZ VERTEX PLUS R2
+	- Samsung/Seagate SpinPoint M8: 320GB, 640GB
+	- Seagate Momentus Thin
+	- Quantum Fireball EX: 10.2GB
+
+2013-03-07  Christian Franke  <franke@computer.org>
+
+	ataidentify.cpp, ataprint.cpp: ACS-3 updates.
+	ataprint.cpp: Improve device statistics error messages.
+
+2013-03-06  Christian Franke  <franke@computer.org>
+
+	smartd_warning.sh.in: Support BSD variant of 'hostname' command
+	which prints FQDN.  Add Windows domain name (Cygwin).
+
+2013-03-01  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.h, scsicmds.cpp, scsiprint.cpp:
+	- for SCSI disks prefer READ DEFECT(12) for finding the
+	  grown defect list length (previously used READ DEFECT(10)
+	  only)
+
+2013-03-01  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Transcend SSD320
+	- Intel 520 Series SSDs: OEM variant
+	- JMicron based SSDs: Transcend SSD25 IDE
+	- HGST Travelstar 7K1000
+	- Seagate Desktop HDD.15
+	- Seagate LD25.2
+	- Western Digital RE4 (SATA 6Gb/s)
+	- USB: Fujitsu/Zalman ZM-VE300 (0x04c5:0x2028)
+
+2013-02-23  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Crucial/Micron RealSSD C300: Remove bogus trailing '|' from
+	regex (Regression from r3772).
+
+2013-02-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.h, scsicmds.cpp, scsiprint.h, scsiprint.cpp:
+	- for SCSI disks, in 'smartctl --info' report physical
+	  block size and lowest LBA alignement (if PB size
+	  different from LB size); logical block provisioning
+	  status (if any); and disk protection (a.k.a. DIF) type
+
+2013-02-19  Alex Samorukov  <samm@os2.kiev.ua>
+
+	atacmds.cpp: fixed scttemphist on LE machines, including PPC. Patch
+	and report provided by Roger Roehrig.
+
+2013-02-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.h, scsicmds.cpp, scsiprint.h, scsiprint.cpp:
+	- SCSI VPD work; improve rotation rate reporting and add form factor
+
+2013-02-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Kingston V+ 200, Mushkin Chronos deluxe,
+	  OCZ Talos 2
+	- Plextor M3 (Pro) Series SSDs
+
+2013-02-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300: new separate entry
+	- Crucial/Micron RealSSD m4/C400: firmware bug warning
+
+2013-02-10  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: adding device type fix for devices on MPT controllers.
+
+2013-02-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate Samsung SpinPoint M8U (USB)
+	- Hitachi/HGST Travelstar Z5K500
+	- Hitachi/HGST Travelstar 5K750
+	- Hitachi/HGST Deskstar 7K4000
+	- Toshiba 2.5" HDD MK..37GSX
+	- Toshiba 2.5" HDD MK..65GSX: GSXN variant
+	- Toshiba 2.5" HDD MQ01ABD...
+	- Seagate Momentus 7200.5
+	- Western Digital Caviar Green (AF, SATA 6Gb/s): 2TB
+	- USB: Samsung M3 Portable USB 3.0 (0x04e8:0x61b6)
+	- USB: LaCie Rugged Mini USB 3.0 (0x059f:0x1051)
+	- Change short attribute names required before r3343.
+
+2013-02-05  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Fix allocation of buffer passed to putenv().
+	Using putenv("NAME") to unset NAME is not portable.
+
+2013-02-05  Christian Franke  <franke@computer.org>
+
+	do_release: New Signing Key.
+
+2013-01-31  Christian Franke  <franke@computer.org>
+
+	dev_areca.h: Use the C++ way to specify unused arguments.
+	This silences -Wself-assign warning from clang++.
+
+2013-01-30  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use AC_CHECK_TOOL for winmc and windres.
+
+2013-01-30  Christian Franke  <franke@computer.org>
+
+	Windows smartd: Install service with delayed auto start enabled.
+
+2013-01-26  Christian Franke  <franke@computer.org>
+
+	Windows smartd: Add eventlog MESSAGETABLE resource.
+	Install/remove smartd.exe as event message file.
+	Remove syslogevt.exe tool.
+
+2013-01-26  Christian Franke  <franke@computer.org>
+
+	Windows: Add required string CompanyName to VERSIONINFO.
+
+2013-01-23  Christian Franke  <franke@computer.org>
+
+	Windows: Add VERSIONINFO resource to exe files.
+
+2013-01-23  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron RealSSD C300/C400/m4: m4 mSATA variant
+	- Indilinx Barefoot 3 based SSDs
+	- Intel DC S3700 Series SSDs
+	- Samsung based SSD: Samsung SSD 840 Series
+
+2013-01-18  Christian Franke  <franke@computer.org>
+
+	AUTHORS: Convert to UTF-8.  Sort names.  Replace tabs.
+
+2013-01-18  Christian Franke  <franke@computer.org>
+
+	Rename configure.in to configure.ac to silence warning from
+	new automake.
+	autogen.sh: automake 1.12.5 is OK.
+
+2013-01-16  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Fix assignment of BYTEORDER from -v option
+	(Regression from r3719).
+
+2013-01-13  Ole Jørgen Legård  <ole@smartautomation.no>
+
+	os_qnxnto.cpp: Fix include of errno.h.
+
+2013-01-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Mushkin Callisto deluxe, SuperSSpeed S301
+	- Intel 320 Series SSDs: 'B' (7mm) variant (ticket #257)
+	- SAMSUNG SpinPoint F1 EG
+	- SAMSUNG SpinPoint P80: SP0401N/TJ100-30
+	- Western Digital Caviar Black: 4TB
+	- Western Digital Caviar Black (AF): Remove non-AF models
+	- Western Digital My Passport (USB, AF): 5000L, 10J variants
+	- USB: WD My Passport USB 3.0 (0x1058:0x07a8)
+	- USB: WD My Book Studio II (0x1058:0x1105)
+
+2013-01-02  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: ADATA S396, Kingston 3K, V+
+	- Indilinx Everest/Martini based SSDs: OCZ VERTEX PLUS
+	- Samsung based SSD: Samsung SSD 840 PRO Series
+
+2013-01-02  Christian Franke  <franke@computer.org>
+
+	Add '-d usbjmicron,p' device type for Prolific USB bridges.
+	Based on patch provided by Edward Sheldrake.
+
+2013-01-01  Christian Franke  <franke@computer.org>
+
+	smartd: Use Attribute 190 for temperature (-W) if 194 is not present.
+
+2013-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year! Update copyright year in version info.
+
+2012-12-16  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: WRITE LOG on LSI/Megaraid should work fine, disable
+	check, problem was linux related.
+	os_linux.cpp: Implemented autoscan for the megaraid SAS controolers.
+	os_linux.cpp: fix WRITE LOG command in SAT layer for -d megaraid.
+	Reason was direction flag always set to READ.
+	os_linux.cpp: unblock autodetection for the SAT drives in -d megaraid.
+
+2012-12-14  Christian Franke  <franke@computer.org>
+
+	man pages: Fix usage of Hyphen (-) and Minus sign (\-).
+
+2012-12-13  Christian Franke  <franke@computer.org>
+
+	man pages: Update EXPERIMENTAL notes.
+	Fix spelling (Red Hat Bugzilla 665028).
+
+2012-12-13  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print Additional Product Identifier (OEM Id).
+
+2012-12-13  Stanislav Brabec  <sbrabec@suse.cz>
+
+	Update FSF postal address in all files.
+
+2012-12-12  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Remove include <new> for QNXNTO.
+	Should only be needed if placement new is used.
+	smartd.cpp: Remove very old _GNU_SOURCE define.
+	It was added 10 years ago in r147.  It is not (or no longer) needed
+	and has an unwanted side effect (__USE_MINGW_ANSI_STDIO) on MinGW.
+
+2012-12-11  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add '-w PATH, --warnexec=PATH' option.
+	smartd.8.in: Document this option.
+
+2012-12-11  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add '-d ignore' directive.
+	smartd.conf.5.in: Document '-d ignore'.  Add DEVICESCAN example.
+	Remove duplicate and outdated info about device scanning.
+	smartd.8.in: Add notes about RAID controllers to device scanning info.
+
+2012-12-11  Stanislav Brabec  <sbrabec@suse.cz>
+
+	* smartd.initd.in: SUSE: Added sysconfig options to disable
+	persistent state writes, attribute log and set arbitrary smartd
+	options.
+
+2012-12-03  Christian Franke  <franke@computer.org>
+
+	Avoid usage of strcpy(), strcat(), sprintf().
+	Use snprintf() instead or change type to std::string.
+	Use array references instead of char pointers for parameters.
+
+2012-12-03  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Ignore a device from DEVICESCAN if a preceding smartd.conf
+	entry for the same device exists.
+
+2012-11-28  Christian Franke  <franke@computer.org>
+
+	smartd.conf.5.in: Document smartd_warning.sh/cmd scripts and
+	the new environment variables.
+	Makefile.am: Replace smartd_warning.* paths on man pages.
+	Reformat long sed commands.
+
+2012-11-27  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Remove trailing newlines from some MailWarning() strings.
+	os_win32/smartd_warning.cmd: Fix SMARTD_MESSAGE with parentheses.
+
+2012-11-25  Alex Samorukov  <samm@os2.kiev.ua>
+
+	OpenBSD: remove dummy functions
+
+2012-11-24  Christian Franke  <franke@computer.org>
+
+	Windows: Add tool wtssendmsg.exe based on no longer
+	used module os_win32/wtssendmsg.cpp.
+	os_win32/smartd_warning.cmd: Fix wtssendmsg call.
+	os_win32/installer.nsi: Install smartd_warning.cmd
+	and wtssendmsg.exe.  Fix uninstall of old ChangeLog.
+
+2012-11-23  Christian Franke  <franke@computer.org>
+
+	Move MSVC10 project files to new directory os_win32/vc10.
+
+2012-11-22  Christian Franke  <franke@computer.org>
+
+	smartd: Move warning message formatting and mailer/command
+	startup to new script SYSCONFDIR/smartd_warning.sh
+	(Windows: smartd_warning.cmd).
+	Add environment variables SMARTD_PREVCNT and SMARTD_NEXTDAYS.
+	Remove host/domainname related code from smartd.cpp
+	and configure.in
+
+2012-11-22  Alex Samorukov  <samm@os2.kiev.ua>
+
+	smartctl: implemeted support for -g/-s rcache and -g/-s wcache for SCSI
+	devices to control read/write device cache.
+
+2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
+
+	smartctl: supports progress indicator on selftests
+	smartctl: prints rotation speed for SCSI drives, if supported
+	smartctl: add headers to SCSI output, fix data blocks formatting,
+	trim identification data
+	os_linux.cpp: add autodetection for PERC H700 array
+	smartd: trim SCSI vendor/model/serial before creating state files
+
+2012-11-18  Alex Samorukov  <samm@os2.kiev.ua>
+
+	smartd.cpp: implement error counters and temperature saving to the
+	attrlog file for SCSI devices.
+	smartd.cpp: added reset_warning_mail() if device is working for SCSI
+
+2012-11-18  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Western Digital Caviar Green: Add -F xerrorlba
+
+2012-11-17  Alex Samorukov  <samm@os2.kiev.ua>
+
+	smartd.cpp: print lu_id for SPC devices, it is supported by standard
+	smartd.cpp: added initial state file support for the SCSI devices
+	smartd.cpp: add S/N to SCSI device identifier, lu_id is not available
+	on some drives.
+	smartd.cpp: fix warning for SCSI drives with self test in progress (#249)
+	drivedb.h: added -F xerrorlba flag Seagate Barracuda LP/CC32
+
+2012-11-09  Christian Franke  <franke@computer.org>
+
+	Windows smartd: Allow quoting of '-M exec' argument
+	to support path names with spaces.
+
+2012-11-09  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Rework smartctl -l directory output.
+	Add R/W, R/O info.  Report identical logs in one line.
+
+2012-11-09  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: adding handling of SCSI devices exported with mfip
+	driver. FreeBSD changing PDT code to 0x1f and we are changing it back
+	to 0x00 (direct-access block device).
+	os_freebsd.cpp: improved error handling for the ATA devices
+
+2012-11-04  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: Mushkin Chronos
+	- Indilinx Everest/Martini based SSDs: OCZ AGILITY4
+	- Intel 710 Series SSDs: Add attribute 174
+	- JMicron based SSDs: KINGSTON SSDNOW 30GB
+	- Hitachi Deskstar 7K1000.C: *CLA330
+	- Seagate DiamondMax 23, Barracuda 7200.12, 7200.14 (AF),
+	  LP, Green (AF): no warnings for newer firmware versions
+	- Western Digital Caviar Green (AF, SATA 6Gb/s): rename, add 1TB
+	- USB: Toshiba Stor.E (0x0930:0x0b1[9a])
+	- USB: Verbatim Store'n'Go (0x18a5:0x022b)
+
+2012-11-02  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: disabling 48bit commands on legacy ATA controllers
+	in ATACAM mode because of kernel bug.
+
+2012-10-31  Christian Franke  <franke@computer.org>
+
+	atacmdnames.cpp: Update for ATA-8-ACS, ACS-2, ACS-3.
+	ataidentify.cpp: Mark retired/obsolete values.
+	ataprint.cpp: Add new ACS-3 logs, mark obsolete logs.
+
+2012-10-27  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: Have smartd prefer real device names over passN.
+	Patch provided by dnelson, see ticket #21
+	os_freebsd.cpp: fix 48-bit support for ATA legacy controllers in
+	ATACAM mode, patch provided by Alexander Motin
+
+2012-10-25  Christian Franke  <franke@computer.org>
+
+	atacmds.cpp: Return error for get SCT ERC if ATA registers are
+	unchanged after SMART_WRITE_LOG command (see ticket #245).
+
+2012-10-24  Christian Franke  <franke@computer.org>
+
+	dev_areca.cpp: Add missing parameter check to ata_pass_through().
+	Update Areca info on man pages.
+
+2012-10-24  Christian Franke  <franke@computer.org>
+
+	dev_interface: Rework ATA parameter checks, use new flags
+	ata_device::supports_* for new ata_cmd_is_supported().
+	Replace ata_cmd_is_ok() by ata_cmd_is_supported() in scsiata.cpp
+	and os_win32.cpp.
+
+2012-10-19  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp - fixed 3ware twe controller support broken
+	by inerface migration.
+
+2012-10-18  Christian Franke  <franke@computer.org>
+
+	utility.cpp: Add missing errno clear in split_selective_arg()
+	(Debian bug 690108).
+	Remove unused function split_report_arg2().
+
+2012-10-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: define _WIN32.  This fixes build on
+	Cygwin with new w32api-headers.
+
+2012-10-18  Alex Samorukov  <samm@os2.kiev.ua>
+
+	Compile fixes for Areca patch on FreeBSD.
+	Added support for the /dev/twsX (3ware 9750) controller on FreeBSD.
+	Manual pages updated with /dev/twsX device
+	FreeBSD: Migrate 3ware interface to ata_pass_through()
+	FreeBSD: fix missing drives detection on -d 3ware
+	FreeBSD: 3ware - do not pass buffers direcly, use memcpy() instead
+	FreeBSD: improved detection of 3ware/LSI controllers
+
+2012-10-16  Christian Franke  <franke@computer.org>
+
+	Compile fixes for Areca patch:
+	Add missing includes.  Add GPL header.
+	Add dev_areca.* to configure.in and Makefile.am.
+
+2012-10-16  Hank Wu  <hank@areca.com.tw>
+
+	Move common Areca code from os_freebsd.cpp, os_linux.cpp, os_win32.cpp
+	to new files dev_areca.h, dev_areca.cpp.
+	Add SAS support for FreeBSD and Linux.
+
+2012-10-10  Christian Franke  <franke@computer.org>
+
+	Rename old CHANGELOG to ChangeLog-5.0-6.0.
+	Start new ChangeLog.
+
+2012-10-10  Christian Franke  <franke@computer.org>
+
+	smartmontools 6.0

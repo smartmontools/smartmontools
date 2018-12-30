@@ -331,7 +331,7 @@ docsdir=$(docdir)
 docs_DATA = \
         AUTHORS \
         ChangeLog \
-        ChangeLog-5.0-6.0 \
+        ChangeLog-6.0-7.0 \
         COPYING \
         INSTALL \
         NEWS \
@@ -387,6 +387,7 @@ smartdscript_SCRIPTS = smartd_warning.sh
 EXTRA_DIST = \
         .editorconfig \
         autogen.sh \
+        ChangeLog-5.0-6.0 \
         smartd.initd.in \
         smartd.cygwin.initd.in \
         smartd.freebsd.initd.in \
@@ -853,7 +854,7 @@ FILES_WIN32 = \
         $(EXEFILES_WIN32) \
         $(docdir_win32)/AUTHORS.txt \
         $(docdir_win32)/ChangeLog.txt \
-        $(docdir_win32)/ChangeLog-5.0-6.0.txt \
+        $(docdir_win32)/ChangeLog-6.0-7.0.txt \
         $(docdir_win32)/COPYING.txt \
         $(docdir_win32)/INSTALL.txt \
         $(docdir_win32)/NEWS.txt \
