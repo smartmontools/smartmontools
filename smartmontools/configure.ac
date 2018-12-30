@@ -3,7 +3,7 @@
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
-AC_INIT([smartmontools], [7.0], [smartmontools-support@listi.jpberlin.de])
+AC_INIT([smartmontools], [7.1], [smartmontools-support@listi.jpberlin.de])
 AM_INIT_AUTOMAKE([1.10 foreign])
 
 # Version of drive database branch
