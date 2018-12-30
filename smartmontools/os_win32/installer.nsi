@@ -7,7 +7,7 @@
 ;
 ; SPDX-License-Identifier: GPL-2.0-or-later
 ;
-; $Id: installer.nsi 4760 2018-08-19 18:45:53Z chrfranke $
+; $Id: installer.nsi 4885 2018-12-30 18:44:58Z chrfranke $
 ;
 
 
@@ -201,7 +201,7 @@ Section "!Documentation" DOC_SECTION
   SetOutPath "$INSTDIR\doc"
   File "${INPDIR}\doc\AUTHORS.txt"
   File "${INPDIR}\doc\ChangeLog.txt"
-  File "${INPDIR}\doc\ChangeLog-5.0-6.0.txt"
+  File "${INPDIR}\doc\ChangeLog-6.0-7.0.txt"
   File "${INPDIR}\doc\COPYING.txt"
   File "${INPDIR}\doc\INSTALL.txt"
   File "${INPDIR}\doc\NEWS.txt"
@@ -471,7 +471,8 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\wtssendmsg.exe"
   Delete "$INSTDIR\doc\AUTHORS.txt"
   Delete "$INSTDIR\doc\ChangeLog.txt"
-  Delete "$INSTDIR\doc\ChangeLog-5.0-6.0.txt"
+  Delete "$INSTDIR\doc\ChangeLog-5.0-6.0.txt" ; TODO: Remove after smartmontools 7.1
+  Delete "$INSTDIR\doc\ChangeLog-6.0-7.0.txt"
   Delete "$INSTDIR\doc\COPYING.txt"
   Delete "$INSTDIR\doc\INSTALL.txt"
   Delete "$INSTDIR\doc\NEWS.txt"
