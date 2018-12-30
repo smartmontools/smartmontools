@@ -5,7 +5,7 @@ $Id$
 The most up-to-date version of this file is:
 https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
 
-Date <Not released yet, please try current SVN or daily builds>
+Date 2018-12-30
 Summary: smartmontools release 7.0
 -----------------------------------------------------------
 - smartctl: New options '-j' and '--json[=giosu]' to enable experimental

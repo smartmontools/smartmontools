@@ -1,5 +1,9 @@
 $Id$
 
+2018-12-30  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.0
+
 2018-12-29  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in: Remove extra quote.
