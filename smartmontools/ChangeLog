@@ -1,5 +1,9 @@
 $Id$
 
+2019-01-01  Alex Samorukov <samm@os2.kiev.ua>
+
+	FreeBSD: use "fetch" as default download tool
+
 2019-01-01  Christian Franke  <franke@computer.org>
 
 	Happy New Year!  Update copyright year in version info.

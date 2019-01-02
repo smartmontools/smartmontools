@@ -613,7 +613,7 @@ case "${host}" in
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
     os_deps='os_freebsd.o cciss.o dev_areca.o'
     os_libs='-lcam -lsbuf'
-    os_dltools='curl wget lynx fetch svn'
+    os_dltools='fetch curl wget lynx svn'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
     os_man_filter=FreeBSD
     os_nvme_devicescan=no
