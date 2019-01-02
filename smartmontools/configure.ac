@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4884 2018-12-30 16:04:49Z chrfranke $
+# $Id: configure.ac 4887 2019-01-02 10:08:57Z samm2 $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.0
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4884 2018-12-30 16:04:49Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 4887 2019-01-02 10:08:57Z samm2 $'`
 smartmontools_release_date=2018-12-30
 smartmontools_release_time="14:47:55 UTC"
 
@@ -613,7 +613,7 @@ case "${host}" in
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
     os_deps='os_freebsd.o cciss.o dev_areca.o'
     os_libs='-lcam -lsbuf'
-    os_dltools='curl wget lynx fetch svn'
+    os_dltools='fetch curl wget lynx svn'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
     os_man_filter=FreeBSD
     os_nvme_devicescan=no

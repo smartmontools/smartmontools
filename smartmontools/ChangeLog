@@ -1,4 +1,8 @@
-$Id: ChangeLog 4886 2019-01-01 10:06:08Z chrfranke $
+$Id: ChangeLog 4887 2019-01-02 10:08:57Z samm2 $
+
+2019-01-01  Alex Samorukov <samm@os2.kiev.ua>
+
+	FreeBSD: use "fetch" as default download tool
 
 2019-01-01  Christian Franke  <franke@computer.org>
 
