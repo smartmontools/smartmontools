@@ -3,6 +3,8 @@ $Id$
 2019-01-01  Alex Samorukov <samm@os2.kiev.ua>
 
 	FreeBSD: use "fetch" as default download tool
+	os_freebsd.cpp: fix build on FreeBSD 12, fix nvme on Big Endian hosts
+	(patch from the bugtracker)
 
 2019-01-01  Christian Franke  <franke@computer.org>
 
