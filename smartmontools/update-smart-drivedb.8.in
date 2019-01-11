@@ -8,6 +8,10 @@ $Id$
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
+.de Sp \" Vertical space (when we can't use .PP)
+.if t .sp 0.4v
+.if n .sp
+..
 .de Vb \" Begin verbatim text
 .ft CW
 .nf

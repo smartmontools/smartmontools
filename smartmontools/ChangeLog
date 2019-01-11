@@ -2,6 +2,8 @@ $Id$
 
 2019-01-11  Christian Franke  <franke@computer.org>
 
+	update-smart-drivedb.8.in: Add missing definition of '.Sp' macro.
+
 	json.cpp, json.h: Add extra setter for char pointers.
 	Prevent nullptr exceptions if JSON mode is not enabled.
 
