@@ -1,4 +1,9 @@
-$Id: ChangeLog 4888 2019-01-02 22:09:00Z samm2 $
+$Id: ChangeLog 4889 2019-01-11 09:38:25Z chrfranke $
+
+2019-01-11  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Fix bogus exception on unknown form factor value
+	(#1154, regression from r4640).
 
 2019-01-01  Alex Samorukov <samm@os2.kiev.ua>
 

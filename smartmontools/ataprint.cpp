@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4889 2019-01-11 09:38:25Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -704,7 +704,8 @@ static void print_drive_info(const ata_identify_device * drive,
     else
       jout("Form Factor:      Unknown (0x%04x)\n", word168);
     jglb["form_factor"]["ata_value"] = word168;
-    jglb["form_factor"]["name"] = form_factor;
+    if (form_factor)
+      jglb["form_factor"]["name"] = form_factor;
   }
 
   // See if drive is recognized
