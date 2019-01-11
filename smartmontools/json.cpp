@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017-18 Christian Franke
+ * Copyright (C) 2017-19 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -111,15 +111,14 @@ void json::ref::operator=(unsigned long value)
   operator=((unsigned long long)value);
 }
 
+void json::ref::operator=(const char * value)
+{
+  m_js.set_cstring(m_path, value);
+}
+
 void json::ref::operator=(const std::string & value)
 {
   m_js.set_string(m_path, value);
-}
-
-void json::ref::operator=(const char * value)
-{
-  jassert(value); // Limit: null not supported
-  operator=(std::string(value));
 }
 
 void json::ref::set_uint128(uint64_t value_hi, uint64_t value_lo)
@@ -351,6 +350,14 @@ void json::set_uint128(const node_path & path, uint64_t value_hi, uint64_t value
   node * p = find_or_create_node(path, nt_uint128);
   p->intval_hi = value_hi;
   p->intval = value_lo;
+}
+
+void json::set_cstring(const node_path & path, const char * value)
+{
+  if (!m_enabled)
+    return;
+  jassert(value != 0); // Limit: nullptr not supported
+  find_or_create_node(path, nt_string)->strval = value;
 }
 
 void json::set_string(const node_path & path, const std::string & value)

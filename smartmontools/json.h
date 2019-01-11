@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017-18 Christian Franke
+ * Copyright (C) 2017-19 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -186,6 +186,7 @@ private:
   void set_int64(const node_path & path, int64_t value);
   void set_uint64(const node_path & path, uint64_t value);
   void set_uint128(const node_path & path, uint64_t value_hi, uint64_t value_lo);
+  void set_cstring(const node_path & path, const char * value);
   void set_string(const node_path & path, const std::string & value);
 
   static void print_json(FILE * f, bool pretty, bool sorted, const node * p, int level);

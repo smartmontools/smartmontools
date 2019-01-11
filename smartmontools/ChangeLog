@@ -2,6 +2,9 @@ $Id$
 
 2019-01-11  Christian Franke  <franke@computer.org>
 
+	json.cpp, json.h: Add extra setter for char pointers.
+	Prevent nullptr exceptions if JSON mode is not enabled.
+
 	ataprint.cpp: Fix bogus exception on unknown form factor value
 	(#1154, regression from r4640).
 
