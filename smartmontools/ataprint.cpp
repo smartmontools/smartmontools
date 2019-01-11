@@ -704,7 +704,8 @@ static void print_drive_info(const ata_identify_device * drive,
     else
       jout("Form Factor:      Unknown (0x%04x)\n", word168);
     jglb["form_factor"]["ata_value"] = word168;
-    jglb["form_factor"]["name"] = form_factor;
+    if (form_factor)
+      jglb["form_factor"]["name"] = form_factor;
   }
 
   // See if drive is recognized
