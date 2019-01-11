@@ -4,10 +4,14 @@ Copyright (C) 2014-18 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: update-smart-drivedb.8.in 4879 2018-12-28 22:05:12Z chrfranke $
+$Id: update-smart-drivedb.8.in 4891 2019-01-11 10:30:41Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
+.de Sp \" Vertical space (when we can't use .PP)
+.if t .sp 0.4v
+.if n .sp
+..
 .de Vb \" Begin verbatim text
 .ft CW
 .nf
@@ -197,4 +201,4 @@ Alternatively send the info to the smartmontools support mailing list:
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: update-smart-drivedb.8.in 4879 2018-12-28 22:05:12Z chrfranke $
+$Id: update-smart-drivedb.8.in 4891 2019-01-11 10:30:41Z chrfranke $
