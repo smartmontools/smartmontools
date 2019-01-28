@@ -121,7 +121,7 @@ references:
         ../configure CC="clang $TARGET" CXX="clang++ $TARGET" LDFLAGS="-static" --host=x86_64-pc-freebsd12
         make -j2 BUILD_INFO="$BUILD_INFO"
         mkdir inst && make DESTDIR="$(pwd)/inst" install
-        (cd inst && tar czf "/artefacts/smartmontools-freebsd11.2-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *)
+        (cd inst && tar czf "/artefacts/smartmontools-freebsd12.0-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *)
         rm -rf ~/build
 
   centos_deps: &centos_deps
