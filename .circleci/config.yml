@@ -61,6 +61,34 @@ references:
         (cd inst && tar czf "/artefacts/smartmontools-linux-i386-static-${SM_VER}-r${SVNREV}.tar.gz" *)
         rm -rf ~/build
 
+  sm_compile_linux_clang: &sm_compile_linux_clang
+    run:
+      name: Creating static x86_64 linux binaries and Clang Static Analyzer report
+      command: |
+        SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        BUILD_INFO='"(CircleCI)"' &&
+        mkdir ~/build && cd ~/build &&
+        tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
+        cd smartmontools-${SM_VER} && mkdir build && cd build &&
+        ../configure CC=clang CXX=clang++ LDFLAGS="-static" &&
+        HTMLDIR="smartmontools-linux-clang-analyzer-${SM_VER}-r${SVNREV}" &&
+        CHECKERS="
+          optin.portability.UnixAPI optin.cplusplus.VirtualCall
+          nullability.NullableDereferenced nullability.NullablePassedToNonnull
+          nullability.NullableReturnedFromNonnull
+          security.FloatLoopCounter security.insecureAPI.strcpy
+          valist.CopyToSelf valist.Uninitialized valist.Unterminated
+        " &&
+        scan-build --use-cc clang --use-c++ clang++ -o $HTMLDIR \
+            `for x in $CHECKERS; do echo -enable-checker $x; done` \
+          make -j2 BUILD_INFO="$BUILD_INFO" && make check &&
+        mkdir inst && make DESTDIR="$(pwd)/inst" install &&
+        (cd inst && tar czf "/artefacts/smartmontools-linux-x86_64-static-clang-${SM_VER}-r${SVNREV}.tar.gz" *) &&
+        if ls -d $HTMLDIR/* >/dev/null 2>/dev/null; then
+          tar czf "/artefacts/$HTMLDIR.tar.gz" $HTMLDIR ;
+        fi &&
+        rm -rf ~/build
+
   sm_comple_win: &sm_compile_win
     run:
       name: Creating Windows installer
@@ -146,6 +174,7 @@ jobs:
       - *sm_compile_win
       - *sm_compile_darwin
       - *sm_compile_freebsd
+      - *sm_compile_linux_clang
 
       - store_artifacts:
           path: /artefacts
