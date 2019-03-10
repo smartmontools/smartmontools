@@ -1,4 +1,9 @@
-$Id: ChangeLog 4891 2019-01-11 10:30:41Z chrfranke $
+$Id: ChangeLog 4896 2019-03-10 18:00:26Z chrfranke $
+
+2019-03-10  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Remove 'Type=notify' from smartd.service if
+	libsystemd-dev is not available.
 
 2019-01-11  Christian Franke  <franke@computer.org>
 
