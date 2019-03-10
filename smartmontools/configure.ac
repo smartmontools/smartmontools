@@ -469,12 +469,22 @@ case "$host:${LDFLAGS+set}" in
     LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
 esac
 
+# ASLR related issues of MinGW-w64 toolchain and workarounds:
+# 1. '--dynamicbase' only sets DYNAMIC_BASE flag but does not enable relocation info:
+#    Add '-pie' (works despite 'man ld' says: "... currently only supported on ELF platforms")
+# 2. If both '-static' and '-pie' are specified, the entry point is not set properly:
+#    Specify entry point with '-emainCRTStartup' or '-e_mainCRTStartup'.
+# 3. Some versions of '*-w64-mingw32-g++' ignore '-pie' if '-static' is also specified:
+#    Pass '-pie' directly to the linker with '-Wl,-pie'.
+# 4. Linkage of some versions of 'libstdc++.a' fail with "relocation overflow" if a high
+#    '--image-base' is used: Do not use '--high-entropy-va' in these cases.
+
 case "$host:$with_mingw_aslr" in
   x86_64-*-mingw*:auto)
     AC_MSG_CHECKING([whether $CXX supports --high-entropy-va])
     save_LDFLAGS=$LDFLAGS
-    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000"
-    # Link libstdc++ to detect MinGW 6.3.0 problems with high --image-base
+    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000"
+    # Link libstdc++ to detect MinGW-w64 problems with high '--image-base'
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <string>
         std::string s(42, '.');]])],
@@ -487,11 +497,11 @@ esac
 
 case "$host:$with_mingw_aslr" in
   x86_64-*-mingw*:yes)
-    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000" ;;
+    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000" ;;
   x86_64-*-mingw*:low)
-    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-emainCRTStartup" ;;
+    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup" ;;
   *-*-mingw*:auto|*-*-mingw*:yes|*-*-mingw*:low)
-    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-e_mainCRTStartup" ;;
+    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-e_mainCRTStartup" ;;
 esac
 
 os_win32_manifest=
