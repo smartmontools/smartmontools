@@ -1,5 +1,10 @@
 $Id$
 
+2019-03-10  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Remove 'Type=notify' from smartd.service if
+	libsystemd-dev is not available.
+
 2019-01-11  Christian Franke  <franke@computer.org>
 
 	update-smart-drivedb.8.in: Add missing definition of '.Sp' macro.

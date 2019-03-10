@@ -563,6 +563,11 @@ smartd.service: smartd.service.in Makefile
 	@echo ' $$(SMARTD_SERVICE_FILTER) < $(srcdir)/smartd.service.in > $@'
 	@{ \
 	sed 's|/usr/local/sbin/smartd|$(sbindir)/smartd|' | \
+	if test -n '$(SYSTEMD_LDADD)'; then \
+	  cat; \
+	else \
+	  sed '/^Type=notify/d'; \
+	fi | \
 	if test -n '$(systemdenvfile)'; then \
 	  sed 's|/usr/local/etc/sysconfig/smartmontools|$(systemdenvfile)|'; \
 	else \
