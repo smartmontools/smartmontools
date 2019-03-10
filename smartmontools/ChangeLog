@@ -1,6 +1,10 @@
-$Id: ChangeLog 4896 2019-03-10 18:00:26Z chrfranke $
+$Id: ChangeLog 4897 2019-03-10 18:33:51Z chrfranke $
 
 2019-03-10  Christian Franke  <franke@computer.org>
+
+	configure.ac: Pass '-pie' option directly to MinGW linker.
+	This adds relocation info which is needed for ASLR (#1170).
+	Document ASLR related issues of MinGW-w64 toolchain.
 
 	Makefile.am: Remove 'Type=notify' from smartd.service if
 	libsystemd-dev is not available.
