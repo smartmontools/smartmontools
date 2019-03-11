@@ -152,6 +152,15 @@ references:
         (cd inst && tar czf "/artefacts/smartmontools-freebsd12.0-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *)
         rm -rf ~/build
 
+  sm_compute_hashes: &sm_compute_hashes
+    run:
+      name: Compute SHA256 hashes of all generated files
+      command: |
+        SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        cd /artefacts &&
+        sha256sum *.dmg *.exe *.gz > smartmontools-${SM_VER}-r${SVNREV}.all.sha256 &&
+        cat smartmontools-${SM_VER}-r${SVNREV}.all.sha256
+
   centos_deps: &centos_deps
     run:
       name: Install dependencies on CentOS.
@@ -175,6 +184,7 @@ jobs:
       - *sm_compile_darwin
       - *sm_compile_freebsd
       - *sm_compile_linux_clang
+      - *sm_compute_hashes
 
       - store_artifacts:
           path: /artefacts
