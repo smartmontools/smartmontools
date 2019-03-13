@@ -3815,6 +3815,67 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Total_Reads_GiB "
     "-v 245,raw48,Read_Error_Rate "
   },
+  { "Seagate IronWolf 110 SATA SSD", //Written to Seagate documentation
+    "ZA(240|480|960|1920|3840)NM10001",
+    "", "",
+    //"-v 1,raw48,Raw_Read_Error_Rate "
+    //"-v 5,raw48,Reallocated_Sector_Ct "
+    //"-v 9,raw48,Power_On_Hours "
+    //"-v 12,raw48,Drive_Power_Cycle_Ct "
+    "-v 100,raw48,Flash_GB_Erased "
+    "-v 102,raw48,Lifetime_PS4_Entry_Ct "
+    "-v 103,raw48,Lifetime_PS3_Exit_Ct "
+    "-v 170,raw48,Grown_Bad_Block_Ct "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Avg_Program/Erase_Ct "
+    "-v 174,raw48,Unexpected_Pwr_Loss_Ct "
+    "-v 177,raw16,Wear_Range_Delta "
+    "-v 183,hex56,SATA_Downshift_Count "
+    "-v 187,raw48,Uncorrectable_ECC_Ct "
+    //"-v 194,tempminmax,Primary_Temperature "
+    "-v 195,raw16(raw16),RAISE_ECC_Cor_Ct "
+    "-v 198,raw48,Uncor_Read_Error_Ct "
+    //"-v 199,raw48,SATA_R-Err_(CRC)_Err_Ct "
+    "-v 230,raw56,Drv_Life_Protect_Status "
+    "-v 231,hex56,SSD_Life_Left "
+    //"-v 232,raw48,Available_Rsrvd_Space "
+    "-v 233,raw48,Lifetime_Wts_To_Flsh_GB "
+    "-v 241,raw48,Lifetime_Wts_Frm_Hst_GB "
+    "-v 242,raw48,Lifetime_Rds_Frm_Hst_GB "
+    "-v 243,hex56,Free_Space "
+  },
+  { "Seagate Nytro SATA SSD", //Written to Seagate documentation
+    // tested with XA960LE10063, XA960LE10063
+    "XA(240|480|960|1920|3840)[LM]E10(00|02|04|06|08|10)3",
+    "", "",
+    //"-v 1,raw48,Raw_Read_Error_Rate "
+    //"-v 5,raw48,Reallocated_Sector_Ct "
+    //"-v 9,raw48,Power_On_Hours "
+    //"-v 12,raw48,Drive_Power_Cycle_Ct "
+    "-v 100,raw48,Flash_GB_Erased "
+    "-v 102,raw48,Lifetime_PS4_Entry_Ct "
+    "-v 103,raw48,Lifetime_PS3_Exit_Ct "
+    "-v 170,raw48,Grown_Bad_Block_Ct "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Avg_Program/Erase_Ct "
+    "-v 174,raw48,Unexpected_Pwr_Loss_Ct "
+    "-v 177,raw16,Wear_Range_Delta "
+    "-v 183,hex56,SATA_Downshift_Count "
+    "-v 187,raw48,Uncorrectable_ECC_Ct "
+    //"-v 194,tempminmax,Primary_Temperature "
+    "-v 195,raw16(raw16),RAISE_ECC_Cor_Ct "
+    "-v 198,raw48,Uncor_Read_Error_Ct "
+    //"-v 199,raw48,SATA_R-Err_(CRC)_Err_Ct "
+    "-v 230,raw56,Drv_Life_Protect_Status "
+    "-v 231,hex56,SSD_Life_Left "
+    //"-v 232,raw48,Available_Rsrvd_Space "
+    "-v 233,raw48,Lifetime_Wts_To_Flsh_GB "
+    "-v 241,raw48,Lifetime_Wts_Frm_Hst_GB "
+    "-v 242,raw48,Lifetime_Rds_Frm_Hst_GB "
+    "-v 243,hex56,Free_Space "
+  },
   { "WD Blue and Green SSDs", // tested with WDC WDS250G1B0A-00H9H0/X41000WD,
       // WDC WDS250G1B0A-00H9H0/X41100WD, WDC WDS100T1B0A-00H9H0,
       // WDC WDS120G2G0A-00JH30/UE360000, WDC WDS240G2G0A-00JH30/UF300000
