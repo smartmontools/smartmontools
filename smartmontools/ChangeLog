@@ -1,4 +1,9 @@
-$Id: ChangeLog 4897 2019-03-10 18:33:51Z chrfranke $
+$Id: ChangeLog 4899 2019-03-13 09:05:00Z samm2 $
+
+2019-03-13  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- add Seagate Nytro SATA SSD and Seagate IronWolf 110 SATA SSD (PR #25)
 
 2019-03-10  Christian Franke  <franke@computer.org>
 
