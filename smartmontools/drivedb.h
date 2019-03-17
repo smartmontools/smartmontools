@@ -1249,7 +1249,6 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 187,raw48,Reported_Uncorrect "
     "-v 190,tempminmax,Temperature_Case "
     "-v 192,raw48,Unsafe_Shutdown_Count "
-    "-v 194,tempminmax,Temperature_Internal "
     "-v 199,raw48,CRC_Error_Count "
     "-v 225,raw48,Host_Writes_32MiB "
     "-v 226,raw48,Workld_Media_Wear_Indic " // Timed Workload Media Wear Indicator (percent*1024)
