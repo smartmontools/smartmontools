@@ -1,5 +1,10 @@
 $Id$
 
+2019-03-18  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- add Intel 545s Series SSDs (PR #26)
+
 2019-03-13  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h:
