@@ -1,4 +1,9 @@
-$Id: ChangeLog 4899 2019-03-13 09:05:00Z samm2 $
+$Id: ChangeLog 4900 2019-03-18 21:53:04Z samm2 $
+
+2019-03-18  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- add Intel 545s Series SSDs (PR #26)
 
 2019-03-13  Alex Samorukov  <samm@os2.kiev.ua>
 
