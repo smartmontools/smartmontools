@@ -3,11 +3,42 @@ Description=Self Monitoring and Reporting Technology (SMART) Daemon
 Documentation=man:smartd(8) man:smartd.conf(5)
 
 [Service]
-Type=notify
+AmbientCapabilities=CAP_SYS_RAWIO
+CapabilityBoundingSet=CAP_SYS_RAWIO
+DeviceAllow=/dev/null rw
+DeviceAllow=block-sd r
+DevicePolicy=strict
+DynamicUser=yes
 EnvironmentFile=-/usr/local/etc/sysconfig/smartmontools
-ExecStart=/usr/local/sbin/smartd -n $smartd_opts
 ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=/usr/local/sbin/smartd -n $smartd_opts
+Group=disk
+IPAddressDeny=any
+LimitNPROC=1
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateNetwork=yes
+PrivateTmp=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectSystem=strict
+ReadOnlyPaths=-/
+ReadWritePaths=-/var/lib/smartmontools
+RemoveIPC=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
 StandardOutput=syslog
+StateDirectory=smartmontools
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@chown @clock @cpu-emulation @debug @ipc @module @mount @obsolete @privileged @raw-io @reboot @resources @swap memfd_create mincore mlock mlockall personality
+TasksMax=1
+Type=notify
+UMask=0077
 
 [Install]
 WantedBy=multi-user.target
