@@ -161,6 +161,41 @@ const drive_settings builtin_knowndrives[] = {
     "-v 214,raw48,Reserved_Attribute " // Spec says "to be determined"
     "-v 215,raw48,Current_TRIM_Percent "
   },
+  { "Swissbit X-600m Series Industrial mSATA SSD",
+    // spec v1.06 found at https://www.mouser.com/pdfdocs/Swissbit_X-600m_Datasheet.pdf
+    // tested with SFSA016GU1AA2TO-I-DB-216-STD
+    "SFSA(008|016|032|064|128)GU[0-9]AA[124]TO-(C|I)-(DB|QC|NC)-2[0-9]6-STD",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Spare_Blocks_Remaining "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Max_Erase_Count_of_Spec "
+    "-v 169,raw48,Power_On_Uncorr_Err_Cnt "
+    "-v 192,raw48,Init_Spare_Blocks_Avail "
+    "-v 193,raw48,Dynamic_Remaps "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 198,raw48,Offline_Uncorrectable "
+    "-v 199,raw48,SATA_CRC_Error_Count "
+    "-v 215,raw48,TRIM_Count "
+    "-v 235,hex56,Flash_Writes_LBAs_Low "
+    "-v 237,hex48,Flash_Writes_LBAs_High "
+    "-v 241,hex56,Total_LBAs_Written_Low "
+    "-v 242,hex56,Total_LBAs_Read_Low "
+    "-v 243,hex48,Total_LBAs_Written_High "
+    "-v 244,hex48,Total_LBAs_Read_High "
+    "-v 248,raw48,Perc_Rated_Life_Remain "
+    "-v 249,raw48,Spares_Remaining_Perc "
+  },
   { "Apacer SSD",
     "(2|4|8|16|32)GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D, APSDM004G13AN-AT/SFDE001A
     "SF(DDA01C|I2101D|DE001A)", "", // spec found at http://wfcache.advantech.com/www/certified-peripherals/documents/96fmcff-04g-cs-ap_Datasheet.pdf
