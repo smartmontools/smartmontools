@@ -5366,9 +5366,9 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0507, Intenso 2,5" Memory Case 2TB USB3
     "-d sat"
   },
-  { "USB: ; VIA VL715", // USB2/3->SATA
-    "0x2109:0x0715",
-    "", // 0x0336
+  { "USB: ; VIA VL715/6", // USB2/3->SATA, USB-C->SATA
+    "0x2109:0x071[56]",
+    "", // 0x0336/0x0000
     "",
     "-d sat"
   },

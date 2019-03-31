@@ -8,6 +8,7 @@ $Id$
 	- Marvell based SanDisk SSDs: Ultra 3D (#1091, #1166, #1173)
 	- WDC HGST Ultrastar He10: WD100EMAZ (#1152)
 	- WD Blue and Green SSDs: Blue 3D NAND (#1162, #1169)
+	- USB: VIA VL716 (0x2109:0x0716)
 
 2019-03-18  Alex Samorukov  <samm@os2.kiev.ua>
 
