@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-19 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -1597,8 +1597,9 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZ7LM960HCHP-0E003/GXT3003Q
     "SAMSUNG MZ7LM(240|480|960|1T9|3T8)HM(JP|HQ|LP)-.*|" // PM863a Series, tested with
       // SAMSUNG MZ7LM3T8HMLP-00005/GXT5104Q
-    "SAMSUNG MZ7KM(120|240|480|960|1T9)H[AM](FD|GR|HP|HQ|JM)-.*|" // SM863(a), tested with
-      // SAMSUNG MZ7KM480HAHP-0E005/GXM1003Q, SAMSUNG MZ7KM480HMHQ-00005/GXM5104Q
+    "(SAMSUNG )?MZ7KM(120|240|480|960|1T9)H[AM](FD|GR|H[PQ]|J[MP])(-.*|0D3)|" // SM863(a), tested with
+      // SAMSUNG MZ7KM480HAHP-0E005/GXM1003Q, SAMSUNG MZ7KM480HMHQ-00005/GXM5104Q,
+      // SAMSUNG MZ7KM960HMJP-00005/GXM5304Q, MZ7KM960HMJP0D3/GD53 (Dell)
     "SAMSUNG MZ7LH(240|480|960|1T9|3T8|7T6)H[AM](HQ|JR|LT|LA)-.*|" //PM883, tested with SAMSUNG MZ7LH960HAJR-00005
     "SAMSUNG MZ7KH(240|480|960|1T9|3T8)HA(HQ|JR|LS)-.*|" //SM883
     "SAMSUNG MZN(LF|TY)(128|256)H[CD]HP-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
@@ -1668,6 +1669,7 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
     "SanDisk SDSSDH2(128|256)G|" // SanDisk SDSSDH2128G/X211200
+    "SanDisk SDSSDH3(250|500|[12]000)G|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL, SanDisk SDSSDH3500G/X61110RL
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
     "SSD SATAIII 16GB", // SSD SATAIII 16GB/i221100 (see #923)
@@ -1691,7 +1693,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 199,raw48,SATA_CRC_Error "
     "-v 201,raw48,Lifetime_Remaining% "
     "-v 212,raw48,SATA_PHY_Error "
-    "-v 230,raw48,Perc_Write/Erase_Count "
+    "-v 230,raw16,Perc_Write/Erase_Count "
     "-v 232,raw48,Perc_Avail_Resrvd_Space "
     "-v 233,raw48,Total_NAND_Writes_GiB "
     "-v 234,raw48,Perc_Write/Erase_Ct_BC "
@@ -3061,8 +3063,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "WDC HGST Ultrastar He10", // WD white label, tested with
       // WDC WD80EMAZ-00WJTA0/83.H0A83, WDC WD80EZAZ-11TDBA0/83.H0A83,
-      // WDC WD100EZAZ-11TDBA0/83.H0A83
-    "WDC WD(80E[MZ]|100EZ)AZ-.*",
+      // WDC WD100EMAZ-00WJTA0/83.H0A83, WDC WD100EZAZ-11TDBA0/83.H0A83
+    "WDC WD(80|100)E[MZ]AZ-.*",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
@@ -3907,8 +3909,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "WD Blue and Green SSDs", // tested with WDC WDS250G1B0A-00H9H0/X41000WD,
       // WDC WDS250G1B0A-00H9H0/X41100WD, WDC WDS100T1B0A-00H9H0,
-      // WDC WDS120G2G0A-00JH30/UE360000, WDC WDS240G2G0A-00JH30/UF300000
-    "WDC WDS((120|240|250|480|500)G|100T)(1B|2G)0[AB]-.*", // *1B* = Blue, *2G* = Green
+      // WDC WDS120G2G0A-00JH30/UE360000, WDC WDS240G2G0A-00JH30/UF300000,
+      // WDC WDS500G2B0A-00SM50/X61130WD, WDC WDS200T2B0A-00SM50/X61130WD
+    "WDC WDS((120|240|250|480|500)G|[12]00T)(1B|2B|2G)0[AB]-.*", // *1B* = Blue, *2G* = Green, *2B* = Blue 3D NAND
     "", "",
   //"-v 5,raw48,Reallocated_Sector_Ct " // Reassigned Block Count
   //"-v 9,raw48,Power_On_Hours "

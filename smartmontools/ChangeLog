@@ -1,5 +1,13 @@
 $Id$
 
+2019-03-31  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Samsung based SSDs: SM863a *JP variant (#1105), SM863a Dell OEM (#1151)
+	- Marvell based SanDisk SSDs: Ultra 3D (#1091, #1166, #1173)
+	- WDC HGST Ultrastar He10: WD100EMAZ (#1152)
+	- WD Blue and Green SSDs: Blue 3D NAND (#1162, #1169)
+
 2019-03-18  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h:
