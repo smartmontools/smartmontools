@@ -1,8 +1,9 @@
-$Id: ChangeLog 4901 2019-03-31 13:07:15Z chrfranke $
+$Id: ChangeLog 4902 2019-03-31 13:16:21Z chrfranke $
 
 2019-03-31  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Swissbit X-600m Series Industrial mSATA SSD (patch from #1177)
 	- Samsung based SSDs: SM863a *JP variant (#1105), SM863a Dell OEM (#1151)
 	- Marvell based SanDisk SSDs: Ultra 3D (#1091, #1166, #1173)
 	- WDC HGST Ultrastar He10: WD100EMAZ (#1152)
