@@ -2493,6 +2493,40 @@ const drive_settings builtin_knowndrives[] = {
     "-v 243,raw48,Total_Media_Writes "
     "-v 250,raw48,Read_Retry_Count "
   },
+  { "SK hynix SATA SSDs",
+    "HFS(480|960|1T9|3T8)G3[2E]FEH-7[4A]10A", // tested with HFS480G32FEH-7410A/90037Q00
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 5,raw48,Retired_Block_Count "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 12,raw48,Device_Power_Cycle_Cnt "
+    "-v 171,raw48,Program_Fail_Cnt "
+    "-v 172,raw48,Erase_Fail_Cnt "
+    "-v 174,raw48,Unexpected_Pwr_Loss_Cnt "
+    "-v 175,raw48,Program_Fail_Cnt "
+    "-v 176,raw48,Erase_Fail_Cnt "
+    "-v 177,raw48,Endurance_Limit_Met "
+    "-v 178,raw48,Used_Rsrvd_Blk_Cnt_Wrst "
+    "-v 179,raw48,Used_Rsrvd_Blk_Cnt_Tot "
+    "-v 180,raw48,E2E_Error_Det_Corr_Rate "
+    "-v 181,raw48,Program_Fail_Cnt "
+    "-v 182,raw48,Erase_Fail_Cnt "
+    "-v 183,raw48,SATA_Downshift_Cnt "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 188,raw48,Command_Timeout "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 195,raw48,ECC_on_the_Fly_Rate "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 201,raw48,Uncorr_Soft_Read_Err_Rt "
+    "-v 204,raw48,Soft_ECC_Correction_Rt "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 234,raw48,Lifetime_NAND_Prg_GiB "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB "
+    "-v 245,raw48,SSD_Life_Left "
+    "-v 250,raw48,Read_Retry_Count "
+  },
   { "Maxtor Fireball 541DX",
     "Maxtor 2B0(0[468]|1[05]|20)H1",
     "",
