@@ -4405,6 +4405,19 @@ const drive_settings builtin_knowndrives[] = {
   // USB ID entries
   ////////////////////////////////////////////////////
 
+  // 0x0080 (JMicron/Toshiba ?)
+  { "USB: ; JMicron JMS578",
+    "0x0080:0x0578",
+    "", // 0x0104
+    "",
+    "-d sat"
+  },
+  { "USB: ; ",
+    "0x0080:0xa001",
+    "", // ORICO 2588US3: 0x0101, 0x0203
+    "",
+    "-d sat"
+  },
   // 0x0350 (?)
   { "USB: ViPowER USB3.0 Storage; ",
     "0x0350:0x0038",

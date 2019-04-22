@@ -8,6 +8,8 @@ $Id$
 	- Intel 545s Series SSDs: *2KW* variant (#1185)
 	- SK hynix SATA SSDs: *G39MND* variant, *G39TND* variant (#1146),
 	  *G3[2E]FEH* variant (based on patch from #1181)
+	- USB: JMicron JMS578 (0x0080:0x0578)
+	- USB: Unknown (0x0080:0xa0001) (#852)
 
 2019-03-31  Christian Franke  <franke@computer.org>
 
