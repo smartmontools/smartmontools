@@ -196,18 +196,33 @@ const drive_settings builtin_knowndrives[] = {
     "-v 248,raw48,Perc_Rated_Life_Remain "
     "-v 249,raw48,Spares_Remaining_Perc "
   },
-  { "Apacer SSD",
-    "(2|4|8|16|32)GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D, APSDM004G13AN-AT/SFDE001A
-    "SF(DDA01C|I2101D|DE001A)", "", // spec found at http://wfcache.advantech.com/www/certified-peripherals/documents/96fmcff-04g-cs-ap_Datasheet.pdf
+  { "Apacer SDM4 Series SSD Module",
+    "(2|4|8|16|32|64)GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D
+    "SF(DDA01C|I2101D)",
+    "",
     "-v 160,raw48,Initial_Bad_Block_Count "
     "-v 161,raw48,Bad_Block_Count "
     "-v 162,raw48,Spare_Block_Count "
     "-v 163,raw48,Max_Erase_Count "
     "-v 164,raw48,Average_Erase_Count "
     "-v 165,raw48,Average_Erase_Count " // could be wrong
-    "-v 166,raw48,Later_Bad_Block_Count "
-    "-v 167,raw48,SSD_Protect_Mode "
+  },
+  { "Apacer SDM5/5A/5A-M Series SSD Module",
+    "(1|2|4|8|16|32|64)GB SATA Flash Drive", // tested with APSDM016GA2AN-PTM1/SFDK004A,
+      // APSDM016GA3AN-ATM/SFDE001A, APSDM004G13AN-AT/SFDE001A
+    "SF(DK004A|DE001A)",
+    "",
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 163,raw48,Max_Erase_Count "
+    "-v 164,raw48,Average_Erase_Count "
+    "-v 166,raw48,Grown_Bad_Block_Count "
+    "-v 167,raw48,SSD_Write_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Err_Ct "
+    "-v 175,raw48,Bad_Cluster_Table_Count "
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 241,raw48,Total_LBAs_Written "
   },
   { "Apple MacBook Air SSD", // probably Toshiba
     "APPLE SSD TS(064|128)E", // tested with APPLE SSD TS064E/TQAABBF0

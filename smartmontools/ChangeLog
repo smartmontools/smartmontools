@@ -3,6 +3,8 @@ $Id$
 2019-04-22  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Apacer SDM... Series SSD Module: Rename, split into separate entries
+	  for SDM4 and SMD5*, add SMD5A-M variant (based on patch from #1183)
 	- SK hynix SATA SSDs: *G39MND* variant, *G39TND* variant (#1146),
 	  *G3[2E]FEH* variant (based on patch from #1181)
 
