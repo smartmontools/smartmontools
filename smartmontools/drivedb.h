@@ -1283,8 +1283,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 228,raw48,Workload_Minutes "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
-  { "Intel 545s Series SSDs", // tested with INTEL SSDSCKKW512G8
-    "INTEL SSDSCKKW(128G|256G|512G|010T)8.*", //  SSDSCKKW128G8X1, SSDSCKKW256G8X1, SSDSCKKW512G8X1, SSDSCKKW010T8X1
+  { "Intel 545s Series SSDs", // tested with INTEL SSDSCKKW512G8, INTEL SSDSC2KW512G8/LHF002C
+      // SSDSCKKW128G8X1, SSDSCKKW256G8X1, SSDSCKKW512G8X1, SSDSCKKW010T8X1
+    "INTEL SSDSC[2K]KW(128G|256G|512G|010T)8.*",
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
