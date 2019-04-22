@@ -2451,11 +2451,15 @@ const drive_settings builtin_knowndrives[] = {
       // SKhynix SC300 HFS256G32MND-3210A/20131P00,
       // SK hynix SC308 SATA 128GB/30001P10,
       // SK hynix SC313 HFS256G32TNF-N3A0A/70000P10
-    "HFS(128|256|512)G32MND-(2200|3210)A|" // HFS128G32MND-2200A/20200L00,
-      // HFS512G32MND-3210A/20100P00
-    "HFS(120|250|500)G32TND-N1A2A", // HFS500G32TND-N1A2A/30000P10
+    "HFS(128|256|512)G3[29]MND-(2200|3[23]10)A|" // HFS128G32MND-2200A/20200L00,
+      // HFS512G32MND-3210A/20100P00, HFS512G39MND-3310A/20002P00
+    "HFS(120|250|500)G32TND-N1A2A|" // SL308, tested with HFS500G32TND-N1A2A/30000P10
+    "HFS(128|256|512)G39TND-N210A", // SC308, tested with HFS128G39TND-N210A/30001P10
     "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Retired_Block_Count "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
     "-v 100,raw48,Total_Erase_Count "
     "-v 168,raw48,Min_Erase_Count "
     "-v 169,raw48,Max_Erase_Count "
@@ -2463,13 +2467,27 @@ const drive_settings builtin_knowndrives[] = {
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw48,Wear_Leveling_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 175,raw48,Program_Fail_Count_Chip "
     "-v 176,raw48,Unused_Rsvd_Blk_Cnt_Tot "
+  //"-v 177,raw48,Wear_Leveling_Count "
+  //"-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip "
+  //"-v 179,raw48,Used_Rsvd_Blk_Cnt_Tot "
     "-v 180,raw48,Erase_Fail_Count "
     "-v 181,raw48,Non4k_Aligned_Access "
     "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 188,raw48,Command_Timeout "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 201,raw48,Percent_Lifetime_Remain "
+  //"-v 204,raw48,Soft_ECC_Correction "
     "-v 212,raw48,Phy_Error_Count "
     "-v 231,raw48,SSD_Life_Left "
+    "-v 234,raw48,Unknown_SK_hynix_Attrib "
     "-v 241,raw48,Total_Writes_GiB "
     "-v 242,raw48,Total_Reads_GiB "
     "-v 243,raw48,Total_Media_Writes "
