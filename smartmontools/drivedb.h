@@ -194,18 +194,33 @@ const drive_settings builtin_knowndrives[] = {
     "-v 248,raw48,Perc_Rated_Life_Remain "
     "-v 249,raw48,Spares_Remaining_Perc "
   },
-  { "Apacer SSD",
-    "(2|4|8|16|32)GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D, APSDM004G13AN-AT/SFDE001A
-    "SF(DDA01C|I2101D|DE001A)", "", // spec found at http://wfcache.advantech.com/www/certified-peripherals/documents/96fmcff-04g-cs-ap_Datasheet.pdf
+  { "Apacer SDM4 Series SSD Module",
+    "(2|4|8|16|32|64)GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D
+    "SF(DDA01C|I2101D)",
+    "",
     "-v 160,raw48,Initial_Bad_Block_Count "
     "-v 161,raw48,Bad_Block_Count "
     "-v 162,raw48,Spare_Block_Count "
     "-v 163,raw48,Max_Erase_Count "
     "-v 164,raw48,Average_Erase_Count "
     "-v 165,raw48,Average_Erase_Count " // could be wrong
-    "-v 166,raw48,Later_Bad_Block_Count "
-    "-v 167,raw48,SSD_Protect_Mode "
+  },
+  { "Apacer SDM5/5A/5A-M Series SSD Module",
+    "(1|2|4|8|16|32|64)GB SATA Flash Drive", // tested with APSDM016GA2AN-PTM1/SFDK004A,
+      // APSDM016GA3AN-ATM/SFDE001A, APSDM004G13AN-AT/SFDE001A
+    "SF(DK004A|DE001A)",
+    "",
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 163,raw48,Max_Erase_Count "
+    "-v 164,raw48,Average_Erase_Count "
+    "-v 166,raw48,Grown_Bad_Block_Count "
+    "-v 167,raw48,SSD_Write_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Err_Ct "
+    "-v 175,raw48,Bad_Cluster_Table_Count "
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 241,raw48,Total_LBAs_Written "
   },
   { "Apple MacBook Air SSD", // probably Toshiba
     "APPLE SSD TS(064|128)E", // tested with APPLE SSD TS064E/TQAABBF0
@@ -1264,8 +1279,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 228,raw48,Workload_Minutes "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
-  { "Intel 545s Series SSDs", // tested with INTEL SSDSCKKW512G8
-    "INTEL SSDSCKKW(128G|256G|512G|010T)8.*", //  SSDSCKKW128G8X1, SSDSCKKW256G8X1, SSDSCKKW512G8X1, SSDSCKKW010T8X1
+  { "Intel 545s Series SSDs", // tested with INTEL SSDSCKKW512G8, INTEL SSDSC2KW512G8/LHF002C
+      // SSDSCKKW128G8X1, SSDSCKKW256G8X1, SSDSCKKW512G8X1, SSDSCKKW010T8X1
+    "INTEL SSDSC[2K]KW(128G|256G|512G|010T)8.*",
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -2446,11 +2462,15 @@ const drive_settings builtin_knowndrives[] = {
       // SKhynix SC300 HFS256G32MND-3210A/20131P00,
       // SK hynix SC308 SATA 128GB/30001P10,
       // SK hynix SC313 HFS256G32TNF-N3A0A/70000P10
-    "HFS(128|256|512)G32MND-(2200|3210)A|" // HFS128G32MND-2200A/20200L00,
-      // HFS512G32MND-3210A/20100P00
-    "HFS(120|250|500)G32TND-N1A2A", // HFS500G32TND-N1A2A/30000P10
+    "HFS(128|256|512)G3[29]MND-(2200|3[23]10)A|" // HFS128G32MND-2200A/20200L00,
+      // HFS512G32MND-3210A/20100P00, HFS512G39MND-3310A/20002P00
+    "HFS(120|250|500)G32TND-N1A2A|" // SL308, tested with HFS500G32TND-N1A2A/30000P10
+    "HFS(128|256|512)G39TND-N210A", // SC308, tested with HFS128G39TND-N210A/30001P10
     "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Retired_Block_Count "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
     "-v 100,raw48,Total_Erase_Count "
     "-v 168,raw48,Min_Erase_Count "
     "-v 169,raw48,Max_Erase_Count "
@@ -2458,16 +2478,64 @@ const drive_settings builtin_knowndrives[] = {
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw48,Wear_Leveling_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 175,raw48,Program_Fail_Count_Chip "
     "-v 176,raw48,Unused_Rsvd_Blk_Cnt_Tot "
+  //"-v 177,raw48,Wear_Leveling_Count "
+  //"-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip "
+  //"-v 179,raw48,Used_Rsvd_Blk_Cnt_Tot "
     "-v 180,raw48,Erase_Fail_Count "
     "-v 181,raw48,Non4k_Aligned_Access "
     "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 188,raw48,Command_Timeout "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 201,raw48,Percent_Lifetime_Remain "
+  //"-v 204,raw48,Soft_ECC_Correction "
     "-v 212,raw48,Phy_Error_Count "
     "-v 231,raw48,SSD_Life_Left "
+    "-v 234,raw48,Unknown_SK_hynix_Attrib "
     "-v 241,raw48,Total_Writes_GiB "
     "-v 242,raw48,Total_Reads_GiB "
     "-v 243,raw48,Total_Media_Writes "
+    "-v 250,raw48,Read_Retry_Count "
+  },
+  { "SK hynix SATA SSDs",
+    "HFS(480|960|1T9|3T8)G3[2E]FEH-7[4A]10A", // tested with HFS480G32FEH-7410A/90037Q00
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 5,raw48,Retired_Block_Count "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 12,raw48,Device_Power_Cycle_Cnt "
+    "-v 171,raw48,Program_Fail_Cnt "
+    "-v 172,raw48,Erase_Fail_Cnt "
+    "-v 174,raw48,Unexpected_Pwr_Loss_Cnt "
+    "-v 175,raw48,Program_Fail_Cnt "
+    "-v 176,raw48,Erase_Fail_Cnt "
+    "-v 177,raw48,Endurance_Limit_Met "
+    "-v 178,raw48,Used_Rsrvd_Blk_Cnt_Wrst "
+    "-v 179,raw48,Used_Rsrvd_Blk_Cnt_Tot "
+    "-v 180,raw48,E2E_Error_Det_Corr_Rate "
+    "-v 181,raw48,Program_Fail_Cnt "
+    "-v 182,raw48,Erase_Fail_Cnt "
+    "-v 183,raw48,SATA_Downshift_Cnt "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 188,raw48,Command_Timeout "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 195,raw48,ECC_on_the_Fly_Rate "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 201,raw48,Uncorr_Soft_Read_Err_Rt "
+    "-v 204,raw48,Soft_ECC_Correction_Rt "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 234,raw48,Lifetime_NAND_Prg_GiB "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB "
+    "-v 245,raw48,SSD_Life_Left "
     "-v 250,raw48,Read_Retry_Count "
   },
   { "Maxtor Fireball 541DX",
@@ -4327,6 +4395,19 @@ const drive_settings builtin_knowndrives[] = {
   // USB ID entries
   ////////////////////////////////////////////////////
 
+  // 0x0080 (JMicron/Toshiba ?)
+  { "USB: ; JMicron JMS578",
+    "0x0080:0x0578",
+    "", // 0x0104
+    "",
+    "-d sat"
+  },
+  { "USB: ; ",
+    "0x0080:0xa001",
+    "", // ORICO 2588US3: 0x0101, 0x0203
+    "",
+    "-d sat"
+  },
   // 0x0350 (?)
   { "USB: ViPowER USB3.0 Storage; ",
     "0x0350:0x0038",
