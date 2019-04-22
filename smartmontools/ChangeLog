@@ -1,4 +1,9 @@
-$Id: ChangeLog 4903 2019-03-31 13:33:31Z chrfranke $
+$Id: ChangeLog 4905 2019-04-22 14:02:23Z chrfranke $
+
+2019-04-22  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SK hynix SATA SSDs: *G39MND* variant, *G39TND* variant (#1146)
 
 2019-03-31  Christian Franke  <franke@computer.org>
 
