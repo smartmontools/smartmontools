@@ -1,10 +1,11 @@
-$Id: ChangeLog 4907 2019-04-22 14:25:42Z chrfranke $
+$Id: ChangeLog 4908 2019-04-22 14:36:19Z chrfranke $
 
 2019-04-22  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
 	- Apacer SDM... Series SSD Module: Rename, split into separate entries
 	  for SDM4 and SMD5*, add SMD5A-M variant (based on patch from #1183)
+	- Intel 545s Series SSDs: *2KW* variant (#1185)
 	- SK hynix SATA SSDs: *G39MND* variant, *G39TND* variant (#1146),
 	  *G3[2E]FEH* variant (based on patch from #1181)
 
