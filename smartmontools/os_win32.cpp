@@ -3849,7 +3849,8 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   // Set NVMe specific STORAGE_PROPERTY_QUERY
   spsq->PropertyQuery.QueryType = PropertyStandardQuery;
   spsq->ProtocolSpecific.ProtocolType = win10::ProtocolTypeNvme;
-
+  spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid; // ?
+  
   switch (in.opcode) {
     case smartmontools::nvme_admin_identify:
       if (!in.nsid) // Identify controller
@@ -3862,14 +3863,15 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     case smartmontools::nvme_admin_get_log_page:
       spsq->PropertyQuery.PropertyId = win10::StorageDeviceProtocolSpecificProperty;
       spsq->ProtocolSpecific.DataType = win10::NVMeDataTypeLogPage;
-      spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10 & 0xff; // LID only ?
+      spsq->ProtocolSpecific.ProtocolDataRequestValue = 2; /*S.M.A.R.T health information request value*/
+      spsq->ProtocolSpecific.ProtocolDataRequestSubValue = 0x00000000; /*S.M.A.R.T health information request sub value */
+
       break;
     // TODO: nvme_admin_get_features
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
   }
 
-  spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid; // ?
   spsq->ProtocolSpecific.ProtocolDataOffset = sizeof(spsq->ProtocolSpecific);
   spsq->ProtocolSpecific.ProtocolDataLength = in.size;
 
