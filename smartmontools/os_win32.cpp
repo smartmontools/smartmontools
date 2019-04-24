@@ -3849,8 +3849,8 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   // Set NVMe specific STORAGE_PROPERTY_QUERY
   spsq->PropertyQuery.QueryType = PropertyStandardQuery;
   spsq->ProtocolSpecific.ProtocolType = win10::ProtocolTypeNvme;
-  spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid; // ? move to in.opcode selct
 
+  spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid; 
   switch (in.opcode) {
     case smartmontools::nvme_admin_identify:
       if (!in.nsid) // Identify controller
@@ -3879,7 +3879,7 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     memcpy(spsq->DataBuffer, in.buffer, in.size);
 
   if (nvme_debugmode > 1)
-    pout("  [WIN10: STORAGE_QUERY_PROPERTY: Id=%u, Type=%u, Value=0x%08x, SubVal=0x%08x]\n",
+    pout("  [STORAGE_QUERY_PROPERTY: Id=%u, Type=%u, Value=0x%08x, SubVal=0x%08x]\n",
          (unsigned)spsq->PropertyQuery.PropertyId,
          (unsigned)spsq->ProtocolSpecific.DataType,
          (unsigned)spsq->ProtocolSpecific.ProtocolDataRequestValue,
