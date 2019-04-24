@@ -1177,10 +1177,10 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
         jout("Vendor Specific SMART Attributes with Thresholds:\n");
       }
       if (!brief)
-        jout("ID#%s ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE\n",
+        jout("ATTRIBUTE_NAME\t\tRAW_VALUE\n",
              (!hexid ? "" : " "));
       else
-        jout("ID#%s ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE\n",
+        jout("ATTRIBUTE_NAME\t\tRAW_VALUE\n",
              (!hexid ? "" : " "));
       needheader = false;
     }
@@ -1221,23 +1221,9 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     };
 
     if (!brief)
-      jout("%s %-24s0x%04x   %-4s  %-4s  %-4s   %-10s%-9s%-12s%s\n",
-           idstr.c_str(), attrname.c_str(), attr.flags,
-           valstr.c_str(), worstr.c_str(), threstr.c_str(),
-           (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags) ? "Pre-fail" : "Old_age"),
-           (ATTRIBUTE_FLAGS_ONLINE(attr.flags)     ? "Always"   : "Offline"),
-           (state == ATTRSTATE_FAILED_NOW  ? "FAILING_NOW" :
-            state == ATTRSTATE_FAILED_PAST ? "In_the_past"
-                                           : "    -"        ) ,
-            rawstr.c_str());
+      jout("%-24s:%s\n", attrname.c_str(), rawstr.c_str());
     else
-      jout("%s %-24s%s  %-4s  %-4s  %-4s   %-5s%s\n",
-           idstr.c_str(), attrname.c_str(), flagstr,
-           valstr.c_str(), worstr.c_str(), threstr.c_str(),
-           (state == ATTRSTATE_FAILED_NOW  ? "NOW"  :
-            state == ATTRSTATE_FAILED_PAST ? "Past"
-                                           : "-"     ),
-            rawstr.c_str());
+      jout("%-24s:%s\n", attrname.c_str(), rawstr.c_str());
 
     if (!jglb.is_enabled())
       continue;

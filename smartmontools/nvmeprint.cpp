@@ -346,42 +346,42 @@ static void print_smart_log(const nvme_smart_log & smart_log,
     jglb["temperature"]["current"] = k - 273;
   }
 
-  jout("Available Spare:                    %u%%\n", smart_log.avail_spare);
+  jout("Available Spare:%u%%\n", smart_log.avail_spare);
   jref["available_spare"] = smart_log.avail_spare;
   jout("Available Spare Threshold:          %u%%\n", smart_log.spare_thresh);
   jref["available_spare_threshold"] = smart_log.spare_thresh;
-  jout("Percentage Used:                    %u%%\n", smart_log.percent_used);
+  jout("Percentage Used:%u%%\n", smart_log.percent_used);
   jref["percentage_used"] = smart_log.percent_used;
-  jout("Data Units Read:                    %s\n", le128_to_str(buf, smart_log.data_units_read, 1000*512));
+  jout("Data Units Read:%s\n", le128_to_str(buf, smart_log.data_units_read, 1000*512));
   jref["data_units_read"].set_unsafe_le128(smart_log.data_units_read);
-  jout("Data Units Written:                 %s\n", le128_to_str(buf, smart_log.data_units_written, 1000*512));
+  jout("Data Units Written:%s\n", le128_to_str(buf, smart_log.data_units_written, 1000*512));
   jref["data_units_written"].set_unsafe_le128(smart_log.data_units_written);
-  jout("Host Read Commands:                 %s\n", le128_to_str(buf, smart_log.host_reads));
+  jout("Host Read Commands:%s\n", le128_to_str(buf, smart_log.host_reads));
   jref["host_reads"].set_unsafe_le128(smart_log.host_reads);
-  jout("Host Write Commands:                %s\n", le128_to_str(buf, smart_log.host_writes));
+  jout("Host Write Commands:%s\n", le128_to_str(buf, smart_log.host_writes));
   jref["host_writes"].set_unsafe_le128(smart_log.host_writes);
-  jout("Controller Busy Time:               %s\n", le128_to_str(buf, smart_log.ctrl_busy_time));
+  jout("Controller Busy Time:%s\n", le128_to_str(buf, smart_log.ctrl_busy_time));
   jref["controller_busy_time"].set_unsafe_le128(smart_log.ctrl_busy_time);
-  jout("Power Cycles:                       %s\n", le128_to_str(buf, smart_log.power_cycles));
+  jout("Power_Cycle_Count:%s\n", le128_to_str(buf, smart_log.power_cycles));
   jref["power_cycles"].set_unsafe_le128(smart_log.power_cycles);
   jglb["power_cycle_count"].set_if_safe_le128(smart_log.power_cycles);
-  jout("Power On Hours:                     %s\n", le128_to_str(buf, smart_log.power_on_hours));
+  jout("Power_On_Hours:%s\n", le128_to_str(buf, smart_log.power_on_hours));
   jref["power_on_hours"].set_unsafe_le128(smart_log.power_on_hours);
   jglb["power_on_time"]["hours"].set_if_safe_le128(smart_log.power_on_hours);
-  jout("Unsafe Shutdowns:                   %s\n", le128_to_str(buf, smart_log.unsafe_shutdowns));
+  jout("Unsafe Shutdowns:%s\n", le128_to_str(buf, smart_log.unsafe_shutdowns));
   jref["unsafe_shutdowns"].set_unsafe_le128(smart_log.unsafe_shutdowns);
-  jout("Media and Data Integrity Errors:    %s\n", le128_to_str(buf, smart_log.media_errors));
+  jout("Media and Data Integrity Errors:%s\n", le128_to_str(buf, smart_log.media_errors));
   jref["media_errors"].set_unsafe_le128(smart_log.media_errors);
-  jout("Error Information Log Entries:      %s\n", le128_to_str(buf, smart_log.num_err_log_entries));
+  jout("Error Information Log Entries:%s\n", le128_to_str(buf, smart_log.num_err_log_entries));
   jref["num_err_log_entries"].set_unsafe_le128(smart_log.num_err_log_entries);
 
   // Temperature thresholds are optional
   if (show_all || id_ctrl.wctemp || smart_log.warning_temp_time) {
-    jout("Warning  Comp. Temperature Time:    %d\n", smart_log.warning_temp_time);
+    jout("Warning  Comp. Temperature Time:%d\n", smart_log.warning_temp_time);
     jref["warning_temp_time"] = smart_log.warning_temp_time;
   }
   if (show_all || id_ctrl.cctemp || smart_log.critical_comp_time) {
-    jout("Critical Comp. Temperature Time:    %d\n", smart_log.critical_comp_time);
+    jout("Critical Comp. Temperature Time:%d\n", smart_log.critical_comp_time);
     jref["critical_comp_time"] = smart_log.critical_comp_time;
   }
 
@@ -389,20 +389,20 @@ static void print_smart_log(const nvme_smart_log & smart_log,
   for (int i = 0; i < 8; i++) {
     int k = smart_log.temp_sensor[i];
     if (show_all || k) {
-      jout("Temperature Sensor %d:               %s\n", i + 1,
+      jout("Temperature Sensor %d:%s\n", i + 1,
            kelvin_to_str(buf, k));
       if (k)
         jref["temperature_sensors"][i] = k - 273;
     }
   }
   if (show_all || smart_log.thm_temp1_trans_count)
-    pout("Thermal Temp. 1 Transition Count:   %d\n", smart_log.thm_temp1_trans_count);
+    pout("Thermal Temp. 1 Transition Count:%d\n", smart_log.thm_temp1_trans_count);
   if (show_all || smart_log.thm_temp2_trans_count)
-    pout("Thermal Temp. 2 Transition Count:   %d\n", smart_log.thm_temp2_trans_count);
+    pout("Thermal Temp. 2 Transition Count:%d\n", smart_log.thm_temp2_trans_count);
   if (show_all || smart_log.thm_temp1_total_time)
-    pout("Thermal Temp. 1 Total Time:         %d\n", smart_log.thm_temp1_total_time);
+    pout("Thermal Temp. 1 Total Time:%d\n", smart_log.thm_temp1_total_time);
   if (show_all || smart_log.thm_temp2_total_time)
-    pout("Thermal Temp. 2 Total Time:         %d\n", smart_log.thm_temp2_total_time);
+    pout("Thermal Temp. 2 Total Time:%d\n", smart_log.thm_temp2_total_time);
   pout("\n");
 }
 
