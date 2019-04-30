@@ -2,6 +2,9 @@ $Id$
 
 2019-04-30  Christian Franke  <franke@computer.org>
 
+	os_linux.cpp: Fix '/dev/megaraid_sas_ioctl_node' open check
+	(cppcheck 1.85: resourceLeak).
+
 	cppcheck.sh: New script to run cppcheck with predefined settings.
 	Makefile.am: Add new script to tarball.  Add 'cppcheck' target.
 

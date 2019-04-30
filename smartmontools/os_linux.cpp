@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-19 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -3133,7 +3133,7 @@ linux_smart_interface::megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
   }
 
   int fd;
-  if ((fd = ::open("/dev/megaraid_sas_ioctl_node", O_RDWR)) <= 0) {
+  if ((fd = ::open("/dev/megaraid_sas_ioctl_node", O_RDWR)) < 0) {
     return (errno);
   }
 
