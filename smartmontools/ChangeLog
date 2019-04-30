@@ -1,4 +1,9 @@
-$Id: ChangeLog 4909 2019-04-22 15:13:40Z chrfranke $
+$Id: ChangeLog 4911 2019-04-30 18:42:38Z chrfranke $
+
+2019-04-30  Christian Franke  <franke@computer.org>
+
+	cppcheck.sh: New script to run cppcheck with predefined settings.
+	Makefile.am: Add new script to tarball.  Add 'cppcheck' target.
 
 2019-04-22  Christian Franke  <franke@computer.org>
 
