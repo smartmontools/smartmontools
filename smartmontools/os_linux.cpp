@@ -94,7 +94,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4913 2019-04-30 19:34:43Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4914 2019-04-30 19:46:42Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -1278,7 +1278,6 @@ smart_device * linux_megaraid_device::autodetect_open()
 
 bool linux_megaraid_device::open()
 {
-  char line[128];
   int   mjr;
   int report = scsi_debugmode;
 
@@ -1300,6 +1299,7 @@ bool linux_megaraid_device::open()
   /* Perform mknod of device ioctl node */
   FILE * fp = fopen("/proc/devices", "r");
   if (fp) {
+    char line[128];
     while (fgets(line, sizeof(line), fp) != NULL) {
       int n1 = 0;
       if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
@@ -2045,14 +2045,12 @@ static int find_areca_in_proc()
     if (!fp) return 1;
     int host, chan, id, lun, type, opens, qdepth, busy, online;
     int dev=-1;
-    int found=0;
     // search all lines of /proc/scsi/sg/devices
     while (9 == fscanf(fp, "%d %d %d %d %d %d %d %d %d", &host, &chan, &id, &lun, &type, &opens, &qdepth, &busy, &online)) {
         dev++;
 	if (id == 16 && type == 3) {
 	   // devices with id=16 and type=3 might be Areca controllers
 	   pout("Device /dev/sg%d appears to be an Areca controller.\n", dev);
-           found++;
         }
     }
     fclose(fp);
