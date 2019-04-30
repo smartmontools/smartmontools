@@ -1,5 +1,10 @@
 $Id$
 
+2019-04-30  Christian Franke  <franke@computer.org>
+
+	cppcheck.sh: New script to run cppcheck with predefined settings.
+	Makefile.am: Add new script to tarball.  Add 'cppcheck' target.
+
 2019-04-22  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

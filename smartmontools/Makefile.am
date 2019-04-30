@@ -388,6 +388,7 @@ EXTRA_DIST = \
         .editorconfig \
         autogen.sh \
         ChangeLog-5.0-6.0 \
+        cppcheck.sh \
         smartd.initd.in \
         smartd.cygwin.initd.in \
         smartd.freebsd.initd.in \
@@ -755,6 +756,14 @@ check:
 	else \
 	  echo "$(srcdir)/drivedb.h: Syntax check failed"; exit 1; \
 	fi
+
+# Create cppcheck report
+cppcheck: cppcheck.txt
+
+CPPCHECKFLAGS=
+cppcheck.txt: $(smartctl_SOURCES) $(EXTRA_smartctl_SOURCES) \
+              $(smartd_SOURCES) $(EXTRA_smartd_SOURCES)
+	$(srcdir)/cppcheck.sh $(CPPCHECKFLAGS) > $@
 
 
 if OS_WIN32_MINGW
