@@ -1,4 +1,13 @@
-$Id: ChangeLog 4915 2019-05-21 19:26:49Z chrfranke $
+$Id: ChangeLog 4916 2019-05-21 20:09:51Z chrfranke $
+
+2019-05-21  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 53x and Pro 1500/2500 Series SSDs: Rename, add Pro 1500 *A4H
+	  variant (#1194)
+	- Western Digital Red: WD100EFAX (#986, #1029)
+	- Western Digital Red Pro: *003* and *FFBX variants (#1085, #1192),
+	  WD101KFBX (#1030, #1189)
 
 2019-05-21  Erwan Velu  <e.velu@criteo.com>
 
