@@ -1219,11 +1219,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
-  { "Intel 53x and Pro 2500 Series SSDs", // SandForce SF-2281, tested with
+  { "Intel 53x and Pro 1500/2500 Series SSDs", // SandForce SF-2281, tested with
       // INTEL SSDSC2BW180A4/DC12, SSDSC2BW240A4/DC12, SSDMCEAW120A4/DC33
       // INTEL SSDMCEAW240A4/DC33, SSDSC2BF480A5/TG26, SSDSC2BW240H6/RG21
-    "INTEL SSD(MCEA|SC2B|SCKJ)[WF](056|080|120|180|240|360|480)(A4|A5|H6)",
-      // SC2B = 2.5", MCEA = mSATA, SCKJ = M.2; A4 = 530, A5 = Pro 2500, H6 = 535
+      // INTEL SSDSC2BF180A4H/LH6i
+    "INTEL SSD(MCEA|SC2B|SCKJ)[WF](056|080|120|180|240|360|480)(A4H?|A5|H6)",
+      // SC2B = 2.5", MCEA = mSATA, SCKJ = M.2; A4 = 530/Pro 1500, A5 = Pro 2500, H6 = 535
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
     "-v 9,msec24hour32,Power_On_Hours_and_Msec "
@@ -1366,6 +1367,35 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes "
     "-v 249,raw48,NAND_Writes_1GiB "
+  },
+  { "Intel DC S3110 Series SSDs", // Tested with INTEL SSDSCKKI256G8
+    "INTEL SSDSCKKI(128|256|512)G8",
+    "", "",
+    //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    //"-v 9,raw24(raw8),Power_On_Hours "
+    //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    //"-v 173 is missing in official Intel doc"
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 183,raw48,SATA_Downshift_Count "
+    //"-v 184,raw48,End-to-End_Error_Count "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+    //"-v 190,tempminmax,Airflow_Temperature_Cel "
+    //"-v 192,raw48,Power-Off_Retract_Count "
+    //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes "
+    //"-v 232,raw48,Available_Reservd_Space "
+    //"-v 233,raw48,Media_Wearout_Indicator "
+    //"-v 236 is missing in official Intel doc"
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 249,raw48,NAND_Writes_1GiB "
+    //"-v 252 is missing in official Intel doc"
   },
   { "Intel 3710 Series SSDs", // INTEL SSDSC2BA200G4R/G201DL2B (dell)
     "INTEL SSDSC2BA(200G|400G|800G|012T)4.?",
@@ -4293,15 +4323,17 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD30EFRX-68EUZN0/82.00A82,
       // WDC WD40EFRX-68WT0N0/80.00A80, WDC WD60EFRX-68MYMN1/82.00A82,
       // WDC WD80EFAX-68LHPN0/83.H0A83, WDC WD80EFZX-68UW8N0/83.H0A83,
-      // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee)
-    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80E[FZ][AZ])X-.*",
+      // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee),
+      // WDC WD100EFAX-68LHPN0/83.H0A83
+    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80E[FZ][AZ]|100EFA)X-.*",
     "", "",
-    "-v 22,raw48,Helium_Level" // WD80EFZX
+    "-v 22,raw48,Helium_Level" // WD80EFZX, WD100EFAX
   },
   { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81,
-      // WDC WD6002FFWX-68TZ4N0/83.H0A83
-    "WDC WD([2-68]00[12])FF[SW]X-.*",
-    "", "", ""
+      // WDC WD6002FFWX-68TZ4N0/83.H0A83, WDC WD101KFBX-68R56N0/83.H0A03
+    "WDC WD([2-68]00[123]FF[BSW]|101KFB)X-.*",
+    "", "",
+    "-v 22,raw48,Helium_Level" // WD101KFBX
   },
   { "Western Digital Purple", // tested with WDC WD40PURX-64GVNY0/80.00A80
     "WDC WD[123456]0PURX-.*",
