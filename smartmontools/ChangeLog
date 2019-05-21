@@ -2,6 +2,10 @@ $Id$
 
 2019-05-21  Christian Franke  <franke@computer.org>
 
+	smartd.conf.5.in: Update list of directives which affect '-m'.
+	This also fixes a typo introduced 15 years ago in r1658
+	(GH issues/24).
+
 	drivedb.h:
 	- Intel 53x and Pro 1500/2500 Series SSDs: Rename, add Pro 1500 *A4H
 	  variant (#1194)

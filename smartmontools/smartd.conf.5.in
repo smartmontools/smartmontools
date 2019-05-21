@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-18 Christian Franke
+Copyright (C) 2004-19 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -927,7 +927,8 @@ mistake.
 .TP
 .B \-m ADD
 Send a warning email to the email address \fBADD\fP if the \*(Aq\-H\*(Aq,
-\*(Aq\-l\*(Aq, \*(Aq\-f\*(Aq, \*(Aq\-C\*(Aq, or \*(Aq\-O\*(Aq Directives
+\*(Aq\-l error\*(Aq, \*(Aq\-l xerror\*(Aq, \*(Aq\-l selftest\*(Aq,
+\*(Aq\-f\*(Aq, \*(Aq\-C\*(Aq, \*(Aq\-U\*(Aq, or \*(Aq\-W\*(Aq Directives
 detect a failure or a new error, or if a SMART command to the disk fails.
 This Directive only works in conjunction with these other Directives
 (or with the equivalent default \*(Aq\-a\*(Aq Directive).
