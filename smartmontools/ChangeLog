@@ -1,4 +1,8 @@
-$Id: ChangeLog 4914 2019-04-30 19:46:42Z chrfranke $
+$Id: ChangeLog 4915 2019-05-21 19:26:49Z chrfranke $
+
+2019-05-21  Erwan Velu  <e.velu@criteo.com>
+
+	drivedb.h: Intel DC S3110 Series SSDs (GH pull/35)
 
 2019-04-30  Christian Franke  <franke@computer.org>
 
