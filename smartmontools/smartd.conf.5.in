@@ -1,10 +1,10 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-18 Christian Franke
+Copyright (C) 2004-19 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 4856 2018-12-11 21:42:16Z chrfranke $
+$Id: smartd.conf.5.in 4918 2019-05-21 20:37:16Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -927,7 +927,8 @@ mistake.
 .TP
 .B \-m ADD
 Send a warning email to the email address \fBADD\fP if the \*(Aq\-H\*(Aq,
-\*(Aq\-l\*(Aq, \*(Aq\-f\*(Aq, \*(Aq\-C\*(Aq, or \*(Aq\-O\*(Aq Directives
+\*(Aq\-l error\*(Aq, \*(Aq\-l xerror\*(Aq, \*(Aq\-l selftest\*(Aq,
+\*(Aq\-f\*(Aq, \*(Aq\-C\*(Aq, \*(Aq\-U\*(Aq, or \*(Aq\-W\*(Aq Directives
 detect a failure or a new error, or if a SMART command to the disk fails.
 This Directive only works in conjunction with these other Directives
 (or with the equivalent default \*(Aq\-a\*(Aq Directive).
@@ -1666,4 +1667,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 4856 2018-12-11 21:42:16Z chrfranke $
+$Id: smartd.conf.5.in 4918 2019-05-21 20:37:16Z chrfranke $
