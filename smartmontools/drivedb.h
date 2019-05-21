@@ -1367,6 +1367,35 @@ const drive_settings builtin_knowndrives[] = {
     "-v 228,raw48,Workload_Minutes "
     "-v 249,raw48,NAND_Writes_1GiB "
   },
+  { "Intel DC S3110 Series SSDs", // Tested with INTEL SSDSCKKI256G8
+    "INTEL SSDSCKKI(128|256|512)G8",
+    "", "",
+    //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    //"-v 9,raw24(raw8),Power_On_Hours "
+    //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    //"-v 173 is missing in official Intel doc"
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 183,raw48,SATA_Downshift_Count "
+    //"-v 184,raw48,End-to-End_Error_Count "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+    //"-v 190,tempminmax,Airflow_Temperature_Cel "
+    //"-v 192,raw48,Power-Off_Retract_Count "
+    //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 226,raw48,Workld_Media_Wear_Indic "
+    "-v 227,raw48,Workld_Host_Reads_Perc "
+    "-v 228,raw48,Workload_Minutes "
+    //"-v 232,raw48,Available_Reservd_Space "
+    //"-v 233,raw48,Media_Wearout_Indicator "
+    //"-v 236 is missing in official Intel doc"
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 249,raw48,NAND_Writes_1GiB "
+    //"-v 252 is missing in official Intel doc"
+  },
   { "Intel 3710 Series SSDs", // INTEL SSDSC2BA200G4R/G201DL2B (dell)
     "INTEL SSDSC2BA(200G|400G|800G|012T)4.?",
     "", "",

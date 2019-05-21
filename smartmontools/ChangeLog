@@ -1,5 +1,9 @@
 $Id$
 
+2019-05-21  Erwan Velu  <e.velu@criteo.com>
+
+	drivedb.h: Intel DC S3110 Series SSDs (GH pull/35)
+
 2019-04-30  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp: Fix '/dev/megaraid_sas_ioctl_node' open check
