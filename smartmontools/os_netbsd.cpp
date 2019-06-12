@@ -25,7 +25,7 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4780 2018-09-16 15:03:22Z chrfranke $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4919 2019-06-12 20:29:55Z chrfranke $"
   OS_NETBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))
@@ -601,6 +601,12 @@ int netbsd_smart_interface::get_dev_names(char ***names, const char *prefix)
     }
     sprintf(mp[n], "%s%s%c", net_dev_raw_prefix, p, 'a' + getrawpartition());
     n++;
+  }
+  free(disknames);
+
+  if (n == 0) {
+    free(mp);
+    return 0;
   }
 
   char ** tmp = (char **)realloc(mp, n * (sizeof(char *)));

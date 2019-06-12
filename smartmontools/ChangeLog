@@ -1,4 +1,11 @@
-$Id: ChangeLog 4918 2019-05-21 20:37:16Z chrfranke $
+$Id: ChangeLog 4919 2019-06-12 20:29:55Z chrfranke $
+
+2019-06-12  Christian Franke  <franke@computer.org>
+
+	os_netbsd.cpp: Fix device scan crash on empty name list.
+	Fix a memory leak introduced 15 years ago in r1434.
+
+	Thanks to Alexander Nasonov for bug report and testing.
 
 2019-05-21  Christian Franke  <franke@computer.org>
 
