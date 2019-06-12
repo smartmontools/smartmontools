@@ -602,6 +602,12 @@ int netbsd_smart_interface::get_dev_names(char ***names, const char *prefix)
     sprintf(mp[n], "%s%s%c", net_dev_raw_prefix, p, 'a' + getrawpartition());
     n++;
   }
+  free(disknames);
+
+  if (n == 0) {
+    free(mp);
+    return 0;
+  }
 
   char ** tmp = (char **)realloc(mp, n * (sizeof(char *)));
   if (NULL == tmp) {
