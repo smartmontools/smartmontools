@@ -107,7 +107,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4848 2018-12-05 18:30:46Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4920 2019-06-17 19:19:29Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -3858,18 +3858,21 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
         spsq->PropertyQuery.PropertyId = win10::StorageDeviceProtocolSpecificProperty;
       spsq->ProtocolSpecific.DataType = win10::NVMeDataTypeIdentify;
       spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10;
+      spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid;
       break;
     case smartmontools::nvme_admin_get_log_page:
       spsq->PropertyQuery.PropertyId = win10::StorageDeviceProtocolSpecificProperty;
       spsq->ProtocolSpecific.DataType = win10::NVMeDataTypeLogPage;
       spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10 & 0xff; // LID only ?
+      // Older drivers (Win10 1607) ignore SubValue
+      // Newer drivers (Win10 1809) pass SubValue to CDW12 (DW aligned)
+      spsq->ProtocolSpecific.ProtocolDataRequestSubValue = 0; // in.cdw12 (LPOL, NVMe 1.2.1+) ?
       break;
     // TODO: nvme_admin_get_features
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
   }
 
-  spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid; // ?
   spsq->ProtocolSpecific.ProtocolDataOffset = sizeof(spsq->ProtocolSpecific);
   spsq->ProtocolSpecific.ProtocolDataLength = in.size;
 

@@ -1,4 +1,12 @@
-$Id: ChangeLog 4919 2019-06-12 20:29:55Z chrfranke $
+$Id: ChangeLog 4920 2019-06-17 19:19:29Z chrfranke $
+
+2019-06-17  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Clear ProtocolDataRequestSubValue for NVMe Get Log Page
+	commands because newer drivers pass this value as CDW12 (LPOL) to the
+	drive.  This fixes log page access for NVMe 1.2.1+ drives (#1201).
+
+	Thanks to Vikram Manja for bug report and testing.
 
 2019-06-12  Christian Franke  <franke@computer.org>
 
