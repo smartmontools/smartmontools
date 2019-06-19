@@ -1,6 +1,8 @@
-$Id: ChangeLog 4925 2019-06-19 19:56:34Z chrfranke $
+$Id: ChangeLog 4926 2019-06-19 19:59:25Z chrfranke $
 
 2019-06-19  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 1903 and Server 1903 build number.
 
 	smartctl.8.in: Fix typo introduced 15 years ago in r1789.
 
