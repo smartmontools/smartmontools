@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://www.smartmontools.org
  *
- * Copyright (C) 2004-18 Christian Franke
+ * Copyright (C) 2004-19 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2015    Nidhi Malhotra <nidhi.malhotra@pmcs.com>
@@ -3764,7 +3764,7 @@ public:
   virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
 
 private:
-  bool open(int phydrive);
+  bool open(int phydrive, int logdrive);
 };
 
 
@@ -3784,21 +3784,29 @@ bool win10_nvme_device::open()
   // sd[a-z]([a-z])? => Physical drive 0-701
   char drive[2 + 1] = ""; int n = -1;
   if (sscanf(name, "sd%2[a-z]%n", drive, &n) == 1 && n == len)
-    return open(sdxy_to_phydrive(drive));
+    return open(sdxy_to_phydrive(drive), -1);
 
   // pdN => Physical drive N
   int phydrive = -1; n = -1;
   if (sscanf(name, "pd%d%n", &phydrive, &n) == 1 && phydrive >= 0 && n == len)
-    return open(phydrive);
+    return open(phydrive, -1);
+
+  // [a-zA-Z]: => Physical drive behind logical drive 0-25
+  int logdrive = drive_letter(name);
+  if (logdrive >= 0)
+    return open(-1, logdrive);
 
   return set_err(EINVAL);
 }
 
-bool win10_nvme_device::open(int phydrive)
+bool win10_nvme_device::open(int phydrive, int logdrive)
 {
   // TODO: Use common open function for all devices using "\\.\PhysicalDriveN"
   char devpath[64];
-  snprintf(devpath, sizeof(devpath) - 1, "\\\\.\\PhysicalDrive%d", phydrive);
+  if (phydrive >= 0)
+    snprintf(devpath, sizeof(devpath), "\\\\.\\PhysicalDrive%d", phydrive);
+  else
+    snprintf(devpath, sizeof(devpath), "\\\\.\\%c:", 'A'+logdrive);
 
   // No GENERIC_READ/WRITE access required, this works without admin rights
   HANDLE h = CreateFileA(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
