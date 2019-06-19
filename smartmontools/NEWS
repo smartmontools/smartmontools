@@ -3,7 +3,24 @@ smartmontools NEWS
 $Id$
 
 The most up-to-date version of this file is:
-https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
+https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
+
+Date <Not released yet, please try current SVN or a recent CI build>
+Summary: smartmontools release 7.1
+-----------------------------------------------------------
+- smartctl: Fixed bogus exception on unknown form factor value (regression).
+- HDD, SSD and USB additions to drive database.
+- Autodetection of '-d sntjmicron' type for JMicron USB to NVMe bridges.
+- Linux: Fixed smartd.service 'Type' if libsystemd-dev is not available.
+- Linux: Fixed '/dev/megaraid_sas_ioctl_node' fd leak.
+- FreeBSD update-smart-drivedb: Now uses 'fetch' as default download tool.
+- FreeBSD big endian: Fixed NVMe access.
+- FreeBSD: Compile fix for FreeBSD 12.
+- NetBSD: Fixed device scan crash on empty name list.
+- NetBSD: Fixed memory leak in device scan.
+- Windows: Fixed log page access via Windows 10 NVMe driver for NVMe 1.2.1+.
+- Windows: Allow drive letters as device names for Windows 10 NVMe driver.
+- Windows: Fixed MinGW options to add relocation info if ASLR is enabled.
 
 Date 2018-12-30
 Summary: smartmontools release 7.0
