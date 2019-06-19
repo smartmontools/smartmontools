@@ -3,6 +3,7 @@ $Id$
 2019-06-19  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Unify some 'Host_Reads/Writes_*' attribute names
 	- JMicron based SSDs: Transcend SSD340K, SSD740
 	- Samsung based SSDs: PM863a Dell OEM (#1200)
 	- Toshiba MG06ACA... Enterprise Capacity HDD (#1023, #1099)

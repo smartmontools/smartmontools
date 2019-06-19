@@ -386,7 +386,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Percent_Lifetime_Remain "
     "-v 206,raw48,Write_Error_Rate "
     "-v 210,raw48,Success_RAIN_Recov_Cnt "
-    "-v 246,raw48,Total_Host_Sector_Write "
+    "-v 246,raw48,Total_LBAs_Written "
     "-v 247,raw48,Host_Program_Page_Count "
     "-v 248,raw48,FTL_Program_Page_Count"
   },
@@ -1966,8 +1966,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 232,raw48,Read_Fail_Count "
     "-v 234,raw48,Flash_Reads_LBAs "
     "-v 235,raw48,Flash_Writes_LBAs "
-    "-v 241,raw48,Host_Writes_LBAs "
-    "-v 242,raw48,Host_Reads_LBAs"
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
     //  247-248 Missing in specification from April 2015
   },
   { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
@@ -4084,8 +4084,8 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reserve_Space"
     "-v 233,raw48,NAND_GB_Written_TLC "
     "-v 234,raw48,NAND_GB_Written_SLC "
-    "-v 241,raw48,Total_Host_GB_Written "
-    "-v 242,raw48,Total_Host_GB_Read "
+    "-v 241,raw48,Host_Writes_GiB "
+    "-v 242,raw48,Host_Reads_GiB "
     "-v 244,raw48,Temp_Throttle_Status "
   },
   { "Western Digital Protege",
