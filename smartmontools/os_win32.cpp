@@ -107,7 +107,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4926 2019-06-19 19:59:25Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 4927 2019-06-19 20:08:55Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -3872,6 +3872,9 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
   }
+
+  if (in.cdw11 || in.cdw12 || in.cdw13 || in.cdw14 || in.cdw15)
+    return set_err(ENOSYS, "Nonzero NVMe command dwords 11-15 not supported");
 
   spsq->ProtocolSpecific.ProtocolDataOffset = sizeof(spsq->ProtocolSpecific);
   spsq->ProtocolSpecific.ProtocolDataLength = in.size;
