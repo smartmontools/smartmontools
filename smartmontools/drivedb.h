@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4922 2019-06-19 18:36:35Z chrfranke $",
+  { "$Id: drivedb.h 4923 2019-06-19 18:49:42Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -5262,7 +5262,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x152d:0x0583",
     "",
     "",
-    "-d sntjmicron#please_try" // TODO: Remove '#please_try' when no longer EXPERIMENTAL
+    "-d sntjmicron"
   },
   { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
     "0x152d:0x0602",
