@@ -1570,8 +1570,9 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA THNSNC128GMLJ|" // tested with THNSNC128GMLJ/CJTA0202 (built in Toshiba Protege/Dynabook)
     "TS(8|16|32|64|128|192|256|512)GSSD25S?-(MD?|S)|" // Transcend IDE and SATA, JMF612, tested with
       // TS256GSSD25S-M/101028, TS32GSSD25-M/20101227
-    "TS(32|64|128|256)G(SSD|MSA)340", // Transcend SSD340 SATA/mSATA, JMF667/670, tested with
-      // TS256GSSD340/SVN263, TS256GSSD340/SVN423b, TS256GMSA340/SVN263
+    "TS(32|64|128|256)G(SSD|MSA)[37]40K?", // Transcend SSD340/340K/740 SATA/mSATA, JMF667/670, tested with
+      // TS256GSSD340/SVN263, TS256GSSD340/SVN423b, TS256GMSA340/SVN263,
+      // TS128GSSD340K/SVN216,TS64GSSD740/SVN167d
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -1588,9 +1589,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 170,raw16,Bad_Block_Count "
     "-v 173,raw16,Erase_Count " // JMF661: different?
     "-v 175,raw48,Bad_Cluster_Table_Count "
+    "-v 180,raw48,Unknown_JMF_Attribute "
+    "-v 187,raw48,Unknown_JMF_Attribute "
     "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 197,raw48,Current_Pending_Sector "
+    "-v 231,raw48,Unknown_JMF_Attribute "
     "-v 233,raw48,Unknown_JMF_Attribute " // FW SVN423b
     "-v 234,raw48,Unknown_JMF_Attribute " // FW SVN423b
     "-v 240,raw48,Unknown_JMF_Attribute "
@@ -1676,8 +1680,8 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
     "SAMSUNG MZ7LM(120|240|480|960|1T9|3T8)HC(JM|HP|GR|FD)-.*|" // PM863 Series, tested with
       // SAMSUNG MZ7LM960HCHP-0E003/GXT3003Q
-    "SAMSUNG MZ7LM(240|480|960|1T9|3T8)HM(JP|HQ|LP)-.*|" // PM863a Series, tested with
-      // SAMSUNG MZ7LM3T8HMLP-00005/GXT5104Q
+    "(SAMSUNG )?MZ7LM(240|480|960|1T9|3T8)HM(JP|HQ|LP)(-.*|0D3)|" // PM863a Series, tested with
+      // SAMSUNG MZ7LM3T8HMLP-00005/GXT5104Q, MZ7LM240HMHQ0D3/GC5B (Dell)
     "(SAMSUNG )?MZ7KM(120|240|480|960|1T9)H[AM](FD|GR|H[PQ]|J[MP])(-.*|0D3)|" // SM863(a), tested with
       // SAMSUNG MZ7KM480HAHP-0E005/GXM1003Q, SAMSUNG MZ7KM480HMHQ-00005/GXM5104Q,
       // SAMSUNG MZ7KM960HMJP-00005/GXM5304Q, MZ7KM960HMJP0D3/GD53 (Dell)
@@ -3353,6 +3357,17 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MG04ACA[23456]00[AE].?",
     "", "", ""
   },
+  { "Toshiba MG06ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG06ACA800E/4303,
+      // TOSHIBA MG06ACA10TE/0103
+    "TOSHIBA MG06ACA([68]00|10T)[AE]Y?",
+    "", "", ""
+  },
+  { "Toshiba MG07ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG07ACA14TE/0101
+    "TOSHIBA MG07ACA1[24]T[AE]Y?",
+    "", "",
+    "-v 23,raw48,Helium_Condition_Lower "
+    "-v 24,raw48,Helium_Condition_Upper"
+  },
   { "Toshiba 3.5\" DT01ABA... Desktop HDD", // tested with TOSHIBA DT01ABA300/MZ6OABB0
     "TOSHIBA DT01ABA(100|150|200|300)",
     "", "", ""
@@ -4043,8 +4058,9 @@ const drive_settings builtin_knowndrives[] = {
   { "WD Blue and Green SSDs", // tested with WDC WDS250G1B0A-00H9H0/X41000WD,
       // WDC WDS250G1B0A-00H9H0/X41100WD, WDC WDS100T1B0A-00H9H0,
       // WDC WDS120G2G0A-00JH30/UE360000, WDC WDS240G2G0A-00JH30/UF300000,
-      // WDC WDS500G2B0A-00SM50/X61130WD, WDC WDS200T2B0A-00SM50/X61130WD
-    "WDC WDS((120|240|250|480|500)G|[12]00T)(1B|2B|2G)0[AB]-.*", // *1B* = Blue, *2G* = Green, *2B* = Blue 3D NAND
+      // WDC WDS500G2B0A-00SM50/X61130WD, WDC WDS200T2B0A-00SM50/X61130WD,
+      // WDC WDS200T2B0A/X61190WD
+    "WDC WDS((120|240|250|480|500)G|[12]00T)(1B|2B|2G)0[AB](-.*)?", // *1B* = Blue, *2G* = Green, *2B* = Blue 3D NAND
     "", "",
   //"-v 5,raw48,Reallocated_Sector_Ct " // Reassigned Block Count
   //"-v 9,raw48,Power_On_Hours "
@@ -5562,6 +5578,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Sharkoon 2-Bay RAID Box; ", // USB 3.0
     "0x6795:0x2756",
     "", // 0x0100
+    "",
+    "-d sat"
+  },
+  // Transcend
+  { "USB: ; ",
+    "0x8564:0x7000",
+    "", // 0x8000
     "",
     "-d sat"
   },

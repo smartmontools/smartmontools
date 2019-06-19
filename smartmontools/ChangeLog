@@ -1,5 +1,15 @@
 $Id$
 
+2019-06-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- JMicron based SSDs: Transcend SSD340K, SSD740
+	- Samsung based SSDs: PM863a Dell OEM (#1200)
+	- Toshiba MG06ACA... Enterprise Capacity HDD (#1023, #1099)
+	- Toshiba MG07ACA... Enterprise Capacity HDD (#1023, #1175)
+	- WD Blue and Green SSDs: Variants without trailing -* (#1198)
+	- USB: Transcend (0x8564:0x7000) (GH issues/32)
+
 2019-06-17  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Clear ProtocolDataRequestSubValue for NVMe Get Log Page
