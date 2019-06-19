@@ -2,6 +2,8 @@ $Id$
 
 2019-06-19  Christian Franke  <franke@computer.org>
 
+	smartctl.8.in: Fix typo introduced 15 years ago in r1789.
+
 	drivedb.h:
 	- Unify some 'Host_Reads/Writes_*' attribute names
 	- JMicron based SSDs: Transcend SSD340K, SSD740
