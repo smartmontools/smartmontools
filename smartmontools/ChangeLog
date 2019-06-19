@@ -3,6 +3,7 @@ $Id$
 2019-06-19  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 10 1903 and Server 1903 build number.
+	Check for unsupported nonzero NVMe CDW11..15.
 
 	smartctl.8.in: Fix typo introduced 15 years ago in r1789.
 
