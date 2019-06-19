@@ -4025,6 +4025,7 @@ std::string win_smart_interface::get_os_version_str()
           case 16299:   w = "w10-1709"; break;
           case 17134:   w = "w10-1803"; break;
           case 17763:   w = "w10-1809"; break;
+          case 18362:   w = "w10-1903"; break;
           default:      w = "w10";
                         build = vi.dwBuildNumber; break;
         } break;
@@ -4034,6 +4035,7 @@ std::string win_smart_interface::get_os_version_str()
           case 16299:   w = "2016-1709"; break;
           case 17134:   w = "2016-1803"; break;
           case 17763:   w = "2019";      break;
+          case 18362:   w = "2019-1903"; break;
           default:      w = (vi.dwBuildNumber < 17763
                           ? "2016"
                           : "2019");
