@@ -9,6 +9,7 @@ $Id$
 	- Toshiba MG06ACA... Enterprise Capacity HDD (#1023, #1099)
 	- Toshiba MG07ACA... Enterprise Capacity HDD (#1023, #1175)
 	- WD Blue and Green SSDs: Variants without trailing -* (#1198)
+	- USB: JMicron JMS583 [NVMe] (0x152d:0x0583): Remove '#please_try'
 	- USB: Transcend (0x8564:0x7000) (GH issues/32)
 
 2019-06-17  Christian Franke  <franke@computer.org>

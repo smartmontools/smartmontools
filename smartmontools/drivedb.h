@@ -5262,7 +5262,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x152d:0x0583",
     "",
     "",
-    "-d sntjmicron#please_try" // TODO: Remove '#please_try' when no longer EXPERIMENTAL
+    "-d sntjmicron"
   },
   { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
     "0x152d:0x0602",
