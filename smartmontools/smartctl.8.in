@@ -1,10 +1,10 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-18 Christian Franke
+Copyright (C) 2004-19 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 4882 2018-12-29 21:26:45Z chrfranke $
+$Id: smartctl.8.in 4925 2019-06-19 19:56:34Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -207,7 +207,7 @@ Prints the device model number, serial number, firmware version, and
 ATA Standard version/revision information.  Says if the device
 supports SMART, and if so, whether SMART support is currently enabled
 or disabled.  If the device supports Logical Block Address mode (LBA
-mode) print current user drive capacity in bytes.  (If drive is has a
+mode) print current user drive capacity in bytes.  (If drive has a
 user protected area reserved, or is "clipped", this may be smaller
 than the potential maximum drive capacity.)  Indicates if the drive is
 in the smartmontools database (see \*(Aq\-v\*(Aq options below).  If so, the
@@ -2408,4 +2408,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 4882 2018-12-29 21:26:45Z chrfranke $
+$Id: smartctl.8.in 4925 2019-06-19 19:56:34Z chrfranke $

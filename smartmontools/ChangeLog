@@ -1,6 +1,8 @@
-$Id: ChangeLog 4923 2019-06-19 18:49:42Z chrfranke $
+$Id: ChangeLog 4925 2019-06-19 19:56:34Z chrfranke $
 
 2019-06-19  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Fix typo introduced 15 years ago in r1789.
 
 	drivedb.h:
 	- Unify some 'Host_Reads/Writes_*' attribute names
