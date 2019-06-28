@@ -1,6 +1,10 @@
-$Id: ChangeLog 4931 2019-06-28 20:12:33Z chrfranke $
+$Id: ChangeLog 4932 2019-06-28 20:20:31Z chrfranke $
 
 2019-06-28  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Reset scheduled_test_next_check time if system clock
+	has been adjusted to the past.
+	Use LOG_INFO instead of LOG_CRIT for related message.
 
 	examplescripts/Example6: Update from Fedora package 7.0-5.fc31.
 
