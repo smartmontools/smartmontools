@@ -1,0 +1,22 @@
+#! /bin/sh
+#
+# This is a script from the smartmontools examplescripts/ directory.
+# It can be used as an argument to the -M exec Directive in
+# /etc/smartd.conf, in a line like
+# ... -m root@localhost -M exec /path/to/this/file
+#
+# See also: smartd.conf(5), smartd(8).
+#
+# $Id$
+
+if [ -z "$SMARTD_ADDRESS" ]; then
+  echo "$0: SMARTD_ADDRESS must be set"
+  exit 1
+fi
+
+exec /usr/sbin/sendmail $SMARTD_ADDRESS <<EOF
+Subject: ${SMARTD_SUBJECT-[SMARTD_SUBJECT]}
+To: $(echo $SMARTD_ADDRESS | sed 's/ /, /g')
+
+${SMARTD_FULLMESSAGE-[SMARTD_FULLMESSAGE]}
+EOF

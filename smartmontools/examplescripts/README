@@ -46,3 +46,12 @@ Example5: Uses run-parts(8) to run scripts from /etc/smartmontools/run.d/.
 Example6: Sends a warning mail and then notifies the users by direct write
           to terminals.
           (/usr/libexec/smartmontools/smartdnotify from Fedora package)
+
+Example7: Sends an email using /usr/sbin/sendmail mail transfer agent.
+          May be useful if there is no other mail(1) compatible mailer
+          available.
+
+Example8: Sends an email using /usr/sbin/sendmail mail transfer agent.
+          This variant of Example7 uses SMARTD_* environment variables
+          and could therefore also be used in a run-parts(8) context
+          like Example5.

@@ -1,5 +1,11 @@
 $Id$
 
+2019-06-28  Christian Franke  <franke@computer.org>
+
+	examplescripts/Example[78]: New scripts using /usr/sbin/sendmail
+	to send email (Ubuntu Bug 1833331).
+	Makefile.am, examplescripts/README: Add new scripts.
+
 2019-06-19  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 10 1903 and Server 1903 build number.
