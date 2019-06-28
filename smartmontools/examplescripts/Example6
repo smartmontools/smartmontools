@@ -3,7 +3,7 @@
 # Send mail
 if which mail >/dev/null 2>&1
 then
-  echo "$SMARTD_MESSAGE" | mail -s "$SMARTD_FAILTYPE" "$SMARTD_ADDRESS"
+  echo "$SMARTD_FULLMESSAGE" | mail -s "$SMARTD_SUBJECT" "$SMARTD_ADDRESS"
 fi
 
 # Notify desktop user
