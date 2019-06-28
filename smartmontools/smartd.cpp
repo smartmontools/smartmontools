@@ -2865,12 +2865,16 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
   
   // Is it time for next check?
   time_t now = (!usetime ? time(0) : usetime);
-  if (now < state.scheduled_test_next_check)
-    return 0;
-
-  // Limit time check interval to 90 days
-  if (state.scheduled_test_next_check + (3600L*24*90) < now)
+  if (now < state.scheduled_test_next_check) {
+    if (state.scheduled_test_next_check <= now + 3600)
+      return 0; // Next check within one hour
+    // More than one hour, assume system clock time adjusted to the past
+    state.scheduled_test_next_check = now;
+  }
+  else if (state.scheduled_test_next_check + (3600L*24*90) < now) {
+    // Limit time check interval to 90 days
     state.scheduled_test_next_check = now - (3600L*24*90);
+  }
 
   // Check interval [state.scheduled_test_next_check, now] for scheduled tests
   char testtype = 0;
@@ -3925,7 +3929,7 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup, int numdev)
     
     // protect user again system clock being adjusted backwards
     if (wakeuptime>timenow+checktime){
-      PrintOut(LOG_CRIT, "System clock time adjusted to the past. Resetting next wakeup time.\n");
+      PrintOut(LOG_INFO, "System clock time adjusted to the past. Resetting next wakeup time.\n");
       wakeuptime=timenow+checktime;
     }
     
