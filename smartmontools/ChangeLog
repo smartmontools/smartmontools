@@ -2,6 +2,11 @@ $Id$
 
 2019-07-01  Christian Franke  <franke@computer.org>
 
+	Replace all ASSERT_*() macros with STATIC_ASSERT().
+	static_assert.h: New file with STATIC_ASSERT() macro using C++11
+	static_assert() if available.
+	Makefile.am, os_win32/vc14/smart*.vcxproj*: Add new file.
+
 	os_win32/vc14/smart*.vcxproj*: Add missing scsinvme.cpp.
 
 2019-06-28  Christian Franke  <franke@computer.org>

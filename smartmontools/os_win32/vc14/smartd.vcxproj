@@ -310,6 +310,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\..\static_assert.h" />
     <ClInclude Include="..\daemon_win32.h" />
     <ClInclude Include="..\popen.h" />
     <ClInclude Include="..\syslog.h" />

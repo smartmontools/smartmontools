@@ -1,7 +1,7 @@
 /*
  * os_win32.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2004-19 Christian Franke
  *
@@ -81,19 +81,6 @@ extern unsigned char failuretest_permissive;
 // aacraid support
 #include "aacraid.h"
 
-// Silence -Wunused-local-typedefs warning from g++ >= 4.8
-#if __GNUC__ >= 4
-#define ATTR_UNUSED __attribute__((unused))
-#else
-#define ATTR_UNUSED /**/
-#endif
-
-// Macro to check constants at compile time using a dummy typedef
-#define ASSERT_CONST(c, n) \
-  typedef char assert_const_##c[((c) == (n)) ? 1 : -1] ATTR_UNUSED
-#define ASSERT_SIZEOF(t, n) \
-  typedef char assert_sizeof_##t[(sizeof(t) == (n)) ? 1 : -1] ATTR_UNUSED
-
 #ifndef _WIN64
 #define SELECT_WIN_32_64(x32, x64) (x32)
 #else
@@ -116,12 +103,12 @@ extern "C" {
 
 // SMART_* IOCTLs, also known as DFP_* (Disk Fault Protection)
 
-ASSERT_CONST(SMART_GET_VERSION, 0x074080);
-ASSERT_CONST(SMART_SEND_DRIVE_COMMAND, 0x07c084);
-ASSERT_CONST(SMART_RCV_DRIVE_DATA, 0x07c088);
-ASSERT_SIZEOF(GETVERSIONINPARAMS, 24);
-ASSERT_SIZEOF(SENDCMDINPARAMS, 32+1);
-ASSERT_SIZEOF(SENDCMDOUTPARAMS, 16+1);
+STATIC_ASSERT(SMART_GET_VERSION == 0x074080);
+STATIC_ASSERT(SMART_SEND_DRIVE_COMMAND == 0x07c084);
+STATIC_ASSERT(SMART_RCV_DRIVE_DATA == 0x07c088);
+STATIC_ASSERT(sizeof(GETVERSIONINPARAMS) == 24);
+STATIC_ASSERT(sizeof(SENDCMDINPARAMS) == 32+1);
+STATIC_ASSERT(sizeof(SENDCMDOUTPARAMS) == 16+1);
 
 
 // IDE PASS THROUGH (2000, XP, undocumented)
@@ -143,8 +130,8 @@ typedef struct {
 
 #pragma pack()
 
-ASSERT_CONST(IOCTL_IDE_PASS_THROUGH, 0x04d028);
-ASSERT_SIZEOF(ATA_PASS_THROUGH, 12+1);
+STATIC_ASSERT(IOCTL_IDE_PASS_THROUGH == 0x04d028);
+STATIC_ASSERT(sizeof(ATA_PASS_THROUGH) == 12+1);
 
 
 // ATA PASS THROUGH (Win2003, XP SP2)
@@ -178,16 +165,16 @@ typedef struct _ATA_PASS_THROUGH_EX {
 
 #endif // IOCTL_ATA_PASS_THROUGH
 
-ASSERT_CONST(IOCTL_ATA_PASS_THROUGH, 0x04d02c);
-ASSERT_SIZEOF(ATA_PASS_THROUGH_EX, SELECT_WIN_32_64(40, 48));
+STATIC_ASSERT(IOCTL_ATA_PASS_THROUGH == 0x04d02c);
+STATIC_ASSERT(sizeof(ATA_PASS_THROUGH_EX) == SELECT_WIN_32_64(40, 48));
 
 
 // IOCTL_SCSI_PASS_THROUGH[_DIRECT]
 
-ASSERT_CONST(IOCTL_SCSI_PASS_THROUGH, 0x04d004);
-ASSERT_CONST(IOCTL_SCSI_PASS_THROUGH_DIRECT, 0x04d014);
-ASSERT_SIZEOF(SCSI_PASS_THROUGH, SELECT_WIN_32_64(44, 56));
-ASSERT_SIZEOF(SCSI_PASS_THROUGH_DIRECT, SELECT_WIN_32_64(44, 56));
+STATIC_ASSERT(IOCTL_SCSI_PASS_THROUGH == 0x04d004);
+STATIC_ASSERT(IOCTL_SCSI_PASS_THROUGH_DIRECT == 0x04d014);
+STATIC_ASSERT(sizeof(SCSI_PASS_THROUGH) == SELECT_WIN_32_64(44, 56));
+STATIC_ASSERT(sizeof(SCSI_PASS_THROUGH_DIRECT) == SELECT_WIN_32_64(44, 56));
 
 
 // SMART IOCTL via SCSI MINIPORT ioctl
@@ -214,8 +201,8 @@ ASSERT_SIZEOF(SCSI_PASS_THROUGH_DIRECT, SELECT_WIN_32_64(44, 56));
 
 #endif // IOCTL_SCSI_MINIPORT_SMART_VERSION
 
-ASSERT_CONST(IOCTL_SCSI_MINIPORT, 0x04d008);
-ASSERT_SIZEOF(SRB_IO_CONTROL, 28);
+STATIC_ASSERT(IOCTL_SCSI_MINIPORT == 0x04d008);
+STATIC_ASSERT(sizeof(SRB_IO_CONTROL) == 28);
 
 
 // IOCTL_STORAGE_QUERY_PROPERTY
@@ -266,9 +253,9 @@ typedef struct _STORAGE_PROPERTY_QUERY {
 
 #endif // IOCTL_STORAGE_QUERY_PROPERTY
 
-ASSERT_CONST(IOCTL_STORAGE_QUERY_PROPERTY, 0x002d1400);
-ASSERT_SIZEOF(STORAGE_DEVICE_DESCRIPTOR, 36+1+3);
-ASSERT_SIZEOF(STORAGE_PROPERTY_QUERY, 8+1+3);
+STATIC_ASSERT(IOCTL_STORAGE_QUERY_PROPERTY == 0x002d1400);
+STATIC_ASSERT(sizeof(STORAGE_DEVICE_DESCRIPTOR) == 36+1+3);
+STATIC_ASSERT(sizeof(STORAGE_PROPERTY_QUERY) == 8+1+3);
 
 
 // IOCTL_STORAGE_QUERY_PROPERTY: Windows 10 enhancements
@@ -305,15 +292,15 @@ namespace win10 {
     ULONG Reserved[3];
   } STORAGE_PROTOCOL_SPECIFIC_DATA;
 
-  ASSERT_SIZEOF(STORAGE_PROTOCOL_SPECIFIC_DATA, 40);
+  STATIC_ASSERT(sizeof(STORAGE_PROTOCOL_SPECIFIC_DATA) == 40);
 
 } // namespace win10
 
 
 // IOCTL_STORAGE_PREDICT_FAILURE
 
-ASSERT_CONST(IOCTL_STORAGE_PREDICT_FAILURE, 0x002d1100);
-ASSERT_SIZEOF(STORAGE_PREDICT_FAILURE, 4+512);
+STATIC_ASSERT(IOCTL_STORAGE_PREDICT_FAILURE == 0x002d1100);
+STATIC_ASSERT(sizeof(STORAGE_PREDICT_FAILURE) == 4+512);
 
 
 // 3ware specific versions of SMART ioctl structs
@@ -346,8 +333,8 @@ typedef struct _SENDCMDINPARAMS_EX {
 
 #pragma pack()
 
-ASSERT_SIZEOF(GETVERSIONINPARAMS_EX, sizeof(GETVERSIONINPARAMS));
-ASSERT_SIZEOF(SENDCMDINPARAMS_EX, sizeof(SENDCMDINPARAMS));
+STATIC_ASSERT(sizeof(GETVERSIONINPARAMS_EX) == sizeof(GETVERSIONINPARAMS));
+STATIC_ASSERT(sizeof(SENDCMDINPARAMS_EX) == sizeof(SENDCMDINPARAMS));
 
 
 // NVME_PASS_THROUGH
@@ -378,21 +365,21 @@ typedef struct _NVME_PASS_THROUGH_IOCTL
 
 #endif // NVME_PASS_THROUGH_SRB_IO_CODE
 
-ASSERT_CONST(NVME_PASS_THROUGH_SRB_IO_CODE, (int)0xe0002000);
-ASSERT_SIZEOF(NVME_PASS_THROUGH_IOCTL, 152+1);
-ASSERT_SIZEOF(NVME_PASS_THROUGH_IOCTL, offsetof(NVME_PASS_THROUGH_IOCTL, DataBuffer)+1);
+STATIC_ASSERT(NVME_PASS_THROUGH_SRB_IO_CODE == (int)0xe0002000);
+STATIC_ASSERT(sizeof(NVME_PASS_THROUGH_IOCTL) == 152+1);
+STATIC_ASSERT(sizeof(NVME_PASS_THROUGH_IOCTL) == offsetof(NVME_PASS_THROUGH_IOCTL, DataBuffer)+1);
 
 
 // CSMI structs
 
-ASSERT_SIZEOF(IOCTL_HEADER, sizeof(SRB_IO_CONTROL));
-ASSERT_SIZEOF(CSMI_SAS_DRIVER_INFO_BUFFER, 204);
-ASSERT_SIZEOF(CSMI_SAS_PHY_INFO_BUFFER, 2080);
-ASSERT_SIZEOF(CSMI_SAS_STP_PASSTHRU_BUFFER, 168);
+STATIC_ASSERT(sizeof(IOCTL_HEADER) == sizeof(SRB_IO_CONTROL));
+STATIC_ASSERT(sizeof(CSMI_SAS_DRIVER_INFO_BUFFER) == 204);
+STATIC_ASSERT(sizeof(CSMI_SAS_PHY_INFO_BUFFER) == 2080);
+STATIC_ASSERT(sizeof(CSMI_SAS_STP_PASSTHRU_BUFFER) == 168);
 
 // aacraid struct
 
-ASSERT_SIZEOF(SCSI_REQUEST_BLOCK, SELECT_WIN_32_64(64, 88));
+STATIC_ASSERT(sizeof(SCSI_REQUEST_BLOCK) == SELECT_WIN_32_64(64, 88));
 
 } // extern "C"
 
@@ -912,7 +899,7 @@ static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, cha
     } params;
     char space[512-1];
   } sb;
-  ASSERT_SIZEOF(sb, sizeof(SRB_IO_CONTROL)+sizeof(SENDCMDINPARAMS)-1+512);
+  STATIC_ASSERT(sizeof(sb) == sizeof(SRB_IO_CONTROL)+sizeof(SENDCMDINPARAMS)-1+512);
   memset(&sb, 0, sizeof(sb));
 
   unsigned size;
@@ -1004,7 +991,7 @@ static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * d
     IDEREGS regs;
     UCHAR buffer[512];
   } sb;
-  ASSERT_SIZEOF(sb, sizeof(SRB_IO_CONTROL)+sizeof(IDEREGS)+512);
+  STATIC_ASSERT(sizeof(sb) == sizeof(SRB_IO_CONTROL)+sizeof(IDEREGS)+512);
 
   if (!(0 <= datasize && datasize <= (int)sizeof(sb.buffer) && port >= 0)) {
     errno = EINVAL;
@@ -2027,9 +2014,7 @@ private:
 int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p2i)
 {
   // max_number_of_ports must match CSMI_SAS_PHY_INFO.Phy[] array size
-  typedef char ASSERT_phy_info_size[
-    (int)(sizeof(phy_info.Phy) / sizeof(phy_info.Phy[0])) == max_number_of_ports ? 1 : -1]
-    ATTR_UNUSED;
+  STATIC_ASSERT(sizeof(phy_info.Phy) == max_number_of_ports * sizeof(phy_info.Phy[0]));
 
   // Get driver info to check CSMI support
   CSMI_SAS_DRIVER_INFO_BUFFER driver_info_buf;
@@ -2604,7 +2589,7 @@ bool win_tw_cli_device::open()
     pout("[\n%.100s%s\n]\n", buffer, (size>100?"...":""));
 
   // Fake identify sector
-  ASSERT_SIZEOF(ata_identify_device, 512);
+  STATIC_ASSERT(sizeof(ata_identify_device) == 512);
   ata_identify_device * id = &m_ident_buf;
   memset(id, 0, sizeof(*id));
   copy_swapped(id->model    , findstr(buffer, " Model = "   ), sizeof(id->model));

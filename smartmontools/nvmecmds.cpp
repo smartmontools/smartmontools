@@ -1,9 +1,9 @@
 /*
  * nvmecmds.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016 Christian Franke
+ * Copyright (C) 2016-19 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -15,18 +15,11 @@ const char * nvmecmds_cvsid = "$Id$"
   NVMECMDS_H_CVSID;
 
 #include "dev_interface.h"
-#include "atacmds.h" // swapx(), ASSERT_*(), dont_print_serial_number
+#include "atacmds.h" // swapx(), dont_print_serial_number
 #include "scsicmds.h" // dStrHex()
 #include "utility.h"
 
 using namespace smartmontools;
-
-// Check nvme_* struct sizes
-ASSERT_SIZEOF_STRUCT(nvme_id_ctrl, 4096);
-ASSERT_SIZEOF_STRUCT(nvme_id_ns, 4096);
-ASSERT_SIZEOF_STRUCT(nvme_error_log_page, 64);
-ASSERT_SIZEOF_STRUCT(nvme_smart_log, 512);
-
 
 // Print NVMe debug messages?
 unsigned char nvme_debugmode = 0;

@@ -1,9 +1,9 @@
 /*
  * nvmecmds.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-18 Christian Franke
+ * Copyright (C) 2016-19 Christian Franke
  *
  * Original code from <linux/nvme.h>:
  *   Copyright (C) 2011-2014 Intel Corporation
@@ -15,6 +15,8 @@
 #define NVMECMDS_H
 
 #define NVMECMDS_H_CVSID "$Id$"
+
+#include "static_assert.h"
 
 #include <stdint.h>
 
@@ -38,6 +40,7 @@ struct nvme_error_log_page {
   unsigned char   vs;
   unsigned char   resv[35];
 };
+STATIC_ASSERT(sizeof(nvme_error_log_page) == 64);
 
 struct nvme_id_power_state {
   unsigned short  max_power; // centiwatts
@@ -56,6 +59,7 @@ struct nvme_id_power_state {
   unsigned char   active_work_scale;
   unsigned char   rsvd23[9];
 };
+STATIC_ASSERT(sizeof(nvme_id_power_state) == 32);
 
 struct nvme_id_ctrl {
   unsigned short  vid;
@@ -127,12 +131,14 @@ struct nvme_id_ctrl {
   struct nvme_id_power_state  psd[32];
   unsigned char   vs[1024];
 };
+STATIC_ASSERT(sizeof(nvme_id_ctrl) == 4096);
 
 struct nvme_lbaf {
   unsigned short  ms;
   unsigned char   ds;
   unsigned char   rp;
 };
+STATIC_ASSERT(sizeof(nvme_lbaf) == 4);
 
 struct nvme_id_ns {
   uint64_t        nsze;
@@ -163,6 +169,7 @@ struct nvme_id_ns {
   unsigned char   rsvd192[192];
   unsigned char   vs[3712];
 };
+STATIC_ASSERT(sizeof(nvme_id_ns) == 4096);
 
 struct nvme_smart_log {
   unsigned char  critical_warning;
@@ -190,6 +197,7 @@ struct nvme_smart_log {
   unsigned int   thm_temp2_total_time;
   unsigned char  rsvd232[280];
 };
+STATIC_ASSERT(sizeof(nvme_smart_log) == 512);
 
 enum nvme_admin_opcode {
 //nvme_admin_delete_sq     = 0x00,

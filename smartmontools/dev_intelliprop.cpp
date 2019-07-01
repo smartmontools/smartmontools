@@ -1,7 +1,7 @@
 /*
  * dev_intelliprop.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2016 Casey Biemiller  <cbiemiller@intelliprop.com>
  *
@@ -10,7 +10,7 @@
 
 #include "config.h"
 
-#include "atacmds.h" //ATTR_PACKED and ASSERT_SIZEOF_STRUCT
+#include "atacmds.h" // ATTR_PACKED, STATIC_ASSERT, ata_debugmode
 #include "dev_interface.h"
 #include "dev_intelliprop.h"
 #include "dev_tunnelled.h"
@@ -71,7 +71,7 @@ struct iprop_internal_log
   uint16_t crc;                // Bytes - [511:510] of Log C0
 } ATTR_PACKED;
 #pragma pack()
-ASSERT_SIZEOF_STRUCT(iprop_internal_log, 512);
+STATIC_ASSERT(sizeof(iprop_internal_log) == 512);
 
 /**
  * buffer is a pointer to a buffer of bytes, which should include data and
