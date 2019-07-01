@@ -274,6 +274,7 @@
     <ClCompile Include="..\..\os_win32.cpp" />
     <ClCompile Include="..\..\scsiata.cpp" />
     <ClCompile Include="..\..\scsicmds.cpp" />
+    <ClCompile Include="..\..\scsinvme.cpp" />
     <ClCompile Include="..\..\scsiprint.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

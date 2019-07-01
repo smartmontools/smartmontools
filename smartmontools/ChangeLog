@@ -1,5 +1,9 @@
 $Id$
 
+2019-07-01  Christian Franke  <franke@computer.org>
+
+	os_win32/vc14/smart*.vcxproj*: Add missing scsinvme.cpp.
+
 2019-06-28  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Reset scheduled_test_next_check time if system clock

@@ -59,6 +59,7 @@
     <ClCompile Include="..\..\os_win32.cpp" />
     <ClCompile Include="..\..\scsiata.cpp" />
     <ClCompile Include="..\..\scsicmds.cpp" />
+    <ClCompile Include="..\..\scsinvme.cpp" />
     <ClCompile Include="..\..\scsiprint.cpp" />
     <ClCompile Include="..\..\smartctl.cpp" />
     <ClCompile Include="..\..\smartd.cpp" />
