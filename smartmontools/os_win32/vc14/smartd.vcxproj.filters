@@ -111,6 +111,7 @@
     <ClInclude Include="..\..\nvmecmds.h" />
     <ClInclude Include="..\..\nvmeprint.h" />
     <ClInclude Include="..\..\dev_intelliprop.h" />
+    <ClInclude Include="..\..\static_assert.h" />
     <ClInclude Include="..\..\getopt\getopt_int.h">
       <Filter>getopt</Filter>
     </ClInclude>
