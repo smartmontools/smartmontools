@@ -445,12 +445,13 @@ void json::print_json(FILE * f, bool pretty, bool sorted, const node * p, int le
   }
 }
 
-void json::print_flat(FILE * f, bool sorted, const node * p, std::string & path)
+void json::print_flat(FILE * f, const char * assign, bool sorted, const node * p,
+                      std::string & path)
 {
   switch (p->type) {
     case nt_object:
     case nt_array:
-      fprintf(f, "%s = %s;\n", path.c_str(), (p->type == nt_object ? "{}" : "[]"));
+      fprintf(f, "%s%s%s;\n", path.c_str(), assign, (p->type == nt_object ? "{}" : "[]"));
       if (!p->childs.empty()) {
         unsigned len = path.size();
         for (node::const_iterator it(p, sorted); !it.at_end(); ++it) {
@@ -465,11 +466,11 @@ void json::print_flat(FILE * f, bool sorted, const node * p, std::string & path)
           if (!p2) {
             // Unset element of sparse array
             jassert(p->type == nt_array);
-            fprintf(f, "%s = null;\n", path.c_str());
+            fprintf(f, "%s%snull;\n", path.c_str(), assign);
           }
           else {
             // Recurse
-            print_flat(f, sorted, p2, path);
+            print_flat(f, assign, sorted, p2, path);
           }
           path.erase(len);
         }
@@ -477,27 +478,27 @@ void json::print_flat(FILE * f, bool sorted, const node * p, std::string & path)
       break;
 
     case nt_bool:
-      fprintf(f, "%s = %s;\n", path.c_str(), (p->intval ? "true" : "false"));
+      fprintf(f, "%s%s%s;\n", path.c_str(), assign, (p->intval ? "true" : "false"));
       break;
 
     case nt_int:
-      fprintf(f, "%s = %" PRId64 ";\n", path.c_str(), (int64_t)p->intval);
+      fprintf(f, "%s%s%" PRId64 ";\n", path.c_str(), assign, (int64_t)p->intval);
       break;
 
     case nt_uint:
-      fprintf(f, "%s = %" PRIu64 ";\n", path.c_str(), p->intval);
+      fprintf(f, "%s%s%" PRIu64 ";\n", path.c_str(), assign, p->intval);
       break;
 
     case nt_uint128:
       {
         char buf[64];
-        fprintf(f, "%s = %s;\n", path.c_str(),
+        fprintf(f, "%s%s%s;\n", path.c_str(), assign,
                 uint128_hilo_to_str(buf, p->intval_hi, p->intval));
       }
       break;
 
     case nt_string:
-      fprintf(f, "%s = ", path.c_str());
+      fprintf(f, "%s%s", path.c_str(), assign);
       print_string(f, p->strval.c_str());
       fputs(";\n", f);
       break;
@@ -519,6 +520,6 @@ void json::print(FILE * f, const print_options & options) const
   }
   else {
     std::string path("json");
-    print_flat(f, options.sorted, &m_root_node, path);
+    print_flat(f, (options.pretty ? " = " : "="), options.sorted, &m_root_node, path);
   }
 }

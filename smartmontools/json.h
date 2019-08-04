@@ -190,7 +190,8 @@ private:
   void set_string(const node_path & path, const std::string & value);
 
   static void print_json(FILE * f, bool pretty, bool sorted, const node * p, int level);
-  static void print_flat(FILE * f, bool sorted, const node * p, std::string & path);
+  static void print_flat(FILE * f, const char * assign, bool sorted, const node * p,
+                         std::string & path);
 };
 
 #endif // JSON_H_CVSID

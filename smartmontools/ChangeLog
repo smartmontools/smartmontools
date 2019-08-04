@@ -2,6 +2,8 @@ $Id$
 
 2019-08-04  Christian Franke  <franke@computer.org>
 
+	json.cpp, json.h: Suppress extra spaces in '--json=cg' output.
+
 	linux_nvme_ioctl.h: Replace with current version from Linux kernel
 	sources (include/uapi/linux/nvme_ioctl.h fadccd8 2019-02-20).
 	This version adds Linux-syscall-note to its GPL-2.0 (only) license.
