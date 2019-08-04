@@ -1,6 +1,8 @@
-$Id: ChangeLog 4935 2019-08-04 14:39:24Z chrfranke $
+$Id: ChangeLog 4936 2019-08-04 14:50:26Z chrfranke $
 
 2019-08-04  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Suppress extra spaces in '--json=cg' output.
 
 	linux_nvme_ioctl.h: Replace with current version from Linux kernel
 	sources (include/uapi/linux/nvme_ioctl.h fadccd8 2019-02-20).

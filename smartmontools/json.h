@@ -9,7 +9,7 @@
  */
 
 #ifndef JSON_H_CVSID
-#define JSON_H_CVSID "$Id: json.h 4890 2019-01-11 10:24:25Z chrfranke $"
+#define JSON_H_CVSID "$Id: json.h 4936 2019-08-04 14:50:26Z chrfranke $"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -190,7 +190,8 @@ private:
   void set_string(const node_path & path, const std::string & value);
 
   static void print_json(FILE * f, bool pretty, bool sorted, const node * p, int level);
-  static void print_flat(FILE * f, bool sorted, const node * p, std::string & path);
+  static void print_flat(FILE * f, const char * assign, bool sorted, const node * p,
+                         std::string & path);
 };
 
 #endif // JSON_H_CVSID
