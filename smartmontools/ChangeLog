@@ -2,6 +2,10 @@ $Id$
 
 2019-08-04  Christian Franke  <franke@computer.org>
 
+	examplescripts/Example8: Try mail and mailx first, then fall back to
+	sendmail.
+	examplescripts/README: Update documentation.
+
 	json.cpp, json.h: Suppress extra spaces in '--json=cg' output.
 
 	linux_nvme_ioctl.h: Replace with current version from Linux kernel

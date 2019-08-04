@@ -9,14 +9,39 @@
 #
 # $Id$
 
-if [ -z "$SMARTD_ADDRESS" ]; then
-  echo "$0: SMARTD_ADDRESS must be set"
-  exit 1
-fi
+# Skip if '-m <nomailer>' is set
+test -n "$SMARTD_ADDRESS" || exit 0
 
-exec /usr/sbin/sendmail $SMARTD_ADDRESS <<EOF
+# Try mail[x]
+for mailer in \
+  $(which mail 2>/dev/null) \
+  $(which mailx 2>/dev/null) \
+  /usr/bin/mail \
+  /usr/bin/mailx
+do
+  test -f "$mailer" || continue
+  test -x "$mailer" || continue
+  exec "$mailer" -s "${SMARTD_SUBJECT-[SMARTD_SUBJECT]}" $SMARTD_ADDRESS <<EOF
+${SMARTD_FULLMESSAGE-[SMARTD_FULLMESSAGE]}
+EOF
+  exit $?
+done
+
+# Try sendmail
+for sendmail in \
+  /usr/sbin/sendmail \
+  /usr/lib/sendmail
+do
+  test -f "$sendmail" || continue
+  test -x "$sendmail" || continue
+  exec "$sendmail" $SMARTD_ADDRESS <<EOF
 Subject: ${SMARTD_SUBJECT-[SMARTD_SUBJECT]}
 To: $(echo $SMARTD_ADDRESS | sed 's/ /, /g')
 
 ${SMARTD_FULLMESSAGE-[SMARTD_FULLMESSAGE]}
 EOF
+  exit $?
+done
+
+echo "$0: found none of 'mail', 'mailx' or 'sendmail'"
+exit 1

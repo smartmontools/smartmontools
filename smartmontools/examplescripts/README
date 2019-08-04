@@ -51,7 +51,7 @@ Example7: Sends an email using /usr/sbin/sendmail mail transfer agent.
           May be useful if there is no other mail(1) compatible mailer
           available.
 
-Example8: Sends an email using /usr/sbin/sendmail mail transfer agent.
-          This variant of Example7 uses SMARTD_* environment variables
-          and could therefore also be used in a run-parts(8) context
-          like Example5.
+Example8: Sends an email using mail, mailx or sendmail mail transfer agent,
+          whichever is found first.  This script uses SMARTD_* environment
+          variables and could therefore also be used in a run-parts(8)
+          context like Example5.
