@@ -1,4 +1,11 @@
-$Id: ChangeLog 4934 2019-07-01 20:54:14Z chrfranke $
+$Id: ChangeLog 4935 2019-08-04 14:39:24Z chrfranke $
+
+2019-08-04  Christian Franke  <franke@computer.org>
+
+	linux_nvme_ioctl.h: Replace with current version from Linux kernel
+	sources (include/uapi/linux/nvme_ioctl.h fadccd8 2019-02-20).
+	This version adds Linux-syscall-note to its GPL-2.0 (only) license.
+	This should fix the GPL-2.0-or-later licensing problem (#1226).
 
 2019-07-01  Christian Franke  <franke@computer.org>
 
