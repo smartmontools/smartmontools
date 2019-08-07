@@ -1,5 +1,10 @@
 $Id$
 
+2019-08-07  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Increase size of email message buffer to avoid truncation
+	if device name is very long (#1217).
+
 2019-08-04  Christian Franke  <franke@computer.org>
 
 	examplescripts/Example8: Try mail and mailx first, then fall back to

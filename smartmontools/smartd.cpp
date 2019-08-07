@@ -1,8 +1,8 @@
 /*
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-19 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -1149,7 +1149,11 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   mail->lastsent=epoch;
 
   // print warning string into message
-  char message[256];
+  // Note: Message length may reach ~300 characters as device names may be
+  // very long on certain platforms (macOS ~230 characters).
+  // Message length must not exceed email line length limit, see RFC 5322:
+  // "... MUST be no more than 998 characters, ... excluding the CRLF."
+  char message[512];
   va_list ap;
   va_start(ap, fmt);
   vsnprintf(message, sizeof(message), fmt, ap);
