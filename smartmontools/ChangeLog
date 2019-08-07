@@ -1,4 +1,9 @@
-$Id: ChangeLog 4937 2019-08-04 15:29:43Z chrfranke $
+$Id: ChangeLog 4938 2019-08-07 05:18:41Z chrfranke $
+
+2019-08-07  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Increase size of email message buffer to avoid truncation
+	if device name is very long (#1217).
 
 2019-08-04  Christian Franke  <franke@computer.org>
 

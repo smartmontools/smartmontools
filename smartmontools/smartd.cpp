@@ -1,8 +1,8 @@
 /*
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-19 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -84,7 +84,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4932 2019-06-28 20:20:31Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4938 2019-08-07 05:18:41Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -1149,7 +1149,11 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   mail->lastsent=epoch;
 
   // print warning string into message
-  char message[256];
+  // Note: Message length may reach ~300 characters as device names may be
+  // very long on certain platforms (macOS ~230 characters).
+  // Message length must not exceed email line length limit, see RFC 5322:
+  // "... MUST be no more than 998 characters, ... excluding the CRLF."
+  char message[512];
   va_list ap;
   va_start(ap, fmt);
   vsnprintf(message, sizeof(message), fmt, ap);
