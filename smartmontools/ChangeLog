@@ -3,7 +3,7 @@ $Id$
 2019-08-07  Christian Franke  <franke@computer.org>
 
 	os_win32/wtssendmsg.c: Don't convert '\r\n' in message read from
-	stdin as it is also written to event log.
+	stdin as it is also written to event log.  Add '-t' and '-w' option.
 
 	smartd.cpp: Increase size of email message buffer to avoid truncation
 	if device name is very long (#1217).
