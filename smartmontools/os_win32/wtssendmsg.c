@@ -1,9 +1,9 @@
 /*
  * WTSSendMessage() command line tool
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2012 Christian Franke
+ * Copyright (C) 2012-19 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -11,7 +11,7 @@
 #define WINVER 0x0500
 #define _WIN32_WINNT WINVER
 
-char svnid[] = "$Id: wtssendmsg.c 4760 2018-08-19 18:45:53Z chrfranke $";
+char svnid[] = "$Id: wtssendmsg.c 4939 2019-08-07 20:27:28Z chrfranke $";
 
 #include <stdio.h>
 #include <string.h>
@@ -23,8 +23,8 @@ char svnid[] = "$Id: wtssendmsg.c 4760 2018-08-19 18:45:53Z chrfranke $";
 
 static int usage()
 {
-  printf("wtssendmsg $Revision: 4760 $ - Display a message box on client desktops\n"
-         "Copyright (C) 2012 Christian Franke, smartmontools.org\n\n"
+  printf("wtssendmsg $Revision: 4939 $ - Display a message box on client desktops\n"
+         "Copyright (C) 2012-19 Christian Franke, www.smartmontools.org\n\n"
          "Usage: wtssendmsg [-cas] [-v] [\"Caption\"] \"Message\"|-\n"
          "       wtssendmsg -v\n\n"
          "  -c    Console session [default]\n"
@@ -64,12 +64,15 @@ int main(int argc, const char **argv)
 
     if (!strcmp(message, "-")) {
       // Read message from stdin
-      i = fread(msgbuf, 1, sizeof(msgbuf)-1, stdin);
-      if (i < 0) {
-        perror("stdin");
+      // The message is also written to a Windows event log entry, so
+      // don't convert '\r\n' to '\n' (the MessageBox works with both)
+      DWORD size = 0;
+      if (!ReadFile(GetStdHandle(STD_INPUT_HANDLE),
+                    msgbuf, sizeof(msgbuf)-1, &size, (OVERLAPPED*)0)) {
+        fprintf(stderr, "Read from stdin failed\n");
         return 1;
       }
-      msgbuf[i] = 0;
+      msgbuf[size] = 0;
       message = msgbuf;
     }
   }
