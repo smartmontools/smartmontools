@@ -1,5 +1,10 @@
 $Id$
 
+2019-08-08  Christian Franke  <franke@computer.org>
+
+	os_win32/wtssendmsg.c: Fix parsing of numeric options.
+	Fix reading message from stdin pipe or console.
+
 2019-08-07  Christian Franke  <franke@computer.org>
 
 	os_win32/wtssendmsg.c: Don't convert '\r\n' in message read from
