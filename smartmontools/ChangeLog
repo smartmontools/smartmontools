@@ -1,6 +1,9 @@
-$Id: ChangeLog 4941 2019-08-08 18:56:36Z chrfranke $
+$Id: ChangeLog 4942 2019-08-08 19:01:13Z chrfranke $
 
 2019-08-08  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Make 'json::ref::~ref()' non-inline to decrease
+	code size.  Remove some extra ';'.
 
 	os_win32/wtssendmsg.c: Fix parsing of numeric options.
 	Fix reading message from stdin pipe or console.

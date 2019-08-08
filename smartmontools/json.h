@@ -9,7 +9,7 @@
  */
 
 #ifndef JSON_H_CVSID
-#define JSON_H_CVSID "$Id: json.h 4936 2019-08-04 14:50:26Z chrfranke $"
+#define JSON_H_CVSID "$Id: json.h 4942 2019-08-08 19:01:13Z chrfranke $"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -48,13 +48,15 @@ public:
   class ref
   {
   public:
+    ~ref();
+
     /// Return reference to object element.
     ref operator[](const char * key) const
-      { return ref(*this, key); };
+      { return ref(*this, key); }
 
     /// Return reference to array element.
     ref operator[](int index) const
-      { return ref(*this, index); };
+      { return ref(*this, index); }
 
     // Assignment operators create or change element.
     void operator=(bool value);
@@ -98,7 +100,7 @@ public:
 
   /// Return reference to element of top level object.
   ref operator[](const char * key)
-    { return ref(*this, key); };
+    { return ref(*this, key); }
 
   /// Enable/disable JSON output.
   void enable(bool yes = true)

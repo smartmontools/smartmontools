@@ -13,7 +13,7 @@
 
 #include "json.h"
 
-const char * json_cvsid = "$Id: json.cpp 4936 2019-08-04 14:50:26Z chrfranke $"
+const char * json_cvsid = "$Id: json.cpp 4942 2019-08-08 19:01:13Z chrfranke $"
   JSON_H_CVSID;
 
 #include "sg_unaligned.h"
@@ -74,6 +74,10 @@ json::ref::ref(const ref & base, const char * /*dummy*/, const char * key_suffix
     break;
   }
   jassert(i >= 0); // Limit: top level element must be an object
+}
+
+json::ref::~ref()
+{
 }
 
 void json::ref::operator=(bool value)
