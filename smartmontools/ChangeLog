@@ -2,6 +2,8 @@ $Id$
 
 2019-08-08  Christian Franke  <franke@computer.org>
 
+	os_linux.cpp: Add more debug output to 'get_usb_id()'.
+
 	json.cpp, json.h: Make 'json::ref::~ref()' non-inline to decrease
 	code size.  Remove some extra ';'.
 

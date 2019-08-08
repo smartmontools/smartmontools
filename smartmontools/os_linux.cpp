@@ -2777,6 +2777,15 @@ static bool get_usb_id(const char * name, unsigned short & vendor_id,
       return false;
   } while (access((dir + "/idVendor").c_str(), 0));
 
+  if (scsi_debugmode > 1) {
+    pout("Found idVendor in: %s\n", dir.c_str());
+    char * p = realpath(dir.c_str(), (char *)0);
+    if (p) {
+      pout("         realpath: %s\n", p);
+      free(p);
+    }
+  }
+
   // Read IDs
   if (!(   read_id(dir + "/idVendor", vendor_id)
         && read_id(dir + "/idProduct", product_id)
