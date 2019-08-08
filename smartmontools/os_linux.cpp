@@ -94,7 +94,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4914 2019-04-30 19:46:42Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4943 2019-08-08 19:19:58Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -2776,6 +2776,15 @@ static bool get_usb_id(const char * name, unsigned short & vendor_id,
     if (!(++cnt < 10 && !stat(dir.c_str(), &st) && st.st_ino != stop_ino))
       return false;
   } while (access((dir + "/idVendor").c_str(), 0));
+
+  if (scsi_debugmode > 1) {
+    pout("Found idVendor in: %s\n", dir.c_str());
+    char * p = realpath(dir.c_str(), (char *)0);
+    if (p) {
+      pout("         realpath: %s\n", p);
+      free(p);
+    }
+  }
 
   // Read IDs
   if (!(   read_id(dir + "/idVendor", vendor_id)
