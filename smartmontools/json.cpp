@@ -76,6 +76,10 @@ json::ref::ref(const ref & base, const char * /*dummy*/, const char * key_suffix
   jassert(i >= 0); // Limit: top level element must be an object
 }
 
+json::ref::~ref()
+{
+}
+
 void json::ref::operator=(bool value)
 {
   m_js.set_bool(m_path, value);
