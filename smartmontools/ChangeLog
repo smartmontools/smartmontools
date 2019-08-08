@@ -1,4 +1,9 @@
-$Id: ChangeLog 4940 2019-08-07 21:02:45Z chrfranke $
+$Id: ChangeLog 4941 2019-08-08 18:56:36Z chrfranke $
+
+2019-08-08  Christian Franke  <franke@computer.org>
+
+	os_win32/wtssendmsg.c: Fix parsing of numeric options.
+	Fix reading message from stdin pipe or console.
 
 2019-08-07  Christian Franke  <franke@computer.org>
 

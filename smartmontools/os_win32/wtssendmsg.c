@@ -11,7 +11,7 @@
 #define WINVER 0x0501
 #define _WIN32_WINNT WINVER
 
-char svnid[] = "$Id: wtssendmsg.c 4940 2019-08-07 21:02:45Z chrfranke $";
+char svnid[] = "$Id: wtssendmsg.c 4941 2019-08-08 18:56:36Z chrfranke $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +24,7 @@ char svnid[] = "$Id: wtssendmsg.c 4940 2019-08-07 21:02:45Z chrfranke $";
 
 static int usage()
 {
-  printf("wtssendmsg $Revision: 4940 $ - Display a message box on client desktops\n"
+  printf("wtssendmsg $Revision: 4941 $ - Display a message box on client desktops\n"
          "Copyright (C) 2012-19 Christian Franke, www.smartmontools.org\n\n"
          "Usage: wtssendmsg [-cas] [-t TIMEOUT] [-w 0..5] [-v] [\"Caption\"] \"Message\"|-\n"
          "       wtssendmsg -v\n\n"
@@ -53,18 +53,17 @@ int main(int argc, const char **argv)
 
   for (i = 1; i < argc && argv[i][0] == '-' && argv[i][1]; i++) {
     int j;
-    for (j = 1; j > 0 && argv[i][j]; j++)
+    for (j = 1; argv[i][j]; j++) {
       switch (argv[i][j]) {
-        case 'c': mode = 0; break;
-        case 'a': mode = 1; break;
-        case 's': mode = 2; break;
+        case 'c': mode = 0; continue;
+        case 'a': mode = 1; continue;
+        case 's': mode = 2; continue;
         case 't':
           if (argv[i][j+1] || ++i >= argc)
             return usage();
           timeout = getnum(argv[i]);
           if (timeout < 0)
             return usage();
-          j = 0;
           break;
         case 'w':
           if (argv[i][j+1] || ++i >= argc)
@@ -72,11 +71,12 @@ int main(int argc, const char **argv)
           buttons = getnum(argv[i]);
           if (!(MB_OK <= buttons && buttons <= MB_RETRYCANCEL)) // 0..5
             return usage();
-          j = 0;
           break;
-        case 'v': verbose = 1; break;
+        case 'v': verbose = 1; continue;
         default: return usage();
       }
+      break;
+    }
   }
 
   const char * message = 0, * caption = "";
@@ -93,13 +93,14 @@ int main(int argc, const char **argv)
       // Read message from stdin
       // The message is also written to a Windows event log entry, so
       // don't convert '\r\n' to '\n' (the MessageBox works with both)
+      i = 0;
       DWORD size = 0;
-      if (!ReadFile(GetStdHandle(STD_INPUT_HANDLE),
-                    msgbuf, sizeof(msgbuf)-1, &size, (OVERLAPPED*)0)) {
-        fprintf(stderr, "Read from stdin failed\n");
-        return 1;
-      }
-      msgbuf[size] = 0;
+      do
+        if (!ReadFile(GetStdHandle(STD_INPUT_HANDLE),
+                      msgbuf+i, sizeof(msgbuf)-1-i, &size, (OVERLAPPED*)0))
+          break; // May fail with ERROR_BROKEN_PIPE instead of EOF
+      while (size > 0 && (i += size) < (int)sizeof(msgbuf)-1);
+      msgbuf[i] = 0;
       message = msgbuf;
     }
   }
