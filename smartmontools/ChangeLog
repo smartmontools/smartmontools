@@ -2,6 +2,8 @@ $Id$
 
 2019-08-12  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp: Add ACS-5 major version and latest ACS-4 minor version.
+
 	drivedb.h:
 	- Apacer AS340 (based on patch from #1209)
 	- Phison Driven SSDs: Kingston DC500R/M (#1176)

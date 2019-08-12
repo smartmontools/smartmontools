@@ -1,10 +1,10 @@
 /*
  * ataprint.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-19 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -432,11 +432,13 @@ static int find_msb(unsigned short word)
 static const char * get_ata_major_version(const ata_identify_device * drive)
 {
   // Table 13 of T13/1153D (ATA/ATAPI-4) revision 18, August 19, 1998
-  // Table 48 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
+  // Table 29 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Table 55 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
+  // Table 55 of T13/BSR INCITS 558 (ACS-5) Revision 1c, June 11, 2019
   switch (find_msb(drive->major_rev_num)) {
-    case 14: return "ACS >4 (14)";
-    case 13: return "ACS >4 (13)";
-    case 12: return "ACS >4 (12)";
+    case 14: return "ACS >5 (14)";
+    case 13: return "ACS >5 (13)";
+    case 12: return "ACS-5";
     case 11: return "ACS-4";
     case 10: return "ACS-3";
     case  9: return "ACS-2";
@@ -457,7 +459,8 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
   // Table 10 of X3T13/2008D (ATA-3) Revision 7b, January 27, 1997
   // Table 28 of T13/1410D (ATA/ATAPI-6) Revision 3b, February 26, 2002
   // Table 31 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
-  // Table 46 of T13/BSR INCITS 529 (ACS-4) Revision 08, April 28, 2015
+  // Table 57 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
+  // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 1c, June 11, 2019
   switch (drive->minor_rev_num) {
     case 0x0001: return "ATA-1 X3T9.2/781D prior to revision 4";
     case 0x0002: return "ATA-1 published, ANSI X3.221-1994";
@@ -513,6 +516,8 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
     case 0x006d: return "ACS-3 T13/2161-D revision 5";
 
     case 0x0082: return "ACS-2 published, ANSI INCITS 482-2012";
+
+    case 0x009c: return "ACS-4 published, ANSI INCITS 529-2018";
 
     case 0x0107: return "ATA8-ACS T13/1699-D revision 2d";
 
