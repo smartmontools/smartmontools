@@ -1,7 +1,7 @@
 /*
  * drivedb.h - smartmontools drive database file
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
  * Copyright (C) 2008-19 Christian Franke
@@ -222,6 +222,24 @@ const drive_settings builtin_knowndrives[] = {
     "-v 175,raw48,Bad_Cluster_Table_Count "
     "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 241,raw48,Total_LBAs_Written "
+  },
+  { "Apacer AS340 SSDs",
+    "Apacer AS340 (120|240|480|960)GB", // tested with Apacer AS340 120GB/AP612PE0
+    "", "",
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 163,raw48,Max_Erase_Count "
+    "-v 164,raw48,Average_Erase_Count "
+    "-v 166,raw48,Later_Bad_Block_Count "
+    "-v 167,raw48,SSD_Protect_Mode "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 175,raw48,Bad_Cluster_Table_Count "
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 231,raw48,Lifetime_Left "
   //"-v 241,raw48,Total_LBAs_Written "
   },
   { "Apple MacBook Air SSD", // probably Toshiba
@@ -620,6 +638,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
       // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
+    "KINGSTON SEDC500[MR](480|960|1920|3840)G|" // DC500M/R, tested with
+      // KINGSTON SEDC500M1920G/SCEKJ2.3, KINGSTON SEDC500R480G/SCEKJ2.3
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
@@ -644,19 +664,28 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 9,raw24(raw8),Power_On_Hours "
     "-v 10,raw48,Not_In_Use "
   //"-v 12,raw48,Power_Cycle_Count "
+    "-v 167,raw48,Unknown_Phison_Attr "
     "-v 168,raw48,SATA_Phy_Error_Count "
+    "-v 169,raw48,Unknown_Phison_Attr "
     "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Erl/Lat " // Early bad block/Later bad block
+    "-v 172,raw48,Unknown_Phison_Attr "
     "-v 173,raw16(avg16),MaxAvgErase_Ct "
     "-v 175,raw48,Not_In_Use "
-    "-v 183,raw48,Unknown_Attribute "
+    "-v 181,raw48,Unknown_Phison_Attr "
+    "-v 182,raw48,Unknown_Phison_Attr "
+    "-v 183,raw48,Unknown_Phison_Attr "
   //"-v 187,raw48,Reported_Uncorrect "
     "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 193,raw48,Power_Fail_Uncompl_Cnt "
   //"-v 194,tempminmax,Temperature_Celsius "
-    "-v 196,raw48,Not_In_Use "
+    "-v 194,raw48,Power_Fail_Health "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
     "-v 197,raw48,Not_In_Use "
-    "-v 199,raw48,CRC_Error_Count "
+    "-v 199,raw48,SATA_CRC_Error_Count "
+    "-v 207,raw48,Thermal_Throttling_Cnt "
     "-v 218,raw48,CRC_Error_Count "
     "-v 231,raw48,SSD_Life_Left "
+    "-v 232,raw48,Read_Fail_Count "
     "-v 233,raw48,Flash_Writes_GiB "
     "-v 240,raw48,Not_In_Use "
     "-v 241,raw48,Lifetime_Writes_GiB "
@@ -4961,6 +4990,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbjmicron"
+  },
+  // Fast Point Technologies (?)
+  { "USB: ; ",
+    "0x0850:0x0003",
+    "", // 0x0100
+    "",
+    "-d sat"
   },
   // Oxford Semiconductor, Ltd
   { "USB: ; Oxford",

@@ -1,5 +1,12 @@
 $Id$
 
+2019-08-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apacer AS340 (based on patch from #1209)
+	- Phison Driven SSDs: Kingston DC500R/M (#1176)
+	- USB: Unknown (0x0850:0x0003)
+
 2019-08-08  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp: Add more debug output to 'get_usb_id()'.
