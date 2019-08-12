@@ -1,6 +1,8 @@
-$Id: ChangeLog 4944 2019-08-12 20:12:27Z chrfranke $
+$Id: ChangeLog 4946 2019-08-12 20:48:34Z chrfranke $
 
 2019-08-12  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add ACS-5 major version and latest ACS-4 minor version.
 
 	drivedb.h:
 	- Apacer AS340 (based on patch from #1209)
