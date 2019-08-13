@@ -664,21 +664,21 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 9,raw24(raw8),Power_On_Hours "
     "-v 10,raw48,Not_In_Use "
   //"-v 12,raw48,Power_Cycle_Count "
-    "-v 167,raw48,Unknown_Phison_Attr "
+    "-v 167,raw48,Write_Protect_Mode " // DC500
     "-v 168,raw48,SATA_Phy_Error_Count "
-    "-v 169,raw48,Unknown_Phison_Attr "
+    "-v 169,raw48,Bad_Block_Rate " // DC500
     "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Erl/Lat " // Early bad block/Later bad block
-    "-v 172,raw48,Unknown_Phison_Attr "
+    "-v 172,raw48,Erase_Fail_Count " // DC500
     "-v 173,raw16(avg16),MaxAvgErase_Ct "
     "-v 175,raw48,Not_In_Use "
-    "-v 181,raw48,Unknown_Phison_Attr "
-    "-v 182,raw48,Unknown_Phison_Attr "
+    "-v 181,raw48,Program_Fail_Count " // DC500
+    "-v 182,raw48,Erase_Fail_Count " // DC500
     "-v 183,raw48,Unknown_Phison_Attr "
   //"-v 187,raw48,Reported_Uncorrect "
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 193,raw48,Power_Fail_Uncompl_Cnt "
   //"-v 194,tempminmax,Temperature_Celsius "
-    "-v 194,raw48,Power_Fail_Health "
+    "-v 195,raw48,Power_Fail_Health "
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
     "-v 197,raw48,Not_In_Use "
     "-v 199,raw48,SATA_CRC_Error_Count "

@@ -1,5 +1,9 @@
 $Id$
 
+2019-08-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Phison Driven SSDs: Fix typo, add DC500 attributes (#1176)
+
 2019-08-12  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add ACS-5 major version and latest ACS-4 minor version.
