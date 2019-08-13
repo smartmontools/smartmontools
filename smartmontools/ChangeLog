@@ -1,4 +1,8 @@
-$Id: ChangeLog 4946 2019-08-12 20:48:34Z chrfranke $
+$Id: ChangeLog 4947 2019-08-13 20:39:31Z chrfranke $
+
+2019-08-13  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Phison Driven SSDs: Fix typo, add DC500 attributes (#1176)
 
 2019-08-12  Christian Franke  <franke@computer.org>
 
