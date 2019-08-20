@@ -1900,6 +1900,8 @@ const drive_settings builtin_knowndrives[] = {
    "-v 245,raw48,DriveLife_Used% "
  },
   { "SiliconMotion based SSDs", // SM2246EN (Transcend TS6500)
+    "ADATA (SP550|SU[89]00)|" // tested with ADATA SP550/O0803B5a, ADATA SU800/Q0913A, ADATA SU800/R0427A,
+      // ADATA SU800/R0918B, ADATA SU900/Q0125A, ADATA SU900/Q0710B
     "R3SL(120|240|480|960)G|" // AMD Radeon Solid State Drives,
     "CT(120|250|500|1000)BX100SSD1|" // Crucial BX100, tested with CT250BX100SSD1/MU02,
       // CT500BX100SSD1/MU02, CT1000BX100SSD1/MU02
@@ -1912,7 +1914,7 @@ const drive_settings builtin_knowndrives[] = {
       // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
       // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H,
       // TS32GSSD420K/P1225CE
-    "TS(16|32|64|128|512|256)GMTS400S?|" // TS256GMTS400
+    "TS(16|32|64|128|512|256)GMTS4[03]0S?|" // TS256GMTS400, TS256GMTS430S/S0423A
     "TS(120|240)GMTS420|" // Transcend MTS420
     "TS(128G|256G|512G|1T)SSD230S|" // TS128GSSD230S/P1025F8
     "TS(120|240|480|960)GSSD220S|" // TS480GSSD220S/P0520AA
@@ -1924,8 +1926,7 @@ const drive_settings builtin_knowndrives[] = {
       // TS256GESD400K/R0605AS (0x2174:0x2000)
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // MKNSSDRE256GB/N1007C
     "MKNSSDTR(240|500|250|120|480|240)GB(-LT)?|" // MKNSSDTR500GB/O1126A
-    "LITEON LMH-(128|256|512)V2M-.*|" // LITEON LMH-256V2M-11 MSATA 256GB/FM8110C
-    "ADATA SP550", // ADATA SP550/O0803B5a
+    "LITEON LMH-(128|256|512)V2M-.*", // LITEON LMH-256V2M-11 MSATA 256GB/FM8110C
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -1935,6 +1936,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 149,raw48,Max_SLC_Erase_Ct "
     "-v 150,raw48,Min_SLC_Erase_Ct "
     "-v 151,raw48,Average_SLC_Erase_Ct "
+    "-v 159,raw48,Unkn_SiliconMotion_Attr " // SU800/R0427A, SU900/Q0710B, TS256GMTS430S/S0423A
     "-v 160,raw48,Uncorrectable_Error_Cnt "
     "-v 161,raw48,Valid_Spare_Block_Cnt "
     "-v 163,raw48,Initial_Bad_Block_Count "
@@ -1964,7 +1966,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 245,raw48,TLC_Writes_32MiB " // FW N0815B, N1114H
     "-v 246,raw48,SLC_Writes_32MiB "
-    "-v 247,raw48,Raid_Recoverty_Ct"
+    "-v 247,raw48,Raid_Recoverty_Ct "
+    "-v 248,raw48,Unkn_SiliconMotion_Attr " // ADATA SU900/Q0125A
+  //"-v 250,raw48,Read_Error_Retry_Rate " // ADATA SU800/Q0913A
+    "-v 251,raw48,Unkn_SiliconMotion_Attr" // ADATA SU800/Q0913A
   },
   { "SMART Modular Technologies mSATA XL+ SLC SSDs", // tested with SH9MST6D16GJSI01
     "SH9MST6D[0-9]*GJSI?[0-9]*", // based on http://www.smartm.com/salesLiterature/embedded/mSATA_overview.pdf
@@ -5312,6 +5317,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; JMicron JMS576", // USB3.1->SATA
+    "0x152d:0x1576",
+    "", // 0x0204, ICY BOX IB-223U3a-B
+    "",
+    "-d sat"
+  },
   { "USB: ; JMicron JM20329", // USB->SATA
     "0x152d:0x2329",
     "", // 0x0100
@@ -5399,6 +5410,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron JMS561U", // USB3->2xSATA
     "0x152d:0x8561",
     "", // 0x0107
+    "",
+    "-d sat"
+  },
+  // PNY
+  { "USB: ; PNY",
+    "0x154b:0x5678",
+    "", // 0x5408
     "",
     "-d sat"
   },
