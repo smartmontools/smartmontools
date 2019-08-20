@@ -1,5 +1,13 @@
 $Id$
 
+2019-08-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SiliconMotion based SSDs: ADATA SU800 (#954, #1214), SU900 (#996),
+	  Transcend 430S (#1229)
+	- USB: JMicron JMS576 (0x152d:0x1576)
+	- USB: PNY (0x154b:0x5678)
+
 2019-08-13  Christian Franke  <franke@computer.org>
 
 	drivedb.h: Phison Driven SSDs: Fix typo, add DC500 attributes (#1176)
