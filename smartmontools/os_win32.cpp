@@ -2095,9 +2095,9 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
     pout("CSMI_SAS_PHY_INFO: NumberOfPhys=%d\n", phy_info.bNumberOfPhys);
     for (int i = 0; i < max_number_of_ports; i++) {
       const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
-      const CSMI_SAS_IDENTIFY & id = pe.Identify, & at = pe.Attached;
-      if (id.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
+      if (!nonempty(&pe, sizeof(pe)))
         continue;
+      const CSMI_SAS_IDENTIFY & id = pe.Identify, & at = pe.Attached;
 
       int port = -1;
       for (int p = 0; p < max_number_of_ports && port < 0; p++) {
@@ -2111,6 +2111,8 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
       pout("  TargetProto: 0x%02x, 0x%02x\n", id.bTargetPortProtocol, at.bTargetPortProtocol);
       pout("  PortIdent:   0x%02x\n", pe.bPortIdentifier);
       pout("  PhyIdent:    0x%02x, 0x%02x\n", id.bPhyIdentifier, at.bPhyIdentifier);
+      pout("  SignalClass: 0x%02x, 0x%02x\n", id.bSignalClass, at.bSignalClass);
+      pout("  Restricted:  0x%02x, 0x%02x\n", id.bRestricted, at.bRestricted);
       const unsigned char * b = id.bSASAddress;
       pout("  SASAddress:  %02x %02x %02x %02x %02x %02x %02x %02x, ",
         b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);

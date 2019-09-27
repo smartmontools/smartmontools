@@ -1,5 +1,10 @@
 $Id$
 
+2019-09-27  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Enhance CSMI_SAS_PHY_INFO debug output.
+	Print all nonempty entries.
+
 2019-08-20  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
