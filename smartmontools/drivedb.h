@@ -698,10 +698,11 @@ const drive_settings builtin_knowndrives[] = {
   // weak information in the model. Detection is based on Firmware.
   { "Phison Driven OEM SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "GOODRAM|" // tested with GOODRAM CX200 (GOODRAM/SAFM12.2)
+    "Hoodisk SSD|" // tested with Hoodisk SSD/SBFM01.3
     "INTENSO|" // tested with Intenso SSD SATA III Top (INTENSO/S9FM02.6, .../SAFM01.6)
     "SATA SSD", // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
       // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
-    "S9FM02\\.[136]|SAFM01\\.6|SAFM12\\.2|SBFM10\\.5|SBFM91\\.2",
+    "S9FM02\\.[136]|SAFM01\\.6|SAFM12\\.2|SBFM01\\.3|SBFM10\\.5|SBFM91\\.2",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
@@ -929,11 +930,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 236,raw48,Unstable_Power_Count "
     "-v 240,raw48,Write_Head"
   },
-  { "Innodisk 3IE2/3ME2/3MG2/3SE2 SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
+  { "Innodisk 3IE2/3ME2/3MG2/3SE2/3TG6 SSDs", // tested with 2.5" SATA SSD 3MG2-P/M140402,
       // 1.8 SATA SSD 3IE2-P/M150821, 2.5" SATA SSD 3IE2-P/M150821,
       // SATA Slim 3MG2-P/M141114, M.2 (S80) 3MG2-P/M141114, M.2 (S42) 3SE2-P/M150821,
-      // M.2 (S42) 3ME2/M151013
-    "((1\\.8|2\\.5)\"? SATA SSD|SATA Slim|M\\.2 \\(S(42|80)\\)) 3(IE|ME|MG|SE)2(-P)?",
+      // M.2 (S42) 3ME2/M151013, SATA Slim 3TG6-P/A19926J
+    "((1\\.8|2\\.5)\"? SATA SSD|SATA Slim|M\\.2 \\(S(42|80)\\)) 3(IE2|ME2|MG2|SE2|TG6)(-P)?",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -968,7 +969,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 234,raw48,Flash_Reads_32MiB "  // ]
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
-    "-v 245,raw48,Flash_Writes_32MiB"
+    "-v 245,raw48,Flash_Writes_32MiB "
+    "-v 248,raw48,Remaining_Life "
+    "-v 249,raw48,Spare_Blocks_Remaining"
   },
   { "Innodisk 3IE3/3ME3/3ME4 SSDs", // tested with 2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
       // InnoDisk Corp. - mSATA 3ME3/S15A19, mSATA mini 3ME3/S15A19, M.2 (S42) 3ME3,
@@ -1779,13 +1782,17 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SD7S[BN]6S-?(128|256|512)G(1122|-1006)|" // X300 (88SS9189?), tested with
       // SanDisk SD7SB6S128G1122/X3310000, SanDisk SD7SN6S-512G-1006/X3511006
     "SanDisk SD8S[BN]8U-?((128|256|512)G|1T00)(1122|-1006)|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
+    "SanDisk SD9S[BN]8W-?((128|256|512)G|[12]T00)1122|" // X600, tested with SanDisk SD9SB8W128G1122/X6107000
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
     "SanDisk SDSSDH2(128|256)G|" // SanDisk SDSSDH2128G/X211200
-    "SanDisk SDSSDH3(250|500|[12]000)G|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL, SanDisk SDSSDH3500G/X61110RL
+    "SanDisk SDSSDH3(250|500|1000|1024|2000)G|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL,
+      // SanDisk SDSSDH3500G/X61110RL, SanDisk SDSSDH31024G/X6107000
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
+    "SanDisk SSD PLUS (120|240|480|1000) GB|" // Plus (88SS1074), tested with SanDisk SSD PLUS 120 GB/UE3000RL,
+      // SanDisk SSD PLUS 120 GB/UE4500RL, SanDisk SSD PLUS 1000GB/UH4400RL
     "SSD SATAIII 16GB", // SSD SATAIII 16GB/i221100 (see #923)
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -4856,6 +4863,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: LaCie P9230 (LAC302002); ",
+    "0x059f:0x1053",
+    "", // 0x0000
+    "",
+    "-d sat"
+  },
   { "USB: LaCie Rugged Mini HDD; ",
     "0x059f:0x106b",
     "",
@@ -5054,6 +5067,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  { "USB: Toshiba Stor.E D10; Initio INIC-1610PL",
+    "0x0939:0x0b13",
+    "",
+    "",
+    "-d sat,12"
+  },
   // Apricorn
   { "USB: Apricorn SATA Wire; ",
     "0x0984:0x0040",
@@ -5201,6 +5220,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; Atech", // Enclosure from Kingston SSDNow notebook upgrade kit
     "0x11b0:0x6298",
     "", // 0x0108
+    "",
+    "-d sat"
+  },
+  // Brain Actuated Technologies
+  { "USB: ; Atech", // ICY BOX 2x Raid enclosure IB-RD2253-U31
+    "0x1234:0x5678",
+    "", // 0x0100
     "",
     "-d sat"
   },
