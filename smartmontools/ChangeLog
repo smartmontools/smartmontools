@@ -2,6 +2,16 @@ $Id$
 
 2019-09-27  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Phison Driven OEM SSDs: Hoodisk
+	- Innodisk 3IE2/3ME2/3MG2/3SE2/3TG6 SSDs: Rename,
+	  add 3TG6 (GH pull/40)
+	- Marvell based SanDisk SSDs: X600, Ultra 3D 1024G,
+	  Plus (#1120, #1160)
+	- USB: LaCie P9230 (0x059f:0x1053) (#1235)
+	- USB: Toshiba Stor.E D10 (0x0939:0x0b13)
+	- USB: Atech (0x1234:0x5678) (#1234)
+
 	os_win32.cpp: Enhance CSMI_SAS_PHY_INFO debug output.
 	Print all nonempty entries.
 
