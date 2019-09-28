@@ -636,6 +636,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 249,raw48,Spares_Remaining_Perc " //  later then 0409 FW.
   },
   { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
+    "BP4 mSATA SSD|" // MyDigital BP4, tested with BP4 mSATA SSD/S8FM06.9
+    "GOODRAM IRIDIUM PRO|" // tested with GOODRAM IRIDIUM PRO/SAFM01.5
+    "IR-SSDPR-S25A-(120|240|480|960)|" // Goodram IRIDM, tested with IR-SSDPR-S25A-120/SBFM91.3,
+      // IR-SSDPR-S25A-240/SBFM91.2
     "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
       // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
     "KINGSTON SEDC500[MR](480|960|1920|3840)G|" // DC500M/R, tested with
@@ -644,14 +648,17 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
     "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
-    "PNY CS(13|22)11 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122,
-      // PNY CS2211 240GB SSD/CS221016
-    "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
     "KINGSTON SHSS3B?7A(120|240|480|960)G|" // HyperX Savage
-    "KINGSTON  ?SA400S37(120|240|480|960)G", // Kingston A400 SSD, Phison S11 or
+    "KINGSTON  ?SA400S37(120|240|480|960)G|" // Kingston A400 SSD, Phison S11 or
       // Silicon Motion controller (see ticket #801), tested with
       // KINGSTON SA400S37240G/SBFK10D7, KINGSTON SA400S37120G/SBFK71E0, */SBFKB1D1
       // KINGSTON  SA400S37480G/SBFK10D7 (two spaces)
+    "PNY CS(13|22)11 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122,
+      // PNY CS2211 240GB SSD/CS221016
+    "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
+    "SSD PHISON 256GB PS3110-S10C|" // tested with SSD PHISON 256GB PS3110-S10C/SAFM12.2
+    "SSDPR-CX400-(128|256|512|1024)|" // Goodram CX400, tested with SSDPR-CX400-512/SBFM61.3
+    "SSM28(128|256|512)GPTCB3B-S11[24]61[123]", // tested with SSM28256GPTCB3B-S112612/SBFM61.2
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
@@ -700,9 +707,11 @@ const drive_settings builtin_knowndrives[] = {
     "GOODRAM|" // tested with GOODRAM CX200 (GOODRAM/SAFM12.2)
     "Hoodisk SSD|" // tested with Hoodisk SSD/SBFM01.3
     "INTENSO|" // tested with Intenso SSD SATA III Top (INTENSO/S9FM02.6, .../SAFM01.6)
-    "SATA SSD", // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
+    "INTENSO SATA III SSD|" // tested with INTENSO SATA III SSD/SBFM11.2, .../SBFM81.3
+    "SATA SSD|" // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
       // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
-    "S9FM02\\.[136]|SAFM01\\.6|SAFM12\\.2|SBFM01\\.3|SBFM10\\.5|SBFM91\\.2",
+    "SPCC Solid State Disk", // Silicon Power A55, tested with SPCC Solid State Disk/SBFM61.2
+    "S[89AB]FM[0-9][0-9]\\.[0-9]",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "

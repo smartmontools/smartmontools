@@ -1,8 +1,12 @@
 $Id$
 
-2019-09-28 Christian Franke  <franke@computer.org>
+2019-09-28  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Phison Driven SSDs: Goodram CX400, Goodram Iridium Pro,
+	  Goodram IRIDM (#1136, #1212), MyDigital BP4, PS3110-S10C (#1075),
+	  SSM28256GPTCB3B
+	- Phison Driven OEM SSDs: Intenso SATA III, Silicon Power A55
 	- Silicon Motion based SSDs: Rename, sort, add Cervoz M305 (#1097),
 	  Drevo X1 (#949), Drevo X1 Pro (#936), J&A LEVEN JS500 (#998),
 	  KingDian S280, OWC Envoy Pro (#1168), Ramsta S800 (#1158),
