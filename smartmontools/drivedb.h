@@ -1906,16 +1906,28 @@ const drive_settings builtin_knowndrives[] = {
    "-v 233,raw48,Number_Of_Write_Ct "
    "-v 245,raw48,DriveLife_Used% "
  },
-  { "SiliconMotion based SSDs", // SM2246EN (Transcend TS6500)
+  { "Silicon Motion based SSDs",
     "ADATA (SP550|SU[89]00)|" // tested with ADATA SP550/O0803B5a, ADATA SU800/Q0913A, ADATA SU800/R0427A,
       // ADATA SU800/R0918B, ADATA SU900/Q0125A, ADATA SU900/Q0710B
-    "R3SL(120|240|480|960)G|" // AMD Radeon Solid State Drives,
+    "CHN mSATAM3 (128|256|512)|" // Zheino M3, tested with CHN mSATAM3 128/Q1124A0
+    "CIS 2S M305 (16|32|64|128|256)GB|" // Ceroz M305, tested with CIS 2S M305 64GB/P0316B
     "CT(120|250|500|1000)BX100SSD1|" // Crucial BX100, tested with CT250BX100SSD1/MU02,
       // CT500BX100SSD1/MU02, CT1000BX100SSD1/MU02
     "CT(240|480|960)BX200SSD1|" // Crucial BX200 Solid State Drive, tested with CT480BX200SSD1/MU02.6
-    "KingDian S400 (120|240|480)GB|" // SM2256EN, tested with KingDian S400 120GB/Q0607A
+    "DREVO X1 SSD|" // tested with DREVO X1 SSD/Q0111A
+    "Drevo X1 pro (64|128|256)G|" // tested with Drevo X1 pro 64G/Q0303B
+    "JAJS500M(120|240|480|960)C-1|" // J&A LEVEN JS500, tested with JAJS500M120C-1/P0614D
+    "KingDian S(280|400) (120|240|480)GB|" // SM2256EN, tested with KingDian S280 120GB/Q0526A,
+      // KingDian S400 120GB/Q0607A
     "KingSpec KSD-[PS]A25\\.[1-9]-(016|032|064|128)(MS|SJ)|" // tested with KingSpec KSD-PA25.6-064MS/20140803
+    "LITEON LMH-(128|256|512)V2M-.*|" // tested with LITEON LMH-256V2M-11 MSATA 256GB/FM8110C
+    "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // tested with MKNSSDRE256GB/N1007C
+    "MKNSSDTR(240|500|250|120|480|240)GB(-LT)?|" // tested with MKNSSDTR500GB/O1126A
+    "OWC Envoy Pro|" // tested with OWC Envoy Pro/R0522A0 (0x1e91:0xa2a5)
+    "R3SL(120|240|480|960)G|" // AMD Radeon SSDs, tested with R3SL240G/P0422C
+    "Ramsta SSD S800 (120|240|480)GB|" // SM2258G, tested with Ramsta SSD S800 480GB/RS81V0
     "T60|" // KingSpec T60, tested with T60/20151120
+    "TCSUNBOW M3 (60|240)GB|" // TC-Sunbow M3, tested with TCSUNBOW M3 240GB/R0327B0
     "TEAML5Lite3D(120G|240G|480G|1T)|" // Team Group L5Lite 3D, tested with TEAML5Lite3D240G/R0302A0
     "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420[IK]?)|" // Transcend SSD370/420 SATA/mSATA, TS6500,
       // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
@@ -1929,11 +1941,8 @@ const drive_settings builtin_knowndrives[] = {
     "TS(16|32|64)GMSA630|" // MSA630 mSATA SSD, tested with TS32GMSA630/N0113E1
     "TS(32|64|128)GPSD330|" // Transcend PSD SSD, tested with TS64GPSD330/20140121
     "TS(16|32|64|96|128|256)GSSD630|" // Transcend 630, tested with TS16GSSD630/N0113E1
-    "TS(128G|256G|512G|1T)ESD400K|" // Transcend ESD400 Portable, tested with
+    "TS(128G|256G|512G|1T)ESD400K", // Transcend ESD400 Portable, tested with
       // TS256GESD400K/R0605AS (0x2174:0x2000)
-    "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // MKNSSDRE256GB/N1007C
-    "MKNSSDTR(240|500|250|120|480|240)GB(-LT)?|" // MKNSSDTR500GB/O1126A
-    "LITEON LMH-(128|256|512)V2M-.*", // LITEON LMH-256V2M-11 MSATA 256GB/FM8110C
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -1977,6 +1986,38 @@ const drive_settings builtin_knowndrives[] = {
     "-v 248,raw48,Unkn_SiliconMotion_Attr " // ADATA SU900/Q0125A
   //"-v 250,raw48,Read_Error_Retry_Rate " // ADATA SU800/Q0913A
     "-v 251,raw48,Unkn_SiliconMotion_Attr" // ADATA SU800/Q0913A
+  },
+  { "Silicon Motion based OEM SSDs", // Like 'Silicon Motion based SSDs' but with FW detection
+    "Intenso SSD|" // tested with Intenso SSD/Q1107A0
+    "Intenso  SSD Sata III|" // Sata III High, tested with Intenso  SSD Sata III/P0510E
+    "KingFast|" // KingFast F6M, tested with KingFast/P0725A
+    "SPCC M\\.2 SSD|" // Silicon Power 2280 M55, tested with SPCC M.2 SSD/Q0627A0
+    "SuperMicro SSD", // Supermicro SSD-DM032-SMCMVN1, tested with SuperMicro SSD/SOB20R
+    "P0510E|P0725A|Q0627A0|Q1107A0|SOB20R",
+    "",
+    "-v 148,raw48,Total_SLC_Erase_Ct "
+    "-v 149,raw48,Max_SLC_Erase_Ct "
+    "-v 150,raw48,Min_SLC_Erase_Ct "
+    "-v 151,raw48,Average_SLC_Erase_Ct "
+    "-v 159,raw48,Unkn_SiliconMotion_Attr "
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Valid_Spare_Block_Cnt "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Max_Erase_Count_of_Spec "
+    "-v 169,raw48,Remaining_Lifetime_Perc "
+    "-v 178,raw48,Runtime_Invalid_Blk_Cnt "
+    "-v 225,raw48,Host_Writes_32MiB "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 245,raw48,TLC_Writes_32MiB "
+    "-v 246,raw48,SLC_Writes_32MiB "
+    "-v 247,raw48,Raid_Recoverty_Ct "
+    "-v 248,raw48,Unkn_SiliconMotion_Attr "
+    "-v 251,raw48,Unkn_SiliconMotion_Attr"
   },
   { "SMART Modular Technologies mSATA XL+ SLC SSDs", // tested with SH9MST6D16GJSI01
     "SH9MST6D[0-9]*GJSI?[0-9]*", // based on http://www.smartm.com/salesLiterature/embedded/mSATA_overview.pdf
@@ -5539,6 +5580,13 @@ const drive_settings builtin_knowndrives[] = {
   // TrekStor
   { "USB: TrekStor DataStation; ", // DataStation maxi light (USB 3.0)
     "0x1e68:0x0050",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  // 0x1e91 (?)
+  { "USB: OWC Envoy Pro; ",
+    "0x1e91:0xa2a5",
     "", // 0x0100
     "",
     "-d sat"

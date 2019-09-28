@@ -1,9 +1,21 @@
 $Id$
 
+2019-09-28 Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Silicon Motion based SSDs: Rename, sort, add Cervoz M305 (#1097),
+	  Drevo X1 (#949), Drevo X1 Pro (#936), J&A LEVEN JS500 (#998),
+	  KingDian S280, OWC Envoy Pro (#1168), Ramsta S800 (#1158),
+	  TC-Sunbow M3, Zheino M3
+	- Silicon Motion based OEM SSDs: New entry with FW detection:
+	  Intenso SSD, Intenso SATA III High (#1005), KingFast F6M (#968),
+	  Silicon Power M.2 2280 M55 (#978), SuperMicro DM032-SMCMVN1 (#1172),
+	- USB: OWC Envoy Pro (0x1e91:0xa2a5) (#1168)
+
 2019-09-27  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
-	- Phison Driven OEM SSDs: Hoodisk
+	- Phison Driven OEM SSDs: Hoodisk (#1231)
 	- Innodisk 3IE2/3ME2/3MG2/3SE2/3TG6 SSDs: Rename,
 	  add 3TG6 (GH pull/40)
 	- Marvell based SanDisk SSDs: X600, Ultra 3D 1024G,
