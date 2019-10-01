@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4870 2018-12-27 17:07:44Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4957 2019-10-01 01:03:38Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -604,6 +604,8 @@ scsiPrintGrownDefectListLen(scsi_device * device)
         case 4:     /* bytes from index */
         case 5:     /* physical sector */
             div = 8;
+            break;
+        case 6:     /* vendor specific */
             break;
         default:
             print_on();
