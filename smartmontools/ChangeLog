@@ -1,5 +1,21 @@
 $Id$
 
+2019-10-01  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp:
+	- in scsiGetSupportedLogPages() the code assumes if the
+	  device supports the "Supported Log pages and subpages"
+	  log page then that will supersede the "Supported Log
+	  pages" log page. However in tickets #1225 and #1239
+	  different Samsung SAS SSDs seem to have a dummy
+	  response to the '... and subpages' variant log page
+	  and a correct response to the shorter (and older)
+	  variant. Change code so the '... and subpages'
+	  variant is ignored if its response is shorter than
+	  the other variant's response. This code change needs to
+	  be tested on real Samsung SAS SSDs, preferably by the
+	  reporters of tickets #1225 and #1239 .
+
 2019-09-30  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp:
