@@ -1,5 +1,14 @@
 $Id$
 
+2019-09-30  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp:
+	- in scsiPrintGrownDefectListLen() change to silently bypass
+	  if defect list type is 6 since it means "vendor specific".
+	  On recent SAS SSDs it seems to mean: we (the manufacturer)
+	  are not going to give you any more information about this
+	  SSD's internal format.
+
 2019-09-28  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

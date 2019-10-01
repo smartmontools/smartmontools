@@ -605,6 +605,8 @@ scsiPrintGrownDefectListLen(scsi_device * device)
         case 5:     /* physical sector */
             div = 8;
             break;
+        case 6:     /* vendor specific */
+            break;
         default:
             print_on();
             pout("defect list format %d unknown\n", dl_format);
