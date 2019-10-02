@@ -951,13 +951,16 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 160,raw48,Uncorrectable_Error_Cnt "
     "-v 161,raw48,Number_of_Pure_Spare "
-    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 163,raw48,Total_Bad_Block_Count "
     "-v 164,raw48,Total_Erase_Count "
     "-v 165,raw48,Max_Erase_Count "
     "-v 166,raw48,Min_Erase_Count "
     "-v 167,raw48,Average_Erase_Count "
     "-v 168,raw48,Max_Erase_Count_of_Spec "
     "-v 169,raw48,Remaining_Lifetime_Perc "
+    "-v 170,raw48,Spare_Block_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
   //"-v 175,raw48,Program_Fail_Count_Chip "
   //"-v 176,raw48,Erase_Fail_Count_Chip "
   //"-v 177,raw48,Wear_Leveling_Count "
@@ -973,9 +976,11 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 225,raw48,Host_Writes_32MiB "  // ]
+    "-v 229,raw48,Flash_ID "  // ]
   //"-v 232,raw48,Available_Reservd_Space "
     "-v 233,raw48,Flash_Writes_32MiB " // ]
     "-v 234,raw48,Flash_Reads_32MiB "  // ]
+    "-v 235,raw48,Later_Bad_Block_Info "  // ]
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 245,raw48,Flash_Writes_32MiB "
