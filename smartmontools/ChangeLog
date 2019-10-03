@@ -1,4 +1,8 @@
-$Id: ChangeLog 4958 2019-10-01 20:56:52Z dpgilbert $
+$Id: ChangeLog 4959 2019-10-03 14:58:23Z chrfranke $
+
+2019-10-03  Christian Franke  <franke@computer.org>
+
+	configure.ac: Define _FORTIFY_SOURCE=2 if supported.
 
 2019-10-01  Douglas Gilbert  <dgilbert@interlog.com>
 
