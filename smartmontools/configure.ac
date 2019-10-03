@@ -36,11 +36,14 @@ if test "$cross_compiling" = "no"; then
     [AC_MSG_WARN([m4/pkg.m4 missing, systemd detection disabled])])
 fi
 
+AC_ARG_VAR(NM, [Symbol list command])
 AC_ARG_VAR(WINDMC, [Windows message compiler command])
 AC_ARG_VAR(WINDRES, [Windows resource compiler command])
 AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 
 AC_CANONICAL_HOST
+
+AC_CHECK_TOOL(NM, [nm])
 case "${host}" in
   *-*-mingw*)
     AC_CHECK_TOOL(WINDMC, [windmc])
@@ -797,6 +800,32 @@ else
       esac ;;
   esac
 fi
+
+case " $CPPFLAGS $CXXFLAGS" in
+  *\ -[[DU]]_FORTIFY_SOURCE*)
+    ;;
+  *)
+    # Heuristic to check for _FORTIFY_SOURCE=2 support.
+    # Done after check for -fstack-protector because this may add an additional lib.
+    # Note: Even if _FORTIFY_SOURCE is present in the include files, it may not be
+    # detected here because it is disabled for C++.
+    AC_MSG_CHECKING([whether $CXX supports _FORTIFY_SOURCE=2])
+    save_CPPFLAGS=$CPPFLAGS
+    CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D_FORTIFY_SOURCE=2"
+    # Use LINK instead of COMPILE to make sure that the required lib is also present
+    # (does not work with LDFLAGS=-s).
+    AC_LINK_IFELSE([AC_LANG_SOURCE([[
+      #include <string.h>
+      char buf[42];
+      int main(int argc, char **argv) {
+        if (argc == 2) strcpy(buf, argv[1]); return buf[0];
+      }]])],
+      [res=yes; $NM conftest$EXEEXT 2>/dev/null | grep '_strcpy_chk' >/dev/null 2>&1 || res=no],
+      [res=unknown])
+    test "$res" = "yes" || CPPFLAGS=$save_CPPFLAGS
+    AC_MSG_RESULT([$res])
+    ;;
+esac
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                       [smartmontools Build Host])
 
