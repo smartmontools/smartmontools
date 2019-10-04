@@ -1,4 +1,9 @@
-$Id: ChangeLog 4959 2019-10-03 14:58:23Z chrfranke $
+$Id: ChangeLog 4960 2019-10-04 19:59:06Z chrfranke $
+
+2019-10-04  Christian Franke  <franke@computer.org>
+
+	configure.ac: Don't check for _FORTIFY_SOURCE if it is a
+	compiler preset.
 
 2019-10-03  Christian Franke  <franke@computer.org>
 
