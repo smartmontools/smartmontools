@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4946 2019-08-12 20:48:34Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4965 2019-10-05 14:35:17Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -1107,11 +1107,14 @@ static void set_json_globals_from_smart_attrib(int id, const char * name,
       {
         int minutes = -1;
         switch (defs[id].raw_format) {
-          case RAWFMT_DEFAULT: case RAWFMT_RAW48: case RAWFMT_RAW64:
+          case RAWFMT_RAW48: case RAWFMT_RAW64:
           case RAWFMT_RAW16_OPT_RAW16: case RAWFMT_RAW24_OPT_RAW8: break;
           case RAWFMT_SEC2HOUR: minutes = (rawval / 60) % 60; rawval /= 60*60; break;
           case RAWFMT_MIN2HOUR: minutes = rawval % 60; rawval /= 60; break;
           case RAWFMT_HALFMIN2HOUR: minutes = (rawval / 2) % 60; rawval /= 2*60; break;
+          case RAWFMT_DEFAULT: // No database entry:
+            rawval &= 0xffffffffULL; // ignore milliseconds from RAWFMT_MSEC24_HOUR32
+            break;
           case RAWFMT_MSEC24_HOUR32:
             minutes = (int)(rawval >> 32) / (1000*60);
             if (minutes >= 60)
