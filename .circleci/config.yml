@@ -54,7 +54,7 @@ references:
         mkdir ~/build && cd ~/build &&
         tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
-        ../configure LDFLAGS="-static" CXXFLAGS="-m32 -Wall" CFLAGS="-m32 -Wall" &&
+        ../configure CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" &&
         make -j2 BUILD_INFO="$BUILD_INFO" && make check &&
         mkdir inst && make DESTDIR="$(pwd)/inst" install &&
         (cd inst && tar czf "/artefacts/smartmontools-linux-i386-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
