@@ -1,5 +1,10 @@
 $Id$
 
+2019-10-05  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Set JSON value 'power_on_time.hours' if raw value
+	also contains milliseconds (#1165).
+
 2019-10-04  Christian Franke  <franke@computer.org>
 
 	configure.ac: Don't check for _FORTIFY_SOURCE if it is a
