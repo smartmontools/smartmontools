@@ -28,31 +28,32 @@ references:
         ./autogen.sh --force &&
         mkdir build && cd build &&
         ../configure &&
-        make dist &&
-        mkdir /artefacts && mv smartmontools-${SM_VER}.tar.gz /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
+        make dist && tar -tvzf smartmontools-${SM_VER}.tar.gz &&
+        mkdir /artefacts &&
+        mv smartmontools-${SM_VER}.tar.gz /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
 
-  sm_comple_linux: &sm_compile_linux
+  sm_compile_linux: &sm_compile_linux
     run:
       name: Creating static x86_64 linux binaries
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
         BUILD_INFO='"(CircleCI)"' &&
         mkdir ~/build && cd ~/build &&
-        tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
+        tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
         ../configure LDFLAGS="-static" && make -j2 BUILD_INFO="$BUILD_INFO" && make check &&
         mkdir inst && make DESTDIR="$(pwd)/inst" install &&
         (cd inst && tar czf "/artefacts/smartmontools-linux-x86_64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
         rm -rf ~/build
 
-  sm_comple_linux32: &sm_compile_linux32
+  sm_compile_linux32: &sm_compile_linux32
     run:
       name: Creating static i386 linux binaries
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
         BUILD_INFO='"(CircleCI)"' &&
         mkdir ~/build && cd ~/build &&
-        tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
+        tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
         ../configure CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" &&
         make -j2 BUILD_INFO="$BUILD_INFO" && make check &&
@@ -67,7 +68,7 @@ references:
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
         BUILD_INFO='"(CircleCI)"' &&
         mkdir ~/build && cd ~/build &&
-        tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
+        tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
         ../configure CC=clang CXX=clang++ LDFLAGS="-static" &&
         HTMLDIR="smartmontools-linux-clang-analyzer-${SM_VER}-r${SVNREV}" &&
@@ -88,7 +89,7 @@ references:
         fi &&
         rm -rf ~/build
 
-  sm_comple_win: &sm_compile_win
+  sm_compile_win: &sm_compile_win
     run:
       name: Creating Windows installer
       command: |
@@ -108,7 +109,7 @@ references:
         mv "$dest" /artefacts &&
         rm -rf ~/build
 
-  sm_comple_darwin: &sm_compile_darwin
+  sm_compile_darwin: &sm_compile_darwin
     run:
       name: Creating Darwin image
       command: |
@@ -133,7 +134,7 @@ references:
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
         BUILD_INFO='"(CircleCI)"' &&
         mkdir ~/build && cd ~/build &&
-        tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
+        tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
         TARGET="-target x86_64-unknown-freebsd11 --sysroot=/opt/cross-freebsd-11/" &&
         ../configure CC="clang $TARGET" CXX="clang++ $TARGET" LDFLAGS="-static" --host=x86_64-pc-freebsd11 &&
@@ -142,7 +143,7 @@ references:
         (cd inst && tar czf "/artefacts/smartmontools-freebsd11.2-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
         rm -rf ~/build &&
         mkdir ~/build && cd ~/build &&
-        tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
+        tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
         TARGET="-target x86_64-unknown-freebsd12 --sysroot=/opt/cross-freebsd-12/" &&
         ../configure CC="clang $TARGET" CXX="clang++ $TARGET" LDFLAGS="-static" --host=x86_64-pc-freebsd12 &&
@@ -157,7 +158,7 @@ references:
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
         mkdir ~/build && cd ~/build &&
-        tar -xvzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
+        tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} &&
         ./cppcheck.sh -j2 -q | tee /artefacts/smartmontools-cppcheck-${SM_VER}-r${SVNREV}.txt &&
         rm -rf ~/build
