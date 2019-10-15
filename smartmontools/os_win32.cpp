@@ -2006,10 +2006,54 @@ protected:
 
 private:
   CSMI_SAS_PHY_ENTITY m_phy_ent; ///< CSMI info for this phy
+
+  static bool guess_amd_drives(CSMI_SAS_PHY_INFO & phy_info, unsigned max_phy_drives);
 };
 
 
 /////////////////////////////////////////////////////////////////////////////
+
+bool csmi_device::guess_amd_drives(CSMI_SAS_PHY_INFO & phy_info, unsigned max_phy_drives)
+{
+  if (max_phy_drives > max_number_of_ports)
+    return false;
+  if (max_phy_drives <= phy_info.bNumberOfPhys)
+    return false;
+  if (nonempty(phy_info.Phy + phy_info.bNumberOfPhys,
+      (max_number_of_ports - phy_info.bNumberOfPhys) * sizeof(phy_info.Phy[0])))
+    return false; // Phy[phy_info.bNumberOfPhys...] nonempty
+
+  // Get range of used ports, abort on unexpected values
+  int min_pi = max_number_of_ports, max_pi = 0, i;
+  for (i = 0; i < phy_info.bNumberOfPhys; i++) {
+    const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
+    if (pe.Identify.bPhyIdentifier != i)
+      return false;
+    if (pe.bPortIdentifier >= max_phy_drives)
+      return false;
+    if (nonempty(&pe.Attached.bSASAddress, sizeof(pe.Attached.bSASAddress)))
+      return false;
+    if (min_pi > pe.bPortIdentifier)
+      min_pi = pe.bPortIdentifier;
+    if (max_pi < pe.bPortIdentifier)
+      max_pi = pe.bPortIdentifier;
+  }
+
+  // Append possibly used ports
+  for (int pi = 0; i < (int)max_phy_drives; i++, pi++) {
+    if (min_pi <= pi && pi <= max_pi)
+      pi = max_pi + 1;
+    if (pi >= (int)max_phy_drives)
+      break;
+    CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
+    pe.Identify.bDeviceType = pe.Attached.bDeviceType = CSMI_SAS_END_DEVICE;
+    pe.Attached.bTargetPortProtocol = CSMI_SAS_PROTOCOL_SATA;
+    pe.Identify.bPhyIdentifier = i;
+    pe.bPortIdentifier = pi;
+  }
+
+  return true;
+}
 
 int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p2i)
 {
@@ -2022,8 +2066,9 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
   if (!csmi_ioctl(CC_CSMI_SAS_GET_DRIVER_INFO, &driver_info_buf.IoctlHeader, sizeof(driver_info_buf)))
     return -1;
 
+  const CSMI_SAS_DRIVER_INFO & driver_info = driver_info_buf.Information;
+
   if (scsi_debugmode > 1) {
-    const CSMI_SAS_DRIVER_INFO & driver_info = driver_info_buf.Information;
     pout("CSMI_SAS_DRIVER_INFO:\n");
     pout("  Name:        \"%.81s\"\n", driver_info.szName);
     pout("  Description: \"%.81s\"\n", driver_info.szDescription);
@@ -2043,15 +2088,42 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
     return -1;
   }
 
+  // Get RAID info
+  CSMI_SAS_RAID_INFO_BUFFER raid_info_buf;
+  memset(&raid_info_buf, 0, sizeof(raid_info_buf));
+  if (!csmi_ioctl(CC_CSMI_SAS_GET_RAID_INFO, &raid_info_buf.IoctlHeader, sizeof(raid_info_buf))) {
+    memset(&raid_info_buf, 0, sizeof(raid_info_buf)); // Ignore error
+  }
+
+  const CSMI_SAS_RAID_INFO & raid_info = raid_info_buf.Information;
+
+  if (scsi_debugmode > 1 && nonempty(&raid_info_buf, sizeof(raid_info_buf))) {
+    pout("CSMI_SAS_RAID_INFO:\n");
+    pout("  NumRaidSets:  %u\n", (unsigned)raid_info.uNumRaidSets);
+    pout("  MaxDrvPerSet: %u\n", (unsigned)raid_info.uMaxDrivesPerSet);
+    pout("  MaxRaidSets:  %u\n", (unsigned)raid_info.uMaxRaidSets);
+    pout("  MaxRaidTypes: %d\n", raid_info.bMaxRaidTypes);
+    pout("  MaxPhyDrives: %u\n", (unsigned)raid_info.uMaxPhysicalDrives);
+  }
+
   // Create port -> index map
-  //                                     IRST Release
-  // Phy[i].Value               9.x   10.x   14.8   15.2   16.0
-  // ----------------------------------------------------------
-  // bPortIdentifier           0xff   0xff   port   0x00   port
-  // Identify.bPhyIdentifier   index? index? index  index  port
-  // Attached.bPhyIdentifier   0x00   0x00   0x00   index  0x00
+  //                                     Intel RST              AMD rcraid
+  // Phy[i].Value              9/10.x  14.8    15.2   16/17.0   9.2
+  // ---------------------------------------------------------------------
+  // bPortIdentifier           0xff    port    0x00    port     (port)
+  // Identify.bPhyIdentifier   index?  index   index   port     index
+  // Attached.bPhyIdentifier   0x00    0x00    index   0x00     0x00
   //
-  // Empty ports with hotplug support may appear in Phy[].
+  // AMD: Phy[] may be incomplete (single drives not counted) and port
+  // numbers may be invalid (single drives skipped).
+  // IRST: Empty ports with hotplug support may appear in Phy[].
+
+  int first_guessed_index = max_number_of_ports;
+  if (!memcmp(driver_info.szName, "rcraid", 6+1)) {
+    // Workaround for AMD driver
+    if (guess_amd_drives(phy_info, raid_info.uMaxPhysicalDrives))
+      first_guessed_index = phy_info.bNumberOfPhys;
+  }
 
   int number_of_ports;
   for (int mode = 0; ; mode++) {
@@ -2105,7 +2177,7 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
           port = p;
       }
 
-      pout("Phy[%d] Port:   %d\n", i, port);
+      pout("Phy[%d] Port:  %2d%s\n", i, port, (i >= first_guessed_index ? " (*guessed*)" : ""));
       pout("  Type:        0x%02x, 0x%02x\n", id.bDeviceType, at.bDeviceType);
       pout("  InitProto:   0x%02x, 0x%02x\n", id.bInitiatorPortProtocol, at.bInitiatorPortProtocol);
       pout("  TargetProto: 0x%02x, 0x%02x\n", id.bTargetPortProtocol, at.bTargetPortProtocol);
@@ -2229,10 +2301,10 @@ bool csmi_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
   // Set addresses from Phy info
   CSMI_SAS_STP_PASSTHRU & pthru = pthru_buf->Parameters;
   const CSMI_SAS_PHY_ENTITY & phy_ent = get_phy_ent();
-  pthru.bPhyIdentifier = phy_ent.Identify.bPhyIdentifier;
-  pthru.bPortIdentifier = phy_ent.bPortIdentifier;
+  pthru.bPhyIdentifier = phy_ent.Identify.bPhyIdentifier; // Used by AMD, ignored by IRST
+  pthru.bPortIdentifier = phy_ent.bPortIdentifier; // Ignored
   memcpy(pthru.bDestinationSASAddress, phy_ent.Attached.bSASAddress,
-    sizeof(pthru.bDestinationSASAddress));
+    sizeof(pthru.bDestinationSASAddress)); // Used by IRST (at index 1), ignored by AMD
   pthru.bConnectionRate = CSMI_SAS_LINK_RATE_NEGOTIATED;
 
   // Set transfer mode
@@ -2429,6 +2501,8 @@ bool win_csmi_device::csmi_ioctl(unsigned code, IOCTL_HEADER * csmi_buffer,
   switch (code) {
     case CC_CSMI_SAS_GET_DRIVER_INFO:
       sig = CSMI_ALL_SIGNATURE; break;
+    case CC_CSMI_SAS_GET_RAID_INFO:
+      sig = CSMI_RAID_SIGNATURE; break;
     case CC_CSMI_SAS_GET_PHY_INFO:
     case CC_CSMI_SAS_STP_PASSTHRU:
       sig = CSMI_SAS_SIGNATURE; break;

@@ -1,5 +1,13 @@
 $Id$
 
+2019-10-15  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: CSMI: Add workaround for AMD RAID drivers which return
+	incomplete and incorrect drive information in CSMI_SAS_PHY_INFO
+	(GH issues/39).
+
+	Thanks to GH user 'Shine-' for original patch and testing.
+
 2019-10-05  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Set JSON value 'power_on_time.hours' if raw value
