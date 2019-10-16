@@ -292,7 +292,9 @@ void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
   
   // Get the time structure.  We need this to determine if we are in
   // daylight savings time or not.
-  tmval=localtime(&tval);
+  struct tm tmval_s;
+  tmval=&tmval_s;
+  localtime_r(&tval,tmval);
   
   // Convert to an ASCII string, put in datebuffer
   // same as: asctime_r(tmval, datebuffer);

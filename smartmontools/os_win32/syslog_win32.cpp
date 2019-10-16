@@ -293,7 +293,10 @@ static void write_logfile(FILE * f, int priority, const char * lines)
 	int i;
 
 	now = time((time_t*)0);
-	if (!strftime(stamp, sizeof(stamp)-1, "%Y-%m-%d %H:%M:%S", localtime(&now)))
+	struct tm tmval_s;
+	struct tm * tmval = &tmval_s;
+	localtime_r(&now, tmval);
+	if (!strftime(stamp, sizeof(stamp)-1, "%Y-%m-%d %H:%M:%S", tmval))
 		strcpy(stamp,"?");
 
 	for (i = 0; lines[i]; i++) {
