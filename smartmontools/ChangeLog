@@ -1,4 +1,8 @@
-$Id: ChangeLog 4966 2019-10-15 20:01:05Z chrfranke $
+$Id: ChangeLog 4971 2019-10-16 12:46:11Z samm2 $
+
+2019-10-16  Christian Franke  <samm@os2.kiev.ua>
+
+	drivedb.h: improve Innodisk 3TG6 record (patch by GH user Shaing)
 
 2019-10-15  Christian Franke  <franke@computer.org>
 
