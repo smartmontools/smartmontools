@@ -19,7 +19,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#define _POSIX_THREAD_SAFE_FUNCTIONS  // localtime_r on cygwin
 #include <time.h>
 #include <errno.h>
 #include <process.h> // getpid()
@@ -294,10 +293,7 @@ static void write_logfile(FILE * f, int priority, const char * lines)
 	int i;
 
 	now = time((time_t*)0);
-	struct tm tmval_s;
-	struct tm * tmval = &tmval_s;
-	localtime_r(&now, tmval);
-	if (!strftime(stamp, sizeof(stamp)-1, "%Y-%m-%d %H:%M:%S", tmval))
+	if (!strftime(stamp, sizeof(stamp)-1, "%Y-%m-%d %H:%M:%S", localtime(&now)))
 		strcpy(stamp,"?");
 
 	for (i = 0; lines[i]; i++) {

@@ -20,7 +20,6 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
-#define _POSIX_THREAD_SAFE_FUNCTIONS // localtime_r on cygwin
 #include <time.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -293,9 +292,7 @@ void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
   
   // Get the time structure.  We need this to determine if we are in
   // daylight savings time or not.
-  struct tm tmval_s;
-  tmval=&tmval_s;
-  localtime_r(&tval,tmval);
+  tmval=localtime(&tval);
   
   // Convert to an ASCII string, put in datebuffer
   // same as: asctime_r(tmval, datebuffer);

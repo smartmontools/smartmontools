@@ -24,7 +24,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
-#define _POSIX_THREAD_SAFE_FUNCTIONS  // localtime_r on cygwin
 #include <time.h>
 #include <limits.h>
 #include <getopt.h>
@@ -264,10 +263,7 @@ static void notify_wait(time_t wakeuptime, int numdev)
   if (!notify_enabled)
     return;
   char ts[16], msg[64];
-  struct tm t1;
-  t = &t1;
-  localtime_r(&wakeuptime,t);
-  strftime(ts, sizeof(ts), "%H:%M:%S", t);
+  strftime(ts, sizeof(ts), "%H:%M:%S", localtime(&wakeuptime));
   snprintf(msg, sizeof(msg), "Next check of %d device%s will start at %s",
            numdev, (numdev != 1 ? "s" : ""), ts);
   static bool ready = true; // first call notifies READY=1
@@ -2866,7 +2862,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
       (scsi || (state.not_cap_conveyance && state.not_cap_offline)))
     return 0;
 
-  // since we are about to call localtime_r(), be sure glibc is informed
+  // since we are about to call localtime(), be sure glibc is informed
   // of any timezone changes we make.
   if (!usetime)
     FixGlibcTimeZoneBug();
@@ -2890,9 +2886,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
   int maxtest = num_test_types-1;
 
   for (time_t t = state.scheduled_test_next_check; ; ) {
-    struct tm tms1;
-    struct tm * tms = &tms1;
-    localtime_r(&t, tms);
+    struct tm * tms = localtime(&t);
     // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7 (Sunday).
     int weekday = (tms->tm_wday ? tms->tm_wday : 7);
     for (int i = 0; i <= maxtest; i++) {
@@ -2930,9 +2924,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
   }
   
   // Do next check not before next hour.
-  struct tm tmnow_s;
-  struct tm *tmnow = &tmnow_s;
-  localtime_r(&now, tmnow);
+  struct tm * tmnow = localtime(&now);
   state.scheduled_test_next_check = now + (3600 - tmnow->tm_min*60 - tmnow->tm_sec);
 
   if (testtype) {
@@ -3930,7 +3922,7 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup, int numdev)
   time_t timenow=time(NULL);
   while (wakeuptime<=timenow){
     int intervals=1+(timenow-wakeuptime)/checktime;
-    wakeuptime+=(long)intervals*checktime;
+    wakeuptime+=intervals*checktime;
   }
 
   notify_wait(wakeuptime, numdev);

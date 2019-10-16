@@ -3083,10 +3083,7 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
       if (n == n1 || n == n2-1 || n2 <= n1+3) {
         char date[30];
         // TODO: Don't print times < boot time
-        struct tm tms1;
-        struct tm * tms = &tms1;
-        localtime_r(&t,tms);
-        strftime(date, sizeof(date), "%Y-%m-%d %H:%M", tms);
+        strftime(date, sizeof(date), "%Y-%m-%d %H:%M", localtime(&t));
         jout(" %3u    %s    %s  %s\n", i, date,
           sct_ptemp(tmh->cb[i], buf1), sct_pbar(tmh->cb[i], buf3));
       }

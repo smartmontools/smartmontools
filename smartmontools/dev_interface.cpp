@@ -22,7 +22,6 @@
 #include <stdexcept>
 
 #if defined(HAVE_GETTIMEOFDAY)
-#define _POSIX_THREAD_SAFE_FUNCTIONS  // localtime_r on cygwin
 #include <sys/time.h>
 #elif defined(HAVE_FTIME)
 #include <sys/timeb.h>
