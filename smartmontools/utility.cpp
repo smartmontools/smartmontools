@@ -20,7 +20,6 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
-#define _POSIX_THREAD_SAFE_FUNCTIONS // localtime_r on cygwin
 #include <time.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -43,7 +42,7 @@
 #include "dev_interface.h"
 #include "sg_unaligned.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4969 2019-10-16 11:07:52Z samm2 $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4970 2019-10-16 11:17:43Z samm2 $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -293,9 +292,7 @@ void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
   
   // Get the time structure.  We need this to determine if we are in
   // daylight savings time or not.
-  struct tm tmval_s;
-  tmval=&tmval_s;
-  localtime_r(&tval,tmval);
+  tmval=localtime(&tval);
   
   // Convert to an ASCII string, put in datebuffer
   // same as: asctime_r(tmval, datebuffer);

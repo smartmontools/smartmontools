@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4968 2019-10-16 10:57:34Z samm2 $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 4970 2019-10-16 11:17:43Z samm2 $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -3083,10 +3083,7 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
       if (n == n1 || n == n2-1 || n2 <= n1+3) {
         char date[30];
         // TODO: Don't print times < boot time
-        struct tm tms1;
-        struct tm * tms = &tms1;
-        localtime_r(&t,tms);
-        strftime(date, sizeof(date), "%Y-%m-%d %H:%M", tms);
+        strftime(date, sizeof(date), "%Y-%m-%d %H:%M", localtime(&t));
         jout(" %3u    %s    %s  %s\n", i, date,
           sct_ptemp(tmh->cb[i], buf1), sct_pbar(tmh->cb[i], buf3));
       }

@@ -19,7 +19,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#define _POSIX_THREAD_SAFE_FUNCTIONS  // localtime_r on cygwin
 #include <time.h>
 #include <errno.h>
 #include <process.h> // getpid()
@@ -27,7 +26,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h> // RegisterEventSourceA(), ReportEventA(), ...
 
-const char *syslog_win32_cpp_cvsid = "$Id: syslog_win32.cpp 4969 2019-10-16 11:07:52Z samm2 $"
+const char *syslog_win32_cpp_cvsid = "$Id: syslog_win32.cpp 4970 2019-10-16 11:17:43Z samm2 $"
   SYSLOG_H_CVSID;
 
 #ifdef _MSC_VER
@@ -294,10 +293,7 @@ static void write_logfile(FILE * f, int priority, const char * lines)
 	int i;
 
 	now = time((time_t*)0);
-	struct tm tmval_s;
-	struct tm * tmval = &tmval_s;
-	localtime_r(&now, tmval);
-	if (!strftime(stamp, sizeof(stamp)-1, "%Y-%m-%d %H:%M:%S", tmval))
+	if (!strftime(stamp, sizeof(stamp)-1, "%Y-%m-%d %H:%M:%S", localtime(&now)))
 		strcpy(stamp,"?");
 
 	for (i = 0; lines[i]; i++) {
