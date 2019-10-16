@@ -42,7 +42,7 @@
 #include "dev_interface.h"
 #include "sg_unaligned.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4886 2019-01-01 10:06:08Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4968 2019-10-16 10:57:34Z samm2 $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -292,7 +292,9 @@ void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
   
   // Get the time structure.  We need this to determine if we are in
   // daylight savings time or not.
-  tmval=localtime(&tval);
+  struct tm tmval_s;
+  tmval=&tmval_s;
+  localtime_r(&tval,tmval);
   
   // Convert to an ASCII string, put in datebuffer
   // same as: asctime_r(tmval, datebuffer);

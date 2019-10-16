@@ -26,7 +26,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h> // RegisterEventSourceA(), ReportEventA(), ...
 
-const char *syslog_win32_cpp_cvsid = "$Id: syslog_win32.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
+const char *syslog_win32_cpp_cvsid = "$Id: syslog_win32.cpp 4968 2019-10-16 10:57:34Z samm2 $"
   SYSLOG_H_CVSID;
 
 #ifdef _MSC_VER
@@ -293,7 +293,10 @@ static void write_logfile(FILE * f, int priority, const char * lines)
 	int i;
 
 	now = time((time_t*)0);
-	if (!strftime(stamp, sizeof(stamp)-1, "%Y-%m-%d %H:%M:%S", localtime(&now)))
+	struct tm tmval_s;
+	struct tm * tmval = &tmval_s;
+	localtime_r(&now, tmval);
+	if (!strftime(stamp, sizeof(stamp)-1, "%Y-%m-%d %H:%M:%S", tmval))
 		strcpy(stamp,"?");
 
 	for (i = 0; lines[i]; i++) {
