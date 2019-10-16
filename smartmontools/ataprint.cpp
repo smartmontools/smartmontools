@@ -3070,7 +3070,7 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
   jout("\nIndex    Estimated Time   Temperature Celsius\n");
   unsigned n = 0, i = (tmh->cb_index+1) % tmh->cb_size;
   unsigned interval = (tmh->interval > 0 ? tmh->interval : 1);
-  time_t t = time(0) - (tmh->cb_size-1) * interval * 60;
+  time_t t = time(0) - (long) (tmh->cb_size-1) * interval * 60;
   t -= t % (interval * 60);
   while (n < tmh->cb_size) {
     // Find range of identical temperatures
