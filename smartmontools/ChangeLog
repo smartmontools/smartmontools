@@ -1,5 +1,9 @@
 $Id$
 
+2019-10-16  Christian Franke  <samm@os2.kiev.ua>
+
+	drivedb.h: improve Innodisk 3TG6 record (patch by GH user Shaing)
+
 2019-10-15  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: CSMI: Add workaround for AMD RAID drivers which return
