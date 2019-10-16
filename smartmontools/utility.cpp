@@ -20,6 +20,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
+#define _POSIX_THREAD_SAFE_FUNCTIONS // localtime_r on cygwin
 #include <time.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -42,7 +43,7 @@
 #include "dev_interface.h"
 #include "sg_unaligned.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 4968 2019-10-16 10:57:34Z samm2 $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 4969 2019-10-16 11:07:52Z samm2 $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {

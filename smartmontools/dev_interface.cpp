@@ -22,12 +22,13 @@
 #include <stdexcept>
 
 #if defined(HAVE_GETTIMEOFDAY)
+#define _POSIX_THREAD_SAFE_FUNCTIONS  // localtime_r on cygwin
 #include <sys/time.h>
 #elif defined(HAVE_FTIME)
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4848 2018-12-05 18:30:46Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4969 2019-10-16 11:07:52Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////

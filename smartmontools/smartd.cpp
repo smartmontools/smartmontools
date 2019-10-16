@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
+#define _POSIX_THREAD_SAFE_FUNCTIONS  // localtime_r on cygwin
 #include <time.h>
 #include <limits.h>
 #include <getopt.h>
@@ -84,7 +85,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4968 2019-10-16 10:57:34Z samm2 $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4969 2019-10-16 11:07:52Z samm2 $"
   CONFIG_H_CVSID;
 
 extern "C" {
