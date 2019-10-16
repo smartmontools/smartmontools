@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
+#define _POSIX_THREAD_SAFE_FUNCTIONS  // localtime_r on cygwin
 #include <time.h>
 #include <limits.h>
 #include <getopt.h>

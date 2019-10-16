@@ -20,6 +20,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
+#define _POSIX_THREAD_SAFE_FUNCTIONS // localtime_r on cygwin
 #include <time.h>
 #include <errno.h>
 #include <stdlib.h>
