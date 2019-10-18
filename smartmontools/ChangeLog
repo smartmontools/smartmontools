@@ -1,6 +1,6 @@
 $Id$
 
-2019-10-16  Christian Franke  <samm@os2.kiev.ua>
+2019-10-16  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: improve Innodisk 3TG6 record (patch by GH user Shaing)
 
