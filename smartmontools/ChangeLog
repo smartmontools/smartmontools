@@ -1,5 +1,12 @@
 $Id$
 
+2019-10-19  Christian Franke  <franke@computer.org>
+
+	Avoid usage of asctime(), ctime(), gmtime(), and localtime().
+	Use thread-safe *_r() or *_s() variants instead.
+	utility.cpp, utility.h: Add wrapper function for localtime_*().
+	smartd.cpp: Attribute logs now use local time instead of UTC.
+
 2019-10-16  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h: improve Innodisk 3TG6 record (patch by GH user Shaing)

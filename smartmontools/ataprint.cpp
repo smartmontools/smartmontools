@@ -3081,9 +3081,10 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
     // Print range
     while (n < n2) {
       if (n == n1 || n == n2-1 || n2 <= n1+3) {
-        char date[30];
         // TODO: Don't print times < boot time
-        strftime(date, sizeof(date), "%Y-%m-%d %H:%M", localtime(&t));
+        char date[32] = "";
+        struct tm tmbuf;
+        strftime(date, sizeof(date), "%Y-%m-%d %H:%M", time_to_tm_local(&tmbuf, t));
         jout(" %3u    %s    %s  %s\n", i, date,
           sct_ptemp(tmh->cb[i], buf1), sct_pbar(tmh->cb[i], buf3));
       }
@@ -4499,7 +4500,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 	t+=timewait*60;
 	pout("Please wait %d minutes for test to complete.\n", (int)timewait);
       }
-      pout("Test will complete after %s\n", ctime(&t));
+      char comptime[DATEANDEPOCHLEN];
+      dateandtimezoneepoch(comptime, t);
+      pout("Test will complete after %s\n", comptime);
       
       if (   options.smart_selftest_type != SHORT_CAPTIVE_SELF_TEST
           && options.smart_selftest_type != EXTEND_CAPTIVE_SELF_TEST

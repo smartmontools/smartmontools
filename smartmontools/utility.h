@@ -1,10 +1,10 @@
 /*
  * utility.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-19 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -63,6 +63,9 @@ int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
 #define snprintf  safe_snprintf
 #define vsnprintf safe_vsnprintf
 #endif
+
+// Convert time to broken-down local time, throw on error.
+struct tm * time_to_tm_local(struct tm * tp, time_t t);
 
 // Utility function prints date and time and timezone into a character
 // buffer of length 64.  All the fuss is needed to get the

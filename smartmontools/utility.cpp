@@ -1,7 +1,7 @@
 /*
  * utility.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-12 Bruce Allen
  * Copyright (C) 2008-19 Christian Franke
@@ -278,29 +278,49 @@ const char *packetdevicetype(int type){
   return "Unknown";
 }
 
+// Convert time to broken-down local time, throw on error.
+struct tm * time_to_tm_local(struct tm * tp, time_t t)
+{
+#ifndef _WIN32
+  // POSIX (missing in MSVRCT, C and C++)
+  if (!localtime_r(&t, tp))
+    throw std::runtime_error("localtime_r() failed");
+#else
+  // MSVCRT (missing in POSIX, C11 variant differs)
+  if (localtime_s(tp, &t))
+    throw std::runtime_error("localtime_s() failed");
+#endif
+  return tp;
+}
+
 // Utility function prints date and time and timezone into a character
 // buffer of length 64.  All the fuss is needed to get the right
 // timezone info (sigh).
 void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
 {
-  struct tm *tmval;
-  const char *timezonename;
-  char datebuffer[DATEANDEPOCHLEN];
-  int lenm1;
-
   FixGlibcTimeZoneBug();
   
   // Get the time structure.  We need this to determine if we are in
   // daylight savings time or not.
-  tmval=localtime(&tval);
+  struct tm tmbuf, * tmval = time_to_tm_local(&tmbuf, tval);
   
-  // Convert to an ASCII string, put in datebuffer
-  // same as: asctime_r(tmval, datebuffer);
-  strncpy(datebuffer, asctime(tmval), DATEANDEPOCHLEN);
-  datebuffer[DATEANDEPOCHLEN-1]='\0';
+  // Convert to an ASCII string, put in datebuffer.
+  // Same as: strftime(datebuffer, sizeof(datebuffer), "%a %b %e %H:%M:%S %Y\n"),
+  // but always in "C" locale.
+  char datebuffer[32];
+  STATIC_ASSERT(sizeof(datebuffer) >= 26); // assumed by asctime_r()
+#ifndef _WIN32
+  // POSIX (missing in MSVRCT, C and C++)
+  if (!asctime_r(tmval, datebuffer))
+    throw std::runtime_error("asctime_r() failed");
+#else
+  // MSVCRT, C11 (missing in POSIX)
+  if (asctime_s(datebuffer, sizeof(datebuffer), tmval))
+    throw std::runtime_error("asctime_s() failed");
+#endif
   
   // Remove newline
-  lenm1=strlen(datebuffer)-1;
+  int lenm1 = strlen(datebuffer) - 1;
   datebuffer[lenm1>=0?lenm1:0]='\0';
 
 #if defined(_WIN32) && defined(_MSC_VER)
@@ -309,6 +329,7 @@ void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
 #endif
 
   // correct timezone name
+  const char * timezonename;
   if (tmval->tm_isdst==0)
     // standard time zone
     timezonename=tzname[0];

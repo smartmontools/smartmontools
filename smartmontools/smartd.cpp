@@ -262,8 +262,9 @@ static void notify_wait(time_t wakeuptime, int numdev)
 {
   if (!notify_enabled)
     return;
-  char ts[16], msg[64];
-  strftime(ts, sizeof(ts), "%H:%M:%S", localtime(&wakeuptime));
+  char ts[16] = ""; struct tm tmbuf;
+  strftime(ts, sizeof(ts), "%H:%M:%S", time_to_tm_local(&tmbuf, wakeuptime));
+  char msg[64];
   snprintf(msg, sizeof(msg), "Next check of %d device%s will start at %s",
            numdev, (numdev != 1 ? "s" : ""), ts);
   static bool ready = true; // first call notifies READY=1
@@ -879,7 +880,7 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
 
   
   time_t now = time(0);
-  struct tm * tms = gmtime(&now);
+  struct tm tmbuf, * tms = time_to_tm_local(&tmbuf, now);
   fprintf(f, "%d-%02d-%02d %02d:%02d:%02d;",
              1900+tms->tm_year, 1+tms->tm_mon, tms->tm_mday,
              tms->tm_hour, tms->tm_min, tms->tm_sec);
@@ -2886,7 +2887,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
   int maxtest = num_test_types-1;
 
   for (time_t t = state.scheduled_test_next_check; ; ) {
-    struct tm * tms = localtime(&t);
+    struct tm tmbuf, * tms = time_to_tm_local(&tmbuf, t);
     // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7 (Sunday).
     int weekday = (tms->tm_wday ? tms->tm_wday : 7);
     for (int i = 0; i <= maxtest; i++) {
@@ -2924,7 +2925,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
   }
   
   // Do next check not before next hour.
-  struct tm * tmnow = localtime(&now);
+  struct tm tmbuf, * tmnow = time_to_tm_local(&tmbuf, now);
   state.scheduled_test_next_check = now + (3600 - tmnow->tm_min*60 - tmnow->tm_sec);
 
   if (testtype) {

@@ -1,9 +1,9 @@
 /*
  * os_win32/syslog_win32.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2004-15 Christian Franke
+ * Copyright (C) 2004-19 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -289,14 +289,15 @@ static void write_event_log(int priority, const char * lines)
 
 static void write_logfile(FILE * f, int priority, const char * lines)
 {
-	time_t now; char stamp[sizeof("2004-04-04 10:00:00")+13];
-	int i;
+	char stamp[32];
+	time_t now = time(0);
+	struct tm tmbuf;
+	if (!(   !localtime_s(&tmbuf, &now)
+	      && strftime(stamp, sizeof(stamp), "%Y-%m-%d %H:%M:%S", &tmbuf))) {
+		stamp[0] = '?'; stamp[1] = 0;
+	}
 
-	now = time((time_t*)0);
-	if (!strftime(stamp, sizeof(stamp)-1, "%Y-%m-%d %H:%M:%S", localtime(&now)))
-		strcpy(stamp,"?");
-
-	for (i = 0; lines[i]; i++) {
+	for (int i = 0; lines[i]; i++) {
 		int len = 0;
 		while (lines[i+len] && lines[i+len] != '\n')
 			len++;

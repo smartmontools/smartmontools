@@ -72,12 +72,11 @@ sup_list="
   #warning
   syntaxError:drivedb.h
   #style
-  asctimeCalled:utility.cpp
+  asctime_rCalled:utility.cpp
+  asctime_sCalled:utility.cpp
   bzeroCalled
   bcopyCalled
   ftimeCalled
-  gmtimeCalled:smartd.cpp
-  localtimeCalled
   readdirCalled
   strtokCalled
   missingOverride
