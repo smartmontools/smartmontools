@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4974 2019-10-19 15:34:34Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4975 2019-10-19 15:51:48Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -174,6 +174,7 @@ scsiGetSupportedLogPages(scsi_device * device)
             bump = 1;
             up = sup_lpgs + LOGPAGEHDRSIZE;
             got_subpages = false;
+            (void)got_subpages; // not yet used below, suppress warning
         } else {
             bump = 2;
             up = gBuf + LOGPAGEHDRSIZE;
