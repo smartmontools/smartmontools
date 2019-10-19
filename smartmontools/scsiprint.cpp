@@ -174,6 +174,7 @@ scsiGetSupportedLogPages(scsi_device * device)
             bump = 1;
             up = sup_lpgs + LOGPAGEHDRSIZE;
             got_subpages = false;
+            (void)got_subpages; // not yet used below, suppress warning
         } else {
             bump = 2;
             up = gBuf + LOGPAGEHDRSIZE;

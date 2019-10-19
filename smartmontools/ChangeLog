@@ -2,6 +2,9 @@ $Id$
 
 2019-10-19  Christian Franke  <franke@computer.org>
 
+	scsiprint.cpp: Silence 'value never read' warning from clang
+	analyzer.
+
 	Avoid usage of asctime(), ctime(), gmtime(), and localtime().
 	Use thread-safe *_r() or *_s() variants instead.
 	utility.cpp, utility.h: Add wrapper function for localtime_*().
