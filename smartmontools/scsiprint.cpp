@@ -1,7 +1,7 @@
 /*
  * scsiprint.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4958 2019-10-01 20:56:52Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4974 2019-10-19 15:34:34Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -2535,7 +2535,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             t += durationSec;
             pout("Please wait %d minutes for test to complete.\n",
                  durationSec / 60);
-            pout("Estimated completion time: %s\n", ctime(&t));
+            char comptime[DATEANDEPOCHLEN];
+            dateandtimezoneepoch(comptime, t);
+            pout("Estimated completion time: %s\n", comptime);
         }
         pout("Use smartctl -X to abort test\n");
         any_output = true;

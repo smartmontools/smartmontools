@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: cppcheck.sh 4911 2019-04-30 18:42:38Z chrfranke $
+# $Id: cppcheck.sh 4974 2019-10-19 15:34:34Z chrfranke $
 #
 
 set -e
@@ -72,12 +72,11 @@ sup_list="
   #warning
   syntaxError:drivedb.h
   #style
-  asctimeCalled:utility.cpp
+  asctime_rCalled:utility.cpp
+  asctime_sCalled:utility.cpp
   bzeroCalled
   bcopyCalled
   ftimeCalled
-  gmtimeCalled:smartd.cpp
-  localtimeCalled
   readdirCalled
   strtokCalled
   missingOverride
