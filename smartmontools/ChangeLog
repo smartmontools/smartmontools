@@ -3,6 +3,7 @@ $Id$
 2019-11-22  Christian Franke  <franke@computer.org>
 
 	cciss.cpp: Fix segfault on transfer size > 512 bytes.
+	Replace printf() and fprintf() with pout().
 
 2019-10-19  Christian Franke  <franke@computer.org>
 

@@ -80,9 +80,9 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
  
      int status = cciss_getlun(device, target, phylun, report);
      if (report > 0)
-         printf("  cciss_getlun(%d, %d) = 0x%x; scsi3addr: %02x %02x %02x %02x %02x %02x %02x %02x\n", 
-	     device, target, status, 
-	     phylun[0], phylun[1], phylun[2], phylun[3], phylun[4], phylun[5], phylun[6], phylun[7]);
+         pout("  cciss_getlun(%d, %d) = 0x%x; scsi3addr: %02x %02x %02x %02x %02x %02x %02x %02x\n",
+              device, target, status,
+              phylun[0], phylun[1], phylun[2], phylun[3], phylun[4], phylun[5], phylun[6], phylun[7]);
      if (status) {
          return -ENXIO;      /* give up, assume no device there */
      }
@@ -96,13 +96,13 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
      if (0 == status)
      {
          if (report > 0)
-             printf("  status=0\n");
+             pout("  status=0\n");
          if (DXFER_FROM_DEVICE == iop->dxfer_dir)
          {
              if (report > 1)
              {
                  int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-                 printf("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
+                 pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                       (trunc ? " [only first 256 bytes shown]" : ""));
                  dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
              }
@@ -123,25 +123,25 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
          iop->resp_sense_len = len;
          if (report > 1)
          {
-             printf("  >>> Sense buffer, len=%d:\n", (int)len);
+             pout("  >>> Sense buffer, len=%d:\n", (int)len);
              dStrHex((const uint8_t *)pBuf, len , 1);
          }
      }
      if (report)
      {
          if (SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) {
-             printf("  status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
+             pout("  status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
                   pBuf[2] & 0xf, pBuf[12], pBuf[13]);
          }
          else
-             printf("  status=0x%x\n", status);
+             pout("  status=0x%x\n", status);
      }
      if (iop->scsi_status > 0)
          return 0;
      else
      {
          if (report > 0)
-             printf("  ioctl status=0x%x but scsi status=0, fail with ENXIO\n", status);
+             pout("  ioctl status=0x%x but scsi status=0, fail with ENXIO\n", status);
          return -ENXIO;      /* give up, assume no device there */
      }
 } 
@@ -172,7 +172,7 @@ static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
     }
     else 
     {
-        fprintf(stderr, "cciss_sendpassthru: bad cmdtype\n");
+        pout("cciss_sendpassthru: bad cmdtype\n");
         return 1;
     }
 
@@ -188,8 +188,8 @@ static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
 
     if ((err = ioctl(fd, CCISS_PASSTHRU, &iocommand))) 
     {
-        fprintf(stderr, "CCISS ioctl error %d (fd %d CDBLen %u buf_size %u)\n",
-	    fd, err, CDBlen, size);
+        pout("CCISS ioctl error %d (fd %d CDBLen %u buf_size %u)\n",
+             fd, err, CDBlen, size);
     }
     return err;
 }
