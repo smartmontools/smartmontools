@@ -1,5 +1,9 @@
 $Id$
 
+2019-11-22  Christian Franke  <franke@computer.org>
+
+	cciss.cpp: Fix segfault on transfer size > 512 bytes.
+
 2019-10-19  Christian Franke  <franke@computer.org>
 
 	scsiprint.cpp: Silence 'value never read' warning from clang
