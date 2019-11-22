@@ -2,6 +2,10 @@ $Id$
 
 2019-11-22  Christian Franke  <franke@computer.org>
 
+	atacmds.cpp: Fix bogus errno message in debug output.
+	Print original IDENTIFY DEVICE error if IDENTIFY PACKET DEVICE
+	also fails.
+
 	cciss.cpp: Fix segfault on transfer size > 512 bytes.
 	Replace printf() and fprintf() with pout().
 
