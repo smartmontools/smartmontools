@@ -1,10 +1,10 @@
 /*
  * atacmds.cpp
  * 
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-19 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -26,7 +26,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 4978 2019-11-22 20:06:43Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
@@ -636,7 +636,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
 
   // If reporting is enabled, say what output was produced by the command
   if (ata_debugmode) {
-    if (device->get_errno())
+    if (retval && device->get_errno())
       pout("REPORT-IOCTL: Device=%s Command=%s returned %d errno=%d [%s]\n",
            device->get_dev_name(), commandstrings[command], retval,
            device->get_errno(), device->get_errmsg());
@@ -826,7 +826,9 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
   // PACKET DEVICE
   bool packet = false;
   if ((smartcommandhandler(device, IDENTIFY, 0, (char *)buf))){
+    smart_device::error_info err = device->get_err();
     if (smartcommandhandler(device, PIDENTIFY, 0, (char *)buf)){
+      device->set_err(err);
       return -1; 
     }
     packet = true;
