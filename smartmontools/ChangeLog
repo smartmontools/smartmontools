@@ -1,4 +1,8 @@
-$Id: ChangeLog 4975 2019-10-19 15:51:48Z chrfranke $
+$Id: ChangeLog 4976 2019-11-22 19:52:44Z chrfranke $
+
+2019-11-22  Christian Franke  <franke@computer.org>
+
+	cciss.cpp: Fix segfault on transfer size > 512 bytes.
 
 2019-10-19  Christian Franke  <franke@computer.org>
 
