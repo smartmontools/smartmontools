@@ -1,9 +1,9 @@
 /*
  * dev_interface.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-19 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -11,7 +11,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4848 2018-12-05 18:30:46Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 4979 2019-11-24 18:19:24Z chrfranke $\n"
 
 #include "utility.h"
 
@@ -1020,6 +1020,13 @@ protected:
   /// Override only if platform needs special handling.
   virtual nvme_device * get_snt_device(const char * type, scsi_device * scsidev);
   //{ implemented in scsinvme.cpp }
+
+  /// Return JMB93x->ATA filter.
+  /// Device 'smartdev' is used for ATA or SCSI R/W access.
+  /// Return 0 and delete 'scsidev' on error.
+  /// Override only if platform needs special handling.
+  virtual ata_device * get_jmb39x_device(const char * type, smart_device * smartdev);
+  //{ implemented in dev_jmb39x_raid.cpp }
 
 public:
   /// Try to detect a SAT device behind a SCSI interface.

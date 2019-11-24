@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 4934 2019-07-01 20:54:14Z chrfranke $
+# $Id: Makefile.am 4979 2019-11-24 18:19:24Z chrfranke $
 #
 
 @SET_MAKE@
@@ -67,6 +67,7 @@ smartctl_SOURCES = \
         dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
+        dev_jmb39x_raid.cpp \
         dev_tunnelled.h \
         drivedb.h \
         json.cpp \
@@ -145,6 +146,7 @@ smartd_SOURCES = \
         dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
+        dev_jmb39x_raid.cpp \
         dev_tunnelled.h \
         drivedb.h \
         knowndrives.cpp \

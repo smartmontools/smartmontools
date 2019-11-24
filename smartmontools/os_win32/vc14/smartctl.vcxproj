@@ -157,6 +157,7 @@
     <ClCompile Include="..\..\ataidentify.cpp" />
     <ClCompile Include="..\..\dev_areca.cpp" />
     <ClCompile Include="..\..\dev_intelliprop.cpp" />
+    <ClCompile Include="..\..\dev_jmb39x_raid.cpp" />
     <ClCompile Include="..\..\json.cpp" />
     <ClCompile Include="..\..\nvmecmds.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp" />
