@@ -152,7 +152,7 @@ static inline void jmb_put_le32(uint8_t (& data)[512], unsigned index, uint32_t 
 
 static void jmb_set_wakeup_sector(uint8_t (& data)[512], int id)
 {
-  uint32_t code, crc;
+  uint32_t code = 0, crc = 0;
   switch (id) {
     case 0: code = 0x3c75a80b; crc = 0x706d10d9; break;
     case 1: code = 0x0388e337; crc = 0x6958511e; break;
