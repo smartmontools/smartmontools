@@ -45,6 +45,7 @@
     <ClCompile Include="..\..\cciss.cpp" />
     <ClCompile Include="..\..\dev_ata_cmd_set.cpp" />
     <ClCompile Include="..\..\dev_interface.cpp" />
+    <ClCompile Include="..\..\dev_jmb39x_raid.cpp" />
     <ClCompile Include="..\..\dev_legacy.cpp" />
     <ClCompile Include="..\..\knowndrives.cpp" />
     <ClCompile Include="..\..\os_darwin.cpp" />

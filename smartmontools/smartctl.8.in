@@ -674,6 +674,26 @@ Use syntax such as:
 \fBWARNING: The disks are selected by write commands to the ATA Device
 Vendor Specific Log at address 0xc0.
 Using this option with other devices may have undesirable side effects.\fP
+.Sp
+.I jmb39x,N[,sLBA][,force][+TYPE]
+\- [NEW EXPERMIMENTAL SMARTCTL FEATURE]
+the device consists of multiple SATA disks connected to a JMicron JMB39x RAID
+port multiplier.
+The integer N is the port number from 0 to 4.
+.br
+\fBWARNING: The ATA pass-through commands are issued via READ/WRITE commands
+to LBA 33 of the RAID volume.
+Using this option with other devices may overwrite this sector.\fP
+.br
+The LBA could be selected in the range 33 (last sector of a GPT) to 62 (last
+sector of traditional boot area).
+.br
+By default, access to the device is refused if the selected sector is not
+zero filled.
+The \*(Aqforce\*(Aq flag disables this check.
+.br
+\fBWARNING: Orignal sector data is not written back if smartctl is aborted
+with a signal.\fP
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART

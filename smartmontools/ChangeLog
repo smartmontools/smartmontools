@@ -1,5 +1,17 @@
 $Id$
 
+2019-11-24  Christian Franke  <franke@computer.org>
+
+	Add '-d jmb39x,N[,sLBA][,force][+TYPE]' device type for SATA drives
+	behind a JMicron JMB39x RAID port multiplier (#705).
+	dev_jmb39x_raid.cpp: New file, based on JMraidcon by Werner Johansson.
+	dev_interface.cpp: Parse '-d jmb39x*[+TYPE]' option.
+	dev_interface.h: Add get_jmb39x_device().
+	smartctl.8.in, smartd.conf.5.in: Document new option.
+	Makefile.am, os_win32/vc14/smart*.vcxproj*: Add new file.
+
+	Thanks to Karl McMurdo for providing access to a machine for testing.
+
 2019-11-22  Christian Franke  <franke@computer.org>
 
 	atacmds.cpp: Fix bogus errno message in debug output.

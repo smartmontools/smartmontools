@@ -542,6 +542,13 @@ disks connected to an Intelliprop controller.
 The integer N is the port number from 0 to 3 of the ATA drive to be targeted.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
+.I jmb39x,N[,sLBA][,force][+TYPE]
+\- [NEW EXPERMIMENTAL SMARTD FEATURE]
+the device consists of multiple SATA disks connected to a JMicron JMB39x RAID
+port multiplier.
+The integer N is the port number from 0 to 4.
+Please see the \fBsmartctl\fP(8) man page for further details.
+.Sp
 .I ignore
 \- the device specified by this configuration entry should be ignored.
 This allows to ignore specific devices which are detected by a following
