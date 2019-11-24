@@ -25,6 +25,8 @@
 
 #include <errno.h>
 
+const char * dev_jmb39x_raid_cpp_svnid = "$Id: dev_jmb39x_raid.cpp 4980 2019-11-24 18:23:11Z chrfranke $";
+
 static void jmbassert_failed(int line, const char * expr)
 {
   char msg[128];
