@@ -4,6 +4,7 @@ $Id$
 
 	drivedb.h: 
 	- hynix SC311 SSD (#1267)
+	- Seagate Mobile HDD (#1118)
 
 2019-11-24  Christian Franke  <franke@computer.org>
 

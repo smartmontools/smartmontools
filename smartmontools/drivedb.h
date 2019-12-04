@@ -2553,6 +2553,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST(1500|2000)LM0(03|04|06|07|10) HN-M[0-9]*RAD",
     "", "", ""
   },
+  { "Seagate Mobile HDD", // tested with ST2000LM007-1R8174/WDZD1BYX
+    "ST(1000|2000)LM0(07|09|10|35|37|38)-.*",
+    "", "", ""
+  },
   // Flash accelerated, no SMART info in the specs
   // ST1000LX015-1U7172/SDM1
   { "Seagate FireCuda 2.5", // 
