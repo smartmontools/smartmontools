@@ -1581,6 +1581,37 @@ const drive_settings builtin_knowndrives[] = {
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes"
   },
+  { "Kingston SSDNow UV400",
+    "KINGSTON SUV400S37A?(120|240|480|960)G", // KINGSTON SUV400S37120G/0C3J96R9, 
+    "",
+    "",
+    // "-v 1,raw48,Raw_Read_Error_Rate "
+    // "-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    // "-v 9,raw24(raw8),Power_On_Hours "
+    // "-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Reserved_Block_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    // "-v 175,raw48,Program_Fail_Count_Chip,SSD "
+    // "-v 176,raw48,Erase_Fail_Count_Chip,SSD "
+    // "-v 177,raw48,Wear_Leveling_Count,SSD "
+    // "-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip,SSD "
+    // "-v 180,raw48,Unused_Rsvd_Blk_Cnt_Tot,SSD "
+    // "-v 183,raw48,Runtime_Bad_Block "
+    // "-v 187,raw48,Reported_Uncorrect "
+    // "-v 194,tempminmax,Temperature_Celsius "
+    // "-v 195,raw48,Hardware_ECC_Recovered "
+    // "-v 196,raw16(raw16),Reallocated_Event_Count "
+    // "-v 197,raw48,Current_Pending_Sector "
+    // "-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 201,raw48,Unc_Read_Error_Rate "
+    // "-v 204,raw48,Soft_ECC_Correction "
+    "-v 231,raw48,SSD_Life_Left "
+    // "-v 241,raw48,Total_LBAs_Written "
+    // "-v 242,raw48,Total_LBAs_Read "
+    "-v 250,raw48,Read_Retry_Count "
+  },
   { "JMicron based SSDs", // JMicron JMF60x
     "Kingston SSDNow V Series [0-9]*GB|" // tested with Kingston SSDNow V Series 64GB/B090522a
     "TS(2|4|8|16|32|64|128|192)GSSD(18|25)[MS]?-[MS]", // Transcend IDE and SATA, tested with
