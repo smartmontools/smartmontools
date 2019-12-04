@@ -2592,10 +2592,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "SK hynix SATA SSDs",
-    "SK ?hynix SC(210|300|308|313).*|" // tested with
+    "SK ?hynix SC(210|300|308|311|313).*|" // tested with
       // SK hynix SC210 mSATA 256GB/20002L00,
       // SKhynix SC300 HFS256G32MND-3210A/20131P00,
       // SK hynix SC308 SATA 128GB/30001P10,
+      // SK hynix SC311 SATA 512GB/70000P10,
       // SK hynix SC313 HFS256G32TNF-N3A0A/70000P10
     "HFS(128|256|512)G3[29]MND-(2200|3[23]10)A|" // HFS128G32MND-2200A/20200L00,
       // HFS512G32MND-3210A/20100P00, HFS512G39MND-3310A/20002P00

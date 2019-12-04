@@ -1,5 +1,10 @@
 $Id$
 
+2019-12-04  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: 
+	- hynix SC311 SSD (#1267)
+
 2019-11-24  Christian Franke  <franke@computer.org>
 
 	Add '-d jmb39x,N[,sLBA][,force][+TYPE]' device type for SATA drives
