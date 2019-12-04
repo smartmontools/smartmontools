@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4987 2019-12-04 20:20:18Z samm2 $",
+  { "$Id: drivedb.h 4988 2019-12-04 21:20:23Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -2551,6 +2551,10 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Samsung SpinPoint M9T", // tested with ST2000LM003 HN-M201RAD/2BC10003
       // (Seagate Expansion Portable)
     "ST(1500|2000)LM0(03|04|06|07|10) HN-M[0-9]*RAD",
+    "", "", ""
+  },
+  { "Seagate Mobile HDD", // tested with ST2000LM007-1R8174/WDZD1BYX
+    "ST(1000|2000)LM0(07|09|10|35|37|38)-.*",
     "", "", ""
   },
   // Flash accelerated, no SMART info in the specs
