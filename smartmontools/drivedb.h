@@ -2580,6 +2580,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST(250|320|500|640|750|1000)LM0[012][3459] HN-M[0-9]*ABB",
     "", "", ""
   },
+  { "Seagate Barracuda Pro Compute", // tested with ST1000LM049-2GH172/SDM1
+    "ST(1000LM049|500LM034)-.*",
+    "", "", ""
+  },
   { "Seagate Samsung SpinPoint M9T", // tested with ST2000LM003 HN-M201RAD/2BC10003
       // (Seagate Expansion Portable)
     "ST(1500|2000)LM0(03|04|06|07|10) HN-M[0-9]*RAD",
@@ -4495,9 +4499,10 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level" // WD121KRYZ
   },
-  { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
+  { "Western Digital Blue", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
       // WDC WD20NPVZ-00WFZT0/01.01A01
-    "WDC WD((25|32|50|75)00[BLM]|10[JS]|20N)P[CV][TXZ]-.*",
+      // WDC WD10SPZX-22Z10T0/01.01A01
+    "WDC WD(20SPZX|20NPVZ|15NPVZ|10[SJ]PZX|7500BPVX|5000[BL]PVX|5000LPCX|3200LPCX)-.*",
     "", "", ""
   },
   { "Western Digital Green Mobile", // tested with WDC WD20NPVX-00EA4T0/01.01A01
