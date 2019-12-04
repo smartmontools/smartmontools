@@ -4022,6 +4022,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 240,msec24hour32"
   },
+  { "Seagate Exos X14", // ST12000NM0008-2H3101/SN02
+    "ST(14000NM04[24]8|14000NM0(01|25)8|12000NM0(00|24)8|10000NM0(47|56)8)-.*",
+    "", "",
+    "-v 240,msec24hour32"
+  },
   // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
   //             ST8000VN0012, ST6000VN0031, ST4000VN003
   // tested with ST8000VN0002-1Z8112/ZA13YGNF
