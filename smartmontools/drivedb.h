@@ -2590,7 +2590,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Mobile HDD", // tested with ST2000LM007-1R8174/WDZD1BYX
-    "ST(1000|2000)LM0(07|09|10|35|37|38)-.*",
+     //  ST1000LM035-1RK172/ACM1
+    "ST(2000LM0(07|09|10)|1000LM03[578])-.*",
     "", "", ""
   },
   // Flash accelerated, no SMART info in the specs
