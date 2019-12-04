@@ -1,4 +1,4 @@
-$Id: ChangeLog 4989 2019-12-04 21:56:09Z samm2 $
+$Id: ChangeLog 4990 2019-12-04 22:32:36Z samm2 $
 
 2019-12-04  Alex Samorukov <samm@os2.kiev.ua>
 
@@ -6,6 +6,7 @@ $Id: ChangeLog 4989 2019-12-04 21:56:09Z samm2 $
 	- hynix SC311 SSD (#1267)
 	- Seagate Mobile HDD (#1118)
 	- Kingston SSDNow UV400 (#848, GH: 7)
+	- Add another PM841 definition (GH: 30)
 
 2019-11-24  Christian Franke  <franke@computer.org>
 
