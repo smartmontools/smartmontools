@@ -1,4 +1,9 @@
-$Id: ChangeLog 4979 2019-11-24 18:19:24Z chrfranke $
+$Id: ChangeLog 4987 2019-12-04 20:20:18Z samm2 $
+
+2019-12-04  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: 
+	- hynix SC311 SSD (#1267)
 
 2019-11-24  Christian Franke  <franke@computer.org>
 
