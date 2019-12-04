@@ -1,10 +1,11 @@
-$Id: ChangeLog 4988 2019-12-04 21:20:23Z samm2 $
+$Id: ChangeLog 4989 2019-12-04 21:56:09Z samm2 $
 
 2019-12-04  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h: 
 	- hynix SC311 SSD (#1267)
 	- Seagate Mobile HDD (#1118)
+	- Kingston SSDNow UV400 (#848, GH: 7)
 
 2019-11-24  Christian Franke  <franke@computer.org>
 
