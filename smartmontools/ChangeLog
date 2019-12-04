@@ -1,4 +1,4 @@
-$Id: ChangeLog 4992 2019-12-04 23:03:01Z samm2 $
+$Id: ChangeLog 4993 2019-12-04 23:12:33Z samm2 $
 
 2019-12-04  Alex Samorukov <samm@os2.kiev.ua>
 
@@ -10,6 +10,7 @@ $Id: ChangeLog 4992 2019-12-04 23:03:01Z samm2 $
 	- Add Seagate Barracuda Pro Compute family
 	- Extend WD Blue regexp
 	- Extend Seagate Mobile HDD regexp
+	- Add Seagate Exos X14
 
 2019-11-24  Christian Franke  <franke@computer.org>
 

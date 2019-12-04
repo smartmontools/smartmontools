@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4992 2019-12-04 23:03:01Z samm2 $",
+  { "$Id: drivedb.h 4993 2019-12-04 23:12:33Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4019,6 +4019,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Exos X12", // tested with ST12000NM0007-2A1101/SN02
     "ST12000NM00[01]7-.*", // *17 = SED
+    "", "",
+    "-v 240,msec24hour32"
+  },
+  { "Seagate Exos X14", // ST12000NM0008-2H3101/SN02
+    "ST(14000NM04[24]8|14000NM0(01|25)8|12000NM0(00|24)8|10000NM0(47|56)8)-.*",
     "", "",
     "-v 240,msec24hour32"
   },
