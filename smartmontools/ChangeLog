@@ -6,6 +6,7 @@ $Id$
 	- hynix SC311 SSD (#1267)
 	- Seagate Mobile HDD (#1118)
 	- Kingston SSDNow UV400 (#848, GH: 7)
+	- Add another PM841 definition (GH: 30)
 
 2019-11-24  Christian Franke  <franke@computer.org>
 
