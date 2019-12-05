@@ -1,4 +1,9 @@
-$Id: ChangeLog 4993 2019-12-04 23:12:33Z samm2 $
+$Id: ChangeLog 4994 2019-12-05 12:31:27Z samm2 $
+
+2019-12-05  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Add Toshiba MQ04UBD200 (#1106)
 
 2019-12-04  Alex Samorukov <samm@os2.kiev.ua>
 
