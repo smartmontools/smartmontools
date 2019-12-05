@@ -4,6 +4,7 @@ $Id$
 
 	drivedb.h:
 	- Add Toshiba MQ04UBD200 (#1106)
+	- Add LITEON LCH SSD (#1124)
 
 2019-12-04  Alex Samorukov <samm@os2.kiev.ua>
 
