@@ -1,6 +1,16 @@
 $Id$
 
+2019-12-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Hitachi Ultrastar A7K1000: HITACHI* variant (#1255)
+	- Seagate IronWolf: *0008 variant (#1262)
+	- WD Blue and Green SSDs: *2G* variant, allow extra space
+	- USB: Unknown (0x0850:0x0031)
+	- USB: ADATA (0x125f:0xa37a) (#1264)
+
 2019-12-06  Alex Samorukov <samm@os2.kiev.ua>
+
 	drivedb.h:
 	- Extend Micron 5100 attributes (#1270)
 
@@ -12,7 +22,7 @@ $Id$
 
 2019-12-04  Alex Samorukov <samm@os2.kiev.ua>
 
-	drivedb.h: 
+	drivedb.h:
 	- hynix SC311 SSD (#1267)
 	- Seagate Mobile HDD (#1118)
 	- Kingston SSDNow UV400 (#848, GH: 7)

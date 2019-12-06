@@ -3297,8 +3297,10 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi Ultrastar A7K1000", // tested with
-    // HUA721010KLA330      44X2459 42C0424IBM/GKAOAB4A
-    "(Hitachi )?HUA7210(50|75|10)KLA330.*",
+    // HUA721010KLA330      44X2459 42C0424IBM/GKAOAB4A,,
+    // Hitachi HUA721075KLA330/GK8OA70M,
+    // HITACHI HUA721075KLA330/GK8OA90A
+    "(Hitachi |HITACHI )?HUA7210(50|75|10)KLA330.*",
     "", "", ""
   },
   { "Hitachi Ultrastar A7K2000", // tested with
@@ -4050,11 +4052,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST(8000NE|[65432]000VN)00[01]1-.*",
     "", "", ""
   },
-  // ST10000VN0004, ST8000VN0022, ST6000VN0041, ST4000VN008, ST3000VN007,
-  // ST2000VN004, ST1000VN002
   { "Seagate IronWolf", // tested with ST6000VN0041-2EL11C/SC61,
-      // ST12000VN0007-2GS116/SC60
-    "ST(12|10|8|6|4|3|2|1)000VN00(04|07|22|41|8|7|2|4)-.*",
+      // ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60
+    "ST(12|10|8|6|4|3|2|1)000VN00(04|07|08|22|41|8|7|2|4)-.*",
     "", "", ""
   },
   { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
@@ -4210,8 +4210,9 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WDS250G1B0A-00H9H0/X41100WD, WDC WDS100T1B0A-00H9H0,
       // WDC WDS120G2G0A-00JH30/UE360000, WDC WDS240G2G0A-00JH30/UF300000,
       // WDC WDS500G2B0A-00SM50/X61130WD, WDC WDS200T2B0A-00SM50/X61130WD,
-      // WDC WDS200T2B0A/X61190WD
-    "WDC WDS((120|240|250|480|500)G|[12]00T)(1B|2B|2G)0[AB](-.*)?", // *1B* = Blue, *2G* = Green, *2B* = Blue 3D NAND
+      // WDC WDS200T2B0A/X61190WD, WDC WDS120G1G0A-00SS50/Z3311000
+      // WDC  WDS500G2B0A-00SM50/401000WD
+    "WDC  ?WDS((120|240|250|480|500)G|[12]00T)(1B|2B|1G|2G)0[AB](-.*)?", // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND
     "", "",
   //"-v 5,raw48,Reallocated_Sector_Ct " // Reassigned Block Count
   //"-v 9,raw48,Power_On_Hours "
@@ -5122,7 +5123,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Fast Point Technologies (?)
   { "USB: ; ",
-    "0x0850:0x0003",
+    "0x0850:0x00(03|31)",
     "", // 0x0100
     "",
     "-d sat"
@@ -5343,9 +5344,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ADATA
   { "USB: ADATA; ",
-    "0x125f:0xa(11|13|15|31|35|75)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
+    "0x125f:0xa(11|13|15|31|35|37|75)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
     "", // 0xa15a: HD710 1TB, 0xa31a: HV620 2TB (0x0100), 0xa35a: HD650 2TB (0x6503),
-    "", // 0xa75a: HD710P 4TB
+    "", // 0xa37a: Silverstone MS10 M.2 (0x3103), 0xa75a: HD710P 4TB
     "-d sat"
   },
   { "USB: ADATA; Cypress",
