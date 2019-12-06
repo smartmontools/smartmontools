@@ -1,4 +1,8 @@
-$Id: ChangeLog 4995 2019-12-05 12:39:08Z samm2 $
+$Id: ChangeLog 4996 2019-12-06 08:13:40Z samm2 $
+
+2019-12-06  Alex Samorukov <samm@os2.kiev.ua>
+	drivedb.h:
+	- Extend Micron 5100 attributes (#1270)
 
 2019-12-05  Alex Samorukov <samm@os2.kiev.ua>
 
