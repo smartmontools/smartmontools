@@ -1,5 +1,9 @@
 $Id$
 
+2019-12-06  Alex Samorukov <samm@os2.kiev.ua>
+	drivedb.h:
+	- Extend Micron 5100 attributes (#1270)
+
 2019-12-05  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:

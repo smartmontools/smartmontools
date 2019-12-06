@@ -439,6 +439,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Percent_Lifetime_Remain " // Remaining endurance, trips at 10%
     "-v 206,raw48,Write_Error_Rate "
     "-v 210,raw48,RAIN_Success_Recovered "  // Total number of NAND pages recovered by RAIN
+    "-v 211,raw48,Integ_Scan_Complete_Cnt "  // Number of periodic data integrity scans completed
+    "-v 212,raw48,Integ_Scan_Folding_Cnt "   // Number of blocks reallocated by integrity scans
+    "-v 213,raw48,Integ_Scan_Progress "      // Current is percentage, raw is absolute number of superblocks scanned by the current integrity scan
     "-v 247,raw48,Host_Program_Page_Count "
     "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
