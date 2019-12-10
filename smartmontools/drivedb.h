@@ -1840,7 +1840,7 @@ const drive_settings builtin_knowndrives[] = {
       // SanDisk SDSSDH3500G/X61110RL, SanDisk SDSSDH31024G/X6107000
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
-    "SanDisk SSD PLUS (120|240|480|1000) GB|" // Plus (88SS1074), tested with SanDisk SSD PLUS 120 GB/UE3000RL,
+    "SanDisk SSD PLUS (120|240|480|1000) ?GB|" // Plus (88SS1074), tested with SanDisk SSD PLUS 120 GB/UE3000RL,
       // SanDisk SSD PLUS 120 GB/UE4500RL, SanDisk SSD PLUS 1000GB/UH4400RL
     "SSD SATAIII 16GB", // SSD SATAIII 16GB/i221100 (see #923)
     "", "",

@@ -1,5 +1,9 @@
 $Id$
 
+2019-12-10  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: Fix SanDisk SSD Plus matching pattern (GH PR 43)
+
 2019-12-06  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
