@@ -1,4 +1,8 @@
-$Id: ChangeLog 4997 2019-12-06 20:06:36Z chrfranke $
+$Id: ChangeLog 4999 2019-12-10 17:38:49Z samm2 $
+
+2019-12-10  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: Fix SanDisk SSD Plus matching pattern (GH PR 43)
 
 2019-12-06  Christian Franke  <franke@computer.org>
 
