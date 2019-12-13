@@ -1,10 +1,10 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-18 Christian Franke
+Copyright (C) 2014-19 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: update-smart-drivedb.8.in 4891 2019-01-11 10:30:41Z chrfranke $
+$Id: update-smart-drivedb.8.in 5003 2019-12-13 20:17:36Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -61,7 +61,6 @@ The tools used for downloading are either
 or
 .BR svn (1).
 .PP
-[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
 The downloaded file is verified with OpenPGP/GPG key ID 721042C5.
 The public key block is included in the script.
 .PP
@@ -201,4 +200,4 @@ Alternatively send the info to the smartmontools support mailing list:
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: update-smart-drivedb.8.in 4891 2019-01-11 10:30:41Z chrfranke $
+$Id: update-smart-drivedb.8.in 5003 2019-12-13 20:17:36Z chrfranke $
