@@ -89,7 +89,6 @@ Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or
 equivalently \fB/dev/rdisk[0\-9]\fP.
 Long forms are also available: please use \*(Aq\-h\*(Aq to see some examples.
 .Sp
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 There is NVMe support based on the undocumented SMART API in OSX. Currently only
 SMART and Controller information pages are supported.
 .Sp
@@ -161,7 +160,6 @@ Alternatively use the forms \fB"/dev/nvmes[0\-9][n[1\-9]]"\fP for NVMe devices
 behind the logical scsi controller "\\\\.\\Scsi[0\-9]:".
 Both forms require a NVMe driver which supports NVME_PASS_THROUGH_IOCTL.
 .Sp
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 Use the forms \fB"/dev/sd[...]"\fP or \fB"/dev/pd[...]"\fP (see above)
 for NVMe devices behind Windows 10 NVMe driver (stornvme.sys).
 .Sp
@@ -660,8 +658,8 @@ under FreeBSD, it is the character device which the driver registered (eg,
 .\" %ENDIF OS FreeBSD Linux
 .Sp
 .I intelliprop,N[+TYPE]
-\- [NEW EXPERIMENTAL SMARTCTL FEATURE] the device consists of multiple ATA
-disks connected to an Intelliprop controller.
+\- the device consists of multiple ATA disks connected to an Intelliprop
+controller.
 The integer N is the port number from 0 to 3 of the ATA drive to be targeted.
 The TYPE can be ata(default), sat, or a USB controller listed above.
 Note: if a type of ATA does not work, try a type of sat.
@@ -676,7 +674,7 @@ Vendor Specific Log at address 0xc0.
 Using this option with other devices may have undesirable side effects.\fP
 .Sp
 .I jmb39x,N[,sLBA][,force][+TYPE]
-\- [NEW EXPERMIMENTAL SMARTCTL FEATURE]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
 the device consists of multiple SATA disks connected to a JMicron JMB39x RAID
 port multiplier.
 The integer N is the port number from 0 to 4.
@@ -809,8 +807,6 @@ By default, exit status 2 is returned if the device is in one of the
 specified low-power modes.
 This status is also returned if the device open or identification failed
 (see EXIT STATUS below).
-.Sp
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 The optional STATUS parameter allows to override this default.
 STATUS is an integer in the range from 0 to 255 inclusive.
 For example use \*(Aq\-n standby,0\*(Aq to return success if a device is in
@@ -1005,10 +1001,8 @@ Value 253 specifies a vendor specific time between 8 and 12 hours.  Value
 255 specifies 21 minutes and 15 seconds.  Some drives may use a vendor
 specific interpretation for the values.  Note that there is no get option
 because ATA standards do not specify a method to read the standby timer.
-.br
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-If \*(Aq\-s standby,now\*(Aq is also specified, the drive is immediately placed
-in the STANDBY mode without temporarily placing it in the IDLE mode.
+If \*(Aq\-s standby,now\*(Aq is also specified, the drive is immediately
+placed in the STANDBY mode without temporarily placing it in the IDLE mode.
 Note that ATA standards do not specify a command to set the standby timer
 without affecting the power mode.
 .Sp
@@ -1027,9 +1021,8 @@ The write cache is usually enabled by default.
 The write cache is usually enabled by default.
 .Sp
 .I wcache-sct[,ata|on|off[,p]]
-\- [ATA only]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-Gets/sets the write cache feature through SCT Feature Control (if supported).
+\- [ATA only] Gets/sets the write cache feature through SCT Feature Control
+(if supported).
 The state of write cache in SCT Feature Control could be "Controlled by ATA",
 "Force Enabled", or "Force Disabled".
 SCT Feature control overwrites the setting by ATA Set Features command
@@ -1048,7 +1041,6 @@ disabled, the current Write Cache Reordering state is remembered but has
 no effect on non-cached writes, which are always written in the order received.
 The state of Write Cache Reordering has no effect on either NCQ or LCQ queued
 commands.
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 If \*(Aq,p\*(Aq is specified, the setting is preserved across power cycles.
 .Sp
 .I rcache[,on|off]
@@ -1057,9 +1049,7 @@ If \*(Aq,p\*(Aq is specified, the setting is preserved across power cycles.
 The read cache is usually enabled by default.
 .Sp
 .I dsn[,on|off]
-\- [ATA only]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-Gets/sets the DSN feature (if supported).
+\- [ATA only] Gets/sets the DSN feature (if supported).
 The dsn is usually disabled by default.
 .Sp
 .TP
@@ -1475,9 +1465,7 @@ the list of supported pages is printed.  Device Statistics was
 introduced in ACS-2 and is only supported by some recent devices.
 .Sp
 .I defects[,NUM]
-\- [ATA only]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-prints LBA and hours values from the ATA Pending Defects log
+\- [ATA only] prints LBA and hours values from the ATA Pending Defects log
 (General Purpose Log address 0x0c).
 Only the 31 entries from first log page are printed by default.
 This number can be changed by the optional parameter NUM.
