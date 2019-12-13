@@ -1,6 +1,9 @@
-$Id: ChangeLog 5001 2019-12-13 20:12:14Z chrfranke $
+$Id: ChangeLog 5002 2019-12-13 20:14:51Z chrfranke $
 
 2019-12-13  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: If signature verification fails, always
+	print GPG error message regardless of '-v' option.
 
 	os_win32.cpp: Decode Windows 10 1909 and Server 1909 build number.
 	Fix IRST version in comment.
