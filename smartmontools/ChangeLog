@@ -1,8 +1,9 @@
-$Id: ChangeLog 5000 2019-12-13 20:02:42Z chrfranke $
+$Id: ChangeLog 5001 2019-12-13 20:12:14Z chrfranke $
 
 2019-12-13  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 10 1909 and Server 1909 build number.
+	Fix IRST version in comment.
 
 2019-12-10  Alex Samorukov <samm@os2.kiev.ua>
 
