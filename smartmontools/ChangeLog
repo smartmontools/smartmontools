@@ -1,4 +1,8 @@
-$Id: ChangeLog 4999 2019-12-10 17:38:49Z samm2 $
+$Id: ChangeLog 5000 2019-12-13 20:02:42Z chrfranke $
+
+2019-12-13  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 1909 and Server 1909 build number.
 
 2019-12-10  Alex Samorukov <samm@os2.kiev.ua>
 
