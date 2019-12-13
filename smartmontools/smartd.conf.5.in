@@ -4,7 +4,7 @@ Copyright (C) 2004-19 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5003 2019-12-13 20:17:36Z chrfranke $
+$Id: smartd.conf.5.in 5004 2019-12-13 20:20:45Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -844,8 +844,8 @@ hours after midnight.  The range is 00 (midnight to just before 1 am)
 to 23 (11pm to just before midnight) inclusive.  Do \fBnot\fP use a
 single decimal digit or the match will always fail!
 .RE
-.\"  The following two lines are a workaround for a man2html bug.  Please leave them.
-.\" They define a non-existent option; useful because man2html can't correctly reset the margins.
+.\" The following two lines define a non-existent option.
+.\" This resets the margin to the level prior to the '.RS ... .RE' block.
 .TP
 .B \&
 Some examples follow.  In reading these, keep in mind that in extended
@@ -1195,8 +1195,8 @@ is an integer specifying the number of days until the next message will be sent.
 It it set to empty on \*(Aq\-M once\*(Aq and set to \*(Aq1\*(Aq on
 \*(Aq\-M daily\*(Aq.
 .RE
-.\"  The following two lines are a workaround for a man2html bug.  Please leave them.
-.\" They define a non-existent option; useful because man2html can't correctly reset the margins.
+.\" The following two lines define a non-existent option.
+.\" This resets the margin to the level prior to the '.RS ... .RE' block.
 .TP
 .B \&
 If the \*(Aq\-m ADD\*(Aq Directive is given with a normal address argument,
@@ -1668,4 +1668,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5003 2019-12-13 20:17:36Z chrfranke $
+$Id: smartd.conf.5.in 5004 2019-12-13 20:20:45Z chrfranke $

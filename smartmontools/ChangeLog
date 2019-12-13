@@ -1,6 +1,8 @@
-$Id: ChangeLog 5003 2019-12-13 20:17:36Z chrfranke $
+$Id: ChangeLog 5004 2019-12-13 20:20:45Z chrfranke $
 
 2019-12-13  Christian Franke  <franke@computer.org>
+
+	smartd.conf.5.in: Fix very old comment about man2html bug.
 
 	smartctl.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
 	Remove EXPERIMENTAL notes for features added before 6.6.
