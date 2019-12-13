@@ -2108,7 +2108,7 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
 
   // Create port -> index map
   //                                     Intel RST              AMD rcraid
-  // Phy[i].Value              9/10.x  14.8    15.2   16/17.0   9.2
+  // Phy[i].Value              9/10.x  14.8    15.2  16.0/17.7  9.2
   // ---------------------------------------------------------------------
   // bPortIdentifier           0xff    port    0x00    port     (port)
   // Identify.bPhyIdentifier   index?  index   index   port     index
