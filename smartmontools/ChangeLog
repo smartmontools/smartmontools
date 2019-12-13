@@ -1,5 +1,9 @@
 $Id$
 
+2019-12-13  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 1909 and Server 1909 build number.
+
 2019-12-10  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h: Fix SanDisk SSD Plus matching pattern (GH PR 43)
