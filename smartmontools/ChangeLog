@@ -1,4 +1,8 @@
-$Id: ChangeLog 5004 2019-12-13 20:20:45Z chrfranke $
+$Id: ChangeLog 5006 2019-12-28 14:57:49Z chrfranke $
+
+2019-12-28  Christian Franke  <franke@computer.org>
+
+	do_release: Update code signing key id.
 
 2019-12-13  Christian Franke  <franke@computer.org>
 
