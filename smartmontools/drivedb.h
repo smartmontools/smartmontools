@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 4998 2019-12-06 20:20:13Z chrfranke $",
+  { "$Id: drivedb.h 5009 2019-12-28 21:49:49Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -350,6 +350,35 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Perc_Rated_Life_Used "
     "-v 206,raw48,Write_Error_Rate"
   },
+  { "Crucial/Micron MX500 SSDs",
+    "CT(250|500|1000|2000)MX500SSD[14]", // tested with CT500MX500SSD1/M3CR023,
+      // .../M3CR020, .../M3CR022
+    "M3CR02[0-3]", // Firmware with bogus attribute 197 (see ticket #1227)
+    "This firmware returns bogus raw values in attribute 197",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Ave_Block-Erase_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 180,raw48,Unused_Reserve_NAND_Blk "
+    "-v 183,raw48,SATA_Interfac_Downshift "
+    "-v 184,raw48,Error_Correction_Count "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+    "-v 197,raw48,Bogus_Current_Pend_Sect " // Randomly flips 0 <> 1
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 202,raw48,Percent_Lifetime_Remain "
+    "-v 206,raw48,Write_Error_Rate "
+    "-v 210,raw48,Success_RAIN_Recov_Cnt "
+    "-v 246,raw48,Total_LBAs_Written "
+    "-v 247,raw48,Host_Program_Page_Count "
+    "-v 248,raw48,FTL_Program_Page_Count"
+  },
   { "Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs",
     "Crucial_CT(128|256|512)MX100SSD1|"// Marvell 88SS9189, tested with Crucial_CT256MX100SSD1/MU01
     "Crucial_CT(200|250|256|500|512|1000|1024)MX200SSD[1346]|" // Marvell 88SS9189, tested with
@@ -367,7 +396,8 @@ const drive_settings builtin_knowndrives[] = {
       // tested with CT240BX300SSD1/M2CR010
     "CT(120|240|480|960)BX500SSD1|" // Silicon Motion SM2258XT, tested with CT120BX500SSD1/M6CR013
     "CT(250|500|1000|2000)MX500SSD[14]|" // Silicon Motion SM2258, tested with CT250MX500SSD1/M3CR010
-      // CT500MX500SSD1/M3CR010, CT1000MX500SSD1/M3CR010, CT2000MX500SSD1/M3CR010, CT250MX500SSD4/M3CR022
+      // CT500MX500SSD1/M3CR010, CT1000MX500SSD1/M3CR010, CT2000MX500SSD1/M3CR010,
+      // CT250MX500SSD4/M3CR022 (now handled by above entry)
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
     "Micron_M500DC_(EE|MT)FDDA[AK](120|240|480|800)MBB|" // tested with Micron_M500DC_EEFDDAA120MBB/129,
       // Micron_M500DC_MTFDDAK800MBB/0129
@@ -643,8 +673,9 @@ const drive_settings builtin_knowndrives[] = {
       // IR-SSDPR-S25A-240/SBFM91.2
     "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
       // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
-    "KINGSTON SEDC500[MR](480|960|1920|3840)G|" // DC500M/R, tested with
-      // KINGSTON SEDC500M1920G/SCEKJ2.3, KINGSTON SEDC500R480G/SCEKJ2.3
+    "KINGSTON SEDC(450R|500[MR])(480|960|1920|3840)G|" // DC450R, DC500M/R, tested with
+      // KINGSTON SEDC450R480G/SCEKH3. KINGSTON SEDC500M1920G/SCEKJ2.3,
+      // KINGSTON SEDC500R480G/SCEKJ2.3
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
@@ -654,6 +685,8 @@ const drive_settings builtin_knowndrives[] = {
       // Silicon Motion controller (see ticket #801), tested with
       // KINGSTON SA400S37240G/SBFK10D7, KINGSTON SA400S37120G/SBFK71E0, */SBFKB1D1
       // KINGSTON  SA400S37480G/SBFK10D7 (two spaces)
+    "Patriot (Flare|Blast|Blaze|Burst)|" // tested with Patriot Flare/SBFM91.2,
+      // Patriot Blast/SAFM11.3, Patriot Blaze/S9FM02, Patriot Burst/SBFM11.2
     "PNY CS(13|22)11 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122,
       // PNY CS2211 240GB SSD/CS221016
     "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
@@ -1838,7 +1871,7 @@ const drive_settings builtin_knowndrives[] = {
       // SanDisk SDSSDH3500G/X61110RL, SanDisk SDSSDH31024G/X6107000
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
-    "SanDisk SSD PLUS (120|240|480|1000) GB|" // Plus (88SS1074), tested with SanDisk SSD PLUS 120 GB/UE3000RL,
+    "SanDisk SSD PLUS (120|240|480|1000) ?GB|" // Plus (88SS1074), tested with SanDisk SSD PLUS 120 GB/UE3000RL,
       // SanDisk SSD PLUS 120 GB/UE4500RL, SanDisk SSD PLUS 1000GB/UH4400RL
     "SSD SATAIII 16GB", // SSD SATAIII 16GB/i221100 (see #923)
     "", "",
@@ -1972,11 +2005,14 @@ const drive_settings builtin_knowndrives[] = {
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // tested with MKNSSDRE256GB/N1007C
     "MKNSSDTR(240|500|250|120|480|240)GB(-LT)?|" // tested with MKNSSDTR500GB/O1126A
     "OWC Envoy Pro|" // tested with OWC Envoy Pro/R0522A0 (0x1e91:0xa2a5)
+    "Patriot P200 ((128|256|512)GB|[12]TB)|" // tested with Patriot P200 256GB/S1022A0
     "R3SL(120|240|480|960)G|" // AMD Radeon SSDs, tested with R3SL240G/P0422C
     "Ramsta SSD S800 (120|240|480)GB|" // SM2258G, tested with Ramsta SSD S800 480GB/RS81V0
     "T60|" // KingSpec T60, tested with T60/20151120
-    "TCSUNBOW M3 (60|240)GB|" // TC-Sunbow M3, tested with TCSUNBOW M3 240GB/R0327B0
-    "TEAML5Lite3D(120G|240G|480G|1T)|" // Team Group L5Lite 3D, tested with TEAML5Lite3D240G/R0302A0
+    "TCSUNBOW [MX]3 (60|120|240)GB|" // TC-Sunbow M3/X3, tested with TCSUNBOW M3 240GB/R0327B0,
+       // TCSUNBOW X3 120GB/R1211A0
+    "TEAM( T253T|L5Lite3)D(120G|240G|480G|1T)|" // Team Group L5Lite 3D, tested with
+      // TEAML5Lite3D240G/R0302A0, TEAM T253TD480G/Q0410A
     "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420[IK]?)|" // Transcend SSD370/420 SATA/mSATA, TS6500,
       // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
       // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H,
@@ -4050,9 +4086,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST(8000NE|[65432]000VN)00[01]1-.*",
     "", "", ""
   },
-  { "Seagate IronWolf", // tested with ST6000VN0041-2EL11C/SC61,
-      // ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60
-    "ST(12|10|8|6|4|3|2|1)000VN00(04|07|08|22|41|8|7|2|4)-.*",
+  { "Seagate IronWolf", // tested with ST6000VN0033-2EE110/SC60,
+      // ST6000VN0041-2EL11C/SC61, ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60
+    "ST(1|2|3|4|6|8|10|12)000VN00(0?[2478]|22|33|41)-.*",
     "", "", ""
   },
   { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
@@ -4490,8 +4526,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD40EFRX-68WT0N0/80.00A80, WDC WD60EFRX-68MYMN1/82.00A82,
       // WDC WD80EFAX-68LHPN0/83.H0A83, WDC WD80EFZX-68UW8N0/83.H0A83,
       // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee),
-      // WDC WD100EFAX-68LHPN0/83.H0A83
-    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80E[FZ][AZ]|100EFA)X-.*",
+      // WDC WD60EFAX-68SHWN0/82.00A82, WDC WD100EFAX-68LHPN0/83.H0A83
+    "WDC WD(7500BFC|10JFC|[1-6]0EFR|[68]0E[FZ][AZ]|100EFA)X-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD80EFZX, WD100EFAX
   },
@@ -4809,6 +4845,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Samsung Portable SSD T5; ",
     "0x04e8:0x61f5",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: Samsung; ",
+    "0x04e8:0x8003", // USB3 Adapter from SSD EVO 850 Starter Kit
     "", // 0x0100
     "",
     "-d sat"
@@ -5543,9 +5585,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: ; JMicron JMS561U", // USB3->2xSATA
-    "0x152d:0x8561",
-    "", // 0x0107
+  { "USB: ; JMicron JMS561", // USB3->2xSATA
+    "0x152d:0x[8a]561",
+    "", // 0x8561: 0x0107
     "",
     "-d sat"
   },
