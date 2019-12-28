@@ -645,8 +645,9 @@ const drive_settings builtin_knowndrives[] = {
       // IR-SSDPR-S25A-240/SBFM91.2
     "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
       // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
-    "KINGSTON SEDC500[MR](480|960|1920|3840)G|" // DC500M/R, tested with
-      // KINGSTON SEDC500M1920G/SCEKJ2.3, KINGSTON SEDC500R480G/SCEKJ2.3
+    "KINGSTON SEDC(450R|500[MR])(480|960|1920|3840)G|" // DC450R, DC500M/R, tested with
+      // KINGSTON SEDC450R480G/SCEKH3. KINGSTON SEDC500M1920G/SCEKJ2.3,
+      // KINGSTON SEDC500R480G/SCEKJ2.3
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
@@ -656,6 +657,8 @@ const drive_settings builtin_knowndrives[] = {
       // Silicon Motion controller (see ticket #801), tested with
       // KINGSTON SA400S37240G/SBFK10D7, KINGSTON SA400S37120G/SBFK71E0, */SBFKB1D1
       // KINGSTON  SA400S37480G/SBFK10D7 (two spaces)
+    "Patriot (Flare|Blast|Blaze|Burst)|" // tested with Patriot Flare/SBFM91.2,
+      // Patriot Blast/SAFM11.3, Patriot Blaze/S9FM02, Patriot Burst/SBFM11.2
     "PNY CS(13|22)11 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122,
       // PNY CS2211 240GB SSD/CS221016
     "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
@@ -1974,11 +1977,14 @@ const drive_settings builtin_knowndrives[] = {
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // tested with MKNSSDRE256GB/N1007C
     "MKNSSDTR(240|500|250|120|480|240)GB(-LT)?|" // tested with MKNSSDTR500GB/O1126A
     "OWC Envoy Pro|" // tested with OWC Envoy Pro/R0522A0 (0x1e91:0xa2a5)
+    "Patriot P200 ((128|256|512)GB|[12]TB)|" // tested with Patriot P200 256GB/S1022A0
     "R3SL(120|240|480|960)G|" // AMD Radeon SSDs, tested with R3SL240G/P0422C
     "Ramsta SSD S800 (120|240|480)GB|" // SM2258G, tested with Ramsta SSD S800 480GB/RS81V0
     "T60|" // KingSpec T60, tested with T60/20151120
-    "TCSUNBOW M3 (60|240)GB|" // TC-Sunbow M3, tested with TCSUNBOW M3 240GB/R0327B0
-    "TEAML5Lite3D(120G|240G|480G|1T)|" // Team Group L5Lite 3D, tested with TEAML5Lite3D240G/R0302A0
+    "TCSUNBOW [MX]3 (60|120|240)GB|" // TC-Sunbow M3/X3, tested with TCSUNBOW M3 240GB/R0327B0,
+       // TCSUNBOW X3 120GB/R1211A0
+    "TEAM( T253T|L5Lite3)D(120G|240G|480G|1T)|" // Team Group L5Lite 3D, tested with
+      // TEAML5Lite3D240G/R0302A0, TEAM T253TD480G/Q0410A
     "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420[IK]?)|" // Transcend SSD370/420 SATA/mSATA, TS6500,
       // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
       // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H,
@@ -4052,9 +4058,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST(8000NE|[65432]000VN)00[01]1-.*",
     "", "", ""
   },
-  { "Seagate IronWolf", // tested with ST6000VN0041-2EL11C/SC61,
-      // ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60
-    "ST(12|10|8|6|4|3|2|1)000VN00(04|07|08|22|41|8|7|2|4)-.*",
+  { "Seagate IronWolf", // tested with ST6000VN0033-2EE110/SC60,
+      // ST6000VN0041-2EL11C/SC61, ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60
+    "ST(1|2|3|4|6|8|10|12)000VN00(0?[2478]|22|33|41)-.*",
     "", "", ""
   },
   { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
@@ -4492,8 +4498,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD40EFRX-68WT0N0/80.00A80, WDC WD60EFRX-68MYMN1/82.00A82,
       // WDC WD80EFAX-68LHPN0/83.H0A83, WDC WD80EFZX-68UW8N0/83.H0A83,
       // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee),
-      // WDC WD100EFAX-68LHPN0/83.H0A83
-    "WDC WD(7500BFC|10JFC|[1-6]0EFR|80E[FZ][AZ]|100EFA)X-.*",
+      // WDC WD60EFAX-68SHWN0/82.00A82, WDC WD100EFAX-68LHPN0/83.H0A83
+    "WDC WD(7500BFC|10JFC|[1-6]0EFR|[68]0E[FZ][AZ]|100EFA)X-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD80EFZX, WD100EFAX
   },
@@ -4811,6 +4817,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: Samsung Portable SSD T5; ",
     "0x04e8:0x61f5",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: Samsung; ",
+    "0x04e8:0x8003", // USB3 Adapter from SSD EVO 850 Starter Kit
     "", // 0x0100
     "",
     "-d sat"
@@ -5545,9 +5557,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: ; JMicron JMS561U", // USB3->2xSATA
-    "0x152d:0x8561",
-    "", // 0x0107
+  { "USB: ; JMicron JMS561", // USB3->2xSATA
+    "0x152d:0x[8a]561",
+    "", // 0x8561: 0x0107
     "",
     "-d sat"
   },

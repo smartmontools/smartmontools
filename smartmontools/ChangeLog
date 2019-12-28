@@ -2,6 +2,16 @@ $Id$
 
 2019-12-28  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Phison Driven SSDs: Kingston DC450R (#1249),
+	  Patriot Flare, Blast, Blaze (#830), Burst (#1182)
+	- Silicon Motion based SSDs: Patriot P200, TC-Sunbow X3 (#1261),
+	  Team Group L5Lite 3D T253TD variant
+	- Seagate IronWolf: ST6000VN0033 (#1273)
+	- Western Digital Red: WD60EFAX (#1274)
+	- USB: Samsung (0x04e8:0x8003)
+	- USB: JMicron JMS561 (0x152d:0xa561)
+
 	do_release: Update code signing key id.
 
 2019-12-13  Christian Franke  <franke@computer.org>
