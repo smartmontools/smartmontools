@@ -1617,8 +1617,8 @@ const devstat_entry_info devstat_info_0x01[] = {
   {  6, "Date and Time TimeStamp" }, // ACS-3
   {  4, "Pending Error Count" }, // ACS-4
   {  2, "Workload Utilization" }, // ACS-4
-  {  6, "Utilization Usage Rate" }, // ACS-4 (TODO: field provides 3 values)
-  {  2, "Resource Availability" }, // ACS-4
+  {  6, "Utilization Usage Rate" }, // ACS-4 (TODO: 47:40: Validity, 39:36 Basis, 7:0 Usage rate)
+  {  7, "Resource Availability" }, // ACS-4 (TODO: 55:16 Resources, 15:0 Fraction)
   {  1, "Random Write Resources Used" }, // ACS-4
   {  0, 0 }
 };

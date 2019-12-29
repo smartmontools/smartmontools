@@ -2,6 +2,8 @@ $Id$
 
 2019-12-29  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp: Fix size of Device Statistics value.
+
 	os_win32.cpp: CSMI: Detect missing ATA output registers.
 
 2019-12-28  Christian Franke  <franke@computer.org>
