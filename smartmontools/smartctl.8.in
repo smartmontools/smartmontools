@@ -323,23 +323,23 @@ Enables JSON output mode.
 The output could be modified or enhanced by the optional argument which
 consists of one or more characters from the set \*(Aqcgiosuv\*(Aq:
 .br
-\*(Aqc\*(Aq: Outputs \fBc\fRompact format without extra spaces and newlines.
+\*(Aqc\*(Aq: Outputs \fBc\fPompact format without extra spaces and newlines.
 By default, output is pretty-printed.
 .br
 \*(Aqg\*(Aq: Outputs JSON structure as single assignments to allow the usage
-of \fBg\fRrep.
+of \fBg\fPrep.
 Each assignment reflects the absolute path of a value.
-The syntax is compatible with \fBgron\fR:
+The syntax is compatible with \fBgron\fP:
 .br
 \*(Aqjson.KEY1[INDEX2].KEY3 = VALUE;\*(Aq.
 .br
-\*(Aqo\*(Aq: Includes the full \fBo\fRriginal plaintext \fBo\fRutput of
-\fBsmartctl\fR as a JSON array \*(Aqsmartctl.output[]\*(Aq.
+\*(Aqo\*(Aq: Includes the full \fBo\fPriginal plaintext \fBo\fPutput of
+\fBsmartctl\fP as a JSON array \*(Aqsmartctl.output[]\*(Aq.
 .br
-\*(Aqs\*(Aq: Outputs JSON object elements \fBs\fRorted by key.
+\*(Aqs\*(Aq: Outputs JSON object elements \fBs\fPorted by key.
 By default, object elements are ordered as generated internally.
 .br
-\*(Aqv\*(Aq: Enables \fBv\fRerbose output of possible unsafe integers.
+\*(Aqv\*(Aq: Enables \fBv\fPerbose output of possible unsafe integers.
 If specified, values which may exceed JSON safe integer (53-bit) range are
 always output as a number (with some \*(AqKEY\*(Aq) and a string
 (\*(AqKEY_s\*(Aq), regardless of the actual value.
@@ -351,11 +351,11 @@ exceeds the range.
 The following two arguments are primarily indented for development:
 .br
 \*(Aqi\*(Aq: Includes lines from the plaintext output which print info already
-\fBi\fRmplemented for JSON output.
+\fBi\fPmplemented for JSON output.
 The lines appear as objects with key \*(Aqsmartctl_NNNN_i\*(Aq.
 .br
 \*(Aqu\*(Aq: Includes lines from the plaintext output which print info still
-\fBu\fRnimplemented for JSON output.
+\fBu\fPnimplemented for JSON output.
 The lines appear as objects with key \*(Aqsmartctl_NNNN_u\*(Aq.
 .TP
 .B \-q TYPE, \-\-quietmode=TYPE

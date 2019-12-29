@@ -3,6 +3,7 @@ $Id$
 2019-12-29  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in: Add info about AMD Windows RAID driver.
+	Fix some font changes.
 
 	os_win32/installer.nsi: Delete old ChangeLog-5.0-6.0 on update
 	installs.  Remove outdated delete commands.
