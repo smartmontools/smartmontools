@@ -146,9 +146,27 @@ Use \fB"/dev/tw_cli/stdin"\fP or \fB"/dev/tw_cli/clip"\fP
 to parse CLI or 3DM output from standard input or clipboard.
 The option \*(Aq\-d 3ware,N\*(Aq is not necessary on Windows.
 .Sp
-For disks behind an Intel ICHxR controller with RST driver use
-\fB"/dev/csmi[0\-9],N"\fP where N specifies the port behind the logical
-scsi controller "\\\\.\\Scsi[0\-9]:".
+For disks behind Intel controller with RST driver or an AMD controller
+with AMD RAID driver, use \fB"/dev/csmi[0\-9],N"\fP where N specifies the
+port behind the logical scsi controller "\\\\.\\Scsi[0\-9]:".
+.br
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+The AMD RAID driver may return incomplete information about port assignment.
+To allow access to ports not reported, device scan returns all ports.
+Device open fails then if the port is unused.
+.Sp
+By default, the AMD RAID driver only allows CSMI read accesses.
+To enable write access, change the registry value
+.br
+\fB[HKLM\\SYSTEM\\CurrentControlSet\\Services\\rcraid\\Parameters\\Device]\fP
+.br
+\fB"DriverParameter"="CSMI=Limited;"\fP
+.br
+to
+.br
+\fB"DriverParameter"="CSMI=Full;"\fP
+.br
+and reboot.
 .Sp
 For SATA or SAS disks behind an Areca controller use
 \fB"/dev/arcmsr[0\-9]"\fP, see \*(Aq\-d areca,N[/E]\*(Aq below.
