@@ -2,6 +2,9 @@ $Id$
 
 2019-12-29  Christian Franke  <franke@computer.org>
 
+	os_win32/installer.nsi: Delete old ChangeLog-5.0-6.0 on update
+	installs.
+
 	scsicmds.cpp: Remove never needed include of atacmds.h.
 
 	ataprint.cpp, smartd.cpp: Silence 'multiplication overflow' warning

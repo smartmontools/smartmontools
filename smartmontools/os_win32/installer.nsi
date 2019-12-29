@@ -1,9 +1,9 @@
 ;
 ; os_win32/installer.nsi - smartmontools install NSIS script
 ;
-; Home page of code is: http://www.smartmontools.org
+; Home page of code is: https://www.smartmontools.org
 ;
-; Copyright (C) 2006-17 Christian Franke
+; Copyright (C) 2006-19 Christian Franke
 ;
 ; SPDX-License-Identifier: GPL-2.0-or-later
 ;
@@ -202,6 +202,7 @@ Section "!Documentation" DOC_SECTION
   File "${INPDIR}\doc\AUTHORS.txt"
   File "${INPDIR}\doc\ChangeLog.txt"
   File "${INPDIR}\doc\ChangeLog-6.0-7.0.txt"
+  Delete "${INPDIR}\doc\ChangeLog-5.0-6.0.txt" ; TODO: Remove after smartmontools 7.1
   File "${INPDIR}\doc\COPYING.txt"
   File "${INPDIR}\doc\INSTALL.txt"
   File "${INPDIR}\doc\NEWS.txt"
