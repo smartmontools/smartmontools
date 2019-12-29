@@ -3922,7 +3922,7 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup, int numdev)
   // If past wake-up-time, compute next wake-up-time
   time_t timenow=time(NULL);
   while (wakeuptime<=timenow){
-    int intervals=1+(timenow-wakeuptime)/checktime;
+    time_t intervals = 1 + (timenow-wakeuptime)/checktime;
     wakeuptime+=intervals*checktime;
   }
 

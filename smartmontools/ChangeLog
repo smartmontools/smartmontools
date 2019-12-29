@@ -2,6 +2,9 @@ $Id$
 
 2019-12-29  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp, smartd.cpp: Silence 'multiplication overflow' warning
+	from lgtm.
+
 	ataprint.cpp: Fix size of Device Statistics value.
 
 	os_win32.cpp: CSMI: Detect missing ATA output registers.
