@@ -7,7 +7,7 @@
 ;
 ; SPDX-License-Identifier: GPL-2.0-or-later
 ;
-; $Id: installer.nsi 5016 2019-12-29 13:19:56Z chrfranke $
+; $Id: installer.nsi 5020 2019-12-29 14:27:48Z chrfranke $
 ;
 
 
@@ -201,8 +201,8 @@ Section "!Documentation" DOC_SECTION
   SetOutPath "$INSTDIR\doc"
   File "${INPDIR}\doc\AUTHORS.txt"
   File "${INPDIR}\doc\ChangeLog.txt"
+  Delete "$INSTDIR\doc\ChangeLog-5.0-6.0.txt" ; TODO: Remove after smartmontools 7.1
   File "${INPDIR}\doc\ChangeLog-6.0-7.0.txt"
-  Delete "${INPDIR}\doc\ChangeLog-5.0-6.0.txt" ; TODO: Remove after smartmontools 7.1
   File "${INPDIR}\doc\COPYING.txt"
   File "${INPDIR}\doc\INSTALL.txt"
   File "${INPDIR}\doc\NEWS.txt"
