@@ -1,9 +1,9 @@
-$Id: ChangeLog 5015 2019-12-29 13:17:11Z chrfranke $
+$Id: ChangeLog 5016 2019-12-29 13:19:56Z chrfranke $
 
 2019-12-29  Christian Franke  <franke@computer.org>
 
 	os_win32/installer.nsi: Delete old ChangeLog-5.0-6.0 on update
-	installs.
+	installs.  Remove outdated delete commands.
 
 	scsicmds.cpp: Remove never needed include of atacmds.h.
 
