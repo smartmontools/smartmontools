@@ -1,6 +1,8 @@
-$Id: ChangeLog 5012 2019-12-29 13:10:18Z chrfranke $
+$Id: ChangeLog 5013 2019-12-29 13:13:06Z chrfranke $
 
 2019-12-29  Christian Franke  <franke@computer.org>
+
+	scsicmds.cpp: Remove never needed include of atacmds.h.
 
 	ataprint.cpp, smartd.cpp: Silence 'multiplication overflow' warning
 	from lgtm.

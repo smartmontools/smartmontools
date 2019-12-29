@@ -1,7 +1,7 @@
 /*
  * scsicmds.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
@@ -32,12 +32,11 @@
 #include "config.h"
 
 #include "scsicmds.h"
-#include "atacmds.h" // FIXME: for smart_command_set only
 #include "dev_interface.h"
 #include "utility.h"
 #include "sg_unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5013 2019-12-29 13:13:06Z chrfranke $"
   SCSICMDS_H_CVSID;
 
 static const char * logSenStr = "Log Sense";
