@@ -1,7 +1,7 @@
 /*
  * scsicmds.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
@@ -32,7 +32,6 @@
 #include "config.h"
 
 #include "scsicmds.h"
-#include "atacmds.h" // FIXME: for smart_command_set only
 #include "dev_interface.h"
 #include "utility.h"
 #include "sg_unaligned.h"
