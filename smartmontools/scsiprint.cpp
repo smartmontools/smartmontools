@@ -21,7 +21,7 @@
 #include <errno.h>
 
 #include "scsicmds.h"
-#include "atacmds.h" // smart_command_set
+#include "atacmds.h" // dont_print_serial_number
 #include "dev_interface.h"
 #include "scsiprint.h"
 #include "smartctl.h"
@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 4975 2019-10-19 15:51:48Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5014 2019-12-29 13:14:34Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
