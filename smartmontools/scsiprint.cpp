@@ -21,7 +21,7 @@
 #include <errno.h>
 
 #include "scsicmds.h"
-#include "atacmds.h" // smart_command_set
+#include "atacmds.h" // dont_print_serial_number
 #include "dev_interface.h"
 #include "scsiprint.h"
 #include "smartctl.h"
