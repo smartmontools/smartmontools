@@ -84,7 +84,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 4974 2019-10-19 15:34:34Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5012 2019-12-29 13:10:18Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -3922,7 +3922,7 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup, int numdev)
   // If past wake-up-time, compute next wake-up-time
   time_t timenow=time(NULL);
   while (wakeuptime<=timenow){
-    int intervals=1+(timenow-wakeuptime)/checktime;
+    time_t intervals = 1 + (timenow-wakeuptime)/checktime;
     wakeuptime+=intervals*checktime;
   }
 

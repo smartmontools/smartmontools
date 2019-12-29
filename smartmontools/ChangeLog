@@ -1,6 +1,9 @@
-$Id: ChangeLog 5011 2019-12-29 13:06:47Z chrfranke $
+$Id: ChangeLog 5012 2019-12-29 13:10:18Z chrfranke $
 
 2019-12-29  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, smartd.cpp: Silence 'multiplication overflow' warning
+	from lgtm.
 
 	ataprint.cpp: Fix size of Device Statistics value.
 
