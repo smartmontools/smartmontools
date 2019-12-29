@@ -2353,11 +2353,8 @@ bool csmi_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
   }
 
   // Get device-to-host FIS
-  // Assume values are unavailable if SMART command returns
-  // LBA_MID/HIGH as zero (AMD RAID driver)
-  if (!(   in.in_regs.command == ATA_SMART_CMD
-        && !pthru_buf->Status.bStatusFIS[5]
-        && !pthru_buf->Status.bStatusFIS[6]   )) {
+  // Assume values are unavailable if all register fields are zero (AMD RAID driver)
+  if (nonempty(pthru_buf->Status.bStatusFIS + 2, 13 - 2 + 1)) {
     const unsigned char * fis = pthru_buf->Status.bStatusFIS;
     ata_out_regs & lo = out.out_regs;
     lo.status       = fis[ 2];
