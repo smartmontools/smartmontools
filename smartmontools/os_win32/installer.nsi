@@ -219,14 +219,11 @@ Section "!Documentation" DOC_SECTION
 !endif
   File "${INPDIR}\doc\smartctl.8.html"
   File "${INPDIR}\doc\smartctl.8.pdf"
-  Delete "$INSTDIR\doc\smartctl.8.txt" ; TODO: Remove after smartmontools 6.6
   File "${INPDIR}\doc\smartd.8.html"
   File "${INPDIR}\doc\smartd.8.pdf"
-  Delete "$INSTDIR\doc\smartd.8.txt" ; TODO: Remove after smartmontools 6.6
   File "${INPDIR}\doc\smartd.conf"
   File "${INPDIR}\doc\smartd.conf.5.html"
   File "${INPDIR}\doc\smartd.conf.5.pdf"
-  Delete "$INSTDIR\doc\smartd.conf.5.txt" ; TODO: Remove after smartmontools 6.6
 
 SectionEnd
 
@@ -239,7 +236,7 @@ Section "Uninstaller" UNINST_SECTION
 
   ; Remove old "Install_Dir" registry entry (smartmontools < r3911/6.3)
   ; No longer needed for GSmartControl
-  DeleteRegKey HKLM "Software\smartmontools" ; TODO: Remove after smartmontools 6.7
+  DeleteRegKey HKLM "Software\smartmontools" ; TODO: Remove after smartmontools 7.0
 
   ; Write uninstall keys and program
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayName" "smartmontools"
@@ -482,14 +479,11 @@ Section "Uninstall"
   Delete "$INSTDIR\doc\checksums*.txt"
   Delete "$INSTDIR\doc\smartctl.8.html"
   Delete "$INSTDIR\doc\smartctl.8.pdf"
-  Delete "$INSTDIR\doc\smartctl.8.txt" ; TODO: Remove after smartmontools 6.6
   Delete "$INSTDIR\doc\smartd.8.html"
   Delete "$INSTDIR\doc\smartd.8.pdf"
-  Delete "$INSTDIR\doc\smartd.8.txt"  ; TODO: Remove after smartmontools 6.6
   Delete "$INSTDIR\doc\smartd.conf"
   Delete "$INSTDIR\doc\smartd.conf.5.html"
   Delete "$INSTDIR\doc\smartd.conf.5.pdf"
-  Delete "$INSTDIR\doc\smartd.conf.5.txt" ; TODO: Remove after smartmontools 6.6
   Delete "$INSTDIR\uninst-smartmontools.exe"
 
   ; Remove shortcuts
