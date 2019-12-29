@@ -1,4 +1,8 @@
-$Id: ChangeLog 5008 2019-12-28 21:40:37Z chrfranke $
+$Id: ChangeLog 5010 2019-12-29 13:03:51Z chrfranke $
+
+2019-12-29  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: CSMI: Detect missing ATA output registers.
 
 2019-12-28  Christian Franke  <franke@computer.org>
 
