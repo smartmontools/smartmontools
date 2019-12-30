@@ -1,11 +1,11 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 5019 2019-12-29 13:40:36Z chrfranke $
+$Id: NEWS 5022 2019-12-30 15:00:49Z chrfranke $
 
 The most up-to-date version of this file is:
 https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 
-Date <Not released yet, please try current SVN or a recent CI build>
+Date 2019-12-30
 Summary: smartmontools release 7.1
 -----------------------------------------------------------
 - smartctl: Fixed bogus exception on unknown form factor value (regression).

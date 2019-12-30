@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 4960 2019-10-04 19:59:06Z chrfranke $
+# $Id: configure.ac 5022 2019-12-30 15:00:49Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,9 +9,9 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.0
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 4960 2019-10-04 19:59:06Z chrfranke $'`
-smartmontools_release_date=2018-12-30
-smartmontools_release_time="14:47:55 UTC"
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5022 2019-12-30 15:00:49Z chrfranke $'`
+smartmontools_release_date=2019-12-30
+smartmontools_release_time="15:00:11 UTC"
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE,   "$smartmontools_release_date",    [smartmontools Release Date])
