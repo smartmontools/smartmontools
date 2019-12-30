@@ -1,5 +1,9 @@
 $Id$
 
+2019-12-30  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.1
+
 2019-12-29  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in: Add info about AMD Windows RAID driver.

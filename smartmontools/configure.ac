@@ -10,8 +10,8 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 smartmontools_drivedb_version=7.0
 
 smartmontools_cvs_tag=`echo '$Id$'`
-smartmontools_release_date=2018-12-30
-smartmontools_release_time="14:47:55 UTC"
+smartmontools_release_date=2019-12-30
+smartmontools_release_time="15:00:11 UTC"
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE,   "$smartmontools_release_date",    [smartmontools Release Date])
