@@ -37,11 +37,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-// This file contains the linux-specific IOCTL parts of
-// smartmontools. It includes one interface routine for ATA devices,
-// one for SCSI devices, and one for ATA devices behind escalade
-// controllers.
-
 #include "config.h"
 
 #include <errno.h>
