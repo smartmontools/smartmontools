@@ -1,9 +1,9 @@
-$Id: ChangeLog 5027 2020-01-02 16:08:45Z chrfranke $
+$Id: ChangeLog 5028 2020-01-02 16:11:05Z chrfranke $
 
 2020-01-02  Christian Franke  <franke@computer.org>
 
 	configure.ac: Use 'uname -n' if 'hostname' is not available
-	(GH PR 44).
+	(GH PR 44).  Remove check for SVN < 1.7.
 
 2020-01-01  Christian Franke  <franke@computer.org>
 
