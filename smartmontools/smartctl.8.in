@@ -708,7 +708,7 @@ By default, access to the device is refused if the selected sector is not
 zero filled.
 The \*(Aqforce\*(Aq flag disables this check.
 .br
-\fBWARNING: Orignal sector data is not written back if smartctl is aborted
+\fBWARNING: Original sector data is not written back if smartctl is aborted
 with a signal.\fP
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
