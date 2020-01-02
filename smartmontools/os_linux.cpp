@@ -37,11 +37,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-// This file contains the linux-specific IOCTL parts of
-// smartmontools. It includes one interface routine for ATA devices,
-// one for SCSI devices, and one for ATA devices behind escalade
-// controllers.
-
 #include "config.h"
 
 #include <errno.h>
@@ -94,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 4943 2019-08-08 19:19:58Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 5025 2020-01-02 16:04:49Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
