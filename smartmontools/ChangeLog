@@ -1,4 +1,9 @@
-$Id: ChangeLog 5024 2020-01-01 10:05:23Z chrfranke $
+$Id: ChangeLog 5027 2020-01-02 16:08:45Z chrfranke $
+
+2020-01-02  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use 'uname -n' if 'hostname' is not available
+	(GH PR 44).
 
 2020-01-01  Christian Franke  <franke@computer.org>
 

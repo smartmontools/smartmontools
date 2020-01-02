@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5023 2019-12-30 16:17:29Z chrfranke $
+# $Id: configure.ac 5027 2020-01-02 16:08:45Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.0
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5023 2019-12-30 16:17:29Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5027 2020-01-02 16:08:45Z chrfranke $'`
 smartmontools_release_date=2019-12-30
 smartmontools_release_time="15:00:11 UTC"
 
@@ -605,7 +605,7 @@ AC_SUBST(smartmontools_release_time)
 os_libs=
 os_dltools='curl wget lynx svn'
 os_mailer=mail
-os_hostname="'hostname'"
+os_hostname="'hostname' 'uname -n'"
 os_dnsdomainname=
 os_nisdomainname="'domainname'"
 os_darwin=no
@@ -660,7 +660,7 @@ case "${host}" in
   *-*-cygwin*)
     os_deps='os_win32.o dev_areca.o'
     os_mailer='email'
-    os_hostname="'hostname' 'echo "'"${HOSTNAME?unset}"'"'"
+    os_hostname="'hostname' 'uname -n' 'echo "'"${HOSTNAME?unset}"'"'"
     os_dnsdomainname="'dnsdomainname' 'hostname -d' 'echo "'"${USERDNSDOMAIN?unset}"'"'"
     os_nisdomainname=
     os_win32=yes
