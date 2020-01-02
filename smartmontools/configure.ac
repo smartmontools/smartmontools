@@ -66,11 +66,8 @@ AC_MSG_CHECKING([whether this is a build from SVN])
 is_svn_build=no
 svn_deps=
 if test -f "$srcdir/.svn/wc.db"; then
-  # SVN 1.7, 1.8 working copy
+  # SVN >= 1.7 working copy
   svn_deps='${srcdir}/.svn/wc.db'
-elif test -f "${srcdir}/.svn/entries"; then
-  # SVN <= 1.6 working copy (SVN 1.7 has empty entries file)
-  svn_deps='${srcdir}/.svn/entries'
 fi
 if test -n "$svn_deps"; then
   is_svn_build=unknown
