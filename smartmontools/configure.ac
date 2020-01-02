@@ -605,7 +605,7 @@ AC_SUBST(smartmontools_release_time)
 os_libs=
 os_dltools='curl wget lynx svn'
 os_mailer=mail
-os_hostname="'hostname'"
+os_hostname="'hostname' 'uname -n'"
 os_dnsdomainname=
 os_nisdomainname="'domainname'"
 os_darwin=no
@@ -660,7 +660,7 @@ case "${host}" in
   *-*-cygwin*)
     os_deps='os_win32.o dev_areca.o'
     os_mailer='email'
-    os_hostname="'hostname' 'echo "'"${HOSTNAME?unset}"'"'"
+    os_hostname="'hostname' 'uname -n' 'echo "'"${HOSTNAME?unset}"'"'"
     os_dnsdomainname="'dnsdomainname' 'hostname -d' 'echo "'"${USERDNSDOMAIN?unset}"'"'"
     os_nisdomainname=
     os_win32=yes

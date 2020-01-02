@@ -1,5 +1,10 @@
 $Id$
 
+2020-01-02  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use 'uname -n' if 'hostname' is not available
+	(GH PR 44).
+
 2020-01-01  Christian Franke  <franke@computer.org>
 
 	Happy New Year!  Update copyright year in version info.
