@@ -4,7 +4,7 @@ Copyright (C) 2004-19 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5018 2019-12-29 13:37:25Z chrfranke $
+$Id: smartctl.8.in 5026 2020-01-02 16:06:52Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -708,7 +708,7 @@ By default, access to the device is refused if the selected sector is not
 zero filled.
 The \*(Aqforce\*(Aq flag disables this check.
 .br
-\fBWARNING: Orignal sector data is not written back if smartctl is aborted
+\fBWARNING: Original sector data is not written back if smartctl is aborted
 with a signal.\fP
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
@@ -2434,4 +2434,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5018 2019-12-29 13:37:25Z chrfranke $
+$Id: smartctl.8.in 5026 2020-01-02 16:06:52Z chrfranke $
