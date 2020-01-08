@@ -1028,6 +1028,13 @@ protected:
   virtual ata_device * get_jmb39x_device(const char * type, smart_device * smartdev);
   //{ implemented in dev_jmb39x_raid.cpp }
 
+  /// Return JMB93x/QNAP-TR004->ATA filter.
+  /// Device 'smartdev' is used for ATA or SCSI R/W access.
+  /// Return 0 and delete 'scsidev' on error.
+  /// Override only if platform needs special handling.
+  virtual ata_device * get_qnap_tr004_device(const char * type, smart_device * smartdev);
+  //{ implemented in dev_qnap_tr004.cpp }
+
 public:
   /// Try to detect a SAT device behind a SCSI interface.
   /// Inquiry data can be passed if available.

@@ -163,6 +163,7 @@
     <ClCompile Include="..\..\dev_areca.cpp" />
     <ClCompile Include="..\..\dev_intelliprop.cpp" />
     <ClCompile Include="..\..\dev_jmb39x_raid.cpp" />
+	<ClCompile Include="..\..\dev_qnap_tr004.cpp" />
     <ClCompile Include="..\..\nvmecmds.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

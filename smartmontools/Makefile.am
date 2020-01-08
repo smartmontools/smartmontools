@@ -69,6 +69,7 @@ smartctl_SOURCES = \
         dev_interface.h \
         dev_jmb39x_raid.cpp \
         dev_tunnelled.h \
+		dev_qnap_tr004.cpp \
         drivedb.h \
         json.cpp \
         json.h \
@@ -148,6 +149,7 @@ smartd_SOURCES = \
         dev_interface.h \
         dev_jmb39x_raid.cpp \
         dev_tunnelled.h \
+		dev_qnap_tr004.cpp \
         drivedb.h \
         knowndrives.cpp \
         knowndrives.h \
