@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2019 Christian Franke
+ * Copyright (C) 2019-20 Christian Franke
  *
  * Based on JMraidcon (same license):
  *   Copyright (C) 2010 Werner Johansson
@@ -169,12 +169,12 @@ static void jmb_set_wakeup_sector(uint8_t (& data)[512], int id)
   jmb_put_crc(data, crc);
 }
 
-static void jmb_set_request_sector(uint8_t (& data)[512], uint32_t cmd_id,
+static void jmb_set_request_sector(uint8_t (& data)[512], uint8_t version, uint32_t cmd_id,
   const uint8_t * cmd, unsigned cmdsize)
 {
   jmbassert(4 <= cmdsize && cmdsize <= 24);
   memset(data, 0, sizeof(data));
-  jmb_put_le32(data, 0, 0x197b0322); // SCRAMLED_CMD
+  jmb_put_le32(data, 0, (version != 1 ? 0x197b0322 : 0x197b0393)); // SCRAMBLED_CMD
   jmb_put_le32(data, 4, cmd_id);
   memcpy(data + 8, cmd, cmdsize);
   jmb_put_crc(data, jmb_crc(data));
@@ -209,8 +209,11 @@ static void jmb_check_funcs()
   jmb_set_wakeup_sector(data, 3);
   jmbassert(jmb_check_crc(data));
   uint8_t cmd[] = {1, 2, 3, 4, 5, 6, 7};
-  jmb_set_request_sector(data, 42, cmd, sizeof(cmd));
+  jmb_set_request_sector(data, 0, 42, cmd, sizeof(cmd));
   jmbassert(jmb_get_crc(data) == 0xb1f765d7);
+  jmbassert(jmb_check_crc(data));
+  jmb_set_request_sector(data, 1, 42, cmd, sizeof(cmd));
+  jmbassert(jmb_get_crc(data) == 0x388b2759);
   jmbassert(jmb_check_crc(data));
   jmb_xor(data);
   jmbassert(jmb_get_sector_type(data) == 2);
@@ -300,7 +303,7 @@ class jmb39x_device
 {
 public:
   jmb39x_device(smart_interface * intf, smart_device * smartdev, const char * req_type,
-    uint8_t port, uint8_t lba, bool force);
+    uint8_t version, uint8_t port, uint8_t lba, bool force);
 
   virtual ~jmb39x_device() throw();
 
@@ -311,6 +314,7 @@ public:
   virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
 private:
+  uint8_t m_version;
   uint8_t m_port;
   uint8_t m_lba;
   bool m_force;
@@ -328,10 +332,10 @@ private:
 };
 
 jmb39x_device::jmb39x_device(smart_interface * intf, smart_device * smartdev, const char * req_type,
-  uint8_t port, uint8_t lba, bool force)
+  uint8_t version, uint8_t port, uint8_t lba, bool force)
 : smart_device(intf, smartdev->get_dev_name(), req_type, req_type),
   tunnelled_device<ata_device, smart_device>(smartdev),
-  m_port(port), m_lba(lba), m_force(force),
+  m_version(version), m_port(port), m_lba(lba), m_force(force),
   m_blocked(false), m_orig_write_back(false), m_cmd_id(0)
 {
   set_info().info_name = strprintf("%s [jmb39x_disk_%u]", smartdev->get_info_name(), port);
@@ -384,7 +388,7 @@ bool jmb39x_device::run_jmb_command(const uint8_t * cmd, unsigned cmdsize, uint8
 {
   // Set up request
   uint8_t request[512];
-  jmb_set_request_sector(request, m_cmd_id, cmd, cmdsize);
+  jmb_set_request_sector(request, m_version, m_cmd_id, cmd, cmdsize);
 
   if (ata_debugmode) {
     pout("JMB39x: Write request sector #%d\n", m_cmd_id);
@@ -535,8 +539,11 @@ bool jmb39x_device::open()
   m_cmd_id = 1;
 
   // Run JMB identify disk command
+  uint8_t b = (m_version != 1 ? 0x02 : 0x01);
   uint8_t cmd[24]= {
-    0x00, 0x02, 0x02, 0xff,
+    0x00,
+    b, b,
+    0xff,
     m_port,
     0x00, 0x00, 0x00,
     m_port,
@@ -680,8 +687,13 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
 
   unsigned port = ~0;
   bool force = false;
+  uint8_t version = 0;
   int n1 = -1, n2 = -1, len = strlen(type);
   sscanf(type, "jmb39x,%u%n", &port, &n1);
+  if (n1 < 0) {
+    version = 1;
+    sscanf(type, "jmb39x-q,%u%n", &port, &n1);
+  }
   if (0 < n1 && n1 < len && sscanf(type + n1, ",s%u%n", &lba, &n2) == 1 && n2 > 0)
     n1 += n2;
   n2 = -1;
@@ -690,11 +702,11 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
     n1 += n2;
   }
   if (!(n1 == len && port <= 4 && 33 <= lba && lba <= 62)) {
-    set_err(EINVAL, "Option -d jmb39x,N[,sLBA][,force] must have 0 <= N <= 4 [, 33 <= LBA <= 62]");
+    set_err(EINVAL, "Option -d jmb39x[-q],N[,sLBA][,force] must have 0 <= N <= 4 [, 33 <= LBA <= 62]");
     return 0;
   }
 
-  ata_device * jmbdev = new jmb39x::jmb39x_device(this, smartdev, type, port, lba, force);
+  ata_device * jmbdev = new jmb39x::jmb39x_device(this, smartdev, type, version, port, lba, force);
   // 'smartdev' is now owned by 'jmbdev'
   smartdev_holder.release();
   return jmbdev;

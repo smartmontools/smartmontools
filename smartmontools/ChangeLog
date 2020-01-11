@@ -1,5 +1,12 @@
 $Id$
 
+2020-01-11  Christian Franke  <franke@computer.org>
+
+	dev_jmb39x_raid.cpp: Add '-d jmb39x-q,...' device type for JMB39x
+	protocol variant used by QNAP-TR004 NAS (#1283).
+	dev_interface.cpp: Update help text.
+	smartctl.8.in, smartd.conf.5.in: Document '-q' suffix.
+
 2020-01-02  Christian Franke  <franke@computer.org>
 
 	configure.ac: Use 'uname -n' if 'hostname' is not available

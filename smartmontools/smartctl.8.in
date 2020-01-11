@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-19 Christian Franke
+Copyright (C) 2004-20 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -691,10 +691,12 @@ Use syntax such as:
 Vendor Specific Log at address 0xc0.
 Using this option with other devices may have undesirable side effects.\fP
 .Sp
-.I jmb39x,N[,sLBA][,force][+TYPE]
+.I jmb39x[\-q],N[,sLBA][,force][+TYPE]
 \- [NEW EXPERIMENTAL SMARTCTL FEATURE]
 the device consists of multiple SATA disks connected to a JMicron JMB39x RAID
 port multiplier.
+The suffix \*(Aq\-q\*(Aq selects a slightly different command variant used by
+some QNAP NAS devices.
 The integer N is the port number from 0 to 4.
 .br
 \fBWARNING: The ATA pass-through commands are issued via READ/WRITE commands
