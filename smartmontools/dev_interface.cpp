@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-19 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -27,7 +27,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 4979 2019-11-24 18:19:24Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5029 2020-01-11 18:28:49Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -310,7 +310,7 @@ std::string smart_interface::get_valid_dev_types_str()
   std::string s =
     "ata, scsi[+TYPE], nvme[,NSID], sat[,auto][,N][+TYPE], usbcypress[,X], "
     "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, sntjmicron[,NSID], "
-    "intelliprop,N[+TYPE], jmb39x,N[,sLBA][,force][+TYPE]";
+    "intelliprop,N[+TYPE], jmb39x[-q],N[,sLBA][,force][+TYPE]";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
   if (!s2.empty()) {
