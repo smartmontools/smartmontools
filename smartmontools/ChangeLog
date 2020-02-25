@@ -1,4 +1,11 @@
-$Id: ChangeLog 5032 2020-02-25 20:22:44Z chrfranke $
+$Id: ChangeLog 5033 2020-02-25 20:26:48Z chrfranke $
+
+2020-02-25  Christian Franke  <franke@computer.org>
+
+	Silence some warnings from g++ 9.2:
+	atacmds.cpp: -Waddress-of-packed-member.
+	os_win32.cpp: -Wcast-function-type.
+	smartd.cpp: -Wformat-truncation.
 
 2020-02-25  Fabrice Fontaine  <fontaine.fabrice@gmail.com>
 
