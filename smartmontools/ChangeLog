@@ -1,5 +1,12 @@
 $Id$
 
+2020-02-25  Fabrice Fontaine  <fontaine.fabrice@gmail.com>
+
+	configure.ac: fix stack-protector detection.
+	Use AC_LINK_IFELSE instead of AC_COMPILE_IFELSE to check for
+	stack-protector availability as some compilers could missed the
+	needed library (-lssp or -lssp_nonshared) at linking step.
+
 2020-01-11  Christian Franke  <franke@computer.org>
 
 	dev_jmb39x_raid.cpp: Add '-d jmb39x-q,...' device type for JMB39x
