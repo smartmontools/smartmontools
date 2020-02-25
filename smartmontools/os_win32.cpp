@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2004-19 Christian Franke
+ * Copyright (C) 2004-20 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2015    Nidhi Malhotra <nidhi.malhotra@pmcs.com>
@@ -4033,7 +4033,7 @@ private:
 static bool is_wow64()
 {
   BOOL (WINAPI * IsWow64Process_p)(HANDLE, PBOOL) =
-    (BOOL (WINAPI *)(HANDLE, PBOOL))
+    (BOOL (WINAPI *)(HANDLE, PBOOL))(void *)
     GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsWow64Process");
   if (!IsWow64Process_p)
     return false;
@@ -4058,7 +4058,7 @@ std::string win_smart_interface::get_os_version_str()
   // Starting with Windows 8.1, GetVersionEx() does no longer report the
   // actual OS version.  RtlGetVersion() is not affected.
   LONG /*NTSTATUS*/ (WINAPI /*NTAPI*/ * RtlGetVersion_p)(LPOSVERSIONINFOEXW) =
-    (LONG (WINAPI *)(LPOSVERSIONINFOEXW))
+    (LONG (WINAPI *)(LPOSVERSIONINFOEXW))(void *)
     GetProcAddress(GetModuleHandleA("ntdll.dll"), "RtlGetVersion");
 
   OSVERSIONINFOEXW vi; memset(&vi, 0, sizeof(vi));
@@ -4761,7 +4761,8 @@ void smart_interface::init()
   {
     // Remove "." from DLL search path if supported
     // to prevent DLL preloading attacks
-    BOOL (WINAPI * SetDllDirectoryA_p)(LPCSTR) = (BOOL (WINAPI *)(LPCSTR))
+    BOOL (WINAPI * SetDllDirectoryA_p)(LPCSTR) =
+      (BOOL (WINAPI *)(LPCSTR))(void *)
       GetProcAddress(GetModuleHandleA("kernel32.dll"), "SetDllDirectoryA");
     if (SetDllDirectoryA_p)
       SetDllDirectoryA_p("");

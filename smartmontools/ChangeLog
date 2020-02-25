@@ -1,5 +1,12 @@
 $Id$
 
+2020-02-25  Christian Franke  <franke@computer.org>
+
+	Silence some warnings from g++ 9.2:
+	atacmds.cpp: -Waddress-of-packed-member.
+	os_win32.cpp: -Wcast-function-type.
+	smartd.cpp: -Wformat-truncation.
+
 2020-02-25  Fabrice Fontaine  <fontaine.fabrice@gmail.com>
 
 	configure.ac: fix stack-protector detection.

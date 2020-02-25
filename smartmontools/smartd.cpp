@@ -2,7 +2,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-19 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -1941,7 +1941,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   state.num_sectors = sizes.sectors;
   cfg.dev_rpm = ata_get_rotation_rate(&drive);
 
-  char wwn[30]; wwn[0] = 0;
+  char wwn[64]; wwn[0] = 0;
   unsigned oui = 0; uint64_t unique_id = 0;
   int naa = ata_get_wwn(&drive, oui, unique_id);
   if (naa >= 0)
@@ -2902,7 +2902,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
         default: continue;
       }
       // Try match of "T/MM/DD/d/HH"
-      char pattern[16];
+      char pattern[64];
       snprintf(pattern, sizeof(pattern), "%c/%02d/%02d/%1d/%02d",
         test_type_chars[i], tms->tm_mon+1, tms->tm_mday, weekday, tms->tm_hour);
       if (cfg.test_regex.full_match(pattern)) {

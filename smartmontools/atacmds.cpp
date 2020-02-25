@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-19 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -819,9 +819,6 @@ bool ata_set_features(ata_device * device, unsigned char features,
 int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id,
                       unsigned char * raw_buf /* = 0 */)
 {
-  unsigned short *rawshort=(unsigned short *)buf;
-  unsigned char  *rawbyte =(unsigned char  *)buf;
-
   // See if device responds either to IDENTIFY DEVICE or IDENTIFY
   // PACKET DEVICE
   bool packet = false;
@@ -849,6 +846,11 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
   if (raw_buf)
     memcpy(raw_buf, buf, sizeof(*buf));
 
+  // If there is a checksum there, validate it
+  unsigned char * rawbyte = (unsigned char *)buf;
+  if (rawbyte[512-2] == 0xa5 && checksum(rawbyte))
+    checksumwarning("Drive Identity Structure");
+
   // if machine is big-endian, swap byte order as needed
   if (isbigendian()){
     // swap various capability words that are needed
@@ -856,15 +858,11 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
     for (i=0; i<33; i++)
       swap2((char *)(buf->words047_079+i));
     for (i=80; i<=87; i++)
-      swap2((char *)(rawshort+i));
+      swap2((char *)(rawbyte+2*i));
     for (i=0; i<168; i++)
       swap2((char *)(buf->words088_255+i));
   }
   
-  // If there is a checksum there, validate it
-  if ((rawshort[255] & 0x00ff) == 0x00a5 && checksum(rawbyte))
-    checksumwarning("Drive Identity Structure");
-
   // AT Attachment 8 - ATA/ATAPI Command Set (ATA8-ACS)
   // T13/1699-D Revision 6a (Final Draft), September 6, 2008.
   // Sections 7.16.7 and 7.17.6:
