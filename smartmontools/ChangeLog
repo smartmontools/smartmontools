@@ -1,4 +1,11 @@
-$Id: ChangeLog 5029 2020-01-11 18:28:49Z chrfranke $
+$Id: ChangeLog 5032 2020-02-25 20:22:44Z chrfranke $
+
+2020-02-25  Fabrice Fontaine  <fontaine.fabrice@gmail.com>
+
+	configure.ac: fix stack-protector detection.
+	Use AC_LINK_IFELSE instead of AC_COMPILE_IFELSE to check for
+	stack-protector availability as some compilers could missed the
+	needed library (-lssp or -lssp_nonshared) at linking step.
 
 2020-01-11  Christian Franke  <franke@computer.org>
 

@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5028 2020-01-02 16:11:05Z chrfranke $
+# $Id: configure.ac 5032 2020-02-25 20:22:44Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.0
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5028 2020-01-02 16:11:05Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5032 2020-02-25 20:22:44Z chrfranke $'`
 smartmontools_release_date=2019-12-30
 smartmontools_release_time="15:00:11 UTC"
 
@@ -770,7 +770,7 @@ if test "$GXX" = "yes"; then
     AC_MSG_CHECKING([whether $CXX supports $option])
     save_CXXFLAGS=$CXXFLAGS
     CXXFLAGS="$CXXFLAGS $option"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
+    AC_LINK_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
     AC_MSG_RESULT([$res])
   done
 else
