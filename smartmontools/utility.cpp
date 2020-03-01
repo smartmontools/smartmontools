@@ -42,7 +42,7 @@
 #include "dev_interface.h"
 #include "sg_unaligned.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 5024 2020-01-01 10:05:23Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 5035 2020-03-01 16:19:44Z chrfranke $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -832,40 +832,7 @@ static void check_endianness()
     throw std::logic_error("CPU endianness does not match compile time test");
 }
 
-#ifndef HAVE_WORKING_SNPRINTF
-// Some versions of (v)snprintf() don't append null char (MSVCRT.DLL),
-// and/or return -1 on output truncation (glibc <= 2.0.6).
-// Below are sane replacements substituted by #define in utility.h.
-
-#undef vsnprintf
-#if defined(_WIN32) && defined(_MSC_VER)
-#define vsnprintf _vsnprintf
-#endif
-
-int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap)
-{
-  int i;
-  if (size <= 0)
-    return 0;
-  i = vsnprintf(buf, size, fmt, ap);
-  if (0 <= i && i < size)
-    return i;
-  buf[size-1] = 0;
-  return strlen(buf); // Note: cannot detect for overflow, not necessary here.
-}
-
-int safe_snprintf(char *buf, int size, const char *fmt, ...)
-{
-  int i; va_list ap;
-  va_start(ap, fmt);
-  i = safe_vsnprintf(buf, size, fmt, ap);
-  va_end(ap);
-  return i;
-}
-
-static void check_snprintf() {}
-
-#elif defined(__GNUC__) && (__GNUC__ >= 7)
+#if defined(__GNUC__) && (__GNUC__ >= 7)
 
 // G++ 7+: Assume sane implementation and avoid -Wformat-truncation warning
 static void check_snprintf() {}
@@ -881,7 +848,7 @@ static void check_snprintf()
     throw std::logic_error("Function snprintf() does not conform to C99");
 }
 
-#endif // HAVE_WORKING_SNPRINTF
+#endif
 
 // Runtime check of ./configure result, throws on error.
 void check_config()
