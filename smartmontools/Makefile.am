@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 5034 2020-03-01 15:35:13Z chrfranke $
+# $Id: Makefile.am 5036 2020-03-01 17:18:01Z chrfranke $
 #
 
 @SET_MAKE@
@@ -64,7 +64,6 @@ smartctl_SOURCES = \
         dev_ata_cmd_set.cpp \
         dev_ata_cmd_set.h \
         dev_intelliprop.cpp \
-        dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
         dev_jmb39x_raid.cpp \
@@ -143,7 +142,6 @@ smartd_SOURCES = \
         dev_ata_cmd_set.cpp \
         dev_ata_cmd_set.h \
         dev_intelliprop.cpp \
-        dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
         dev_jmb39x_raid.cpp \
