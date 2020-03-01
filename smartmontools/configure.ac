@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5032 2020-02-25 20:22:44Z chrfranke $
+# $Id: configure.ac 5034 2020-03-01 15:35:13Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.0
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5032 2020-02-25 20:22:44Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5034 2020-03-01 15:35:13Z chrfranke $'`
 smartmontools_release_date=2019-12-30
 smartmontools_release_time="15:00:11 UTC"
 
@@ -108,12 +108,6 @@ case "$host" in
     ;;
   *-*-netbsd*|*-*-openbsd*)
     AC_CHECK_HEADERS([dev/ata/atavar.h])
-    ;;
-  *-*-cygwin*|*-*-mingw*)
-    # Check for Windows DDK header files
-    AC_CHECK_HEADERS([ntdddisk.h ddk/ntdddisk.h], [], [], [AC_INCLUDES_DEFAULT
-#include <windows.h>
-])
     ;;
 esac
 

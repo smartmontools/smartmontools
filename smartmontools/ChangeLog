@@ -1,4 +1,10 @@
-$Id: ChangeLog 5033 2020-02-25 20:26:48Z chrfranke $
+$Id: ChangeLog 5034 2020-03-01 15:35:13Z chrfranke $
+
+2020-03-01  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Remove backward compatibility fixes for include files
+	of very old versions of Cygwin, MinGW and MSVC.
+	configure.ac, Makefile.am: Remove check for DDK include files.
 
 2020-02-25  Christian Franke  <franke@computer.org>
 
