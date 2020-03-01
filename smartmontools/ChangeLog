@@ -2,6 +2,9 @@ $Id$
 
 2020-03-01  Christian Franke  <franke@computer.org>
 
+	configure.ac: Fail if '--without-working-snprintf' is specified.
+	utility.cpp, utility.h: Remove support for pre-C99 snprintf().
+
 	os_win32.cpp: Remove backward compatibility fixes for include files
 	of very old versions of Cygwin, MinGW and MSVC.
 	configure.ac, Makefile.am: Remove check for DDK include files.

@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-19 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -35,7 +35,6 @@
 #elif defined(__MINGW32__) && __USE_MINGW_ANSI_STDIO
 // Check format of __mingw_*printf() instead of MSVCRT.DLL:*printf()
 #define __attribute_format_printf(x, y)  __attribute__((format (gnu_printf, x, y)))
-#define HAVE_WORKING_SNPRINTF 1
 #else
 #define __attribute_format_printf(x, y)  __attribute__((format (printf, x, y)))
 #endif
@@ -54,15 +53,6 @@ inline bool str_starts_with(const char * str, const char * prefix)
 
 inline bool str_starts_with(const std::string & str, const char * prefix)
   { return !strncmp(str.c_str(), prefix, strlen(prefix)); }
-
-#ifndef HAVE_WORKING_SNPRINTF
-// Substitute by safe replacement functions
-int safe_snprintf(char *buf, int size, const char *fmt, ...)
-    __attribute_format_printf(3, 4);
-int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
-#define snprintf  safe_snprintf
-#define vsnprintf safe_vsnprintf
-#endif
 
 // Convert time to broken-down local time, throw on error.
 struct tm * time_to_tm_local(struct tm * tp, time_t t);

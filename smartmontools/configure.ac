@@ -413,20 +413,10 @@ Please send info about your system to $PACKAGE_BUGREPORT.])) ;;
   *) AC_MSG_ERROR([Invalid option '--with-signal-func=$with_signal_func']) ;;
 esac
 
-# TODO: Remove after smartmontools 6.7
-AC_ARG_WITH(working-snprintf,
-  [AS_HELP_STRING([--with-working-snprintf@<:@=yes|no@:>@],
-    [Function snprintf() handles output truncation as specified by C99 [yes]])],
-  [], [with_working_snprintf=yes])
-
-if test "$with_working_snprintf" = "yes"; then
-  AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane.]) dnl `vim syntax
-fi
-
-case "$with_working_snprintf:$host_os: $CPPFLAGS $CXXFLAGS" in
-  yes:mingw*:*\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
+case "$host_os: $CPPFLAGS $CXXFLAGS" in
+  mingw*:*\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
     ;;
-  yes:mingw*:*)
+  mingw*:*)
     # Older MinGW (4.6.3) do not properly define PRI?64 if __USE_MINGW_ANSI_STDIO is set.
     # Newer MinGW (4.9.1) set __USE_MINGW_ANSI_STDIO in first C++ include which may be too late.
     # Set __USE_MINGW_ANSI_STDIO always and fail if not fully supported.
@@ -446,7 +436,7 @@ case "$with_working_snprintf:$host_os: $CPPFLAGS $CXXFLAGS" in
     if test "$result" != "yes"; then
       AC_MSG_ERROR([
 This version of $CXX does not support __USE_MINGW_ANSI_STDIO.
-Use option '--without-working-snprintf' to skip this check.
+Use option 'CPPFLAGS=-U__USE_MINGW_ANSI_STDIO' to skip this check.
 Please send info about your system to $PACKAGE_BUGREPORT.
 ])
     fi
@@ -587,6 +577,17 @@ else
   AC_CHECK_FUNCS([regcomp], [], [need_regex=yes])
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
+
+# TODO: Remove after smartmontools 7.2
+AC_ARG_WITH(working-snprintf,
+  [AS_HELP_STRING([--with-working-snprintf], [(removed)])],
+  [ if test "$withval" != "yes"; then
+      AC_MSG_ERROR([
+The option '--without-working-snprintf' is no longer supported.
+If you still need support for pre-C99 snprintf(), please inform
+$PACKAGE_BUGREPORT.
+])
+    fi])
 
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
@@ -961,12 +962,11 @@ Use option '--without-nvme-devicescan' to suppress this warning.
 ])  ;;
 esac
 
-# TODO: Remove after smartmontools 6.7
-if test "$with_working_snprintf" != "yes"; then
+# TODO: Remove after smartmontools 7.2
+if test -n "$with_working_snprintf"; then
   AC_MSG_WARN([
-The option '--without-working-snprintf' is deprecated and will be removed
-in a future version of smartmontools.  If you still need support for
-pre-C99 snprintf(), please inform $PACKAGE_BUGREPORT.
+The option '--with-working-snprintf' is no longer needed and will be
+removed in a future version of smartmontools.
 ])
 fi
 
