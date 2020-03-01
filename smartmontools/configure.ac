@@ -109,12 +109,6 @@ case "$host" in
   *-*-netbsd*|*-*-openbsd*)
     AC_CHECK_HEADERS([dev/ata/atavar.h])
     ;;
-  *-*-cygwin*|*-*-mingw*)
-    # Check for Windows DDK header files
-    AC_CHECK_HEADERS([ntdddisk.h ddk/ntdddisk.h], [], [], [AC_INCLUDES_DEFAULT
-#include <windows.h>
-])
-    ;;
 esac
 
 # Checks for typedefs, and compiler characteristics.

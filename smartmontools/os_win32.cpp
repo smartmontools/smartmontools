@@ -43,31 +43,9 @@ extern unsigned char failuretest_permissive;
 #endif
 
 #include <stddef.h> // offsetof()
-#include <io.h> // access()
 
-// WIN32_LEAN_AND_MEAN may be required to prevent inclusion of <winioctl.h>
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-
-#if HAVE_NTDDDISK_H
-// i686-pc-cygwin, i686-w64-mingw32, x86_64-w64-mingw32
-// (Missing: FILE_DEVICE_SCSI)
-#include <devioctl.h>
-#include <ntdddisk.h>
-#include <ntddscsi.h>
-#include <ntddstor.h>
-#elif HAVE_DDK_NTDDDISK_H
-// older i686-pc-cygwin, i686-pc-mingw32, i586-mingw32msvc
-// (Missing: IOCTL_IDE_PASS_THROUGH, IOCTL_ATA_PASS_THROUGH, FILE_DEVICE_SCSI)
-#include <ddk/ntdddisk.h>
-#include <ddk/ntddscsi.h>
-#include <ddk/ntddstor.h>
-#else
-// MSVC10, older MinGW
-// (Missing: IOCTL_SCSI_MINIPORT_*)
-#include <ntddscsi.h>
-#include <winioctl.h>
-#endif
+#include <ntddscsi.h> // IOCTL_ATA_PASS_THROUGH, IOCTL_SCSI_PASS_THROUGH, ...
 
 #ifndef _WIN32
 // csmisas.h and aacraid.h require _WIN32 but w32api-headers no longer define it on Cygwin
@@ -136,35 +114,6 @@ STATIC_ASSERT(sizeof(ATA_PASS_THROUGH) == 12+1);
 
 // ATA PASS THROUGH (Win2003, XP SP2)
 
-#ifndef IOCTL_ATA_PASS_THROUGH
-
-#define IOCTL_ATA_PASS_THROUGH \
-  CTL_CODE(IOCTL_SCSI_BASE, 0x040B, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
-typedef struct _ATA_PASS_THROUGH_EX {
-  USHORT Length;
-  USHORT AtaFlags;
-  UCHAR PathId;
-  UCHAR TargetId;
-  UCHAR Lun;
-  UCHAR ReservedAsUchar;
-  ULONG DataTransferLength;
-  ULONG TimeOutValue;
-  ULONG ReservedAsUlong;
-  ULONG_PTR DataBufferOffset;
-  UCHAR PreviousTaskFile[8];
-  UCHAR CurrentTaskFile[8];
-} ATA_PASS_THROUGH_EX;
-
-#define ATA_FLAGS_DRDY_REQUIRED 0x01
-#define ATA_FLAGS_DATA_IN       0x02
-#define ATA_FLAGS_DATA_OUT      0x04
-#define ATA_FLAGS_48BIT_COMMAND 0x08
-#define ATA_FLAGS_USE_DMA       0x10
-#define ATA_FLAGS_NO_MULTIPLE   0x20 // Vista
-
-#endif // IOCTL_ATA_PASS_THROUGH
-
 STATIC_ASSERT(IOCTL_ATA_PASS_THROUGH == 0x04d02c);
 STATIC_ASSERT(sizeof(ATA_PASS_THROUGH_EX) == SELECT_WIN_32_64(40, 48));
 
@@ -202,56 +151,11 @@ STATIC_ASSERT(sizeof(SCSI_PASS_THROUGH_DIRECT) == SELECT_WIN_32_64(44, 56));
 #endif // IOCTL_SCSI_MINIPORT_SMART_VERSION
 
 STATIC_ASSERT(IOCTL_SCSI_MINIPORT == 0x04d008);
+STATIC_ASSERT(IOCTL_SCSI_MINIPORT_SMART_VERSION == 0x1b0500);
 STATIC_ASSERT(sizeof(SRB_IO_CONTROL) == 28);
 
 
 // IOCTL_STORAGE_QUERY_PROPERTY
-
-#ifndef IOCTL_STORAGE_QUERY_PROPERTY
-
-#define IOCTL_STORAGE_QUERY_PROPERTY \
-  CTL_CODE(IOCTL_STORAGE_BASE, 0x0500, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-typedef struct _STORAGE_DEVICE_DESCRIPTOR {
-  ULONG Version;
-  ULONG Size;
-  UCHAR DeviceType;
-  UCHAR DeviceTypeModifier;
-  BOOLEAN RemovableMedia;
-  BOOLEAN CommandQueueing;
-  ULONG VendorIdOffset;
-  ULONG ProductIdOffset;
-  ULONG ProductRevisionOffset;
-  ULONG SerialNumberOffset;
-  STORAGE_BUS_TYPE BusType;
-  ULONG RawPropertiesLength;
-  UCHAR RawDeviceProperties[1];
-} STORAGE_DEVICE_DESCRIPTOR;
-
-typedef enum _STORAGE_QUERY_TYPE {
-  PropertyStandardQuery = 0,
-  PropertyExistsQuery,
-  PropertyMaskQuery,
-  PropertyQueryMaxDefined
-} STORAGE_QUERY_TYPE;
-
-typedef enum _STORAGE_PROPERTY_ID {
-  StorageDeviceProperty = 0,
-  StorageAdapterProperty,
-  StorageDeviceIdProperty,
-  StorageDeviceUniqueIdProperty,
-  StorageDeviceWriteCacheProperty,
-  StorageMiniportProperty,
-  StorageAccessAlignmentProperty
-} STORAGE_PROPERTY_ID;
-
-typedef struct _STORAGE_PROPERTY_QUERY {
-  STORAGE_PROPERTY_ID PropertyId;
-  STORAGE_QUERY_TYPE QueryType;
-  UCHAR AdditionalParameters[1];
-} STORAGE_PROPERTY_QUERY;
-
-#endif // IOCTL_STORAGE_QUERY_PROPERTY
 
 STATIC_ASSERT(IOCTL_STORAGE_QUERY_PROPERTY == 0x002d1400);
 STATIC_ASSERT(sizeof(STORAGE_DEVICE_DESCRIPTOR) == 36+1+3);
