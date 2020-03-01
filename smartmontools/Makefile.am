@@ -64,7 +64,6 @@ smartctl_SOURCES = \
         dev_ata_cmd_set.cpp \
         dev_ata_cmd_set.h \
         dev_intelliprop.cpp \
-        dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
         dev_jmb39x_raid.cpp \
@@ -143,7 +142,6 @@ smartd_SOURCES = \
         dev_ata_cmd_set.cpp \
         dev_ata_cmd_set.h \
         dev_intelliprop.cpp \
-        dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
         dev_jmb39x_raid.cpp \

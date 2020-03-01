@@ -12,12 +12,10 @@
 
 #include "atacmds.h" // ATTR_PACKED, STATIC_ASSERT, ata_debugmode
 #include "dev_interface.h"
-#include "dev_intelliprop.h"
 #include "dev_tunnelled.h"
 #include <errno.h>
 
-const char * dev_intelliprop_cpp_cvsid = "$Id$"
-  DEV_INTELLIPROP_H_CVSID;
+const char * dev_intelliprop_cpp_cvsid = "$Id$";
 
 //Vendor Specific log addresses
 #define LOG_C0           0xc0
@@ -291,7 +289,20 @@ bool intelliprop_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
 }
 }//namespace
 
-ata_device * get_intelliprop_device(smart_interface * intf, unsigned phydrive, ata_device * atadev)
+ata_device * smart_interface::get_intelliprop_device(const char * type, ata_device * atadev)
 {
-  return new intelliprop::intelliprop_device(intf, phydrive, atadev);
+  // Take temporary ownership of 'atadev' to delete it on error
+  ata_device_auto_ptr atadev_holder(atadev);
+
+  unsigned phydrive = ~0; int n = -1;
+  sscanf(type, "intelliprop,%u%n", &phydrive, &n);
+  if (!(n == (int)strlen(type) && phydrive <= 3)) {
+    set_err(EINVAL, "Option '-d intelliprop,N' must have 0 <= N <= 3");
+    return 0;
+  }
+
+  ata_device * itldev = new intelliprop::intelliprop_device(this, phydrive, atadev);
+  // 'atadev' is now owned by 'itldev'
+  atadev_holder.release();
+  return itldev;
 }

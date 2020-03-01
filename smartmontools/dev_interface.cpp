@@ -11,7 +11,6 @@
 #include "config.h"
 
 #include "dev_interface.h"
-#include "dev_intelliprop.h"
 #include "dev_tunnelled.h"
 #include "atacmds.h" // ATA_SMART_CMD/STATUS
 #include "scsicmds.h" // scsi_cmnd_io
@@ -426,7 +425,7 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     }
     dev = get_nvme_device(name, type, nsid);
   }
-
+  // TODO: Unify handling of '-d TYPE...+BASETYPE...'
   else if (  (str_starts_with(type, "sat") && (!type[3] || strchr(",+", type[3])))
            || str_starts_with(type, "scsi+")
            || str_starts_with(type, "usb")                                        ) {
@@ -479,14 +478,10 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
   }
 
   else if (str_starts_with(type, "intelliprop")) {
-    // Parse "intelliprop,N[+base...]"
-    unsigned phydrive = ~0; int n = -1; char c = 0;
-    sscanf(type, "intelliprop,%u%n%c", &phydrive, &n, &c);
-    if (!((n == (int)strlen(type) || c == '+') && phydrive <= 3)) {
-      set_err(EINVAL, "Option '-d intelliprop,N' requires N between 0 and 3");
-      return 0;
-    }
-    const char * basetype = (type[n] ? type + n + 1 : "");
+    // Split "intelliprop...+base..." -> ("intelliprop...", "base...")
+    unsigned itllen = strcspn(type, "+");
+    std::string itltype(type, itllen);
+    const char * basetype = (type[itllen] ? type+itllen+1 : "");
     // Recurse to allocate base device, default is standard ATA
     if (!*basetype)
       basetype = "ata";
@@ -500,7 +495,7 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
       set_err(EINVAL, "Type '%s': Device type '%s' is not ATA", type, basetype);
       return 0;
     }
-    return get_intelliprop_device(this, phydrive, basedev.release()->to_ata());
+    return get_intelliprop_device(itltype.c_str(), basedev.release()->to_ata());
   }
 
   else {

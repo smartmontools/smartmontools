@@ -300,7 +300,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\dev_areca.h" />
-    <ClInclude Include="..\..\dev_intelliprop.h" />
     <ClInclude Include="..\..\getopt\bits\getopt_core.h" />
     <ClInclude Include="..\..\getopt\bits\getopt_ext.h" />
     <ClInclude Include="..\..\getopt\getopt_int.h" />

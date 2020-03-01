@@ -2,6 +2,12 @@ $Id$
 
 2020-03-01  Christian Franke  <franke@computer.org>
 
+	dev_intelliprop.cpp, dev_interface.cpp, dev_interface.h: Move option
+	parsing to get_intelliprop_device().  Move this function to class
+	smart_interface.
+	dev_intelliprop.h: Remove file.
+	Makefile.am, os_win32/vc14/smart*.vcxproj*: Remove old file.
+
 	configure.ac: Fail if '--without-working-snprintf' is specified.
 	utility.cpp, utility.h: Remove support for pre-C99 snprintf().
 
