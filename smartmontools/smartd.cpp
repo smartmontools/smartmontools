@@ -5142,6 +5142,7 @@ static int parse_options(int argc, char **argv)
   }
 
   // Check option compatibility of notify support
+    // cppcheck-suppress knownConditionTrueFalse
   if (!notify_post_init())
     return EXIT_BADCMD;
 

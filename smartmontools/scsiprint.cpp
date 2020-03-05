@@ -478,12 +478,10 @@ scsiGetStartStopData(scsi_device * device)
 static void
 scsiPrintPendingDefectsLPage(scsi_device * device)
 {
-    int num, pl, pc, err;
-    uint32_t count;
-    const uint8_t * bp;
     static const char * pDefStr = "Pending Defects";
     static const char * jname = "pending_defects";
 
+    int err;
     if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE,
                             PEND_DEFECTS_L_SPAGE, gBuf, LOG_RESP_LONG_LEN,
                             0))) {
@@ -499,17 +497,18 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
         print_off();
         return;
     }
-    num = sg_get_unaligned_be16(gBuf + 2);
+    int num = sg_get_unaligned_be16(gBuf + 2);
     if (num > LOG_RESP_LONG_LEN) {
         print_on();
         pout("%s %s too long\n", pDefStr, logSenRspStr);
         print_off();
         return;
     }
-    bp = gBuf + 4;
+    const uint8_t * bp = gBuf + 4;
     while (num > 3) {
-        pc = sg_get_unaligned_be16(bp + 0);
-        pl = bp[3] + 4;
+        int pc = sg_get_unaligned_be16(bp + 0);
+        int pl = bp[3] + 4;
+        uint32_t count;
         switch (pc) {
         case 0x0:
             printf("  Pending defect count:");
@@ -981,7 +980,6 @@ scsiPrintSelfTest(scsi_device * device)
     int noheader = 1;
     int retval = 0;
     uint8_t * ucp;
-    uint64_t ull;
     struct scsi_sense_disect sense_info;
     static const char * hname = "Self-test";
 
@@ -1093,7 +1091,7 @@ scsiPrintSelfTest(scsi_device * device)
             pout("   %5d", n);
 
         // construct 8-byte integer address of first failure
-        ull = sg_get_unaligned_be64(ucp + 8);
+        uint64_t ull = sg_get_unaligned_be64(ucp + 8);
         bool is_all_ffs = all_ffs(ucp + 8, 8);
         // print Address of First Failure, if sensible
         if ((! is_all_ffs) && (res > 0) && (res < 0xf)) {
@@ -1327,14 +1325,11 @@ scsiPrintSSMedia(scsi_device * device)
 static int
 scsiPrintFormatStatus(scsi_device * device)
 {
-    bool is_count;
     int k, num, err, truncated;
     int retval = 0;
     uint64_t ull;
     uint8_t * ucp;
     uint8_t * xp;
-    const char * jout_str;
-    const char * jglb_str;
     static const char * hname = "Format Status";
     static const char * jname = "format_status";
 
@@ -1369,9 +1364,9 @@ scsiPrintFormatStatus(scsi_device * device)
         // pcb = ucp[2];
         int pl = ucp[3] + 4;
 
-        is_count = true;
-        jout_str = "";
-        jglb_str = "x";
+        bool is_count = true;
+        const char * jout_str = "";
+        const char * jglb_str = "x";
         switch (pc) {
         case 0:
             if (scsi_debugmode > 1) {

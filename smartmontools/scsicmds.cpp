@@ -150,15 +150,12 @@ dStrHex(const uint8_t * up, int len, int no_ascii)
 bool
 is_scsi_cdb(const uint8_t * cdbp, int clen)
 {
-    int ilen, sa;
-    uint8_t opcode;
-    uint8_t top3bits;
-
     if (clen < 6)
         return false;
-    opcode = cdbp[0];
-    top3bits = opcode >> 5;
+    uint8_t opcode = cdbp[0];
+    uint8_t top3bits = opcode >> 5;
     if (0x3 == top3bits) {      /* Opcodes 0x60 to 0x7f */
+        int ilen, sa;
         if ((clen < 12) || (clen % 4))
             return false;       /* must be modulo 4 and 12 or more bytes */
         switch (opcode) {
@@ -1279,16 +1276,13 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
                 return 0;
             try_12 = true;
         } else {        /* rcap16 succeeded */
-            bool prot_en;
-            uint8_t  p_type;
-
             ret_val = sg_get_unaligned_be64(rc16resp + 0) + 1;
             lb_size = sg_get_unaligned_be32(rc16resp + 8);
             if (srrp) {         /* writes to all fields */
                 srrp->num_lblocks = ret_val;
                 srrp->lb_size = lb_size;
-                prot_en = !!(0x1 & rc16resp[12]);
-                p_type = ((rc16resp[12] >> 1) & 0x7);
+                bool prot_en = !!(0x1 & rc16resp[12]);
+                uint8_t p_type = ((rc16resp[12] >> 1) & 0x7);
                 srrp->prot_type = prot_en ? (1 + p_type) : 0;
                 srrp->p_i_exp = ((rc16resp[13] >> 4) & 0xf);
                 srrp->lb_p_pb_exp = (rc16resp[13] & 0xf);
