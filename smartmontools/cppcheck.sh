@@ -4,11 +4,11 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2019 Christian Franke
+# Copyright (C) 2019-20 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: cppcheck.sh 4974 2019-10-19 15:34:34Z chrfranke $
+# $Id: cppcheck.sh 5037 2020-03-05 16:07:34Z chrfranke $
 #
 
 set -e
@@ -105,8 +105,6 @@ defs="\
   -DENOTSUP=1
   -DHAVE_ATTR_PACKED
   -DHAVE_CONFIG_H
-  -UHAVE_DDK_NTDDDISK_H
-  -DHAVE_NTDDDISK_H
   -DSG_IO=1
   -DSMARTMONTOOLS_SVN_REV=\"r1\"
   -DSMARTMONTOOLS_ATTRIBUTELOG=\"/file\"

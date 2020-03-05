@@ -1,4 +1,8 @@
-$Id: ChangeLog 5036 2020-03-01 17:18:01Z chrfranke $
+$Id: ChangeLog 5037 2020-03-05 16:07:34Z chrfranke $
+
+2020-03-05  Christian Franke  <franke@computer.org>
+
+	cppcheck.sh: Remove no longer used HAVE_*NTDDDISK_H defines.
 
 2020-03-01  Christian Franke  <franke@computer.org>
 
