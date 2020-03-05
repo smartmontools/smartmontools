@@ -1,9 +1,9 @@
 /*
  * nvmeprint.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-18 Christian Franke
+ * Copyright (C) 2016-20 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -13,7 +13,7 @@
 
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 4859 2018-12-16 18:09:44Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5038 2020-03-05 16:17:31Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "utility.h"
@@ -57,6 +57,7 @@ static const char * le128_to_str(char (& str)[64], uint64_t hi, uint64_t lo, uns
   else {
     // More than 64-bit, prepend '~' flag on low precision
     int i = 0;
+    // cppcheck-suppress knownConditionTrueFalse
     if (uint128_to_str_precision_bits() < 128)
       str[i++] = '~';
     uint128_hilo_to_str(str + i, (int)sizeof(str) - i, hi, lo);

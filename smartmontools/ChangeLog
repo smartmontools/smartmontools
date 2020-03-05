@@ -1,6 +1,11 @@
-$Id: ChangeLog 5037 2020-03-05 16:07:34Z chrfranke $
+$Id: ChangeLog 5038 2020-03-05 16:17:31Z chrfranke $
 
 2020-03-05  Christian Franke  <franke@computer.org>
+
+	Silence some cppcheck 1.85 warnings.
+	nvmeprint.cpp,  smartd.cpp: knownConditionTrueFalse.
+	scsicmds.cpp, scsiprint.cpp: variableScope.
+	scsicmds.h: Remove unused function supported_vpd_pages::num_pages().
 
 	cppcheck.sh: Remove no longer used HAVE_*NTDDDISK_H defines.
 

@@ -84,7 +84,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5033 2020-02-25 20:26:48Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5038 2020-03-05 16:17:31Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -5142,6 +5142,7 @@ static int parse_options(int argc, char **argv)
   }
 
   // Check option compatibility of notify support
+    // cppcheck-suppress knownConditionTrueFalse
   if (!notify_post_init())
     return EXIT_BADCMD;
 
