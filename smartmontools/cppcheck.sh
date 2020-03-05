@@ -4,7 +4,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2019 Christian Franke
+# Copyright (C) 2019-20 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -105,8 +105,6 @@ defs="\
   -DENOTSUP=1
   -DHAVE_ATTR_PACKED
   -DHAVE_CONFIG_H
-  -UHAVE_DDK_NTDDDISK_H
-  -DHAVE_NTDDDISK_H
   -DSG_IO=1
   -DSMARTMONTOOLS_SVN_REV=\"r1\"
   -DSMARTMONTOOLS_ATTRIBUTELOG=\"/file\"
