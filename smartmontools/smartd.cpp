@@ -5181,12 +5181,18 @@ static int MakeConfigEntries(const dev_config & base_cfg,
     smart_device * dev = devlist.release(i);
     scanned_devs.push_back(dev);
 
-    // Copy configuration, update device and type name
+    // Append configuration and update names
     conf_entries.push_back(base_cfg);
     dev_config & cfg = conf_entries.back();
     cfg.name = dev->get_info().info_name;
     cfg.dev_name = dev->get_info().dev_name;
-    cfg.dev_type = dev->get_info().dev_type;
+
+    // Set type only if scanning is limited to specific types
+    // This is later used to set SMARTD_DEVICETYPE environment variable
+    if (!types.empty())
+      cfg.dev_type = dev->get_info().dev_type;
+    else // SMARTD_DEVICETYPE=auto
+      cfg.dev_type.clear();
   }
   
   return devlist.size();

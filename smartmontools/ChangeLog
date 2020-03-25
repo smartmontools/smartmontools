@@ -1,5 +1,10 @@
 $Id$
 
+2020-03-25  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Set 'SMARTD_DEVICETYPE=auto' if DEVICESCAN is used
+	without '-d TYPE' directive (GH issues/52).
+
 2020-03-05  Christian Franke  <franke@computer.org>
 
 	Silence some cppcheck 1.85 warnings.
