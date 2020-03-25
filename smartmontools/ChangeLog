@@ -1,4 +1,9 @@
-$Id: ChangeLog 5038 2020-03-05 16:17:31Z chrfranke $
+$Id: ChangeLog 5039 2020-03-25 16:53:33Z chrfranke $
+
+2020-03-25  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Set 'SMARTD_DEVICETYPE=auto' if DEVICESCAN is used
+	without '-d TYPE' directive (GH issues/52).
 
 2020-03-05  Christian Franke  <franke@computer.org>
 

@@ -84,7 +84,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5038 2020-03-05 16:17:31Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5039 2020-03-25 16:53:33Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -5181,12 +5181,18 @@ static int MakeConfigEntries(const dev_config & base_cfg,
     smart_device * dev = devlist.release(i);
     scanned_devs.push_back(dev);
 
-    // Copy configuration, update device and type name
+    // Append configuration and update names
     conf_entries.push_back(base_cfg);
     dev_config & cfg = conf_entries.back();
     cfg.name = dev->get_info().info_name;
     cfg.dev_name = dev->get_info().dev_name;
-    cfg.dev_type = dev->get_info().dev_type;
+
+    // Set type only if scanning is limited to specific types
+    // This is later used to set SMARTD_DEVICETYPE environment variable
+    if (!types.empty())
+      cfg.dev_type = dev->get_info().dev_type;
+    else // SMARTD_DEVICETYPE=auto
+      cfg.dev_type.clear();
   }
   
   return devlist.size();
