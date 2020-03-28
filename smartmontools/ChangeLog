@@ -12,6 +12,9 @@ $Id$
 	- Seagate IronWolf Pro: ST4000NE001
 	- Western Digital RE3 Serial ATA: WD*BYS-* variant
 	- Western Digital Gold: WD4003FRYZ (#1289), WD8004FRYZ (#1287)
+	- USB: 0x0860:0x0001 (#1295)
+	- USB: JMicron (0x152d:0x1337) (#1296)
+	- USB: Corsair SSD & HDD Cloning Kit (0x0984:0x0301) (#1307)
 
 2020-03-25  Christian Franke  <franke@computer.org>
 

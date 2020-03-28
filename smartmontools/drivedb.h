@@ -5190,6 +5190,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // 0x0860 (?)
+  { "USB: ; ",
+    "0x0860:0x0001",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // Oxford Semiconductor, Ltd
   { "USB: ; Oxford",
     "0x0928:0x0000",
@@ -5249,8 +5256,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Apricorn
   { "USB: Apricorn SATA Wire; ",
-    "0x0984:0x0040",
-    "",
+    "0x0984:0x0(040|301)", // 0x0040: Apricorn SATA Wire
+    "", // 0x0301 (0x0201): Corsair SSD & HDD Cloning Kit
     "",
     "-d sat"
   },
@@ -5510,6 +5517,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "" // unsupported
+  },
+  { "USB: ; JMicron",
+    "0x152d:0x1337",
+    "", // 0x0508, Digitus DA-71106
+    "",
+    "-d sat"
   },
   { "USB: ; JMicron JMS561", // USB2/3->2xSATA
     "0x152d:0x[19]561", // 0x1561(0x0106), Sabrent USB 3.0 Dual Bay SATA Dock
