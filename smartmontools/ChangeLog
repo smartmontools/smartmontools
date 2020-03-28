@@ -1,5 +1,18 @@
 $Id$
 
+2020-03-28  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron BX/MX1/2/3/500, M5/600, 1100 SSDs: CT1000BX500SSD1,
+	  MTFDDAK* (#1276)
+	- Kingston SSDNow UV400/500: Rename, add UV500 (#1126)
+	- Silicon Motion based SSDs: KingDian S100/200, Kingdian S280 1TB,
+	  Kingston KC600 (#1304), Transcend MTS420S (#1280),
+	  Transcend 360S (#1282)
+	- Seagate IronWolf Pro: ST4000NE001
+	- Western Digital RE3 Serial ATA: WD*BYS-* variant
+	- Western Digital Gold: WD4003FRYZ (#1289), WD8004FRYZ (#1287)
+
 2020-03-25  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Set 'SMARTD_DEVICETYPE=auto' if DEVICESCAN is used
