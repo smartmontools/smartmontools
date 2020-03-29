@@ -3396,15 +3396,21 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level"
   },
-  { "WDC HGST Ultrastar He10", // WD white label, tested with
-      // WDC WD80EMAZ-00WJTA0/83.H0A83, WDC WD80EZAZ-11TDBA0/83.H0A83,
-      // WDC WD100EMAZ-00WJTA0/83.H0A83, WDC WD100EZAZ-11TDBA0/83.H0A83
-    "WDC WD(80|100)E[MZ]AZ-.*",
+  { "Western Digital Ultrastar He10/12", // WD white label, tested with
+      // WDC WD80EMAZ-00WJTA0/83.H0A83 (Easystore 0x1058:0x25fb),
+      // WDC WD80EZAZ-11TDBA0/83.H0A83, WDC WD100EMAZ-00WJTA0/83.H0A83,
+      // WDC WD100EZAZ-11TDBA0/83.H0A83, WDC WD120EMAZ-11BLFA0/81.00A81
+    "WDC WD(80|100|120)E[MZ]AZ-.*",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
   { "HGST Ultrastar DC HC520 (He12)", // tested with HGST HUH721212ALE600/LEGNT3D0
     "HGST HUH721212AL[EN]60[014]",
+    "", "",
+    "-v 22,raw48,Helium_Level"
+  },
+  { "Western Digital Ultrastar DC HC530", // tested with WDC  WUH721414ALE6L4/LDGNW07G
+    "WDC  ?WUH721414ALE6L4",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
@@ -4454,8 +4460,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Western Digital Green", // tested with
       // WDC WD10EZRX-00A8LB0/01.01A01, WDC WD20EZRX-00DC0B0/80.00A80,
       // WDC WD30EZRX-00MMMB0/80.00A80, WDC WD40EZRX-00SPEB0/80.00A80,
-      // WDC WD60EZRX-00MVLB1/80.00A80
-    "WDC WD(7500AA|(10|15|20)EA|(10|20|25|30|40|50|60)EZ)RX-.*",
+      // WDC WD60EZRX-00MVLB1/80.00A80, WDC WD5000AZRX-00A8LB0/01.01A01
+    "WDC WD(5000AZ|7500AA|(10|15|20)EA|(10|20|25|30|40|50|60)EZ)RX-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black", // tested with WDC WD7501AAES/06.01D06
@@ -4547,10 +4553,11 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD40EFRX-68WT0N0/80.00A80, WDC WD60EFRX-68MYMN1/82.00A82,
       // WDC WD80EFAX-68LHPN0/83.H0A83, WDC WD80EFZX-68UW8N0/83.H0A83,
       // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee),
-      // WDC WD60EFAX-68SHWN0/82.00A82, WDC WD100EFAX-68LHPN0/83.H0A83
-    "WDC WD(7500BFC|10JFC|[1-6]0EFR|[68]0E[FZ][AZ]|100EFA)X-.*",
+      // WDC WD60EFAX-68SHWN0/82.00A82, WDC WD100EFAX-68LHPN0/83.H0A83,
+      // WDC WD120EMFZ-11A6JA0/81.00A81 (Easystore 0x1058:0x25fb)
+    "WDC WD(7500BFCX|10JFCX|[1-6]0EFRX|[68]0E[FZ][AZ]X|100EFAX|120EMFZ)-.*",
     "", "",
-    "-v 22,raw48,Helium_Level" // WD80EFZX, WD100EFAX
+    "-v 22,raw48,Helium_Level" // WD80EFZX, WD100EFAX, WD120EMFZ
   },
   { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81,
       // WDC WD6002FFWX-68TZ4N0/83.H0A83, WDC WD101KFBX-68R56N0/83.H0A03
@@ -4558,23 +4565,28 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level" // WD101KFBX
   },
-  { "Western Digital Purple", // tested with WDC WD40PURX-64GVNY0/80.00A80
-    "WDC WD[123456]0PURX-.*",
+  { "Western Digital Purple", // tested with WDC WD40PURX-64GVNY0/80.00A80,
+      // WDC WD40PURZ-85TTDY0/80.00A80
+      // WDC WD80PUZX-64NEAY0/80.H0A80
+    "WDC WD[1234568]0PU[RZ][XZ]-.*",
     "", "", ""
   },
   { "Western Digital Gold", // tested with WDC WD1005FBYZ-01YCBB2/RR07,
       // WDC WD2005FBYZ-01YCBB2/RR07, WDC WD4002FYYZ-01B7CB0/01.01M02,
-      // WDC WD4003FRYZ-01F0DB0/01.01H01, WDC WD8003FRYZ-01JPDB1/01.01H02,
-      // WDC WD8004FRYZ-01VAEB0/01.01H01, WDC WD121KRYZ-01W0RB0/01.01H01
-    "WDC WD([12]005FB|4002FY|4003FR|6002FR|800[234]FR|1[02]1KR)YZ-.*",
+      // WDC WD4003FRYZ-01F0DB0/01.01H01, WDC WD6003FRYZ-01F0DB0/01.01H01,
+      // WDC WD8003FRYZ-01JPDB1/01.01H02, WDC WD8004FRYZ-01VAEB0/01.01H01,
+      // WDC WD121KRYZ-01W0RB0/01.01H01,
+    "WDC WD([12]005FB|4002FY|4003FR|600[23]FR|800[234]FR|1[02]1KR)YZ-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD121KRYZ
   },
-  { "Western Digital Blue", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
-      // WDC WD20NPVZ-00WFZT0/01.01A01
-      // WDC WD10SPZX-22Z10T0/01.01A01
-    "WDC WD(20SPZX|20NPVZ|15NPVZ|10[SJ]PZX|7500BPVX|5000[BL]PVX|5000LPCX|3200LPCX)-.*",
-    "", "", ""
+  { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
+       // WDC WD10JPVX-75JC3T0/0301A03,  WDC WD10JPVX-22JC3T0/01.01A01,
+       // WDC WD10SPZX-22Z10T0/01.01A01, WDC WD10SPZX-21Z10T0/02.01A02,
+       // WDC WD20NPVZ-00WFZT0/01.01A01, WDC WD20SPZX-22CRAT0/01.01A01,
+       // WDC WD20SPZX-22UA7T0/01.01A01
+    "WDC WD(3200LPCX|5000[BL]P[CV]X|7500BPVX|10[JS]P[VZ]X|15NPVZ|20NPVZ|20SPZX)-.*",
+     "", "", ""
   },
   { "Western Digital Green Mobile", // tested with WDC WD20NPVX-00EA4T0/01.01A01
     "WDC WD(15|20)NPV[TX]-.*",
@@ -4597,6 +4609,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD10JMVW-11AJGS2/01.01A01 (0x1058:0x10b8),
       // WDC WD10JMVW-11AJGS4/01.01A01 (0x1058:0x25a0/25a2),
       // WDC WD10JMVW-11S5XS1/01.01A01,
+      // WDC WD10SMZW-11Y0TS0/01.01A01,
       // WDC WD10TMVW-11ZSMS5/01.01A01,
       // WDC WD20NMVW-11AV3S2/01.01A01 (0x1058:0x0822),
       // WDC WD20NMVW-11AV3S3/01.01A01 (0x1058:0x0837),
@@ -4606,7 +4619,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD20NMVW-59AV3S3/01.01A01 (0x1058:0x107d),
       // WDC WD30NMVW-11C3NS4/01.01A01,
       // WDC WD40NMZW-11GX6S1/01.01A01 (0x1058:0x2599/25e2/25fa)
-    "WDC WD(5000[LK]|7500[BK]|10[JT]|[234]0N)M[VZ][VW]-.*", // *W-* = USB 3.0
+      // WDC WD50NDZW-11MR8S1/02.01A02
+    "WDC WD((5000[LK]|7500[BK]|10[JST]|[234]0N)M|50ND)[VZ][VW]-.*", // *W-* = USB 3.0
     "", "", ""
   },
   { "Quantum Bigfoot", // tested with TS10.0A/A21.0G00, TS12.7A/A21.0F00

@@ -1,5 +1,20 @@
 $Id$
 
+2020-03-29  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital Ultrastar He10/12: Rename, add He12
+	  (#1308, GH issues/51)
+	- Western Digital Ultrastar DC HC530 (#1257)
+	- Western Digital Green: WD5000AZRX (#1072)
+	- Western Digital Red: WD120EMFZ (GH issues/49)
+	- Western Digital Purple: WD*PURZ, WD80PUZX (#1057)
+	- Western Digital Gold: WD6003FRYZ
+	- Western Digital Blue Mobile: Rename, re-add WD10JPVX
+	  (removed in r4991)
+	- Western Digital Elements / My Passport (USB, AF):
+	  WD10SMZW (#1088), WD50NDZW
+
 2020-03-28  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
