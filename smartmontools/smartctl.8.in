@@ -712,6 +712,12 @@ The \*(Aqforce\*(Aq flag disables this check.
 .br
 \fBWARNING: Original sector data is not written back if smartctl is aborted
 with a signal.\fP
+.Sp
+.I jms56x,N[,sLBA][,force][+TYPE]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
+the device consists of multiple SATA disks connected to a JMicron JMS56x
+USB to SATA RAID bridge.
+See \*(Aqjmb39x...\*(Aq above for valid arguments.
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART

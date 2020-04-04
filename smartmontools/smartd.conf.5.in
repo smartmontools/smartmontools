@@ -549,6 +549,12 @@ some QNAP NAS devices.
 The integer N is the port number from 0 to 4.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
+.I jms56x,N[,sLBA][,force][+TYPE]
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+the device consists of multiple SATA disks connected to a JMicron JMS56x
+USB to SATA RAID bridge.
+See \*(Aqjmb39x...\*(Aq above for valid arguments.
+.Sp
 .I ignore
 \- the device specified by this configuration entry should be ignored.
 This allows to ignore specific devices which are detected by a following

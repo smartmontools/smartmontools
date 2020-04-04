@@ -174,7 +174,16 @@ static void jmb_set_request_sector(uint8_t (& data)[512], uint8_t version, uint3
 {
   jmbassert(4 <= cmdsize && cmdsize <= 24);
   memset(data, 0, sizeof(data));
-  jmb_put_le32(data, 0, (version != 1 ? 0x197b0322 : 0x197b0393)); // SCRAMBLED_CMD
+
+  uint32_t scrambled_cmd_code;
+  switch (version) {
+    default:
+    case 0: scrambled_cmd_code = 0x197b0322; break; // JMB39x: various devices
+    case 1: scrambled_cmd_code = 0x197b0393; break; // JMB39x: QNAP TR-004 NAS
+    case 2: scrambled_cmd_code = 0x197b0562; break; // JMS562
+  }
+  jmb_put_le32(data, 0, scrambled_cmd_code);
+
   jmb_put_le32(data, 4, cmd_id);
   memcpy(data + 8, cmd, cmdsize);
   jmb_put_crc(data, jmb_crc(data));
@@ -214,6 +223,9 @@ static void jmb_check_funcs()
   jmbassert(jmb_check_crc(data));
   jmb_set_request_sector(data, 1, 42, cmd, sizeof(cmd));
   jmbassert(jmb_get_crc(data) == 0x388b2759);
+  jmbassert(jmb_check_crc(data));
+  jmb_set_request_sector(data, 2, 42, cmd, sizeof(cmd));
+  jmbassert(jmb_get_crc(data) == 0xde10952b);
   jmbassert(jmb_check_crc(data));
   jmb_xor(data);
   jmbassert(jmb_get_sector_type(data) == 2);
@@ -680,6 +692,23 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
     return 0;
   }
 
+  int n1 = -1;
+  char prefix[15+1] = "";
+  sscanf(type, "%15[^,],%n", prefix, &n1);
+  uint8_t version;
+  if (!strcmp(prefix, "jmb39x"))
+    version = 0;
+  else if (!strcmp(prefix, "jmb39x-q"))
+    version = 1;
+  else if (!strcmp(prefix, "jms56x"))
+    version = 2;
+  else
+    n1 = -1;
+  if (n1 < 0) {
+    set_err(EINVAL, "Unknown JMicron type '%s'", type);
+    return 0;
+  }
+
   // Use default LBA 33, same as JMraidcon.
   // MBR disk: Zero filled if there is no boot code in boot area.
   // GPT disk: Zero filled if GPT entries 125-128 are empty.
@@ -687,22 +716,19 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
 
   unsigned port = ~0;
   bool force = false;
-  uint8_t version = 0;
-  int n1 = -1, n2 = -1, len = strlen(type);
-  sscanf(type, "jmb39x,%u%n", &port, &n1);
-  if (n1 < 0) {
-    version = 1;
-    sscanf(type, "jmb39x-q,%u%n", &port, &n1);
-  }
-  if (0 < n1 && n1 < len && sscanf(type + n1, ",s%u%n", &lba, &n2) == 1 && n2 > 0)
+  const char * args = type + n1;
+  n1 = -1;
+  sscanf(args, "%u%n", &port, &n1);
+  int n2 = -1, len = strlen(args);
+  if (0 < n1 && n1 < len && sscanf(args + n1, ",s%u%n", &lba, &n2) == 1 && n2 > 0)
     n1 += n2;
   n2 = -1;
-  if (0 < n1 && n1 < len && (sscanf(type + n1, ",force%n",  &n2), n2) > 0) {
+  if (0 < n1 && n1 < len && (sscanf(args + n1, ",force%n",  &n2), n2) > 0) {
     force = true;
     n1 += n2;
   }
   if (!(n1 == len && port <= 4 && 33 <= lba && lba <= 62)) {
-    set_err(EINVAL, "Option -d jmb39x[-q],N[,sLBA][,force] must have 0 <= N <= 4 [, 33 <= LBA <= 62]");
+    set_err(EINVAL, "Option -d %s,N[,sLBA][,force] must have 0 <= N <= 4 [, 33 <= LBA <= 62]", prefix);
     return 0;
   }
 

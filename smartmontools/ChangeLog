@@ -1,5 +1,12 @@
 $Id$
 
+2020-04-04  Christian Franke  <franke@computer.org>
+
+	dev_jmb39x_raid.cpp: Add '-d jms56x,...' device type for protocol
+	variant used by JMS562 USB to SATA RAID bridges (#1314).
+	dev_interface.cpp: Parse '-d jms56x*[+TYPE]' option, update help text.
+	smartctl.8.in, smartd.conf.5.in: Document new option.
+
 2020-03-29  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
