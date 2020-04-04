@@ -4,7 +4,7 @@ Copyright (C) 2004-20 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5029 2020-01-11 18:28:49Z chrfranke $
+$Id: smartctl.8.in 5045 2020-04-04 16:59:55Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -712,6 +712,12 @@ The \*(Aqforce\*(Aq flag disables this check.
 .br
 \fBWARNING: Original sector data is not written back if smartctl is aborted
 with a signal.\fP
+.Sp
+.I jms56x,N[,sLBA][,force][+TYPE]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
+the device consists of multiple SATA disks connected to a JMicron JMS56x
+USB to SATA RAID bridge.
+See \*(Aqjmb39x...\*(Aq above for valid arguments.
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART
@@ -2436,4 +2442,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5029 2020-01-11 18:28:49Z chrfranke $
+$Id: smartctl.8.in 5045 2020-04-04 16:59:55Z chrfranke $
