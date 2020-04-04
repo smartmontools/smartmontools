@@ -25,7 +25,7 @@
 
 #include <errno.h>
 
-const char * dev_jmb39x_raid_cpp_svnid = "$Id: dev_jmb39x_raid.cpp 5045 2020-04-04 16:59:55Z chrfranke $";
+const char * dev_jmb39x_raid_cpp_svnid = "$Id: dev_jmb39x_raid.cpp 5046 2020-04-04 17:01:52Z chrfranke $";
 
 static void jmbassert_failed(int line, const char * expr)
 {
@@ -189,7 +189,7 @@ static void jmb_set_request_sector(uint8_t (& data)[512], uint8_t version, uint3
   jmb_put_crc(data, jmb_crc(data));
 }
 
-static int jmb_get_sector_type(uint8_t (& data)[512])
+static int jmb_get_sector_type(const uint8_t (& data)[512])
 {
   if (jmb_check_crc(data))
     return 1; // Plain (wakeup) sector
