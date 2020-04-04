@@ -189,7 +189,7 @@ static void jmb_set_request_sector(uint8_t (& data)[512], uint8_t version, uint3
   jmb_put_crc(data, jmb_crc(data));
 }
 
-static int jmb_get_sector_type(uint8_t (& data)[512])
+static int jmb_get_sector_type(const uint8_t (& data)[512])
 {
   if (jmb_check_crc(data))
     return 1; // Plain (wakeup) sector
