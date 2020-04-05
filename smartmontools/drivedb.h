@@ -2647,8 +2647,8 @@ const drive_settings builtin_knowndrives[] = {
     "ST(1500|2000)LM0(03|04|06|07|10) HN-M[0-9]*RAD",
     "", "", ""
   },
-  { "Seagate Mobile HDD", // tested with ST2000LM007-1R8174/WDZD1BYX
-     //  ST1000LM035-1RK172/ACM1
+  { "Seagate Mobile HDD", // tested with ST1000LM035-1RK172/ACM1,
+     // ST1000LM035-1RK172/ACM2, ST2000LM007-1R8174/SBK2
     "ST(2000LM0(07|09|10)|1000LM03[578])-.*",
     "", "", ""
   },
@@ -3925,27 +3925,15 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
-  // should be ST4000DM005, ST3000DM008,ST3000DM009,ST2000DM006,ST2000DM007
-  // ST1000DM010, ST500DM009
-  // tested: ST3000DM008-2DM166/CC26
-  { "Seagate Barracuda 3.5", // tested on ST1000DM010-2EP102/Z9ACZM97
-    "ST(4000DM00[45]|3000DM008|3000DM009|2000DM006|2000DM007|1000DM010|500DM009)-.*",
-    "", "",
-    "-v 188,raw16 -v 240,msec24hour32"
-  },
-  // ST8000DM004, ST6000DM003, ST4000DM004, ST3000DM007, ST2000DM005
-  { "Seagate Barracuda Compute", // tested on ST8000DM004-2CX188/0001
-    "ST(8000DM004|6000DM003|4000DM004|3000DM007|2000DM005)-.*",
-    "", "",
-    ""
-  },
-  { "Seagate Barracuda Pro", // tested on ST8000DM004-2CX188/0001
-    "ST(8000DM005|6000DM004|4000DM006|2000DM009)-.*",
-    "", "",
-    "-v 188,raw16 -v 240,msec24hour32"
-  },
   { "Seagate Barracuda 7200.14 (AF)", // < 1TB, tested with ST250DM000-1BC141
     "ST(250|320|500|750)DM00[0-3]-.*",
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate BarraCuda 3.5", // tested with ST1000DM010-2EP102/Z9ACZM97,
+      // ST2000DM008-2FR102/0001, ST3000DM008-2DM166/CC26, ST4000DM005-2DP166/0001,
+      // ST4000DM006-2G5107/DN02, ST8000DM004-2CX188/0001, ST10000DM0004-1ZC101/DN01
+    "ST(500DM009|1000DM010|2000DM00[5-9]|3000DM00[789]|4000DM00[456]|6000DM00[34]|8000DM00[45]|10000DM0004)-.*",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -4073,6 +4061,7 @@ const drive_settings builtin_knowndrives[] = {
       // ST4000NM0035-1V4107/TNC3
       // ST1000NM0055-1V410C/TN02
       // ST8000NM0055-1RM112/SN04
+      // ST10000NM0156-2AA111/SS05
     "ST([1234568]|10)000NM0[01][0-68][456]-.*", // *[069]4 = 4Kn
     "", "", 
     "-v 188,raw16 -v 240,msec24hour32"
@@ -4092,9 +4081,18 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 240,msec24hour32"
   },
-  { "Seagate Exos X14", // ST12000NM0008-2H3101/SN02
-    "ST(14000NM04[24]8|14000NM0(01|25)8|12000NM0(00|24)8|10000NM0(47|56)8)-.*",
+  { "Seagate Exos X14", // tested with ST12000NM0008-2H3101/SN02,
+      // ST12000NM0538-2K2101/CMA2 (OEM?)
+    "ST(14000NM04[24]8|14000NM0(01|25)8|12000NM0(00|24|53)8|10000NM0(47|56)8)-.*",
     "", "",
+    "-v 18,raw48,Unknown_Seagate_Attrib "
+    "-v 240,msec24hour32"
+  },
+  { "Seagate Exos X16", // tested with X16 ST14000NM001G-2KJ103/SN02,
+      // ST16000NM001G-2KK103/SN02
+    "ST1[46]000NM00[13]G-.*",
+    "", "",
+    "-v 18,raw48,Unknown_Seagate_Attrib "
     "-v 240,msec24hour32"
   },
   // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
@@ -4167,8 +4165,14 @@ const drive_settings builtin_knowndrives[] = {
   // ST3000VX000, ST3000VX004, ST2000VX000, ST2000VX004, ST1000VX000
   { "Seagate Surveillance", // tested with ST1000VX001-1HH162/CV11, ST2000VX000-9YW164/CV12,
       // ST4000VX000-1F4168/CV14, ST2000VX003-1HH164/CV12
-    "ST([1-6]000VX00[01234]1?|31000526SV|3500411SV)(-.*)?",
+    "ST([1-5]000VX00[01234]1?|31000526SV|3500411SV)(-.*)?",
     "", "", ""
+  },
+  { "Seagate Skyhawk", // tested with ST3000VX010-2H916L/CV11, ST6000VX0023-2EF110/SC60
+    "ST(1000VX005|2000VX008|3000VX0(09|10)|4000VX007|6000VX00(1|23)|8000VX00(4|22))-.*",
+    "", "",
+    "-v 9,msec24hour32 " // CV* Firmware only?
+    "-v 240,msec24hour32"
   },
   { "Seagate DB35", // tested with ST3250823ACE/3.03, ST3300831SCE/3.03
     "ST3(200826|250823|300831|400832)[AS]CE",

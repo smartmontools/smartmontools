@@ -1,5 +1,14 @@
 $Id$
 
+2020-04-05  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate BarraCuda 3.5: Rename, merge entries,
+	  add ST2000DM008 (#1179, #1252, #1286), ST10000DM0004
+	- Seagate Exos X14: ST12000NM0538 (#1256)
+	- Seagate Exos X16 (#1291, #1301)
+	- Seagate Skyhawk (#1039)
+
 2020-04-04  Christian Franke  <franke@computer.org>
 
 	dev_jmb39x_raid.cpp: Add '-d jms56x,...' device type for protocol
