@@ -353,9 +353,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 206,raw48,Write_Error_Rate"
   },
   { "Crucial/Micron MX500 SSDs",
-    "CT(250|500|1000|2000)MX500SSD[14]", // tested with CT500MX500SSD1/M3CR023,
-      // .../M3CR020, .../M3CR022
-    "M3CR02[0-3]", // Firmware with bogus attribute 197 (see ticket #1227)
+    "CT(250|500|1000|2000)MX500SSD[14]", // tested with CT500MX500SSD1/M3CR020,
+      // .../M3CR022, .../M3CR023, CT1000MX500SSD1/M3CR010
+    "M3CR0([01][0-9]|2[0-3])", // Assume FW <= M3CR023 have bogus attribute 197 (see ticket #1227, #1311)
     "This firmware returns bogus raw values in attribute 197",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
