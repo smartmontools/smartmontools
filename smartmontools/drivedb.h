@@ -2056,7 +2056,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 149,raw48,Max_SLC_Erase_Ct "
     "-v 150,raw48,Min_SLC_Erase_Ct "
     "-v 151,raw48,Average_SLC_Erase_Ct "
-    "-v 159,raw48,Unkn_SiliconMotion_Attr " // SU800/R0427A, SU900/Q0710B, TS256GMTS430S/S0423A
+    "-v 159,raw48,DRAM_1_Bit_Error_Count " // KINGSTON SKC600256G/S4500105
     "-v 160,raw48,Uncorrectable_Error_Cnt "
     "-v 161,raw48,Valid_Spare_Block_Cnt "
     "-v 163,raw48,Initial_Bad_Block_Count "
@@ -2081,6 +2081,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 225,raw48,Host_Writes_32MiB " // FW 20140402
+    "-v 231,raw48,SSD_Life_Left " // KINGSTON SKC600256G/S4500105
   //"-v 232,raw48,Available_Reservd_Space "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "

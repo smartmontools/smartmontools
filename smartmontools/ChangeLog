@@ -3,6 +3,7 @@ $Id$
 2020-04-05  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Silicon Motion based SSDs: Add attributes 159 and 231 (#1304)
 	- Seagate BarraCuda 3.5: Rename, merge entries,
 	  add ST2000DM008 (#1179, #1252, #1286), ST10000DM0004
 	- Seagate Exos X14: ST12000NM0538 (#1256)
