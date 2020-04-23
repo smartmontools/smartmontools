@@ -21,6 +21,8 @@
 
 #include <errno.h>
 
+const char * scsinvme_cpp_svnid = "$Id$";
+
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
 
