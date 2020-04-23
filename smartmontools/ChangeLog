@@ -2,6 +2,8 @@ $Id$
 
 2020-04-23  Christian Franke  <franke@computer.org>
 
+	drivedb.h: USB: Realtek RTL9210 (0x0bda:0x9210)
+
 	scsinvme.cpp: Add '-d sntrealtek' device type for Realtek RTL9210
 	USB to NVMe bridges (#1315).
 	dev_interface.cpp: Update help text.
