@@ -447,6 +447,11 @@ The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
 The default namespace id is the broadcast namespace id (0xffffffff).
 .Sp
+.I sntrealtek
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+this device type is for NVMe disks that are behind a Realtek USB to NVMe
+bridge.
+.Sp
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Linux
 .I marvell

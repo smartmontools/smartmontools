@@ -1,8 +1,9 @@
 /*
  * scsinvme.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
+ * Copyright (C) 2020 Christian Franke
  * Copyright (C) 2018 Harry Mallon <hjmallon@gmail.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -13,6 +14,7 @@
 
 #include "dev_interface.h"
 #include "dev_tunnelled.h"
+#include "nvmecmds.h"
 #include "scsicmds.h"
 #include "sg_unaligned.h"
 #include "utility.h"
@@ -21,6 +23,9 @@
 
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
+
+/////////////////////////////////////////////////////////////////////////////
+// sntjmicron_device
 
 #define SNT_JMICRON_NVME_SIGNATURE 0x454d564eu // 'NVME' reversed (little endian)
 #define SNT_JMICRON_CDB_LEN 12
@@ -218,6 +223,81 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   return true;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// sntrealtek_device
+
+class sntrealtek_device
+: public tunnelled_device<
+    /*implements*/ nvme_device,
+    /*by tunnelling through a*/ scsi_device
+  >
+{
+public:
+  sntrealtek_device(smart_interface * intf, scsi_device * scsidev,
+                    const char * req_type, unsigned nsid);
+
+  virtual ~sntrealtek_device() throw();
+
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+};
+
+sntrealtek_device::sntrealtek_device(smart_interface * intf, scsi_device * scsidev,
+                                     const char * req_type, unsigned nsid)
+: smart_device(intf, scsidev->get_dev_name(), "sntrealtek", req_type),
+  tunnelled_device<nvme_device, scsi_device>(scsidev, nsid)
+{
+  set_info().info_name = strprintf("%s [USB NVMe Realtek]", scsidev->get_info_name());
+}
+
+sntrealtek_device::~sntrealtek_device() throw()
+{
+}
+
+bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & /* out */)
+{
+  switch (in.opcode) {
+    case smartmontools::nvme_admin_identify:
+      if (in.cdw10 == 0x0000001) // Identify controller
+        break;
+      if (in.cdw10 == 0x0000000) { // Identify namespace
+        if (in.nsid == 1)
+          break;
+        return set_err(ENOSYS, "NVMe Identify Namespace 0x%x not supported", in.nsid);
+      }
+      return set_err(ENOSYS, "NVMe Identify with CDW10=0x%08x not supported", in.cdw10);
+    case smartmontools::nvme_admin_get_log_page:
+      if (in.nsid == 0xffffffff || !in.nsid)
+        break;
+      return set_err(ENOSYS, "NVMe Get Log Page with NSID=0x%x not supported", in.nsid);
+    default:
+      return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
+    break;
+  }
+  if (in.cdw11 || in.cdw12 || in.cdw13 || in.cdw14 || in.cdw15)
+    return set_err(ENOSYS, "Nonzero NVMe command dwords 11-15 not supported");
+
+  uint8_t cdb[16] = {0, };
+  cdb[0] = 0xe4;
+  sg_put_unaligned_le16(in.size, cdb+1);
+  cdb[3] = in.opcode;
+  cdb[4] = (uint8_t)in.cdw10;
+
+  scsi_cmnd_io io_hdr; memset(&io_hdr, 0, sizeof(io_hdr));
+  io_hdr.cmnd = cdb;
+  io_hdr.cmnd_len = sizeof(cdb);
+  io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+  io_hdr.dxferp = (uint8_t *)in.buffer;
+  io_hdr.dxfer_len = in.size;
+
+  scsi_device * scsidev = get_tunnel_dev();
+  if (!scsidev->scsi_pass_through_and_check(&io_hdr, "sntrealtek_device::nvme_pass_through: "))
+    return set_err(scsidev->get_err());
+
+  //out.result = ?; // TODO
+  return true;
+}
+
+
 } // namespace snt
 
 using namespace snt;
@@ -248,6 +328,12 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
     }
     sntdev = new sntjmicron_device(this, scsidev, type, nsid);
   }
+
+  else if (!strcmp(type, "sntrealtek")) {
+    // No namespace supported
+    sntdev = new sntrealtek_device(this, scsidev, type, 0xffffffff);
+  }
+
   else {
     set_err(EINVAL, "Unknown SNT device type '%s'", type);
     return 0;
