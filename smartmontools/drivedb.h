@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 5049 2020-04-05 16:31:29Z chrfranke $",
+  { "$Id: drivedb.h 5053 2020-04-23 16:56:16Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -5305,6 +5305,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d sat"
+  },
+  // Realtek
+  { "USB: ; Realtek RTL9210", // USB->PCIe (NVMe)
+    "0x0bda:0x9210",
+    "", // 0x2100
+    "",
+    "-d sntrealtek"
   },
   // Addonics
   { "USB: Addonics HDMU3; ", // (ticket #609)
