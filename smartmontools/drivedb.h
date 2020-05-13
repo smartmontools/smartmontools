@@ -1680,7 +1680,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "JMicron based SSDs", // JMicron JMF61x, JMF66x, JMF670
     "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
-    "ADATA SP600|"  // tested with ADATA SP600/2.4 (JMicron JMF661)
+    "ADATA SP600(NS34)?|"  // tested with ADATA SP600/2.4 (JMicron JMF661) and SP600NS34/5.8f
     "ADATA SP310|"  // Premier Pro SP310 mSATA, JMF667, tested with ADATA SP310/3.04
     "ADATA SX930|"  // tested with ADATA SX930/6.8SE
     "APPLE SSD TS(064|128|256|512)C|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
