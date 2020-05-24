@@ -2,6 +2,18 @@ $Id$
 
 2020-05-24  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Phison Driven SSDs: GIGABYTE GP-GSTFS31,
+	  KINGSTON DC450R/DC500M/DC500R 7.68TB (#1329), PNY CS900 (#1281)
+	- Intel 320 Series SSDs: HP OEM (#1332)
+	- JMicron based SSDs: ADATA SP600NS34 (GH pull/53),
+	  ADATA OEM IM2S3138E* (#1298)
+	- Plextor M3/M5/M6 Series SSDs: allow extra space (#1293)
+	- Samsung based SSDs: 860 EVO 4TB, 850/860 PRO 2/4TB (#1316)
+	- Marvell based SanDisk SSDs: SDSSDA-*
+	- Silicon Motion based SSDs: Corsair Force LX (#1320)
+	- WD Blue and Green SSDs: WDBNCE* (#1129)
+
 	drivedb.h: Add separate entries for WDC SMR drives (#1313).
 	- Western Digital Blue (SMR)
 	- Western Digital Black (SMR)

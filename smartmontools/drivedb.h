@@ -679,14 +679,15 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "BP4 mSATA SSD|" // MyDigital BP4, tested with BP4 mSATA SSD/S8FM06.9
+    "GIGABYTE GP-GSTFS31((120|240|256|480)G|100T)NTD|" // tested with GIGABYTE GP-GSTFS31120GNTD/SBFM61.3
     "GOODRAM IRIDIUM PRO|" // tested with GOODRAM IRIDIUM PRO/SAFM01.5
     "IR-SSDPR-S25A-(120|240|480|960)|" // Goodram IRIDM, tested with IR-SSDPR-S25A-120/SBFM91.3,
       // IR-SSDPR-S25A-240/SBFM91.2
     "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
       // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
-    "KINGSTON SEDC(450R|500[MR])(480|960|1920|3840)G|" // DC450R, DC500M/R, tested with
+    "KINGSTON SEDC(450R|500[MR])(480|960|1920|3840|7680)G|" // DC450R, DC500M/R, tested with
       // KINGSTON SEDC450R480G/SCEKH3. KINGSTON SEDC500M1920G/SCEKJ2.3,
-      // KINGSTON SEDC500R480G/SCEKJ2.3
+      // KINGSTON SEDC500R480G/SCEKJ2.3, KINGSTON SEDC450R7680G/SCEKH3.4
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
@@ -698,8 +699,8 @@ const drive_settings builtin_knowndrives[] = {
       // KINGSTON  SA400S37480G/SBFK10D7 (two spaces)
     "Patriot (Flare|Blast|Blaze|Burst)|" // tested with Patriot Flare/SBFM91.2,
       // Patriot Blast/SAFM11.3, Patriot Blaze/S9FM02, Patriot Burst/SBFM11.2
-    "PNY CS(13|22)11 (120|240|480|960)GB SSD|" // tested with PNY CS1311 120GB SSD/CS131122,
-      // PNY CS2211 240GB SSD/CS221016
+    "PNY CS(900|1311|2211) (120|240|480|960)GB SSD|" // tested with PNY CS900 120GB SSD/CS900612,
+      // PNY CS900 240GB SSD/CS900613, PNY CS1311 120GB SSD/CS131122, PNY CS2211 240GB SSD/CS221016
     "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
     "SSD PHISON 256GB PS3110-S10C|" // tested with SSD PHISON 256GB PS3110-S10C/SAFM12.2
     "SSDPR-CX400-(128|256|512|1024)|" // Goodram CX400, tested with SSDPR-CX400-512/SBFM61.3
@@ -1193,9 +1194,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Intel 320 Series SSDs", // tested with INTEL SSDSA2CT040G3/4PC10362,
       // INTEL SSDSA2CW160G3/4PC10362, SSDSA2BT040G3/4PC10362, SSDSA2BW120G3A/4PC10362,
-      // INTEL SSDSA2BW300G3D/4PC10362, SSDSA2BW160G3L/4PC1LE04, SSDSA1NW160G3/4PC10362
-    "INTEL SSDSA[12][BCN][WT](040|080|120|160|300|600)G3[ADL]?",
-      // 2B = 2.5" 7mm, 2C = 2.5" 9.5mm, 1N = 1.8" microSATA
+      // INTEL SSDSA2BW300G3D/4PC10362, SSDSA2BW160G3L/4PC1LE04, SSDSA1NW160G3/4PC10362,
+      // INTEL SSDSA2BW160G3H/4PC10365
+    "INTEL SSDSA[12][BCN][WT](040|080|120|160|300|600)G3[ADHL]?",
+      // 2B = 2.5" 7mm, 2C = 2.5" 9.5mm, 1N = 1.8" microSATA, *H = HP OEM
     "", "",
     "-F nologdir "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -1680,10 +1682,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "JMicron based SSDs", // JMicron JMF61x, JMF66x, JMF670
     "ADATA S596 Turbo|"  // tested with ADATA S596 Turbo 256GB SATA SSD (JMicron JMF616)
-    "ADATA SP600|"  // tested with ADATA SP600/2.4 (JMicron JMF661)
     "ADATA SP310|"  // Premier Pro SP310 mSATA, JMF667, tested with ADATA SP310/3.04
+    "ADATA SP600(NS34)?|" // tested with ADATA SP600/2.4 (JMicron JMF661)
     "ADATA SX930|"  // tested with ADATA SX930/6.8SE
     "APPLE SSD TS(064|128|256|512)C|"  // Toshiba?, tested with APPLE SSD TS064C/CJAA0201
+    "IM2S3138E-(128|256)GM-B|" // ADATA OEM, tested with IM2S3138E-128GM-B/DA002
     "KingSpec KDM-SA\\.51-008GMJ|" // tested with KingSpec KDM-SA.51-008GMJ/1.092.37 (JMF605?)
     "KINGSTON SNV425S2(64|128)GB|"  // SSDNow V Series (2. Generation, JMF618),
                                     // tested with KINGSTON SNV425S264GB/C091126a
@@ -1733,8 +1736,8 @@ const drive_settings builtin_knowndrives[] = {
       // tested with PLEXTOR PX-128M3/1.01, PX-128M3P/1.04, PX-256M3/1.05, PX-128M5S/1.02, PX-256M5S/1.03,
       // PX-128M5M/1.05, PX-128M5S/1.05, PX-128M5Pro/1.05, PX-512M5Pro/1.06, PX-256M5P/1.01, PX-128M6S/1.03
       // (1.04/5 Firmware self-test log lifetime unit is bogus, possibly 1/256 hours)
-      // PLEXTOR PX-256M6S+/1.00
-    "PLEXTOR PX-(64|128|256|512|768)M(3P?|5[MPS]|5Pro|6[MS])\\+?",
+      // PLEXTOR PX-256M6S+/1.00, PLEXTOR  PX-128M3/1.00, PLEXTOR PX-128M3/1.07
+    "PLEXTOR  ?PX-(64|128|256|512|768)M(3P?|5[MPS]|5Pro|6[MS])\\+?",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -1783,17 +1786,19 @@ const drive_settings builtin_knowndrives[] = {
     "MZ7PC(512|256|128|064)HA(GH|FU|DR)-000.*|" // probably PM830, tested with SAMSUNG MZ7PC128HAFU-000L1/CXM04L1Q
     "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
       // Samsung SSD 840 Series/DXT06B0Q
-    "Samsung SSD 8[456]0 EVO (mSATA |M\\.2 )?((120|250|500|750)G|[12]T)B|" // tested with
+    "Samsung SSD 8[456]0 EVO (mSATA |M\\.2 )?((120|250|500|750)G|[124]T)B|" // tested with
       // Samsung SSD 840 EVO (120|250|500|750)GB/EXT0AB0Q,
       // Samsung SSD 840 EVO (120|250)GB/EXT0BB6Q, 1TB/EXT0BB0Q, 120GB mSATA/EXT41B6Q,
       // Samsung SSD 850 EVO 250GB/EMT01B6Q, Samsung SSD 850 EVO M.2 250GB/EMT21B6Q,
       // Samsung SSD 850 EVO mSATA 120GB/EMT41B6Q, Samsung SSD 850 EVO 2TB/EMT02B6Q,
       // Samsung SSD 860 EVO 250GB/RVT01B6Q, Samsung SSD 860 EVO mSATA 250GB/RVT41B6Q,
       // Samsung SSD 860 EVO 500GB/RVT01B6Q, Samsung SSD 860 EVO mSATA 500GB/RVT41B6Q,
-      // Samsung SSD 860 EVO mSATA 1TB/RVT41B6Q, Samsung SSD 860 EVO 2TB/RVT01B6Q
-    "Samsung SSD 8[56]0 PRO ((128|256|512)G|1T)B|" // tested with Samsung SSD 850 PRO 128GB/EXM01B6Q,
-      // Samsung SSD 850 PRO 1TB/EXM01B6Q, Samsung SSD 860 PRO 256GB/RVM01B6Q,
-      // Samsung SSD 860 PRO 512GB/RVM01B6Q, Samsung SSD 860 PRO 1TB/RVM01B6Q
+      // Samsung SSD 860 EVO mSATA 1TB/RVT41B6Q, Samsung SSD 860 EVO 2TB/RVT01B6Q,
+      // Samsung SSD 860 EVO 4TB/RVT04B6Q
+    "Samsung SSD 8[56]0 PRO ((128|256|512)G|[124]T)B|" // tested with Samsung SSD 850 PRO 128GB/EXM01B6Q,
+      // Samsung SSD 850 PRO 1TB/EXM01B6Q, Samsung SSD 850 PRO 2TB/EXM02B6Q,
+      // Samsung SSD 860 PRO 256GB/RVM01B6Q, Samsung SSD 860 PRO 512GB/RVM01B6Q,
+      // Samsung SSD 860 PRO 1TB/RVM01B6Q
     "SAMSUNG MZ7PA256HMDR-.*|" // PM810 (470 Series), tested with SAMSUNG MZ7PA256HMDR-010H1/AXM07H1Q
     "Samsung SSD 845DC EVO .*|" // Samsung SSD 845DC EVO 960GB/EXT03X3Q
     "SAMSUNG MZ[7M]PC(032|064|128|256|512)HBCD-.*|" // PM830, tested with SAMSUNG MZMPC032HBCD-000L1/CXM12L1Q
@@ -1880,6 +1885,7 @@ const drive_settings builtin_knowndrives[] = {
       // SanDisk SD7SB6S128G1122/X3310000, SanDisk SD7SN6S-512G-1006/X3511006
     "SanDisk SD8S[BN]8U-?((128|256|512)G|1T00)(1122|-1006)|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
     "SanDisk SD9S[BN]8W-?((128|256|512)G|[12]T00)1122|" // X600, tested with SanDisk SD9SB8W128G1122/X6107000
+    "SanDisk SDSSDA-((120|240|480)G|[12]T00)|" // Plus, tested with SanDisk SDSSDA-2T00/411040RL
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
@@ -2006,6 +2012,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Silicon Motion based SSDs",
     "ADATA (SP550|SU[89]00)|" // tested with ADATA SP550/O0803B5a, ADATA SU800/Q0913A, ADATA SU800/R0427A,
       // ADATA SU800/R0918B, ADATA SU900/Q0125A, ADATA SU900/Q0710B
+    "CORSAIR FORCE LX SSD|" // tested with CORSAIR FORCE LX SSD/N0307A
     "CHN mSATAM3 (128|256|512)|" // Zheino M3, tested with CHN mSATAM3 128/Q1124A0
     "CIS 2S M305 (16|32|64|128|256)GB|" // Ceroz M305, tested with CIS 2S M305 64GB/P0316B
     "CT(120|250|500|1000)BX100SSD1|" // Crucial BX100, tested with CT250BX100SSD1/MU02,
@@ -4276,7 +4283,9 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WDS120G2G0A-00JH30/UE360000, WDC WDS240G2G0A-00JH30/UF300000,
       // WDC WDS500G2B0A-00SM50/X61130WD, WDC WDS200T2B0A-00SM50/X61130WD,
       // WDC WDS200T2B0A/X61190WD, WDC WDS120G1G0A-00SS50/Z3311000
-      // WDC  WDS500G2B0A-00SM50/401000WD
+      // WDC  WDS500G2B0A-00SM50/401000WD,
+      // WDC WDBNCE2500PNC/X61130WD, WDC WDBNCE0010PNC-WRSN/X41110WD
+    "WDC WDBNCE(250|500|00[124])0PNC(-.*)?|" // Blue 3D
     "WDC  ?WDS((120|240|250|480|500)G|[12]00T)(1B|2B|1G|2G)0[AB](-.*)?", // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND
     "", "",
   //"-v 5,raw48,Reallocated_Sector_Ct " // Reassigned Block Count
