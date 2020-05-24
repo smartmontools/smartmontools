@@ -1,4 +1,14 @@
-$Id: ChangeLog 5053 2020-04-23 16:56:16Z chrfranke $
+$Id: ChangeLog 5054 2020-05-24 14:38:03Z chrfranke $
+
+2020-05-24  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Add separate entries for WDC SMR drives (#1313).
+	- Western Digital Blue (SMR)
+	- Western Digital Black (SMR)
+	- Western Digital Red: Move WD60EFAX to ...
+	- Western Digital Red (SMR): ... here, add 2TB, 3TB, 4TB
+	- Western Digital Blue Mobile: Move  WD[12]0SPZX to ...
+	- Western Digital Blue Mobile (SMR): ... here
 
 2020-04-23  Christian Franke  <franke@computer.org>
 
