@@ -5296,6 +5296,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Realtek
+  { "USB: ; Realtek RTL9210", // USB->PCIe (NVMe)
+    "0x0bda:0x9210",
+    "", // 0x2100
+    "",
+    "" // smartmontools >= r5051: -d sntrealtek
+  },
   // Addonics
   { "USB: Addonics HDMU3; ", // (ticket #609)
     "0x0bf6:0x1001",
