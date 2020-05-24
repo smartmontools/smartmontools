@@ -4408,6 +4408,10 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((25|32|50)00AAKX|5000AZ(LX|RZ)|7500A(AL|ZE)X|10E(AL|ZE)X|[1-6]0EZRZ)-.*",
     "", "", ""
   },
+  { "Western Digital Blue (SMR)", // ticket #1313
+    "WDC WD(20|60)EZAZ-.*",
+    "", "", ""
+  },
   { "Western Digital RE Serial ATA",
     "WDC WD(12|16|25|32)00(SD|YD|YS)-.*",
     "", "", ""
@@ -4487,6 +4491,10 @@ const drive_settings builtin_knowndrives[] = {
     // old series: WD4001FAEX WD3001FAEX WD2002FAEX WD1002FAEX  WD5003AZEX
     "", "", ""
   },
+  { "Western Digital Black (SMR)", // ticket #1313
+    "WDC WD10SPSX-.*",
+    "", "", ""
+  },
   { "Western Digital AV ATA", // tested with WDC WD3200AVJB-63J5A0/01.03E01
     "WDC WD(8|16|25|32|50)00AV[BJ]B-.*",
     "", "", ""
@@ -4558,11 +4566,15 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD40EFRX-68WT0N0/80.00A80, WDC WD60EFRX-68MYMN1/82.00A82,
       // WDC WD80EFAX-68LHPN0/83.H0A83, WDC WD80EFZX-68UW8N0/83.H0A83,
       // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee),
-      // WDC WD60EFAX-68SHWN0/82.00A82, WDC WD100EFAX-68LHPN0/83.H0A83,
+      // WDC WD100EFAX-68LHPN0/83.H0A83,
       // WDC WD120EMFZ-11A6JA0/81.00A81 (Easystore 0x1058:0x25fb)
-    "WDC WD(7500BFCX|10JFCX|[1-6]0EFRX|[68]0E[FZ][AZ]X|100EFAX|120EMFZ)-.*",
+    "WDC WD(7500BFCX|10JFCX|[1-6]0EFRX|[68]0E[FZ]ZX|(8|10)0EFAX|120EMFZ)-.*",
     "", "",
-    "-v 22,raw48,Helium_Level" // WD80EFZX, WD100EFAX, WD120EMFZ
+    "-v 22,raw48,Helium_Level" // WD80EFAX, WD80EFZX, WD100EFAX, WD120EMFZ
+  },
+  { "Western Digital Red (SMR)", // ticket #1313, tested with WDC WD60EFAX-68SHWN0/82.00A82
+    "WDC WD[2346]0EFAX-.*",
+    "", "", ""
   },
   { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81,
       // WDC WD6002FFWX-68TZ4N0/83.H0A83, WDC WD101KFBX-68R56N0/83.H0A03
@@ -4587,10 +4599,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
        // WDC WD10JPVX-75JC3T0/0301A03,  WDC WD10JPVX-22JC3T0/01.01A01,
+       // WDC WD20NPVZ-00WFZT0/01.01A01
+    "WDC WD(3200LPCX|5000[BL]P[CV]X|7500BPVX|10JPVX|(15|20)NPVZ)-.*",
+     "", "", ""
+  },
+  { "Western Digital Blue Mobile (SMR)", // ticket #1313, tested with
        // WDC WD10SPZX-22Z10T0/01.01A01, WDC WD10SPZX-21Z10T0/02.01A02,
-       // WDC WD20NPVZ-00WFZT0/01.01A01, WDC WD20SPZX-22CRAT0/01.01A01,
-       // WDC WD20SPZX-22UA7T0/01.01A01
-    "WDC WD(3200LPCX|5000[BL]P[CV]X|7500BPVX|10[JS]P[VZ]X|15NPVZ|20NPVZ|20SPZX)-.*",
+       // WDC WD20SPZX-22CRAT0/01.01A01, WDC WD20SPZX-22UA7T0/01.01A01
+    "WDC WD[12]0SPZX-.*",
      "", "", ""
   },
   { "Western Digital Green Mobile", // tested with WDC WD20NPVX-00EA4T0/01.01A01
