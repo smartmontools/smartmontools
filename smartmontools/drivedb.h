@@ -4119,8 +4119,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate IronWolf", // tested with ST6000VN0033-2EE110/SC60,
-      // ST6000VN0041-2EL11C/SC61, ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60
-    "ST(1|2|3|4|6|8|10|12)000VN00(0?[2478]|22|33|41)-.*",
+      // ST6000VN0041-2EL11C/SC61, ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60,
+      // ST6000VN001-2BB186/SC60
+    "ST(1|2|3|4|6|8|10|12)000VN00(0?[12478]|22|33|41)-.*",
     "", "", ""
   },
   { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
