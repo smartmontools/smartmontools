@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-19 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -711,6 +711,30 @@ static void print_drive_info(const ata_identify_device * drive,
     jglb["form_factor"]["ata_value"] = word168;
     if (form_factor)
       jglb["form_factor"]["name"] = form_factor;
+  }
+
+  // Print TRIM support
+  bool trim_sup = !!(drive->words088_255[169-88] & 0x0001);
+  unsigned short word069 = drive->words047_079[69-47];
+  bool trim_det = !!(word069 & 0x4000), trim_zeroed = !!(word069 & 0x0020);
+  jout("TRIM Command:     %s%s%s\n",
+       (!trim_sup ? "Unavailable" : "Available"),
+       (!(trim_sup && trim_det) ? "" : ", deterministic"),
+       (!(trim_sup && trim_zeroed) ? "" : ", zeroed")     );
+  jglb["trim"]["supported"] = trim_sup;
+  if (trim_sup) {
+    jglb["trim"]["deterministic"] = trim_det;
+    jglb["trim"]["zeroed"] = trim_zeroed;
+  }
+
+  // Print Zoned Device Capabilites if reported
+  unsigned short zoned_caps = word069 & 0x3;
+  if (zoned_caps) {
+    jout("Zoned Device:     %s\n",
+         (zoned_caps == 0x1 ? "Host Aware Zones" :
+          zoned_caps == 0x2 ? "Device managed zones" : "Unknown (0x3)"));
+    if (zoned_caps < 0x3)
+      jglb["zoned_device"]["capabilities"] = (zoned_caps == 0x1 ? "host_aware" : "device_managed");
   }
 
   // See if drive is recognized
