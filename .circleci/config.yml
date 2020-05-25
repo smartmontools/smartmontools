@@ -145,7 +145,7 @@ references:
 
   sm_compile_freebsd12: &sm_compile_freebsd12
     run:
-      name: Creating static FreeBSD-12.0/amd64 binaries
+      name: Creating static FreeBSD-12.1/amd64 binaries
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
         BUILD_INFO='"(CircleCI)"' &&
@@ -156,7 +156,7 @@ references:
         ../configure CC="clang $TARGET" CXX="clang++ $TARGET" LDFLAGS="-static" --host=x86_64-pc-freebsd12 &&
         make -j2 BUILD_INFO="$BUILD_INFO" &&
         mkdir inst && make DESTDIR="$(pwd)/inst" install &&
-        (cd inst && tar czf "/artefacts/smartmontools-freebsd12.0-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
+        (cd inst && tar czf "/artefacts/smartmontools-freebsd12.1-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
         rm -rf ~/build
 
   sm_run_cppcheck: &sm_run_cppcheck
