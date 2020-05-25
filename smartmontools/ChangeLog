@@ -1,4 +1,10 @@
-$Id: ChangeLog 5055 2020-05-24 14:43:57Z chrfranke $
+$Id: ChangeLog 5059 2020-05-25 17:43:19Z chrfranke $
+
+2020-05-25  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print TRIM Command support info.
+	Print Zoned Device Capabilities if reported.
+	May also be useful to detect SMR HDDs (#1313).
 
 2020-05-24  Christian Franke  <franke@computer.org>
 
