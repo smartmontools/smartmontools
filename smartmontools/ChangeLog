@@ -2,6 +2,17 @@ $Id$
 
 2020-06-01  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Crucial/Micron MX500 SSDs: Detect firmware <= M3CR032 (#1336)
+	- Micron 5100 Pro / 5200 / 5300 SSDs: Rename, add 5300 (#1326)
+	- Phison Driven SSDs: Corsair Force LE200
+	- JMicron/Maxiotek based SSDs: Rename, add KingSpec NT
+	- Plextor M3/M5/M6 Series SSDs: *M6V variant
+	- Seagate IronWolf: *VN001 variant (GH pull/55)
+	- WD Blue / Red / Green SSDs: Rename, add WD Red SA500 (#1321)
+	- Western Digital Blue Mobile: re-add WD10JPZX (removed in r5054)
+	- USB: OWC Mercury Elite Pro Quad (0x1e91:0xa4a7) (patch from #1337)
+
 	os_win32.cpp: Decode Windows 10 2004 build number.
 
 2020-05-25  Christian Franke  <franke@computer.org>
