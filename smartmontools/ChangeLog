@@ -1,5 +1,9 @@
 $Id$
 
+2020-06-01  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 2004 build number.
+
 2020-05-25  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Print TRIM Command support info.
