@@ -184,7 +184,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.command = ATAPI_SMART;
     req.databuf = (caddr_t) inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     copydata = 1;
     break;
@@ -194,7 +194,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.command = ATAPI_SMART;
     req.databuf = (caddr_t) inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     copydata = 1;
     break;
@@ -204,7 +204,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.command = ATAPI_SMART;
     req.databuf = (caddr_t) inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
     req.timeout = 1000;
@@ -217,7 +217,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.command = ATAPI_SMART;
     req.databuf = (caddr_t) inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
     req.timeout = 1000;
@@ -242,14 +242,14 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = ATA_SMART_ENABLE;
     req.command = ATAPI_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     break;
   case DISABLE:
     req.flags = ATACMD_READ;
     req.features = ATA_SMART_DISABLE;
     req.command = ATAPI_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     break;
   case AUTO_OFFLINE:
@@ -259,7 +259,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.command = ATAPI_SMART;
     req.databuf = (caddr_t) inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
     req.timeout = 1000;
@@ -268,7 +268,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = ATA_SMART_AUTOSAVE;	/* XXX missing from wdcreg.h */
     req.command = ATAPI_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.sec_count = 0xf1;
     /* to enable autosave */
     req.timeout = 1000;
@@ -280,7 +280,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.command = ATAPI_SMART;
     req.databuf = (caddr_t) inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
     req.timeout = 1000;
@@ -291,7 +291,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = ATA_SMART_STATUS;
     req.command = ATAPI_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     break;
   case CHECK_POWER_MODE:
@@ -316,11 +316,11 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
       return -1;
     }
     /* Cyl low and Cyl high unchanged means "Good SMART status" */
-    if (letoh16(req.cylinder) == normal)
+    if (req.cylinder == normal)
       return 0;
 
     /* These values mean "Bad SMART status" */
-    if (letoh16(req.cylinder) == failed)
+    if (req.cylinder == failed)
       return 1;
 
     /* We haven't gotten output that makes sense; 
@@ -328,7 +328,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     snprintf(buf, sizeof(buf),
       "CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
       (int) req.command, (int) req.features, (int) req.sec_count, (int) req.sec_num,
-      (int) (letoh16(req.cylinder) & 0xff), (int) ((letoh16(req.cylinder) >> 8) & 0xff),
+      (int) (req.cylinder & 0xff), (int) ((req.cylinder >> 8) & 0xff),
       (int) req.error);
     printwarning(BAD_SMART, buf);
     return 0;
