@@ -17,71 +17,424 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
+#include <sys/utsname.h>
 #include <errno.h>
+#include <sys/stat.h>
+#include <util.h>
 
 const char * os_openbsd_cpp_cvsid = "$Id$"
   OS_OPENBSD_H_CVSID;
 
-enum warnings {
-  BAD_SMART, MAX_MSG
-};
+#define ARGUSED(x) ((void)(x))
 
-/* Utility function for printing warnings */
-void
-printwarning(int msgNo, const char *extra)
-{
-  static int printed[] = {0, 0};
-  static const char *message[] = {
-    "Error: SMART Status command failed.\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
-    PACKAGE_STRING " does not currently support twe(4) devices (3ware Escalade)\n",
-  };
+/////////////////////////////////////////////////////////////////////////////
 
-  if (msgNo >= 0 && msgNo <= MAX_MSG) {
-    if (!printed[msgNo]) {
-      printed[msgNo] = 1;
-      pout("%s", message[msgNo]);
-      if (extra)
-	pout("%s", extra);
-    }
-  }
-  return;
-}
+namespace os_openbsd { // No need to publish anything, name provided for Doxygen
 
 static const char *net_dev_prefix = "/dev/";
 static const char *net_dev_ata_disk = "wd";
 static const char *net_dev_scsi_disk = "sd";
 static const char *net_dev_scsi_tape = "st";
 
-/* Guess device type(ata or scsi) based on device name */
-int
-guess_device_type(const char *dev_name)
+/////////////////////////////////////////////////////////////////////////////
+/// Implement shared open/close routines with old functions.
+
+class openbsd_smart_device
+: virtual public /*implements*/ smart_device
 {
-  int len;
-  int dev_prefix_len = strlen(net_dev_prefix);
+public:
+  explicit openbsd_smart_device()
+    : smart_device(never_called),
+      m_fd(-1) { }
 
-  if (!dev_name || !(len = strlen(dev_name)))
-    return CONTROLLER_UNKNOWN;
+  virtual ~openbsd_smart_device() throw();
 
-  if (!strncmp(net_dev_prefix, dev_name, dev_prefix_len)) {
-    if (len <= dev_prefix_len)
-      return CONTROLLER_UNKNOWN;
-    else
-      dev_name += dev_prefix_len;
-  }
-  if (!strncmp(net_dev_ata_disk, dev_name, strlen(net_dev_ata_disk)))
-    return CONTROLLER_ATA;
+  virtual bool is_open() const;
 
-  if (!strncmp(net_dev_scsi_disk, dev_name, strlen(net_dev_scsi_disk)))
-    return CONTROLLER_SCSI;
+  virtual bool open();
 
-  if (!strncmp(net_dev_scsi_tape, dev_name, strlen(net_dev_scsi_tape)))
-    return CONTROLLER_SCSI;
+  virtual bool close();
 
-  return CONTROLLER_UNKNOWN;
+protected:
+  /// Return filedesc for derived classes.
+  int get_fd() const
+    { return m_fd; }
+
+  void set_fd(int fd)
+    { m_fd = fd; }
+
+private:
+  int m_fd; ///< filedesc, -1 if not open.
+};
+
+openbsd_smart_device::~openbsd_smart_device() throw()
+{
+  if (m_fd >= 0)
+    os_openbsd::openbsd_smart_device::close();
 }
 
-int
-get_dev_names(char ***names, const char *prefix)
+bool openbsd_smart_device::is_open() const
+{
+  return (m_fd >= 0);
+}
+
+
+bool openbsd_smart_device::open()
+{
+  const char *dev = get_dev_name();
+  int fd;
+
+  if (is_scsi()) {
+    fd = ::open(dev,O_RDWR|O_NONBLOCK);
+
+    if (fd < 0 && errno == EROFS)
+      fd = ::open(dev,O_RDONLY|O_NONBLOCK);
+    if (fd < 0) {
+      set_err(errno);
+      return false;
+    }
+  } else if (is_ata()) {
+    if ((fd = ::open(dev,O_RDWR|O_NONBLOCK))<0) {
+      set_err(errno);
+      return false;
+    }
+  } else
+    return false;
+
+  set_fd(fd);
+  return true;
+}
+
+bool openbsd_smart_device::close()
+{
+  int failed = 0;
+  // close device, if open
+  if (is_open())
+    failed=::close(get_fd());
+
+  set_fd(-1);
+
+  if(failed) return false;
+    else return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/// Implement standard ATA support
+
+class openbsd_ata_device
+: public /*implements*/ ata_device,
+  public /*extends*/ openbsd_smart_device
+{
+public:
+  openbsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+
+protected:
+  virtual int do_cmd(struct atareq* request, bool is_48bit_cmd);
+};
+
+openbsd_ata_device::openbsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
+: smart_device(intf, dev_name, "ata", req_type),
+  openbsd_smart_device()
+{
+}
+
+int openbsd_ata_device::do_cmd( struct atareq* request, bool is_48bit_cmd)
+{
+  int fd = get_fd(), ret;
+  ARGUSED(is_48bit_cmd); // no support for 48 bit commands in the ATAIOCCOMMAND
+  ret = ioctl(fd, ATAIOCCOMMAND, request);
+  if (ret) set_err(errno);
+  return ret;
+}
+
+bool openbsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
+{
+  bool ata_48bit = false; // no ata_48bit_support via ATAIOCCOMMAND
+
+  if (!ata_cmd_is_ok(in,
+    true,  // data_out_support
+    true,  // multi_sector_support
+    ata_48bit)
+    ) {
+      set_err(ENOSYS, "48-bit ATA commands not implemented");
+      return false;
+    }
+
+  struct atareq req;
+
+  memset(&req, 0, sizeof(req));
+  req.command = in.in_regs.command;
+  req.features = in.in_regs.features;
+  req.sec_count = in.in_regs.sector_count;
+  req.sec_num = in.in_regs.lba_low;
+  req.head = in.in_regs.device;
+  req.cylinder = in.in_regs.lba_mid | (in.in_regs.lba_high << 8);
+  req.timeout = SCSI_TIMEOUT_DEFAULT * 1000;
+
+  switch (in.direction) {
+    case ata_cmd_in::no_data:
+      req.flags = ATACMD_READREG;
+      break;
+    case ata_cmd_in::data_in:
+      req.flags = ATACMD_READ | ATACMD_READREG;
+      req.databuf = (char *)in.buffer;
+      req.datalen = in.size;
+      break;
+    case ata_cmd_in::data_out:
+      req.flags = ATACMD_WRITE | ATACMD_READREG;
+      req.databuf = (char *)in.buffer;
+      req.datalen = in.size;
+      break;
+    default:
+      return set_err(ENOSYS);
+  }
+
+  clear_err();
+  errno = 0;
+  if (do_cmd(&req, in.in_regs.is_48bit_cmd()))
+      return false;
+  if (req.retsts != ATACMD_OK)
+      return set_err(EIO, "request failed, error code 0x%02x", req.retsts);
+
+  out.out_regs.error = req.error;
+  out.out_regs.sector_count = req.sec_count;
+  out.out_regs.lba_low = req.sec_num;
+  out.out_regs.device = req.head;
+  out.out_regs.lba_mid = req.cylinder;
+  out.out_regs.lba_high = req.cylinder >> 8;
+  out.out_regs.status = req.command;
+
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/// Standard SCSI support
+
+class openbsd_scsi_device
+: public /*implements*/ scsi_device,
+  public /*extends*/ openbsd_smart_device
+{
+public:
+  openbsd_scsi_device(smart_interface * intf, const char * dev_name, const char * req_type, bool scanning = false);
+
+  virtual smart_device * autodetect_open();
+
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+
+private:
+  bool m_scanning; ///< true if created within scan_smart_devices
+};
+
+openbsd_scsi_device::openbsd_scsi_device(smart_interface * intf,
+  const char * dev_name, const char * req_type, bool scanning /* = false */)
+: smart_device(intf, dev_name, "scsi", req_type),
+  openbsd_smart_device(),
+  m_scanning(scanning)
+{
+}
+
+bool openbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
+{
+  struct scsireq sc;
+  int fd = get_fd();
+
+  if (scsi_debugmode) {
+    unsigned int k;
+    const unsigned char * ucp = iop->cmnd;
+    const char * np;
+
+    np = scsi_get_opcode_name(ucp[0]);
+    pout(" [%s: ", np ? np : "<unknown opcode>");
+    for (k = 0; k < iop->cmnd_len; ++k)
+      pout("%02x ", ucp[k]);
+    if ((scsi_debugmode > 1) &&
+      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+    pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
+      (trunc ? " [only first 256 bytes shown]" : ""));
+    dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+      }
+      else
+        pout("]\n");
+  }
+
+  memset(&sc, 0, sizeof(sc));
+  memcpy(sc.cmd, iop->cmnd, iop->cmnd_len);
+  sc.cmdlen = iop->cmnd_len;
+  sc.databuf = (char *)iop->dxferp;
+  sc.datalen = iop->dxfer_len;
+  sc.senselen = iop->max_sense_len;
+  sc.timeout = iop->timeout == 0 ? 60000 : iop->timeout;	/* XXX */
+  sc.flags =
+    (iop->dxfer_dir == DXFER_NONE ? SCCMD_READ :
+    (iop->dxfer_dir == DXFER_FROM_DEVICE ? SCCMD_READ : SCCMD_WRITE));
+
+  if (ioctl(fd, SCIOCCOMMAND, &sc) < 0) {
+    if (scsi_debugmode) {
+      pout("  error sending SCSI ccb\n");
+    }
+    return set_err(EIO);
+  }
+  iop->resid = sc.datalen - sc.datalen_used;
+  iop->scsi_status = sc.status;
+  if (iop->sensep) {
+    memcpy(iop->sensep, sc.sense, sc.senselen_used);
+    iop->resp_sense_len = sc.senselen_used;
+  }
+  if (scsi_debugmode) {
+    int trunc;
+
+    pout("  status=0\n");
+    trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+    pout("  Incoming data, len=%d%s:\n", (int) iop->dxfer_len,
+      (trunc ? " [only first 256 bytes shown]" : ""));
+    dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len), 1);
+  }
+  // XXX we probably need error handling here
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+///// SCSI open with autodetection support
+
+smart_device * openbsd_scsi_device::autodetect_open()
+{
+  // Open device
+  if (!open())
+    return this;
+
+  // No Autodetection if device type was specified by user
+  bool sat_only = false;
+  if (*get_req_type()) {
+    // Detect SAT if device object was created by scan_smart_devices().
+    if (!(m_scanning && !strcmp(get_req_type(), "sat")))
+      return this;
+    sat_only = true;
+  }
+
+  // The code below is based on smartd.cpp:SCSIFilterKnown()
+
+  // Get INQUIRY
+  unsigned char req_buff[64] = {0, };
+  int req_len = 36;
+  if (scsiStdInquiry(this, req_buff, req_len)) {
+    // Marvell controllers fail on a 36 bytes StdInquiry, but 64 suffices
+    // watch this spot ... other devices could lock up here
+    req_len = 64;
+    if (scsiStdInquiry(this, req_buff, req_len)) {
+      // device doesn't like INQUIRY commands
+      close();
+      set_err(EIO, "INQUIRY failed");
+      return this;
+    }
+  }
+
+  int avail_len = req_buff[4] + 5;
+  int len = (avail_len < req_len ? avail_len : req_len);
+  if (len < 36) {
+    if (sat_only) {
+      close();
+      set_err(EIO, "INQUIRY too short for SAT");
+    }
+    return this;
+  }
+
+  // Use INQUIRY to detect type
+
+  // SAT or USB, skip MFI controllers because of bugs
+  {
+    smart_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
+    if (newdev) {
+      // NOTE: 'this' is now owned by '*newdev'
+      return newdev;
+    }
+  }
+
+  // Nothing special found
+
+  if (sat_only) {
+    close();
+    set_err(EIO, "Not a SAT device");
+  }
+  return this;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/// Implement platform interface with old functions.
+
+class openbsd_smart_interface
+: public /*implements*/ smart_interface
+{
+public:
+  virtual std::string get_os_version_str();
+
+  virtual std::string get_app_examples(const char * appname);
+
+  virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
+    const char * pattern = 0);
+
+protected:
+  virtual ata_device * get_ata_device(const char * name, const char * type);
+
+  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+
+  virtual smart_device * autodetect_smart_device(const char * name);
+
+  virtual smart_device * get_custom_smart_device(const char * name, const char * type);
+
+  virtual std::string get_valid_custom_dev_types_str();
+
+private:
+  int get_dev_names(char ***, const char *);
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
+std::string openbsd_smart_interface::get_os_version_str()
+{
+  struct utsname osname;
+  uname(&osname);
+  return strprintf("%s %s %s", osname.sysname, osname.release, osname.machine);
+}
+
+std::string openbsd_smart_interface::get_app_examples(const char * appname)
+{
+  if (!strcmp(appname, "smartctl")) {
+    char p;
+
+    p = 'a' + getrawpartition();
+    return strprintf(
+      "=================================================== SMARTCTL EXAMPLES =====\n\n"
+      "  smartctl -a /dev/wd0%c                      (Prints all SMART information)\n\n"
+      "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/wd0%c\n"
+      "                                              (Enables SMART on first disk)\n\n"
+      "  smartctl -t long /dev/wd0%c             (Executes extended disk self-test)\n\n"
+      "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/wd0%c\n"
+      "                                      (Prints Self-Test & Attribute errors)\n"
+      "  smartctl -a /dev/wd0%c                     (Prints all SMART information)\n"
+      "  smartctl -s on -o on -S on /dev/wd0%c        (Enables SMART on first disk)\n"
+      "  smartctl -t long /dev/wd0%c            (Executes extended disk self-test)\n"
+      "  smartctl -A -l selftest -q errorsonly /dev/wd0%c"
+      "                                      (Prints Self-Test & Attribute errors)\n",
+      p, p, p, p, p, p, p, p);
+    }
+    return "";
+}
+ata_device * openbsd_smart_interface::get_ata_device(const char * name, const char * type)
+{
+  return new openbsd_ata_device(this, name, type);
+}
+
+scsi_device * openbsd_smart_interface::get_scsi_device(const char * name, const char * type)
+{
+  return new openbsd_scsi_device(this, name, type);
+}
+
+int openbsd_smart_interface::get_dev_names(char ***names, const char *prefix)
 {
   char *disknames, *p, **mp;
   int n = 0;
@@ -108,6 +461,7 @@ get_dev_names(char ***names, const char *prefix)
     pout("Out of memory constructing scan device list\n");
     return -1;
   }
+
   for (p = strtok(disknames, ","); p; p = strtok(NULL, ",")) {
     if (strncmp(p, prefix, strlen(prefix))) {
       continue;
@@ -136,291 +490,134 @@ get_dev_names(char ***names, const char *prefix)
   return n;
 }
 
-int
-make_device_names(char ***devlist, const char *name)
-{
-  if (!strcmp(name, "SCSI"))
-    return get_dev_names(devlist, net_dev_scsi_disk);
-  else if (!strcmp(name, "ATA"))
-    return get_dev_names(devlist, net_dev_ata_disk);
-  else
-    return 0;
-}
 
-int
-deviceopen(const char *pathname, char *type)
-{
-  if (!strcmp(type, "SCSI")) {
-    int fd = open(pathname, O_RDWR | O_NONBLOCK);
-    if (fd < 0 && errno == EROFS)
-      fd = open(pathname, O_RDONLY | O_NONBLOCK);
-    return fd;
-  } else if (!strcmp(type, "ATA"))
-    return open(pathname, O_RDWR | O_NONBLOCK);
-  else
-    return -1;
-}
-
-int
-deviceclose(int fd)
-{
-  return close(fd);
-}
-
-int
-ata_command_interface(int fd, smart_command_set command, int select, char *data)
-{
-  struct atareq req;
-  unsigned char inbuf[DEV_BSIZE];
-  int retval, copydata = 0;
-
-  memset(&req, 0, sizeof(req));
-  memset(&inbuf, 0, sizeof(inbuf));
-
-  switch (command) {
-  case READ_VALUES:
-    req.flags = ATACMD_READ;
-    req.features = ATA_SMART_READ_VALUES;
-    req.command = ATAPI_SMART;
-    req.databuf = (caddr_t) inbuf;
-    req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
-    req.timeout = 1000;
-    copydata = 1;
-    break;
-  case READ_THRESHOLDS:
-    req.flags = ATACMD_READ;
-    req.features = ATA_SMART_READ_THRESHOLDS;
-    req.command = ATAPI_SMART;
-    req.databuf = (caddr_t) inbuf;
-    req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
-    req.timeout = 1000;
-    copydata = 1;
-    break;
-  case READ_LOG:
-    req.flags = ATACMD_READ;
-    req.features = ATA_SMART_READ_LOG_SECTOR;	/* XXX missing from wdcreg.h */
-    req.command = ATAPI_SMART;
-    req.databuf = (caddr_t) inbuf;
-    req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
-    req.sec_num = select;
-    req.sec_count = 1;
-    req.timeout = 1000;
-    copydata = 1;
-    break;
-  case WRITE_LOG:
-    memcpy(inbuf, data, 512);
-    req.flags = ATACMD_WRITE;
-    req.features = ATA_SMART_WRITE_LOG_SECTOR;	/* XXX missing from wdcreg.h */
-    req.command = ATAPI_SMART;
-    req.databuf = (caddr_t) inbuf;
-    req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
-    req.sec_num = select;
-    req.sec_count = 1;
-    req.timeout = 1000;
-    break;
-  case IDENTIFY:
-    req.flags = ATACMD_READ;
-    req.command = WDCC_IDENTIFY;
-    req.databuf = (caddr_t) inbuf;
-    req.datalen = sizeof(inbuf);
-    req.timeout = 1000;
-    copydata = 1;
-    break;
-  case PIDENTIFY:
-    req.flags = ATACMD_READ;
-    req.command = ATAPI_IDENTIFY_DEVICE;
-    req.databuf = (caddr_t) inbuf;
-    req.datalen = sizeof(inbuf);
-    req.timeout = 1000;
-    copydata = 1;
-    break;
-  case ENABLE:
-    req.flags = ATACMD_READ;
-    req.features = ATA_SMART_ENABLE;
-    req.command = ATAPI_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
-    req.timeout = 1000;
-    break;
-  case DISABLE:
-    req.flags = ATACMD_READ;
-    req.features = ATA_SMART_DISABLE;
-    req.command = ATAPI_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
-    req.timeout = 1000;
-    break;
-  case AUTO_OFFLINE:
-    /* NOTE: According to ATAPI 4 and UP, this command is obsolete */
-    req.flags = ATACMD_READ;
-    req.features = ATA_SMART_AUTO_OFFLINE;	/* XXX missing from wdcreg.h */
-    req.command = ATAPI_SMART;
-    req.databuf = (caddr_t) inbuf;
-    req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
-    req.sec_num = select;
-    req.sec_count = 1;
-    req.timeout = 1000;
-    break;
-  case AUTOSAVE:
-    req.flags = ATACMD_READ;
-    req.features = ATA_SMART_AUTOSAVE;	/* XXX missing from wdcreg.h */
-    req.command = ATAPI_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
-    req.sec_count = 0xf1;
-    /* to enable autosave */
-    req.timeout = 1000;
-    break;
-  case IMMEDIATE_OFFLINE:
-    /* NOTE: According to ATAPI 4 and UP, this command is obsolete */
-    req.flags = ATACMD_READ;
-    req.features = ATA_SMART_IMMEDIATE_OFFLINE;	/* XXX missing from wdcreg.h */
-    req.command = ATAPI_SMART;
-    req.databuf = (caddr_t) inbuf;
-    req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
-    req.sec_num = select;
-    req.sec_count = 1;
-    req.timeout = 1000;
-    break;
-  case STATUS_CHECK:
-    /* same command, no HDIO in NetBSD */
-  case STATUS:
-    req.flags = ATACMD_READ;
-    req.features = ATA_SMART_STATUS;
-    req.command = ATAPI_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
-    req.timeout = 1000;
-    break;
-  case CHECK_POWER_MODE:
-    req.flags = ATACMD_READREG;
-    req.command = WDCC_CHECK_PWR;
-    req.timeout = 1000;
-    break;
-  default:
-    pout("Unrecognized command %d in ata_command_interface()\n", command);
-    errno = ENOSYS;
-    return -1;
-  }
-
-  if (command == STATUS_CHECK) {
-    char buf[512];
-
-    unsigned const short normal = WDSMART_CYL, failed = 0x2cf4;
-
-    retval = ioctl(fd, ATAIOCCOMMAND, &req);
-    if (retval < 0) {
-      perror("Failed command");
-      return -1;
+bool openbsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
+  const char * type, const char * pattern /*= 0*/)
+  {
+    if (pattern) {
+      set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
+      return false;
     }
-    /* Cyl low and Cyl high unchanged means "Good SMART status" */
-    if (letoh16(req.cylinder) == normal)
-      return 0;
 
-    /* These values mean "Bad SMART status" */
-    if (letoh16(req.cylinder) == failed)
-      return 1;
+    if (type == NULL)
+      type = "";
 
-    /* We haven't gotten output that makes sense; 
-     * print out some debugging info */
-    snprintf(buf, sizeof(buf),
-      "CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
-      (int) req.command, (int) req.features, (int) req.sec_count, (int) req.sec_num,
-      (int) (letoh16(req.cylinder) & 0xff), (int) ((letoh16(req.cylinder) >> 8) & 0xff),
-      (int) req.error);
-    printwarning(BAD_SMART, buf);
+    bool scan_ata = !*type || !strcmp(type, "ata");
+    bool scan_scsi = !*type || !strcmp(type, "scsi") || !strcmp(type, "sat");
+
+    // Make namelists
+    char * * atanames = 0; int numata = 0;
+    if (scan_ata) {
+      numata = get_dev_names(&atanames, net_dev_ata_disk);
+      if (numata < 0) {
+        set_err(ENOMEM);
+        return false;
+      }
+    }
+
+    char * * scsinames = 0; int numscsi = 0;
+    char * * scsitapenames = 0; int numscsitape = 0;
+    if (scan_scsi) {
+      numscsi = get_dev_names(&scsinames, net_dev_scsi_disk);
+      if (numscsi < 0) {
+        set_err(ENOMEM);
+        return false;
+      }
+      numscsitape = get_dev_names(&scsitapenames, net_dev_scsi_tape);
+      if (numscsitape < 0) {
+        set_err(ENOMEM);
+        return false;
+      }
+    }
+
+    // Add to devlist
+    int i;
+    for (i = 0; i < numata; i++) {
+      ata_device * atadev = get_ata_device(atanames[i], type);
+      if (atadev)
+        devlist.push_back(atadev);
+      free(atanames[i]);
+    }
+    if(numata) free(atanames);
+
+    for (i = 0; i < numscsi; i++) {
+      scsi_device * scsidev = new openbsd_scsi_device(this, scsinames[i], type, true /*scanning*/);
+      if (scsidev)
+        devlist.push_back(scsidev);
+      free(scsinames[i]);
+    }
+    if(numscsi) free(scsinames);
+
+    for (i = 0; i < numscsitape; i++) {
+      scsi_device * scsidev = get_scsi_device(scsitapenames[i], type);
+      if (scsidev)
+        devlist.push_back(scsidev);
+      free(scsitapenames[i]);
+    }
+    if(numscsitape) free(scsitapenames);
+
+    return true;
+}
+
+smart_device * openbsd_smart_interface::autodetect_smart_device(const char * name)
+{
+  const char * test_name = name;
+
+  // if dev_name null, or string length zero
+  if (!name || !*name)
     return 0;
-  }
-  if ((retval = ioctl(fd, ATAIOCCOMMAND, &req))) {
-    perror("Failed command");
-    return -1;
-  }
-  if (command == CHECK_POWER_MODE)
-    data[0] = req.sec_count;
 
-  if (copydata)
-    memcpy(data, inbuf, 512);
+  // Dereference symlinks
+  struct stat st;
+  std::string pathbuf;
+  if (!lstat(name, &st) && S_ISLNK(st.st_mode)) {
+    char * p = realpath(name, (char *)0);
+    if (p) {
+      pathbuf = p;
+      free(p);
+      test_name = pathbuf.c_str();
+    }
+  }
 
+  if (str_starts_with(test_name, net_dev_prefix)) {
+    test_name += strlen(net_dev_prefix);
+    if (!strncmp(net_dev_ata_disk, test_name, strlen(net_dev_ata_disk)))
+      return get_ata_device(test_name, "ata");
+    if (!strncmp(net_dev_scsi_disk, test_name, strlen(net_dev_scsi_disk))) {
+      // XXX Try to detect possible USB->(S)ATA bridge
+      // XXX get USB vendor ID, product ID and version from sd(4)/umass(4).
+      // XXX check sat device via get_usb_dev_type_by_id().
+
+      // No USB bridge found, assume regular SCSI device
+      return get_scsi_device(test_name, "scsi");
+    }
+    if (!strncmp(net_dev_scsi_tape, test_name, strlen(net_dev_scsi_tape)))
+      return get_scsi_device(test_name, "scsi");
+  }
+  // device type unknown
   return 0;
 }
 
-int
-do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
+
+smart_device * openbsd_smart_interface::get_custom_smart_device(const char * name, const char * type)
 {
-  struct scsireq sc;
-
-  if (report > 0) {
-    size_t k;
-
-    const unsigned char *ucp = iop->cmnd;
-    const char *np;
-
-    np = scsi_get_opcode_name(ucp[0]);
-    pout(" [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < iop->cmnd_len; ++k)
-      pout("%02x ", ucp[k]);
-    if ((report > 1) &&
-      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-      pout("]\n  Outgoing data, len=%d%s:\n", (int) iop->dxfer_len,
-	(trunc ? " [only first 256 bytes shown]" : ""));
-      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len), 1);
-    } else
-      pout("]");
-  }
-  memset(&sc, 0, sizeof(sc));
-  memcpy(sc.cmd, iop->cmnd, iop->cmnd_len);
-  sc.cmdlen = iop->cmnd_len;
-  sc.databuf = (char *)iop->dxferp;
-  sc.datalen = iop->dxfer_len;
-  sc.senselen = iop->max_sense_len;
-  sc.timeout = iop->timeout == 0 ? 60000 : iop->timeout;	/* XXX */
-  sc.flags =
-    (iop->dxfer_dir == DXFER_NONE ? SCCMD_READ :
-    (iop->dxfer_dir == DXFER_FROM_DEVICE ? SCCMD_READ : SCCMD_WRITE));
-
-  if (ioctl(fd, SCIOCCOMMAND, &sc) < 0) {
-    warn("error sending SCSI ccb");
-    return -1;
-  }
-  iop->resid = sc.datalen - sc.datalen_used;
-  iop->scsi_status = sc.status;
-  if (iop->sensep) {
-    memcpy(iop->sensep, sc.sense, sc.senselen_used);
-    iop->resp_sense_len = sc.senselen_used;
-  }
-  if (report > 0) {
-    int trunc;
-
-    pout("  status=0\n");
-    trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-    pout("  Incoming data, len=%d%s:\n", (int) iop->dxfer_len,
-      (trunc ? " [only first 256 bytes shown]" : ""));
-    dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len), 1);
-  }
+  ARGUSED(name);
+  ARGUSED(type);
   return 0;
 }
 
-/* print examples for smartctl */
-void 
-print_smartctl_examples()
+std::string openbsd_smart_interface::get_valid_custom_dev_types_str()
 {
-  char p;
+  return "";
+}
 
-  p = 'a' + getrawpartition();
-  printf(
-    "=================================================== SMARTCTL EXAMPLES =====\n\n"
-    "  smartctl -a /dev/wd0%c                      (Prints all SMART information)\n\n"
-    "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/wd0%c\n"
-    "                                              (Enables SMART on first disk)\n\n"
-    "  smartctl -t long /dev/wd0%c             (Executes extended disk self-test)\n\n"
-    "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/wd0%c\n"
-    "                                      (Prints Self-Test & Attribute errors)\n",
-    p, p, p, p
-    );
-  return;
+} // namespace
+
+/////////////////////////////////////////////////////////////////////////////
+/// Initialize platform interface and register with smi()
+
+void smart_interface::init()
+{
+  static os_openbsd::openbsd_smart_interface the_interface;
+  smart_interface::set(&the_interface);
 }

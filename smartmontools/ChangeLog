@@ -1,5 +1,13 @@
 $Id$
 
+2020-06-05  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_netbsd.cpp: fix timeout handling
+	os_openbsd.cpp (based on Marek Benc GH request):
+	- Migrate to the new API (#102)
+	- Fix for the ATA registries on the BE arc (GH PR #56)
+	- Fix timeout handling (GH PR #56)
+
 2020-06-01  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
