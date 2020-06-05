@@ -25,7 +25,7 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 4919 2019-06-12 20:29:55Z chrfranke $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 5063 2020-06-05 09:53:42Z samm2 $"
   OS_NETBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))
@@ -168,7 +168,7 @@ bool netbsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   struct atareq req;
   memset(&req, 0, sizeof(req));
 
-  req.timeout = 1000;
+  req.timeout = SCSI_TIMEOUT_DEFAULT * 1000;
   req.command = in.in_regs.command;
   req.features = in.in_regs.features;
   req.sec_count = in.in_regs.sector_count;
