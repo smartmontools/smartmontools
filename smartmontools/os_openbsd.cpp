@@ -170,7 +170,7 @@ bool openbsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
   req.sec_num = in.in_regs.lba_low;
   req.head = in.in_regs.device;
   req.cylinder = in.in_regs.lba_mid | (in.in_regs.lba_high << 8);
-  req.timeout = 1000;
+  req.timeout = SCSI_TIMEOUT_DEFAULT * 1000;
 
   switch (in.direction) {
     case ata_cmd_in::no_data:
