@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5038 2020-03-05 16:17:31Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5064 2020-06-18 11:16:49Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -636,7 +636,7 @@ scsiPrintGrownDefectListLen(scsi_device * device)
                  "number of elements]\n\n", dl_len);
         else {
             jout("Elements in grown defect list: %u\n\n", dl_len / div);
-            jglb["scsi_grown_defect_list"] = dl_len;
+            jglb["scsi_grown_defect_list"] = dl_len / div;
         }
     }
 }

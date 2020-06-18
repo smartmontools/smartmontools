@@ -1,4 +1,10 @@
-$Id: ChangeLog 5063 2020-06-05 09:53:42Z samm2 $
+$Id: ChangeLog 5064 2020-06-18 11:16:49Z chrfranke $
+
+2020-06-18  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Fix JSON value 'scsi_grown_defect_list'.
+
+	Thanks to Ryan Allgaier for the bug report.
 
 2020-06-05  Alex Samorukov  <samm@os2.kiev.ua>
 
