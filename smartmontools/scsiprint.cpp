@@ -636,7 +636,7 @@ scsiPrintGrownDefectListLen(scsi_device * device)
                  "number of elements]\n\n", dl_len);
         else {
             jout("Elements in grown defect list: %u\n\n", dl_len / div);
-            jglb["scsi_grown_defect_list"] = dl_len;
+            jglb["scsi_grown_defect_list"] = dl_len / div;
         }
     }
 }
