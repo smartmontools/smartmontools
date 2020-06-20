@@ -1,4 +1,8 @@
-$Id: ChangeLog 5064 2020-06-18 11:16:49Z chrfranke $
+$Id: ChangeLog 5065 2020-06-20 13:47:36Z chrfranke $
+
+2020-06-20  Christian Franke  <franke@computer.org>
+
+	os_solaris.cpp: Suggest '-d sat' if '-d ata' is specified.
 
 2020-06-18  Christian Franke  <franke@computer.org>
 
