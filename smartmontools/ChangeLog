@@ -2,6 +2,16 @@ $Id$
 
 2020-06-20  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Crucial/Micron BX/MX1/2/3/500, M5/600, 11/1300 SSDs: Rename,
+	  add 1300
+	- Plextor M3/M5/M6/M7 Series SSDs: Rename, *M6G variant, *M7CV (#991)
+	- Silicon Motion based SSDs: ADATA SU650 (#1243), ADATA SU655
+	- Seagate IronWolf Pro: 16TB (#1341)
+	- USB: Toshiba (0x0930:0xa002)
+	- USB: ADATA HD330 (0x125f:0xa83a)
+	- USB: AkiTio NT2 (0x2ce5:0x0014)
+
 	os_solaris.cpp: Suggest '-d sat' if '-d ata' is specified.
 
 2020-06-18  Christian Franke  <franke@computer.org>
