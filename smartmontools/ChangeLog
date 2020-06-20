@@ -1,5 +1,9 @@
 $Id$
 
+2020-06-20  Christian Franke  <franke@computer.org>
+
+	os_solaris.cpp: Suggest '-d sat' if '-d ata' is specified.
+
 2020-06-18  Christian Franke  <franke@computer.org>
 
 	scsiprint.cpp: Fix JSON value 'scsi_grown_defect_list'.
