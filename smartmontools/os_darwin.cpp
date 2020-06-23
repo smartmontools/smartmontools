@@ -38,7 +38,7 @@
 
 #define ARGUSED(x) ((void)(x))
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 5068 2020-06-23 16:17:10Z chrfranke $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 5070 2020-06-23 22:19:49Z samm2 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -65,7 +65,7 @@ static struct {
   IONVMeSMARTInterface **smartIfNVMe;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 5068 2020-06-23 16:17:10Z chrfranke $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 5070 2020-06-23 22:19:49Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -566,10 +566,7 @@ bool darwin_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out 
       err = smartIfNVMe->GetIdentifyData(ifp, (struct nvme_id_ctrl *) in.buffer, in.nsid);
       break;
     case smartmontools::nvme_admin_get_log_page:
-       if(page == 0x02)
-         err = smartIfNVMe->SMARTReadData(ifp, (struct nvme_smart_log *) in.buffer);
-       else
-         err = smartIfNVMe->GetLogPage(ifp, in.buffer, page, in.size / 4);
+      err = smartIfNVMe->GetLogPage(ifp, in.buffer, page, in.size / 4);
       break;
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x is not supported", in.opcode);
