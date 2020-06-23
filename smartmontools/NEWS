@@ -5,6 +5,28 @@ $Id$
 The most up-to-date version of this file is:
 https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 
+Date <Not released yet, please try current SVN or a recent CI build>
+Summary: smartmontools release 7.2
+-----------------------------------------------------------
+- smartctl '-i': Prints ATA TRIM and Zoned Device capabilities.
+- smartctl '-j': Fixed 'scsi_grown_defect_list' value.
+- smartd: Fixed SMARTD_DEVICETYPE environment variable if DEVICESCAN is
+  used without '-d TYPE'.
+- ATA: Device type '-d jmb39x-q,N' for JMB39x protocol variant used by
+  some QNAP NAS devices.
+- ATA: Device type '-d jms56x,N' for JMS562 USB to SATA RAID bridges.
+- NVMEe/USB: Device type '-d sntrealtek' for Realtek RTL9210 USB to
+  NVMe bridges.
+- HDD, SSD and USB additions to drive database.
+- Dropped support for pre-C99 snprintf().
+- configure: Dropped option '--without-working-snprintf'.
+- configure: Fixed '-fstack-protector*' detection.
+- Darwin: NVMe log support.
+- NetBSD: Fixed timeout handling.
+- NetBSD big endian: Fixed ATA register handling.
+- OpenBSD: Fixed timeout handling.
+- Windows: Dropped backward compatibility fixes for very old compilers.
+
 Date 2019-12-30
 Summary: smartmontools release 7.1
 -----------------------------------------------------------
