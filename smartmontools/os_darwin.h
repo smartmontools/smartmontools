@@ -11,7 +11,7 @@
 #ifndef OS_DARWIN_H_
 #define OS_DARWIN_H_
 
-#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 5068 2020-06-23 16:17:10Z chrfranke $\n"
+#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 5071 2020-06-23 22:29:07Z samm2 $\n"
 
 #define kIOATABlockStorageDeviceClass   "IOATABlockStorageDevice"
 
@@ -57,8 +57,6 @@ typedef struct IONVMeSMARTInterface
 				// Returns 0
         IOReturn ( *ScheduleBGRefresh )( void *   interface);
 
-				// Always returns kIOReturnDeviceError, probably expects pointer to some
-				// structure as an argument
         IOReturn ( *GetLogPage )( void *  interface, void * data, unsigned int logPageId, unsigned int numDWords);
 
 
