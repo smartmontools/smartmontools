@@ -1,10 +1,5 @@
 $Id$
 
-2020-06-24  Alex Samorukov <samm@os2.kiev.ua>
-
-	os_darwin.cpp As we got GetLogPage working - remove call to the
-	SMARTReadData and use generic interface for the all log pages
-
 2020-06-23  Harry Mallon  <hjmallon@gmail.com>
 
 	os_darwin.cpp, os_darwin.h: Add support for NVMe logs.

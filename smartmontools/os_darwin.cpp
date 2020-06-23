@@ -566,7 +566,10 @@ bool darwin_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out 
       err = smartIfNVMe->GetIdentifyData(ifp, (struct nvme_id_ctrl *) in.buffer, in.nsid);
       break;
     case smartmontools::nvme_admin_get_log_page:
-      err = smartIfNVMe->GetLogPage(ifp, in.buffer, page, in.size / 4);
+       if(page == 0x02)
+         err = smartIfNVMe->SMARTReadData(ifp, (struct nvme_smart_log *) in.buffer);
+       else
+         err = smartIfNVMe->GetLogPage(ifp, in.buffer, page, in.size / 4);
       break;
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x is not supported", in.opcode);
