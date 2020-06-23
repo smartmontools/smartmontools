@@ -57,8 +57,6 @@ typedef struct IONVMeSMARTInterface
 				// Returns 0
         IOReturn ( *ScheduleBGRefresh )( void *   interface);
 
-				// Always returns kIOReturnDeviceError, probably expects pointer to some
-				// structure as an argument
         IOReturn ( *GetLogPage )( void *  interface, void * data, unsigned int logPageId, unsigned int numDWords);
 
 
