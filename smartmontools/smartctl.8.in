@@ -89,8 +89,7 @@ Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or
 equivalently \fB/dev/rdisk[0\-9]\fP.
 Long forms are also available: please use \*(Aq\-h\*(Aq to see some examples.
 .Sp
-There is NVMe support based on the undocumented SMART API in OSX. Currently only
-SMART and Controller information pages are supported.
+There is NVMe support based on the NVMeSMARTLib API in OSX.
 .Sp
 Note that Darwin SCSI support is not yet implemented.
 .Sp

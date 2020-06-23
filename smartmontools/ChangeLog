@@ -1,5 +1,10 @@
 $Id$
 
+2020-06-23  Harry Mallon  <hjmallon@gmail.com>
+
+	os_darwin.cpp, os_darwin.h: Add support for NVMe logs.
+	smartctl.8.in: Update related documentation.
+
 2020-06-20  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
