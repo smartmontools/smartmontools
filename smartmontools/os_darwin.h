@@ -11,7 +11,7 @@
 #ifndef OS_DARWIN_H_
 #define OS_DARWIN_H_
 
-#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 4760 2018-08-19 18:45:53Z chrfranke $\n"
+#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 5068 2020-06-23 16:17:10Z chrfranke $\n"
 
 #define kIOATABlockStorageDeviceClass   "IOATABlockStorageDevice"
 
@@ -21,7 +21,7 @@
 #define kIOPropertySMARTCapableKey	"SMART Capable"
 #endif
 
-// NVMe definitions, non documented, experimental
+// NVMe definitions (see NVMeSMARTLibExternal.h)
 #define kIOPropertyNVMeSMARTCapableKey	"NVMe SMART Capable"
 
 // Constant to init driver
@@ -59,7 +59,7 @@ typedef struct IONVMeSMARTInterface
 
 				// Always returns kIOReturnDeviceError, probably expects pointer to some
 				// structure as an argument
-        IOReturn ( *GetLogPage )( void *  interface, void * data, unsigned int, unsigned int);
+        IOReturn ( *GetLogPage )( void *  interface, void * data, unsigned int logPageId, unsigned int numDWords);
 
 
 				/* GetSystemCounters Looks like a table with an attributes. Sample result:

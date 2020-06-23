@@ -1,4 +1,9 @@
-$Id: ChangeLog 5066 2020-06-20 15:16:22Z chrfranke $
+$Id: ChangeLog 5068 2020-06-23 16:17:10Z chrfranke $
+
+2020-06-23  Harry Mallon  <hjmallon@gmail.com>
+
+	os_darwin.cpp, os_darwin.h: Add support for NVMe logs.
+	smartctl.8.in: Update related documentation.
 
 2020-06-20  Christian Franke  <franke@computer.org>
 

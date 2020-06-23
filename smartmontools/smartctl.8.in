@@ -4,7 +4,7 @@ Copyright (C) 2004-20 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5051 2020-04-23 16:40:09Z chrfranke $
+$Id: smartctl.8.in 5068 2020-06-23 16:17:10Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -89,8 +89,7 @@ Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or
 equivalently \fB/dev/rdisk[0\-9]\fP.
 Long forms are also available: please use \*(Aq\-h\*(Aq to see some examples.
 .Sp
-There is NVMe support based on the undocumented SMART API in OSX. Currently only
-SMART and Controller information pages are supported.
+There is NVMe support based on the NVMeSMARTLib API in OSX.
 .Sp
 Note that Darwin SCSI support is not yet implemented.
 .Sp
@@ -2447,4 +2446,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5051 2020-04-23 16:40:09Z chrfranke $
+$Id: smartctl.8.in 5068 2020-06-23 16:17:10Z chrfranke $
