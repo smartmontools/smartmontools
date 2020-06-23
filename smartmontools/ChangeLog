@@ -1,9 +1,4 @@
-$Id: ChangeLog 5070 2020-06-23 22:19:49Z samm2 $
-
-2020-06-24  Alex Samorukov <samm@os2.kiev.ua>
-
-	os_darwin.cpp As we got GetLogPage working - remove call to the
-	SMARTReadData and use generic interface for the all log pages
+$Id: ChangeLog 5072 2020-06-23 22:34:26Z samm2 $
 
 2020-06-23  Harry Mallon  <hjmallon@gmail.com>
 
