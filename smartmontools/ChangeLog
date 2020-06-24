@@ -1,4 +1,10 @@
-$Id: ChangeLog 5072 2020-06-23 22:34:26Z samm2 $
+$Id: ChangeLog 5073 2020-06-24 08:08:38Z samm2 $
+
+2020-06-24  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp: Fix NVMe log support, handle error codes,
+	  remove SMARTReadData call
+	os_darwin.h: Cleanup, remove all private functions
 
 2020-06-23  Harry Mallon  <hjmallon@gmail.com>
 
