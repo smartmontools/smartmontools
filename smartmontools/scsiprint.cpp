@@ -118,8 +118,10 @@ static void
 scsiGetSupportedLogPages(scsi_device * device)
 {
     bool got_subpages = false;
-    int k, bump, err, payload_len, num_unreported, num_unreported_spg;
-    int payload_len_pg0_0 = 0;
+    int k, bump, err, resp_len, num_unreported, num_unreported_spg;
+    int resp_len_pg0_0 = 0;
+    int resp_len_pg0_ff = 0;	/* in SPC-4, response length of supported
+                                 * log pages _and_ log subpages */
     const uint8_t * up;
     uint8_t sup_lpgs[LOG_RESP_LEN];
 
@@ -143,7 +145,7 @@ scsiGetSupportedLogPages(scsi_device * device)
                (scsi_version <= SCSI_VERSION_HIGHEST)) {
         /* unclear what code T10 will choose for SPC-6 */
         memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
-        payload_len_pg0_0 = sup_lpgs[3];
+        resp_len_pg0_0 = sup_lpgs[3];
         if ((err = scsiLogSense(device, SUPPORTED_LPAGES, SUPP_SPAGE_L_SPAGE,
                                 gBuf, LOG_RESP_LONG_LEN,
                                 -1 /* just single not double fetch */))) {
@@ -160,33 +162,38 @@ scsiGetSupportedLogPages(scsi_device * device)
                 if (scsi_debugmode > 0)
                     pout("%s supported subpages is bad SPF=%u SUBPG=%u\n",
                          logSenRspStr, !! (0x40 & gBuf[0]), gBuf[2]);
-            } else
+            } else {
+		resp_len_pg0_ff = sg_get_unaligned_be16(gBuf + 2);
                 got_subpages = true;
+	    }
         }
-    } else
+    } else {
         memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
+	resp_len_pg0_0 = sup_lpgs[3];
+    }
 
     if (got_subpages) {
-        payload_len = sg_get_unaligned_be16(gBuf + 2);
-        if (payload_len <= payload_len_pg0_0) {
+        resp_len = sg_get_unaligned_be16(gBuf + 2);
+        if (resp_len_pg0_ff <= resp_len_pg0_0) {
             /* something is rotten ....., ignore SUPP_SPAGE_L_SPAGE */
-            payload_len = payload_len_pg0_0;
+            resp_len = resp_len_pg0_0;
             bump = 1;
             up = sup_lpgs + LOGPAGEHDRSIZE;
             got_subpages = false;
             (void)got_subpages; // not yet used below, suppress warning
         } else {
+	    resp_len = resp_len_pg0_ff;
             bump = 2;
             up = gBuf + LOGPAGEHDRSIZE;
         }
     } else {
-        payload_len = payload_len_pg0_0;
+        resp_len = resp_len_pg0_0;
         bump = 1;
         up = sup_lpgs + LOGPAGEHDRSIZE;
     }
 
     num_unreported_spg = 0;
-    for (num_unreported = 0, k = 0; k < payload_len; k += bump, up += bump) {
+    for (num_unreported = 0, k = 0; k < resp_len; k += bump, up += bump) {
         uint8_t pg_num = 0x3f & up[0];
         uint8_t sub_pg_num = (0x40 & up[0]) ? up[1] : 0;
 

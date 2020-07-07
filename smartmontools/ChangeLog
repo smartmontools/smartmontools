@@ -1,5 +1,14 @@
 $Id$
 
+2020-07-06  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: Attempted fix to tickets 1272, 1331 and 1346
+	  The difficulty is handling SCSI log _sub_-pages that hold
+	  info about SSDs and newer hard drives, against older 
+	  devices (20 year old disks?) that do many and varied
+	  things when asked to list supported sub-pages. Add a
+	  heuristic and change some naming.
+
 2020-06-24  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_darwin.cpp: Fix NVMe log support, handle error codes,
