@@ -1,5 +1,14 @@
 $Id$
 
+2020-07-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: Add "Accumulated power on time" entry to
+	  'smartctl -a' output. Previously this was only output
+	  when the '-x' option was given, together with other
+	  fields in the Background scan results log page. Now
+	  with the '-a' option "Accumulated power on time" is
+	  printed just before the "Manufactured in week ..." line.
+
 2020-07-06  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: Attempted fix to tickets 1272, 1331 and 1346

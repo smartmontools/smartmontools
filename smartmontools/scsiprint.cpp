@@ -120,7 +120,7 @@ scsiGetSupportedLogPages(scsi_device * device)
     bool got_subpages = false;
     int k, bump, err, resp_len, num_unreported, num_unreported_spg;
     int resp_len_pg0_0 = 0;
-    int resp_len_pg0_ff = 0;	/* in SPC-4, response length of supported
+    int resp_len_pg0_ff = 0;    /* in SPC-4, response length of supported
                                  * log pages _and_ log subpages */
     const uint8_t * up;
     uint8_t sup_lpgs[LOG_RESP_LEN];
@@ -163,13 +163,13 @@ scsiGetSupportedLogPages(scsi_device * device)
                     pout("%s supported subpages is bad SPF=%u SUBPG=%u\n",
                          logSenRspStr, !! (0x40 & gBuf[0]), gBuf[2]);
             } else {
-		resp_len_pg0_ff = sg_get_unaligned_be16(gBuf + 2);
+                resp_len_pg0_ff = sg_get_unaligned_be16(gBuf + 2);
                 got_subpages = true;
-	    }
+            }
         }
     } else {
         memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
-	resp_len_pg0_0 = sup_lpgs[3];
+        resp_len_pg0_0 = sup_lpgs[3];
     }
 
     if (got_subpages) {
@@ -182,7 +182,7 @@ scsiGetSupportedLogPages(scsi_device * device)
             got_subpages = false;
             (void)got_subpages; // not yet used below, suppress warning
         } else {
-	    resp_len = resp_len_pg0_ff;
+            resp_len = resp_len_pg0_ff;
             bump = 2;
             up = gBuf + LOGPAGEHDRSIZE;
         }
@@ -1160,12 +1160,14 @@ static const char * reassign_status[] = {
 // Returns 0 if ok else FAIL* bitmask. Note can have a status entry
 // and up to 2048 events (although would hope to have less). May set
 // FAILLOG if serious errors detected (in the future).
+// When only_pow_time is true only print "Accumulated power on time"
+// data, if available.
 static int
-scsiPrintBackgroundResults(scsi_device * device)
+scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
 {
+    bool noheader = true;
+    bool firstresult = true;
     int num, j, m, err, truncated;
-    int noheader = 1;
-    int firstresult = 1;
     int retval = 0;
     uint8_t * ucp;
     static const char * hname = "Background scan results";
@@ -1186,9 +1188,12 @@ scsiPrintBackgroundResults(scsi_device * device)
     // compute page length
     num = sg_get_unaligned_be16(gBuf + 2) + 4;
     if (num < 20) {
-        print_on();
-        pout("%s %s length is %d, no scan status\n", hname, logSenStr, num);
-        print_off();
+        if (! only_pow_time) {
+            print_on();
+            pout("%s %s length is %d, no scan status\n", hname, logSenStr,
+                 num);
+            print_off();
+        }
         return FAILSMART;
     }
     truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
@@ -1203,22 +1208,32 @@ scsiPrintBackgroundResults(scsi_device * device)
         switch (pc) {
         case 0:
             if (noheader) {
-                noheader = 0;
-                pout("%s log\n", hname);
+                noheader = false;
+                if (! only_pow_time)
+                    pout("%s log\n", hname);
             }
-            pout("  Status: ");
+            if (! only_pow_time)
+                pout("  Status: ");
             if ((pl < 16) || (num < 16)) {
-                pout("\n");
+                if (! only_pow_time)
+                    pout("\n");
                 break;
             }
             j = ucp[9];
-            if (j < (int)(sizeof(bms_status) / sizeof(bms_status[0])))
-                pout("%s\n", bms_status[j]);
-            else
-                pout("unknown [0x%x] background scan status value\n", j);
+            if (! only_pow_time) {
+                if (j < (int)(sizeof(bms_status) / sizeof(bms_status[0])))
+                    pout("%s\n", bms_status[j]);
+                else
+                    pout("unknown [0x%x] background scan status value\n", j);
+            }
             j = sg_get_unaligned_be32(ucp + 4);
-            pout("    Accumulated power on time, hours:minutes %d:%02d "
-                 "[%d minutes]\n", (j / 60), (j % 60), j);
+            pout("%sAccumulated power on time, hours:minutes %d:%02d",
+                 (only_pow_time ? "" : "    "), (j / 60), (j % 60));
+            if (only_pow_time) {
+                pout("\n");
+                break;
+            } else
+                pout(" [%d minutes]\n", j);
             jglb["power_on_time"]["hours"] = j / 60;
             jglb["power_on_time"]["minutes"] = j % 60;
             pout("    Number of background scans performed: %d,  ",
@@ -1230,9 +1245,12 @@ scsiPrintBackgroundResults(scsi_device * device)
             break;
         default:
             if (noheader) {
-                noheader = 0;
-                pout("\n%s log\n", hname);
+                noheader = false;
+                if (! only_pow_time)
+                    pout("\n%s log\n", hname);
             }
+            if (only_pow_time)
+                break;
             if (firstresult) {
                 firstresult = 0;
                 pout("\n   #  when        lba(hex)    [sk,asc,ascq]    "
@@ -1260,10 +1278,11 @@ scsiPrintBackgroundResults(scsi_device * device)
         num -= pl;
         ucp += pl;
     }
-    if (truncated)
+    if (truncated && (! only_pow_time))
         pout(" >>>> log truncated, fetched %d of %d available "
              "bytes\n", LOG_RESP_LONG_LEN, truncated);
-    pout("\n");
+    if (! only_pow_time)
+        pout("\n");
     return retval;
 }
 
@@ -2442,6 +2461,17 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
         if (gTempLPage)
             scsiPrintTemp(device);
+    }
+    // in the 'smartctl -a" case only want: "Accumulated power on time"
+    if ((! options.smart_background_log) && is_disk) {
+        if (! checkedSupportedLogPages)
+            scsiGetSupportedLogPages(device);
+        res = 0;
+        if (gBackgroundResultsLPage)
+            res = scsiPrintBackgroundResults(device, true);
+        any_output = true;
+    }
+    if (options.smart_vendor_attrib) {
         if (gStartStopLPage)
             scsiGetStartStopData(device);
         if (is_disk) {
@@ -2483,7 +2513,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
         res = 0;
         if (gBackgroundResultsLPage)
-            res = scsiPrintBackgroundResults(device);
+            res = scsiPrintBackgroundResults(device, false);
         else {
             pout("Device does not support Background scan results logging\n");
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
