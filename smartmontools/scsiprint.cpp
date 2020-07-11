@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-19 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-20 Douglas Gilbert <dgilbert@interlog.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -786,7 +786,7 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
         pl = ucp[3] + 4;
         good = 0;
         switch (pc) {
-        case 0: pout("  number of hours powered up");
+        case 0: jout("  number of hours powered up");
             good = 1;
             break;
         case 8: pout("  number of minutes until next internal SMART test");
@@ -810,7 +810,7 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
             }
             ull = sg_get_unaligned_be(k, xp + 0);
             if (0 == pc) {
-                pout(" = %.2f\n", ull / 60.0 );
+                jout(" = %.2f\n", ull / 60.0 );
                 jglb["power_on_time"]["hours"] = ull / 60;
                 jglb["power_on_time"]["minutes"] = ull % 60;
             }
@@ -1227,15 +1227,16 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
                     pout("unknown [0x%x] background scan status value\n", j);
             }
             j = sg_get_unaligned_be32(ucp + 4);
-            pout("%sAccumulated power on time, hours:minutes %d:%02d",
+            jout("%sAccumulated power on time, hours:minutes %d:%02d",
                  (only_pow_time ? "" : "    "), (j / 60), (j % 60));
-            if (only_pow_time) {
-                pout("\n");
-                break;
-            } else
-                pout(" [%d minutes]\n", j);
+            if (only_pow_time)
+                jout("\n");
+            else
+                jout(" [%d minutes]\n", j);
             jglb["power_on_time"]["hours"] = j / 60;
             jglb["power_on_time"]["minutes"] = j % 60;
+            if (only_pow_time)
+                break;
             pout("    Number of background scans performed: %d,  ",
                  sg_get_unaligned_be16(ucp + 10));
             pout("scan progress: %.2f%%\n",
