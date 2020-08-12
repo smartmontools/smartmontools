@@ -64,9 +64,9 @@ smartctl_SOURCES = \
         dev_ata_cmd_set.cpp \
         dev_ata_cmd_set.h \
         dev_intelliprop.cpp \
-        dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
+        dev_jmb39x_raid.cpp \
         dev_tunnelled.h \
         drivedb.h \
         json.cpp \
@@ -83,6 +83,7 @@ smartctl_SOURCES = \
         scsinvme.cpp \
         scsiprint.cpp \
         scsiprint.h \
+        static_assert.h \
         utility.cpp \
         utility.h \
         sg_unaligned.h
@@ -141,9 +142,9 @@ smartd_SOURCES = \
         dev_ata_cmd_set.cpp \
         dev_ata_cmd_set.h \
         dev_intelliprop.cpp \
-        dev_intelliprop.h \
         dev_interface.cpp \
         dev_interface.h \
+        dev_jmb39x_raid.cpp \
         dev_tunnelled.h \
         drivedb.h \
         knowndrives.cpp \
@@ -154,6 +155,7 @@ smartd_SOURCES = \
         scsicmds.h \
         scsiata.cpp \
         scsinvme.cpp \
+        static_assert.h \
         utility.cpp \
         utility.h \
         sg_unaligned.h
@@ -348,7 +350,9 @@ examples_SCRIPTS = \
         examplescripts/Example3 \
         examplescripts/Example4 \
         examplescripts/Example5 \
-        examplescripts/Example6
+        examplescripts/Example6 \
+        examplescripts/Example7 \
+        examplescripts/Example8
 
 sysconf_DATA = smartd.conf
 
@@ -388,6 +392,7 @@ EXTRA_DIST = \
         .editorconfig \
         autogen.sh \
         ChangeLog-5.0-6.0 \
+        cppcheck.sh \
         smartd.initd.in \
         smartd.cygwin.initd.in \
         smartd.freebsd.initd.in \
@@ -563,6 +568,11 @@ smartd.service: smartd.service.in Makefile
 	@echo ' $$(SMARTD_SERVICE_FILTER) < $(srcdir)/smartd.service.in > $@'
 	@{ \
 	sed 's|/usr/local/sbin/smartd|$(sbindir)/smartd|' | \
+	if test -n '$(SYSTEMD_LDADD)'; then \
+	  cat; \
+	else \
+	  sed '/^Type=notify/d'; \
+	fi | \
 	if test -n '$(systemdenvfile)'; then \
 	  sed 's|/usr/local/etc/sysconfig/smartmontools|$(systemdenvfile)|'; \
 	else \
@@ -750,6 +760,14 @@ check:
 	else \
 	  echo "$(srcdir)/drivedb.h: Syntax check failed"; exit 1; \
 	fi
+
+# Create cppcheck report
+cppcheck: cppcheck.txt
+
+CPPCHECKFLAGS=
+cppcheck.txt: $(smartctl_SOURCES) $(EXTRA_smartctl_SOURCES) \
+              $(smartd_SOURCES) $(EXTRA_smartd_SOURCES)
+	$(srcdir)/cppcheck.sh $(CPPCHECKFLAGS) > $@
 
 
 if OS_WIN32_MINGW
@@ -1026,7 +1044,7 @@ config-vc$(vcver): $(CONFIG_VC_FILES)
 
 $(srcdir)/os_win32/vc$(vcver)/config.h: config.h Makefile
 	sed -e '1i/* os_win32/vc$(vcver)/config.h.  Generated from config.h by Makefile.  */' \
-	    -e 's,^#define HAVE_\(ATTR_PACKED\|GETTIMEOFDAY\|[DK_]*NTDDDISK_H\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
+	    -e 's,^#define HAVE_\(ATTR_PACKED\|GETTIMEOFDAY\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
 	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc$(vcver),' $< > $@
 
 $(srcdir)/os_win32/vc$(vcver)/svnversion.h: svnversion.h

@@ -1,10 +1,10 @@
 /*
  * utility.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-12 Bruce Allen
- * Copyright (C) 2008-19 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -80,7 +80,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
       "(build date " __DATE__ ")" // checkout without expansion of Id keywords
 #endif
       " [%s] " BUILD_INFO "\n"
-    "Copyright (C) 2002-19, Bruce Allen, Christian Franke, www.smartmontools.org\n",
+    "Copyright (C) 2002-20, Bruce Allen, Christian Franke, www.smartmontools.org\n",
     prog_name, smi()->get_os_version_str().c_str()
   );
   if (!full)
@@ -278,29 +278,49 @@ const char *packetdevicetype(int type){
   return "Unknown";
 }
 
+// Convert time to broken-down local time, throw on error.
+struct tm * time_to_tm_local(struct tm * tp, time_t t)
+{
+#ifndef _WIN32
+  // POSIX (missing in MSVRCT, C and C++)
+  if (!localtime_r(&t, tp))
+    throw std::runtime_error("localtime_r() failed");
+#else
+  // MSVCRT (missing in POSIX, C11 variant differs)
+  if (localtime_s(tp, &t))
+    throw std::runtime_error("localtime_s() failed");
+#endif
+  return tp;
+}
+
 // Utility function prints date and time and timezone into a character
 // buffer of length 64.  All the fuss is needed to get the right
 // timezone info (sigh).
 void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
 {
-  struct tm *tmval;
-  const char *timezonename;
-  char datebuffer[DATEANDEPOCHLEN];
-  int lenm1;
-
   FixGlibcTimeZoneBug();
   
   // Get the time structure.  We need this to determine if we are in
   // daylight savings time or not.
-  tmval=localtime(&tval);
+  struct tm tmbuf, * tmval = time_to_tm_local(&tmbuf, tval);
   
-  // Convert to an ASCII string, put in datebuffer
-  // same as: asctime_r(tmval, datebuffer);
-  strncpy(datebuffer, asctime(tmval), DATEANDEPOCHLEN);
-  datebuffer[DATEANDEPOCHLEN-1]='\0';
+  // Convert to an ASCII string, put in datebuffer.
+  // Same as: strftime(datebuffer, sizeof(datebuffer), "%a %b %e %H:%M:%S %Y\n"),
+  // but always in "C" locale.
+  char datebuffer[32];
+  STATIC_ASSERT(sizeof(datebuffer) >= 26); // assumed by asctime_r()
+#ifndef _WIN32
+  // POSIX (missing in MSVRCT, C and C++)
+  if (!asctime_r(tmval, datebuffer))
+    throw std::runtime_error("asctime_r() failed");
+#else
+  // MSVCRT, C11 (missing in POSIX)
+  if (asctime_s(datebuffer, sizeof(datebuffer), tmval))
+    throw std::runtime_error("asctime_s() failed");
+#endif
   
   // Remove newline
-  lenm1=strlen(datebuffer)-1;
+  int lenm1 = strlen(datebuffer) - 1;
   datebuffer[lenm1>=0?lenm1:0]='\0';
 
 #if defined(_WIN32) && defined(_MSC_VER)
@@ -309,6 +329,7 @@ void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
 #endif
 
   // correct timezone name
+  const char * timezonename;
   if (tmval->tm_isdst==0)
     // standard time zone
     timezonename=tzname[0];
@@ -811,40 +832,7 @@ static void check_endianness()
     throw std::logic_error("CPU endianness does not match compile time test");
 }
 
-#ifndef HAVE_WORKING_SNPRINTF
-// Some versions of (v)snprintf() don't append null char (MSVCRT.DLL),
-// and/or return -1 on output truncation (glibc <= 2.0.6).
-// Below are sane replacements substituted by #define in utility.h.
-
-#undef vsnprintf
-#if defined(_WIN32) && defined(_MSC_VER)
-#define vsnprintf _vsnprintf
-#endif
-
-int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap)
-{
-  int i;
-  if (size <= 0)
-    return 0;
-  i = vsnprintf(buf, size, fmt, ap);
-  if (0 <= i && i < size)
-    return i;
-  buf[size-1] = 0;
-  return strlen(buf); // Note: cannot detect for overflow, not necessary here.
-}
-
-int safe_snprintf(char *buf, int size, const char *fmt, ...)
-{
-  int i; va_list ap;
-  va_start(ap, fmt);
-  i = safe_vsnprintf(buf, size, fmt, ap);
-  va_end(ap);
-  return i;
-}
-
-static void check_snprintf() {}
-
-#elif defined(__GNUC__) && (__GNUC__ >= 7)
+#if defined(__GNUC__) && (__GNUC__ >= 7)
 
 // G++ 7+: Assume sane implementation and avoid -Wformat-truncation warning
 static void check_snprintf() {}
@@ -860,7 +848,7 @@ static void check_snprintf()
     throw std::logic_error("Function snprintf() does not conform to C99");
 }
 
-#endif // HAVE_WORKING_SNPRINTF
+#endif
 
 // Runtime check of ./configure result, throws on error.
 void check_config()

@@ -1,7 +1,7 @@
 /*
- * os_solaris.c
+ * os_solaris.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-08 SAWADA Keiji
  * Copyright (C) 2003-15 Casper Dik
@@ -29,36 +29,8 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id$" \
-ATACMDS_H_CVSID CONFIG_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
-
-// The printwarning() function warns about unimplemented functions
-int printedout[2];
-char *unimplemented[2]={
-  "ATA command routine ata_command_interface()",
-  "3ware Escalade Controller command routine escalade_command_interface()",
-};
-
-int printwarning(int which){
-  if (!unimplemented[which])
-    return 0;
-
-  if (printedout[which])
-    return 1;
-  
-  printedout[which]=1;
-  
-  pout("\n"
-       "#######################################################################\n"
-       "%s NOT IMPLEMENTED under Solaris.\n"
-       "Please contact " PACKAGE_BUGREPORT " if\n"
-       "you want to help in porting smartmontools to Solaris.\n"
-       "#######################################################################\n"
-       "\n",
-       unimplemented[which]);
-
-  return 1;
-}
+const char *os_XXXX_cpp_cvsid = "$Id$"
+  OS_SOLARIS_H_CVSID;
 
 // print examples for smartctl
 void print_smartctl_examples(){
@@ -300,7 +272,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     case STATUS_CHECK:
 	return smart_status_check(fd);
     default:
-	pout("Unrecognized command %d in ata_command_interface() of os_solaris.c\n", command);
+	pout("Unrecognized command %d in ata_command_interface() of os_solaris.cpp\n", command);
         errno = EINVAL;
         return -1;
     }
@@ -309,10 +281,10 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 
     /* Above smart_* routines uses undocumented ioctls of "dada"
      * driver, which is specific to SPARC Solaris.  See
-     * os_solaris_ata.s for further details. x86 Solaris seems not to
-     * provide similar or alternative interface... */
-    if (printwarning(0))
-	return -1;
+     * os_solaris_ata.s for further details. */
+
+    pout("Device type 'ata' not implemented, try '-d sat' or '-d sat,12' instead.\n");
+    errno = ENOSYS;
 #endif
     return -1;
 }

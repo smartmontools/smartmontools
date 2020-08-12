@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-19 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -36,11 +36,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-// This file contains the linux-specific IOCTL parts of
-// smartmontools. It includes one interface routine for ATA devices,
-// one for SCSI devices, and one for ATA devices behind escalade
-// controllers.
 
 #include "config.h"
 
@@ -1278,7 +1273,6 @@ smart_device * linux_megaraid_device::autodetect_open()
 
 bool linux_megaraid_device::open()
 {
-  char line[128];
   int   mjr;
   int report = scsi_debugmode;
 
@@ -1300,6 +1294,7 @@ bool linux_megaraid_device::open()
   /* Perform mknod of device ioctl node */
   FILE * fp = fopen("/proc/devices", "r");
   if (fp) {
+    char line[128];
     while (fgets(line, sizeof(line), fp) != NULL) {
       int n1 = 0;
       if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
@@ -2045,14 +2040,12 @@ static int find_areca_in_proc()
     if (!fp) return 1;
     int host, chan, id, lun, type, opens, qdepth, busy, online;
     int dev=-1;
-    int found=0;
     // search all lines of /proc/scsi/sg/devices
     while (9 == fscanf(fp, "%d %d %d %d %d %d %d %d %d", &host, &chan, &id, &lun, &type, &opens, &qdepth, &busy, &online)) {
         dev++;
 	if (id == 16 && type == 3) {
 	   // devices with id=16 and type=3 might be Areca controllers
 	   pout("Device /dev/sg%d appears to be an Areca controller.\n", dev);
-           found++;
         }
     }
     fclose(fp);
@@ -2779,6 +2772,15 @@ static bool get_usb_id(const char * name, unsigned short & vendor_id,
       return false;
   } while (access((dir + "/idVendor").c_str(), 0));
 
+  if (scsi_debugmode > 1) {
+    pout("Found idVendor in: %s\n", dir.c_str());
+    char * p = realpath(dir.c_str(), (char *)0);
+    if (p) {
+      pout("         realpath: %s\n", p);
+      free(p);
+    }
+  }
+
   // Read IDs
   if (!(   read_id(dir + "/idVendor", vendor_id)
         && read_id(dir + "/idProduct", product_id)
@@ -3133,7 +3135,7 @@ linux_smart_interface::megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
   }
 
   int fd;
-  if ((fd = ::open("/dev/megaraid_sas_ioctl_node", O_RDWR)) <= 0) {
+  if ((fd = ::open("/dev/megaraid_sas_ioctl_node", O_RDWR)) < 0) {
     return (errno);
   }
 

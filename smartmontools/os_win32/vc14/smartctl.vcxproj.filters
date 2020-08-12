@@ -45,6 +45,7 @@
     <ClCompile Include="..\..\cciss.cpp" />
     <ClCompile Include="..\..\dev_ata_cmd_set.cpp" />
     <ClCompile Include="..\..\dev_interface.cpp" />
+    <ClCompile Include="..\..\dev_jmb39x_raid.cpp" />
     <ClCompile Include="..\..\dev_legacy.cpp" />
     <ClCompile Include="..\..\knowndrives.cpp" />
     <ClCompile Include="..\..\os_darwin.cpp" />
@@ -59,6 +60,7 @@
     <ClCompile Include="..\..\os_win32.cpp" />
     <ClCompile Include="..\..\scsiata.cpp" />
     <ClCompile Include="..\..\scsicmds.cpp" />
+    <ClCompile Include="..\..\scsinvme.cpp" />
     <ClCompile Include="..\..\scsiprint.cpp" />
     <ClCompile Include="..\..\smartctl.cpp" />
     <ClCompile Include="..\..\smartd.cpp" />
@@ -107,8 +109,8 @@
     <ClInclude Include="svnversion.h" />
     <ClInclude Include="..\..\nvmecmds.h" />
     <ClInclude Include="..\..\nvmeprint.h" />
-    <ClInclude Include="..\..\dev_intelliprop.h" />
     <ClInclude Include="..\..\json.h" />
+    <ClInclude Include="..\..\static_assert.h" />
     <ClInclude Include="..\..\getopt\getopt_int.h">
       <Filter>getopt</Filter>
     </ClInclude>

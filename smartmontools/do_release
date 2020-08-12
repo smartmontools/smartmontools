@@ -2,7 +2,7 @@
 #
 # do a smartmontools release
 # (C) 2003-11 Bruce Allen, Guido Guenther
-# (C) 2006-18 Christian Franke
+# (C) 2006-19 Christian Franke
 # $Id$
 
 # Notes on generating releases:
@@ -14,8 +14,8 @@
 
 set -e
 
-# Smartmontools Signing Key (through 2018)
-KEYID=0xCBF6BAC6
+# Smartmontools Signing Key (through 2020)
+KEYID=0x64BCAA8B
 
 inc_release()
 {

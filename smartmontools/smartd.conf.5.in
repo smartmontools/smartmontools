@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-18 Christian Franke
+Copyright (C) 2004-20 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -279,8 +279,6 @@ Warning emails will be sent for all monitored devices.
 .PP
 A device is ignored by DEVICESCAN if a configuration line with the same
 device name exists.
-.br
-[NEW EXPERIMENTAL SMARTD FEATURE]
 A device name is also ignored if another device with same identify
 information (vendor, model, firmware version, serial number, WWN) already
 exists.
@@ -449,6 +447,11 @@ The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
 The default namespace id is the broadcast namespace id (0xffffffff).
 .Sp
+.I sntrealtek
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+this device type is for NVMe disks that are behind a Realtek USB to NVMe
+bridge.
+.Sp
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Linux
 .I marvell
@@ -537,10 +540,25 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .\" %ENDIF OS FreeBSD Linux
 .I intelliprop,N[+TYPE]
-\- [NEW EXPERIMENTAL SMARTD FEATURE] the device consists of multiple ATA
-disks connected to an Intelliprop controller.
+\- the device consists of multiple ATA disks connected to an Intelliprop
+controller.
 The integer N is the port number from 0 to 3 of the ATA drive to be targeted.
 Please see the \fBsmartctl\fP(8) man page for further details.
+.Sp
+.I jmb39x[\-q],N[,sLBA][,force][+TYPE]
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+the device consists of multiple SATA disks connected to a JMicron JMB39x RAID
+port multiplier.
+The suffix \*(Aq\-q\*(Aq selects a slightly different command variant used by
+some QNAP NAS devices.
+The integer N is the port number from 0 to 4.
+Please see the \fBsmartctl\fP(8) man page for further details.
+.Sp
+.I jms56x,N[,sLBA][,force][+TYPE]
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+the device consists of multiple SATA disks connected to a JMicron JMS56x
+USB to SATA RAID bridge.
+See \*(Aqjmb39x...\*(Aq above for valid arguments.
 .Sp
 .I ignore
 \- the device specified by this configuration entry should be ignored.
@@ -555,11 +573,12 @@ Directives.
 \fBsmartd\fP
 that it should continue (instead of exiting, which is the default
 behavior) if the device does not appear to be present when
-\fBsmartd\fP is started.  This Directive may be used in conjunction
-with the other \*(Aq\-d\*(Aq Directives.
-[NEW EXPERIMENTAL SMARTD FEATURE]
+\fBsmartd\fP is started.
 This directive also suppresses warning emails and repeated log messages
 if the device is removed after startup.
+This Directive may be used in conjunction with the other \*(Aq\-d\*(Aq
+Directives.
+.br
 \fBWARNING: Removing a device and connecting a different one to same interface
 is not supported and may result in bogus warnings until smartd is restarted.\fP
 .TP
@@ -794,9 +813,7 @@ IDLE mode.
 \- [ATA only] Sets the volatile write cache feature.
 .Sp
 .I dsn,[on|off]
-\- [ATA only]
-[NEW EXPERIMENTAL SMARTD FEATURE]
-Sets the DSN feature.
+\- [ATA only] Sets the DSN feature.
 .TP
 .B \-s REGEXP
 Run Self-Tests or Offline Immediate Tests, at scheduled times.  A
@@ -840,8 +857,8 @@ hours after midnight.  The range is 00 (midnight to just before 1 am)
 to 23 (11pm to just before midnight) inclusive.  Do \fBnot\fP use a
 single decimal digit or the match will always fail!
 .RE
-.\"  The following two lines are a workaround for a man2html bug.  Please leave them.
-.\" They define a non-existent option; useful because man2html can't correctly reset the margins.
+.\" The following two lines define a non-existent option.
+.\" This resets the margin to the level prior to the '.RS ... .RE' block.
 .TP
 .B \&
 Some examples follow.  In reading these, keep in mind that in extended
@@ -927,7 +944,8 @@ mistake.
 .TP
 .B \-m ADD
 Send a warning email to the email address \fBADD\fP if the \*(Aq\-H\*(Aq,
-\*(Aq\-l\*(Aq, \*(Aq\-f\*(Aq, \*(Aq\-C\*(Aq, or \*(Aq\-O\*(Aq Directives
+\*(Aq\-l error\*(Aq, \*(Aq\-l xerror\*(Aq, \*(Aq\-l selftest\*(Aq,
+\*(Aq\-f\*(Aq, \*(Aq\-C\*(Aq, \*(Aq\-U\*(Aq, or \*(Aq\-W\*(Aq Directives
 detect a failure or a new error, or if a SMART command to the disk fails.
 This Directive only works in conjunction with these other Directives
 (or with the equivalent default \*(Aq\-a\*(Aq Directive).
@@ -961,7 +979,6 @@ run, please use the \*(Aq\-M exec\*(Aq Directive below.
 This mailer uses a different command line syntax, see
 \*(Aq\-M exec\*(Aq below.
 .Sp
-[NEW EXPERIMENTAL SMARTD FEATURE]
 If the file EXEDIR/smartd_mailer.conf.ps1 is present and \*(Aq\-M exec\*(Aq
 is not specified, the script smartd_mailer.ps1 is used instead.
 This script uses the Send-MailMessage cmdlet to send mail.
@@ -1191,8 +1208,8 @@ is an integer specifying the number of days until the next message will be sent.
 It it set to empty on \*(Aq\-M once\*(Aq and set to \*(Aq1\*(Aq on
 \*(Aq\-M daily\*(Aq.
 .RE
-.\"  The following two lines are a workaround for a man2html bug.  Please leave them.
-.\" They define a non-existent option; useful because man2html can't correctly reset the margins.
+.\" The following two lines define a non-existent option.
+.\" This resets the margin to the level prior to the '.RS ... .RE' block.
 .TP
 .B \&
 If the \*(Aq\-m ADD\*(Aq Directive is given with a normal address argument,
@@ -1230,11 +1247,9 @@ command-line arguments, for example:
 .Ve
 .Sp
 .\" %IF OS Windows
-[Windows only]
-[NEW EXPERIMENTAL SMARTD FEATURE]
-If a PATH with extension \*(Aq.ps1\*(Aq is specified with \*(Aq\-M exec\*(Aq,
-the script is run as follows with no STDIN, regardless of \*(Aq\-m ADD\*(Aq
-setting:
+[Windows only] If a PATH with extension \*(Aq.ps1\*(Aq is specified with
+\*(Aq\-M exec\*(Aq, the script is run as follows with no STDIN, regardless
+of \*(Aq\-m ADD\*(Aq setting:
 .Vb 2
 \ \ PowerShell -NoProfile -ExecutionPolicy Bypass ^
 \ \ \ \ \ \ \ \ \ \ \ \ \ -Command ^& \*(Aq%SMARTD_MAILER%\*(Aq

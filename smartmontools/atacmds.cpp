@@ -1,10 +1,10 @@
 /*
  * atacmds.cpp
  * 
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -636,7 +636,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
 
   // If reporting is enabled, say what output was produced by the command
   if (ata_debugmode) {
-    if (device->get_errno())
+    if (retval && device->get_errno())
       pout("REPORT-IOCTL: Device=%s Command=%s returned %d errno=%d [%s]\n",
            device->get_dev_name(), commandstrings[command], retval,
            device->get_errno(), device->get_errmsg());
@@ -819,14 +819,13 @@ bool ata_set_features(ata_device * device, unsigned char features,
 int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id,
                       unsigned char * raw_buf /* = 0 */)
 {
-  unsigned short *rawshort=(unsigned short *)buf;
-  unsigned char  *rawbyte =(unsigned char  *)buf;
-
   // See if device responds either to IDENTIFY DEVICE or IDENTIFY
   // PACKET DEVICE
   bool packet = false;
   if ((smartcommandhandler(device, IDENTIFY, 0, (char *)buf))){
+    smart_device::error_info err = device->get_err();
     if (smartcommandhandler(device, PIDENTIFY, 0, (char *)buf)){
+      device->set_err(err);
       return -1; 
     }
     packet = true;
@@ -847,6 +846,11 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
   if (raw_buf)
     memcpy(raw_buf, buf, sizeof(*buf));
 
+  // If there is a checksum there, validate it
+  unsigned char * rawbyte = (unsigned char *)buf;
+  if (rawbyte[512-2] == 0xa5 && checksum(rawbyte))
+    checksumwarning("Drive Identity Structure");
+
   // if machine is big-endian, swap byte order as needed
   if (isbigendian()){
     // swap various capability words that are needed
@@ -854,15 +858,11 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
     for (i=0; i<33; i++)
       swap2((char *)(buf->words047_079+i));
     for (i=80; i<=87; i++)
-      swap2((char *)(rawshort+i));
+      swap2((char *)(rawbyte+2*i));
     for (i=0; i<168; i++)
       swap2((char *)(buf->words088_255+i));
   }
   
-  // If there is a checksum there, validate it
-  if ((rawshort[255] & 0x00ff) == 0x00a5 && checksum(rawbyte))
-    checksumwarning("Drive Identity Structure");
-
   // AT Attachment 8 - ATA/ATAPI Command Set (ATA8-ACS)
   // T13/1699-D Revision 6a (Final Draft), September 6, 2008.
   // Sections 7.16.7 and 7.17.6:

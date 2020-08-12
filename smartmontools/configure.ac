@@ -3,15 +3,15 @@
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
-AC_INIT([smartmontools], [7.1], [smartmontools-support@listi.jpberlin.de])
+AC_INIT([smartmontools], [7.2], [smartmontools-support@listi.jpberlin.de])
 AM_INIT_AUTOMAKE([1.10 foreign])
 
 # Version of drive database branch
 smartmontools_drivedb_version=7.0
 
 smartmontools_cvs_tag=`echo '$Id$'`
-smartmontools_release_date=2018-12-30
-smartmontools_release_time="14:47:55 UTC"
+smartmontools_release_date=2019-12-30
+smartmontools_release_time="15:00:11 UTC"
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE,   "$smartmontools_release_date",    [smartmontools Release Date])
@@ -36,11 +36,14 @@ if test "$cross_compiling" = "no"; then
     [AC_MSG_WARN([m4/pkg.m4 missing, systemd detection disabled])])
 fi
 
+AC_ARG_VAR(NM, [Symbol list command])
 AC_ARG_VAR(WINDMC, [Windows message compiler command])
 AC_ARG_VAR(WINDRES, [Windows resource compiler command])
 AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 
 AC_CANONICAL_HOST
+
+AC_CHECK_TOOL(NM, [nm])
 case "${host}" in
   *-*-mingw*)
     AC_CHECK_TOOL(WINDMC, [windmc])
@@ -63,11 +66,8 @@ AC_MSG_CHECKING([whether this is a build from SVN])
 is_svn_build=no
 svn_deps=
 if test -f "$srcdir/.svn/wc.db"; then
-  # SVN 1.7, 1.8 working copy
+  # SVN >= 1.7 working copy
   svn_deps='${srcdir}/.svn/wc.db'
-elif test -f "${srcdir}/.svn/entries"; then
-  # SVN <= 1.6 working copy (SVN 1.7 has empty entries file)
-  svn_deps='${srcdir}/.svn/entries'
 fi
 if test -n "$svn_deps"; then
   is_svn_build=unknown
@@ -108,12 +108,6 @@ case "$host" in
     ;;
   *-*-netbsd*|*-*-openbsd*)
     AC_CHECK_HEADERS([dev/ata/atavar.h])
-    ;;
-  *-*-cygwin*|*-*-mingw*)
-    # Check for Windows DDK header files
-    AC_CHECK_HEADERS([ntdddisk.h ddk/ntdddisk.h], [], [], [AC_INCLUDES_DEFAULT
-#include <windows.h>
-])
     ;;
 esac
 
@@ -419,20 +413,10 @@ Please send info about your system to $PACKAGE_BUGREPORT.])) ;;
   *) AC_MSG_ERROR([Invalid option '--with-signal-func=$with_signal_func']) ;;
 esac
 
-# TODO: Remove after smartmontools 6.7
-AC_ARG_WITH(working-snprintf,
-  [AS_HELP_STRING([--with-working-snprintf@<:@=yes|no@:>@],
-    [Function snprintf() handles output truncation as specified by C99 [yes]])],
-  [], [with_working_snprintf=yes])
-
-if test "$with_working_snprintf" = "yes"; then
-  AC_DEFINE(HAVE_WORKING_SNPRINTF, 1, [Define to 1 if the `snprintf' function is sane.]) dnl `vim syntax
-fi
-
-case "$with_working_snprintf:$host_os: $CPPFLAGS $CXXFLAGS" in
-  yes:mingw*:*\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
+case "$host_os: $CPPFLAGS $CXXFLAGS" in
+  mingw*:*\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
     ;;
-  yes:mingw*:*)
+  mingw*:*)
     # Older MinGW (4.6.3) do not properly define PRI?64 if __USE_MINGW_ANSI_STDIO is set.
     # Newer MinGW (4.9.1) set __USE_MINGW_ANSI_STDIO in first C++ include which may be too late.
     # Set __USE_MINGW_ANSI_STDIO always and fail if not fully supported.
@@ -452,7 +436,7 @@ case "$with_working_snprintf:$host_os: $CPPFLAGS $CXXFLAGS" in
     if test "$result" != "yes"; then
       AC_MSG_ERROR([
 This version of $CXX does not support __USE_MINGW_ANSI_STDIO.
-Use option '--without-working-snprintf' to skip this check.
+Use option 'CPPFLAGS=-U__USE_MINGW_ANSI_STDIO' to skip this check.
 Please send info about your system to $PACKAGE_BUGREPORT.
 ])
     fi
@@ -469,12 +453,22 @@ case "$host:${LDFLAGS+set}" in
     LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
 esac
 
+# ASLR related issues of MinGW-w64 toolchain and workarounds:
+# 1. '--dynamicbase' only sets DYNAMIC_BASE flag but does not enable relocation info:
+#    Add '-pie' (works despite 'man ld' says: "... currently only supported on ELF platforms")
+# 2. If both '-static' and '-pie' are specified, the entry point is not set properly:
+#    Specify entry point with '-emainCRTStartup' or '-e_mainCRTStartup'.
+# 3. Some versions of '*-w64-mingw32-g++' ignore '-pie' if '-static' is also specified:
+#    Pass '-pie' directly to the linker with '-Wl,-pie'.
+# 4. Linkage of some versions of 'libstdc++.a' fail with "relocation overflow" if a high
+#    '--image-base' is used: Do not use '--high-entropy-va' in these cases.
+
 case "$host:$with_mingw_aslr" in
   x86_64-*-mingw*:auto)
     AC_MSG_CHECKING([whether $CXX supports --high-entropy-va])
     save_LDFLAGS=$LDFLAGS
-    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000"
-    # Link libstdc++ to detect MinGW 6.3.0 problems with high --image-base
+    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000"
+    # Link libstdc++ to detect MinGW-w64 problems with high '--image-base'
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <string>
         std::string s(42, '.');]])],
@@ -487,11 +481,11 @@ esac
 
 case "$host:$with_mingw_aslr" in
   x86_64-*-mingw*:yes)
-    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000" ;;
+    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000" ;;
   x86_64-*-mingw*:low)
-    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-emainCRTStartup" ;;
+    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup" ;;
   *-*-mingw*:auto|*-*-mingw*:yes|*-*-mingw*:low)
-    LDFLAGS="$LDFLAGS -pie -Wl,--dynamicbase,-e_mainCRTStartup" ;;
+    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-e_mainCRTStartup" ;;
 esac
 
 os_win32_manifest=
@@ -584,6 +578,17 @@ else
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
+# TODO: Remove after smartmontools 7.2
+AC_ARG_WITH(working-snprintf,
+  [AS_HELP_STRING([--with-working-snprintf], [(removed)])],
+  [ if test "$withval" != "yes"; then
+      AC_MSG_ERROR([
+The option '--without-working-snprintf' is no longer supported.
+If you still need support for pre-C99 snprintf(), please inform
+$PACKAGE_BUGREPORT.
+])
+    fi])
+
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
 AC_SUBST(smartmontools_release_time)
@@ -592,7 +597,7 @@ AC_SUBST(smartmontools_release_time)
 os_libs=
 os_dltools='curl wget lynx svn'
 os_mailer=mail
-os_hostname="'hostname'"
+os_hostname="'hostname' 'uname -n'"
 os_dnsdomainname=
 os_nisdomainname="'domainname'"
 os_darwin=no
@@ -647,7 +652,7 @@ case "${host}" in
   *-*-cygwin*)
     os_deps='os_win32.o dev_areca.o'
     os_mailer='email'
-    os_hostname="'hostname' 'echo "'"${HOSTNAME?unset}"'"'"
+    os_hostname="'hostname' 'uname -n' 'echo "'"${HOSTNAME?unset}"'"'"
     os_dnsdomainname="'dnsdomainname' 'hostname -d' 'echo "'"${USERDNSDOMAIN?unset}"'"'"
     os_nisdomainname=
     os_win32=yes
@@ -760,7 +765,7 @@ if test "$GXX" = "yes"; then
     AC_MSG_CHECKING([whether $CXX supports $option])
     save_CXXFLAGS=$CXXFLAGS
     CXXFLAGS="$CXXFLAGS $option"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
+    AC_LINK_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
     AC_MSG_RESULT([$res])
   done
 else
@@ -786,6 +791,35 @@ else
         *) CXXFLAGS="-erroff=%none,wbadinitl,wbadasgl,badargtypel2w,badargtype2w $CXXFLAGS" ;;
       esac ;;
   esac
+fi
+
+AC_MSG_CHECKING([whether _FORTIFY_SOURCE is predefined])
+# Use COMPILE check to detect compiler presets and C*FLAGS.
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+  #ifndef _FORTIFY_SOURCE
+  #error false
+  #endif]])], [res=yes], [res=no])
+AC_MSG_RESULT([$res])
+if test "$res" = "no"; then
+  # Heuristic to check for _FORTIFY_SOURCE=2 support.
+  # Done after check for -fstack-protector because this may add an additional lib.
+  # Note: Even if _FORTIFY_SOURCE is present in the include files, it may not be
+  # detected here because it is disabled for C++.
+  AC_MSG_CHECKING([whether $CXX supports _FORTIFY_SOURCE=2])
+  save_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D_FORTIFY_SOURCE=2"
+  # Use LINK instead of COMPILE to make sure that the required lib is also present
+  # (does not work with LDFLAGS=-s).
+  AC_LINK_IFELSE([AC_LANG_SOURCE([[
+    #include <string.h>
+    char buf[42];
+    int main(int argc, char **argv) {
+      if (argc == 2) strcpy(buf, argv[1]); return buf[0];
+    }]])],
+    [res=yes; $NM conftest$EXEEXT 2>/dev/null | grep '_strcpy_chk' >/dev/null 2>&1 || res=no],
+    [res=unknown])
+  test "$res" = "yes" || CPPFLAGS=$save_CPPFLAGS
+  AC_MSG_RESULT([$res])
 fi
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                       [smartmontools Build Host])
@@ -928,12 +962,11 @@ Use option '--without-nvme-devicescan' to suppress this warning.
 ])  ;;
 esac
 
-# TODO: Remove after smartmontools 6.7
-if test "$with_working_snprintf" != "yes"; then
+# TODO: Remove after smartmontools 7.2
+if test -n "$with_working_snprintf"; then
   AC_MSG_WARN([
-The option '--without-working-snprintf' is deprecated and will be removed
-in a future version of smartmontools.  If you still need support for
-pre-C99 snprintf(), please inform $PACKAGE_BUGREPORT.
+The option '--with-working-snprintf' is no longer needed and will be
+removed in a future version of smartmontools.
 ])
 fi
 

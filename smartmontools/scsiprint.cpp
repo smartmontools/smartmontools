@@ -1,11 +1,11 @@
 /*
  * scsiprint.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-18 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-20 Douglas Gilbert <dgilbert@interlog.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -21,7 +21,7 @@
 #include <errno.h>
 
 #include "scsicmds.h"
-#include "atacmds.h" // smart_command_set
+#include "atacmds.h" // dont_print_serial_number
 #include "dev_interface.h"
 #include "scsiprint.h"
 #include "smartctl.h"
@@ -118,13 +118,16 @@ static void
 scsiGetSupportedLogPages(scsi_device * device)
 {
     bool got_subpages = false;
-    int k, bump, err, payload_len, num_unreported, num_unreported_spg;
+    int k, bump, err, resp_len, num_unreported, num_unreported_spg;
+    int resp_len_pg0_0 = 0;
+    int resp_len_pg0_ff = 0;    /* in SPC-4, response length of supported
+                                 * log pages _and_ log subpages */
     const uint8_t * up;
     uint8_t sup_lpgs[LOG_RESP_LEN];
 
     memset(gBuf, 0, LOG_RESP_LEN);
     if ((err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
-                            LOG_RESP_LEN, 0))) {
+                            LOG_RESP_LEN, 0 /* do double fetch */))) {
         if (scsi_debugmode > 0)
             pout("%s for supported pages failed [%s]\n", logSenStr,
                  scsiErrString(err));
@@ -142,6 +145,7 @@ scsiGetSupportedLogPages(scsi_device * device)
                (scsi_version <= SCSI_VERSION_HIGHEST)) {
         /* unclear what code T10 will choose for SPC-6 */
         memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
+        resp_len_pg0_0 = sup_lpgs[3];
         if ((err = scsiLogSense(device, SUPPORTED_LPAGES, SUPP_SPAGE_L_SPAGE,
                                 gBuf, LOG_RESP_LONG_LEN,
                                 -1 /* just single not double fetch */))) {
@@ -158,24 +162,38 @@ scsiGetSupportedLogPages(scsi_device * device)
                 if (scsi_debugmode > 0)
                     pout("%s supported subpages is bad SPF=%u SUBPG=%u\n",
                          logSenRspStr, !! (0x40 & gBuf[0]), gBuf[2]);
-            } else
+            } else {
+                resp_len_pg0_ff = sg_get_unaligned_be16(gBuf + 2);
                 got_subpages = true;
+            }
         }
-    } else
+    } else {
         memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
+        resp_len_pg0_0 = sup_lpgs[3];
+    }
 
     if (got_subpages) {
-         payload_len = sg_get_unaligned_be16(gBuf + 2);
-         bump = 2;
-         up = gBuf + LOGPAGEHDRSIZE;
+        resp_len = sg_get_unaligned_be16(gBuf + 2);
+        if (resp_len_pg0_ff <= resp_len_pg0_0) {
+            /* something is rotten ....., ignore SUPP_SPAGE_L_SPAGE */
+            resp_len = resp_len_pg0_0;
+            bump = 1;
+            up = sup_lpgs + LOGPAGEHDRSIZE;
+            got_subpages = false;
+            (void)got_subpages; // not yet used below, suppress warning
+        } else {
+            resp_len = resp_len_pg0_ff;
+            bump = 2;
+            up = gBuf + LOGPAGEHDRSIZE;
+        }
     } else {
-        payload_len = sup_lpgs[3];
+        resp_len = resp_len_pg0_0;
         bump = 1;
         up = sup_lpgs + LOGPAGEHDRSIZE;
     }
 
     num_unreported_spg = 0;
-    for (num_unreported = 0, k = 0; k < payload_len; k += bump, up += bump) {
+    for (num_unreported = 0, k = 0; k < resp_len; k += bump, up += bump) {
         uint8_t pg_num = 0x3f & up[0];
         uint8_t sub_pg_num = (0x40 & up[0]) ? up[1] : 0;
 
@@ -211,17 +229,20 @@ scsiGetSupportedLogPages(scsi_device * device)
                     gEnviroReportingLPage = true;
                 else if (ENVIRO_LIMITS_L_SPAGE == sub_pg_num)
                     gEnviroLimitsLPage = true;
-                else {
+                else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
                     ++num_unreported;
                     ++num_unreported_spg;
                 }
+                /* WDC/HGST report <lpage>,0xff tuples for all supported
+                   lpages; Seagate doesn't. T10 does not exclude the
+                   reporting of <lpage>,0xff so it is not an error. */
                 break;
             case STARTSTOP_CYCLE_COUNTER_LPAGE:
                 if (NO_SUBPAGE_L_SPAGE == sub_pg_num)
                     gStartStopLPage = true;
                 else if (UTILIZATION_L_SPAGE == sub_pg_num)
                     gUtilizationLPage = true;
-                else {
+                else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
                     ++num_unreported;
                     ++num_unreported_spg;
                 }
@@ -241,7 +262,7 @@ scsiGetSupportedLogPages(scsi_device * device)
                     gBackgroundOpLPage = true;
                 else if (LPS_MISALIGN_L_SPAGE == sub_pg_num)
                     gLPSMisalignLPage = true;
-                else {
+                else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
                     ++num_unreported;
                     ++num_unreported_spg;
                 }
@@ -277,7 +298,7 @@ scsiGetSupportedLogPages(scsi_device * device)
             default:
                 if (pg_num < 0x30) {     /* don't count VS pages */
                     ++num_unreported;
-                    if (sub_pg_num > 0)
+                    if ((sub_pg_num > 0) && (SUPP_SPAGE_L_SPAGE != sub_pg_num))
                         ++num_unreported_spg;
                 }
                 break;
@@ -464,12 +485,10 @@ scsiGetStartStopData(scsi_device * device)
 static void
 scsiPrintPendingDefectsLPage(scsi_device * device)
 {
-    int num, pl, pc, err;
-    uint32_t count;
-    const uint8_t * bp;
     static const char * pDefStr = "Pending Defects";
     static const char * jname = "pending_defects";
 
+    int err;
     if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE,
                             PEND_DEFECTS_L_SPAGE, gBuf, LOG_RESP_LONG_LEN,
                             0))) {
@@ -485,17 +504,18 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
         print_off();
         return;
     }
-    num = sg_get_unaligned_be16(gBuf + 2);
+    int num = sg_get_unaligned_be16(gBuf + 2);
     if (num > LOG_RESP_LONG_LEN) {
         print_on();
         pout("%s %s too long\n", pDefStr, logSenRspStr);
         print_off();
         return;
     }
-    bp = gBuf + 4;
+    const uint8_t * bp = gBuf + 4;
     while (num > 3) {
-        pc = sg_get_unaligned_be16(bp + 0);
-        pl = bp[3] + 4;
+        int pc = sg_get_unaligned_be16(bp + 0);
+        int pl = bp[3] + 4;
+        uint32_t count;
         switch (pc) {
         case 0x0:
             printf("  Pending defect count:");
@@ -605,6 +625,8 @@ scsiPrintGrownDefectListLen(scsi_device * device)
         case 5:     /* physical sector */
             div = 8;
             break;
+        case 6:     /* vendor specific */
+            break;
         default:
             print_on();
             pout("defect list format %d unknown\n", dl_format);
@@ -621,7 +643,7 @@ scsiPrintGrownDefectListLen(scsi_device * device)
                  "number of elements]\n\n", dl_len);
         else {
             jout("Elements in grown defect list: %u\n\n", dl_len / div);
-            jglb["scsi_grown_defect_list"] = dl_len;
+            jglb["scsi_grown_defect_list"] = dl_len / div;
         }
     }
 }
@@ -764,7 +786,7 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
         pl = ucp[3] + 4;
         good = 0;
         switch (pc) {
-        case 0: pout("  number of hours powered up");
+        case 0: jout("  number of hours powered up");
             good = 1;
             break;
         case 8: pout("  number of minutes until next internal SMART test");
@@ -788,7 +810,7 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
             }
             ull = sg_get_unaligned_be(k, xp + 0);
             if (0 == pc) {
-                pout(" = %.2f\n", ull / 60.0 );
+                jout(" = %.2f\n", ull / 60.0 );
                 jglb["power_on_time"]["hours"] = ull / 60;
                 jglb["power_on_time"]["minutes"] = ull % 60;
             }
@@ -965,7 +987,6 @@ scsiPrintSelfTest(scsi_device * device)
     int noheader = 1;
     int retval = 0;
     uint8_t * ucp;
-    uint64_t ull;
     struct scsi_sense_disect sense_info;
     static const char * hname = "Self-test";
 
@@ -1077,7 +1098,7 @@ scsiPrintSelfTest(scsi_device * device)
             pout("   %5d", n);
 
         // construct 8-byte integer address of first failure
-        ull = sg_get_unaligned_be64(ucp + 8);
+        uint64_t ull = sg_get_unaligned_be64(ucp + 8);
         bool is_all_ffs = all_ffs(ucp + 8, 8);
         // print Address of First Failure, if sensible
         if ((! is_all_ffs) && (res > 0) && (res < 0xf)) {
@@ -1139,12 +1160,14 @@ static const char * reassign_status[] = {
 // Returns 0 if ok else FAIL* bitmask. Note can have a status entry
 // and up to 2048 events (although would hope to have less). May set
 // FAILLOG if serious errors detected (in the future).
+// When only_pow_time is true only print "Accumulated power on time"
+// data, if available.
 static int
-scsiPrintBackgroundResults(scsi_device * device)
+scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
 {
+    bool noheader = true;
+    bool firstresult = true;
     int num, j, m, err, truncated;
-    int noheader = 1;
-    int firstresult = 1;
     int retval = 0;
     uint8_t * ucp;
     static const char * hname = "Background scan results";
@@ -1165,9 +1188,12 @@ scsiPrintBackgroundResults(scsi_device * device)
     // compute page length
     num = sg_get_unaligned_be16(gBuf + 2) + 4;
     if (num < 20) {
-        print_on();
-        pout("%s %s length is %d, no scan status\n", hname, logSenStr, num);
-        print_off();
+        if (! only_pow_time) {
+            print_on();
+            pout("%s %s length is %d, no scan status\n", hname, logSenStr,
+                 num);
+            print_off();
+        }
         return FAILSMART;
     }
     truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
@@ -1182,24 +1208,35 @@ scsiPrintBackgroundResults(scsi_device * device)
         switch (pc) {
         case 0:
             if (noheader) {
-                noheader = 0;
-                pout("%s log\n", hname);
+                noheader = false;
+                if (! only_pow_time)
+                    pout("%s log\n", hname);
             }
-            pout("  Status: ");
+            if (! only_pow_time)
+                pout("  Status: ");
             if ((pl < 16) || (num < 16)) {
-                pout("\n");
+                if (! only_pow_time)
+                    pout("\n");
                 break;
             }
             j = ucp[9];
-            if (j < (int)(sizeof(bms_status) / sizeof(bms_status[0])))
-                pout("%s\n", bms_status[j]);
-            else
-                pout("unknown [0x%x] background scan status value\n", j);
+            if (! only_pow_time) {
+                if (j < (int)(sizeof(bms_status) / sizeof(bms_status[0])))
+                    pout("%s\n", bms_status[j]);
+                else
+                    pout("unknown [0x%x] background scan status value\n", j);
+            }
             j = sg_get_unaligned_be32(ucp + 4);
-            pout("    Accumulated power on time, hours:minutes %d:%02d "
-                 "[%d minutes]\n", (j / 60), (j % 60), j);
+            jout("%sAccumulated power on time, hours:minutes %d:%02d",
+                 (only_pow_time ? "" : "    "), (j / 60), (j % 60));
+            if (only_pow_time)
+                jout("\n");
+            else
+                jout(" [%d minutes]\n", j);
             jglb["power_on_time"]["hours"] = j / 60;
             jglb["power_on_time"]["minutes"] = j % 60;
+            if (only_pow_time)
+                break;
             pout("    Number of background scans performed: %d,  ",
                  sg_get_unaligned_be16(ucp + 10));
             pout("scan progress: %.2f%%\n",
@@ -1209,9 +1246,12 @@ scsiPrintBackgroundResults(scsi_device * device)
             break;
         default:
             if (noheader) {
-                noheader = 0;
-                pout("\n%s log\n", hname);
+                noheader = false;
+                if (! only_pow_time)
+                    pout("\n%s log\n", hname);
             }
+            if (only_pow_time)
+                break;
             if (firstresult) {
                 firstresult = 0;
                 pout("\n   #  when        lba(hex)    [sk,asc,ascq]    "
@@ -1239,10 +1279,11 @@ scsiPrintBackgroundResults(scsi_device * device)
         num -= pl;
         ucp += pl;
     }
-    if (truncated)
+    if (truncated && (! only_pow_time))
         pout(" >>>> log truncated, fetched %d of %d available "
              "bytes\n", LOG_RESP_LONG_LEN, truncated);
-    pout("\n");
+    if (! only_pow_time)
+        pout("\n");
     return retval;
 }
 
@@ -1311,14 +1352,11 @@ scsiPrintSSMedia(scsi_device * device)
 static int
 scsiPrintFormatStatus(scsi_device * device)
 {
-    bool is_count;
     int k, num, err, truncated;
     int retval = 0;
     uint64_t ull;
     uint8_t * ucp;
     uint8_t * xp;
-    const char * jout_str;
-    const char * jglb_str;
     static const char * hname = "Format Status";
     static const char * jname = "format_status";
 
@@ -1353,9 +1391,9 @@ scsiPrintFormatStatus(scsi_device * device)
         // pcb = ucp[2];
         int pl = ucp[3] + 4;
 
-        is_count = true;
-        jout_str = "";
-        jglb_str = "x";
+        bool is_count = true;
+        const char * jout_str = "";
+        const char * jglb_str = "x";
         switch (pc) {
         case 0:
             if (scsi_debugmode > 1) {
@@ -2424,6 +2462,17 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
         if (gTempLPage)
             scsiPrintTemp(device);
+    }
+    // in the 'smartctl -a" case only want: "Accumulated power on time"
+    if ((! options.smart_background_log) && is_disk) {
+        if (! checkedSupportedLogPages)
+            scsiGetSupportedLogPages(device);
+        res = 0;
+        if (gBackgroundResultsLPage)
+            res = scsiPrintBackgroundResults(device, true);
+        any_output = true;
+    }
+    if (options.smart_vendor_attrib) {
         if (gStartStopLPage)
             scsiGetStartStopData(device);
         if (is_disk) {
@@ -2465,7 +2514,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
         res = 0;
         if (gBackgroundResultsLPage)
-            res = scsiPrintBackgroundResults(device);
+            res = scsiPrintBackgroundResults(device, false);
         else {
             pout("Device does not support Background scan results logging\n");
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -2520,7 +2569,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             t += durationSec;
             pout("Please wait %d minutes for test to complete.\n",
                  durationSec / 60);
-            pout("Estimated completion time: %s\n", ctime(&t));
+            char comptime[DATEANDEPOCHLEN];
+            dateandtimezoneepoch(comptime, t);
+            pout("Estimated completion time: %s\n", comptime);
         }
         pout("Use smartctl -X to abort test\n");
         any_output = true;

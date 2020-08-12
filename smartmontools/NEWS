@@ -3,7 +3,61 @@ smartmontools NEWS
 $Id$
 
 The most up-to-date version of this file is:
-https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/NEWS
+https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
+
+Date <Not released yet, please try current SVN or a recent CI build>
+Summary: smartmontools release 7.2
+-----------------------------------------------------------
+- smartctl '-i': Prints ATA TRIM and Zoned Device capabilities.
+- smartctl '-j': Fixed 'scsi_grown_defect_list' value.
+- smartd: Fixed SMARTD_DEVICETYPE environment variable if DEVICESCAN is
+  used without '-d TYPE'.
+- ATA: Device type '-d jmb39x-q,N' for JMB39x protocol variant used by
+  some QNAP NAS devices.
+- ATA: Device type '-d jms56x,N' for JMS562 USB to SATA RAID bridges.
+- NVMEe/USB: Device type '-d sntrealtek' for Realtek RTL9210 USB to
+  NVMe bridges.
+- HDD, SSD and USB additions to drive database.
+- Dropped support for pre-C99 snprintf().
+- configure: Dropped option '--without-working-snprintf'.
+- configure: Fixed '-fstack-protector*' detection.
+- Darwin: NVMe log support.
+- NetBSD: Fixed timeout handling.
+- NetBSD big endian: Fixed ATA register handling.
+- OpenBSD: Fixed timeout handling.
+- Windows: Dropped backward compatibility fixes for very old compilers.
+
+Date 2019-12-30
+Summary: smartmontools release 7.1
+-----------------------------------------------------------
+- smartctl: Fixed bogus exception on unknown form factor value (regression).
+- smartctl '--json=cg': Suppresses extra spaces also in 'g' format.
+- smartctl '-i': ATA ACS-4 and ACS-5 enhancements.
+- smartd: No longer truncates very long device names in warning emails.
+- smartd: No longer skips scheduled tests if system clock has been adjusted
+  to the past.
+- smartd '-A': Attribute logs now use local time instead of UTC.
+- ATA: Device type '-d jmb39x,N' for drives behind JMicron JMB39x RAID port
+  multipliers.
+- SCSI: Workaround for incomplete Log subpages response from some SAS SSDs.
+- HDD, SSD and USB additions to drive database.
+- Autodetection of '-d sntjmicron' type for JMicron USB to NVMe bridges.
+- configure: Defines '_FORTIFY_SOURCE=2' if supported and not defined.
+- Linux/FreeBSD: Fixed segfault on CCISS transfer sizes > 512 bytes.
+- Linux: Fixed smartd.service 'Type' if libsystemd-dev is not available.
+- Linux: Fixed '/dev/megaraid_sas_ioctl_node' fd leak.
+- Linux: Fixed GPL licensing problem of 'linux_nvme_ioctl.h'.
+- FreeBSD update-smart-drivedb: Now uses 'fetch' as default download tool.
+- FreeBSD big endian: Fixed NVMe access.
+- FreeBSD: Compile fix for FreeBSD 12.
+- NetBSD: Fixed device scan crash on empty name list.
+- NetBSD: Fixed memory leak in device scan.
+- Windows: Fixed log page access via Windows 10 NVMe driver for NVMe 1.2.1+.
+- Windows: Allow drive letters as device names for Windows 10 NVMe driver.
+- Windows: Workround to allow CSMI access to devices behind AMD RAID drivers.
+- Windows: Fixed MinGW options to add relocation info if ASLR is enabled.
+- Windows wtssendmsg: No longer writes '\n' line endings to event log.
+- Windows wtssendmsg: New options '-t' and '-w'.
 
 Date 2018-12-30
 Summary: smartmontools release 7.0

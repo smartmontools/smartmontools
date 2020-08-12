@@ -48,13 +48,15 @@ public:
   class ref
   {
   public:
+    ~ref();
+
     /// Return reference to object element.
     ref operator[](const char * key) const
-      { return ref(*this, key); };
+      { return ref(*this, key); }
 
     /// Return reference to array element.
     ref operator[](int index) const
-      { return ref(*this, index); };
+      { return ref(*this, index); }
 
     // Assignment operators create or change element.
     void operator=(bool value);
@@ -98,7 +100,7 @@ public:
 
   /// Return reference to element of top level object.
   ref operator[](const char * key)
-    { return ref(*this, key); };
+    { return ref(*this, key); }
 
   /// Enable/disable JSON output.
   void enable(bool yes = true)
@@ -190,7 +192,8 @@ private:
   void set_string(const node_path & path, const std::string & value);
 
   static void print_json(FILE * f, bool pretty, bool sorted, const node * p, int level);
-  static void print_flat(FILE * f, bool sorted, const node * p, std::string & path);
+  static void print_flat(FILE * f, const char * assign, bool sorted, const node * p,
+                         std::string & path);
 };
 
 #endif // JSON_H_CVSID

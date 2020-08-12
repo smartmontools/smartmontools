@@ -4,7 +4,7 @@
 #
 # Home page of code is: http://www.smartmontools.org
 #
-# Copyright (C) 2010-18 Christian Franke
+# Copyright (C) 2010-19 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -335,7 +335,12 @@ EOF
   # Verify
   rc=0
   out=`"$GPG" $opts --homedir="$gnupgtmp" --verify "$1" "$2" </dev/null 2>&1` || rc=1
-  vecho "$out"
+  if [ $rc = 0 ]; then
+    vecho "$out"
+  else
+    # print gpg error always
+    echo "$out" >&2
+  fi
 
   rm -f -r "$gnupgtmp"
   return $rc
@@ -512,7 +517,7 @@ if [ -z "$no_verify" ]; then
   # Verify raw file
   if ! gpg_verify "$DEST.new.raw.asc" "$DEST.new.raw"; then
     mv_all "$DEST" ".new" ".error"
-    test -n "$trunk" || error "$DEST.error.raw: *** BAD signature ***"
+    test -n "$trunk" || error "$DEST.error.raw: *** BAD signature or outdated key ***"
     error "$DEST.error.raw: signature from branch no longer valid ('--no-verify' to ignore)"
   fi
 fi

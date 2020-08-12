@@ -162,6 +162,7 @@
     </ClCompile>
     <ClCompile Include="..\..\dev_areca.cpp" />
     <ClCompile Include="..\..\dev_intelliprop.cpp" />
+    <ClCompile Include="..\..\dev_jmb39x_raid.cpp" />
     <ClCompile Include="..\..\nvmecmds.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -274,6 +275,7 @@
     <ClCompile Include="..\..\os_win32.cpp" />
     <ClCompile Include="..\..\scsiata.cpp" />
     <ClCompile Include="..\..\scsicmds.cpp" />
+    <ClCompile Include="..\..\scsinvme.cpp" />
     <ClCompile Include="..\..\scsiprint.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -298,7 +300,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\dev_areca.h" />
-    <ClInclude Include="..\..\dev_intelliprop.h" />
     <ClInclude Include="..\..\getopt\bits\getopt_core.h" />
     <ClInclude Include="..\..\getopt\bits\getopt_ext.h" />
     <ClInclude Include="..\..\getopt\getopt_int.h" />
@@ -309,6 +310,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\..\static_assert.h" />
     <ClInclude Include="..\daemon_win32.h" />
     <ClInclude Include="..\popen.h" />
     <ClInclude Include="..\syslog.h" />

@@ -1,9 +1,9 @@
 /*
  * os_win32.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2004-18 Christian Franke
+ * Copyright (C) 2004-20 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2015    Nidhi Malhotra <nidhi.malhotra@pmcs.com>
@@ -43,31 +43,9 @@ extern unsigned char failuretest_permissive;
 #endif
 
 #include <stddef.h> // offsetof()
-#include <io.h> // access()
 
-// WIN32_LEAN_AND_MEAN may be required to prevent inclusion of <winioctl.h>
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-
-#if HAVE_NTDDDISK_H
-// i686-pc-cygwin, i686-w64-mingw32, x86_64-w64-mingw32
-// (Missing: FILE_DEVICE_SCSI)
-#include <devioctl.h>
-#include <ntdddisk.h>
-#include <ntddscsi.h>
-#include <ntddstor.h>
-#elif HAVE_DDK_NTDDDISK_H
-// older i686-pc-cygwin, i686-pc-mingw32, i586-mingw32msvc
-// (Missing: IOCTL_IDE_PASS_THROUGH, IOCTL_ATA_PASS_THROUGH, FILE_DEVICE_SCSI)
-#include <ddk/ntdddisk.h>
-#include <ddk/ntddscsi.h>
-#include <ddk/ntddstor.h>
-#else
-// MSVC10, older MinGW
-// (Missing: IOCTL_SCSI_MINIPORT_*)
-#include <ntddscsi.h>
-#include <winioctl.h>
-#endif
+#include <ntddscsi.h> // IOCTL_ATA_PASS_THROUGH, IOCTL_SCSI_PASS_THROUGH, ...
 
 #ifndef _WIN32
 // csmisas.h and aacraid.h require _WIN32 but w32api-headers no longer define it on Cygwin
@@ -80,19 +58,6 @@ extern unsigned char failuretest_permissive;
 
 // aacraid support
 #include "aacraid.h"
-
-// Silence -Wunused-local-typedefs warning from g++ >= 4.8
-#if __GNUC__ >= 4
-#define ATTR_UNUSED __attribute__((unused))
-#else
-#define ATTR_UNUSED /**/
-#endif
-
-// Macro to check constants at compile time using a dummy typedef
-#define ASSERT_CONST(c, n) \
-  typedef char assert_const_##c[((c) == (n)) ? 1 : -1] ATTR_UNUSED
-#define ASSERT_SIZEOF(t, n) \
-  typedef char assert_sizeof_##t[(sizeof(t) == (n)) ? 1 : -1] ATTR_UNUSED
 
 #ifndef _WIN64
 #define SELECT_WIN_32_64(x32, x64) (x32)
@@ -116,12 +81,12 @@ extern "C" {
 
 // SMART_* IOCTLs, also known as DFP_* (Disk Fault Protection)
 
-ASSERT_CONST(SMART_GET_VERSION, 0x074080);
-ASSERT_CONST(SMART_SEND_DRIVE_COMMAND, 0x07c084);
-ASSERT_CONST(SMART_RCV_DRIVE_DATA, 0x07c088);
-ASSERT_SIZEOF(GETVERSIONINPARAMS, 24);
-ASSERT_SIZEOF(SENDCMDINPARAMS, 32+1);
-ASSERT_SIZEOF(SENDCMDOUTPARAMS, 16+1);
+STATIC_ASSERT(SMART_GET_VERSION == 0x074080);
+STATIC_ASSERT(SMART_SEND_DRIVE_COMMAND == 0x07c084);
+STATIC_ASSERT(SMART_RCV_DRIVE_DATA == 0x07c088);
+STATIC_ASSERT(sizeof(GETVERSIONINPARAMS) == 24);
+STATIC_ASSERT(sizeof(SENDCMDINPARAMS) == 32+1);
+STATIC_ASSERT(sizeof(SENDCMDOUTPARAMS) == 16+1);
 
 
 // IDE PASS THROUGH (2000, XP, undocumented)
@@ -143,51 +108,22 @@ typedef struct {
 
 #pragma pack()
 
-ASSERT_CONST(IOCTL_IDE_PASS_THROUGH, 0x04d028);
-ASSERT_SIZEOF(ATA_PASS_THROUGH, 12+1);
+STATIC_ASSERT(IOCTL_IDE_PASS_THROUGH == 0x04d028);
+STATIC_ASSERT(sizeof(ATA_PASS_THROUGH) == 12+1);
 
 
 // ATA PASS THROUGH (Win2003, XP SP2)
 
-#ifndef IOCTL_ATA_PASS_THROUGH
-
-#define IOCTL_ATA_PASS_THROUGH \
-  CTL_CODE(IOCTL_SCSI_BASE, 0x040B, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
-typedef struct _ATA_PASS_THROUGH_EX {
-  USHORT Length;
-  USHORT AtaFlags;
-  UCHAR PathId;
-  UCHAR TargetId;
-  UCHAR Lun;
-  UCHAR ReservedAsUchar;
-  ULONG DataTransferLength;
-  ULONG TimeOutValue;
-  ULONG ReservedAsUlong;
-  ULONG_PTR DataBufferOffset;
-  UCHAR PreviousTaskFile[8];
-  UCHAR CurrentTaskFile[8];
-} ATA_PASS_THROUGH_EX;
-
-#define ATA_FLAGS_DRDY_REQUIRED 0x01
-#define ATA_FLAGS_DATA_IN       0x02
-#define ATA_FLAGS_DATA_OUT      0x04
-#define ATA_FLAGS_48BIT_COMMAND 0x08
-#define ATA_FLAGS_USE_DMA       0x10
-#define ATA_FLAGS_NO_MULTIPLE   0x20 // Vista
-
-#endif // IOCTL_ATA_PASS_THROUGH
-
-ASSERT_CONST(IOCTL_ATA_PASS_THROUGH, 0x04d02c);
-ASSERT_SIZEOF(ATA_PASS_THROUGH_EX, SELECT_WIN_32_64(40, 48));
+STATIC_ASSERT(IOCTL_ATA_PASS_THROUGH == 0x04d02c);
+STATIC_ASSERT(sizeof(ATA_PASS_THROUGH_EX) == SELECT_WIN_32_64(40, 48));
 
 
 // IOCTL_SCSI_PASS_THROUGH[_DIRECT]
 
-ASSERT_CONST(IOCTL_SCSI_PASS_THROUGH, 0x04d004);
-ASSERT_CONST(IOCTL_SCSI_PASS_THROUGH_DIRECT, 0x04d014);
-ASSERT_SIZEOF(SCSI_PASS_THROUGH, SELECT_WIN_32_64(44, 56));
-ASSERT_SIZEOF(SCSI_PASS_THROUGH_DIRECT, SELECT_WIN_32_64(44, 56));
+STATIC_ASSERT(IOCTL_SCSI_PASS_THROUGH == 0x04d004);
+STATIC_ASSERT(IOCTL_SCSI_PASS_THROUGH_DIRECT == 0x04d014);
+STATIC_ASSERT(sizeof(SCSI_PASS_THROUGH) == SELECT_WIN_32_64(44, 56));
+STATIC_ASSERT(sizeof(SCSI_PASS_THROUGH_DIRECT) == SELECT_WIN_32_64(44, 56));
 
 
 // SMART IOCTL via SCSI MINIPORT ioctl
@@ -214,61 +150,16 @@ ASSERT_SIZEOF(SCSI_PASS_THROUGH_DIRECT, SELECT_WIN_32_64(44, 56));
 
 #endif // IOCTL_SCSI_MINIPORT_SMART_VERSION
 
-ASSERT_CONST(IOCTL_SCSI_MINIPORT, 0x04d008);
-ASSERT_SIZEOF(SRB_IO_CONTROL, 28);
+STATIC_ASSERT(IOCTL_SCSI_MINIPORT == 0x04d008);
+STATIC_ASSERT(IOCTL_SCSI_MINIPORT_SMART_VERSION == 0x1b0500);
+STATIC_ASSERT(sizeof(SRB_IO_CONTROL) == 28);
 
 
 // IOCTL_STORAGE_QUERY_PROPERTY
 
-#ifndef IOCTL_STORAGE_QUERY_PROPERTY
-
-#define IOCTL_STORAGE_QUERY_PROPERTY \
-  CTL_CODE(IOCTL_STORAGE_BASE, 0x0500, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-typedef struct _STORAGE_DEVICE_DESCRIPTOR {
-  ULONG Version;
-  ULONG Size;
-  UCHAR DeviceType;
-  UCHAR DeviceTypeModifier;
-  BOOLEAN RemovableMedia;
-  BOOLEAN CommandQueueing;
-  ULONG VendorIdOffset;
-  ULONG ProductIdOffset;
-  ULONG ProductRevisionOffset;
-  ULONG SerialNumberOffset;
-  STORAGE_BUS_TYPE BusType;
-  ULONG RawPropertiesLength;
-  UCHAR RawDeviceProperties[1];
-} STORAGE_DEVICE_DESCRIPTOR;
-
-typedef enum _STORAGE_QUERY_TYPE {
-  PropertyStandardQuery = 0,
-  PropertyExistsQuery,
-  PropertyMaskQuery,
-  PropertyQueryMaxDefined
-} STORAGE_QUERY_TYPE;
-
-typedef enum _STORAGE_PROPERTY_ID {
-  StorageDeviceProperty = 0,
-  StorageAdapterProperty,
-  StorageDeviceIdProperty,
-  StorageDeviceUniqueIdProperty,
-  StorageDeviceWriteCacheProperty,
-  StorageMiniportProperty,
-  StorageAccessAlignmentProperty
-} STORAGE_PROPERTY_ID;
-
-typedef struct _STORAGE_PROPERTY_QUERY {
-  STORAGE_PROPERTY_ID PropertyId;
-  STORAGE_QUERY_TYPE QueryType;
-  UCHAR AdditionalParameters[1];
-} STORAGE_PROPERTY_QUERY;
-
-#endif // IOCTL_STORAGE_QUERY_PROPERTY
-
-ASSERT_CONST(IOCTL_STORAGE_QUERY_PROPERTY, 0x002d1400);
-ASSERT_SIZEOF(STORAGE_DEVICE_DESCRIPTOR, 36+1+3);
-ASSERT_SIZEOF(STORAGE_PROPERTY_QUERY, 8+1+3);
+STATIC_ASSERT(IOCTL_STORAGE_QUERY_PROPERTY == 0x002d1400);
+STATIC_ASSERT(sizeof(STORAGE_DEVICE_DESCRIPTOR) == 36+1+3);
+STATIC_ASSERT(sizeof(STORAGE_PROPERTY_QUERY) == 8+1+3);
 
 
 // IOCTL_STORAGE_QUERY_PROPERTY: Windows 10 enhancements
@@ -305,15 +196,15 @@ namespace win10 {
     ULONG Reserved[3];
   } STORAGE_PROTOCOL_SPECIFIC_DATA;
 
-  ASSERT_SIZEOF(STORAGE_PROTOCOL_SPECIFIC_DATA, 40);
+  STATIC_ASSERT(sizeof(STORAGE_PROTOCOL_SPECIFIC_DATA) == 40);
 
 } // namespace win10
 
 
 // IOCTL_STORAGE_PREDICT_FAILURE
 
-ASSERT_CONST(IOCTL_STORAGE_PREDICT_FAILURE, 0x002d1100);
-ASSERT_SIZEOF(STORAGE_PREDICT_FAILURE, 4+512);
+STATIC_ASSERT(IOCTL_STORAGE_PREDICT_FAILURE == 0x002d1100);
+STATIC_ASSERT(sizeof(STORAGE_PREDICT_FAILURE) == 4+512);
 
 
 // 3ware specific versions of SMART ioctl structs
@@ -346,8 +237,8 @@ typedef struct _SENDCMDINPARAMS_EX {
 
 #pragma pack()
 
-ASSERT_SIZEOF(GETVERSIONINPARAMS_EX, sizeof(GETVERSIONINPARAMS));
-ASSERT_SIZEOF(SENDCMDINPARAMS_EX, sizeof(SENDCMDINPARAMS));
+STATIC_ASSERT(sizeof(GETVERSIONINPARAMS_EX) == sizeof(GETVERSIONINPARAMS));
+STATIC_ASSERT(sizeof(SENDCMDINPARAMS_EX) == sizeof(SENDCMDINPARAMS));
 
 
 // NVME_PASS_THROUGH
@@ -378,21 +269,21 @@ typedef struct _NVME_PASS_THROUGH_IOCTL
 
 #endif // NVME_PASS_THROUGH_SRB_IO_CODE
 
-ASSERT_CONST(NVME_PASS_THROUGH_SRB_IO_CODE, (int)0xe0002000);
-ASSERT_SIZEOF(NVME_PASS_THROUGH_IOCTL, 152+1);
-ASSERT_SIZEOF(NVME_PASS_THROUGH_IOCTL, offsetof(NVME_PASS_THROUGH_IOCTL, DataBuffer)+1);
+STATIC_ASSERT(NVME_PASS_THROUGH_SRB_IO_CODE == (int)0xe0002000);
+STATIC_ASSERT(sizeof(NVME_PASS_THROUGH_IOCTL) == 152+1);
+STATIC_ASSERT(sizeof(NVME_PASS_THROUGH_IOCTL) == offsetof(NVME_PASS_THROUGH_IOCTL, DataBuffer)+1);
 
 
 // CSMI structs
 
-ASSERT_SIZEOF(IOCTL_HEADER, sizeof(SRB_IO_CONTROL));
-ASSERT_SIZEOF(CSMI_SAS_DRIVER_INFO_BUFFER, 204);
-ASSERT_SIZEOF(CSMI_SAS_PHY_INFO_BUFFER, 2080);
-ASSERT_SIZEOF(CSMI_SAS_STP_PASSTHRU_BUFFER, 168);
+STATIC_ASSERT(sizeof(IOCTL_HEADER) == sizeof(SRB_IO_CONTROL));
+STATIC_ASSERT(sizeof(CSMI_SAS_DRIVER_INFO_BUFFER) == 204);
+STATIC_ASSERT(sizeof(CSMI_SAS_PHY_INFO_BUFFER) == 2080);
+STATIC_ASSERT(sizeof(CSMI_SAS_STP_PASSTHRU_BUFFER) == 168);
 
 // aacraid struct
 
-ASSERT_SIZEOF(SCSI_REQUEST_BLOCK, SELECT_WIN_32_64(64, 88));
+STATIC_ASSERT(sizeof(SCSI_REQUEST_BLOCK) == SELECT_WIN_32_64(64, 88));
 
 } // extern "C"
 
@@ -912,7 +803,7 @@ static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, cha
     } params;
     char space[512-1];
   } sb;
-  ASSERT_SIZEOF(sb, sizeof(SRB_IO_CONTROL)+sizeof(SENDCMDINPARAMS)-1+512);
+  STATIC_ASSERT(sizeof(sb) == sizeof(SRB_IO_CONTROL)+sizeof(SENDCMDINPARAMS)-1+512);
   memset(&sb, 0, sizeof(sb));
 
   unsigned size;
@@ -1004,7 +895,7 @@ static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * d
     IDEREGS regs;
     UCHAR buffer[512];
   } sb;
-  ASSERT_SIZEOF(sb, sizeof(SRB_IO_CONTROL)+sizeof(IDEREGS)+512);
+  STATIC_ASSERT(sizeof(sb) == sizeof(SRB_IO_CONTROL)+sizeof(IDEREGS)+512);
 
   if (!(0 <= datasize && datasize <= (int)sizeof(sb.buffer) && port >= 0)) {
     errno = EINVAL;
@@ -2019,17 +1910,59 @@ protected:
 
 private:
   CSMI_SAS_PHY_ENTITY m_phy_ent; ///< CSMI info for this phy
+
+  static bool guess_amd_drives(CSMI_SAS_PHY_INFO & phy_info, unsigned max_phy_drives);
 };
 
 
 /////////////////////////////////////////////////////////////////////////////
 
+bool csmi_device::guess_amd_drives(CSMI_SAS_PHY_INFO & phy_info, unsigned max_phy_drives)
+{
+  if (max_phy_drives > max_number_of_ports)
+    return false;
+  if (max_phy_drives <= phy_info.bNumberOfPhys)
+    return false;
+  if (nonempty(phy_info.Phy + phy_info.bNumberOfPhys,
+      (max_number_of_ports - phy_info.bNumberOfPhys) * sizeof(phy_info.Phy[0])))
+    return false; // Phy[phy_info.bNumberOfPhys...] nonempty
+
+  // Get range of used ports, abort on unexpected values
+  int min_pi = max_number_of_ports, max_pi = 0, i;
+  for (i = 0; i < phy_info.bNumberOfPhys; i++) {
+    const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
+    if (pe.Identify.bPhyIdentifier != i)
+      return false;
+    if (pe.bPortIdentifier >= max_phy_drives)
+      return false;
+    if (nonempty(&pe.Attached.bSASAddress, sizeof(pe.Attached.bSASAddress)))
+      return false;
+    if (min_pi > pe.bPortIdentifier)
+      min_pi = pe.bPortIdentifier;
+    if (max_pi < pe.bPortIdentifier)
+      max_pi = pe.bPortIdentifier;
+  }
+
+  // Append possibly used ports
+  for (int pi = 0; i < (int)max_phy_drives; i++, pi++) {
+    if (min_pi <= pi && pi <= max_pi)
+      pi = max_pi + 1;
+    if (pi >= (int)max_phy_drives)
+      break;
+    CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
+    pe.Identify.bDeviceType = pe.Attached.bDeviceType = CSMI_SAS_END_DEVICE;
+    pe.Attached.bTargetPortProtocol = CSMI_SAS_PROTOCOL_SATA;
+    pe.Identify.bPhyIdentifier = i;
+    pe.bPortIdentifier = pi;
+  }
+
+  return true;
+}
+
 int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p2i)
 {
   // max_number_of_ports must match CSMI_SAS_PHY_INFO.Phy[] array size
-  typedef char ASSERT_phy_info_size[
-    (int)(sizeof(phy_info.Phy) / sizeof(phy_info.Phy[0])) == max_number_of_ports ? 1 : -1]
-    ATTR_UNUSED;
+  STATIC_ASSERT(sizeof(phy_info.Phy) == max_number_of_ports * sizeof(phy_info.Phy[0]));
 
   // Get driver info to check CSMI support
   CSMI_SAS_DRIVER_INFO_BUFFER driver_info_buf;
@@ -2037,8 +1970,9 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
   if (!csmi_ioctl(CC_CSMI_SAS_GET_DRIVER_INFO, &driver_info_buf.IoctlHeader, sizeof(driver_info_buf)))
     return -1;
 
+  const CSMI_SAS_DRIVER_INFO & driver_info = driver_info_buf.Information;
+
   if (scsi_debugmode > 1) {
-    const CSMI_SAS_DRIVER_INFO & driver_info = driver_info_buf.Information;
     pout("CSMI_SAS_DRIVER_INFO:\n");
     pout("  Name:        \"%.81s\"\n", driver_info.szName);
     pout("  Description: \"%.81s\"\n", driver_info.szDescription);
@@ -2058,15 +1992,42 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
     return -1;
   }
 
+  // Get RAID info
+  CSMI_SAS_RAID_INFO_BUFFER raid_info_buf;
+  memset(&raid_info_buf, 0, sizeof(raid_info_buf));
+  if (!csmi_ioctl(CC_CSMI_SAS_GET_RAID_INFO, &raid_info_buf.IoctlHeader, sizeof(raid_info_buf))) {
+    memset(&raid_info_buf, 0, sizeof(raid_info_buf)); // Ignore error
+  }
+
+  const CSMI_SAS_RAID_INFO & raid_info = raid_info_buf.Information;
+
+  if (scsi_debugmode > 1 && nonempty(&raid_info_buf, sizeof(raid_info_buf))) {
+    pout("CSMI_SAS_RAID_INFO:\n");
+    pout("  NumRaidSets:  %u\n", (unsigned)raid_info.uNumRaidSets);
+    pout("  MaxDrvPerSet: %u\n", (unsigned)raid_info.uMaxDrivesPerSet);
+    pout("  MaxRaidSets:  %u\n", (unsigned)raid_info.uMaxRaidSets);
+    pout("  MaxRaidTypes: %d\n", raid_info.bMaxRaidTypes);
+    pout("  MaxPhyDrives: %u\n", (unsigned)raid_info.uMaxPhysicalDrives);
+  }
+
   // Create port -> index map
-  //                                     IRST Release
-  // Phy[i].Value               9.x   10.x   14.8   15.2   16.0
-  // ----------------------------------------------------------
-  // bPortIdentifier           0xff   0xff   port   0x00   port
-  // Identify.bPhyIdentifier   index? index? index  index  port
-  // Attached.bPhyIdentifier   0x00   0x00   0x00   index  0x00
+  //                                     Intel RST              AMD rcraid
+  // Phy[i].Value              9/10.x  14.8    15.2  16.0/17.7  9.2
+  // ---------------------------------------------------------------------
+  // bPortIdentifier           0xff    port    0x00    port     (port)
+  // Identify.bPhyIdentifier   index?  index   index   port     index
+  // Attached.bPhyIdentifier   0x00    0x00    index   0x00     0x00
   //
-  // Empty ports with hotplug support may appear in Phy[].
+  // AMD: Phy[] may be incomplete (single drives not counted) and port
+  // numbers may be invalid (single drives skipped).
+  // IRST: Empty ports with hotplug support may appear in Phy[].
+
+  int first_guessed_index = max_number_of_ports;
+  if (!memcmp(driver_info.szName, "rcraid", 6+1)) {
+    // Workaround for AMD driver
+    if (guess_amd_drives(phy_info, raid_info.uMaxPhysicalDrives))
+      first_guessed_index = phy_info.bNumberOfPhys;
+  }
 
   int number_of_ports;
   for (int mode = 0; ; mode++) {
@@ -2110,9 +2071,9 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
     pout("CSMI_SAS_PHY_INFO: NumberOfPhys=%d\n", phy_info.bNumberOfPhys);
     for (int i = 0; i < max_number_of_ports; i++) {
       const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
-      const CSMI_SAS_IDENTIFY & id = pe.Identify, & at = pe.Attached;
-      if (id.bDeviceType == CSMI_SAS_NO_DEVICE_ATTACHED)
+      if (!nonempty(&pe, sizeof(pe)))
         continue;
+      const CSMI_SAS_IDENTIFY & id = pe.Identify, & at = pe.Attached;
 
       int port = -1;
       for (int p = 0; p < max_number_of_ports && port < 0; p++) {
@@ -2120,12 +2081,14 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
           port = p;
       }
 
-      pout("Phy[%d] Port:   %d\n", i, port);
+      pout("Phy[%d] Port:  %2d%s\n", i, port, (i >= first_guessed_index ? " (*guessed*)" : ""));
       pout("  Type:        0x%02x, 0x%02x\n", id.bDeviceType, at.bDeviceType);
       pout("  InitProto:   0x%02x, 0x%02x\n", id.bInitiatorPortProtocol, at.bInitiatorPortProtocol);
       pout("  TargetProto: 0x%02x, 0x%02x\n", id.bTargetPortProtocol, at.bTargetPortProtocol);
       pout("  PortIdent:   0x%02x\n", pe.bPortIdentifier);
       pout("  PhyIdent:    0x%02x, 0x%02x\n", id.bPhyIdentifier, at.bPhyIdentifier);
+      pout("  SignalClass: 0x%02x, 0x%02x\n", id.bSignalClass, at.bSignalClass);
+      pout("  Restricted:  0x%02x, 0x%02x\n", id.bRestricted, at.bRestricted);
       const unsigned char * b = id.bSASAddress;
       pout("  SASAddress:  %02x %02x %02x %02x %02x %02x %02x %02x, ",
         b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
@@ -2242,10 +2205,10 @@ bool csmi_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
   // Set addresses from Phy info
   CSMI_SAS_STP_PASSTHRU & pthru = pthru_buf->Parameters;
   const CSMI_SAS_PHY_ENTITY & phy_ent = get_phy_ent();
-  pthru.bPhyIdentifier = phy_ent.Identify.bPhyIdentifier;
-  pthru.bPortIdentifier = phy_ent.bPortIdentifier;
+  pthru.bPhyIdentifier = phy_ent.Identify.bPhyIdentifier; // Used by AMD, ignored by IRST
+  pthru.bPortIdentifier = phy_ent.bPortIdentifier; // Ignored
   memcpy(pthru.bDestinationSASAddress, phy_ent.Attached.bSASAddress,
-    sizeof(pthru.bDestinationSASAddress));
+    sizeof(pthru.bDestinationSASAddress)); // Used by IRST (at index 1), ignored by AMD
   pthru.bConnectionRate = CSMI_SAS_LINK_RATE_NEGOTIATED;
 
   // Set transfer mode
@@ -2294,7 +2257,8 @@ bool csmi_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
   }
 
   // Get device-to-host FIS
-  {
+  // Assume values are unavailable if all register fields are zero (AMD RAID driver)
+  if (nonempty(pthru_buf->Status.bStatusFIS + 2, 13 - 2 + 1)) {
     const unsigned char * fis = pthru_buf->Status.bStatusFIS;
     ata_out_regs & lo = out.out_regs;
     lo.status       = fis[ 2];
@@ -2442,6 +2406,8 @@ bool win_csmi_device::csmi_ioctl(unsigned code, IOCTL_HEADER * csmi_buffer,
   switch (code) {
     case CC_CSMI_SAS_GET_DRIVER_INFO:
       sig = CSMI_ALL_SIGNATURE; break;
+    case CC_CSMI_SAS_GET_RAID_INFO:
+      sig = CSMI_RAID_SIGNATURE; break;
     case CC_CSMI_SAS_GET_PHY_INFO:
     case CC_CSMI_SAS_STP_PASSTHRU:
       sig = CSMI_SAS_SIGNATURE; break;
@@ -2604,7 +2570,7 @@ bool win_tw_cli_device::open()
     pout("[\n%.100s%s\n]\n", buffer, (size>100?"...":""));
 
   // Fake identify sector
-  ASSERT_SIZEOF(ata_identify_device, 512);
+  STATIC_ASSERT(sizeof(ata_identify_device) == 512);
   ata_identify_device * id = &m_ident_buf;
   memset(id, 0, sizeof(*id));
   copy_swapped(id->model    , findstr(buffer, " Model = "   ), sizeof(id->model));
@@ -3764,7 +3730,7 @@ public:
   virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
 
 private:
-  bool open(int phydrive);
+  bool open(int phydrive, int logdrive);
 };
 
 
@@ -3784,21 +3750,29 @@ bool win10_nvme_device::open()
   // sd[a-z]([a-z])? => Physical drive 0-701
   char drive[2 + 1] = ""; int n = -1;
   if (sscanf(name, "sd%2[a-z]%n", drive, &n) == 1 && n == len)
-    return open(sdxy_to_phydrive(drive));
+    return open(sdxy_to_phydrive(drive), -1);
 
   // pdN => Physical drive N
   int phydrive = -1; n = -1;
   if (sscanf(name, "pd%d%n", &phydrive, &n) == 1 && phydrive >= 0 && n == len)
-    return open(phydrive);
+    return open(phydrive, -1);
+
+  // [a-zA-Z]: => Physical drive behind logical drive 0-25
+  int logdrive = drive_letter(name);
+  if (logdrive >= 0)
+    return open(-1, logdrive);
 
   return set_err(EINVAL);
 }
 
-bool win10_nvme_device::open(int phydrive)
+bool win10_nvme_device::open(int phydrive, int logdrive)
 {
   // TODO: Use common open function for all devices using "\\.\PhysicalDriveN"
   char devpath[64];
-  snprintf(devpath, sizeof(devpath) - 1, "\\\\.\\PhysicalDrive%d", phydrive);
+  if (phydrive >= 0)
+    snprintf(devpath, sizeof(devpath), "\\\\.\\PhysicalDrive%d", phydrive);
+  else
+    snprintf(devpath, sizeof(devpath), "\\\\.\\%c:", 'A'+logdrive);
 
   // No GENERIC_READ/WRITE access required, this works without admin rights
   HANDLE h = CreateFileA(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -3858,18 +3832,24 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
         spsq->PropertyQuery.PropertyId = win10::StorageDeviceProtocolSpecificProperty;
       spsq->ProtocolSpecific.DataType = win10::NVMeDataTypeIdentify;
       spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10;
+      spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid;
       break;
     case smartmontools::nvme_admin_get_log_page:
       spsq->PropertyQuery.PropertyId = win10::StorageDeviceProtocolSpecificProperty;
       spsq->ProtocolSpecific.DataType = win10::NVMeDataTypeLogPage;
       spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10 & 0xff; // LID only ?
+      // Older drivers (Win10 1607) ignore SubValue
+      // Newer drivers (Win10 1809) pass SubValue to CDW12 (DW aligned)
+      spsq->ProtocolSpecific.ProtocolDataRequestSubValue = 0; // in.cdw12 (LPOL, NVMe 1.2.1+) ?
       break;
     // TODO: nvme_admin_get_features
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
   }
 
-  spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid; // ?
+  if (in.cdw11 || in.cdw12 || in.cdw13 || in.cdw14 || in.cdw15)
+    return set_err(ENOSYS, "Nonzero NVMe command dwords 11-15 not supported");
+
   spsq->ProtocolSpecific.ProtocolDataOffset = sizeof(spsq->ProtocolSpecific);
   spsq->ProtocolSpecific.ProtocolDataLength = in.size;
 
@@ -3957,7 +3937,7 @@ private:
 static bool is_wow64()
 {
   BOOL (WINAPI * IsWow64Process_p)(HANDLE, PBOOL) =
-    (BOOL (WINAPI *)(HANDLE, PBOOL))
+    (BOOL (WINAPI *)(HANDLE, PBOOL))(void *)
     GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsWow64Process");
   if (!IsWow64Process_p)
     return false;
@@ -3982,7 +3962,7 @@ std::string win_smart_interface::get_os_version_str()
   // Starting with Windows 8.1, GetVersionEx() does no longer report the
   // actual OS version.  RtlGetVersion() is not affected.
   LONG /*NTSTATUS*/ (WINAPI /*NTAPI*/ * RtlGetVersion_p)(LPOSVERSIONINFOEXW) =
-    (LONG (WINAPI *)(LPOSVERSIONINFOEXW))
+    (LONG (WINAPI *)(LPOSVERSIONINFOEXW))(void *)
     GetProcAddress(GetModuleHandleA("ntdll.dll"), "RtlGetVersion");
 
   OSVERSIONINFOEXW vi; memset(&vi, 0, sizeof(vi));
@@ -4022,6 +4002,9 @@ std::string win_smart_interface::get_os_version_str()
           case 16299:   w = "w10-1709"; break;
           case 17134:   w = "w10-1803"; break;
           case 17763:   w = "w10-1809"; break;
+          case 18362:   w = "w10-1903"; break;
+          case 18363:   w = "w10-1909"; break;
+          case 19041:   w = "w10-2004"; break;
           default:      w = "w10";
                         build = vi.dwBuildNumber; break;
         } break;
@@ -4031,6 +4014,8 @@ std::string win_smart_interface::get_os_version_str()
           case 16299:   w = "2016-1709"; break;
           case 17134:   w = "2016-1803"; break;
           case 17763:   w = "2019";      break;
+          case 18362:   w = "2019-1903"; break;
+          case 18363:   w = "2019-1909"; break;
           default:      w = (vi.dwBuildNumber < 17763
                           ? "2016"
                           : "2019");
@@ -4681,7 +4666,8 @@ void smart_interface::init()
   {
     // Remove "." from DLL search path if supported
     // to prevent DLL preloading attacks
-    BOOL (WINAPI * SetDllDirectoryA_p)(LPCSTR) = (BOOL (WINAPI *)(LPCSTR))
+    BOOL (WINAPI * SetDllDirectoryA_p)(LPCSTR) =
+      (BOOL (WINAPI *)(LPCSTR))(void *)
       GetProcAddress(GetModuleHandleA("kernel32.dll"), "SetDllDirectoryA");
     if (SetDllDirectoryA_p)
       SetDllDirectoryA_p("");

@@ -168,7 +168,7 @@ bool netbsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   struct atareq req;
   memset(&req, 0, sizeof(req));
 
-  req.timeout = 1000;
+  req.timeout = SCSI_TIMEOUT_DEFAULT * 1000;
   req.command = in.in_regs.command;
   req.features = in.in_regs.features;
   req.sec_count = in.in_regs.sector_count;
@@ -601,6 +601,12 @@ int netbsd_smart_interface::get_dev_names(char ***names, const char *prefix)
     }
     sprintf(mp[n], "%s%s%c", net_dev_raw_prefix, p, 'a' + getrawpartition());
     n++;
+  }
+  free(disknames);
+
+  if (n == 0) {
+    free(mp);
+    return 0;
   }
 
   char ** tmp = (char **)realloc(mp, n * (sizeof(char *)));

@@ -157,6 +157,7 @@
     <ClCompile Include="..\..\ataidentify.cpp" />
     <ClCompile Include="..\..\dev_areca.cpp" />
     <ClCompile Include="..\..\dev_intelliprop.cpp" />
+    <ClCompile Include="..\..\dev_jmb39x_raid.cpp" />
     <ClCompile Include="..\..\json.cpp" />
     <ClCompile Include="..\..\nvmecmds.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp" />
@@ -270,6 +271,7 @@
     <ClCompile Include="..\..\os_win32.cpp" />
     <ClCompile Include="..\..\scsiata.cpp" />
     <ClCompile Include="..\..\scsicmds.cpp" />
+    <ClCompile Include="..\..\scsinvme.cpp" />
     <ClCompile Include="..\..\scsiprint.cpp" />
     <ClCompile Include="..\..\smartctl.cpp" />
     <ClCompile Include="..\..\smartd.cpp">
@@ -284,13 +286,13 @@
     <ClInclude Include="..\..\aacraid.h" />
     <ClInclude Include="..\..\ataidentify.h" />
     <ClInclude Include="..\..\dev_areca.h" />
-    <ClInclude Include="..\..\dev_intelliprop.h" />
     <ClInclude Include="..\..\getopt\bits\getopt_core.h" />
     <ClInclude Include="..\..\getopt\bits\getopt_ext.h" />
     <ClInclude Include="..\..\getopt\getopt_int.h" />
     <ClInclude Include="..\..\json.h" />
     <ClInclude Include="..\..\nvmecmds.h" />
     <ClInclude Include="..\..\nvmeprint.h" />
+    <ClInclude Include="..\..\static_assert.h" />
     <ClInclude Include="..\popen.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="svnversion.h" />

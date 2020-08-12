@@ -1,10 +1,10 @@
 /*
  * ataprint.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -432,11 +432,13 @@ static int find_msb(unsigned short word)
 static const char * get_ata_major_version(const ata_identify_device * drive)
 {
   // Table 13 of T13/1153D (ATA/ATAPI-4) revision 18, August 19, 1998
-  // Table 48 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
+  // Table 29 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Table 55 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
+  // Table 55 of T13/BSR INCITS 558 (ACS-5) Revision 1c, June 11, 2019
   switch (find_msb(drive->major_rev_num)) {
-    case 14: return "ACS >4 (14)";
-    case 13: return "ACS >4 (13)";
-    case 12: return "ACS >4 (12)";
+    case 14: return "ACS >5 (14)";
+    case 13: return "ACS >5 (13)";
+    case 12: return "ACS-5";
     case 11: return "ACS-4";
     case 10: return "ACS-3";
     case  9: return "ACS-2";
@@ -457,7 +459,8 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
   // Table 10 of X3T13/2008D (ATA-3) Revision 7b, January 27, 1997
   // Table 28 of T13/1410D (ATA/ATAPI-6) Revision 3b, February 26, 2002
   // Table 31 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
-  // Table 46 of T13/BSR INCITS 529 (ACS-4) Revision 08, April 28, 2015
+  // Table 57 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
+  // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 1c, June 11, 2019
   switch (drive->minor_rev_num) {
     case 0x0001: return "ATA-1 X3T9.2/781D prior to revision 4";
     case 0x0002: return "ATA-1 published, ANSI X3.221-1994";
@@ -513,6 +516,8 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
     case 0x006d: return "ACS-3 T13/2161-D revision 5";
 
     case 0x0082: return "ACS-2 published, ANSI INCITS 482-2012";
+
+    case 0x009c: return "ACS-4 published, ANSI INCITS 529-2018";
 
     case 0x0107: return "ATA8-ACS T13/1699-D revision 2d";
 
@@ -706,6 +711,30 @@ static void print_drive_info(const ata_identify_device * drive,
     jglb["form_factor"]["ata_value"] = word168;
     if (form_factor)
       jglb["form_factor"]["name"] = form_factor;
+  }
+
+  // Print TRIM support
+  bool trim_sup = !!(drive->words088_255[169-88] & 0x0001);
+  unsigned short word069 = drive->words047_079[69-47];
+  bool trim_det = !!(word069 & 0x4000), trim_zeroed = !!(word069 & 0x0020);
+  jout("TRIM Command:     %s%s%s\n",
+       (!trim_sup ? "Unavailable" : "Available"),
+       (!(trim_sup && trim_det) ? "" : ", deterministic"),
+       (!(trim_sup && trim_zeroed) ? "" : ", zeroed")     );
+  jglb["trim"]["supported"] = trim_sup;
+  if (trim_sup) {
+    jglb["trim"]["deterministic"] = trim_det;
+    jglb["trim"]["zeroed"] = trim_zeroed;
+  }
+
+  // Print Zoned Device Capabilites if reported
+  unsigned short zoned_caps = word069 & 0x3;
+  if (zoned_caps) {
+    jout("Zoned Device:     %s\n",
+         (zoned_caps == 0x1 ? "Host Aware Zones" :
+          zoned_caps == 0x2 ? "Device managed zones" : "Unknown (0x3)"));
+    if (zoned_caps < 0x3)
+      jglb["zoned_device"]["capabilities"] = (zoned_caps == 0x1 ? "host_aware" : "device_managed");
   }
 
   // See if drive is recognized
@@ -1102,11 +1131,14 @@ static void set_json_globals_from_smart_attrib(int id, const char * name,
       {
         int minutes = -1;
         switch (defs[id].raw_format) {
-          case RAWFMT_DEFAULT: case RAWFMT_RAW48: case RAWFMT_RAW64:
+          case RAWFMT_RAW48: case RAWFMT_RAW64:
           case RAWFMT_RAW16_OPT_RAW16: case RAWFMT_RAW24_OPT_RAW8: break;
           case RAWFMT_SEC2HOUR: minutes = (rawval / 60) % 60; rawval /= 60*60; break;
           case RAWFMT_MIN2HOUR: minutes = rawval % 60; rawval /= 60; break;
           case RAWFMT_HALFMIN2HOUR: minutes = (rawval / 2) % 60; rawval /= 2*60; break;
+          case RAWFMT_DEFAULT: // No database entry:
+            rawval &= 0xffffffffULL; // ignore milliseconds from RAWFMT_MSEC24_HOUR32
+            break;
           case RAWFMT_MSEC24_HOUR32:
             minutes = (int)(rawval >> 32) / (1000*60);
             if (minutes >= 60)
@@ -1609,8 +1641,8 @@ const devstat_entry_info devstat_info_0x01[] = {
   {  6, "Date and Time TimeStamp" }, // ACS-3
   {  4, "Pending Error Count" }, // ACS-4
   {  2, "Workload Utilization" }, // ACS-4
-  {  6, "Utilization Usage Rate" }, // ACS-4 (TODO: field provides 3 values)
-  {  2, "Resource Availability" }, // ACS-4
+  {  6, "Utilization Usage Rate" }, // ACS-4 (TODO: 47:40: Validity, 39:36 Basis, 7:0 Usage rate)
+  {  7, "Resource Availability" }, // ACS-4 (TODO: 55:16 Resources, 15:0 Fraction)
   {  1, "Random Write Resources Used" }, // ACS-4
   {  0, 0 }
 };
@@ -3062,7 +3094,7 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
   jout("\nIndex    Estimated Time   Temperature Celsius\n");
   unsigned n = 0, i = (tmh->cb_index+1) % tmh->cb_size;
   unsigned interval = (tmh->interval > 0 ? tmh->interval : 1);
-  time_t t = time(0) - (tmh->cb_size-1) * interval * 60;
+  time_t t = time(0) - (time_t)(tmh->cb_size-1) * interval * 60;
   t -= t % (interval * 60);
   while (n < tmh->cb_size) {
     // Find range of identical temperatures
@@ -3073,9 +3105,10 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
     // Print range
     while (n < n2) {
       if (n == n1 || n == n2-1 || n2 <= n1+3) {
-        char date[30];
         // TODO: Don't print times < boot time
-        strftime(date, sizeof(date), "%Y-%m-%d %H:%M", localtime(&t));
+        char date[32] = "";
+        struct tm tmbuf;
+        strftime(date, sizeof(date), "%Y-%m-%d %H:%M", time_to_tm_local(&tmbuf, t));
         jout(" %3u    %s    %s  %s\n", i, date,
           sct_ptemp(tmh->cb[i], buf1), sct_pbar(tmh->cb[i], buf3));
       }
@@ -4491,7 +4524,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 	t+=timewait*60;
 	pout("Please wait %d minutes for test to complete.\n", (int)timewait);
       }
-      pout("Test will complete after %s\n", ctime(&t));
+      char comptime[DATEANDEPOCHLEN];
+      dateandtimezoneepoch(comptime, t);
+      pout("Test will complete after %s\n", comptime);
       
       if (   options.smart_selftest_type != SHORT_CAPTIVE_SELF_TEST
           && options.smart_selftest_type != EXTEND_CAPTIVE_SELF_TEST
