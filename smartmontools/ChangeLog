@@ -1,4 +1,9 @@
-$Id: ChangeLog 5077 2020-08-22 12:52:11Z chrfranke $
+$Id: ChangeLog 5078 2020-08-22 13:27:05Z chrfranke $
+
+2020-08-22  Christian Franke  <franke@computer.org>
+
+	smartd.service.in: Don't start smartd in virtualized environments
+	(GH issues/62).
 
 2020-08-22  Marko Hauptvogel  <marko.hauptvogel@googlemail.com>
 
