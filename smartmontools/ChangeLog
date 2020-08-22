@@ -1,4 +1,8 @@
-$Id: ChangeLog 5076 2020-07-11 14:49:10Z chrfranke $
+$Id: ChangeLog 5077 2020-08-22 12:52:11Z chrfranke $
+
+2020-08-22  Marko Hauptvogel  <marko.hauptvogel@googlemail.com>
+
+	smartd.service.in: Remove obsolete 'StandardOutput=syslog'.
 
 2020-07-11  Christian Franke  <franke@computer.org>
 
