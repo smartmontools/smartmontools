@@ -1,5 +1,10 @@
 $Id$
 
+2020-08-22  Christian Franke  <franke@computer.org>
+
+	smartd.service.in: Don't start smartd in virtualized environments
+	(GH issues/62).
+
 2020-08-22  Marko Hauptvogel  <marko.hauptvogel@googlemail.com>
 
 	smartd.service.in: Remove obsolete 'StandardOutput=syslog'.
