@@ -1,5 +1,16 @@
 $Id$
 
+2020-08-23  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Micron 5100 Pro / 52x0 / 5300 SSDs: Rename, add 5210 (#1356),
+	  5300 *TDT variant (#1355)
+	- Phison Driven SSDs: SSD Smartbuy 64GB and other sizes (#1359)
+	- Indilinx Barefoot_2/Everest/Martini based SSDs: OCZ-OCTANE (#1360)
+	- Marvell based SanDisk SSDs: Ultra 3D 4TB (#1358)
+	- Silicon Motion based SSDs: ACPI SED2QII-LP, Transcend 230
+	- Western Digital Gold: WD102KRYZ (#1357)
+
 2020-08-22  Christian Franke  <franke@computer.org>
 
 	smartd.service.in: Don't start smartd in virtualized environments
