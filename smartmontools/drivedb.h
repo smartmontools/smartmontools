@@ -453,11 +453,12 @@ const drive_settings builtin_knowndrives[] = {
   // Reference: https://www.micron.com/resource-details/feec878a-265e-49a7-8086-15137c5f9011
   // TN-FD-34: 5100 SSD SMART Implementation
   {
-    "Micron 5100 Pro / 5200 / 5300 SSDs",
+    "Micron 5100 Pro / 52x0 / 5300 SSDs",
     "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)|" // Matches both stock and Dell OEM
       // tested with Micron_5100_MTFDDAK3T8TCB/D0MU410, MTFDDAK3T8TCB/D0MU410
     "(Micron_5200_)?MTFDDAK(480|960|1T9|3T8|7T6)TD(C|D|N)|" // tested with Micron_5200_MTFDDAK3T8TDD/D1MU505
-    "Micron_5300_MTFDDA[KV](240|480|960|1T9|3T8|7T6)TDS", // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001
+    "Micron_5210_MTFDDAK(480|960|1T9|3T8|7T6)QDE|" // tested with Micron_5210_MTFDDAK7T6QDE/D2MU804
+    "Micron_5300_MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[ST]", // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw48,Reallocated_Block_Count "
@@ -707,7 +708,8 @@ const drive_settings builtin_knowndrives[] = {
       // Patriot Blast/SAFM11.3, Patriot Blaze/S9FM02, Patriot Burst/SBFM11.2
     "PNY CS(900|1311|2211) (120|240|480|960)GB SSD|" // tested with PNY CS900 120GB SSD/CS900612,
       // PNY CS900 240GB SSD/CS900613, PNY CS1311 120GB SSD/CS131122, PNY CS2211 240GB SSD/CS221016
-    "SSD Smartbuy (60|120|240)GB|" // SSD Smartbuy 240GB/SBFM91.1
+    "SSD Smartbuy (60|64|120|128|240|256|480|512|960|1024|2000)GB|" // PS3111-S11, tested with
+      // SSD Smartbuy 240GB/SBFM91.1, SSD Smartbuy 64GB/SBFM21.1
     "SSD PHISON 256GB PS3110-S10C|" // tested with SSD PHISON 256GB PS3110-S10C/SAFM12.2
     "SSDPR-CX400-(128|256|512|1024)|" // Goodram CX400, tested with SSDPR-CX400-512/SBFM61.3
     "SSM28(128|256|512)GPTCB3B-S11[24]61[123]", // tested with SSM28256GPTCB3B-S112612/SBFM61.2
@@ -838,6 +840,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Indilinx Barefoot_2/Everest/Martini based SSDs",
     "OCZ VERTEX[ -]PLUS|" // tested with OCZ VERTEX-PLUS/3.55, OCZ VERTEX PLUS/3.55
     "OCZ-VERTEX PLUS R2|" // Barefoot 2, tested with OCZ-VERTEX PLUS R2/1.2
+    "OCZ-OCTANE|" // Everest 1, tested with OCZ-OCTANE/1.13
     "OCZ-PETROL|" // Everest 1, tested with OCZ-PETROL/3.12
     "OCZ-AGILITY4|" // Everest 2, tested with OCZ-AGILITY4/1.5.2
     "OCZ-VERTEX4", // Everest 2, tested with OCZ-VERTEX4/1.5
@@ -1898,8 +1901,8 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
     "SanDisk SDSSDH2(128|256)G|" // SanDisk SDSSDH2128G/X211200
-    "SanDisk SDSSDH3(250|500|1000|1024|2000)G|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL,
-      // SanDisk SDSSDH3500G/X61110RL, SanDisk SDSSDH31024G/X6107000
+    "SanDisk SDSSDH3((250|500|1000|1024|2000)G| 4T00)|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL,
+      // SanDisk SDSSDH3500G/X61110RL, SanDisk SDSSDH31024G/X6107000, SanDisk SDSSDH3 4T00/411040RL
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
     "SanDisk SSD PLUS (120|240|480|1000) ?GB|" // Plus (88SS1074), tested with SanDisk SSD PLUS 120 GB/UE3000RL,
@@ -1914,6 +1917,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 167,raw48,Min_Bad_Block/Die "
     "-v 168,raw48,Maximum_Erase_Cycle "
     "-v 169,raw48,Total_Bad_Block "
+    "-v 170,raw48,Unknown_Marvell_Attr " // SDSSDH3 4T00
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw48,Avg_Write/Erase_Count "
@@ -1931,7 +1935,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 234,raw48,Perc_Write/Erase_Ct_BC "
     "-v 241,raw48,Total_Writes_GiB "
     "-v 242,raw48,Total_Reads_GiB "
-  //"-v 243,raw48,Unknown_Attribute "
+    "-v 243,raw48,Unknown_Marvell_Attr "
     "-v 244,raw48,Thermal_Throttle "
     "-v 249,raw48,TLC_NAND_GB_Writes"
   },
@@ -2043,15 +2047,17 @@ const drive_settings builtin_knowndrives[] = {
     "Patriot P200 ((128|256|512)GB|[12]TB)|" // tested with Patriot P200 256GB/S1022A0
     "R3SL(120|240|480|960)G|" // AMD Radeon SSDs, tested with R3SL240G/P0422C
     "Ramsta SSD S800 (120|240|480)GB|" // SM2258G, tested with Ramsta SSD S800 480GB/RS81V0
+    "SED2QII-LP SATA SSD ((64|128|256|512)GB|[12]TB)|" // ACPI SED2QII-LP, tested with
+      // SED2QII-LP SATA SSD 64GB/S0410A
     "T60|" // KingSpec T60, tested with T60/20151120
     "TCSUNBOW [MX]3 (60|120|240)GB|" // TC-Sunbow M3/X3, tested with TCSUNBOW M3 240GB/R0327B0,
-       // TCSUNBOW X3 120GB/R1211A0
+      // TCSUNBOW X3 120GB/R1211A0
     "TEAM( T253T|L5Lite3)D(120G|240G|480G|1T)|" // Team Group L5Lite 3D, tested with
       // TEAML5Lite3D240G/R0302A0, TEAM T253TD480G/Q0410A
-    "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(370S?|420[IK]?)|" // Transcend SSD370/420 SATA/mSATA, TS6500,
-      // tested with TS32GMSA370/20140402, TS16GMSA370/20140516, TS64GSSD370/20140516,
-      // TS256GSSD370/N0815B, TS256GSSD370S/N1114H, TS512GSSD370S/N1114H, TS32GSSD420I/N1114H,
-      // TS32GSSD420K/P1225CE
+    "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(230S?|370S?|420[IK]?)|" // Transcend SSD230/370/420
+      // SATA/mSATA, TS6500, tested with TS128GMSA230S/02J0S86A, TS32GMSA370/20140402,
+      // TS16GMSA370/20140516, TS64GSSD370/20140516, TS256GSSD370/N0815B, TS256GSSD370S/N1114H,
+      // TS512GSSD370S/N1114H, TS32GSSD420I/N1114H, TS32GSSD420K/P1225CE
     "TS(16|32|64|128|512|256)GMTS4[03]0S?|" // TS256GMTS400, TS256GMTS430S/S0423A
     "TS(120|240)GMTS420S?|" // Transcend MTS420, tested with TS120GMTS420S/R0510A0
     "TS(128G|256G|512G|1T)SSD230S|" // TS128GSSD230S/P1025F8
@@ -4616,8 +4622,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD2005FBYZ-01YCBB2/RR07, WDC WD4002FYYZ-01B7CB0/01.01M02,
       // WDC WD4003FRYZ-01F0DB0/01.01H01, WDC WD6003FRYZ-01F0DB0/01.01H01,
       // WDC WD8003FRYZ-01JPDB1/01.01H02, WDC WD8004FRYZ-01VAEB0/01.01H01,
-      // WDC WD121KRYZ-01W0RB0/01.01H01,
-    "WDC WD([12]005FB|4002FY|4003FR|600[23]FR|800[234]FR|1[02]1KR)YZ-.*",
+      // WDC WD102KRYZ-01A5AB0/01.01H01, WDC WD121KRYZ-01W0RB0/01.01H01
+    "WDC WD([12]005FB|4002FY|4003FR|600[23]FR|800[234]FR|(1[02]1|102)KR)YZ-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD121KRYZ
   },
