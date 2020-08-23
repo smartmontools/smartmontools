@@ -2,6 +2,9 @@ $Id$
 
 2020-08-23  Christian Franke  <franke@computer.org>
 
+	drivedb.h: DEFAULT entry: Limit attribute 231 (Temperature_Celsius)
+	to HDDs.  Various SSDs use this attribute for a different purpose.
+
 	drivedb.h:
 	- Micron 5100 Pro / 52x0 / 5300 SSDs: Rename, add 5210 (#1356),
 	  5300 *TDT variant (#1355)
