@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 5079 2020-08-23 13:26:08Z chrfranke $",
+  { "$Id: drivedb.h 5080 2020-08-23 13:52:14Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -136,7 +136,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 228,raw48,Power-off_Retract_Count "
     //  229 Unknown_Attribute
     "-v 230,raw48,Head_Amplitude,HDD "
-    "-v 231,raw48,Temperature_Celsius "
+    "-v 231,raw48,Temperature_Celsius,HDD "
     "-v 232,raw48,Available_Reservd_Space "
     "-v 233,raw48,Media_Wearout_Indicator,SSD "
     //  234-239 Unknown_Attribute
