@@ -684,7 +684,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   {
     "StorFly TuffDrive eUSB", 
-    "VTDU31XI008G-A901",
+    ".*VTDU31XI008G-A901.*",
     // X - XE Class
     // I - Industrial
     "", "",
@@ -703,8 +703,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   {
     "StorFly SATA 6Gbps pSLC SSD", 
-    "StorFly VSF205[XC][CI](050|100)G-A902|"  // SlimSATA
-    "StorFly VSFDM[4|6|8][XC][CI](050|100)G-A902",  // M.2
+    ".*VSF205[XC][CI](050|100)G-A902.*|"  // SlimSATA
+    ".*VSFDM[4|6|8][XC][CI](050|100)G-A902.*",  // M.2
     // X - XE Class, C - CE Class
     // C - commercial, I industrial
     "0705-000", "",
@@ -740,13 +740,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   {
     "StorFly SATA 6Gbps TLC SSD", 
-    "StorFly VSF205CI100G-A902|"  // SlimSATA
-    "StorFly VSFDM6CC400G-A901|"  // M.2
-    "StorFly VSFDM8CC960G-A901|"  // M.2
-    "StorFly VSFDM8CC100G-A902",  // M.2
+    ".*VSF205CI100G-A902.*|"  // SlimSATA
+    ".*VSFDM6CC400G-A901.*|"  // M.2
+    ".*VSFDM8CC960G-A901.*|"  // M.2
+    ".*VSFDM8CC100G-A902.*",  // M.2
     // X - XE Class, C - CE Class
     // C - commercial, I industrial
-    "0512-000", "",
+    "", "",
     "-v 1,raw48,Raw_Read_Error_Rate " //
     "-v 5,raw48,Reallocated_Blk_Cnt "
     "-v 9,raw24(raw8),Pwr_On_Hours "
@@ -778,8 +778,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   {
     "StorFly SATA 6Gbps SSDs", 
-    "StorFly VSFBM6CC025G-JUN|"
-    "StorFly VSFBM6CC025G-JUN1",
+    ".*VSFBM6CC025G-JUN.*|"
+    ".*VSFBM6CC025G-JUN1.*",
     "0626-000", "",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocated_Sector_Count "
@@ -796,8 +796,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   {
     "StorFly SATA 6Gbps SSDs", 
-    "StorFly VSFBM6CC400G-JUN|"
-    "StorFly VSFBM6CC400G-JUN1",
+    ".*VSFBM6CC400G-JUN.*|"
+    ".*VSFBM6CC400G-JUN1.*",
     "0629-000", "",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocated_Sector_Count "
