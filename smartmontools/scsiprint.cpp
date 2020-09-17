@@ -64,6 +64,7 @@ static bool gLPSMisalignLPage = false;
 /* Vendor specific log pages */
 static bool gSeagateCacheLPage = false;
 static bool gSeagateFactoryLPage = false;
+static bool gSeagateFarmLPage = false;
 
 /* Mode pages supported */
 static bool gIecMPage = true;    /* N.B. assume it until we know otherwise */
@@ -100,6 +101,16 @@ seagate_or_hitachi(void)
                          strlen(T10_VENDOR_HITACHI_2))) ||
             (0 == memcmp(scsi_vendor, T10_VENDOR_HITACHI_3,
                          strlen(T10_VENDOR_HITACHI_3))));
+}
+
+/*
+ *  Determines whether the current drive is a Seagate drive
+ * 
+ *  @return True if the drive is a Seagate drive, false otherwise (bool)
+ */
+static bool isSeagate() {
+    return (0 == memcmp(scsi_vendor, T10_VENDOR_SEAGATE,
+                         strlen(T10_VENDOR_SEAGATE)));
 }
 
 static bool
@@ -196,7 +207,6 @@ scsiGetSupportedLogPages(scsi_device * device)
     for (num_unreported = 0, k = 0; k < resp_len; k += bump, up += bump) {
         uint8_t pg_num = 0x3f & up[0];
         uint8_t sub_pg_num = (0x40 & up[0]) ? up[1] : 0;
-
         switch (pg_num)
         {
             case SUPPORTED_LPAGES:
@@ -294,6 +304,20 @@ scsiGetSupportedLogPages(scsi_device * device)
                 }
                 if (seagate_or_hitachi())
                     gSeagateFactoryLPage = true;
+                break;
+            case SEAGATE_FARM_LPAGE:
+                if (isSeagate()) {
+                    pout("SEAGATE SCSI\n\n");
+                    if (NO_SUBPAGE_L_SPAGE == sub_pg_num) {
+                        ++num_unreported;
+                        ++num_unreported_spg;
+                    } else if (SEAGATE_FARM_CURRENT_L_SPAGE == sub_pg_num) {
+                        gSeagateFarmLPage = true;
+                    } else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
+                        ++num_unreported;
+                        ++num_unreported_spg;
+                    }
+                }
                 break;
             default:
                 if (pg_num < 0x30) {     /* don't count VS pages */
@@ -2483,6 +2507,17 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                 scsiPrintSeagateFactoryLPage(device);
         }
         any_output = true;
+    }
+    // Print SCSI FARM log for Seagate SCSI drive
+    if (options.farm_log) {
+        if (!checkedSupportedLogPages) {
+            scsiGetSupportedLogPages(device);
+        }
+        if (gSeagateFarmLPage) {
+            pout("FARM SCSI\n\n");
+        } else {
+            pout("FARM log (SCSI log page 0x3D, sub-page 0x3) not supported\n\n");
+        }
     }
     if (options.smart_error_log) {
         if (! checkedSupportedLogPages)

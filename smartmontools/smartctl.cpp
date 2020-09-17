@@ -177,7 +177,7 @@ static void Usage()
 "        xerror[,N][,error], xselftest[,N][,selftest], background,\n"
 "        sasphy[,reset], sataphy[,reset], scttemp[sts,hist],\n"
 "        scttempint,N[,p], scterc[,N,M], devstat[,N], defects[,N], ssd,\n"
-"        gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE\n\n"
+"        gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE, farm\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -245,7 +245,7 @@ static std::string getvalidarglist(int opt)
            "scttemp[sts,hist], scttempint,N[,p], "
            "scterc[,N,M], devstat[,N], defects[,N], ssd, "
            "gplog,N[,RANGE], smartlog,N[,RANGE], "
-           "nvmelog,N,SIZE";
+           "nvmelog,N,SIZE, farm";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -547,7 +547,8 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.sct_temp_sts = true;
       } else if (!strcmp(optarg,"scttemphist")) {
         ataopts.sct_temp_hist = true;
-
+      } else if (!strcmp(optarg,"farm")) {
+        ataopts.farm_log = scsiopts.farm_log = true;
       } else if (!strncmp(optarg, "scttempint,", sizeof("scstempint,")-1)) {
         unsigned interval = 0; int n1 = -1, n2 = -1, len = strlen(optarg);
         if (!(   sscanf(optarg,"scttempint,%u%n,p%n", &interval, &n1, &n2) == 1

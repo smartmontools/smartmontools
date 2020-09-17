@@ -2118,6 +2118,30 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
   jglb["sata_phy_event_counters"]["reset"] = reset;
 }
 
+///////////////////////////////////////////////////////////////////////
+// Seagate Field Access Reliability Metrics (FARM) log (Log 0xA6)
+
+/*
+ *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate drives and parses data
+ *  Prints parsed information
+ *  
+ *  @param  Pointer to instantiated device object (*ata_device)
+ *  @return True if successfully reads FARM log, false otherwise (bool)
+ */
+static bool printFarmLog(ata_device * device) {
+  // Read FARM log header from page 0
+  unsigned char page_0[16384] = {0, };
+  
+  bool readSuccessful = ataReadLogExt(device, 0xa6, 0, 0, page_0, 1);
+
+  if (!readSuccessful) {
+    jerr("Read FARM Log page 0x00 failed\n\n");
+    return false;
+  }
+
+  return true;
+}
+
 // Format milliseconds from error log entry as "DAYS+H:M:S.MSEC"
 static std::string format_milliseconds(unsigned msec)
 {
@@ -3299,6 +3323,18 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
     pout("%s%d (%02d:%02d:%02d%s%s)\n", msg, timer, hours, minutes, seconds, s2, s3);
 }
 
+/*
+ *  Determines whether the current drive is a Seagate drive
+ * 
+ *  @param Pointer to drive struct containing ATA device information (*ata_identify_device)
+ *  @return True if the drive is a Seagate drive, false otherwise (bool)
+ */
+static bool isSeagate(ata_identify_device * drive) {
+  #define SEAGATE_MODEL_MATCH "ST"
+  char model[40+1];
+  ata_format_id_string(model, drive->model, sizeof(model)-1);
+  return (0 == memcmp(model, SEAGATE_MODEL_MATCH, strlen(SEAGATE_MODEL_MATCH)));
+}
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
@@ -3423,6 +3459,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (!(   options.drive_info || options.show_presets
         || need_smart_support || need_smart_logdir
         || need_gp_logdir     || need_sct_support
+        || options.farm_log
         || options.sataphy
         || options.identify_word_level >= 0
         || options.get_set_used                      )) {
@@ -4428,7 +4465,21 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         PrintSataPhyEventCounters(log_11, options.sataphy_reset);
     }
   }
-
+  // Print ATA FARM log for Seagate ATA drive
+  if (options.farm_log) {
+    if (isSeagate(&drive)) {
+      unsigned nsectors = GetNumLogSectors(gplogdir, 0xa6, true);
+      if (!nsectors) {
+        pout("FARM log (GP Log 0xA6) not supported\n\n");
+      } else if (!printFarmLog(device)) {
+        pout("Read FARM log (GP Log 0xA6) failed\n\n");
+        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      }
+      pout("SEAGATE ATA\n\n");
+    } else {
+      pout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");
+    }
+  }
   // Set to standby (spindown) mode and set standby timer if not done above
   // (Above commands may spinup drive)
   if (options.set_standby_now) {
