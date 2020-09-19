@@ -1,5 +1,9 @@
 $Id$
 
+2020-09-19  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Report unavailable TRIM command only for SSDs.
+
 2020-08-23  Christian Franke  <franke@computer.org>
 
 	drivedb.h: DEFAULT entry: Limit attribute 231 (Temperature_Celsius)

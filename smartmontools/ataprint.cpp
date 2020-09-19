@@ -717,10 +717,11 @@ static void print_drive_info(const ata_identify_device * drive,
   bool trim_sup = !!(drive->words088_255[169-88] & 0x0001);
   unsigned short word069 = drive->words047_079[69-47];
   bool trim_det = !!(word069 & 0x4000), trim_zeroed = !!(word069 & 0x0020);
-  jout("TRIM Command:     %s%s%s\n",
-       (!trim_sup ? "Unavailable" : "Available"),
-       (!(trim_sup && trim_det) ? "" : ", deterministic"),
-       (!(trim_sup && trim_zeroed) ? "" : ", zeroed")     );
+  if (trim_sup || rpm == 1) // HDD: if supported (SMR), SSD: always
+    jout("TRIM Command:     %s%s%s\n",
+         (!trim_sup ? "Unavailable" : "Available"),
+         (!(trim_sup && trim_det) ? "" : ", deterministic"),
+         (!(trim_sup && trim_zeroed) ? "" : ", zeroed")     );
   jglb["trim"]["supported"] = trim_sup;
   if (trim_sup) {
     jglb["trim"]["deterministic"] = trim_det;
