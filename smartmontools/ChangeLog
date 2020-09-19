@@ -1,4 +1,8 @@
-$Id: ChangeLog 5080 2020-08-23 13:52:14Z chrfranke $
+$Id: ChangeLog 5083 2020-09-19 12:52:48Z chrfranke $
+
+2020-09-19  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Report unavailable TRIM command only for SSDs.
 
 2020-08-23  Christian Franke  <franke@computer.org>
 
