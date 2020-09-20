@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 5082 2020-08-23 14:12:21Z chrfranke $",
+  { "$Id: drivedb.h 5087 2020-09-20 15:52:47Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -395,8 +395,8 @@ const drive_settings builtin_knowndrives[] = {
       // Crucial_CT1024M550SSD1/MU01, Crucial_CT128M550SSD4/MU02
     "CT(120|240|480)BX300SSD1|" // Silicon Motion SM2258, same attributes as Marvell-based Crucial SSDs,
       // tested with CT240BX300SSD1/M2CR010
-    "CT(120|240|480|960|1000)BX500SSD1|" // Silicon Motion SM2258XT, tested with CT120BX500SSD1/M6CR013,
-      // CT1000BX500SSD1/M6CR030
+    "CT(120|240|480|960|[12]000)BX500SSD1|" // Silicon Motion SM2258XT, tested with CT120BX500SSD1/M6CR013,
+      // CT1000BX500SSD1/M6CR030, CT2000BX500SSD1/M6CR030
     "CT(250|500|1000|2000)MX500SSD[14]|" // Silicon Motion SM2258, tested with CT250MX500SSD1/M3CR010
       // CT500MX500SSD1/M3CR010, CT1000MX500SSD1/M3CR010, CT2000MX500SSD1/M3CR010,
       // CT250MX500SSD4/M3CR022 (now handled by above entry)
@@ -409,11 +409,11 @@ const drive_settings builtin_knowndrives[] = {
     "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY|" // tested with M550-MTFDDAK256MAY/MU01
     "(Micron_M600_)?(EE|MT)FDDA[KTV](128|256|512|1T0)MBF[25Z]?(-.*)?|" // tested with Micron_M600_MTFDDAK1T0MBF/MU01,
       // MTFDDAK256MBF-1AN1ZABHA/M603
-    "(Micron_1100_)?MTFDDA[KV](256|512|1T0|2T0)TBN|" // Marvell 88SS1074, tested with
-      // Micron_1100_MTFDDAK256TBN/M0MU020, MTFDDAK256TBN/M0MA020 (OEM)
+    "(Micron_1100_)?MTFDDA[KV](256|512|1T0|2T0)TBN(-.*)?|" // Marvell 88SS1074, tested with
+      // Micron_1100_MTFDDAK256TBN/M0MU020, MTFDDAK256TBN/M0MA020 (OEM), MTFDDAV256TBN-1AR15ABHA/HPC0T14
     "Micron 1100 SATA (256G|512G|1T|2T)B|" // tested with Micron 1100 SATA 256GB/M0DL022
-    "Micron_1300_(EE|MT)FDDA[KV](256|512|1T0|2T0)TDL", // tested with Micron_1300_MTFDDAK256TDL/M5MU000,
-      // Micron_1300_MTFDDAK1T0TDL/M5MU000
+    "(Micron_1300_)?(EE|MT)FDDA[KV](256|512|1T0|2T0)TDL", // tested with Micron_1300_MTFDDAK256TDL/M5MU000,
+      // Micron_1300_MTFDDAK1T0TDL/M5MU000, MTFDDAK2T0TDL/M5MU030
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
@@ -484,7 +484,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 211,raw48,Integ_Scan_Complete_Cnt "  // Number of periodic data integrity scans completed
     "-v 212,raw48,Integ_Scan_Folding_Cnt "   // Number of blocks reallocated by integrity scans
     "-v 213,raw48,Integ_Scan_Progress "      // Current is percentage, raw is absolute number of superblocks scanned by the current integrity scan
-    "-v 246,raw48,Unknown_Micron_Attrib " // 5300/D3MU001
+    "-v 246,raw48,Total_LBAs_Written "
     "-v 247,raw48,Host_Program_Page_Count "
     "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
@@ -688,6 +688,8 @@ const drive_settings builtin_knowndrives[] = {
     "GOODRAM IRIDIUM PRO|" // tested with GOODRAM IRIDIUM PRO/SAFM01.5
     "IR-SSDPR-S25A-(120|240|480|960)|" // Goodram IRIDM, tested with IR-SSDPR-S25A-120/SBFM91.3,
       // IR-SSDPR-S25A-240/SBFM91.2
+    "KINGSTON O(C|M8)P0S3(64|128|256|512)B-A0|" // tested with KINGSTON OCP0S364B-A0/SBFK62A3,
+      // KINGSTON OM8P0S364B-A0/SBFK62A3
     "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
       // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
     "KINGSTON SEDC(450R|500[MR])(480|960|1920|3840|7680)G|" // DC450R, DC500M/R, tested with
@@ -698,10 +700,10 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
     "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
     "KINGSTON SHSS3B?7A(120|240|480|960)G|" // HyperX Savage
-    "KINGSTON  ?SA400S37(120|240|480|960)G|" // Kingston A400 SSD, Phison S11 or
+    "KINGSTON  ?SA400(M8|S37)(120|240|480|960)G|" // Kingston A400 SSD, Phison S11 or
       // Silicon Motion controller (see ticket #801), tested with
       // KINGSTON SA400S37240G/SBFK10D7, KINGSTON SA400S37120G/SBFK71E0, */SBFKB1D1
-      // KINGSTON  SA400S37480G/SBFK10D7 (two spaces)
+      // KINGSTON  SA400S37480G/SBFK10D7 (two spaces), KINGSTON SA400M8240G/SBFK61E1
     "Patriot (Flare|Blast|Blaze|Burst)|" // tested with Patriot Flare/SBFM91.2,
       // Patriot Blast/SAFM11.3, Patriot Blaze/S9FM02, Patriot Burst/SBFM11.2
     "PNY CS(900|1311|2211) (120|240|480|960)GB SSD|" // tested with PNY CS900 120GB SSD/CS900612,
@@ -1636,9 +1638,10 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SUV400S37A?(120|240|480|960)G|" // tested with KINGSTON SUV400S37120G/0C3J96R9,
       // KINGSTON SUV400S37240G/0C3J96R9, KINGSTON SUV400S37240G/0C3K87RA,
       // KINGSTON SUV400S37120G/0C3K87RA
-    "KINGSTON SUV500(MS)?(120|240|480|960)G", // tested with KINGSTON SUV500120G/003056R6,
+    "KINGSTON SUV500(M[8S])?(120|240|480|960)G", // tested with KINGSTON SUV500120G/003056R6,
       // KINGSTON SUV500240G/003056R6, KINGSTON SUV500480G/003056RI,
-      // KINGSTON SUV500MS120G/003056RA, KINGSTON SUV500MS120G/003056RI
+      // KINGSTON SUV500MS120G/003056RA, KINGSTON SUV500MS120G/003056RI,
+      // KINGSTON SUV500M8120G/003056RI
     "", "",
     // "-v 1,raw48,Raw_Read_Error_Rate "
     // "-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -2705,7 +2708,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,halfminutes"
   },
-  { "SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS)", // tested with HS25YJZ/3AU10-01
+  { "SAMSUNG SpinPoint N3U-3 (USB)", // tested with
+      // SAMSUNG HS25YJZ/3AU10-01 (0x18a5:0x0227, reports 4KiB LPS/LLS. ticket #159),
+      // SAMSUNG HS20YJZ/3AU10-01 (0x04e8:0x2f06, reports 512B sectors, Debian Bug 964032)
     "SAMSUNG HS(122H|2[05]YJ)Z",
     "", "", ""
   },
@@ -4860,8 +4865,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron" // 0x1f0a: works also with "-d sat"
   },
-  { "USB: Samsung S1 Portable; JMicron",
-    "0x04e8:0x2f03",
+  { "USB: Samsung S1; JMicron",
+    "0x04e8:0x2f0[36]", // 0x2f03: S1 Portable, 0x2f06: S1 Mini (SAMSUNG HS20YJZ/3AU10-01)
     "",
     "",
     "-d usbjmicron"
@@ -5740,7 +5745,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
-  { "USB: Verbatim Pocket Hard Drive; JMicron", // SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS)
+  { "USB: Verbatim Pocket Hard Drive; JMicron", // SAMSUNG HS25YJZ/3AU10-01
     "0x18a5:0x0227",
     "",
     "",
