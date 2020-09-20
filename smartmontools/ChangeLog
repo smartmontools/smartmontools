@@ -1,5 +1,11 @@
 $Id$
 
+2020-09-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SAMSUNG SpinPoint N3U-3 (USB): Rename.
+	- USB: Samsung S1 Mini (0x04e8:0x2f06) (Debian Bug 964032).
+
 2020-09-19  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Report unavailable TRIM command only for SSDs.

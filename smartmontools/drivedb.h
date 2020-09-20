@@ -2710,7 +2710,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,halfminutes"
   },
-  { "SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS)", // tested with HS25YJZ/3AU10-01
+  { "SAMSUNG SpinPoint N3U-3 (USB)", // tested with
+      // SAMSUNG HS25YJZ/3AU10-01 (0x18a5:0x0227, reports 4KiB LPS/LLS. ticket #159),
+      // SAMSUNG HS20YJZ/3AU10-01 (0x04e8:0x2f06, reports 512B sectors, Debian Bug 964032)
     "SAMSUNG HS(122H|2[05]YJ)Z",
     "", "", ""
   },
@@ -4870,8 +4872,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron" // 0x1f0a: works also with "-d sat"
   },
-  { "USB: Samsung S1 Portable; JMicron",
-    "0x04e8:0x2f03",
+  { "USB: Samsung S1; JMicron",
+    "0x04e8:0x2f0[36]", // 0x2f03: S1 Portable, 0x2f06: S1 Mini (SAMSUNG HS20YJZ/3AU10-01)
     "",
     "",
     "-d usbjmicron"
@@ -5750,7 +5752,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
-  { "USB: Verbatim Pocket Hard Drive; JMicron", // SAMSUNG SpinPoint N3U-3 (USB, 4KiB LLS)
+  { "USB: Verbatim Pocket Hard Drive; JMicron", // SAMSUNG HS25YJZ/3AU10-01
     "0x18a5:0x0227",
     "",
     "",
