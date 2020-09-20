@@ -6,6 +6,9 @@ $Id$
 	- Crucial/Micron BX/MX1/2/3/500, M5/600, 11/1300 SSDs: BX500 2TB,
 	  1100 with version suffix (#1178), 1300 without prefix (#1369).
 	- Micron 5100 Pro / 52x0 / 5300 SSDs: Add attribute 246.
+	- Phison Driven SSDs: Kingston A400 M.2 (#1362),
+	  Kingston OCP0S3* (#1370), Kingston OM8P0* (#1371).
+	- Kingston SSDNow UV400/500: UV500 M.2 (#1347).
 	- SAMSUNG SpinPoint N3U-3 (USB): Rename.
 	- USB: Samsung S1 Mini (0x04e8:0x2f06) (Debian Bug 964032).
 
