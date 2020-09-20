@@ -397,8 +397,8 @@ const drive_settings builtin_knowndrives[] = {
       // Crucial_CT1024M550SSD1/MU01, Crucial_CT128M550SSD4/MU02
     "CT(120|240|480)BX300SSD1|" // Silicon Motion SM2258, same attributes as Marvell-based Crucial SSDs,
       // tested with CT240BX300SSD1/M2CR010
-    "CT(120|240|480|960|1000)BX500SSD1|" // Silicon Motion SM2258XT, tested with CT120BX500SSD1/M6CR013,
-      // CT1000BX500SSD1/M6CR030
+    "CT(120|240|480|960|[12]000)BX500SSD1|" // Silicon Motion SM2258XT, tested with CT120BX500SSD1/M6CR013,
+      // CT1000BX500SSD1/M6CR030, CT2000BX500SSD1/M6CR030
     "CT(250|500|1000|2000)MX500SSD[14]|" // Silicon Motion SM2258, tested with CT250MX500SSD1/M3CR010
       // CT500MX500SSD1/M3CR010, CT1000MX500SSD1/M3CR010, CT2000MX500SSD1/M3CR010,
       // CT250MX500SSD4/M3CR022 (now handled by above entry)
@@ -411,11 +411,11 @@ const drive_settings builtin_knowndrives[] = {
     "(Micron_)?M550[_-]MTFDDA[KTV](064|128|256|512|1T0)MAY|" // tested with M550-MTFDDAK256MAY/MU01
     "(Micron_M600_)?(EE|MT)FDDA[KTV](128|256|512|1T0)MBF[25Z]?(-.*)?|" // tested with Micron_M600_MTFDDAK1T0MBF/MU01,
       // MTFDDAK256MBF-1AN1ZABHA/M603
-    "(Micron_1100_)?MTFDDA[KV](256|512|1T0|2T0)TBN|" // Marvell 88SS1074, tested with
-      // Micron_1100_MTFDDAK256TBN/M0MU020, MTFDDAK256TBN/M0MA020 (OEM)
+    "(Micron_1100_)?MTFDDA[KV](256|512|1T0|2T0)TBN(-.*)?|" // Marvell 88SS1074, tested with
+      // Micron_1100_MTFDDAK256TBN/M0MU020, MTFDDAK256TBN/M0MA020 (OEM), MTFDDAV256TBN-1AR15ABHA/HPC0T14
     "Micron 1100 SATA (256G|512G|1T|2T)B|" // tested with Micron 1100 SATA 256GB/M0DL022
-    "Micron_1300_(EE|MT)FDDA[KV](256|512|1T0|2T0)TDL", // tested with Micron_1300_MTFDDAK256TDL/M5MU000,
-      // Micron_1300_MTFDDAK1T0TDL/M5MU000
+    "(Micron_1300_)?(EE|MT)FDDA[KV](256|512|1T0|2T0)TDL", // tested with Micron_1300_MTFDDAK256TDL/M5MU000,
+      // Micron_1300_MTFDDAK1T0TDL/M5MU000, MTFDDAK2T0TDL/M5MU030
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
@@ -486,7 +486,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 211,raw48,Integ_Scan_Complete_Cnt "  // Number of periodic data integrity scans completed
     "-v 212,raw48,Integ_Scan_Folding_Cnt "   // Number of blocks reallocated by integrity scans
     "-v 213,raw48,Integ_Scan_Progress "      // Current is percentage, raw is absolute number of superblocks scanned by the current integrity scan
-    "-v 246,raw48,Unknown_Micron_Attrib " // 5300/D3MU001
+    "-v 246,raw48,Total_LBAs_Written "
     "-v 247,raw48,Host_Program_Page_Count "
     "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
