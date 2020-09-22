@@ -2338,9 +2338,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                 pout("Writeback Cache is:   %s\n",
                      res ? "Unavailable" : // error
                      !wce ? "Disabled" : "Enabled");
+            any_output = true;
         }
-    } else
-        any_output = true;
+    }
 
     if (options.drive_info)
         pout("\n");
@@ -2462,16 +2462,18 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
         if (gTempLPage)
             scsiPrintTemp(device);
-    }
+
     // in the 'smartctl -a" case only want: "Accumulated power on time"
-    if ((! options.smart_background_log) && is_disk) {
-        if (! checkedSupportedLogPages)
-            scsiGetSupportedLogPages(device);
-        res = 0;
-        if (gBackgroundResultsLPage)
-            res = scsiPrintBackgroundResults(device, true);
-        any_output = true;
+    	if ((! options.smart_background_log) && is_disk) {
+            if (! checkedSupportedLogPages)
+             scsiGetSupportedLogPages(device);
+          res = 0;
+            if (gBackgroundResultsLPage)
+          res = scsiPrintBackgroundResults(device, true);
+          any_output = true;
+         }
     }
+
     if (options.smart_vendor_attrib) {
         if (gStartStopLPage)
             scsiGetStartStopData(device);
