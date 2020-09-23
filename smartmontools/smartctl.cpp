@@ -145,7 +145,7 @@ static void Usage()
 "         Set action on bad checksum to one of: warn, exit, ignore\n\n"
 "  -r TYPE, --report=TYPE\n"
 "         Report transactions (see man page)\n\n"
-"  -n MODE[,STATUS], --nocheck=MODE[,STATUS]                           (ATA)\n"
+"  -n MODE[,STATUS], --nocheck=MODE[,STATUS]                           \n"  // Now support for SCSI remove ATA text
 "         No check if: never, sleep, standby, idle (see man page)\n\n",
   getvalidarglist('d').c_str()); // TODO: Use this function also for other options ?
   pout(
@@ -161,7 +161,7 @@ static void Usage()
 "        dsn,[on|off], lookahead,[on|off], security-freeze,\n"
 "        standby,[N|off|now], wcache,[on|off], rcache,[on|off],\n"
 "        wcreorder,[on|off[,p]], wcache-sct,[ata|on|off[,p]]\n\n"
-  );
+  );  
   pout(
 "======================================= READ AND DISPLAY DATA OPTIONS =====\n\n"
 "  -H, --health\n"
@@ -857,9 +857,9 @@ static int parse_options(int argc, char** argv, const char * & type,
       ataopts.smart_selftest_type = ABORT_SELF_TEST;
       break;
     case 'n':
-      // skip disk check if in low-power mode
+      // skip disk check if in low-power mode, now includes SCSI
       if (!strcmp(optarg, "never")) {
-        ataopts.powermode = 1; // do not skip, but print mode
+        ataopts.powermode = scsiopts.powermode = 1; // do not skip, but print mode
       }
       else {
         int n1 = -1, n2 = -1, len = strlen(optarg);
@@ -868,14 +868,14 @@ static int parse_options(int argc, char** argv, const char * & type,
         if (!((n1 == len || n2 == len) && i <= 255))
           badarg = true;
         else if (!strcmp(s, "sleep"))
-          ataopts.powermode = 2;
+          ataopts.powermode = scsiopts.powermode = 2;
         else if (!strcmp(s, "standby"))
-          ataopts.powermode = 3;
+          ataopts.powermode = scsiopts.powermode = 3;
         else if (!strcmp(s, "idle"))
-          ataopts.powermode = 4;
+          ataopts.powermode = scsiopts.powermode = 4;
         else
           badarg = true;
-        ataopts.powerexit = i;
+        ataopts.powerexit = scsiopts.powerexit = i;
       }
       break;
     case 'f':
