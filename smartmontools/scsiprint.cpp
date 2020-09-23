@@ -2397,7 +2397,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
         } else
             pout("Read cache %sabled\n", (enable ? "en" : "dis"));
-        any_output = true;
+        any_output = true;  
     }
 
     if (options.smart_auto_save_disable) {
@@ -2464,14 +2464,15 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiPrintTemp(device);
 
     // in the 'smartctl -a" case only want: "Accumulated power on time"
+    // Moved so will is process for -a, was running all the time. 
     	if ((! options.smart_background_log) && is_disk) {
             if (! checkedSupportedLogPages)
-             scsiGetSupportedLogPages(device);
-          res = 0;
-            if (gBackgroundResultsLPage)
-          res = scsiPrintBackgroundResults(device, true);
-          any_output = true;
-         }
+                scsiGetSupportedLogPages(device);
+        res = 0;
+        if (gBackgroundResultsLPage)
+              res = scsiPrintBackgroundResults(device, true);
+        any_output = true;
+        }
     }
 
     if (options.smart_vendor_attrib) {
