@@ -2230,40 +2230,22 @@ static bool printFarmLog(ataFarmLogFrame * ptr_farmLog) {
   }
   // Print plain-text
   jout("Seagate Field Access Reliability Metrics log (FARM) (GP log 0xA6)\n");
-  jout("Number of Unrecoverable Read Errors: %lu\n", ptr_farmLog->errorPage.totalReadECC);
-  jout("Number of Unrecoverable Write Errors: %lu\n",ptr_farmLog->errorPage.totalWriteECC);
+  jout("Number of Unrecoverable Read Errors: %lu\n", ptr_farmLog->errorPage.totalUnrecoverableReadErrors);
+  jout("Number of Unrecoverable Write Errors: %lu\n",ptr_farmLog->errorPage.totalUnrecoverableWriteErrors);
   jout("Number of Reallocated Sectors: %lu\n", ptr_farmLog->errorPage.totalReallocations);
   jout("Number of Read Recovery Attempts: %lu\n", ptr_farmLog->errorPage.totalReadRecoveryAttepts);
-  jout("Number of Mechanical Start Failures: %lu\n", ptr_farmLog->errorPage.totalMechanicalFails);
+  jout("Number of Mechanical Start Failures: %lu\n", ptr_farmLog->errorPage.totalMechanicalStartRetries);
   jout("Number of IOEDC Errors: %lu\n", ptr_farmLog->errorPage.attrIOEDCErrors);
-  jout("Disc Slip in Micro-Inches by Head:\n");
-  for (unsigned i = 0; i < ptr_farmLog->driveInformationPage.heads; i++) {
-    jout("\tHead %u: %lu\n", i, ptr_farmLog->reliabilityPage.discSlip[i]);
-  }
-  jout("Bit Error Rate by Head:\n");
-  for (unsigned i = 0; i < ptr_farmLog->driveInformationPage.heads; i++) {
-    jout("\tHead %u: %lu\n", i, ptr_farmLog->reliabilityPage.discSlip[i]);
-  }
   jout("Error Rate (Normalized): %li\n", ptr_farmLog->reliabilityPage.attrErrorRateNormal);
   jout("Seek Error Rate (Normalized): %li\n", ptr_farmLog->reliabilityPage.attrSeekErrorRateNormal);
   // Print JSON if --json or -j is specified
   json::ref jref = jglb["seagate_farm_log"];
-  jref["number_of_unrecoverable_read_errors"] = ptr_farmLog->errorPage.totalReadECC;
-  jref["number_of_unrecoverable_write_errors"] = ptr_farmLog->errorPage.totalWriteECC;
+  jref["number_of_unrecoverable_read_errors"] = ptr_farmLog->errorPage.totalUnrecoverableReadErrors;
+  jref["number_of_unrecoverable_write_errors"] = ptr_farmLog->errorPage.totalUnrecoverableWriteErrors;
   jref["number_of_reallocated_sectors"] = ptr_farmLog->errorPage.totalReallocations;
   jref["number_of_read_recovery_attempts"] = ptr_farmLog->errorPage.totalReadRecoveryAttepts;
-  jref["number_of_mechanical_start_failures"] = ptr_farmLog->errorPage.totalMechanicalFails;
+  jref["number_of_mechanical_start_failures"] = ptr_farmLog->errorPage.totalMechanicalStartRetries;
   jref["number_of_ioedc_errors"] = ptr_farmLog->errorPage.attrIOEDCErrors;
-  for (unsigned i = 0; i < ptr_farmLog->driveInformationPage.heads; i++) {
-    char buffer[10];
-    sprintf(buffer, "head_%u", i);
-    jref["disc_slip_in_micro_inches_by_head"][buffer] = ptr_farmLog->reliabilityPage.discSlip[i];
-  }
-  for (unsigned i = 0; i < ptr_farmLog->driveInformationPage.heads; i++) {
-    char buffer[10];
-    sprintf(buffer, "head_%u", i);
-    jref["bit_error_rate_by_head"][buffer] = ptr_farmLog->reliabilityPage.bitErrorRate[i];
-  }
   jref["error_rate_normalized"] = ptr_farmLog->reliabilityPage.attrErrorRateNormal;
   jref["seek_error_rate_normalized"] = ptr_farmLog->reliabilityPage.attrSeekErrorRateNormal;
   return true;
