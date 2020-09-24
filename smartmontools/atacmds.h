@@ -604,7 +604,7 @@ STATIC_ASSERT(sizeof(ata_sct_temperature_history_table) == 512);
 // Seagate Field Access Reliability Metrics log (FARM) page 0 (read with ATA_READ_LOG_EXT address 0xa6, page 0)
 // Log Header
 #pragma pack(1)
-typedef struct ataFarmHeader {
+struct ataFarmHeader {
 	uint64_t        signature;        // Log signature = 0x00004641524D4552
 	uint64_t        majorRev;         // Log major revision
 	uint64_t        minorRev;         // Log minor revision
@@ -620,7 +620,7 @@ STATIC_ASSERT(sizeof(ataFarmHeader) == 64);
 // Seagate Field Access Reliability Metrics log (FARM) page 1 (read with ATA_READ_LOG_EXT address 0xa6, page 1)
 // Drive Information
 #pragma pack(1)
-typedef struct ataFarmDriveInformation {
+struct ataFarmDriveInformation {
 	uint64_t        pageNumber;           // Page Number = 1
 	uint64_t        copyNumber;           // Copy Number
 	uint64_t        serialNumber;         // Serial Number
@@ -665,7 +665,7 @@ STATIC_ASSERT(sizeof(ataFarmDriveInformation) == 368);
 // Seagate Field Access Reliability Metrics log (FARM) page 2 (read with ATA_READ_LOG_EXT address 0xa6, page 2)
 // Workload Statistics
 #pragma pack(1)
-typedef struct ataFarmWorkloadStatistics {
+struct ataFarmWorkloadStatistics {
 	uint64_t        pageNumber;               // Page Number = 2
 	uint64_t        copyNumber;               // Copy Number
 	uint64_t        workloadPercentage;       // Rated Workload Percentage
@@ -694,7 +694,7 @@ STATIC_ASSERT(sizeof(ataFarmWorkloadStatistics) == 168);
 // Seagate Field Access Reliability Metrics log (FARM) page 3 (read with ATA_READ_LOG_EXT address 0xa6, page 3)
 // Error Statistics
 #pragma pack(1)
-typedef struct ataFarmErrorStatistics {
+struct ataFarmErrorStatistics {
 	uint64_t         pageNumber;                          // Page Number = 3
 	uint64_t         copyNumber;                          // Copy Number
 	uint64_t         totalReadECC;                        // Number of Unrecoverable Read Errors
@@ -727,7 +727,7 @@ STATIC_ASSERT(sizeof(ataFarmErrorStatistics) == 432);
 // Seagate Field Access Reliability Metrics log (FARM) page 4 (read with ATA_READ_LOG_EXT address 0xa6, page 4)
 // Environment Statistics
 #pragma pack(1)
-typedef struct ataFarmEnvironmentStatistics {
+struct ataFarmEnvironmentStatistics {
 	uint64_t         pageNumber;          // Page Number = 4
 	uint64_t         copyNumber;          // Copy Number
 	uint64_t         curentTemp;          // Current Temperature in Celsius
@@ -767,7 +767,7 @@ STATIC_ASSERT(sizeof(ataFarmEnvironmentStatistics) == 256);
 // Seagate Field Access Reliability Metrics log (FARM) page 5 (read with ATA_READ_LOG_EXT address 0xa6, page 5)
 // Reliability Statistics
 #pragma pack(1)
-typedef struct ataFarmReliabilityStatistics {
+struct ataFarmReliabilityStatistics {
 	int64_t         pageNumber;                         // Page Number = 5
 	int64_t         copyNumber;                         // Copy Number
 	int64_t         lastIDDTest;                        // Timestamp of last IDD test
@@ -831,7 +831,7 @@ STATIC_ASSERT(sizeof(ataFarmReliabilityStatistics) == 6760);
 
 // Seagate Field Access Reliability Metrics log (FARM) all pages
 #pragma pack(1)
-typedef struct ataFarmLogFrame {
+struct ataFarmLogFrame {
   ataFarmHeader                       headerPage;             // Log Header page
 	ataFarmDriveInformation             driveInformationPage;   // Drive Information page
 	ataFarmWorkloadStatistics           workloadPage;           // Workload Statistics page

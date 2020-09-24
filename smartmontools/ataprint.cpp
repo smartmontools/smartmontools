@@ -3512,6 +3512,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        || options.devstat_ssd_page
        || !options.devstat_pages.empty()
        || options.pending_defects_log
+       || options.farm_log
   );
 
   unsigned i;
@@ -4548,8 +4549,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Print ATA FARM log for Seagate ATA drive
   if (options.farm_log) {
     if (isSeagate(&drive)) {
-      unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
-      if (!nsectors) {
+      if (!GetNumLogSectors(gplogdir, 0xA6, true)) {
         pout("FARM log (GP Log 0xA6) not supported\n\n");
       } else {
         ataFarmLogFrame * ptr_farmLog = readFarmLog(device);
@@ -4559,10 +4559,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         } else {
           if (!printFarmLog(ptr_farmLog)) {
             pout("Print FARM log (GP Log 0xA6) failed\n\n");
+          } else {
+            pout("Read and print FARM log (GP Log 0xA6) for supported Seagate ATA drive succeeded\n\n");
           }
         }
       }
-      pout("Read and print FARM log (GP Log 0xA6) for supported Seagate ATA drive succeeded\n\n");
     } else {
       pout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");
     }
