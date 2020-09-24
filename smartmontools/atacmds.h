@@ -824,19 +824,19 @@ struct ataFarmReliabilityStatistics {
 	int64_t         reallocationCandidates[24];         // [24] Number of Reallocation Candidate Sectors per Head
 	int64_t         heliumPresureTrip;                  // Helium Pressure Threshold Tripped ( 1 - trip, 0 - no trip)
   uint64_t        reserved31[24];                     // Reserved
-  uint64_t        reserved31[24];                     // Reserved
   uint64_t        reserved32[24];                     // Reserved
+  uint64_t        reserved33[24];                     // Reserved
 	int64_t         writeWorkloadPowerOnTime[24];       // [24] Write Workload Power-on Time in Seconds, value from most recent SMART Summary Frame by Head
-	uint64_t        reserved33;                         // Reserved
 	uint64_t        reserved34;                         // Reserved
 	uint64_t        reserved35;                         // Reserved
-  uint64_t        reserved36[24];                     // Reserved
-  int64_t         secondMRHeadResistance[24];         // [24] Second Head, MR Head Resistance from most recent SMART Summary Frame by Head
+	uint64_t        reserved36;                         // Reserved
   uint64_t        reserved37[24];                     // Reserved
+  int64_t         secondMRHeadResistance[24];         // [24] Second Head, MR Head Resistance from most recent SMART Summary Frame by Head
   uint64_t        reserved38[24];                     // Reserved
-  uint64_t        reserved39[24][3];                  // Reserved
+  uint64_t        reserved39[24];                     // Reserved
   uint64_t        reserved40[24][3];                  // Reserved
   uint64_t        reserved41[24][3];                  // Reserved
+  uint64_t        reserved42[24][3];                  // Reserved
 	int64_t         numberLBACorrectedParitySector;     // Number of LBAs Corrected by Parity Sector
 } ATTR_PACKED;
 #pragma pack()
