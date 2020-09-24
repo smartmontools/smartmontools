@@ -998,6 +998,43 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
     return 0;
 }
 
+
+/* Send Power condition command. Returns 0 if ok, anything else major problem.
+ SPC-3 section 5.18 Power Condition Field. 
+ 
+SCSI_ACTIVATE                   0x10
+SCSI_STANDBY                    0x30
+ 
+ */
+
+int
+scsiSetPowerCondition(scsi_device * device, int powermode)
+{
+    struct scsi_cmnd_io io_hdr;
+    uint8_t cdb[6];
+    uint8_t sense[32];
+    uint8_t buff[18];
+    int sz_buff = sizeof(buff);
+
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    memset(cdb, 0, sizeof(cdb));
+    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+    io_hdr.dxfer_len = sz_buff;
+    io_hdr.dxferp = buff;
+    cdb[0] = START_STOP_UNIT;
+    cdb[4] = powermode ;
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+    if (!device->scsi_pass_through(&io_hdr))
+        return -device->get_errno();
+    
+    return 0;
+}
+
 /* SEND DIAGNOSTIC command.  Returns 0 if ok, 1 if NOT READY, 2 if command
  * not supported, 3 if field in command not supported or returns negated
  * errno. SPC-3 section 6.28 (rev 22a) */

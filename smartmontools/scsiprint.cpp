@@ -2672,6 +2672,21 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
 
+// Spin down drive for opton -s standby, timer now supported for SCSI.
+    if (options.set_standby && !options.set_standby_now) {
+      pout("SCSI IDLE command not supported\n") ;
+      returnval |= FAILSMART;
+    }
+
+    if (options.set_standby_now) {
+        if (scsiSetPowerCondition(device, SCSI_STANDBY)) {
+            pout("SCSI STANDBY IMMEDIATE command failed: %s\n", device->get_errmsg());
+            returnval |= FAILSMART;
+        }
+        else
+            pout("Device placed in STANDBY mode\n");
+    }
+
     if (!any_output && powername)
         pout("Device is in %s mode\n", powername); // Output power mode if -n never
 

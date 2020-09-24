@@ -1037,10 +1037,10 @@ Note that ATA standards do not specify a command to set the standby timer
 without affecting the power mode.
 .Sp
 .I standby,now
-\- [ATA only] Places the drive in the STANDBY mode.
+\- Places the drive in the STANDBY mode.
 This usually spins down the drive.
 The setting of the standby timer is not affected unless
-\*(Aq\-s standby,[N|off]\*(Aq is also specified.
+\*(Aq\[ATA] -s standby,[N|off]\*(Aq is also specified.
 .Sp
 .I wcache[,on|off]
 \- [ATA] Gets/sets the volatile write cache feature (if supported).

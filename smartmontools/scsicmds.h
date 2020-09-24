@@ -335,6 +335,10 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_DIAG_FG_EXTENDED_SELF_TEST 0x06
 #define SCSI_DIAG_ABORT_SELF_TEST       0x04
 
+/* Defines for scsiPowerConditions */
+
+#define SCSI_ACTIVATE                   0x10
+#define SCSI_STANDBY                    0x30
 
 /* SCSI command timeout values (units are seconds) */
 #define SCSI_TIMEOUT_DEFAULT    60  // should be longer than the spin up time
@@ -428,6 +432,9 @@ int scsiModePageOffset(const uint8_t * resp, int len, int modese_len);
 
 int scsiRequestSense(scsi_device * device,
                      struct scsi_sense_disect * sense_info);
+
+int scsiSetPowerCondition(scsi_device * device,
+                     int powermode);
 
 int scsiSendDiagnostic(scsi_device * device, int functioncode, uint8_t *pBuf,
                        int bufLen);

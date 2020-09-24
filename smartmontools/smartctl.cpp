@@ -1034,13 +1034,13 @@ static int parse_options(int argc, char** argv, const char * & type,
             ataopts.set_security_freeze = true;
           }
           else if (!get && !strcmp(optarg, "standby,now")) {
-              ataopts.set_standby_now = true;
+              ataopts.set_standby_now = scsiopts.set_standby_now = true;
           }
           else if (!get && !strcmp(name, "standby")) {
             if (off)
-              ataopts.set_standby = 0 + 1;
+              ataopts.set_standby = scsiopts.set_standby = 0 + 1;
             else if (val <= 255)
-              ataopts.set_standby = val + 1;
+              ataopts.set_standby = scsiopts.set_standby = val + 1;
             else {
               snprintf(extraerror, sizeof(extraerror), "Option -s standby,N must have 0 <= N <= 255\n");
               badarg = true;
