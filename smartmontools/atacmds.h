@@ -649,9 +649,9 @@ struct ataFarmDriveInformation {
 	uint64_t        resetCount;             // Hardware Reset Count
 	uint64_t        spinUpTime;             // SMART Spin-Up Time in milliseconds
 	uint64_t        reserved;               // Reserved
-	uint64_t        reserved;               // Reserved
-	uint64_t        reserved;               // Reserved
-	uint64_t        reserved;               // Reserved
+	uint64_t        reserved0;              // Reserved
+	uint64_t        reserved1;              // Reserved
+	uint64_t        reserved2;              // Reserved
 	uint64_t        timeToReady;			      // Time to ready of the last power cycle
 	uint64_t        timeHeld;					      // Time drive is held in staggered spin during the last power on sequence
   uint64_t        modelNumber[10];        // Lower 32 Model Number (added 2.14)
@@ -719,9 +719,9 @@ struct ataFarmErrorStatistics {
 	uint64_t        uncorrectables;                             // Uncorrectable errors (SMART Attribute 187 Raw)
   uint64_t        reserved;                                   // Reserved
   uint64_t        flashLEDArray[8];                           // Info on the last 8 Flash LED (assert) events wrapping array (added 2.7)
-  uint64_t        reserved[8];                                // Reserved
-  uint64_t        reserved[2];                                // Reserved
-  uint64_t        reserved[15];                               // Reserved
+  uint64_t        reserved0[8];                               // Reserved
+  uint64_t        reserved1[2];                               // Reserved
+  uint64_t        reserved2[15];                              // Reserved
   uint64_t        universalTimestampFlashLED[8];              // Universal Timestamp (us) of last 8 Flash LED (assert) Events, wrapping array
   uint64_t        powerCycleFlashLED[8];                      // Power Cycle of the last 8 Flash LED (assert) Events, wrapping array
   uint64_t        cumulativeUnrecoverableReadERC;             // Cumulative Lifetime Unrecoverable Read errors due to Error Recovery Control (e.g. ERC timeout)
@@ -751,9 +751,9 @@ struct ataFarmEnvironmentStatistics {
 	uint64_t         maxTemp;             // Specified Max Operating Temperature in Celsius
 	uint64_t         minTemp;             // Specified Min Operating Temperature in Celsius
 	uint64_t         reserved;            // Reserved
-	uint64_t         reserved;            // Reserved
+	uint64_t         reserved0;           // Reserved
 	uint64_t         humidity;            // Current Relative Humidity (in units of 0.1%)
-	uint64_t         reserved;            // Reserved
+	uint64_t         reserved1;           // Reserved
 	uint64_t         currentMotorPower;   // Current Motor Power, value from most recent SMART Summary Frame
   uint64_t         current12v;          // Current 12V input (added 3.7)
   uint64_t         min12v;              // Minimum 12V input from last 3 SMART Summary Frames in mV (added 3.7)
@@ -778,22 +778,22 @@ struct ataFarmReliabilityStatistics {
 	int64_t         pageNumber;                         // Page Number = 5
 	int64_t         copyNumber;                         // Copy Number
 	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-  uint64_t        reserved[24];                       // Reserved
-  uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved;                           // Reserved
+	uint64_t        reserved0;                          // Reserved
+  uint64_t        reserved1[24];                      // Reserved
+  uint64_t        reserved2[24];                      // Reserved
+	uint64_t        reserved3;                          // Reserved
+	uint64_t        reserved4;                          // Reserved
+	uint64_t        reserved5;                          // Reserved
+	uint64_t        reserved6;                          // Reserved
+	uint64_t        reserved7;                          // Reserved
+	uint64_t        reserved8;                          // Reserved
+	uint64_t        reserved9;                          // Reserved
+	uint64_t        reserved10;                         // Reserved
+	uint64_t        reserved11;                         // Reserved
+	uint64_t        reserved12;                         // Reserved
+	uint64_t        reserved13;                         // Reserved
+	uint64_t        reserved14[24];                     // Reserved
+	uint64_t        reserved15;                         // Reserved
 	int64_t         DVGASkipWriteDetect[24];            // [24] DVGA Skip Write Detect by Head
 	int64_t         RVGASkipWriteDetect[24];            // [24] RVGA Skip Write Detect by Head
 	int64_t         FVGASkipWriteDetect[24];            // [24] FVGA Skip Write Detect by Head
@@ -805,38 +805,38 @@ struct ataFarmReliabilityStatistics {
 	int64_t         attrSeekErrorRateNormal;            // Seek Error Rate Normalized
 	int64_t         attrSeekErrorRateWorst;             // Seek Error Rate Worst
 	int64_t         attrUnloadEventsRaw;                // High Priority Unload Events 
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved[24][3];                    // Reserved
-	uint64_t        reserved[24][3];                    // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved[24];                       // Reserved
-	uint64_t        reserved[24][3];                    // Reserved
-	uint64_t        reserved;                           // Reserved
+	uint64_t        reserved16;                         // Reserved
+	uint64_t        reserved17[24];                     // Reserved
+	uint64_t        reserved18[24];                     // Reserved
+	uint64_t        reserved19[24];                     // Reserved
+	uint64_t        reserved20[24];                     // Reserved
+	uint64_t        reserved21[24];                     // Reserved
+	uint64_t        reserved22[24];                     // Reserved
+	uint64_t        reserved23[24];                     // Reserved
+	uint64_t        reserved24[24][3];                  // Reserved
+	uint64_t        reserved25[24][3];                  // Reserved
+	uint64_t        reserved26[24];                     // Reserved
+	uint64_t        reserved27[24];                     // Reserved
+	uint64_t        reserved28[24];                     // Reserved
+	uint64_t        reserved29[24][3];                  // Reserved
+	uint64_t        reserved30;                         // Reserved
 	int64_t         reallocatedSectors[24];             // [24] Number of Reallocated Sectors per Head
 	int64_t         reallocationCandidates[24];         // [24] Number of Reallocation Candidate Sectors per Head
 	int64_t         heliumPresureTrip;                  // Helium Pressure Threshold Tripped ( 1 - trip, 0 - no trip)
-  uint64_t        reserved[24];                       // Reserved
-  uint64_t        reserved[24];                       // Reserved
-  uint64_t        reserved[24];                       // Reserved
+  uint64_t        reserved31[24];                     // Reserved
+  uint64_t        reserved31[24];                     // Reserved
+  uint64_t        reserved32[24];                     // Reserved
 	int64_t         writeWorkloadPowerOnTime[24];       // [24] Write Workload Power-on Time in Seconds, value from most recent SMART Summary Frame by Head
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-	uint64_t        reserved;                           // Reserved
-  uint64_t        reserved[24];                       // Reserved
+	uint64_t        reserved33;                         // Reserved
+	uint64_t        reserved34;                         // Reserved
+	uint64_t        reserved35;                         // Reserved
+  uint64_t        reserved36[24];                     // Reserved
   int64_t         secondMRHeadResistance[24];         // [24] Second Head, MR Head Resistance from most recent SMART Summary Frame by Head
-  uint64_t        reserved[24];                       // Reserved
-  uint64_t        reserved[24];                       // Reserved
-  uint64_t        reserved[24][3];                    // Reserved
-  uint64_t        reserved[24][3];                    // Reserved
-  uint64_t        reserved[24][3];                    // Reserved
+  uint64_t        reserved37[24];                     // Reserved
+  uint64_t        reserved38[24];                     // Reserved
+  uint64_t        reserved39[24][3];                  // Reserved
+  uint64_t        reserved40[24][3];                  // Reserved
+  uint64_t        reserved41[24][3];                  // Reserved
 	int64_t         numberLBACorrectedParitySector;     // Number of LBAs Corrected by Parity Sector
 } ATTR_PACKED;
 #pragma pack()
