@@ -699,7 +699,7 @@ struct ataFarmErrorStatistics {
 	uint64_t         copyNumber;                          // Copy Number
 	uint64_t         totalReadECC;                        // Number of Unrecoverable Read Errors
 	uint64_t         totalWriteECC;                       // Number of Unrecoverable Write Errors
-	uint64_t         totalReallocations;                  // Number of Reallocated Sectors
+	uint64_t         totalReallocations;                  // Number of Re-allocated Sectors
 	uint64_t         totalReadRecoveryAttepts;            // Number of Read Recovery Attempts
 	uint64_t         totalMechanicalFails;                // Number of Mechanical Start Failures
 	uint64_t         totalReallocatedCanidates;           // Number of Re-allocated Candidate Sectors
