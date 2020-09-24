@@ -2122,13 +2122,14 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
 // Seagate Field Access Reliability Metrics (FARM) log (Log 0xA6)
 
 /*
- *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate drives and parses data
- *  Prints parsed information
+ *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate
+ *  drives and parses data into FARM log structures
+ *  Returns parsed structure as defined in atacmds.h
  *  
  *  @param  Pointer to instantiated device object (* ata_device)
- *  @return True if successfully reads FARM log, false otherwise (bool)
+ *  @return Pointer to parsed data in structure(s) with named members (* ataFarmLogFrame)
  */
-static bool printFarmLog(ata_device * device) {
+static ataFarmLogFrame * readFarmLog(ata_device * device) {
   // Set up constants for FARM log
   const size_t FARM_PAGE_SIZE = 16834;
   const size_t FARM_ATTRIBUTE_SIZE = 8;
@@ -2140,8 +2141,8 @@ static bool printFarmLog(ata_device * device) {
     sizeof(ataFarmErrorStatistics),
     sizeof(ataFarmEnvironmentStatistics),
     sizeof(ataFarmReliabilityStatistics)};
-  ataFarmLogFrame * farmLog;
-  unsigned currentLogOffset = 0;
+  ataFarmLogFrame farmLog;
+  ataFarmLogFrame * ptr_farmLog = &farmLog;
   // Go through each of the six pages of the FARM log
   for (unsigned page = 0; page < FARM_MAX_PAGES; page++) {
     // Reset the buffer
@@ -2152,7 +2153,7 @@ static bool printFarmLog(ata_device * device) {
     bool readSuccessful = ataReadLogExt(device, 0xA6, 0, page, pageBuffer, 1);
     if (!readSuccessful) {
       jerr("Read FARM Log page %u failed\n\n", page);
-      return false;
+      return NULL;
     }
     // Read the page from the buffer, one attribute (8 bytes) at a time
     for (unsigned pageOffset = 0; pageOffset < FARM_CURRENT_PAGE_DATA_SIZE[page]; pageOffset += FARM_ATTRIBUTE_SIZE) {
@@ -2170,8 +2171,8 @@ static bool printFarmLog(ata_device * device) {
       // Page 0 is the log header, so check the log signature to verify this is a FARM log
       if (page == 0 && pageOffset == 0) {
         if (currentMetric != 0x00004641524D4552) {
-          jerr("FARM log header is invalid (log signature=%llu)\n\n", currentMetric);
-          return false;
+          jerr("FARM log header is invalid (log signature=%lu)\n\n", currentMetric);
+          return NULL;
         }
         json::ref jref = jglb["farm_log"];
       }
@@ -2181,24 +2182,42 @@ static bool printFarmLog(ata_device * device) {
     // Copies array values to struct for named member access
     switch (page) {
     case 0:
-      memcpy(&farmLog->headerPage, currentFarmLogPage, sizeof(ataFarmHeader));
+      memcpy(&ptr_farmLog->headerPage, currentFarmLogPage, sizeof(ataFarmHeader));
       break;
     case 1:
-      memcpy(&farmLog->driveInformationPage, currentFarmLogPage, sizeof(ataFarmDriveInformation));
+      memcpy(&ptr_farmLog->driveInformationPage, currentFarmLogPage, sizeof(ataFarmDriveInformation));
       break;
     case 2:
-      memcpy(&farmLog->workloadPage, currentFarmLogPage, sizeof(ataFarmWorkloadStatistics));
+      memcpy(&ptr_farmLog->workloadPage, currentFarmLogPage, sizeof(ataFarmWorkloadStatistics));
       break;
     case 3:
-      memcpy(&farmLog->errorPage, currentFarmLogPage, sizeof(ataFarmErrorStatistics));
+      memcpy(&ptr_farmLog->errorPage, currentFarmLogPage, sizeof(ataFarmErrorStatistics));
       break;
     case 4:
-      memcpy(&farmLog->environmentPage, currentFarmLogPage, sizeof(ataFarmEnvironmentStatistics));
+      memcpy(&ptr_farmLog->environmentPage, currentFarmLogPage, sizeof(ataFarmEnvironmentStatistics));
       break;
     case 5:
-      memcpy(&farmLog->reliabilityPage, currentFarmLogPage, sizeof(ataFarmReliabilityStatistics));
+      memcpy(&ptr_farmLog->reliabilityPage, currentFarmLogPage, sizeof(ataFarmReliabilityStatistics));
       break;
     }
+  }
+  return ptr_farmLog;
+}
+
+///////////////////////////////////////////////////////////////////////
+// Seagate Field Access Reliability Metrics (FARM) log (Log 0xA6)
+
+/*
+ *  Prints parsed FARM log (GP Log 0xA6) data from Seagate
+ *  drives already present in ataFarmLogFrame structure
+ *  
+ *  @param  Pointer to parsed farm log (* ataFarmLogFrame)
+ *  @return True if printing occurred without errors, otherwise false (bool)
+ */
+static bool printFarmLog(ataFarmLogFrame * ptr_farmLog) {
+  if (ptr_farmLog == NULL) {
+    jerr("Error printing parsed FARM log data\n\n");
+    return false;
   }
   return true;
 }
@@ -4529,14 +4548,21 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Print ATA FARM log for Seagate ATA drive
   if (options.farm_log) {
     if (isSeagate(&drive)) {
-      unsigned nsectors = GetNumLogSectors(gplogdir, 0xa6, true);
+      unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
       if (!nsectors) {
         pout("FARM log (GP Log 0xA6) not supported\n\n");
-      } else if (!printFarmLog(device)) {
-        pout("Read FARM log (GP Log 0xA6) failed\n\n");
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      } else {
+        ataFarmLogFrame * ptr_farmLog = readFarmLog(device);
+        if (ptr_farmLog == NULL) {
+          pout("Read FARM log (GP Log 0xA6) failed\n\n");
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        } else {
+          if (!printFarmLog(ptr_farmLog)) {
+            pout("Print FARM log (GP Log 0xA6) failed\n\n");
+          }
+        }
       }
-      pout("SEAGATE ATA\n\n");
+      pout("Read and print FARM log (GP Log 0xA6) for supported Seagate ATA drive succeeded\n\n");
     } else {
       pout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");
     }
