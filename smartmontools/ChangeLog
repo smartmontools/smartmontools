@@ -1,5 +1,11 @@
 $Id$
 
+2020-09-27  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add '--branch' option.
+	Select signing key accordingly.
+	update-smart-drivedb.8.in: Document new option.
+
 2020-09-20  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
