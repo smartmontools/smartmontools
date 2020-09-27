@@ -1,10 +1,10 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-19 Christian Franke
+Copyright (C) 2014-20 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: update-smart-drivedb.8.in 5003 2019-12-13 20:17:36Z chrfranke $
+$Id: update-smart-drivedb.8.in 5088 2020-09-27 15:40:30Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -118,6 +118,11 @@ Download from SVN trunk.
 This requires \*(Aq\-\-no\-verify\*(Aq unless the trunk version is still
 identical to branches/RELEASE_6_0_DRIVEDB.
 .TP
+.B \-\-branch X.Y
+Download from branches/RELEASE_\fBX\fP_\fBY\fP_DRIVEDB.
+This also selects the OpenPGP/GPG key for older branches
+(5.40 to 6.6: Key ID DFD22559).
+.TP
 .B \-\-cacert FILE
 Use CA certificates from FILE to verify the peer.
 .TP
@@ -200,4 +205,4 @@ Alternatively send the info to the smartmontools support mailing list:
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: update-smart-drivedb.8.in 5003 2019-12-13 20:17:36Z chrfranke $
+$Id: update-smart-drivedb.8.in 5088 2020-09-27 15:40:30Z chrfranke $

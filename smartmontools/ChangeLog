@@ -1,4 +1,10 @@
-$Id: ChangeLog 5086 2020-09-20 15:45:41Z chrfranke $
+$Id: ChangeLog 5088 2020-09-27 15:40:30Z chrfranke $
+
+2020-09-27  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add '--branch' option.
+	Select signing key accordingly.
+	update-smart-drivedb.8.in: Document new option.
 
 2020-09-20  Christian Franke  <franke@computer.org>
 
