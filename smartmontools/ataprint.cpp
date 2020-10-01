@@ -3440,7 +3440,7 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
  */
 static bool isSeagate(ata_identify_device * drive) {
   // FIX ME: Seagate model numbers mostly begin with "ST" (all FARM-supported ones do)
-  // FIX ME: Add matching for "XS", as some Seagate drives are labeled that way
+  // FIX ME: Add matching for "XS", as some Seagate drives are labeled like that
   #define SEAGATE_MODEL_MATCH "ST"
   char model[40+1];
   ata_format_id_string(model, drive->model, sizeof(model)-1);
