@@ -2128,9 +2128,9 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
  *  
  *  @param  Pointer to instantiated device object (* ata_device)
  *  @param  Number of 512-byte sectors in this log (unsigned int)
- *  @return Pointer to parsed data in structure(s) with named members (* ataFarmLogFrame)
+ *  @return Pointer to parsed data in structure(s) with named members (* ataFarmLog)
  */
-static ataFarmLogFrame * readFarmLog(ata_device * device, unsigned nsectors) {
+static ataFarmLog * ataReadFarmLog(ata_device * device, unsigned nsectors) {
   // Set up constants for FARM log
   const size_t FARM_PAGE_SIZE = 16384;
   const size_t FARM_ATTRIBUTE_SIZE = 8;
@@ -2144,8 +2144,8 @@ static ataFarmLogFrame * readFarmLog(ata_device * device, unsigned nsectors) {
     sizeof(ataFarmErrorStatistics),
     sizeof(ataFarmEnvironmentStatistics),
     sizeof(ataFarmReliabilityStatistics)};
-  ataFarmLogFrame farmLog;
-  ataFarmLogFrame * ptr_farmLog = &farmLog;
+  ataFarmLog farmLog;
+  ataFarmLog * ptr_farmLog = &farmLog;
   unsigned numSectorsToRead = (sizeof(ataFarmHeader) / FARM_SECTOR_SIZE) + 1;
   // Go through each of the six pages of the FARM log
   for (unsigned page = 0; page < FARM_MAX_PAGES; page++) {
@@ -2220,10 +2220,10 @@ static ataFarmLogFrame * readFarmLog(ata_device * device, unsigned nsectors) {
  *  Prints parsed FARM log (GP Log 0xA6) data from Seagate
  *  drives already present in ataFarmLogFrame structure
  *  
- *  @param  Pointer to parsed farm log (* ataFarmLogFrame)
+ *  @param  Pointer to parsed farm log (* ataFarmLog)
  *  @return True if printing occurred without errors, otherwise false (bool)
  */
-static bool printFarmLog(ataFarmLogFrame * ptr_farmLog) {
+static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   if (ptr_farmLog == NULL) {
     jerr("Error printing parsed FARM log data\n\n");
     return false;
@@ -3439,6 +3439,8 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
 static bool isSeagate(ata_identify_device * drive) {
+  // FIX ME: Seagate model numbers mostly begin with "ST" (all FARM-supported ones do)
+  // FIX ME: Add matching for "XS", as some Seagate drives are labeled that way
   #define SEAGATE_MODEL_MATCH "ST"
   char model[40+1];
   ata_format_id_string(model, drive->model, sizeof(model)-1);
@@ -4582,12 +4584,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       if (!nsectors) {
         pout("FARM log (GP Log 0xA6) not supported\n\n");
       } else {
-        ataFarmLogFrame * ptr_farmLog = readFarmLog(device, nsectors);
+        ataFarmLog * ptr_farmLog = ataReadFarmLog(device, nsectors);
         if (ptr_farmLog == NULL) {
           pout("Read FARM log (GP Log 0xA6) failed\n\n");
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         } else {
-          if (!printFarmLog(ptr_farmLog)) {
+          if (!ataPrintFarmLog(ptr_farmLog)) {
             pout("Print FARM log (GP Log 0xA6) failed\n\n");
           }
         }

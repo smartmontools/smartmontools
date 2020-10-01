@@ -605,7 +605,7 @@ STATIC_ASSERT(sizeof(ata_sct_temperature_history_table) == 512);
 // Log Header
 #pragma pack(1)
 struct ataFarmHeader {
-	uint64_t        signature;        // Log Signature = 0x00004641524D4552
+  uint64_t        signature;        // Log Signature = 0x00004641524D4552
 	uint64_t        majorRev;         // Log Major Revision
 	uint64_t        minorRev;         // Log Rinor Revision
 	uint64_t        pagesSupported;   // Number of Pages Supported
@@ -701,10 +701,10 @@ struct ataFarmErrorStatistics {
 	uint64_t        copyNumber;                                 // Copy Number
 	uint64_t        totalUnrecoverableReadErrors;               // Number of Unrecoverable Read Errors
 	uint64_t        totalUnrecoverableWriteErrors;              // Number of Unrecoverable Write Errors
-	uint64_t        totalReallocations;                         // Number of Re-allocated Sectors
+	uint64_t        totalReallocations;                         // Number of Re-Allocated Sectors
 	uint64_t        totalReadRecoveryAttepts;                   // Number of Read Recovery Attempts
 	uint64_t        totalMechanicalStartRetries;                // Number of Mechanical Start Retries
-	uint64_t        totalReallocationCanidates;                 // Number of Re-allocation Candidate Sectors
+	uint64_t        totalReallocationCanidates;                 // Number of Re-Allocated Candidate Sectors
 	uint64_t        totalASREvents;                             // Number of ASR Events
 	uint64_t        totalCRCErrors;                             // Number of Interface CRC Errors
 	uint64_t        attrSpinRetryCount;                         // Spin Retry Count (Most recent value from array at byte 401 of attribute sector)
@@ -755,7 +755,7 @@ struct ataFarmEnvironmentStatistics {
 	uint64_t         humidity;            // Current Relative Humidity (in units of 0.1%)
 	uint64_t         reserved1;           // Reserved
 	uint64_t         currentMotorPower;   // Current Motor Power, value from most recent SMART Summary Frame
-  uint64_t         current12v;          // Current 12V input (added 3.7)
+  uint64_t         current12v;          // Current 12V input in mV (added 3.7)
   uint64_t         min12v;              // Minimum 12V input from last 3 SMART Summary Frames in mV (added 3.7)
   uint64_t         max12v;              // Maximum 12V input from last 3 SMART Summary Frames in mV (added 3.7)
   uint64_t         current5v;           // Current 5V input in mV (added 3.7)
@@ -844,7 +844,7 @@ STATIC_ASSERT(sizeof(ataFarmReliabilityStatistics) == 8880);
 
 // Seagate Field Access Reliability Metrics log (FARM) all pages
 #pragma pack(1)
-struct ataFarmLogFrame {
+struct ataFarmLog {
   ataFarmHeader                       headerPage;             // Log Header page
 	ataFarmDriveInformation             driveInformationPage;   // Drive Information page
 	ataFarmWorkloadStatistics           workloadPage;           // Workload Statistics page
@@ -853,7 +853,7 @@ struct ataFarmLogFrame {
 	ataFarmReliabilityStatistics        reliabilityPage;        // Reliability Statistics page
 } ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ataFarmLogFrame) == 72 + 376 + 168 + 952 + 256 + 8880);
+STATIC_ASSERT(sizeof(ataFarmLog) == 72 + 376 + 168 + 952 + 256 + 8880);
 
 // Possible values for span_args.mode
 enum {
