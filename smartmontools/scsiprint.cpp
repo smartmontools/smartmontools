@@ -206,7 +206,9 @@ scsiGetSupportedLogPages(scsi_device * device)
     num_unreported_spg = 0;
     for (num_unreported = 0, k = 0; k < resp_len; k += bump, up += bump) {
         uint8_t pg_num = 0x3f & up[0];
-        uint8_t sub_pg_num = (0x40 & up[0]) ? up[1] : 0;
+        // TODO: Fix sub-page problem here
+        // uint8_t sub_pg_num = (0x40 & up[0]) ? up[1] : 0;
+        uint8_t sub_pg_num = (0x3f & up[0]) ? up[1] : 0;
         switch (pg_num)
         {
             case SUPPORTED_LPAGES:
@@ -307,11 +309,7 @@ scsiGetSupportedLogPages(scsi_device * device)
                 break;
             case SEAGATE_FARM_LPAGE:
                 if (isSeagate()) {
-                    pout("SEAGATE SCSI\n\n");
-                    if (NO_SUBPAGE_L_SPAGE == sub_pg_num) {
-                        ++num_unreported;
-                        ++num_unreported_spg;
-                    } else if (SEAGATE_FARM_CURRENT_L_SPAGE == sub_pg_num) {
+                    if (SEAGATE_FARM_CURRENT_L_SPAGE == sub_pg_num) {
                         gSeagateFarmLPage = true;
                     } else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
                         ++num_unreported;
@@ -845,6 +843,207 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
         ucp += pl;
     }
     pout("\n");
+}
+
+///////////////////////////////////////////////////////////////////////
+// Seagate Field Access Reliability Metrics (FARM) log (Log page 0x3D, sub-page 0x3)
+
+/*
+ *  Reads vendor-specific FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
+ *  drives and parses data into FARM log structures
+ *  Returns parsed structure as defined in scsicmds.h
+ *  
+ *  @param  Pointer to instantiated device object (* scsi_device)
+ *  @return Pointer to parsed data in structure(s) with named members (* scsiFarmLog)
+ */
+static scsiFarmLog * scsiReadFarmLog(scsi_device * device) {
+    const size_t FARM_ATTRIBUTE_SIZE = 8;
+    scsiFarmLog farmLog;
+    scsiFarmLog * ptr_farmLog = &farmLog;
+    if (0 != scsiLogSense(device, SEAGATE_FARM_LPAGE, SEAGATE_FARM_CURRENT_L_SPAGE, gBuf, LOG_RESP_LONG_LEN, 0)) {
+        jerr("Read FARM Log page failed\n\n");
+        return NULL;
+    }
+    bool isParameterHeader = true;
+    // Log page header
+    ptr_farmLog->pageHeader.pageCode = gBuf[0];
+    ptr_farmLog->pageHeader.subpageCode = gBuf[1];
+    ptr_farmLog->pageHeader.pageLength = gBuf[2] << 8 | gBuf[3];
+    // Get rest of log
+    // Holds data for each SCSI parameter
+    u_int64_t currentParameter[sizeof(gBuf) / FARM_ATTRIBUTE_SIZE] = {};
+    // Track index of current metric within each parameter
+    unsigned currentMetricIndex = 0;
+    // Track offset (in struct) of current SCSI parameter
+    unsigned currentParameterOffset = 0;
+    // Track offset in struct
+    scsiFarmParameterHeader currentParameterHeader;
+    for (unsigned pageOffset = sizeof(scsiFarmPageHeader); pageOffset < (ptr_farmLog->pageHeader.pageLength + sizeof(scsiFarmPageHeader)); pageOffset += FARM_ATTRIBUTE_SIZE) {
+        // First get parameter header
+        if (isParameterHeader) {
+            // Clear old header
+            currentParameterHeader = scsiFarmParameterHeader();
+            // Set parameter values
+            currentParameterHeader.parameterCode = (gBuf[pageOffset] << 8) | gBuf[pageOffset + 1];
+            currentParameterHeader.parameterControl = gBuf[pageOffset + 2];
+            currentParameterHeader.parameterLength = gBuf[pageOffset + 3];
+            // Add offset to struct based on current parameter code
+            currentParameterOffset = sizeof(scsiFarmPageHeader);
+            if (currentParameterHeader.parameterCode >= 0x1) {
+                currentParameterOffset += sizeof(scsiFarmHeader);
+            }
+            if (currentParameterHeader.parameterCode >= 0x2) {
+                currentParameterOffset += sizeof(scsiFarmDriveInformation);
+            }
+            if (currentParameterHeader.parameterCode >= 0x3) {
+                currentParameterOffset += sizeof(scsiFarmWorkloadStatistics);
+            }
+            if (currentParameterHeader.parameterCode >= 0x4) {
+                currentParameterOffset += sizeof(scsiFarmErrorStatistics);
+            }
+            if (currentParameterHeader.parameterCode >= 0x5) {
+                currentParameterOffset += sizeof(scsiFarmEnvironmentStatistics);
+            }
+            if (currentParameterHeader.parameterCode >= 0x6) {
+                currentParameterOffset += sizeof(scsiFarmReliabilityStatistics);
+            }
+            if (currentParameterHeader.parameterCode >= 0x7) {
+                currentParameterOffset += sizeof(scsiFarmDriveInformation2);
+            }
+            if (currentParameterHeader.parameterCode >= 0x8) {
+                currentParameterOffset += sizeof(scsiFarmEnvironmentStatistics2);
+            }
+            // Skip "By Head" sections that are not present
+            if (currentParameterHeader.parameterCode >= 0x11) {
+                unsigned n = 0;
+                if (currentParameterHeader.parameterCode <= 0x29) {
+                    n = currentParameterHeader.parameterCode - 0x10;
+                } else if (currentParameterHeader.parameterCode >= 0x43 && currentParameterHeader.parameterCode <= 0x43) {
+                    n = (currentParameterHeader.parameterCode - 0x43) + (0x2A - 0x10);
+                } else if (currentParameterHeader.parameterCode >= 0x50) {
+                    n = (0x44 - 0x43) + (0x2A - 0x10);
+                }
+                currentParameterOffset += sizeof(scsiFarmByHead) * n;
+            }
+            if (currentParameterHeader.parameterCode >= 0x51) {
+                currentParameterOffset += sizeof(scsiFarmByActuator);
+            }
+            if (currentParameterHeader.parameterCode >= 0x52) {
+                currentParameterOffset += sizeof(scsiFarmByActuatorFLED);
+            }
+            if (currentParameterHeader.parameterCode >= 0x53) {
+                currentParameterOffset += sizeof(scsiFarmByActuatorReallocation);
+            }
+            if (currentParameterHeader.parameterCode >= 0x61) {
+                currentParameterOffset += sizeof(scsiFarmByActuator);
+            }
+            if (currentParameterHeader.parameterCode >= 0x62) {
+                currentParameterOffset += sizeof(scsiFarmByActuatorFLED);
+            }
+            if (currentParameterHeader.parameterCode >= 0x63) {
+                currentParameterOffset += sizeof(scsiFarmByActuatorReallocation);
+            }
+            if (currentParameterHeader.parameterCode >= 0x71) {
+                currentParameterOffset += sizeof(scsiFarmByActuator);
+            }
+            if (currentParameterHeader.parameterCode >= 0x72) {
+                currentParameterOffset += sizeof(scsiFarmByActuatorFLED);
+            }
+            if (currentParameterHeader.parameterCode >= 0x73) {
+                currentParameterOffset += sizeof(scsiFarmByActuatorReallocation);
+            }
+            if (currentParameterHeader.parameterCode >= 0x81) {
+                currentParameterOffset += sizeof(scsiFarmByActuator);
+            }
+            if (currentParameterHeader.parameterCode >= 0x82) {
+                currentParameterOffset += sizeof(scsiFarmByActuatorFLED);
+            }
+            if (currentParameterHeader.parameterCode >= 0x83) {
+                currentParameterOffset += sizeof(scsiFarmByActuatorReallocation);
+            }
+            // Copy parameter header to struct
+            memcpy((char *) ptr_farmLog + currentParameterOffset, &currentParameterHeader, sizeof(scsiFarmParameterHeader));
+            // Fix offset
+            pageOffset += sizeof(scsiFarmParameterHeader);
+            // No longer setting header
+            isParameterHeader = false;
+            currentMetricIndex = 0;
+        }
+        uint64_t currentMetric = 0;
+        // Read each attribute from the buffer, one byte at a time (combine 8 bytes, big endian)
+        for (unsigned byteOffset = 0; byteOffset < FARM_ATTRIBUTE_SIZE; byteOffset++) {
+            currentMetric |= (uint64_t) (gBuf[pageOffset + byteOffset]) << ((7 - byteOffset) * 8);
+        }
+        // Check the status bit and strip it off if necessary
+        if (currentMetric >> 56 == 0xC0) {
+            currentMetric &= 0x00FFFFFFFFFFFFFFLL;
+            // Parameter 0 is the log header, so check the log signature to verify this is a FARM log
+            if (pageOffset == sizeof(scsiFarmPageHeader)) {
+                if (currentMetric != 0x00004641524D4552) {
+                    jerr("FARM log header is invalid (log signature=%lu)\n\n", currentMetric);
+                    return NULL;
+                }
+            }
+        // If a parameter header is reached, set the values
+        } else if (currentParameterHeader.parameterLength <= currentMetricIndex * FARM_ATTRIBUTE_SIZE) {
+            // Apply header
+            isParameterHeader = true;
+            pageOffset -= FARM_ATTRIBUTE_SIZE;
+            // Copy data to struct (skip parameter header which has already been assigned)
+            memcpy((char *) ptr_farmLog + currentParameterOffset + sizeof(scsiFarmParameterHeader), currentParameter, currentParameterHeader.parameterLength);
+
+            continue;
+        } else {
+            currentMetric = 0;
+        }
+        currentParameter[currentMetricIndex] = currentMetric;
+        currentMetricIndex++;
+    }
+    return ptr_farmLog;
+}
+
+///////////////////////////////////////////////////////////////////////
+// Seagate Field Access Reliability Metrics (FARM) log (Log page 0x3D, sub-page 0x3)
+
+/*
+ *  Prints parsed FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
+ *  drives already present in scsiFarmLog structure
+ *  
+ *  @param  Pointer to parsed farm log (* scsiFarmLog)
+ *  @return True if printing occurred without errors, otherwise false (bool)
+ */
+static bool scsiPrintFarmLog(scsiFarmLog * ptr_farmLog) {
+    if (ptr_farmLog == NULL) {
+        jerr("Error printing parsed FARM log data\n\n");
+        return false;
+    }
+    // Print plain-text
+    jout("Seagate Field Access Reliability Metrics log (FARM) (SCSI Log page 0x3D, sub-page 0x3)\n");
+    jout("Signature: %lu\n", ptr_farmLog->header.signature);
+    jout("Page Length: %u\n", ptr_farmLog->pageHeader.pageLength);
+    jout("Heads: %lu\n", ptr_farmLog->driveInformation.heads);
+    for (unsigned i = 0; i < 8; i++) {
+        jout("MR Head %u: %lu\n", i, ptr_farmLog->mrHeadResistance.headValue[i]);
+    }
+    jout("Number of Unrecoverable Read Errors: %lu\n", ptr_farmLog->error.totalUnrecoverableReadErrors);
+    jout("Number of Unrecoverable Write Errors: %lu\n",ptr_farmLog->error.totalUnrecoverableWriteErrors);
+    //jout("Number of Reallocated Sectors: %lu\n", ptr_farmLog->error.totalReallocations);
+    //jout("Number of Read Recovery Attempts: %lu\n", ptr_farmLog->error.totalReadRecoveryAttepts);
+    jout("Number of Mechanical Start Failures: %lu\n", ptr_farmLog->error.totalMechanicalStartRetries);
+    //jout("Number of IOEDC Errors: %lu\n", ptr_farmLog->error.attrIOEDCErrors);
+    //jout("Error Rate (Normalized): %li\n", ptr_farmLog->reliability.attrErrorRateNormal);
+    //jout("Seek Error Rate (Normalized): %li\n", ptr_farmLog->reliability.attrSeekErrorRateNormal);
+    // Print JSON if --json or -j is specified
+    json::ref jref = jglb["seagate_farm_log"];
+    jref["number_of_unrecoverable_read_errors"] = ptr_farmLog->error.totalUnrecoverableReadErrors;
+    jref["number_of_unrecoverable_write_errors"] = ptr_farmLog->error.totalUnrecoverableWriteErrors;
+    //jref["number_of_reallocated_sectors"] = ptr_farmLog->errorPage.totalReallocations;
+    //jref["number_of_read_recovery_attempts"] = ptr_farmLog->errorPage.totalReadRecoveryAttepts;
+    jref["number_of_mechanical_start_failures"] = ptr_farmLog->error.totalMechanicalStartRetries;
+    //jref["number_of_ioedc_errors"] = ptr_farmLog->errorPage.attrIOEDCErrors;
+    //jref["error_rate_normalized"] = ptr_farmLog->reliabilityPage.attrErrorRateNormal;
+    //jref["seek_error_rate_normalized"] = ptr_farmLog->reliabilityPage.attrSeekErrorRateNormal;
+    return true;
 }
 
 static void
@@ -2336,7 +2535,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     }
     supported_vpd_pages_p = new supported_vpd_pages(device);
 
-    res = scsiGetDriveInfo(device, &peripheral_type, options.drive_info);
+    res = scsiGetDriveInfo(device, &peripheral_type, options.drive_info || options.farm_log);
     if (res) {
         if (2 == res)
             return 0;
@@ -2514,7 +2713,14 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
         }
         if (gSeagateFarmLPage) {
-            pout("FARM SCSI\n\n");
+            scsiFarmLog * ptr_farmLog = scsiReadFarmLog(device);
+            if (ptr_farmLog == NULL) {
+                pout("Read FARM log (SCSI log page 0x3D, sub-page 0x3) failed\n\n");
+            } else {
+                if (!scsiPrintFarmLog(ptr_farmLog)) {
+                    pout("Print FARM log (SCSI log page 0x3D, sub-page 0x3) failed\n\n");
+                }
+            }
         } else {
             pout("FARM log (SCSI log page 0x3D, sub-page 0x3) not supported\n\n");
         }
