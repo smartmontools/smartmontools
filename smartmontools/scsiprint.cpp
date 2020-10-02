@@ -1018,7 +1018,7 @@ static bool scsiPrintFarmLog(scsiFarmLog * ptr_farmLog) {
         return false;
     }
     // Print plain-text
-    jout("Seagate Field Access Reliability Metrics log (FARM) (SCSI Log page 0x3D, sub-page 0x3)\n");
+    jout("\nSeagate Field Access Reliability Metrics log (FARM) (SCSI Log page 0x3D, sub-page 0x3)\n");
     jout("Number of Unrecoverable Read Errors: %lu\n", ptr_farmLog->error.totalUnrecoverableReadErrors);
     jout("Number of Unrecoverable Write Errors: %lu\n",ptr_farmLog->error.totalUnrecoverableWriteErrors);
     //jout("Number of Reallocated Sectors: %lu\n", ptr_farmLog->error.totalReallocations);
