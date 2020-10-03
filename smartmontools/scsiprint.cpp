@@ -2470,7 +2470,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                 scsiGetSupportedLogPages(device);
         res = 0;
         if (gBackgroundResultsLPage)
-              res = scsiPrintBackgroundResults(device, true);
+            res = scsiPrintBackgroundResults(device, true);
         any_output = true;
         }
     }
