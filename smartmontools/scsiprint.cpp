@@ -959,10 +959,6 @@ static scsiFarmLog * scsiReadFarmLog(scsi_device * device) {
             if (currentParameterHeader.parameterCode >= 0x83) {
                 currentParameterOffset += sizeof(scsiFarmByActuatorReallocation);
             }
-            pout("PARAMETER CODE: %u\n", currentParameterHeader.parameterCode);
-            pout("PARAMETER LENGTH: %u\n", currentParameterHeader.parameterLength);
-            pout("PAGE OFFSET: %u\n", pageOffset);
-            pout("STRUCT OFFSET: %u\n\n", currentParameterOffset);
             // Copy parameter header to struct
             memcpy((char *) ptr_farmLog + currentParameterOffset, &currentParameterHeader, sizeof(scsiFarmParameterHeader));
             // Fix offset
@@ -1020,12 +1016,6 @@ static bool scsiPrintFarmLog(scsiFarmLog * ptr_farmLog) {
     }
     // Print plain-text
     jout("\nSeagate Field Access Reliability Metrics log (FARM) (SCSI Log page 0x3D, sub-page 0x3)\n");
-    jout("Signature: %lu\n", ptr_farmLog->header.signature);
-    jout("Page Length: %u\n", ptr_farmLog->pageHeader.pageLength);
-    jout("Heads: %lu\n", ptr_farmLog->driveInformation.heads);
-    for (unsigned i = 0; i < 8; i++) {
-        jout("MR Head %u: %lu\n", i, ptr_farmLog->mrHeadResistance.headValue[i]);
-    }
     jout("Number of Unrecoverable Read Errors: %lu\n", ptr_farmLog->error.totalUnrecoverableReadErrors);
     jout("Number of Unrecoverable Write Errors: %lu\n",ptr_farmLog->error.totalUnrecoverableWriteErrors);
     //jout("Number of Reallocated Sectors: %lu\n", ptr_farmLog->error.totalReallocations);
