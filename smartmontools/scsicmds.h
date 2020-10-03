@@ -539,7 +539,27 @@ struct scsiFarmLog {
     scsiFarmByHead                          reserved18;                             // Reserved
     scsiFarmByHead                          cumulativeUnrecoverableReadRepeat;      // Cumulative Lifetime Unrecoverable Read Repeat by head
     scsiFarmByHead                          cumulativeUnrecoverableReadUnique;      // Cumulative Lifetime Unrecoverable Read Unique by head
-    scsiFarmByHead                          secondMRHeadResistance;                 // Second Head MR Head Resistance from most recent SMART Summary Frame by Head 
+    scsiFarmByHead                          reserved19;                             // Reserved
+    scsiFarmByHead                          reserved20;                             // Reserved
+    scsiFarmByHead                          reserved21;                             // Reserved
+    scsiFarmByHead                          reserved22;                             // Reserved
+    scsiFarmByHead                          reserved23;                             // Reserved
+    scsiFarmByHead                          reserved24;                             // Reserved
+    scsiFarmByHead                          reserved25;                             // Reserved
+    scsiFarmByHead                          reserved26;                             // Reserved
+    scsiFarmByHead                          reserved27;                             // Reserved
+    scsiFarmByHead                          secondMRHeadResistance;                 // Second Head MR Head Resistance from most recent SMART Summary Frame by Head
+    scsiFarmByHead                          reserved28;                             // Reserved
+    scsiFarmByHead                          reserved29;                             // Reserved
+    scsiFarmByHead                          reserved30;                             // Reserved
+    scsiFarmByHead                          reserved31;                             // Reserved
+    scsiFarmByHead                          reserved32;                             // Reserved
+    scsiFarmByHead                          reserved33;                             // Reserved
+    scsiFarmByHead                          reserved34;                             // Reserved
+    scsiFarmByHead                          reserved35;                             // Reserved
+    scsiFarmByHead                          reserved36;                             // Reserved
+    scsiFarmByHead                          reserved37;                             // Reserved
+    scsiFarmByHead                          reserved38;                             // Reserved
     scsiFarmByActuator                      actuator0;                              // Actuator 0 parameters
     scsiFarmByActuatorFLED                  actuatorFLED0;                          // Actuator 0 FLED Information parameters
     scsiFarmByActuatorReallocation          actuatorReallocation0;                  // Actuator 0 Reallocation parameters
@@ -554,7 +574,7 @@ struct scsiFarmLog {
     scsiFarmByActuatorReallocation          actuatorReallocation3;                  // Actuator 3 Reallocation parameters
 } ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmLog) == 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 + 68 + (27 * ((8 * 16) + 4)) + 188 * 4 + 236 * 4 + 164 * 4);
+STATIC_ASSERT(sizeof(scsiFarmLog) == 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 + 68 + (47 * ((8 * 16) + 4)) + 188 * 4 + 236 * 4 + 164 * 4);
 
 /* SCSI Peripheral types (of interest) */
 #define SCSI_PT_DIRECT_ACCESS           0x0

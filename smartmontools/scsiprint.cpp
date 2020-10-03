@@ -914,16 +914,14 @@ static scsiFarmLog * scsiReadFarmLog(scsi_device * device) {
                 currentParameterOffset += sizeof(scsiFarmEnvironmentStatistics2);
             }
             // Skip "By Head" sections that are not present
-            if (currentParameterHeader.parameterCode >= 0x11) {
-                unsigned n = 0;
-                if (currentParameterHeader.parameterCode <= 0x29) {
-                    n = currentParameterHeader.parameterCode - 0x10;
-                } else if (currentParameterHeader.parameterCode >= 0x43 && currentParameterHeader.parameterCode <= 0x43) {
-                    n = (currentParameterHeader.parameterCode - 0x43) + (0x2A - 0x10);
-                } else if (currentParameterHeader.parameterCode >= 0x50) {
-                    n = (0x44 - 0x43) + (0x2A - 0x10);
-                }
-                currentParameterOffset += sizeof(scsiFarmByHead) * n;
+            if (currentParameterHeader.parameterCode >= 0x11 && currentParameterHeader.parameterCode <= 0x29) {
+                currentParameterOffset += sizeof(scsiFarmByHead) * (currentParameterHeader.parameterCode - 0x10);
+            } else if (currentParameterHeader.parameterCode >= 0x30 && currentParameterHeader.parameterCode <= 0x35) {
+                currentParameterOffset += sizeof(scsiFarmByHead) * ((0x2A - 0x10) + (currentParameterHeader.parameterCode - 0x30));
+            } else if (currentParameterHeader.parameterCode >= 0x40 && currentParameterHeader.parameterCode <= 0x4E) {
+                currentParameterOffset += sizeof(scsiFarmByHead) * ((0x2A - 0x10) + (0x36 - 0x30) + (currentParameterHeader.parameterCode - 0x40));
+            } else if (currentParameterHeader.parameterCode >= 0x50) {
+                currentParameterOffset += sizeof(scsiFarmByHead) * ((0x2A - 0x10) + (0x36 - 0x30) + (0x4F - 0x40));
             }
             if (currentParameterHeader.parameterCode >= 0x51) {
                 currentParameterOffset += sizeof(scsiFarmByActuator);
@@ -961,6 +959,10 @@ static scsiFarmLog * scsiReadFarmLog(scsi_device * device) {
             if (currentParameterHeader.parameterCode >= 0x83) {
                 currentParameterOffset += sizeof(scsiFarmByActuatorReallocation);
             }
+            pout("PARAMETER CODE: %u\n", currentParameterHeader.parameterCode);
+            pout("PARAMETER LENGTH: %u\n", currentParameterHeader.parameterLength);
+            pout("PAGE OFFSET: %u\n", pageOffset);
+            pout("STRUCT OFFSET: %u\n\n", currentParameterOffset);
             // Copy parameter header to struct
             memcpy((char *) ptr_farmLog + currentParameterOffset, &currentParameterHeader, sizeof(scsiFarmParameterHeader));
             // Fix offset
@@ -986,12 +988,11 @@ static scsiFarmLog * scsiReadFarmLog(scsi_device * device) {
             }
         // If a parameter header is reached, set the values
         } else if (currentParameterHeader.parameterLength <= currentMetricIndex * FARM_ATTRIBUTE_SIZE) {
-            // Apply header
+            // Apply header for NEXT parameter
             isParameterHeader = true;
             pageOffset -= FARM_ATTRIBUTE_SIZE;
-            // Copy data to struct (skip parameter header which has already been assigned)
+            // Copy data for CURRENT parameter to struct (skip parameter header which has already been assigned)
             memcpy((char *) ptr_farmLog + currentParameterOffset + sizeof(scsiFarmParameterHeader), currentParameter, currentParameterHeader.parameterLength);
-
             continue;
         } else {
             currentMetric = 0;
@@ -1019,6 +1020,12 @@ static bool scsiPrintFarmLog(scsiFarmLog * ptr_farmLog) {
     }
     // Print plain-text
     jout("\nSeagate Field Access Reliability Metrics log (FARM) (SCSI Log page 0x3D, sub-page 0x3)\n");
+    jout("Signature: %lu\n", ptr_farmLog->header.signature);
+    jout("Page Length: %u\n", ptr_farmLog->pageHeader.pageLength);
+    jout("Heads: %lu\n", ptr_farmLog->driveInformation.heads);
+    for (unsigned i = 0; i < 8; i++) {
+        jout("MR Head %u: %lu\n", i, ptr_farmLog->mrHeadResistance.headValue[i]);
+    }
     jout("Number of Unrecoverable Read Errors: %lu\n", ptr_farmLog->error.totalUnrecoverableReadErrors);
     jout("Number of Unrecoverable Write Errors: %lu\n",ptr_farmLog->error.totalUnrecoverableWriteErrors);
     //jout("Number of Reallocated Sectors: %lu\n", ptr_farmLog->error.totalReallocations);
