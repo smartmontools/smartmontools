@@ -43,7 +43,7 @@ public:
   sntjmicron_device(smart_interface * intf, scsi_device * scsidev,
                     const char * req_type, unsigned nsid);
 
-  virtual ~sntjmicron_device() throw();
+  virtual ~sntjmicron_device();
 
   virtual bool open();
 
@@ -64,7 +64,7 @@ sntjmicron_device::sntjmicron_device(smart_interface * intf, scsi_device * scsid
   set_info().info_name = strprintf("%s [USB NVMe JMicron]", scsidev->get_info_name());
 }
 
-sntjmicron_device::~sntjmicron_device() throw()
+sntjmicron_device::~sntjmicron_device()
 {
 }
 
@@ -238,7 +238,7 @@ public:
   sntrealtek_device(smart_interface * intf, scsi_device * scsidev,
                     const char * req_type, unsigned nsid);
 
-  virtual ~sntrealtek_device() throw();
+  virtual ~sntrealtek_device();
 
   virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
 };
@@ -251,7 +251,7 @@ sntrealtek_device::sntrealtek_device(smart_interface * intf, scsi_device * scsid
   set_info().info_name = strprintf("%s [USB NVMe Realtek]", scsidev->get_info_name());
 }
 
-sntrealtek_device::~sntrealtek_device() throw()
+sntrealtek_device::~sntrealtek_device()
 {
 }
 
