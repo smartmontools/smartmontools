@@ -1,11 +1,11 @@
 /*
- *  os_linux.cpp
+ * os_linux.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-19 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -89,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 5025 2020-01-02 16:04:49Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 5089 2020-10-06 15:31:47Z chrfranke $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -108,7 +108,7 @@ public:
       m_flags(flags), m_retry_flags(retry_flags)
       { }
 
-  virtual ~linux_smart_device() throw();
+  virtual ~linux_smart_device();
 
   virtual bool is_open() const;
 
@@ -130,7 +130,7 @@ private:
   int m_retry_flags; ///< Flags to retry ::open(), -1 if no retry
 };
 
-linux_smart_device::~linux_smart_device() throw()
+linux_smart_device::~linux_smart_device()
 {
   if (m_fd >= 0)
     ::close(m_fd);
@@ -955,7 +955,7 @@ public:
   linux_aacraid_device(smart_interface *intf, const char *dev_name,
     unsigned int host, unsigned int channel, unsigned int device);
 
-  virtual ~linux_aacraid_device() throw();
+  virtual ~linux_aacraid_device();
 
   virtual bool open();
 
@@ -983,7 +983,7 @@ linux_aacraid_device::linux_aacraid_device(smart_interface *intf,
   set_info().dev_type  = strprintf("aacraid,%d,%d,%d",aHost,aLun,aId);
 }
 
-linux_aacraid_device::~linux_aacraid_device() throw()
+linux_aacraid_device::~linux_aacraid_device()
 {
 }
 
@@ -1191,7 +1191,7 @@ public:
   linux_megaraid_device(smart_interface *intf, const char *name, 
     unsigned int tgt);
 
-  virtual ~linux_megaraid_device() throw();
+  virtual ~linux_megaraid_device();
 
   virtual smart_device * autodetect_open();
 
@@ -1224,7 +1224,7 @@ linux_megaraid_device::linux_megaraid_device(smart_interface *intf,
   set_info().dev_type = strprintf("megaraid,%d", tgt);
 }
 
-linux_megaraid_device::~linux_megaraid_device() throw()
+linux_megaraid_device::~linux_megaraid_device()
 {
   if (m_fd >= 0)
     ::close(m_fd);

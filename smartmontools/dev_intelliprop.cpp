@@ -15,7 +15,7 @@
 #include "dev_tunnelled.h"
 #include <errno.h>
 
-const char * dev_intelliprop_cpp_cvsid = "$Id: dev_intelliprop.cpp 5036 2020-03-01 17:18:01Z chrfranke $";
+const char * dev_intelliprop_cpp_cvsid = "$Id: dev_intelliprop.cpp 5089 2020-10-06 15:31:47Z chrfranke $";
 
 //Vendor Specific log addresses
 #define LOG_C0           0xc0
@@ -246,7 +246,7 @@ class intelliprop_device
 public:
   intelliprop_device(smart_interface * intf, unsigned phydrive, ata_device * atadev);
 
-  virtual ~intelliprop_device() throw();
+  virtual ~intelliprop_device();
 
   virtual bool open();
 
@@ -265,7 +265,7 @@ intelliprop_device::intelliprop_device(smart_interface * intf, unsigned phydrive
   set_info().info_name = strprintf("%s [intelliprop_disk_%u]", atadev->get_info_name(), phydrive);
 }
 
-intelliprop_device::~intelliprop_device() throw()
+intelliprop_device::~intelliprop_device()
 {
 }
 

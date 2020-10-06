@@ -1,7 +1,7 @@
 /*
  * dev_areca.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2012 Hank Wu <hank@areca.com.tw>
  *
@@ -13,7 +13,7 @@
 #include "dev_interface.h"
 #include "dev_areca.h"
 
-const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
+const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 5089 2020-10-06 15:31:47Z chrfranke $"
   DEV_ARECA_H_CVSID;
 
 #include "atacmds.h"
@@ -78,7 +78,7 @@ generic_areca_device::generic_areca_device(smart_interface * intf, const char * 
   set_info().info_name = strprintf("%s [areca_disk#%02d_enc#%02d]", dev_name, disknum, encnum);
 }
 
-generic_areca_device::~generic_areca_device() throw()
+generic_areca_device::~generic_areca_device()
 {
 
 }
@@ -653,7 +653,7 @@ areca_ata_device::areca_ata_device(smart_interface * intf, const char * dev_name
   set_info().info_name = strprintf("%s [areca_disk#%02d_enc#%02d]", dev_name, disknum, encnum);
 }
 
-areca_ata_device::~areca_ata_device() throw()
+areca_ata_device::~areca_ata_device()
 {
 
 }
@@ -681,7 +681,7 @@ areca_scsi_device::areca_scsi_device(smart_interface * intf, const char * dev_na
   set_info().info_name = strprintf("%s [areca_disk#%02d_enc#%02d]", dev_name, disknum, encnum);
 }
 
-areca_scsi_device::~areca_scsi_device() throw()
+areca_scsi_device::~areca_scsi_device()
 {
 
 }

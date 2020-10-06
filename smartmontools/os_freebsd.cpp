@@ -1,7 +1,7 @@
 /*
- * os_freebsd.c
+ * os_freebsd.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-10 Eduard Martinescu
  *
@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 4888 2019-01-02 22:09:00Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5089 2020-10-06 15:31:47Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -139,7 +139,7 @@ public:
     : smart_device(never_called),
       m_fd(-1) { }
 
-  virtual ~freebsd_smart_device() throw();
+  virtual ~freebsd_smart_device();
 
   virtual bool is_open() const;
 
@@ -168,7 +168,7 @@ static inline void * reallocf(void *ptr, size_t size) {
    }
 #endif
 
-freebsd_smart_device::~freebsd_smart_device() throw()
+freebsd_smart_device::~freebsd_smart_device()
 {
   if (m_fd >= 0)
     os_freebsd::freebsd_smart_device::close();

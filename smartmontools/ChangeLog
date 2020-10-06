@@ -1,4 +1,9 @@
-$Id: ChangeLog 5088 2020-09-27 15:40:30Z chrfranke $
+$Id: ChangeLog 5089 2020-10-06 15:31:47Z chrfranke $
+
+2020-10-06  Christian Franke  <franke@computer.org>
+
+	Remove all occurrences of the throw() specifier.
+	This specifier is deprecated since C++11.
 
 2020-09-27  Christian Franke  <franke@computer.org>
 

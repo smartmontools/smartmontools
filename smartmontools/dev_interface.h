@@ -11,7 +11,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 5036 2020-03-01 17:18:01Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 5089 2020-10-06 15:31:47Z chrfranke $\n"
 
 #include "utility.h"
 
@@ -75,7 +75,7 @@ protected:
   explicit smart_device(do_not_use_in_implementation_classes);
 
 public:
-  virtual ~smart_device() throw();
+  virtual ~smart_device();
 
 // Attributes
 public:
@@ -716,7 +716,7 @@ public:
     : m_dev(dev), m_base_dev(base_dev) { }
 
   /// Destructor deletes device object.
-  ~any_device_auto_ptr() throw()
+  ~any_device_auto_ptr()
     { reset(); }
 
   /// Assign a new pointer.
@@ -801,7 +801,7 @@ public:
   smart_device_list()
     { }
 
-  ~smart_device_list() throw()
+  ~smart_device_list()
     {
       for (unsigned i = 0; i < m_list.size(); i++)
         delete m_list[i];
@@ -881,7 +881,7 @@ public:
   smart_interface()
     { }
 
-  virtual ~smart_interface() throw()
+  virtual ~smart_interface()
     { }
 
   /// Return info string about build host and/or OS version.

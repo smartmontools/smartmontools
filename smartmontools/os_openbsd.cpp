@@ -1,7 +1,7 @@
 /*
- * os_openbsd.c
+ * os_openbsd.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2004-10 David Snyder
  *
@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include <util.h>
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 5063 2020-06-05 09:53:42Z samm2 $"
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 5089 2020-10-06 15:31:47Z chrfranke $"
   OS_OPENBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))
@@ -47,7 +47,7 @@ public:
     : smart_device(never_called),
       m_fd(-1) { }
 
-  virtual ~openbsd_smart_device() throw();
+  virtual ~openbsd_smart_device();
 
   virtual bool is_open() const;
 
@@ -67,7 +67,7 @@ private:
   int m_fd; ///< filedesc, -1 if not open.
 };
 
-openbsd_smart_device::~openbsd_smart_device() throw()
+openbsd_smart_device::~openbsd_smart_device()
 {
   if (m_fd >= 0)
     os_openbsd::openbsd_smart_device::close();

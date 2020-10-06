@@ -26,7 +26,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5051 2020-04-23 16:40:09Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5089 2020-10-06 15:31:47Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ smart_device::smart_device(do_not_use_in_implementation_classes)
   throw std::logic_error("smart_device: wrong constructor called in implementation class");
 }
 
-smart_device::~smart_device() throw()
+smart_device::~smart_device()
 {
   s_num_objects--;
 }
@@ -252,7 +252,7 @@ tunnelled_device_base::tunnelled_device_base(smart_device * tunnel_dev)
 {
 }
 
-tunnelled_device_base::~tunnelled_device_base() throw()
+tunnelled_device_base::~tunnelled_device_base()
 {
   delete m_tunnel_base_dev;
 }

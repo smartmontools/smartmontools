@@ -1,9 +1,9 @@
 /*
  * dev_tunnelled.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -11,7 +11,7 @@
 #ifndef DEV_TUNNELLED_H
 #define DEV_TUNNELLED_H
 
-#define DEV_TUNNELLED_H_CVSID "$Id: dev_tunnelled.h 4848 2018-12-05 18:30:46Z chrfranke $"
+#define DEV_TUNNELLED_H_CVSID "$Id: dev_tunnelled.h 5089 2020-10-06 15:31:47Z chrfranke $"
 
 #include "dev_interface.h"
 
@@ -27,7 +27,7 @@ protected:
   explicit tunnelled_device_base(smart_device * tunnel_dev);
 
 public:
-  virtual ~tunnelled_device_base() throw();
+  virtual ~tunnelled_device_base();
 
   virtual bool is_open() const;
 

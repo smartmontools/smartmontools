@@ -25,7 +25,7 @@
 
 #include <errno.h>
 
-const char * dev_jmb39x_raid_cpp_svnid = "$Id: dev_jmb39x_raid.cpp 5046 2020-04-04 17:01:52Z chrfranke $";
+const char * dev_jmb39x_raid_cpp_svnid = "$Id: dev_jmb39x_raid.cpp 5089 2020-10-06 15:31:47Z chrfranke $";
 
 static void jmbassert_failed(int line, const char * expr)
 {
@@ -317,7 +317,7 @@ public:
   jmb39x_device(smart_interface * intf, smart_device * smartdev, const char * req_type,
     uint8_t version, uint8_t port, uint8_t lba, bool force);
 
-  virtual ~jmb39x_device() throw();
+  virtual ~jmb39x_device();
 
   virtual bool open();
 
@@ -354,7 +354,7 @@ jmb39x_device::jmb39x_device(smart_interface * intf, smart_device * smartdev, co
   memset(m_orig_data, 0, sizeof(m_orig_data));
 }
 
-jmb39x_device::~jmb39x_device() throw()
+jmb39x_device::~jmb39x_device()
 {
   if (m_orig_write_back) try {
     jmb39x_device::restore_orig_data();

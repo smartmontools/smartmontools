@@ -1,7 +1,7 @@
 /*
  * os_darwin.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Geoffrey Keating <geoffk@geoffk.org>
  * Copyright (C) 2014 Alex Samorukov <samm@os2.kiev.ua>
@@ -38,7 +38,7 @@
 
 #define ARGUSED(x) ((void)(x))
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 5073 2020-06-24 08:08:38Z samm2 $" \
+const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 5089 2020-10-06 15:31:47Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
@@ -65,7 +65,7 @@ static struct {
   IONVMeSMARTInterface **smartIfNVMe;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 5073 2020-06-24 08:08:38Z samm2 $"
+const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 5089 2020-10-06 15:31:47Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ public:
     : smart_device(never_called),
       m_fd(-1), m_mode(mode) { }
 
-  virtual ~darwin_smart_device() throw();
+  virtual ~darwin_smart_device();
 
   virtual bool is_open() const;
 
@@ -102,7 +102,7 @@ private:
 };
 
 
-darwin_smart_device::~darwin_smart_device() throw()
+darwin_smart_device::~darwin_smart_device()
 {
   if (m_fd >= 0)
     darwin_smart_device::close();
