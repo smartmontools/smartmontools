@@ -2240,6 +2240,12 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   jout("Number of IOEDC Errors: %lu\n", ptr_farmLog->errorPage.attrIOEDCErrors);
   jout("Error Rate (Normalized): %li\n", ptr_farmLog->reliabilityPage.attrErrorRateNormal);
   jout("Seek Error Rate (Normalized): %li\n", ptr_farmLog->reliabilityPage.attrSeekErrorRateNormal);
+  jout("Current 12V Input (mV): %lu\n", ptr_farmLog->environmentPage.current12v);
+  jout("Minimum 12V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environmentPage.min12v);
+  jout("Maximum 12V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environmentPage.max12v);
+  jout("Current 5V Input (mV): %lu\n", ptr_farmLog->environmentPage.current5v);
+  jout("Minimum 5V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environmentPage.min5v);
+  jout("Maximum 5V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environmentPage.max5v);
   // Print JSON if --json or -j is specified
   json::ref jref = jglb["seagate_farm_log"];
   jref["log_major_revision"] = ptr_farmLog->headerPage.majorRev;
@@ -2252,6 +2258,12 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   jref["number_of_ioedc_errors"] = ptr_farmLog->errorPage.attrIOEDCErrors;
   jref["error_rate_normalized"] = ptr_farmLog->reliabilityPage.attrErrorRateNormal;
   jref["seek_error_rate_normalized"] = ptr_farmLog->reliabilityPage.attrSeekErrorRateNormal;
+  jref["current_12_volt_input_in_mv"] = ptr_farmLog->environmentPage.current12v;
+  jref["minimum_12_volt_input_in_mv"] = ptr_farmLog->environmentPage.min12v;
+  jref["maximum_12_volt_input_in_mv"] = ptr_farmLog->environmentPage.max12v;
+  jref["current_5_volt_input_in_mv"] = ptr_farmLog->environmentPage.current5v;
+  jref["minimum_5_volt_input_in_mv"] = ptr_farmLog->environmentPage.min5v;
+  jref["maximum_5_volt_input_in_mv"] = ptr_farmLog->environmentPage.max5v;
   return true;
 }
 
