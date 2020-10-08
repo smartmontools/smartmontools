@@ -2230,6 +2230,8 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   }
   // Print plain-text
   jout("\nSeagate Field Access Reliability Metrics log (FARM) (GP log 0xA6)\n");
+  jout("FARM Log Major Revision: %lu\n", ptr_farmLog->headerPage.majorRev);
+  jout("FARM Log Minor Revision: %lu\n", ptr_farmLog->headerPage.minorRev);
   jout("Number of Unrecoverable Read Errors: %lu\n", ptr_farmLog->errorPage.totalUnrecoverableReadErrors);
   jout("Number of Unrecoverable Write Errors: %lu\n",ptr_farmLog->errorPage.totalUnrecoverableWriteErrors);
   jout("Number of Reallocated Sectors: %lu\n", ptr_farmLog->errorPage.totalReallocations);
@@ -2240,6 +2242,8 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   jout("Seek Error Rate (Normalized): %li\n", ptr_farmLog->reliabilityPage.attrSeekErrorRateNormal);
   // Print JSON if --json or -j is specified
   json::ref jref = jglb["seagate_farm_log"];
+  jref["log_major_revision"] = ptr_farmLog->headerPage.majorRev;
+  jref["log_minor_revision"] = ptr_farmLog->headerPage.minorRev;
   jref["number_of_unrecoverable_read_errors"] = ptr_farmLog->errorPage.totalUnrecoverableReadErrors;
   jref["number_of_unrecoverable_write_errors"] = ptr_farmLog->errorPage.totalUnrecoverableWriteErrors;
   jref["number_of_reallocated_sectors"] = ptr_farmLog->errorPage.totalReallocations;
