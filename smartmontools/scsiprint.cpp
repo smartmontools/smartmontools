@@ -1020,24 +1020,26 @@ static bool scsiPrintFarmLog(scsiFarmLog * ptr_farmLog) {
     jout("FARM Log Minor Revision: %lu\n", ptr_farmLog->header.minorRev);
     jout("Number of Unrecoverable Read Errors: %lu\n", ptr_farmLog->error.totalUnrecoverableReadErrors);
     jout("Number of Unrecoverable Write Errors: %lu\n",ptr_farmLog->error.totalUnrecoverableWriteErrors);
-    //jout("Number of Reallocated Sectors: %lu\n", ptr_farmLog->error.totalReallocations);
-    //jout("Number of Read Recovery Attempts: %lu\n", ptr_farmLog->error.totalReadRecoveryAttepts);
     jout("Number of Mechanical Start Failures: %lu\n", ptr_farmLog->error.totalMechanicalStartRetries);
-    //jout("Number of IOEDC Errors: %lu\n", ptr_farmLog->error.attrIOEDCErrors);
-    //jout("Error Rate (Normalized): %li\n", ptr_farmLog->reliability.attrErrorRateNormal);
-    //jout("Seek Error Rate (Normalized): %li\n", ptr_farmLog->reliability.attrSeekErrorRateNormal);
+    jout("Current 12V Input (mV): %lu\n", ptr_farmLog->environment2.current12v);
+    jout("Minimum 12V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environment2.min12v);
+    jout("Maximum 12V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environment2.max12v);
+    jout("Current 5V Input (mV): %lu\n", ptr_farmLog->environment2.current5v);
+    jout("Minimum 5V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environment2.min5v);
+    jout("Maximum 5V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environment2.max5v);
     // Print JSON if --json or -j is specified
     json::ref jref = jglb["seagate_farm_log"];
     jref["log_major_revision"] = ptr_farmLog->header.majorRev;
     jref["log_minor_revision"] = ptr_farmLog->header.minorRev;
     jref["number_of_unrecoverable_read_errors"] = ptr_farmLog->error.totalUnrecoverableReadErrors;
     jref["number_of_unrecoverable_write_errors"] = ptr_farmLog->error.totalUnrecoverableWriteErrors;
-    //jref["number_of_reallocated_sectors"] = ptr_farmLog->errorPage.totalReallocations;
-    //jref["number_of_read_recovery_attempts"] = ptr_farmLog->errorPage.totalReadRecoveryAttepts;
     jref["number_of_mechanical_start_failures"] = ptr_farmLog->error.totalMechanicalStartRetries;
-    //jref["number_of_ioedc_errors"] = ptr_farmLog->errorPage.attrIOEDCErrors;
-    //jref["error_rate_normalized"] = ptr_farmLog->reliabilityPage.attrErrorRateNormal;
-    //jref["seek_error_rate_normalized"] = ptr_farmLog->reliabilityPage.attrSeekErrorRateNormal;
+    jref["current_12_volt_input_in_mv"] = ptr_farmLog->environment2.current12v;
+    jref["minimum_12_volt_input_in_mv"] = ptr_farmLog->environment2.min12v;
+    jref["maximum_12_volt_input_in_mv"] = ptr_farmLog->environment2.max12v;
+    jref["current_5_volt_input_in_mv"] = ptr_farmLog->environment2.current5v;
+    jref["minimum_5_volt_input_in_mv"] = ptr_farmLog->environment2.min5v;
+    jref["maximum_5_volt_input_in_mv"] = ptr_farmLog->environment2.max5v;
     return true;
 }
 
