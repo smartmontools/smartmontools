@@ -2522,7 +2522,7 @@ class parsed_ata_device
 public:
   parsed_ata_device(smart_interface * intf, const char * dev_name);
 
-  virtual ~parsed_ata_device() throw();
+  virtual ~parsed_ata_device();
 
   virtual bool is_open() const;
 
@@ -2603,7 +2603,7 @@ parsed_ata_device::parsed_ata_device(smart_interface * intf, const char * dev_na
   memset(m_command_table, 0, sizeof(m_command_table));
 }
 
-parsed_ata_device::~parsed_ata_device() throw()
+parsed_ata_device::~parsed_ata_device()
 {
   parsed_ata_device::close();
 }

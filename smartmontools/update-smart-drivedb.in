@@ -2,9 +2,9 @@
 #
 # smartmontools drive database update script
 #
-# Home page of code is: http://www.smartmontools.org
+# Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2010-19 Christian Franke
+# Copyright (C) 2010-20 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -65,6 +65,7 @@ Usage: $myname [OPTIONS] [DESTFILE]
                     svni (SVN repository via HTTP instead of HTTPS)
                     trac (Trac code browser)
   --trunk         Download from SVN trunk (may require '--no-verify')
+  --branch X.Y    Download from branches/RELEASE_X_Y_DRIVEDB
   --cacert FILE   Use CA certificates from FILE to verify the peer
   --capath DIR    Use CA certificate files from DIR to verify the peer
   --insecure      Don't abort download if certificate verification fails
@@ -261,8 +262,110 @@ unexpand_svn_id()
   sed 's,\$''Id'': drivedb\.h [0-9][0-9]* 2[-0-9]* [012][:0-9]*Z [a-z][a-z0-9]* \$,$''Id''$,'
 }
 
-# Smartmontools Signing Key (through 2020)
-# <smartmontools-database@listi.jpberlin.de>
+# selectkey BRANCH
+selectkey()
+{
+  case $1 in
+    RELEASE_5_4[0-3]_DRIVEDB|RELEASE_6_[0-6]_DRIVEDB)
+# Smartmontools Signing Key (ext. to 2024) <smartmontools-database@listi.jpberlin.de>
+# Smartmontools Signing Key (through 2018) <smartmontools-database@listi.jpberlin.de>
+# Smartmontools Signing Key (through 2018) <smartmontools-database@lists.sourceforge.net>
+# Key ID DFD22559
+public_key="\
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+1TC5jSVOIEqOE4TwzRz1Y/dfqSU=
+=3Lcg
+-----END PGP PUBLIC KEY BLOCK-----
+"
+      ;;
+
+    RELEASE_7_0_DRIVEDB)
+# Smartmontools Signing Key (through 2020) <smartmontools-database@listi.jpberlin.de>
 # Key ID 721042C5
 public_key="\
 -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -313,6 +416,11 @@ bKOdlahjoHrFlkhADSBaO9N1OZp3OYDjziIujMdt2IPKnmM=
 =0uFV
 -----END PGP PUBLIC KEY BLOCK-----
 "
+      ;;
+
+    *) error "No known public key for branches/$1" ;;
+  esac
+}
 
 # gpg_verify FILE.asc FILE
 gpg_verify()
@@ -357,14 +465,16 @@ mv_all()
 # Parse options
 smtctl=$SMARTCTL
 tool=
-url=
+urlid="svn"
 q="-q"
 dryrun=
 trunk=
+brnch=$BRANCH
 cacert=
 capath=
 insecure=
 no_verify=
+expkey=
 
 while true; do case $1 in
   -s)
@@ -378,7 +488,8 @@ while true; do case $1 in
     tool=$1 ;;
 
   -u)
-    shift; selecturl "$1" ;;
+    shift; test -n "$1" || usage
+    urlid=$1 ;;
 
   -v)
     q= ;;
@@ -388,6 +499,11 @@ while true; do case $1 in
 
   --trunk)
     trunk=trunk ;;
+
+  --branch)
+    shift
+    brnch=`echo "$1" | sed -n 's,^\([567]\)\.\([0-9][0-9]*\)$,RELEASE_\1_\2_DRIVEDB,p'`
+    test -n "$brnch" || usage ;;
 
   --cacert)
     shift; test -n "$1" || usage
@@ -404,10 +520,7 @@ while true; do case $1 in
     no_verify=t ;;
 
   --export-key)
-    cat <<EOF
-$public_key
-EOF
-    exit 0 ;;
+    expkey=t ;;
 
   -*)
     usage ;;
@@ -416,11 +529,22 @@ EOF
     break ;;
 esac; shift; done
 
+if [ -n "$expkey" ]; then
+  test $# = 0 || usage
+  selectkey "$brnch"
+  cat <<EOF
+$public_key
+EOF
+  exit 0
+fi
+
 case $# in
   0) DEST=$DRIVEDB ;;
   1) DEST=$1 ;;
   *) usage ;;
 esac
+
+selecturl "$urlid"
 
 if [ -z "$tool" ]; then
   # Find download tool in PATH
@@ -432,8 +556,6 @@ if [ -z "$tool" ]; then
   done
   test -n "$tool" || error "found none of '$os_dltools' in $pathinfo"
 fi
-
-test -n "$url" || selecturl "svn"
 
 # Check option compatibility
 case "$tool:$url" in
@@ -464,38 +586,39 @@ if [ -z "$no_verify" ]; then
   || error "GnuPG is not available ('--no-verify' to ignore)"
   "$GPG" --version >/dev/null 2>&1 \
   || err_notfound "$GPG" "('--no-verify' to ignore)"
+  selectkey "$brnch"
 fi
 
 # Use destination directory as temp directory for gpg
 tmpdir=`dirname "$DEST"`
 
 # Adjust URLs
-src=`echo "$url" | sed -e "s,/trunk/,/branches/$BRANCH/," \
-                       -e "s,/master/,/origin/$BRANCH/,"`
+src=`echo "$url" | sed -e "s,/trunk/,/branches/$brnch/," \
+                       -e "s,/master/,/origin/$brnch/,"`
 src_asc=`echo "$src" | sed "s,/drivedb\.h,/drivedb.h.raw.asc,"`
 test -z "$trunk" || src=$url
 
 # Download
 test -n "$dryrun" || rm -f "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
 
-vecho "Download ${trunk:-branches/$BRANCH}/drivedb.h with $tool"
+vecho "Download ${trunk:-branches/$brnch}/drivedb.h with $tool"
 rc=0
 download "$src" "$DEST.new" || rc=$?
 if [ $rc != 0 ]; then
   rm -f "$DEST.new"
-  error "${trunk:-$BRANCH}/drivedb.h: download failed ($tool: exit $rc)"
+  error "${trunk:-$brnch}/drivedb.h: download failed ($tool: exit $rc)"
 fi
 if ! errmsg=`check_file "$DEST.new" '/' 10000 1000000`; then
   mv "$DEST.new" "$DEST.error"
   error "$DEST.error: $errmsg"
 fi
 
-vecho "Download branches/$BRANCH/drivedb.h.raw.asc with $tool"
+vecho "Download branches/$brnch/drivedb.h.raw.asc with $tool"
 rc=0
 download "$src_asc" "$DEST.new.raw.asc" || rc=$?
 if [ $rc != 0 ]; then
   rm -f "$DEST.new" "$DEST.new.raw.asc"
-  error "$BRANCH/drivedb.h.raw.asc: download failed ($tool: exit $rc)"
+  error "$brnch/drivedb.h.raw.asc: download failed ($tool: exit $rc)"
 fi
 if ! errmsg=`check_file "$DEST.new.raw.asc" '-' 200 2000`; then
   rm -f "$DEST.new"
@@ -553,4 +676,4 @@ fi
 
 mv_all "$DEST" ".new" ""
 
-echo "$DEST updated from ${trunk:-branches/$BRANCH}${no_verify:+ (NOT VERIFIED)}"
+echo "$DEST updated from ${trunk:-branches/$brnch}${no_verify:+ (NOT VERIFIED)}"

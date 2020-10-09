@@ -48,7 +48,7 @@ smart_device::smart_device(do_not_use_in_implementation_classes)
   throw std::logic_error("smart_device: wrong constructor called in implementation class");
 }
 
-smart_device::~smart_device() throw()
+smart_device::~smart_device()
 {
   s_num_objects--;
 }
@@ -252,7 +252,7 @@ tunnelled_device_base::tunnelled_device_base(smart_device * tunnel_dev)
 {
 }
 
-tunnelled_device_base::~tunnelled_device_base() throw()
+tunnelled_device_base::~tunnelled_device_base()
 {
   delete m_tunnel_base_dev;
 }

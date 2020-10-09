@@ -1,9 +1,9 @@
 /*
  * dev_tunnelled.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -27,7 +27,7 @@ protected:
   explicit tunnelled_device_base(smart_device * tunnel_dev);
 
 public:
-  virtual ~tunnelled_device_base() throw();
+  virtual ~tunnelled_device_base();
 
   virtual bool is_open() const;
 
