@@ -1,5 +1,13 @@
 $Id$
 
+2020-10-09  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Don't print 'Accumulated power on time' if no
+	option is specified (GH issues/65, regression from r5075).
+	Fix setting of 'any_output' (regression from r4188).
+
+	Based on patch from GH pull/66.
+
 2020-10-06  Christian Franke  <franke@computer.org>
 
 	Remove all occurrences of the throw() specifier.
