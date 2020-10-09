@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5076 2020-07-11 14:49:10Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5090 2020-10-09 15:16:04Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -2339,8 +2339,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                      res ? "Unavailable" : // error
                      !wce ? "Disabled" : "Enabled");
         }
-    } else
         any_output = true;
+    }
 
     if (options.drive_info)
         pout("\n");
@@ -2462,14 +2462,12 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
         if (gTempLPage)
             scsiPrintTemp(device);
-    }
-    // in the 'smartctl -a" case only want: "Accumulated power on time"
-    if ((! options.smart_background_log) && is_disk) {
-        if (! checkedSupportedLogPages)
-            scsiGetSupportedLogPages(device);
-        res = 0;
-        if (gBackgroundResultsLPage)
-            res = scsiPrintBackgroundResults(device, true);
+        // in the 'smartctl -A' case only want: "Accumulated power on time"
+        if ((! options.smart_background_log) && is_disk) {
+            res = 0;
+            if (gBackgroundResultsLPage)
+                res = scsiPrintBackgroundResults(device, true);
+        }
         any_output = true;
     }
     if (options.smart_vendor_attrib) {
