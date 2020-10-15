@@ -8,6 +8,8 @@ $Id$
 	- Crucial/Micron Client SSDs: Rename entry. Fix name of attribute 127.
 	  This prevents false 'Currently unreadable (pending) sectors' warnings
 	  from smartd (#1227, #1294, #1311, #1336).
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: *H* variant (#1363).
+	- Samsung based SSDs: 883 DCT (#1373).
 
 	os_win32.cpp: Fix removal of trailing blanks.
 	Silence misleading -Wstring-compare warning from g++ 10.2.0
