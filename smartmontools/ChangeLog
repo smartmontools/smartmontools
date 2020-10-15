@@ -3,6 +3,7 @@ $Id$
 2020-10-15  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Apacer SSDs (based on patch from #1202).
 	- Crucial/Micron MX500 SSDs (FW <= M3CR032): Remove entry (#1227).
 	- Crucial/Micron Client SSDs: Rename entry. Fix name of attribute 127.
 	  This prevents false 'Currently unreadable (pending) sectors' warnings
