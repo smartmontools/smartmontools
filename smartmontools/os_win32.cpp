@@ -72,7 +72,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 5091 2020-10-15 15:21:18Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 5092 2020-10-15 15:27:12Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -1085,7 +1085,7 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
     while (i > 0 && model[i-1] == ' ' && (i < 2 || model[i-2] == ' '))
       i--;
     // Ignore VendorId "ATA"
-    if (i <= 4 && !strncmp(model, "ATA", 3) && (i == 3 || model[3] == ' '))
+    if (i <= 4 && !memcmp(model, "ATA", 3) && (i == 3 || model[3] == ' '))
       i = 0;
     for (unsigned j = 0; i < sizeof(model)-1 && data.raw[data.desc.ProductIdOffset+j]; i++, j++)
       model[i] = data.raw[data.desc.ProductIdOffset+j];
