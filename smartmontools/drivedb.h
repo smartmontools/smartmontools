@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 5093 2020-10-15 15:51:38Z chrfranke $",
+  { "$Id: drivedb.h 5094 2020-10-15 16:23:04Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -406,7 +406,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw48,Cumulativ_Corrected_ECC "
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
-    "-v 197,raw48,Current_Pending_ECC_Cnt" // MX500: May flip 0 <> 1 (ticket #1227)
+    "-v 197,raw48,Current_Pending_ECC_Cnt " // MX500: May flip 0 <> 1 (ticket #1227)
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 202,raw48,Percent_Lifetime_Remain " // norm = max(100-raw,0); raw = percent_lifetime_used
