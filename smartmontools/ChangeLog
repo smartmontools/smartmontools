@@ -3,6 +3,8 @@ $Id$
 2020-10-15  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Fix removal of trailing blanks.
+	Silence misleading -Wstring-compare warning from g++ 10.2.0
+	(GCC Bugzilla 97336).
 
 2020-10-09  Christian Franke  <franke@computer.org>
 
