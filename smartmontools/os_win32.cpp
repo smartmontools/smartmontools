@@ -1081,7 +1081,8 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
   }
 
   if (data.desc.ProductIdOffset) {
-    while (i > 1 && model[i-2] == ' ') // Keep last blank from VendorId
+    // Keep only first trailing blank after VendorId
+    while (i > 0 && model[i-1] == ' ' && (i < 2 || model[i-2] == ' '))
       i--;
     // Ignore VendorId "ATA"
     if (i <= 4 && !strncmp(model, "ATA", 3) && (i == 3 || model[3] == ' '))

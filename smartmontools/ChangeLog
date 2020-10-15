@@ -1,5 +1,9 @@
 $Id$
 
+2020-10-15  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Fix removal of trailing blanks.
+
 2020-10-09  Christian Franke  <franke@computer.org>
 
 	scsiprint.cpp: Don't print 'Accumulated power on time' if no
