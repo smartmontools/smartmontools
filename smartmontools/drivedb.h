@@ -1899,7 +1899,7 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
     "SanDisk SDSSDH2(128|256)G|" // SanDisk SDSSDH2128G/X211200
-    "SanDisk SDSSDH3((250|500|1000|1024|2000)G| 4T00)|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL,
+    "SanDisk SDSSDH3((250|500|1000|1024|2000)G| (2|4)T00)|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL,
       // SanDisk SDSSDH3500G/X61110RL, SanDisk SDSSDH31024G/X6107000, SanDisk SDSSDH3 4T00/411040RL
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
