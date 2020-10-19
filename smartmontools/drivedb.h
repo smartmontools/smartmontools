@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 5097 2020-10-15 17:22:27Z chrfranke $",
+  { "$Id: drivedb.h 5101 2020-10-19 20:40:45Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -284,6 +284,40 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 197,raw48,Current_Pending_Sector "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
   //"-v 240,raw48,Unknown_SSD_Attribute "
+  },
+  { "ATP SATA III aMLC M.2 2242 Embedded SSD",
+    "ATP I-Temp M\\.2 2242", // tested with ATP I-Temp M.2 2242/R0822A
+    "","",
+    "-v 1,raw48,Raw_Read_Error_Count "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 14,raw48,Device_Raw_Capacity "
+    "-v 15,raw48,Device_User_Capacity "
+    "-v 16,raw48,Initial_Spare_Blocks "
+    "-v 17,raw48,Remaining_Spare_Blocks "
+    "-v 100,raw48,Total_Erease_Count "
+    "-v 160,raw48,Uncorrectable_Sectors "
+    "-v 172,raw48,Block_Erase_Failure "
+    "-v 173,raw48,Max_Erase_Count "
+    "-v 174,raw48,Unexpected_Power_Cycle "
+    "-v 175,raw48,Average_Erase_Count "
+    "-v 181,raw48,Program_Fail_Blocks "
+    "-v 187,raw48,Reported_UE_Counts "
+    "-v 194,raw48,Device_Temperature "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+    "-v 199,raw48,SATA_CRC_Error_Count "
+    "-v 202,raw48,Percent_Lifetime_Used "
+    "-v 205,raw48,Thermal_Asperity_Rate "
+    "-v 231,raw48,Controller_Temperature "
+    "-v 234,raw48,Nand_Sectors_Read "
+    "-v 235,raw48,Device_Sectors_Written "
+    "-v 241,raw48,Nand_Sectors_Written "
+    "-v 242,raw48,Device_Bytes_Read "
+    "-v 248,raw48,PCT_Life_Remaining "
+    "-v 249,raw48,Spare_Block_Remaining "
   },
   { "Crucial/Micron RealSSD C300/P300", // Marvell 88SS9174
     "C300-CTFDDA[AC](064|128|256)MAG|" // tested with C300-CTFDDAC128MAG/0002,
@@ -2109,12 +2143,17 @@ const drive_settings builtin_knowndrives[] = {
     "-v 251,raw48,Unkn_SiliconMotion_Attr" // ADATA SU800/Q0913A
   },
   { "Silicon Motion based OEM SSDs", // Like 'Silicon Motion based SSDs' but with FW detection
+    "240GB|" // from Lenovo T430 Thinkpad, tested with 240GB/P0510E
     "Intenso SSD|" // tested with Intenso SSD/Q1107A0
     "Intenso  SSD Sata III|" // Sata III High, tested with Intenso  SSD Sata III/P0510E
     "KingFast|" // KingFast F6M, tested with KingFast/P0725A
+    "LDLC|" // tested with LDLC/KFS03005
+    "SATA3 ((12[08]|240|256|480)G|[12]T)B SSD|" // TCSUNBOW X3, tested with SATA3 240GB SSD/S0618A0,
+      // SATA3 1TB SSD/S1230A0,
+      // KingDian S370, tested with SATA3 128GB SSD/T0311A0, SATA3 256GB SSD/S1127B0
     "SPCC M\\.2 SSD|" // Silicon Power 2280 M55, tested with SPCC M.2 SSD/Q0627A0
     "SuperMicro SSD", // Supermicro SSD-DM032-SMCMVN1, tested with SuperMicro SSD/SOB20R
-    "P0510E|P0725A|Q0627A0|Q1107A0|SOB20R",
+    "KFS03005|P0510E|P0725A|Q(0627|1107)A0|S(0618|1230)A0|S1127B0|SOB20R|T0311A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
@@ -2226,6 +2265,31 @@ const drive_settings builtin_knowndrives[] = {
     "-v 113,hex48,Proprietary_RR "
     "-v 130,raw48:54321,Minimum_Spares_All_Zs"
   //"-v 194,tempminmax,Temperature_Celsius"
+  },
+  { "SSSTC ER2 GD/CD Series SSDs", // Marvel DEAN 2.1
+    "SSSTC ER2-[CG]D(240|480|960|1920)", // tested with SSSTC ER2-GD480/E4N2302
+    "","",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Average_PE_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 175,raw48,PwrLoss_ProtectionFail "
+    "-v 183,raw48,SATA_Iface_Downshift "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 202,raw48,Percent_Lifetime_Remain "
+  //"-v 210,raw48,Raid_Success_Recover_Ct " // ] E4N2302: Missing
+  //"-v 234,raw48,Thermal_Throttle_Status " // ]
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 243,raw48,NAND_Writes_GiB "
   },
   { "STEC Mach2 CompactFlash Cards", // tested with STEC M2P CF 1.0.0/K1385MS
     "STEC M2P CF 1.0.0",
