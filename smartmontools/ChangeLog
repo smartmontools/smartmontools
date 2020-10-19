@@ -3,6 +3,7 @@ $Id$
 2020-10-19  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- ATP SATA III aMLC M.2 2242 SSD (based on patch from #1366).
 	- Silicon Motion based OEM SSDs: TCSUNBOW X3 (#1349),
 	  KingDian S370 (#1350), LDLC (#1353), Lenovo.
 
