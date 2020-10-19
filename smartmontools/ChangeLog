@@ -1,4 +1,10 @@
-$Id: ChangeLog 5096 2020-10-15 17:03:07Z chrfranke $
+$Id: ChangeLog 5098 2020-10-19 20:18:22Z chrfranke $
+
+2020-10-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Silicon Motion based OEM SSDs: TCSUNBOW X3 (#1349),
+	  KingDian S370 (#1350), LDLC (#1353), Lenovo.
 
 2020-10-15  Christian Franke  <franke@computer.org>
 
