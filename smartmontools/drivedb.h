@@ -2271,6 +2271,31 @@ const drive_settings builtin_knowndrives[] = {
     "-v 130,raw48:54321,Minimum_Spares_All_Zs"
   //"-v 194,tempminmax,Temperature_Celsius"
   },
+  { "SSSTC ER2 GD/CD Series SSDs", // Marvel DEAN 2.1
+    "SSSTC ER2-[CG]D(240|480|960|1920)", // tested with SSSTC ER2-GD480/E4N2302
+    "","",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Average_PE_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 175,raw48,PwrLoss_ProtectionFail "
+    "-v 183,raw48,SATA_Iface_Downshift "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 202,raw48,Percent_Lifetime_Remain "
+  //"-v 210,raw48,Raid_Success_Recover_Ct " // ] E4N2302: Missing
+  //"-v 234,raw48,Thermal_Throttle_Status " // ]
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 243,raw48,NAND_Writes_GiB "
+  },
   { "STEC Mach2 CompactFlash Cards", // tested with STEC M2P CF 1.0.0/K1385MS
     "STEC M2P CF 1.0.0",
     "", "",
