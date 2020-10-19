@@ -2114,12 +2114,17 @@ const drive_settings builtin_knowndrives[] = {
     "-v 251,raw48,Unkn_SiliconMotion_Attr" // ADATA SU800/Q0913A
   },
   { "Silicon Motion based OEM SSDs", // Like 'Silicon Motion based SSDs' but with FW detection
+    "240GB|" // from Lenovo T430 Thinkpad, tested with 240GB/P0510E
     "Intenso SSD|" // tested with Intenso SSD/Q1107A0
     "Intenso  SSD Sata III|" // Sata III High, tested with Intenso  SSD Sata III/P0510E
     "KingFast|" // KingFast F6M, tested with KingFast/P0725A
+    "LDLC|" // tested with LDLC/KFS03005
+    "SATA3 ((12[08]|240|256|480)G|[12]T)B SSD|" // TCSUNBOW X3, tested with SATA3 240GB SSD/S0618A0,
+      // SATA3 1TB SSD/S1230A0,
+      // KingDian S370, tested with SATA3 128GB SSD/T0311A0, SATA3 256GB SSD/S1127B0
     "SPCC M\\.2 SSD|" // Silicon Power 2280 M55, tested with SPCC M.2 SSD/Q0627A0
     "SuperMicro SSD", // Supermicro SSD-DM032-SMCMVN1, tested with SuperMicro SSD/SOB20R
-    "P0510E|P0725A|Q0627A0|Q1107A0|SOB20R",
+    "KFS03005|P0510E|P0725A|Q(0627|1107)A0|S(0618|1230)A0|S1127B0|SOB20R|T0311A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
