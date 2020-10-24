@@ -1,5 +1,17 @@
 $Id$
 
+2020-10-24  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- HGST Travelstar Z5K1000: *B*610 variant.
+	- Hitachi Travelstar 7K320: HITACHI*SA60 variant (#983).
+	- Hitachi/HGST Deskstar 5K4000: Rename entry. Add HGST (#1060).
+	- HGST Deskstar NAS: 8TB.
+	- Hitachi/HGST Ultrastar 5K3000 (#1055).
+	- Hitachi Ultrastar 7K3000: Variant without vendor name (#1361).
+	- Hitachi/HGST Ultrastar 7K4000: Variant without vendor name (#1361).
+	- HGST Ultrastar HC310/320 (#1157, #1365).
+
 2020-10-19  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

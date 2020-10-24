@@ -3267,8 +3267,9 @@ const drive_settings builtin_knowndrives[] = {
     "HGST HT[ES]5410(64|75|10)A9E68[01]",
     "", "", ""
   },
-  { "HGST Travelstar Z5K1000", // tested with HGST HTS541010A7E630/SE0OA4A0
-    "HGST HTS5410(75|10)A7E63[015]",
+  { "HGST Travelstar Z5K1000", // tested with HGST HTS541010A7E630/SE0OA4A0,
+      // HGST HTS541010B7E610/01.01A01
+    "HGST HTS5410(75|10)[AB]7E6(10|3[015])",
     "", "", ""
   },
   { "HGST Travelstar 5K1500", // tested with HGST HTS541515A9E630/KA0OA500
@@ -3295,9 +3296,9 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi |HITACHI )?HTS7220(80|10|12|16|20)K9(A3|SA)00",
     "", "", ""
   },
-  { "Hitachi Travelstar 7K320", // tested with
+  { "Hitachi Travelstar 7K320", // tested with HITACHI HTS723216L9SA60/FC2ZC50B,
     // HTS723225L9A360/FCDOC30F, HTS723216L9A362/FC2OC39F
-    "(Hitachi )?HT[ES]7232(80|12|16|25|32)L9(A300|A36[02]|SA61)",
+    "(Hitachi |HITACHI )?HT[ES]7232(80|12|16|25|32)L9(A300|A36[02]|SA6[01])",
     "", "", ""
   },
   { "Hitachi Travelstar Z7K320", // tested with HITACHI HTS723232A7A364/EC2ZB70B
@@ -3357,8 +3358,9 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HDS5C30(15|20|30)(ALA|BLE)63[02].*",
     "", "", ""
   },
-  { "Hitachi Deskstar 5K4000", // tested with HDS5C4040ALE630/MPAOA250
-    "(Hitachi )?HDS5C40(30|40)ALE63[01].*",
+  { "Hitachi/HGST Deskstar 5K4000", // tested with HDS5C4040ALE630/MPAOA250
+      // HGST HDS5C4040ALE630/MPAOA580
+    "(Hitachi |HGST )?HDS5C40(30|40)ALE63[01].*",
     "", "", ""
   },
   { "Hitachi Deskstar 7K80",
@@ -3435,7 +3437,13 @@ const drive_settings builtin_knowndrives[] = {
   { "HGST Deskstar NAS", // tested with HGST HDN724040ALE640/MJAOA5E0,
        // HGST HDN726050ALE610/APGNT517, HGST HDN726060ALE610/APGNT517
        // HGST HDN726040ALE614/APGNW7JH, HGST HDN726060ALE614/K1HE594D
-    "HGST HDN72(4030|4040|6040|6050|6060)ALE6(10|14|40|04)",
+       // HGST HDN728080ALE604/A4GNW91X
+    "HGST HDN72(40[34]|60[456]|808)0ALE6(04|1[04]|40)",
+    "", "",
+    "-v 22,raw48,Helium_Level" // HDN728080ALE604
+  },
+  { "Hitachi/HGST Ultrastar 5K3000", // tested with Hitachi HUA5C3030ALA640/MEAOA800
+    "(Hitachi |HGST )?HUA5C30(20|30)ALA64[01]",
     "", "", ""
   },
   { "Hitachi Ultrastar A7K1000", // tested with
@@ -3451,13 +3459,14 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi Ultrastar 7K3000", // tested with Hitachi HUA723030ALA640/MKAOA580,
-      // Hitachi HUA723020ALA641/MK7OA840
-    "Hitachi HUA7230(20|30)ALA64[01]",
+      // Hitachi HUA723020ALA641/MK7OA840, HUA723020ALA640/MK7OAAA0
+    "(Hitachi )?HUA7230(20|30)ALA64[01]",
     "", "", ""
   },
   { "Hitachi/HGST Ultrastar 7K4000", // tested with Hitachi HUS724040ALE640/MJAOA3B0,
-      // HGST HUS724040ALE640/MJAOA580, HGST HUS724020ALA640/MF6OAA70
-    "(Hitachi|HGST) HUS7240(20|30|40)AL[AE]64[01]",
+      // HGST HUS724040ALE640/MJAOA580, HGST HUS724020ALA640/MF6OAA70,
+      // HUS724030ALA640/MF8OAAZ0
+    "(Hitachi |HGST )?HUS7240(20|30|40)AL[AE]64[01]",
     "", "", ""
   },
   { "Hitachi/HGST Ultrastar 7K2", //
@@ -3467,6 +3476,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HGST Ultrastar 7K6000", // tested with HGST HUS726060ALE614/APGNW517
     "HGST HUS7260[2456]0AL[AEN]61[014]",
+    "", "", ""
+  },
+  { "HGST Ultrastar HC310/320", // tested with HGST HUS726T6TALE6L4/VKGNW40H,
+      // HGST HUS728T8TALE6L4/V8GNW460
+    "HGST HUS72(6T[46]|8T8)TALE6L4",
     "", "", ""
   },
   { "HGST Ultrastar He6", // tested with HGST HUS726060ALA640/AHGNT1E2
