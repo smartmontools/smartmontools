@@ -1591,6 +1591,10 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
           skip_device = 1;
         else
           skip_device = 0;
+
+        // skip ses devices
+        if (dev_result->inq_data.device == T_ENCLOSURE)
+          skip_device = 1;
         
         //        /* Shall we skip non T_DIRECT devices ? */
         //        if (dev_result->inq_data.device != T_DIRECT)
