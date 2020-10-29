@@ -1,4 +1,8 @@
-$Id: ChangeLog 5102 2020-10-24 16:04:22Z chrfranke $
+$Id: ChangeLog 5104 2020-10-29 08:20:19Z samm2 $
+
+2020-10-29  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: skip SCSI subenclosure devices on scan (#1299)
 
 2020-10-24  Christian Franke  <franke@computer.org>
 

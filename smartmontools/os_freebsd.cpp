@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5089 2020-10-06 15:31:47Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5104 2020-10-29 08:20:19Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1591,6 +1591,10 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
           skip_device = 1;
         else
           skip_device = 0;
+
+        // skip ses devices
+        if (dev_result->inq_data.device == T_ENCLOSURE)
+          skip_device = 1;
         
         //        /* Shall we skip non T_DIRECT devices ? */
         //        if (dev_result->inq_data.device != T_DIRECT)
