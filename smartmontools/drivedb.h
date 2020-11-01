@@ -1933,10 +1933,12 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
     "SanDisk SDSSDH2(128|256)G|" // SanDisk SDSSDH2128G/X211200
-    "SanDisk SDSSDH3((250|500|1000|1024|2000)G| 4T00)|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL,
-      // SanDisk SDSSDH3500G/X61110RL, SanDisk SDSSDH31024G/X6107000, SanDisk SDSSDH3 4T00/411040RL
+    "SanDisk SDSSDH3((250|500|1000|1024|2000)G| [24]T00)|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL,
+      // SanDisk SDSSDH3500G/X61110RL, SanDisk SDSSDH31024G/X6107000, SanDisk SDSSDH3 2T00/411040RL,
+      // SanDisk SDSSDH3 4T00/411040RL
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
+    "SanDisk SSD G5 BICS4|" // WD Blue SSD WDS100T2B0A (#1378), tested with SanDisk SSD G5 BICS4/415000WD
     "SanDisk SSD PLUS (120|240|480|1000) ?GB|" // Plus (88SS1074), tested with SanDisk SSD PLUS 120 GB/UE3000RL,
       // SanDisk SSD PLUS 120 GB/UE4500RL, SanDisk SSD PLUS 1000GB/UH4400RL
     "SSD SATAIII 16GB", // SSD SATAIII 16GB/i221100 (see #923)
@@ -1979,7 +1981,7 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SSD i100 [0-9]*GB|" // tested with SanDisk SSD i100 8GB/11.56.04, 24GB/11.56.04
     "SanDisk SSD U100 ([0-9]*GB|SMG2)|" // tested with SanDisk SSD U100 8GB/10.56.00, 256GB/10.01.02, SMG2/10.56.04
     "SanDisk SSD U110 (8|16|24|32|64|128)GB|" // tested with SanDisk SSD U110 32GB/U221000
-    "SanDisk SDSA6MM-.*|" // tested with SanDisk SDSA6MM-016G-1006/U221006
+    "SanDisk SDSA6[GM]M-[0-9]*G-.*|" // tested with SanDisk SDSA6GM-016G-1006/U221006, SanDisk SDSA6MM-016G-1006/U221006
     "SanDisk SD7[SU]B[23]Q(064|128|256|512)G.*", // tested with SD7SB3Q064G1122/SD7UB3Q256G1122/SD7SB3Q128G/SD7UB2Q512G1122
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
