@@ -3,11 +3,14 @@ $Id$
 2020-11-01  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Phison Driven SSDs: KINGSTON OM4P0S3* (#1374), OMSP0S3* (#1375).
+	- InnoDisk iCF 9000 / 1SE2 Cards: Rename entry. Add 1SE2 H (#1351).
 	- Marvell based SanDisk SSDs: 2TB SDSSDH3 (GH issues/67, GH pull/69),
 	  WD Blue SSD WDS100T2B0A (#1378).
 	- SanDisk based SSDs: SDSA6GM*.
 	- Toshiba 2.5" HDD MK..76GSX/GS001A (GH pull/58).
 	- Toshiba L200 (CMR), Toshiba L200 (SMR) (#1228, patch from #1377).
+	- Western Digital Blue: Apple OEM (#1385).
 	- Western Digital Scorpio Blue Serial ATA: 320 GB (patch from #888).
 
 	os_win32.cpp: Decode Windows 10 20H2 and Server 2004, 20H2

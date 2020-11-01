@@ -717,8 +717,9 @@ const drive_settings builtin_knowndrives[] = {
     "GOODRAM IRIDIUM PRO|" // tested with GOODRAM IRIDIUM PRO/SAFM01.5
     "IR-SSDPR-S25A-(120|240|480|960)|" // Goodram IRIDM, tested with IR-SSDPR-S25A-120/SBFM91.3,
       // IR-SSDPR-S25A-240/SBFM91.2
-    "KINGSTON O(C|M8)P0S3(64|128|256|512)B-A0|" // tested with KINGSTON OCP0S364B-A0/SBFK62A3,
-      // KINGSTON OM8P0S364B-A0/SBFK62A3
+    "KINGSTON O(C|M[48S])P0S3(64|128|256|512)B-[0A]0|" // tested with KINGSTON OCP0S364B-A0/SBFK62A3,
+      // KINGSTON OM4P0S3256B-A0/SBFK62A3, KINGSTON OM8P0S364B-A0/SBFK62A3,
+      // KINGSTON OMSP0S3128B-00/SBFK62A3
     "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
       // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
     "KINGSTON SEDC(450R|500[MR])(480|960|1920|3840|7680)G|" // DC450R, DC500M/R, tested with
@@ -1115,9 +1116,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB"
   },
-  { "InnoDisk iCF 9000 CompactFlash Cards", // tested with InnoDisk Corp. - iCF9000 1GB/140808,
-       // ..., InnoDisk Corp. - iCF9000 64GB/140808
-    "InnoDisk Corp\\. - iCF9000 (1|2|4|8|16|32|64)GB",
+  { "InnoDisk iCF 9000 / 1SE2 Cards", // tested with InnoDisk Corp. - iCF9000 1GB/140808,
+      // InnoDisk Corp. - iCF9000 64GB/140808, InnoDisk Corp. - EDC 1SE2 H 64GB/131216
+    "InnoDisk Corp\\. - (iCF9000|EDC 1SE2 H) (1|2|4|8|16|32|64)GB",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -4527,8 +4528,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Blue", // tested with WDC WD5000AZLX-00K4KA0/80.00A80,
-      // WDC WD10EZEX-00RKKA0/80.00A80, WDC WD10EZEX-75M2NA0/01.01A01, WDC WD40EZRZ-00WN9B0/80.00A80
-    "WDC WD((25|32|50)00AAKX|5000AZ(LX|RZ)|7500A(AL|ZE)X|10E(AL|ZE)X|[1-6]0EZRZ)-.*",
+      // WDC WD10EZEX-00RKKA0/80.00A80, WDC WD10EZEX-75M2NA0/01.01A01, WDC WD40EZRZ-00WN9B0/80.00A80,
+      // APPLE HDD WDC WD10EALX-408EA0/07.01D03
+    "(APPLE HDD )?WDC WD((25|32|50)00AAKX|5000AZ(LX|RZ)|7500A(AL|ZE)X|10E(AL|ZE)X|[1-6]0EZRZ)-.*",
     "", "", ""
   },
   { "Western Digital Blue (SMR)", // ticket #1313
