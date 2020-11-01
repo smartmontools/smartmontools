@@ -1,4 +1,9 @@
-$Id: ChangeLog 5104 2020-10-29 08:20:19Z samm2 $
+$Id: ChangeLog 5105 2020-11-01 13:41:36Z chrfranke $
+
+2020-11-01  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 20H2 and Server 2004, 20H2
+	build numbers.
 
 2020-10-29  Alex Samorukov  <samm@os2.kiev.ua>
 
