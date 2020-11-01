@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 5106 2020-11-01 13:57:23Z chrfranke $",
+  { "$Id: drivedb.h 5107 2020-11-01 14:18:25Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3693,6 +3693,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba P300", // tested with TOSHIBA HDWD120/MX4OACF0
     "TOSHIBA HDWD1(30|20|10|05)",
+    "", "", ""
+  },
+  { "Toshiba L200 (CMR)",
+    "TOSHIBA HDW[JK]1(05|10)",
+    "", "", ""
+  },
+  { "Toshiba L200 (SMR)", // tested with TOSHIBA HDWL110/JU000A. TOSHIBA HDWL120/JT000A
+    "TOSHIBA HDWL1[12]0",
     "", "", ""
   },
   { "Toshiba 1.8\" HDD",
