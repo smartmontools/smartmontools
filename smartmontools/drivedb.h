@@ -3695,6 +3695,14 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA HDWD1(30|20|10|05)",
     "", "", ""
   },
+  { "Toshiba L200 (CMR)",
+    "TOSHIBA HDW[JK]1(05|10)",
+    "", "", ""
+  },
+  { "Toshiba L200 (SMR)", // tested with TOSHIBA HDWL110/JU000A. TOSHIBA HDWL120/JT000A
+    "TOSHIBA HDWL1[12]0",
+    "", "", ""
+  },
   { "Toshiba 1.8\" HDD",
     "TOSHIBA MK[23468]00[4-9]GA[HL]",
     "", "", ""
