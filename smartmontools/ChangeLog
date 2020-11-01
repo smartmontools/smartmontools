@@ -1,5 +1,10 @@
 $Id$
 
+2020-11-01  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 20H2 and Server 2004, 20H2
+	build numbers.
+
 2020-10-29  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: skip SCSI subenclosure devices on scan (#1299)
