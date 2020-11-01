@@ -4652,8 +4652,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(4|6|8|10|12|16|25)00BEAS-.*",
     "", "", ""
   },
-  { "Western Digital Scorpio Blue Serial ATA",
-    "WDC WD((4|6|8|10|12|16|25)00BEVS|(8|12|16|25|32|40|50|64)00BEVT|7500KEVT|10TEVT)-.*",
+  { "Western Digital Scorpio Blue Serial ATA", // tested with WDC WD3200BEVS-08VAT2/14.01A14
+    "WDC WD((4|6|8|10|12|16|25|32)00BEVS|(8|12|16|25|32|40|50|64)00BEVT|7500KEVT|10TEVT)-.*",
     "", "", ""
   },
   { "Western Digital Scorpio Blue Serial ATA (AF)", // tested with

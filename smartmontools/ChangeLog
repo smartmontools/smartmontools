@@ -2,6 +2,9 @@ $Id$
 
 2020-11-01  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Western Digital Scorpio Blue Serial ATA: 320 GB (patch from #888).
+
 	os_win32.cpp: Decode Windows 10 20H2 and Server 2004, 20H2
 	build numbers.
 
