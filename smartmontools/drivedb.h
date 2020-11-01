@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 5107 2020-11-01 14:18:25Z chrfranke $",
+  { "$Id: drivedb.h 5108 2020-11-01 14:58:21Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -3600,6 +3600,11 @@ const drive_settings builtin_knowndrives[] = {
   { "Toshiba 2.5\" HDD MK..75GSX", // tested with TOSHIBA MK7575GSX/GT001C
     "TOSHIBA MK(32|50|64|75)75GSX",
     "", "", ""
+  },
+  { "Toshiba 2.5\" HDD MK..76GSX/GS001A", // tested with TOSHIBA MK2576GSX/GS001A
+    "TOSHIBA MK(16|25|32|50|64)76GSX",
+    "GS001A",
+    "", ""
   },
   { "Toshiba 2.5\" HDD MK..76GSX", // tested with TOSHIBA MK3276GSX/GS002D
     "TOSHIBA MK(16|25|32|50|64)76GSX",
