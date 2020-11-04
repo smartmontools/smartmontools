@@ -1,7 +1,7 @@
 /*
  * dev_areca.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2012 Hank Wu <hank@areca.com.tw>
  *
@@ -92,7 +92,7 @@ virtual public smart_device
 {
 public:
   generic_areca_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  ~generic_areca_device() throw();
+  ~generic_areca_device();
 
   /////////////////////////////////////////////////////////////////////
   // OS-dependent functions
@@ -140,7 +140,7 @@ class areca_ata_device
 {
 public:
   areca_ata_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  ~areca_ata_device() throw();
+  ~areca_ata_device();
   bool arcmsr_lock() { return true; }
   bool arcmsr_unlock() { return true; }
   int arcmsr_do_scsi_io(struct scsi_cmnd_io * /* iop */)
@@ -161,7 +161,7 @@ class areca_scsi_device
 {
 public:
   areca_scsi_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  ~areca_scsi_device() throw();
+  ~areca_scsi_device();
   bool arcmsr_lock() { return true; }
   bool arcmsr_unlock() { return true; }
   int arcmsr_do_scsi_io(struct scsi_cmnd_io * /* iop */)

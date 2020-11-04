@@ -1,9 +1,9 @@
 /*
  * dev_legacy.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -55,7 +55,7 @@ public:
     : smart_device(never_called),
       m_fd(-1), m_mode(mode) { }
 
-  virtual ~legacy_smart_device() throw();
+  virtual ~legacy_smart_device();
 
   virtual bool is_open() const;
 
@@ -74,7 +74,7 @@ private:
 };
 
 
-legacy_smart_device::~legacy_smart_device() throw()
+legacy_smart_device::~legacy_smart_device()
 {
   if (m_fd >= 0)
     ::deviceclose(m_fd);

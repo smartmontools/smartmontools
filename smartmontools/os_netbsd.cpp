@@ -1,7 +1,7 @@
 /*
  * os_netbsd.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-8 Sergey Svishchev
  * Copyright (C) 2016 Kimihiro Nonaka
@@ -52,7 +52,7 @@ public:
     : smart_device(never_called),
       m_fd(-1) { }
 
-  virtual ~netbsd_smart_device() throw();
+  virtual ~netbsd_smart_device();
 
   virtual bool is_open() const;
 
@@ -72,7 +72,7 @@ private:
   int m_fd; ///< filedesc, -1 if not open.
 };
 
-netbsd_smart_device::~netbsd_smart_device() throw()
+netbsd_smart_device::~netbsd_smart_device()
 {
   if (m_fd >= 0)
     os_netbsd::netbsd_smart_device::close();
