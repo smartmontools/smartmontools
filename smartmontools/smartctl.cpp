@@ -1,10 +1,10 @@
 /*
  * smartctl.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-20 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -132,8 +132,8 @@ static void Usage()
   );
   pout(
 "================================== SMARTCTL RUN-TIME BEHAVIOR OPTIONS =====\n\n"
-"  -j, --json[=[cgiosuv]]\n"
-"         Print output in JSON format\n\n"
+"  -j, --json[=cgiosuvy]\n"
+"         Print output in JSON or YAML format\n\n"
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
 "         Set smartctl quiet mode to one of: errorsonly, silent, noserial\n\n"
 "  -d TYPE, --device=TYPE\n"
@@ -266,7 +266,7 @@ static std::string getvalidarglist(int opt)
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
   case 'j':
-    return "c, g, i, o, s, u, v";
+    return "c, g, i, o, s, u, v, y";
   case opt_identify:
     return "n, wn, w, v, wv, wb";
   case 'v':
@@ -1093,7 +1093,7 @@ static int parse_options(int argc, char** argv, const char * & type,
         print_as_json = true;
         print_as_json_options.pretty = true;
         print_as_json_options.sorted = false;
-        print_as_json_options.flat = false;
+        print_as_json_options.format = 0;
         print_as_json_output = false;
         print_as_json_impl = print_as_json_unimpl = false;
         bool json_verbose = false;
@@ -1101,12 +1101,13 @@ static int parse_options(int argc, char** argv, const char * & type,
           for (int i = 0; optarg[i]; i++) {
             switch (optarg[i]) {
               case 'c': print_as_json_options.pretty = false; break;
-              case 'g': print_as_json_options.flat = true; break;
+              case 'g': print_as_json_options.format = 'g'; break;
               case 'i': print_as_json_impl = true; break;
               case 'o': print_as_json_output = true; break;
               case 's': print_as_json_options.sorted = true; break;
               case 'u': print_as_json_unimpl = true; break;
               case 'v': json_verbose = true; break;
+              case 'y': print_as_json_options.format = 'y'; break;
               default: badarg = true;
             }
           }

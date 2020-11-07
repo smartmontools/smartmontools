@@ -315,14 +315,15 @@ info.
 .TP
 .B RUN-TIME BEHAVIOR OPTIONS:
 .TP
-.B \-j, \-\-json[=cgiosuv]
-Enables JSON output mode.
+.B \-j, \-\-json[=cgiosuvy]
+Enables JSON or YAML output mode.
 .Sp
 The output could be modified or enhanced by the optional argument which
-consists of one or more characters from the set \*(Aqcgiosuv\*(Aq:
+consists of one or more characters from the set \*(Aqcgiosuvy\*(Aq:
 .br
 \*(Aqc\*(Aq: Outputs \fBc\fPompact format without extra spaces and newlines.
 By default, output is pretty-printed.
+If used with YAML format, the indentation of arrays is reduced.
 .br
 \*(Aqg\*(Aq: Outputs JSON structure as single assignments to allow the usage
 of \fBg\fPrep.
@@ -345,16 +346,18 @@ Values which may exceed 64-bit range are also output as a little endian
 byte array (\*(AqKEY_le\*(Aq).
 By default, the additional elements are only output if the value actually
 exceeds the range.
+.br
+\*(Aqy\*(Aq: [NEW EXPERIMENTAL SMARTCTL FEATURE] Outputs in YAML format.
 .Sp
 The following two arguments are primarily indented for development:
 .br
 \*(Aqi\*(Aq: Includes lines from the plaintext output which print info already
 \fBi\fPmplemented for JSON output.
-The lines appear as objects with key \*(Aqsmartctl_NNNN_i\*(Aq.
+The lines appear as strings with key \*(Aqsmartctl_NNNN_i\*(Aq.
 .br
 \*(Aqu\*(Aq: Includes lines from the plaintext output which print info still
 \fBu\fPnimplemented for JSON output.
-The lines appear as objects with key \*(Aqsmartctl_NNNN_u\*(Aq.
+The lines appear as strings with key \*(Aqsmartctl_NNNN_u\*(Aq.
 .TP
 .B \-q TYPE, \-\-quietmode=TYPE
 Specifies that \fBsmartctl\fP should run in one of the quiet modes
