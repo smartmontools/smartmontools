@@ -4,7 +4,7 @@ Copyright (C) 2004-20 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5068 2020-06-23 16:17:10Z chrfranke $
+$Id: smartctl.8.in 5112 2020-11-07 11:41:13Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -316,7 +316,6 @@ info.
 .B RUN-TIME BEHAVIOR OPTIONS:
 .TP
 .B \-j, \-\-json[=cgiosuv]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 Enables JSON output mode.
 .Sp
 The output could be modified or enhanced by the optional argument which
@@ -464,8 +463,7 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 bridge.
 .Sp
 .I sntjmicron[,NSID]
-\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
-this device type is for NVMe disks that are behind a JMicron USB to NVMe
+\- this device type is for NVMe disks that are behind a JMicron USB to NVMe
 bridge.
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
@@ -2446,4 +2444,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5068 2020-06-23 16:17:10Z chrfranke $
+$Id: smartctl.8.in 5112 2020-11-07 11:41:13Z chrfranke $
