@@ -1,6 +1,10 @@
-$Id: ChangeLog 5112 2020-11-07 11:41:13Z chrfranke $
+$Id: ChangeLog 5113 2020-11-07 15:38:57Z chrfranke $
 
 2020-11-07  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Add YAML support.
+	smartctl.cpp: Add '--json=y' option.
+	smartctl.8.in: Document new option.
 
 	smartctl.8.in, smartd.conf.5.in: Remove EXPERIMENTAL notes for
 	features added before 7.0.
