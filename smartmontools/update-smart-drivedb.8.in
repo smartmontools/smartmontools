@@ -119,6 +119,7 @@ This requires \*(Aq\-\-no\-verify\*(Aq unless the trunk version is still
 identical to branches/RELEASE_6_0_DRIVEDB.
 .TP
 .B \-\-branch X.Y
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
 Download from branches/RELEASE_\fBX\fP_\fBY\fP_DRIVEDB.
 This also selects the OpenPGP/GPG key for older branches
 (5.40 to 6.6: Key ID DFD22559).

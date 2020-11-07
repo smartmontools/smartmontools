@@ -316,7 +316,6 @@ info.
 .B RUN-TIME BEHAVIOR OPTIONS:
 .TP
 .B \-j, \-\-json[=cgiosuv]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 Enables JSON output mode.
 .Sp
 The output could be modified or enhanced by the optional argument which
@@ -464,8 +463,7 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 bridge.
 .Sp
 .I sntjmicron[,NSID]
-\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
-this device type is for NVMe disks that are behind a JMicron USB to NVMe
+\- this device type is for NVMe disks that are behind a JMicron USB to NVMe
 bridge.
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
