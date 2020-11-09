@@ -20,6 +20,10 @@
 #include <stdarg.h>
 #include <stdexcept>
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> // realpath()
+#endif
+
 #if defined(HAVE_GETTIMEOFDAY)
 #include <sys/time.h>
 #elif defined(HAVE_FTIME)
@@ -387,6 +391,38 @@ bool smart_interface::set_err_var(smart_device::error_info * err, int no)
 const char * smart_interface::get_msg_for_errno(int no)
 {
   return strerror(no);
+}
+
+std::string smart_interface::get_unique_dev_name(const char * name, const char * type) const
+{
+  std::string unique_name;
+#if defined(HAVE_UNISTD_H) && !defined(_WIN32) && !defined(__OS2__)
+  char * p = realpath(name, (char *)0); // nullptr requires POSIX.1.2008 compatibility
+  if (p) {
+    unique_name = p;
+    free(p);
+  }
+  else
+#endif
+    unique_name = name;
+
+  if (*type && is_raid_dev_type(type)) {
+    // -d TYPE options must match if RAID drive number is specified
+    unique_name += " ["; unique_name += type; unique_name += ']';
+  }
+  return unique_name;
+}
+
+bool smart_interface::is_raid_dev_type(const char * type) const
+{
+  if (!strchr(type, ','))
+    return false;
+  if (str_starts_with(type, "sat,"))
+    return false;
+  int i;
+  if (sscanf(type, "%*[^,],%d", &i) != 1)
+    return false;
+  return true;
 }
 
 

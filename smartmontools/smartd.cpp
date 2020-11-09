@@ -28,10 +28,11 @@
 #include <limits.h>
 #include <getopt.h>
 
+#include <algorithm> // std::replace()
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <algorithm> // std::replace()
 
 // conditionally included files
 #ifndef _WIN32
@@ -5244,44 +5245,6 @@ static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_devic
   return conf_entries.size();
 }
 
-// Return true if TYPE contains a RAID drive number
-static bool is_raid_type(const char * type)
-{
-  if (str_starts_with(type, "sat,"))
-    return false;
-  int i;
-  if (sscanf(type, "%*[^,],%d", &i) != 1)
-    return false;
-  return true;
-}
-
-// Return true if DEV is already in DEVICES[0..NUMDEVS) or IGNORED[*]
-static bool is_duplicate_device(const smart_device * dev,
-                                const smart_device_list & devices, unsigned numdevs,
-                                const dev_config_vector & ignored)
-{
-  const smart_device::device_info & info1 = dev->get_info();
-  bool is_raid1 = is_raid_type(info1.dev_type.c_str());
-
-  for (unsigned i = 0; i < numdevs; i++) {
-    const smart_device::device_info & info2 = devices.at(i)->get_info();
-    // -d TYPE options must match if RAID drive number is specified
-    if (   info1.dev_name == info2.dev_name
-        && (   info1.dev_type == info2.dev_type
-            || !is_raid1 || !is_raid_type(info2.dev_type.c_str())))
-      return true;
-  }
-
-  for (unsigned i = 0; i < ignored.size(); i++) {
-    const dev_config & cfg2 = ignored.at(i);
-    if (   info1.dev_name == cfg2.dev_name
-        && (   info1.dev_type == cfg2.dev_type
-            || !is_raid1 || !is_raid_type(cfg2.dev_type.c_str())))
-      return true;
-  }
-  return false;
-}
-
 // Register one device, return false on error
 static bool register_device(dev_config & cfg, dev_state & state, smart_device_auto_ptr & dev,
                             const dev_config_vector * prev_cfgs)
@@ -5376,20 +5339,28 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
   devices.clear();
   states.clear();
 
-  // Register entries
-  dev_config_vector ignored_entries;
-  unsigned numnoscan = 0;
-  for (unsigned i = 0; i < conf_entries.size(); i++){
+  // Map of already seen non-DEVICESCAN devices (unique_name -> cfg.name)
+  typedef std::map<std::string, std::string> prev_unique_names_map;
+  prev_unique_names_map prev_unique_names;
 
+  // Register entries
+  for (unsigned i = 0; i < conf_entries.size(); i++) {
     dev_config cfg = conf_entries[i];
 
+    // Get unique device "name [type]" (with symlinks resolved) for duplicate detection
+    std::string unique_name = smi()->get_unique_dev_name(cfg.dev_name.c_str(), cfg.dev_type.c_str());
+    if (debugmode && unique_name != cfg.dev_name) {
+      pout("Device: %s%s%s%s, unique name: %s\n", cfg.name.c_str(),
+           (!cfg.dev_type.empty() ? " [" : ""), cfg.dev_type.c_str(),
+           (!cfg.dev_type.empty() ? "]" : ""), unique_name.c_str());
+    }
+
     if (cfg.ignore) {
-      // Store for is_duplicate_device() check and ignore
+      // Store for duplicate detection and ignore
       PrintOut(LOG_INFO, "Device: %s%s%s%s, ignored\n", cfg.name.c_str(),
-               (!cfg.dev_type.empty() ? " [" : ""),
-               cfg.dev_type.c_str(),
+               (!cfg.dev_type.empty() ? " [" : ""), cfg.dev_type.c_str(),
                (!cfg.dev_type.empty() ? "]" : ""));
-      ignored_entries.push_back(cfg);
+      prev_unique_names[unique_name] = cfg.name;
       continue;
     }
 
@@ -5401,9 +5372,11 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
       dev = scanned_devs.release(i);
       if (dev) {
         // Check for a preceding non-DEVICESCAN entry for the same device
-        if (  (numnoscan || !ignored_entries.empty())
-            && is_duplicate_device(dev.get(), devices, numnoscan, ignored_entries)) {
-          PrintOut(LOG_INFO, "Device: %s, duplicate, ignored\n", dev->get_info_name());
+        prev_unique_names_map::iterator ui = prev_unique_names.find(unique_name);
+        if (ui != prev_unique_names.end()) {
+          bool ne = (ui->second != cfg.name);
+          PrintOut(LOG_INFO, "Device: %s, %s%s, ignored\n", dev->get_info_name(),
+                   (ne ? "same as " : "duplicate"), (ne ? ui->second.c_str() : ""));
           continue;
         }
         scanning = true;
@@ -5418,12 +5391,13 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
       // exit unless the user has specified that the device is removable
       if (!scanning) {
         if (!(cfg.removable || quit == QUIT_NEVER)) {
-          PrintOut(LOG_CRIT, "Unable to register device %s (no Directive -d removable). Exiting.\n", cfg.name.c_str());
+          PrintOut(LOG_CRIT, "Unable to register device %s (no Directive -d removable). Exiting.\n",
+                   cfg.name.c_str());
           return false;
         }
         PrintOut(LOG_INFO, "Device: %s, not available\n", cfg.name.c_str());
         // Prevent retry of registration
-        ignored_entries.push_back(cfg);
+        prev_unique_names[unique_name] = cfg.name;
       }
       continue;
     }
@@ -5433,7 +5407,8 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
     states.push_back(state);
     devices.push_back(dev);
     if (!scanning)
-      numnoscan = devices.size();
+      // Store for duplicate detection
+      prev_unique_names[unique_name] = cfg.name;
   }
 
   init_disable_standby_check(configs);

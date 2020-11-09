@@ -279,6 +279,12 @@ Warning emails will be sent for all monitored devices.
 .PP
 A device is ignored by DEVICESCAN if a configuration line with the same
 device name exists.
+.\" %IF NOT OS Windows OS2
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+Symbolic links are resolved before this check is done.
+.PP
+.\" %ENDIF NOT OS Windows OS2
 A device name is also ignored if another device with same identify
 information (vendor, model, firmware version, serial number, WWN) already
 exists.

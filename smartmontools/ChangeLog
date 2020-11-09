@@ -1,5 +1,13 @@
 $Id$
 
+2020-11-09  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Resolve symlinks before device names are checked for
+	duplicates (#1390).
+	dev_interface.cpp, dev_interface.h: Add 'get_unique_dev_name()'
+	and 'is_raid_dev_type()' to support platform specific modifications.
+	smartd.conf.5.in: Document new functionality.
+
 2020-11-07  Christian Franke  <franke@computer.org>
 
 	json.cpp, json.h: Add YAML support.
