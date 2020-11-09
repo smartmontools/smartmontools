@@ -18,11 +18,8 @@
 
 #include <errno.h>
 #include <stdarg.h>
+#include <stdlib.h> // realpath()
 #include <stdexcept>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h> // realpath()
-#endif
 
 #if defined(HAVE_GETTIMEOFDAY)
 #include <sys/time.h>
