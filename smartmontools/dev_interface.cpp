@@ -18,11 +18,8 @@
 
 #include <errno.h>
 #include <stdarg.h>
+#include <stdlib.h> // realpath()
 #include <stdexcept>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h> // realpath()
-#endif
 
 #if defined(HAVE_GETTIMEOFDAY)
 #include <sys/time.h>
@@ -30,7 +27,7 @@
 #include <sys/timeb.h>
 #endif
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5114 2020-11-09 21:53:58Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5115 2020-11-09 22:07:22Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
