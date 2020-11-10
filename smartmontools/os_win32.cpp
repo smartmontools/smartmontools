@@ -356,7 +356,7 @@ public:
       m_fh(INVALID_HANDLE_VALUE)
     { }
 
-  virtual ~win_smart_device() throw();
+  virtual ~win_smart_device();
 
   virtual bool is_open() const;
 
@@ -378,7 +378,7 @@ private:
 
 // Common routines for devices with HANDLEs
 
-win_smart_device::~win_smart_device() throw()
+win_smart_device::~win_smart_device()
 {
   if (m_fh != INVALID_HANDLE_VALUE)
     ::CloseHandle(m_fh);
@@ -1081,10 +1081,11 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
   }
 
   if (data.desc.ProductIdOffset) {
-    while (i > 1 && model[i-2] == ' ') // Keep last blank from VendorId
+    // Keep only first trailing blank after VendorId
+    while (i > 0 && model[i-1] == ' ' && (i < 2 || model[i-2] == ' '))
       i--;
     // Ignore VendorId "ATA"
-    if (i <= 4 && !strncmp(model, "ATA", 3) && (i == 3 || model[3] == ' '))
+    if (i <= 4 && !memcmp(model, "ATA", 3) && (i == 3 || model[3] == ' '))
       i = 0;
     for (unsigned j = 0; i < sizeof(model)-1 && data.raw[data.desc.ProductIdOffset+j]; i++, j++)
       model[i] = data.raw[data.desc.ProductIdOffset+j];
@@ -1319,7 +1320,7 @@ class win_ata_device
 public:
   win_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
 
-  virtual ~win_ata_device() throw();
+  virtual ~win_ata_device();
 
   virtual bool open();
 
@@ -1357,7 +1358,7 @@ win_ata_device::win_ata_device(smart_interface * intf, const char * dev_name, co
 {
 }
 
-win_ata_device::~win_ata_device() throw()
+win_ata_device::~win_ata_device()
 {
 }
 
@@ -2296,7 +2297,7 @@ public:
   win_csmi_device(smart_interface * intf, const char * dev_name,
     const char * req_type);
 
-  virtual ~win_csmi_device() throw();
+  virtual ~win_csmi_device();
 
   virtual bool open();
 
@@ -2325,7 +2326,7 @@ win_csmi_device::win_csmi_device(smart_interface * intf, const char * dev_name,
 {
 }
 
-win_csmi_device::~win_csmi_device() throw()
+win_csmi_device::~win_csmi_device()
 {
   if (m_fh != INVALID_HANDLE_VALUE)
     CloseHandle(m_fh);
@@ -3333,7 +3334,7 @@ public /*extends*/ win_smart_device
 public:
   win_aacraid_device(smart_interface *intf, const char *dev_name,unsigned int ctrnum, unsigned int target, unsigned int lun);
 
-  virtual ~win_aacraid_device() throw();
+  virtual ~win_aacraid_device();
 
   virtual bool open();
 
@@ -3362,7 +3363,7 @@ win_aacraid_device::win_aacraid_device(smart_interface * intf,
   set_info().dev_type  = strprintf("aacraid,%d,%d,%d", m_ctrnum, m_lun, m_target);
 }
 
-win_aacraid_device::~win_aacraid_device() throw()
+win_aacraid_device::~win_aacraid_device()
 {
 }
 
@@ -4005,6 +4006,7 @@ std::string win_smart_interface::get_os_version_str()
           case 18362:   w = "w10-1903"; break;
           case 18363:   w = "w10-1909"; break;
           case 19041:   w = "w10-2004"; break;
+          case 19042:   w = "w10-20H2"; break;
           default:      w = "w10";
                         build = vi.dwBuildNumber; break;
         } break;
@@ -4016,6 +4018,8 @@ std::string win_smart_interface::get_os_version_str()
           case 17763:   w = "2019";      break;
           case 18362:   w = "2019-1903"; break;
           case 18363:   w = "2019-1909"; break;
+          case 19041:   w = "2019-2004"; break;
+          case 19042:   w = "2019-20H2"; break;
           default:      w = (vi.dwBuildNumber < 17763
                           ? "2016"
                           : "2019");

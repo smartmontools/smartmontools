@@ -1,10 +1,10 @@
 /*
  * scsiata.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-18 Christian Franke
+ * Copyright (C) 2009-20 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  * The code in this file is based on the SCSI to ATA Translation (SAT)
@@ -114,7 +114,7 @@ public:
   sat_device(smart_interface * intf, scsi_device * scsidev,
     const char * req_type, sat_scsi_mode mode = sat_always, int passthrulen = 0);
 
-  virtual ~sat_device() throw();
+  virtual ~sat_device();
 
   virtual smart_device * autodetect_open();
 
@@ -148,7 +148,7 @@ sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
     (mode == sat_always ? "SAT" : mode == sat_auto ? "SCSI/SAT" : "SCSI"));
 }
 
-sat_device::~sat_device() throw()
+sat_device::~sat_device()
 {
 }
 
@@ -612,7 +612,7 @@ public:
   usbcypress_device(smart_interface * intf, scsi_device * scsidev,
     const char * req_type, unsigned char signature);
 
-  virtual ~usbcypress_device() throw();
+  virtual ~usbcypress_device();
 
 protected:
   virtual int ata_command_interface(smart_command_set command, int select, char * data);
@@ -630,7 +630,7 @@ usbcypress_device::usbcypress_device(smart_interface * intf, scsi_device * scsid
   set_info().info_name = strprintf("%s [USB Cypress]", scsidev->get_info_name());
 }
 
-usbcypress_device::~usbcypress_device() throw()
+usbcypress_device::~usbcypress_device()
 {
 }
 
@@ -930,7 +930,7 @@ public:
                     const char * req_type, bool prolific,
                     bool ata_48bit_support, int port);
 
-  virtual ~usbjmicron_device() throw();
+  virtual ~usbjmicron_device();
 
   virtual bool open();
 
@@ -956,7 +956,7 @@ usbjmicron_device::usbjmicron_device(smart_interface * intf, scsi_device * scsid
   set_info().info_name = strprintf("%s [USB JMicron]", scsidev->get_info_name());
 }
 
-usbjmicron_device::~usbjmicron_device() throw()
+usbjmicron_device::~usbjmicron_device()
 {
 }
 
@@ -1158,7 +1158,7 @@ public:
   usbprolific_device(smart_interface * intf, scsi_device * scsidev,
                     const char * req_type);
 
-  virtual ~usbprolific_device() throw();
+  virtual ~usbprolific_device();
 
   virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 };
@@ -1172,7 +1172,7 @@ usbprolific_device::usbprolific_device(smart_interface * intf, scsi_device * scs
   set_info().info_name = strprintf("%s [USB Prolific]", scsidev->get_info_name());
 }
 
-usbprolific_device::~usbprolific_device() throw()
+usbprolific_device::~usbprolific_device()
 {
 }
 
@@ -1297,7 +1297,7 @@ public:
   usbsunplus_device(smart_interface * intf, scsi_device * scsidev,
                     const char * req_type);
 
-  virtual ~usbsunplus_device() throw();
+  virtual ~usbsunplus_device();
 
   virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 };
@@ -1311,7 +1311,7 @@ usbsunplus_device::usbsunplus_device(smart_interface * intf, scsi_device * scsid
   set_info().info_name = strprintf("%s [USB Sunplus]", scsidev->get_info_name());
 }
 
-usbsunplus_device::~usbsunplus_device() throw()
+usbsunplus_device::~usbsunplus_device()
 {
 }
 

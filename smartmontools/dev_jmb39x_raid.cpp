@@ -317,7 +317,7 @@ public:
   jmb39x_device(smart_interface * intf, smart_device * smartdev, const char * req_type,
     uint8_t version, uint8_t port, uint8_t lba, bool force);
 
-  virtual ~jmb39x_device() throw();
+  virtual ~jmb39x_device();
 
   virtual bool open();
 
@@ -354,7 +354,7 @@ jmb39x_device::jmb39x_device(smart_interface * intf, smart_device * smartdev, co
   memset(m_orig_data, 0, sizeof(m_orig_data));
 }
 
-jmb39x_device::~jmb39x_device() throw()
+jmb39x_device::~jmb39x_device()
 {
   if (m_orig_write_back) try {
     jmb39x_device::restore_orig_data();

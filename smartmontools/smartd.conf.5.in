@@ -279,6 +279,12 @@ Warning emails will be sent for all monitored devices.
 .PP
 A device is ignored by DEVICESCAN if a configuration line with the same
 device name exists.
+.\" %IF NOT OS Windows OS2
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+Symbolic links are resolved before this check is done.
+.PP
+.\" %ENDIF NOT OS Windows OS2
 A device name is also ignored if another device with same identify
 information (vendor, model, firmware version, serial number, WWN) already
 exists.
@@ -440,8 +446,7 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 bridge.
 .Sp
 .I sntjmicron[,NSID]
-\- [NEW EXPERIMENTAL SMARTD FEATURE]
-this device type is for NVMe disks that are behind a JMicron USB to NVMe
+\- this device type is for NVMe disks that are behind a JMicron USB to NVMe
 bridge.
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.

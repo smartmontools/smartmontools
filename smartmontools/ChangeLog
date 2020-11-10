@@ -1,5 +1,136 @@
 $Id$
 
+2020-11-09  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Resolve symlinks before device names are checked for
+	duplicates (#1390).
+	dev_interface.cpp, dev_interface.h: Add 'get_unique_dev_name()'
+	and 'is_raid_dev_type()' to support platform specific modifications.
+	smartd.conf.5.in: Document new functionality.
+
+2020-11-07  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Add YAML support.
+	smartctl.cpp: Add '--json=y' option.
+	smartctl.8.in: Document new option.
+
+	smartctl.8.in, smartd.conf.5.in: Remove EXPERIMENTAL notes for
+	features added before 7.0.
+	update-smart-drivedb.8.in: Add missing EXPERIMENTAL note.
+
+2020-11-01  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: KINGSTON OM4P0S3* (#1374), OMSP0S3* (#1375).
+	- InnoDisk iCF 9000 / 1SE2 Cards: Rename entry. Add 1SE2 H (#1351).
+	- Marvell based SanDisk SSDs: 2TB SDSSDH3 (GH issues/67, GH pull/69),
+	  WD Blue SSD WDS100T2B0A (#1378).
+	- SanDisk based SSDs: SDSA6GM*.
+	- Toshiba 2.5" HDD MK..76GSX/GS001A (GH pull/58).
+	- Toshiba L200 (CMR), Toshiba L200 (SMR) (#1228, patch from #1377).
+	- Western Digital Blue: Apple OEM (#1385).
+	- Western Digital Scorpio Blue Serial ATA: 320 GB (patch from #888).
+
+	os_win32.cpp: Decode Windows 10 20H2 and Server 2004, 20H2
+	build numbers.
+
+2020-10-29  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: skip SCSI subenclosure devices on scan (#1299)
+
+2020-10-24  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- HGST Travelstar Z5K1000: *B*610 variant.
+	- Hitachi Travelstar 7K320: HITACHI*SA60 variant (#983).
+	- Hitachi/HGST Deskstar 5K4000: Rename entry. Add HGST (#1060).
+	- HGST Deskstar NAS: 8TB.
+	- Hitachi/HGST Ultrastar 5K3000 (#1055).
+	- Hitachi Ultrastar 7K3000: Variant without vendor name (#1361).
+	- Hitachi/HGST Ultrastar 7K4000: Variant without vendor name (#1361).
+	- HGST Ultrastar HC310/320 (#1157, #1365).
+
+2020-10-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- ATP SATA III aMLC M.2 2242 SSD (based on patch from #1366).
+	- Silicon Motion based OEM SSDs: TCSUNBOW X3 (#1349),
+	  KingDian S370 (#1350), LDLC (#1353), Lenovo.
+	- SSSTC ER2 GD/CD Series SSDs (based on patch from #1376).
+
+2020-10-15  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apacer SSDs (based on patch from #1202).
+	- Crucial/Micron MX500 SSDs (FW <= M3CR032): Remove entry (#1227).
+	- Crucial/Micron Client SSDs: Rename entry. Fix name of attribute 127.
+	  This prevents false 'Currently unreadable (pending) sectors' warnings
+	  from smartd (#1227, #1294, #1311, #1336).
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: *H* variant (#1363).
+	- Samsung based SSDs: 883 DCT (#1373).
+
+	os_win32.cpp: Fix removal of trailing blanks.
+	Silence misleading -Wstring-compare warning from g++ 10.2.0
+	(GCC Bugzilla 97336).
+
+2020-10-09  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Don't print 'Accumulated power on time' if no
+	option is specified (GH issues/65, regression from r5075).
+	Fix setting of 'any_output' (regression from r4188).
+
+	Based on patch from GH pull/66.
+
+2020-10-06  Christian Franke  <franke@computer.org>
+
+	Remove all occurrences of the throw() specifier.
+	This specifier is deprecated since C++11.
+
+2020-09-27  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add '--branch' option.
+	Select signing key accordingly.
+	update-smart-drivedb.8.in: Document new option.
+
+2020-09-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron BX/MX1/2/3/500, M5/600, 11/1300 SSDs: BX500 2TB,
+	  1100 with version suffix (#1178), 1300 without prefix (#1369).
+	- Micron 5100 Pro / 52x0 / 5300 SSDs: Add attribute 246.
+	- Phison Driven SSDs: Kingston A400 M.2 (#1362),
+	  Kingston OCP0S3* (#1370), Kingston OM8P0* (#1371).
+	- Kingston SSDNow UV400/500: UV500 M.2 (#1347).
+	- SAMSUNG SpinPoint N3U-3 (USB): Rename.
+	- USB: Samsung S1 Mini (0x04e8:0x2f06) (Debian Bug 964032).
+
+2020-09-19  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Report unavailable TRIM command only for SSDs.
+
+2020-08-23  Christian Franke  <franke@computer.org>
+
+	drivedb.h: DEFAULT entry: Limit attribute 231 (Temperature_Celsius)
+	to HDDs.  Various SSDs use this attribute for a different purpose.
+
+	drivedb.h:
+	- Micron 5100 Pro / 52x0 / 5300 SSDs: Rename, add 5210 (#1356),
+	  5300 *TDT variant (#1355)
+	- Phison Driven SSDs: SSD Smartbuy 64GB and other sizes (#1359)
+	- Indilinx Barefoot_2/Everest/Martini based SSDs: OCZ-OCTANE (#1360)
+	- Marvell based SanDisk SSDs: Ultra 3D 4TB (#1358)
+	- Silicon Motion based SSDs: ACPI SED2QII-LP, Transcend 230
+	- Western Digital Gold: WD102KRYZ (#1357)
+
+2020-08-22  Christian Franke  <franke@computer.org>
+
+	smartd.service.in: Don't start smartd in virtualized environments
+	(GH issues/62).
+
+2020-08-22  Marko Hauptvogel  <marko.hauptvogel@googlemail.com>
+
+	smartd.service.in: Remove obsolete 'StandardOutput=syslog'.
+
 2020-07-11  Christian Franke  <franke@computer.org>
 
 	scsiprint.cpp: Add JSON values 'power_on_time.{hours,minutes}' to

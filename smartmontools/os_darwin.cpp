@@ -1,7 +1,7 @@
 /*
  * os_darwin.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Geoffrey Keating <geoffk@geoffk.org>
  * Copyright (C) 2014 Alex Samorukov <samm@os2.kiev.ua>
@@ -83,7 +83,7 @@ public:
     : smart_device(never_called),
       m_fd(-1), m_mode(mode) { }
 
-  virtual ~darwin_smart_device() throw();
+  virtual ~darwin_smart_device();
 
   virtual bool is_open() const;
 
@@ -102,7 +102,7 @@ private:
 };
 
 
-darwin_smart_device::~darwin_smart_device() throw()
+darwin_smart_device::~darwin_smart_device()
 {
   if (m_fd >= 0)
     darwin_smart_device::close();

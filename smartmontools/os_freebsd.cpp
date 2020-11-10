@@ -1,7 +1,7 @@
 /*
- * os_freebsd.c
+ * os_freebsd.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-10 Eduard Martinescu
  *
@@ -139,7 +139,7 @@ public:
     : smart_device(never_called),
       m_fd(-1) { }
 
-  virtual ~freebsd_smart_device() throw();
+  virtual ~freebsd_smart_device();
 
   virtual bool is_open() const;
 
@@ -168,7 +168,7 @@ static inline void * reallocf(void *ptr, size_t size) {
    }
 #endif
 
-freebsd_smart_device::~freebsd_smart_device() throw()
+freebsd_smart_device::~freebsd_smart_device()
 {
   if (m_fd >= 0)
     os_freebsd::freebsd_smart_device::close();
@@ -1591,6 +1591,10 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
           skip_device = 1;
         else
           skip_device = 0;
+
+        // skip ses devices
+        if (dev_result->inq_data.device == T_ENCLOSURE)
+          skip_device = 1;
         
         //        /* Shall we skip non T_DIRECT devices ? */
         //        if (dev_result->inq_data.device != T_DIRECT)

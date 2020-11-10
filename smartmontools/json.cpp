@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017-19 Christian Franke
+ * Copyright (C) 2017-20 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -17,7 +17,7 @@ const char * json_cvsid = "$Id$"
   JSON_H_CVSID;
 
 #include "sg_unaligned.h"
-#include "utility.h" // uint128_*()
+#include "utility.h" // regular_expression, uint128_*()
 
 #include <inttypes.h>
 #include <stdexcept>
@@ -371,7 +371,7 @@ void json::set_string(const node_path & path, const std::string & value)
   find_or_create_node(path, nt_string)->strval = value;
 }
 
-static void print_string(FILE * f, const char * s)
+static void print_quoted_string(FILE * f, const char * s)
 {
   putc('"', f);
   for (int i = 0; s[i]; i++) {
@@ -386,6 +386,41 @@ static void print_string(FILE * f, const char * s)
     putc(c, f);
   }
   putc('"', f);
+}
+
+static char yaml_string_needs_quotes(const char * s)
+{
+  if (!*s)
+    return '\''; // empty string
+  bool need = false; char quotes = '\'';
+  for (int i = 0; s[i]; i++) {
+    char c = s[i];
+    if (!(' ' <= c && c <= '~'))
+      return '"'; // non-ascii char
+    if (   ('0' <= c && c <= '9') || ('A' <= c && c <= 'Z')
+        || ('a' <= c && c <= 'z') || c == '_'              )
+      continue;
+    if (c == '\'') // if string contains any single quote
+      quotes = '"'; // use double quotes
+    if (i == 0)
+      need = true; // space or special char except '_' at BOL
+    else if (c == ' ' && (s[i-1] == ':' || s[i+1] == '#'))
+      need = true; // ": " or " #"
+    else if ((c == ' ' || c == ':') && !s[i+1])
+      need = true; // space or : at EOL
+  }
+  if (need)
+    return quotes;
+
+  static const regular_expression special(
+    "[0-9]+[,0-9]*(\\.[0-9]*)?([eE][-+]?[0-9]+)?|" // decimal ('^[-+.]' handled above)
+    "0x[0-7A-Fa-f]+|" // hex
+    "[Ff][Aa][Ll][Ss][Ee]|[Tt][Rr][Uu][Ee]|[Nn][Oo]|[Yy][Ee][Ss]|" // boolean
+    "[Nn][Uu][Ll][Ll]" // null
+  );
+  if (special.full_match(s))
+    return quotes; // special token
+  return 0; // none of the above
 }
 
 void json::print_json(FILE * f, bool pretty, bool sorted, const node * p, int level)
@@ -442,7 +477,78 @@ void json::print_json(FILE * f, bool pretty, bool sorted, const node * p, int le
       break;
 
     case nt_string:
-      print_string(f, p->strval.c_str());
+      print_quoted_string(f, p->strval.c_str());
+      break;
+
+    default: jassert(false);
+  }
+}
+
+void json::print_yaml(FILE * f, bool pretty, bool sorted, const node * p, int level_o,
+                      int level_a, bool cont)
+{
+  bool is_obj = (p->type == nt_object);
+  switch (p->type) {
+    case nt_object:
+    case nt_array:
+      if (!p->childs.empty()) {
+        if (!cont)
+          fputs("\n", f);
+        for (node::const_iterator it(p, sorted); !it.at_end(); ++it) {
+          int spaces = (cont ? 1 : (is_obj ? level_o : level_a) * 2);
+          if (spaces > 0)
+            fprintf(f, "%*s", spaces, "");
+          const node * p2 = *it;
+          if (!p2) {
+            // Unset element of sparse array
+            jassert(!is_obj);
+            fputs("-" /*" null"*/ "\n", f);
+          }
+          else {
+            jassert(is_obj == !p2->key.empty());
+            if (is_obj)
+              fprintf(f, "%s:", p2->key.c_str());
+            else
+              putc('-', f);
+            // Recurse
+            print_yaml(f, pretty, sorted, p2, (is_obj ? level_o : level_a) + 1,
+                       (is_obj ? level_o + (pretty ? 1 : 0) : level_a + 1), !is_obj);
+          }
+          cont = false;
+        }
+      }
+      else {
+        fputs((is_obj ? "{}\n" : "[]\n"), f);
+      }
+      break;
+
+    case nt_bool:
+      fputs((p->intval ? " true\n" : " false\n"), f);
+      break;
+
+    case nt_int:
+      fprintf(f, " %" PRId64 "\n", (int64_t)p->intval);
+      break;
+
+    case nt_uint:
+      fprintf(f, " %" PRIu64 "\n", p->intval);
+      break;
+
+    case nt_uint128:
+      {
+        char buf[64];
+        fprintf(f, " %s\n", uint128_hilo_to_str(buf, p->intval_hi, p->intval));
+      }
+      break;
+
+    case nt_string:
+      putc(' ', f);
+      switch (yaml_string_needs_quotes(p->strval.c_str())) {
+        default:   print_quoted_string(f, p->strval.c_str()); break;
+        case '\'': fprintf(f, "'%s'", p->strval.c_str()); break;
+        case 0:    fputs(p->strval.c_str(), f); break;
+      }
+      putc('\n', f);
       break;
 
     default: jassert(false);
@@ -503,7 +609,7 @@ void json::print_flat(FILE * f, const char * assign, bool sorted, const node * p
 
     case nt_string:
       fprintf(f, "%s%s", path.c_str(), assign);
-      print_string(f, p->strval.c_str());
+      print_quoted_string(f, p->strval.c_str());
       fputs(";\n", f);
       break;
 
@@ -517,13 +623,20 @@ void json::print(FILE * f, const print_options & options) const
     return;
   jassert(m_root_node.type == nt_object);
 
-  if (!options.flat) {
-    print_json(f, options.pretty, options.sorted, &m_root_node, 0);
-    if (options.pretty)
-      putc('\n', f);
-  }
-  else {
-    std::string path("json");
-    print_flat(f, (options.pretty ? " = " : "="), options.sorted, &m_root_node, path);
+  switch (options.format) {
+    default:
+      print_json(f, options.pretty, options.sorted, &m_root_node, 0);
+      if (options.pretty)
+        putc('\n', f);
+      break;
+    case 'y':
+      fputs("---", f);
+      print_yaml(f, options.pretty, options.sorted, &m_root_node, 0, 0, false);
+      break;
+    case 'g': {
+        std::string path("json");
+        print_flat(f, (options.pretty ? " = " : "="), options.sorted, &m_root_node, path);
+      }
+      break;
   }
 }
