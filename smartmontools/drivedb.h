@@ -862,7 +862,8 @@ const drive_settings builtin_knowndrives[] = {
     "StorFly SATA 6Gbps SSDs", 
     // tested with Virtium StorFly VSFB25CC050G-JUN/0202-000
     "StorFly VSFBM8C[CI](060|120|240)G-...|"
-    "StorFly VSFBM8C[CI](050|100|200)G-...", 
+    "StorFly VSFBM8C[CI](050|100|200)G-...|"
+    "StorFly VSFBM[48]XI128G-C001", 
     // C - commercial, I industrial
     "0202-000", "",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
