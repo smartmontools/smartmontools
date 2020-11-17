@@ -4701,8 +4701,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD[2346]0EFAX-.*",
     "", "", ""
   },
-  { "Western Digital Red Plus", // tested with WDC WD120EFAX-68UNTN0/81.00A81
-    "WDC WD(10|20|30|40|60|80|100|101|120|140|161|181)EF[AFR]X-.*",
+  { "Western Digital Red Plus (CMR)", // tested with WDC WD120EFAX-68UNTN0/81.00A81
+    "WDC WD(10|20|30|40|60|80|100|101|120|140|161|181)(JFC|EF[AFR])X-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD120EFAX
   },
