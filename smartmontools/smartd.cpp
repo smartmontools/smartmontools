@@ -556,6 +556,9 @@ struct temp_dev_state
   int powerskipcnt;                       // Number of checks skipped due to idle or standby mode
   int lastpowermodeskipped;               // the last power mode that was skipped
 
+  bool attrlog_dirty;                     // true if persistent part has new attr values that
+                                          // need to be written to attrlog
+
   // SCSI ONLY
   unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
   unsigned char TempPageSupported;        // has log sense temperature page (0xd)
@@ -589,6 +592,7 @@ temp_dev_state::temp_dev_state()
   powermodefail(false),
   powerskipcnt(0),
   lastpowermodeskipped(0),
+  attrlog_dirty(false),
   SmartPageSupported(false),
   TempPageSupported(false),
   ReadECounterPageSupported(false),
@@ -955,7 +959,10 @@ static void write_all_dev_attrlogs(const dev_config_vector & configs,
     if (cfg.attrlog_file.empty())
       continue;
     dev_state & state = states[i];
-    write_dev_attrlog(cfg.attrlog_file.c_str(), state);
+    if (state.attrlog_dirty) {
+      write_dev_attrlog(cfg.attrlog_file.c_str(), state);
+      state.attrlog_dirty = false;
+    }
   }
 }
 
@@ -3627,6 +3634,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   // Copy ATA attribute values to persistent state
   state.update_persistent_state();
 
+  state.attrlog_dirty = true;
   return 0;
 }
 
@@ -3702,6 +3710,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
       state.temperature = currenttemp;
   }
   CloseDevice(scsidev, name);
+  state.attrlog_dirty = true;
   return 0;
 }
 
@@ -3774,6 +3783,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
   }
 
   CloseDevice(nvmedev, name);
+  state.attrlog_dirty = true;
   return 0;
 }
 
