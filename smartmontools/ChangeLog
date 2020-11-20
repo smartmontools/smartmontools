@@ -1,5 +1,11 @@
 $Id$
 
+2020-11-17  Dmitriy Potapov <atomsk+oss@google.com>
+
+	smartd.cpp: Don't write attrlog when device is skipped due to idle or
+	standby mode, or if attributes were not read for any other reason
+	(GH pull/75).
+
 2020-11-09  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Resolve symlinks before device names are checked for
