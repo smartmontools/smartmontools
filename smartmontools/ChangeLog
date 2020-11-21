@@ -1,4 +1,10 @@
-$Id: ChangeLog 5114 2020-11-09 21:53:58Z chrfranke $
+$Id: ChangeLog 5116 2020-11-21 11:38:58Z chrfranke $
+
+2020-11-17  Dmitriy Potapov <atomsk+oss@google.com>
+
+	smartd.cpp: Don't write attrlog when device is skipped due to idle or
+	standby mode, or if attributes were not read for any other reason
+	(GH pull/75).
 
 2020-11-09  Christian Franke  <franke@computer.org>
 
