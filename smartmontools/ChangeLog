@@ -1,4 +1,9 @@
-$Id: ChangeLog 5116 2020-11-21 11:38:58Z chrfranke $
+$Id: ChangeLog 5117 2020-11-21 18:29:52Z chrfranke $
+
+2020-11-21  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add staggered self-tests (#310).
+	smartd.conf.5.in: Document new functionality.
 
 2020-11-17  Dmitriy Potapov <atomsk+oss@google.com>
 
