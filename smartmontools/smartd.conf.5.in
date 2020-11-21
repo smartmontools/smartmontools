@@ -866,6 +866,17 @@ single decimal digit or the match will always fail!
 .\" This resets the margin to the level prior to the '.RS ... .RE' block.
 .TP
 .B \&
+[NEW EXPERIMENTAL SMARTD FEATURE]
+If the regular expression contains substrings of the form \fB:NNN\fP,
+where NNN are three decimal digits, staggered tests are enabled.
+Then a test will also be run if all 16 characters of the string
+\fBT/MM/DD/d/HH:NNN\fP match the regular expression.
+This check is done for any \fB:NNN\fP found in the regular expression.
+The time used for the check is adjusted to the past such that tests of
+the first drive are not delayed, tests of the second drive are delayed
+by NNN hours, tests of the third drive are delayed by 2*NNN hours, and
+so on.
+.Sp
 Some examples follow.  In reading these, keep in mind that in extended
 regular expressions a dot \fB\*(Aq.\*(Aq\fP matches any single character, and
 a parenthetical expression such as \fB\*(Aq(A|B|C)\*(Aq\fP denotes any one
@@ -879,6 +890,11 @@ To schedule a long Self-Test between 4\(en5 am every Sunday morning, use:
 .br
 \fB \-s L/../../7/04\fP
 .br
+To enable staggered tests with a delay of three hours for the example above,
+use:
+.br
+\fB \-s L/../../7/04:003\fP
+.br
 To schedule a long Self-Test between 10\(en11 pm on the first and
 fifteenth day of each month, use:
 .br
@@ -889,6 +905,11 @@ noon, and 6 pm, plus a Short Self-Test daily at 1\(en2 am and a Long
 Self-Test every Saturday at 3\(en4 am, use:
 .br
 \fB \-s (O/../.././(00|06|12|18)|S/../.././01|L/../../6/03)\fP
+.br
+To enable staggered Long Self-Tests with a delay of three hours for
+the example above, use:
+.br
+\fB \-s (O/../.././(00|06|12|18)|S/../.././01|L/../../6/03:003)\fP
 .br
 If Long Self-Tests of a large disks take longer than the system uptime,
 a full disk test can be performed by several Selective Self-Tests.

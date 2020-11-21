@@ -381,6 +381,7 @@ struct dev_config
   unsigned char tempdiff;                 // Track Temperature changes >= this limit
   unsigned char tempinfo, tempcrit;       // Track Temperatures >= these limits as LOG_INFO, LOG_CRIT+mail
   regular_expression test_regex;          // Regex for scheduled testing
+  unsigned test_offset_factor;            // Factor for staggering of scheduled tests
 
   // Configuration of email warning messages
   std::string emailcmdline;               // script to execute, empty if no messages
@@ -438,6 +439,7 @@ dev_config::dev_config()
   powerskipmax(0),
   tempdiff(0),
   tempinfo(0), tempcrit(0),
+  test_offset_factor(0),
   emailfreq(0),
   emailtest(false),
   dev_rpm(0),
@@ -2889,39 +2891,64 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
     state.scheduled_test_next_check = now - (3600L*24*90);
   }
 
+  // Find ':NNN' in regex for possible offsets
+  const unsigned max_offsets = 1 + num_test_types;
+  unsigned offsets[max_offsets] = {0, };
+  unsigned num_offsets = 1; // offsets[0] == 0 always
+  for (const char * p = cfg.test_regex.get_pattern(); num_offsets < max_offsets; ) {
+    const char * q = strchr(p, ':');
+    if (!q)
+      break;
+    p = q + 1;
+    unsigned offset = -1; int nc = -1;
+    if (!(sscanf(p, "%u%n", &offset, &nc) == 1 && nc == 3))
+      continue;
+    offsets[num_offsets++] = offset;
+  }
+
   // Check interval [state.scheduled_test_next_check, now] for scheduled tests
   char testtype = 0;
   time_t testtime = 0; int testhour = 0;
   int maxtest = num_test_types-1;
 
   for (time_t t = state.scheduled_test_next_check; ; ) {
-    struct tm tmbuf, * tms = time_to_tm_local(&tmbuf, t);
-    // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7 (Sunday).
-    int weekday = (tms->tm_wday ? tms->tm_wday : 7);
-    for (int i = 0; i <= maxtest; i++) {
-      // Skip if drive not capable of this test
-      switch (test_type_chars[i]) {
-        case 'L': if (state.not_cap_long)       continue; break;
-        case 'S': if (state.not_cap_short)      continue; break;
-        case 'C': if (scsi || state.not_cap_conveyance) continue; break;
-        case 'O': if (scsi || state.not_cap_offline)    continue; break;
-        case 'c': case 'n':
-        case 'r': if (scsi || state.not_cap_selective)  continue; break;
-        default: continue;
-      }
-      // Try match of "T/MM/DD/d/HH"
-      char pattern[64];
-      snprintf(pattern, sizeof(pattern), "%c/%02d/%02d/%1d/%02d",
-        test_type_chars[i], tms->tm_mon+1, tms->tm_mday, weekday, tms->tm_hour);
-      if (cfg.test_regex.full_match(pattern)) {
-        // Test found
-        testtype = pattern[0];
-        testtime = t; testhour = tms->tm_hour;
-        // Limit further matches to higher priority self-tests
-        maxtest = i-1;
-        break;
+    // Check offset 0 and then all offsets for ':NNN' found above
+    for (unsigned i = 0; i < num_offsets; i++) {
+      unsigned offset = offsets[i];
+      struct tm tmbuf, * tms = time_to_tm_local(&tmbuf, t - (cfg.test_offset_factor * offset * 3600));
+
+      // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7 (Sunday).
+      int weekday = (tms->tm_wday ? tms->tm_wday : 7);
+      for (int j = 0; j <= maxtest; j++) {
+        // Skip if drive not capable of this test
+        switch (test_type_chars[j]) {
+          case 'L': if (state.not_cap_long)       continue; break;
+          case 'S': if (state.not_cap_short)      continue; break;
+          case 'C': if (scsi || state.not_cap_conveyance) continue; break;
+          case 'O': if (scsi || state.not_cap_offline)    continue; break;
+          case 'c': case 'n':
+          case 'r': if (scsi || state.not_cap_selective)  continue; break;
+          default: continue;
+        }
+        // Try match of "T/MM/DD/d/HH[:NNN]"
+        char pattern[64];
+        snprintf(pattern, sizeof(pattern), "%c/%02d/%02d/%1d/%02d",
+          test_type_chars[j], tms->tm_mon+1, tms->tm_mday, weekday, tms->tm_hour);
+        if (i > 0) {
+          const unsigned len = sizeof("S/01/01/1/01") - 1;
+          snprintf(pattern + len, sizeof(pattern) - len, ":%03u", offset);
+        }
+        if (cfg.test_regex.full_match(pattern)) {
+          // Test found
+          testtype = pattern[0];
+          testtime = t; testhour = tms->tm_hour;
+          // Limit further matches to higher priority self-tests
+          maxtest = j-1;
+          break;
+        }
       }
     }
+
     // Exit if no tests left or current time reached
     if (maxtest < 0)
       break;
@@ -2930,8 +2957,8 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
     // Check next hour
     if ((t += 3600) > now)
       t = now;
-  }
-  
+   }
+
   // Do next check not before next hour.
   struct tm tmbuf, * tmnow = time_to_tm_local(&tmbuf, now);
   state.scheduled_test_next_check = now + (3600 - tmnow->tm_min*60 - tmnow->tm_sec);
@@ -4366,9 +4393,12 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
       // Do a bit of sanity checking and warn user if we think that
       // their regexp is "strange". User probably confused about shell
       // glob(3) syntax versus regular expression syntax regexp(7).
-      if (arg[(val = strspn(arg, "0123456789/.-+*|()?^$[]SLCOcnr"))])
-        PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, character %d (%c) looks odd in extended regular expression %s\n",
-                 configfile, lineno, name, val+1, arg[val], arg);
+      // Check also for possible invalid number of digits in ':NNN' suffix.
+      static const regular_expression syntax_check("[^]$()*+./:?^[|0-9LSCOncr-]+|:[0-9]{0,2}[^0-9]|:[0-9]{4,}");
+      regular_expression::match_range range;
+      if (syntax_check.execute(arg, 1, &range) && 0 <= range.rm_so && range.rm_so < range.rm_eo)
+        PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, substring \"%.*s\" looks odd in extended regular expression \"%s\"\n",
+                 configfile, lineno, name, (int)(range.rm_eo - range.rm_so), arg + range.rm_so, arg);
     }
     break;
   case 'm':
@@ -5419,6 +5449,14 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
     if (!scanning)
       // Store for duplicate detection
       prev_unique_names[unique_name] = cfg.name;
+  }
+
+  // Set factors for staggered tests
+  for (unsigned i = 0, factor = 0; i < configs.size(); i++) {
+    dev_config & cfg = configs[i];
+    if (cfg.test_regex.empty())
+      continue;
+    cfg.test_offset_factor = factor++;
   }
 
   init_disable_standby_check(configs);
