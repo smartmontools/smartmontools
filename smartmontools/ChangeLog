@@ -1,4 +1,9 @@
-$Id: ChangeLog 5117 2020-11-21 18:29:52Z chrfranke $
+$Id: ChangeLog 5118 2020-11-23 18:25:16Z chrfranke $
+
+2020-11-23  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Allow to specify a delay limit for staggered self-tests.
+	smartd.conf.5.in: Document new functionality.
 
 2020-11-21  Christian Franke  <franke@computer.org>
 
