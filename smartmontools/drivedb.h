@@ -4711,10 +4711,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 22,raw48,Helium_Level" // WD120EFAX
   },
   { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81,
-      // WDC WD6002FFWX-68TZ4N0/83.H0A83, WDC WD101KFBX-68R56N0/83.H0A03
-    "WDC WD([2-68]00[123]FF[BSW]|101KFB)X-.*",
-    "", "",
-    "-v 22,raw48,Helium_Level" // WD101KFBX
+        // WDC WD6002FFWX-68TZ4N0/83.H0A83, WDC WD101KFBX-68R56N0/83.H0A03
+      "WDC WD([2-68]00[123]FF[BSW]|101KFB)X-.*",
+      "", "",
+      "-v 22,raw48,Helium_Level" // WD101KFBX
   },
   { "Western Digital Purple", // tested with WDC WD40PURX-64GVNY0/80.00A80,
       // WDC WD40PURZ-85TTDY0/80.00A80
