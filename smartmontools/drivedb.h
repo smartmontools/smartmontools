@@ -3482,8 +3482,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "HGST Ultrastar HC310/320", // tested with HGST HUS726T6TALE6L4/VKGNW40H,
-      // HGST HUS728T8TALE6L4/V8GNW460, HGST HUS726T4TALA6L1/VLGNX41C
-    "HGST HUS72(6T[46]|8T8)TAL[AE]6L[14]",
+      // HGST HUS728T8TALE6L4/V8GNW460
+    "HGST HUS72(6T[46]|8T8)TALE6L4",
     "", "", ""
   },
   { "HGST Ultrastar He6", // tested with HGST HUS726060ALA640/AHGNT1E2
