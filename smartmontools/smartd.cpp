@@ -2891,19 +2891,22 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
     state.scheduled_test_next_check = now - (3600L*24*90);
   }
 
-  // Find ':NNN' in regex for possible offsets
+  // Find ':NNN[-LLL]' in regex for possible offsets and limits
   const unsigned max_offsets = 1 + num_test_types;
-  unsigned offsets[max_offsets] = {0, };
-  unsigned num_offsets = 1; // offsets[0] == 0 always
+  unsigned offsets[max_offsets] = {0, }, limits[max_offsets] = {0, };
+  unsigned num_offsets = 1; // offsets/limits[0] == 0 always
   for (const char * p = cfg.test_regex.get_pattern(); num_offsets < max_offsets; ) {
     const char * q = strchr(p, ':');
     if (!q)
       break;
     p = q + 1;
-    unsigned offset = -1; int nc = -1;
-    if (!(sscanf(p, "%u%n", &offset, &nc) == 1 && nc == 3))
+    unsigned offset = 0, limit = 0; int n1 = -1, n2 = -1, n3 = -1;
+    sscanf(p, "%u%n-%n%u%n", &offset, &n1, &n2, &limit, &n3);
+    if (!(n1 == 3 && (n2 < 0 || (n3 == 3+1+3 && limit > 0))))
       continue;
-    offsets[num_offsets++] = offset;
+    offsets[num_offsets] = offset; limits[num_offsets] = limit;
+    num_offsets++;
+    p += (n3 > 0 ? n3 : n1);
   }
 
   // Check interval [state.scheduled_test_next_check, now] for scheduled tests
@@ -2914,8 +2917,11 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
   for (time_t t = state.scheduled_test_next_check; ; ) {
     // Check offset 0 and then all offsets for ':NNN' found above
     for (unsigned i = 0; i < num_offsets; i++) {
-      unsigned offset = offsets[i];
-      struct tm tmbuf, * tms = time_to_tm_local(&tmbuf, t - (cfg.test_offset_factor * offset * 3600));
+      unsigned offset = offsets[i], limit = limits[i];
+      unsigned delay = cfg.test_offset_factor * offset;
+      if (0 < limit && limit < delay)
+        delay %= limit + 1;
+      struct tm tmbuf, * tms = time_to_tm_local(&tmbuf, t - (delay * 3600));
 
       // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7 (Sunday).
       int weekday = (tms->tm_wday ? tms->tm_wday : 7);
@@ -2937,6 +2943,8 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
         if (i > 0) {
           const unsigned len = sizeof("S/01/01/1/01") - 1;
           snprintf(pattern + len, sizeof(pattern) - len, ":%03u", offset);
+          if (limit > 0)
+            snprintf(pattern + len + 4, sizeof(pattern) - len - 4, "-%03u", limit);
         }
         if (cfg.test_regex.full_match(pattern)) {
           // Test found
@@ -4393,11 +4401,16 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
       // Do a bit of sanity checking and warn user if we think that
       // their regexp is "strange". User probably confused about shell
       // glob(3) syntax versus regular expression syntax regexp(7).
-      // Check also for possible invalid number of digits in ':NNN' suffix.
-      static const regular_expression syntax_check("[^]$()*+./:?^[|0-9LSCOncr-]+|:[0-9]{0,2}[^0-9]|:[0-9]{4,}");
+      // Check also for possible invalid number of digits in ':NNN[-LLL]' suffix.
+      static const regular_expression syntax_check(
+        "[^]$()*+./:?^[|0-9LSCOncr-]+|"
+        ":[0-9]{0,2}($|[^0-9])|:[0-9]{4,}|"
+        ":[0-9]{3}-(000|[0-9]{0,2}($|[^0-9])|[0-9]{4,})"
+      );
       regular_expression::match_range range;
       if (syntax_check.execute(arg, 1, &range) && 0 <= range.rm_so && range.rm_so < range.rm_eo)
-        PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, substring \"%.*s\" looks odd in extended regular expression \"%s\"\n",
+        PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, \"%.*s\" looks odd in "
+                            "extended regular expression \"%s\"\n",
                  configfile, lineno, name, (int)(range.rm_eo - range.rm_so), arg + range.rm_so, arg);
     }
     break;
