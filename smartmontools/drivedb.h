@@ -2727,13 +2727,9 @@ const drive_settings builtin_knowndrives[] = {
     "ST(250|320|500|640|750|1000)LM0[012][3459] HN-M[0-9]*ABB",
     "", "", ""
   },
-  { "Seagate Barracuda Pro Compute (Standard models)", // tested with ST1000LM049-2GH172/SDM1
+  { "Seagate Barracuda Pro Compute", // tested with ST1000LM049-2GH172/SDM1
     "ST(1000LM049|500LM034)-.*",
     "", "", ""
-  },
-  { "Seagate Barracuda Pro Compute (Data recovery services)", // tested with ST8000DM0004-1ZC11G/DN01
-      "ST(8|10|12)000DM000[47]-.*",
-      "", "", ""
   },
   { "Seagate Samsung SpinPoint M9T", // tested with ST2000LM003 HN-M201RAD/2BC10003
       // (Seagate Expansion Portable)
