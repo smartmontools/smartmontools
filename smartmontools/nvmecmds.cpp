@@ -11,13 +11,15 @@
 #include "config.h"
 #include "nvmecmds.h"
 
-const char * nvmecmds_cvsid = "$Id: nvmecmds.cpp 5121 2020-12-03 18:23:43Z chrfranke $"
+const char * nvmecmds_cvsid = "$Id: nvmecmds.cpp 5123 2020-12-03 18:40:47Z chrfranke $"
   NVMECMDS_H_CVSID;
 
 #include "dev_interface.h"
 #include "atacmds.h" // swapx(), dont_print_serial_number
 #include "scsicmds.h" // dStrHex()
 #include "utility.h"
+
+#include <errno.h>
 
 using namespace smartmontools;
 
