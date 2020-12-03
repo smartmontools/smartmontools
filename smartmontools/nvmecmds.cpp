@@ -19,6 +19,8 @@ const char * nvmecmds_cvsid = "$Id$"
 #include "scsicmds.h" // dStrHex()
 #include "utility.h"
 
+#include <errno.h>
+
 using namespace smartmontools;
 
 // Print NVMe debug messages?
