@@ -2,6 +2,8 @@ $Id$
 
 2020-12-03  Christian Franke  <franke@computer.org>
 
+	nvmeprint.cpp: Print NVMe version.
+
 	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp: Limit NVMe log transfer size
 	to one page.  This should fix device or kernel crashes on '-l error'
 	if log has more than 64 entries (#1404, Debian Bug 947803).
