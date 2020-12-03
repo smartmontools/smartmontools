@@ -1,4 +1,9 @@
-$Id: ChangeLog 5118 2020-11-23 18:25:16Z chrfranke $
+$Id: ChangeLog 5120 2020-12-03 17:35:01Z chrfranke $
+
+2020-12-03  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Read only requested number of entries from NVMe
+	Error Information Log.
 
 2020-11-23  Christian Franke  <franke@computer.org>
 
