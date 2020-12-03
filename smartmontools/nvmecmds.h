@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-19 Christian Franke
+ * Copyright (C) 2016-20 Christian Franke
  *
  * Original code from <linux/nvme.h>:
  *   Copyright (C) 2011-2014 Intel Corporation
@@ -236,12 +236,12 @@ bool nvme_read_id_ctrl(nvme_device * device, smartmontools::nvme_id_ctrl & id_ct
 bool nvme_read_id_ns(nvme_device * device, unsigned nsid, smartmontools::nvme_id_ns & id_ns);
 
 // Read NVMe log page with identifier LID.
-bool nvme_read_log_page(nvme_device * device, unsigned char lid, void * data,
-	       		unsigned size, bool broadcast_nsid);
+unsigned nvme_read_log_page(nvme_device * device, unsigned nsid, unsigned char lid,
+  void * data, unsigned size, bool nvme_121, unsigned offset = 0);
 
 // Read NVMe Error Information Log.
-bool nvme_read_error_log(nvme_device * device, smartmontools::nvme_error_log_page * error_log,
-  unsigned num_entries);
+unsigned nvme_read_error_log(nvme_device * device, smartmontools::nvme_error_log_page * error_log,
+  unsigned num_entries, bool nvme_121);
 
 // Read NVMe SMART/Health Information log.
 bool nvme_read_smart_log(nvme_device * device, smartmontools::nvme_smart_log & smart_log);

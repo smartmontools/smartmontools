@@ -537,6 +537,9 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     }
   }
 
+  // Log Page Offset requires NVMe >= 1.2.1
+  bool nvme_121 = (id_ctrl.ver >= 0x10201);
+
   // Print Error Information Log
   if (options.error_log_entries) {
     unsigned max_entries = id_ctrl.elpe + 1; // 0's based value
@@ -547,40 +550,48 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     nvme_error_log_page * error_log =
       reinterpret_cast<nvme_error_log_page *>(error_log_buf.data());
 
-    if (!nvme_read_error_log(device, error_log, want_entries)) {
+    unsigned read_entries = nvme_read_error_log(device, error_log, want_entries, nvme_121);
+    if (!read_entries) {
       jerr("Read %u entries from Error Information Log failed: %s\n\n",
            want_entries, device->get_errmsg());
       return retval | FAILSMART;
     }
+    if (read_entries < want_entries)
+      jerr("Read Error Information Log failed, %u entries missing: %s\n",
+           want_entries - read_entries, device->get_errmsg());
 
-    print_error_log(error_log, want_entries, max_entries);
+    print_error_log(error_log, read_entries, max_entries);
   }
 
   // Dump log page
   if (options.log_page_size) {
     // Align size to dword boundary
     unsigned size = ((options.log_page_size + 4-1) / 4) * 4;
-    bool broadcast_nsid;
     raw_buffer log_buf(size);
 
+    unsigned nsid;
     switch (options.log_page) {
     case 1:
     case 2:
     case 3:
-      broadcast_nsid = true;
+      nsid = 0xffffffff;
       break;
     default:
-      broadcast_nsid = false;
+      nsid = device->get_nsid();
       break;
     }
-    if (!nvme_read_log_page(device, options.log_page, log_buf.data(),
-			    size, broadcast_nsid)) {
+    unsigned read_bytes = nvme_read_log_page(device, nsid, options.log_page, log_buf.data(),
+                                             size, nvme_121);
+    if (!read_bytes) {
       jerr("Read NVMe Log 0x%02x failed: %s\n\n", options.log_page, device->get_errmsg());
       return retval | FAILSMART;
     }
+    if (read_bytes < size)
+      jerr("Read NVMe Log 0x%02x failed, 0x%x bytes missing: %s\n",
+           options.log_page, size - read_bytes, device->get_errmsg());
 
-    pout("NVMe Log 0x%02x (0x%04x bytes)\n", options.log_page, size);
-    dStrHex(log_buf.data(), size, 0);
+    pout("NVMe Log 0x%02x (0x%04x bytes)\n", options.log_page, read_bytes);
+    dStrHex(log_buf.data(), read_bytes, 0);
     pout("\n");
   }
 

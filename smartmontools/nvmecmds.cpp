@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-19 Christian Franke
+ * Copyright (C) 2016-20 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -132,6 +132,7 @@ bool nvme_read_id_ctrl(nvme_device * device, nvme_id_ctrl & id_ctrl)
     swapx(&id_ctrl.vid);
     swapx(&id_ctrl.ssvid);
     swapx(&id_ctrl.cntlid);
+    swapx(&id_ctrl.ver);
     swapx(&id_ctrl.oacs);
     swapx(&id_ctrl.wctemp);
     swapx(&id_ctrl.cctemp);
@@ -181,30 +182,54 @@ bool nvme_read_id_ns(nvme_device * device, unsigned nsid, nvme_id_ns & id_ns)
   return true;
 }
 
-// Read NVMe log page with identifier LID.
-bool nvme_read_log_page(nvme_device * device, unsigned char lid, void * data,
-	       		unsigned size, bool broadcast_nsid)
+static bool nvme_read_log_page_1(nvme_device * device, unsigned nsid,
+  unsigned char lid, void * data, unsigned size, unsigned offset = 0)
 {
-  if (!(4 <= size && size <= 0x4000 && (size % 4) == 0))
-    throw std::logic_error("nvme_read_log_page(): invalid size");
+  if (!(4 <= size && size <= 0x1000 && !(size % 4) && !(offset % 4)))
+    return device->set_err(EINVAL, "Invalid NVMe log size %u or offset %u", size, offset);
 
   memset(data, 0, size);
   nvme_cmd_in in;
   in.set_data_in(nvme_admin_get_log_page, data, size);
-  in.nsid = broadcast_nsid ? 0xffffffff : device->get_nsid();
+  in.nsid = nsid;
   in.cdw10 = lid | (((size / 4) - 1) << 16);
+  in.cdw12 = offset; // LPOL, NVMe 1.2.1
 
   return nvme_pass_through(device, in);
 }
 
-// Read NVMe Error Information Log.
-bool nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_log, unsigned num_entries)
+// Read NVMe log page with identifier LID.
+unsigned nvme_read_log_page(nvme_device * device, unsigned nsid, unsigned char lid,
+  void * data, unsigned size, bool nvme_121, unsigned offset /* = 0 */)
 {
-  if (!nvme_read_log_page(device, 0x01, error_log, num_entries * sizeof(*error_log), true))
-    return false;
+  unsigned n, bs;
+  for (n = 0; n < size; n += bs) {
+    if (!nvme_121 && offset + n > 0) {
+      device->set_err(ENOSYS, "Log Page Offset requires NVMe >= 1.2.1");
+      break;
+    }
+
+    // Limit transfer size to one page to avoid problems with
+    // limits of NVMe pass-through layer or too low MDTS values.
+    bs = size - n;
+    if (bs > 0x1000)
+      bs = 0x1000;
+    if (!nvme_read_log_page_1(device, nsid, lid, (char *)data + n, bs, offset + n))
+      break;
+  }
+
+  return n;
+}
+
+// Read NVMe Error Information Log.
+unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_log,
+  unsigned num_entries, bool nvme_121)
+{
+  unsigned n = nvme_read_log_page(device, 0xffffffff, 0x01, error_log,
+                                  num_entries * sizeof(*error_log), nvme_121);
 
   if (isbigendian()) {
-    for (unsigned i = 0; i < num_entries; i++) {
+    for (unsigned i = 0; i < n; i++) {
       swapx(&error_log[i].error_count);
       swapx(&error_log[i].sqid);
       swapx(&error_log[i].cmdid);
@@ -215,13 +240,13 @@ bool nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_log, 
     }
   }
 
-  return true;
+  return n / sizeof(*error_log);
 }
 
 // Read NVMe SMART/Health Information log.
 bool nvme_read_smart_log(nvme_device * device, nvme_smart_log & smart_log)
 {
-  if (!nvme_read_log_page(device, 0x02, &smart_log, sizeof(smart_log), true))
+  if (!nvme_read_log_page_1(device, 0xffffffff, 0x02, &smart_log, sizeof(smart_log)))
     return false;
 
   if (isbigendian()) {
