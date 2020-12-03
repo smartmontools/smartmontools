@@ -1,6 +1,8 @@
-$Id: ChangeLog 5121 2020-12-03 18:23:43Z chrfranke $
+$Id: ChangeLog 5122 2020-12-03 18:31:20Z chrfranke $
 
 2020-12-03  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Print NVMe version.
 
 	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp: Limit NVMe log transfer size
 	to one page.  This should fix device or kernel crashes on '-l error'

@@ -13,7 +13,7 @@
 
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5121 2020-12-03 18:23:43Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5122 2020-12-03 18:31:20Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "utility.h"
@@ -144,6 +144,17 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
 
   jout("Controller ID:                      %d\n", id_ctrl.cntlid);
   jglb["nvme_controller_id"] = id_ctrl.cntlid;
+
+  if (id_ctrl.ver) { // NVMe 1.2
+    int i = snprintf(buf, sizeof(buf), "%u.%u", id_ctrl.ver >> 16, (id_ctrl.ver >> 8) & 0xff);
+    if (i > 0 && (id_ctrl.ver & 0xff))
+      snprintf(buf+i, sizeof(buf)-i, ".%u", id_ctrl.ver & 0xff);
+  }
+  else
+    snprintf(buf, sizeof(buf), "<1.2");
+  jout("NVMe Version:                       %s\n", buf);
+  jglb["nvme_version"]["string"] = buf;
+  jglb["nvme_version"]["value"] = id_ctrl.ver;
 
   // Print namespace info if available
   jout("Number of Namespaces:               %u\n", id_ctrl.nn);
