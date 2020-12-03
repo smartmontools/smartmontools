@@ -1,5 +1,10 @@
 $Id$
 
+2020-12-03  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Read only requested number of entries from NVMe
+	Error Information Log.
+
 2020-11-23  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Allow to specify a delay limit for staggered self-tests.

@@ -408,20 +408,34 @@ static void print_smart_log(const nvme_smart_log & smart_log,
 }
 
 static void print_error_log(const nvme_error_log_page * error_log,
-  unsigned num_entries, unsigned print_entries)
+  unsigned read_entries, unsigned max_entries)
 {
-  pout("Error Information (NVMe Log 0x01, max %u entries)\n", num_entries);
+  pout("Error Information (NVMe Log 0x01, %u of %u entries)\n",
+       read_entries, max_entries);
 
-  unsigned cnt = 0;
-  for (unsigned i = 0; i < num_entries; i++) {
+  // Search last valid entry
+  unsigned valid_entries = read_entries;
+  while (valid_entries && !error_log[valid_entries-1].error_count)
+    valid_entries--;
+
+  if (!valid_entries) {
+    pout("No Errors Logged\n\n");
+    return;
+  }
+
+  pout("Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS\n");
+  int unused = 0;
+  for (unsigned i = 0; i < valid_entries; i++) {
     const nvme_error_log_page & e = error_log[i];
-    if (!e.error_count)
-      continue; // unused or invalid entry
-    if (++cnt > print_entries)
+    if (!e.error_count) {
+      // unused or invalid entry
+      unused++;
       continue;
-
-    if (cnt == 1)
-      pout("Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS\n");
+    }
+    if (unused) {
+      pout("  - [%d unused entr%s]\n", unused, (unused == 1 ? "y" : "ies"));
+      unused = 0;
+    }
 
     char sq[16] = "-", cm[16] = "-", st[16] = "-", pe[16] = "-";
     char lb[32] = "-", ns[16] = "-", vs[8] = "-";
@@ -444,10 +458,8 @@ static void print_error_log(const nvme_error_log_page * error_log,
          i, e.error_count, sq, cm, st, pe, lb, ns, vs);
   }
 
-  if (!cnt)
-    pout("No Errors Logged\n");
-  else if (cnt > print_entries)
-    pout("... (%u entries not shown)\n", cnt - print_entries);
+  if (valid_entries == read_entries && read_entries < max_entries)
+    pout("... (%u entries not read)\n", max_entries - read_entries);
   pout("\n");
 }
 
@@ -527,17 +539,21 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
 
   // Print Error Information Log
   if (options.error_log_entries) {
-    unsigned num_entries = id_ctrl.elpe + 1; // 0-based value
-    raw_buffer error_log_buf(num_entries * sizeof(nvme_error_log_page));
+    unsigned max_entries = id_ctrl.elpe + 1; // 0's based value
+    unsigned want_entries = options.error_log_entries;
+    if (want_entries > max_entries)
+      want_entries = max_entries;
+    raw_buffer error_log_buf(want_entries * sizeof(nvme_error_log_page));
     nvme_error_log_page * error_log =
       reinterpret_cast<nvme_error_log_page *>(error_log_buf.data());
 
-    if (!nvme_read_error_log(device, error_log, num_entries)) {
-      jerr("Read Error Information Log failed: %s\n\n", device->get_errmsg());
+    if (!nvme_read_error_log(device, error_log, want_entries)) {
+      jerr("Read %u entries from Error Information Log failed: %s\n\n",
+           want_entries, device->get_errmsg());
       return retval | FAILSMART;
     }
 
-    print_error_log(error_log, num_entries, options.error_log_entries);
+    print_error_log(error_log, want_entries, max_entries);
   }
 
   // Dump log page
