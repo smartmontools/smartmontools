@@ -1,4 +1,8 @@
-$Id: ChangeLog 5122 2020-12-03 18:31:20Z chrfranke $
+$Id: ChangeLog 5124 2020-12-04 20:40:43Z chrfranke $
+
+2020-12-04  Christian Franke  <franke@computer.org>
+
+	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp: Fix check for LPO support.
 
 2020-12-03  Christian Franke  <franke@computer.org>
 
