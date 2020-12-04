@@ -2,6 +2,8 @@ $Id$
 
 2020-12-04  Christian Franke  <franke@computer.org>
 
+	nvmeprint.cpp: Print Log Page Attributes.
+
 	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp: Fix check for LPO support.
 
 2020-12-03  Christian Franke  <franke@computer.org>

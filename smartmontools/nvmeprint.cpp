@@ -258,6 +258,16 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
          ((id_ctrl.oncs & 0x0040) ? " Timestmp" : ""), // NVMe 1.3
          ((id_ctrl.oncs & ~0x007f) ? " *Other*" : ""));
 
+  if (show_all || id_ctrl.lpa)
+    pout("Log Page Attributes (0x%02x):        %s%s%s%s%s%s%s\n", id_ctrl.lpa,
+         (!id_ctrl.lpa ? " -" : ""),
+         ((id_ctrl.lpa & 0x01) ? " S/H_per_NS" : ""),
+         ((id_ctrl.lpa & 0x02) ? " Cmd_Eff_Lg" : ""), // NVMe 1.2
+         ((id_ctrl.lpa & 0x04) ? " Ext_Get_Lg" : ""), // NVMe 1.2.1
+         ((id_ctrl.lpa & 0x08) ? " Telmtry_Lg" : ""), // NVMe 1.3
+         ((id_ctrl.lpa & 0x10) ? " Pers_Ev_Lg" : ""), // NVMe 1.4
+         ((id_ctrl.lpa & ~0x001f) ? " *Other*" : ""));
+
   if (id_ctrl.mdts)
     pout("Maximum Data Transfer Size:         %u Pages\n", (1U << id_ctrl.mdts));
   else if (show_all)
