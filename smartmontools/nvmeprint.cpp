@@ -548,8 +548,8 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     }
   }
 
-  // Log Page Offset requires NVMe >= 1.2.1
-  bool nvme_121 = (id_ctrl.ver >= 0x10201);
+  // Check for Log Page Offset support
+  bool lpo_sup = !!(id_ctrl.lpa & 0x04);
 
   // Print Error Information Log
   if (options.error_log_entries) {
@@ -561,7 +561,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     nvme_error_log_page * error_log =
       reinterpret_cast<nvme_error_log_page *>(error_log_buf.data());
 
-    unsigned read_entries = nvme_read_error_log(device, error_log, want_entries, nvme_121);
+    unsigned read_entries = nvme_read_error_log(device, error_log, want_entries, lpo_sup);
     if (!read_entries) {
       jerr("Read %u entries from Error Information Log failed: %s\n\n",
            want_entries, device->get_errmsg());
@@ -592,7 +592,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       break;
     }
     unsigned read_bytes = nvme_read_log_page(device, nsid, options.log_page, log_buf.data(),
-                                             size, nvme_121);
+                                             size, lpo_sup);
     if (!read_bytes) {
       jerr("Read NVMe Log 0x%02x failed: %s\n\n", options.log_page, device->get_errmsg());
       return retval | FAILSMART;

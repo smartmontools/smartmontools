@@ -202,12 +202,12 @@ static bool nvme_read_log_page_1(nvme_device * device, unsigned nsid,
 
 // Read NVMe log page with identifier LID.
 unsigned nvme_read_log_page(nvme_device * device, unsigned nsid, unsigned char lid,
-  void * data, unsigned size, bool nvme_121, unsigned offset /* = 0 */)
+  void * data, unsigned size, bool lpo_sup, unsigned offset /* = 0 */)
 {
   unsigned n, bs;
   for (n = 0; n < size; n += bs) {
-    if (!nvme_121 && offset + n > 0) {
-      device->set_err(ENOSYS, "Log Page Offset requires NVMe >= 1.2.1");
+    if (!lpo_sup && offset + n > 0) {
+      device->set_err(ENOSYS, "Log Page Offset not supported");
       break;
     }
 
@@ -225,10 +225,10 @@ unsigned nvme_read_log_page(nvme_device * device, unsigned nsid, unsigned char l
 
 // Read NVMe Error Information Log.
 unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_log,
-  unsigned num_entries, bool nvme_121)
+  unsigned num_entries, bool lpo_sup)
 {
   unsigned n = nvme_read_log_page(device, 0xffffffff, 0x01, error_log,
-                                  num_entries * sizeof(*error_log), nvme_121);
+                                  num_entries * sizeof(*error_log), lpo_sup);
 
   if (isbigendian()) {
     for (unsigned i = 0; i < n; i++) {

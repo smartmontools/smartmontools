@@ -237,11 +237,11 @@ bool nvme_read_id_ns(nvme_device * device, unsigned nsid, smartmontools::nvme_id
 
 // Read NVMe log page with identifier LID.
 unsigned nvme_read_log_page(nvme_device * device, unsigned nsid, unsigned char lid,
-  void * data, unsigned size, bool nvme_121, unsigned offset = 0);
+  void * data, unsigned size, bool lpo_sup, unsigned offset = 0);
 
 // Read NVMe Error Information Log.
 unsigned nvme_read_error_log(nvme_device * device, smartmontools::nvme_error_log_page * error_log,
-  unsigned num_entries, bool nvme_121);
+  unsigned num_entries, bool lpo_sup);
 
 // Read NVMe SMART/Health Information log.
 bool nvme_read_smart_log(nvme_device * device, smartmontools::nvme_smart_log & smart_log);
