@@ -703,7 +703,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 160,raw48,Uncorrectable_Error_Cnt "
     // 0729 - remaining in block life. In 0828  remaining is normalized to 100% then decreases
-    "-v 161,raw48,Spares_Remaining " 
+    "-v 161,raw48,Spares_Remaining "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 169,raw48,Lifetime_Remaining% "
@@ -1401,7 +1401,7 @@ const drive_settings builtin_knowndrives[] = {
   // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-540s-series-spec.html
   // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-540s-series-m2-spec.html
   { "Intel 540 Series SSDs", // INTEL SSDSC2KW120H6/LSF036C, INTEL SSDSC2KW480H6/LSF036C
-    "INTEL SSDSC[K2]KW(120H|180H|240H|360H|480H|010X)6", 
+    "INTEL SSDSC[K2]KW(120H|180H|240H|360H|480H|010X)6",
     "", "",
     "-v 9,msec24hour32,Power_On_Hours_and_Msec "
     "-v 170,raw48,Available_Reservd_Space "
@@ -2153,6 +2153,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Silicon Motion based OEM SSDs", // Like 'Silicon Motion based SSDs' but with FW detection
     "240GB|" // from Lenovo T430 Thinkpad, tested with 240GB/P0510E
     "Intenso SSD|" // tested with Intenso SSD/Q1107A0
+    "INTENSO|" // tested with Intenso Portable SSD 128GB Premium Edition/S1211A0
     "Intenso  SSD Sata III|" // Sata III High, tested with Intenso  SSD Sata III/P0510E
     "KingFast|" // KingFast F6M, tested with KingFast/P0725A
     "LDLC|" // tested with LDLC/KFS03005
@@ -2161,7 +2162,7 @@ const drive_settings builtin_knowndrives[] = {
       // KingDian S370, tested with SATA3 128GB SSD/T0311A0, SATA3 256GB SSD/S1127B0
     "SPCC M\\.2 SSD|" // Silicon Power 2280 M55, tested with SPCC M.2 SSD/Q0627A0
     "SuperMicro SSD", // Supermicro SSD-DM032-SMCMVN1, tested with SuperMicro SSD/SOB20R
-    "KFS03005|P0510E|P0725A|Q(0627|1107)A0|S(0618|1230)A0|S1127B0|SOB20R|T0311A0",
+    "KFS03005|P0510E|P0725A|Q(0627|1107)A0|S(0618|1230)A0|S1127B0|SOB20R|T0311A0|S1211A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
@@ -2743,7 +2744,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Flash accelerated, no SMART info in the specs
   // ST1000LX015-1U7172/SDM1
-  { "Seagate FireCuda 2.5", // 
+  { "Seagate FireCuda 2.5", //
     "ST(500|1000|2000)LX0(01|15|25)-.*",
     "", "", "-v 240,msec24hour32 "
   },
@@ -3725,7 +3726,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba HK4R Series SSD", // TOSHIBA THNSN8960PCSE/8EET6101
     "TOSHIBA THNSN8(120P|240P|480P|960P|1Q92)CSE",
-    "", "", 
+    "", "",
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Error_Count "
     "-v 169,raw48,Bad_Block_Count "
@@ -3736,7 +3737,7 @@ const drive_settings builtin_knowndrives[] = {
     // TOSHIBA THNSFJ256GCSU/JULA1102
     // TOSHIBA THNSFJ256GDNU A/JYLA1102
     "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN][TU].*",
-    "", "", 
+    "", "",
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Error_Count "
     "-v 169,raw48,Bad_Block_Count "
@@ -4181,7 +4182,7 @@ const drive_settings builtin_knowndrives[] = {
       // ST8000NM0055-1RM112/SN04
       // ST10000NM0156-2AA111/SS05
     "ST([1234568]|10)000NM0[01][0-68][456]-.*", // *[069]4 = 4Kn
-    "", "", 
+    "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Enterprise Capacity 3.5 HDD", // V5.1, ms in attribute 9
@@ -4317,7 +4318,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Nytro XF1230 SATA SSD", // tested with XF1230-1A0480/ST200354
     "XF1230-1A(0240|0480|0960|1920)",
-    "", "", 
+    "", "",
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 180,raw48,End_to_End_Err_Detect "
     "-v 183,raw48,SATA_Downshift_Count "
@@ -4419,8 +4420,8 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 184,raw48,End-to-end_Error " // Detection/Correction Count
   //"-v 187,raw48,Reported_Uncorrect " // Uncorrectable Errors
   //"-v 188,raw48,Command_Timeout
-  //"-v 194,tempminmax,Temperature_Celsius " 
-  //"-v 199,raw48,UDMA_CRC_Error_Count  // SATA CRC Errors 
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 199,raw48,UDMA_CRC_Error_Count  // SATA CRC Errors
     "-v 230,hex48,Media_Wearout_Indicator " // Maybe hex16
   //"-v 232,raw48,Available_Reserve_Space"
     "-v 233,raw48,NAND_GB_Written_TLC "
