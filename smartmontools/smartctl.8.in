@@ -825,7 +825,7 @@ behaviour.
 This is does not work for SCSI devices yet.
 .TP
 .B \-n POWERMODE[,STATUS], \-\-nocheck=POWERMODE[,STATUS]
-[ATA only] Specifies if \fBsmartctl\fP should exit before performing any
+[ATA and SCSI] Specifies if \fBsmartctl\fP should exit before performing any
 checks when the device is in a low-power mode.
 It may be used to prevent a disk from being spun-up by \fBsmartctl\fP.
 The power mode is ignored by default.

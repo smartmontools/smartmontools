@@ -145,7 +145,7 @@ static void Usage()
 "         Set action on bad checksum to one of: warn, exit, ignore\n\n"
 "  -r TYPE, --report=TYPE\n"
 "         Report transactions (see man page)\n\n"
-"  -n MODE[,STATUS], --nocheck=MODE[,STATUS]                           (ATA)\n"
+"  -n MODE[,STATUS], --nocheck=MODE[,STATUS]                     (ATA, SCSI)\n"
 "         No check if: never, sleep, standby, idle (see man page)\n\n",
   getvalidarglist('d').c_str()); // TODO: Use this function also for other options ?
   pout(
@@ -860,6 +860,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       // skip disk check if in low-power mode
       if (!strcmp(optarg, "never")) {
         ataopts.powermode = 1; // do not skip, but print mode
+        scsiopts.powermode = 1;
       }
       else {
         int n1 = -1, n2 = -1, len = strlen(optarg);
@@ -867,15 +868,20 @@ static int parse_options(int argc, char** argv, const char * & type,
         sscanf(optarg, "%9[a-z]%n,%u%n", s, &n1, &i, &n2);
         if (!((n1 == len || n2 == len) && i <= 255))
           badarg = true;
-        else if (!strcmp(s, "sleep"))
+        else if (!strcmp(s, "sleep")) {
           ataopts.powermode = 2;
-        else if (!strcmp(s, "standby"))
+          scsiopts.powermode = 2;
+        } else if (!strcmp(s, "standby")) {
           ataopts.powermode = 3;
-        else if (!strcmp(s, "idle"))
+          scsiopts.powermode = 3;
+        } else if (!strcmp(s, "idle")) {
           ataopts.powermode = 4;
-        else
+          scsiopts.powermode = 4;
+        } else
           badarg = true;
+
         ataopts.powerexit = i;
+        scsiopts.powerexit = i;
       }
       break;
     case 'f':

@@ -2303,7 +2303,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     struct scsi_sense_disect sense_info;
     bool is_disk;
     bool is_tape;
-
     bool any_output = options.drive_info;
 
     if (supported_vpd_pages_p) {
@@ -2311,6 +2310,81 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         supported_vpd_pages_p = NULL;
     }
     supported_vpd_pages_p = new supported_vpd_pages(device);
+
+// Enable -n option for SCSI Drives
+    const char * powername = NULL;
+    bool powerchg = false;
+
+    if (options.powermode) {
+        unsigned char powerlimit = 0xff;
+
+        scsiRequestSense(device, &sense_info) ;
+        if (sense_info.asc == 0x5E) {
+            int     powermode = sense_info.ascq ;
+
+            // 5Eh/00h  DZTPRO A  K    LOW POWER CONDITION ON
+            // 5Eh/01h  DZTPRO A  K    IDLE CONDITION ACTIVATED BY TIMER
+            // 5Eh/02h  DZTPRO A  K    STANDBY CONDITION ACTIVATED BY TIMER
+            // 5Eh/03h  DZTPRO A  K    IDLE CONDITION ACTIVATED BY COMMAND
+            // 5Eh/04h  DZTPRO A  K    STANDBY CONDITION ACTIVATED BY COMMAND
+            // 5Eh/05h  DZTPRO A  K    IDLE_B CONDITION ACTIVATED BY TIMER
+            // 5Eh/06h  DZTPRO A  K    IDLE_B CONDITION ACTIVATED BY COMMAND
+            // 5Eh/07h  DZTPRO A  K    IDLE_C CONDITION ACTIVATED BY TIMER
+            // 5Eh/08h  DZTPRO A  K    IDLE_C CONDITION ACTIVATED BY COMMAND
+            // 5Eh/09h  DZTPRO A  K    STANDBY_Y CONDITION ACTIVATED BY TIMER
+            // 5Eh/0Ah  DZTPRO A  K    STANDBY_Y CONDITION ACTIVATED BY COMMAND
+            // 5Eh/41h           B     POWER STATE CHANGE TO ACTIVE
+            // 5Eh/42h           B     POWER STATE CHANGE TO IDLE
+            // 5Eh/43h           B     POWER STATE CHANGE TO STANDBY
+            // 5Eh/45h           B     POWER STATE CHANGE TO SLEEP
+            // 5Eh/47h           BK    POWER STATE CHANGE TO DEVICE CONTROL
+
+            switch (powermode) {
+            case -1:
+               if (device->is_syscall_unsup()) {
+                   pout("CHECK POWER MODE not implemented, ignoring -n option\n"); break;
+                }
+                powername = "SLEEP";   powerlimit = 2;
+                break;
+
+            case 0x00: // LOW POWER CONDITION ON
+                powername = "LOW POWER"; powerlimit = 2; break;
+            case 0x01: // IDLE CONDITION ACTIVATED BY TIMER
+                powername = "IDLE BY TIMER"; powerlimit = 4; break;
+            case 0x02: // STANDBY CONDITION ACTIVATED BY TIMER
+                powername = "STANDBY BY TIMER";    powerlimit = 2; break;
+            case 0x03: // IDLE CONDITION ACTIVATED BY COMMAND
+                powername = "IDLE BY COMMAND";  powerlimit = 4; break;
+            case 0x04: // STANDBY CONDITION ACTIVATED BY COMMAND
+                powername = "STANDBY BY COMMAND";  powerlimit = 2; break;
+            case 0x05: // IDLE_B CONDITION ACTIVATED BY TIMER
+                powername = "IDLE BY TIMER";  powerlimit = 4; break;
+            case 0x06: // IDLE_B CONDITION ACTIVATED BY COMMAND
+                powername = "IDLE_ BY COMMAND";  powerlimit = 4; break;
+            case 0x07: // IDLE_C CONDITION ACTIVATED BY TIMER
+                powername = "IDLE_C BY TIMER";  powerlimit = 4; break;
+            case 0x08: // IDLE_C CONDITION ACTIVATED BY COMMAND
+                powername = "IDLE_C BY COMMAND";  powerlimit = 4; break;  
+            case 0x09: // STANDBY_Y CONDITION ACTIVATED BY TIMER
+                powername = "STANDBY_Y BY TIMER";    powerlimit = 2; break;
+            case 0x0A: // STANDBY_Y CONDITION ACTIVATED BY COMMAND
+                powername = "STANDBY_Y BY COMMAND";  powerlimit = 2; break;
+
+            default:
+                pout("CHECK POWER MODE returned unknown value 0x%02x, "
+                     "ignoring -n option\n", powermode);
+                break;
+            }
+            if (powername) {
+                if (options.powermode >= powerlimit) {
+                    jinf("Device is in %s mode, exit(%d)\n", powername, options.powerexit);
+                    return options.powerexit;
+                }
+                powerchg = (powermode != 0xff);
+            }
+        } else
+            powername = "ACTIVE";
+    }
 
     res = scsiGetDriveInfo(device, &peripheral_type, options.drive_info);
     if (res) {
@@ -2342,8 +2416,11 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
 
-    if (options.drive_info)
+    if (options.drive_info) {
+        if (powername)   // Print power condition if requested -n (nocheck)
+            pout("Power mode %s       %s\n", (powerchg?"was:":"is: "), powername);
         pout("\n");
+    }
 
     // START OF THE ENABLE/DISABLE SECTION OF THE CODE
     if (options.smart_disable           || options.smart_enable ||
@@ -2590,6 +2667,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             return returnval | FAILSMART;
         any_output = true;
     }
+
+    if (!any_output && powername) // Output power mode if -n (nocheck)
+        pout("Device is in %s mode\n", powername);
 
     if (!any_output)
         pout("SCSI device successfully opened\n\nUse 'smartctl -a' (or '-x') "

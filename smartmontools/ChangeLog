@@ -1,5 +1,11 @@
 $Id$
 
+2020-12-05  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartctl: expand -n option to include SCSI. Code from Simon
+	Fairweather. Still thinking about how to handle SCSI "stopped"
+	state which requires the user to send a SCSI command to restart.
+
 2020-12-04  Christian Franke  <franke@computer.org>
 
 	nvmeprint.cpp: Print Log Page Attributes.  Print NVMe 1.4 features.
