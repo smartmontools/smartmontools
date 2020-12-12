@@ -1,8 +1,9 @@
-$Id: ChangeLog 5128 2020-12-12 21:21:15Z samm2 $
+$Id: ChangeLog 5129 2020-12-12 21:36:48Z samm2 $
 
 2020-12-12  Alex Samorukov  <samm@os2.kiev.ua>
 
 	Add automake 1.16.2 to the list of tested versions
+	os_freebsd.cpp: number of minor patches from Christian Franke
 
 2020-12-05  Douglas Gilbert  <dgilbert@interlog.com>
 
