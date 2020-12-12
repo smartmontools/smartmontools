@@ -522,7 +522,6 @@ bool freebsd_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out
 #else
   pt.cmd.opc = in.opcode;
 #endif
-  pt.cmd.opc = in.opcode;
   pt.cmd.nsid = htole32(in.nsid);
   pt.buf = in.buffer;
   pt.len = in.size;
@@ -837,7 +836,7 @@ int freebsd_highpoint_device::ata_command_interface(smart_command_set command, i
   }
 
   // perform smart action
-  memset(buff, 0, 512 + 2 * sizeof(HPT_PASS_THROUGH_HEADER));
+  memset(buff, 0, sizeof(buff));
   pide_pt_hdr = (PHPT_PASS_THROUGH_HEADER)buff;
 
   pide_pt_hdr->lbamid = 0x4f;
@@ -1940,7 +1939,6 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   unsigned short vendor_id = 0, product_id = 0, version = 0;
   struct cam_device *cam_dev;
   union ccb ccb;
-  int bus=-1;
   int i;
   const char * test_name = name;
 
@@ -2012,7 +2010,6 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
         }
         // now check if we are working with USB device, see umass.c
         if(strcmp(ccb.cpi.dev_name,"umass-sim") == 0) { // USB device found
-          usbdevlist(bus,vendor_id, product_id, version);
           int bus=ccb.cpi.unit_number; // unit_number will match umass number
           cam_close_device(cam_dev);
           if(usbdevlist(bus,vendor_id, product_id, version)){
