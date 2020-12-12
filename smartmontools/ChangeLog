@@ -1,4 +1,8 @@
-$Id: ChangeLog 5127 2020-12-06 00:58:36Z dpgilbert $
+$Id: ChangeLog 5128 2020-12-12 21:21:15Z samm2 $
+
+2020-12-12  Alex Samorukov  <samm@os2.kiev.ua>
+
+	Add automake 1.16.2 to the list of tested versions
 
 2020-12-05  Douglas Gilbert  <dgilbert@interlog.com>
 
