@@ -60,7 +60,7 @@ case "$ver" in
     # OK
     ;;
 
-  1.14|1.14.1|1.15|1.15.1|1.16|1.16.1)
+  1.14|1.14.1|1.15|1.15.1|1.16|1.16.[12])
     # TODO: Enable 'subdir-objects' in configure.ac
     # For now, suppress 'subdir-objects' forward-incompatibility warning
     test -n "$warnings" || amwarnings="--warnings=no-unsupported"

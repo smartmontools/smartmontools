@@ -1,5 +1,122 @@
 $Id$
 
+2020-12-12  Alex Samorukov  <samm@os2.kiev.ua>
+
+	Add automake 1.16.2 to the list of tested versions
+	os_freebsd.cpp: number of minor patches from Christian Franke
+
+2020-12-05  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartctl: expand -n option to include SCSI. Code from Simon
+	Fairweather. Still thinking about how to handle SCSI "stopped"
+	state which requires the user to send a SCSI command to restart.
+
+2020-12-04  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Print Log Page Attributes.  Print NVMe 1.4 features.
+
+	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp: Fix check for LPO support.
+
+2020-12-03  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Print NVMe version.
+
+	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp: Limit NVMe log transfer size
+	to one page.  This should fix device or kernel crashes on '-l error'
+	if log has more than 64 entries (#1404, Debian Bug 947803).
+
+	nvmeprint.cpp: Read only requested number of entries from NVMe
+	Error Information Log.
+
+2020-11-23  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Allow to specify a delay limit for staggered self-tests.
+	smartd.conf.5.in: Document new functionality.
+
+2020-11-21  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add staggered self-tests (#310).
+	smartd.conf.5.in: Document new functionality.
+
+2020-11-17  Dmitriy Potapov <atomsk+oss@google.com>
+
+	smartd.cpp: Don't write attrlog when device is skipped due to idle or
+	standby mode, or if attributes were not read for any other reason
+	(GH pull/75).
+
+2020-11-09  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Resolve symlinks before device names are checked for
+	duplicates (#1390).
+	dev_interface.cpp, dev_interface.h: Add 'get_unique_dev_name()'
+	and 'is_raid_dev_type()' to support platform specific modifications.
+	smartd.conf.5.in: Document new functionality.
+
+2020-11-07  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Add YAML support.
+	smartctl.cpp: Add '--json=y' option.
+	smartctl.8.in: Document new option.
+
+	smartctl.8.in, smartd.conf.5.in: Remove EXPERIMENTAL notes for
+	features added before 7.0.
+	update-smart-drivedb.8.in: Add missing EXPERIMENTAL note.
+
+2020-11-01  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: KINGSTON OM4P0S3* (#1374), OMSP0S3* (#1375).
+	- InnoDisk iCF 9000 / 1SE2 Cards: Rename entry. Add 1SE2 H (#1351).
+	- Marvell based SanDisk SSDs: 2TB SDSSDH3 (GH issues/67, GH pull/69),
+	  WD Blue SSD WDS100T2B0A (#1378).
+	- SanDisk based SSDs: SDSA6GM*.
+	- Toshiba 2.5" HDD MK..76GSX/GS001A (GH pull/58).
+	- Toshiba L200 (CMR), Toshiba L200 (SMR) (#1228, patch from #1377).
+	- Western Digital Blue: Apple OEM (#1385).
+	- Western Digital Scorpio Blue Serial ATA: 320 GB (patch from #888).
+
+	os_win32.cpp: Decode Windows 10 20H2 and Server 2004, 20H2
+	build numbers.
+
+2020-10-29  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: skip SCSI subenclosure devices on scan (#1299)
+
+2020-10-24  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- HGST Travelstar Z5K1000: *B*610 variant.
+	- Hitachi Travelstar 7K320: HITACHI*SA60 variant (#983).
+	- Hitachi/HGST Deskstar 5K4000: Rename entry. Add HGST (#1060).
+	- HGST Deskstar NAS: 8TB.
+	- Hitachi/HGST Ultrastar 5K3000 (#1055).
+	- Hitachi Ultrastar 7K3000: Variant without vendor name (#1361).
+	- Hitachi/HGST Ultrastar 7K4000: Variant without vendor name (#1361).
+	- HGST Ultrastar HC310/320 (#1157, #1365).
+
+2020-10-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- ATP SATA III aMLC M.2 2242 SSD (based on patch from #1366).
+	- Silicon Motion based OEM SSDs: TCSUNBOW X3 (#1349),
+	  KingDian S370 (#1350), LDLC (#1353), Lenovo.
+	- SSSTC ER2 GD/CD Series SSDs (based on patch from #1376).
+
+2020-10-15  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apacer SSDs (based on patch from #1202).
+	- Crucial/Micron MX500 SSDs (FW <= M3CR032): Remove entry (#1227).
+	- Crucial/Micron Client SSDs: Rename entry. Fix name of attribute 127.
+	  This prevents false 'Currently unreadable (pending) sectors' warnings
+	  from smartd (#1227, #1294, #1311, #1336).
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: *H* variant (#1363).
+	- Samsung based SSDs: 883 DCT (#1373).
+
+	os_win32.cpp: Fix removal of trailing blanks.
+	Silence misleading -Wstring-compare warning from g++ 10.2.0
+	(GCC Bugzilla 97336).
+
 2020-10-09  Christian Franke  <franke@computer.org>
 
 	scsiprint.cpp: Don't print 'Accumulated power on time' if no

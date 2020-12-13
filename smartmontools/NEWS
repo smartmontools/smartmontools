@@ -8,20 +8,31 @@ https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 Date <Not released yet, please try current SVN or a recent CI build>
 Summary: smartmontools release 7.2
 -----------------------------------------------------------
+- smartctl: New option '--json=y[c]' selects YAML output.
 - smartctl '-i': Prints ATA TRIM and Zoned Device capabilities.
 - smartctl '-j': Fixed 'scsi_grown_defect_list' value.
+- smartctl '-a': Prints SCSI 'Accumulated power on time'.
+- smartd: Support for staggered self-tests.
+- smartd: No longer writes attribute log if no attributes were read
+  due to standby mode or other error.
+- smartd: Now resolves symlinks before device names are checked for
+  duplicates.
 - smartd: Fixed SMARTD_DEVICETYPE environment variable if DEVICESCAN is
   used without '-d TYPE'.
 - ATA: Device type '-d jmb39x-q,N' for JMB39x protocol variant used by
   some QNAP NAS devices.
 - ATA: Device type '-d jms56x,N' for JMS562 USB to SATA RAID bridges.
+- SCSI: Improved heuristics for log subpages of new and very old disks.
 - NVMEe/USB: Device type '-d sntrealtek' for Realtek RTL9210 USB to
   NVMe bridges.
+- update-smart-drivedb: New option '--branch X.Y'.
 - HDD, SSD and USB additions to drive database.
 - Dropped support for pre-C99 snprintf().
 - configure: Dropped option '--without-working-snprintf'.
 - configure: Fixed '-fstack-protector*' detection.
+- Linux: Various fixes of smartd.service file.
 - Darwin: NVMe log support.
+- FreeBSD: Device scan does no longer include T_ENCLOSURE devices.
 - NetBSD: Fixed timeout handling.
 - NetBSD big endian: Fixed ATA register handling.
 - OpenBSD: Fixed timeout handling.

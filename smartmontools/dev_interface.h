@@ -978,6 +978,16 @@ public:
   virtual bool scan_smart_devices(smart_device_list & devlist,
     const smart_devtype_list & types, const char * pattern = 0);
 
+  /// Return unique device name which is (only) suitable for duplicate detection.
+  /// Default implementation resolves symlinks on POSIX systems and appends
+  /// " [type]" if is_raid_dev_type(type)' returns true.
+  virtual std::string get_unique_dev_name(const char * name, const char * type) const;
+
+  /// Return true if the 'type' string contains a RAID drive number.
+  /// Default implementation returns true if 'type' starts with '[^,]+,[0-9]'
+  /// but not with 'sat,'.
+  virtual bool is_raid_dev_type(const char * type) const;
+
 protected:
   /// Return standard ATA device.
   virtual ata_device * get_ata_device(const char * name, const char * type) = 0;

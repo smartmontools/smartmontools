@@ -145,6 +145,17 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
   jout("Controller ID:                      %d\n", id_ctrl.cntlid);
   jglb["nvme_controller_id"] = id_ctrl.cntlid;
 
+  if (id_ctrl.ver) { // NVMe 1.2
+    int i = snprintf(buf, sizeof(buf), "%u.%u", id_ctrl.ver >> 16, (id_ctrl.ver >> 8) & 0xff);
+    if (i > 0 && (id_ctrl.ver & 0xff))
+      snprintf(buf+i, sizeof(buf)-i, ".%u", id_ctrl.ver & 0xff);
+  }
+  else
+    snprintf(buf, sizeof(buf), "<1.2");
+  jout("NVMe Version:                       %s\n", buf);
+  jglb["nvme_version"]["string"] = buf;
+  jglb["nvme_version"]["value"] = id_ctrl.ver;
+
   // Print namespace info if available
   jout("Number of Namespaces:               %u\n", id_ctrl.nn);
   jglb["nvme_number_of_namespaces"] = id_ctrl.nn;
@@ -222,30 +233,42 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
        ((id_ctrl.frmw & 0x10) ? ", no Reset required" : ""));
 
   if (show_all || id_ctrl.oacs)
-    pout("Optional Admin Commands (0x%04x):  %s%s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oacs,
+    pout("Optional Admin Commands (0x%04x):  %s%s%s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oacs,
          (!id_ctrl.oacs ? " -" : ""),
          ((id_ctrl.oacs & 0x0001) ? " Security" : ""),
          ((id_ctrl.oacs & 0x0002) ? " Format" : ""),
          ((id_ctrl.oacs & 0x0004) ? " Frmw_DL" : ""),
-         ((id_ctrl.oacs & 0x0008) ? " NS_Mngmt" : ""),
+         ((id_ctrl.oacs & 0x0008) ? " NS_Mngmt" : ""), // NVMe 1.2
          ((id_ctrl.oacs & 0x0010) ? " Self_Test" : ""), // NVMe 1.3 ...
          ((id_ctrl.oacs & 0x0020) ? " Directvs" : ""),
          ((id_ctrl.oacs & 0x0040) ? " MI_Snd/Rec" : ""),
          ((id_ctrl.oacs & 0x0080) ? " Vrt_Mngmt" : ""),
          ((id_ctrl.oacs & 0x0100) ? " Drbl_Bf_Cfg" : ""),
-         ((id_ctrl.oacs & ~0x01ff) ? " *Other*" : ""));
+         ((id_ctrl.oacs & 0x0200) ? " Get_LBA_Sts" : ""), // NVMe 1.4
+         ((id_ctrl.oacs & ~0x03ff) ? " *Other*" : ""));
 
   if (show_all || id_ctrl.oncs)
-    pout("Optional NVM Commands (0x%04x):    %s%s%s%s%s%s%s%s%s\n", id_ctrl.oncs,
+    pout("Optional NVM Commands (0x%04x):    %s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oncs,
          (!id_ctrl.oncs ? " -" : ""),
          ((id_ctrl.oncs & 0x0001) ? " Comp" : ""),
          ((id_ctrl.oncs & 0x0002) ? " Wr_Unc" : ""),
          ((id_ctrl.oncs & 0x0004) ? " DS_Mngmt" : ""),
-         ((id_ctrl.oncs & 0x0008) ? " Wr_Zero" : ""),
+         ((id_ctrl.oncs & 0x0008) ? " Wr_Zero" : ""), // NVMe 1.1 ...
          ((id_ctrl.oncs & 0x0010) ? " Sav/Sel_Feat" : ""),
          ((id_ctrl.oncs & 0x0020) ? " Resv" : ""),
          ((id_ctrl.oncs & 0x0040) ? " Timestmp" : ""), // NVMe 1.3
-         ((id_ctrl.oncs & ~0x007f) ? " *Other*" : ""));
+         ((id_ctrl.oncs & 0x0080) ? " Verify" : ""), // NVMe 1.4
+         ((id_ctrl.oncs & ~0x00ff) ? " *Other*" : ""));
+
+  if (show_all || id_ctrl.lpa)
+    pout("Log Page Attributes (0x%02x):        %s%s%s%s%s%s%s\n", id_ctrl.lpa,
+         (!id_ctrl.lpa ? " -" : ""),
+         ((id_ctrl.lpa & 0x01) ? " S/H_per_NS" : ""),
+         ((id_ctrl.lpa & 0x02) ? " Cmd_Eff_Lg" : ""), // NVMe 1.2
+         ((id_ctrl.lpa & 0x04) ? " Ext_Get_Lg" : ""), // NVMe 1.2.1
+         ((id_ctrl.lpa & 0x08) ? " Telmtry_Lg" : ""), // NVMe 1.3
+         ((id_ctrl.lpa & 0x10) ? " Pers_Ev_Lg" : ""), // NVMe 1.4
+         ((id_ctrl.lpa & ~0x001f) ? " *Other*" : ""));
 
   if (id_ctrl.mdts)
     pout("Maximum Data Transfer Size:         %u Pages\n", (1U << id_ctrl.mdts));
@@ -261,13 +284,14 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
 
   if (nsid && (show_all || id_ns.nsfeat)) {
     const char * align = &("  "[nsid < 10 ? 0 : (nsid < 100 ? 1 : 2)]);
-    pout("Namespace %u Features (0x%02x):     %s%s%s%s%s%s%s\n", nsid, id_ns.nsfeat, align,
+    pout("Namespace %u Features (0x%02x):     %s%s%s%s%s%s%s%s\n", nsid, id_ns.nsfeat, align,
          (!id_ns.nsfeat ? " -" : ""),
          ((id_ns.nsfeat & 0x01) ? " Thin_Prov" : ""),
-         ((id_ns.nsfeat & 0x02) ? " NA_Fields" : ""),
+         ((id_ns.nsfeat & 0x02) ? " NA_Fields" : ""), // NVMe 1.2 ...
          ((id_ns.nsfeat & 0x04) ? " Dea/Unw_Error" : ""),
          ((id_ns.nsfeat & 0x08) ? " No_ID_Reuse" : ""), // NVMe 1.3
-         ((id_ns.nsfeat & ~0x0f) ? " *Other*" : ""));
+         ((id_ns.nsfeat & 0x10) ? " NP_Fields" : ""), // NVMe 1.4
+         ((id_ns.nsfeat & ~0x1f) ? " *Other*" : ""));
   }
 
   // Print Power States
@@ -408,20 +432,34 @@ static void print_smart_log(const nvme_smart_log & smart_log,
 }
 
 static void print_error_log(const nvme_error_log_page * error_log,
-  unsigned num_entries, unsigned print_entries)
+  unsigned read_entries, unsigned max_entries)
 {
-  pout("Error Information (NVMe Log 0x01, max %u entries)\n", num_entries);
+  pout("Error Information (NVMe Log 0x01, %u of %u entries)\n",
+       read_entries, max_entries);
 
-  unsigned cnt = 0;
-  for (unsigned i = 0; i < num_entries; i++) {
+  // Search last valid entry
+  unsigned valid_entries = read_entries;
+  while (valid_entries && !error_log[valid_entries-1].error_count)
+    valid_entries--;
+
+  if (!valid_entries) {
+    pout("No Errors Logged\n\n");
+    return;
+  }
+
+  pout("Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS\n");
+  int unused = 0;
+  for (unsigned i = 0; i < valid_entries; i++) {
     const nvme_error_log_page & e = error_log[i];
-    if (!e.error_count)
-      continue; // unused or invalid entry
-    if (++cnt > print_entries)
+    if (!e.error_count) {
+      // unused or invalid entry
+      unused++;
       continue;
-
-    if (cnt == 1)
-      pout("Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS\n");
+    }
+    if (unused) {
+      pout("  - [%d unused entr%s]\n", unused, (unused == 1 ? "y" : "ies"));
+      unused = 0;
+    }
 
     char sq[16] = "-", cm[16] = "-", st[16] = "-", pe[16] = "-";
     char lb[32] = "-", ns[16] = "-", vs[8] = "-";
@@ -444,10 +482,8 @@ static void print_error_log(const nvme_error_log_page * error_log,
          i, e.error_count, sq, cm, st, pe, lb, ns, vs);
   }
 
-  if (!cnt)
-    pout("No Errors Logged\n");
-  else if (cnt > print_entries)
-    pout("... (%u entries not shown)\n", cnt - print_entries);
+  if (valid_entries == read_entries && read_entries < max_entries)
+    pout("... (%u entries not read)\n", max_entries - read_entries);
   pout("\n");
 }
 
@@ -525,46 +561,61 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     }
   }
 
+  // Check for Log Page Offset support
+  bool lpo_sup = !!(id_ctrl.lpa & 0x04);
+
   // Print Error Information Log
   if (options.error_log_entries) {
-    unsigned num_entries = id_ctrl.elpe + 1; // 0-based value
-    raw_buffer error_log_buf(num_entries * sizeof(nvme_error_log_page));
+    unsigned max_entries = id_ctrl.elpe + 1; // 0's based value
+    unsigned want_entries = options.error_log_entries;
+    if (want_entries > max_entries)
+      want_entries = max_entries;
+    raw_buffer error_log_buf(want_entries * sizeof(nvme_error_log_page));
     nvme_error_log_page * error_log =
       reinterpret_cast<nvme_error_log_page *>(error_log_buf.data());
 
-    if (!nvme_read_error_log(device, error_log, num_entries)) {
-      jerr("Read Error Information Log failed: %s\n\n", device->get_errmsg());
+    unsigned read_entries = nvme_read_error_log(device, error_log, want_entries, lpo_sup);
+    if (!read_entries) {
+      jerr("Read %u entries from Error Information Log failed: %s\n\n",
+           want_entries, device->get_errmsg());
       return retval | FAILSMART;
     }
+    if (read_entries < want_entries)
+      jerr("Read Error Information Log failed, %u entries missing: %s\n",
+           want_entries - read_entries, device->get_errmsg());
 
-    print_error_log(error_log, num_entries, options.error_log_entries);
+    print_error_log(error_log, read_entries, max_entries);
   }
 
   // Dump log page
   if (options.log_page_size) {
     // Align size to dword boundary
     unsigned size = ((options.log_page_size + 4-1) / 4) * 4;
-    bool broadcast_nsid;
     raw_buffer log_buf(size);
 
+    unsigned nsid;
     switch (options.log_page) {
     case 1:
     case 2:
     case 3:
-      broadcast_nsid = true;
+      nsid = 0xffffffff;
       break;
     default:
-      broadcast_nsid = false;
+      nsid = device->get_nsid();
       break;
     }
-    if (!nvme_read_log_page(device, options.log_page, log_buf.data(),
-			    size, broadcast_nsid)) {
+    unsigned read_bytes = nvme_read_log_page(device, nsid, options.log_page, log_buf.data(),
+                                             size, lpo_sup);
+    if (!read_bytes) {
       jerr("Read NVMe Log 0x%02x failed: %s\n\n", options.log_page, device->get_errmsg());
       return retval | FAILSMART;
     }
+    if (read_bytes < size)
+      jerr("Read NVMe Log 0x%02x failed, 0x%x bytes missing: %s\n",
+           options.log_page, size - read_bytes, device->get_errmsg());
 
-    pout("NVMe Log 0x%02x (0x%04x bytes)\n", options.log_page, size);
-    dStrHex(log_buf.data(), size, 0);
+    pout("NVMe Log 0x%02x (0x%04x bytes)\n", options.log_page, read_bytes);
+    dStrHex(log_buf.data(), read_bytes, 0);
     pout("\n");
   }
 

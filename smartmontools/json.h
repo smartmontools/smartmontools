@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017-19 Christian Franke
+ * Copyright (C) 2017-20 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -122,9 +122,9 @@ public:
   struct print_options {
     bool pretty; //< Pretty-print output.
     bool sorted; //< Sort object keys.
-    bool flat;   //< Print flat format.
+    char format; //< 'y': YAML, 'g': flat(grep, gron), other: JSON
     print_options()
-      : pretty(false), sorted(false), flat(false) { }
+      : pretty(false), sorted(false), format(0) { }
   };
 
   /// Print JSON tree to a file.
@@ -192,6 +192,8 @@ private:
   void set_string(const node_path & path, const std::string & value);
 
   static void print_json(FILE * f, bool pretty, bool sorted, const node * p, int level);
+  static void print_yaml(FILE * f, bool pretty, bool sorted, const node * p, int level_o,
+                         int level_a, bool cont);
   static void print_flat(FILE * f, const char * assign, bool sorted, const node * p,
                          std::string & path);
 };
