@@ -1,5 +1,9 @@
 $Id$
 
+2020-12-14  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add Sony HD-E1B (#1410)
+
 2020-12-12  Alex Samorukov  <samm@os2.kiev.ua>
 
 	Add automake 1.16.2 to the list of tested versions
