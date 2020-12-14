@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 5110 2020-11-01 15:58:02Z chrfranke $",
+  { "$Id: drivedb.h 5130 2020-12-14 08:45:52Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -5034,6 +5034,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Samsung; ",
     "0x04e8:0x8003", // USB3 Adapter from SSD EVO 850 Starter Kit
     "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: Sony HD-E1; ",
+    "0x054c:0x05bf", //  Sony HD-E1B - 1TB USB3.0
+    "", // 0x6610
     "",
     "-d sat"
   },

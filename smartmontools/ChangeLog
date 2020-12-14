@@ -1,4 +1,8 @@
-$Id: ChangeLog 5129 2020-12-12 21:36:48Z samm2 $
+$Id: ChangeLog 5130 2020-12-14 08:45:52Z samm2 $
+
+2020-12-14  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add Sony HD-E1B (#1410)
 
 2020-12-12  Alex Samorukov  <samm@os2.kiev.ua>
 
