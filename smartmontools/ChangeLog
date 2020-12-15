@@ -1,4 +1,12 @@
-$Id: ChangeLog 5130 2020-12-14 08:45:52Z samm2 $
+$Id: ChangeLog 5131 2020-12-15 21:30:33Z dpgilbert $
+
+2020-12-15  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartctl: expand -s option with standby,now and standby,off (or
+	standby,0) to include SCSI. Modified code from Simon Fairweather
+	found in github pull #72. As per my 20201205 patch, this
+	area (i.e. SCSI power conditions including START and STOP) needs
+	to be revisited; leave that until after the 7.2 release.
 
 2020-12-14  Alex Samorukov  <samm@os2.kiev.ua>
 

@@ -16,7 +16,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5127 2020-12-06 00:58:36Z dpgilbert $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5131 2020-12-15 21:30:33Z dpgilbert $\n"
 
 // Options for scsiPrintMain
 struct scsi_print_options
@@ -46,6 +46,10 @@ struct scsi_print_options
   unsigned char powermode; // Enhancement Skip check, if disk in idle or standby mode
   unsigned char powerexit; // exit() code for low power mode
 
+  int set_standby;         // set(1..255->0..254) standby timer
+  bool set_standby_now;    // set drive to standby
+  bool set_active;         // set drive to active
+
   scsi_print_options()
     : drive_info(false),
       smart_check_status(false),
@@ -64,7 +68,9 @@ struct scsi_print_options
       sasphy(false), sasphy_reset(false),
       get_wce(false), get_rcd(false),
       set_wce(0), set_rcd(0),
-      powermode(0), powerexit(0) // Power Check -n enhancement option
+      powermode(0), powerexit(0), // Power Check -n enhancement option
+      set_standby(0), set_standby_now(false), // enable Standby options for -s
+      set_active(false)
     { }
 };
 

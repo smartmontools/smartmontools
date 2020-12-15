@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5127 2020-12-06 00:58:36Z dpgilbert $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5131 2020-12-15 21:30:33Z dpgilbert $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -1041,13 +1041,16 @@ static int parse_options(int argc, char** argv, const char * & type,
           }
           else if (!get && !strcmp(optarg, "standby,now")) {
               ataopts.set_standby_now = true;
+              scsiopts.set_standby_now = true;
           }
           else if (!get && !strcmp(name, "standby")) {
-            if (off)
+            if (off) {
               ataopts.set_standby = 0 + 1;
-            else if (val <= 255)
+              scsiopts.set_standby = 0 + 1;
+            } else if (val <= 255) {
               ataopts.set_standby = val + 1;
-            else {
+              scsiopts.set_standby = val + 1;
+            } else {
               snprintf(extraerror, sizeof(extraerror), "Option -s standby,N must have 0 <= N <= 255\n");
               badarg = true;
             }

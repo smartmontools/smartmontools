@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5127 2020-12-06 00:58:36Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5131 2020-12-15 21:30:33Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -2666,6 +2666,24 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (scsiPrintSasPhy(device, options.sasphy_reset))
             return returnval | FAILSMART;
         any_output = true;
+    }
+
+    if (options.set_standby == 1) {
+        if (scsiSetPowerCondition(device, SCSI_POW_COND_ACTIVE)) {
+            pout("SCSI SSU(ACTIVE) command failed: %s\n",
+                 device->get_errmsg());
+            returnval |= FAILSMART;
+        } else
+            pout("Device placed in ACTIVE mode\n");
+    } else if (options.set_standby > 1) {
+        pout("SCSI SSU(STANDBY) with timeout not supported yet\n");
+        returnval |= FAILSMART;
+    } else if (options.set_standby_now) {
+        if (scsiSetPowerCondition(device, SCSI_POW_COND_STANDBY)) {
+            pout("SCSI STANDBY command failed: %s\n", device->get_errmsg());
+            returnval |= FAILSMART;
+        } else
+            pout("Device placed in STANDBY mode\n");
     }
 
     if (!any_output && powername) // Output power mode if -n (nocheck)
