@@ -929,7 +929,7 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
     uint8_t cdb[6];
     uint8_t sense[32];
     uint8_t buff[18];
-    int sz_buff = sizeof(buff);
+    const int sz_buff = sizeof(buff);
 
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
@@ -995,6 +995,47 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
           return 0;
       }
     }
+    return 0;
+}
+
+/* Send Start Stop Unit command with power_condition setting and
+ * Power condition command. Returns 0 if ok, anything else major problem.
+ * If power_cond is 0, treat as SSU(START) as that is better than
+ * SSU(STOP) which would be the case if byte 4 of the cdb was zero.
+ * Ref: SBC-4 revision 22, section 4.20 SSU and power conditions. 
+ *
+ * SCSI_POW_COND_ACTIVE                   0x1
+ * SCSI_POW_COND_IDLE                     0x2
+ * SCSI_POW_COND_STANDBY                  0x3
+ *
+ */
+
+int
+scsiSetPowerCondition(scsi_device * device, int power_cond, int pcond_modifier)
+{
+    struct scsi_cmnd_io io_hdr;
+    uint8_t cdb[6];
+    uint8_t sense[32];
+
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    memset(cdb, 0, sizeof(cdb));
+    io_hdr.dxfer_dir = DXFER_NONE;
+    cdb[0] = START_STOP_UNIT;
+    /* IMMED bit (cdb[1] = 0x1) not set, therefore will wait */
+    if (power_cond > 0) {
+        cdb[3] = pcond_modifier & 0xf;
+        cdb[4] = power_cond << 4;
+    } else
+	cdb[4] = 0x1;	/* START */
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+    if (!device->scsi_pass_through(&io_hdr))
+        return -device->get_errno();
+
     return 0;
 }
 
