@@ -5037,6 +5037,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Sony HD-E1; ",
+    "0x054c:0x05bf", //  Sony HD-E1B - 1TB USB3.0
+    "", // 0x6610
+    "",
+    "-d sat"
+  },
   // Sunplus
   { "USB: ; SunPlus",
     "0x04fc:0x0c05",

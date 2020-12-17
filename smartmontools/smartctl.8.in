@@ -1023,8 +1023,8 @@ the drive accepts any security commands until next reset.  Note that the
 frozen mode may already be set by BIOS or OS.
 .Sp
 .I standby,[N|off]
-\- [ATA only] Sets the standby (spindown) timer and places the drive in the
-IDLE mode.  A value of 0 or \*(Aqoff\*(Aq disables the standby timer.
+\- [ATA and SCSI] Sets the standby (spindown) timer and places the drive in
+the IDLE mode.  A value of 0 or \*(Aqoff\*(Aq disables the standby timer.
 Values from 1 to 240 specify timeouts from 5 seconds to 20 minutes in 5
 second increments.  Values from 241 to 251 specify timeouts from 30 minutes
 to 330 minutes in 30 minute increments.  Value 252 specifies 21 minutes.
@@ -1036,12 +1036,19 @@ If \*(Aq\-s standby,now\*(Aq is also specified, the drive is immediately
 placed in the STANDBY mode without temporarily placing it in the IDLE mode.
 Note that ATA standards do not specify a command to set the standby timer
 without affecting the power mode.
+.br
+[SCSI] Only the set option with \*(Aqstandby,off\*(Aq or
+\*(Aqstandby,0\*(Aq is accepted and will place the SCSI disk
+into "ACTIVE" power condition.
 .Sp
 .I standby,now
-\- [ATA only] Places the drive in the STANDBY mode.
+\- [ATA and SCSI] Places the drive in the STANDBY mode.
 This usually spins down the drive.
 The setting of the standby timer is not affected unless
-\*(Aq\-s standby,[N|off]\*(Aq is also specified.
+\*(Aq\[ATA] -s standby,[N|off]\*(Aq is also specified.
+.br
+[SCSI] Only the set option is accepted and will place the SCSI
+disk into "STANDBY_Z" power condition.
 .Sp
 .I wcache[,on|off]
 \- [ATA] Gets/sets the volatile write cache feature (if supported).

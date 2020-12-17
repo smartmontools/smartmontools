@@ -2668,6 +2668,24 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
 
+    if (options.set_standby == 1) {
+        if (scsiSetPowerCondition(device, SCSI_POW_COND_ACTIVE)) {
+            pout("SCSI SSU(ACTIVE) command failed: %s\n",
+                 device->get_errmsg());
+            returnval |= FAILSMART;
+        } else
+            pout("Device placed in ACTIVE mode\n");
+    } else if (options.set_standby > 1) {
+        pout("SCSI SSU(STANDBY) with timeout not supported yet\n");
+        returnval |= FAILSMART;
+    } else if (options.set_standby_now) {
+        if (scsiSetPowerCondition(device, SCSI_POW_COND_STANDBY)) {
+            pout("SCSI STANDBY command failed: %s\n", device->get_errmsg());
+            returnval |= FAILSMART;
+        } else
+            pout("Device placed in STANDBY mode\n");
+    }
+
     if (!any_output && powername) // Output power mode if -n (nocheck)
         pout("Device is in %s mode\n", powername);
 
