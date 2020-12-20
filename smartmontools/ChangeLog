@@ -3,6 +3,8 @@ $Id$
 2020-12-20  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Seagate BarraCuda, Enterprise Capacity, Exos, IronWolf:
+	  Add attributes 18, 200.
 	- Unify indentation.
 
 2020-12-15  Douglas Gilbert  <dgilbert@interlog.com>

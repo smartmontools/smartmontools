@@ -4049,6 +4049,7 @@ const drive_settings builtin_knowndrives[] = {
       // ST4000DM006-2G5107/DN02, ST8000DM004-2CX188/0001, ST10000DM0004-1ZC101/DN01
     "ST(500DM009|1000DM010|2000DM00[5-9]|3000DM00[789]|4000DM00[456]|6000DM00[34]|8000DM00[45]|10000DM0004)-.*",
     "", "",
+    "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Desktop HDD.15", // tested with ST4000DM000-1CD168/CC43, ST5000DM000-1FK178/CC44,
@@ -4178,6 +4179,7 @@ const drive_settings builtin_knowndrives[] = {
       // ST10000NM0156-2AA111/SS05
     "ST([1234568]|10)000NM0[01][0-68][456]-.*", // *[069]4 = 4Kn
     "", "", 
+    "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Enterprise Capacity 3.5 HDD", // V5.1, ms in attribute 9
@@ -4193,20 +4195,23 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Exos X12", // tested with ST12000NM0007-2A1101/SN02
     "ST12000NM00[01]7-.*", // *17 = SED
     "", "",
+    "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
   { "Seagate Exos X14", // tested with ST12000NM0008-2H3101/SN02,
       // ST12000NM0538-2K2101/CMA2 (OEM?)
     "ST(14000NM04[24]8|14000NM0(01|25)8|12000NM0(00|24|53)8|10000NM0(47|56)8)-.*",
     "", "",
-    "-v 18,raw48,Unknown_Seagate_Attrib "
+    "-v 18,raw48,Head_Health "
+    "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
   { "Seagate Exos X16", // tested with X16 ST14000NM001G-2KJ103/SN02,
-      // ST16000NM001G-2KK103/SN02
+      // ST16000NM001G-2KK103/SN02, ST16000NM001G-2KK103/SN03
     "ST1[46]000NM00[13]G-.*",
     "", "",
-    "-v 18,raw48,Unknown_Seagate_Attrib "
+    "-v 18,raw48,Head_Health "
+    "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
   // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
@@ -4228,13 +4233,16 @@ const drive_settings builtin_knowndrives[] = {
       // ST6000VN0033-2EE110/SC60, ST6000VN0041-2EL11C/SC61, ST8000VN0022-2EL112/SC61,
       // ST10000VN0004-1ZD101/SC60, ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60
     "ST(1|2|3|4|6|8|10|12)000VN00(0?[2478]|1|22|33|41)-.*",
-    "", "", ""
+    "", "",
+    "-v 18,raw48,Head_Health "
+    "-v 200,raw48,Pressure_Limit"
   },
   { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
       // ST8000NE0004-1ZF11G/EN01, ST8000NE0021-2EN112/EN02, ST16000NE000-2RW103/EN02
     "ST([24]000NE0025|4000NE001|6000NE0023|8000NE00(04|08|21)|(10|12|14)000NE000[478]|16000NE000)-.*",
     "", "",
-    "-v 18,raw48,Unknown_Seagate_Attrib " // ST16000NE000
+    "-v 18,raw48,Head_Health " // ST16000NE000
+    "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
   { "Seagate Archive HDD", // tested with ST8000AS0002-1NA17Z/AR13
