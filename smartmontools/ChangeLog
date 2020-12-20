@@ -2,6 +2,9 @@ $Id$
 
 2020-12-20  Christian Franke  <franke@computer.org>
 
+	configure.ac: Use AC_CONFIG_HEADERS instead of obsolete
+	AC_CONFIG_HEADER.  This silences a warning from new autoconf 2.70.
+
 	drivedb.h:
 	- Intel X25-E SSDs: IBM OEM (#1401).
 	- Seagate BarraCuda 3.5: 12TB

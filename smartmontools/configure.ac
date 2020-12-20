@@ -20,7 +20,7 @@ AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",      
 AC_DEFINE_UNQUOTED(PACKAGE_HOMEPAGE,             "https://www.smartmontools.org/", [smartmontools Home Page])
 
 AC_CONFIG_SRCDIR([smartctl.cpp])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 AM_MAINTAINER_MODE
 
