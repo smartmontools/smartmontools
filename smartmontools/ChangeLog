@@ -1,9 +1,10 @@
-$Id: ChangeLog 5138 2020-12-20 17:13:01Z chrfranke $
+$Id: ChangeLog 5139 2020-12-20 18:18:01Z chrfranke $
 
 2020-12-20  Christian Franke  <franke@computer.org>
 
 	configure.ac: Use AC_CONFIG_HEADERS instead of obsolete
 	AC_CONFIG_HEADER.  This silences a warning from new autoconf 2.70.
+	Print 'deprecated' warning for '--with-solaris-sparc-ata'.
 
 	drivedb.h:
 	- Intel X25-E SSDs: IBM OEM (#1401).

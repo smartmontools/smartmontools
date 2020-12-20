@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5138 2020-12-20 17:13:01Z chrfranke $
+# $Id: configure.ac 5139 2020-12-20 18:18:01Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.0
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5138 2020-12-20 17:13:01Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5139 2020-12-20 18:18:01Z chrfranke $'`
 smartmontools_release_date=2019-12-30
 smartmontools_release_time="15:00:11 UTC"
 
@@ -381,6 +381,7 @@ AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
     [Include NVMe devices in smartd DEVICESCAN [Linux,Windows:yes;Others:no]])])
 
+# TODO: Remove after smartmontools 7.3
 AC_ARG_WITH(solaris-sparc-ata,
   [AS_HELP_STRING([--with-solaris-sparc-ata@<:@=yes|no@:>@],
     [Enable legacy ATA support on Solaris SPARC (requires os_solaris_ata.s from SVN repository) [no]])])
@@ -967,6 +968,15 @@ if test -n "$with_working_snprintf"; then
   AC_MSG_WARN([
 The option '--with-working-snprintf' is no longer needed and will be
 removed in a future version of smartmontools.
+])
+fi
+
+# TODO: Remove after smartmontools 7.3
+if test -n "$with_solaris_sparc_ata"; then
+  AC_MSG_WARN([
+The option '--with-solaris-sparc-ata' is deprecated and will be
+removed in a future version of smartmontools.  If this option is
+still needed, please inform $PACKAGE_BUGREPORT.
 ])
 fi
 
