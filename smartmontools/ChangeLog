@@ -1,5 +1,10 @@
 $Id$
 
+2020-12-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Unify indentation.
+
 2020-12-15  Douglas Gilbert  <dgilbert@interlog.com>
 
 	smartctl: expand -s option with standby,now and standby,off (or
