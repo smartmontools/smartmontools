@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5035 2020-03-01 16:19:44Z chrfranke $
+# $Id: configure.ac 5138 2020-12-20 17:13:01Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.0
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5035 2020-03-01 16:19:44Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5138 2020-12-20 17:13:01Z chrfranke $'`
 smartmontools_release_date=2019-12-30
 smartmontools_release_time="15:00:11 UTC"
 
@@ -20,7 +20,7 @@ AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",      
 AC_DEFINE_UNQUOTED(PACKAGE_HOMEPAGE,             "https://www.smartmontools.org/", [smartmontools Home Page])
 
 AC_CONFIG_SRCDIR([smartctl.cpp])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 AM_MAINTAINER_MODE
 
