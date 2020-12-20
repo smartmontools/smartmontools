@@ -1,4 +1,9 @@
-$Id: ChangeLog 5131 2020-12-15 21:30:33Z dpgilbert $
+$Id: ChangeLog 5132 2020-12-20 13:48:34Z chrfranke $
+
+2020-12-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Unify indentation.
 
 2020-12-15  Douglas Gilbert  <dgilbert@interlog.com>
 
