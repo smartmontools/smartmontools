@@ -5,6 +5,7 @@ $Id$
 	drivedb.h:
 	- Seagate BarraCuda, Enterprise Capacity, Exos, IronWolf:
 	  Add attributes 18, 200.
+	- Seagate IronWolf Pro 125 SSDs (#1396).
 	- Unify indentation.
 
 2020-12-15  Douglas Gilbert  <dgilbert@interlog.com>
