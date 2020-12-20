@@ -3,6 +3,9 @@ $Id$
 2020-12-20  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Seagate BarraCuda 3.5: 12TB
+	- Seagate Exos X16: 10TB (#1406, GH issues/63), 12TB.
+	- Seagate Archive HDD: Rename to ...(SMR) (#1392).
 	- Seagate BarraCuda, Enterprise Capacity, Exos, IronWolf:
 	  Add attributes 18, 200.
 	- Seagate IronWolf Pro 125 SSDs (#1396).

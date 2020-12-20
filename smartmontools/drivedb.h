@@ -4046,8 +4046,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate BarraCuda 3.5", // tested with ST1000DM010-2EP102/Z9ACZM97,
       // ST2000DM008-2FR102/0001, ST3000DM008-2DM166/CC26, ST4000DM005-2DP166/0001,
-      // ST4000DM006-2G5107/DN02, ST8000DM004-2CX188/0001, ST10000DM0004-1ZC101/DN01
-    "ST(500DM009|1000DM010|2000DM00[5-9]|3000DM00[789]|4000DM00[456]|6000DM00[34]|8000DM00[45]|10000DM0004)-.*",
+      // ST4000DM006-2G5107/DN02, ST8000DM004-2CX188/0001, ST10000DM0004-1ZC101/DN01,
+      // ST12000DM0007-2GR116/DN01
+    "ST(500DM009|1000DM010|2000DM00[5-9]|3000DM00[789]|4000DM00[456]|6000DM00[34]|"
+       "8000DM00[45]|10000DM0004|12000DM0007)-.*",
     "", "",
     "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
@@ -4206,9 +4208,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
-  { "Seagate Exos X16", // tested with X16 ST14000NM001G-2KJ103/SN02,
-      // ST16000NM001G-2KK103/SN02, ST16000NM001G-2KK103/SN03
-    "ST1[46]000NM00[13]G-.*",
+  { "Seagate Exos X16", // tested with ST10000NM001G-2MW103/SN02
+      // ST14000NM001G-2KJ103/SN02, ST16000NM001G-2KK103/SN02, ST16000NM001G-2KK103/SN03
+    "ST1[0246]000NM00[13]G-.*",
     "", "",
     "-v 18,raw48,Head_Health "
     "-v 200,raw48,Pressure_Limit "
@@ -4245,7 +4247,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
-  { "Seagate Archive HDD", // tested with ST8000AS0002-1NA17Z/AR13
+  { "Seagate Archive HDD (SMR)", // tested with ST8000AS0002-1NA17Z/AR13
     "ST[568]000AS00[01][12]-.*",
     "", "", ""
   },
