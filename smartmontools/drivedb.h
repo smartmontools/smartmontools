@@ -1138,8 +1138,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB"
   },
-  { "Intel X25-E SSDs",
-    "SSDSA2SH(032|064)G1.* INTEL",  // G1 = first generation
+  { "Intel X25-E SSDs", // tested with
+      // INTELSSDSA2SH064G1IB 43W7659 44E9163IBM/447C8860
+    "(INTEL)?SSDSA2SH(032|064)G1.* (.*IBM|INTEL)", // G1 = first generation
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "

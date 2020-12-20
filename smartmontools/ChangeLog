@@ -3,6 +3,7 @@ $Id$
 2020-12-20  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Intel X25-E SSDs: IBM OEM (#1401).
 	- Seagate BarraCuda 3.5: 12TB
 	- Seagate Exos X16: 10TB (#1406, GH issues/63), 12TB.
 	- Seagate Archive HDD: Rename to ...(SMR) (#1392).
