@@ -463,8 +463,7 @@ Q/qvYlwkbKOdlahjoHrFlkhADSBaO9N1OZp3OYDjziIujMdt2IPKnmM=
 # gpg_verify FILE.asc FILE
 gpg_verify()
 {
-  local gnupgtmp opts out rc
-  opts="--quiet ${q:+--no-secmem-warnin} --batch --no-tty"
+  local gnupgtmp out rc
 
   # Create temp home dir
   gnupgtmp="$tmpdir/.gnupg.$$.tmp"
@@ -473,14 +472,15 @@ gpg_verify()
   chmod 0700 "$gnupgtmp"
 
   # Import public key
-  "$GPG" $opts --homedir="$gnupgtmp" --import <<EOF
-$public_key
-EOF
-  test $? = 0 || exit 1
+  if ! out=`echo "$public_key" | "$GPG" --batch --no-tty --homedir="$gnupgtmp" --import 2>&1`; then
+    echo "$out" >&2
+    exit 1
+  fi
+  vecho "$out"
 
   # Verify
   rc=0
-  out=`"$GPG" $opts --homedir="$gnupgtmp" --verify "$1" "$2" </dev/null 2>&1` || rc=1
+  out=`"$GPG" --batch --no-tty --homedir="$gnupgtmp" --verify "$1" "$2" </dev/null 2>&1` || rc=1
   if [ $rc = 0 ]; then
     vecho "$out"
   else
