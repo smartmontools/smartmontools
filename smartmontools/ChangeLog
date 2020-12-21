@@ -2,6 +2,9 @@ $Id$
 
 2020-12-21  Christian Franke  <franke@computer.org>
 
+	update-smart-drivedb.in: Add 'Accept-Encoding' HTTP header when
+	curl is used.  This avoids caching problems with svn URL.
+
 	update-smart-drivedb.in: Print output of 'gpg --import' if '-v' is
 	specified.
 
