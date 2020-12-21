@@ -2,6 +2,9 @@ $Id$
 
 2020-12-21  Christian Franke  <franke@computer.org>
 
+	smartctl.8.in: Add EXPERIMENTAL notes for SCSI variants of
+	'-n POWERMODE' and '-s standby,...'.  Fix syntax.
+
 	update-smart-drivedb.in: Add 'Accept-Encoding' HTTP header when
 	curl is used.  This avoids caching problems with svn URL.
 

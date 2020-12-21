@@ -825,7 +825,9 @@ behaviour.
 This is does not work for SCSI devices yet.
 .TP
 .B \-n POWERMODE[,STATUS], \-\-nocheck=POWERMODE[,STATUS]
-[ATA and SCSI] Specifies if \fBsmartctl\fP should exit before performing any
+[ATA]
+[SCSI: NEW EXPERIMENTAL SMARTCTL FEATURE]
+Specifies if \fBsmartctl\fP should exit before performing any
 checks when the device is in a low-power mode.
 It may be used to prevent a disk from being spun-up by \fBsmartctl\fP.
 The power mode is ignored by default.
@@ -1023,7 +1025,7 @@ the drive accepts any security commands until next reset.  Note that the
 frozen mode may already be set by BIOS or OS.
 .Sp
 .I standby,[N|off]
-\- [ATA and SCSI] Sets the standby (spindown) timer and places the drive in
+\- [ATA] Sets the standby (spindown) timer and places the drive in
 the IDLE mode.  A value of 0 or \*(Aqoff\*(Aq disables the standby timer.
 Values from 1 to 240 specify timeouts from 5 seconds to 20 minutes in 5
 second increments.  Values from 241 to 251 specify timeouts from 30 minutes
@@ -1037,17 +1039,21 @@ placed in the STANDBY mode without temporarily placing it in the IDLE mode.
 Note that ATA standards do not specify a command to set the standby timer
 without affecting the power mode.
 .br
-[SCSI] Only the set option with \*(Aqstandby,off\*(Aq or
+[SCSI]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Only the set option with \*(Aqstandby,off\*(Aq or
 \*(Aqstandby,0\*(Aq is accepted and will place the SCSI disk
 into "ACTIVE" power condition.
 .Sp
 .I standby,now
-\- [ATA and SCSI] Places the drive in the STANDBY mode.
+\- [ATA] Places the drive in the STANDBY mode.
 This usually spins down the drive.
 The setting of the standby timer is not affected unless
-\*(Aq\[ATA] -s standby,[N|off]\*(Aq is also specified.
+\*(Aq\-s standby,[N|off]\*(Aq is also specified.
 .br
-[SCSI] Only the set option is accepted and will place the SCSI
+[SCSI]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Only the set option is accepted and will place the SCSI
 disk into "STANDBY_Z" power condition.
 .Sp
 .I wcache[,on|off]
