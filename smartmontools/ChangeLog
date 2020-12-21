@@ -1,5 +1,10 @@
 $Id$
 
+2020-12-21  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Extend expiration year of current database
+	signing key from 2020 to 2025 (#1278).
+
 2020-12-20  Christian Franke  <franke@computer.org>
 
 	configure.ac: Use AC_CONFIG_HEADERS instead of obsolete
