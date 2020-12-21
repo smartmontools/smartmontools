@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: update-smart-drivedb.in 5141 2020-12-21 16:44:55Z chrfranke $
+# $Id: update-smart-drivedb.in 5142 2020-12-21 17:02:46Z chrfranke $
 #
 
 set -e
@@ -177,7 +177,9 @@ download()
 
   case $tool in
     curl)
+      # "Accept-Encoding" header avoids caching problems with svn URL
       vrun curl ${q:+-s} -f --max-redirs 0 \
+        -H "Accept-Encoding: identity" \
         ${cacert:+--cacert "$cacert"} \
         ${capath:+--capath "$capath"} \
         ${insecure:+--insecure} \
@@ -185,6 +187,7 @@ download()
       ;;
 
     wget)
+      # wget >= 1.16.1 sets "Accept-Encoding: identity" header by default
       vrun wget $q --max-redirect=0 \
         ${cacert:+--ca-certificate="$cacert"} \
         ${capath:+--ca-directory="$capath"} \
