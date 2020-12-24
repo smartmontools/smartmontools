@@ -20,7 +20,7 @@ AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",      
 AC_DEFINE_UNQUOTED(PACKAGE_HOMEPAGE,             "https://www.smartmontools.org/", [smartmontools Home Page])
 
 AC_CONFIG_SRCDIR([smartctl.cpp])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 AM_MAINTAINER_MODE
 
@@ -381,6 +381,7 @@ AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
     [Include NVMe devices in smartd DEVICESCAN [Linux,Windows:yes;Others:no]])])
 
+# TODO: Remove after smartmontools 7.3
 AC_ARG_WITH(solaris-sparc-ata,
   [AS_HELP_STRING([--with-solaris-sparc-ata@<:@=yes|no@:>@],
     [Enable legacy ATA support on Solaris SPARC (requires os_solaris_ata.s from SVN repository) [no]])])
@@ -967,6 +968,15 @@ if test -n "$with_working_snprintf"; then
   AC_MSG_WARN([
 The option '--with-working-snprintf' is no longer needed and will be
 removed in a future version of smartmontools.
+])
+fi
+
+# TODO: Remove after smartmontools 7.3
+if test -n "$with_solaris_sparc_ata"; then
+  AC_MSG_WARN([
+The option '--with-solaris-sparc-ata' is deprecated and will be
+removed in a future version of smartmontools.  If this option is
+still needed, please inform $PACKAGE_BUGREPORT.
 ])
 fi
 

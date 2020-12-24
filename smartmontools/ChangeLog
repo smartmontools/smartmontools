@@ -1,5 +1,35 @@
 $Id$
 
+2020-12-21  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Add EXPERIMENTAL notes for SCSI variants of
+	'-n POWERMODE' and '-s standby,...'.  Fix syntax.
+
+	update-smart-drivedb.in: Add 'Accept-Encoding' HTTP header when
+	curl is used.  This avoids caching problems with svn URL.
+
+	update-smart-drivedb.in: Print output of 'gpg --import' if '-v' is
+	specified.
+
+	update-smart-drivedb.in: Extend expiration year of current database
+	signing key from 2020 to 2025 (#1278).
+
+2020-12-20  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use AC_CONFIG_HEADERS instead of obsolete
+	AC_CONFIG_HEADER.  This silences a warning from new autoconf 2.70.
+	Print 'deprecated' warning for '--with-solaris-sparc-ata'.
+
+	drivedb.h:
+	- Intel X25-E SSDs: IBM OEM (#1401).
+	- Seagate BarraCuda 3.5: 12TB
+	- Seagate Exos X16: 10TB (#1406, GH issues/63), 12TB.
+	- Seagate Archive HDD: Rename to ...(SMR) (#1392).
+	- Seagate BarraCuda, Enterprise Capacity, Exos, IronWolf:
+	  Add attributes 18, 200.
+	- Seagate IronWolf Pro 125 SSDs (#1396).
+	- Unify indentation.
+
 2020-12-15  Douglas Gilbert  <dgilbert@interlog.com>
 
 	smartctl: expand -s option with standby,now and standby,off (or
