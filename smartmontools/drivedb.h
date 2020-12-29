@@ -2797,6 +2797,7 @@ const drive_settings builtin_knowndrives[] = {
     "HFS(128|256|512)G3[29]MND-(2200|3[23]10)A|" // HFS128G32MND-2200A/20200L00,
       // HFS512G32MND-3210A/20100P00, HFS512G39MND-3310A/20002P00
     "HFS(120|250|500)G32TND-N1A2A|" // SL308, tested with HFS500G32TND-N1A2A/30000P10
+    "HFS(128|256|512)G39MND-3510A|" // SC300, tested with HFS512G39MND-3510A/20400P00
     "HFS(128|256|512)G39TND-N210A", // SC308, tested with HFS128G39TND-N210A/30001P10
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -2806,6 +2807,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 100,raw48,Total_Erase_Count "
     "-v 168,raw48,Min_Erase_Count "
     "-v 169,raw48,Max_Erase_Count "
+    "-v 170,raw48,Unknown_SK_hynix_Attrib "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw48,Wear_Leveling_Count "
