@@ -1,5 +1,9 @@
 $Id$
 
+2020-12-29  Christian Franke  <franke@computer.org>
+
+	scsinvme.cpp: Realtek: Limit NVMe log transfer size to 512 bytes.
+
 2020-12-21  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in: Add EXPERIMENTAL notes for SCSI variants of

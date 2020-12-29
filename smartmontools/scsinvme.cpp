@@ -257,6 +257,7 @@ sntrealtek_device::~sntrealtek_device()
 
 bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & /* out */)
 {
+  unsigned size = in.size;
   switch (in.opcode) {
     case smartmontools::nvme_admin_identify:
       if (in.cdw10 == 0x0000001) // Identify controller
@@ -268,9 +269,14 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
       }
       return set_err(ENOSYS, "NVMe Identify with CDW10=0x%08x not supported", in.cdw10);
     case smartmontools::nvme_admin_get_log_page:
-      if (in.nsid == 0xffffffff || !in.nsid)
-        break;
-      return set_err(ENOSYS, "NVMe Get Log Page with NSID=0x%x not supported", in.nsid);
+      if (!(in.nsid == 0xffffffff || !in.nsid))
+        return set_err(ENOSYS, "NVMe Get Log Page with NSID=0x%x not supported", in.nsid);
+      if (size > 0x200) { // Reading more apparently returns old data from previous command
+        // TODO: Add ability to return short reads to caller
+        size = 0x200;
+        pout("Warning: NVMe Get Log truncated to 0x%03x bytes, 0x%03x bytes zero filled\n", size, in.size - size);
+      }
+      break;
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
     break;
@@ -280,7 +286,7 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
 
   uint8_t cdb[16] = {0, };
   cdb[0] = 0xe4;
-  sg_put_unaligned_le16(in.size, cdb+1);
+  sg_put_unaligned_le16(size, cdb+1);
   cdb[3] = in.opcode;
   cdb[4] = (uint8_t)in.cdw10;
 
@@ -289,7 +295,8 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   io_hdr.cmnd_len = sizeof(cdb);
   io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
   io_hdr.dxferp = (uint8_t *)in.buffer;
-  io_hdr.dxfer_len = in.size;
+  io_hdr.dxfer_len = size;
+  memset(in.buffer, 0, in.size);
 
   scsi_device * scsidev = get_tunnel_dev();
   if (!scsidev->scsi_pass_through_and_check(&io_hdr, "sntrealtek_device::nvme_pass_through: "))
