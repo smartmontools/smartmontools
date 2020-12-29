@@ -487,7 +487,7 @@ const drive_settings builtin_knowndrives[] = {
     "Micron_5300_MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[ST]", // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
-  //"-v 5,raw48,Reallocated_Block_Count "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "  // raw24(raw8)??
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 170,raw48,Reserved_Block_Pct " // Percentage of remaining reserved blocks available
@@ -495,14 +495,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw48,Avg_Block-Erase_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
-  //"-v 180,raw48,Reserved_Block_Count " // absolute count of remaining reserved blocks available
+  //"-v 180,raw48,Unused_Rsvd_Blk_Cnt_Tot " // absolute count of remaining reserved blocks available
     "-v 183,raw48,SATA_Int_Downshift_Ct " // SATA speed downshift count
-  //"-v 184,raw48,Error_Correction_Count "
+  //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect " // Number of UECC correction failures
-  //"-v 188,raw48,Command_Timeouts "
+  //"-v 188,raw48,Command_Timeout "
   //"-v 194,tempminmax,Temperature_Celsius " // 100 - degrees C, wraps: 101 reported as 255
-  //"-v 195,raw48,Cumulativ_Corrected_ECC "
-  //"-v 196,raw48,Reallocation_Event_Ct "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
   //"-v 197,raw48,Current_Pending_Sector " // Use the raw value
   //"-v 198,raw48,Offline_Uncorrectable "  // Use the raw value
   //"-v 199,raw48,UDMA_CRC_Error_Count "   // Use the raw value
@@ -701,7 +701,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 160,raw48,Uncorrectable_Error_Cnt "
     // 0729 - remaining in block life. In 0828  remaining is normalized to 100% then decreases
-    "-v 161,raw48,Spares_Remaining " 
+    "-v 161,raw48,Spares_Remaining "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 169,raw48,Lifetime_Remaining% "
@@ -978,7 +978,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 7,raw48,Seek_Error_Rate " // from InnoDisk iSMART Linux tool, useless for SSD
   //"-v 8,raw48,Seek_Time_Performance "
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 10,raw48,Spin_Retry_Count "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 168,raw48,SATA_PHY_Error_Count "
@@ -1000,7 +1000,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
   //"-v 3,raw16(avg16),Spin_Up_Time "
-  //"-v 5,raw48,Reallocated_Sector_Count "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
     "-v 7,raw48,Seek_Error_Rate "       // ?
     "-v 8,raw48,Seek_Time_Performance " // ?
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -1399,7 +1399,7 @@ const drive_settings builtin_knowndrives[] = {
   // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-540s-series-spec.html
   // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-540s-series-m2-spec.html
   { "Intel 540 Series SSDs", // INTEL SSDSC2KW120H6/LSF036C, INTEL SSDSC2KW480H6/LSF036C
-    "INTEL SSDSC[K2]KW(120H|180H|240H|360H|480H|010X)6", 
+    "INTEL SSDSC[K2]KW(120H|180H|240H|360H|480H|010X)6",
     "", "",
     "-v 9,msec24hour32,Power_On_Hours_and_Msec "
     "-v 170,raw48,Available_Reservd_Space "
@@ -1511,7 +1511,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 173 is missing in official Intel doc"
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 183,raw48,SATA_Downshift_Count "
-  //"-v 184,raw48,End-to-End_Error_Count "
+  //"-v 184,raw48,End-to-End_Error "
     "-v 187,raw48,Uncorrectable_Error_Cnt "
   //"-v 190,tempminmax,Airflow_Temperature_Cel "
   //"-v 192,raw48,Power-Off_Retract_Count "
@@ -1902,7 +1902,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 199,raw48,CRC_Error_Count "
     "-v 201,raw48,Supercap_Status "
     "-v 202,raw48,Exception_Mode_Status "
-  //"-v 233,raw48,Media_Wearout_Indicator // PM851, 840
+  //"-v 233,raw48,Media_Wearout_Indicator " // PM851, 840
     "-v 234,raw48,Unknown_Samsung_Attr " // PM851, 840
     "-v 235,raw48,POR_Recovery_Count " // PM851, 830/840/850
     "-v 236,raw48,Unknown_Samsung_Attr " // PM851, 840
@@ -2741,7 +2741,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Flash accelerated, no SMART info in the specs
   // ST1000LX015-1U7172/SDM1
-  { "Seagate FireCuda 2.5", // 
+  { "Seagate FireCuda 2.5",
     "ST(500|1000|2000)LX0(01|15|25)-.*",
     "", "", "-v 240,msec24hour32 "
   },
@@ -3469,7 +3469,7 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi |HGST )?HUS7240(20|30|40)AL[AE]64[01]",
     "", "", ""
   },
-  { "Hitachi/HGST Ultrastar 7K2", //
+  { "Hitachi/HGST Ultrastar 7K2",
     "(Hitachi|HGST) HUS722T[12]TALA604",
     "", "",
     "-v 16,raw48,Gas_Gauge"
@@ -3548,7 +3548,6 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK(80|12|10)34GSX",
     "", "", ""
   },
-  //
   { "Toshiba 2.5\" HDD MK..32GSX", // tested with TOSHIBA MK1032GSX/AS021G
     "TOSHIBA MK(10|80|60|40)32GSX",
     "", "", ""
@@ -3722,7 +3721,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba HK4R Series SSD", // TOSHIBA THNSN8960PCSE/8EET6101
     "TOSHIBA THNSN8(120P|240P|480P|960P|1Q92)CSE",
-    "", "", 
+    "", "",
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Error_Count "
     "-v 169,raw48,Bad_Block_Count "
@@ -3733,7 +3732,7 @@ const drive_settings builtin_knowndrives[] = {
     // TOSHIBA THNSFJ256GCSU/JULA1102
     // TOSHIBA THNSFJ256GDNU A/JYLA1102
     "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN][TU].*",
-    "", "", 
+    "", "",
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Error_Count "
     "-v 169,raw48,Bad_Block_Count "
@@ -4181,7 +4180,7 @@ const drive_settings builtin_knowndrives[] = {
       // ST8000NM0055-1RM112/SN04
       // ST10000NM0156-2AA111/SS05
     "ST([1234568]|10)000NM0[01][0-68][456]-.*", // *[069]4 = 4Kn
-    "", "", 
+    "", "",
     "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -4324,7 +4323,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Nytro XF1230 SATA SSD", // tested with XF1230-1A0480/ST200354
     "XF1230-1A(0240|0480|0960|1920)",
-    "", "", 
+    "", "",
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 180,raw48,End_to_End_Err_Detect "
     "-v 183,raw48,SATA_Downshift_Count "
@@ -4341,9 +4340,9 @@ const drive_settings builtin_knowndrives[] = {
     "ZA(240|480|960|1920|3840)NM10001",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
-  //"-v 9,raw48,Power_On_Hours "
-  //"-v 12,raw48,Drive_Power_Cycle_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
     "-v 100,raw48,Flash_GB_Erased "
     "-v 102,raw48,Lifetime_PS4_Entry_Ct "
     "-v 103,raw48,Lifetime_PS3_Exit_Ct "
@@ -4355,13 +4354,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 177,raw16,Wear_Range_Delta "
     "-v 183,hex56,SATA_Downshift_Count "
     "-v 187,raw48,Uncorrectable_ECC_Ct "
-  //"-v 194,tempminmax,Primary_Temperature "
+  //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw16(raw16),RAISE_ECC_Cor_Ct "
     "-v 198,raw48,Uncor_Read_Error_Ct "
-  //"-v 199,raw48,SATA_R-Err_(CRC)_Err_Ct "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 230,raw56,Drv_Life_Protect_Status "
     "-v 231,hex56,SSD_Life_Left "
-  //"-v 232,raw48,Available_Rsrvd_Space "
+  //"-v 232,raw48,Available_Reservd_Space "
     "-v 233,raw48,Lifetime_Wts_To_Flsh_GB "
     "-v 241,raw48,Lifetime_Wts_Frm_Hst_GB "
     "-v 242,raw48,Lifetime_Rds_Frm_Hst_GB "
@@ -4381,7 +4380,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 173,raw16,Max/Avg/Min_Erase_Ct "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 177,raw16,Wear_Range_Delta "
-  //"-v 192,Power-Off_Retract_Count "
+  //"-v 192,raw48,Power-Off_Retract_Count "
   //"-v 194,tempminmax,Temperature_Celsius "
     "-v 218,raw48,SATA_CRC_Error_Count "
     "-v 231,raw48,SSD_Life_Left "
@@ -4399,9 +4398,9 @@ const drive_settings builtin_knowndrives[] = {
     "XA(240|480|960|1920|3840)[LM]E10(00|02|04|06|08|10)3",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
-  //"-v 5,raw48,Reallocated_Sector_Ct "
-  //"-v 9,raw48,Power_On_Hours "
-  //"-v 12,raw48,Drive_Power_Cycle_Ct "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
     "-v 100,raw48,Flash_GB_Erased "
     "-v 102,raw48,Lifetime_PS4_Entry_Ct "
     "-v 103,raw48,Lifetime_PS3_Exit_Ct "
@@ -4413,13 +4412,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 177,raw16,Wear_Range_Delta "
     "-v 183,hex56,SATA_Downshift_Count "
     "-v 187,raw48,Uncorrectable_ECC_Ct "
-  //"-v 194,tempminmax,Primary_Temperature "
+  //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw16(raw16),RAISE_ECC_Cor_Ct "
     "-v 198,raw48,Uncor_Read_Error_Ct "
-  //"-v 199,raw48,SATA_R-Err_(CRC)_Err_Ct "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 230,raw56,Drv_Life_Protect_Status "
     "-v 231,hex56,SSD_Life_Left "
-  //"-v 232,raw48,Available_Rsrvd_Space "
+  //"-v 232,raw48,Available_Reservd_Space "
     "-v 233,raw48,Lifetime_Wts_To_Flsh_GB "
     "-v 241,raw48,Lifetime_Wts_Frm_Hst_GB "
     "-v 242,raw48,Lifetime_Rds_Frm_Hst_GB "
@@ -4437,8 +4436,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC  ?WDS((120|240|250|480|500)G|[12]00T)(1B|2B|1G|2G|1R)0[AB](-.*)?",
       // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND, *1R* = Red SA500
     "", "",
-  //"-v 5,raw48,Reallocated_Sector_Ct " // Reassigned Block Count
-  //"-v 9,raw48,Power_On_Hours "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct " // Reassigned Block Count
+  //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 165,raw48,Block_Erase_Count "
     "-v 166,raw48,Minimum_PE_Cycles_TLC "
@@ -4450,13 +4449,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw48,Average_PE_Cycles_TLC "
     "-v 174,raw48,Unexpected_Power_Loss "
-  //"-v 184,raw48,End-to-end_Error " // Detection/Correction Count
+  //"-v 184,raw48,End-to-End_Error " // Detection/Correction Count
   //"-v 187,raw48,Reported_Uncorrect " // Uncorrectable Errors
-  //"-v 188,raw48,Command_Timeout
-  //"-v 194,tempminmax,Temperature_Celsius " 
-  //"-v 199,raw48,UDMA_CRC_Error_Count  // SATA CRC Errors 
+  //"-v 188,raw48,Command_Timeout "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 199,raw48,UDMA_CRC_Error_Count " // SATA CRC Errors
     "-v 230,hex48,Media_Wearout_Indicator " // Maybe hex16
-  //"-v 232,raw48,Available_Reserve_Space"
+  //"-v 232,raw48,Available_Reservd_Space"
     "-v 233,raw48,NAND_GB_Written_TLC "
     "-v 234,raw48,NAND_GB_Written_SLC "
     "-v 241,raw48,Host_Writes_GiB "
