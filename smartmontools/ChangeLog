@@ -10,6 +10,7 @@ $Id$
 	- Silicon Motion based OEM SSDs: Dogfish,
 	  Intenso portable (GH issues/81, GH pull/82),
 	  Intenso Sata III (#1412), KingDian S280 (#1402).
+	- Hitachi Travelstar 5K500.B: *SA02 (#1408).
 	- Fix '-v' comments.  Remove trailing whitespace.
 
 	scsinvme.cpp: Realtek: Limit NVMe log transfer size to 512 bytes.

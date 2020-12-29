@@ -3256,8 +3256,9 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi|HGST) HT[ES]5432(16|25|32)A7A38[145]",
     "", "", ""
   },
-  { "Hitachi Travelstar 5K500.B", // tested with Hitachi HTS545050B9SA00/PB4OC60X
-    "(Hitachi )?HT[ES]5450(12|16|25|32|40|50)B9(A30[01]|SA00)",
+  { "Hitachi Travelstar 5K500.B", // tested with Hitachi HTS545050B9SA00/PB4OC60X,
+      // Hitachi HTS545025B9SA02/PB2AC60W
+    "(Hitachi )?HT[ES]5450(12|16|25|32|40|50)B9(A30[01]|SA0[02])",
     "", "", ""
   },
   { "Hitachi/HGST Travelstar Z5K500", // tested with HGST HTS545050A7E380/GG2OAC90,
