@@ -1,8 +1,13 @@
-$Id: ChangeLog 5145 2020-12-29 13:44:37Z chrfranke $
+$Id: ChangeLog 5146 2020-12-29 15:02:25Z chrfranke $
 
 2020-12-29  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Silicon Motion based SSDs: ADATA IMSS332 (#1399),
+	  ADATA SU650NS38 (#1386), JAJS600M1TB (#1414), NFN025SA31T.
+	- Silicon Motion based OEM SSDs: Dogfish,
+	  Intenso portable (GH issues/81, GH pull/82),
+	  Intenso Sata III (#1412), KingDian S280 (#1402).
 	- Fix '-v' comments.  Remove trailing whitespace.
 
 	scsinvme.cpp: Realtek: Limit NVMe log transfer size to 512 bytes.
