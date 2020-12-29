@@ -3,6 +3,7 @@ $Id$
 2020-12-29  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Micron 5100 Pro / 52x0 / 5300 SSDs: 5300HC.
 	- Silicon Motion based SSDs: ADATA IMSS332 (#1399),
 	  ADATA SU650NS38 (#1386), JAJS600M1TB (#1414), NFN025SA31T.
 	- Silicon Motion based OEM SSDs: Dogfish,
