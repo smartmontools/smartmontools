@@ -2,6 +2,9 @@ $Id$
 
 2020-12-30  Christian Franke  <franke@computer.org>
 
+	configure.ac, update-smart-drivedb.in: Use RELEASE_7_2_DRIVEDB for
+	drivedb.h updates.
+
 	Create new branch RELEASE_7_2_DRIVEDB.
 
 2020-12-29  Christian Franke  <franke@computer.org>
