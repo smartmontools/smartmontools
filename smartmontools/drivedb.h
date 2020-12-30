@@ -1,5 +1,5 @@
 /*
- * drivedb.h - smartmontools drive database file
+ * drivedb.h - smartmontools 7.0-7.1 drive database file
  *
  * Home page of code is: https://www.smartmontools.org
  *
