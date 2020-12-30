@@ -12,6 +12,9 @@ Summary: smartmontools release 7.2
 - smartctl '-i': Prints ATA TRIM and Zoned Device capabilities.
 - smartctl '-j': Fixed 'scsi_grown_defect_list' value.
 - smartctl '-a': Prints SCSI 'Accumulated power on time'.
+- smartctl '-n POWERMODE': SCSI support.
+- smartctl '-s standby,now' and '-s standby,off': SCSI support.
+- smartctl '-c': NVMe 1.4 additions.
 - smartd: Support for staggered self-tests.
 - smartd: No longer writes attribute log if no attributes were read
   due to standby mode or other error.
@@ -23,6 +26,7 @@ Summary: smartmontools release 7.2
   some QNAP NAS devices.
 - ATA: Device type '-d jms56x,N' for JMS562 USB to SATA RAID bridges.
 - SCSI: Improved heuristics for log subpages of new and very old disks.
+- NVMe: Log transfer size limited to avoid device or kernel crashes.
 - NVMEe/USB: Device type '-d sntrealtek' for Realtek RTL9210 USB to
   NVMe bridges.
 - update-smart-drivedb: New option '--branch X.Y'.
