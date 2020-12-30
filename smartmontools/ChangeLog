@@ -1,6 +1,9 @@
-$Id: ChangeLog 5152 2020-12-30 13:41:44Z chrfranke $
+$Id: ChangeLog 5153 2020-12-30 14:09:46Z chrfranke $
 
 2020-12-30  Christian Franke  <franke@computer.org>
+
+	configure.ac, update-smart-drivedb.in: Use RELEASE_7_2_DRIVEDB for
+	drivedb.h updates.
 
 	Create new branch RELEASE_7_2_DRIVEDB.
 

@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: update-smart-drivedb.in 5142 2020-12-21 17:02:46Z chrfranke $
+# $Id: update-smart-drivedb.in 5153 2020-12-30 14:09:46Z chrfranke $
 #
 
 set -e
@@ -367,7 +367,7 @@ pnILDDMBUNQMBm/XlCYQUetyrJnAVzFGXurtjEXQ/DDnbfy2Z8efoG8rtq7v3fxS
 "
       ;;
 
-    RELEASE_7_0_DRIVEDB)
+    RELEASE_7_[02]_DRIVEDB)
 # Smartmontools Signing Key (through 2025) <smartmontools-database@listi.jpberlin.de>
 # Smartmontools Signing Key (through 2020) <smartmontools-database@listi.jpberlin.de>
 # Key ID 721042C5
