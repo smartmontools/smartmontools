@@ -1,4 +1,8 @@
-$Id: ChangeLog 5150 2020-12-29 16:55:11Z chrfranke $
+$Id: ChangeLog 5152 2020-12-30 13:41:44Z chrfranke $
+
+2020-12-30  Christian Franke  <franke@computer.org>
+
+	Create new branch RELEASE_7_2_DRIVEDB.
 
 2020-12-29  Christian Franke  <franke@computer.org>
 
