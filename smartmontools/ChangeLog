@@ -1,5 +1,9 @@
 $Id$
 
+2020-12-30  Christian Franke  <franke@computer.org>
+
+	Create new branch RELEASE_7_2_DRIVEDB.
+
 2020-12-29  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
