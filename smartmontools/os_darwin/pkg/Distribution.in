@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<installer-gui-script minSpecVersion="2">
+  <allowed-os-versions>
+    <os-version min="10.5"/>
+  </allowed-os-versions>
+  <license file="license.txt" mime-type="text/plain"/>
+  <!-- <welcome file="welcome.rtf" mime-type="text/rtf"/> -->
+  <title>S.M.A.R.T. disk monitoring tools</title>
+  <pkg-ref id="com.smartmontools.pkg"/>
+  <choices-outline>
+    <line choice="default">
+      <line choice="com.smartmontools.pkg"/>
+    </line>
+  </choices-outline>
+  <choice id="default"/>
+  <choice id="com.smartmontools.pkg" visible="false">
+    <pkg-ref version="@version@" installKBytes="@size@" id="com.smartmontools.pkg">@pkgname@</pkg-ref>
+  </choice>
+  <domains enable_localSystem="true"/>
+  <options customize="never" rootVolumeOnly="true"/>
+</installer-gui-script>
