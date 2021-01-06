@@ -4578,8 +4578,8 @@ const drive_settings builtin_knowndrives[] = {
     "(APPLE HDD )?WDC WD((25|32|50)00AAKX|5000AZ(LX|RZ)|7500A(AL|ZE)X|10E(AL|ZE)X|[1-6]0EZRZ)-.*",
     "", "", ""
   },
-  { "Western Digital Blue (SMR)", // ticket #1313
-    "WDC WD(20|60)EZAZ-.*",
+  { "Western Digital Blue (SMR)", // tested with WDC WD40EZAZ-00SF3B0/80.00A80 (TRIM: zeroed)
+    "WDC WD(20|40|60)EZAZ-.*",
     "", "", ""
   },
   { "Western Digital RE Serial ATA",
