@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 5159 2021-01-06 18:09:07Z chrfranke $",
+  { "$Id: drivedb.h 5160 2021-01-06 18:19:32Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4211,6 +4211,17 @@ const drive_settings builtin_knowndrives[] = {
     "ST8000AS0003-.*",
     "", "",
     "-v 9,msec24hour32 -v 240,msec24hour32"
+  },
+  // ST1000NM000A, ST1000NM002A, ST2000NM000A, ST2000NM001A, ST2000NM002A,
+  // ST3000NM000A, ST3000NM004A, ST4000NM000A, ST4000NM001A, ST4000NM002A,
+  // ST4000NM006A, ST4000NM010A, ST4000NM012A, ST4000NM013A, ST6000NM002A,
+  // ST6000NM021A, ST6000NM022A, ST6000NM025A, ST6000NM026A, ST8000NM000A,
+  // ST8000NM002A, ST8000NM004A, ST8000NM008A, ST8000NM009A, ST8000NM016A
+  { "Seagate Exos 7E8", // tested with ST6000NM021A-2R7101/SN02, ST8000NM000A-2KE101/SN02
+    "ST[123468]000NM0(0[01234689]|1[0236]|2[1256])A-.*",
+    "", "",
+    "-v 18,raw48,Head_Health "
+    "-v 240,msec24hour32"
   },
   { "Seagate Exos X12", // tested with ST12000NM0007-2A1101/SN02
     "ST12000NM00[01]7-.*", // *17 = SED
