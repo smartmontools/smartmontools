@@ -4,6 +4,7 @@ $Id$
 
 	drivedb.h:
 	- Seagate BarraCuda 3.5: Split into ...(CMR) and ...(SMR).
+	- Seagate Exos 7E8 (#1415).
 	- Western Digital Blue (SMR): 4TB.
 
 2021-01-01  Christian Franke  <franke@computer.org>
