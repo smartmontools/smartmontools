@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 5151 2020-12-29 18:15:59Z chrfranke $",
+  { "$Id: drivedb.h 5162 2021-01-06 18:42:50Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -4054,12 +4054,18 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
-  { "Seagate BarraCuda 3.5", // tested with ST1000DM010-2EP102/Z9ACZM97,
-      // ST2000DM008-2FR102/0001, ST3000DM008-2DM166/CC26, ST4000DM005-2DP166/0001,
-      // ST4000DM006-2G5107/DN02, ST8000DM004-2CX188/0001, ST10000DM0004-1ZC101/DN01,
+  { "Seagate BarraCuda 3.5 (CMR)", // tested with ST1000DM010-2EP102/CC43,
+      // ST3000DM008-2DM166/CC26, ST4000DM006-2G5107/DN02, ST10000DM0004-1ZC101/DN01,
       // ST12000DM0007-2GR116/DN01
-    "ST(500DM009|1000DM010|2000DM00[5-9]|3000DM00[789]|4000DM00[456]|6000DM00[34]|"
-       "8000DM00[45]|10000DM0004|12000DM0007)-.*",
+    "ST(500DM009|1000DM010|2000DM00[67]|3000DM00[89]|4000DM006|6000DM004|"
+       "8000DM005|10000DM0004|12000DM0007)-.*",
+    "", "",
+    "-v 200,raw48,Pressure_Limit "
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
+  { "Seagate BarraCuda 3.5 (SMR)", // tested with ST2000DM008-2FR102/0001,
+      // ST4000DM004-2CV104/0001 (TRIM: no), ST4000DM005-2DP166/0001, ST8000DM004-2CX188/0001
+    "ST(2000DM00[589]|3000DM007|4000DM00[45]|6000DM003|8000DM004)-.*",
     "", "",
     "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
@@ -4203,6 +4209,17 @@ const drive_settings builtin_knowndrives[] = {
     "ST8000AS0003-.*",
     "", "",
     "-v 9,msec24hour32 -v 240,msec24hour32"
+  },
+  // ST1000NM000A, ST1000NM002A, ST2000NM000A, ST2000NM001A, ST2000NM002A,
+  // ST3000NM000A, ST3000NM004A, ST4000NM000A, ST4000NM001A, ST4000NM002A,
+  // ST4000NM006A, ST4000NM010A, ST4000NM012A, ST4000NM013A, ST6000NM002A,
+  // ST6000NM021A, ST6000NM022A, ST6000NM025A, ST6000NM026A, ST8000NM000A,
+  // ST8000NM002A, ST8000NM004A, ST8000NM008A, ST8000NM009A, ST8000NM016A
+  { "Seagate Exos 7E8", // tested with ST6000NM021A-2R7101/SN02, ST8000NM000A-2KE101/SN02
+    "ST[123468]000NM0(0[01234689]|1[0236]|2[1256])A-.*",
+    "", "",
+    "-v 18,raw48,Head_Health "
+    "-v 240,msec24hour32"
   },
   { "Seagate Exos X12", // tested with ST12000NM0007-2A1101/SN02
     "ST12000NM00[01]7-.*", // *17 = SED
@@ -4576,8 +4593,8 @@ const drive_settings builtin_knowndrives[] = {
     "(APPLE HDD )?WDC WD((25|32|50)00AAKX|5000AZ(LX|RZ)|7500A(AL|ZE)X|10E(AL|ZE)X|[1-6]0EZRZ)-.*",
     "", "", ""
   },
-  { "Western Digital Blue (SMR)", // ticket #1313
-    "WDC WD(20|60)EZAZ-.*",
+  { "Western Digital Blue (SMR)", // tested with WDC WD40EZAZ-00SF3B0/80.00A80 (TRIM: zeroed)
+    "WDC WD(20|40|60)EZAZ-.*",
     "", "", ""
   },
   { "Western Digital RE Serial ATA",
@@ -5635,9 +5652,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ADATA
   { "USB: ADATA; ",
-    "0x125f:0xa(11|13|15|31|35|37|75|83)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
-    "", // 0xa15a: HD710 1TB, 0xa31a: HV620 2TB (0x0100), 0xa35a: HD650 2TB (0x6503),
-    "", // 0xa37a: Silverstone MS10 M.2 (0x3103), 0xa75a: HD710P 4TB, 0xa83a: HD330 (0x0100)
+    "0x125f:0xa(11|13|15|21|31|35|37|75|83)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
+    "", // 0xa15a: HD710 1TB, 0xa21a: HV610 (0x4504), 0xa31a: HV620 2TB (0x0100),
+    "", // 0xa35a: HD650 2TB (0x6503), 0xa37a: Silverstone MS10 M.2 (0x3103), 0xa75a: HD710P 4TB,
+        // 0xa83a: HD330 (0x0100)
     "-d sat"
   },
   { "USB: ADATA; Cypress",
