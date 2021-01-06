@@ -6,6 +6,7 @@ $Id$
 	- Seagate BarraCuda 3.5: Split into ...(CMR) and ...(SMR).
 	- Seagate Exos 7E8 (#1415).
 	- Western Digital Blue (SMR): 4TB.
+	- USB: ADATA HV610 (0x125f:0xa21a) (#1417).
 
 2021-01-01  Christian Franke  <franke@computer.org>
 
