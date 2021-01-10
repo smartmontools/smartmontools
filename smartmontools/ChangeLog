@@ -1,4 +1,8 @@
-$Id: ChangeLog 5161 2021-01-06 18:24:50Z chrfranke $
+$Id: ChangeLog 5163 2021-01-10 15:52:20Z chrfranke $
+
+2021-01-10  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Add VERSION information to trunk (#1424).
 
 2021-01-06  Christian Franke  <franke@computer.org>
 
