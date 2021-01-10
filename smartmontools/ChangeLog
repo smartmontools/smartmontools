@@ -2,7 +2,7 @@ $Id$
 
 2021-01-10  Christian Franke  <franke@computer.org>
 
-	drivedb.h: Add VERSION information to trunk (#1424).
+	drivedb.h: Add VERSION information to trunk and all branches (#1424).
 
 2021-01-06  Christian Franke  <franke@computer.org>
 
