@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-20 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -68,9 +68,9 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id$",
+  { "VERSION: 7.2 $Id$",
     "-", "-",
-    "This is a dummy entry to hold the SVN-Id of drivedb.h",
+    "Version information",
     ""
   },
   { "DEFAULT",
