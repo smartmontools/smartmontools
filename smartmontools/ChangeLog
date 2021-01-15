@@ -1,5 +1,12 @@
 $Id$
 
+2021-01-15  Jeremy Bauer  <jeremy.bauer@wdc.com>
+
+	Add support for SCT Error Recovery Timer features added in ACS-4
+	(#1427).
+	'-l scterc[,R,W],p' option gets/sets the persistent power-on values.
+	'-l scterc,r' option restores to the manufacturer's default values.
+
 2021-01-15  Zhenwei Pi  <pizhenwei@bytedance.com>
 
 	nvmeprint.cpp: Add bit 5 of SMART/Health 'Critical Warning' byte

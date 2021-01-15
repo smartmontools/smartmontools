@@ -176,7 +176,7 @@ static void Usage()
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "        xerror[,N][,error], xselftest[,N][,selftest], background,\n"
 "        sasphy[,reset], sataphy[,reset], scttemp[sts,hist],\n"
-"        scttempint,N[,p], scterc[,N,M], devstat[,N], defects[,N], ssd,\n"
+"        scttempint,N[,p], scterc[,N,M][,p|r], devstat[,N], defects[,N], ssd,\n"
 "        gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
@@ -243,7 +243,7 @@ static std::string getvalidarglist(int opt)
            "xerror[,N][,error], xselftest[,N][,selftest], "
            "background, sasphy[,reset], sataphy[,reset], "
            "scttemp[sts,hist], scttempint,N[,p], "
-           "scterc[,N,M], devstat[,N], defects[,N], ssd, "
+           "scterc[,N,M][,p|r], devstat[,N], defects[,N], ssd, "
            "gplog,N[,RANGE], smartlog,N[,RANGE], "
            "nvmelog,N,SIZE";
   case 'P':
@@ -615,16 +615,37 @@ static int parse_options(int argc, char** argv, const char * & type,
           badarg = true;
 
       } else if (!strncmp(optarg, "scterc,", sizeof("scterc,")-1)) {
-        unsigned rt = ~0, wt = ~0; int n = -1;
-        sscanf(optarg,"scterc,%u,%u%n", &rt, &wt, &n);
-        if (n == (int)strlen(optarg) && rt <= 999 && wt <= 999) {
+        ataopts.sct_erc_power_on = false;
+        ataopts.sct_erc_mfg_default = false;
+        unsigned rt = ~0, wt = ~0; char opt = 0; int n = -1;
+        sscanf(optarg,"scterc,%u,%u,%c%n", &rt, &wt, &opt, &n);
+        if (n == (int)strlen(optarg) && rt <= 999 && wt <= 999 && toupper(opt) == 'P') {
           ataopts.sct_erc_set = true;
           ataopts.sct_erc_readtime = rt;
           ataopts.sct_erc_writetime = wt;
+          ataopts.sct_erc_power_on = true;
         }
         else {
-          snprintf(extraerror, sizeof(extraerror), "Option -l scterc,[READTIME,WRITETIME] syntax error\n");
-          badarg = true;
+          sscanf(optarg,"scterc,%u,%u%n", &rt, &wt, &n);
+          if (n == (int)strlen(optarg) && rt <= 999 && wt <= 999) {
+            ataopts.sct_erc_set = true;
+            ataopts.sct_erc_readtime = rt;
+            ataopts.sct_erc_writetime = wt;
+          } else {
+             sscanf(optarg,"scterc,%c%n", &opt, &n);
+             if (n == (int)strlen(optarg) && (toupper(opt) == 'P' || toupper(opt) == 'R')) {
+               if (toupper(opt) == 'R') {
+                 ataopts.sct_erc_set = true;
+                 ataopts.sct_erc_mfg_default = true;
+               } else { /* P */
+                 ataopts.sct_erc_get = true;
+                 ataopts.sct_erc_power_on = true;
+               }
+             } else {
+               snprintf(extraerror, sizeof(extraerror), "Option -l scterc,[READTIME,WRITETIME][,P|R] syntax error\n");
+               badarg = true;
+             }
+          }
         }
       } else if (   !strncmp(optarg, "gplog,"   , sizeof("gplog,"   )-1)
                  || !strncmp(optarg, "smartlog,", sizeof("smartlog,")-1)) {

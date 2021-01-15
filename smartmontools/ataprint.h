@@ -58,6 +58,8 @@ struct ata_print_options
   bool sct_erc_get;
   bool sct_erc_set;
   unsigned sct_erc_readtime, sct_erc_writetime;
+  bool sct_erc_power_on;
+  bool sct_erc_mfg_default;
   bool sataphy, sataphy_reset;
 
   bool smart_disable, smart_enable;
@@ -125,6 +127,8 @@ struct ata_print_options
       sct_erc_get(false),
       sct_erc_set(false),
       sct_erc_readtime(0), sct_erc_writetime(0),
+      sct_erc_power_on(false),
+      sct_erc_mfg_default(false),
       sataphy(false), sataphy_reset(false),
       smart_disable(false), smart_enable(false),
       smart_auto_offl_disable(false), smart_auto_offl_enable(false),

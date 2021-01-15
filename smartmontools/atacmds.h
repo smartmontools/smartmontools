@@ -545,7 +545,7 @@ STATIC_ASSERT(sizeof(ata_sct_status_response) == 512);
 struct ata_sct_error_recovery_control_command
 {
   unsigned short action_code;       // 3 = Error Recovery Control
-  unsigned short function_code;     // 1 = Set, 2 = Return
+  unsigned short function_code;     // 1 = Set Current, 2 = Return Current, 3 = Set Power-on, 4 = Return Power-on, 5 = Restore Default
   unsigned short selection_code;    // 1 = Read Timer, 2 = Write Timer
   unsigned short time_limit;        // If set: Recovery time limit in 100ms units
   unsigned short words004_255[252]; // reserved
@@ -792,8 +792,8 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
 int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persistent);
 
 // Get/Set SCT Error Recovery Control
-int ataGetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short & time_limit);
-int ataSetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short time_limit);
+int ataGetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short & time_limit, bool power_on);
+int ataSetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short time_limit, bool power_on, bool mfg_default);
 
 
 /* Enable/Disable SMART on device */
