@@ -1,5 +1,9 @@
 $Id$
 
+2021-01-15  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Add EXPERIMENTAL note for new '-l scterc' variants.
+
 2021-01-15  Jeremy Bauer  <jeremy.bauer@wdc.com>
 
 	Add support for SCT Error Recovery Timer features added in ACS-4

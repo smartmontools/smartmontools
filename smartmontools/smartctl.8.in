@@ -1500,10 +1500,12 @@ READTIME and WRITETIME arguments (deciseconds) set the specified values.
 Values of 0 disable the feature, other values less than 65 are probably not
 supported.
 For RAID configurations, this is typically set to 70,70 deciseconds.
+.br
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
 If \*(Aq,p\*(Aq is specified with read and write time values, these
-time values will be persistent over a power-on reset.  If \*(Aq,p\*(Aq is 
-specified without read and write time values, the persistent over power-on
-values will be returned.
+time values will be persistent over a power-on reset.
+If \*(Aq,p\*(Aq is specified without read and write time values, the
+persistent over power-on values will be returned.
 If \*(Aq,r\*(Aq is specified, all SCT timer settings are restored to the
 manufacturer's default value.
 The \*(Aq,p\*(Aq and \*(Aq,r\*(Aq options require the device to support ACS-4
