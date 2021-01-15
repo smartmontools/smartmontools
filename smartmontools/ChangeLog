@@ -1,4 +1,8 @@
-$Id: ChangeLog 5166 2021-01-15 18:02:19Z chrfranke $
+$Id: ChangeLog 5167 2021-01-15 18:16:07Z chrfranke $
+
+2021-01-15  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Add EXPERIMENTAL note for new '-l scterc' variants.
 
 2021-01-15  Jeremy Bauer  <jeremy.bauer@wdc.com>
 
