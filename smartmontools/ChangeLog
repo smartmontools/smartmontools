@@ -1,4 +1,11 @@
-$Id: ChangeLog 5165 2021-01-15 17:15:51Z chrfranke $
+$Id: ChangeLog 5166 2021-01-15 18:02:19Z chrfranke $
+
+2021-01-15  Jeremy Bauer  <jeremy.bauer@wdc.com>
+
+	Add support for SCT Error Recovery Timer features added in ACS-4
+	(#1427).
+	'-l scterc[,R,W],p' option gets/sets the persistent power-on values.
+	'-l scterc,r' option restores to the manufacturer's default values.
 
 2021-01-15  Zhenwei Pi  <pizhenwei@bytedance.com>
 

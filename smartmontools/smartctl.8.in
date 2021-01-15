@@ -4,7 +4,7 @@ Copyright (C) 2004-20 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5143 2020-12-21 18:34:31Z chrfranke $
+$Id: smartctl.8.in 5166 2021-01-15 18:02:19Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1491,7 +1491,7 @@ Otherwise, the setting is volatile and will be reverted to the last
 non-volatile setting by the next hard reset.  The default interval
 is vendor specific, typical values are 1, 2, or 5 minutes.
 .Sp
-.I scterc[,READTIME,WRITETIME]
+.I scterc[,READTIME,WRITETIME][,p|r]
 \- [ATA only] prints values and descriptions of the SCT Error Recovery
 Control settings.
 These are equivalent to TLER (as used by Western Digital), CCTL (as used
@@ -1500,6 +1500,14 @@ READTIME and WRITETIME arguments (deciseconds) set the specified values.
 Values of 0 disable the feature, other values less than 65 are probably not
 supported.
 For RAID configurations, this is typically set to 70,70 deciseconds.
+If \*(Aq,p\*(Aq is specified with read and write time values, these
+time values will be persistent over a power-on reset.  If \*(Aq,p\*(Aq is 
+specified without read and write time values, the persistent over power-on
+values will be returned.
+If \*(Aq,r\*(Aq is specified, all SCT timer settings are restored to the
+manufacturer's default value.
+The \*(Aq,p\*(Aq and \*(Aq,r\*(Aq options require the device to support ACS-4
+or higher.
 .Sp
 .I devstat[,PAGE]
 \- [ATA only] prints values and descriptions of the ATA Device Statistics
@@ -2460,4 +2468,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5143 2020-12-21 18:34:31Z chrfranke $
+$Id: smartctl.8.in 5166 2021-01-15 18:02:19Z chrfranke $

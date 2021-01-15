@@ -85,7 +85,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5118 2020-11-23 18:25:16Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5166 2021-01-15 18:02:19Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -2313,8 +2313,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     else if (locked)
       PrintOut(LOG_INFO, "Device: %s, no SCT support if ATA Security is LOCKED, ignoring -l scterc\n",
                name);
-    else if (   ataSetSCTErrorRecoveryControltime(atadev, 1, cfg.sct_erc_readtime )
-             || ataSetSCTErrorRecoveryControltime(atadev, 2, cfg.sct_erc_writetime))
+    else if (   ataSetSCTErrorRecoveryControltime(atadev, 1, cfg.sct_erc_readtime, false, false )
+             || ataSetSCTErrorRecoveryControltime(atadev, 2, cfg.sct_erc_writetime, false, false))
       PrintOut(LOG_INFO, "Device: %s, set of SCT Error Recovery Control failed\n", name);
     else
       PrintOut(LOG_INFO, "Device: %s, SCT Error Recovery Control set to: Read: %u, Write: %u\n",
