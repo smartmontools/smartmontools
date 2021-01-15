@@ -1,4 +1,9 @@
-$Id: ChangeLog 5164 2021-01-10 16:24:36Z chrfranke $
+$Id: ChangeLog 5165 2021-01-15 17:15:51Z chrfranke $
+
+2021-01-15  Zhenwei Pi  <pizhenwei@bytedance.com>
+
+	nvmeprint.cpp: Add bit 5 of SMART/Health 'Critical Warning' byte
+	(NVMe 1.4).
 
 2021-01-10  Christian Franke  <franke@computer.org>
 

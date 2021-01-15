@@ -13,7 +13,7 @@
 
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5126 2020-12-04 21:02:46Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5165 2021-01-15 17:15:51Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "utility.h"
@@ -347,9 +347,12 @@ static void print_critical_warning(unsigned char w)
    if (w & 0x10)
      jout("- volatile memory backup device has failed\n");
    jref["volatile_memory_backup_failed"] = !!(w & 0x10);
-   if (w & ~0x1f)
-     jout("- unknown critical warning(s) (0x%02x)\n", w & ~0x1f);
-   jref["other"] = w & ~0x1f;
+   if (w & 0x20)
+     jout("- persistent memory region has become read-only or unreliable\n");
+   jref["persistent_memory_region_unreliable"] = !!(w & 0x20);
+   if (w & ~0x3f)
+     jout("- unknown critical warning(s) (0x%02x)\n", w & ~0x3f);
+   jref["other"] = w & ~0x3f;
   }
 
   jout("\n");
