@@ -347,9 +347,12 @@ static void print_critical_warning(unsigned char w)
    if (w & 0x10)
      jout("- volatile memory backup device has failed\n");
    jref["volatile_memory_backup_failed"] = !!(w & 0x10);
-   if (w & ~0x1f)
-     jout("- unknown critical warning(s) (0x%02x)\n", w & ~0x1f);
-   jref["other"] = w & ~0x1f;
+   if (w & 0x20)
+     jout("- persistent memory region has become read-only or unreliable\n");
+   jref["persistent_memory_region_unreliable"] = !!(w & 0x20);
+   if (w & ~0x3f)
+     jout("- unknown critical warning(s) (0x%02x)\n", w & ~0x3f);
+   jref["other"] = w & ~0x3f;
   }
 
   jout("\n");

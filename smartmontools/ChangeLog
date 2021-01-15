@@ -1,5 +1,10 @@
 $Id$
 
+2021-01-15  Zhenwei Pi  <pizhenwei@bytedance.com>
+
+	nvmeprint.cpp: Add bit 5 of SMART/Health 'Critical Warning' byte
+	(NVMe 1.4).
+
 2021-01-10  Christian Franke  <franke@computer.org>
 
 	drivedb.h: Add VERSION information to trunk and all branches (#1424).
