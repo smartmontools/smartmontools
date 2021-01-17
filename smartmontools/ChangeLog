@@ -1,4 +1,13 @@
-$Id: ChangeLog 5167 2021-01-15 18:16:07Z chrfranke $
+$Id: ChangeLog 5168 2021-01-17 15:19:05Z chrfranke $
+
+2021-01-17  Christian Franke  <franke@computer.org>
+
+	scsinvme.cpp: Add '-d sntasmedia' device type for ASMedia ASM2362
+	USB to NVMe bridges (#1221).
+	dev_interface.cpp: Update help text.
+	smartctl.8.in, smartd.conf.5.in: Document new option.
+
+	Thanks to Demian from Sabrent.
 
 2021-01-15  Christian Franke  <franke@computer.org>
 

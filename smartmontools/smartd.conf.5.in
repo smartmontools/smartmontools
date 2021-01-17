@@ -1,10 +1,10 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-20 Christian Franke
+Copyright (C) 2004-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5118 2020-11-23 18:25:16Z chrfranke $
+$Id: smartd.conf.5.in 5168 2021-01-17 15:19:05Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -443,6 +443,11 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 .Sp
 .I usbsunplus
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
+bridge.
+.Sp
+.I sntasmedia
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+this device type is for NVMe disks that are behind an ASMedia USB to NVMe
 bridge.
 .Sp
 .I sntjmicron[,NSID]
@@ -1724,4 +1729,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5118 2020-11-23 18:25:16Z chrfranke $
+$Id: smartd.conf.5.in 5168 2021-01-17 15:19:05Z chrfranke $
