@@ -29,6 +29,8 @@ struct scsi_print_options
   bool smart_background_log;
   bool smart_ss_media_log;
 
+  bool farm_log; // Seagate Field Access Reliability Metrics log (FARM) for SCSI
+
   bool smart_disable, smart_enable;
   bool smart_auto_save_disable, smart_auto_save_enable;
 
@@ -51,6 +53,7 @@ struct scsi_print_options
       smart_selftest_log(false),
       smart_background_log(false),
       smart_ss_media_log(false),
+      farm_log(false),
       smart_disable(false), smart_enable(false),
       smart_auto_save_disable(false), smart_auto_save_enable(false),
       smart_default_selftest(false),

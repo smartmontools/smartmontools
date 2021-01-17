@@ -25,6 +25,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "static_assert.h"
+
+#define ATTR_PACKED __attribute__((packed))
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
 
@@ -167,6 +170,412 @@ struct scsi_readcap_resp {
     uint16_t l_a_lba;   /* Lowest Aligned Logical Block Address */
 };
 
+// Seagate Field Access Reliability Metrics log (FARM) PAGE Header (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// Page Header
+#pragma pack(1)
+struct scsiFarmPageHeader {
+    uint8_t             pageCode;       // Page Code (0x3D)
+	uint8_t             subpageCode;    // Sub-Page Code (0x03)
+	uint16_t            pageLength;     // Page Length
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmPageHeader) == 4);
+
+// Seagate Field Access Reliability Metrics log (FARM) PARAMETER Header (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// Parameter Header
+#pragma pack(1)
+struct scsiFarmParameterHeader {
+    uint16_t            parameterCode;       // Page Code (0x3D)
+	uint8_t             parameterControl;    // Sub-Page Code (0x03)
+	uint8_t             parameterLength;     // Page Length
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmParameterHeader) == 4);
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// Log Header
+#pragma pack(1)
+struct scsiFarmHeader {
+    scsiFarmParameterHeader parameterHeader;        // Parameter Header
+    uint64_t                signature;              // Log Signature = 0x00004641524D4552
+    uint64_t                majorRev;               // Log Major Revision
+    uint64_t                minorRev;               // Log Rinor Revision
+    uint64_t                parametersSupported;    // Number of Parameters Supported
+    uint64_t                logSize;                // Log Page Size in Bytes
+    uint64_t                reserved;               // Reserved
+    uint64_t                headsSupported;         // Maximum Drive Heads Supported
+    uint64_t                reserved0;              // Reserved
+    uint64_t                frameCapture;           // Reason for Frame Capture
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmHeader) == 76);
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// Drive Information
+#pragma pack(1)
+struct scsiFarmDriveInformation {
+    scsiFarmParameterHeader parameterHeader;    // Parameter Header
+    uint64_t        pageNumber;                 // Page Number = 1
+    uint64_t        copyNumber;                 // Copy Number
+    uint64_t        serialNumber;               // Serial Number [0:3]
+    uint64_t        serialNumber2;              // Serial Number [4:7]
+    uint64_t        worldWideName;              // World Wide Name [0:3]
+    uint64_t        worldWideName2;             // World Wide Name [4:7]
+    uint64_t        deviceInterface;            // Device Interface
+    uint64_t        deviceCapacity;             // 48-bit Device Capacity
+    uint64_t        psecSize;                   // Physical Sector Size in Bytes
+    uint64_t        lsecSize;                   // Logical Sector Size in Bytes
+    uint64_t        deviceBufferSize;           // Device Buffer Size in Bytes
+    uint64_t        heads;                      // Number of Heads
+    uint64_t        factor;                     // Device Form Factor (ID Word 168)
+    uint64_t        rotationRate;               // Rotational Rate of Device (ID Word 217)
+    uint64_t        firmwareRev;                // Firmware Revision [0:3]
+    uint64_t        firmwareRev2;               // Firmware Revision [4:7]
+    uint64_t        reserved;                   // Reserved
+    uint64_t        reserved0;                  // Reserved
+    uint64_t        reserved1;                  // Reserved
+    uint64_t        poh;                        // Power-On Hours
+    uint64_t        reserved2;                  // Reserved
+    uint64_t        reserved3;                  // Reserved
+    uint64_t        reserved4;                  // Reserved
+    uint64_t        powerCycleCount;            // Power Cycle Count
+    uint64_t        resetCount;                 // Hardware Reset Count
+    uint64_t        reserved5;                  // Reserved
+    uint64_t        reserved6;                  // Reserved
+    uint64_t        reserved7;                  // Reserved
+    uint64_t        reserved8;                  // Reserved
+    uint64_t        reserved9;                  // Reserved
+    uint64_t        dateOfAssembly;             // Date of assembly in ASCII “YYWW” where YY is the year and WW is the calendar week (added 4.2)
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmDriveInformation) == 252);
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// Workload Statistics
+#pragma pack(1)
+struct scsiFarmWorkloadStatistics {
+    scsiFarmParameterHeader parameterHeader;  // Parameter Header
+	uint64_t        pageNumber;               // Page Number = 2
+	uint64_t        copyNumber;               // Copy Number
+	uint64_t        reserved;                 // Reserved
+	uint64_t        totalReadCommands;        // Total Number of Read Commands
+	uint64_t        totalWriteCommands;       // Total Number of Write Commands
+	uint64_t        totalRandomReads;         // Total Number of Random Read Commands
+	uint64_t        totalRandomWrites;        // Total Number of Random Write Commands
+	uint64_t        totalNumberofOtherCMDS;   // Total Number Of Other Commands
+	uint64_t        logicalSecWritten;        // Logical Sectors Written
+	uint64_t        logicalSecRead;           // Logical Sectors Read
+    uint64_t        readCommandsByRadius1;    // Number of Read Commands from 0-3.125% of LBA space for last 3 SMART Summary Frames (added 4.4)
+    uint64_t        readCommandsByRadius2;    // Number of Read Commands from 3.125-25% of LBA space for last 3 SMART Summary Frames (added 4.4)
+    uint64_t        readCommandsByRadius3;    // Number of Read Commands from 25-75% of LBA space for last 3 SMART Summary Frames (added 4.4)
+    uint64_t        readCommandsByRadius4;    // Number of Read Commands from 75-100% of LBA space for last 3 SMART Summary Frames (added 4.4)
+    uint64_t        writeCommandsByRadius1;   // Number of Write Commands from 0-3.125% of LBA space for last 3 SMART Summary Frames (added 4.4)
+    uint64_t        writeCommandsByRadius2;   // Number of Write Commands from 3.125-25% of LBA space for last 3 SMART Summary Frames (added 4.4)
+    uint64_t        writeCommandsByRadius3;   // Number of Write Commands from 25-75% of LBA space for last 3 SMART Summary Frames (added 4.4)
+    uint64_t        writeCommandsByRadius4;   // Number of Write Commands from 75-100% of LBA space for last 3 SMART Summary Frames (added 4.4)
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmWorkloadStatistics) == 148);
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// Error Statistics
+#pragma pack(1)
+struct scsiFarmErrorStatistics {
+    scsiFarmParameterHeader parameterHeader;        // Parameter Header
+	uint64_t        pageNumber;                     // Page Number = 3
+	uint64_t        copyNumber;                     // Copy Number
+	uint64_t        totalUnrecoverableReadErrors;   // Number of Unrecoverable Read Errors
+	uint64_t        totalUnrecoverableWriteErrors;  // Number of Unrecoverable Write Errors
+	uint64_t        reserved;                       // Reserved
+	uint64_t        reserved0;                      // Reserved
+	uint64_t        totalMechanicalStartRetries;    // Number of Mechanical Start Retries
+	uint64_t        reserved1;                      // Reserved
+	uint64_t        reserved2;                      // Reserved
+	uint64_t        reserved3;                      // Reserved
+	uint64_t        reserved4;                      // Reserved
+	uint64_t        reserved5;                      // Reserved
+	uint64_t        reserved6;                      // Reserved
+	uint64_t        reserved7;                      // Reserved
+	uint64_t        reserved8;                      // Reserved
+	uint64_t        reserved9;                      // Reserved
+	uint64_t        reserved10;                     // Reserved
+	uint64_t        reserved11;                     // Reserved
+	uint64_t        reserved12;                     // Reserved
+	uint64_t        reserved13;                     // Reserved
+    uint64_t        tripCode;                       // If SMART Trip present the reason code (FRU code)
+    uint64_t        invalidDWordCountA;             // Invalid DWord Count (Port A)
+    uint64_t        invalidDWordCountB;             // Invalid DWord Count (Port B)                    
+    uint64_t        disparityErrorCodeA;            // Disparity Error Count (Port A)        
+    uint64_t        disparityErrorCodeB;            // Disparity Error Count (Port A)        
+    uint64_t        lossOfDWordSyncA;               // Loss of DWord Sync (Port A)    
+    uint64_t        lossOfDWordSyncB;               // Loss of DWord Sync (Port A)    
+    uint64_t        phyResetProblemA;               // Phy Reset Problem (Port A)    
+    uint64_t        phyResetProblemB;               // Phy Reset Problem (Port A)    
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmErrorStatistics) == 236);
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// Environment Statistics
+#pragma pack(1)
+struct scsiFarmEnvironmentStatistics {
+    scsiFarmParameterHeader parameterHeader;    // Parameter Header
+	uint64_t         pageNumber;                // Page Number = 4
+	uint64_t         copyNumber;                // Copy Number
+	uint64_t         curentTemp;                // Current Temperature in Celsius (Lower 16 bits are a signed integer in units of 0.1C)
+	uint64_t         highestTemp;               // Highest Temperature in Celsius (Lower 16 bits are a signed integer in units of 0.1C)
+	uint64_t         lowestTemp;                // Lowest Temperature in Celsius (Lower 16 bits are a signed integer in units of 0.1C)  
+	uint64_t         reserved;                  // Reserved
+	uint64_t         reserved0;                 // Reserved
+	uint64_t         reserved1;                 // Reserved
+	uint64_t         reserved2;                 // Reserved
+	uint64_t         reserved3;                 // Reserved
+	uint64_t         reserved4;                 // Reserved
+	uint64_t         reserved5;                 // Reserved
+	uint64_t         reserved6;                 // Reserved
+	uint64_t         maxTemp;                   // Specified Max Operating Temperature in Celsius
+	uint64_t         minTemp;                   // Specified Min Operating Temperature in Celsius
+	uint64_t         reserved7;                 // Reserved
+	uint64_t         reserved8;                 // Reserved
+	uint64_t         humidity;                  // Current Relative Humidity (in units of 0.1%)
+	uint64_t         reserved9;                 // Reserved
+	uint64_t         currentMotorPower;         // Current Motor Power, value from most recent SMART Summary Frame
+    uint64_t         powerAverage12v;           // 12V Power Average (mW) - Average of last 3 SMART Summary Frames (added 4.3)
+    uint64_t         powerMin12v;               // 12V Power Min (mW) - Lowest of last 3 SMART Summary Frames (added 4.3)
+    uint64_t         powerMax12v;               // 12V Power Max (mW) - Highest of last 3 SMART Summary Frames (added 4.3)
+    uint64_t         powerAverage5v;            // 5V Power Average (mW) - Average of last 3 SMART Summary Frames (added 4.3)
+    uint64_t         powerMin5v;                // 5V Power Min (mW) - Lowest of last 3 SMART Summary Frames (added 4.3)
+    uint64_t         powerMax5v;                // 5V Power Max (mW) - Highest of last 3 SMART Summary Frames (added 4.3)
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmEnvironmentStatistics) == 212);
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// Reliability Statistics
+#pragma pack(1)
+struct scsiFarmReliabilityStatistics {
+    scsiFarmParameterHeader parameterHeader;            // Parameter Header
+	int64_t         pageNumber;                         // Page Number = 5
+	int64_t         copyNumber;                         // Copy Number
+	uint64_t        reserved;                           // Reserved
+	uint64_t        reserved0;                          // Reserved
+	uint64_t        reserved1;                          // Reserved
+	uint64_t        reserved2;                          // Reserved
+	uint64_t        reserved3;                          // Reserved
+	uint64_t        reserved4;                          // Reserved
+	uint64_t        reserved5;                          // Reserved
+	uint64_t        reserved6;                          // Reserved
+	uint64_t        reserved7;                          // Reserved
+	uint64_t        reserved8;                          // Reserved
+	uint64_t        reserved9;                          // Reserved
+	uint64_t        reserved10;                         // Reserved
+	uint64_t        reserved11;                         // Reserved
+	uint64_t        reserved12;                         // Reserved
+	uint64_t        reserved13;                         // Reserved
+	uint64_t        reserved14;                         // Reserved
+    uint64_t        reserved15;                         // Reserved
+	uint64_t        reserved16;                         // Reserved
+	uint64_t        reserved17;                         // Reserved
+	uint64_t        reserved18;                         // Reserved
+	uint64_t        reserved19;                         // Reserved
+    uint64_t        reserved20;                         // Reserved
+    uint64_t        reserved21;                         // Reserved
+	int64_t         heliumPresureTrip;                  // Helium Pressure Threshold Tripped ( 1 - trip, 0 - no trip)
+	uint64_t        reserved34;                         // Reserved
+	uint64_t        reserved35;                         // Reserved
+	uint64_t        reserved36;                         // Reserved
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmReliabilityStatistics) == 236);
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// Drive Information Continued
+#pragma pack(1)
+struct scsiFarmDriveInformation2 {
+    scsiFarmParameterHeader parameterHeader;    // Parameter Header
+    uint64_t        pageNumber;                 // Page Number = 6
+    uint64_t        copyNumber;                 // Copy Number
+    uint64_t        depopulationHeadMask;       // Depopulation Head Mask
+    uint64_t        productID;                  // Product ID [0:3]
+    uint64_t        productID2;                 // Product ID [4:7]
+    uint64_t        productID3;                 // Product ID [8:11]
+    uint64_t        productID4;                 // Product ID [12:15]
+    uint64_t        driveRecordingType;         // Drive Recording Type - 0 for SMR and 1 for CMR
+    uint64_t        dpopped;                    // Is drive currently depopped – 1 = depopped, 0 = not depopped 
+    uint64_t        maxNumberForReasign;        // Max Number of Available Sectors for Re-Assignment – Value in disc sectors 
+    uint64_t        timeToReady;                // Time to Ready of the last power cycle in milliseconds  
+    uint64_t        timeHeld;                   // Time the drive is held in staggered spin in milliseconds 
+    uint64_t        lastServoSpinUpTime;        // The last servo spin up time in milliseconds 
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmDriveInformation2) == 108);
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// Environment Statistics Continued
+#pragma pack(1)
+struct scsiFarmEnvironmentStatistics2 {
+    scsiFarmParameterHeader parameterHeader;    // Parameter Header
+	uint64_t         pageNumber;                // Page Number = 7
+	uint64_t         copyNumber;                // Copy Number
+	uint64_t         current12v;                // Current 12V input in mV
+    uint64_t         min12v;                    // Minimum 12V input from last 3 SMART Summary Frames in mV
+    uint64_t         max12v;                    // Maximum 12V input from last 3 SMART Summary Frames in mV
+    uint64_t         current5v;                 // Current 5V input in mV
+    uint64_t         min5v;                     // Minimum 5V input from last 3 SMART Summary Frames in mV
+    uint64_t         max5v;                     // Maximum 5V input from last 3 SMART Summary Frames in mV
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmEnvironmentStatistics2) == 68);
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// "By Head" Parameters
+#pragma pack(1)
+struct scsiFarmByHead {
+    scsiFarmParameterHeader parameterHeader;    // Parameter Header
+	uint64_t                headValue[16];      // [16] Head Information
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmByHead) == (4 + (16 * 8)));
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// "By Actuator" Parameters
+#pragma pack(1)
+struct scsiFarmByActuator {
+    scsiFarmParameterHeader parameterHeader;                        // Parameter Header
+	uint64_t                pageNumber;                             // Page Number
+	uint64_t                copyNumber;                             // Copy Number  
+    uint64_t                actuatorID;                             // Actuator ID 
+    uint64_t                headLoadEvents;                         // Head Load Events 
+    uint64_t                reserved;                               // Reserved 
+    uint64_t                reserved0;                              // Reserved 
+    uint64_t                timelastIDDTest;                        // Timestamp of last IDD test 
+    uint64_t                subcommandlastIDDTest;                  // Sub-Command of last IDD test 
+    uint64_t                numberGListReclam;                      // Number of G-list reclamations 
+    uint64_t                servoStatus;                            // Servo Status (follows standard DST error code definitions) 
+    uint64_t                numberSlippedSectorsBeforeIDD;          // Number of Slipped Sectors Before IDD Scan 
+    uint64_t                numberSlippedSectorsAfterIDD;           // Number of Slipped Sectors After IDD Scan 
+    uint64_t                numberResidentReallocatedBeforeIDD;     // Number of Resident Reallocated Sectors Before IDD Scan 
+    uint64_t                numberResidentReallocatedAfterIDD;      // Number of Resident Reallocated Sectors After IDD Scan 
+    uint64_t                numberScrubbedSectorsBeforeIDD;         // Number of Successfully Scrubbed Sectors Before IDD Scan 
+    uint64_t                numberScrubbedSectorsAfterIDD;          // Number of Successfully Scrubbed Sectors After IDD Scan 
+    uint64_t                dosScansPerformed;                      // Number of DOS Scans Performed 
+    uint64_t                lbasCorrectedISP;                       // Number of LBAs Corrected by ISP 
+    uint64_t                numberValidParitySectors;               // Number of Valid Parity Sectors 
+    uint64_t                reserved1;                              // Reserved 
+    uint64_t                reserved2;                              // Reserved 
+    uint64_t                reserved3;                              // Reserved 
+    uint64_t                numberLBACorrectedParitySector;         // Number of LBAs Corrected by Parity Sector 
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmByActuator) == (188));
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// "By Actuator" Parameters for Flash LED Information
+#pragma pack(1)
+struct scsiFarmByActuatorFLED {
+    scsiFarmParameterHeader parameterHeader;                        // Parameter Header
+	uint64_t                pageNumber;                             // Page Number
+	uint64_t                copyNumber;                             // Copy Number  
+    uint64_t                actuatorID;                             // Actuator ID 
+    uint64_t                totalFlashLED;                          // Total Flash LED (Assert) Events
+    uint64_t                indexFlashLED;                          // Index of last entry in Flash LED Info array below, in case the array wraps
+    uint64_t                flashLEDArray[8];                       // Info on the last 8 Flash LED (assert) events wrapping array
+    uint64_t                universalTimestampFlashLED[8];          // Universal Timestamp (us) of last 8 Flash LED (assert) Events, wrapping array
+    uint64_t                powerCycleFlashLED[8];                  // Power Cycle of the last 8 Flash LED (assert) Events, wrapping array
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmByActuatorFLED) == (236));
+
+// Seagate Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
+// "By Actuator" Parameters for Reallocation Information
+#pragma pack(1)
+struct scsiFarmByActuatorReallocation {
+    scsiFarmParameterHeader parameterHeader;                        // Parameter Header
+	uint64_t                pageNumber;                             // Page Number
+	uint64_t                copyNumber;                             // Copy Number  
+    uint64_t                actuatorID;                             // Actuator ID 
+    uint64_t                totalReallocations;                     // Number of Re-Allocated Sectors
+    uint64_t                totalReallocationCanidates;             // Number of Re-Allocated Candidate Sectors 
+    uint64_t                reserved[15];                           // Reserved
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmByActuatorReallocation) == (164));
+
+// Seagate Field Access Reliability Metrics log (FARM) all parameters
+#pragma pack(1)
+struct scsiFarmLog {
+    scsiFarmPageHeader                      pageHeader;                             // Head for whole log page
+    scsiFarmHeader                          header;                                 // Log Header parameter
+	scsiFarmDriveInformation                driveInformation;                       // Drive Information parameter
+	scsiFarmWorkloadStatistics              workload;                               // Workload Statistics parameter
+	scsiFarmErrorStatistics                 error;                                  // Error Statistics parameter
+	scsiFarmEnvironmentStatistics           environment;                            // Environment Statistics parameter 
+	scsiFarmReliabilityStatistics           reliability;                            // Reliability Statistics parameter
+    scsiFarmDriveInformation2               driveInformation2;                      // Drive Information parameter continued
+    scsiFarmEnvironmentStatistics2          environment2;                           // Environment Statistics parameter continued
+    scsiFarmByHead                          reserved;                               // Reserved
+    scsiFarmByHead                          reserved0;                              // Reserved
+    scsiFarmByHead                          reserved1;                              // Reserved
+    scsiFarmByHead                          reserved2;                              // Reserved
+    scsiFarmByHead                          reserved3;                              // Reserved
+    scsiFarmByHead                          reserved4;                              // Reserved
+    scsiFarmByHead                          reserved5;                              // Reserved
+    scsiFarmByHead                          reserved6;                              // Reserved
+    scsiFarmByHead                          reserved7;                              // Reserved
+    scsiFarmByHead                          reserved8;                              // Reserved
+    scsiFarmByHead                          mrHeadResistance;                       // MR Head Resistance from most recent SMART Summary Frame by Head
+    scsiFarmByHead                          reserved9;                              // Reserved
+    scsiFarmByHead                          reserved10;                             // Reserved
+    scsiFarmByHead                          reserved11;                             // Reserved
+    scsiFarmByHead                          reserved12;                             // Reserved
+    scsiFarmByHead                          reserved13;                             // Reserved
+    scsiFarmByHead                          reserved14;                             // Reserved
+    scsiFarmByHead                          totalReallocations;                     // Number of Reallocated Sectors
+    scsiFarmByHead                          totalReallocationCanidates;             // Number of Reallocation Candidate Sectors
+    scsiFarmByHead                          reserved15;                             // Reserved
+    scsiFarmByHead                          reserved16;                             // Reserved
+    scsiFarmByHead                          reserved17;                             // Reserved
+    scsiFarmByHead                          writeWorkloadPowerOnTime;               // Write Workload Power-on Time in Seconds, value from most recent SMART Frame by Head
+    scsiFarmByHead                          reserved18;                             // Reserved
+    scsiFarmByHead                          cumulativeUnrecoverableReadRepeat;      // Cumulative Lifetime Unrecoverable Read Repeat by head
+    scsiFarmByHead                          cumulativeUnrecoverableReadUnique;      // Cumulative Lifetime Unrecoverable Read Unique by head
+    scsiFarmByHead                          reserved19;                             // Reserved
+    scsiFarmByHead                          reserved20;                             // Reserved
+    scsiFarmByHead                          reserved21;                             // Reserved
+    scsiFarmByHead                          reserved22;                             // Reserved
+    scsiFarmByHead                          reserved23;                             // Reserved
+    scsiFarmByHead                          reserved24;                             // Reserved
+    scsiFarmByHead                          reserved25;                             // Reserved
+    scsiFarmByHead                          reserved26;                             // Reserved
+    scsiFarmByHead                          reserved27;                             // Reserved
+    scsiFarmByHead                          secondMRHeadResistance;                 // Second Head MR Head Resistance from most recent SMART Summary Frame by Head
+    scsiFarmByHead                          reserved28;                             // Reserved
+    scsiFarmByHead                          reserved29;                             // Reserved
+    scsiFarmByHead                          reserved30;                             // Reserved
+    scsiFarmByHead                          reserved31;                             // Reserved
+    scsiFarmByHead                          reserved32;                             // Reserved
+    scsiFarmByHead                          reserved33;                             // Reserved
+    scsiFarmByHead                          reserved34;                             // Reserved
+    scsiFarmByHead                          reserved35;                             // Reserved
+    scsiFarmByHead                          reserved36;                             // Reserved
+    scsiFarmByHead                          reserved37;                             // Reserved
+    scsiFarmByHead                          reserved38;                             // Reserved
+    scsiFarmByActuator                      actuator0;                              // Actuator 0 parameters
+    scsiFarmByActuatorFLED                  actuatorFLED0;                          // Actuator 0 FLED Information parameters
+    scsiFarmByActuatorReallocation          actuatorReallocation0;                  // Actuator 0 Reallocation parameters
+    scsiFarmByActuator                      actuator1;                              // Actuator 1 parameters
+    scsiFarmByActuatorFLED                  actuatorFLED1;                          // Actuator 1 FLED Information parameters
+    scsiFarmByActuatorReallocation          actuatorReallocation1;                  // Actuator 1 Reallocation parameters
+    scsiFarmByActuator                      actuator2;                              // Actuator 2 parameters
+    scsiFarmByActuatorFLED                  actuatorFLED2;                          // Actuator 2 FLED Information parameters
+    scsiFarmByActuatorReallocation          actuatorReallocation2;                  // Actuator 2 Reallocation parameters
+    scsiFarmByActuator                      actuator3;                              // Actuator 3 parameters
+    scsiFarmByActuatorFLED                  actuatorFLED3;                          // Actuator 3 FLED Information parameters
+    scsiFarmByActuatorReallocation          actuatorReallocation3;                  // Actuator 3 Reallocation parameters
+} ATTR_PACKED;
+#pragma pack()
+STATIC_ASSERT(sizeof(scsiFarmLog) == 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 + 68 + (47 * ((8 * 16) + 4)) + 188 * 4 + 236 * 4 + 164 * 4);
+
 /* SCSI Peripheral types (of interest) */
 #define SCSI_PT_DIRECT_ACCESS           0x0
 #define SCSI_PT_SEQUENTIAL_ACCESS       0x1
@@ -231,7 +640,11 @@ struct scsi_readcap_resp {
 
 /* Seagate vendor specific log pages. */
 #define SEAGATE_CACHE_LPAGE                 0x37
+#define SEAGATE_FARM_LPAGE                  0x3d
 #define SEAGATE_FACTORY_LPAGE               0x3e
+
+/* Seagate vendor specific log sub-pages. */
+#define SEAGATE_FARM_CURRENT_L_SPAGE        0x3     /* 0x3d,0x3 */
 
 /* Log page response lengths */
 #define LOG_RESP_SELF_TEST_LEN 0x194
