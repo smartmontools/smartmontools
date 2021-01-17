@@ -2,6 +2,10 @@ $Id$
 
 2021-01-17  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Bump branch VERSION to 7.3.
+	- USB: ASMedia ASM2362 (0x174c:0x2362).
+
 	scsinvme.cpp: Add '-d sntasmedia' device type for ASMedia ASM2362
 	USB to NVMe bridges (#1221).
 	dev_interface.cpp: Update help text.
