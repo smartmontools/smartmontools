@@ -5528,6 +5528,18 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sntrealtek"
   },
+  { "USB: ; Realtek RTL9211", // USB->PCIe (NVMe) or SATA
+    "0x(0bda|2eb9):0x9211", // 0x0bda: guessed, 0x2eb9: Sabrent EC-WPTF
+    ".*", // fall through to next entry and report ambiguous result
+    "",
+    "-d sntrealtek" // NVMe or ...
+  },
+  { "USB: ; Realtek RTL9211",
+    "0x(0bda|2eb9):0x9211",
+    "",
+    "",
+    "" // ... SATA (unsupported)
+  },
   // Addonics
   { "USB: Addonics HDMU3; ", // (ticket #609)
     "0x0bf6:0x1001",
@@ -6043,6 +6055,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // 0x2eb9 (?): See Realtek (0x0bda) above
   // AKiTiO (?)
   { "USB: AkiTio NT2 U3.1C; ",
     "0x2ce5:0x0014",

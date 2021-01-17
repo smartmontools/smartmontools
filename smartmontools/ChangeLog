@@ -4,6 +4,7 @@ $Id$
 
 	drivedb.h:
 	- Bump branch VERSION to 7.3.
+	- USB: Realtek RTL9211 (0x0bda:0x9211, 0x2eb9:0x9211).
 	- USB: ASMedia ASM2362 (0x174c:0x2362).
 
 	scsinvme.cpp: Add '-d sntasmedia' device type for ASMedia ASM2362
