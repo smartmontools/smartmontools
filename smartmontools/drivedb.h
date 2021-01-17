@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.2 $Id: drivedb.h 5163 2021-01-10 15:52:20Z chrfranke $",
+  { "VERSION: 7.3 $Id: drivedb.h 5169 2021-01-17 15:36:23Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -5876,6 +5876,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // ASMedia
+  { "USB: ; ASMedia ASM2362", // USB->PCIe (NVMe)
+    "0x174c:0x2362",
+    "",
+    "",
+    "-d sntasmedia"
+  },
   { "USB: ; ASMedia",
     "0x174c:0x....",
     "",
