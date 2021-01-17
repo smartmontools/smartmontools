@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 6.5/5163 2021-01-10 15:52:20 $Id: drivedb.h 5164 2021-01-10 16:24:36Z chrfranke $",
+  { "VERSION: 6.5/5170 2021-01-17 16:11:20 $Id: drivedb.h 5171 2021-01-17 17:17:19Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -5528,6 +5528,18 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // smartmontools >= r5051: -d sntrealtek
   },
+  { "USB: ; Realtek RTL9211", // USB->PCIe (NVMe) or SATA
+    "0x(0bda|2eb9):0x9211", // 0x0bda: guessed, 0x2eb9: Sabrent EC-WPTF
+    ".*", // fall through to next entry and report ambiguous result
+    "",
+    "" // smartmontools >= r5051: -d sntrealtek // NVMe or ...
+  },
+  { "USB: ; Realtek RTL9211",
+    "0x(0bda|2eb9):0x9211",
+    "",
+    "",
+    "" // ... SATA (unsupported)
+  },
   // Addonics
   { "USB: Addonics HDMU3; ", // (ticket #609)
     "0x0bf6:0x1001",
@@ -5876,6 +5888,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // ASMedia
+  { "USB: ; ASMedia ASM2362", // USB->PCIe (NVMe)
+    "0x174c:0x2362",
+    "",
+    "",
+    "" // smartmontools >= r5168: -d sntasmedia
+  },
   { "USB: ; ASMedia",
     "0x174c:0x....",
     "",
@@ -6037,6 +6055,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // 0x2eb9 (?): See Realtek (0x0bda) above
   // AKiTiO (?)
   { "USB: AkiTio NT2 U3.1C; ",
     "0x2ce5:0x0014",
