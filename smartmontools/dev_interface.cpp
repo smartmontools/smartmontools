@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-20 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -309,7 +309,7 @@ std::string smart_interface::get_valid_dev_types_str()
   // default
   std::string s =
     "ata, scsi[+TYPE], nvme[,NSID], sat[,auto][,N][+TYPE], usbcypress[,X], "
-    "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, sntjmicron[,NSID], "
+    "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, sntasmedia, sntjmicron[,NSID], "
     "sntrealtek, intelliprop,N[+TYPE], jmb39x[-q],N[,sLBA][,force][+TYPE], "
     "jms56x,N[,sLBA][,force][+TYPE]";
   // append custom
