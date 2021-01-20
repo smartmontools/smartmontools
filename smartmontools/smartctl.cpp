@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-20 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -176,8 +176,8 @@ static void Usage()
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "        xerror[,N][,error], xselftest[,N][,selftest], background,\n"
 "        sasphy[,reset], sataphy[,reset], scttemp[sts,hist],\n"
-"        scttempint,N[,p], scterc[,N,M][,p|r], devstat[,N], defects[,N], ssd,\n"
-"        gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE\n\n"
+"        scttempint,N[,p], scterc[,N,M][,p|reset], devstat[,N], defects[,N],\n"
+"        ssd, gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -243,8 +243,8 @@ static std::string getvalidarglist(int opt)
            "xerror[,N][,error], xselftest[,N][,selftest], "
            "background, sasphy[,reset], sataphy[,reset], "
            "scttemp[sts,hist], scttempint,N[,p], "
-           "scterc[,N,M][,p|r], devstat[,N], defects[,N], ssd, "
-           "gplog,N[,RANGE], smartlog,N[,RANGE], "
+           "scterc[,N,M][,p|reset], devstat[,N], defects[,N], "
+           "ssd, gplog,N[,RANGE], smartlog,N[,RANGE], "
            "nvmelog,N,SIZE";
   case 'P':
     return "use, ignore, show, showall";
@@ -615,37 +615,23 @@ static int parse_options(int argc, char** argv, const char * & type,
           badarg = true;
 
       } else if (!strncmp(optarg, "scterc,", sizeof("scterc,")-1)) {
-        ataopts.sct_erc_power_on = false;
-        ataopts.sct_erc_mfg_default = false;
-        unsigned rt = ~0, wt = ~0; char opt = 0; int n = -1;
-        sscanf(optarg,"scterc,%u,%u,%c%n", &rt, &wt, &opt, &n);
-        if (n == (int)strlen(optarg) && rt <= 999 && wt <= 999 && toupper(opt) == 'P') {
+        int n1 = -1, n2 = -1, len = strlen(optarg);
+        unsigned rt = ~0, wt = ~0;
+        sscanf(optarg, "scterc,%u,%u%n,p%n", &rt, &wt, &n1, &n2);
+        if ((n1 == len || n2 == len) && rt <= 999 && wt <= 999) {
           ataopts.sct_erc_set = true;
           ataopts.sct_erc_readtime = rt;
           ataopts.sct_erc_writetime = wt;
+          ataopts.sct_erc_power_on = (n2 == len);
+        } else if (!strcmp(optarg, "scterc,p")) {
+          ataopts.sct_erc_get = true;
           ataopts.sct_erc_power_on = true;
-        }
-        else {
-          sscanf(optarg,"scterc,%u,%u%n", &rt, &wt, &n);
-          if (n == (int)strlen(optarg) && rt <= 999 && wt <= 999) {
-            ataopts.sct_erc_set = true;
-            ataopts.sct_erc_readtime = rt;
-            ataopts.sct_erc_writetime = wt;
-          } else {
-             sscanf(optarg,"scterc,%c%n", &opt, &n);
-             if (n == (int)strlen(optarg) && (toupper(opt) == 'P' || toupper(opt) == 'R')) {
-               if (toupper(opt) == 'R') {
-                 ataopts.sct_erc_set = true;
-                 ataopts.sct_erc_mfg_default = true;
-               } else { /* P */
-                 ataopts.sct_erc_get = true;
-                 ataopts.sct_erc_power_on = true;
-               }
-             } else {
-               snprintf(extraerror, sizeof(extraerror), "Option -l scterc,[READTIME,WRITETIME][,P|R] syntax error\n");
-               badarg = true;
-             }
-          }
+        } else if (!strcmp(optarg, "scterc,reset")) {
+          ataopts.sct_erc_set = true;
+          ataopts.sct_erc_mfg_default = true;
+        } else {
+          snprintf(extraerror, sizeof(extraerror), "Option -l scterc[,READTIME,WRITETIME][,p|reset] syntax error\n");
+          badarg = true;
         }
       } else if (   !strncmp(optarg, "gplog,"   , sizeof("gplog,"   )-1)
                  || !strncmp(optarg, "smartlog,", sizeof("smartlog,")-1)) {

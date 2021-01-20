@@ -1496,7 +1496,7 @@ Otherwise, the setting is volatile and will be reverted to the last
 non-volatile setting by the next hard reset.  The default interval
 is vendor specific, typical values are 1, 2, or 5 minutes.
 .Sp
-.I scterc[,READTIME,WRITETIME][,p|r]
+.I scterc[,READTIME,WRITETIME][,p|reset]
 \- [ATA only] prints values and descriptions of the SCT Error Recovery
 Control settings.
 These are equivalent to TLER (as used by Western Digital), CCTL (as used
@@ -1507,14 +1507,14 @@ supported.
 For RAID configurations, this is typically set to 70,70 deciseconds.
 .br
 [NEW EXPERIMENTAL SMARTCTL FEATURE]
-If \*(Aq,p\*(Aq is specified with read and write time values, these
-time values will be persistent over a power-on reset.
-If \*(Aq,p\*(Aq is specified without read and write time values, the
-persistent over power-on values will be returned.
-If \*(Aq,r\*(Aq is specified, all SCT timer settings are restored to the
-manufacturer's default value.
-The \*(Aq,p\*(Aq and \*(Aq,r\*(Aq options require the device to support ACS-4
-or higher.
+If \*(Aqscterc,READTIME,WRITETIME,p\*(Aq is specified, these time values
+will be persistent over a power-on reset.
+If \*(Aqscterc,p\*(Aq is specified, the persistent over power-on values
+are printed.
+If \*(Aqscterc,reset\*(Aq is specified, all SCT timer settings are restored
+to the manufacturer's default value.
+The \*(Aq,p\*(Aq and \*(Aq,reset\*(Aq options require the device to support
+ATA ACS-4 or higher.
 .Sp
 .I devstat[,PAGE]
 \- [ATA only] prints values and descriptions of the ATA Device Statistics

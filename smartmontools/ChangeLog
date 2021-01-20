@@ -1,5 +1,11 @@
 $Id$
 
+2021-01-20  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Change '-l scterc,r' to '-l scterc,reset'.
+	Make ',p' case sensitive.  Simplify parsing of 'scterc...'.
+	smartctl.8.in: Change documentation accordingly.
+
 2021-01-17  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
