@@ -2266,13 +2266,13 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   jout("\nSeagate Field Access Reliability Metrics log (FARM) (GP log 0xA6)\n");
   // Page 0: Log Header
   jout("\tFARM Log Page 0: Log Header\n");
-  jout("\t\tFARM Log Major Revision: %lu\n", ptr_farmLog->header.majorRev);
-  jout("\t\tFARM Log Minor Revision: %lu\n", ptr_farmLog->header.minorRev);
+  jout("\t\tFARM Log Version: %lu.%lu\n", ptr_farmLog->header.majorRev, ptr_farmLog->header.minorRev);
   // Page 1: Drive Information
   jout("\tFARM Log Page 1: Drive Information\n");
   jout("\t\tHead Load Events: %lu\n", ptr_farmLog->driveInformation.headLoadEvents);
   // Page 2: Workload Statistics
   jout("\tFARM Log Page 2: Workload Statistics\n");
+  jout("\n");
   // Page 3: Error Statistics
   jout("\tFARM Log Page 3: Error Statistics\n");
   jout("\t\tNumber of Unrecoverable Read Errors: %lu\n", ptr_farmLog->error.totalUnrecoverableReadErrors);
@@ -2301,7 +2301,7 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   jout("\t\tSeek Error Rate (Normalized): %li\n", ptr_farmLog->reliability.attrSeekErrorRateNormal);
   jout("\t\tSeek Error Rate (Worst): %li\n", ptr_farmLog->reliability.attrSeekErrorRateWorst);
   jout("\t\tHigh Priority Unload Events: %li\n", ptr_farmLog->reliability.attrUnloadEventsRaw);
-  jout("\t\tLBAs Corrected: %li\n", ptr_farmLog->reliability.numberLBACorrectedParitySector);
+  jout("\t\tLBAs Corrected By Parity Sector: %li\n", ptr_farmLog->reliability.numberLBACorrectedParitySector);
   // Private metrics
   jout("\tFARM Log: Private Metrics\n");
   jout("\t\tPrivate Metric 5-504: %lu\n", getMaxValFARM(ptr_farmLog->reliability.reserved14, n));
@@ -2330,11 +2330,12 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   jout("\t\tPrivate Metric 5-4032: %lu\n", getMaxValFARM(ptr_farmLog->reliability.reserved26, n));
   jout("\t\tPrivate Metric 5-5184: %lu\n", ptr_farmLog->reliability.reserved30);
   // Print JSON if --json or -j is specified
+  char str[50];
   json::ref jref = jglb["seagate_farm_log"];
   // Page 0: Log Header
   json::ref jref0 = jref["page_0_log_header"];
-  jref0["log_major_revision"] = ptr_farmLog->header.majorRev;
-  jref0["log_minor_revision"] = ptr_farmLog->header.minorRev;
+  sprintf(str, "%lu.%lu", ptr_farmLog->header.majorRev, ptr_farmLog->header.minorRev);
+  jref0["farm_log_version"] = str;
   // Page 1: Drive Information
   json::ref jref1 = jref["page_1_drive_information"];
   jref1["head_load_events"] = ptr_farmLog->driveInformation.headLoadEvents;
@@ -2367,43 +2368,36 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   jref5["error_rate_worst"] = ptr_farmLog->reliability.attrErrorRateWorst;
   jref5["seek_error_rate_normalized"] = ptr_farmLog->reliability.attrSeekErrorRateNormal;
   jref5["seek_error_rate_worst"] = ptr_farmLog->reliability.attrSeekErrorRateWorst;
-  jref5["lbas_corrected"] = ptr_farmLog->reliability.numberLBACorrectedParitySector;
+  jref5["lbas_corrected_by_parity_sector.0"] = ptr_farmLog->reliability.numberLBACorrectedParitySector;
   jref5["high_priority_unload_events"] = ptr_farmLog->reliability.attrUnloadEventsRaw;
   // Private metrics
   json::ref jrefp = jref["private_metrics"];
+  jrefp["private_metric_5_488"] = ptr_farmLog->reliability.reserved12;
   jrefp["private_metric_5_504"] = getMaxValFARM(ptr_farmLog->reliability.reserved14, n);
   jrefp["private_metric_5_1528"] = ptr_farmLog->reliability.reserved16;
   jrefp["private_metric_5_2688"] = getMaxValFARM(ptr_farmLog->reliability.reserved23, n);
-  double val;
-  char str[50];
   arr = constructColArr(ptr_farmLog->reliability.reserved24, 0, n);
-  val = getMaxValFARM(arr, n) * 0.1;
-  sprintf(str,"%0.01f", val);
+  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
   delete [] arr;
   jrefp["private_metric_5_2880i"] = str;
   arr = constructColArr(ptr_farmLog->reliability.reserved24, 1, n);
-  val = getMaxValFARM(arr, n) * 0.1;
-  sprintf(str,"%0.01f", val);
+  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
   delete [] arr;
   jrefp["private_metric_5_2880m"] = str;
   arr = constructColArr(ptr_farmLog->reliability.reserved24, 2, n);
-  val = getMaxValFARM(arr, n) * 0.1;
-  sprintf(str,"%0.01f", val);
+  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
   delete [] arr;
   jrefp["private_metric_5_2880o"] = str;
   arr = constructColArr(ptr_farmLog->reliability.reserved25, 0, n);
-  val = getMaxValFARM(arr, n) * 0.1;
-  sprintf(str,"%0.01f", val);
+  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
   delete [] arr;
   jrefp["private_metric_5_3456i"] = str;
   arr = constructColArr(ptr_farmLog->reliability.reserved25, 1, n);
-  val = getMaxValFARM(arr, n) * 0.1;
-  sprintf(str,"%0.01f", val);
+  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
   delete [] arr;
   jrefp["private_metric_5_3456m"] = str;
   arr = constructColArr(ptr_farmLog->reliability.reserved25, 2, n);
-  val = getMaxValFARM(arr, n) * 0.1;
-  sprintf(str,"%0.01f", val);
+  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
   delete [] arr;
   jrefp["private_metric_5_3456o"] = str;
   arr = NULL;
