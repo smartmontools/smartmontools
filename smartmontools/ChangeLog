@@ -2,6 +2,9 @@ $Id$
 
 2021-01-20  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp, ataprint.h, smartctl.cpp: Rework sct_erc variables.
+	Fix handling of '-l scterc*,p' if both get and set are used.
+
 	smartctl.cpp: Change '-l scterc,r' to '-l scterc,reset'.
 	Make ',p' case sensitive.  Simplify parsing of 'scterc...'.
 	smartctl.8.in: Change documentation accordingly.

@@ -540,7 +540,7 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.devstat_ssd_page = true;
         scsiopts.smart_ss_media_log = true;
       } else if (!strcmp(optarg,"scterc")) {
-        ataopts.sct_erc_get = true;
+        ataopts.sct_erc_get = 1;
       } else if (!strcmp(optarg,"scttemp")) {
         ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
       } else if (!strcmp(optarg,"scttempsts")) {
@@ -619,16 +619,14 @@ static int parse_options(int argc, char** argv, const char * & type,
         unsigned rt = ~0, wt = ~0;
         sscanf(optarg, "scterc,%u,%u%n,p%n", &rt, &wt, &n1, &n2);
         if ((n1 == len || n2 == len) && rt <= 999 && wt <= 999) {
-          ataopts.sct_erc_set = true;
+          ataopts.sct_erc_set = (n2 == len ? 2 : 1);
           ataopts.sct_erc_readtime = rt;
           ataopts.sct_erc_writetime = wt;
-          ataopts.sct_erc_power_on = (n2 == len);
         } else if (!strcmp(optarg, "scterc,p")) {
-          ataopts.sct_erc_get = true;
-          ataopts.sct_erc_power_on = true;
+          ataopts.sct_erc_get = 2;
         } else if (!strcmp(optarg, "scterc,reset")) {
-          ataopts.sct_erc_set = true;
-          ataopts.sct_erc_mfg_default = true;
+          ataopts.sct_erc_set = 3;
+          ataopts.sct_erc_readtime = ataopts.sct_erc_writetime = 0;
         } else {
           snprintf(extraerror, sizeof(extraerror), "Option -l scterc[,READTIME,WRITETIME][,p|reset] syntax error\n");
           badarg = true;
@@ -724,7 +722,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       ataopts.smart_selective_selftest_log = true;
       ataopts.smart_logdir = ataopts.gp_logdir = true;
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
-      ataopts.sct_erc_get = true;
+      ataopts.sct_erc_get = 1;
       ataopts.sct_wcache_reorder_get = true;
       ataopts.devstat_all_pages = true;
       ataopts.pending_defects_log = 31;
