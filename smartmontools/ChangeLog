@@ -1,6 +1,8 @@
-$Id: ChangeLog 5175 2021-01-23 14:44:26Z chrfranke $
+$Id: ChangeLog 5176 2021-01-23 15:42:17Z chrfranke $
 
 2021-01-23  Christian Franke  <franke@computer.org>
+
+	os_win32/vc15: Copy from vc14 and change for MSVC15 (VS2017).
 
 	os_win32/vc14/smart*.vcxproj*: Add missing files.
 	Suppress warnings for regex/regex.c.
