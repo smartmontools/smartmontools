@@ -2,6 +2,8 @@ $Id$
 
 2021-01-23  Christian Franke  <franke@computer.org>
 
+	os_win32/vc16: Copy from vc15 and change for MSVC16 (VS2019).
+
 	os_win32/vc15: Copy from vc14 and change for MSVC15 (VS2017).
 
 	os_win32/vc14/smart*.vcxproj*: Add missing files.
