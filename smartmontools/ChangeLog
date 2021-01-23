@@ -1,5 +1,10 @@
 $Id$
 
+2021-01-23  Christian Franke  <franke@computer.org>
+
+	os_win32/vc14/smart*.vcxproj*: Add missing files.
+	Suppress warnings for regex/regex.c.
+
 2021-01-20  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp, ataprint.h, smartctl.cpp: Rework sct_erc variables.
