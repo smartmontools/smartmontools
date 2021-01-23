@@ -70,6 +70,7 @@
     <ClCompile Include="..\..\nvmecmds.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp" />
     <ClCompile Include="..\..\dev_intelliprop.cpp" />
+    <ClCompile Include="..\..\json.cpp" />
     <ClCompile Include="..\popen_win32.cpp">
       <Filter>os_win32</Filter>
     </ClCompile>
@@ -111,6 +112,7 @@
     <ClInclude Include="svnversion.h" />
     <ClInclude Include="..\..\nvmecmds.h" />
     <ClInclude Include="..\..\nvmeprint.h" />
+    <ClInclude Include="..\..\json.h" />
     <ClInclude Include="..\..\static_assert.h" />
     <ClInclude Include="..\..\getopt\getopt_int.h">
       <Filter>getopt</Filter>
@@ -124,6 +126,10 @@
     <ClInclude Include="..\popen.h">
       <Filter>os_win32</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\sg_unaligned.h" />
+    <ClInclude Include="..\..\freebsd_nvme_ioctl.h" />
+    <ClInclude Include="..\..\linux_nvme_ioctl.h" />
+    <ClInclude Include="..\..\netbsd_nvme_ioctl.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\installer.nsi">

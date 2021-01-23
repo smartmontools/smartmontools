@@ -123,6 +123,10 @@
     <ClInclude Include="..\popen.h">
       <Filter>os_win32</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\sg_unaligned.h" />
+    <ClInclude Include="..\..\freebsd_nvme_ioctl.h" />
+    <ClInclude Include="..\..\linux_nvme_ioctl.h" />
+    <ClInclude Include="..\..\netbsd_nvme_ioctl.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\installer.nsi">
