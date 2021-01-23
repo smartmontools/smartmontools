@@ -2380,10 +2380,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             powername = "ACTIVE";
     }
 
-   if (supported_vpd_pages_p) {
-        delete supported_vpd_pages_p;
-        supported_vpd_pages_p = NULL;
-    }
+   
+    delete supported_vpd_pages_p;
     supported_vpd_pages_p = new supported_vpd_pages(device);
 
     res = scsiGetDriveInfo(device, &peripheral_type, options.drive_info);
