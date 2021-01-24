@@ -4,7 +4,7 @@
  * Home page of code is: http://www.smartmontools.org
  *
  * Copyright (C) 2002-09 Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -55,8 +55,8 @@ struct ata_print_options
   unsigned pending_defects_log;
 
   bool sct_temp_sts, sct_temp_hist;
-  bool sct_erc_get;
-  bool sct_erc_set;
+  int sct_erc_get; // get(1), get_power_on(2)
+  int sct_erc_set; // set(1), set_power_on(2), mfg_default(3)
   unsigned sct_erc_readtime, sct_erc_writetime;
   bool sataphy, sataphy_reset;
 
@@ -122,8 +122,7 @@ struct ata_print_options
       devstat_all_pages(false), devstat_ssd_page(false),
       pending_defects_log(0),
       sct_temp_sts(false), sct_temp_hist(false),
-      sct_erc_get(false),
-      sct_erc_set(false),
+      sct_erc_get(0), sct_erc_set(0),
       sct_erc_readtime(0), sct_erc_writetime(0),
       sataphy(false), sataphy_reset(false),
       smart_disable(false), smart_enable(false),

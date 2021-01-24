@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-20 Christian Franke
+Copyright (C) 2004-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -443,6 +443,11 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 .Sp
 .I usbsunplus
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
+bridge.
+.Sp
+.I sntasmedia
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+this device type is for NVMe disks that are behind an ASMedia USB to NVMe
 bridge.
 .Sp
 .I sntjmicron[,NSID]

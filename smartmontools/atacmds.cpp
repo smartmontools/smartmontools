@@ -2414,7 +2414,8 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
 
 // Get/Set SCT Error Recovery Control
 static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned type,
-                                                bool set, unsigned short & time_limit)
+                                                bool set, unsigned short & time_limit,
+                                                bool power_on, bool mfg_default)
 {
   // Check initial status
   ata_sct_status_response sts;
@@ -2432,7 +2433,17 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
   ata_sct_error_recovery_control_command cmd; memset(&cmd, 0, sizeof(cmd));
   // CAUTION: DO NOT CHANGE THIS VALUE (SOME ACTION CODES MAY ERASE DISK)
   cmd.action_code    = 3; // Error Recovery Control command
-  cmd.function_code  = (set ? 1 : 2); // 1=Set timer, 2=Get timer
+
+  // 1=Set timer, 2=Get timer, 3=Set Power-on timer, 4=Get Power-on timer, 5=Restore mfg default
+  if (mfg_default) {
+    cmd.function_code = 5;
+  } else if (power_on) {
+    cmd.function_code = (set ? 3 : 4);
+  } else {
+    cmd.function_code = (set ? 1 : 2);
+  }
+  unsigned short saved_function_code = cmd.function_code;
+
   cmd.selection_code = type; // 1=Read timer, 2=Write timer
   if (set)
     cmd.time_limit   = time_limit;
@@ -2469,7 +2480,7 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
   if (ataReadSCTStatus(device, &sts))
     return -1;
 
-  if (!(sts.ext_status_code == 0 && sts.action_code == 3 && sts.function_code == (set ? 1 : 2))) {
+  if (!(sts.ext_status_code == 0 && sts.action_code == 3 && sts.function_code == saved_function_code)) {
     pout("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts.ext_status_code, sts.action_code, sts.function_code);
     return -1;
@@ -2498,15 +2509,16 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
 }
 
 // Get SCT Error Recovery Control
-int ataGetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short & time_limit)
+int ataGetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short & time_limit, bool power_on)
 {
-  return ataGetSetSCTErrorRecoveryControltime(device, type, false/*get*/, time_limit);
+  return ataGetSetSCTErrorRecoveryControltime(device, type, false/*get*/, time_limit, power_on, false);
 }
 
 // Set SCT Error Recovery Control
-int ataSetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short time_limit)
+int ataSetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short time_limit,
+                                      bool power_on, bool mfg_default)
 {
-  return ataGetSetSCTErrorRecoveryControltime(device, type, true/*set*/, time_limit);
+  return ataGetSetSCTErrorRecoveryControltime(device, type, true/*set*/, time_limit, power_on, mfg_default);
 }
 
 

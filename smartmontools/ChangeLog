@@ -1,5 +1,98 @@
 $Id$
 
+2021-01-23  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Enhance config-vc and *clean-vc targets for MSVC15/16.
+
+	os_win32/vc16: Copy from vc15 and change for MSVC16 (VS2019).
+
+	os_win32/vc15: Copy from vc14 and change for MSVC15 (VS2017).
+
+	os_win32/vc14/smart*.vcxproj*: Add missing files.
+	Suppress warnings for regex/regex.c.
+
+2021-01-20  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, ataprint.h, smartctl.cpp: Rework sct_erc variables.
+	Fix handling of '-l scterc*,p' if both get and set are used.
+
+	smartctl.cpp: Change '-l scterc,r' to '-l scterc,reset'.
+	Make ',p' case sensitive.  Simplify parsing of 'scterc...'.
+	smartctl.8.in: Change documentation accordingly.
+
+2021-01-17  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Bump branch VERSION to 7.3.
+	- USB: Realtek RTL9211 (0x0bda:0x9211, 0x2eb9:0x9211).
+	- USB: ASMedia ASM2362 (0x174c:0x2362).
+
+	scsinvme.cpp: Add '-d sntasmedia' device type for ASMedia ASM2362
+	USB to NVMe bridges (#1221).
+	dev_interface.cpp: Update help text.
+	smartctl.8.in, smartd.conf.5.in: Document new option.
+
+	Thanks to Demian from Sabrent.
+
+2021-01-15  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Add EXPERIMENTAL note for new '-l scterc' variants.
+
+2021-01-15  Jeremy Bauer  <jeremy.bauer@wdc.com>
+
+	Add support for SCT Error Recovery Timer features added in ACS-4
+	(#1427).
+	'-l scterc[,R,W],p' option gets/sets the persistent power-on values.
+	'-l scterc,r' option restores to the manufacturer's default values.
+
+2021-01-15  Zhenwei Pi  <pizhenwei@bytedance.com>
+
+	nvmeprint.cpp: Add bit 5 of SMART/Health 'Critical Warning' byte
+	(NVMe 1.4).
+
+2021-01-10  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Add VERSION information to trunk and all branches (#1424).
+
+2021-01-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate BarraCuda 3.5: Split into ...(CMR) and ...(SMR).
+	- Seagate Exos 7E8 (#1415).
+	- Western Digital Blue (SMR): 4TB.
+	- USB: ADATA HV610 (0x125f:0xa21a) (#1417).
+
+2021-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year!  Update copyright year in version info.
+
+2020-12-30  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.2
+
+2020-12-30  Christian Franke  <franke@computer.org>
+
+	configure.ac, update-smart-drivedb.in: Use RELEASE_7_2_DRIVEDB for
+	drivedb.h updates.
+
+	Create new branch RELEASE_7_2_DRIVEDB.
+
+2020-12-29  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Micron 5100 Pro / 52x0 / 5300 SSDs: 5300HC.
+	- Samsung based SSDs: PM871 MZY* (#1384), 870 QVO (#1388).
+	- Silicon Motion based SSDs: ADATA IMSS332 (#1399),
+	  ADATA SU650NS38 (#1386), JAJS600M1TB (#1414), NFN025SA31T.
+	- Silicon Motion based OEM SSDs: Dogfish,
+	  Intenso portable (GH issues/81, GH pull/82),
+	  Intenso Sata III (#1412), KingDian S280 (#1402).
+	- SK hynix SATA SSDs: SC300 (#1407).
+	- Hitachi Travelstar 5K500.B: *SA02 (#1408).
+	- Fix '-v' comments.  Remove trailing whitespace.
+
+	scsinvme.cpp: Realtek: Limit NVMe log transfer size to 512 bytes.
+
 2020-12-21  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in: Add EXPERIMENTAL notes for SCSI variants of

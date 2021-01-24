@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-20 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -3128,25 +3128,28 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
 }
 
 // Print SCT Error Recovery Control timers
-static void ataPrintSCTErrorRecoveryControl(bool set, unsigned short read_timer, unsigned short write_timer)
+static void ataPrintSCTErrorRecoveryControl(bool set, unsigned short read_timer, unsigned short write_timer, bool power_on, bool mfg_default = false)
 {
+  const char* power_on_str = (power_on ? "Power-on " : "");
   json::ref jref = jglb["ata_sct_erc"];
-  jout("SCT Error Recovery Control%s:\n", (set ? " set to" : ""));
+  jout("SCT Error Recovery Control%s:%s\n", (set ? " set to" : ""), (mfg_default ? " default values." : ""));
 
-  jref["read"]["enabled"] = !!read_timer;
-  if (!read_timer)
-    jout("           Read: Disabled\n");
-  else {
-    jout("           Read: %6d (%0.1f seconds)\n", read_timer, read_timer/10.0);
-    jref["read"]["deciseconds"] = read_timer;
-  }
+  if (!mfg_default) {
+    jref["read"]["enabled"] = !!read_timer;
+    if (!read_timer)
+      jout("           %sRead: Disabled\n", power_on_str);
+    else {
+      jout("           %sRead: %6d (%0.1f seconds)\n", power_on_str, read_timer, read_timer/10.0);
+      jref["read"]["deciseconds"] = read_timer;
+    }
 
-  jref["write"]["enabled"] = !!write_timer;
-  if (!write_timer)
-    jout("          Write: Disabled\n");
-  else {
-    jout("          Write: %6d (%0.1f seconds)\n", write_timer, write_timer/10.0);
-    jref["write"]["deciseconds"] = write_timer;
+    jref["write"]["enabled"] = !!write_timer;
+    if (!write_timer)
+      jout("          %sWrite: Disabled\n", power_on_str);
+    else {
+      jout("          %sWrite: %6d (%0.1f seconds)\n", power_on_str, write_timer, write_timer/10.0);
+      jref["write"]["deciseconds"] = write_timer;
+    }
   }
 }
 
@@ -4345,38 +4348,40 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
-      bool sct_erc_get = options.sct_erc_get;
+      int sct_erc_get = options.sct_erc_get;
       if (options.sct_erc_set) {
         // Set SCT Error Recovery Control
-        if (   ataSetSCTErrorRecoveryControltime(device, 1, options.sct_erc_readtime )
-            || ataSetSCTErrorRecoveryControltime(device, 2, options.sct_erc_writetime)) {
+        bool set_power_on = (options.sct_erc_set == 2), mfg_default = (options.sct_erc_set == 3);
+        if (   ataSetSCTErrorRecoveryControltime(device, 1, options.sct_erc_readtime, set_power_on, mfg_default)
+            || ataSetSCTErrorRecoveryControltime(device, 2, options.sct_erc_writetime, set_power_on, mfg_default)) {
           pout("SCT (Set) Error Recovery Control command failed\n");
           if (!(   (options.sct_erc_readtime == 70 && options.sct_erc_writetime == 70)
                 || (options.sct_erc_readtime ==  0 && options.sct_erc_writetime ==  0)))
             pout("Retry with: 'scterc,70,70' to enable ERC or 'scterc,0,0' to disable\n");
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-          sct_erc_get = false;
+          sct_erc_get = 0;
         }
         else if (!sct_erc_get)
           ataPrintSCTErrorRecoveryControl(true, options.sct_erc_readtime,
-            options.sct_erc_writetime);
+            options.sct_erc_writetime, set_power_on, mfg_default);
       }
 
       if (sct_erc_get) {
         // Print SCT Error Recovery Control
+        bool get_power_on = (sct_erc_get == 2);
         unsigned short read_timer, write_timer;
-        if (   ataGetSCTErrorRecoveryControltime(device, 1, read_timer )
-            || ataGetSCTErrorRecoveryControltime(device, 2, write_timer)) {
+        if (   ataGetSCTErrorRecoveryControltime(device, 1, read_timer, get_power_on)
+            || ataGetSCTErrorRecoveryControltime(device, 2, write_timer, get_power_on)) {
           pout("SCT (Get) Error Recovery Control command failed\n");
-          if (options.sct_erc_set) {
+          if (options.sct_erc_set == sct_erc_get) {
             pout("The previous SCT (Set) Error Recovery Control command succeeded\n");
             ataPrintSCTErrorRecoveryControl(true, options.sct_erc_readtime,
-              options.sct_erc_writetime);
+              options.sct_erc_writetime, get_power_on);
           }
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         else
-          ataPrintSCTErrorRecoveryControl(false, read_timer, write_timer);
+          ataPrintSCTErrorRecoveryControl(false, read_timer, write_timer, get_power_on);
       }
       pout("\n");
     }
