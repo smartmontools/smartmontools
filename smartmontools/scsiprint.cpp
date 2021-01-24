@@ -2305,12 +2305,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     bool is_tape;
     bool any_output = options.drive_info;
 
-    if (supported_vpd_pages_p) {
-        delete supported_vpd_pages_p;
-        supported_vpd_pages_p = NULL;
-    }
-    supported_vpd_pages_p = new supported_vpd_pages(device);
-
 // Enable -n option for SCSI Drives
     const char * powername = NULL;
     bool powerchg = false;
@@ -2385,6 +2379,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         } else
             powername = "ACTIVE";
     }
+
+    delete supported_vpd_pages_p;
+    supported_vpd_pages_p = new supported_vpd_pages(device);
 
     res = scsiGetDriveInfo(device, &peripheral_type, options.drive_info);
     if (res) {

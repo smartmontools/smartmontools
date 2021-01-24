@@ -1,5 +1,11 @@
 $Id$
 
+2021-01-24  Simon Fairweather  <simon.n.fairweather@gmail.com>
+
+	scsiprint.cpp: Move VPD page process to after new powermode processing
+	added in r5131 to resolve #1413 of Seagate drives spinning up when
+	-n standby is selected.  Simplify code for VPD pages.
+
 2021-01-23  Christian Franke  <franke@computer.org>
 
 	Makefile.am: Enhance config-vc and *clean-vc targets for MSVC15/16.
