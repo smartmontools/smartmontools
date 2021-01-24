@@ -511,52 +511,62 @@ esac
 
 AC_ARG_WITH(cxx11-option,
   [AS_HELP_STRING([--with-cxx11-option=@<:@OPTION|auto|no@:>@],
-    [Compiler option to enable C++11 support for future versions of smartmontools, 'no' if unsupported [auto]])],
+    [Compiler option to enable C++11 support, 'no' to skip check [auto]])],
   [], [with_cxx11_option=auto])
 
-check_cxx11_support()
-{
-  save_CXXFLAGS=$CXXFLAGS
-  CXXFLAGS=$1
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-      #if __cplusplus < 201103L
-      #error false
-      #endif
-      // use some C++11 features (and return v * 42 :-)
-      auto cxx11(long v) noexcept -> decltype(v) {
-        typedef decltype(v) t; t r = v;
-        static const t a[] = { -7, -1, 1, 2, 3 };
-        static_assert(sizeof(r) == sizeof(a[0]), "fail");
-        auto f = [](t x, t y){ return x * y; };
-        for (const auto & e : a) r = f(r, e);
-        return r;
-      }]])],
-    [CXXFLAGS=$save_CXXFLAGS; return 0], [CXXFLAGS=$save_CXXFLAGS; return 1])
-}
+cxx14_option=
+case "$with_cxx11_option" in
+  no) ;;
+  *)
+    AC_MSG_CHECKING([for $CXX option to accept C++14])
+    cxx14_option=unknown
+    save_CXXFLAGS=$CXXFLAGS
+    for option in "" "-std=gnu++14" "-std=gnu++1y" "-std=c++14" "-std=c++1y"; do
+      CXXFLAGS="$save_CXXFLAGS $option"
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #if __cplusplus < 201402
+          #error false
+        #endif]])], [cxx14_option=$option])
+      test "$cxx14_option" = "unknown" || break
+    done
+    CXXFLAGS=$save_CXXFLAGS
+    AC_MSG_RESULT([${cxx14_option:-none needed}])
+    ;;
+esac
 
 case "$with_cxx11_option" in
   no) ;;
   auto)
-    AC_MSG_CHECKING([for $CXX option to accept C++11])
-    with_cxx11_option=unknown
+    res=; test "$cxx14_option" = "unknown" || res=" but not C++14"
+    AC_MSG_CHECKING([for $CXX option to accept C++11$res])
+    save_CXXFLAGS=$CXXFLAGS
+    res=unknown
     for option in "" "-std=gnu++11" "-std=gnu++0x" "-std=c++11" "-std=c++0x"; do
-      if check_cxx11_support "$option"; then with_cxx11_option=$option; break; fi
+      test "$option" != "$cxx14_option" || continue
+      CXXFLAGS="$save_CXXFLAGS $option"
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #if __cplusplus < 201103 || 201402 <= __cplusplus
+          #error false
+        #endif]])], [res=$option])
+      test "$res" = "unknown" || break
     done
-    AC_MSG_RESULT([${with_cxx11_option:-none needed}])
-    test "$with_cxx11_option" != "unknown" || AC_MSG_ERROR([
-This version of smartmontools does not use C++11 features, but future
-versions possibly will.
-This script was unable to determine a compiler option to enable C++11.
-Use option '--with-cxx11-option=OPTION' to specify the compiler option
-(it will be used in the actual build only if '--with-cxx11-regex' is set).
-Use option '--without-cxx11-option' to suppress this error message if the
-compiler lacks C++11 support.
+    AC_MSG_RESULT([${res:-none needed}])
+    test "$res" != "unknown" || res=$cxx14_option
+    test "$res" != "unknown" || AC_MSG_ERROR([
+This script was unable to determine a compiler option to accept C++11.
+Use option '--with-cxx11-option=OPTION' to specify a compiler option.
+Use option '--without-cxx11-option' to try anyway without this check.
 In both cases, please send info about compiler and platform to
 $PACKAGE_BUGREPORT - Thanks!])
+    CXXFLAGS="$save_CXXFLAGS${res:+ }$res"
     ;;
   *)
     AC_MSG_CHECKING([whether $CXX $with_cxx11_option accepts C++11])
-    res=no; check_cxx11_support "$with_cxx11_option" && res=yes
+    CXXFLAGS="$CXXFLAGS${with_cxx11_option:+ }$with_cxx11_option"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #if __cplusplus < 201103
+        #error false
+      #endif]])], [res=yes], [res=no])
     AC_MSG_RESULT([$res])
     test "$res" = "yes" || AC_MSG_ERROR([$CXX $with_cxx11_option does not accept C++11])
     ;;
@@ -569,11 +579,6 @@ AC_ARG_WITH(cxx11-regex,
 need_regex=no
 if test "$with_cxx11_regex" = "yes"; then
   AC_DEFINE(WITH_CXX11_REGEX, 1, [Define to 1 to use C++11 std::regex instead of POSIX regex(3)])
-  case "$with_cxx11_option: $CXXFLAGS " in
-    no:*) AC_MSG_ERROR(['--with-cxx11-regex' requires C++11 support]) ;;
-    ?*:*\ $with_cxx11_option\ *) ;;
-    ?*:*) CXXFLAGS="$CXXFLAGS $with_cxx11_option" ;;
-  esac
 else
   AC_CHECK_FUNCS([regcomp], [], [need_regex=yes])
 fi
@@ -971,3 +976,10 @@ Use option '--without-libsystemd' to suppress this warning.
 ])
     fi ;;
 esac
+
+test "$cxx14_option" != "unknown" || AC_MSG_WARN([
+This version of smartmontools does not use C++14 enhancements, but
+future versions possibly will.
+This script was unable to determine a compiler option to enable C++14.
+Please send info about compiler and platform to
+$PACKAGE_BUGREPORT - Thanks!])

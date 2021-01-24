@@ -2,6 +2,10 @@ $Id$
 
 2021-01-24  Christian Franke  <franke@computer.org>
 
+	Drop C++98 restriction, allow C++11.
+	configure.ac: Enable C++11.  Fail if no option found.
+	Disable C++14 if possible.  Warn if no C++14 option found.
+
 	configure.ac: Remove defunct '--with-working-snprintf'.
 
 	scsiprint.cpp: Reduce scope of 'powerlimit'
