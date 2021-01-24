@@ -1,9 +1,9 @@
 /*
  * nvmeprint.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016 Christian Franke
+ * Copyright (C) 2016-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -18,23 +18,13 @@
 // options for nvmePrintMain
 struct nvme_print_options
 {
-  bool drive_info;
-  bool drive_capabilities;
-  bool smart_check_status;
-  bool smart_vendor_attrib;
-  unsigned error_log_entries;
-  unsigned char log_page;
-  unsigned log_page_size;
-
-  nvme_print_options()
-    : drive_info(false),
-      drive_capabilities(false),
-      smart_check_status(false),
-      smart_vendor_attrib(false),
-      error_log_entries(0),
-      log_page(0),
-      log_page_size(0)
-    { }
+  bool drive_info = false;
+  bool drive_capabilities = false;
+  bool smart_check_status = false;
+  bool smart_vendor_attrib = false;
+  unsigned error_log_entries = 0;
+  unsigned char log_page = 0;
+  unsigned log_page_size = 0;
 };
 
 int nvmePrintMain(nvme_device * device, const nvme_print_options & options);
