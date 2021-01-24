@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5156 2020-12-30 18:16:19Z chrfranke $
+# $Id: configure.ac 5181 2021-01-24 16:08:52Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.2
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5156 2020-12-30 18:16:19Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5181 2021-01-24 16:08:52Z chrfranke $'`
 smartmontools_release_date=2020-12-30
 smartmontools_release_time="16:48:30 UTC"
 
@@ -579,17 +579,6 @@ else
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
-# TODO: Remove after smartmontools 7.2
-AC_ARG_WITH(working-snprintf,
-  [AS_HELP_STRING([--with-working-snprintf], [(removed)])],
-  [ if test "$withval" != "yes"; then
-      AC_MSG_ERROR([
-The option '--without-working-snprintf' is no longer supported.
-If you still need support for pre-C99 snprintf(), please inform
-$PACKAGE_BUGREPORT.
-])
-    fi])
-
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
 AC_SUBST(smartmontools_release_time)
@@ -962,14 +951,6 @@ Use option '--with-nvme-devicescan' to include NVMe devices.
 Use option '--without-nvme-devicescan' to suppress this warning.
 ])  ;;
 esac
-
-# TODO: Remove after smartmontools 7.2
-if test -n "$with_working_snprintf"; then
-  AC_MSG_WARN([
-The option '--with-working-snprintf' is no longer needed and will be
-removed in a future version of smartmontools.
-])
-fi
 
 # TODO: Remove after smartmontools 7.3
 if test -n "$with_solaris_sparc_ata"; then
