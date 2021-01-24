@@ -1,4 +1,9 @@
-$Id: ChangeLog 5179 2021-01-24 14:56:33Z chrfranke $
+$Id: ChangeLog 5180 2021-01-24 15:22:17Z chrfranke $
+
+2021-01-24  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Reduce scope of 'powerlimit'
+	(cppcheck 1.85: variableScope).
 
 2021-01-24  Simon Fairweather  <simon.n.fairweather@gmail.com>
 
