@@ -2,6 +2,8 @@ $Id$
 
 2021-01-24  Christian Franke  <franke@computer.org>
 
+	configure.ac: Remove defunct '--with-working-snprintf'.
+
 	scsiprint.cpp: Reduce scope of 'powerlimit'
 	(cppcheck 1.85: variableScope).
 
