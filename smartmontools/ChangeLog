@@ -1,5 +1,10 @@
 $Id$
 
+2021-01-24  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Reduce scope of 'powerlimit'
+	(cppcheck 1.85: variableScope).
+
 2021-01-24  Simon Fairweather  <simon.n.fairweather@gmail.com>
 
 	scsiprint.cpp: Move VPD page process to after new powermode processing

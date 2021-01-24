@@ -2310,10 +2310,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     bool powerchg = false;
 
     if (options.powermode) {
-        unsigned char powerlimit = 0xff;
-
         scsiRequestSense(device, &sense_info) ;
         if (sense_info.asc == 0x5E) {
+            unsigned char powerlimit = 0xff;
             int     powermode = sense_info.ascq ;
 
             // 5Eh/00h  DZTPRO A  K    LOW POWER CONDITION ON
