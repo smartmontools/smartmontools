@@ -2368,7 +2368,7 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   jref5["error_rate_worst"] = ptr_farmLog->reliability.attrErrorRateWorst;
   jref5["seek_error_rate_normalized"] = ptr_farmLog->reliability.attrSeekErrorRateNormal;
   jref5["seek_error_rate_worst"] = ptr_farmLog->reliability.attrSeekErrorRateWorst;
-  jref5["lbas_corrected_by_parity_sector.0"] = ptr_farmLog->reliability.numberLBACorrectedParitySector;
+  jref5["lbas_corrected_by_parity_sector"] = ptr_farmLog->reliability.numberLBACorrectedParitySector;
   jref5["high_priority_unload_events"] = ptr_farmLog->reliability.attrUnloadEventsRaw;
   // Private metrics
   json::ref jrefp = jref["private_metrics"];
