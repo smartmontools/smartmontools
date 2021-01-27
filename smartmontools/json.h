@@ -13,6 +13,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <initializer_list>
 #include <map>
 #include <memory>
 #include <string>
@@ -39,6 +40,40 @@ public:
   /// Same as Number.isSafeInteger(value) in JavaScript.
   static bool is_safe_uint(unsigned long long value)
     { return (value < (1ULL << 53)); }
+
+  enum node_type {
+    nt_unset, nt_object, nt_array,
+    nt_bool, nt_int, nt_uint, nt_uint128, nt_string
+  };
+
+  // initializer_list<> elements.
+  struct initlist_value {
+    initlist_value(node_type t) : type(t) {}
+    initlist_value(bool v) : type(nt_bool), intval(v ? 1 : 0) {}
+    initlist_value(int v) : initlist_value((long long)v) {}
+    initlist_value(unsigned v) : initlist_value((unsigned long long)v) {}
+    initlist_value(long v) : initlist_value((long long)v) {}
+    initlist_value(unsigned long v) : initlist_value((unsigned long long)v) {}
+    initlist_value(long long v) : type(nt_int), intval((uint64_t)(int64_t)v) {}
+    initlist_value(unsigned long long v) : type(nt_uint), intval((uint64_t)v) {}
+    initlist_value(const char * v) : type(nt_string), strval(v) {}
+    initlist_value(const std::string & v) : type(nt_string), strval(v.c_str()) {}
+    node_type type;
+    uint64_t intval = 0;
+    const char * strval = nullptr;
+  };
+
+  struct initlist_key_value_pair {
+    initlist_key_value_pair(const char * k, const initlist_value & v) : key(k), value(v) {}
+    initlist_key_value_pair(const char * k, const std::initializer_list<initlist_key_value_pair> & ilist)
+      : key(k), value(nt_object), object(ilist) {}
+    initlist_key_value_pair(const char * k, const std::initializer_list<initlist_value> & ilist)
+      : key(k), value(nt_array), array(ilist) {}
+    const char * key;
+    initlist_value value;
+    std::initializer_list<initlist_key_value_pair> object;
+    std::initializer_list<initlist_value> array;
+  };
 
   /// Reference to a JSON element.
   class ref
@@ -83,12 +118,21 @@ public:
     void set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo);
     void set_unsafe_le128(const void * pvalue);
 
+    /// Braced-init-list support for nested objects.
+    void operator+=(std::initializer_list<initlist_key_value_pair> ilist);
+    /// Braced-init-list support for simple arrays.
+    void operator+=(std::initializer_list<initlist_value> ilist);
+
   private:
     friend class json;
+    explicit ref(json & js);
     ref(json & js, const char * key);
     ref(const ref & base, const char * key);
     ref(const ref & base, int index);
     ref(const ref & base, const char * /*dummy*/, const char * key_suffix);
+
+    void operator=(const initlist_value & value)
+      { m_js.set_initlist_value(m_path, value); }
 
     json & m_js;
     node_path m_path;
@@ -97,6 +141,10 @@ public:
   /// Return reference to element of top level object.
   ref operator[](const char * key)
     { return ref(*this, key); }
+
+  /// Braced-init-list support for top level object.
+  void operator+=(std::initializer_list<initlist_key_value_pair> ilist)
+    { ref(*this) += ilist; }
 
   /// Enable/disable JSON output.
   void enable(bool yes = true)
@@ -125,11 +173,6 @@ public:
   void print(FILE * f, const print_options & options) const;
 
 private:
-  enum node_type {
-    nt_unset, nt_object, nt_array,
-    nt_bool, nt_int, nt_uint, nt_uint128, nt_string
-  };
-
   struct node
   {
     node();
@@ -179,6 +222,7 @@ private:
   void set_uint128(const node_path & path, uint64_t value_hi, uint64_t value_lo);
   void set_cstring(const node_path & path, const char * value);
   void set_string(const node_path & path, const std::string & value);
+  void set_initlist_value(const node_path & path, const initlist_value & value);
 
   static void print_json(FILE * f, bool pretty, bool sorted, const node * p, int level);
   static void print_yaml(FILE * f, bool pretty, bool sorted, const node * p, int level_o,

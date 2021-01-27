@@ -41,6 +41,11 @@ static void check_key(const char * key)
     jassert(('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || (c == '_'));
 }
 
+json::ref::ref(json & js)
+: m_js(js)
+{
+}
+
 json::ref::ref(json & js, const char * key)
 : m_js(js)
 {
@@ -198,6 +203,25 @@ void json::ref::set_unsafe_le128(const void * pvalue)
                      sg_get_unaligned_le64(                 pvalue    ));
 }
 
+void json::ref::operator+=(std::initializer_list<initlist_key_value_pair> ilist)
+{
+  for (const initlist_key_value_pair & kv : ilist) {
+    jassert(kv.key && *kv.key);
+    switch (kv.value.type) {
+      default: operator[](kv.key) = kv.value; break;
+      case nt_object: operator[](kv.key) += kv.object; break;
+      case nt_array: operator[](kv.key) += kv.array; break;
+    }
+  }
+}
+
+void json::ref::operator+=(std::initializer_list<initlist_value> ilist)
+{
+  int i = 0;
+  for (const initlist_value & v : ilist)
+    operator[](i++) = v;
+}
+
 json::node::node()
 {
 }
@@ -352,6 +376,18 @@ void json::set_string(const node_path & path, const std::string & value)
   if (!m_enabled)
     return;
   find_or_create_node(path, nt_string)->strval = value;
+}
+
+void json::set_initlist_value(const node_path & path, const initlist_value & val)
+{
+  if (!m_enabled)
+    return;
+  node * p = find_or_create_node(path, val.type);
+  switch (p->type) {
+    case nt_bool: case nt_int: case nt_uint: p->intval = val.intval; break;
+    case nt_string: p->strval = val.strval; break;
+    default: jassert(false);
+  }
 }
 
 static void print_quoted_string(FILE * f, const char * s)

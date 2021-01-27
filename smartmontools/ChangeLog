@@ -2,6 +2,8 @@ $Id$
 
 2021-01-27  Christian Franke  <franke@computer.org>
 
+	json.cpp, json.h: Add support for nested braced-init-lists.
+
 	json.cpp, json.h: Use some C++11 features.  Align output functions.
 
 2021-01-24  Christian Franke  <franke@computer.org>
