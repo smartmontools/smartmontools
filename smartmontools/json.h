@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017-20 Christian Franke
+ * Copyright (C) 2017-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -13,9 +13,10 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
 /// Create and print JSON output.
 class json
@@ -24,14 +25,11 @@ private:
   struct node_info
   {
     std::string key;
-    int index;
+    int index = 0;
 
-    node_info()
-      : index(0) { }
-    explicit node_info(const char * key_)
-      : key(key_), index(0) { }
-    explicit node_info(int index_)
-      : index(index_) { }
+    node_info() = default;
+    explicit node_info(const char * key_) : key(key_) { }
+    explicit node_info(int index_) : index(index_) { }
   };
 
   typedef std::vector<node_info> node_path;
@@ -41,8 +39,6 @@ public:
   /// Same as Number.isSafeInteger(value) in JavaScript.
   static bool is_safe_uint(unsigned long long value)
     { return (value < (1ULL << 53)); }
-
-  json();
 
   /// Reference to a JSON element.
   class ref
@@ -120,11 +116,9 @@ public:
 
   /// Options for print().
   struct print_options {
-    bool pretty; //< Pretty-print output.
-    bool sorted; //< Sort object keys.
-    char format; //< 'y': YAML, 'g': flat(grep, gron), other: JSON
-    print_options()
-      : pretty(false), sorted(false), format(0) { }
+    bool pretty = false; //< Pretty-print output.
+    bool sorted = false; //< Sort object keys.
+    char format = 0; //< 'y': YAML, 'g': flat(grep, gron), other: JSON
   };
 
   /// Print JSON tree to a file.
@@ -139,16 +133,18 @@ private:
   struct node
   {
     node();
+    node(const node &) = delete;
     explicit node(const std::string & key_);
     ~node();
+    void operator=(const node &) = delete;
 
-    node_type type;
+    node_type type = nt_unset;
 
-    uint64_t intval, intval_hi;
+    uint64_t intval = 0, intval_hi = 0;
     std::string strval;
 
     std::string key;
-    std::vector<node *> childs;
+    std::vector< std::unique_ptr<node> > childs;
     typedef std::map<std::string, unsigned> keymap;
     keymap key2index;
 
@@ -164,21 +160,14 @@ private:
     private:
       const node * m_node_p;
       bool m_use_map;
-      unsigned m_child_idx;
+      unsigned m_child_idx = 0;
       keymap::const_iterator m_key_iter;
     };
-
-#if __cplusplus >= 201103
-    node(const node &) = delete;
-    void operator=(const node &) = delete;
-#else
-    private: node(const node &); void operator=(const node &);
-#endif
   };
 
-  bool m_enabled;
-  bool m_verbose;
-  bool m_uint128_output;
+  bool m_enabled = false;
+  bool m_verbose = false;
+  bool m_uint128_output = false;
 
   node m_root_node;
 

@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017-20 Christian Franke
+ * Copyright (C) 2017-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -199,30 +199,21 @@ void json::ref::set_unsafe_le128(const void * pvalue)
 }
 
 json::node::node()
-: type(nt_unset),
-  intval(0),
-  intval_hi(0)
 {
 }
 
 json::node::node(const std::string & key_)
-: type(nt_unset),
-  intval(0),
-  intval_hi(0),
-  key(key_)
+: key(key_)
 {
 }
 
 json::node::~node()
 {
-  for (size_t i = 0; i < childs.size(); i++)
-    delete childs[i];
 }
 
 json::node::const_iterator::const_iterator(const json::node * node_p, bool sorted)
 : m_node_p(node_p),
-  m_use_map(sorted && node_p->type == nt_object),
-  m_child_idx(0)
+  m_use_map(sorted && node_p->type == nt_object)
 {
   if (m_use_map)
     m_key_iter = node_p->key2index.begin();
@@ -253,9 +244,9 @@ void json::node::const_iterator::operator++()
 const json::node * json::node::const_iterator::operator*() const
 {
   if (m_use_map)
-    return m_node_p->childs[m_key_iter->second];
+    return m_node_p->childs[m_key_iter->second].get();
   else
-    return m_node_p->childs[m_child_idx];
+    return m_node_p->childs[m_child_idx].get();
 }
 
 json::node * json::find_or_create_node(const json::node_path & path, node_type type)
@@ -274,13 +265,12 @@ json::node * json::find_or_create_node(const json::node_path & path, node_type t
       node * p2;
       if (ni != p->key2index.end()) {
         // Object element exists
-        p2 = p->childs[ni->second];
+        p2 = p->childs[ni->second].get();
       }
       else {
         // Create new object element
         p->key2index[pi.key] = (unsigned)p->childs.size();
-        p2 = new node(pi.key);
-        p->childs.push_back(p2);
+        p->childs.push_back(std::unique_ptr<node>(p2 = new node(pi.key)));
       }
       jassert(p2 && p2->key == pi.key);
       p = p2;
@@ -296,14 +286,14 @@ json::node * json::find_or_create_node(const json::node_path & path, node_type t
       // Existing or new array element?
       if (pi.index < (int)p->childs.size()) {
         // Array index exists
-        p2 = p->childs[pi.index];
+        p2 = p->childs[pi.index].get();
         if (!p2) // Already created ?
-          p->childs[pi.index] = p2 = new node;
+          p->childs[pi.index].reset(p2 = new node);
       }
       else {
         // Grow array, fill gap, create new element
         p->childs.resize(pi.index + 1);
-        p->childs[pi.index] = p2 = new node;
+        p->childs[pi.index].reset(p2 = new node);
       }
       jassert(p2 && p2->key.empty());
       p = p2;
@@ -317,13 +307,6 @@ json::node * json::find_or_create_node(const json::node_path & path, node_type t
   else
     jassert(p->type == type); // Limit: type change not supported
   return p;
-}
-
-json::json()
-: m_enabled(false),
-  m_verbose(false),
-  m_uint128_output(false)
-{
 }
 
 void json::set_bool(const node_path & path, bool value)
@@ -360,7 +343,7 @@ void json::set_cstring(const node_path & path, const char * value)
 {
   if (!m_enabled)
     return;
-  jassert(value != 0); // Limit: nullptr not supported
+  jassert(value != nullptr); // Limit: nullptr not supported
   find_or_create_node(path, nt_string)->strval = value;
 }
 
@@ -425,13 +408,11 @@ static char yaml_string_needs_quotes(const char * s)
 
 void json::print_json(FILE * f, bool pretty, bool sorted, const node * p, int level)
 {
-  if (!p->key.empty())
-    fprintf(f, "\"%s\":%s", p->key.c_str(), (pretty ? " " : ""));
-
+  bool is_obj = (p->type == nt_object);
   switch (p->type) {
     case nt_object:
     case nt_array:
-      putc((p->type == nt_object ? '{' : '['), f);
+      putc((is_obj ? '{' : '['), f);
       if (!p->childs.empty()) {
         bool first = true;
         for (node::const_iterator it(p, sorted); !it.at_end(); ++it) {
@@ -442,10 +423,13 @@ void json::print_json(FILE * f, bool pretty, bool sorted, const node * p, int le
           const node * p2 = *it;
           if (!p2) {
             // Unset element of sparse array
-            jassert(p->type == nt_array);
+            jassert(!is_obj);
             fputs("null", f);
           }
           else {
+            jassert(is_obj == !p2->key.empty());
+            if (is_obj)
+              fprintf(f, "\"%s\":%s", p2->key.c_str(), (pretty ? " " : ""));
             // Recurse
             print_json(f, pretty, sorted, p2, level + 1);
           }
@@ -454,7 +438,7 @@ void json::print_json(FILE * f, bool pretty, bool sorted, const node * p, int le
         if (pretty)
           fprintf(f, "\n%*s", level * 2, "");
       }
-      putc((p->type == nt_object ? '}' : ']'), f);
+      putc((is_obj ? '}' : ']'), f);
       break;
 
     case nt_bool:
@@ -558,15 +542,16 @@ void json::print_yaml(FILE * f, bool pretty, bool sorted, const node * p, int le
 void json::print_flat(FILE * f, const char * assign, bool sorted, const node * p,
                       std::string & path)
 {
+  bool is_obj = (p->type == nt_object);
   switch (p->type) {
     case nt_object:
     case nt_array:
-      fprintf(f, "%s%s%s;\n", path.c_str(), assign, (p->type == nt_object ? "{}" : "[]"));
+      fprintf(f, "%s%s%s;\n", path.c_str(), assign, (is_obj ? "{}" : "[]"));
       if (!p->childs.empty()) {
         unsigned len = path.size();
         for (node::const_iterator it(p, sorted); !it.at_end(); ++it) {
           const node * p2 = *it;
-          if (p->type == nt_array) {
+          if (!is_obj) {
             char buf[10]; snprintf(buf, sizeof(buf), "[%u]", it.array_index());
             path += buf;
           }
@@ -575,7 +560,7 @@ void json::print_flat(FILE * f, const char * assign, bool sorted, const node * p
           }
           if (!p2) {
             // Unset element of sparse array
-            jassert(p->type == nt_array);
+            jassert(!is_obj);
             fprintf(f, "%s%snull;\n", path.c_str(), assign);
           }
           else {
