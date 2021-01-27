@@ -1,6 +1,8 @@
-$Id: ChangeLog 5186 2021-01-27 18:35:45Z chrfranke $
+$Id: ChangeLog 5187 2021-01-27 21:59:19Z chrfranke $
 
 2021-01-27  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Add support for nested braced-init-lists.
 
 	json.cpp, json.h: Use some C++11 features.  Align output functions.
 
