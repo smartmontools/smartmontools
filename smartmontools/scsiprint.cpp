@@ -849,23 +849,6 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
 // Seagate Field Access Reliability Metrics (FARM) log (Log page 0x3D, sub-page 0x3)
 
 /*
- *  Simple max element function helper for printing Seagate FARM Logs
- *  
- *  @param  arr:    Array with metric values (uint64_t [])
- *  @param  n:      Size of array (size_t)    
- *  @return Maximum value of given array (uint64_t)
- */
-static uint64_t getMaxValFARM(uint64_t arr[], size_t n) {
-  uint64_t currentMax = 0;
-  for (unsigned i = 0; i < n; i++) {
-    if (arr[i] > currentMax) {
-        currentMax = arr[i];
-    }
-  }
-  return currentMax;
-}
-
-/*
  *  Reads vendor-specific FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
  *  drives and parses data into FARM log structures
  *  Returns parsed structure as defined in scsicmds.h
@@ -1087,19 +1070,6 @@ static bool scsiPrintFarmLog(scsiFarmLog * ptr_farmLog) {
     for (unsigned i = 0; i < n; i++) {
         jout("\t\t\tHead %i: %lu\n", i, ptr_farmLog->totalReallocationCanidates.headValue[i]);
     }
-    // Private metrics
-    jout("\tFARM Log: Private Metrics\n");
-    jout("\t\tPrivate Metric 5-188: %lu\n", ptr_farmLog->reliability.reserved20);
-    jout("\t\tPrivate Metric 5-196: %lu\n", ptr_farmLog->reliability.reserved21);
-    jout("\t\tPrivate Metric 18-All: %lu\n", getMaxValFARM(ptr_farmLog->reserved1.headValue, n));
-    jout("\t\tPrivate Metric 29-All: %lu\n", getMaxValFARM(ptr_farmLog->reserved11.headValue, n));
-    jout("\t\tPrivate Metric 30-All: %lu\n", getMaxValFARM(ptr_farmLog->reserved12.headValue, n));
-    jout("\t\tPrivate Metric 48-All: %0.01f\n", (double) getMaxValFARM(ptr_farmLog->reserved19.headValue, n) * 0.1);
-    jout("\t\tPrivate Metric 49-All: %0.01f\n", (double) getMaxValFARM(ptr_farmLog->reserved20.headValue, n) * 0.1);
-    jout("\t\tPrivate Metric 50-All: %0.01f\n", (double) getMaxValFARM(ptr_farmLog->reserved21.headValue, n) * 0.1);
-    jout("\t\tPrivate Metric 51-All: %0.01f\n", (double) getMaxValFARM(ptr_farmLog->reserved22.headValue, n) * 0.1);
-    jout("\t\tPrivate Metric 52-All: %0.01f\n", (double) getMaxValFARM(ptr_farmLog->reserved23.headValue, n) * 0.1);
-    jout("\t\tPrivate Metric 53-All: %0.01f\n", (double) getMaxValFARM(ptr_farmLog->reserved24.headValue, n) * 0.1);
     // Print JSON if --json or -j is specified
     char str[50];
     json::ref jref = jglb["seagate_farm_log"];
@@ -1158,25 +1128,6 @@ static bool scsiPrintFarmLog(scsiFarmLog * ptr_farmLog) {
         sprintf(h, "head_%i", i);
         jrefh1[h] = ptr_farmLog->totalReallocationCanidates.headValue[i];
     }
-    // Private metrics
-    json::ref jrefp = jref["private_metrics"];
-    jrefp["private_metric_5_188"] = ptr_farmLog->reliability.reserved20;
-    jrefp["private_metric_5_196"] = ptr_farmLog->reliability.reserved21;
-    jrefp["private_metric_18_all"] = getMaxValFARM(ptr_farmLog->reserved1.headValue, n);
-    jrefp["private_metric_29_all"] = getMaxValFARM(ptr_farmLog->reserved11.headValue, n);
-    jrefp["private_metric_30_all"] = getMaxValFARM(ptr_farmLog->reserved12.headValue, n);
-    sprintf(str, "%0.01f", (double) getMaxValFARM(ptr_farmLog->reserved19.headValue, n) * 0.1);
-    jrefp["private_metric_48_all"] = str;
-    sprintf(str, "%0.01f", (double) getMaxValFARM(ptr_farmLog->reserved20.headValue, n) * 0.1);
-    jrefp["private_metric_49_all"] = str;
-    sprintf(str, "%0.01f", (double) getMaxValFARM(ptr_farmLog->reserved21.headValue, n) * 0.1);
-    jrefp["private_metric_50_all"] = str;
-    sprintf(str, "%0.01f", (double) getMaxValFARM(ptr_farmLog->reserved22.headValue, n) * 0.1);
-    jrefp["private_metric_51_all"] = str;
-    sprintf(str, "%0.01f", (double) getMaxValFARM(ptr_farmLog->reserved23.headValue, n) * 0.1);
-    jrefp["private_metric_52_all"] = str;
-    sprintf(str, "%0.01f", (double) getMaxValFARM(ptr_farmLog->reserved24.headValue, n) * 0.1);
-    jrefp["private_metric_53_all"] = str;
     return true;
 }
 

@@ -2122,39 +2122,6 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
 // Seagate Field Access Reliability Metrics (FARM) log (Log 0xA6)
 
 /*
- *  Helper function to extract columns from 2D arrays for FARM logs
- * 
- *  @param  arr:    2D array with three columns (uint64_t [][])
- *  @param  j:      Column number to extract (unsigned)
- *  @param  n:      Size of column (size_t)
- *  @return A 1D array of the desired column (uint64_t[])
- */
-static uint64_t * constructColArr(uint64_t arr[][3], unsigned j, size_t n) {
-    uint64_t * colArr = new uint64_t[n];
-    for (unsigned i = 0; i < n; i++) {
-        colArr[i] = arr[i][j];
-    }
-    return colArr;
-}
-
-/*
- *  Simple max element function helper for printing Seagate FARM Logs
- *  
- *  @param  arr:    Array with metric values (uint64_t [])
- *  @param  n:      Size of array (size_t)    
- *  @return Maximum value of given array (uint64_t)
- */
-static uint64_t getMaxValFARM(uint64_t arr[], size_t n) {
-  uint64_t currentMax = 0;
-  for (unsigned i = 0; i < n; i++) {
-    if (arr[i] > currentMax) {
-        currentMax = arr[i];
-    }
-  }
-  return currentMax;
-}
-
-/*
  *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate
  *  drives and parses data into FARM log structures
  *  Returns parsed structure as defined in atacmds.h
@@ -2261,7 +2228,6 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
     jerr("Error printing parsed FARM log data\n\n");
     return false;
   }
-  size_t n = ptr_farmLog->driveInformation.heads;
   // Print plain-text
   jout("\nSeagate Field Access Reliability Metrics log (FARM) (GP log 0xA6)\n");
   // Page 0: Log Header
@@ -2302,33 +2268,6 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   jout("\t\tSeek Error Rate (Worst): %li\n", ptr_farmLog->reliability.attrSeekErrorRateWorst);
   jout("\t\tHigh Priority Unload Events: %li\n", ptr_farmLog->reliability.attrUnloadEventsRaw);
   jout("\t\tLBAs Corrected By Parity Sector: %li\n", ptr_farmLog->reliability.numberLBACorrectedParitySector);
-  // Private metrics
-  jout("\tFARM Log: Private Metrics\n");
-  jout("\t\tPrivate Metric 5-504: %lu\n", getMaxValFARM(ptr_farmLog->reliability.reserved14, n));
-  jout("\t\tPrivate Metric 5-1528: %lu\n", ptr_farmLog->reliability.reserved16);
-  jout("\t\tPrivate Metric 5-2688: %lu\n", getMaxValFARM(ptr_farmLog->reliability.reserved23, n));
-  uint64_t * arr;
-  arr = constructColArr(ptr_farmLog->reliability.reserved24, 0, n);
-  jout("\t\tPrivate Metric 5-2880i: %0.01f\n", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  arr = constructColArr(ptr_farmLog->reliability.reserved24, 1, n);
-  jout("\t\tPrivate Metric 5-2880m: %0.01f\n", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  arr = constructColArr(ptr_farmLog->reliability.reserved24, 2, n);
-  jout("\t\tPrivate Metric 5-2880o: %0.01f\n", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  arr = constructColArr(ptr_farmLog->reliability.reserved25, 0, n);
-  jout("\t\tPrivate Metric 5-3456i: %0.01f\n", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  arr = constructColArr(ptr_farmLog->reliability.reserved25, 1, n);
-  jout("\t\tPrivate Metric 5-3456m: %0.01f\n", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  arr = constructColArr(ptr_farmLog->reliability.reserved25, 2, n);
-  jout("\t\tPrivate Metric 5-3456o: %0.01f\n", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  arr = NULL;
-  jout("\t\tPrivate Metric 5-4032: %lu\n", getMaxValFARM(ptr_farmLog->reliability.reserved26, n));
-  jout("\t\tPrivate Metric 5-5184: %lu\n", ptr_farmLog->reliability.reserved30);
   // Print JSON if --json or -j is specified
   char str[50];
   json::ref jref = jglb["seagate_farm_log"];
@@ -2370,39 +2309,6 @@ static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
   jref5["seek_error_rate_worst"] = ptr_farmLog->reliability.attrSeekErrorRateWorst;
   jref5["lbas_corrected_by_parity_sector"] = ptr_farmLog->reliability.numberLBACorrectedParitySector;
   jref5["high_priority_unload_events"] = ptr_farmLog->reliability.attrUnloadEventsRaw;
-  // Private metrics
-  json::ref jrefp = jref["private_metrics"];
-  jrefp["private_metric_5_488"] = ptr_farmLog->reliability.reserved12;
-  jrefp["private_metric_5_504"] = getMaxValFARM(ptr_farmLog->reliability.reserved14, n);
-  jrefp["private_metric_5_1528"] = ptr_farmLog->reliability.reserved16;
-  jrefp["private_metric_5_2688"] = getMaxValFARM(ptr_farmLog->reliability.reserved23, n);
-  arr = constructColArr(ptr_farmLog->reliability.reserved24, 0, n);
-  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  jrefp["private_metric_5_2880i"] = str;
-  arr = constructColArr(ptr_farmLog->reliability.reserved24, 1, n);
-  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  jrefp["private_metric_5_2880m"] = str;
-  arr = constructColArr(ptr_farmLog->reliability.reserved24, 2, n);
-  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  jrefp["private_metric_5_2880o"] = str;
-  arr = constructColArr(ptr_farmLog->reliability.reserved25, 0, n);
-  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  jrefp["private_metric_5_3456i"] = str;
-  arr = constructColArr(ptr_farmLog->reliability.reserved25, 1, n);
-  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  jrefp["private_metric_5_3456m"] = str;
-  arr = constructColArr(ptr_farmLog->reliability.reserved25, 2, n);
-  sprintf(str, "%0.01f", (double) getMaxValFARM(arr, n) * 0.1);
-  delete [] arr;
-  jrefp["private_metric_5_3456o"] = str;
-  arr = NULL;
-  jrefp["private_metric_5_4032"] = getMaxValFARM(ptr_farmLog->reliability.reserved26, n);
-  jrefp["private_metric_5_5184"] = ptr_farmLog->reliability.reserved30;
   return true;
 }
 
