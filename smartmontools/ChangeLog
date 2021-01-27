@@ -1,4 +1,8 @@
-$Id: ChangeLog 5183 2021-01-24 16:40:20Z chrfranke $
+$Id: ChangeLog 5186 2021-01-27 18:35:45Z chrfranke $
+
+2021-01-27  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Use some C++11 features.  Align output functions.
 
 2021-01-24  Christian Franke  <franke@computer.org>
 
