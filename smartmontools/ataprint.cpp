@@ -2144,8 +2144,8 @@ static ataFarmLog * ataReadFarmLog(ata_device * device, unsigned nsectors) {
     sizeof(ataFarmErrorStatistics),
     sizeof(ataFarmEnvironmentStatistics),
     sizeof(ataFarmReliabilityStatistics)};
-  ataFarmLog farmLog;
-  ataFarmLog * ptr_farmLog = &farmLog;
+  ataFarmLog * ptr_farmLog = new ataFarmLog;
+  memset(ptr_farmLog, 0, sizeof(ataFarmLog));
   unsigned numSectorsToRead = (sizeof(ataFarmHeader) / FARM_SECTOR_SIZE) + 1;
   // Go through each of the six pages of the FARM log
   for (unsigned page = 0; page < FARM_MAX_PAGES; page++) {
@@ -4654,6 +4654,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
             pout("Print FARM log (GP Log 0xA6) failed\n\n");
           }
         }
+        delete ptr_farmLog;
+        ptr_farmLog = NULL;
       }
     } else {
       pout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");

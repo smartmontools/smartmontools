@@ -858,8 +858,8 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
  */
 static scsiFarmLog * scsiReadFarmLog(scsi_device * device) {
     const size_t FARM_ATTRIBUTE_SIZE = 8;
-    scsiFarmLog farmLog;
-    scsiFarmLog * ptr_farmLog = &farmLog;
+    scsiFarmLog * ptr_farmLog = new scsiFarmLog;
+    memset(ptr_farmLog, 0, sizeof(scsiFarmLog));
     if (0 != scsiLogSense(device, SEAGATE_FARM_LPAGE, SEAGATE_FARM_CURRENT_L_SPAGE, gBuf, LOG_RESP_LONG_LEN, 0)) {
         jerr("Read FARM Log page failed\n\n");
         return NULL;
@@ -2806,6 +2806,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                     pout("Print FARM log (SCSI log page 0x3D, sub-page 0x3) failed\n\n");
                 }
             }
+            delete ptr_farmLog;
+            ptr_farmLog = NULL;
         } else {
             pout("FARM log (SCSI log page 0x3D, sub-page 0x3) not supported\n\n");
         }
