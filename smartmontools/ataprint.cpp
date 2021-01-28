@@ -4644,19 +4644,25 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
       if (!nsectors) {
         if (!options.all) {
-          pout("FARM log (GP Log 0xA6) not supported\n\n");
+          jout("\nFARM log (GP Log 0xA6) not supported\n\n");
+          json::ref js = jglb["seagate_farm_log_supported"];
+          js = false;
         }
       } else {
         ataFarmLog * ptr_farmLog = ataReadFarmLog(device, nsectors);
         if (ptr_farmLog == NULL) {
           if (!options.all) {
-            pout("Read FARM log (GP Log 0xA6) failed\n\n");
+            jout("\nRead FARM log (GP Log 0xA6) failed\n\n");
+            json::ref js = jglb["seagate_farm_log_supported"];
+            js = false;
           }
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         } else {
           if (!ataPrintFarmLog(ptr_farmLog)) {
             if (!options.all) {
-              pout("Print FARM log (GP Log 0xA6) failed\n\n");
+              jout("\nPrint FARM log (GP Log 0xA6) failed\n\n");
+              json::ref js = jglb["seagate_farm_log_supported"];
+              js = false;
             }
           }
         }
@@ -4665,7 +4671,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       }
     } else {
       if (!options.all) {
-        pout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");
+        jout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");
+        json::ref js = jglb["seagate_farm_log_supported"];
+        js = false;
       }
     }
   }

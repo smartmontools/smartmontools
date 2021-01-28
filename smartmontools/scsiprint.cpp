@@ -2801,12 +2801,16 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiFarmLog * ptr_farmLog = scsiReadFarmLog(device);
             if (ptr_farmLog == NULL) {
                 if (!options.all) {
-                    pout("Read FARM log (SCSI log page 0x3D, sub-page 0x3) failed\n\n");
+                    jout("\nRead FARM log (SCSI log page 0x3D, sub-page 0x3) failed\n\n");
+                    json::ref js = jglb["seagate_farm_log_supported"];
+                    js = false;
                 }
             } else {
                 if (!scsiPrintFarmLog(ptr_farmLog)) {
                     if (!options.all) {
-                        pout("Print FARM log (SCSI log page 0x3D, sub-page 0x3) failed\n\n");
+                        jout("\nPrint FARM log (SCSI log page 0x3D, sub-page 0x3) failed\n\n");
+                        json::ref js = jglb["seagate_farm_log_supported"];
+                        js = false;
                     }
                 }
             }
@@ -2814,7 +2818,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             ptr_farmLog = NULL;
         } else {
             if (!options.all) {
-                pout("FARM log (SCSI log page 0x3D, sub-page 0x3) not supported\n\n");
+                jout("\nFARM log (SCSI log page 0x3D, sub-page 0x3) not supported\n\n");
+                json::ref js = jglb["seagate_farm_log_supported"];
+                js = false;
             }
         }
     }
