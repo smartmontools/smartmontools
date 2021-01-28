@@ -1245,8 +1245,7 @@ int freebsd_areca_ata_device::arcmsr_do_scsi_io(struct scsi_cmnd_io * iop)
     // errors found
     return -1;
   }
-
-  return ioctlreturn;
+  return 0;
 }
 
 bool freebsd_areca_ata_device::arcmsr_lock()
@@ -1291,7 +1290,7 @@ int freebsd_areca_scsi_device::arcmsr_do_scsi_io(struct scsi_cmnd_io * iop)
     return -1;
   }
 
-  return ioctlreturn;
+  return 0;
 }
 
 bool freebsd_areca_scsi_device::arcmsr_lock()
@@ -1973,7 +1972,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
       }
       else free(atanames[i]);
     }
-    if(numata) free(atanames);
+    free(atanames);
   }
   else {
     if (numata < 0)
