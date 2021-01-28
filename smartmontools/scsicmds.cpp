@@ -557,8 +557,6 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
         if (0 == u)
             return SIMPLE_ERR_BAD_RESP;
         pageLen = u + 4;
-        if (4 == pageLen)  /* why define a lpage with no payload? */
-            pageLen = 252; /* some IBM tape drives don't like double fetch */
         /* some SCSI HBA don't like "odd" length transfers */
         if (pageLen % 2)
             pageLen += 1;
