@@ -227,7 +227,3 @@ workflows:
     jobs:
       - test_ubuntu_latest
 ##      - test_centos_latest
-
-notify:
-  webhooks:
-    - url: https://builds-ci.smartmontools.org/hook.php
