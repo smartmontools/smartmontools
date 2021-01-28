@@ -75,7 +75,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5129 2020-12-12 21:36:48Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5190 2021-01-28 11:35:54Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1245,8 +1245,7 @@ int freebsd_areca_ata_device::arcmsr_do_scsi_io(struct scsi_cmnd_io * iop)
     // errors found
     return -1;
   }
-
-  return ioctlreturn;
+  return 0;
 }
 
 bool freebsd_areca_ata_device::arcmsr_lock()
@@ -1291,7 +1290,7 @@ int freebsd_areca_scsi_device::arcmsr_do_scsi_io(struct scsi_cmnd_io * iop)
     return -1;
   }
 
-  return ioctlreturn;
+  return 0;
 }
 
 bool freebsd_areca_scsi_device::arcmsr_lock()
@@ -1973,7 +1972,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
       }
       else free(atanames[i]);
     }
-    if(numata) free(atanames);
+    free(atanames);
   }
   else {
     if (numata < 0)
