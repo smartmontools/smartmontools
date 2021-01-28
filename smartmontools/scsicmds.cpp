@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "sg_unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5131 2020-12-15 21:30:33Z dpgilbert $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5191 2021-01-28 16:40:20Z samm2 $"
   SCSICMDS_H_CVSID;
 
 static const char * logSenStr = "Log Sense";
@@ -557,8 +557,6 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
         if (0 == u)
             return SIMPLE_ERR_BAD_RESP;
         pageLen = u + 4;
-        if (4 == pageLen)  /* why define a lpage with no payload? */
-            pageLen = 252; /* some IBM tape drives don't like double fetch */
         /* some SCSI HBA don't like "odd" length transfers */
         if (pageLen % 2)
             pageLen += 1;
