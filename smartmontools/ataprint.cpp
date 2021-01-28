@@ -4643,22 +4643,30 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     if (isSeagate(&drive)) {
       unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
       if (!nsectors) {
-        pout("FARM log (GP Log 0xA6) not supported\n\n");
+        if (!options.all) {
+          pout("FARM log (GP Log 0xA6) not supported\n\n");
+        }
       } else {
         ataFarmLog * ptr_farmLog = ataReadFarmLog(device, nsectors);
         if (ptr_farmLog == NULL) {
-          pout("Read FARM log (GP Log 0xA6) failed\n\n");
+          if (!options.all) {
+            pout("Read FARM log (GP Log 0xA6) failed\n\n");
+          }
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         } else {
           if (!ataPrintFarmLog(ptr_farmLog)) {
-            pout("Print FARM log (GP Log 0xA6) failed\n\n");
+            if (!options.all) {
+              pout("Print FARM log (GP Log 0xA6) failed\n\n");
+            }
           }
         }
         delete ptr_farmLog;
         ptr_farmLog = NULL;
       }
     } else {
-      pout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");
+      if (!options.all) {
+        pout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");
+      }
     }
   }
   // Set to standby (spindown) mode and set standby timer if not done above
