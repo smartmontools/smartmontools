@@ -1,6 +1,8 @@
-$Id: ChangeLog 5192 2021-02-01 17:26:52Z chrfranke $
+$Id: ChangeLog 5193 2021-02-01 17:34:37Z chrfranke $
 
 2021-02-01  Christian Franke  <franke@computer.org>
+
+	json.h: suppress cppcheck: noExplicitConstructor.
 
 	ataprint.cpp, ataprint.h, smartctl.cpp: Optionally exit immediately
 	if '-n POWERMODE' option is not supported (#1381).
