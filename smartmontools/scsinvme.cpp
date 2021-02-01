@@ -184,7 +184,7 @@ bool sntjmicron_device::open()
 bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
 {
   /* Only admin commands used */
-  bool admin = true;
+  constexpr bool admin = true;
 
   // 1: "NVM Command Set Payload"
   {

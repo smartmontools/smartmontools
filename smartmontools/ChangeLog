@@ -2,6 +2,8 @@ $Id$
 
 2021-02-01  Christian Franke  <franke@computer.org>
 
+	Silence more cppcheck 2.3 warnings.
+
 	Add C++11 'override' specifier where applicable (cppcheck: missingOverride).
 
 	os_freebsd.cpp, os_linux.cpp: Replace deprecated bcopy() and bzero()

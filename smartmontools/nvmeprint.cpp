@@ -415,7 +415,7 @@ static void print_smart_log(const nvme_smart_log & smart_log,
 
   // Temperature sensors are optional
   for (int i = 0; i < 8; i++) {
-    int k = smart_log.temp_sensor[i];
+    k = smart_log.temp_sensor[i];
     if (show_all || k) {
       jout("Temperature Sensor %d:               %s\n", i + 1,
            kelvin_to_str(buf, k));

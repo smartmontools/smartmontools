@@ -173,7 +173,6 @@ scsiGetSupportedLogPages(scsi_device * device)
     }
 
     if (got_subpages) {
-        resp_len = sg_get_unaligned_be16(gBuf + 2);
         if (resp_len_pg0_ff <= resp_len_pg0_0) {
             /* something is rotten ....., ignore SUPP_SPAGE_L_SPAGE */
             resp_len = resp_len_pg0_0;
@@ -2541,9 +2540,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             if (gBackgroundResultsLPage)
                 res = scsiPrintBackgroundResults(device, true);
         }
-        any_output = true;
-    }
-    if (options.smart_vendor_attrib) {
         if (gStartStopLPage)
             scsiGetStartStopData(device);
         if (is_disk) {

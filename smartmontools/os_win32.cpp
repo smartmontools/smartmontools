@@ -1488,7 +1488,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   m_is_3ware = (vers_ex.wIdentifier == SMART_VENDOR_3WARE);
 
   unsigned portmap = 0;
-  if (port >= 0 && devmap >= 0) {
+  if (devmap >= 0) {
     // 3ware RAID: check vendor id
     if (!m_is_3ware) {
       pout("SMART_GET_VERSION returns unknown Identifier = 0x%04x\n"

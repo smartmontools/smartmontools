@@ -4529,28 +4529,28 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
       missingarg = true;
     }
     else {
-      char arg2[16+1]; unsigned val;
+      char arg2[16+1]; unsigned uval;
       int n1 = -1, n2 = -1, n3 = -1, len = strlen(arg);
-      if (sscanf(arg, "%16[^,=]%n%*[,=]%n%u%n", arg2, &n1, &n2, &val, &n3) >= 1
+      if (sscanf(arg, "%16[^,=]%n%*[,=]%n%u%n", arg2, &n1, &n2, &uval, &n3) >= 1
           && (n1 == len || n2 > 0)) {
         bool on  = (n2 > 0 && !strcmp(arg+n2, "on"));
         bool off = (n2 > 0 && !strcmp(arg+n2, "off"));
         if (n3 != len)
-          val = ~0U;
+          uval = ~0U;
 
         if (!strcmp(arg2, "aam")) {
           if (off)
             cfg.set_aam = -1;
-          else if (val <= 254)
-            cfg.set_aam = val + 1;
+          else if (uval <= 254)
+            cfg.set_aam = uval + 1;
           else
             badarg = true;
         }
         else if (!strcmp(arg2, "apm")) {
           if (off)
             cfg.set_apm = -1;
-          else if (1 <= val && val <= 254)
-            cfg.set_apm = val + 1;
+          else if (1 <= uval && uval <= 254)
+            cfg.set_apm = uval + 1;
           else
             badarg = true;
         }
@@ -4568,8 +4568,8 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
         else if (!strcmp(arg2, "standby")) {
           if (off)
             cfg.set_standby = 0 + 1;
-          else if (val <= 255)
-            cfg.set_standby = val + 1;
+          else if (uval <= 255)
+            cfg.set_standby = uval + 1;
           else
             badarg = true;
         }
@@ -5222,7 +5222,7 @@ static int MakeConfigEntries(const dev_config & base_cfg,
   }
   
   // if no devices, return
-  if (devlist.size() <= 0)
+  if (devlist.size() == 0)
     return 0;
 
   // add empty device slots for existing config entries
