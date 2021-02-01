@@ -1,8 +1,9 @@
-$Id: ChangeLog 5194 2021-02-01 17:46:42Z chrfranke $
+$Id: ChangeLog 5195 2021-02-01 17:51:28Z chrfranke $
 
 2021-02-01  Christian Franke  <franke@computer.org>
 
 	cppcheck.sh: Add '-c' option.
+	Remove suppress: bcopyCalled, bzeroCalled, missingOverride
 
 	json.h: suppress cppcheck: noExplicitConstructor.
 

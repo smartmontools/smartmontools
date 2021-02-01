@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: cppcheck.sh 5194 2021-02-01 17:46:42Z chrfranke $
+# $Id: cppcheck.sh 5195 2021-02-01 17:51:28Z chrfranke $
 #
 
 set -e
@@ -76,12 +76,9 @@ sup_list="
   #style
   asctime_rCalled:utility.cpp
   asctime_sCalled:utility.cpp
-  bzeroCalled
-  bcopyCalled
   ftimeCalled
   readdirCalled
   strtokCalled
-  missingOverride
   unusedStructMember
   unusedFunction:sg_unaligned.h
   unmatchedSuppression
