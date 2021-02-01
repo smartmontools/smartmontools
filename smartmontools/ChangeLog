@@ -2,6 +2,8 @@ $Id$
 
 2021-02-01  Christian Franke  <franke@computer.org>
 
+	cppcheck.sh: Add '-c' option.
+
 	json.h: suppress cppcheck: noExplicitConstructor.
 
 	ataprint.cpp, ataprint.h, smartctl.cpp: Optionally exit immediately
