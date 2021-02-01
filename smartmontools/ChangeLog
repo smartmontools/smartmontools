@@ -1,6 +1,8 @@
-$Id: ChangeLog 5197 2021-02-01 18:21:12Z chrfranke $
+$Id: ChangeLog 5198 2021-02-01 20:36:02Z chrfranke $
 
 2021-02-01  Christian Franke  <franke@computer.org>
+
+	Add C++11 'override' specifier where applicable (cppcheck: missingOverride).
 
 	os_freebsd.cpp, os_linux.cpp: Replace deprecated bcopy() and bzero()
 	(cppcheck: bcopyCalled, bzeroCalled).

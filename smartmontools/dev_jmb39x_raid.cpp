@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2019-20 Christian Franke
+ * Copyright (C) 2019-21 Christian Franke
  *
  * Based on JMraidcon (same license):
  *   Copyright (C) 2010 Werner Johansson
@@ -25,7 +25,7 @@
 
 #include <errno.h>
 
-const char * dev_jmb39x_raid_cpp_svnid = "$Id: dev_jmb39x_raid.cpp 5089 2020-10-06 15:31:47Z chrfranke $";
+const char * dev_jmb39x_raid_cpp_svnid = "$Id: dev_jmb39x_raid.cpp 5198 2021-02-01 20:36:02Z chrfranke $";
 
 static void jmbassert_failed(int line, const char * expr)
 {
@@ -319,11 +319,11 @@ public:
 
   virtual ~jmb39x_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 private:
   uint8_t m_version;

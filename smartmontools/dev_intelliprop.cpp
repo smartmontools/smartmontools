@@ -15,7 +15,7 @@
 #include "dev_tunnelled.h"
 #include <errno.h>
 
-const char * dev_intelliprop_cpp_cvsid = "$Id: dev_intelliprop.cpp 5089 2020-10-06 15:31:47Z chrfranke $";
+const char * dev_intelliprop_cpp_cvsid = "$Id: dev_intelliprop.cpp 5198 2021-02-01 20:36:02Z chrfranke $";
 
 //Vendor Specific log addresses
 #define LOG_C0           0xc0
@@ -248,9 +248,9 @@ public:
 
   virtual ~intelliprop_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 private:
   unsigned m_phydrive;

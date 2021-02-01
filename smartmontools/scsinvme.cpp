@@ -20,7 +20,7 @@
 
 #include <errno.h>
 
-const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5168 2021-01-17 15:19:05Z chrfranke $";
+const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5198 2021-02-01 20:36:02Z chrfranke $";
 
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
@@ -40,7 +40,7 @@ public:
 
   virtual ~sntasmedia_device();
 
-  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 };
 
 sntasmedia_device::sntasmedia_device(smart_interface * intf, scsi_device * scsidev,
@@ -130,9 +130,9 @@ public:
 
   virtual ~sntjmicron_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 
 private:
   enum {
@@ -325,7 +325,7 @@ public:
 
   virtual ~sntrealtek_device();
 
-  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 };
 
 sntrealtek_device::sntrealtek_device(smart_interface * intf, scsi_device * scsidev,

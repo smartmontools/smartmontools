@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-20 Christian Franke
+ * Copyright (C) 2009-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  * The code in this file is based on the SCSI to ATA Translation (SAT)
@@ -55,7 +55,7 @@
 #include "dev_tunnelled.h" // tunnelled_device<>
 #include "sg_unaligned.h"
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 5089 2020-10-06 15:31:47Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 5198 2021-02-01 20:36:02Z chrfranke $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -116,11 +116,11 @@ public:
 
   virtual ~sat_device();
 
-  virtual smart_device * autodetect_open();
+  virtual smart_device * autodetect_open() override;
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
 
 private:
   int m_passthrulen;
@@ -615,7 +615,7 @@ public:
   virtual ~usbcypress_device();
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual int ata_command_interface(smart_command_set command, int select, char * data) override;
 
   unsigned char m_signature;
 };
@@ -932,9 +932,9 @@ public:
 
   virtual ~usbjmicron_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 private:
   bool get_registers(unsigned short addr, unsigned char * buf, unsigned short size);
@@ -1160,7 +1160,7 @@ public:
 
   virtual ~usbprolific_device();
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 };
 
 
@@ -1299,7 +1299,7 @@ public:
 
   virtual ~usbsunplus_device();
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 };
 
 

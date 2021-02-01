@@ -25,7 +25,7 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 5089 2020-10-06 15:31:47Z chrfranke $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 5198 2021-02-01 20:36:02Z chrfranke $"
   OS_NETBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))
@@ -131,7 +131,7 @@ class netbsd_ata_device
 {
 public:
   netbsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 protected:
   virtual int do_cmd(struct atareq* request, bool is_48bit_cmd);
@@ -227,9 +227,9 @@ public:
   netbsd_nvme_device(smart_interface * intf, const char * dev_name,
     const char * req_type, unsigned nsid);
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 };
 
 netbsd_nvme_device::netbsd_nvme_device(smart_interface * intf, const char * dev_name,
@@ -331,9 +331,9 @@ class netbsd_scsi_device
 public:
   netbsd_scsi_device(smart_interface * intf, const char * dev_name, const char * req_type, bool scanning = false);
 
-  virtual smart_device * autodetect_open();
+  virtual smart_device * autodetect_open() override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
 
 private:
   bool m_scanning; ///< true if created within scan_smart_devices
@@ -492,26 +492,26 @@ class netbsd_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
-  virtual std::string get_os_version_str();
+  virtual std::string get_os_version_str() override;
 
-  virtual std::string get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname) override;
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
-    const char * pattern = 0);
+    const char * pattern = 0) override;
 
 protected:
-  virtual ata_device * get_ata_device(const char * name, const char * type);
+  virtual ata_device * get_ata_device(const char * name, const char * type) override;
 
-  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+  virtual scsi_device * get_scsi_device(const char * name, const char * type) override;
 
   virtual nvme_device * get_nvme_device(const char * name, const char * type,
-    unsigned nsid);
+    unsigned nsid) override;
 
-  virtual smart_device * autodetect_smart_device(const char * name);
+  virtual smart_device * autodetect_smart_device(const char * name) override;
 
-  virtual smart_device * get_custom_smart_device(const char * name, const char * type);
+  virtual smart_device * get_custom_smart_device(const char * name, const char * type) override;
 
-  virtual std::string get_valid_custom_dev_types_str();
+  virtual std::string get_valid_custom_dev_types_str() override;
 
 private:
   int get_dev_names(char ***, const char *);
