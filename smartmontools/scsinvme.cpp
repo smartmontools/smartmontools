@@ -20,7 +20,7 @@
 
 #include <errno.h>
 
-const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5198 2021-02-01 20:36:02Z chrfranke $";
+const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5199 2021-02-01 21:34:40Z chrfranke $";
 
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
@@ -184,7 +184,7 @@ bool sntjmicron_device::open()
 bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
 {
   /* Only admin commands used */
-  bool admin = true;
+  constexpr bool admin = true;
 
   // 1: "NVM Command Set Payload"
   {

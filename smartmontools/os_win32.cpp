@@ -72,7 +72,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 5198 2021-02-01 20:36:02Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 5199 2021-02-01 21:34:40Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -1488,7 +1488,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   m_is_3ware = (vers_ex.wIdentifier == SMART_VENDOR_3WARE);
 
   unsigned portmap = 0;
-  if (port >= 0 && devmap >= 0) {
+  if (devmap >= 0) {
     // 3ware RAID: check vendor id
     if (!m_is_3ware) {
       pout("SMART_GET_VERSION returns unknown Identifier = 0x%04x\n"

@@ -1,6 +1,8 @@
-$Id: ChangeLog 5198 2021-02-01 20:36:02Z chrfranke $
+$Id: ChangeLog 5199 2021-02-01 21:34:40Z chrfranke $
 
 2021-02-01  Christian Franke  <franke@computer.org>
+
+	Silence more cppcheck 2.3 warnings.
 
 	Add C++11 'override' specifier where applicable (cppcheck: missingOverride).
 

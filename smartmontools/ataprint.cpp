@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5192 2021-02-01 17:26:52Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5199 2021-02-01 21:34:40Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -655,7 +655,7 @@ static void print_drive_info(const ata_identify_device * drive,
   // (e08130r1, added in ACS-2 Revision 1, December 17, 2008)
   if (0x2020 <= drive->words088_255[170-88] && drive->words088_255[170-88] <= 0x7e7e) {
     char add[8+1];
-    ata_format_id_string(add, (const unsigned char *)(drive->words088_255+170-88), sizeof(add)-1);
+    ata_format_id_string(add, (const unsigned char *)(drive->words088_255+(170-88)), sizeof(add)-1);
     if (add[0]) {
       jout("Add. Product Id:  %s\n", add);
       jglb["ata_additional_product_id"] = add;
