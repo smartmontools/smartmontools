@@ -3316,7 +3316,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     switch (powermode) {
       case -1:
         if (device->is_syscall_unsup()) {
-          pout("CHECK POWER MODE not implemented, ignoring -n option\n"); break;
+          if (options.powerexit_unsup >= 0) {
+            jinf("CHECK POWER MODE not implemented, exit(%d)\n", options.powerexit_unsup);
+            return options.powerexit_unsup;
+          }
+          jinf("CHECK POWER MODE not implemented, ignoring -n option\n"); break;
         }
         powername = "SLEEP";   powerlimit = 2;
         break;
@@ -3343,7 +3347,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         powername = "ACTIVE or IDLE"; break;
 
       default:
-        pout("CHECK POWER MODE returned unknown value 0x%02x, ignoring -n option\n", powermode);
+        if (options.powerexit_unsup >= 0) {
+          jinf("CHECK POWER MODE returned unknown value 0x%02x, exit(%d)\n", powermode,
+               options.powerexit_unsup);
+          return options.powerexit_unsup;
+        }
+        jinf("CHECK POWER MODE returned unknown value 0x%02x, ignoring -n option\n", powermode);
         break;
     }
     if (powername) {

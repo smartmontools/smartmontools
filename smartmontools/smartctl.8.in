@@ -829,7 +829,7 @@ Then \fBsmartctl\fP internally simulates an ATA device with the same
 behaviour.
 This is does not work for SCSI devices yet.
 .TP
-.B \-n POWERMODE[,STATUS], \-\-nocheck=POWERMODE[,STATUS]
+.B \-n POWERMODE[,STATUS[,STATUS2]], \-\-nocheck=POWERMODE[,STATUS[,STATUS2]]
 [ATA]
 [SCSI: NEW EXPERIMENTAL SMARTCTL FEATURE]
 Specifies if \fBsmartctl\fP should exit before performing any
@@ -857,19 +857,27 @@ The valid arguments to this option are:
 \- check the device always, but print the power mode if \*(Aq\-i\*(Aq is
 specified.
 .Sp
-.I sleep[,STATUS]
+.I sleep[,STATUS[,STATUS2]]
 \- check the device unless it is in SLEEP mode.
 .Sp
-.I standby[,STATUS]
+.I standby[,STATUS[,STATUS2]]
 \- check the device unless it is in SLEEP or STANDBY mode.  In
 these modes most disks are not spinning, so if you want to prevent
 a disk from spinning up, this is probably what you want.
 .Sp
-.I idle[,STATUS]
+.I idle[,STATUS[,STATUS2]]
 \- check the device unless it is in SLEEP, STANDBY or IDLE mode.
 In the IDLE state, most disks are still spinning, so this is probably
 not what you want.
 .Sp
+The \*(Aq\-n\*(Aq option is ignored if the power mode check is not supported
+or returns an unknown value.
+.br
+[ATA only][NEW EXPERIMENTAL SMARTCTL FEATURE]
+If the optional STATUS2 parameter is specified, \fBsmartctl\fP exits
+immediately with STATUS2 in this case.
+For example use \*(Aq\-n standby,3,5\*(Aq to return unique exit statuses in
+the STANDBY and UNSUPPORTED cases.
 .TP
 .B SMART FEATURE ENABLE/DISABLE COMMANDS:
 .IP

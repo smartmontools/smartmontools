@@ -145,7 +145,7 @@ static void Usage()
 "         Set action on bad checksum to one of: warn, exit, ignore\n\n"
 "  -r TYPE, --report=TYPE\n"
 "         Report transactions (see man page)\n\n"
-"  -n MODE[,STATUS], --nocheck=MODE[,STATUS]                     (ATA, SCSI)\n"
+"  -n MODE[,STATUS[,STATUS2]], --nocheck=MODE[,STATUS[,STATUS2]] (ATA, SCSI)\n"
 "         No check if: never, sleep, standby, idle (see man page)\n\n",
   getvalidarglist('d').c_str()); // TODO: Use this function also for other options ?
   pout(
@@ -254,7 +254,8 @@ static std::string getvalidarglist(int opt)
   case 'F':
     return std::string(get_valid_firmwarebug_args()) + ", swapid";
   case 'n':
-    return "never, sleep[,STATUS], standby[,STATUS], idle[,STATUS]";
+    return "never, sleep[,STATUS[,STATUS2]], standby[,STATUS[,STATUS2]], "
+           "idle[,STATUS[,STATUS2]]";
   case 'f':
     return "old, brief, hex[,id|val]";
   case 'g':
@@ -868,10 +869,10 @@ static int parse_options(int argc, char** argv, const char * & type,
         scsiopts.powermode = 1;
       }
       else {
-        int n1 = -1, n2 = -1, len = strlen(optarg);
-        char s[7+1]; unsigned i = FAILPOWER;
-        sscanf(optarg, "%9[a-z]%n,%u%n", s, &n1, &i, &n2);
-        if (!((n1 == len || n2 == len) && i <= 255))
+        int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
+        char s[7+1]; unsigned i = FAILPOWER, j = 0;
+        sscanf(optarg, "%9[a-z]%n,%u%n,%u%n", s, &n1, &i, &n2, &j, &n3);
+        if (!((n1 == len || n2 == len || n3 == len) && i <= 255 && j <= 255))
           badarg = true;
         else if (!strcmp(s, "sleep")) {
           ataopts.powermode = 2;
@@ -886,6 +887,7 @@ static int parse_options(int argc, char** argv, const char * & type,
           badarg = true;
 
         ataopts.powerexit = i;
+        ataopts.powerexit_unsup = (n3 == len ? j : -1);
         scsiopts.powerexit = i;
       }
       break;
