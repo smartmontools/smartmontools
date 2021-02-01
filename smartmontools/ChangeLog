@@ -1,4 +1,10 @@
-$Id: ChangeLog 5187 2021-01-27 21:59:19Z chrfranke $
+$Id: ChangeLog 5192 2021-02-01 17:26:52Z chrfranke $
+
+2021-02-01  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, ataprint.h, smartctl.cpp: Optionally exit immediately
+	if '-n POWERMODE' option is not supported (#1381).
+	smartctl.8.in: Document new STATUS2 Parameter for '-n POWERMODE'.
 
 2021-01-27  Christian Franke  <franke@computer.org>
 

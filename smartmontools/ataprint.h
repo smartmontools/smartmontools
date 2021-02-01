@@ -13,7 +13,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h 5183 2021-01-24 16:40:20Z chrfranke $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h 5192 2021-02-01 17:26:52Z chrfranke $\n"
 
 #include <vector>
 
@@ -79,6 +79,7 @@ struct ata_print_options
   bool show_presets = false; // Show presets and exit
   unsigned char powermode = 0; // Skip check, if disk in idle or standby mode
   unsigned char powerexit = 0; // exit() code for low power mode
+  int powerexit_unsup = -1; // exit() code for unsupported power mode or -1 to ignore
 
   bool get_set_used = false; // true if any get/set command is used
   bool get_aam = false; // print Automatic Acoustic Management status
