@@ -48,15 +48,25 @@ public:
 
   // initializer_list<> elements.
   struct initlist_value {
+    // cppcheck-suppress noExplicitConstructor
     initlist_value(node_type t) : type(t) {}
+    // cppcheck-suppress noExplicitConstructor
     initlist_value(bool v) : type(nt_bool), intval(v ? 1 : 0) {}
+    // cppcheck-suppress noExplicitConstructor
     initlist_value(int v) : initlist_value((long long)v) {}
+    // cppcheck-suppress noExplicitConstructor
     initlist_value(unsigned v) : initlist_value((unsigned long long)v) {}
+    // cppcheck-suppress noExplicitConstructor
     initlist_value(long v) : initlist_value((long long)v) {}
+    // cppcheck-suppress noExplicitConstructor
     initlist_value(unsigned long v) : initlist_value((unsigned long long)v) {}
+    // cppcheck-suppress noExplicitConstructor
     initlist_value(long long v) : type(nt_int), intval((uint64_t)(int64_t)v) {}
+    // cppcheck-suppress noExplicitConstructor
     initlist_value(unsigned long long v) : type(nt_uint), intval((uint64_t)v) {}
+    // cppcheck-suppress noExplicitConstructor
     initlist_value(const char * v) : type(nt_string), strval(v) {}
+    // cppcheck-suppress noExplicitConstructor
     initlist_value(const std::string & v) : type(nt_string), strval(v.c_str()) {}
     node_type type;
     uint64_t intval = 0;
