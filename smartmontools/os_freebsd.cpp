@@ -279,7 +279,7 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
     }
 
   struct ata_ioc_request request;
-  bzero(&request,sizeof(struct ata_ioc_request));
+  memset(&request, 0, sizeof(struct ata_ioc_request));
 
   request.timeout=SCSI_TIMEOUT_DEFAULT;
   request.u.ata.command=in.in_regs.command;
@@ -1063,8 +1063,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     }
   }
   // clear out structure, except for header that was filled in for us
-  bzero(&(&ccb->ccb_h)[1],
-    sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
+  memset(&(&ccb->ccb_h)[1], 0, sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
 
   cam_fill_csio(&ccb->csio,
     /* retries */ 1,
@@ -1521,7 +1520,7 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
   }
 
   union ccb ccb;
-  bzero(&ccb, sizeof(union ccb));
+  memset(&ccb, 0, sizeof(union ccb));
 
   ccb.ccb_h.path_id = CAM_XPT_PATH_ID;
   ccb.ccb_h.target_id = CAM_TARGET_WILDCARD;
@@ -1532,7 +1531,7 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
   ccb.cdm.match_buf_len = bufsize;
   // TODO: Use local buffer instead of malloc() if possible
   ccb.cdm.matches = (struct dev_match_result *)malloc(bufsize);
-  bzero(ccb.cdm.matches,bufsize); // clear ccb.cdm.matches structure
+  memset(ccb.cdm.matches, 0, bufsize); // clear ccb.cdm.matches structure
   
   if (ccb.cdm.matches == NULL) {
     close(fd);
@@ -1999,7 +1998,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
           return 0;
         }
         // zero the payload
-        bzero(&(&ccb.ccb_h)[1], PATHINQ_SETTINGS_SIZE);
+        memset(&(&ccb.ccb_h)[1], 0, PATHINQ_SETTINGS_SIZE);
         ccb.ccb_h.func_code = XPT_PATH_INQ; // send PATH_INQ to the device
         if (ioctl(cam_dev->fd, CAMIOCOMMAND, &ccb) == -1) {
           warn("Get Transfer Settings CCB failed\n"

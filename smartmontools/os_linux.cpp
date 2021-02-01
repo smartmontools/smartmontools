@@ -3112,11 +3112,11 @@ linux_smart_interface::megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
     return (-1);
   }
 
-  bzero(&ioc, sizeof(ioc));
+  memset(&ioc, 0, sizeof(ioc));
   struct megasas_dcmd_frame * dcmd = &ioc.frame.dcmd;
   ioc.host_no = bus_no;
   if (mbox)
-    bcopy(mbox, dcmd->mbox.w, mboxlen);
+    memcpy(dcmd->mbox.w, mbox, mboxlen);
   dcmd->cmd = MFI_CMD_DCMD;
   dcmd->timeout = 0;
   dcmd->flags = 0;
@@ -3168,7 +3168,7 @@ linux_smart_interface::megasas_pd_add_list(int bus_no, smart_device_list & devli
     list = reinterpret_cast<megasas_pd_list *>(realloc(list, list_size));
     if (!list)
       throw std::bad_alloc();
-    bzero(list, list_size);
+    memset(list, 0, list_size);
     if (megasas_dcmd_cmd(bus_no, MFI_DCMD_PD_GET_LIST, list, list_size, NULL, 0,
       NULL) < 0) 
     {
