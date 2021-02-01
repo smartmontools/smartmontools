@@ -4,11 +4,11 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2019-20 Christian Franke
+# Copyright (C) 2019-21 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: cppcheck.sh 5037 2020-03-05 16:07:34Z chrfranke $
+# $Id: cppcheck.sh 5194 2021-02-01 17:46:42Z chrfranke $
 #
 
 set -e
@@ -17,18 +17,20 @@ myname=$0
 
 usage()
 {
-  echo "Usage: $myname [-v|-q] [-jJOBS] [--library=CFG] [--platform=TYPE] [FILE ...]"
+  echo "Usage: $myname [-v|-q] [-c CPPCHECK] [-jJOBS] [--library=CFG] [--platform=TYPE] [FILE ...]"
   exit 1
 }
 
 # Parse options
 jobs=
 v=
+cppcheck="cppcheck"
 library="--library=posix"
 platform="--platform=unix64"
 unused_func=",unusedFunction"
 
 while true; do case $1 in
+  -c) shift; test -n "$1" || usage; cppcheck=$1 ;;
   -j?*) jobs=$1; unused_func= ;;
   -q) v="-q" ;;
   -v) v="-v" ;;
@@ -58,7 +60,7 @@ else
 fi
 
 # Check cppcheck version
-ver=$(cppcheck --version) || exit 1
+ver=$("$cppcheck" --version) || exit 1
 ver=${ver##* }
 case $ver in
   1.85) ;;
@@ -126,7 +128,7 @@ $(for s in $suppress; do echo "  $s \\"; done)
 EOF
 
 # Run cppcheck with swapped stdout<>stderr
-cppcheck \
+"$cppcheck" \
   $v \
   $jobs \
   --enable="$enable" \

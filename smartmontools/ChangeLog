@@ -1,6 +1,8 @@
-$Id: ChangeLog 5193 2021-02-01 17:34:37Z chrfranke $
+$Id: ChangeLog 5194 2021-02-01 17:46:42Z chrfranke $
 
 2021-02-01  Christian Franke  <franke@computer.org>
+
+	cppcheck.sh: Add '-c' option.
 
 	json.h: suppress cppcheck: noExplicitConstructor.
 
