@@ -240,7 +240,7 @@ class freebsd_ata_device
 {
 public:
   freebsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 protected:
   virtual int do_cmd(struct ata_ioc_request* request, bool is_48bit_cmd);
@@ -446,9 +446,9 @@ public:
   freebsd_nvme_device(smart_interface * intf, const char * dev_name,
     const char * req_type, unsigned nsid);
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 };
 
 freebsd_nvme_device::freebsd_nvme_device(smart_interface * intf, const char * dev_name,
@@ -562,8 +562,8 @@ public:
     int escalade_type, int disknum);
 
 protected:
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
-  virtual bool open();
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
+  virtual bool open() override;
 
 private:
   int m_escalade_type; ///< Type string for escalade_command_interface().
@@ -774,8 +774,8 @@ public:
     unsigned char controller, unsigned char channel, unsigned char port);
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
-  virtual bool open();
+  virtual int ata_command_interface(smart_command_set command, int select, char * data) override;
+  virtual bool open() override;
 
 private:
   unsigned char m_hpt_data[3]; ///< controller/channel/port
@@ -969,13 +969,13 @@ class freebsd_scsi_device
 public:
   freebsd_scsi_device(smart_interface * intf, const char * dev_name, const char * req_type);
 
-  virtual smart_device * autodetect_open();
+  virtual smart_device * autodetect_open() override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
   
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
   
 private:
   struct cam_device *m_camdev;
@@ -1172,10 +1172,10 @@ class freebsd_areca_ata_device
 {
 public:
   freebsd_areca_ata_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  virtual smart_device * autodetect_open();
-  virtual bool arcmsr_lock();
-  virtual bool arcmsr_unlock();
-  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop);
+  virtual smart_device * autodetect_open() override;
+  virtual bool arcmsr_lock() override;
+  virtual bool arcmsr_unlock() override;
+  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop) override;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -1186,10 +1186,10 @@ class freebsd_areca_scsi_device
 {
 public:
   freebsd_areca_scsi_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  virtual smart_device * autodetect_open();
-  virtual bool arcmsr_lock();
-  virtual bool arcmsr_unlock();
-  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop);
+  virtual smart_device * autodetect_open() override;
+  virtual bool arcmsr_lock() override;
+  virtual bool arcmsr_unlock() override;
+  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop) override;
 };
 
 
@@ -1314,8 +1314,8 @@ class freebsd_cciss_device
 public:
   freebsd_cciss_device(smart_interface * intf, const char * name, unsigned char disknum);
 
-  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
-  virtual bool open();
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
+  virtual bool open() override;
 
 private:
   unsigned char m_disknum; ///< Disk number.
@@ -1425,30 +1425,30 @@ class freebsd_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
-  virtual std::string get_os_version_str();
+  virtual std::string get_os_version_str() override;
 
-  virtual std::string get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname) override;
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
-    const char * pattern = 0);
+    const char * pattern = 0) override;
 
 protected:
-  virtual ata_device * get_ata_device(const char * name, const char * type);
+  virtual ata_device * get_ata_device(const char * name, const char * type) override;
 
 #if FREEBSDVER > 800100
   virtual ata_device * get_atacam_device(const char * name, const char * type);
 #endif
 
-  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+  virtual scsi_device * get_scsi_device(const char * name, const char * type) override;
  
   virtual nvme_device * get_nvme_device(const char * name, const char * type,
-    unsigned nsid);
+    unsigned nsid) override;
 
-  virtual smart_device * autodetect_smart_device(const char * name);
+  virtual smart_device * autodetect_smart_device(const char * name) override;
 
-  virtual smart_device * get_custom_smart_device(const char * name, const char * type);
+  virtual smart_device * get_custom_smart_device(const char * name, const char * type) override;
 
-  virtual std::string get_valid_custom_dev_types_str();
+  virtual std::string get_valid_custom_dev_types_str() override;
 private:
   bool get_nvme_devlist(smart_device_list & devlist, const char * type);
 };
