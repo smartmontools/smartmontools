@@ -63,7 +63,7 @@ fi
 ver=$("$cppcheck" --version) || exit 1
 ver=${ver##* }
 case $ver in
-  1.85) ;;
+  1.8[56]|2.[23]) ;;
   *) echo "$myname: cppcheck $ver not tested with this script" ;;
 esac
 
