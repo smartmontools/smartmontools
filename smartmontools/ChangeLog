@@ -3,6 +3,7 @@ $Id$
 2021-02-01  Christian Franke  <franke@computer.org>
 
 	cppcheck.sh: Add '-c' option.
+	Remove suppress: bcopyCalled, bzeroCalled, missingOverride
 
 	json.h: suppress cppcheck: noExplicitConstructor.
 

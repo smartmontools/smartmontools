@@ -76,12 +76,9 @@ sup_list="
   #style
   asctime_rCalled:utility.cpp
   asctime_sCalled:utility.cpp
-  bzeroCalled
-  bcopyCalled
   ftimeCalled
   readdirCalled
   strtokCalled
-  missingOverride
   unusedStructMember
   unusedFunction:sg_unaligned.h
   unmatchedSuppression
