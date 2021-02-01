@@ -1,6 +1,9 @@
-$Id: ChangeLog 5196 2021-02-01 17:54:47Z chrfranke $
+$Id: ChangeLog 5197 2021-02-01 18:21:12Z chrfranke $
 
 2021-02-01  Christian Franke  <franke@computer.org>
+
+	os_freebsd.cpp, os_linux.cpp: Replace deprecated bcopy() and bzero()
+	(cppcheck: bcopyCalled, bzeroCalled).
 
 	cppcheck.sh: Add '-c' option.
 	Remove suppress: bcopyCalled, bzeroCalled, missingOverride.
