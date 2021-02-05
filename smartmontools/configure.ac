@@ -13,7 +13,11 @@ smartmontools_cvs_tag=`echo '$Id$'`
 smartmontools_release_date=2020-12-30
 smartmontools_release_time="16:48:30 UTC"
 
+if test "$SOURCE_DATE_EPOCH"; then
+AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "No config for reproducible builds", [smartmontools Configure Arguments])
+else
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
+fi
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE,   "$smartmontools_release_date",    [smartmontools Release Date])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME,   "$smartmontools_release_time",    [smartmontools Release Time])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
