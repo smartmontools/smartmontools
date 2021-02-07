@@ -2534,6 +2534,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             res = 0;
             if (gBackgroundResultsLPage)
                 res = scsiPrintBackgroundResults(device, true);
+            (void)res; // not yet used below, suppress warning
         }
         if (gStartStopLPage)
             scsiGetStartStopData(device);
