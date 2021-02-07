@@ -1,6 +1,9 @@
-$Id: ChangeLog 5203 2021-02-07 16:47:18Z chrfranke $
+$Id: ChangeLog 5204 2021-02-07 17:04:42Z chrfranke $
 
 2021-02-07  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Fix 'optopt' range check
+	(cppcheck 2.3: invalidFunctionArg).
 
 	scsiprint.cpp: Silence cppcheck 2.3 'unreadVariable' warning.
 

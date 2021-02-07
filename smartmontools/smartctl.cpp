@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5200 2021-02-07 14:19:40Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5204 2021-02-07 17:04:42Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -1141,7 +1141,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       // Check whether the option is a long option that doesn't map to -h.
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
-        if (optopt && (optopt >= opt_scan || strchr(shortopts, optopt))) {
+        if (optopt && (optopt > '~' || strchr(shortopts, optopt))) {
           jerr("=======> ARGUMENT REQUIRED FOR OPTION: %s\n", arg+2);
           printvalidarglistmessage(optopt);
         } else
