@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 5178 2021-01-23 16:53:35Z chrfranke $
+# $Id: Makefile.am 5206 2021-02-07 18:32:45Z chrfranke $
 #
 
 @SET_MAKE@
@@ -755,7 +755,8 @@ txtman:  smartctl.8.txt smartd.8.txt smartd.conf.5.txt update-smart-drivedb.8.tx
 
 # Check drive database syntax
 check:
-	@if ./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null; then \
+	@if ./smartctl -P showall >/dev/null && \
+	    ./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null; then \
 	  echo "$(srcdir)/drivedb.h: OK"; \
 	else \
 	  echo "$(srcdir)/drivedb.h: Syntax check failed"; exit 1; \

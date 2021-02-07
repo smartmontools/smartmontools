@@ -1,6 +1,8 @@
-$Id: ChangeLog 5204 2021-02-07 17:04:42Z chrfranke $
+$Id: ChangeLog 5206 2021-02-07 18:32:45Z chrfranke $
 
 2021-02-07  Christian Franke  <franke@computer.org>
+
+	Makefile.am: 'check' target now also checks the built-in database.
 
 	smartctl.cpp: Fix 'optopt' range check
 	(cppcheck 2.3: invalidFunctionArg).
