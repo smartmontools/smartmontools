@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: cppcheck.sh 5196 2021-02-01 17:54:47Z chrfranke $
+# $Id: cppcheck.sh 5201 2021-02-07 15:08:48Z chrfranke $
 #
 
 set -e
@@ -109,6 +109,7 @@ defs="\
   -DSMARTMONTOOLS_ATTRIBUTELOG=\"/file\"
   -DSMARTMONTOOLS_SAVESTATES=\"/file\"
   -DSMARTMONTOOLS_DRIVEDBDIR=\"/dir\"
+  -DSOURCE_DATE_EPOCH=1665402854
   -Umakedev
   -Ustricmp"
 

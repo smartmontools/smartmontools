@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5182 2021-01-24 16:21:22Z chrfranke $
+# $Id: configure.ac 5201 2021-02-07 15:08:48Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.2
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5182 2021-01-24 16:21:22Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5201 2021-02-07 15:08:48Z chrfranke $'`
 smartmontools_release_date=2020-12-30
 smartmontools_release_time="16:48:30 UTC"
 
@@ -59,6 +59,18 @@ case "${host}" in
     fi
     AC_MSG_RESULT([${MAKENSIS:-no}])
     ;;
+esac
+
+AC_MSG_CHECKING([whether reproducible build is selected (SOURCE_DATE_EPOCH)])
+res=no
+if test -n "$SOURCE_DATE_EPOCH"; then
+  res=yes
+  test -z "`echo "$SOURCE_DATE_EPOCH" | sed 's,[[0-9]]*,,'`" || res=error
+fi
+AC_MSG_RESULT([$res])
+case $res in
+  error) AC_MSG_ERROR([Malformed SOURCE_DATE_EPOCH]) ;;
+  yes) CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-DSOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" ;;
 esac
 
 # Check for SVN.

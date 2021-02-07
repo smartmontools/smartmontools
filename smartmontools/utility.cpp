@@ -42,7 +42,7 @@
 #include "dev_interface.h"
 #include "sg_unaligned.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 5157 2021-01-01 10:37:59Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 5201 2021-02-07 15:08:48Z chrfranke $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -134,9 +134,19 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
 #endif
                                                           "\n"
     "smartmontools configure arguments:"
+#ifdef SOURCE_DATE_EPOCH
+                                      " [hidden in reproducible builds]\n"
+    "reproducible build SOURCE_DATE_EPOCH: "
+#endif
   ;
+#ifdef SOURCE_DATE_EPOCH
+  char ts[32]; struct tm tmbuf;
+  strftime(ts, sizeof(ts), "%Y-%m-%d %H:%M:%S", time_to_tm_local(&tmbuf, SOURCE_DATE_EPOCH));
+  info += strprintf("%u (%s)", (unsigned)SOURCE_DATE_EPOCH, ts);
+#else
   info += (sizeof(SMARTMONTOOLS_CONFIGURE_ARGS) > 1 ?
            SMARTMONTOOLS_CONFIGURE_ARGS : " [no arguments given]");
+#endif
   info += '\n';
 
   return info;
