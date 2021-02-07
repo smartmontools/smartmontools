@@ -870,51 +870,6 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
     return 0;
 }
 
-#if 0 // Not used, see autodetect_sat_device() below.
-static int isprint_string(const char *s)
-{
-    while (*s) {
-        if (isprint(*s) == 0)
-            return 0;
-        s++;
-    }
-    return 1;
-}
-
-/* Attempt an IDENTIFY DEVICE ATA or IDENTIFY PACKET DEVICE command
-   If successful return 1, else 0 */
-// TODO: Combine with has_sat_pass_through above
-static int has_usbcypress_pass_through(ata_device * atadev, const char *manufacturer, const char *product)
-{
-    struct ata_identify_device drive;
-    char model[40], serial[20], firm[8];
-
-    /* issue the command and do a checksum if possible */
-    if (ataReadHDIdentity(atadev, &drive) < 0)
-        return 0;
-
-    /* check if model string match, revision doesn't work for me */
-    format_ata_string(model, drive.model, 40);
-    if (*model == 0 || isprint_string(model) == 0)
-        return 0;
-
-    if (manufacturer && strncmp(manufacturer, model, 8))
-        pout("manufacturer doesn't match in pass_through test\n");
-    if (product &&
-            strlen(model) > 8 && strncmp(product, model+8, strlen(model)-8))
-        pout("product doesn't match in pass_through test\n");
-
-    /* check serial */
-    format_ata_string(serial, drive.serial_no, 20);
-    if (isprint_string(serial) == 0)
-        return 0;
-    format_ata_string(firm, drive.fw_rev, 8);
-    if (isprint_string(firm) == 0)
-        return 0;
-    return 1;
-}
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 
 /// JMicron USB Bridge support.
