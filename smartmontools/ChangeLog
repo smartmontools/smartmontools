@@ -1,6 +1,8 @@
-$Id: ChangeLog 5201 2021-02-07 15:08:48Z chrfranke $
+$Id: ChangeLog 5202 2021-02-07 16:34:57Z chrfranke $
 
 2021-02-07  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Remove unused function 'has_usbcypress_pass_through()'.
 
 	Improve reproducibility if SOURCE_DATE_EPOCH if set (GH pull/89).
 	configure.ac: Define SOURCE_DATE_EPOCH in CPPFLAGS.
