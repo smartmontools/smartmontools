@@ -1141,7 +1141,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       // Check whether the option is a long option that doesn't map to -h.
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
-        if (optopt && (optopt >= opt_scan || strchr(shortopts, optopt))) {
+        if (optopt && (optopt > '~' || strchr(shortopts, optopt))) {
           jerr("=======> ARGUMENT REQUIRED FOR OPTION: %s\n", arg+2);
           printvalidarglistmessage(optopt);
         } else

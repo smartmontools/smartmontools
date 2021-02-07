@@ -2,6 +2,9 @@ $Id$
 
 2021-02-07  Christian Franke  <franke@computer.org>
 
+	smartctl.cpp: Fix 'optopt' range check
+	(cppcheck 2.3: invalidFunctionArg).
+
 	scsiprint.cpp: Silence cppcheck 2.3 'unreadVariable' warning.
 
 	scsiata.cpp: Remove unused function 'has_usbcypress_pass_through()'.
