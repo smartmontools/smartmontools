@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5200 2021-02-07 14:19:40Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5203 2021-02-07 16:47:18Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -2534,6 +2534,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             res = 0;
             if (gBackgroundResultsLPage)
                 res = scsiPrintBackgroundResults(device, true);
+            (void)res; // not yet used below, suppress warning
         }
         if (gStartStopLPage)
             scsiGetStartStopData(device);
