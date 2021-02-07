@@ -61,6 +61,18 @@ case "${host}" in
     ;;
 esac
 
+AC_MSG_CHECKING([whether reproducible build is selected (SOURCE_DATE_EPOCH)])
+res=no
+if test -n "$SOURCE_DATE_EPOCH"; then
+  res=yes
+  test -z "`echo "$SOURCE_DATE_EPOCH" | sed 's,[[0-9]]*,,'`" || res=error
+fi
+AC_MSG_RESULT([$res])
+case $res in
+  error) AC_MSG_ERROR([Malformed SOURCE_DATE_EPOCH]) ;;
+  yes) CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-DSOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" ;;
+esac
+
 # Check for SVN.
 AC_MSG_CHECKING([whether this is a build from SVN])
 is_svn_build=no
