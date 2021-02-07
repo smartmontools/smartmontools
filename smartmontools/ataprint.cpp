@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5199 2021-02-01 21:34:40Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5200 2021-02-07 14:19:40Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -798,12 +798,7 @@ static void print_drive_info(const ata_identify_device * drive,
       break;
   }
 
-  // print current time and date and timezone
-  time_t now = time(0);
-  char timedatetz[DATEANDEPOCHLEN]; dateandtimezoneepoch(timedatetz, now);
-  jout("Local Time is:    %s\n", timedatetz);
-  jglb["local_time"]["time_t"] = now;
-  jglb["local_time"]["asctime"] = timedatetz;
+  jout_startup_datetime("Local Time is:    ");
 
   // Print warning message, if there is one
   if (dbentry && *dbentry->warningmsg)

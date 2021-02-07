@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-20 Christian Franke
+ * Copyright (C) 2016-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -13,7 +13,7 @@
 
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5199 2021-02-01 21:34:40Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5200 2021-02-07 14:19:40Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "utility.h"
@@ -201,11 +201,7 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
     }
   }
 
-  time_t now = time(0);
-  char td[DATEANDEPOCHLEN]; dateandtimezoneepoch(td, now);
-  jout("Local Time is:                      %s\n", td);
-  jglb["local_time"]["time_t"] = now;
-  jglb["local_time"]["asctime"] = td;
+  jout_startup_datetime("Local Time is:                      ");
 }
 
 // Format scaled power value.

@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5199 2021-02-01 21:34:40Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5200 2021-02-07 14:19:40Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -2131,12 +2131,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     if ((transport >= 0) && (transport <= 0xf))
         pout("Transport protocol:   %s\n", transport_proto_arr[transport]);
 
-    // print current time and date and timezone
-    time_t now = time(0);
-    char timedatetz[DATEANDEPOCHLEN]; dateandtimezoneepoch(timedatetz, now);
-    jout("Local Time is:        %s\n", timedatetz);
-    jglb["local_time"]["time_t"] = now;
-    jglb["local_time"]["asctime"] = timedatetz;
+    jout_startup_datetime("Local Time is:        ");
 
     // See if unit accepts SCSI commands from us
     if ((err = scsiTestUnitReady(device))) {

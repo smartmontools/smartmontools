@@ -1,4 +1,9 @@
-$Id: ChangeLog 5199 2021-02-01 21:34:40Z chrfranke $
+$Id: ChangeLog 5200 2021-02-07 14:19:40Z chrfranke $
+
+2021-02-07  Christian Franke  <franke@computer.org>
+
+	Always add timestamp to JSON output (#1436).
+	Move non-JSON timestamp output to common function.
 
 2021-02-01  Christian Franke  <franke@computer.org>
 
