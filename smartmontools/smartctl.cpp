@@ -701,6 +701,8 @@ static int parse_options(int argc, char** argv, const char * & type,
       nvmeopts.error_log_entries   = 16;
       ataopts.smart_selftest_log   = scsiopts.smart_selftest_log  = true;
       ataopts.smart_selective_selftest_log = true;
+      ataopts.farm_log             = scsiopts.farm_log            = true;   // Seagate Field Access Reliability Metrics (FARM) log
+      ataopts.all                  = scsiopts.all                 = true;   // Helper for FARM debug messages
       /* scsiopts.smart_background_log = true; */
       scsiopts.smart_ss_media_log = true;
       break;
@@ -715,6 +717,8 @@ static int parse_options(int argc, char** argv, const char * & type,
       ataopts.smart_ext_selftest_log = 25;
       ataopts.retry_selftest_log   = true;
       scsiopts.smart_error_log     = scsiopts.smart_selftest_log    = true;
+      ataopts.farm_log             = scsiopts.farm_log              = true;   // Seagate Field Access Reliability Metrics (FARM) log
+      ataopts.all                  = scsiopts.all                   = true;   // Helper for FARM debug messages
       ataopts.smart_selective_selftest_log = true;
       ataopts.smart_logdir = ataopts.gp_logdir = true;
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;

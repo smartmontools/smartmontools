@@ -42,7 +42,8 @@ struct ata_print_options
   bool smart_selftest_log;
   bool smart_selective_selftest_log;
 
-  bool farm_log; // Seagate Field Access Reliability Metrics log (FARM) for ATA
+  bool farm_log;    // Seagate Field Access Reliability Metrics log (FARM) for ATA
+  bool all;         // Helper for FARM debug messages
 
   bool gp_logdir, smart_logdir;
   unsigned smart_ext_error_log;
@@ -118,6 +119,7 @@ struct ata_print_options
       smart_selftest_log(false),
       smart_selective_selftest_log(false),
       farm_log(false),
+      all(false),
       gp_logdir(false), smart_logdir(false),
       smart_ext_error_log(0),
       smart_ext_selftest_log(0),
