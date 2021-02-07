@@ -1412,6 +1412,14 @@ void jerr(const char *fmt, ...)
   va_end(ap);
 }
 
+static char startup_datetime_buf[DATEANDEPOCHLEN];
+
+// Print smartctl start-up date and time and timezone
+void jout_startup_datetime(const char *prefix)
+{
+  jout("%s%s\n", prefix, startup_datetime_buf);
+}
+
 // Globals to set failuretest() policy
 bool failuretest_conservative = false;
 unsigned char failuretest_permissive = 0;
@@ -1554,6 +1562,14 @@ static int main_worker(int argc, char **argv)
     int status = parse_options(argc, argv, type, ataopts, scsiopts, nvmeopts, print_type_only);
     if (status >= 0)
       return status;
+  }
+
+  // Store formatted current time for jout_startup_datetime()
+  // Output as JSON regardless of '-i' option
+  {
+    time_t now = time(nullptr);
+    dateandtimezoneepoch(startup_datetime_buf, now);
+    jglb["local_time"] += { {"time_t", now}, {"asctime", startup_datetime_buf} };
   }
 
   const char * name = argv[argc-1];
