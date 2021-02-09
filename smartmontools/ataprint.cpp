@@ -620,7 +620,7 @@ static void print_sata_version_and_speed(unsigned short word222,
 
 static void print_drive_info(const ata_identify_device * drive,
                              const ata_size_info & sizes, int rpm,
-                             const drive_settings * dbentry)
+                             const drive_settings * dbentry, const char * dbversion)
 {
   // format drive information (with byte swapping as needed)
   char model[40+1], serial[20+1], firmware[8+1];
@@ -739,9 +739,9 @@ static void print_drive_info(const ata_identify_device * drive,
   }
 
   // See if drive is recognized
-  jout("Device is:        %s\n", !dbentry ?
-       "Not in smartctl database [for details use: -P showall]":
-       "In smartctl database [for details use: -P show]");
+  jout("Device is:        %s%s%s\n",
+       (dbentry ? "In smartctl database" : "Not in smartctl database"),
+       (*dbversion ? " " : ""), (*dbversion ? dbversion : ""));
   jglb["in_smartctl_database"] = !!dbentry;
 
   // Print ATA version
@@ -3468,10 +3468,14 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Use preset vendor attribute options unless user has requested otherwise.
   ata_vendor_attr_defs attribute_defs = options.attribute_defs;
   firmwarebug_defs firmwarebugs = options.firmwarebugs;
+  std::string dbversion;
   const drive_settings * dbentry = 0;
-  if (!options.ignore_presets)
+  if (!options.ignore_presets) {
     dbentry = lookup_drive_apply_presets(&drive, attribute_defs,
-      firmwarebugs);
+      firmwarebugs, dbversion);
+    if (!dbversion.empty())
+      jglb["smartctl"]["drive_database_version"]["string"] = dbversion;
+  }
 
   // Get capacity, sector sizes and rotation rate
   ata_size_info sizes;
@@ -3488,7 +3492,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Print most drive identity information if requested
   if (options.drive_info) {
     pout("=== START OF INFORMATION SECTION ===\n");
-    print_drive_info(&drive, sizes, rpm, dbentry);
+    print_drive_info(&drive, sizes, rpm, dbentry, dbversion.c_str());
   }
 
   // Check and print SMART support and state

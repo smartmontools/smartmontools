@@ -1,10 +1,10 @@
 /*
  * knowndrives.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-15 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -52,7 +52,7 @@ int showmatchingpresets(const char *model, const char *firmware);
 // Returns pointer to database entry or nullptr if none found.
 const drive_settings * lookup_drive_apply_presets(
   const ata_identify_device * drive, ata_vendor_attr_defs & defs,
-  firmwarebug_defs & firmwarebugs);
+  firmwarebug_defs & firmwarebugs, std::string & dbversion);
 
 // Get path for additional database file
 const char * get_drivedb_path_add();

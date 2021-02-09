@@ -2,7 +2,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-20 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -1977,13 +1977,16 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     PrintOut(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", name);
   else {
     // Apply vendor specific presets, print warning if present
+    std::string dbversion;
     const drive_settings * dbentry = lookup_drive_apply_presets(
-      &drive, cfg.attribute_defs, cfg.firmwarebugs);
+      &drive, cfg.attribute_defs, cfg.firmwarebugs, dbversion);
     if (!dbentry)
-      PrintOut(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
+      PrintOut(LOG_INFO, "Device: %s, not found in smartd database%s%s.\n", name,
+        (!dbversion.empty() ? " " : ""), (!dbversion.empty() ? dbversion.c_str() : ""));
     else {
-      PrintOut(LOG_INFO, "Device: %s, found in smartd database%s%s\n",
-        name, (*dbentry->modelfamily ? ": " : "."), (*dbentry->modelfamily ? dbentry->modelfamily : ""));
+      PrintOut(LOG_INFO, "Device: %s, found in smartd database%s%s%s%s\n",
+        name, (!dbversion.empty() ? " " : ""), (!dbversion.empty() ? dbversion.c_str() : ""),
+        (*dbentry->modelfamily ? ": " : "."), (*dbentry->modelfamily ? dbentry->modelfamily : ""));
       if (*dbentry->warningmsg)
         PrintOut(LOG_CRIT, "Device: %s, WARNING: %s\n", name, dbentry->warningmsg);
     }
