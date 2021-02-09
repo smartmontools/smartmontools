@@ -1,4 +1,11 @@
-$Id: ChangeLog 5206 2021-02-07 18:32:45Z chrfranke $
+$Id: ChangeLog 5207 2021-02-09 20:25:13Z chrfranke $
+
+2021-02-09  Christian Franke  <franke@computer.org>
+
+	Print drive database version in smartctl and smartd.
+	knowndrives.cpp, knowndrives.h: Parse VERSION string.
+	ataprint.cpp: Print version.  Remove '-P showall' help string.
+	smartd.cpp: Print version.
 
 2021-02-07  Christian Franke  <franke@computer.org>
 
