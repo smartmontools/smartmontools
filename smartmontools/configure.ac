@@ -772,7 +772,10 @@ if test "$GXX" = "yes"; then
     AC_MSG_CHECKING([whether $CXX supports $option])
     save_CXXFLAGS=$CXXFLAGS
     CXXFLAGS="$CXXFLAGS $option"
-    AC_LINK_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
+    # For -fstack-protector*, check that '__stack_chk_*()' functions are available.
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[int i;]],
+      [[volatile char buf[10]; buf[i] = 0;]])],
+      [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
     AC_MSG_RESULT([$res])
   done
 else
