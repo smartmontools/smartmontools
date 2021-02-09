@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5201 2021-02-07 15:08:48Z chrfranke $
+# $Id: configure.ac 5208 2021-02-09 22:20:58Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.2
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5201 2021-02-07 15:08:48Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5208 2021-02-09 22:20:58Z chrfranke $'`
 smartmontools_release_date=2020-12-30
 smartmontools_release_time="16:48:30 UTC"
 
@@ -772,7 +772,10 @@ if test "$GXX" = "yes"; then
     AC_MSG_CHECKING([whether $CXX supports $option])
     save_CXXFLAGS=$CXXFLAGS
     CXXFLAGS="$CXXFLAGS $option"
-    AC_LINK_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
+    # For -fstack-protector*, check that '__stack_chk_*()' functions are available.
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[int i;]],
+      [[volatile char buf[10]; buf[i] = 0;]])],
+      [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
     AC_MSG_RESULT([$res])
   done
 else

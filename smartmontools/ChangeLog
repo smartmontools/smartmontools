@@ -1,6 +1,9 @@
-$Id: ChangeLog 5207 2021-02-09 20:25:13Z chrfranke $
+$Id: ChangeLog 5208 2021-02-09 22:20:58Z chrfranke $
 
 2021-02-09  Christian Franke  <franke@computer.org>
+
+	configure.ac: Include required library functions in check for
+	'-fstack-protector' (#1439).
 
 	Print drive database version in smartctl and smartd.
 	knowndrives.cpp, knowndrives.h: Parse VERSION string.
