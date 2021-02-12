@@ -29,9 +29,6 @@ struct scsi_print_options
   bool smart_background_log;
   bool smart_ss_media_log;
 
-  bool farm_log;    // Seagate Field Access Reliability Metrics log (FARM) for SCSI
-  bool all;         // Helper for FARM debug messages
-
   bool smart_disable, smart_enable;
   bool smart_auto_save_disable, smart_auto_save_enable;
 
@@ -46,6 +43,9 @@ struct scsi_print_options
   bool get_wce, get_rcd;
   short int set_wce, set_rcd;  // disable(-1), enable(1) cache
 
+  bool farm_log;  // Seagate Field Access Reliability Metrics log (FARM) for SCSI
+  bool all;       // Helper for FARM debug messages
+
   scsi_print_options()
     : drive_info(false),
       smart_check_status(false),
@@ -54,8 +54,6 @@ struct scsi_print_options
       smart_selftest_log(false),
       smart_background_log(false),
       smart_ss_media_log(false),
-      farm_log(false),
-      all(false),
       smart_disable(false), smart_enable(false),
       smart_auto_save_disable(false), smart_auto_save_enable(false),
       smart_default_selftest(false),
@@ -65,7 +63,9 @@ struct scsi_print_options
       smart_selftest_force(false),
       sasphy(false), sasphy_reset(false),
       get_wce(false), get_rcd(false),
-      set_wce(0), set_rcd(0)
+      set_wce(0), set_rcd(0),
+      farm_log(false),
+      all(false)
     { }
 };
 

@@ -69,6 +69,10 @@ smartctl_SOURCES = \
         dev_jmb39x_raid.cpp \
         dev_tunnelled.h \
         drivedb.h \
+	farmprint.cpp \
+	farmprint.h \
+	farmcmds.cpp \
+	farmcmds.h \
         json.cpp \
         json.h \
         knowndrives.cpp \
@@ -755,7 +759,8 @@ txtman:  smartctl.8.txt smartd.8.txt smartd.conf.5.txt update-smart-drivedb.8.tx
 
 # Check drive database syntax
 check:
-	@if ./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null; then \
+	@if ./smartctl -P showall >/dev/null && \
+	    ./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null; then \
 	  echo "$(srcdir)/drivedb.h: OK"; \
 	else \
 	  echo "$(srcdir)/drivedb.h: Syntax check failed"; exit 1; \
@@ -1030,9 +1035,20 @@ runcmda.exe: runcmd.o runcmda_res.o
 wtssendmsg.exe: os_win32/wtssendmsg.c wtssendmsg_res.o
 	$(CC) -Os -o $@ $^ -lwtsapi32
 
-# Build os_win32/vc14/{config.h,smart*.rc,svnversion.h} for MSVC14 from MinGW files
+# MSVC Version to change in make command line
+vc = 16
+vcver = $(vc)
 
-vcver = 14
+.PHONY: check-vc-version clean-vc config-vc distclean-vc maintainer-clean-vc
+
+check-vc-version:
+	@case '$(vcver)' in \
+	  14|15|16) test -d '$(srcdir)/os_win32/vc$(vcver)' || \
+	    { echo '$(srcdir)/os_win32/vc$(vcver): Not found (not included in src tarball)' >&2; exit 1; } ;; \
+	  *) echo 'Usage: $(MAKE) vc=14|15|16 config-vc clean-vc distclean-vc maintainer-clean-vc'; exit 1 ;; \
+	esac
+
+# Build os_win32/vcNN/{config.h,smart*.rc,svnversion.h} for MSVC14/15/16 from MinGW files
 
 CONFIG_VC_FILES = \
         $(srcdir)/os_win32/vc$(vcver)/config.h \
@@ -1040,11 +1056,11 @@ CONFIG_VC_FILES = \
         $(srcdir)/os_win32/vc$(vcver)/smartd_res.rc \
         $(srcdir)/os_win32/vc$(vcver)/svnversion.h
 
-config-vc$(vcver): $(CONFIG_VC_FILES)
+config-vc: check-vc-version $(CONFIG_VC_FILES)
 
 $(srcdir)/os_win32/vc$(vcver)/config.h: config.h Makefile
 	sed -e '1i/* os_win32/vc$(vcver)/config.h.  Generated from config.h by Makefile.  */' \
-	    -e 's,^#define HAVE_\(ATTR_PACKED\|GETTIMEOFDAY\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
+	    -e 's,^#define HAVE_\(ATTR_PACKED\|CLOCK_GETTIME\|GETTIMEOFDAY\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
 	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc$(vcver),' $< > $@
 
 $(srcdir)/os_win32/vc$(vcver)/svnversion.h: svnversion.h
@@ -1056,18 +1072,23 @@ $(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc: smartctl_res.rc
 $(srcdir)/os_win32/vc$(vcver)/smartd_res.rc: smartd_res.rc
 	sed '/^1 24 /d' $< > $@
 
-clean-vc$(vcver):
+# VC14: smartmontools.VC.*, VC15/16: .vs/smartmontools/vNN/*
+clean-vc: check-vc-version
 	rm -f $(srcdir)/os_win32/vc$(vcver)/smartmontools.VC.VC.opendb
 	rm -f $(srcdir)/os_win32/vc$(vcver)/smartmontools.VC.db
+	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/Browse.VC.opendb
+	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/*.VC.db*
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/ipch
 	rm -f $(srcdir)/os_win32/vc$(vcver)/syslogevt.h
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/Release
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/x64
 
-distclean-vc$(vcver): clean-vc$(vcver)
+distclean-vc: clean-vc
 	rm -f $(CONFIG_VC_FILES)
 
-maintainer-clean-vc$(vcver): distclean-vc$(vcver)
+maintainer-clean-vc: distclean-vc
+	rm -f $(srcdir)/os_win32/vc$(vcver)/*.vcxproj.user
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs
 
 endif

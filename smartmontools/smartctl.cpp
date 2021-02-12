@@ -42,6 +42,8 @@
 #include "utility.h"
 #include "svnversion.h"
 
+#include "farmprint.h"
+
 const char * smartctl_cpp_cvsid = "$Id$"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
@@ -548,7 +550,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       } else if (!strcmp(optarg,"scttemphist")) {
         ataopts.sct_temp_hist = true;
       } else if (!strcmp(optarg,"farm")) {
-        ataopts.farm_log = scsiopts.farm_log = true;
+        ataopts.farm_log = scsiopts.farm_log = true; // Seagate Field Access Reliability Metrics (FARM) log
       } else if (!strncmp(optarg, "scttempint,", sizeof("scstempint,")-1)) {
         unsigned interval = 0; int n1 = -1, n2 = -1, len = strlen(optarg);
         if (!(   sscanf(optarg,"scttempint,%u%n,p%n", &interval, &n1, &n2) == 1
@@ -701,10 +703,10 @@ static int parse_options(int argc, char** argv, const char * & type,
       nvmeopts.error_log_entries   = 16;
       ataopts.smart_selftest_log   = scsiopts.smart_selftest_log  = true;
       ataopts.smart_selective_selftest_log = true;
-      ataopts.farm_log             = scsiopts.farm_log            = true;   // Seagate Field Access Reliability Metrics (FARM) log
-      ataopts.all                  = scsiopts.all                 = true;   // Helper for FARM debug messages
       /* scsiopts.smart_background_log = true; */
       scsiopts.smart_ss_media_log = true;
+      ataopts.farm_log = scsiopts.farm_log = true;  // Seagate Field Access Reliability Metrics (FARM) log
+      ataopts.all = scsiopts.all = true;            // Helper for FARM debug messages
       break;
     case 'x':
       ataopts.drive_info           = scsiopts.drive_info          = nvmeopts.drive_info          = true;
@@ -717,8 +719,6 @@ static int parse_options(int argc, char** argv, const char * & type,
       ataopts.smart_ext_selftest_log = 25;
       ataopts.retry_selftest_log   = true;
       scsiopts.smart_error_log     = scsiopts.smart_selftest_log    = true;
-      ataopts.farm_log             = scsiopts.farm_log              = true;   // Seagate Field Access Reliability Metrics (FARM) log
-      ataopts.all                  = scsiopts.all                   = true;   // Helper for FARM debug messages
       ataopts.smart_selective_selftest_log = true;
       ataopts.smart_logdir = ataopts.gp_logdir = true;
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
@@ -736,6 +736,8 @@ static int parse_options(int argc, char** argv, const char * & type,
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
+      ataopts.farm_log = scsiopts.farm_log = true;  // Seagate Field Access Reliability Metrics (FARM) log
+      ataopts.all = scsiopts.all = true;            // Helper for FARM debug messages
       if (!output_format_set)
         ataopts.output_format |= ata_print_options::FMT_BRIEF;
       break;

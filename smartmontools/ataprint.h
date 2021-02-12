@@ -42,9 +42,6 @@ struct ata_print_options
   bool smart_selftest_log;
   bool smart_selective_selftest_log;
 
-  bool farm_log;    // Seagate Field Access Reliability Metrics log (FARM) for ATA
-  bool all;         // Helper for FARM debug messages
-
   bool gp_logdir, smart_logdir;
   unsigned smart_ext_error_log;
   unsigned smart_ext_selftest_log;
@@ -109,6 +106,9 @@ struct ata_print_options
   bool get_dsn; // print DSN status
   int set_dsn; // disable(02h), enable(01h) DSN
 
+  bool farm_log;  // Seagate Field Access Reliability Metrics log (FARM) for ATA
+  bool all;       // Helper for FARM debug messages
+
   ata_print_options()
     : drive_info(false),
       identify_word_level(-1), identify_bit_level(-1),
@@ -118,8 +118,6 @@ struct ata_print_options
       smart_error_log(false),
       smart_selftest_log(false),
       smart_selective_selftest_log(false),
-      farm_log(false),
-      all(false),
       gp_logdir(false), smart_logdir(false),
       smart_ext_error_log(0),
       smart_ext_selftest_log(0),
@@ -152,7 +150,9 @@ struct ata_print_options
       sct_wcache_reorder_set_pers(false),
       sct_wcache_sct_get(false), sct_wcache_sct_set(0),
       sct_wcache_sct_set_pers(false),
-      get_dsn(false), set_dsn(0)
+      get_dsn(false), set_dsn(0),
+      farm_log(false),
+      all(false)
     { }
 };
 
