@@ -23,18 +23,18 @@
  *  Prints parsed FARM log (GP Log 0xA6) data from Seagate
  *  drives already present in ataFarmLog structure
  *  
- *  @param  ptr_farmLog:    Pointer to parsed farm log (ataFarmLog *)
+ *  @param  farmLog:  Constant reference to parsed farm log (const ataFarmLog&)
  *  @return True if printing occurred without errors, otherwise false (bool)
  */
-bool ataPrintFarmLog(ataFarmLog * ptr_farmLog);
+bool ataPrintFarmLog(const ataFarmLog& farmLog);
 
 /*
  *  Prints parsed FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
  *  drives already present in scsiFarmLog structure
  *  
- *  @param  Pointer to parsed farm log (scsiFarmLog *)
+ *  @param  farmLog:  Constant reference to parsed farm log (const scsiFarmLog&)
  *  @return True if printing occurred without errors, otherwise false (bool)
  */
-bool scsiPrintFarmLog(scsiFarmLog * ptr_farmLog);
+bool scsiPrintFarmLog(const scsiFarmLog& farmLog);
 
 #endif

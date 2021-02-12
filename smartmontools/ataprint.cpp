@@ -3308,7 +3308,7 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
  *  @param  drive:  Pointer to drive struct containing ATA device information (*ata_identify_device)
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
-static bool isSeagate(ata_identify_device * drive) {
+static bool isSeagate(ata_identify_device* drive) {
   // FIX ME: Seagate model numbers mostly begin with "ST" (all FARM-supported ones do)
   // FIX ME: Add matching for "XS", as some Seagate drives are labeled in this way
   #define SEAGATE_MODEL_MATCH "ST"
@@ -4458,25 +4458,14 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
           js = false;
         }
       } else {
-        ataFarmLog * ptr_farmLog = ataReadFarmLog(device, nsectors);
-        if (ptr_farmLog == NULL) {
+        const ataFarmLog& farmLog = ataReadFarmLog(device, nsectors);
+        if (!ataPrintFarmLog(farmLog)) {
           if (!options.all) {
-            jout("\nRead FARM log (GP Log 0xA6) failed\n\n");
+            jout("\nPrint FARM log (GP Log 0xA6) failed\n\n");
             json::ref js = jglb["seagate_farm_log_supported"];
             js = false;
           }
-          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-        } else {
-          if (!ataPrintFarmLog(ptr_farmLog)) {
-            if (!options.all) {
-              jout("\nPrint FARM log (GP Log 0xA6) failed\n\n");
-              json::ref js = jglb["seagate_farm_log_supported"];
-              js = false;
-            }
-          }
         }
-        delete ptr_farmLog;
-        ptr_farmLog = NULL;
       }
     } else {
       if (!options.all) {
