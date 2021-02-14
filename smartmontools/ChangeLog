@@ -1,5 +1,45 @@
 $Id$
 
+2021-02-11  Natan Lidukhover  <natan.lidukhover@seagate.com>
+
+	Large update adding pulling and parsing of Seagate's
+	vendor-specific Field Access Reliability Metrics 
+	(FARM) log to supported ATA and SCSI drives. Running
+	smartctl with '-l farm' will print the top predictive
+	metrics from FARM for drive health monitoring. Can be
+	printed with plain text or JSON ('-j'). FARM can also
+	be printed with '-a' and '-x', but no error messages
+	will be printed, unlike '-l farm'.
+
+	farmcmds.h: Add structures to store FARM data, 
+	both ATA and SCSI, for later parsing.
+	farmcmds.cpp: Add functions to pull FARM data from the 
+	  drive and store in structures defined in farmcmds.h.
+	farmprint.h: Add function declarations for printing
+	  FARM data stored in structures defined in farmcmds.h.
+	farmprint.cpp: Add function definitions for printing
+	  FARM data stored in structures defined in farmcmds.h.
+	ataprint.h: Add variable for checking FARM command-line 
+	  option for ATA drives.
+	ataprint.cpp: For ATA, add checking if drive is Seagate 
+	  and if drive supports FARM. Also add function calls 
+	  (and subsequent error messages) for pulling, printing, 
+	  and parsing FARM.
+	scsiprint.h: Add variable for checking FARM command-line 
+	  option for SCSI drives.
+	scsiprint.cpp: For SCSI, add checking if drive is Seagate 
+	  and if drive supports FARM. Also add function calls 
+	  (and subsequent error messages) for pulling, printing, 
+	  and parsing FARM.
+	smartctl.cpp: Add command-line option parsing for FARM 
+	  ('-l farm') and add FARM parsing to '-a' and '-x', 
+	  but those will print without error messages, unlike 
+	  '-l farm'.
+	smartctl.8.in: Add '-l farm' description to manual.
+	Makefile.am: Add new FARM files farmcmds.{h, cpp} and 
+	  farmprint.{h, cpp} to sources for the Makefile.
+	AUTHORS: Add myself to list of contributors.
+
 2020-07-11  Christian Franke  <franke@computer.org>
 
 	scsiprint.cpp: Add JSON values 'power_on_time.{hours,minutes}' to

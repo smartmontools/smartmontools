@@ -30,6 +30,9 @@
 #include "utility.h"
 #include "knowndrives.h"
 
+#include "farmcmds.h"
+#include "farmprint.h"
+
 const char * ataprint_cpp_cvsid = "$Id$"
                                   ATAPRINT_H_CVSID;
 
@@ -2118,200 +2121,6 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
   jglb["sata_phy_event_counters"]["reset"] = reset;
 }
 
-///////////////////////////////////////////////////////////////////////
-// Seagate Field Access Reliability Metrics (FARM) log (Log 0xA6)
-
-/*
- *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate
- *  drives and parses data into FARM log structures
- *  Returns parsed structure as defined in atacmds.h
- *  
- *  @param  device:     Pointer to instantiated device object (* ata_device)
- *  @param  nsectors:   Number of 512-byte sectors in this log (unsigned int)
- *  @return Pointer to parsed data in structure(s) with named members (* ataFarmLog)
- */
-static ataFarmLog * ataReadFarmLog(ata_device * device, unsigned nsectors) {
-  // Set up constants for FARM log
-  const size_t FARM_PAGE_SIZE = 16384;
-  const size_t FARM_ATTRIBUTE_SIZE = 8;
-  const size_t FARM_MAX_PAGES = 6;
-  const size_t FARM_SECTOR_SIZE = FARM_PAGE_SIZE * FARM_MAX_PAGES / nsectors;
-  const unsigned FARM_SECTORS_PER_PAGE = nsectors / FARM_MAX_PAGES;
-  const size_t FARM_CURRENT_PAGE_DATA_SIZE[FARM_MAX_PAGES] = {
-    sizeof(ataFarmHeader),
-    sizeof(ataFarmDriveInformation),
-    sizeof(ataFarmWorkloadStatistics),
-    sizeof(ataFarmErrorStatistics),
-    sizeof(ataFarmEnvironmentStatistics),
-    sizeof(ataFarmReliabilityStatistics)};
-  ataFarmLog * ptr_farmLog = new ataFarmLog;
-  memset(ptr_farmLog, 0, sizeof(ataFarmLog));
-  unsigned numSectorsToRead = (sizeof(ataFarmHeader) / FARM_SECTOR_SIZE) + 1;
-  // Go through each of the six pages of the FARM log
-  for (unsigned page = 0; page < FARM_MAX_PAGES; page++) {
-    // Reset the buffer
-    uint8_t pageBuffer[FARM_PAGE_SIZE] = {};
-    // Reset the current FARM log page
-    uint64_t currentFarmLogPage[FARM_PAGE_SIZE / FARM_ATTRIBUTE_SIZE] = {};
-    // Read the desired quantity of sectors from the current page into the buffer
-    bool readSuccessful = ataReadLogExt(device, 0xA6, 0, page * FARM_SECTORS_PER_PAGE, pageBuffer, numSectorsToRead);
-    if (!readSuccessful) {
-      jerr("Read FARM Log page %u failed\n\n", page);
-      return NULL;
-    }
-    // Read the page from the buffer, one attribute (8 bytes) at a time
-    for (unsigned pageOffset = 0; pageOffset < FARM_CURRENT_PAGE_DATA_SIZE[page]; pageOffset += FARM_ATTRIBUTE_SIZE) {
-      uint64_t currentMetric = 0;
-      // Read each attribute from the buffer, one byte at a time (combine 8 bytes, little endian)
-      for (unsigned byteOffset = 0; byteOffset < FARM_ATTRIBUTE_SIZE - 1; byteOffset++) {
-        currentMetric |= (uint64_t) (pageBuffer[pageOffset + byteOffset] | (pageBuffer[pageOffset + byteOffset + 1] << 8)) << (byteOffset * 8);
-      }
-      // Check the status bit and strip it off if necessary
-      if (currentMetric >> 56 == 0xC0) {
-        currentMetric &= 0x00FFFFFFFFFFFFFFLL;
-      } else {
-        currentMetric = 0;
-      }
-      // Page 0 is the log header, so check the log signature to verify this is a FARM log
-      if (page == 0 && pageOffset == 0) {
-        if (currentMetric != 0x00004641524D4552) {
-          jerr("FARM log header is invalid (log signature=%lu)\n\n", currentMetric);
-          return NULL;
-        }
-      }
-      // Store value in structure for access to log by metric name
-      currentFarmLogPage[pageOffset / FARM_ATTRIBUTE_SIZE] = currentMetric;
-    }
-    // Copies array values to struct for named member access
-    // Check number of sectors to read for next page
-    switch (page) {
-    case 0:
-      memcpy(&ptr_farmLog->header, currentFarmLogPage, sizeof(ataFarmHeader));
-      numSectorsToRead = (sizeof(ataFarmDriveInformation) / FARM_SECTOR_SIZE) + 1;
-      break;
-    case 1:
-      memcpy(&ptr_farmLog->driveInformation, currentFarmLogPage, sizeof(ataFarmDriveInformation));
-      numSectorsToRead = (sizeof(ataFarmWorkloadStatistics) / FARM_SECTOR_SIZE) + 1;
-      break;
-    case 2:
-      memcpy(&ptr_farmLog->workload, currentFarmLogPage, sizeof(ataFarmWorkloadStatistics));
-      numSectorsToRead = (sizeof(ataFarmErrorStatistics) / FARM_SECTOR_SIZE) + 1;
-      break;
-    case 3:
-      memcpy(&ptr_farmLog->error, currentFarmLogPage, sizeof(ataFarmErrorStatistics));
-      numSectorsToRead = (sizeof(ataFarmEnvironmentStatistics) / FARM_SECTOR_SIZE) + 1;
-      break;
-    case 4:
-      memcpy(&ptr_farmLog->environment, currentFarmLogPage, sizeof(ataFarmEnvironmentStatistics));
-      numSectorsToRead = (sizeof(ataFarmReliabilityStatistics) / FARM_SECTOR_SIZE) + 1;
-      break;
-    case 5:
-      memcpy(&ptr_farmLog->reliability, currentFarmLogPage, sizeof(ataFarmReliabilityStatistics));
-      break;
-    }
-  }
-  return ptr_farmLog;
-}
-
-///////////////////////////////////////////////////////////////////////
-// Seagate Field Access Reliability Metrics (FARM) log (Log 0xA6)
-
-/*
- *  Prints parsed FARM log (GP Log 0xA6) data from Seagate
- *  drives already present in ataFarmLogFrame structure
- *  
- *  @param  ptr_farmLog:    Pointer to parsed farm log (* ataFarmLog)
- *  @return True if printing occurred without errors, otherwise false (bool)
- */
-static bool ataPrintFarmLog(ataFarmLog * ptr_farmLog) {
-  if (ptr_farmLog == NULL) {
-    jerr("Error printing parsed FARM log data\n\n");
-    return false;
-  }
-  // Print plain-text
-  jout("\nSeagate Field Access Reliability Metrics log (FARM) (GP log 0xA6)\n");
-  // Page 0: Log Header
-  jout("\tFARM Log Page 0: Log Header\n");
-  jout("\t\tFARM Log Version: %lu.%lu\n", ptr_farmLog->header.majorRev, ptr_farmLog->header.minorRev);
-  // Page 1: Drive Information
-  jout("\tFARM Log Page 1: Drive Information\n");
-  jout("\t\tHead Load Events: %lu\n", ptr_farmLog->driveInformation.headLoadEvents);
-  // Page 2: Workload Statistics
-  jout("\tFARM Log Page 2: Workload Statistics\n");
-  jout("\n");
-  // Page 3: Error Statistics
-  jout("\tFARM Log Page 3: Error Statistics\n");
-  jout("\t\tNumber of Unrecoverable Read Errors: %lu\n", ptr_farmLog->error.totalUnrecoverableReadErrors);
-  jout("\t\tNumber of Unrecoverable Write Errors: %lu\n",ptr_farmLog->error.totalUnrecoverableWriteErrors);
-  jout("\t\tNumber of Reallocated Sectors: %lu\n", ptr_farmLog->error.totalReallocations);
-  jout("\t\tNumber of Reallocated Candidate Sectors: %lu\n", ptr_farmLog->error.totalReallocationCanidates);
-  jout("\t\tNumber of Read Recovery Attempts: %lu\n", ptr_farmLog->error.totalReadRecoveryAttepts);
-  jout("\t\tNumber of Mechanical Start Failures: %lu\n", ptr_farmLog->error.totalMechanicalStartRetries);
-  jout("\t\tNumber of IOEDC Errors: %lu\n", ptr_farmLog->error.attrIOEDCErrors);
-  jout("\t\tCommand Time-Out Count Total: %lu\n", ptr_farmLog->error.attrCTOCount);
-  jout("\t\tCommand Time-Out Over 5 Seconds Count: %lu\n", ptr_farmLog->error.overFiveSecCTO);
-  jout("\t\tCommand Time-Out Over 7 Seconds Count: %lu\n", ptr_farmLog->error.overSevenSecCTO);
-  // Page 4: Environment Statistics
-  jout("\tFARM Log Page 4: Environment Statistics\n");
-  jout("\t\tCurrent 12V Input (mV): %lu\n", ptr_farmLog->environment.current12v);
-  jout("\t\tMinimum 12V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environment.min12v);
-  jout("\t\tMaximum 12V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environment.max12v);
-  jout("\t\tCurrent 5V Input (mV): %lu\n", ptr_farmLog->environment.current5v);
-  jout("\t\tMinimum 5V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environment.min5v);
-  jout("\t\tMaximum 5V input from last 3 SMART Summary Frames (mV): %lu\n", ptr_farmLog->environment.max5v);
-  jout("\t\t12V Power Average (mW): %lu\n", ptr_farmLog->environment.powerAverage12v);
-  // Page 5: Reliability Statistics
-  jout("\tFARM Log Page 5: Reliability Statistics\n");
-  jout("\t\tError Rate (Normalized): %li\n", ptr_farmLog->reliability.attrErrorRateNormal);
-  jout("\t\tError Rate (Worst): %li\n", ptr_farmLog->reliability.attrErrorRateWorst);
-  jout("\t\tSeek Error Rate (Normalized): %li\n", ptr_farmLog->reliability.attrSeekErrorRateNormal);
-  jout("\t\tSeek Error Rate (Worst): %li\n", ptr_farmLog->reliability.attrSeekErrorRateWorst);
-  jout("\t\tHigh Priority Unload Events: %li\n", ptr_farmLog->reliability.attrUnloadEventsRaw);
-  jout("\t\tLBAs Corrected By Parity Sector: %li\n", ptr_farmLog->reliability.numberLBACorrectedParitySector);
-  // Print JSON if --json or -j is specified
-  char str[50];
-  json::ref jref = jglb["seagate_farm_log"];
-  // Page 0: Log Header
-  json::ref jref0 = jref["page_0_log_header"];
-  sprintf(str, "%lu.%lu", ptr_farmLog->header.majorRev, ptr_farmLog->header.minorRev);
-  jref0["farm_log_version"] = str;
-  // Page 1: Drive Information
-  json::ref jref1 = jref["page_1_drive_information"];
-  jref1["head_load_events"] = ptr_farmLog->driveInformation.headLoadEvents;
-  // Page 2: Workload Statistics
-  json::ref jref2 = jref["page_2_workload_statistics"];
-  // Page 3: Error Statistics
-  json::ref jref3 = jref["page_3_error_statistics"];
-  jref3["number_of_unrecoverable_read_errors"] = ptr_farmLog->error.totalUnrecoverableReadErrors;
-  jref3["number_of_unrecoverable_write_errors"] = ptr_farmLog->error.totalUnrecoverableWriteErrors;
-  jref3["number_of_reallocated_sectors"] = ptr_farmLog->error.totalReallocations;
-  jref3["number_of_reallocated_candidate_sectors"] = ptr_farmLog->error.totalReallocationCanidates;
-  jref3["number_of_read_recovery_attempts"] = ptr_farmLog->error.totalReadRecoveryAttepts;
-  jref3["number_of_mechanical_start_failures"] = ptr_farmLog->error.totalMechanicalStartRetries;
-  jref3["number_of_ioedc_errors"] = ptr_farmLog->error.attrIOEDCErrors;
-  jref3["command_time_out_count_total"] = ptr_farmLog->error.attrCTOCount;
-  jref3["command_time_out_over_5_seconds_count"] = ptr_farmLog->error.overFiveSecCTO;
-  jref3["command_time_out_over_7_seconds_count"] = ptr_farmLog->error.overSevenSecCTO;
-  // Page 4: Environment Statistics
-  json::ref jref4 = jref["page_4_environment_statistics"];
-  jref4["current_12_volt_input_in_mv"] = ptr_farmLog->environment.current12v;
-  jref4["minimum_12_volt_input_in_mv"] = ptr_farmLog->environment.min12v;
-  jref4["maximum_12_volt_input_in_mv"] = ptr_farmLog->environment.max12v;
-  jref4["current_5_volt_input_in_mv"] = ptr_farmLog->environment.current5v;
-  jref4["minimum_5_volt_input_in_mv"] = ptr_farmLog->environment.min5v;
-  jref4["maximum_5_volt_input_in_mv"] = ptr_farmLog->environment.max5v;
-  jref4["twelve_volt_power_average_in_mw"] = ptr_farmLog->environment.powerAverage12v;
-  // Page 5: Reliability Statistics
-  json::ref jref5 = jref["page_5_reliability_statistics"];
-  jref5["error_rate_normalized"] = ptr_farmLog->reliability.attrErrorRateNormal;
-  jref5["error_rate_worst"] = ptr_farmLog->reliability.attrErrorRateWorst;
-  jref5["seek_error_rate_normalized"] = ptr_farmLog->reliability.attrSeekErrorRateNormal;
-  jref5["seek_error_rate_worst"] = ptr_farmLog->reliability.attrSeekErrorRateWorst;
-  jref5["lbas_corrected_by_parity_sector"] = ptr_farmLog->reliability.numberLBACorrectedParitySector;
-  jref5["high_priority_unload_events"] = ptr_farmLog->reliability.attrUnloadEventsRaw;
-  return true;
-}
-
 // Format milliseconds from error log entry as "DAYS+H:M:S.MSEC"
 static std::string format_milliseconds(unsigned msec)
 {
@@ -3499,7 +3308,7 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
  *  @param  drive:  Pointer to drive struct containing ATA device information (*ata_identify_device)
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
-static bool isSeagate(ata_identify_device * drive) {
+static bool isSeagate(ata_identify_device* drive) {
   // FIX ME: Seagate model numbers mostly begin with "ST" (all FARM-supported ones do)
   // FIX ME: Add matching for "XS", as some Seagate drives are labeled in this way
   #define SEAGATE_MODEL_MATCH "ST"
@@ -4649,25 +4458,14 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
           js = false;
         }
       } else {
-        ataFarmLog * ptr_farmLog = ataReadFarmLog(device, nsectors);
-        if (ptr_farmLog == NULL) {
+        const ataFarmLog& farmLog = ataReadFarmLog(device, nsectors);
+        if (!ataPrintFarmLog(farmLog)) {
           if (!options.all) {
-            jout("\nRead FARM log (GP Log 0xA6) failed\n\n");
+            jout("\nPrint FARM log (GP Log 0xA6) failed\n\n");
             json::ref js = jglb["seagate_farm_log_supported"];
             js = false;
           }
-          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-        } else {
-          if (!ataPrintFarmLog(ptr_farmLog)) {
-            if (!options.all) {
-              jout("\nPrint FARM log (GP Log 0xA6) failed\n\n");
-              json::ref js = jglb["seagate_farm_log_supported"];
-              js = false;
-            }
-          }
         }
-        delete ptr_farmLog;
-        ptr_farmLog = NULL;
       }
     } else {
       if (!options.all) {
