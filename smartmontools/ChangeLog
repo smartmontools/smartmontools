@@ -1,4 +1,8 @@
-$Id: ChangeLog 5208 2021-02-09 22:20:58Z chrfranke $
+$Id: ChangeLog 5209 2021-02-14 18:02:51Z samm2 $
+
+2021-02-14  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp: implement APM set feature, based on hdparm macOS sources
 
 2021-02-09  Christian Franke  <franke@computer.org>
 
