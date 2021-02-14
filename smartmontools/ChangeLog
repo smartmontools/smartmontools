@@ -1,5 +1,9 @@
 $Id$
 
+2021-02-14  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp: implement APM set feature, based on hdparm macOS sources
+
 2021-02-09  Christian Franke  <franke@computer.org>
 
 	configure.ac: Include required library functions in check for

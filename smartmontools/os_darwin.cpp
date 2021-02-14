@@ -398,6 +398,7 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   int fd = get_fd();
   IOATASMARTInterface **ifp = devices[fd].smartIf;
   IOATASMARTInterface *smartIf;
+  io_object_t disk = devices[fd].ioob;
   IOReturn err;
   int timeoutCount = 5;
   int rc = 0;
@@ -428,6 +429,32 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
     case ATA_CHECK_POWER_MODE:
       errno = ENOTSUP;
       err = -1;
+      break;
+    case ATA_SET_FEATURES:
+      switch(in.in_regs.features) {
+        case ATA_ENABLE_APM:
+        if (in.in_regs.sector_count) {
+          int l = (int) in.in_regs.sector_count;
+          CFNumberRef cfLevel = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &l);
+          kern_return_t r = IORegistryEntrySetCFProperty(disk, CFSTR("APM Level"), cfLevel);
+          CFRelease(cfLevel);
+          if (r) {
+            switch(r) {
+              case kIOReturnNotPrivileged:
+                return set_err(ENOSYS, "Use superuser to manage APM");
+                break;
+              case kIOReturnUnsupported:
+                return set_err(ENOSYS, "APM not supported");
+                break;
+              default:
+                return set_err(ENOSYS, "APM error: %u", r);
+            }
+          }
+          break;
+        }
+        default:
+          return set_err(ENOSYS, "Unsupported ATA feature");
+        }
       break;
     case ATA_SMART_CMD:
       switch (in.in_regs.features) {
