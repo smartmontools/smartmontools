@@ -1,11 +1,11 @@
 /*
- *  os_linux.cpp
+ * os_linux.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-19 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -108,13 +108,13 @@ public:
       m_flags(flags), m_retry_flags(retry_flags)
       { }
 
-  virtual ~linux_smart_device() throw();
+  virtual ~linux_smart_device();
 
-  virtual bool is_open() const;
+  virtual bool is_open() const override;
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
 
 protected:
   /// Return filedesc for derived classes.
@@ -130,7 +130,7 @@ private:
   int m_retry_flags; ///< Flags to retry ::open(), -1 if no retry
 };
 
-linux_smart_device::~linux_smart_device() throw()
+linux_smart_device::~linux_smart_device()
 {
   if (m_fd >= 0)
     ::close(m_fd);
@@ -214,7 +214,7 @@ public:
   linux_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual int ata_command_interface(smart_command_set command, int select, char * data) override;
 };
 
 linux_ata_device::linux_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
@@ -918,9 +918,9 @@ public:
   linux_scsi_device(smart_interface * intf, const char * dev_name,
                     const char * req_type, bool scanning = false);
 
-  virtual smart_device * autodetect_open();
+  virtual smart_device * autodetect_open() override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
 
 private:
   bool m_scanning; ///< true if created within scan_smart_devices
@@ -955,11 +955,11 @@ public:
   linux_aacraid_device(smart_interface *intf, const char *dev_name,
     unsigned int host, unsigned int channel, unsigned int device);
 
-  virtual ~linux_aacraid_device() throw();
+  virtual ~linux_aacraid_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io *iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io *iop) override;
 
 private:
   //Device Host number
@@ -983,7 +983,7 @@ linux_aacraid_device::linux_aacraid_device(smart_interface *intf,
   set_info().dev_type  = strprintf("aacraid,%d,%d,%d",aHost,aLun,aId);
 }
 
-linux_aacraid_device::~linux_aacraid_device() throw()
+linux_aacraid_device::~linux_aacraid_device()
 {
 }
 
@@ -1191,14 +1191,14 @@ public:
   linux_megaraid_device(smart_interface *intf, const char *name, 
     unsigned int tgt);
 
-  virtual ~linux_megaraid_device() throw();
+  virtual ~linux_megaraid_device();
 
-  virtual smart_device * autodetect_open();
+  virtual smart_device * autodetect_open() override;
 
-  virtual bool open();
-  virtual bool close();
+  virtual bool open() override;
+  virtual bool close() override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io *iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io *iop) override;
 
 private:
   unsigned int m_disknum;
@@ -1224,7 +1224,7 @@ linux_megaraid_device::linux_megaraid_device(smart_interface *intf,
   set_info().dev_type = strprintf("megaraid,%d", tgt);
 }
 
-linux_megaraid_device::~linux_megaraid_device() throw()
+linux_megaraid_device::~linux_megaraid_device()
 {
   if (m_fd >= 0)
     ::close(m_fd);
@@ -1511,7 +1511,7 @@ class linux_cciss_device
 public:
   linux_cciss_device(smart_interface * intf, const char * name, unsigned char disknum);
 
-  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
 
 private:
   unsigned char m_disknum; ///< Disk number.
@@ -1554,9 +1554,9 @@ public:
   linux_escalade_device(smart_interface * intf, const char * dev_name,
     escalade_type_t escalade_type, int disknum);
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 private:
   escalade_type_t m_escalade_type; ///< Controller type
@@ -1986,10 +1986,10 @@ class linux_areca_ata_device
 {
 public:
   linux_areca_ata_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  virtual smart_device * autodetect_open();
-  virtual bool arcmsr_lock();
-  virtual bool arcmsr_unlock();
-  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop);
+  virtual smart_device * autodetect_open() override;
+  virtual bool arcmsr_lock() override;
+  virtual bool arcmsr_unlock() override;
+  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop) override;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -2000,10 +2000,10 @@ class linux_areca_scsi_device
 {
 public:
   linux_areca_scsi_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  virtual smart_device * autodetect_open();
-  virtual bool arcmsr_lock();
-  virtual bool arcmsr_unlock();
-  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop);
+  virtual smart_device * autodetect_open() override;
+  virtual bool arcmsr_lock() override;
+  virtual bool arcmsr_unlock() override;
+  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop) override;
 };
 
 // Looks in /proc/scsi to suggest correct areca devices
@@ -2667,9 +2667,9 @@ public:
   linux_nvme_device(smart_interface * intf, const char * dev_name,
     const char * req_type, unsigned nsid);
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 };
 
 linux_nvme_device::linux_nvme_device(smart_interface * intf, const char * dev_name,
@@ -2799,26 +2799,26 @@ class linux_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
-  virtual std::string get_os_version_str();
+  virtual std::string get_os_version_str() override;
 
-  virtual std::string get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname) override;
 
   virtual bool scan_smart_devices(smart_device_list & devlist,
-    const smart_devtype_list & types, const char * pattern = 0);
+    const smart_devtype_list & types, const char * pattern = 0) override;
 
 protected:
-  virtual ata_device * get_ata_device(const char * name, const char * type);
+  virtual ata_device * get_ata_device(const char * name, const char * type) override;
 
-  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+  virtual scsi_device * get_scsi_device(const char * name, const char * type) override;
 
   virtual nvme_device * get_nvme_device(const char * name, const char * type,
-    unsigned nsid);
+    unsigned nsid) override;
 
-  virtual smart_device * autodetect_smart_device(const char * name);
+  virtual smart_device * autodetect_smart_device(const char * name) override;
 
-  virtual smart_device * get_custom_smart_device(const char * name, const char * type);
+  virtual smart_device * get_custom_smart_device(const char * name, const char * type) override;
 
-  virtual std::string get_valid_custom_dev_types_str();
+  virtual std::string get_valid_custom_dev_types_str() override;
 
 private:
   static const int devxy_to_n_max = 103; // Max value of devxy_to_n() below
@@ -3112,11 +3112,11 @@ linux_smart_interface::megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
     return (-1);
   }
 
-  bzero(&ioc, sizeof(ioc));
+  memset(&ioc, 0, sizeof(ioc));
   struct megasas_dcmd_frame * dcmd = &ioc.frame.dcmd;
   ioc.host_no = bus_no;
   if (mbox)
-    bcopy(mbox, dcmd->mbox.w, mboxlen);
+    memcpy(dcmd->mbox.w, mbox, mboxlen);
   dcmd->cmd = MFI_CMD_DCMD;
   dcmd->timeout = 0;
   dcmd->flags = 0;
@@ -3168,7 +3168,7 @@ linux_smart_interface::megasas_pd_add_list(int bus_no, smart_device_list & devli
     list = reinterpret_cast<megasas_pd_list *>(realloc(list, list_size));
     if (!list)
       throw std::bad_alloc();
-    bzero(list, list_size);
+    memset(list, 0, list_size);
     if (megasas_dcmd_cmd(bus_no, MFI_DCMD_PD_GET_LIST, list, list_size, NULL, 0,
       NULL) < 0) 
     {

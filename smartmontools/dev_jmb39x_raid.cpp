@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2019-20 Christian Franke
+ * Copyright (C) 2019-21 Christian Franke
  *
  * Based on JMraidcon (same license):
  *   Copyright (C) 2010 Werner Johansson
@@ -317,13 +317,13 @@ public:
   jmb39x_device(smart_interface * intf, smart_device * smartdev, const char * req_type,
     uint8_t version, uint8_t port, uint8_t lba, bool force);
 
-  virtual ~jmb39x_device() throw();
+  virtual ~jmb39x_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 private:
   uint8_t m_version;
@@ -354,7 +354,7 @@ jmb39x_device::jmb39x_device(smart_interface * intf, smart_device * smartdev, co
   memset(m_orig_data, 0, sizeof(m_orig_data));
 }
 
-jmb39x_device::~jmb39x_device() throw()
+jmb39x_device::~jmb39x_device()
 {
   if (m_orig_write_back) try {
     jmb39x_device::restore_orig_data();

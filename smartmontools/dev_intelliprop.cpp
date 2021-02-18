@@ -246,11 +246,11 @@ class intelliprop_device
 public:
   intelliprop_device(smart_interface * intf, unsigned phydrive, ata_device * atadev);
 
-  virtual ~intelliprop_device() throw();
+  virtual ~intelliprop_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 private:
   unsigned m_phydrive;
@@ -265,7 +265,7 @@ intelliprop_device::intelliprop_device(smart_interface * intf, unsigned phydrive
   set_info().info_name = strprintf("%s [intelliprop_disk_%u]", atadev->get_info_name(), phydrive);
 }
 
-intelliprop_device::~intelliprop_device() throw()
+intelliprop_device::~intelliprop_device()
 {
 }
 

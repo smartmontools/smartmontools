@@ -1,10 +1,10 @@
 /*
  * knowndrives.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -135,6 +135,7 @@ static drive_database knowndrives;
 
 
 enum dbentry_type {
+  DBENTRY_VERSION,
   DBENTRY_ATA_DEFAULT,
   DBENTRY_ATA,
   DBENTRY_USB
@@ -143,9 +144,11 @@ enum dbentry_type {
 // Return type of entry
 static dbentry_type get_modelfamily_type(const char * modelfamily)
 {
-  if (modelfamily[0] == 'D' && !strcmp(modelfamily, "DEFAULT"))
+  if (modelfamily[0] == 'V' && str_starts_with(modelfamily, "VERSION:"))
+    return DBENTRY_VERSION;
+  else if (modelfamily[0] == 'D' && !strcmp(modelfamily, "DEFAULT"))
     return DBENTRY_ATA_DEFAULT;
-  else if(modelfamily[0] == 'U' && str_starts_with(modelfamily, "USB:"))
+  else if (modelfamily[0] == 'U' && str_starts_with(modelfamily, "USB:"))
     return DBENTRY_USB;
   else
     return DBENTRY_ATA;
@@ -154,6 +157,23 @@ static dbentry_type get_modelfamily_type(const char * modelfamily)
 static inline dbentry_type get_dbentry_type(const drive_settings * dbentry)
 {
   return get_modelfamily_type(dbentry->modelfamily);
+}
+
+// Extract "BRANCH/REV" from "VERSION: ..." string.
+static void parse_version(std::string & dbversion, const char * verstr)
+{
+  static const regular_expression regex(
+    "^VERSION: ([0-9]+\\.[0-9]+)(/([0-9]+) | \\$[^0-9]* ([0-9]+) )"
+    //         (1              )( (3     )              (4     ) )
+  );
+  const int nmatch = 1+4;
+  regular_expression::match_range match[nmatch];
+  if (!regex.execute(verstr, nmatch, match))
+    return;
+  dbversion.assign(verstr + match[1].rm_so, match[1].rm_eo - match[1].rm_so);
+  int i = (match[3].rm_so >= 0 ? 3 : 4); // "BRANCH/REV" or "BRANCH ... SVN-REV"
+  dbversion += '/';
+  dbversion.append(verstr + match[i].rm_so, match[i].rm_eo - match[i].rm_so);
 }
 
 // Compile regular expression, print message on failure.
@@ -181,7 +201,8 @@ static bool match(const char * pattern, const char * str)
 // string.  If either the drive's model or firmware strings are not set by the
 // manufacturer then values of NULL may be used.  Returns the entry of the
 // first match in knowndrives[] or 0 if no match if found.
-static const drive_settings * lookup_drive(const char * model, const char * firmware)
+static const drive_settings * lookup_drive(const char * model, const char * firmware,
+  std::string * dbversion = nullptr)
 {
   if (!model)
     model = "";
@@ -189,8 +210,16 @@ static const drive_settings * lookup_drive(const char * model, const char * firm
     firmware = "";
 
   for (unsigned i = 0; i < knowndrives.size(); i++) {
+    dbentry_type t = get_dbentry_type(&knowndrives[i]);
+    // Get version if requested
+    if (t == DBENTRY_VERSION) {
+      if (dbversion)
+        parse_version(*dbversion, knowndrives[i].modelfamily);
+      continue;
+    }
+
     // Skip DEFAULT and USB entries
-    if (get_dbentry_type(&knowndrives[i]) != DBENTRY_ATA)
+    if (t != DBENTRY_ATA)
       continue;
 
     // Check whether model matches the regular expression in knowndrives[i].
@@ -554,7 +583,7 @@ void show_presets(const ata_identify_device * drive)
 // Returns pointer to database entry or nullptr if none found
 const drive_settings * lookup_drive_apply_presets(
   const ata_identify_device * drive, ata_vendor_attr_defs & defs,
-  firmwarebug_defs & firmwarebugs)
+  firmwarebug_defs & firmwarebugs, std::string & dbversion)
 {
   // get the drive's model/firmware strings
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
@@ -562,7 +591,7 @@ const drive_settings * lookup_drive_apply_presets(
   ata_format_id_string(firmware, drive->fw_rev, sizeof(firmware)-1);
 
   // Look up the drive in knowndrives[].
-  const drive_settings * dbentry = lookup_drive(model, firmware);
+  const drive_settings * dbentry = lookup_drive(model, firmware, &dbversion);
   if (!dbentry)
     return 0;
 

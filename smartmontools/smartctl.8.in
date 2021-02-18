@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-20 Christian Franke
+Copyright (C) 2004-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -319,15 +319,15 @@ info.
 .TP
 .B RUN-TIME BEHAVIOR OPTIONS:
 .TP
-.B \-j, \-\-json[=cgiosuv]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
-Enables JSON output mode.
+.B \-j, \-\-json[=cgiosuvy]
+Enables JSON or YAML output mode.
 .Sp
 The output could be modified or enhanced by the optional argument which
-consists of one or more characters from the set \*(Aqcgiosuv\*(Aq:
+consists of one or more characters from the set \*(Aqcgiosuvy\*(Aq:
 .br
 \*(Aqc\*(Aq: Outputs \fBc\fPompact format without extra spaces and newlines.
 By default, output is pretty-printed.
+If used with YAML format, the indentation of arrays is reduced.
 .br
 \*(Aqg\*(Aq: Outputs JSON structure as single assignments to allow the usage
 of \fBg\fPrep.
@@ -350,16 +350,18 @@ Values which may exceed 64-bit range are also output as a little endian
 byte array (\*(AqKEY_le\*(Aq).
 By default, the additional elements are only output if the value actually
 exceeds the range.
+.br
+\*(Aqy\*(Aq: [NEW EXPERIMENTAL SMARTCTL FEATURE] Outputs in YAML format.
 .Sp
 The following two arguments are primarily indented for development:
 .br
 \*(Aqi\*(Aq: Includes lines from the plaintext output which print info already
 \fBi\fPmplemented for JSON output.
-The lines appear as objects with key \*(Aqsmartctl_NNNN_i\*(Aq.
+The lines appear as strings with key \*(Aqsmartctl_NNNN_i\*(Aq.
 .br
 \*(Aqu\*(Aq: Includes lines from the plaintext output which print info still
 \fBu\fPnimplemented for JSON output.
-The lines appear as objects with key \*(Aqsmartctl_NNNN_u\*(Aq.
+The lines appear as strings with key \*(Aqsmartctl_NNNN_u\*(Aq.
 .TP
 .B \-q TYPE, \-\-quietmode=TYPE
 Specifies that \fBsmartctl\fP should run in one of the quiet modes
@@ -467,9 +469,13 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
 bridge.
 .Sp
-.I sntjmicron[,NSID]
+.I sntasmedia
 \- [NEW EXPERIMENTAL SMARTCTL FEATURE]
-this device type is for NVMe disks that are behind a JMicron USB to NVMe
+this device type is for NVMe disks that are behind an ASMedia USB to NVMe
+bridge.
+.Sp
+.I sntjmicron[,NSID]
+\- this device type is for NVMe disks that are behind a JMicron USB to NVMe
 bridge.
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
@@ -827,8 +833,10 @@ Then \fBsmartctl\fP internally simulates an ATA device with the same
 behaviour.
 This is does not work for SCSI devices yet.
 .TP
-.B \-n POWERMODE[,STATUS], \-\-nocheck=POWERMODE[,STATUS]
-[ATA only] Specifies if \fBsmartctl\fP should exit before performing any
+.B \-n POWERMODE[,STATUS[,STATUS2]], \-\-nocheck=POWERMODE[,STATUS[,STATUS2]]
+[ATA]
+[SCSI: NEW EXPERIMENTAL SMARTCTL FEATURE]
+Specifies if \fBsmartctl\fP should exit before performing any
 checks when the device is in a low-power mode.
 It may be used to prevent a disk from being spun-up by \fBsmartctl\fP.
 The power mode is ignored by default.
@@ -853,19 +861,27 @@ The valid arguments to this option are:
 \- check the device always, but print the power mode if \*(Aq\-i\*(Aq is
 specified.
 .Sp
-.I sleep[,STATUS]
+.I sleep[,STATUS[,STATUS2]]
 \- check the device unless it is in SLEEP mode.
 .Sp
-.I standby[,STATUS]
+.I standby[,STATUS[,STATUS2]]
 \- check the device unless it is in SLEEP or STANDBY mode.  In
 these modes most disks are not spinning, so if you want to prevent
 a disk from spinning up, this is probably what you want.
 .Sp
-.I idle[,STATUS]
+.I idle[,STATUS[,STATUS2]]
 \- check the device unless it is in SLEEP, STANDBY or IDLE mode.
 In the IDLE state, most disks are still spinning, so this is probably
 not what you want.
 .Sp
+The \*(Aq\-n\*(Aq option is ignored if the power mode check is not supported
+or returns an unknown value.
+.br
+[ATA only][NEW EXPERIMENTAL SMARTCTL FEATURE]
+If the optional STATUS2 parameter is specified, \fBsmartctl\fP exits
+immediately with STATUS2 in this case.
+For example use \*(Aq\-n standby,3,5\*(Aq to return unique exit statuses in
+the STANDBY and UNSUPPORTED cases.
 .TP
 .B SMART FEATURE ENABLE/DISABLE COMMANDS:
 .IP
@@ -1026,8 +1042,8 @@ the drive accepts any security commands until next reset.  Note that the
 frozen mode may already be set by BIOS or OS.
 .Sp
 .I standby,[N|off]
-\- [ATA only] Sets the standby (spindown) timer and places the drive in the
-IDLE mode.  A value of 0 or \*(Aqoff\*(Aq disables the standby timer.
+\- [ATA] Sets the standby (spindown) timer and places the drive in
+the IDLE mode.  A value of 0 or \*(Aqoff\*(Aq disables the standby timer.
 Values from 1 to 240 specify timeouts from 5 seconds to 20 minutes in 5
 second increments.  Values from 241 to 251 specify timeouts from 30 minutes
 to 330 minutes in 30 minute increments.  Value 252 specifies 21 minutes.
@@ -1039,12 +1055,23 @@ If \*(Aq\-s standby,now\*(Aq is also specified, the drive is immediately
 placed in the STANDBY mode without temporarily placing it in the IDLE mode.
 Note that ATA standards do not specify a command to set the standby timer
 without affecting the power mode.
+.br
+[SCSI]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Only the set option with \*(Aqstandby,off\*(Aq or
+\*(Aqstandby,0\*(Aq is accepted and will place the SCSI disk
+into "ACTIVE" power condition.
 .Sp
 .I standby,now
-\- [ATA only] Places the drive in the STANDBY mode.
+\- [ATA] Places the drive in the STANDBY mode.
 This usually spins down the drive.
 The setting of the standby timer is not affected unless
 \*(Aq\-s standby,[N|off]\*(Aq is also specified.
+.br
+[SCSI]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+Only the set option is accepted and will place the SCSI
+disk into "STANDBY_Z" power condition.
 .Sp
 .I wcache[,on|off]
 \- [ATA] Gets/sets the volatile write cache feature (if supported).
@@ -1481,7 +1508,7 @@ Otherwise, the setting is volatile and will be reverted to the last
 non-volatile setting by the next hard reset.  The default interval
 is vendor specific, typical values are 1, 2, or 5 minutes.
 .Sp
-.I scterc[,READTIME,WRITETIME]
+.I scterc[,READTIME,WRITETIME][,p|reset]
 \- [ATA only] prints values and descriptions of the SCT Error Recovery
 Control settings.
 These are equivalent to TLER (as used by Western Digital), CCTL (as used
@@ -1490,6 +1517,16 @@ READTIME and WRITETIME arguments (deciseconds) set the specified values.
 Values of 0 disable the feature, other values less than 65 are probably not
 supported.
 For RAID configurations, this is typically set to 70,70 deciseconds.
+.br
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+If \*(Aqscterc,READTIME,WRITETIME,p\*(Aq is specified, these time values
+will be persistent over a power-on reset.
+If \*(Aqscterc,p\*(Aq is specified, the persistent over power-on values
+are printed.
+If \*(Aqscterc,reset\*(Aq is specified, all SCT timer settings are restored
+to the manufacturer's default value.
+The \*(Aq,p\*(Aq and \*(Aq,reset\*(Aq options require the device to support
+ATA ACS-4 or higher.
 .Sp
 .I devstat[,PAGE]
 \- [ATA only] prints values and descriptions of the ATA Device Statistics

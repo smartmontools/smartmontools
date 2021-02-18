@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-12 Bruce Allen
- * Copyright (C) 2008-20 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -80,7 +80,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
       "(build date " __DATE__ ")" // checkout without expansion of Id keywords
 #endif
       " [%s] " BUILD_INFO "\n"
-    "Copyright (C) 2002-20, Bruce Allen, Christian Franke, www.smartmontools.org\n",
+    "Copyright (C) 2002-21, Bruce Allen, Christian Franke, www.smartmontools.org\n",
     prog_name, smi()->get_os_version_str().c_str()
   );
   if (!full)
@@ -92,7 +92,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "software, and you are welcome to redistribute it under\n"
     "the terms of the GNU General Public License; either\n"
     "version 2, or (at your option) any later version.\n"
-    "See http://www.gnu.org for further details.\n"
+    "See https://www.gnu.org for further details.\n"
     "\n"
     "smartmontools release " PACKAGE_VERSION
       " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n"
@@ -134,9 +134,19 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
 #endif
                                                           "\n"
     "smartmontools configure arguments:"
+#ifdef SOURCE_DATE_EPOCH
+                                      " [hidden in reproducible builds]\n"
+    "reproducible build SOURCE_DATE_EPOCH: "
+#endif
   ;
+#ifdef SOURCE_DATE_EPOCH
+  char ts[32]; struct tm tmbuf;
+  strftime(ts, sizeof(ts), "%Y-%m-%d %H:%M:%S", time_to_tm_local(&tmbuf, SOURCE_DATE_EPOCH));
+  info += strprintf("%u (%s)", (unsigned)SOURCE_DATE_EPOCH, ts);
+#else
   info += (sizeof(SMARTMONTOOLS_CONFIGURE_ARGS) > 1 ?
            SMARTMONTOOLS_CONFIGURE_ARGS : " [no arguments given]");
+#endif
   info += '\n';
 
   return info;

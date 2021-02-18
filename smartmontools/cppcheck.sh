@@ -4,7 +4,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2019-20 Christian Franke
+# Copyright (C) 2019-21 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -17,18 +17,20 @@ myname=$0
 
 usage()
 {
-  echo "Usage: $myname [-v|-q] [-jJOBS] [--library=CFG] [--platform=TYPE] [FILE ...]"
+  echo "Usage: $myname [-v|-q] [-c CPPCHECK] [-jJOBS] [--library=CFG] [--platform=TYPE] [FILE ...]"
   exit 1
 }
 
 # Parse options
 jobs=
 v=
+cppcheck="cppcheck"
 library="--library=posix"
 platform="--platform=unix64"
 unused_func=",unusedFunction"
 
 while true; do case $1 in
+  -c) shift; test -n "$1" || usage; cppcheck=$1 ;;
   -j?*) jobs=$1; unused_func= ;;
   -q) v="-q" ;;
   -v) v="-v" ;;
@@ -58,10 +60,10 @@ else
 fi
 
 # Check cppcheck version
-ver=$(cppcheck --version) || exit 1
+ver=$("$cppcheck" --version) || exit 1
 ver=${ver##* }
 case $ver in
-  1.85) ;;
+  1.8[56]|2.[23]) ;;
   *) echo "$myname: cppcheck $ver not tested with this script" ;;
 esac
 
@@ -74,12 +76,9 @@ sup_list="
   #style
   asctime_rCalled:utility.cpp
   asctime_sCalled:utility.cpp
-  bzeroCalled
-  bcopyCalled
   ftimeCalled
   readdirCalled
   strtokCalled
-  missingOverride
   unusedStructMember
   unusedFunction:sg_unaligned.h
   unmatchedSuppression
@@ -110,6 +109,7 @@ defs="\
   -DSMARTMONTOOLS_ATTRIBUTELOG=\"/file\"
   -DSMARTMONTOOLS_SAVESTATES=\"/file\"
   -DSMARTMONTOOLS_DRIVEDBDIR=\"/dir\"
+  -DSOURCE_DATE_EPOCH=1665402854
   -Umakedev
   -Ustricmp"
 
@@ -126,7 +126,7 @@ $(for s in $suppress; do echo "  $s \\"; done)
 EOF
 
 # Run cppcheck with swapped stdout<>stderr
-cppcheck \
+"$cppcheck" \
   $v \
   $jobs \
   --enable="$enable" \

@@ -1,5 +1,9 @@
 $Id$
 
+2021-02-14  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_darwin.cpp: implement APM set feature, based on hdparm macOS sources
+
 2021-02-11  Natan Lidukhover  <natan.lidukhover@seagate.com>
 
 	Large update adding pulling and parsing of Seagate's
@@ -39,6 +43,391 @@ $Id$
 	Makefile.am: Add new FARM files farmcmds.{h, cpp} and 
 	  farmprint.{h, cpp} to sources for the Makefile.
 	AUTHORS: Add myself to list of contributors.
+
+2021-02-09  Christian Franke  <franke@computer.org>
+
+	configure.ac: Include required library functions in check for
+	'-fstack-protector' (#1439).
+
+	Print drive database version in smartctl and smartd.
+	knowndrives.cpp, knowndrives.h: Parse VERSION string.
+	ataprint.cpp: Print version.  Remove '-P showall' help string.
+	smartd.cpp: Print version.
+
+2021-02-07  Christian Franke  <franke@computer.org>
+
+	Makefile.am: 'check' target now also checks the built-in database.
+
+	smartctl.cpp: Fix 'optopt' range check
+	(cppcheck 2.3: invalidFunctionArg).
+
+	scsiprint.cpp: Silence cppcheck 2.3 'unreadVariable' warning.
+
+	scsiata.cpp: Remove unused function 'has_usbcypress_pass_through()'.
+
+	Improve reproducibility if SOURCE_DATE_EPOCH if set (GH pull/89).
+	configure.ac: Define SOURCE_DATE_EPOCH in CPPFLAGS.
+	utility.cpp: Print SOURCE_DATE_EPOCH value if specified.
+	Don't include configure arguments then.
+	cppcheck.sh: Silence related 'ConfigurationNotChecked' message.
+
+	Always add timestamp to JSON output (#1436).
+	Move non-JSON timestamp output to common function.
+
+2021-02-01  Christian Franke  <franke@computer.org>
+
+	Silence more cppcheck 2.3 warnings.
+
+	Add C++11 'override' specifier where applicable (cppcheck: missingOverride).
+
+	os_freebsd.cpp, os_linux.cpp: Replace deprecated bcopy() and bzero()
+	(cppcheck: bcopyCalled, bzeroCalled).
+
+	cppcheck.sh: Add '-c' option.
+	Remove suppress: bcopyCalled, bzeroCalled, missingOverride.
+	Mark cppcheck 1.86, 2.2 and 2.3 as tested.
+
+	json.h: suppress cppcheck: noExplicitConstructor.
+
+	ataprint.cpp, ataprint.h, smartctl.cpp: Optionally exit immediately
+	if '-n POWERMODE' option is not supported (#1381).
+	smartctl.8.in: Document new STATUS2 Parameter for '-n POWERMODE'.
+
+2021-01-27  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Add support for nested braced-init-lists.
+
+	json.cpp, json.h: Use some C++11 features.  Align output functions.
+
+2021-01-24  Christian Franke  <franke@computer.org>
+
+	ataprint.h, nvmeprint.h, scsiprint.h: Use C++11 in-class member
+	initializers.
+
+	Drop C++98 restriction, allow C++11.
+	configure.ac: Enable C++11.  Fail if no option found.
+	Disable C++14 if possible.  Warn if no C++14 option found.
+
+	configure.ac: Remove defunct '--with-working-snprintf'.
+
+	scsiprint.cpp: Reduce scope of 'powerlimit'
+	(cppcheck 1.85: variableScope).
+
+2021-01-24  Simon Fairweather  <simon.n.fairweather@gmail.com>
+
+	scsiprint.cpp: Move VPD page process to after new powermode processing
+	added in r5131 to resolve #1413 of Seagate drives spinning up when
+	-n standby is selected.  Simplify code for VPD pages.
+
+2021-01-23  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Enhance config-vc and *clean-vc targets for MSVC15/16.
+
+	os_win32/vc16: Copy from vc15 and change for MSVC16 (VS2019).
+
+	os_win32/vc15: Copy from vc14 and change for MSVC15 (VS2017).
+
+	os_win32/vc14/smart*.vcxproj*: Add missing files.
+	Suppress warnings for regex/regex.c.
+
+2021-01-20  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, ataprint.h, smartctl.cpp: Rework sct_erc variables.
+	Fix handling of '-l scterc*,p' if both get and set are used.
+
+	smartctl.cpp: Change '-l scterc,r' to '-l scterc,reset'.
+	Make ',p' case sensitive.  Simplify parsing of 'scterc...'.
+	smartctl.8.in: Change documentation accordingly.
+
+2021-01-17  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Bump branch VERSION to 7.3.
+	- USB: Realtek RTL9211 (0x0bda:0x9211, 0x2eb9:0x9211).
+	- USB: ASMedia ASM2362 (0x174c:0x2362).
+
+	scsinvme.cpp: Add '-d sntasmedia' device type for ASMedia ASM2362
+	USB to NVMe bridges (#1221).
+	dev_interface.cpp: Update help text.
+	smartctl.8.in, smartd.conf.5.in: Document new option.
+
+	Thanks to Demian from Sabrent.
+
+2021-01-15  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Add EXPERIMENTAL note for new '-l scterc' variants.
+
+2021-01-15  Jeremy Bauer  <jeremy.bauer@wdc.com>
+
+	Add support for SCT Error Recovery Timer features added in ACS-4
+	(#1427).
+	'-l scterc[,R,W],p' option gets/sets the persistent power-on values.
+	'-l scterc,r' option restores to the manufacturer's default values.
+
+2021-01-15  Zhenwei Pi  <pizhenwei@bytedance.com>
+
+	nvmeprint.cpp: Add bit 5 of SMART/Health 'Critical Warning' byte
+	(NVMe 1.4).
+
+2021-01-10  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Add VERSION information to trunk and all branches (#1424).
+
+2021-01-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Seagate BarraCuda 3.5: Split into ...(CMR) and ...(SMR).
+	- Seagate Exos 7E8 (#1415).
+	- Western Digital Blue (SMR): 4TB.
+	- USB: ADATA HV610 (0x125f:0xa21a) (#1417).
+
+2021-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year!  Update copyright year in version info.
+
+2020-12-30  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.2
+
+2020-12-30  Christian Franke  <franke@computer.org>
+
+	configure.ac, update-smart-drivedb.in: Use RELEASE_7_2_DRIVEDB for
+	drivedb.h updates.
+
+	Create new branch RELEASE_7_2_DRIVEDB.
+
+2020-12-29  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Micron 5100 Pro / 52x0 / 5300 SSDs: 5300HC.
+	- Samsung based SSDs: PM871 MZY* (#1384), 870 QVO (#1388).
+	- Silicon Motion based SSDs: ADATA IMSS332 (#1399),
+	  ADATA SU650NS38 (#1386), JAJS600M1TB (#1414), NFN025SA31T.
+	- Silicon Motion based OEM SSDs: Dogfish,
+	  Intenso portable (GH issues/81, GH pull/82),
+	  Intenso Sata III (#1412), KingDian S280 (#1402).
+	- SK hynix SATA SSDs: SC300 (#1407).
+	- Hitachi Travelstar 5K500.B: *SA02 (#1408).
+	- Fix '-v' comments.  Remove trailing whitespace.
+
+	scsinvme.cpp: Realtek: Limit NVMe log transfer size to 512 bytes.
+
+2020-12-21  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Add EXPERIMENTAL notes for SCSI variants of
+	'-n POWERMODE' and '-s standby,...'.  Fix syntax.
+
+	update-smart-drivedb.in: Add 'Accept-Encoding' HTTP header when
+	curl is used.  This avoids caching problems with svn URL.
+
+	update-smart-drivedb.in: Print output of 'gpg --import' if '-v' is
+	specified.
+
+	update-smart-drivedb.in: Extend expiration year of current database
+	signing key from 2020 to 2025 (#1278).
+
+2020-12-20  Christian Franke  <franke@computer.org>
+
+	configure.ac: Use AC_CONFIG_HEADERS instead of obsolete
+	AC_CONFIG_HEADER.  This silences a warning from new autoconf 2.70.
+	Print 'deprecated' warning for '--with-solaris-sparc-ata'.
+
+	drivedb.h:
+	- Intel X25-E SSDs: IBM OEM (#1401).
+	- Seagate BarraCuda 3.5: 12TB
+	- Seagate Exos X16: 10TB (#1406, GH issues/63), 12TB.
+	- Seagate Archive HDD: Rename to ...(SMR) (#1392).
+	- Seagate BarraCuda, Enterprise Capacity, Exos, IronWolf:
+	  Add attributes 18, 200.
+	- Seagate IronWolf Pro 125 SSDs (#1396).
+	- Unify indentation.
+
+2020-12-15  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartctl: expand -s option with standby,now and standby,off (or
+	standby,0) to include SCSI. Modified code from Simon Fairweather
+	found in github pull #72. As per my 20201205 patch, this
+	area (i.e. SCSI power conditions including START and STOP) needs
+	to be revisited; leave that until after the 7.2 release.
+
+2020-12-14  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h: add Sony HD-E1B (#1410)
+
+2020-12-12  Alex Samorukov  <samm@os2.kiev.ua>
+
+	Add automake 1.16.2 to the list of tested versions
+	os_freebsd.cpp: number of minor patches from Christian Franke
+
+2020-12-05  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartctl: expand -n option to include SCSI. Code from Simon
+	Fairweather. Still thinking about how to handle SCSI "stopped"
+	state which requires the user to send a SCSI command to restart.
+
+2020-12-04  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Print Log Page Attributes.  Print NVMe 1.4 features.
+
+	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp: Fix check for LPO support.
+
+2020-12-03  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Print NVMe version.
+
+	nvmecmds.cpp, nvmecmds.h, nvmeprint.cpp: Limit NVMe log transfer size
+	to one page.  This should fix device or kernel crashes on '-l error'
+	if log has more than 64 entries (#1404, Debian Bug 947803).
+
+	nvmeprint.cpp: Read only requested number of entries from NVMe
+	Error Information Log.
+
+2020-11-23  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Allow to specify a delay limit for staggered self-tests.
+	smartd.conf.5.in: Document new functionality.
+
+2020-11-21  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add staggered self-tests (#310).
+	smartd.conf.5.in: Document new functionality.
+
+2020-11-17  Dmitriy Potapov <atomsk+oss@google.com>
+
+	smartd.cpp: Don't write attrlog when device is skipped due to idle or
+	standby mode, or if attributes were not read for any other reason
+	(GH pull/75).
+
+2020-11-09  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Resolve symlinks before device names are checked for
+	duplicates (#1390).
+	dev_interface.cpp, dev_interface.h: Add 'get_unique_dev_name()'
+	and 'is_raid_dev_type()' to support platform specific modifications.
+	smartd.conf.5.in: Document new functionality.
+
+2020-11-07  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Add YAML support.
+	smartctl.cpp: Add '--json=y' option.
+	smartctl.8.in: Document new option.
+
+	smartctl.8.in, smartd.conf.5.in: Remove EXPERIMENTAL notes for
+	features added before 7.0.
+	update-smart-drivedb.8.in: Add missing EXPERIMENTAL note.
+
+2020-11-01  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: KINGSTON OM4P0S3* (#1374), OMSP0S3* (#1375).
+	- InnoDisk iCF 9000 / 1SE2 Cards: Rename entry. Add 1SE2 H (#1351).
+	- Marvell based SanDisk SSDs: 2TB SDSSDH3 (GH issues/67, GH pull/69),
+	  WD Blue SSD WDS100T2B0A (#1378).
+	- SanDisk based SSDs: SDSA6GM*.
+	- Toshiba 2.5" HDD MK..76GSX/GS001A (GH pull/58).
+	- Toshiba L200 (CMR), Toshiba L200 (SMR) (#1228, patch from #1377).
+	- Western Digital Blue: Apple OEM (#1385).
+	- Western Digital Scorpio Blue Serial ATA: 320 GB (patch from #888).
+
+	os_win32.cpp: Decode Windows 10 20H2 and Server 2004, 20H2
+	build numbers.
+
+2020-10-29  Alex Samorukov  <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: skip SCSI subenclosure devices on scan (#1299)
+
+2020-10-24  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- HGST Travelstar Z5K1000: *B*610 variant.
+	- Hitachi Travelstar 7K320: HITACHI*SA60 variant (#983).
+	- Hitachi/HGST Deskstar 5K4000: Rename entry. Add HGST (#1060).
+	- HGST Deskstar NAS: 8TB.
+	- Hitachi/HGST Ultrastar 5K3000 (#1055).
+	- Hitachi Ultrastar 7K3000: Variant without vendor name (#1361).
+	- Hitachi/HGST Ultrastar 7K4000: Variant without vendor name (#1361).
+	- HGST Ultrastar HC310/320 (#1157, #1365).
+
+2020-10-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- ATP SATA III aMLC M.2 2242 SSD (based on patch from #1366).
+	- Silicon Motion based OEM SSDs: TCSUNBOW X3 (#1349),
+	  KingDian S370 (#1350), LDLC (#1353), Lenovo.
+	- SSSTC ER2 GD/CD Series SSDs (based on patch from #1376).
+
+2020-10-15  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apacer SSDs (based on patch from #1202).
+	- Crucial/Micron MX500 SSDs (FW <= M3CR032): Remove entry (#1227).
+	- Crucial/Micron Client SSDs: Rename entry. Fix name of attribute 127.
+	  This prevents false 'Currently unreadable (pending) sectors' warnings
+	  from smartd (#1227, #1294, #1311, #1336).
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: *H* variant (#1363).
+	- Samsung based SSDs: 883 DCT (#1373).
+
+	os_win32.cpp: Fix removal of trailing blanks.
+	Silence misleading -Wstring-compare warning from g++ 10.2.0
+	(GCC Bugzilla 97336).
+
+2020-10-09  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Don't print 'Accumulated power on time' if no
+	option is specified (GH issues/65, regression from r5075).
+	Fix setting of 'any_output' (regression from r4188).
+
+	Based on patch from GH pull/66.
+
+2020-10-06  Christian Franke  <franke@computer.org>
+
+	Remove all occurrences of the throw() specifier.
+	This specifier is deprecated since C++11.
+
+2020-09-27  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add '--branch' option.
+	Select signing key accordingly.
+	update-smart-drivedb.8.in: Document new option.
+
+2020-09-20  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Crucial/Micron BX/MX1/2/3/500, M5/600, 11/1300 SSDs: BX500 2TB,
+	  1100 with version suffix (#1178), 1300 without prefix (#1369).
+	- Micron 5100 Pro / 52x0 / 5300 SSDs: Add attribute 246.
+	- Phison Driven SSDs: Kingston A400 M.2 (#1362),
+	  Kingston OCP0S3* (#1370), Kingston OM8P0* (#1371).
+	- Kingston SSDNow UV400/500: UV500 M.2 (#1347).
+	- SAMSUNG SpinPoint N3U-3 (USB): Rename.
+	- USB: Samsung S1 Mini (0x04e8:0x2f06) (Debian Bug 964032).
+
+2020-09-19  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Report unavailable TRIM command only for SSDs.
+
+2020-08-23  Christian Franke  <franke@computer.org>
+
+	drivedb.h: DEFAULT entry: Limit attribute 231 (Temperature_Celsius)
+	to HDDs.  Various SSDs use this attribute for a different purpose.
+
+	drivedb.h:
+	- Micron 5100 Pro / 52x0 / 5300 SSDs: Rename, add 5210 (#1356),
+	  5300 *TDT variant (#1355)
+	- Phison Driven SSDs: SSD Smartbuy 64GB and other sizes (#1359)
+	- Indilinx Barefoot_2/Everest/Martini based SSDs: OCZ-OCTANE (#1360)
+	- Marvell based SanDisk SSDs: Ultra 3D 4TB (#1358)
+	- Silicon Motion based SSDs: ACPI SED2QII-LP, Transcend 230
+	- Western Digital Gold: WD102KRYZ (#1357)
+
+2020-08-22  Christian Franke  <franke@computer.org>
+
+	smartd.service.in: Don't start smartd in virtualized environments
+	(GH issues/62).
+
+2020-08-22  Marko Hauptvogel  <marko.hauptvogel@googlemail.com>
+
+	smartd.service.in: Remove obsolete 'StandardOutput=syslog'.
 
 2020-07-11  Christian Franke  <franke@computer.org>
 

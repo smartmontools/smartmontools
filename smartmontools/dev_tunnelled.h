@@ -1,9 +1,9 @@
 /*
  * dev_tunnelled.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -27,17 +27,17 @@ protected:
   explicit tunnelled_device_base(smart_device * tunnel_dev);
 
 public:
-  virtual ~tunnelled_device_base() throw();
+  virtual ~tunnelled_device_base();
 
-  virtual bool is_open() const;
+  virtual bool is_open() const override;
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
 
-  virtual bool owns(const smart_device * dev) const;
+  virtual bool owns(const smart_device * dev) const override;
 
-  virtual void release(const smart_device * dev);
+  virtual void release(const smart_device * dev) override;
 
 private:
   smart_device * m_tunnel_base_dev;
@@ -73,7 +73,7 @@ protected:
     { }
 
 public:
-  virtual void release(const smart_device * dev)
+  virtual void release(const smart_device * dev) override
     {
       if (m_tunnel_dev == dev)
         m_tunnel_dev = 0;

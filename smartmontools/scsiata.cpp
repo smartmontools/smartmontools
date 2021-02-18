@@ -1,10 +1,10 @@
 /*
  * scsiata.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-18 Christian Franke
+ * Copyright (C) 2009-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  * The code in this file is based on the SCSI to ATA Translation (SAT)
@@ -114,13 +114,13 @@ public:
   sat_device(smart_interface * intf, scsi_device * scsidev,
     const char * req_type, sat_scsi_mode mode = sat_always, int passthrulen = 0);
 
-  virtual ~sat_device() throw();
+  virtual ~sat_device();
 
-  virtual smart_device * autodetect_open();
+  virtual smart_device * autodetect_open() override;
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
 
 private:
   int m_passthrulen;
@@ -148,7 +148,7 @@ sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
     (mode == sat_always ? "SAT" : mode == sat_auto ? "SCSI/SAT" : "SCSI"));
 }
 
-sat_device::~sat_device() throw()
+sat_device::~sat_device()
 {
 }
 
@@ -612,10 +612,10 @@ public:
   usbcypress_device(smart_interface * intf, scsi_device * scsidev,
     const char * req_type, unsigned char signature);
 
-  virtual ~usbcypress_device() throw();
+  virtual ~usbcypress_device();
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual int ata_command_interface(smart_command_set command, int select, char * data) override;
 
   unsigned char m_signature;
 };
@@ -630,7 +630,7 @@ usbcypress_device::usbcypress_device(smart_interface * intf, scsi_device * scsid
   set_info().info_name = strprintf("%s [USB Cypress]", scsidev->get_info_name());
 }
 
-usbcypress_device::~usbcypress_device() throw()
+usbcypress_device::~usbcypress_device()
 {
 }
 
@@ -870,51 +870,6 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
     return 0;
 }
 
-#if 0 // Not used, see autodetect_sat_device() below.
-static int isprint_string(const char *s)
-{
-    while (*s) {
-        if (isprint(*s) == 0)
-            return 0;
-        s++;
-    }
-    return 1;
-}
-
-/* Attempt an IDENTIFY DEVICE ATA or IDENTIFY PACKET DEVICE command
-   If successful return 1, else 0 */
-// TODO: Combine with has_sat_pass_through above
-static int has_usbcypress_pass_through(ata_device * atadev, const char *manufacturer, const char *product)
-{
-    struct ata_identify_device drive;
-    char model[40], serial[20], firm[8];
-
-    /* issue the command and do a checksum if possible */
-    if (ataReadHDIdentity(atadev, &drive) < 0)
-        return 0;
-
-    /* check if model string match, revision doesn't work for me */
-    format_ata_string(model, drive.model, 40);
-    if (*model == 0 || isprint_string(model) == 0)
-        return 0;
-
-    if (manufacturer && strncmp(manufacturer, model, 8))
-        pout("manufacturer doesn't match in pass_through test\n");
-    if (product &&
-            strlen(model) > 8 && strncmp(product, model+8, strlen(model)-8))
-        pout("product doesn't match in pass_through test\n");
-
-    /* check serial */
-    format_ata_string(serial, drive.serial_no, 20);
-    if (isprint_string(serial) == 0)
-        return 0;
-    format_ata_string(firm, drive.fw_rev, 8);
-    if (isprint_string(firm) == 0)
-        return 0;
-    return 1;
-}
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 
 /// JMicron USB Bridge support.
@@ -930,11 +885,11 @@ public:
                     const char * req_type, bool prolific,
                     bool ata_48bit_support, int port);
 
-  virtual ~usbjmicron_device() throw();
+  virtual ~usbjmicron_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 private:
   bool get_registers(unsigned short addr, unsigned char * buf, unsigned short size);
@@ -956,7 +911,7 @@ usbjmicron_device::usbjmicron_device(smart_interface * intf, scsi_device * scsid
   set_info().info_name = strprintf("%s [USB JMicron]", scsidev->get_info_name());
 }
 
-usbjmicron_device::~usbjmicron_device() throw()
+usbjmicron_device::~usbjmicron_device()
 {
 }
 
@@ -1158,9 +1113,9 @@ public:
   usbprolific_device(smart_interface * intf, scsi_device * scsidev,
                     const char * req_type);
 
-  virtual ~usbprolific_device() throw();
+  virtual ~usbprolific_device();
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 };
 
 
@@ -1172,7 +1127,7 @@ usbprolific_device::usbprolific_device(smart_interface * intf, scsi_device * scs
   set_info().info_name = strprintf("%s [USB Prolific]", scsidev->get_info_name());
 }
 
-usbprolific_device::~usbprolific_device() throw()
+usbprolific_device::~usbprolific_device()
 {
 }
 
@@ -1297,9 +1252,9 @@ public:
   usbsunplus_device(smart_interface * intf, scsi_device * scsidev,
                     const char * req_type);
 
-  virtual ~usbsunplus_device() throw();
+  virtual ~usbsunplus_device();
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 };
 
 
@@ -1311,7 +1266,7 @@ usbsunplus_device::usbsunplus_device(smart_interface * intf, scsi_device * scsid
   set_info().info_name = strprintf("%s [USB Sunplus]", scsidev->get_info_name());
 }
 
-usbsunplus_device::~usbsunplus_device() throw()
+usbsunplus_device::~usbsunplus_device()
 {
 }
 

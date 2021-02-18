@@ -1,9 +1,9 @@
 /*
  * dev_ata_cmd_set.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -26,7 +26,7 @@ class ata_device_with_command_set
 {
 public:
   /// ATA pass through mapped to ata_command_interface().
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 protected:
   /// Old ATA interface called by ata_pass_through()

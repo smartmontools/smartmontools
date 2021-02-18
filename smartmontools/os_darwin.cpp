@@ -1,7 +1,7 @@
 /*
  * os_darwin.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Geoffrey Keating <geoffk@geoffk.org>
  * Copyright (C) 2014 Alex Samorukov <samm@os2.kiev.ua>
@@ -83,13 +83,13 @@ public:
     : smart_device(never_called),
       m_fd(-1), m_mode(mode) { }
 
-  virtual ~darwin_smart_device() throw();
+  virtual ~darwin_smart_device();
 
-  virtual bool is_open() const;
+  virtual bool is_open() const override;
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
  
 protected:
   /// Return filedesc for derived classes.
@@ -102,7 +102,7 @@ private:
 };
 
 
-darwin_smart_device::~darwin_smart_device() throw()
+darwin_smart_device::~darwin_smart_device()
 {
   if (m_fd >= 0)
     darwin_smart_device::close();
@@ -372,7 +372,7 @@ class darwin_ata_device
 {
 public:
   darwin_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 protected:
   // virtual int ata_command_interface(smart_command_set command, int select, char * data);
@@ -398,6 +398,7 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   int fd = get_fd();
   IOATASMARTInterface **ifp = devices[fd].smartIf;
   IOATASMARTInterface *smartIf;
+  io_object_t disk = devices[fd].ioob;
   IOReturn err;
   int timeoutCount = 5;
   int rc = 0;
@@ -428,6 +429,32 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
     case ATA_CHECK_POWER_MODE:
       errno = ENOTSUP;
       err = -1;
+      break;
+    case ATA_SET_FEATURES:
+      switch(in.in_regs.features) {
+        case ATA_ENABLE_APM:
+        if (in.in_regs.sector_count) {
+          int l = (int) in.in_regs.sector_count;
+          CFNumberRef cfLevel = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &l);
+          kern_return_t r = IORegistryEntrySetCFProperty(disk, CFSTR("APM Level"), cfLevel);
+          CFRelease(cfLevel);
+          if (r) {
+            switch(r) {
+              case kIOReturnNotPrivileged:
+                return set_err(ENOSYS, "Use superuser to manage APM");
+                break;
+              case kIOReturnUnsupported:
+                return set_err(ENOSYS, "APM not supported");
+                break;
+              default:
+                return set_err(ENOSYS, "APM error: %u", r);
+            }
+          }
+          break;
+        }
+        default:
+          return set_err(ENOSYS, "Unsupported ATA feature");
+        }
       break;
     case ATA_SMART_CMD:
       switch (in.in_regs.features) {
@@ -507,22 +534,22 @@ class darwin_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
-  virtual std::string get_os_version_str();
+  virtual std::string get_os_version_str() override;
 
-  virtual std::string get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname) override;
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
-    const char * pattern = 0);
+    const char * pattern = 0) override;
 
 protected:
-  virtual ata_device * get_ata_device(const char * name, const char * type);
+  virtual ata_device * get_ata_device(const char * name, const char * type) override;
   
-  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+  virtual scsi_device * get_scsi_device(const char * name, const char * type) override;
 
   virtual nvme_device * get_nvme_device(const char * name, const char * type,
-    unsigned nsid);
+    unsigned nsid) override;
 
-  virtual smart_device * autodetect_smart_device(const char * name);
+  virtual smart_device * autodetect_smart_device(const char * name) override;
 
 };
 
@@ -537,7 +564,7 @@ public:
   darwin_nvme_device(smart_interface * intf, const char * dev_name,
     const char * req_type, unsigned nsid);
 
-  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 };
 
 darwin_nvme_device::darwin_nvme_device(smart_interface * intf, const char * dev_name,

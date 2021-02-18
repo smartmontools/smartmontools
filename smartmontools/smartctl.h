@@ -1,10 +1,10 @@
 /*
  * smartctl.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-10 Bruce Allen
- * Copyright (C) 2008-17 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -99,5 +99,8 @@ void jwrn(const char *fmt, ...)
 __attribute_format_printf(1, 2);
 void jerr(const char *fmt, ...)
 __attribute_format_printf(1, 2);
+
+// Print smartctl start-up date and time and timezone
+void jout_startup_datetime(const char *prefix);
 
 #endif

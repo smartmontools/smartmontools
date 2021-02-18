@@ -2,7 +2,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-20 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -28,10 +28,11 @@
 #include <limits.h>
 #include <getopt.h>
 
+#include <algorithm> // std::replace()
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <algorithm> // std::replace()
 
 // conditionally included files
 #ifndef _WIN32
@@ -380,6 +381,7 @@ struct dev_config
   unsigned char tempdiff;                 // Track Temperature changes >= this limit
   unsigned char tempinfo, tempcrit;       // Track Temperatures >= these limits as LOG_INFO, LOG_CRIT+mail
   regular_expression test_regex;          // Regex for scheduled testing
+  unsigned test_offset_factor;            // Factor for staggering of scheduled tests
 
   // Configuration of email warning messages
   std::string emailcmdline;               // script to execute, empty if no messages
@@ -437,6 +439,7 @@ dev_config::dev_config()
   powerskipmax(0),
   tempdiff(0),
   tempinfo(0), tempcrit(0),
+  test_offset_factor(0),
   emailfreq(0),
   emailtest(false),
   dev_rpm(0),
@@ -555,6 +558,9 @@ struct temp_dev_state
   int powerskipcnt;                       // Number of checks skipped due to idle or standby mode
   int lastpowermodeskipped;               // the last power mode that was skipped
 
+  bool attrlog_dirty;                     // true if persistent part has new attr values that
+                                          // need to be written to attrlog
+
   // SCSI ONLY
   unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
   unsigned char TempPageSupported;        // has log sense temperature page (0xd)
@@ -588,6 +594,7 @@ temp_dev_state::temp_dev_state()
   powermodefail(false),
   powerskipcnt(0),
   lastpowermodeskipped(0),
+  attrlog_dirty(false),
   SmartPageSupported(false),
   TempPageSupported(false),
   ReadECounterPageSupported(false),
@@ -954,7 +961,10 @@ static void write_all_dev_attrlogs(const dev_config_vector & configs,
     if (cfg.attrlog_file.empty())
       continue;
     dev_state & state = states[i];
-    write_dev_attrlog(cfg.attrlog_file.c_str(), state);
+    if (state.attrlog_dirty) {
+      write_dev_attrlog(cfg.attrlog_file.c_str(), state);
+      state.attrlog_dirty = false;
+    }
   }
 }
 
@@ -1967,13 +1977,16 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     PrintOut(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", name);
   else {
     // Apply vendor specific presets, print warning if present
+    std::string dbversion;
     const drive_settings * dbentry = lookup_drive_apply_presets(
-      &drive, cfg.attribute_defs, cfg.firmwarebugs);
+      &drive, cfg.attribute_defs, cfg.firmwarebugs, dbversion);
     if (!dbentry)
-      PrintOut(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
+      PrintOut(LOG_INFO, "Device: %s, not found in smartd database%s%s.\n", name,
+        (!dbversion.empty() ? " " : ""), (!dbversion.empty() ? dbversion.c_str() : ""));
     else {
-      PrintOut(LOG_INFO, "Device: %s, found in smartd database%s%s\n",
-        name, (*dbentry->modelfamily ? ": " : "."), (*dbentry->modelfamily ? dbentry->modelfamily : ""));
+      PrintOut(LOG_INFO, "Device: %s, found in smartd database%s%s%s%s\n",
+        name, (!dbversion.empty() ? " " : ""), (!dbversion.empty() ? dbversion.c_str() : ""),
+        (*dbentry->modelfamily ? ": " : "."), (*dbentry->modelfamily ? dbentry->modelfamily : ""));
       if (*dbentry->warningmsg)
         PrintOut(LOG_CRIT, "Device: %s, WARNING: %s\n", name, dbentry->warningmsg);
     }
@@ -2303,8 +2316,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     else if (locked)
       PrintOut(LOG_INFO, "Device: %s, no SCT support if ATA Security is LOCKED, ignoring -l scterc\n",
                name);
-    else if (   ataSetSCTErrorRecoveryControltime(atadev, 1, cfg.sct_erc_readtime )
-             || ataSetSCTErrorRecoveryControltime(atadev, 2, cfg.sct_erc_writetime))
+    else if (   ataSetSCTErrorRecoveryControltime(atadev, 1, cfg.sct_erc_readtime, false, false )
+             || ataSetSCTErrorRecoveryControltime(atadev, 2, cfg.sct_erc_writetime, false, false))
       PrintOut(LOG_INFO, "Device: %s, set of SCT Error Recovery Control failed\n", name);
     else
       PrintOut(LOG_INFO, "Device: %s, SCT Error Recovery Control set to: Read: %u, Write: %u\n",
@@ -2881,39 +2894,72 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
     state.scheduled_test_next_check = now - (3600L*24*90);
   }
 
+  // Find ':NNN[-LLL]' in regex for possible offsets and limits
+  const unsigned max_offsets = 1 + num_test_types;
+  unsigned offsets[max_offsets] = {0, }, limits[max_offsets] = {0, };
+  unsigned num_offsets = 1; // offsets/limits[0] == 0 always
+  for (const char * p = cfg.test_regex.get_pattern(); num_offsets < max_offsets; ) {
+    const char * q = strchr(p, ':');
+    if (!q)
+      break;
+    p = q + 1;
+    unsigned offset = 0, limit = 0; int n1 = -1, n2 = -1, n3 = -1;
+    sscanf(p, "%u%n-%n%u%n", &offset, &n1, &n2, &limit, &n3);
+    if (!(n1 == 3 && (n2 < 0 || (n3 == 3+1+3 && limit > 0))))
+      continue;
+    offsets[num_offsets] = offset; limits[num_offsets] = limit;
+    num_offsets++;
+    p += (n3 > 0 ? n3 : n1);
+  }
+
   // Check interval [state.scheduled_test_next_check, now] for scheduled tests
   char testtype = 0;
   time_t testtime = 0; int testhour = 0;
   int maxtest = num_test_types-1;
 
   for (time_t t = state.scheduled_test_next_check; ; ) {
-    struct tm tmbuf, * tms = time_to_tm_local(&tmbuf, t);
-    // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7 (Sunday).
-    int weekday = (tms->tm_wday ? tms->tm_wday : 7);
-    for (int i = 0; i <= maxtest; i++) {
-      // Skip if drive not capable of this test
-      switch (test_type_chars[i]) {
-        case 'L': if (state.not_cap_long)       continue; break;
-        case 'S': if (state.not_cap_short)      continue; break;
-        case 'C': if (scsi || state.not_cap_conveyance) continue; break;
-        case 'O': if (scsi || state.not_cap_offline)    continue; break;
-        case 'c': case 'n':
-        case 'r': if (scsi || state.not_cap_selective)  continue; break;
-        default: continue;
-      }
-      // Try match of "T/MM/DD/d/HH"
-      char pattern[64];
-      snprintf(pattern, sizeof(pattern), "%c/%02d/%02d/%1d/%02d",
-        test_type_chars[i], tms->tm_mon+1, tms->tm_mday, weekday, tms->tm_hour);
-      if (cfg.test_regex.full_match(pattern)) {
-        // Test found
-        testtype = pattern[0];
-        testtime = t; testhour = tms->tm_hour;
-        // Limit further matches to higher priority self-tests
-        maxtest = i-1;
-        break;
+    // Check offset 0 and then all offsets for ':NNN' found above
+    for (unsigned i = 0; i < num_offsets; i++) {
+      unsigned offset = offsets[i], limit = limits[i];
+      unsigned delay = cfg.test_offset_factor * offset;
+      if (0 < limit && limit < delay)
+        delay %= limit + 1;
+      struct tm tmbuf, * tms = time_to_tm_local(&tmbuf, t - (delay * 3600));
+
+      // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7 (Sunday).
+      int weekday = (tms->tm_wday ? tms->tm_wday : 7);
+      for (int j = 0; j <= maxtest; j++) {
+        // Skip if drive not capable of this test
+        switch (test_type_chars[j]) {
+          case 'L': if (state.not_cap_long)       continue; break;
+          case 'S': if (state.not_cap_short)      continue; break;
+          case 'C': if (scsi || state.not_cap_conveyance) continue; break;
+          case 'O': if (scsi || state.not_cap_offline)    continue; break;
+          case 'c': case 'n':
+          case 'r': if (scsi || state.not_cap_selective)  continue; break;
+          default: continue;
+        }
+        // Try match of "T/MM/DD/d/HH[:NNN]"
+        char pattern[64];
+        snprintf(pattern, sizeof(pattern), "%c/%02d/%02d/%1d/%02d",
+          test_type_chars[j], tms->tm_mon+1, tms->tm_mday, weekday, tms->tm_hour);
+        if (i > 0) {
+          const unsigned len = sizeof("S/01/01/1/01") - 1;
+          snprintf(pattern + len, sizeof(pattern) - len, ":%03u", offset);
+          if (limit > 0)
+            snprintf(pattern + len + 4, sizeof(pattern) - len - 4, "-%03u", limit);
+        }
+        if (cfg.test_regex.full_match(pattern)) {
+          // Test found
+          testtype = pattern[0];
+          testtime = t; testhour = tms->tm_hour;
+          // Limit further matches to higher priority self-tests
+          maxtest = j-1;
+          break;
+        }
       }
     }
+
     // Exit if no tests left or current time reached
     if (maxtest < 0)
       break;
@@ -2922,8 +2968,8 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
     // Check next hour
     if ((t += 3600) > now)
       t = now;
-  }
-  
+   }
+
   // Do next check not before next hour.
   struct tm tmbuf, * tmnow = time_to_tm_local(&tmbuf, now);
   state.scheduled_test_next_check = now + (3600 - tmnow->tm_min*60 - tmnow->tm_sec);
@@ -3626,6 +3672,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   // Copy ATA attribute values to persistent state
   state.update_persistent_state();
 
+  state.attrlog_dirty = true;
   return 0;
 }
 
@@ -3701,6 +3748,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
       state.temperature = currenttemp;
   }
   CloseDevice(scsidev, name);
+  state.attrlog_dirty = true;
   return 0;
 }
 
@@ -3773,6 +3821,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
   }
 
   CloseDevice(nvmedev, name);
+  state.attrlog_dirty = true;
   return 0;
 }
 
@@ -4355,9 +4404,17 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
       // Do a bit of sanity checking and warn user if we think that
       // their regexp is "strange". User probably confused about shell
       // glob(3) syntax versus regular expression syntax regexp(7).
-      if (arg[(val = strspn(arg, "0123456789/.-+*|()?^$[]SLCOcnr"))])
-        PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, character %d (%c) looks odd in extended regular expression %s\n",
-                 configfile, lineno, name, val+1, arg[val], arg);
+      // Check also for possible invalid number of digits in ':NNN[-LLL]' suffix.
+      static const regular_expression syntax_check(
+        "[^]$()*+./:?^[|0-9LSCOncr-]+|"
+        ":[0-9]{0,2}($|[^0-9])|:[0-9]{4,}|"
+        ":[0-9]{3}-(000|[0-9]{0,2}($|[^0-9])|[0-9]{4,})"
+      );
+      regular_expression::match_range range;
+      if (syntax_check.execute(arg, 1, &range) && 0 <= range.rm_so && range.rm_so < range.rm_eo)
+        PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, \"%.*s\" looks odd in "
+                            "extended regular expression \"%s\"\n",
+                 configfile, lineno, name, (int)(range.rm_eo - range.rm_so), arg + range.rm_so, arg);
     }
     break;
   case 'm':
@@ -4475,28 +4532,28 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
       missingarg = true;
     }
     else {
-      char arg2[16+1]; unsigned val;
+      char arg2[16+1]; unsigned uval;
       int n1 = -1, n2 = -1, n3 = -1, len = strlen(arg);
-      if (sscanf(arg, "%16[^,=]%n%*[,=]%n%u%n", arg2, &n1, &n2, &val, &n3) >= 1
+      if (sscanf(arg, "%16[^,=]%n%*[,=]%n%u%n", arg2, &n1, &n2, &uval, &n3) >= 1
           && (n1 == len || n2 > 0)) {
         bool on  = (n2 > 0 && !strcmp(arg+n2, "on"));
         bool off = (n2 > 0 && !strcmp(arg+n2, "off"));
         if (n3 != len)
-          val = ~0U;
+          uval = ~0U;
 
         if (!strcmp(arg2, "aam")) {
           if (off)
             cfg.set_aam = -1;
-          else if (val <= 254)
-            cfg.set_aam = val + 1;
+          else if (uval <= 254)
+            cfg.set_aam = uval + 1;
           else
             badarg = true;
         }
         else if (!strcmp(arg2, "apm")) {
           if (off)
             cfg.set_apm = -1;
-          else if (1 <= val && val <= 254)
-            cfg.set_apm = val + 1;
+          else if (1 <= uval && uval <= 254)
+            cfg.set_apm = uval + 1;
           else
             badarg = true;
         }
@@ -4514,8 +4571,8 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
         else if (!strcmp(arg2, "standby")) {
           if (off)
             cfg.set_standby = 0 + 1;
-          else if (val <= 255)
-            cfg.set_standby = val + 1;
+          else if (uval <= 255)
+            cfg.set_standby = uval + 1;
           else
             badarg = true;
         }
@@ -5168,7 +5225,7 @@ static int MakeConfigEntries(const dev_config & base_cfg,
   }
   
   // if no devices, return
-  if (devlist.size() <= 0)
+  if (devlist.size() == 0)
     return 0;
 
   // add empty device slots for existing config entries
@@ -5242,44 +5299,6 @@ static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_devic
     PrintOut(LOG_CRIT, "Configuration file %s parsed but has no entries\n", configfile);
   
   return conf_entries.size();
-}
-
-// Return true if TYPE contains a RAID drive number
-static bool is_raid_type(const char * type)
-{
-  if (str_starts_with(type, "sat,"))
-    return false;
-  int i;
-  if (sscanf(type, "%*[^,],%d", &i) != 1)
-    return false;
-  return true;
-}
-
-// Return true if DEV is already in DEVICES[0..NUMDEVS) or IGNORED[*]
-static bool is_duplicate_device(const smart_device * dev,
-                                const smart_device_list & devices, unsigned numdevs,
-                                const dev_config_vector & ignored)
-{
-  const smart_device::device_info & info1 = dev->get_info();
-  bool is_raid1 = is_raid_type(info1.dev_type.c_str());
-
-  for (unsigned i = 0; i < numdevs; i++) {
-    const smart_device::device_info & info2 = devices.at(i)->get_info();
-    // -d TYPE options must match if RAID drive number is specified
-    if (   info1.dev_name == info2.dev_name
-        && (   info1.dev_type == info2.dev_type
-            || !is_raid1 || !is_raid_type(info2.dev_type.c_str())))
-      return true;
-  }
-
-  for (unsigned i = 0; i < ignored.size(); i++) {
-    const dev_config & cfg2 = ignored.at(i);
-    if (   info1.dev_name == cfg2.dev_name
-        && (   info1.dev_type == cfg2.dev_type
-            || !is_raid1 || !is_raid_type(cfg2.dev_type.c_str())))
-      return true;
-  }
-  return false;
 }
 
 // Register one device, return false on error
@@ -5376,20 +5395,28 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
   devices.clear();
   states.clear();
 
-  // Register entries
-  dev_config_vector ignored_entries;
-  unsigned numnoscan = 0;
-  for (unsigned i = 0; i < conf_entries.size(); i++){
+  // Map of already seen non-DEVICESCAN devices (unique_name -> cfg.name)
+  typedef std::map<std::string, std::string> prev_unique_names_map;
+  prev_unique_names_map prev_unique_names;
 
+  // Register entries
+  for (unsigned i = 0; i < conf_entries.size(); i++) {
     dev_config cfg = conf_entries[i];
 
+    // Get unique device "name [type]" (with symlinks resolved) for duplicate detection
+    std::string unique_name = smi()->get_unique_dev_name(cfg.dev_name.c_str(), cfg.dev_type.c_str());
+    if (debugmode && unique_name != cfg.dev_name) {
+      pout("Device: %s%s%s%s, unique name: %s\n", cfg.name.c_str(),
+           (!cfg.dev_type.empty() ? " [" : ""), cfg.dev_type.c_str(),
+           (!cfg.dev_type.empty() ? "]" : ""), unique_name.c_str());
+    }
+
     if (cfg.ignore) {
-      // Store for is_duplicate_device() check and ignore
+      // Store for duplicate detection and ignore
       PrintOut(LOG_INFO, "Device: %s%s%s%s, ignored\n", cfg.name.c_str(),
-               (!cfg.dev_type.empty() ? " [" : ""),
-               cfg.dev_type.c_str(),
+               (!cfg.dev_type.empty() ? " [" : ""), cfg.dev_type.c_str(),
                (!cfg.dev_type.empty() ? "]" : ""));
-      ignored_entries.push_back(cfg);
+      prev_unique_names[unique_name] = cfg.name;
       continue;
     }
 
@@ -5401,9 +5428,11 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
       dev = scanned_devs.release(i);
       if (dev) {
         // Check for a preceding non-DEVICESCAN entry for the same device
-        if (  (numnoscan || !ignored_entries.empty())
-            && is_duplicate_device(dev.get(), devices, numnoscan, ignored_entries)) {
-          PrintOut(LOG_INFO, "Device: %s, duplicate, ignored\n", dev->get_info_name());
+        prev_unique_names_map::iterator ui = prev_unique_names.find(unique_name);
+        if (ui != prev_unique_names.end()) {
+          bool ne = (ui->second != cfg.name);
+          PrintOut(LOG_INFO, "Device: %s, %s%s, ignored\n", dev->get_info_name(),
+                   (ne ? "same as " : "duplicate"), (ne ? ui->second.c_str() : ""));
           continue;
         }
         scanning = true;
@@ -5418,12 +5447,13 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
       // exit unless the user has specified that the device is removable
       if (!scanning) {
         if (!(cfg.removable || quit == QUIT_NEVER)) {
-          PrintOut(LOG_CRIT, "Unable to register device %s (no Directive -d removable). Exiting.\n", cfg.name.c_str());
+          PrintOut(LOG_CRIT, "Unable to register device %s (no Directive -d removable). Exiting.\n",
+                   cfg.name.c_str());
           return false;
         }
         PrintOut(LOG_INFO, "Device: %s, not available\n", cfg.name.c_str());
         // Prevent retry of registration
-        ignored_entries.push_back(cfg);
+        prev_unique_names[unique_name] = cfg.name;
       }
       continue;
     }
@@ -5433,7 +5463,16 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
     states.push_back(state);
     devices.push_back(dev);
     if (!scanning)
-      numnoscan = devices.size();
+      // Store for duplicate detection
+      prev_unique_names[unique_name] = cfg.name;
+  }
+
+  // Set factors for staggered tests
+  for (unsigned i = 0, factor = 0; i < configs.size(); i++) {
+    dev_config & cfg = configs[i];
+    if (cfg.test_regex.empty())
+      continue;
+    cfg.test_offset_factor = factor++;
   }
 
   init_disable_standby_check(configs);

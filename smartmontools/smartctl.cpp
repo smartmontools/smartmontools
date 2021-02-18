@@ -1,10 +1,10 @@
 /*
  * smartctl.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-18 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -134,8 +134,8 @@ static void Usage()
   );
   pout(
 "================================== SMARTCTL RUN-TIME BEHAVIOR OPTIONS =====\n\n"
-"  -j, --json[=[cgiosuv]]\n"
-"         Print output in JSON format\n\n"
+"  -j, --json[=cgiosuvy]\n"
+"         Print output in JSON or YAML format\n\n"
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
 "         Set smartctl quiet mode to one of: errorsonly, silent, noserial\n\n"
 "  -d TYPE, --device=TYPE\n"
@@ -147,7 +147,7 @@ static void Usage()
 "         Set action on bad checksum to one of: warn, exit, ignore\n\n"
 "  -r TYPE, --report=TYPE\n"
 "         Report transactions (see man page)\n\n"
-"  -n MODE[,STATUS], --nocheck=MODE[,STATUS]                           (ATA)\n"
+"  -n MODE[,STATUS[,STATUS2]], --nocheck=MODE[,STATUS[,STATUS2]] (ATA, SCSI)\n"
 "         No check if: never, sleep, standby, idle (see man page)\n\n",
   getvalidarglist('d').c_str()); // TODO: Use this function also for other options ?
   pout(
@@ -178,8 +178,8 @@ static void Usage()
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "        xerror[,N][,error], xselftest[,N][,selftest], background,\n"
 "        sasphy[,reset], sataphy[,reset], scttemp[sts,hist],\n"
-"        scttempint,N[,p], scterc[,N,M], devstat[,N], defects[,N], ssd,\n"
-"        gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE, farm\n\n"
+"        scttempint,N[,p], scterc[,N,M][,p|reset], devstat[,N], defects[,N],\n"
+"        ssd, gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE, farm\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -245,8 +245,8 @@ static std::string getvalidarglist(int opt)
            "xerror[,N][,error], xselftest[,N][,selftest], "
            "background, sasphy[,reset], sataphy[,reset], "
            "scttemp[sts,hist], scttempint,N[,p], "
-           "scterc[,N,M], devstat[,N], defects[,N], ssd, "
-           "gplog,N[,RANGE], smartlog,N[,RANGE], "
+           "scterc[,N,M][,p|reset], devstat[,N], defects[,N], "
+           "ssd, gplog,N[,RANGE], smartlog,N[,RANGE], "
            "nvmelog,N,SIZE, farm";
   case 'P':
     return "use, ignore, show, showall";
@@ -256,7 +256,8 @@ static std::string getvalidarglist(int opt)
   case 'F':
     return std::string(get_valid_firmwarebug_args()) + ", swapid";
   case 'n':
-    return "never, sleep[,STATUS], standby[,STATUS], idle[,STATUS]";
+    return "never, sleep[,STATUS[,STATUS2]], standby[,STATUS[,STATUS2]], "
+           "idle[,STATUS[,STATUS2]]";
   case 'f':
     return "old, brief, hex[,id|val]";
   case 'g':
@@ -268,7 +269,7 @@ static std::string getvalidarglist(int opt)
   case 's':
     return getvalidarglist(opt_smart)+", "+getvalidarglist(opt_set);
   case 'j':
-    return "c, g, i, o, s, u, v";
+    return "c, g, i, o, s, u, v, y";
   case opt_identify:
     return "n, wn, w, v, wv, wb";
   case 'v':
@@ -542,7 +543,7 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.devstat_ssd_page = true;
         scsiopts.smart_ss_media_log = true;
       } else if (!strcmp(optarg,"scterc")) {
-        ataopts.sct_erc_get = true;
+        ataopts.sct_erc_get = 1;
       } else if (!strcmp(optarg,"scttemp")) {
         ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
       } else if (!strcmp(optarg,"scttempsts")) {
@@ -618,15 +619,20 @@ static int parse_options(int argc, char** argv, const char * & type,
           badarg = true;
 
       } else if (!strncmp(optarg, "scterc,", sizeof("scterc,")-1)) {
-        unsigned rt = ~0, wt = ~0; int n = -1;
-        sscanf(optarg,"scterc,%u,%u%n", &rt, &wt, &n);
-        if (n == (int)strlen(optarg) && rt <= 999 && wt <= 999) {
-          ataopts.sct_erc_set = true;
+        int n1 = -1, n2 = -1, len = strlen(optarg);
+        unsigned rt = ~0, wt = ~0;
+        sscanf(optarg, "scterc,%u,%u%n,p%n", &rt, &wt, &n1, &n2);
+        if ((n1 == len || n2 == len) && rt <= 999 && wt <= 999) {
+          ataopts.sct_erc_set = (n2 == len ? 2 : 1);
           ataopts.sct_erc_readtime = rt;
           ataopts.sct_erc_writetime = wt;
-        }
-        else {
-          snprintf(extraerror, sizeof(extraerror), "Option -l scterc,[READTIME,WRITETIME] syntax error\n");
+        } else if (!strcmp(optarg, "scterc,p")) {
+          ataopts.sct_erc_get = 2;
+        } else if (!strcmp(optarg, "scterc,reset")) {
+          ataopts.sct_erc_set = 3;
+          ataopts.sct_erc_readtime = ataopts.sct_erc_writetime = 0;
+        } else {
+          snprintf(extraerror, sizeof(extraerror), "Option -l scterc[,READTIME,WRITETIME][,p|reset] syntax error\n");
           badarg = true;
         }
       } else if (   !strncmp(optarg, "gplog,"   , sizeof("gplog,"   )-1)
@@ -722,7 +728,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       ataopts.smart_selective_selftest_log = true;
       ataopts.smart_logdir = ataopts.gp_logdir = true;
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
-      ataopts.sct_erc_get = true;
+      ataopts.sct_erc_get = 1;
       ataopts.sct_wcache_reorder_get = true;
       ataopts.devstat_all_pages = true;
       ataopts.pending_defects_log = 31;
@@ -867,22 +873,29 @@ static int parse_options(int argc, char** argv, const char * & type,
       // skip disk check if in low-power mode
       if (!strcmp(optarg, "never")) {
         ataopts.powermode = 1; // do not skip, but print mode
+        scsiopts.powermode = 1;
       }
       else {
-        int n1 = -1, n2 = -1, len = strlen(optarg);
-        char s[7+1]; unsigned i = FAILPOWER;
-        sscanf(optarg, "%9[a-z]%n,%u%n", s, &n1, &i, &n2);
-        if (!((n1 == len || n2 == len) && i <= 255))
+        int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
+        char s[7+1]; unsigned i = FAILPOWER, j = 0;
+        sscanf(optarg, "%9[a-z]%n,%u%n,%u%n", s, &n1, &i, &n2, &j, &n3);
+        if (!((n1 == len || n2 == len || n3 == len) && i <= 255 && j <= 255))
           badarg = true;
-        else if (!strcmp(s, "sleep"))
+        else if (!strcmp(s, "sleep")) {
           ataopts.powermode = 2;
-        else if (!strcmp(s, "standby"))
+          scsiopts.powermode = 2;
+        } else if (!strcmp(s, "standby")) {
           ataopts.powermode = 3;
-        else if (!strcmp(s, "idle"))
+          scsiopts.powermode = 3;
+        } else if (!strcmp(s, "idle")) {
           ataopts.powermode = 4;
-        else
+          scsiopts.powermode = 4;
+        } else
           badarg = true;
+
         ataopts.powerexit = i;
+        ataopts.powerexit_unsup = (n3 == len ? j : -1);
+        scsiopts.powerexit = i;
       }
       break;
     case 'f':
@@ -1042,13 +1055,16 @@ static int parse_options(int argc, char** argv, const char * & type,
           }
           else if (!get && !strcmp(optarg, "standby,now")) {
               ataopts.set_standby_now = true;
+              scsiopts.set_standby_now = true;
           }
           else if (!get && !strcmp(name, "standby")) {
-            if (off)
+            if (off) {
               ataopts.set_standby = 0 + 1;
-            else if (val <= 255)
+              scsiopts.set_standby = 0 + 1;
+            } else if (val <= 255) {
               ataopts.set_standby = val + 1;
-            else {
+              scsiopts.set_standby = val + 1;
+            } else {
               snprintf(extraerror, sizeof(extraerror), "Option -s standby,N must have 0 <= N <= 255\n");
               badarg = true;
             }
@@ -1100,7 +1116,7 @@ static int parse_options(int argc, char** argv, const char * & type,
         print_as_json = true;
         print_as_json_options.pretty = true;
         print_as_json_options.sorted = false;
-        print_as_json_options.flat = false;
+        print_as_json_options.format = 0;
         print_as_json_output = false;
         print_as_json_impl = print_as_json_unimpl = false;
         bool json_verbose = false;
@@ -1108,12 +1124,13 @@ static int parse_options(int argc, char** argv, const char * & type,
           for (int i = 0; optarg[i]; i++) {
             switch (optarg[i]) {
               case 'c': print_as_json_options.pretty = false; break;
-              case 'g': print_as_json_options.flat = true; break;
+              case 'g': print_as_json_options.format = 'g'; break;
               case 'i': print_as_json_impl = true; break;
               case 'o': print_as_json_output = true; break;
               case 's': print_as_json_options.sorted = true; break;
               case 'u': print_as_json_unimpl = true; break;
               case 'v': json_verbose = true; break;
+              case 'y': print_as_json_options.format = 'y'; break;
               default: badarg = true;
             }
           }
@@ -1131,7 +1148,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       // Check whether the option is a long option that doesn't map to -h.
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
-        if (optopt && (optopt >= opt_scan || strchr(shortopts, optopt))) {
+        if (optopt && (optopt > '~' || strchr(shortopts, optopt))) {
           jerr("=======> ARGUMENT REQUIRED FOR OPTION: %s\n", arg+2);
           printvalidarglistmessage(optopt);
         } else
@@ -1402,6 +1419,14 @@ void jerr(const char *fmt, ...)
   va_end(ap);
 }
 
+static char startup_datetime_buf[DATEANDEPOCHLEN];
+
+// Print smartctl start-up date and time and timezone
+void jout_startup_datetime(const char *prefix)
+{
+  jout("%s%s\n", prefix, startup_datetime_buf);
+}
+
 // Globals to set failuretest() policy
 bool failuretest_conservative = false;
 unsigned char failuretest_permissive = 0;
@@ -1544,6 +1569,14 @@ static int main_worker(int argc, char **argv)
     int status = parse_options(argc, argv, type, ataopts, scsiopts, nvmeopts, print_type_only);
     if (status >= 0)
       return status;
+  }
+
+  // Store formatted current time for jout_startup_datetime()
+  // Output as JSON regardless of '-i' option
+  {
+    time_t now = time(nullptr);
+    dateandtimezoneepoch(startup_datetime_buf, now);
+    jglb["local_time"] += { {"time_t", now}, {"asctime", startup_datetime_buf} };
   }
 
   const char * name = argv[argc-1];

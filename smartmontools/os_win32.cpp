@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2004-20 Christian Franke
+ * Copyright (C) 2004-21 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2015    Nidhi Malhotra <nidhi.malhotra@pmcs.com>
@@ -356,7 +356,7 @@ public:
       m_fh(INVALID_HANDLE_VALUE)
     { }
 
-  virtual ~win_smart_device() throw();
+  virtual ~win_smart_device();
 
   virtual bool is_open() const;
 
@@ -378,7 +378,7 @@ private:
 
 // Common routines for devices with HANDLEs
 
-win_smart_device::~win_smart_device() throw()
+win_smart_device::~win_smart_device()
 {
   if (m_fh != INVALID_HANDLE_VALUE)
     ::CloseHandle(m_fh);
@@ -1081,10 +1081,11 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
   }
 
   if (data.desc.ProductIdOffset) {
-    while (i > 1 && model[i-2] == ' ') // Keep last blank from VendorId
+    // Keep only first trailing blank after VendorId
+    while (i > 0 && model[i-1] == ' ' && (i < 2 || model[i-2] == ' '))
       i--;
     // Ignore VendorId "ATA"
-    if (i <= 4 && !strncmp(model, "ATA", 3) && (i == 3 || model[3] == ' '))
+    if (i <= 4 && !memcmp(model, "ATA", 3) && (i == 3 || model[3] == ' '))
       i = 0;
     for (unsigned j = 0; i < sizeof(model)-1 && data.raw[data.desc.ProductIdOffset+j]; i++, j++)
       model[i] = data.raw[data.desc.ProductIdOffset+j];
@@ -1319,15 +1320,15 @@ class win_ata_device
 public:
   win_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
 
-  virtual ~win_ata_device() throw();
+  virtual ~win_ata_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool is_powered_down();
+  virtual bool is_powered_down() override;
 
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
-  virtual bool ata_identify_is_cached() const;
+  virtual bool ata_identify_is_cached() const override;
 
 private:
   bool open(bool query_device);
@@ -1357,7 +1358,7 @@ win_ata_device::win_ata_device(smart_interface * intf, const char * dev_name, co
 {
 }
 
-win_ata_device::~win_ata_device() throw()
+win_ata_device::~win_ata_device()
 {
 }
 
@@ -1487,7 +1488,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   m_is_3ware = (vers_ex.wIdentifier == SMART_VENDOR_3WARE);
 
   unsigned portmap = 0;
-  if (port >= 0 && devmap >= 0) {
+  if (devmap >= 0) {
     // 3ware RAID: check vendor id
     if (!m_is_3ware) {
       pout("SMART_GET_VERSION returns unknown Identifier = 0x%04x\n"
@@ -2177,7 +2178,7 @@ class csmi_ata_device
   virtual public /*implements*/ ata_device
 {
 public:
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 protected:
   csmi_ata_device()
@@ -2296,19 +2297,19 @@ public:
   win_csmi_device(smart_interface * intf, const char * dev_name,
     const char * req_type);
 
-  virtual ~win_csmi_device() throw();
+  virtual ~win_csmi_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
 
-  virtual bool is_open() const;
+  virtual bool is_open() const override;
 
   bool open_scsi();
 
 protected:
   virtual bool csmi_ioctl(unsigned code, IOCTL_HEADER * csmi_buffer,
-    unsigned csmi_bufsiz);
+    unsigned csmi_bufsiz) override;
 
 private:
   HANDLE m_fh; ///< Controller device handle
@@ -2325,7 +2326,7 @@ win_csmi_device::win_csmi_device(smart_interface * intf, const char * dev_name,
 {
 }
 
-win_csmi_device::~win_csmi_device() throw()
+win_csmi_device::~win_csmi_device()
 {
   if (m_fh != INVALID_HANDLE_VALUE)
     CloseHandle(m_fh);
@@ -2467,11 +2468,11 @@ class win_tw_cli_device
 public:
   win_tw_cli_device(smart_interface * intf, const char * dev_name, const char * req_type);
 
-  virtual bool is_open() const;
+  virtual bool is_open() const override;
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
 
 protected:
   virtual int ata_command_interface(smart_command_set command, int select, char * data);
@@ -2681,9 +2682,9 @@ class win_scsi_device
 public:
   win_scsi_device(smart_interface * intf, const char * dev_name, const char * req_type);
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
 
 private:
   bool open(int pd_num, int ld_num, int tape_num, int sub_addr);
@@ -3084,11 +3085,11 @@ class win_areca_scsi_device
 {
 public:
   win_areca_scsi_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  virtual bool open();
-  virtual smart_device * autodetect_open();
-  virtual bool arcmsr_lock();
-  virtual bool arcmsr_unlock();
-  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop);
+  virtual bool open() override;
+  virtual smart_device * autodetect_open() override;
+  virtual bool arcmsr_lock() override;
+  virtual bool arcmsr_unlock() override;
+  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop) override;
 
 private:
   HANDLE m_mutex;
@@ -3198,11 +3199,11 @@ class win_areca_ata_device
 {
 public:
   win_areca_ata_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  virtual bool open();
-  virtual smart_device * autodetect_open();
-  virtual bool arcmsr_lock();
-  virtual bool arcmsr_unlock();
-  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop);
+  virtual bool open() override;
+  virtual smart_device * autodetect_open() override;
+  virtual bool arcmsr_lock() override;
+  virtual bool arcmsr_unlock() override;
+  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop) override;
 
 private:
   HANDLE m_mutex;
@@ -3333,11 +3334,11 @@ public /*extends*/ win_smart_device
 public:
   win_aacraid_device(smart_interface *intf, const char *dev_name,unsigned int ctrnum, unsigned int target, unsigned int lun);
 
-  virtual ~win_aacraid_device() throw();
+  virtual ~win_aacraid_device();
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool scsi_pass_through(struct scsi_cmnd_io *iop);
+  virtual bool scsi_pass_through(struct scsi_cmnd_io *iop) override;
 
 private:
   //Device Host number
@@ -3362,7 +3363,7 @@ win_aacraid_device::win_aacraid_device(smart_interface * intf,
   set_info().dev_type  = strprintf("aacraid,%d,%d,%d", m_ctrnum, m_lun, m_target);
 }
 
-win_aacraid_device::~win_aacraid_device() throw()
+win_aacraid_device::~win_aacraid_device()
 {
 }
 
@@ -3528,9 +3529,9 @@ public:
   win_nvme_device(smart_interface * intf, const char * dev_name,
     const char * req_type, unsigned nsid);
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 
   bool open_scsi(int n);
 
@@ -3725,9 +3726,9 @@ public:
   win10_nvme_device(smart_interface * intf, const char * dev_name,
     const char * req_type, unsigned nsid);
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 
 private:
   bool open(int phydrive, int logdrive);
@@ -3899,31 +3900,31 @@ class win_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
-  virtual std::string get_os_version_str();
+  virtual std::string get_os_version_str() override;
 
-  virtual std::string get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname) override;
 
 #ifndef __CYGWIN__
-  virtual int64_t get_timer_usec();
+  virtual int64_t get_timer_usec() override;
 #endif
 
-  virtual bool disable_system_auto_standby(bool disable);
+  virtual bool disable_system_auto_standby(bool disable) override;
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
-    const char * pattern = 0);
+    const char * pattern = 0) override;
 
 protected:
-  virtual ata_device * get_ata_device(const char * name, const char * type);
+  virtual ata_device * get_ata_device(const char * name, const char * type) override;
 
-  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+  virtual scsi_device * get_scsi_device(const char * name, const char * type) override;
 
-  virtual nvme_device * get_nvme_device(const char * name, const char * type, unsigned nsid);
+  virtual nvme_device * get_nvme_device(const char * name, const char * type, unsigned nsid) override;
 
-  virtual smart_device * autodetect_smart_device(const char * name);
+  virtual smart_device * autodetect_smart_device(const char * name) override;
 
-  virtual smart_device * get_custom_smart_device(const char * name, const char * type);
+  virtual smart_device * get_custom_smart_device(const char * name, const char * type) override;
 
-  virtual std::string get_valid_custom_dev_types_str();
+  virtual std::string get_valid_custom_dev_types_str() override;
 
 private:
   smart_device * get_usb_device(const char * name, int phydrive, int logdrive = -1);
@@ -4005,6 +4006,7 @@ std::string win_smart_interface::get_os_version_str()
           case 18362:   w = "w10-1903"; break;
           case 18363:   w = "w10-1909"; break;
           case 19041:   w = "w10-2004"; break;
+          case 19042:   w = "w10-20H2"; break;
           default:      w = "w10";
                         build = vi.dwBuildNumber; break;
         } break;
@@ -4016,6 +4018,8 @@ std::string win_smart_interface::get_os_version_str()
           case 17763:   w = "2019";      break;
           case 18362:   w = "2019-1903"; break;
           case 18363:   w = "2019-1909"; break;
+          case 19041:   w = "2019-2004"; break;
+          case 19042:   w = "2019-20H2"; break;
           default:      w = (vi.dwBuildNumber < 17763
                           ? "2016"
                           : "2019");

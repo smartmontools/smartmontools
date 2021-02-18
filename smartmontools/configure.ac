@@ -3,15 +3,15 @@
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
-AC_INIT([smartmontools], [7.2], [smartmontools-support@listi.jpberlin.de])
+AC_INIT([smartmontools],[7.3],[smartmontools-support@listi.jpberlin.de])
 AM_INIT_AUTOMAKE([1.10 foreign])
 
 # Version of drive database branch
-smartmontools_drivedb_version=7.0
+smartmontools_drivedb_version=7.2
 
 smartmontools_cvs_tag=`echo '$Id$'`
-smartmontools_release_date=2019-12-30
-smartmontools_release_time="15:00:11 UTC"
+smartmontools_release_date=2020-12-30
+smartmontools_release_time="16:48:30 UTC"
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE,   "$smartmontools_release_date",    [smartmontools Release Date])
@@ -20,7 +20,7 @@ AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",      
 AC_DEFINE_UNQUOTED(PACKAGE_HOMEPAGE,             "https://www.smartmontools.org/", [smartmontools Home Page])
 
 AC_CONFIG_SRCDIR([smartctl.cpp])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 AM_MAINTAINER_MODE
 
@@ -59,6 +59,18 @@ case "${host}" in
     fi
     AC_MSG_RESULT([${MAKENSIS:-no}])
     ;;
+esac
+
+AC_MSG_CHECKING([whether reproducible build is selected (SOURCE_DATE_EPOCH)])
+res=no
+if test -n "$SOURCE_DATE_EPOCH"; then
+  res=yes
+  test -z "`echo "$SOURCE_DATE_EPOCH" | sed 's,[[0-9]]*,,'`" || res=error
+fi
+AC_MSG_RESULT([$res])
+case $res in
+  error) AC_MSG_ERROR([Malformed SOURCE_DATE_EPOCH]) ;;
+  yes) CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-DSOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" ;;
 esac
 
 # Check for SVN.
@@ -381,6 +393,7 @@ AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
     [Include NVMe devices in smartd DEVICESCAN [Linux,Windows:yes;Others:no]])])
 
+# TODO: Remove after smartmontools 7.3
 AC_ARG_WITH(solaris-sparc-ata,
   [AS_HELP_STRING([--with-solaris-sparc-ata@<:@=yes|no@:>@],
     [Enable legacy ATA support on Solaris SPARC (requires os_solaris_ata.s from SVN repository) [no]])])
@@ -510,52 +523,62 @@ esac
 
 AC_ARG_WITH(cxx11-option,
   [AS_HELP_STRING([--with-cxx11-option=@<:@OPTION|auto|no@:>@],
-    [Compiler option to enable C++11 support for future versions of smartmontools, 'no' if unsupported [auto]])],
+    [Compiler option to enable C++11 support, 'no' to skip check [auto]])],
   [], [with_cxx11_option=auto])
 
-check_cxx11_support()
-{
-  save_CXXFLAGS=$CXXFLAGS
-  CXXFLAGS=$1
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-      #if __cplusplus < 201103L
-      #error false
-      #endif
-      // use some C++11 features (and return v * 42 :-)
-      auto cxx11(long v) noexcept -> decltype(v) {
-        typedef decltype(v) t; t r = v;
-        static const t a[] = { -7, -1, 1, 2, 3 };
-        static_assert(sizeof(r) == sizeof(a[0]), "fail");
-        auto f = [](t x, t y){ return x * y; };
-        for (const auto & e : a) r = f(r, e);
-        return r;
-      }]])],
-    [CXXFLAGS=$save_CXXFLAGS; return 0], [CXXFLAGS=$save_CXXFLAGS; return 1])
-}
+cxx14_option=
+case "$with_cxx11_option" in
+  no) ;;
+  *)
+    AC_MSG_CHECKING([for $CXX option to accept C++14])
+    cxx14_option=unknown
+    save_CXXFLAGS=$CXXFLAGS
+    for option in "" "-std=gnu++14" "-std=gnu++1y" "-std=c++14" "-std=c++1y"; do
+      CXXFLAGS="$save_CXXFLAGS $option"
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #if __cplusplus < 201402
+          #error false
+        #endif]])], [cxx14_option=$option])
+      test "$cxx14_option" = "unknown" || break
+    done
+    CXXFLAGS=$save_CXXFLAGS
+    AC_MSG_RESULT([${cxx14_option:-none needed}])
+    ;;
+esac
 
 case "$with_cxx11_option" in
   no) ;;
   auto)
-    AC_MSG_CHECKING([for $CXX option to accept C++11])
-    with_cxx11_option=unknown
+    res=; test "$cxx14_option" = "unknown" || res=" but not C++14"
+    AC_MSG_CHECKING([for $CXX option to accept C++11$res])
+    save_CXXFLAGS=$CXXFLAGS
+    res=unknown
     for option in "" "-std=gnu++11" "-std=gnu++0x" "-std=c++11" "-std=c++0x"; do
-      if check_cxx11_support "$option"; then with_cxx11_option=$option; break; fi
+      test "$option" != "$cxx14_option" || continue
+      CXXFLAGS="$save_CXXFLAGS $option"
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #if __cplusplus < 201103 || 201402 <= __cplusplus
+          #error false
+        #endif]])], [res=$option])
+      test "$res" = "unknown" || break
     done
-    AC_MSG_RESULT([${with_cxx11_option:-none needed}])
-    test "$with_cxx11_option" != "unknown" || AC_MSG_ERROR([
-This version of smartmontools does not use C++11 features, but future
-versions possibly will.
-This script was unable to determine a compiler option to enable C++11.
-Use option '--with-cxx11-option=OPTION' to specify the compiler option
-(it will be used in the actual build only if '--with-cxx11-regex' is set).
-Use option '--without-cxx11-option' to suppress this error message if the
-compiler lacks C++11 support.
+    AC_MSG_RESULT([${res:-none needed}])
+    test "$res" != "unknown" || res=$cxx14_option
+    test "$res" != "unknown" || AC_MSG_ERROR([
+This script was unable to determine a compiler option to accept C++11.
+Use option '--with-cxx11-option=OPTION' to specify a compiler option.
+Use option '--without-cxx11-option' to try anyway without this check.
 In both cases, please send info about compiler and platform to
 $PACKAGE_BUGREPORT - Thanks!])
+    CXXFLAGS="$save_CXXFLAGS${res:+ }$res"
     ;;
   *)
     AC_MSG_CHECKING([whether $CXX $with_cxx11_option accepts C++11])
-    res=no; check_cxx11_support "$with_cxx11_option" && res=yes
+    CXXFLAGS="$CXXFLAGS${with_cxx11_option:+ }$with_cxx11_option"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #if __cplusplus < 201103
+        #error false
+      #endif]])], [res=yes], [res=no])
     AC_MSG_RESULT([$res])
     test "$res" = "yes" || AC_MSG_ERROR([$CXX $with_cxx11_option does not accept C++11])
     ;;
@@ -568,26 +591,10 @@ AC_ARG_WITH(cxx11-regex,
 need_regex=no
 if test "$with_cxx11_regex" = "yes"; then
   AC_DEFINE(WITH_CXX11_REGEX, 1, [Define to 1 to use C++11 std::regex instead of POSIX regex(3)])
-  case "$with_cxx11_option: $CXXFLAGS " in
-    no:*) AC_MSG_ERROR(['--with-cxx11-regex' requires C++11 support]) ;;
-    ?*:*\ $with_cxx11_option\ *) ;;
-    ?*:*) CXXFLAGS="$CXXFLAGS $with_cxx11_option" ;;
-  esac
 else
   AC_CHECK_FUNCS([regcomp], [], [need_regex=yes])
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
-
-# TODO: Remove after smartmontools 7.2
-AC_ARG_WITH(working-snprintf,
-  [AS_HELP_STRING([--with-working-snprintf], [(removed)])],
-  [ if test "$withval" != "yes"; then
-      AC_MSG_ERROR([
-The option '--without-working-snprintf' is no longer supported.
-If you still need support for pre-C99 snprintf(), please inform
-$PACKAGE_BUGREPORT.
-])
-    fi])
 
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
@@ -765,7 +772,10 @@ if test "$GXX" = "yes"; then
     AC_MSG_CHECKING([whether $CXX supports $option])
     save_CXXFLAGS=$CXXFLAGS
     CXXFLAGS="$CXXFLAGS $option"
-    AC_LINK_IFELSE([AC_LANG_PROGRAM()], [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
+    # For -fstack-protector*, check that '__stack_chk_*()' functions are available.
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[int i;]],
+      [[volatile char buf[10]; buf[i] = 0;]])],
+      [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
     AC_MSG_RESULT([$res])
   done
 else
@@ -962,11 +972,12 @@ Use option '--without-nvme-devicescan' to suppress this warning.
 ])  ;;
 esac
 
-# TODO: Remove after smartmontools 7.2
-if test -n "$with_working_snprintf"; then
+# TODO: Remove after smartmontools 7.3
+if test -n "$with_solaris_sparc_ata"; then
   AC_MSG_WARN([
-The option '--with-working-snprintf' is no longer needed and will be
-removed in a future version of smartmontools.
+The option '--with-solaris-sparc-ata' is deprecated and will be
+removed in a future version of smartmontools.  If this option is
+still needed, please inform $PACKAGE_BUGREPORT.
 ])
 fi
 
@@ -980,3 +991,10 @@ Use option '--without-libsystemd' to suppress this warning.
 ])
     fi ;;
 esac
+
+test "$cxx14_option" != "unknown" || AC_MSG_WARN([
+This version of smartmontools does not use C++14 enhancements, but
+future versions possibly will.
+This script was unable to determine a compiler option to enable C++14.
+Please send info about compiler and platform to
+$PACKAGE_BUGREPORT - Thanks!])

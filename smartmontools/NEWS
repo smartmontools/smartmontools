@@ -6,22 +6,53 @@ The most up-to-date version of this file is:
 https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 
 Date <Not released yet, please try current SVN or a recent CI build>
+Summary: smartmontools release 7.3
+-----------------------------------------------------------
+- smartctl '-j': JSON output always includes timestamp, regardless of '-i'.
+- smartctl '-l scterc[,R,W],p': Gets/sets the persistent power-on values.
+- smartctl '-l scterc,reset': Restores to manufacturer's default values.
+- smartctl '-H': Checks new NVME 1.4 status bit.
+- smartctl '-n POWERMODE': ATA: Optionally exits immediately if unsupported.
+- NVMe/USB: Device type '-d sntasmedia' for ASMedia ASM2362 USB to
+  NVMe bridges.
+- VERSION information in drive database files of all branches.
+- HDD, SSD and USB additions to drive database.
+- configure: SOURCE_DATE_EPOCH prevents inclusion of configure arguments
+  in executables.
+- Dropped restriction to C++98, a C++11 compiler is now required.
+
+Date 2020-12-30
 Summary: smartmontools release 7.2
 -----------------------------------------------------------
+- smartctl: New option '--json=y[c]' selects YAML output.
 - smartctl '-i': Prints ATA TRIM and Zoned Device capabilities.
 - smartctl '-j': Fixed 'scsi_grown_defect_list' value.
+- smartctl '-a': Prints SCSI 'Accumulated power on time'.
+- smartctl '-n POWERMODE': SCSI support.
+- smartctl '-s standby,now' and '-s standby,off': SCSI support.
+- smartctl '-c': NVMe 1.4 additions.
+- smartd: Support for staggered self-tests.
+- smartd: No longer writes attribute log if no attributes were read
+  due to standby mode or other error.
+- smartd: Now resolves symlinks before device names are checked for
+  duplicates.
 - smartd: Fixed SMARTD_DEVICETYPE environment variable if DEVICESCAN is
   used without '-d TYPE'.
 - ATA: Device type '-d jmb39x-q,N' for JMB39x protocol variant used by
   some QNAP NAS devices.
 - ATA: Device type '-d jms56x,N' for JMS562 USB to SATA RAID bridges.
-- NVMEe/USB: Device type '-d sntrealtek' for Realtek RTL9210 USB to
+- SCSI: Improved heuristics for log subpages of new and very old disks.
+- NVMe: Log transfer size limited to avoid device or kernel crashes.
+- NVMe/USB: Device type '-d sntrealtek' for Realtek RTL9210 USB to
   NVMe bridges.
+- update-smart-drivedb: New option '--branch X.Y'.
 - HDD, SSD and USB additions to drive database.
 - Dropped support for pre-C99 snprintf().
 - configure: Dropped option '--without-working-snprintf'.
 - configure: Fixed '-fstack-protector*' detection.
+- Linux: Various fixes of smartd.service file.
 - Darwin: NVMe log support.
+- FreeBSD: Device scan does no longer include T_ENCLOSURE devices.
 - NetBSD: Fixed timeout handling.
 - NetBSD big endian: Fixed ATA register handling.
 - OpenBSD: Fixed timeout handling.

@@ -1,7 +1,7 @@
 /*
- * os_freebsd.c
+ * os_freebsd.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-10 Eduard Martinescu
  *
@@ -139,7 +139,7 @@ public:
     : smart_device(never_called),
       m_fd(-1) { }
 
-  virtual ~freebsd_smart_device() throw();
+  virtual ~freebsd_smart_device();
 
   virtual bool is_open() const;
 
@@ -168,7 +168,7 @@ static inline void * reallocf(void *ptr, size_t size) {
    }
 #endif
 
-freebsd_smart_device::~freebsd_smart_device() throw()
+freebsd_smart_device::~freebsd_smart_device()
 {
   if (m_fd >= 0)
     os_freebsd::freebsd_smart_device::close();
@@ -240,7 +240,7 @@ class freebsd_ata_device
 {
 public:
   freebsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
 
 protected:
   virtual int do_cmd(struct ata_ioc_request* request, bool is_48bit_cmd);
@@ -279,7 +279,7 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
     }
 
   struct ata_ioc_request request;
-  bzero(&request,sizeof(struct ata_ioc_request));
+  memset(&request, 0, sizeof(struct ata_ioc_request));
 
   request.timeout=SCSI_TIMEOUT_DEFAULT;
   request.u.ata.command=in.in_regs.command;
@@ -446,9 +446,9 @@ public:
   freebsd_nvme_device(smart_interface * intf, const char * dev_name,
     const char * req_type, unsigned nsid);
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 };
 
 freebsd_nvme_device::freebsd_nvme_device(smart_interface * intf, const char * dev_name,
@@ -522,7 +522,6 @@ bool freebsd_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out
 #else
   pt.cmd.opc = in.opcode;
 #endif
-  pt.cmd.opc = in.opcode;
   pt.cmd.nsid = htole32(in.nsid);
   pt.buf = in.buffer;
   pt.len = in.size;
@@ -563,8 +562,8 @@ public:
     int escalade_type, int disknum);
 
 protected:
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
-  virtual bool open();
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
+  virtual bool open() override;
 
 private:
   int m_escalade_type; ///< Type string for escalade_command_interface().
@@ -775,8 +774,8 @@ public:
     unsigned char controller, unsigned char channel, unsigned char port);
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
-  virtual bool open();
+  virtual int ata_command_interface(smart_command_set command, int select, char * data) override;
+  virtual bool open() override;
 
 private:
   unsigned char m_hpt_data[3]; ///< controller/channel/port
@@ -837,7 +836,7 @@ int freebsd_highpoint_device::ata_command_interface(smart_command_set command, i
   }
 
   // perform smart action
-  memset(buff, 0, 512 + 2 * sizeof(HPT_PASS_THROUGH_HEADER));
+  memset(buff, 0, sizeof(buff));
   pide_pt_hdr = (PHPT_PASS_THROUGH_HEADER)buff;
 
   pide_pt_hdr->lbamid = 0x4f;
@@ -970,13 +969,13 @@ class freebsd_scsi_device
 public:
   freebsd_scsi_device(smart_interface * intf, const char * dev_name, const char * req_type);
 
-  virtual smart_device * autodetect_open();
+  virtual smart_device * autodetect_open() override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
   
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
   
 private:
   struct cam_device *m_camdev;
@@ -1064,8 +1063,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     }
   }
   // clear out structure, except for header that was filled in for us
-  bzero(&(&ccb->ccb_h)[1],
-    sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
+  memset(&(&ccb->ccb_h)[1], 0, sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
 
   cam_fill_csio(&ccb->csio,
     /* retries */ 1,
@@ -1174,10 +1172,10 @@ class freebsd_areca_ata_device
 {
 public:
   freebsd_areca_ata_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  virtual smart_device * autodetect_open();
-  virtual bool arcmsr_lock();
-  virtual bool arcmsr_unlock();
-  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop);
+  virtual smart_device * autodetect_open() override;
+  virtual bool arcmsr_lock() override;
+  virtual bool arcmsr_unlock() override;
+  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop) override;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -1188,10 +1186,10 @@ class freebsd_areca_scsi_device
 {
 public:
   freebsd_areca_scsi_device(smart_interface * intf, const char * dev_name, int disknum, int encnum = 1);
-  virtual smart_device * autodetect_open();
-  virtual bool arcmsr_lock();
-  virtual bool arcmsr_unlock();
-  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop);
+  virtual smart_device * autodetect_open() override;
+  virtual bool arcmsr_lock() override;
+  virtual bool arcmsr_unlock() override;
+  virtual int arcmsr_do_scsi_io(struct scsi_cmnd_io * iop) override;
 };
 
 
@@ -1246,8 +1244,7 @@ int freebsd_areca_ata_device::arcmsr_do_scsi_io(struct scsi_cmnd_io * iop)
     // errors found
     return -1;
   }
-
-  return ioctlreturn;
+  return 0;
 }
 
 bool freebsd_areca_ata_device::arcmsr_lock()
@@ -1292,7 +1289,7 @@ int freebsd_areca_scsi_device::arcmsr_do_scsi_io(struct scsi_cmnd_io * iop)
     return -1;
   }
 
-  return ioctlreturn;
+  return 0;
 }
 
 bool freebsd_areca_scsi_device::arcmsr_lock()
@@ -1317,8 +1314,8 @@ class freebsd_cciss_device
 public:
   freebsd_cciss_device(smart_interface * intf, const char * name, unsigned char disknum);
 
-  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
-  virtual bool open();
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
+  virtual bool open() override;
 
 private:
   unsigned char m_disknum; ///< Disk number.
@@ -1428,30 +1425,30 @@ class freebsd_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
-  virtual std::string get_os_version_str();
+  virtual std::string get_os_version_str() override;
 
-  virtual std::string get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname) override;
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
-    const char * pattern = 0);
+    const char * pattern = 0) override;
 
 protected:
-  virtual ata_device * get_ata_device(const char * name, const char * type);
+  virtual ata_device * get_ata_device(const char * name, const char * type) override;
 
 #if FREEBSDVER > 800100
   virtual ata_device * get_atacam_device(const char * name, const char * type);
 #endif
 
-  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+  virtual scsi_device * get_scsi_device(const char * name, const char * type) override;
  
   virtual nvme_device * get_nvme_device(const char * name, const char * type,
-    unsigned nsid);
+    unsigned nsid) override;
 
-  virtual smart_device * autodetect_smart_device(const char * name);
+  virtual smart_device * autodetect_smart_device(const char * name) override;
 
-  virtual smart_device * get_custom_smart_device(const char * name, const char * type);
+  virtual smart_device * get_custom_smart_device(const char * name, const char * type) override;
 
-  virtual std::string get_valid_custom_dev_types_str();
+  virtual std::string get_valid_custom_dev_types_str() override;
 private:
   bool get_nvme_devlist(smart_device_list & devlist, const char * type);
 };
@@ -1523,7 +1520,7 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
   }
 
   union ccb ccb;
-  bzero(&ccb, sizeof(union ccb));
+  memset(&ccb, 0, sizeof(union ccb));
 
   ccb.ccb_h.path_id = CAM_XPT_PATH_ID;
   ccb.ccb_h.target_id = CAM_TARGET_WILDCARD;
@@ -1534,7 +1531,7 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
   ccb.cdm.match_buf_len = bufsize;
   // TODO: Use local buffer instead of malloc() if possible
   ccb.cdm.matches = (struct dev_match_result *)malloc(bufsize);
-  bzero(ccb.cdm.matches,bufsize); // clear ccb.cdm.matches structure
+  memset(ccb.cdm.matches, 0, bufsize); // clear ccb.cdm.matches structure
   
   if (ccb.cdm.matches == NULL) {
     close(fd);
@@ -1591,6 +1588,10 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
           skip_device = 1;
         else
           skip_device = 0;
+
+        // skip ses devices
+        if (dev_result->inq_data.device == T_ENCLOSURE)
+          skip_device = 1;
         
         //        /* Shall we skip non T_DIRECT devices ? */
         //        if (dev_result->inq_data.device != T_DIRECT)
@@ -1936,7 +1937,6 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   unsigned short vendor_id = 0, product_id = 0, version = 0;
   struct cam_device *cam_dev;
   union ccb ccb;
-  int bus=-1;
   int i;
   const char * test_name = name;
 
@@ -1971,7 +1971,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
       }
       else free(atanames[i]);
     }
-    if(numata) free(atanames);
+    free(atanames);
   }
   else {
     if (numata < 0)
@@ -1998,7 +1998,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
           return 0;
         }
         // zero the payload
-        bzero(&(&ccb.ccb_h)[1], PATHINQ_SETTINGS_SIZE);
+        memset(&(&ccb.ccb_h)[1], 0, PATHINQ_SETTINGS_SIZE);
         ccb.ccb_h.func_code = XPT_PATH_INQ; // send PATH_INQ to the device
         if (ioctl(cam_dev->fd, CAMIOCOMMAND, &ccb) == -1) {
           warn("Get Transfer Settings CCB failed\n"
@@ -2008,7 +2008,6 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
         }
         // now check if we are working with USB device, see umass.c
         if(strcmp(ccb.cpi.dev_name,"umass-sim") == 0) { // USB device found
-          usbdevlist(bus,vendor_id, product_id, version);
           int bus=ccb.cpi.unit_number; // unit_number will match umass number
           cam_close_device(cam_dev);
           if(usbdevlist(bus,vendor_id, product_id, version)){
