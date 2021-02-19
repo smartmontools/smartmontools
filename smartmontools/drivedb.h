@@ -3739,6 +3739,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 169,raw48,Bad_Block_Count "
     "-v 173,raw48,Erase_Count "
   },
+  { "Toshiba HK6R Series SSD", // TOSHIBA(Kioxia) KHK61RSE3T84
+    // https://business.kioxia.com/content/dam/kioxia/shared/business/ssd/doc/dSSD-Data-Sheet-E-Jun-2020.pdf
+    "TOSHIBA KHK61RSE(1T92|3T84)",
+    "", "",
+    "-v 173,raw48,Erase_Count "
+  },
   { "Toshiba HG6 Series SSD", // TOSHIBA THNSNJ512GCST/JTRA0102
     // http://www.farnell.com/datasheets/1852757.pdf
     // TOSHIBA THNSFJ256GCSU/JULA1102
