@@ -1058,6 +1058,9 @@ If \*(Aq@ALL\*(Aq is specified, all scripts in /usr/local/etc/smartd_warning.d/*
 are run instead.
 This is handled by the script /usr/local/etc/smartd_warning.sh
 (see also \*(Aq\-M exec\*(Aq below).
+Plugin scripts without execute permission are silently ignored.
+If any plugin script is missing or fails a with nonzero exit status, the warning
+script exits immediately without sending mail.
 .\" %ENDIF NOT OS Windows
 .\" %ENDIF ENABLE_SMARTDPLUGINDIR
 .\" %IF OS Windows
@@ -1212,6 +1215,15 @@ given by the argument ADD, with the commas replaced by spaces
 given, then this string will contain space characters and is NOT
 quoted, so to use it in a shell script you may want to enclose it in
 double quotes.
+.\" %IF ENABLE_SMARTDPLUGINDIR
+.\" %IF NOT OS Windows
+.IP \fBSMARTD_ADDRESS_ORIG\fP 4
+is set to the original value of \fBSMARTD_ADDRESS\fP with \*(Aq@plugin\*(Aq
+strings still present.
+If there are no such strings in the \*(Aq\-m\*(Aq Directive, this variable is
+NOT set.
+.\" %ENDIF NOT OS Windows
+.\" %ENDIF ENABLE_SMARTDPLUGINDIR
 .\" %IF OS Windows
 .IP \fBSMARTD_ADDRCSV\fP 4
 [Windows only] is set to a comma-separated list of the addresses from

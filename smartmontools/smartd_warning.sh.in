@@ -2,9 +2,9 @@
 #
 # smartd warning script
 #
-# Home page of code is: http://www.smartmontools.org
+# Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2012-16 Christian Franke
+# Copyright (C) 2012-21 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -125,59 +125,69 @@ export SMARTD_FULLMESSAGE="$fullmessage
 "
 
 # Run plugin scripts if requested
-if test -n "$plugindir"; then
- case " $SMARTD_ADDRESS" in
+unset SMARTD_ADDRESS_ORIG
+case " $SMARTD_ADDRESS" in
   *\ @*)
-    if [ -n "$dryrun" ]; then
-      echo "export SMARTD_SUBJECT='$SMARTD_SUBJECT'"
-      echo "export SMARTD_FULLMESSAGE='$SMARTD_FULLMESSAGE'"
-    fi
-
-    # Run ALL scripts if requested
-    case " $SMARTD_ADDRESS " in
-      *\ @ALL\ *)
-        for cmd in "$plugindir"/*; do
-          if [ -f "$cmd" ] && [ -x "$cmd" ]; then
-            if [ -n "$dryrun" ]; then
-              echo "$cmd </dev/null"
-            else
-              "$cmd" </dev/null
-            fi
-          fi
-        done
-        ;;
-    esac
-
-    # Run selected scripts
-    addrs=$SMARTD_ADDRESS
+    # Collect and remove plugin names from SMARTD_ADDRESS
+    export SMARTD_ADDRESS_ORIG=$SMARTD_ADDRESS
     SMARTD_ADDRESS=
-    for ad in $addrs; do
+    plugins=
+    for ad in $SMARTD_ADDRESS_ORIG; do
       case $ad in
         @ALL)
+          if [ -n "$plugindir" ]; then
+            for cmd in "$plugindir"/*; do
+              if [ -f "$cmd" ] && [ -x "$cmd" ]; then
+                plugins="${plugins}${plugins:+ }${cmd##*/}"
+              fi
+            done
+          fi
           ;;
         @?*)
-          cmd="$plugindir/${ad#@}"
-          if [ -f "$cmd" ] && [ -x "$cmd" ]; then
-            if [ -n "$dryrun" ]; then
-              echo "$cmd </dev/null"
-            else
-              "$cmd" </dev/null
-            fi
-          elif [ ! -e "$cmd" ]; then
-            echo "$cmd: Not found" >&2
+          if [ -n "$plugindir" ]; then
+            plugins="${plugins}${plugins:+ }${ad#@}"
           fi
           ;;
         *)
-          SMARTD_ADDRESS="${SMARTD_ADDRESS:+ }$ad"
+          SMARTD_ADDRESS="${SMARTD_ADDRESS}${SMARTD_ADDRESS:+ }$ad"
           ;;
       esac
     done
 
+    # Run all scripts
+    if [ -n "$plugins" ]; then
+      if [ -n "$dryrun" ]; then
+        echo "export SMARTD_ADDRESS='$SMARTD_ADDRESS'"
+        echo "export SMARTD_ADDRESS_ORIG='$SMARTD_ADDRESS_ORIG'"
+        echo "export SMARTD_SUBJECT='$SMARTD_SUBJECT'"
+        echo "export SMARTD_FULLMESSAGE='$SMARTD_FULLMESSAGE'"
+      fi
+      for p in $plugins; do
+        cmd="$plugindir/$p"
+        if [ -f "$cmd" ]; then
+          if [ -x "$cmd" ]; then
+            if [ -n "$dryrun" ]; then
+              echo "$cmd </dev/null"
+            else
+              rc=0
+              "$cmd" </dev/null || rc=$?
+              if [ $rc != 0 ]; then
+                echo "$cmd: exit $rc" >&2
+                exit $rc
+              fi
+            fi
+          fi
+        else
+          echo "$cmd: not found" >&2
+          exit 1
+        fi
+      done
+    fi
+
     # Send email to remaining addresses
     test -n "$SMARTD_ADDRESS" || exit 0
     ;;
- esac
-fi
+esac
 
 # Send mail or run command
 if [ -n "$SMARTD_ADDRESS" ]; then

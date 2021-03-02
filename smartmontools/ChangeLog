@@ -1,5 +1,14 @@
 $Id$
 
+2021-03-02  Christian Franke  <franke@computer.org>
+
+	smartd_warning.sh.in: Fix handling of multiple email addresses
+	in conjunction with plugin scripts (#1454).
+	Pass modified SMARTD_ADDRESS also to all plugin scripts.
+	Provide original value as SMARTD_ADDRESS_ORIG.
+	Exit immediately if a script is missing.
+	smartd.conf.5.in: Document error handling and SMARTD_ADDRESS_ORIG.
+
 2021-02-14  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_darwin.cpp: implement APM set feature, based on hdparm macOS sources
