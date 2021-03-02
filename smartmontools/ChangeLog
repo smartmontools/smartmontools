@@ -1,4 +1,13 @@
-$Id: ChangeLog 5209 2021-02-14 18:02:51Z samm2 $
+$Id: ChangeLog 5210 2021-03-02 18:38:53Z chrfranke $
+
+2021-03-02  Christian Franke  <franke@computer.org>
+
+	smartd_warning.sh.in: Fix handling of multiple email addresses
+	in conjunction with plugin scripts (#1454).
+	Pass modified SMARTD_ADDRESS also to all plugin scripts.
+	Provide original value as SMARTD_ADDRESS_ORIG.
+	Exit immediately if a script is missing.
+	smartd.conf.5.in: Document error handling and SMARTD_ADDRESS_ORIG.
 
 2021-02-14  Alex Samorukov  <samm@os2.kiev.ua>
 
