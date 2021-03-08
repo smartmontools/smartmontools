@@ -3675,12 +3675,13 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MG03ACA[1234]00Y?",
     "", "", ""
   },
-  { "Toshiba 3.5\" MD04ACA... Enterprise HDD", // tested with TOSHIBA MD04ACA500/FP1A
-    "TOSHIBA MD04ACA[2345]00",
+  { "Toshiba MG04ACA... Enterprise HDD", // tested with TOSHIBA MD04ACA500/FP1A,
+      // TOSHIBA MG04ACA600A/FS2B, TOSHIBA MG04ACA400NY/FK5D (Dell)
+    "TOSHIBA MG04ACA[23456]00([AEN].?)?",
     "", "", ""
   },
-  { "Toshiba 3.5\" MG04ACA... Enterprise HDD", // tested with TOSHIBA MG04ACA600A/FS2B
-    "TOSHIBA MG04ACA[23456]00[AE].?",
+  { "Toshiba MG05ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG05ACA800E/GX2A
+    "TOSHIBA MG05ACA800[AE]",
     "", "", ""
   },
   { "Toshiba MG06ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG06ACA800E/4303,
@@ -3694,6 +3695,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 23,raw48,Helium_Condition_Lower "
     "-v 24,raw48,Helium_Condition_Upper"
   },
+  { "Toshiba MG08ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG08ACA16TE/0102
+    "TOSHIBA MG08ACA16T[AE]Y?",
+    "", "",
+    "-v 23,raw48,Helium_Condition_Lower "
+    "-v 24,raw48,Helium_Condition_Upper"
+  },
   { "Toshiba 3.5\" DT01ABA... Desktop HDD", // tested with TOSHIBA DT01ABA300/MZ6OABB0
     "TOSHIBA DT01ABA(100|150|200|300)",
     "", "", ""
@@ -3703,13 +3710,26 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA DT01ACA(025|032|050|075|100|150|200|300)",
     "", "", ""
   },
-  { "Toshiba X300", // tested with TOSHIBA HDWE160/FS2A
-    "TOSHIBA HDWE1[456]0",
+  { "Toshiba N300 NAS HDD", // tested with TOSHIBA HDWQ140/FJ1M, TOSHIBA HDWN180/GX2M,
+      // TOSHIBA HDWN160/FS1M, TOSHIBA HDWG11A/0603, TOSHIBA HDWG21C/0601, TOSHIBA HDWG21E/0601
+    "TOSHIBA HDW([GNQ]1[468]0|G(11A|21[CE]|31G))",  // 11A:10TB, 21C:12TB, 21E:14TB, 31G: 16TB
+    "", "",
+    "-v 23,raw48,Helium_Condition_Lower " // ] >= 12TB
+    "-v 24,raw48,Helium_Condition_Upper"  // ]
+  },
+  { "Toshiba P300 (CMR)", // tested with TOSHIBA HDWD120/MX4OACF0
+    "TOSHIBA HDWD1(05|10|20|30)",
     "", "", ""
   },
-  { "Toshiba P300", // tested with TOSHIBA HDWD120/MX4OACF0
-    "TOSHIBA HDWD1(30|20|10|05)",
+  { "Toshiba P300 (SMR)", // tested with TOSHIBA HDWD240/KQ000A
+    "TOSHIBA HDWD2[246]0",
     "", "", ""
+  },
+  { "Toshiba X300", // tested with TOSHIBA HDWE160/FS2A, TOSHIBA HDWF180/GX0B
+    "TOSHIBA HDW(E1[456]0|[FR]180|R(11A|21[CE]|31G))",  // 11A:10TB, 21C:12TB, 21E:14TB, 31G: 16TB
+    "", "",
+    "-v 23,raw48,Helium_Condition_Lower " // ] >= 12TB
+    "-v 24,raw48,Helium_Condition_Upper"  // ]
   },
   { "Toshiba L200 (CMR)",
     "TOSHIBA HDW[JK]1(05|10)",
