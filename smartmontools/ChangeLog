@@ -1,4 +1,16 @@
-$Id: ChangeLog 5210 2021-03-02 18:38:53Z chrfranke $
+$Id: ChangeLog 5211 2021-03-08 18:07:28Z chrfranke $
+
+2021-03-08  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Toshiba MG04ACA... Enterprise HDD: Rename, merge entries,
+	  add *NY variant (GH issues/90).
+	- Toshiba MG05ACA... Enterprise Capacity HDD (#1327).
+	- Toshiba MG08ACA... Enterprise Capacity HDD.
+	- Toshiba N300 NAS HDD (#1143, #1236, #1251, #1323).
+	- Toshiba P300 (CMR): Rename.
+	- Toshiba P300 (SMR) (#1430).
+	- Toshiba X300: HDWF180 (#1277), 10-16TB.
 
 2021-03-02  Christian Franke  <franke@computer.org>
 
