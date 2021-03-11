@@ -3307,13 +3307,16 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
  *  @param  drive:  Pointer to drive struct containing ATA device information (*ata_identify_device)
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
-static bool isSeagate(ata_identify_device* drive) {
-  // FIX ME: Seagate model numbers mostly begin with "ST" (all FARM-supported ones do)
-  // FIX ME: Add matching for "XS", as some Seagate drives are labeled in this way
-  #define SEAGATE_MODEL_MATCH "ST"
-  char model[40+1];
-  ata_format_id_string(model, drive->model, sizeof(model)-1);
-  return (0 == memcmp(model, SEAGATE_MODEL_MATCH, strlen(SEAGATE_MODEL_MATCH)));
+static bool isSeagate(const ata_identify_device& drive, const drive_settings* dbentry) {
+  if (dbentry && str_starts_with(dbentry->modelfamily, "Seagate")) {
+    return true;
+  }
+  char model[40 + 1];
+  ata_format_id_string(model, drive.model, sizeof(model) - 1);
+  if (regular_expression("^(ST|XS).*").full_match(model)) {
+    return true;
+  }
+  return false;
 }
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
@@ -4463,31 +4466,32 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
   // Print ATA FARM log for Seagate ATA drive
   if (options.farm_log) {
-    if (isSeagate(&drive)) {
+    bool farm_supported = true;
+    if (isSeagate(drive, dbentry)) {
       unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
       if (!nsectors) {
         if (!options.all) {
           jout("\nFARM log (GP Log 0xA6) not supported\n\n");
-          json::ref js = jglb["seagate_farm_log_supported"];
-          js = false;
         }
+        farm_supported = false;
       } else {
-        const ataFarmLog& farmLog = ataReadFarmLog(device, nsectors);
-        if (!ataPrintFarmLog(farmLog)) {
+        ataFarmLog farmLog;
+        if (!ataReadFarmLog(device, farmLog, nsectors)) {
           if (!options.all) {
-            jout("\nPrint FARM log (GP Log 0xA6) failed\n\n");
-            json::ref js = jglb["seagate_farm_log_supported"];
-            js = false;
+            jout("\nRead FARM log (GP Log 0xA6) failed\n\n");
           }
+          farm_supported = false;
+        } else {
+          ataPrintFarmLog(farmLog);
         }
       }
     } else {
       if (!options.all) {
         jout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");
-        json::ref js = jglb["seagate_farm_log_supported"];
-        js = false;
       }
+      farm_supported = false;
     }
+    jglb["seagate_farm_log"]["supported"] = farm_supported;
   }
   // Set to standby (spindown) mode and set standby timer if not done above
   // (Above commands may spinup drive)

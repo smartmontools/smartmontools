@@ -69,10 +69,10 @@ smartctl_SOURCES = \
         dev_jmb39x_raid.cpp \
         dev_tunnelled.h \
         drivedb.h \
-	farmprint.cpp \
-	farmprint.h \
-	farmcmds.cpp \
-	farmcmds.h \
+        farmcmds.cpp \
+        farmcmds.h \
+        farmprint.cpp \
+        farmprint.h \
         json.cpp \
         json.h \
         knowndrives.cpp \

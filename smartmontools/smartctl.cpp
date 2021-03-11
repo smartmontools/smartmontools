@@ -42,8 +42,6 @@
 #include "utility.h"
 #include "svnversion.h"
 
-#include "farmprint.h"
-
 const char * smartctl_cpp_cvsid = "$Id$"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 

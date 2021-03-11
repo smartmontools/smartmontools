@@ -682,10 +682,11 @@ STATIC_ASSERT(sizeof(scsiFarmLog) == 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 
  *  Returns parsed structure as defined in atacmds.h
  *  
  *  @param  device:   Pointer to instantiated device object (ata_device*)
+ *  @param  farmLog:  Reference to parsed data in structure(s) with named members (ataFarmLog&)
  *  @param  nsectors: Number of 512-byte sectors in this log (unsigned int)
- *  @return Constant reference to parsed data in structure(s) with named members (const ataFarmLog&)
+ *  @return true if read successful, false otherwise (bool)
  */
-const ataFarmLog& ataReadFarmLog(ata_device* device, unsigned nsectors);
+bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors);
 
 /*
  *  Reads vendor-specific FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
@@ -693,8 +694,9 @@ const ataFarmLog& ataReadFarmLog(ata_device* device, unsigned nsectors);
  *  Returns parsed structure as defined in scsicmds.h
  *  
  *  @param  device: Pointer to instantiated device object (scsi_device*)
- *  @return Constant reference to parsed data in structure(s) with named members (const scsiFarmLog&)
+ *  @param  farmLog:  Reference to parsed data in structure(s) with named members (scsiFarmLog&)
+ *  @return true if read successful, false otherwise (bool)
  */
-const scsiFarmLog& scsiReadFarmLog(scsi_device* device);
+bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog);
 
 #endif

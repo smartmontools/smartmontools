@@ -24,17 +24,15 @@
  *  drives already present in ataFarmLog structure
  *  
  *  @param  farmLog:  Constant reference to parsed farm log (const ataFarmLog&)
- *  @return True if printing occurred without errors, otherwise false (bool)
  */
-bool ataPrintFarmLog(const ataFarmLog& farmLog);
+void ataPrintFarmLog(const ataFarmLog& farmLog);
 
 /*
  *  Prints parsed FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
  *  drives already present in scsiFarmLog structure
  *  
  *  @param  farmLog:  Constant reference to parsed farm log (const scsiFarmLog&)
- *  @return True if printing occurred without errors, otherwise false (bool)
  */
-bool scsiPrintFarmLog(const scsiFarmLog& farmLog);
+void scsiPrintFarmLog(const scsiFarmLog& farmLog);
 
 #endif

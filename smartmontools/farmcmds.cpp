@@ -29,10 +29,11 @@
  *  Returns parsed structure as defined in atacmds.h
  *  
  *  @param  device:   Pointer to instantiated device object (ata_device*)
+ *  @param  farmLog:  Reference to parsed data in structure(s) with named members (ataFarmLog&)
  *  @param  nsectors: Number of 512-byte sectors in this log (unsigned int)
- *  @return Constant reference to parsed data in structure(s) with named members (const ataFarmLog&)
+ *  @return true if read successful, false otherwise (bool)
  */
-const ataFarmLog& ataReadFarmLog(ata_device* device, unsigned nsectors) {
+bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors) {
   // Set up constants for FARM log
   const size_t FARM_PAGE_SIZE = 16384;
   const size_t FARM_ATTRIBUTE_SIZE = 8;
@@ -46,8 +47,7 @@ const ataFarmLog& ataReadFarmLog(ata_device* device, unsigned nsectors) {
       sizeof(ataFarmErrorStatistics),
       sizeof(ataFarmEnvironmentStatistics),
       sizeof(ataFarmReliabilityStatistics)};
-  ataFarmLog* ptr_farmLog = new ataFarmLog;
-  memset(ptr_farmLog, 0, sizeof(ataFarmLog));
+  memset(&farmLog, 0, sizeof(farmLog));
   unsigned numSectorsToRead = (sizeof(ataFarmHeader) / FARM_SECTOR_SIZE) + 1;
   // Go through each of the six pages of the FARM log
   for (unsigned page = 0; page < FARM_MAX_PAGES; page++) {
@@ -59,7 +59,7 @@ const ataFarmLog& ataReadFarmLog(ata_device* device, unsigned nsectors) {
     bool readSuccessful = ataReadLogExt(device, 0xA6, 0, page * FARM_SECTORS_PER_PAGE, pageBuffer, numSectorsToRead);
     if (!readSuccessful) {
       jerr("Read FARM Log page %u failed\n\n", page);
-      return *ptr_farmLog;
+      return false;
     }
     // Read the page from the buffer, one attribute (8 bytes) at a time
     for (unsigned pageOffset = 0; pageOffset < FARM_CURRENT_PAGE_DATA_SIZE[page]; pageOffset += FARM_ATTRIBUTE_SIZE) {
@@ -70,7 +70,7 @@ const ataFarmLog& ataReadFarmLog(ata_device* device, unsigned nsectors) {
       }
       // Check the status bit and strip it off if necessary
       if (currentMetric >> 56 == 0xC0) {
-        currentMetric &= 0x00FFFFFFFFFFFFFFLL;
+        currentMetric &= 0x00FFFFFFFFFFFFFFULL;
       } else {
         currentMetric = 0;
       }
@@ -78,7 +78,7 @@ const ataFarmLog& ataReadFarmLog(ata_device* device, unsigned nsectors) {
       if (page == 0 && pageOffset == 0) {
         if (currentMetric != 0x00004641524D4552) {
           jerr("FARM log header is invalid (log signature=%lu)\n\n", currentMetric);
-          return *ptr_farmLog;
+          return false;
         }
       }
       // Store value in structure for access to log by metric name
@@ -88,31 +88,31 @@ const ataFarmLog& ataReadFarmLog(ata_device* device, unsigned nsectors) {
     // Check number of sectors to read for next page
     switch (page) {
       case 0:
-        memcpy(&ptr_farmLog->header, currentFarmLogPage, sizeof(ataFarmHeader));
+        memcpy(&farmLog.header, currentFarmLogPage, sizeof(farmLog.header));
         numSectorsToRead = (sizeof(ataFarmDriveInformation) / FARM_SECTOR_SIZE) + 1;
         break;
       case 1:
-        memcpy(&ptr_farmLog->driveInformation, currentFarmLogPage, sizeof(ataFarmDriveInformation));
+        memcpy(&farmLog.driveInformation, currentFarmLogPage, sizeof(farmLog.driveInformation));
         numSectorsToRead = (sizeof(ataFarmWorkloadStatistics) / FARM_SECTOR_SIZE) + 1;
         break;
       case 2:
-        memcpy(&ptr_farmLog->workload, currentFarmLogPage, sizeof(ataFarmWorkloadStatistics));
+        memcpy(&farmLog.workload, currentFarmLogPage, sizeof(farmLog.workload));
         numSectorsToRead = (sizeof(ataFarmErrorStatistics) / FARM_SECTOR_SIZE) + 1;
         break;
       case 3:
-        memcpy(&ptr_farmLog->error, currentFarmLogPage, sizeof(ataFarmErrorStatistics));
+        memcpy(&farmLog.error, currentFarmLogPage, sizeof(farmLog.error));
         numSectorsToRead = (sizeof(ataFarmEnvironmentStatistics) / FARM_SECTOR_SIZE) + 1;
         break;
       case 4:
-        memcpy(&ptr_farmLog->environment, currentFarmLogPage, sizeof(ataFarmEnvironmentStatistics));
+        memcpy(&farmLog.environment, currentFarmLogPage, sizeof(farmLog.environment));
         numSectorsToRead = (sizeof(ataFarmReliabilityStatistics) / FARM_SECTOR_SIZE) + 1;
         break;
       case 5:
-        memcpy(&ptr_farmLog->reliability, currentFarmLogPage, sizeof(ataFarmReliabilityStatistics));
+        memcpy(&farmLog.reliability, currentFarmLogPage, sizeof(farmLog.reliability));
         break;
     }
   }
-  return *ptr_farmLog;
+  return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -124,24 +124,24 @@ const ataFarmLog& ataReadFarmLog(ata_device* device, unsigned nsectors) {
  *  Returns parsed structure as defined in scsicmds.h
  *  
  *  @param  device: Pointer to instantiated device object (scsi_device*)
- *  @return Constant reference to parsed data in structure(s) with named members (const scsiFarmLog&)
+ *  @param  farmLog:  Reference to parsed data in structure(s) with named members (scsiFarmLog&)
+ *  @return true if read successful, false otherwise (bool)
  */
-const scsiFarmLog& scsiReadFarmLog(scsi_device* device) {
+bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
   const uint32_t LOG_RESP_LONG_LEN = ((62 * 256) + 252);
   const uint32_t GBUF_SIZE = 65532;
   uint8_t gBuf[GBUF_SIZE];
   const size_t FARM_ATTRIBUTE_SIZE = 8;
-  scsiFarmLog* ptr_farmLog = new scsiFarmLog;
-  memset(ptr_farmLog, 0, sizeof(scsiFarmLog));
+  memset(&farmLog, 0, sizeof(farmLog));
   if (0 != scsiLogSense(device, SEAGATE_FARM_LPAGE, SEAGATE_FARM_CURRENT_L_SPAGE, gBuf, LOG_RESP_LONG_LEN, 0)) {
     jerr("Read FARM Log page failed\n\n");
-    return *ptr_farmLog;
+    return false;
   }
   bool isParameterHeader = true;
   // Log page header
-  ptr_farmLog->pageHeader.pageCode = gBuf[0];
-  ptr_farmLog->pageHeader.subpageCode = gBuf[1];
-  ptr_farmLog->pageHeader.pageLength = gBuf[2] << 8 | gBuf[3];
+  farmLog.pageHeader.pageCode = gBuf[0];
+  farmLog.pageHeader.subpageCode = gBuf[1];
+  farmLog.pageHeader.pageLength = gBuf[2] << 8 | gBuf[3];
   // Get rest of log
   // Holds data for each SCSI parameter
   u_int64_t currentParameter[sizeof(gBuf) / FARM_ATTRIBUTE_SIZE] = {};
@@ -151,7 +151,7 @@ const scsiFarmLog& scsiReadFarmLog(scsi_device* device) {
   unsigned currentParameterOffset = 0;
   // Track offset in struct
   scsiFarmParameterHeader currentParameterHeader;
-  for (unsigned pageOffset = sizeof(scsiFarmPageHeader); pageOffset < (ptr_farmLog->pageHeader.pageLength + sizeof(scsiFarmPageHeader)); pageOffset += FARM_ATTRIBUTE_SIZE) {
+  for (unsigned pageOffset = sizeof(scsiFarmPageHeader); pageOffset < (farmLog.pageHeader.pageLength + sizeof(scsiFarmPageHeader)); pageOffset += FARM_ATTRIBUTE_SIZE) {
     // First get parameter header
     if (isParameterHeader) {
       // Clear old header
@@ -233,7 +233,7 @@ const scsiFarmLog& scsiReadFarmLog(scsi_device* device) {
         currentParameterOffset += sizeof(scsiFarmByActuatorReallocation);
       }
       // Copy parameter header to struct
-      memcpy((char*)ptr_farmLog + currentParameterOffset, &currentParameterHeader, sizeof(scsiFarmParameterHeader));
+      memcpy((char*) &farmLog + currentParameterOffset, &currentParameterHeader, sizeof(scsiFarmParameterHeader));
       // Fix offset
       pageOffset += sizeof(scsiFarmParameterHeader);
       // No longer setting header
@@ -247,12 +247,12 @@ const scsiFarmLog& scsiReadFarmLog(scsi_device* device) {
     }
     // Check the status bit and strip it off if necessary
     if (currentMetric >> 56 == 0xC0) {
-      currentMetric &= 0x00FFFFFFFFFFFFFFLL;
+      currentMetric &= 0x00FFFFFFFFFFFFFFULL;
       // Parameter 0 is the log header, so check the log signature to verify this is a FARM log
       if (pageOffset == sizeof(scsiFarmPageHeader)) {
         if (currentMetric != 0x00004641524D4552) {
           jerr("FARM log header is invalid (log signature=%lu)\n\n", currentMetric);
-          return *ptr_farmLog;
+          return false;
         }
       }
       // If a parameter header is reached, set the values
@@ -261,7 +261,7 @@ const scsiFarmLog& scsiReadFarmLog(scsi_device* device) {
       isParameterHeader = true;
       pageOffset -= FARM_ATTRIBUTE_SIZE;
       // Copy data for CURRENT parameter to struct (skip parameter header which has already been assigned)
-      memcpy((char*)ptr_farmLog + currentParameterOffset + sizeof(scsiFarmParameterHeader), currentParameter, currentParameterHeader.parameterLength);
+      memcpy((char*) &farmLog + currentParameterOffset + sizeof(scsiFarmParameterHeader), currentParameter, currentParameterHeader.parameterLength);
       continue;
     } else {
       currentMetric = 0;
@@ -269,5 +269,5 @@ const scsiFarmLog& scsiReadFarmLog(scsi_device* device) {
     currentParameter[currentMetricIndex] = currentMetric;
     currentMetricIndex++;
   }
-  return *ptr_farmLog;
+  return true;
 }

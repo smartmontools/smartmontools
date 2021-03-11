@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "static_assert.h"
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
 
