@@ -50,8 +50,8 @@ struct scsi_print_options
   bool set_standby_now = false; // set drive to standby
   bool set_active = false;      // set drive to active
 
-  bool farm_log;  // Seagate Field Access Reliability Metrics log (FARM) for SCSI
-  bool all;       // Helper for FARM debug messages
+  bool farm_log = false;          // Seagate Field Access Reliability Metrics log (FARM) for SCSI
+  bool farm_log_suggest = false;  // If -x/-xall or -a/-all is run, suggests FARM log if supported
 };
 
 int scsiPrintMain(scsi_device * device, const scsi_print_options & options);

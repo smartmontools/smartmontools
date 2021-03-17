@@ -709,8 +709,8 @@ static int parse_options(int argc, char** argv, const char * & type,
       ataopts.smart_selective_selftest_log = true;
       /* scsiopts.smart_background_log = true; */
       scsiopts.smart_ss_media_log = true;
-      ataopts.farm_log = scsiopts.farm_log = true;  // Seagate Field Access Reliability Metrics (FARM) log
-      ataopts.all = scsiopts.all = true;            // Helper for FARM debug messages
+      ataopts.farm_log = scsiopts.farm_log = true;                  // Seagate Field Access Reliability Metrics (FARM) log
+      ataopts.farm_log_suggest = scsiopts.farm_log_suggest = true;  // If -x/-xall or -a/-all is run, suggests FARM log if supported (does not pull log!)
       break;
     case 'x':
       ataopts.drive_info           = scsiopts.drive_info          = nvmeopts.drive_info          = true;
@@ -740,8 +740,8 @@ static int parse_options(int argc, char** argv, const char * & type,
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
-      ataopts.farm_log = scsiopts.farm_log = true;  // Seagate Field Access Reliability Metrics (FARM) log
-      ataopts.all = scsiopts.all = true;            // Helper for FARM debug messages
+      ataopts.farm_log = scsiopts.farm_log = true;                  // Seagate Field Access Reliability Metrics (FARM) log
+      ataopts.farm_log_suggest = scsiopts.farm_log_suggest = true;  // Helper for FARM debug messages
       if (!output_format_set)
         ataopts.output_format |= ata_print_options::FMT_BRIEF;
       break;

@@ -103,8 +103,8 @@ struct ata_print_options
   bool get_dsn = false; // print DSN status
   int set_dsn = 0; // disable(02h), enable(01h) DSN
   
-  bool farm_log = false;  // Seagate Field Access Reliability Metrics log (FARM) for ATA
-  bool all = false;       // Helper for FARM debug messages
+  bool farm_log = false;          // Seagate Field Access Reliability Metrics log (FARM) for ATA
+  bool farm_log_suggest = false;  // If -x/-xall or -a/-all is run, suggests FARM log if supported
 };
 
 int ataPrintMain(ata_device * device, const ata_print_options & options);

@@ -253,11 +253,11 @@ Prints all SMART information about the disk, or TapeAlert information
 about the tape drive or changer.  For ATA devices this is equivalent
 to
 .br
-\*(Aq\-H \-i \-c \-A \-l error \-l selftest \-l selective \-l farm\*(Aq
+\*(Aq\-H \-i \-c \-A \-l error \-l selftest \-l selective\*(Aq
 .br
 and for SCSI, this is equivalent to
 .br
-\*(Aq\-H \-i \-A \-l error \-l selftest \-l farm\*(Aq.
+\*(Aq\-H \-i \-A \-l error \-l selftest\*(Aq.
 .br
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
@@ -266,9 +266,7 @@ For NVMe, this is equivalent to
 .br
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 Note that for ATA disks this does \fBnot\fP enable the non-SMART options
-and the SMART options which require support for 48-bit ATA commands. Also
-note that Seagate FARM log error messages are not printed with this option. 
-Run \*(Aq-l farm\*(Aq if this is desired.
+and the SMART options which require support for 48-bit ATA commands.
 .TP
 .B \-x, \-\-xall
 Prints all SMART and non-SMART information about the device.
@@ -276,19 +274,17 @@ For ATA devices this is equivalent to
 .br
 \*(Aq\-H \-i \-g all \-g wcreorder \-c \-A \-f brief \-l xerror,error
 \-l xselftest,selftest \-l selective \-l directory \-l scttemp \-l scterc
-\-l devstat \-l defects \-l sataphy \-l farm\*(Aq.
+\-l devstat \-l defects \-l sataphy\*(Aq.
 .br
 and for SCSI, this is equivalent to
 .br
-\*(Aq\-H \-i \-g all \-A \-l error \-l selftest \-l background \-l sasphy \-l farm\*(Aq.
+\*(Aq\-H \-i \-g all \-A \-l error \-l selftest \-l background \-l sasphy\*(Aq.
 .br
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
 .br
 \*(Aq\-H \-i \-c \-A \-l error\*(Aq.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
-Note that Seagate FARM log error messages are not printed with this option. 
-Run \*(Aq-l farm\*(Aq if this is desired.
 .TP
 .B \-\-scan
 Scans for devices and prints each device name, device type and protocol
@@ -1605,7 +1601,8 @@ manufacturer.
 The value may reach 255.
 .Sp
 .I farm
-\- [Seagate ATA or SAS (SCSI) only] prints predictive drive health metrics 
+\- [Seagate ATA or SAS (SCSI) only][NEW EXPERIMENTAL SMARTCTL FEATURE] 
+prints predictive drive health metrics 
 and values from Seagate's vendor-specific Field Access Reliability Metrics 
 (FARM) log when used on a drive supporting FARM. ATA and SAS logs differ 
 slightly. \fBWARNING: Some Seagate drives do not support FARM.\fP

@@ -2575,21 +2575,26 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     // Print SCSI FARM log for Seagate SCSI drive
     if (options.farm_log) {
         bool farm_supported = true;
+        // Check if drive is a Seagate drive that supports FARM
         if (!checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
         }
         if (gSeagateFarmLPage) {
-            scsiFarmLog farmLog;
-            if (!scsiReadFarmLog(device, farmLog)) {
-                if (!options.all) {
-                    jout("\nRead FARM log (GP Log 0xA6) failed\n\n");
-                }
-                farm_supported = false;
+            // If -x/-xall or -a/-all is run, suggests FARM log
+            if (options.farm_log_suggest) {
+                jout("Seagate FARM log supported [try: -l farm]\n\n");
+            // Otherwise, actually pull the FARM log
             } else {
-                scsiPrintFarmLog(farmLog);
+                scsiFarmLog farmLog;
+                if (!scsiReadFarmLog(device, farmLog)) {
+                    jout("\nRead FARM log (GP Log 0xA6) failed\n\n");
+                    farm_supported = false;
+                } else {
+                    scsiPrintFarmLog(farmLog);
+                }
             }
         } else {
-            if (!options.all) {
+            if (!options.farm_log_suggest) {
                 jout("\nFARM log (SCSI log page 0x3D, sub-page 0x3) not supported\n\n");
             }
             farm_supported = false;
