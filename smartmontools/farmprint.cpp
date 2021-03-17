@@ -151,23 +151,6 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   // Parameter 5: Reliability Statistics
   jout("\tFARM Log Parameter 5: Reliability Statistics\n");
   jout("\n");
-  // "By Actuator" Parameters
-  jout("\tFARM Log \"By Actuator\" Parameters\n");
-  jout("\t\tHead Load Events:\n");
-  jout("\t\t\tActuator 0: %" PRIu64 "\n", farmLog.actuator0.headLoadEvents);
-  jout("\t\t\tActuator 1: %" PRIu64 "\n", farmLog.actuator1.headLoadEvents);
-  jout("\t\t\tActuator 2: %" PRIu64 "\n", farmLog.actuator2.headLoadEvents);
-  jout("\t\t\tActuator 3: %" PRIu64 "\n", farmLog.actuator3.headLoadEvents);
-  jout("\t\tLBAs Corrected By Intermediate Super Parity:\n");
-  jout("\t\t\tActuator 0: %" PRIu64 "\n", farmLog.actuator0.lbasCorrectedISP);
-  jout("\t\t\tActuator 1: %" PRIu64 "\n", farmLog.actuator1.lbasCorrectedISP);
-  jout("\t\t\tActuator 2: %" PRIu64 "\n", farmLog.actuator2.lbasCorrectedISP);
-  jout("\t\t\tActuator 3: %" PRIu64 "\n", farmLog.actuator3.lbasCorrectedISP);
-  jout("\t\tLBAs Corrected By Parity Sector:\n");
-  jout("\t\t\tActuator 0: %" PRIu64 "\n", farmLog.actuator0.numberLBACorrectedParitySector);
-  jout("\t\t\tActuator 1: %" PRIu64 "\n", farmLog.actuator1.numberLBACorrectedParitySector);
-  jout("\t\t\tActuator 2: %" PRIu64 "\n", farmLog.actuator2.numberLBACorrectedParitySector);
-  jout("\t\t\tActuator 3: %" PRIu64 "\n", farmLog.actuator3.numberLBACorrectedParitySector);
   // "By Head" Parameters
   jout("\tFARM Log \"By Head\" Parameters\n");
   jout("\t\tNumber of Reallocated Sectors:\n");
@@ -177,6 +160,18 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   jout("\t\tNumber of Reallocated Candidate Sectors:\n");
   for (unsigned i = 0; i < n; i++) {
     jout("\t\t\tHead %i: %" PRIu64 "\n", i, farmLog.totalReallocationCanidates.headValue[i]);
+  }
+  // "By Actuator" Parameters
+  jout("\tFARM Log \"By Actuator\" Parameters\n");
+  const scsiFarmByActuator actrefs[] = {
+    farmLog.actuator0, farmLog.actuator1, farmLog.actuator2, farmLog.actuator3
+  };
+  for (unsigned i = 0; i < sizeof(actrefs) /sizeof(actrefs[0]); i++) {
+    const scsiFarmByActuator& ar = actrefs[i];
+    jout("\t\tActuator %u:\n", i);
+    jout("\t\t\tHead Load Events: %" PRIu64 "\n", ar.headLoadEvents);
+    jout("\t\t\tLBAs Corrected By Intermediate Super Parity: %" PRIu64 "\n", ar.lbasCorrectedISP);
+    jout("\t\t\tLBAs Corrected By Parity Sector: %" PRIu64 "\n", ar.numberLBACorrectedParitySector);
   }
   // Print JSON if --json or -j is specified
   json::ref jref = jglb["seagate_farm_log"];
@@ -204,23 +199,6 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   jref4["twelve_volt_power_average_in_mw"] = farmLog.environment.powerAverage12v;
   // Parameter 5: Reliability Statistics
   // json::ref jref5 = jref["parameter_5_reliability_statistics"];
-  // "By Actuator" Parameters
-  json::ref jrefa = jref["by_actuator_parameters"];
-  json::ref jrefa0 = jrefa["head_load_events"];
-  jrefa0["actuator_0"] = farmLog.actuator0.headLoadEvents;
-  jrefa0["actuator_1"] = farmLog.actuator1.headLoadEvents;
-  jrefa0["actuator_2"] = farmLog.actuator2.headLoadEvents;
-  jrefa0["actuator_3"] = farmLog.actuator3.headLoadEvents;
-  json::ref jrefa1 = jrefa["lbas_corrected_by_intermediate_super_parity"];
-  jrefa1["actuator_0"] = farmLog.actuator0.lbasCorrectedISP;
-  jrefa1["actuator_1"] = farmLog.actuator1.lbasCorrectedISP;
-  jrefa1["actuator_2"] = farmLog.actuator2.lbasCorrectedISP;
-  jrefa1["actuator_3"] = farmLog.actuator3.lbasCorrectedISP;
-  json::ref jrefa2 = jrefa["lbas_corrected_by_parity_sector"];
-  jrefa2["actuator_0"] = farmLog.actuator0.numberLBACorrectedParitySector;
-  jrefa2["actuator_1"] = farmLog.actuator1.numberLBACorrectedParitySector;
-  jrefa2["actuator_2"] = farmLog.actuator2.numberLBACorrectedParitySector;
-  jrefa2["actuator_3"] = farmLog.actuator3.numberLBACorrectedParitySector;
   // "By Head" Parameters
   json::ref jrefh = jref["by_head_parameters"];
   json::ref jrefh0 = jrefh["number_of_reallocated_sectors"];
@@ -234,5 +212,15 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
     char h[15];
     sprintf(h, "head_%i", i);
     jrefh1[h] = farmLog.totalReallocationCanidates.headValue[i];
+  }
+  // "By Actuator" Parameters
+  json::ref jrefa = jref["by_actuator_parameters"];
+  for (unsigned i = 0; i < sizeof(actrefs) /sizeof(actrefs[0]); i++) {
+    const scsiFarmByActuator& ar = actrefs[i];
+    char a[15];
+    sprintf(a, "actuator_%i", i);
+    jrefa[a]["head_load_events"] = ar.headLoadEvents;
+    jrefa[a]["lbas_corrected_by_intermediate_super_parity"] = ar.lbasCorrectedISP;
+    jrefa[a]["lbas_corrected_by_parity_sector"] = ar.numberLBACorrectedParitySector;
   }
 }
