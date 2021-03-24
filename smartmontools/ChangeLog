@@ -1,4 +1,8 @@
-$Id: ChangeLog 5211 2021-03-08 18:07:28Z chrfranke $
+$Id: ChangeLog 5213 2021-03-24 16:52:01Z chrfranke $
+
+2021-03-24  Martin Ziemer  <horrad@horrad.de>
+
+	os_openbsd.cpp: Use correct devicename for autodetection (#1465).
 
 2021-03-08  Christian Franke  <franke@computer.org>
 
