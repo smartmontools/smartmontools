@@ -582,17 +582,17 @@ smart_device * openbsd_smart_interface::autodetect_smart_device(const char * nam
   if (str_starts_with(test_name, net_dev_prefix)) {
     test_name += strlen(net_dev_prefix);
     if (!strncmp(net_dev_ata_disk, test_name, strlen(net_dev_ata_disk)))
-      return get_ata_device(test_name, "ata");
+      return get_ata_device(name, "ata");
     if (!strncmp(net_dev_scsi_disk, test_name, strlen(net_dev_scsi_disk))) {
       // XXX Try to detect possible USB->(S)ATA bridge
       // XXX get USB vendor ID, product ID and version from sd(4)/umass(4).
       // XXX check sat device via get_usb_dev_type_by_id().
 
       // No USB bridge found, assume regular SCSI device
-      return get_scsi_device(test_name, "scsi");
+      return get_scsi_device(name, "scsi");
     }
     if (!strncmp(net_dev_scsi_tape, test_name, strlen(net_dev_scsi_tape)))
-      return get_scsi_device(test_name, "scsi");
+      return get_scsi_device(name, "scsi");
   }
   // device type unknown
   return 0;
