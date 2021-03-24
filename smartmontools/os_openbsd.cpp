@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include <util.h>
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 5213 2021-03-24 16:52:01Z chrfranke $"
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 5214 2021-03-24 16:55:04Z chrfranke $"
   OS_OPENBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))
@@ -266,7 +266,7 @@ bool openbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   sc.databuf = (char *)iop->dxferp;
   sc.datalen = iop->dxfer_len;
   sc.senselen = iop->max_sense_len;
-  sc.timeout = iop->timeout == 0 ? 60000 : iop->timeout;	/* XXX */
+  sc.timeout = (iop->timeout == 0 ? 60 : iop->timeout) * 1000;
   sc.flags =
     (iop->dxfer_dir == DXFER_NONE ? SCCMD_READ :
     (iop->dxfer_dir == DXFER_FROM_DEVICE ? SCCMD_READ : SCCMD_WRITE));

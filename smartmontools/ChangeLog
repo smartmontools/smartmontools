@@ -1,6 +1,9 @@
-$Id: ChangeLog 5213 2021-03-24 16:52:01Z chrfranke $
+$Id: ChangeLog 5214 2021-03-24 16:55:04Z chrfranke $
 
 2021-03-24  Martin Ziemer  <horrad@horrad.de>
+
+	os_openbsd.cpp: Apply conversion to seconds for timeouts in
+	scsi_pass_through (#1466).
 
 	os_openbsd.cpp: Use correct devicename for autodetection (#1465).
 
