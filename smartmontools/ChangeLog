@@ -1,5 +1,9 @@
 $Id$
 
+2021-04-09  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_openbsd.cpp: fix SAT autodetection for the sd* devices (#1467)
+
 2021-03-24  Martin Ziemer  <horrad@horrad.de>
 
 	os_openbsd.cpp: Apply conversion to seconds for timeouts in
