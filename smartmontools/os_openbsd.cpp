@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include <util.h>
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 5214 2021-03-24 16:55:04Z chrfranke $"
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 5215 2021-04-07 06:42:07Z samm2 $"
   OS_OPENBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))
@@ -588,8 +588,8 @@ smart_device * openbsd_smart_interface::autodetect_smart_device(const char * nam
       // XXX get USB vendor ID, product ID and version from sd(4)/umass(4).
       // XXX check sat device via get_usb_dev_type_by_id().
 
-      // No USB bridge found, assume regular SCSI device
-      return get_scsi_device(name, "scsi");
+      // No USB bridge found, assume regular SCSI or SAT device
+      return get_scsi_device(name, "");
     }
     if (!strncmp(net_dev_scsi_tape, test_name, strlen(net_dev_scsi_tape)))
       return get_scsi_device(name, "scsi");

@@ -1,4 +1,8 @@
-$Id: ChangeLog 5214 2021-03-24 16:55:04Z chrfranke $
+$Id: ChangeLog 5215 2021-04-07 06:42:07Z samm2 $
+
+2021-04-09  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_openbsd.cpp: fix SAT autodetection for the sd* devices (#1467)
 
 2021-03-24  Martin Ziemer  <horrad@horrad.de>
 
