@@ -1,4 +1,9 @@
-$Id: ChangeLog 5215 2021-04-07 06:42:07Z samm2 $
+$Id: ChangeLog 5216 2021-04-14 13:29:40Z chrfranke $
+
+2021-04-14  Phillip Schichtel <phillip@schich.tel>
+
+	os_linux.cpp: Only require '-d cciss,N' if hpsa devices are in
+	RAID mode.
 
 2021-04-09  Alex Samorukov <samm@os2.kiev.ua>
 
