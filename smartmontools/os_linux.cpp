@@ -3206,8 +3206,8 @@ static unsigned get_kernel_release()
   return x * 100000 + y * 1000 + z;
 }
 
-// Check for SCSI host proc_name "hpsa"
-static bool is_hpsa(const char * name)
+// Check for SCSI host proc_name "hpsa" and HPSA raid_level
+static bool is_hpsa_in_raid_mode(const char * name)
 {
   char path[128];
   snprintf(path, sizeof(path), "/sys/block/%s/device", name);
@@ -3247,7 +3247,23 @@ static bool is_hpsa(const char * name)
   if (strcmp(proc_name, "hpsa"))
     return false;
 
-  return true;
+  // See: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/scsi/hpsa.c?id=6417f03132a6952cd17ddd8eaddbac92b61b17e0#n693
+  snprintf(path, sizeof(path), "/sys/block/%s/device/raid_level", name);
+  fd = open(path, O_RDONLY);
+  if (fd < 0)
+    return false;
+
+  char raid_level[4];
+  n = read(fd, raid_level, sizeof(raid_level) - 1);
+  close(fd);
+  if (n < 3)
+    return false;
+  raid_level[n] = 0;
+
+  if (strcmp(raid_level, "N/A"))
+    return true;
+
+  return false;
 }
 
 // Guess device type (ata or scsi) based on device name (Linux
@@ -3302,8 +3318,8 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
       return get_scsi_passthrough_device(usbtype, new linux_scsi_device(this, name, ""));
     }
 
-    // Fail if hpsa driver
-    if (is_hpsa(test_name))
+    // Fail if hpsa driver and device is using RAID
+    if (is_hpsa_in_raid_mode(test_name))
       return missing_option("-d cciss,N");
 
     // No USB bridge or hpsa driver found, assume regular SCSI device
