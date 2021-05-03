@@ -1,4 +1,8 @@
-$Id: ChangeLog 5216 2021-04-14 13:29:40Z chrfranke $
+$Id: ChangeLog 5217 2021-05-03 02:31:27Z dpgilbert $
+
+2021-05-02  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: continue JSON work
 
 2021-04-14  Phillip Schichtel <phillip@schich.tel>
 
