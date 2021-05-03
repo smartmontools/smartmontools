@@ -2563,7 +2563,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     // Print SCSI FARM log for Seagate SCSI drive
-    if (options.farm_log) {
+    if (options.farm_log || options.farm_log_suggest) {
         bool farm_supported = true;
         // Check if drive is a Seagate drive that supports FARM
         if (!checkedSupportedLogPages) {
