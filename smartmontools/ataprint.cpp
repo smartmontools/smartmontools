@@ -3301,24 +3301,6 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
     pout("%s%d (%02d:%02d:%02d%s%s)\n", msg, timer, hours, minutes, seconds, s2, s3);
 }
 
-/*
- *  Determines whether the current drive is a Seagate drive
- * 
- *  @param  drive:  Pointer to drive struct containing ATA device information (*ata_identify_device)
- *  @return True if the drive is a Seagate drive, false otherwise (bool)
- */
-static bool isSeagate(const ata_identify_device& drive, const drive_settings* dbentry) {
-  if (dbentry && str_starts_with(dbentry->modelfamily, "Seagate")) {
-    return true;
-  }
-  char model[40 + 1];
-  ata_format_id_string(model, drive.model, sizeof(model) - 1);
-  if (regular_expression("^(ST|XS).*").full_match(model)) {
-    return true;
-  }
-  return false;
-}
-
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
   // If requested, check power mode first
@@ -4468,7 +4450,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (options.farm_log) {
     bool farm_supported = true;
     // Check if drive is a Seagate drive
-    if (isSeagate(drive, dbentry)) {
+    if (ataIsSeagate(drive, dbentry)) {
       unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
       // Check if the Seagate drive is one that supports FARM
       if (!nsectors) {

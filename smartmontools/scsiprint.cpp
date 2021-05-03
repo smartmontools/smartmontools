@@ -106,16 +106,6 @@ seagate_or_hitachi(void)
                          strlen(T10_VENDOR_HITACHI_3))));
 }
 
-/*
- *  Determines whether the current drive is a Seagate drive
- * 
- *  @return True if the drive is a Seagate drive, false otherwise (bool)
- */
-static bool isSeagate() {
-    return (0 == memcmp(scsi_vendor, T10_VENDOR_SEAGATE,
-                         strlen(T10_VENDOR_SEAGATE)));
-}
-
 static bool
 all_ffs(const uint8_t * bp, int b_len)
 {
@@ -310,7 +300,7 @@ scsiGetSupportedLogPages(scsi_device * device)
                     gSeagateFactoryLPage = true;
                 break;
             case SEAGATE_FARM_LPAGE:
-                if (isSeagate()) {
+                if (scsiIsSeagate(scsi_vendor)) {
                     if (SEAGATE_FARM_CURRENT_L_SPAGE == sub_pg_num) {
                         gSeagateFarmLPage = true;
                     } else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {

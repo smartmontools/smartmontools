@@ -27,7 +27,9 @@
 
 #include <stdint.h>
 
+#include "atacmds.h"
 #include "dev_interface.h"
+#include "knowndrives.h"
 #include "static_assert.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -677,6 +679,14 @@ struct scsiFarmLog {
 STATIC_ASSERT(sizeof(scsiFarmLog) == 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 + 68 + (47 * ((8 * 16) + 4)) + 188 * 4 + 236 * 4 + 164 * 4);
 
 /*
+ *  Determines whether the current drive is an ATA Seagate drive
+ * 
+ *  @param  drive:  Pointer to drive struct containing ATA device information (*ata_identify_device)
+ *  @return True if the drive is a Seagate drive, false otherwise (bool)
+ */
+bool ataIsSeagate(const ata_identify_device& drive, const drive_settings* dbentry);
+
+/*
  *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate
  *  drives and parses data into FARM log structures
  *  Returns parsed structure as defined in atacmds.h
@@ -687,6 +697,14 @@ STATIC_ASSERT(sizeof(scsiFarmLog) == 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 
  *  @return true if read successful, false otherwise (bool)
  */
 bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors);
+
+/*
+ *  Determines whether the current drive is a SCSI Seagate drive
+ * 
+ *  @param  scsi_vendor:  Text of SCSI vendor field (char*)
+ *  @return True if the drive is a Seagate drive, false otherwise (bool)
+ */
+bool scsiIsSeagate(char* scsi_vendor);
 
 /*
  *  Reads vendor-specific FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate

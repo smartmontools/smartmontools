@@ -17,11 +17,30 @@
 #include "farmcmds.h"
 
 #include "atacmds.h"
+#include "knowndrives.h"
 #include "scsicmds.h"
 #include "smartctl.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Seagate ATA Field Access Reliability Metrics (FARM) log (Log 0xA6)
+
+/*
+ *  Determines whether the current drive is an ATA Seagate drive
+ * 
+ *  @param  drive:  Pointer to drive struct containing ATA device information (*ata_identify_device)
+ *  @return True if the drive is a Seagate drive, false otherwise (bool)
+ */
+bool ataIsSeagate(const ata_identify_device& drive, const drive_settings* dbentry) {
+  if (dbentry && str_starts_with(dbentry->modelfamily, "Seagate")) {
+    return true;
+  }
+  char model[40 + 1];
+  ata_format_id_string(model, drive.model, sizeof(model) - 1);
+  if (regular_expression("^(ST|XS).*").full_match(model)) {
+    return true;
+  }
+  return false;
+}
 
 /*
  *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate
@@ -117,6 +136,17 @@ bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors) 
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Seagate SCSI Field Access Reliability Metrics (FARM) log (Log page 0x3D, sub-page 0x3)
+
+
+/*
+ *  Determines whether the current drive is a SCSI Seagate drive
+ * 
+ *  @param  scsi_vendor:  Text of SCSI vendor field (char*)
+ *  @return True if the drive is a Seagate drive, false otherwise (bool)
+ */
+bool scsiIsSeagate(char* scsi_vendor) {
+  return (0 == memcmp(scsi_vendor, "SEAGATE", strlen("SEAGATE")));
+}
 
 /*
  *  Reads vendor-specific FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
