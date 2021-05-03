@@ -2570,8 +2570,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
         }
         if (gSeagateFarmLPage) {
-            // If -x/-xall or -a/-all is run, suggests FARM log
-            if (options.farm_log_suggest) {
+            // If -x/-xall or -a/-all is run without explicit -l farm, suggests FARM log
+            if (options.farm_log_suggest && !options.farm_log) {
                 jout("Seagate FARM log supported [try: -l farm]\n\n");
             // Otherwise, actually pull the FARM log
             } else {
@@ -2584,7 +2584,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                 }
             }
         } else {
-            if (!options.farm_log_suggest) {
+            if (options.farm_log) {
                 jout("\nFARM log (SCSI log page 0x3D, sub-page 0x3) not supported\n\n");
             }
             farm_supported = false;

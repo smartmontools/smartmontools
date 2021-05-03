@@ -4447,20 +4447,20 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
   }
   // Print ATA FARM log for Seagate ATA drive
-  if (options.farm_log) {
+  if (options.farm_log || options.farm_log_suggest) {
     bool farm_supported = true;
     // Check if drive is a Seagate drive
     if (ataIsSeagate(drive, dbentry)) {
       unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
       // Check if the Seagate drive is one that supports FARM
       if (!nsectors) {
-        if (!options.farm_log_suggest) {
+        if (options.farm_log) {
           jout("\nFARM log (GP Log 0xA6) not supported\n\n");
         }
         farm_supported = false;
       } else {
-        // If -x/-xall or -a/-all is run, suggests FARM log
-        if (options.farm_log_suggest) {
+        // If -x/-xall or -a/-all is run without explicit -l farm, suggests FARM log
+        if (options.farm_log_suggest && !options.farm_log) {
           jout("Seagate FARM log supported [try: -l farm]\n\n");
         // Otherwise, actually pull the FARM log
         } else {
@@ -4474,7 +4474,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         }
       }
     } else {
-      if (!options.farm_log_suggest) {
+      if (options.farm_log) {
         jout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");
       }
       farm_supported = false;
