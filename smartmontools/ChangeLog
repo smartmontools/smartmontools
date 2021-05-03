@@ -1,5 +1,9 @@
 $Id$
 
+2021-05-02  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: continue JSON work
+
 2021-04-14  Phillip Schichtel <phillip@schich.tel>
 
 	os_linux.cpp: Only require '-d cciss,N' if hpsa devices are in

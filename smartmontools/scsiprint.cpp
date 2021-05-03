@@ -1819,13 +1819,13 @@ static const char * peripheral_dt_arr[32] = {
 
 /* Symbolic indexes to this array SCSI_TPROTO_* in scscmds.h */
 static const char * transport_proto_arr[] = {
-        "Fibre channel (FCP-2)",
-        "Parallel SCSI (SPI-4)",
+        "Fibre channel (FCP-4)",
+        "Parallel SCSI (SPI-4)",        /* obsolete */
         "SSA",
-        "IEEE 1394 (SBP-2)",
+        "IEEE 1394 (SBP-3)",
         "RDMA (SRP)",
         "iSCSI",
-        "SAS (SPL-3)",
+        "SAS (SPL-4)",
         "ADT",
         "ATA (ACS-2)",
         "UAS",
@@ -1843,6 +1843,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
 {
     struct scsi_iec_mode_page iec;
     int err, iec_err, len, req_len, avail_len;
+    bool ok;
     bool is_tape = false;
     int peri_dt = 0;
     int transport = -1;
@@ -2128,8 +2129,11 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     // See if transport protocol is known
     if (transport < 0)
         transport = scsiFetchTransportProtocol(device, modese_len);
-    if ((transport >= 0) && (transport <= 0xf))
+    if ((transport >= 0) && (transport <= 0xf)) {
         pout("Transport protocol:   %s\n", transport_proto_arr[transport]);
+        jglb["transport_protocol"]["name"] = transport_proto_arr[transport];
+        jglb["transport_protocol"]["value"] = transport;
+    }
 
     jout_startup_datetime("Local Time is:        ");
 
@@ -2170,6 +2174,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
             print_on();
             pout("SMART support is:     Unavailable - device lacks SMART "
                  "capability.\n");
+            jglb["smart_support"]["available"] = false;
             if (scsi_debugmode > 0)
                 pout(" [%s]\n", scsiErrString(iec_err));
             print_off();
@@ -2178,13 +2183,17 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
         return 0;
     }
 
-    if (!is_tape)
+    if (!is_tape) {
+        ok = scsi_IsExceptionControlEnabled(&iec);
         pout("SMART support is:     Available - device has SMART capability.\n"
-             "SMART support is:     %s\n",
-             (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
-    pout("%s\n", (scsi_IsWarningEnabled(&iec)) ?
-                  "Temperature Warning:  Enabled" :
-                  "Temperature Warning:  Disabled or Not Supported");
+             "SMART support is:     %s\n", ok ? "Enabled" : "Disabled");
+        jglb["smart_support"]["available"] = true;
+        jglb["smart_support"]["enabled"] = ok;
+    }
+    ok = scsi_IsWarningEnabled(&iec);
+    pout("Temperature Warning:  %s\n",
+         ok ? "Enabled" : "Disabled or Not Supported");
+    jglb["temperature_warning"]["enabled"] = ok;
     return 0;
 }
 
@@ -2351,7 +2360,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             case 0x07: // IDLE_C CONDITION ACTIVATED BY TIMER
                 powername = "IDLE_C BY TIMER";  powerlimit = 4; break;
             case 0x08: // IDLE_C CONDITION ACTIVATED BY COMMAND
-                powername = "IDLE_C BY COMMAND";  powerlimit = 4; break;  
+                powername = "IDLE_C BY COMMAND";  powerlimit = 4; break;
             case 0x09: // STANDBY_Y CONDITION ACTIVATED BY TIMER
                 powername = "STANDBY_Y BY TIMER";    powerlimit = 2; break;
             case 0x0A: // STANDBY_Y CONDITION ACTIVATED BY COMMAND
