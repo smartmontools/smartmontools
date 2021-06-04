@@ -1,4 +1,9 @@
-$Id: ChangeLog 5217 2021-05-03 02:31:27Z dpgilbert $
+$Id: ChangeLog 5218 2021-06-04 15:46:36Z chrfranke $
+
+2021-06-04  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, nvmeprint.cpp: Add JSON values 'smart_support.*' to
+	keep consistency with scsiprint.cpp.
 
 2021-05-02  Douglas Gilbert  <dgilbert@interlog.com>
 

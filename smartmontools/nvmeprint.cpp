@@ -13,7 +13,7 @@
 
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5200 2021-02-07 14:19:40Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5218 2021-06-04 15:46:36Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "utility.h"
@@ -200,6 +200,9 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
       jrns["eui64"]["ext_id"] = sg_get_unaligned_be(5, id_ns.eui64 + 3);
     }
   }
+
+  // SMART/Health Information is mandatory
+  jglb["smart_support"] += { {"available", true}, {"enabled", true} };
 
   jout_startup_datetime("Local Time is:                      ");
 }
