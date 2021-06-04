@@ -42,7 +42,20 @@
 #include "dev_interface.h"
 #include "sg_unaligned.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 5201 2021-02-07 15:08:48Z chrfranke $"
+#ifndef USE_CLOCK_MONOTONIC
+#ifdef __MINGW32__
+// If MinGW-w64 < 9.0.0 or Windows < 8, GetSystemTimeAsFileTime() is used for
+// std::chrono::high_resolution_clock.  This provides only 1/64s (>15ms) resolution.
+// CLOCK_MONOTONIC uses QueryPerformanceCounter() which provides <1us resolution.
+#define USE_CLOCK_MONOTONIC 1
+#else
+// Use std::chrono::high_resolution_clock.
+#include <chrono>
+#define USE_CLOCK_MONOTONIC 0
+#endif
+#endif // USE_CLOCK_MONOTONIC
+
+const char * utility_cpp_cvsid = "$Id: utility.cpp 5219 2021-06-04 16:39:50Z chrfranke $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -820,6 +833,21 @@ const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uin
 }
 
 #endif // HAVE___INT128
+
+// Get microseconds since some unspecified starting point.
+long long get_timer_usec()
+{
+#if USE_CLOCK_MONOTONIC
+  struct timespec ts;
+  if (clock_gettime(CLOCK_MONOTONIC, &ts))
+    return -1;
+  return ts.tv_sec * 1000000LL + ts.tv_nsec / 1000;
+#else
+  return std::chrono::duration_cast<std::chrono::microseconds>(
+    std::chrono::high_resolution_clock::now().time_since_epoch()
+  ).count();
+#endif
+}
 
 // Runtime check of byte ordering, throws on error.
 static void check_endianness()

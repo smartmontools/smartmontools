@@ -1,6 +1,11 @@
-$Id: ChangeLog 5218 2021-06-04 15:46:36Z chrfranke $
+$Id: ChangeLog 5219 2021-06-04 16:39:50Z chrfranke $
 
 2021-06-04  Christian Franke  <franke@computer.org>
+
+	Rework 'get_timer_usec()', use a C++11 clock if possible.
+	dev_interface.cpp, dev_interface.h, os_win32.cpp: Move function ...
+	utility.cpp, utility.h: ... to here.
+	configure.ac: Remove related checks.
 
 	ataprint.cpp, nvmeprint.cpp: Add JSON values 'smart_support.*' to
 	keep consistency with scsiprint.cpp.
