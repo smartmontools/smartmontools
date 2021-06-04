@@ -3528,10 +3528,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       if (smart_supported < 0)
         pout("SMART support is: Unknown - Try option -s with argument 'on' to enable it.");
       else if (!smart_supported)
-        pout("SMART support is: Unavailable - device lacks SMART capability.\n");
+        jout("SMART support is: Unavailable - device lacks SMART capability.\n");
       else {
         if (options.drive_info)
-          pout("SMART support is: Available - device has SMART capability.\n");
+          jout("SMART support is: Available - device has SMART capability.\n");
         if (smart_enabled >= 0) {
           if (device->ata_identify_is_cached()) {
             if (options.drive_info)
@@ -3540,10 +3540,16 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
             smart_enabled = ataDoesSmartWork(device);
           }
           if (options.drive_info)
-            pout("SMART support is: %s\n",
+            jout("SMART support is: %s\n",
                   (smart_enabled ? "Enabled" : "Disabled"));
         }
       }
+    }
+
+    if (options.drive_info || smart_supported <= 0) {
+      jglb["smart_support"]["available"] = (smart_supported > 0);
+      if (smart_supported > 0)
+        jglb["smart_support"]["enabled"] = (smart_enabled > 0);
     }
   }
 
