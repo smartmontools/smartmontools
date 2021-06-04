@@ -117,6 +117,10 @@ case "$host" in
   *-*-netbsd*|*-*-openbsd*)
     AC_CHECK_HEADERS([dev/ata/atavar.h])
     ;;
+  *-*-mingw*)
+    # Older MinGW-w64 (5.0.3) require -lwinpthread
+    AC_SEARCH_LIBS([clock_gettime], [winpthread])
+    ;;
 esac
 
 # Checks for typedefs, and compiler characteristics.
