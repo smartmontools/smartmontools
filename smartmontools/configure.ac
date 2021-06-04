@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5219 2021-06-04 16:39:50Z chrfranke $
+# $Id: configure.ac 5220 2021-06-04 17:34:46Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.2
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5219 2021-06-04 16:39:50Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5220 2021-06-04 17:34:46Z chrfranke $'`
 smartmontools_release_date=2020-12-30
 smartmontools_release_time="16:48:30 UTC"
 
@@ -116,6 +116,10 @@ case "$host" in
     ;;
   *-*-netbsd*|*-*-openbsd*)
     AC_CHECK_HEADERS([dev/ata/atavar.h])
+    ;;
+  *-*-mingw*)
+    # Older MinGW-w64 (5.0.3) require -lwinpthread
+    AC_SEARCH_LIBS([clock_gettime], [winpthread])
     ;;
 esac
 
