@@ -91,10 +91,6 @@ AC_SUBST([svn_deps])
 AM_CONDITIONAL(IS_SVN_BUILD, [test "$is_svn_build" = "yes"])
 AC_MSG_RESULT([$is_svn_build])
 
-# Note: On Linux, clock_gettime() requires -lrt which implies -lpthreads
-# Check omitted for now, gettimeofday() provides reasonable precision
-# AC_SEARCH_LIBS(clock_gettime, rt)
-
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([byteswap.h], [], [], [])
@@ -130,8 +126,6 @@ AC_TYPE_LONG_DOUBLE_WIDER
 # Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
 AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
-
-AC_CHECK_FUNCS([clock_gettime ftime gettimeofday])
 
 # Check byte ordering (defines WORDS_BIGENDIAN)
 AC_C_BIGENDIAN

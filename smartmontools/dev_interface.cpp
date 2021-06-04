@@ -21,12 +21,6 @@
 #include <stdlib.h> // realpath()
 #include <stdexcept>
 
-#if defined(HAVE_GETTIMEOFDAY)
-#include <sys/time.h>
-#elif defined(HAVE_FTIME)
-#include <sys/timeb.h>
-#endif
-
 const char * dev_interface_cpp_cvsid = "$Id$"
   DEV_INTERFACE_H_CVSID;
 
@@ -323,36 +317,6 @@ std::string smart_interface::get_valid_dev_types_str()
 std::string smart_interface::get_app_examples(const char * /*appname*/)
 {
   return "";
-}
-
-int64_t smart_interface::get_timer_usec()
-{
-#if defined(HAVE_GETTIMEOFDAY)
- #if defined(HAVE_CLOCK_GETTIME) && defined(CLOCK_MONOTONIC)
-  {
-    static bool have_clock_monotonic = true;
-    if (have_clock_monotonic) {
-      struct timespec ts;
-      if (!clock_gettime(CLOCK_MONOTONIC, &ts))
-        return ts.tv_sec * 1000000LL + ts.tv_nsec/1000;
-      have_clock_monotonic = false;
-    }
-  }
- #endif
-  {
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    return tv.tv_sec * 1000000LL + tv.tv_usec;
-  }
-#elif defined(HAVE_FTIME)
-  {
-    struct timeb tb;
-    ftime(&tb);
-    return tb.time * 1000000LL + tb.millitm * 1000;
-  }
-#else
-  return -1;
-#endif
 }
 
 bool smart_interface::disable_system_auto_standby(bool /*disable*/)

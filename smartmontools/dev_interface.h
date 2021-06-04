@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-20 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -899,12 +899,6 @@ public:
   /// function is allowed to print examples to stdout.
   /// TODO: Remove this hack.
   virtual std::string get_app_examples(const char * appname);
-
-  /// Get microseconds since some unspecified starting point.
-  /// Used only for command duration measurements in debug outputs.
-  /// Returns -1 if unsupported.
-  /// Default implementation uses clock_gettime(), gettimeofday() or ftime().
-  virtual int64_t get_timer_usec();
 
   /// Disable/Enable system auto standby/sleep mode.
   /// Return false if unsupported or if system is running
