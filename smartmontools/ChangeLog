@@ -1,5 +1,10 @@
 $Id$
 
+2021-06-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Xmore Industrial SATA SSDs (based on patch from #1364).
+
 2021-06-04  Christian Franke  <franke@computer.org>
 
 	Rework 'get_timer_usec()', use a C++11 clock if possible.
