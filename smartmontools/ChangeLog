@@ -10,6 +10,7 @@ $Id$
 	  PM841 MZMTD128HAFV, PM851 MZNTE512HMJH (GH issues/87).
 	- SSSTC ER2 GD/CD Series SSDs: *A variant (#1484).
 	- Xmore Industrial SATA SSDs (based on patch from #1364).
+	- Toshiba MG09ACA... Enterprise Capacity HDD.
 
 2021-06-04  Christian Franke  <franke@computer.org>
 
