@@ -3,9 +3,12 @@ $Id$
 2021-06-06  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Crucial/Micron Client SSDs: MTFDDAK256TDL-* (#1490).
+	- Innodisk 1IE3/3IE3/3ME3/3IE4/3ME4 SSDs: Rename, add 1IE3, 3IE4.
 	- Samsung based SSDs: 870 EVO, 860 QVO (#1457),
 	  883 DCT 1.92/3.84TB (#1452), CM871 MZ7LF192HCGS (#1475),
 	  PM841 MZMTD128HAFV, PM851 MZNTE512HMJH (GH issues/87).
+	- SSSTC ER2 GD/CD Series SSDs: *A variant (#1484).
 	- Xmore Industrial SATA SSDs (based on patch from #1364).
 
 2021-06-04  Christian Franke  <franke@computer.org>
