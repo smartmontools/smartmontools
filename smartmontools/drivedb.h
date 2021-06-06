@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 6.1/5211 2021-03-08 18:07:28 $Id$",
+  { "VERSION: 6.1/5224 2021-06-06 15:55:46 $Id$",
     "-", "-",
     "Version information",
     ""
@@ -439,8 +439,8 @@ const drive_settings builtin_knowndrives[] = {
     "(Micron_1100_)?MTFDDA[KV](256|512|1T0|2T0)TBN(-.*)?|" // Marvell 88SS1074, tested with
       // Micron_1100_MTFDDAK256TBN/M0MU020, MTFDDAK256TBN/M0MA020 (OEM), MTFDDAV256TBN-1AR15ABHA/HPC0T14
     "Micron 1100 SATA (256G|512G|1T|2T)B|" // tested with Micron 1100 SATA 256GB/M0DL022
-    "(Micron_1300_)?(EE|MT)FDDA[KV](256|512|1T0|2T0)TDL", // tested with Micron_1300_MTFDDAK256TDL/M5MU000,
-      // Micron_1300_MTFDDAK1T0TDL/M5MU000, MTFDDAK2T0TDL/M5MU030
+    "(Micron_1300_)?(EE|MT)FDDA[KV](256|512|1T0|2T0)TDL(-.*)?", // tested with Micron_1300_MTFDDAK256TDL/M5MU000,
+      // Micron_1300_MTFDDAK1T0TDL/M5MU000, MTFDDAK2T0TDL/M5MU030, MTFDDAK256TDL-1AW1ZABFA/M5MA030
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Reallocate_NAND_Blk_Cnt "
@@ -1068,18 +1068,19 @@ const drive_settings builtin_knowndrives[] = {
     "-v 248,raw48,Remaining_Life "
     "-v 249,raw48,Spare_Blocks_Remaining"
   },
-  { "Innodisk 3IE3/3ME3/3ME4 SSDs", // tested with 2.5" SATA SSD 3ME3/S15A19, CFast 3ME3/S15A19
+  { "Innodisk 1IE3/3IE3/3ME3/3IE4/3ME4 SSDs", // tested with 2.5" SATA SSD 3ME3/S15A19,
       // InnoDisk Corp. - mSATA 3ME3/S15A19, mSATA mini 3ME3/S15A19, M.2 (S42) 3ME3,
       // SATA Slim 3ME3/S15A19, SATADOM-MH 3ME3/S15A19, SATADOM-ML 3ME3/S15A19,
       // SATADOM-MV 3ME3/S15A19, SATADOM-SL 3ME3/S15A19, SATADOM-SV 3ME3/S15A19,
       // SATADOM-SL 3IE3/S151019N, 2.5" SATA SSD 3IE3/S15C14i, CFast 3IE3/S15C14i,
-      // InnoDisk Corp. - mSATA 3IE3/S15C14i, Mini PCIeDOM 1IE3/S15C14i,
+      // InnoDisk Corp. - mSATA 3IE3/S15C14i, Mini PCIeDOM 1IE3/S15C14i, CFast 3ME3/S15A19
       // mSATA mini 3IE3/S15C14i, M.2 (S42) 3IE3/S15C14i, SATA Slim 3IE3/S15C14i,
       // SATADOM-SH 3IE3 V2/S15C14i, SATADOM-SL 3IE3 V2/S15A19i, SATADOM-SV 3IE3 V2/S15C14i
       // mSATA 3ME4/L16711, M.2 (S42) 3ME4/L16711, SATADOM-MH 3ME4/L16B01,
-      // SATADOM-SH 3ME4/L16B01, SATADOM-SH Type C 3ME4/L16B01, SATADOM-SH Type D 3ME4/L16B01
+      // SATADOM-SH 3ME4/L16B01, SATADOM-SH Type C 3ME4/L16B01, SATADOM-SH Type D 3ME4/L16B01,
+      // mSATA 3IE4/L16B01Hi
     "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|Mini PCIeDOM|mSATA( mini)?|"
-    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-[MS][HLV]( Type [CD])?) 3([IM]E3|ME4)( V2)?",
+    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-[MS][HLV]( Type [CD])?) (1IE3|3[IM]E[34])( V2)?",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -1826,7 +1827,7 @@ const drive_settings builtin_knowndrives[] = {
     "MZ7PC(512|256|128|064)HA(GH|FU|DR)-000.*|" // probably PM830, tested with SAMSUNG MZ7PC128HAFU-000L1/CXM04L1Q
     "Samsung SSD 840 (PRO )?Series|" // tested with Samsung SSD 840 PRO Series 128GB/DXM04B0Q,
       // Samsung SSD 840 Series/DXT06B0Q
-    "Samsung SSD 8[456]0 EVO (mSATA |M\\.2 )?((120|250|500|750)G|[124]T)B|" // tested with
+    "Samsung SSD 8[4-7]0 EVO (mSATA |M\\.2 )?((120|250|500|750)G|[124]T)B|" // tested with
       // Samsung SSD 840 EVO (120|250|500|750)GB/EXT0AB0Q,
       // Samsung SSD 840 EVO (120|250)GB/EXT0BB6Q, 1TB/EXT0BB0Q, 120GB mSATA/EXT41B6Q,
       // Samsung SSD 850 EVO 250GB/EMT01B6Q, Samsung SSD 850 EVO M.2 250GB/EMT21B6Q,
@@ -1834,23 +1835,25 @@ const drive_settings builtin_knowndrives[] = {
       // Samsung SSD 860 EVO 250GB/RVT01B6Q, Samsung SSD 860 EVO mSATA 250GB/RVT41B6Q,
       // Samsung SSD 860 EVO 500GB/RVT01B6Q, Samsung SSD 860 EVO mSATA 500GB/RVT41B6Q,
       // Samsung SSD 860 EVO mSATA 1TB/RVT41B6Q, Samsung SSD 860 EVO 2TB/RVT01B6Q,
-      // Samsung SSD 860 EVO 4TB/RVT04B6Q
+      // Samsung SSD 860 EVO 4TB/RVT04B6Q, Samsung SSD 870 EVO 1TB/SVT01B6Q
     "Samsung SSD 8[56]0 PRO ((128|256|512)G|[124]T)B|" // tested with Samsung SSD 850 PRO 128GB/EXM01B6Q,
       // Samsung SSD 850 PRO 1TB/EXM01B6Q, Samsung SSD 850 PRO 2TB/EXM02B6Q,
       // Samsung SSD 860 PRO 256GB/RVM01B6Q, Samsung SSD 860 PRO 512GB/RVM01B6Q,
       // Samsung SSD 860 PRO 1TB/RVM01B6Q
-    "Samsung SSD 883 DCT (240|480|960)GB|" // tested with Samsung SSD 883 DCT 480GB/HXT7404Q
-    "SAMSUNG MZ7PA256HMDR-.*|" // PM810 (470 Series), tested with SAMSUNG MZ7PA256HMDR-010H1/AXM07H1Q
+    "Samsung SSD 8[67]0 QVO [1248]TB|" // tested with Samsung SSD 860 QVO 1TB/RVQ02B6Q,
+      // Samsung SSD 860 QVO 2TB/RVQ01B6Q, Samsung SSD 870 QVO 4TB/SVQ01B6Q
+    "Samsung SSD 883 DCT ((240|480|960)G|(1\\.92|3\\.84)T)B|" // tested with
+      // Samsung SSD 883 DCT 480GB/HXT7404Q, Samsung SSD 883 DCT 3.84TB/HXT7404Q
     "Samsung SSD 845DC EVO .*|" // Samsung SSD 845DC EVO 960GB/EXT03X3Q
-    "Samsung SSD 870 QVO [1248]TB|" // tested with Samsung SSD 870 QVO 4TB/SVQ01B6Q
+    "SAMSUNG MZ7PA256HMDR-.*|" // PM810 (470 Series), tested with SAMSUNG MZ7PA256HMDR-010H1/AXM07H1Q
     "SAMSUNG MZ[7M]PC(032|064|128|256|512)HBCD-.*|" // PM830, tested with SAMSUNG MZMPC032HBCD-000L1/CXM12L1Q
     "SAMSUNG MZ7TD(128|256)HAFV-.*|" // 840 Series, tested with SAMSUNG MZ7TD256HAFV-000L7/DXT06L6Q
-    "SAMSUNG MZMTD(128|256|512)HAGL-.*|" // PM841, tested with SAMSUNG MZMTD512HAGL-00000/DXT4200Q
-    "SAMSUNG MZ7TD512HAGM-.*|" // Another PM841, SAMSUNG MZ7TD512HAGM-000L1/DXT06L0Q
+    "SAMSUNG MZ[7M]TD(128|256|512)HA[GF][LMV]-.*|" // PM841, tested with SAMSUNG MZMTD512HAGL-00000/DXT4200Q,
+      // SAMSUNG MZ7TD512HAGM-000L1/DXT06L0Q, SAMSUNG MZMTD128HAFV-000L1/DXT43L0Q
     "SAMSUNG MZ7WD((120|240)H[AC]FV|480HAGM|960HAGP)-00003|" // SM843T Series, tested with
       // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q, SAMSUNG MZ7WD120HCFV-00003/DXM9203Q
-    "SAMSUNG MZ[7N]TE(128|256|512)HMHP-.*|" // PM851, tested with SAMSUNG MZ7TE256HMHP-000L7/EXT09L6Q,
-      // SAMSUNG MZNTE256HMHP-000H1/EXT22H0Q
+    "SAMSUNG MZ[7N]TE(128|256|512)HM(HP|JH)-.*|" // PM851, tested with SAMSUNG MZ7TE256HMHP-000L7/EXT09L6Q,
+      // SAMSUNG MZNTE256HMHP-000H1/EXT22H0Q, SAMSUNG MZNTE512HMJH-000L2/EXT26L0Q
     "SAMSUNG MZMPF(032|064)HCFV-.*|" // CM851 mSATA, tested with SAMSUNG MZMPF032HCFV-000H1/FXM42H2Q
     "SAMSUNG MZ7GE(240HMGR|(480|960)HMHP)-00003|" // SM853T Series, tested with
       // SAMSUNG MZ7GE240HMGR-00003/EXT0303Q
@@ -1863,8 +1866,8 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZ7KM960HMJP-00005/GXM5304Q, MZ7KM960HMJP0D3/GD53 (Dell)
     "SAMSUNG MZ7LH(240|480|960|1T9|3T8|7T6)H[AM](HQ|JR|LT|LA)-.*|" //PM883, tested with SAMSUNG MZ7LH960HAJR-00005
     "SAMSUNG MZ7KH(240|480|960|1T9|3T8)HA(HQ|JR|LS)-.*|" //SM883
-    "SAMSUNG MZN(LF|TY)(128|256)H[CD]HP-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
-      // SAMSUNG MZNTY256HDHP-000/MAT21K0Q
+    "SAMSUNG MZ[7N](LF|TY)(128|192|256)H[CD](GS|HP)-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
+      // SAMSUNG MZNTY256HDHP-000/MAT21K0Q, SAMSUNG MZ7LF192HCGS-000L1/FXT03L1Q
     "SAMSUNG MZ[7NY]LN(128|256|512|1T0)H[ACM](GR|HP|HQ|J[HPQ]|LR)-.*|" // PM871/871a/b, tested with
       // SAMSUNG MZ7LN128HCHP-00000/EMT0100Q, SAMSUNG MZ7LN256HAHQ-000H1/MVT03H6Q,
       // SAMSUNG MZNLN256HMHQ-000H1/MAV21H3Q, SAMSUNG MZYLN256HCHP-000L2/EMT63L0Q
@@ -2280,7 +2283,8 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 194,tempminmax,Temperature_Celsius"
   },
   { "SSSTC ER2 GD/CD Series SSDs", // Marvel DEAN 2.1
-    "SSSTC ER2-[CG]D(240|480|960|1920)", // tested with SSSTC ER2-GD480/E4N2302
+    "SSSTC ER2-[CG]D(240|480|960|1920)A?", // tested with SSSTC ER2-GD480/E4N2302l,
+      // SSSTC ER2-CD1920A/E5MN401
     "","",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -2323,6 +2327,22 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 7,raw48,Unknown_Attribute "
     "-v 8,raw48,Unknown_Attribute"
+  },
+  { "Xmore Industrial SATA SSDs", // tested with M2CA032GXAIMS-003Z/XP01.1GB
+    "(CFAST|M2[AC]A|MSATA|SSD)[0-9]{3}[GT]XA[CEI][MT][MST]-[0-9]{3}[TZ]",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 168,raw48,SATA_Phy_Error_Count "
+    "-v 169,raw48,Bad_Block_Rate "
+    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Lat/Erl " // Later bad block/Early bad block
+    "-v 173,raw16(avg16),MaxAvgErase_Ct "
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius " // optional
+    "-v 218,raw48,SATA_CRC_Error_Count "
+    "-v 231,raw48,Percent_Lifetime_Remain "
+    "-v 241,raw48,Host_Writes_GiB"
   },
   { "Marvell SSD SD88SA024BA0 (SUN branded)",
     "MARVELL SD88SA024BA0 SUN24G 0902M0054V",
@@ -3698,6 +3718,13 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 23,raw48,Helium_Condition_Lower "
     "-v 24,raw48,Helium_Condition_Upper"
+  },
+  { "Toshiba MG09ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG09ACA18TE/0102
+    "TOSHIBA MG09ACA1[68]T[AE]Y?",
+    "", "",
+    "-v 23,raw48,Helium_Condition_Lower "
+    "-v 24,raw48,Helium_Condition_Upper "
+    "-v 27,raw48,MAMR_Health_Monitor"
   },
   { "Toshiba 3.5\" DT01ABA... Desktop HDD", // tested with TOSHIBA DT01ABA300/MZ6OABB0
     "TOSHIBA DT01ABA(100|150|200|300)",
