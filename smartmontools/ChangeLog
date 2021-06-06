@@ -1,4 +1,9 @@
-$Id: ChangeLog 5219 2021-06-04 16:39:50Z chrfranke $
+$Id: ChangeLog 5221 2021-06-06 11:30:28Z chrfranke $
+
+2021-06-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Xmore Industrial SATA SSDs (based on patch from #1364).
 
 2021-06-04  Christian Franke  <franke@computer.org>
 
