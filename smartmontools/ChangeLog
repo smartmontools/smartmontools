@@ -2,6 +2,8 @@ $Id$
 
 2021-06-26  Christian Franke  <franke@computer.org>
 
+	ataidentify.cpp, ataprint.cpp: ACS-5 enhancements.
+
 	ataprint.cpp: Don't set bit 2 of exit status if ATA output registers
 	are missing but attributes are available (#1441, GH issues/98).
 
