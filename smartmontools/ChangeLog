@@ -1,4 +1,9 @@
-$Id: ChangeLog 5224 2021-06-06 15:55:46Z chrfranke $
+$Id: ChangeLog 5226 2021-06-26 15:11:13Z chrfranke $
+
+2021-06-26  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Don't set bit 2 of exit status if ATA output registers
+	are missing but attributes are available (#1441, GH issues/98).
 
 2021-06-06  Christian Franke  <franke@computer.org>
 

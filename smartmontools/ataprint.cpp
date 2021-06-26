@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5218 2021-06-04 15:46:36Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5226 2021-06-26 15:11:13Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -3999,7 +3999,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("SMART Status %s: %s\n",
            (device->is_syscall_unsup() ? "not supported" : "command failed"),
            device->get_errmsg());
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      failuretest(OPTIONAL_CMD, returnval | FAILSMART);
+      if (!(device->is_syscall_unsup() && smart_val_ok && smart_thres_ok))
+        returnval |= FAILSMART; // Unknown error or attribute check not possible
 
       if (!(smart_val_ok && smart_thres_ok)) {
         print_on();
