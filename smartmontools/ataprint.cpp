@@ -3999,7 +3999,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("SMART Status %s: %s\n",
            (device->is_syscall_unsup() ? "not supported" : "command failed"),
            device->get_errmsg());
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      failuretest(OPTIONAL_CMD, returnval | FAILSMART);
+      if (!(device->is_syscall_unsup() && smart_val_ok && smart_thres_ok))
+        returnval |= FAILSMART; // Unknown error or attribute check not possible
 
       if (!(smart_val_ok && smart_thres_ok)) {
         print_on();
