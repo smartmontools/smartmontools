@@ -828,6 +828,31 @@ const drive_settings builtin_knowndrives[] = {
     "-v 245,raw48,Max_Erase_Count "
     "-v 246,raw48,Total_Erase_Count "
   },
+  { "Advantech SQFlash 630 series", // see https://advdownload.advantech.com/productfile/PIS/SQF-S25%20630/Product%20-%20Datasheet/SQF-S25%20630_830_DS(02.22.16)20160317192116.pdf
+    "SQF-S25[SUM][24]-(8|16|32|64|128)G-S9[CE]", // tested with SQF-S25M4-64G-S9C/S9FMA028
+    "", "", // attributes info from https://advdownload.advantech.com/productfile/Downloadfile5/1-1YC6U6K/SQFlash SMART ID Definition(SATA)_20200115.pdf
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 14,raw48,Device_Capacity_LBAs "
+    "-v 15,raw48,User_Capacity_LBAs "
+    "-v 16,raw48,Init_Spare_Blocks_Avail "
+    "-v 17,raw48,Spare_Blocks_Remaining "
+    "-v 100,raw48,Total_Erase_Count "
+    "-v 168,raw48,SATA_Phy_Error_Count "
+    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Erl/Lat " // Early bad block/Later bad block
+    "-v 173,raw16(avg16),MaxAvgErase_Ct "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 175,raw48,PwrLoss_ProtectionFail "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+    "-v 194,raw48,Unknown_Attribute " // 630 series doesn’t have a temperature sensor and reports fix 30 degrees C
+    "-v 218,raw48,CRC_Error_Count "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 234,raw48,Total_NAND_Read "
+    "-v 235,raw48,Total_NAND_Written "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+  },
   { "Indilinx Barefoot based SSDs",
     "Corsair CSSD-V(32|60|64|128|256)GB2|" // Corsair Nova, tested with Corsair CSSD-V32GB2/2.2
     "Corsair CMFSSD-(32|64|128|256)D1|" // Corsair Extreme, tested with Corsair CMFSSD-128D1/1.0
