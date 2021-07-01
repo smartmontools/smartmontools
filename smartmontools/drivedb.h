@@ -709,6 +709,41 @@ const drive_settings builtin_knowndrives[] = {
     "-v 248,raw48,Lifetime_Remaining% " //  later then 0409 FW.
     "-v 249,raw48,Spares_Remaining_Perc " //  later then 0409 FW.
   },
+  {
+    "StorFly SATA 6Gbps SSDs",
+    // tested with Virtium StorFly VSFBM8CC120G-160
+    "",
+    // C - commercial, I industrial
+    "0202-000", "",
+    //"-v 1,raw24/raw32,Raw_Read_Error_Rate "
+    //"-v 5,raw48,Reallocated_Sector_Count "
+    //"-v 9,raw24(raw8),Power_On_Hours "
+    //"-v 12,raw48,Power_Cycle_Count "
+    "-v 160,raw48,Uncorrectable_Count "
+    "-v 161,raw48,Spares_Remaining "
+    "-v 163,raw48,Initial_Invalid_Blocks "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Maximum_Erase_Count "
+    "-v 166,raw48,Minimum_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,NAND_Endurance "
+    //"-v 177,raw48,Total_Wear_Level_Count "
+    //"-v 178,raw48,Runtime_Invalid_Blocks "
+    //"-v 181,raw48,Total_Program_Fail "
+    //"-v 182,raw48,Total_Erase_Fail "
+    //"-v 187,raw48,UECC_Count "
+    //"-v 192,raw48,Unsafe_Power_Down "
+    //"-v 194,raw48,Temperature "
+    //"-v 195,raw48,Hardware_ECC_Recovered "
+    //"-v 196,raw48,Reallocation_Event_Count "
+    //"-v 198,raw48,Offline_Uncorrectable "
+    //"-v 199,raw48,CRC_Error_Count "
+    //"-v 232,raw48,Available_Reserve_Space "
+    //"-v 241,raw48,Total_LBAs_Written "
+    //"-v 242,raw48,Total_LBAs_Read "
+    "-v 248,raw48,Remaining_Life_Left "
+    "-v 249,raw48,Spare_Blocks_Remaining "
+  },
   { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "BP4 mSATA SSD|" // MyDigital BP4, tested with BP4 mSATA SSD/S8FM06.9
     "Corsair Force LE200 SSD|" // tested with Corsair Force LE200 SSD/SBFM10, .../SBFM60.9
