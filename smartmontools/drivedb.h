@@ -5140,6 +5140,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Samsung Portable SSD T7; ",
+    "0x04e8:0x4001",
+    "",
+    "",
+    "-d sntasmedia"
+  },
   { "USB: Samsung; ",
     "0x04e8:0x8003", // USB3 Adapter from SSD EVO 850 Starter Kit
     "", // 0x0100
