@@ -4003,6 +4003,7 @@ std::string win_smart_interface::get_os_version_str()
           case 18363:   w = "w10-1909"; break;
           case 19041:   w = "w10-2004"; break;
           case 19042:   w = "w10-20H2"; break;
+          case 19043:   w = "w10-21H1"; break;
           default:      w = "w10";
                         build = vi.dwBuildNumber; break;
         } break;
