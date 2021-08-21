@@ -1,5 +1,11 @@
 $Id$
 
+2021-08-21  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add '-Werror=return-type' if supported.
+	G++ >= 8.0 assumes that control never reaches the end of a
+	non-void function (GCC Bugzilla 96181).
+
 2021-06-26  Christian Franke  <franke@computer.org>
 
 	ataidentify.cpp, ataprint.cpp: ACS-5 enhancements.

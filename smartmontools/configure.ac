@@ -762,9 +762,11 @@ if test "$GXX" = "yes"; then
     *\ -W\ *|*\ -Wextra\ *) ;;
     *) CXXFLAGS="$CXXFLAGS -W" ;;
   esac
-  # Add -Wformat=2 (GCC 3.0) -fstack-protector[-strong] (GCC 4.1[4.9]) if supported
-  # and no -W or -f option was set in configure cmdline (TODO: -Wformat-signedness)
-  for option in "-Wformat=2" "-fstack-protector-strong" "-fstack-protector"; do
+  # Add -Wformat=2 (GCC 3.0),
+  # -Werror=return-type (G++ >= 8.0 assumes that control never reaches the end of a non-void function),
+  # -fstack-protector[-strong] (GCC 4.1[4.9])
+  # if supported and no -W or -f option was set in configure cmdline (TODO: -Wformat-signedness)
+  for option in "-Wformat=2" "-Werror=return-type" "-fstack-protector-strong" "-fstack-protector"; do
     case " $orig_CXXFLAGS:$option" in *\ -W*:-W*|*\ -f*:-f*) continue ;; esac
     case " $CXXFLAGS:$option" in *\ -fstack-p*:-fstack-p*) continue ;; esac
     AC_MSG_CHECKING([whether $CXX supports $option])
