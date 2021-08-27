@@ -1,5 +1,9 @@
 $Id$
 
+2021-08-27  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: aacraid: Fix crash on transfer size > 880 bytes (#1515).
+
 2021-08-21  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 10 21H1 build number.

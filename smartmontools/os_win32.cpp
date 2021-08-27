@@ -3414,12 +3414,15 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
     pout("buff %s\n",buff);
   }
 
-  char ioBuffer[1000];
+  // Create buffer with appropriate size
+  constexpr unsigned scsiRequestBlockSize = sizeof(SCSI_REQUEST_BLOCK);
+  constexpr unsigned dataOffset = (sizeof(SRB_IO_CONTROL) + scsiRequestBlockSize + 7) & 0xfffffff8;
+  raw_buffer pthru_raw_buf(dataOffset + iop->dxfer_len + 8); // 32|64-bit: 96|120 + ...
+
+  char * ioBuffer = reinterpret_cast<char *>(pthru_raw_buf.data());
   SRB_IO_CONTROL * pSrbIO = (SRB_IO_CONTROL *) ioBuffer;
   SCSI_REQUEST_BLOCK * pScsiIO = (SCSI_REQUEST_BLOCK *) (ioBuffer + sizeof(SRB_IO_CONTROL));
-  DWORD scsiRequestBlockSize = sizeof(SCSI_REQUEST_BLOCK);
   char *pRequestSenseIO = (char *) (ioBuffer + sizeof(SRB_IO_CONTROL) + scsiRequestBlockSize);
-  DWORD dataOffset = (sizeof(SRB_IO_CONTROL) + scsiRequestBlockSize  + 7) & 0xfffffff8;
   char *pDataIO = (char *) (ioBuffer + dataOffset);
   memset(pScsiIO, 0, scsiRequestBlockSize);
   pScsiIO->Length    = (USHORT) scsiRequestBlockSize;
