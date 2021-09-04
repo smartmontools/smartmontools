@@ -2818,7 +2818,8 @@ const drive_settings builtin_knowndrives[] = {
       // HFS512G32MND-3210A/20100P00, HFS512G39MND-3310A/20002P00
     "HFS(120|250|500)G32TND-N1A2A|" // SL308, tested with HFS500G32TND-N1A2A/30000P10
     "HFS(128|256|512)G39MND-3510A|" // SC300, tested with HFS512G39MND-3510A/20400P00
-    "HFS(128|256|512)G39TND-N210A", // SC308, tested with HFS128G39TND-N210A/30001P10
+    "HFS(128|256|512)G39TND-N210A|" // SC308, tested with HFS128G39TND-N210A/30001P10
+    "HFS(128|256|512)G32TNF-N3A0A", // SC311, tested with HFS128G32TNF-N3A0A/70000P10
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Retired_Block_Count "
@@ -2853,9 +2854,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 212,raw48,Phy_Error_Count "
     "-v 231,raw48,SSD_Life_Left "
     "-v 234,raw48,Unknown_SK_hynix_Attrib "
+    "-v 236,raw48,Unknown_SK_hynix_Attrib "
     "-v 241,raw48,Total_Writes_GiB "
     "-v 242,raw48,Total_Reads_GiB "
     "-v 243,raw48,Total_Media_Writes "
+    "-v 249,raw48,NAND_Writes_GiB "
     "-v 250,raw48,Read_Retry_Count "
   },
   { "SK hynix SATA SSDs",
