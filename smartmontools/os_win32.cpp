@@ -4120,10 +4120,21 @@ smart_device * win_smart_interface::get_custom_smart_device(const char * name, c
 
   // aacraid?
   unsigned ctrnum, lun, target;
-  n1 = -1;
+  n1 = -1; n2 = -1;
 
-  if (   sscanf(type, "aacraid,%u,%u,%u%n", &ctrnum, &lun, &target, &n1) >= 3
-      && n1 == (int)strlen(type)) {
+  if (   sscanf(type, "aacraid,%u,%u,%u%n,force%n", &ctrnum, &lun, &target, &n1, &n2) >= 3
+      && (n1 == (int)strlen(type) || n2 == (int)strlen(type))) {
+
+    if (n2 < 0) {
+      set_err(ENOSYS,
+        "smartmontools AACRAID support is reportedly broken on Windows.\n"
+        "See https://www.smartmontools.org/ticket/1515 for details.\n"
+        "Use '-d aacraid,H,L,ID,force' to try anyway at your own risk.\n"
+        "If you could provide help to fix the problem, please inform\n"
+        PACKAGE_BUGREPORT "\n");
+      return 0;
+    }
+
 #define aacraid_MAX_CTLR_NUM  16
     if (ctrnum >= aacraid_MAX_CTLR_NUM) {
       set_err(EINVAL, "aacraid: invalid host number %u", ctrnum);
