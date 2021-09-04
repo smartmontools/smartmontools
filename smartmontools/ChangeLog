@@ -1,4 +1,9 @@
-$Id: ChangeLog 5230 2021-08-27 16:09:18Z chrfranke $
+$Id: ChangeLog 5231 2021-09-04 14:05:49Z chrfranke $
+
+2021-09-04  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Disable broken aacraid support until #1515 is fixed.
+	Print explanatory error message.  Add 'force' flag to try anyway.
 
 2021-08-27  Christian Franke  <franke@computer.org>
 
