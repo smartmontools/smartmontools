@@ -1,4 +1,10 @@
-$Id: ChangeLog 5231 2021-09-04 14:05:49Z chrfranke $
+$Id: ChangeLog 5232 2021-09-14 11:23:08Z chrfranke $
+
+2021-09-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: LaCie d2 PROFESSIONAL (0x059f:0x10b8) (#1502).
+	- USB: JMicron JMS576 (0x152d:0x0576) (#1428).
 
 2021-09-04  Christian Franke  <franke@computer.org>
 
