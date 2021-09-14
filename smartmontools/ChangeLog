@@ -1,5 +1,11 @@
 $Id$
 
+2021-09-14  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: LaCie d2 PROFESSIONAL (0x059f:0x10b8) (#1502).
+	- USB: JMicron JMS576 (0x152d:0x0576) (#1428).
+
 2021-09-04  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Disable broken aacraid support until #1515 is fixed.
