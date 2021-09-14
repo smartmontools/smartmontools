@@ -1,8 +1,9 @@
-$Id: ChangeLog 5234 2021-09-14 12:55:27Z chrfranke $
+$Id: ChangeLog 5235 2021-09-14 13:07:23Z chrfranke $
 
 2021-09-14  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Silicon Motion based SSDs: Mushkin Source-II (#1509).
 	- Western Digital Ultrastar DC HC550 (#1460).
 	- Toshiba MG08ACA... Enterprise Capacity HDD: 14TB.
 	- Toshiba N300/MN NAS HDD: Rename, add HDWG480,
