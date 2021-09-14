@@ -3652,7 +3652,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MQ01ABD...", // tested with TOSHIBA MQ01ABD100/AX001U,
-      // TOSHIBA MQ01ABD100V/AX001Q
+      // TOSHIBA MQ01ABD100/AX1R4C, TOSHIBA MQ01ABD100V/AX001Q
     "TOSHIBA MQ01ABD(025|032|050|064|075|100)V?",
     "", "", ""
   },
@@ -3715,8 +3715,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 23,raw48,Helium_Condition_Lower "
     "-v 24,raw48,Helium_Condition_Upper"
   },
-  { "Toshiba MG08ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG08ACA16TE/0102
-    "TOSHIBA MG08ACA16T[AE]Y?",
+  { "Toshiba MG08ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG08ACA14TE/0102,
+      // TOSHIBA MG08ACA16TE/0102
+    "TOSHIBA MG08ACA1[46]T[AE]Y?",
     "", "",
     "-v 23,raw48,Helium_Condition_Lower "
     "-v 24,raw48,Helium_Condition_Upper"
@@ -3737,9 +3738,12 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA DT01ACA(025|032|050|075|100|150|200|300)",
     "", "", ""
   },
-  { "Toshiba N300 NAS HDD", // tested with TOSHIBA HDWQ140/FJ1M, TOSHIBA HDWN180/GX2M,
-      // TOSHIBA HDWN160/FS1M, TOSHIBA HDWG11A/0603, TOSHIBA HDWG21C/0601, TOSHIBA HDWG21E/0601
-    "TOSHIBA HDW([GNQ]1[468]0|G(11A|21[CE]|31G))",  // 11A:10TB, 21C:12TB, 21E:14TB, 31G: 16TB
+  { "Toshiba N300/MN NAS HDD", // tested with TOSHIBA HDWQ140/FJ1M, TOSHIBA HDWN160/FS1M,
+      // TOSHIBA HDWN180/GX2M, TOSHIBA HDWG480/0601 (8TB), TOSHIBA HDWG11A/0603 (10TB),
+      // TOSHIBA HDWG21C/0601 (12TB), TOSHIBA HDWG21E/0601 (14TB),
+      // TOSHIBA MN07ACA12T/0601, TOSHIBA MN08ACA14T/0601
+    "TOSHIBA HDW([GNQ]1[468]0|G(480|11A|21[CE]|31G))|" // 31G: 16TB
+    "TOSHIBA MN0(4ACA400|6ACA([68]00|10T)|7ACA1[24]T|8ACA1[46]T)",
     "", "",
     "-v 23,raw48,Helium_Condition_Lower " // ] >= 12TB
     "-v 24,raw48,Helium_Condition_Upper"  // ]
