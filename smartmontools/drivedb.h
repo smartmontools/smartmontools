@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.2/5224 2021-06-06 15:55:46 $Id: drivedb.h 5225 2021-06-06 16:05:47Z chrfranke $",
+  { "VERSION: 7.2/5236 2021-09-14 13:17:47 $Id: drivedb.h 5237 2021-09-14 13:33:20Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -2082,7 +2082,7 @@ const drive_settings builtin_knowndrives[] = {
     "LITEON LMH-(128|256|512)V2M-.*|" // tested with LITEON LMH-256V2M-11 MSATA 256GB/FM8110C
     "LITEON LCH-(128|256V|512)2S-.*|" // tested with LITEON LCH-256V2S-HP/2C02
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // tested with MKNSSDRE256GB/N1007C
-    "MKNSSDTR(240|500|250|120|480|240)GB(-LT)?|" // tested with MKNSSDTR500GB/O1126A
+    "MKNSSD(S2|TR)(120|2[45]0|480|500)GB(-LT)?|" // tested with MKNSSDS2500GB/T0818A0, MKNSSDTR500GB/O1126A
     "NFN025SA31T-.*|"// Neo Forza (?), from HP Laptop, tested with NFN025SA31T-6000000/S0628A0
     "OWC Envoy Pro|" // tested with OWC Envoy Pro/R0522A0 (0x1e91:0xa2a5)
     "Patriot P200 ((128|256|512)GB|[12]TB)|" // tested with Patriot P200 256GB/S1022A0
@@ -2113,6 +2113,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 148,raw48,Total_SLC_Erase_Ct "
@@ -3548,6 +3549,12 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level"
   },
+  { "Western Digital Ultrastar DC HC550", // tested with WDC  WUH721818ALE6L4/PCGNW110,
+      // WUH721818ALE6L4/PCGAW232
+    "(WDC  ?)?WUH72181[68]ALE6L[14]",
+    "", "",
+    "-v 22,raw48,Helium_Level"
+  },
   { "HGST MegaScale 4000", // tested with HGST HMS5C4040ALE640/MPAOA580
     "HGST HMS5C4040[AB]LE64[01]", // B = DC 4000.B
     "", "", ""
@@ -3652,7 +3659,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MQ01ABD...", // tested with TOSHIBA MQ01ABD100/AX001U,
-      // TOSHIBA MQ01ABD100V/AX001Q
+      // TOSHIBA MQ01ABD100/AX1R4C, TOSHIBA MQ01ABD100V/AX001Q
     "TOSHIBA MQ01ABD(025|032|050|064|075|100)V?",
     "", "", ""
   },
@@ -3715,8 +3722,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 23,raw48,Helium_Condition_Lower "
     "-v 24,raw48,Helium_Condition_Upper"
   },
-  { "Toshiba MG08ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG08ACA16TE/0102
-    "TOSHIBA MG08ACA16T[AE]Y?",
+  { "Toshiba MG08ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG08ACA14TE/0102,
+      // TOSHIBA MG08ACA16TE/0102
+    "TOSHIBA MG08ACA1[46]T[AE]Y?",
     "", "",
     "-v 23,raw48,Helium_Condition_Lower "
     "-v 24,raw48,Helium_Condition_Upper"
@@ -3737,9 +3745,12 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA DT01ACA(025|032|050|075|100|150|200|300)",
     "", "", ""
   },
-  { "Toshiba N300 NAS HDD", // tested with TOSHIBA HDWQ140/FJ1M, TOSHIBA HDWN180/GX2M,
-      // TOSHIBA HDWN160/FS1M, TOSHIBA HDWG11A/0603, TOSHIBA HDWG21C/0601, TOSHIBA HDWG21E/0601
-    "TOSHIBA HDW([GNQ]1[468]0|G(11A|21[CE]|31G))",  // 11A:10TB, 21C:12TB, 21E:14TB, 31G: 16TB
+  { "Toshiba N300/MN NAS HDD", // tested with TOSHIBA HDWQ140/FJ1M, TOSHIBA HDWN160/FS1M,
+      // TOSHIBA HDWN180/GX2M, TOSHIBA HDWG480/0601 (8TB), TOSHIBA HDWG11A/0603 (10TB),
+      // TOSHIBA HDWG21C/0601 (12TB), TOSHIBA HDWG21E/0601 (14TB),
+      // TOSHIBA MN07ACA12T/0601, TOSHIBA MN08ACA14T/0601
+    "TOSHIBA HDW([GNQ]1[468]0|G(480|11A|21[CE]|31G))|" // 31G: 16TB
+    "TOSHIBA MN0(4ACA400|6ACA([68]00|10T)|7ACA1[24]T|8ACA1[46]T)",
     "", "",
     "-v 23,raw48,Helium_Condition_Lower " // ] >= 12TB
     "-v 24,raw48,Helium_Condition_Upper"  // ]
@@ -4116,6 +4127,7 @@ const drive_settings builtin_knowndrives[] = {
       // ST4000DM004-2CV104/0001 (TRIM: no), ST4000DM005-2DP166/0001, ST8000DM004-2CX188/0001
     "ST(2000DM00[589]|3000DM007|4000DM00[45]|6000DM003|8000DM004)-.*",
     "", "",
+    "-v 9,msec24hour32 " // ST4000DM004-2CV104/0001
     "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -4308,12 +4320,14 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate IronWolf", // tested with ST3000VN007-2E4166/SC60, ST4000VN008-2DR166/SC60,
-      // ST6000VN0033-2EE110/SC60, ST6000VN0041-2EL11C/SC61, ST8000VN0022-2EL112/SC61,
-      // ST10000VN0004-1ZD101/SC60, ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60
+      // ST6000VN001-2BB186/SC60, ST6000VN0033-2EE110/SC60, ST6000VN0041-2EL11C/SC61,
+      // ST8000VN0022-2EL112/SC61, ST10000VN0004-1ZD101/SC60,
+      // ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60
     "ST(1|2|3|4|6|8|10|12)000VN00(0?[2478]|1|22|33|41)-.*",
     "", "",
     "-v 18,raw48,Head_Health "
-    "-v 200,raw48,Pressure_Limit"
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
   },
   { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
       // ST8000NE0004-1ZF11G/EN01, ST8000NE0021-2EN112/EN02, ST16000NE000-2RW103/EN02
@@ -5325,8 +5339,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: LaCie; ", // 0x1070: ASMedia 1053 ?
-    "0x059f:0x10(6f|7[05])",
-    "", // 6f/70=0x0001, 75=0x0000
+    "0x059f:0x10(6f|7[05]|b8)", // 0x0x10b8: d2 PROFESSIONAL
+    "", // 6f/70/b8=0x0001, 75=0x0000
     "",
     "-d sat"
   },
@@ -5832,7 +5846,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; JMicron JMS576", // USB3.1->SATA
-    "0x152d:0x1576",
+    "0x152d:0x[01]576",
     "", // 0x0204, ICY BOX IB-223U3a-B
     "",
     "-d sat"
