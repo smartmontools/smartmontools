@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5233 2021-09-14 12:02:38Z chrfranke $",
+  { "VERSION: 7.3 $Id: drivedb.h 5234 2021-09-14 12:55:27Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -3545,6 +3545,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Ultrastar DC HC530", // tested with WDC  WUH721414ALE6L4/LDGNW07G
     "WDC  ?WUH721414ALE6L4",
+    "", "",
+    "-v 22,raw48,Helium_Level"
+  },
+  { "Western Digital Ultrastar DC HC550", // tested with WDC  WUH721818ALE6L4/PCGNW110,
+      // WUH721818ALE6L4/PCGAW232
+    "(WDC  ?)?WUH72181[68]ALE6L[14]",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
