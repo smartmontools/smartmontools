@@ -7,6 +7,8 @@ $Id$
 	- Western Digital Ultrastar DC HC550 (#1460).
 	- Toshiba MG08ACA... Enterprise Capacity HDD: 14TB.
 	- Toshiba N300/MN NAS HDD: Rename, add HDWG480,
+	- Seagate BarraCuda 3.5 (SMR): Attribute 9.
+	- Seagate IronWolf: Attribute 240.
 	  MN series (#1510, #1511).
 	- USB: LaCie d2 PROFESSIONAL (0x059f:0x10b8) (#1502).
 	- USB: JMicron JMS576 (0x152d:0x0576) (#1428).
