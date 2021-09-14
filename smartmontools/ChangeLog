@@ -1,8 +1,11 @@
-$Id: ChangeLog 5232 2021-09-14 11:23:08Z chrfranke $
+$Id: ChangeLog 5233 2021-09-14 12:02:38Z chrfranke $
 
 2021-09-14  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Toshiba MG08ACA... Enterprise Capacity HDD: 14TB.
+	- Toshiba N300/MN NAS HDD: Rename, add HDWG480,
+	  MN series (#1510, #1511).
 	- USB: LaCie d2 PROFESSIONAL (0x059f:0x10b8) (#1502).
 	- USB: JMicron JMS576 (0x152d:0x0576) (#1428).
 
