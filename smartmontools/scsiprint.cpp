@@ -2104,7 +2104,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
 
             gBuf[4 + len] = '\0';
             scsi_format_id_string(serial, &gBuf[4], len);
-            jout("Serial number:        %s\n", serial);
+            jout("Serial Number:        %s\n", serial);
             jglb["serial_number"] = serial;
         } else if (scsi_debugmode > 0) {
             print_on();
