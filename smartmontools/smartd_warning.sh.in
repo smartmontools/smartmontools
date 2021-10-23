@@ -120,6 +120,14 @@ fullmessage=`
   fi
 `
 
+# Check whether a message line begins with the default 'mail' command escape char '~'.
+# Heuristically detect dangerous command escapes for possible other escape characters.
+esc=`echo "$fullmessage" | sed -n -e '/^~/p' -e '/^[^ 0-9A-Za-z][[:space:]]*[!:<r|][[:space:]]/p'`
+if [ -n "$esc" ]; then
+  echo "$0: Security: Message contains possible 'mail' command escape" >&2
+  exit 1
+fi
+
 # Export message with trailing newline
 export SMARTD_FULLMESSAGE="$fullmessage
 "

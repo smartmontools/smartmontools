@@ -1697,6 +1697,22 @@ static int CloseDevice(smart_device * device, const char * name)
   return 0;
 }
 
+// Replace invalid characters in cfg.dev_idinfo
+static bool sanitize_dev_idinfo(std::string & s)
+{
+  bool changed = false;
+  for (unsigned i = 0; i < s.size(); i++) {
+    char c = s[i];
+    STATIC_ASSERT(' ' == 0x20 && '~' == 0x07e); // Assume ASCII
+    // Don't pass possible command escapes ('~! COMMAND') to the 'mail' command.
+    if ((' ' <= c && c <= '~') && !(i == 0 && c == '~'))
+      continue;
+    s[i] = '?';
+    changed = true;
+  }
+  return changed;
+}
+
 // return true if a char is not allowed in a state file name
 static bool not_allowed_in_filename(char c)
 {
@@ -1962,6 +1978,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   cfg.dev_idinfo = strprintf("%s, S/N:%s, %sFW:%s, %s", model, serial, wwn, firmware,
                      format_capacity(cap, sizeof(cap), sizes.capacity, "."));
   cfg.id_is_unique = true; // TODO: Check serial?
+  if (sanitize_dev_idinfo(cfg.dev_idinfo))
+    cfg.id_is_unique = false;
 
   PrintOut(LOG_INFO, "Device: %s, %s\n", name, cfg.dev_idinfo.c_str());
 
@@ -2445,6 +2463,8 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
                      (serial[0] ? ", S/N: " : ""), (serial[0] ? serial : ""),
                      (si_str[0] ? ", " : ""), (si_str[0] ? si_str : ""));
   cfg.id_is_unique = (lu_id[0] || serial[0]);
+  if (sanitize_dev_idinfo(cfg.dev_idinfo))
+    cfg.id_is_unique = false;
 
   // format "model" string
   scsi_format_id_string(vendor, &inqBuf[8], 8);
@@ -2673,6 +2693,8 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   cfg.dev_idinfo = strprintf("%s, S/N:%s, FW:%s%s%s%s", model, serial, firmware,
                              nsstr, (capstr[0] ? ", " : ""), capstr);
   cfg.id_is_unique = true; // TODO: Check serial?
+  if (sanitize_dev_idinfo(cfg.dev_idinfo))
+    cfg.id_is_unique = false;
 
   PrintOut(LOG_INFO, "Device: %s, %s\n", name, cfg.dev_idinfo.c_str());
 

@@ -1,5 +1,20 @@
 $Id$
 
+2021-10-23  Christian Franke  <franke@computer.org>
+
+	Don't pass possible command escapes to the 'mail' command (#1535).
+
+	The 'mail' command from GNU mailutils < 3.13 processes '~! COMMAND'
+	even if used non-interactively (https://savannah.gnu.org/bugs/?60937).
+
+	smartd.cpp: Sanitize device identify information which is passed to
+	SMART_DEVICEINFO environment variable and written to syslog.
+
+	smartd_warning.sh.in: Abort script if a message line begins with a
+	possible command escape.
+
+	Thanks to 0x3l leox14@protonmail.com for reporting this security issue.
+
 2021-09-14  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
