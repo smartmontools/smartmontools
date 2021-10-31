@@ -1,5 +1,10 @@
 $Id$
 
+2021-10-31  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10, 11 and Server 2022 21H2 build
+	numbers.
+
 2021-10-23  Christian Franke  <franke@computer.org>
 
 	Don't pass possible command escapes to the 'mail' command (#1535).
