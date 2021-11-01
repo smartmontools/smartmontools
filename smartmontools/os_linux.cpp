@@ -1022,7 +1022,7 @@ bool linux_aacraid_device::open()
       return set_err(ENOENT, "aac entry not found in /proc/devices");
 
     //Create misc device file in /dev/ used for communication with driver
-    if(mknod(dev_name,S_IFCHR,makedev(mjr,aHost)))
+    if(mknod(dev_name, S_IFCHR|0600, makedev(mjr,aHost)))
       return set_err(errno,"cannot create %s:%s",dev_name,strerror(errno));
 
     afd = ::open(dev_name,O_RDWR);
@@ -1298,14 +1298,14 @@ bool linux_megaraid_device::open()
     while (fgets(line, sizeof(line), fp) != NULL) {
       int n1 = 0;
       if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
-        n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR, makedev(mjr, 0));
+        n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR|0600, makedev(mjr, 0));
         if(report > 0)
           pout("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
         if (n1 >= 0 || errno == EEXIST)
           break;
       }
       else if (sscanf(line, "%d megadev%n", &mjr, &n1) == 1 && n1 == 11) {
-        n1=mknod("/dev/megadev0", S_IFCHR, makedev(mjr, 0));
+        n1=mknod("/dev/megadev0", S_IFCHR|0600, makedev(mjr, 0));
         if(report > 0)
           pout("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
         if (n1 >= 0 || errno == EEXIST)
@@ -2970,7 +2970,7 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
     n1=0;
     if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
       scan_megasas = true;
-      n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR, makedev(mjr, 0));
+      n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR|0600, makedev(mjr, 0));
       if(scsi_debugmode > 0)
         pout("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
       if (n1 >= 0 || errno == EEXIST)

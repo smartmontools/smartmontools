@@ -1,5 +1,12 @@
 $Id$
 
+2021-11-01  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Add missing permission bits to mknod() calls.
+	This fixes access to '-d aacraid' and '-d megaraid' devices from
+	smartd if '--capabilities' is used (GH issues/113).
+	Thanks to Michal Hlavinka for finding the root of the problem.
+
 2021-10-31  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 10, 11 and Server 2022 21H2 build
