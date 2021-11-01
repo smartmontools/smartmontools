@@ -1,4 +1,11 @@
-$Id: ChangeLog 5239 2021-10-31 18:34:22Z chrfranke $
+$Id: ChangeLog 5240 2021-11-01 15:11:10Z chrfranke $
+
+2021-11-01  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Add missing permission bits to mknod() calls.
+	This fixes access to '-d aacraid' and '-d megaraid' devices from
+	smartd if '--capabilities' is used (GH issues/113).
+	Thanks to Michal Hlavinka for finding the root of the problem.
 
 2021-10-31  Christian Franke  <franke@computer.org>
 
