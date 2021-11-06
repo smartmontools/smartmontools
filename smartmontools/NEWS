@@ -9,17 +9,38 @@ Date <Not released yet, please try current SVN or a recent CI build>
 Summary: smartmontools release 7.3
 -----------------------------------------------------------
 - smartctl '-j': JSON output always includes timestamp, regardless of '-i'.
+- smartctl '-j': Additional values for SCSI devices.
+- smartctl '-i' and '--identify': ATA ACS-5 enhancements.
 - smartctl '-l scterc[,R,W],p': Gets/sets the persistent power-on values.
 - smartctl '-l scterc,reset': Restores to manufacturer's default values.
+- smartctl '-H': No longer sets bit 2 of exit status if attributes are
+  available.
 - smartctl '-H': Checks new NVME 1.4 status bit.
 - smartctl '-n POWERMODE': ATA: Optionally exits immediately if unsupported.
+- smartd: Fixed code execution vulnerability in conjunction with
+  GNU mailutils < 3.13.
+- smartd: Fixed handling of multiple email addresses in conjunction with
+  plugin scripts.  Added new environment variable SMARTD_ADDRESS_ORIG.
 - NVMe/USB: Device type '-d sntasmedia' for ASMedia ASM2362 USB to
   NVMe bridges.
+- update-smart-drivedb '-q': Suppresses info messages.
+- update-smart-drivedb: Prevents dangling gpg-agents and temp directories.
 - VERSION information in drive database files of all branches.
+- smartctl and smartd print drive database VERSION information.
 - HDD, SSD and USB additions to drive database.
 - configure: SOURCE_DATE_EPOCH prevents inclusion of configure arguments
   in executables.
+- configure: Check for '-fstack-protector' now includes the required libs.
 - Dropped restriction to C++98, a C++11 compiler is now required.
+- Linux: Fixed access to '-d aacraid' and '-d megaraid' devices from smartd
+  if '--capabilities' is used.
+- Linux: '-d cciss,N' is no longer required for non-RAID hpsa devices.
+- Darwin: smartctl '-s apm,N' is now supported.
+- OpenBSD: Fixed too short command timeouts.
+- OpenBSD: Fixed device name used for autodetection.
+- OpenBSD: Fixed SAT autodetection of sd* devices.
+- Windows: Disabled '-d aacraid' support due to unresolved bugs.
+  Added '-d accraid,...,force' flag to try anyway.
 
 Date 2020-12-30
 Summary: smartmontools release 7.2
