@@ -2,6 +2,10 @@ $Id$
 
 2021-11-06  Christian Franke  <franke@computer.org>
 
+	update-smart-drivedb.in: Add '-q' option to suppress info messages.
+	(GH issues/110).
+	update-smart-drivedb.8.in: Document new option.
+
 	update-smart-drivedb.in: Stop the gpg-agent started by gpg.
 	Retry if removal of temp gpg home directory fails.
 	This prevents dangling agents and temp directories on NFS (#1542).

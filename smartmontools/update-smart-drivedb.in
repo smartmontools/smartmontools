@@ -72,6 +72,7 @@ Usage: $myname [OPTIONS] [DESTFILE]
   --no-verify     Don't verify signature
   --export-key    Print the OpenPGP/GPG public key block
   --dryrun        Print download commands only
+  -q              Suppress info messages
   -v              Verbose output
 
 Updates $DRIVEDB
@@ -129,6 +130,11 @@ inpath()
   done
   IFS=$save
   return $rc
+}
+
+iecho()
+{
+  test -n "$quiet" || echo "$*"
 }
 
 vecho()
@@ -522,6 +528,7 @@ mv_all()
 smtctl=$SMARTCTL
 tool=
 urlid="svn"
+quiet=
 q="-q"
 dryrun=
 trunk=
@@ -546,6 +553,9 @@ while true; do case $1 in
   -u)
     shift; test -n "$1" || usage
     urlid=$1 ;;
+
+  -q)
+    quiet=t ;;
 
   -v)
     q= ;;
@@ -727,7 +737,7 @@ if [ -f "$DEST" ]; then
     then
       rm -f "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
       touch "$DEST.lastcheck"
-      echo "$DEST is already up to date"
+      iecho "$DEST is already up to date"
       exit 0
     fi
     mv_all "$DEST" "" ".old"
@@ -738,4 +748,4 @@ fi
 
 mv_all "$DEST" ".new" ""
 
-echo "$DEST updated from ${trunk:-branches/$brnch}${no_verify:+ (NOT VERIFIED)}"
+iecho "$DEST updated from ${trunk:-branches/$brnch}${no_verify:+ (NOT VERIFIED)}"

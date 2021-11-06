@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-20 Christian Franke
+Copyright (C) 2014-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -143,6 +143,10 @@ Print the OpenPGP/GPG public key block.
 .TP
 .B \-\-dryrun
 Print download commands only.
+.TP
+.B \-q
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+Suppress info messages.
 .TP
 .B \-v
 Verbose output.
