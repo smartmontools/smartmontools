@@ -1,6 +1,10 @@
-$Id: ChangeLog 5241 2021-11-06 14:14:20Z chrfranke $
+$Id: ChangeLog 5242 2021-11-06 15:07:18Z chrfranke $
 
 2021-11-06  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add '-q' option to suppress info messages.
+	(GH issues/110).
+	update-smart-drivedb.8.in: Document new option.
 
 	update-smart-drivedb.in: Stop the gpg-agent started by gpg.
 	Retry if removal of temp gpg home directory fails.

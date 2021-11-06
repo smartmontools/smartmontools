@@ -1,10 +1,10 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-20 Christian Franke
+Copyright (C) 2014-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: update-smart-drivedb.8.in 5112 2020-11-07 11:41:13Z chrfranke $
+$Id: update-smart-drivedb.8.in 5242 2021-11-06 15:07:18Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -144,6 +144,10 @@ Print the OpenPGP/GPG public key block.
 .B \-\-dryrun
 Print download commands only.
 .TP
+.B \-q
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+Suppress info messages.
+.TP
 .B \-v
 Verbose output.
 .Sp
@@ -206,4 +210,4 @@ Alternatively send the info to the smartmontools support mailing list:
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: update-smart-drivedb.8.in 5112 2020-11-07 11:41:13Z chrfranke $
+$Id: update-smart-drivedb.8.in 5242 2021-11-06 15:07:18Z chrfranke $
