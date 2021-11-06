@@ -4,7 +4,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2010-20 Christian Franke
+# Copyright (C) 2010-21 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -466,7 +466,7 @@ Q/qvYlwkbKOdlahjoHrFlkhADSBaO9N1OZp3OYDjziIujMdt2IPKnmM=
 # gpg_verify FILE.asc FILE
 gpg_verify()
 {
-  local gnupgtmp out rc
+  local gnupgtmp i out rc
 
   # Create temp home dir
   gnupgtmp="$tmpdir/.gnupg.$$.tmp"
@@ -491,7 +491,22 @@ gpg_verify()
     echo "$out" >&2
   fi
 
-  rm -f -r "$gnupgtmp"
+  # Stop the gpg-agent possibly started by gpg
+  if [ -n "$gpgconf" ]; then
+    out=`"$gpgconf" --homedir="$gnupgtmp" --kill gpg-agent </dev/null 2>&1` || echo "$out" >&2
+  fi
+
+  # Remove temp home dir, retry on failure
+  i=0
+  while ! out=`rm -f -r "$gnupgtmp" 2>&1`; do
+    let ++i
+    if [ $i -ge 10 ]; then
+      echo "$out" >&2; break
+    fi
+    vecho "$out"
+    sleep 1
+  done
+
   return $rc
 }
 
@@ -622,12 +637,18 @@ if [ "$smtctl" != "-" ]; then
 fi
 
 # Check for GnuPG
+gpgconf=
 if [ -z "$no_verify" ]; then
   test -n "$GPG" \
   || error "GnuPG is not available ('--no-verify' to ignore)"
   "$GPG" --version >/dev/null 2>&1 \
   || err_notfound "$GPG" "('--no-verify' to ignore)"
   selectkey "$brnch"
+  case $GPG in
+    */*) gpgconf="${GPG%/*}/gpgconf" ;;
+    *) gpgconf="gpgconf" ;;
+  esac
+  "$gpgconf" --version >/dev/null 2>&1 || gpgconf=
 fi
 
 # Use destination directory as temp directory for gpg

@@ -1,5 +1,11 @@
 $Id$
 
+2021-11-06  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Stop the gpg-agent started by gpg.
+	Retry if removal of temp gpg home directory fails.
+	This prevents dangling agents and temp directories on NFS (#1542).
+
 2021-11-01  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp: Add missing permission bits to mknod() calls.
