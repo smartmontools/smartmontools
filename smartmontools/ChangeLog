@@ -1,4 +1,10 @@
-$Id: ChangeLog 5240 2021-11-01 15:11:10Z chrfranke $
+$Id: ChangeLog 5241 2021-11-06 14:14:20Z chrfranke $
+
+2021-11-06  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Stop the gpg-agent started by gpg.
+	Retry if removal of temp gpg home directory fails.
+	This prevents dangling agents and temp directories on NFS (#1542).
 
 2021-11-01  Christian Franke  <franke@computer.org>
 
