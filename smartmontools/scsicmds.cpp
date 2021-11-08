@@ -1198,6 +1198,29 @@ scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
     return scsiSimpleSenseFilter(&sinfo);
 }
 
+/* Call scsi_pass_through, and retry only if a UNIT_ATTENTION is raised.
+ * As for scsi_pass_through, return false on error. */
+bool
+scsi_pass_through_with_retry(scsi_device * device, scsi_cmnd_io * iop)
+{
+    scsi_sense_disect sinfo;
+
+    if (!device->scsi_pass_through(iop))
+        return false;
+
+    scsi_do_sense_disect(iop, &sinfo);
+
+    int err = scsiSimpleSenseFilter(&sinfo);
+    if (SIMPLE_ERR_TRY_AGAIN != err)
+        return true;
+
+    if (scsi_debugmode > 0)
+        pout("%s failed with errno=%d [%s], retrying\n",
+             __func__, err, scsiErrString(err));
+
+    return device->scsi_pass_through(iop);
+}
+
 /* READ CAPACITY (10) command. Returns 0 if ok, 1 if NOT READY, 2 if
  * command not supported, 3 if field in command not supported or returns
  * negated errno. SBC-3 section 5.15 (rev 26) */
@@ -1225,7 +1248,7 @@ scsiReadCapacity10(scsi_device * device, unsigned int * last_lbap,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (!scsi_pass_through_with_retry(device, &io_hdr))
       return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     res = scsiSimpleSenseFilter(&sinfo);
@@ -1263,7 +1286,7 @@ scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (!scsi_pass_through_with_retry(device, &io_hdr))
       return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
