@@ -1,4 +1,13 @@
-$Id: ChangeLog 5242 2021-11-06 15:07:18Z chrfranke $
+$Id: ChangeLog 5244 2021-11-08 17:11:53Z chrfranke $
+
+2021-11-08  Yannick Hemery  <yannick.hemery@corp.ovh.com>
+
+	scsicmds.cpp: Retry on UNIT ATTENTION when fetching capacity (#1303).
+
+	If a UNIT ATTENTION is raised when READ CAPACITY (16) is called,
+	smartctl might wrongly assume that the drive only supports READ
+	CAPACITY (10), and return an invalid drive size / block size as a
+	result.
 
 2021-11-06  Christian Franke  <franke@computer.org>
 

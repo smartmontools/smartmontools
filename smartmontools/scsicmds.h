@@ -19,7 +19,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5217 2021-05-03 02:31:27Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5244 2021-11-08 17:11:53Z chrfranke $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -439,6 +439,8 @@ int scsiSetPowerCondition(scsi_device * device, int power_cond,
 
 int scsiSendDiagnostic(scsi_device * device, int functioncode, uint8_t *pBuf,
                        int bufLen);
+
+bool scsi_pass_through_with_retry(scsi_device * device, scsi_cmnd_io * iop);
 
 int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist,
                      int dl_format, uint8_t *pBuf, int bufLen);
