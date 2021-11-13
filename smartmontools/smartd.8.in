@@ -4,7 +4,7 @@ Copyright (C) 2004-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.8.in 5245 2021-11-13 10:47:13Z chrfranke $
+$Id: smartd.8.in 5246 2021-11-13 11:46:26Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -99,9 +99,7 @@ To exit \fBsmartd\fP use CONTROL-\e.
 .\" %ENDIF OS Windows
 .\" %IF ENABLE_SYSTEMD_NOTIFY
 .PP
-[Linux only]
-[NEW EXPERMIMENTAL SMARTD FEATURE]
-If \fBsmartd\fP is started as a \fBsystemd\fP(1) service and
+[Linux only] If \fBsmartd\fP is started as a \fBsystemd\fP(1) service and
 \*(AqType=Notify\*(Aq is specified in the service file, the service manager
 is notified after successful startup.
 Other state changes are reported via systemd notify STATUS messages.
@@ -844,4 +842,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 5245 2021-11-13 10:47:13Z chrfranke $
+$Id: smartd.8.in 5246 2021-11-13 11:46:26Z chrfranke $

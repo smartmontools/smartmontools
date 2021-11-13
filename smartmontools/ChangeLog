@@ -1,6 +1,9 @@
-$Id: ChangeLog 5245 2021-11-13 10:47:13Z chrfranke $
+$Id: ChangeLog 5246 2021-11-13 11:46:26Z chrfranke $
 
 2021-11-13  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in: Remove EXPERIMENTAL notes for features
+	added before 7.1.
 
 	smartd.cpp: Allow to disable preconfigured state/log files with '-'.
 	The previous method required to specify the '-s' and '-A' options
