@@ -149,7 +149,6 @@ For disks behind Intel controller with RST driver or an AMD controller
 with AMD RAID driver, use \fB"/dev/csmi[0\-9],N"\fP where N specifies the
 port behind the logical scsi controller "\\\\.\\Scsi[0\-9]:".
 .br
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 The AMD RAID driver may return incomplete information about port assignment.
 To allow access to ports not reported, device scan returns all ports.
 Device open fails then if the port is unused.

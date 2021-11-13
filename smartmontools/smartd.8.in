@@ -99,9 +99,7 @@ To exit \fBsmartd\fP use CONTROL-\e.
 .\" %ENDIF OS Windows
 .\" %IF ENABLE_SYSTEMD_NOTIFY
 .PP
-[Linux only]
-[NEW EXPERMIMENTAL SMARTD FEATURE]
-If \fBsmartd\fP is started as a \fBsystemd\fP(1) service and
+[Linux only] If \fBsmartd\fP is started as a \fBsystemd\fP(1) service and
 \*(AqType=Notify\*(Aq is specified in the service file, the service manager
 is notified after successful startup.
 Other state changes are reported via systemd notify STATUS messages.
