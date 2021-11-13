@@ -1588,7 +1588,7 @@ static const char *GetValidArgList(char opt)
   switch (opt) {
   case 'A':
   case 's':
-    return "<PATH_PREFIX>";
+    return "<PATH_PREFIX>, -";
   case 'B':
     return "[+]<FILE_NAME>";
   case 'c':
@@ -1613,10 +1613,14 @@ static const char *GetValidArgList(char opt)
 static void Usage()
 {
   PrintOut(LOG_INFO,"Usage: smartd [options]\n\n");
-  PrintOut(LOG_INFO,"  -A PREFIX, --attributelog=PREFIX\n");
-  PrintOut(LOG_INFO,"        Log ATA attribute information to {PREFIX}MODEL-SERIAL.ata.csv\n");
 #ifdef SMARTMONTOOLS_ATTRIBUTELOG
-  PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_ATTRIBUTELOG "MODEL-SERIAL.ata.csv]\n");
+  PrintOut(LOG_INFO,"  -A PREFIX|-, --attributelog=PREFIX|-\n");
+#else
+  PrintOut(LOG_INFO,"  -A PREFIX, --attributelog=PREFIX\n");
+#endif
+  PrintOut(LOG_INFO,"        Log attribute information to {PREFIX}MODEL-SERIAL.TYPE.csv\n");
+#ifdef SMARTMONTOOLS_ATTRIBUTELOG
+  PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_ATTRIBUTELOG "MODEL-SERIAL.TYPE.csv]\n");
 #endif
   PrintOut(LOG_INFO,"\n");
   PrintOut(LOG_INFO,"  -B [+]FILE, --drivedb=[+]FILE\n");
@@ -1663,7 +1667,11 @@ static void Usage()
   PrintOut(LOG_INFO,"        Quit on one of: %s\n\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r, --report=TYPE\n");
   PrintOut(LOG_INFO,"        Report transactions for one of: %s\n\n", GetValidArgList('r'));
+#ifdef SMARTMONTOOLS_SAVESTATES
+  PrintOut(LOG_INFO,"  -s PREFIX|-, --savestates=PREFIX|-\n");
+#else
   PrintOut(LOG_INFO,"  -s PREFIX, --savestates=PREFIX\n");
+#endif
   PrintOut(LOG_INFO,"        Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n");
 #ifdef SMARTMONTOOLS_SAVESTATES
   PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_SAVESTATES "MODEL-SERIAL.TYPE.state]\n");
@@ -5097,11 +5105,11 @@ static int parse_options(int argc, char **argv)
       break;
     case 's':
       // path prefix of persistent state file
-      state_path_prefix = optarg;
+      state_path_prefix = (strcmp(optarg, "-") ? optarg : "");
       break;
     case 'A':
       // path prefix of attribute log file
-      attrlog_path_prefix = optarg;
+      attrlog_path_prefix = (strcmp(optarg, "-") ? optarg : "");
       break;
     case 'B':
       {

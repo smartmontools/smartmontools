@@ -1,5 +1,13 @@
 $Id$
 
+2021-11-13  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Allow to disable preconfigured state/log files with '-'.
+	The previous method required to specify the '-s' and '-A' options
+	with empty strings as arguments.  This does not work conjunction with
+	shell variable expansion (GH issues/115).
+	smartd.8.in: Document new option argument.
+
 2021-11-08  Yannick Hemery  <yannick.hemery@corp.ovh.com>
 
 	scsicmds.cpp: Retry on UNIT ATTENTION when fetching capacity (#1303).

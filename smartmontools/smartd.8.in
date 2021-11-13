@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-18 Christian Franke
+Copyright (C) 2004-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -194,8 +194,11 @@ Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
 .\" %IF ENABLE_ATTRIBUTELOG
 If this option is not specified, attribute information is written to files
 \*(Aq/usr/local/var/lib/smartmontools/attrlog.MODEL\-SERIAL.ata.csv\*(Aq.
-To disable attribute log files, specify this option with an empty string
-argument: \*(Aq\-A ""\*(Aq.
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+If \*(Aq\-\*(Aq is specified as the argument, attribute log files are
+disabled.
+.Sp
 .\" %ENDIF ENABLE_ATTRIBUTELOG
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
@@ -447,8 +450,10 @@ If this option is not specified, state information is maintained in files
 for ATA devices and
 \*(Aq/usr/local/var/lib/smartmontools/smartd.VENDOR\-MODEL\-SERIAL.scsi.state\*(Aq
 for SCSI devices.
-To disable state files, specify this option with an empty string
-argument: \*(Aq\-s ""\*(Aq.
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+If \*(Aq\-\*(Aq is specified as the argument, state files are disabled.
+.Sp
 .\" %ENDIF ENABLE_SAVESTATES
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
