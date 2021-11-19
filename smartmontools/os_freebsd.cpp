@@ -985,7 +985,6 @@ bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
       pthru->header.flags =  MFI_FRAME_DIR_NONE;
       break;
   }
-pthru->header.flags |= MFI_FRAME_SGL64;
 
   if (dataLen > 0) {
     pthru->header.sg_count = 1;
