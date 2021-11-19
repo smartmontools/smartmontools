@@ -853,18 +853,7 @@ smart_device * freebsd_megaraid_device::autodetect_open()
 
 bool freebsd_megaraid_device::open()
 {
-  int   mjr;
-  int report = scsi_debugmode;
-
-  if (sscanf(get_dev_name(), "/dev/bus/%u", &m_hba) == 0) {
-    if (!freebsd_smart_device::open())
-      return false;
-    // we don't need this device anymore
-    freebsd_smart_device::close();
-  }
- 
   /* Open Device IOCTL node */
-  // FIXME
   if ((m_fd = ::open(get_dev_name(), O_RDWR)) >= 0) {
     pt_cmd = &freebsd_megaraid_device::megasas_cmd;
   }
