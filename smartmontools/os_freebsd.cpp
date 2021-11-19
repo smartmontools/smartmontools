@@ -971,7 +971,7 @@ bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
     
     pthru->header.sg_count = 1;
     pthru->header.data_len = dataLen;
-    // tested on amd64 in native and 32bit mode
+    // tested on amd64 kernel in native and 32bit mode
     pthru->sgl.sg64[0].addr = (intptr_t)data;
     pthru->sgl.sg64[0].len = (uint32_t)dataLen;
   }
