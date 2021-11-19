@@ -30,6 +30,12 @@
 #include <stddef.h>
 #include <paths.h>
 #include <sys/utsname.h>
+ 
+#include <sys/types.h>
+#include <sys/uio.h>
+
+#include "mfireg.h"
+#include "mfi_ioctl.h"
 
 #include "config.h"
 
@@ -757,6 +763,272 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
   if (in.in_regs.command == ATA_IDENTIFY_DEVICE
   && !nonempty((unsigned char *)in.buffer, in.size)) {
     return set_err(ENODEV, "No drive on port %d", m_disknum);
+  }
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/// LSI MegaRAID support
+
+class freebsd_megaraid_device
+: public /* implements */ scsi_device,
+  public /* extends */ freebsd_smart_device
+{
+public:
+  freebsd_megaraid_device(smart_interface *intf, const char *name, 
+    unsigned int tgt);
+
+  virtual ~freebsd_megaraid_device();
+
+  virtual smart_device * autodetect_open();
+
+  virtual bool open();
+  virtual bool close();
+
+  virtual bool scsi_pass_through(scsi_cmnd_io *iop);
+
+private:
+  unsigned int m_disknum;
+  unsigned int m_hba;
+  int m_fd;
+
+  bool (freebsd_megaraid_device::*pt_cmd)(int cdblen, void *cdb, int dataLen, void *data,
+    int senseLen, void *sense, int report, int direction);
+  bool megasas_cmd(int cdbLen, void *cdb, int dataLen, void *data,
+    int senseLen, void *sense, int report, int direction);
+  bool megadev_cmd(int cdbLen, void *cdb, int dataLen, void *data,
+    int senseLen, void *sense, int report, int direction);
+};
+
+freebsd_megaraid_device::freebsd_megaraid_device(smart_interface *intf,
+  const char *dev_name, unsigned int tgt)
+ : smart_device(intf, dev_name, "megaraid", "megaraid"),
+   freebsd_smart_device(),
+   m_disknum(tgt), m_hba(0),
+   m_fd(-1), pt_cmd(0)
+{
+  set_info().info_name = strprintf("%s [megaraid_disk_%02d]", dev_name, m_disknum);
+  set_info().dev_type = strprintf("megaraid,%d", tgt);
+}
+
+freebsd_megaraid_device::~freebsd_megaraid_device()
+{
+  if (m_fd >= 0)
+    ::close(m_fd);
+}
+
+smart_device * freebsd_megaraid_device::autodetect_open()
+{
+  int report = scsi_debugmode;
+
+  // Open device
+  if (!open())
+    return this;
+
+  // The code below is based on smartd.cpp:SCSIFilterKnown()
+  if (strcmp(get_req_type(), "megaraid"))
+    return this;
+
+  // Get INQUIRY
+  unsigned char req_buff[64] = {0, };
+  int req_len = 36;
+  if (scsiStdInquiry(this, req_buff, req_len)) {
+      close();
+      set_err(EIO, "INQUIRY failed");
+      return this;
+  }
+
+  int avail_len = req_buff[4] + 5;
+  int len = (avail_len < req_len ? avail_len : req_len);
+  if (len < 36)
+      return this;
+
+  if (report)
+    pout("Got MegaRAID inquiry.. %s\n", req_buff+8);
+
+  // Use INQUIRY to detect type
+  {
+    // SAT?
+    ata_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
+    if (newdev) // NOTE: 'this' is now owned by '*newdev'
+      return newdev;
+  }
+
+  // Nothing special found
+  return this;
+}
+
+bool freebsd_megaraid_device::open()
+{
+  int   mjr;
+  int report = scsi_debugmode;
+/* 
+  if (sscanf(get_dev_name(), "/dev/bus/%u", &m_hba) == 0) {
+    if (!freebsd_smart_device::open())
+      return false;
+    // Get device HBA
+    struct sg_scsi_id sgid;
+    if (ioctl(get_fd(), SG_GET_SCSI_ID, &sgid) == 0) {
+      m_hba = sgid.host_no;
+    }
+    else if (ioctl(get_fd(), SCSI_IOCTL_GET_BUS_NUMBER, &m_hba) != 0) {
+      int err = errno;
+      freebsd_smart_device::close();
+      return set_err(err, "can't get bus number");
+    } // we don't need this device anymore
+    freebsd_smart_device::close();
+  }
+  */
+ 
+  /* Open Device IOCTL node */
+  // FIXME
+  if ((m_fd = ::open("/dev/mfi0", O_RDWR)) >= 0) {
+    pt_cmd = &freebsd_megaraid_device::megasas_cmd;
+  }
+  else {
+    int err = errno;
+    freebsd_smart_device::close();
+    return set_err(err, "cannot open /dev/mfi0");
+  }
+  set_fd(m_fd);
+  return true;
+}
+
+bool freebsd_megaraid_device::close()
+{
+  if (m_fd >= 0)
+    ::close(m_fd);
+  m_fd = -1; m_hba = 0; pt_cmd = 0;
+  set_fd(m_fd);
+  return true;
+}
+
+bool freebsd_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
+{
+  int report = scsi_debugmode;
+
+  if (report > 0) {
+        int k, j;
+        const unsigned char * ucp = iop->cmnd;
+        const char * np;
+        char buff[256];
+        const int sz = (int)sizeof(buff);
+
+        np = scsi_get_opcode_name(ucp[0]);
+        j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
+        for (k = 0; k < (int)iop->cmnd_len; ++k)
+            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
+        if ((report > 1) &&
+            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+            snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
+                     "data, len=%d%s:\n", (int)iop->dxfer_len,
+                     (trunc ? " [only first 256 bytes shown]" : ""));
+            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+        }
+        else
+            snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
+        pout("%s", buff);
+  }
+
+  // Controller rejects Test Unit Ready
+  if (iop->cmnd[0] == 0x00)
+    return true;
+
+  if (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 || iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16) { 
+    // Controller does not return ATA output registers in SAT sense data
+    if (iop->cmnd[2] & (1 << 5)) // chk_cond
+      return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
+  }
+  // SMART WRITE LOG SECTOR causing media errors
+  if ((iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16 // SAT16 WRITE LOG
+      && iop->cmnd[14] == ATA_SMART_CMD && iop->cmnd[3]==0 && iop->cmnd[4] == ATA_SMART_WRITE_LOG_SECTOR) ||
+      (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 // SAT12 WRITE LOG
+       && iop->cmnd[9] == ATA_SMART_CMD && iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR)) 
+  {
+    if(!failuretest_permissive)
+       return set_err(ENOSYS, "SMART WRITE LOG SECTOR may cause problems, try with -T permissive to force"); 
+  }
+  if (pt_cmd == NULL)
+    return false;
+  return (this->*pt_cmd)(iop->cmnd_len, iop->cmnd,
+    iop->dxfer_len, iop->dxferp,
+    iop->max_sense_len, iop->sensep, report, iop->dxfer_dir, iop->timeout);
+}
+
+bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb, 
+  int dataLen, void *data,
+  int senseLen, void * sense, int /*report*/, int dxfer_dir, int timeout)
+{
+  struct mfi_pass_frame * pthru;
+  struct mfi_ioc_packet uio;
+  
+  pthru = (struct mfi_pass_frame *)&uio.mfi_frame.raw;
+
+  memset(&uio, 0, sizeof(uio));
+  
+  pthru->header.cmd = MFI_CMD_PD_SCSI_IO;
+  pthru->header.cmd_status = 0;
+  pthru->header.scsi_status = 0x0;
+  pthru->header.target_id = m_disknum;
+  pthru->header.lun_id = 0; // FIXME, should be bus number?
+  
+  // FIXME what about 32bit
+  pthru->header.sense_len = senseLen;
+  pthru->sense_addr_lo = (uintptr_t)sense ;
+  pthru->sense_addr_hi = (uintptr_t)((uint64_t)sense >> 32);
+
+  pthru->header.cdb_len = cdbLen;
+  pthru->header.timeout = timeout;
+  switch (dxfer_dir) {
+    case DXFER_FROM_DEVICE:
+      pthru->header.flags =  MFI_FRAME_DIR_READ;
+      break;
+    case DXFER_TO_DEVICE:
+      pthru->header.flags =  MFI_FRAME_DIR_WRITE;
+      break;
+    case DXFER_NONE:
+      pthru->header.flags =  MFI_FRAME_DIR_NONE;
+      break;
+  }
+pthru->header.flags |= MFI_FRAME_SGL64;
+
+  if (dataLen > 0) {
+    pthru->header.sg_count = 1;
+    pthru->header.data_len = dataLen;
+    pthru->sgl.sg64[0].addr = (intptr_t)data;
+    pthru->sgl.sg64[0].len = (uint32_t)dataLen;
+    // FIXME should be 64?
+    // pthru->mfi_sgl.sg32[0].phys_addr = (intptr_t)data;
+    // pthru->mfi_sgl.sg32[0].length = (uint32_t)dataLen;
+  }
+  memcpy(pthru->cdb, cdb, cdbLen);
+
+  uio.mfi_adapter_no = m_hba;
+  uio.mfi_sense_len = senseLen;
+  uio.mfi_sense_off = offsetof(struct mfi_pass_frame, sense_addr_lo);
+
+//  printf("sizeof=%d\n",sizeof( mfi_ioc_packet));
+
+  if (dataLen > 0) {
+    uio.mfi_sge_count = 1;
+    uio.mfi_sgl_off = offsetof(struct mfi_pass_frame,sgl); // 0x30;//offsetof(struct mfi_ioc_packet, mfi_sgl);
+    uio.mfi_sgl[0].iov_base = data;
+    uio.mfi_sgl[0].iov_len = dataLen;
+  }
+
+  errno = 0;
+  // fixme add 32 bit code
+  int rc = ioctl(m_fd, MFI_CMD, &uio);
+
+  if (pthru->header.cmd_status || rc != 0) {
+    if (pthru->header.cmd_status == 12) {
+      return set_err(EIO, "megasas_cmd: Device %d does not exist\n", m_disknum);
+    }
+    return set_err((errno ? errno : EIO), "megasas_cmd result: %d.%d = %d/%d",
+                   m_hba, m_disknum, errno,
+                   pthru->header.cmd_status);
   }
   return true;
 }
@@ -2139,6 +2411,11 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
     }
     return new freebsd_areca_ata_device(this, name, disknum, encnum);
   }
+  
+    if (sscanf(type, "megaraid,%d", &disknum) == 1) {
+    return new freebsd_megaraid_device(this, name, disknum);
+  }
+
 
   return 0;
 }
