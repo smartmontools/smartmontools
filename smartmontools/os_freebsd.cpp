@@ -958,7 +958,6 @@ bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   struct mfi_ioc_packet uio;
   
   pthru = (struct mfi_pass_frame *)&uio.mfi_frame.raw;
-
   memset(&uio, 0, sizeof(uio));
   
   pthru->header.cmd = MFI_CMD_PD_SCSI_IO;
@@ -987,6 +986,11 @@ bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   }
 
   if (dataLen > 0) {
+    uio.mfi_sge_count = 1;
+    uio.mfi_sgl_off = offsetof(struct mfi_pass_frame,sgl);
+    uio.mfi_sgl[0].iov_base = data;
+    uio.mfi_sgl[0].iov_len = dataLen;
+    
     pthru->header.sg_count = 1;
     pthru->header.data_len = dataLen;
     pthru->sgl.sg64[0].addr = (intptr_t)data;
@@ -1000,15 +1004,6 @@ bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   uio.mfi_adapter_no = m_hba;
   uio.mfi_sense_len = senseLen;
   uio.mfi_sense_off = offsetof(struct mfi_pass_frame, sense_addr_lo);
-
-//  printf("sizeof=%d\n",sizeof( mfi_ioc_packet));
-
-  if (dataLen > 0) {
-    uio.mfi_sge_count = 1;
-    uio.mfi_sgl_off = offsetof(struct mfi_pass_frame,sgl); // 0x30;//offsetof(struct mfi_ioc_packet, mfi_sgl);
-    uio.mfi_sgl[0].iov_base = data;
-    uio.mfi_sgl[0].iov_len = dataLen;
-  }
 
   errno = 0;
   // fixme add 32 bit code
