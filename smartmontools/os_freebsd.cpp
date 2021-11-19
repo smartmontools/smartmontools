@@ -855,33 +855,23 @@ bool freebsd_megaraid_device::open()
 {
   int   mjr;
   int report = scsi_debugmode;
-/* 
+
   if (sscanf(get_dev_name(), "/dev/bus/%u", &m_hba) == 0) {
     if (!freebsd_smart_device::open())
       return false;
-    // Get device HBA
-    struct sg_scsi_id sgid;
-    if (ioctl(get_fd(), SG_GET_SCSI_ID, &sgid) == 0) {
-      m_hba = sgid.host_no;
-    }
-    else if (ioctl(get_fd(), SCSI_IOCTL_GET_BUS_NUMBER, &m_hba) != 0) {
-      int err = errno;
-      freebsd_smart_device::close();
-      return set_err(err, "can't get bus number");
-    } // we don't need this device anymore
+    // we don't need this device anymore
     freebsd_smart_device::close();
   }
-  */
  
   /* Open Device IOCTL node */
   // FIXME
-  if ((m_fd = ::open("/dev/mfi0", O_RDWR)) >= 0) {
+  if ((m_fd = ::open(get_dev_name(), O_RDWR)) >= 0) {
     pt_cmd = &freebsd_megaraid_device::megasas_cmd;
   }
   else {
     int err = errno;
     freebsd_smart_device::close();
-    return set_err(err, "cannot open /dev/mfi0");
+    return set_err(err, "cannot open %s",get_dev_name());
   }
   set_fd(m_fd);
   return true;
@@ -966,7 +956,6 @@ bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   pthru->header.target_id = m_disknum;
   pthru->header.lun_id = 0; // FIXME, should be bus number?
   
-  // FIXME what about 32bit
   pthru->header.sense_len = senseLen;
   pthru->sense_addr_lo = (uintptr_t)sense ;
   pthru->sense_addr_hi = (uintptr_t)((uint64_t)sense >> 32);
@@ -993,11 +982,9 @@ bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
     
     pthru->header.sg_count = 1;
     pthru->header.data_len = dataLen;
+    // tested on amd64 in native and 32bit mode
     pthru->sgl.sg64[0].addr = (intptr_t)data;
     pthru->sgl.sg64[0].len = (uint32_t)dataLen;
-    // FIXME should be 64?
-    // pthru->mfi_sgl.sg32[0].phys_addr = (intptr_t)data;
-    // pthru->mfi_sgl.sg32[0].length = (uint32_t)dataLen;
   }
   memcpy(pthru->cdb, cdb, cdbLen);
 
@@ -1006,7 +993,6 @@ bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   uio.mfi_sense_off = offsetof(struct mfi_pass_frame, sense_addr_lo);
 
   errno = 0;
-  // fixme add 32 bit code
   int rc = ioctl(m_fd, MFI_CMD, &uio);
 
   if (pthru->header.cmd_status || rc != 0) {
