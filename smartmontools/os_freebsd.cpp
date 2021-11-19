@@ -26,14 +26,12 @@
 #endif
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/uio.h>
 #include <glob.h>
 #include <stddef.h>
 #include <paths.h>
 #include <sys/utsname.h>
  
-#include <sys/types.h>
-#include <sys/uio.h>
-
 #include "config.h"
 
 // set by /usr/include/sys/ata.h, suppress warning
