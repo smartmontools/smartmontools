@@ -34,9 +34,6 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 
-#include "mfireg.h"
-#include "mfi_ioctl.h"
-
 #include "config.h"
 
 // set by /usr/include/sys/ata.h, suppress warning
@@ -793,11 +790,9 @@ private:
   int m_fd;
 
   bool (freebsd_megaraid_device::*pt_cmd)(int cdblen, void *cdb, int dataLen, void *data,
-    int senseLen, void *sense, int report, int direction);
+    int senseLen, void *sense, int report, int direction, int timeout);
   bool megasas_cmd(int cdbLen, void *cdb, int dataLen, void *data,
-    int senseLen, void *sense, int report, int direction);
-  bool megadev_cmd(int cdbLen, void *cdb, int dataLen, void *data,
-    int senseLen, void *sense, int report, int direction);
+    int senseLen, void *sense, int report, int direction, int timeout);
 };
 
 freebsd_megaraid_device::freebsd_megaraid_device(smart_interface *intf,
