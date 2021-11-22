@@ -606,7 +606,7 @@ HPT_PASS_THROUGH_HEADER, *PHPT_PASS_THROUGH_HEADER;
 #define __unused __attribute__ ((__unused__))
 #endif
 
-// MFI definition from the kernel sources
+// MFI definition from the kernel sources, see sys/dev/mfi
 
 /*
  * MFI Frame flags

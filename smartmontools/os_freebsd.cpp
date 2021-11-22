@@ -2267,7 +2267,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   }
   // device is LSI raid supported by mfi driver
   if(!strncmp("/dev/mfid", test_name, strlen("/dev/mfid")))
-    set_err(EINVAL, "To monitor disks on LSI RAID load mfip.ko module and run 'smartctl -a /dev/passX' to show SMART information");
+    set_err(EINVAL, "To monitor disks on LSI RAID load mfip.ko and use /dev/passX or use -d 'megaraid,N' with /dev/mfiX devices");
 
   // form /dev/nvme* or nvme*
   if(!strncmp("/dev/nvme", test_name, strlen("/dev/nvme")))
