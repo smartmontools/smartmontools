@@ -608,6 +608,8 @@ HPT_PASS_THROUGH_HEADER, *PHPT_PASS_THROUGH_HEADER;
 
 // MFI definition from the kernel sources, see sys/dev/mfi
 
+#define MFI_STAT_OK  0x00
+
 /*
  * MFI Frame flags
  */

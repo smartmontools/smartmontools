@@ -1685,6 +1685,10 @@ protected:
   virtual std::string get_valid_custom_dev_types_str() override;
 private:
   bool get_nvme_devlist(smart_device_list & devlist, const char * type);
+//  bool get_dev_megaraid(smart_device_list & devlist);
+//  int megaraid_pd_add_list(const char * devname, smart_device_list & devlist);
+  int megaraid_dcmd_cmd(const char * devname, uint32_t opcode, void *buf,
+    size_t bufsize, uint8_t *mbox, size_t mboxlen, uint8_t *statusp);
 };
 
 
@@ -2030,6 +2034,63 @@ bool freebsd_smart_interface::get_nvme_devlist(smart_device_list & devlist,
         break;
  }
   return true;
+}
+
+int
+freebsd_smart_interface::megaraid_dcmd_cmd(const char * devname, uint32_t opcode, void *buf,
+  size_t bufsize, uint8_t *mbox, size_t mboxlen, uint8_t *statusp)
+{
+  struct mfi_ioc_packet ioc;
+  struct mfi_dcmd_frame * dcmd;
+
+  if ((mbox != NULL && (mboxlen == 0 || mboxlen > MFI_MBOX_SIZE)) ||
+    (mbox == NULL && mboxlen != 0))
+  {
+    errno = EINVAL;
+    return (-1);
+  }
+
+  memset(&ioc, 0, sizeof(ioc));
+  dcmd = (struct mfi_dcmd_frame *)&ioc.mfi_frame.raw;
+
+  if (mbox)
+    memcpy(dcmd->mbox, mbox, mboxlen);
+  dcmd->header.cmd = MFI_CMD_DCMD;
+  dcmd->header.data_len = bufsize;
+  dcmd->opcode = opcode;
+
+  if (bufsize > 0) {
+    ioc.mfi_sge_count = 1;
+    ioc.mfi_sgl_off = offsetof(struct mfi_dcmd_frame,sgl);
+    ioc.mfi_sgl[0].iov_base = buf;
+    ioc.mfi_sgl[0].iov_len = bufsize;
+    dcmd->header.sg_count = 1;
+    dcmd->header.data_len = bufsize;
+    // tested on amd64 kernel in native and 32bit mode
+    dcmd->sgl.sg64[0].addr = (intptr_t)buf;
+    dcmd->sgl.sg64[0].len = (uint32_t)bufsize;
+  }
+
+  int fd;
+  if ((fd = ::open(devname, O_RDWR)) < 0) {
+    return (errno);
+  }
+  // We are using MFI_CMD as it seems to be supported by all LSI BSD drivers
+  int r = ioctl(fd, MFI_CMD, &ioc);
+  ::close(fd);
+  if (r < 0) {
+    return (r);
+  }
+
+  if (statusp != NULL)
+    *statusp = dcmd->header.cmd_status;
+  else if (dcmd->header.cmd_status != MFI_STAT_OK) {
+    fprintf(stderr, "command %x returned error status %x\n",
+      opcode, dcmd->header.cmd_status);
+    errno = EIO;
+    return (-1);
+  }
+  return (0);
 }
 
 #if (FREEBSDVER < 800000) // without this build fail on FreeBSD 8
@@ -2384,7 +2445,7 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
 
 std::string freebsd_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "3ware,N, hpt,L/M/N, cciss,N, areca,N/E"
+  return "3ware,N, hpt,L/M/N, cciss,N, areca,N/E, megaraid,N"
 #if FREEBSDVER > 800100
   ", atacam"
 #endif
