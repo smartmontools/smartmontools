@@ -1,4 +1,9 @@
-$Id: ChangeLog 5247 2021-11-23 12:08:56Z samm2 $
+$Id: ChangeLog 5252 2021-11-23 22:43:08Z samm2 $
+
+
+2021-11-23  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: extend Intel regexp to support S4520 (GH #112)
 
 2021-11-22  Alex Samorukov <samm@os2.kiev.ua>
 
