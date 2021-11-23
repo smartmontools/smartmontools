@@ -1,5 +1,10 @@
 $Id$
 
+
+2021-11-23  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: extend Intel regexp to support S4520 (GH #112)
+
 2021-11-22  Alex Samorukov <samm@os2.kiev.ua>
 
 	os_freebsd.cpp: initial support of the direct MegaRaid access using
