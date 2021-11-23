@@ -1685,8 +1685,8 @@ protected:
   virtual std::string get_valid_custom_dev_types_str() override;
 private:
   bool get_nvme_devlist(smart_device_list & devlist, const char * type);
-//  bool get_dev_megaraid(smart_device_list & devlist);
-//  int megaraid_pd_add_list(const char * devname, smart_device_list & devlist);
+  bool get_dev_megaraid(smart_device_list & devlist);
+  int megaraid_pd_add_list(const char * devname, smart_device_list & devlist);
   int megaraid_dcmd_cmd(const char * devname, uint32_t opcode, void *buf,
     size_t bufsize, uint8_t *mbox, size_t mboxlen, uint8_t *statusp);
 };
@@ -2011,6 +2011,9 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
     }
   }
 
+  // add devices from LSI MegaRaid controllers
+  get_dev_megaraid(devlist);
+
   if (scan_nvme)
     get_nvme_devlist(devlist, type);
   return true;
@@ -2033,6 +2036,22 @@ bool freebsd_smart_interface::get_nvme_devlist(smart_device_list & devlist,
     else
         break;
  }
+  return true;
+}
+
+// getting devices from LSI SAS MegaRaid, if available
+bool freebsd_smart_interface::get_dev_megaraid(smart_device_list & devlist)
+{
+  /* Scanning of disks on MegaRaid device */
+  char ctrlpath[64];
+
+  // trying to add devices on first 32 buses, same as storclu does
+  for(unsigned i = 0; i <=32; i++) {
+      sprintf(ctrlpath, "%s%d", MFI_CTRLR_PREFIX, i);
+      megaraid_pd_add_list(ctrlpath, devlist);
+      sprintf(ctrlpath, "%s%d", MRSAS_CTRLR_PREFIX, i);
+      megaraid_pd_add_list(ctrlpath, devlist);
+  }
   return true;
 }
 
@@ -2090,6 +2109,41 @@ freebsd_smart_interface::megaraid_dcmd_cmd(const char * devname, uint32_t opcode
     errno = EIO;
     return (-1);
   }
+  return (0);
+}
+
+int
+freebsd_smart_interface::megaraid_pd_add_list(const char * devname, smart_device_list & devlist)
+{
+  /*
+  * Keep fetching the list in a loop until we have a large enough
+  * buffer to hold the entire list.
+  */
+  mfi_pd_list * list = 0;
+  for (unsigned list_size = 1024; ; ) {
+    list = reinterpret_cast<mfi_pd_list *>(realloc(list, list_size));
+    if (!list)
+      throw std::bad_alloc();
+    memset(list, 0, list_size);
+    if (megaraid_dcmd_cmd(devname, MFI_DCMD_PD_GET_LIST, list, list_size, NULL, 0,
+      NULL) < 0)
+    {
+      free(list);
+      return (-1);
+    }
+    if (list->size <= list_size)
+      break;
+    list_size = list->size;
+  }
+
+  // adding all SCSI devices
+  for (unsigned i = 0; i < list->count; i++) {
+    if(list->addr[i].scsi_dev_type)
+      continue; /* non disk device found */
+    smart_device * dev = new freebsd_megaraid_device(this, devname, list->addr[i].device_id);
+    devlist.push_back(dev);
+  }
+  free(list);
   return (0);
 }
 
@@ -2327,8 +2381,15 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
     }
   }
   // device is LSI raid supported by mfi driver
-  if(!strncmp("/dev/mfid", test_name, strlen("/dev/mfid")))
-    set_err(EINVAL, "To monitor disks on LSI RAID load mfip.ko and use /dev/passX or use -d 'megaraid,N' with /dev/mfiX devices");
+  if(!strncmp("/dev/mfid", test_name, strlen("/dev/mfid"))) {
+    set_err(EINVAL, "To access disks on LSI RAID load mfip.ko and use /dev/passX or use -d 'megaraid,N' with /dev/mfiX devices");
+    return 0;
+  }
+
+  if(!strncmp(MFI_CTRLR_PREFIX, test_name, strlen(MFI_CTRLR_PREFIX)) || !strncmp(MRSAS_CTRLR_PREFIX, test_name, strlen(MRSAS_CTRLR_PREFIX))) {
+    set_err(EINVAL, "To access disks on %s use '-d megaraid,N' device type", test_name);
+    return 0;
+  }
 
   // form /dev/nvme* or nvme*
   if(!strncmp("/dev/nvme", test_name, strlen("/dev/nvme")))
