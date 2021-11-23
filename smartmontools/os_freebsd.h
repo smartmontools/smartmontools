@@ -698,6 +698,16 @@ struct mfi_pass_frame {
     union mfi_sgl       sgl;
 } __packed;
 
+#define MFI_DCMD_FRAME_SIZE     40
+#define MFI_MBOX_SIZE           12
+
+struct mfi_dcmd_frame {
+    struct mfi_frame_header header;
+    uint32_t	opcode;
+    uint8_t		mbox[MFI_MBOX_SIZE];
+    union mfi_sgl	sgl;
+} __packed;
+
 #define MAX_IOCTL_SGE   16
 struct mfi_ioc_packet {
     uint16_t    mfi_adapter_no;
@@ -730,6 +740,23 @@ struct mfi_ioc_packet32 {
     struct iovec32 mfi_sgl[MAX_IOCTL_SGE];
 } __packed;
 #endif
+
+struct mfi_pd_address {
+    uint16_t		device_id;
+    uint16_t		encl_device_id;
+    uint8_t			encl_index;
+    uint8_t			slot_number;
+    uint8_t			scsi_dev_type;	/* 0 = disk */
+    uint8_t			connect_port_bitmap;
+    uint64_t		sas_addr[2];
+} __packed;
+
+#define MAX_SYS_PDS 240
+struct mfi_pd_list {
+    uint32_t		size;
+    uint32_t		count;
+    struct mfi_pd_address	addr[MAX_SYS_PDS];
+} __packed;
 
 #define MFI_CMD		_IOWR('M', 1, struct mfi_ioc_packet)
 
