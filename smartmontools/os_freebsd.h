@@ -608,7 +608,11 @@ HPT_PASS_THROUGH_HEADER, *PHPT_PASS_THROUGH_HEADER;
 
 // MFI definition from the kernel sources, see sys/dev/mfi
 
-#define MFI_STAT_OK  0x00
+#define MFI_STAT_OK          0x00
+#define MFI_DCMD_PD_GET_LIST 0x02010000
+
+#define MFI_CTRLR_PREFIX	"/dev/mfi"
+#define MRSAS_CTRLR_PREFIX	"/dev/mrsas"
 
 /*
  * MFI Frame flags
