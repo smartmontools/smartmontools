@@ -200,6 +200,9 @@ static const char  smartctl_examples[] =
   "  smartctl -a --device=areca,3/1 /dev/arcmsr0\n"
          "                              (Prints all SMART information for 3rd disk in the 1st enclosure \n"
          "                               on first ARECA RAID controller)\n"
+  "  smartctl -a --device=megaraid,3 /dev/mrsas0\n"
+         "                              (Prints all SMART information for 3rd disk\n"
+         "                               on first LSI RAID controller)\n"
 
          ;
 
