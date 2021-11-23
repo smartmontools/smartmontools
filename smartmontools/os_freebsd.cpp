@@ -76,7 +76,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5247 2021-11-23 12:08:56Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5248 2021-11-23 15:18:43Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -780,8 +780,8 @@ public:
 
   virtual smart_device * autodetect_open();
 
-  virtual bool open();
-  virtual bool close();
+  virtual bool open() override;
+  virtual bool close() override;
 
   virtual bool scsi_pass_through(scsi_cmnd_io *iop);
 
@@ -2059,9 +2059,9 @@ bool freebsd_smart_interface::get_dev_megaraid(smart_device_list & devlist)
 
   // trying to add devices on first 32 buses, same as StorCLI does
   for(unsigned i = 0; i <=32; i++) {
-      sprintf(ctrlpath, "%s%d", MFI_CTRLR_PREFIX, i);
+      sprintf(ctrlpath, "%s%u", MFI_CTRLR_PREFIX, i);
       megaraid_pd_add_list(ctrlpath, devlist);
-      sprintf(ctrlpath, "%s%d", MRSAS_CTRLR_PREFIX, i);
+      sprintf(ctrlpath, "%s%u", MRSAS_CTRLR_PREFIX, i);
       megaraid_pd_add_list(ctrlpath, devlist);
   }
   return true;
