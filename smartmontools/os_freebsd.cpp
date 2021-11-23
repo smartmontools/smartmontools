@@ -971,7 +971,7 @@ bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
     uio.mfi_sgl_off = offsetof(struct mfi_pass_frame,sgl);
     uio.mfi_sgl[0].iov_base = data;
     uio.mfi_sgl[0].iov_len = dataLen;
-  
+
     pthru->header.sg_count = 1;
     pthru->header.data_len = dataLen;
     // tested on amd64 kernel in native and 32bit mode
