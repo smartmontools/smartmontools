@@ -1632,6 +1632,15 @@ smart_device * freebsd_scsi_device::autodetect_open()
                     "you may need to replace %s with /dev/twaN, /dev/tweN or /dev/twsN", get_dev_name());
     return this;
   }
+  
+  // DELL?
+  if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)
+      || !memcmp(req_buff + 16, "PERC H", 6) || !memcmp(req_buff + 8, "LSI\0",4)
+  ) {
+    close();
+    set_err(EINVAL, "DELL or MegaRaid controller, use '-d megaraid,N'");
+    return this;
+  }
 
   // SAT or USB, skip MFI controllers because of bugs
   {
