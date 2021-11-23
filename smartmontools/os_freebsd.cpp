@@ -76,7 +76,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5248 2021-11-23 15:18:43Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5249 2021-11-23 15:26:40Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -778,12 +778,12 @@ public:
 
   virtual ~freebsd_megaraid_device();
 
-  virtual smart_device * autodetect_open();
+  virtual smart_device * autodetect_open() override;
 
   virtual bool open() override;
   virtual bool close() override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io *iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io *iop) override;
 
 private:
   unsigned int m_disknum;
