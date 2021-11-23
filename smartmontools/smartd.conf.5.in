@@ -116,15 +116,27 @@ Section below!
 # may become common with SATA disks in SAS and FC
 # environments.
 /dev/sda \-a \-d sat
-.\" %IF OS Linux
+.\" %IF OS FreeBSD Linux
 #
-# Three disks connected to a MegaRAID controller
+# Disks connected to a MegaRAID controller
 # Start short self\-tests daily between 1\-2, 2\-3, and
 # 3\-4 am.
+.\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
+# Linux:
 /dev/sda \-d megaraid,0 \-a \-s S/../.././01
 /dev/sda \-d megaraid,1 \-a \-s S/../.././02
 /dev/sda \-d megaraid,2 \-a \-s S/../.././03
 /dev/bus/0 \-d megaraid,2 \-a \-s S/../.././03
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD
+# FreeBSD:
+/dev/mfi0 \-d megaraid,0 \-a \-s S/../.././01
+/dev/mfi0 \-d megaraid,1 \-a \-s S/../.././02
+/dev/mfi0 \-d megaraid,2 \-a \-s S/../.././03
+/dev/mrsas0 \-d megaraid,2 \-a \-s S/../.././03
+.\" %ENDIF OS FreeBSD
+.\" %IF OS Linux
 #
 # Three disks connected to an AacRaid controller
 # Start short self\-tests daily between 1\-2, 2\-3, and
@@ -468,18 +480,19 @@ bridge.
 \- [Linux only] interact with SATA disks behind Marvell chip-set
 controllers (using the Marvell rather than libata driver).
 .Sp
+.\" %ENDIF OS FreeBSD Linux
+.\" %IF OS FreeBSD Linux
 .I megaraid,N
-\- [Linux only] the device consists of one or more SCSI/SAS disks connected
+\- [Linux and FreeBSD only] the device consists of one or more SCSI/SAS disks connected
 to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
 127 inclusive) denotes which disk on the controller is monitored.
 This interface will also work for Dell PERC controllers.
 In log files and email messages this disk will be identified as
 megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
-It is possible to set RAID device name as /dev/bus/N, where N is a SCSI bus
-number.
+
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
-.\" %ENDIF OS Linux
+.\" %ENDIF OS FreeBSD Linux
 .\" %IF OS Linux Windows Cygwin
 .I aacraid,H,L,ID
 \- [Linux, Windows and Cygwin only] the device consists of one or more
