@@ -780,8 +780,8 @@ public:
 
   virtual smart_device * autodetect_open();
 
-  virtual bool open();
-  virtual bool close();
+  virtual bool open() override;
+  virtual bool close() override;
 
   virtual bool scsi_pass_through(scsi_cmnd_io *iop);
 
@@ -2059,9 +2059,9 @@ bool freebsd_smart_interface::get_dev_megaraid(smart_device_list & devlist)
 
   // trying to add devices on first 32 buses, same as StorCLI does
   for(unsigned i = 0; i <=32; i++) {
-      sprintf(ctrlpath, "%s%d", MFI_CTRLR_PREFIX, i);
+      sprintf(ctrlpath, "%s%u", MFI_CTRLR_PREFIX, i);
       megaraid_pd_add_list(ctrlpath, devlist);
-      sprintf(ctrlpath, "%s%d", MRSAS_CTRLR_PREFIX, i);
+      sprintf(ctrlpath, "%s%u", MRSAS_CTRLR_PREFIX, i);
       megaraid_pd_add_list(ctrlpath, devlist);
   }
   return true;
