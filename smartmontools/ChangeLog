@@ -1,4 +1,10 @@
-$Id: ChangeLog 5246 2021-11-13 11:46:26Z chrfranke $
+$Id: ChangeLog 5247 2021-11-23 12:08:56Z samm2 $
+
+2021-11-22  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: initial support of the direct MegaRaid access using
+	'-d megaraid' option. Code is initially based on Linux version but adopted to
+	be compatible with FreeBSD IOCTL-s.
 
 2021-11-13  Christian Franke  <franke@computer.org>
 
