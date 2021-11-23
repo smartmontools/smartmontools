@@ -773,7 +773,7 @@ class freebsd_megaraid_device
   public /* extends */ freebsd_smart_device
 {
 public:
-  freebsd_megaraid_device(smart_interface *intf, const char *name, 
+  freebsd_megaraid_device(smart_interface *intf, const char *name,
     unsigned int tgt);
 
   virtual ~freebsd_megaraid_device();
@@ -911,7 +911,7 @@ bool freebsd_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
   if (iop->cmnd[0] == 0x00)
     return true;
 
-  if (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 || iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16) { 
+  if (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 || iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16) {
     // Controller does not return ATA output registers in SAT sense data
     if (iop->cmnd[2] & (1 << 5)) // chk_cond
       return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
@@ -920,10 +920,10 @@ bool freebsd_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
   if ((iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16 // SAT16 WRITE LOG
       && iop->cmnd[14] == ATA_SMART_CMD && iop->cmnd[3]==0 && iop->cmnd[4] == ATA_SMART_WRITE_LOG_SECTOR) ||
       (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 // SAT12 WRITE LOG
-       && iop->cmnd[9] == ATA_SMART_CMD && iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR)) 
+       && iop->cmnd[9] == ATA_SMART_CMD && iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR))
   {
     if(!failuretest_permissive)
-       return set_err(ENOSYS, "SMART WRITE LOG SECTOR may cause problems, try with -T permissive to force"); 
+       return set_err(ENOSYS, "SMART WRITE LOG SECTOR may cause problems, try with -T permissive to force");
   }
   if (pt_cmd == NULL)
     return false;
@@ -932,22 +932,22 @@ bool freebsd_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     iop->max_sense_len, iop->sensep, report, iop->dxfer_dir, iop->timeout);
 }
 
-bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb, 
+bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   int dataLen, void *data,
   int senseLen, void * sense, int /*report*/, int dxfer_dir, int timeout)
 {
   struct mfi_pass_frame * pthru;
   struct mfi_ioc_packet uio;
-  
+
   pthru = (struct mfi_pass_frame *)&uio.mfi_frame.raw;
   memset(&uio, 0, sizeof(uio));
-  
+
   pthru->header.cmd = MFI_CMD_PD_SCSI_IO;
   pthru->header.cmd_status = 0;
   pthru->header.scsi_status = 0x0;
   pthru->header.target_id = m_disknum;
   pthru->header.lun_id = 0; // FIXME, should be bus number?
-  
+
   pthru->header.sense_len = senseLen;
   pthru->sense_addr_lo = (uintptr_t)sense ;
   pthru->sense_addr_hi = (uintptr_t)((uint64_t)sense >> 32);
@@ -1635,7 +1635,7 @@ smart_device * freebsd_scsi_device::autodetect_open()
                     "you may need to replace %s with /dev/twaN, /dev/tweN or /dev/twsN", get_dev_name());
     return this;
   }
-  
+
   // DELL?
   if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)
       || !memcmp(req_buff + 16, "PERC H", 6) || !memcmp(req_buff + 8, "LSI\0",4)
@@ -2507,11 +2507,10 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
     }
     return new freebsd_areca_ata_device(this, name, disknum, encnum);
   }
-  
-    if (sscanf(type, "megaraid,%d", &disknum) == 1) {
+
+  if (sscanf(type, "megaraid,%d", &disknum) == 1) {
     return new freebsd_megaraid_device(this, name, disknum);
   }
-
 
   return 0;
 }
