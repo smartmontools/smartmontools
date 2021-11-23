@@ -2045,7 +2045,7 @@ bool freebsd_smart_interface::get_dev_megaraid(smart_device_list & devlist)
   /* Scanning of disks on MegaRaid device */
   char ctrlpath[64];
 
-  // trying to add devices on first 32 buses, same as storclu does
+  // trying to add devices on first 32 buses, same as StorCLI does
   for(unsigned i = 0; i <=32; i++) {
       sprintf(ctrlpath, "%s%d", MFI_CTRLR_PREFIX, i);
       megaraid_pd_add_list(ctrlpath, devlist);
