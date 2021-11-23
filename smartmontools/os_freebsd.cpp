@@ -31,7 +31,7 @@
 #include <stddef.h>
 #include <paths.h>
 #include <sys/utsname.h>
- 
+
 #include "config.h"
 
 // set by /usr/include/sys/ata.h, suppress warning
