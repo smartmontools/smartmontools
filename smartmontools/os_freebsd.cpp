@@ -778,12 +778,12 @@ public:
 
   virtual ~freebsd_megaraid_device();
 
-  virtual smart_device * autodetect_open();
+  virtual smart_device * autodetect_open() override;
 
   virtual bool open() override;
   virtual bool close() override;
 
-  virtual bool scsi_pass_through(scsi_cmnd_io *iop);
+  virtual bool scsi_pass_through(scsi_cmnd_io *iop) override;
 
 private:
   unsigned int m_disknum;
