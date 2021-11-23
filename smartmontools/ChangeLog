@@ -1,5 +1,11 @@
 $Id$
 
+2021-11-22  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: initial support of the direct MegaRaid access using
+	'-d megaraid' option. Code is initially based on Linux version but adopted to
+	be compatible with FreeBSD IOCTL-s.
+
 2021-11-13  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in, smartd.8.in: Remove EXPERIMENTAL notes for features

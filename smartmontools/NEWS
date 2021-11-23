@@ -39,6 +39,8 @@ Summary: smartmontools release 7.3
 - OpenBSD: Fixed too short command timeouts.
 - OpenBSD: Fixed device name used for autodetection.
 - OpenBSD: Fixed SAT autodetection of sd* devices.
+- FreeBSD: Added direct access ('-d megaraid,N') and scanning for LSI RAID on
+  'mfi' and 'mrsas' controllers.
 - Windows: Disabled '-d aacraid' support due to unresolved bugs.
   Added '-d accraid,...,force' flag to try anyway.
 
