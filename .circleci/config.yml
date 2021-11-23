@@ -190,7 +190,7 @@ jobs:
 
   test_ubuntu_latest:
     docker:
-      - image: sammcz/docker-build:latest
+      - image: ghcr.io/smartmontools/docker-build:master
     working_directory: ~/smartmontools
     steps:
       - *get_svn_commit
