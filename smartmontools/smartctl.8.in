@@ -503,6 +503,7 @@ FreeBSD:
 .br
 \fBsmartctl \-a \-d megaraid,0 /dev/mrsas0\fP
 .br
+.Sp
 .\" %ENDIF OS FreeBSD
 .\" %IF OS ALL
 Linux:
