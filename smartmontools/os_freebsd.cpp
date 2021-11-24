@@ -76,7 +76,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5249 2021-11-23 15:26:40Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5253 2021-11-24 08:31:31Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -1638,7 +1638,7 @@ smart_device * freebsd_scsi_device::autodetect_open()
 
   // DELL?
   if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)
-      || !memcmp(req_buff + 16, "PERC H", 6) || !memcmp(req_buff + 8, "LSI\0",4)
+      || !memcmp(req_buff + 16, "PERC ", 5) || !memcmp(req_buff + 8, "LSI\0",4)
   ) {
     close();
     set_err(EINVAL, "DELL or MegaRaid controller, use '-d megaraid,N'");

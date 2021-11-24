@@ -1,5 +1,11 @@
-$Id: ChangeLog 5252 2021-11-23 22:43:08Z samm2 $
+$Id: ChangeLog 5253 2021-11-24 08:31:31Z samm2 $
 
+
+
+2021-11-23  Alex Samorukov <samm@os2.kiev.ua>
+
+	megaraid (Linux, FreeBSD): relax RAID matching for the LSI PERC RAID
+	controller. Reported by alex@alexburke.ca.
 
 2021-11-23  Alex Samorukov <samm@os2.kiev.ua>
 
