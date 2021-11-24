@@ -1,11 +1,12 @@
-$Id: ChangeLog 5253 2021-11-24 08:31:31Z samm2 $
+$Id: ChangeLog 5254 2021-11-24 08:48:38Z samm2 $
 
 
 
-2021-11-23  Alex Samorukov <samm@os2.kiev.ua>
+2021-11-24  Alex Samorukov <samm@os2.kiev.ua>
 
 	megaraid (Linux, FreeBSD): relax RAID matching for the LSI PERC RAID
 	controller. Reported by alex@alexburke.ca.
+	drivedb.h: add "PLEXTOR PX-512M8VC +" (GH #108)
 
 2021-11-23  Alex Samorukov <samm@os2.kiev.ua>
 
