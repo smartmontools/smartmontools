@@ -1,6 +1,12 @@
 $Id$
 
 
+
+2021-11-23  Alex Samorukov <samm@os2.kiev.ua>
+
+	megaraid (Linux, FreeBSD): relax RAID matching for the LSI PERC RAID
+	controller. Reported by alex@alexburke.ca.
+
 2021-11-23  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h: extend Intel regexp to support S4520 (GH #112)
