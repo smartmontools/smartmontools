@@ -85,7 +85,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5257 2021-11-27 16:35:23Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5258 2021-11-27 16:58:25Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -4595,7 +4595,7 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
     // Directive not recognized
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
              configfile, lineno, name, token);
-    Directives();
+    PrintOut(LOG_CRIT, "Run smartd -D to print a list of valid Directives.\n");
     return -1;
   }
   if (missingarg) {
