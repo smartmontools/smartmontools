@@ -1,6 +1,11 @@
-$Id: ChangeLog 5256 2021-11-27 15:11:25Z chrfranke $
+$Id: ChangeLog 5257 2021-11-27 16:35:23Z chrfranke $
 
 2021-11-27  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add ability to specify different check intervals (#336).
+	The new directive '-c i=N, -c interval=N' overrides the command line
+	option '-i N, --interval=N' for specific devices.
+	smartd.8.in, smartd.conf.5.in: Document new directive.
 
 	smartd.cpp: Use some C++11 features.
 

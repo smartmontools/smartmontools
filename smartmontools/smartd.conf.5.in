@@ -4,7 +4,7 @@ Copyright (C) 2004-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5247 2021-11-23 12:08:56Z samm2 $
+$Id: smartd.conf.5.in 5257 2021-11-27 16:35:23Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1659,6 +1659,18 @@ to report nonzero values of the offline pending sector count.
 Note that \-a is the default for ATA devices.  If none of these other
 Directives is given, then \-a is assumed.
 .TP
+.B \-c OPTION=VALUE
+Allows to override \fBsmartd\fP command line options for specific devices.
+Only the following OPTION is currently supported:
+.TP
+.B \-c i=N, \-c interval=N
+[NEW EXPERIMENTAL SMARTD FEATURE]
+Sets the interval between disk checks to N seconds, where N is a decimal
+integer.
+The minimum allowed value is ten.
+The default is the value from the \*(Aq\-i N, \-\-interval=N\*(Aq command
+line option or its default of 1800 seconds.
+.TP
 .B #
 Comment: ignore the remainder of the line.
 .TP
@@ -1754,4 +1766,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5247 2021-11-23 12:08:56Z samm2 $
+$Id: smartd.conf.5.in 5257 2021-11-27 16:35:23Z chrfranke $
