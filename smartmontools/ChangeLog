@@ -1,6 +1,8 @@
-$Id: ChangeLog 5255 2021-11-27 15:02:03Z chrfranke $
+$Id: ChangeLog 5256 2021-11-27 15:11:25Z chrfranke $
 
 2021-11-27  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Use some C++11 features.
 
 	smartd.cpp: Add missing 'CloseDevice()' after NVMe error.
 
