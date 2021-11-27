@@ -2,6 +2,8 @@ $Id$
 
 2021-11-27  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Use some C++11 features.
+
 	smartd.cpp: Add missing 'CloseDevice()' after NVMe error.
 
 2021-11-24  Alex Samorukov <samm@os2.kiev.ua>
