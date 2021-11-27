@@ -4595,7 +4595,7 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
     // Directive not recognized
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
              configfile, lineno, name, token);
-    Directives();
+    PrintOut(LOG_CRIT, "Run smartd -D to print a list of valid Directives.\n");
     return -1;
   }
   if (missingarg) {
