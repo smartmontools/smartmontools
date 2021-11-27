@@ -2,6 +2,11 @@ $Id$
 
 2021-11-27  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Add ability to specify different check intervals (#336).
+	The new directive '-c i=N, -c interval=N' overrides the command line
+	option '-i N, --interval=N' for specific devices.
+	smartd.8.in, smartd.conf.5.in: Document new directive.
+
 	smartd.cpp: Use some C++11 features.
 
 	smartd.cpp: Add missing 'CloseDevice()' after NVMe error.

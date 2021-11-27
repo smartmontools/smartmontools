@@ -271,6 +271,10 @@ Sets the interval between disk checks to \fIN\fP seconds, where
 \fIN\fP is a decimal integer.  The minimum allowed value is ten and
 the maximum is the largest positive integer that can be represented on
 your system (often 2^31\-1).  The default is 1800 seconds.
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+The interval could be overridden with the \*(Aq\-c i=N\*(Aq directive,
+see \fBsmartd.conf\fP(5) man page.
 .Sp
 Note that the superuser can make \fBsmartd\fP check the status of the
 disks at any time by sending it the \fBSIGUSR1\fP signal, for example

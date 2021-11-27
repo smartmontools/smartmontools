@@ -148,8 +148,9 @@ using namespace smartmontools;
 static unsigned char debugmode = 0;
 
 // command-line: how long to sleep between checks
-#define CHECKTIME 1800
-static int checktime=CHECKTIME;
+static constexpr int default_checktime = 1800;
+static int checktime = default_checktime;
+static int checktime_min = 0; // Minimum individual check time, 0 if none
 
 // command-line: name of PID file (empty for no pid file)
 static std::string pid_file;
@@ -352,6 +353,7 @@ struct dev_config
   std::string dev_idinfo;                 // Device identify info for warning emails
   std::string state_file;                 // Path of the persistent state file, empty if none
   std::string attrlog_file;               // Path of the persistent attrlog file, empty if none
+  int checktime{};                        // Individual check interval, 0 if none
   bool ignore{};                          // Ignore this entry
   bool id_is_unique{};                    // True if dev_idinfo is unique (includes S/N or WWN)
   bool smartcheck{};                      // Check SMART status
@@ -472,6 +474,9 @@ struct persistent_dev_state
 struct temp_dev_state
 {
   bool must_write{};                      // true if persistent part should be written
+
+  bool skip{};                            // skip during next check cycle
+  time_t wakeuptime{};                    // next wakeup time, 0 if unknown or global
 
   bool not_cap_offline{};                 // true == not capable of offline testing
   bool not_cap_conveyance{};
@@ -1464,6 +1469,7 @@ static void Directives()
            "  -a      Default: -H -f -t -l error -l selftest -l selfteststs -C 197 -U 198\n"
            "  -F TYPE Use firmware bug workaround:\n"
            "          %s\n"
+           "  -c i=N  Set interval between disk checks to N seconds\n"
            "   #      Comment: text after a hash sign is ignored\n"
            "   \\      Line continuation character\n"
            "Attribute ID is a decimal integer 1 <= ID <= 255\n"
@@ -3205,7 +3211,7 @@ static void CheckTemperature(const dev_config & cfg, dev_state & state, unsigned
     // First check
     if (!state.tempmin || currtemp < state.tempmin)
         // Delay Min Temperature update by ~ 30 minutes.
-        state.tempmin_delay = time(nullptr) + CHECKTIME - 60;
+        state.tempmin_delay = time(nullptr) + default_checktime - 60;
     PrintOut(LOG_INFO, "Device: %s, initial Temperature is %d Celsius (Min/Max %s/%u%s)\n",
       cfg.name.c_str(), (int)currtemp, fmt_temp(state.tempmin, buf), state.tempmax, maxchg);
     if (triptemp)
@@ -3456,13 +3462,13 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
           name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
       }
       state.powerskipcnt = 0;
-      state.tempmin_delay = time(nullptr) + CHECKTIME - 60; // Delay Min Temperature update
+      state.tempmin_delay = time(nullptr) + default_checktime - 60; // Delay Min Temperature update
     }
     else if (state.powerskipcnt) {
       PrintOut(LOG_INFO, "Device: %s, is back in %s mode, resuming checks (%d check%s skipped)\n",
         name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
       state.powerskipcnt = 0;
-      state.tempmin_delay = time(nullptr) + CHECKTIME - 60; // Delay Min Temperature update
+      state.tempmin_delay = time(nullptr) + default_checktime - 60; // Delay Min Temperature update
     }
   }
 
@@ -3833,6 +3839,13 @@ static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector
   for (unsigned i = 0; i < configs.size(); i++) {
     const dev_config & cfg = configs.at(i);
     dev_state & state = states.at(i);
+    if (state.skip) {
+      if (debugmode)
+        PrintOut(LOG_INFO, "Device: %s, skipped (interval=%d)\n", cfg.name.c_str(),
+                 (cfg.checktime ? cfg.checktime : checktime));
+      continue;
+    }
+
     smart_device * dev = devices.at(i);
     if (dev->is_ata())
       ATACheckDevice(cfg, state, dev->to_ata(), firstpass, allow_selftests);
@@ -3889,25 +3902,53 @@ static void ToggleDebugMode()
 }
 #endif
 
-static time_t dosleep(time_t wakeuptime, bool & sigwakeup, int numdev)
+time_t calc_next_wakeuptime(time_t wakeuptime, time_t timenow, int ct)
+{
+  if (timenow < wakeuptime)
+    return wakeuptime;
+  return timenow + ct - (timenow - wakeuptime) % ct;
+}
+
+static time_t dosleep(time_t wakeuptime, const dev_config_vector & configs,
+  dev_state_vector & states, bool & sigwakeup)
 {
   // If past wake-up-time, compute next wake-up-time
   time_t timenow = time(nullptr);
-  while (wakeuptime<=timenow){
-    time_t intervals = 1 + (timenow-wakeuptime)/checktime;
-    wakeuptime+=intervals*checktime;
+  unsigned n = configs.size();
+  int ct;
+  if (!checktime_min) {
+    // Same for all devices
+    wakeuptime = calc_next_wakeuptime(wakeuptime, timenow, checktime);
+    ct = checktime;
+  }
+  else {
+    // Determine wakeuptime of next device(s)
+    wakeuptime = 0;
+    for (unsigned i = 0; i < n; i++) {
+      const dev_config & cfg = configs.at(i);
+      dev_state & state = states.at(i);
+      if (!state.skip)
+        state.wakeuptime = calc_next_wakeuptime((state.wakeuptime ? state.wakeuptime : timenow),
+          timenow, (cfg.checktime ? cfg.checktime : checktime));
+      if (!wakeuptime || state.wakeuptime < wakeuptime)
+        wakeuptime = state.wakeuptime;
+    }
+    ct = checktime_min;
   }
 
-  notify_wait(wakeuptime, numdev);
+  notify_wait(wakeuptime, n);
 
-  // sleep until we catch SIGUSR1 or have completed sleeping
+  // Sleep until we catch a signal or have completed sleeping
+  bool no_skip = false;
   int addtime = 0;
   while (timenow < wakeuptime+addtime && !caughtsigUSR1 && !caughtsigHUP && !caughtsigEXIT) {
-    
-    // protect user again system clock being adjusted backwards
-    if (wakeuptime>timenow+checktime){
+    // Restart if system clock has been adjusted to the past
+    if (wakeuptime > timenow + ct) {
       PrintOut(LOG_INFO, "System clock time adjusted to the past. Resetting next wakeup time.\n");
-      wakeuptime=timenow+checktime;
+      wakeuptime = timenow + ct;
+      for (auto & state : states)
+        state.wakeuptime = 0;
+      no_skip = true;
     }
     
     // Exit sleep when time interval has expired or a signal is received
@@ -3931,7 +3972,7 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup, int numdev)
       // Wait another 20 seconds to avoid I/O errors during disk spin-up
       addtime = timenow-wakeuptime+20;
       // Use next wake-up-time if close
-      int nextcheck = checktime - addtime % checktime;
+      int nextcheck = ct - addtime % ct;
       if (nextcheck <= 20)
         addtime += nextcheck;
     }
@@ -3942,7 +3983,13 @@ static time_t dosleep(time_t wakeuptime, bool & sigwakeup, int numdev)
     PrintOut(LOG_INFO,"Signal USR1 - checking devices now rather than in %d seconds.\n",
              wakeuptime-timenow>0?(int)(wakeuptime-timenow):0);
     caughtsigUSR1=0;
-    sigwakeup = true;
+    sigwakeup = no_skip = true;
+  }
+
+  // Check which devices must be skipped in this cycle
+  if (checktime_min) {
+    for (auto & state : states)
+      state.skip = (!no_skip && timenow < state.wakeuptime);
   }
   
   // return adjusted wakeuptime
@@ -3987,6 +4034,9 @@ static void printoutvaliddirectiveargs(int priority, char d)
   case 'e':
     PrintOut(priority, "aam,[N|off], apm,[N|off], lookahead,[on|off], dsn,[on|off] "
                        "security-freeze, standby,[N|off], wcache,[on|off]");
+    break;
+  case 'c':
+    PrintOut(priority, "i=N, interval=N");
     break;
   }
 }
@@ -4519,6 +4569,23 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
         else
           badarg = true;
       }
+      else
+        badarg = true;
+    }
+    break;
+
+  case 'c':
+    // Override command line options
+    {
+      if (!(arg = strtok(nullptr, delim))) {
+        missingarg = true;
+        break;
+      }
+      int n = 0, nc = -1, len = strlen(arg);
+      if (   (   sscanf(arg, "i=%d%n", &n, &nc) == 1
+              || sscanf(arg, "interval=%d%n", &n, &nc) == 1)
+          && nc == len && n >= 10)
+        cfg.checktime = n;
       else
         badarg = true;
     }
@@ -5391,13 +5458,17 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
       prev_unique_names[unique_name] = cfg.name;
   }
 
-  // Set factors for staggered tests
-  for (unsigned i = 0, factor = 0; i < configs.size(); i++) {
-    dev_config & cfg = configs[i];
-    if (cfg.test_regex.empty())
-      continue;
-    cfg.test_offset_factor = factor++;
+  // Set minimum check time and factors for staggered tests
+  checktime_min = 0;
+  unsigned factor = 0;
+  for (auto & cfg : configs) {
+    if (cfg.checktime && (!checktime_min || checktime_min > cfg.checktime))
+      checktime_min = cfg.checktime;
+    if (!cfg.test_regex.empty())
+      cfg.test_offset_factor = factor++;
   }
+  if (checktime_min && checktime_min > checktime)
+    checktime_min = checktime;
 
   init_disable_standby_check(configs);
   return true;
@@ -5561,7 +5632,7 @@ static int main_worker(int argc, char **argv)
     }
 
     // sleep until next check time, or a signal arrives
-    wakeuptime = dosleep(wakeuptime, write_states_always, (int)devices.size());
+    wakeuptime = dosleep(wakeuptime, configs, states, write_states_always);
 
   } while (!caughtsigEXIT);
 
