@@ -1,5 +1,10 @@
 $Id$
 
+2021-11-28  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Fix write of ATA attributes to state files.
+	Regression from r5256.
+
 2021-11-27  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Don't write 'smartd -D' output to syslog on syntax error.
