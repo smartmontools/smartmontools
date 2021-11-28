@@ -1,4 +1,9 @@
-$Id: ChangeLog 5258 2021-11-27 16:58:25Z chrfranke $
+$Id: ChangeLog 5259 2021-11-28 21:25:23Z chrfranke $
+
+2021-11-28  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Fix write of ATA attributes to state files.
+	Regression from r5256.
 
 2021-11-27  Christian Franke  <franke@computer.org>
 

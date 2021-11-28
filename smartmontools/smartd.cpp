@@ -85,7 +85,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5258 2021-11-27 16:58:25Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5259 2021-11-28 21:25:23Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -748,8 +748,7 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
   write_dev_state_line(f, "selective-test-last-start", state.selective_test_last_start);
   write_dev_state_line(f, "selective-test-last-end", state.selective_test_last_end);
 
-  int i;
-  for (i = 0; i < SMARTD_NMAIL; i++) {
+  for (int i = 0; i < SMARTD_NMAIL; i++) {
     if (i == MAILTYPE_TEST) // Don't suppress test mails
       continue;
     const mailinfo & mi = state.maillog[i];
@@ -763,7 +762,8 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
   // ATA ONLY
   write_dev_state_line(f, "ata-error-count", state.ataerrorcount);
 
-  for (const auto & pa : state.ata_attributes) {
+  for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+    const auto & pa = state.ata_attributes[i];
     if (!pa.id)
       continue;
     write_dev_state_line(f, "ata-smart-attribute", i, "id", pa.id);
