@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5204 2021-02-07 17:04:42Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5260 2021-11-29 18:33:26Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -871,7 +871,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       else {
         int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
         char s[7+1]; unsigned i = FAILPOWER, j = 0;
-        sscanf(optarg, "%9[a-z]%n,%u%n,%u%n", s, &n1, &i, &n2, &j, &n3);
+        sscanf(optarg, "%7[a-z]%n,%u%n,%u%n", s, &n1, &i, &n2, &j, &n3);
         if (!((n1 == len || n2 == len || n3 == len) && i <= 255 && j <= 255))
           badarg = true;
         else if (!strcmp(s, "sleep")) {
