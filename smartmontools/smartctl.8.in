@@ -4,7 +4,7 @@ Copyright (C) 2004-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5247 2021-11-23 12:08:56Z samm2 $
+$Id: smartctl.8.in 5261 2021-11-30 20:29:13Z samm2 $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -495,6 +495,7 @@ will also work for Dell PERC controllers.
 Use syntax such as:
 .\" %ENDIF OS Linux FreeBSD
 .\" %IF OS ALL
+.br
 FreeBSD:
 .\" %ENDIF OS ALL
 .\" %IF OS FreeBSD
@@ -2498,4 +2499,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5247 2021-11-23 12:08:56Z samm2 $
+$Id: smartctl.8.in 5261 2021-11-30 20:29:13Z samm2 $
