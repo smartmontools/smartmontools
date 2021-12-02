@@ -4022,6 +4022,7 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(500[368]20|750[36]30|1000340)AS?",
     "SD1A", // http://knowledge.seagate.com/articles/en_US/FAQ/207951en
     "", ""
+    "-F xerrorlba"  // tested with ST3500320AS/SD1A
   },
   { "Seagate Barracuda 7200.11", // fixed firmware
     "ST3(160813|320[68]13|640[36]23|1000333|1500341)AS?",
