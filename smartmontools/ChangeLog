@@ -1,5 +1,10 @@
 $Id$
 
+2021-11-08  Yannick Hemery  <yannick.hemery@corp.ovh.com>
+
+	scsiprint.cpp: Fix an invalid test on supported subpages, resulting
+	in all subpages other than zero to be ignored.
+
 2021-11-29  Christian Franke  <franke@computer.org>
 
 	smartctl.cpp: Fix possible buffer overflow (#1546).
