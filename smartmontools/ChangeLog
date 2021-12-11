@@ -1,4 +1,8 @@
-$Id: ChangeLog 5260 2021-11-29 18:33:26Z chrfranke $
+$Id: ChangeLog 5262 2021-12-11 11:59:56Z chrfranke $
+
+2021-12-11  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Rename some variables.
 
 2021-11-29  Christian Franke  <franke@computer.org>
 
