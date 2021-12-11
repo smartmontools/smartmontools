@@ -1,6 +1,12 @@
-$Id: ChangeLog 5262 2021-12-11 11:59:56Z chrfranke $
+$Id: ChangeLog 5263 2021-12-11 15:28:52Z chrfranke $
 
 2021-12-11  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Allow update from local files or other URLs.
+	Location could be specified with new options '--file' and '--url'
+	(#1426).  Check VERSION information to prevent downgrades.
+	Allow override with new option '--force'.
+	update-smart-drivedb.8.in: Document new functionality.
 
 	update-smart-drivedb.in: Rename some variables.
 
