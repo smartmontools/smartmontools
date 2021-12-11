@@ -1,6 +1,8 @@
-$Id: ChangeLog 5264 2021-12-11 16:05:45Z chrfranke $
+$Id: ChangeLog 5265 2021-12-11 18:02:58Z chrfranke $
 
 2021-12-11  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Allow a directory in the argument of '-t'.
 
 	update-smart-drivedb.in: Add missing long options.
 
