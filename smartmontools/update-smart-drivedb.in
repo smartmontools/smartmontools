@@ -48,35 +48,37 @@ myname=$0
 usage()
 {
 @ENABLE_SCRIPTPATH_TRUE@  pathinfo="
-@ENABLE_SCRIPTPATH_TRUE@                   $pathinfo"
+@ENABLE_SCRIPTPATH_TRUE@                     $pathinfo"
   cat <<EOF
 smartmontools $VERSION drive database update script
 
 Usage: $myname [OPTIONS] [DESTFILE]
 
-  -s SMARTCTL     Use SMARTCTL for syntax check ('-s -' to disable)
-                  [default: $default_smartctl]
-  -t TOOL         Use TOOL for download: $os_dltools
-                  [default: first one found in $pathinfo]
-  -u LOCATION     Use URL of LOCATION for download:
-                    github (GitHub mirror of SVN repository)
-                    sf (Sourceforge code browser)
-                    svn (SVN repository) [default]
-                    svni (SVN repository via HTTP instead of HTTPS)
-                    trac (Trac code browser)
-  --url URL       Download from URL
-  --file FILE     Copy from local FILE
-  --trunk         Download from SVN trunk (requires '--no-verify')
-  --branch X.Y    Download from branches/RELEASE_X_Y_DRIVEDB
-  --cacert FILE   Use CA certificates from FILE to verify the peer
-  --capath DIR    Use CA certificate files from DIR to verify the peer
-  --insecure      Don't abort download if certificate verification fails
-  --no-verify     Don't verify signature
-  --force         Allow downgrades
-  --export-key    Print the OpenPGP/GPG public key block
-  --dryrun        Print download commands only
-  -q              Suppress info messages
-  -v              Verbose output
+  -s, --smartctl SMARTCTL
+                    Use SMARTCTL for syntax check ('-s -' to disable)
+                    [default: $default_smartctl]
+  -t, --tool TOOL   Use TOOL for download: $os_dltools
+                    [default: first one found in $pathinfo]
+  -u, --url-of LOCATION
+                    Use URL of LOCATION for download:
+                      github (GitHub mirror of SVN repository)
+                      sf (Sourceforge code browser)
+                      svn (SVN repository) [default]
+                      svni (SVN repository via HTTP instead of HTTPS)
+                      trac (Trac code browser)
+  --url URL         Download from URL
+  --file FILE       Copy from local FILE
+  --trunk           Download from SVN trunk (requires '--no-verify')
+  --branch X.Y      Download from branches/RELEASE_X_Y_DRIVEDB
+  --cacert FILE     Use CA certificates from FILE to verify the peer
+  --capath DIR      Use CA certificate files from DIR to verify the peer
+  --insecure        Don't abort download if certificate verification fails
+  --no-verify       Don't verify signature
+  --force           Allow downgrades
+  --export-key      Print the OpenPGP/GPG public key block
+  --dryrun          Print download commands only
+  -q, --quiet       Suppress info messages
+  -v, --verbose     Verbose output
 
 Updates $default_drivedb
 or DESTFILE from branches/$default_branch of smartmontools
@@ -566,24 +568,24 @@ force=
 expkey=
 
 while true; do case $1 in
-  -s)
+  -s|--smartctl)
     shift; test -n "$1" || usage
     smartctl=$1 ;;
 
-  -t)
+  -t|--tool)
     shift
     case $1 in *\ *) usage ;; esac
     case " $os_dltools " in *\ $1\ *) ;; *) usage ;; esac
     tool=$1 ;;
 
-  -u)
+  -u|--url-of)
     shift; test -n "$1" || usage
     url_of=$1 ;;
 
-  -q)
+  -q|--quiet)
     quiet=t ;;
 
-  -v)
+  -v|--verbose)
     q= ;;
 
   --url)

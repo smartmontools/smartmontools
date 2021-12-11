@@ -76,7 +76,7 @@ If the branch version differs, the file is always updated.
 .Sp
 .SH "OPTIONS"
 .TP
-.B \-s SMARTCTL
+.B \-s SMARTCTL, \-\-smartctl SMARTCTL
 Use the
 .BR smartctl (8)
 executable at path SMARTCTL for drive database syntax check.
@@ -84,7 +84,7 @@ The form \*(Aq\-s \-\*(Aq disables the syntax check.
 The default is
 .BR /usr/local/sbin/smartctl .
 .TP
-.B \-t TOOL
+.B \-t TOOL, \-\-tool TOOL
 Use TOOL for download.
 TOOL is one of:
 .I curl wget lynx
@@ -97,7 +97,7 @@ TOOL is one of:
 .IR svn .
 The default is the first one found in PATH.
 .TP
-.B \-u LOCATION
+.B \-u LOCATION, \-\-url\-of LOCATION
 Use URL of LOCATION for download.
 LOCATION is one of:
 .br
@@ -168,11 +168,11 @@ Print the OpenPGP/GPG public key block.
 .B \-\-dryrun
 Print download commands only.
 .TP
-.B \-q
+.B \-q, \-\-quiet
 [NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
 Suppress info messages.
 .TP
-.B \-v
+.B \-v, \-\-verbose
 Verbose output.
 .Sp
 .SH "EXAMPLES"
