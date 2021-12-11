@@ -84,7 +84,7 @@ The form \*(Aq\-s \-\*(Aq disables the syntax check.
 The default is
 .BR /usr/local/sbin/smartctl .
 .TP
-.B \-t TOOL, \-\-tool TOOL
+.B \-t [/DIR/]TOOL, \-\-tool [/DIR/]TOOL
 Use TOOL for download.
 TOOL is one of:
 .I curl wget lynx
@@ -96,6 +96,10 @@ TOOL is one of:
 .\" %ENDIF OS OpenBSD
 .IR svn .
 The default is the first one found in PATH.
+.br
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+A DIR could also be specified.
+The plain TOOL name must then begin with any of the above names.
 .TP
 .B \-u LOCATION, \-\-url\-of LOCATION
 Use URL of LOCATION for download.

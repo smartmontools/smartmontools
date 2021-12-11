@@ -57,7 +57,8 @@ Usage: $myname [OPTIONS] [DESTFILE]
   -s, --smartctl SMARTCTL
                     Use SMARTCTL for syntax check ('-s -' to disable)
                     [default: $default_smartctl]
-  -t, --tool TOOL   Use TOOL for download: $os_dltools
+  -t, --tool [/DIR/]TOOL
+                    Use TOOL for download: $os_dltools
                     [default: first one found in $pathinfo]
   -u, --url-of LOCATION
                     Use URL of LOCATION for download:
@@ -180,17 +181,17 @@ vrun2()
   return $rc
 }
 
-# download URL FILE
+# download TOOL URL FILE
 download()
 {
-  local f u rc
-  u=$1; f=$2
+  local f t u rc
+  t=$1 u=$2; f=$3
   rc=0
 
-  case $tool in
-    curl)
+  case ${t##*/} in
+    curl*)
       # "Accept-Encoding" header avoids caching problems with svn URL
-      vrun curl ${q:+-s} -f --max-redirs 0 \
+      vrun "$t" ${q:+-s} -f --max-redirs 0 \
         -H "Accept-Encoding: identity" \
         ${cacert:+--cacert "$cacert"} \
         ${capath:+--capath "$capath"} \
@@ -198,24 +199,24 @@ download()
         -o "$f" "$u" || rc=$?
       ;;
 
-    wget)
+    wget*)
       # wget >= 1.16.1 sets "Accept-Encoding: identity" header by default
-      vrun wget $q --max-redirect=0 \
+      vrun "$t" $q --max-redirect=0 \
         ${cacert:+--ca-certificate="$cacert"} \
         ${capath:+--ca-directory="$capath"} \
         ${insecure:+--no-check-certificate} \
         -O "$f" "$u" || rc=$?
       ;;
 
-    lynx)
+    lynx*)
       test -z "$cacert" || vrun export SSL_CERT_FILE="$cacert"
       test -z "$capath" || vrun export SSL_CERT_DIR="$capath"
       # Check also stderr as lynx does not return != 0 on HTTP error
-      vrun2 "$f" lynx -stderr -noredir -source "$u" || rc=$?
+      vrun2 "$f" "$t" -stderr -noredir -source "$u" || rc=$?
       ;;
 
-    svn)
-      vrun svn $q export \
+    svn*)
+      vrun "$t" $q export \
         --non-interactive --no-auth-cache \
         ${cacert:+--config-option "servers:global:ssl-trust-default-ca=no"} \
         ${cacert:+--config-option "servers:global:ssl-authority-files=$cacert"} \
@@ -223,23 +224,23 @@ download()
         "$u" "$f" || rc=$?
       ;;
 
-    fetch) # FreeBSD
-      vrun fetch $q --no-redirect \
+    fetch*) # FreeBSD
+      vrun "$t" $q --no-redirect \
         ${cacert:+--ca-cert "$cacert"} \
         ${capath:+--ca-path "$capath"} \
         ${insecure:+--no-verify-hostname} \
         -o "$f" "$u" || rc=$?
       ;;
 
-    ftp) # OpenBSD
-      vrun ftp \
+    ftp*) # OpenBSD
+      vrun "$t" \
         ${cacert:+-S cafile="$cacert"} \
         ${capath:+-S capath="$capath"} \
         ${insecure:+-S dont} \
         -o "$f" "$u" || rc=$?
       ;;
 
-    *) error "$tool: unknown (internal error)" ;;
+    *) error "$t: unknown (internal error)" ;;
   esac
   return $rc
 }
@@ -573,9 +574,7 @@ while true; do case $1 in
     smartctl=$1 ;;
 
   -t|--tool)
-    shift
-    case $1 in *\ *) usage ;; esac
-    case " $os_dltools " in *\ $1\ *) ;; *) usage ;; esac
+    shift; test -n "$1" || usage
     tool=$1 ;;
 
   -u|--url-of)
@@ -676,15 +675,26 @@ if [ -z "$no_verify" ]; then case $url in
   *)    url_asc="$url.raw.asc" ;;
 esac; fi
 
-if [ -z "$tool$file" ]; then
-  # Find download tool in PATH
-  for t in $os_dltools; do
-    if inpath "$t"; then
-      tool=$t
-      break
-    fi
-  done
-  test -n "$tool" || error "found none of '$os_dltools' in $pathinfo"
+if [ -z "$file" ]; then
+  if [ -z "$tool" ]; then
+    # Find download tool in PATH
+    for t in $os_dltools; do
+      if inpath "$t"; then
+        tool=$t
+        break
+      fi
+    done
+    test -n "$tool" || error "found none of '$os_dltools' in $pathinfo"
+  else
+    # Check tool name
+    found=
+    for t in $os_dltools; do
+      case ${tool##*/} in
+        $t*) found=t; break ;;
+      esac
+    done
+    test -n "$found" || error "$tool: is none of '$os_dltools'"
+  fi
 fi
 
 # Check option compatibility
@@ -734,7 +744,7 @@ if [ -n "$url" ]; then
   # Download
   vecho "Download drivedb.h with $tool"
   rc=0
-  download "$url" "$drivedb.new" || rc=$?
+  download "$tool" "$url" "$drivedb.new" || rc=$?
   if [ $rc != 0 ]; then
     rm -f "$drivedb.new"
     error "drivedb.h: download failed ($tool: exit $rc)"
@@ -743,7 +753,7 @@ if [ -n "$url" ]; then
   if [ -n "$url_asc" ]; then
     vecho "Download drivedb.h.raw.asc with $tool"
     rc=0
-    download "$url_asc" "$drivedb.new.raw.asc" || rc=$?
+    download "$tool" "$url_asc" "$drivedb.new.raw.asc" || rc=$?
     if [ $rc != 0 ]; then
       rm -f "$drivedb.new" "$drivedb.new.raw.asc"
       error "drivedb.h.raw.asc: download failed ($tool: exit $rc) ('--no-verify' to ignore)"
