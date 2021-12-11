@@ -67,6 +67,12 @@ The public key block is included in the script.
 The old file is kept if the downloaded file is identical (ignoring
 the differences in Id string) otherwise it is moved to
 .BR drivedb.h.old .
+.PP
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+The old file is also kept if the downloaded file reports an older version
+on the same branch.
+This could be overridden with the \*(Aq\-\-force\*(Aq option.
+If the branch version differs, the file is always updated.
 .Sp
 .SH "OPTIONS"
 .TP
@@ -113,10 +119,22 @@ LOCATION is one of:
 The default is
 .IR svn .
 .TP
+.B \-\-url URL
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+Download from URL.
+A valid OpenPGP/GPG signature with \*(Aq.raw.asc\*(Aq extension must also
+exist unless \*(Aq\-\-no\-verify\*(Aq is also specified.
+.TP
+.B \-\-file FILE
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+Copy from local FILE.
+A valid OpenPGP/GPG signature \*(AqFILE.raw.asc\*(Aq must also exist
+unless \*(Aq\-\-no\-verify\*(Aq is also specified.
+.TP
 .B \-\-trunk
 Download from SVN trunk.
-This requires \*(Aq\-\-no\-verify\*(Aq unless the trunk version is still
-identical to branches/RELEASE_6_0_DRIVEDB.
+This requires \*(Aq\-\-no\-verify\*(Aq because the trunk versions are not
+signed.
 .TP
 .B \-\-branch X.Y
 [NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
@@ -138,6 +156,12 @@ option.
 .B \-\-no\-verify
 Don't verify signature with GnuPG.
 .TP
+.B \-\-force
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+Allow downgrades.
+By default, the database is not replaced with an older version of the
+same branch.
+.TP
 .B \-\-export\-key
 Print the OpenPGP/GPG public key block.
 .TP
@@ -152,15 +176,28 @@ Suppress info messages.
 Verbose output.
 .Sp
 .SH "EXAMPLES"
+Regular update:
 .Vb 2
 # update-smart-drivedb
-/usr/local/share/smartmontools/drivedb.h updated from \e
-branches/RELEASE_6_0_DRIVEDB
+/usr/local/share/smartmontools/drivedb.h 7.2/5225 updated to 7.2/5237
+.Ve
+.PP
+Revert to previous version:
+.Vb 2
+# update-smart-drivedb --force \e
+  --file /usr/local/share/smartmontools/drivedb.h.old
+/usr/local/share/smartmontools/drivedb.h 7.2/5237 downgraded to 7.2/5225
+.Ve
+.PP
+Download the database from SVN trunk to current directory:
+.Vb 2
+$ update-smart-drivedb --trunk --no-verify -s - -u trac drivedb-trunk.h
+drivedb-trunk.h 7.3/5254 newly installed (NOT VERIFIED)
 .Ve
 .Sp
 .SH "EXIT STATUS"
-The exit status is 0 if the database has been successfully
-updated.
+The exit status is 0 if the database has been successfully updated or is
+already up to date.
 If an error occurs the exit status is 1.
 .Sp
 .SH FILES
