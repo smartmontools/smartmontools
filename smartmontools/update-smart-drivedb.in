@@ -27,17 +27,17 @@ drivedbdir="@drivedbdir@"
 # Download tools
 os_dltools="@os_dltools@"
 
-# drivedb.h update branch
-BRANCH="@DRIVEDB_BRANCH@"
+# Default drivedb.h update branch
+default_branch="@DRIVEDB_BRANCH@"
 
 # Default drivedb location
-DRIVEDB="$drivedbdir/drivedb.h"
+default_drivedb="$drivedbdir/drivedb.h"
 
 # GnuPG used to verify signature (disabled if empty)
-GPG="@gnupg@"
+gpg="@gnupg@"
 
-# Smartctl used for syntax check
-SMARTCTL="$sbindir/smartctl"
+# Default command used for syntax check
+default_smartctl="$sbindir/smartctl"
 
 # PATH information for help and error messages
 @ENABLE_SCRIPTPATH_FALSE@pathinfo='$PATH'
@@ -55,7 +55,7 @@ smartmontools $VERSION drive database update script
 Usage: $myname [OPTIONS] [DESTFILE]
 
   -s SMARTCTL     Use SMARTCTL for syntax check ('-s -' to disable)
-                  [default: $SMARTCTL]
+                  [default: $default_smartctl]
   -t TOOL         Use TOOL for download: $os_dltools
                   [default: first one found in $pathinfo]
   -u LOCATION     Use URL of LOCATION for download:
@@ -75,8 +75,8 @@ Usage: $myname [OPTIONS] [DESTFILE]
   -q              Suppress info messages
   -v              Verbose output
 
-Updates $DRIVEDB
-or DESTFILE from branches/$BRANCH of smartmontools
+Updates $default_drivedb
+or DESTFILE from branches/$default_branch of smartmontools
 SVN repository.
 EOF
   exit 1
@@ -104,7 +104,7 @@ warning()
 selecturl()
 {
   case $1 in
-    github)  # https://github.com/smartmontools/smartmontools/raw/origin/$BRANCH/smartmontools/drivedb.h
+    github)  # https://github.com/smartmontools/smartmontools/raw/origin/$branch/smartmontools/drivedb.h
              # https://github.com/smartmontools/smartmontools/raw/master/smartmontools/drivedb.h
           # redirected to:
           url='https://raw.githubusercontent.com/smartmontools/smartmontools/master/smartmontools/drivedb.h' ;;
@@ -481,7 +481,7 @@ gpg_verify()
   chmod 0700 "$gnupgtmp"
 
   # Import public key
-  if ! out=`echo "$public_key" | "$GPG" --batch --no-tty --homedir="$gnupgtmp" --import 2>&1`; then
+  if ! out=`echo "$public_key" | "$gpg" --batch --no-tty --homedir="$gnupgtmp" --import 2>&1`; then
     echo "$out" >&2
     exit 1
   fi
@@ -489,7 +489,7 @@ gpg_verify()
 
   # Verify
   rc=0
-  out=`"$GPG" --batch --no-tty --homedir="$gnupgtmp" --verify "$1" "$2" </dev/null 2>&1` || rc=1
+  out=`"$gpg" --batch --no-tty --homedir="$gnupgtmp" --verify "$1" "$2" </dev/null 2>&1` || rc=1
   if [ $rc = 0 ]; then
     vecho "$out"
   else
@@ -525,14 +525,14 @@ mv_all()
 }
 
 # Parse options
-smtctl=$SMARTCTL
+smartctl=$default_smartctl
 tool=
 urlid="svn"
 quiet=
 q="-q"
 dryrun=
 trunk=
-brnch=$BRANCH
+branch=$default_branch
 cacert=
 capath=
 insecure=
@@ -542,7 +542,7 @@ expkey=
 while true; do case $1 in
   -s)
     shift; test -n "$1" || usage
-    smtctl=$1 ;;
+    smartctl=$1 ;;
 
   -t)
     shift
@@ -568,8 +568,8 @@ while true; do case $1 in
 
   --branch)
     shift
-    brnch=`echo "$1" | sed -n 's,^\([567]\)\.\([0-9][0-9]*\)$,RELEASE_\1_\2_DRIVEDB,p'`
-    test -n "$brnch" || usage ;;
+    branch=`echo "$1" | sed -n 's,^\([567]\)\.\([0-9][0-9]*\)$,RELEASE_\1_\2_DRIVEDB,p'`
+    test -n "$branch" || usage ;;
 
   --cacert)
     shift; test -n "$1" || usage
@@ -597,7 +597,7 @@ esac; shift; done
 
 if [ -n "$expkey" ]; then
   test $# = 0 || usage
-  selectkey "$brnch"
+  selectkey "$branch"
   cat <<EOF
 $public_key
 EOF
@@ -605,8 +605,8 @@ EOF
 fi
 
 case $# in
-  0) DEST=$DRIVEDB ;;
-  1) DEST=$1 ;;
+  0) drivedb=$default_drivedb ;;
+  1) drivedb=$1 ;;
   *) usage ;;
 esac
 
@@ -641,111 +641,111 @@ case "$tool:$insecure" in
 esac
 
 # Check for smartctl
-if [ "$smtctl" != "-" ]; then
-  "$smtctl" -V >/dev/null 2>&1 \
-  || err_notfound "$smtctl" "('-s -' to ignore)"
+if [ "$smartctl" != "-" ]; then
+  "$smartctl" -V >/dev/null 2>&1 \
+  || err_notfound "$smartctl" "('-s -' to ignore)"
 fi
 
 # Check for GnuPG
 gpgconf=
 if [ -z "$no_verify" ]; then
-  test -n "$GPG" \
+  test -n "$gpg" \
   || error "GnuPG is not available ('--no-verify' to ignore)"
-  "$GPG" --version >/dev/null 2>&1 \
-  || err_notfound "$GPG" "('--no-verify' to ignore)"
-  selectkey "$brnch"
-  case $GPG in
-    */*) gpgconf="${GPG%/*}/gpgconf" ;;
+  "$gpg" --version >/dev/null 2>&1 \
+  || err_notfound "$gpg" "('--no-verify' to ignore)"
+  selectkey "$branch"
+  case $gpg in
+    */*) gpgconf="${gpg%/*}/gpgconf" ;;
     *) gpgconf="gpgconf" ;;
   esac
   "$gpgconf" --version >/dev/null 2>&1 || gpgconf=
 fi
 
 # Use destination directory as temp directory for gpg
-tmpdir=`dirname "$DEST"`
+tmpdir=`dirname "$drivedb"`
 
 # Adjust URLs
-src=`echo "$url" | sed -e "s,/trunk/,/branches/$brnch/," \
-                       -e "s,/master/,/origin/$brnch/,"`
+src=`echo "$url" | sed -e "s,/trunk/,/branches/$branch/," \
+                       -e "s,/master/,/origin/$branch/,"`
 src_asc=`echo "$src" | sed "s,/drivedb\.h,/drivedb.h.raw.asc,"`
 test -z "$trunk" || src=$url
 
 # Download
-test -n "$dryrun" || rm -f "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
+test -n "$dryrun" || rm -f "$drivedb.new" "$drivedb.new.raw" "$drivedb.new.raw.asc"
 
-vecho "Download ${trunk:-branches/$brnch}/drivedb.h with $tool"
+vecho "Download ${trunk:-branches/$branch}/drivedb.h with $tool"
 rc=0
-download "$src" "$DEST.new" || rc=$?
+download "$src" "$drivedb.new" || rc=$?
 if [ $rc != 0 ]; then
-  rm -f "$DEST.new"
-  error "${trunk:-$brnch}/drivedb.h: download failed ($tool: exit $rc)"
+  rm -f "$drivedb.new"
+  error "${trunk:-$branch}/drivedb.h: download failed ($tool: exit $rc)"
 fi
-if ! errmsg=`check_file "$DEST.new" '/' 10000 1000000`; then
-  mv "$DEST.new" "$DEST.error"
-  error "$DEST.error: $errmsg"
+if ! errmsg=`check_file "$drivedb.new" '/' 10000 1000000`; then
+  mv "$drivedb.new" "$drivedb.error"
+  error "$drivedb.error: $errmsg"
 fi
 
-vecho "Download branches/$brnch/drivedb.h.raw.asc with $tool"
+vecho "Download branches/$branch/drivedb.h.raw.asc with $tool"
 rc=0
-download "$src_asc" "$DEST.new.raw.asc" || rc=$?
+download "$src_asc" "$drivedb.new.raw.asc" || rc=$?
 if [ $rc != 0 ]; then
-  rm -f "$DEST.new" "$DEST.new.raw.asc"
-  error "$brnch/drivedb.h.raw.asc: download failed ($tool: exit $rc)"
+  rm -f "$drivedb.new" "$drivedb.new.raw.asc"
+  error "$branch/drivedb.h.raw.asc: download failed ($tool: exit $rc)"
 fi
-if ! errmsg=`check_file "$DEST.new.raw.asc" '-' 200 2000`; then
-  rm -f "$DEST.new"
-  mv "$DEST.new.raw.asc" "$DEST.error.raw.asc"
-  error "$DEST.error.raw.asc: $errmsg"
+if ! errmsg=`check_file "$drivedb.new.raw.asc" '-' 200 2000`; then
+  rm -f "$drivedb.new"
+  mv "$drivedb.new.raw.asc" "$drivedb.error.raw.asc"
+  error "$drivedb.error.raw.asc: $errmsg"
 fi
 
 test -z "$dryrun" || exit 0
 
 # Create raw file with unexpanded SVN Id
 # (This assumes newlines are LF and not CR/LF)
-unexpand_svn_id < "$DEST.new" > "$DEST.new.raw"
+unexpand_svn_id < "$drivedb.new" > "$drivedb.new.raw"
 
 # Adjust timestamps and permissions
-touch "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
-chmod 0644 "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
+touch "$drivedb.new" "$drivedb.new.raw" "$drivedb.new.raw.asc"
+chmod 0644 "$drivedb.new" "$drivedb.new.raw" "$drivedb.new.raw.asc"
 
 if [ -z "$no_verify" ]; then
   # Verify raw file
-  if ! gpg_verify "$DEST.new.raw.asc" "$DEST.new.raw"; then
-    mv_all "$DEST" ".new" ".error"
-    test -n "$trunk" || error "$DEST.error.raw: *** BAD signature or outdated key ***"
-    error "$DEST.error.raw: signature from branch no longer valid ('--no-verify' to ignore)"
+  if ! gpg_verify "$drivedb.new.raw.asc" "$drivedb.new.raw"; then
+    mv_all "$drivedb" ".new" ".error"
+    test -n "$trunk" || error "$drivedb.error.raw: *** BAD signature or outdated key ***"
+    error "$drivedb.error.raw: signature from branch no longer valid ('--no-verify' to ignore)"
   fi
 fi
 
-if [ "$smtctl" != "-" ]; then
+if [ "$smartctl" != "-" ]; then
   # Check syntax
-  if ! "$smtctl" -B "$DEST.new" -P showall >/dev/null; then
-    mv_all "$DEST" ".new" ".error"
-    error "$DEST.error: rejected by $smtctl, probably no longer compatible"
+  if ! "$smartctl" -B "$drivedb.new" -P showall >/dev/null; then
+    mv_all "$drivedb" ".new" ".error"
+    error "$drivedb.error: rejected by $smartctl, probably no longer compatible"
   fi
-  vecho "$smtctl: syntax OK"
+  vecho "$smartctl: syntax OK"
 fi
 
 # Keep old file if identical, ignore missing Id keyword expansion in new file
-rm -f "$DEST.lastcheck"
-if [ -f "$DEST" ]; then
-  if [ -f "$DEST.raw" ] && [ -f "$DEST.raw.asc" ]; then
-    if    cmp "$DEST.raw"     "$DEST.new.raw"     >/dev/null 2>&1 \
-       && cmp "$DEST.raw.asc" "$DEST.new.raw.asc" >/dev/null 2>&1 \
-       && {   cmp "$DEST"     "$DEST.new" >/dev/null 2>&1 \
-           || cmp "$DEST.raw" "$DEST.new" >/dev/null 2>&1; }
+rm -f "$drivedb.lastcheck"
+if [ -f "$drivedb" ]; then
+  if [ -f "$drivedb.raw" ] && [ -f "$drivedb.raw.asc" ]; then
+    if    cmp "$drivedb.raw"     "$drivedb.new.raw"     >/dev/null 2>&1 \
+       && cmp "$drivedb.raw.asc" "$drivedb.new.raw.asc" >/dev/null 2>&1 \
+       && {   cmp "$drivedb"     "$drivedb.new" >/dev/null 2>&1 \
+           || cmp "$drivedb.raw" "$drivedb.new" >/dev/null 2>&1; }
     then
-      rm -f "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
-      touch "$DEST.lastcheck"
-      iecho "$DEST is already up to date"
+      rm -f "$drivedb.new" "$drivedb.new.raw" "$drivedb.new.raw.asc"
+      touch "$drivedb.lastcheck"
+      iecho "$drivedb is already up to date"
       exit 0
     fi
-    mv_all "$DEST" "" ".old"
+    mv_all "$drivedb" "" ".old"
   else
-    mv "$DEST" "$DEST.old"
+    mv "$drivedb" "$drivedb.old"
   fi
 fi
 
-mv_all "$DEST" ".new" ""
+mv_all "$drivedb" ".new" ""
 
-iecho "$DEST updated from ${trunk:-branches/$brnch}${no_verify:+ (NOT VERIFIED)}"
+iecho "$drivedb updated from ${trunk:-branches/$branch}${no_verify:+ (NOT VERIFIED)}"
