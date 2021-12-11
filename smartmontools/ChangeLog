@@ -1,6 +1,8 @@
-$Id: ChangeLog 5263 2021-12-11 15:28:52Z chrfranke $
+$Id: ChangeLog 5264 2021-12-11 16:05:45Z chrfranke $
 
 2021-12-11  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add missing long options.
 
 	update-smart-drivedb.in: Allow update from local files or other URLs.
 	Location could be specified with new options '--file' and '--url'
