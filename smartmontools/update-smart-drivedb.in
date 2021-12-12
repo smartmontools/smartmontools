@@ -45,7 +45,7 @@ default_smartctl="$sbindir/smartctl"
 
 myname=$0
 
-usage()
+print_help()
 {
 @ENABLE_SCRIPTPATH_TRUE@  pathinfo="
 @ENABLE_SCRIPTPATH_TRUE@                     $pathinfo"
@@ -80,17 +80,18 @@ Usage: $myname [OPTIONS] [DESTFILE]
   --dryrun          Print download commands only
   -q, --quiet       Suppress info messages
   -v, --verbose     Verbose output
+  -h, --help        Print this help text
 
 Updates $default_drivedb
 or DESTFILE from branches/$default_branch of smartmontools
 SVN repository.
 EOF
-  exit 1
 }
 
 error()
 {
   echo "$myname: $*" >&2
+  test -z "$usageerr" || echo "Try '$myname -h' for help" >&2
   exit 1
 }
 
@@ -100,6 +101,12 @@ err_notfound()
     */*) error "$1: not found $2" ;;
     *)   error "$1: not found in $pathinfo $2" ;;
   esac
+}
+
+# check_optarg "$@"
+check_optarg()
+{
+  test $# -gt 1 || error "option '$1' requires an argument"
 }
 
 warning()
@@ -119,7 +126,7 @@ selecturl()
     svn)  url='https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
     svni) url='http://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
     trac) url='https://www.smartmontools.org/export/HEAD/trunk/smartmontools/drivedb.h' ;;
-    *) usage ;;
+    *) error "$1: is none of 'github sf svn svni trac'"
   esac
 }
 
@@ -567,18 +574,19 @@ insecure=
 no_verify=
 force=
 expkey=
+usageerr=t
 
 while true; do case $1 in
   -s|--smartctl)
-    shift; test -n "$1" || usage
+    check_optarg "$@"; shift
     smartctl=$1 ;;
 
   -t|--tool)
-    shift; test -n "$1" || usage
+    check_optarg "$@"; shift
     tool=$1 ;;
 
   -u|--url-of)
-    shift; test -n "$1" || usage
+    check_optarg "$@"; shift
     url_of=$1 ;;
 
   -q|--quiet)
@@ -588,11 +596,11 @@ while true; do case $1 in
     q= ;;
 
   --url)
-    shift; test -n "$1" || usage
+    check_optarg "$@"; shift
     url=$1 ;;
 
   --file)
-    shift; test -n "$1" || usage
+    check_optarg "$@"; shift
     file=$1 ;;
 
   --dryrun)
@@ -602,16 +610,16 @@ while true; do case $1 in
     trunk=t ;;
 
   --branch)
-    shift
+    check_optarg "$@"; shift
     branch=`echo "$1" | sed -n 's,^\([567]\)\.\([0-9][0-9]*\)$,RELEASE_\1_\2_DRIVEDB,p'`
-    test -n "$branch" || usage ;;
+    test -n "$branch" || error "invalid branch version '$1'" ;;
 
   --cacert)
-    shift; test -n "$1" || usage
+    check_optarg "$@"; shift
     cacert=$1 ;;
 
   --capath)
-    shift; test -n "$1" || usage
+    check_optarg "$@"; shift
     capath=$1 ;;
 
   --insecure)
@@ -626,15 +634,18 @@ while true; do case $1 in
   --export-key)
     expkey=t ;;
 
+  -h|--help)
+    print_help
+    exit 0 ;;
+
   -*)
-    usage ;;
+    error "unknown option '$1'" ;;
 
   *)
     break ;;
 esac; shift; done
 
 if [ -n "$expkey" ]; then
-  test $# = 0 || usage
   selectkey "$branch"
   cat <<EOF
 $public_key
@@ -645,7 +656,7 @@ fi
 case $# in
   0) drivedb=$default_drivedb ;;
   1) drivedb=$1 ;;
-  *) usage ;;
+  *) error "only one DESTFILE argument is allowed" ;;
 esac
 
 # Check selected source
@@ -733,6 +744,7 @@ if [ -z "$no_verify" ]; then
   esac
   "$gpgconf" --version >/dev/null 2>&1 || gpgconf=
 fi
+usageerr=
 
 # Use destination directory as temp directory for gpg
 tmpdir=`dirname "$drivedb"`

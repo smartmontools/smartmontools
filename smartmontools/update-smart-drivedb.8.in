@@ -178,6 +178,9 @@ Suppress info messages.
 .TP
 .B \-v, \-\-verbose
 Verbose output.
+.TP
+.B \-h, \-\-help
+Print help text.
 .Sp
 .SH "EXAMPLES"
 Regular update:

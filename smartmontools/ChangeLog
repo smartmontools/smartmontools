@@ -1,5 +1,9 @@
 $Id$
 
+2021-12-12  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add usage error messages, add '-h' option.
+
 2021-12-11  Christian Franke  <franke@computer.org>
 
 	update-smart-drivedb.in: Allow a directory in the argument of '-t'.
