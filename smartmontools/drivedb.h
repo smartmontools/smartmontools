@@ -5424,6 +5424,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Logitec
+  { "USB: Logitec LGB-4BNHUC",
+    "0x0789:0x0296",
+    "",
+    "",
+    "-d sat"
+  },
   // Freecom
   { "USB: ; Innostor IS631", // No Name USB3->SATA Enclosure
     "0x07ab:0x0621",
