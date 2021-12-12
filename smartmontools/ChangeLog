@@ -1,4 +1,8 @@
-$Id: ChangeLog 5265 2021-12-11 18:02:58Z chrfranke $
+$Id: ChangeLog 5267 2021-12-12 12:59:38Z chrfranke $
+
+2021-12-12  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add usage error messages, add '-h' option.
 
 2021-12-11  Christian Franke  <franke@computer.org>
 
