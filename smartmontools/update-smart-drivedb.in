@@ -181,17 +181,17 @@ vrun2()
   return $rc
 }
 
-# download TOOL URL FILE
+# download URL FILE
 download()
 {
-  local f t u rc
-  t=$1 u=$2; f=$3
+  local f u rc
+  u=$1; f=$2
   rc=0
 
-  case ${t##*/} in
+  case ${tool##*/} in
     curl*)
       # "Accept-Encoding" header avoids caching problems with svn URL
-      vrun "$t" ${q:+-s} -f --max-redirs 0 \
+      vrun "$tool" ${q:+-s} -f --max-redirs 0 \
         -H "Accept-Encoding: identity" \
         ${cacert:+--cacert "$cacert"} \
         ${capath:+--capath "$capath"} \
@@ -201,7 +201,7 @@ download()
 
     wget*)
       # wget >= 1.16.1 sets "Accept-Encoding: identity" header by default
-      vrun "$t" $q --max-redirect=0 \
+      vrun "$tool" $q --max-redirect=0 \
         ${cacert:+--ca-certificate="$cacert"} \
         ${capath:+--ca-directory="$capath"} \
         ${insecure:+--no-check-certificate} \
@@ -212,11 +212,11 @@ download()
       test -z "$cacert" || vrun export SSL_CERT_FILE="$cacert"
       test -z "$capath" || vrun export SSL_CERT_DIR="$capath"
       # Check also stderr as lynx does not return != 0 on HTTP error
-      vrun2 "$f" "$t" -stderr -noredir -source "$u" || rc=$?
+      vrun2 "$f" "$tool" -stderr -noredir -source "$u" || rc=$?
       ;;
 
     svn*)
-      vrun "$t" $q export \
+      vrun "$tool" $q export \
         --non-interactive --no-auth-cache \
         ${cacert:+--config-option "servers:global:ssl-trust-default-ca=no"} \
         ${cacert:+--config-option "servers:global:ssl-authority-files=$cacert"} \
@@ -225,7 +225,7 @@ download()
       ;;
 
     fetch*) # FreeBSD
-      vrun "$t" $q --no-redirect \
+      vrun "$tool" $q --no-redirect \
         ${cacert:+--ca-cert "$cacert"} \
         ${capath:+--ca-path "$capath"} \
         ${insecure:+--no-verify-hostname} \
@@ -233,14 +233,14 @@ download()
       ;;
 
     ftp*) # OpenBSD
-      vrun "$t" \
+      vrun "$tool" \
         ${cacert:+-S cafile="$cacert"} \
         ${capath:+-S capath="$capath"} \
         ${insecure:+-S dont} \
         -o "$f" "$u" || rc=$?
       ;;
 
-    *) error "$t: unknown (internal error)" ;;
+    *) error "$tool: unknown (internal error)" ;;
   esac
   return $rc
 }
@@ -744,7 +744,7 @@ if [ -n "$url" ]; then
   # Download
   vecho "Download drivedb.h with $tool"
   rc=0
-  download "$tool" "$url" "$drivedb.new" || rc=$?
+  download "$url" "$drivedb.new" || rc=$?
   if [ $rc != 0 ]; then
     rm -f "$drivedb.new"
     error "drivedb.h: download failed ($tool: exit $rc)"
@@ -753,7 +753,7 @@ if [ -n "$url" ]; then
   if [ -n "$url_asc" ]; then
     vecho "Download drivedb.h.raw.asc with $tool"
     rc=0
-    download "$tool" "$url_asc" "$drivedb.new.raw.asc" || rc=$?
+    download "$url_asc" "$drivedb.new.raw.asc" || rc=$?
     if [ $rc != 0 ]; then
       rm -f "$drivedb.new" "$drivedb.new.raw.asc"
       error "drivedb.h.raw.asc: download failed ($tool: exit $rc) ('--no-verify' to ignore)"
