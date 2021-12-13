@@ -195,6 +195,14 @@ EXTRA_smartd_SOURCES = \
         netbsd_nvme_ioctl.h \
         megaraid.h
 
+if OS_POSIX
+
+smartd_SOURCES += \
+        popen_as_ugid.cpp \
+        popen_as_ugid.h
+
+endif
+
 if OS_WIN32_MINGW
 
 smartd_SOURCES += \

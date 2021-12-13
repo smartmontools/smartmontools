@@ -489,6 +489,26 @@ The default script is
 .\" %IF OS Windows
 .\"! \fBEXEDIR/smartd_warning.cmd\fP.
 .\" %ENDIF OS Windows
+.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Solaris Cygwin
+.TP
+.B \-u USER[:GROUP], \-\-warn\-as\-user=USER[:GROUP]
+[NEW EXPERIMENTAL SMARTD FEATURE]
+Run the warning script as a non-privileged user instead of root.
+The USER and optional GROUP may be specified as numeric ids or names.
+If no GROUP is specified, the default group of USER is used instead.
+.Sp
+If a warning occurs, a child process is created with \fBfork\fP(2).
+This process closes all inherited file descriptors, connects stdio to
+/dev/null, changes the user and group ids, removes any supplementary
+group ids and then calls the \fBpopen\fP(3) function from the standard
+library.
+.Sp
+If \*(Aq0:0\*(Aq is specified, user and group are not changed, but the
+remaining actions still apply.
+.Sp
+If \*(Aq-\*(Aq is specified, \fBpopen\fP(3) is called directly.
+This is the default.
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Solaris Cygwin
 .\" %IF OS Windows
 .TP
 .B \-\-service

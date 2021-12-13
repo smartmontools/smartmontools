@@ -73,6 +73,10 @@ typedef int pid_t;
 #include "nvmecmds.h"
 #include "utility.h"
 
+#ifdef HAVE_POSIX_API
+#include "popen_as_ugid.h"
+#endif
+
 #ifdef _WIN32
 // fork()/signal()/initd simulation for native Windows
 #include "os_win32/daemon_win32.h" // daemon_main/detach/signal()
@@ -178,6 +182,14 @@ static std::string configfile_alt;
 
 // warning script file
 static std::string warning_script;
+
+#ifdef HAVE_POSIX_API
+// run warning script as non-privileged user
+static bool warn_as_user;
+static uid_t warn_uid;
+static gid_t warn_gid;
+static std::string warn_uname, warn_gname;
+#endif
 
 // command-line: when should we exit?
 enum quit_t {
@@ -1115,19 +1127,39 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 #endif
 
   // tell SYSLOG what we are about to do...
-  PrintOut(LOG_INFO,"%s %s to %s ...\n",
-           which?"Sending warning via":"Executing test of", executable, newadd);
+  PrintOut(LOG_INFO,"%s %s to %s%s ...\n",
+           (which ? "Sending warning via" : "Executing test of"), executable, newadd,
+           (
+#ifdef HAVE_POSIX_API
+            warn_as_user ?
+            strprintf(" (uid=%u(%s) gid=%u(%s))",
+                      (unsigned)warn_uid, warn_uname.c_str(),
+                      (unsigned)warn_gid, warn_gname.c_str() ).c_str() :
+#endif
+            ""
+           )
+  );
   
   // issue the command to send mail or to run the user's executable
   errno=0;
   FILE * pfp;
-  if (!(pfp=popen(command, "r")))
+
+#ifdef HAVE_POSIX_API
+  if (warn_as_user) {
+    pfp = popen_as_ugid(command, "r", warn_uid, warn_gid);
+  } else
+#endif
+  {
+    pfp = popen(command, "r");
+  }
+
+  if (!pfp)
     // failed to popen() mail process
     PrintOut(LOG_CRIT,"%s %s to %s: failed (fork or pipe failed, or no memory) %s\n", 
              newwarn,  executable, newadd, errno?strerror(errno):"");
   else {
     // pipe succeeded!
-    int len, status;
+    int len;
     char buffer[EBUFLEN];
 
     // if unexpected output on stdout/stderr, null terminate, print, and flush
@@ -1153,7 +1185,18 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     
     // if something went wrong with mail process, print warning
     errno=0;
-    if (-1==(status=pclose(pfp)))
+    int status;
+
+#ifdef HAVE_POSIX_API
+    if (warn_as_user) {
+      status = pclose_as_ugid(pfp);
+    } else
+#endif
+    {
+      status = pclose(pfp);
+    }
+
+    if (status == -1)
       PrintOut(LOG_CRIT,"%s %s to %s: pclose(3) failed %s\n", newwarn, executable, newadd,
                errno?strerror(errno):"");
     else {
@@ -1501,6 +1544,10 @@ static const char *GetValidArgList(char opt)
   case 'p':
   case 'w':
     return "<FILE_NAME>";
+#ifdef HAVE_POSIX_API
+  case 'u':
+    return "<USER>[:<GROUP>]";
+#endif
   case 'i':
     return "<INTEGER_SECONDS>";
   default:
@@ -1582,6 +1629,10 @@ static void Usage()
   PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_SMARTDSCRIPTDIR "/smartd_warning.sh]\n\n");
 #else
   PrintOut(LOG_INFO,"        [default is %s/smartd_warning.cmd]\n\n", get_exe_dir().c_str());
+#endif
+#ifdef HAVE_POSIX_API
+  PrintOut(LOG_INFO,"  -u USER[:GROUP], --warn-as-user=USER[:GROUP]\n");
+  PrintOut(LOG_INFO,"        Run warning script as non-privileged USER\n\n");
 #endif
 #ifdef _WIN32
   PrintOut(LOG_INFO,"  --service\n");
@@ -4912,6 +4963,9 @@ static int parse_options(int argc, char **argv)
 
   // Please update GetValidArgList() if you edit shortopts
   static const char shortopts[] = "c:l:q:dDni:p:r:s:A:B:w:Vh?"
+#ifdef HAVE_POSIX_API
+                                                          "u:"
+#endif
 #ifdef HAVE_LIBCAP_NG
                                                           "C"
 #endif
@@ -4940,6 +4994,9 @@ static int parse_options(int argc, char **argv)
     { "copyright",      no_argument,       0, 'V' },
     { "help",           no_argument,       0, 'h' },
     { "usage",          no_argument,       0, 'h' },
+#ifdef HAVE_POSIX_API
+    { "warn-as-user",   required_argument, 0, 'u' },
+#endif
 #ifdef HAVE_LIBCAP_NG
     { "capabilities",   no_argument,       0, 'C' },
 #endif
@@ -4948,6 +5005,7 @@ static int parse_options(int argc, char **argv)
 
   opterr=optopt=0;
   bool badarg = false;
+  const char * badarg_msg = nullptr;
   bool use_default_db = true; // set false on '-B FILE'
 
   // Parse input options.
@@ -5088,6 +5146,19 @@ static int parse_options(int argc, char **argv)
     case 'w':
       warning_script = optarg;
       break;
+#ifdef HAVE_POSIX_API
+    case 'u':
+      warn_as_user = false;
+      if (strcmp(optarg, "-")) {
+        warn_uname = warn_gname = "unknown";
+        badarg_msg = parse_ugid(optarg, warn_uid, warn_gid,
+                                warn_uname, warn_gname     );
+        if (badarg_msg)
+          break;
+        warn_as_user = true;
+      }
+      break;
+#endif
     case 'V':
       // print version and CVS info
       debugmode = 1;
@@ -5140,14 +5211,17 @@ static int parse_options(int argc, char **argv)
     }
 
     // Check to see if option had an unrecognized or incorrect argument.
-    if (badarg) {
+    if (badarg || badarg_msg) {
       debugmode=1;
       PrintHead();
       // It would be nice to print the actual option name given by the user
       // here, but we just print the short form.  Please fix this if you know
       // a clean way to do it.
       PrintOut(LOG_CRIT, "=======> INVALID ARGUMENT TO -%c: %s <======= \n", optchar, optarg);
-      PrintValidArgs(optchar);
+      if (badarg_msg)
+        PrintOut(LOG_CRIT, "%s\n", badarg_msg);
+      else
+        PrintValidArgs(optchar);
       PrintOut(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
       return EXIT_BADCMD;
     }
