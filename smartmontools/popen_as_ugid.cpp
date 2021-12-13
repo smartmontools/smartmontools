@@ -15,6 +15,7 @@ const char * popen_as_ugid_cvsid = "$Id$"
 
 #include <errno.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
