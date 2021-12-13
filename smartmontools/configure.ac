@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5228 2021-08-21 17:25:45Z chrfranke $
+# $Id: configure.ac 5268 2021-12-13 18:55:13Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.2
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5228 2021-08-21 17:25:45Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5268 2021-12-13 18:55:13Z chrfranke $'`
 smartmontools_release_date=2020-12-30
 smartmontools_release_time="16:48:30 UTC"
 
@@ -605,6 +605,7 @@ os_mailer=mail
 os_hostname="'hostname' 'uname -n'"
 os_dnsdomainname=
 os_nisdomainname="'domainname'"
+os_posix=yes
 os_darwin=no
 os_solaris=no
 os_win32=no
@@ -666,6 +667,7 @@ case "${host}" in
     ;;
   x86_64-*-mingw*)
     os_deps='os_win32.o dev_areca.o'
+    os_posix=no
     os_win32=yes
     os_win32_mingw=yes
     os_win64=yes
@@ -674,6 +676,7 @@ case "${host}" in
     ;;
   *-*-mingw*)
     os_deps='os_win32.o dev_areca.o'
+    os_posix=no
     os_win32=yes
     os_win32_mingw=yes
     os_man_filter=Windows
@@ -691,6 +694,7 @@ case "${host}" in
     ;;
   *-*-os2-*)
     os_deps='os_os2.o'
+    os_posix=no
     ;;
   *)
     os_deps='os_generic.o'
@@ -699,6 +703,12 @@ esac
 
 # Replace if '--with-os-deps' was specified
 test -z "$with_os_deps" || os_deps="$with_os_deps"
+
+AC_MSG_CHECKING([whether the OS provides a POSIX API])
+if test "$os_posix" = "yes"; then
+  AC_DEFINE(HAVE_POSIX_API, 1, [Define to 1 if the OS provides a POSIX API])
+fi
+AC_MSG_RESULT([$os_posix])
 
 # Check if we need adapter to old interface (dev_legacy.cpp)
 os_src=`echo "${os_deps}"|sed -n 's,^\([[^ .]]*\)\.o.*$,\1.cpp,p'`
@@ -744,6 +754,7 @@ fi
 AC_SUBST([DRIVEDB_BRANCH])
 
 # Enable platform-specific makefile sections
+AM_CONDITIONAL(OS_POSIX, [test "$os_posix" = "yes"])
 AM_CONDITIONAL(OS_DARWIN, [test "$os_darwin" = "yes"])
 AM_CONDITIONAL(OS_SOLARIS, [test "$os_solaris" = "yes"])
 AM_CONDITIONAL(OS_WIN32, [test "$os_win32" = "yes"])
