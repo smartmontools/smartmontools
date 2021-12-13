@@ -10,11 +10,12 @@
 
 #include "popen_as_ugid.h"
 
-const char * popen_as_ugid_cvsid = "$Id: popen_as_ugid.cpp 5268 2021-12-13 18:55:13Z chrfranke $"
+const char * popen_as_ugid_cvsid = "$Id: popen_as_ugid.cpp 5269 2021-12-13 19:22:38Z chrfranke $"
   POPEN_AS_UGID_H_CVSID;
 
 #include <errno.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
