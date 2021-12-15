@@ -1,5 +1,9 @@
 $Id$
 
+2021-12-15  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Allow use of '--warn-as-user' with '--capabilities'.
+
 2021-12-13  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Add ability to run warning script as non-privileged user.

@@ -236,8 +236,10 @@ to perform quick and simple checks without a configuration file.
 .B \-C, \-\-capabilities
 [Linux only] Use libcap-ng to drop unneeded Linux process \fBcapabilities\fP(7).
 The following capabilities are kept: CAP_SYS_ADMIN, CAP_SYS_RAWIO, CAP_MKNOD.
+If the \*(Aq\-u\*(Aq option is used with a non-privileged user or group, the
+following capabilities are also kept: CAP_SETGID, CAP_SETUID.
 .Sp
-Warning: Mail notification does not work when used.
+Warning: Mail notification does not work when used without \*(Aq\-u\*(Aq.
 .\" %ENDIF ENABLE_CAPABILITIES
 .TP
 .B \-d, \-\-debug
