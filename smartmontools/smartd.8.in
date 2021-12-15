@@ -4,7 +4,7 @@ Copyright (C) 2004-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.8.in 5268 2021-12-13 18:55:13Z chrfranke $
+$Id: smartd.8.in 5270 2021-12-15 17:45:07Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -236,8 +236,10 @@ to perform quick and simple checks without a configuration file.
 .B \-C, \-\-capabilities
 [Linux only] Use libcap-ng to drop unneeded Linux process \fBcapabilities\fP(7).
 The following capabilities are kept: CAP_SYS_ADMIN, CAP_SYS_RAWIO, CAP_MKNOD.
+If the \*(Aq\-u\*(Aq option is used with a non-privileged user or group, the
+following capabilities are also kept: CAP_SETGID, CAP_SETUID.
 .Sp
-Warning: Mail notification does not work when used.
+Warning: Mail notification does not work when used without \*(Aq\-u\*(Aq.
 .\" %ENDIF ENABLE_CAPABILITIES
 .TP
 .B \-d, \-\-debug
@@ -866,4 +868,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 5268 2021-12-13 18:55:13Z chrfranke $
+$Id: smartd.8.in 5270 2021-12-15 17:45:07Z chrfranke $

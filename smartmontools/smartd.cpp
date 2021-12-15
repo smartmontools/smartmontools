@@ -89,7 +89,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5268 2021-12-13 18:55:13Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5270 2021-12-15 17:45:07Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -934,12 +934,17 @@ static void capabilities_drop_now()
   capng_clear(CAPNG_SELECT_BOTH);
   capng_updatev(CAPNG_ADD, (capng_type_t)(CAPNG_EFFECTIVE|CAPNG_PERMITTED),
     CAP_SYS_ADMIN, CAP_MKNOD, CAP_SYS_RAWIO, -1);
+  if (warn_as_user && (warn_uid || warn_gid)) {
+    // For popen_as_ugid()
+    capng_updatev(CAPNG_ADD, (capng_type_t)(CAPNG_EFFECTIVE|CAPNG_PERMITTED),
+      CAP_SETGID, CAP_SETUID, -1);
+  }
   capng_apply(CAPNG_SELECT_BOTH);
 }
 
 static void capabilities_check_config(dev_config_vector & configs)
 {
-  if (!capabilities_enabled)
+  if (!(capabilities_enabled && !(warn_as_user && (warn_uid || warn_gid))))
     return;
   for (auto & cfg : configs) {
     if (!cfg.emailaddress.empty() || !cfg.emailcmdline.empty()) {

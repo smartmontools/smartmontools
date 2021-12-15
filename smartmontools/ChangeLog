@@ -1,4 +1,8 @@
-$Id: ChangeLog 5268 2021-12-13 18:55:13Z chrfranke $
+$Id: ChangeLog 5270 2021-12-15 17:45:07Z chrfranke $
+
+2021-12-15  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Allow use of '--warn-as-user' with '--capabilities'.
 
 2021-12-13  Christian Franke  <franke@computer.org>
 
