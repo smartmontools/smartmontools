@@ -233,13 +233,25 @@ This is useful for commands like:
 to perform quick and simple checks without a configuration file.
 .\" %IF ENABLE_CAPABILITIES
 .TP
-.B \-C, \-\-capabilities
+.B \-C, \-\-capabilities[=mail]
 [Linux only] Use libcap-ng to drop unneeded Linux process \fBcapabilities\fP(7).
-The following capabilities are kept: CAP_SYS_ADMIN, CAP_SYS_RAWIO, CAP_MKNOD.
-If the \*(Aq\-u\*(Aq option is used with a non-privileged user or group, the
-following capabilities are also kept: CAP_SETGID, CAP_SETUID.
+The following capabilities are kept in the effective and permissive sets:
+CAP_SYS_ADMIN, CAP_SYS_RAWIO, CAP_MKNOD.
+If the \*(Aq\-u, \-\-warn_as_user\*(Aq option (see below) is used with a
+non-privileged user or group, the following capabilities are also kept:
+CAP_SETGID, CAP_SETUID.
+The capability bounding set is cleared.
 .Sp
-Warning: Mail notification does not work when used without \*(Aq\-u\*(Aq.
+[NEW EXPERIMENTAL SMARTD FEATURE]
+Mail notification is no longer suppressed if capabilities are dropped.
+It depends on the local MTA whether mail could be send from a root process
+with all capabilities dropped.
+It works with the \fBpostfix\fP MTA.
+.Sp
+If \*(Aq\-\-capabilities=mail\*(Aq is specified, the following
+capabilities are added to the bounding set:
+CAP_SETGID, CAP_SETUID, CAP_CHOWN, CAP_FOWNER, CAP_DAC_OVERRIDE.
+This allows to send mail with the \fBexim\fP MTA.
 .\" %ENDIF ENABLE_CAPABILITIES
 .TP
 .B \-d, \-\-debug

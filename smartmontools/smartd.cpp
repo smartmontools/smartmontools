@@ -925,11 +925,11 @@ static void sighandler(int sig)
 #ifdef HAVE_LIBCAP_NG
 // capabilities(7) support
 
-static bool capabilities_enabled = false;
+static int capabilities_mode /* = 0 */; // 1=enabled, 2=mail
 
 static void capabilities_drop_now()
 {
-  if (!capabilities_enabled)
+  if (!capabilities_mode)
     return;
   capng_clear(CAPNG_SELECT_BOTH);
   capng_updatev(CAPNG_ADD, (capng_type_t)(CAPNG_EFFECTIVE|CAPNG_PERMITTED),
@@ -939,27 +939,28 @@ static void capabilities_drop_now()
     capng_updatev(CAPNG_ADD, (capng_type_t)(CAPNG_EFFECTIVE|CAPNG_PERMITTED),
       CAP_SETGID, CAP_SETUID, -1);
   }
+  if (capabilities_mode > 1) {
+    // For exim MTA
+    capng_updatev(CAPNG_ADD, CAPNG_BOUNDING_SET,
+      CAP_SETGID, CAP_SETUID, CAP_CHOWN, CAP_FOWNER, CAP_DAC_OVERRIDE, -1);
+  }
   capng_apply(CAPNG_SELECT_BOTH);
 }
 
-static void capabilities_check_config(dev_config_vector & configs)
+static void capabilities_log_error_hint()
 {
-  if (!(capabilities_enabled && !(warn_as_user && (warn_uid || warn_gid))))
+  if (!capabilities_mode)
     return;
-  for (auto & cfg : configs) {
-    if (!cfg.emailaddress.empty() || !cfg.emailcmdline.empty()) {
-      PrintOut(LOG_INFO, "Device: %s, --capabilites is set, mail will be suppressed.\n",
-               cfg.name.c_str());
-      cfg.emailaddress.clear(); cfg.emailcmdline.clear();
-    }
-  }
+  PrintOut(LOG_INFO, "If mail notification does not work with '--capabilities%s\n",
+           (capabilities_mode == 1 ? "', try '--capabilities=mail'"
+                                   : "=mail', please inform " PACKAGE_BUGREPORT));
 }
 
 #else // HAVE_LIBCAP_NG
 // No capabilities(7) support
 
 static inline void capabilities_drop_now() { }
-static inline void capabilities_check_config(dev_config_vector &) { }
+static inline void capabilities_log_error_hint() { }
 
 #endif // HAVE_LIBCAP_NG
 
@@ -1212,9 +1213,11 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
         if (status8>128)
           PrintOut(LOG_CRIT,"%s %s to %s: failed (32-bit/8-bit exit status: %d/%d) perhaps caught signal %d [%s]\n",
                    newwarn, executable, newadd, status, status8, status8-128, strsignal(status8-128));
-        else if (status8)
+        else if (status8) {
           PrintOut(LOG_CRIT,"%s %s to %s: failed (32-bit/8-bit exit status: %d/%d)\n",
                    newwarn, executable, newadd, status, status8);
+          capabilities_log_error_hint();
+        }
         else
           PrintOut(LOG_INFO,"%s %s to %s: successful\n", newwarn, executable, newadd);
       }
@@ -1549,12 +1552,16 @@ static const char *GetValidArgList(char opt)
   case 'p':
   case 'w':
     return "<FILE_NAME>";
+  case 'i':
+    return "<INTEGER_SECONDS>";
 #ifdef HAVE_POSIX_API
   case 'u':
     return "<USER>[:<GROUP>]";
 #endif
-  case 'i':
-    return "<INTEGER_SECONDS>";
+#ifdef HAVE_LIBCAP_NG
+  case 'C':
+    return "mail, <no_argument>";
+#endif
   default:
     return nullptr;
   }
@@ -1586,9 +1593,9 @@ static void Usage()
   PrintOut(LOG_INFO,"        Read configuration file NAME or stdin\n");
   PrintOut(LOG_INFO,"        [default is %s]\n\n", configfile);
 #ifdef HAVE_LIBCAP_NG
-  PrintOut(LOG_INFO,"  -C, --capabilities\n");
+  PrintOut(LOG_INFO,"  -C, --capabilities[=mail]\n");
   PrintOut(LOG_INFO,"        Drop unneeded Linux process capabilities.\n"
-                    "        Warning: Mail notification does not work when used.\n\n");
+                    "        Warning: Mail notification may not work when used.\n\n");
 #endif
   PrintOut(LOG_INFO,"  -d, --debug\n");
   PrintOut(LOG_INFO,"        Start smartd in debug mode\n\n");
@@ -5003,7 +5010,7 @@ static int parse_options(int argc, char **argv)
     { "warn-as-user",   required_argument, 0, 'u' },
 #endif
 #ifdef HAVE_LIBCAP_NG
-    { "capabilities",   no_argument,       0, 'C' },
+    { "capabilities",   optional_argument, 0, 'C' },
 #endif
     { 0,                0,                 0, 0   }
   };
@@ -5172,7 +5179,12 @@ static int parse_options(int argc, char **argv)
 #ifdef HAVE_LIBCAP_NG
     case 'C':
       // enable capabilities
-      capabilities_enabled = true;
+      if (!optarg)
+        capabilities_mode = 1;
+      else if (!strcmp(optarg, "mail"))
+        capabilities_mode = 2;
+      else
+        badarg = true;
       break;
 #endif
     case 'h':
@@ -5616,8 +5628,6 @@ static int main_worker(int argc, char **argv)
           }
           if (!(configs.size() == devices.size() && configs.size() == states.size()))
             throw std::logic_error("Invalid result from RegisterDevices");
-          // Handle limitations if capabilities are dropped
-          capabilities_check_config(configs);
         }
         else if (   quit == QUIT_NEVER
                  || ((quit == QUIT_NODEV || quit == QUIT_NODEVSTARTUP) && !firstpass)) {

@@ -1,5 +1,17 @@
 $Id$
 
+2021-12-16  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add new option '--capabilities=mail'.
+	It initializes the capability bounding set for the exim MTA.
+	This is based on 'smartmontools-7.2-capnotify.patch' from the
+	Fedora Package (Red Hat Bugzilla 1954015).
+
+	No longer suppress mail notification if '--capabilities' is used.
+	Log a related hint instead if the warning script fails.
+
+	smartd.8.in: Document new functionality.
+
 2021-12-15  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Allow use of '--warn-as-user' with '--capabilities'.
