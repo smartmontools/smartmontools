@@ -1,5 +1,17 @@
 $Id$
 
+2021-12-18  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Windows: Add new option '--warn-as-user=restricted'.
+	If specified, the warning script is run with a restricted access
+	token.
+
+	os_win32/popen_win32.cpp, os_win32/popen.h: Add new functions
+	'popen_as_restr_user()' and 'popen_as_restr_check()' and a TEST
+	program.
+
+	smartd.8.in: Document new functionality.
+
 2021-12-16  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Add new option '--capabilities=mail'.

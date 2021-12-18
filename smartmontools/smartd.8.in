@@ -525,6 +525,25 @@ This is the default.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Solaris Cygwin
 .\" %IF OS Windows
 .TP
+.B \-u MODE, \-\-warn\-as\-user=MODE
+[Windows only]
+[NEW EXPERIMENTAL SMARTD FEATURE]
+Run the warning script with a modified access token.
+The valid arguments to this option are:
+.Sp
+.I restricted
+\- Run the warning script with a restricted access token.
+The local \*(AqAdministrator\*(Aq group and most privileges
+(all except \*(AqSeChangeNotifyPrivilege\*(Aq) are removed.
+This is not effective if the current user is the local \*(AqSYSTEM\*(Aq
+or \*(AqAdministrator\*(Aq account.
+If this is the case, \fBsmartd\fP logs an error message during startup
+and exits.
+.Sp
+.I unchanged
+\- Run the warning script without changing the access token.
+This is the default.
+.TP
 .B \-\-service
 [Windows only] Enables \fBsmartd\fP to run as a Windows service.
 The option must be specified in the service command line as the first
@@ -685,6 +704,11 @@ named "smartd" (display name "SmartD Service") using the command line
 \*(Aq/INSTALLPATH/smartd.exe \-\-service [options]\*(Aq.
 This also installs smartd.exe as a event message file for the Windows
 event viewer.
+.PP
+This does not work if the option \*(Aq--warn-as-user=restricted\*(Aq is
+specified because the local \*(AqSYSTEM\*(Aq account cannot be restricted.
+The service must then be manually reconfigured to run as a another user
+which is a member of the local \*(AqAdminstrator\*(Aq group.
 .PP
 \*(Aq\fBsmartd remove\fP\*(Aq can later be used to remove the service and
 event message entries from the registry.

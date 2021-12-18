@@ -43,7 +43,7 @@
 #endif
 
 #ifdef _WIN32
-#include "os_win32/popen.h" // popen/pclose()
+#include "os_win32/popen.h" // popen_as_rstr_user(), pclose()
 #ifdef _MSC_VER
 #pragma warning(disable:4761) // "conversion supplied"
 typedef unsigned short mode_t;
@@ -189,6 +189,9 @@ static bool warn_as_user;
 static uid_t warn_uid;
 static gid_t warn_gid;
 static std::string warn_uname, warn_gname;
+#elif defined(_WIN32)
+// run warning script as restricted user
+static bool warn_as_restr_user;
 #endif
 
 // command-line: when should we exit?
@@ -1141,6 +1144,8 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
             strprintf(" (uid=%u(%s) gid=%u(%s))",
                       (unsigned)warn_uid, warn_uname.c_str(),
                       (unsigned)warn_gid, warn_gname.c_str() ).c_str() :
+#elif defined(_WIN32)
+            warn_as_restr_user ? " (restricted user)" :
 #endif
             ""
            )
@@ -1156,7 +1161,11 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   } else
 #endif
   {
+#ifdef _WIN32
+    pfp = popen_as_restr_user(command, "r", warn_as_restr_user);
+#else
     pfp = popen(command, "r");
+#endif
   }
 
   if (!pfp)
@@ -1556,7 +1565,10 @@ static const char *GetValidArgList(char opt)
     return "<INTEGER_SECONDS>";
 #ifdef HAVE_POSIX_API
   case 'u':
-    return "<USER>[:<GROUP>]";
+    return "<USER>[:<GROUP>], -";
+#elif defined(_WIN32)
+  case 'u':
+    return "restricted, unchanged";
 #endif
 #ifdef HAVE_LIBCAP_NG
   case 'C':
@@ -1645,6 +1657,9 @@ static void Usage()
 #ifdef HAVE_POSIX_API
   PrintOut(LOG_INFO,"  -u USER[:GROUP], --warn-as-user=USER[:GROUP]\n");
   PrintOut(LOG_INFO,"        Run warning script as non-privileged USER\n\n");
+#elif defined(_WIN32)
+  PrintOut(LOG_INFO,"  -u MODE, --warn-as-user=MODE\n");
+  PrintOut(LOG_INFO,"        Run warning script with modified access token: %s\n\n", GetValidArgList('u'));
 #endif
 #ifdef _WIN32
   PrintOut(LOG_INFO,"  --service\n");
@@ -4975,7 +4990,7 @@ static int parse_options(int argc, char **argv)
 
   // Please update GetValidArgList() if you edit shortopts
   static const char shortopts[] = "c:l:q:dDni:p:r:s:A:B:w:Vh?"
-#ifdef HAVE_POSIX_API
+#if defined(HAVE_POSIX_API) || defined(_WIN32)
                                                           "u:"
 #endif
 #ifdef HAVE_LIBCAP_NG
@@ -5006,7 +5021,7 @@ static int parse_options(int argc, char **argv)
     { "copyright",      no_argument,       0, 'V' },
     { "help",           no_argument,       0, 'h' },
     { "usage",          no_argument,       0, 'h' },
-#ifdef HAVE_POSIX_API
+#if defined(HAVE_POSIX_API) || defined(_WIN32)
     { "warn-as-user",   required_argument, 0, 'u' },
 #endif
 #ifdef HAVE_LIBCAP_NG
@@ -5170,7 +5185,16 @@ static int parse_options(int argc, char **argv)
         warn_as_user = true;
       }
       break;
-#endif
+#elif defined(_WIN32)
+    case 'u':
+      if (!strcmp(optarg, "restricted"))
+        warn_as_restr_user = true;
+      else if (!strcmp(optarg, "unchanged"))
+        warn_as_restr_user = false;
+      else
+        badarg = true;
+      break;
+#endif // HAVE_POSIX_API ||_WIN32
     case 'V':
       // print version and CVS info
       debugmode = 1;
@@ -5269,6 +5293,16 @@ static int parse_options(int argc, char **argv)
           && check_abs_path('s', state_path_prefix)
           && check_abs_path('A', attrlog_path_prefix)))
       return EXIT_BADCMD;
+  }
+#endif
+
+#ifdef _WIN32
+  if (warn_as_restr_user && !popen_as_restr_check()) {
+    debugmode = 1;
+    PrintHead();
+    PrintOut(LOG_CRIT, "Option '--warn-as-user=restricted' is not effective if the current user\n");
+    PrintOut(LOG_CRIT, "is the local 'SYSTEM' or 'Administrator' account\n\n");
+    return EXIT_BADCMD;
   }
 #endif
 
