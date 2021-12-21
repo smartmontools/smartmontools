@@ -38,6 +38,8 @@ struct scsi_print_options
   bool smart_selftest_abort = false;
   bool smart_selftest_force = false; // Ignore already running test
 
+  bool smart_env_rep = false;
+
   bool sasphy = false, sasphy_reset = false;
   
   bool get_wce = false, get_rcd = false;

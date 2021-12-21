@@ -544,6 +544,7 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.sct_erc_get = 1;
       } else if (!strcmp(optarg,"scttemp")) {
         ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
+        scsiopts.smart_env_rep = true;
       } else if (!strcmp(optarg,"scttempsts")) {
         ataopts.sct_temp_sts = true;
       } else if (!strcmp(optarg,"scttemphist")) {
@@ -737,6 +738,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
+      scsiopts.smart_env_rep = true;
       if (!output_format_set)
         ataopts.output_format |= ata_print_options::FMT_BRIEF;
       break;

@@ -354,7 +354,7 @@ scsiGetSmartData(scsi_device * device, bool attribs)
         else {
             jout("Drive Trip Temperature:        %d C\n", triptemp);
             jglb["temperature"]["drive_trip"] = triptemp;
-    }
+        }
     }
     pout("\n");
     return err;
@@ -2294,6 +2294,152 @@ scsiPrintTemp(scsi_device * device)
     pout("\n");
 }
 
+static void
+scsiPrintEnviroReporting(scsi_device * device)
+{
+    int len, num, err;
+    unsigned char * ucp;
+    static const char * hname = "Environmental Reports";
+    static const char * jname = "environmental_reports";
+    static const char * j_tmp_n = "temperature";
+    static const char * j_rh_n = "relative_humidity";
+    static const char * rh_n = "relative humidity";
+    static const char * j_lif_max_n = "lifetime_maximum";
+    static const char * j_lif_min_n = "lifetime_minimum";
+    static const char * j_max_spo_n = "maximum_since_power_on";
+    static const char * j_min_spo_n = "minimum_since_power_on";
+    static const char * j_max_oth_n = "maximum_other";
+    static const char * j_min_oth_n = "minimum_other";
+    static const char * sop_n = "since power on";
+    static const char * unkn_n = "unknown";
+
+   if ((err = scsiLogSense(device, TEMPERATURE_LPAGE, ENVIRO_REP_L_SPAGE,
+                           gBuf, LOG_RESP_LEN, -1 /* single fetch */))) {
+        print_on();
+        pout("%s Failed [%s]\n", __func__, scsiErrString(err));
+        print_off();
+        return;
+    }
+    if (((gBuf[0] & 0x3f) != TEMPERATURE_LPAGE) ||
+        (gBuf[1] != ENVIRO_REP_L_SPAGE)) {
+        print_on();
+        pout("%s %s Failed, page mismatch\n", hname, logSenStr);
+        print_off();
+        return;
+    }
+    if (! (gBuf[0] & 0x40)) {
+        if (scsi_debugmode > 0) {
+            print_on();
+            pout("Another flaky device that doesn't set the SPF bit\n");
+            print_off();
+        }
+    }
+    len = sg_get_unaligned_be16(gBuf + 2);
+    num = len - 4;
+    ucp = &gBuf[0] + 4;
+
+    while (num > 3) {
+        int pc = sg_get_unaligned_be16(ucp + 0);
+        int pl = ucp[3] + 4;
+        char pc_s[16];
+
+        snprintf(pc_s, sizeof(pc_s), "pc_%d", pc);
+        if ((pc < 0x100) && (pl == 12)) {
+            /* temperature is two's complement 8 bit in centigrade */
+            int temp = (int)(int8_t)ucp[5];
+
+            if (ucp[5] == 0x80) {
+                jout("Current %s = %s\n", j_tmp_n, unkn_n);
+                jglb[jname][j_tmp_n][pc_s]["current"] = unkn_n;
+            } else {
+                jout("Current %s = %d\n", j_tmp_n, temp);
+                jglb[jname][j_tmp_n][pc_s]["current"] = temp;
+            }
+            temp = (int)(int8_t)ucp[6];
+            if (ucp[6] == 0x80) {
+                jout("Lifetime maximum %s = %s\n", j_tmp_n, unkn_n);
+                jglb[jname][j_tmp_n][pc_s][j_lif_max_n] = unkn_n;
+            } else {
+                jout("Lifetime maximum %s = %d\n", j_tmp_n, temp);
+                jglb[jname][j_tmp_n][pc_s][j_lif_max_n] = temp;
+            }
+            temp = (int)(int8_t)ucp[7];
+            if (ucp[7] == 0x80) {
+                jout("Lifetime minimum %s = %s\n", j_tmp_n, unkn_n);
+                jglb[jname][j_tmp_n][pc_s][j_lif_min_n] = unkn_n;
+            } else {
+                jout("Lifetime minimum %s = %d\n", j_tmp_n, temp);
+                jglb[jname][j_tmp_n][pc_s][j_lif_min_n] = temp;
+            }
+            temp = (int)(int8_t)ucp[8];
+            if (ucp[8] == 0x80) {
+                jout("Maximum %s %s = %s\n", j_tmp_n, sop_n, unkn_n);
+                jglb[jname][j_tmp_n][pc_s][j_max_spo_n] = unkn_n;
+            } else {
+                jout("Maximum %s %s = %d\n", j_tmp_n, sop_n, temp);
+                jglb[jname][j_tmp_n][pc_s][j_max_spo_n] = temp;
+            }
+            temp = (int)(int8_t)ucp[9];
+            if (ucp[9] == 0x80) {
+                jout("Minimum %s %s = %s\n", j_tmp_n, sop_n, unkn_n);
+                jglb[jname][j_tmp_n][pc_s][j_min_spo_n] = unkn_n;
+            } else {
+                jout("Minimum %s %s = %d\n", j_tmp_n, sop_n, temp);
+                jglb[jname][j_tmp_n][pc_s][j_min_spo_n] = temp;
+            }
+            if ((ucp[4] & 0x3) == 1) {  /* OTV field set to 1 */
+                temp = (int)(int8_t)ucp[10];
+                if (ucp[10] == 0x80) {
+                    jout("Maximum other %s = %s\n", j_tmp_n, unkn_n);
+                    jglb[jname][j_tmp_n][pc_s][j_max_oth_n] = unkn_n;
+                } else {
+                    jout("Maximum other %s = %d\n", j_tmp_n, temp);
+                    jglb[jname][j_tmp_n][pc_s][j_max_oth_n] = temp;
+                }
+                temp = (int)(int8_t)ucp[11];
+                if (ucp[11] == 0x80) {
+                    jout("Minimum other %s = %s\n", j_tmp_n, unkn_n);
+                    jglb[jname][j_tmp_n][pc_s][j_min_oth_n] = unkn_n;
+                } else {
+                    jout("Minimum other %s = %d\n", j_tmp_n, temp);
+                    jglb[jname][j_tmp_n][pc_s][j_min_oth_n] = temp;
+                }
+            }
+        } else if ((pc < 0x200) && (pl == 12)) {
+            jout("Relative humidity = %u\n", ucp[5]);
+            jglb[jname][j_rh_n][pc_s]["current"] = ucp[5];
+            jout("Lifetime maximum %s = %d\n", rh_n, ucp[6]);
+            jglb[jname][j_rh_n][pc_s][j_lif_max_n] = ucp[6];
+            jout("Lifetime minimum %s = %d\n", rh_n, ucp[7]);
+            jglb[jname][j_rh_n][pc_s][j_lif_min_n] = ucp[7];
+            jout("Maximum %s %s = %d\n", rh_n, sop_n, ucp[8]);
+            jglb[jname][j_rh_n][pc_s][j_max_spo_n] = ucp[8];
+            jout("Minimum %s %s = %d\n", rh_n, sop_n, ucp[9]);
+            jglb[jname][j_rh_n][pc_s][j_min_spo_n] = ucp[9];
+            if ((ucp[4] & 0x3) == 1) {  /* ORHV field set to 1 */
+                jout("Maximum other %s = %d\n", rh_n, ucp[10]);
+                jglb[jname][j_rh_n][pc_s][j_max_oth_n] = ucp[10];
+                jout("Minimum other %s = %d\n", rh_n, ucp[11]);
+                jglb[jname][j_rh_n][pc_s][j_min_oth_n] = ucp[11];
+            }
+        } else {
+            if (scsi_debugmode > 0) {
+                print_on();
+                if ((pc < 0x200) && (pl != 12))
+                    pout("%s sub-lpage unexpected parameter length [%d], skip\n",
+                         hname, pl);
+                else
+                    pout("%s sub-lpage has unexpected parameter [0x%x], skip\n",
+                         hname, pc);
+                print_off();
+            }
+            return;
+        }
+        num -= pl;
+        ucp += pl;
+    }
+}
+
 /* Main entry point used by smartctl command. Return 0 for success */
 int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
@@ -2535,7 +2681,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     if (options.smart_vendor_attrib) {
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(device);
-        if (gTempLPage)
+        if (gEnviroReportingLPage && options.smart_env_rep)
+            scsiPrintEnviroReporting(device);
+        else if (gTempLPage)
             scsiPrintTemp(device);
         // in the 'smartctl -A' case only want: "Accumulated power on time"
         if ((! options.smart_background_log) && is_disk) {
