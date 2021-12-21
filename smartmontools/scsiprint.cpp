@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5217 2021-05-03 02:31:27Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5273 2021-12-21 15:21:25Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -179,7 +179,6 @@ scsiGetSupportedLogPages(scsi_device * device)
             bump = 1;
             up = sup_lpgs + LOGPAGEHDRSIZE;
             got_subpages = false;
-            (void)got_subpages; // not yet used below, suppress warning
         } else {
             resp_len = resp_len_pg0_ff;
             bump = 2;
@@ -194,7 +193,7 @@ scsiGetSupportedLogPages(scsi_device * device)
     num_unreported_spg = 0;
     for (num_unreported = 0, k = 0; k < resp_len; k += bump, up += bump) {
         uint8_t pg_num = 0x3f & up[0];
-        uint8_t sub_pg_num = (0x40 & up[0]) ? up[1] : 0;
+        uint8_t sub_pg_num = got_subpages ? up[1] : 0;
 
         switch (pg_num)
         {

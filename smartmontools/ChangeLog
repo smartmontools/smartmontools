@@ -1,4 +1,9 @@
-$Id: ChangeLog 5272 2021-12-18 15:55:35Z chrfranke $
+$Id: ChangeLog 5273 2021-12-21 15:21:25Z dpgilbert $
+
+2021-12-21  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: fix listing of subpages as proposed by Yannick
+	Hemery <yannick.hemery@corp.ovh.com> in in smt's github pull/122
 
 2021-12-18  Christian Franke  <franke@computer.org>
 
