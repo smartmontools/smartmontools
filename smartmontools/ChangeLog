@@ -1,4 +1,13 @@
-$Id: ChangeLog 5273 2021-12-21 15:21:25Z dpgilbert $
+$Id: ChangeLog 5274 2021-12-21 20:53:44Z dpgilbert $
+
+2021-12-21  Douglas Gilbert  <dgilbert@interlog.com>
+
+	expermimental: add support for printing the SCSI Environmental
+	Reporting log (sub)page [0xd,0x1] via the -l scttemp option
+	and select it when '-x' is given. Also generate json output.
+	Outputs temperature and relative humidity current values and
+	various min/max values. Manpage has not been updated as this
+	may not be the best way to hook this in.
 
 2021-12-21  Douglas Gilbert  <dgilbert@interlog.com>
 
