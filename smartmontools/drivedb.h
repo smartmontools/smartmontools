@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.2/5236 2021-09-14 13:17:47 $Id: drivedb.h 5237 2021-09-14 13:33:20Z chrfranke $",
+  { "VERSION: 7.2/5254 2021-11-24 08:48:38 $Id: drivedb.h 5275 2021-12-29 15:28:45Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -1597,7 +1597,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Intel S4510/S4610/S4500/S4600 Series SSDs", // INTEL SSDSC2KB480G7/SCV10100,
       // INTEL SSDSC2KB960G7/SCV10100, INTEL SSDSC2KB038T7/SCV10100,
       // INTEL SSDSC2KB038T7/SCV10121, INTEL SSDSC2KG240G7/SCV10100
-    "INTEL SSDSC(2K|KK)(B|G)(240G|480G|960G|019T|038T)(7|8).?",
+      // INTEL SSDSC2KB480GZ/7CV10100
+    "INTEL SSDSC(2K|KK)(B|G)(240G|480G|960G|019T|038T)(7|8|Z).?",
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -1779,8 +1780,8 @@ const drive_settings builtin_knowndrives[] = {
       // PX-128M5M/1.05, PX-128M5S/1.05, PX-128M5Pro/1.05, PX-512M5Pro/1.06, PX-256M5P/1.01, PX-128M6S/1.03
       // (1.04/5 Firmware self-test log lifetime unit is bogus, possibly 1/256 hours)
       // PLEXTOR PX-256M6S+/1.00, PLEXTOR  PX-128M3/1.00, PLEXTOR PX-128M3/1.07, PLEXTOR PX-128M6V/1.04,
-      // PLEXTOR PX-128M6G-2242/1.01, PLEXTOR PX-512M7VC/1.05
-    "PLEXTOR  ?PX-(64|128|256|512|768)M(3P?|5[MPS]|5Pro|6[GMSV]|7VC)(\\+|-.*)?",
+      // PLEXTOR PX-128M6G-2242/1.01, PLEXTOR PX-512M7VC/1.05, PLEXTOR PX-512M8VC +/1.00
+    "PLEXTOR  ?PX-(64|128|256|512|768)M(3P?|5[MPS]|5Pro|6[GMSV]|[78]VC)(\\+|-.*| )?",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
