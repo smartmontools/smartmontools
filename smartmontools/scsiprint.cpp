@@ -39,6 +39,9 @@ uint8_t gBuf[GBUF_SIZE];
 #define LOG_RESP_LONG_LEN ((62 * 256) + 252)
 #define LOG_RESP_TAPE_ALERT_LEN 0x144
 
+/* Supported log pages + Supported log pages and subpages maximum count */
+#define SCSI_SUPP_LOG_PAGES_MAX_COUNT (252 + (62 * 128) + 126)
+
 /* Log pages supported */
 static bool gSmartLPage = false;     /* Informational Exceptions log page */
 static bool gTempLPage = false;
@@ -118,14 +121,17 @@ static void
 scsiGetSupportedLogPages(scsi_device * device)
 {
     bool got_subpages = false;
-    int k, bump, err, resp_len, num_unreported, num_unreported_spg;
-    int resp_len_pg0_0 = 0;
-    int resp_len_pg0_ff = 0;    /* in SPC-4, response length of supported
-                                 * log pages _and_ log subpages */
+    int k, err, resp_len, num_unreported, num_unreported_spg;
+    int supp_lpg_and_spg_count = 0;
+
     const uint8_t * up;
     uint8_t sup_lpgs[LOG_RESP_LEN];
+    struct scsi_supp_log_pages supp_lpg_and_spg[SCSI_SUPP_LOG_PAGES_MAX_COUNT];
 
     memset(gBuf, 0, LOG_RESP_LEN);
+    memset(supp_lpg_and_spg, 0, sizeof(supp_lpg_and_spg));
+
+    /* Get supported log pages */
     if ((err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
                             LOG_RESP_LEN, 0 /* do double fetch */))) {
         if (scsi_debugmode > 0)
@@ -140,12 +146,23 @@ scsiGetSupportedLogPages(scsi_device * device)
                  logSenStr, scsiErrString(err));
         if (err)
             return;
-        memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
-    } else if ((scsi_version >= SCSI_VERSION_SPC_4) &&
-               (scsi_version <= SCSI_VERSION_HIGHEST)) {
+    }
+
+    memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
+    resp_len = gBuf[3];
+    up = gBuf + LOGPAGEHDRSIZE;
+
+    for (k = 0; k < resp_len; k += 1) {
+        uint8_t page_code = 0x3f & up[k];
+        supp_lpg_and_spg[supp_lpg_and_spg_count++] = {page_code, 0};
+    }
+
+    /* Get supported log pages and subpages. Most drives seems to include the
+    supported log pages here as well, but some drives such as the Samsung
+    PM1643a will only report the additional log pages with subpages here */
+    if ((scsi_version >= SCSI_VERSION_SPC_4) &&
+            (scsi_version <= SCSI_VERSION_HIGHEST)) {
         /* unclear what code T10 will choose for SPC-6 */
-        memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
-        resp_len_pg0_0 = sup_lpgs[3];
         if ((err = scsiLogSense(device, SUPPORTED_LPAGES, SUPP_SPAGE_L_SPAGE,
                                 gBuf, LOG_RESP_LONG_LEN,
                                 -1 /* just single not double fetch */))) {
@@ -153,6 +170,7 @@ scsiGetSupportedLogPages(scsi_device * device)
                 pout("%s for supported pages and subpages failed [%s]\n",
                      logSenStr, scsiErrString(err));
         } else {
+            /* Ensure we didn't get the same answer than without the subpages */
             if (0 == memcmp(gBuf, sup_lpgs, LOG_RESP_LEN)) {
                 if (scsi_debugmode > 0)
                     pout("%s: %s ignored subpage field, bad\n",
@@ -163,46 +181,34 @@ scsiGetSupportedLogPages(scsi_device * device)
                     pout("%s supported subpages is bad SPF=%u SUBPG=%u\n",
                          logSenRspStr, !! (0x40 & gBuf[0]), gBuf[2]);
             } else {
-                resp_len_pg0_ff = sg_get_unaligned_be16(gBuf + 2);
                 got_subpages = true;
             }
         }
-    } else {
-        memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
-        resp_len_pg0_0 = sup_lpgs[3];
     }
 
     if (got_subpages) {
-        if (resp_len_pg0_ff <= resp_len_pg0_0) {
-            /* something is rotten ....., ignore SUPP_SPAGE_L_SPAGE */
-            resp_len = resp_len_pg0_0;
-            bump = 1;
-            up = sup_lpgs + LOGPAGEHDRSIZE;
-            got_subpages = false;
-        } else {
-            resp_len = resp_len_pg0_ff;
-            bump = 2;
-            up = gBuf + LOGPAGEHDRSIZE;
+        resp_len = sg_get_unaligned_be16(gBuf + 2);
+        up = gBuf + LOGPAGEHDRSIZE;
+        for (k = 0; k < resp_len; k += 2) {
+            uint8_t page_code = 0x3f & up[k];
+            uint8_t subpage_code = up[k+1];
+            supp_lpg_and_spg[supp_lpg_and_spg_count++] = {page_code, subpage_code};
         }
-    } else {
-        resp_len = resp_len_pg0_0;
-        bump = 1;
-        up = sup_lpgs + LOGPAGEHDRSIZE;
     }
 
+    num_unreported = 0;
     num_unreported_spg = 0;
-    for (num_unreported = 0, k = 0; k < resp_len; k += bump, up += bump) {
-        uint8_t pg_num = 0x3f & up[0];
-        uint8_t sub_pg_num = got_subpages ? up[1] : 0;
+    for (k = 0; k < supp_lpg_and_spg_count; k += 1) {
+        struct scsi_supp_log_pages supp_lpg = supp_lpg_and_spg[k];
 
-        switch (pg_num)
+        switch (supp_lpg.page_code)
         {
             case SUPPORTED_LPAGES:
-                if (! ((NO_SUBPAGE_L_SPAGE == sub_pg_num) ||
-                       (SUPP_SPAGE_L_SPAGE == sub_pg_num))) {
+                if (! ((NO_SUBPAGE_L_SPAGE == supp_lpg.subpage_code) ||
+                       (SUPP_SPAGE_L_SPAGE == supp_lpg.subpage_code))) {
                     if (scsi_debugmode > 1)
                         pout("%s: Strange Log page number: 0x0,0x%x\n",
-                             __func__, sub_pg_num);
+                             __func__, supp_lpg.subpage_code);
                 }
                 break;
             case READ_ERROR_COUNTER_LPAGE:
@@ -221,13 +227,13 @@ scsiGetSupportedLogPages(scsi_device * device)
                 gNonMediumELPage = true;
                 break;
             case TEMPERATURE_LPAGE:
-                if (NO_SUBPAGE_L_SPAGE == sub_pg_num)
+                if (NO_SUBPAGE_L_SPAGE == supp_lpg.subpage_code)
                     gTempLPage = true;
-                else if (ENVIRO_REP_L_SPAGE == sub_pg_num)
+                else if (ENVIRO_REP_L_SPAGE == supp_lpg.subpage_code)
                     gEnviroReportingLPage = true;
-                else if (ENVIRO_LIMITS_L_SPAGE == sub_pg_num)
+                else if (ENVIRO_LIMITS_L_SPAGE == supp_lpg.subpage_code)
                     gEnviroLimitsLPage = true;
-                else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
+                else if (SUPP_SPAGE_L_SPAGE != supp_lpg.subpage_code) {
                     ++num_unreported;
                     ++num_unreported_spg;
                 }
@@ -236,11 +242,11 @@ scsiGetSupportedLogPages(scsi_device * device)
                    reporting of <lpage>,0xff so it is not an error. */
                 break;
             case STARTSTOP_CYCLE_COUNTER_LPAGE:
-                if (NO_SUBPAGE_L_SPAGE == sub_pg_num)
+                if (NO_SUBPAGE_L_SPAGE == supp_lpg.subpage_code)
                     gStartStopLPage = true;
-                else if (UTILIZATION_L_SPAGE == sub_pg_num)
+                else if (UTILIZATION_L_SPAGE == supp_lpg.subpage_code)
                     gUtilizationLPage = true;
-                else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
+                else if (SUPP_SPAGE_L_SPAGE != supp_lpg.subpage_code) {
                     ++num_unreported;
                     ++num_unreported_spg;
                 }
@@ -252,15 +258,15 @@ scsiGetSupportedLogPages(scsi_device * device)
                 gSmartLPage = true;
                 break;
             case BACKGROUND_RESULTS_LPAGE:
-                if (NO_SUBPAGE_L_SPAGE == sub_pg_num)
+                if (NO_SUBPAGE_L_SPAGE == supp_lpg.subpage_code)
                     gBackgroundResultsLPage = true;
-                else if (PEND_DEFECTS_L_SPAGE == sub_pg_num)
+                else if (PEND_DEFECTS_L_SPAGE == supp_lpg.subpage_code)
                     gPendDefectsLPage = true;
-                else if (BACKGROUND_OP_L_SPAGE == sub_pg_num)
+                else if (BACKGROUND_OP_L_SPAGE == supp_lpg.subpage_code)
                     gBackgroundOpLPage = true;
-                else if (LPS_MISALIGN_L_SPAGE == sub_pg_num)
+                else if (LPS_MISALIGN_L_SPAGE == supp_lpg.subpage_code)
                     gLPSMisalignLPage = true;
-                else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
+                else if (SUPP_SPAGE_L_SPAGE != supp_lpg.subpage_code) {
                     ++num_unreported;
                     ++num_unreported_spg;
                 }
@@ -294,9 +300,10 @@ scsiGetSupportedLogPages(scsi_device * device)
                     gSeagateFactoryLPage = true;
                 break;
             default:
-                if (pg_num < 0x30) {     /* don't count VS pages */
+                if (supp_lpg.page_code < 0x30) {     /* don't count VS pages */
                     ++num_unreported;
-                    if ((sub_pg_num > 0) && (SUPP_SPAGE_L_SPAGE != sub_pg_num))
+                    if ((supp_lpg.subpage_code > 0) &&
+                            (SUPP_SPAGE_L_SPAGE != supp_lpg.subpage_code))
                         ++num_unreported_spg;
                 }
                 break;

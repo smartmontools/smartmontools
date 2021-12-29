@@ -1,5 +1,17 @@
 $Id$
 
+2021-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: applied patch proposed by Yannick Hemery at:
+	https://github.com/yhemery/smartmontools/commit/
+	cf8462bbf395386c239ea587a26777f2de44f8d6 [note: that url has
+	been line wrapped]. It is to cope with a Samsung SAS SSD that
+	considers the "Supported log pages" log page [0x0,0x0] and 
+	the "Supported log pages and subpages" log page [0x0,0xff]
+	as two sub-inventories that must be merged (i.e. a set
+	union) rather than [0x0,0xff] being a superset of [0x0,0x0].
+	Samsung seems to be alone in that interpretation.
+
 2021-12-21  Douglas Gilbert  <dgilbert@interlog.com>
 
 	expermimental: add support for printing the SCSI Environmental

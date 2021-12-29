@@ -167,6 +167,11 @@ struct scsi_readcap_resp {
     uint16_t l_a_lba;   /* Lowest Aligned Logical Block Address */
 };
 
+struct scsi_supp_log_pages {
+    uint8_t page_code;
+    uint8_t subpage_code;
+};
+
 /* SCSI Peripheral types (of interest) */
 #define SCSI_PT_DIRECT_ACCESS           0x0
 #define SCSI_PT_SEQUENTIAL_ACCESS       0x1
