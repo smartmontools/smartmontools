@@ -19,7 +19,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5244 2021-11-08 17:11:53Z chrfranke $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5276 2021-12-29 19:09:25Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -165,6 +165,11 @@ struct scsi_readcap_resp {
     bool lbpme;         /* Logical Block Provisioning Management Enabled */
     bool lbprz;         /* Logical Block Provisioning Read Zeros */
     uint16_t l_a_lba;   /* Lowest Aligned Logical Block Address */
+};
+
+struct scsi_supp_log_pages {
+    uint8_t page_code;
+    uint8_t subpage_code;
 };
 
 /* SCSI Peripheral types (of interest) */
