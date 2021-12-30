@@ -1973,6 +1973,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
                              srr.prot_type);
                         break;
                     }
+                    jglb["protection_type"] = srr.prot_type;
                     unsigned p_i_per_lb = (1 << srr.p_i_exp);
                     const unsigned pi_sz = 8;   /* ref-tag(4 bytes),
                                                    app-tag(2), tag-mask(2) */
@@ -2006,25 +2007,36 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
             case 0:
                 if (lbpme <= 0) {
                     pout("LU is fully provisioned");
+                    jglb["lb_provisioning"]["name"] = "fully provisioned";
                     if (lbprz)
                         pout(" [LBPRZ=%d]\n", lbprz);
                     else
                         pout("\n");
-                } else
-                     pout("LB provisioning type: not reported [LBPME=1, "
-                          "LBPRZ=%d]\n", lbprz);
+                } else {
+                    pout("LB provisioning type: not reported [LBPME=1, "
+                         "LBPRZ=%d]\n", lbprz);
+                    jglb["lb_provisioning"]["name"] = "not reported";
+                }
                 break;
             case 1:
                 pout("LU is resource provisioned, LBPRZ=%d\n", lbprz);
+                jglb["lb_provisioning"]["name"] = "resource provisioned";
                 break;
             case 2:
                 pout("LU is thin provisioned, LBPRZ=%d\n", lbprz);
+                jglb["lb_provisioning"]["name"] = "thin provisioned";
                 break;
             default:
                 pout("LU provisioning type reserved [%d], LBPRZ=%d\n",
                      prov_type, lbprz);
+                jglb["lb_provisioning"]["name"] = "reserved";
                 break;
             }
+            jglb["lb_provisioning"]["value"] = prov_type;
+            jglb["lb_provisioning"]["management_enabled"]["name"] = "LBPME";
+            jglb["lb_provisioning"]["management_enabled"]["value"] = lbpme;
+            jglb["lb_provisioning"]["read_zeros"]["name"] = "LBPRZ";
+            jglb["lb_provisioning"]["read_zeros"]["value"] = lbprz;
         } else if (1 == lbpme) {
             if (scsi_debugmode > 0)
                 pout("rcap_16 sets LBPME but no LB provisioning VPD page\n");
@@ -2093,8 +2105,10 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
 
             len = gBuf[3];
             scsi_decode_lu_dev_id(gBuf + 4, len, s, sizeof(s), &transport);
-            if (strlen(s) > 0)
+            if (strlen(s) > 0) {
                 pout("Logical Unit id:      %s\n", s);
+                jglb["logical_unit_id"] = s;
+            }
         } else if (scsi_debugmode > 0) {
             print_on();
             if (SIMPLE_ERR_BAD_RESP == err)

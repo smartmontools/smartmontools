@@ -2,6 +2,11 @@ $Id$
 
 2021-12-29  Douglas Gilbert  <dgilbert@interlog.com>
 
+	scsiprint.cpp: add more json support: logical_unit_id,
+	protection_type and lb_provisioning
+
+2021-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
 	scsiprint.cpp: applied patch proposed by Yannick Hemery at:
 	https://github.com/yhemery/smartmontools/commit/
 	cf8462bbf395386c239ea587a26777f2de44f8d6 [note: that url has
