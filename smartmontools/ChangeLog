@@ -1,4 +1,9 @@
-$Id: ChangeLog 5276 2021-12-29 19:09:25Z dpgilbert $
+$Id: ChangeLog 5277 2021-12-30 03:56:02Z dpgilbert $
+
+2021-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: add more json support: logical_unit_id,
+	protection_type and lb_provisioning
 
 2021-12-29  Douglas Gilbert  <dgilbert@interlog.com>
 
