@@ -1,4 +1,9 @@
-$Id: ChangeLog 5277 2021-12-30 03:56:02Z dpgilbert $
+$Id: ChangeLog 5278 2022-01-01 05:54:25Z dpgilbert $
+
+2022-01-01  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: add more json support: SAS transport
+	settings (partial) and some tape drive. Please review.
 
 2021-12-29  Douglas Gilbert  <dgilbert@interlog.com>
 
