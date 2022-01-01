@@ -1,5 +1,10 @@
 $Id$
 
+2022-01-01  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: add more json support: SAS transport
+	settings (partial) and some tape drive. Please review.
+
 2021-12-29  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: add more json support: logical_unit_id,

@@ -377,7 +377,7 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
 {
     unsigned short pagelength;
     unsigned short parametercode;
-    int i, err;
+    int i, k, err;
     const char *s;
     const char *ts;
     int failures = 0;
@@ -396,8 +396,8 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
     }
     pagelength = sg_get_unaligned_be16(gBuf + 2);
 
-    for (s=severities; *s; s++) {
-        for (i = 4; i < pagelength; i += 5) {
+    for (s=severities, k = 0; *s; s++, ++k) {
+        for (i = 4; i < pagelength; i += 5, ++k) {
             parametercode = sg_get_unaligned_be16(gBuf + i);
 
             if (gBuf[i + 4]) {
@@ -408,7 +408,9 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
                     if (!failures)
                         pout("TapeAlert Errors (C=Critical, W=Warning, "
                              "I=Informational):\n");
-                    pout("[0x%02x] %s\n", parametercode, ts);
+                    jout("[0x%02x] %s\n", parametercode, ts);
+                    jglb["tapealert"]["status"][k]["code"] = parametercode;
+                    jglb["tapealert"]["status"][k]["string"] = ts;
                     failures += 1;
                 }
             }
@@ -416,8 +418,10 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
     }
     print_off();
 
-    if (! failures)
-        pout("TapeAlert: OK\n");
+    if (! failures) {
+        jout("TapeAlert: OK\n");
+        jglb["tapealert"]["status"] = "Good";
+    }
 
     return failures;
 }
@@ -1593,23 +1597,32 @@ show_sas_phy_event_info(int peis, unsigned int val, unsigned thresh_val)
 }
 
 static void
-show_sas_port_param(unsigned char * ucp, int param_len)
+show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
 {
-    int j, m, nphys, t, sz, spld_len;
+    int k, j, m, nphys, t, sz, spld_len;
+    char pn[32];
     unsigned char * vcp;
     char s[64];
 
+    snprintf(pn, sizeof(pn), "sas_port_%d", port_num);
     sz = sizeof(s);
     // pcb = ucp[2];
     t = sg_get_unaligned_be16(ucp + 0);
-    pout("relative target port id = %d\n", t);
-    pout("  generation code = %d\n", ucp[6]);
+    jout("relative target port id = %d\n", t);
+    jglb[pn]["relative_target_port_id"] = t;
+    jout("  generation code = %d\n", ucp[6]);
+    jglb[pn]["generation_code"] = ucp[6];
     nphys = ucp[7];
-    pout("  number of phys = %d\n", nphys);
+    jout("  number of phys = %d\n", nphys);
+    jglb[pn]["number_of_phys"] = nphys;
 
-    for (j = 0, vcp = ucp + 8; j < (param_len - 8);
-         vcp += spld_len, j += spld_len) {
-        pout("  phy identifier = %d\n", vcp[1]);
+    for (j = 0, k = 0, vcp = ucp + 8; j < (param_len - 8);
+         vcp += spld_len, j += spld_len, ++k) {
+        char yn[32];
+
+        snprintf(yn, sizeof(yn), "phy_%d", k);
+        jout("  phy identifier = %d\n", vcp[1]);
+        jglb[pn][yn]["identifier"] = vcp[1];
         spld_len = vcp[3];
         if (spld_len < 44)
             spld_len = 48;      /* in SAS-1 and SAS-1.1 vcp[3]==0 */
@@ -1623,7 +1636,8 @@ show_sas_port_param(unsigned char * ucp, int param_len)
         case 3: snprintf(s, sz, "expander device (fanout)"); break;
         default: snprintf(s, sz, "reserved [%d]", t); break;
         }
-        pout("    attached device type: %s\n", s);
+        jout("    attached device type: %s\n", s);
+        jglb[pn][yn]["attached_device_type"] = s;
         t = 0xf & vcp[4];
         switch (t) {
         case 0: snprintf(s, sz, "unknown"); break;
@@ -1640,7 +1654,8 @@ show_sas_port_param(unsigned char * ucp, int param_len)
              break;
         default: snprintf(s, sz, "reserved [0x%x]", t); break;
         }
-        pout("    attached reason: %s\n", s);
+        jout("    attached reason: %s\n", s);
+        jglb[pn][yn]["attached_reason"] = s;
         t = (vcp[5] & 0xf0) >> 4;
         switch (t) {
         case 0: snprintf(s, sz, "unknown"); break;
@@ -1657,7 +1672,8 @@ show_sas_port_param(unsigned char * ucp, int param_len)
              break;
         default: snprintf(s, sz, "reserved [0x%x]", t); break;
         }
-        pout("    reason: %s\n", s);
+        jout("    reason: %s\n", s);
+        jglb[pn][yn]["reason"] = s;
         t = (0xf & vcp[5]);
         switch (t) {
         case 0: snprintf(s, sz, "phy enabled; unknown");
@@ -1679,19 +1695,32 @@ show_sas_port_param(unsigned char * ucp, int param_len)
         case 0xb: snprintf(s, sz, "phy enabled; 12 Gbps"); break;
         default: snprintf(s, sz, "reserved [%d]", t); break;
         }
-        pout("    negotiated logical link rate: %s\n", s);
-        pout("    attached initiator port: ssp=%d stp=%d smp=%d\n",
+        jout("    negotiated logical link rate: %s\n", s);
+        jglb[pn][yn]["negotiated_logical_link_rate"] = s;
+        jout("    attached initiator port: ssp=%d stp=%d smp=%d\n",
                !! (vcp[6] & 8), !! (vcp[6] & 4), !! (vcp[6] & 2));
-        pout("    attached target port: ssp=%d stp=%d smp=%d\n",
+        jout("    attached target port: ssp=%d stp=%d smp=%d\n",
                !! (vcp[7] & 8), !! (vcp[7] & 4), !! (vcp[7] & 2));
+        snprintf(s, sz, "%03d", ((vcp[6] & 8) ? 100 : 0) +
+                 ((vcp[6] & 4) ? 10 : 0) + ((vcp[6] & 2) ? 1 : 0));
+        jglb[pn][yn]["attached_initiator_port"]["ssp_stp_smp"] = s;
+        snprintf(s, sz, "%03d", ((vcp[7] & 8) ? 100 : 0) +
+                 ((vcp[7] & 4) ? 10 : 0) + ((vcp[7] & 2) ? 1 : 0));
+        jglb[pn][yn]["attached_target_port"]["ssp_stp_smp"] = s;
         if (!dont_print_serial_number) {
             uint64_t ull = sg_get_unaligned_be64(vcp + 8);
+            char b[32];
 
-            pout("    SAS address = 0x%" PRIx64 "\n", ull);
+            snprintf(b, sizeof(b), "0x%" PRIx64, ull);
+            jout("    SAS address = %s\n", b);
+            jglb[pn][yn]["sas_address"] = b;
             ull = sg_get_unaligned_be64(vcp + 16);
-            pout("    attached SAS address = 0x%" PRIx64 "\n", ull);
+            snprintf(b, sizeof(b), "0x%" PRIx64, ull);
+            jout("    attached SAS address = %s\n", b);
+            jglb[pn][yn]["attached_sas_address"] = b;
         }
-        pout("    attached phy identifier = %d\n", vcp[24]);
+        jout("    attached phy identifier = %d\n", vcp[24]);
+        jglb[pn][yn]["attached_phy_identifier"] = vcp[24];
         unsigned int ui = sg_get_unaligned_be32(vcp + 32);
 
         pout("    Invalid DWORD count = %u\n", ui);
@@ -1725,17 +1754,17 @@ show_sas_port_param(unsigned char * ucp, int param_len)
 static int
 show_protocol_specific_page(unsigned char * resp, int len)
 {
-    int k, num;
+    int k, j, num;
     unsigned char * ucp;
 
     num = len - 4;
-    for (k = 0, ucp = resp + 4; k < num; ) {
+    for (k = 0, j = 0, ucp = resp + 4; k < num; ++j) {
         int param_len = ucp[3] + 4;
         if (SCSI_TPROTO_SAS != (0xf & ucp[4]))
             return 0;   /* only decode SAS log page */
         if (0 == k)
-            pout("Protocol Specific port log page for SAS SSP\n");
-        show_sas_port_param(ucp, param_len);
+            jout("Protocol Specific port log page for SAS SSP\n");
+        show_sas_port_param(j, ucp, param_len);
         k += param_len;
         ucp += param_len;
     }
@@ -2137,6 +2166,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     }
 
     // print SCSI peripheral device type
+    jglb["device_type"]["scsi_terminology"] = "Peripheral Device Type [PDT]";
     jglb["device_type"]["scsi_value"] = peri_dt;
     if (peri_dt < (int)(sizeof(peripheral_dt_arr) /
                         sizeof(peripheral_dt_arr[0]))) {
@@ -2666,13 +2696,16 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         checkedSupportedLogPages = 1;
         if (is_tape) {
             if (gTapeAlertsLPage) {
-                if (options.drive_info)
-                    pout("TapeAlert Supported\n");
+                if (options.drive_info) {
+                    jout("TapeAlert Supported\n");
+                    jglb["tapealert"]["supported"] = true;
+                }
                 if (-1 == scsiGetTapeAlertsData(device, peripheral_type))
                     failuretest(OPTIONAL_CMD, returnval |= FAILSMART);
+            } else {
+                jout("TapeAlert Not Supported\n");
+                jglb["tapealert"]["supported"] = false;
             }
-            else
-                pout("TapeAlert Not Supported\n");
         } else { /* disk, cd/dvd, enclosure, etc */
             if ((res = scsiGetSmartData(device,
                                         options.smart_vendor_attrib))) {
