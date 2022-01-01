@@ -1,5 +1,9 @@
 $Id$
 
+2022-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year!  Update copyright year in version info.
+
 2022-01-01  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: add more json support: SAS transport
