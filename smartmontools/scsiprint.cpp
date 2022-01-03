@@ -1306,6 +1306,7 @@ scsiPrintSSMedia(scsi_device * device)
     int num, err, truncated;
     int retval = 0;
     uint8_t * ucp;
+    const char * q;
     static const char * hname = "Solid state media";
 
     if ((err = scsiLogSense(device, SS_MEDIA_LPAGE, 0, gBuf,
@@ -1347,8 +1348,9 @@ scsiPrintSSMedia(scsi_device * device)
                 print_off();
                 return FAILSMART;
             }
-            jout("Percentage used endurance indicator: %d%%\n", ucp[7]);
-            jglb["scsi_percentage_used_endurance_indicator"] = ucp[7];
+            q = "Percentage used endurance indicator";
+            jout("%s: %d%%\n", q, ucp[7]);
+            jglb[(std::string("scsi_") + jsonify_name(q)).data()] = ucp[7];
         default:        /* ignore other parameter codes */
             break;
         }
@@ -1603,6 +1605,7 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
     char pn[32];
     unsigned char * vcp;
     char s[64];
+    const char * q;
 
     snprintf(pn, sizeof(pn), "sas_port_%d", port_num);
     sz = sizeof(s);
@@ -1621,8 +1624,9 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
         char yn[32];
 
         snprintf(yn, sizeof(yn), "phy_%d", k);
+        json::ref jref = jglb[pn][yn];
         jout("  phy identifier = %d\n", vcp[1]);
-        jglb[pn][yn]["identifier"] = vcp[1];
+        jref["identifier"] = vcp[1];
         spld_len = vcp[3];
         if (spld_len < 44)
             spld_len = 48;      /* in SAS-1 and SAS-1.1 vcp[3]==0 */
@@ -1636,8 +1640,9 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
         case 3: snprintf(s, sz, "expander device (fanout)"); break;
         default: snprintf(s, sz, "reserved [%d]", t); break;
         }
-        jout("    attached device type: %s\n", s);
-        jglb[pn][yn]["attached_device_type"] = s;
+        q = "attached device type";
+        jout("    %s: %s\n", q, s);
+        jref[jsonify_name(q).data()] = s;
         t = 0xf & vcp[4];
         switch (t) {
         case 0: snprintf(s, sz, "unknown"); break;
@@ -1654,8 +1659,9 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
              break;
         default: snprintf(s, sz, "reserved [0x%x]", t); break;
         }
-        jout("    attached reason: %s\n", s);
-        jglb[pn][yn]["attached_reason"] = s;
+        q = "attached reason";
+        jout("    %s: %s\n", q, s);
+        jref[jsonify_name(q).data()] = s;
         t = (vcp[5] & 0xf0) >> 4;
         switch (t) {
         case 0: snprintf(s, sz, "unknown"); break;
@@ -1672,8 +1678,9 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
              break;
         default: snprintf(s, sz, "reserved [0x%x]", t); break;
         }
-        jout("    reason: %s\n", s);
-        jglb[pn][yn]["reason"] = s;
+        q = "reason";
+        jout("    %s: %s\n", q, s);
+        jref[jsonify_name(q).data()] = s;
         t = (0xf & vcp[5]);
         switch (t) {
         case 0: snprintf(s, sz, "phy enabled; unknown");
@@ -1695,41 +1702,55 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
         case 0xb: snprintf(s, sz, "phy enabled; 12 Gbps"); break;
         default: snprintf(s, sz, "reserved [%d]", t); break;
         }
-        jout("    negotiated logical link rate: %s\n", s);
-        jglb[pn][yn]["negotiated_logical_link_rate"] = s;
-        jout("    attached initiator port: ssp=%d stp=%d smp=%d\n",
+        q = "negotiated logical link rate";
+        jout("    %s: %s\n", q, s);
+        jref[jsonify_name(q).data()] = s;
+        q = "attached initiator port";
+        jout("    %s: ssp=%d stp=%d smp=%d\n", q,
                !! (vcp[6] & 8), !! (vcp[6] & 4), !! (vcp[6] & 2));
-        jout("    attached target port: ssp=%d stp=%d smp=%d\n",
-               !! (vcp[7] & 8), !! (vcp[7] & 4), !! (vcp[7] & 2));
         snprintf(s, sz, "%03d", ((vcp[6] & 8) ? 100 : 0) +
                  ((vcp[6] & 4) ? 10 : 0) + ((vcp[6] & 2) ? 1 : 0));
-        jglb[pn][yn]["attached_initiator_port"]["ssp_stp_smp"] = s;
+        jref[jsonify_name(q).data()]["ssp_stp_smp"] = s;
+        q = "attached target port";
+        jout("    %s: ssp=%d stp=%d smp=%d\n", q,
+               !! (vcp[7] & 8), !! (vcp[7] & 4), !! (vcp[7] & 2));
         snprintf(s, sz, "%03d", ((vcp[7] & 8) ? 100 : 0) +
                  ((vcp[7] & 4) ? 10 : 0) + ((vcp[7] & 2) ? 1 : 0));
-        jglb[pn][yn]["attached_target_port"]["ssp_stp_smp"] = s;
+        jref[jsonify_name(q).data()]["ssp_stp_smp"] = s;
         if (!dont_print_serial_number) {
             uint64_t ull = sg_get_unaligned_be64(vcp + 8);
             char b[32];
 
             snprintf(b, sizeof(b), "0x%" PRIx64, ull);
-            jout("    SAS address = %s\n", b);
-            jglb[pn][yn]["sas_address"] = b;
+            q = "SAS address";
+            jout("    %s = %s\n", q, b);
+            jref[jsonify_name(q).data()] = b;
             ull = sg_get_unaligned_be64(vcp + 16);
             snprintf(b, sizeof(b), "0x%" PRIx64, ull);
-            jout("    attached SAS address = %s\n", b);
-            jglb[pn][yn]["attached_sas_address"] = b;
+            q = "attached SAS address";
+            jout("    %s = %s\n", q, b);
+            jref[jsonify_name(q).data()] = b;
         }
-        jout("    attached phy identifier = %d\n", vcp[24]);
-        jglb[pn][yn]["attached_phy_identifier"] = vcp[24];
+        q = "attached phy identifier";
+        jout("    %s = %d\n", q, vcp[24]);
+        jref[jsonify_name(q).data()] = vcp[24];
         unsigned int ui = sg_get_unaligned_be32(vcp + 32);
 
-        pout("    Invalid DWORD count = %u\n", ui);
+        q = "Invalid DWORD count";
+        jout("    %s = %u\n", q, ui);
+        jref[jsonify_name(q).data()] = ui;
         ui = sg_get_unaligned_be32(vcp + 36);
-        pout("    Running disparity error count = %u\n", ui);
+        q = "Running disparity error count";
+        jout("    %s = %u\n", q, ui);
+        jref[jsonify_name(q).data()] = ui;
         ui = sg_get_unaligned_be32(vcp + 40);
-        pout("    Loss of DWORD synchronization = %u\n", ui);
+        q = "Loss of DWORD synchronization";
+        jout("    %s = %u\n", q, ui);
+        jref[jsonify_name(q).data()] = ui;
         ui = sg_get_unaligned_be32(vcp + 44);
-        pout("    Phy reset problem = %u\n", ui);
+        q = "Phy reset problem";
+        jout("    %s = %u\n", q, ui);
+        jref[jsonify_name(q).data()] = ui;
         if (spld_len > 51) {
             int num_ped;
             unsigned char * xcp;

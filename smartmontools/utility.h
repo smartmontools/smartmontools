@@ -54,6 +54,10 @@ inline bool str_starts_with(const char * str, const char * prefix)
 inline bool str_starts_with(const std::string & str, const char * prefix)
   { return !strncmp(str.c_str(), prefix, strlen(prefix)); }
 
+/* Replace space and non-alphanumerics with '_', upper to lower case */
+std::string jsonify_name_s(const std::string & sin);
+std::string jsonify_name(const char * in_a);
+
 // Convert time to broken-down local time, throw on error.
 struct tm * time_to_tm_local(struct tm * tp, time_t t);
 

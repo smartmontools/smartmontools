@@ -1,5 +1,13 @@
 $Id$
 
+2022-01-02  Douglas Gilbert  <dgilbert@interlog.com>
+
+	utility.h: add free functions jsonify_name() and
+	jsonify_name_s() to lessen the repetition of names
+	that are very similar. May not save code but reduces
+	the chance of naming errors. Use jsonify_name() in
+	scsiprint.cpp as use of concept.
+
 2022-01-01  Christian Franke  <franke@computer.org>
 
 	Happy New Year!  Update copyright year in version info.
