@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017-21 Christian Franke
+ * Copyright (C) 2017-22 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -75,10 +75,16 @@ public:
 
   struct initlist_key_value_pair {
     initlist_key_value_pair(const char * k, const initlist_value & v) : key(k), value(v) {}
+    initlist_key_value_pair(const std::string & k, const initlist_value & v)
+      : key(k.c_str()), value(v) {}
     initlist_key_value_pair(const char * k, const std::initializer_list<initlist_key_value_pair> & ilist)
       : key(k), value(nt_object), object(ilist) {}
+    initlist_key_value_pair(const std::string & k, const std::initializer_list<initlist_key_value_pair> & ilist)
+      : key(k.c_str()), value(nt_object), object(ilist) {}
     initlist_key_value_pair(const char * k, const std::initializer_list<initlist_value> & ilist)
       : key(k), value(nt_array), array(ilist) {}
+    initlist_key_value_pair(const std::string & k, const std::initializer_list<initlist_value> & ilist)
+      : key(k.c_str()), value(nt_array), array(ilist) {}
     const char * key;
     initlist_value value;
     std::initializer_list<initlist_key_value_pair> object;
@@ -94,6 +100,10 @@ public:
     /// Return reference to object element.
     ref operator[](const char * key) const
       { return ref(*this, key); }
+
+    /// Return reference to object element (std::string variant).
+    ref operator[](const std::string & key) const
+      { return ref(*this, key.c_str()); }
 
     /// Return reference to array element.
     ref operator[](int index) const
@@ -151,6 +161,10 @@ public:
   /// Return reference to element of top level object.
   ref operator[](const char * key)
     { return ref(*this, key); }
+
+  /// Return reference to element of top level object (std::string variant).
+  ref operator[](const std::string & key)
+    { return ref(*this, key.c_str()); }
 
   /// Braced-init-list support for top level object.
   void operator+=(std::initializer_list<initlist_key_value_pair> ilist)

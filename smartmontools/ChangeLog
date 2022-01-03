@@ -1,5 +1,9 @@
 $Id$
 
+2022-01-03  Christian Franke  <franke@computer.org>
+
+	json.h: Allow to use std::string for object keys.
+
 2022-01-02  Douglas Gilbert  <dgilbert@interlog.com>
 
 	utility.h: add free functions jsonify_name() and
