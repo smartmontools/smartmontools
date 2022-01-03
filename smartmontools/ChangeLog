@@ -1,4 +1,8 @@
-$Id: ChangeLog 5280 2022-01-03 02:18:52Z dpgilbert $
+$Id: ChangeLog 5281 2022-01-03 17:32:48Z chrfranke $
+
+2022-01-03  Christian Franke  <franke@computer.org>
+
+	json.h: Allow to use std::string for object keys.
 
 2022-01-02  Douglas Gilbert  <dgilbert@interlog.com>
 
