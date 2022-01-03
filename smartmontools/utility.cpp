@@ -55,7 +55,7 @@
 #endif
 #endif // USE_CLOCK_MONOTONIC
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 5279 2022-01-01 10:48:22Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 5280 2022-01-03 02:18:52Z dpgilbert $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -658,6 +658,34 @@ bool nonempty(const void * data, int size)
     if (((const unsigned char *)data)[i])
       return true;
   return false;
+}
+
+std::string jsonify_name_s(const std::string & sin)
+{
+  int k = 0;
+  std::string r(sin.size(), '_');
+
+  for (char c: sin) {
+    if (isalnum(c))
+      r[k] = (isupper(c)) ? tolower(c) : c;
+    ++k;
+  }
+  return r;
+}
+
+std::string jsonify_name(const char * in_a)
+{
+  int k;
+  int len = strlen(in_a);
+  std::string r(len, '_');
+
+  for (k = 0; k < len; ++k) {
+    char c = in_a[k];
+
+    if (isalnum(c))
+      r[k] = (isupper(c)) ? tolower(c) : c;
+  }
+  return r;
 }
 
 // Copy not null terminated char array to null terminated string.
