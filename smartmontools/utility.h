@@ -13,7 +13,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 5280 2022-01-03 02:18:52Z dpgilbert $"
+#define UTILITY_H_CVSID "$Id: utility.h 5282 2022-01-04 04:00:54Z dpgilbert $"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
@@ -54,9 +54,10 @@ inline bool str_starts_with(const char * str, const char * prefix)
 inline bool str_starts_with(const std::string & str, const char * prefix)
   { return !strncmp(str.c_str(), prefix, strlen(prefix)); }
 
-/* Replace space and non-alphanumerics with '_', upper to lower case */
-std::string jsonify_name_s(const std::string & sin);
+/* Replace space and non-alphanumerics with '_', map upper to lower case */
 std::string jsonify_name(const char * in_a);
+inline std::string jsonify_name(const std::string & sin)
+  { return jsonify_name(sin.c_str()); }
 
 // Convert time to broken-down local time, throw on error.
 struct tm * time_to_tm_local(struct tm * tp, time_t t);
