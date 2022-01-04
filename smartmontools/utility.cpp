@@ -660,19 +660,6 @@ bool nonempty(const void * data, int size)
   return false;
 }
 
-std::string jsonify_name_s(const std::string & sin)
-{
-  int k = 0;
-  std::string r(sin.size(), '_');
-
-  for (char c: sin) {
-    if (isalnum(c))
-      r[k] = (isupper(c)) ? tolower(c) : c;
-    ++k;
-  }
-  return r;
-}
-
 std::string jsonify_name(const char * in_a)
 {
   int k;

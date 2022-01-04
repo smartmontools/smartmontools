@@ -1,5 +1,11 @@
 $Id$
 
+2022-01-03  Douglas Gilbert  <dgilbert@interlog.com>
+
+	utility.h: overload jsonify_name() to take a C
+	string or a std::string. Use in scsiprint.cpp
+	to add more json support.
+
 2022-01-03  Christian Franke  <franke@computer.org>
 
 	json.h: Allow to use std::string for object keys.
