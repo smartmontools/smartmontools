@@ -1,5 +1,11 @@
 $Id$
 
+2022-01-04  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: printf() spotted in
+	scsiPrintPendingDefectsLPage() by Yannick Hemery.
+	Changed to jout().
+
 2022-01-03  Douglas Gilbert  <dgilbert@interlog.com>
 
 	utility.h: overload jsonify_name() to take a C

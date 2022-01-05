@@ -527,7 +527,7 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
         uint32_t count;
         switch (pc) {
         case 0x0:
-            printf("  Pending defect count:");
+            jout("  Pending defect count:");
             if ((pl < 8) || (num < 8)) {
                 print_on();
                 pout("%s truncated descriptor\n", pDefStr);
