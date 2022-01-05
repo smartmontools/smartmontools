@@ -341,6 +341,46 @@ scsiErrString(int scsiErr)
     }
 }
 
+static const char * sense_key_desc[] = {
+    "No Sense",                 /* Filemark, ILI and/or EOM; progress
+                                   indication (during FORMAT); power
+                                   condition sensing (REQUEST SENSE) */
+    "Recovered Error",          /* The last command completed successfully
+                                   but used error correction */
+    "Not Ready",                /* The addressed target is not ready */
+    "Medium Error",             /* Data error detected on the medium */
+    "Hardware Error",           /* Controller or device failure */
+    "Illegal Request",
+    "Unit Attention",           /* Removable medium was changed, or
+                                   the target has been reset */
+    "Data Protect",             /* Access to the data is blocked */
+    "Blank Check",              /* Reached unexpected written or unwritten
+                                   region of the medium */
+    "Vendor specific(9)",       /* Vendor specific */
+    "Copy Aborted",             /* COPY or COMPARE was aborted */
+    "Aborted Command",          /* The target aborted the command */
+    "Equal",                    /* SEARCH DATA found data equal (obsolete) */
+    "Volume Overflow",          /* Medium full with data to be written */
+    "Miscompare",               /* Source data and data on the medium
+                                   do not agree */
+    "Completed"                 /* may occur for successful cmd (spc4r23) */
+};
+
+/* Yield string associated with sense_key value. Returns 'buff'. */
+char *
+scsi_get_sense_key_str(int sense_key, int buff_len, char * buff)
+{
+    if (1 == buff_len) {
+        buff[0] = '\0';
+        return buff;
+    }
+    if ((sense_key >= 0) && (sense_key < 16))
+        snprintf(buff, buff_len, "%s", sense_key_desc[sense_key]);
+    else
+        snprintf(buff, buff_len, "invalid value: 0x%x", sense_key);
+    return buff;
+}
+
 /* Iterates to next designation descriptor in the device identification
  * VPD page. The 'initial_desig_desc' should point to start of first
  * descriptor with 'page_len' being the number of valid bytes in that
@@ -1024,7 +1064,7 @@ scsiSetPowerCondition(scsi_device * device, int power_cond, int pcond_modifier)
         cdb[3] = pcond_modifier & 0xf;
         cdb[4] = power_cond << 4;
     } else
-	cdb[4] = 0x1;	/* START */
+        cdb[4] = 0x1;   /* START */
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;

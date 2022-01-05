@@ -1,5 +1,12 @@
 $Id$
 
+2022-01-05  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: first cut at adding json to the
+	self-test log page.
+	scsicmds.h/.cpp: add scsi_get_sense_key_str()
+	helper to fetch SCSI sense key as a C string
+
 2022-01-04  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: printf() spotted in

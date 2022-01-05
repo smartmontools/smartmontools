@@ -117,6 +117,15 @@ all_ffs(const uint8_t * bp, int b_len)
     return true;
 }
 
+// trim from right. By default trims whitespace.
+static std::string rtrim(const std::string& s, const char* t = " \t\n\r\f\v")
+{
+    std::string r(s);
+
+    r.erase(r.find_last_not_of(t) + 1);
+    return r;
+}
+
 static void
 scsiGetSupportedLogPages(scsi_device * device)
 {
@@ -992,8 +1001,8 @@ static const char * self_test_result[] = {
 static int
 scsiPrintSelfTest(scsi_device * device)
 {
+    bool noheader = true;
     int num, k, err, durationSec;
-    int noheader = 1;
     int retval = 0;
     uint8_t * ucp;
     struct scsi_sense_disect sense_info;
@@ -1032,31 +1041,36 @@ scsiPrintSelfTest(scsi_device * device)
     // loop through the twenty possible entries
     for (k = 0, ucp = gBuf + 4; k < 20; ++k, ucp += 20 ) {
         // timestamp in power-on hours (or zero if test in progress)
-        int n = sg_get_unaligned_be16(ucp + 6);
+        unsigned int poh = sg_get_unaligned_be16(ucp + 6);
+        unsigned int u, tr;
+        char st[32];
 
+        snprintf(st, sizeof(st), "self_test_%d", k);
         // The spec says "all 20 bytes will be zero if no test" but
         // DG has found otherwise.  So this is a heuristic.
-        if ((0 == n) && (0 == ucp[4]))
+        if ((0 == poh) && (0 == ucp[4]))
             break;
 
         // only print header if needed
         if (noheader) {
-            pout("SMART %s log\n", hname);
-            pout("Num  Test              Status                 segment  "
+            jout("SMART %s log\n", hname);
+            jout("Num  Test              Status                 segment  "
                    "LifeTime  LBA_first_err [SK ASC ASQ]\n");
-            pout("     Description                              number   "
+            jout("     Description                              number   "
                    "(hours)\n");
-            noheader=0;
+            noheader = false;
         }
 
         // print parameter code (test number) & self-test code text
-        pout("#%2d  %s", sg_get_unaligned_be16(ucp + 0),
-            self_test_code[(ucp[4] >> 5) & 0x7]);
+        u = (ucp[4] >> 5) & 0x7;
+        jout("#%2d  %s", sg_get_unaligned_be16(ucp + 0), self_test_code[u]);
+        jglb[st]["code"]["value"] = u;
+        jglb[st]["code"]["string"] = rtrim(self_test_code[u]);
 
         // check the self-test result nibble, using the self-test results
         // field table from T10/1416-D (SPC-3) Rev. 23, section 7.2.10:
-        int res;
-        switch ((res = ucp[4] & 0xf)) {
+        tr = ucp[4] & 0xf;
+        switch (tr) {
         case 0x3:
             // an unknown error occurred while the device server
             // was processing the self-test and the device server
@@ -1086,7 +1100,9 @@ scsiPrintSelfTest(scsi_device * device)
         default:
             break;
         }
-        pout("  %s", self_test_result[res]);
+        jout("  %s", self_test_result[tr]);
+        jglb[st]["result"]["value"] = tr;
+        jglb[st]["result"]["string"] = rtrim(self_test_result[tr]);
 
         // self-test number identifies test that failed and consists
         // of either the number of the segment that failed during
@@ -1094,50 +1110,68 @@ scsiPrintSelfTest(scsi_device * device)
         // number of the segment in which the test was run, using a
         // vendor-specific method of putting both numbers into a
         // single byte.
-        if (ucp[5])
-            pout(" %3d",  (int)ucp[5]);
-        else
-            pout("   -");
+        u = ucp[5];
+        if (u > 0) {
+            jout(" %3u",  u);
+            jglb[st]["failed_segment"]["value"] = u;
+            jglb[st]["failed_segment"]["aka"] = "self_test_number";
+        } else
+            jout("   -");
 
         // print time that the self-test was completed
-        if (n==0 && res==0xf)
+        if (poh==0 && tr==0xf) {
         // self-test in progress
-            pout("     NOW");
-        else
-            pout("   %5d", n);
+            jout("     NOW");
+            jglb[st]["self_test_in_progress"] = true;
+        } else {
+            jout("   %5d", poh);
+            jglb[st]["power_on_time"]["hours"] = poh;
+            jglb[st]["power_on_time"]["aka"] = "accumulated_power_on_hours";
+        }
 
         // construct 8-byte integer address of first failure
         uint64_t ull = sg_get_unaligned_be64(ucp + 8);
         bool is_all_ffs = all_ffs(ucp + 8, 8);
         // print Address of First Failure, if sensible
-        if ((! is_all_ffs) && (res > 0) && (res < 0xf)) {
+        if ((! is_all_ffs) && (tr > 0) && (tr < 0xf)) {
             char buff[32];
 
             // was hex but change to decimal to conform with ATA
             snprintf(buff, sizeof(buff), "%" PRIu64, ull);
             // snprintf(buff, sizeof(buff), "0x%" PRIx64, ull);
-            pout("%18s", buff);
+            jout("%18s", buff);
+            jglb[st]["lba_first_failure"]["value"] = ull;
+            jglb[st]["lba_first_failure"]["aka"] = "address_of_first_failure";
         } else
-            pout("                 -");
+            jout("                 -");
 
         // if sense key nonzero, then print it, along with
         // additional sense code and additional sense code qualifier
-        if (ucp[16] & 0xf)
-            pout(" [0x%x 0x%x 0x%x]\n", ucp[16] & 0xf, ucp[17], ucp[18]);
-        else
+        if (ucp[16] & 0xf) {
+            char b[48];
+
+            jout(" [0x%x 0x%x 0x%x]\n", ucp[16] & 0xf, ucp[17], ucp[18]);
+            u = ucp[16] & 0xf;
+            jglb[st]["sense_key"]["value"] = u;
+            jglb[st]["sense_key"]["string"] = 
+                        scsi_get_sense_key_str(u, sizeof(b), b);
+            jglb[st]["asc"] = ucp[17];
+            jglb[st]["ascq"] = ucp[18];
+            jglb[st]["vendor_specific"] = ucp[19];
+        } else
             pout(" [-   -    -]\n");
     }
 
     // if header never printed, then there was no output
     if (noheader)
-        pout("No %ss have been logged\n", hname);
-    else
-    if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
+        jout("No %ss have been logged\n", hname);
+    else if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
                         modese_len)) && (durationSec > 0)) {
-        pout("\nLong (extended) %s duration: %d seconds "
+        jout("\nLong (extended) %s duration: %d seconds "
              "[%.1f minutes]\n", hname, durationSec, durationSec / 60.0);
+        jglb["extended_self_test_seconds"] = durationSec;
     }
-    pout("\n");
+    jout("\n");
     return retval;
 }
 
