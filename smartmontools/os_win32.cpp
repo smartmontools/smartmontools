@@ -4007,22 +4007,29 @@ std::string win_smart_interface::get_os_version_str()
           case 19041:   w = "w10-2004"; break;
           case 19042:   w = "w10-20H2"; break;
           case 19043:   w = "w10-21H1"; break;
-          default:      w = "w10";
+          case 19044:   w = "w10-21H2"; break;
+          case 22000:   w = "w11-21H2"; break;
+          default:      w = (vi.dwBuildNumber < 22000
+                          ? "w10"
+                          : "w11");
                         build = vi.dwBuildNumber; break;
         } break;
       case 0xa0<<1 | 1:
         switch (vi.dwBuildNumber) {
-          case 14393:   w = "2016";      break;
+          case 14393:   w = "2016-1607"; break;
           case 16299:   w = "2016-1709"; break;
           case 17134:   w = "2016-1803"; break;
-          case 17763:   w = "2019";      break;
+          case 17763:   w = "2019-1809"; break;
           case 18362:   w = "2019-1903"; break;
           case 18363:   w = "2019-1909"; break;
           case 19041:   w = "2019-2004"; break;
           case 19042:   w = "2019-20H2"; break;
+          case 20348:   w = "2022-21H2"; break;
           default:      w = (vi.dwBuildNumber < 17763
                           ? "2016"
-                          : "2019");
+                          :  vi.dwBuildNumber < 20348
+                          ? "2019"
+                          : "2022");
                         build = vi.dwBuildNumber; break;
         } break;
     }

@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-20 Christian Franke
+Copyright (C) 2014-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -67,10 +67,16 @@ The public key block is included in the script.
 The old file is kept if the downloaded file is identical (ignoring
 the differences in Id string) otherwise it is moved to
 .BR drivedb.h.old .
+.PP
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+The old file is also kept if the downloaded file reports an older version
+on the same branch.
+This could be overridden with the \*(Aq\-\-force\*(Aq option.
+If the branch version differs, the file is always updated.
 .Sp
 .SH "OPTIONS"
 .TP
-.B \-s SMARTCTL
+.B \-s SMARTCTL, \-\-smartctl SMARTCTL
 Use the
 .BR smartctl (8)
 executable at path SMARTCTL for drive database syntax check.
@@ -78,7 +84,7 @@ The form \*(Aq\-s \-\*(Aq disables the syntax check.
 The default is
 .BR /usr/local/sbin/smartctl .
 .TP
-.B \-t TOOL
+.B \-t [/DIR/]TOOL, \-\-tool [/DIR/]TOOL
 Use TOOL for download.
 TOOL is one of:
 .I curl wget lynx
@@ -90,8 +96,12 @@ TOOL is one of:
 .\" %ENDIF OS OpenBSD
 .IR svn .
 The default is the first one found in PATH.
+.br
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+A DIR could also be specified.
+The plain TOOL name must then begin with any of the above names.
 .TP
-.B \-u LOCATION
+.B \-u LOCATION, \-\-url\-of LOCATION
 Use URL of LOCATION for download.
 LOCATION is one of:
 .br
@@ -113,10 +123,22 @@ LOCATION is one of:
 The default is
 .IR svn .
 .TP
+.B \-\-url URL
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+Download from URL.
+A valid OpenPGP/GPG signature with \*(Aq.raw.asc\*(Aq extension must also
+exist unless \*(Aq\-\-no\-verify\*(Aq is also specified.
+.TP
+.B \-\-file FILE
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+Copy from local FILE.
+A valid OpenPGP/GPG signature \*(AqFILE.raw.asc\*(Aq must also exist
+unless \*(Aq\-\-no\-verify\*(Aq is also specified.
+.TP
 .B \-\-trunk
 Download from SVN trunk.
-This requires \*(Aq\-\-no\-verify\*(Aq unless the trunk version is still
-identical to branches/RELEASE_6_0_DRIVEDB.
+This requires \*(Aq\-\-no\-verify\*(Aq because the trunk versions are not
+signed.
 .TP
 .B \-\-branch X.Y
 [NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
@@ -138,25 +160,51 @@ option.
 .B \-\-no\-verify
 Don't verify signature with GnuPG.
 .TP
+.B \-\-force
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+Allow downgrades.
+By default, the database is not replaced with an older version of the
+same branch.
+.TP
 .B \-\-export\-key
 Print the OpenPGP/GPG public key block.
 .TP
 .B \-\-dryrun
 Print download commands only.
 .TP
-.B \-v
+.B \-q, \-\-quiet
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
+Suppress info messages.
+.TP
+.B \-v, \-\-verbose
 Verbose output.
+.TP
+.B \-h, \-\-help
+Print help text.
 .Sp
 .SH "EXAMPLES"
+Regular update:
 .Vb 2
 # update-smart-drivedb
-/usr/local/share/smartmontools/drivedb.h updated from \e
-branches/RELEASE_6_0_DRIVEDB
+/usr/local/share/smartmontools/drivedb.h 7.2/5225 updated to 7.2/5237
+.Ve
+.PP
+Revert to previous version:
+.Vb 2
+# update-smart-drivedb --force \e
+  --file /usr/local/share/smartmontools/drivedb.h.old
+/usr/local/share/smartmontools/drivedb.h 7.2/5237 downgraded to 7.2/5225
+.Ve
+.PP
+Download the database from SVN trunk to current directory:
+.Vb 2
+$ update-smart-drivedb --trunk --no-verify -s - -u trac drivedb-trunk.h
+drivedb-trunk.h 7.3/5254 newly installed (NOT VERIFIED)
 .Ve
 .Sp
 .SH "EXIT STATUS"
-The exit status is 0 if the database has been successfully
-updated.
+The exit status is 0 if the database has been successfully updated or is
+already up to date.
 If an error occurs the exit status is 1.
 .Sp
 .SH FILES

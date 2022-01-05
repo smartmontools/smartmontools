@@ -544,6 +544,7 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.sct_erc_get = 1;
       } else if (!strcmp(optarg,"scttemp")) {
         ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
+        scsiopts.smart_env_rep = true;
       } else if (!strcmp(optarg,"scttempsts")) {
         ataopts.sct_temp_sts = true;
       } else if (!strcmp(optarg,"scttemphist")) {
@@ -737,6 +738,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
+      scsiopts.smart_env_rep = true;
       if (!output_format_set)
         ataopts.output_format |= ata_print_options::FMT_BRIEF;
       break;
@@ -871,7 +873,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       else {
         int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
         char s[7+1]; unsigned i = FAILPOWER, j = 0;
-        sscanf(optarg, "%9[a-z]%n,%u%n,%u%n", s, &n1, &i, &n2, &j, &n3);
+        sscanf(optarg, "%7[a-z]%n,%u%n,%u%n", s, &n1, &i, &n2, &j, &n3);
         if (!((n1 == len || n2 == len || n3 == len) && i <= 255 && j <= 255))
           badarg = true;
         else if (!strcmp(s, "sleep")) {

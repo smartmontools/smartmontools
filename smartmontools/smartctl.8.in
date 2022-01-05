@@ -149,7 +149,6 @@ For disks behind Intel controller with RST driver or an AMD controller
 with AMD RAID driver, use \fB"/dev/csmi[0\-9],N"\fP where N specifies the
 port behind the logical scsi controller "\\\\.\\Scsi[0\-9]:".
 .br
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
 The AMD RAID driver may return incomplete information about port assignment.
 To allow access to ports not reported, device scan returns all ports.
 Device open fails then if the port is unused.
@@ -483,16 +482,34 @@ this device type is for NVMe disks that are behind a Realtek USB to NVMe
 bridge.
 .Sp
 .\" %ENDIF NOT OS Darwin
-.\" %IF OS Linux
+.\" %IF OS Linux FreeBSD
 .I marvell
 \- [Linux only] interact with SATA disks behind Marvell chip-set
 controllers (using the Marvell rather than libata driver).
 .Sp
 .I megaraid,N
-\- [Linux only] the device consists of one or more SCSI/SAS disks connected
+\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks connected
 to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
-127 inclusive) denotes which disk on the controller is monitored.
+127 inclusive) denotes which disk on the controller is monitored. This interface
+will also work for Dell PERC controllers.
 Use syntax such as:
+.\" %ENDIF OS Linux FreeBSD
+.\" %IF OS ALL
+.br
+FreeBSD:
+.\" %ENDIF OS ALL
+.\" %IF OS FreeBSD
+.br
+\fBsmartctl \-a \-d megaraid,2 /dev/mfi0\fP
+.br
+\fBsmartctl \-a \-d megaraid,0 /dev/mrsas0\fP
+.br
+.Sp
+.\" %ENDIF OS FreeBSD
+.\" %IF OS ALL
+Linux:
+.\" %ENDIF OS ALL
+.\" %IF OS Linux
 .br
 \fBsmartctl \-a \-d megaraid,2 /dev/sda\fP
 .br
@@ -500,7 +517,6 @@ Use syntax such as:
 .br
 \fBsmartctl \-a \-d megaraid,0 /dev/bus/0\fP
 .br
-This interface will also work for Dell PERC controllers.
 It is possible to set RAID device name as /dev/bus/N, where N is a SCSI bus
 number.
 .Sp

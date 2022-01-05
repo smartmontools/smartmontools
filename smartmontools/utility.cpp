@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-12 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -93,7 +93,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
       "(build date " __DATE__ ")" // checkout without expansion of Id keywords
 #endif
       " [%s] " BUILD_INFO "\n"
-    "Copyright (C) 2002-21, Bruce Allen, Christian Franke, www.smartmontools.org\n",
+    "Copyright (C) 2002-22, Bruce Allen, Christian Franke, www.smartmontools.org\n",
     prog_name, smi()->get_os_version_str().c_str()
   );
   if (!full)
@@ -658,6 +658,21 @@ bool nonempty(const void * data, int size)
     if (((const unsigned char *)data)[i])
       return true;
   return false;
+}
+
+std::string jsonify_name(const char * in_a)
+{
+  int k;
+  int len = strlen(in_a);
+  std::string r(len, '_');
+
+  for (k = 0; k < len; ++k) {
+    char c = in_a[k];
+
+    if (isalnum(c))
+      r[k] = (isupper(c)) ? tolower(c) : c;
+  }
+  return r;
 }
 
 // Copy not null terminated char array to null terminated string.

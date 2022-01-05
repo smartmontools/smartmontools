@@ -1,5 +1,237 @@
 $Id$
 
+2022-01-05  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: add Lexar 128GB SSD (#1529)
+
+2022-01-05  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: first cut at adding json to the
+	self-test log page.
+	scsicmds.h/.cpp: add scsi_get_sense_key_str()
+	helper to fetch SCSI sense key as a C string
+
+2022-01-04  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: printf() spotted in
+	scsiPrintPendingDefectsLPage() by Yannick Hemery.
+	Changed to jout().
+
+2022-01-03  Douglas Gilbert  <dgilbert@interlog.com>
+
+	utility.h: overload jsonify_name() to take a C
+	string or a std::string. Use in scsiprint.cpp
+	to add more json support.
+
+2022-01-03  Christian Franke  <franke@computer.org>
+
+	json.h: Allow to use std::string for object keys.
+
+2022-01-02  Douglas Gilbert  <dgilbert@interlog.com>
+
+	utility.h: add free functions jsonify_name() and
+	jsonify_name_s() to lessen the repetition of names
+	that are very similar. May not save code but reduces
+	the chance of naming errors. Use jsonify_name() in
+	scsiprint.cpp as use of concept.
+
+2022-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year!  Update copyright year in version info.
+
+2022-01-01  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: add more json support: SAS transport
+	settings (partial) and some tape drive. Please review.
+
+2021-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: add more json support: logical_unit_id,
+	protection_type and lb_provisioning
+
+2021-12-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: applied patch proposed by Yannick Hemery at:
+	https://github.com/yhemery/smartmontools/commit/
+	cf8462bbf395386c239ea587a26777f2de44f8d6 [note: that url has
+	been line wrapped]. It is to cope with a Samsung SAS SSD that
+	considers the "Supported log pages" log page [0x0,0x0] and 
+	the "Supported log pages and subpages" log page [0x0,0xff]
+	as two sub-inventories that must be merged (i.e. a set
+	union) rather than [0x0,0xff] being a superset of [0x0,0x0].
+	Samsung seems to be alone in that interpretation.
+
+2021-12-21  Douglas Gilbert  <dgilbert@interlog.com>
+
+	expermimental: add support for printing the SCSI Environmental
+	Reporting log (sub)page [0xd,0x1] via the -l scttemp option
+	and select it when '-x' is given. Also generate json output.
+	Outputs temperature and relative humidity current values and
+	various min/max values. Manpage has not been updated as this
+	may not be the best way to hook this in.
+
+2021-12-21  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: fix listing of subpages as proposed by Yannick
+	Hemery <yannick.hemery@corp.ovh.com> in in smt's github pull/122
+
+2021-12-18  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Windows: Add new option '--warn-as-user=restricted'.
+	If specified, the warning script is run with a restricted access
+	token.
+
+	os_win32/popen_win32.cpp, os_win32/popen.h: Add new functions
+	'popen_as_restr_user()' and 'popen_as_restr_check()' and a TEST
+	program.
+
+	smartd.8.in: Document new functionality.
+
+2021-12-16  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add new option '--capabilities=mail'.
+	It initializes the capability bounding set for the exim MTA.
+	This is based on 'smartmontools-7.2-capnotify.patch' from the
+	Fedora Package (Red Hat Bugzilla 1954015).
+
+	No longer suppress mail notification if '--capabilities' is used.
+	Log a related hint instead if the warning script fails.
+
+	smartd.8.in: Document new functionality.
+
+2021-12-15  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Allow use of '--warn-as-user' with '--capabilities'.
+
+2021-12-13  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add ability to run warning script as non-privileged user.
+	User could be specified with new option '-u, --warn-as-user'.
+
+	popen_as_ugid.cpp, popen_as_ugid.h: New files with popen() wrapper
+	function.  It allows to change uid/gid and also prevents that
+	unneeded file descriptors are inherited by the child process.
+
+	configure.ac, Makefile.am: Enable new functionality for all OS with
+	POSIX API.
+
+	smartd.8.in: Document new functionality.
+
+2021-12-12  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add usage error messages, add '-h' option.
+
+2021-12-11  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Allow a directory in the argument of '-t'.
+
+	update-smart-drivedb.in: Add missing long options.
+
+	update-smart-drivedb.in: Allow update from local files or other URLs.
+	Location could be specified with new options '--file' and '--url'
+	(#1426).  Check VERSION information to prevent downgrades.
+	Allow override with new option '--force'.
+	update-smart-drivedb.8.in: Document new functionality.
+
+	update-smart-drivedb.in: Rename some variables.
+
+2021-11-29  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Fix possible buffer overflow (#1546).
+	An overflow of 1-2 bytes occurred only if the '-n' option
+	was specified with an invalid argument.
+
+2021-11-28  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Fix write of ATA attributes to state files.
+	Regression from r5256.
+
+2021-11-27  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Don't write 'smartd -D' output to syslog on syntax error.
+
+	smartd.cpp: Add ability to specify different check intervals (#336).
+	The new directive '-c i=N, -c interval=N' overrides the command line
+	option '-i N, --interval=N' for specific devices.
+	smartd.8.in, smartd.conf.5.in: Document new directive.
+
+	smartd.cpp: Use some C++11 features.
+
+	smartd.cpp: Add missing 'CloseDevice()' after NVMe error.
+
+2021-11-24  Alex Samorukov <samm@os2.kiev.ua>
+
+	megaraid (Linux, FreeBSD): relax RAID matching for the LSI PERC RAID
+	controller. Reported by alex@alexburke.ca.
+	drivedb.h: add "PLEXTOR PX-512M8VC +" (GH #108)
+
+2021-11-23  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: extend Intel regexp to support S4520 (GH #112)
+
+2021-11-22  Alex Samorukov <samm@os2.kiev.ua>
+
+	os_freebsd.cpp: initial support of the direct MegaRaid access using
+	'-d megaraid' option. Code is initially based on Linux version but adopted to
+	be compatible with FreeBSD IOCTL-s.
+
+2021-11-13  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.8.in: Remove EXPERIMENTAL notes for features
+	added before 7.1.
+
+	smartd.cpp: Allow to disable preconfigured state/log files with '-'.
+	The previous method required to specify the '-s' and '-A' options
+	with empty strings as arguments.  This does not work conjunction with
+	shell variable expansion (GH issues/115).
+	smartd.8.in: Document new option argument.
+
+2021-11-08  Yannick Hemery  <yannick.hemery@corp.ovh.com>
+
+	scsicmds.cpp: Retry on UNIT ATTENTION when fetching capacity (#1303).
+
+	If a UNIT ATTENTION is raised when READ CAPACITY (16) is called,
+	smartctl might wrongly assume that the drive only supports READ
+	CAPACITY (10), and return an invalid drive size / block size as a
+	result.
+
+2021-11-06  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Add '-q' option to suppress info messages.
+	(GH issues/110).
+	update-smart-drivedb.8.in: Document new option.
+
+	update-smart-drivedb.in: Stop the gpg-agent started by gpg.
+	Retry if removal of temp gpg home directory fails.
+	This prevents dangling agents and temp directories on NFS (#1542).
+
+2021-11-01  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Add missing permission bits to mknod() calls.
+	This fixes access to '-d aacraid' and '-d megaraid' devices from
+	smartd if '--capabilities' is used (GH issues/113).
+	Thanks to Michal Hlavinka for finding the root of the problem.
+
+2021-10-31  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10, 11 and Server 2022 21H2 build
+	numbers.
+
+2021-10-23  Christian Franke  <franke@computer.org>
+
+	Don't pass possible command escapes to the 'mail' command (#1535).
+
+	The 'mail' command from GNU mailutils < 3.13 processes '~! COMMAND'
+	even if used non-interactively (https://savannah.gnu.org/bugs/?60937).
+
+	smartd.cpp: Sanitize device identify information which is passed to
+	SMART_DEVICEINFO environment variable and written to syslog.
+
+	smartd_warning.sh.in: Abort script if a message line begins with a
+	possible command escape.
+
+	Thanks to 0x3l leox14@protonmail.com for reporting this security issue.
+
 2021-09-14  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

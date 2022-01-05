@@ -341,6 +341,46 @@ scsiErrString(int scsiErr)
     }
 }
 
+static const char * sense_key_desc[] = {
+    "No Sense",                 /* Filemark, ILI and/or EOM; progress
+                                   indication (during FORMAT); power
+                                   condition sensing (REQUEST SENSE) */
+    "Recovered Error",          /* The last command completed successfully
+                                   but used error correction */
+    "Not Ready",                /* The addressed target is not ready */
+    "Medium Error",             /* Data error detected on the medium */
+    "Hardware Error",           /* Controller or device failure */
+    "Illegal Request",
+    "Unit Attention",           /* Removable medium was changed, or
+                                   the target has been reset */
+    "Data Protect",             /* Access to the data is blocked */
+    "Blank Check",              /* Reached unexpected written or unwritten
+                                   region of the medium */
+    "Vendor specific(9)",       /* Vendor specific */
+    "Copy Aborted",             /* COPY or COMPARE was aborted */
+    "Aborted Command",          /* The target aborted the command */
+    "Equal",                    /* SEARCH DATA found data equal (obsolete) */
+    "Volume Overflow",          /* Medium full with data to be written */
+    "Miscompare",               /* Source data and data on the medium
+                                   do not agree */
+    "Completed"                 /* may occur for successful cmd (spc4r23) */
+};
+
+/* Yield string associated with sense_key value. Returns 'buff'. */
+char *
+scsi_get_sense_key_str(int sense_key, int buff_len, char * buff)
+{
+    if (1 == buff_len) {
+        buff[0] = '\0';
+        return buff;
+    }
+    if ((sense_key >= 0) && (sense_key < 16))
+        snprintf(buff, buff_len, "%s", sense_key_desc[sense_key]);
+    else
+        snprintf(buff, buff_len, "invalid value: 0x%x", sense_key);
+    return buff;
+}
+
 /* Iterates to next designation descriptor in the device identification
  * VPD page. The 'initial_desig_desc' should point to start of first
  * descriptor with 'page_len' being the number of valid bytes in that
@@ -1024,7 +1064,7 @@ scsiSetPowerCondition(scsi_device * device, int power_cond, int pcond_modifier)
         cdb[3] = pcond_modifier & 0xf;
         cdb[4] = power_cond << 4;
     } else
-	cdb[4] = 0x1;	/* START */
+        cdb[4] = 0x1;   /* START */
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -1198,6 +1238,29 @@ scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
     return scsiSimpleSenseFilter(&sinfo);
 }
 
+/* Call scsi_pass_through, and retry only if a UNIT_ATTENTION is raised.
+ * As for scsi_pass_through, return false on error. */
+bool
+scsi_pass_through_with_retry(scsi_device * device, scsi_cmnd_io * iop)
+{
+    scsi_sense_disect sinfo;
+
+    if (!device->scsi_pass_through(iop))
+        return false;
+
+    scsi_do_sense_disect(iop, &sinfo);
+
+    int err = scsiSimpleSenseFilter(&sinfo);
+    if (SIMPLE_ERR_TRY_AGAIN != err)
+        return true;
+
+    if (scsi_debugmode > 0)
+        pout("%s failed with errno=%d [%s], retrying\n",
+             __func__, err, scsiErrString(err));
+
+    return device->scsi_pass_through(iop);
+}
+
 /* READ CAPACITY (10) command. Returns 0 if ok, 1 if NOT READY, 2 if
  * command not supported, 3 if field in command not supported or returns
  * negated errno. SBC-3 section 5.15 (rev 26) */
@@ -1225,7 +1288,7 @@ scsiReadCapacity10(scsi_device * device, unsigned int * last_lbap,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (!scsi_pass_through_with_retry(device, &io_hdr))
       return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     res = scsiSimpleSenseFilter(&sinfo);
@@ -1263,7 +1326,7 @@ scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (!scsi_pass_through_with_retry(device, &io_hdr))
       return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
