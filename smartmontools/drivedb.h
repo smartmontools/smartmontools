@@ -477,6 +477,36 @@ const drive_settings builtin_knowndrives[] = {
     "-v 253,raw48,Unkn_CrucialMicron_Attr " // M6CR030
     "-v 254,raw48,Unkn_CrucialMicron_Attr"  // M6CR030
   },
+  { "Lexar 128GB SSD", // for other Lexar drives see ticket #1529
+    "Lexar 128GB SSD", // Lexar 128GB SSD/H190117D
+    "", "",
+    "-v 5,raw48,New_Bad_Blk_Cnt "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 167,raw48,SSD_Protect_mode "
+    "-v 168,raw48,SATA_PHY_Error_Cnt "
+    "-v 169,raw48,Bad_Block_Cnt "
+    "-v 171,raw48,Program_Fail_Cnt "
+    "-v 172,raw48,Erase_Fail_Cnt "
+    "-v 173,raw48,Erase_Cnt "
+    "-v 175,raw48,Bad_Cluster_Cnt "
+    "-v 177,raw48,Read_Retry_Cnt "
+    "-v 180,raw48,Spare_Blk_Cnt_Left "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 206,raw48,Min_Erase_Cnt "
+    "-v 207,raw48,Max_Erase_Cnt "
+    "-v 208,raw48,Avg_Erase_Cnt "
+    "-v 209,raw48,SLC_Min_Erase_Cnt "
+    "-v 210,raw48,SLC_Max_Erase_Cnt "
+    "-v 211,raw48,SLC_Avg_Erase_Cnt "
+    "-v 231,raw48,SSD_Life_Left "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 245,raw48,Bit_Error_Cnt "
+  },
   // Reference: https://www.micron.com/resource-details/feec878a-265e-49a7-8086-15137c5f9011
   // TN-FD-34: 5100 SSD SMART Implementation
   { "Micron 5100 Pro / 52x0 / 5300 SSDs",

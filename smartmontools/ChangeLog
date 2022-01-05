@@ -1,5 +1,9 @@
 $Id$
 
+2022-01-05  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: add Lexar 128GB SSD (#1529)
+
 2022-01-05  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: first cut at adding json to the
