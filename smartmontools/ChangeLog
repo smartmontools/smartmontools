@@ -1,4 +1,8 @@
-$Id: ChangeLog 5284 2022-01-05 06:07:16Z dpgilbert $
+$Id: ChangeLog 5285 2022-01-05 08:55:37Z samm2 $
+
+2022-01-05  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: add Lexar 128GB SSD (#1529)
 
 2022-01-05  Douglas Gilbert  <dgilbert@interlog.com>
 
