@@ -1,4 +1,10 @@
-$Id: ChangeLog 5282 2022-01-04 04:00:54Z dpgilbert $
+$Id: ChangeLog 5283 2022-01-05 02:33:19Z dpgilbert $
+
+2022-01-04  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: printf() spotted in
+	scsiPrintPendingDefectsLPage() by Yannick Hemery.
+	Changed to jout().
 
 2022-01-03  Douglas Gilbert  <dgilbert@interlog.com>
 

@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5282 2022-01-04 04:00:54Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5283 2022-01-05 02:33:19Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 
@@ -527,7 +527,7 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
         uint32_t count;
         switch (pc) {
         case 0x0:
-            printf("  Pending defect count:");
+            jout("  Pending defect count:");
             if ((pl < 8) || (num < 8)) {
                 print_on();
                 pout("%s truncated descriptor\n", pDefStr);
