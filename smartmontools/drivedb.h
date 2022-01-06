@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5293 2022-01-06 23:05:07Z samm2 $",
+  { "VERSION: 7.3 $Id: drivedb.h 5294 2022-01-06 23:06:28Z samm2 $",
     "-", "-",
     "Version information",
     ""
@@ -771,7 +771,7 @@ const drive_settings builtin_knowndrives[] = {
       // SSD Smartbuy 240GB/SBFM91.1, SSD Smartbuy 64GB/SBFM21.1
     "SSD PHISON 256GB PS3110-S10C|" // tested with SSD PHISON 256GB PS3110-S10C/SAFM12.2
     "SSDPR-CX400-(128|256|512|1024)|" // Goodram CX400, tested with SSDPR-CX400-512/SBFM61.3
-    "TEAM L3 EVO SSD (120|240|480|960)GB|"
+    "TEAM L3 EVO SSD (120|240|480|960)GB|" // TEAM L3 EVO SSD 120GB/SBFM11.0
     "SSM28(128|256|512)GPTCB3B-S11[24]61[123]", // tested with SSM28256GPTCB3B-S112612/SBFM61.2
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
