@@ -1449,7 +1449,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Intel 545s Series SSDs", // tested with INTEL SSDSCKKW512G8, INTEL SSDSC2KW512G8/LHF002C
       // SSDSCKKW128G8X1, SSDSCKKW256G8X1, SSDSCKKW512G8X1, SSDSCKKW010T8X1
-    "INTEL SSDSC[2K]KW(128G|256G|512G|010T)8.*",
+      // INTEL SSDSCKKF512G8 SATA 512GB/LHFD05N
+    "INTEL SSDSC[2K]K[WF](128G|256G|512G|010T)8.*",
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
