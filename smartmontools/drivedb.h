@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5290 2022-01-06 14:09:42Z samm2 $",
+  { "VERSION: 7.3 $Id: drivedb.h 5291 2022-01-06 14:23:06Z samm2 $",
     "-", "-",
     "Version information",
     ""
@@ -2832,6 +2832,11 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Samsung SpinPoint M9TU (USB)", // tested with ST1500LM008 HN-M151AAD/2BC10001
       // (0x04e8:0x61b5), ST2000LM005 HN-M201AAD2BC10001 (0x04e8:0x61b4)
     "ST(1500|2000)LM00[58] HN-M[0-9]*AAD",
+    "", "", ""
+  },
+  { "Seagate FreePlay", // tested with ST1500LM003-9YH148/CC94
+    // from FreeAgent GoFlex Enclosure.
+    "ST(1500LM003|1000LM010|1000LM002)-.*",
     "", "", ""
   },
   { "SAMSUNG SpinPoint MP5", // tested with HM250HJ/2AK10001
