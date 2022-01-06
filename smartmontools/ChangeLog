@@ -1,4 +1,10 @@
-$Id: ChangeLog 5285 2022-01-05 08:55:37Z samm2 $
+$Id: ChangeLog 5286 2022-01-06 03:26:23Z dpgilbert $
+
+2022-01-05  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: prefix most SCSI specific JSON
+	top level names with 'scsi_'. Add SCSI self
+	test JSON plus a few corrections.
 
 2022-01-05  Alex Samorukov <samm@os2.kiev.ua>
 
