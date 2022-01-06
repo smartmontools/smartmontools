@@ -4656,6 +4656,10 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(12|16|25|32)00SB-.*",
     "", "", ""
   },
+  { "Western Digital PiDrive Foundation Edition", // WDC WD3750LMCW-11D9GS3
+    "WDC WD(3750|2500)LMCW-.*",
+    "", "", ""
+  },
   { "Western Digital Caviar Serial ATA",
     "WDC WD(4|8|20|32)00BD-.*",
     "", "", ""

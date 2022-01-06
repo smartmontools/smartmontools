@@ -3,7 +3,9 @@ $Id$
 
 2022-01-06  Alex Samorukov <samm@os2.kiev.ua>
 
-	drivedb.h: SanDisk SSD PLUS 2000GB/UP4504RL (#1503)
+	drivedb.h: 
+	  - SanDisk SSD PLUS 2000GB/UP4504RL (#1503)
+	  - Western Digital PiDrive Foundation Edition (#1007)
 
 2022-01-05  Douglas Gilbert  <dgilbert@interlog.com>
 
