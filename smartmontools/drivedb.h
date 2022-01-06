@@ -2189,6 +2189,25 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 250,raw48,Read_Error_Retry_Rate " // ADATA SU800/Q0913A
     "-v 251,raw48,Unkn_SiliconMotion_Attr" // ADATA SU800/Q0913A
   },
+  // Supermicro SSD-DM032-SMCMVN1, tested with SuperMicro SSD/SOB20R, see (#1380)
+  { "Supermicro SATA DOM (SuperDOM)",
+    "SuperMicro SSD",
+    "", "",
+    "-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 15,raw48,User_Cpcty_Sector_Cnt "
+    "-v 160,raw48,Not_In_Use "
+    "-v 161,raw48,Not_In_Use "
+    "-v 163,raw48,Not_In_Use "
+    "-v 164,raw48,Not_In_Use "
+    "-v 165,raw48,Not_In_Use "
+    "-v 166,raw48,Minimum_PE_Cycles_TLC "
+    "-v 167,raw48,Not_In_Use "
+    "-v 168,raw48,Maximum_PE_Cycles_TLC "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 233,raw48,NAND_Writes_1GiB "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB "
+  },
   { "Silicon Motion based OEM SSDs", // Like 'Silicon Motion based SSDs' but with FW detection
     "240GB|" // from Lenovo T430 Thinkpad, tested with 240GB/P0510E
     "Dogfish SSD (128|256|512)GB|" // tested with Dogfish SSD 128GB/S1211A0
@@ -2202,8 +2221,7 @@ const drive_settings builtin_knowndrives[] = {
       // SATA3 1TB SSD/S1230A0,
       // KingDian S370, tested with SATA3 128GB SSD/T0311A0, SATA3 256GB SSD/S1127B0
       // KingDian S280, tested with SATA3 240GB SSD/T0519A0
-    "SPCC M\\.2 SSD|" // Silicon Power 2280 M55, tested with SPCC M.2 SSD/Q0627A0
-    "SuperMicro SSD", // Supermicro SSD-DM032-SMCMVN1, tested with SuperMicro SSD/SOB20R
+    "SPCC M\\.2 SSD", // Silicon Power 2280 M55, tested with SPCC M.2 SSD/Q0627A0
     "KFS03005|P0510E|P0725A|Q(0627|1107)A0|R0817B0|S(0618|1211|1230)A0|S1127B0|SOB20R|T0(311|519)A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "

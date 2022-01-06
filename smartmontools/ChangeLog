@@ -6,6 +6,7 @@ $Id$
 	drivedb.h: 
 	  - SanDisk SSD PLUS 2000GB/UP4504RL (#1503)
 	  - Western Digital PiDrive Foundation Edition (#1007)
+	  - Fixed Supermicro SATA DOM (SuperDOM) entry (#1380)
 
 2022-01-05  Douglas Gilbert  <dgilbert@interlog.com>
 
