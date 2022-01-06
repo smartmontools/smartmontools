@@ -4943,7 +4943,9 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD30NMVW-11C3NS4/01.01A01,
       // WDC WD40NMZW-11GX6S1/01.01A01 (0x1058:0x2599/25e2/25fa)
       // WDC WD50NDZW-11MR8S1/02.01A02
-    "WDC WD((5000[LK]|7500[BK]|10[JST]|[234]0N)M|50ND)[VZ][VW]-.*", // *W-* = USB 3.0
+      // WDC WD40NDZM-59A8KS1/01.01A01
+    "WDC WD((5000[LK]|7500[BK]|10[JST]|[234]0N)M|50ND|40ND)[VZ][VWM]-.*", // *W-* = USB 3.0
+    // Model numbers with "M" suffix denote the use of USB-C receptacles instead of Micro-B.
     "", "", ""
   },
   { "Quantum Bigfoot", // tested with TS10.0A/A21.0G00, TS12.7A/A21.0F00
