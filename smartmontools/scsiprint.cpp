@@ -33,6 +33,7 @@
 const char * scsiprint_c_cvsid = "$Id$"
                                  SCSIPRINT_H_CVSID;
 
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 uint8_t gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
@@ -369,7 +370,7 @@ scsiGetSmartData(scsi_device * device, bool attribs)
             pout("Drive Trip Temperature:        <not available>\n");
         else {
             jout("Drive Trip Temperature:        %d C\n", triptemp);
-            jglb["temperature"]["drive_trip"] = triptemp;
+            jglb["scsi_temperature"]["drive_trip"] = triptemp;
         }
     }
     pout("\n");
@@ -418,8 +419,8 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
                         pout("TapeAlert Errors (C=Critical, W=Warning, "
                              "I=Informational):\n");
                     jout("[0x%02x] %s\n", parametercode, ts);
-                    jglb["tapealert"]["status"][k]["code"] = parametercode;
-                    jglb["tapealert"]["status"][k]["string"] = ts;
+                    jglb["scsi_tapealert"]["status"][k]["code"] = parametercode;
+                    jglb["scsi_tapealert"]["status"][k]["string"] = ts;
                     failures += 1;
                 }
             }
@@ -429,7 +430,7 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
 
     if (! failures) {
         jout("TapeAlert: OK\n");
-        jglb["tapealert"]["status"] = "Good";
+        jglb["scsi_tapealert"]["status"] = "Good";
     }
 
     return failures;
@@ -504,7 +505,7 @@ static void
 scsiPrintPendingDefectsLPage(scsi_device * device)
 {
     static const char * pDefStr = "Pending Defects";
-    static const char * jname = "pending_defects";
+    static const char * jname = "scsi_pending_defects";
 
     int err;
     if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE,
@@ -983,7 +984,7 @@ static const char * self_test_result[] = {
         "Completed, segment failed",
         "Failed in first segment  ",
         "Failed in second segment ",
-        "Failed in segment -->    ",
+        "Failed in segment",            /* special handling for result 7 */
         "Reserved(8)              ",
         "Reserved(9)              ",
         "Reserved(10)             ",
@@ -1007,6 +1008,7 @@ scsiPrintSelfTest(scsi_device * device)
     uint8_t * ucp;
     struct scsi_sense_disect sense_info;
     static const char * hname = "Self-test";
+    static const char * fixup_stres7 = " -->    ";  /* only for non-json */
 
     // check if test is running
     if (!scsiRequestSense(device, &sense_info) &&
@@ -1045,7 +1047,7 @@ scsiPrintSelfTest(scsi_device * device)
         unsigned int u, tr;
         char st[32];
 
-        snprintf(st, sizeof(st), "self_test_%d", k);
+        snprintf(st, sizeof(st), "scsi_self_test_%d", k);
         // The spec says "all 20 bytes will be zero if no test" but
         // DG has found otherwise.  So this is a heuristic.
         if ((0 == poh) && (0 == ucp[4]))
@@ -1100,7 +1102,7 @@ scsiPrintSelfTest(scsi_device * device)
         default:
             break;
         }
-        jout("  %s", self_test_result[tr]);
+        jout("  %s%s", self_test_result[tr], (tr == 7 ? fixup_stres7 : ""));
         jglb[st]["result"]["value"] = tr;
         jglb[st]["result"]["string"] = rtrim(self_test_result[tr]);
 
@@ -1169,7 +1171,7 @@ scsiPrintSelfTest(scsi_device * device)
                         modese_len)) && (durationSec > 0)) {
         jout("\nLong (extended) %s duration: %d seconds "
              "[%.1f minutes]\n", hname, durationSec, durationSec / 60.0);
-        jglb["extended_self_test_seconds"] = durationSec;
+        jglb["scsi_extended_self_test_seconds"] = durationSec;
     }
     jout("\n");
     return retval;
@@ -1212,8 +1214,13 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
     bool firstresult = true;
     int num, j, m, err, truncated;
     int retval = 0;
+    unsigned int u;
+    uint64_t lba;
     uint8_t * ucp;
+    char b[48];
+    char res_s[32];
     static const char * hname = "Background scan results";
+    static const char * jname = "scsi_background_scan";
 
     if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1253,21 +1260,25 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
             if (noheader) {
                 noheader = false;
                 if (! only_pow_time)
-                    pout("%s log\n", hname);
+                    jout("%s log\n", hname);
             }
             if (! only_pow_time)
-                pout("  Status: ");
+                jout("  Status: ");
             if ((pl < 16) || (num < 16)) {
                 if (! only_pow_time)
-                    pout("\n");
+                    jout("\n");
                 break;
             }
             j = ucp[9];
             if (! only_pow_time) {
-                if (j < (int)(sizeof(bms_status) / sizeof(bms_status[0])))
-                    pout("%s\n", bms_status[j]);
-                else
-                    pout("unknown [0x%x] background scan status value\n", j);
+                if (j < (int)ARRAY_SIZE(bms_status)) {
+                    jout("%s\n", bms_status[j]);
+                    jglb[jname]["status"]["value"] = j;
+                    jglb[jname]["status"]["string"] = bms_status[j];
+                } else {
+                    jout("unknown [0x%x] background scan status value\n", j);
+                    jglb[jname]["status"]["value"] = j;
+                }
             }
             j = sg_get_unaligned_be32(ucp + 4);
             jout("%sAccumulated power on time, hours:minutes %d:%02d",
@@ -1280,53 +1291,71 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
             jglb["power_on_time"]["minutes"] = j % 60;
             if (only_pow_time)
                 break;
-            pout("    Number of background scans performed: %d,  ",
-                 sg_get_unaligned_be16(ucp + 10));
-            pout("scan progress: %.2f%%\n",
-                 (double)sg_get_unaligned_be16(ucp + 12) * 100.0 / 65536.0);
-            pout("    Number of background medium scans performed: %d\n",
-                 sg_get_unaligned_be16(ucp + 14));
+            u = sg_get_unaligned_be16(ucp + 10);
+            jout("    Number of background scans performed: %u,  ", u);
+            jglb[jname]["status"]["number_scans_performed"] = u;
+            u = sg_get_unaligned_be16(ucp + 12);
+            snprintf(b, sizeof(b), "%.2f%%", (double)u * 100.0 / 65536.0);
+            jout("scan progress: %s\n", b);
+            jglb[jname]["status"]["scan_progress"] = b;
+            u = sg_get_unaligned_be16(ucp + 14);
+            jout("    Number of background medium scans performed: %d\n", u);
+            jglb[jname]["status"]["number_medium_scans_performed"] = u;
             break;
         default:
             if (noheader) {
                 noheader = false;
                 if (! only_pow_time)
-                    pout("\n%s log\n", hname);
+                    jout("\n%s log\n", hname);
             }
             if (only_pow_time)
                 break;
             if (firstresult) {
                 firstresult = 0;
-                pout("\n   #  when        lba(hex)    [sk,asc,ascq]    "
+                jout("\n   #  when        lba(hex)    [sk,asc,ascq]    "
                      "reassign_status\n");
             }
-            pout(" %3d ", pc);
+            snprintf(res_s, sizeof(res_s), "result_%d", pc);
+            jout(" %3d ", pc);
             if ((pl < 24) || (num < 24)) {
                 if (pl < 24)
-                    pout("parameter length >= 24 expected, got %d\n", pl);
+                    jout("parameter length >= 24 expected, got %d\n", pl);
                 break;
             }
-            j = sg_get_unaligned_be32(ucp + 4);
-            pout("%4d:%02d  ", (j / 60), (j % 60));
+            u = sg_get_unaligned_be32(ucp + 4);
+            jout("%4u:%02u  ", (u / 60), (u % 60));
+            jglb[jname][res_s]["accumulated_power_on"]["minutes"] = u;
             for (m = 0; m < 8; ++m)
-                pout("%02x", ucp[16 + m]);
-            pout("  [%x,%x,%x]   ", ucp[8] & 0xf, ucp[9], ucp[10]);
-            j = (ucp[8] >> 4) & 0xf;
-            if (j <
-                (int)(sizeof(reassign_status) / sizeof(reassign_status[0])))
-                pout("%s\n", reassign_status[j]);
-            else
-                pout("Reassign status: reserved [0x%x]\n", j);
+                jout("%02x", ucp[16 + m]);
+            lba = sg_get_unaligned_be64(ucp + 16);
+            jglb[jname][res_s]["lba"] = lba;
+            u = ucp[8] & 0xf;
+            jout("  [%x,%x,%x]   ", u, ucp[9], ucp[10]);
+            jglb[jname][res_s]["sense_key"]["value"] = u;
+            jglb[jname][res_s]["sense_key"]["string"] =
+                        scsi_get_sense_key_str(u, sizeof(b), b);
+            jglb[jname][res_s]["asc"] = ucp[9];
+            jglb[jname][res_s]["ascq"] = ucp[10];
+            u = (ucp[8] >> 4) & 0xf;
+            if (u < ARRAY_SIZE(reassign_status)) {
+                jout("%s\n", reassign_status[u]);
+                jglb[jname][res_s]["reassign_status"]["value"] = u;
+                jglb[jname][res_s]["reassign_status"]["string"] =
+                                                        reassign_status[u];
+            } else {
+                jout("Reassign status: reserved [0x%x]\n", u);
+                jglb[jname][res_s]["reassign_status"]["value"] = u;
+            }
             break;
         }
         num -= pl;
         ucp += pl;
     }
     if (truncated && (! only_pow_time))
-        pout(" >>>> log truncated, fetched %d of %d available "
+        jout(" >>>> log truncated, fetched %d of %d available "
              "bytes\n", LOG_RESP_LONG_LEN, truncated);
     if (! only_pow_time)
-        pout("\n");
+        jout("\n");
     return retval;
 }
 
@@ -1403,7 +1432,7 @@ scsiPrintFormatStatus(scsi_device * device)
     uint8_t * ucp;
     uint8_t * xp;
     static const char * hname = "Format Status";
-    static const char * jname = "format_status";
+    static const char * jname = "scsi_format_status";
 
     if ((err = scsiLogSense(device, FORMAT_STATUS_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1713,7 +1742,7 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
     char s[64];
     const char * q;
 
-    snprintf(pn, sizeof(pn), "sas_port_%d", port_num);
+    snprintf(pn, sizeof(pn), "scsi_sas_port_%d", port_num);
     sz = sizeof(s);
     // pcb = ucp[2];
     t = sg_get_unaligned_be16(ucp + 0);
@@ -1886,7 +1915,7 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
 
 // Returns 1 if okay, 0 if non SAS descriptors
 static int
-show_protocol_specific_page(unsigned char * resp, int len)
+show_protocol_specific_port_page(unsigned char * resp, int len)
 {
     int k, j, num;
     unsigned char * ucp;
@@ -1931,7 +1960,7 @@ scsiPrintSasPhy(scsi_device * device, int reset)
     }
     // compute page length
     num = sg_get_unaligned_be16(gBuf + 2);
-    if (1 != show_protocol_specific_page(gBuf, num + 4)) {
+    if (1 != show_protocol_specific_port_page(gBuf, num + 4)) {
         print_on();
         pout("Only support %s log page on SAS devices\n\n", hname);
         print_off();
@@ -2063,15 +2092,15 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
 
         pout("=== START OF INFORMATION SECTION ===\n");
         jout("Vendor:               %.8s\n", scsi_vendor);
-        jglb["vendor"] = scsi_vendor;
+        jglb["scsi_vendor"] = scsi_vendor;
         jout("Product:              %.16s\n", product);
-        jglb["product"] = product;
-        jglb["model_name"] = strprintf("%s%s%s",
+        jglb["scsi_product"] = product;
+        jglb["scsi_model_name"] = strprintf("%s%s%s",
           scsi_vendor, (*scsi_vendor && *product ? " " : ""), product);
         if (gBuf[32] >= ' ') {
             jout("Revision:             %.4s\n", revision);
             // jglb["firmware_version"] = revision;
-            jglb["revision"] = revision;        /* could be a hardware rev */
+            jglb["scsi_revision"] = revision;
         }
         if ((scsi_version > 0x3) && (scsi_version < 0x8)) {
             char sv_arr[8];
@@ -2100,6 +2129,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
         unsigned char lb_prov_resp[8];
         uint64_t capacity = scsiGetSize(device, false /*avoid_rcap16 */,
                                         &srr);
+        static const char * lb_prov_j = "scsi_lb_provisioning";
 
         if (capacity) {
             char cap_str[64], si_str[64];
@@ -2136,16 +2166,20 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
                              srr.prot_type);
                         break;
                     }
-                    jglb["protection_type"] = srr.prot_type;
+                    jglb["scsi_protection_type"] = srr.prot_type;
                     unsigned p_i_per_lb = (1 << srr.p_i_exp);
                     const unsigned pi_sz = 8;   /* ref-tag(4 bytes),
                                                    app-tag(2), tag-mask(2) */
 
-                    if (p_i_per_lb > 1)
-                        pout("%d protection information intervals per "
+                    if (p_i_per_lb > 1) {
+                        jout("%d protection information intervals per "
                              "logical block\n", p_i_per_lb);
-                    pout("%d bytes of protection information per logical "
+                        jglb["scsi_protection_intervals_per_lb"] = srr.prot_type;
+                    }
+                    jout("%d bytes of protection information per logical "
                          "block\n", pi_sz * p_i_per_lb);
+                    jglb["scsi_protection_interval_bytes_per_lb"] =
+                                                        pi_sz * p_i_per_lb;
                 }
                 /* Pick up some LB provisioning info since its available */
                 lbpme = (int)srr.lbpme;
@@ -2169,41 +2203,41 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
             switch (prov_type) {
             case 0:
                 if (lbpme <= 0) {
-                    pout("LU is fully provisioned");
-                    jglb["lb_provisioning"]["name"] = "fully provisioned";
+                    jout("LU is fully provisioned");
+                    jglb[lb_prov_j]["name"] = "fully provisioned";
                     if (lbprz)
-                        pout(" [LBPRZ=%d]\n", lbprz);
+                        jout(" [LBPRZ=%d]\n", lbprz);
                     else
-                        pout("\n");
+                        jout("\n");
                 } else {
-                    pout("LB provisioning type: not reported [LBPME=1, "
+                    jout("LB provisioning type: not reported [LBPME=1, "
                          "LBPRZ=%d]\n", lbprz);
-                    jglb["lb_provisioning"]["name"] = "not reported";
+                    jglb[lb_prov_j]["name"] = "not reported";
                 }
                 break;
             case 1:
-                pout("LU is resource provisioned, LBPRZ=%d\n", lbprz);
-                jglb["lb_provisioning"]["name"] = "resource provisioned";
+                jout("LU is resource provisioned, LBPRZ=%d\n", lbprz);
+                jglb[lb_prov_j]["name"] = "resource provisioned";
                 break;
             case 2:
-                pout("LU is thin provisioned, LBPRZ=%d\n", lbprz);
-                jglb["lb_provisioning"]["name"] = "thin provisioned";
+                jout("LU is thin provisioned, LBPRZ=%d\n", lbprz);
+                jglb[lb_prov_j]["name"] = "thin provisioned";
                 break;
             default:
-                pout("LU provisioning type reserved [%d], LBPRZ=%d\n",
+                jout("LU provisioning type reserved [%d], LBPRZ=%d\n",
                      prov_type, lbprz);
-                jglb["lb_provisioning"]["name"] = "reserved";
+                jglb[lb_prov_j]["name"] = "reserved";
                 break;
             }
-            jglb["lb_provisioning"]["value"] = prov_type;
-            jglb["lb_provisioning"]["management_enabled"]["name"] = "LBPME";
-            jglb["lb_provisioning"]["management_enabled"]["value"] = lbpme;
-            jglb["lb_provisioning"]["read_zeros"]["name"] = "LBPRZ";
-            jglb["lb_provisioning"]["read_zeros"]["value"] = lbprz;
+            jglb[lb_prov_j]["value"] = prov_type;
+            jglb[lb_prov_j]["management_enabled"]["name"] = "LBPME";
+            jglb[lb_prov_j]["management_enabled"]["value"] = lbpme;
+            jglb[lb_prov_j]["read_zeros"]["name"] = "LBPRZ";
+            jglb[lb_prov_j]["read_zeros"]["value"] = lbprz;
         } else if (1 == lbpme) {
             if (scsi_debugmode > 0)
-                pout("rcap_16 sets LBPME but no LB provisioning VPD page\n");
-            pout("Logical block provisioning enabled, LBPRZ=%d\n", lbprz);
+                jout("rcap_16 sets LBPME but no LB provisioning VPD page\n");
+            jout("Logical block provisioning enabled, LBPRZ=%d\n", lbprz);
         }
 
         int rpm = scsiGetRPM(device, modese_len, &form_factor, &haw_zbc);
@@ -2245,7 +2279,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
             }
         }
         if (haw_zbc > 0)
-            pout("Host aware zoned block capable\n");
+            jout("Host aware zoned block capable\n");
     }
 
     /* Do this here to try and detect badly conforming devices (some USB
@@ -2269,7 +2303,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
             len = gBuf[3];
             scsi_decode_lu_dev_id(gBuf + 4, len, s, sizeof(s), &transport);
             if (strlen(s) > 0) {
-                pout("Logical Unit id:      %s\n", s);
+                jout("Logical Unit id:      %s\n", s);
                 jglb["logical_unit_id"] = s;
             }
         } else if (scsi_debugmode > 0) {
@@ -2302,8 +2336,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     // print SCSI peripheral device type
     jglb["device_type"]["scsi_terminology"] = "Peripheral Device Type [PDT]";
     jglb["device_type"]["scsi_value"] = peri_dt;
-    if (peri_dt < (int)(sizeof(peripheral_dt_arr) /
-                        sizeof(peripheral_dt_arr[0]))) {
+    if (peri_dt < (int)(ARRAY_SIZE(peripheral_dt_arr))) {
         jout("Device type:          %s\n", peripheral_dt_arr[peri_dt]);
         jglb["device_type"]["name"] = peripheral_dt_arr[peri_dt];
     }
@@ -2314,9 +2347,9 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     if (transport < 0)
         transport = scsiFetchTransportProtocol(device, modese_len);
     if ((transport >= 0) && (transport <= 0xf)) {
-        pout("Transport protocol:   %s\n", transport_proto_arr[transport]);
-        jglb["transport_protocol"]["name"] = transport_proto_arr[transport];
-        jglb["transport_protocol"]["value"] = transport;
+        jout("Transport protocol:   %s\n", transport_proto_arr[transport]);
+        jglb["scsi_transport_protocol"]["name"] = transport_proto_arr[transport];
+        jglb["scsi_transport_protocol"]["value"] = transport;
     }
 
     jout_startup_datetime("Local Time is:        ");
@@ -2356,7 +2389,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     if (iec_err) {
         if (!is_tape) {
             print_on();
-            pout("SMART support is:     Unavailable - device lacks SMART "
+            jout("SMART support is:     Unavailable - device lacks SMART "
                  "capability.\n");
             jglb["smart_support"]["available"] = false;
             if (scsi_debugmode > 0)
@@ -2369,13 +2402,13 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
 
     if (!is_tape) {
         ok = scsi_IsExceptionControlEnabled(&iec);
-        pout("SMART support is:     Available - device has SMART capability.\n"
+        jout("SMART support is:     Available - device has SMART capability.\n"
              "SMART support is:     %s\n", ok ? "Enabled" : "Disabled");
         jglb["smart_support"]["available"] = true;
         jglb["smart_support"]["enabled"] = ok;
     }
     ok = scsi_IsWarningEnabled(&iec);
-    pout("Temperature Warning:  %s\n",
+    jout("Temperature Warning:  %s\n",
          ok ? "Enabled" : "Disabled or Not Supported");
     jglb["temperature_warning"]["enabled"] = ok;
     return 0;
@@ -2485,7 +2518,7 @@ scsiPrintEnviroReporting(scsi_device * device)
     int len, num, err;
     unsigned char * ucp;
     static const char * hname = "Environmental Reports";
-    static const char * jname = "environmental_reports";
+    static const char * jname = "scsi_environmental_reports";
     static const char * j_tmp_n = "temperature";
     static const char * j_rh_n = "relative_humidity";
     static const char * rh_n = "relative humidity";

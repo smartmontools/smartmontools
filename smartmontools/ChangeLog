@@ -1,5 +1,11 @@
 $Id$
 
+2022-01-05  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: prefix most SCSI specific JSON
+	top level names with 'scsi_'. Add SCSI self
+	test JSON plus a few corrections.
+
 2022-01-05  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h: add Lexar 128GB SSD (#1529)
