@@ -4,6 +4,7 @@ $Id$
 	drivedb.h: 
 	  - Add L3 EVO SSD (#1354)
 	  - Add INTEL SSDSCKKF512G8 SATA 512GB (#1244)
+	  - Extend regexp for the Sandisk SD9SB8W series (#1112)
 
 2022-01-06  Christian Franke  <franke@computer.org>
 
