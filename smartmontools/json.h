@@ -22,24 +22,19 @@
 /// Create and print JSON output.
 class json
 {
-private:
-  struct node_info
-  {
-    std::string key;
-    int index = 0;
-
-    node_info() = default;
-    explicit node_info(const char * key_) : key(key_) { }
-    explicit node_info(int index_) : index(index_) { }
-  };
-
-  typedef std::vector<node_info> node_path;
-
 public:
   /// Return true if value is a safe JSON integer.
   /// Same as Number.isSafeInteger(value) in JavaScript.
   static bool is_safe_uint(unsigned long long value)
     { return (value < (1ULL << 53)); }
+
+  /// Replace space and non-alphanumerics with '_', upper to lower case.
+  static std::string str2key(const char * str);
+
+  /// Replace space and non-alphanumerics with '_', upper to lower case
+  /// (std::string variant).
+  static std::string str2key(const std::string & str)
+    { return str2key(str.c_str()); }
 
   enum node_type {
     nt_unset, nt_object, nt_array,
@@ -74,23 +69,37 @@ public:
   };
 
   struct initlist_key_value_pair {
-    initlist_key_value_pair(const char * k, const initlist_value & v) : key(k), value(v) {}
+    initlist_key_value_pair(const char * k, const initlist_value & v) : keystr(k), value(v) {}
     initlist_key_value_pair(const std::string & k, const initlist_value & v)
-      : key(k.c_str()), value(v) {}
+      : keystr(k.c_str()), value(v) {}
     initlist_key_value_pair(const char * k, const std::initializer_list<initlist_key_value_pair> & ilist)
-      : key(k), value(nt_object), object(ilist) {}
+      : keystr(k), value(nt_object), object(ilist) {}
     initlist_key_value_pair(const std::string & k, const std::initializer_list<initlist_key_value_pair> & ilist)
-      : key(k.c_str()), value(nt_object), object(ilist) {}
+      : keystr(k.c_str()), value(nt_object), object(ilist) {}
     initlist_key_value_pair(const char * k, const std::initializer_list<initlist_value> & ilist)
-      : key(k), value(nt_array), array(ilist) {}
+      : keystr(k), value(nt_array), array(ilist) {}
     initlist_key_value_pair(const std::string & k, const std::initializer_list<initlist_value> & ilist)
-      : key(k.c_str()), value(nt_array), array(ilist) {}
-    const char * key;
+      : keystr(k.c_str()), value(nt_array), array(ilist) {}
+    const char * keystr;
     initlist_value value;
     std::initializer_list<initlist_key_value_pair> object;
     std::initializer_list<initlist_value> array;
   };
 
+private:
+  struct node_info
+  {
+    std::string key;
+    int index = 0;
+
+    node_info() = default;
+    explicit node_info(const char * keystr) : key(str2key(keystr)) { }
+    explicit node_info(int index_) : index(index_) { }
+  };
+
+  typedef std::vector<node_info> node_path;
+
+public:
   /// Reference to a JSON element.
   class ref
   {
@@ -98,12 +107,12 @@ public:
     ~ref();
 
     /// Return reference to object element.
-    ref operator[](const char * key) const
-      { return ref(*this, key); }
+    ref operator[](const char * keystr) const
+      { return ref(*this, keystr); }
 
     /// Return reference to object element (std::string variant).
-    ref operator[](const std::string & key) const
-      { return ref(*this, key.c_str()); }
+    ref operator[](const std::string & keystr) const
+      { return ref(*this, keystr.c_str()); }
 
     /// Return reference to array element.
     ref operator[](int index) const
@@ -146,8 +155,8 @@ public:
   private:
     friend class json;
     explicit ref(json & js);
-    ref(json & js, const char * key);
-    ref(const ref & base, const char * key);
+    ref(json & js, const char * keystr);
+    ref(const ref & base, const char * keystr);
     ref(const ref & base, int index);
     ref(const ref & base, const char * /*dummy*/, const char * key_suffix);
 
@@ -159,12 +168,12 @@ public:
   };
 
   /// Return reference to element of top level object.
-  ref operator[](const char * key)
-    { return ref(*this, key); }
+  ref operator[](const char * keystr)
+    { return ref(*this, keystr); }
 
   /// Return reference to element of top level object (std::string variant).
-  ref operator[](const std::string & key)
-    { return ref(*this, key.c_str()); }
+  ref operator[](const std::string & keystr)
+    { return ref(*this, keystr.c_str()); }
 
   /// Braced-init-list support for top level object.
   void operator+=(std::initializer_list<initlist_key_value_pair> ilist)

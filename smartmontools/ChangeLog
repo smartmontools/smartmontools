@@ -1,5 +1,10 @@
 $Id$
 
+2022-01-06  Christian Franke  <franke@computer.org>
+
+	json.cpp, json.h: Allow to use any string for object keys.
+	Convert to final key with new public function 'json::str2key()'.
+	Rename related variables from 'key' to 'keystr'.
 
 2022-01-06  Alex Samorukov <samm@os2.kiev.ua>
 

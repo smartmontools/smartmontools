@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017-21 Christian Franke
+ * Copyright (C) 2017-22 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -32,13 +32,18 @@ static void jassert_failed(int line, const char * expr)
 
 #define jassert(expr) (!(expr) ? jassert_failed(__LINE__, #expr) : (void)0)
 
-static void check_key(const char * key)
+std::string json::str2key(const char * str)
 {
-  // Limit: object keys should be valid identifiers (lowercase only)
-  char c = key[0];
-  jassert('a' <= c && c <= 'z');
-  for (int i = 1; (c = key[i]); i++)
-    jassert(('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || (c == '_'));
+  std::string key = str;
+  for (char & c : key) {
+    if (('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || c == '_')
+      continue;
+    if ('A' <= c && c <= 'Z')
+      c += 'a' - 'A';
+    else
+      c = '_';
+  }
+  return key;
 }
 
 json::ref::ref(json & js)
@@ -46,18 +51,18 @@ json::ref::ref(json & js)
 {
 }
 
-json::ref::ref(json & js, const char * key)
+json::ref::ref(json & js, const char * keystr)
 : m_js(js)
 {
-  check_key(key);
-  m_path.push_back(node_info(key));
+  jassert(keystr && *keystr);
+  m_path.push_back(node_info(keystr));
 }
 
-json::ref::ref(const ref & base, const char * key)
+json::ref::ref(const ref & base, const char * keystr)
 : m_js(base.m_js), m_path(base.m_path)
 {
-  check_key(key);
-  m_path.push_back(node_info(key));
+  jassert(keystr && *keystr);
+  m_path.push_back(node_info(keystr));
 }
 
 json::ref::ref(const ref & base, int index)
@@ -206,11 +211,11 @@ void json::ref::set_unsafe_le128(const void * pvalue)
 void json::ref::operator+=(std::initializer_list<initlist_key_value_pair> ilist)
 {
   for (const initlist_key_value_pair & kv : ilist) {
-    jassert(kv.key && *kv.key);
+    jassert(kv.keystr && *kv.keystr);
     switch (kv.value.type) {
-      default: operator[](kv.key) = kv.value; break;
-      case nt_object: operator[](kv.key) += kv.object; break;
-      case nt_array: operator[](kv.key) += kv.array; break;
+      default: operator[](kv.keystr) = kv.value; break;
+      case nt_object: operator[](kv.keystr) += kv.object; break;
+      case nt_array: operator[](kv.keystr) += kv.array; break;
     }
   }
 }
