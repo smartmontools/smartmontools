@@ -1,4 +1,4 @@
-$Id: ChangeLog 5289 2022-01-06 13:58:13Z samm2 $
+$Id: ChangeLog 5290 2022-01-06 14:09:42Z samm2 $
 
 
 2022-01-06  Alex Samorukov <samm@os2.kiev.ua>
@@ -7,6 +7,7 @@ $Id: ChangeLog 5289 2022-01-06 13:58:13Z samm2 $
 	  - SanDisk SSD PLUS 2000GB/UP4504RL (#1503)
 	  - Western Digital PiDrive Foundation Edition (#1007)
 	  - Fixed Supermicro SATA DOM (SuperDOM) entry (#1380)
+	  - Extended regexp to support WDC WD40NDZM-59A8KS1 (#1474)
 
 2022-01-05  Douglas Gilbert  <dgilbert@interlog.com>
 
