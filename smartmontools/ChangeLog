@@ -1,5 +1,9 @@
 $Id$
 
+2022-01-07  Alex Samorukov <samm@os2.kiev.ua>
+	drivedb.h: 
+	  - Add L3 EVO SSD (#1354)
+
 2022-01-06  Christian Franke  <franke@computer.org>
 
 	json.cpp, json.h: Allow to use any string for object keys.
