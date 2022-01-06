@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5287 2022-01-06 13:23:18Z samm2 $",
+  { "VERSION: 7.3 $Id: drivedb.h 5288 2022-01-06 13:36:58Z samm2 $",
     "-", "-",
     "Version information",
     ""
@@ -4654,6 +4654,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital RE EIDE",
     "WDC WD(12|16|25|32)00SB-.*",
+    "", "", ""
+  },
+  { "Western Digital PiDrive Foundation Edition", // WDC WD3750LMCW-11D9GS3
+    "WDC WD(3750|2500)LMCW-.*",
     "", "", ""
   },
   { "Western Digital Caviar Serial ATA",
