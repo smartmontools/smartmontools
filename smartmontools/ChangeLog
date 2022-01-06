@@ -8,6 +8,7 @@ $Id$
 	  - Western Digital PiDrive Foundation Edition (#1007)
 	  - Fixed Supermicro SATA DOM (SuperDOM) entry (#1380)
 	  - Extended regexp to support WDC WD40NDZM-59A8KS1 (#1474)
+	  - Seagate FreePlay HDD (#1405)
 
 2022-01-05  Douglas Gilbert  <dgilbert@interlog.com>
 

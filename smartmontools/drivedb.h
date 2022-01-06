@@ -2834,6 +2834,11 @@ const drive_settings builtin_knowndrives[] = {
     "ST(1500|2000)LM00[58] HN-M[0-9]*AAD",
     "", "", ""
   },
+  { "Seagate FreePlay", // tested with ST1500LM003-9YH148/CC94
+    // from FreeAgent GoFlex Enclosure.
+    "ST(1500LM003|1000LM010|1000LM002)-.*",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint MP5", // tested with HM250HJ/2AK10001
     "SAMSUNG HM(250H|320H|500J|640J)J",
     "", "", ""
