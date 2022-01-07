@@ -1413,7 +1413,7 @@ scsiPrintSSMedia(scsi_device * device)
             }
             q = "Percentage used endurance indicator";
             jout("%s: %d%%\n", q, ucp[7]);
-            jglb[std::string("scsi_") + jsonify_name(q)] = ucp[7];
+            jglb[std::string("scsi_") + json::str2key(q)] = ucp[7];
         default:        /* ignore other parameter codes */
             break;
         }
@@ -1546,187 +1546,187 @@ show_sas_phy_event_info(const json::ref & jref, int peis, unsigned int val,
     case 0x1:   /* 0x1 to 0x4 will be duplicates so append "_2" to name */
         q = "Invalid dword count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q) + "_2"] = val;
+        jref[json::str2key(q) + "_2"] = val;
         break;
     case 0x2:
         q = "Running disparity error count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q) + "_2"] = val;
+        jref[json::str2key(q) + "_2"] = val;
         break;
     case 0x3:
         q = "Loss of dword synchronization count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q) + "_2"] = val;
+        jref[json::str2key(q) + "_2"] = val;
         break;
     case 0x4:
         q = "Phy reset problem count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q) + "_2"] = val;
+        jref[json::str2key(q) + "_2"] = val;
         break;
     case 0x5:
         q = "Elasticity buffer overflow count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x6:
         q = "Received ERROR count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x20:
         q = "Received address frame error count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x21:
         q = "Transmitted abandon-class OPEN_REJECT count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x22:
         q = "Received abandon-class OPEN_REJECT count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x23:
         q = "Transmitted retry-class OPEN_REJECT count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x24:
         q = "Received retry-class OPEN_REJECT count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x25:
         q = "Received AIP (WAITING ON PARTIAL) count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x26:
         q = "Received AIP (WAITING ON CONNECTION) count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x27:
         q = "Transmitted BREAK count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x28:
         q = "Received BREAK count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x29:
         q = "Break timeout count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x2a:
         q = "Connection count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x2b:
         q = "Peak transmitted pathway blocked";
         jout("     %s count: %u\n", q, val & 0xff);
         jout("         %s: %u\n", pvd_th, thresh_val & 0xff);
-        jref[jsonify_name(q)]["count"] = val & 0xff;
-        jref[jsonify_name(q)][pvd_th_j] = thresh_val & 0xff;
+        jref[q]["count"] = val & 0xff;
+        jref[q][pvd_th_j] = thresh_val & 0xff;
         break;
     case 0x2c:
         q = "Peak transmitted arbitration wait time";
         u = val & 0xffff;
         if (u < 0x8000) {
             jout("     %s (us): %u\n", q, u);
-            jref[jsonify_name(q) + "_us"]["event"] = u;
+            jref[json::str2key(q) + "_us"]["event"] = u;
         } else {
             jout("     %s (ms): %u\n", q, 33 + (u - 0x8000));
-            jref[jsonify_name(q) + "_ms"]["event"] = 33 + (u - 0x8000);
+            jref[json::str2key(q) + "_ms"]["event"] = 33 + (u - 0x8000);
         }
         u = thresh_val & 0xffff;
         if (u < 0x8000) {
             jout("         %s (us): %u\n", pvd_th, u);
-            jref[jsonify_name(q) + "_us"][pvd_th_j] = u;
+            jref[json::str2key(q) + "_us"][pvd_th_j] = u;
         } else {
             jout("         %s (ms): %u\n", pvd_th, 33 + (u - 0x8000));
-            jref[jsonify_name(q) + "_ms"][pvd_th_j] = 33 + (u - 0x8000);
+            jref[json::str2key(q) + "_ms"][pvd_th_j] = 33 + (u - 0x8000);
         }
         break;
     case 0x2d:
         q = "Peak arbitration time";
         jout("     %s (us): %u\n", q, val);
-        jref[jsonify_name(q) + "_us"]["event"] = val;
+        jref[json::str2key(q) + "_us"]["event"] = val;
         jout("         %s: %u\n", pvd_th, thresh_val);
-        jref[jsonify_name(q) + "_us"][pvd_th_j] = thresh_val;
+        jref[json::str2key(q) + "_us"][pvd_th_j] = thresh_val;
         break;
     case 0x2e:
         q = "Peak connection time";
         jout("     %s (us): %u\n", q, val);
-        jref[jsonify_name(q) + "_us"]["event"] = val;
+        jref[json::str2key(q) + "_us"]["event"] = val;
         jout("         %s: %u\n", pvd_th, thresh_val);
-        jref[jsonify_name(q) + "_us"][pvd_th_j] = thresh_val;
+        jref[json::str2key(q) + "_us"][pvd_th_j] = thresh_val;
         break;
     case 0x40:
         q = "Transmitted SSP frame count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x41:
         q = "Received SSP frame count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x42:
         q = "Transmitted SSP frame error count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x43:
         q = "Received SSP frame error count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x44:
         q = "Transmitted CREDIT_BLOCKED count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x45:
         q = "Received CREDIT_BLOCKED count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x50:
         q = "Transmitted SATA frame count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x51:
         q = "Received SATA frame count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x52:
         q = "SATA flow control buffer overflow count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x60:
         q = "Transmitted SMP frame count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x61:
         q = "Received SMP frame count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     case 0x63:
         q = "Received SMP frame error count";
         jout("     %s: %u\n", q, val);
-        jref[jsonify_name(q)] = val;
+        jref[q] = val;
         break;
     default:
         break;
@@ -1777,7 +1777,7 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
         }
         q = "attached device type";
         jout("    %s: %s\n", q, s);
-        jref[jsonify_name(q)] = s;
+        jref[q] = s;
         t = 0xf & vcp[4];
         switch (t) {
         case 0: snprintf(s, sz, "unknown"); break;
@@ -1796,7 +1796,7 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
         }
         q = "attached reason";
         jout("    %s: %s\n", q, s);
-        jref[jsonify_name(q)] = s;
+        jref[q] = s;
         t = (vcp[5] & 0xf0) >> 4;
         switch (t) {
         case 0: snprintf(s, sz, "unknown"); break;
@@ -1815,7 +1815,7 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
         }
         q = "reason";
         jout("    %s: %s\n", q, s);
-        jref[jsonify_name(q)] = s;
+        jref[q] = s;
         t = (0xf & vcp[5]);
         switch (t) {
         case 0: snprintf(s, sz, "phy enabled; unknown");
@@ -1839,19 +1839,19 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
         }
         q = "negotiated logical link rate";
         jout("    %s: %s\n", q, s);
-        jref[jsonify_name(q)] = s;
+        jref[q] = s;
         q = "attached initiator port";
         jout("    %s: ssp=%d stp=%d smp=%d\n", q,
                !! (vcp[6] & 8), !! (vcp[6] & 4), !! (vcp[6] & 2));
         snprintf(s, sz, "%03d", ((vcp[6] & 8) ? 100 : 0) +
                  ((vcp[6] & 4) ? 10 : 0) + ((vcp[6] & 2) ? 1 : 0));
-        jref[jsonify_name(q)]["ssp_stp_smp"] = s;
+        jref[q]["ssp_stp_smp"] = s;
         q = "attached target port";
         jout("    %s: ssp=%d stp=%d smp=%d\n", q,
                !! (vcp[7] & 8), !! (vcp[7] & 4), !! (vcp[7] & 2));
         snprintf(s, sz, "%03d", ((vcp[7] & 8) ? 100 : 0) +
                  ((vcp[7] & 4) ? 10 : 0) + ((vcp[7] & 2) ? 1 : 0));
-        jref[jsonify_name(q)]["ssp_stp_smp"] = s;
+        jref[q]["ssp_stp_smp"] = s;
         if (!dont_print_serial_number) {
             uint64_t ull = sg_get_unaligned_be64(vcp + 8);
             char b[32];
@@ -1859,33 +1859,33 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
             snprintf(b, sizeof(b), "0x%" PRIx64, ull);
             q = "SAS address";
             jout("    %s = %s\n", q, b);
-            jref[jsonify_name(q)] = b;
+            jref[q] = b;
             ull = sg_get_unaligned_be64(vcp + 16);
             snprintf(b, sizeof(b), "0x%" PRIx64, ull);
             q = "attached SAS address";
             jout("    %s = %s\n", q, b);
-            jref[jsonify_name(q)] = b;
+            jref[q] = b;
         }
         q = "attached phy identifier";
         jout("    %s = %d\n", q, vcp[24]);
-        jref[jsonify_name(q)] = vcp[24];
+        jref[q] = vcp[24];
         unsigned int ui = sg_get_unaligned_be32(vcp + 32);
 
         q = "Invalid DWORD count";
         jout("    %s = %u\n", q, ui);
-        jref[jsonify_name(q)] = ui;
+        jref[q] = ui;
         ui = sg_get_unaligned_be32(vcp + 36);
         q = "Running disparity error count";
         jout("    %s = %u\n", q, ui);
-        jref[jsonify_name(q)] = ui;
+        jref[q] = ui;
         ui = sg_get_unaligned_be32(vcp + 40);
         q = "Loss of DWORD synchronization count";
         jout("    %s = %u\n", q, ui);
-        jref[jsonify_name(q)] = ui;
+        jref[q] = ui;
         ui = sg_get_unaligned_be32(vcp + 44);
         q = "Phy reset problem count";
         jout("    %s = %u\n", q, ui);
-        jref[jsonify_name(q)] = ui;
+        jref[q] = ui;
         if (spld_len > 51) {
             bool header_given = false;
             bool allow_dupl = (scsi_debugmode > 0);

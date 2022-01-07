@@ -1,5 +1,11 @@
 $Id$
 
+2022-01-07  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: remove jsonify_name() and use
+	json::str2key() where required. No user space
+	visible changes.
+
 2022-01-07  Alex Samorukov <samm@os2.kiev.ua>
 	drivedb.h: 
 	  - Add L3 EVO SSD (#1354)

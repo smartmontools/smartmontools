@@ -660,21 +660,6 @@ bool nonempty(const void * data, int size)
   return false;
 }
 
-std::string jsonify_name(const char * in_a)
-{
-  int k;
-  int len = strlen(in_a);
-  std::string r(len, '_');
-
-  for (k = 0; k < len; ++k) {
-    char c = in_a[k];
-
-    if (isalnum(c))
-      r[k] = (isupper(c)) ? tolower(c) : c;
-  }
-  return r;
-}
-
 // Copy not null terminated char array to null terminated string.
 // Replace non-ascii characters.  Remove leading and trailing blanks.
 const char * format_char_array(char * str, int strsize, const char * chr, int chrsize)
