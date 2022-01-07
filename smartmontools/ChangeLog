@@ -1,4 +1,10 @@
-$Id: ChangeLog 5296 2022-01-06 23:38:06Z samm2 $
+$Id: ChangeLog 5297 2022-01-07 00:51:15Z dpgilbert $
+
+2022-01-07  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: remove jsonify_name() and use
+	json::str2key() where required. No user space
+	visible changes.
 
 2022-01-07  Alex Samorukov <samm@os2.kiev.ua>
 	drivedb.h: 
