@@ -1,5 +1,10 @@
 $Id$
 
+2022-01-08  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: add json for the Start stop cycle counter
+	log page. Rejig some of the other SCSI json. 
+
 2022-01-07  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: remove jsonify_name() and use

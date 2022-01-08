@@ -441,6 +441,9 @@ scsiGetStartStopData(scsi_device * device)
 {
     int err, len, k, extra;
     unsigned char * ucp;
+    char b[32];
+    const char * q;
+    static const char * jname = "scsi_start_stop_cycle_counter";
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
@@ -470,29 +473,45 @@ scsiGetStartStopData(scsi_device * device)
         bool is_all_ffs = (extra > 7) ? all_ffs(ucp + 4, 4) : false;
         switch (pc) {
         case 1:
-            if (10 == extra)
-                pout("Manufactured in week %.2s of year %.4s\n", ucp + 8,
+            if (10 == extra) {
+                jout("Manufactured in week %.2s of year %.4s\n", ucp + 8,
                      ucp + 4);
+                snprintf(b, sizeof(b), "%.4s", ucp + 4);
+                jglb[jname]["year_of_manufacture"] = b;
+                snprintf(b, sizeof(b), "%.2s", ucp + 8);
+                jglb[jname]["week_of_manufacture"] = b;
+            }
             break;
         case 2:
             /* ignore Accounting date */
             break;
         case 3:
-            if ((extra > 7) && (! is_all_ffs))
-                pout("Specified cycle count over device lifetime:  %u\n", u);
+            if ((extra > 7) && (! is_all_ffs)) {
+                q = "Specified cycle count over device lifetime";
+                jout("%s:  %u\n", q, u);
+                jglb[jname][q] = u;
+            }
             break;
         case 4:
-            if ((extra > 7) && (! is_all_ffs))
-                pout("Accumulated start-stop cycles:  %u\n", u);
+            if ((extra > 7) && (! is_all_ffs)) {
+                q = "Accumulated start-stop cycles";
+                jout("%s:  %u\n", q, u);
+                jglb[jname][q] = u;
+            }
             break;
         case 5:
-            if ((extra > 7) && (! is_all_ffs))
-                pout("Specified load-unload count over device lifetime:  "
-                     "%u\n", u);
+            if ((extra > 7) && (! is_all_ffs)) {
+                q = "Specified load-unload count over device lifetime";
+                jout("%s:  %u\n", q, u);
+                jglb[jname][q] = u;
+            }
             break;
         case 6:
-            if ((extra > 7) && (! is_all_ffs))
-                pout("Accumulated load-unload cycles:  %u\n", u);
+            if ((extra > 7) && (! is_all_ffs)) {
+                q = "Accumulated load-unload cycles";
+                jout("%s:  %u\n", q, u);
+                jglb[jname][q] = u;
+            }
             break;
         default:
             /* ignore */
@@ -1317,6 +1336,7 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
             }
             snprintf(res_s, sizeof(res_s), "result_%d", pc);
             jout(" %3d ", pc);
+            jglb[jname][res_s]["parameter_code"] = pc;
             if ((pl < 24) || (num < 24)) {
                 if (pl < 24)
                     jout("parameter length >= 24 expected, got %d\n", pl);
@@ -2516,18 +2536,14 @@ static void
 scsiPrintEnviroReporting(scsi_device * device)
 {
     int len, num, err;
+    int temp_num = 0;
+    int humid_num = 0;
     unsigned char * ucp;
+    const char * q;
     static const char * hname = "Environmental Reports";
     static const char * jname = "scsi_environmental_reports";
-    static const char * j_tmp_n = "temperature";
-    static const char * j_rh_n = "relative_humidity";
     static const char * rh_n = "relative humidity";
-    static const char * j_lif_max_n = "lifetime_maximum";
-    static const char * j_lif_min_n = "lifetime_minimum";
-    static const char * j_max_spo_n = "maximum_since_power_on";
-    static const char * j_min_spo_n = "minimum_since_power_on";
-    static const char * j_max_oth_n = "maximum_other";
-    static const char * j_min_oth_n = "minimum_other";
+    static const char * temp_n = "temperature";
     static const char * sop_n = "since power on";
     static const char * unkn_n = "unknown";
 
@@ -2559,86 +2575,100 @@ scsiPrintEnviroReporting(scsi_device * device)
     while (num > 3) {
         int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
-        char pc_s[16];
+        char pc_s[32];
 
-        snprintf(pc_s, sizeof(pc_s), "pc_%d", pc);
         if ((pc < 0x100) && (pl == 12)) {
+            snprintf(pc_s, sizeof(pc_s), "temperature_%d", ++temp_num);
             /* temperature is two's complement 8 bit in centigrade */
             int temp = (int)(int8_t)ucp[5];
 
+            jglb[jname][pc_s]["parameter_code"] = pc;
+            q = "Current";
             if (ucp[5] == 0x80) {
-                jout("Current %s = %s\n", j_tmp_n, unkn_n);
-                jglb[jname][j_tmp_n][pc_s]["current"] = unkn_n;
+                jout("%s %s = %s\n", q, temp_n, unkn_n);
+                jglb[jname][pc_s][q] = unkn_n;
             } else {
-                jout("Current %s = %d\n", j_tmp_n, temp);
-                jglb[jname][j_tmp_n][pc_s]["current"] = temp;
+                jout("%s %s = %d\n", q, temp_n, temp);
+                jglb[jname][pc_s][q] = temp;
             }
             temp = (int)(int8_t)ucp[6];
+            q = "Lifetime maximum";
             if (ucp[6] == 0x80) {
-                jout("Lifetime maximum %s = %s\n", j_tmp_n, unkn_n);
-                jglb[jname][j_tmp_n][pc_s][j_lif_max_n] = unkn_n;
+                jout("%s %s = %s\n", q, temp_n, unkn_n);
+                jglb[jname][pc_s][q] = unkn_n;
             } else {
-                jout("Lifetime maximum %s = %d\n", j_tmp_n, temp);
-                jglb[jname][j_tmp_n][pc_s][j_lif_max_n] = temp;
+                jout("%s %s = %d\n", q, temp_n, temp);
+                jglb[jname][pc_s][q] = temp;
             }
             temp = (int)(int8_t)ucp[7];
+            q = "Lifetime minimum";
             if (ucp[7] == 0x80) {
-                jout("Lifetime minimum %s = %s\n", j_tmp_n, unkn_n);
-                jglb[jname][j_tmp_n][pc_s][j_lif_min_n] = unkn_n;
+                jout("%s %s = %s\n", q, temp_n, unkn_n);
+                jglb[jname][pc_s][q] = unkn_n;
             } else {
-                jout("Lifetime minimum %s = %d\n", j_tmp_n, temp);
-                jglb[jname][j_tmp_n][pc_s][j_lif_min_n] = temp;
+                jout("%s %s = %d\n", q, temp_n, temp);
+                jglb[jname][pc_s][q] = temp;
             }
             temp = (int)(int8_t)ucp[8];
+            q = "Maximum since power on";
             if (ucp[8] == 0x80) {
-                jout("Maximum %s %s = %s\n", j_tmp_n, sop_n, unkn_n);
-                jglb[jname][j_tmp_n][pc_s][j_max_spo_n] = unkn_n;
+                jout("Maximum %s %s = %s\n", temp_n, sop_n, unkn_n);
+                jglb[jname][pc_s][q] = unkn_n;
             } else {
-                jout("Maximum %s %s = %d\n", j_tmp_n, sop_n, temp);
-                jglb[jname][j_tmp_n][pc_s][j_max_spo_n] = temp;
+                jout("Maximum %s %s = %d\n", temp_n, sop_n, temp);
+                jglb[jname][pc_s][q] = temp;
             }
             temp = (int)(int8_t)ucp[9];
+            q = "Minimum since power on";
             if (ucp[9] == 0x80) {
-                jout("Minimum %s %s = %s\n", j_tmp_n, sop_n, unkn_n);
-                jglb[jname][j_tmp_n][pc_s][j_min_spo_n] = unkn_n;
+                jout("Minimum %s %s = %s\n", temp_n, sop_n, unkn_n);
+                jglb[jname][pc_s][q] = unkn_n;
             } else {
-                jout("Minimum %s %s = %d\n", j_tmp_n, sop_n, temp);
-                jglb[jname][j_tmp_n][pc_s][j_min_spo_n] = temp;
+                jout("Minimum %s %s = %d\n", temp_n, sop_n, temp);
+                jglb[jname][pc_s][q] = temp;
             }
             if ((ucp[4] & 0x3) == 1) {  /* OTV field set to 1 */
                 temp = (int)(int8_t)ucp[10];
+                q = "Maximum other";
                 if (ucp[10] == 0x80) {
-                    jout("Maximum other %s = %s\n", j_tmp_n, unkn_n);
-                    jglb[jname][j_tmp_n][pc_s][j_max_oth_n] = unkn_n;
+                    jout("%s %s = %s\n", q, temp_n, unkn_n);
+                    jglb[jname][pc_s][q] = unkn_n;
                 } else {
-                    jout("Maximum other %s = %d\n", j_tmp_n, temp);
-                    jglb[jname][j_tmp_n][pc_s][j_max_oth_n] = temp;
+                    jout("%s %s = %d\n", q, temp_n, temp);
+                    jglb[jname][pc_s][q] = temp;
                 }
                 temp = (int)(int8_t)ucp[11];
+                q = "Minimum other";
                 if (ucp[11] == 0x80) {
-                    jout("Minimum other %s = %s\n", j_tmp_n, unkn_n);
-                    jglb[jname][j_tmp_n][pc_s][j_min_oth_n] = unkn_n;
+                    jout("%s %s = %s\n", q, temp_n, unkn_n);
+                    jglb[jname][pc_s][q] = unkn_n;
                 } else {
-                    jout("Minimum other %s = %d\n", j_tmp_n, temp);
-                    jglb[jname][j_tmp_n][pc_s][j_min_oth_n] = temp;
+                    jout("%s %s = %d\n", q, temp_n, temp);
+                    jglb[jname][pc_s][q] = temp;
                 }
             }
         } else if ((pc < 0x200) && (pl == 12)) {
+            snprintf(pc_s, sizeof(pc_s), "relative_humidity_%d", ++humid_num);
+            jglb[jname][pc_s]["parameter_code"] = pc;
             jout("Relative humidity = %u\n", ucp[5]);
-            jglb[jname][j_rh_n][pc_s]["current"] = ucp[5];
-            jout("Lifetime maximum %s = %d\n", rh_n, ucp[6]);
-            jglb[jname][j_rh_n][pc_s][j_lif_max_n] = ucp[6];
-            jout("Lifetime minimum %s = %d\n", rh_n, ucp[7]);
-            jglb[jname][j_rh_n][pc_s][j_lif_min_n] = ucp[7];
+            jglb[jname][pc_s]["current"] = ucp[5];
+            q = "Lifetime maximum";
+            jout("%s %s = %d\n", q, rh_n, ucp[6]);
+            jglb[jname][pc_s][q] = ucp[6];
+            q = "Lifetime minimum";
+            jout("%s %s = %d\n", q, rh_n, ucp[7]);
+            jglb[jname][pc_s][q] = ucp[7];
             jout("Maximum %s %s = %d\n", rh_n, sop_n, ucp[8]);
-            jglb[jname][j_rh_n][pc_s][j_max_spo_n] = ucp[8];
+            jglb[jname][pc_s]["maximum_since_power_on"] = ucp[8];
             jout("Minimum %s %s = %d\n", rh_n, sop_n, ucp[9]);
-            jglb[jname][j_rh_n][pc_s][j_min_spo_n] = ucp[9];
+            jglb[jname][pc_s]["minimum_since_power_on"] = ucp[9];
             if ((ucp[4] & 0x3) == 1) {  /* ORHV field set to 1 */
-                jout("Maximum other %s = %d\n", rh_n, ucp[10]);
-                jglb[jname][j_rh_n][pc_s][j_max_oth_n] = ucp[10];
-                jout("Minimum other %s = %d\n", rh_n, ucp[11]);
-                jglb[jname][j_rh_n][pc_s][j_min_oth_n] = ucp[11];
+                q = "Maximum other";
+                jout("%s %s = %d\n", q, rh_n, ucp[10]);
+                jglb[jname][pc_s][q] = ucp[10];
+                q = "Minimum other";
+                jout("%s %s = %d\n", q, rh_n, ucp[11]);
+                jglb[jname][pc_s][q] = ucp[11];
             }
         } else {
             if (scsi_debugmode > 0) {
