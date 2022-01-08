@@ -1,4 +1,9 @@
-$Id: ChangeLog 5297 2022-01-07 00:51:15Z dpgilbert $
+$Id: ChangeLog 5298 2022-01-08 05:55:33Z dpgilbert $
+
+2022-01-08  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: add json for the Start stop cycle counter
+	log page. Rejig some of the other SCSI json. 
 
 2022-01-07  Douglas Gilbert  <dgilbert@interlog.com>
 
