@@ -1433,7 +1433,7 @@ scsiPrintSSMedia(scsi_device * device)
             }
             q = "Percentage used endurance indicator";
             jout("%s: %d%%\n", q, ucp[7]);
-            jglb[std::string("scsi_") + json::str2key(q)] = ucp[7];
+            jglb[std::string("scsi_") + q] = ucp[7];
         default:        /* ignore other parameter codes */
             break;
         }
@@ -1566,22 +1566,22 @@ show_sas_phy_event_info(const json::ref & jref, int peis, unsigned int val,
     case 0x1:   /* 0x1 to 0x4 will be duplicates so append "_2" to name */
         q = "Invalid dword count";
         jout("     %s: %u\n", q, val);
-        jref[json::str2key(q) + "_2"] = val;
+        jref[std::string(q) + "_2"] = val;
         break;
     case 0x2:
         q = "Running disparity error count";
         jout("     %s: %u\n", q, val);
-        jref[json::str2key(q) + "_2"] = val;
+        jref[std::string(q) + "_2"] = val;
         break;
     case 0x3:
         q = "Loss of dword synchronization count";
         jout("     %s: %u\n", q, val);
-        jref[json::str2key(q) + "_2"] = val;
+        jref[std::string(q) + "_2"] = val;
         break;
     case 0x4:
         q = "Phy reset problem count";
         jout("     %s: %u\n", q, val);
-        jref[json::str2key(q) + "_2"] = val;
+        jref[std::string(q) + "_2"] = val;
         break;
     case 0x5:
         q = "Elasticity buffer overflow count";
@@ -1660,33 +1660,33 @@ show_sas_phy_event_info(const json::ref & jref, int peis, unsigned int val,
         u = val & 0xffff;
         if (u < 0x8000) {
             jout("     %s (us): %u\n", q, u);
-            jref[json::str2key(q) + "_us"]["event"] = u;
+            jref[std::string(q) + "_us"]["event"] = u;
         } else {
             jout("     %s (ms): %u\n", q, 33 + (u - 0x8000));
-            jref[json::str2key(q) + "_ms"]["event"] = 33 + (u - 0x8000);
+            jref[std::string(q) + "_ms"]["event"] = 33 + (u - 0x8000);
         }
         u = thresh_val & 0xffff;
         if (u < 0x8000) {
             jout("         %s (us): %u\n", pvd_th, u);
-            jref[json::str2key(q) + "_us"][pvd_th_j] = u;
+            jref[std::string(q) + "_us"][pvd_th_j] = u;
         } else {
             jout("         %s (ms): %u\n", pvd_th, 33 + (u - 0x8000));
-            jref[json::str2key(q) + "_ms"][pvd_th_j] = 33 + (u - 0x8000);
+            jref[std::string(q) + "_ms"][pvd_th_j] = 33 + (u - 0x8000);
         }
         break;
     case 0x2d:
         q = "Peak arbitration time";
         jout("     %s (us): %u\n", q, val);
-        jref[json::str2key(q) + "_us"]["event"] = val;
+        jref[std::string(q) + "_us"]["event"] = val;
         jout("         %s: %u\n", pvd_th, thresh_val);
-        jref[json::str2key(q) + "_us"][pvd_th_j] = thresh_val;
+        jref[std::string(q) + "_us"][pvd_th_j] = thresh_val;
         break;
     case 0x2e:
         q = "Peak connection time";
         jout("     %s (us): %u\n", q, val);
-        jref[json::str2key(q) + "_us"]["event"] = val;
+        jref[std::string(q) + "_us"]["event"] = val;
         jout("         %s: %u\n", pvd_th, thresh_val);
-        jref[json::str2key(q) + "_us"][pvd_th_j] = thresh_val;
+        jref[std::string(q) + "_us"][pvd_th_j] = thresh_val;
         break;
     case 0x40:
         q = "Transmitted SSP frame count";
