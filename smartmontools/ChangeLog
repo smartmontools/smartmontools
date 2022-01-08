@@ -1,4 +1,8 @@
-$Id: ChangeLog 5298 2022-01-08 05:55:33Z dpgilbert $
+$Id: ChangeLog 5299 2022-01-08 18:19:36Z dpgilbert $
+
+2022-01-08  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: adjust json::str2key() calls as requested
 
 2022-01-08  Douglas Gilbert  <dgilbert@interlog.com>
 
