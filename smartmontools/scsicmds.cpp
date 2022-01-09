@@ -2577,7 +2577,10 @@ scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current)
 /* Returns a negative value on error, 0 if unknown and 1 if SSD,
  * otherwise the positive returned value is the speed in rpm. First checks
  * the Block Device Characteristics VPD page and if that fails it tries the
- * RIGID_DISK_DRIVE_GEOMETRY_PAGE mode page. */
+ * RIGID_DISK_DRIVE_GEOMETRY_PAGE mode page.
+ * In SBC-4 the 2 bit ZONED field in this VPD page is written to *haw_zbcp
+ * if haw_zbcp is non-NULL. In SBC-5 the ZONED field is now obsolete,
+ * the Zoned block device characteristics VPD page should be used instead. */
 
 int
 scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp,
@@ -2595,7 +2598,7 @@ scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp,
         if (form_factorp)
             *form_factorp = buff[7] & 0xf;
         if (haw_zbcp)
-            *haw_zbcp = !!(0x10 & buff[8]);
+            *haw_zbcp = (buff[8] >> 4) & 0x3;
         return speed;
     }
     if (form_factorp)

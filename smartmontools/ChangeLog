@@ -1,5 +1,11 @@
 $Id$
 
+2022-01-09  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp, scsicmds.h/.cpp: do some preliminary
+	work to fetch the Zoned block device characteristics
+	VPD page if it is present
+
 2022-01-08  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: adjust json::str2key() calls as requested

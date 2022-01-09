@@ -291,6 +291,7 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_VPD_BLOCK_LIMITS           0xb0
 #define SCSI_VPD_BLOCK_DEVICE_CHARACTERISTICS   0xb1
 #define SCSI_VPD_LOGICAL_BLOCK_PROVISIONING     0xb2
+#define SCSI_VPD_ZONED_BLOCK_DEV_CHAR   0xb6
 
 /* defines for useful SCSI Status codes */
 #define SCSI_STATUS_CHECK_CONDITION     0x2
