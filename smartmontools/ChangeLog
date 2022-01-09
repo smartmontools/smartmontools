@@ -1,4 +1,10 @@
-$Id: ChangeLog 5299 2022-01-08 18:19:36Z dpgilbert $
+$Id: ChangeLog 5300 2022-01-09 05:35:27Z dpgilbert $
+
+2022-01-09  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp, scsicmds.h/.cpp: do some preliminary
+	work to fetch the Zoned block device characteristics
+	VPD page if it is present
 
 2022-01-08  Douglas Gilbert  <dgilbert@interlog.com>
 

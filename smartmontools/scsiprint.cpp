@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5299 2022-01-08 18:19:36Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5300 2022-01-09 05:35:27Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -2068,6 +2068,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     int form_factor = 0;
     int haw_zbc = 0;
     int protect = 0;
+    const char * q;
 
     memset(gBuf, 0, 96);
     req_len = 36;
@@ -2298,8 +2299,24 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
                 jglb["form_factor"]["name"] = strprintf("%s inches", cp);
             }
         }
-        if (haw_zbc > 0)
-            jout("Host aware zoned block capable\n");
+        if (haw_zbc == 1) {
+            q = "Host aware zoned block capable";
+            jout("%s\n", q);
+            jglb[std::string("scsi_") + q] = true;
+        } else if (haw_zbc == 2) {
+            q = "Device managed zoned block capable";
+            jout("%s\n", q);
+            jglb[std::string("scsi_") + q] = true;
+        } else {
+            supported_vpd_pages * s_vpd_pp = supported_vpd_pages_p;
+
+            if (s_vpd_pp &&
+                s_vpd_pp->is_supported(SCSI_VPD_ZONED_BLOCK_DEV_CHAR)) {
+                // TODO: need to read that VPD page and look at the
+                // 'Zoned block device extension' field
+
+            }
+        }
     }
 
     /* Do this here to try and detect badly conforming devices (some USB
