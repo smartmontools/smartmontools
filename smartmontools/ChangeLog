@@ -1,5 +1,12 @@
 $Id$
 
+2022-01-09  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp, add smartctl -x output (plain+json) for
+	the (tape) device statistics lpage and the Zoned block
+	device statistics lpage. Listed under -l background
+	option (may need new option(s)).
+
 2022-01-14  Alex Samorukov   <samm@os2.kiev.ua>
 
 	drivedb.h: Add xerrorlba flag to the  WD Caviar Black (#1558) family

@@ -213,6 +213,7 @@ struct scsi_supp_log_pages {
 #define APPLICATION_CLIENT_LPAGE            0x0f
 #define SELFTEST_RESULTS_LPAGE              0x10
 #define SS_MEDIA_LPAGE                      0x11   /* SBC-3 */
+#define DEVICE_STATS_LPAGE                  0x14   /* SSC-5 */
 #define BACKGROUND_RESULTS_LPAGE            0x15   /* SBC-3 */
 #define ATA_PT_RESULTS_LPAGE                0x16   /* SAT */
 #define NONVOL_CACHE_LPAGE                  0x17   /* SBC-3 */
