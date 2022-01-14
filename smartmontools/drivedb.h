@@ -4787,7 +4787,7 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((500|640)1AAL|7501AA[EL]|1001FA[EL]|2001FAS)S-.*|"
     "WDC WD(2002|7502|1502|5003|1002|5002)(FAE|AAE|AZE|AAL)X-.*", // could be
     // WD2002FAEX, WD7502AAEX, WD1502FAEX, WD5003AZEX, WD1002FAEX, WD5002AALX
-    "", "", ""
+    "", "", "-F xerrorlba" // WDC WD6401AALS-00L3B2/01.03B01 (ticket #1558)
   },
   { "Western Digital Black", // tested with
       // WDC WD1003FZEX-00MK2A0/01.01A01, WDC WD3001FAEX-00MJRA0/01.01L01,

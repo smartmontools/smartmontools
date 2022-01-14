@@ -1,5 +1,10 @@
 $Id$
 
+2022-01-14  Alex Samorukov   <samm@os2.kiev.ua>
+
+	drivedb.h: Add xerrorlba flag to the  WD Caviar Black (#1558) family
+	smartd.service: add comment about virtualisation
+
 2022-01-09  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp, scsicmds.h/.cpp: do some preliminary
