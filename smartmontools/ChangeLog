@@ -1,4 +1,11 @@
-$Id: ChangeLog 5301 2022-01-14 08:02:52Z samm2 $
+$Id: ChangeLog 5302 2022-01-14 20:11:03Z dpgilbert $
+
+2022-01-09  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp, add smartctl -x output (plain+json) for
+	the (tape) device statistics lpage and the Zoned block
+	device statistics lpage. Listed under -l background
+	option (may need new option(s)).
 
 2022-01-14  Alex Samorukov   <samm@os2.kiev.ua>
 
