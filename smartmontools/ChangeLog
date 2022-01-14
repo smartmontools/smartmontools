@@ -1,4 +1,9 @@
-$Id: ChangeLog 5300 2022-01-09 05:35:27Z dpgilbert $
+$Id: ChangeLog 5301 2022-01-14 08:02:52Z samm2 $
+
+2022-01-14  Alex Samorukov   <samm@os2.kiev.ua>
+
+	drivedb.h: Add xerrorlba flag to the  WD Caviar Black (#1558) family
+	smartd.service: add comment about virtualisation
 
 2022-01-09  Douglas Gilbert  <dgilbert@interlog.com>
 

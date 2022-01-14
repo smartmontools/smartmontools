@@ -1,6 +1,9 @@
 [Unit]
 Description=Self Monitoring and Reporting Technology (SMART) Daemon
 Documentation=man:smartd(8) man:smartd.conf(5)
+
+# Typically physical storage devices are managed by the host physical machine
+# Override it if you are using PCI/USB passthrough
 ConditionVirtualization=no
 
 [Service]
