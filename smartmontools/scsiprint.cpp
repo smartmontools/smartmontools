@@ -395,7 +395,7 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
 {
     unsigned short pagelength;
     unsigned short parametercode;
-    int i, k, err;
+    int i, k, j, m, err;
     const char *s;
     const char *ts;
     int failures = 0;
@@ -414,8 +414,9 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
     }
     pagelength = sg_get_unaligned_be16(gBuf + 2);
 
-    for (s=severities, k = 0; *s; s++, ++k) {
-        for (i = 4; i < pagelength; i += 5, ++k) {
+    json::ref jref = jglb["scsi_tapealert"]["status"];
+    for (s=severities, k = 0, j = 0; *s; s++, ++k) {
+        for (i = 4, m = 0; i < pagelength; i += 5, ++k, ++m) {
             parametercode = sg_get_unaligned_be16(gBuf + i);
 
             if (gBuf[i + 4]) {
@@ -427,8 +428,10 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
                         pout("TapeAlert Errors (C=Critical, W=Warning, "
                              "I=Informational):\n");
                     jout("[0x%02x] %s\n", parametercode, ts);
-                    jglb["scsi_tapealert"]["status"][k]["code"] = parametercode;
-                    jglb["scsi_tapealert"]["status"][k]["string"] = ts;
+                    jref[j]["descriptor_idx"] = m + 1;
+                    jref[j]["parameter_code"] = parametercode;
+                    jref[j]["string"] = ts;
+                    ++j;
                     failures += 1;
                 }
             }
