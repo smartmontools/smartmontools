@@ -1585,7 +1585,6 @@ scsiPrintTapeDeviceStats(scsi_device * device)
     const char * q;
     static const char * hname = "Device statistics (SSC, tape)";
     static const char * jname = "scsi_device_statistics";
-    char b[64];
 
     if ((err = scsiLogSense(device, DEVICE_STATS_LPAGE, 0,
                             gBuf, LOG_RESP_LONG_LEN, 0))) {
@@ -1829,14 +1828,12 @@ scsiPrintTapeDeviceStats(scsi_device * device)
             n = ucp[3] / 8;
             jout("    %s, number of element: %u\n", q, n);
             for (k = 0; k < n; ++k, ucp += 8) {
-                snprintf(b, sizeof(b), "%s_%d", q, k + 1);
-                jout("      %s density code: %u\n", b, ucp[6]);
-                jglb[jname][b]["density code"] = ucp[6];
-                jout("      %s medium type: %u\n", b, ucp[7]);
-                jglb[jname][b]["medium type"] = ucp[7];
                 u = sg_get_unaligned_be32(ucp + 8);
-                jout("      %s medium motion hours: %u\n", b, u);
-                jglb[jname][b]["medium motion hours"] = u;
+                jout("      [%d] density code: %u, density code: %u, hours: "
+                     "%u\n", k + 1, ucp[6], ucp[7], u);
+                jglb[jname][q][k]["density code"] = ucp[6];
+                jglb[jname][q][k]["medium type"] = ucp[7];
+                jglb[jname][q][k]["medium motion hours"] = u;
             }
             break;
         default:        /* ignore other parameter codes */

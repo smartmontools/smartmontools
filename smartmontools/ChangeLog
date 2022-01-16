@@ -1,5 +1,10 @@
 $Id$
 
+2022-01-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: small cleanup on (tape) device
+	statistics lpage (plain and json)
+
 2022-01-09  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp, add smartctl -x output (plain+json) for
