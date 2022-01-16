@@ -1,4 +1,15 @@
-$Id: ChangeLog 5303 2022-01-16 19:59:54Z dpgilbert $
+$Id: ChangeLog 5304 2022-01-16 22:31:54Z dpgilbert $
+
+2022-01-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: my tape drive gives a nuisance TapeAlert
+	warning after each power cycle. With '-xj' output this
+	leads a a JSON array with a lot of 'null' entries. Change
+	the JSON indexing so it is compact and add a
+	'descriptor_idx' attribute if the position is important
+	to the end user. In the case of TapeAlert the relative
+	position is the degree of seriousness. Change TapeAlert
+	'code' name to 'parameter_code'.
 
 2022-01-16  Douglas Gilbert  <dgilbert@interlog.com>
 
