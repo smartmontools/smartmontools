@@ -1,4 +1,9 @@
-$Id: ChangeLog 5302 2022-01-14 20:11:03Z dpgilbert $
+$Id: ChangeLog 5303 2022-01-16 19:59:54Z dpgilbert $
+
+2022-01-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: small cleanup on (tape) device
+	statistics lpage (plain and json)
 
 2022-01-09  Douglas Gilbert  <dgilbert@interlog.com>
 
