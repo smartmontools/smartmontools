@@ -1040,7 +1040,7 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
  * Power condition command. Returns 0 if ok, anything else major problem.
  * If power_cond is 0, treat as SSU(START) as that is better than
  * SSU(STOP) which would be the case if byte 4 of the cdb was zero.
- * Ref: SBC-4 revision 22, section 4.20 SSU and power conditions. 
+ * Ref: SBC-4 revision 22, section 4.20 SSU and power conditions.
  *
  * SCSI_POW_COND_ACTIVE                   0x1
  * SCSI_POW_COND_IDLE                     0x2
@@ -2359,10 +2359,25 @@ scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
         return -EINVAL;
     if (buff[offset + 1] >= 0xa) {
         int res = sg_get_unaligned_be16(buff + offset + 10);
-        *durationSec = res;
-        return 0;
-    }
-    else
+
+        if (res < 0xffff) {
+            *durationSec = res;
+            return 0;
+        }
+        /* The value 0xffff (all bits set in 16 bit field) indicates that
+         * the Extended Inquiry VPD page should be consulted, it has a
+         * similarly named 16 bit field, but the unit is minutes. */
+        uint8_t b[64];
+
+        if ((0 == scsiInquiryVpd(device, SCSI_VPD_EXTENDED_INQUIRY_DATA,
+                                 b, sizeof(b))) &&
+            ((sg_get_unaligned_be16(b + 2)) > 11)) {
+            res = sg_get_unaligned_be16(b + 10);
+            *durationSec = res * 60;    /* VPD field is in minutes */
+            return 0;
+        } else
+            return -EINVAL;
+    } else
         return -EINVAL;
 }
 

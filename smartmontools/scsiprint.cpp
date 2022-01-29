@@ -1198,8 +1198,12 @@ scsiPrintSelfTest(scsi_device * device)
         jout("No %ss have been logged\n", hname);
     else if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
                         modese_len)) && (durationSec > 0)) {
-        jout("\nLong (extended) %s duration: %d seconds "
-             "[%.1f minutes]\n", hname, durationSec, durationSec / 60.0);
+        if (durationSec > 14400)
+            jout("\nLong (extended) %s duration: %d seconds "
+                 "[%.1f hours]\n", hname, durationSec, durationSec / 3600.0);
+        else
+            jout("\nLong (extended) %s duration: %d seconds "
+                 "[%.1f minutes]\n", hname, durationSec, durationSec / 60.0);
         jglb["scsi_extended_self_test_seconds"] = durationSec;
     }
     jout("\n");

@@ -1,5 +1,17 @@
 $Id$
 
+2022-01-28  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.cpp,scsiprint.cpp: the "Long (extended)
+	Self-test duration" at the end of smartctl -a output
+	comes from a 16 bit field holding seconds. If the
+	value is 0xffff the spec now says to consult the
+	Extended Inquiry VPD page which has a similar field
+	but the unit is minutes. Tweak the output if the
+	duration exceeds 14400 seconds: calculate hours
+	in brackets [normally minutes]. Reason: my 20 TB
+	disk reports 38.7 hours to do a long self-test!
+
 2022-01-16  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: my tape drive gives a nuisance TapeAlert
