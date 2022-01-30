@@ -1,4 +1,10 @@
-$Id: ChangeLog 5305 2022-01-29 03:27:45Z dpgilbert $
+$Id: ChangeLog 5306 2022-01-30 00:54:06Z dpgilbert $
+
+2022-01-29  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp: fix issue with Zoned block device
+	statistics lpage specific to the WDC DC HC650
+	SAS ZBC disk. Visible with smartctl -x
 
 2022-01-28  Douglas Gilbert  <dgilbert@interlog.com>
 
