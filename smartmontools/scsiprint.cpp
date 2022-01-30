@@ -1468,6 +1468,7 @@ scsiPrintZBDeviceStats(scsi_device * device)
     static const char * hname = "Zoned block device statistics";
     static const char * jname = "scsi_zoned_block_device_statistics";
 
+    jout("%s:\n", hname);
     if ((err = scsiLogSense(device, DEVICE_STATS_LPAGE, ZB_DEV_STATS_L_SPAGE,
                             gBuf, LOG_RESP_LONG_LEN, 0))) {
         print_on();
@@ -1499,6 +1500,9 @@ scsiPrintZBDeviceStats(scsi_device * device)
         int pc = sg_get_unaligned_be16(ucp + 0);
         // pcb = ucp[2];
         int pl = ucp[3] + 4;
+
+        if (pl < 12)
+            goto skip;  /* DC HC650 has non-compliant 4 byte parameters */
         switch (pc) {
         case 0:
             q = "Maximum open zones";
@@ -1575,6 +1579,7 @@ scsiPrintZBDeviceStats(scsi_device * device)
         default:        /* ignore other parameter codes */
             break;
         }
+skip:
         num -= pl;
         ucp += pl;
     }
