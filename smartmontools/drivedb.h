@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 6.4/5254 2021-11-24 08:48:38 $Id$",
+  { "VERSION: 6.4/5301 2022-01-14 08:02:52 $Id$",
     "-", "-",
     "Version information",
     ""
@@ -475,6 +475,36 @@ const drive_settings builtin_knowndrives[] = {
     "-v 253,raw48,Unkn_CrucialMicron_Attr " // M6CR030
     "-v 254,raw48,Unkn_CrucialMicron_Attr"  // M6CR030
   },
+  { "Lexar 128GB SSD", // for other Lexar drives see ticket #1529
+    "Lexar 128GB SSD", // Lexar 128GB SSD/H190117D
+    "", "",
+    "-v 5,raw48,New_Bad_Blk_Cnt "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 167,raw48,SSD_Protect_mode "
+    "-v 168,raw48,SATA_PHY_Error_Cnt "
+    "-v 169,raw48,Bad_Block_Cnt "
+    "-v 171,raw48,Program_Fail_Cnt "
+    "-v 172,raw48,Erase_Fail_Cnt "
+    "-v 173,raw48,Erase_Cnt "
+    "-v 175,raw48,Bad_Cluster_Cnt "
+    "-v 177,raw48,Read_Retry_Cnt "
+    "-v 180,raw48,Spare_Blk_Cnt_Left "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 206,raw48,Min_Erase_Cnt "
+    "-v 207,raw48,Max_Erase_Cnt "
+    "-v 208,raw48,Avg_Erase_Cnt "
+    "-v 209,raw48,SLC_Min_Erase_Cnt "
+    "-v 210,raw48,SLC_Max_Erase_Cnt "
+    "-v 211,raw48,SLC_Avg_Erase_Cnt "
+    "-v 231,raw48,SSD_Life_Left "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 245,raw48,Bit_Error_Cnt "
+  },
   // Reference: https://www.micron.com/resource-details/feec878a-265e-49a7-8086-15137c5f9011
   // TN-FD-34: 5100 SSD SMART Implementation
   { "Micron 5100 Pro / 52x0 / 5300 SSDs",
@@ -739,6 +769,7 @@ const drive_settings builtin_knowndrives[] = {
       // SSD Smartbuy 240GB/SBFM91.1, SSD Smartbuy 64GB/SBFM21.1
     "SSD PHISON 256GB PS3110-S10C|" // tested with SSD PHISON 256GB PS3110-S10C/SAFM12.2
     "SSDPR-CX400-(128|256|512|1024)|" // Goodram CX400, tested with SSDPR-CX400-512/SBFM61.3
+    "TEAM L3 EVO SSD (120|240|480|960)GB|" // TEAM L3 EVO SSD 120GB/SBFM11.0
     "SSM28(128|256|512)GPTCB3B-S11[24]61[123]", // tested with SSM28256GPTCB3B-S112612/SBFM61.2
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -1416,7 +1447,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Intel 545s Series SSDs", // tested with INTEL SSDSCKKW512G8, INTEL SSDSC2KW512G8/LHF002C
       // SSDSCKKW128G8X1, SSDSCKKW256G8X1, SSDSCKKW512G8X1, SSDSCKKW010T8X1
-    "INTEL SSDSC[2K]KW(128G|256G|512G|010T)8.*",
+      // INTEL SSDSCKKF512G8 SATA 512GB/LHFD05N
+    "INTEL SSDSC[2K]K[WF](128G|256G|512G|010T)8.*",
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -1930,7 +1962,8 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SD7S[BN]6S-?(128|256|512)G(1122|-1006)|" // X300 (88SS9189?), tested with
       // SanDisk SD7SB6S128G1122/X3310000, SanDisk SD7SN6S-512G-1006/X3511006
     "SanDisk SD8S[BN]8U-?((128|256|512)G|1T00)(1122|-1006)|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
-    "SanDisk SD9S[BN]8W-?((128|256|512)G|[12]T00)1122|" // X600, tested with SanDisk SD9SB8W128G1122/X6107000
+    "SanDisk SD9S[BN]8W-?((128|256|512)G|[12]T00)(1122|-1006)|" // X600, tested with SanDisk SD9SB8W128G1122/X6107000, SD9SB8W-512G-1006/X6103006
+      // SanDisk SD9SB8W1T001122/X6107000, SD9SB8W256G1122/X6107000
     "SanDisk SDSSDA-((120|240|480)G|[12]T00)|" // Plus, tested with SanDisk SDSSDA-2T00/411040RL
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
@@ -1942,8 +1975,9 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
     "SanDisk SSD G5 BICS4|" // WD Blue SSD WDS100T2B0A (#1378), tested with SanDisk SSD G5 BICS4/415000WD
-    "SanDisk SSD PLUS (120|240|480|1000) ?GB|" // Plus (88SS1074), tested with SanDisk SSD PLUS 120 GB/UE3000RL,
+    "SanDisk SSD PLUS (120|240|480|[12]000) ?GB|" // Plus (88SS1074), tested with SanDisk SSD PLUS 120 GB/UE3000RL,
       // SanDisk SSD PLUS 120 GB/UE4500RL, SanDisk SSD PLUS 1000GB/UH4400RL
+      // SanDisk SSD PLUS 2000GB/UP4504RL
     "SSD SATAIII 16GB", // SSD SATAIII 16GB/i221100 (see #923)
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -2156,6 +2190,25 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 250,raw48,Read_Error_Retry_Rate " // ADATA SU800/Q0913A
     "-v 251,raw48,Unkn_SiliconMotion_Attr" // ADATA SU800/Q0913A
   },
+  // Supermicro SSD-DM032-SMCMVN1, tested with SuperMicro SSD/SOB20R, see (#1380)
+  { "Supermicro SATA DOM (SuperDOM)",
+    "SuperMicro SSD",
+    "", "",
+    "-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 15,raw48,User_Cpcty_Sector_Cnt "
+    "-v 160,raw48,Not_In_Use "
+    "-v 161,raw48,Not_In_Use "
+    "-v 163,raw48,Not_In_Use "
+    "-v 164,raw48,Not_In_Use "
+    "-v 165,raw48,Not_In_Use "
+    "-v 166,raw48,Minimum_PE_Cycles_TLC "
+    "-v 167,raw48,Not_In_Use "
+    "-v 168,raw48,Maximum_PE_Cycles_TLC "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 233,raw48,NAND_Writes_1GiB "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB "
+  },
   { "Silicon Motion based OEM SSDs", // Like 'Silicon Motion based SSDs' but with FW detection
     "240GB|" // from Lenovo T430 Thinkpad, tested with 240GB/P0510E
     "Dogfish SSD (128|256|512)GB|" // tested with Dogfish SSD 128GB/S1211A0
@@ -2169,8 +2222,7 @@ const drive_settings builtin_knowndrives[] = {
       // SATA3 1TB SSD/S1230A0,
       // KingDian S370, tested with SATA3 128GB SSD/T0311A0, SATA3 256GB SSD/S1127B0
       // KingDian S280, tested with SATA3 240GB SSD/T0519A0
-    "SPCC M\\.2 SSD|" // Silicon Power 2280 M55, tested with SPCC M.2 SSD/Q0627A0
-    "SuperMicro SSD", // Supermicro SSD-DM032-SMCMVN1, tested with SuperMicro SSD/SOB20R
+    "SPCC M\\.2 SSD", // Silicon Power 2280 M55, tested with SPCC M.2 SSD/Q0627A0
     "KFS03005|P0510E|P0725A|Q(0627|1107)A0|R0817B0|S(0618|1211|1230)A0|S1127B0|SOB20R|T0(311|519)A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
@@ -2781,6 +2833,11 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Samsung SpinPoint M9TU (USB)", // tested with ST1500LM008 HN-M151AAD/2BC10001
       // (0x04e8:0x61b5), ST2000LM005 HN-M201AAD2BC10001 (0x04e8:0x61b4)
     "ST(1500|2000)LM00[58] HN-M[0-9]*AAD",
+    "", "", ""
+  },
+  { "Seagate FreePlay", // tested with ST1500LM003-9YH148/CC94
+    // from FreeAgent GoFlex Enclosure.
+    "ST(1500LM003|1000LM010|1000LM002)-.*",
     "", "", ""
   },
   { "SAMSUNG SpinPoint MP5", // tested with HM250HJ/2AK10001
@@ -4623,6 +4680,10 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD(12|16|25|32)00SB-.*",
     "", "", ""
   },
+  { "Western Digital PiDrive Foundation Edition", // WDC WD3750LMCW-11D9GS3
+    "WDC WD(3750|2500)LMCW-.*",
+    "", "", ""
+  },
   { "Western Digital Caviar Serial ATA",
     "WDC WD(4|8|20|32)00BD-.*",
     "", "", ""
@@ -4724,7 +4785,7 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD((500|640)1AAL|7501AA[EL]|1001FA[EL]|2001FAS)S-.*|"
     "WDC WD(2002|7502|1502|5003|1002|5002)(FAE|AAE|AZE|AAL)X-.*", // could be
     // WD2002FAEX, WD7502AAEX, WD1502FAEX, WD5003AZEX, WD1002FAEX, WD5002AALX
-    "", "", ""
+    "", "", "-F xerrorlba" // WDC WD6401AALS-00L3B2/01.03B01 (ticket #1558)
   },
   { "Western Digital Black", // tested with
       // WDC WD1003FZEX-00MK2A0/01.01A01, WDC WD3001FAEX-00MJRA0/01.01L01,
@@ -4888,7 +4949,9 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD30NMVW-11C3NS4/01.01A01,
       // WDC WD40NMZW-11GX6S1/01.01A01 (0x1058:0x2599/25e2/25fa)
       // WDC WD50NDZW-11MR8S1/02.01A02
-    "WDC WD((5000[LK]|7500[BK]|10[JST]|[234]0N)M|50ND)[VZ][VW]-.*", // *W-* = USB 3.0
+      // WDC WD40NDZM-59A8KS1/01.01A01
+    "WDC WD((5000[LK]|7500[BK]|10[JST]|[234]0N)M|50ND|40ND)[VZ][VWM]-.*", // *W-* = USB 3.0
+    // Model numbers with "M" suffix denote the use of USB-C receptacles instead of Micro-B.
     "", "", ""
   },
   { "Quantum Bigfoot", // tested with TS10.0A/A21.0G00, TS12.7A/A21.0F00
