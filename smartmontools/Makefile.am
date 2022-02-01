@@ -425,7 +425,6 @@ EXTRA_DIST = \
         os_win32/smartd_mailer.conf.sample.ps1 \
         os_win32/smartd_warning.cmd \
         os_win32/syslogevt.mc \
-        os_win32/update-smart-drivedb.nsi \
         os_win32/update-smart-drivedb.ps1.in \
         os_win32/versioninfo.rc.in \
         os_win32/wtssendmsg.c \
@@ -872,10 +871,6 @@ EXEFILES_WIN32 = \
         $(exedir_win32)/wtssendmsg.exe
 
 if ENABLE_DRIVEDB
-if OS_WIN32_NSIS
-EXEFILES_WIN32 += \
-        $(exedir_win32)/update-smart-drivedb.exe
-endif
 EXEFILES_WIN32 += \
         $(exedir_win32)/update-smart-drivedb.ps1
 endif
@@ -914,7 +909,6 @@ CLEANFILES += \
         smartctl_res.rc smartd_res.rc \
         syslogevt.h \
         syslogevt.rc syslogevt_*.bin \
-        update-smart-drivedb.exe \
         update-smart-drivedb.ps1 \
         wtssendmsg.exe wtssendmsg_res.rc
 
@@ -956,10 +950,6 @@ $(distinst_win32): os_win32/installer.nsi smartctl_res.rc distdir.mkdir $(FILES_
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256
 
-# Build drivedb.h update tool
-update-smart-drivedb.exe: os_win32/update-smart-drivedb.nsi
-	"$(MAKENSIS)" -V2 -NOCD -DBRANCH=$(DRIVEDB_BRANCH) $<
-
 else
 $(distinst_win32):
 	@echo "makensis: command not found. Please install NSIS from http://nsis.sourceforge.net/" 1>&2
@@ -978,10 +968,6 @@ $(exedir_win32)/%.exe: %.exe
 	cp -p $< $@
 	if test -n '$(STRIP)'; then $(STRIP) -s $@; else strip -s $@; fi
 	touch -r $< $@
-
-# strip would break NSIS integrity check
-$(exedir_win32)/update-smart-drivedb.exe: update-smart-drivedb.exe
-	cp -p $< $@
 
 $(exedir_win32)/%.h: $(srcdir)/%.h
 	$(UNIX2DOS) < $< > $@
