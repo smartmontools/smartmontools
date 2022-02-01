@@ -426,6 +426,7 @@ EXTRA_DIST = \
         os_win32/smartd_warning.cmd \
         os_win32/syslogevt.mc \
         os_win32/update-smart-drivedb.nsi \
+        os_win32/update-smart-drivedb.ps1.in \
         os_win32/versioninfo.rc.in \
         os_win32/wtssendmsg.c \
         $(docs_DATA) \
@@ -875,6 +876,8 @@ if OS_WIN32_NSIS
 EXEFILES_WIN32 += \
         $(exedir_win32)/update-smart-drivedb.exe
 endif
+EXEFILES_WIN32 += \
+        $(exedir_win32)/update-smart-drivedb.ps1
 endif
 
 FILES_WIN32 = \
@@ -912,6 +915,7 @@ CLEANFILES += \
         syslogevt.h \
         syslogevt.rc syslogevt_*.bin \
         update-smart-drivedb.exe \
+        update-smart-drivedb.ps1 \
         wtssendmsg.exe wtssendmsg_res.rc
 
 # Note: Only use without options to be compatible with all variants
@@ -991,6 +995,10 @@ $(exedir_win32)/%.ps1: $(srcdir)/os_win32/%.ps1
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
 
+$(exedir_win32)/%.ps1: %.ps1
+	$(UNIX2DOS) < $< > $@
+	touch -r $< $@
+
 $(docdir_win32)/%.html: %.html
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
@@ -1038,6 +1046,10 @@ runcmda.exe: runcmd.o runcmda_res.o
 
 wtssendmsg.exe: os_win32/wtssendmsg.c wtssendmsg_res.o
 	$(CC) -Os -o $@ $^ -lwtsapi32
+
+# Build drivedb.h update script
+update-smart-drivedb.ps1: os_win32/update-smart-drivedb.ps1.in config.status
+	$(SHELL) ./config.status --file=$@:$<
 
 # MSVC Version to change in make command line
 vc = 16
