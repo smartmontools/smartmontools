@@ -3,7 +3,7 @@
 ;
 ; Home page of code is: https://www.smartmontools.org
 ;
-; Copyright (C) 2006-19 Christian Franke
+; Copyright (C) 2006-22 Christian Franke
 ;
 ; SPDX-License-Identifier: GPL-2.0-or-later
 ;
@@ -188,7 +188,8 @@ SectionGroup "!Program files"
 
     SetOutPath "$INSTDIR\bin"
     File "${INPDIR}\bin\drivedb.h"
-    File "${INPDIR}\bin\update-smart-drivedb.exe"
+    Delete "$INSTDIR\bin\update-smart-drivedb.exe" ; TODO: Remove after smartmontools 7.3
+    File "${INPDIR}\bin\update-smart-drivedb.ps1"
 
   SectionEnd
 
@@ -201,7 +202,6 @@ Section "!Documentation" DOC_SECTION
   SetOutPath "$INSTDIR\doc"
   File "${INPDIR}\doc\AUTHORS.txt"
   File "${INPDIR}\doc\ChangeLog.txt"
-  Delete "$INSTDIR\doc\ChangeLog-5.0-6.0.txt" ; TODO: Remove after smartmontools 7.1
   File "${INPDIR}\doc\ChangeLog-6.0-7.0.txt"
   File "${INPDIR}\doc\COPYING.txt"
   File "${INPDIR}\doc\INSTALL.txt"
@@ -233,10 +233,6 @@ Section "Uninstaller" UNINST_SECTION
   AddSize 40
 
   CreateDirectory "$INSTDIR"
-
-  ; Remove old "Install_Dir" registry entry (smartmontools < r3911/6.3)
-  ; No longer needed for GSmartControl
-  DeleteRegKey HKLM "Software\smartmontools" ; TODO: Remove after smartmontools 7.0
 
   ; Write uninstall keys and program
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayName" "smartmontools"
@@ -349,9 +345,13 @@ Section "Start Menu Shortcuts" MENU_SECTION
   CreateShortCut "$SMPROGRAMS\smartmontools\smartmontools Daily Builds.lnk" "https://builds.smartmontools.org/"
 
   ; drivedb.h update
-  ${If} ${FileExists} "$INSTDIR\bin\update-smart-drivedb.exe"
+  Delete "$SMPROGRAMS\smartmontools\drivedb.h update.lnk" ; TODO: Remove after smartmontools 7.3
+  ${If} ${FileExists} "$INSTDIR\bin\update-smart-drivedb.ps1"
     SetOutPath "$INSTDIR\bin"
-    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\drivedb.h update.lnk" "$INSTDIR\bin\update-smart-drivedb.exe" ""
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\drivedb.h update (ps1).lnk" "$INSTDIR\bin\runcmdu.exe" "powershell -NoProfile -ExecutionPolicy Bypass .\update-smart-drivedb.ps1"
+    ${If} ${FileExists} "$INSTDIR\doc\README.TXT"
+      CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb.h update help (ps1).lnk" "$INSTDIR\bin\runcmdu.exe" 'powershell -NoProfile -ExecutionPolicy Bypass "Get-Help .\update-smart-drivedb.ps1 -Detail | more"'
+    ${EndIf}
   ${EndIf}
 
   ; Uninstall
@@ -463,13 +463,13 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\drivedb.h.error"
   Delete "$INSTDIR\bin\drivedb.h.lastcheck"
   Delete "$INSTDIR\bin\drivedb.h.old"
-  Delete "$INSTDIR\bin\update-smart-drivedb.exe"
+  Delete "$INSTDIR\bin\update-smart-drivedb.exe" ; TODO: Remove after smartmontools 7.3
+  Delete "$INSTDIR\bin\update-smart-drivedb.ps1"
   Delete "$INSTDIR\bin\runcmda.exe"
   Delete "$INSTDIR\bin\runcmdu.exe"
   Delete "$INSTDIR\bin\wtssendmsg.exe"
   Delete "$INSTDIR\doc\AUTHORS.txt"
   Delete "$INSTDIR\doc\ChangeLog.txt"
-  Delete "$INSTDIR\doc\ChangeLog-5.0-6.0.txt" ; TODO: Remove after smartmontools 7.1
   Delete "$INSTDIR\doc\ChangeLog-6.0-7.0.txt"
   Delete "$INSTDIR\doc\COPYING.txt"
   Delete "$INSTDIR\doc\INSTALL.txt"
