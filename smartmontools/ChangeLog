@@ -1,4 +1,10 @@
-$Id: ChangeLog 5306 2022-01-30 00:54:06Z dpgilbert $
+$Id: ChangeLog 5308 2022-02-01 17:32:15Z chrfranke $
+
+2022-02-01  Christian Franke  <franke@computer.org>
+
+	os_win32/update-smart-drivedb.ps1.in: New drivedb.h update script.
+	It verifies the downloaded drive database with GnuPG (#752).
+	Makefile.am: Add new file.
 
 2022-01-29  Douglas Gilbert  <dgilbert@interlog.com>
 
