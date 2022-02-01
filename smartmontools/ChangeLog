@@ -2,6 +2,8 @@ $Id$
 
 2022-02-01  Christian Franke  <franke@computer.org>
 
+	autogen.sh: automake 1.16.3-5 work.
+
 	os_win32/update-smart-drivedb.nsi: Remove, no longer used.
 	Makefile.am: Remove related targets.
 
