@@ -1,6 +1,9 @@
-$Id: ChangeLog 5310 2022-02-01 18:15:00Z chrfranke $
+$Id: ChangeLog 5311 2022-02-01 18:35:16Z chrfranke $
 
 2022-02-01  Christian Franke  <franke@computer.org>
+
+	os_win32/update-smart-drivedb.nsi: Remove, no longer used.
+	Makefile.am: Remove related targets.
 
 	os_win32/installer.nsi: Install update-smart-drivedb.ps1.
 	Delete update-smart-drivedb.exe.  Remove outdated delete commands.
