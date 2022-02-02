@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-21 Christian Franke
+Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -117,7 +117,7 @@ devices that support SMART.  The scanning is done as follows:
 .\" %IF OS Linux
 .IP \fBLINUX:\fP 9
 Examine all entries \fB"/dev/hd[a\-t]"\fP for IDE/ATA
-devices, and \fB"/dev/sd[a\-z]"\fP, \fB"/dev/sd[a\-c][a\-z]"\fP
+devices, and \fB"/dev/sd[a\-z]"\fP, \fB"/dev/sd[a\-z][a\-z]"\fP
 for ATA/SATA or SCSI/SAS devices.
 Disks behind RAID controllers are not included.
 .Sp

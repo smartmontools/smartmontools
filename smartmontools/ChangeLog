@@ -1,5 +1,10 @@
 $Id$
 
+2022-02-02  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Enhance device scan range to '/dev/sdzz'.
+	smartd.8.in: Update related documentation.
+
 2022-02-01  Christian Franke  <franke@computer.org>
 
 	autogen.sh: automake 1.16.3-5 work.

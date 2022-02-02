@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -2821,7 +2821,8 @@ protected:
   virtual std::string get_valid_custom_dev_types_str() override;
 
 private:
-  static const int devxy_to_n_max = 103; // Max value of devxy_to_n() below
+  static constexpr int devxy_to_n_max = 701; // "/dev/sdzz"
+  static int devxy_to_n(const char * name, bool debug);
 
   void get_dev_list(smart_device_list & devlist, const char * pattern,
     bool scan_scsi, bool (* p_dev_sdxy_seen)[devxy_to_n_max+1],
@@ -2850,10 +2851,10 @@ std::string linux_smart_interface::get_app_examples(const char * appname)
   return "";
 }
 
-// "/dev/sdXY" -> 0-103
-// "/dev/disk/by-id/NAME" -> "../../sdXY" -> 0-103
+// "/dev/sdXY" -> 0-devxy_to_n_max
+// "/dev/disk/by-id/NAME" -> "../../sdXY" -> 0-devxy_to_n_max
 // Other -> -1
-static int devxy_to_n(const char * name, bool debug)
+int linux_smart_interface::devxy_to_n(const char * name, bool debug)
 {
   const char * xy;
   char dest[256];
@@ -2882,9 +2883,10 @@ static int devxy_to_n(const char * name, bool debug)
     // "[a-z]" -> 0-25
     return x - 'a';
 
-  if (!(x <= 'c' && 'a' <= y && y <= 'z' && !xy[2]))
+  if (!('a' <= y && y <= 'z' && !xy[2]))
     return -1;
-  // "[a-c][a-z]" -> 26-103
+  // "[a-z][a-z]" -> 26-701
+  STATIC_ASSERT((('z' - 'a' + 1) * ('z' - 'a' + 1) + ('z' - 'a')) == devxy_to_n_max);
   return (x - 'a' + 1) * ('z' - 'a' + 1) + (y - 'a');
 }
 
@@ -3063,7 +3065,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     }
 
     get_dev_list(devlist, "/dev/sd[a-z]", true, p_dev_sdxy_seen, false, type_scsi_sat, autodetect);
-    get_dev_list(devlist, "/dev/sd[a-c][a-z]", true, p_dev_sdxy_seen, false, type_scsi_sat, autodetect);
+    get_dev_list(devlist, "/dev/sd[a-z][a-z]", true, p_dev_sdxy_seen, false, type_scsi_sat, autodetect);
 
     // get device list from the megaraid device
     get_dev_megasas(devlist);
