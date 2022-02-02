@@ -2,6 +2,8 @@ $Id$
 
 2022-02-02  Christian Franke  <franke@computer.org>
 
+	update-smart-drivedb.in: Fix regexp quoting.
+
 	os_linux.cpp: Enhance device scan range to '/dev/sdzz'.
 	smartd.8.in: Update related documentation.
 

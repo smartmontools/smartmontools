@@ -4,7 +4,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2010-21 Christian Franke
+# Copyright (C) 2010-22 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -538,7 +538,7 @@ get_db_version()
   v=${x%% *}
   test -n "$v" || return 0
   if [ "${v%/*}" = "$v" ]; then # trunk: get rev from expanded SVN-Id
-    r=$(echo "$x" | sed -n 's,^[^$]*$Id: drivedb\.h \([1-9][0-9]*\) .*$,\1,p')
+    r=$(echo "$x" | sed -n 's,^[^$]*\$''Id: drivedb\.h \([1-9][0-9]*\) .*$,\1,p')
     test -n "$r" || r="?"
     v="$v/$r"
   fi
