@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: cppcheck.sh 5201 2021-02-07 15:08:48Z chrfranke $
+# $Id: cppcheck.sh 5316 2022-02-09 08:02:23Z samm2 $
 #
 
 set -e
@@ -63,7 +63,7 @@ fi
 ver=$("$cppcheck" --version) || exit 1
 ver=${ver##* }
 case $ver in
-  1.8[56]|2.[23]) ;;
+  1.8[56]|2.[237]) ;;
   *) echo "$myname: cppcheck $ver not tested with this script" ;;
 esac
 
