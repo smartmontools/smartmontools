@@ -1,5 +1,9 @@
 $Id$
 
+2022-02-09  Alex Samorukov <samm@os2.kiev.ua>
+
+	Remove cppcheck 2.7 warning as we are using it now on our CI builds
+
 2022-02-02  Christian Franke  <franke@computer.org>
 
 	update-smart-drivedb.in: Fix regexp quoting.
