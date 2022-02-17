@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5306 2022-01-30 00:54:06Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5317 2022-02-17 03:25:14Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -3441,7 +3441,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
 
     }
-    if (options.smart_background_log && is_tape) {
+    if (options.tape_device_stats && is_tape) {
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(device);
         res = 0;

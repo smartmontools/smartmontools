@@ -16,7 +16,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5274 2021-12-21 20:53:44Z dpgilbert $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5317 2022-02-17 03:25:14Z dpgilbert $\n"
 
 // Options for scsiPrintMain
 struct scsi_print_options
@@ -41,6 +41,8 @@ struct scsi_print_options
   bool smart_env_rep = false;
 
   bool sasphy = false, sasphy_reset = false;
+
+  bool tape_device_stats = false;
   
   bool get_wce = false, get_rcd = false;
   short int set_wce = 0, set_rcd = 0;  // disable(-1), enable(1) cache
