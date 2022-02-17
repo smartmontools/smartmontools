@@ -3441,7 +3441,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
 
     }
-    if (options.smart_background_log && is_tape) {
+    if (options.tape_device_stats && is_tape) {
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(device);
         res = 0;

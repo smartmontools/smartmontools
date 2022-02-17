@@ -177,7 +177,8 @@ static void Usage()
 "        xerror[,N][,error], xselftest[,N][,selftest], background,\n"
 "        sasphy[,reset], sataphy[,reset], scttemp[sts,hist],\n"
 "        scttempint,N[,p], scterc[,N,M][,p|reset], devstat[,N], defects[,N],\n"
-"        ssd, gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE\n\n"
+"        ssd, gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE\n"
+"        tapedevstat\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -245,7 +246,7 @@ static std::string getvalidarglist(int opt)
            "scttemp[sts,hist], scttempint,N[,p], "
            "scterc[,N,M][,p|reset], devstat[,N], defects[,N], "
            "ssd, gplog,N[,RANGE], smartlog,N[,RANGE], "
-           "nvmelog,N,SIZE";
+           "nvmelog,N,SIZE, tapedevstat";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -549,6 +550,8 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.sct_temp_sts = true;
       } else if (!strcmp(optarg,"scttemphist")) {
         ataopts.sct_temp_hist = true;
+      } else if (!strcmp(optarg,"tapedevstat")) {
+        scsiopts.tape_device_stats = true;
 
       } else if (!strncmp(optarg, "scttempint,", sizeof("scstempint,")-1)) {
         unsigned interval = 0; int n1 = -1, n2 = -1, len = strlen(optarg);
@@ -739,6 +742,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
       scsiopts.smart_env_rep = true;
+      scsiopts.tape_device_stats = true;
       if (!output_format_set)
         ataopts.output_format |= ata_print_options::FMT_BRIEF;
       break;

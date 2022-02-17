@@ -41,6 +41,8 @@ struct scsi_print_options
   bool smart_env_rep = false;
 
   bool sasphy = false, sasphy_reset = false;
+
+  bool tape_device_stats = false;
   
   bool get_wce = false, get_rcd = false;
   short int set_wce = 0, set_rcd = 0;  // disable(-1), enable(1) cache

@@ -1,5 +1,13 @@
 $Id$
 
+2022-02-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartctl.cpp: add new --log=tapedevstat to print out SCSI
+	Tape (SSC) Device Statistics log page. '-a' does not include
+	this log page, but '-x' does. May add new --log= option
+	soon (probably 'tapealert' which must be invoked explicitly);
+	manpage needs updating
+
 2022-02-09  Alex Samorukov <samm@os2.kiev.ua>
 
 	Remove cppcheck 2.7 warning as we are using it now on our CI builds
