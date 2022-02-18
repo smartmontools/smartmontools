@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5268 2021-12-13 18:55:13Z chrfranke $
+# $Id: configure.ac 5318 2022-02-18 17:23:14Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.2
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5268 2021-12-13 18:55:13Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5318 2022-02-18 17:23:14Z chrfranke $'`
 smartmontools_release_date=2020-12-30
 smartmontools_release_time="16:48:30 UTC"
 
@@ -187,9 +187,23 @@ AC_ARG_WITH(exampledir,
 AC_SUBST(exampledir)
 
 drivedbdir='${datadir}/${PACKAGE}'
+drivedbinstdir=
+AC_ARG_WITH(drivedbinstdir,
+  [AS_HELP_STRING([--with-drivedbinstdir@<:@=DIR|yes|no@:>@],
+    [Optional separate install location of drive database file [no] (yes=DATADIR/smartmontools)])],
+  [ case "$withval" in
+      no) ;;
+      yes) drivedbinstdir=$drivedbdir; drivedbdir='${localstatedir}/lib/${PACKAGE}' ;;
+      *)   drivedbinstdir=$withval;    drivedbdir='${localstatedir}/lib/${PACKAGE}' ;;
+    esac
+  ])
+
 AC_ARG_WITH(drivedbdir,
-  [AS_HELP_STRING([--with-drivedbdir@<:@=DIR|yes|no@:>@], [Location of drive database file [DATADIR/smartmontools]])],
+  [AS_HELP_STRING([--with-drivedbdir@<:@=DIR|yes|no@:>@],
+    [Location of drive database file [DATADIR/smartmontools or LOCALSTATEDIR/lib/smartmontools if separate INSTDIR]])],
   [case "$withval" in yes) ;; no) drivedbdir= ;; *) drivedbdir="$withval" ;; esac])
+test -n "$drivedbinstdir" || drivedbinstdir=$drivedbdir
+AC_SUBST(drivedbinstdir)
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test -n "$drivedbdir"])
 
@@ -893,6 +907,9 @@ info=`
       echo "doc file install path:  \`eval eval eval echo $docdir\`"
       echo "examples install path:  \`eval eval eval echo $exampledir\`"
       if test -n "$drivedbdir"; then
+        if test "$drivedbinstdir" != "$drivedbdir"; then
+          echo "installed drivedb file: \`eval eval eval echo $drivedbinstdir\`/drivedb.h"
+        fi
         echo "drive database file:    \`eval eval eval echo $drivedbdir\`/drivedb.h"
         if test "$with_update_smart_drivedb" = "yes"; then
           echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"
