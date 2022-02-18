@@ -187,9 +187,23 @@ AC_ARG_WITH(exampledir,
 AC_SUBST(exampledir)
 
 drivedbdir='${datadir}/${PACKAGE}'
+drivedbinstdir=
+AC_ARG_WITH(drivedbinstdir,
+  [AS_HELP_STRING([--with-drivedbinstdir@<:@=DIR|yes|no@:>@],
+    [Optional separate install location of drive database file [no] (yes=DATADIR/smartmontools)])],
+  [ case "$withval" in
+      no) ;;
+      yes) drivedbinstdir=$drivedbdir; drivedbdir='${localstatedir}/lib/${PACKAGE}' ;;
+      *)   drivedbinstdir=$withval;    drivedbdir='${localstatedir}/lib/${PACKAGE}' ;;
+    esac
+  ])
+
 AC_ARG_WITH(drivedbdir,
-  [AS_HELP_STRING([--with-drivedbdir@<:@=DIR|yes|no@:>@], [Location of drive database file [DATADIR/smartmontools]])],
+  [AS_HELP_STRING([--with-drivedbdir@<:@=DIR|yes|no@:>@],
+    [Location of drive database file [DATADIR/smartmontools or LOCALSTATEDIR/lib/smartmontools if separate INSTDIR]])],
   [case "$withval" in yes) ;; no) drivedbdir= ;; *) drivedbdir="$withval" ;; esac])
+test -n "$drivedbinstdir" || drivedbinstdir=$drivedbdir
+AC_SUBST(drivedbinstdir)
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test -n "$drivedbdir"])
 
@@ -893,6 +907,9 @@ info=`
       echo "doc file install path:  \`eval eval eval echo $docdir\`"
       echo "examples install path:  \`eval eval eval echo $exampledir\`"
       if test -n "$drivedbdir"; then
+        if test "$drivedbinstdir" != "$drivedbdir"; then
+          echo "installed drivedb file: \`eval eval eval echo $drivedbinstdir\`/drivedb.h"
+        fi
         echo "drive database file:    \`eval eval eval echo $drivedbdir\`/drivedb.h"
         if test "$with_update_smart_drivedb" = "yes"; then
           echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"

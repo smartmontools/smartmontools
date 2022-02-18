@@ -508,7 +508,7 @@ endif
 
 
 if ENABLE_DRIVEDB
-drivedb_DATA = drivedb.h
+drivedbinst_DATA = drivedb.h
 endif
 
 update-smart-drivedb: update-smart-drivedb.in config.status
@@ -591,7 +591,7 @@ smartd.service: smartd.service.in Makefile
 # Create empty directories if configured.
 # Default install rules no longer create empty directories since automake 1.11.
 installdirs-local:
-	@for d in '$(smartdplugindir)' '$(savestatesdir)' '$(attributelogdir)'; do \
+	@for d in '$(smartdplugindir)' '$(drivedbdir)' '$(savestatesdir)' '$(attributelogdir)'; do \
 	  test -n "$$d" || continue; \
 	  echo " $(MKDIR_P) '$(DESTDIR)$$d'"; \
 	  $(MKDIR_P) "$(DESTDIR)$$d" || exit 1; \
@@ -619,9 +619,15 @@ MAN_FILTER = { \
         -e 's|/usr/bin/mail|/usr/bin/$(os_mailer)|g' \
         -e 's|RELEASE_6_0_DRIVEDB|$(DRIVEDB_BRANCH)|g' | \
     if test -n '$(drivedbdir)'; then \
-      sed 's|/usr/local/share/smartmontools/drivedb\.h|$(drivedbdir)/drivedb.h|g' ; \
+      sed -e 's|/usr/local/share/smartmontools/drivedb\.h|$(drivedbinstdir)/drivedb.h|g' \
+          -e 's|/usr/local/var/lib/smartmontools/drivedb\.h|$(drivedbdir)/drivedb.h|g'  ; \
     else \
       sed '/^\.\\" %IF ENABLE_DRIVEDB/,/^\.\\" %ENDIF ENABLE_DRIVEDB/ s,^,.\\"\# ,' ; \
+    fi | \
+    if test '$(drivedbinstdir)' != '$(drivedbdir)'; then \
+      cat; \
+    else \
+      sed '/^\.\\" %IF ENABLE_DB_INSTALL/,/^\.\\" %ENDIF ENABLE_DB_INSTALL/ s,^,.\\"\# ,' ; \
     fi | \
     if test '$(with_update_smart_drivedb)' = 'yes'; then \
       cat; \

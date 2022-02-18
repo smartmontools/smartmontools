@@ -832,7 +832,7 @@ plugin directory for smartd warning script (see \*(Aq\-m\*(Aq directive on
 .\" %ENDIF ENABLE_SMARTDPLUGINDIR
 .\" %IF ENABLE_DRIVEDB
 .TP
-.B /usr/local/share/smartmontools/drivedb.h
+.B /usr/local/var/lib/smartmontools/drivedb.h
 drive database (see \*(Aq\-B\*(Aq option).
 .\" %ENDIF ENABLE_DRIVEDB
 .TP

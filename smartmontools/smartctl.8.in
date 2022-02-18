@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-21 Christian Franke
+Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -1933,7 +1933,7 @@ if this option is not specified.
 .Sp
 If
 .\" %IF NOT OS Windows
-\fB/usr/local/share/smartmontools/drivedb.h\fP
+\fB/usr/local/var/lib/smartmontools/drivedb.h\fP
 .\" %ENDIF NOT OS Windows
 .\" %IF OS ALL
 (Windows: \fBEXEDIR/drivedb.h\fP)
@@ -2431,7 +2431,7 @@ done
 full path of this executable.
 .\" %IF ENABLE_DRIVEDB
 .TP
-.B /usr/local/share/smartmontools/drivedb.h
+.B /usr/local/var/lib/smartmontools/drivedb.h
 drive database (see \*(Aq\-B\*(Aq option).
 .\" %ENDIF ENABLE_DRIVEDB
 .TP

@@ -22,6 +22,8 @@ exec_prefix="@exec_prefix@"
 sbindir="@sbindir@"
 datarootdir="@datarootdir@"
 datadir="@datadir@"
+localstatedir="@localstatedir@"
+drivedbinstdir="@drivedbinstdir@"
 drivedbdir="@drivedbdir@"
 
 # Download tools
@@ -57,7 +59,7 @@ Usage: $myname [OPTIONS] [DESTFILE]
   -s, --smartctl SMARTCTL
                     Use SMARTCTL for syntax check ('-s -' to disable)
                     [default: $default_smartctl]
-  -t, --tool [/DIR/]TOOL
+  -t, --tool [DIR/]TOOL
                     Use TOOL for download: $os_dltools
                     [default: first one found in $pathinfo]
   -u, --url-of LOCATION
@@ -69,6 +71,13 @@ Usage: $myname [OPTIONS] [DESTFILE]
                       trac (Trac code browser)
   --url URL         Download from URL
   --file FILE       Copy from local FILE
+EOF
+  test "$drivedbinstdir" = "$drivedbdir" || cat <<EOF
+  --install         Copy from originally installed drive database file
+                    This is the same as:
+                    '--no-verify --file $drivedbinstdir/drivedb.h'
+EOF
+  cat <<EOF
   --trunk           Download from SVN trunk (requires '--no-verify')
   --branch X.Y      Download from branches/RELEASE_X_Y_DRIVEDB
   --cacert FILE     Use CA certificates from FILE to verify the peer
@@ -602,6 +611,12 @@ while true; do case $1 in
   --file)
     check_optarg "$@"; shift
     file=$1 ;;
+
+  --install)
+    test "$drivedbinstdir" != "$drivedbdir" \
+    || error "'$1' is not supported in this configuration"
+    file="$drivedbinstdir/drivedb.h"
+    no_verify=t ;;
 
   --dryrun)
     dryrun=t ;;

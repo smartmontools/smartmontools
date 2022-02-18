@@ -1,5 +1,16 @@
 $Id$
 
+2022-02-18  Christian Franke  <franke@computer.org>
+
+	Allow to specify a separate install location for drivedb.h.
+	This prevents that update-smart-drivedb overwrites the package
+	installed file (Debian Bug 976696, Ubuntu Bug 1893202).
+
+	configure.ac, Makefile.am: Add '--with-drivedbinstdir' option.
+	update-smart-drivedb.in: Add '--install' option.
+	update-smart-drivedb.8.in: Document new functionality.
+	smartctl.8.in, smartd.8.in: Adjust path names.
+
 2022-02-16  Douglas Gilbert  <dgilbert@interlog.com>
 
 	smartctl.cpp: add new --log=tapedevstat to print out SCSI
