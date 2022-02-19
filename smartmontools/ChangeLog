@@ -1,5 +1,18 @@
 $Id$
 
+2022-02-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven (OEM) SSDs: Remove duplicate options.
+	- SK hynix SATA SSDs: S31 (#1517), SC210 *3AMNB*, SC300 *32MND*,
+	  SC313 HFS*, SC401, SH920.
+	- Western Digital Ultrastar DC HC530: WUH721414ALE604 (#1458).
+	- Western Digital Ultrastar DC HC550: More variants (#1547).
+	- Western Digital Ultrastar DC HC560 (#1548).
+	- Western Digital Ultrastar DC HC650 (#1549).
+	- Western Digital Red Pro: WD102KFBX (#1543).
+	- Western Digital Gold: WD141KRYZ (#1433, #1470).
+
 2022-02-18  Christian Franke  <franke@computer.org>
 
 	Allow to specify a separate install location for drivedb.h.

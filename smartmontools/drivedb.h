@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -777,11 +777,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
     "-v 3,raw48,Not_In_Use "
-    "-v 5,raw48,Not_In_Use "
+    "-v 5,raw48,Retired_Block_Count "
     "-v 7,raw48,Not_In_Use "
     "-v 8,raw48,Not_In_Use "
-  //"-v 9,raw24(raw8),Power_On_Hours "
-    "-v 5,raw48,Retired_Block_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
     "-v 10,raw48,Not_In_Use "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -830,11 +828,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
     "-v 3,raw48,Not_In_Use "
-    "-v 5,raw48,Not_In_Use "
+    "-v 5,raw48,Retired_Block_Count "
     "-v 7,raw48,Not_In_Use "
     "-v 8,raw48,Not_In_Use "
-  //"-v 9,raw24(raw8),Power_On_Hours "
-    "-v 5,raw48,Retired_Block_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
     "-v 10,raw48,Not_In_Use "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -1720,11 +1716,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
-  //"-v 175,raw48,Program_Fail_Count_Chip,SSD "
-  //"-v 176,raw48,Erase_Fail_Count_Chip,SSD "
-  //"-v 177,raw48,Wear_Leveling_Count,SSD "
-  //"-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip,SSD "
-  //"-v 180,raw48,Unused_Rsvd_Blk_Cnt_Tot,SSD "
+  //"-v 175,raw48,Program_Fail_Count_Chip "
+  //"-v 176,raw48,Erase_Fail_Count_Chip "
+  //"-v 177,raw48,Wear_Leveling_Count "
+  //"-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip "
+  //"-v 180,raw48,Unused_Rsvd_Blk_Cnt_Tot "
   //"-v 183,raw48,Runtime_Bad_Block "
   //"-v 187,raw48,Reported_Uncorrect "
   //"-v 194,tempminmax,Temperature_Celsius "
@@ -2867,17 +2863,24 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "SK hynix SATA SSDs",
-    "SK ?hynix SC(210|300|308|311|313).*|" // tested with
+    "SK ?hynix (SC(210|300|308|311|313|401)|SH920) .*|" // tested with
       // SK hynix SC210 mSATA 256GB/20002L00,
       // SKhynix SC300 HFS256G32MND-3210A/20131P00,
       // SK hynix SC308 SATA 128GB/30001P10,
       // SK hynix SC311 SATA 512GB/70000P10,
-      // SK hynix SC313 HFS256G32TNF-N3A0A/70000P10
-    "HFS(128|256|512)G3[29]MND-(2200|3[23]10)A|" // HFS128G32MND-2200A/20200L00,
-      // HFS512G32MND-3210A/20100P00, HFS512G39MND-3310A/20002P00
+      // SK hynix SC313 HFS256G32TNF-N3A0A/70000P10,
+      // SK hynix SC401 SATA 512GB/90000121,
+      // SK hynix SH920 mSATA 256GB/1010BL00
+    "HFS(128|256|512)G3[29A]MN[BD]-(2200|3[23]10)A|" // SC210, tested with
+      // HFS128G32MND-2200A/20200L00, HFS512G32MND-3210A/20100P00,
+      // HFS512G39MND-3310A/20002P00, HFS256G3AMNB-2200A/1010BL00
+    "HFS(128|256|512)G3[29]MND-3(312|510)A|" // SC300, tested with HFS256G32MND-3312A/20001P00,
+      // HFS512G39MND-3510A/20400P00
+    "HFS(128|256|512)G39TND-N210A|" // SC308, tested with HFS128G39TND-N210A/30001P10
     "HFS(120|250|500)G32TND-N1A2A|" // SL308, tested with HFS500G32TND-N1A2A/30000P10
-    "HFS(128|256|512)G39MND-3510A|" // SC300, tested with HFS512G39MND-3510A/20400P00
-    "HFS(128|256|512)G39TND-N210A", // SC308, tested with HFS128G39TND-N210A/30001P10
+    "HFS(128|256|512)G39TND-N210A|" // SC308, tested with HFS128G39TND-N210A/30001P10
+    "HFS(128|256|512)G32TNF-N3A0A|" // SC313, tested with HFS256G32TNF-N3A0A/70000P10
+    "SHGS31-(250|500|1000)GS-2", // S31, tested with SHGS31-1000GS-2/90000Q00
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Retired_Block_Count "
@@ -2902,6 +2905,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
   //"-v 188,raw48,Command_Timeout "
+    "-v 191,raw48,Unknown_SK_hynix_Attrib " // SC210
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 195,raw48,Hardware_ECC_Recovered "
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
@@ -2912,9 +2916,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 212,raw48,Phy_Error_Count "
     "-v 231,raw48,SSD_Life_Left "
     "-v 234,raw48,Unknown_SK_hynix_Attrib "
-    "-v 241,raw48,Total_Writes_GiB "
-    "-v 242,raw48,Total_Reads_GiB "
+    "-v 236,raw48,Unknown_SK_hynix_Attrib " // SC313
+    "-v 238,raw48,Unknown_SK_hynix_Attrib " // SC401
+    "-v 241,raw48,Total_Writes_GB " // SC31: ~GB, not GiB (#1517)
+    "-v 242,raw48,Total_Reads_GB "
     "-v 243,raw48,Total_Media_Writes "
+    "-v 249,raw48,Unknown_SK_hynix_Attrib " // SC313
     "-v 250,raw48,Read_Retry_Count "
   },
   { "SK hynix SATA SSDs",
@@ -3602,14 +3609,27 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level"
   },
-  { "Western Digital Ultrastar DC HC530", // tested with WDC  WUH721414ALE6L4/LDGNW07G
-    "WDC  ?WUH721414ALE6L4",
+  { "Western Digital Ultrastar DC HC530", // tested with
+      // WDC  WUH721414ALE604/LDAZW110, WDC  WUH721414ALE6L4/LDGNW07G
+    "WDC  ?WUH721414ALE6[0L]4",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar DC HC550", // tested with WDC  WUH721818ALE6L4/PCGNW110,
-      // WUH721818ALE6L4/PCGAW232
-    "(WDC  ?)?WUH72181[68]ALE6L[14]",
+      // WUH721818ALE6L4/PCGAW232, WDC  WUH721818ALN6L4/PCGNW088
+    "(WDC  ?)?WUH72181[68]AL[EN]6[0L][0146]",
+    "", "",
+    "-v 22,raw48,Helium_Level"
+  },
+  { "Western Digital Ultrastar DC HC560", // tested with WDC  WUH722020ALN604/PQGNW108
+    "(WDC  ?)?WUH722020AL[EN]6[0L][014]",
+    "", "",
+    "-v 22,raw48,Helium_Level "
+    "-v 82,raw16,Head_Health_Score "
+    "-v 90,hex48,NAND_Master"
+  },
+  { "Western Digital Ultrastar DC HC650", // tested with WDC  WSH722020ALE6L0/PCGMT421
+    "(WDC  ?)?WSH7220(20|VC)AL[EN]6[0L][0146]",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
@@ -4887,10 +4907,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81,
-      // WDC WD6002FFWX-68TZ4N0/83.H0A83, WDC WD101KFBX-68R56N0/83.H0A03
-    "WDC WD([2-68]00[123]FF[BSW]|101KFB)X-.*",
+      // WDC WD6002FFWX-68TZ4N0/83.H0A83, WDC WD101KFBX-68R56N0/83.H0A03,
+      // WDC WD102KFBX-68M95N0/83.00A83
+    "WDC WD([2-68]00[123]FF[BSW]|10[12]KFB)X-.*",
     "", "",
-    "-v 22,raw48,Helium_Level" // WD101KFBX
+    "-v 22,raw48,Helium_Level" // WD101KFBX (but not WD102KFBX)
   },
   { "Western Digital Purple", // tested with WDC WD40PURX-64GVNY0/80.00A80,
       // WDC WD40PURZ-85TTDY0/80.00A80
@@ -4902,10 +4923,11 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD2005FBYZ-01YCBB2/RR07, WDC WD4002FYYZ-01B7CB0/01.01M02,
       // WDC WD4003FRYZ-01F0DB0/01.01H01, WDC WD6003FRYZ-01F0DB0/01.01H01,
       // WDC WD8003FRYZ-01JPDB1/01.01H02, WDC WD8004FRYZ-01VAEB0/01.01H01,
-      // WDC WD102KRYZ-01A5AB0/01.01H01, WDC WD121KRYZ-01W0RB0/01.01H01
-    "WDC WD([12]005FB|4002FY|4003FR|600[23]FR|800[234]FR|(1[02]1|102)KR)YZ-.*",
+      // WDC WD102KRYZ-01A5AB0/01.01H01, WDC WD121KRYZ-01W0RB0/01.01H01,
+      // WDC WD141KRYZ-01C66B0/01.01H01
+    "WDC WD([12]005FB|4002FY|4003FR|600[23]FR|800[234]FR|(1[024]1|102)KR)YZ-.*",
     "", "",
-    "-v 22,raw48,Helium_Level" // WD121KRYZ
+    "-v 22,raw48,Helium_Level" // WD121KRYZ, WD141KRYZ
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
       // WDC WD10JPVX-75JC3T0/0301A03,  WDC WD10JPVX-22JC3T0/01.01A01,
@@ -4950,6 +4972,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD20NMVW-59AV3S3/01.01A01 (0x1058:0x107d),
       // WDC WD30NMVW-11C3NS4/01.01A01,
       // WDC WD40NMZW-11GX6S1/01.01A01 (0x1058:0x2599/25e2/25fa)
+      // WDC WD50NDZW-11A8JS1/01.01A01 (0x1058:0x2627)
       // WDC WD50NDZW-11MR8S1/02.01A02
       // WDC WD40NDZM-59A8KS1/01.01A01
     "WDC WD((5000[LK]|7500[BK]|10[JST]|[234]0N)M|50ND|40ND)[VZ][VWM]-.*", // *W-* = USB 3.0
@@ -5875,7 +5898,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron JMS578", // USB->SATA
     "0x152d:0x0578",
-    "", // 0x0100
+    "", // 0x0100, 0x0204
     "",
     "-d sat"
   },
