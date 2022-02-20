@@ -48,8 +48,8 @@ This version of \fBsmartctl\fP is compatible with
 ACS-3, ACS-2, ATA8-ACS, ATA/ATAPI-7 and earlier standards
 (see \fBREFERENCES\fP below).
 .PP
-\fBsmartctl\fP also provides support for polling TapeAlert messages
-from SCSI tape drives and changers.
+\fBsmartctl\fP also provides support for SCSI tape drives and
+changers (see \fBTAPE DRIVES\fP below).
 .PP
 The user must specify the device to be controlled or interrogated as
 the final argument to \fBsmartctl\fP.  The command set used by the device
@@ -60,7 +60,7 @@ Device paths are as follows:
 .\" %IF OS Linux
 .IP \fBLINUX\fP: 9
 Use the forms \fB"/dev/sd[a\-z]"\fP for ATA/SATA and SCSI/SAS devices.
-For SCSI Tape Drives and Changers with TapeAlert support use the
+For SCSI Tape Drives and Changers use the
 devices \fB"/dev/nst*"\fP and \fB"/dev/sg*"\fP.  For disks behind
 3ware controllers you may need \fB"/dev/sd[a\-z]"\fP or
 \fB"/dev/twe[0\-9]"\fP, \fB"/dev/twa[0\-9]"\fP or \fB"/dev/twl[0\-9]"\fP:
@@ -248,8 +248,8 @@ shortest output and \*(Aq\-\-identify=wb\*(Aq (all words, all bits) produces
 the longest output.
 .TP
 .B \-a, \-\-all
-Prints all SMART information about the disk, or TapeAlert information
-about the tape drive or changer.  For ATA devices this is equivalent
+Prints all SMART information about the disk.
+For ATA devices this is equivalent
 to
 .br
 \*(Aq\-H \-i \-c \-A \-l error \-l selftest \-l selective\*(Aq
@@ -1129,7 +1129,11 @@ The dsn is usually disabled by default.
 .B SMART READ AND DISPLAY DATA OPTIONS:
 .TP
 .B \-H, \-\-health
-Prints the health status of the device or pending TapeAlert messages.
+Prints the health status of the device.
+.Sp
+[SCSI tape drive or changer] For SCSI tape drives the TapeAlert log page is
+not checked for pending alerts unless this option is given twice (see
+\fBTAPE DRIVES\fP for the rationale).
 .Sp
 If the device reports failing health status, this means
 .B either
@@ -1153,11 +1157,7 @@ Prefailure SMART Attribute value is less than or equal to its threshold
 (IE) log page (if supported) and/or from SCSI sense data.
 .Sp
 [SCSI tape drive or changer] TapeAlert status is obtained by reading the
-TapeAlert log page.
-Please note that the TapeAlert log page flags are cleared for the initiator
-when the page is read.
-This means that each alert condition is reported only once by \fBsmartctl\fP
-for each initiator for each activation of the condition.
+TapeAlert log page only when this option is given twice.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 [NVMe] NVMe status is obtained by reading the "Critical Warning" byte from
@@ -1566,6 +1566,10 @@ drives.
 \- [SAS (SCSI) only] prints values and descriptions of the SAS (SSP)
 Protocol Specific log page (log page 0x18).  If \*(Aq\-l sasphy,reset\*(Aq
 is specified, all counters are reset after reading the values.
+.Sp
+.I tapedevstat
+\- [SCSI tape drives and changers] prints values and descriptions of
+the (SSC) Device Statistics log page.
 .Sp
 .I gplog,ADDR[,FIRST[\-LAST|+SIZE]]
 \- [ATA only] prints a hex dump of any log accessible via General
@@ -2278,6 +2282,35 @@ disks from a distant OS is a challenge for smartmontools.  Another
 approach is running a tool like smartmontools inside the RAID 1 box (e.g.
 a Network Attached Storage (NAS) box) and fetching the logs via a
 browser.
+.Sp
+.SH TAPE DRIVES
+Commands for SCSI Tape drives as defined in the SSC\-4 standard (ANSI
+INCITS 516\-2013). SSC stands for "SCSI Streaming Commands".  Draft
+standards can be found at <\fBhttps://www.t10.org/\fP> .
+.PP
+Many SMART related features of SCSI disks are shared by SCSI tape drives.
+One important tape\-specific log page is called "TapeAlert" which is used
+to report abnormal conditions. Unlike most other log pages the TapeAlert
+log page clears pending alerts after that page is fetched (i.e. read from
+the tape drive). To be more precise, the TapeAlert log page is cleared
+for the I_T nexus (initiator-target pair) that sent the (SCSI LOG SENSE)
+command; so another initiator (e.g.  a HBA on another machine) will still
+have pending alerts reported. [This clearing action can be controlled by
+the TAPLSD bit is the [SSC] Device Configuration Extension mode page but
+the original and default action remains: clear any pending TapeAlerts.
+The sdparm utility can be used to access and change TAPLSD.]
+.PP
+Previous versions of smartctl have supported polling the TapeAlert log
+page when the \-\-health option is given. This clearing of pending alerts
+has created problems for other tape\-specific tools. This version of
+smartctl will only fetch the TapeAlert log page if the \-\-health option
+is given
+.B twice
+in the command line invocation (or the \-\-log=tapealert option is given).
+.PP
+There are other tape\-specific log pages such as \-\-log=tapedevstat
+that behave normally (i.e. they don't change any state information in
+the tape drive).
 .Sp
 .SH EXAMPLES
 .B smartctl \-a /dev/sda

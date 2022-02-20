@@ -1,5 +1,11 @@
 $Id$
 
+2022-02-19  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartctl.8.in: proposed change to TapeAlert handling. No code
+	has changed, just the smartctl manpage. Please review. If
+	rejected just reverse this commit.
+
 2022-02-19  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
