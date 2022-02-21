@@ -1,5 +1,12 @@
 $Id$
 
+2022-02-20  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartctl.cpp, scsiprint.cpp: implement the change to
+	TapeAlert handling documented in the previous commit.
+	Add --log=tapealert option to explicitly fetch the
+	Tape Alert log page. Tweak some tape-specific formatting.
+
 2022-02-19  Douglas Gilbert  <dgilbert@interlog.com>
 
 	smartctl.8.in: proposed change to TapeAlert handling. No code

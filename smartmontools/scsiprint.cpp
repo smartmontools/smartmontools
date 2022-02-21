@@ -391,7 +391,8 @@ scsiGetSmartData(scsi_device * device, bool attribs)
 static const char * const severities = "CWI";
 
 static int
-scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
+scsiPrintActiveTapeAlerts(scsi_device * device, int peripheral_type,
+                          bool from_health)
 {
     unsigned short pagelength;
     unsigned short parametercode;
@@ -399,6 +400,8 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
     const char *s;
     const char *ts;
     int failures = 0;
+    const char * pad = from_health ? "" : "  ";
+    static const char * const tapealert_s = "scsi_tapealert";
 
     print_on();
     if ((err = scsiLogSense(device, TAPE_ALERTS_LPAGE, 0, gBuf,
@@ -408,13 +411,13 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
         return -1;
     }
     if (gBuf[0] != 0x2e) {
-        pout("TapeAlerts %s Failed\n", logSenStr);
+        pout("%sTapeAlerts %s Failed\n", pad, logSenStr);
         print_off();
         return -1;
     }
     pagelength = sg_get_unaligned_be16(gBuf + 2);
 
-    json::ref jref = jglb["scsi_tapealert"]["status"];
+    json::ref jref = jglb[tapealert_s]["status"];
     for (s=severities, k = 0, j = 0; *s; s++, ++k) {
         for (i = 4, m = 0; i < pagelength; i += 5, ++k, ++m) {
             parametercode = sg_get_unaligned_be16(gBuf + i);
@@ -425,9 +428,9 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
                     scsiTapeAlertsTapeDevice(parametercode);
                 if (*ts == *s) {
                     if (!failures)
-                        pout("TapeAlert Errors (C=Critical, W=Warning, "
-                             "I=Informational):\n");
-                    jout("[0x%02x] %s\n", parametercode, ts);
+                        jout("%sTapeAlert Errors (C=Critical, W=Warning, "
+                             "I=Informational):\n", pad);
+                    jout("%s[0x%02x] %s\n", pad, parametercode, ts);
                     jref[j]["descriptor_idx"] = m + 1;
                     jref[j]["parameter_code"] = parametercode;
                     jref[j]["string"] = ts;
@@ -440,8 +443,8 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
     print_off();
 
     if (! failures) {
-        jout("TapeAlert: OK\n");
-        jglb["scsi_tapealert"]["status"] = "Good";
+        jout("%sTapeAlert: OK\n", pad);
+        jglb[tapealert_s]["status"] = "Good";
     }
 
     return failures;
@@ -2353,7 +2356,7 @@ show_protocol_specific_port_page(unsigned char * resp, int len)
         if (SCSI_TPROTO_SAS != (0xf & ucp[4]))
             return 0;   /* only decode SAS log page */
         if (0 == k)
-            jout("Protocol Specific port log page for SAS SSP\n");
+            jout("\nProtocol Specific port log page for SAS SSP\n");
         show_sas_port_param(j, ucp, param_len);
         k += param_len;
         ucp += param_len;
@@ -3122,7 +3125,7 @@ scsiPrintEnviroReporting(scsi_device * device)
 int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 {
-    int checkedSupportedLogPages = 0;
+    bool checkedSupportedLogPages = false;
     uint8_t peripheral_type = 0;
     int returnval = 0;
     int res, durationSec;
@@ -3322,15 +3325,17 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 
     if (options.smart_check_status) {
         scsiGetSupportedLogPages(device);
-        checkedSupportedLogPages = 1;
+        checkedSupportedLogPages = true;
         if (is_tape) {
             if (gTapeAlertsLPage) {
                 if (options.drive_info) {
                     jout("TapeAlert Supported\n");
                     jglb["tapealert"]["supported"] = true;
                 }
-                if (-1 == scsiGetTapeAlertsData(device, peripheral_type))
-                    failuretest(OPTIONAL_CMD, returnval |= FAILSMART);
+                if (options.health_opt_count > 1) {
+                    if (-1 == scsiPrintActiveTapeAlerts(device, peripheral_type, true))
+                        failuretest(OPTIONAL_CMD, returnval |= FAILSMART);
+                }
             } else {
                 jout("TapeAlert Not Supported\n");
                 jglb["tapealert"]["supported"] = false;
@@ -3348,8 +3353,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     }
 
     if (is_disk && options.smart_ss_media_log) {
-        if (! checkedSupportedLogPages)
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
         res = 0;
         if (gSSMediaLPage)
             res = scsiPrintSSMedia(device);
@@ -3362,8 +3369,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_vendor_attrib) {
-        if (! checkedSupportedLogPages)
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
         if (gEnviroReportingLPage && options.smart_env_rep)
             scsiPrintEnviroReporting(device);
         else if (gTempLPage)
@@ -3387,8 +3396,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_error_log) {
-        if (! checkedSupportedLogPages)
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
         scsiPrintErrorCounterLog(device);
         if (gPendDefectsLPage)
             scsiPrintPendingDefectsLPage(device);
@@ -3398,8 +3409,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_selftest_log) {
-        if (! checkedSupportedLogPages)
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
         res = 0;
         if (gSelfTestLPage)
             res = scsiPrintSelfTest(device);
@@ -3412,8 +3425,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_background_log && is_disk) {
-        if (! checkedSupportedLogPages)
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
         res = 0;
         if (gBackgroundResultsLPage)
             res = scsiPrintBackgroundResults(device, false);
@@ -3426,8 +3441,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_background_log && is_zbc) {
-        if (! checkedSupportedLogPages)
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
         res = 0;
         if (gZBDeviceStatsLPage)
             res = scsiPrintZBDeviceStats(device);
@@ -3441,21 +3458,44 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
 
     }
-    if (options.tape_device_stats && is_tape) {
-        if (! checkedSupportedLogPages)
-            scsiGetSupportedLogPages(device);
-        res = 0;
-        if (gTapeDeviceStatsLPage)
-            res = scsiPrintTapeDeviceStats(device);
-        else {
-            pout("Device does not support (tape) device characteristics "
-                 "(SSC) logging\n");
-            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    if (is_tape) {
+        if (options.tape_device_stats) {
+            if (! checkedSupportedLogPages) {
+                scsiGetSupportedLogPages(device);
+                checkedSupportedLogPages = true;
+            }
+            res = 0;
+            if (gTapeDeviceStatsLPage) {
+                jout("\nDevice Statistics (SSC, tape) log page:\n");
+                res = scsiPrintTapeDeviceStats(device);
+            } else {
+                pout("Device does not support (tape) device characteristics "
+                     "(SSC) logging\n");
+                failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+            }
+            if (0 != res)
+                failuretest(OPTIONAL_CMD, returnval|=res);
+            any_output = true;
         }
-        if (0 != res)
-            failuretest(OPTIONAL_CMD, returnval|=res);
-        any_output = true;
-
+        if (options.tape_alert) {
+            if (! checkedSupportedLogPages) {
+                scsiGetSupportedLogPages(device);
+                // checkedSupportedLogPages = true;     // not needed when last
+            }
+            res = 0;
+            if (gTapeAlertsLPage) {
+                jout("\nTape Alert log page:\n");
+                res = scsiPrintActiveTapeAlerts(device, peripheral_type, false);
+            } else {
+                pout("Device does not support TapeAlert logging\n");
+                failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+            }
+            if (res < 0)
+                failuretest(OPTIONAL_CMD, returnval|=res);
+            if ((scsi_debugmode > 0) && (res == 0))
+                pout("TapeAlerts only printed if active, so none printed is good\n");
+            any_output = true;
+        }
     }
     if (options.smart_default_selftest) {
         if (scsiSmartDefaultSelfTest(device))
