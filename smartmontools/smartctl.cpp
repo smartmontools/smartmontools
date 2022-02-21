@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5317 2022-02-17 03:25:14Z dpgilbert $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5322 2022-02-21 03:32:46Z dpgilbert $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -493,6 +493,7 @@ static int parse_options(int argc, char** argv, const char * & type,
     case 'H':
       ataopts.smart_check_status = scsiopts.smart_check_status = nvmeopts.smart_check_status = true;
       scsiopts.smart_ss_media_log = true;
+      ++scsiopts.health_opt_count;
       break;
     case 'F':
       if (!strcmp(optarg, "swapid"))
@@ -550,6 +551,8 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.sct_temp_sts = true;
       } else if (!strcmp(optarg,"scttemphist")) {
         ataopts.sct_temp_hist = true;
+      } else if (!strcmp(optarg,"tapealert")) {
+        scsiopts.tape_alert = true;
       } else if (!strcmp(optarg,"tapedevstat")) {
         scsiopts.tape_device_stats = true;
 

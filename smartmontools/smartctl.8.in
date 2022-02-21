@@ -4,7 +4,7 @@ Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5321 2022-02-20 00:35:11Z dpgilbert $
+$Id: smartctl.8.in 5322 2022-02-21 03:32:46Z dpgilbert $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1567,6 +1567,11 @@ drives.
 Protocol Specific log page (log page 0x18).  If \*(Aq\-l sasphy,reset\*(Aq
 is specified, all counters are reset after reading the values.
 .Sp
+.I tapealert
+\- [SCSI tape drives and changers] prints values and descriptions of
+the (SSC) Tape Alert log page. See \fBTAPE DRIVES\fP below for issue
+associated with printing this log page.
+.Sp
 .I tapedevstat
 \- [SCSI tape drives and changers] prints values and descriptions of
 the (SSC) Device Statistics log page.
@@ -2291,7 +2296,9 @@ standards can be found at <\fBhttps://www.t10.org/\fP> .
 Many SMART related features of SCSI disks are shared by SCSI tape drives.
 One important tape\-specific log page is called "TapeAlert" which is used
 to report abnormal conditions. Unlike most other log pages the TapeAlert
-log page clears pending alerts after that page is fetched (i.e. read from
+log page
+.B clears
+pending alerts after that page is fetched (i.e. read from
 the tape drive). To be more precise, the TapeAlert log page is cleared
 for the I_T nexus (initiator-target pair) that sent the (SCSI LOG SENSE)
 command; so another initiator (e.g.  a HBA on another machine) will still
@@ -2532,4 +2539,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5321 2022-02-20 00:35:11Z dpgilbert $
+$Id: smartctl.8.in 5322 2022-02-21 03:32:46Z dpgilbert $

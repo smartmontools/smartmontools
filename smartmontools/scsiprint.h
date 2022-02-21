@@ -16,7 +16,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5317 2022-02-17 03:25:14Z dpgilbert $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5322 2022-02-21 03:32:46Z dpgilbert $\n"
 
 // Options for scsiPrintMain
 struct scsi_print_options
@@ -43,6 +43,7 @@ struct scsi_print_options
   bool sasphy = false, sasphy_reset = false;
 
   bool tape_device_stats = false;
+  bool tape_alert = false;
   
   bool get_wce = false, get_rcd = false;
   short int set_wce = 0, set_rcd = 0;  // disable(-1), enable(1) cache
@@ -53,6 +54,8 @@ struct scsi_print_options
   int set_standby = 0;          // set(1..255->0..254) standby timer
   bool set_standby_now = false; // set drive to standby
   bool set_active = false;      // set drive to active
+
+  int health_opt_count = 0;	// TapeAlert log page only read if this value > 1
 };
 
 int scsiPrintMain(scsi_device * device, const scsi_print_options & options);
