@@ -2,6 +2,9 @@ $Id$
 
 2022-02-22  Christian Franke  <franke@computer.org>
 
+	os_win32/update-smart-drivedb.ps1.in: Set console encoding.
+	Otherwise redirection to gpg occasionally starts with a BOM.
+
 	os_win32/update-smart-drivedb.ps1.in: Unify path syntax.
 
 	do_release: Update code signing key id.

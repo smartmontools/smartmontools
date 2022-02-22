@@ -490,11 +490,15 @@ Q/qvYlwkbKOdlahjoHrFlkhADSBaO9N1OZp3OYDjziIujMdt2IPKnmM=
 function run_join_out_err($cmd) # $arg1, $arg2, ...
 {
   $cmdobj = Get-Command -CommandType Application -Name $cmd
+  # Don't prepend $input with BOM
+  $enc = [Console]::InputEncoding
+  [Console]::InputEncoding = [System.Text.UTF8Encoding]::new()
   $ErrorActionPreference = "Continue" # Don't abort command on first stderr output
   $LASTEXITCODE = 42
   # Run command and convert ErrorRecords from stderr to plain Strings
   $($input | & $cmdobj @args 2>&1) | %{ $_.ToString() }
   $ErrorActionPreference = "Stop"
+  [Console]::InputEncoding = $enc
 }
 
 function gpg_verify($ascfile, $file, [ref]$ok)
