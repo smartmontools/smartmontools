@@ -7,7 +7,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: update-smart-drivedb.ps1.in 5309 2022-02-01 17:48:58Z chrfranke $
+# $Id: update-smart-drivedb.ps1.in 5328 2022-02-22 18:26:20Z chrfranke $
 #
 
 <#
@@ -131,10 +131,10 @@ if (!$mydir) {
 }
 
 # Default drivedb location
-$default_drivedb = "$mydir/drivedb.h"
+$default_drivedb = "$mydir\drivedb.h"
 
 # Default command used for syntax check
-$default_smartctl = "$mydir/smartctl"
+$default_smartctl = "$mydir\smartctl"
 
 function error($message)
 {
