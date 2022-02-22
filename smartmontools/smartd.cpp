@@ -2,7 +2,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -5312,7 +5312,7 @@ static int parse_options(int argc, char **argv)
 
 #ifdef _WIN32
   if (warn_as_restr_user && !popen_as_restr_check()) {
-    debugmode = 1;
+    // debugmode=1 // would suppress messages to eventlog or log file
     PrintHead();
     PrintOut(LOG_CRIT, "Option '--warn-as-user=restricted' is not effective if the current user\n");
     PrintOut(LOG_CRIT, "is the local 'SYSTEM' or 'Administrator' account\n\n");

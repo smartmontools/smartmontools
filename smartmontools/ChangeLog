@@ -2,6 +2,9 @@ $Id$
 
 2022-02-22  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Ensure that '--warn-as-user=restricted' failure is
+	visible in syslog.
+
 	smartd.cpp: Add '-q *nodev0*' option variants.
 	These change the exit status to 0 if there are no devices
 	to monitor.
