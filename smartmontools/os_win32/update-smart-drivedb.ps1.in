@@ -131,10 +131,10 @@ if (!$mydir) {
 }
 
 # Default drivedb location
-$default_drivedb = "$mydir/drivedb.h"
+$default_drivedb = "$mydir\drivedb.h"
 
 # Default command used for syntax check
-$default_smartctl = "$mydir/smartctl"
+$default_smartctl = "$mydir\smartctl"
 
 function error($message)
 {
