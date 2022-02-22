@@ -4,7 +4,7 @@ Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.8.in 5323 2022-02-22 17:47:22Z chrfranke $
+$Id: smartd.8.in 5325 2022-02-22 18:04:44Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -724,7 +724,7 @@ event viewer.
 This does not work if the option \*(Aq--warn-as-user=restricted\*(Aq is
 specified because the local \*(AqSYSTEM\*(Aq account cannot be restricted.
 The service must then be manually reconfigured to run as a another user
-which is a member of the local \*(AqAdminstrator\*(Aq group.
+which is a member of the local \*(AqAdministrator\*(Aq group.
 .PP
 \*(Aq\fBsmartd remove\fP\*(Aq can later be used to remove the service and
 event message entries from the registry.
@@ -924,4 +924,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 5323 2022-02-22 17:47:22Z chrfranke $
+$Id: smartd.8.in 5325 2022-02-22 18:04:44Z chrfranke $
