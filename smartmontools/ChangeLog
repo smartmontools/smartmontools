@@ -1,6 +1,8 @@
-$Id: ChangeLog 5324 2022-02-22 18:00:47Z chrfranke $
+$Id: ChangeLog 5327 2022-02-22 18:15:45Z chrfranke $
 
 2022-02-22  Christian Franke  <franke@computer.org>
+
+	do_release: Update code signing key id.
 
 	smartd.cpp: Ensure that '--warn-as-user=restricted' failure is
 	visible in syslog.
