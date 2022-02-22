@@ -1,5 +1,12 @@
 $Id$
 
+2022-02-22  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add '-q *nodev0*' option variants.
+	These change the exit status to 0 if there are no devices
+	to monitor.
+	smartd.8.in: Document new functionality.
+
 2022-02-20  Douglas Gilbert  <dgilbert@interlog.com>
 
 	smartctl.cpp, scsiprint.cpp: implement the change to

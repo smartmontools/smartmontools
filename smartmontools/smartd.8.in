@@ -369,7 +369,8 @@ arguments are to this option are:
 .Sp
 .I nodev
 \- Exit if there are no devices to monitor, or if any errors are found
-at startup in the configuration file.  This is the default.
+at startup in the configuration file.
+This is the default.
 .Sp
 .I errors
 \- Exit if there are no devices to monitor, or if any errors are found
@@ -383,10 +384,25 @@ reloaded.
 .Sp
 .I never
 \- Only exit if a fatal error occurs (no remaining system memory,
-invalid command line arguments).  In this mode, even if there are no
-devices to monitor, or if the configuration file
-\fB/usr/local/etc/smartd.conf\fP has errors, \fBsmartd\fP will continue to run,
-waiting to load a configuration file listing valid devices.
+invalid command line arguments).
+In this mode, even if there are no devices to monitor, or if the configuration
+file \fB/usr/local/etc/smartd.conf\fP has errors, \fBsmartd\fP will continue
+to run, waiting to load a configuration file listing valid devices.
+.Sp
+.I nodev0
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+Same as \*(Aqnodev\*(Aq, except that the exit status is 0 if there are no
+devices to monitor.
+.Sp
+.I nodev0startup
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+Same as \*(Aqnodevstartup\*(Aq, except that the exit status is 0 if there are no
+devices to monitor.
+.Sp
+.I errors,nodev0
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+Same as \*(Aqerrors\*(Aq, except that the exit status is 0 if there are no
+devices to monitor.
 .Sp
 .I onecheck
 \- Start \fBsmartd\fP in debug mode, then register devices, then check
@@ -796,6 +812,10 @@ can't be monitored.
 .B 17:
 \fBsmartd\fP
 didn't find any devices to monitor.
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+This could be changed to \fB0\fP (success) with one of the
+\*(Aq-q *nodev0*\*(Aq options, see above.
 .TP
 .B 254:
 When in daemon mode,

@@ -200,6 +200,7 @@ enum quit_t {
   QUIT_SHOWTESTS, QUIT_ERRORS
 };
 static quit_t quit = QUIT_NODEV;
+static bool quit_nodev0 = false;
 
 // command-line; this is the default syslog(3) log facility to use.
 static int facility=LOG_DAEMON;
@@ -1555,7 +1556,7 @@ static const char *GetValidArgList(char opt)
   case 'l':
     return "daemon, local0, local1, local2, local3, local4, local5, local6, local7";
   case 'q':
-    return "nodev, errors, nodevstartup, never, onecheck, showtests";
+    return "nodev[0], errors[,nodev0], nodev[0]startup, never, onecheck, showtests";
   case 'r':
     return "ioctl[,N], ataioctl[,N], scsiioctl[,N], nvmeioctl[,N]";
   case 'p':
@@ -5045,10 +5046,25 @@ static int parse_options(int argc, char **argv)
     switch(optchar) {
     case 'q':
       // when to quit
+      quit_nodev0 = false;
       if (!strcmp(optarg, "nodev"))
         quit = QUIT_NODEV;
+      else if (!strcmp(optarg, "nodev0")) {
+        quit = QUIT_NODEV;
+        quit_nodev0 = true;
+      }
       else if (!strcmp(optarg, "nodevstartup"))
         quit = QUIT_NODEVSTARTUP;
+      else if (!strcmp(optarg, "nodev0startup")) {
+        quit = QUIT_NODEVSTARTUP;
+        quit_nodev0 = true;
+      }
+      else if (!strcmp(optarg, "errors"))
+        quit = QUIT_ERRORS;
+      else if (!strcmp(optarg, "errors,nodev0")) {
+        quit = QUIT_ERRORS;
+        quit_nodev0 = true;
+      }
       else if (!strcmp(optarg, "never"))
         quit = QUIT_NEVER;
       else if (!strcmp(optarg, "onecheck")) {
@@ -5059,8 +5075,6 @@ static int parse_options(int argc, char **argv)
         quit = QUIT_SHOWTESTS;
         debugmode = 1;
       }
-      else if (!strcmp(optarg, "errors"))
-        quit = QUIT_ERRORS;
       else
         badarg = true;
       break;
@@ -5680,7 +5694,7 @@ static int main_worker(int argc, char **argv)
             || (quit == QUIT_NODEVSTARTUP && !firstpass))) {
         PrintOut(LOG_INFO, "Unable to monitor any SMART enabled devices. %sExiting...\n",
                  (!debugmode ? "Try debug (-d) option. " : ""));
-        status = EXIT_NODEV;
+        status = EXIT_NODEV; // later changed to 0 if quit_nodev0 is set
         break;
       }
 
@@ -5791,7 +5805,7 @@ static int main_worker(int argc, char **argv)
 
     // and this should be the final output from smartd before it exits
     PrintOut((status ? LOG_CRIT : LOG_INFO), "smartd is exiting (exit status %d)\n",
-             status);
+             (!(status == EXIT_NODEV && quit_nodev0) ? status : 0));
   }
 
   return status;
@@ -5833,6 +5847,11 @@ static int smartd_main(int argc, char **argv)
     PrintOut(LOG_CRIT, "Please inform " PACKAGE_BUGREPORT ", including output of smartd -V.\n");
 
   notify_exit(status);
+
+  // Return success if no devices to monitor and '-q *nodev0*' was specified
+  if (status == EXIT_NODEV && quit_nodev0)
+    status = 0;
+
 #ifdef _WIN32
   daemon_winsvc_exitcode = status;
 #endif
