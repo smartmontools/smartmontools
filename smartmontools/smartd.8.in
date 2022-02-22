@@ -724,7 +724,7 @@ event viewer.
 This does not work if the option \*(Aq--warn-as-user=restricted\*(Aq is
 specified because the local \*(AqSYSTEM\*(Aq account cannot be restricted.
 The service must then be manually reconfigured to run as a another user
-which is a member of the local \*(AqAdminstrator\*(Aq group.
+which is a member of the local \*(AqAdministrator\*(Aq group.
 .PP
 \*(Aq\fBsmartd remove\fP\*(Aq can later be used to remove the service and
 event message entries from the registry.
