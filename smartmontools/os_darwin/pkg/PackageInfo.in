@@ -1,6 +1,0 @@
-<pkg-info format-version="2" identifier="com.smartmontools.pkg" version="@version@" install-location="/" auth="root">
-<payload installKBytes="@size@" numberOfFiles="@files@"/>
-<!-- <scripts>
-    <postinstall file="./postinstall"/>
-</scripts> -->
-</pkg-info>
