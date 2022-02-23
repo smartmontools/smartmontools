@@ -1,5 +1,9 @@
 $Id$
 
+2022-02-23  Christian Franke  <franke@computer.org>
+
+	Create new branch RELEASE_7_3_DRIVEDB.
+
 2022-02-22  Christian Franke  <franke@computer.org>
 
 	os_win32/update-smart-drivedb.ps1.in: Set console encoding.
