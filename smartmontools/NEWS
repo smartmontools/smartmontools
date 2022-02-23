@@ -8,30 +8,55 @@ https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 Date <Not released yet, please try current SVN or a recent CI build>
 Summary: smartmontools release 7.3
 -----------------------------------------------------------
+- smartctl '-j': Many additions to the JSON output for SCSI/SAS devices.
 - smartctl '-j': JSON output always includes timestamp, regardless of '-i'.
-- smartctl '-j': Additional values for SCSI devices.
 - smartctl '-i' and '--identify': ATA ACS-5 enhancements.
 - smartctl '-l scterc[,R,W],p': Gets/sets the persistent power-on values.
 - smartctl '-l scterc,reset': Restores to manufacturer's default values.
-- smartctl '-H': No longer sets bit 2 of exit status if attributes are
+- smartctl '-l scttemp': Prints SCSI Environmental Reporting log subpage.
+- smartctl '-l tapedevstat': Prints SCSI Tape Device Statistics log page.
+- smartctl '-l tapealert': Prints SCSI Tape Alert log page.
+- smartctl '-H': No longer checks and clears the SCSI Tape Alert log page
+  unless the option is given twice.
+- smartctl '-H': No longer sets bit 2 of exit status if ATA attributes are
   available.
 - smartctl '-H': Checks new NVME 1.4 status bit.
 - smartctl '-n POWERMODE': ATA: Optionally exits immediately if unsupported.
+- smartctl: Support for Zoned block device characteristics and statistics.
+- smartctl: Various fixes related to SCSI supported log pages and subpages.
 - smartd: Fixed code execution vulnerability in conjunction with
   GNU mailutils < 3.13.
+- smartd '-u USER[:GROUP]': Runs the warning script as a non-privileged user.
+- smartd '--capabilities': No longer suppresses mail notification.
+- smartd '--capabilities=mail': Adds capabilities required for exim MTA.
+- smartd '-q *nodev0*': Three new options to change the exit status to 0 if
+  there are no devices to monitor.
+- smartd '-s' and '-A': Now allow to disable preconfigured files with '-'.
 - smartd: Fixed handling of multiple email addresses in conjunction with
   plugin scripts.  Added new environment variable SMARTD_ADDRESS_ORIG.
+- smartd: No longer writes 'smartd -D' output to syslog on syntax error.
+- smartd.conf '-c i=N': Allows to specify device specific check intervals.
+- SCSI: Retry on UNIT ATTENTION when fetching capacity.
 - NVMe/USB: Device type '-d sntasmedia' for ASMedia ASM2362 USB to
   NVMe bridges.
-- update-smart-drivedb '-q': Suppresses info messages.
-- update-smart-drivedb: Prevents dangling gpg-agents and temp directories.
 - VERSION information in drive database files of all branches.
 - smartctl and smartd print drive database VERSION information.
 - HDD, SSD and USB additions to drive database.
+- update-smart-drivedb: Now checks VERSION information to prevent downgrades.
+- update-smart-drivedb '--force': Overrides the VERSION check.
+- update-smart-drivedb '--file' and '--url': Updates from local files or
+  other URLs.
+- update-smart-drivedb '-q': Suppresses info messages.
+- update-smart-drivedb: Added long option variants for all short options.
+- update-smart-drivedb: Prevents dangling gpg-agents and temp directories.
+- update-smart-drivedb '--install': Installs runtime drivedb.h from location
+  specified by ...
+- configure '--with-drivedbinstdir: drivedb.h package install location.
 - configure: SOURCE_DATE_EPOCH prevents inclusion of configure arguments
   in executables.
 - configure: Check for '-fstack-protector' now includes the required libs.
 - Dropped restriction to C++98, a C++11 compiler is now required.
+- Linux: Device scan range enhanced to '/dev/sdzz'.
 - Linux: Fixed access to '-d aacraid' and '-d megaraid' devices from smartd
   if '--capabilities' is used.
 - Linux: '-d cciss,N' is no longer required for non-RAID hpsa devices.
@@ -41,6 +66,10 @@ Summary: smartmontools release 7.3
 - OpenBSD: Fixed SAT autodetection of sd* devices.
 - FreeBSD: Added direct access ('-d megaraid,N') and scanning for LSI RAID on
   'mfi' and 'mrsas' controllers.
+- Windows: smartd '-u restricted': Runs the warning script with a restricted
+  access token.
+- Windows: New script 'update-smartd-drivedb.ps1' provides gpg verification
+  and replaces 'update-smartd-drivedb.exe'.
 - Windows: Disabled '-d aacraid' support due to unresolved bugs.
   Added '-d accraid,...,force' flag to try anyway.
 
