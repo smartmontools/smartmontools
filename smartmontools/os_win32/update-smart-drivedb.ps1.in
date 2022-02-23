@@ -389,7 +389,7 @@ pnILDDMBUNQMBm/XlCYQUetyrJnAVzFGXurtjEXQ/DDnbfy2Z8efoG8rtq7v3fxS
 '
     }
 
-    '^RELEASE_7_[02]_DRIVEDB$' {
+    '^RELEASE_7_[023]_DRIVEDB$' {
 # Smartmontools Signing Key (through 2025) <smartmontools-database@listi.jpberlin.de>
 # Smartmontools Signing Key (through 2020) <smartmontools-database@listi.jpberlin.de>
 # Key ID 721042C5
