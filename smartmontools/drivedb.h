@@ -1,5 +1,5 @@
 /*
- * drivedb.h - smartmontools drive database file
+ * drivedb.h - smartmontools 7.2 drive database file
  *
  * Home page of code is: https://www.smartmontools.org
  *
@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.2/5319 2022-02-19 17:48:34 $Id: drivedb.h 5320 2022-02-19 17:57:42Z chrfranke $",
+  { "VERSION: 7.2/5319 2022-02-19 17:48:34 $Id: drivedb.h 5331 2022-02-23 21:30:03Z chrfranke $",
     "-", "-",
     "Version information",
     ""
