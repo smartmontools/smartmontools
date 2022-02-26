@@ -4,7 +4,7 @@ Copyright (C) 2004-21 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5257 2021-11-27 16:35:23Z chrfranke $
+$Id: smartd.conf.5.in 5333 2022-02-26 00:15:22Z dpgilbert $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -585,7 +585,7 @@ See \*(Aqjmb39x...\*(Aq above for valid arguments.
 .Sp
 .I ignore
 \- the device specified by this configuration entry should be ignored.
-This allows to ignore specific devices which are detected by a following
+This allows one to ignore specific devices which are detected by a following
 DEVICESCAN configuration line.
 It may also be used to temporary disable longer multi-line configuration entries.
 This Directive may be used in conjunction with the other \*(Aq\-d\*(Aq
@@ -1660,7 +1660,7 @@ Note that \-a is the default for ATA devices.  If none of these other
 Directives is given, then \-a is assumed.
 .TP
 .B \-c OPTION=VALUE
-Allows to override \fBsmartd\fP command line options for specific devices.
+Allows one to override \fBsmartd\fP command line options for specific devices.
 Only the following OPTION is currently supported:
 .TP
 .B \-c i=N, \-c interval=N
@@ -1766,4 +1766,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5257 2021-11-27 16:35:23Z chrfranke $
+$Id: smartd.conf.5.in 5333 2022-02-26 00:15:22Z dpgilbert $

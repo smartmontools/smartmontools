@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5227 2021-06-26 15:20:41Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5333 2022-02-26 00:15:22Z dpgilbert $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -743,7 +743,7 @@ static void print_drive_info(const ata_identify_device * drive,
     jglb["trim"]["zeroed"] = trim_zeroed;
   }
 
-  // Print Zoned Device Capabilites if reported
+  // Print Zoned Device Capabilities if reported
   // (added in ACS-4, obsoleted in ACS-5)
   unsigned short zoned_caps = word069 & 0x3;
   if (zoned_caps) {

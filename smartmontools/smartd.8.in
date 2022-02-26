@@ -4,7 +4,7 @@ Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.8.in 5325 2022-02-22 18:04:44Z chrfranke $
+$Id: smartd.8.in 5333 2022-02-26 00:15:22Z dpgilbert $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -251,7 +251,7 @@ It works with the \fBpostfix\fP MTA.
 If \*(Aq\-\-capabilities=mail\*(Aq is specified, the following
 capabilities are added to the bounding set:
 CAP_SETGID, CAP_SETUID, CAP_CHOWN, CAP_FOWNER, CAP_DAC_OVERRIDE.
-This allows to send mail with the \fBexim\fP MTA.
+This allows one to send mail with the \fBexim\fP MTA.
 .\" %ENDIF ENABLE_CAPABILITIES
 .TP
 .B \-d, \-\-debug
@@ -924,4 +924,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 5325 2022-02-22 18:04:44Z chrfranke $
+$Id: smartd.8.in 5333 2022-02-26 00:15:22Z dpgilbert $
