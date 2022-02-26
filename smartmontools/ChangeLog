@@ -1,5 +1,9 @@
 $Id$
 
+2022-02-26  Christian Franke  <franke@computer.org>
+
+	configure.ac: Print 'deprecated' warning for '--with-signal-func'.
+
 2022-02-25  Douglas Gilbert  <dgilbert@interlog.com>
 
 	NEWS: update for changes in previous commit

@@ -421,6 +421,7 @@ available in the SVN repository.])
     ;;
 esac
 
+# TODO: Remove after smartmontools 7.4
 AC_ARG_WITH(signal-func,
   [AS_HELP_STRING([--with-signal-func=@<:@sigaction|sigset|signal@:>@],
     [Function to set signal(2) action [sigaction]])],
@@ -1008,6 +1009,16 @@ removed in a future version of smartmontools.  If this option is
 still needed, please inform $PACKAGE_BUGREPORT.
 ])
 fi
+
+# TODO: Remove after smartmontools 7.4
+case "$host:$with_signal_func" in
+  *-*-mingw*:*|*:sigaction) ;;
+  *) AC_MSG_WARN([
+The option '--with-signal-func=$with_signal_func' is deprecated and will be
+removed in a future version of smartmontools.  If this option is
+still needed, please inform $PACKAGE_BUGREPORT.
+]) ;;
+esac
 
 case "$host_os:$with_libsystemd:$use_libsystemd:$PKG_CONFIG" in
   linux*:auto:no:?*)
