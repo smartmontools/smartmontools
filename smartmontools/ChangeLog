@@ -2,6 +2,10 @@ $Id$
 
 2022-02-25  Douglas Gilbert  <dgilbert@interlog.com>
 
+	NEWS: update for changes in previous commit
+
+2022-02-25  Douglas Gilbert  <dgilbert@interlog.com>
+
 	smartctl.cpp, scsiprint.cpp: extend --log=defects option so it
 	works for the SCSI Pending Defects log page (similar to ATA log
 	page of same name). Add --log=envrep option to output

@@ -58,7 +58,7 @@ struct scsi_print_options
   bool set_standby_now = false; // set drive to standby
   bool set_active = false;      // set drive to active
 
-  int health_opt_count = 0;	// TapeAlert log page only read if this value > 1
+  int health_opt_count = 0;     // TapeAlert log page only read if this value > 1
 };
 
 int scsiPrintMain(scsi_device * device, const scsi_print_options & options);

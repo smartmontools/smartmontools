@@ -3400,21 +3400,21 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
             checkedSupportedLogPages = true;
         }
-	if (options.smart_error_log) {
+        if (options.smart_error_log) {
             scsiPrintErrorCounterLog(device);
             any_output = true;
-	}
+        }
         if (gPendDefectsLPage) {
             scsiPrintPendingDefectsLPage(device);
             any_output = true;
-	}
-	if (options.smart_error_log) {
+        }
+        if (options.smart_error_log) {
             if (1 == scsiFetchControlGLTSD(device, modese_len, 1)) {
                 pout("\n[GLTSD (Global Logging Target Save Disable) set. "
                      "Enable Save with '-S on']\n");
                 any_output = true;
-	    }
-	}
+            }
+        }
     }
     if (options.smart_selftest_log) {
         if (! checkedSupportedLogPages) {

@@ -11,11 +11,15 @@ Summary: smartmontools release 7.3
 - smartctl '-j': Many additions to the JSON output for SCSI/SAS devices.
 - smartctl '-j': JSON output always includes timestamp, regardless of '-i'.
 - smartctl '-i' and '--identify': ATA ACS-5 enhancements.
+- smartctl '-l defects': additionally works for SCSI Pending Defects log
+  subpage.
+- smartctl '-l envrep': Prints SCSI Environmental Reporting log subpage.
 - smartctl '-l scterc[,R,W],p': Gets/sets the persistent power-on values.
 - smartctl '-l scterc,reset': Restores to manufacturer's default values.
-- smartctl '-l scttemp': Prints SCSI Environmental Reporting log subpage.
 - smartctl '-l tapedevstat': Prints SCSI Tape Device Statistics log page.
 - smartctl '-l tapealert': Prints SCSI Tape Alert log page.
+- smartctl '-l zdevstat': Prints SCSI Zoned Block Device Statistics log
+  subpage.
 - smartctl '-H': No longer checks and clears the SCSI Tape Alert log page
   unless the option is given twice.
 - smartctl '-H': No longer sets bit 2 of exit status if ATA attributes are
