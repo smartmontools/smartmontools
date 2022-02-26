@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5333 2022-02-26 00:15:22Z dpgilbert $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5336 2022-02-26 18:30:35Z dpgilbert $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -3480,6 +3480,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (retid < 0) {
     pout("Read Device Identity failed: %s\n\n",
          (device->get_errno() ? device->get_errmsg() : "Unknown error"));
+    pout("If this is a USB connected device, look at the various "
+         "--device=TYPE variants\n");
     failuretest(MANDATORY_CMD, returnval|=FAILID);
   }
   else if (!nonempty(&drive, sizeof(drive))) {
