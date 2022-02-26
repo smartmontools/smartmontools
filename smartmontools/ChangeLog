@@ -1,5 +1,12 @@
 $Id$
 
+2022-02-26  Douglas Gilbert  <dgilbert@interlog.com>
+
+	ataprint.cpp: add suggestion when 'Read Device Identity
+	failed: xxx' error generated to look at
+	--device-type=TYPE variants. May help with USB-C connected
+	NVMe enclosures (e.g. with M-2 modules inside)
+
 2022-02-26  Christian Franke  <franke@computer.org>
 
 	configure.ac: Print 'deprecated' warning for '--with-signal-func'.

@@ -3480,6 +3480,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (retid < 0) {
     pout("Read Device Identity failed: %s\n\n",
          (device->get_errno() ? device->get_errmsg() : "Unknown error"));
+    pout("If this is a USB connected device, look at the various "
+         "--device=TYPE variants\n");
     failuretest(MANDATORY_CMD, returnval|=FAILID);
   }
   else if (!nonempty(&drive, sizeof(drive))) {
