@@ -16,7 +16,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5333 2022-02-26 00:15:22Z dpgilbert $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5334 2022-02-26 01:02:56Z dpgilbert $\n"
 
 // Options for scsiPrintMain
 struct scsi_print_options
@@ -58,7 +58,7 @@ struct scsi_print_options
   bool set_standby_now = false; // set drive to standby
   bool set_active = false;      // set drive to active
 
-  int health_opt_count = 0;	// TapeAlert log page only read if this value > 1
+  int health_opt_count = 0;     // TapeAlert log page only read if this value > 1
 };
 
 int scsiPrintMain(scsi_device * device, const scsi_print_options & options);

@@ -1,4 +1,8 @@
-$Id: ChangeLog 5333 2022-02-26 00:15:22Z dpgilbert $
+$Id: ChangeLog 5334 2022-02-26 01:02:56Z dpgilbert $
+
+2022-02-25  Douglas Gilbert  <dgilbert@interlog.com>
+
+	NEWS: update for changes in previous commit
 
 2022-02-25  Douglas Gilbert  <dgilbert@interlog.com>
 

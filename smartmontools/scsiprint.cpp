@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5333 2022-02-26 00:15:22Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5334 2022-02-26 01:02:56Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -3400,21 +3400,21 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
             checkedSupportedLogPages = true;
         }
-	if (options.smart_error_log) {
+        if (options.smart_error_log) {
             scsiPrintErrorCounterLog(device);
             any_output = true;
-	}
+        }
         if (gPendDefectsLPage) {
             scsiPrintPendingDefectsLPage(device);
             any_output = true;
-	}
-	if (options.smart_error_log) {
+        }
+        if (options.smart_error_log) {
             if (1 == scsiFetchControlGLTSD(device, modese_len, 1)) {
                 pout("\n[GLTSD (Global Logging Target Save Disable) set. "
                      "Enable Save with '-S on']\n");
                 any_output = true;
-	    }
-	}
+            }
+        }
     }
     if (options.smart_selftest_log) {
         if (! checkedSupportedLogPages) {
