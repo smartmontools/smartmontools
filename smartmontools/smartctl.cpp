@@ -178,7 +178,7 @@ static void Usage()
 "        sasphy[,reset], sataphy[,reset], scttemp[sts,hist],\n"
 "        scttempint,N[,p], scterc[,N,M][,p|reset], devstat[,N], defects[,N],\n"
 "        ssd, gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE\n"
-"        tapedevstat\n\n"
+"        tapedevstat, zdevstat, envrep\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -246,7 +246,7 @@ static std::string getvalidarglist(int opt)
            "scttemp[sts,hist], scttempint,N[,p], "
            "scterc[,N,M][,p|reset], devstat[,N], defects[,N], "
            "ssd, gplog,N[,RANGE], smartlog,N[,RANGE], "
-           "nvmelog,N,SIZE, tapedevstat";
+           "nvmelog,N,SIZE, tapedevstat, zdevstat, envrep";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -546,6 +546,7 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.sct_erc_get = 1;
       } else if (!strcmp(optarg,"scttemp")) {
         ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
+      } else if (!strcmp(optarg,"envrep")) {
         scsiopts.smart_env_rep = true;
       } else if (!strcmp(optarg,"scttempsts")) {
         ataopts.sct_temp_sts = true;
@@ -555,7 +556,8 @@ static int parse_options(int argc, char** argv, const char * & type,
         scsiopts.tape_alert = true;
       } else if (!strcmp(optarg,"tapedevstat")) {
         scsiopts.tape_device_stats = true;
-
+      } else if (!strcmp(optarg,"zdevstat")) {
+        scsiopts.zoned_device_stats = true;
       } else if (!strncmp(optarg, "scttempint,", sizeof("scstempint,")-1)) {
         unsigned interval = 0; int n1 = -1, n2 = -1, len = strlen(optarg);
         if (!(   sscanf(optarg,"scttempint,%u%n,p%n", &interval, &n1, &n2) == 1
@@ -585,6 +587,7 @@ static int parse_options(int argc, char** argv, const char * & type,
         int n1 = -1, n2 = -1, len = strlen(optarg);
         unsigned val = ~0;
         sscanf(optarg, "defects%n,%u%n", &n1, &val, &n2);
+        scsiopts.scsi_pending_defects = true;
         if (n1 == len)
           ataopts.pending_defects_log = 31; // Entries of first page
         else if (n2 == len && val <= 0xffff * 32 - 1)
@@ -745,7 +748,9 @@ static int parse_options(int argc, char** argv, const char * & type,
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
       scsiopts.smart_env_rep = true;
+      scsiopts.scsi_pending_defects = true;
       scsiopts.tape_device_stats = true;
+      scsiopts.zoned_device_stats = true;
       if (!output_format_set)
         ataopts.output_format |= ata_print_options::FMT_BRIEF;
       break;

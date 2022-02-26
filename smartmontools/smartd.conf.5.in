@@ -585,7 +585,7 @@ See \*(Aqjmb39x...\*(Aq above for valid arguments.
 .Sp
 .I ignore
 \- the device specified by this configuration entry should be ignored.
-This allows to ignore specific devices which are detected by a following
+This allows one to ignore specific devices which are detected by a following
 DEVICESCAN configuration line.
 It may also be used to temporary disable longer multi-line configuration entries.
 This Directive may be used in conjunction with the other \*(Aq\-d\*(Aq
@@ -1660,7 +1660,7 @@ Note that \-a is the default for ATA devices.  If none of these other
 Directives is given, then \-a is assumed.
 .TP
 .B \-c OPTION=VALUE
-Allows to override \fBsmartd\fP command line options for specific devices.
+Allows one to override \fBsmartd\fP command line options for specific devices.
 Only the following OPTION is currently supported:
 .TP
 .B \-c i=N, \-c interval=N

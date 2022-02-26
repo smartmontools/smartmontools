@@ -1,5 +1,17 @@
 $Id$
 
+2022-02-25  Douglas Gilbert  <dgilbert@interlog.com>
+
+	smartctl.cpp, scsiprint.cpp: extend --log=defects option so it
+	works for the SCSI Pending Defects log page (similar to ATA log
+	page of same name). Add --log=envrep option to output
+	Environmental Reporting log page (e.g. temperature(s) and
+	relative humidiy).  Add: --log=zdevstat option to output Zone
+	block device statistics log page. Updated smartctl.8.in for the
+	above changes. Ran 'spellintian * | grep -v duplica' on source
+	using Ubuntu 20.04 LTS with Canadian English as the locale.
+	Fixed reported spelling errors.
+
 2022-02-23  Christian Franke  <franke@computer.org>
 
 	configure.ac, update-smart-drivedb.*: Use RELEASE_7_3_DRIVEDB for
@@ -52,7 +64,7 @@ $Id$
 
 2022-02-18  Christian Franke  <franke@computer.org>
 
-	Allow to specify a separate install location for drivedb.h.
+	Allow one to specify a separate install location for drivedb.h.
 	This prevents that update-smart-drivedb overwrites the package
 	installed file (Debian Bug 976696, Ubuntu Bug 1893202).
 
@@ -169,7 +181,7 @@ $Id$
 
 2022-01-06  Christian Franke  <franke@computer.org>
 
-	json.cpp, json.h: Allow to use any string for object keys.
+	json.cpp, json.h: Allows one to use any string for object keys.
 	Convert to final key with new public function 'json::str2key()'.
 	Rename related variables from 'key' to 'keystr'.
 
@@ -213,7 +225,7 @@ $Id$
 
 2022-01-03  Christian Franke  <franke@computer.org>
 
-	json.h: Allow to use std::string for object keys.
+	json.h: Allows one to use std::string for object keys.
 
 2022-01-02  Douglas Gilbert  <dgilbert@interlog.com>
 
@@ -251,7 +263,7 @@ $Id$
 
 2021-12-21  Douglas Gilbert  <dgilbert@interlog.com>
 
-	expermimental: add support for printing the SCSI Environmental
+	experimental: add support for printing the SCSI Environmental
 	Reporting log (sub)page [0xd,0x1] via the -l scttemp option
 	and select it when '-x' is given. Also generate json output.
 	Outputs temperature and relative humidity current values and
@@ -297,7 +309,7 @@ $Id$
 	User could be specified with new option '-u, --warn-as-user'.
 
 	popen_as_ugid.cpp, popen_as_ugid.h: New files with popen() wrapper
-	function.  It allows to change uid/gid and also prevents that
+	function.  It allows one to change uid/gid and also prevents that
 	unneeded file descriptors are inherited by the child process.
 
 	configure.ac, Makefile.am: Enable new functionality for all OS with
@@ -368,8 +380,8 @@ $Id$
 	smartctl.8.in, smartd.8.in: Remove EXPERIMENTAL notes for features
 	added before 7.1.
 
-	smartd.cpp: Allow to disable preconfigured state/log files with '-'.
-	The previous method required to specify the '-s' and '-A' options
+	smartd.cpp: Allow one to disable preconfigured state/log files with
+	'-'. The previous method required to specify the '-s' and '-A' options
 	with empty strings as arguments.  This does not work conjunction with
 	shell variable expansion (GH issues/115).
 	smartd.8.in: Document new option argument.
@@ -764,7 +776,8 @@ $Id$
 
 2020-11-23  Christian Franke  <franke@computer.org>
 
-	smartd.cpp: Allow to specify a delay limit for staggered self-tests.
+	smartd.cpp: Allow one to specify a delay limit for staggered
+	self-tests.
 	smartd.conf.5.in: Document new functionality.
 
 2020-11-21  Christian Franke  <franke@computer.org>

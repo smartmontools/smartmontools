@@ -1833,7 +1833,7 @@ scsiPrintTapeDeviceStats(scsi_device * device)
             jglb[jname][q] = ull;
             break;
         case 0x81:
-            q = "Maximum recommeded mechanism temperature exceeded";
+            q = "Maximum recommended mechanism temperature exceeded";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
             jglb[jname][q] = ull;
@@ -3395,18 +3395,26 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
         any_output = true;
     }
-    if (options.smart_error_log) {
+    if (options.smart_error_log || options.scsi_pending_defects) {
         if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
             checkedSupportedLogPages = true;
         }
-        scsiPrintErrorCounterLog(device);
-        if (gPendDefectsLPage)
+	if (options.smart_error_log) {
+            scsiPrintErrorCounterLog(device);
+            any_output = true;
+	}
+        if (gPendDefectsLPage) {
             scsiPrintPendingDefectsLPage(device);
-        if (1 == scsiFetchControlGLTSD(device, modese_len, 1))
-            pout("\n[GLTSD (Global Logging Target Save Disable) set. "
-                 "Enable Save with '-S on']\n");
-        any_output = true;
+            any_output = true;
+	}
+	if (options.smart_error_log) {
+            if (1 == scsiFetchControlGLTSD(device, modese_len, 1)) {
+                pout("\n[GLTSD (Global Logging Target Save Disable) set. "
+                     "Enable Save with '-S on']\n");
+                any_output = true;
+	    }
+	}
     }
     if (options.smart_selftest_log) {
         if (! checkedSupportedLogPages) {
@@ -3440,7 +3448,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             failuretest(OPTIONAL_CMD, returnval|=res);
         any_output = true;
     }
-    if (options.smart_background_log && is_zbc) {
+    if (options.zoned_device_stats && is_zbc) {
         if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
             checkedSupportedLogPages = true;
@@ -3450,7 +3458,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             res = scsiPrintZBDeviceStats(device);
         else {
             pout("Device does not support Zoned block device "
-                 "characteristics logging\n");
+                 "statistics logging\n");
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         if (0 != res)

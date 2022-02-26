@@ -275,9 +275,14 @@ For ATA devices this is equivalent to
 \-l xselftest,selftest \-l selective \-l directory \-l scttemp \-l scterc
 \-l devstat \-l defects \-l sataphy\*(Aq.
 .br
-and for SCSI, this is equivalent to
+and for SCSI disks, this is equivalent to
 .br
-\*(Aq\-H \-i \-g all \-A \-l error \-l selftest \-l background \-l sasphy\*(Aq.
+\*(Aq\-H \-i \-g all \-A \-l error \-l selftest \-l background \-l sasphy
+\-l defects \-l env_rep\*(Aq.
+.br
+and for SCSI zoned disks, add \-l zdevstat
+.br
+and for SCSI tape drivers and changers, add \-l tapedevstat
 .br
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
@@ -861,7 +866,7 @@ By default, exit status 2 is returned if the device is in one of the
 specified low-power modes.
 This status is also returned if the device open or identification failed
 (see EXIT STATUS below).
-The optional STATUS parameter allows to override this default.
+The optional STATUS parameter allows one to override this default.
 STATUS is an integer in the range from 0 to 255 inclusive.
 For example use \*(Aq\-n standby,0\*(Aq to return success if a device is in
 SLEEP or STANDBY mode.
@@ -1068,8 +1073,7 @@ placed in the STANDBY mode without temporarily placing it in the IDLE mode.
 Note that ATA standards do not specify a command to set the standby timer
 without affecting the power mode.
 .br
-[SCSI]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
+[SCSI: NEW EXPERIMENTAL SMARTCTL FEATURE]
 Only the set option with \*(Aqstandby,off\*(Aq or
 \*(Aqstandby,0\*(Aq is accepted and will place the SCSI disk
 into "ACTIVE" power condition.
@@ -1080,8 +1084,7 @@ This usually spins down the drive.
 The setting of the standby timer is not affected unless
 \*(Aq\-s standby,[N|off]\*(Aq is also specified.
 .br
-[SCSI]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
+[SCSI: NEW EXPERIMENTAL SMARTCTL FEATURE]
 Only the set option is accepted and will place the SCSI
 disk into "STANDBY_Z" power condition.
 .Sp
@@ -1548,12 +1551,25 @@ the list of supported pages is printed.  Device Statistics was
 introduced in ACS-2 and is only supported by some recent devices.
 .Sp
 .I defects[,NUM]
-\- [ATA only] prints LBA and hours values from the ATA Pending Defects log
+\- [ATA] prints LBA and hours values from the ATA Pending Defects log
 (General Purpose Log address 0x0c).
 Only the 31 entries from first log page are printed by default.
 This number can be changed by the optional parameter NUM.
 The size of the log and the order of the entries are vendor specific.
 The Pending Defects log was introduced in ACS-4 Revision 01 (Mar 2014).
+.Sp
+.I defects
+\- [SCSI: NEW EXPERIMENTAL SMARTCTL FEATURE] prints LBAs that the background
+scan was unable to read (i.e. a defect). Entries, if any, show the defective
+LBA and the value of the power\-on hours (since manufacture) when the background
+scan found the defect. Note these pending defects may appear in advance of any
+application trying to read a defective LBA.
+.Sp
+.I envrep
+\- [SCSI only: NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints values and descriptions of the SCSI Environmental reporting log
+page. This includes one or more temperatures and may include relative
+humidities. Lifetime maximums and minimums are also reported.
 .Sp
 .I sataphy[,reset]
 \- [SATA only] prints values and descriptions of the SATA Phy Event
@@ -1567,14 +1583,19 @@ drives.
 Protocol Specific log page (log page 0x18).  If \*(Aq\-l sasphy,reset\*(Aq
 is specified, all counters are reset after reading the values.
 .Sp
-.I tapealert
-\- [SCSI tape drives and changers] prints values and descriptions of
-the (SSC) Tape Alert log page. See \fBTAPE DRIVES\fP below for issue
-associated with printing this log page.
+.I tapealert 
+\- [SCSI tape drives and changers: NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints values and descriptions of the (SSC) Tape Alert log page. See
+\fBTAPE DRIVES\fP below for issue associated with printing this log page.
 .Sp
 .I tapedevstat
-\- [SCSI tape drives and changers] prints values and descriptions of
-the (SSC) Device Statistics log page.
+\- [SCSI tape drives and changers: NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints values and descriptions of the (SSC) Device Statistics log page.
+.Sp
+.I zdevstat
+\- [SCSI zoned disks: NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints values and descriptions of the Zoned Block Device Statistics log
+page (ZBC\-2).
 .Sp
 .I gplog,ADDR[,FIRST[\-LAST|+SIZE]]
 \- [ATA only] prints a hex dump of any log accessible via General

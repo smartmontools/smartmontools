@@ -37,6 +37,7 @@ struct scsi_print_options
   bool smart_extend_selftest = false, smart_extend_cap_selftest = false;
   bool smart_selftest_abort = false;
   bool smart_selftest_force = false; // Ignore already running test
+  bool scsi_pending_defects = false;
 
   bool smart_env_rep = false;
 
@@ -44,6 +45,8 @@ struct scsi_print_options
 
   bool tape_device_stats = false;
   bool tape_alert = false;
+
+  bool zoned_device_stats = false;
   
   bool get_wce = false, get_rcd = false;
   short int set_wce = 0, set_rcd = 0;  // disable(-1), enable(1) cache

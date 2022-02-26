@@ -31,11 +31,11 @@ Summary: smartmontools release 7.3
 - smartd '--capabilities=mail': Adds capabilities required for exim MTA.
 - smartd '-q *nodev0*': Three new options to change the exit status to 0 if
   there are no devices to monitor.
-- smartd '-s' and '-A': Now allow to disable preconfigured files with '-'.
+- smartd '-s' and '-A': Allows one to disable preconfigured files with '-'.
 - smartd: Fixed handling of multiple email addresses in conjunction with
   plugin scripts.  Added new environment variable SMARTD_ADDRESS_ORIG.
 - smartd: No longer writes 'smartd -D' output to syslog on syntax error.
-- smartd.conf '-c i=N': Allows to specify device specific check intervals.
+- smartd.conf '-c i=N': Allows one to specify device specific check intervals.
 - SCSI: Retry on UNIT ATTENTION when fetching capacity.
 - NVMe/USB: Device type '-d sntasmedia' for ASMedia ASM2362 USB to
   NVMe bridges.
@@ -259,7 +259,7 @@ Summary: smartmontools release 6.5
 - Optional NVMe device scanning support on Linux and Windows.
 - configure option '--with-nvme-devicescan' to include NVMe in
   default device scanning result.
-- Device scanning now allows to specify multiple '-d TYPE' options.
+- Device scanning now allows one to specify multiple '-d TYPE' options.
 - ATA: Added new POWER MODE values introduced in ATA ACS-2.
 - ATA: SCT commands are no longer issued if ATA Security is locked.
 - SCSI: LB provisioning improvements.
@@ -369,7 +369,7 @@ Summary: smartmontools release 6.1
 - smartctl '-s/-g wcache' for SCSI devices to control write cache.
 - smartctl '-s/-g rcache' for SCSI devices to control read cache.
 - smartctl prints more info for SCSI devices: media rotation rate,
-  form factor, physical block size, lowest LBA alignement,
+  form factor, physical block size, lowest LBA alignment,
   logical block provisioning, disk protection type
   and selftest progress status.
 - smartctl '--identify' updated for latest ATA ACS-3 spec.
@@ -505,7 +505,7 @@ Date 2010-10-16
 Summary: smartmontools release 5.40
 -----------------------------------------------------------
 - Other config entries may precede smartd DEVICESCAN.
-- Option '-v' allows to specify byte order of attribute raw value
+- Option '-v' allows one to specify byte order of attribute raw value
 - configure: New default value for '--with-docdir'.
 - configure: '--enable-drivedb' is now the default.
 - Improved support for Intel SSDs.
@@ -835,8 +835,8 @@ Summary: smartmontools release 5.19
 -----------------------------------
 This is the first release of smartmontools based on autoconf/automake.
 For this reason, it is a very experimental release.  Please let us
-know in particular about documenation errors/omissions, missing or
-unneccesary files, and similar oversights.  The major changes are:
+know in particular about documentation errors/omissions, missing or
+unnecessary files, and similar oversights.  The major changes are:
  [1]  installation scripts based on autoconfig/automake
  [2] ./configure [options] lets you set arbitrary paths
  [3] supports FHS with ./configure --prefix=/usr/local

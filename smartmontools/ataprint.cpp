@@ -743,7 +743,7 @@ static void print_drive_info(const ata_identify_device * drive,
     jglb["trim"]["zeroed"] = trim_zeroed;
   }
 
-  // Print Zoned Device Capabilites if reported
+  // Print Zoned Device Capabilities if reported
   // (added in ACS-4, obsoleted in ACS-5)
   unsigned short zoned_caps = word069 & 0x3;
   if (zoned_caps) {

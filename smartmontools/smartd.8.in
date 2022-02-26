@@ -251,7 +251,7 @@ It works with the \fBpostfix\fP MTA.
 If \*(Aq\-\-capabilities=mail\*(Aq is specified, the following
 capabilities are added to the bounding set:
 CAP_SETGID, CAP_SETUID, CAP_CHOWN, CAP_FOWNER, CAP_DAC_OVERRIDE.
-This allows to send mail with the \fBexim\fP MTA.
+This allows one to send mail with the \fBexim\fP MTA.
 .\" %ENDIF ENABLE_CAPABILITIES
 .TP
 .B \-d, \-\-debug
