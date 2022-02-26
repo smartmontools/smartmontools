@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5332 2022-02-23 21:47:28Z chrfranke $
+# $Id: configure.ac 5335 2022-02-26 18:18:03Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.3
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5332 2022-02-23 21:47:28Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5335 2022-02-26 18:18:03Z chrfranke $'`
 smartmontools_release_date=2020-12-30
 smartmontools_release_time="16:48:30 UTC"
 
@@ -421,6 +421,7 @@ available in the SVN repository.])
     ;;
 esac
 
+# TODO: Remove after smartmontools 7.4
 AC_ARG_WITH(signal-func,
   [AS_HELP_STRING([--with-signal-func=@<:@sigaction|sigset|signal@:>@],
     [Function to set signal(2) action [sigaction]])],
@@ -1008,6 +1009,16 @@ removed in a future version of smartmontools.  If this option is
 still needed, please inform $PACKAGE_BUGREPORT.
 ])
 fi
+
+# TODO: Remove after smartmontools 7.4
+case "$host:$with_signal_func" in
+  *-*-mingw*:*|*:sigaction) ;;
+  *) AC_MSG_WARN([
+The option '--with-signal-func=$with_signal_func' is deprecated and will be
+removed in a future version of smartmontools.  If this option is
+still needed, please inform $PACKAGE_BUGREPORT.
+]) ;;
+esac
 
 case "$host_os:$with_libsystemd:$use_libsystemd:$PKG_CONFIG" in
   linux*:auto:no:?*)
