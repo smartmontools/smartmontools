@@ -49,8 +49,8 @@ supported_vpd_pages * supported_vpd_pages_p = NULL;
 
 supported_vpd_pages::supported_vpd_pages(scsi_device * device) : num_valid(0)
 {
-    unsigned char b[0xfc];     /* pre SPC-3 INQUIRY max response size */
-    memset(b, 0, sizeof(b));
+    unsigned char b[0xfc] = {};   /* pre SPC-3 INQUIRY max response size */
+
     if (device && (0 == scsiInquiryVpd(device, SCSI_VPD_SUPPORTED_VPD_PAGES,
                    b, sizeof(b)))) {
         num_valid = sg_get_unaligned_be16(b + 2);
@@ -232,7 +232,8 @@ static const char * vendor_specific = "<vendor specific>";
 const char *
 scsi_get_opcode_name(uint8_t opcode)
 {
-    int len = sizeof(opcode_name_arr) / sizeof(opcode_name_arr[0]);
+    static const int len = sizeof(opcode_name_arr) /
+                           sizeof(opcode_name_arr[0]);
 
     if (opcode >= 0xc0)
         return vendor_specific;
@@ -274,6 +275,7 @@ scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
     switch (sinfo->sense_key) {
     case SCSI_SK_NO_SENSE:
     case SCSI_SK_RECOVERED_ERR:
+    case SCSI_SK_COMPLETED:
         return SIMPLE_NO_ERROR;
     case SCSI_SK_NOT_READY:
         if (SCSI_ASC_NO_MEDIUM == sinfo->asc)
@@ -301,6 +303,10 @@ scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
         return SIMPLE_ERR_TRY_AGAIN;
     case SCSI_SK_ABORTED_COMMAND:
         return SIMPLE_ERR_ABORTED_COMMAND;
+    case SCSI_SK_DATA_PROTECT:
+        return SIMPLE_ERR_PROTECTION;
+    case SCSI_SK_MISCOMPARE:
+        return SIMPLE_ERR_MISCOMPARE;
     default:
         return SIMPLE_ERR_UNKNOWN;
     }
@@ -336,6 +342,10 @@ scsiErrString(int scsiErr)
             return "unknown error (unexpected sense key)";
         case SIMPLE_ERR_ABORTED_COMMAND:
             return "aborted command";
+        case SIMPLE_ERR_PROTECTION:
+            return "data protection error";
+        case SIMPLE_ERR_MISCOMPARE:
+            return "miscompare";
         default:
             return "unknown error";
     }
@@ -550,9 +560,9 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
              int bufLen, int known_resp_len)
 {
     int pageLen;
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[10];
+    uint8_t cdb[10] = {};
     uint8_t sense[32];
 
     if (known_resp_len > bufLen)
@@ -569,8 +579,6 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
         else
             memset(pBuf, 0, pageLen);
 
-        memset(&io_hdr, 0, sizeof(io_hdr));
-        memset(cdb, 0, sizeof(cdb));
         io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
         io_hdr.dxfer_len = pageLen;
         io_hdr.dxferp = pBuf;
@@ -584,9 +592,8 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
         io_hdr.max_sense_len = sizeof(sense);
         io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-        if (!device->scsi_pass_through(&io_hdr))
+        if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
           return -device->get_errno();
-        scsi_do_sense_disect(&io_hdr, &sinfo);
         int res;
         if ((res = scsiSimpleSenseFilter(&sinfo)))
             return res;
@@ -619,9 +626,8 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     int status = scsiSimpleSenseFilter(&sinfo);
     if (0 != status)
         return status;
@@ -642,13 +648,11 @@ int
 scsiLogSelect(scsi_device * device, int pcr, int sp, int pc, int pagenum,
               int subpagenum, uint8_t *pBuf, int bufLen)
 {
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[10];
+    uint8_t cdb[10] = {};
     uint8_t sense[32];
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_TO_DEVICE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
@@ -663,9 +667,8 @@ scsiLogSelect(scsi_device * device, int pcr, int sp, int pc, int pagenum,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
 
@@ -677,15 +680,13 @@ int
 scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
               uint8_t *pBuf, int bufLen)
 {
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[6];
+    uint8_t cdb[6] = {};
     uint8_t sense[32];
 
     if ((bufLen < 0) || (bufLen > 255))
         return -EINVAL;
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
@@ -699,16 +700,9 @@ scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     int status = scsiSimpleSenseFilter(&sinfo);
-    if (SIMPLE_ERR_TRY_AGAIN == status) {
-        if (!device->scsi_pass_through(&io_hdr))
-          return -device->get_errno();
-        scsi_do_sense_disect(&io_hdr, &sinfo);
-        status = scsiSimpleSenseFilter(&sinfo);
-    }
     if ((0 == status) && (ALL_MODE_PAGES != pagenum)) {
         int offset;
 
@@ -731,9 +725,9 @@ scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
 int
 scsiModeSelect(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
 {
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[6];
+    uint8_t cdb[6] = {};
     uint8_t sense[32];
     int pg_offset, pg_len, hdr_plus_1_pg;
 
@@ -746,8 +740,6 @@ scsiModeSelect(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
         return -EINVAL;
     pBuf[0] = 0;  /* Length of returned mode sense data reserved for SELECT */
     pBuf[pg_offset] &= 0x7f;    /* Mask out PS bit from byte 0 of page data */
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_TO_DEVICE;
     io_hdr.dxfer_len = hdr_plus_1_pg;
     io_hdr.dxferp = pBuf;
@@ -760,9 +752,8 @@ scsiModeSelect(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
 
@@ -774,13 +765,11 @@ int
 scsiModeSense10(scsi_device * device, int pagenum, int subpagenum, int pc,
                 uint8_t *pBuf, int bufLen)
 {
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[10];
+    uint8_t cdb[10] = {};
     uint8_t sense[32];
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
@@ -794,16 +783,9 @@ scsiModeSense10(scsi_device * device, int pagenum, int subpagenum, int pc,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     int status = scsiSimpleSenseFilter(&sinfo);
-    if (SIMPLE_ERR_TRY_AGAIN == status) {
-        if (!device->scsi_pass_through(&io_hdr))
-          return -device->get_errno();
-        scsi_do_sense_disect(&io_hdr, &sinfo);
-        status = scsiSimpleSenseFilter(&sinfo);
-    }
     if ((0 == status) && (ALL_MODE_PAGES != pagenum)) {
         int offset;
 
@@ -826,9 +808,9 @@ scsiModeSense10(scsi_device * device, int pagenum, int subpagenum, int pc,
 int
 scsiModeSelect10(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
 {
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[10];
+    uint8_t cdb[10] = {};
     uint8_t sense[32];
     int pg_offset, pg_len, hdr_plus_1_pg;
 
@@ -842,8 +824,6 @@ scsiModeSelect10(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
     pBuf[0] = 0;
     pBuf[1] = 0; /* Length of returned mode sense data reserved for SELECT */
     pBuf[pg_offset] &= 0x7f;    /* Mask out PS bit from byte 0 of page data */
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_TO_DEVICE;
     io_hdr.dxfer_len = hdr_plus_1_pg;
     io_hdr.dxferp = pBuf;
@@ -857,9 +837,8 @@ scsiModeSelect10(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
 
@@ -870,14 +849,12 @@ int
 scsiStdInquiry(scsi_device * device, uint8_t *pBuf, int bufLen)
 {
     struct scsi_sense_disect sinfo;
-    struct scsi_cmnd_io io_hdr;
-    uint8_t cdb[6];
+    struct scsi_cmnd_io io_hdr = {};
+    uint8_t cdb[6] = {};
     uint8_t sense[32];
 
     if ((bufLen < 0) || (bufLen > 1023))
         return -EINVAL;
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
@@ -889,9 +866,8 @@ scsiStdInquiry(scsi_device * device, uint8_t *pBuf, int bufLen)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
 
@@ -902,9 +878,9 @@ scsiStdInquiry(scsi_device * device, uint8_t *pBuf, int bufLen)
 int
 scsiInquiryVpd(scsi_device * device, int vpd_page, uint8_t *pBuf, int bufLen)
 {
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[6];
+    uint8_t cdb[6] = {};
     uint8_t sense[32];
     int res;
 
@@ -917,8 +893,6 @@ scsiInquiryVpd(scsi_device * device, int vpd_page, uint8_t *pBuf, int bufLen)
     if ((bufLen < 0) || (bufLen > 1023))
         return -EINVAL;
 try_again:
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     if (bufLen > 1)
         pBuf[1] = 0x0;
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
@@ -934,9 +908,8 @@ try_again:
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     if ((SCSI_STATUS_CHECK_CONDITION == io_hdr.scsi_status) &&
         (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) &&
         (SCSI_ASC_INVALID_FIELD == sinfo.asc) &&
@@ -963,14 +936,13 @@ try_again:
 int
 scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
 {
-    struct scsi_cmnd_io io_hdr;
-    uint8_t cdb[6];
+    struct scsi_cmnd_io io_hdr = {};
+    uint8_t cdb[6] = {};
     uint8_t sense[32];
-    uint8_t buff[18];
-    const int sz_buff = sizeof(buff);
+    uint8_t buff[18] = {};
+    bool ok;
+    static const int sz_buff = sizeof(buff);
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = sz_buff;
     io_hdr.dxferp = buff;
@@ -982,7 +954,13 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (sense_info)
+        ok = scsi_pass_through_yield_sense(device, &io_hdr, *sense_info);
+    else {
+        scsi_sense_disect dummy_sense;
+        ok = scsi_pass_through_yield_sense(device, &io_hdr, dummy_sense);
+    }
+    if (! ok)
       return -device->get_errno();
     if (sense_info) {
         uint8_t resp_code = buff[0] & 0x7f;
@@ -1051,12 +1029,11 @@ scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
 int
 scsiSetPowerCondition(scsi_device * device, int power_cond, int pcond_modifier)
 {
-    struct scsi_cmnd_io io_hdr;
-    uint8_t cdb[6];
+    struct scsi_cmnd_io io_hdr = {};
+    struct scsi_sense_disect sinfo;
+    uint8_t cdb[6] = {};
     uint8_t sense[32];
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_NONE;
     cdb[0] = START_STOP_UNIT;
     /* IMMED bit (cdb[1] = 0x1) not set, therefore will wait */
@@ -1071,10 +1048,10 @@ scsiSetPowerCondition(scsi_device * device, int power_cond, int pcond_modifier)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
         return -device->get_errno();
 
-    return 0;
+    return scsiSimpleSenseFilter(&sinfo);
 }
 
 /* SEND DIAGNOSTIC command.  Returns 0 if ok, 1 if NOT READY, 2 if command
@@ -1084,13 +1061,11 @@ int
 scsiSendDiagnostic(scsi_device * device, int functioncode, uint8_t *pBuf,
                    int bufLen)
 {
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[6];
+    uint8_t cdb[6] = {};
     uint8_t sense[32];
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = bufLen ? DXFER_TO_DEVICE: DXFER_NONE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
@@ -1109,22 +1084,20 @@ scsiSendDiagnostic(scsi_device * device, int functioncode, uint8_t *pBuf,
     /* worst case is an extended foreground self test on a big disk */
     io_hdr.timeout = SCSI_TIMEOUT_SELF_TEST;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
 
 /* TEST UNIT READY command. SPC-3 section 6.33 (rev 22a) */
 static int
-_testunitready(scsi_device * device, struct scsi_sense_disect * sinfo)
+_testunitready(scsi_device * device, struct scsi_sense_disect * sinfop)
 {
-    struct scsi_cmnd_io io_hdr;
-    uint8_t cdb[6];
+    struct scsi_cmnd_io io_hdr = {};
+    bool ok;
+    uint8_t cdb[6] = {};
     uint8_t sense[32];
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_NONE;
     io_hdr.dxfer_len = 0;
     io_hdr.dxferp = NULL;
@@ -1135,9 +1108,14 @@ _testunitready(scsi_device * device, struct scsi_sense_disect * sinfo)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
-      return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, sinfo);
+    if (sinfop)
+        ok = scsi_pass_through_yield_sense(device, &io_hdr, *sinfop);
+    else {
+        struct scsi_sense_disect dummy_si;
+        ok = scsi_pass_through_yield_sense(device, &io_hdr, dummy_si);
+    }
+    if (! ok)
+        return -device->get_errno();
     return 0;
 }
 
@@ -1152,15 +1130,7 @@ scsiTestUnitReady(scsi_device * device)
     status = _testunitready(device, &sinfo);
     if (0 != status)
         return status;
-    status = scsiSimpleSenseFilter(&sinfo);
-    if (SIMPLE_ERR_TRY_AGAIN == status) {
-        /* power on reset, media changed, ok ... try again */
-        status = _testunitready(device, &sinfo);
-        if (0 != status)
-            return status;
-        status = scsiSimpleSenseFilter(&sinfo);
-    }
-    return status;
+    return scsiSimpleSenseFilter(&sinfo);
 }
 
 /* READ DEFECT (10) command. Returns 0 if ok, 1 if NOT READY, 2 if
@@ -1171,13 +1141,11 @@ int
 scsiReadDefect10(scsi_device * device, int req_plist, int req_glist,
                  int dl_format, uint8_t *pBuf, int bufLen)
 {
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[10];
+    uint8_t cdb[10] = {};
     uint8_t sense[32];
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
@@ -1191,9 +1159,8 @@ scsiReadDefect10(scsi_device * device, int req_plist, int req_glist,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
-      return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
+        return -device->get_errno();
     /* Look for "(Primary|Grown) defect list not found" */
     if ((sinfo.resp_code >= 0x70) && (0x1c == sinfo.asc))
         return 101;
@@ -1208,13 +1175,11 @@ int
 scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
                  int dl_format, int addrDescIndex, uint8_t *pBuf, int bufLen)
 {
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[12];
+    uint8_t cdb[12] = {};
     uint8_t sense[32];
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
@@ -1229,36 +1194,54 @@ scsiReadDefect12(scsi_device * device, int req_plist, int req_glist,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!device->scsi_pass_through(&io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     /* Look for "(Primary|Grown) defect list not found" */
     if ((sinfo.resp_code >= 0x70) && (0x1c == sinfo.asc))
         return 101;
     return scsiSimpleSenseFilter(&sinfo);
 }
 
-/* Call scsi_pass_through, and retry only if a UNIT_ATTENTION is raised.
- * As for scsi_pass_through, return false on error. */
+/* Call scsi_pass_through, and retry only if a UNIT_ATTENTION (UA) is raised.
+ * When false returned, the caller should invoke device->get_error().
+ * When true returned, the caller should check sinfo.
+ * All SCSI commands can receive pending Unit Attentions, apart from:
+ * INQUIRY, REPORT LUNS, REQUEST SENSE and NOTIFY DATA TRANSFER DEVICE
+ * (ADC-3 spec). The first three are the important ones. */
 bool
-scsi_pass_through_with_retry(scsi_device * device, scsi_cmnd_io * iop)
+scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
+                              /* OUT param */ scsi_sense_disect & sinfo)
 {
-    scsi_sense_disect sinfo;
+    int k;
+    uint32_t opcode = (iop->cmnd_len > 0) ? iop->cmnd[0] : 0xffff;
 
-    if (!device->scsi_pass_through(iop))
-        return false;
+    if (scsi_debugmode > 2)
+        pout("%s: opcode: 0x%x\n", __func__, opcode);
+
+    if (! device->scsi_pass_through(iop))
+        return false; // this will be missing device, timeout, etc
 
     scsi_do_sense_disect(iop, &sinfo);
 
-    int err = scsiSimpleSenseFilter(&sinfo);
-    if (SIMPLE_ERR_TRY_AGAIN != err)
-        return true;
+    switch (opcode) {
+    case INQUIRY:
+    case REPORT_LUNS:
+    case REQUEST_SENSE:
+        return true;    /* in these cases, it shouldn't be a UA */
+    default:
+        break;  /* continue on for all other SCSI commands to check for UA */
+    }
 
-    if (scsi_debugmode > 0)
-        pout("%s failed with errno=%d [%s], retrying\n",
-             __func__, err, scsiErrString(err));
-
-    return device->scsi_pass_through(iop);
+    /* There can be multiple UAs pending, allow for three */
+    for (k = 0; (k < 3) && (SCSI_SK_UNIT_ATTENTION == sinfo.sense_key); ++k) {
+        if (scsi_debugmode > 0)
+            pout("%s Unit Attention %d: asc/ascq=0x%x,0x%x, retrying\n",
+                 __func__, k + 1, sinfo.asc, sinfo.ascq);
+        if (! device->scsi_pass_through(iop))
+            return false;
+        scsi_do_sense_disect(iop, &sinfo);
+    }
+    return true;
 }
 
 /* READ CAPACITY (10) command. Returns 0 if ok, 1 if NOT READY, 2 if
@@ -1269,15 +1252,12 @@ scsiReadCapacity10(scsi_device * device, unsigned int * last_lbap,
                    unsigned int * lb_sizep)
 {
     int res;
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[10];
+    uint8_t cdb[10] = {};
     uint8_t sense[32];
-    uint8_t resp[8];
+    uint8_t resp[8] = {};
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
-    memset(resp, 0, sizeof(resp));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = sizeof(resp);
     io_hdr.dxferp = resp;
@@ -1288,9 +1268,8 @@ scsiReadCapacity10(scsi_device * device, unsigned int * last_lbap,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!scsi_pass_through_with_retry(device, &io_hdr))
+    if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     res = scsiSimpleSenseFilter(&sinfo);
     if (res)
         return res;
@@ -1307,13 +1286,11 @@ scsiReadCapacity10(scsi_device * device, unsigned int * last_lbap,
 int
 scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen)
 {
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
-    uint8_t cdb[16];
+    uint8_t cdb[16] = {};
     uint8_t sense[32];
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
@@ -1326,9 +1303,8 @@ scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    if (!scsi_pass_through_with_retry(device, &io_hdr))
+    if (!scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
-    scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
 
@@ -1621,10 +1597,9 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
 int
 scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp)
 {
-    uint8_t tBuf[252];
+    uint8_t tBuf[252] = {};
     int err;
 
-    memset(tBuf, 0, sizeof(tBuf));
     if ((err = scsiLogSense(device, TEMPERATURE_LPAGE, 0, tBuf,
                             sizeof(tBuf), 0))) {
         *currenttemp = 0;
@@ -1647,17 +1622,16 @@ scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
             uint8_t *asc, uint8_t *ascq, uint8_t *currenttemp,
             uint8_t *triptemp)
 {
-    uint8_t tBuf[252];
+    uint8_t tBuf[252] = {};
     struct scsi_sense_disect sense_info;
     int err;
     uint8_t currTemp, trTemp;
 
+    memset(&sense_info, 0, sizeof(sense_info));
     *asc = 0;
     *ascq = 0;
     *currenttemp = 0;
     *triptemp = 0;
-    memset(tBuf,0,sizeof(tBuf)); // need to clear stack space of junk
-    memset(&sense_info, 0, sizeof(sense_info));
     if (hasIELogPage) {
         if ((err = scsiLogSense(device, IE_LPAGE, 0, tBuf,
                                 sizeof(tBuf), 0))) {
@@ -1947,8 +1921,8 @@ static const char * TapeAlertsMessageTable[]= {
 const char *
 scsiTapeAlertsTapeDevice(unsigned short code)
 {
-    const int num = sizeof(TapeAlertsMessageTable) /
-                        sizeof(TapeAlertsMessageTable[0]);
+    static const int num = sizeof(TapeAlertsMessageTable) /
+                           sizeof(TapeAlertsMessageTable[0]);
 
     return (code < num) ?  TapeAlertsMessageTable[code] : "Unknown Alert";
 }
@@ -2095,8 +2069,8 @@ static const char * ChangerTapeAlertsMessageTable[]= {
 const char *
 scsiTapeAlertsChangerDevice(unsigned short code)
 {
-    const int num = sizeof(ChangerTapeAlertsMessageTable) /
-                        sizeof(ChangerTapeAlertsMessageTable[0]);
+    static const int num = sizeof(ChangerTapeAlertsMessageTable) /
+                           sizeof(ChangerTapeAlertsMessageTable[0]);
 
     return (code < num) ?  ChangerTapeAlertsMessageTable[code] :
                            "Unknown Alert";
@@ -2333,9 +2307,8 @@ scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
                               int modese_len)
 {
     int err, offset;
-    uint8_t buff[64];
+    uint8_t buff[64] = {};
 
-    memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
         if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 0,
                                  MPAGE_CONTROL_CURRENT,
@@ -2426,7 +2399,7 @@ scsiDecodeNonMediumErrPage(unsigned char *resp,
     memset(nmep, 0, sizeof(*nmep));
     int num = sg_get_unaligned_be16(resp + 2);
     unsigned char * ucp = &resp[0] + 4;
-    int szof = sizeof(nmep->counterPC0);
+    static int szof = sizeof(nmep->counterPC0);
     while (num > 3) {
         int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
@@ -2563,10 +2536,9 @@ int
 scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current)
 {
     int err, offset;
-    uint8_t buff[64];
+    uint8_t buff[64] = {};
     int pc = current ? MPAGE_CONTROL_CURRENT : MPAGE_CONTROL_DEFAULT;
 
-    memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
         if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 0, pc,
                                  buff, sizeof(buff)))) {
@@ -2602,10 +2574,9 @@ scsiGetRPM(scsi_device * device, int modese_len, int * form_factorp,
            int * haw_zbcp)
 {
     int err, offset;
-    uint8_t buff[64];
+    uint8_t buff[64] = {};
     int pc = MPAGE_CONTROL_DEFAULT;
 
-    memset(buff, 0, sizeof(buff));
     if ((0 == scsiInquiryVpd(device, SCSI_VPD_BLOCK_DEVICE_CHARACTERISTICS,
                              buff, sizeof(buff))) &&
         ((sg_get_unaligned_be16(buff + 2)) > 2)) {
@@ -2648,11 +2619,11 @@ scsiGetSetCache(scsi_device * device,  int modese_len, short int * wcep,
                 short int * rcdp)
 {
     int err, offset, resp_len, sp;
-    uint8_t buff[64], ch_buff[64];
+    uint8_t buff[64] = {};
+    uint8_t ch_buff[64];
     short set_wce = *wcep;
     short set_rcd = *rcdp;
 
-    memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
         err = scsiModeSense(device, CACHING_PAGE, 0, MPAGE_CONTROL_CURRENT,
                             buff, sizeof(buff));
@@ -2751,10 +2722,9 @@ int
 scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len)
 {
     int err, offset, resp_len, sp;
-    uint8_t buff[64];
+    uint8_t buff[64] = {};
     uint8_t ch_buff[64];
 
-    memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
         if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 0,
                                  MPAGE_CONTROL_CURRENT,
@@ -2822,9 +2792,8 @@ int
 scsiFetchTransportProtocol(scsi_device * device, int modese_len)
 {
     int err, offset;
-    uint8_t buff[64];
+    uint8_t buff[64] {};
 
-    memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
         if ((err = scsiModeSense(device, PROTOCOL_SPECIFIC_PORT_PAGE, 0,
                                  MPAGE_CONTROL_CURRENT,

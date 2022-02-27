@@ -256,11 +256,11 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     )
       return false;
 
-    struct scsi_cmnd_io io_hdr;
+    struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
     struct sg_scsi_sense_hdr ssh;
-    unsigned char cdb[SAT_ATA_PASSTHROUGH_16LEN];
-    unsigned char sense[32];
+    unsigned char cdb[SAT_ATA_PASSTHROUGH_16LEN] = {};
+    unsigned char sense[32] = {};
     const unsigned char * ardp;
     int ard_len, have_sense;
     int extend = 0;
@@ -271,9 +271,6 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     int t_length = 0;   /* 0 -> no data transferred */
     int passthru_size = DEF_SAT_ATA_PASSTHRU_SIZE;
     bool sense_descriptor = true;
-
-    memset(cdb, 0, sizeof(cdb));
-    memset(sense, 0, sizeof(sense));
 
     // Set data direction
     // TODO: This works only for commands where sector_count holds count!
@@ -346,7 +343,6 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         cdb[14] = lo.command;
     }
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
     if (0 == t_length) {
         io_hdr.dxfer_dir = DXFER_NONE;
         io_hdr.dxfer_len = 0;
@@ -639,9 +635,9 @@ usbcypress_device::~usbcypress_device()
 #define USBCYPRESS_PASSTHROUGH_LEN 16
 int usbcypress_device::ata_command_interface(smart_command_set command, int select, char *data)
 {
-    struct scsi_cmnd_io io_hdr;
-    unsigned char cdb[USBCYPRESS_PASSTHROUGH_LEN];
-    unsigned char sense[32];
+    struct scsi_cmnd_io io_hdr = {};
+    unsigned char cdb[USBCYPRESS_PASSTHROUGH_LEN] = {};
+    unsigned char sense[32] = {};
     int copydata = 0;
     int outlen = 0;
     int ck_cond = 0;    /* set to 1 to read register(s) back */
@@ -655,9 +651,6 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
     int lba_mid = 0;
     int lba_high = 0;
     int passthru_size = USBCYPRESS_PASSTHROUGH_LEN;
-
-    memset(cdb, 0, sizeof(cdb));
-    memset(sense, 0, sizeof(sense));
 
     ata_command = ATA_SMART_CMD;
     switch (command) {
@@ -766,7 +759,6 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
     cdb[10] = lba_high;
     cdb[12] = ata_command;
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
     if (0 == t_length) {
         io_hdr.dxfer_dir = DXFER_NONE;
         io_hdr.dxfer_len = 0;
@@ -961,8 +953,7 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   if (m_port < 0)
     return set_err(EIO, "Unknown JMicron port");
 
-  scsi_cmnd_io io_hdr;
-  memset(&io_hdr, 0, sizeof(io_hdr));
+  scsi_cmnd_io io_hdr = {};
 
   bool rwbit = true;
   unsigned char smart_status = 0xff;
@@ -1082,8 +1073,7 @@ bool usbjmicron_device::get_registers(unsigned short addr,
   cdb[12] = 0x06;
   cdb[13] = 0x7b;
 
-  scsi_cmnd_io io_hdr;
-  memset(&io_hdr, 0, sizeof(io_hdr));
+  scsi_cmnd_io io_hdr = {};
   io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
   io_hdr.dxfer_len = size;
   io_hdr.dxferp = buf;
@@ -1142,8 +1132,7 @@ bool usbprolific_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
   )
     return false;
 
-  scsi_cmnd_io io_hdr;
-  memset(&io_hdr, 0, sizeof(io_hdr));
+  scsi_cmnd_io io_hdr = {};
   unsigned char cmd_rw = 0x10;  // Read
 
   switch (in.direction) {
@@ -1280,12 +1269,11 @@ bool usbsunplus_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   )
     return false;
 
-  scsi_cmnd_io io_hdr;
+  scsi_cmnd_io io_hdr = {};
   unsigned char cdb[12];
 
   if (in.in_regs.is_48bit_cmd()) {
     // Set "previous" registers
-    memset(&io_hdr, 0, sizeof(io_hdr));
     io_hdr.dxfer_dir = DXFER_NONE;
 
     cdb[ 0] = 0xf8;

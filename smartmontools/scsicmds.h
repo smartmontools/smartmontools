@@ -305,7 +305,10 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_SK_HARDWARE_ERROR          0x4
 #define SCSI_SK_ILLEGAL_REQUEST         0x5
 #define SCSI_SK_UNIT_ATTENTION          0x6
+#define SCSI_SK_DATA_PROTECT            0x7
 #define SCSI_SK_ABORTED_COMMAND         0xb
+#define SCSI_SK_MISCOMPARE              0xe
+#define SCSI_SK_COMPLETED               0xf
 
 /* defines for useful Additional Sense Codes (ASCs) */
 #define SCSI_ASC_NOT_READY              0x4     /* more info in ASCQ code */
@@ -331,6 +334,8 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SIMPLE_ERR_MEDIUM_HARDWARE      9       /* medium or hardware error */
 #define SIMPLE_ERR_UNKNOWN              10      /* unknown sense value */
 #define SIMPLE_ERR_ABORTED_COMMAND      11      /* probably transport error */
+#define SIMPLE_ERR_PROTECTION           12      /* data protect sense key */
+#define SIMPLE_ERR_MISCOMPARE           13      /* from VERIFY commands */
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
@@ -450,7 +455,8 @@ int scsiSetPowerCondition(scsi_device * device, int power_cond,
 int scsiSendDiagnostic(scsi_device * device, int functioncode, uint8_t *pBuf,
                        int bufLen);
 
-bool scsi_pass_through_with_retry(scsi_device * device, scsi_cmnd_io * iop);
+bool scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
+                                   struct scsi_sense_disect & sinfo);
 
 int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist,
                      int dl_format, uint8_t *pBuf, int bufLen);

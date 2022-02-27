@@ -1,5 +1,14 @@
 $Id$
 
+2022-02-27  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsicmds.cpp scsiprint.cpp and others: route all SCSI pass
+	through calls in scsicmds.cpp via the renamed function:
+	scsi_pass_through_yield_sense() which will absorb up to
+	three pending Unit Attentions [see ticket 179]. Use
+	aggregate initialization (e.g. 'uint8_t b[32] = {};') to
+	bypass the need for many memset() calls.
+
 2022-02-26  Douglas Gilbert  <dgilbert@interlog.com>
 
 	ataprint.cpp: add suggestion when 'Read Device Identity
@@ -143,7 +152,7 @@ $Id$
 
 	scsiprint.cpp: my tape drive gives a nuisance TapeAlert
 	warning after each power cycle. With '-xj' output this
-	leads a a JSON array with a lot of 'null' entries. Change
+	leads a JSON array with a lot of 'null' entries. Change
 	the JSON indexing so it is compact and add a
 	'descriptor_idx' attribute if the position is important
 	to the end user. In the case of TapeAlert the relative
@@ -288,7 +297,7 @@ $Id$
 2021-12-21  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp: fix listing of subpages as proposed by Yannick
-	Hemery <yannick.hemery@corp.ovh.com> in in smt's github pull/122
+	Hemery <yannick.hemery@corp.ovh.com> in smt's github pull/122
 
 2021-12-18  Christian Franke  <franke@computer.org>
 

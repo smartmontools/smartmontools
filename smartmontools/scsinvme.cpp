@@ -95,7 +95,7 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   cdb[7] = (uint8_t)cdw10_hi;
   //cdb[8..15] = ?
 
-  scsi_cmnd_io io_hdr; memset(&io_hdr, 0, sizeof(io_hdr));
+  scsi_cmnd_io io_hdr = {};
   io_hdr.cmnd = cdb;
   io_hdr.cmnd_len = sizeof(cdb);
   io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
@@ -213,8 +213,7 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
       for (unsigned i = 0; i < (SNT_JMICRON_NVM_CMD_LEN / sizeof(uint32_t)); i++)
         swapx(&nvm_cmd[i]);
 
-    scsi_cmnd_io io_nvm;
-    memset(&io_nvm, 0, sizeof(io_nvm));
+    scsi_cmnd_io io_nvm = {};
 
     io_nvm.cmnd = cdb;
     io_nvm.cmnd_len = SNT_JMICRON_CDB_LEN;
@@ -233,8 +232,7 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     unsigned char cdb[SNT_JMICRON_CDB_LEN] = { 0 };
     cdb[0] = SAT_ATA_PASSTHROUGH_12;
 
-    scsi_cmnd_io io_data;
-    memset(&io_data, 0, sizeof(io_data));
+    scsi_cmnd_io io_data = {};
     io_data.cmnd = cdb;
     io_data.cmnd_len = SNT_JMICRON_CDB_LEN;
 
@@ -278,8 +276,7 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
 
     unsigned nvm_reply[SNT_JMICRON_NVM_CMD_LEN / sizeof(unsigned)] = { 0 };
 
-    scsi_cmnd_io io_reply;
-    memset(&io_reply, 0, sizeof(io_reply));
+    scsi_cmnd_io io_reply = {};
 
     io_reply.cmnd = cdb;
     io_reply.cmnd_len = SNT_JMICRON_CDB_LEN;
@@ -375,7 +372,7 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   cdb[3] = in.opcode;
   cdb[4] = (uint8_t)in.cdw10;
 
-  scsi_cmnd_io io_hdr; memset(&io_hdr, 0, sizeof(io_hdr));
+  scsi_cmnd_io io_hdr = {};
   io_hdr.cmnd = cdb;
   io_hdr.cmnd_len = sizeof(cdb);
   io_hdr.dxfer_dir = DXFER_FROM_DEVICE;

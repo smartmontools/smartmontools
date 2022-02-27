@@ -3126,6 +3126,7 @@ int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 {
     bool checkedSupportedLogPages = false;
+    bool envRepDone = false;
     uint8_t peripheral_type = 0;
     int returnval = 0;
     int res, durationSec;
@@ -3373,9 +3374,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
             checkedSupportedLogPages = true;
         }
-        if (gEnviroReportingLPage && options.smart_env_rep)
+        if (gEnviroReportingLPage && options.smart_env_rep) {
             scsiPrintEnviroReporting(device);
-        else if (gTempLPage)
+	    envRepDone = true;
+        } else if (gTempLPage)
             scsiPrintTemp(device);
         // in the 'smartctl -A' case only want: "Accumulated power on time"
         if ((! options.smart_background_log) && is_disk) {
@@ -3488,7 +3490,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (options.tape_alert) {
             if (! checkedSupportedLogPages) {
                 scsiGetSupportedLogPages(device);
-                // checkedSupportedLogPages = true;     // not needed when last
+                checkedSupportedLogPages = true;
             }
             res = 0;
             if (gTapeAlertsLPage) {
@@ -3569,10 +3571,26 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         pout("Self Test returned without error\n");
         any_output = true;
     }
-    if (options.sasphy && gProtocolSpecificLPage) {
-        if (scsiPrintSasPhy(device, options.sasphy_reset))
-            return returnval | FAILSMART;
-        any_output = true;
+    if (options.sasphy) {
+        if (! checkedSupportedLogPages) {
+            scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
+	if (gProtocolSpecificLPage) {
+            if (scsiPrintSasPhy(device, options.sasphy_reset))
+                return returnval | FAILSMART;
+            any_output = true;
+	}
+    }
+    if (options.smart_env_rep && ! envRepDone) {
+        if (! checkedSupportedLogPages) {
+            scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
+        if (gEnviroReportingLPage) {
+            scsiPrintEnviroReporting(device);
+            any_output = true;
+        }
     }
 
     if (options.set_standby == 1) {
