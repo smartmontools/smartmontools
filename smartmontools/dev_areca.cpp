@@ -13,7 +13,7 @@
 #include "dev_interface.h"
 #include "dev_areca.h"
 
-const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 5089 2020-10-06 15:31:47Z chrfranke $"
+const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 5337 2022-02-27 07:53:55Z dpgilbert $"
   DEV_ARECA_H_CVSID;
 
 #include "atacmds.h"
@@ -120,11 +120,11 @@ int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsig
 
   int ioctlreturn = 0;
   sSRB_BUFFER sBuf;
-  struct scsi_cmnd_io iop;
+  struct scsi_cmnd_io iop = {};
   int dir = DXFER_TO_DEVICE;
 
-  uint8_t cdb[10]={0};
-  uint8_t sense[32]={0};
+  uint8_t cdb[10]={};
+  uint8_t sense[32]={};
 
   unsigned char *areca_return_packet;
   int total = 0;
@@ -133,7 +133,6 @@ int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsig
   unsigned char *ptr = &return_buff[0];
 
   memset((unsigned char *)&sBuf, 0, sizeof(sBuf));
-  memset(&iop, 0, sizeof(iop));
 
   sBuf.srbioctl.HeaderLength = sizeof(sARCMSR_IO_HDR);
   memcpy(sBuf.srbioctl.Signature, ARECA_SIG_STR, strlen(ARECA_SIG_STR));
