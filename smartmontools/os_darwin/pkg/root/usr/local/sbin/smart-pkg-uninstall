@@ -1,0 +1,40 @@
+#!/bin/sh
+
+echo "Smartmontools package uninstaller:"
+
+# check if we are running with root uid
+if [[ $EUID -ne 0 ]]; then
+   echo "   Error: this script must be run as root"
+   exit 1
+fi
+
+# check if package is installed
+pkgutil --info com.smartmontools.pkg > /dev/null 2>/dev/null
+if [ $? -ne 0 ]; then
+  echo "   Error: smartmontools package is not installed"
+  exit 1
+fi
+
+# smartmontools pkg could be installed only on system volume, so this should be safe
+cd /
+
+echo "  - removing files"
+for str in `pkgutil --files com.smartmontools.pkg`
+do
+   if [ -f "$str" ]
+   then
+      rm -f "$str"
+   fi
+done
+echo "  - removing empty directories"
+for str in `pkgutil --files com.smartmontools.pkg`
+do
+   if [ -d "$str" ]
+   then
+      rmdir -p "$str" 2>/dev/null
+   fi
+done
+
+echo "  - removing package system entry"
+pkgutil --forget com.smartmontools.pkg
+echo "Done, smartmontolls package removed"
