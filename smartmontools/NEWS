@@ -5,7 +5,7 @@ $Id$
 The most up-to-date version of this file is:
 https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 
-Date <Not released yet, please try current SVN or a recent CI build>
+Date 2022-02-28
 Summary: smartmontools release 7.3
 -----------------------------------------------------------
 - smartctl '-j': Many additions to the JSON output for SCSI/SAS devices.

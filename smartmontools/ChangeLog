@@ -1,5 +1,9 @@
 $Id$
 
+2022-02-28  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.3
+
 2022-02-27  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsicmds.cpp scsiprint.cpp and others: route all SCSI pass
