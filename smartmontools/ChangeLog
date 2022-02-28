@@ -1,4 +1,8 @@
-$Id: ChangeLog 5337 2022-02-27 07:53:55Z dpgilbert $
+$Id: ChangeLog 5338 2022-02-28 16:34:26Z chrfranke $
+
+2022-02-28  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.3
 
 2022-02-27  Douglas Gilbert  <dgilbert@interlog.com>
 
