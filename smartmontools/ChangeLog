@@ -1,5 +1,12 @@
 $Id$
 
+2022-02-29  Christian Franke  <franke@computer.org>
+
+	configure.ac: Comment out release timestamp.
+	Set related environment vars only if timestamp is set.
+	utility.cpp: Add "pre-" or "pre-release" if release
+	timestamp is not set.  Don't print empty timestamp.
+
 2022-02-28  Douglas Gilbert  <dgilbert@interlog.com>
 
 	utility.cpp: the previous patch bumped the version number

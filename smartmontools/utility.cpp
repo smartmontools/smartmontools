@@ -86,7 +86,11 @@ const char * packet_types[] = {
 std::string format_version_info(const char * prog_name, bool full /*= false*/)
 {
   std::string info = strprintf(
-    "%s pre-release " PACKAGE_VERSION " "
+    "%s "
+#ifndef SMARTMONTOOLS_RELEASE_DATE
+      "pre-"
+#endif
+      PACKAGE_VERSION " "
 #ifdef SMARTMONTOOLS_SVN_REV
       SMARTMONTOOLS_SVN_DATE " r" SMARTMONTOOLS_SVN_REV
 #else
@@ -107,8 +111,12 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "version 2, or (at your option) any later version.\n"
     "See https://www.gnu.org for further details.\n"
     "\n"
-    "smartmontools pre-release " PACKAGE_VERSION
+#ifndef SMARTMONTOOLS_RELEASE_DATE
+    "smartmontools pre-release " PACKAGE_VERSION "\n"
+#else
+    "smartmontools release " PACKAGE_VERSION
       " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n"
+#endif
 #ifdef SMARTMONTOOLS_SVN_REV
     "smartmontools SVN rev " SMARTMONTOOLS_SVN_REV
       " dated " SMARTMONTOOLS_SVN_DATE " at " SMARTMONTOOLS_SVN_TIME "\n"
