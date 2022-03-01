@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5339 2022-02-28 17:49:00Z chrfranke $
+# $Id: configure.ac 5341 2022-03-01 20:01:25Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -9,13 +9,17 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 # Version of drive database branch
 smartmontools_drivedb_version=7.3
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5339 2022-02-28 17:49:00Z chrfranke $'`
-smartmontools_release_date=2022-02-28
-smartmontools_release_time="16:33:40 UTC"
+# Set by 'do_release' script, commented out when release number is bumped.
+smartmontools_release_date= # 2022-02-28
+smartmontools_release_time= # "16:33:40 UTC"
 
+if test -n "$smartmontools_release_date"; then
+  AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE, "$smartmontools_release_date",    [smartmontools Release Date])
+  AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME, "$smartmontools_release_time",    [smartmontools Release Time])
+fi
+
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5341 2022-03-01 20:01:25Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
-AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE,   "$smartmontools_release_date",    [smartmontools Release Date])
-AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME,   "$smartmontools_release_time",    [smartmontools Release Time])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 AC_DEFINE_UNQUOTED(PACKAGE_HOMEPAGE,             "https://www.smartmontools.org/", [smartmontools Home Page])
 
