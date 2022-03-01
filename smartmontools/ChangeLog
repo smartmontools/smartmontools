@@ -1,5 +1,17 @@
 $Id$
 
+2022-02-28  Douglas Gilbert  <dgilbert@interlog.com>
+
+	utility.cpp: the previous patch bumped the version number
+	to 7.4 which probably won't be released for another
+	10 to 12 months. Alter the product strings to add either
+	"pre-release" or just "pre-" in front of release to help
+	stop users thinking they are using (released) version 7.4
+	until it actually is released.
+	N.B. When the release actually is performed, this patch
+	should be reversed (and then put back in after the release,
+	for the next cycle). 
+
 2022-02-28  Christian Franke  <franke@computer.org>
 
 	smartmontools 7.3
