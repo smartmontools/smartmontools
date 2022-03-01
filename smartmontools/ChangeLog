@@ -1,6 +1,11 @@
 $Id$
 
-2022-02-29  Christian Franke  <franke@computer.org>
+2022-03-01  Christian Franke  <franke@computer.org>
+
+	do_release: Comment out release timestamp in configure.ac
+	immediately after release.
+	Rework increase of release number.  Remove usage of perl.
+	Ensure that only the number in the AC_INIT line is changed.
 
 	configure.ac: Comment out release timestamp.
 	Set related environment vars only if timestamp is set.

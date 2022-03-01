@@ -18,19 +18,6 @@ set -e
 # <smartmontools-support@listi.jpberlin.de>
 KEYID=0xFF3AEFF5
 
-inc_release()
-{
-  MINOR=`echo $VERSION | cut -d. -f2`
-  MAJOR=`echo $VERSION | cut -d. -f1`
-  PERL_OLD=$MAJOR\\.$MINOR
-  ((++MINOR))
-  NEW_VERSION=$MAJOR.$MINOR
-  PERL_NEW=$MAJOR\\.$MINOR	
-  NEW_RELEASE="RELEASE_${NEW_VERSION//\./_}"
-  echo "New Version: $NEW_VERSION"
-  echo "New Release: $NEW_RELEASE"
-}
-
 COMMIT=
 RC=
 
@@ -95,9 +82,10 @@ echo "r$REV: Release $VERSIONRC $RELEASE"
 # Update timestamp
 smartmontools_release_date=`date -u +"%Y-%m-%d"`
 smartmontools_release_time=`date -u +"%T %Z"`
-cat configure.ac  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
-cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.ac
-rm -f configure.tmp
+sed -e "s|^smartmontools_release_date=.*$|smartmontools_release_date=${smartmontools_release_date}|" \
+    -e "s|^smartmontools_release_time=.*$|smartmontools_release_time=\"${smartmontools_release_time}\"|" \
+    configure.ac > configure.tmp
+mv -f configure.tmp configure.ac
 
 # Review changes
 svn diff
@@ -130,17 +118,32 @@ rm -rvf build
 
 md5sum $TARFILE > $TARFILE.md5
 
-# Increase release number
-if [ -z "$RC" -a "$DIRPAT" = "trunk" ]; then
-  inc_release
-  if [ "$COMMIT" = "yes" ]; then
-    perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.ac
-    # svn commit -m "Bump release number to $NEW_VERSION" configure.ac
-  fi
-fi
+set +v
 
 # Sign tarball
 if [ -n "$KEYID" ] && gpg --list-secret-keys $KEYID >/dev/null 2>/dev/null; then
   gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSIONRC.tar.gz
 fi
 
+# Update configure.ac only after trunk releases
+if [ -z "$RC" -a "$DIRPAT" = "trunk" ]; then
+  # Comment out timestamp
+  sed -e "s|^smartmontools_release_date=\(.*\)$|smartmontools_release_date= # \1|" \
+      -e "s|^smartmontools_release_time=\(.*\)$|smartmontools_release_time= # \1|" \
+      configure.ac > configure.tmp
+  mv -f configure.tmp configure.ac
+
+  # Increase release number
+  major=${VERSION%.*}
+  old_minor=${VERSION##*.}
+  new_minor=$((old_minor+1))
+  echo "New Version: $major.$new_minor"
+  if [ "$COMMIT" = "yes" ]; then
+    sed "/^AC_INIT(/{s|$major\\.$old_minor|$major.$new_minor|}" configure.ac > configure.tmp
+    mv -f configure.tmp configure.ac
+    svn diff
+    echo "==================================================================="
+    echo "# TODO:"
+    echo "svn commit -m 'Bump release number to $major.$new_minor' configure.ac"
+  fi
+fi
