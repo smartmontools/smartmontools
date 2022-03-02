@@ -6,9 +6,9 @@
 # $Id$
 
 # Notes on generating releases:
-# (1) update NEWS
-# (2) update ChangeLog -- put in release number
-# (3) update release number in configure.ac
+# (1) run with '--checkout' and then 'cd DESTDIR/trunk/smartmontools'
+# (2) update NEWS -- put in release date
+# (3) update ChangeLog -- put in release date and number
 # (4) to test, run without '--commit'
 # (5) when satisfied, add option '--commit'
 
@@ -18,6 +18,37 @@ set -e
 # <smartmontools-support@listi.jpberlin.de>
 KEYID=0xFF3AEFF5
 
+myname=$0
+
+usage()
+{
+  cat <<EOF
+Usage: $myname --checkout[=URL] DESTDIR
+       $myname [--commit] RC[1-9]|FINAL
+EOF
+  exit 1
+}
+
+# Checkout ?
+checkout_url=
+case "$1" in
+  --checkout) checkout_url="https://svn.code.sf.net/p/smartmontools/code"; shift ;;
+  --checkout=?*) checkout_url=${1#*=}; shift ;;
+esac
+if [ -n "$checkout_url" ]; then
+  case "$#:$1" in
+    1:-*) usage ;; 1:*) ;; *) usage ;;
+  esac
+  if [ -e "$1" ]; then
+    echo "$1: already exists"; exit 1
+  fi
+  opt="--config-option config:miscellany:use-commit-times=yes"
+  svn checkout $opt --depth immediates "$checkout_url" "$1"
+  svn update $opt --parents "$1/trunk/smartmontools"
+  exit 0
+fi
+
+# Release ...
 COMMIT=
 RC=
 
@@ -28,7 +59,7 @@ esac
 case "$*" in
   RC[1-9]) RC="$1" ;;
   FINAL) ;;
-  *) echo "Usage: $0 [--commit] RC[1-9]|FINAL"; exit 1 ;;
+  *) usage ;;
 esac
 
 # Check workdir

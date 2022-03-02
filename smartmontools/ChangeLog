@@ -1,5 +1,10 @@
 $Id$
 
+2022-03-02  Christian Franke  <franke@computer.org>
+
+	do_release: Add '--checkout' option.
+	Checks out a new working copy suitable for releases.
+
 2022-03-01  Christian Franke  <franke@computer.org>
 
 	do_release: Comment out release timestamp in configure.ac
