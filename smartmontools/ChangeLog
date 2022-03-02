@@ -1,6 +1,9 @@
-$Id: ChangeLog 5343 2022-03-02 16:15:56Z chrfranke $
+$Id: ChangeLog 5344 2022-03-02 16:22:58Z chrfranke $
 
 2022-03-02  Christian Franke  <franke@computer.org>
+
+	do_release: Add '--nocheck' option.
+	Changes build command from 'make distcheck' to 'make dist'.
 
 	do_release: Add '--checkout' option.
 	Checks out a new working copy suitable for releases.

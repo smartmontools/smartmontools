@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003-11 Bruce Allen, Guido Guenther
 # (C) 2006-22 Christian Franke
-# $Id: do_release 5343 2022-03-02 16:15:56Z chrfranke $
+# $Id: do_release 5344 2022-03-02 16:22:58Z chrfranke $
 
 # Notes on generating releases:
 # (1) run with '--checkout' and then 'cd DESTDIR/trunk/smartmontools'
@@ -24,7 +24,7 @@ usage()
 {
   cat <<EOF
 Usage: $myname --checkout[=URL] DESTDIR
-       $myname [--commit] RC[1-9]|FINAL
+       $myname [--nocheck] [--commit] RC[1-9]|FINAL
 EOF
   exit 1
 }
@@ -50,11 +50,15 @@ fi
 
 # Release ...
 COMMIT=
+DIST=distcheck
 RC=
 
-case "$1" in
+while true; do case "$1" in
   --commit) COMMIT=yes; shift ;;
-esac
+  --nocheck) DIST=dist; shift ;;
+  *-) usage ;;
+  *) break ;;
+esac; done
 
 case "$*" in
   RC[1-9]) RC="$1" ;;
@@ -138,7 +142,7 @@ fi
 mkdir build
 cd build
 ../configure
-make distcheck || exit 1
+make $DIST || exit 1
 make maintainer-clean
 cd ..
 
@@ -149,12 +153,12 @@ rm -rvf build
 
 md5sum $TARFILE > $TARFILE.md5
 
-set +v
-
 # Sign tarball
 if [ -n "$KEYID" ] && gpg --list-secret-keys $KEYID >/dev/null 2>/dev/null; then
   gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSIONRC.tar.gz
 fi
+
+set +v
 
 # Update configure.ac only after trunk releases
 if [ -z "$RC" -a "$DIRPAT" = "trunk" ]; then
