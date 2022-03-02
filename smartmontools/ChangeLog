@@ -1,4 +1,9 @@
-$Id: ChangeLog 5342 2022-03-01 20:14:26Z chrfranke $
+$Id: ChangeLog 5343 2022-03-02 16:15:56Z chrfranke $
+
+2022-03-02  Christian Franke  <franke@computer.org>
+
+	do_release: Add '--checkout' option.
+	Checks out a new working copy suitable for releases.
 
 2022-03-01  Christian Franke  <franke@computer.org>
 
