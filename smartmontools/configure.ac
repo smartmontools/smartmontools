@@ -16,6 +16,10 @@ smartmontools_release_time= # "16:33:40 UTC"
 if test -n "$smartmontools_release_date"; then
   AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE, "$smartmontools_release_date",    [smartmontools Release Date])
   AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME, "$smartmontools_release_time",    [smartmontools Release Time])
+  AC_SUBST(releaseversion, ['${PACKAGE}-${VERSION}'])
+else
+  # Add "pre-" also on man pages.
+  AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
 smartmontools_cvs_tag=`echo '$Id$'`
@@ -612,10 +616,6 @@ else
   AC_CHECK_FUNCS([regcomp], [], [need_regex=yes])
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
-
-AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
-AC_SUBST(smartmontools_release_date)
-AC_SUBST(smartmontools_release_time)
 
 # Set platform-specific modules and symbols
 os_libs=
