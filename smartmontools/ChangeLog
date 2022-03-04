@@ -2,6 +2,8 @@ $Id$
 
 2022-03-04  Christian Franke  <franke@computer.org>
 
+	smartd.8.in: Attribute logs use local time since smartmontools 7.1.
+
 	smartctl.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
 	Remove EXPERIMENTAL notes for features added before 7.2.
 

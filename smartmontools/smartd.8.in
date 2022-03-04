@@ -187,7 +187,8 @@ At each check cycle attributes are logged as a line of semicolon separated
 triplets of the form "attribute-ID;attribute-norm-value;attribute-raw-value;".
 For SCSI devices error counters and temperature recorded in the form
 "counter-name;counter-value;".
-Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
+Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS"
+(in local time).
 .Sp
 .\" %IF ENABLE_ATTRIBUTELOG
 If this option is not specified, attribute information is written to files
