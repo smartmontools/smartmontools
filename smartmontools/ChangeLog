@@ -1,4 +1,9 @@
-$Id: ChangeLog 5344 2022-03-02 16:22:58Z chrfranke $
+$Id: ChangeLog 5345 2022-03-04 16:40:45Z chrfranke $
+
+2022-03-04  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in, update-smart-drivedb.8.in:
+	Remove EXPERIMENTAL notes for features added before 7.2.
 
 2022-03-02  Christian Franke  <franke@computer.org>
 

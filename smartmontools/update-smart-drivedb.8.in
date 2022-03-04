@@ -4,7 +4,7 @@ Copyright (C) 2014-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: update-smart-drivedb.8.in 5318 2022-02-18 17:23:14Z chrfranke $
+$Id: update-smart-drivedb.8.in 5345 2022-03-04 16:40:45Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -150,7 +150,6 @@ This requires \*(Aq\-\-no\-verify\*(Aq because the trunk versions are not
 signed.
 .TP
 .B \-\-branch X.Y
-[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB FEATURE]
 Download from branches/RELEASE_\fBX\fP_\fBY\fP_DRIVEDB.
 This also selects the OpenPGP/GPG key for older branches
 (5.40 to 6.6: Key ID DFD22559).
@@ -268,4 +267,4 @@ Alternatively send the info to the smartmontools support mailing list:
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: update-smart-drivedb.8.in 5318 2022-02-18 17:23:14Z chrfranke $
+$Id: update-smart-drivedb.8.in 5345 2022-03-04 16:40:45Z chrfranke $
