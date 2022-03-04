@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-21 Christian Franke
+Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -292,10 +292,7 @@ Warning emails will be sent for all monitored devices.
 A device is ignored by DEVICESCAN if a configuration line with the same
 device name exists.
 .\" %IF NOT OS Windows OS2
-.br
-[NEW EXPERIMENTAL SMARTD FEATURE]
 Symbolic links are resolved before this check is done.
-.PP
 .\" %ENDIF NOT OS Windows OS2
 A device name is also ignored if another device with same identify
 information (vendor, model, firmware version, serial number, WWN) already
@@ -470,8 +467,7 @@ to the driver.
 The default namespace id is the broadcast namespace id (0xffffffff).
 .Sp
 .I sntrealtek
-\- [NEW EXPERIMENTAL SMARTD FEATURE]
-this device type is for NVMe disks that are behind a Realtek USB to NVMe
+\- this device type is for NVMe disks that are behind a Realtek USB to NVMe
 bridge.
 .Sp
 .\" %ENDIF NOT OS Darwin
@@ -569,17 +565,15 @@ The integer N is the port number from 0 to 3 of the ATA drive to be targeted.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .I jmb39x[\-q],N[,sLBA][,force][+TYPE]
-\- [NEW EXPERIMENTAL SMARTD FEATURE]
-the device consists of multiple SATA disks connected to a JMicron JMB39x RAID
-port multiplier.
+\- the device consists of multiple SATA disks connected to a JMicron JMB39x
+RAID port multiplier.
 The suffix \*(Aq\-q\*(Aq selects a slightly different command variant used by
 some QNAP NAS devices.
 The integer N is the port number from 0 to 4.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .I jms56x,N[,sLBA][,force][+TYPE]
-\- [NEW EXPERIMENTAL SMARTD FEATURE]
-the device consists of multiple SATA disks connected to a JMicron JMS56x
+\- the device consists of multiple SATA disks connected to a JMicron JMS56x
 USB to SATA RAID bridge.
 See \*(Aqjmb39x...\*(Aq above for valid arguments.
 .Sp
@@ -884,7 +878,6 @@ single decimal digit or the match will always fail!
 .\" This resets the margin to the level prior to the '.RS ... .RE' block.
 .TP
 .B \&
-[NEW EXPERIMENTAL SMARTD FEATURE]
 If the regular expression contains substrings of the form \fB:NNN\fP
 or \fB:NNN-LLL\fP, where NNN and LLL are three decimal digits, staggered
 tests are enabled.
