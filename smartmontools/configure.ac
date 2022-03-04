@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5341 2022-03-01 20:01:25Z chrfranke $
+# $Id: configure.ac 5347 2022-03-04 18:37:39Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.60])
@@ -16,9 +16,13 @@ smartmontools_release_time= # "16:33:40 UTC"
 if test -n "$smartmontools_release_date"; then
   AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE, "$smartmontools_release_date",    [smartmontools Release Date])
   AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME, "$smartmontools_release_time",    [smartmontools Release Time])
+  AC_SUBST(releaseversion, ['${PACKAGE}-${VERSION}'])
+else
+  # Add "pre-" also on man pages.
+  AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5341 2022-03-01 20:01:25Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5347 2022-03-04 18:37:39Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 AC_DEFINE_UNQUOTED(PACKAGE_HOMEPAGE,             "https://www.smartmontools.org/", [smartmontools Home Page])
@@ -612,10 +616,6 @@ else
   AC_CHECK_FUNCS([regcomp], [], [need_regex=yes])
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
-
-AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
-AC_SUBST(smartmontools_release_date)
-AC_SUBST(smartmontools_release_time)
 
 # Set platform-specific modules and symbols
 os_libs=

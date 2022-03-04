@@ -1,6 +1,8 @@
-$Id: ChangeLog 5346 2022-03-04 16:44:51Z chrfranke $
+$Id: ChangeLog 5347 2022-03-04 18:37:39Z chrfranke $
 
 2022-03-04  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add "pre-" also on man pages.
 
 	smartd.8.in: Attribute logs use local time since smartmontools 7.1.
 
