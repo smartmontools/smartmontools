@@ -4,7 +4,7 @@ Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.8.in 5333 2022-02-26 00:15:22Z dpgilbert $
+$Id: smartd.8.in 5346 2022-03-04 16:44:51Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -187,7 +187,8 @@ At each check cycle attributes are logged as a line of semicolon separated
 triplets of the form "attribute-ID;attribute-norm-value;attribute-raw-value;".
 For SCSI devices error counters and temperature recorded in the form
 "counter-name;counter-value;".
-Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
+Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS"
+(in local time).
 .Sp
 .\" %IF ENABLE_ATTRIBUTELOG
 If this option is not specified, attribute information is written to files
@@ -924,4 +925,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 5333 2022-02-26 00:15:22Z dpgilbert $
+$Id: smartd.8.in 5346 2022-03-04 16:44:51Z chrfranke $
