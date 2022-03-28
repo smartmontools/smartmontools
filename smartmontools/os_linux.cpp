@@ -477,10 +477,13 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
  * mapping disk devices (e.g. /dev/sda) to the corresponding sg device
  * (e.g. /dev/sg2). In the linux kernel 2.6 series most of the facilities of
  * the sg driver have become available via the SG_IO ioctl which is available
- * on all SCSI devices (on SCSI tape devices from lk 2.6.6).
- * So the strategy below is to find out if the SG_IO ioctl is available and
- * if so use it; failing that use the older SCSI_IOCTL_SEND_COMMAND ioctl.
- * Should work in 2.0, 2.2, 2.4 and 2.6 series linux kernels. */
+ * on all SCSI devices (on SCSI tape devices from lk 2.6.6). Now in lk 5.17
+ * the SCSI_IOCTL_SEND_COMMAND ioctl is still present but deprecated sending
+ * a warning to the log the first time (after power up) it is used. The SG_IO
+ * Version 3 interface is the most widely used (circa lk 5.17 in 2022) and is
+ * available on the primary block devive name (e.g. /dev/sdc) for all SCSI
+ * disks (and tapes) including all USB attached storage and all ATA/SATA
+ * storage. */
 
 #define MAX_DXFER_LEN 1024      /* can be increased if necessary */
 #define SEND_IOCTL_RESP_SENSE_LEN 16    /* ioctl limitation */
@@ -493,33 +496,24 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
 #define LSCSI_DID_BUS_BUSY  0x2
 #define LSCSI_DID_NO_CONNECT  0x1
 
-#ifndef SCSI_IOCTL_SEND_COMMAND
-#define SCSI_IOCTL_SEND_COMMAND 1
-#endif
 
-#define SG_IO_USE_DETECT 0
-#define SG_IO_UNSUPP 1
-#define SG_IO_USE_V3 3
-#define SG_IO_USE_V4 4
+enum lk_sg_io_ifc_t {
+    SG_IO_USE_DETECT = 0,
+    SG_IO_UNSUPP = 1,
+    SG_IO_USE_V3 = 3,
+    SG_IO_USE_V4 = 4,
+};
 
-static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
-                         int sgio_ver);
-static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
+static enum lk_sg_io_ifc_t sg_io_interface = SG_IO_USE_DETECT;
 
-static int sg_io_state = SG_IO_USE_DETECT;
 
 /* Preferred implementation for issuing SCSI commands in linux. This
  * function uses the SG_IO ioctl. Return 0 if command issued successfully
  * (various status values should still be checked). If the SCSI command
  * cannot be issued then a negative errno value is returned. */
 static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
-                         int sg_io_ver)
+                         enum lk_sg_io_ifc_t sg_io_ifc)
 {
-#ifndef SG_IO
-    ARGUSED(dev_fd); ARGUSED(iop); ARGUSED(report);
-    return -ENOTTY;
-#else
-
     /* we are filling structures for both versions, but using only one requested */
     struct sg_io_hdr io_hdr_v3;
     struct sg_io_v4  io_hdr_v4;
@@ -547,7 +541,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         char buff[256];
         const int sz = (int)sizeof(buff);
 
-        pout(">>>> do_scsi_cmnd_io: sg_io_ver=%d\n", sg_io_ver);
+        pout(">>>> do_scsi_cmnd_io: sg_io_ifc=%d\n", (int)sg_io_ifc);
         np = scsi_get_opcode_name(ucp[0]);
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < (int)iop->cmnd_len; ++k)
@@ -611,7 +605,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
 
     void * io_hdr = NULL;
 
-    switch (sg_io_ver) {
+    switch (sg_io_ifc) {
       case SG_IO_USE_V3:
           io_hdr = &io_hdr_v3;
           break;
@@ -627,14 +621,14 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
     if (ioctl(dev_fd, SG_IO, io_hdr) < 0) {
         if (report)
             pout("  SG_IO ioctl failed, errno=%d [%s], SG_IO_V%d\n", errno,
-                 strerror(errno), sg_io_ver);
+                 strerror(errno), (int)sg_io_ifc);
         return -errno;
     }
 
     unsigned int sg_driver_status = 0,  sg_transport_status = 0, sg_info = 0,
         sg_duration = 0;
 
-    if (sg_io_ver == SG_IO_USE_V3) {
+    if (sg_io_ifc == SG_IO_USE_V3) {
         iop->resid =            io_hdr_v3.resid;
         iop->scsi_status =      io_hdr_v3.status;
         sg_driver_status =      io_hdr_v3.driver_status;
@@ -644,7 +638,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         sg_duration =           io_hdr_v3.duration;
     }
 
-    if (sg_io_ver == SG_IO_USE_V4) {
+    if (sg_io_ifc == SG_IO_USE_V4) {
        switch (iop->dxfer_dir) {
            case DXFER_NONE:
                iop->resid = 0;
@@ -732,128 +726,6 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         }
     }
     return 0;
-#endif
-}
-
-struct linux_ioctl_send_command
-{
-    int inbufsize;
-    int outbufsize;
-    uint8_t buff[MAX_DXFER_LEN + 16];
-};
-
-/* The Linux SCSI_IOCTL_SEND_COMMAND ioctl is primitive and it doesn't
- * support: CDB length (guesses it from opcode), resid and timeout.
- * Patches in Linux 2.4.21 and 2.5.70 to extend SEND DIAGNOSTIC timeout
- * to 2 hours in order to allow long foreground extended self tests. */
-static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
-{
-    struct linux_ioctl_send_command wrk;
-    int status, buff_offset;
-    size_t len;
-
-    memcpy(wrk.buff, iop->cmnd, iop->cmnd_len);
-    buff_offset = iop->cmnd_len;
-    if (report > 0) {
-        int k, j;
-        const unsigned char * ucp = iop->cmnd;
-        const char * np;
-        char buff[256];
-        const int sz = (int)sizeof(buff);
-
-        np = scsi_get_opcode_name(ucp[0]);
-        j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-        for (k = 0; k < (int)iop->cmnd_len; ++k)
-            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-        if ((report > 1) && (DXFER_TO_DEVICE == iop->dxfer_dir)) {
-            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-            snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-                     "data, len=%d%s:\n", (int)iop->dxfer_len,
-                     (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-        }
-        else
-            snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-        pout("%s", buff);
-    }
-    switch (iop->dxfer_dir) {
-        case DXFER_NONE:
-            wrk.inbufsize = 0;
-            wrk.outbufsize = 0;
-            break;
-        case DXFER_FROM_DEVICE:
-            wrk.inbufsize = 0;
-            if (iop->dxfer_len > MAX_DXFER_LEN)
-                return -EINVAL;
-            wrk.outbufsize = iop->dxfer_len;
-            break;
-        case DXFER_TO_DEVICE:
-            if (iop->dxfer_len > MAX_DXFER_LEN)
-                return -EINVAL;
-            memcpy(wrk.buff + buff_offset, iop->dxferp, iop->dxfer_len);
-            wrk.inbufsize = iop->dxfer_len;
-            wrk.outbufsize = 0;
-            break;
-        default:
-            pout("do_scsi_cmnd_io: bad dxfer_dir\n");
-            return -EINVAL;
-    }
-    iop->resp_sense_len = 0;
-    iop->scsi_status = 0;
-    iop->resid = 0;
-    status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND, &wrk);
-    if (-1 == status) {
-        if (report)
-            pout("  SCSI_IOCTL_SEND_COMMAND ioctl failed, errno=%d [%s]\n",
-                 errno, strerror(errno));
-        return -errno;
-    }
-    if (0 == status) {
-        if (report > 0)
-            pout("  status=0\n");
-        if (DXFER_FROM_DEVICE == iop->dxfer_dir) {
-            memcpy(iop->dxferp, wrk.buff, iop->dxfer_len);
-            if (report > 1) {
-                int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-                pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
-                     (trunc ? " [only first 256 bytes shown]" : ""));
-                dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-            }
-        }
-        return 0;
-    }
-    iop->scsi_status = status & 0x7e; /* bits 0 and 7 used to be for vendors */
-    if (LSCSI_DRIVER_SENSE == ((status >> 24) & 0xf))
-        iop->scsi_status = SCSI_STATUS_CHECK_CONDITION;
-    len = (SEND_IOCTL_RESP_SENSE_LEN < iop->max_sense_len) ?
-                SEND_IOCTL_RESP_SENSE_LEN : iop->max_sense_len;
-    if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) &&
-        iop->sensep && (len > 0)) {
-        memcpy(iop->sensep, wrk.buff, len);
-        iop->resp_sense_len = len;
-        if (report > 1) {
-            pout("  >>> Sense buffer, len=%d:\n", (int)len);
-            dStrHex(wrk.buff, len , 1);
-        }
-    }
-    if (report) {
-        if (SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) {
-            pout("  status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
-                 wrk.buff[2] & 0xf, wrk.buff[12], wrk.buff[13]);
-        }
-        else
-            pout("  status=0x%x\n", status);
-    }
-    if (iop->scsi_status > 0)
-        return 0;
-    else {
-        if (report > 0)
-            pout("  ioctl status=0x%x but scsi status=0, fail with EIO\n",
-                 status);
-        return -EIO;      /* give up, assume no device there */
-    }
 }
 
 /* SCSI command transmission interface function, linux version.
@@ -868,39 +740,42 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
 {
     int res;
 
-    /* implementation relies on static sg_io_state variable. If not
+    /* implementation relies on static sg_io_interface variable. If not
      * previously set tries the SG_IO ioctl. If that succeeds assume
      * that SG_IO ioctl functional. If it fails with an errno value
-     * other than ENODEV (no device) or permission then assume
-     * SCSI_IOCTL_SEND_COMMAND is the only option. */
-    switch (sg_io_state) {
+     * other than ENODEV (no device) or a permissions problem then
+     * assume the SG_IO_USE_V3 interface. */
+    switch (sg_io_interface) {
     case SG_IO_USE_DETECT:
         /* ignore report argument */
         /* Try SG_IO V3 first */
         if (0 == (res = sg_io_cmnd_io(dev_fd, iop, report, SG_IO_USE_V3))) {
-            sg_io_state = SG_IO_USE_V3;
+            sg_io_interface = SG_IO_USE_V3;
             return 0;
         } else if ((-ENODEV == res) || (-EACCES == res) || (-EPERM == res))
             return res;         /* wait until we see a device */
         /* See if we can use SG_IO V4 * */
         if (0 == (res = sg_io_cmnd_io(dev_fd, iop, report, SG_IO_USE_V4))) {
-            sg_io_state = SG_IO_USE_V4;
+            sg_io_interface = SG_IO_USE_V4;
             return 0;
         } else if ((-ENODEV == res) || (-EACCES == res) || (-EPERM == res))
             return res;         /* wait until we see a device */
-        /* fallback to the SCSI_IOCTL_SEND_COMMAND */
-        sg_io_state = SG_IO_UNSUPP;
+        sg_io_interface = SG_IO_UNSUPP;
         /* FALLTHRU */
     case SG_IO_UNSUPP:
-        /* deprecated SCSI_IOCTL_SEND_COMMAND ioctl */
-        return sisc_cmnd_io(dev_fd, iop, report);
+        /* previously called SCSI_IOCTL_SEND_COMMAND ioctl which has now
+	 * been removed. The SG_IO_USE_V3 is most widely used now in Linux
+	 * (circa 2022), try it again. */
+        sg_io_interface = SG_IO_USE_V3;
+        /* FALLTHRU */
     case SG_IO_USE_V3:
     case SG_IO_USE_V4:
         /* use SG_IO V3 or V4 ioctl, depending on availabiliy */
-        return sg_io_cmnd_io(dev_fd, iop, report, sg_io_state);
+        return sg_io_cmnd_io(dev_fd, iop, report, sg_io_interface);
     default:
-        pout(">>>> do_scsi_cmnd_io: bad sg_io_state=%d\n", sg_io_state);
-        sg_io_state = SG_IO_USE_DETECT;
+        pout(">>>> do_scsi_cmnd_io: bad sg_io_interface=%d\n",
+	     (int)sg_io_interface);
+        sg_io_interface = SG_IO_USE_DETECT;
         return -EIO;    /* report error and reset state */
     }
 }
@@ -1742,6 +1617,10 @@ bool linux_escalade_device::open()
 
 // TODO: Function no longer useful
 //void printwarning(smart_command_set command);
+
+#ifndef SCSI_IOCTL_SEND_COMMAND
+#define SCSI_IOCTL_SEND_COMMAND 1
+#endif
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent

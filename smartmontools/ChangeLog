@@ -1,5 +1,15 @@
 $Id$
 
+2022-03-28  Douglas Gilbert  <dgilbert@interlog.com>
+
+	os_linux.cpp [Linux only]: remove support from generic part
+	for the SCSI_IOCTL_SEND_COMMAND ioctl. Default to the SG_IO_V3
+	interface which is now (lk 5.17, 2022) much more widely
+	supported. The SCSI_IOCTL_SEND_COMMAND ioctl is still in
+	the Linux kernel but has been deprecated for a long time.
+	Some old vendor specific code still uses that ioctl, two
+	instances: m_escalade_type==AMCC_3WARE_678K and -d marvell
+
 2022-03-04  Christian Franke  <franke@computer.org>
 
 	configure.ac: Add "pre-" also on man pages.
