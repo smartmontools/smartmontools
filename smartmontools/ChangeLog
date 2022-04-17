@@ -1,4 +1,10 @@
-$Id: ChangeLog 5348 2022-03-28 21:02:03Z dpgilbert $
+$Id: ChangeLog 5349 2022-04-17 21:51:56Z dipohl $
+
+2022-04-17  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- USB: Buffalo MiniStation Cobalt drive (0x0411:0x0157) (#1597)
+	- Phison Driven SSDs: KINGSTON SM2280S3G2120G (#989)
 
 2022-03-28  Douglas Gilbert  <dgilbert@interlog.com>
 
