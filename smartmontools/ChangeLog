@@ -1,5 +1,11 @@
 $Id$
 
+2022-04-17  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- USB: Buffalo MiniStation Cobalt drive (0x0411:0x0157) (#1597)
+	- Phison Driven SSDs: KINGSTON SM2280S3G2120G (#989)
+
 2022-03-28  Douglas Gilbert  <dgilbert@interlog.com>
 
 	os_linux.cpp [Linux only]: remove support from generic part
