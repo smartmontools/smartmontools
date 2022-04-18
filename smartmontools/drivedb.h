@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 6.1/5319 2022-02-19 17:48:34 $Id: drivedb.h 5320 2022-02-19 17:57:42Z chrfranke $",
+  { "VERSION: 6.1/5349 2022-04-17 21:51:56 $Id: drivedb.h 5350 2022-04-18 15:40:07Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -752,6 +752,7 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SEDC(450R|500[MR])(480|960|1920|3840|7680)G|" // DC450R, DC500M/R, tested with
       // KINGSTON SEDC450R480G/SCEKH3. KINGSTON SEDC500M1920G/SCEKJ2.3,
       // KINGSTON SEDC500R480G/SCEKJ2.3, KINGSTON SEDC450R7680G/SCEKH3.4
+    "KINGSTON SM2280S3G2(120)G|" // KINGSTON SM2280S3G2120G/SAFM01.R
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
@@ -5091,7 +5092,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: Buffalo; ",
-    "0x0411:0x0(1[df]9|1e7|240|251|27e)", // 0x01d9: HD-PCTU2 (0x0108), 0x01e7: HD-PNTU3,
+    "0x0411:0x0(157|1[df]9|1e7|240|251|27e)", // 0x0157: HD-PEU2, 0x01d9: HD-PCTU2 (0x0108), 0x01e7: HD-PNTU3,
       // 0x01f9: HD-PZU3 (0x0100), 0x0240: HD-PCFU3, 0x0251: HD-PNFU3, 0x027e: HD-LC3
     "",
     "",
