@@ -1,4 +1,10 @@
-$Id: ChangeLog 5351 2022-04-22 12:13:14Z dipohl $
+$Id: ChangeLog 5352 2022-04-22 18:47:56Z chrfranke $
+
+2022-04-22  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: PNY ELITE (#1573)
+	- USB: PNY (0x154b:0xf009) (#1573)
 
 2022-04-22  Felix Buehl <felix.buehl@febit.systems>
 
