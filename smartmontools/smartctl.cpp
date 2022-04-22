@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -89,6 +89,11 @@ static void js_initialize(int argc, char **argv, bool verbose)
   if (ver[2] > 0)
     jref["version"][2] = ver[2];
 
+#ifdef SMARTMONTOOLS_RELEASE_DATE
+  jref["pre_release"] = false;
+#else
+  jref["pre_release"] = true;
+#endif
 #ifdef SMARTMONTOOLS_SVN_REV
   jref["svn_revision"] = SMARTMONTOOLS_SVN_REV;
 #endif

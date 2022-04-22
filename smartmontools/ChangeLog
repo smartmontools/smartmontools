@@ -2,6 +2,8 @@ $Id$
 
 2022-04-22  Christian Franke  <franke@computer.org>
 
+	smartctl.cpp: Add 'smartctl.pre_release' boolean to JSON output.
+
 	drivedb.h:
 	- Phison Driven SSDs: PNY ELITE (#1573)
 	- USB: PNY (0x154b:0xf009) (#1573)
