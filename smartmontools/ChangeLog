@@ -1,5 +1,10 @@
 $Id$
 
+2022-04-22  Felix Buehl <felix.buehl@febit.systems>
+
+	drivedb.h:
+	- Seagate IronWolf 125 SSDs (#1584) (GH pull/131)
+
 2022-04-17  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:

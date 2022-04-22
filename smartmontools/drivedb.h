@@ -4562,6 +4562,31 @@ const drive_settings builtin_knowndrives[] = {
     "-v 246,hex64,Write_Protect_Detail " // prevents interpretation of bogus threshold 255 (ticket #1396)
     "-v 247,raw48,Health_Check_Timer "
   },
+  { "Seagate IronWolf 125 SSDs", // IronWolf_125_SSD_Product_Manual_100866980_C.pdf
+    "Seagate IronWolf ZA(250|500|1000|2000|4000)NM10002-.*", // tested with
+      // Seagate IronWolf ZA500NM10002-2ZG101/SU3SC013
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 16,raw48,Spare_Blocks_Available "
+    "-v 17,raw48,Spare_Blocks_Remaining "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 170,raw16,Early/Later_Bad_Blck_Ct "
+    "-v 173,raw16,Max/Avg/Min_Erase_Ct "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 177,raw16,Wear_Range_Delta "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 218,raw48,SATA_CRC_Error_Count "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 232,hex48,Read_Failure_Blk_Ct "
+    "-v 233,raw48,Flash_Writes_GiB "
+    "-v 234,raw48,NAND_Reads_Sectors "
+    "-v 235,raw48,Flash_Writes_Sectors "
+    "-v 241,raw48,Host_Writes_GiB "
+    "-v 242,raw48,Host_Reads_GiB "
+  },
   { "Seagate Nytro SATA SSD", //Written to Seagate documentation
     // tested with XA960LE10063, XA960LE10063
     "XA(240|480|960|1920|3840)[LM]E10(00|02|04|06|08|10)3",
