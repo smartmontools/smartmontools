@@ -1,6 +1,8 @@
-$Id: ChangeLog 5352 2022-04-22 18:47:56Z chrfranke $
+$Id: ChangeLog 5354 2022-04-22 19:14:42Z chrfranke $
 
 2022-04-22  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Add 'smartctl.pre_release' boolean to JSON output.
 
 	drivedb.h:
 	- Phison Driven SSDs: PNY ELITE (#1573)
