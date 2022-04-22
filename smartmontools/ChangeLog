@@ -1,4 +1,10 @@
-$Id: ChangeLog 5354 2022-04-22 19:14:42Z chrfranke $
+$Id: ChangeLog 5355 2022-04-22 19:48:15Z dipohl $
+
+2022-04-22  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- SanDisk SDSSDH3 1T00 (#1590)
+	- Merge two entries into new group 'Seagate IronWolf (Pro) 125 SSDs'
 
 2022-04-22  Christian Franke  <franke@computer.org>
 
