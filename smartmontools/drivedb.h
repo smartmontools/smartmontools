@@ -768,6 +768,7 @@ const drive_settings builtin_knowndrives[] = {
       // Patriot Blast/SAFM11.3, Patriot Blaze/S9FM02, Patriot Burst/SBFM11.2
     "PNY CS(900|1311|2211) (120|240|480|960)GB SSD|" // tested with PNY CS900 120GB SSD/CS900612,
       // PNY CS900 240GB SSD/CS900613, PNY CS1311 120GB SSD/CS131122, PNY CS2211 240GB SSD/CS221016
+    "PNY ELITE PSSD|" // tested with PNY ELITE PSSD/CS105P13 (240G)
     "SSD Smartbuy (60|64|120|128|240|256|480|512|960|1024|2000)GB|" // PS3111-S11, tested with
       // SSD Smartbuy 240GB/SBFM91.1, SSD Smartbuy 64GB/SBFM21.1
     "SSD PHISON 256GB PS3110-S10C|" // tested with SSD PHISON 256GB PS3110-S10C/SAFM12.2
@@ -6056,8 +6057,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   // PNY
   { "USB: ; PNY",
-    "0x154b:0x5678",
-    "", // 0x5408
+    "0x154b:0x(5678|f009)",
+    "", // 0x5678: 0x5408
     "",
     "-d sat"
   },
