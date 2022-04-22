@@ -1,5 +1,11 @@
 $Id$
 
+2022-04-22  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- SanDisk SDSSDH3 1T00 (#1590)
+	- Merge two entries into new group 'Seagate IronWolf (Pro) 125 SSDs'
+
 2022-04-22  Christian Franke  <franke@computer.org>
 
 	smartctl.cpp: Add 'smartctl.pre_release' boolean to JSON output.
