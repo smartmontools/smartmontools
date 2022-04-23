@@ -271,7 +271,8 @@ static int scsi_get_lba_size(scsi_device * scsidev)
 
 static bool scsi_read_lba8(scsi_device * scsidev, uint8_t lba8, uint8_t (& data)[512])
 {
-  struct scsi_cmnd_io io_hdr; memset(&io_hdr, 0, sizeof(io_hdr));
+  struct scsi_cmnd_io io_hdr = {};
+
   io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
   io_hdr.dxfer_len = 512;
   io_hdr.dxferp = data;
@@ -288,7 +289,8 @@ static bool scsi_read_lba8(scsi_device * scsidev, uint8_t lba8, uint8_t (& data)
 
 static bool scsi_write_lba8(scsi_device * scsidev,  uint8_t lba8, const uint8_t (& data)[512])
 {
-  struct scsi_cmnd_io io_hdr; memset(&io_hdr, 0, sizeof(io_hdr));
+  struct scsi_cmnd_io io_hdr = {};
+
   io_hdr.dxfer_dir = DXFER_TO_DEVICE;
   io_hdr.dxfer_len = 512;
   io_hdr.dxferp = const_cast<uint8_t *>(data);

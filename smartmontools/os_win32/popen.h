@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2018 Christian Franke
+ * Copyright (C) 2018-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -41,6 +41,17 @@ int pclose(FILE * f);
 #ifdef __cplusplus
 }
 #endif
+
+// Enhanced version of popen() with ability to modify the access token.
+// If 'restricted' is set, the child process is run with a restricted access
+// token.  The local Administrator group and most privileges (all except
+// SeChangeNotifyPrivilege) are removed.
+FILE * popen_as_restr_user(const char * cmd, const char * mode, bool restricted);
+
+// Check whether the access token of the current user could be effectively
+// restricted.
+// Returns false if the current user is the local SYSTEM or Administrator account.
+bool popen_as_restr_check();
 
 // wait(3) macros from <sys/wait.h>
 #ifndef WIFEXITED

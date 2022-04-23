@@ -1649,7 +1649,7 @@ $Id$
 
 	nvmeprint.cpp, nvmeprint.h, smartctl.cpp, smartctl.8.in:
 	Add NVMe support for 'smartctl -c'.  Print various drive and
-	namespace capabilites.  Remove related info from '-i' output.
+	namespace capabilities.  Remove related info from '-i' output.
 
 2016-04-24  Christian Franke  <franke@computer.org>
 
@@ -1980,7 +1980,7 @@ $Id$
 
 2016-01-25  Alex Samorukov  <samm@os2.kiev.ua>
 
-	os_darwin: add launchctl script for the smartd and remove depricated one.
+	os_darwin: add launchctl script for the smartd and remove deprecated one.
 	"On current systems there is only one recommend way: launchd"
 
 2016-01-24  Alex Samorukov  <samm@os2.kiev.ua>
@@ -2713,7 +2713,7 @@ $Id$
 
 2014-10-06  Alex Samorukov  <samm@os2.kiev.ua>
 
-	drivedb.h: Exteneded regexp for SanDisk X300s (#463)
+	drivedb.h: Extended regexp for SanDisk X300s (#463)
 
 2014-09-29  Alex Samorukov  <samm@os2.kiev.ua>
 
@@ -3466,7 +3466,7 @@ $Id$
 
 	scsicmds.h, scsicmds.cpp, scsiprint.h, scsiprint.cpp:
 	- for SCSI disks, in 'smartctl --info' report physical
-	  block size and lowest LBA alignement (if PB size
+	  block size and lowest LBA alignment (if PB size
 	  different from LB size); logical block provisioning
 	  status (if any); and disk protection (a.k.a. DIF) type
 
@@ -3711,8 +3711,8 @@ $Id$
 
 2012-11-22  Alex Samorukov  <samm@os2.kiev.ua>
 
-	smartctl: implemeted support for -g/-s rcache and -g/-s wcache for SCSI
-	devices to control read/write device cache.
+	smartctl: implemented support for -g/-s rcache and -g/-s wcache for
+	SCSI devices to control read/write device cache.
 
 2012-11-19  Alex Samorukov  <samm@os2.kiev.ua>
 

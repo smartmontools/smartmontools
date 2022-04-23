@@ -4,7 +4,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2010-20 Christian Franke
+# Copyright (C) 2010-22 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -22,22 +22,24 @@ exec_prefix="@exec_prefix@"
 sbindir="@sbindir@"
 datarootdir="@datarootdir@"
 datadir="@datadir@"
+localstatedir="@localstatedir@"
+drivedbinstdir="@drivedbinstdir@"
 drivedbdir="@drivedbdir@"
 
 # Download tools
 os_dltools="@os_dltools@"
 
-# drivedb.h update branch
-BRANCH="@DRIVEDB_BRANCH@"
+# Default drivedb.h update branch
+default_branch="@DRIVEDB_BRANCH@"
 
 # Default drivedb location
-DRIVEDB="$drivedbdir/drivedb.h"
+default_drivedb="$drivedbdir/drivedb.h"
 
 # GnuPG used to verify signature (disabled if empty)
-GPG="@gnupg@"
+gpg="@gnupg@"
 
-# Smartctl used for syntax check
-SMARTCTL="$sbindir/smartctl"
+# Default command used for syntax check
+default_smartctl="$sbindir/smartctl"
 
 # PATH information for help and error messages
 @ENABLE_SCRIPTPATH_FALSE@pathinfo='$PATH'
@@ -45,45 +47,60 @@ SMARTCTL="$sbindir/smartctl"
 
 myname=$0
 
-usage()
+print_help()
 {
 @ENABLE_SCRIPTPATH_TRUE@  pathinfo="
-@ENABLE_SCRIPTPATH_TRUE@                   $pathinfo"
+@ENABLE_SCRIPTPATH_TRUE@                     $pathinfo"
   cat <<EOF
 smartmontools $VERSION drive database update script
 
 Usage: $myname [OPTIONS] [DESTFILE]
 
-  -s SMARTCTL     Use SMARTCTL for syntax check ('-s -' to disable)
-                  [default: $SMARTCTL]
-  -t TOOL         Use TOOL for download: $os_dltools
-                  [default: first one found in $pathinfo]
-  -u LOCATION     Use URL of LOCATION for download:
-                    github (GitHub mirror of SVN repository)
-                    sf (Sourceforge code browser)
-                    svn (SVN repository) [default]
-                    svni (SVN repository via HTTP instead of HTTPS)
-                    trac (Trac code browser)
-  --trunk         Download from SVN trunk (may require '--no-verify')
-  --branch X.Y    Download from branches/RELEASE_X_Y_DRIVEDB
-  --cacert FILE   Use CA certificates from FILE to verify the peer
-  --capath DIR    Use CA certificate files from DIR to verify the peer
-  --insecure      Don't abort download if certificate verification fails
-  --no-verify     Don't verify signature
-  --export-key    Print the OpenPGP/GPG public key block
-  --dryrun        Print download commands only
-  -v              Verbose output
+  -s, --smartctl SMARTCTL
+                    Use SMARTCTL for syntax check ('-s -' to disable)
+                    [default: $default_smartctl]
+  -t, --tool [DIR/]TOOL
+                    Use TOOL for download: $os_dltools
+                    [default: first one found in $pathinfo]
+  -u, --url-of LOCATION
+                    Use URL of LOCATION for download:
+                      github (GitHub mirror of SVN repository)
+                      sf (Sourceforge code browser)
+                      svn (SVN repository) [default]
+                      svni (SVN repository via HTTP instead of HTTPS)
+                      trac (Trac code browser)
+  --url URL         Download from URL
+  --file FILE       Copy from local FILE
+EOF
+  test "$drivedbinstdir" = "$drivedbdir" || cat <<EOF
+  --install         Copy from originally installed drive database file
+                    This is the same as:
+                    '--no-verify --file $drivedbinstdir/drivedb.h'
+EOF
+  cat <<EOF
+  --trunk           Download from SVN trunk (requires '--no-verify')
+  --branch X.Y      Download from branches/RELEASE_X_Y_DRIVEDB
+  --cacert FILE     Use CA certificates from FILE to verify the peer
+  --capath DIR      Use CA certificate files from DIR to verify the peer
+  --insecure        Don't abort download if certificate verification fails
+  --no-verify       Don't verify signature
+  --force           Allow downgrades
+  --export-key      Print the OpenPGP/GPG public key block
+  --dryrun          Print download commands only
+  -q, --quiet       Suppress info messages
+  -v, --verbose     Verbose output
+  -h, --help        Print this help text
 
-Updates $DRIVEDB
-or DESTFILE from branches/$BRANCH of smartmontools
+Updates $default_drivedb
+or DESTFILE from branches/$default_branch of smartmontools
 SVN repository.
 EOF
-  exit 1
 }
 
 error()
 {
   echo "$myname: $*" >&2
+  test -z "$usageerr" || echo "Try '$myname -h' for help" >&2
   exit 1
 }
 
@@ -95,15 +112,22 @@ err_notfound()
   esac
 }
 
+# check_optarg "$@"
+check_optarg()
+{
+  test $# -gt 1 || error "option '$1' requires an argument"
+}
+
 warning()
 {
   echo "$myname: (Warning) $*" >&2
 }
 
+# selecturl URL_OF
 selecturl()
 {
   case $1 in
-    github)  # https://github.com/smartmontools/smartmontools/raw/origin/$BRANCH/smartmontools/drivedb.h
+    github)  # https://github.com/smartmontools/smartmontools/raw/origin/$branch/smartmontools/drivedb.h
              # https://github.com/smartmontools/smartmontools/raw/master/smartmontools/drivedb.h
           # redirected to:
           url='https://raw.githubusercontent.com/smartmontools/smartmontools/master/smartmontools/drivedb.h' ;;
@@ -111,7 +135,7 @@ selecturl()
     svn)  url='https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
     svni) url='http://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
     trac) url='https://www.smartmontools.org/export/HEAD/trunk/smartmontools/drivedb.h' ;;
-    *) usage ;;
+    *) error "$1: is none of 'github sf svn svni trac'"
   esac
 }
 
@@ -129,6 +153,11 @@ inpath()
   done
   IFS=$save
   return $rc
+}
+
+iecho()
+{
+  test -n "$quiet" || echo "$*"
 }
 
 vecho()
@@ -175,10 +204,10 @@ download()
   u=$1; f=$2
   rc=0
 
-  case $tool in
-    curl)
+  case ${tool##*/} in
+    curl*)
       # "Accept-Encoding" header avoids caching problems with svn URL
-      vrun curl ${q:+-s} -f --max-redirs 0 \
+      vrun "$tool" ${q:+-s} -f --max-redirs 0 \
         -H "Accept-Encoding: identity" \
         ${cacert:+--cacert "$cacert"} \
         ${capath:+--capath "$capath"} \
@@ -186,24 +215,24 @@ download()
         -o "$f" "$u" || rc=$?
       ;;
 
-    wget)
+    wget*)
       # wget >= 1.16.1 sets "Accept-Encoding: identity" header by default
-      vrun wget $q --max-redirect=0 \
+      vrun "$tool" $q --max-redirect=0 \
         ${cacert:+--ca-certificate="$cacert"} \
         ${capath:+--ca-directory="$capath"} \
         ${insecure:+--no-check-certificate} \
         -O "$f" "$u" || rc=$?
       ;;
 
-    lynx)
+    lynx*)
       test -z "$cacert" || vrun export SSL_CERT_FILE="$cacert"
       test -z "$capath" || vrun export SSL_CERT_DIR="$capath"
       # Check also stderr as lynx does not return != 0 on HTTP error
-      vrun2 "$f" lynx -stderr -noredir -source "$u" || rc=$?
+      vrun2 "$f" "$tool" -stderr -noredir -source "$u" || rc=$?
       ;;
 
-    svn)
-      vrun svn $q export \
+    svn*)
+      vrun "$tool" $q export \
         --non-interactive --no-auth-cache \
         ${cacert:+--config-option "servers:global:ssl-trust-default-ca=no"} \
         ${cacert:+--config-option "servers:global:ssl-authority-files=$cacert"} \
@@ -211,16 +240,16 @@ download()
         "$u" "$f" || rc=$?
       ;;
 
-    fetch) # FreeBSD
-      vrun fetch $q --no-redirect \
+    fetch*) # FreeBSD
+      vrun "$tool" $q --no-redirect \
         ${cacert:+--ca-cert "$cacert"} \
         ${capath:+--ca-path "$capath"} \
         ${insecure:+--no-verify-hostname} \
         -o "$f" "$u" || rc=$?
       ;;
 
-    ftp) # OpenBSD
-      vrun ftp \
+    ftp*) # OpenBSD
+      vrun "$tool" \
         ${cacert:+-S cafile="$cacert"} \
         ${capath:+-S capath="$capath"} \
         ${insecure:+-S dont} \
@@ -236,7 +265,6 @@ download()
 check_file()
 {
   local firstchar f maxsize minsize size
-  test -z "$dryrun" || return 0
   f=$1; firstchar=$2; minsize=$3; maxsize=$4
 
   # Check first chars
@@ -367,7 +395,7 @@ pnILDDMBUNQMBm/XlCYQUetyrJnAVzFGXurtjEXQ/DDnbfy2Z8efoG8rtq7v3fxS
 "
       ;;
 
-    RELEASE_7_[02]_DRIVEDB)
+    RELEASE_7_[023]_DRIVEDB)
 # Smartmontools Signing Key (through 2025) <smartmontools-database@listi.jpberlin.de>
 # Smartmontools Signing Key (through 2020) <smartmontools-database@listi.jpberlin.de>
 # Key ID 721042C5
@@ -466,7 +494,7 @@ Q/qvYlwkbKOdlahjoHrFlkhADSBaO9N1OZp3OYDjziIujMdt2IPKnmM=
 # gpg_verify FILE.asc FILE
 gpg_verify()
 {
-  local gnupgtmp out rc
+  local gnupgtmp i out rc
 
   # Create temp home dir
   gnupgtmp="$tmpdir/.gnupg.$$.tmp"
@@ -475,7 +503,7 @@ gpg_verify()
   chmod 0700 "$gnupgtmp"
 
   # Import public key
-  if ! out=`echo "$public_key" | "$GPG" --batch --no-tty --homedir="$gnupgtmp" --import 2>&1`; then
+  if ! out=`echo "$public_key" | "$gpg" --batch --no-tty --homedir="$gnupgtmp" --import 2>&1`; then
     echo "$out" >&2
     exit 1
   fi
@@ -483,7 +511,7 @@ gpg_verify()
 
   # Verify
   rc=0
-  out=`"$GPG" --batch --no-tty --homedir="$gnupgtmp" --verify "$1" "$2" </dev/null 2>&1` || rc=1
+  out=`"$gpg" --batch --no-tty --homedir="$gnupgtmp" --verify "$1" "$2" </dev/null 2>&1` || rc=1
   if [ $rc = 0 ]; then
     vecho "$out"
   else
@@ -491,67 +519,122 @@ gpg_verify()
     echo "$out" >&2
   fi
 
-  rm -f -r "$gnupgtmp"
+  # Stop the gpg-agent possibly started by gpg
+  if [ -n "$gpgconf" ]; then
+    out=`"$gpgconf" --homedir="$gnupgtmp" --kill gpg-agent </dev/null 2>&1` || echo "$out" >&2
+  fi
+
+  # Remove temp home dir, retry on failure
+  i=0
+  while ! out=`rm -f -r "$gnupgtmp" 2>&1`; do
+    let ++i
+    if [ $i -ge 10 ]; then
+      echo "$out" >&2; break
+    fi
+    vecho "$out"
+    sleep 1
+  done
+
   return $rc
+}
+
+# get_db_version DRIVEDB > VERSION
+get_db_version()
+{
+  local r v x
+  x=$(sed -n '/^[ {]*"VERSION: *[^"]*"/{s,^[ {]*"VERSION: \([1-9][./0-9]* [^"]*\)".*$,\1,p;q}' "$1") \
+  || return 1
+  v=${x%% *}
+  test -n "$v" || return 0
+  if [ "${v%/*}" = "$v" ]; then # trunk: get rev from expanded SVN-Id
+    r=$(echo "$x" | sed -n 's,^[^$]*\$''Id: drivedb\.h \([1-9][0-9]*\) .*$,\1,p')
+    test -n "$r" || r="?"
+    v="$v/$r"
+  fi
+  echo "$v"
 }
 
 # mv_all PREFIX OLD NEW
 mv_all()
 {
-  mv "${1}${2}"         "${1}${3}"
-  mv "${1}${2}.raw"     "${1}${3}.raw"
-  mv "${1}${2}.raw.asc" "${1}${3}.raw.asc"
+  mv -f "${1}${2}" "${1}${3}" && \
+  mv -f "${1}${2}.raw" "${1}${3}.raw" && \
+  if [ -f "${1}${2}.raw.asc" ]; then
+    mv -f "${1}${2}.raw.asc" "${1}${3}.raw.asc"
+  else
+    rm -f "${1}${3}.raw.asc"
+  fi
 }
 
 # Parse options
-smtctl=$SMARTCTL
+smartctl=$default_smartctl
 tool=
-urlid="svn"
+url_of=
+url=
+file=
+quiet=
 q="-q"
 dryrun=
 trunk=
-brnch=$BRANCH
+branch=$default_branch
 cacert=
 capath=
 insecure=
 no_verify=
+force=
 expkey=
+usageerr=t
 
 while true; do case $1 in
-  -s)
-    shift; test -n "$1" || usage
-    smtctl=$1 ;;
+  -s|--smartctl)
+    check_optarg "$@"; shift
+    smartctl=$1 ;;
 
-  -t)
-    shift
-    case $1 in *\ *) usage ;; esac
-    case " $os_dltools " in *\ $1\ *) ;; *) usage ;; esac
+  -t|--tool)
+    check_optarg "$@"; shift
     tool=$1 ;;
 
-  -u)
-    shift; test -n "$1" || usage
-    urlid=$1 ;;
+  -u|--url-of)
+    check_optarg "$@"; shift
+    url_of=$1 ;;
 
-  -v)
+  -q|--quiet)
+    quiet=t ;;
+
+  -v|--verbose)
     q= ;;
+
+  --url)
+    check_optarg "$@"; shift
+    url=$1 ;;
+
+  --file)
+    check_optarg "$@"; shift
+    file=$1 ;;
+
+  --install)
+    test "$drivedbinstdir" != "$drivedbdir" \
+    || error "'$1' is not supported in this configuration"
+    file="$drivedbinstdir/drivedb.h"
+    no_verify=t ;;
 
   --dryrun)
     dryrun=t ;;
 
   --trunk)
-    trunk=trunk ;;
+    trunk=t ;;
 
   --branch)
-    shift
-    brnch=`echo "$1" | sed -n 's,^\([567]\)\.\([0-9][0-9]*\)$,RELEASE_\1_\2_DRIVEDB,p'`
-    test -n "$brnch" || usage ;;
+    check_optarg "$@"; shift
+    branch=`echo "$1" | sed -n 's,^\([567]\)\.\([0-9][0-9]*\)$,RELEASE_\1_\2_DRIVEDB,p'`
+    test -n "$branch" || error "invalid branch version '$1'" ;;
 
   --cacert)
-    shift; test -n "$1" || usage
+    check_optarg "$@"; shift
     cacert=$1 ;;
 
   --capath)
-    shift; test -n "$1" || usage
+    check_optarg "$@"; shift
     capath=$1 ;;
 
   --insecure)
@@ -560,19 +643,25 @@ while true; do case $1 in
   --no-verify)
     no_verify=t ;;
 
+  --force)
+    force=t ;;
+
   --export-key)
     expkey=t ;;
 
+  -h|--help)
+    print_help
+    exit 0 ;;
+
   -*)
-    usage ;;
+    error "unknown option '$1'" ;;
 
   *)
     break ;;
 esac; shift; done
 
 if [ -n "$expkey" ]; then
-  test $# = 0 || usage
-  selectkey "$brnch"
+  selectkey "$branch"
   cat <<EOF
 $public_key
 EOF
@@ -580,141 +669,261 @@ EOF
 fi
 
 case $# in
-  0) DEST=$DRIVEDB ;;
-  1) DEST=$1 ;;
-  *) usage ;;
+  0) drivedb=$default_drivedb ;;
+  1) drivedb=$1 ;;
+  *) error "only one DESTFILE argument is allowed" ;;
 esac
 
-selecturl "$urlid"
+# Check selected source
+case "${url_of:+url_of}${url:+url}${file:+file}" in
+  ''|url_of)
+    test -n "$url_of" || url_of=svn
+    selecturl "$url_of"
+    if [ -z "$trunk" ]; then # select branch
+      url=`echo "$url" | sed -e "s,/trunk/,/branches/$branch/," \
+                             -e "s,/master/,/origin/$branch/,"`
+    elif [ -z "$no_verify" ]; then
+      error "'--trunk' requires '--no-verify'"
+    fi ;;
+  url)
+    test -z "`echo "$url" | sed -e 's,^[a-z][a-z0-9]*:[^ ][^ ]*$,,'`" \
+    || error "$url: Invalid URL" ;;
+  file) ;;
+  *) error "only one of '-u', '--url', '--file' is allowed" ;;
+esac
 
-if [ -z "$tool" ]; then
-  # Find download tool in PATH
-  for t in $os_dltools; do
-    if inpath "$t"; then
-      tool=$t
-      break
-    fi
-  done
-  test -n "$tool" || error "found none of '$os_dltools' in $pathinfo"
+# Determine path of signature file
+file_asc=
+url_asc=
+if [ -z "$no_verify" ]; then case $url in
+  '')   file_asc="$file.raw.asc" ;;
+  *\?*) url_asc=`echo "$url" | sed 's,?,.raw.asc?,'` ;;
+  *)    url_asc="$url.raw.asc" ;;
+esac; fi
+
+if [ -z "$file" ]; then
+  if [ -z "$tool" ]; then
+    # Find download tool in PATH
+    for t in $os_dltools; do
+      if inpath "$t"; then
+        tool=$t
+        break
+      fi
+    done
+    test -n "$tool" || error "found none of '$os_dltools' in $pathinfo"
+  else
+    # Check tool name
+    found=
+    for t in $os_dltools; do
+      case ${tool##*/} in
+        $t*) found=t; break ;;
+      esac
+    done
+    test -n "$found" || error "$tool: is none of '$os_dltools'"
+  fi
 fi
 
 # Check option compatibility
-case "$tool:$url" in
-  svn:http*://svn.code.sf.net*) ;;
+case "$tool:$url_of" in
+  svn:svn*) ;;
   svn:*) error "'-t svn' requires '-u svn' or '-u svni'" ;;
 esac
 case "$tool:${capath:+set}" in
   svn:set) warning "'--capath' is ignored if '-t svn' is used" ;;
 esac
-case "${insecure:-f}:$url" in
-  t:http:*) insecure= ;;
-  ?:https:*) ;;
-  *) error "'-u svni' requires '--insecure'" ;;
+case "$url_of:$insecure" in
+  svni:t) insecure= ;;
+  svni:*) error "'-u svni' requires '--insecure'" ;;
 esac
 case "$tool:$insecure" in
   lynx:t) warning "'--insecure' is ignored if '-t lynx' is used" ;;
 esac
 
 # Check for smartctl
-if [ "$smtctl" != "-" ]; then
-  "$smtctl" -V >/dev/null 2>&1 \
-  || err_notfound "$smtctl" "('-s -' to ignore)"
+if [ "$smartctl" != "-" ]; then
+  "$smartctl" -V >/dev/null 2>&1 \
+  || err_notfound "$smartctl" "('-s -' to ignore)"
 fi
 
 # Check for GnuPG
+gpgconf=
 if [ -z "$no_verify" ]; then
-  test -n "$GPG" \
+  test -n "$gpg" \
   || error "GnuPG is not available ('--no-verify' to ignore)"
-  "$GPG" --version >/dev/null 2>&1 \
-  || err_notfound "$GPG" "('--no-verify' to ignore)"
-  selectkey "$brnch"
+  "$gpg" --version >/dev/null 2>&1 \
+  || err_notfound "$gpg" "('--no-verify' to ignore)"
+  selectkey "$branch"
+  case $gpg in
+    */*) gpgconf="${gpg%/*}/gpgconf" ;;
+    *) gpgconf="gpgconf" ;;
+  esac
+  "$gpgconf" --version >/dev/null 2>&1 || gpgconf=
 fi
+usageerr=
 
 # Use destination directory as temp directory for gpg
-tmpdir=`dirname "$DEST"`
+tmpdir=`dirname "$drivedb"`
 
-# Adjust URLs
-src=`echo "$url" | sed -e "s,/trunk/,/branches/$brnch/," \
-                       -e "s,/master/,/origin/$brnch/,"`
-src_asc=`echo "$src" | sed "s,/drivedb\.h,/drivedb.h.raw.asc,"`
-test -z "$trunk" || src=$url
+# Remove possible garbage from last download
+test -n "$dryrun" || rm -f "$drivedb.new" "$drivedb.new.raw" "$drivedb.new.raw.asc" || exit 1
 
-# Download
-test -n "$dryrun" || rm -f "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
+if [ -n "$url" ]; then
+  # Download
+  vecho "Download drivedb.h with $tool"
+  rc=0
+  download "$url" "$drivedb.new" || rc=$?
+  if [ $rc != 0 ]; then
+    rm -f "$drivedb.new"
+    error "drivedb.h: download failed ($tool: exit $rc)"
+  fi
 
-vecho "Download ${trunk:-branches/$brnch}/drivedb.h with $tool"
-rc=0
-download "$src" "$DEST.new" || rc=$?
-if [ $rc != 0 ]; then
-  rm -f "$DEST.new"
-  error "${trunk:-$brnch}/drivedb.h: download failed ($tool: exit $rc)"
-fi
-if ! errmsg=`check_file "$DEST.new" '/' 10000 1000000`; then
-  mv "$DEST.new" "$DEST.error"
-  error "$DEST.error: $errmsg"
-fi
+  if [ -n "$url_asc" ]; then
+    vecho "Download drivedb.h.raw.asc with $tool"
+    rc=0
+    download "$url_asc" "$drivedb.new.raw.asc" || rc=$?
+    if [ $rc != 0 ]; then
+      rm -f "$drivedb.new" "$drivedb.new.raw.asc"
+      error "drivedb.h.raw.asc: download failed ($tool: exit $rc) ('--no-verify' to ignore)"
+    fi
+  fi
+else
+  # Copy from local file
+  if [ ! -f "$file" ]; then
+    error "$file: file not found"
+  fi
+  if [ -n "$file_asc" ] && [ ! -f "$file_asc" ]; then
+    error "$file_asc: file not found ('--no-verify' to ignore)"
+  fi
 
-vecho "Download branches/$brnch/drivedb.h.raw.asc with $tool"
-rc=0
-download "$src_asc" "$DEST.new.raw.asc" || rc=$?
-if [ $rc != 0 ]; then
-  rm -f "$DEST.new" "$DEST.new.raw.asc"
-  error "$brnch/drivedb.h.raw.asc: download failed ($tool: exit $rc)"
-fi
-if ! errmsg=`check_file "$DEST.new.raw.asc" '-' 200 2000`; then
-  rm -f "$DEST.new"
-  mv "$DEST.new.raw.asc" "$DEST.error.raw.asc"
-  error "$DEST.error.raw.asc: $errmsg"
+  if ! vrun cp "$file" "$drivedb.new"; then
+    error "$file: copy failed"
+  fi
+  if [ -n "$file_asc" ]; then
+    if ! vrun cp "$file_asc" "$drivedb.new.raw.asc"; then
+      rm -f "$drivedb.new"
+      error "$file_asc: copy failed"
+    fi
+  fi
 fi
 
 test -z "$dryrun" || exit 0
 
+# Check files, adjust timestamps and permissions
+if ! errmsg=`check_file "$drivedb.new" '/' 10000 1000000`; then
+  rm -f "$drivedb.new.raw.asc"
+  mv -f "$drivedb.new" "$drivedb.error"
+  error "$drivedb.error: $errmsg"
+fi
+touch "$drivedb.new"
+chmod 0644 "$drivedb.new"
+
+if [ -f "$drivedb.new.raw.asc" ]; then
+  if ! errmsg=`check_file "$drivedb.new.raw.asc" '-' 200 2000`; then
+    rm -f "$drivedb.new"
+    mv -f "$drivedb.new.raw.asc" "$drivedb.error.raw.asc"
+    error "$drivedb.error.raw.asc: $errmsg"
+  fi
+  touch "$drivedb.new.raw.asc"
+  chmod 0644 "$drivedb.new.raw.asc"
+fi
+
 # Create raw file with unexpanded SVN Id
 # (This assumes newlines are LF and not CR/LF)
-unexpand_svn_id < "$DEST.new" > "$DEST.new.raw"
+unexpand_svn_id < "$drivedb.new" > "$drivedb.new.raw"
+chmod 0644 "$drivedb.new.raw"
 
-# Adjust timestamps and permissions
-touch "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
-chmod 0644 "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
+# Check whether installed file is identical
+equal=
+if [ -f "$drivedb" ]; then
+  if [ ! -f "$drivedb.raw" ]; then
+    # Create missing raw file
+    unexpand_svn_id < "$drivedb" > "$drivedb.raw"
+    chmod 0644 "$drivedb.raw"
+  fi
+  # Ignore missing Id keyword expansion in new file
+  if    cmp "$drivedb.raw" "$drivedb.new.raw" >/dev/null 2>&1 \
+     && {   cmp "$drivedb"     "$drivedb.new" >/dev/null 2>&1 \
+         || cmp "$drivedb.raw" "$drivedb.new" >/dev/null 2>&1; }
+  then
+    equal=t
+  fi
+fi
 
 if [ -z "$no_verify" ]; then
   # Verify raw file
-  if ! gpg_verify "$DEST.new.raw.asc" "$DEST.new.raw"; then
-    mv_all "$DEST" ".new" ".error"
-    test -n "$trunk" || error "$DEST.error.raw: *** BAD signature or outdated key ***"
-    error "$DEST.error.raw: signature from branch no longer valid ('--no-verify' to ignore)"
+  if ! gpg_verify "$drivedb.new.raw.asc" "$drivedb.new.raw"; then
+    mv_all "$drivedb" ".new" ".error"
+    test -z "$equal" \
+    || warning "$drivedb: *** installed file is identical to broken new file ***"
+    error "$drivedb.error.raw: *** BAD signature or outdated key ***"
   fi
 fi
 
-if [ "$smtctl" != "-" ]; then
+# Get version
+newver=$(get_db_version "$drivedb.new")
+if [ -z "$newver" ]; then
+  if [ -z "$force" ]; then
+    mv_all "$drivedb" ".new" ".error"
+    error "$drivedb.error: no VERSION information found ('--force' to ignore)"
+  fi
+  newver="?/?"
+elif [ "${newver##*/}" = "?" ]; then
+  if [ -z "$trunk" ]; then
+    mv_all "$drivedb" ".new" ".error"
+    error "$drivedb.error: VERSION information is incomplete ('--trunk' to ignore)"
+  fi
+fi
+
+if [ "$smartctl" != "-" ]; then
   # Check syntax
-  if ! "$smtctl" -B "$DEST.new" -P showall >/dev/null; then
-    mv_all "$DEST" ".new" ".error"
-    error "$DEST.error: rejected by $smtctl, probably no longer compatible"
+  if ! "$smartctl" -B "$drivedb.new" -P showall >/dev/null; then
+    mv_all "$drivedb" ".new" ".error"
+    error "$drivedb.error: rejected by $smartctl, probably no longer compatible"
   fi
-  vecho "$smtctl: syntax OK"
+  vecho "$smartctl: syntax OK"
 fi
 
-# Keep old file if identical, ignore missing Id keyword expansion in new file
-rm -f "$DEST.lastcheck"
-if [ -f "$DEST" ]; then
-  if [ -f "$DEST.raw" ] && [ -f "$DEST.raw.asc" ]; then
-    if    cmp "$DEST.raw"     "$DEST.new.raw"     >/dev/null 2>&1 \
-       && cmp "$DEST.raw.asc" "$DEST.new.raw.asc" >/dev/null 2>&1 \
-       && {   cmp "$DEST"     "$DEST.new" >/dev/null 2>&1 \
-           || cmp "$DEST.raw" "$DEST.new" >/dev/null 2>&1; }
-    then
-      rm -f "$DEST.new" "$DEST.new.raw" "$DEST.new.raw.asc"
-      touch "$DEST.lastcheck"
-      echo "$DEST is already up to date"
-      exit 0
-    fi
-    mv_all "$DEST" "" ".old"
-  else
-    mv "$DEST" "$DEST.old"
-  fi
+# Always install if missing
+rm -f "$drivedb.lastcheck"
+if [ ! -f "$drivedb" ]; then
+  mv_all "$drivedb" ".new" ""
+  iecho "$drivedb $newver newly installed${no_verify:+ (NOT VERIFIED)}"
+  exit 0
 fi
 
-mv_all "$DEST" ".new" ""
+# Keep old file if identical
+if [ -n "$equal" ]; then
+  if    [ -f "$drivedb.new.raw.asc" ] \
+     && ! cmp "$drivedb.new.raw.asc" "$drivedb.raw.asc" >/dev/null 2>&1; then
+    mv -f "$drivedb.new.raw.asc" "$drivedb.raw.asc"
+    iecho "$drivedb.raw.asc $newver updated"
+  fi
+  rm -f "$drivedb.new" "$drivedb.new.raw" "$drivedb.new.raw.asc"
+  touch "$drivedb.lastcheck"
+  iecho "$drivedb $newver is already up to date${no_verify:+ (NOT VERIFIED)}"
+  exit 0
+fi
 
-echo "$DEST updated from ${trunk:-branches/$brnch}${no_verify:+ (NOT VERIFIED)}"
+# Check branch and file version
+oldver=$(get_db_version "$drivedb")
+test -n "$oldver" || oldver="?/?"
+if    [ "${newver##*/}" = "?" ] \
+   || [ "${oldver##*/}" = "?" ] \
+   || [ "${newver%/*}" != "${oldver%/*}" ]; then
+  # Always install from trunk or other branch
+  updmsg="replaced with"
+elif [ "${newver##*/}" -lt "${oldver##*/}" ]; then
+  # Install older file only if '--force' is used
+  if [ -z "$force" ]; then
+    rm -f "$drivedb.new" "$drivedb.new.raw" "$drivedb.new.raw.asc"
+    iecho "$drivedb $oldver not downgraded to $newver ('--force' to override)"
+    exit 0
+  fi
+  updmsg="downgraded to"
+else
+  updmsg="updated to"
+fi
+
+mv_all "$drivedb" "" ".old"
+mv_all "$drivedb" ".new" ""
+iecho "$drivedb $oldver $updmsg $newver${no_verify:+ (NOT VERIFIED)}"

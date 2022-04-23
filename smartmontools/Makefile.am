@@ -195,6 +195,14 @@ EXTRA_smartd_SOURCES = \
         netbsd_nvme_ioctl.h \
         megaraid.h
 
+if OS_POSIX
+
+smartd_SOURCES += \
+        popen_as_ugid.cpp \
+        popen_as_ugid.h
+
+endif
+
 if OS_WIN32_MINGW
 
 smartd_SOURCES += \
@@ -417,7 +425,7 @@ EXTRA_DIST = \
         os_win32/smartd_mailer.conf.sample.ps1 \
         os_win32/smartd_warning.cmd \
         os_win32/syslogevt.mc \
-        os_win32/update-smart-drivedb.nsi \
+        os_win32/update-smart-drivedb.ps1.in \
         os_win32/versioninfo.rc.in \
         os_win32/wtssendmsg.c \
         $(docs_DATA) \
@@ -500,7 +508,7 @@ endif
 
 
 if ENABLE_DRIVEDB
-drivedb_DATA = drivedb.h
+drivedbinst_DATA = drivedb.h
 endif
 
 update-smart-drivedb: update-smart-drivedb.in config.status
@@ -583,7 +591,7 @@ smartd.service: smartd.service.in Makefile
 # Create empty directories if configured.
 # Default install rules no longer create empty directories since automake 1.11.
 installdirs-local:
-	@for d in '$(smartdplugindir)' '$(savestatesdir)' '$(attributelogdir)'; do \
+	@for d in '$(smartdplugindir)' '$(drivedbdir)' '$(savestatesdir)' '$(attributelogdir)'; do \
 	  test -n "$$d" || continue; \
 	  echo " $(MKDIR_P) '$(DESTDIR)$$d'"; \
 	  $(MKDIR_P) "$(DESTDIR)$$d" || exit 1; \
@@ -611,9 +619,15 @@ MAN_FILTER = { \
         -e 's|/usr/bin/mail|/usr/bin/$(os_mailer)|g' \
         -e 's|RELEASE_6_0_DRIVEDB|$(DRIVEDB_BRANCH)|g' | \
     if test -n '$(drivedbdir)'; then \
-      sed 's|/usr/local/share/smartmontools/drivedb\.h|$(drivedbdir)/drivedb.h|g' ; \
+      sed -e 's|/usr/local/share/smartmontools/drivedb\.h|$(drivedbinstdir)/drivedb.h|g' \
+          -e 's|/usr/local/var/lib/smartmontools/drivedb\.h|$(drivedbdir)/drivedb.h|g'  ; \
     else \
       sed '/^\.\\" %IF ENABLE_DRIVEDB/,/^\.\\" %ENDIF ENABLE_DRIVEDB/ s,^,.\\"\# ,' ; \
+    fi | \
+    if test '$(drivedbinstdir)' != '$(drivedbdir)'; then \
+      cat; \
+    else \
+      sed '/^\.\\" %IF ENABLE_DB_INSTALL/,/^\.\\" %ENDIF ENABLE_DB_INSTALL/ s,^,.\\"\# ,' ; \
     fi | \
     if test '$(with_update_smart_drivedb)' = 'yes'; then \
       cat; \
@@ -863,10 +877,8 @@ EXEFILES_WIN32 = \
         $(exedir_win32)/wtssendmsg.exe
 
 if ENABLE_DRIVEDB
-if OS_WIN32_NSIS
 EXEFILES_WIN32 += \
-        $(exedir_win32)/update-smart-drivedb.exe
-endif
+        $(exedir_win32)/update-smart-drivedb.ps1
 endif
 
 FILES_WIN32 = \
@@ -903,7 +915,7 @@ CLEANFILES += \
         smartctl_res.rc smartd_res.rc \
         syslogevt.h \
         syslogevt.rc syslogevt_*.bin \
-        update-smart-drivedb.exe \
+        update-smart-drivedb.ps1 \
         wtssendmsg.exe wtssendmsg_res.rc
 
 # Note: Only use without options to be compatible with all variants
@@ -944,10 +956,6 @@ $(distinst_win32): os_win32/installer.nsi smartctl_res.rc distdir.mkdir $(FILES_
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256
 
-# Build drivedb.h update tool
-update-smart-drivedb.exe: os_win32/update-smart-drivedb.nsi
-	"$(MAKENSIS)" -V2 -NOCD -DBRANCH=$(DRIVEDB_BRANCH) $<
-
 else
 $(distinst_win32):
 	@echo "makensis: command not found. Please install NSIS from http://nsis.sourceforge.net/" 1>&2
@@ -967,10 +975,6 @@ $(exedir_win32)/%.exe: %.exe
 	if test -n '$(STRIP)'; then $(STRIP) -s $@; else strip -s $@; fi
 	touch -r $< $@
 
-# strip would break NSIS integrity check
-$(exedir_win32)/update-smart-drivedb.exe: update-smart-drivedb.exe
-	cp -p $< $@
-
 $(exedir_win32)/%.h: $(srcdir)/%.h
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
@@ -980,6 +984,10 @@ $(exedir_win32)/%.cmd: $(srcdir)/os_win32/%.cmd
 	touch -r $< $@
 
 $(exedir_win32)/%.ps1: $(srcdir)/os_win32/%.ps1
+	$(UNIX2DOS) < $< > $@
+	touch -r $< $@
+
+$(exedir_win32)/%.ps1: %.ps1
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
 
@@ -1030,6 +1038,10 @@ runcmda.exe: runcmd.o runcmda_res.o
 
 wtssendmsg.exe: os_win32/wtssendmsg.c wtssendmsg_res.o
 	$(CC) -Os -o $@ $^ -lwtsapi32
+
+# Build drivedb.h update script
+update-smart-drivedb.ps1: os_win32/update-smart-drivedb.ps1.in config.status
+	$(SHELL) ./config.status --file=$@:$<
 
 # MSVC Version to change in make command line
 vc = 16

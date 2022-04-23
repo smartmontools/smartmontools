@@ -33,11 +33,15 @@
 const char * scsiprint_c_cvsid = "$Id$"
                                  SCSIPRINT_H_CVSID;
 
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 uint8_t gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
 #define LOG_RESP_LONG_LEN ((62 * 256) + 252)
 #define LOG_RESP_TAPE_ALERT_LEN 0x144
+
+/* Supported log pages + Supported log pages and subpages maximum count */
+#define SCSI_SUPP_LOG_PAGES_MAX_COUNT (252 + (62 * 128) + 126)
 
 /* Log pages supported */
 static bool gSmartLPage = false;     /* Informational Exceptions log page */
@@ -60,6 +64,8 @@ static bool gUtilizationLPage = false;
 static bool gPendDefectsLPage = false;
 static bool gBackgroundOpLPage = false;
 static bool gLPSMisalignLPage = false;
+static bool gTapeDeviceStatsLPage = false;
+static bool gZBDeviceStatsLPage = false;
 
 /* Vendor specific log pages */
 static bool gSeagateCacheLPage = false;
@@ -114,18 +120,30 @@ all_ffs(const uint8_t * bp, int b_len)
     return true;
 }
 
+// trim from right. By default trims whitespace.
+static std::string rtrim(const std::string& s, const char* t = " \t\n\r\f\v")
+{
+    std::string r(s);
+
+    r.erase(r.find_last_not_of(t) + 1);
+    return r;
+}
+
 static void
 scsiGetSupportedLogPages(scsi_device * device)
 {
     bool got_subpages = false;
-    int k, bump, err, resp_len, num_unreported, num_unreported_spg;
-    int resp_len_pg0_0 = 0;
-    int resp_len_pg0_ff = 0;    /* in SPC-4, response length of supported
-                                 * log pages _and_ log subpages */
+    int k, err, resp_len, num_unreported, num_unreported_spg;
+    int supp_lpg_and_spg_count = 0;
+
     const uint8_t * up;
     uint8_t sup_lpgs[LOG_RESP_LEN];
+    struct scsi_supp_log_pages supp_lpg_and_spg[SCSI_SUPP_LOG_PAGES_MAX_COUNT];
 
     memset(gBuf, 0, LOG_RESP_LEN);
+    memset(supp_lpg_and_spg, 0, sizeof(supp_lpg_and_spg));
+
+    /* Get supported log pages */
     if ((err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
                             LOG_RESP_LEN, 0 /* do double fetch */))) {
         if (scsi_debugmode > 0)
@@ -140,12 +158,23 @@ scsiGetSupportedLogPages(scsi_device * device)
                  logSenStr, scsiErrString(err));
         if (err)
             return;
-        memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
-    } else if ((scsi_version >= SCSI_VERSION_SPC_4) &&
-               (scsi_version <= SCSI_VERSION_HIGHEST)) {
+    }
+
+    memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
+    resp_len = gBuf[3];
+    up = gBuf + LOGPAGEHDRSIZE;
+
+    for (k = 0; k < resp_len; k += 1) {
+        uint8_t page_code = 0x3f & up[k];
+        supp_lpg_and_spg[supp_lpg_and_spg_count++] = {page_code, 0};
+    }
+
+    /* Get supported log pages and subpages. Most drives seems to include the
+    supported log pages here as well, but some drives such as the Samsung
+    PM1643a will only report the additional log pages with subpages here */
+    if ((scsi_version >= SCSI_VERSION_SPC_4) &&
+            (scsi_version <= SCSI_VERSION_HIGHEST)) {
         /* unclear what code T10 will choose for SPC-6 */
-        memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
-        resp_len_pg0_0 = sup_lpgs[3];
         if ((err = scsiLogSense(device, SUPPORTED_LPAGES, SUPP_SPAGE_L_SPAGE,
                                 gBuf, LOG_RESP_LONG_LEN,
                                 -1 /* just single not double fetch */))) {
@@ -153,6 +182,7 @@ scsiGetSupportedLogPages(scsi_device * device)
                 pout("%s for supported pages and subpages failed [%s]\n",
                      logSenStr, scsiErrString(err));
         } else {
+            /* Ensure we didn't get the same answer than without the subpages */
             if (0 == memcmp(gBuf, sup_lpgs, LOG_RESP_LEN)) {
                 if (scsi_debugmode > 0)
                     pout("%s: %s ignored subpage field, bad\n",
@@ -163,47 +193,34 @@ scsiGetSupportedLogPages(scsi_device * device)
                     pout("%s supported subpages is bad SPF=%u SUBPG=%u\n",
                          logSenRspStr, !! (0x40 & gBuf[0]), gBuf[2]);
             } else {
-                resp_len_pg0_ff = sg_get_unaligned_be16(gBuf + 2);
                 got_subpages = true;
             }
         }
-    } else {
-        memcpy(sup_lpgs, gBuf, LOG_RESP_LEN);
-        resp_len_pg0_0 = sup_lpgs[3];
     }
 
     if (got_subpages) {
-        if (resp_len_pg0_ff <= resp_len_pg0_0) {
-            /* something is rotten ....., ignore SUPP_SPAGE_L_SPAGE */
-            resp_len = resp_len_pg0_0;
-            bump = 1;
-            up = sup_lpgs + LOGPAGEHDRSIZE;
-            got_subpages = false;
-            (void)got_subpages; // not yet used below, suppress warning
-        } else {
-            resp_len = resp_len_pg0_ff;
-            bump = 2;
-            up = gBuf + LOGPAGEHDRSIZE;
+        resp_len = sg_get_unaligned_be16(gBuf + 2);
+        up = gBuf + LOGPAGEHDRSIZE;
+        for (k = 0; k < resp_len; k += 2) {
+            uint8_t page_code = 0x3f & up[k];
+            uint8_t subpage_code = up[k+1];
+            supp_lpg_and_spg[supp_lpg_and_spg_count++] = {page_code, subpage_code};
         }
-    } else {
-        resp_len = resp_len_pg0_0;
-        bump = 1;
-        up = sup_lpgs + LOGPAGEHDRSIZE;
     }
 
+    num_unreported = 0;
     num_unreported_spg = 0;
-    for (num_unreported = 0, k = 0; k < resp_len; k += bump, up += bump) {
-        uint8_t pg_num = 0x3f & up[0];
-        uint8_t sub_pg_num = (0x40 & up[0]) ? up[1] : 0;
+    for (k = 0; k < supp_lpg_and_spg_count; k += 1) {
+        struct scsi_supp_log_pages supp_lpg = supp_lpg_and_spg[k];
 
-        switch (pg_num)
+        switch (supp_lpg.page_code)
         {
             case SUPPORTED_LPAGES:
-                if (! ((NO_SUBPAGE_L_SPAGE == sub_pg_num) ||
-                       (SUPP_SPAGE_L_SPAGE == sub_pg_num))) {
+                if (! ((NO_SUBPAGE_L_SPAGE == supp_lpg.subpage_code) ||
+                       (SUPP_SPAGE_L_SPAGE == supp_lpg.subpage_code))) {
                     if (scsi_debugmode > 1)
                         pout("%s: Strange Log page number: 0x0,0x%x\n",
-                             __func__, sub_pg_num);
+                             __func__, supp_lpg.subpage_code);
                 }
                 break;
             case READ_ERROR_COUNTER_LPAGE:
@@ -222,13 +239,13 @@ scsiGetSupportedLogPages(scsi_device * device)
                 gNonMediumELPage = true;
                 break;
             case TEMPERATURE_LPAGE:
-                if (NO_SUBPAGE_L_SPAGE == sub_pg_num)
+                if (NO_SUBPAGE_L_SPAGE == supp_lpg.subpage_code)
                     gTempLPage = true;
-                else if (ENVIRO_REP_L_SPAGE == sub_pg_num)
+                else if (ENVIRO_REP_L_SPAGE == supp_lpg.subpage_code)
                     gEnviroReportingLPage = true;
-                else if (ENVIRO_LIMITS_L_SPAGE == sub_pg_num)
+                else if (ENVIRO_LIMITS_L_SPAGE == supp_lpg.subpage_code)
                     gEnviroLimitsLPage = true;
-                else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
+                else if (SUPP_SPAGE_L_SPAGE != supp_lpg.subpage_code) {
                     ++num_unreported;
                     ++num_unreported_spg;
                 }
@@ -237,11 +254,11 @@ scsiGetSupportedLogPages(scsi_device * device)
                    reporting of <lpage>,0xff so it is not an error. */
                 break;
             case STARTSTOP_CYCLE_COUNTER_LPAGE:
-                if (NO_SUBPAGE_L_SPAGE == sub_pg_num)
+                if (NO_SUBPAGE_L_SPAGE == supp_lpg.subpage_code)
                     gStartStopLPage = true;
-                else if (UTILIZATION_L_SPAGE == sub_pg_num)
+                else if (UTILIZATION_L_SPAGE == supp_lpg.subpage_code)
                     gUtilizationLPage = true;
-                else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
+                else if (SUPP_SPAGE_L_SPAGE != supp_lpg.subpage_code) {
                     ++num_unreported;
                     ++num_unreported_spg;
                 }
@@ -252,16 +269,22 @@ scsiGetSupportedLogPages(scsi_device * device)
             case IE_LPAGE:
                 gSmartLPage = true;
                 break;
+            case DEVICE_STATS_LPAGE:
+                if (NO_SUBPAGE_L_SPAGE == supp_lpg.subpage_code)
+                    gTapeDeviceStatsLPage = true;
+                else if (ZB_DEV_STATS_L_SPAGE == supp_lpg.subpage_code)
+                    gZBDeviceStatsLPage = true;
+                break;
             case BACKGROUND_RESULTS_LPAGE:
-                if (NO_SUBPAGE_L_SPAGE == sub_pg_num)
+                if (NO_SUBPAGE_L_SPAGE == supp_lpg.subpage_code)
                     gBackgroundResultsLPage = true;
-                else if (PEND_DEFECTS_L_SPAGE == sub_pg_num)
+                else if (PEND_DEFECTS_L_SPAGE == supp_lpg.subpage_code)
                     gPendDefectsLPage = true;
-                else if (BACKGROUND_OP_L_SPAGE == sub_pg_num)
+                else if (BACKGROUND_OP_L_SPAGE == supp_lpg.subpage_code)
                     gBackgroundOpLPage = true;
-                else if (LPS_MISALIGN_L_SPAGE == sub_pg_num)
+                else if (LPS_MISALIGN_L_SPAGE == supp_lpg.subpage_code)
                     gLPSMisalignLPage = true;
-                else if (SUPP_SPAGE_L_SPAGE != sub_pg_num) {
+                else if (SUPP_SPAGE_L_SPAGE != supp_lpg.subpage_code) {
                     ++num_unreported;
                     ++num_unreported_spg;
                 }
@@ -295,9 +318,10 @@ scsiGetSupportedLogPages(scsi_device * device)
                     gSeagateFactoryLPage = true;
                 break;
             default:
-                if (pg_num < 0x30) {     /* don't count VS pages */
+                if (supp_lpg.page_code < 0x30) {     /* don't count VS pages */
                     ++num_unreported;
-                    if ((sub_pg_num > 0) && (SUPP_SPAGE_L_SPAGE != sub_pg_num))
+                    if ((supp_lpg.subpage_code > 0) &&
+                            (SUPP_SPAGE_L_SPAGE != supp_lpg.subpage_code))
                         ++num_unreported_spg;
                 }
                 break;
@@ -354,8 +378,8 @@ scsiGetSmartData(scsi_device * device, bool attribs)
             pout("Drive Trip Temperature:        <not available>\n");
         else {
             jout("Drive Trip Temperature:        %d C\n", triptemp);
-            jglb["temperature"]["drive_trip"] = triptemp;
-    }
+            jglb["scsi_temperature"]["drive_trip"] = triptemp;
+        }
     }
     pout("\n");
     return err;
@@ -367,14 +391,17 @@ scsiGetSmartData(scsi_device * device, bool attribs)
 static const char * const severities = "CWI";
 
 static int
-scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
+scsiPrintActiveTapeAlerts(scsi_device * device, int peripheral_type,
+                          bool from_health)
 {
     unsigned short pagelength;
     unsigned short parametercode;
-    int i, err;
+    int i, k, j, m, err;
     const char *s;
     const char *ts;
     int failures = 0;
+    const char * pad = from_health ? "" : "  ";
+    static const char * const tapealert_s = "scsi_tapealert";
 
     print_on();
     if ((err = scsiLogSense(device, TAPE_ALERTS_LPAGE, 0, gBuf,
@@ -384,14 +411,15 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
         return -1;
     }
     if (gBuf[0] != 0x2e) {
-        pout("TapeAlerts %s Failed\n", logSenStr);
+        pout("%sTapeAlerts %s Failed\n", pad, logSenStr);
         print_off();
         return -1;
     }
     pagelength = sg_get_unaligned_be16(gBuf + 2);
 
-    for (s=severities; *s; s++) {
-        for (i = 4; i < pagelength; i += 5) {
+    json::ref jref = jglb[tapealert_s]["status"];
+    for (s=severities, k = 0, j = 0; *s; s++, ++k) {
+        for (i = 4, m = 0; i < pagelength; i += 5, ++k, ++m) {
             parametercode = sg_get_unaligned_be16(gBuf + i);
 
             if (gBuf[i + 4]) {
@@ -400,9 +428,13 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
                     scsiTapeAlertsTapeDevice(parametercode);
                 if (*ts == *s) {
                     if (!failures)
-                        pout("TapeAlert Errors (C=Critical, W=Warning, "
-                             "I=Informational):\n");
-                    pout("[0x%02x] %s\n", parametercode, ts);
+                        jout("%sTapeAlert Errors (C=Critical, W=Warning, "
+                             "I=Informational):\n", pad);
+                    jout("%s[0x%02x] %s\n", pad, parametercode, ts);
+                    jref[j]["descriptor_idx"] = m + 1;
+                    jref[j]["parameter_code"] = parametercode;
+                    jref[j]["string"] = ts;
+                    ++j;
                     failures += 1;
                 }
             }
@@ -410,8 +442,10 @@ scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
     }
     print_off();
 
-    if (! failures)
-        pout("TapeAlert: OK\n");
+    if (! failures) {
+        jout("%sTapeAlert: OK\n", pad);
+        jglb[tapealert_s]["status"] = "Good";
+    }
 
     return failures;
 }
@@ -421,6 +455,9 @@ scsiGetStartStopData(scsi_device * device)
 {
     int err, len, k, extra;
     unsigned char * ucp;
+    char b[32];
+    const char * q;
+    static const char * jname = "scsi_start_stop_cycle_counter";
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
@@ -450,29 +487,45 @@ scsiGetStartStopData(scsi_device * device)
         bool is_all_ffs = (extra > 7) ? all_ffs(ucp + 4, 4) : false;
         switch (pc) {
         case 1:
-            if (10 == extra)
-                pout("Manufactured in week %.2s of year %.4s\n", ucp + 8,
+            if (10 == extra) {
+                jout("Manufactured in week %.2s of year %.4s\n", ucp + 8,
                      ucp + 4);
+                snprintf(b, sizeof(b), "%.4s", ucp + 4);
+                jglb[jname]["year_of_manufacture"] = b;
+                snprintf(b, sizeof(b), "%.2s", ucp + 8);
+                jglb[jname]["week_of_manufacture"] = b;
+            }
             break;
         case 2:
             /* ignore Accounting date */
             break;
         case 3:
-            if ((extra > 7) && (! is_all_ffs))
-                pout("Specified cycle count over device lifetime:  %u\n", u);
+            if ((extra > 7) && (! is_all_ffs)) {
+                q = "Specified cycle count over device lifetime";
+                jout("%s:  %u\n", q, u);
+                jglb[jname][q] = u;
+            }
             break;
         case 4:
-            if ((extra > 7) && (! is_all_ffs))
-                pout("Accumulated start-stop cycles:  %u\n", u);
+            if ((extra > 7) && (! is_all_ffs)) {
+                q = "Accumulated start-stop cycles";
+                jout("%s:  %u\n", q, u);
+                jglb[jname][q] = u;
+            }
             break;
         case 5:
-            if ((extra > 7) && (! is_all_ffs))
-                pout("Specified load-unload count over device lifetime:  "
-                     "%u\n", u);
+            if ((extra > 7) && (! is_all_ffs)) {
+                q = "Specified load-unload count over device lifetime";
+                jout("%s:  %u\n", q, u);
+                jglb[jname][q] = u;
+            }
             break;
         case 6:
-            if ((extra > 7) && (! is_all_ffs))
-                pout("Accumulated load-unload cycles:  %u\n", u);
+            if ((extra > 7) && (! is_all_ffs)) {
+                q = "Accumulated load-unload cycles";
+                jout("%s:  %u\n", q, u);
+                jglb[jname][q] = u;
+            }
             break;
         default:
             /* ignore */
@@ -485,7 +538,7 @@ static void
 scsiPrintPendingDefectsLPage(scsi_device * device)
 {
     static const char * pDefStr = "Pending Defects";
-    static const char * jname = "pending_defects";
+    static const char * jname = "scsi_pending_defects";
 
     int err;
     if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE,
@@ -517,7 +570,7 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
         uint32_t count;
         switch (pc) {
         case 0x0:
-            printf("  Pending defect count:");
+            jout("  Pending defect count:");
             if ((pl < 8) || (num < 8)) {
                 print_on();
                 pout("%s truncated descriptor\n", pDefStr);
@@ -647,12 +700,25 @@ scsiPrintGrownDefectListLen(scsi_device * device)
     }
 }
 
+static uint64_t
+variableLengthIntegerParam(const unsigned char * ucp)
+{
+    static const size_t sz_u64 = (int)sizeof(uint64_t);
+    unsigned int u = ucp[3];
+    const unsigned char * xp = ucp + 4;
+
+    if (u > sz_u64) {
+        xp += (u - sz_u64);
+        u = sz_u64;
+    }
+    return sg_get_unaligned_be(u, xp + 0);
+}
+
 static void
 scsiPrintSeagateCacheLPage(scsi_device * device)
 {
     int num, pl, pc, err, len;
     unsigned char * ucp;
-    uint64_t ull;
     static const char * seaCacStr = "Seagate Cache";
 
     if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, 0, gBuf,
@@ -710,15 +776,7 @@ scsiPrintSeagateCacheLPage(scsi_device * device)
                        "> segment size"); break;
         default: pout("  Unknown Seagate parameter code [0x%x]", pc); break;
         }
-        int k = pl - 4;
-        const int sz_ull = (int)sizeof(ull);
-        unsigned char * xp = ucp + 4;
-        if (k > sz_ull) {
-            xp += (k - sz_ull);
-            k = sz_ull;
-        }
-        ull = sg_get_unaligned_be(k, xp + 0);
-        pout(" = %" PRIu64 "\n", ull);
+        pout(" = %" PRIu64 "\n", variableLengthIntegerParam(ucp));
         num -= pl;
         ucp += pl;
     }
@@ -801,13 +859,7 @@ scsiPrintSeagateFactoryLPage(scsi_device * device)
             break;
         }
         if (good) {
-            int k = pl - 4;
-            unsigned char * xp = ucp + 4;
-            if (k > (int)sizeof(ull)) {
-                xp += (k - (int)sizeof(ull));
-                k = (int)sizeof(ull);
-            }
-            ull = sg_get_unaligned_be(k, xp + 0);
+            ull = variableLengthIntegerParam(ucp);
             if (0 == pc) {
                 jout(" = %.2f\n", ull / 60.0 );
                 jglb["power_on_time"]["hours"] = ull / 60;
@@ -964,7 +1016,7 @@ static const char * self_test_result[] = {
         "Completed, segment failed",
         "Failed in first segment  ",
         "Failed in second segment ",
-        "Failed in segment -->    ",
+        "Failed in segment",            /* special handling for result 7 */
         "Reserved(8)              ",
         "Reserved(9)              ",
         "Reserved(10)             ",
@@ -982,12 +1034,13 @@ static const char * self_test_result[] = {
 static int
 scsiPrintSelfTest(scsi_device * device)
 {
+    bool noheader = true;
     int num, k, err, durationSec;
-    int noheader = 1;
     int retval = 0;
     uint8_t * ucp;
     struct scsi_sense_disect sense_info;
     static const char * hname = "Self-test";
+    static const char * fixup_stres7 = " -->    ";  /* only for non-json */
 
     // check if test is running
     if (!scsiRequestSense(device, &sense_info) &&
@@ -1022,31 +1075,36 @@ scsiPrintSelfTest(scsi_device * device)
     // loop through the twenty possible entries
     for (k = 0, ucp = gBuf + 4; k < 20; ++k, ucp += 20 ) {
         // timestamp in power-on hours (or zero if test in progress)
-        int n = sg_get_unaligned_be16(ucp + 6);
+        unsigned int poh = sg_get_unaligned_be16(ucp + 6);
+        unsigned int u, tr;
+        char st[32];
 
+        snprintf(st, sizeof(st), "scsi_self_test_%d", k);
         // The spec says "all 20 bytes will be zero if no test" but
         // DG has found otherwise.  So this is a heuristic.
-        if ((0 == n) && (0 == ucp[4]))
+        if ((0 == poh) && (0 == ucp[4]))
             break;
 
         // only print header if needed
         if (noheader) {
-            pout("SMART %s log\n", hname);
-            pout("Num  Test              Status                 segment  "
+            jout("SMART %s log\n", hname);
+            jout("Num  Test              Status                 segment  "
                    "LifeTime  LBA_first_err [SK ASC ASQ]\n");
-            pout("     Description                              number   "
+            jout("     Description                              number   "
                    "(hours)\n");
-            noheader=0;
+            noheader = false;
         }
 
         // print parameter code (test number) & self-test code text
-        pout("#%2d  %s", sg_get_unaligned_be16(ucp + 0),
-            self_test_code[(ucp[4] >> 5) & 0x7]);
+        u = (ucp[4] >> 5) & 0x7;
+        jout("#%2d  %s", sg_get_unaligned_be16(ucp + 0), self_test_code[u]);
+        jglb[st]["code"]["value"] = u;
+        jglb[st]["code"]["string"] = rtrim(self_test_code[u]);
 
         // check the self-test result nibble, using the self-test results
         // field table from T10/1416-D (SPC-3) Rev. 23, section 7.2.10:
-        int res;
-        switch ((res = ucp[4] & 0xf)) {
+        tr = ucp[4] & 0xf;
+        switch (tr) {
         case 0x3:
             // an unknown error occurred while the device server
             // was processing the self-test and the device server
@@ -1076,7 +1134,9 @@ scsiPrintSelfTest(scsi_device * device)
         default:
             break;
         }
-        pout("  %s", self_test_result[res]);
+        jout("  %s%s", self_test_result[tr], (tr == 7 ? fixup_stres7 : ""));
+        jglb[st]["result"]["value"] = tr;
+        jglb[st]["result"]["string"] = rtrim(self_test_result[tr]);
 
         // self-test number identifies test that failed and consists
         // of either the number of the segment that failed during
@@ -1084,50 +1144,72 @@ scsiPrintSelfTest(scsi_device * device)
         // number of the segment in which the test was run, using a
         // vendor-specific method of putting both numbers into a
         // single byte.
-        if (ucp[5])
-            pout(" %3d",  (int)ucp[5]);
-        else
-            pout("   -");
+        u = ucp[5];
+        if (u > 0) {
+            jout(" %3u",  u);
+            jglb[st]["failed_segment"]["value"] = u;
+            jglb[st]["failed_segment"]["aka"] = "self_test_number";
+        } else
+            jout("   -");
 
         // print time that the self-test was completed
-        if (n==0 && res==0xf)
+        if (poh==0 && tr==0xf) {
         // self-test in progress
-            pout("     NOW");
-        else
-            pout("   %5d", n);
+            jout("     NOW");
+            jglb[st]["self_test_in_progress"] = true;
+        } else {
+            jout("   %5d", poh);
+            jglb[st]["power_on_time"]["hours"] = poh;
+            jglb[st]["power_on_time"]["aka"] = "accumulated_power_on_hours";
+        }
 
         // construct 8-byte integer address of first failure
         uint64_t ull = sg_get_unaligned_be64(ucp + 8);
         bool is_all_ffs = all_ffs(ucp + 8, 8);
         // print Address of First Failure, if sensible
-        if ((! is_all_ffs) && (res > 0) && (res < 0xf)) {
+        if ((! is_all_ffs) && (tr > 0) && (tr < 0xf)) {
             char buff[32];
 
             // was hex but change to decimal to conform with ATA
             snprintf(buff, sizeof(buff), "%" PRIu64, ull);
             // snprintf(buff, sizeof(buff), "0x%" PRIx64, ull);
-            pout("%18s", buff);
+            jout("%18s", buff);
+            jglb[st]["lba_first_failure"]["value"] = ull;
+            jglb[st]["lba_first_failure"]["aka"] = "address_of_first_failure";
         } else
-            pout("                 -");
+            jout("                 -");
 
         // if sense key nonzero, then print it, along with
         // additional sense code and additional sense code qualifier
-        if (ucp[16] & 0xf)
-            pout(" [0x%x 0x%x 0x%x]\n", ucp[16] & 0xf, ucp[17], ucp[18]);
-        else
+        if (ucp[16] & 0xf) {
+            char b[48];
+
+            jout(" [0x%x 0x%x 0x%x]\n", ucp[16] & 0xf, ucp[17], ucp[18]);
+            u = ucp[16] & 0xf;
+            jglb[st]["sense_key"]["value"] = u;
+            jglb[st]["sense_key"]["string"] = 
+                        scsi_get_sense_key_str(u, sizeof(b), b);
+            jglb[st]["asc"] = ucp[17];
+            jglb[st]["ascq"] = ucp[18];
+            jglb[st]["vendor_specific"] = ucp[19];
+        } else
             pout(" [-   -    -]\n");
     }
 
     // if header never printed, then there was no output
     if (noheader)
-        pout("No %ss have been logged\n", hname);
-    else
-    if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
+        jout("No %ss have been logged\n", hname);
+    else if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
                         modese_len)) && (durationSec > 0)) {
-        pout("\nLong (extended) %s duration: %d seconds "
-             "[%.1f minutes]\n", hname, durationSec, durationSec / 60.0);
+        if (durationSec > 14400)
+            jout("\nLong (extended) %s duration: %d seconds "
+                 "[%.1f hours]\n", hname, durationSec, durationSec / 3600.0);
+        else
+            jout("\nLong (extended) %s duration: %d seconds "
+                 "[%.1f minutes]\n", hname, durationSec, durationSec / 60.0);
+        jglb["scsi_extended_self_test_seconds"] = durationSec;
     }
-    pout("\n");
+    jout("\n");
     return retval;
 }
 
@@ -1168,8 +1250,13 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
     bool firstresult = true;
     int num, j, m, err, truncated;
     int retval = 0;
+    unsigned int u;
+    uint64_t lba;
     uint8_t * ucp;
+    char b[48];
+    char res_s[32];
     static const char * hname = "Background scan results";
+    static const char * jname = "scsi_background_scan";
 
     if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1209,21 +1296,25 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
             if (noheader) {
                 noheader = false;
                 if (! only_pow_time)
-                    pout("%s log\n", hname);
+                    jout("%s log\n", hname);
             }
             if (! only_pow_time)
-                pout("  Status: ");
+                jout("  Status: ");
             if ((pl < 16) || (num < 16)) {
                 if (! only_pow_time)
-                    pout("\n");
+                    jout("\n");
                 break;
             }
             j = ucp[9];
             if (! only_pow_time) {
-                if (j < (int)(sizeof(bms_status) / sizeof(bms_status[0])))
-                    pout("%s\n", bms_status[j]);
-                else
-                    pout("unknown [0x%x] background scan status value\n", j);
+                if (j < (int)ARRAY_SIZE(bms_status)) {
+                    jout("%s\n", bms_status[j]);
+                    jglb[jname]["status"]["value"] = j;
+                    jglb[jname]["status"]["string"] = bms_status[j];
+                } else {
+                    jout("unknown [0x%x] background scan status value\n", j);
+                    jglb[jname]["status"]["value"] = j;
+                }
             }
             j = sg_get_unaligned_be32(ucp + 4);
             jout("%sAccumulated power on time, hours:minutes %d:%02d",
@@ -1236,53 +1327,72 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
             jglb["power_on_time"]["minutes"] = j % 60;
             if (only_pow_time)
                 break;
-            pout("    Number of background scans performed: %d,  ",
-                 sg_get_unaligned_be16(ucp + 10));
-            pout("scan progress: %.2f%%\n",
-                 (double)sg_get_unaligned_be16(ucp + 12) * 100.0 / 65536.0);
-            pout("    Number of background medium scans performed: %d\n",
-                 sg_get_unaligned_be16(ucp + 14));
+            u = sg_get_unaligned_be16(ucp + 10);
+            jout("    Number of background scans performed: %u,  ", u);
+            jglb[jname]["status"]["number_scans_performed"] = u;
+            u = sg_get_unaligned_be16(ucp + 12);
+            snprintf(b, sizeof(b), "%.2f%%", (double)u * 100.0 / 65536.0);
+            jout("scan progress: %s\n", b);
+            jglb[jname]["status"]["scan_progress"] = b;
+            u = sg_get_unaligned_be16(ucp + 14);
+            jout("    Number of background medium scans performed: %d\n", u);
+            jglb[jname]["status"]["number_medium_scans_performed"] = u;
             break;
         default:
             if (noheader) {
                 noheader = false;
                 if (! only_pow_time)
-                    pout("\n%s log\n", hname);
+                    jout("\n%s log\n", hname);
             }
             if (only_pow_time)
                 break;
             if (firstresult) {
                 firstresult = 0;
-                pout("\n   #  when        lba(hex)    [sk,asc,ascq]    "
+                jout("\n   #  when        lba(hex)    [sk,asc,ascq]    "
                      "reassign_status\n");
             }
-            pout(" %3d ", pc);
+            snprintf(res_s, sizeof(res_s), "result_%d", pc);
+            jout(" %3d ", pc);
+            jglb[jname][res_s]["parameter_code"] = pc;
             if ((pl < 24) || (num < 24)) {
                 if (pl < 24)
-                    pout("parameter length >= 24 expected, got %d\n", pl);
+                    jout("parameter length >= 24 expected, got %d\n", pl);
                 break;
             }
-            j = sg_get_unaligned_be32(ucp + 4);
-            pout("%4d:%02d  ", (j / 60), (j % 60));
+            u = sg_get_unaligned_be32(ucp + 4);
+            jout("%4u:%02u  ", (u / 60), (u % 60));
+            jglb[jname][res_s]["accumulated_power_on"]["minutes"] = u;
             for (m = 0; m < 8; ++m)
-                pout("%02x", ucp[16 + m]);
-            pout("  [%x,%x,%x]   ", ucp[8] & 0xf, ucp[9], ucp[10]);
-            j = (ucp[8] >> 4) & 0xf;
-            if (j <
-                (int)(sizeof(reassign_status) / sizeof(reassign_status[0])))
-                pout("%s\n", reassign_status[j]);
-            else
-                pout("Reassign status: reserved [0x%x]\n", j);
+                jout("%02x", ucp[16 + m]);
+            lba = sg_get_unaligned_be64(ucp + 16);
+            jglb[jname][res_s]["lba"] = lba;
+            u = ucp[8] & 0xf;
+            jout("  [%x,%x,%x]   ", u, ucp[9], ucp[10]);
+            jglb[jname][res_s]["sense_key"]["value"] = u;
+            jglb[jname][res_s]["sense_key"]["string"] =
+                        scsi_get_sense_key_str(u, sizeof(b), b);
+            jglb[jname][res_s]["asc"] = ucp[9];
+            jglb[jname][res_s]["ascq"] = ucp[10];
+            u = (ucp[8] >> 4) & 0xf;
+            if (u < ARRAY_SIZE(reassign_status)) {
+                jout("%s\n", reassign_status[u]);
+                jglb[jname][res_s]["reassign_status"]["value"] = u;
+                jglb[jname][res_s]["reassign_status"]["string"] =
+                                                        reassign_status[u];
+            } else {
+                jout("Reassign status: reserved [0x%x]\n", u);
+                jglb[jname][res_s]["reassign_status"]["value"] = u;
+            }
             break;
         }
         num -= pl;
         ucp += pl;
     }
     if (truncated && (! only_pow_time))
-        pout(" >>>> log truncated, fetched %d of %d available "
+        jout(" >>>> log truncated, fetched %d of %d available "
              "bytes\n", LOG_RESP_LONG_LEN, truncated);
     if (! only_pow_time)
-        pout("\n");
+        jout("\n");
     return retval;
 }
 
@@ -1296,6 +1406,7 @@ scsiPrintSSMedia(scsi_device * device)
     int num, err, truncated;
     int retval = 0;
     uint8_t * ucp;
+    const char * q;
     static const char * hname = "Solid state media";
 
     if ((err = scsiLogSense(device, SS_MEDIA_LPAGE, 0, gBuf,
@@ -1337,8 +1448,409 @@ scsiPrintSSMedia(scsi_device * device)
                 print_off();
                 return FAILSMART;
             }
-            jout("Percentage used endurance indicator: %d%%\n", ucp[7]);
-            jglb["scsi_percentage_used_endurance_indicator"] = ucp[7];
+            q = "Percentage used endurance indicator";
+            jout("%s: %d%%\n", q, ucp[7]);
+            jglb[std::string("scsi_") + q] = ucp[7];
+        default:        /* ignore other parameter codes */
+            break;
+        }
+        num -= pl;
+        ucp += pl;
+    }
+    return retval;
+}
+
+static int
+scsiPrintZBDeviceStats(scsi_device * device)
+{
+    int num, err, truncated;
+    int retval = 0;
+    uint32_t u;
+    uint8_t * ucp;
+    const char * q;
+    static const char * hname = "Zoned block device statistics";
+    static const char * jname = "scsi_zoned_block_device_statistics";
+
+    jout("%s:\n", hname);
+    if ((err = scsiLogSense(device, DEVICE_STATS_LPAGE, ZB_DEV_STATS_L_SPAGE,
+                            gBuf, LOG_RESP_LONG_LEN, 0))) {
+        print_on();
+        pout("%s: Failed [%s]\n", __func__, scsiErrString(err));
+        print_off();
+        return FAILSMART;
+    }
+    if (((gBuf[0] & 0x3f) != DEVICE_STATS_LPAGE) &&
+        (gBuf[1] == ZB_DEV_STATS_L_SPAGE)) {
+        print_on();
+        pout("%s %s, page mismatch\n", hname, logSenStr);
+        print_off();
+        return FAILSMART;
+    }
+    // compute page length
+    num = sg_get_unaligned_be16(gBuf + 2) + 4;
+    if (num < 12) {
+        print_on();
+        pout("%s %s length is %d, too short\n", hname, logSenStr, num);
+        print_off();
+        return FAILSMART;
+    }
+    truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
+    if (truncated)
+        num = LOG_RESP_LONG_LEN;
+    ucp = gBuf + 4;
+    num -= 4;
+    while (num > 3) {
+        int pc = sg_get_unaligned_be16(ucp + 0);
+        // pcb = ucp[2];
+        int pl = ucp[3] + 4;
+
+        if (pl < 12)
+            goto skip;  /* DC HC650 has non-compliant 4 byte parameters */
+        switch (pc) {
+        case 0:
+            q = "Maximum open zones";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 1:
+            q = "Maximum explicitly open zones";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 2:
+            q = "Maximum implicitly open zones";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 3:
+            q = "Minimum empty zones";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 4:
+            q = "Maximum nonseq zones";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 5:
+            q = "Zones emptied";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 6:
+            q = "Suboptimal write commands";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 7:
+            q = "Commands exceeding optinmal limit";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 8:
+            q = "Failed explicit opens";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 9:
+            q = "Read rule violations";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 0xa:
+            q = "Write rule violations";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        case 0xb:
+            q = "Maximum implicitly open sequential or before required zones";
+            u = sg_get_unaligned_be32(ucp + 8);
+            jout("    %s: %u\n", q, u);
+            jglb[jname][q] = u;
+            break;
+        default:        /* ignore other parameter codes */
+            break;
+        }
+skip:
+        num -= pl;
+        ucp += pl;
+    }
+    return retval;
+}
+
+static int
+scsiPrintTapeDeviceStats(scsi_device * device)
+{
+    int num, err, truncated;
+    int retval = 0;
+    uint32_t k, n, u;
+    uint64_t ull;
+    uint8_t * ucp;
+    const char * q;
+    static const char * hname = "Device statistics (SSC, tape)";
+    static const char * jname = "scsi_device_statistics";
+
+    if ((err = scsiLogSense(device, DEVICE_STATS_LPAGE, 0,
+                            gBuf, LOG_RESP_LONG_LEN, 0))) {
+        print_on();
+        pout("%s: Failed [%s]\n", __func__, scsiErrString(err));
+        print_off();
+        return FAILSMART;
+    }
+    if (((gBuf[0] & 0x3f) != DEVICE_STATS_LPAGE) &&
+        (gBuf[1] != 0)) {
+        print_on();
+        pout("%s %s, page mismatch\n", hname, logSenStr);
+        print_off();
+        return FAILSMART;
+    }
+    // compute page length
+    num = sg_get_unaligned_be16(gBuf + 2) + 4;
+    if (num < 12) {
+        print_on();
+        pout("%s %s length is %d, too short\n", hname, logSenStr, num);
+        print_off();
+        return FAILSMART;
+    }
+    truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
+    if (truncated)
+        num = LOG_RESP_LONG_LEN;
+    ucp = gBuf + 4;
+    num -= 4;
+    while (num > 3) {
+        int pc = sg_get_unaligned_be16(ucp + 0);
+        // pcb = ucp[2];
+        int pl = ucp[3] + 4;
+        switch (pc) {
+        case 0:
+            q = "Lifetime volume loads";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 1:
+            q = "Lifetime cleaning operations";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 2:
+            q = "Lifetime power on hours";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 3:
+            q = "Lifetime medium motion hours";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 4:
+            q = "Lifetime meters of tape processed";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 5:
+            q = "Lifetime medium motion hours at last incompatible volume "
+                "load";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 6:
+            q = "Lifetime power on hours at last temperature condition "
+                "occurrence";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 7:
+            q = "Lifetime power on hours at last power consumption condition "
+                "occurrence";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 8:
+            q = "Medium motion hours since last successful cleaning "
+                "operation";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 9:
+            q = "Medium motion hours since second to last successful "
+                "cleaning operation";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0xa:
+            q = "Medium motion hours since third to last successful "
+                "cleaning operation";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0xb:
+            q = "Lifetime power on hours at last operator initiated forced "
+                "reset and/or emergency eject occurrence";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0xc:
+            q = "Lifetime power cycles";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0xd:
+            q = "Volume loads since last parameter reset";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0xe:
+            q = "Hard write errors";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0xf:
+            q = "Hard read errors";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x10:
+            q = "Duty cycle sample time";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x11:
+            q = "Read duty cycle";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x12:
+            q = "Write duty cycle";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x13:
+            q = "Activity duty cycle";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x14:
+            q = "Volume not present duty cycle";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x15:
+            q = "Ready duty cycle";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x16:
+            q = "Megabytes transferred from application client in duty cycle"
+                "sample time";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x17:
+            q = "Megabytes transferred to application client in duty cycle"
+                "sample time";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x40:
+            {
+                std::string s((const char *)(ucp + 4), ucp[3]);
+                q = "Drive manufacturer's serial number";
+                jout("    %s: %s\n", q, s.c_str());
+                jglb[jname][q] = s;
+            }
+            break;
+        case 0x41:
+            {
+                std::string s((const char *)(ucp + 4), ucp[3]);
+                q = "Drive serial number";
+                jout("    %s: %s\n", q, s.c_str());
+                jglb[jname][q] = s;
+            }
+            break;
+        case 0x42:
+            {
+                std::string s((const char *)(ucp + 4), ucp[3]);
+                q = "Manufacturing date year,month,day";
+                jout("    %s: %s\n", q, s.c_str());
+                jglb[jname][q] = s;
+            }
+            break;
+        case 0x43:
+            {
+                std::string s((const char *)(ucp + 4), ucp[3]);
+                q = "Manufacturing date year,week";
+                jout("    %s: %s\n", q, s.c_str());
+                jglb[jname][q] = s;
+            }
+            break;
+        case 0x44:
+            {
+                std::string s((const char *)(ucp + 4), ucp[3]);
+                q = "Manufacturing date year,week";
+                jout("    %s: %s\n", q, s.c_str());
+                jglb[jname][q] = s;
+            }
+            break;
+        case 0x80:
+            q = "Medium removal prevented";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x81:
+            q = "Maximum recommended mechanism temperature exceeded";
+            ull = variableLengthIntegerParam(ucp);
+            jout("    %s: %" PRIu64 "\n", q, ull);
+            jglb[jname][q] = ull;
+            break;
+        case 0x1000:
+            q = "Medium motion hours for each medium type";
+            n = ucp[3] / 8;
+            jout("    %s, number of element: %u\n", q, n);
+            for (k = 0; k < n; ++k, ucp += 8) {
+                u = sg_get_unaligned_be32(ucp + 8);
+                jout("      [%d] density code: %u, density code: %u, hours: "
+                     "%u\n", k + 1, ucp[6], ucp[7], u);
+                jglb[jname][q][k]["density code"] = ucp[6];
+                jglb[jname][q][k]["medium type"] = ucp[7];
+                jglb[jname][q][k]["medium motion hours"] = u;
+            }
+            break;
         default:        /* ignore other parameter codes */
             break;
         }
@@ -1351,13 +1863,12 @@ scsiPrintSSMedia(scsi_device * device)
 static int
 scsiPrintFormatStatus(scsi_device * device)
 {
-    int k, num, err, truncated;
+    int num, err, truncated;
     int retval = 0;
     uint64_t ull;
     uint8_t * ucp;
-    uint8_t * xp;
     static const char * hname = "Format Status";
-    static const char * jname = "format_status";
+    static const char * jname = "scsi_format_status";
 
     if ((err = scsiLogSense(device, FORMAT_STATUS_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1434,16 +1945,10 @@ scsiPrintFormatStatus(scsi_device * device)
             break;
         }
         if (is_count) {
-            k = pl - 4;
-            xp = ucp + 4;
-            if (all_ffs(xp, k)) {
+            if (all_ffs(ucp + 4, ucp[3])) {
                 pout("%s <not available>\n", jout_str);
             } else {
-                if (k > (int)sizeof(ull)) {
-                    xp += (k - sizeof(ull));
-                    k = sizeof(ull);
-                }
-                ull = sg_get_unaligned_be(k, xp);
+                ull = variableLengthIntegerParam(ucp);
                 jout("%s = %" PRIu64 "\n", jout_str, ull);
                 jglb[jname][jglb_str] = ull;
             }
@@ -1456,130 +1961,202 @@ scsiPrintFormatStatus(scsi_device * device)
 }
 
 static void
-show_sas_phy_event_info(int peis, unsigned int val, unsigned thresh_val)
+show_sas_phy_event_info(const json::ref & jref, int peis, unsigned int val,
+                        unsigned thresh_val)
 {
     unsigned int u;
+    const char * q;
+    static const char * pvd_th = "Peak value detector threshold";
+    static const char * pvd_th_j = "pvd_threshold";
 
     switch (peis) {
     case 0:
-        pout("     No event\n");
+        jout("     No event\n");
         break;
-    case 0x1:
-        pout("     Invalid word count: %u\n", val);
+    case 0x1:   /* 0x1 to 0x4 will be duplicates so append "_2" to name */
+        q = "Invalid dword count";
+        jout("     %s: %u\n", q, val);
+        jref[std::string(q) + "_2"] = val;
         break;
     case 0x2:
-        pout("     Running disparity error count: %u\n", val);
+        q = "Running disparity error count";
+        jout("     %s: %u\n", q, val);
+        jref[std::string(q) + "_2"] = val;
         break;
     case 0x3:
-        pout("     Loss of dword synchronization count: %u\n", val);
+        q = "Loss of dword synchronization count";
+        jout("     %s: %u\n", q, val);
+        jref[std::string(q) + "_2"] = val;
         break;
     case 0x4:
-        pout("     Phy reset problem count: %u\n", val);
+        q = "Phy reset problem count";
+        jout("     %s: %u\n", q, val);
+        jref[std::string(q) + "_2"] = val;
         break;
     case 0x5:
-        pout("     Elasticity buffer overflow count: %u\n", val);
+        q = "Elasticity buffer overflow count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x6:
-        pout("     Received ERROR  count: %u\n", val);
+        q = "Received ERROR count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x20:
-        pout("     Received address frame error count: %u\n", val);
+        q = "Received address frame error count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x21:
-        pout("     Transmitted abandon-class OPEN_REJECT count: %u\n", val);
+        q = "Transmitted abandon-class OPEN_REJECT count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x22:
-        pout("     Received abandon-class OPEN_REJECT count: %u\n", val);
+        q = "Received abandon-class OPEN_REJECT count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x23:
-        pout("     Transmitted retry-class OPEN_REJECT count: %u\n", val);
+        q = "Transmitted retry-class OPEN_REJECT count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x24:
-        pout("     Received retry-class OPEN_REJECT count: %u\n", val);
+        q = "Received retry-class OPEN_REJECT count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x25:
-        pout("     Received AIP (WAITING ON PARTIAL) count: %u\n", val);
+        q = "Received AIP (WAITING ON PARTIAL) count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x26:
-        pout("     Received AIP (WAITING ON CONNECTION) count: %u\n", val);
+        q = "Received AIP (WAITING ON CONNECTION) count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x27:
-        pout("     Transmitted BREAK count: %u\n", val);
+        q = "Transmitted BREAK count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x28:
-        pout("     Received BREAK count: %u\n", val);
+        q = "Received BREAK count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x29:
-        pout("     Break timeout count: %u\n", val);
+        q = "Break timeout count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x2a:
-        pout("     Connection count: %u\n", val);
+        q = "Connection count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x2b:
-        pout("     Peak transmitted pathway blocked count: %u\n",
-               val & 0xff);
-        pout("         Peak value detector threshold: %u\n",
-               thresh_val & 0xff);
+        q = "Peak transmitted pathway blocked";
+        jout("     %s count: %u\n", q, val & 0xff);
+        jout("         %s: %u\n", pvd_th, thresh_val & 0xff);
+        jref[q]["count"] = val & 0xff;
+        jref[q][pvd_th_j] = thresh_val & 0xff;
         break;
     case 0x2c:
+        q = "Peak transmitted arbitration wait time";
         u = val & 0xffff;
-        if (u < 0x8000)
-            pout("     Peak transmitted arbitration wait time (us): "
-                   "%u\n", u);
-        else
-            pout("     Peak transmitted arbitration wait time (ms): "
-                   "%u\n", 33 + (u - 0x8000));
+        if (u < 0x8000) {
+            jout("     %s (us): %u\n", q, u);
+            jref[std::string(q) + "_us"]["event"] = u;
+        } else {
+            jout("     %s (ms): %u\n", q, 33 + (u - 0x8000));
+            jref[std::string(q) + "_ms"]["event"] = 33 + (u - 0x8000);
+        }
         u = thresh_val & 0xffff;
-        if (u < 0x8000)
-            pout("         Peak value detector threshold (us): %u\n",
-                   u);
-        else
-            pout("         Peak value detector threshold (ms): %u\n",
-                   33 + (u - 0x8000));
+        if (u < 0x8000) {
+            jout("         %s (us): %u\n", pvd_th, u);
+            jref[std::string(q) + "_us"][pvd_th_j] = u;
+        } else {
+            jout("         %s (ms): %u\n", pvd_th, 33 + (u - 0x8000));
+            jref[std::string(q) + "_ms"][pvd_th_j] = 33 + (u - 0x8000);
+        }
         break;
     case 0x2d:
-        pout("     Peak arbitration time (us): %u\n", val);
-        pout("         Peak value detector threshold: %u\n", thresh_val);
+        q = "Peak arbitration time";
+        jout("     %s (us): %u\n", q, val);
+        jref[std::string(q) + "_us"]["event"] = val;
+        jout("         %s: %u\n", pvd_th, thresh_val);
+        jref[std::string(q) + "_us"][pvd_th_j] = thresh_val;
         break;
     case 0x2e:
-        pout("     Peak connection time (us): %u\n", val);
-        pout("         Peak value detector threshold: %u\n", thresh_val);
+        q = "Peak connection time";
+        jout("     %s (us): %u\n", q, val);
+        jref[std::string(q) + "_us"]["event"] = val;
+        jout("         %s: %u\n", pvd_th, thresh_val);
+        jref[std::string(q) + "_us"][pvd_th_j] = thresh_val;
         break;
     case 0x40:
-        pout("     Transmitted SSP frame count: %u\n", val);
+        q = "Transmitted SSP frame count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x41:
-        pout("     Received SSP frame count: %u\n", val);
+        q = "Received SSP frame count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x42:
-        pout("     Transmitted SSP frame error count: %u\n", val);
+        q = "Transmitted SSP frame error count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x43:
-        pout("     Received SSP frame error count: %u\n", val);
+        q = "Received SSP frame error count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x44:
-        pout("     Transmitted CREDIT_BLOCKED count: %u\n", val);
+        q = "Transmitted CREDIT_BLOCKED count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x45:
-        pout("     Received CREDIT_BLOCKED count: %u\n", val);
+        q = "Received CREDIT_BLOCKED count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x50:
-        pout("     Transmitted SATA frame count: %u\n", val);
+        q = "Transmitted SATA frame count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x51:
-        pout("     Received SATA frame count: %u\n", val);
+        q = "Received SATA frame count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x52:
-        pout("     SATA flow control buffer overflow count: %u\n", val);
+        q = "SATA flow control buffer overflow count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x60:
-        pout("     Transmitted SMP frame count: %u\n", val);
+        q = "Transmitted SMP frame count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x61:
-        pout("     Received SMP frame count: %u\n", val);
+        q = "Received SMP frame count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     case 0x63:
-        pout("     Received SMP frame error count: %u\n", val);
+        q = "Received SMP frame error count";
+        jout("     %s: %u\n", q, val);
+        jref[q] = val;
         break;
     default:
         break;
@@ -1587,23 +2164,34 @@ show_sas_phy_event_info(int peis, unsigned int val, unsigned thresh_val)
 }
 
 static void
-show_sas_port_param(unsigned char * ucp, int param_len)
+show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
 {
-    int j, m, nphys, t, sz, spld_len;
+    int k, j, m, nphys, t, sz, spld_len;
+    char pn[32];
     unsigned char * vcp;
     char s[64];
+    const char * q;
 
+    snprintf(pn, sizeof(pn), "scsi_sas_port_%d", port_num);
     sz = sizeof(s);
     // pcb = ucp[2];
     t = sg_get_unaligned_be16(ucp + 0);
-    pout("relative target port id = %d\n", t);
-    pout("  generation code = %d\n", ucp[6]);
+    jout("relative target port id = %d\n", t);
+    jglb[pn]["relative_target_port_id"] = t;
+    jout("  generation code = %d\n", ucp[6]);
+    jglb[pn]["generation_code"] = ucp[6];
     nphys = ucp[7];
-    pout("  number of phys = %d\n", nphys);
+    jout("  number of phys = %d\n", nphys);
+    jglb[pn]["number_of_phys"] = nphys;
 
-    for (j = 0, vcp = ucp + 8; j < (param_len - 8);
-         vcp += spld_len, j += spld_len) {
-        pout("  phy identifier = %d\n", vcp[1]);
+    for (j = 0, k = 0, vcp = ucp + 8; j < (param_len - 8);
+         vcp += spld_len, j += spld_len, ++k) {
+        char yn[32];
+
+        snprintf(yn, sizeof(yn), "phy_%d", k);
+        json::ref jref = jglb[pn][yn];
+        jout("  phy identifier = %d\n", vcp[1]);
+        jref["identifier"] = vcp[1];
         spld_len = vcp[3];
         if (spld_len < 44)
             spld_len = 48;      /* in SAS-1 and SAS-1.1 vcp[3]==0 */
@@ -1617,7 +2205,9 @@ show_sas_port_param(unsigned char * ucp, int param_len)
         case 3: snprintf(s, sz, "expander device (fanout)"); break;
         default: snprintf(s, sz, "reserved [%d]", t); break;
         }
-        pout("    attached device type: %s\n", s);
+        q = "attached device type";
+        jout("    %s: %s\n", q, s);
+        jref[q] = s;
         t = 0xf & vcp[4];
         switch (t) {
         case 0: snprintf(s, sz, "unknown"); break;
@@ -1634,7 +2224,9 @@ show_sas_port_param(unsigned char * ucp, int param_len)
              break;
         default: snprintf(s, sz, "reserved [0x%x]", t); break;
         }
-        pout("    attached reason: %s\n", s);
+        q = "attached reason";
+        jout("    %s: %s\n", q, s);
+        jref[q] = s;
         t = (vcp[5] & 0xf0) >> 4;
         switch (t) {
         case 0: snprintf(s, sz, "unknown"); break;
@@ -1651,7 +2243,9 @@ show_sas_port_param(unsigned char * ucp, int param_len)
              break;
         default: snprintf(s, sz, "reserved [0x%x]", t); break;
         }
-        pout("    reason: %s\n", s);
+        q = "reason";
+        jout("    %s: %s\n", q, s);
+        jref[q] = s;
         t = (0xf & vcp[5]);
         switch (t) {
         case 0: snprintf(s, sz, "phy enabled; unknown");
@@ -1673,43 +2267,77 @@ show_sas_port_param(unsigned char * ucp, int param_len)
         case 0xb: snprintf(s, sz, "phy enabled; 12 Gbps"); break;
         default: snprintf(s, sz, "reserved [%d]", t); break;
         }
-        pout("    negotiated logical link rate: %s\n", s);
-        pout("    attached initiator port: ssp=%d stp=%d smp=%d\n",
+        q = "negotiated logical link rate";
+        jout("    %s: %s\n", q, s);
+        jref[q] = s;
+        q = "attached initiator port";
+        jout("    %s: ssp=%d stp=%d smp=%d\n", q,
                !! (vcp[6] & 8), !! (vcp[6] & 4), !! (vcp[6] & 2));
-        pout("    attached target port: ssp=%d stp=%d smp=%d\n",
+        snprintf(s, sz, "%03d", ((vcp[6] & 8) ? 100 : 0) +
+                 ((vcp[6] & 4) ? 10 : 0) + ((vcp[6] & 2) ? 1 : 0));
+        jref[q]["ssp_stp_smp"] = s;
+        q = "attached target port";
+        jout("    %s: ssp=%d stp=%d smp=%d\n", q,
                !! (vcp[7] & 8), !! (vcp[7] & 4), !! (vcp[7] & 2));
+        snprintf(s, sz, "%03d", ((vcp[7] & 8) ? 100 : 0) +
+                 ((vcp[7] & 4) ? 10 : 0) + ((vcp[7] & 2) ? 1 : 0));
+        jref[q]["ssp_stp_smp"] = s;
         if (!dont_print_serial_number) {
             uint64_t ull = sg_get_unaligned_be64(vcp + 8);
+            char b[32];
 
-            pout("    SAS address = 0x%" PRIx64 "\n", ull);
+            snprintf(b, sizeof(b), "0x%" PRIx64, ull);
+            q = "SAS address";
+            jout("    %s = %s\n", q, b);
+            jref[q] = b;
             ull = sg_get_unaligned_be64(vcp + 16);
-            pout("    attached SAS address = 0x%" PRIx64 "\n", ull);
+            snprintf(b, sizeof(b), "0x%" PRIx64, ull);
+            q = "attached SAS address";
+            jout("    %s = %s\n", q, b);
+            jref[q] = b;
         }
-        pout("    attached phy identifier = %d\n", vcp[24]);
+        q = "attached phy identifier";
+        jout("    %s = %d\n", q, vcp[24]);
+        jref[q] = vcp[24];
         unsigned int ui = sg_get_unaligned_be32(vcp + 32);
 
-        pout("    Invalid DWORD count = %u\n", ui);
+        q = "Invalid DWORD count";
+        jout("    %s = %u\n", q, ui);
+        jref[q] = ui;
         ui = sg_get_unaligned_be32(vcp + 36);
-        pout("    Running disparity error count = %u\n", ui);
+        q = "Running disparity error count";
+        jout("    %s = %u\n", q, ui);
+        jref[q] = ui;
         ui = sg_get_unaligned_be32(vcp + 40);
-        pout("    Loss of DWORD synchronization = %u\n", ui);
+        q = "Loss of DWORD synchronization count";
+        jout("    %s = %u\n", q, ui);
+        jref[q] = ui;
         ui = sg_get_unaligned_be32(vcp + 44);
-        pout("    Phy reset problem = %u\n", ui);
+        q = "Phy reset problem count";
+        jout("    %s = %u\n", q, ui);
+        jref[q] = ui;
         if (spld_len > 51) {
+            bool header_given = false;
+            bool allow_dupl = (scsi_debugmode > 0);
             int num_ped;
             unsigned char * xcp;
 
             num_ped = vcp[51];
-            if (num_ped > 0)
-               pout("    Phy event descriptors:\n");
             xcp = vcp + 52;
             for (m = 0; m < (num_ped * 12); m += 12, xcp += 12) {
                 int peis;
                 unsigned int pvdt;
+
                 peis = xcp[3];
                 ui = sg_get_unaligned_be32(xcp + 4);
                 pvdt = sg_get_unaligned_be32(xcp + 8);
-                show_sas_phy_event_info(peis, ui, pvdt);
+                if (allow_dupl || (peis > 0x4)) {
+                    if (! header_given) {
+                        header_given = true;
+                        jout("    Phy event descriptors:\n");
+                    }
+                    show_sas_phy_event_info(jref, peis, ui, pvdt);
+                }
             }
         }
     }
@@ -1717,19 +2345,19 @@ show_sas_port_param(unsigned char * ucp, int param_len)
 
 // Returns 1 if okay, 0 if non SAS descriptors
 static int
-show_protocol_specific_page(unsigned char * resp, int len)
+show_protocol_specific_port_page(unsigned char * resp, int len)
 {
-    int k, num;
+    int k, j, num;
     unsigned char * ucp;
 
     num = len - 4;
-    for (k = 0, ucp = resp + 4; k < num; ) {
+    for (k = 0, j = 0, ucp = resp + 4; k < num; ++j) {
         int param_len = ucp[3] + 4;
         if (SCSI_TPROTO_SAS != (0xf & ucp[4]))
             return 0;   /* only decode SAS log page */
         if (0 == k)
-            pout("Protocol Specific port log page for SAS SSP\n");
-        show_sas_port_param(ucp, param_len);
+            jout("\nProtocol Specific port log page for SAS SSP\n");
+        show_sas_port_param(j, ucp, param_len);
         k += param_len;
         ucp += param_len;
     }
@@ -1762,7 +2390,7 @@ scsiPrintSasPhy(scsi_device * device, int reset)
     }
     // compute page length
     num = sg_get_unaligned_be16(gBuf + 2);
-    if (1 != show_protocol_specific_page(gBuf, num + 4)) {
+    if (1 != show_protocol_specific_port_page(gBuf, num + 4)) {
         print_on();
         pout("Only support %s log page on SAS devices\n\n", hname);
         print_off();
@@ -1839,7 +2467,8 @@ static const char * transport_proto_arr[] = {
 
 /* Returns 0 on success, 1 on general error and 2 for early, clean exit */
 static int
-scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
+scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type,
+                 bool & have_zbc, bool all)
 {
     struct scsi_iec_mode_page iec;
     int err, iec_err, len, req_len, avail_len;
@@ -1850,8 +2479,10 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     int form_factor = 0;
     int haw_zbc = 0;
     int protect = 0;
+    const char * q;
 
     memset(gBuf, 0, 96);
+    have_zbc = false;
     req_len = 36;
     if ((err = scsiStdInquiry(device, gBuf, req_len))) {
         print_on();
@@ -1872,6 +2503,8 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     len = (avail_len < req_len) ? avail_len : req_len;
     peri_dt = gBuf[0] & 0x1f;
     *peripheral_type = peri_dt;
+    if (SCSI_PT_HOST_MANAGED == peri_dt)
+        have_zbc = true;
     if ((SCSI_PT_SEQUENTIAL_ACCESS == peri_dt) ||
         (SCSI_PT_MEDIUM_CHANGER == peri_dt))
         is_tape = true;
@@ -1894,15 +2527,15 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
 
         pout("=== START OF INFORMATION SECTION ===\n");
         jout("Vendor:               %.8s\n", scsi_vendor);
-        jglb["vendor"] = scsi_vendor;
+        jglb["scsi_vendor"] = scsi_vendor;
         jout("Product:              %.16s\n", product);
-        jglb["product"] = product;
-        jglb["model_name"] = strprintf("%s%s%s",
+        jglb["scsi_product"] = product;
+        jglb["scsi_model_name"] = strprintf("%s%s%s",
           scsi_vendor, (*scsi_vendor && *product ? " " : ""), product);
         if (gBuf[32] >= ' ') {
             jout("Revision:             %.4s\n", revision);
             // jglb["firmware_version"] = revision;
-            jglb["revision"] = revision;        /* could be a hardware rev */
+            jglb["scsi_revision"] = revision;
         }
         if ((scsi_version > 0x3) && (scsi_version < 0x8)) {
             char sv_arr[8];
@@ -1931,6 +2564,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
         unsigned char lb_prov_resp[8];
         uint64_t capacity = scsiGetSize(device, false /*avoid_rcap16 */,
                                         &srr);
+        static const char * lb_prov_j = "scsi_lb_provisioning";
 
         if (capacity) {
             char cap_str[64], si_str[64];
@@ -1967,15 +2601,20 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
                              srr.prot_type);
                         break;
                     }
+                    jglb["scsi_protection_type"] = srr.prot_type;
                     unsigned p_i_per_lb = (1 << srr.p_i_exp);
                     const unsigned pi_sz = 8;   /* ref-tag(4 bytes),
                                                    app-tag(2), tag-mask(2) */
 
-                    if (p_i_per_lb > 1)
-                        pout("%d protection information intervals per "
+                    if (p_i_per_lb > 1) {
+                        jout("%d protection information intervals per "
                              "logical block\n", p_i_per_lb);
-                    pout("%d bytes of protection information per logical "
+                        jglb["scsi_protection_intervals_per_lb"] = srr.prot_type;
+                    }
+                    jout("%d bytes of protection information per logical "
                          "block\n", pi_sz * p_i_per_lb);
+                    jglb["scsi_protection_interval_bytes_per_lb"] =
+                                                        pi_sz * p_i_per_lb;
                 }
                 /* Pick up some LB provisioning info since its available */
                 lbpme = (int)srr.lbpme;
@@ -1999,30 +2638,41 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
             switch (prov_type) {
             case 0:
                 if (lbpme <= 0) {
-                    pout("LU is fully provisioned");
+                    jout("LU is fully provisioned");
+                    jglb[lb_prov_j]["name"] = "fully provisioned";
                     if (lbprz)
-                        pout(" [LBPRZ=%d]\n", lbprz);
+                        jout(" [LBPRZ=%d]\n", lbprz);
                     else
-                        pout("\n");
-                } else
-                     pout("LB provisioning type: not reported [LBPME=1, "
-                          "LBPRZ=%d]\n", lbprz);
+                        jout("\n");
+                } else {
+                    jout("LB provisioning type: not reported [LBPME=1, "
+                         "LBPRZ=%d]\n", lbprz);
+                    jglb[lb_prov_j]["name"] = "not reported";
+                }
                 break;
             case 1:
-                pout("LU is resource provisioned, LBPRZ=%d\n", lbprz);
+                jout("LU is resource provisioned, LBPRZ=%d\n", lbprz);
+                jglb[lb_prov_j]["name"] = "resource provisioned";
                 break;
             case 2:
-                pout("LU is thin provisioned, LBPRZ=%d\n", lbprz);
+                jout("LU is thin provisioned, LBPRZ=%d\n", lbprz);
+                jglb[lb_prov_j]["name"] = "thin provisioned";
                 break;
             default:
-                pout("LU provisioning type reserved [%d], LBPRZ=%d\n",
+                jout("LU provisioning type reserved [%d], LBPRZ=%d\n",
                      prov_type, lbprz);
+                jglb[lb_prov_j]["name"] = "reserved";
                 break;
             }
+            jglb[lb_prov_j]["value"] = prov_type;
+            jglb[lb_prov_j]["management_enabled"]["name"] = "LBPME";
+            jglb[lb_prov_j]["management_enabled"]["value"] = lbpme;
+            jglb[lb_prov_j]["read_zeros"]["name"] = "LBPRZ";
+            jglb[lb_prov_j]["read_zeros"]["value"] = lbprz;
         } else if (1 == lbpme) {
             if (scsi_debugmode > 0)
-                pout("rcap_16 sets LBPME but no LB provisioning VPD page\n");
-            pout("Logical block provisioning enabled, LBPRZ=%d\n", lbprz);
+                jout("rcap_16 sets LBPME but no LB provisioning VPD page\n");
+            jout("Logical block provisioning enabled, LBPRZ=%d\n", lbprz);
         }
 
         int rpm = scsiGetRPM(device, modese_len, &form_factor, &haw_zbc);
@@ -2063,8 +2713,26 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
                 jglb["form_factor"]["name"] = strprintf("%s inches", cp);
             }
         }
-        if (haw_zbc > 0)
-            pout("Host aware zoned block capable\n");
+        if (haw_zbc == 1) {
+            have_zbc = true;
+            q = "Host aware zoned block capable";
+            jout("%s\n", q);
+            jglb[std::string("scsi_") + q] = true;
+        } else if (haw_zbc == 2) {
+            have_zbc = true;
+            q = "Device managed zoned block capable";
+            jout("%s\n", q);
+            jglb[std::string("scsi_") + q] = true;
+        } else {
+            supported_vpd_pages * s_vpd_pp = supported_vpd_pages_p;
+
+            if (s_vpd_pp &&
+                s_vpd_pp->is_supported(SCSI_VPD_ZONED_BLOCK_DEV_CHAR)) {
+                // TODO: need to read that VPD page and look at the
+                // 'Zoned block device extension' field
+
+            }
+        }
     }
 
     /* Do this here to try and detect badly conforming devices (some USB
@@ -2087,8 +2755,10 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
 
             len = gBuf[3];
             scsi_decode_lu_dev_id(gBuf + 4, len, s, sizeof(s), &transport);
-            if (strlen(s) > 0)
-                pout("Logical Unit id:      %s\n", s);
+            if (strlen(s) > 0) {
+                jout("Logical Unit id:      %s\n", s);
+                jglb["logical_unit_id"] = s;
+            }
         } else if (scsi_debugmode > 0) {
             print_on();
             if (SIMPLE_ERR_BAD_RESP == err)
@@ -2117,9 +2787,9 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     }
 
     // print SCSI peripheral device type
+    jglb["device_type"]["scsi_terminology"] = "Peripheral Device Type [PDT]";
     jglb["device_type"]["scsi_value"] = peri_dt;
-    if (peri_dt < (int)(sizeof(peripheral_dt_arr) /
-                        sizeof(peripheral_dt_arr[0]))) {
+    if (peri_dt < (int)(ARRAY_SIZE(peripheral_dt_arr))) {
         jout("Device type:          %s\n", peripheral_dt_arr[peri_dt]);
         jglb["device_type"]["name"] = peripheral_dt_arr[peri_dt];
     }
@@ -2130,9 +2800,9 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     if (transport < 0)
         transport = scsiFetchTransportProtocol(device, modese_len);
     if ((transport >= 0) && (transport <= 0xf)) {
-        pout("Transport protocol:   %s\n", transport_proto_arr[transport]);
-        jglb["transport_protocol"]["name"] = transport_proto_arr[transport];
-        jglb["transport_protocol"]["value"] = transport;
+        jout("Transport protocol:   %s\n", transport_proto_arr[transport]);
+        jglb["scsi_transport_protocol"]["name"] = transport_proto_arr[transport];
+        jglb["scsi_transport_protocol"]["value"] = transport;
     }
 
     jout_startup_datetime("Local Time is:        ");
@@ -2172,7 +2842,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
     if (iec_err) {
         if (!is_tape) {
             print_on();
-            pout("SMART support is:     Unavailable - device lacks SMART "
+            jout("SMART support is:     Unavailable - device lacks SMART "
                  "capability.\n");
             jglb["smart_support"]["available"] = false;
             if (scsi_debugmode > 0)
@@ -2185,13 +2855,13 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type, bool all)
 
     if (!is_tape) {
         ok = scsi_IsExceptionControlEnabled(&iec);
-        pout("SMART support is:     Available - device has SMART capability.\n"
+        jout("SMART support is:     Available - device has SMART capability.\n"
              "SMART support is:     %s\n", ok ? "Enabled" : "Disabled");
         jglb["smart_support"]["available"] = true;
         jglb["smart_support"]["enabled"] = ok;
     }
     ok = scsi_IsWarningEnabled(&iec);
-    pout("Temperature Warning:  %s\n",
+    jout("Temperature Warning:  %s\n",
          ok ? "Enabled" : "Disabled or Not Supported");
     jglb["temperature_warning"]["enabled"] = ok;
     return 0;
@@ -2295,16 +2965,174 @@ scsiPrintTemp(scsi_device * device)
     pout("\n");
 }
 
+static void
+scsiPrintEnviroReporting(scsi_device * device)
+{
+    int len, num, err;
+    int temp_num = 0;
+    int humid_num = 0;
+    unsigned char * ucp;
+    const char * q;
+    static const char * hname = "Environmental Reports";
+    static const char * jname = "scsi_environmental_reports";
+    static const char * rh_n = "relative humidity";
+    static const char * temp_n = "temperature";
+    static const char * sop_n = "since power on";
+    static const char * unkn_n = "unknown";
+
+   if ((err = scsiLogSense(device, TEMPERATURE_LPAGE, ENVIRO_REP_L_SPAGE,
+                           gBuf, LOG_RESP_LEN, -1 /* single fetch */))) {
+        print_on();
+        pout("%s Failed [%s]\n", __func__, scsiErrString(err));
+        print_off();
+        return;
+    }
+    if (((gBuf[0] & 0x3f) != TEMPERATURE_LPAGE) ||
+        (gBuf[1] != ENVIRO_REP_L_SPAGE)) {
+        print_on();
+        pout("%s %s Failed, page mismatch\n", hname, logSenStr);
+        print_off();
+        return;
+    }
+    if (! (gBuf[0] & 0x40)) {
+        if (scsi_debugmode > 0) {
+            print_on();
+            pout("Another flaky device that doesn't set the SPF bit\n");
+            print_off();
+        }
+    }
+    len = sg_get_unaligned_be16(gBuf + 2);
+    num = len - 4;
+    ucp = &gBuf[0] + 4;
+
+    while (num > 3) {
+        int pc = sg_get_unaligned_be16(ucp + 0);
+        int pl = ucp[3] + 4;
+        char pc_s[32];
+
+        if ((pc < 0x100) && (pl == 12)) {
+            snprintf(pc_s, sizeof(pc_s), "temperature_%d", ++temp_num);
+            /* temperature is two's complement 8 bit in centigrade */
+            int temp = (int)(int8_t)ucp[5];
+
+            jglb[jname][pc_s]["parameter_code"] = pc;
+            q = "Current";
+            if (ucp[5] == 0x80) {
+                jout("%s %s = %s\n", q, temp_n, unkn_n);
+                jglb[jname][pc_s][q] = unkn_n;
+            } else {
+                jout("%s %s = %d\n", q, temp_n, temp);
+                jglb[jname][pc_s][q] = temp;
+            }
+            temp = (int)(int8_t)ucp[6];
+            q = "Lifetime maximum";
+            if (ucp[6] == 0x80) {
+                jout("%s %s = %s\n", q, temp_n, unkn_n);
+                jglb[jname][pc_s][q] = unkn_n;
+            } else {
+                jout("%s %s = %d\n", q, temp_n, temp);
+                jglb[jname][pc_s][q] = temp;
+            }
+            temp = (int)(int8_t)ucp[7];
+            q = "Lifetime minimum";
+            if (ucp[7] == 0x80) {
+                jout("%s %s = %s\n", q, temp_n, unkn_n);
+                jglb[jname][pc_s][q] = unkn_n;
+            } else {
+                jout("%s %s = %d\n", q, temp_n, temp);
+                jglb[jname][pc_s][q] = temp;
+            }
+            temp = (int)(int8_t)ucp[8];
+            q = "Maximum since power on";
+            if (ucp[8] == 0x80) {
+                jout("Maximum %s %s = %s\n", temp_n, sop_n, unkn_n);
+                jglb[jname][pc_s][q] = unkn_n;
+            } else {
+                jout("Maximum %s %s = %d\n", temp_n, sop_n, temp);
+                jglb[jname][pc_s][q] = temp;
+            }
+            temp = (int)(int8_t)ucp[9];
+            q = "Minimum since power on";
+            if (ucp[9] == 0x80) {
+                jout("Minimum %s %s = %s\n", temp_n, sop_n, unkn_n);
+                jglb[jname][pc_s][q] = unkn_n;
+            } else {
+                jout("Minimum %s %s = %d\n", temp_n, sop_n, temp);
+                jglb[jname][pc_s][q] = temp;
+            }
+            if ((ucp[4] & 0x3) == 1) {  /* OTV field set to 1 */
+                temp = (int)(int8_t)ucp[10];
+                q = "Maximum other";
+                if (ucp[10] == 0x80) {
+                    jout("%s %s = %s\n", q, temp_n, unkn_n);
+                    jglb[jname][pc_s][q] = unkn_n;
+                } else {
+                    jout("%s %s = %d\n", q, temp_n, temp);
+                    jglb[jname][pc_s][q] = temp;
+                }
+                temp = (int)(int8_t)ucp[11];
+                q = "Minimum other";
+                if (ucp[11] == 0x80) {
+                    jout("%s %s = %s\n", q, temp_n, unkn_n);
+                    jglb[jname][pc_s][q] = unkn_n;
+                } else {
+                    jout("%s %s = %d\n", q, temp_n, temp);
+                    jglb[jname][pc_s][q] = temp;
+                }
+            }
+        } else if ((pc < 0x200) && (pl == 12)) {
+            snprintf(pc_s, sizeof(pc_s), "relative_humidity_%d", ++humid_num);
+            jglb[jname][pc_s]["parameter_code"] = pc;
+            jout("Relative humidity = %u\n", ucp[5]);
+            jglb[jname][pc_s]["current"] = ucp[5];
+            q = "Lifetime maximum";
+            jout("%s %s = %d\n", q, rh_n, ucp[6]);
+            jglb[jname][pc_s][q] = ucp[6];
+            q = "Lifetime minimum";
+            jout("%s %s = %d\n", q, rh_n, ucp[7]);
+            jglb[jname][pc_s][q] = ucp[7];
+            jout("Maximum %s %s = %d\n", rh_n, sop_n, ucp[8]);
+            jglb[jname][pc_s]["maximum_since_power_on"] = ucp[8];
+            jout("Minimum %s %s = %d\n", rh_n, sop_n, ucp[9]);
+            jglb[jname][pc_s]["minimum_since_power_on"] = ucp[9];
+            if ((ucp[4] & 0x3) == 1) {  /* ORHV field set to 1 */
+                q = "Maximum other";
+                jout("%s %s = %d\n", q, rh_n, ucp[10]);
+                jglb[jname][pc_s][q] = ucp[10];
+                q = "Minimum other";
+                jout("%s %s = %d\n", q, rh_n, ucp[11]);
+                jglb[jname][pc_s][q] = ucp[11];
+            }
+        } else {
+            if (scsi_debugmode > 0) {
+                print_on();
+                if ((pc < 0x200) && (pl != 12))
+                    pout("%s sub-lpage unexpected parameter length [%d], skip\n",
+                         hname, pl);
+                else
+                    pout("%s sub-lpage has unexpected parameter [0x%x], skip\n",
+                         hname, pc);
+                print_off();
+            }
+            return;
+        }
+        num -= pl;
+        ucp += pl;
+    }
+}
+
 /* Main entry point used by smartctl command. Return 0 for success */
 int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 {
-    int checkedSupportedLogPages = 0;
+    bool checkedSupportedLogPages = false;
+    bool envRepDone = false;
     uint8_t peripheral_type = 0;
     int returnval = 0;
     int res, durationSec;
     struct scsi_sense_disect sense_info;
     bool is_disk;
+    bool is_zbc;
     bool is_tape;
     bool any_output = options.drive_info;
 
@@ -2385,7 +3213,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     delete supported_vpd_pages_p;
     supported_vpd_pages_p = new supported_vpd_pages(device);
 
-    res = scsiGetDriveInfo(device, &peripheral_type, options.drive_info);
+    res = scsiGetDriveInfo(device, &peripheral_type, is_zbc,
+                           options.drive_info);
     if (res) {
         if (2 == res)
             return 0;
@@ -2497,16 +3326,21 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 
     if (options.smart_check_status) {
         scsiGetSupportedLogPages(device);
-        checkedSupportedLogPages = 1;
+        checkedSupportedLogPages = true;
         if (is_tape) {
             if (gTapeAlertsLPage) {
-                if (options.drive_info)
-                    pout("TapeAlert Supported\n");
-                if (-1 == scsiGetTapeAlertsData(device, peripheral_type))
-                    failuretest(OPTIONAL_CMD, returnval |= FAILSMART);
+                if (options.drive_info) {
+                    jout("TapeAlert Supported\n");
+                    jglb["tapealert"]["supported"] = true;
+                }
+                if (options.health_opt_count > 1) {
+                    if (-1 == scsiPrintActiveTapeAlerts(device, peripheral_type, true))
+                        failuretest(OPTIONAL_CMD, returnval |= FAILSMART);
+                }
+            } else {
+                jout("TapeAlert Not Supported\n");
+                jglb["tapealert"]["supported"] = false;
             }
-            else
-                pout("TapeAlert Not Supported\n");
         } else { /* disk, cd/dvd, enclosure, etc */
             if ((res = scsiGetSmartData(device,
                                         options.smart_vendor_attrib))) {
@@ -2520,8 +3354,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     }
 
     if (is_disk && options.smart_ss_media_log) {
-        if (! checkedSupportedLogPages)
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
         res = 0;
         if (gSSMediaLPage)
             res = scsiPrintSSMedia(device);
@@ -2534,9 +3370,14 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_vendor_attrib) {
-        if (! checkedSupportedLogPages)
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
-        if (gTempLPage)
+            checkedSupportedLogPages = true;
+        }
+        if (gEnviroReportingLPage && options.smart_env_rep) {
+            scsiPrintEnviroReporting(device);
+	    envRepDone = true;
+        } else if (gTempLPage)
             scsiPrintTemp(device);
         // in the 'smartctl -A' case only want: "Accumulated power on time"
         if ((! options.smart_background_log) && is_disk) {
@@ -2556,20 +3397,32 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
         any_output = true;
     }
-    if (options.smart_error_log) {
-        if (! checkedSupportedLogPages)
+    if (options.smart_error_log || options.scsi_pending_defects) {
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
-        scsiPrintErrorCounterLog(device);
-        if (gPendDefectsLPage)
+            checkedSupportedLogPages = true;
+        }
+        if (options.smart_error_log) {
+            scsiPrintErrorCounterLog(device);
+            any_output = true;
+        }
+        if (gPendDefectsLPage) {
             scsiPrintPendingDefectsLPage(device);
-        if (1 == scsiFetchControlGLTSD(device, modese_len, 1))
-            pout("\n[GLTSD (Global Logging Target Save Disable) set. "
-                 "Enable Save with '-S on']\n");
-        any_output = true;
+            any_output = true;
+        }
+        if (options.smart_error_log) {
+            if (1 == scsiFetchControlGLTSD(device, modese_len, 1)) {
+                pout("\n[GLTSD (Global Logging Target Save Disable) set. "
+                     "Enable Save with '-S on']\n");
+                any_output = true;
+            }
+        }
     }
     if (options.smart_selftest_log) {
-        if (! checkedSupportedLogPages)
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
         res = 0;
         if (gSelfTestLPage)
             res = scsiPrintSelfTest(device);
@@ -2582,8 +3435,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_background_log && is_disk) {
-        if (! checkedSupportedLogPages)
+        if (! checkedSupportedLogPages) {
             scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
         res = 0;
         if (gBackgroundResultsLPage)
             res = scsiPrintBackgroundResults(device, false);
@@ -2594,6 +3449,63 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (0 != res)
             failuretest(OPTIONAL_CMD, returnval|=res);
         any_output = true;
+    }
+    if (options.zoned_device_stats && is_zbc) {
+        if (! checkedSupportedLogPages) {
+            scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
+        res = 0;
+        if (gZBDeviceStatsLPage)
+            res = scsiPrintZBDeviceStats(device);
+        else {
+            pout("Device does not support Zoned block device "
+                 "statistics logging\n");
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        }
+        if (0 != res)
+            failuretest(OPTIONAL_CMD, returnval|=res);
+        any_output = true;
+
+    }
+    if (is_tape) {
+        if (options.tape_device_stats) {
+            if (! checkedSupportedLogPages) {
+                scsiGetSupportedLogPages(device);
+                checkedSupportedLogPages = true;
+            }
+            res = 0;
+            if (gTapeDeviceStatsLPage) {
+                jout("\nDevice Statistics (SSC, tape) log page:\n");
+                res = scsiPrintTapeDeviceStats(device);
+            } else {
+                pout("Device does not support (tape) device characteristics "
+                     "(SSC) logging\n");
+                failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+            }
+            if (0 != res)
+                failuretest(OPTIONAL_CMD, returnval|=res);
+            any_output = true;
+        }
+        if (options.tape_alert) {
+            if (! checkedSupportedLogPages) {
+                scsiGetSupportedLogPages(device);
+                checkedSupportedLogPages = true;
+            }
+            res = 0;
+            if (gTapeAlertsLPage) {
+                jout("\nTape Alert log page:\n");
+                res = scsiPrintActiveTapeAlerts(device, peripheral_type, false);
+            } else {
+                pout("Device does not support TapeAlert logging\n");
+                failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+            }
+            if (res < 0)
+                failuretest(OPTIONAL_CMD, returnval|=res);
+            if ((scsi_debugmode > 0) && (res == 0))
+                pout("TapeAlerts only printed if active, so none printed is good\n");
+            any_output = true;
+        }
     }
     if (options.smart_default_selftest) {
         if (scsiSmartDefaultSelfTest(device))
@@ -2659,10 +3571,26 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         pout("Self Test returned without error\n");
         any_output = true;
     }
-    if (options.sasphy && gProtocolSpecificLPage) {
-        if (scsiPrintSasPhy(device, options.sasphy_reset))
-            return returnval | FAILSMART;
-        any_output = true;
+    if (options.sasphy) {
+        if (! checkedSupportedLogPages) {
+            scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
+	if (gProtocolSpecificLPage) {
+            if (scsiPrintSasPhy(device, options.sasphy_reset))
+                return returnval | FAILSMART;
+            any_output = true;
+	}
+    }
+    if (options.smart_env_rep && ! envRepDone) {
+        if (! checkedSupportedLogPages) {
+            scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
+        if (gEnviroReportingLPage) {
+            scsiPrintEnviroReporting(device);
+            any_output = true;
+        }
     }
 
     if (options.set_standby == 1) {

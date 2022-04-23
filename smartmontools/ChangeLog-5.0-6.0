@@ -478,7 +478,7 @@ smartmontools 5.43 2012-06-30
   [CF] smartd: Disable auto standby also after start of scheduled
        self-test.
 
-  [CF] smartd: Add smartd.conf DEFAULT directive.  Allows to set default
+  [CF] smartd: Add smartd.conf DEFAULT directive. Allows one to set default
        settings for multiple devices.
 
   [CF] smartd: Re-enable auto standby if smartd.conf is re-read.
@@ -1318,7 +1318,7 @@ smartmontools 5.41 2011-06-09
   [CF] Makefile.am: Handle examplescripts in main Makefile.
        Remove 'examplescripts/Makefile.am'.
 
-  [CF] configure.in: New option '--with-exampledir' allows to change
+  [CF] configure.in: New option '--with-exampledir' allows one to change
        path of 'DOCDIR/examplescripts' directory.
        (Debian package uses '/usr/share/doc/smartmontools/examples')
 
@@ -1651,7 +1651,7 @@ smartmontools 5.40 2010-10-16
        - Intel X25-M SSD
 
   [CF] Makefile.am: Fix unix2dos and makensis parameters to allow
-       to build the Windows installer on Linux also.
+       one to build the Windows installer on Linux also.
 
   [CF] Makefile.am: Use a separate build rule for each man page to
        avoid compatibility problems with BSD make.
@@ -1675,7 +1675,7 @@ smartmontools 5.40 2010-10-16
        Patch was provided by Richard Gregory:
        http://www.csc.liv.ac.uk/~greg/projects/erc/
        Modified for new ata_pass_through() interface.
-       Linux HPT fixes ommitted for now.
+       Linux HPT fixes omitted for now.
 
   [CF] Fix SCT temperature table commands on big endian CPUs.
 
@@ -1815,7 +1815,7 @@ smartmontools 5.40 2010-10-16
        Autoconf 2.5x is still supported.
 
   [CF] Move drive database entries from 'knowndrives.cpp' to new file
-       'drivedb.h'.  This allows to update the drive database from SVN
+       'drivedb.h'.  This allows one to update the drive database from SVN
        if installation was configured with '--enable-drivedb'.
        Remove the Makefile target to create 'drivedb.h'.
 
@@ -1856,7 +1856,7 @@ smartmontools 5.39.1 2010-01-28
 
 smartmontools 5.39 2009-12-09
 
-  [CF] do_release: Commit CHANGELOG and NEWS also. Allow to review changes.
+  [CF] do_release: Commit CHANGELOG and NEWS also. Allows one to review changes.
 
   [CF] Linux: Add workaround for Adaptec series 2, 5 and 5Z controllers
        with firmware >= 17380.  Patch was provided by Phil Wilson, see:
@@ -1882,7 +1882,7 @@ smartmontools 5.39 2009-12-09
        - WD My Passport hard drive (USB interface)
 
   [CF] smartd: Write 'worst' attribute value to '.state' file also.
-       This allows to use state persistence with 'raw64' attributes.
+       This allows one to use state persistence with 'raw64' attributes.
 
   [CF] Rework ATA SMART attribute check in smartctl and smartd.
        smartd: Ignore normalized attribute value and threshold
@@ -1906,7 +1906,7 @@ smartmontools 5.39 2009-12-09
   [CF] Add '-v ID,raw64[,...]' print format based on a patch provided
        by Marcin Marszalek.
 
-  [CF] Add '-v ID,RAW_FORMAT[,ATTR_NAME]' option. This allows to add new
+  [CF] Add '-v ID,RAW_FORMAT[,ATTR_NAME]' option. This allows one to add new
        attributes without the need to enhance the '-v' option.
        Rework attribute name and raw value formatting.
 
@@ -2013,7 +2013,7 @@ smartmontools 5.39 2009-12-09
   [CF] Add USB IDs of Maxtor Basics Desktop and ISD-300A1.
 
   [AS] Use malloc() to ensure that the read buffer lands on a single
-       page.  This avoids some bugs seen on LSI controlers under
+       page.  This avoids some bugs seen on LSI controllers under
        FreeBSD.
 
   [CF] Add missing help text for '-d usb*' options.
@@ -2218,7 +2218,7 @@ smartmontools 5.39 2009-12-09
 
   [CF] Simplify '-v' vendor attribute option parsing.
        Add '-v 197,increasing' and '-v 198,increasing' options
-       to specifiy that an uncorrectable count is never reset.
+       to specify that an uncorrectable count is never reset.
        This modifies the printed attribute names and smartd's
        default setting of '-C' and '-U' directives.
        Both '-v' options can also be preset in the drive database.
@@ -2335,7 +2335,7 @@ smartmontools 5.39 2009-12-09
        - Added Hitachi Travelstar E5K160 family
        - Allow uppercase variants of Hitachi 5K160 drives
 
-  [CF] Fix smartctl crash on '-l directory,[gs]'. Allow to override
+  [CF] Fix smartctl crash on '-l directory,[gs]'. Allows one to override
        missing GPL feature bit or missing log dir entry with
        '-T permissive' option.
 
@@ -2422,7 +2422,7 @@ smartmontools 5.39 2009-12-09
        selective self-tests. Useful to perform full tests of large disks
        not running 24x7.
 
-  [CF] Allow to read local drive database entries from optional file
+  [CF] Allows one to read local drive database entries from optional file
        '${sysconfdir}/smart_drivedb.h'.
        Add configure options '--enable-drivedb' and '--with-drivedbdir=DIR'.
        If specified, drive database is read from '${drivedbdir}/drivedb.h'.
@@ -2621,7 +2621,7 @@ smartmontools 5.39 2009-12-09
   [JH] now C++ Support for QNX Target
        already tested for QNX 6.3.2 on x86 and armle target
    
-  [CF] Allow to set BUILD_INFO from make command line.
+  [CF] Allows one to set BUILD_INFO from make command line.
 
   [CF] Windows: Add MSVC8 support, remove MSVC6 project files.
 
@@ -2802,11 +2802,11 @@ SMARTMONTOOLS STABLE RELEASE 5.38 2008/03/10
 
        NOTE2: NOT TESTED ON LINUX.  Do not use this on a production box!
        I will remove this NOTE2 as soon as some positive test
-       reports are recieved.
+       reports are received.
 
        NOTE3: NOT TESTED ON FREEBSD. Do not use this on a production box!
        I will remove this NOTE3 as soon as some positive test
-       reports are recieved.
+       reports are received.
 
   [CF] Windows installer: Added explorer drive menu, CMD window,
        UBCD4Win plugin, smartd service update and other minor
@@ -2835,7 +2835,7 @@ SMARTMONTOOLS STABLE RELEASE 5.38 2008/03/10
        out. 
 
   [CF] Windows: Added IOCTL_SCSI_MINIPORT_*SMART* for commands not handled
-       properly by SMART_IOCTL in disk class driver. This allows to use
+       properly by SMART_IOCTL in disk class driver. This allows one to use
        READ_LOG, WRITE_LOG and ABORT_SELFTEST even if the driver does not
        support ATA_PASS_THROUGH.
 
@@ -3411,7 +3411,7 @@ smartmontools 5.33 Experimental Release
        Windows distribution (dist-win32) and MSVC6 config.h (config-vc6).
 
   [EM] Minor change to FreeBSD inclusion of 'twe' include files.  Add 
-       code to check if they exising in /usr/include/sys to use those
+       code to check if they existing in /usr/include/sys to use those
        in preference to ones added here
 
   [EM] Very preliminary support attempt for 3Ware controllers under 
@@ -3891,7 +3891,7 @@ smartmontools 5.27
        or mail warning script, and reports any output to SYSLOG.  This
        gives a clearer error message if something is wrong.
 
-  [BA] smartd: Solaris init script modified to accomodate grep that
+  [BA] smartd: Solaris init script modified to accommodate grep that
        lacks '-q' quiet option.  Also check for running process to kill
        on stop.
 
@@ -4498,7 +4498,7 @@ smartmontools-5.1-11
 
   [EB] Add another Fujitsu disk to knowndrives.c
 
-  [GG] match for scsi/ and ide/ in case of devfs to exclude false postives
+  [GG] match for scsi/ and ide/ in case of devfs to exclude false positives
 
   [BA] If SCSI device listed in /etc/smartd.conf fails to open or do
        SMART stuff correctly, or not enough space
@@ -4863,7 +4863,7 @@ smartmontools-5.0.38
 
   Added Italian descriptions to smartmontools.spec file.
 
-  Started impementing send-mail-on-error for smartd; not yet enabled.
+  Started implementing send-mail-on-error for smartd; not yet enabled.
 
   Added -P (Permissive) Directive to smartd.conf file to allow SMART
   monitoring of pre-ATA-3 Rev 4 disks that have SMART but do not have
@@ -4924,7 +4924,7 @@ smartmontools-5.0.24
 
     Note: it has now been confirmed that the code modifications between
     5.0.23 and 5.0.24 have eliminated the GCC 3.2 problems.  Note that
-    there is a GCC bug howerver, see #8404 at
+    there is a GCC bug however, see #8404 at
     http://gcc.gnu.org/cgi-bin/gnatsweb.pl?database=gcc&cmd=query
     http://gcc.gnu.org/bugzilla/show_bug.cgi?id=8404
 
@@ -5023,10 +5023,10 @@ smartmontools-5.0-17
     library, as it should be.
 
     modified length of device name string in smartd internal structure
-    to accomodate max length device name strings
+    to accommodate max length device name strings
 
     removed un-implemented (-e = Email notification) option from
-    command line arg list.  We'll put it back on when implemeneted.
+    command line arg list.  We'll put it back on when implemented.
 
     smartd now logs serious (fatal) conditions in its operation at
     loglevel LOG_CRIT rather than LOG_INFO before exiting with error.
@@ -5071,7 +5071,7 @@ smartmontools-5.0-11
     appears incapable of a SMART command that the user has asked for,
     complain by printing an error message, but go ahead and try
     anyway.  Since unimplemented SMART commands should just return an
-    error but not cause disk problems, this should't cause any
+    error but not cause disk problems, this shouldn't cause any
     difficulty.
 
     Added two new flags: q and Q.  q is quiet mode - only print: For
@@ -5080,7 +5080,7 @@ smartmontools-5.0-11
     SMART "disk failing" status or device attributes (pre-failure or
     usage) which failed either now or in the past; For the -v option
     device attributes (pre-failure or usage) which failed either now
-    or in the past.  Q is Very Quiet mode: Print no ouput.  The only
+    or in the past.  Q is Very Quiet mode: Print no output.  The only
     way to learn about what was found is to use the exit status of
     smartctl.
 
@@ -5116,7 +5116,7 @@ smartmontools-5.0-11
     ID. This is fixed.
 
     when starting self-tests in captive mode ioctl returns EIO because
-    the drive has been busied out.  Detect this and don't return an eror
+    the drive has been busied out.  Detect this and don't return an error
     in this case.  Check this this is correct (or how to fix it?)
  
     fixed possible error in how to determine ATA standard support
@@ -5219,14 +5219,14 @@ smartmontools-5.0-8:
     added -f and -F options to enable/disable autosave threshold
     parameters
 
-    changed argv parsing to use getops -- elminate buffer overflow
+    changed argv parsing to use getops -- eliminate buffer overflow
     vulnerability
 
     expanded and corrected documentation
 
     fixed problem with smartd.  It did not actually call
     ataSmartEnable()!  Since the argument was left out, the test
-    always suceeded because it evaluated to a pointer to the function.
+    always succeeded because it evaluated to a pointer to the function.
 
     smartd: closed open file descriptors if device does not support
     smart. Note: this still needs to be fixed for SCSI devices
