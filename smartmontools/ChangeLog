@@ -1,4 +1,10 @@
-$Id: ChangeLog 5355 2022-04-22 19:48:15Z dipohl $
+$Id: ChangeLog 5356 2022-04-23 20:31:21Z dipohl $
+
+2022-04-23  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- WDC WD1005VBYZ-02RRWB2, WDC WD2005VBYZ-02RRWB2 (#938)
+	- WDC WD140EDFZ-11A0VA0 (#1394)
 
 2022-04-22  Gabriele Pohl  <contact@dipohl.de>
 
