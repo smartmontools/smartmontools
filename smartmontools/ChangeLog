@@ -2,6 +2,9 @@ $Id$
 
 2022-04-24  Christian Franke  <franke@computer.org>
 
+	drivedb.h: Innodisk 1IE3/3IE3/3ME3/3IE4/3ME4 SSDs: Ensure that
+	opening and closing brackets are in the same line (#1495).
+
 	update-smart-drivedb.in: Unify syntax of command substitutions.
 
 	update-smart-drivedb.in: Don't use 'let' which is bash specific.

@@ -1110,8 +1110,8 @@ const drive_settings builtin_knowndrives[] = {
       // mSATA 3ME4/L16711, M.2 (S42) 3ME4/L16711, SATADOM-MH 3ME4/L16B01,
       // SATADOM-SH 3ME4/L16B01, SATADOM-SH Type C 3ME4/L16B01, SATADOM-SH Type D 3ME4/L16B01,
       // mSATA 3IE4/L16B01Hi
-    "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|Mini PCIeDOM|mSATA( mini)?|"
-    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-[MS][HLV]( Type [CD])?) (1IE3|3[IM]E[34])( V2)?",
+    "(2.5\" SATA SSD|CFast|Mini PCIeDOM|(InnoDisk Corp\\. - )?mSATA( mini)?) (1IE3|3[IM]E[34])( V2)?|"
+    "(M\\.2 \\(S42\\)|SATA Slim|SATADOM-[MS][HLV]( Type [CD])?) (1IE3|3[IM]E[34])( V2)?",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
