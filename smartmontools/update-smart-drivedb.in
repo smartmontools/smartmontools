@@ -549,7 +549,7 @@ get_db_version()
   v=${x%% *}
   test -n "$v" || return 0
   if [ "${v%/*}" = "$v" ]; then # trunk: get rev from expanded SVN-Id
-    r=$(echo "$x" | sed -n 's,^[^$]*\$''Id: drivedb\.h \([1-9][0-9]*\) .*$,\1,p')
+    r=`echo "$x" | sed -n 's,^[^$]*\$''Id: drivedb\.h \([1-9][0-9]*\) .*$,\1,p'`
     test -n "$r" || r="?"
     v="$v/$r"
   fi
@@ -862,7 +862,7 @@ if [ -z "$no_verify" ]; then
 fi
 
 # Get version
-newver=$(get_db_version "$drivedb.new")
+newver=`get_db_version "$drivedb.new"`
 if [ -z "$newver" ]; then
   if [ -z "$force" ]; then
     mv_all "$drivedb" ".new" ".error"
@@ -907,7 +907,7 @@ if [ -n "$equal" ]; then
 fi
 
 # Check branch and file version
-oldver=$(get_db_version "$drivedb")
+oldver=`get_db_version "$drivedb"`
 test -n "$oldver" || oldver="?/?"
 if    [ "${newver##*/}" = "?" ] \
    || [ "${oldver##*/}" = "?" ] \
