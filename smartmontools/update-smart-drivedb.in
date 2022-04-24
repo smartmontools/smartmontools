@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: update-smart-drivedb.in 5357 2022-04-24 15:01:18Z chrfranke $
+# $Id: update-smart-drivedb.in 5358 2022-04-24 15:05:34Z chrfranke $
 #
 
 set -e
@@ -527,7 +527,7 @@ gpg_verify()
   # Remove temp home dir, retry on failure
   i=0
   while ! out=`rm -f -r "$gnupgtmp" 2>&1`; do
-    let ++i
+    i=$((i+1))
     if [ $i -ge 10 ]; then
       echo "$out" >&2; break
     fi
