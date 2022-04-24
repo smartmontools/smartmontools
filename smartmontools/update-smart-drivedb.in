@@ -527,7 +527,7 @@ gpg_verify()
   # Remove temp home dir, retry on failure
   i=0
   while ! out=`rm -f -r "$gnupgtmp" 2>&1`; do
-    let ++i
+    i=$((i+1))
     if [ $i -ge 10 ]; then
       echo "$out" >&2; break
     fi

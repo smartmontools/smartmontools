@@ -2,6 +2,8 @@ $Id$
 
 2022-04-24  Christian Franke  <franke@computer.org>
 
+	update-smart-drivedb.in: Don't use 'let' which is bash specific.
+
 	update-smart-drivedb.in: Don't use semicolon in sed scripts.
 	This also fixes a syntax error if sed requires ';' before '}'.
 
