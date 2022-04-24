@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 6.1/5352 2022-04-22 18:47:56 $Id$",
+  { "VERSION: 6.1/5360 2022-04-24 15:45:57 $Id$",
     "-", "-",
     "Version information",
     ""
@@ -1108,8 +1108,8 @@ const drive_settings builtin_knowndrives[] = {
       // mSATA 3ME4/L16711, M.2 (S42) 3ME4/L16711, SATADOM-MH 3ME4/L16B01,
       // SATADOM-SH 3ME4/L16B01, SATADOM-SH Type C 3ME4/L16B01, SATADOM-SH Type D 3ME4/L16B01,
       // mSATA 3IE4/L16B01Hi
-    "(2.5\" SATA SSD|CFast|InnoDisk Corp\\. - mSATA|Mini PCIeDOM|mSATA( mini)?|"
-    "M\\.2 \\(S42\\)|SATA Slim|SATADOM-[MS][HLV]( Type [CD])?) (1IE3|3[IM]E[34])( V2)?",
+    "(2.5\" SATA SSD|CFast|Mini PCIeDOM|(InnoDisk Corp\\. - )?mSATA( mini)?) (1IE3|3[IM]E[34])( V2)?|"
+    "(M\\.2 \\(S42\\)|SATA Slim|SATADOM-[MS][HLV]( Type [CD])?) (1IE3|3[IM]E[34])( V2)?",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -1967,9 +1967,9 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
       // SanDisk SDSSDHII120G/X31200RL, SanDisk Ultra II 960GB/X41100RL
     "SanDisk SDSSDH2(128|256)G|" // SanDisk SDSSDH2128G/X211200
-    "SanDisk SDSSDH3((250|500|1000|1024|2000)G| [24]T00)|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL,
+    "SanDisk SDSSDH3((250|500|1000|1024|2000)G| [124]T00)|" // Ultra 3D, tested with SanDisk SDSSDH3250G/X61170RL,
       // SanDisk SDSSDH3500G/X61110RL, SanDisk SDSSDH31024G/X6107000, SanDisk SDSSDH3 2T00/411040RL,
-      // SanDisk SDSSDH3 4T00/411040RL
+      // SanDisk SDSSDH3 4T00/411040RL, SanDisk SDSSDH3 1T00/415020RL
     "SanDisk SDSSDXPS?[0-9]*G|" // Extreme II/Pro (88SS9187), tested with SanDisk SDSSDXP480G/R1311,
       // SanDisk SDSSDXPS480G/X21200RL
     "SanDisk SSD G5 BICS4|" // WD Blue SSD WDS100T2B0A (#1378), tested with SanDisk SSD G5 BICS4/415000WD
@@ -3600,7 +3600,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD80EMAZ-00WJTA0/83.H0A83 (Easystore 0x1058:0x25fb),
       // WDC WD80EZAZ-11TDBA0/83.H0A83, WDC WD100EMAZ-00WJTA0/83.H0A83,
       // WDC WD100EZAZ-11TDBA0/83.H0A83, WDC WD120EMAZ-11BLFA0/81.00A81
-    "WDC WD(80|100|120)E[MZ]AZ-.*",
+      // WDC WD140EDFZ-11A0VA0/81.00A81 (Easystore 0x1058:0x25fb)
+    "WDC WD(80|100|120|140)E([MZ]A|DF)Z-.*",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
@@ -4534,7 +4535,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Lifetime_Rds_Frm_Hst_GB "
     "-v 243,hex56,Free_Space "
   },
-  { "Seagate IronWolf Pro 125 SSDs", // IronWolf_Pro_125_SSD_Product_Manual_100866982_A.pdf
+  { "Seagate IronWolf (Pro) 125 SSDs", // IronWolf_Pro_125_SSD_Product_Manual_100866982_A.pdf 
+				       // IronWolf_125_SSD_Product_Manual_100866980_C.pdf
+    "Seagate IronWolf ZA(250|500|1000|2000|4000)NM10002-.*|" // tested with
+      // Seagate IronWolf ZA500NM10002-2ZG101/SU3SC013
     "Seagate IronWolfPro ZA(240|480|960|1920|3840)NX10001-.*", // tested with
       // Seagate IronWolfPro ZA3840NX10001-2ZH104/SU4SC01B
     "", "",
@@ -4560,31 +4564,6 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_GiB "
     "-v 246,hex64,Write_Protect_Detail " // prevents interpretation of bogus threshold 255 (ticket #1396)
     "-v 247,raw48,Health_Check_Timer "
-  },
-  { "Seagate IronWolf 125 SSDs", // IronWolf_125_SSD_Product_Manual_100866980_C.pdf
-    "Seagate IronWolf ZA(250|500|1000|2000|4000)NM10002-.*", // tested with
-      // Seagate IronWolf ZA500NM10002-2ZG101/SU3SC013
-    "", "",
-  //"-v 1,raw48,Raw_Read_Error_Rate "
-  //"-v 9,raw24(raw8),Power_On_Hours "
-  //"-v 12,raw48,Power_Cycle_Count "
-    "-v 16,raw48,Spare_Blocks_Available "
-    "-v 17,raw48,Spare_Blocks_Remaining "
-    "-v 168,raw48,SATA_PHY_Error_Count "
-    "-v 170,raw16,Early/Later_Bad_Blck_Ct "
-    "-v 173,raw16,Max/Avg/Min_Erase_Ct "
-    "-v 174,raw48,Unexpect_Power_Loss_Ct "
-    "-v 177,raw16,Wear_Range_Delta "
-  //"-v 192,raw48,Power-Off_Retract_Count "
-  //"-v 194,tempminmax,Temperature_Celsius "
-    "-v 218,raw48,SATA_CRC_Error_Count "
-    "-v 231,raw48,SSD_Life_Left "
-    "-v 232,hex48,Read_Failure_Blk_Ct "
-    "-v 233,raw48,Flash_Writes_GiB "
-    "-v 234,raw48,NAND_Reads_Sectors "
-    "-v 235,raw48,Flash_Writes_Sectors "
-    "-v 241,raw48,Host_Writes_GiB "
-    "-v 242,raw48,Host_Reads_GiB "
   },
   { "Seagate Nytro SATA SSD", //Written to Seagate documentation
     // tested with XA960LE10063, XA960LE10063
@@ -4945,12 +4924,13 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Gold", // tested with WDC WD1005FBYZ-01YCBB2/RR07,
+      // WDC WD1005VBYZ-02RRWB2/RR07, WDC WD2005VBYZ-02RRWB2/RR07
       // WDC WD2005FBYZ-01YCBB2/RR07, WDC WD4002FYYZ-01B7CB0/01.01M02,
       // WDC WD4003FRYZ-01F0DB0/01.01H01, WDC WD6003FRYZ-01F0DB0/01.01H01,
       // WDC WD8003FRYZ-01JPDB1/01.01H02, WDC WD8004FRYZ-01VAEB0/01.01H01,
       // WDC WD102KRYZ-01A5AB0/01.01H01, WDC WD121KRYZ-01W0RB0/01.01H01,
       // WDC WD141KRYZ-01C66B0/01.01H01
-    "WDC WD([12]005FB|4002FY|4003FR|600[23]FR|800[234]FR|(1[024]1|102)KR)YZ-.*",
+    "WDC WD([12]005[FV]B|4002FY|4003FR|600[23]FR|800[234]FR|(1[024]1|102)KR)YZ-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD121KRYZ, WD141KRYZ
   },
