@@ -1,5 +1,12 @@
 $Id$
 
+2022-04-25  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Western Digital Black: WDC WD4005FZBX-00K5WB0 (#1582)
+	- Western Digital Red: WDC WD40EFZX-68AWUN0 (#1583)
+	- Western Digital Red: WDC WD20EFZX-68AWUN0 (#1589)
+
 2022-04-24  Christian Franke  <franke@computer.org>
 
 	drivedb.h: Innodisk 1IE3/3IE3/3ME3/3IE4/3ME4 SSDs: Ensure that
@@ -15,13 +22,13 @@ $Id$
 2022-04-23  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
-	- WDC WD1005VBYZ-02RRWB2, WDC WD2005VBYZ-02RRWB2 (#938)
-	- WDC WD140EDFZ-11A0VA0 (#1394)
+	- Western Digital Gold: WDC WD1005VBYZ-02RRWB2, WDC WD2005VBYZ-02RRWB2 (#938)
+	- Western Digital Gold: WDC WD140EDFZ-11A0VA0 (#1394)
 
 2022-04-22  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
-	- SanDisk SDSSDH3 1T00 (#1590)
+	- Marvell based SanDisk SSDs: SanDisk SDSSDH3 1T00 (#1590)
 	- Merge two entries into new group 'Seagate IronWolf (Pro) 125 SSDs'
 
 2022-04-22  Christian Franke  <franke@computer.org>
