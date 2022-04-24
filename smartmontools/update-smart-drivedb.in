@@ -542,8 +542,10 @@ gpg_verify()
 get_db_version()
 {
   local r v x
-  x=$(sed -n '/^[ {]*"VERSION: *[^"]*"/{s,^[ {]*"VERSION: \([1-9][./0-9]* [^"]*\)".*$,\1,p;q}' "$1") \
-  || return 1
+  x=`sed -n '/^[ {]*"VERSION: *[^"]*"/{
+       s,^[ {]*"VERSION: \([1-9][./0-9]* [^"]*\)".*$,\1,p
+       q
+     }' "$1"` || return 1
   v=${x%% *}
   test -n "$v" || return 0
   if [ "${v%/*}" = "$v" ]; then # trunk: get rev from expanded SVN-Id

@@ -1,5 +1,10 @@
 $Id$
 
+2022-04-24  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Don't use semicolon in sed scripts.
+	This also fixes a syntax error if sed requires ';' before '}'.
+
 2022-04-23  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
