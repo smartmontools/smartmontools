@@ -1,4 +1,9 @@
-$Id: ChangeLog 5356 2022-04-23 20:31:21Z dipohl $
+$Id: ChangeLog 5357 2022-04-24 15:01:18Z chrfranke $
+
+2022-04-24  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.in: Don't use semicolon in sed scripts.
+	This also fixes a syntax error if sed requires ';' before '}'.
 
 2022-04-23  Gabriele Pohl  <contact@dipohl.de>
 
