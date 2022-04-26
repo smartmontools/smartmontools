@@ -1,4 +1,11 @@
-$Id: ChangeLog 5362 2022-04-24 22:33:14Z dipohl $
+$Id: ChangeLog 5363 2022-04-26 14:28:50Z dipohl $
+
+2022-04-26  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Samsung based SSDs: SAMSUNG MZ7L33T8HBLT-00A07 (#1563)
+	- Samsung based SSDs: SAMSUNG MZ7L3240HCHQ-00A07 (#1555)
+	- WD Blue / Red / Green SSDs: WDC  WDS400T1R0A-68A4W0 (#1601)
 
 2022-04-25  Gabriele Pohl  <contact@dipohl.de>
 
