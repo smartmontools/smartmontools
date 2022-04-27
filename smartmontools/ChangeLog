@@ -1,5 +1,12 @@
 $Id$
 
+2022-04-27  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Western Digital Ultrastar He10/12: WDC WD140EDGZ-11B2DA2, 
+	WDC WD140EDGZ-11B1PA0 (#1585)
+	- Western Digital Purple (Pro): WDC WD121PURP-85B5SY0 (#1587)
+
 2022-04-26  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:

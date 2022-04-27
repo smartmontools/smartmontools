@@ -3606,7 +3606,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD80EZAZ-11TDBA0/83.H0A83, WDC WD100EMAZ-00WJTA0/83.H0A83,
       // WDC WD100EZAZ-11TDBA0/83.H0A83, WDC WD120EMAZ-11BLFA0/81.00A81
       // WDC WD140EDFZ-11A0VA0/81.00A81 (Easystore 0x1058:0x25fb)
-    "WDC WD(80|100|120|140)E([MZ]A|DF)Z-.*",
+      // WDC WD140EDGZ-11B2DA2/85.00A85, WDC WD140EDGZ-11B1PA0/85.00A85
+    "WDC WD(80|100|120|140)E([MZ]A|DF|DG)Z-.*",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
@@ -4923,11 +4924,13 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level" // WD101KFBX (but not WD102KFBX)
   },
-  { "Western Digital Purple", // tested with WDC WD40PURX-64GVNY0/80.00A80,
+  { "Western Digital Purple (Pro)", // tested with WDC WD40PURX-64GVNY0/80.00A80,
       // WDC WD40PURZ-85TTDY0/80.00A80
       // WDC WD80PUZX-64NEAY0/80.H0A80
-    "WDC WD[1234568]0PU[RZ][XZ]-.*",
-    "", "", ""
+      // WDC WD121PURP-85B5SY0/82.00A82
+    "WDC WD[1234568](0|[0248]1)PU[RZ][PXZ]-.*",
+    "", "", 
+    "-v 22,raw48,Helium_Level" // WD121PURP-85B5SY0, WD80PUZX-64NEAY0
   },
   { "Western Digital Gold", // tested with WDC WD1005FBYZ-01YCBB2/RR07,
       // WDC WD1005VBYZ-02RRWB2/RR07, WDC WD2005VBYZ-02RRWB2/RR07
