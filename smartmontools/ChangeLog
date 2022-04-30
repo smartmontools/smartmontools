@@ -2,6 +2,8 @@ $Id$
 
 2022-04-30  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Support 'svnversion' with CR/LF instead of LF output.
+
 	dev_jmb39x_raid.cpp: Enhance LBA range from 33-62 to 1-255 (#1594).
 	smartctl.8.in: Update related documentation.
 
