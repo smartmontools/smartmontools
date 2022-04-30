@@ -2,6 +2,8 @@ $Id$
 
 2022-04-30  Christian Franke  <franke@computer.org>
 
+	os_win32/vc16/*: Add configurations Debug-static and Release-static.
+
 	Makefile.am: Windows: Ensure that advapi32 is linked before kernel32.
 	This keeps backward compatibility with old versions of Windows if
 	recent versions of MinGW-w64 are used.
