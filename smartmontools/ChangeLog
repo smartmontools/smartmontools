@@ -2,6 +2,8 @@ $Id$
 
 2022-04-30  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Update config-vc and *clean-vc targets for MSVC16/17.
+
 	os_win32/vc17: Copy from vc16 and change for MSVC17 (VS2022).
 
 	os_win32/vc16/*: Add configurations Debug-static and Release-static.

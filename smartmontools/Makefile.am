@@ -1050,19 +1050,19 @@ update-smart-drivedb.ps1: os_win32/update-smart-drivedb.ps1.in config.status
 	$(SHELL) ./config.status --file=$@:$<
 
 # MSVC Version to change in make command line
-vc = 16
+vc = 17
 vcver = $(vc)
 
 .PHONY: check-vc-version clean-vc config-vc distclean-vc maintainer-clean-vc
 
 check-vc-version:
 	@case '$(vcver)' in \
-	  14|15|16) test -d '$(srcdir)/os_win32/vc$(vcver)' || \
+	  16|17) test -d '$(srcdir)/os_win32/vc$(vcver)' || \
 	    { echo '$(srcdir)/os_win32/vc$(vcver): Not found (not included in src tarball)' >&2; exit 1; } ;; \
-	  *) echo 'Usage: $(MAKE) vc=14|15|16 config-vc clean-vc distclean-vc maintainer-clean-vc'; exit 1 ;; \
+	  *) echo 'Usage: $(MAKE) vc=16|17 config-vc clean-vc distclean-vc maintainer-clean-vc'; exit 1 ;; \
 	esac
 
-# Build os_win32/vcNN/{config.h,smart*.rc,svnversion.h} for MSVC14/15/16 from MinGW files
+# Build os_win32/vcNN/{config.h,smart*.rc,svnversion.h} for MSVCNN from MinGW files
 
 CONFIG_VC_FILES = \
         $(srcdir)/os_win32/vc$(vcver)/config.h \
@@ -1086,16 +1086,15 @@ $(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc: smartctl_res.rc
 $(srcdir)/os_win32/vc$(vcver)/smartd_res.rc: smartd_res.rc
 	sed '/^1 24 /d' $< > $@
 
-# VC14: smartmontools.VC.*, VC15/16: .vs/smartmontools/vNN/*
 clean-vc: check-vc-version
-	rm -f $(srcdir)/os_win32/vc$(vcver)/smartmontools.VC.VC.opendb
-	rm -f $(srcdir)/os_win32/vc$(vcver)/smartmontools.VC.db
 	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/Browse.VC.opendb
 	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/*.VC.db*
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/ipch
 	rm -f $(srcdir)/os_win32/vc$(vcver)/syslogevt.h
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug-static
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/Release
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/Release-static
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/x64
 
 distclean-vc: clean-vc
