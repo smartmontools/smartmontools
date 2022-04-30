@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2019-21 Christian Franke
+ * Copyright (C) 2019-22 Christian Franke
  *
  * Based on JMraidcon (same license):
  *   Copyright (C) 2010 Werner Johansson
@@ -25,7 +25,7 @@
 
 #include <errno.h>
 
-const char * dev_jmb39x_raid_cpp_svnid = "$Id: dev_jmb39x_raid.cpp 5337 2022-02-27 07:53:55Z dpgilbert $";
+const char * dev_jmb39x_raid_cpp_svnid = "$Id: dev_jmb39x_raid.cpp 5366 2022-04-30 15:26:22Z chrfranke $";
 
 static void jmbassert_failed(int line, const char * expr)
 {
@@ -729,8 +729,8 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
     force = true;
     n1 += n2;
   }
-  if (!(n1 == len && port <= 4 && 33 <= lba && lba <= 62)) {
-    set_err(EINVAL, "Option -d %s,N[,sLBA][,force] must have 0 <= N <= 4 [, 33 <= LBA <= 62]", prefix);
+  if (!(n1 == len && port <= 4 && 1 <= lba && lba <= 255)) {
+    set_err(EINVAL, "Option -d %s,N[,sLBA][,force] must have 0 <= N <= 4 [, 1 <= LBA <= 255]", prefix);
     return 0;
   }
 
