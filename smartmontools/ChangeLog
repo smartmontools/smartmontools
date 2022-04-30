@@ -4,7 +4,7 @@ $Id$
 
 	Makefile.am: Windows: Ensure that advapi32 is linked before kernel32.
 	This keeps backward compatibility with old versions of Windows if
-	recent versions MinGW-w64 are used.
+	recent versions of MinGW-w64 are used.
 
 	Makefile.am: config-vc: Remove HAVE___INT128 from generated config.h.
 
