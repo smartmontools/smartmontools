@@ -1,6 +1,8 @@
-$Id: ChangeLog 5367 2022-04-30 15:36:11Z chrfranke $
+$Id: ChangeLog 5368 2022-04-30 15:39:58Z chrfranke $
 
 2022-04-30  Christian Franke  <franke@computer.org>
+
+	Makefile.am: config-vc: Remove HAVE___INT128 from generated config.h.
 
 	Makefile.am: Support 'svnversion' with CR/LF instead of LF output.
 

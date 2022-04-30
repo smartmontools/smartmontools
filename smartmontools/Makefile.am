@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 5367 2022-04-30 15:36:11Z chrfranke $
+# $Id: Makefile.am 5368 2022-04-30 15:39:58Z chrfranke $
 #
 
 @SET_MAKE@
@@ -1068,7 +1068,7 @@ config-vc: check-vc-version $(CONFIG_VC_FILES)
 
 $(srcdir)/os_win32/vc$(vcver)/config.h: config.h Makefile
 	sed -e '1i/* os_win32/vc$(vcver)/config.h.  Generated from config.h by Makefile.  */' \
-	    -e 's,^#define HAVE_\(ATTR_PACKED\|CLOCK_GETTIME\|GETTIMEOFDAY\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
+	    -e 's,^#define HAVE_\(ATTR_PACKED\|CLOCK_GETTIME\|GETTIMEOFDAY\|__INT128\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1.*$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
 	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc$(vcver),' $< > $@
 
 $(srcdir)/os_win32/vc$(vcver)/svnversion.h: svnversion.h
