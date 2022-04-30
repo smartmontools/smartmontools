@@ -2,6 +2,8 @@ $Id$
 
 2022-04-30  Christian Franke  <franke@computer.org>
 
+	INSTALL: Update info about MSVC builds.
+
 	os_win32/vc14, os_win32/vc15: Drop project files for MSVC14/15.
 
 	Makefile.am: Update config-vc and *clean-vc targets for MSVC16/17.
