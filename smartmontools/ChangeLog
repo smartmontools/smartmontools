@@ -1,6 +1,8 @@
-$Id: ChangeLog 5371 2022-04-30 16:29:13Z chrfranke $
+$Id: ChangeLog 5372 2022-04-30 16:50:39Z chrfranke $
 
 2022-04-30  Christian Franke  <franke@computer.org>
+
+	os_win32/vc17: Copy from vc16 and change for MSVC17 (VS2022).
 
 	os_win32/vc16/*: Add configurations Debug-static and Release-static.
 
