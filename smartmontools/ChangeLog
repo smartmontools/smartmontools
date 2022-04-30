@@ -1,6 +1,8 @@
-$Id: ChangeLog 5370 2022-04-30 16:07:10Z chrfranke $
+$Id: ChangeLog 5371 2022-04-30 16:29:13Z chrfranke $
 
 2022-04-30  Christian Franke  <franke@computer.org>
+
+	os_win32/vc16/*: Add configurations Debug-static and Release-static.
 
 	Makefile.am: Windows: Ensure that advapi32 is linked before kernel32.
 	This keeps backward compatibility with old versions of Windows if
