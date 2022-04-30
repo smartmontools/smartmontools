@@ -1,5 +1,10 @@
 $Id$
 
+2022-04-30  Christian Franke  <franke@computer.org>
+
+	dev_jmb39x_raid.cpp: Enhance LBA range from 33-62 to 1-255 (#1594).
+	smartctl.8.in: Update related documentation.
+
 2022-04-27  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:

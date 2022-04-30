@@ -729,11 +729,17 @@ some QNAP NAS devices.
 The integer N is the port number from 0 to 4.
 .br
 \fBWARNING: The ATA pass-through commands are issued via READ/WRITE commands
-to LBA 33 of the RAID volume.
+to a LBA of the RAID volume.
 Using this option with other devices may overwrite this sector.\fP
 .br
-The LBA could be selected in the range 33 (last sector of a GPT) to 62 (last
-sector of traditional boot area).
+The default LBA is 33.
+The LBA could be selected in the range from 1 to 255 inclusive.
+.br
+If a GPT partition table is used, LBA 33 contains the last 4 (of 128)
+entries of the partition table.
+These entries are zero filled in most cases.
+If a MBR partition table is used, LBA 33 may be zero filled or may contain
+code from a boot loader.
 .br
 By default, access to the device is refused if the selected sector is not
 zero filled.

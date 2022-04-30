@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2019-21 Christian Franke
+ * Copyright (C) 2019-22 Christian Franke
  *
  * Based on JMraidcon (same license):
  *   Copyright (C) 2010 Werner Johansson
@@ -729,8 +729,8 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
     force = true;
     n1 += n2;
   }
-  if (!(n1 == len && port <= 4 && 33 <= lba && lba <= 62)) {
-    set_err(EINVAL, "Option -d %s,N[,sLBA][,force] must have 0 <= N <= 4 [, 33 <= LBA <= 62]", prefix);
+  if (!(n1 == len && port <= 4 && 1 <= lba && lba <= 255)) {
+    set_err(EINVAL, "Option -d %s,N[,sLBA][,force] must have 0 <= N <= 4 [, 1 <= LBA <= 255]", prefix);
     return 0;
   }
 
