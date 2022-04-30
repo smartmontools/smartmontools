@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 6.1/5360 2022-04-24 15:45:57 $Id$",
+  { "VERSION: 6.1/5364 2022-04-27 21:31:40 $Id$",
     "-", "-",
     "Version information",
     ""
@@ -1896,6 +1896,8 @@ const drive_settings builtin_knowndrives[] = {
       // SAMSUNG MZ7KM480HAHP-0E005/GXM1003Q, SAMSUNG MZ7KM480HMHQ-00005/GXM5104Q,
       // SAMSUNG MZ7KM960HMJP-00005/GXM5304Q, MZ7KM960HMJP0D3/GD53 (Dell)
     "SAMSUNG MZ7LH(240|480|960|1T9|3T8|7T6)H[AM](HQ|JR|LT|LA)-.*|" //PM883, tested with SAMSUNG MZ7LH960HAJR-00005
+    "SAMSUNG MZ7L(3240|33T8)H(BLT|CHQ)-.*|" //PM893, tested with SAMSUNG MZ7L33T8HBLT-00A07/JXTC104Q
+      // SAMSUNG MZ7L3240HCHQ-00A07/JXTC104Q
     "SAMSUNG MZ7KH(240|480|960|1T9|3T8)HA(HQ|JR|LS)-.*|" //SM883
     "SAMSUNG MZ[7N](LF|TY)(128|192|256)H[CD](GS|HP)-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
       // SAMSUNG MZNTY256HDHP-000/MAT21K0Q, SAMSUNG MZ7LF192HCGS-000L1/FXT03L1Q
@@ -1932,26 +1934,27 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw48,ECC_Error_Rate "
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector " // PM893
   //"-v 198,raw48,Offline_Uncorrectable "
     "-v 199,raw48,CRC_Error_Count "
     "-v 201,raw48,Supercap_Status "
-    "-v 202,raw48,Exception_Mode_Status "
+    "-v 202,raw48,Exception_Mode_Status " // PM893
   //"-v 233,raw48,Media_Wearout_Indicator " // PM851, 840
     "-v 234,raw48,Unknown_Samsung_Attr " // PM851, 840
-    "-v 235,raw48,POR_Recovery_Count " // PM851, 830/840/850
+    "-v 235,raw48,POR_Recovery_Count " // PM851, 830/840/850, PM893
     "-v 236,raw48,Unknown_Samsung_Attr " // PM851, 840
     "-v 237,raw48,Unknown_Samsung_Attr " // PM851, 840
     "-v 238,raw48,Unknown_Samsung_Attr " // PM851, 840
   //"-v 241,raw48,Total_LBAs_Written "
   //"-v 242,raw48,Total_LBAs_Read " // PM851, SM841N
-    "-v 243,raw48,SATA_Downshift_Ct " // PM863
-    "-v 244,raw48,Thermal_Throttle_St " // PM863
-    "-v 245,raw48,Timed_Workld_Media_Wear " // PM863
-    "-v 246,raw48,Timed_Workld_RdWr_Ratio " // PM863
-    "-v 247,raw48,Timed_Workld_Timer " // PM863
+    "-v 243,raw48,SATA_Downshift_Ct " // PM863, PM893
+    "-v 244,raw48,Thermal_Throttle_St " // PM863, PM893
+    "-v 245,raw48,Timed_Workld_Media_Wear " // PM863, PM893
+    "-v 246,raw48,Timed_Workld_RdWr_Ratio " // PM863, PM893
+    "-v 247,raw48,Timed_Workld_Timer " // PM863, PM893
     "-v 249,raw48,NAND_Writes_1GiB " // CM871a, PM871
     "-v 250,raw48,SATA_Iface_Downshift " // from the spec
-    "-v 251,raw48,NAND_Writes" // PM863
+    "-v 251,raw48,NAND_Writes" // PM863, PM893
   },
   { "Marvell based SanDisk SSDs",
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
@@ -3601,7 +3604,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD80EZAZ-11TDBA0/83.H0A83, WDC WD100EMAZ-00WJTA0/83.H0A83,
       // WDC WD100EZAZ-11TDBA0/83.H0A83, WDC WD120EMAZ-11BLFA0/81.00A81
       // WDC WD140EDFZ-11A0VA0/81.00A81 (Easystore 0x1058:0x25fb)
-    "WDC WD(80|100|120|140)E([MZ]A|DF)Z-.*",
+      // WDC WD140EDGZ-11B2DA2/85.00A85, WDC WD140EDGZ-11B1PA0/85.00A85
+    "WDC WD(80|100|120|140)E([MZ]A|DF|DG)Z-.*",
     "", "",
     "-v 22,raw48,Helium_Level"
   },
@@ -4603,9 +4607,9 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WDS200T2B0A/X61190WD, WDC WDS120G1G0A-00SS50/Z3311000
       // WDC  WDS500G2B0A-00SM50/401000WD,
       // WDC WDBNCE2500PNC/X61130WD, WDC WDBNCE0010PNC-WRSN/X41110WD,
-      // WDC  WDS200T1R0A-68A4W0/411000WR
+      // WDC  WDS200T1R0A-68A4W0/411000WR, WDC  WDS400T1R0A-68A4W0/411000WR
     "WDC WDBNCE(250|500|00[124])0PNC(-.*)?|" // Blue 3D
-    "WDC  ?WDS((120|240|250|480|500)G|[12]00T)(1B|2B|1G|2G|1R)0[AB](-.*)?",
+    "WDC  ?WDS((120|240|250|480|500)G|[124]00T)(1B|2B|1G|2G|1R)0[AB](-.*)?",
       // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND, *1R* = Red SA500
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct " // Reassigned Block Count
@@ -4817,8 +4821,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD1003FZEX-00MK2A0/01.01A01, WDC WD3001FAEX-00MJRA0/01.01L01,
       // WDC WD3003FZEX-00Z4SA0/01.01A01, WDC WD4001FAEX-00MJRA0/01.01L01
       // WDC WD4003FZEX-00Z4SA0/01.01A01, WDC WD5003AZEX-00RKKA0/80.00A80,
-      // WDC WD4004FZWX-00GBGB0/81.H0A81
-    "WDC WD(6001|2003|5001|1003|4003|4004|5003|3003|3001)(FZW|FZE|AZE)X-.*|" // could be
+      // WDC WD4004FZWX-00GBGB0/81.H0A81, WDC WD4005FZBX-00K5WB0/01.01A01
+    "WDC WD(6001|2003|5001|1003|4003|4004|4005|5003|3003|3001)(FZW|FZE|FZB|AZE)X-.*|" // could be
     // new series  WD6001FZWX WD2003FZEX WD5001FZWX WD1003FZEX
     //             WD4003FZEX WD5003AZEX WD3003FZEX WD4004FZWX
     "WDC WD(4001|3001|2002|1002|5003|7500|5000|3200|2500|1600)(FAE|AZE)X-.*",
@@ -4902,7 +4906,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee),
       // WDC WD100EFAX-68LHPN0/83.H0A83,
       // WDC WD120EMFZ-11A6JA0/81.00A81 (Easystore 0x1058:0x25fb)
-    "WDC WD(7500BFCX|10JFCX|[1-6]0EFRX|[68]0E[FZ]ZX|(8|10)0EFAX|120EMFZ)-.*",
+      // WDC WD40EFZX-68AWUN0/81.00B81, WDC WD20EFZX-68AWUN0/81.00B81
+    "WDC WD(7500BFCX|10JFCX|[1-6]0EFRX|[2468]0E[FZ]ZX|(8|10)0EFAX|120EMFZ)-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD80EFAX, WD80EFZX, WD100EFAX, WD120EMFZ
   },
@@ -4917,11 +4922,13 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level" // WD101KFBX (but not WD102KFBX)
   },
-  { "Western Digital Purple", // tested with WDC WD40PURX-64GVNY0/80.00A80,
+  { "Western Digital Purple (Pro)", // tested with WDC WD40PURX-64GVNY0/80.00A80,
       // WDC WD40PURZ-85TTDY0/80.00A80
       // WDC WD80PUZX-64NEAY0/80.H0A80
-    "WDC WD[1234568]0PU[RZ][XZ]-.*",
-    "", "", ""
+      // WDC WD121PURP-85B5SY0/82.00A82
+    "WDC WD[1234568](0|[0248]1)PU[RZ][PXZ]-.*",
+    "", "", 
+    "-v 22,raw48,Helium_Level" // WD121PURP-85B5SY0, WD80PUZX-64NEAY0
   },
   { "Western Digital Gold", // tested with WDC WD1005FBYZ-01YCBB2/RR07,
       // WDC WD1005VBYZ-02RRWB2/RR07, WDC WD2005VBYZ-02RRWB2/RR07
