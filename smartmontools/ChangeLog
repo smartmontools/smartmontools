@@ -1,5 +1,12 @@
 $Id$
 
+2022-05-01  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Silicon Motion based SSDs: TS128GMSA370I (#1554)
+	- Western Digital Red: WDC WD160EMFZ-11AFXA0(#1469)
+	- Western Digital Red: WDC WD140EFFX-68VBXN0 (#1477)
+
 2022-05-01  Christian Franke  <franke@computer.org>
 
 	cppcheck.sh: Suppress getpw*Called, getgr*Called, remove ftimeCalled.
