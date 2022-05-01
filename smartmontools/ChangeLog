@@ -1,6 +1,9 @@
-$Id: ChangeLog 5376 2022-05-01 12:49:30Z chrfranke $
+$Id: ChangeLog 5378 2022-05-01 16:42:53Z chrfranke $
 
 2022-05-01  Christian Franke  <franke@computer.org>
+
+	cppcheck.sh: Suppress getpw*Called, getgr*Called, remove ftimeCalled.
+	Add *_RELEASE_* defines to silence ConfigurationNotChecked.
 
 	configure.ac: Add URL to AC_INIT, remove PACKAGE_HOMEPAGE.
 	Require autoconf >= 2.64.
