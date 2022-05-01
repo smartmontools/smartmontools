@@ -853,7 +853,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
             syserror("Error SMART Status command failed");
             pout("This may be due to a race in usbcypress\n");
             pout("Retry without other disc access\n");
-            pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
+            pout("Please get assistance from " PACKAGE_URL "\n");
             pout("Values from ATA Return Descriptor are:\n");
             dStrHex((const uint8_t *)ardp, ard_len, 1);
             return -1;

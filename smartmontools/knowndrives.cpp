@@ -504,7 +504,7 @@ int showallpresets()
     knowndrives.size(), knowndrives.custom_size());
 
   pout("For information about adding a drive to the database see the FAQ on the\n");
-  pout("smartmontools home page: " PACKAGE_HOMEPAGE "\n");
+  pout("smartmontools home page: " PACKAGE_URL "\n");
 
   if (errcnt > 0)
     pout("\nFound %d syntax error(s) in database.\n"

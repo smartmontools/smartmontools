@@ -412,7 +412,7 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
 
     // We haven't gotten output that makes sense; print out some debugging info
     syserror("Error SMART Status command failed");
-    pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
+    pout("Please get assistance from " PACKAGE_URL "\n");
     pout("Register values returned from SMART Status command are:\n");
     pout("ST =0x%02x\n",(int)buff[0]);
     pout("ERR=0x%02x\n",(int)buff[1]);
@@ -2369,7 +2369,7 @@ int linux_highpoint_device::ata_command_interface(smart_command_set command, int
       return 1;
 
     syserror("Error SMART Status command failed");
-    pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
+    pout("Please get assistance from " PACKAGE_URL "\n");
     pout("Register values returned from SMART Status command are:\n");
     pout("CMD=0x%02x\n",(int)buff[0]);
     pout("FR =0x%02x\n",(int)buff[1]);
@@ -2416,7 +2416,7 @@ void printwarning(smart_command_set command){
   const char* message=
     "can not be passed through the 3ware 3w-xxxx driver.  This can be fixed by\n"
     "applying a simple 3w-xxxx driver patch that can be found here:\n"
-    PACKAGE_HOMEPAGE "\n"
+    PACKAGE_URL "\n"
     "Alternatively, upgrade your 3w-xxxx driver to version 1.02.00.037 or greater.\n\n";
 
   if (command==AUTO_OFFLINE && !printed[0]) {

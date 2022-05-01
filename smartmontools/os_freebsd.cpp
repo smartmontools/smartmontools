@@ -95,7 +95,7 @@ void printwarning(int msgNo, const char* extra) {
       static const char* message[]={
         "The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n can not be retrieved with this version of ATAng, please do not rely on this value\nYou should update to at least 5.2\n",
 
-        "Error SMART Status command failed\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
+        "Error SMART Status command failed\nPlease get assistance from \n" PACKAGE_URL "\nRegister values returned from SMART Status command are:\n",
 
         "You must specify a DISK # for 3ware drives with -d 3ware,<n> where <n> begins with 1 for first disk drive\n",
 

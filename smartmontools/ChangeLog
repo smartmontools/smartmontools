@@ -1,5 +1,11 @@
 $Id$
 
+2022-05-01  Christian Franke  <franke@computer.org>
+
+	configure.ac: Add URL to AC_INIT, remove PACKAGE_HOMEPAGE.
+	Require autoconf >= 2.64.
+	Replace PACKAGE_HOMEPAGE with PACKAGE_URL in all files.
+
 2022-04-30  Christian Franke  <franke@computer.org>
 
 	INSTALL: Update info about MSVC builds.
