@@ -2,6 +2,9 @@ $Id$
 
 2022-05-01  Christian Franke  <franke@computer.org>
 
+	cppcheck.sh: Suppress getpw*Called, getgr*Called, remove ftimeCalled.
+	Add *_RELEASE_* defines to silence ConfigurationNotChecked.
+
 	configure.ac: Add URL to AC_INIT, remove PACKAGE_HOMEPAGE.
 	Require autoconf >= 2.64.
 	Replace PACKAGE_HOMEPAGE with PACKAGE_URL in all files.

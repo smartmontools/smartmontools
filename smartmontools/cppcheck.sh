@@ -4,7 +4,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2019-21 Christian Franke
+# Copyright (C) 2019-22 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -76,7 +76,10 @@ sup_list="
   #style
   asctime_rCalled:utility.cpp
   asctime_sCalled:utility.cpp
-  ftimeCalled
+  getgrgidCalled:popen_as_ugid.cpp
+  getgrnamCalled:popen_as_ugid.cpp
+  getpwnamCalled:popen_as_ugid.cpp
+  getpwuidCalled:popen_as_ugid.cpp
   readdirCalled
   strtokCalled
   unusedStructMember
@@ -105,6 +108,8 @@ defs="\
   -DHAVE_ATTR_PACKED
   -DHAVE_CONFIG_H
   -DSG_IO=1
+  -DSMARTMONTOOLS_RELEASE_DATE=\"2022-02-28\"
+  -DSMARTMONTOOLS_RELEASE_TIME=\"16:33:40\"
   -DSMARTMONTOOLS_SVN_REV=\"r1\"
   -DSMARTMONTOOLS_ATTRIBUTELOG=\"/file\"
   -DSMARTMONTOOLS_SAVESTATES=\"/file\"
