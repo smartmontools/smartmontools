@@ -55,7 +55,7 @@
 #include "dev_tunnelled.h" // tunnelled_device<>
 #include "sg_unaligned.h"
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 5337 2022-02-27 07:53:55Z dpgilbert $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 5376 2022-05-01 12:49:30Z chrfranke $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -853,7 +853,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
             syserror("Error SMART Status command failed");
             pout("This may be due to a race in usbcypress\n");
             pout("Retry without other disc access\n");
-            pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
+            pout("Please get assistance from " PACKAGE_URL "\n");
             pout("Values from ATA Return Descriptor are:\n");
             dStrHex((const uint8_t *)ardp, ard_len, 1);
             return -1;

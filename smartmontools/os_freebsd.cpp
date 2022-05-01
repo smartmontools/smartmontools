@@ -76,7 +76,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5253 2021-11-24 08:31:31Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5376 2022-05-01 12:49:30Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -95,7 +95,7 @@ void printwarning(int msgNo, const char* extra) {
       static const char* message[]={
         "The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n can not be retrieved with this version of ATAng, please do not rely on this value\nYou should update to at least 5.2\n",
 
-        "Error SMART Status command failed\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
+        "Error SMART Status command failed\nPlease get assistance from \n" PACKAGE_URL "\nRegister values returned from SMART Status command are:\n",
 
         "You must specify a DISK # for 3ware drives with -d 3ware,<n> where <n> begins with 1 for first disk drive\n",
 

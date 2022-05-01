@@ -25,7 +25,7 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 5207 2021-02-09 20:25:13Z chrfranke $"
+const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 5376 2022-05-01 12:49:30Z chrfranke $"
                                      KNOWNDRIVES_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -504,7 +504,7 @@ int showallpresets()
     knowndrives.size(), knowndrives.custom_size());
 
   pout("For information about adding a drive to the database see the FAQ on the\n");
-  pout("smartmontools home page: " PACKAGE_HOMEPAGE "\n");
+  pout("smartmontools home page: " PACKAGE_URL "\n");
 
   if (errcnt > 0)
     pout("\nFound %d syntax error(s) in database.\n"

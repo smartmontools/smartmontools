@@ -27,7 +27,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 4842 2018-12-02 16:07:26Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 5376 2022-05-01 12:49:30Z chrfranke $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver
@@ -508,7 +508,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 
     // We haven't gotten output that makes sense; print out some debugging info
     syserror("Error SMART Status command failed");
-    pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
+    pout("Please get assistance from " PACKAGE_URL "\n");
     return -1;
   }
 
