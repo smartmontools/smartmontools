@@ -1,5 +1,12 @@
 $Id$
 
+2022-05-02  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Western Digital Ultrastar (He10/12): WDC WD120EDAZ-11F3RA0 (#1409)
+	- Western Digital Ultrastar (He10/12): WDC WD80EDAZ-11TA3A0 (#1455)
+	- Western Digital Gold (CMR): WDC WD161KRYZ-01AGBB0 (#1570)
+
 2022-05-01  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:

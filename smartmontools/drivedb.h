@@ -3602,15 +3602,16 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level"
   },
-  { "Western Digital Ultrastar He10/12", // WD white label, tested with
+  { "Western Digital Ultrastar (He10/12)", // WD white label, tested with
       // WDC WD80EMAZ-00WJTA0/83.H0A83 (Easystore 0x1058:0x25fb),
       // WDC WD80EZAZ-11TDBA0/83.H0A83, WDC WD100EMAZ-00WJTA0/83.H0A83,
       // WDC WD100EZAZ-11TDBA0/83.H0A83, WDC WD120EMAZ-11BLFA0/81.00A81
       // WDC WD140EDFZ-11A0VA0/81.00A81 (Easystore 0x1058:0x25fb)
       // WDC WD140EDGZ-11B2DA2/85.00A85, WDC WD140EDGZ-11B1PA0/85.00A85
-    "WDC WD(80|100|120|140)E([MZ]A|DF|DG)Z-.*",
+      // WDC WD120EDAZ-11F3RA0/81.00A81, WDC WD80EDAZ-11TA3A0/81.00A81
+    "WDC WD(80|100|120|140)E([MZ]A|DA|DF|DG)Z-.*",
     "", "",
-    "-v 22,raw48,Helium_Level"
+    "-v 22,raw48,Helium_Level" // not: WD80EDAZ
   },
   { "HGST Ultrastar DC HC520 (He12)", // tested with HGST HUH721212ALE600/LEGNT3D0
     "HGST HUH721212AL[EN]60[014]",
@@ -4945,6 +4946,11 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD([12]005[FV]B|4002FY|4003FR|600[23]FR|800[234]FR|(1[024]1|102)KR)YZ-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD121KRYZ, WD141KRYZ
+  },
+  { "Western Digital Gold (CMR)", // tested with WDC WD161KRYZ-01AGBB0/01.01H01
+    "WDC WD161KRYZ-.*",
+    "", "",
+    "-v 22,raw48,Helium_Level"
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
       // WDC WD10JPVX-75JC3T0/0301A03,  WDC WD10JPVX-22JC3T0/01.01A01,
