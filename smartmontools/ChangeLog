@@ -1,5 +1,13 @@
 $Id$
 
+2022-05-08  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Crucial/Micron Client SSDs: CT4000MX500SSD1 (#1610)
+	- Western Digital Gold: WDC WD161KRYZ-01AGBB0 (#1608) New family
+	variant 'CMR' dropped, entry moved to 'Western Digital Gold' and
+	patterns from file product-brief-wd-gold-hdd.pdf also added there.
+
 2022-05-02  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
