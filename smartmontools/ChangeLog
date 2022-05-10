@@ -3,6 +3,13 @@ $Id$
 2022-05-08  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
+	- Silicon Motion based SSDs: TS32GMSM360 (#1579)
+	- Seagate Enterprise Capacity 3.5 HDD: ST4000NM0245-1Z2107
+	  (#1592) Patch by Conrad Kostecki
+
+2022-05-08  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
 	- Crucial/Micron Client SSDs: CT4000MX500SSD1 (#1610)
 	- Western Digital Gold: WDC WD161KRYZ-01AGBB0 (#1608) New family
 	variant 'CMR' dropped, entry moved to 'Western Digital Gold' and

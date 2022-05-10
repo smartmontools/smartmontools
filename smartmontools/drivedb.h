@@ -2131,8 +2131,9 @@ const drive_settings builtin_knowndrives[] = {
       // TCSUNBOW X3 120GB/R1211A0
     "TEAM( T253T|L5Lite3)D(120G|240G|480G|1T)|" // Team Group L5Lite 3D, tested with
       // TEAML5Lite3D240G/R0302A0, TEAM T253TD480G/Q0410A
-    "TS((16|32|64|128|256|512)G|1T)(SSD|MSA)(230S?|370[SI]?|420[IK]?)|" // Transcend SSD230/370/420
+    "TS((16|32|64|128|256|512)G|1T)(SSD|MS[AM])(230S?|3[67]0[SI]?|420[IK]?)|" // Transcend SSD230/360/370/420
       // SATA/mSATA, TS6500, tested with TS128GMSA230S/02J0S86A, TS32GMSA370/20140402,
+      // mSATA MSM360 mini SSD, tested with TS32GMSM360/Q0407A
       // TS128GMSA370I/P1225CH1
       // TS16GMSA370/20140516, TS64GSSD370/20140516, TS256GSSD370/N0815B, TS256GSSD370S/N1114H,
       // TS512GSSD370S/N1114H, TS32GSSD420I/N1114H, TS32GSSD420K/P1225CE
@@ -2160,6 +2161,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 159,raw48,DRAM_1_Bit_Error_Count " // KINGSTON SKC600256G/S4500105
     "-v 160,raw48,Uncorrectable_Error_Cnt "
     "-v 161,raw48,Valid_Spare_Block_Cnt "
+    "-v 162,raw48,Cache_Block_Count " // Transcend MSM360 
     "-v 163,raw48,Initial_Bad_Block_Count "
     "-v 164,raw48,Total_Erase_Count "
     "-v 165,raw48,Max_Erase_Count "
@@ -4342,8 +4344,8 @@ const drive_settings builtin_knowndrives[] = {
       // ST4000NM0035-1V4107/TNC3
       // ST1000NM0055-1V410C/TN02
       // ST8000NM0055-1RM112/SN04
-      // ST10000NM0156-2AA111/SS05
-    "ST([1234568]|10)000NM0[01][0-68][456]-.*", // *[069]4 = 4Kn
+      // ST10000NM0156-2AA111/SS05, ST4000NM0245-1Z2107/SS05
+    "ST([1234568]|10)000NM0[012][0-68][456]-.*", // *[069]4 = 4Kn
     "", "",
     "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
