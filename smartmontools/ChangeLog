@@ -3,6 +3,8 @@ $Id$
 2022-05-22  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
+	- Phison Driven SSDs: Kingston RBU-SNSx180S3 (#1335, #1389)
+	- Phison Driven OEM SSDs: SPCC Solid State Disk/SBFD00.3
 	- USB: Samsung Portable SSD T7 (0x04e8:0x4001) (GH pull/102)
 	- USB: Intrinsix (0x0578:0x0578)
 	- USB: Logitec LGB-4BNHUC (0x0789:0x0296) (GH pull/123)

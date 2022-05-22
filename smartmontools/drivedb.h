@@ -749,6 +749,8 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON O(C|M[48S])P0S3(64|128|256|512)B-[0A]0|" // tested with KINGSTON OCP0S364B-A0/SBFK62A3,
       // KINGSTON OM4P0S3256B-A0/SBFK62A3, KINGSTON OM8P0S364B-A0/SBFK62A3,
       // KINGSTON OMSP0S3128B-00/SBFK62A3
+    "KINGSTON RBUSNS(4|8)180S3(32|64|128|256|512)GJ|" // RBU-SNSx180S3, tested with
+      // KINGSTON RBUSNS4180S3256GJ/SBFK61D1, KINGSTON RBUSNS8180S3512GJ/SBFK61D1
     "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
       // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
     "KINGSTON SEDC(450R|500[MR])(480|960|1920|3840|7680)G|" // DC450R, DC500M/R, tested with
@@ -824,8 +826,9 @@ const drive_settings builtin_knowndrives[] = {
     "INTENSO SATA III SSD|" // tested with INTENSO SATA III SSD/SBFM11.2, .../SBFM81.3
     "SATA SSD|" // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
       // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
-    "SPCC Solid State Disk", // Silicon Power A55, tested with SPCC Solid State Disk/SBFM61.2
-    "S[89AB]FM[0-9][0-9]\\.[0-9]",
+    "SPCC Solid State Disk", // Silicon Power, tested with SPCC Solid State Disk/SBFD00.3,
+      // SPCC Solid State Disk/SBFM61.2
+    "S[89AB]F[DM][0-9][0-9]\\.[0-9]",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
