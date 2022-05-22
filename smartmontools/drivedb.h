@@ -6218,9 +6218,15 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // VIA Labs
-  { "USB: ; VIA VL700/1", // USB2/3->SATA
-    "0x2109:0x070[01]", // 0x0701: Intenso 2,5" 1TB USB3
-    "", // 0x0005/0x0107
+  { "USB: ; VIA VL700", // USB2/3->SATA
+    "0x2109:0x0700", // Diginote 2.5" USB-3.0 HDD enclosure 80000894
+    "", // 0x0005
+    "",
+    "-d sat,12" // ATA output registers missing
+  },
+  { "USB: ; VIA VL701", // USB2/3->SATA
+    "0x2109:0x0701", // Intenso 2,5" 1TB USB3
+    "", // 0x0107
     "",
     "-d sat" // ATA output registers missing
   },
