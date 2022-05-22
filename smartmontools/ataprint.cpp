@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -3277,7 +3277,13 @@ static void print_ata_security_status(const char * msg, unsigned short state, un
     }
   }
 
-  jout("%s%s%s%s%s\n", msg, s1, s2, s3, s4);
+  // Print Master Password ID if set to non-default value
+  // (0x0000, 0xffff: unsupported, 0xfffe: default)
+  char s5[32] = "";
+  if (0x0000 < master_password_id && master_password_id < 0xfffe)
+    snprintf(s5, sizeof(s5), ", Master PW ID: 0x%04x", master_password_id);
+
+  jout("%s%s%s%s%s%s\n", msg, s1, s2, s3, s4, s5);
 
   json::ref jref = jglb["ata_security"];
   jref["state"] = state;
