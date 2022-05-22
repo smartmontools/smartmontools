@@ -5126,7 +5126,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron"
   },
-  // Hitachi (?)
+  // Hitachi / Renesas
   { "USB: ; Renesas uPD720231A", // USB2/3->SATA
     // 0x0229: Pi-102 Raspberry Pi USB to mSATA Converter Board
     // 0x022a: DeLock 62652 converter SATA 6GB/s > USB 3.0
@@ -5200,6 +5200,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbjmicron"
+  },
+  { "USB: Samsung Portable SSD T7; ASMedia ASM2362",
+    "0x04e8:0x4001",
+    "",
+    "",
+    "-d sntasmedia"
   },
   { "USB: Samsung Story Station; ",
     "0x04e8:0x5f0[56]",
@@ -5291,6 +5297,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0103
     "",
     "-d usbsunplus"
+  },
+  // Intrinsix
+  { "USB: ; Intrinsix",
+    "0x0578:0x0578",
+    "", // 0x0202
+    "",
+    "-d sat" // ATA output registers missing
   },
   // Iomega
   { "USB: Iomega Prestige Desktop USB 3.0; ",
@@ -5523,6 +5536,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Logitec
+  { "USB: Logitec LGB-4BNHUC; ",
+    "0x0789:0x0296",
+    "",
+    "",
+    "-d sat"
+  },
   // SanDisk
   { "USB: SanDisk SDCZ80 Flash Drive; Fujitsu", // ATA ID: SanDisk pSSD
     "0x0781:0x558[08]",
@@ -5579,7 +5599,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron"
   },
-  // Fast Point Technologies (?)
+  // Fast Point Technologies
   { "USB: ; ",
     "0x0850:0x00(03|31)",
     "", // 0x0100
@@ -5657,10 +5677,10 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat,12"
   },
   // Apricorn
-  { "USB: Apricorn SATA Wire; ",
-    "0x0984:0x0(040|301)", // 0x0040: Apricorn SATA Wire
+  { "USB: Apricorn; ",
+    "0x0984:0x0(040|301|320)", // 0x0040: Apricorn SATA Wire
     "", // 0x0301 (0x0201): Corsair SSD & HDD Cloning Kit
-    "",
+    "", // 0x0320 (0x0133): Apricorn EZ-UP3 (Initio INIC-3607)
     "-d sat"
   },
   // Neodio Technologies
@@ -5834,10 +5854,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ADATA
   { "USB: ADATA; ",
-    "0x125f:0xa(11|13|15|21|31|35|37|75|83)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
+    "0x125f:0xa(1[135]|21|31|3[57]|7[56]|83)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
     "", // 0xa15a: HD710 1TB, 0xa21a: HV610 (0x4504), 0xa31a: HV620 2TB (0x0100),
     "", // 0xa35a: HD650 2TB (0x6503), 0xa37a: Silverstone MS10 M.2 (0x3103), 0xa75a: HD710P 4TB,
-        // 0xa83a: HD330 (0x0100)
+        // 0xa76a: ED600 (0x0204), 0xa83a: HD330 (0x0100)
     "-d sat"
   },
   { "USB: ADATA; Cypress",
@@ -6151,6 +6171,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  // Kanguru Solutions
+  { "USB: ; ", // ICY BOX IB-256WP
+    "0x1e1d:0x20a0",
+    "", // 0x3203
+    "",
+    "-d sat" // ATA output registers missing
+  },
   // TrekStor
   { "USB: TrekStor DataStation; ", // DataStation maxi light (USB 3.0)
     "0x1e68:0x0050",
@@ -6158,7 +6185,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  // 0x1e91 (?)
+  // Other World Computing
   { "USB: OWC Envoy Pro; ",
     "0x1e91:0xa2a5",
     "", // 0x0100
@@ -6191,9 +6218,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // VIA Labs
-  { "USB: ; VIA VL701", // USB2/3->SATA
-    "0x2109:0x0701", // Intenso 2,5" 1TB USB3
-    "", // 0x0107
+  { "USB: ; VIA VL700/1", // USB2/3->SATA
+    "0x2109:0x070[01]", // 0x0701: Intenso 2,5" 1TB USB3
+    "", // 0x0005/0x0107
     "",
     "-d sat" // ATA output registers missing
   },
@@ -6216,21 +6243,21 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  // 0x2537 (?)
+  // Norelsys
   { "USB: ; ", // USB 3.0
     "0x2537:0x106[68]", // 0x1066: Orico 2599US3, 0x1068: Fantec ER-35U3
     "", // 0x0100
     "",
     "-d sat"
   },
-  // 0x2eb9 (?): See Realtek (0x0bda) above
-  // AKiTiO (?)
+  // InX8 / AKiTiO
   { "USB: AkiTio NT2 U3.1C; ",
     "0x2ce5:0x0014",
     "", // 0x0100
     "",
     "-d sat"
   },
+  // 0x2eb9 (?): See Realtek (0x0bda) above
   // Power Quotient International
   { "USB: PQI H560; ",
     "0x3538:0x0902",
@@ -6311,7 +6338,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  // 0xabcd (?)
+  // Logilink
   { "USB: ; ",
     "0xabcd:0x610[34]", // 0x6103: LogiLink AU0028A V1.0 USB 3.0 to IDE & SATA Adapter
       // 0x6104: LogiLink PCCloneEX Lite

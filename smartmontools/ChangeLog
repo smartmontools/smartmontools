@@ -2,6 +2,15 @@ $Id$
 
 2022-05-22  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- USB: Samsung Portable SSD T7 (0x04e8:0x4001) (GH pull/102)
+	- USB: Intrinsix (0x0578:0x0578)
+	- USB: Logitec LGB-4BNHUC (0x0789:0x0296) (GH pull/123)
+	- USB: Apricorn EZ-UP3 (0x0984:0x0320) (#1565)
+	- USB: ADATA ED600 (0x125f:0xa76a) (#1613)
+	- USB: ICY BOX IB-256WP (0x1e1d:0x20a0)
+	- USB: VIA VL700 (0x2109:0x0700)
+
 	ataprint.cpp: Print Master Password ID if set to non-default value.
 
 2022-05-22  Eaton Zveare  <eaton@eaton-works.com>
