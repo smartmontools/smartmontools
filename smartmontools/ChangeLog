@@ -1,5 +1,10 @@
 $Id$
 
+2022-05-22  Eaton Zveare  <eaton@eaton-works.com>
+
+	ataprint.cpp: Add master_password_id to ata_security json output
+	(GH pull/134).
+
 2022-05-08  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:

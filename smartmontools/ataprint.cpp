@@ -3237,7 +3237,7 @@ static void print_apm_level(const char * msg, int level)
   }
 }
 
-static void print_ata_security_status(const char * msg, unsigned short state)
+static void print_ata_security_status(const char * msg, unsigned short state, unsigned short master_password_id)
 {
   // Table 6 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
   if (!(state & 0x0001)) {
@@ -3291,6 +3291,7 @@ static void print_ata_security_status(const char * msg, unsigned short state)
     if (locked)
       jref["pw_attempts_exceeded"] = !!(state & 0x0010);
   }
+  jref["master_password_id"] = master_password_id;
 }
 
 static void print_standby_timer(const char * msg, int timer, const ata_identify_device & drive)
@@ -3653,7 +3654,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print ATA Security status
   if (options.get_security)
-    print_ata_security_status("ATA Security is:  ", word128);
+    print_ata_security_status("ATA Security is:  ", word128, drive.words088_255[92-88]);
 
   // Print write cache reordering status
   if (options.sct_wcache_reorder_get) {
