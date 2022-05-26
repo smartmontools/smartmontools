@@ -46,8 +46,7 @@ Table of contents:
     C) Solaris
 
     The SCSI code has been tested on a variety of Solaris 8 or later
-    systems.  ATA/IDE code only works on SPARC platform.  All tested
-    kernels worked correctly.
+    systems.  All tested kernels worked correctly.
 
     D) NetBSD/OpenBSD
 
@@ -174,7 +173,6 @@ Table of contents:
     --with-systemdsystemunitdir=auto
     --with-systemdenvfile=auto
     --with-nvme-devicescan (Linux, Windows: yes; Others: no)
-    --without-solaris-sparc-ata (Solaris SPARC only)
     --with-signal-func=sigaction
     --with-working-snprintf
     --with-mingw-aslr=auto (Windows only)

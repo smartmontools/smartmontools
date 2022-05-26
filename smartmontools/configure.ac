@@ -412,22 +412,6 @@ AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
     [Include NVMe devices in smartd DEVICESCAN [Linux,Windows:yes;Others:no]])])
 
-# TODO: Remove after smartmontools 7.3
-AC_ARG_WITH(solaris-sparc-ata,
-  [AS_HELP_STRING([--with-solaris-sparc-ata@<:@=yes|no@:>@],
-    [Enable legacy ATA support on Solaris SPARC (requires os_solaris_ata.s from SVN repository) [no]])])
-
-case "$host:$with_solaris_sparc_ata" in
-  sparc-*-solaris*:yes)
-    if test ! -f "$srcdir/os_solaris_ata.s"; then
-      AC_MSG_ERROR([Missing source file: $srcdir/os_solaris_ata.s
-This file is no longer included in the source tarball but still
-available in the SVN repository.])
-    fi
-    AC_DEFINE(WITH_SOLARIS_SPARC_ATA, 1, [Define to 1 to enable legacy ATA support on Solaris SPARC.])
-    ;;
-esac
-
 # TODO: Remove after smartmontools 7.4
 AC_ARG_WITH(signal-func,
   [AS_HELP_STRING([--with-signal-func=@<:@sigaction|sigset|signal@:>@],
@@ -616,6 +600,14 @@ else
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
+# TODO: Remove after smartmontools 7.4
+AC_ARG_WITH(solaris-sparc-ata,
+  [AS_HELP_STRING([--with-solaris-sparc-ata], [(removed)])],
+  [AC_MSG_ERROR([
+The option '--with@<:@out@:>@-solaris-sparc-ata' is no longer supported.
+If you still need legacy ATA support on Solaris SPARC, please inform
+$PACKAGE_BUGREPORT.])])
+
 # Set platform-specific modules and symbols
 os_libs=
 os_dltools='curl wget lynx svn'
@@ -647,15 +639,7 @@ case "${host}" in
     os_man_filter=FreeBSD
     os_nvme_devicescan=no
     ;;
-  sparc-*-solaris*)
-    os_deps='os_solaris.o'
-    test "$with_solaris_sparc_ata" = "yes" \
-      && os_deps="$os_deps os_solaris_ata.o"
-    os_mailer='mailx'
-    os_solaris=yes
-    os_man_filter=Solaris
-    ;;
-  *-pc-solaris*)
+  *-*-solaris*)
     os_deps='os_solaris.o'
     os_mailer='mailx'
     os_solaris=yes
@@ -1003,15 +987,6 @@ Use option '--with-nvme-devicescan' to include NVMe devices.
 Use option '--without-nvme-devicescan' to suppress this warning.
 ])  ;;
 esac
-
-# TODO: Remove after smartmontools 7.3
-if test -n "$with_solaris_sparc_ata"; then
-  AC_MSG_WARN([
-The option '--with-solaris-sparc-ata' is deprecated and will be
-removed in a future version of smartmontools.  If this option is
-still needed, please inform $PACKAGE_BUGREPORT.
-])
-fi
 
 # TODO: Remove after smartmontools 7.4
 case "$host:$with_signal_func" in

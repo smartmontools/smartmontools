@@ -7,9 +7,6 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-# Make sure .cpp takes precedence to avoid compiling old .c file
-SUFFIXES = .cpp .c .s .o
-
 # BUILD_INFO can be provided by package maintainers (see INSTALL file)
 BUILD_INFO= "(local build)"
 
@@ -107,7 +104,6 @@ EXTRA_smartctl_SOURCES = \
         os_qnxnto.cpp \
         os_qnxnto.h \
         os_solaris.cpp \
-        os_solaris.h \
         os_win32.cpp \
         os_generic.cpp \
         os_generic.h \
@@ -179,7 +175,6 @@ EXTRA_smartd_SOURCES = \
         os_qnxnto.cpp \
         os_qnxnto.h \
         os_solaris.cpp \
-        os_solaris.h \
         os_win32.cpp \
         os_generic.cpp \
         os_generic.h \
@@ -217,10 +212,6 @@ smartd_LDADD        += smartd_res.o
 smartd_DEPENDENCIES += smartd_res.o
 
 endif
-
-# Exclude from source tarball
-nodist_EXTRA_smartctl_SOURCES = os_solaris_ata.s
-nodist_EXTRA_smartd_SOURCES   = os_solaris_ata.s
 
 if NEED_GETOPT_LONG
 
