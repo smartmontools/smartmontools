@@ -2,6 +2,8 @@ $Id$
 
 2022-05-26  Christian Franke  <franke@computer.org>
 
+	INSTALL: Update ./configure description and Windows info.
+
 	Drop legacy ATA support for Solaris SPARC.
 	configure.ac: Fail if '--with-solaris-sparc-ata' is specified.
 	Makefile.am: Remove os_solaris_ata.s and os_solaris.h.
