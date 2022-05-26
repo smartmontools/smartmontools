@@ -1,4 +1,13 @@
-$Id: ChangeLog 5387 2022-05-22 14:52:46Z chrfranke $
+$Id: ChangeLog 5389 2022-05-26 12:34:02Z chrfranke $
+
+2022-05-26  Christian Franke  <franke@computer.org>
+
+	Drop legacy ATA support for Solaris SPARC.
+	configure.ac: Fail if '--with-solaris-sparc-ata' is specified.
+	Makefile.am: Remove os_solaris_ata.s and os_solaris.h.
+	os_solaris.cpp: Remove WITH_SOLARIS_SPARC_ATA sections.
+	os_solaris_ata.s, os_solaris.h: Remove files.
+	INSTALL: Update documentation.
 
 2022-05-22  Christian Franke  <franke@computer.org>
 
