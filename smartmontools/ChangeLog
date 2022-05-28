@@ -1,5 +1,14 @@
 $Id$
 
+2022-05-27  Douglas Gilbert  <dgilbert@interlog.com>
+
+	[SCSI]: prepare for calling REPORT SUPPORTED OPERATION
+	CODES [RSOC] command (and several others that use an
+	additional "service action" code to identify them). For
+	SCSI devices >= SPC-4 plan to call the RSOC command and
+	cache its result. Use that cache to determine if
+	commands like GET PHYSICAL ELEMENT STATUS are supported.
+
 2022-05-26  Christian Franke  <franke@computer.org>
 
 	INSTALL: Update ./configure description and Windows info.

@@ -39,14 +39,14 @@
 #ifndef LOG_SENSE
 #define LOG_SENSE 0x4d
 #endif
-#ifndef MODE_SENSE
-#define MODE_SENSE 0x1a
+#ifndef MODE_SENSE_6
+#define MODE_SENSE_6 0x1a
 #endif
 #ifndef MODE_SENSE_10
 #define MODE_SENSE_10 0x5a
 #endif
-#ifndef MODE_SELECT
-#define MODE_SELECT 0x15
+#ifndef MODE_SELECT_6
+#define MODE_SELECT_6 0x15
 #endif
 #ifndef MODE_SELECT_10
 #define MODE_SELECT_10 0x55
@@ -78,11 +78,20 @@
 #ifndef READ_CAPACITY_10
 #define READ_CAPACITY_10  0x25
 #endif
-#ifndef READ_CAPACITY_16
-#define READ_CAPACITY_16  0x9e
+#ifndef SERVICE_ACTION_IN_16
+#define SERVICE_ACTION_IN_16  0x9e
 #endif
-#ifndef SAI_READ_CAPACITY_16    /* service action for READ_CAPACITY_16 */
+#ifndef SAI_READ_CAPACITY_16    /* service action in for READ_CAPACITY_16 */
 #define SAI_READ_CAPACITY_16  0x10
+#endif
+#ifndef SAI_GET_PHY_ELEM_STATUS    /* Get physical element status */
+#define SAI_GET_PHY_ELEM_STATUS  0x17
+#endif
+#ifndef MAINTENANCE_IN_12
+#define MAINTENANCE_IN_12  0xa3
+#endif
+#ifndef MI_REP_SUP_OPCODES
+#define MI_REP_SUP_OPCODES  0xc    /* maintenance in (12) */
 #endif
 
 #ifndef SAT_ATA_PASSTHROUGH_12
@@ -514,7 +523,7 @@ int scsiSmartSelfTestAbort(scsi_device * device);
 const char * scsiTapeAlertsTapeDevice(unsigned short code);
 const char * scsiTapeAlertsChangerDevice(unsigned short code);
 
-const char * scsi_get_opcode_name(uint8_t opcode);
+const char * scsi_get_opcode_name(uint8_t opcode, bool sa_valid, uint16_t sa);
 void scsi_format_id_string(char * out, const uint8_t * in, int n);
 
 void dStrHex(const uint8_t * up, int len, int no_ascii);

@@ -199,30 +199,38 @@ is_scsi_cdb(const uint8_t * cdbp, int clen)
 
 struct scsi_opcode_name {
     uint8_t opcode;
+    bool sa_valid;
+    uint16_t sa;
     const char * name;
 };
 
+/* Array assumed to be sorted by opcode then service action (sa) */
 static struct scsi_opcode_name opcode_name_arr[] = {
     /* in ascending opcode order */
-    {TEST_UNIT_READY, "test unit ready"},       /* 0x00 */
-    {REQUEST_SENSE, "request sense"},           /* 0x03 */
-    {INQUIRY, "inquiry"},                       /* 0x12 */
-    {MODE_SELECT, "mode select(6)"},            /* 0x15 */
-    {MODE_SENSE, "mode sense(6)"},              /* 0x1a */
-    {START_STOP_UNIT, "start stop unit"},       /* 0x1b */
-    {RECEIVE_DIAGNOSTIC, "receive diagnostic"}, /* 0x1c */
-    {SEND_DIAGNOSTIC, "send diagnostic"},       /* 0x1d */
-    {READ_CAPACITY_10, "read capacity(10)"},    /* 0x25 */
-    {READ_DEFECT_10, "read defect list(10)"},   /* 0x37 */
-    {LOG_SELECT, "log select"},                 /* 0x4c */
-    {LOG_SENSE, "log sense"},                   /* 0x4d */
-    {MODE_SELECT_10, "mode select(10)"},        /* 0x55 */
-    {MODE_SENSE_10, "mode sense(10)"},          /* 0x5a */
-    {SAT_ATA_PASSTHROUGH_16, "ata pass-through(16)"}, /* 0x85 */
-    {READ_CAPACITY_16, "read capacity(16)"},    /* 0x9e,0x10 */
-    {REPORT_LUNS, "report luns"},               /* 0xa0 */
-    {SAT_ATA_PASSTHROUGH_12, "ata pass-through(12)"}, /* 0xa1 */
-    {READ_DEFECT_12, "read defect list(12)"},   /* 0xb7 */
+    {TEST_UNIT_READY, false, 0, "test unit ready"},       /* 0x00 */
+    {REQUEST_SENSE, false, 0, "request sense"},           /* 0x03 */
+    {INQUIRY, false, 0, "inquiry"},                       /* 0x12 */
+    {MODE_SELECT_6, false, 0, "mode select(6)"},          /* 0x15 */
+    {MODE_SENSE_6, false, 0, "mode sense(6)"},            /* 0x1a */
+    {START_STOP_UNIT, false, 0, "start stop unit"},       /* 0x1b */
+    {RECEIVE_DIAGNOSTIC, false, 0, "receive diagnostic"}, /* 0x1c */
+    {SEND_DIAGNOSTIC, false, 0, "send diagnostic"},       /* 0x1d */
+    {READ_CAPACITY_10, false, 0, "read capacity(10)"},    /* 0x25 */
+    {READ_DEFECT_10, false, 0, "read defect list(10)"},   /* 0x37 */
+    {LOG_SELECT, false, 0, "log select"},                 /* 0x4c */
+    {LOG_SENSE, false, 0, "log sense"},                   /* 0x4d */
+    {MODE_SELECT_10, false, 0, "mode select(10)"},        /* 0x55 */
+    {MODE_SENSE_10, false, 0, "mode sense(10)"},          /* 0x5a */
+    {SAT_ATA_PASSTHROUGH_16, false, 0, "ata pass-through(16)"}, /* 0x85 */
+    {SERVICE_ACTION_IN_16, true, SAI_READ_CAPACITY_16, "read capacity(16)"},
+                                                          /* 0x9e,0x10 */
+    {SERVICE_ACTION_IN_16, true, SAI_GET_PHY_ELEM_STATUS,
+        "get physical element status"},                   /* 0x9e,0x17 */
+    {REPORT_LUNS, false, 0, "report luns"},               /* 0xa0 */
+    {SAT_ATA_PASSTHROUGH_12, false, 0, "ata pass-through(12)"}, /* 0xa1 */
+    {MAINTENANCE_IN_12, true, MI_REP_SUP_OPCODES,
+        "report suported operation codes"},               /* 0xa3,0xc */
+    {READ_DEFECT_12, false, 0, "read defect list(12)"},   /* 0xb7 */
 };
 
 static const char * vendor_specific = "<vendor specific>";
@@ -230,7 +238,7 @@ static const char * vendor_specific = "<vendor specific>";
 /* Need to expand to take service action into account. For commands
  * of interest the service action is in the 2nd command byte */
 const char *
-scsi_get_opcode_name(uint8_t opcode)
+scsi_get_opcode_name(uint8_t opcode, bool sa_valid, uint16_t sa)
 {
     static const int len = sizeof(opcode_name_arr) /
                            sizeof(opcode_name_arr[0]);
@@ -239,9 +247,16 @@ scsi_get_opcode_name(uint8_t opcode)
         return vendor_specific;
     for (int k = 0; k < len; ++k) {
         struct scsi_opcode_name * onp = &opcode_name_arr[k];
-        if (opcode == onp->opcode)
-            return onp->name;
-        else if (opcode < onp->opcode)
+
+        if (opcode == onp->opcode) {
+            if ((! sa_valid) && (! onp->sa_valid))
+                return onp->name;
+            if (sa_valid && onp->sa_valid) {
+                if (sa == onp->sa)
+                    return onp->name;
+            }
+            /* should see sa_valid and ! onp->sa_valid (or vice versa) */
+        } else if (opcode < onp->opcode)
             return NULL;
     }
     return NULL;
@@ -690,7 +705,7 @@ scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
-    cdb[0] = MODE_SENSE;
+    cdb[0] = MODE_SENSE_6;
     cdb[2] = (pc << 6) | (pagenum & 0x3f);
     cdb[3] = subpagenum;
     cdb[4] = bufLen;
@@ -743,7 +758,7 @@ scsiModeSelect(scsi_device * device, int sp, uint8_t *pBuf, int bufLen)
     io_hdr.dxfer_dir = DXFER_TO_DEVICE;
     io_hdr.dxfer_len = hdr_plus_1_pg;
     io_hdr.dxferp = pBuf;
-    cdb[0] = MODE_SELECT;
+    cdb[0] = MODE_SELECT_6;
     cdb[1] = 0x10 | (sp & 1);      /* set PF (page format) bit always */
     cdb[4] = hdr_plus_1_pg; /* make sure only one page sent */
     io_hdr.cmnd = cdb;
@@ -1294,7 +1309,7 @@ scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen)
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
-    cdb[0] = READ_CAPACITY_16;
+    cdb[0] = SERVICE_ACTION_IN_16;
     cdb[1] = SAI_READ_CAPACITY_16;
     sg_put_unaligned_be32(bufLen, cdb + 10);
     io_hdr.cmnd = cdb;
