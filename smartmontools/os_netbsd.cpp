@@ -25,7 +25,7 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 5198 2021-02-01 20:36:02Z chrfranke $"
+const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 5392 2022-05-28 02:33:52Z dpgilbert $"
   OS_NETBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))
@@ -357,7 +357,7 @@ bool netbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     const unsigned char * ucp = iop->cmnd;
     const char * np;
 
-    np = scsi_get_opcode_name(ucp[0]);
+    np = scsi_get_opcode_name(ucp[0], false, 0);
     pout(" [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < iop->cmnd_len; ++k)
       pout("%02x ", ucp[k]);

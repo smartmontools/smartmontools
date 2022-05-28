@@ -89,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 5376 2022-05-01 12:49:30Z chrfranke $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 5392 2022-05-28 02:33:52Z dpgilbert $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -542,7 +542,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         const int sz = (int)sizeof(buff);
 
         pout(">>>> do_scsi_cmnd_io: sg_io_ifc=%d\n", (int)sg_io_ifc);
-        np = scsi_get_opcode_name(ucp[0]);
+        np = scsi_get_opcode_name(ucp[0], false, 0);
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < (int)iop->cmnd_len; ++k)
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
@@ -921,7 +921,7 @@ bool linux_aacraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     char buff[256];
     const int sz = (int)sizeof(buff);
 
-    np = scsi_get_opcode_name(ucp[0]);
+    np = scsi_get_opcode_name(ucp[0], false, 0);
     j  = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < (int)iop->cmnd_len; ++k)
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
@@ -1226,7 +1226,7 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
         char buff[256];
         const int sz = (int)sizeof(buff);
 
-        np = scsi_get_opcode_name(ucp[0]);
+        np = scsi_get_opcode_name(ucp[0], false, 0);
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < (int)iop->cmnd_len; ++k)
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
