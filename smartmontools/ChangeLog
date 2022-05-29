@@ -1,5 +1,10 @@
 $Id$
 
+2022-05-28  Douglas Gilbert  <dgilbert@interlog.com>
+
+	[SCSI]: more work for calling REPORT SUPPORTED OPERATION
+	CODES [RSOC] command.
+
 2022-05-27  Douglas Gilbert  <dgilbert@interlog.com>
 
 	[SCSI]: prepare for calling REPORT SUPPORTED OPERATION

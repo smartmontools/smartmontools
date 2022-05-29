@@ -575,6 +575,12 @@ protected:
 
 struct scsi_cmnd_io;
 
+struct scsi_rsoc_elem {
+    uint8_t cdb0;
+    uint8_t sa_valid;
+    uint16_t sa;
+};
+
 /// SCSI device access
 class scsi_device
 : virtual public /*extends*/ smart_device
@@ -596,6 +602,10 @@ public:
   bool use_rcap16() const
     { return rcap16_first; }
 
+  void set_spc4_or_higher() { spc4_or_above = true; }
+
+  bool is_spc4_or_higher() const { return spc4_or_above; }
+
 protected:
   /// Hide/unhide SCSI interface.
   void hide_scsi(bool hide = true)
@@ -604,11 +614,15 @@ protected:
   /// Default constructor, registers device as SCSI.
   scsi_device()
     : smart_device(never_called),
-      rcap16_first(false)
+      rcap16_first(false),
+      spc4_or_above(false)
     { hide_scsi(false); }
 
 private:
   bool rcap16_first;
+  bool spc4_or_above;
+  /* rsoc: report supported operation codes (command) */
+  std::vector<scsi_rsoc_elem> rsoc_list;
 };
 
 

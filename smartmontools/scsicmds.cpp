@@ -197,6 +197,36 @@ is_scsi_cdb(const uint8_t * cdbp, int clen)
     return false;
 }
 
+enum scsi_sa_t {
+    scsi_sa_none = 0,
+    scsi_sa_b1b4n5,     /* for cdb byte 1, bit 4, number 5 bits */
+    scsi_sa_b8b7n16,
+};
+
+struct scsi_sa_var_map {
+    uint8_t cdb0;
+    enum scsi_sa_t sa_var;
+};
+
+static struct scsi_sa_var_map sa_var_a[] = {
+    {0x3b, scsi_sa_b1b4n5},     /* Write buffer modes_s */
+    {0x3c, scsi_sa_b1b4n5},     /* Read buffer(10) modes_s */
+    {0x48, scsi_sa_b1b4n5},     /* Sanitize sa_s */
+    {0x5e, scsi_sa_b1b4n5},     /* Persistent reserve in sa_s */
+    {0x5f, scsi_sa_b1b4n5},     /* Persistent reserve out sa_s */
+    {0x7f, scsi_sa_b8b7n16},    /* Variable length commands */
+    {0x83, scsi_sa_b1b4n5},     /* Extended copy out/cmd sa_s */
+    {0x84, scsi_sa_b1b4n5},     /* Extended copy in sa_s */
+    {0x8c, scsi_sa_b1b4n5},     /* Read attribute sa_s */
+    {0x9b, scsi_sa_b1b4n5},     /* Read buffer(16) modes_s */
+    {0x9e, scsi_sa_b1b4n5},     /* Service action in (16) */
+    {0x9f, scsi_sa_b1b4n5},     /* Service action out (16) */
+    {0xa3, scsi_sa_b1b4n5},     /* Maintenance in */
+    {0xa4, scsi_sa_b1b4n5},     /* Maintenance out */
+    {0xa9, scsi_sa_b1b4n5},     /* Service action out (12) */
+    {0xab, scsi_sa_b1b4n5},     /* Service action in (12) */
+};
+
 struct scsi_opcode_name {
     uint8_t opcode;
     bool sa_valid;
@@ -238,14 +268,43 @@ static const char * vendor_specific = "<vendor specific>";
 /* Need to expand to take service action into account. For commands
  * of interest the service action is in the 2nd command byte */
 const char *
-scsi_get_opcode_name(uint8_t opcode, bool sa_valid, uint16_t sa)
+scsi_get_opcode_name(const uint8_t * cdbp)
 {
+    uint8_t opcode = cdbp[0];
+    uint8_t cdb0;
+    enum scsi_sa_t sa_var = scsi_sa_none;
+    bool sa_valid = false;
+    uint16_t sa = 0;
+    int k;
+    static const int sa_var_len = sizeof(sa_var_a) /
+                                  sizeof(sa_var_a[0]);
     static const int len = sizeof(opcode_name_arr) /
                            sizeof(opcode_name_arr[0]);
 
     if (opcode >= 0xc0)
         return vendor_specific;
-    for (int k = 0; k < len; ++k) {
+    for (k = 0; k < sa_var_len; ++k) {
+        cdb0 = sa_var_a[k].cdb0;
+        if (opcode == cdb0) {
+            sa_var = sa_var_a[k].sa_var;
+            break;
+        }
+        if (opcode < cdb0)
+            break;
+    }
+    switch (sa_var) {
+    case scsi_sa_none:
+        break;
+    case scsi_sa_b1b4n5:
+        sa_valid = true;
+        sa = cdbp[1] & 0x1f;
+        break;
+    case scsi_sa_b8b7n16:
+        sa_valid = true;
+        sa = sg_get_unaligned_be16(cdbp + 8);
+        break;
+    }
+    for (k = 0; k < len; ++k) {
         struct scsi_opcode_name * onp = &opcode_name_arr[k];
 
         if (opcode == onp->opcode) {
@@ -255,7 +314,7 @@ scsi_get_opcode_name(uint8_t opcode, bool sa_valid, uint16_t sa)
                 if (sa == onp->sa)
                     return onp->name;
             }
-            /* should see sa_valid and ! onp->sa_valid (or vice versa) */
+            /* should not see sa_valid and ! onp->sa_valid (or vice versa) */
         } else if (opcode < onp->opcode)
             return NULL;
     }
@@ -865,11 +924,14 @@ scsiStdInquiry(scsi_device * device, uint8_t *pBuf, int bufLen)
 {
     struct scsi_sense_disect sinfo;
     struct scsi_cmnd_io io_hdr = {};
+    int res;
     uint8_t cdb[6] = {};
     uint8_t sense[32];
 
     if ((bufLen < 0) || (bufLen > 1023))
         return -EINVAL;
+    if (bufLen >= 36)   /* normal case */
+        memset(pBuf, 0, 36);
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
     io_hdr.dxfer_len = bufLen;
     io_hdr.dxferp = pBuf;
@@ -882,8 +944,22 @@ scsiStdInquiry(scsi_device * device, uint8_t *pBuf, int bufLen)
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
-      return -device->get_errno();
-    return scsiSimpleSenseFilter(&sinfo);
+        return -device->get_errno();
+    res = scsiSimpleSenseFilter(&sinfo);
+    if ((SIMPLE_NO_ERROR == res) && (! device->is_spc4_or_higher())) {
+        if (((bufLen -  io_hdr.resid) >= 36) &&
+            (pBuf[2] >= 6) &&           /* VERSION field >= SPC-4 */
+            ((pBuf[3] & 0xf) == 2)) {   /* RESPONSE DATA field == 2 */
+            uint8_t pdt = pBuf[0] & 0x1f;
+
+            if ((SCSI_PT_DIRECT_ACCESS == pdt) ||
+               (SCSI_PT_HOST_MANAGED == pdt) ||
+               (SCSI_PT_SEQUENTIAL_ACCESS == pdt) ||
+               (SCSI_PT_MEDIUM_CHANGER == pdt))
+                device->set_spc4_or_higher();
+        }
+    }
+    return res;
 }
 
 /* INQUIRY to fetch Vital Page Data.  Returns 0 if ok, 1 if NOT READY
@@ -1321,6 +1397,39 @@ scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen)
     if (!scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
       return -device->get_errno();
     return scsiSimpleSenseFilter(&sinfo);
+}
+
+/* REPORT SUPPORTED OPERATION CODES [RSOC] command. If SIMPLE_NO_ERROR is
+ * returned then the response length is written to rspLen. */
+int
+scsiRSOCcmd(scsi_device * device, uint8_t *pBuf, int bufLen, int & rspLen)
+{
+    struct scsi_cmnd_io io_hdr = {};
+    struct scsi_sense_disect sinfo;
+    int res;
+    uint8_t cdb[12] = {};
+    uint8_t sense[32];
+
+    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+    io_hdr.dxfer_len = bufLen;
+    io_hdr.dxferp = pBuf;
+    cdb[0] = MAINTENANCE_IN_12;
+    cdb[1] = MI_REP_SUP_OPCODES;
+    /* RCTD=0 (no timeout descriptors); REPORTING_OPTION=0 (all commands) */
+    /* those settings imply response should contain 8 bytes per command */
+    sg_put_unaligned_be32(bufLen, cdb + 6);
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+    if (!scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
+      return -device->get_errno();
+    res = scsiSimpleSenseFilter(&sinfo);
+    if (SIMPLE_NO_ERROR == res)
+        rspLen = bufLen - io_hdr.resid;
+    return res;
 }
 
 /* Return number of bytes of storage in 'device' or 0 if error. If

@@ -2830,7 +2830,7 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
     char buff[256];
     const int sz = (int)sizeof(buff);
 
-    np = scsi_get_opcode_name(ucp[0], false, 0);
+    np = scsi_get_opcode_name(ucp);
     j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < (int)iop->cmnd_len; ++k)
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
@@ -2959,7 +2959,7 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
     char buff[256];
     const int sz = (int)sizeof(buff);
 
-    np = scsi_get_opcode_name(ucp[0], false, 0);
+    np = scsi_get_opcode_name(ucp);
     j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < (int)iop->cmnd_len; ++k)
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
@@ -3396,7 +3396,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
     const char * np;
     char buff[256];
     const int sz = (int)sizeof(buff);
-    np = scsi_get_opcode_name(ucp[0], false, 0);
+    np = scsi_get_opcode_name(ucp);
     j  = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < (int)iop->cmnd_len; ++k)
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
