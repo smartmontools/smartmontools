@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include <util.h>
 
-const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 5392 2022-05-28 02:33:52Z dpgilbert $"
+const char * os_openbsd_cpp_cvsid = "$Id: os_openbsd.cpp 5393 2022-05-29 05:08:10Z dpgilbert $"
   OS_OPENBSD_H_CVSID;
 
 #define ARGUSED(x) ((void)(x))
@@ -244,7 +244,7 @@ bool openbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     const unsigned char * ucp = iop->cmnd;
     const char * np;
 
-    np = scsi_get_opcode_name(ucp[0], false, 0);
+    np = scsi_get_opcode_name(ucp);
     pout(" [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < iop->cmnd_len; ++k)
       pout("%02x ", ucp[k]);

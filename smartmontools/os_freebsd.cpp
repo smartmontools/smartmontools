@@ -76,7 +76,7 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5392 2022-05-28 02:33:52Z dpgilbert $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5393 2022-05-29 05:08:10Z dpgilbert $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 #define NO_RETURN 0
@@ -889,7 +889,7 @@ bool freebsd_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
         char buff[256];
         const int sz = (int)sizeof(buff);
 
-        np = scsi_get_opcode_name(ucp[0], false, 0);
+        np = scsi_get_opcode_name(ucp);
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < (int)iop->cmnd_len; ++k)
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
@@ -1253,7 +1253,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     const unsigned char * ucp = iop->cmnd;
     const char * np;
 
-    np = scsi_get_opcode_name(ucp[0], false, 0);
+    np = scsi_get_opcode_name(ucp);
     pout(" [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < iop->cmnd_len; ++k)
       pout("%02x ", ucp[k]);

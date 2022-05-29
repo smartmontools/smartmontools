@@ -19,7 +19,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5392 2022-05-28 02:33:52Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5393 2022-05-29 05:08:10Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -105,6 +105,9 @@
 #define DXFER_NONE        0
 #define DXFER_FROM_DEVICE 1
 #define DXFER_TO_DEVICE   2
+
+
+/* scsi_rsoc_elem and scsi_device is defined in dev_interface.h */
 
 struct scsi_cmnd_io
 {
@@ -369,8 +372,6 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_TIMEOUT_SELF_TEST  (5 * 60 * 60)   /* allow max 5 hours for */
                                             /* extended foreground self test */
 
-
-
 #define LOGPAGEHDRSIZE  4
 
 class scsi_device;
@@ -479,6 +480,8 @@ int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbp,
 
 int scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen);
 
+int scsiRSOCcmd(scsi_device * device, uint8_t *pBuf, int bufLen, int & rspLen);
+
 /* SMART specific commands */
 int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
                 uint8_t *asc, uint8_t *ascq, uint8_t *currenttemp,
@@ -523,7 +526,7 @@ int scsiSmartSelfTestAbort(scsi_device * device);
 const char * scsiTapeAlertsTapeDevice(unsigned short code);
 const char * scsiTapeAlertsChangerDevice(unsigned short code);
 
-const char * scsi_get_opcode_name(uint8_t opcode, bool sa_valid, uint16_t sa);
+const char * scsi_get_opcode_name(const uint8_t * cdbp);
 void scsi_format_id_string(char * out, const uint8_t * in, int n);
 
 void dStrHex(const uint8_t * up, int len, int no_ascii);

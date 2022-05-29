@@ -1,4 +1,9 @@
-$Id: ChangeLog 5392 2022-05-28 02:33:52Z dpgilbert $
+$Id: ChangeLog 5393 2022-05-29 05:08:10Z dpgilbert $
+
+2022-05-28  Douglas Gilbert  <dgilbert@interlog.com>
+
+	[SCSI]: more work for calling REPORT SUPPORTED OPERATION
+	CODES [RSOC] command.
 
 2022-05-27  Douglas Gilbert  <dgilbert@interlog.com>
 
