@@ -1,4 +1,11 @@
-$Id: ChangeLog 5393 2022-05-29 05:08:10Z dpgilbert $
+$Id: ChangeLog 5394 2022-05-31 04:00:25Z dpgilbert $
+
+2022-05-30  Douglas Gilbert  <dgilbert@interlog.com>
+
+	[SCSI]: rework scsiGetIEString() so it should now output
+	all asc=0xb||0x5d strings defined in spc6r06.pdf . These
+	are the strings associated with "Informational Exceptions".
+	This should address ticket #1614 .
 
 2022-05-28  Douglas Gilbert  <dgilbert@interlog.com>
 
