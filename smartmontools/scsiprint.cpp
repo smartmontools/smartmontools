@@ -343,6 +343,8 @@ scsiGetSmartData(scsi_device * device, bool attribs)
     uint8_t triptemp = 255;
     const char * cp;
     int err = 0;
+    char b[128];
+
     print_on();
     if (scsiCheckIE(device, gSmartLPage, gTempLPage, &asc, &ascq,
                     &currenttemp, &triptemp)) {
@@ -351,7 +353,7 @@ scsiGetSmartData(scsi_device * device, bool attribs)
         return -1;
     }
     print_off();
-    cp = scsiGetIEString(asc, ascq);
+    cp = scsiGetIEString(asc, ascq, b, sizeof(b));
     if (cp) {
         err = -2;
         print_on();
@@ -1187,7 +1189,7 @@ scsiPrintSelfTest(scsi_device * device)
             jout(" [0x%x 0x%x 0x%x]\n", ucp[16] & 0xf, ucp[17], ucp[18]);
             u = ucp[16] & 0xf;
             jglb[st]["sense_key"]["value"] = u;
-            jglb[st]["sense_key"]["string"] = 
+            jglb[st]["sense_key"]["string"] =
                         scsi_get_sense_key_str(u, sizeof(b), b);
             jglb[st]["asc"] = ucp[17];
             jglb[st]["ascq"] = ucp[18];
@@ -3376,7 +3378,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
         if (gEnviroReportingLPage && options.smart_env_rep) {
             scsiPrintEnviroReporting(device);
-	    envRepDone = true;
+            envRepDone = true;
         } else if (gTempLPage)
             scsiPrintTemp(device);
         // in the 'smartctl -A' case only want: "Accumulated power on time"
@@ -3576,11 +3578,11 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             scsiGetSupportedLogPages(device);
             checkedSupportedLogPages = true;
         }
-	if (gProtocolSpecificLPage) {
+        if (gProtocolSpecificLPage) {
             if (scsiPrintSasPhy(device, options.sasphy_reset))
                 return returnval | FAILSMART;
             any_output = true;
-	}
+        }
     }
     if (options.smart_env_rep && ! envRepDone) {
         if (! checkedSupportedLogPages) {

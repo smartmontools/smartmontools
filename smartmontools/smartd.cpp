@@ -2403,8 +2403,15 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
 
   int pdt = inqBuf[0] & 0x1f;
 
-  if (! ((0 == pdt) || (4 == pdt) || (5 == pdt) || (7 == pdt) ||
-         (0xe == pdt))) {
+  switch (pdt) {
+  case SCSI_PT_DIRECT_ACCESS:
+  case SCSI_PT_WO:
+  case SCSI_PT_CDROM:
+  case SCSI_PT_OPTICAL:
+  case SCSI_PT_RBC:		/* Reduced Block commands */
+  case SCSI_PT_HOST_MANAGED:	/* Zoned disk */
+    break;
+  default:
     PrintOut(LOG_INFO, "Device: %s, not a disk like device [PDT=0x%x], "
              "skip\n", device, pdt);
     return 2;
@@ -2417,8 +2424,8 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   supported_vpd_pages_p = new supported_vpd_pages(scsidev);
 
   lu_id[0] = '\0';
-  if ((version >= 0x3) && (version < 0x8)) {
-    /* SPC to SPC-5 */
+  if (version >= 0x3) {
+    /* SPC to SPC-5, assume SPC-6 is version==8 or higher */
     if (0 == scsiInquiryVpd(scsidev, SCSI_VPD_DEVICE_IDENTIFICATION,
                             vpdBuf, sizeof(vpdBuf))) {
       len = vpdBuf[3];
@@ -3703,7 +3710,9 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     }
   }
   if (asc > 0) {
-    const char * cp = scsiGetIEString(asc, ascq);
+    char b[128];
+    const char * cp = scsiGetIEString(asc, ascq, b, sizeof(b));
+
     if (cp) {
       PrintOut(LOG_CRIT, "Device: %s, SMART Failure: %s\n", name, cp);
       MailWarning(cfg, state, 1,"Device: %s, SMART Failure: %s", name, cp);

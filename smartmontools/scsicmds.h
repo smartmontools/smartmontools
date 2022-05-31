@@ -187,9 +187,12 @@ struct scsi_supp_log_pages {
 /* SCSI Peripheral types (of interest) */
 #define SCSI_PT_DIRECT_ACCESS           0x0
 #define SCSI_PT_SEQUENTIAL_ACCESS       0x1
+#define SCSI_PT_WO                      0x4      /* write once device */
 #define SCSI_PT_CDROM                   0x5
+#define SCSI_PT_OPTICAL                 0x7
 #define SCSI_PT_MEDIUM_CHANGER          0x8
 #define SCSI_PT_ENCLOSURE               0xd
+#define SCSI_PT_RBC                     0xe
 #define SCSI_PT_HOST_MANAGED            0x14    /* Zoned disk */
 
 /* Transport protocol identifiers or just Protocol identifiers */
@@ -512,7 +515,7 @@ uint64_t scsiGetSize(scsi_device * device, bool avoid_rcap16,
                      struct scsi_readcap_resp * srrp);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
-const char* scsiGetIEString(uint8_t asc, uint8_t ascq);
+char * scsiGetIEString(uint8_t asc, uint8_t ascq, char * b, int blen);
 int scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp);
 
 
@@ -536,6 +539,7 @@ void dStrHex(const uint8_t * up, int len, int no_ascii);
    descriptor; otherwise (including fixed format sense data) returns NULL. */
 const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
                                               int sense_len, int desc_type);
+
 
 
 /* SCSI command transmission interface function declaration. Its

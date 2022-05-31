@@ -1737,6 +1737,11 @@ scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp)
     return 0;
 }
 
+/* Informational Exception conditions specified by spc6r06.pdf seem to be
+ * associated with ASC values 0xb (warnings) and 0x5d (impending failures).
+ * The asc/accq value 0x5d,0xff is reported in response to setting the TEST
+ * bit in the Informationl Exception Control mode page. */
+
 /* Read informational exception log page or Request Sense response.
  * Fetching asc/ascq code potentially flagging an exception or warning.
  * Returns 0 if ok, else error number. A current temperature of 255
@@ -2199,162 +2204,6 @@ scsiTapeAlertsChangerDevice(unsigned short code)
     return (code < num) ?  ChangerTapeAlertsMessageTable[code] :
                            "Unknown Alert";
 }
-
-
-/* this is a subset of the SCSI additional sense code strings indexed
- * by "ascq" for the case when asc==SCSI_ASC_IMPENDING_FAILURE (0x5d)
- */
-static const char * strs_for_asc_5d[] = {
-   /* 0x00 */   "FAILURE PREDICTION THRESHOLD EXCEEDED",
-        "MEDIA FAILURE PREDICTION THRESHOLD EXCEEDED",
-        "LOGICAL UNIT FAILURE PREDICTION THRESHOLD EXCEEDED",
-        "SPARE AREA EXHAUSTION PREDICTION THRESHOLD EXCEEDED",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-   /* 0x10 */   "HARDWARE IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
-        "HARDWARE IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
-        "HARDWARE IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
-        "HARDWARE IMPENDING FAILURE SEEK ERROR RATE TOO HIGH",
-        "HARDWARE IMPENDING FAILURE TOO MANY BLOCK REASSIGNS",
-        "HARDWARE IMPENDING FAILURE ACCESS TIMES TOO HIGH",
-        "HARDWARE IMPENDING FAILURE START UNIT TIMES TOO HIGH",
-        "HARDWARE IMPENDING FAILURE CHANNEL PARAMETRICS",
-        "HARDWARE IMPENDING FAILURE CONTROLLER DETECTED",
-        "HARDWARE IMPENDING FAILURE THROUGHPUT PERFORMANCE",
-        "HARDWARE IMPENDING FAILURE SEEK TIME PERFORMANCE",
-        "HARDWARE IMPENDING FAILURE SPIN-UP RETRY COUNT",
-        "HARDWARE IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT",
-        "",
-        "",
-        "",
-   /* 0x20 */   "CONTROLLER IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
-        "CONTROLLER IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
-        "CONTROLLER IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
-        "CONTROLLER IMPENDING FAILURE SEEK ERROR RATE TOO HIGH",
-        "CONTROLLER IMPENDING FAILURE TOO MANY BLOCK REASSIGNS",
-        "CONTROLLER IMPENDING FAILURE ACCESS TIMES TOO HIGH",
-        "CONTROLLER IMPENDING FAILURE START UNIT TIMES TOO HIGH",
-        "CONTROLLER IMPENDING FAILURE CHANNEL PARAMETRICS",
-        "CONTROLLER IMPENDING FAILURE CONTROLLER DETECTED",
-        "CONTROLLER IMPENDING FAILURE THROUGHPUT PERFORMANCE",
-        "CONTROLLER IMPENDING FAILURE SEEK TIME PERFORMANCE",
-        "CONTROLLER IMPENDING FAILURE SPIN-UP RETRY COUNT",
-        "CONTROLLER IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT",
-        "",
-        "",
-        "",
-   /* 0x30 */   "DATA CHANNEL IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
-        "DATA CHANNEL IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
-        "DATA CHANNEL IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
-        "DATA CHANNEL IMPENDING FAILURE SEEK ERROR RATE TOO HIGH",
-        "DATA CHANNEL IMPENDING FAILURE TOO MANY BLOCK REASSIGNS",
-        "DATA CHANNEL IMPENDING FAILURE ACCESS TIMES TOO HIGH",
-        "DATA CHANNEL IMPENDING FAILURE START UNIT TIMES TOO HIGH",
-        "DATA CHANNEL IMPENDING FAILURE CHANNEL PARAMETRICS",
-        "DATA CHANNEL IMPENDING FAILURE CONTROLLER DETECTED",
-        "DATA CHANNEL IMPENDING FAILURE THROUGHPUT PERFORMANCE",
-        "DATA CHANNEL IMPENDING FAILURE SEEK TIME PERFORMANCE",
-        "DATA CHANNEL IMPENDING FAILURE SPIN-UP RETRY COUNT",
-        "DATA CHANNEL IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT",
-        "",
-        "",
-        "",
-   /* 0x40 */   "SERVO IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
-        "SERVO IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
-        "SERVO IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
-        "SERVO IMPENDING FAILURE SEEK ERROR RATE TOO HIGH",
-        "SERVO IMPENDING FAILURE TOO MANY BLOCK REASSIGNS",
-        "SERVO IMPENDING FAILURE ACCESS TIMES TOO HIGH",
-        "SERVO IMPENDING FAILURE START UNIT TIMES TOO HIGH",
-        "SERVO IMPENDING FAILURE CHANNEL PARAMETRICS",
-        "SERVO IMPENDING FAILURE CONTROLLER DETECTED",
-        "SERVO IMPENDING FAILURE THROUGHPUT PERFORMANCE",
-        "SERVO IMPENDING FAILURE SEEK TIME PERFORMANCE",
-        "SERVO IMPENDING FAILURE SPIN-UP RETRY COUNT",
-        "SERVO IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT",
-        "",
-        "",
-        "",
-   /* 0x50 */   "SPINDLE IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
-        "SPINDLE IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
-        "SPINDLE IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
-        "SPINDLE IMPENDING FAILURE SEEK ERROR RATE TOO HIGH",
-        "SPINDLE IMPENDING FAILURE TOO MANY BLOCK REASSIGNS",
-        "SPINDLE IMPENDING FAILURE ACCESS TIMES TOO HIGH",
-        "SPINDLE IMPENDING FAILURE START UNIT TIMES TOO HIGH",
-        "SPINDLE IMPENDING FAILURE CHANNEL PARAMETRICS",
-        "SPINDLE IMPENDING FAILURE CONTROLLER DETECTED",
-        "SPINDLE IMPENDING FAILURE THROUGHPUT PERFORMANCE",
-        "SPINDLE IMPENDING FAILURE SEEK TIME PERFORMANCE",
-        "SPINDLE IMPENDING FAILURE SPIN-UP RETRY COUNT",
-        "SPINDLE IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT",
-        "",
-        "",
-        "",
-   /* 0x60 */   "FIRMWARE IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
-        "FIRMWARE IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
-        "FIRMWARE IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
-        "FIRMWARE IMPENDING FAILURE SEEK ERROR RATE TOO HIGH",
-        "FIRMWARE IMPENDING FAILURE TOO MANY BLOCK REASSIGNS",
-        "FIRMWARE IMPENDING FAILURE ACCESS TIMES TOO HIGH",
-        "FIRMWARE IMPENDING FAILURE START UNIT TIMES TOO HIGH",
-        "FIRMWARE IMPENDING FAILURE CHANNEL PARAMETRICS",
-        "FIRMWARE IMPENDING FAILURE CONTROLLER DETECTED",
-        "FIRMWARE IMPENDING FAILURE THROUGHPUT PERFORMANCE",
-        "FIRMWARE IMPENDING FAILURE SEEK TIME PERFORMANCE",
-        "FIRMWARE IMPENDING FAILURE SPIN-UP RETRY COUNT",
-   /* 0x6c */   "FIRMWARE IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT"};
-
-
-/* this is a subset of the SCSI additional sense code strings indexed
- *  * by "ascq" for the case when asc==SCSI_ASC_WARNING (0xb)
- *   */
-static const char * strs_for_asc_b[] = {
-       /* 0x00 */   "WARNING",
-               "WARNING - SPECIFIED TEMPERATURE EXCEEDED",
-               "WARNING - ENCLOSURE DEGRADED"};
-
-static char spare_buff[128];
-
-const char *
-scsiGetIEString(uint8_t asc, uint8_t ascq)
-{
-    const char * rp;
-
-    if (SCSI_ASC_IMPENDING_FAILURE == asc) {
-        if (ascq == 0xff)
-            return "FAILURE PREDICTION THRESHOLD EXCEEDED (FALSE)";
-        else if (ascq <
-                 (sizeof(strs_for_asc_5d) / sizeof(strs_for_asc_5d[0]))) {
-            rp = strs_for_asc_5d[ascq];
-            if (strlen(rp) > 0)
-                return rp;
-        }
-        snprintf(spare_buff, sizeof(spare_buff),
-                 "FAILURE PREDICTION THRESHOLD EXCEEDED: ascq=0x%x", ascq);
-        return spare_buff;
-    } else if (SCSI_ASC_WARNING == asc) {
-        if (ascq < (sizeof(strs_for_asc_b) / sizeof(strs_for_asc_b[0]))) {
-            rp = strs_for_asc_b[ascq];
-            if (strlen(rp) > 0)
-                return rp;
-        }
-        snprintf(spare_buff, sizeof(spare_buff), "WARNING: ascq=0x%x", ascq);
-        return spare_buff;
-    }
-    return NULL;        /* not a IE additional sense code */
-}
-
 
 int
 scsiSmartDefaultSelfTest(scsi_device * device)
@@ -3001,4 +2850,137 @@ scsi_format_id_string(char * out, const uint8_t * in, int n)
 
   strncpy(out, tmp+first, last-first+1);
   out[last-first+1] = '\0';
+}
+
+static const char * wn = "Warning";
+
+static const char * wn1_9[] = {
+    "specified temperature exceeded",
+    "enclosure degraded",
+    "background self-test failed",
+    "background pre-scan detected medium error",
+    "background medium scan detected medium error",
+    "non-volatile cache now volatile",
+    "degraded power to non-volatile cache",
+    "power loss expected",
+    "device statistics notification active",
+};
+
+static const char * five_d_t[] = {
+    "Hardware",
+    "Controller",
+    "Data channel",
+    "Servo",
+    "Spindle",
+    "Firmware",
+};
+
+static const char * impfail = "impending failure";
+
+static const char * impending0_c[] = {
+    "general hard drive failure",
+    "drive error rate too high",
+    "data error rate too high",
+    "seek error rate too high",
+    "too many block reassigns",
+    "access times too high",
+    "start unit times too high",
+    "channel parametrics",
+    "controller detected",
+    "throughput performance",
+    "seek time performance",
+    "spin-up retry count",
+    "drive calibration retry count",
+};
+
+static const char * pred = "prediction threshold exceeded";
+
+/* The SCSI Informational Exceptions log page and various other mechanisms
+ * yield an additional sense code (and its qualifier) [asc and ascq] when
+ * triggered. It seems only two asc values are involved: 0xb and 0xd.
+ * If asc,ascq strings are known (in spc6r06.pdf) for asc 0xb and 0x5d
+ * then a pointer to that string is returned, else NULL is returned. The
+ * caller provides a buffer (b) and its length (blen) that a string (if
+ * found) is placed in. So if a match is found b is returned. */
+char *
+scsiGetIEString(uint8_t asc, uint8_t ascq, char * b, int blen)
+{
+    if (asc == 0xb) {
+        switch (ascq) {
+        case 0:
+            snprintf(b, blen, "%s", wn);
+            return b;
+        case 0x1:
+        case 0x2:
+        case 0x3:
+        case 0x4:
+        case 0x5:
+        case 0x6:
+        case 0x7:
+        case 0x8:
+        case 0x9:
+            snprintf(b, blen, "%s - %s", wn, wn1_9[ascq - 1]);
+            return b;
+        case 0x12:
+            snprintf(b, blen, "%s - microcode security at risk", wn);
+            return b;
+        case 0x13:
+            snprintf(b, blen, "%s - microcode digital signature validation "
+                     "failure", wn);
+            return b;
+        case 0x14:
+            snprintf(b, blen, "%s - physical element status change", wn);
+            return b;
+        default:
+            if ((ascq >= 0xa) && (ascq <= 0x11)) {
+                uint8_t q = ascq - 0xa;
+
+                snprintf(b, blen, "%s - %s %s %s limit exceeded", wn,
+                         (((q % 2) == 0) ? "high" : "low"),
+                         ((((q / 2) % 2) == 0) ? "critical" : "operating"),
+                         ((((q / 4) % 2) == 0) ? "temperature" : "humidity"));
+                return b;
+            } else
+                return NULL;
+        }
+    } else if (asc == 0x5d) {
+        switch (ascq) {
+        case 0:
+            snprintf(b, blen, "Failure %s", pred);
+            return b;
+        case 1:
+            snprintf(b, blen, "Media failure %s", pred);
+            return b;
+        case 2:
+            snprintf(b, blen, "Logical unit failure %s", pred);
+            return b;
+        case 3:
+            snprintf(b, blen, "spare area exhaustion failure %s", pred);
+            return b;
+        case 0x1d:
+            snprintf(b, blen, "%s %s power loss protection circuit area "
+                     "exhaustion failure", five_d_t[0], impfail);
+            return b;
+        case 0x73:
+            snprintf(b, blen, "Media %s endurance limit met", impfail);
+            return b;
+        case 0xff:
+            snprintf(b, blen, "Failure %s (false)", pred);
+            return b;
+        default:
+            if ((ascq >= 0x10) && (ascq <= 0x6c)) {
+                uint8_t q = ascq - 0x10;
+                uint8_t rem = q % 0x10;
+
+                if (rem <= 0xc) {
+                    snprintf(b, blen, "%s %s %s", five_d_t[q / 0x10], impfail,
+                             impending0_c[rem]);
+                    return b;
+                } else
+                    return NULL;
+            } else
+                return NULL;
+        }
+    } else
+        return NULL;
 }
