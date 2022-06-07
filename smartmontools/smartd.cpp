@@ -236,6 +236,7 @@ static void PrintOut(int priority, const char *fmt, ...)
 // systemd notify support
 
 static bool notify_enabled = false;
+static bool notify_ready = false;
 
 static inline void notify_init()
 {
@@ -253,6 +254,20 @@ static inline bool notify_post_init()
     return false;
   }
   return true;
+}
+
+static inline void notify_extend_timeout()
+{
+  if (!notify_enabled)
+    return;
+  if (notify_ready)
+    return;
+  const char * notify = "EXTEND_TIMEOUT_USEC=20000000"; // typical drive spinup time is 20s tops
+  if (debugmode) {
+    pout("sd_notify(0, \"%s\")\n", notify);
+    return;
+  }
+  sd_notify(0, notify);
 }
 
 static void notify_msg(const char * msg, bool ready = false)
@@ -285,9 +300,8 @@ static void notify_wait(time_t wakeuptime, int numdev)
   char msg[64];
   snprintf(msg, sizeof(msg), "Next check of %d device%s will start at %s",
            numdev, (numdev != 1 ? "s" : ""), ts);
-  static bool ready = true; // first call notifies READY=1
-  notify_msg(msg, ready);
-  ready = false;
+  notify_msg(msg, !notify_ready); // first call notifies READY=1
+  notify_ready = true;
 }
 
 static void notify_exit(int status)
@@ -322,6 +336,7 @@ static inline bool notify_post_init()
 }
 
 static inline void notify_init() { }
+static inline void notify_extend_timeout() { }
 static inline void notify_msg(const char *) { }
 static inline void notify_check(int) { }
 static inline void notify_wait(time_t, int) { }
@@ -5577,6 +5592,9 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
         scanning = true;
       }
     }
+
+    // Prevent systemd unit startup timeout when registering many devices
+    notify_extend_timeout();
 
     // Register device
     // If scanning, pass dev_idinfo of previous devices for duplicate check

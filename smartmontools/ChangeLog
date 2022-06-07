@@ -1,5 +1,10 @@
 $Id$
 
+2022-06-07  themylogin  <themylogin@gmail.com>
+
+	smartd.cpp: Prevent systemd unit startup timeout when registering
+	many devices (GH pull/138).
+
 2022-05-30  Douglas Gilbert  <dgilbert@interlog.com>
 
 	[SCSI]: rework scsiGetIEString() so it should now output
