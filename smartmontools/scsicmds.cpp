@@ -2328,14 +2328,19 @@ scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
 }
 
 void
-scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp)
+scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp,
+                         int allocLen)
 {
     memset(ecp, 0, sizeof(*ecp));
     int num = sg_get_unaligned_be16(resp + 2);
+    /* allocLen is length of whole log page including 4B log page header */
+    num = num < allocLen - 4 ? num : allocLen - 4;
     unsigned char * ucp = &resp[0] + 4;
-    while (num > 3) {
+    while (num >= 4) {  /* header of each parameter takes 4 bytes */
         int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
+        if (num < pl)  /* remaining length less than a complete parameter */
+            break;
         uint64_t * ullp;
         switch (pc) {
             case 0:
@@ -2348,7 +2353,7 @@ scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp)
                 ecp->gotPC[pc] = 1;
                 ullp = &ecp->counter[pc];
                 break;
-        default:
+            default:
                 ecp->gotExtraPC = 1;
                 ullp = &ecp->counter[7];
                 break;
@@ -2367,15 +2372,19 @@ scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp)
 
 void
 scsiDecodeNonMediumErrPage(unsigned char *resp,
-                           struct scsiNonMediumError *nmep)
+                           struct scsiNonMediumError *nmep, int allocLen)
 {
     memset(nmep, 0, sizeof(*nmep));
     int num = sg_get_unaligned_be16(resp + 2);
+    /* allocLen is length of whole log page including 4B log page header */
+    num = num > allocLen - 4 ? num : allocLen - 4;
     unsigned char * ucp = &resp[0] + 4;
     static int szof = sizeof(nmep->counterPC0);
-    while (num > 3) {
+    while (num >= 4) {  /* header of each parameter takes 4 bytes */
         int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
+        if (num < pl)  /* remaining length less than a complete parameter */
+            break;
         int k;
         unsigned char * xp;
         switch (pc) {
@@ -2409,7 +2418,7 @@ scsiDecodeNonMediumErrPage(unsigned char *resp,
                 }
                 nmep->counterPE_H = sg_get_unaligned_be(k, xp + 0);
                 break;
-        default:
+            default:
                 nmep->gotExtraPC = 1;
                 break;
         }
