@@ -1,5 +1,10 @@
 $Id$
 
+2022-06-24  Douglas Gilbert  <dgilbert@interlog.com>
+
+	drivedb.h:
+	- WDC WUH722020BLE6L4
+
 2022-06-07  themylogin  <themylogin@gmail.com>
 
 	smartd.cpp: Prevent systemd unit startup timeout when registering
