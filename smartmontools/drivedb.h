@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5387 2022-05-22 14:52:46Z chrfranke $",
+  { "VERSION: 7.3 $Id: drivedb.h 5396 2022-06-24 16:47:20Z dpgilbert $",
     "-", "-",
     "Version information",
     ""
@@ -3636,7 +3636,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar DC HC560", // tested with WDC  WUH722020ALN604/PQGNW108
-    "(WDC  ?)?WUH722020AL[EN]6[0L][014]",
+    // WDC WUH722020BLE6L4
+    "(WDC  ?)?WUH722020[AB]L[EN]6[0L][014]",
     "", "",
     "-v 22,raw48,Helium_Level "
     "-v 82,raw16,Head_Health_Score "

@@ -1,4 +1,9 @@
-$Id: ChangeLog 5395 2022-06-07 10:06:56Z chrfranke $
+$Id: ChangeLog 5396 2022-06-24 16:47:20Z dpgilbert $
+
+2022-06-24  Douglas Gilbert  <dgilbert@interlog.com>
+
+	drivedb.h:
+	- WDC WUH722020BLE6L4
 
 2022-06-07  themylogin  <themylogin@gmail.com>
 
