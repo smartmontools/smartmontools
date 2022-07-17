@@ -394,7 +394,7 @@ void syserror(const char *message){
     const char *errormessage=strerror(errno);
     
     // Check that caller has handed a sensible string, and provide
-    // appropriate output. See perrror(3) man page to understand better.
+    // appropriate output. See perror(3) man page to understand better.
     if (message && *message)
       pout("%s: %s\n",message, errormessage);
     else

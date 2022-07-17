@@ -596,7 +596,7 @@ static int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
 
 namespace sat {
 
-/// Cypress USB Brigde support.
+/// Cypress USB Bridge support.
 
 class usbcypress_device
 : public tunnelled_device<

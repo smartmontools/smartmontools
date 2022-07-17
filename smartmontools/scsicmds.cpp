@@ -259,7 +259,7 @@ static struct scsi_opcode_name opcode_name_arr[] = {
     {REPORT_LUNS, false, 0, "report luns"},               /* 0xa0 */
     {SAT_ATA_PASSTHROUGH_12, false, 0, "ata pass-through(12)"}, /* 0xa1 */
     {MAINTENANCE_IN_12, true, MI_REP_SUP_OPCODES,
-        "report suported operation codes"},               /* 0xa3,0xc */
+        "report supported operation codes"},              /* 0xa3,0xc */
     {READ_DEFECT_12, false, 0, "read defect list(12)"},   /* 0xb7 */
 };
 

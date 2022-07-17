@@ -1,5 +1,9 @@
 $Id$
 
+2022-07-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	some spelling fixes with the help of the codespell utility
+
 2022-06-24  Douglas Gilbert  <dgilbert@interlog.com>
 
 	drivedb.h:
