@@ -55,7 +55,7 @@
 #include "dev_tunnelled.h" // tunnelled_device<>
 #include "sg_unaligned.h"
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 5376 2022-05-01 12:49:30Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 5397 2022-07-17 02:22:29Z dpgilbert $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -596,7 +596,7 @@ static int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
 
 namespace sat {
 
-/// Cypress USB Brigde support.
+/// Cypress USB Bridge support.
 
 class usbcypress_device
 : public tunnelled_device<

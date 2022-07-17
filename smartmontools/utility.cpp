@@ -55,7 +55,7 @@
 #endif
 #endif // USE_CLOCK_MONOTONIC
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 5341 2022-03-01 20:01:25Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 5397 2022-07-17 02:22:29Z dpgilbert $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -394,7 +394,7 @@ void syserror(const char *message){
     const char *errormessage=strerror(errno);
     
     // Check that caller has handed a sensible string, and provide
-    // appropriate output. See perrror(3) man page to understand better.
+    // appropriate output. See perror(3) man page to understand better.
     if (message && *message)
       pout("%s: %s\n",message, errormessage);
     else

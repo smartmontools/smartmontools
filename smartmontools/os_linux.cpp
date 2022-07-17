@@ -89,7 +89,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 5393 2022-05-29 05:08:10Z dpgilbert $"
+const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 5397 2022-07-17 02:22:29Z dpgilbert $"
   OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
@@ -481,7 +481,7 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
  * the SCSI_IOCTL_SEND_COMMAND ioctl is still present but deprecated sending
  * a warning to the log the first time (after power up) it is used. The SG_IO
  * Version 3 interface is the most widely used (circa lk 5.17 in 2022) and is
- * available on the primary block devive name (e.g. /dev/sdc) for all SCSI
+ * available on the primary block device name (e.g. /dev/sdc) for all SCSI
  * disks (and tapes) including all USB attached storage and all ATA/SATA
  * storage. */
 
@@ -869,7 +869,7 @@ bool linux_aacraid_device::open()
   char dev_name[128];
   snprintf(dev_name, sizeof(dev_name), "/dev/aac%d", aHost);
 
-  //Initial open of dev name to check if it exsists
+  //Initial open of dev name to check if it exists
   int afd = ::open(dev_name,O_RDWR);
 
   if(afd < 0 && errno == ENOENT) {

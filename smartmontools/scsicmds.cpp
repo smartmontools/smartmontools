@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "sg_unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5394 2022-05-31 04:00:25Z dpgilbert $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5397 2022-07-17 02:22:29Z dpgilbert $"
   SCSICMDS_H_CVSID;
 
 static const char * logSenStr = "Log Sense";
@@ -259,7 +259,7 @@ static struct scsi_opcode_name opcode_name_arr[] = {
     {REPORT_LUNS, false, 0, "report luns"},               /* 0xa0 */
     {SAT_ATA_PASSTHROUGH_12, false, 0, "ata pass-through(12)"}, /* 0xa1 */
     {MAINTENANCE_IN_12, true, MI_REP_SUP_OPCODES,
-        "report suported operation codes"},               /* 0xa3,0xc */
+        "report supported operation codes"},              /* 0xa3,0xc */
     {READ_DEFECT_12, false, 0, "read defect list(12)"},   /* 0xb7 */
 };
 
