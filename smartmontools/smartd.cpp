@@ -89,7 +89,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5395 2022-06-07 10:06:56Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5401 2022-08-06 15:19:43Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -3956,6 +3956,9 @@ static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector
       SCSICheckDevice(cfg, state, dev->to_scsi(), allow_selftests);
     else if (dev->is_nvme())
       NVMeCheckDevice(cfg, state, dev->to_nvme());
+
+    // Prevent systemd unit startup timeout when checking many devices on startup
+    notify_extend_timeout();
   }
 
   do_disable_standby_check(configs, states);
