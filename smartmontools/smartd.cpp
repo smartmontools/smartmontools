@@ -1110,7 +1110,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 
   // Export information in environment variables that will be useful
   // for user scripts
-  static env_buffer env[12];
+  static env_buffer env[13];
   env[0].set("SMARTD_MAILER", executable);
   env[1].set("SMARTD_MESSAGE", message);
   char dates[DATEANDEPOCHLEN];
@@ -1136,6 +1136,8 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     case 3: snprintf(dates, sizeof(dates), "%d", (0x01)<<mail->logged);
   }
   env[11].set("SMARTD_NEXTDAYS", dates);
+  // Avoid false positive recursion detection by smartd_warning.{sh,cmd}
+  env[12].set("SMARTD_SUBJECT", "");
 
   // now construct a command to send this as EMAIL
   if (!*executable)

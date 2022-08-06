@@ -4,7 +4,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2012-21 Christian Franke
+# Copyright (C) 2012-22 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -26,6 +26,12 @@ os_mailer="@os_mailer@"
 
 # Plugin directory (disabled if empty)
 plugindir="@smartdplugindir@"
+
+# Detect accidental use of '-M exec /path/to/smartd_warning.sh'.
+if [ -n "$SMARTD_SUBJECT" ]; then
+  echo "$0: SMARTD_SUBJECT is already set - possible recursion" >&2
+  exit 1
+fi
 
 # Parse options
 dryrun=

@@ -4,7 +4,7 @@
 ::
 :: Home page of code is: http://www.smartmontools.org
 ::
-:: Copyright (C) 2012-17 Christian Franke
+:: Copyright (C) 2012-22 Christian Franke
 ::
 :: SPDX-License-Identifier: GPL-2.0-or-later
 ::
@@ -19,6 +19,12 @@ set err=
 :: Change to script directory (not necessary if run from smartd service)
 cd /d %~dp0
 if errorlevel 1 goto ERROR
+
+:: Detect accidental use of '-M exec /path/to/smartd_warning.cmd'
+if not "!SMARTD_SUBJECT!" == "" (
+  echo smartd_warning.cmd: SMARTD_SUBJECT is already set - possible recursion
+  goto ERROR
+)
 
 :: Parse options
 set dryrun=

@@ -2,6 +2,11 @@ $Id$
 
 2022-08-06  Christian Franke  <franke@computer.org>
 
+	Detect accidental use of smartd_warning script in '-M exec'.
+	smartd.cpp: Set SMARTD_SUBJECT to empty.
+	smartd_warning.sh.in, os_win32/smartd_warning.cmd: Abort if
+	SMARTD_SUBJECT is already nonempty.
+
 	smartd.cpp, popen_as_ugid.cpp: Don't use 'getdtablesize()'.
 	This function is declared 'legacy' since SUS 1997 and no longer part
 	of POSIX since 2004.  Use 'sysconf(_SC_OPEN_MAX)' instead.
