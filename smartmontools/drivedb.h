@@ -5493,22 +5493,10 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: ; Genesys Logic", // TODO: requires '-T permissive'
-    "0x05e3:0x0718",
-    "", // 0x0041
-    "",
-    "-d sat"
-  },
-  { "USB: ; Genesys Logic GL3310",
-    "0x05e3:0x0731", // Chieftec USB 3.0 2.5" case
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: ; Genesys Logic",
-    "0x05e3:0x0735",
-    "", // 0x1003
-    "",
+    "0x05e3:0x(0718|073[15]|2013)", // 0x0718(0x0041): Requires '-T permissive',
+    "", // 0x0731: Genesys Logic GL3310, Chieftec USB 3.0 2.5" case, 0x0735(0x1003): ?,
+    "", // 0x2013(0x0100): Sharkoon QuickPort Duo Clone USB 3.1 Type-C
     "-d sat"
   },
   // Micron
@@ -5862,10 +5850,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ADATA
   { "USB: ADATA; ",
-    "0x125f:0xa(1[135]|21|31|3[57]|7[56]|83)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
+    "0x125f:0xa(1[135]|21|31|3[57]|68|7[56]|83)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
     "", // 0xa15a: HD710 1TB, 0xa21a: HV610 (0x4504), 0xa31a: HV620 2TB (0x0100),
     "", // 0xa35a: HD650 2TB (0x6503), 0xa37a: Silverstone MS10 M.2 (0x3103), 0xa75a: HD710P 4TB,
-        // 0xa76a: ED600 (0x0204), 0xa83a: HD330 (0x0100)
+        // 0xa68a: SD600, 0xa76a: ED600 (0x0204), 0xa83a: HD330 (0x0100)
     "-d sat"
   },
   { "USB: ADATA; Cypress",

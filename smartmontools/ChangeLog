@@ -5,6 +5,8 @@ $Id$
 	drivedb.h:
 	- Samsung based SSDs: SM843TN *960HCGP (#1624), PM881
 	  (GH/pull 119), more PM893 variants (#1616), PM897 (#1559).
+	- USB: Genesys Logic: Merge entries, add 0x05e3:0x2013.
+	- USB: ADATA SD600 (0x125f:0xa68a).
 
 2022-07-16  Douglas Gilbert  <dgilbert@interlog.com>
 
