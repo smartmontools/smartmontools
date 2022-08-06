@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3/5387 2022-05-22 14:52:46 $Id: drivedb.h 5388 2022-05-22 15:30:31Z chrfranke $",
+  { "VERSION: 7.3/5399 2022-08-06 14:47:15 $Id: drivedb.h 5400 2022-08-06 14:58:55Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -1886,8 +1886,9 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG MZ7TD(128|256)HAFV-.*|" // 840 Series, tested with SAMSUNG MZ7TD256HAFV-000L7/DXT06L6Q
     "SAMSUNG MZ[7M]TD(128|256|512)HA[GF][LMV]-.*|" // PM841, tested with SAMSUNG MZMTD512HAGL-00000/DXT4200Q,
       // SAMSUNG MZ7TD512HAGM-000L1/DXT06L0Q, SAMSUNG MZMTD128HAFV-000L1/DXT43L0Q
-    "SAMSUNG MZ7WD((120|240)H[AC]FV|480HAGM|960HAGP)-00003|" // SM843T Series, tested with
-      // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q, SAMSUNG MZ7WD120HCFV-00003/DXM9203Q
+    "SAMSUNG MZ7WD((120|240)H[AC]FV|480H[AC]GM|960H[AC]GP)-.*|" // SM843T(N?) Series, tested with
+      // SAMSUNG MZ7WD120HAFV-00003/DXM85W3Q, SAMSUNG MZ7WD120HCFV-00003/DXM9203Q,
+      // SAMSUNG MZ7WD960HCGP-000PU/DXM9BW4Q (SM843TN?)
     "SAMSUNG MZ[7N]TE(128|256|512)HM(HP|JH)-.*|" // PM851, tested with SAMSUNG MZ7TE256HMHP-000L7/EXT09L6Q,
       // SAMSUNG MZNTE256HMHP-000H1/EXT22H0Q, SAMSUNG MZNTE512HMJH-000L2/EXT26L0Q
     "SAMSUNG MZMPF(032|064)HCFV-.*|" // CM851 mSATA, tested with SAMSUNG MZMPF032HCFV-000H1/FXM42H2Q
@@ -1900,9 +1901,12 @@ const drive_settings builtin_knowndrives[] = {
     "(SAMSUNG )?MZ7KM(120|240|480|960|1T9)H[AM](FD|GR|H[PQ]|J[MP])(-.*|0D3)|" // SM863(a), tested with
       // SAMSUNG MZ7KM480HAHP-0E005/GXM1003Q, SAMSUNG MZ7KM480HMHQ-00005/GXM5104Q,
       // SAMSUNG MZ7KM960HMJP-00005/GXM5304Q, MZ7KM960HMJP0D3/GD53 (Dell)
+    "SAMSUNG MZ[7N]LH(128|256|512|1T0)H[AB](JD|HQ|L[BU])-.*|" // PM881, tested with
+      // SAMSUNG MZ7LH512HALU-00000/RVT0200Q
     "SAMSUNG MZ7LH(240|480|960|1T9|3T8|7T6)H[AM](HQ|JR|LT|LA)-.*|" //PM883, tested with SAMSUNG MZ7LH960HAJR-00005
-    "SAMSUNG MZ7L(3240|33T8)H(BLT|CHQ)-.*|" //PM893, tested with SAMSUNG MZ7L33T8HBLT-00A07/JXTC104Q
-      // SAMSUNG MZ7L3240HCHQ-00A07/JXTC104Q
+    "SAMSUNG MZ7L3(240|480|960|1T9|3T8|7T6)H(B[LN][AT]|CHQ|CJR)-.*|" // PM893/897, tested with
+      // SAMSUNG MZ7L3240HCHQ-00A07/JXTC104Q, SAMSUNG MZ7L3480HCHQ-00A07/JXTC104Q,
+      // SAMSUNG MZ7L3480HBLT-00A07/JXTE004Q, SAMSUNG MZ7L33T8HBLT-00A07/JXTC104Q
     "SAMSUNG MZ7KH(240|480|960|1T9|3T8)HA(HQ|JR|LS)-.*|" //SM883
     "SAMSUNG MZ[7N](LF|TY)(128|192|256)H[CD](GS|HP)-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
       // SAMSUNG MZNTY256HDHP-000/MAT21K0Q, SAMSUNG MZ7LF192HCGS-000L1/FXT03L1Q
@@ -3636,7 +3640,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar DC HC560", // tested with WDC  WUH722020ALN604/PQGNW108
-    "(WDC  ?)?WUH722020AL[EN]6[0L][014]",
+    // WDC WUH722020BLE6L4
+    "(WDC  ?)?WUH722020[AB]L[EN]6[0L][014]",
     "", "",
     "-v 22,raw48,Helium_Level "
     "-v 82,raw16,Head_Health_Score "
@@ -5488,22 +5493,10 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: ; Genesys Logic", // TODO: requires '-T permissive'
-    "0x05e3:0x0718",
-    "", // 0x0041
-    "",
-    "-d sat"
-  },
-  { "USB: ; Genesys Logic GL3310",
-    "0x05e3:0x0731", // Chieftec USB 3.0 2.5" case
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: ; Genesys Logic",
-    "0x05e3:0x0735",
-    "", // 0x1003
-    "",
+    "0x05e3:0x(0718|073[15]|2013)", // 0x0718(0x0041): Requires '-T permissive',
+    "", // 0x0731: Genesys Logic GL3310, Chieftec USB 3.0 2.5" case, 0x0735(0x1003): ?,
+    "", // 0x2013(0x0100): Sharkoon QuickPort Duo Clone USB 3.1 Type-C
     "-d sat"
   },
   // Micron
@@ -5857,10 +5850,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ADATA
   { "USB: ADATA; ",
-    "0x125f:0xa(1[135]|21|31|3[57]|7[56]|83)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
+    "0x125f:0xa(1[135]|21|31|3[57]|68|7[56]|83)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
     "", // 0xa15a: HD710 1TB, 0xa21a: HV610 (0x4504), 0xa31a: HV620 2TB (0x0100),
     "", // 0xa35a: HD650 2TB (0x6503), 0xa37a: Silverstone MS10 M.2 (0x3103), 0xa75a: HD710P 4TB,
-        // 0xa76a: ED600 (0x0204), 0xa83a: HD330 (0x0100)
+        // 0xa68a: SD600, 0xa76a: ED600 (0x0204), 0xa83a: HD330 (0x0100)
     "-d sat"
   },
   { "USB: ADATA; Cypress",
