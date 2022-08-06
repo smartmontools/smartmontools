@@ -67,7 +67,7 @@ FILE * popen_as_ugid(const char * cmd, const char * mode, uid_t uid, gid_t gid)
   if (!pid) { // Child
     // Do not inherit any unneeded file descriptors
     fclose(fp);
-    for (int i = 0; i < getdtablesize(); i++) {
+    for (int i = sysconf(_SC_OPEN_MAX); --i >= 0; ) {
       if (i == pd[1] || i == sd[1])
         continue;
       close(i);

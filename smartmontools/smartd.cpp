@@ -1448,7 +1448,7 @@ static int daemon_init()
   }
 
   // close any open file descriptors
-  for (int i = getdtablesize(); --i >= 0; )
+  for (int i = sysconf(_SC_OPEN_MAX); --i >= 0; )
     close(i);
   
   // redirect any IO attempts to /dev/null and change to root directory
