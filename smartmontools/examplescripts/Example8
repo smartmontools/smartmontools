@@ -7,15 +7,16 @@
 #
 # See also: smartd.conf(5), smartd(8).
 #
-# $Id: Example8 4937 2019-08-04 15:29:43Z chrfranke $
+# $Id: Example8 5404 2022-08-06 17:15:49Z chrfranke $
 
 # Skip if '-m <nomailer>' is set
 test -n "$SMARTD_ADDRESS" || exit 0
 
 # Try mail[x]
+# Note: The 'command -v' builtin requires a POSIX >= 2008 conforming shell
 for mailer in \
-  $(which mail 2>/dev/null) \
-  $(which mailx 2>/dev/null) \
+  $(command -v mail 2>/dev/null) \
+  $(command -v mailx 2>/dev/null) \
   /usr/bin/mail \
   /usr/bin/mailx
 do
