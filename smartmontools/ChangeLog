@@ -2,6 +2,8 @@ $Id$
 
 2022-08-06  Christian Franke  <franke@computer.org>
 
+	examplescripts/Example8: Use 'command -v' builtin instead of 'which'.
+
 	Detect accidental use of smartd_warning script in '-M exec'.
 	smartd.cpp: Set SMARTD_SUBJECT to empty.
 	smartd_warning.sh.in, os_win32/smartd_warning.cmd: Abort if
