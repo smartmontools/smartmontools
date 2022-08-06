@@ -89,7 +89,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5401 2022-08-06 15:19:43Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5402 2022-08-06 15:42:01Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -1448,7 +1448,7 @@ static int daemon_init()
   }
 
   // close any open file descriptors
-  for (int i = getdtablesize(); --i >= 0; )
+  for (int i = sysconf(_SC_OPEN_MAX); --i >= 0; )
     close(i);
   
   // redirect any IO attempts to /dev/null and change to root directory

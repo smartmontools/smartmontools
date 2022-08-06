@@ -1,4 +1,11 @@
-$Id: ChangeLog 5401 2022-08-06 15:19:43Z chrfranke $
+$Id: ChangeLog 5402 2022-08-06 15:42:01Z chrfranke $
+
+2022-08-06  Christian Franke  <franke@computer.org>
+
+	smartd.cpp, popen_as_ugid.cpp: Don't use 'getdtablesize()'.
+	This function is declared 'legacy' since SUS 1997 and no longer part
+	of POSIX since 2004.  Use 'sysconf(_SC_OPEN_MAX)' instead.
+	This fixes build on android (GH issues/142).
 
 2022-08-06  themylogin  <themylogin@gmail.com>
 

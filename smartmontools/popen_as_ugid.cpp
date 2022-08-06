@@ -10,7 +10,7 @@
 
 #include "popen_as_ugid.h"
 
-const char * popen_as_ugid_cvsid = "$Id: popen_as_ugid.cpp 5269 2021-12-13 19:22:38Z chrfranke $"
+const char * popen_as_ugid_cvsid = "$Id: popen_as_ugid.cpp 5402 2022-08-06 15:42:01Z chrfranke $"
   POPEN_AS_UGID_H_CVSID;
 
 #include <errno.h>
@@ -67,7 +67,7 @@ FILE * popen_as_ugid(const char * cmd, const char * mode, uid_t uid, gid_t gid)
   if (!pid) { // Child
     // Do not inherit any unneeded file descriptors
     fclose(fp);
-    for (int i = 0; i < getdtablesize(); i++) {
+    for (int i = sysconf(_SC_OPEN_MAX); --i >= 0; ) {
       if (i == pd[1] || i == sd[1])
         continue;
       close(i);
