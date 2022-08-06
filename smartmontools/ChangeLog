@@ -1,5 +1,11 @@
 $Id$
 
+2022-08-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Samsung based SSDs: SM843TN *960HCGP (#1624), PM881
+	  (GH/pull 119), more PM893 variants (#1616), PM897 (#1559).
+
 2022-07-16  Douglas Gilbert  <dgilbert@interlog.com>
 
 	some spelling fixes with the help of the codespell utility
