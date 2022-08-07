@@ -1,4 +1,15 @@
-$Id: ChangeLog 5404 2022-08-06 17:15:49Z chrfranke $
+$Id: ChangeLog 5405 2022-08-07 17:10:06Z chrfranke $
+
+2022-08-07  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Silicon Motion based SSDs: J&A LEVEN JS600 more sizes (#1603),
+	  Mushkin MKNSSDTR*-3DL (#1596), TEAMGROUP CX2, Transcend 452K
+	  (#1391), Transcent 830S, Transcend MTS400I (#1588),
+	  UMAX 2242 (#1564).
+	- Silicon Motion based OEM SSDs: GUDGA GIM, KingFast
+	  (#1532, GH pull/109), ORTIAL, RX7 (#1494), T-FORCE (#1536),
+	  Verbatim Vi550 S3 (#1629).
 
 2022-08-06  Christian Franke  <franke@computer.org>
 
