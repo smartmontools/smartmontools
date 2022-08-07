@@ -2115,8 +2115,8 @@ const drive_settings builtin_knowndrives[] = {
     "CT(240|480|960)BX200SSD1|" // Crucial BX200 Solid State Drive, tested with CT480BX200SSD1/MU02.6
     "DREVO X1 SSD|" // tested with DREVO X1 SSD/Q0111A
     "Drevo X1 pro (64|128|256)G|" // tested with Drevo X1 pro 64G/Q0303B
-    "JAJS500M(120|240|480|960)C-1|" // J&A LEVEN JS500, tested with JAJS500M120C-1/P0614D
-    "JAJS600M1TB|" // Intenso, tested with JAJS600M1TB/T0529A0
+    "JAJS[56]00M((12[08]|240|256|480|512|960)C|1TB)(-1)?|" // J&A LEVEN JS500/600 (Intenso TOP), tested with
+      // JAJS500M120C-1/P0614D, JAJS600M1TB/T0529A0, JAJS600M256C/U0803A0
     "KingDian S100 (32|64)GB|" // SM2244LT, tested with KingDian S100 32GB/0311A
     "KingDian S(200|280|400) ((60|120|240|480)GB|1TB)|" // SM2256EN, tested with KingDian S200 60GB/R0724A0
       // KingDian S280 120GB/Q0526A, KingDian S280 1TB/S0509A0, KingDian S400 120GB/Q0607A
@@ -2125,7 +2125,8 @@ const drive_settings builtin_knowndrives[] = {
     "LITEON LMH-(128|256|512)V2M-.*|" // tested with LITEON LMH-256V2M-11 MSATA 256GB/FM8110C
     "LITEON LCH-(128|256V|512)2S-.*|" // tested with LITEON LCH-256V2S-HP/2C02
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // tested with MKNSSDRE256GB/N1007C
-    "MKNSSD(S2|TR)(120|2[45]0|480|500)GB(-LT)?|" // tested with MKNSSDS2500GB/T0818A0, MKNSSDTR500GB/O1126A
+    "MKNSSD(S2|TR)(12[08]|2[45]0|480|500)GB(-(3DL|LT))?|" // Mushkin, tested with MKNSSDS2500GB/T0818A0,
+      // MKNSSDTR500GB/O1126A, MKNSSDTR128GB-3DL/Q0616B0
     "NFN025SA31T-.*|"// Neo Forza (?), from HP Laptop, tested with NFN025SA31T-6000000/S0628A0
     "OWC Envoy Pro|" // tested with OWC Envoy Pro/R0522A0 (0x1e91:0xa2a5)
     "Patriot P200 ((128|256|512)GB|[12]TB)|" // tested with Patriot P200 256GB/S1022A0
@@ -2136,8 +2137,8 @@ const drive_settings builtin_knowndrives[] = {
     "T60|" // KingSpec T60, tested with T60/20151120
     "TCSUNBOW [MX]3 (60|120|240)GB|" // TC-Sunbow M3/X3, tested with TCSUNBOW M3 240GB/R0327B0,
       // TCSUNBOW X3 120GB/R1211A0
-    "TEAM( T253T|L5Lite3)D(120G|240G|480G|1T)|" // Team Group L5Lite 3D, tested with
-      // TEAML5Lite3D240G/R0302A0, TEAM T253TD480G/Q0410A
+    "TEAM( T253(TD|X6)|L5Lite3D)((120|240|256|480|512)G|[12]T)|" // TEAMGROUP, tested with
+      // TEAML5Lite3D240G/R0302A0 (L5Lite 3D), TEAM T253TD480G/Q0410A, TEAM T253X6256G/U1014A0 (CX2)
     "TS((16|32|64|128|256|512)G|1T)(SSD|MS[AM])(230S?|3[67]0[SI]?|420[IK]?)|" // Transcend SSD230/360/370/420
       // SATA/mSATA, TS6500, tested with TS128GMSA230S/02J0S86A, TS32GMSA370/20140402,
       // mSATA MSM360 mini SSD, tested with TS32GMSM360/Q0407A
@@ -2148,13 +2149,17 @@ const drive_settings builtin_knowndrives[] = {
     "TS(120|240)GMTS420S?|" // Transcend MTS420, tested with TS120GMTS420S/R0510A0
     "TS(128G|256G|512G|1T)SSD230S|" // TS128GSSD230S/P1025F8
     "TS(120|240|480|960)GSSD220S|" // TS480GSSD220S/P0520AA
+    "TS((64|128|256|512)G|[12]T)SSD452K|"// Transcend 452K, tested with TS128GSSD452K/02J0S86A
     "TS(16G|32G|64G|128G|256G|512G|1T)MTS800S?|" // MTS800, tested with TS1TMTS800/O1225H1
     "TS(16|32|64)GMSA630|" // MSA630 mSATA SSD, tested with TS32GMSA630/N0113E1
     "TS(32|64|128)GPSD330|" // Transcend PSD SSD, tested with TS64GPSD330/20140121
     "TS(16|32|64|96|128|256)GSSD(630|360S)|" // Transcend 630/360S, tested with TS16GSSD630/N0113E1,
       // TS256GSSD360S/R0123A0
-    "TS(128G|256G|512G|1T)ESD400K", // Transcend ESD400 Portable, tested with
+    "TS(128G|256G|512G|1T)ESD400K|" // Transcend ESD400 Portable, tested with
       // TS256GESD400K/R0605AS (0x2174:0x2000)
+    "TS(128G|256G|512G|1T)MTS830S|" // Transcend 830S, tested with TS256GMTS830S/02J0T3HB
+    "TSG(16|32|64|128|256|512)MTS400ISI|" // Transcend MTS400I, tested with TSG64MTS400ISI/S0903D
+    "UMAX 2242 (128|256|512)GB", // tested with UMAX 2242 256GB/U0330A0
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
@@ -2225,18 +2230,24 @@ const drive_settings builtin_knowndrives[] = {
   { "Silicon Motion based OEM SSDs", // Like 'Silicon Motion based SSDs' but with FW detection
     "240GB|" // from Lenovo T430 Thinkpad, tested with 240GB/P0510E
     "Dogfish SSD (128|256|512)GB|" // tested with Dogfish SSD 128GB/S1211A0
+    "GIM(16|32|64|128|256|512)|"// GUDGA GIM, tested with GIM128/U0401A0
     "INTENSO|" // tested with INTENSO/S1211A0 (Portable SSD 256GB premium edition)
     "Intenso SSD|" // tested with Intenso SSD/Q1107A0
     "Intenso  ?SSD Sata III|" // Sata III High, tested with Intenso  SSD Sata III/P0510E,
       // Intenso SSD Sata III/R0817B0
-    "KingFast|" // KingFast F6M, tested with KingFast/P0725A
+    "KingFast|" // tested with KingFast/P0725A (F6M), KingFast/S0424A0 (120GB), KingFast/S1128B0 (512GB)
     "LDLC|" // tested with LDLC/KFS03005
+    "ORTIAL SSD|" // tested with ORTIAL SSD/U0202A0 (128GB)
+    "RX7 (240|256|512)G|" // tested with RX7 240G/T0910A0
     "SATA3 ((12[08]|240|256|480)G|[12]T)B SSD|" // TCSUNBOW X3, tested with SATA3 240GB SSD/S0618A0,
       // SATA3 1TB SSD/S1230A0,
       // KingDian S370, tested with SATA3 128GB SSD/T0311A0, SATA3 256GB SSD/S1127B0
       // KingDian S280, tested with SATA3 240GB SSD/T0519A0
-    "SPCC M\\.2 SSD", // Silicon Power 2280 M55, tested with SPCC M.2 SSD/Q0627A0
-    "KFS03005|P0510E|P0725A|Q(0627|1107)A0|R0817B0|S(0618|1211|1230)A0|S1127B0|SOB20R|T0(311|519)A0",
+    "SPCC M\\.2 SSD|" // Silicon Power 2280 M55, tested with SPCC M.2 SSD/Q0627A0
+    "T-FORCE (128|256|512)GB|" // tested with T-FORCE 512GB/T0910A0
+    "Verbatim Vi550 S3", // may also exist with different controller (tickets #1626 <> #1629),
+      // tested with Verbatim Vi550 S3/U1124A0 (256GB)
+    "KFS03005|P0510E|P0725A|Q(0627|1107)A0|R0817B0|S(0424|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|U(0401|1124)A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
