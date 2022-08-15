@@ -1,5 +1,9 @@
 $Id$
 
+2022-08-15  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print error count even if error log index is invalid.
+
 2022-08-07  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
