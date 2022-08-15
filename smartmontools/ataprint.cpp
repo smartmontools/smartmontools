@@ -30,7 +30,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5384 2022-05-22 13:08:08Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5407 2022-08-15 17:04:15Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -2194,9 +2194,9 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
   print_on();
   // If log pointer out of range, return
   if (data->error_log_pointer>5){
-    pout("Invalid Error Log index = 0x%02x (T13/1321D rev 1c "
-         "Section 8.41.6.8.2.2 gives valid range from 1 to 5)\n\n",
-         (int)data->error_log_pointer);
+    pout("Invalid Error Log index = 0x%02x (valid range is from 1 to 5)\n",
+         data->error_log_pointer);
+    pout("ATA Error Count: %d (possibly also invalid)\n\n", data->ata_error_count);
     return 0;
   }
 
@@ -2359,6 +2359,7 @@ static int PrintSmartExtErrorLog(ata_device * device,
     // to 0.
     if (!(erridx == 0 && 1 <= log->reserved1 && log->reserved1 <= nentries)) {
       pout("Invalid Error Log index = 0x%04x (reserved = 0x%02x)\n", erridx, log->reserved1);
+      pout("Device Error Count: %d (possibly also invalid)\n\n", log->device_error_count);
       return 0;
     }
     pout("Invalid Error Log index = 0x%04x, trying reserved byte (0x%02x) instead\n", erridx, log->reserved1);

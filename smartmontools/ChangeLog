@@ -1,4 +1,8 @@
-$Id: ChangeLog 5405 2022-08-07 17:10:06Z chrfranke $
+$Id: ChangeLog 5407 2022-08-15 17:04:15Z chrfranke $
+
+2022-08-15  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Print error count even if error log index is invalid.
 
 2022-08-07  Christian Franke  <franke@computer.org>
 
