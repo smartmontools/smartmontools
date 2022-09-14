@@ -14,6 +14,8 @@
  *
  */
 
+#include <inttypes.h>
+
 #include "farmcmds.h"
 
 #include "atacmds.h"
@@ -96,7 +98,7 @@ bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors) 
       // Page 0 is the log header, so check the log signature to verify this is a FARM log
       if (page == 0 && pageOffset == 0) {
         if (currentMetric != 0x00004641524D4552) {
-          jerr("FARM log header is invalid (log signature=%lu)\n\n", currentMetric);
+          jerr("FARM log header is invalid (log signature=%" PRIu64 ")\n\n", currentMetric);
           return false;
         }
       }
@@ -174,7 +176,7 @@ bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
   farmLog.pageHeader.pageLength = gBuf[2] << 8 | gBuf[3];
   // Get rest of log
   // Holds data for each SCSI parameter
-  u_int64_t currentParameter[sizeof(gBuf) / FARM_ATTRIBUTE_SIZE] = {};
+  uint64_t currentParameter[sizeof(gBuf) / FARM_ATTRIBUTE_SIZE] = {};
   // Track index of current metric within each parameter
   unsigned currentMetricIndex = 0;
   // Track offset (in struct) of current SCSI parameter
@@ -281,7 +283,7 @@ bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
       // Parameter 0 is the log header, so check the log signature to verify this is a FARM log
       if (pageOffset == sizeof(scsiFarmPageHeader)) {
         if (currentMetric != 0x00004641524D4552) {
-          jerr("FARM log header is invalid (log signature=%lu)\n\n", currentMetric);
+          jerr("FARM log header is invalid (log signature=%" PRIu64 ")\n\n", currentMetric);
           return false;
         }
       }
