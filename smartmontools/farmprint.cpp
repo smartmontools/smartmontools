@@ -60,7 +60,7 @@ const char * ata_farm_get_recording_type(const uint64_t driveRecordingType) {
  *  Get the deveice interface type from FARM log.
  *  Stored as ASCII text in log page 1 byte offset 48-55. (Seagate FARM Spec Rev 4.23.1)
  *  
- *  @param  buffer:  Constant reference to character buffer (char *)
+ *  @param  buffer:  Reference to character buffer (char *)
  *  @param  deviceInterface:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
  *  @return reference to char buffer containing a null-terminated string
  */
@@ -71,28 +71,31 @@ char * ata_farm_get_interface(char * buffer, const uint64_t deviceInterface) {
 }
 
 /*
- *  Output the unsigned 64-bit value of a FARM parameter by head in plain text format
- *  
- *  @param  desc:  Description of the parameter (const char *)
- *  @param  paramArray:  Reference to uint64_t array containing paramter values for each head (const uint64_t *)
- *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
- */
-void print_farm_param_by_head_u64(const char * desc, const uint64_t * paramArray, const uint64_t numHeads) {
-  for (uint8_t hd = 0; hd < numHeads; hd++) { 
-     jout("\t\t%s %" PRIu8 ": %" PRIu64 "\n", desc, hd, paramArray[hd]);
-  }
-}
-
-/*
  *  Output the 64-bit integer value of a FARM parameter by head in plain text format
  *  
  *  @param  desc:  Description of the parameter (const char *)
  *  @param  paramArray:  Reference to int64_t array containing paramter values for each head (const int64_t *)
  *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
  */
-void print_farm_param_by_head_i64(const char * desc, const int64_t * paramArray, const uint64_t numHeads) {
+void ata_farm_by_head_field_to_text(const char * desc, const int64_t * paramArray, const uint64_t numHeads) {
   for (uint8_t hd = 0; hd < numHeads; hd++) { 
      jout("\t\t%s %" PRIu8 ": %" PRIu64 "\n", desc, hd, paramArray[hd]);
+  }
+}
+
+/*
+ *  Add the 64-bit integer value of a FARM parameter by head to json element
+ *  
+ *  @param  jref:  Reference to a JSON element
+ *  @param  buffer:  Reference to character buffer (char *)
+ *  @param  desc:  Description of the parameter (const char *)
+ *  @param  paramArray:  Reference to int64_t array containing paramter values for each head (const int64_t *)
+ *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
+ */
+void ata_farm_by_head_field_to_json(json::ref jref, char * buffer, const char * desc, const int64_t * paramArray, const uint64_t numHeads) {
+  for (uint8_t hd = 0; hd < numHeads; hd++){
+     sprintf(buffer, "%s_%" PRIu8, desc, hd);
+     jref[buffer] = paramArray[hd];
   }
 }
 
@@ -317,16 +320,15 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jout("\t\tLBAs Corrected By Parity Sector: %" PRIi64 "\n", farmLog.reliability.numberLBACorrectedParitySector);
 
   // Page 5 by-head reliability parameters
-  print_farm_param_by_head_i64("DVGA Skip Write Detect by Head", farmLog.reliability.DVGASkipWriteDetect, farmLog.driveInformation.heads);
-  print_farm_param_by_head_i64("RVGA Skip Write Detect by Head", farmLog.reliability.RVGASkipWriteDetect, farmLog.driveInformation.heads);
-  print_farm_param_by_head_i64("FVGA Skip Write Detect by Head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
-  print_farm_param_by_head_i64("Skip Write Detect Threshold Exceeded by Head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
-  print_farm_param_by_head_i64("Write Power On (hrs) by Head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
-  print_farm_param_by_head_u64("MR Head Resistance from Head", farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
-  print_farm_param_by_head_i64("Second MR Head Resistance by Head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
-  print_farm_param_by_head_i64("Number of Reallocated Sectors by Head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
-  print_farm_param_by_head_i64("Number of Reallocation Candidate Sectors by Head", farmLog.reliability.reallocationCandidates, farmLog.driveInformation.heads);
-
+  ata_farm_by_head_field_to_text("DVGA Skip Write Detect by Head", farmLog.reliability.DVGASkipWriteDetect, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_text("RVGA Skip Write Detect by Head", farmLog.reliability.RVGASkipWriteDetect, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_text("FVGA Skip Write Detect by Head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_text("Skip Write Detect Threshold Exceeded by Head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_text("Write Power On (hrs) by Head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_text("MR Head Resistance from Head", (int64_t *)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_text("Second MR Head Resistance by Head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_text("Number of Reallocated Sectors by Head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_text("Number of Reallocation Candidate Sectors by Head", farmLog.reliability.reallocationCandidates, farmLog.driveInformation.heads);
 
   // Print JSON if --json or -j is specified
   json::ref jref = jglb["seagate_farm_log"];
@@ -474,42 +476,15 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jref5["lbas_corrected_by_parity_sector"] = farmLog.reliability.numberLBACorrectedParitySector;
 
   // Page 5: Reliability Statistics By Head
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++){
-     sprintf(buffer, "dvga_skip_write_detect_by_head_%i", hd);
-     jref5[buffer] = farmLog.reliability.DVGASkipWriteDetect[hd];
-  }
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++){
-     sprintf(buffer, "rvga_skip_write_detect_by_head_%i", hd);
-     jref5[buffer] = farmLog.reliability.RVGASkipWriteDetect[hd];
-  }
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++){
-     sprintf(buffer, "fvga_skip_write_detect_by_head_%i", hd);
-     jref5[buffer] = farmLog.reliability.FVGASkipWriteDetect[hd];
-  }
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++){
-     sprintf(buffer, "skip_write_detect_threshold_exceeded_by_head_%i", hd);
-     jref5[buffer] = farmLog.reliability.skipWriteDetectThresExceeded[hd];
-  }
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++){
-     sprintf(buffer, "write_workload_power_on_time_by_head_%i", hd);
-     jref5[buffer] = farmLog.reliability.writeWorkloadPowerOnTime[hd];
-  }
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++){
-     sprintf(buffer, "mr_head_resistance_from_head_%i", hd);
-     jref5[buffer] = farmLog.reliability.mrHeadResistance[hd];
-  }
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++){
-     sprintf(buffer, "second_mr_head_resistance_by_head_%i", hd);
-     jref5[buffer] = farmLog.reliability.secondMRHeadResistance[hd];
-  }
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++){
-     sprintf(buffer, "number_of_reallocated_sectors_by_head_%i", hd);
-     jref5[buffer] = farmLog.reliability.reallocatedSectors[hd];
-  }
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++){
-     sprintf(buffer, "number_of_reallocation_candidate_sectors_by_head_%i", hd);
-     jref5[buffer] = farmLog.reliability.reallocationCandidates[hd];
-  }
+  ata_farm_by_head_field_to_json(jref5, buffer, "dvga_skip_write_detect_by_head", farmLog.reliability.DVGASkipWriteDetect, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_json(jref5, buffer, "rvga_skip_write_detect_by_head", farmLog.reliability.RVGASkipWriteDetect, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_json(jref5, buffer, "fvga_skip_write_detect_by_head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_json(jref5, buffer, "skip_write_detect_threshold_exceeded_by_head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_json(jref5, buffer, "write_workload_power_on_time_by_head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_json(jref5, buffer, "mr_head_resistance_from_head", (int64_t *)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_json(jref5, buffer, "second_mr_head_resistance_by_head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_json(jref5, buffer, "number_of_reallocated_sectors_by_head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
+  ata_farm_by_head_field_to_json(jref5, buffer, "number_of_reallocation_candidate_sectors_by_head", farmLog.reliability.reallocationCandidates, farmLog.driveInformation.heads);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
