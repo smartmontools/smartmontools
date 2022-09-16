@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-12 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -42,6 +42,19 @@
 #include "dev_interface.h"
 #include "sg_unaligned.h"
 
+#ifndef USE_CLOCK_MONOTONIC
+#ifdef __MINGW32__
+// If MinGW-w64 < 9.0.0 or Windows < 8, GetSystemTimeAsFileTime() is used for
+// std::chrono::high_resolution_clock.  This provides only 1/64s (>15ms) resolution.
+// CLOCK_MONOTONIC uses QueryPerformanceCounter() which provides <1us resolution.
+#define USE_CLOCK_MONOTONIC 1
+#else
+// Use std::chrono::high_resolution_clock.
+#include <chrono>
+#define USE_CLOCK_MONOTONIC 0
+#endif
+#endif // USE_CLOCK_MONOTONIC
+
 const char * utility_cpp_cvsid = "$Id$"
   UTILITY_H_CVSID;
 
@@ -73,14 +86,18 @@ const char * packet_types[] = {
 std::string format_version_info(const char * prog_name, bool full /*= false*/)
 {
   std::string info = strprintf(
-    "%s " PACKAGE_VERSION " "
+    "%s "
+#ifndef SMARTMONTOOLS_RELEASE_DATE
+      "pre-"
+#endif
+      PACKAGE_VERSION " "
 #ifdef SMARTMONTOOLS_SVN_REV
       SMARTMONTOOLS_SVN_DATE " r" SMARTMONTOOLS_SVN_REV
 #else
       "(build date " __DATE__ ")" // checkout without expansion of Id keywords
 #endif
       " [%s] " BUILD_INFO "\n"
-    "Copyright (C) 2002-21, Bruce Allen, Christian Franke, www.smartmontools.org\n",
+    "Copyright (C) 2002-22, Bruce Allen, Christian Franke, www.smartmontools.org\n",
     prog_name, smi()->get_os_version_str().c_str()
   );
   if (!full)
@@ -94,8 +111,12 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "version 2, or (at your option) any later version.\n"
     "See https://www.gnu.org for further details.\n"
     "\n"
+#ifndef SMARTMONTOOLS_RELEASE_DATE
+    "smartmontools pre-release " PACKAGE_VERSION "\n"
+#else
     "smartmontools release " PACKAGE_VERSION
       " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n"
+#endif
 #ifdef SMARTMONTOOLS_SVN_REV
     "smartmontools SVN rev " SMARTMONTOOLS_SVN_REV
       " dated " SMARTMONTOOLS_SVN_DATE " at " SMARTMONTOOLS_SVN_TIME "\n"
@@ -373,7 +394,7 @@ void syserror(const char *message){
     const char *errormessage=strerror(errno);
     
     // Check that caller has handed a sensible string, and provide
-    // appropriate output. See perrror(3) man page to understand better.
+    // appropriate output. See perror(3) man page to understand better.
     if (message && *message)
       pout("%s: %s\n",message, errormessage);
     else
@@ -820,6 +841,21 @@ const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uin
 }
 
 #endif // HAVE___INT128
+
+// Get microseconds since some unspecified starting point.
+long long get_timer_usec()
+{
+#if USE_CLOCK_MONOTONIC
+  struct timespec ts;
+  if (clock_gettime(CLOCK_MONOTONIC, &ts))
+    return -1;
+  return ts.tv_sec * 1000000LL + ts.tv_nsec / 1000;
+#else
+  return std::chrono::duration_cast<std::chrono::microseconds>(
+    std::chrono::high_resolution_clock::now().time_since_epoch()
+  ).count();
+#endif
+}
 
 // Runtime check of byte ordering, throws on error.
 static void check_endianness()

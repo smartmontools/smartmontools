@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -408,8 +408,9 @@ static inline std::string format_st_er_desc(
 static const char * get_form_factor(unsigned short word168)
 {
   // Bits 0:3 are the form factor
-  // Table A.32 of T13/2161-D (ACS-3) Revision 4p, September 19, 2013
-  // Table 236 of T13/BSR INCITS 529 (ACS-4) Revision 04, August 25, 2014
+  // Table A.32 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
+  // Table 247 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
+  // Table 254 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
   switch (word168 & 0xF) {
     case 0x1: return "5.25 inches";
     case 0x2: return "3.5 inches";
@@ -437,8 +438,9 @@ static const char * get_ata_major_version(const ata_identify_device * drive)
   // Table 13 of T13/1153D (ATA/ATAPI-4) revision 18, August 19, 1998
   // Table 29 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
   // Table 55 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
-  // Table 55 of T13/BSR INCITS 558 (ACS-5) Revision 1c, June 11, 2019
+  // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
   switch (find_msb(drive->major_rev_num)) {
+    case 15: return "ACS >5 (15)";
     case 14: return "ACS >5 (14)";
     case 13: return "ACS >5 (13)";
     case 12: return "ACS-5";
@@ -462,8 +464,10 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
   // Table 10 of X3T13/2008D (ATA-3) Revision 7b, January 27, 1997
   // Table 28 of T13/1410D (ATA/ATAPI-6) Revision 3b, February 26, 2002
   // Table 31 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Table 52 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
+  // Table 47 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
   // Table 57 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
-  // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 1c, June 11, 2019
+  // Table 59 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
   switch (drive->minor_rev_num) {
     case 0x0001: return "ATA-1 X3T9.2/781D prior to revision 4";
     case 0x0002: return "ATA-1 published, ANSI X3.221-1994";
@@ -536,6 +540,8 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
 
 static const char * get_pata_version(unsigned short word222, char (& buf)[32])
 {
+  // Table 29 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
   switch (word222 & 0x0fff) {
     default: snprintf(buf, sizeof(buf),
                        "Unknown (0x%03x)", word222 & 0x0fff); return buf;
@@ -547,14 +553,19 @@ static const char * get_pata_version(unsigned short word222, char (& buf)[32])
 
 static const char * get_sata_version(unsigned short word222)
 {
+  // Table 29 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Table 50 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
+  // Table 45 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
+  // Table 55 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
+  // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
   switch (find_msb(word222 & 0x0fff)) {
-    case 11: return "SATA >3.3 (11)";
-    case 10: return "SATA >3.3 (10)";
-    case  9: return "SATA >3.3 (9)";
-    case  8: return "SATA 3.3";
-    case  7: return "SATA 3.2";
-    case  6: return "SATA 3.1";
-    case  5: return "SATA 3.0";
+    case 11: return "SATA >3.5 (11)";
+    case 10: return "SATA 3.5"; // ACS-5
+    case  9: return "SATA 3.4"; // ACS-5
+    case  8: return "SATA 3.3"; // ACS-4
+    case  7: return "SATA 3.2"; // ACS-4
+    case  6: return "SATA 3.1"; // ACS-3
+    case  5: return "SATA 3.0"; // ACS-2
     case  4: return "SATA 2.6";
     case  3: return "SATA 2.5";
     case  2: return "SATA II Ext";
@@ -568,14 +579,18 @@ static const char * get_sata_speed(int speed)
 {
   if (speed <= 0)
     return 0;
+  // Table 29 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
+  // Table 50 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
+  // Table 45 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
+  // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
   switch (speed) {
     default: return ">6.0 Gb/s (7)";
     case 6:  return ">6.0 Gb/s (6)";
     case 5:  return ">6.0 Gb/s (5)";
     case 4:  return ">6.0 Gb/s (4)";
-    case 3:  return "6.0 Gb/s";
+    case 3:  return "6.0 Gb/s"; // ACS-3
     case 2:  return "3.0 Gb/s";
-    case 1:  return "1.5 Gb/s";
+    case 1:  return "1.5 Gb/s"; // ATA8-ACS
   }
 }
 
@@ -731,7 +746,8 @@ static void print_drive_info(const ata_identify_device * drive,
     jglb["trim"]["zeroed"] = trim_zeroed;
   }
 
-  // Print Zoned Device Capabilites if reported
+  // Print Zoned Device Capabilities if reported
+  // (added in ACS-4, obsoleted in ACS-5)
   unsigned short zoned_caps = word069 & 0x3;
   if (zoned_caps) {
     jout("Zoned Device:     %s\n",
@@ -1407,7 +1423,8 @@ static const char * GetLogName(unsigned logaddr)
     // Table A.2 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
     // Table 112 of Serial ATA Revision 3.2, August 7, 2013
     // Table A.2 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
-    // Table 204 of T13/BSR INCITS 529 (ACS-4) Revision 16, February 21, 2017
+    // Table 213 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
+    // Table 213 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
     switch (logaddr) {
       case 0x00: return "Log Directory";
       case 0x01: return "Summary SMART error log";
@@ -1415,8 +1432,8 @@ static const char * GetLogName(unsigned logaddr)
       case 0x03: return "Ext. Comprehensive SMART error log";
       case 0x04: return "Device Statistics log";
       case 0x05: return "Reserved for CFA"; // ACS-2
-      case 0x06: return "SMART self-test log";
-      case 0x07: return "Extended self-test log";
+      case 0x06: return "SMART self-test log"; // OBS-ACS-5
+      case 0x07: return "Extended self-test log"; // OBS-ACS-5
       case 0x08: return "Power Conditions log"; // ACS-2
       case 0x09: return "Selective self-test log";
       case 0x0a: return "Device Statistics Notification"; // ACS-3
@@ -1432,9 +1449,9 @@ static const char * GetLogName(unsigned logaddr)
       case 0x13: return "SATA NCQ Send and Receive log"; // SATA 3.1, ACS-3
       case 0x14: return "Hybrid Information log"; // SATA 3.2, ACS-4
       case 0x15: return "Rebuild Assist log"; // SATA 3.2, ACS-4
-      case 0x16:
+      case 0x16: return "Out Of Band Management Control log"; // ACS-5
       case 0x17: return "Reserved for Serial ATA";
-
+      case 0x18: return "Command Duration Limits log"; // ACS-5
       case 0x19: return "LBA Status log"; // ACS-3
 
       case 0x20: return "Streaming performance log [OBS-8]";
@@ -1444,8 +1461,14 @@ static const char * GetLogName(unsigned logaddr)
       case 0x24: return "Current Device Internal Status Data log"; // ACS-3
       case 0x25: return "Saved Device Internal Status Data log"; // ACS-3
 
-      case 0x2f: return "Set Sector Configuration";; // ACS-4
+      case 0x2f: return "Set Sector Configuration"; // ACS-4
       case 0x30: return "IDENTIFY DEVICE data log"; // ACS-3
+
+      case 0x42: return "Mutate Configurations log"; // ACS-5
+
+      case 0x47: return "Concurrent Positioning Ranges log"; // ACS-5
+
+      case 0x53: return "Sense Data log"; // ACS-5
 
       case 0xe0: return "SCT Command/Status";
       case 0xe1: return "SCT Data Transfer";
@@ -1467,11 +1490,15 @@ static const char * get_log_rw(unsigned logaddr)
        || (0x0f <= logaddr && logaddr <= 0x14)
        || (0x19 == logaddr)
        || (0x20 <= logaddr && logaddr <= 0x25)
-       || (0x30 == logaddr))
+       || (0x30 == logaddr)
+       || (0x42 == logaddr)
+       || (0x47 == logaddr)
+       || (0x53 == logaddr))
       return "R/O";
 
-   if (   (0x09 <= logaddr && logaddr <= 0x0a)
-       || (0x15 == logaddr)
+   if (   (                   logaddr <= 0x0a)
+       || (0x15 <= logaddr && logaddr <= 0x16)
+       || (0x18 == logaddr)
        || (0x80 <= logaddr && logaddr <= 0x9f)
        || (0xe0 <= logaddr && logaddr <= 0xe1))
       return "R/W";
@@ -1717,6 +1744,7 @@ const devstat_entry_info * devstat_infos[] = {
   devstat_info_0x06,
   devstat_info_0x07
   // TODO: 0x08 Zoned Device Statistics (T13/f16136r7, January 2017)
+  // TODO: 0x09 Command Duration Limits Statistics (ACS-5 Revision 10, March 2021)
 };
 
 const int num_devstat_infos = sizeof(devstat_infos)/sizeof(devstat_infos[0]);
@@ -2169,9 +2197,9 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
   print_on();
   // If log pointer out of range, return
   if (data->error_log_pointer>5){
-    pout("Invalid Error Log index = 0x%02x (T13/1321D rev 1c "
-         "Section 8.41.6.8.2.2 gives valid range from 1 to 5)\n\n",
-         (int)data->error_log_pointer);
+    pout("Invalid Error Log index = 0x%02x (valid range is from 1 to 5)\n",
+         data->error_log_pointer);
+    pout("ATA Error Count: %d (possibly also invalid)\n\n", data->ata_error_count);
     return 0;
   }
 
@@ -2334,6 +2362,7 @@ static int PrintSmartExtErrorLog(ata_device * device,
     // to 0.
     if (!(erridx == 0 && 1 <= log->reserved1 && log->reserved1 <= nentries)) {
       pout("Invalid Error Log index = 0x%04x (reserved = 0x%02x)\n", erridx, log->reserved1);
+      pout("Device Error Count: %d (possibly also invalid)\n\n", log->device_error_count);
       return 0;
     }
     pout("Invalid Error Log index = 0x%04x, trying reserved byte (0x%02x) instead\n", erridx, log->reserved1);
@@ -3212,7 +3241,7 @@ static void print_apm_level(const char * msg, int level)
   }
 }
 
-static void print_ata_security_status(const char * msg, unsigned short state)
+static void print_ata_security_status(const char * msg, unsigned short state, unsigned short master_password_id)
 {
   // Table 6 of T13/2015-D (ACS-2) Revision 7, June 22, 2011
   if (!(state & 0x0001)) {
@@ -3252,7 +3281,13 @@ static void print_ata_security_status(const char * msg, unsigned short state)
     }
   }
 
-  jout("%s%s%s%s%s\n", msg, s1, s2, s3, s4);
+  // Print Master Password ID if set to non-default value
+  // (0x0000, 0xffff: unsupported, 0xfffe: default)
+  char s5[32] = "";
+  if (0x0000 < master_password_id && master_password_id < 0xfffe)
+    snprintf(s5, sizeof(s5), ", Master PW ID: 0x%04x", master_password_id);
+
+  jout("%s%s%s%s%s%s\n", msg, s1, s2, s3, s4, s5);
 
   json::ref jref = jglb["ata_security"];
   jref["state"] = state;
@@ -3266,6 +3301,7 @@ static void print_ata_security_status(const char * msg, unsigned short state)
     if (locked)
       jref["pw_attempts_exceeded"] = !!(state & 0x0010);
   }
+  jref["master_password_id"] = master_password_id;
 }
 
 static void print_standby_timer(const char * msg, int timer, const ata_identify_device & drive)
@@ -3456,6 +3492,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (retid < 0) {
     pout("Read Device Identity failed: %s\n\n",
          (device->get_errno() ? device->get_errmsg() : "Unknown error"));
+    pout("If this is a USB connected device, look at the various "
+         "--device=TYPE variants\n");
     failuretest(MANDATORY_CMD, returnval|=FAILID);
   }
   else if (!nonempty(&drive, sizeof(drive))) {
@@ -3532,10 +3570,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       if (smart_supported < 0)
         pout("SMART support is: Unknown - Try option -s with argument 'on' to enable it.");
       else if (!smart_supported)
-        pout("SMART support is: Unavailable - device lacks SMART capability.\n");
+        jout("SMART support is: Unavailable - device lacks SMART capability.\n");
       else {
         if (options.drive_info)
-          pout("SMART support is: Available - device has SMART capability.\n");
+          jout("SMART support is: Available - device has SMART capability.\n");
         if (smart_enabled >= 0) {
           if (device->ata_identify_is_cached()) {
             if (options.drive_info)
@@ -3544,10 +3582,16 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
             smart_enabled = ataDoesSmartWork(device);
           }
           if (options.drive_info)
-            pout("SMART support is: %s\n",
+            jout("SMART support is: %s\n",
                   (smart_enabled ? "Enabled" : "Disabled"));
         }
       }
+    }
+
+    if (options.drive_info || smart_supported <= 0) {
+      jglb["smart_support"]["available"] = (smart_supported > 0);
+      if (smart_supported > 0)
+        jglb["smart_support"]["enabled"] = (smart_enabled > 0);
     }
   }
 
@@ -3621,7 +3665,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print ATA Security status
   if (options.get_security)
-    print_ata_security_status("ATA Security is:  ", word128);
+    print_ata_security_status("ATA Security is:  ", word128, drive.words088_255[92-88]);
 
   // Print write cache reordering status
   if (options.sct_wcache_reorder_get) {
@@ -3997,7 +4041,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("SMART Status %s: %s\n",
            (device->is_syscall_unsup() ? "not supported" : "command failed"),
            device->get_errmsg());
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      failuretest(OPTIONAL_CMD, returnval | FAILSMART);
+      if (!(device->is_syscall_unsup() && smart_val_ok && smart_thres_ok))
+        returnval |= FAILSMART; // Unknown error or attribute check not possible
 
       if (!(smart_val_ok && smart_thres_ok)) {
         print_on();

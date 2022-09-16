@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-20 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -310,6 +310,11 @@ const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uin
 template <size_t SIZE>
 inline const char * uint128_hilo_to_str(char (& str)[SIZE], uint64_t value_hi, uint64_t value_lo)
   { return uint128_hilo_to_str(str, (int)SIZE, value_hi, value_lo); }
+
+/// Get microseconds since some unspecified starting point.
+/// Used only for command duration measurements in debug outputs.
+/// Returns -1 if unsupported.
+long long get_timer_usec();
 
 #ifdef _WIN32
 // Get exe directory

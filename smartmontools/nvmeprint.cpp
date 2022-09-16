@@ -201,6 +201,9 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
     }
   }
 
+  // SMART/Health Information is mandatory
+  jglb["smart_support"] += { {"available", true}, {"enabled", true} };
+
   jout_startup_datetime("Local Time is:                      ");
 }
 

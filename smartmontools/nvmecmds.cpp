@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-20 Christian Franke
+ * Copyright (C) 2016-21 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -53,8 +53,6 @@ static void debug_hex_dump(const void * data, unsigned size)
 static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
   nvme_cmd_out & out)
 {
-  int64_t start_usec = -1;
-
   if (nvme_debugmode) {
     pout(" [NVMe call: opcode=0x%02x, size=0x%04x, nsid=0x%08x, cdw10=0x%08x",
       in.opcode, in.size, in.nsid, in.cdw10);
@@ -62,11 +60,17 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
       pout(",\n  cdw1x=0x%08x, 0x%08x, 0x%08x, 0x%08x, 0x%08x",
        in.cdw11, in.cdw12, in.cdw13, in.cdw14, in.cdw15);
     pout("]\n");
-
-    start_usec = smi()->get_timer_usec();
   }
 
+  auto start_usec = (nvme_debugmode ? get_timer_usec() : -1);
+
   bool ok = device->nvme_pass_through(in, out);
+
+  if (start_usec >= 0) {
+    auto duration_usec = get_timer_usec() - start_usec;
+    if (duration_usec > 0)
+      pout(" [Duration: %.6fs]\n", duration_usec / 1000000.0);
+  }
 
   if (   dont_print_serial_number && ok
       && in.opcode == nvme_admin_identify && in.cdw10 == 0x01) {
@@ -76,12 +80,6 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
   }
 
   if (nvme_debugmode) {
-    if (start_usec >= 0) {
-      int64_t duration_usec = smi()->get_timer_usec() - start_usec;
-      if (duration_usec >= 500)
-        pout("  [Duration: %.3fs]\n", duration_usec / 1000000.0);
-    }
-
     if (!ok) {
       pout(" [NVMe call failed: ");
       if (out.status_valid)

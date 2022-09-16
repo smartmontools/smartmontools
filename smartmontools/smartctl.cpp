@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -89,6 +89,11 @@ static void js_initialize(int argc, char **argv, bool verbose)
   if (ver[2] > 0)
     jref["version"][2] = ver[2];
 
+#ifdef SMARTMONTOOLS_RELEASE_DATE
+  jref["pre_release"] = false;
+#else
+  jref["pre_release"] = true;
+#endif
 #ifdef SMARTMONTOOLS_SVN_REV
   jref["svn_revision"] = SMARTMONTOOLS_SVN_REV;
 #endif
@@ -177,7 +182,8 @@ static void Usage()
 "        xerror[,N][,error], xselftest[,N][,selftest], background,\n"
 "        sasphy[,reset], sataphy[,reset], scttemp[sts,hist],\n"
 "        scttempint,N[,p], scterc[,N,M][,p|reset], devstat[,N], defects[,N],\n"
-"        ssd, gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE, farm\n\n"
+"        ssd, gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE\n"
+"        tapedevstat, zdevstat, envrep, farm\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -245,7 +251,7 @@ static std::string getvalidarglist(int opt)
            "scttemp[sts,hist], scttempint,N[,p], "
            "scterc[,N,M][,p|reset], devstat[,N], defects[,N], "
            "ssd, gplog,N[,RANGE], smartlog,N[,RANGE], "
-           "nvmelog,N,SIZE, farm";
+           "nvmelog,N,SIZE, tapedevstat, zdevstat, envrep, farm";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -492,6 +498,7 @@ static int parse_options(int argc, char** argv, const char * & type,
     case 'H':
       ataopts.smart_check_status = scsiopts.smart_check_status = nvmeopts.smart_check_status = true;
       scsiopts.smart_ss_media_log = true;
+      ++scsiopts.health_opt_count;
       break;
     case 'F':
       if (!strcmp(optarg, "swapid"))
@@ -544,12 +551,20 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.sct_erc_get = 1;
       } else if (!strcmp(optarg,"scttemp")) {
         ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
+      } else if (!strcmp(optarg,"envrep")) {
+        scsiopts.smart_env_rep = true;
       } else if (!strcmp(optarg,"scttempsts")) {
         ataopts.sct_temp_sts = true;
       } else if (!strcmp(optarg,"scttemphist")) {
         ataopts.sct_temp_hist = true;
       } else if (!strcmp(optarg,"farm")) {
         ataopts.farm_log = scsiopts.farm_log = true; // Seagate Field Access Reliability Metrics (FARM) log
+      } else if (!strcmp(optarg,"tapealert")) {
+        scsiopts.tape_alert = true;
+      } else if (!strcmp(optarg,"tapedevstat")) {
+        scsiopts.tape_device_stats = true;
+      } else if (!strcmp(optarg,"zdevstat")) {
+        scsiopts.zoned_device_stats = true;
       } else if (!strncmp(optarg, "scttempint,", sizeof("scstempint,")-1)) {
         unsigned interval = 0; int n1 = -1, n2 = -1, len = strlen(optarg);
         if (!(   sscanf(optarg,"scttempint,%u%n,p%n", &interval, &n1, &n2) == 1
@@ -579,6 +594,7 @@ static int parse_options(int argc, char** argv, const char * & type,
         int n1 = -1, n2 = -1, len = strlen(optarg);
         unsigned val = ~0;
         sscanf(optarg, "defects%n,%u%n", &n1, &val, &n2);
+        scsiopts.scsi_pending_defects = true;
         if (n1 == len)
           ataopts.pending_defects_log = 31; // Entries of first page
         else if (n2 == len && val <= 0xffff * 32 - 1)
@@ -740,6 +756,10 @@ static int parse_options(int argc, char** argv, const char * & type,
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
       ataopts.farm_log_suggest = scsiopts.farm_log_suggest = true;  // Helper for FARM debug messages
+      scsiopts.smart_env_rep = true;
+      scsiopts.scsi_pending_defects = true;
+      scsiopts.tape_device_stats = true;
+      scsiopts.zoned_device_stats = true;
       if (!output_format_set)
         ataopts.output_format |= ata_print_options::FMT_BRIEF;
       break;
@@ -874,7 +894,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       else {
         int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
         char s[7+1]; unsigned i = FAILPOWER, j = 0;
-        sscanf(optarg, "%9[a-z]%n,%u%n,%u%n", s, &n1, &i, &n2, &j, &n3);
+        sscanf(optarg, "%7[a-z]%n,%u%n,%u%n", s, &n1, &i, &n2, &j, &n3);
         if (!((n1 == len || n2 == len || n3 == len) && i <= 255 && j <= 255))
           badarg = true;
         else if (!strcmp(s, "sleep")) {

@@ -508,7 +508,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 
     // We haven't gotten output that makes sense; print out some debugging info
     syserror("Error SMART Status command failed");
-    pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
+    pout("Please get assistance from " PACKAGE_URL "\n");
     return -1;
   }
 

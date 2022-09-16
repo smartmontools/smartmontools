@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-20 Christian Franke
+ * Copyright (C) 2008-21 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -563,16 +563,14 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
 
     ata_cmd_out out;
 
-    int64_t start_usec = -1;
-    if (ata_debugmode)
-      start_usec = smi()->get_timer_usec();
+    auto start_usec = (ata_debugmode ? get_timer_usec() : -1);
 
     bool ok = device->ata_pass_through(in, out);
 
     if (start_usec >= 0) {
-      int64_t duration_usec = smi()->get_timer_usec() - start_usec;
-      if (duration_usec >= 500)
-        pout(" [Duration: %.3fs]\n", duration_usec / 1000000.0);
+      auto duration_usec = get_timer_usec() - start_usec;
+      if (duration_usec > 0)
+        pout(" [Duration: %.6fs]\n", duration_usec / 1000000.0);
     }
 
     if (ata_debugmode && out.out_regs.is_set())
@@ -620,7 +618,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         else {
           // We haven't gotten output that makes sense; print out some debugging info
           pout("SMART Status command failed\n");
-          pout("Please get assistance from %s\n", PACKAGE_HOMEPAGE);
+          pout("Please get assistance from %s\n", PACKAGE_URL);
           pout("Register values returned from SMART Status command are:\n");
           print_regs(" ", out.out_regs);
           device->set_err(ENOSYS, "Invalid ATA output register values");

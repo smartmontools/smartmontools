@@ -39,14 +39,14 @@
 #ifndef LOG_SENSE
 #define LOG_SENSE 0x4d
 #endif
-#ifndef MODE_SENSE
-#define MODE_SENSE 0x1a
+#ifndef MODE_SENSE_6
+#define MODE_SENSE_6 0x1a
 #endif
 #ifndef MODE_SENSE_10
 #define MODE_SENSE_10 0x5a
 #endif
-#ifndef MODE_SELECT
-#define MODE_SELECT 0x15
+#ifndef MODE_SELECT_6
+#define MODE_SELECT_6 0x15
 #endif
 #ifndef MODE_SELECT_10
 #define MODE_SELECT_10 0x55
@@ -69,7 +69,7 @@
 #ifndef READ_DEFECT_12
 #define READ_DEFECT_12  0xb7
 #endif
-#ifndef START_STOP_UNIT		/* SSU */
+#ifndef START_STOP_UNIT         /* SSU */
 #define START_STOP_UNIT  0x1b
 #endif
 #ifndef REPORT_LUNS
@@ -78,11 +78,20 @@
 #ifndef READ_CAPACITY_10
 #define READ_CAPACITY_10  0x25
 #endif
-#ifndef READ_CAPACITY_16
-#define READ_CAPACITY_16  0x9e
+#ifndef SERVICE_ACTION_IN_16
+#define SERVICE_ACTION_IN_16  0x9e
 #endif
-#ifndef SAI_READ_CAPACITY_16    /* service action for READ_CAPACITY_16 */
+#ifndef SAI_READ_CAPACITY_16    /* service action in for READ_CAPACITY_16 */
 #define SAI_READ_CAPACITY_16  0x10
+#endif
+#ifndef SAI_GET_PHY_ELEM_STATUS    /* Get physical element status */
+#define SAI_GET_PHY_ELEM_STATUS  0x17
+#endif
+#ifndef MAINTENANCE_IN_12
+#define MAINTENANCE_IN_12  0xa3
+#endif
+#ifndef MI_REP_SUP_OPCODES
+#define MI_REP_SUP_OPCODES  0xc    /* maintenance in (12) */
 #endif
 
 #ifndef SAT_ATA_PASSTHROUGH_12
@@ -96,6 +105,9 @@
 #define DXFER_NONE        0
 #define DXFER_FROM_DEVICE 1
 #define DXFER_TO_DEVICE   2
+
+
+/* scsi_rsoc_elem and scsi_device is defined in dev_interface.h */
 
 struct scsi_cmnd_io
 {
@@ -167,13 +179,21 @@ struct scsi_readcap_resp {
     uint16_t l_a_lba;   /* Lowest Aligned Logical Block Address */
 };
 
+struct scsi_supp_log_pages {
+    uint8_t page_code;
+    uint8_t subpage_code;
+};
+
 /* SCSI Peripheral types (of interest) */
 #define SCSI_PT_DIRECT_ACCESS           0x0
 #define SCSI_PT_SEQUENTIAL_ACCESS       0x1
+#define SCSI_PT_WO                      0x4      /* write once device */
 #define SCSI_PT_CDROM                   0x5
+#define SCSI_PT_OPTICAL                 0x7
 #define SCSI_PT_MEDIUM_CHANGER          0x8
 #define SCSI_PT_ENCLOSURE               0xd
-#define SCSI_PT_HOST_MANAGED            0x14
+#define SCSI_PT_RBC                     0xe
+#define SCSI_PT_HOST_MANAGED            0x14    /* Zoned disk */
 
 /* Transport protocol identifiers or just Protocol identifiers */
 #define SCSI_TPROTO_FCP 0
@@ -208,6 +228,7 @@ struct scsi_readcap_resp {
 #define APPLICATION_CLIENT_LPAGE            0x0f
 #define SELFTEST_RESULTS_LPAGE              0x10
 #define SS_MEDIA_LPAGE                      0x11   /* SBC-3 */
+#define DEVICE_STATS_LPAGE                  0x14   /* SSC-5 */
 #define BACKGROUND_RESULTS_LPAGE            0x15   /* SBC-3 */
 #define ATA_PT_RESULTS_LPAGE                0x16   /* SAT */
 #define NONVOL_CACHE_LPAGE                  0x17   /* SBC-3 */
@@ -290,6 +311,7 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_VPD_BLOCK_LIMITS           0xb0
 #define SCSI_VPD_BLOCK_DEVICE_CHARACTERISTICS   0xb1
 #define SCSI_VPD_LOGICAL_BLOCK_PROVISIONING     0xb2
+#define SCSI_VPD_ZONED_BLOCK_DEV_CHAR   0xb6
 
 /* defines for useful SCSI Status codes */
 #define SCSI_STATUS_CHECK_CONDITION     0x2
@@ -302,7 +324,10 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_SK_HARDWARE_ERROR          0x4
 #define SCSI_SK_ILLEGAL_REQUEST         0x5
 #define SCSI_SK_UNIT_ATTENTION          0x6
+#define SCSI_SK_DATA_PROTECT            0x7
 #define SCSI_SK_ABORTED_COMMAND         0xb
+#define SCSI_SK_MISCOMPARE              0xe
+#define SCSI_SK_COMPLETED               0xf
 
 /* defines for useful Additional Sense Codes (ASCs) */
 #define SCSI_ASC_NOT_READY              0x4     /* more info in ASCQ code */
@@ -328,6 +353,8 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SIMPLE_ERR_MEDIUM_HARDWARE      9       /* medium or hardware error */
 #define SIMPLE_ERR_UNKNOWN              10      /* unknown sense value */
 #define SIMPLE_ERR_ABORTED_COMMAND      11      /* probably transport error */
+#define SIMPLE_ERR_PROTECTION           12      /* data protect sense key */
+#define SIMPLE_ERR_MISCOMPARE           13      /* from VERIFY commands */
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
@@ -351,8 +378,6 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 
 #define SCSI_TIMEOUT_SELF_TEST  (5 * 60 * 60)   /* allow max 5 hours for */
                                             /* extended foreground self test */
-
-
 
 #define LOGPAGEHDRSIZE  4
 
@@ -401,6 +426,9 @@ int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo);
 
 const char * scsiErrString(int scsiErr);
 
+/* Yield string associated with sense_key value. Returns 'buff'. */
+char * scsi_get_sense_key_str(int sense_key, int buff_len, char * buff);
+
 int scsi_vpd_dev_id_iter(const unsigned char * initial_desig_desc,
                          int page_len, int * off, int m_assoc,
                          int m_desig_type, int m_code_set);
@@ -444,6 +472,9 @@ int scsiSetPowerCondition(scsi_device * device, int power_cond,
 int scsiSendDiagnostic(scsi_device * device, int functioncode, uint8_t *pBuf,
                        int bufLen);
 
+bool scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
+                                   struct scsi_sense_disect & sinfo);
+
 int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist,
                      int dl_format, uint8_t *pBuf, int bufLen);
 
@@ -455,6 +486,8 @@ int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbp,
                        unsigned int * lb_sizep);
 
 int scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen);
+
+int scsiRSOCcmd(scsi_device * device, uint8_t *pBuf, int bufLen, int & rspLen);
 
 /* SMART specific commands */
 int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
@@ -486,7 +519,7 @@ uint64_t scsiGetSize(scsi_device * device, bool avoid_rcap16,
                      struct scsi_readcap_resp * srrp);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
-const char* scsiGetIEString(uint8_t asc, uint8_t ascq);
+char * scsiGetIEString(uint8_t asc, uint8_t ascq, char * b, int blen);
 int scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp);
 
 
@@ -500,7 +533,7 @@ int scsiSmartSelfTestAbort(scsi_device * device);
 const char * scsiTapeAlertsTapeDevice(unsigned short code);
 const char * scsiTapeAlertsChangerDevice(unsigned short code);
 
-const char * scsi_get_opcode_name(uint8_t opcode);
+const char * scsi_get_opcode_name(const uint8_t * cdbp);
 void scsi_format_id_string(char * out, const uint8_t * in, int n);
 
 void dStrHex(const uint8_t * up, int len, int no_ascii);
@@ -510,6 +543,7 @@ void dStrHex(const uint8_t * up, int len, int no_ascii);
    descriptor; otherwise (including fixed format sense data) returns NULL. */
 const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
                                               int sense_len, int desc_type);
+
 
 
 /* SCSI command transmission interface function declaration. Its

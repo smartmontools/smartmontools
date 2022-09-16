@@ -2,22 +2,29 @@
 # $Id$
 #
 dnl Process this file with autoconf to produce a configure script.
-AC_PREREQ([2.60])
-AC_INIT([smartmontools],[7.3],[smartmontools-support@listi.jpberlin.de])
+AC_PREREQ([2.64])
+AC_INIT([smartmontools],[7.4],[smartmontools-support@listi.jpberlin.de],[],[https://www.smartmontools.org/])
 AM_INIT_AUTOMAKE([1.10 foreign])
 
 # Version of drive database branch
-smartmontools_drivedb_version=7.2
+smartmontools_drivedb_version=7.3
+
+# Set by 'do_release' script, commented out when release number is bumped.
+smartmontools_release_date= # 2022-02-28
+smartmontools_release_time= # "16:33:40 UTC"
+
+if test -n "$smartmontools_release_date"; then
+  AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE, "$smartmontools_release_date",    [smartmontools Release Date])
+  AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME, "$smartmontools_release_time",    [smartmontools Release Time])
+  AC_SUBST(releaseversion, ['${PACKAGE}-${VERSION}'])
+else
+  # Add "pre-" also on man pages.
+  AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
+fi
 
 smartmontools_cvs_tag=`echo '$Id$'`
-smartmontools_release_date=2020-12-30
-smartmontools_release_time="16:48:30 UTC"
-
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
-AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE,   "$smartmontools_release_date",    [smartmontools Release Date])
-AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME,   "$smartmontools_release_time",    [smartmontools Release Time])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
-AC_DEFINE_UNQUOTED(PACKAGE_HOMEPAGE,             "https://www.smartmontools.org/", [smartmontools Home Page])
 
 AC_CONFIG_SRCDIR([smartctl.cpp])
 AC_CONFIG_HEADERS([config.h])
@@ -91,10 +98,6 @@ AC_SUBST([svn_deps])
 AM_CONDITIONAL(IS_SVN_BUILD, [test "$is_svn_build" = "yes"])
 AC_MSG_RESULT([$is_svn_build])
 
-# Note: On Linux, clock_gettime() requires -lrt which implies -lpthreads
-# Check omitted for now, gettimeofday() provides reasonable precision
-# AC_SEARCH_LIBS(clock_gettime, rt)
-
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([byteswap.h], [], [], [])
@@ -121,6 +124,10 @@ case "$host" in
   *-*-netbsd*|*-*-openbsd*)
     AC_CHECK_HEADERS([dev/ata/atavar.h])
     ;;
+  *-*-mingw*)
+    # Older MinGW-w64 (5.0.3) require -lwinpthread
+    AC_SEARCH_LIBS([clock_gettime], [winpthread])
+    ;;
 esac
 
 # Checks for typedefs, and compiler characteristics.
@@ -130,8 +137,6 @@ AC_TYPE_LONG_DOUBLE_WIDER
 # Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
 AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
-
-AC_CHECK_FUNCS([clock_gettime ftime gettimeofday])
 
 # Check byte ordering (defines WORDS_BIGENDIAN)
 AC_C_BIGENDIAN
@@ -189,9 +194,23 @@ AC_ARG_WITH(exampledir,
 AC_SUBST(exampledir)
 
 drivedbdir='${datadir}/${PACKAGE}'
+drivedbinstdir=
+AC_ARG_WITH(drivedbinstdir,
+  [AS_HELP_STRING([--with-drivedbinstdir@<:@=DIR|yes|no@:>@],
+    [Optional separate install location of drive database file [no] (yes=DATADIR/smartmontools)])],
+  [ case "$withval" in
+      no) ;;
+      yes) drivedbinstdir=$drivedbdir; drivedbdir='${localstatedir}/lib/${PACKAGE}' ;;
+      *)   drivedbinstdir=$withval;    drivedbdir='${localstatedir}/lib/${PACKAGE}' ;;
+    esac
+  ])
+
 AC_ARG_WITH(drivedbdir,
-  [AS_HELP_STRING([--with-drivedbdir@<:@=DIR|yes|no@:>@], [Location of drive database file [DATADIR/smartmontools]])],
+  [AS_HELP_STRING([--with-drivedbdir@<:@=DIR|yes|no@:>@],
+    [Location of drive database file [DATADIR/smartmontools or LOCALSTATEDIR/lib/smartmontools if separate INSTDIR]])],
   [case "$withval" in yes) ;; no) drivedbdir= ;; *) drivedbdir="$withval" ;; esac])
+test -n "$drivedbinstdir" || drivedbinstdir=$drivedbdir
+AC_SUBST(drivedbinstdir)
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test -n "$drivedbdir"])
 
@@ -201,7 +220,7 @@ AC_ARG_WITH(update-smart_drivedb,
     [Install update-smart-drivedb script (and backport it to branches/RELEASE_X_Y_DRIVEDB) [yes]])],
   [ case "$withval" in
       yes|no) ;;
-      5.4[[0-3]]|6.[[0-9]]) drivedb_version=$withval; with_update_smart_drivedb=yes ;;
+      5.4[[0-3]]|6.[[0-6]]|7.[[023]]) drivedb_version=$withval; with_update_smart_drivedb=yes ;;
       *) AC_MSG_ERROR([Invalid drivedb branch version: $withval]) ;;
     esac
   ],
@@ -393,22 +412,7 @@ AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
     [Include NVMe devices in smartd DEVICESCAN [Linux,Windows:yes;Others:no]])])
 
-# TODO: Remove after smartmontools 7.3
-AC_ARG_WITH(solaris-sparc-ata,
-  [AS_HELP_STRING([--with-solaris-sparc-ata@<:@=yes|no@:>@],
-    [Enable legacy ATA support on Solaris SPARC (requires os_solaris_ata.s from SVN repository) [no]])])
-
-case "$host:$with_solaris_sparc_ata" in
-  sparc-*-solaris*:yes)
-    if test ! -f "$srcdir/os_solaris_ata.s"; then
-      AC_MSG_ERROR([Missing source file: $srcdir/os_solaris_ata.s
-This file is no longer included in the source tarball but still
-available in the SVN repository.])
-    fi
-    AC_DEFINE(WITH_SOLARIS_SPARC_ATA, 1, [Define to 1 to enable legacy ATA support on Solaris SPARC.])
-    ;;
-esac
-
+# TODO: Remove after smartmontools 7.4
 AC_ARG_WITH(signal-func,
   [AS_HELP_STRING([--with-signal-func=@<:@sigaction|sigset|signal@:>@],
     [Function to set signal(2) action [sigaction]])],
@@ -596,9 +600,13 @@ else
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
-AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
-AC_SUBST(smartmontools_release_date)
-AC_SUBST(smartmontools_release_time)
+# TODO: Remove after smartmontools 7.4
+AC_ARG_WITH(solaris-sparc-ata,
+  [AS_HELP_STRING([--with-solaris-sparc-ata], [(removed)])],
+  [AC_MSG_ERROR([
+The option '--with@<:@out@:>@-solaris-sparc-ata' is no longer supported.
+If you still need legacy ATA support on Solaris SPARC, please inform
+$PACKAGE_BUGREPORT.])])
 
 # Set platform-specific modules and symbols
 os_libs=
@@ -607,6 +615,7 @@ os_mailer=mail
 os_hostname="'hostname' 'uname -n'"
 os_dnsdomainname=
 os_nisdomainname="'domainname'"
+os_posix=yes
 os_darwin=no
 os_solaris=no
 os_win32=no
@@ -630,15 +639,7 @@ case "${host}" in
     os_man_filter=FreeBSD
     os_nvme_devicescan=no
     ;;
-  sparc-*-solaris*)
-    os_deps='os_solaris.o'
-    test "$with_solaris_sparc_ata" = "yes" \
-      && os_deps="$os_deps os_solaris_ata.o"
-    os_mailer='mailx'
-    os_solaris=yes
-    os_man_filter=Solaris
-    ;;
-  *-pc-solaris*)
+  *-*-solaris*)
     os_deps='os_solaris.o'
     os_mailer='mailx'
     os_solaris=yes
@@ -668,6 +669,7 @@ case "${host}" in
     ;;
   x86_64-*-mingw*)
     os_deps='os_win32.o dev_areca.o'
+    os_posix=no
     os_win32=yes
     os_win32_mingw=yes
     os_win64=yes
@@ -676,6 +678,7 @@ case "${host}" in
     ;;
   *-*-mingw*)
     os_deps='os_win32.o dev_areca.o'
+    os_posix=no
     os_win32=yes
     os_win32_mingw=yes
     os_man_filter=Windows
@@ -693,6 +696,7 @@ case "${host}" in
     ;;
   *-*-os2-*)
     os_deps='os_os2.o'
+    os_posix=no
     ;;
   *)
     os_deps='os_generic.o'
@@ -701,6 +705,12 @@ esac
 
 # Replace if '--with-os-deps' was specified
 test -z "$with_os_deps" || os_deps="$with_os_deps"
+
+AC_MSG_CHECKING([whether the OS provides a POSIX API])
+if test "$os_posix" = "yes"; then
+  AC_DEFINE(HAVE_POSIX_API, 1, [Define to 1 if the OS provides a POSIX API])
+fi
+AC_MSG_RESULT([$os_posix])
 
 # Check if we need adapter to old interface (dev_legacy.cpp)
 os_src=`echo "${os_deps}"|sed -n 's,^\([[^ .]]*\)\.o.*$,\1.cpp,p'`
@@ -746,6 +756,7 @@ fi
 AC_SUBST([DRIVEDB_BRANCH])
 
 # Enable platform-specific makefile sections
+AM_CONDITIONAL(OS_POSIX, [test "$os_posix" = "yes"])
 AM_CONDITIONAL(OS_DARWIN, [test "$os_darwin" = "yes"])
 AM_CONDITIONAL(OS_SOLARIS, [test "$os_solaris" = "yes"])
 AM_CONDITIONAL(OS_WIN32, [test "$os_win32" = "yes"])
@@ -764,9 +775,11 @@ if test "$GXX" = "yes"; then
     *\ -W\ *|*\ -Wextra\ *) ;;
     *) CXXFLAGS="$CXXFLAGS -W" ;;
   esac
-  # Add -Wformat=2 (GCC 3.0) -fstack-protector[-strong] (GCC 4.1[4.9]) if supported
-  # and no -W or -f option was set in configure cmdline (TODO: -Wformat-signedness)
-  for option in "-Wformat=2" "-fstack-protector-strong" "-fstack-protector"; do
+  # Add -Wformat=2 (GCC 3.0),
+  # -Werror=return-type (G++ >= 8.0 assumes that control never reaches the end of a non-void function),
+  # -fstack-protector[-strong] (GCC 4.1[4.9])
+  # if supported and no -W or -f option was set in configure cmdline (TODO: -Wformat-signedness)
+  for option in "-Wformat=2" "-Werror=return-type" "-fstack-protector-strong" "-fstack-protector"; do
     case " $orig_CXXFLAGS:$option" in *\ -W*:-W*|*\ -f*:-f*) continue ;; esac
     case " $CXXFLAGS:$option" in *\ -fstack-p*:-fstack-p*) continue ;; esac
     AC_MSG_CHECKING([whether $CXX supports $option])
@@ -882,6 +895,9 @@ info=`
       echo "doc file install path:  \`eval eval eval echo $docdir\`"
       echo "examples install path:  \`eval eval eval echo $exampledir\`"
       if test -n "$drivedbdir"; then
+        if test "$drivedbinstdir" != "$drivedbdir"; then
+          echo "installed drivedb file: \`eval eval eval echo $drivedbinstdir\`/drivedb.h"
+        fi
         echo "drive database file:    \`eval eval eval echo $drivedbdir\`/drivedb.h"
         if test "$with_update_smart_drivedb" = "yes"; then
           echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"
@@ -972,14 +988,15 @@ Use option '--without-nvme-devicescan' to suppress this warning.
 ])  ;;
 esac
 
-# TODO: Remove after smartmontools 7.3
-if test -n "$with_solaris_sparc_ata"; then
-  AC_MSG_WARN([
-The option '--with-solaris-sparc-ata' is deprecated and will be
+# TODO: Remove after smartmontools 7.4
+case "$host:$with_signal_func" in
+  *-*-mingw*:*|*:sigaction) ;;
+  *) AC_MSG_WARN([
+The option '--with-signal-func=$with_signal_func' is deprecated and will be
 removed in a future version of smartmontools.  If this option is
 still needed, please inform $PACKAGE_BUGREPORT.
-])
-fi
+]) ;;
+esac
 
 case "$host_os:$with_libsystemd:$use_libsystemd:$PKG_CONFIG" in
   linux*:auto:no:?*)

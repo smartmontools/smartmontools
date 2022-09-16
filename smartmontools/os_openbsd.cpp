@@ -244,7 +244,7 @@ bool openbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     const unsigned char * ucp = iop->cmnd;
     const char * np;
 
-    np = scsi_get_opcode_name(ucp[0]);
+    np = scsi_get_opcode_name(ucp);
     pout(" [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < iop->cmnd_len; ++k)
       pout("%02x ", ucp[k]);
@@ -266,7 +266,7 @@ bool openbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   sc.databuf = (char *)iop->dxferp;
   sc.datalen = iop->dxfer_len;
   sc.senselen = iop->max_sense_len;
-  sc.timeout = iop->timeout == 0 ? 60000 : iop->timeout;	/* XXX */
+  sc.timeout = (iop->timeout == 0 ? 60 : iop->timeout) * 1000;
   sc.flags =
     (iop->dxfer_dir == DXFER_NONE ? SCCMD_READ :
     (iop->dxfer_dir == DXFER_FROM_DEVICE ? SCCMD_READ : SCCMD_WRITE));
@@ -582,17 +582,17 @@ smart_device * openbsd_smart_interface::autodetect_smart_device(const char * nam
   if (str_starts_with(test_name, net_dev_prefix)) {
     test_name += strlen(net_dev_prefix);
     if (!strncmp(net_dev_ata_disk, test_name, strlen(net_dev_ata_disk)))
-      return get_ata_device(test_name, "ata");
+      return get_ata_device(name, "ata");
     if (!strncmp(net_dev_scsi_disk, test_name, strlen(net_dev_scsi_disk))) {
       // XXX Try to detect possible USB->(S)ATA bridge
       // XXX get USB vendor ID, product ID and version from sd(4)/umass(4).
       // XXX check sat device via get_usb_dev_type_by_id().
 
-      // No USB bridge found, assume regular SCSI device
-      return get_scsi_device(test_name, "scsi");
+      // No USB bridge found, assume regular SCSI or SAT device
+      return get_scsi_device(name, "");
     }
     if (!strncmp(net_dev_scsi_tape, test_name, strlen(net_dev_scsi_tape)))
-      return get_scsi_device(test_name, "scsi");
+      return get_scsi_device(name, "scsi");
   }
   // device type unknown
   return 0;

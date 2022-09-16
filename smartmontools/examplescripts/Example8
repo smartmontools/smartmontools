@@ -13,9 +13,10 @@
 test -n "$SMARTD_ADDRESS" || exit 0
 
 # Try mail[x]
+# Note: The 'command -v' builtin requires a POSIX >= 2008 conforming shell
 for mailer in \
-  $(which mail 2>/dev/null) \
-  $(which mailx 2>/dev/null) \
+  $(command -v mail 2>/dev/null) \
+  $(command -v mailx 2>/dev/null) \
   /usr/bin/mail \
   /usr/bin/mailx
 do

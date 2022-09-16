@@ -120,11 +120,11 @@ int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsig
 
   int ioctlreturn = 0;
   sSRB_BUFFER sBuf;
-  struct scsi_cmnd_io iop;
+  struct scsi_cmnd_io iop = {};
   int dir = DXFER_TO_DEVICE;
 
-  uint8_t cdb[10]={0};
-  uint8_t sense[32]={0};
+  uint8_t cdb[10]={};
+  uint8_t sense[32]={};
 
   unsigned char *areca_return_packet;
   int total = 0;
@@ -133,7 +133,6 @@ int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsig
   unsigned char *ptr = &return_buff[0];
 
   memset((unsigned char *)&sBuf, 0, sizeof(sBuf));
-  memset(&iop, 0, sizeof(iop));
 
   sBuf.srbioctl.HeaderLength = sizeof(sARCMSR_IO_HDR);
   memcpy(sBuf.srbioctl.Signature, ARECA_SIG_STR, strlen(ARECA_SIG_STR));
