@@ -1,4 +1,9 @@
-$Id: ChangeLog 5407 2022-08-15 17:04:15Z chrfranke $
+$Id: ChangeLog 5408 2022-09-18 14:50:33Z chrfranke $
+
+2022-09-18  Christian Franke  <franke@computer.org>
+
+	Add NVMe self-test support to smartctl (#894).
+	Supported options: '-l selftest', '-t short', '-t long' and '-X'.
 
 2022-08-15  Christian Franke  <franke@computer.org>
 
