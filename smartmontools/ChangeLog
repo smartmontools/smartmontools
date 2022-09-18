@@ -1,5 +1,10 @@
 $Id$
 
+2022-09-18  Christian Franke  <franke@computer.org>
+
+	Add NVMe self-test support to smartctl (#894).
+	Supported options: '-l selftest', '-t short', '-t long' and '-X'.
+
 2022-08-15  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Print error count even if error log index is invalid.

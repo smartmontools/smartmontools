@@ -261,7 +261,7 @@ and for SCSI, this is equivalent to
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
 .br
-\*(Aq\-H \-i \-c \-A \-l error\*(Aq.
+\*(Aq\-H \-i \-c \-A \-l error \-l selftest\*(Aq.
 .br
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 Note that for ATA disks this does \fBnot\fP enable the non-SMART options
@@ -287,7 +287,7 @@ and for SCSI tape drivers and changers, add \-l tapedevstat
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
 .br
-\*(Aq\-H \-i \-c \-A \-l error\*(Aq.
+\*(Aq\-H \-i \-c \-A \-l error \-l selftest\*(Aq.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-\-scan
@@ -1444,6 +1444,11 @@ If provided, the SCSI Sense Key (SK), Additional Sense Code (ASC) and
 Additional Sense Code Qualifier (ASCQ) are also printed.  The self tests
 can be run using the \*(Aq\-t\*(Aq option described below (using the ATA
 test terminology).
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+.Sp
+.I selftest
+\- [NVMe] prints the NVMe self-test log.
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I xselftest[,NUM][,selftest]
 \- [ATA only] prints the Extended SMART self-test log (General Purpose
@@ -2083,6 +2088,11 @@ with other disks use the \*(Aq\-c\*(Aq option to monitor progress.
 .Sp
 .I short
 \- [SCSI] runs the "Background short" self-test.
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+.Sp
+.I short
+\- [NVMe] runs the "Short" self-test for current namespace.
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I long
 \- [ATA] runs SMART Extended Self Test (tens of minutes to several hours).
@@ -2093,6 +2103,11 @@ below).
 .Sp
 .I long
 \- [SCSI] runs the "Background long" self-test.
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+.Sp
+.I long
+\- [NVMe] runs the "Extended" self-test for current namespace.
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I conveyance
 \- [ATA only] runs a SMART Conveyance Self Test (minutes).  This
