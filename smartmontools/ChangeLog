@@ -1,6 +1,8 @@
-$Id: ChangeLog 5408 2022-09-18 14:50:33Z chrfranke $
+$Id: ChangeLog 5409 2022-09-18 14:53:32Z chrfranke $
 
 2022-09-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add IOCTL_STORAGE_PROTOCOL_COMMAND for NVMe self-tests.
 
 	Add NVMe self-test support to smartctl (#894).
 	Supported options: '-l selftest', '-t short', '-t long' and '-X'.
