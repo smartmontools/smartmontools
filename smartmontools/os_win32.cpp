@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2004-21 Christian Franke
+ * Copyright (C) 2004-22 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2015    Nidhi Malhotra <nidhi.malhotra@pmcs.com>
@@ -46,6 +46,7 @@ extern unsigned char failuretest_permissive;
 
 #include <windows.h>
 #include <ntddscsi.h> // IOCTL_ATA_PASS_THROUGH, IOCTL_SCSI_PASS_THROUGH, ...
+// #include <nvme.h> // NVME_COMMAND, missing in older versions of Mingw-w64
 
 #ifndef _WIN32
 // csmisas.h and aacraid.h require _WIN32 but w32api-headers no longer define it on Cygwin
@@ -206,6 +207,84 @@ namespace win10 {
 STATIC_ASSERT(IOCTL_STORAGE_PREDICT_FAILURE == 0x002d1100);
 STATIC_ASSERT(sizeof(STORAGE_PREDICT_FAILURE) == 4+512);
 
+// IOCTL_STORAGE_PROTOCOL_COMMAND
+
+#ifndef IOCTL_STORAGE_PROTOCOL_COMMAND
+
+#define IOCTL_STORAGE_PROTOCOL_COMMAND \
+  CTL_CODE(IOCTL_STORAGE_BASE, 0x04f0, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+#endif // IOCTL_STORAGE_PROTOCOL_COMMAND
+
+#ifndef STORAGE_PROTOCOL_STRUCTURE_VERSION
+
+#define STORAGE_PROTOCOL_STRUCTURE_VERSION 1
+
+typedef struct _STORAGE_PROTOCOL_COMMAND {
+  DWORD Version;
+  DWORD Length;
+  win10::STORAGE_PROTOCOL_TYPE ProtocolType;
+  DWORD Flags;
+  DWORD ReturnStatus;
+  DWORD ErrorCode;
+  DWORD CommandLength;
+  DWORD ErrorInfoLength;
+  DWORD DataToDeviceTransferLength;
+  DWORD DataFromDeviceTransferLength;
+  DWORD TimeOutValue;
+  DWORD ErrorInfoOffset;
+  DWORD DataToDeviceBufferOffset;
+  DWORD DataFromDeviceBufferOffset;
+  DWORD CommandSpecific;
+  DWORD Reserved0;
+  DWORD FixedProtocolReturnData;
+  DWORD Reserved1[3];
+  BYTE Command[1];
+} STORAGE_PROTOCOL_COMMAND;
+
+#define STORAGE_PROTOCOL_COMMAND_FLAG_ADAPTER_REQUEST 0x80000000
+#define STORAGE_PROTOCOL_SPECIFIC_NVME_ADMIN_COMMAND 0x01
+#define STORAGE_PROTOCOL_COMMAND_LENGTH_NVME 0x40
+
+#endif // STORAGE_PROTOCOL_STRUCTURE_VERSION
+
+STATIC_ASSERT(IOCTL_STORAGE_PROTOCOL_COMMAND == 0x002dd3c0);
+STATIC_ASSERT(offsetof(STORAGE_PROTOCOL_COMMAND, Command) == 80);
+STATIC_ASSERT(sizeof(STORAGE_PROTOCOL_COMMAND) == 84);
+
+// NVME_COMMAND from <nvme.h>
+
+#ifndef NVME_NAMESPACE_ALL
+
+typedef union {
+  struct {
+    ULONG OPC : 8;
+    ULONG _unused : 24;
+  };
+  ULONG AsUlong;
+} NVME_COMMAND_DWORD0;
+
+typedef struct {
+  NVME_COMMAND_DWORD0 CDW0;
+  ULONG NSID;
+  ULONGLONG _unused[4];
+  union {
+    struct {
+      ULONG CDW10;
+      ULONG CDW11;
+      ULONG CDW12;
+      ULONG CDW13;
+      ULONG CDW14;
+      ULONG CDW15;
+    } GENERAL;
+    // Others: Not used
+  } u;
+} NVME_COMMAND;
+
+#endif
+
+STATIC_ASSERT(sizeof(NVME_COMMAND) == STORAGE_PROTOCOL_COMMAND_LENGTH_NVME);
+STATIC_ASSERT(offsetof(NVME_COMMAND, u.GENERAL.CDW10) == 40);
 
 // 3ware specific versions of SMART ioctl structs
 
@@ -3735,6 +3814,10 @@ public:
 
 private:
   bool open(int phydrive, int logdrive);
+
+  bool nvme_storage_query_property(const nvme_cmd_in & in, nvme_cmd_out & out);
+
+  bool nvme_storage_protocol_command(const nvme_cmd_in & in, nvme_cmd_out & out);
 };
 
 
@@ -3778,9 +3861,16 @@ bool win10_nvme_device::open(int phydrive, int logdrive)
   else
     snprintf(devpath, sizeof(devpath), "\\\\.\\%c:", 'A'+logdrive);
 
-  // No GENERIC_READ/WRITE access required, this works without admin rights
-  HANDLE h = CreateFileA(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
-    (SECURITY_ATTRIBUTES *)0, OPEN_EXISTING, 0, (HANDLE)0);
+  bool admin = true;
+  HANDLE h = CreateFileA(devpath, GENERIC_READ | GENERIC_WRITE,
+      FILE_SHARE_READ | FILE_SHARE_WRITE,
+      (SECURITY_ATTRIBUTES *)0, OPEN_EXISTING, 0, (HANDLE)0);
+  if (h == INVALID_HANDLE_VALUE) {
+    // STORAGE_QUERY_PROPERTY works without GENERIC_READ/WRITE access
+    admin = false;
+    h = CreateFileA(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
+        (SECURITY_ATTRIBUTES*)0, OPEN_EXISTING, 0, (HANDLE)0);
+  }
 
   if (h == INVALID_HANDLE_VALUE) {
     long err = GetLastError();
@@ -3796,7 +3886,7 @@ bool win10_nvme_device::open(int phydrive, int logdrive)
   }
 
   if (nvme_debugmode > 1)
-    pout("  %s: successfully opened\n", devpath);
+    pout("  %s: successfully opened%s\n", devpath, (!admin ? " (without admin rights)" : ""));
 
   set_fh(h);
 
@@ -3817,7 +3907,7 @@ struct STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER
   BYTE DataBuffer[1];
 };
 
-bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
+bool win10_nvme_device::nvme_storage_query_property(const nvme_cmd_in & in, nvme_cmd_out & out)
 {
   // Create buffer with appropriate size
   raw_buffer spsq_raw_buf(offsetof(STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER, DataBuffer) + in.size);
@@ -3846,13 +3936,10 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
       // Newer drivers (Win10 1809) pass SubValue to CDW12 (DW aligned)
       spsq->ProtocolSpecific.ProtocolDataRequestSubValue = 0; // in.cdw12 (LPOL, NVMe 1.2.1+) ?
       break;
-    // TODO: nvme_admin_get_features
+    // case smartmontools::nvme_admin_get_features: // TODO
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
   }
-
-  if (in.cdw11 || in.cdw12 || in.cdw13 || in.cdw14 || in.cdw15)
-    return set_err(ENOSYS, "Nonzero NVMe command dwords 11-15 not supported");
 
   spsq->ProtocolSpecific.ProtocolDataOffset = sizeof(spsq->ProtocolSpecific);
   spsq->ProtocolSpecific.ProtocolDataLength = in.size;
@@ -3878,7 +3965,7 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
 
   if (nvme_debugmode > 1)
     pout("  [STORAGE_QUERY_PROPERTY: ReturnData=0x%08x, Reserved[3]={0x%x, 0x%x, 0x%x}]\n",
-    (unsigned)spsq->ProtocolSpecific.FixedProtocolReturnData,
+      (unsigned)spsq->ProtocolSpecific.FixedProtocolReturnData,
       (unsigned)spsq->ProtocolSpecific.Reserved[0],
       (unsigned)spsq->ProtocolSpecific.Reserved[1],
       (unsigned)spsq->ProtocolSpecific.Reserved[2]);
@@ -3894,6 +3981,73 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   return true;
 }
 
+bool win10_nvme_device::nvme_storage_protocol_command(const nvme_cmd_in & in, nvme_cmd_out & /* out */)
+{
+  // Limit to self-test command for now
+  switch (in.opcode) {
+    case smartmontools::nvme_admin_dev_self_test:
+      break;
+    default:
+      return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
+  }
+
+  // This is based on info from https://github.com/ken-yossy/nvmetool-win (License: MIT)
+
+  // Assume NO_DATA command
+  char spcm_buf[offsetof(STORAGE_PROTOCOL_COMMAND, Command) + STORAGE_PROTOCOL_COMMAND_LENGTH_NVME]{};
+  STORAGE_PROTOCOL_COMMAND * spcm = reinterpret_cast<STORAGE_PROTOCOL_COMMAND *>(spcm_buf);
+
+  // Set NVMe specific STORAGE_PROTOCOL_COMMAND
+  spcm->Version = STORAGE_PROTOCOL_STRUCTURE_VERSION;
+  spcm->Length = sizeof(STORAGE_PROTOCOL_COMMAND);
+  spcm->ProtocolType = (decltype(spcm->ProtocolType))win10::ProtocolTypeNvme;
+  spcm->Flags = STORAGE_PROTOCOL_COMMAND_FLAG_ADAPTER_REQUEST;
+  spcm->CommandLength = STORAGE_PROTOCOL_COMMAND_LENGTH_NVME;
+  spcm->TimeOutValue = 60;
+  spcm->CommandSpecific = STORAGE_PROTOCOL_SPECIFIC_NVME_ADMIN_COMMAND;
+
+  NVME_COMMAND * nvcm = reinterpret_cast<NVME_COMMAND *>(&spcm->Command);
+  nvcm->CDW0.OPC = in.opcode;
+  nvcm->NSID = in.nsid;
+  nvcm->u.GENERAL.CDW10 = in.cdw10;
+
+  if (nvme_debugmode > 1)
+    pout("  [IOCTL_STORAGE_PROTOCOL_COMMAND(NVMe): CDW0.OPC=0x%02x, NSID=0x%04x, CDW10=0x%04x]\n",
+      (unsigned)nvcm->CDW0.OPC,
+      (unsigned)nvcm->NSID,
+      (unsigned)nvcm->u.GENERAL.CDW10);
+
+  // Call IOCTL_STORAGE_PROTOCOL_COMMAND
+  DWORD num_out = 0;
+  long err = 0;
+  if (!DeviceIoControl(get_fh(), IOCTL_STORAGE_PROTOCOL_COMMAND,
+    spcm, sizeof(spcm_buf), spcm, sizeof(spcm_buf),
+    &num_out, (OVERLAPPED*)0)) {
+    err = GetLastError();
+  }
+
+  // NVMe status checked by IOCTL?
+  if (err)
+    return set_err(EIO, "IOCTL_STORAGE_PROTOCOL_COMMAND(NVMe) failed, Error=%ld", err);
+
+  // out.result = 0;
+  return true;
+}
+
+bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
+{
+  if (in.cdw11 || in.cdw12 || in.cdw13 || in.cdw14 || in.cdw15)
+    return set_err(ENOSYS, "Nonzero NVMe command dwords 11-15 not supported");
+
+  switch (in.opcode) {
+    case smartmontools::nvme_admin_identify:
+    case smartmontools::nvme_admin_get_log_page:
+    // case smartmontools::nvme_admin_get_features: // TODO
+      return nvme_storage_query_property(in, out);
+    default:
+      return nvme_storage_protocol_command(in, out);
+  }
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // win_smart_interface
