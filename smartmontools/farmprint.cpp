@@ -22,33 +22,13 @@
 #include "smartctl.h"
 
 /*
- *  Get World Wide Name (WWN) fields from FARM.
- *  Stored in hex format in log pag 1 byte offset 32-47. (Seagate FARM Spec Rev 4.23.1)
- *  
- *  @param  wwn1:  Constant 64-bit integer containing the high 8 bytes of WWN (const uint64_t)
- *  @param  wwn2:  Constant 64-bit integer containing the low 8 bytes of WWN (const uint64_t)
- *  @param  oui:  Reference to OUI field of WWN (unsigned &)
- *  @param  unique_id:  Reference to unique ID field of WWN (uint64_t &)
- *  @return integer containing naa field of WWN
- */
-int ata_farm_get_wwn(const uint64_t wwn1, const uint64_t wwn2, unsigned & oui, uint64_t & unique_id) {
-  int naa   = ( wwn1 & 0xF000) >> 12;
-  oui       = ((wwn1 & 0xFFF) << 12) |
-              ((wwn1 & (0xFFF << 20)) >> 20);
-  unique_id = ((wwn1 & 0xF0000) << 16) |
-              ((wwn2 & 0x0000FFFF) << 16) |
-              ((wwn2 & 0xFFFF0000) >> 16);
-   return naa;
-}
-
-/*
  *  Get the recording type descriptor from FARM.
  *  Stored as bitmask in log pag 1 byte offset 336-343. (Seagate FARM Spec Rev 4.23.1)
  *  
  *  @param  driveRecordingType: Constant 64-bit integer recording type descriptor (const uint64_t)
  *  @return:  Constant reference to string literal (const char *)
  */
-const char * ata_farm_get_recording_type(const uint64_t driveRecordingType) {
+const char * farm_get_recording_type(const uint64_t driveRecordingType) {
   switch (driveRecordingType & 0x3) {
     case 0x1: return "SMR";
     case 0x2: return "CMR";
@@ -57,17 +37,22 @@ const char * ata_farm_get_recording_type(const uint64_t driveRecordingType) {
 }
 
 /*
- *  Get the deveice interface type from FARM log.
- *  Stored as ASCII text in log page 1 byte offset 48-55. (Seagate FARM Spec Rev 4.23.1)
+ *  Get the form factor descriptor from FARM.
+ *  Stored as integer in log pag 1 byte offset 336-343. (Seagate FARM Spec Rev 4.23.1)
+ *  Consistent with definitions in ACS-3 Table A.32, SBC-4 Table 263. 
  *  
- *  @param  buffer:  Reference to character buffer (char *)
- *  @param  deviceInterface:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
- *  @return reference to char buffer containing a null-terminated string
+ *  @param  formFactor: Constant 64-bit integer form factor descriptor (const uint64_t)
+ *  @return:  Constant reference to string literal (const char *)
  */
-char * ata_farm_get_interface(char * buffer, const uint64_t deviceInterface) {
-  for (uint8_t i = 0; i < 4; i++){ buffer[i] = (deviceInterface >> ((4 - i - 1) * 8)) & 0xFF; }
-  buffer[4] = '\0';
-  return buffer;
+const char * farm_get_form_factor(const uint64_t formFactor) {
+  switch (formFactor & 0xF) {
+    case 0x1: return "5.25 inches";
+    case 0x2: return "3.5 inches";
+    case 0x3: return "2.5 inches";
+    case 0x4: return "1.8 inches";
+    case 0x5: return "< 1.8 inches";
+    default : return 0;
+  }
 }
 
 /*
@@ -77,7 +62,7 @@ char * ata_farm_get_interface(char * buffer, const uint64_t deviceInterface) {
  *  @param  paramArray:  Reference to int64_t array containing paramter values for each head (const int64_t *)
  *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
  */
-void ata_farm_by_head_field_to_text(const char * desc, const int64_t * paramArray, const uint64_t numHeads) {
+void farm_print_by_head_to_text(const char * desc, const int64_t * paramArray, const uint64_t numHeads) {
   for (uint8_t hd = 0; hd < numHeads; hd++) { 
      jout("\t\t%s %" PRIu8 ": %" PRIu64 "\n", desc, hd, paramArray[hd]);
   }
@@ -92,7 +77,7 @@ void ata_farm_by_head_field_to_text(const char * desc, const int64_t * paramArra
  *  @param  paramArray:  Reference to int64_t array containing paramter values for each head (const int64_t *)
  *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
  */
-void ata_farm_by_head_field_to_json(json::ref jref, char * buffer, const char * desc, const int64_t * paramArray, const uint64_t numHeads) {
+void farm_print_by_head_to_json(json::ref jref, char * buffer, const char * desc, const int64_t * paramArray, const uint64_t numHeads) {
   for (uint8_t hd = 0; hd < numHeads; hd++){
      sprintf(buffer, "%s_%" PRIu8, desc, hd);
      jref[buffer] = paramArray[hd];
@@ -100,15 +85,37 @@ void ata_farm_by_head_field_to_json(json::ref jref, char * buffer, const char * 
 }
 
 /*
- *  Wrapper function to use ata_format_id_string() for formatting
- *  a string from an 8-byte FARM field.
+ *  Swap adjacent 16-bit words of an unsigned 64-bit integer.
+ *  
+ *  @param  param:  Constant reference to an unsigned 64-bit integer (const uint64_t *)
+ *  @return result 
+ */
+uint64_t farm_byte_swap(const uint64_t param) {
+  const uint64_t even_bytes = 0x0000FFFF0000FFFF;
+  const uint64_t odd_bytes  = 0xFFFF0000FFFF0000;
+  return ( (param & even_bytes) << 16 ) | ( (param & odd_bytes) >> 16 );
+}
+
+/*
+ *  Formats an unsigned 64-bit integer into a big-endian null-terminated ascii string.
  *  
  *  @param  buffer:  Constant reference to character buffer (char *)
- *  @param  param1:  Constant 64-bit integer containing the FARM field information (const uint64_t)
- *  @return reference to char buffer containing a null-terminated string
+ *  @param  param:  Constant 64-bit integer containing ASCII FARM field information (const uint64_t)
+ *  @return reference to the char buffer containing a null-terminated string
  */
-char * ata_farm_format_id_string(char * buffer, const uint64_t param) {
-  ata_format_id_string(buffer, (const unsigned char *)&param, sizeof(param));
+char * farm_format_id_string(char * buffer, const uint64_t param) {
+  uint8_t val;
+  uint8_t j = 0;
+  size_t str_size = sizeof(param) / sizeof(buffer[0]);
+
+  for (uint8_t i = 0; i < str_size; i++){ 
+     val = (param >> ((str_size - i - 1) * 8)) & 0xFF;
+     if ( 32 <= val && val < 127 ) {
+        buffer[ j ] = val; 
+        j++;
+     }
+  }
+  buffer[j] = '\0';
   return buffer;
 }
 
@@ -116,13 +123,13 @@ char * ata_farm_format_id_string(char * buffer, const uint64_t param) {
  *  Overload function to format and concat two 8-byte FARM fields.
  *  
  *  @param  buffer:  Constant reference to character buffer (char *)
- *  @param  param1:  Constant 64-bit integer containing the high 8 bytes of the FARM field (const uint64_t)
- *  @param  param2:  Constant 64-bit integer containing the low 8 bytes of the FARM field (const uint64_t)
+ *  @param  param1:  Constant 64-bit integer containing the low 8 bytes of the FARM field (const uint64_t)
+ *  @param  param2:  Constant 64-bit integer containing the high 8 bytes of the FARM field (const uint64_t)
  *  @return reference to char buffer containing a null-terminated string
  */
-char * ata_farm_format_id_string(char * buffer, const uint64_t param1, const uint64_t param2) {
-  ata_format_id_string(buffer, (const unsigned char *)&param1, sizeof(param1));
-  ata_format_id_string(&buffer[strlen(buffer)], (const unsigned char *)&param2, sizeof(param2));
+char * farm_format_id_string(char * buffer, const uint64_t param1, const uint64_t param2) {
+  farm_format_id_string(buffer, param2);
+  farm_format_id_string(&buffer[strlen(buffer)], param1);
   return buffer;
 }
 
@@ -136,42 +143,32 @@ char * ata_farm_format_id_string(char * buffer, const uint64_t param1, const uin
  *  @param  farmLog:  Constant reference to parsed farm log (const ataFarmLog&)
  */
 void ataPrintFarmLog(const ataFarmLog& farmLog) {
-   char buffer[128]; // Generic character buffer
+  char buffer[128]; // Generic character buffer
 
-   // Get device information
-   char serialNumber[sizeof(farmLog.driveInformation.serialNumber)+sizeof(farmLog.driveInformation.serialNumber2)+1];
-   ata_farm_format_id_string(serialNumber, farmLog.driveInformation.serialNumber, farmLog.driveInformation.serialNumber2);
+  // Get device information
+  char serialNumber[sizeof(farmLog.driveInformation.serialNumber)+sizeof(farmLog.driveInformation.serialNumber2)+1];
+  farm_format_id_string(serialNumber, farm_byte_swap(farmLog.driveInformation.serialNumber2), farm_byte_swap(farmLog.driveInformation.serialNumber));
 
-  unsigned oui = 0; uint64_t unique_id = 0; 
   char worldWideName[sizeof(farmLog.driveInformation.worldWideName)+sizeof(farmLog.driveInformation.worldWideName2)+3];
-  int naa = ata_farm_get_wwn(farmLog.driveInformation.worldWideName, farmLog.driveInformation.worldWideName2, oui, unique_id);
-  sprintf(worldWideName, "%x %06x %09" PRIx64, naa, oui, unique_id);
+  sprintf(worldWideName, "0x%" PRIx64 "%" PRIx64, farm_byte_swap(farmLog.driveInformation.worldWideName), farm_byte_swap(farmLog.driveInformation.worldWideName2));
 
   char deviceInterface[sizeof(farmLog.driveInformation.deviceInterface)];
-  ata_farm_get_interface(deviceInterface, farmLog.driveInformation.deviceInterface);
+  farm_format_id_string(deviceInterface, farmLog.driveInformation.deviceInterface);
 
-  char capacityInBytes[64], capacityFormatted[32];
-  format_with_thousands_sep(capacityInBytes, sizeof(capacityInBytes), farmLog.driveInformation.deviceCapacity * farmLog.driveInformation.lsecSize);
-  format_capacity(capacityFormatted, sizeof(capacityFormatted), farmLog.driveInformation.deviceCapacity * farmLog.driveInformation.lsecSize);
-
-  char bufferInBytes[64], bufferFormatted[32];
-  format_with_thousands_sep(bufferInBytes, sizeof(bufferInBytes), farmLog.driveInformation.deviceBufferSize);
-  format_capacity(bufferFormatted, sizeof(bufferFormatted), farmLog.driveInformation.deviceBufferSize);
-
-  const char * formFactor = ata_get_form_factor((unsigned short)farmLog.driveInformation.factor);
+  const char * formFactor = farm_get_form_factor(farmLog.driveInformation.factor);
 
   char firmwareRev[sizeof(farmLog.driveInformation.firmwareRev)+sizeof(farmLog.driveInformation.firmwareRev2)+1];
-  ata_farm_format_id_string(firmwareRev, farmLog.driveInformation.firmwareRev, farmLog.driveInformation.firmwareRev2);
+  farm_format_id_string(firmwareRev, farm_byte_swap(farmLog.driveInformation.firmwareRev2), farm_byte_swap(farmLog.driveInformation.firmwareRev));
 
   char modelNumber[sizeof(farmLog.driveInformation.modelNumber)+1];
   for (uint8_t i = 0; i < sizeof(farmLog.driveInformation.modelNumber)/sizeof(farmLog.driveInformation.modelNumber[0]); i++){
-     ata_farm_format_id_string(&modelNumber[strlen(modelNumber)], farmLog.driveInformation.modelNumber[i]);
+     farm_format_id_string(&modelNumber[strlen(modelNumber)], farm_byte_swap(farmLog.driveInformation.modelNumber[i]));
   }
 
-  const char * recordingType = ata_farm_get_recording_type(farmLog.driveInformation.driveRecordingType);
+  const char * recordingType = farm_get_recording_type(farmLog.driveInformation.driveRecordingType);
 
   char dateOfAssembly[sizeof(farmLog.driveInformation.dateOfAssembly)];
-  ata_farm_format_id_string(dateOfAssembly, farmLog.driveInformation.dateOfAssembly);
+  farm_format_id_string(dateOfAssembly, farm_byte_swap(farmLog.driveInformation.dateOfAssembly));
 
   // Print plain-text
   jout("\nSeagate Field Access Reliability Metrics log (FARM) (GP log 0xA6)\n");
@@ -190,10 +187,10 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jout("\t\tSerial Number: %s\n", serialNumber);
   jout("\t\tWorld Wide Name: %s\n", worldWideName);
   jout("\t\tDevice Interface: %s\n", deviceInterface);
-  jout("\t\tDevice Capacity in Bytes: %s [%s]\n", capacityInBytes, capacityFormatted);
-  jout("\t\tPhysical Sector Size: %" PRIu64 " bytes\n", farmLog.driveInformation.psecSize);
-  jout("\t\tLogical Sector Size: %" PRIu64 " bytes\n", farmLog.driveInformation.lsecSize);
-  jout("\t\tDevice Buffer Size: %s [%s]\n", bufferInBytes, bufferFormatted);
+  jout("\t\tDevice Capacity in Sectors: %" PRIu64 "\n", farmLog.driveInformation.deviceCapacity);
+  jout("\t\tPhysical Sector Size: %" PRIu64 "\n", farmLog.driveInformation.psecSize);
+  jout("\t\tLogical Sector Size: %" PRIu64 "\n", farmLog.driveInformation.lsecSize);
+  jout("\t\tDevice Buffer Size: %" PRIu64 "\n", farmLog.driveInformation.deviceBufferSize);
   jout("\t\tNumber of Heads: %" PRIu64 "\n", farmLog.driveInformation.heads);
   jout("\t\tDevice Form Factor: %s\n", formFactor);
   jout("\t\tRotation Rate: %" PRIu64 " rpm\n", farmLog.driveInformation.rotationRate);
@@ -257,15 +254,15 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
 
   // Page 3 flash-LED information
   uint8_t index; 
-  size_t flash_led_array_size = sizeof(farmLog.error.flashLEDArray) / sizeof(farmLog.error.flashLEDArray[0]);
+  size_t flash_led_size = sizeof(farmLog.error.flashLEDArray) / sizeof(farmLog.error.flashLEDArray[0]);
   jout("\t\tTotal Flash LED (Assert) Events: %" PRIu64 "\n", farmLog.error.totalFlashLED);
   jout("\t\tIndex of the last Flash LED: %" PRIu64 "\n", farmLog.error.indexFlashLED);
-  for ( uint8_t i = flash_led_array_size; i > 0; i-- ) {
-     index = (i - farmLog.error.indexFlashLED + flash_led_array_size) % flash_led_array_size;
-     jout("\t\tFlash LED Event %" PRIu64 ":\n", flash_led_array_size - i);
+  for ( uint8_t i = flash_led_size; i > 0; i-- ) {
+     index = (i - farmLog.error.indexFlashLED + flash_led_size) % flash_led_size;
+     jout("\t\tFlash LED Event %" PRIu64 ":\n", flash_led_size - i);
      jout("\t\t\tEvent Information: 0x%016" PRIx64 "\n", farmLog.error.flashLEDArray[index]);
-     jout("\t\t\tTimestamp of Event %" PRIu64 " (hours): %" PRIu64 "\n", flash_led_array_size - i, farmLog.error.universalTimestampFlashLED[index]);
-     jout("\t\t\tPower Cycle Event %" PRIu64 ": %" PRIx64 "\n", flash_led_array_size - i, farmLog.error.powerCycleFlashLED[index]);
+     jout("\t\t\tTimestamp of Event %" PRIu64 " (hours): %" PRIu64 "\n", flash_led_size - i, farmLog.error.universalTimestampFlashLED[index]);
+     jout("\t\t\tPower Cycle Event %" PRIu64 ": %" PRIx64 "\n", flash_led_size - i, farmLog.error.powerCycleFlashLED[index]);
   }
 
   // Page 3 unrecoverable errors by-head
@@ -320,15 +317,15 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jout("\t\tLBAs Corrected By Parity Sector: %" PRIi64 "\n", farmLog.reliability.numberLBACorrectedParitySector);
 
   // Page 5 by-head reliability parameters
-  ata_farm_by_head_field_to_text("DVGA Skip Write Detect by Head", farmLog.reliability.DVGASkipWriteDetect, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_text("RVGA Skip Write Detect by Head", farmLog.reliability.RVGASkipWriteDetect, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_text("FVGA Skip Write Detect by Head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_text("Skip Write Detect Threshold Exceeded by Head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_text("Write Power On (hrs) by Head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_text("MR Head Resistance from Head", (int64_t *)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_text("Second MR Head Resistance by Head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_text("Number of Reallocated Sectors by Head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_text("Number of Reallocation Candidate Sectors by Head", farmLog.reliability.reallocationCandidates, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("DVGA Skip Write Detect by Head", farmLog.reliability.DVGASkipWriteDetect, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("RVGA Skip Write Detect by Head", farmLog.reliability.RVGASkipWriteDetect, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("FVGA Skip Write Detect by Head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Skip Write Detect Threshold Exceeded by Head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Write Power On (hrs) by Head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("MR Head Resistance from Head", (int64_t *)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Second MR Head Resistance by Head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Number of Reallocated Sectors by Head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Number of Reallocation Candidate Sectors by Head", farmLog.reliability.reallocationCandidates, farmLog.driveInformation.heads);
 
   // Print JSON if --json or -j is specified
   json::ref jref = jglb["seagate_farm_log"];
@@ -349,7 +346,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jref1["serial_number"] = serialNumber;
   jref1["world_wide_name"] = worldWideName;
   jref1["device_interface"] = deviceInterface;
-  jref1["device_capacity_in_bytes"] = farmLog.driveInformation.deviceCapacity * farmLog.driveInformation.lsecSize;
+  jref1["device_capacity_in_sectors"] = farmLog.driveInformation.deviceCapacity;
   jref1["physical_sector_size"] = farmLog.driveInformation.psecSize;
   jref1["logical_sector_size"] = farmLog.driveInformation.lsecSize;
   jref1["device_buffer_size"] = farmLog.driveInformation.deviceBufferSize;
@@ -416,8 +413,8 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jref3["total_flash_led_errors"] = farmLog.error.totalFlashLED;
 
   // Page 3 Flash-LED Information
-  for ( uint8_t i = flash_led_array_size; i > 0; i-- ) {
-     index = (i - farmLog.error.indexFlashLED + flash_led_array_size) % flash_led_array_size;
+  for ( uint8_t i = flash_led_size; i > 0; i-- ) {
+     index = (i - farmLog.error.indexFlashLED + flash_led_size) % flash_led_size;
      sprintf(buffer, "flash_led_event_%i", index);
      json::ref jref3a = jref3[buffer];
      jref3a["timestamp_of_event"] = farmLog.error.universalTimestampFlashLED[index];
@@ -476,15 +473,15 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jref5["lbas_corrected_by_parity_sector"] = farmLog.reliability.numberLBACorrectedParitySector;
 
   // Page 5: Reliability Statistics By Head
-  ata_farm_by_head_field_to_json(jref5, buffer, "dvga_skip_write_detect_by_head", farmLog.reliability.DVGASkipWriteDetect, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_json(jref5, buffer, "rvga_skip_write_detect_by_head", farmLog.reliability.RVGASkipWriteDetect, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_json(jref5, buffer, "fvga_skip_write_detect_by_head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_json(jref5, buffer, "skip_write_detect_threshold_exceeded_by_head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_json(jref5, buffer, "write_workload_power_on_time_by_head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_json(jref5, buffer, "mr_head_resistance_from_head", (int64_t *)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_json(jref5, buffer, "second_mr_head_resistance_by_head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_json(jref5, buffer, "number_of_reallocated_sectors_by_head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
-  ata_farm_by_head_field_to_json(jref5, buffer, "number_of_reallocation_candidate_sectors_by_head", farmLog.reliability.reallocationCandidates, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jref5, buffer, "dvga_skip_write_detect_by_head", farmLog.reliability.DVGASkipWriteDetect, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jref5, buffer, "rvga_skip_write_detect_by_head", farmLog.reliability.RVGASkipWriteDetect, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jref5, buffer, "fvga_skip_write_detect_by_head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jref5, buffer, "skip_write_detect_threshold_exceeded_by_head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jref5, buffer, "write_workload_power_on_time_by_head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jref5, buffer, "mr_head_resistance_from_head", (int64_t *)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jref5, buffer, "second_mr_head_resistance_by_head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jref5, buffer, "number_of_reallocated_sectors_by_head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jref5, buffer, "number_of_reallocation_candidate_sectors_by_head", farmLog.reliability.reallocationCandidates, farmLog.driveInformation.heads);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -497,105 +494,359 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
  *  @param  farmLog:  Pointer to parsed farm log (const scsiFarmLog&)
  */
 void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
-  size_t n = farmLog.driveInformation.heads;
+  // Get device information
+  char serialNumber[sizeof(farmLog.driveInformation.serialNumber)+sizeof(farmLog.driveInformation.serialNumber2)+1];
+  farm_format_id_string(serialNumber, farmLog.driveInformation.serialNumber, farmLog.driveInformation.serialNumber2);
+
+  char worldWideName[sizeof(farmLog.driveInformation.worldWideName)+sizeof(farmLog.driveInformation.worldWideName2)+1];
+  sprintf(worldWideName, "0x%" PRIx64 "%" PRIx64, farmLog.driveInformation.worldWideName2, farmLog.driveInformation.worldWideName);
+
+  char firmwareRev[sizeof(farmLog.driveInformation.firmwareRev)+sizeof(farmLog.driveInformation.firmwareRev2)+1];
+  farm_format_id_string(firmwareRev, farmLog.driveInformation.firmwareRev, farmLog.driveInformation.firmwareRev2);
+
+  char deviceInterface[sizeof(farmLog.driveInformation.deviceInterface)+1];
+  farm_format_id_string(deviceInterface, farmLog.driveInformation.deviceInterface);
+
+  char dateOfAssembly[sizeof(farmLog.driveInformation.dateOfAssembly)+1];
+  farm_format_id_string(dateOfAssembly, farmLog.driveInformation.dateOfAssembly);
+
+  const char * formFactor = farm_get_form_factor(farmLog.driveInformation.factor); 
+
+  const char * recordingType = farm_get_recording_type(farmLog.driveInformation2.driveRecordingType);
+
+  char productID[sizeof(farmLog.driveInformation2.productID)*4+1];
+  farm_format_id_string(productID, farmLog.driveInformation2.productID);
+  farm_format_id_string(&productID[strlen(productID)], farmLog.driveInformation2.productID2);
+  farm_format_id_string(&productID[strlen(productID)], farmLog.driveInformation2.productID3);
+  farm_format_id_string(&productID[strlen(productID)], farmLog.driveInformation2.productID4);
+
   // Print plain-text
   jout("\nSeagate Field Access Reliability Metrics log (FARM) (SCSI Log page 0x3D, sub-page 0x3)\n");
+
   // Parameter 0: Log Header
   jout("\tFARM Log Parameter 0: Log Header\n");
   jout("\t\tFARM Log Version: %" PRIu64 ".%" PRIu64 "\n", farmLog.header.majorRev, farmLog.header.minorRev);
+  jout("\t\tPages Supported: %" PRIu64 "\n", farmLog.header.parametersSupported);
+  jout("\t\tLog Size: %" PRIu64 "\n", farmLog.header.logSize);
+  jout("\t\tHeads Supported: %" PRIu64 "\n", farmLog.header.headsSupported);
+  jout("\t\tReason for Frame Capture: %" PRIu64 "\n", farmLog.header.frameCapture);
+
   // Parameter 1: Drive Information
   jout("\tFARM Log Parameter 1: Drive Information\n");
-  jout("\n");
-  // Parameter 2/6: Workload Statistics
-  jout("\tFARM Log Parameter 2/6: Workload Statistics\n");
-  jout("\n");
+  jout("\t\tSerial Number: %s\n", serialNumber);
+  jout("\t\tWorld Wide Name: %s\n", worldWideName);
+  jout("\t\tFirmware Rev: %s\n", firmwareRev);
+  jout("\t\tDevice Interface: %s\n", deviceInterface);
+  jout("\t\tDevice Capacity in Sectors: %" PRIu64 "\n", farmLog.driveInformation.deviceCapacity);
+  jout("\t\tReason for Frame Capture: %" PRIu64 "\n", farmLog.driveInformation.psecSize);
+  jout("\t\tLogical Sector Size: %" PRIu64 "\n", farmLog.driveInformation.lsecSize);
+  jout("\t\tDevice Buffer Size: %" PRIu64 "\n", farmLog.driveInformation.deviceBufferSize);
+  jout("\t\tNumber of heads: %" PRIu64 "\n", farmLog.driveInformation.heads);
+  jout("\t\tDevice form factor: %s\n", formFactor);
+  jout("\t\tRotation Rate: %" PRIu64 "\n", farmLog.driveInformation.rotationRate);
+  jout("\t\tPower on Hour: %" PRIu64 "\n", farmLog.driveInformation.poh);
+  jout("\t\tPower Cycle count: %" PRIu64 "\n", farmLog.driveInformation.powerCycleCount);
+  jout("\t\tHardware Reset count: %" PRIu64 "\n", farmLog.driveInformation.resetCount);
+  jout("\t\tDate of Assembled: %s\n", dateOfAssembly);
+
+  // Parameter 2: Workload Statistics
+  jout("\tFARM Log Parameter 2: Workload Statistics\n");
+  jout("\t\tTotal Number of Read Commands: %" PRIu64 "\n", farmLog.workload.totalReadCommands);
+  jout("\t\tTotal Number of Write Commands: %" PRIu64 "\n", farmLog.workload.totalWriteCommands);
+  jout("\t\tTotal Number of Random Read Cmds: %" PRIu64 "\n", farmLog.workload.totalRandomReads);
+  jout("\t\tTotal Number of Random Write Cmds: %" PRIu64 "\n", farmLog.workload.totalRandomWrites);
+  jout("\t\tTotal Number of Other Commands: %" PRIu64 "\n", farmLog.workload.totalNumberofOtherCMDS);
+  jout("\t\tLogical Sectors Written: %" PRIu64 "\n", farmLog.workload.logicalSecWritten);
+  jout("\t\tLogical Sectors Read: %" PRIu64 "\n", farmLog.workload.logicalSecRead);
+  jout("\t\tNumber of Read commands from 0-3.125%% of LBA space: %" PRIu64 "\n", farmLog.workload.readCommandsByRadius1);
+  jout("\t\tNumber of Read commands from 3.125-25%% of LBA space: %" PRIu64 "\n", farmLog.workload.readCommandsByRadius2);
+  jout("\t\tNumber of Read commands from 25-50%% of LBA space: %" PRIu64 "\n", farmLog.workload.readCommandsByRadius3);
+  jout("\t\tNumber of Read commands from 50-100%% of LBA space: %" PRIu64 "\n", farmLog.workload.readCommandsByRadius4);
+  jout("\t\tNumber of Write commands from 0-3.125%% of LBA space: %" PRIu64 "\n", farmLog.workload.writeCommandsByRadius1);
+  jout("\t\tNumber of Write commands from 3.125-25%% of LBA space: %" PRIu64 "\n", farmLog.workload.writeCommandsByRadius2);
+  jout("\t\tNumber of Write commands from 25-50%% of LBA space: %" PRIu64 "\n", farmLog.workload.writeCommandsByRadius3);
+  jout("\t\tNumber of Write commands from 50-100%% of LBA space: %" PRIu64 "\n", farmLog.workload.writeCommandsByRadius4);
+
   // Parameter 3: Error Statistics
   jout("\tFARM Log Parameter 3: Error Statistics\n");
-  jout("\t\tNumber of Unrecoverable Read Errors: %" PRIu64 "\n", farmLog.error.totalUnrecoverableReadErrors);
-  jout("\t\tNumber of Unrecoverable Write Errors: %" PRIu64 "\n", farmLog.error.totalUnrecoverableWriteErrors);
+  jout("\t\tUnrecoverable Read Errors: %" PRIu64 "\n", farmLog.error.totalUnrecoverableReadErrors);
+  jout("\t\tUnrecoverable Write Errors: %" PRIu64 "\n", farmLog.error.totalUnrecoverableWriteErrors);
   jout("\t\tNumber of Mechanical Start Failures: %" PRIu64 "\n", farmLog.error.totalMechanicalStartRetries);
-  // Parameter 4/7: Environment Statistics
-  jout("\tFARM Log Parameter 4/7: Environment Statistics\n");
-  jout("\t\tCurrent 12V Input (mV): %" PRIu64 "\n", farmLog.environment2.current12v);
-  jout("\t\tMinimum 12V input from last 3 SMART Summary Frames (mV): %" PRIu64 "\n", farmLog.environment2.min12v);
-  jout("\t\tMaximum 12V input from last 3 SMART Summary Frames (mV): %" PRIu64 "\n", farmLog.environment2.max12v);
-  jout("\t\tCurrent 5V Input (mV): %" PRIu64 "\n", farmLog.environment2.current5v);
-  jout("\t\tMinimum 5V input from last 3 SMART Summary Frames (mV): %" PRIu64 "\n", farmLog.environment2.min5v);
-  jout("\t\tMaximum 5V input from last 3 SMART Summary Frames (mV): %" PRIu64 "\n", farmLog.environment2.max5v);
-  jout("\t\t12V Power Average (mW): %" PRIu64 "\n", farmLog.environment.powerAverage12v);
+  jout("\t\tFRU code if smart trip from most recent SMART Frame: %" PRIu64 "\n", farmLog.error.tripCode);
+  jout("\t\tInvalid DWord Count Port A: %" PRIu64 "\n", farmLog.error.invalidDWordCountA);
+  jout("\t\tInvalid DWord Count Port B: %" PRIu64 "\n", farmLog.error.invalidDWordCountB);
+  jout("\t\tDisparity Error Count Port A: %" PRIu64 "\n", farmLog.error.disparityErrorCodeA);
+  jout("\t\tDisparity Error Count Port B: %" PRIu64 "\n", farmLog.error.disparityErrorCodeB);
+  jout("\t\tLoss Of DWord Sync Port A: %" PRIu64 "\n", farmLog.error.lossOfDWordSyncA);
+  jout("\t\tLoss Of DWord Sync Port B: %" PRIu64 "\n", farmLog.error.lossOfDWordSyncB);
+  jout("\t\tPhy Reset Problem Port A: %" PRIu64 "\n", farmLog.error.phyResetProblemA);
+  jout("\t\tPhy Reset Problem Port B: %" PRIu64 "\n", farmLog.error.phyResetProblemB);
+
+  // Parameter 4: Environment Statistics
+  jout("\tFARM Log Parameter 4: Environment Statistics\n");
+  jout("\t\tCurrent Temperature (Celsius): %" PRIu64 "\n", farmLog.environment.curentTemp);
+  jout("\t\tHighest Temperature: %" PRIu64 "\n", farmLog.environment.highestTemp);
+  jout("\t\tLowest Temperature: %" PRIu64 "\n", farmLog.environment.lowestTemp);
+  jout("\t\tSpecified Max Operating Temperature: %" PRIu64 "\n", farmLog.environment.maxTemp);
+  jout("\t\tSpecified Min Operating Temperature: %" PRIu64 "\n", farmLog.environment.minTemp);
+  jout("\t\tCurrent Relative Humidity: %" PRIu64 "\n", farmLog.environment.humidity);
+  jout("\t\tCurrent Motor Power: %" PRIu64 "\n", farmLog.environment.currentMotorPower);
+  jout("\t\t12V Power Average: %" PRIu64 "\n", farmLog.environment.powerAverage12v);
+  jout("\t\t12V Power Minimum: %" PRIu64 "\n", farmLog.environment.powerMin12v);
+  jout("\t\t12V Power Maximum: %" PRIu64 "\n", farmLog.environment.powerMax12v);
+  jout("\t\t5V Power Average: %" PRIu64 "\n", farmLog.environment.powerAverage5v);
+  jout("\t\t5V Power Minimum: %" PRIu64 "\n", farmLog.environment.powerMin5v);
+  jout("\t\t5V Power Maximum: %" PRIu64 "\n", farmLog.environment.powerMax5v);
+
   // Parameter 5: Reliability Statistics
   jout("\tFARM Log Parameter 5: Reliability Statistics\n");
-  jout("\n");
+  jout("\t\tHelium Pressure Threshold Tripped: %" PRIi64 "\n", farmLog.reliability.heliumPresureTrip);
+
+  // Parameter 6: Drive Information Continued
+  jout("\tFARM Log Parameter 6: Drive Information Continued\n");
+  jout("\t\tDepopulation Head Mask: %" PRIu64 "\n", farmLog.driveInformation2.depopulationHeadMask);
+  jout("\t\tProduct ID: %s\n", productID);
+  jout("\t\tDrive Recording Type: %s\n", recordingType);
+  jout("\t\tHas Drive been Depopped: %" PRIu64 "\n", farmLog.driveInformation2.dpopped);
+  jout("\t\tMax Number of Available Sectors for Reassignment: %" PRIu64 "\n", farmLog.driveInformation2.maxNumberForReasign);
+  jout("\t\tTime to ready of the last power cycle (sec): %" PRIu64 "\n", farmLog.driveInformation2.timeToReady);
+  jout("\t\tTime drive is held in staggered spin (sec): %" PRIu64 "\n", farmLog.driveInformation2.timeHeld);
+  jout("\t\tLast Servo Spin up Time (sec): %" PRIu64 "\n", farmLog.driveInformation2.lastServoSpinUpTime);
+
+  // Parameter 7: Environment Information Continued
+  jout("\tFARM Log Parameter 7: Environment Information Continued\n");
+  jout("\t\tCurrent 12 volts: %" PRIu64 "\n", farmLog.environment2.current12v);
+  jout("\t\tMinimum 12 volts: %" PRIu64 "\n", farmLog.environment2.min12v);
+  jout("\t\tMaximum 12 volts: %" PRIu64 "\n", farmLog.environment2.max12v);
+  jout("\t\tCurrent 5 volts: %" PRIu64 "\n", farmLog.environment2.current5v);
+  jout("\t\tMinimum 5 volts: %" PRIu64 "\n", farmLog.environment2.min5v);
+  jout("\t\tMaximum 5 volts: %" PRIu64 "\n", farmLog.environment2.max5v);
+
   // "By Head" Parameters
-  jout("\tFARM Log \"By Head\" Parameters\n");
-  jout("\t\tNumber of Reallocated Sectors:\n");
-  for (unsigned i = 0; i < n; i++) {
-    jout("\t\t\tHead %i: %" PRIu64 "\n", i, farmLog.totalReallocations.headValue[i]);
-  }
-  jout("\t\tNumber of Reallocated Candidate Sectors:\n");
-  for (unsigned i = 0; i < n; i++) {
-    jout("\t\t\tHead %i: %" PRIu64 "\n", i, farmLog.totalReallocationCanidates.headValue[i]);
-  }
+  jout("\tFARM Log \"By Head\" Information\n");
+  farm_print_by_head_to_text("MR Head Resistance", (int64_t *)farmLog.mrHeadResistance.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Number of Reallocated Sectors", (int64_t *)farmLog.totalReallocations.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Number of Reallocation Candidate Sectors", (int64_t *)farmLog.totalReallocationCanidates.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Write Power On (hrs)", (int64_t *)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Cum Lifetime Unrecoverable Read Repeating", (int64_t *)farmLog.cumulativeUnrecoverableReadRepeat.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Cum Lifetime Unrecoverable Read Unique", (int64_t *)farmLog.cumulativeUnrecoverableReadUnique.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Second MR Head Resistance", (int64_t *)farmLog.secondMRHeadResistance.headValue, farmLog.driveInformation.heads);
+
   // "By Actuator" Parameters
-  jout("\tFARM Log \"By Actuator\" Parameters\n");
   const scsiFarmByActuator actrefs[] = {
     farmLog.actuator0, farmLog.actuator1, farmLog.actuator2, farmLog.actuator3
   };
-  for (unsigned i = 0; i < sizeof(actrefs) /sizeof(actrefs[0]); i++) {
+  for (unsigned i = 0; i < sizeof(actrefs)/sizeof(actrefs[0]); i++) {
     const scsiFarmByActuator& ar = actrefs[i];
-    jout("\t\tActuator %u:\n", i);
-    jout("\t\t\tHead Load Events: %" PRIu64 "\n", ar.headLoadEvents);
-    jout("\t\t\tLBAs Corrected By Intermediate Super Parity: %" PRIu64 "\n", ar.lbasCorrectedISP);
-    jout("\t\t\tLBAs Corrected By Parity Sector: %" PRIu64 "\n", ar.numberLBACorrectedParitySector);
+    jout("\tFARM Log Actuator Information 0x%" PRIx64 "\n", ar.actuatorID);
+    jout("\t\tHead Load Events: %" PRIu64 "\n", ar.headLoadEvents);
+    jout("\t\tTimeStamp of last IDD test: %" PRIu64 "\n", ar.timelastIDDTest);
+    jout("\t\tSub-Command of Last IDD Test: %" PRIu64 "\n", ar.subcommandlastIDDTest);
+    jout("\t\tNumber of Reallocated Sector Reclamations: %" PRIu64 "\n", ar.numberGListReclam);
+    jout("\t\tServo Status: %" PRIu64 "\n", ar.servoStatus);
+    jout("\t\tNumber of Slipped Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberSlippedSectorsBeforeIDD);
+    jout("\t\tNumber of Slipped Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberSlippedSectorsAfterIDD);
+    jout("\t\tNumber of Resident Reallocated Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberResidentReallocatedBeforeIDD);
+    jout("\t\tNumber of Resident Reallocated Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberResidentReallocatedAfterIDD);
+    jout("\t\tSuccessfully Scrubbed Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberScrubbedSectorsBeforeIDD);
+    jout("\t\tSuccessfully Scrubbed Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberScrubbedSectorsAfterIDD);
+    jout("\t\tNumber of DOS Scans Performed: %" PRIu64 "\n", ar.dosScansPerformed);
+    jout("\t\tNumber of LBAs Corrected by ISP: %" PRIu64 "\n", ar.lbasCorrectedISP);
+    jout("\t\tNumber of Valid Parity Sectors: %" PRIu64 "\n", ar.numberValidParitySectors);
+    jout("\t\tNumber of LBAs Corrected by Parity Sector: %" PRIu64 "\n", ar.numberLBACorrectedParitySector);
   }
+
+  // "By Actuator" Flash LED Information
+  uint8_t index; 
+  size_t flash_led_size;
+  const scsiFarmByActuatorFLED fledrefs[] = {
+    farmLog.actuatorFLED0, farmLog.actuatorFLED1, farmLog.actuatorFLED2, farmLog.actuatorFLED3
+  };
+  for (unsigned i = 0; i < sizeof(fledrefs)/sizeof(fledrefs[0]); i++) {
+    const scsiFarmByActuatorFLED& fled = fledrefs[i];
+    jout("\tFARM Log Actuator 0x%" PRIx64 " Flash LED Information\n", fled.actuatorID);
+    jout("\t\tTotal Flash LED Events: %" PRIu64 "\n", fled.totalFlashLED);
+    jout("\t\tIndex of Last Flash LED: %" PRIu64 "\n", fled.indexFlashLED);
+
+    flash_led_size = sizeof(fled.flashLEDArray) / sizeof(fled.flashLEDArray[0]);
+    for ( uint8_t j = flash_led_size; j > 0; j-- ) {
+      index = (j - fled.indexFlashLED + flash_led_size) % flash_led_size;
+      jout("\t\tEvent %" PRIu64 ":\n", flash_led_size - j);
+      jout("\t\t\tEvent Information: 0x%016" PRIx64 "\n", fled.flashLEDArray[index]);
+      jout("\t\t\tTimestamp of Event %" PRIu64 " (hours): %" PRIu64 "\n", flash_led_size - j, fled.universalTimestampFlashLED[index]);
+      jout("\t\t\tPower Cycle Event %" PRIu64 ": %" PRIx64 "\n", flash_led_size - j, fled.powerCycleFlashLED[index]);
+    }
+  }
+
+  // "By Actuator" Reallocation Information
+  const scsiFarmByActuatorReallocation ararefs[] = {
+    farmLog.actuatorReallocation0, farmLog.actuatorReallocation1, farmLog.actuatorReallocation2, farmLog.actuatorReallocation3
+  };
+  for (unsigned i = 0; i < sizeof(ararefs)/sizeof(ararefs[0]); i++) {
+    const scsiFarmByActuatorReallocation& ara = ararefs[i];
+    jout("\tFARM Log Actuator 0x%" PRIx64 " Reallocation\n", ara.actuatorID);
+    jout("\t\tNumber of Reallocated Sectors: %" PRIu64 "\n", ara.totalReallocations);
+    jout("\t\tNumber of Reallocated Candidate Sectors: %" PRIu64 "\n", ara.totalReallocationCanidates);
+  }
+
   // Print JSON if --json or -j is specified
   json::ref jref = jglb["seagate_farm_log"];
+
   // Parameter 0: Log Header
-  json::ref jref0 = jref["parameter_0_log_header"];
-  jref0["farm_log_version"][0] = farmLog.header.majorRev;
-  jref0["farm_log_version"][1] = farmLog.header.minorRev;
+  json::ref jref0 = jref["log_header"];
+  jref0["farm_log_version"] = farmLog.header.minorRev;
+  jref0["pages_supported"] = farmLog.header.parametersSupported;
+  jref0["log_size"] = farmLog.header.logSize;
+  jref0["heads_supported"] = farmLog.header.headsSupported;
+  jref0["reason_for_frame_capture"] = farmLog.header.frameCapture;
+
   // Parameter 1: Drive Information
-  // json::ref jref1 = jref["parameter_1_drive_information"];
-  // Parameter 2/6: Workload Statistics
-  // json::ref jref2 = jref["parameter_2_or_6_workload_statistics"];
+  json::ref jref1 = jref["drive_information"];
+  jref1["serial_number"] = serialNumber;
+  jref1["world_wide_name"] = worldWideName;
+  jref1["firmware_rev"] = firmwareRev;
+  jref1["device_interface"] = deviceInterface;
+  jref1["device_capacity_in_sectors"] = farmLog.driveInformation.deviceCapacity;
+  jref1["reason_for_frame_capture"] = farmLog.driveInformation.psecSize;
+  jref1["logical_sector_size"] = farmLog.driveInformation.lsecSize;
+  jref1["device_buffer_size"] = farmLog.driveInformation.deviceBufferSize;
+  jref1["number_of_heads"] = farmLog.driveInformation.heads;
+  jref1["device_form_factor"] = formFactor;
+  jref1["rotation_rate"] = farmLog.driveInformation.rotationRate;
+  jref1["power_on_hour"] = farmLog.driveInformation.poh;
+  jref1["power_cycle_count"] = farmLog.driveInformation.powerCycleCount;
+  jref1["hardware_reset_count"] = farmLog.driveInformation.resetCount;
+  jref1["date_of_assembled"] = dateOfAssembly;
+
+  // Parameter 2: Workload Statistics
+  json::ref jref2 = jref["workload_statistics"];
+  jref2["total_number_of_read_commands"] = farmLog.workload.totalReadCommands;
+  jref2["total_number_of_write_commands"] = farmLog.workload.totalWriteCommands;
+  jref2["total_number_of_random_read_cmds"] = farmLog.workload.totalRandomReads;
+  jref2["total_number_of_random_write_cmds"] = farmLog.workload.totalRandomWrites;
+  jref2["total_number_of_other_commands"] = farmLog.workload.totalNumberofOtherCMDS;
+  jref2["logical_sectors_written"] = farmLog.workload.logicalSecWritten;
+  jref2["logical_sectors_read"] = farmLog.workload.logicalSecRead;
+  jref2["number_of_read_commands_from_0_to_3_percent_of_lba_space"] = farmLog.workload.readCommandsByRadius1;
+  jref2["number_of_read_commands_from_3_to_25_percent_of_lba_space"] = farmLog.workload.readCommandsByRadius2;
+  jref2["number_of_read_commands_from_25_to_50_percent_of_lba_space"] = farmLog.workload.readCommandsByRadius3;
+  jref2["number_of_read_commands_from_50_to_100_percent_of_lba_space"] = farmLog.workload.readCommandsByRadius4;
+  jref2["number_of_write_commands_from_0_to_3_percent_of_lba_space"] = farmLog.workload.writeCommandsByRadius1;
+  jref2["number_of_write_commands_from_3_to_25_percent_of_lba_space"] = farmLog.workload.writeCommandsByRadius2;
+  jref2["number_of_write_commands_from_25_to_50_percent_of_lba_space"] = farmLog.workload.writeCommandsByRadius3;
+  jref2["number_of_write_commands_from_50_to_100_percent_of_lba_space"] = farmLog.workload.writeCommandsByRadius4;
+
   // Parameter 3: Error Statistics
-  json::ref jref3 = jref["parameter_3_error_statistics"];
-  jref3["number_of_unrecoverable_read_errors"] = farmLog.error.totalUnrecoverableReadErrors;
-  jref3["number_of_unrecoverable_write_errors"] = farmLog.error.totalUnrecoverableWriteErrors;
+  json::ref jref3 = jref["error_statistics"];
+  jref3["unrecoverable_read_errors"] = farmLog.error.totalUnrecoverableReadErrors;
+  jref3["unrecoverable_write_errors"] = farmLog.error.totalUnrecoverableWriteErrors;
   jref3["number_of_mechanical_start_failures"] = farmLog.error.totalMechanicalStartRetries;
-  // Parameter 4/7: Environment Statistics
-  json::ref jref4 = jref["parameter_4_or_7_environment_statistics"];
-  jref4["current_12_volt_input_in_mv"] = farmLog.environment2.current12v;
-  jref4["minimum_12_volt_input_in_mv"] = farmLog.environment2.min12v;
-  jref4["maximum_12_volt_input_in_mv"] = farmLog.environment2.max12v;
-  jref4["current_5_volt_input_in_mv"] = farmLog.environment2.current5v;
-  jref4["minimum_5_volt_input_in_mv"] = farmLog.environment2.min5v;
-  jref4["maximum_5_volt_input_in_mv"] = farmLog.environment2.max5v;
-  jref4["twelve_volt_power_average_in_mw"] = farmLog.environment.powerAverage12v;
+  jref3["fru_code_if_smart_trip_from_most_recent_smart_frame"] = farmLog.error.tripCode;
+  jref3["invalid_dword_count_port_a"] = farmLog.error.invalidDWordCountA;
+  jref3["invalid_dword_count_port_b"] = farmLog.error.invalidDWordCountB;
+  jref3["disparity_error_count_port_a"] = farmLog.error.disparityErrorCodeA;
+  jref3["disparity_error_count_port_b"] = farmLog.error.disparityErrorCodeB;
+  jref3["loss_of_dword_sync_port_a"] = farmLog.error.lossOfDWordSyncA;
+  jref3["loss_of_dword_sync_port_b"] = farmLog.error.lossOfDWordSyncB;
+  jref3["phy_reset_problem_port_a"] = farmLog.error.phyResetProblemA;
+  jref3["phy_reset_problem_port_b"] = farmLog.error.phyResetProblemB;
+
+  // Parameter 4: Environment Statistics
+  json::ref jref4 = jref["environment_statistics"];
+  jref4["current_temperature_(celsius)"] = farmLog.environment.curentTemp;
+  jref4["highest_temperature"] = farmLog.environment.highestTemp;
+  jref4["lowest_temperature"] = farmLog.environment.lowestTemp;
+  jref4["specified_max_operating_temperature"] = farmLog.environment.maxTemp;
+  jref4["specified_min_operating_temperature"] = farmLog.environment.minTemp;
+  jref4["current_relative_humidity"] = farmLog.environment.humidity;
+  jref4["current_motor_power"] = farmLog.environment.currentMotorPower;
+  jref4["12v_power_average"] = farmLog.environment.powerAverage12v;
+  jref4["12v_power_minimum"] = farmLog.environment.powerMin12v;
+  jref4["12v_power_maximum"] = farmLog.environment.powerMax12v;
+  jref4["5v_power_average"] = farmLog.environment.powerAverage5v;
+  jref4["5v_power_minimum"] = farmLog.environment.powerMin5v;
+  jref4["5v_power_maximum"] = farmLog.environment.powerMax5v;
+
   // Parameter 5: Reliability Statistics
-  // json::ref jref5 = jref["parameter_5_reliability_statistics"];
+  json::ref jref5 = jref["reliability_statistics"];
+//jref5["number_of_raw_operations"] = farmLog.reliability.xxxxxx;
+//jref5["cumulative_lifetime_ecc_due_to_erc"] = farmLog.reliability.xxxxxx;
+  jref5["helium_pressure_threshold_tripped"] = farmLog.reliability.heliumPresureTrip;
+
+  // Parameter 6: Drive Information Continued
+  json::ref jref6 = jref["drive_information_continued"];
+  jref6["depopulation_head_mask"] = farmLog.driveInformation2.depopulationHeadMask;
+  jref6["product_id"] = productID;
+  jref6["drive_recording_type"] = recordingType;
+  jref6["has_drive_been_depopped"] = farmLog.driveInformation2.dpopped;
+  jref6["max_number_of_available_sectors_for_reassignment"] = farmLog.driveInformation2.maxNumberForReasign;
+  jref6["time_to_ready_of_the_last_power_cycle_(sec)"] = farmLog.driveInformation2.timeToReady;
+  jref6["time_drive_is_held_in_staggered_spin_(sec)"] = farmLog.driveInformation2.timeHeld;
+  jref6["last_servo_spin_up_time_(sec)"] = farmLog.driveInformation2.lastServoSpinUpTime;
+
+  // Parameter 7: Environment Information Continued
+  json::ref jref7 = jref["environment_information_continued"];
+  jref7["current_12_volts"] = farmLog.environment2.current12v;
+  jref7["minimum_12_volts"] = farmLog.environment2.min12v;
+  jref7["maximum_12_volts"] = farmLog.environment2.max12v;
+  jref7["current_5_volts"] = farmLog.environment2.current5v;
+  jref7["minimum_5_volts"] = farmLog.environment2.min5v;
+  jref7["maximum_5_volts"] = farmLog.environment2.max5v;
+
   // "By Head" Parameters
-  json::ref jrefh = jref["by_head_parameters"];
-  json::ref jrefh0 = jrefh["number_of_reallocated_sectors"];
-  for (unsigned i = 0; i < n; i++) {
-    char h[15];
-    sprintf(h, "head_%i", i);
-    jrefh0[h] = farmLog.totalReallocations.headValue[i];
-  }
-  json::ref jrefh1 = jrefh["number_of_reallocated_candidate_sectors"];
-  for (unsigned i = 0; i < n; i++) {
-    char h[15];
-    sprintf(h, "head_%i", i);
-    jrefh1[h] = farmLog.totalReallocationCanidates.headValue[i];
-  }
+  char buffer[128]; // Generic character buffer
+  json::ref jrefh = jref["head_information"];
+  farm_print_by_head_to_json(jrefh, buffer, "mr_head_resistance", (int64_t *)farmLog.mrHeadResistance.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "number_of_reallocated_sectors", (int64_t *)farmLog.totalReallocations.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "number_of_reallocation_candidate_sectors", (int64_t *)farmLog.totalReallocationCanidates.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "write_power_on_(hrs)", (int64_t *)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "cum_lifetime_unrecoverable_read_repeating", (int64_t *)farmLog.cumulativeUnrecoverableReadRepeat.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "cum_lifetime_unrecoverable_read_unique", (int64_t *)farmLog.cumulativeUnrecoverableReadUnique.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "second_mr_head_resistance", (int64_t *)farmLog.secondMRHeadResistance.headValue, farmLog.driveInformation.heads);
+
   // "By Actuator" Parameters
-  json::ref jrefa = jref["by_actuator_parameters"];
-  for (unsigned i = 0; i < sizeof(actrefs) /sizeof(actrefs[0]); i++) {
-    const scsiFarmByActuator& ar = actrefs[i];
-    char a[15];
-    sprintf(a, "actuator_%i", i);
-    jrefa[a]["head_load_events"] = ar.headLoadEvents;
-    jrefa[a]["lbas_corrected_by_intermediate_super_parity"] = ar.lbasCorrectedISP;
-    jrefa[a]["lbas_corrected_by_parity_sector"] = ar.numberLBACorrectedParitySector;
+  for (unsigned i = 0; i < sizeof(actrefs)/sizeof(actrefs[0]); i++) {
+    sprintf(buffer, "actuator_information_%" PRIx64, actrefs[i].actuatorID);
+    json::ref jrefa = jref[buffer];
+    jrefa["head_load_events"] = actrefs[i].headLoadEvents;
+    jrefa["timestamp_of_last_idd_test"] = actrefs[i].timelastIDDTest;
+    jrefa["sub-command_of_last_idd_test"] = actrefs[i].subcommandlastIDDTest;
+    jrefa["number_of_reallocated_sector_reclamations"] = actrefs[i].numberGListReclam;
+    jrefa["servo_status"] = actrefs[i].servoStatus;
+    jrefa["number_of_slipped_sectors_before_idd_scan"] = actrefs[i].numberSlippedSectorsBeforeIDD;
+    jrefa["number_of_slipped_sectors_before_idd_scan"] = actrefs[i].numberSlippedSectorsAfterIDD;
+    jrefa["number_of_resident_reallocated_sectors_before_idd_scan"] = actrefs[i].numberResidentReallocatedBeforeIDD;
+    jrefa["number_of_resident_reallocated_sectors_before_idd_scan"] = actrefs[i].numberResidentReallocatedAfterIDD;
+    jrefa["successfully_scrubbed_sectors_before_idd_scan"] = actrefs[i].numberScrubbedSectorsBeforeIDD;
+    jrefa["successfully_scrubbed_sectors_before_idd_scan"] = actrefs[i].numberScrubbedSectorsAfterIDD;
+    jrefa["number_of_dos_scans_performed"] = actrefs[i].dosScansPerformed;
+    jrefa["number_of_lbas_corrected_by_isp"] = actrefs[i].lbasCorrectedISP;
+    jrefa["number_of_valid_parity_sectors"] = actrefs[i].numberValidParitySectors;
+    jrefa["number_of_lbas_corrected_by_parity_sector"] = actrefs[i].numberLBACorrectedParitySector;
+  }
+
+  // "By Actuator" Flash LED Information
+  for (unsigned i = 0; i < sizeof(fledrefs)/sizeof(fledrefs[0]); i++) {
+    sprintf(buffer, "actuator_flash_led_information_%" PRIx64, fledrefs[i].actuatorID);
+    json::ref jrefa = jref[buffer];
+    jrefa["total_flash_led_events"] = fledrefs[i].totalFlashLED;
+    jrefa["index_of_last_flash_led"] = fledrefs[i].indexFlashLED;
+
+    sprintf(buffer, "event_%" PRIx64, fledrefs[i].actuatorID);
+    flash_led_size = sizeof(fledrefs[i].flashLEDArray) / sizeof(fledrefs[i].flashLEDArray[0]);
+    for ( uint8_t j = flash_led_size; j > 0; j-- ) {
+      index = (j - fledrefs[i].indexFlashLED + flash_led_size) % flash_led_size;
+      jrefa[buffer]["event_information"] = fledrefs[i].flashLEDArray[index];
+      jrefa[buffer]["timestamp_of_event"] = fledrefs[i].universalTimestampFlashLED[index];
+      jrefa[buffer]["power_cycle_event"] = fledrefs[i].powerCycleFlashLED[index];
+    }
+  }
+
+  // "By Actuator" Reallocation Information
+  for (unsigned i = 0; i < sizeof(ararefs)/sizeof(ararefs[0]); i++) {
+    sprintf(buffer, "actuator_reallocation_information_%" PRIx64, ararefs[i].actuatorID);
+    json::ref jrefa = jref[buffer];
+    jrefa["number_of_reallocated_sectors"] = ararefs[i].totalReallocations;
+    jrefa["number_of_reallocated_candidate_sectors"] = ararefs[i].totalReallocationCanidates;
   }
 }

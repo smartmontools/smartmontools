@@ -991,8 +991,6 @@ struct ata_size_info
 
 void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes);
 
-const char * ata_get_form_factor(unsigned short word168);
-
 // Convenience function for formatting strings from ata_identify_device.
 void ata_format_id_string(char * out, const unsigned char * in, int n);
 

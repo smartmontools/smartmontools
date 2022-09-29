@@ -536,10 +536,10 @@ STATIC_ASSERT(sizeof(scsiFarmEnvironmentStatistics2) == 68);
 #pragma pack(1)
 struct scsiFarmByHead {
   scsiFarmParameterHeader parameterHeader;  // Parameter Header
-  uint64_t headValue[16];                   // [16] Head Information
+  uint64_t headValue[20];                   // [16] Head Information
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmByHead) == (4 + (16 * 8)));
+STATIC_ASSERT(sizeof(scsiFarmByHead) == (4 + (20 * 8)));
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // "By Actuator" Parameters
@@ -676,7 +676,7 @@ struct scsiFarmLog {
   scsiFarmByActuatorFLED actuatorFLED3;                  // Actuator 3 FLED Information parameters
   scsiFarmByActuatorReallocation actuatorReallocation3;  // Actuator 3 Reallocation parameters
 };
-STATIC_ASSERT(sizeof(scsiFarmLog) == 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 + 68 + (47 * ((8 * 16) + 4)) + 188 * 4 + 236 * 4 + 164 * 4);
+STATIC_ASSERT(sizeof(scsiFarmLog) == 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 + 68 + (47 * ((8 * 20) + 4)) + 188 * 4 + 236 * 4 + 164 * 4);
 
 /*
  *  Determines whether the current drive is an ATA Seagate drive
