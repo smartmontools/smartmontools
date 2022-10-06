@@ -2007,7 +2007,7 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
 // Section 9.26 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
 
 static bool print_pending_defects_log(ata_device * device, unsigned nsectors,
-  unsigned max_entries)
+  unsigned max_entries, bool print_all)
 {
   // Read #entries from page 0
   unsigned char page_buf[512] = {0, };
@@ -2025,6 +2025,8 @@ static bool print_pending_defects_log(ata_device * device, unsigned nsectors,
     jout("No Defects Logged\n\n");
     return true;
   }
+  if (print_all)
+    max_entries = nentries;
 
   // Print entries
   jout("Index                LBA    Hours\n");
@@ -2717,7 +2719,8 @@ static int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * log, bool alle
 
 // Print SMART Extended Self-test Log (GP Log 0x07)
 static int PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
-                                    unsigned nsectors, unsigned max_entries)
+                                    unsigned nsectors, unsigned max_entries,
+                                    bool print_all)
 {
   json::ref jref = jglb["ata_smart_self_test_log"]["extended"];
 
@@ -2739,6 +2742,8 @@ static int PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
     pout("Invalid Self-test Log index = 0x%04x (reserved = 0x%02x)\n", logidx, log->reserved1);
     return 0;
   }
+  if (print_all)
+    max_entries = nentries;
 
   // Index base is not clearly specified by ATA8-ACS (T13/1699-D Revision 6a),
   // it is 1-based in practice.
@@ -3405,6 +3410,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        || options.smart_selective_selftest_log
        || options.smart_ext_error_log
        || options.smart_ext_selftest_log
+       || options.smart_ext_selftest_log_all
        || options.smart_auto_offl_enable
        || options.smart_auto_offl_disable
        || options.smart_selftest_type != -1
@@ -3436,10 +3442,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
           options.gp_logdir
        || options.smart_ext_error_log
        || options.smart_ext_selftest_log
+       || options.smart_ext_selftest_log_all
        || options.devstat_all_pages
        || options.devstat_ssd_page
        || !options.devstat_pages.empty()
        || options.pending_defects_log
+       || options.pending_defects_log_all
   );
 
   unsigned i;
@@ -3979,6 +3987,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       || options.smart_vendor_attrib || options.smart_error_log
       || options.smart_selftest_log  || options.smart_selective_selftest_log
       || options.smart_ext_error_log || options.smart_ext_selftest_log
+      || options.smart_ext_selftest_log_all
       || options.sct_temp_sts        || options.sct_temp_hist               )
     pout("=== START OF READ SMART DATA SECTION ===\n");
   
@@ -4250,7 +4259,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print SMART Extendend Self-test Log
   bool do_smart_selftest_log = options.smart_selftest_log;
-  if (options.smart_ext_selftest_log) {
+  if (options.smart_ext_selftest_log || options.smart_ext_selftest_log_all) {
     bool ok = false;
     unsigned nsectors = GetNumLogSectors(gplogdir, 0x07, true);
     if (!nsectors)
@@ -4265,7 +4274,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       }
       else {
-        if (PrintSmartExtSelfTestLog(log_07, nsectors, options.smart_ext_selftest_log))
+        if (PrintSmartExtSelfTestLog(log_07, nsectors, options.smart_ext_selftest_log,
+            options.smart_ext_selftest_log_all))
           returnval |= FAILLOG;
         ok = true;
       }
@@ -4459,11 +4469,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Print Pending Defects log
-  if (options.pending_defects_log) {
+  if (options.pending_defects_log || options.pending_defects_log_all) {
     unsigned nsectors = GetNumLogSectors(gplogdir, 0x0c, true);
     if (!nsectors)
       pout("Pending Defects log (GP Log 0x0c) not supported\n\n");
-    else if (!print_pending_defects_log(device, nsectors, options.pending_defects_log))
+    else if (!print_pending_defects_log(device, nsectors, options.pending_defects_log, options.pending_defects_log_all))
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   }
 
