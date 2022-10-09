@@ -1,4 +1,9 @@
-$Id: ChangeLog 5409 2022-09-18 14:53:32Z chrfranke $
+$Id: ChangeLog 5410 2022-10-09 07:00:28Z samm2 $
+
+2022-10-09  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Extend Apacer SSDs regexp based on ticket #1657
 
 2022-09-18  Christian Franke  <franke@computer.org>
 
