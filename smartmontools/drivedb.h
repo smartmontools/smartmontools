@@ -243,9 +243,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 241,raw48,Total_LBAs_Written "
   },
   { "Apacer SSDs",
-    "([1248]|1[056]|20|3[02]|40|60|64|80|12[08]|160|240|256|320|480|512|640|960|1280|1920|3840)(GB|TB) SATA Flash Drive|"
-    "S[GH]250-M2[48][02] 128GB SSD", // tested with 120GB SATA Flash Drive/SFMB6130, SH250-M242 128GB SSD/SFMB8120
-    "SFM[BC][0-9A-Z][0-9A-Z][1-9A-Z][0-9A-Z]",
+    "([1248]|1[056]|20|3[02]|40|60|64|80|12[08]|160|240|256|320|480|512|640|960|1024|1280|1920|2048|3840|4096)(GB|TB) SATA Flash Drive|"
+    "S[GHTV]250-(M2[48][02]|25) ([1248]|1[056]|20|3[02]|40|60|64|80|12[08]|160|240|256|320|480|512|640|960|1024|1280|1920|2048|3840|4096)(GB|TB) SSD", // tested with 120GB SATA Flash Drive/SFMB6130, SH250-M242 128GB SSD/SFMB8120, ST250-M280 256GB SSD/SFMD6110
+    "SFM[BCDEGHJ][0-9A-Z][0-9A-Z][1-9A-Z][0-9A-Z]",
     "",
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "

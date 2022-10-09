@@ -1,5 +1,10 @@
 $Id$
 
+2022-10-09  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Extend Apacer SSDs regexp based on ticket #1657
+
 2022-09-18  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Add IOCTL_STORAGE_PROTOCOL_COMMAND for NVMe self-tests.
