@@ -4,6 +4,7 @@ $Id$
 
 	drivedb.h:
 	- Extend Apacer SSDs regexp based on ticket #1657
+	- Swap Bad_Blk_Ct_Erl/Lat values in drivedb for "Phison Driven SSDs" (#1642)
 
 2022-09-18  Christian Franke  <franke@computer.org>
 

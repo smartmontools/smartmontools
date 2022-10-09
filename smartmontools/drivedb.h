@@ -790,7 +790,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 167,raw48,Write_Protect_Mode " // DC500
     "-v 168,raw48,SATA_Phy_Error_Count "
     "-v 169,raw48,Bad_Block_Rate " // DC500
-    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Erl/Lat " // Early bad block/Later bad block
+    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Lat/Erl " // Later bad block/Early bad block (see #1642)
     "-v 172,raw48,Erase_Fail_Count " // DC500
     "-v 173,raw16(avg16),MaxAvgErase_Ct "
     "-v 175,raw48,Not_In_Use "
@@ -840,7 +840,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 10,raw48,Not_In_Use "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 168,raw48,SATA_Phy_Error_Count "
-    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Erl/Lat " // Early bad block/Later bad block
+    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Lat/Erl " // Later bad block/Early bad block (see #1642)
     "-v 173,raw16(avg16),MaxAvgErase_Ct "
     "-v 175,raw48,Not_In_Use "
     "-v 183,raw48,Unknown_Attribute "
