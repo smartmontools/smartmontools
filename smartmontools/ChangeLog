@@ -1,4 +1,4 @@
-$Id: ChangeLog 5412 2022-10-09 07:44:48Z samm2 $
+$Id: ChangeLog 5413 2022-10-09 07:55:06Z samm2 $
 
 2022-10-09  Alex Samorukov  <samm@os2.kiev.ua>
 
@@ -6,6 +6,7 @@ $Id: ChangeLog 5412 2022-10-09 07:44:48Z samm2 $
 	- Extend Apacer SSDs regexp based on ticket #1657
 	- Swap Bad_Blk_Ct_Erl/Lat values in drivedb for "Phison Driven SSDs" (#1642)
 	- Add Micron 5400 SSDs (#1630)
+	- Add WDC HC570/HC670 (#1648)
 
 2022-09-18  Christian Franke  <franke@computer.org>
 
