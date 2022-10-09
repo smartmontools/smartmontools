@@ -6,6 +6,7 @@ $Id$
 	- Extend Apacer SSDs regexp based on ticket #1657
 	- Swap Bad_Blk_Ct_Erl/Lat values in drivedb for "Phison Driven SSDs" (#1642)
 	- Add Micron 5400 SSDs (#1630)
+	- Add WDC HC570/HC670 (#1648)
 
 2022-09-18  Christian Franke  <franke@computer.org>
 

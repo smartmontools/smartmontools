@@ -3659,10 +3659,26 @@ const drive_settings builtin_knowndrives[] = {
     "-v 82,raw16,Head_Health_Score "
     "-v 90,hex48,NAND_Master"
   },
+  { "Western Digital Ultrastar DC HC570", // tested with WUH722222ALE604
+    "(WDC  ?)?WUH722222[AB]L[EN]6[0L]4",
+    "", "",
+    "-v 22,raw48,Helium_Level "
+    "-v 71,raw16,Milli_Micro_Actuator "
+    "-v 82,raw16,Head_Health_Score "
+    "-v 90,hex48,NAND_Master"
+  },
   { "Western Digital Ultrastar DC HC650", // tested with WDC  WSH722020ALE6L0/PCGMT421
     "(WDC  ?)?WSH7220(20|VC)AL[EN]6[0L][0146]",
     "", "",
     "-v 22,raw48,Helium_Level"
+  },
+  { "Western Digital Ultrastar DC HC670", // WSH722626ALE604
+    "(WDC  ?)?WSH722222[AB]L[EN]6[0L]4",
+    "", "",
+    "-v 22,raw48,Helium_Level "
+    "-v 71,raw16,Milli_Micro_Actuator "
+    "-v 82,raw16,Head_Health_Score "
+    "-v 90,hex48,NAND_Master"
   },
   { "HGST MegaScale 4000", // tested with HGST HMS5C4040ALE640/MPAOA580
     "HGST HMS5C4040[AB]LE64[01]", // B = DC 4000.B
