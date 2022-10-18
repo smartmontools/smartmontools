@@ -19,7 +19,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5394 2022-05-31 04:00:25Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5414 2022-10-18 04:07:27Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -497,9 +497,11 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp);
 int scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
                             const struct scsi_iec_mode_page *iecp);
 void scsiDecodeErrCounterPage(unsigned char * resp,
-                              struct scsiErrorCounter *ecp);
+                              struct scsiErrorCounter *ecp,
+                              int allocLen);
 void scsiDecodeNonMediumErrPage(unsigned char * resp,
-                                struct scsiNonMediumError *nmep);
+                                struct scsiNonMediumError *nmep,
+                                int allocLen);
 int scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
                                   int modese_len);
 int scsiCountFailedSelfTests(scsi_device * device, int noisy);

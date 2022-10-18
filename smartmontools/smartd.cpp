@@ -89,7 +89,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5403 2022-08-06 16:09:49Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5414 2022-10-18 04:07:27Z dpgilbert $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -130,6 +130,8 @@ static void set_signal_if_not_ignored(int sig, signal_handler_type handler)
 }
 
 using namespace smartmontools;
+
+static const int scsiLogRespLen = 252;
 
 // smartd exit codes
 #define EXIT_BADCMD    1   // command line did not parse
@@ -2425,8 +2427,8 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   case SCSI_PT_WO:
   case SCSI_PT_CDROM:
   case SCSI_PT_OPTICAL:
-  case SCSI_PT_RBC:		/* Reduced Block commands */
-  case SCSI_PT_HOST_MANAGED:	/* Zoned disk */
+  case SCSI_PT_RBC:             /* Reduced Block commands */
+  case SCSI_PT_HOST_MANAGED:    /* Zoned disk */
     break;
   default:
     PrintOut(LOG_INFO, "Device: %s, not a disk like device [PDT=0x%x], "
@@ -3759,22 +3761,26 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     uint8_t tBuf[252];
     if (state.ReadECounterPageSupported && (0 == scsiLogSense(scsidev,
       READ_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-      scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[0].errCounter);
+      scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[0].errCounter,
+                               scsiLogRespLen);
       state.scsi_error_counters[0].found=1;
     }
     if (state.WriteECounterPageSupported && (0 == scsiLogSense(scsidev,
       WRITE_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-      scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[1].errCounter);
+      scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[1].errCounter,
+                               scsiLogRespLen);
       state.scsi_error_counters[1].found=1;
     }
     if (state.VerifyECounterPageSupported && (0 == scsiLogSense(scsidev,
       VERIFY_ERROR_COUNTER_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-      scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[2].errCounter);
+      scsiDecodeErrCounterPage(tBuf, &state.scsi_error_counters[2].errCounter,
+                               scsiLogRespLen);
       state.scsi_error_counters[2].found=1;
     }
     if (state.NonMediumErrorPageSupported && (0 == scsiLogSense(scsidev,
       NON_MEDIUM_ERROR_LPAGE, 0, tBuf, sizeof(tBuf), 0))) {
-      scsiDecodeNonMediumErrPage(tBuf, &state.scsi_nonmedium_error.nme);
+      scsiDecodeNonMediumErrPage(tBuf, &state.scsi_nonmedium_error.nme,
+                                 scsiLogRespLen);
       state.scsi_nonmedium_error.found=1;
     }
     // store temperature if not done by CheckTemperature() above
