@@ -885,17 +885,17 @@ scsiPrintErrorCounterLog(scsi_device * device)
 
     if (gReadECounterLPage && (0 == scsiLogSense(device,
                 READ_ERROR_COUNTER_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
-        scsiDecodeErrCounterPage(gBuf, &errCounterArr[0]);
+        scsiDecodeErrCounterPage(gBuf, &errCounterArr[0], LOG_RESP_LEN);
         found[0] = 1;
     }
     if (gWriteECounterLPage && (0 == scsiLogSense(device,
                 WRITE_ERROR_COUNTER_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
-        scsiDecodeErrCounterPage(gBuf, &errCounterArr[1]);
+        scsiDecodeErrCounterPage(gBuf, &errCounterArr[1], LOG_RESP_LEN);
         found[1] = 1;
     }
     if (gVerifyECounterLPage && (0 == scsiLogSense(device,
                 VERIFY_ERROR_COUNTER_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
-        scsiDecodeErrCounterPage(gBuf, &errCounterArr[2]);
+        scsiDecodeErrCounterPage(gBuf, &errCounterArr[2], LOG_RESP_LEN);
         ecp = &errCounterArr[2];
         for (int k = 0; k < 7; ++k) {
             if (ecp->gotPC[k] && ecp->counter[k]) {
@@ -944,7 +944,7 @@ scsiPrintErrorCounterLog(scsi_device * device)
     if (gNonMediumELPage && (0 == scsiLogSense(device,
                 NON_MEDIUM_ERROR_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
         struct scsiNonMediumError nme;
-        scsiDecodeNonMediumErrPage(gBuf, &nme);
+        scsiDecodeNonMediumErrPage(gBuf, &nme, LOG_RESP_LEN);
         if (nme.gotPC0)
             pout("\nNon-medium error count: %8" PRIu64 "\n", nme.counterPC0);
         if (nme.gotTFE_H)

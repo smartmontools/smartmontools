@@ -2328,30 +2328,37 @@ scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
 }
 
 void
-scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp)
+scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp,
+                         int allocLen)
 {
     memset(ecp, 0, sizeof(*ecp));
     int num = sg_get_unaligned_be16(resp + 2);
     unsigned char * ucp = &resp[0] + 4;
-    while (num > 3) {
+
+    /* allocLen is length of whole log page including 4 byte log page header */
+    num = num < allocLen - 4 ? num : allocLen - 4;
+    while (num >= 4) {  /* header of each parameter takes 4 bytes */
         int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
         uint64_t * ullp;
+
+        if (num < pl)  /* remaining length less than a complete parameter */
+            break;
         switch (pc) {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-                ecp->gotPC[pc] = 1;
-                ullp = &ecp->counter[pc];
-                break;
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            ecp->gotPC[pc] = 1;
+            ullp = &ecp->counter[pc];
+        break;
         default:
-                ecp->gotExtraPC = 1;
-                ullp = &ecp->counter[7];
-                break;
+            ecp->gotExtraPC = 1;
+            ullp = &ecp->counter[7];
+            break;
         }
         int k = pl - 4;
         unsigned char * xp = ucp + 4;
@@ -2367,51 +2374,58 @@ scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp)
 
 void
 scsiDecodeNonMediumErrPage(unsigned char *resp,
-                           struct scsiNonMediumError *nmep)
+                           struct scsiNonMediumError *nmep,
+                           int allocLen)
 {
     memset(nmep, 0, sizeof(*nmep));
     int num = sg_get_unaligned_be16(resp + 2);
     unsigned char * ucp = &resp[0] + 4;
     static int szof = sizeof(nmep->counterPC0);
-    while (num > 3) {
+
+    /* allocLen is length of whole log page including 4 byte log page header */
+    num = num < allocLen - 4 ? num : allocLen - 4;
+    while (num >= 4) {  /* header of each parameter takes 4 bytes */
         int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
         int k;
         unsigned char * xp;
+
+        if (num < pl)  /* remaining length less than a complete parameter */
+            break;
         switch (pc) {
-            case 0:
-                nmep->gotPC0 = 1;
-                k = pl - 4;
-                xp = ucp + 4;
-                if (k > szof) {
-                    xp += (k - szof);
-                    k = szof;
-                }
-                nmep->counterPC0 = sg_get_unaligned_be(k, xp + 0);
-                break;
-            case 0x8009:
-                nmep->gotTFE_H = 1;
-                k = pl - 4;
-                xp = ucp + 4;
-                if (k > szof) {
-                    xp += (k - szof);
-                    k = szof;
-                }
-                nmep->counterTFE_H = sg_get_unaligned_be(k, xp + 0);
-                break;
-            case 0x8015:
-                nmep->gotPE_H = 1;
-                k = pl - 4;
-                xp = ucp + 4;
-                if (k > szof) {
-                    xp += (k - szof);
-                    k = szof;
-                }
-                nmep->counterPE_H = sg_get_unaligned_be(k, xp + 0);
-                break;
+        case 0:
+            nmep->gotPC0 = 1;
+            k = pl - 4;
+            xp = ucp + 4;
+            if (k > szof) {
+                xp += (k - szof);
+                k = szof;
+            }
+            nmep->counterPC0 = sg_get_unaligned_be(k, xp + 0);
+            break;
+        case 0x8009:
+            nmep->gotTFE_H = 1;
+            k = pl - 4;
+            xp = ucp + 4;
+            if (k > szof) {
+                xp += (k - szof);
+                k = szof;
+            }
+            nmep->counterTFE_H = sg_get_unaligned_be(k, xp + 0);
+            break;
+        case 0x8015:
+            nmep->gotPE_H = 1;
+            k = pl - 4;
+            xp = ucp + 4;
+            if (k > szof) {
+                xp += (k - szof);
+                k = szof;
+            }
+            nmep->counterPE_H = sg_get_unaligned_be(k, xp + 0);
+            break;
         default:
-                nmep->gotExtraPC = 1;
-                break;
+            nmep->gotExtraPC = 1;
+            break;
         }
         num -= pl;
         ucp += pl;

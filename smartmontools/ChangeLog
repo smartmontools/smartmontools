@@ -1,5 +1,13 @@
 $Id$
 
+2022-10-17  Douglas Gilbert  <dgilbert@interlog.com>
+
+	https://github.com/smartmontools/smartmontools/pull/140
+	which is related to issue 139 applied by hand with some cosmetic
+	changes. Credit to github user 'ThunderEX'. Cleans up possible
+	corruption issue with the the SCSI Error Counter and Non medium
+	Error log pages.
+
 2022-10-09  Alex Samorukov  <samm@os2.kiev.ua>
 
 	drivedb.h:

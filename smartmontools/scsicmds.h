@@ -497,9 +497,11 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp);
 int scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
                             const struct scsi_iec_mode_page *iecp);
 void scsiDecodeErrCounterPage(unsigned char * resp,
-                              struct scsiErrorCounter *ecp);
+                              struct scsiErrorCounter *ecp,
+                              int allocLen);
 void scsiDecodeNonMediumErrPage(unsigned char * resp,
-                                struct scsiNonMediumError *nmep);
+                                struct scsiNonMediumError *nmep,
+                                int allocLen);
 int scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
                                   int modese_len);
 int scsiCountFailedSelfTests(scsi_device * device, int noisy);
