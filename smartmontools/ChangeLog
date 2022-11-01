@@ -1,4 +1,11 @@
-$Id: ChangeLog 5414 2022-10-18 04:07:27Z dpgilbert $
+$Id: ChangeLog 5415 2022-11-01 16:15:27Z chrfranke $
+
+2022-11-01  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: *C variant (#1655),
+	  *E (Dell Europe) variant (#1647).
+	- Toshiba MG10ACA... Enterprise Capacity HDD.
 
 2022-10-17  Douglas Gilbert  <dgilbert@interlog.com>
 
