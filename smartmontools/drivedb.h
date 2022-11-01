@@ -1483,8 +1483,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Intel 730 and DC S35x0/3610/3700 Series SSDs", // tested with INTEL SSDSC2BP480G4, SSDSC2BB120G4/D2010355,
       // INTEL SSDSC2BB800G4T, SSDSC2BA200G3/5DV10250, SSDSC2BB080G6/G2010130,  SSDSC2BX200G4/G2010110,
       // INTEL SSDSC2BB016T6/G2010140, SSDSC2BX016T4/G2010140, SSDSC2BB150G7/N2010101,
-      // INTEL SSDSC2BB480H4/D2010380
-    "INTEL SSDSC(1N|2B)[ABPX]((080|100|120|150|160|200|240|300|400|480|600|800)[GH][3467][RT]?|(012|016)T[46])",
+      // INTEL SSDSC2BB480H4/D2010380, INTEL SSDSC2BB240G4C/D201FJ14, INTEL SSDSC2BA800G3E/5DV10250
+    "INTEL SSDSC(1N|2B)[ABPX]((080|100|120|150|160|200|240|300|400|480|600|800)[GH][3467][CERT]?|(012|016)T[46])",
       // A = S3700, B*4 = S3500, B*6 = S3510, P = 730, X = S3610
       // Dell ships drives with model of the form SSDSC2BB120G4R
     "", "",
@@ -3856,6 +3856,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba MG09ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG09ACA18TE/0102
     "TOSHIBA MG09ACA1[68]T[AE]Y?",
+    "", "",
+    "-v 23,raw48,Helium_Condition_Lower "
+    "-v 24,raw48,Helium_Condition_Upper "
+    "-v 27,raw48,MAMR_Health_Monitor"
+  },
+  { "Toshiba MG10ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG10ACA20TE/0102
+    "TOSHIBA MG10ACA20T[AE]Y?",
     "", "",
     "-v 23,raw48,Helium_Condition_Lower "
     "-v 24,raw48,Helium_Condition_Upper "
