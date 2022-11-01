@@ -241,9 +241,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 241,raw48,Total_LBAs_Written "
   },
   { "Apacer SSDs",
-    "([1248]|1[056]|20|3[02]|40|60|64|80|12[08]|160|240|256|320|480|512|640|960|1280|1920|3840)(GB|TB) SATA Flash Drive|"
-    "S[GH]250-M2[48][02] 128GB SSD", // tested with 120GB SATA Flash Drive/SFMB6130, SH250-M242 128GB SSD/SFMB8120
-    "SFM[BC][0-9A-Z][0-9A-Z][1-9A-Z][0-9A-Z]",
+    "([1248]|1[056]|20|3[02]|40|60|64|80|12[08]|160|240|256|320|480|512|640|960|1024|1280|1920|2048|3840|4096)(GB|TB) SATA Flash Drive|"
+    "S[GHTV]250-(M2[48][02]|25) ([1248]|1[056]|20|3[02]|40|60|64|80|12[08]|160|240|256|320|480|512|640|960|1024|1280|1920|2048|3840|4096)(GB|TB) SSD", // tested with 120GB SATA Flash Drive/SFMB6130, SH250-M242 128GB SSD/SFMB8120, ST250-M280 256GB SSD/SFMD6110
+    "SFM[BCDEGHJ][0-9A-Z][0-9A-Z][1-9A-Z][0-9A-Z]",
     "",
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -507,13 +507,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Reference: https://www.micron.com/resource-details/feec878a-265e-49a7-8086-15137c5f9011
   // TN-FD-34: 5100 SSD SMART Implementation
-  { "Micron 5100 Pro / 52x0 / 5300 SSDs",
+  { "Micron 5100 / 52x0 / 5300 / 5400 SSDs",
     "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)|" // Matches both stock and Dell OEM
       // tested with Micron_5100_MTFDDAK3T8TCB/D0MU410, MTFDDAK3T8TCB/D0MU410
     "(Micron_5200_)?MTFDDAK(480|960|1T9|3T8|7T6)TD(C|D|N)|" // tested with Micron_5200_MTFDDAK3T8TDD/D1MU505
     "Micron_5210_MTFDDAK(480|960|1T9|3T8|7T6)QDE|" // tested with Micron_5210_MTFDDAK7T6QDE/D2MU804
-    "Micron_5300(HC)?_MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[ST]", // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001,
+    "Micron_5300(HC)?_MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[STU]|" // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001
       // Micron_5300HC_MTFDDAK960TDS/D3MN010
+    "(Micron_5400_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)TG[ABC]", // tested with Micron_5400_MTFDDAK1T9TGB/D4MU001,
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -788,7 +789,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 167,raw48,Write_Protect_Mode " // DC500
     "-v 168,raw48,SATA_Phy_Error_Count "
     "-v 169,raw48,Bad_Block_Rate " // DC500
-    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Erl/Lat " // Early bad block/Later bad block
+    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Lat/Erl " // Later bad block/Early bad block (see #1642)
     "-v 172,raw48,Erase_Fail_Count " // DC500
     "-v 173,raw16(avg16),MaxAvgErase_Ct "
     "-v 175,raw48,Not_In_Use "
@@ -838,7 +839,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 10,raw48,Not_In_Use "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 168,raw48,SATA_Phy_Error_Count "
-    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Erl/Lat " // Early bad block/Later bad block
+    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Lat/Erl " // Later bad block/Early bad block (see #1642)
     "-v 173,raw16(avg16),MaxAvgErase_Ct "
     "-v 175,raw48,Not_In_Use "
     "-v 183,raw48,Unknown_Attribute "
@@ -1480,8 +1481,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Intel 730 and DC S35x0/3610/3700 Series SSDs", // tested with INTEL SSDSC2BP480G4, SSDSC2BB120G4/D2010355,
       // INTEL SSDSC2BB800G4T, SSDSC2BA200G3/5DV10250, SSDSC2BB080G6/G2010130,  SSDSC2BX200G4/G2010110,
       // INTEL SSDSC2BB016T6/G2010140, SSDSC2BX016T4/G2010140, SSDSC2BB150G7/N2010101,
-      // INTEL SSDSC2BB480H4/D2010380
-    "INTEL SSDSC(1N|2B)[ABPX]((080|100|120|150|160|200|240|300|400|480|600|800)[GH][3467][RT]?|(012|016)T[46])",
+      // INTEL SSDSC2BB480H4/D2010380, INTEL SSDSC2BB240G4C/D201FJ14, INTEL SSDSC2BA800G3E/5DV10250
+    "INTEL SSDSC(1N|2B)[ABPX]((080|100|120|150|160|200|240|300|400|480|600|800)[GH][3467][CERT]?|(012|016)T[46])",
       // A = S3700, B*4 = S3500, B*6 = S3510, P = 730, X = S3610
       // Dell ships drives with model of the form SSDSC2BB120G4R
     "", "",
@@ -3656,10 +3657,26 @@ const drive_settings builtin_knowndrives[] = {
     "-v 82,raw16,Head_Health_Score "
     "-v 90,hex48,NAND_Master"
   },
+  { "Western Digital Ultrastar DC HC570", // tested with WUH722222ALE604
+    "(WDC  ?)?WUH722222[AB]L[EN]6[0L]4",
+    "", "",
+    "-v 22,raw48,Helium_Level "
+    "-v 71,raw16,Milli_Micro_Actuator "
+    "-v 82,raw16,Head_Health_Score "
+    "-v 90,hex48,NAND_Master"
+  },
   { "Western Digital Ultrastar DC HC650", // tested with WDC  WSH722020ALE6L0/PCGMT421
     "(WDC  ?)?WSH7220(20|VC)AL[EN]6[0L][0146]",
     "", "",
     "-v 22,raw48,Helium_Level"
+  },
+  { "Western Digital Ultrastar DC HC670", // WSH722626ALE604
+    "(WDC  ?)?WSH722222[AB]L[EN]6[0L]4",
+    "", "",
+    "-v 22,raw48,Helium_Level "
+    "-v 71,raw16,Milli_Micro_Actuator "
+    "-v 82,raw16,Head_Health_Score "
+    "-v 90,hex48,NAND_Master"
   },
   { "HGST MegaScale 4000", // tested with HGST HMS5C4040ALE640/MPAOA580
     "HGST HMS5C4040[AB]LE64[01]", // B = DC 4000.B
@@ -3837,6 +3854,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba MG09ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG09ACA18TE/0102
     "TOSHIBA MG09ACA1[68]T[AE]Y?",
+    "", "",
+    "-v 23,raw48,Helium_Condition_Lower "
+    "-v 24,raw48,Helium_Condition_Upper "
+    "-v 27,raw48,MAMR_Health_Monitor"
+  },
+  { "Toshiba MG10ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG10ACA20TE/0102
+    "TOSHIBA MG10ACA20T[AE]Y?",
     "", "",
     "-v 23,raw48,Helium_Condition_Lower "
     "-v 24,raw48,Helium_Condition_Upper "
