@@ -1,5 +1,14 @@
 $Id$
 
+2022-11-09  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: Kingston SSDNow S200 (#1491),
+	  Patriot Burst *GB (#1664).
+	- Silicon Motion based SSDs: Kingston KC600 mSATA (#1442).
+	- Silicon Motion based OEM SSDs: KingSpec KSM.
+	- USB: VIA VL717 (0x2109:0x0717) (GP/pull 151).
+
 2022-11-01  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

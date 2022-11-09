@@ -763,12 +763,15 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SKC400S37(128G|256G|512G|1T)|" // SSDNow KC400, KINGSTON SKC400S37128G
     "KINGSTON SV310S3(7A|D7|N7A|B7A)960G|" // SSDNow V310
     "KINGSTON SHSS3B?7A(120|240|480|960)G|" // HyperX Savage
+    "KINGSTON SS200S330G|" // SSDNow S200, tested with KINGSTON SS200S330G/S8FM06.A
     "KINGSTON  ?SA400(M8|S37)(120|240|480|960)G|" // Kingston A400 SSD, Phison S11 or
       // Silicon Motion controller (see ticket #801), tested with
       // KINGSTON SA400S37240G/SBFK10D7, KINGSTON SA400S37120G/SBFK71E0, */SBFKB1D1
       // KINGSTON  SA400S37480G/SBFK10D7 (two spaces), KINGSTON SA400M8240G/SBFK61E1
-    "Patriot (Flare|Blast|Blaze|Burst)|" // tested with Patriot Flare/SBFM91.2,
-      // Patriot Blast/SAFM11.3, Patriot Blaze/S9FM02, Patriot Burst/SBFM11.2
+    "Patriot (Blast|Blaze|Flare)|" // tested with Patriot Blast/SAFM11.3, Patriot Blaze/S9FM02,
+      // Patriot Flare/SBFM91.2
+    "Patriot Burst( (120|240|480|960)GB)?|" // tested with Patriot Burst/SBFM11.2,
+      // Patriot Burst 480GB/SBFMLA.5
     "PNY CS(900|1311|2211) (120|240|480|960)GB SSD|" // tested with PNY CS900 120GB SSD/CS900612,
       // PNY CS900 240GB SSD/CS900613, PNY CS1311 120GB SSD/CS131122, PNY CS2211 240GB SSD/CS221016
     "PNY ELITE PSSD|" // tested with PNY ELITE PSSD/CS105P13 (240G)
@@ -2122,7 +2125,8 @@ const drive_settings builtin_knowndrives[] = {
     "KingDian S(200|280|400) ((60|120|240|480)GB|1TB)|" // SM2256EN, tested with KingDian S200 60GB/R0724A0
       // KingDian S280 120GB/Q0526A, KingDian S280 1TB/S0509A0, KingDian S400 120GB/Q0607A
     "KingSpec KSD-[PS]A25\\.[1-9]-(016|032|064|128)(MS|SJ)|" // tested with KingSpec KSD-PA25.6-064MS/20140803
-    "KINGSTON SKC600(256|512|1024|2048)G|" // SM2259, tested with KINGSTON SKC600256G/S4500105
+    "KINGSTON SKC600(MS)?(256|512|1024|2048)G|" // KC600 MS=mSATA, tested with KINGSTON SKC600256G/S4500105,
+      // KINGSTON SKC600MS256G/S4500107
     "LITEON LMH-(128|256|512)V2M-.*|" // tested with LITEON LMH-256V2M-11 MSATA 256GB/FM8110C
     "LITEON LCH-(128|256V|512)2S-.*|" // tested with LITEON LCH-256V2S-HP/2C02
     "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // tested with MKNSSDRE256GB/N1007C
@@ -2237,6 +2241,7 @@ const drive_settings builtin_knowndrives[] = {
     "Intenso  ?SSD Sata III|" // Sata III High, tested with Intenso  SSD Sata III/P0510E,
       // Intenso SSD Sata III/R0817B0
     "KingFast|" // tested with KingFast/P0725A (F6M), KingFast/S0424A0 (120GB), KingFast/S1128B0 (512GB)
+    "KSM512|" // KingSpec, tested with KSM512/S0509A0
     "LDLC|" // tested with LDLC/KFS03005
     "ORTIAL SSD|" // tested with ORTIAL SSD/U0202A0 (128GB)
     "RX7 (240|256|512)G|" // tested with RX7 240G/T0910A0
@@ -2248,7 +2253,7 @@ const drive_settings builtin_knowndrives[] = {
     "T-FORCE (128|256|512)GB|" // tested with T-FORCE 512GB/T0910A0
     "Verbatim Vi550 S3", // may also exist with different controller (tickets #1626 <> #1629),
       // tested with Verbatim Vi550 S3/U1124A0 (256GB)
-    "KFS03005|P0510E|P0725A|Q(0627|1107)A0|R0817B0|S(0424|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|U(0401|1124)A0",
+    "KFS03005|P0510E|P0725A|Q(0627|1107)A0|R0817B0|S(0424|0509|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|U(0202|0401|1124)A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
@@ -6267,8 +6272,8 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0507, Intenso 2,5" Memory Case 2TB USB3
     "-d sat"
   },
-  { "USB: ; VIA VL715/6", // USB2/3->SATA, USB-C->SATA
-    "0x2109:0x071[56]",
+  { "USB: ; VIA VL715/6/7", // USB2/3->SATA, USB-C->SATA
+    "0x2109:0x071[567]",
     "", // 0x0336/0x0000
     "",
     "-d sat"
