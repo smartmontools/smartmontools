@@ -73,7 +73,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 5409 2022-09-18 14:53:32Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 5419 2022-11-22 17:30:56Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -4162,7 +4162,9 @@ std::string win_smart_interface::get_os_version_str()
           case 19042:   w = "w10-20H2"; break;
           case 19043:   w = "w10-21H1"; break;
           case 19044:   w = "w10-21H2"; break;
+          case 19045:   w = "w10-22H2"; break;
           case 22000:   w = "w11-21H2"; break;
+          case 22621:   w = "w11-22H2"; break;
           default:      w = (vi.dwBuildNumber < 22000
                           ? "w10"
                           : "w11");
