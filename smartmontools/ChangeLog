@@ -1,5 +1,9 @@
 $Id$
 
+2022-11-22  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 and 11 22H2 build numbers.
+
 2022-11-09  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
