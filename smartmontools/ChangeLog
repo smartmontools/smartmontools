@@ -1,4 +1,8 @@
-$Id: ChangeLog 5420 2022-12-05 15:01:43Z chrfranke $
+$Id: ChangeLog 5421 2022-12-05 15:31:14Z chrfranke $
+
+2022-11-05  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Build fix for r5420.
 
 2022-12-05  Steven Song  <steven.song@3snic.com>
 
