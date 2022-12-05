@@ -1,5 +1,9 @@
 $Id$
 
+2022-11-05  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Build fix for r5420.
+
 2022-12-05  Steven Song  <steven.song@3snic.com>
 
 	Add SSSRAID (3SNIC RAID Controller) support on Linux (#1653).
