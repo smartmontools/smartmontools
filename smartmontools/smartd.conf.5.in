@@ -558,6 +558,17 @@ to the default value 1.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
+.I sssraid,E,S
+\- [Linux only]
+[NEW EXPERIMENTAL SMARTD FEATURE]
+the device consists of one or more SCSI/SAS or SATA disks connected to a
+SSSRAID controller.
+The non-negative integer E (in the range of 0 to 8) denotes the enclosure
+and S(range 0 to 128) denotes the slot.
+Please see the \fBsmartctl\fP(8) man page for further details.
+.Sp
+.\" %ENDIF OS Linux
 .I intelliprop,N[+TYPE]
 \- the device consists of multiple ATA disks connected to an Intelliprop
 controller.

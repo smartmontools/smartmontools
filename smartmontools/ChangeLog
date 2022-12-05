@@ -1,6 +1,9 @@
 $Id$
 
-2022-11-05  Christian Franke  <franke@computer.org>
+2022-12-05  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Fix '-d sssraid' documentation syntax.
+	smartd.conf.5.in: Add '-d sssraid' documentation.
 
 	os_linux.cpp: Build fix for r5420.
 
