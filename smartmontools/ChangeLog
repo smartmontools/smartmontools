@@ -1,5 +1,9 @@
 $Id$
 
+2022-12-05  Steven Song  <steven.song@3snic.com>
+
+	Add SSSRAID (3SNIC RAID Controller) support on Linux (#1653).
+
 2022-11-22  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 10 and 11 22H2 build numbers.

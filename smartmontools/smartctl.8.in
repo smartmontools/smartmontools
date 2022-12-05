@@ -532,6 +532,26 @@ For PERC5/6 controllers: \fBmegaraid_sas_ioctlN\fP
 .Sp
 .\" %ENDIF OS Linux
 .\" %IF OS Linux Windows Cygwin
+
+.I sssraid,E,S
+\- [Linux only] the device consists of one or more SCSI/SAS disks connected
+to a SSSRAID controller.  The non-negative integer E (in the range of 0 to
+8) denotes the enclosure and S (range 0 to 128) denotes the slot.
+Use syntax such as:
+.\" %ENDIF OS Linux
+.\" %IF OS ALL
+.br
+Linux:
+.\" %ENDIF OS ALL
+.\" %IF OS Linux
+.br
+\fBsmartctl \-a \-d sssraid,0,1 /dev/bsg/sssraid0\fP
+.br
+It is possible to set RAID device name as /dev/bsg/sssraidN, where N is a SCSI bus
+number.
+.Sp
+.\" %ENDIF OS Linux
+
 .I aacraid,H,L,ID
 \- [Linux, Windows and Cygwin only] the device consists of one or more
 SCSI/SAS or SATA disks connected to an AacRaid controller.
