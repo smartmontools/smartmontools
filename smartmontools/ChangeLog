@@ -1,6 +1,8 @@
-$Id: ChangeLog 5423 2022-12-16 17:26:45Z chrfranke $
+$Id: ChangeLog 5424 2022-12-16 17:53:12Z chrfranke $
 
 2022-12-16  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Use 'set_err_np()' where possible.
 
 	dev_interface.cpp, dev_interface.h: Add 'set_err_np()'.
 
