@@ -2,6 +2,10 @@ $Id$
 
 2022-12-16  Christian Franke  <franke@computer.org>
 
+	os_linux.cpp: Disable '-d marvell' and print deprecation message.
+	Add '-d marvell,force' to use this device type anyhow.
+	smartctl.8.in, smartd.conf.5.in: Update '-d marvell' documentation.
+
 	os_linux.cpp: Use 'set_err_np()' where possible.
 
 	dev_interface.cpp, dev_interface.h: Add 'set_err_np()'.

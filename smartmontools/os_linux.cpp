@@ -3515,7 +3515,13 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
 smart_device * linux_smart_interface::get_custom_smart_device(const char * name, const char * type)
 {
   // Marvell ?
+  // TODO: Remove after smartmontools 7.4
   if (!strcmp(type, "marvell"))
+    return set_err_np(EINVAL,
+      "The device type 'marvell' is deprecated and will be removed in a\n"
+      "future version of smartmontools.  If you still need this device type, please\n"
+      "use '-d marvell,force' and inform " PACKAGE_BUGREPORT                          );
+  if (!strcmp(type, "marvell,force"))
     return new linux_marvell_device(this, name, type);
 
   // 3Ware ?
@@ -3600,9 +3606,9 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
 
 std::string linux_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "marvell, areca,N/E, 3ware,N, hpt,L/M/N, megaraid,N, aacraid,H,L,ID, sssraid,E,S"
+  return "areca,N/E, 3ware,N, hpt,L/M/N, megaraid,N, aacraid,H,L,ID, sssraid,E,S"
 #ifdef HAVE_LINUX_CCISS_IOCTL_H
-                                              ", cciss,N"
+                                                                                ", cciss,N"
 #endif
     ;
 }

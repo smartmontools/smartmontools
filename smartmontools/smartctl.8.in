@@ -486,18 +486,19 @@ The default namespace id is the broadcast namespace id (0xffffffff).
 bridge.
 .Sp
 .\" %ENDIF NOT OS Darwin
-.\" %IF OS Linux FreeBSD
+.\" %IF OS Linux
 .I marvell
-\- [Linux only] interact with SATA disks behind Marvell chip-set
-controllers (using the Marvell rather than libata driver).
+\- [Linux only] (deprecated and subject to remove).
 .Sp
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD Linux
 .I megaraid,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks connected
 to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
 127 inclusive) denotes which disk on the controller is monitored. This interface
 will also work for Dell PERC controllers.
 Use syntax such as:
-.\" %ENDIF OS Linux FreeBSD
+.\" %ENDIF OS FreeBSD Linux
 .\" %IF OS ALL
 .br
 FreeBSD:

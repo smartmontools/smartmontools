@@ -473,10 +473,9 @@ bridge.
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Linux
 .I marvell
-\- [Linux only] interact with SATA disks behind Marvell chip-set
-controllers (using the Marvell rather than libata driver).
+\- [Linux only] (deprecated and subject to remove).
 .Sp
-.\" %ENDIF OS FreeBSD Linux
+.\" %ENDIF OS Linux
 .\" %IF OS FreeBSD Linux
 .I megaraid,N
 \- [Linux and FreeBSD only] the device consists of one or more SCSI/SAS disks connected
