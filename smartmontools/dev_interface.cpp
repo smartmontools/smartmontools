@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -335,6 +335,19 @@ bool smart_interface::set_err(int no, const char * msg, ...)
   return false;
 }
 
+decltype(nullptr) smart_interface::set_err_np(int no, const char * msg, ...)
+{
+  if (!msg) {
+    set_err(no);
+    return nullptr;
+  }
+  m_err.no = no;
+  va_list ap; va_start(ap, msg);
+  m_err.msg = vstrprintf(msg, ap);
+  va_end(ap);
+  return nullptr;
+}
+
 bool smart_interface::set_err(int no)
 {
   return set_err_var(&m_err, no);
@@ -417,10 +430,8 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     int n1 = -1, n2 = -1, len = strlen(type);
     unsigned nsid = 0; // invalid namespace id -> use default
     sscanf(type, "nvme%n,0x%x%n", &n1, &nsid, &n2);
-    if (!(n1 == len || n2 == len)) {
-      set_err(EINVAL, "Invalid NVMe namespace id in '%s'", type);
-      return 0;
-    }
+    if (!(n1 == len || n2 == len))
+      return set_err_np(EINVAL, "Invalid NVMe namespace id in '%s'", type);
     dev = get_nvme_device(name, type, nsid);
   }
   // TODO: Unify handling of '-d TYPE...+BASETYPE...'
@@ -435,25 +446,19 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     if (!*basetype)
       basetype = "scsi";
     smart_device_auto_ptr basedev( get_smart_device(name, basetype) );
-    if (!basedev) {
-      set_err(EINVAL, "Type '%s+...': %s", sattype.c_str(), get_errmsg());
-      return 0;
-    }
+    if (!basedev)
+      return set_err_np(EINVAL, "Type '%s+...': %s", sattype.c_str(), get_errmsg());
     // Result must be SCSI
-    if (!basedev->is_scsi()) {
-      set_err(EINVAL, "Type '%s+...': Device type '%s' is not SCSI", sattype.c_str(), basetype);
-      return 0;
-    }
+    if (!basedev->is_scsi())
+      return set_err_np(EINVAL, "Type '%s+...': Device type '%s' is not SCSI", sattype.c_str(), basetype);
     // Attach SAT tunnel
     return get_sat_device(sattype.c_str(), basedev.release()->to_scsi());
   }
 
   else if (str_starts_with(type, "snt")) {
     smart_device_auto_ptr basedev( get_smart_device(name, "scsi") );
-    if (!basedev) {
-      set_err(EINVAL, "Type '%s': %s", type, get_errmsg());
-      return 0;
-    }
+    if (!basedev)
+      return set_err_np(EINVAL, "Type '%s': %s", type, get_errmsg());
 
     return get_snt_device(type, basedev.release()->to_scsi());
   }
@@ -467,10 +472,8 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     if (!*basetype)
       basetype = "scsi";
     smart_device_auto_ptr basedev( get_smart_device(name, basetype) );
-    if (!basedev) {
-      set_err(EINVAL, "Type '%s+...': %s", jmbtype.c_str(), get_errmsg());
-      return 0;
-    }
+    if (!basedev)
+      return set_err_np(EINVAL, "Type '%s+...': %s", jmbtype.c_str(), get_errmsg());
     // Attach JMB39x tunnel
     return get_jmb39x_device(jmbtype.c_str(), basedev.release());
   }
@@ -484,21 +487,16 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     if (!*basetype)
       basetype = "ata";
     smart_device_auto_ptr basedev( get_smart_device(name, basetype) );
-    if (!basedev) {
-      set_err(EINVAL, "Type '%s': %s", type, get_errmsg());
-      return 0;
-    }
+    if (!basedev)
+      return set_err_np(EINVAL, "Type '%s': %s", type, get_errmsg());
     // Result must be ATA
-    if (!basedev->is_ata()) {
-      set_err(EINVAL, "Type '%s': Device type '%s' is not ATA", type, basetype);
-      return 0;
-    }
+    if (!basedev->is_ata())
+      return set_err_np(EINVAL, "Type '%s': Device type '%s' is not ATA", type, basetype);
     return get_intelliprop_device(itltype.c_str(), basedev.release()->to_ata());
   }
 
   else {
-    set_err(EINVAL, "Unknown device type '%s'", type);
-    return 0;
+    return set_err_np(EINVAL, "Unknown device type '%s'", type);
   }
   if (!dev && !get_errno())
     set_err(EINVAL, "Not a device of type '%s'", type);
@@ -532,13 +530,12 @@ bool smart_interface::scan_smart_devices(smart_device_list & devlist,
 
 nvme_device * smart_interface::get_nvme_device(const char * /*name*/, const char * /*type*/, unsigned /*nsid*/)
 {
-  set_err(ENOSYS, "NVMe devices are not supported in this version of smartmontools");
-  return 0;
+  return set_err_np(ENOSYS, "NVMe devices are not supported in this version of smartmontools");
 }
 
 smart_device * smart_interface::get_custom_smart_device(const char * /*name*/, const char * /*type*/)
 {
-  return 0;
+  return nullptr;
 }
 
 std::string smart_interface::get_valid_custom_dev_types_str()

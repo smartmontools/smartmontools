@@ -1,5 +1,9 @@
 $Id$
 
+2022-12-16  Christian Franke  <franke@computer.org>
+
+	dev_interface.cpp, dev_interface.h: Add 'set_err_np()'.
+
 2022-12-05  Christian Franke  <franke@computer.org>
 
 	smartctl.8.in: Fix '-d sssraid' documentation syntax.
