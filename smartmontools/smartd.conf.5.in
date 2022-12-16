@@ -4,7 +4,7 @@ Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5422 2022-12-05 15:55:15Z chrfranke $
+$Id: smartd.conf.5.in 5425 2022-12-16 18:53:03Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -473,10 +473,9 @@ bridge.
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Linux
 .I marvell
-\- [Linux only] interact with SATA disks behind Marvell chip-set
-controllers (using the Marvell rather than libata driver).
+\- [Linux only] (deprecated and subject to remove).
 .Sp
-.\" %ENDIF OS FreeBSD Linux
+.\" %ENDIF OS Linux
 .\" %IF OS FreeBSD Linux
 .I megaraid,N
 \- [Linux and FreeBSD only] the device consists of one or more SCSI/SAS disks connected
@@ -1770,4 +1769,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5422 2022-12-05 15:55:15Z chrfranke $
+$Id: smartd.conf.5.in 5425 2022-12-16 18:53:03Z chrfranke $
