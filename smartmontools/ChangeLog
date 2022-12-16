@@ -1,4 +1,8 @@
-$Id: ChangeLog 5422 2022-12-05 15:55:15Z chrfranke $
+$Id: ChangeLog 5423 2022-12-16 17:26:45Z chrfranke $
+
+2022-12-16  Christian Franke  <franke@computer.org>
+
+	dev_interface.cpp, dev_interface.h: Add 'set_err_np()'.
 
 2022-12-05  Christian Franke  <franke@computer.org>
 
