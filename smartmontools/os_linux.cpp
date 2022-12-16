@@ -3150,8 +3150,7 @@ nvme_device * linux_smart_interface::get_nvme_device(const char * name, const ch
 
 smart_device * linux_smart_interface::missing_option(const char * opt)
 {
-  set_err(EINVAL, "requires option '%s'", opt);
-  return 0;
+  return set_err_np(EINVAL, "requires option '%s'", opt);
 }
 
 int
@@ -3457,7 +3456,7 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
     if (get_usb_id(test_name, vendor_id, product_id, version)) {
       const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
       if (!usbtype)
-        return 0;
+        return nullptr;
 
       // Kernels before 2.6.29 do not support the sense data length
       // required for SAT ATA PASS-THROUGH(16)
@@ -3510,7 +3509,7 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
     return missing_option("-d cciss,N");
 
   // we failed to recognize any of the forms
-  return 0;
+  return nullptr;
 }
 
 smart_device * linux_smart_interface::get_custom_smart_device(const char * name, const char * type)
@@ -3522,14 +3521,10 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   // 3Ware ?
   int disknum = -1, n1 = -1, n2 = -1;
   if (sscanf(type, "3ware,%n%d%n", &n1, &disknum, &n2) == 1 || n1 == 6) {
-    if (n2 != (int)strlen(type)) {
-      set_err(EINVAL, "Option -d 3ware,N requires N to be a non-negative integer");
-      return 0;
-    }
-    if (!(0 <= disknum && disknum <= 127)) {
-      set_err(EINVAL, "Option -d 3ware,N (N=%d) must have 0 <= N <= 127", disknum);
-      return 0;
-    }
+    if (n2 != (int)strlen(type))
+      return set_err_np(EINVAL, "Option -d 3ware,N requires N to be a non-negative integer");
+    if (!(0 <= disknum && disknum <= 127))
+      return set_err_np(EINVAL, "Option -d 3ware,N (N=%d) must have 0 <= N <= 127", disknum);
 
     if (!strncmp(name, "/dev/twl", 8))
       return new linux_escalade_device(this, name, linux_escalade_device::AMCC_3WARE_9700_CHAR, disknum);
@@ -3545,14 +3540,10 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   disknum = n1 = n2 = -1;
   int encnum = 1;
   if (sscanf(type, "areca,%n%d/%d%n", &n1, &disknum, &encnum, &n2) >= 1 || n1 == 6) {
-    if (!(1 <= disknum && disknum <= 128)) {
-      set_err(EINVAL, "Option -d areca,N/E (N=%d) must have 1 <= N <= 128", disknum);
-      return 0;
-    }
-    if (!(1 <= encnum && encnum <= 8)) {
-      set_err(EINVAL, "Option -d areca,N/E (E=%d) must have 1 <= E <= 8", encnum);
-      return 0;
-    }
+    if (!(1 <= disknum && disknum <= 128))
+      return set_err_np(EINVAL, "Option -d areca,N/E (N=%d) must have 1 <= N <= 128", disknum);
+    if (!(1 <= encnum && encnum <= 8))
+      return set_err_np(EINVAL, "Option -d areca,N/E (E=%d) must have 1 <= E <= 8", encnum);
     return new linux_areca_ata_device(this, name, disknum, encnum);
   }
 
@@ -3561,22 +3552,14 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   n1 = n2 = -1; int n3 = -1;
   if (sscanf(type, "hpt,%n%d/%d%n/%d%n", &n1, &controller, &channel, &n2, &disknum, &n3) >= 2 || n1 == 4) {
     int len = strlen(type);
-    if (!(n2 == len || n3 == len)) {
-      set_err(EINVAL, "Option '-d hpt,L/M/N' supports 2-3 items");
-      return 0;
-    }
-    if (!(1 <= controller && controller <= 8)) {
-      set_err(EINVAL, "Option '-d hpt,L/M/N' invalid controller id L supplied");
-      return 0;
-    }
-    if (!(1 <= channel && channel <= 128)) {
-      set_err(EINVAL, "Option '-d hpt,L/M/N' invalid channel number M supplied");
-      return 0;
-    }
-    if (!(1 <= disknum && disknum <= 15)) {
-      set_err(EINVAL, "Option '-d hpt,L/M/N' invalid pmport number N supplied");
-      return 0;
-    }
+    if (!(n2 == len || n3 == len))
+      return set_err_np(EINVAL, "Option '-d hpt,L/M/N' supports 2-3 items");
+    if (!(1 <= controller && controller <= 8))
+      return set_err_np(EINVAL, "Option '-d hpt,L/M/N' invalid controller id L supplied");
+    if (!(1 <= channel && channel <= 128))
+      return set_err_np(EINVAL, "Option '-d hpt,L/M/N' invalid channel number M supplied");
+    if (!(1 <= disknum && disknum <= 15))
+      return set_err_np(EINVAL, "Option '-d hpt,L/M/N' invalid pmport number N supplied");
     return new linux_highpoint_device(this, name, controller, channel, disknum);
   }
 
@@ -3584,14 +3567,10 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   // CCISS ?
   disknum = n1 = n2 = -1;
   if (sscanf(type, "cciss,%n%d%n", &n1, &disknum, &n2) == 1 || n1 == 6) {
-    if (n2 != (int)strlen(type)) {
-      set_err(EINVAL, "Option -d cciss,N requires N to be a non-negative integer");
-      return 0;
-    }
-    if (!(0 <= disknum && disknum <= 127)) {
-      set_err(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 127", disknum);
-      return 0;
-    }
+    if (n2 != (int)strlen(type))
+      return set_err_np(EINVAL, "Option -d cciss,N requires N to be a non-negative integer");
+    if (!(0 <= disknum && disknum <= 127))
+      return set_err_np(EINVAL, "Option -d cciss,N (N=%d) must have 0 <= N <= 127", disknum);
     return get_sat_device("sat,auto", new linux_cciss_device(this, name, disknum));
   }
 #endif // HAVE_LINUX_CCISS_IOCTL_H
@@ -3616,7 +3595,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
 
   }
 
-  return 0;
+  return nullptr;
 }
 
 std::string linux_smart_interface::get_valid_custom_dev_types_str()

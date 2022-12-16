@@ -2,6 +2,8 @@ $Id$
 
 2022-12-16  Christian Franke  <franke@computer.org>
 
+	os_linux.cpp: Use 'set_err_np()' where possible.
+
 	dev_interface.cpp, dev_interface.h: Add 'set_err_np()'.
 
 2022-12-05  Christian Franke  <franke@computer.org>
