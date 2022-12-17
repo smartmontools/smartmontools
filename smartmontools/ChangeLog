@@ -1,5 +1,10 @@
 $Id$
 
+2022-12-17  Christian Franke  <franke@computer.org>
+
+	json.cpp: Don't print JSON strings in UTF-8 if invalid sequences are
+	present.  Print informal hex string "\\xXX" for unexpected chars.
+
 2022-12-16  Christian Franke  <franke@computer.org>
 
 	os_linux.cpp: Disable '-d marvell' and print deprecation message.

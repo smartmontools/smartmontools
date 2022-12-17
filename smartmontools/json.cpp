@@ -395,8 +395,40 @@ void json::set_initlist_value(const node_path & path, const initlist_value & val
   }
 }
 
+// Return -1 if all UTF-8 sequences are valid, else return index of first invalid char
+static int check_utf8(const char * s)
+{
+  int state = 0, i;
+  for (i = 0; s[i]; i++) {
+    unsigned char c = s[i];
+    // 0xb... (C++14) not used to preserve C++11 compatibility
+    if ((c & 0xc0) == 0x80) {                    // 0xb10xxxxx
+      if (--state < 0)
+        return i;
+    }
+    else {
+      if (state != 0)
+        return i;
+      if (!(c & 0x80))                           // 0xb0xxxxxxx
+        ;
+      else if ((c & 0xe0) == 0xc0 && (c & 0x1f)) // 0xb110xxxxx
+        state = 1;
+      else if ((c & 0xf0) == 0xe0 && (c & 0x0f)) // 0xb1110xxxx
+        state = 2;
+      else if ((c & 0xf8) == 0xf0 && (c & 0x07)) // 0xb11110xxx
+        state = 3;
+      else
+        return i;
+    }
+  }
+  if (state != 0)
+    return i;
+  return -1;
+}
+
 static void print_quoted_string(FILE * f, const char * s)
 {
+  int utf8_rc = -2;
   putc('"', f);
   for (int i = 0; s[i]; i++) {
     char c = s[i];
@@ -405,9 +437,15 @@ static void print_quoted_string(FILE * f, const char * s)
     else if (c == '\t') {
       putc('\\', f); c = 't';
     }
-    else if ((unsigned char)c < ' ')
-      c = '?'; // Not ' '-'~', '\t' or UTF-8
-    putc(c, f);
+    // Print as UTF-8 unless the string contains any invalid sequences
+    // "\uXXXX" is not used because it is not valid for YAML
+    if (   (' ' <= c && c <= '~')
+        || ((c & 0x80) && (utf8_rc >= -1 ? utf8_rc : (utf8_rc = check_utf8(s + i))) == -1))
+      putc(c, f);
+    else
+      // Print informal hex string for unexpected chars:
+      // Control chars (except TAB), DEL(0x7f), bit 7 set and no valid UTF-8
+      fprintf(f, "\\\\x%02x", (unsigned char)c);
   }
   putc('"', f);
 }
