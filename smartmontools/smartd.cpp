@@ -346,6 +346,11 @@ static inline void notify_exit(int) { }
 
 #endif // HAVE_LIBSYSTEMD
 
+// Email frequencies
+enum class emailfreqs : unsigned char {
+  unknown, once, daily, diminishing
+};
+
 // Attribute monitoring flags.
 // See monitor_attr_flags below.
 enum {
@@ -418,7 +423,7 @@ struct dev_config
   // Configuration of email warning messages
   std::string emailcmdline;               // script to execute, empty if no messages
   std::string emailaddress;               // email address, or empty
-  unsigned char emailfreq{};              // Emails once (1) daily (2) diminishing (3)
+  emailfreqs emailfreq{};                 // Send emails once, daily, diminishing
   bool emailtest{};                       // Send test email?
 
   // ATA ONLY
@@ -1030,6 +1035,11 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 // a warning email, or execute executable
 static void MailWarning(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
 {
+  // See if user wants us to send mail
+  if (cfg.emailaddress.empty() && cfg.emailcmdline.empty())
+    return;
+
+  // Which type of mail are we sending?
   static const char * const whichfail[] = {
     "EmailTest",                  // 0
     "Health",                     // 1
@@ -1045,56 +1055,49 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     "OfflineUncorrectableSector", // 11
     "Temperature"                 // 12
   };
+  STATIC_ASSERT(sizeof(whichfail) == SMARTD_NMAIL * sizeof(whichfail[0]));
   
-  // See if user wants us to send mail
-  if (cfg.emailaddress.empty() && cfg.emailcmdline.empty())
-    return;
-
-  std::string address = cfg.emailaddress;
-  const char * executable = cfg.emailcmdline.c_str();
-
-  // which type of mail are we sending?
-  mailinfo * mail=(state.maillog)+which;
-
-  // checks for sanity
-  if (cfg.emailfreq<1 || cfg.emailfreq>3) {
-    PrintOut(LOG_CRIT,"internal error in MailWarning(): cfg.mailwarn->emailfreq=%d\n",cfg.emailfreq);
+  if (!(0 <= which && which < SMARTD_NMAIL)) {
+    PrintOut(LOG_CRIT, "Internal error in MailWarning(): which=%d\n", which);
     return;
   }
-  if (which<0 || which>=SMARTD_NMAIL || sizeof(whichfail)!=SMARTD_NMAIL*sizeof(char *)) {
-    PrintOut(LOG_CRIT,"Contact " PACKAGE_BUGREPORT "; internal error in MailWarning(): which=%d, size=%d\n",
-             which, (int)sizeof(whichfail));
-    return;
-  }
+  mailinfo * mail = state.maillog + which;
 
-  // Return if a single warning mail has been sent.
-  if ((cfg.emailfreq==1) && mail->logged)
-    return;
-
-  // Return if this is an email test and one has already been sent.
-  if (which == 0 && mail->logged)
-    return;
-  
-  // To decide if to send mail, we need to know what time it is.
-  time_t epoch = time(nullptr);
-
-  // Return if less than one day has gone by
-  const int day = 24*3600;
-  if (cfg.emailfreq==2 && mail->logged && epoch<(mail->lastsent+day))
-    return;
-
-  // Return if less than 2^(logged-1) days have gone by
-  if (cfg.emailfreq==3 && mail->logged) {
-    int days = 0x01 << (mail->logged - 1);
-    days*=day;
-    if  (epoch<(mail->lastsent+days))
+  // Calc current and next interval for warning reminder emails
+  int days, nextdays;
+  if (which == 0)
+    days = nextdays = -1; // EmailTest
+  else switch (cfg.emailfreq) {
+    case emailfreqs::once:
+      days = nextdays = -1; break;
+    case emailfreqs::daily:
+      days = nextdays = 1; break;
+    case emailfreqs::diminishing:
+      // 0, 1, 2, 3, 4, 5, 6, 7, ... => 1, 2, 4, 8, 16, 32, 32, 32, ...
+      nextdays = 1 << ((unsigned)mail->logged <= 5 ? mail->logged : 5);
+      // 0, 1, 2, 3, 4, 5, 6, 7, ... => 0, 1, 2, 4,  8, 16, 32, 32, ... (0 not used below)
+      days = ((unsigned)mail->logged <= 5 ? nextdays >> 1 : nextdays);
+      break;
+    default:
+      PrintOut(LOG_CRIT, "Internal error in MailWarning(): cfg.emailfreq=%d\n", (int)cfg.emailfreq);
       return;
   }
 
-  // record the time of this mail message, and the first mail message
-  if (!mail->logged)
-    mail->firstsent=epoch;
-  mail->lastsent=epoch;
+  time_t now = time(nullptr);
+  if (mail->logged) {
+    // Return if no warning reminder email needs to be sent (now)
+    if (days < 0)
+      return; // '-M once' or EmailTest
+    if (days > 0 && now < mail->lastsent + days * 24 * 3600)
+      return; // '-M daily/diminishing' and too early
+  }
+  else {
+    // Record the time of this first email message
+    mail->firstsent = now;
+  }
+
+  // Record the time of this email message
+  mail->lastsent = now;
 
   // print warning string into message
   // Note: Message length may reach ~300 characters as device names may be
@@ -1108,10 +1111,12 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   va_end(ap);
 
   // replace commas by spaces to separate recipients
+  std::string address = cfg.emailaddress;
   std::replace(address.begin(), address.end(), ',', ' ');
 
   // Export information in environment variables that will be useful
   // for user scripts
+  const char * executable = cfg.emailcmdline.c_str();
   static env_buffer env[13];
   env[0].set("SMARTD_MAILER", executable);
   env[1].set("SMARTD_MESSAGE", message);
@@ -1133,10 +1138,8 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 
   env[10].set("SMARTD_DEVICEINFO", cfg.dev_idinfo.c_str());
   dates[0] = 0;
-  if (which) switch (cfg.emailfreq) {
-    case 2: dates[0] = '1'; dates[1] = 0; break;
-    case 3: snprintf(dates, sizeof(dates), "%d", (0x01)<<mail->logged);
-  }
+  if (nextdays >= 0)
+    snprintf(dates, sizeof(dates), "%d", nextdays);
   env[11].set("SMARTD_NEXTDAYS", dates);
   // Avoid false positive recursion detection by smartd_warning.{sh,cmd}
   env[12].set("SMARTD_SUBJECT", "");
@@ -1885,12 +1888,12 @@ static bool check_pending_id(const dev_config & cfg, const dev_state & state,
 static void finish_device_scan(dev_config & cfg, dev_state & state)
 {
   // Set cfg.emailfreq if user hasn't set it
-  if ((!cfg.emailaddress.empty() || !cfg.emailcmdline.empty()) && !cfg.emailfreq) {
+  if ((!cfg.emailaddress.empty() || !cfg.emailcmdline.empty()) && cfg.emailfreq == emailfreqs::unknown) {
     // Avoid that emails are suppressed forever due to state persistence
     if (cfg.state_file.empty())
-      cfg.emailfreq = 1; // '-M once'
+      cfg.emailfreq = emailfreqs::once;
     else
-      cfg.emailfreq = 2; // '-M daily'
+      cfg.emailfreq = emailfreqs::daily;
   }
 
   // Start self-test regex check now if time was not read from state file
@@ -4521,13 +4524,13 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
     if (!(arg = strtok(nullptr, delim)))
       missingarg = 1;
     else if (!strcmp(arg, "once"))
-      cfg.emailfreq = 1;
+      cfg.emailfreq = emailfreqs::once;
     else if (!strcmp(arg, "daily"))
-      cfg.emailfreq = 2;
+      cfg.emailfreq = emailfreqs::daily;
     else if (!strcmp(arg, "diminishing"))
-      cfg.emailfreq = 3;
+      cfg.emailfreq = emailfreqs::diminishing;
     else if (!strcmp(arg, "test"))
-      cfg.emailtest = 1;
+      cfg.emailtest = true;
     else if (!strcmp(arg, "exec")) {
       // Get the next argument (the command line)
 #ifdef _WIN32
@@ -4815,7 +4818,8 @@ static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & defaul
   }
   
   // additional sanity check. Has user set -M options without -m?
-  if (cfg.emailaddress.empty() && (!cfg.emailcmdline.empty() || cfg.emailfreq || cfg.emailtest)){
+  if (   cfg.emailaddress.empty()
+      && (!cfg.emailcmdline.empty() || cfg.emailfreq != emailfreqs::unknown || cfg.emailtest)) {
     PrintOut(LOG_CRIT,"Drive: %s, -M Directive(s) on line %d of file %s need -m ADDRESS Directive\n",
              cfg.name.c_str(), cfg.lineno, configfile);
     return -2;
