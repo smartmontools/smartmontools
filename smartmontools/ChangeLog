@@ -2,6 +2,12 @@ $Id$
 
 2022-12-31  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Add '-M always' directive (#1018, GH issues/153).
+	If specified, warning reminder emails are sent upon each check.
+	smartd_warning.sh.in, os_win32/smartd_warning.cmd: Handle
+	SMARTD_NEXTDAYS=0.
+	smartd.conf.5.in: Document the new directive.
+
 	smartd.cpp: Rework handling of warning reminder emails.
 	Add scoped enum.  Limit '-M diminishing' delay to 32 days.
 	smartd.conf.5.in: Document the new limit.

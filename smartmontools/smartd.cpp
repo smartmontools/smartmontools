@@ -348,7 +348,7 @@ static inline void notify_exit(int) { }
 
 // Email frequencies
 enum class emailfreqs : unsigned char {
-  unknown, once, daily, diminishing
+  unknown, once, always, daily, diminishing
 };
 
 // Attribute monitoring flags.
@@ -1070,6 +1070,8 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
   else switch (cfg.emailfreq) {
     case emailfreqs::once:
       days = nextdays = -1; break;
+    case emailfreqs::always:
+      days = nextdays = 0; break;
     case emailfreqs::daily:
       days = nextdays = 1; break;
     case emailfreqs::diminishing:
@@ -4137,7 +4139,7 @@ static void printoutvaliddirectiveargs(int priority, char d)
     PrintOut(priority, "error, selftest");
     break;
   case 'M':
-    PrintOut(priority, "\"once\", \"daily\", \"diminishing\", \"test\", \"exec\"");
+    PrintOut(priority, "\"once\", \"always\", \"daily\", \"diminishing\", \"test\", \"exec\"");
     break;
   case 'v':
     PrintOut(priority, "\n%s\n", create_vendor_attribute_arg_list().c_str());
@@ -4525,6 +4527,8 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
       missingarg = 1;
     else if (!strcmp(arg, "once"))
       cfg.emailfreq = emailfreqs::once;
+    else if (!strcmp(arg, "always"))
+      cfg.emailfreq = emailfreqs::always;
     else if (!strcmp(arg, "daily"))
       cfg.emailfreq = emailfreqs::daily;
     else if (!strcmp(arg, "diminishing"))

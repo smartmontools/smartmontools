@@ -99,11 +99,13 @@ if     "!TMP!" == "" set SMARTD_FULLMSGFILE=smartd_warning-!RANDOM!.txt
     if not "!SMARTD_PREVCNT!" == "0" echo The original message about this issue was sent at !SMARTD_TFIRST!
     if "!SMARTD_NEXTDAYS!" == "" (
       echo No additional messages about this problem will be sent.
+    ) else ( if "!SMARTD_NEXTDAYS!" == "0" (
+      echo Another message will be sent upon next check if the problem persists.
     ) else ( if "!SMARTD_NEXTDAYS!" == "1" (
       echo Another message will be sent in 24 hours if the problem persists.
     ) else (
       echo Another message will be sent in !SMARTD_NEXTDAYS! days if the problem persists.
-    ))
+    )))
   )
 ) > "!SMARTD_FULLMSGFILE!"
 if errorlevel 1 goto ERROR
