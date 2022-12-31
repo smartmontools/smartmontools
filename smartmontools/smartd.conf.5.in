@@ -4,7 +4,7 @@ Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5425 2022-12-16 18:53:03Z chrfranke $
+$Id: smartd.conf.5.in 5427 2022-12-31 15:32:18Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1120,6 +1120,9 @@ of disk problem detected.  This is the default if state persistence
 then a two-day interval, then a four-day interval, and so on for each
 type of disk problem detected.  Each interval is twice as long as the
 previous interval.
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+The interval length will stay at 32 days after 5 warning reminder emails.
 .Sp
 If a disk problem is no longer detected, the internal email counter is
 reset.  If the problem reappears a new warning email is sent immediately.
@@ -1769,4 +1772,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5425 2022-12-16 18:53:03Z chrfranke $
+$Id: smartd.conf.5.in 5427 2022-12-31 15:32:18Z chrfranke $

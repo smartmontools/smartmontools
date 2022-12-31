@@ -1,4 +1,10 @@
-$Id: ChangeLog 5426 2022-12-17 15:59:23Z chrfranke $
+$Id: ChangeLog 5427 2022-12-31 15:32:18Z chrfranke $
+
+2022-12-31  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Rework handling of warning reminder emails.
+	Add scoped enum.  Limit '-M diminishing' delay to 32 days.
+	smartd.conf.5.in: Document the new limit.
 
 2022-12-17  Christian Franke  <franke@computer.org>
 
