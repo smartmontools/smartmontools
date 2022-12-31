@@ -8,7 +8,7 @@
 ::
 :: SPDX-License-Identifier: GPL-2.0-or-later
 ::
-:: $Id: smartd_warning.cmd 5403 2022-08-06 16:09:49Z chrfranke $
+:: $Id: smartd_warning.cmd 5428 2022-12-31 15:55:43Z chrfranke $
 ::
 
 verify other 2>nul
@@ -99,11 +99,13 @@ if     "!TMP!" == "" set SMARTD_FULLMSGFILE=smartd_warning-!RANDOM!.txt
     if not "!SMARTD_PREVCNT!" == "0" echo The original message about this issue was sent at !SMARTD_TFIRST!
     if "!SMARTD_NEXTDAYS!" == "" (
       echo No additional messages about this problem will be sent.
+    ) else ( if "!SMARTD_NEXTDAYS!" == "0" (
+      echo Another message will be sent upon next check if the problem persists.
     ) else ( if "!SMARTD_NEXTDAYS!" == "1" (
       echo Another message will be sent in 24 hours if the problem persists.
     ) else (
       echo Another message will be sent in !SMARTD_NEXTDAYS! days if the problem persists.
-    ))
+    )))
   )
 ) > "!SMARTD_FULLMSGFILE!"
 if errorlevel 1 goto ERROR

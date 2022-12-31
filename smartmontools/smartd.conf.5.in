@@ -4,7 +4,7 @@ Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5427 2022-12-31 15:32:18Z chrfranke $
+$Id: smartd.conf.5.in 5428 2022-12-31 15:55:43Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1110,6 +1110,11 @@ three):
 \- send only one warning email for each type of disk problem detected.  This
 is the default unless state persistence (\*(Aq\-s\*(Aq option) is enabled.
 .Sp
+.I always
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+send additional warning reminder emails, upon each check, for each type
+of disk problem detected.
+.Sp
 .I daily
 \- send additional warning reminder emails, once per day, for each type
 of disk problem detected.  This is the default if state persistence
@@ -1284,8 +1289,8 @@ is an integer specifying the number of previous messages sent.
 It is set to \*(Aq0\*(Aq for the first message.
 .IP \fBSMARTD_NEXTDAYS\fP 4
 is an integer specifying the number of days until the next message will be sent.
-It it set to empty on \*(Aq\-M once\*(Aq and set to \*(Aq1\*(Aq on
-\*(Aq\-M daily\*(Aq.
+It is set to empty on \*(Aq\-M once\*(Aq, set to \*(Aq0\*(Aq on
+\*(Aq\-M always\*(Aq and set to \*(Aq1\*(Aq on \*(Aq\-M daily\*(Aq.
 .RE
 .\" The following two lines define a non-existent option.
 .\" This resets the margin to the level prior to the '.RS ... .RE' block.
@@ -1772,4 +1777,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5427 2022-12-31 15:32:18Z chrfranke $
+$Id: smartd.conf.5.in 5428 2022-12-31 15:55:43Z chrfranke $
