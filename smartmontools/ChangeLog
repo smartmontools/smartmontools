@@ -1,5 +1,9 @@
 $Id$
 
+2023-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year!  Update copyright year in version info.
+
 2022-12-31  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Add '-M always' directive (#1018, GH issues/153).
