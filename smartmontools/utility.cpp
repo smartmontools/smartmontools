@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-12 Bruce Allen
- * Copyright (C) 2008-22 Christian Franke
+ * Copyright (C) 2008-23 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -55,7 +55,7 @@
 #endif
 #endif // USE_CLOCK_MONOTONIC
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 5397 2022-07-17 02:22:29Z dpgilbert $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 5429 2023-01-01 10:40:24Z chrfranke $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -97,7 +97,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
       "(build date " __DATE__ ")" // checkout without expansion of Id keywords
 #endif
       " [%s] " BUILD_INFO "\n"
-    "Copyright (C) 2002-22, Bruce Allen, Christian Franke, www.smartmontools.org\n",
+    "Copyright (C) 2002-23, Bruce Allen, Christian Franke, www.smartmontools.org\n",
     prog_name, smi()->get_os_version_str().c_str()
   );
   if (!full)
