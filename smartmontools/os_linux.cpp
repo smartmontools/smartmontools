@@ -547,6 +547,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < (int)iop->cmnd_len; ++k)
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
+#if 0
         if ((report > 1) &&
             (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
             int trunc = (iop->dxfer_len > 256) ? 1 : 0;
@@ -559,6 +560,9 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         else
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
         pout("%s", buff);
+#else
+        pout("%s\n", buff);
+#endif
     }
     memset(&io_hdr_v3, 0, sizeof(struct sg_io_hdr));
     memset(&io_hdr_v4, 0, sizeof(struct sg_io_v4));
@@ -665,6 +669,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
              sg_transport_status, sg_driver_status, sg_info,
              sg_duration, iop->resid);
 
+#if 0
         if (report > 1) {
             if (DXFER_FROM_DEVICE == iop->dxfer_dir) {
                 int trunc, len;
@@ -679,6 +684,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
                     pout("  Incoming data trimmed to nothing by resid\n");
             }
         }
+#endif
     }
 
     if (sg_info & SG_INFO_CHECK) { /* error or warning */

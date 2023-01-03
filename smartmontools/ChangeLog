@@ -1,5 +1,15 @@
 $Id$
 
+2023-01-02  Douglas Gilbert  <dgilbert@interlog.com>
+
+	start moving SCSI debug into scsi_pass_through_yield_sense()
+	in scsicmds.cpp . Previously was replicated across OS transports.
+	Add dStrHexFp() that writes to a FILE pointer; idea is to send
+	debug info to a file (rather than stdout/stderr and using
+	redirection). The 'is_ascii' argument of dStrHexFp() now takes
+	a negative value which strips off the leading address on hex
+	lines. That is easier to parse IMO.
+
 2023-01-01  Christian Franke  <franke@computer.org>
 
 	Happy New Year!  Update copyright year in version info.

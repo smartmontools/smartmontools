@@ -73,63 +73,121 @@ supported_vpd_pages::is_supported(int vpd_page_num) const
     return false;
 }
 
-/* output binary in ASCII hex and optionally ASCII. Uses pout() for output. */
-void
-dStrHex(const uint8_t * up, int len, int no_ascii)
+/* Simple ASCII printable (does not use locale), includes space and excludes
+ * DEL (0x7f). Note all UTF-8 encoding apart from <= 0x7f have top bit set. */
+static inline int
+my_isprint(uint8_t ch)
 {
-    const uint8_t * p = up;
+    return ((ch >= ' ') && (ch < 0x7f));
+}
+
+static int
+trimTrailingSpaces(char * b)
+{
+    int n = strlen(b);
+
+    while ((n > 0) && (' ' == b[n - 1]))
+        b[--n] = '\0';
+    return n;
+}
+
+/* Read binary starting at 'up' for 'len' bytes and output as ASCII
+ * hexadecimal into file pointer (fp). 16 bytes per line are output with an
+ * additional space between 8th and 9th byte on each line (for readability).
+ * 'no_ascii' selects one of 3 output format types:
+ *     > 0     each line has address then up to 16 ASCII-hex bytes
+ *     = 0     in addition, the bytes are listed in ASCII to the right
+ *     < 0     only the ASCII-hex bytes are listed (i.e. without address) */
+void
+dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp)
+{
+    uint8_t c;
     char buff[82];
     int a = 0;
-    const int bpstart = 5;
+    int bpstart = 5;
     const int cpstart = 60;
     int cpos = cpstart;
     int bpos = bpstart;
-    int i, k;
+    int i, k, blen;
 
-    if (len <= 0) return;
-    memset(buff,' ',80);
-    buff[80]='\0';
-    k = snprintf(buff+1, sizeof(buff)-1, "%.2x", a);
+    if (len <= 0)
+        return;
+    blen = (int)sizeof(buff);
+    memset(buff, ' ', 80);
+    buff[80] = '\0';
+    if (no_ascii < 0) {
+        bpstart = 0;
+        bpos = bpstart;
+        for (k = 0; k < len; k++) {
+            c = *up++;
+            if (bpos == (bpstart + (8 * 3)))
+                bpos++;
+            snprintf(&buff[bpos], blen - bpos, "%.2x", (int)(uint8_t)c);
+            buff[bpos + 2] = ' ';
+            if ((k > 0) && (0 == ((k + 1) % 16))) {
+                trimTrailingSpaces(buff);
+		if (no_ascii)
+                    fprintf(fp,  "%s\n", buff);
+		else
+                    fprintf(fp,  "%.76s\n", buff);
+                bpos = bpstart;
+                memset(buff, ' ', 80);
+            } else
+                bpos += 3;
+        }
+        if (bpos > bpstart) {
+            buff[bpos + 2] = '\0';
+            trimTrailingSpaces(buff);
+            fprintf(fp, "%s\n", buff);
+        }
+        return;
+    }
+    /* no_ascii>=0, start each line with address (offset) */
+    k = snprintf(buff + 1, blen - 1, "%.2x", a);
     buff[k + 1] = ' ';
-    if (bpos >= ((bpstart + (9 * 3))))
-        bpos++;
 
-    for(i = 0; i < len; i++)
-    {
-        uint8_t c = *p++;
+    for (i = 0; i < len; i++) {
+        c = *up++;
         bpos += 3;
         if (bpos == (bpstart + (9 * 3)))
             bpos++;
-        snprintf(buff+bpos, sizeof(buff)-bpos, "%.2x", (unsigned int)c);
+        snprintf(&buff[bpos], blen - bpos, "%.2x", (int)(uint8_t)c);
         buff[bpos + 2] = ' ';
         if (no_ascii)
             buff[cpos++] = ' ';
         else {
-            if ((c < ' ') || (c >= 0x7f))
-                c='.';
+            if (! my_isprint(c))
+                c = '.';
             buff[cpos++] = c;
         }
-        if (cpos > (cpstart+15))
-        {
-            while (cpos > 0 && buff[cpos-1] == ' ')
-              cpos--;
-            buff[cpos] = 0;
-            pout("%s\n", buff);
+        if (cpos > (cpstart + 15)) {
+            if (no_ascii)
+                trimTrailingSpaces(buff);
+	    if (no_ascii)
+                fprintf(fp,  "%s\n", buff);
+	    else
+                fprintf(fp,  "%.76s\n", buff);
             bpos = bpstart;
             cpos = cpstart;
             a += 16;
-            memset(buff,' ',80);
-            k = snprintf(buff+1, sizeof(buff)-1, "%.2x", a);
+            memset(buff, ' ', 80);
+            k = snprintf(buff + 1, blen - 1, "%.2x", a);
             buff[k + 1] = ' ';
         }
     }
-    if (cpos > cpstart)
-    {
-        while (cpos > 0 && buff[cpos-1] == ' ')
-          cpos--;
-        buff[cpos] = 0;
-        pout("%s\n", buff);
+        if (cpos > cpstart) {
+        buff[cpos] = '\0';
+        if (no_ascii)
+            trimTrailingSpaces(buff);
+        fprintf(fp, "%s\n", buff);
     }
+}
+
+/* output binary in ASCII hex and optionally ASCII. Uses pout() for output. */
+void
+dStrHex(const uint8_t * up, int len, int no_ascii)
+{
+    dStrHexFp(up, len, no_ascii, stdout);
 }
 
 /* This is a heuristic that takes into account the command bytes and length
@@ -1306,12 +1364,31 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
     int k;
     uint32_t opcode = (iop->cmnd_len > 0) ? iop->cmnd[0] : 0xffff;
 
-    if (scsi_debugmode > 2)
-        pout("%s: opcode: 0x%x\n", __func__, opcode);
+    if (scsi_debugmode > 2) {
+	bool dout = false;
+	const char * ddir = "none";
+
+	if (iop->dxfer_len > 0) {
+	    dout = (DXFER_TO_DEVICE == iop->dxfer_dir);
+	    ddir = dout ? "out" : "in";
+	}
+        pout(" [SCSI opcode=0x%x, CDB length=%lu, data length=0x%lx, data "
+	     "dir=%s]\n", opcode, iop->cmnd_len, iop->dxfer_len, ddir);
+	if (dout && (scsi_debugmode > 3))  /* output hex without address */
+	    dStrHexFp(iop->dxferp, iop->dxfer_len, -1, stdout);
+    }
 
     if (! device->scsi_pass_through(iop))
         return false; // this will be missing device, timeout, etc
 
+    if (scsi_debugmode > 3) {
+	if ((iop->dxfer_len > 0) && (DXFER_FROM_DEVICE == iop->dxfer_dir)) {
+	    int rlen = iop->dxfer_len - iop->resid;
+
+	    if (rlen > 0)
+	        dStrHexFp(iop->dxferp, rlen, -1, stdout);
+	}
+    }
     scsi_do_sense_disect(iop, &sinfo);
 
     switch (opcode) {
