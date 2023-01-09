@@ -1,5 +1,11 @@
 $Id$
 
+2023-01-07  Douglas Gilbert  <dgilbert@interlog.com>
+
+	fix regression around dStrHex compatibility with pout() call
+	introduced in previous commit. Credit to Christian Franke
+	for the C++11 (and later) solution using lambas.
+
 2023-01-02  Douglas Gilbert  <dgilbert@interlog.com>
 
 	start moving SCSI debug into scsi_pass_through_yield_sense()
