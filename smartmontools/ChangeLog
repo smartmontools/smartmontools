@@ -1,4 +1,10 @@
-$Id: ChangeLog 5431 2023-01-03 01:09:59Z dpgilbert $
+$Id: ChangeLog 5432 2023-01-09 17:51:50Z dpgilbert $
+
+2023-01-07  Douglas Gilbert  <dgilbert@interlog.com>
+
+	fix regression around dStrHex compatibility with pout() call
+	introduced in previous commit. Credit to Christian Franke
+	for the C++11 (and later) solution using lambas.
 
 2023-01-02  Douglas Gilbert  <dgilbert@interlog.com>
 
