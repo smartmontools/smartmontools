@@ -73,63 +73,144 @@ supported_vpd_pages::is_supported(int vpd_page_num) const
     return false;
 }
 
-/* output binary in ASCII hex and optionally ASCII. Uses pout() for output. */
-void
-dStrHex(const uint8_t * up, int len, int no_ascii)
+/* Simple ASCII printable (does not use locale), includes space and excludes
+ * DEL (0x7f). Note all UTF-8 encoding apart from <= 0x7f have top bit set. */
+static inline int
+my_isprint(uint8_t ch)
 {
-    const uint8_t * p = up;
-    char buff[82];
+    return ((ch >= ' ') && (ch < 0x7f));
+}
+
+static int
+trimTrailingSpaces(char * b)
+{
+    int n = strlen(b);
+
+    while ((n > 0) && (' ' == b[n - 1]))
+        b[--n] = '\0';
+    return n;
+}
+
+/* Read binary starting at 'up' for 'len' bytes and output as ASCII
+ * hexadecimal to the passed function 'out'. See dStrHex() below for more. */
+static void
+dStrHexHelper(const uint8_t * up, int len, int no_ascii,
+              void (*out)(const char * s, void * ctx), void * ctx = nullptr)
+{
+    static const int line_len = 80;
+    static const int cpstart = 60;      // offset of start of ASCII rendering
+    uint8_t c;
+    char buff[line_len + 2];    // room for trailing null
     int a = 0;
-    const int bpstart = 5;
-    const int cpstart = 60;
+    int bpstart = 5;
     int cpos = cpstart;
     int bpos = bpstart;
-    int i, k;
+    int i, k, blen;
+    char e[line_len + 2];
+    static const int elen = sizeof(e);
 
-    if (len <= 0) return;
-    memset(buff,' ',80);
-    buff[80]='\0';
-    k = snprintf(buff+1, sizeof(buff)-1, "%.2x", a);
+    if (len <= 0)
+        return;
+    blen = (int)sizeof(buff);
+    memset(buff, ' ', line_len);
+    buff[line_len] = '\0';
+    if (no_ascii < 0) {
+        bpstart = 0;
+        bpos = bpstart;
+        for (k = 0; k < len; k++) {
+            c = *up++;
+            if (bpos == (bpstart + (8 * 3)))
+                bpos++;
+            snprintf(&buff[bpos], blen - bpos, "%.2x", (int)(uint8_t)c);
+            buff[bpos + 2] = ' ';
+            if ((k > 0) && (0 == ((k + 1) % 16))) {
+                trimTrailingSpaces(buff);
+                if (no_ascii)
+                    out(buff, ctx);
+                else {
+                    snprintf(e, elen, "%.76s\n", buff);
+                    out(e, ctx);
+                }
+                bpos = bpstart;
+                memset(buff, ' ', line_len);
+            } else
+                bpos += 3;
+        }
+        if (bpos > bpstart) {
+            buff[bpos + 2] = '\0';
+            trimTrailingSpaces(buff);
+            out(buff, ctx);
+        }
+        return;
+    }
+    /* no_ascii>=0, start each line with address (offset) */
+    k = snprintf(buff + 1, blen - 1, "%.2x", a);
     buff[k + 1] = ' ';
-    if (bpos >= ((bpstart + (9 * 3))))
-        bpos++;
 
-    for(i = 0; i < len; i++)
-    {
-        uint8_t c = *p++;
+    for (i = 0; i < len; i++) {
+        c = *up++;
         bpos += 3;
         if (bpos == (bpstart + (9 * 3)))
             bpos++;
-        snprintf(buff+bpos, sizeof(buff)-bpos, "%.2x", (unsigned int)c);
+        snprintf(&buff[bpos], blen - bpos, "%.2x", (int)(uint8_t)c);
         buff[bpos + 2] = ' ';
         if (no_ascii)
             buff[cpos++] = ' ';
         else {
-            if ((c < ' ') || (c >= 0x7f))
-                c='.';
+            if (! my_isprint(c))
+                c = '.';
             buff[cpos++] = c;
         }
-        if (cpos > (cpstart+15))
-        {
-            while (cpos > 0 && buff[cpos-1] == ' ')
-              cpos--;
-            buff[cpos] = 0;
-            pout("%s\n", buff);
+        if (cpos > (cpstart + 15)) {
+            if (no_ascii)
+                trimTrailingSpaces(buff);
+            if (no_ascii)
+                out(buff, ctx);
+            else {
+                snprintf(e, elen, "%.76s\n", buff);
+                out(e, ctx);
+            }
             bpos = bpstart;
             cpos = cpstart;
             a += 16;
-            memset(buff,' ',80);
-            k = snprintf(buff+1, sizeof(buff)-1, "%.2x", a);
+            memset(buff, ' ', line_len);
+            k = snprintf(buff + 1, blen - 1, "%.2x", a);
             buff[k + 1] = ' ';
         }
     }
-    if (cpos > cpstart)
-    {
-        while (cpos > 0 && buff[cpos-1] == ' ')
-          cpos--;
-        buff[cpos] = 0;
-        pout("%s\n", buff);
+        if (cpos > cpstart) {
+        buff[cpos] = '\0';
+        if (no_ascii)
+            trimTrailingSpaces(buff);
+        out(buff, ctx);
     }
+}
+
+/* Read binary starting at 'up' for 'len' bytes and output as ASCII
+ * hexadecimal into file pointer (fp). See dStrHex() below for more. */
+void
+dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp)
+{
+    /* N.B. Use of lamba requires C++11 or later. */
+    dStrHexHelper(up, len, no_ascii,
+                  [](const char * s, void * ctx)
+                        { fputs(s, reinterpret_cast<FILE *>(ctx)); },
+                  fp); 
+}
+
+/* Read binary starting at 'up' for 'len' bytes and output as ASCII
+ * hexadecimal into pout(). 16 bytes per line are output with an
+ * additional space between 8th and 9th byte on each line (for readability).
+ * 'no_ascii' selects one of 3 output format types:
+ *     > 0     each line has address then up to 16 ASCII-hex bytes
+ *     = 0     in addition, the bytes are listed in ASCII to the right
+ *     < 0     only the ASCII-hex bytes are listed (i.e. without address) */
+void
+dStrHex(const uint8_t * up, int len, int no_ascii)
+{
+    /* N.B. Use of lamba requires C++11 or later. */
+    dStrHexHelper(up, len, no_ascii,
+                  [](const char * s, void *){ pout("%s", s); });
 }
 
 /* This is a heuristic that takes into account the command bytes and length
@@ -646,7 +727,7 @@ scsiLogSense(scsi_device * device, int pagenum, int subpagenum, uint8_t *pBuf,
     else if (known_resp_len < 0)
         pageLen = bufLen;
     else {      /* 0 == known_resp_len */
-        /* Starting twin fetch strategy: first fetch to find respone length */
+        /* Twin fetch strategy: first fetch to find response length */
         pageLen = 4;
         if (pageLen > bufLen)
             return -EIO;
@@ -1306,12 +1387,32 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
     int k;
     uint32_t opcode = (iop->cmnd_len > 0) ? iop->cmnd[0] : 0xffff;
 
-    if (scsi_debugmode > 2)
-        pout("%s: opcode: 0x%x\n", __func__, opcode);
+    if (scsi_debugmode > 2) {
+        bool dout = false;
+        const char * ddir = "none";
+
+        if (iop->dxfer_len > 0) {
+            dout = (DXFER_TO_DEVICE == iop->dxfer_dir);
+            ddir = dout ? "out" : "in";
+        }
+        pout(" [SCSI opcode=0x%x, CDB length=%u, data length=0x%lx, data "
+             "dir=%s]\n", opcode, (unsigned int)iop->cmnd_len, iop->dxfer_len,
+             ddir);
+        if (dout && (scsi_debugmode > 3))  /* output hex without address */
+            dStrHexFp(iop->dxferp, iop->dxfer_len, -1, stdout);
+    }
 
     if (! device->scsi_pass_through(iop))
         return false; // this will be missing device, timeout, etc
 
+    if (scsi_debugmode > 3) {
+        if ((iop->dxfer_len > 0) && (DXFER_FROM_DEVICE == iop->dxfer_dir)) {
+            int rlen = iop->dxfer_len - iop->resid;
+
+            if (rlen > 0)
+                dStrHexFp(iop->dxferp, rlen, -1, stdout);
+        }
+    }
     scsi_do_sense_disect(iop, &sinfo);
 
     switch (opcode) {
@@ -2328,30 +2429,37 @@ scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
 }
 
 void
-scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp)
+scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp,
+                         int allocLen)
 {
     memset(ecp, 0, sizeof(*ecp));
     int num = sg_get_unaligned_be16(resp + 2);
     unsigned char * ucp = &resp[0] + 4;
-    while (num > 3) {
+
+    /* allocLen is length of whole log page including 4 byte log page header */
+    num = num < allocLen - 4 ? num : allocLen - 4;
+    while (num >= 4) {  /* header of each parameter takes 4 bytes */
         int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
         uint64_t * ullp;
+
+        if (num < pl)  /* remaining length less than a complete parameter */
+            break;
         switch (pc) {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-                ecp->gotPC[pc] = 1;
-                ullp = &ecp->counter[pc];
-                break;
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            ecp->gotPC[pc] = 1;
+            ullp = &ecp->counter[pc];
+        break;
         default:
-                ecp->gotExtraPC = 1;
-                ullp = &ecp->counter[7];
-                break;
+            ecp->gotExtraPC = 1;
+            ullp = &ecp->counter[7];
+            break;
         }
         int k = pl - 4;
         unsigned char * xp = ucp + 4;
@@ -2367,51 +2475,58 @@ scsiDecodeErrCounterPage(unsigned char * resp, struct scsiErrorCounter *ecp)
 
 void
 scsiDecodeNonMediumErrPage(unsigned char *resp,
-                           struct scsiNonMediumError *nmep)
+                           struct scsiNonMediumError *nmep,
+                           int allocLen)
 {
     memset(nmep, 0, sizeof(*nmep));
     int num = sg_get_unaligned_be16(resp + 2);
     unsigned char * ucp = &resp[0] + 4;
     static int szof = sizeof(nmep->counterPC0);
-    while (num > 3) {
+
+    /* allocLen is length of whole log page including 4 byte log page header */
+    num = num < allocLen - 4 ? num : allocLen - 4;
+    while (num >= 4) {  /* header of each parameter takes 4 bytes */
         int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
         int k;
         unsigned char * xp;
+
+        if (num < pl)  /* remaining length less than a complete parameter */
+            break;
         switch (pc) {
-            case 0:
-                nmep->gotPC0 = 1;
-                k = pl - 4;
-                xp = ucp + 4;
-                if (k > szof) {
-                    xp += (k - szof);
-                    k = szof;
-                }
-                nmep->counterPC0 = sg_get_unaligned_be(k, xp + 0);
-                break;
-            case 0x8009:
-                nmep->gotTFE_H = 1;
-                k = pl - 4;
-                xp = ucp + 4;
-                if (k > szof) {
-                    xp += (k - szof);
-                    k = szof;
-                }
-                nmep->counterTFE_H = sg_get_unaligned_be(k, xp + 0);
-                break;
-            case 0x8015:
-                nmep->gotPE_H = 1;
-                k = pl - 4;
-                xp = ucp + 4;
-                if (k > szof) {
-                    xp += (k - szof);
-                    k = szof;
-                }
-                nmep->counterPE_H = sg_get_unaligned_be(k, xp + 0);
-                break;
+        case 0:
+            nmep->gotPC0 = 1;
+            k = pl - 4;
+            xp = ucp + 4;
+            if (k > szof) {
+                xp += (k - szof);
+                k = szof;
+            }
+            nmep->counterPC0 = sg_get_unaligned_be(k, xp + 0);
+            break;
+        case 0x8009:
+            nmep->gotTFE_H = 1;
+            k = pl - 4;
+            xp = ucp + 4;
+            if (k > szof) {
+                xp += (k - szof);
+                k = szof;
+            }
+            nmep->counterTFE_H = sg_get_unaligned_be(k, xp + 0);
+            break;
+        case 0x8015:
+            nmep->gotPE_H = 1;
+            k = pl - 4;
+            xp = ucp + 4;
+            if (k > szof) {
+                xp += (k - szof);
+                k = szof;
+            }
+            nmep->counterPE_H = sg_get_unaligned_be(k, xp + 0);
+            break;
         default:
-                nmep->gotExtraPC = 1;
-                break;
+            nmep->gotExtraPC = 1;
+            break;
         }
         num -= pl;
         ucp += pl;

@@ -501,9 +501,11 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp);
 int scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
                             const struct scsi_iec_mode_page *iecp);
 void scsiDecodeErrCounterPage(unsigned char * resp,
-                              struct scsiErrorCounter *ecp);
+                              struct scsiErrorCounter *ecp,
+                              int allocLen);
 void scsiDecodeNonMediumErrPage(unsigned char * resp,
-                                struct scsiNonMediumError *nmep);
+                                struct scsiNonMediumError *nmep,
+                                int allocLen);
 int scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
                                   int modese_len);
 int scsiCountFailedSelfTests(scsi_device * device, int noisy);
@@ -536,6 +538,15 @@ const char * scsiTapeAlertsChangerDevice(unsigned short code);
 const char * scsi_get_opcode_name(const uint8_t * cdbp);
 void scsi_format_id_string(char * out, const uint8_t * in, int n);
 
+/* Read binary starting at 'up' for 'len' bytes and output as ASCII
+ * hexadecimal into file pointer (fp). 16 bytes per line are output with an
+ * additional space between 8th and 9th byte on each line (for readability).
+ * 'no_ascii' selects one of 3 output format types:
+ *     > 0     each line has address then up to 16 ASCII-hex bytes
+ *     = 0     in addition, the bytes are listed in ASCII to the right
+ *     < 0     only the ASCII-hex bytes are listed (i.e. without address) */
+void dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp);
+/* Version of dStrHexFp() that outputs to stdout. */
 void dStrHex(const uint8_t * up, int len, int no_ascii);
 
 /* Attempt to find the first SCSI sense data descriptor that matches the

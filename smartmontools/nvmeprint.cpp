@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-21 Christian Franke
+ * Copyright (C) 2016-22 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -489,11 +489,88 @@ static void print_error_log(const nvme_error_log_page * error_log,
   pout("\n");
 }
 
+static void print_self_test_log(const nvme_self_test_log & self_test_log)
+{
+  pout("Self-test Log (NVMe Log 0x06)\n");
+
+  const char * s; char buf[32];
+  switch (self_test_log.current_operation & 0xf) {
+    case 0x0: s = "No self-test in progress"; break;
+    case 0x1: s = "Short self-test in progress"; break;
+    case 0x2: s = "Extended self-test in progress"; break;
+    case 0xe: s = "Vendor specific self-test in progress"; break;
+    default:  snprintf(buf, sizeof(buf), "Unknown status (0x%x)",
+                       self_test_log.current_operation & 0xf);
+              s = buf; break;
+  }
+  pout("Self-test status: %s", s);
+  if (self_test_log.current_operation & 0xf)
+    pout(" (%d%% completed)", self_test_log.current_completion & 0x7f);
+  pout("\n");
+
+  int cnt = 0;
+  for (unsigned i = 0; i < 20; i++) {
+    const nvme_self_test_result & r = self_test_log.results[i];
+    uint8_t op = r.self_test_status >> 4;
+    uint8_t res = r.self_test_status & 0xf;
+    if (!op || res == 0xf)
+      continue; // unused entry
+
+    const char * t; char buf2[32];
+    switch (op) {
+      case 0x1: t = "Short"; break;
+      case 0x2: t = "Extended"; break;
+      case 0xe: t = "Vendor specific"; break;
+      default:  snprintf(buf2, sizeof(buf2), "Unknown (0x%x)", op);
+                t = buf2; break;
+    }
+
+    switch (res) {
+      case 0x0: s = "Completed without error"; break;
+      case 0x1: s = "Aborted: Self-test command"; break;
+      case 0x2: s = "Aborted: Controller Reset"; break;
+      case 0x3: s = "Aborted: Namespace removed"; break;
+      case 0x4: s = "Aborted: Format NVM command"; break;
+      case 0x5: s = "Fatal or unknown test error"; break;
+      case 0x6: s = "Completed: unknown failed segment"; break;
+      case 0x7: s = "Completed: failed segments"; break;
+      case 0x8: s = "Aborted: unknown reason"; break;
+      case 0x9: s = "Aborted: sanitize operation"; break;
+      default:  snprintf(buf, sizeof(buf), "Unknown result (0x%x)", res);
+                s = buf; break;
+    }
+
+    char ns[16] = "-", lb[32] = "-", st[8] = "-", sc[8] = "-";
+    if (r.valid & 0x01) {
+      if (r.nsid == 0xffffffff)
+        ns[0] = '*', ns[1] = 0;
+      else
+        snprintf(ns, sizeof(ns), "%u", r.nsid);
+    }
+    if (r.valid & 0x02)
+      snprintf(lb, sizeof(lb), "%" PRIu64, sg_get_unaligned_le64(r.lba));
+    if (r.valid & 0x04)
+      snprintf(st, sizeof(st), "0x%x", r.status_code_type);
+    if (r.valid & 0x08)
+      snprintf(sc, sizeof(sc), "0x%02x", r.status_code);
+
+    if (++cnt == 1)
+      pout("Num  Test_Description  Status                       Power_on_Hours  Failing_LBA  NSID SCT Code\n");
+    pout("%2u   %-17s %-33s %9" PRIu64 " %12s %5s %3s %4s\n",
+         i, t, s, sg_get_unaligned_le64(r.power_on_hours), lb, ns, st, sc);
+  }
+
+  if (!cnt)
+    pout("No Self-tests Logged\n");
+  pout("\n");
+}
+
 int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
 {
   if (!(   options.drive_info || options.drive_capabilities
         || options.smart_check_status || options.smart_vendor_attrib
-        || options.error_log_entries || options.log_page_size       )) {
+        || options.smart_selftest_log || options.error_log_entries
+        || options.log_page_size || options.smart_selftest_type     )) {
     pout("NVMe device successfully opened\n\n"
          "Use 'smartctl -a' (or '-x') to print SMART (and more) information\n\n");
     return 0;
@@ -589,6 +666,30 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     print_error_log(error_log, read_entries, max_entries);
   }
 
+  // Check for self-test support
+  bool self_test_sup = !!(id_ctrl.oacs & 0x0010);
+  unsigned self_test_nsid = device->get_nsid(); // TODO: Support NSID=0 to test controller
+
+  // Read and print Self-test log, check for running test
+  int self_test_completion = -1;
+  if (options.smart_selftest_log || options.smart_selftest_type) {
+    if (!self_test_sup)
+      pout("Self-tests not supported\n\n");
+    else {
+      nvme_self_test_log self_test_log;
+      if (!nvme_read_self_test_log(device, self_test_nsid, self_test_log)) {
+        jerr("Read Self-test Log failed: %s\n\n", device->get_errmsg());
+        return retval | FAILSMART;
+      }
+
+      if (options.smart_selftest_log)
+        print_self_test_log(self_test_log);
+
+      if (self_test_log.current_operation & 0xf)
+        self_test_completion = self_test_log.current_completion & 0x7f;
+    }
+  }
+
   // Dump log page
   if (options.log_page_size) {
     // Align size to dword boundary
@@ -619,6 +720,29 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     pout("NVMe Log 0x%02x (0x%04x bytes)\n", options.log_page, read_bytes);
     dStrHex(log_buf.data(), read_bytes, 0);
     pout("\n");
+  }
+
+  // Start self-test
+  if (self_test_sup && options.smart_selftest_type) {
+    bool self_test_abort = (options.smart_selftest_type == 0xf);
+    if (!self_test_abort && self_test_completion >= 0) {
+      pout("Can't start self-test without aborting current test (%2d%% completed)\n"
+           "Use smartctl -X to abort test\n", self_test_completion);
+      retval |= FAILSMART;
+    }
+    else {
+      if (!nvme_self_test(device, options.smart_selftest_type, self_test_nsid)) {
+        jerr("NVMe Self-test cmd with type=0x%x, nsid=0x%x failed: %s\n\n",
+             options.smart_selftest_type, self_test_nsid, device->get_errmsg());
+        return retval | FAILSMART;
+      }
+
+      if (!self_test_abort)
+        pout("Self-test has begun\n"
+             "Use smartctl -X to abort test\n");
+      else
+        pout("Self-test aborted!\n");
+    }
   }
 
   return retval;

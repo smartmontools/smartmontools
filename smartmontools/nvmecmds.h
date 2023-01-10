@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-20 Christian Franke
+ * Copyright (C) 2016-22 Christian Franke
  *
  * Original code from <linux/nvme.h>:
  *   Copyright (C) 2011-2014 Intel Corporation
@@ -213,6 +213,7 @@ enum nvme_admin_opcode {
 //nvme_admin_ns_mgmt       = 0x0d,
 //nvme_admin_activate_fw   = 0x10,
 //nvme_admin_download_fw   = 0x11,
+  nvme_admin_dev_self_test = 0x14, // NVMe 1.3
 //nvme_admin_ns_attach     = 0x15,
 //nvme_admin_format_nvm    = 0x80,
 //nvme_admin_security_send = 0x81,
@@ -221,6 +222,30 @@ enum nvme_admin_opcode {
 
 // END: From <linux/nvme.h>
 ////////////////////////////////////////////////////////////////////////////
+
+// Figure 213 of NVM Express(TM) Base Specification, revision 2.0a, July 2021
+struct nvme_self_test_result {
+  uint8_t   self_test_status;
+  uint8_t   segment;
+  uint8_t   valid;
+  uint8_t   rsvd3;
+  uint8_t   power_on_hours[8]; // unaligned LE 64
+  uint32_t  nsid;
+  uint8_t   lba[8]; // unaligned LE 64
+  uint8_t   status_code_type;
+  uint8_t   status_code;
+  uint8_t   vendor_specific[2];
+};
+STATIC_ASSERT(sizeof(nvme_self_test_result) == 28);
+
+// Figure 212 of NVM Express(TM) Base Specification, revision 2.0a, July 2021
+struct nvme_self_test_log {
+  uint8_t   current_operation;
+  uint8_t   current_completion;
+  uint8_t   rsvd2[2];
+  nvme_self_test_result results[20]; // [0] = newest
+};
+STATIC_ASSERT(sizeof(nvme_self_test_log) == 564);
 
 } // namespace smartmontools
 
@@ -245,5 +270,12 @@ unsigned nvme_read_error_log(nvme_device * device, smartmontools::nvme_error_log
 
 // Read NVMe SMART/Health Information log.
 bool nvme_read_smart_log(nvme_device * device, smartmontools::nvme_smart_log & smart_log);
+
+// Read NVMe Self-test Log.
+bool nvme_read_self_test_log(nvme_device * device, uint32_t nsid,
+  smartmontools::nvme_self_test_log & self_test_log);
+
+// Start Self-test
+bool nvme_self_test(nvme_device * device, uint8_t stc, uint32_t nsid);
 
 #endif // NVMECMDS_H

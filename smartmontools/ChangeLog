@@ -1,5 +1,106 @@
 $Id$
 
+2023-01-07  Douglas Gilbert  <dgilbert@interlog.com>
+
+	fix regression around dStrHex compatibility with pout() call
+	introduced in previous commit. Credit to Christian Franke
+	for the C++11 (and later) solution using lambas.
+
+2023-01-02  Douglas Gilbert  <dgilbert@interlog.com>
+
+	start moving SCSI debug into scsi_pass_through_yield_sense()
+	in scsicmds.cpp . Previously was replicated across OS transports.
+	Add dStrHexFp() that writes to a FILE pointer; idea is to send
+	debug info to a file (rather than stdout/stderr and using
+	redirection). The 'is_ascii' argument of dStrHexFp() now takes
+	a negative value which strips off the leading address on hex
+	lines. That is easier to parse IMO.
+
+2023-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year!  Update copyright year in version info.
+
+2022-12-31  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add '-M always' directive (#1018, GH issues/153).
+	If specified, warning reminder emails are sent upon each check.
+	smartd_warning.sh.in, os_win32/smartd_warning.cmd: Handle
+	SMARTD_NEXTDAYS=0.
+	smartd.conf.5.in: Document the new directive.
+
+	smartd.cpp: Rework handling of warning reminder emails.
+	Add scoped enum.  Limit '-M diminishing' delay to 32 days.
+	smartd.conf.5.in: Document the new limit.
+
+2022-12-17  Christian Franke  <franke@computer.org>
+
+	json.cpp: Don't print JSON strings in UTF-8 if invalid sequences are
+	present.  Print informal hex string "\\xXX" for unexpected chars.
+
+2022-12-16  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Disable '-d marvell' and print deprecation message.
+	Add '-d marvell,force' to use this device type anyhow.
+	smartctl.8.in, smartd.conf.5.in: Update '-d marvell' documentation.
+
+	os_linux.cpp: Use 'set_err_np()' where possible.
+
+	dev_interface.cpp, dev_interface.h: Add 'set_err_np()'.
+
+2022-12-05  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Fix '-d sssraid' documentation syntax.
+	smartd.conf.5.in: Add '-d sssraid' documentation.
+
+	os_linux.cpp: Build fix for r5420.
+
+2022-12-05  Steven Song  <steven.song@3snic.com>
+
+	Add SSSRAID (3SNIC RAID Controller) support on Linux (#1653).
+
+2022-11-22  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 10 and 11 22H2 build numbers.
+
+2022-11-09  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: Kingston SSDNow S200 (#1491),
+	  Patriot Burst *GB (#1664).
+	- Silicon Motion based SSDs: Kingston KC600 mSATA (#1442).
+	- Silicon Motion based OEM SSDs: KingSpec KSM.
+	- USB: VIA VL717 (0x2109:0x0717) (GP/pull 151).
+
+2022-11-01  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: *C variant (#1655),
+	  *E (Dell Europe) variant (#1647).
+	- Toshiba MG10ACA... Enterprise Capacity HDD.
+
+2022-10-17  Douglas Gilbert  <dgilbert@interlog.com>
+
+	https://github.com/smartmontools/smartmontools/pull/140
+	which is related to issue 139 applied by hand with some cosmetic
+	changes. Credit to github user 'ThunderEX'. Cleans up possible
+	corruption issue with the the SCSI Error Counter and Non medium
+	Error log pages.
+
+2022-10-09  Alex Samorukov  <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Extend Apacer SSDs regexp based on ticket #1657
+	- Swap Bad_Blk_Ct_Erl/Lat values in drivedb for "Phison Driven SSDs" (#1642)
+	- Add Micron 5400 SSDs (#1630)
+	- Add WDC HC570/HC670 (#1648)
+
+2022-09-18  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Add IOCTL_STORAGE_PROTOCOL_COMMAND for NVMe self-tests.
+
+	Add NVMe self-test support to smartctl (#894).
+	Supported options: '-l selftest', '-t short', '-t long' and '-X'.
+
 2022-08-15  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Print error count even if error log index is invalid.

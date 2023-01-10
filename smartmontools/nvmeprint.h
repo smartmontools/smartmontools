@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-21 Christian Franke
+ * Copyright (C) 2016-22 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -22,6 +22,8 @@ struct nvme_print_options
   bool drive_capabilities = false;
   bool smart_check_status = false;
   bool smart_vendor_attrib = false;
+  bool smart_selftest_log = false;
+  unsigned char smart_selftest_type = 0; // 0 = no test, 1 = short, 2 = extended, 0xf = abort
   unsigned error_log_entries = 0;
   unsigned char log_page = 0;
   unsigned log_page_size = 0;

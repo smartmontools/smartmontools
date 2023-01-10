@@ -261,7 +261,7 @@ and for SCSI, this is equivalent to
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
 .br
-\*(Aq\-H \-i \-c \-A \-l error\*(Aq.
+\*(Aq\-H \-i \-c \-A \-l error \-l selftest\*(Aq.
 .br
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 Note that for ATA disks this does \fBnot\fP enable the non-SMART options
@@ -287,7 +287,7 @@ and for SCSI tape drivers and changers, add \-l tapedevstat
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 For NVMe, this is equivalent to
 .br
-\*(Aq\-H \-i \-c \-A \-l error\*(Aq.
+\*(Aq\-H \-i \-c \-A \-l error \-l selftest\*(Aq.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-\-scan
@@ -486,18 +486,19 @@ The default namespace id is the broadcast namespace id (0xffffffff).
 bridge.
 .Sp
 .\" %ENDIF NOT OS Darwin
-.\" %IF OS Linux FreeBSD
+.\" %IF OS Linux
 .I marvell
-\- [Linux only] interact with SATA disks behind Marvell chip-set
-controllers (using the Marvell rather than libata driver).
+\- [Linux only] (deprecated and subject to remove).
 .Sp
+.\" %ENDIF OS Linux
+.\" %IF OS FreeBSD Linux
 .I megaraid,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks connected
 to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
 127 inclusive) denotes which disk on the controller is monitored. This interface
 will also work for Dell PERC controllers.
 Use syntax such as:
-.\" %ENDIF OS Linux FreeBSD
+.\" %ENDIF OS FreeBSD Linux
 .\" %IF OS ALL
 .br
 FreeBSD:
@@ -705,6 +706,22 @@ under FreeBSD, it is the character device which the driver registered (eg,
 /dev/hptrr, /dev/hptmv6).
 .\" %ENDIF OS FreeBSD Linux
 .Sp
+.\" %IF OS Linux
+.I sssraid,E,S
+\- [Linux only]
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+the device consists of one or more SCSI/SAS or SATA disks connected to a
+SSSRAID controller.
+The non-negative integer E (in the range of 0 to 8) denotes the enclosure
+and S(range 0 to 128) denotes the slot.
+Use syntax such as:
+.br
+\fBsmartctl \-a \-d sssraid,0,1 /dev/bsg/sssraid0\fP
+.br
+It is possible to set RAID device name as /dev/bsg/sssraidN, where N is a
+SCSI bus number.
+.Sp
+.\" %ENDIF OS Linux
 .I intelliprop,N[+TYPE]
 \- the device consists of multiple ATA disks connected to an Intelliprop
 controller.
@@ -1444,6 +1461,11 @@ If provided, the SCSI Sense Key (SK), Additional Sense Code (ASC) and
 Additional Sense Code Qualifier (ASCQ) are also printed.  The self tests
 can be run using the \*(Aq\-t\*(Aq option described below (using the ATA
 test terminology).
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+.Sp
+.I selftest
+\- [NVMe] prints the NVMe self-test log.
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I xselftest[,NUM][,selftest]
 \- [ATA only] prints the Extended SMART self-test log (General Purpose
@@ -2090,6 +2112,11 @@ with other disks use the \*(Aq\-c\*(Aq option to monitor progress.
 .Sp
 .I short
 \- [SCSI] runs the "Background short" self-test.
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+.Sp
+.I short
+\- [NVMe] runs the "Short" self-test for current namespace.
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I long
 \- [ATA] runs SMART Extended Self Test (tens of minutes to several hours).
@@ -2100,6 +2127,11 @@ below).
 .Sp
 .I long
 \- [SCSI] runs the "Background long" self-test.
+.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+.Sp
+.I long
+\- [NVMe] runs the "Extended" self-test for current namespace.
+.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I conveyance
 \- [ATA only] runs a SMART Conveyance Self Test (minutes).  This

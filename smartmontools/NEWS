@@ -8,22 +8,33 @@ https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 Date <Not released yet, please try current SVN or a recent CI build>
 Summary: smartmontools release 7.4
 -----------------------------------------------------------
+- smartctl '-t short', '-t long' and '-X': NVMe support.
+- smartctl '-l selftest': NVMe support.
 - smartctl '-g security': Added 'ata_security.master_password_id'
   to JSON output.  Plaintext output shows Master Password ID if set
   to a non-default value.
+- smartctl '-j': Avoid invalid UTF-8 sequences in JSON/YAML strings.
+- smartd.conf '-M always': Sends reminder emails without any delay.
+- smartd.conf '-M diminishing': Limited email delay to 32 days.
 - ATA: Enhanced LBA range for device types '-d jmb39x-q,...' and
   '-d jms56x,...' from 33-62 to 1-255.
+- SCSI: Fixed possible corruption issue with the Error Counter and
+  Non medium Error log pages.
 - HDD, SSD and USB additions to drive database.
 - update-smart-drivedb: Fixed syntax for 'sed' versions which require
   ';' before '}' or do not support ';' at all.
 - update-smart-drivedb: Replaced a usually not executed bashism.
 - Pre-releases from SVN snapshots now show "pre-VERSION" in version
   information and 'smartctl.pre_release=true' in JSON output.
+- Linux: Device type '-d sssraid' for 3SNIC RAID controllers.
+- Linux: Device type '-d marvell' now fails with a deprecation message.
+  Added '-d marvell,force' flag to use it anyway.
 - Linux: The generic SCSI code now defaults to SG_IO_V3 and does no
   longer fall back to the deprecated SCSI_IOCTL_SEND_COMMAND
-  (but this ioctl is still used for '-d 3ware' and '-d marvell').
+  (but this ioctl is still used for '-d 3ware' and '-d marvell,force').
 - Solaris SPARC: Dropped legacy ATA support.  Dropped configure option
   '--with-solaris-sparc-ata'.
+- Windows: IOCTL_STORAGE_PROTOCOL_COMMAND variant for NVMe self-tests.
 - Windows: Workaround to keep backward compatibility with old versions
   of Windows if some versions of MinGW-w64 are used.
 

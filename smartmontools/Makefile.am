@@ -119,7 +119,8 @@ EXTRA_smartctl_SOURCES = \
         dev_areca.h \
         dev_legacy.cpp \
         linux_nvme_ioctl.h \
-        megaraid.h
+        megaraid.h \
+        sssraid.h
 
 if OS_WIN32_MINGW
 
@@ -192,7 +193,8 @@ EXTRA_smartd_SOURCES = \
         linux_nvme_ioctl.h \
         freebsd_nvme_ioctl.h \
         netbsd_nvme_ioctl.h \
-        megaraid.h
+        megaraid.h \
+        sssraid.h
 
 if OS_POSIX
 

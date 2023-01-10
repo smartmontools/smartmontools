@@ -473,10 +473,9 @@ bridge.
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Linux
 .I marvell
-\- [Linux only] interact with SATA disks behind Marvell chip-set
-controllers (using the Marvell rather than libata driver).
+\- [Linux only] (deprecated and subject to remove).
 .Sp
-.\" %ENDIF OS FreeBSD Linux
+.\" %ENDIF OS Linux
 .\" %IF OS FreeBSD Linux
 .I megaraid,N
 \- [Linux and FreeBSD only] the device consists of one or more SCSI/SAS disks connected
@@ -558,6 +557,17 @@ to the default value 1.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
+.I sssraid,E,S
+\- [Linux only]
+[NEW EXPERIMENTAL SMARTD FEATURE]
+the device consists of one or more SCSI/SAS or SATA disks connected to a
+SSSRAID controller.
+The non-negative integer E (in the range of 0 to 8) denotes the enclosure
+and S(range 0 to 128) denotes the slot.
+Please see the \fBsmartctl\fP(8) man page for further details.
+.Sp
+.\" %ENDIF OS Linux
 .I intelliprop,N[+TYPE]
 \- the device consists of multiple ATA disks connected to an Intelliprop
 controller.
@@ -1100,6 +1110,11 @@ three):
 \- send only one warning email for each type of disk problem detected.  This
 is the default unless state persistence (\*(Aq\-s\*(Aq option) is enabled.
 .Sp
+.I always
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+send additional warning reminder emails, upon each check, for each type
+of disk problem detected.
+.Sp
 .I daily
 \- send additional warning reminder emails, once per day, for each type
 of disk problem detected.  This is the default if state persistence
@@ -1110,6 +1125,9 @@ of disk problem detected.  This is the default if state persistence
 then a two-day interval, then a four-day interval, and so on for each
 type of disk problem detected.  Each interval is twice as long as the
 previous interval.
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+The interval length will stay at 32 days after 5 warning reminder emails.
 .Sp
 If a disk problem is no longer detected, the internal email counter is
 reset.  If the problem reappears a new warning email is sent immediately.
@@ -1271,8 +1289,8 @@ is an integer specifying the number of previous messages sent.
 It is set to \*(Aq0\*(Aq for the first message.
 .IP \fBSMARTD_NEXTDAYS\fP 4
 is an integer specifying the number of days until the next message will be sent.
-It it set to empty on \*(Aq\-M once\*(Aq and set to \*(Aq1\*(Aq on
-\*(Aq\-M daily\*(Aq.
+It is set to empty on \*(Aq\-M once\*(Aq, set to \*(Aq0\*(Aq on
+\*(Aq\-M always\*(Aq and set to \*(Aq1\*(Aq on \*(Aq\-M daily\*(Aq.
 .RE
 .\" The following two lines define a non-existent option.
 .\" This resets the margin to the level prior to the '.RS ... .RE' block.

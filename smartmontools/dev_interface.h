@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-22 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -938,6 +938,14 @@ public:
   /// Printf()-like formatting is supported.
   /// Returns false always to allow use as a return expression.
   bool set_err(int no, const char * msg, ...)
+    __attribute_format_printf(3, 4);
+
+  /// Set last error number and message.
+  /// Printf()-like formatting is supported.
+  /// Returns nullptr always to allow use as a return expression
+  /// of any pointer type.
+  // (Not using 'std::nullptr_t' because it requires <cstddef>)
+  decltype(nullptr) set_err_np(int no, const char * msg, ...)
     __attribute_format_printf(3, 4);
 
   /// Set last error info struct.
