@@ -1,17 +1,14 @@
 /*
- * Copyright (c) 2020-2021 Seagate Technology LLC and/or its Affiliates
- *
- * Licensed under the GNU General Public License v2.0 or later
- * SPDX-Licence-Identifier: GPL-2.0-or-later
- * You may obtain a copy of the License at
- *
- *     https://spdx.org/licenses/GPL-2.0-or-later.html
+ * farmprint.cpp
  * 
- * This program is free software; you can redistribute it and/or modify 
- * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation; either version 2 of the License, or 
- * (at your option) any later version.
+ * Home page of code is: https://www.smartmontools.org
  *
+ * Copyright (C) 2002-11 Bruce Allen
+ * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
+ * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #define __STDC_FORMAT_MACROS 1
@@ -198,17 +195,17 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jout("\t\tATA Security State (ID Word 128): 0x016%" PRIx64 "\n", farmLog.driveInformation.security);
   jout("\t\tATA Features Supported (ID Word 78): 0x016%" PRIx64 "\n", farmLog.driveInformation.featuresSupported);
   jout("\t\tATA Features Enabled (ID Word 79): 0x%016" PRIx64 "\n", farmLog.driveInformation.featuresEnabled);
-  jout("\t\tPower-On Hours: %" PRIu64 "\n", farmLog.driveInformation.poh);
-  jout("\t\tSpindle Power-On Hours: %" PRIu64 "\n", farmLog.driveInformation.spoh);
+  jout("\t\tPower on Hours: %" PRIu64 "\n", farmLog.driveInformation.poh);
+  jout("\t\tSpindle Power on Hours: %" PRIu64 "\n", farmLog.driveInformation.spoh);
   jout("\t\tHead Flight Hours: %" PRIu64 "\n", farmLog.driveInformation.headFlightHours);
   jout("\t\tHead Load Events: %" PRIu64 "\n", farmLog.driveInformation.headLoadEvents);
   jout("\t\tPower Cycle Count: %" PRIu64 "\n", farmLog.driveInformation.powerCycleCount);
   jout("\t\tHardware Reset Count: %" PRIu64 "\n", farmLog.driveInformation.resetCount);
-  jout("\t\tSpin-Up Time: %" PRIu64 " ms\n", farmLog.driveInformation.spinUpTime);
+  jout("\t\tSpin-up Time: %" PRIu64 " ms\n", farmLog.driveInformation.spinUpTime);
   jout("\t\tTime to ready of the last power cycle: %" PRIu64 " ms\n", farmLog.driveInformation.timeToReady);
   jout("\t\tTime drive is held in staggered spin: %" PRIu64 " ms\n", farmLog.driveInformation.timeHeld);
   jout("\t\tModel Number: %s\n", modelNumber);
-  jout("\t\tRecording Type: %s\n", recordingType);
+  jout("\t\tDrive Recording Type: %s\n", recordingType);
   jout("\t\tMax Number of Available Sectors for Reassignment: %" PRIu64 "\n", farmLog.driveInformation.maxNumberForReasign);
   jout("\t\tAssembly Date (YYWW): %s\n", dateOfAssembly);
   jout("\t\tDepopulation Head Mask: %" PRIx64 "\n", farmLog.driveInformation.depopulationHeadMask);
@@ -259,10 +256,10 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jout("\t\tIndex of the last Flash LED: %" PRIu64 "\n", farmLog.error.indexFlashLED);
   for ( uint8_t i = flash_led_size; i > 0; i-- ) {
      index = (i - farmLog.error.indexFlashLED + flash_led_size) % flash_led_size;
-     jout("\t\tFlash LED Event %" PRIu64 ":\n", flash_led_size - i);
+     jout("\t\tFlash LED Event %" PRIuMAX ":\n", static_cast<uintmax_t>(flash_led_size - i));
      jout("\t\t\tEvent Information: 0x%016" PRIx64 "\n", farmLog.error.flashLEDArray[index]);
-     jout("\t\t\tTimestamp of Event %" PRIu64 " (hours): %" PRIu64 "\n", flash_led_size - i, farmLog.error.universalTimestampFlashLED[index]);
-     jout("\t\t\tPower Cycle Event %" PRIu64 ": %" PRIx64 "\n", flash_led_size - i, farmLog.error.powerCycleFlashLED[index]);
+     jout("\t\t\tTimestamp of Event %" PRIuMAX " (hours): %" PRIu64 "\n", static_cast<uintmax_t>(flash_led_size - i), farmLog.error.universalTimestampFlashLED[index]);
+     jout("\t\t\tPower Cycle Event %" PRIuMAX ": %" PRIx64 "\n", static_cast<uintmax_t>(flash_led_size - i), farmLog.error.powerCycleFlashLED[index]);
   }
 
   // Page 3 unrecoverable errors by-head
@@ -636,24 +633,23 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   const scsiFarmByActuator actrefs[] = {
     farmLog.actuator0, farmLog.actuator1, farmLog.actuator2, farmLog.actuator3
   };
-  for (unsigned i = 0; i < sizeof(actrefs)/sizeof(actrefs[0]); i++) {
-    const scsiFarmByActuator& ar = actrefs[i];
-    jout("\tFARM Log Actuator Information 0x%" PRIx64 "\n", ar.actuatorID);
-    jout("\t\tHead Load Events: %" PRIu64 "\n", ar.headLoadEvents);
-    jout("\t\tTimeStamp of last IDD test: %" PRIu64 "\n", ar.timelastIDDTest);
-    jout("\t\tSub-Command of Last IDD Test: %" PRIu64 "\n", ar.subcommandlastIDDTest);
-    jout("\t\tNumber of Reallocated Sector Reclamations: %" PRIu64 "\n", ar.numberGListReclam);
-    jout("\t\tServo Status: %" PRIu64 "\n", ar.servoStatus);
-    jout("\t\tNumber of Slipped Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberSlippedSectorsBeforeIDD);
-    jout("\t\tNumber of Slipped Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberSlippedSectorsAfterIDD);
-    jout("\t\tNumber of Resident Reallocated Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberResidentReallocatedBeforeIDD);
-    jout("\t\tNumber of Resident Reallocated Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberResidentReallocatedAfterIDD);
-    jout("\t\tSuccessfully Scrubbed Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberScrubbedSectorsBeforeIDD);
-    jout("\t\tSuccessfully Scrubbed Sectors Before IDD Scan: %" PRIu64 "\n", ar.numberScrubbedSectorsAfterIDD);
-    jout("\t\tNumber of DOS Scans Performed: %" PRIu64 "\n", ar.dosScansPerformed);
-    jout("\t\tNumber of LBAs Corrected by ISP: %" PRIu64 "\n", ar.lbasCorrectedISP);
-    jout("\t\tNumber of Valid Parity Sectors: %" PRIu64 "\n", ar.numberValidParitySectors);
-    jout("\t\tNumber of LBAs Corrected by Parity Sector: %" PRIu64 "\n", ar.numberLBACorrectedParitySector);
+  for (uint8_t i = 0; i < sizeof(actrefs)/sizeof(actrefs[0]); i++) {
+    jout("\tFARM Log Actuator Information 0x%" PRIx64 "\n", actrefs[i].actuatorID);
+    jout("\t\tHead Load Events: %" PRIu64 "\n", actrefs[i].headLoadEvents);
+    jout("\t\tTimeStamp of last IDD test: %" PRIu64 "\n", actrefs[i].timelastIDDTest);
+    jout("\t\tSub-Command of Last IDD Test: %" PRIu64 "\n", actrefs[i].subcommandlastIDDTest);
+    jout("\t\tNumber of Reallocated Sector Reclamations: %" PRIu64 "\n", actrefs[i].numberGListReclam);
+    jout("\t\tServo Status: %" PRIu64 "\n", actrefs[i].servoStatus);
+    jout("\t\tNumber of Slipped Sectors Before IDD Scan: %" PRIu64 "\n", actrefs[i].numberSlippedSectorsBeforeIDD);
+    jout("\t\tNumber of Slipped Sectors Before IDD Scan: %" PRIu64 "\n", actrefs[i].numberSlippedSectorsAfterIDD);
+    jout("\t\tNumber of Resident Reallocated Sectors Before IDD Scan: %" PRIu64 "\n", actrefs[i].numberResidentReallocatedBeforeIDD);
+    jout("\t\tNumber of Resident Reallocated Sectors Before IDD Scan: %" PRIu64 "\n", actrefs[i].numberResidentReallocatedAfterIDD);
+    jout("\t\tSuccessfully Scrubbed Sectors Before IDD Scan: %" PRIu64 "\n", actrefs[i].numberScrubbedSectorsBeforeIDD);
+    jout("\t\tSuccessfully Scrubbed Sectors Before IDD Scan: %" PRIu64 "\n", actrefs[i].numberScrubbedSectorsAfterIDD);
+    jout("\t\tNumber of DOS Scans Performed: %" PRIu64 "\n", actrefs[i].dosScansPerformed);
+    jout("\t\tNumber of LBAs Corrected by ISP: %" PRIu64 "\n", actrefs[i].lbasCorrectedISP);
+    jout("\t\tNumber of Valid Parity Sectors: %" PRIu64 "\n", actrefs[i].numberValidParitySectors);
+    jout("\t\tNumber of LBAs Corrected by Parity Sector: %" PRIu64 "\n", actrefs[i].numberLBACorrectedParitySector);
   }
 
   // "By Actuator" Flash LED Information
@@ -662,19 +658,18 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   const scsiFarmByActuatorFLED fledrefs[] = {
     farmLog.actuatorFLED0, farmLog.actuatorFLED1, farmLog.actuatorFLED2, farmLog.actuatorFLED3
   };
-  for (unsigned i = 0; i < sizeof(fledrefs)/sizeof(fledrefs[0]); i++) {
-    const scsiFarmByActuatorFLED& fled = fledrefs[i];
-    jout("\tFARM Log Actuator 0x%" PRIx64 " Flash LED Information\n", fled.actuatorID);
-    jout("\t\tTotal Flash LED Events: %" PRIu64 "\n", fled.totalFlashLED);
-    jout("\t\tIndex of Last Flash LED: %" PRIu64 "\n", fled.indexFlashLED);
+  for (uint8_t i = 0; i < sizeof(fledrefs)/sizeof(fledrefs[0]); i++) {
+    jout("\tFARM Log Actuator 0x%" PRIx64 " Flash LED Information\n", fledrefs[i].actuatorID);
+    jout("\t\tTotal Flash LED Events: %" PRIu64 "\n", fledrefs[i].totalFlashLED);
+    jout("\t\tIndex of Last Flash LED: %" PRIu64 "\n", fledrefs[i].indexFlashLED);
 
-    flash_led_size = sizeof(fled.flashLEDArray) / sizeof(fled.flashLEDArray[0]);
+    flash_led_size = sizeof(fledrefs[i].flashLEDArray) / sizeof(fledrefs[i].flashLEDArray[0]);
     for ( uint8_t j = flash_led_size; j > 0; j-- ) {
-      index = (j - fled.indexFlashLED + flash_led_size) % flash_led_size;
-      jout("\t\tEvent %" PRIu64 ":\n", flash_led_size - j);
-      jout("\t\t\tEvent Information: 0x%016" PRIx64 "\n", fled.flashLEDArray[index]);
-      jout("\t\t\tTimestamp of Event %" PRIu64 " (hours): %" PRIu64 "\n", flash_led_size - j, fled.universalTimestampFlashLED[index]);
-      jout("\t\t\tPower Cycle Event %" PRIu64 ": %" PRIx64 "\n", flash_led_size - j, fled.powerCycleFlashLED[index]);
+      index = (j - fledrefs[i].indexFlashLED + flash_led_size) % flash_led_size;
+      jout("\t\tEvent %" PRIuMAX ":\n", static_cast<uintmax_t>(flash_led_size - j));
+      jout("\t\t\tEvent Information: 0x%016" PRIx64 "\n", fledrefs[i].flashLEDArray[index]);
+      jout("\t\t\tTimestamp of Event %" PRIuMAX " (hours): %" PRIu64 "\n", static_cast<uintmax_t>(flash_led_size - j), fledrefs[i].universalTimestampFlashLED[index]);
+      jout("\t\t\tPower Cycle Event %" PRIuMAX ": %" PRIx64 "\n", static_cast<uintmax_t>(flash_led_size - j), fledrefs[i].powerCycleFlashLED[index]);
     }
   }
 
@@ -682,11 +677,10 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   const scsiFarmByActuatorReallocation ararefs[] = {
     farmLog.actuatorReallocation0, farmLog.actuatorReallocation1, farmLog.actuatorReallocation2, farmLog.actuatorReallocation3
   };
-  for (unsigned i = 0; i < sizeof(ararefs)/sizeof(ararefs[0]); i++) {
-    const scsiFarmByActuatorReallocation& ara = ararefs[i];
-    jout("\tFARM Log Actuator 0x%" PRIx64 " Reallocation\n", ara.actuatorID);
-    jout("\t\tNumber of Reallocated Sectors: %" PRIu64 "\n", ara.totalReallocations);
-    jout("\t\tNumber of Reallocated Candidate Sectors: %" PRIu64 "\n", ara.totalReallocationCanidates);
+  for (uint8_t i = 0; i < sizeof(ararefs)/sizeof(ararefs[0]); i++) {
+    jout("\tFARM Log Actuator 0x%" PRIx64 " Reallocation\n", ararefs[i].actuatorID);
+    jout("\t\tNumber of Reallocated Sectors: %" PRIu64 "\n", ararefs[i].totalReallocations);
+    jout("\t\tNumber of Reallocated Candidate Sectors: %" PRIu64 "\n", ararefs[i].totalReallocationCanidates);
   }
 
   // Print JSON if --json or -j is specified
