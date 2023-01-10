@@ -2,6 +2,12 @@ $Id$
 
 2023-01-10  Douglas Gilbert  <dgilbert@interlog.com>
 
+	address smartctl SCSI json issue (exception) reported by
+	Taylor Vent to the smartmontools mailing list on 2023-01-09.
+	Plus some minor cleanups.
+
+2023-01-10  Douglas Gilbert  <dgilbert@interlog.com>
+
 	further cleanup associated with SCSI debug move.
 
 2023-01-07  Douglas Gilbert  <dgilbert@interlog.com>

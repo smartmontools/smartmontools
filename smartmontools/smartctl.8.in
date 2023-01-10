@@ -353,7 +353,7 @@ exceeds the range.
 .br
 \*(Aqy\*(Aq: Outputs in YAML format.
 .Sp
-The following two arguments are primarily indented for development:
+The following two arguments are primarily intended for development:
 .br
 \*(Aqi\*(Aq: Includes lines from the plaintext output which print info already
 \fBi\fPmplemented for JSON output.
