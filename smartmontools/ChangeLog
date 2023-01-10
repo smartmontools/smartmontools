@@ -1,4 +1,10 @@
-$Id: ChangeLog 5433 2023-01-10 19:27:49Z dpgilbert $
+$Id: ChangeLog 5434 2023-01-10 23:47:51Z dpgilbert $
+
+2023-01-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	address smartctl SCSI json issue (exception) reported by
+	Taylor Vent to the smartmontools mailing list on 2023-01-09.
+	Plus some minor cleanups.
 
 2023-01-10  Douglas Gilbert  <dgilbert@interlog.com>
 
