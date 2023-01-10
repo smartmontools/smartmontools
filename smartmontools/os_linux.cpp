@@ -184,24 +184,24 @@ bool linux_smart_device::close()
 
 // examples for smartctl
 static const char  smartctl_examples[] =
-		  "=================================================== SMARTCTL EXAMPLES =====\n\n"
-		  "  smartctl --all /dev/sda                    (Prints all SMART information)\n\n"
-		  "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/sda\n"
-		  "                                              (Enables SMART on first disk)\n\n"
-		  "  smartctl --test=long /dev/sda          (Executes extended disk self-test)\n\n"
-		  "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/sda\n"
-		  "                                      (Prints Self-Test & Attribute errors)\n"
-		  "  smartctl --all --device=3ware,2 /dev/sda\n"
-		  "  smartctl --all --device=3ware,2 /dev/twe0\n"
-		  "  smartctl --all --device=3ware,2 /dev/twa0\n"
-		  "  smartctl --all --device=3ware,2 /dev/twl0\n"
-		  "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
-		  "  smartctl --all --device=hpt,1/1/3 /dev/sda\n"
-		  "          (Prints all SMART info for the SATA disk attached to the 3rd PMPort\n"
-		  "           of the 1st channel on the 1st HighPoint RAID controller)\n"
-		  "  smartctl --all --device=areca,3/1 /dev/sg2\n"
-		  "          (Prints all SMART info for 3rd ATA disk of the 1st enclosure\n"
-		  "           on Areca RAID controller)\n"
+                  "=================================================== SMARTCTL EXAMPLES =====\n\n"
+                  "  smartctl --all /dev/sda                    (Prints all SMART information)\n\n"
+                  "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/sda\n"
+                  "                                              (Enables SMART on first disk)\n\n"
+                  "  smartctl --test=long /dev/sda          (Executes extended disk self-test)\n\n"
+                  "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/sda\n"
+                  "                                      (Prints Self-Test & Attribute errors)\n"
+                  "  smartctl --all --device=3ware,2 /dev/sda\n"
+                  "  smartctl --all --device=3ware,2 /dev/twe0\n"
+                  "  smartctl --all --device=3ware,2 /dev/twa0\n"
+                  "  smartctl --all --device=3ware,2 /dev/twl0\n"
+                  "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+                  "  smartctl --all --device=hpt,1/1/3 /dev/sda\n"
+                  "          (Prints all SMART info for the SATA disk attached to the 3rd PMPort\n"
+                  "           of the 1st channel on the 1st HighPoint RAID controller)\n"
+                  "  smartctl --all --device=areca,3/1 /dev/sg2\n"
+                  "          (Prints all SMART info for 3rd ATA disk of the 1st enclosure\n"
+                  "           on Areca RAID controller)\n"
   ;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -522,19 +522,20 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
 #ifdef SCSI_CDB_CHECK
     bool ok = is_scsi_cdb(iop->cmnd, iop->cmnd_len);
     if (! ok) {
-	int n = iop->cmnd_len;
-	const unsigned char * ucp = iop->cmnd;
+        int n = iop->cmnd_len;
+        const unsigned char * ucp = iop->cmnd;
 
-	pout(">>>>>>>> %s: cdb seems invalid, opcode=0x%x, len=%d, cdb:\n",
-	     __func__, ((n > 0) ? ucp[0] : 0), n);
+        pout(">>>>>>>> %s: cdb seems invalid, opcode=0x%x, len=%d, cdb:\n",
+             __func__, ((n > 0) ? ucp[0] : 0), n);
         if (n > 0) {
-	    if (n > 16)
-	        pout("  <<truncating to first 16 bytes>>\n");
-	    dStrHex((const uint8_t *)ucp, ((n > 16) ? 16 : n), 1);
-	}
+            if (n > 16)
+                pout("  <<truncating to first 16 bytes>>\n");
+            dStrHex((const uint8_t *)ucp, ((n > 16) ? 16 : n), 1);
+        }
      }
 #endif
 
+#if 0
     if (report > 0) {
         int k, j;
         const unsigned char * ucp = iop->cmnd;
@@ -542,12 +543,11 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         char buff[256];
         const int sz = (int)sizeof(buff);
 
-        pout(">>>> do_scsi_cmnd_io: sg_io_ifc=%d\n", (int)sg_io_ifc);
+        pout(">>>> %s: sg_io_ifc=%d\n", __func__, (int)sg_io_ifc);
         np = scsi_get_opcode_name(ucp);
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < (int)iop->cmnd_len; ++k)
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-#if 0
         if ((report > 1) &&
             (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
             int trunc = (iop->dxfer_len > 256) ? 1 : 0;
@@ -560,10 +560,10 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         else
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
         pout("%s", buff);
-#else
         pout("%s\n", buff);
-#endif
     }
+#endif
+
     memset(&io_hdr_v3, 0, sizeof(struct sg_io_hdr));
     memset(&io_hdr_v4, 0, sizeof(struct sg_io_v4));
 
@@ -662,20 +662,21 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
        iop->resp_sense_len =    io_hdr_v4.response_len;
        sg_duration =            io_hdr_v4.duration;
     }
+    if (sg_duration) { }	// silence warning
 
+#if 0
     if (report > 0) {
         pout("  scsi_status=0x%x, sg_transport_status=0x%x, sg_driver_status=0x%x\n"
              "  sg_info=0x%x  sg_duration=%d milliseconds  resid=%d\n", iop->scsi_status,
              sg_transport_status, sg_driver_status, sg_info,
              sg_duration, iop->resid);
 
-#if 0
         if (report > 1) {
             if (DXFER_FROM_DEVICE == iop->dxfer_dir) {
                 int trunc, len;
 
-		len = iop->dxfer_len - iop->resid;
-		trunc = (len > 256) ? 1 : 0;
+                len = iop->dxfer_len - iop->resid;
+                trunc = (len > 256) ? 1 : 0;
                 if (len > 0) {
                     pout("  Incoming data, len=%d%s:\n", len,
                          (trunc ? " [only first 256 bytes shown]" : ""));
@@ -684,8 +685,8 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
                     pout("  Incoming data trimmed to nothing by resid\n");
             }
         }
-#endif
     }
+#endif
 
     if (sg_info & SG_INFO_CHECK) { /* error or warning */
         int masked_driver_status = (LSCSI_DRIVER_MASK & sg_driver_status);
@@ -771,8 +772,8 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
         /* FALLTHRU */
     case SG_IO_UNSUPP:
         /* previously called SCSI_IOCTL_SEND_COMMAND ioctl which has now
-	 * been removed. The SG_IO_USE_V3 is most widely used now in Linux
-	 * (circa 2022), try it again. */
+         * been removed. The SG_IO_USE_V3 is most widely used now in Linux
+         * (circa 2022), try it again. */
         sg_io_interface = SG_IO_USE_V3;
         /* FALLTHRU */
     case SG_IO_USE_V3:
@@ -781,7 +782,7 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
         return sg_io_cmnd_io(dev_fd, iop, report, sg_io_interface);
     default:
         pout(">>>> do_scsi_cmnd_io: bad sg_io_interface=%d\n",
-	     (int)sg_io_interface);
+             (int)sg_io_interface);
         sg_io_interface = SG_IO_USE_DETECT;
         return -EIO;    /* report error and reset state */
     }
@@ -1026,7 +1027,7 @@ bool linux_aacraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 
   if (rc != 0)
     return set_err(errno, "aacraid send_raw_srb: %d.%d = %s",
-		   aLun, aId, strerror(errno));
+                   aLun, aId, strerror(errno));
 
 /* see kernel aacraid.h and MSDN SCSI_REQUEST_BLOCK documentation */
 #define SRB_STATUS_SUCCESS            0x1
@@ -1057,7 +1058,7 @@ bool linux_aacraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 
     default:
       return set_err(EIO, "aacraid result: %d.%d = 0x%x",
-		     aLun, aId, pReply->srb_status);
+                     aLun, aId, pReply->srb_status);
   }
 }
 
@@ -1281,8 +1282,8 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   int dataLen, void *data,
   int /*senseLen*/, void * /*sense*/, int /*report*/, int dxfer_dir)
 {
-  struct megasas_pthru_frame	*pthru;
-  struct megasas_iocpacket	uio;
+  struct megasas_pthru_frame    *pthru;
+  struct megasas_iocpacket      uio;
 
   memset(&uio, 0, sizeof(uio));
   pthru = &uio.frame.pthru;
@@ -1678,10 +1679,10 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
         break;
       } else {
 #ifdef HAVE_LIBSELINUX
-	if (selinux_enabled && node_context) {
-	  freecon(node_context);
-	  node_context = NULL;
-	}
+        if (selinux_enabled && node_context) {
+          freecon(node_context);
+          node_context = NULL;
+        }
 #endif
         continue;
       }
@@ -2047,10 +2048,10 @@ static int find_areca_in_proc()
      }
 
      if (strcmp(linebuf, proc_format_string)) {
-     	// wrong format!
-	// Fix this by comparing only tokens not white space!!
-	pout("Unexpected format %s in /proc/scsi/sg/device_hdr\n", proc_format_string);
-	return 3;
+        // wrong format!
+        // Fix this by comparing only tokens not white space!!
+        pout("Unexpected format %s in /proc/scsi/sg/device_hdr\n", proc_format_string);
+        return 3;
      }
 
     // Format is understood, now search for correct device
@@ -2061,9 +2062,9 @@ static int find_areca_in_proc()
     // search all lines of /proc/scsi/sg/devices
     while (9 == fscanf(fp, "%d %d %d %d %d %d %d %d %d", &host, &chan, &id, &lun, &type, &opens, &qdepth, &busy, &online)) {
         dev++;
-	if (id == 16 && type == 3) {
-	   // devices with id=16 and type=3 might be Areca controllers
-	   pout("Device /dev/sg%d appears to be an Areca controller.\n", dev);
+        if (id == 16 && type == 3) {
+           // devices with id=16 and type=3 might be Areca controllers
+           pout("Device /dev/sg%d appears to be an Areca controller.\n", dev);
         }
     }
     fclose(fp);
@@ -2100,7 +2101,7 @@ smart_device * linux_areca_ata_device::autodetect_open()
   smart_device_auto_ptr newdev(new linux_areca_scsi_device(smi(), get_dev_name(), get_disknum(), get_encnum()));
   close();
   delete this;
-  newdev->open();	// TODO: Can possibly pass open fd
+  newdev->open();       // TODO: Can possibly pass open fd
 
   return newdev.release();
 }
@@ -2953,7 +2954,7 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
         continue;
       if ((*p_dev_sdxy_seen)[dev_n]) {
         if (debug)
-	  pout("%s: duplicate, ignored\n", name);
+          pout("%s: duplicate, ignored\n", name);
         continue;
       }
       (*p_dev_sdxy_seen)[dev_n] = true;

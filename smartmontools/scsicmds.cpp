@@ -126,11 +126,10 @@ dStrHexHelper(const uint8_t * up, int len, int no_ascii,
             if ((k > 0) && (0 == ((k + 1) % 16))) {
                 trimTrailingSpaces(buff);
                 if (no_ascii)
-                    out(buff, ctx);
-                else {
+                    snprintf(e, elen, "%s\n", buff);
+                else
                     snprintf(e, elen, "%.76s\n", buff);
-                    out(e, ctx);
-                }
+                out(e, ctx);
                 bpos = bpstart;
                 memset(buff, ' ', line_len);
             } else
@@ -139,7 +138,8 @@ dStrHexHelper(const uint8_t * up, int len, int no_ascii,
         if (bpos > bpstart) {
             buff[bpos + 2] = '\0';
             trimTrailingSpaces(buff);
-            out(buff, ctx);
+            snprintf(e, elen, "%s\n", buff);
+            out(e, ctx);
         }
         return;
     }
@@ -165,11 +165,10 @@ dStrHexHelper(const uint8_t * up, int len, int no_ascii,
             if (no_ascii)
                 trimTrailingSpaces(buff);
             if (no_ascii)
-                out(buff, ctx);
-            else {
+                snprintf(e, elen, "%s\n", buff);
+            else
                 snprintf(e, elen, "%.76s\n", buff);
-                out(e, ctx);
-            }
+            out(e, ctx);
             bpos = bpstart;
             cpos = cpstart;
             a += 16;
@@ -178,24 +177,30 @@ dStrHexHelper(const uint8_t * up, int len, int no_ascii,
             buff[k + 1] = ' ';
         }
     }
-        if (cpos > cpstart) {
+    if (cpos > cpstart) {
         buff[cpos] = '\0';
         if (no_ascii)
             trimTrailingSpaces(buff);
-        out(buff, ctx);
+        snprintf(e, elen, "%s\n", buff);
+        out(e, ctx);
     }
 }
 
 /* Read binary starting at 'up' for 'len' bytes and output as ASCII
- * hexadecimal into file pointer (fp). See dStrHex() below for more. */
+ * hexadecimal into file pointer (fp). If fp is NULL, then send to
+ * pout(). See dStrHex() below for more. */
 void
 dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp)
 {
     /* N.B. Use of lamba requires C++11 or later. */
-    dStrHexHelper(up, len, no_ascii,
-                  [](const char * s, void * ctx)
-                        { fputs(s, reinterpret_cast<FILE *>(ctx)); },
-                  fp); 
+    if (fp)
+        dStrHexHelper(up, len, no_ascii,
+                      [](const char * s, void * ctx)
+                            { fputs(s, reinterpret_cast<FILE *>(ctx)); },
+                      fp); 
+    else
+        dStrHexHelper(up, len, no_ascii,
+                      [](const char * s, void *){ pout("%s", s); });
 }
 
 /* Read binary starting at 'up' for 'len' bytes and output as ASCII
@@ -203,7 +208,8 @@ dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp)
  * additional space between 8th and 9th byte on each line (for readability).
  * 'no_ascii' selects one of 3 output format types:
  *     > 0     each line has address then up to 16 ASCII-hex bytes
- *     = 0     in addition, the bytes are listed in ASCII to the right
+ *     = 0     in addition, the bytes are rendered in ASCII to the right
+ *             of each line, non-printable characters shown as '.'
  *     < 0     only the ASCII-hex bytes are listed (i.e. without address) */
 void
 dStrHex(const uint8_t * up, int len, int no_ascii)
@@ -1390,28 +1396,29 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
     if (scsi_debugmode > 2) {
         bool dout = false;
         const char * ddir = "none";
+        const char * np;
 
         if (iop->dxfer_len > 0) {
             dout = (DXFER_TO_DEVICE == iop->dxfer_dir);
             ddir = dout ? "out" : "in";
         }
-        pout(" [SCSI opcode=0x%x, CDB length=%u, data length=0x%lx, data "
-             "dir=%s]\n", opcode, (unsigned int)iop->cmnd_len, iop->dxfer_len,
-             ddir);
+        np = scsi_get_opcode_name(iop->cmnd);
+        pout(" [%s: ", np ? np : "<unknown opcode>");
+        pout("SCSI opcode=0x%x, CDB length=%u, data length=0x%u, data "
+             "dir=%s]\n", opcode, (unsigned int)iop->cmnd_len,
+             (unsigned int)iop->dxfer_len, ddir);
         if (dout && (scsi_debugmode > 3))  /* output hex without address */
-            dStrHexFp(iop->dxferp, iop->dxfer_len, -1, stdout);
+            dStrHexFp(iop->dxferp, iop->dxfer_len, -1, NULL);
     }
 
     if (! device->scsi_pass_through(iop))
         return false; // this will be missing device, timeout, etc
 
     if (scsi_debugmode > 3) {
-        if ((iop->dxfer_len > 0) && (DXFER_FROM_DEVICE == iop->dxfer_dir)) {
-            int rlen = iop->dxfer_len - iop->resid;
-
-            if (rlen > 0)
-                dStrHexFp(iop->dxferp, rlen, -1, stdout);
-        }
+        if ((iop->dxfer_len > 0) && (DXFER_FROM_DEVICE == iop->dxfer_dir) &&
+            (iop->resid >= 0) && (iop->dxfer_len >= (unsigned int)iop->resid))
+            dStrHexFp(iop->dxferp, iop->dxfer_len - (unsigned int)iop->resid,
+                      -1, NULL);
     }
     scsi_do_sense_disect(iop, &sinfo);
 
