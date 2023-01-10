@@ -1,4 +1,8 @@
-$Id: ChangeLog 5432 2023-01-09 17:51:50Z dpgilbert $
+$Id: ChangeLog 5433 2023-01-10 19:27:49Z dpgilbert $
+
+2023-01-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	further cleanup associated with SCSI debug move.
 
 2023-01-07  Douglas Gilbert  <dgilbert@interlog.com>
 
