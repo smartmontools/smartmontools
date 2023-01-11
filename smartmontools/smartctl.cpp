@@ -755,7 +755,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
-      ataopts.farm_log_suggest = scsiopts.farm_log_suggest = true;  // Helper for FARM debug messages
+      ataopts.farm_log = scsiopts.farm_log = true;  // Helper for FARM debug messages
       scsiopts.smart_env_rep = true;
       scsiopts.scsi_pending_defects = true;
       scsiopts.tape_device_stats = true;
