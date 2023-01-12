@@ -617,7 +617,7 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
 }
 
 static void
-scsiPrintGrownDefectListLen(scsi_device * device)
+scsiPrintGrownDefectListLen(scsi_device * device, bool prefer12)
 {
     bool got_rd12;
     int err, dl_format;
@@ -625,34 +625,49 @@ scsiPrintGrownDefectListLen(scsi_device * device)
     static const char * hname = "Read defect list";
 
     memset(gBuf, 0, 8);
-    if ((err = scsiReadDefect12(device, 0 /* req_plist */, 1 /* req_glist */,
-                                4 /* format: bytes from index */,
-                                0 /* addr desc index */, gBuf, 8))) {
-        if (2 == err) { /* command not supported */
-            err = scsiReadDefect10(device, 0 /* req_plist */,
-                                   1 /* req_glist */,
-                                   4 /* format: bytes from index */, gBuf, 4);
-            if (err) {
-                if (scsi_debugmode > 0) {
-                    print_on();
-                    pout("%s (10) Failed: %s\n", hname, scsiErrString(err));
-                    print_off();
-                }
-                return;
-            } else
-                got_rd12 = 0;
-        } else if (101 == err)    /* Defect list not found, leave quietly */
-            return;
-        else {
+    if (prefer12) {
+        err = scsiReadDefect12(device, 0 /* req_plist */, 1 /* req_glist */,
+                               4 /* format: bytes from index */,
+                               0 /* addr desc index */, gBuf, 8);
+        got_rd12 = (0 == err);
+        if (err) {
             if (scsi_debugmode > 0) {
                 print_on();
                 pout("%s (12) Failed: %s\n", hname, scsiErrString(err));
                 print_off();
             }
-            return;
         }
-    } else
-        got_rd12 = true;
+    } else {    /* still try Read Defect(12) first, if not found try RD(10) */
+        err = scsiReadDefect12(device, 0 /* req_plist */, 1 /* req_glist */,
+                               4 /* format: bytes from index */,
+                               0 /* addr desc index */, gBuf, 8);
+        if (2 == err) { /* command not supported */
+            err = scsiReadDefect10(device, 0 /* req_plist */,
+                                   1 /* req_glist */,
+                                   4 /* format: bytes from index */, gBuf, 4);
+            if (2 == err) { /* command not supported */
+                if (err) {
+                    if (scsi_debugmode > 0) {
+                        print_on();
+                        pout("%s (10) Failed: %s\n", hname, scsiErrString(err));
+                        print_off();
+                    }
+                    return;
+                } else
+                    got_rd12 = false;
+            } else if (101 == err)    /* Defect list not found, leave quietly */
+                return;
+            else {
+                if (scsi_debugmode > 0) {
+                    print_on();
+                    pout("%s (12) Failed: %s\n", hname, scsiErrString(err));
+                    print_off();
+                }
+                return;
+            }
+        } else
+            got_rd12 = true;
+    }
 
     if (got_rd12) {
         int generation = sg_get_unaligned_be16(gBuf + 2);
@@ -3145,6 +3160,7 @@ scsiPrintEnviroReporting(scsi_device * device)
     }
 }
 
+
 /* Main entry point used by smartctl command. Return 0 for success */
 int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
@@ -3250,6 +3266,13 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                (SCSI_PT_HOST_MANAGED == peripheral_type));
     is_tape = ((SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type) ||
                (SCSI_PT_MEDIUM_CHANGER == peripheral_type));
+    bool ge_spc4 = device->is_spc4_or_higher();
+    if (ge_spc4 && (! device->checked_cmd_support())) {
+        if (! device->query_cmd_support()) {
+            if (scsi_debugmode)
+                pout("%s: query_cmd_support() failed\n", __func__);
+        }
+    }
 
     short int wce = -1, rcd = -1;
     // Print read look-ahead status for disks
@@ -3413,7 +3436,18 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (gStartStopLPage)
             scsiGetStartStopData(device);
         if (is_disk) {
-            scsiPrintGrownDefectListLen(device);
+            enum scsi_cmd_support rdefect10 =
+                        device->cmd_support_level(READ_DEFECT_10, false, 0);
+            enum scsi_cmd_support rdefect12 =
+                        device->cmd_support_level(READ_DEFECT_12, false, 0);
+
+            if ((SC_NO_SUPPORT == rdefect10) && (SC_NO_SUPPORT == rdefect12))
+                ;
+            else if (SC_SUPPORT == rdefect12)
+                scsiPrintGrownDefectListLen(device, true);
+            else
+                scsiPrintGrownDefectListLen(device, false);
+
             if (gSeagateCacheLPage)
                 scsiPrintSeagateCacheLPage(device);
             if (gSeagateFactoryLPage)

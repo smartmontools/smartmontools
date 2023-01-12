@@ -575,10 +575,11 @@ protected:
 
 struct scsi_cmnd_io;
 
-struct scsi_rsoc_elem {
-    uint8_t cdb0;
-    uint8_t sa_valid;
-    uint16_t sa;
+enum scsi_cmd_support
+{
+  SC_SUPPORT_UNKNOWN = 0,
+  SC_NO_SUPPORT,
+  SC_SUPPORT,
 };
 
 /// SCSI device access
@@ -606,6 +607,13 @@ public:
 
   bool is_spc4_or_higher() const { return spc4_or_above; }
 
+  bool query_cmd_support();
+
+  bool checked_cmd_support() const { return rsoc_queried; }
+
+  enum scsi_cmd_support cmd_support_level(uint8_t opcode, bool sa_valid,
+				          uint16_t sa) const;
+
 protected:
   /// Hide/unhide SCSI interface.
   void hide_scsi(bool hide = true)
@@ -615,14 +623,23 @@ protected:
   scsi_device()
     : smart_device(never_called),
       rcap16_first(false),
-      spc4_or_above(false)
+      spc4_or_above(false),
+      rsoc_queried(false),
+      rsoc_sup(SC_SUPPORT_UNKNOWN),
+      rcap16_sup(SC_SUPPORT_UNKNOWN),
+      rdefect10_sup(SC_SUPPORT_UNKNOWN),
+      rdefect12_sup(SC_SUPPORT_UNKNOWN)
     { hide_scsi(false); }
 
 private:
   bool rcap16_first;
   bool spc4_or_above;
-  /* rsoc: report supported operation codes (command) */
-  std::vector<scsi_rsoc_elem> rsoc_list;
+
+  bool rsoc_queried;
+  scsi_cmd_support rsoc_sup;
+  scsi_cmd_support rcap16_sup;
+  scsi_cmd_support rdefect10_sup;
+  scsi_cmd_support rdefect12_sup;
 };
 
 

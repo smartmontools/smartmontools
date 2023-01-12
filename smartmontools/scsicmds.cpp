@@ -46,6 +46,110 @@ unsigned char scsi_debugmode = 0;
 
 supported_vpd_pages * supported_vpd_pages_p = NULL;
 
+#define RSOC_RESP_SZ 4096
+#define RSOC_ALL_BYTES_CTDP_0 8
+#define RSOC_ALL_BYTES_CTDP_1 20
+
+bool
+scsi_device::query_cmd_support()
+{
+    bool res = true;
+    int k, err, cd_len, bump;
+    int r_len = 0;
+    uint8_t * rp = (uint8_t *)calloc(sizeof(uint8_t), RSOC_RESP_SZ);
+    const uint8_t * last_rp;
+    uint8_t * cmdp;
+    static const int max_bytes_of_cmds = RSOC_RESP_SZ - 4;
+
+    if (NULL == rp)
+        return false;
+    rsoc_queried = true;
+    /* request 'all commands' format: 4 bytes header, 20 bytes per command */
+    err = scsiRSOCcmd(this, rp, RSOC_RESP_SZ, r_len);
+    if (err) {
+        rsoc_sup = SC_NO_SUPPORT;
+        if (scsi_debugmode)
+            pout("%s Failed [%s]\n", __func__, scsiErrString(err));
+        res = false;
+        goto fini;
+    }
+    if (r_len < 4) {
+        pout("%s response too short\n", __func__);
+        res = false;
+        goto fini;
+    }
+    rsoc_sup = SC_SUPPORT;
+    cd_len = sg_get_unaligned_be32(rp + 0);
+    if (cd_len > max_bytes_of_cmds) {
+        if (scsi_debugmode)
+            pout("%s: truncate %d byte response to %d bytes\n", __func__,
+                 cd_len, max_bytes_of_cmds);
+        cd_len = max_bytes_of_cmds;
+    }
+    last_rp = rp + cd_len;
+    rdefect10_sup = SC_NO_SUPPORT;
+    rdefect12_sup = SC_NO_SUPPORT;
+    rcap16_sup = SC_NO_SUPPORT;
+
+    for (k = 0, cmdp = rp + 4; cmdp < last_rp; ++k, cmdp += bump) {
+        bool sa_valid = !! (0x1 & cmdp[5]);
+        bool ctdp = !! (0x2 & cmdp[5]);
+        uint8_t opcode = cmdp[0];
+        uint16_t sa;
+
+        bump = ctdp ? RSOC_ALL_BYTES_CTDP_1 : RSOC_ALL_BYTES_CTDP_0;
+        sa = sa_valid ? sg_get_unaligned_be16(cmdp + 2) : 0;
+
+        switch (opcode) {
+        case READ_DEFECT_10:
+            rdefect10_sup = SC_SUPPORT;
+            break;
+        case READ_DEFECT_12:
+            rdefect12_sup = SC_SUPPORT;
+            break;
+        case SERVICE_ACTION_IN_16:
+            if (sa_valid && (SAI_READ_CAPACITY_16 == sa))
+                rcap16_sup = SC_SUPPORT;
+            break;
+        default:
+            break;
+        }
+    }
+    if (scsi_debugmode > 3)
+        pout("%s: decoded %d supported commands\n", __func__, k);
+
+fini:
+    free(rp);
+    return res;
+}
+
+/* May track more in the future */
+enum scsi_cmd_support
+scsi_device::cmd_support_level(uint8_t opcode, bool sa_valid,
+                               uint16_t sa) const
+{
+    enum scsi_cmd_support scs = SC_SUPPORT_UNKNOWN;
+
+    switch (opcode) {
+    case READ_DEFECT_10:
+        scs = rdefect10_sup;
+        break;
+    case READ_DEFECT_12:
+        scs = rdefect12_sup;
+        break;
+    case SERVICE_ACTION_IN_16:
+        if (sa_valid && (SAI_READ_CAPACITY_16 == sa))
+            scs = rcap16_sup;
+        break;
+    case MAINTENANCE_IN_12:
+        if (sa_valid && (MI_REP_SUP_OPCODES == sa))
+            scs = rsoc_sup;
+        break;
+    default:
+        break;
+    }
+    return scs;
+}
 
 supported_vpd_pages::supported_vpd_pages(scsi_device * device) : num_valid(0)
 {
@@ -197,7 +301,7 @@ dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp)
         dStrHexHelper(up, len, no_ascii,
                       [](const char * s, void * ctx)
                             { fputs(s, reinterpret_cast<FILE *>(ctx)); },
-                      fp); 
+                      fp);
     else
         dStrHexHelper(up, len, no_ascii,
                       [](const char * s, void *){ pout("%s", s); });
@@ -316,7 +420,7 @@ static struct scsi_sa_var_map sa_var_a[] = {
 
 struct scsi_opcode_name {
     uint8_t opcode;
-    bool sa_valid;
+    bool sa_valid;      /* Service action (next field) valid */
     uint16_t sa;
     const char * name;
 };
@@ -1415,10 +1519,16 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
         return false; // this will be missing device, timeout, etc
 
     if (scsi_debugmode > 3) {
-        if ((iop->dxfer_len > 0) && (DXFER_FROM_DEVICE == iop->dxfer_dir) &&
-            (iop->resid >= 0) && (iop->dxfer_len >= (unsigned int)iop->resid))
-            dStrHexFp(iop->dxferp, iop->dxfer_len - (unsigned int)iop->resid,
-                      -1, NULL);
+        unsigned int req_len = iop->dxfer_len;
+        unsigned int act_len;
+
+        if ((req_len > 0) && (DXFER_FROM_DEVICE == iop->dxfer_dir) &&
+            (iop->resid >= 0) && (req_len >= (unsigned int)iop->resid)) {
+            act_len = req_len - (unsigned int)iop->resid;
+            pout("  [data-in buffer: req_len=%u, resid=%d, gives %u "
+                 "bytes]\n", req_len, iop->resid, act_len);
+            dStrHexFp(iop->dxferp, act_len, -1, NULL);
+        }
     }
     scsi_do_sense_disect(iop, &sinfo);
 

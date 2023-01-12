@@ -1,5 +1,15 @@
 $Id$
 
+2023-01-11  Douglas Gilbert  <dgilbert@interlog.com>
+
+	experiment with using the SCSI REPORT SUPPORTED OPERATION
+	CODES (RSOC) command on disks (not tape units) that report
+	SPC-4 or later compliance in their standard INQUIRY response.
+	The main usage currently is to use RSOC to find out if
+	either of the READ DEFECT commands are supported. The code
+	to check RSOC is only wired for smartctl (i.e. not smartd).
+	If this causes problems, please report them to me.
+
 2023-01-10  Douglas Gilbert  <dgilbert@interlog.com>
 
 	address smartctl SCSI json issue (exception) reported by
