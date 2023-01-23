@@ -1,5 +1,10 @@
 $Id$
 
+2023-01-23  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Use 'str_starts_with()' and 'set_err_np()' where
+	possible.
+
 2023-01-11  Douglas Gilbert  <dgilbert@interlog.com>
 
 	experiment with using the SCSI REPORT SUPPORTED OPERATION

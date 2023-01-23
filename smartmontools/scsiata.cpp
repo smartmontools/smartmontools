@@ -4,9 +4,10 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2006-15 Douglas Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2009-21 Christian Franke
+ * Copyright (C) 2009-23 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
+ *
  * The code in this file is based on the SCSI to ATA Translation (SAT)
  * draft found at http://www.t10.org . The original draft used for this
  * code is sat-r08.pdf which is not too far away from becoming a
@@ -496,10 +497,8 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 bool sat_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
   scsi_device * scsidev = get_tunnel_dev();
-  if (!scsidev->scsi_pass_through(iop)) {
-    set_err(scsidev->get_err());
-    return false;
-  }
+  if (!scsidev->scsi_pass_through(iop))
+    return set_err(scsidev->get_err());
   return true;
 }
 
@@ -1393,21 +1392,19 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
 
   // Take temporary ownership of 'scsidev' to delete it on error
   scsi_device_auto_ptr scsidev_holder(scsidev);
-  ata_device * satdev = 0;
+  ata_device * satdev = nullptr;
 
-  if (!strncmp(type, "sat", 3)) {
+  if (str_starts_with(type, "sat")) {
     const char * t = type + 3;
     sat_device::sat_scsi_mode mode = sat_device::sat_always;
-    if (!strncmp(t, ",auto", 5)) {
+    if (str_starts_with(t, ",auto")) {
       t += 5;
       mode = sat_device::sat_auto;
     }
     int ptlen = 0, n = -1;
     if (*t && !(sscanf(t, ",%d%n", &ptlen, &n) == 1 && n == (int)strlen(t)
-                && (ptlen == 0 || ptlen == 12 || ptlen == 16))) {
-      set_err(EINVAL, "Option '-d sat[,auto][,N]' requires N to be 0, 12 or 16");
-      return 0;
-    }
+                && (ptlen == 0 || ptlen == 12 || ptlen == 16)))
+      return set_err_np(EINVAL, "Option '-d sat[,auto][,N]' requires N to be 0, 12 or 16");
     satdev = new sat_device(this, scsidev, type, mode, ptlen);
   }
 
@@ -1415,35 +1412,31 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
     satdev = new sat_device(this, scsidev, type, sat_device::scsi_always);
   }
 
-  else if (!strncmp(type, "usbcypress", 10)) {
+  else if (str_starts_with(type, "usbcypress")) {
     unsigned signature = 0x24; int n1 = -1, n2 = -1;
-    if (!(((sscanf(type, "usbcypress%n,0x%x%n", &n1, &signature, &n2) == 1 && n2 == (int)strlen(type)) || n1 == (int)strlen(type))
-          && signature <= 0xff)) {
-      set_err(EINVAL, "Option '-d usbcypress,<n>' requires <n> to be "
-                      "an hexadecimal number between 0x0 and 0xff");
-      return 0;
-    }
+    if (!(((sscanf(type, "usbcypress%n,0x%x%n", &n1, &signature, &n2) == 1 && n2 == (int)strlen(type))
+           || n1 == (int)strlen(type)) && signature <= 0xff))
+      return set_err_np(EINVAL, "Option '-d usbcypress,<n>' requires <n> to be "
+                                "an hexadecimal number between 0x0 and 0xff"    );
     satdev = new usbcypress_device(this, scsidev, type, signature);
   }
 
-  else if (!strncmp(type, "usbjmicron", 10)) {
+  else if (str_starts_with(type, "usbjmicron")) {
     const char * t = type + 10;
     bool prolific = false;
-    if (!strncmp(t, ",p", 2)) {
+    if (str_starts_with(t, ",p")) {
       t += 2;
       prolific = true;
     }
     bool ata_48bit_support = false;
-    if (!strncmp(t, ",x", 2)) {
+    if (str_starts_with(t, ",x")) {
       t += 2;
       ata_48bit_support = true;
     }
     int port = -1, n = -1;
     if (*t && !(  (sscanf(t, ",%d%n", &port, &n) == 1
-                && n == (int)strlen(t) && 0 <= port && port <= 1))) {
-      set_err(EINVAL, "Option '-d usbjmicron[,p][,x],<n>' requires <n> to be 0 or 1");
-      return 0;
-    }
+                && n == (int)strlen(t) && 0 <= port && port <= 1)))
+      return set_err_np(EINVAL, "Option '-d usbjmicron[,p][,x],<n>' requires <n> to be 0 or 1");
     satdev = new usbjmicron_device(this, scsidev, type, prolific, ata_48bit_support, port);
   }
 
@@ -1456,8 +1449,7 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
   }
 
   else {
-    set_err(EINVAL, "Unknown USB device type '%s'", type);
-    return 0;
+    return set_err_np(EINVAL, "Unknown USB device type '%s'", type);
   }
 
   // 'scsidev' is now owned by 'satdev'
