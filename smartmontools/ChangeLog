@@ -1,4 +1,9 @@
-$Id: ChangeLog 5435 2023-01-12 04:51:49Z dpgilbert $
+$Id: ChangeLog 5436 2023-01-23 17:36:27Z chrfranke $
+
+2023-01-23  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Use 'str_starts_with()' and 'set_err_np()' where
+	possible.
 
 2023-01-11  Douglas Gilbert  <dgilbert@interlog.com>
 
