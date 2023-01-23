@@ -2,6 +2,9 @@ $Id$
 
 2023-01-23  Christian Franke  <franke@computer.org>
 
+	utility.cpp: Add MinGW-w64 version to '-V' output.
+	Simplify detection of C++ version string, add C++20.
+
 	scsiata.cpp: Add '-d usbasm1352r,N' device type for ASM 1352R USB
 	bridges (GH issues/167).
 	dev_interface.cpp: Update help text.

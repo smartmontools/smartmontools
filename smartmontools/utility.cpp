@@ -127,31 +127,26 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "smartmontools build with: "
 
 #define N2S_(s) #s
-#define N2S(s) "(" N2S_(s) ")"
-#if   __cplusplus >  201703
-                               "C++2x" N2S(__cplusplus)
+#define N2S(s) N2S_(s)
+#if   __cplusplus == 202002
+                               "C++20"
 #elif __cplusplus == 201703
                                "C++17"
-#elif __cplusplus >  201402
-                               "C++14" N2S(__cplusplus)
 #elif __cplusplus == 201402
                                "C++14"
-#elif __cplusplus >  201103
-                               "C++11" N2S(__cplusplus)
 #elif __cplusplus == 201103
                                "C++11"
-#elif __cplusplus >  199711
-                               "C++98" N2S(__cplusplus)
-#elif __cplusplus == 199711
-                               "C++98"
 #else
-                               "C++"   N2S(__cplusplus)
+                               "C++(" N2S(__cplusplus) ")"
 #endif
 #undef N2S
 #undef N2S_
 
 #if defined(__GNUC__) && defined(__VERSION__) // works also with CLang
                                      ", GCC " __VERSION__
+#endif
+#ifdef __MINGW64_VERSION_STR
+                                     ", MinGW-w64 " __MINGW64_VERSION_STR
 #endif
                                                           "\n"
     "smartmontools configure arguments:"
