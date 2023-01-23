@@ -432,6 +432,13 @@ If \*(Aq\-d sat,auto\*(Aq is specified, device type SAT (for ATA/SATA disks)
 is only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
 Otherwise device type SCSI (for SCSI/SAS disks) is used.
 .Sp
+.I usbasm1352r,PORT
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
+this device type is for one or two SATA disks that are behind an ASMedia
+ASM1352R USB to SATA (RAID) bridge.
+The parameter PORT (0 or 1) selects the disk to monitor.
+Note: \*(Aq\-d sat\*(Aq also works for the first disk.
+.Sp
 .I usbcypress
 \- this device type is for ATA disks that are behind a Cypress USB to PATA
 bridge.  This will use the ATACB proprietary scsi pass through command.

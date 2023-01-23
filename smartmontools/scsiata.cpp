@@ -111,9 +111,14 @@ public:
     sat_auto,
     scsi_always
   };
+  enum sat_variant {
+    sat_standard,
+    sat_asm1352r, // ASM1352R port 0 or 1
+  };
 
   sat_device(smart_interface * intf, scsi_device * scsidev,
-    const char * req_type, sat_scsi_mode mode = sat_always, int passthrulen = 0);
+    const char * req_type, sat_scsi_mode mode = sat_always, int passthrulen = 0,
+    sat_variant variant = sat_standard, int port = 0);
 
   virtual ~sat_device();
 
@@ -126,17 +131,20 @@ public:
 private:
   int m_passthrulen;
   sat_scsi_mode m_mode;
+  sat_variant m_variant;
+  int m_port;
 };
 
 
 sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
   const char * req_type, sat_scsi_mode mode /* = sat_always */,
-  int passthrulen /* = 0 */)
+  int passthrulen /* = 0 */, sat_variant variant /* = sat_standard */, int port /* = 0 */)
 : smart_device(intf, scsidev->get_dev_name(),
     (mode == sat_always ? "sat" : mode == sat_auto ? "sat,auto" : "scsi"), req_type),
   tunnelled_device<ata_device, scsi_device>(scsidev),
   m_passthrulen(passthrulen),
-  m_mode(mode)
+  m_mode(mode),
+  m_variant(variant), m_port(port)
 {
   if (mode != sat_always)
     hide_ata(); // Start as SCSI, switch to ATA in autodetect_open()
@@ -146,7 +154,9 @@ sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
     set_info().dev_type += strprintf("+%s", scsidev->get_dev_type());
 
   set_info().info_name = strprintf("%s [%s]", scsidev->get_info_name(),
-    (mode == sat_always ? "SAT" : mode == sat_auto ? "SCSI/SAT" : "SCSI"));
+    (variant == sat_standard ?
+     (mode == sat_always ? "SAT" : mode == sat_auto ? "SCSI/SAT" : "SCSI") :
+     (port == 0 ? "ASM1352R_0" : "ASM1352R_1")                              ));
 }
 
 sat_device::~sat_device()
@@ -291,6 +301,10 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         return set_err(EINVAL, "sat_device::ata_pass_through: invalid direction=%d",
             (int)in.direction);
     }
+
+    // The ASM1352R uses reserved values for 'protocol' field to select drive
+    if (m_variant == sat_asm1352r)
+      protocol = (m_port == 0 ? 0xd : 0xe);
 
     // Check condition if any output register needed
     if (in.out_needed.is_set())
@@ -1446,6 +1460,13 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
 
   else if (!strcmp(type, "usbsunplus")) {
     satdev = new usbsunplus_device(this, scsidev, type);
+  }
+
+  else if (str_starts_with(type, "usbasm1352r")) {
+    unsigned port = ~0; int n = -1;
+    if (!(sscanf(type, "usbasm1352r,%u%n", &port, &n) == 1 && n == (int)strlen(type) && port <= 1))
+      return set_err_np(EINVAL, "Option '-d usbasm1352r,<n>' requires <n> to be 0 or 1");
+    satdev = new sat_device(this, scsidev, type, sat_device::sat_always, 0, sat_device::sat_asm1352r, port);
   }
 
   else {
