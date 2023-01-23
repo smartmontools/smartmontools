@@ -4,7 +4,7 @@ Copyright (C) 2004-22 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5428 2022-12-31 15:55:43Z chrfranke $
+$Id: smartd.conf.5.in 5437 2023-01-23 17:48:54Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -416,6 +416,13 @@ overridden with either \*(Aq\-d sat,12\*(Aq or \*(Aq\-d sat,16\*(Aq.
 If \*(Aq\-d sat,auto\*(Aq is specified, device type SAT (for ATA/SATA disks)
 is only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
 Otherwise device type SCSI (for SCSI/SAS disks) is used.
+.Sp
+.I usbasm1352r,PORT
+\- [NEW EXPERIMENTAL SMARTD FEATURE]
+this device type is for one or two SATA disks that are behind an ASMedia
+ASM1352R USB to SATA (RAID) bridge.
+The parameter PORT (0 or 1) selects the disk to monitor.
+Note: \*(Aq\-d sat\*(Aq also works for the first disk.
 .Sp
 .I usbcypress
 \- this device type is for ATA disks that are behind a Cypress USB to PATA
@@ -1777,4 +1784,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5428 2022-12-31 15:55:43Z chrfranke $
+$Id: smartd.conf.5.in 5437 2023-01-23 17:48:54Z chrfranke $

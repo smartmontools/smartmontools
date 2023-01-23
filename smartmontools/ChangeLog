@@ -1,6 +1,11 @@
-$Id: ChangeLog 5436 2023-01-23 17:36:27Z chrfranke $
+$Id: ChangeLog 5437 2023-01-23 17:48:54Z chrfranke $
 
 2023-01-23  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Add '-d usbasm1352r,N' device type for ASM 1352R USB
+	bridges (GH issues/167).
+	dev_interface.cpp: Update help text.
+	smartctl.8.in, smartd.conf.5.in: Document new option.
 
 	scsiata.cpp: Use 'str_starts_with()' and 'set_err_np()' where
 	possible.
