@@ -7,6 +7,11 @@ $Id$
 	  Goodram IRDM PRO (#1556).
 	- Phison Driven OEM SSDs: SPCC Solid State Disk/SBFMT1.3.
 	- SSSTC ERX GD/CD Series SSDs: Rename, Add ER3-9, AF* (#1599, #1672).
+	- USB: HP Personal Media Drive (0x03f0:0x070c) (#1680).
+	- USB: Packard Bell Carbon (0x0766:0x0017) (#1325)
+	- USB: Freecom FHD-2 Pro (0x07ab:0xfc85).
+	- USB: JMicron newer firmware (0x152d:0x2509/0x0107) (GH issues/159).
+	- USB: PNY (0x154b:0x8001).
 
 2023-01-23  Christian Franke  <franke@computer.org>
 

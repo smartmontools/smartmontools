@@ -5139,6 +5139,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat,12" // ATA output registers missing
   },
   // Hewlett-Packard
+  { "USB: HP Personal Media Drive; ",
+    "0x03f0:0x070c",
+    "",
+    "",
+    "-d usbsunplus"
+  },
   { "USB: HP Desktop HD BD07; ", // 2TB
     "0x03f0:0xbd07",
     "",
@@ -5590,6 +5596,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Jess-Link
+  { "USB: Packard Bell Carbon; ",
+    "0x0766:0x0017",
+    "", // 0x0108
+    "",
+    "" // unsupported
+  },
   // Logitec
   { "USB: Logitec LGB-4BNHUC; ",
     "0x0789:0x0296",
@@ -5647,8 +5660,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: Freecom HD; JMicron", // 500GB
-    "0x07ab:0xfcd[6a]",
+  { "USB: Freecom; JMicron", // 0xfc85: Freecom FHD-2 Pro / JMicron JM20316
+    "0x07ab:0xfc(85|d[6a])",
     "",
     "",
     "-d usbjmicron"
@@ -6076,9 +6089,15 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron", // USB->SATA
     "0x152d:0x2509",
-    "", // 0x0100
+    "0x0100", // old firmware
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: ; JMicron", // USB->SATA
+    "0x152d:0x2509",
+    "0x0107", // newer firmware supports SAT
+    "",
+    "-d sat"
   },
   { "USB: ; JMicron JMS566", // USB3->SATA
     "0x152d:0x2566", // e.g. Chieftec CEB-7035S
@@ -6124,7 +6143,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // PNY
   { "USB: ; PNY",
-    "0x154b:0x(5678|f009)",
+    "0x154b:0x(5678|8001|f009)",
     "", // 0x5678: 0x5408
     "",
     "-d sat"
