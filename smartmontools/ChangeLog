@@ -1,4 +1,12 @@
-$Id: ChangeLog 5438 2023-01-23 17:57:02Z chrfranke $
+$Id: ChangeLog 5439 2023-01-24 15:35:47Z chrfranke $
+
+2023-01-24  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: SVM2S46128GNPI51UF (#1393),
+	  Goodram IRDM PRO (#1556).
+	- Phison Driven OEM SSDs: SPCC Solid State Disk/SBFMT1.3.
+	- SSSTC ERX GD/CD Series SSDs: Rename, Add ER3-9, AF* (#1599, #1672).
 
 2023-01-23  Christian Franke  <franke@computer.org>
 
