@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-22 Christian Franke
+ * Copyright (C) 2008-23 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3/5417 2022-11-09 18:27:46 $Id: drivedb.h 5418 2022-11-09 18:33:04Z chrfranke $",
+  { "VERSION: 7.3/5440 2023-01-24 15:50:04 $Id: drivedb.h 5441 2023-01-24 16:03:05Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -745,8 +745,9 @@ const drive_settings builtin_knowndrives[] = {
     "Corsair Force LE200 SSD|" // tested with Corsair Force LE200 SSD/SBFM10, .../SBFM60.9
     "GIGABYTE GP-GSTFS31((120|240|256|480)G|100T)NTD|" // tested with GIGABYTE GP-GSTFS31120GNTD/SBFM61.3
     "GOODRAM IRIDIUM PRO|" // tested with GOODRAM IRIDIUM PRO/SAFM01.5
-    "IR-SSDPR-S25A-(120|240|480|960)|" // Goodram IRIDM, tested with IR-SSDPR-S25A-120/SBFM91.3,
-      // IR-SSDPR-S25A-240/SBFM91.2
+    "IRP?-SSDPR-S25[AC]-(120|240|256|480|512|960|0[12]T)|" // Goodram IRIDM (PRO), tested with
+      // IR-SSDPR-S25A-120/SBFM91.3, IR-SSDPR-S25A-240/SBFM91.2, IRP-SSDPR-S25C-512/SCFM13.3,
+      // IRP-SSDPR-S25C-02T/SCFM13.2
     "KINGSTON O(C|M[48S])P0S3(64|128|256|512)B-[0A]0|" // tested with KINGSTON OCP0S364B-A0/SBFK62A3,
       // KINGSTON OM4P0S3256B-A0/SBFK62A3, KINGSTON OM8P0S364B-A0/SBFK62A3,
       // KINGSTON OMSP0S3128B-00/SBFK62A3
@@ -780,7 +781,8 @@ const drive_settings builtin_knowndrives[] = {
     "SSD PHISON 256GB PS3110-S10C|" // tested with SSD PHISON 256GB PS3110-S10C/SAFM12.2
     "SSDPR-CX400-(128|256|512|1024)|" // Goodram CX400, tested with SSDPR-CX400-512/SBFM61.3
     "TEAM L3 EVO SSD (120|240|480|960)GB|" // TEAM L3 EVO SSD 120GB/SBFM11.0
-    "SSM28(128|256|512)GPTCB3B-S11[24]61[123]", // tested with SSM28256GPTCB3B-S112612/SBFM61.2
+    "SSM28(128|256|512)GPTCB3B-S11[24]61[123]|" // tested with SSM28256GPTCB3B-S112612/SBFM61.2
+    "SVM2S46(128|256|512)GNPI51UF", // tested with SVM2S46128GNPI51UF/SBFMH1.2
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
@@ -831,8 +833,8 @@ const drive_settings builtin_knowndrives[] = {
     "SATA SSD|" // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
       // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
     "SPCC Solid State Disk", // Silicon Power, tested with SPCC Solid State Disk/SBFD00.3,
-      // SPCC Solid State Disk/SBFM61.2
-    "S[89AB]F[DM][0-9][0-9]\\.[0-9]",
+      // SPCC Solid State Disk/SBFM61.2, SPCC Solid State Disk/SBFMT1.3
+    "S[89AB]F[DM][0-9T][0-9]\\.[0-9]",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
@@ -2366,28 +2368,44 @@ const drive_settings builtin_knowndrives[] = {
     "-v 130,raw48:54321,Minimum_Spares_All_Zs"
   //"-v 194,tempminmax,Temperature_Celsius"
   },
-  { "SSSTC ER2 GD/CD Series SSDs", // Marvel DEAN 2.1
-    "SSSTC ER2-[CG]D(240|480|960|1920)A?", // tested with SSSTC ER2-GD480/E4N2302l,
-      // SSSTC ER2-CD1920A/E5MN401
+  { "SSSTC ERX GD/CD Series SSDs", // Marvel DEAN 2.1
+    "(SSSTC|SATA) ER[2-9]-[CG]D(240|480|960|1920)A?|" // tested with SSSTC ER2-GD480/E4N23021,
+      // SSSTC ER2-CD1920A/E5MN401, SSSTC ER3-GD240/F2MRD0F, SSSTC ER3-CD960A/F3MRD0Y
+    "AF[2-9]MA31DT[ED]LT(240|480|960|1920)A?", // tested with AF2MA31DTDLT240A/F2M96T0
     "","",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
+    "-v 100,raw48,Max_Min_EC_Count "
     "-v 170,raw48,Available_Reservd_Space "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw48,Average_PE_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 175,raw48,PwrLoss_ProtectionFail "
+  //"-v 176,raw48,Erase_Fail_Count_Chip "
+  //"-v 177,raw48,Wear_Leveling_Count "
+  //"-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip "
+  //"-v 179,raw48,Used_Rsvd_Blk_Cnt_Tot "
+    "-v 180,raw48,Over-Provisioning_Rate "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 182,raw48,Erase_Fail_Count_Total "
     "-v 183,raw48,SATA_Iface_Downshift "
   //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 188,raw48,Command_Timeout "
   //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 202,raw48,Percent_Lifetime_Remain "
-  //"-v 210,raw48,Raid_Success_Recover_Ct " // ] E4N2302: Missing
-  //"-v 234,raw48,Thermal_Throttle_Status " // ]
+    "-v 210,raw48,Raid_Success_Recover_Ct "
+    "-v 229,raw48,PLP_Failure "
+    "-v 231,raw48,Remaining_Lifetime_Perc "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 234,raw48,Thermal_Throttle_Status "
   //"-v 241,raw48,Total_LBAs_Written "
   //"-v 242,raw48,Total_LBAs_Read "
     "-v 243,raw48,NAND_Writes_GiB "
@@ -5121,6 +5139,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat,12" // ATA output registers missing
   },
   // Hewlett-Packard
+  { "USB: HP Personal Media Drive; ",
+    "0x03f0:0x070c",
+    "",
+    "",
+    "-d usbsunplus"
+  },
   { "USB: HP Desktop HD BD07; ", // 2TB
     "0x03f0:0xbd07",
     "",
@@ -5572,6 +5596,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Jess-Link
+  { "USB: Packard Bell Carbon; ",
+    "0x0766:0x0017",
+    "", // 0x0108
+    "",
+    "" // unsupported
+  },
   // Logitec
   { "USB: Logitec LGB-4BNHUC; ",
     "0x0789:0x0296",
@@ -5629,8 +5660,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: Freecom HD; JMicron", // 500GB
-    "0x07ab:0xfcd[6a]",
+  { "USB: Freecom; JMicron", // 0xfc85: Freecom FHD-2 Pro / JMicron JM20316
+    "0x07ab:0xfc(85|d[6a])",
     "",
     "",
     "-d usbjmicron"
@@ -6058,9 +6089,15 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron", // USB->SATA
     "0x152d:0x2509",
-    "", // 0x0100
+    "0x0100", // old firmware
     "",
     "-d usbjmicron,x"
+  },
+  { "USB: ; JMicron", // USB->SATA
+    "0x152d:0x2509",
+    "0x0107", // newer firmware supports SAT
+    "",
+    "-d sat"
   },
   { "USB: ; JMicron JMS566", // USB3->SATA
     "0x152d:0x2566", // e.g. Chieftec CEB-7035S
@@ -6106,7 +6143,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // PNY
   { "USB: ; PNY",
-    "0x154b:0x(5678|f009)",
+    "0x154b:0x(5678|8001|f009)",
     "", // 0x5678: 0x5408
     "",
     "-d sat"
