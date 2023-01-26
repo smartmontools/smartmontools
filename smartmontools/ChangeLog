@@ -1,4 +1,9 @@
-$Id: ChangeLog 5440 2023-01-24 15:50:04Z chrfranke $
+$Id: ChangeLog 5442 2023-01-26 18:15:26Z chrfranke $
+
+2023-01-26  Christian Franke  <franke@computer.org>
+
+	examplescripts/Example7: Fix check of parameter count
+	(GH issues/169).
 
 2023-01-24  Christian Franke  <franke@computer.org>
 

@@ -7,9 +7,9 @@
 #
 # See also: smartd.conf(5), smartd(8).
 #
-# $Id: Example7 4930 2019-06-28 20:01:56Z chrfranke $
+# $Id: Example7 5442 2023-01-26 18:15:26Z chrfranke $
 
-if [ $# -le 3 ] || [ "$1" != "-s" ]; then
+if [ $# -lt 3 ] || [ "$1" != "-s" ]; then
   echo "Usage: $0 -s SUBJECT ADDRESS... < MESSAGE"
   exit 1
 fi
