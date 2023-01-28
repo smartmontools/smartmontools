@@ -1,5 +1,10 @@
 $Id$
 
+2023-01-28  Christian Franke  <franke@computer.org>
+
+	configure.ac: Rework C++ option check, also warn if C++17 is
+	unsupported.
+
 2023-01-26  Christian Franke  <franke@computer.org>
 
 	examplescripts/Example7: Fix check of parameter count

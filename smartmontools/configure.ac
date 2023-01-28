@@ -530,51 +530,46 @@ AC_ARG_WITH(cxx11-option,
     [Compiler option to enable C++11 support, 'no' to skip check [auto]])],
   [], [with_cxx11_option=auto])
 
-cxx14_option=
-case "$with_cxx11_option" in
-  no) ;;
-  *)
-    AC_MSG_CHECKING([for $CXX option to accept C++14])
-    cxx14_option=unknown
-    save_CXXFLAGS=$CXXFLAGS
-    for option in "" "-std=gnu++14" "-std=gnu++1y" "-std=c++14" "-std=c++1y"; do
-      CXXFLAGS="$save_CXXFLAGS $option"
-      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #if __cplusplus < 201402
-          #error false
-        #endif]])], [cxx14_option=$option])
-      test "$cxx14_option" = "unknown" || break
-    done
-    CXXFLAGS=$save_CXXFLAGS
-    AC_MSG_RESULT([${cxx14_option:-none needed}])
-    ;;
-esac
+# check_cxx_options "MESSAGE" MINVER MAXVER "OPTION..."
+check_cxx_options()
+{
+  AC_MSG_CHECKING([for $CXX option to accept $1])
+  res=unknown
+  save_CXXFLAGS=$CXXFLAGS
+  for option in "" $4; do
+    CXXFLAGS="$save_CXXFLAGS $option"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #if __cplusplus < $2 || $3 <= __cplusplus
+        #error false
+      #endif]])], [res=$option])
+    test "$res" = "unknown" || break
+  done
+  CXXFLAGS=$save_CXXFLAGS
+  AC_MSG_RESULT([${res:-none needed}])
+}
 
+cxx_missing=
 case "$with_cxx11_option" in
   no) ;;
   auto)
-    res=; test "$cxx14_option" = "unknown" || res=" but not C++14"
-    AC_MSG_CHECKING([for $CXX option to accept C++11$res])
-    save_CXXFLAGS=$CXXFLAGS
-    res=unknown
-    for option in "" "-std=gnu++11" "-std=gnu++0x" "-std=c++11" "-std=c++0x"; do
-      test "$option" != "$cxx14_option" || continue
-      CXXFLAGS="$save_CXXFLAGS $option"
-      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #if __cplusplus < 201103 || 201402 <= __cplusplus
-          #error false
-        #endif]])], [res=$option])
-      test "$res" = "unknown" || break
-    done
-    AC_MSG_RESULT([${res:-none needed}])
+    check_cxx_options "C++17" 201703 999999 "-std=gnu++17 -std=gnu++1z -std=c++17 -std=c++1z"
+    cxx17_option=$res;
+    check_cxx_options "C++14 but not C++17" 201402 201703 "-std=gnu++14 -std=gnu++1y -std=c++14 -std=c++1y"
+    cxx14_option=$res;
+    case "$cxx17_option:$cxx14_option" in
+      unknown:unknown) cxx_missing=14 ;;
+      unknown:*)       cxx_missing=17 ;;
+    esac
+    check_cxx_options "C++11 but not C++14" 201103 201402 "-std=gnu++11 -std=gnu++0x -std=c++11 -std=c++0x"
     test "$res" != "unknown" || res=$cxx14_option
+    test "$res" != "unknown" || res=$cxx17_option
     test "$res" != "unknown" || AC_MSG_ERROR([
 This script was unable to determine a compiler option to accept C++11.
 Use option '--with-cxx11-option=OPTION' to specify a compiler option.
 Use option '--without-cxx11-option' to try anyway without this check.
 In both cases, please send info about compiler and platform to
 $PACKAGE_BUGREPORT - Thanks!])
-    CXXFLAGS="$save_CXXFLAGS${res:+ }$res"
+    CXXFLAGS="$CXXFLAGS${res:+ }$res"
     ;;
   *)
     AC_MSG_CHECKING([whether $CXX $with_cxx11_option accepts C++11])
@@ -1009,9 +1004,9 @@ Use option '--without-libsystemd' to suppress this warning.
     fi ;;
 esac
 
-test "$cxx14_option" != "unknown" || AC_MSG_WARN([
-This version of smartmontools does not use C++14 enhancements, but
-future versions possibly will.
-This script was unable to determine a compiler option to enable C++14.
+test -z "$cxx_missing" || AC_MSG_WARN([
+This version of smartmontools does not use C++14 or C++17 enhancements,
+but future versions possibly will.
+This script was unable to determine a compiler option to enable C++$cxx_missing.
 Please send info about compiler and platform to
 $PACKAGE_BUGREPORT - Thanks!])
