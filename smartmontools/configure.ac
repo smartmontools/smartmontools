@@ -87,8 +87,6 @@ svn_deps=
 if test -f "$srcdir/.svn/wc.db"; then
   # SVN >= 1.7 working copy
   svn_deps='${srcdir}/.svn/wc.db'
-fi
-if test -n "$svn_deps"; then
   is_svn_build=unknown
   if (cd "$srcdir" && svn --version && svnversion && svn info) >/dev/null 2>&1; then
     is_svn_build=yes
@@ -235,14 +233,6 @@ AC_ARG_WITH(gnupg,
   [AS_HELP_STRING([--with-gnupg@<:@=FILE|yes|no@:>@], [GnuPG used to verify drivedb.h [gpg]])],
   [case "$withval" in yes) ;; no) gnupg= ;; *) gnupg="$withval" ;; esac], [])
 AC_SUBST(gnupg)
-
-case "$with_update_smart_drivedb:$gnupg" in
-  no:?*)
-    AC_MSG_ERROR([
-'--without-update-smart-drivedb' now requires '--without-gnupg'.
-NEWS: update-smart-drivedb now verifies the downloaded drivedb.h file with GnuPG.])
-    ;;
-esac
 
 AC_ARG_WITH(smartdscriptdir,
   [AS_HELP_STRING([--with-smartdscriptdir=DIR], [Location of smartd_warning.sh script [SYSCONFDIR]])],
@@ -410,7 +400,7 @@ AC_SUBST(systemdenvfile)
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
-    [Include NVMe devices in smartd DEVICESCAN [Linux,Windows:yes;Others:no]])])
+    [Include NVMe devices in smartctl --scan and smartd DEVICESCAN and [Linux,Windows:yes;Others:no]])])
 
 # TODO: Remove after smartmontools 7.4
 AC_ARG_WITH(signal-func,
@@ -879,7 +869,7 @@ info=`
       if test -n "$drivedbdir"; then
         echo "drive database file:    EXEDIR/drivedb.h"
         if test -n "$MAKENSIS"; then
-          echo "database update tool:   EXEDIR/update-smart-drivedb.exe"
+          echo "database update script: EXEDIR/update-smart-drivedb.ps1"
         fi
       else
         echo "drive database file:    [[disabled]]"

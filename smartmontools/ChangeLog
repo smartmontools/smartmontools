@@ -2,6 +2,9 @@ $Id$
 
 2023-01-28  Christian Franke  <franke@computer.org>
 
+	configure.ac: Remove unneeded 'if'.  Update some message texts.
+	Remove '--without-update-smart-drivedb' error message.
+
 	configure.ac: Move C++ option check to make sure that C++11 is
 	enabled before __USE_MINGW_ANSI_STDIO check.
 
