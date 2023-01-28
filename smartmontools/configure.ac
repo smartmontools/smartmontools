@@ -400,7 +400,7 @@ AC_SUBST(systemdenvfile)
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
-    [Include NVMe devices in smartctl --scan and smartd DEVICESCAN and [Linux,Windows:yes;Others:no]])])
+    [Include NVMe devices in smartctl --scan and smartd DEVICESCAN [Darwin,FreeBSD,Linux,Windows:yes;NetBSD:no]])])
 
 # TODO: Remove after smartmontools 7.4
 AC_ARG_WITH(signal-func,
@@ -617,6 +617,7 @@ os_win32_mingw=no
 os_win64=no
 os_man_filter=
 os_nvme_devicescan=
+os_nvme_devicescan_changed=no
 case "${host}" in
   *-*-linux*)
     os_deps='os_linux.o cciss.o dev_areca.o'
@@ -631,7 +632,9 @@ case "${host}" in
     os_dltools='fetch curl wget lynx svn'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
     os_man_filter=FreeBSD
-    os_nvme_devicescan=no
+    os_nvme_devicescan=yes
+    # TODO: Remove after smartmontools 7.4
+    os_nvme_devicescan_changed=yes
     ;;
   *-*-solaris*)
     os_deps='os_solaris.o'
@@ -683,7 +686,9 @@ case "${host}" in
     os_libs='-framework CoreFoundation -framework IOKit'
     os_darwin=yes
     os_man_filter=Darwin
-    os_nvme_devicescan=no
+    os_nvme_devicescan=yes
+    # TODO: Remove after smartmontools 7.4
+    os_nvme_devicescan_changed=yes
     ;;
   *-*-nto-qnx*)
     os_deps='os_qnxnto.o'
@@ -965,20 +970,25 @@ $info
 ])
 
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
-case "$os_nvme_devicescan:$with_nvme_devicescan" in
-  used:yes) AC_MSG_WARN([
+case "$os_nvme_devicescan:$with_nvme_devicescan:$os_nvme_devicescan_changed" in
+  used:yes:yes) AC_MSG_WARN([
 The default for the inclusion of NVME devices in smartd.conf
 'DEVICESCAN' and 'smartctl --scan' has been changed to 'yes' on
-this platform.  If '--without-nvme-devicescan' is still needed,
-please inform $PACKAGE_BUGREPORT.
+this platform.
 Use option '--with-nvme-devicescan' to suppress this warning.
 ])  ;;
-  used:no) AC_MSG_WARN([
+  used:no:*) AC_MSG_WARN([
 This version of smartmontools provides NVMe support which is still
 EXPERIMENTAL.  NVMe devices are not yet included in smartd.conf
 'DEVICESCAN' and 'smartctl --scan' unless '-d nvme' is specified.
 Use option '--with-nvme-devicescan' to include NVMe devices.
 Use option '--without-nvme-devicescan' to suppress this warning.
+])  ;;
+  yes:no:*) AC_MSG_WARN([
+The default for the inclusion of NVME devices in smartd.conf
+'DEVICESCAN' and 'smartctl --scan' is 'yes' on this platform.
+If option '--without-nvme-devicescan' is still needed, please inform
+$PACKAGE_BUGREPORT - Thanks!
 ])  ;;
 esac
 

@@ -2,6 +2,10 @@ $Id$
 
 2023-01-28  Christian Franke  <franke@computer.org>
 
+	configure.ac: Change default for '--with-nvme-devicescan' to
+	'yes' on Darwin and FreeBSD.  Keep 'no' on NetBSD.
+	Update related warnings.
+
 	configure.ac: Remove unneeded 'if'.  Update some message texts.
 	Remove '--without-update-smart-drivedb' error message.
 
