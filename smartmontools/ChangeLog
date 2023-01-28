@@ -2,6 +2,9 @@ $Id$
 
 2023-01-28  Christian Franke  <franke@computer.org>
 
+	configure.ac: Enhance __USE_MINGW_ANSI_STDIO support check.
+	Don't define __USE_MINGW_ANSI_STDIO if already predefined.
+
 	configure.ac: Rework C++ option check, also warn if C++17 is
 	unsupported.
 

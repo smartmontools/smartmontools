@@ -434,30 +434,39 @@ case "$host_os: $CPPFLAGS $CXXFLAGS" in
   mingw*:*\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
     ;;
   mingw*:*)
-    # Older MinGW (4.6.3) do not properly define PRI?64 if __USE_MINGW_ANSI_STDIO is set.
-    # Newer MinGW (4.9.1) set __USE_MINGW_ANSI_STDIO in first C++ include which may be too late.
-    # Set __USE_MINGW_ANSI_STDIO always and fail if not fully supported.
+    # MinGW 4.6.* did not properly define PRI?64 if __USE_MINGW_ANSI_STDIO is set.
+    # MinGW 4.9.* set __USE_MINGW_ANSI_STDIO in first C++ include which may be too late.
+    # MinGW 8.0.0 and later automatically set __USE_MINGW_ANSI_STDIO in C99 and C++11 mode.
+    # Make sure __USE_MINGW_ANSI_STDIO is set always and fail if not fully supported.
+    AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO=1 is predefined])
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+        #include <stdio.h>
+        #if __USE_MINGW_ANSI_STDIO != 1
+          #error fail
+        #endif]])],
+      [res=yes],
+      [res=no; CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D__USE_MINGW_ANSI_STDIO"])
+    AC_MSG_RESULT([$res])
     AC_MSG_CHECKING([whether $CXX supports __USE_MINGW_ANSI_STDIO])
     save_CXXFLAGS=$CXXFLAGS
-    CXXFLAGS="-Wformat -Werror -D__USE_MINGW_ANSI_STDIO"
+    CXXFLAGS="$CXXFLAGS -Wformat -Werror"
     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-      #define __STDC_FORMAT_MACROS 1
-      #include <inttypes.h>
-      #include <stdio.h>
-      void f(char * buf1, char * buf2, size_t size) {
-        snprintf(buf1, size, "%lld", 42LL);
-        snprintf(buf2, size, "%" PRId64, (int64_t)42);
-      }]])],
-      [result=yes], [result=no])
-    AC_MSG_RESULT([$result])
-    if test "$result" != "yes"; then
+        #define __STDC_FORMAT_MACROS 1
+        #include <inttypes.h>
+        #include <stdio.h>
+        void f(char * p, size_t s) {
+          snprintf(p, s, "%zu %lld %Lf %" PRId64, s, (long long)s, (long double)s, (int64_t)s);
+        }]])],
+      [res=yes], [res=no])
+    AC_MSG_RESULT([$res])
+    if test "$res" != "yes"; then
       AC_MSG_ERROR([
 This version of $CXX does not support __USE_MINGW_ANSI_STDIO.
 Use option 'CPPFLAGS=-U__USE_MINGW_ANSI_STDIO' to skip this check.
 Please send info about your system to $PACKAGE_BUGREPORT.
 ])
     fi
-    CXXFLAGS="-D__USE_MINGW_ANSI_STDIO $save_CXXFLAGS"
+    CXXFLAGS=$save_CXXFLAGS
     ;;
 esac
 
