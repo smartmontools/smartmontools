@@ -1,4 +1,11 @@
-$Id: ChangeLog 5447 2023-01-28 17:32:12Z chrfranke $
+$Id: ChangeLog 5448 2023-02-03 17:40:04Z chrfranke $
+
+2023-02-03  Christian Franke  <franke@computer.org>
+
+	nvmecmds.cpp: Fix segfault after read of NVMe error log on
+	big endian hosts (GH issues/172, regression from r5121).
+
+	Thanks to Niklas Schnelle for the bug report.
 
 2023-01-28  Christian Franke  <franke@computer.org>
 
