@@ -2,6 +2,8 @@ $Id$
 
 2023-02-05  Christian Franke  <franke@computer.org>
 
+	configure.ac: Define _FORTIFY_SOURCE=3 if supported.
+
 	dev_intelliprop.cpp: Disable '-d intelliprop,N' and print
 	deprecation message.
 	Add '-d intelliprop,N,force' to use this device type anyhow.

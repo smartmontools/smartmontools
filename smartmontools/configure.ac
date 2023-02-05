@@ -823,25 +823,35 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
   #endif]])], [res=yes], [res=no])
 AC_MSG_RESULT([$res])
 if test "$res" = "no"; then
-  # Heuristic to check for _FORTIFY_SOURCE=2 support.
+  # Heuristic to check for _FORTIFY_SOURCE=[23] support.
   # Done after check for -fstack-protector because this may add an additional lib.
   # Note: Even if _FORTIFY_SOURCE is present in the include files, it may not be
-  # detected here because it is disabled for C++.
-  AC_MSG_CHECKING([whether $CXX supports _FORTIFY_SOURCE=2])
+  # detected here for some reason (disabled for C++, compiler optimization disabled,
+  # LDFLAGS include '-s', ...)
   save_CPPFLAGS=$CPPFLAGS
-  CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D_FORTIFY_SOURCE=2"
-  # Use LINK instead of COMPILE to make sure that the required lib is also present
-  # (does not work with LDFLAGS=-s).
-  AC_LINK_IFELSE([AC_LANG_SOURCE([[
-    #include <string.h>
-    char buf[42];
-    int main(int argc, char **argv) {
-      if (argc == 2) strcpy(buf, argv[1]); return buf[0];
-    }]])],
-    [res=yes; $NM conftest$EXEEXT 2>/dev/null | grep '_strcpy_chk' >/dev/null 2>&1 || res=no],
-    [res=unknown])
-  test "$res" = "yes" || CPPFLAGS=$save_CPPFLAGS
-  AC_MSG_RESULT([$res])
+  for level in 3 2; do
+    AC_MSG_CHECKING([whether $CXX supports _FORTIFY_SOURCE=$level])
+    CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D_FORTIFY_SOURCE=$level"
+    # Use LINK instead of COMPILE to make sure that the required lib is also present.
+    AC_LINK_IFELSE([AC_LANG_SOURCE([[
+      #include <stdlib.h>
+      #include <string.h>
+      char buf[42], *p;
+      int main(int argc, char **argv) {
+      #if _FORTIFY_SOURCE > 2
+        p = (char *)malloc(argc * 24);
+      #else
+        p = buf;
+      #endif
+        if (argc >= 2) strcpy(p, argv[1]);
+        return p[0];
+      }]])],
+      [res=yes; $NM conftest$EXEEXT 2>/dev/null | grep '_strcpy_chk' >/dev/null 2>&1 || res=no],
+      [res=unknown])
+    AC_MSG_RESULT([$res])
+    test "$res" != "yes" || break
+    CPPFLAGS=$save_CPPFLAGS
+  done
 fi
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                       [smartmontools Build Host])
