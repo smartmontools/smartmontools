@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5435 2023-01-12 04:51:49Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5451 2023-02-09 05:43:49Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -380,7 +380,7 @@ scsiGetSmartData(scsi_device * device, bool attribs)
             pout("Drive Trip Temperature:        <not available>\n");
         else {
             jout("Drive Trip Temperature:        %d C\n", triptemp);
-            jglb["scsi_temperature"]["drive_trip"] = triptemp;
+            jglb["temperature"]["drive_trip"] = triptemp;
         }
     }
     pout("\n");

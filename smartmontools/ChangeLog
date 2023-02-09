@@ -1,4 +1,9 @@
-$Id: ChangeLog 5450 2023-02-05 15:03:34Z chrfranke $
+$Id: ChangeLog 5451 2023-02-09 05:43:49Z dpgilbert $
+
+2023-02-09  Douglas Gilbert  <dgilbert@interlog.com>
+
+	address issue #168 from smt/smt at github. Choose option 1.
+	from Christian's response to that issue.
 
 2023-02-05  Christian Franke  <franke@computer.org>
 
