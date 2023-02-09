@@ -1,5 +1,10 @@
 $Id$
 
+2023-02-09  Douglas Gilbert  <dgilbert@interlog.com>
+
+	address issue #168 from smt/smt at github. Choose option 1.
+	from Christian's response to that issue.
+
 2023-02-05  Christian Franke  <franke@computer.org>
 
 	configure.ac: Define _FORTIFY_SOURCE=3 if supported.

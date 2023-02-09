@@ -380,7 +380,7 @@ scsiGetSmartData(scsi_device * device, bool attribs)
             pout("Drive Trip Temperature:        <not available>\n");
         else {
             jout("Drive Trip Temperature:        %d C\n", triptemp);
-            jglb["scsi_temperature"]["drive_trip"] = triptemp;
+            jglb["temperature"]["drive_trip"] = triptemp;
         }
     }
     pout("\n");
