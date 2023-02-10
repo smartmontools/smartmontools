@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-20 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-23 Douglas Gilbert <dgilbert@interlog.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -30,7 +30,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5453 2023-02-10 17:29:04Z dpgilbert $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5454 2023-02-10 20:50:16Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -82,7 +82,7 @@ static int modese_len = 0;
 static int scsi_version;
 #define SCSI_VERSION_SPC_4 0x6
 #define SCSI_VERSION_SPC_5 0x7
-#define SCSI_VERSION_SPC_6 0xc  /* T10/BSR INCITS 566, proposed in 23-015r0 */
+#define SCSI_VERSION_SPC_6 0xd  /* T10/BSR INCITS 566, proposed in 23-015r0 */
 #define SCSI_VERSION_HIGHEST SCSI_VERSION_SPC_6
 
 /* T10 vendor identification. Should match entry in last Annex of SPC

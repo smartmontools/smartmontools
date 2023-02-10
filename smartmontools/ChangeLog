@@ -1,4 +1,8 @@
-$Id: ChangeLog 5453 2023-02-10 17:29:04Z dpgilbert $
+$Id: ChangeLog 5454 2023-02-10 20:50:16Z dpgilbert $
+
+2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	correct SPC-6 proposed version number [-->0xd]
 
 2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
 

@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-18 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-2023 Douglas Gilbert <dgilbert@interlog.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "sg_unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5453 2023-02-10 17:29:04Z dpgilbert $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5454 2023-02-10 20:50:16Z dpgilbert $"
   SCSICMDS_H_CVSID;
 
 static const char * logSenStr = "Log Sense";

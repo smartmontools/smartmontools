@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-18 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-2023 Douglas Gilbert <dgilbert@interlog.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -19,7 +19,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5452 2023-02-10 06:18:05Z dpgilbert $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5454 2023-02-10 20:50:16Z dpgilbert $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
