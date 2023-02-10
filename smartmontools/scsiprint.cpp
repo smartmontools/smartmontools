@@ -176,7 +176,7 @@ scsiGetSupportedLogPages(scsi_device * device)
     }
 
     if (SC_NO_SUPPORT == device->cmd_support_level(LOG_SENSE, false, 0))
-        return;
+        goto skip_subpages;
 
     /* Get supported log pages and subpages. Most drives seems to include the
     supported log pages here as well, but some drives such as the Samsung
@@ -217,6 +217,7 @@ scsiGetSupportedLogPages(scsi_device * device)
         }
     }
 
+skip_subpages:
     num_unreported = 0;
     num_unreported_spg = 0;
     for (k = 0; k < supp_lpg_and_spg_count; k += 1) {
@@ -1436,7 +1437,7 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
 }
 
 static int64_t
-scsiPrintTimeUnitInNano(const uint8_t * ucp, int num, uint16_t ti_pc) 
+scsiGetTimeUnitInNano(const uint8_t * ucp, int num, uint16_t ti_pc) 
 {
     uint16_t loop_pc, pl;
     uint32_t a_exp, a_int, casc;
@@ -1479,6 +1480,23 @@ scsiPrintTimeUnitInNano(const uint8_t * ucp, int num, uint16_t ti_pc)
         ucp += pl;
     }
     return res;
+}
+
+static void
+scsiPrintTimeUnitInNano(int leadin_spaces, uint64_t intervals,
+                        int64_t timeUnitInNS)
+{
+    if ((intervals > 0) && (timeUnitInNS > 0)) {
+        intervals *= timeUnitInNS;
+        intervals /= 1000000; /* now in milliseconds */
+        jout("%*cin seconds: %" PRIu64 ".%03" PRIu64 "\n",
+             leadin_spaces, ' ', intervals / 1000, intervals % 1000);
+        if (intervals > 3600000) {
+            intervals /= 3600; /* now in 3.6 second units */
+            jout("%*cin hours: %" PRIu64 ".%03" PRIu64 "\n",
+                 leadin_spaces, ' ', intervals / 1000, intervals % 1000);
+        }
+    }
 }
 
 // See SCSI Primary Commands - 6 (SPC-6) General Statistics and Performance
@@ -1531,7 +1549,7 @@ scsiPrintGStatsPerf(scsi_device * device)
         num = LOG_RESP_LONG_LEN;
     ucp = gBuf + 4;
     num -= 4;
-    timeUnitInNS = scsiPrintTimeUnitInNano(ucp, num, 0x3 /* Time Interval */);
+    timeUnitInNS = scsiGetTimeUnitInNano(ucp, num, 0x3 /* Time Interval */);
     if (timeUnitInNS < 0) {
         if (scsi_debugmode > 1) {
             print_on();
@@ -1576,10 +1594,12 @@ scsiPrintGStatsPerf(scsi_device * device)
             ccp = "read command processing intervals";
             ull = sg_get_unaligned_be64(ucp + 36);
             jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
             jref1[ccp] = ull;
             ccp = "write command processing intervals";
             ull = sg_get_unaligned_be64(ucp + 44);
             jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
             jref1[ccp] = ull;
             ccp = "weighted number of read commands plus write commands";
             ull = sg_get_unaligned_be64(ucp + 52);
@@ -1588,6 +1608,7 @@ scsiPrintGStatsPerf(scsi_device * device)
             ccp = "weighted read command processing plus write command "
                   "processing";
             ull = sg_get_unaligned_be64(ucp + 60);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
             jout("    %s: %" PRIu64 "\n", ccp, ull);
             jref1[ccp] = ull;
             break;
@@ -1603,17 +1624,7 @@ scsiPrintGStatsPerf(scsi_device * device)
             ccp = "Idle time intervals";
             ull = sg_get_unaligned_be64(ucp + 4);
             jout("    %s: %" PRIu64 "\n", ccp, ull);
-            if ((ull > 0) && (timeUnitInNS > 0)) {
-                ull *= timeUnitInNS;
-                ull /= 1000000; /* now in milliseconds */
-                jout("      in seconds: %" PRIu64 ".%03" PRIu64 "\n",
-                     ull / 1000, ull % 1000);
-                if (ull > 3600000) {
-                    ull /= 3600; /* now in 3.6 second units */
-                    jout("      in hours: %" PRIu64 ".%03" PRIu64 "\n",
-                         ull / 1000, ull % 1000);
-                }
-            }
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
             jref2[ccp] = ull;
             break;
         case 3:    /* Time interval log parameter (shared with other lpages */
@@ -1660,6 +1671,7 @@ scsiPrintGStatsPerf(scsi_device * device)
             ccp = "Number of read FUA intervals";
             ull = sg_get_unaligned_be64(ucp + 36);
             jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
             jref4[ccp] = ull;
             ccp = "Number of write FUA intervals";
             ull = sg_get_unaligned_be64(ucp + 44);
@@ -1668,10 +1680,12 @@ scsiPrintGStatsPerf(scsi_device * device)
             ccp = "Number of read FUA_NV intervals";
             ull = sg_get_unaligned_be64(ucp + 52);
             jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
             jref4[ccp] = ull;
             ccp = "Number of write FUA_NV intervals";
             ull = sg_get_unaligned_be64(ucp + 60);
             jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
             jref4[ccp] = ull;
             break;
         default:        /* ignore other parameter codes */

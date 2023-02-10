@@ -2,6 +2,11 @@ $Id$
 
 2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
 
+	cleanup for previous commit [add smartctl support
+	for SCSI General statistics and performance log page].
+
+2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
+
 	add smartctl support for SCSI General statistics and
 	performance log page. Add a little more RSOC work (see
 	2023-01-11 patch) for detecting if SCSI log subpages

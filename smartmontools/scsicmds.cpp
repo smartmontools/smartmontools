@@ -52,7 +52,7 @@ supported_vpd_pages * supported_vpd_pages_p = nullptr;
 #define RSOC_1_CMD_CTDP_0 36
 
 static scsi_cmd_support
-chk_lsense_sbc(scsi_device * device)
+chk_lsense_spc(scsi_device * device)
 {
     int r_len = 0;
     int err;
@@ -131,7 +131,7 @@ scsi_device::query_cmd_support()
 
         switch (opcode) {
         case LOG_SENSE:
-            logsense_spc_sup = chk_lsense_sbc(this);
+            logsense_spc_sup = chk_lsense_spc(this);
             break;
         case READ_DEFECT_10:
             rdefect10_sup = SC_SUPPORT;
