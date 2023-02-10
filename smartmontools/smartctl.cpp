@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5408 2022-09-18 14:50:33Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5452 2023-02-10 06:18:05Z dpgilbert $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -534,6 +534,8 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.smart_logdir = true; // SMART
       } else if (!strcmp(optarg,"directory,g")) {
         ataopts.gp_logdir = true; // GPL
+      } else if (!strcmp(optarg, "genstats")) {
+        scsiopts.general_stats_and_perf = true;
       } else if (!strcmp(optarg,"sasphy")) {
         scsiopts.sasphy = true;
       } else if (!strcmp(optarg,"sasphy,reset")) {
@@ -756,6 +758,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       scsiopts.scsi_pending_defects = true;
       scsiopts.tape_device_stats = true;
       scsiopts.zoned_device_stats = true;
+      scsiopts.general_stats_and_perf = true;
       if (!output_format_set)
         ataopts.output_format |= ata_print_options::FMT_BRIEF;
       break;

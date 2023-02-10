@@ -4,7 +4,7 @@ Copyright (C) 2004-23 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5449 2023-02-05 14:44:07Z chrfranke $
+$Id: smartctl.8.in 5452 2023-02-10 06:18:05Z dpgilbert $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -278,7 +278,7 @@ For ATA devices this is equivalent to
 and for SCSI disks, this is equivalent to
 .br
 \*(Aq\-H \-i \-g all \-A \-l error \-l selftest \-l background \-l sasphy
-\-l defects \-l env_rep\*(Aq.
+\-l defects \-l envrep \-l genstats \-l ssd \-l zdevstat\*(Aq.
 .br
 and for SCSI zoned disks, add \-l zdevstat
 .br
@@ -1586,6 +1586,11 @@ prints values and descriptions of the SCSI Environmental reporting log
 page. This includes one or more temperatures and may include relative
 humidities. Lifetime maximums and minimums are also reported.
 .Sp
+.I genstats
+\- [SCSI only: NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints values and descriptions of the SCSI General statistics and performance
+log page.
+.Sp
 .I sataphy[,reset]
 \- [SATA only] prints values and descriptions of the SATA Phy Event
 Counters (General Purpose Log address 0x11).  If \*(Aq\-l sataphy,reset\*(Aq
@@ -2585,4 +2590,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5449 2023-02-05 14:44:07Z chrfranke $
+$Id: smartctl.8.in 5452 2023-02-10 06:18:05Z dpgilbert $

@@ -1,4 +1,12 @@
-$Id: ChangeLog 5451 2023-02-09 05:43:49Z dpgilbert $
+$Id: ChangeLog 5452 2023-02-10 06:18:05Z dpgilbert $
+
+2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	add smartctl support for SCSI General statistics and
+	performance log page. Add a little more RSOC work (see
+	2023-01-11 patch) for detecting if SCSI log subpages
+	are supported. Change NULL to nullptr in scsi*.cpp
+	source files.
 
 2023-02-09  Douglas Gilbert  <dgilbert@interlog.com>
 

@@ -16,7 +16,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5334 2022-02-26 01:02:56Z dpgilbert $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5452 2023-02-10 06:18:05Z dpgilbert $\n"
 
 // Options for scsiPrintMain
 struct scsi_print_options
@@ -38,6 +38,7 @@ struct scsi_print_options
   bool smart_selftest_abort = false;
   bool smart_selftest_force = false; // Ignore already running test
   bool scsi_pending_defects = false;
+  bool general_stats_and_perf = false;
 
   bool smart_env_rep = false;
 
