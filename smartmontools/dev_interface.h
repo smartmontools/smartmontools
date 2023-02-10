@@ -626,6 +626,7 @@ protected:
       spc4_or_above(false),
       rsoc_queried(false),
       rsoc_sup(SC_SUPPORT_UNKNOWN),
+      logsense_spc_sup(SC_SUPPORT_UNKNOWN),
       rcap16_sup(SC_SUPPORT_UNKNOWN),
       rdefect10_sup(SC_SUPPORT_UNKNOWN),
       rdefect12_sup(SC_SUPPORT_UNKNOWN)
@@ -637,6 +638,7 @@ private:
 
   bool rsoc_queried;
   scsi_cmd_support rsoc_sup;
+  scsi_cmd_support logsense_spc_sup;
   scsi_cmd_support rcap16_sup;
   scsi_cmd_support rdefect10_sup;
   scsi_cmd_support rdefect12_sup;

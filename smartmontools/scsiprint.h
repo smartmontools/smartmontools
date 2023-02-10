@@ -38,6 +38,7 @@ struct scsi_print_options
   bool smart_selftest_abort = false;
   bool smart_selftest_force = false; // Ignore already running test
   bool scsi_pending_defects = false;
+  bool general_stats_and_perf = false;
 
   bool smart_env_rep = false;
 

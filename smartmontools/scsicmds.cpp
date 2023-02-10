@@ -44,11 +44,38 @@ static const char * logSenStr = "Log Sense";
 // Print SCSI debug messages?
 unsigned char scsi_debugmode = 0;
 
-supported_vpd_pages * supported_vpd_pages_p = NULL;
+supported_vpd_pages * supported_vpd_pages_p = nullptr;
 
 #define RSOC_RESP_SZ 4096
-#define RSOC_ALL_BYTES_CTDP_0 8
-#define RSOC_ALL_BYTES_CTDP_1 20
+#define RSOC_ALL_CMDS_CTDP_0 8
+#define RSOC_ALL_CMDS_CTDP_1 20
+#define RSOC_1_CMD_CTDP_0 36
+
+static scsi_cmd_support
+chk_lsense_sbc(scsi_device * device)
+{
+    int r_len = 0;
+    int err;
+    uint8_t rsoc_1cmd_rsp[RSOC_1_CMD_CTDP_0] = {};
+    uint8_t * rp = rsoc_1cmd_rsp;
+
+    err = scsiRSOCcmd(device, false /*rctd */ , 1 /* '1 cmd' format */,
+                      LOG_SENSE, 0, rp, RSOC_1_CMD_CTDP_0, r_len);
+    if (err) {
+        if (scsi_debugmode)
+            pout("%s Failed [%s]\n", __func__, scsiErrString(err));
+        return SC_NO_SUPPORT;
+    }
+    if (r_len < 8) {
+        if (scsi_debugmode)
+            pout("%s response to short [%d]\n", __func__, r_len);
+        return SC_NO_SUPPORT;
+    }
+    /* check the "subpage code" field in LOG SENSE cdb usage data */
+    return rp[7] ? SC_SUPPORT : SC_NO_SUPPORT; /* 4 + ls_cdb_byte3 */
+}
+
+#include <unistd.h>
 
 bool
 scsi_device::query_cmd_support()
@@ -61,11 +88,12 @@ scsi_device::query_cmd_support()
     uint8_t * cmdp;
     static const int max_bytes_of_cmds = RSOC_RESP_SZ - 4;
 
-    if (NULL == rp)
+    if (nullptr == rp)
         return false;
     rsoc_queried = true;
     /* request 'all commands' format: 4 bytes header, 20 bytes per command */
-    err = scsiRSOCcmd(this, rp, RSOC_RESP_SZ, r_len);
+    err = scsiRSOCcmd(this, false /* rctd */, 0 /* 'all' format */, 0, 0,
+                      rp, RSOC_RESP_SZ, r_len);
     if (err) {
         rsoc_sup = SC_NO_SUPPORT;
         if (scsi_debugmode)
@@ -87,6 +115,7 @@ scsi_device::query_cmd_support()
         cd_len = max_bytes_of_cmds;
     }
     last_rp = rp + cd_len;
+    logsense_spc_sup = SC_NO_SUPPORT;
     rdefect10_sup = SC_NO_SUPPORT;
     rdefect12_sup = SC_NO_SUPPORT;
     rcap16_sup = SC_NO_SUPPORT;
@@ -97,10 +126,13 @@ scsi_device::query_cmd_support()
         uint8_t opcode = cmdp[0];
         uint16_t sa;
 
-        bump = ctdp ? RSOC_ALL_BYTES_CTDP_1 : RSOC_ALL_BYTES_CTDP_0;
+        bump = ctdp ? RSOC_ALL_CMDS_CTDP_1 : RSOC_ALL_CMDS_CTDP_0;
         sa = sa_valid ? sg_get_unaligned_be16(cmdp + 2) : 0;
 
         switch (opcode) {
+        case LOG_SENSE:
+            logsense_spc_sup = chk_lsense_sbc(this);
+            break;
         case READ_DEFECT_10:
             rdefect10_sup = SC_SUPPORT;
             break;
@@ -115,8 +147,17 @@ scsi_device::query_cmd_support()
             break;
         }
     }
-    if (scsi_debugmode > 3)
+    if (scsi_debugmode > 3) {
         pout("%s: decoded %d supported commands\n", __func__, k);
+        pout("  LOG SENSE subpage code %ssupported\n",
+             (SC_SUPPORT == logsense_spc_sup) ? "" : "not ");
+        pout("  READ DEFECT 10 %ssupported\n",
+             (SC_SUPPORT == rdefect10_sup) ? "" : "not ");
+        pout("  READ DEFECT 12 %ssupported\n",
+             (SC_SUPPORT == rdefect12_sup) ? "" : "not ");
+        pout("  READ CAPACITY 16 %ssupported\n",
+             (SC_SUPPORT == rcap16_sup) ? "" : "not ");
+    }
 
 fini:
     free(rp);
@@ -131,6 +172,9 @@ scsi_device::cmd_support_level(uint8_t opcode, bool sa_valid,
     enum scsi_cmd_support scs = SC_SUPPORT_UNKNOWN;
 
     switch (opcode) {
+    case LOG_SENSE:     /* checking if LOG SENSE _subpages_ supported */
+        scs = logsense_spc_sup;
+        break;
     case READ_DEFECT_10:
         scs = rdefect10_sup;
         break;
@@ -291,13 +335,15 @@ dStrHexHelper(const uint8_t * up, int len, int no_ascii,
 }
 
 /* Read binary starting at 'up' for 'len' bytes and output as ASCII
- * hexadecimal into file pointer (fp). If fp is NULL, then send to
+ * hexadecimal into file pointer (fp). If fp is nullptr, then send to
  * pout(). See dStrHex() below for more. */
 void
 dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp)
 {
     /* N.B. Use of lamba requires C++11 or later. */
-    if (fp)
+    if ((nullptr == up) || (len < 1))
+        return;
+    else if (fp)
         dStrHexHelper(up, len, no_ascii,
                       [](const char * s, void * ctx)
                             { fputs(s, reinterpret_cast<FILE *>(ctx)); },
@@ -507,9 +553,9 @@ scsi_get_opcode_name(const uint8_t * cdbp)
             }
             /* should not see sa_valid and ! onp->sa_valid (or vice versa) */
         } else if (opcode < onp->opcode)
-            return NULL;
+            return nullptr;
     }
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -1382,7 +1428,7 @@ _testunitready(scsi_device * device, struct scsi_sense_disect * sinfop)
 
     io_hdr.dxfer_dir = DXFER_NONE;
     io_hdr.dxfer_len = 0;
-    io_hdr.dxferp = NULL;
+    io_hdr.dxferp = nullptr;
     cdb[0] = TEST_UNIT_READY;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
@@ -1512,7 +1558,7 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
              "dir=%s]\n", opcode, (unsigned int)iop->cmnd_len,
              (unsigned int)iop->dxfer_len, ddir);
         if (dout && (scsi_debugmode > 3))  /* output hex without address */
-            dStrHexFp(iop->dxferp, iop->dxfer_len, -1, NULL);
+            dStrHexFp(iop->dxferp, iop->dxfer_len, -1, nullptr);
     }
 
     if (! device->scsi_pass_through(iop))
@@ -1527,7 +1573,7 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
             act_len = req_len - (unsigned int)iop->resid;
             pout("  [data-in buffer: req_len=%u, resid=%d, gives %u "
                  "bytes]\n", req_len, iop->resid, act_len);
-            dStrHexFp(iop->dxferp, act_len, -1, NULL);
+            dStrHexFp(iop->dxferp, act_len, -1, nullptr);
         }
     }
     scsi_do_sense_disect(iop, &sinfo);
@@ -1620,7 +1666,8 @@ scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen)
 /* REPORT SUPPORTED OPERATION CODES [RSOC] command. If SIMPLE_NO_ERROR is
  * returned then the response length is written to rspLen. */
 int
-scsiRSOCcmd(scsi_device * device, uint8_t *pBuf, int bufLen, int & rspLen)
+scsiRSOCcmd(scsi_device * device, bool rctd, uint8_t rep_opt, uint8_t opcode,
+            uint16_t serv_act, uint8_t *pBuf, int bufLen, int & rspLen)
 {
     struct scsi_cmnd_io io_hdr = {};
     struct scsi_sense_disect sinfo;
@@ -1633,8 +1680,12 @@ scsiRSOCcmd(scsi_device * device, uint8_t *pBuf, int bufLen, int & rspLen)
     io_hdr.dxferp = pBuf;
     cdb[0] = MAINTENANCE_IN_12;
     cdb[1] = MI_REP_SUP_OPCODES;
-    /* RCTD=0 (no timeout descriptors); REPORTING_OPTION=0 (all commands) */
-    /* those settings imply response should contain 8 bytes per command */
+    if (rctd)
+        cdb[2] |= 0x80;
+    if (rep_opt > 0)
+        cdb[2] |= (0x7 & rep_opt);
+    cdb[3] = opcode;
+    sg_put_unaligned_be16(serv_act, cdb + 4);
     sg_put_unaligned_be32(bufLen, cdb + 6);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
@@ -1651,7 +1702,7 @@ scsiRSOCcmd(scsi_device * device, uint8_t *pBuf, int bufLen, int & rspLen)
 }
 
 /* Return number of bytes of storage in 'device' or 0 if error. If
- * successful and lb_sizep is not NULL then the logical block size in bytes
+ * successful and lb_sizep is not nullptr then the logical block size in bytes
  * is written to the location pointed to by lb_sizep. If the 'Logical Blocks
  * per Physical Block Exponent' pointer (lb_per_pb_expp,) is non-null then
  * the value is written. If 'Protection information Intervals Exponent'*/
@@ -2428,7 +2479,7 @@ scsiSmartDefaultSelfTest(scsi_device * device)
 {
     int res;
 
-    res = scsiSendDiagnostic(device, SCSI_DIAG_DEF_SELF_TEST, NULL, 0);
+    res = scsiSendDiagnostic(device, SCSI_DIAG_DEF_SELF_TEST, nullptr, 0);
     if (res)
         pout("Default self test failed [%s]\n", scsiErrString(res));
     return res;
@@ -2439,7 +2490,7 @@ scsiSmartShortSelfTest(scsi_device * device)
 {
     int res;
 
-    res = scsiSendDiagnostic(device, SCSI_DIAG_BG_SHORT_SELF_TEST, NULL, 0);
+    res = scsiSendDiagnostic(device, SCSI_DIAG_BG_SHORT_SELF_TEST, nullptr, 0);
     if (res)
         pout("Short offline self test failed [%s]\n", scsiErrString(res));
     return res;
@@ -2450,7 +2501,7 @@ scsiSmartExtendSelfTest(scsi_device * device)
 {
     int res;
 
-    res = scsiSendDiagnostic(device, SCSI_DIAG_BG_EXTENDED_SELF_TEST, NULL, 0);
+    res = scsiSendDiagnostic(device, SCSI_DIAG_BG_EXTENDED_SELF_TEST, nullptr, 0);
     if (res)
         pout("Long (extended) offline self test failed [%s]\n",
              scsiErrString(res));
@@ -2462,7 +2513,7 @@ scsiSmartShortCapSelfTest(scsi_device * device)
 {
     int res;
 
-    res = scsiSendDiagnostic(device, SCSI_DIAG_FG_SHORT_SELF_TEST, NULL, 0);
+    res = scsiSendDiagnostic(device, SCSI_DIAG_FG_SHORT_SELF_TEST, nullptr, 0);
     if (res)
         pout("Short foreground self test failed [%s]\n", scsiErrString(res));
     return res;
@@ -2473,7 +2524,7 @@ scsiSmartExtendCapSelfTest(scsi_device * device)
 {
     int res;
 
-    res = scsiSendDiagnostic(device, SCSI_DIAG_FG_EXTENDED_SELF_TEST, NULL, 0);
+    res = scsiSendDiagnostic(device, SCSI_DIAG_FG_EXTENDED_SELF_TEST, nullptr, 0);
     if (res)
         pout("Long (extended) foreground self test failed [%s]\n",
              scsiErrString(res));
@@ -2485,7 +2536,7 @@ scsiSmartSelfTestAbort(scsi_device * device)
 {
     int res;
 
-    res = scsiSendDiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, NULL, 0);
+    res = scsiSendDiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, nullptr, 0);
     if (res)
         pout("Abort self test failed [%s]\n", scsiErrString(res));
     return res;
@@ -2771,7 +2822,7 @@ scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current)
  * the Block Device Characteristics VPD page and if that fails it tries the
  * RIGID_DISK_DRIVE_GEOMETRY_PAGE mode page.
  * In SBC-4 the 2 bit ZONED field in this VPD page is written to *haw_zbcp
- * if haw_zbcp is non-NULL. In SBC-5 the ZONED field is now obsolete,
+ * if haw_zbcp is non-nullptr. In SBC-5 the ZONED field is now obsolete,
  * the Zoned block device characteristics VPD page should be used instead. */
 
 int
@@ -3034,9 +3085,9 @@ sg_scsi_sense_desc_find(const unsigned char * sensep, int sense_len,
     const unsigned char * descp;
 
     if ((sense_len < 8) || (0 == (add_sen_len = sensep[7])))
-        return NULL;
+        return nullptr;
     if ((sensep[0] < 0x72) || (sensep[0] > 0x73))
-        return NULL;
+        return nullptr;
     add_sen_len = (add_sen_len < (sense_len - 8)) ?
                          add_sen_len : (sense_len - 8);
     descp = &sensep[8];
@@ -3049,7 +3100,7 @@ sg_scsi_sense_desc_find(const unsigned char * sensep, int sense_len,
         if (add_len < 0) /* short descriptor ?? */
             break;
     }
-    return NULL;
+    return nullptr;
 }
 
 // Convenience function for formatting strings from SCSI identify
@@ -3131,7 +3182,7 @@ static const char * pred = "prediction threshold exceeded";
  * yield an additional sense code (and its qualifier) [asc and ascq] when
  * triggered. It seems only two asc values are involved: 0xb and 0xd.
  * If asc,ascq strings are known (in spc6r06.pdf) for asc 0xb and 0x5d
- * then a pointer to that string is returned, else NULL is returned. The
+ * then a pointer to that string is returned, else nullptr is returned. The
  * caller provides a buffer (b) and its length (blen) that a string (if
  * found) is placed in. So if a match is found b is returned. */
 char *
@@ -3173,7 +3224,7 @@ scsiGetIEString(uint8_t asc, uint8_t ascq, char * b, int blen)
                          ((((q / 4) % 2) == 0) ? "temperature" : "humidity"));
                 return b;
             } else
-                return NULL;
+                return nullptr;
         }
     } else if (asc == 0x5d) {
         switch (ascq) {
@@ -3209,10 +3260,10 @@ scsiGetIEString(uint8_t asc, uint8_t ascq, char * b, int blen)
                              impending0_c[rem]);
                     return b;
                 } else
-                    return NULL;
+                    return nullptr;
             } else
-                return NULL;
+                return nullptr;
         }
     } else
-        return NULL;
+        return nullptr;
 }

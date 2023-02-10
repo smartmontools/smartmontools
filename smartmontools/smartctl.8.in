@@ -278,7 +278,7 @@ For ATA devices this is equivalent to
 and for SCSI disks, this is equivalent to
 .br
 \*(Aq\-H \-i \-g all \-A \-l error \-l selftest \-l background \-l sasphy
-\-l defects \-l env_rep\*(Aq.
+\-l defects \-l envrep \-l genstats \-l ssd \-l zdevstat\*(Aq.
 .br
 and for SCSI zoned disks, add \-l zdevstat
 .br
@@ -1585,6 +1585,11 @@ application trying to read a defective LBA.
 prints values and descriptions of the SCSI Environmental reporting log
 page. This includes one or more temperatures and may include relative
 humidities. Lifetime maximums and minimums are also reported.
+.Sp
+.I genstats
+\- [SCSI only: NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints values and descriptions of the SCSI General statistics and performance
+log page.
 .Sp
 .I sataphy[,reset]
 \- [SATA only] prints values and descriptions of the SATA Phy Event

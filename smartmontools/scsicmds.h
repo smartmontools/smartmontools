@@ -109,13 +109,6 @@
 #define DXFER_FROM_DEVICE 1
 #define DXFER_TO_DEVICE   2
 
-enum scsi_command_support_e
-{
-    SC_SUPPORTED_UNKNOWN,
-    SC_NOT_SUPPORTED,
-    SC_SUPPORTED,
-};
-
 
 /* scsi_rsoc_elem and scsi_device is defined in dev_interface.h */
 
@@ -493,7 +486,9 @@ int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbp,
 
 int scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen);
 
-int scsiRSOCcmd(scsi_device * device, uint8_t *pBuf, int bufLen, int & rspLen);
+int scsiRSOCcmd(scsi_device * device, bool rctd, uint8_t rep_opt,
+		uint8_t opcode, uint16_t serv_act, uint8_t *pBuf, int bufLen,
+	        int & rspLen);
 
 /* SMART specific commands */
 int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
@@ -555,17 +550,17 @@ void scsi_format_id_string(char * out, const uint8_t * in, int n);
 void dStrHex(const uint8_t * up, int len, int no_ascii);
 
 /* Read binary starting at 'up' for 'len' bytes and output as ASCII
- * hexadecimal into FILE pointer (fp). If fp is NULL, then send to
+ * hexadecimal into FILE pointer (fp). If fp is nullptr, then send to
  * pout(). Note that 'stdout' and 'stderr' can be given for 'fp'.
  * See dStrHex() above for more information. */
 void dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp);
 
 /* Attempt to find the first SCSI sense data descriptor that matches the
-   given 'desc_type'. If found return pointer to start of sense data
-   descriptor; otherwise (including fixed format sense data) returns NULL. */
+ * given 'desc_type'. If found return pointer to start of sense data
+ * descriptor; otherwise (including fixed format sense data) returns
+ * nullptr. */
 const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
                                               int sense_len, int desc_type);
-
 
 
 /* SCSI command transmission interface function declaration. Its

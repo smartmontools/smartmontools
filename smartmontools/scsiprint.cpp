@@ -66,6 +66,7 @@ static bool gBackgroundOpLPage = false;
 static bool gLPSMisalignLPage = false;
 static bool gTapeDeviceStatsLPage = false;
 static bool gZBDeviceStatsLPage = false;
+static bool gGenStatsAndPerfLPage = false;
 
 /* Vendor specific log pages */
 static bool gSeagateCacheLPage = false;
@@ -81,7 +82,8 @@ static int modese_len = 0;
 static int scsi_version;
 #define SCSI_VERSION_SPC_4 0x6
 #define SCSI_VERSION_SPC_5 0x7
-#define SCSI_VERSION_HIGHEST SCSI_VERSION_SPC_5
+#define SCSI_VERSION_SPC_6 0xc  /* T10/BSR INCITS 566, proposed in 23-015r0 */
+#define SCSI_VERSION_HIGHEST SCSI_VERSION_SPC_6
 
 /* T10 vendor identification. Should match entry in last Annex of SPC
  * drafts and standards (e.g. SPC-4). */
@@ -93,6 +95,10 @@ static char scsi_vendor[8+1];
 
 static const char * logSenStr = "Log Sense";
 static const char * logSenRspStr = "Log Sense response";
+static const char * gsap_s = "General statistics and performance";
+static const char * ssm_s = "Solid state media";
+static const char * zbds_s = "Zoned block device statistics";
+static const char * lp_s = "log page";
 
 
 static bool
@@ -111,7 +117,7 @@ seagate_or_hitachi(void)
 static bool
 all_ffs(const uint8_t * bp, int b_len)
 {
-    if ((NULL == bp) || (b_len <= 0))
+    if ((nullptr == bp) || (b_len <= 0))
         return false;
     for (--b_len; b_len >= 0; --b_len) {
         if (0xff != bp[b_len])
@@ -168,6 +174,9 @@ scsiGetSupportedLogPages(scsi_device * device)
         uint8_t page_code = 0x3f & up[k];
         supp_lpg_and_spg[supp_lpg_and_spg_count++] = {page_code, 0};
     }
+
+    if (SC_NO_SUPPORT == device->cmd_support_level(LOG_SENSE, false, 0))
+        return;
 
     /* Get supported log pages and subpages. Most drives seems to include the
     supported log pages here as well, but some drives such as the Samsung
@@ -292,6 +301,9 @@ scsiGetSupportedLogPages(scsi_device * device)
             case PROTOCOL_SPECIFIC_LPAGE:
                 gProtocolSpecificLPage = true;
                 break;
+            case GEN_STATS_PERF_LPAGE:
+                gGenStatsAndPerfLPage = true;
+                break;
             case TAPE_ALERTS_LPAGE:
                 gTapeAlertsLPage = true;
                 break;
@@ -328,8 +340,8 @@ scsiGetSupportedLogPages(scsi_device * device)
         }
     }
     if (scsi_debugmode > 1)
-        pout("%s: number of unreported (standard) log pages: %d (sub-pages: "
-             "%d)\n", __func__, num_unreported, num_unreported_spg);
+        pout("%s: number of unreported (standard) %ss: %d (sub-pages: %d)\n",
+              __func__, lp_s, num_unreported, num_unreported_spg);
 }
 
 /* Returns 0 if ok, -1 if can't check IE, -2 if can check and bad
@@ -405,6 +417,7 @@ scsiPrintActiveTapeAlerts(scsi_device * device, int peripheral_type,
     const char * pad = from_health ? "" : "  ";
     static const char * const tapealert_s = "scsi_tapealert";
 
+    jout("\nTapeAlert %s:\n", lp_s);
     print_on();
     if ((err = scsiLogSense(device, TAPE_ALERTS_LPAGE, 0, gBuf,
                         LOG_RESP_TAPE_ALERT_LEN, LOG_RESP_TAPE_ALERT_LEN))) {
@@ -988,10 +1001,10 @@ scsiPrintErrorCounterLog(scsi_device * device)
         if (num < 4)
             pout("\nNo error events logged\n");
         else {
-            pout("\nLast n error events log page\n");
+            pout("\nLast n error events %s\n", lp_s);
             for (int k = num, pl; k > 0; k -= pl, ucp += pl) {
                 if (k < 3) {
-                    pout("  <<short Last n error events log page>>\n");
+                    pout("  <<short Last n error events %s>>\n", lp_s);
                     break;
                 }
                 pl = ucp[3] + 4;
@@ -1415,11 +1428,262 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
     if (truncated && (! only_pow_time))
         jout(" >>>> log truncated, fetched %d of %d available "
              "bytes\n", LOG_RESP_LONG_LEN, truncated);
+#if 0
     if (! only_pow_time)
         jout("\n");
+#endif
     return retval;
 }
 
+static int64_t
+scsiPrintTimeUnitInNano(const uint8_t * ucp, int num, uint16_t ti_pc) 
+{
+    uint16_t loop_pc, pl;
+    uint32_t a_exp, a_int, casc;
+    int64_t res = -1;
+
+    while (num > 3) {
+        loop_pc = sg_get_unaligned_be16(ucp + 0);
+        pl = ucp[3] + 4;
+
+        if (loop_pc == ti_pc) {
+            /* assume this pc corresponds to Time Interval param */
+            if (pl < 12) {
+                print_on();
+                pout("%s Time interval log parameter too short (pl=%d)\n",
+                     __func__, pl);
+                print_off();
+                return res;
+            }
+            a_exp = sg_get_unaligned_be32(ucp + 4);
+            a_int = sg_get_unaligned_be32(ucp + 8);
+            if (0 == a_int)
+                return 0;
+            else
+                res = a_int;
+            if (a_exp > 10)
+                return -2;
+            if (10 == a_exp) {
+                if (a_int < 10)
+                    return -2;
+                return a_int / 10;
+            }
+            casc = 9 - a_exp;
+            while (casc > 0) {
+                res *= 10;
+                --casc;
+            }
+            return res;
+        }
+        num -= pl;
+        ucp += pl;
+    }
+    return res;
+}
+
+// See SCSI Primary Commands - 6 (SPC-6) General Statistics and Performance
+// log page [lp: 0x19,0x0]
+static int
+scsiPrintGStatsPerf(scsi_device * device)
+{
+    int num, err, truncated;
+    int retval = 0;
+    int64_t timeUnitInNS;
+    uint64_t ull;
+    const char * ccp;
+    uint8_t * ucp;
+    // const char * q;
+    json::ref jref = jglb["scsi_general_statistics_and_performance_log"];
+    json::ref jref1 = jref["general_access"];
+    json::ref jref2 = jref["idle_time"];
+    json::ref jref3 = jref["time_interval"];
+    json::ref jref4 = jref["fua_stats"];
+    static const char * p1name = "General access statistics and performance";
+    static const char * p2name = "Idle time";
+    static const char * p3name = "Time interval";
+    static const char * p4name = "Force Unit Access statistics and "
+                                 "performance";
+
+    jout("\n%s %s:\n", gsap_s, lp_s);
+    if ((err = scsiLogSense(device, GEN_STATS_PERF_LPAGE, 0, gBuf,
+                            LOG_RESP_LONG_LEN, 0))) {
+        print_on();
+        pout("%s: Failed [%s]\n", __func__, scsiErrString(err));
+        print_off();
+        return FAILSMART;
+    }
+    if ((gBuf[0] & 0x3f) != GEN_STATS_PERF_LPAGE) {
+        print_on();
+        pout("%s %s, page mismatch\n", gsap_s, logSenStr);
+        print_off();
+        return FAILSMART;
+    }
+    // compute page length
+    num = sg_get_unaligned_be16(gBuf + 2) + 4;
+    if (num < 12) {
+        print_on();
+        pout("%s %s length is %d, too short\n", gsap_s, logSenStr, num);
+        print_off();
+        return FAILSMART;
+    }
+    truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
+    if (truncated)
+        num = LOG_RESP_LONG_LEN;
+    ucp = gBuf + 4;
+    num -= 4;
+    timeUnitInNS = scsiPrintTimeUnitInNano(ucp, num, 0x3 /* Time Interval */);
+    if (timeUnitInNS < 0) {
+        if (scsi_debugmode > 1) {
+            print_on();
+            pout("%s unable to decode time unit [%d]\n", gsap_s,
+                 (int)timeUnitInNS);
+            print_off();
+        }
+        timeUnitInNS = 0;
+    }
+
+    while (num > 3) {
+        int pc = sg_get_unaligned_be16(ucp + 0);
+        // pcb = ucp[2];
+        int pl = ucp[3] + 4;
+
+        switch (pc) {
+        case 1: /* General access statistics and performance log parameter */
+            if (pl < 0x40 + 4) {
+                print_on();
+                pout("%s %s log parameter too short (pl=%d)\n", gsap_s,
+                     p1name, pl);
+                print_off();
+                return FAILSMART;
+            }
+            jout("  %s:\n", p1name);
+            ccp =  "Number of read commands";
+            ull = sg_get_unaligned_be64(ucp + 4);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp =  "Number of write commands";
+            ull = sg_get_unaligned_be64(ucp + 12);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp =  "number of logical blocks received";
+            ull = sg_get_unaligned_be64(ucp + 20);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp =  "number of logical blocks transmitted";
+            ull = sg_get_unaligned_be64(ucp + 28);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp = "read command processing intervals";
+            ull = sg_get_unaligned_be64(ucp + 36);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp = "write command processing intervals";
+            ull = sg_get_unaligned_be64(ucp + 44);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp = "weighted number of read commands plus write commands";
+            ull = sg_get_unaligned_be64(ucp + 52);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp = "weighted read command processing plus write command "
+                  "processing";
+            ull = sg_get_unaligned_be64(ucp + 60);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            break;
+        case 2:     /* Idle time log parameter */
+            if (pl < 0x8 + 4) {
+                print_on();
+                pout("%s %s log parameter too short (pl=%d)\n", gsap_s,
+                     p2name, pl);
+                print_off();
+                return FAILSMART;
+            }
+            jout("  %s:\n", p2name);
+            ccp = "Idle time intervals";
+            ull = sg_get_unaligned_be64(ucp + 4);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            if ((ull > 0) && (timeUnitInNS > 0)) {
+                ull *= timeUnitInNS;
+                ull /= 1000000; /* now in milliseconds */
+                jout("      in seconds: %" PRIu64 ".%03" PRIu64 "\n",
+                     ull / 1000, ull % 1000);
+                if (ull > 3600000) {
+                    ull /= 3600; /* now in 3.6 second units */
+                    jout("      in hours: %" PRIu64 ".%03" PRIu64 "\n",
+                         ull / 1000, ull % 1000);
+                }
+            }
+            jref2[ccp] = ull;
+            break;
+        case 3:    /* Time interval log parameter (shared with other lpages */
+            /* only produce JSON for this parameter */
+            if (pl < 0x8 + 4) {
+                print_on();
+                pout("%s %s log parameter too short (pl=%d)\n", gsap_s,
+                     p3name, pl);
+                print_off();
+                return FAILSMART;
+            }
+            ccp = "Exponent";
+            ull = sg_get_unaligned_be32(ucp + 4);
+            jref3[ccp] = ull;
+            ccp = "Integer";
+            ull = sg_get_unaligned_be32(ucp + 8);
+            jref3[ccp] = ull;
+            break;
+        case 4:     /* FUA statistics and performance log parameter */
+            if (pl < 0x40 + 4) {
+                print_on();
+                pout("%s %s log parameter too short (pl=%d)\n", gsap_s,
+                     p4name, pl);
+                print_off();
+                return FAILSMART;
+            }
+            jout("  %s:\n", p4name);
+            ccp = "Number of read FUA commands";
+            ull = sg_get_unaligned_be64(ucp + 4);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of write FUA commands";
+            ull = sg_get_unaligned_be64(ucp + 12);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of read FUA_NV commands";
+            ull = sg_get_unaligned_be64(ucp + 20);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of write FUA_NV commands";
+            ull = sg_get_unaligned_be64(ucp + 28);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of read FUA intervals";
+            ull = sg_get_unaligned_be64(ucp + 36);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of write FUA intervals";
+            ull = sg_get_unaligned_be64(ucp + 44);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of read FUA_NV intervals";
+            ull = sg_get_unaligned_be64(ucp + 52);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of write FUA_NV intervals";
+            ull = sg_get_unaligned_be64(ucp + 60);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            break;
+        default:        /* ignore other parameter codes */
+            break;
+        }
+        num -= pl;
+        ucp += pl;
+    }           /* end of long for loop */
+    return retval;
+}
+
+// Print Solid state media log page.
 // See SCSI Block Commands - 3 (SBC-3) rev 27 (draft) section 6.3.6 .
 // Returns 0 if ok else FAIL* bitmask. Note can have a status entry
 // and up to 2048 events (although would hope to have less). May set
@@ -1431,7 +1695,6 @@ scsiPrintSSMedia(scsi_device * device)
     int retval = 0;
     uint8_t * ucp;
     const char * q;
-    static const char * hname = "Solid state media";
 
     if ((err = scsiLogSense(device, SS_MEDIA_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1442,7 +1705,7 @@ scsiPrintSSMedia(scsi_device * device)
     }
     if ((gBuf[0] & 0x3f) != SS_MEDIA_LPAGE) {
         print_on();
-        pout("%s %s, page mismatch\n", hname, logSenStr);
+        pout("%s %s, page mismatch\n", ssm_s, logSenStr);
         print_off();
         return FAILSMART;
     }
@@ -1450,7 +1713,7 @@ scsiPrintSSMedia(scsi_device * device)
     num = sg_get_unaligned_be16(gBuf + 2) + 4;
     if (num < 12) {
         print_on();
-        pout("%s %s length is %d, too short\n", hname, logSenStr, num);
+        pout("%s %s length is %d, too short\n", ssm_s, logSenStr, num);
         print_off();
         return FAILSMART;
     }
@@ -1468,7 +1731,7 @@ scsiPrintSSMedia(scsi_device * device)
             if (pl < 8) {
                 print_on();
                 pout("%s Percentage used endurance indicator parameter "
-                     "too short (pl=%d)\n", hname, pl);
+                     "too short (pl=%d)\n", ssm_s, pl);
                 print_off();
                 return FAILSMART;
             }
@@ -1492,10 +1755,9 @@ scsiPrintZBDeviceStats(scsi_device * device)
     uint32_t u;
     uint8_t * ucp;
     const char * q;
-    static const char * hname = "Zoned block device statistics";
     static const char * jname = "scsi_zoned_block_device_statistics";
 
-    jout("%s:\n", hname);
+    jout("\n%s %s:\n", zbds_s, lp_s);
     if ((err = scsiLogSense(device, DEVICE_STATS_LPAGE, ZB_DEV_STATS_L_SPAGE,
                             gBuf, LOG_RESP_LONG_LEN, 0))) {
         print_on();
@@ -1506,7 +1768,7 @@ scsiPrintZBDeviceStats(scsi_device * device)
     if (((gBuf[0] & 0x3f) != DEVICE_STATS_LPAGE) &&
         (gBuf[1] == ZB_DEV_STATS_L_SPAGE)) {
         print_on();
-        pout("%s %s, page mismatch\n", hname, logSenStr);
+        pout("%s %s, page mismatch\n", zbds_s, logSenStr);
         print_off();
         return FAILSMART;
     }
@@ -1514,7 +1776,7 @@ scsiPrintZBDeviceStats(scsi_device * device)
     num = sg_get_unaligned_be16(gBuf + 2) + 4;
     if (num < 12) {
         print_on();
-        pout("%s %s length is %d, too short\n", hname, logSenStr, num);
+        pout("%s %s length is %d, too short\n", zbds_s, logSenStr, num);
         print_off();
         return FAILSMART;
     }
@@ -1625,6 +1887,7 @@ scsiPrintTapeDeviceStats(scsi_device * device)
     static const char * hname = "Device statistics (SSC, tape)";
     static const char * jname = "scsi_device_statistics";
 
+    jout("\n%s %s:\n", hname, lp_s);
     if ((err = scsiLogSense(device, DEVICE_STATS_LPAGE, 0,
                             gBuf, LOG_RESP_LONG_LEN, 0))) {
         print_on();
@@ -2383,7 +2646,7 @@ show_protocol_specific_port_page(unsigned char * resp, int len)
         if (SCSI_TPROTO_SAS != (0xf & ucp[4]))
             return 0;   /* only decode SAS log page */
         if (0 == k)
-            jout("\nProtocol Specific port log page for SAS SSP\n");
+            jout("\nProtocol Specific port %s for SAS SSP\n", lp_s);
         show_sas_port_param(j, ucp, param_len);
         k += param_len;
         ucp += param_len;
@@ -2419,13 +2682,13 @@ scsiPrintSasPhy(scsi_device * device, int reset)
     num = sg_get_unaligned_be16(gBuf + 2);
     if (1 != show_protocol_specific_port_page(gBuf, num + 4)) {
         print_on();
-        pout("Only support %s log page on SAS devices\n\n", hname);
+        pout("Only support %s %s on SAS devices\n\n", hname, lp_s);
         print_off();
         return FAILSMART;
     }
     if (reset) {
         if ((err = scsiLogSelect(device, 1 /* pcr */, 0 /* sp */, 0 /* pc */,
-                                 PROTOCOL_SPECIFIC_LPAGE, 0, NULL, 0))) {
+                                 PROTOCOL_SPECIFIC_LPAGE, 0, nullptr, 0))) {
             print_on();
             pout("%s Log Select (reset) Failed [%s]\n\n", __func__,
                  scsiErrString(err));
@@ -2715,7 +2978,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type,
             jglb["rotation_rate"] = (rpm == 1 ? 0 : rpm);
         }
         if (form_factor > 0) {
-            const char * cp = NULL;
+            const char * cp = nullptr;
 
             switch (form_factor) {
             case 1:
@@ -3177,7 +3440,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     bool any_output = options.drive_info;
 
 // Enable -n option for SCSI Drives
-    const char * powername = NULL;
+    const char * powername = nullptr;
     bool powerchg = false;
 
     if (options.powermode) {
@@ -3518,8 +3781,23 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (gZBDeviceStatsLPage)
             res = scsiPrintZBDeviceStats(device);
         else {
-            pout("Device does not support Zoned block device "
-                 "statistics logging\n");
+            pout("Device does not support %s logging\n", zbds_s);
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        }
+        if (0 != res)
+            failuretest(OPTIONAL_CMD, returnval|=res);
+        any_output = true;
+    }
+    if (options.general_stats_and_perf) {
+        if (! checkedSupportedLogPages) {
+            scsiGetSupportedLogPages(device);
+            checkedSupportedLogPages = true;
+        }
+        res = 0;
+        if (gGenStatsAndPerfLPage)
+            res = scsiPrintGStatsPerf(device);
+        else {
+            pout("Device does not support %s logging\n", gsap_s);
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         if (0 != res)
@@ -3535,7 +3813,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             }
             res = 0;
             if (gTapeDeviceStatsLPage) {
-                jout("\nDevice Statistics (SSC, tape) log page:\n");
                 res = scsiPrintTapeDeviceStats(device);
             } else {
                 pout("Device does not support (tape) device characteristics "
@@ -3553,7 +3830,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             }
             res = 0;
             if (gTapeAlertsLPage) {
-                jout("\nTape Alert log page:\n");
                 res = scsiPrintActiveTapeAlerts(device, peripheral_type, false);
             } else {
                 pout("Device does not support TapeAlert logging\n");
@@ -3607,7 +3883,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         pout("Extended Background Self Test has begun\n");
         if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
                         modese_len)) && (durationSec > 0)) {
-            time_t t = time(NULL);
+            time_t t = time(nullptr);
 
             t += durationSec;
             pout("Please wait %d minutes for test to complete.\n",
