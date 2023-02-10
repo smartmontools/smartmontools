@@ -1,4 +1,9 @@
-$Id: ChangeLog 5452 2023-02-10 06:18:05Z dpgilbert $
+$Id: ChangeLog 5453 2023-02-10 17:29:04Z dpgilbert $
+
+2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	cleanup for previous commit [add smartctl support
+	for SCSI General statistics and performance log page].
 
 2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
 
