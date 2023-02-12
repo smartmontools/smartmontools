@@ -612,7 +612,8 @@ public:
   bool checked_cmd_support() const { return rsoc_queried; }
 
   enum scsi_cmd_support cmd_support_level(uint8_t opcode, bool sa_valid,
-				          uint16_t sa) const;
+                                          uint16_t sa,
+                                          bool for_lsense_spc = false) const;
 
 protected:
   /// Hide/unhide SCSI interface.
@@ -626,6 +627,7 @@ protected:
       spc4_or_above(false),
       rsoc_queried(false),
       rsoc_sup(SC_SUPPORT_UNKNOWN),
+      logsense_sup(SC_SUPPORT_UNKNOWN),
       logsense_spc_sup(SC_SUPPORT_UNKNOWN),
       rcap16_sup(SC_SUPPORT_UNKNOWN),
       rdefect10_sup(SC_SUPPORT_UNKNOWN),
@@ -638,6 +640,7 @@ private:
 
   bool rsoc_queried;
   scsi_cmd_support rsoc_sup;
+  scsi_cmd_support logsense_sup;
   scsi_cmd_support logsense_spc_sup;
   scsi_cmd_support rcap16_sup;
   scsi_cmd_support rdefect10_sup;

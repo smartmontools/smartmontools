@@ -149,6 +149,11 @@ scsiGetSupportedLogPages(scsi_device * device)
     memset(gBuf, 0, LOG_RESP_LEN);
     memset(supp_lpg_and_spg, 0, sizeof(supp_lpg_and_spg));
 
+    if (SC_NO_SUPPORT == device->cmd_support_level(LOG_SENSE, false, 0)) {
+        if (scsi_debugmode > 0)
+            pout("%s: RSOC says %s not supported\n", __func__, logSenStr);
+        return;
+    }
     /* Get supported log pages */
     if ((err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
                             LOG_RESP_LEN, 0 /* do double fetch */))) {
@@ -175,7 +180,9 @@ scsiGetSupportedLogPages(scsi_device * device)
         supp_lpg_and_spg[supp_lpg_and_spg_count++] = {page_code, 0};
     }
 
-    if (SC_NO_SUPPORT == device->cmd_support_level(LOG_SENSE, false, 0))
+    if (SC_NO_SUPPORT ==
+        device->cmd_support_level(LOG_SENSE, false, 0,
+                                  true /* does it support subpages ? */))
         goto skip_subpages;
 
     /* Get supported log pages and subpages. Most drives seems to include the
@@ -3137,9 +3144,8 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type,
             print_off();
         }
         if (! is_tape) {
-            int returnval = 0; // TODO: exit with FAILID if failuretest returns
-
-            failuretest(MANDATORY_CMD, returnval|=FAILID);
+            // TODO: exit with FAILID if failuretest returns
+            failuretest(MANDATORY_CMD, FAILID);
         }
     }
 
@@ -3442,7 +3448,6 @@ scsiPrintEnviroReporting(scsi_device * device)
 int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 {
-    bool checkedSupportedLogPages = false;
     bool envRepDone = false;
     uint8_t peripheral_type = 0;
     int returnval = 0;
@@ -3648,9 +3653,12 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         options.sasphy)
         pout("=== START OF READ SMART DATA SECTION ===\n");
 
-    if (options.smart_check_status) {
+    // Most of the following need log page data. Check for the supported log
+    // pages unless we have been told by RSOC that LOG SENSE is not supported
+    if (SC_NO_SUPPORT != device->cmd_support_level(LOG_SENSE, false, 0))
         scsiGetSupportedLogPages(device);
-        checkedSupportedLogPages = true;
+
+    if (options.smart_check_status) {
         if (is_tape) {
             if (gTapeAlertsLPage) {
                 if (options.drive_info) {
@@ -3678,10 +3686,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     }
 
     if (is_disk && options.smart_ss_media_log) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         res = 0;
         if (gSSMediaLPage)
             res = scsiPrintSSMedia(device);
@@ -3694,10 +3698,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_vendor_attrib) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         if (gEnviroReportingLPage && options.smart_env_rep) {
             scsiPrintEnviroReporting(device);
             envRepDone = true;
@@ -3733,10 +3733,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_error_log || options.scsi_pending_defects) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         if (options.smart_error_log) {
             scsiPrintErrorCounterLog(device);
             any_output = true;
@@ -3754,10 +3750,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
     }
     if (options.smart_selftest_log) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         res = 0;
         if (gSelfTestLPage)
             res = scsiPrintSelfTest(device);
@@ -3771,10 +3763,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_background_log && is_disk) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         res = 0;
         if (gBackgroundResultsLPage)
             res = scsiPrintBackgroundResults(device, false);
@@ -3787,10 +3775,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.zoned_device_stats && is_zbc) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         res = 0;
         if (gZBDeviceStatsLPage)
             res = scsiPrintZBDeviceStats(device);
@@ -3803,10 +3787,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.general_stats_and_perf) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         res = 0;
         if (gGenStatsAndPerfLPage)
             res = scsiPrintGStatsPerf(device);
@@ -3821,10 +3801,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     }
     if (is_tape) {
         if (options.tape_device_stats) {
-            if (! checkedSupportedLogPages) {
-                scsiGetSupportedLogPages(device);
-                checkedSupportedLogPages = true;
-            }
             res = 0;
             if (gTapeDeviceStatsLPage) {
                 res = scsiPrintTapeDeviceStats(device);
@@ -3838,10 +3814,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             any_output = true;
         }
         if (options.tape_alert) {
-            if (! checkedSupportedLogPages) {
-                scsiGetSupportedLogPages(device);
-                checkedSupportedLogPages = true;
-            }
             res = 0;
             if (gTapeAlertsLPage) {
                 res = scsiPrintActiveTapeAlerts(device, peripheral_type, false);
@@ -3921,10 +3893,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.sasphy) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         if (gProtocolSpecificLPage) {
             if (scsiPrintSasPhy(device, options.sasphy_reset))
                 return returnval | FAILSMART;
@@ -3932,10 +3900,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
     }
     if (options.smart_env_rep && ! envRepDone) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         if (gEnviroReportingLPage) {
             scsiPrintEnviroReporting(device);
             any_output = true;

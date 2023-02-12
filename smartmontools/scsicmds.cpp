@@ -51,6 +51,7 @@ supported_vpd_pages * supported_vpd_pages_p = nullptr;
 #define RSOC_ALL_CMDS_CTDP_1 20
 #define RSOC_1_CMD_CTDP_0 36
 
+// Check if LOG SENSE cdb supports changing the Subpage Code field
 static scsi_cmd_support
 chk_lsense_spc(scsi_device * device)
 {
@@ -115,6 +116,7 @@ scsi_device::query_cmd_support()
         cd_len = max_bytes_of_cmds;
     }
     last_rp = rp + cd_len;
+    logsense_sup = SC_NO_SUPPORT;
     logsense_spc_sup = SC_NO_SUPPORT;
     rdefect10_sup = SC_NO_SUPPORT;
     rdefect12_sup = SC_NO_SUPPORT;
@@ -131,6 +133,7 @@ scsi_device::query_cmd_support()
 
         switch (opcode) {
         case LOG_SENSE:
+            logsense_sup = SC_SUPPORT;
             logsense_spc_sup = chk_lsense_spc(this);
             break;
         case READ_DEFECT_10:
@@ -149,6 +152,8 @@ scsi_device::query_cmd_support()
     }
     if (scsi_debugmode > 3) {
         pout("%s: decoded %d supported commands\n", __func__, k);
+        pout("  LOG SENSE %ssupported\n",
+             (SC_SUPPORT == logsense_sup) ? "" : "not ");
         pout("  LOG SENSE subpage code %ssupported\n",
              (SC_SUPPORT == logsense_spc_sup) ? "" : "not ");
         pout("  READ DEFECT 10 %ssupported\n",
@@ -167,13 +172,13 @@ fini:
 /* May track more in the future */
 enum scsi_cmd_support
 scsi_device::cmd_support_level(uint8_t opcode, bool sa_valid,
-                               uint16_t sa) const
+                               uint16_t sa, bool for_lsense_spc) const
 {
     enum scsi_cmd_support scs = SC_SUPPORT_UNKNOWN;
 
     switch (opcode) {
     case LOG_SENSE:     /* checking if LOG SENSE _subpages_ supported */
-        scs = logsense_spc_sup;
+        scs = for_lsense_spc ? logsense_spc_sup : logsense_sup;
         break;
     case READ_DEFECT_10:
         scs = rdefect10_sup;
@@ -1737,7 +1742,11 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
                 }
             }
         }
-    }
+    } else if (SC_SUPPORT ==
+               device->cmd_support_level(SERVICE_ACTION_IN_16, true,
+                                         SAI_READ_CAPACITY_16))
+        try_16 = true;
+
     if (try_16 || (! avoid_rcap16)) {
         res = scsiReadCapacity16(device, rc16resp, sizeof(rc16resp));
         if (res) {

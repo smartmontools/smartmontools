@@ -1,5 +1,13 @@
 $Id$
 
+2023-02-11  Douglas Gilbert  <dgilbert@interlog.com>
+
+	more RSOC work (see 2023-01-11 patch). Simplify
+	scsiPrintMain(). Use Read capacity (16) if RSOC
+	says it is supported; previously often tried
+	Read capacity (10) first. A small cleanup after
+	report from clang++ --analyze
+
 2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
 
 	correct SPC-6 proposed version number [-->0xd]
