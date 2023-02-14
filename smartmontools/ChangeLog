@@ -1,5 +1,11 @@
 $Id$
 
+2023-02-14  WHR  <whr@rivoreo.one>
+
+	atacmds.cpp: fix a logical error in function ataReadExtSelfTestLog
+	where it failed to byte-swap timestamp values on big-endian
+	platforms except in the first log entry (#1696).
+
 2023-02-11  Douglas Gilbert  <dgilbert@interlog.com>
 
 	more RSOC work (see 2023-01-11 patch). Simplify
