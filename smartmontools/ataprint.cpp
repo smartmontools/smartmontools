@@ -4495,8 +4495,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Print ATA FARM log for Seagate ATA drive
   if (options.farm_log || options.farm_log_suggest) {
     bool farm_supported = true;
+    unsigned nsectors = GetNumLogSectors(gplogdir, 0x24, true);
     // Check if drive is a Seagate drive
-    if (ataIsSeagate(drive, dbentry)) {
+    if (ataIsSeagate(device, dbentry, nsectors)) {
       unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
       // Check if the Seagate drive is one that supports FARM
       if (!nsectors) {

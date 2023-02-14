@@ -26,20 +26,33 @@
 /*
  *  Determines whether the current drive is an ATA Seagate drive
  * 
- *  @param  drive:  Pointer to drive struct containing ATA device information (*ata_identify_device)
+ *  @param  device:  Pointer to instantiated device object (ata_device*)
+ *  @param  dbentry:  Pointer to struct containing drive database entries (see drivedb.h) (drive_settings*)
+ *  @param  nsectors:  Number of 512-byte sectors in the Current Device Internal Status log (0x24) (unsigned int)
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
-bool ataIsSeagate(const ata_identify_device& drive, const drive_settings* dbentry) {
+bool ataIsSeagate(ata_device * device, const drive_settings * dbentry, unsigned nsectors) {
+  uint8_t pageBuffer[512] = {}; // Page size is 512 bytes per Table A.71 of T13/2161-D (ACS-3) Revision 5, October 28, 2013 (p.503)
+  char vendor[] = "XXXX";
+
   if (dbentry && str_starts_with(dbentry->modelfamily, "Seagate")) {
     return true;
   }
-  char model[40 + 1];
-  ata_format_id_string(model, drive.model, sizeof(model) - 1);
-  if (regular_expression("^(ST|XS).*").full_match(model)) {
-    return true;
+
+  if ( nsectors <= 1 ){ // Check the number of pages in the GPL
+    jerr("Current Device Internal Status Log (24h) - vendor page not found\n");
+    return false;
   }
-  return false;
+
+  if ( !ataReadLogExt(device, 0x24, 0, 1, pageBuffer, 1) ){
+    jerr("Reading Current Device Internal Status Log (24h) failed\n");
+    return false;
+  }
+
+  memcpy(vendor, pageBuffer, sizeof(vendor) - 1);
+  return ( strcmp(vendor, "SEAG") == 0 );
 }
+
 
 /*
  *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate

@@ -678,10 +678,12 @@ STATIC_ASSERT(sizeof(scsiFarmLog) == 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 
 /*
  *  Determines whether the current drive is an ATA Seagate drive
  * 
- *  @param  drive:  Pointer to drive struct containing ATA device information (*ata_identify_device)
+ *  @param  device:  Pointer to instantiated device object (ata_device*)
+ *  @param  dbentry:  Pointer to struct containing drive database entries (see drivedb.h) (drive_settings*)
+ *  @param  nsectors:  Number of 512-byte sectors in the Current Device Internal Status log (0x24) (unsigned int)
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
-bool ataIsSeagate(const ata_identify_device& drive, const drive_settings* dbentry);
+bool ataIsSeagate(ata_device * device, const drive_settings * dbentry, unsigned nsectors);
 
 /*
  *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate
