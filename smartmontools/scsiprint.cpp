@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2002-11 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-20 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-23 Douglas Gilbert <dgilbert@interlog.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -69,6 +69,7 @@ static bool gBackgroundOpLPage = false;
 static bool gLPSMisalignLPage = false;
 static bool gTapeDeviceStatsLPage = false;
 static bool gZBDeviceStatsLPage = false;
+static bool gGenStatsAndPerfLPage = false;
 
 /* Vendor specific log pages */
 static bool gSeagateCacheLPage = false;
@@ -85,7 +86,8 @@ static int modese_len = 0;
 static int scsi_version;
 #define SCSI_VERSION_SPC_4 0x6
 #define SCSI_VERSION_SPC_5 0x7
-#define SCSI_VERSION_HIGHEST SCSI_VERSION_SPC_5
+#define SCSI_VERSION_SPC_6 0xd  /* T10/BSR INCITS 566, proposed in 23-015r0 */
+#define SCSI_VERSION_HIGHEST SCSI_VERSION_SPC_6
 
 /* T10 vendor identification. Should match entry in last Annex of SPC
  * drafts and standards (e.g. SPC-4). */
@@ -97,6 +99,10 @@ static char scsi_vendor[8+1];
 
 static const char * logSenStr = "Log Sense";
 static const char * logSenRspStr = "Log Sense response";
+static const char * gsap_s = "General statistics and performance";
+static const char * ssm_s = "Solid state media";
+static const char * zbds_s = "Zoned block device statistics";
+static const char * lp_s = "log page";
 
 
 static bool
@@ -115,7 +121,7 @@ seagate_or_hitachi(void)
 static bool
 all_ffs(const uint8_t * bp, int b_len)
 {
-    if ((NULL == bp) || (b_len <= 0))
+    if ((nullptr == bp) || (b_len <= 0))
         return false;
     for (--b_len; b_len >= 0; --b_len) {
         if (0xff != bp[b_len])
@@ -147,6 +153,11 @@ scsiGetSupportedLogPages(scsi_device * device)
     memset(gBuf, 0, LOG_RESP_LEN);
     memset(supp_lpg_and_spg, 0, sizeof(supp_lpg_and_spg));
 
+    if (SC_NO_SUPPORT == device->cmd_support_level(LOG_SENSE, false, 0)) {
+        if (scsi_debugmode > 0)
+            pout("%s: RSOC says %s not supported\n", __func__, logSenStr);
+        return;
+    }
     /* Get supported log pages */
     if ((err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
                             LOG_RESP_LEN, 0 /* do double fetch */))) {
@@ -172,6 +183,11 @@ scsiGetSupportedLogPages(scsi_device * device)
         uint8_t page_code = 0x3f & up[k];
         supp_lpg_and_spg[supp_lpg_and_spg_count++] = {page_code, 0};
     }
+
+    if (SC_NO_SUPPORT ==
+        device->cmd_support_level(LOG_SENSE, false, 0,
+                                  true /* does it support subpages ? */))
+        goto skip_subpages;
 
     /* Get supported log pages and subpages. Most drives seems to include the
     supported log pages here as well, but some drives such as the Samsung
@@ -212,6 +228,7 @@ scsiGetSupportedLogPages(scsi_device * device)
         }
     }
 
+skip_subpages:
     num_unreported = 0;
     num_unreported_spg = 0;
     for (k = 0; k < supp_lpg_and_spg_count; k += 1) {
@@ -296,6 +313,9 @@ scsiGetSupportedLogPages(scsi_device * device)
             case PROTOCOL_SPECIFIC_LPAGE:
                 gProtocolSpecificLPage = true;
                 break;
+            case GEN_STATS_PERF_LPAGE:
+                gGenStatsAndPerfLPage = true;
+                break;
             case TAPE_ALERTS_LPAGE:
                 gTapeAlertsLPage = true;
                 break;
@@ -342,8 +362,8 @@ scsiGetSupportedLogPages(scsi_device * device)
         }
     }
     if (scsi_debugmode > 1)
-        pout("%s: number of unreported (standard) log pages: %d (sub-pages: "
-             "%d)\n", __func__, num_unreported, num_unreported_spg);
+        pout("%s: number of unreported (standard) %ss: %d (sub-pages: %d)\n",
+              __func__, lp_s, num_unreported, num_unreported_spg);
 }
 
 /* Returns 0 if ok, -1 if can't check IE, -2 if can check and bad
@@ -394,7 +414,7 @@ scsiGetSmartData(scsi_device * device, bool attribs)
             pout("Drive Trip Temperature:        <not available>\n");
         else {
             jout("Drive Trip Temperature:        %d C\n", triptemp);
-            jglb["scsi_temperature"]["drive_trip"] = triptemp;
+            jglb["temperature"]["drive_trip"] = triptemp;
         }
     }
     pout("\n");
@@ -419,6 +439,7 @@ scsiPrintActiveTapeAlerts(scsi_device * device, int peripheral_type,
     const char * pad = from_health ? "" : "  ";
     static const char * const tapealert_s = "scsi_tapealert";
 
+    jout("\nTapeAlert %s:\n", lp_s);
     print_on();
     if ((err = scsiLogSense(device, TAPE_ALERTS_LPAGE, 0, gBuf,
                         LOG_RESP_TAPE_ALERT_LEN, LOG_RESP_TAPE_ALERT_LEN))) {
@@ -473,6 +494,7 @@ scsiGetStartStopData(scsi_device * device)
     unsigned char * ucp;
     char b[32];
     const char * q;
+    std::string s;
     static const char * jname = "scsi_start_stop_cycle_counter";
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, 0, gBuf,
@@ -519,28 +541,28 @@ scsiGetStartStopData(scsi_device * device)
             if ((extra > 7) && (! is_all_ffs)) {
                 q = "Specified cycle count over device lifetime";
                 jout("%s:  %u\n", q, u);
-                jglb[jname][q] = u;
+                jglb[jname][json::str2key(q)] = u;
             }
             break;
         case 4:
             if ((extra > 7) && (! is_all_ffs)) {
                 q = "Accumulated start-stop cycles";
                 jout("%s:  %u\n", q, u);
-                jglb[jname][q] = u;
+                jglb[jname][json::str2key(q)] = u;
             }
             break;
         case 5:
             if ((extra > 7) && (! is_all_ffs)) {
                 q = "Specified load-unload count over device lifetime";
                 jout("%s:  %u\n", q, u);
-                jglb[jname][q] = u;
+                jglb[jname][json::str2key(q)] = u;
             }
             break;
         case 6:
             if ((extra > 7) && (! is_all_ffs)) {
                 q = "Accumulated load-unload cycles";
                 jout("%s:  %u\n", q, u);
-                jglb[jname][q] = u;
+                jglb[jname][json::str2key(q)] = u;
             }
             break;
         default:
@@ -583,7 +605,9 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
     while (num > 3) {
         int pc = sg_get_unaligned_be16(bp + 0);
         int pl = bp[3] + 4;
-        uint32_t count;
+        uint32_t count, poh;
+        uint64_t lba;
+
         switch (pc) {
         case 0x0:
             jout("  Pending defect count:");
@@ -611,11 +635,15 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
                 print_off();
                 return;
             }
-            jout("  %4d:  0x%-16" PRIx64 ",  %5u\n", pc,
-                 sg_get_unaligned_be64(bp + 8), sg_get_unaligned_be32(bp + 4));
-            jglb[jname][pc]["LBA"] = sg_get_unaligned_be64(bp + 8);
-            jglb[jname][pc]["accum_power_on_hours"] =
-                   sg_get_unaligned_be32(bp + 4);
+            poh = sg_get_unaligned_be32(bp + 4);
+            lba = sg_get_unaligned_be64(bp + 8);
+            jout("  %4d:  0x%-16" PRIx64 ",  %5u\n", pc, lba, poh);
+            {
+                json::ref jref = jglb[jname]["table"][pc];
+
+                jref["lba"] = lba;
+                jref["accum_power_on_hours"] = poh;
+            }
             break;
         }
         num -= pl;
@@ -624,7 +652,7 @@ scsiPrintPendingDefectsLPage(scsi_device * device)
 }
 
 static void
-scsiPrintGrownDefectListLen(scsi_device * device)
+scsiPrintGrownDefectListLen(scsi_device * device, bool prefer12)
 {
     bool got_rd12;
     int err, dl_format;
@@ -632,34 +660,49 @@ scsiPrintGrownDefectListLen(scsi_device * device)
     static const char * hname = "Read defect list";
 
     memset(gBuf, 0, 8);
-    if ((err = scsiReadDefect12(device, 0 /* req_plist */, 1 /* req_glist */,
-                                4 /* format: bytes from index */,
-                                0 /* addr desc index */, gBuf, 8))) {
-        if (2 == err) { /* command not supported */
-            err = scsiReadDefect10(device, 0 /* req_plist */,
-                                   1 /* req_glist */,
-                                   4 /* format: bytes from index */, gBuf, 4);
-            if (err) {
-                if (scsi_debugmode > 0) {
-                    print_on();
-                    pout("%s (10) Failed: %s\n", hname, scsiErrString(err));
-                    print_off();
-                }
-                return;
-            } else
-                got_rd12 = 0;
-        } else if (101 == err)    /* Defect list not found, leave quietly */
-            return;
-        else {
+    if (prefer12) {
+        err = scsiReadDefect12(device, 0 /* req_plist */, 1 /* req_glist */,
+                               4 /* format: bytes from index */,
+                               0 /* addr desc index */, gBuf, 8);
+        got_rd12 = (0 == err);
+        if (err) {
             if (scsi_debugmode > 0) {
                 print_on();
                 pout("%s (12) Failed: %s\n", hname, scsiErrString(err));
                 print_off();
             }
-            return;
         }
-    } else
-        got_rd12 = true;
+    } else {    /* still try Read Defect(12) first, if not found try RD(10) */
+        err = scsiReadDefect12(device, 0 /* req_plist */, 1 /* req_glist */,
+                               4 /* format: bytes from index */,
+                               0 /* addr desc index */, gBuf, 8);
+        if (2 == err) { /* command not supported */
+            err = scsiReadDefect10(device, 0 /* req_plist */,
+                                   1 /* req_glist */,
+                                   4 /* format: bytes from index */, gBuf, 4);
+            if (2 == err) { /* command not supported */
+                if (err) {
+                    if (scsi_debugmode > 0) {
+                        print_on();
+                        pout("%s (10) Failed: %s\n", hname, scsiErrString(err));
+                        print_off();
+                    }
+                    return;
+                } else
+                    got_rd12 = false;
+            } else if (101 == err)    /* Defect list not found, leave quietly */
+                return;
+            else {
+                if (scsi_debugmode > 0) {
+                    print_on();
+                    pout("%s (12) Failed: %s\n", hname, scsiErrString(err));
+                    print_off();
+                }
+                return;
+            }
+        } else
+            got_rd12 = true;
+    }
 
     if (got_rd12) {
         int generation = sg_get_unaligned_be16(gBuf + 2);
@@ -980,10 +1023,10 @@ scsiPrintErrorCounterLog(scsi_device * device)
         if (num < 4)
             pout("\nNo error events logged\n");
         else {
-            pout("\nLast n error events log page\n");
+            pout("\nLast n error events %s\n", lp_s);
             for (int k = num, pl; k > 0; k -= pl, ucp += pl) {
                 if (k < 3) {
-                    pout("  <<short Last n error events log page>>\n");
+                    pout("  <<short Last n error events %s>>\n", lp_s);
                     break;
                 }
                 pl = ucp[3] + 4;
@@ -1407,11 +1450,275 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
     if (truncated && (! only_pow_time))
         jout(" >>>> log truncated, fetched %d of %d available "
              "bytes\n", LOG_RESP_LONG_LEN, truncated);
+#if 0
     if (! only_pow_time)
         jout("\n");
+#endif
     return retval;
 }
 
+static int64_t
+scsiGetTimeUnitInNano(const uint8_t * ucp, int num, uint16_t ti_pc) 
+{
+    uint16_t loop_pc, pl;
+    uint32_t a_exp, a_int, casc;
+    int64_t res = -1;
+
+    while (num > 3) {
+        loop_pc = sg_get_unaligned_be16(ucp + 0);
+        pl = ucp[3] + 4;
+
+        if (loop_pc == ti_pc) {
+            /* assume this pc corresponds to Time Interval param */
+            if (pl < 12) {
+                print_on();
+                pout("%s Time interval log parameter too short (pl=%d)\n",
+                     __func__, pl);
+                print_off();
+                return res;
+            }
+            a_exp = sg_get_unaligned_be32(ucp + 4);
+            a_int = sg_get_unaligned_be32(ucp + 8);
+            if (0 == a_int)
+                return 0;
+            else
+                res = a_int;
+            if (a_exp > 10)
+                return -2;
+            if (10 == a_exp) {
+                if (a_int < 10)
+                    return -2;
+                return a_int / 10;
+            }
+            casc = 9 - a_exp;
+            while (casc > 0) {
+                res *= 10;
+                --casc;
+            }
+            return res;
+        }
+        num -= pl;
+        ucp += pl;
+    }
+    return res;
+}
+
+static void
+scsiPrintTimeUnitInNano(int leadin_spaces, uint64_t intervals,
+                        int64_t timeUnitInNS)
+{
+    if ((intervals > 0) && (timeUnitInNS > 0)) {
+        intervals *= timeUnitInNS;
+        intervals /= 1000000; /* now in milliseconds */
+        jout("%*cin seconds: %" PRIu64 ".%03" PRIu64 "\n",
+             leadin_spaces, ' ', intervals / 1000, intervals % 1000);
+        if (intervals > 3600000) {
+            intervals /= 3600; /* now in 3.6 second units */
+            jout("%*cin hours: %" PRIu64 ".%03" PRIu64 "\n",
+                 leadin_spaces, ' ', intervals / 1000, intervals % 1000);
+        }
+    }
+}
+
+// See SCSI Primary Commands - 6 (SPC-6) General Statistics and Performance
+// log page [lp: 0x19,0x0]
+static int
+scsiPrintGStatsPerf(scsi_device * device)
+{
+    int num, err, truncated;
+    int retval = 0;
+    int64_t timeUnitInNS;
+    uint64_t ull;
+    const char * ccp;
+    uint8_t * ucp;
+    // const char * q;
+    json::ref jref = jglb["scsi_general_statistics_and_performance_log"];
+    json::ref jref1 = jref["general_access"];
+    json::ref jref2 = jref["idle_time"];
+    json::ref jref3 = jref["time_interval"];
+    json::ref jref4 = jref["fua_stats"];
+    static const char * p1name = "General access statistics and performance";
+    static const char * p2name = "Idle time";
+    static const char * p3name = "Time interval";
+    static const char * p4name = "Force Unit Access statistics and "
+                                 "performance";
+
+    jout("\n%s %s:\n", gsap_s, lp_s);
+    if ((err = scsiLogSense(device, GEN_STATS_PERF_LPAGE, 0, gBuf,
+                            LOG_RESP_LONG_LEN, 0))) {
+        print_on();
+        pout("%s: Failed [%s]\n", __func__, scsiErrString(err));
+        print_off();
+        return FAILSMART;
+    }
+    if ((gBuf[0] & 0x3f) != GEN_STATS_PERF_LPAGE) {
+        print_on();
+        pout("%s %s, page mismatch\n", gsap_s, logSenStr);
+        print_off();
+        return FAILSMART;
+    }
+    // compute page length
+    num = sg_get_unaligned_be16(gBuf + 2) + 4;
+    if (num < 12) {
+        print_on();
+        pout("%s %s length is %d, too short\n", gsap_s, logSenStr, num);
+        print_off();
+        return FAILSMART;
+    }
+    truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
+    if (truncated)
+        num = LOG_RESP_LONG_LEN;
+    ucp = gBuf + 4;
+    num -= 4;
+    timeUnitInNS = scsiGetTimeUnitInNano(ucp, num, 0x3 /* Time Interval */);
+    if (timeUnitInNS < 0) {
+        if (scsi_debugmode > 1) {
+            print_on();
+            pout("%s unable to decode time unit [%d]\n", gsap_s,
+                 (int)timeUnitInNS);
+            print_off();
+        }
+        timeUnitInNS = 0;
+    }
+
+    while (num > 3) {
+        int pc = sg_get_unaligned_be16(ucp + 0);
+        // pcb = ucp[2];
+        int pl = ucp[3] + 4;
+
+        switch (pc) {
+        case 1: /* General access statistics and performance log parameter */
+            if (pl < 0x40 + 4) {
+                print_on();
+                pout("%s %s log parameter too short (pl=%d)\n", gsap_s,
+                     p1name, pl);
+                print_off();
+                return FAILSMART;
+            }
+            jout("  %s:\n", p1name);
+            ccp =  "Number of read commands";
+            ull = sg_get_unaligned_be64(ucp + 4);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp =  "Number of write commands";
+            ull = sg_get_unaligned_be64(ucp + 12);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp =  "number of logical blocks received";
+            ull = sg_get_unaligned_be64(ucp + 20);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp =  "number of logical blocks transmitted";
+            ull = sg_get_unaligned_be64(ucp + 28);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp = "read command processing intervals";
+            ull = sg_get_unaligned_be64(ucp + 36);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
+            jref1[ccp] = ull;
+            ccp = "write command processing intervals";
+            ull = sg_get_unaligned_be64(ucp + 44);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
+            jref1[ccp] = ull;
+            ccp = "weighted number of read commands plus write commands";
+            ull = sg_get_unaligned_be64(ucp + 52);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            ccp = "weighted read command processing plus write command "
+                  "processing";
+            ull = sg_get_unaligned_be64(ucp + 60);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref1[ccp] = ull;
+            break;
+        case 2:     /* Idle time log parameter */
+            if (pl < 0x8 + 4) {
+                print_on();
+                pout("%s %s log parameter too short (pl=%d)\n", gsap_s,
+                     p2name, pl);
+                print_off();
+                return FAILSMART;
+            }
+            jout("  %s:\n", p2name);
+            ccp = "Idle time intervals";
+            ull = sg_get_unaligned_be64(ucp + 4);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
+            jref2[ccp] = ull;
+            break;
+        case 3:    /* Time interval log parameter (shared with other lpages */
+            /* only produce JSON for this parameter */
+            if (pl < 0x8 + 4) {
+                print_on();
+                pout("%s %s log parameter too short (pl=%d)\n", gsap_s,
+                     p3name, pl);
+                print_off();
+                return FAILSMART;
+            }
+            ccp = "Exponent";
+            ull = sg_get_unaligned_be32(ucp + 4);
+            jref3[ccp] = ull;
+            ccp = "Integer";
+            ull = sg_get_unaligned_be32(ucp + 8);
+            jref3[ccp] = ull;
+            break;
+        case 4:     /* FUA statistics and performance log parameter */
+            if (pl < 0x40 + 4) {
+                print_on();
+                pout("%s %s log parameter too short (pl=%d)\n", gsap_s,
+                     p4name, pl);
+                print_off();
+                return FAILSMART;
+            }
+            jout("  %s:\n", p4name);
+            ccp = "Number of read FUA commands";
+            ull = sg_get_unaligned_be64(ucp + 4);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of write FUA commands";
+            ull = sg_get_unaligned_be64(ucp + 12);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of read FUA_NV commands";
+            ull = sg_get_unaligned_be64(ucp + 20);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of write FUA_NV commands";
+            ull = sg_get_unaligned_be64(ucp + 28);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of read FUA intervals";
+            ull = sg_get_unaligned_be64(ucp + 36);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
+            jref4[ccp] = ull;
+            ccp = "Number of write FUA intervals";
+            ull = sg_get_unaligned_be64(ucp + 44);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            jref4[ccp] = ull;
+            ccp = "Number of read FUA_NV intervals";
+            ull = sg_get_unaligned_be64(ucp + 52);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
+            jref4[ccp] = ull;
+            ccp = "Number of write FUA_NV intervals";
+            ull = sg_get_unaligned_be64(ucp + 60);
+            jout("    %s: %" PRIu64 "\n", ccp, ull);
+            scsiPrintTimeUnitInNano(6, ull, timeUnitInNS);
+            jref4[ccp] = ull;
+            break;
+        default:        /* ignore other parameter codes */
+            break;
+        }
+        num -= pl;
+        ucp += pl;
+    }           /* end of long for loop */
+    return retval;
+}
+
+// Print Solid state media log page.
 // See SCSI Block Commands - 3 (SBC-3) rev 27 (draft) section 6.3.6 .
 // Returns 0 if ok else FAIL* bitmask. Note can have a status entry
 // and up to 2048 events (although would hope to have less). May set
@@ -1423,7 +1730,6 @@ scsiPrintSSMedia(scsi_device * device)
     int retval = 0;
     uint8_t * ucp;
     const char * q;
-    static const char * hname = "Solid state media";
 
     if ((err = scsiLogSense(device, SS_MEDIA_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
@@ -1434,7 +1740,7 @@ scsiPrintSSMedia(scsi_device * device)
     }
     if ((gBuf[0] & 0x3f) != SS_MEDIA_LPAGE) {
         print_on();
-        pout("%s %s, page mismatch\n", hname, logSenStr);
+        pout("%s %s, page mismatch\n", ssm_s, logSenStr);
         print_off();
         return FAILSMART;
     }
@@ -1442,7 +1748,7 @@ scsiPrintSSMedia(scsi_device * device)
     num = sg_get_unaligned_be16(gBuf + 2) + 4;
     if (num < 12) {
         print_on();
-        pout("%s %s length is %d, too short\n", hname, logSenStr, num);
+        pout("%s %s length is %d, too short\n", ssm_s, logSenStr, num);
         print_off();
         return FAILSMART;
     }
@@ -1460,13 +1766,13 @@ scsiPrintSSMedia(scsi_device * device)
             if (pl < 8) {
                 print_on();
                 pout("%s Percentage used endurance indicator parameter "
-                     "too short (pl=%d)\n", hname, pl);
+                     "too short (pl=%d)\n", ssm_s, pl);
                 print_off();
                 return FAILSMART;
             }
             q = "Percentage used endurance indicator";
             jout("%s: %d%%\n", q, ucp[7]);
-            jglb[std::string("scsi_") + q] = ucp[7];
+            jglb[std::string("scsi_") + json::str2key(q)] = ucp[7];
         default:        /* ignore other parameter codes */
             break;
         }
@@ -1484,10 +1790,9 @@ scsiPrintZBDeviceStats(scsi_device * device)
     uint32_t u;
     uint8_t * ucp;
     const char * q;
-    static const char * hname = "Zoned block device statistics";
     static const char * jname = "scsi_zoned_block_device_statistics";
 
-    jout("%s:\n", hname);
+    jout("\n%s %s:\n", zbds_s, lp_s);
     if ((err = scsiLogSense(device, DEVICE_STATS_LPAGE, ZB_DEV_STATS_L_SPAGE,
                             gBuf, LOG_RESP_LONG_LEN, 0))) {
         print_on();
@@ -1498,7 +1803,7 @@ scsiPrintZBDeviceStats(scsi_device * device)
     if (((gBuf[0] & 0x3f) != DEVICE_STATS_LPAGE) &&
         (gBuf[1] == ZB_DEV_STATS_L_SPAGE)) {
         print_on();
-        pout("%s %s, page mismatch\n", hname, logSenStr);
+        pout("%s %s, page mismatch\n", zbds_s, logSenStr);
         print_off();
         return FAILSMART;
     }
@@ -1506,7 +1811,7 @@ scsiPrintZBDeviceStats(scsi_device * device)
     num = sg_get_unaligned_be16(gBuf + 2) + 4;
     if (num < 12) {
         print_on();
-        pout("%s %s length is %d, too short\n", hname, logSenStr, num);
+        pout("%s %s length is %d, too short\n", zbds_s, logSenStr, num);
         print_off();
         return FAILSMART;
     }
@@ -1527,73 +1832,73 @@ scsiPrintZBDeviceStats(scsi_device * device)
             q = "Maximum open zones";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 1:
             q = "Maximum explicitly open zones";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 2:
             q = "Maximum implicitly open zones";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 3:
             q = "Minimum empty zones";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 4:
             q = "Maximum nonseq zones";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 5:
             q = "Zones emptied";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 6:
             q = "Suboptimal write commands";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 7:
             q = "Commands exceeding optinmal limit";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 8:
             q = "Failed explicit opens";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 9:
             q = "Read rule violations";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 0xa:
             q = "Write rule violations";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         case 0xb:
             q = "Maximum implicitly open sequential or before required zones";
             u = sg_get_unaligned_be32(ucp + 8);
             jout("    %s: %u\n", q, u);
-            jglb[jname][q] = u;
+            jglb[jname][json::str2key(q)] = u;
             break;
         default:        /* ignore other parameter codes */
             break;
@@ -1617,6 +1922,7 @@ scsiPrintTapeDeviceStats(scsi_device * device)
     static const char * hname = "Device statistics (SSC, tape)";
     static const char * jname = "scsi_device_statistics";
 
+    jout("\n%s %s:\n", hname, lp_s);
     if ((err = scsiLogSense(device, DEVICE_STATS_LPAGE, 0,
                             gBuf, LOG_RESP_LONG_LEN, 0))) {
         print_on();
@@ -1648,223 +1954,226 @@ scsiPrintTapeDeviceStats(scsi_device * device)
         int pc = sg_get_unaligned_be16(ucp + 0);
         // pcb = ucp[2];
         int pl = ucp[3] + 4;
+        std::string s;
+
         switch (pc) {
         case 0:
             q = "Lifetime volume loads";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 1:
             q = "Lifetime cleaning operations";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 2:
             q = "Lifetime power on hours";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 3:
             q = "Lifetime medium motion hours";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 4:
             q = "Lifetime meters of tape processed";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 5:
             q = "Lifetime medium motion hours at last incompatible volume "
                 "load";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 6:
             q = "Lifetime power on hours at last temperature condition "
                 "occurrence";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 7:
             q = "Lifetime power on hours at last power consumption condition "
                 "occurrence";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 8:
             q = "Medium motion hours since last successful cleaning "
                 "operation";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 9:
             q = "Medium motion hours since second to last successful "
                 "cleaning operation";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0xa:
             q = "Medium motion hours since third to last successful "
                 "cleaning operation";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0xb:
             q = "Lifetime power on hours at last operator initiated forced "
                 "reset and/or emergency eject occurrence";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0xc:
             q = "Lifetime power cycles";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0xd:
             q = "Volume loads since last parameter reset";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0xe:
             q = "Hard write errors";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0xf:
             q = "Hard read errors";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x10:
             q = "Duty cycle sample time";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x11:
             q = "Read duty cycle";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x12:
             q = "Write duty cycle";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x13:
             q = "Activity duty cycle";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x14:
             q = "Volume not present duty cycle";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x15:
             q = "Ready duty cycle";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x16:
             q = "Megabytes transferred from application client in duty cycle"
                 "sample time";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x17:
             q = "Megabytes transferred to application client in duty cycle"
                 "sample time";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x40:
             {
-                std::string s((const char *)(ucp + 4), ucp[3]);
+                std::string v((const char *)(ucp + 4), ucp[3]);
                 q = "Drive manufacturer's serial number";
-                jout("    %s: %s\n", q, s.c_str());
-                jglb[jname][q] = s;
+                jout("    %s: %s\n", q, v.c_str());
+                jglb[jname][json::str2key(q)] = v;
             }
             break;
         case 0x41:
             {
-                std::string s((const char *)(ucp + 4), ucp[3]);
+                std::string v((const char *)(ucp + 4), ucp[3]);
                 q = "Drive serial number";
-                jout("    %s: %s\n", q, s.c_str());
-                jglb[jname][q] = s;
+                jout("    %s: %s\n", q, v.c_str());
+                jglb[jname][json::str2key(q)] = v;
             }
             break;
         case 0x42:
             {
-                std::string s((const char *)(ucp + 4), ucp[3]);
+                std::string v((const char *)(ucp + 4), ucp[3]);
                 q = "Manufacturing date year,month,day";
-                jout("    %s: %s\n", q, s.c_str());
-                jglb[jname][q] = s;
+                jout("    %s: %s\n", q, v.c_str());
+                jglb[jname][json::str2key(q)] = v;
             }
             break;
         case 0x43:
             {
-                std::string s((const char *)(ucp + 4), ucp[3]);
+                std::string v((const char *)(ucp + 4), ucp[3]);
                 q = "Manufacturing date year,week";
-                jout("    %s: %s\n", q, s.c_str());
-                jglb[jname][q] = s;
+                jout("    %s: %s\n", q, v.c_str());
+                jglb[jname][json::str2key(q)] = v;
             }
             break;
         case 0x44:
             {
-                std::string s((const char *)(ucp + 4), ucp[3]);
+                std::string v((const char *)(ucp + 4), ucp[3]);
                 q = "Manufacturing date year,week";
-                jout("    %s: %s\n", q, s.c_str());
-                jglb[jname][q] = s;
+                jout("    %s: %s\n", q, v.c_str());
+                jglb[jname][json::str2key(q)] = v;
             }
             break;
         case 0x80:
             q = "Medium removal prevented";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x81:
             q = "Maximum recommended mechanism temperature exceeded";
             ull = variableLengthIntegerParam(ucp);
             jout("    %s: %" PRIu64 "\n", q, ull);
-            jglb[jname][q] = ull;
+            jglb[jname][json::str2key(q)] = ull;
             break;
         case 0x1000:
             q = "Medium motion hours for each medium type";
+            s = json::str2key(q);
             n = ucp[3] / 8;
             jout("    %s, number of element: %u\n", q, n);
             for (k = 0; k < n; ++k, ucp += 8) {
                 u = sg_get_unaligned_be32(ucp + 8);
                 jout("      [%d] density code: %u, density code: %u, hours: "
                      "%u\n", k + 1, ucp[6], ucp[7], u);
-                jglb[jname][q][k]["density code"] = ucp[6];
-                jglb[jname][q][k]["medium type"] = ucp[7];
-                jglb[jname][q][k]["medium motion hours"] = u;
+                jglb[jname][s][k]["density_code"] = ucp[6];
+                jglb[jname][s][k]["medium_type"] = ucp[7];
+                jglb[jname][s][k]["medium_motion_hours"] = u;
             }
             break;
         default:        /* ignore other parameter codes */
@@ -2372,7 +2681,7 @@ show_protocol_specific_port_page(unsigned char * resp, int len)
         if (SCSI_TPROTO_SAS != (0xf & ucp[4]))
             return 0;   /* only decode SAS log page */
         if (0 == k)
-            jout("\nProtocol Specific port log page for SAS SSP\n");
+            jout("\nProtocol Specific port %s for SAS SSP\n", lp_s);
         show_sas_port_param(j, ucp, param_len);
         k += param_len;
         ucp += param_len;
@@ -2408,13 +2717,13 @@ scsiPrintSasPhy(scsi_device * device, int reset)
     num = sg_get_unaligned_be16(gBuf + 2);
     if (1 != show_protocol_specific_port_page(gBuf, num + 4)) {
         print_on();
-        pout("Only support %s log page on SAS devices\n\n", hname);
+        pout("Only support %s %s on SAS devices\n\n", hname, lp_s);
         print_off();
         return FAILSMART;
     }
     if (reset) {
         if ((err = scsiLogSelect(device, 1 /* pcr */, 0 /* sp */, 0 /* pc */,
-                                 PROTOCOL_SPECIFIC_LPAGE, 0, NULL, 0))) {
+                                 PROTOCOL_SPECIFIC_LPAGE, 0, nullptr, 0))) {
             print_on();
             pout("%s Log Select (reset) Failed [%s]\n\n", __func__,
                  scsiErrString(err));
@@ -2486,16 +2795,16 @@ static int
 scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type,
                  bool & have_zbc, bool all)
 {
-    struct scsi_iec_mode_page iec;
-    int err, iec_err, len, req_len, avail_len;
     bool ok;
     bool is_tape = false;
+    int err, iec_err, len, req_len, avail_len;
     int peri_dt = 0;
     int transport = -1;
     int form_factor = 0;
     int haw_zbc = 0;
     int protect = 0;
     const char * q;
+    struct scsi_iec_mode_page iec;
 
     memset(gBuf, 0, 96);
     have_zbc = false;
@@ -2704,7 +3013,7 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type,
             jglb["rotation_rate"] = (rpm == 1 ? 0 : rpm);
         }
         if (form_factor > 0) {
-            const char * cp = NULL;
+            const char * cp = nullptr;
 
             switch (form_factor) {
             case 1:
@@ -2733,12 +3042,12 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type,
             have_zbc = true;
             q = "Host aware zoned block capable";
             jout("%s\n", q);
-            jglb[std::string("scsi_") + q] = true;
+            jglb[std::string("scsi_") + json::str2key(q)] = true;
         } else if (haw_zbc == 2) {
             have_zbc = true;
             q = "Device managed zoned block capable";
             jout("%s\n", q);
-            jglb[std::string("scsi_") + q] = true;
+            jglb[std::string("scsi_") + json::str2key(q)] = true;
         } else {
             supported_vpd_pages * s_vpd_pp = supported_vpd_pages_p;
 
@@ -2849,9 +3158,8 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type,
             print_off();
         }
         if (! is_tape) {
-            int returnval = 0; // TODO: exit with FAILID if failuretest returns
-
-            failuretest(MANDATORY_CMD, returnval|=FAILID);
+            // TODO: exit with FAILID if failuretest returns
+            failuretest(MANDATORY_CMD, FAILID);
         }
     }
 
@@ -3025,6 +3333,7 @@ scsiPrintEnviroReporting(scsi_device * device)
         int pc = sg_get_unaligned_be16(ucp + 0);
         int pl = ucp[3] + 4;
         char pc_s[32];
+        std::string s;
 
         if ((pc < 0x100) && (pl == 12)) {
             snprintf(pc_s, sizeof(pc_s), "temperature_%d", ++temp_num);
@@ -3033,67 +3342,74 @@ scsiPrintEnviroReporting(scsi_device * device)
 
             jglb[jname][pc_s]["parameter_code"] = pc;
             q = "Current";
+            s = json::str2key(q);
             if (ucp[5] == 0x80) {
                 jout("%s %s = %s\n", q, temp_n, unkn_n);
-                jglb[jname][pc_s][q] = unkn_n;
+                jglb[jname][pc_s][s] = unkn_n;
             } else {
                 jout("%s %s = %d\n", q, temp_n, temp);
-                jglb[jname][pc_s][q] = temp;
+                jglb[jname][pc_s][s] = temp;
             }
             temp = (int)(int8_t)ucp[6];
             q = "Lifetime maximum";
+            s = json::str2key(q);
             if (ucp[6] == 0x80) {
                 jout("%s %s = %s\n", q, temp_n, unkn_n);
-                jglb[jname][pc_s][q] = unkn_n;
+                jglb[jname][pc_s][s] = unkn_n;
             } else {
                 jout("%s %s = %d\n", q, temp_n, temp);
-                jglb[jname][pc_s][q] = temp;
+                jglb[jname][pc_s][s] = temp;
             }
             temp = (int)(int8_t)ucp[7];
             q = "Lifetime minimum";
+            s = json::str2key(q);
             if (ucp[7] == 0x80) {
                 jout("%s %s = %s\n", q, temp_n, unkn_n);
-                jglb[jname][pc_s][q] = unkn_n;
+                jglb[jname][pc_s][s] = unkn_n;
             } else {
                 jout("%s %s = %d\n", q, temp_n, temp);
-                jglb[jname][pc_s][q] = temp;
+                jglb[jname][pc_s][s] = temp;
             }
             temp = (int)(int8_t)ucp[8];
             q = "Maximum since power on";
+            s = json::str2key(q);
             if (ucp[8] == 0x80) {
                 jout("Maximum %s %s = %s\n", temp_n, sop_n, unkn_n);
-                jglb[jname][pc_s][q] = unkn_n;
+                jglb[jname][pc_s][s] = unkn_n;
             } else {
                 jout("Maximum %s %s = %d\n", temp_n, sop_n, temp);
-                jglb[jname][pc_s][q] = temp;
+                jglb[jname][pc_s][s] = temp;
             }
             temp = (int)(int8_t)ucp[9];
             q = "Minimum since power on";
+            s = json::str2key(q);
             if (ucp[9] == 0x80) {
                 jout("Minimum %s %s = %s\n", temp_n, sop_n, unkn_n);
-                jglb[jname][pc_s][q] = unkn_n;
+                jglb[jname][pc_s][s] = unkn_n;
             } else {
                 jout("Minimum %s %s = %d\n", temp_n, sop_n, temp);
-                jglb[jname][pc_s][q] = temp;
+                jglb[jname][pc_s][s] = temp;
             }
             if ((ucp[4] & 0x3) == 1) {  /* OTV field set to 1 */
                 temp = (int)(int8_t)ucp[10];
                 q = "Maximum other";
+                s = json::str2key(q);
                 if (ucp[10] == 0x80) {
                     jout("%s %s = %s\n", q, temp_n, unkn_n);
-                    jglb[jname][pc_s][q] = unkn_n;
+                    jglb[jname][pc_s][s] = unkn_n;
                 } else {
                     jout("%s %s = %d\n", q, temp_n, temp);
-                    jglb[jname][pc_s][q] = temp;
+                    jglb[jname][pc_s][s] = temp;
                 }
                 temp = (int)(int8_t)ucp[11];
                 q = "Minimum other";
+                s = json::str2key(q);
                 if (ucp[11] == 0x80) {
                     jout("%s %s = %s\n", q, temp_n, unkn_n);
-                    jglb[jname][pc_s][q] = unkn_n;
+                    jglb[jname][pc_s][s] = unkn_n;
                 } else {
                     jout("%s %s = %d\n", q, temp_n, temp);
-                    jglb[jname][pc_s][q] = temp;
+                    jglb[jname][pc_s][s] = temp;
                 }
             }
         } else if ((pc < 0x200) && (pl == 12)) {
@@ -3102,22 +3418,26 @@ scsiPrintEnviroReporting(scsi_device * device)
             jout("Relative humidity = %u\n", ucp[5]);
             jglb[jname][pc_s]["current"] = ucp[5];
             q = "Lifetime maximum";
+            s = json::str2key(q);
             jout("%s %s = %d\n", q, rh_n, ucp[6]);
-            jglb[jname][pc_s][q] = ucp[6];
+            jglb[jname][pc_s][s] = ucp[6];
             q = "Lifetime minimum";
+            s = json::str2key(q);
             jout("%s %s = %d\n", q, rh_n, ucp[7]);
-            jglb[jname][pc_s][q] = ucp[7];
+            jglb[jname][pc_s][s] = ucp[7];
             jout("Maximum %s %s = %d\n", rh_n, sop_n, ucp[8]);
             jglb[jname][pc_s]["maximum_since_power_on"] = ucp[8];
             jout("Minimum %s %s = %d\n", rh_n, sop_n, ucp[9]);
             jglb[jname][pc_s]["minimum_since_power_on"] = ucp[9];
             if ((ucp[4] & 0x3) == 1) {  /* ORHV field set to 1 */
                 q = "Maximum other";
+                s = json::str2key(q);
                 jout("%s %s = %d\n", q, rh_n, ucp[10]);
-                jglb[jname][pc_s][q] = ucp[10];
+                jglb[jname][pc_s][s] = ucp[10];
                 q = "Minimum other";
+                s = json::str2key(q);
                 jout("%s %s = %d\n", q, rh_n, ucp[11]);
-                jglb[jname][pc_s][q] = ucp[11];
+                jglb[jname][pc_s][s] = ucp[11];
             }
         } else {
             if (scsi_debugmode > 0) {
@@ -3137,11 +3457,11 @@ scsiPrintEnviroReporting(scsi_device * device)
     }
 }
 
+
 /* Main entry point used by smartctl command. Return 0 for success */
 int
 scsiPrintMain(scsi_device * device, const scsi_print_options & options)
 {
-    bool checkedSupportedLogPages = false;
     bool envRepDone = false;
     uint8_t peripheral_type = 0;
     int returnval = 0;
@@ -3153,7 +3473,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     bool any_output = options.drive_info;
 
 // Enable -n option for SCSI Drives
-    const char * powername = NULL;
+    const char * powername = nullptr;
     bool powerchg = false;
 
     if (options.powermode) {
@@ -3242,6 +3562,13 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                (SCSI_PT_HOST_MANAGED == peripheral_type));
     is_tape = ((SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type) ||
                (SCSI_PT_MEDIUM_CHANGER == peripheral_type));
+    bool ge_spc4 = device->is_spc4_or_higher();
+    if (ge_spc4 && (! device->checked_cmd_support())) {
+        if (! device->query_cmd_support()) {
+            if (scsi_debugmode)
+                pout("%s: query_cmd_support() failed\n", __func__);
+        }
+    }
 
     short int wce = -1, rcd = -1;
     // Print read look-ahead status for disks
@@ -3340,9 +3667,12 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         options.sasphy)
         pout("=== START OF READ SMART DATA SECTION ===\n");
 
-    if (options.smart_check_status) {
+    // Most of the following need log page data. Check for the supported log
+    // pages unless we have been told by RSOC that LOG SENSE is not supported
+    if (SC_NO_SUPPORT != device->cmd_support_level(LOG_SENSE, false, 0))
         scsiGetSupportedLogPages(device);
-        checkedSupportedLogPages = true;
+
+    if (options.smart_check_status) {
         if (is_tape) {
             if (gTapeAlertsLPage) {
                 if (options.drive_info) {
@@ -3370,10 +3700,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     }
 
     if (is_disk && options.smart_ss_media_log) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         res = 0;
         if (gSSMediaLPage)
             res = scsiPrintSSMedia(device);
@@ -3386,10 +3712,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.smart_vendor_attrib) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         if (gEnviroReportingLPage && options.smart_env_rep) {
             scsiPrintEnviroReporting(device);
             envRepDone = true;
@@ -3405,7 +3727,18 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (gStartStopLPage)
             scsiGetStartStopData(device);
         if (is_disk) {
-            scsiPrintGrownDefectListLen(device);
+            enum scsi_cmd_support rdefect10 =
+                        device->cmd_support_level(READ_DEFECT_10, false, 0);
+            enum scsi_cmd_support rdefect12 =
+                        device->cmd_support_level(READ_DEFECT_12, false, 0);
+
+            if ((SC_NO_SUPPORT == rdefect10) && (SC_NO_SUPPORT == rdefect12))
+                ;
+            else if (SC_SUPPORT == rdefect12)
+                scsiPrintGrownDefectListLen(device, true);
+            else
+                scsiPrintGrownDefectListLen(device, false);
+
             if (gSeagateCacheLPage)
                 scsiPrintSeagateCacheLPage(device);
             if (gSeagateFactoryLPage)
@@ -3443,10 +3776,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         jglb["seagate_farm_log"]["supported"] = farm_supported;
     }
     if (options.smart_error_log || options.scsi_pending_defects) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         if (options.smart_error_log) {
             scsiPrintErrorCounterLog(device);
             any_output = true;
@@ -3464,26 +3793,19 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
     }
     if (options.smart_selftest_log) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         res = 0;
         if (gSelfTestLPage)
             res = scsiPrintSelfTest(device);
         else {
             pout("Device does not support Self Test logging\n");
-            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+            if (! is_tape)
+                failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         if (0 != res)
             failuretest(OPTIONAL_CMD, returnval|=res);
         any_output = true;
     }
     if (options.smart_background_log && is_disk) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         res = 0;
         if (gBackgroundResultsLPage)
             res = scsiPrintBackgroundResults(device, false);
@@ -3496,16 +3818,23 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.zoned_device_stats && is_zbc) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         res = 0;
         if (gZBDeviceStatsLPage)
             res = scsiPrintZBDeviceStats(device);
         else {
-            pout("Device does not support Zoned block device "
-                 "statistics logging\n");
+            pout("Device does not support %s logging\n", zbds_s);
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        }
+        if (0 != res)
+            failuretest(OPTIONAL_CMD, returnval|=res);
+        any_output = true;
+    }
+    if (options.general_stats_and_perf) {
+        res = 0;
+        if (gGenStatsAndPerfLPage)
+            res = scsiPrintGStatsPerf(device);
+        else {
+            pout("Device does not support %s logging\n", gsap_s);
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         if (0 != res)
@@ -3515,13 +3844,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     }
     if (is_tape) {
         if (options.tape_device_stats) {
-            if (! checkedSupportedLogPages) {
-                scsiGetSupportedLogPages(device);
-                checkedSupportedLogPages = true;
-            }
             res = 0;
             if (gTapeDeviceStatsLPage) {
-                jout("\nDevice Statistics (SSC, tape) log page:\n");
                 res = scsiPrintTapeDeviceStats(device);
             } else {
                 pout("Device does not support (tape) device characteristics "
@@ -3533,13 +3857,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             any_output = true;
         }
         if (options.tape_alert) {
-            if (! checkedSupportedLogPages) {
-                scsiGetSupportedLogPages(device);
-                checkedSupportedLogPages = true;
-            }
             res = 0;
             if (gTapeAlertsLPage) {
-                jout("\nTape Alert log page:\n");
                 res = scsiPrintActiveTapeAlerts(device, peripheral_type, false);
             } else {
                 pout("Device does not support TapeAlert logging\n");
@@ -3593,7 +3912,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         pout("Extended Background Self Test has begun\n");
         if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
                         modese_len)) && (durationSec > 0)) {
-            time_t t = time(NULL);
+            time_t t = time(nullptr);
 
             t += durationSec;
             pout("Please wait %d minutes for test to complete.\n",
@@ -3617,10 +3936,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         any_output = true;
     }
     if (options.sasphy) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         if (gProtocolSpecificLPage) {
             if (scsiPrintSasPhy(device, options.sasphy_reset))
                 return returnval | FAILSMART;
@@ -3628,10 +3943,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         }
     }
     if (options.smart_env_rep && ! envRepDone) {
-        if (! checkedSupportedLogPages) {
-            scsiGetSupportedLogPages(device);
-            checkedSupportedLogPages = true;
-        }
         if (gEnviroReportingLPage) {
             scsiPrintEnviroReporting(device);
             any_output = true;

@@ -1,5 +1,127 @@
 $Id$
 
+2023-02-14  WHR  <whr@rivoreo.one>
+
+	atacmds.cpp: fix a logical error in function ataReadExtSelfTestLog
+	where it failed to byte-swap timestamp values on big-endian
+	platforms except in the first log entry (#1696).
+
+2023-02-11  Douglas Gilbert  <dgilbert@interlog.com>
+
+	more RSOC work (see 2023-01-11 patch). Simplify
+	scsiPrintMain(). Use Read capacity (16) if RSOC
+	says it is supported; previously often tried
+	Read capacity (10) first. A small cleanup after
+	report from clang++ --analyze
+
+2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	correct SPC-6 proposed version number [-->0xd]
+
+2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	cleanup for previous commit [add smartctl support
+	for SCSI General statistics and performance log page].
+
+2023-02-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	add smartctl support for SCSI General statistics and
+	performance log page. Add a little more RSOC work (see
+	2023-01-11 patch) for detecting if SCSI log subpages
+	are supported. Change NULL to nullptr in scsi*.cpp
+	source files.
+
+2023-02-09  Douglas Gilbert  <dgilbert@interlog.com>
+
+	address issue #168 from smt/smt at github. Choose option 1.
+	from Christian's response to that issue.
+
+2023-02-05  Christian Franke  <franke@computer.org>
+
+	configure.ac: Define _FORTIFY_SOURCE=3 if supported.
+
+	dev_intelliprop.cpp: Disable '-d intelliprop,N' and print
+	deprecation message.
+	Add '-d intelliprop,N,force' to use this device type anyhow.
+	dev_interface.cpp: Update help text.
+	smartctl.8.in, smartd.conf.5.in: Update related documentation.
+
+2023-02-03  Christian Franke  <franke@computer.org>
+
+	nvmecmds.cpp: Fix segfault after read of NVMe error log on
+	big endian hosts (GH issues/172, regression from r5121).
+
+	Thanks to Niklas Schnelle for the bug report.
+
+2023-01-28  Christian Franke  <franke@computer.org>
+
+	configure.ac: Change default for '--with-nvme-devicescan' to
+	'yes' on Darwin and FreeBSD.  Keep 'no' on NetBSD.
+	Update related warnings.
+
+	configure.ac: Remove unneeded 'if'.  Update some message texts.
+	Remove '--without-update-smart-drivedb' error message.
+
+	configure.ac: Move C++ option check to make sure that C++11 is
+	enabled before __USE_MINGW_ANSI_STDIO check.
+
+	configure.ac: Enhance __USE_MINGW_ANSI_STDIO support check.
+	Don't define __USE_MINGW_ANSI_STDIO if already predefined.
+
+	configure.ac: Rework C++ option check, also warn if C++17 is
+	unsupported.
+
+2023-01-26  Christian Franke  <franke@computer.org>
+
+	examplescripts/Example7: Fix check of parameter count
+	(GH issues/169).
+
+2023-01-24  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: SVM2S46128GNPI51UF (#1393),
+	  Goodram IRDM PRO (#1556).
+	- Phison Driven OEM SSDs: SPCC Solid State Disk/SBFMT1.3.
+	- SSSTC ERX GD/CD Series SSDs: Rename, Add ER3-9, AF* (#1599, #1672).
+	- USB: HP Personal Media Drive (0x03f0:0x070c) (#1680).
+	- USB: Packard Bell Carbon (0x0766:0x0017) (#1325)
+	- USB: Freecom FHD-2 Pro (0x07ab:0xfc85).
+	- USB: JMicron newer firmware (0x152d:0x2509/0x0107) (GH issues/159).
+	- USB: PNY (0x154b:0x8001).
+
+2023-01-23  Christian Franke  <franke@computer.org>
+
+	utility.cpp: Add MinGW-w64 version to '-V' output.
+	Simplify detection of C++ version string, add C++20.
+
+	scsiata.cpp: Add '-d usbasm1352r,N' device type for ASM 1352R USB
+	bridges (GH issues/167).
+	dev_interface.cpp: Update help text.
+	smartctl.8.in, smartd.conf.5.in: Document new option.
+
+	scsiata.cpp: Use 'str_starts_with()' and 'set_err_np()' where
+	possible.
+
+2023-01-11  Douglas Gilbert  <dgilbert@interlog.com>
+
+	experiment with using the SCSI REPORT SUPPORTED OPERATION
+	CODES (RSOC) command on disks (not tape units) that report
+	SPC-4 or later compliance in their standard INQUIRY response.
+	The main usage currently is to use RSOC to find out if
+	either of the READ DEFECT commands are supported. The code
+	to check RSOC is only wired for smartctl (i.e. not smartd).
+	If this causes problems, please report them to me.
+
+2023-01-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	address smartctl SCSI json issue (exception) reported by
+	Taylor Vent to the smartmontools mailing list on 2023-01-09.
+	Plus some minor cleanups.
+
+2023-01-10  Douglas Gilbert  <dgilbert@interlog.com>
+
+	further cleanup associated with SCSI debug move.
+
 2023-01-07  Douglas Gilbert  <dgilbert@interlog.com>
 
 	fix regression around dStrHex compatibility with pout() call

@@ -9,7 +9,7 @@
 #
 # $Id$
 
-if [ $# -le 3 ] || [ "$1" != "-s" ]; then
+if [ $# -lt 3 ] || [ "$1" != "-s" ]; then
   echo "Usage: $0 -s SUBJECT ADDRESS... < MESSAGE"
   exit 1
 fi

@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2002-8 Bruce Allen
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2003-18 Douglas Gilbert <dgilbert@interlog.com>
+ * Copyright (C) 2003-2023 Douglas Gilbert <dgilbert@interlog.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -86,6 +86,9 @@
 #endif
 #ifndef SAI_GET_PHY_ELEM_STATUS    /* Get physical element status */
 #define SAI_GET_PHY_ELEM_STATUS  0x17
+#endif
+#ifndef SAI_REPORT_SUPPORTED_OPCODES
+#define SAI_REPORT_SUPPORTED_OPCODES  0xc
 #endif
 #ifndef MAINTENANCE_IN_12
 #define MAINTENANCE_IN_12  0xa3
@@ -487,7 +490,9 @@ int scsiReadCapacity10(scsi_device * device, unsigned int * last_lbp,
 
 int scsiReadCapacity16(scsi_device * device, uint8_t *pBuf, int bufLen);
 
-int scsiRSOCcmd(scsi_device * device, uint8_t *pBuf, int bufLen, int & rspLen);
+int scsiRSOCcmd(scsi_device * device, bool rctd, uint8_t rep_opt,
+		uint8_t opcode, uint16_t serv_act, uint8_t *pBuf, int bufLen,
+	        int & rspLen);
 
 /* SMART specific commands */
 int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
@@ -539,22 +544,27 @@ const char * scsi_get_opcode_name(const uint8_t * cdbp);
 void scsi_format_id_string(char * out, const uint8_t * in, int n);
 
 /* Read binary starting at 'up' for 'len' bytes and output as ASCII
- * hexadecimal into file pointer (fp). 16 bytes per line are output with an
+ * hexadecimal into pout(). 16 bytes per line are output with an
  * additional space between 8th and 9th byte on each line (for readability).
  * 'no_ascii' selects one of 3 output format types:
  *     > 0     each line has address then up to 16 ASCII-hex bytes
- *     = 0     in addition, the bytes are listed in ASCII to the right
+ *     = 0     in addition, the bytes are rendered in ASCII to the right
+ *             of each line, non-printable characters shown as '.'
  *     < 0     only the ASCII-hex bytes are listed (i.e. without address) */
-void dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp);
-/* Version of dStrHexFp() that outputs to stdout. */
 void dStrHex(const uint8_t * up, int len, int no_ascii);
 
+/* Read binary starting at 'up' for 'len' bytes and output as ASCII
+ * hexadecimal into FILE pointer (fp). If fp is nullptr, then send to
+ * pout(). Note that 'stdout' and 'stderr' can be given for 'fp'.
+ * See dStrHex() above for more information. */
+void dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp);
+
 /* Attempt to find the first SCSI sense data descriptor that matches the
-   given 'desc_type'. If found return pointer to start of sense data
-   descriptor; otherwise (including fixed format sense data) returns NULL. */
+ * given 'desc_type'. If found return pointer to start of sense data
+ * descriptor; otherwise (including fixed format sense data) returns
+ * nullptr. */
 const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
                                               int sense_len, int desc_type);
-
 
 
 /* SCSI command transmission interface function declaration. Its

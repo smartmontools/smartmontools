@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-22 Christian Franke
+ * Copyright (C) 2016-23 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -228,8 +228,9 @@ unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_l
   unsigned n = nvme_read_log_page(device, 0xffffffff, 0x01, error_log,
                                   num_entries * sizeof(*error_log), lpo_sup);
 
+  unsigned read_entries = n / sizeof(*error_log);
   if (isbigendian()) {
-    for (unsigned i = 0; i < n; i++) {
+    for (unsigned i = 0; i < read_entries; i++) {
       swapx(&error_log[i].error_count);
       swapx(&error_log[i].sqid);
       swapx(&error_log[i].cmdid);
@@ -240,7 +241,7 @@ unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_l
     }
   }
 
-  return n / sizeof(*error_log);
+  return read_entries;
 }
 
 // Read NVMe SMART/Health Information log.

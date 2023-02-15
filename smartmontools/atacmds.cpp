@@ -1067,10 +1067,10 @@ bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
   check_multi_sector_sum(log, nsectors, "SMART Extended Self-test Log Structure");
 
   if (isbigendian()) {
-    SWAPV(log->log_desc_index);
     for (unsigned i = 0; i < nsectors; i++) {
+      SWAPV(log[i].log_desc_index);
       for (unsigned j = 0; j < 19; j++)
-        SWAPV(log->log_descs[i].timestamp);
+        SWAPV(log[i].log_descs[j].timestamp);
     }
   }
   return true;
