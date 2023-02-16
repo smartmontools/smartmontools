@@ -28,14 +28,19 @@
  * 
  *  @param  device:  Pointer to instantiated device object (ata_device*)
  *  @param  dbentry:  Pointer to struct containing drive database entries (see drivedb.h) (drive_settings*)
+ *  @param  nsectors:  Number of 512-byte sectors in the Current Device Internal Status log (0x24) (unsigned int)
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
-bool ataIsSeagate(ata_device * device, const drive_settings * dbentry) {
+bool ataIsSeagate(ata_device * device, const drive_settings * dbentry, unsigned nsectors) {
   uint8_t pageBuffer[512] = {}; // Page size is 512 bytes per Table A.71 of T13/2161-D (ACS-3) Revision 5, October 28, 2013 (p.503)
   char vendor[] = "XXXX";
 
   if (dbentry && str_starts_with(dbentry->modelfamily, "Seagate")) {
     return true;
+  }
+
+  if ( nsectors <= 1 ){ // Check GPL for vendor-specific pages in Current Device Internal Status log (24h)
+    return false;
   }
 
   if ( !ataReadLogExt(device, 0x24, 0, 1, pageBuffer, 1) ){
