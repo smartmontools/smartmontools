@@ -3337,6 +3337,7 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
     pout("%s%d (%02d:%02d:%02d%s%s)\n", msg, timer, hours, minutes, seconds, s2, s3);
 }
 
+
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
   // If requested, check power mode first
