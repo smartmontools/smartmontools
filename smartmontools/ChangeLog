@@ -1,5 +1,10 @@
 $Id$
 
+2023-02-17  Steven Song  <steven.song@3snic.com>
+
+	os_linux.cpp: Fix CK_COND issue for SATA disk and use C++11 or
+	later structure initialization (#1694).
+
 2023-02-14  WHR  <whr@rivoreo.one>
 
 	atacmds.cpp: fix a logical error in function ataReadExtSelfTestLog

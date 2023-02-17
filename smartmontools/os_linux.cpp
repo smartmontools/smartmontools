@@ -1399,7 +1399,7 @@ private:
   unsigned int m_eid;
   unsigned int m_sid;
 
-  bool scsi_cmd(int cdbLen, void *cdb, int dataLen, void *data, int direction);
+  bool scsi_cmd(scsi_cmnd_io *iop);
 };
 
 linux_sssraid_device::linux_sssraid_device(smart_interface *intf,
@@ -1439,26 +1439,21 @@ bool linux_sssraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     pout("%s", buff);
   }
 
-  bool r = scsi_cmd(iop->cmnd_len, iop->cmnd,
-          iop->dxfer_len, iop->dxferp, iop->dxfer_dir);
+  bool r = scsi_cmd(iop);
   return r;
 }
 
 /* Issue passthrough scsi commands to sssraid controllers */
-bool linux_sssraid_device::scsi_cmd(int cdbLen, void *cdb,
-  int dataLen, void *data, int dxfer_dir)
+bool linux_sssraid_device::scsi_cmd(scsi_cmnd_io *iop)
 {
-  struct sg_io_v4 io_hdr_v4;
-  struct cmd_scsi_passthrough scsi_param;
+  struct sg_io_v4 io_hdr_v4{};
+  struct cmd_scsi_passthrough scsi_param{};
   unsigned char sense_buff[96] = { 0 };
-  struct bsg_ioctl_cmd bsg_param;
-  memset(&io_hdr_v4, 0, sizeof(io_hdr_v4));
-  memset(&scsi_param, 0, sizeof(scsi_param));
-  memset(&bsg_param, 0, sizeof(bsg_param));
+  struct bsg_ioctl_cmd bsg_param{};
   scsi_param.sense_buffer = sense_buff;
   scsi_param.sense_buffer_len = 96;
-  scsi_param.cdb_len = cdbLen;
-  memcpy(scsi_param.cdb, cdb, cdbLen);
+  scsi_param.cdb_len = iop->cmnd_len;
+  memcpy(scsi_param.cdb, iop->cmnd, iop->cmnd_len);
   scsi_param.loc.enc_id = m_eid;
   scsi_param.loc.slot_id = m_sid;
 
@@ -1471,16 +1466,18 @@ bool linux_sssraid_device::scsi_cmd(int cdbLen, void *cdb,
   io_hdr_v4.request = (uintptr_t)(&bsg_param);
   io_hdr_v4.timeout =  BSG_APPEND_TIMEOUT_MS + DEFAULT_CONMMAND_TIMEOUT_MS;
 
-  switch (dxfer_dir) {
+  switch (iop->dxfer_dir) {
     case DXFER_NONE:
+      bsg_param.ioctl_pthru.opcode = ADM_RAID_SET;
+      break;
     case DXFER_FROM_DEVICE:
-      io_hdr_v4.din_xferp = (uintptr_t)data;
-      io_hdr_v4.din_xfer_len = dataLen;
+      io_hdr_v4.din_xferp = (uintptr_t)iop->dxferp;
+      io_hdr_v4.din_xfer_len = iop->dxfer_len;
       bsg_param.ioctl_pthru.opcode = ADM_RAID_READ;
       break;
     case DXFER_TO_DEVICE:
-      io_hdr_v4.dout_xferp = (uintptr_t)data;
-      io_hdr_v4.dout_xfer_len = dataLen;
+      io_hdr_v4.dout_xferp = (uintptr_t)iop->dxferp;
+      io_hdr_v4.dout_xfer_len = iop->dxfer_len;
       bsg_param.ioctl_pthru.opcode = ADM_RAID_WRITE;
       break;
     default:
@@ -1491,8 +1488,8 @@ bool linux_sssraid_device::scsi_cmd(int cdbLen, void *cdb,
   bsg_param.msgcode = ADM_BSG_MSGCODE_SCSI_PTHRU;
   bsg_param.ioctl_pthru.timeout_ms = DEFAULT_CONMMAND_TIMEOUT_MS;
   bsg_param.ioctl_pthru.info_1.subopcode = ADM_CMD_SCSI_PASSTHROUGH;
-  bsg_param.ioctl_pthru.addr = (uintptr_t)data;
-  bsg_param.ioctl_pthru.data_len = dataLen;
+  bsg_param.ioctl_pthru.addr = (uintptr_t)iop->dxferp;
+  bsg_param.ioctl_pthru.data_len = iop->dxfer_len;
 
   bsg_param.ioctl_pthru.info_0.cdb_len = scsi_param.cdb_len;
   bsg_param.ioctl_pthru.sense_addr = (uintptr_t)scsi_param.sense_buffer;
@@ -1507,8 +1504,19 @@ bool linux_sssraid_device::scsi_cmd(int cdbLen, void *cdb,
   memcpy(&bsg_param.ioctl_pthru.cdw16, scsi_param.cdb, scsi_param.cdb_len);
 
   int r = ioctl(get_fd(), SG_IO, &io_hdr_v4);
-  if (r < 0) {
-    return (r);
+  if (r != 0) {
+    return set_err((errno ? errno : EIO), "scsi_cmd ioctl failed: %d %d,%d",
+                   errno, scsi_param.loc.enc_id, scsi_param.loc.slot_id);
+  }
+
+  iop->scsi_status = io_hdr_v4.device_status;
+
+  int len =  ( iop->max_sense_len < io_hdr_v4.max_response_len ) ?
+               iop->max_sense_len : io_hdr_v4.max_response_len;
+
+  if (iop->sensep && len > 0) {
+    memcpy(iop->sensep, reinterpret_cast<void *>(io_hdr_v4.response), len);
+    iop->resp_sense_len = len;
   }
 
   return true;
@@ -3257,13 +3265,11 @@ linux_smart_interface::megasas_pd_add_list(int bus_no, smart_device_list & devli
 int
 linux_smart_interface::sssraid_pdlist_cmd(int bus_no, uint16_t start_idx_param, void *buf, size_t bufsize, uint8_t *statusp)
 {
-  struct sg_io_v4 io_hdr_v4;
+  struct sg_io_v4 io_hdr_v4{};
   unsigned char sense_buff[ADM_SCSI_CDB_SENSE_MAX_LEN] = { 0 };
-  struct bsg_ioctl_cmd bsg_param;
+  struct bsg_ioctl_cmd bsg_param{};
   u8 cmd_param[24] = { 0 };
 
-  memset(&io_hdr_v4, 0, sizeof(io_hdr_v4));
-  memset(&bsg_param, 0, sizeof(bsg_param));
   io_hdr_v4.guard = 'Q';
   io_hdr_v4.protocol = BSG_PROTOCOL_SCSI;
   io_hdr_v4.subprotocol = BSG_SUB_PROTOCOL_SCSI_TRANSPORT;
@@ -3286,7 +3292,7 @@ linux_smart_interface::sssraid_pdlist_cmd(int bus_no, uint16_t start_idx_param, 
   bsg_param.ioctl_r64.info_1.data_len = bufsize;
   bsg_param.ioctl_r64.data_len = bufsize;
   bsg_param.ioctl_r64.info_1.param_len = sizeof(struct cmd_pdlist_idx);
-  memset(&cmd_param, 0, 24);
+
   struct cmd_pdlist_idx *p_cmd_param = (struct cmd_pdlist_idx *)(&cmd_param);
   p_cmd_param->start_idx = start_idx_param;
   p_cmd_param->count = CMD_PDLIST_ONCE_NUM;
@@ -3321,10 +3327,9 @@ int
 linux_smart_interface::sssraid_pd_add_list(int bus_no, smart_device_list & devlist)
 {
   unsigned disk_num = 0;
-  struct cmd_pdlist_entry pdlist[CMD_PDS_MAX_NUM];
+  struct cmd_pdlist_entry pdlist[CMD_PDS_MAX_NUM]{};
   while (disk_num < CMD_PDS_MAX_NUM) {
-    struct cmd_show_pdlist list;
-    memset(&list, 0, sizeof(list));
+    struct cmd_show_pdlist list{};
     if (sssraid_pdlist_cmd(bus_no, disk_num, &list, sizeof(struct cmd_show_pdlist), NULL) < 0)
     {
       return (-1);
