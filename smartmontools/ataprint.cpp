@@ -4509,7 +4509,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         // If -x/-xall or -a/-all is run without explicit -l farm, suggests FARM log
         if (options.farm_log_suggest && !options.farm_log) {
           jout("Seagate FARM log supported [try: -l farm]\n\n");
-        // Otherwise, actually pull the FARM log
+          // Otherwise, actually pull the FARM log
         } else {
           ataFarmLog farmLog;
           if (!ataReadFarmLog(device, farmLog, nsectors)) {
