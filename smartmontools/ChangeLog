@@ -22,6 +22,11 @@ $Id$
 	Makefile.am: Add new FARM files.
 	AUTHORS: Add myself and Natan Lidukhover to list of contributors.
 
+2023-02-17  Steven Song  <steven.song@3snic.com>
+
+	os_linux.cpp: Fix CK_COND issue for SATA disk and use C++11 or
+	later structure initialization (#1694).
+
 2023-02-14  WHR  <whr@rivoreo.one>
 
 	atacmds.cpp: fix a logical error in function ataReadExtSelfTestLog
