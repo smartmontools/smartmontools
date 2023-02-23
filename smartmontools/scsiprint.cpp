@@ -1458,7 +1458,7 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
 }
 
 static int64_t
-scsiGetTimeUnitInNano(const uint8_t * ucp, int num, uint16_t ti_pc)
+scsiGetTimeUnitInNano(const uint8_t * ucp, int num, uint16_t ti_pc) 
 {
     uint16_t loop_pc, pl;
     uint32_t a_exp, a_int, casc;
