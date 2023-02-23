@@ -83,7 +83,7 @@ struct ataFarmDriveInformation {
   uint64_t driveRecordingType;    // 0 for SMR and 1 for CMR (added 2.15)
   uint64_t depopped;              // Has the drive been depopped  1 = depopped and 0 = not depopped (added 2.15)
   uint64_t maxNumberForReasign;   // Max Number of Available Sectors for Reassignment. Value in disc sectors (added 3.3)
-  uint64_t dateOfAssembly;        // Date of assembly in ASCII “YYWW” where YY is the year and WW is the calendar week (added 4.2)
+  uint64_t dateOfAssembly;        // Date of assembly in ASCII YYWW where YY is the year and WW is the calendar week (added 4.2)
   uint64_t depopulationHeadMask;  // Depopulation Head Mask
 };
 STATIC_ASSERT(sizeof(ataFarmDriveInformation)== 376);
@@ -343,7 +343,7 @@ struct scsiFarmDriveInformation {
   uint64_t reserved7;                       // Reserved
   uint64_t reserved8;                       // Reserved
   uint64_t reserved9;                       // Reserved
-  uint64_t dateOfAssembly;                  // Date of assembly in ASCII “YYWW” where YY is the year and WW is the calendar week (added 4.2)
+  uint64_t dateOfAssembly;                  // Date of assembly in ASCII YYWW where YY is the year and WW is the calendar week (added 4.2)
 } ATTR_PACKED_FARM;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmDriveInformation)== 252);
