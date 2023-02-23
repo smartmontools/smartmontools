@@ -48,7 +48,7 @@ struct scsi_print_options
   bool tape_alert = false;
 
   bool zoned_device_stats = false;
-  
+
   bool get_wce = false, get_rcd = false;
   short int set_wce = 0, set_rcd = 0;  // disable(-1), enable(1) cache
 

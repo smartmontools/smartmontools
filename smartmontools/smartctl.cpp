@@ -311,7 +311,7 @@ static checksum_err_mode_t checksum_err_mode = CHECKSUM_ERR_WARN;
 static void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv);
 
 
-/*      Takes command options and sets features to be run */    
+/*      Takes command options and sets features to be run */
 static int parse_options(int argc, char** argv, const char * & type,
   ata_print_options & ataopts, scsi_print_options & scsiopts,
   nvme_print_options & nvmeopts, bool & print_type_only)
@@ -727,7 +727,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       ataopts.smart_selective_selftest_log = true;
       /* scsiopts.smart_background_log = true; */
       scsiopts.smart_ss_media_log = true;
-      ataopts.farm_log_suggest = scsiopts.farm_log_suggest = true;  // If -x/-xall or -a/-all is run, suggests FARM log if supported (does not pull log!)
+      ataopts.farm_log_suggest = scsiopts.farm_log_suggest = true;  // Suggests FARM log, if supported (does not pull log!)
       break;
     case 'x':
       ataopts.drive_info           = scsiopts.drive_info          = nvmeopts.drive_info          = true;
@@ -777,7 +777,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       }
       if (!parse_attribute_def(optarg, ataopts.attribute_defs, PRIOR_USER))
         badarg = true;
-      break;    
+      break;
     case 'P':
       if (!strcmp(optarg, "use")) {
         ataopts.ignore_presets = false;
@@ -1197,7 +1197,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       Usage();
       return 0;
     } // closes switch statement to process command-line options
-    
+
     // Check to see if option had an unrecognized or incorrect argument.
     if (badarg) {
       printslogan();
@@ -1288,14 +1288,14 @@ static int parse_options(int argc, char** argv, const char * & type,
 
   // From here on, normal operations...
   printslogan();
-  
+
   // Warn if the user has provided no device name
   if (argc-optind<1){
     jerr("ERROR: smartctl requires a device name as the final command-line argument.\n\n");
     UsageSummary();
     return FAILCMD;
   }
-  
+
   // Warn if the user has provided more than one device name
   if (argc-optind>1){
     int i;

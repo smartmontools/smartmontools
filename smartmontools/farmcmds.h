@@ -1,12 +1,9 @@
 /*
  * farmcmds.h
- * 
+ *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
- * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
+ * Copyright (C) 2021 - 2023 Seagate Technology LLC and/or its Affiliates
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -45,7 +42,7 @@ struct ataFarmHeader {
   uint64_t copies;          // Number of Historical Copies
   uint64_t frameCapture;    // Reason for Frame Capture
 };
-STATIC_ASSERT(sizeof(ataFarmHeader) == 72);
+STATIC_ASSERT(sizeof(ataFarmHeader)== 72);
 
 // Seagate ATA Field Access Reliability Metrics log (FARM) page 1 (read with ATA_READ_LOG_EXT address 0xA6, page 1)
 // Drive Information
@@ -85,11 +82,11 @@ struct ataFarmDriveInformation {
   uint64_t modelNumber[10];       // Lower 32 Model Number (added 2.14)
   uint64_t driveRecordingType;    // 0 for SMR and 1 for CMR (added 2.15)
   uint64_t depopped;              // Has the drive been depopped  1 = depopped and 0 = not depopped (added 2.15)
-  uint64_t maxNumberForReasign;   // Max Number of Available Sectors for Reassignment – Value in disc sectors (added 3.3)
+  uint64_t maxNumberForReasign;   // Max Number of Available Sectors for Reassignment. Value in disc sectors (added 3.3)
   uint64_t dateOfAssembly;        // Date of assembly in ASCII “YYWW” where YY is the year and WW is the calendar week (added 4.2)
   uint64_t depopulationHeadMask;  // Depopulation Head Mask
 };
-STATIC_ASSERT(sizeof(ataFarmDriveInformation) == 376);
+STATIC_ASSERT(sizeof(ataFarmDriveInformation)== 376);
 
 // Seagate ATA Field Access Reliability Metrics log (FARM) page 2 (read with ATA_READ_LOG_EXT address 0xA6, page 2)
 // Workload Statistics
@@ -116,7 +113,7 @@ struct ataFarmWorkloadStatistics {
   uint64_t writeCommandsByRadius3;  // Number of Write Commands from 25-75% of LBA space for last 3 SMART Summary Frames (added 4.4)
   uint64_t writeCommandsByRadius4;  // Number of Write Commands from 75-100% of LBA space for last 3 SMART Summary Frames (added 4.4)
 };
-STATIC_ASSERT(sizeof(ataFarmWorkloadStatistics) == 168);
+STATIC_ASSERT(sizeof(ataFarmWorkloadStatistics)== 168);
 
 // Seagate ATA Field Access Reliability Metrics log (FARM) page 3 (read with ATA_READ_LOG_EXT address 0xA6, page 3)
 // Error Statistics
@@ -152,7 +149,7 @@ struct ataFarmErrorStatistics {
   uint64_t cumulativeUnrecoverableReadRepeating[24];  // Cumulative Lifetime Unrecoverable Read Repeating by head
   uint64_t cumulativeUnrecoverableReadUnique[24];     // Cumulative Lifetime Unrecoverable Read Unique by head
 };
-STATIC_ASSERT(sizeof(ataFarmErrorStatistics) == 952);
+STATIC_ASSERT(sizeof(ataFarmErrorStatistics)== 952);
 
 // Seagate ATA Field Access Reliability Metrics log (FARM) page 4 (read with ATA_READ_LOG_EXT address 0xa6, page 4)
 // Environment Statistics
@@ -190,7 +187,7 @@ struct ataFarmEnvironmentStatistics {
   uint64_t powerMin5v;         // 5V Power Min (mW) - Lowest of last 3 SMART Summary Frames (added 4.3)
   uint64_t powerMax5v;         // 5V Power Max (mW) - Highest of last 3 SMART Summary Frames (added 4.3)
 };
-STATIC_ASSERT(sizeof(ataFarmEnvironmentStatistics) == 256);
+STATIC_ASSERT(sizeof(ataFarmEnvironmentStatistics)== 256);
 
 // Seagate ATA Field Access Reliability Metrics log (FARM) page 5 (read with ATA_READ_LOG_EXT address 0xA6, page 5)
 // Reliability Statistics
@@ -259,7 +256,7 @@ struct ataFarmReliabilityStatistics {
   uint64_t reserved42[24][3];                // Reserved
   int64_t numberLBACorrectedParitySector;    // Number of LBAs Corrected by Parity Sector
 };
-STATIC_ASSERT(sizeof(ataFarmReliabilityStatistics) == 8880);
+STATIC_ASSERT(sizeof(ataFarmReliabilityStatistics)== 8880);
 
 // Seagate ATA Field Access Reliability Metrics log (FARM) all pages
 struct ataFarmLog {
@@ -270,7 +267,7 @@ struct ataFarmLog {
   ataFarmEnvironmentStatistics environment;  // Environment Statistics page
   ataFarmReliabilityStatistics reliability;  // Reliability Statistics page
 };
-STATIC_ASSERT(sizeof(ataFarmLog) == 72 + 376 + 168 + 952 + 256 + 8880);
+STATIC_ASSERT(sizeof(ataFarmLog)== 72 + 376 + 168 + 952 + 256 + 8880);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Seagate SCSI Field Access Reliability Metrics log (FARM) structures (SCSI Log Page 0x3D, sub-page 0x3)
@@ -282,7 +279,7 @@ struct scsiFarmPageHeader {
   uint8_t subpageCode;  // Sub-Page Code (0x03)
   uint16_t pageLength;  // Page Length
 };
-STATIC_ASSERT(sizeof(scsiFarmPageHeader) == 4);
+STATIC_ASSERT(sizeof(scsiFarmPageHeader)== 4);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) PARAMETER Header (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // Parameter Header
@@ -291,7 +288,7 @@ struct scsiFarmParameterHeader {
   uint8_t parameterControl;  // Sub-Page Code (0x03)
   uint8_t parameterLength;   // Page Length
 };
-STATIC_ASSERT(sizeof(scsiFarmParameterHeader) == 4);
+STATIC_ASSERT(sizeof(scsiFarmParameterHeader)== 4);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // Log Header
@@ -309,7 +306,7 @@ struct scsiFarmHeader {
   uint64_t frameCapture;                    // Reason for Frame Capture
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmHeader) == 76);
+STATIC_ASSERT(sizeof(scsiFarmHeader)== 76);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // Drive Information
@@ -349,7 +346,7 @@ struct scsiFarmDriveInformation {
   uint64_t dateOfAssembly;                  // Date of assembly in ASCII “YYWW” where YY is the year and WW is the calendar week (added 4.2)
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmDriveInformation) == 252);
+STATIC_ASSERT(sizeof(scsiFarmDriveInformation)== 252);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // Workload Statistics
@@ -376,7 +373,7 @@ struct scsiFarmWorkloadStatistics {
   uint64_t writeCommandsByRadius4;          // Number of Write Commands from 75-100% of LBA space for last 3 SMART Summary Frames (added 4.4)
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmWorkloadStatistics) == 148);
+STATIC_ASSERT(sizeof(scsiFarmWorkloadStatistics)== 148);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // Error Statistics
@@ -414,7 +411,7 @@ struct scsiFarmErrorStatistics {
   uint64_t phyResetProblemB;                // Phy Reset Problem (Port A)
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmErrorStatistics) == 236);
+STATIC_ASSERT(sizeof(scsiFarmErrorStatistics)== 236);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // Environment Statistics
@@ -449,7 +446,7 @@ struct scsiFarmEnvironmentStatistics {
   uint64_t powerMax5v;                      // 5V Power Max (mW) - Highest of last 3 SMART Summary Frames (added 4.3)
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmEnvironmentStatistics) == 212);
+STATIC_ASSERT(sizeof(scsiFarmEnvironmentStatistics)== 212);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // Reliability Statistics
@@ -487,7 +484,7 @@ struct scsiFarmReliabilityStatistics {
   uint64_t reserved36;                      // Reserved
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmReliabilityStatistics) == 236);
+STATIC_ASSERT(sizeof(scsiFarmReliabilityStatistics)== 236);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // Drive Information Continued
@@ -502,14 +499,14 @@ struct scsiFarmDriveInformation2 {
   uint64_t productID3;                      // Product ID [8:11]
   uint64_t productID4;                      // Product ID [12:15]
   uint64_t driveRecordingType;              // Drive Recording Type - 0 for SMR and 1 for CMR
-  uint64_t dpopped;                         // Is drive currently depopped – 1 = depopped, 0 = not depopped
-  uint64_t maxNumberForReasign;             // Max Number of Available Sectors for Re-Assignment – Value in disc sectors
+  uint64_t dpopped;                         // Is drive currently depopped. 1 = depopped, 0 = not depopped
+  uint64_t maxNumberForReasign;             // Max Number of Available Sectors for Re-Assignment. Value in disc sectors
   uint64_t timeToReady;                     // Time to Ready of the last power cycle in milliseconds
   uint64_t timeHeld;                        // Time the drive is held in staggered spin in milliseconds
   uint64_t lastServoSpinUpTime;             // The last servo spin up time in milliseconds
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmDriveInformation2) == 108);
+STATIC_ASSERT(sizeof(scsiFarmDriveInformation2)== 108);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // Environment Statistics Continued
@@ -526,7 +523,7 @@ struct scsiFarmEnvironmentStatistics2 {
   uint64_t max5v;                           // Maximum 5V input from last 3 SMART Summary Frames in mV
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmEnvironmentStatistics2) == 68);
+STATIC_ASSERT(sizeof(scsiFarmEnvironmentStatistics2)== 68);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // "By Head" Parameters
@@ -536,7 +533,7 @@ struct scsiFarmByHead {
   uint64_t headValue[20];                   // [16] Head Information
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmByHead) == (4 + (20 * 8)));
+STATIC_ASSERT(sizeof(scsiFarmByHead)==(4 +(20 * 8)));
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // "By Actuator" Parameters
@@ -568,7 +565,7 @@ struct scsiFarmByActuator {
   uint64_t numberLBACorrectedParitySector;      // Number of LBAs Corrected by Parity Sector
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmByActuator) == 188);
+STATIC_ASSERT(sizeof(scsiFarmByActuator)== 188);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // "By Actuator" Parameters for Flash LED Information
@@ -585,7 +582,7 @@ struct scsiFarmByActuatorFLED {
   uint64_t powerCycleFlashLED[8];           // Power Cycle of the last 8 Flash LED (assert) Events, wrapping array
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmByActuatorFLED) == 236);
+STATIC_ASSERT(sizeof(scsiFarmByActuatorFLED)== 236);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) parameter (read with SCSI LogSense page 0x3D, sub-page 0x3)
 // "By Actuator" Parameters for Reallocation Information
@@ -600,7 +597,7 @@ struct scsiFarmByActuatorReallocation {
   uint64_t reserved[15];                    // Reserved
 } ATTR_PACKED_FARM;
 #pragma pack()
-STATIC_ASSERT(sizeof(scsiFarmByActuatorReallocation) == 164);
+STATIC_ASSERT(sizeof(scsiFarmByActuatorReallocation)== 164);
 
 // Seagate SCSI Field Access Reliability Metrics log (FARM) all parameters
 struct scsiFarmLog {
@@ -673,23 +670,22 @@ struct scsiFarmLog {
   scsiFarmByActuatorFLED actuatorFLED3;                  // Actuator 3 FLED Information parameters
   scsiFarmByActuatorReallocation actuatorReallocation3;  // Actuator 3 Reallocation parameters
 };
-STATIC_ASSERT(sizeof(scsiFarmLog) == 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 + 68 + (47 * ((8 * 20) + 4)) + 188 * 4 + 236 * 4 + 164 * 4);
+STATIC_ASSERT(sizeof(scsiFarmLog)== 4 + 76 + 252 + 148 + 236 + 212 + 236 + 108 + 68 +(47 *((8 * 20)+ 4))+ 188 * 4 + 236 * 4 + 164 * 4);
 
 /*
  *  Determines whether the current drive is an ATA Seagate drive
- * 
- *  @param  device:  Pointer to instantiated device object (ata_device*)
+ *
+ *  @param  drive:  Pointer to drive struct containing ATA device information (*ata_identify_device)
  *  @param  dbentry:  Pointer to struct containing drive database entries (see drivedb.h) (drive_settings*)
- *  @param  nsectors:  Number of 512-byte sectors in the Current Device Internal Status log (0x24) (unsigned int)
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
-bool ataIsSeagate(ata_device * device, const drive_settings * dbentry, unsigned nsectors);
+bool ataIsSeagate(const ata_identify_device& drive, const drive_settings* dbentry);
 
 /*
  *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate
  *  drives and parses data into FARM log structures
  *  Returns parsed structure as defined in atacmds.h
- *  
+ *
  *  @param  device:   Pointer to instantiated device object (ata_device*)
  *  @param  farmLog:  Reference to parsed data in structure(s) with named members (ataFarmLog&)
  *  @param  nsectors: Number of 512-byte sectors in this log (unsigned int)
@@ -699,7 +695,7 @@ bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors);
 
 /*
  *  Determines whether the current drive is a SCSI Seagate drive
- * 
+ *
  *  @param  scsi_vendor:  Text of SCSI vendor field (char*)
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
@@ -709,7 +705,7 @@ bool scsiIsSeagate(char* scsi_vendor);
  *  Reads vendor-specific FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
  *  drives and parses data into FARM log structures
  *  Returns parsed structure as defined in scsicmds.h
- *  
+ *
  *  @param  device: Pointer to instantiated device object (scsi_device*)
  *  @param  farmLog:  Reference to parsed data in structure(s) with named members (scsiFarmLog&)
  *  @return true if read successful, false otherwise (bool)

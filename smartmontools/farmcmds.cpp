@@ -1,16 +1,16 @@
 /*
  * farmcmds.cpp
- * 
+ *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
- * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
+ * Copyright (C) 2021 - 2023 Seagate Technology LLC and/or its Affiliates
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
+
+#define __STDC_FORMAT_MACROS 1
 #include <inttypes.h>
 
 #include "farmcmds.h"
@@ -25,31 +25,21 @@
 
 /*
  *  Determines whether the current drive is an ATA Seagate drive
- * 
- *  @param  device:  Pointer to instantiated device object (ata_device*)
+ *
+ *  @param  drive:  Pointer to drive struct containing ATA device information (*ata_identify_device)
  *  @param  dbentry:  Pointer to struct containing drive database entries (see drivedb.h) (drive_settings*)
- *  @param  nsectors:  Number of 512-byte sectors in the Current Device Internal Status log (0x24) (unsigned int)
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
-bool ataIsSeagate(ata_device * device, const drive_settings * dbentry, unsigned nsectors) {
-  uint8_t pageBuffer[512] = {}; // Page size is 512 bytes per Table A.71 of T13/2161-D (ACS-3) Revision 5, October 28, 2013 (p.503)
-  char vendor[] = "XXXX";
-
+bool ataIsSeagate(const ata_identify_device& drive, const drive_settings* dbentry) {
   if (dbentry && str_starts_with(dbentry->modelfamily, "Seagate")) {
     return true;
   }
-
-  if ( nsectors <= 1 ){ // Check GPL for vendor-specific pages in Current Device Internal Status log (24h)
-    return false;
+  char model[40 + 1];
+  ata_format_id_string(model, drive.model, sizeof(model) - 1);
+  if (regular_expression("^ST[0-9]{3,5}[A-Z]{2}[A-Z0-9]{3,5}(-.*)?$").full_match(model)) {
+    return true;
   }
-
-  if ( !ataReadLogExt(device, 0x24, 0, 1, pageBuffer, 1) ){
-    jerr("Reading Current Device Internal Status Log (24h) failed\n");
-    return false;
-  }
-
-  memcpy(vendor, pageBuffer, sizeof(vendor) - 1);
-  return ( strcmp(vendor, "SEAG") == 0 );
+  return false;
 }
 
 
@@ -57,7 +47,7 @@ bool ataIsSeagate(ata_device * device, const drive_settings * dbentry, unsigned 
  *  Reads vendor-specific FARM log (GP Log 0xA6) data from Seagate
  *  drives and parses data into FARM log structures
  *  Returns parsed structure as defined in atacmds.h
- *  
+ *
  *  @param  device:   Pointer to instantiated device object (ata_device*)
  *  @param  farmLog:  Reference to parsed data in structure(s) with named members (ataFarmLog&)
  *  @param  nsectors: Number of 512-byte sectors in this log (unsigned int)
@@ -71,20 +61,20 @@ bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors) 
   const size_t FARM_SECTOR_SIZE = FARM_PAGE_SIZE * FARM_MAX_PAGES / nsectors;
   const unsigned FARM_SECTORS_PER_PAGE = nsectors / FARM_MAX_PAGES;
   const size_t FARM_CURRENT_PAGE_DATA_SIZE[FARM_MAX_PAGES] = {
-      sizeof(ataFarmHeader),
-      sizeof(ataFarmDriveInformation),
-      sizeof(ataFarmWorkloadStatistics),
-      sizeof(ataFarmErrorStatistics),
-      sizeof(ataFarmEnvironmentStatistics),
-      sizeof(ataFarmReliabilityStatistics)};
-  memset(&farmLog, 0, sizeof(farmLog));
+    sizeof(ataFarmHeader),
+    sizeof(ataFarmDriveInformation),
+    sizeof(ataFarmWorkloadStatistics),
+    sizeof(ataFarmErrorStatistics),
+    sizeof(ataFarmEnvironmentStatistics),
+    sizeof(ataFarmReliabilityStatistics) };
+  farmLog = { };
   unsigned numSectorsToRead = (sizeof(ataFarmHeader) / FARM_SECTOR_SIZE) + 1;
   // Go through each of the six pages of the FARM log
   for (unsigned page = 0; page < FARM_MAX_PAGES; page++) {
     // Reset the buffer
-    uint8_t pageBuffer[FARM_PAGE_SIZE] = {};
+    uint8_t pageBuffer[FARM_PAGE_SIZE] = { };
     // Reset the current FARM log page
-    uint64_t currentFarmLogPage[FARM_PAGE_SIZE / FARM_ATTRIBUTE_SIZE] = {};
+    uint64_t currentFarmLogPage[FARM_PAGE_SIZE / FARM_ATTRIBUTE_SIZE] = { };
     // Read the desired quantity of sectors from the current page into the buffer
     bool readSuccessful = ataReadLogExt(device, 0xA6, 0, page * FARM_SECTORS_PER_PAGE, pageBuffer, numSectorsToRead);
     if (!readSuccessful) {
@@ -96,7 +86,8 @@ bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors) 
       uint64_t currentMetric = 0;
       // Read each attribute from the buffer, one byte at a time (combine 8 bytes, little endian)
       for (unsigned byteOffset = 0; byteOffset < FARM_ATTRIBUTE_SIZE - 1; byteOffset++) {
-        currentMetric |= (uint64_t)(pageBuffer[pageOffset + byteOffset] | (pageBuffer[pageOffset + byteOffset + 1] << 8)) << (byteOffset * 8);
+        currentMetric |= (uint64_t)(pageBuffer[pageOffset + byteOffset] |
+                                        (pageBuffer[pageOffset + byteOffset + 1] << 8)) << (byteOffset * 8);
       }
       // Check the status bit and strip it off if necessary
       if (currentMetric >> 56 == 0xC0) {
@@ -151,7 +142,7 @@ bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors) 
 
 /*
  *  Determines whether the current drive is a SCSI Seagate drive
- * 
+ *
  *  @param  scsi_vendor:  Text of SCSI vendor field (char*)
  *  @return True if the drive is a Seagate drive, false otherwise (bool)
  */
@@ -163,7 +154,7 @@ bool scsiIsSeagate(char* scsi_vendor) {
  *  Reads vendor-specific FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
  *  drives and parses data into FARM log structures
  *  Returns parsed structure as defined in scsicmds.h
- *  
+ *
  *  @param  device: Pointer to instantiated device object (scsi_device*)
  *  @param  farmLog:  Reference to parsed data in structure(s) with named members (scsiFarmLog&)
  *  @return true if read successful, false otherwise (bool)
@@ -173,7 +164,7 @@ bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
   const uint32_t GBUF_SIZE = 65532;
   uint8_t gBuf[GBUF_SIZE];
   const size_t FARM_ATTRIBUTE_SIZE = 8;
-  memset(&farmLog, 0, sizeof(farmLog));
+  farmLog = { };
   if (0 != scsiLogSense(device, SEAGATE_FARM_LPAGE, SEAGATE_FARM_CURRENT_L_SPAGE, gBuf, LOG_RESP_LONG_LEN, 0)) {
     jerr("Read FARM Log page failed\n\n");
     return false;
@@ -185,14 +176,16 @@ bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
   farmLog.pageHeader.pageLength = gBuf[2] << 8 | gBuf[3];
   // Get rest of log
   // Holds data for each SCSI parameter
-  uint64_t currentParameter[sizeof(gBuf) / FARM_ATTRIBUTE_SIZE] = {};
+  uint64_t currentParameter[sizeof(gBuf) / FARM_ATTRIBUTE_SIZE] = { };
   // Track index of current metric within each parameter
   unsigned currentMetricIndex = 0;
   // Track offset (in struct) of current SCSI parameter
   unsigned currentParameterOffset = 0;
   // Track offset in struct
   scsiFarmParameterHeader currentParameterHeader;
-  for (unsigned pageOffset = sizeof(scsiFarmPageHeader); pageOffset < (farmLog.pageHeader.pageLength + sizeof(scsiFarmPageHeader)); pageOffset += FARM_ATTRIBUTE_SIZE) {
+  for (unsigned pageOffset = sizeof(scsiFarmPageHeader);
+       pageOffset < (farmLog.pageHeader.pageLength + sizeof(scsiFarmPageHeader));
+       pageOffset += FARM_ATTRIBUTE_SIZE) {
     // First get parameter header
     if (isParameterHeader) {
       // Clear old header
@@ -274,7 +267,9 @@ bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
         currentParameterOffset += sizeof(scsiFarmByActuatorReallocation);
       }
       // Copy parameter header to struct
-      memcpy((char*) &farmLog + currentParameterOffset, &currentParameterHeader, sizeof(scsiFarmParameterHeader));
+      memcpy(reinterpret_cast<char*>(&farmLog) + currentParameterOffset,
+             &currentParameterHeader,
+             sizeof(scsiFarmParameterHeader));
       // Fix offset
       pageOffset += sizeof(scsiFarmParameterHeader);
       // No longer setting header
@@ -302,7 +297,9 @@ bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
       isParameterHeader = true;
       pageOffset -= FARM_ATTRIBUTE_SIZE;
       // Copy data for CURRENT parameter to struct (skip parameter header which has already been assigned)
-      memcpy((char*) &farmLog + currentParameterOffset + sizeof(scsiFarmParameterHeader), currentParameter, currentParameterHeader.parameterLength);
+      memcpy(reinterpret_cast<char*>(&farmLog) + currentParameterOffset + sizeof(scsiFarmParameterHeader),
+             currentParameter,
+             currentParameterHeader.parameterLength);
       continue;
     } else {
       currentMetric = 0;

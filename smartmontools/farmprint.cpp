@@ -1,116 +1,123 @@
 /*
  * farmprint.cpp
- * 
+ *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
- * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
+ * Copyright (C) 2021 - 2023 Seagate Technology LLC and/or its Affiliates
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
+
+#include "config.h"
 
 #define __STDC_FORMAT_MACROS 1
 #include <string>
 #include <inttypes.h>
 #include "farmprint.h"
-#include <initializer_list>
 #include "smartctl.h"
 
 /*
  *  Get the recording type descriptor from FARM.
  *  Stored as bitmask in log pag 1 byte offset 336-343. (Seagate FARM Spec Rev 4.23.1)
- *  
+ *
  *  @param  driveRecordingType: Constant 64-bit integer recording type descriptor (const uint64_t)
  *  @return:  Constant reference to string literal (const char *)
  */
-const char * farm_get_recording_type(const uint64_t driveRecordingType) {
+static const char* farm_get_recording_type(const uint64_t driveRecordingType) {
   switch (driveRecordingType & 0x3) {
-    case 0x1: return "SMR";
-    case 0x2: return "CMR";
-    default : return "UNKNOWN";
+    case 0x1:
+      return "SMR";
+    case 0x2:
+      return "CMR";
+    default :
+      return "UNKNOWN";
   }
 }
 
 /*
  *  Get the form factor descriptor from FARM.
  *  Stored as integer in log pag 1 byte offset 336-343. (Seagate FARM Spec Rev 4.23.1)
- *  Consistent with definitions in ACS-3 Table A.32, SBC-4 Table 263. 
- *  
+ *  Consistent with definitions in ACS-3 Table A.32, SBC-4 Table 263.
+ *
  *  @param  formFactor: Constant 64-bit integer form factor descriptor (const uint64_t)
  *  @return:  Constant reference to string literal (const char *)
  */
-const char * farm_get_form_factor(const uint64_t formFactor) {
+static const char* farm_get_form_factor(const uint64_t formFactor) {
   switch (formFactor & 0xF) {
-    case 0x1: return "5.25 inches";
-    case 0x2: return "3.5 inches";
-    case 0x3: return "2.5 inches";
-    case 0x4: return "1.8 inches";
-    case 0x5: return "< 1.8 inches";
-    default : return 0;
+    case 0x1:
+      return "5.25 inches";
+    case 0x2:
+      return "3.5 inches";
+    case 0x3:
+      return "2.5 inches";
+    case 0x4:
+      return "1.8 inches";
+    case 0x5:
+      return "< 1.8 inches";
+    default :
+      return 0;
   }
 }
 
 /*
  *  Output the 64-bit integer value of a FARM parameter by head in plain text format
- *  
+ *
  *  @param  desc:  Description of the parameter (const char *)
  *  @param  paramArray:  Reference to int64_t array containing paramter values for each head (const int64_t *)
  *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
  */
-void farm_print_by_head_to_text(const char * desc, const int64_t * paramArray, const uint64_t numHeads) {
-  for (uint8_t hd = 0; hd < numHeads; hd++) { 
-     jout("\t\t%s %" PRIu8 ": %" PRIu64 "\n", desc, hd, paramArray[hd]);
+static void farm_print_by_head_to_text(const char* desc, const int64_t* paramArray, const uint64_t numHeads) {
+  for (uint8_t hd = 0; hd < numHeads; hd++) {
+    jout("\t\t%s %" PRIu8 ": %" PRIu64 "\n", desc, hd, paramArray[hd]);
   }
 }
 
 /*
  *  Add the 64-bit integer value of a FARM parameter by head to json element
- *  
+ *
  *  @param  jref:  Reference to a JSON element
  *  @param  buffer:  Reference to character buffer (char *)
  *  @param  desc:  Description of the parameter (const char *)
  *  @param  paramArray:  Reference to int64_t array containing paramter values for each head (const int64_t *)
  *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
  */
-void farm_print_by_head_to_json(json::ref jref, char * buffer, const char * desc, const int64_t * paramArray, const uint64_t numHeads) {
-  for (uint8_t hd = 0; hd < numHeads; hd++){
-     sprintf(buffer, "%s_%" PRIu8, desc, hd);
-     jref[buffer] = paramArray[hd];
+static void farm_print_by_head_to_json(json::ref jref, char* buffer, const char* desc, const int64_t* paramArray, const uint64_t numHeads) {
+  for (uint8_t hd = 0; hd < numHeads; hd++) {
+    sprintf(buffer, "%s_%" PRIu8, desc, hd);
+    jref[buffer] = paramArray[hd];
   }
 }
 
 /*
  *  Swap adjacent 16-bit words of an unsigned 64-bit integer.
- *  
+ *
  *  @param  param:  Constant reference to an unsigned 64-bit integer (const uint64_t *)
- *  @return result 
+ *  @return result
  */
-uint64_t farm_byte_swap(const uint64_t param) {
+static uint64_t farm_byte_swap(const uint64_t param) {
   const uint64_t even_bytes = 0x0000FFFF0000FFFF;
   const uint64_t odd_bytes  = 0xFFFF0000FFFF0000;
-  return ( (param & even_bytes) << 16 ) | ( (param & odd_bytes) >> 16 );
+  return ((param & even_bytes) << 16) | ((param & odd_bytes) >> 16);
 }
 
 /*
  *  Formats an unsigned 64-bit integer into a big-endian null-terminated ascii string.
- *  
+ *
  *  @param  buffer:  Constant reference to character buffer (char *)
  *  @param  param:  Constant 64-bit integer containing ASCII FARM field information (const uint64_t)
  *  @return reference to the char buffer containing a null-terminated string
  */
-char * farm_format_id_string(char * buffer, const uint64_t param) {
+static char* farm_format_id_string(char* buffer, const uint64_t param) {
   uint8_t val;
   uint8_t j = 0;
   size_t str_size = sizeof(param) / sizeof(buffer[0]);
 
-  for (uint8_t i = 0; i < str_size; i++){ 
-     val = (param >> ((str_size - i - 1) * 8)) & 0xFF;
-     if ( 32 <= val && val < 127 ) {
-        buffer[ j ] = val; 
-        j++;
-     }
+  for (uint8_t i = 0; i < str_size; i++) {
+    val = (param >> ((str_size - i - 1) * 8)) & 0xFF;
+    if (32 <= val && val < 127) {
+      buffer[j] = val;
+      j++;
+    }
   }
   buffer[j] = '\0';
   return buffer;
@@ -118,13 +125,13 @@ char * farm_format_id_string(char * buffer, const uint64_t param) {
 
 /*
  *  Overload function to format and concat two 8-byte FARM fields.
- *  
+ *
  *  @param  buffer:  Constant reference to character buffer (char *)
  *  @param  param1:  Constant 64-bit integer containing the low 8 bytes of the FARM field (const uint64_t)
  *  @param  param2:  Constant 64-bit integer containing the high 8 bytes of the FARM field (const uint64_t)
  *  @return reference to char buffer containing a null-terminated string
  */
-char * farm_format_id_string(char * buffer, const uint64_t param1, const uint64_t param2) {
+static char* farm_format_id_string(char* buffer, const uint64_t param1, const uint64_t param2) {
   farm_format_id_string(buffer, param2);
   farm_format_id_string(&buffer[strlen(buffer)], param1);
   return buffer;
@@ -136,33 +143,39 @@ char * farm_format_id_string(char * buffer, const uint64_t param1, const uint64_
 /*
  *  Prints parsed FARM log (GP Log 0xA6) data from Seagate
  *  drives already present in ataFarmLogFrame structure
- *  
+ *
  *  @param  farmLog:  Constant reference to parsed farm log (const ataFarmLog&)
  */
 void ataPrintFarmLog(const ataFarmLog& farmLog) {
+  // Request feedback on FARM output on big-endian systems
+  if (isbigendian()) {
+    jinf("FARM support was not tested on Big Endian platforms by the developers.\n"
+         "Please report success/failure to " PACKAGE_BUGREPORT "\n\n");
+  }
+
   char buffer[128]; // Generic character buffer
 
   // Get device information
-  char serialNumber[sizeof(farmLog.driveInformation.serialNumber)+sizeof(farmLog.driveInformation.serialNumber2)+1];
+  char serialNumber[sizeof(farmLog.driveInformation.serialNumber) + sizeof(farmLog.driveInformation.serialNumber2) + 1];
   farm_format_id_string(serialNumber, farm_byte_swap(farmLog.driveInformation.serialNumber2), farm_byte_swap(farmLog.driveInformation.serialNumber));
 
-  char worldWideName[sizeof(farmLog.driveInformation.worldWideName)+sizeof(farmLog.driveInformation.worldWideName2)+3];
+  char worldWideName[sizeof(farmLog.driveInformation.worldWideName) + sizeof(farmLog.driveInformation.worldWideName2) + 3];
   sprintf(worldWideName, "0x%" PRIx64 "%" PRIx64, farm_byte_swap(farmLog.driveInformation.worldWideName), farm_byte_swap(farmLog.driveInformation.worldWideName2));
 
   char deviceInterface[sizeof(farmLog.driveInformation.deviceInterface)];
   farm_format_id_string(deviceInterface, farmLog.driveInformation.deviceInterface);
 
-  const char * formFactor = farm_get_form_factor(farmLog.driveInformation.factor);
+  const char* formFactor = farm_get_form_factor(farmLog.driveInformation.factor);
 
-  char firmwareRev[sizeof(farmLog.driveInformation.firmwareRev)+sizeof(farmLog.driveInformation.firmwareRev2)+1];
+  char firmwareRev[sizeof(farmLog.driveInformation.firmwareRev) + sizeof(farmLog.driveInformation.firmwareRev2) + 1];
   farm_format_id_string(firmwareRev, farm_byte_swap(farmLog.driveInformation.firmwareRev2), farm_byte_swap(farmLog.driveInformation.firmwareRev));
 
-  char modelNumber[sizeof(farmLog.driveInformation.modelNumber)+1];
-  for (uint8_t i = 0; i < sizeof(farmLog.driveInformation.modelNumber)/sizeof(farmLog.driveInformation.modelNumber[0]); i++){
-     farm_format_id_string(&modelNumber[strlen(modelNumber)], farm_byte_swap(farmLog.driveInformation.modelNumber[i]));
+  char modelNumber[sizeof(farmLog.driveInformation.modelNumber) + 1];
+  for (uint8_t i = 0; i < sizeof(farmLog.driveInformation.modelNumber) / sizeof(farmLog.driveInformation.modelNumber[0]); i++) {
+    farm_format_id_string(&modelNumber[strlen(modelNumber)], farm_byte_swap(farmLog.driveInformation.modelNumber[i]));
   }
 
-  const char * recordingType = farm_get_recording_type(farmLog.driveInformation.driveRecordingType);
+  const char* recordingType = farm_get_recording_type(farmLog.driveInformation.driveRecordingType);
 
   char dateOfAssembly[sizeof(farmLog.driveInformation.dateOfAssembly)];
   farm_format_id_string(dateOfAssembly, farm_byte_swap(farmLog.driveInformation.dateOfAssembly));
@@ -211,7 +224,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jout("\t\tDepopulation Head Mask: %" PRIx64 "\n", farmLog.driveInformation.depopulationHeadMask);
 
   // Page 2: Workload Statistics
-  jout("\tFARM Log Page 2: Workload Statistics\n");  
+  jout("\tFARM Log Page 2: Workload Statistics\n");
   jout("\t\tTotal Number of Read Commands: %" PRIu64 "\n", farmLog.workload.totalReadCommands);
   jout("\t\tTotal Number of Write Commands: %" PRIu64 "\n", farmLog.workload.totalWriteCommands);
   jout("\t\tTotal Number of Random Read Commands: %" PRIu64 "\n", farmLog.workload.totalRandomReads);
@@ -250,25 +263,25 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jout("\t\tCTO Count Over 7.5s: %" PRIu64 "\n", farmLog.error.overSevenSecCTO);
 
   // Page 3 flash-LED information
-  uint8_t index; 
+  uint8_t index;
   size_t flash_led_size = sizeof(farmLog.error.flashLEDArray) / sizeof(farmLog.error.flashLEDArray[0]);
   jout("\t\tTotal Flash LED (Assert) Events: %" PRIu64 "\n", farmLog.error.totalFlashLED);
   jout("\t\tIndex of the last Flash LED: %" PRIu64 "\n", farmLog.error.indexFlashLED);
-  for ( uint8_t i = flash_led_size; i > 0; i-- ) {
-     index = (i - farmLog.error.indexFlashLED + flash_led_size) % flash_led_size;
-     jout("\t\tFlash LED Event %" PRIuMAX ":\n", static_cast<uintmax_t>(flash_led_size - i));
-     jout("\t\t\tEvent Information: 0x%016" PRIx64 "\n", farmLog.error.flashLEDArray[index]);
-     jout("\t\t\tTimestamp of Event %" PRIuMAX " (hours): %" PRIu64 "\n", static_cast<uintmax_t>(flash_led_size - i), farmLog.error.universalTimestampFlashLED[index]);
-     jout("\t\t\tPower Cycle Event %" PRIuMAX ": %" PRIx64 "\n", static_cast<uintmax_t>(flash_led_size - i), farmLog.error.powerCycleFlashLED[index]);
+  for (uint8_t i = flash_led_size; i > 0; i--) {
+    index = (i - farmLog.error.indexFlashLED + flash_led_size) % flash_led_size;
+    jout("\t\tFlash LED Event %" PRIuMAX ":\n", static_cast<uintmax_t>(flash_led_size - i));
+    jout("\t\t\tEvent Information: 0x%016" PRIx64 "\n", farmLog.error.flashLEDArray[index]);
+    jout("\t\t\tTimestamp of Event %" PRIuMAX " (hours): %" PRIu64 "\n", static_cast<uintmax_t>(flash_led_size - i), farmLog.error.universalTimestampFlashLED[index]);
+    jout("\t\t\tPower Cycle Event %" PRIuMAX ": %" PRIx64 "\n", static_cast<uintmax_t>(flash_led_size - i), farmLog.error.powerCycleFlashLED[index]);
   }
 
   // Page 3 unrecoverable errors by-head
   jout("\t\tUncorrectable errors: %" PRIu64 "\n", farmLog.error.uncorrectables);
   jout("\t\tCumulative Lifetime Unrecoverable Read errors due to ERC: %" PRIu64 "\n", farmLog.error.cumulativeUnrecoverableReadERC);
   for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++) {
-     jout("\t\tCum Lifetime Unrecoverable by head %" PRIu8 ":\n", hd);
-     jout("\t\t\tCumulative Lifetime Unrecoverable Read Repeating: %" PRIu64 "\n", farmLog.error.cumulativeUnrecoverableReadRepeating[hd]);
-     jout("\t\t\tCumulative Lifetime Unrecoverable Read Unique: %" PRIu64 "\n", farmLog.error.cumulativeUnrecoverableReadUnique[hd]);
+    jout("\t\tCum Lifetime Unrecoverable by head %" PRIu8 ":\n", hd);
+    jout("\t\t\tCumulative Lifetime Unrecoverable Read Repeating: %" PRIu64 "\n", farmLog.error.cumulativeUnrecoverableReadRepeating[hd]);
+    jout("\t\t\tCumulative Lifetime Unrecoverable Read Unique: %" PRIu64 "\n", farmLog.error.cumulativeUnrecoverableReadUnique[hd]);
   }
 
   // Page 4: Environment Statistics
@@ -319,7 +332,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   farm_print_by_head_to_text("FVGA Skip Write Detect by Head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Skip Write Detect Threshold Exceeded by Head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Write Power On (hrs) by Head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("MR Head Resistance from Head", (int64_t *)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("MR Head Resistance from Head", (int64_t*)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Second MR Head Resistance by Head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Number of Reallocated Sectors by Head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Number of Reallocation Candidate Sectors by Head", farmLog.reliability.reallocationCandidates, farmLog.driveInformation.heads);
@@ -410,21 +423,21 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   jref3["total_flash_led_errors"] = farmLog.error.totalFlashLED;
 
   // Page 3 Flash-LED Information
-  for ( uint8_t i = flash_led_size; i > 0; i-- ) {
-     index = (i - farmLog.error.indexFlashLED + flash_led_size) % flash_led_size;
-     sprintf(buffer, "flash_led_event_%i", index);
-     json::ref jref3a = jref3[buffer];
-     jref3a["timestamp_of_event"] = farmLog.error.universalTimestampFlashLED[index];
-     jref3a["event_information"] = farmLog.error.flashLEDArray[index];
-     jref3a["power_cycle_event"] = farmLog.error.powerCycleFlashLED[index];
+  for (uint8_t i = flash_led_size; i > 0; i--) {
+    index = (i - farmLog.error.indexFlashLED + flash_led_size) % flash_led_size;
+    sprintf(buffer, "flash_led_event_%i", index);
+    json::ref jref3a = jref3[buffer];
+    jref3a["timestamp_of_event"] = farmLog.error.universalTimestampFlashLED[index];
+    jref3a["event_information"] = farmLog.error.flashLEDArray[index];
+    jref3a["power_cycle_event"] = farmLog.error.powerCycleFlashLED[index];
   }
 
   // Page 3 by-head parameters
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++){
-     sprintf(buffer, "cum_lifetime_unrecoverable_by_head_%i", hd);
-     json::ref jref3_hd = jref3[buffer];
-     jref3_hd["cum_lifetime_unrecoverable_read_repeating"] = farmLog.error.cumulativeUnrecoverableReadRepeating[hd];
-     jref3_hd["cum_lifetime_unrecoverable_read_unique"] = farmLog.error.cumulativeUnrecoverableReadUnique[hd];
+  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++) {
+    sprintf(buffer, "cum_lifetime_unrecoverable_by_head_%i", hd);
+    json::ref jref3_hd = jref3[buffer];
+    jref3_hd["cum_lifetime_unrecoverable_read_repeating"] = farmLog.error.cumulativeUnrecoverableReadRepeating[hd];
+    jref3_hd["cum_lifetime_unrecoverable_read_unique"] = farmLog.error.cumulativeUnrecoverableReadUnique[hd];
   }
 
   // Page 4: Environment Statistics
@@ -475,7 +488,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   farm_print_by_head_to_json(jref5, buffer, "fvga_skip_write_detect_by_head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jref5, buffer, "skip_write_detect_threshold_exceeded_by_head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jref5, buffer, "write_workload_power_on_time_by_head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
-  farm_print_by_head_to_json(jref5, buffer, "mr_head_resistance_from_head", (int64_t *)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jref5, buffer, "mr_head_resistance_from_head", (int64_t*)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jref5, buffer, "second_mr_head_resistance_by_head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jref5, buffer, "number_of_reallocated_sectors_by_head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jref5, buffer, "number_of_reallocation_candidate_sectors_by_head", farmLog.reliability.reallocationCandidates, farmLog.driveInformation.heads);
@@ -487,31 +500,37 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
 /*
  *  Prints parsed FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
  *  drives already present in scsiFarmLog structure
- *  
+ *
  *  @param  farmLog:  Pointer to parsed farm log (const scsiFarmLog&)
  */
 void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
+  // Request feedback on FARM output on big-endian systems
+  if (isbigendian()) {
+    jinf("FARM support was not tested on Big Endian platforms by the developers.\n"
+         "Please report success/failure to " PACKAGE_BUGREPORT "\n\n");
+  }
+
   // Get device information
-  char serialNumber[sizeof(farmLog.driveInformation.serialNumber)+sizeof(farmLog.driveInformation.serialNumber2)+1];
+  char serialNumber[sizeof(farmLog.driveInformation.serialNumber) + sizeof(farmLog.driveInformation.serialNumber2) + 1];
   farm_format_id_string(serialNumber, farmLog.driveInformation.serialNumber, farmLog.driveInformation.serialNumber2);
 
-  char worldWideName[sizeof(farmLog.driveInformation.worldWideName)+sizeof(farmLog.driveInformation.worldWideName2)+3];
+  char worldWideName[sizeof(farmLog.driveInformation.worldWideName) + sizeof(farmLog.driveInformation.worldWideName2) + 3];
   sprintf(worldWideName, "0x%" PRIx64 "%" PRIx64, farmLog.driveInformation.worldWideName2, farmLog.driveInformation.worldWideName);
 
-  char firmwareRev[sizeof(farmLog.driveInformation.firmwareRev)+sizeof(farmLog.driveInformation.firmwareRev2)+1];
+  char firmwareRev[sizeof(farmLog.driveInformation.firmwareRev) + sizeof(farmLog.driveInformation.firmwareRev2) + 1];
   farm_format_id_string(firmwareRev, farmLog.driveInformation.firmwareRev, farmLog.driveInformation.firmwareRev2);
 
-  char deviceInterface[sizeof(farmLog.driveInformation.deviceInterface)+1];
+  char deviceInterface[sizeof(farmLog.driveInformation.deviceInterface) + 1];
   farm_format_id_string(deviceInterface, farmLog.driveInformation.deviceInterface);
 
-  char dateOfAssembly[sizeof(farmLog.driveInformation.dateOfAssembly)+1];
+  char dateOfAssembly[sizeof(farmLog.driveInformation.dateOfAssembly) + 1];
   farm_format_id_string(dateOfAssembly, farmLog.driveInformation.dateOfAssembly);
 
-  const char * formFactor = farm_get_form_factor(farmLog.driveInformation.factor); 
+  const char* formFactor = farm_get_form_factor(farmLog.driveInformation.factor);
 
-  const char * recordingType = farm_get_recording_type(farmLog.driveInformation2.driveRecordingType);
+  const char* recordingType = farm_get_recording_type(farmLog.driveInformation2.driveRecordingType);
 
-  char productID[sizeof(farmLog.driveInformation2.productID)*4+1];
+  char productID[sizeof(farmLog.driveInformation2.productID) * 4 + 1];
   farm_format_id_string(productID, farmLog.driveInformation2.productID);
   farm_format_id_string(&productID[strlen(productID)], farmLog.driveInformation2.productID2);
   farm_format_id_string(&productID[strlen(productID)], farmLog.driveInformation2.productID3);
@@ -621,19 +640,19 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
 
   // "By Head" Parameters
   jout("\tFARM Log \"By Head\" Information\n");
-  farm_print_by_head_to_text("MR Head Resistance", (int64_t *)farmLog.mrHeadResistance.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("Number of Reallocated Sectors", (int64_t *)farmLog.totalReallocations.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("Number of Reallocation Candidate Sectors", (int64_t *)farmLog.totalReallocationCanidates.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("Write Power On (hrs)", (int64_t *)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("Cum Lifetime Unrecoverable Read Repeating", (int64_t *)farmLog.cumulativeUnrecoverableReadRepeat.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("Cum Lifetime Unrecoverable Read Unique", (int64_t *)farmLog.cumulativeUnrecoverableReadUnique.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("Second MR Head Resistance", (int64_t *)farmLog.secondMRHeadResistance.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("MR Head Resistance", (int64_t*)farmLog.mrHeadResistance.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Number of Reallocated Sectors", (int64_t*)farmLog.totalReallocations.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Number of Reallocation Candidate Sectors", (int64_t*)farmLog.totalReallocationCanidates.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Write Power On (hrs)", (int64_t*)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Cum Lifetime Unrecoverable Read Repeating", (int64_t*)farmLog.cumulativeUnrecoverableReadRepeat.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Cum Lifetime Unrecoverable Read Unique", (int64_t*)farmLog.cumulativeUnrecoverableReadUnique.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Second MR Head Resistance", (int64_t*)farmLog.secondMRHeadResistance.headValue, farmLog.driveInformation.heads);
 
   // "By Actuator" Parameters
   const scsiFarmByActuator actrefs[] = {
     farmLog.actuator0, farmLog.actuator1, farmLog.actuator2, farmLog.actuator3
   };
-  for (uint8_t i = 0; i < sizeof(actrefs)/sizeof(actrefs[0]); i++) {
+  for (uint8_t i = 0; i < sizeof(actrefs) / sizeof(actrefs[0]); i++) {
     jout("\tFARM Log Actuator Information 0x%" PRIx64 "\n", actrefs[i].actuatorID);
     jout("\t\tHead Load Events: %" PRIu64 "\n", actrefs[i].headLoadEvents);
     jout("\t\tTimeStamp of last IDD test: %" PRIu64 "\n", actrefs[i].timelastIDDTest);
@@ -653,18 +672,18 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   }
 
   // "By Actuator" Flash LED Information
-  uint8_t index; 
+  uint8_t index;
   size_t flash_led_size;
   const scsiFarmByActuatorFLED fledrefs[] = {
     farmLog.actuatorFLED0, farmLog.actuatorFLED1, farmLog.actuatorFLED2, farmLog.actuatorFLED3
   };
-  for (uint8_t i = 0; i < sizeof(fledrefs)/sizeof(fledrefs[0]); i++) {
+  for (uint8_t i = 0; i < sizeof(fledrefs) / sizeof(fledrefs[0]); i++) {
     jout("\tFARM Log Actuator 0x%" PRIx64 " Flash LED Information\n", fledrefs[i].actuatorID);
     jout("\t\tTotal Flash LED Events: %" PRIu64 "\n", fledrefs[i].totalFlashLED);
     jout("\t\tIndex of Last Flash LED: %" PRIu64 "\n", fledrefs[i].indexFlashLED);
 
     flash_led_size = sizeof(fledrefs[i].flashLEDArray) / sizeof(fledrefs[i].flashLEDArray[0]);
-    for ( uint8_t j = flash_led_size; j > 0; j-- ) {
+    for (uint8_t j = flash_led_size; j > 0; j--) {
       index = (j - fledrefs[i].indexFlashLED + flash_led_size) % flash_led_size;
       jout("\t\tEvent %" PRIuMAX ":\n", static_cast<uintmax_t>(flash_led_size - j));
       jout("\t\t\tEvent Information: 0x%016" PRIx64 "\n", fledrefs[i].flashLEDArray[index]);
@@ -677,7 +696,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   const scsiFarmByActuatorReallocation ararefs[] = {
     farmLog.actuatorReallocation0, farmLog.actuatorReallocation1, farmLog.actuatorReallocation2, farmLog.actuatorReallocation3
   };
-  for (uint8_t i = 0; i < sizeof(ararefs)/sizeof(ararefs[0]); i++) {
+  for (uint8_t i = 0; i < sizeof(ararefs) / sizeof(ararefs[0]); i++) {
     jout("\tFARM Log Actuator 0x%" PRIx64 " Reallocation\n", ararefs[i].actuatorID);
     jout("\t\tNumber of Reallocated Sectors: %" PRIu64 "\n", ararefs[i].totalReallocations);
     jout("\t\tNumber of Reallocated Candidate Sectors: %" PRIu64 "\n", ararefs[i].totalReallocationCanidates);
@@ -790,16 +809,16 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   // "By Head" Parameters
   char buffer[128]; // Generic character buffer
   json::ref jrefh = jref["head_information"];
-  farm_print_by_head_to_json(jrefh, buffer, "mr_head_resistance", (int64_t *)farmLog.mrHeadResistance.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_json(jrefh, buffer, "number_of_reallocated_sectors", (int64_t *)farmLog.totalReallocations.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_json(jrefh, buffer, "number_of_reallocation_candidate_sectors", (int64_t *)farmLog.totalReallocationCanidates.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_json(jrefh, buffer, "write_power_on_(hrs)", (int64_t *)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_json(jrefh, buffer, "cum_lifetime_unrecoverable_read_repeating", (int64_t *)farmLog.cumulativeUnrecoverableReadRepeat.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_json(jrefh, buffer, "cum_lifetime_unrecoverable_read_unique", (int64_t *)farmLog.cumulativeUnrecoverableReadUnique.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_json(jrefh, buffer, "second_mr_head_resistance", (int64_t *)farmLog.secondMRHeadResistance.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "mr_head_resistance", (int64_t*)farmLog.mrHeadResistance.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "number_of_reallocated_sectors", (int64_t*)farmLog.totalReallocations.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "number_of_reallocation_candidate_sectors", (int64_t*)farmLog.totalReallocationCanidates.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "write_power_on_(hrs)", (int64_t*)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "cum_lifetime_unrecoverable_read_repeating", (int64_t*)farmLog.cumulativeUnrecoverableReadRepeat.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "cum_lifetime_unrecoverable_read_unique", (int64_t*)farmLog.cumulativeUnrecoverableReadUnique.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "second_mr_head_resistance", (int64_t*)farmLog.secondMRHeadResistance.headValue, farmLog.driveInformation.heads);
 
   // "By Actuator" Parameters
-  for (unsigned i = 0; i < sizeof(actrefs)/sizeof(actrefs[0]); i++) {
+  for (unsigned i = 0; i < sizeof(actrefs) / sizeof(actrefs[0]); i++) {
     sprintf(buffer, "actuator_information_%" PRIx64, actrefs[i].actuatorID);
     json::ref jrefa = jref[buffer];
     jrefa["head_load_events"] = actrefs[i].headLoadEvents;
@@ -820,7 +839,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   }
 
   // "By Actuator" Flash LED Information
-  for (unsigned i = 0; i < sizeof(fledrefs)/sizeof(fledrefs[0]); i++) {
+  for (unsigned i = 0; i < sizeof(fledrefs) / sizeof(fledrefs[0]); i++) {
     sprintf(buffer, "actuator_flash_led_information_%" PRIx64, fledrefs[i].actuatorID);
     json::ref jrefa = jref[buffer];
     jrefa["total_flash_led_events"] = fledrefs[i].totalFlashLED;
@@ -828,7 +847,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
 
     sprintf(buffer, "event_%" PRIx64, fledrefs[i].actuatorID);
     flash_led_size = sizeof(fledrefs[i].flashLEDArray) / sizeof(fledrefs[i].flashLEDArray[0]);
-    for ( uint8_t j = flash_led_size; j > 0; j-- ) {
+    for (uint8_t j = flash_led_size; j > 0; j--) {
       index = (j - fledrefs[i].indexFlashLED + flash_led_size) % flash_led_size;
       jrefa[buffer]["event_information"] = fledrefs[i].flashLEDArray[index];
       jrefa[buffer]["timestamp_of_event"] = fledrefs[i].universalTimestampFlashLED[index];
@@ -837,7 +856,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   }
 
   // "By Actuator" Reallocation Information
-  for (unsigned i = 0; i < sizeof(ararefs)/sizeof(ararefs[0]); i++) {
+  for (unsigned i = 0; i < sizeof(ararefs) / sizeof(ararefs[0]); i++) {
     sprintf(buffer, "actuator_reallocation_information_%" PRIx64, ararefs[i].actuatorID);
     json::ref jrefa = jref[buffer];
     jrefa["number_of_reallocated_sectors"] = ararefs[i].totalReallocations;
