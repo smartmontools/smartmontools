@@ -41,6 +41,7 @@ struct ata_print_options
   bool gp_logdir = false, smart_logdir = false;
   unsigned smart_ext_error_log = 0;
   unsigned smart_ext_selftest_log = 0;
+  bool smart_ext_selftest_log_all = false;
   bool retry_error_log = false, retry_selftest_log = false;
 
   std::vector<ata_log_request> log_requests;
@@ -49,6 +50,7 @@ struct ata_print_options
   std::vector<int> devstat_pages;
 
   unsigned pending_defects_log = 0;
+  bool pending_defects_log_all = false;
 
   bool sct_temp_sts = false, sct_temp_hist = false;
   int sct_erc_get = 0; // get(1), get_power_on(2)

@@ -179,11 +179,11 @@ static void Usage()
 "        Set output format for attributes: old, brief, hex[,id|val]\n\n"
 "  -l TYPE, --log=TYPE\n"
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
-"        xerror[,N][,error], xselftest[,N][,selftest], background,\n"
+"        xerror[,N][,error], xselftest[,N|all][,selftest], background,\n"
 "        sasphy[,reset], sataphy[,reset], scttemp[sts,hist],\n"
-"        scttempint,N[,p], scterc[,N,M][,p|reset], devstat[,N], defects[,N],\n"
-"        ssd, gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE\n"
-"        tapedevstat, zdevstat, envrep\n\n"
+"        scttempint,N[,p], scterc[,N,M][,p|reset], devstat[,N],\n"
+"        defects[,N|all], ssd, gplog,N[,RANGE], smartlog,N[,RANGE],\n"
+"        nvmelog,N,SIZE, tapedevstat, zdevstat, envrep\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -599,6 +599,8 @@ static int parse_options(int argc, char** argv, const char * & type,
           ataopts.pending_defects_log = 31; // Entries of first page
         else if (n2 == len && val <= 0xffff * 32 - 1)
           ataopts.pending_defects_log = val;
+        else if (!strcmp(optarg, "defects,all"))
+          ataopts.pending_defects_log_all = true;
         else
           badarg = true;
 
@@ -630,7 +632,18 @@ static int parse_options(int argc, char** argv, const char * & type,
           ataopts.retry_selftest_log = (n2 == len);
         }
         else
-          badarg = true;
+        {
+          sscanf(optarg, "xselftest,all%n,selftest%n", &n1, &n2);
+          if (n1 == len || n2 == len)
+          {
+            ataopts.smart_ext_selftest_log_all = true;
+            ataopts.retry_selftest_log = (n2 == len);
+          }
+          else
+          {
+            badarg = true;
+          }
+        }
 
       } else if (!strncmp(optarg, "scterc,", sizeof("scterc,")-1)) {
         int n1 = -1, n2 = -1, len = strlen(optarg);

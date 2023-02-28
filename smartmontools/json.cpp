@@ -68,7 +68,7 @@ json::ref::ref(const ref & base, const char * keystr)
 json::ref::ref(const ref & base, int index)
 : m_js(base.m_js), m_path(base.m_path)
 {
-  jassert(0 <= index && index < 10000); // Limit: large arrays not supported
+  jassert(0 <= index && index < (2 << 20)); // Limit: large arrays not supported
   m_path.push_back(node_info(index));
 }
 
