@@ -6161,6 +6161,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; ASMedia ASM1352-PM", // USB3->2xSATA
+    "0x174d:0x1352", // Evolveo Dion 2
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // LucidPort
   { "USB: ; LucidPORT USB300", // RaidSonic ICY BOX IB-110StU3-B, Sharkoon SATA QuickPort H3
     "0x1759:0x500[02]", // 0x5000: USB 2.0, 0x5002: USB 3.0
