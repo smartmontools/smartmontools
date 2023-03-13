@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 5420 2022-12-05 15:01:43Z chrfranke $
+# $Id: Makefile.am 5462 2023-03-13 10:45:06Z chrfranke $
 #
 
 @SET_MAKE@
@@ -66,6 +66,10 @@ smartctl_SOURCES = \
         dev_jmb39x_raid.cpp \
         dev_tunnelled.h \
         drivedb.h \
+        farmcmds.cpp \
+        farmcmds.h \
+        farmprint.cpp \
+        farmprint.h \
         json.cpp \
         json.h \
         knowndrives.cpp \

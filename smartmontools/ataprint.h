@@ -13,7 +13,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h 5192 2021-02-01 17:26:52Z chrfranke $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h 5462 2023-03-13 10:45:06Z chrfranke $\n"
 
 #include <vector>
 
@@ -102,6 +102,9 @@ struct ata_print_options
   bool sct_wcache_sct_set_pers = false; // persistent or volatile
   bool get_dsn = false; // print DSN status
   int set_dsn = 0; // disable(02h), enable(01h) DSN
+
+  bool farm_log = false;          // Seagate Field Access Reliability Metrics log (FARM) for ATA
+  bool farm_log_suggest = false;  // If -x/-xall or -a/-all is run, suggests FARM log if supported
 };
 
 int ataPrintMain(ata_device * device, const ata_print_options & options);

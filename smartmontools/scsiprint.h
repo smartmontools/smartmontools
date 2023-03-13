@@ -16,7 +16,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5454 2023-02-10 20:50:16Z dpgilbert $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5462 2023-03-13 10:45:06Z chrfranke $\n"
 
 // Options for scsiPrintMain
 struct scsi_print_options
@@ -60,6 +60,9 @@ struct scsi_print_options
   bool set_active = false;      // set drive to active
 
   int health_opt_count = 0;     // TapeAlert log page only read if this value > 1
+
+  bool farm_log = false;          // Seagate Field Access Reliability Metrics log (FARM) for SCSI
+  bool farm_log_suggest = false;  // If -x/-xall or -a/-all is run, suggests FARM log if supported
 };
 
 int scsiPrintMain(scsi_device * device, const scsi_print_options & options);

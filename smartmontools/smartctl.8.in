@@ -4,7 +4,7 @@ Copyright (C) 2004-23 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5452 2023-02-10 06:18:05Z dpgilbert $
+$Id: smartctl.8.in 5462 2023-03-13 10:45:06Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1665,6 +1665,13 @@ indicator.  A value of 0 indicates as new condition while 100
 indicates the device is at the end of its lifetime as projected by the
 manufacturer.
 The value may reach 255.
+.Sp
+.I farm
+\- [Seagate ATA or SAS (SCSI) only][NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints predictive drive health metrics
+and values from Seagate's vendor-specific Field Access Reliability Metrics
+(FARM) log when used on a drive supporting FARM. ATA and SAS logs differ
+slightly. \fBWARNING: Some Seagate drives do not support FARM.\fP
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME], \-\-vendorattribute=ID,FORMAT...
 [ATA only] Sets a vendor-specific raw value print FORMAT, an optional
@@ -2590,4 +2597,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5452 2023-02-10 06:18:05Z dpgilbert $
+$Id: smartctl.8.in 5462 2023-03-13 10:45:06Z chrfranke $
