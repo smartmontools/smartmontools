@@ -67,7 +67,7 @@ static const char* farm_get_form_factor(const uint64_t formFactor) {
  *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
  */
 static void farm_print_by_head_to_text(const char* desc, const int64_t* paramArray, const uint64_t numHeads) {
-  for (uint8_t hd = 0; hd < numHeads; hd++) {
+  for (uint8_t hd = 0; hd < (uint8_t)numHeads; hd++) {
     jout("\t\t%s %" PRIu8 ": %" PRIu64 "\n", desc, hd, paramArray[hd]);
   }
 }
@@ -82,7 +82,7 @@ static void farm_print_by_head_to_text(const char* desc, const int64_t* paramArr
  *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
  */
 static void farm_print_by_head_to_json(json::ref jref, char* buffer, const char* desc, const int64_t* paramArray, const uint64_t numHeads) {
-  for (uint8_t hd = 0; hd < numHeads; hd++) {
+  for (uint8_t hd = 0; hd < (uint8_t)numHeads; hd++) {
     sprintf(buffer, "%s_%" PRIu8, desc, hd);
     jref[buffer] = paramArray[hd];
   }
@@ -279,7 +279,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   // Page 3 unrecoverable errors by-head
   jout("\t\tUncorrectable errors: %" PRIu64 "\n", farmLog.error.uncorrectables);
   jout("\t\tCumulative Lifetime Unrecoverable Read errors due to ERC: %" PRIu64 "\n", farmLog.error.cumulativeUnrecoverableReadERC);
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++) {
+  for (uint8_t hd = 0; hd < (uint8_t)farmLog.driveInformation.heads; hd++) {
     jout("\t\tCum Lifetime Unrecoverable by head %" PRIu8 ":\n", hd);
     jout("\t\t\tCumulative Lifetime Unrecoverable Read Repeating: %" PRIu64 "\n", farmLog.error.cumulativeUnrecoverableReadRepeating[hd]);
     jout("\t\t\tCumulative Lifetime Unrecoverable Read Unique: %" PRIu64 "\n", farmLog.error.cumulativeUnrecoverableReadUnique[hd]);
@@ -434,7 +434,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   }
 
   // Page 3 by-head parameters
-  for (uint8_t hd = 0; hd < farmLog.driveInformation.heads; hd++) {
+  for (uint8_t hd = 0; hd < (uint8_t)farmLog.driveInformation.heads; hd++) {
     sprintf(buffer, "cum_lifetime_unrecoverable_by_head_%i", hd);
     json::ref jref3_hd = jref3[buffer];
     jref3_hd["cum_lifetime_unrecoverable_read_repeating"] = farmLog.error.cumulativeUnrecoverableReadRepeating[hd];
