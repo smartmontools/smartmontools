@@ -293,6 +293,8 @@
     <ClCompile Include="..\..\dev_areca.cpp" />
     <ClCompile Include="..\..\dev_intelliprop.cpp" />
     <ClCompile Include="..\..\dev_jmb39x_raid.cpp" />
+    <ClCompile Include="..\..\farmcmds.cpp" />
+    <ClCompile Include="..\..\farmprint.cpp" />
     <ClCompile Include="..\..\json.cpp" />
     <ClCompile Include="..\..\nvmecmds.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp" />
@@ -498,6 +500,8 @@
     <ClInclude Include="..\..\aacraid.h" />
     <ClInclude Include="..\..\ataidentify.h" />
     <ClInclude Include="..\..\dev_areca.h" />
+    <ClInclude Include="..\..\farmcmds.h" />
+    <ClInclude Include="..\..\farmprint.h" />
     <ClInclude Include="..\..\freebsd_nvme_ioctl.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-static|Win32'">true</ExcludedFromBuild>

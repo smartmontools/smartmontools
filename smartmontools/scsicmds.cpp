@@ -76,8 +76,6 @@ chk_lsense_spc(scsi_device * device)
     return rp[7] ? SC_SUPPORT : SC_NO_SUPPORT; /* 4 + ls_cdb_byte3 */
 }
 
-#include <unistd.h>
-
 bool
 scsi_device::query_cmd_support()
 {
