@@ -159,8 +159,9 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   char serialNumber[sizeof(farmLog.driveInformation.serialNumber) + sizeof(farmLog.driveInformation.serialNumber2) + 1];
   farm_format_id_string(serialNumber, farm_byte_swap(farmLog.driveInformation.serialNumber2), farm_byte_swap(farmLog.driveInformation.serialNumber));
 
-  char worldWideName[sizeof(farmLog.driveInformation.worldWideName) + sizeof(farmLog.driveInformation.worldWideName2) + 3];
-  sprintf(worldWideName, "0x%" PRIx64 "%" PRIx64, farm_byte_swap(farmLog.driveInformation.worldWideName), farm_byte_swap(farmLog.driveInformation.worldWideName2));
+  char worldWideName[64];
+  snprintf(worldWideName, sizeof(worldWideName), "0x%" PRIx64 "%" PRIx64, farm_byte_swap(farmLog.driveInformation.worldWideName),
+           farm_byte_swap(farmLog.driveInformation.worldWideName2));
 
   char deviceInterface[sizeof(farmLog.driveInformation.deviceInterface)];
   farm_format_id_string(deviceInterface, farmLog.driveInformation.deviceInterface);
@@ -514,8 +515,9 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   char serialNumber[sizeof(farmLog.driveInformation.serialNumber) + sizeof(farmLog.driveInformation.serialNumber2) + 1];
   farm_format_id_string(serialNumber, farmLog.driveInformation.serialNumber, farmLog.driveInformation.serialNumber2);
 
-  char worldWideName[sizeof(farmLog.driveInformation.worldWideName) + sizeof(farmLog.driveInformation.worldWideName2) + 3];
-  sprintf(worldWideName, "0x%" PRIx64 "%" PRIx64, farmLog.driveInformation.worldWideName2, farmLog.driveInformation.worldWideName);
+  char worldWideName[64];
+  snprintf(worldWideName, sizeof(worldWideName), "0x%" PRIx64 "%" PRIx64, farmLog.driveInformation.worldWideName2,
+           farmLog.driveInformation.worldWideName);
 
   char firmwareRev[sizeof(farmLog.driveInformation.firmwareRev) + sizeof(farmLog.driveInformation.firmwareRev2) + 1];
   farm_format_id_string(firmwareRev, farmLog.driveInformation.firmwareRev, farmLog.driveInformation.firmwareRev2);

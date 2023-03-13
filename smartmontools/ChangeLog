@@ -1,5 +1,11 @@
 $Id$
 
+2023-03-13  Christian Franke  <franke@computer.org>
+
+	farmprint.cpp: Increase buffer size of 'worldWideName'
+	(GH code-scanning/316 and 317: Potentially overrunning write).
+	Use 'snprintf()' instead of 'sprintf()'.
+
 2023-03-13  Michael Cordle  <michael.a.cordle@seagate.com>
 
 	Large update adding pulling and parsing of Seagate's vendor-specific
