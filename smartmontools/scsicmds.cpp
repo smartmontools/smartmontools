@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "sg_unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5455 2023-02-12 05:13:17Z dpgilbert $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5464 2023-03-13 12:53:57Z chrfranke $"
   SCSICMDS_H_CVSID;
 
 static const char * logSenStr = "Log Sense";
@@ -75,8 +75,6 @@ chk_lsense_spc(scsi_device * device)
     /* check the "subpage code" field in LOG SENSE cdb usage data */
     return rp[7] ? SC_SUPPORT : SC_NO_SUPPORT; /* 4 + ls_cdb_byte3 */
 }
-
-#include <unistd.h>
 
 bool
 scsi_device::query_cmd_support()

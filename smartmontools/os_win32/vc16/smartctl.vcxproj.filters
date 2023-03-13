@@ -74,6 +74,8 @@
     <ClCompile Include="..\popen_win32.cpp">
       <Filter>os_win32</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\farmcmds.cpp" />
+    <ClCompile Include="..\..\farmprint.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\wmiquery.h">
@@ -127,6 +129,8 @@
     <ClInclude Include="..\..\freebsd_nvme_ioctl.h" />
     <ClInclude Include="..\..\linux_nvme_ioctl.h" />
     <ClInclude Include="..\..\netbsd_nvme_ioctl.h" />
+    <ClInclude Include="..\..\farmcmds.h" />
+    <ClInclude Include="..\..\farmprint.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\installer.nsi">
