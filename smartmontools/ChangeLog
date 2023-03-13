@@ -1,6 +1,10 @@
-$Id: ChangeLog 5464 2023-03-13 12:53:57Z chrfranke $
+$Id: ChangeLog 5465 2023-03-13 14:57:17Z chrfranke $
 
 2023-03-13  Christian Franke  <franke@computer.org>
+
+	farmprint.cpp: Fix loop conditions which may result in infinite
+	loops (GH code-scanning/312 - 315: Comparison of narrow type with
+	wide type in loop condition).
 
 	Fix MSVC builds.
 	os_win32/vc*/smartctl.vcxproj*: Add new FARM files.
