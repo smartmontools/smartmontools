@@ -255,7 +255,11 @@ struct scsi_supp_log_pages {
 
 /* Seagate vendor specific log pages. */
 #define SEAGATE_CACHE_LPAGE                 0x37
+#define SEAGATE_FARM_LPAGE                  0x3d
 #define SEAGATE_FACTORY_LPAGE               0x3e
+
+/* Seagate vendor specific log sub-pages. */
+#define SEAGATE_FARM_CURRENT_L_SPAGE        0x3     /* 0x3d,0x3 */
 
 /* Log page response lengths */
 #define LOG_RESP_SELF_TEST_LEN 0x194

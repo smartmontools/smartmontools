@@ -1,5 +1,28 @@
 $Id$
 
+2023-03-13  Michael Cordle  <michael.a.cordle@seagate.com>
+
+	Large update adding pulling and parsing of Seagate's vendor-specific
+	Field Access Reliability Metrics (FARM) log to supported ATA and SCSI
+	drives (GH pull/180).
+	Running smartctl with '-l farm' will print the top predictive metrics
+	from FARM for drive health monitoring. Can be printed with plain-text
+	or JSON ('-j'). FARM can also be printed with '-a' and '-x', but no
+	error messages will be printed, unlike '-l farm'.
+
+	farmcmds.h: Add structures to store FARM data.
+	farmcmds.cpp: Add functions to pull FARM data from drive.
+	farmprint.h: Add function declarations for printing FARM data.
+	farmprint.cpp: Add function definitions for printing FARM data.
+	ataprint.h: Add checking FARM command-line option.
+	ataprint.cpp: Add checking if drive is Seagate and supports FARM.
+	scsiprint.h: Add checking FARM command-line option.
+	scsiprint.cpp: Add checking if drive is Seagate and supports FARM.
+	smartctl.cpp: Add command-line option parsing for FARM.
+	smartctl.8.in: Add '-l farm' description to manual.
+	Makefile.am: Add new FARM files.
+	AUTHORS: Add myself and Natan Lidukhover to list of contributors.
+
 2023-02-17  Steven Song  <steven.song@3snic.com>
 
 	os_linux.cpp: Fix CK_COND issue for SATA disk and use C++11 or

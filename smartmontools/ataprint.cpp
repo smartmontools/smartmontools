@@ -30,6 +30,9 @@
 #include "utility.h"
 #include "knowndrives.h"
 
+#include "farmcmds.h"
+#include "farmprint.h"
+
 const char * ataprint_cpp_cvsid = "$Id$"
                                   ATAPRINT_H_CVSID;
 
@@ -3440,6 +3443,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        || options.devstat_ssd_page
        || !options.devstat_pages.empty()
        || options.pending_defects_log
+       || options.farm_log
   );
 
   unsigned i;
@@ -3467,6 +3471,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (!(   options.drive_info || options.show_presets
         || need_smart_support || need_smart_logdir
         || need_gp_logdir     || need_sct_support
+        || options.farm_log
         || options.sataphy
         || options.identify_word_level >= 0
         || options.get_set_used                      )) {
@@ -4488,7 +4493,41 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         PrintSataPhyEventCounters(log_11, options.sataphy_reset);
     }
   }
-
+  // Print ATA FARM log for Seagate ATA drive
+  if (options.farm_log || options.farm_log_suggest) {
+    bool farm_supported = true;
+    // Check if drive is a Seagate drive
+    if (ataIsSeagate(drive, dbentry)) {
+      unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
+      // Check if the Seagate drive is one that supports FARM
+      if (!nsectors) {
+        if (options.farm_log) {
+          jout("\nFARM log (GP Log 0xA6) not supported\n\n");
+        }
+        farm_supported = false;
+      } else {
+        // If -x/-xall or -a/-all is run without explicit -l farm, suggests FARM log
+        if (options.farm_log_suggest && !options.farm_log) {
+          jout("Seagate FARM log supported [try: -l farm]\n\n");
+          // Otherwise, actually pull the FARM log
+        } else {
+          ataFarmLog farmLog;
+          if (!ataReadFarmLog(device, farmLog, nsectors)) {
+            jout("\nRead FARM log (GP Log 0xA6) failed\n\n");
+            farm_supported = false;
+          } else {
+            ataPrintFarmLog(farmLog);
+          }
+        }
+      }
+    } else {
+      if (options.farm_log) {
+        jout("FARM log (GP Log 0xA6) not supported for non-Seagate drives\n\n");
+      }
+      farm_supported = false;
+    }
+    jglb["seagate_farm_log"]["supported"] = farm_supported;
+  }
   // Set to standby (spindown) mode and set standby timer if not done above
   // (Above commands may spinup drive)
   if (options.set_standby_now) {

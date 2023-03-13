@@ -1665,6 +1665,13 @@ indicator.  A value of 0 indicates as new condition while 100
 indicates the device is at the end of its lifetime as projected by the
 manufacturer.
 The value may reach 255.
+.Sp
+.I farm
+\- [Seagate ATA or SAS (SCSI) only][NEW EXPERIMENTAL SMARTCTL FEATURE]
+prints predictive drive health metrics
+and values from Seagate's vendor-specific Field Access Reliability Metrics
+(FARM) log when used on a drive supporting FARM. ATA and SAS logs differ
+slightly. \fBWARNING: Some Seagate drives do not support FARM.\fP
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME], \-\-vendorattribute=ID,FORMAT...
 [ATA only] Sets a vendor-specific raw value print FORMAT, an optional

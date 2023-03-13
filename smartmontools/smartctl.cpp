@@ -183,7 +183,7 @@ static void Usage()
 "        sasphy[,reset], sataphy[,reset], scttemp[sts,hist],\n"
 "        scttempint,N[,p], scterc[,N,M][,p|reset], devstat[,N], defects[,N],\n"
 "        ssd, gplog,N[,RANGE], smartlog,N[,RANGE], nvmelog,N,SIZE\n"
-"        tapedevstat, zdevstat, envrep\n\n"
+"        tapedevstat, zdevstat, envrep, farm\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -251,7 +251,7 @@ static std::string getvalidarglist(int opt)
            "scttemp[sts,hist], scttempint,N[,p], "
            "scterc[,N,M][,p|reset], devstat[,N], defects[,N], "
            "ssd, gplog,N[,RANGE], smartlog,N[,RANGE], "
-           "nvmelog,N,SIZE, tapedevstat, zdevstat, envrep";
+           "nvmelog,N,SIZE, tapedevstat, zdevstat, envrep, farm";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -559,6 +559,8 @@ static int parse_options(int argc, char** argv, const char * & type,
         ataopts.sct_temp_sts = true;
       } else if (!strcmp(optarg,"scttemphist")) {
         ataopts.sct_temp_hist = true;
+      } else if (!strcmp(optarg,"farm")) {
+        ataopts.farm_log = scsiopts.farm_log = true; // Seagate Field Access Reliability Metrics (FARM) log
       } else if (!strcmp(optarg,"tapealert")) {
         scsiopts.tape_alert = true;
       } else if (!strcmp(optarg,"tapedevstat")) {
@@ -725,6 +727,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       ataopts.smart_selective_selftest_log = true;
       /* scsiopts.smart_background_log = true; */
       scsiopts.smart_ss_media_log = true;
+      ataopts.farm_log_suggest = scsiopts.farm_log_suggest = true;  // Suggests FARM log, if supported (does not pull log!)
       break;
     case 'x':
       ataopts.drive_info           = scsiopts.drive_info          = nvmeopts.drive_info          = true;
@@ -754,6 +757,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       scsiopts.smart_background_log = true;
       scsiopts.smart_ss_media_log = true;
       scsiopts.sasphy = true;
+      ataopts.farm_log = scsiopts.farm_log = true;  // Helper for FARM debug messages
       scsiopts.smart_env_rep = true;
       scsiopts.scsi_pending_defects = true;
       scsiopts.tape_device_stats = true;

@@ -60,6 +60,9 @@ struct scsi_print_options
   bool set_active = false;      // set drive to active
 
   int health_opt_count = 0;     // TapeAlert log page only read if this value > 1
+
+  bool farm_log = false;          // Seagate Field Access Reliability Metrics log (FARM) for SCSI
+  bool farm_log_suggest = false;  // If -x/-xall or -a/-all is run, suggests FARM log if supported
 };
 
 int scsiPrintMain(scsi_device * device, const scsi_print_options & options);

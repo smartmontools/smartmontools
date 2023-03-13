@@ -28,6 +28,9 @@
 #include "utility.h"
 #include "sg_unaligned.h"
 
+#include "farmcmds.h"
+#include "farmprint.h"
+
 #define GBUF_SIZE 65532
 
 const char * scsiprint_c_cvsid = "$Id$"
@@ -71,6 +74,7 @@ static bool gGenStatsAndPerfLPage = false;
 /* Vendor specific log pages */
 static bool gSeagateCacheLPage = false;
 static bool gSeagateFactoryLPage = false;
+static bool gSeagateFarmLPage = false;
 
 /* Mode pages supported */
 static bool gIecMPage = true;    /* N.B. assume it until we know otherwise */
@@ -336,6 +340,16 @@ skip_subpages:
                 }
                 if (seagate_or_hitachi())
                     gSeagateFactoryLPage = true;
+                break;
+            case SEAGATE_FARM_LPAGE:
+                if (scsiIsSeagate(scsi_vendor)) {
+                    if (SEAGATE_FARM_CURRENT_L_SPAGE == supp_lpg.subpage_code) {
+                        gSeagateFarmLPage = true;
+                    } else if (SUPP_SPAGE_L_SPAGE != supp_lpg.subpage_code) {
+                        ++num_unreported;
+                        ++num_unreported_spg;
+                    }
+                }
                 break;
             default:
                 if (supp_lpg.page_code < 0x30) {     /* don't count VS pages */
@@ -3536,7 +3550,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
     supported_vpd_pages_p = new supported_vpd_pages(device);
 
     res = scsiGetDriveInfo(device, &peripheral_type, is_zbc,
-                           options.drive_info);
+                           options.drive_info || options.farm_log);
     if (res) {
         if (2 == res)
             return 0;
@@ -3731,6 +3745,32 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                 scsiPrintSeagateFactoryLPage(device);
         }
         any_output = true;
+    }
+    // Print SCSI FARM log for Seagate SCSI drive
+    if (options.farm_log || options.farm_log_suggest) {
+        bool farm_supported = true;
+        // Check if drive is a Seagate drive that supports FARM
+        if (gSeagateFarmLPage) {
+            // If -x/-xall or -a/-all is run without explicit -l farm, suggests FARM log
+            if (options.farm_log_suggest && !options.farm_log) {
+                jout("Seagate FARM log supported [try: -l farm]\n\n");
+            // Otherwise, actually pull the FARM log
+            } else {
+                scsiFarmLog farmLog;
+                if (!scsiReadFarmLog(device, farmLog)) {
+                    jout("\nRead FARM log (GP Log 0xA6) failed\n\n");
+                    farm_supported = false;
+                } else {
+                    scsiPrintFarmLog(farmLog);
+                }
+            }
+        } else {
+            if (options.farm_log) {
+                jout("\nFARM log (SCSI log page 0x3D, sub-page 0x3) not supported\n\n");
+            }
+            farm_supported = false;
+        }
+        jglb["seagate_farm_log"]["supported"] = farm_supported;
     }
     if (options.smart_error_log || options.scsi_pending_defects) {
         if (options.smart_error_log) {
