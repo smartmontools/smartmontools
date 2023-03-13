@@ -1,6 +1,8 @@
-$Id: ChangeLog 5465 2023-03-13 14:57:17Z chrfranke $
+$Id: ChangeLog 5466 2023-03-13 15:04:07Z chrfranke $
 
 2023-03-13  Christian Franke  <franke@computer.org>
+
+	cppcheck.sh: Mark cppcheck 2.10 as tested.
 
 	farmprint.cpp: Fix loop conditions which may result in infinite
 	loops (GH code-scanning/312 - 315: Comparison of narrow type with
