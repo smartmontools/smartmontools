@@ -4,7 +4,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2019-22 Christian Franke
+# Copyright (C) 2019-23 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -63,7 +63,7 @@ fi
 ver=$("$cppcheck" --version) || exit 1
 ver=${ver##* }
 case $ver in
-  1.8[56]|2.[237]) ;;
+  1.8[56]|2.[237]|2.10) ;;
   *) echo "$myname: cppcheck $ver not tested with this script" ;;
 esac
 

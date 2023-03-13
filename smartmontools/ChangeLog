@@ -2,6 +2,8 @@ $Id$
 
 2023-03-13  Christian Franke  <franke@computer.org>
 
+	cppcheck.sh: Mark cppcheck 2.10 as tested.
+
 	farmprint.cpp: Fix loop conditions which may result in infinite
 	loops (GH code-scanning/312 - 315: Comparison of narrow type with
 	wide type in loop condition).
