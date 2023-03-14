@@ -81,9 +81,10 @@ static void farm_print_by_head_to_text(const char* desc, const int64_t* paramArr
  *  @param  paramArray:  Reference to int64_t array containing paramter values for each head (const int64_t *)
  *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
  */
-static void farm_print_by_head_to_json(const json::ref & jref, char* buffer, const char* desc, const int64_t* paramArray, const uint64_t numHeads) {
+static void farm_print_by_head_to_json(const json::ref & jref, char (& buffer)[128], const char* desc,
+                                       const int64_t* paramArray, const uint64_t numHeads) {
   for (uint8_t hd = 0; hd < (uint8_t)numHeads; hd++) {
-    sprintf(buffer, "%s_%" PRIu8, desc, hd);
+    snprintf(buffer, sizeof(buffer), "%s_%" PRIu8, desc, hd);
     jref[buffer] = paramArray[hd];
   }
 }
@@ -426,7 +427,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   // Page 3 Flash-LED Information
   for (uint8_t i = flash_led_size; i > 0; i--) {
     index = (i - farmLog.error.indexFlashLED + flash_led_size) % flash_led_size;
-    sprintf(buffer, "flash_led_event_%i", index);
+    snprintf(buffer, sizeof(buffer), "flash_led_event_%i", index);
     json::ref jref3a = jref3[buffer];
     jref3a["timestamp_of_event"] = farmLog.error.universalTimestampFlashLED[index];
     jref3a["event_information"] = farmLog.error.flashLEDArray[index];
@@ -435,7 +436,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
 
   // Page 3 by-head parameters
   for (uint8_t hd = 0; hd < (uint8_t)farmLog.driveInformation.heads; hd++) {
-    sprintf(buffer, "cum_lifetime_unrecoverable_by_head_%i", hd);
+    snprintf(buffer, sizeof(buffer), "cum_lifetime_unrecoverable_by_head_%i", hd);
     json::ref jref3_hd = jref3[buffer];
     jref3_hd["cum_lifetime_unrecoverable_read_repeating"] = farmLog.error.cumulativeUnrecoverableReadRepeating[hd];
     jref3_hd["cum_lifetime_unrecoverable_read_unique"] = farmLog.error.cumulativeUnrecoverableReadUnique[hd];
@@ -821,7 +822,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
 
   // "By Actuator" Parameters
   for (unsigned i = 0; i < sizeof(actrefs) / sizeof(actrefs[0]); i++) {
-    sprintf(buffer, "actuator_information_%" PRIx64, actrefs[i].actuatorID);
+    snprintf(buffer, sizeof(buffer), "actuator_information_%" PRIx64, actrefs[i].actuatorID);
     json::ref jrefa = jref[buffer];
     jrefa["head_load_events"] = actrefs[i].headLoadEvents;
     jrefa["timestamp_of_last_idd_test"] = actrefs[i].timelastIDDTest;
@@ -842,12 +843,12 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
 
   // "By Actuator" Flash LED Information
   for (unsigned i = 0; i < sizeof(fledrefs) / sizeof(fledrefs[0]); i++) {
-    sprintf(buffer, "actuator_flash_led_information_%" PRIx64, fledrefs[i].actuatorID);
+    snprintf(buffer, sizeof(buffer), "actuator_flash_led_information_%" PRIx64, fledrefs[i].actuatorID);
     json::ref jrefa = jref[buffer];
     jrefa["total_flash_led_events"] = fledrefs[i].totalFlashLED;
     jrefa["index_of_last_flash_led"] = fledrefs[i].indexFlashLED;
 
-    sprintf(buffer, "event_%" PRIx64, fledrefs[i].actuatorID);
+    snprintf(buffer, sizeof(buffer), "event_%" PRIx64, fledrefs[i].actuatorID);
     flash_led_size = sizeof(fledrefs[i].flashLEDArray) / sizeof(fledrefs[i].flashLEDArray[0]);
     for (uint8_t j = flash_led_size; j > 0; j--) {
       index = (j - fledrefs[i].indexFlashLED + flash_led_size) % flash_led_size;
@@ -859,7 +860,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
 
   // "By Actuator" Reallocation Information
   for (unsigned i = 0; i < sizeof(ararefs) / sizeof(ararefs[0]); i++) {
-    sprintf(buffer, "actuator_reallocation_information_%" PRIx64, ararefs[i].actuatorID);
+    snprintf(buffer, sizeof(buffer), "actuator_reallocation_information_%" PRIx64, ararefs[i].actuatorID);
     json::ref jrefa = jref[buffer];
     jrefa["number_of_reallocated_sectors"] = ararefs[i].totalReallocations;
     jrefa["number_of_reallocated_candidate_sectors"] = ararefs[i].totalReallocationCanidates;

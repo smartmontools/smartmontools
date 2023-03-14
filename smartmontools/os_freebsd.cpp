@@ -2037,7 +2037,7 @@ bool freebsd_smart_interface::get_nvme_devlist(smart_device_list & devlist,
   char ctrlpath[64];
 
   for (int ctrlr = 0;; ctrlr++) {
-    sprintf(ctrlpath, "%s%d", NVME_CTRLR_PREFIX, ctrlr);
+    snprintf(ctrlpath, sizeof(ctrlpath), "%s%d", NVME_CTRLR_PREFIX, ctrlr);
     int fd = ::open(ctrlpath, O_RDWR);
     if (fd < 0)
        break;
@@ -2059,9 +2059,9 @@ bool freebsd_smart_interface::get_dev_megaraid(smart_device_list & devlist)
 
   // trying to add devices on first 32 buses, same as StorCLI does
   for(unsigned i = 0; i <=32; i++) {
-      sprintf(ctrlpath, "%s%u", MFI_CTRLR_PREFIX, i);
+      snprintf(ctrlpath, sizeof(ctrlpath), "%s%u", MFI_CTRLR_PREFIX, i);
       megaraid_pd_add_list(ctrlpath, devlist);
-      sprintf(ctrlpath, "%s%u", MRSAS_CTRLR_PREFIX, i);
+      snprintf(ctrlpath, sizeof(ctrlpath), "%s%u", MRSAS_CTRLR_PREFIX, i);
       megaraid_pd_add_list(ctrlpath, devlist);
   }
   return true;
