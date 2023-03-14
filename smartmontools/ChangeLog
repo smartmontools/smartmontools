@@ -1,4 +1,8 @@
-$Id: ChangeLog 5466 2023-03-13 15:04:07Z chrfranke $
+$Id: ChangeLog 5467 2023-03-14 19:49:17Z chrfranke $
+
+2023-03-14  Christian Franke  <franke@computer.org>
+
+	farmprint.cpp: Avoid unneeded copy of json::ref.
 
 2023-03-13  Christian Franke  <franke@computer.org>
 
