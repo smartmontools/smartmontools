@@ -1,6 +1,9 @@
-$Id: ChangeLog 5467 2023-03-14 19:49:17Z chrfranke $
+$Id: ChangeLog 5468 2023-03-14 20:01:29Z chrfranke $
 
 2023-03-14  Christian Franke  <franke@computer.org>
+
+	farmprint.cpp, os_freebsd.cpp: Use 'snprintf()' instead of
+	'sprintf()'.
 
 	farmprint.cpp: Avoid unneeded copy of json::ref.
 
