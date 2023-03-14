@@ -1,5 +1,9 @@
 $Id$
 
+2023-03-14  Christian Franke  <franke@computer.org>
+
+	farmprint.cpp: Avoid unneeded copy of json::ref.
+
 2023-03-13  Christian Franke  <franke@computer.org>
 
 	cppcheck.sh: Mark cppcheck 2.10 as tested.

@@ -81,7 +81,7 @@ static void farm_print_by_head_to_text(const char* desc, const int64_t* paramArr
  *  @param  paramArray:  Reference to int64_t array containing paramter values for each head (const int64_t *)
  *  @param  numHeads:  Constant 64-bit integer representing ASCII description of the device interface (const uint64_t)
  */
-static void farm_print_by_head_to_json(json::ref jref, char* buffer, const char* desc, const int64_t* paramArray, const uint64_t numHeads) {
+static void farm_print_by_head_to_json(const json::ref & jref, char* buffer, const char* desc, const int64_t* paramArray, const uint64_t numHeads) {
   for (uint8_t hd = 0; hd < (uint8_t)numHeads; hd++) {
     sprintf(buffer, "%s_%" PRIu8, desc, hd);
     jref[buffer] = paramArray[hd];
