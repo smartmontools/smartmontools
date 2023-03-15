@@ -32,18 +32,44 @@ static void jassert_failed(int line, const char * expr)
 
 #define jassert(expr) (!(expr) ? jassert_failed(__LINE__, #expr) : (void)0)
 
+/* Convert to json "snake" format. It will contains only lower case ASCII
+ * alphanumeric characters with all other characters replaced with the
+ * underscore character. Further, all leading and trailing underscores are
+ * removed and repeated underscores with the name are reduced to a single
+ * underscore.
+ * For example "$Output power  (mW)" becomes "output_power_mw". */
 std::string json::str2key(const char * str)
 {
-  std::string key = str;
-  for (char & c : key) {
-    if (('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || c == '_')
-      continue;
-    if ('A' <= c && c <= 'Z')
-      c += 'a' - 'A';
-    else
-      c = '_';
+  bool prev_underscore = false;
+  size_t i_sz = strlen(str);
+  int o_ind = 0;
+  /* resultant string's size will be <= input string */
+  std::string res(i_sz, ' ');
+  const char * cp = str;
+  static const int lower_alpha_off = 'a' - 'A';
+  
+  for ( ; *cp ; ++cp) {
+    char c = *cp;
+
+    if (('0' <= c && c <= '9') || ('a' <= c && c <= 'z')) {
+      res[o_ind++] = c;
+      prev_underscore = false;
+    } else if ('A' <= c && c <= 'Z') {
+      res[o_ind++] = c + lower_alpha_off;
+      prev_underscore = false;
+    } else {
+      if ((o_ind > 0) && ! prev_underscore) {
+        res[o_ind++] = '_';
+        prev_underscore = true;
+      }
+    }
   }
-  return key;
+  if (o_ind == 0)       /* leave single '_' in degenerate case */
+    res[o_ind++] = '_';
+  else if (res[o_ind - 1] == '_')
+    --o_ind;            /* may be trailing underscore, remove */
+  res.erase(o_ind);
+  return res;
 }
 
 json::ref::ref(json & js)

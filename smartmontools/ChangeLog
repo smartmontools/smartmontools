@@ -1,5 +1,17 @@
 $Id$
 
+2023-03-15  Douglas Gilbert  <dgilbert@interlog.com>
+
+	expand functionality of json::str2key() . It's job is to convert
+	a C string to a JSON name in "snake" format. That format is lower
+	case alphanumeric with all other characters replaced by
+	an '_' (underscore). This change further removes all leading and
+	trailing underscores plus repeated underscores within the name are
+	compressed to a single underscore. In the degenerate case, for
+	example a string like "!@#$" (i.e. no alphanumeric characters), a
+	single underscore is output (but is most likely an error). Typical
+	example: "$Output power  (mW)" is converted to "output_power_mw".
+
 2023-03-14  Christian Franke  <franke@computer.org>
 
 	farmprint.cpp, os_freebsd.cpp: Use 'snprintf()' instead of
