@@ -1,4 +1,8 @@
-$Id: ChangeLog 5469 2023-03-15 20:00:35Z dpgilbert $
+$Id: ChangeLog 5470 2023-03-21 19:47:46Z dpgilbert $
+
+2023-03-21  Douglas Gilbert  <dgilbert@interlog.com>
+
+	tweak to suppress a warning from gcc/g++ 9.3
 
 2023-03-15  Douglas Gilbert  <dgilbert@interlog.com>
 

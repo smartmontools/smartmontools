@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "sg_unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5464 2023-03-13 12:53:57Z chrfranke $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5470 2023-03-21 19:47:46Z dpgilbert $"
   SCSICMDS_H_CVSID;
 
 static const char * logSenStr = "Log Sense";
@@ -257,7 +257,7 @@ dStrHexHelper(const uint8_t * up, int len, int no_ascii,
     int cpos = cpstart;
     int bpos = bpstart;
     int i, k, blen;
-    char e[line_len + 2];
+    char e[line_len + 4];
     static const int elen = sizeof(e);
 
     if (len <= 0)
