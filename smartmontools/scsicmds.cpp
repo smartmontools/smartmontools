@@ -257,7 +257,7 @@ dStrHexHelper(const uint8_t * up, int len, int no_ascii,
     int cpos = cpstart;
     int bpos = bpstart;
     int i, k, blen;
-    char e[line_len + 2];
+    char e[line_len + 4];
     static const int elen = sizeof(e);
 
     if (len <= 0)

@@ -1,5 +1,9 @@
 $Id$
 
+2023-03-21  Douglas Gilbert  <dgilbert@interlog.com>
+
+	tweak to suppress a warning from gcc/g++ 9.3
+
 2023-03-15  Douglas Gilbert  <dgilbert@interlog.com>
 
 	expand functionality of json::str2key() . It's job is to convert
