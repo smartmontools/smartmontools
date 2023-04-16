@@ -3657,6 +3657,13 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 22,raw48,Helium_Level" // not: WD80EDAZ
   },
+  { "Western Digital Ultrastar (DC HC560)", // WD white label, tested with
+      // WDC WD200EDGZ-11BLDS0/85.00A85 (Elements 0x1058:0x25a3)
+    "WDC WD(200)E(DG)Z-.*",
+    "", "",
+    "-v 22,raw48,Helium_Level "
+    "-v 90,hex48,NAND_Master"
+  },
   { "HGST Ultrastar DC HC520 (He12)", // tested with HGST HUH721212ALE600/LEGNT3D0
     "HGST HUH721212AL[EN]60[014]",
     "", "",
