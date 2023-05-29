@@ -14,6 +14,7 @@
 #include "dev_tunnelled.h"
 #include "atacmds.h" // ATA_SMART_CMD/STATUS
 #include "scsicmds.h" // scsi_cmnd_io
+#include "nvmecmds.h" // nvme_status_*()
 #include "utility.h"
 
 #include <errno.h>
@@ -21,7 +22,7 @@
 #include <stdlib.h> // realpath()
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5449 2023-02-05 14:44:07Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5471 2023-05-29 12:22:41Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -229,12 +230,11 @@ bool scsi_device::scsi_pass_through_and_check(scsi_cmnd_io * iop,
 
 bool nvme_device::set_nvme_err(nvme_cmd_out & out, unsigned status, const char * msg /* = 0 */)
 {
-  if (!status)
-    throw std::logic_error("nvme_device: set_nvme_err() called with status=0");
-
   out.status = status;
   out.status_valid = true;
-  return set_err(EIO, "%sNVMe Status 0x%02x", (msg ? msg : ""), status);
+  char buf[64];
+  return set_err(nvme_status_to_errno(status), "%s%s (0x%03x)", (msg ? msg : ""),
+                 nvme_status_to_info_str(buf, status), status);
 }
 
 

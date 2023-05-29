@@ -1,4 +1,11 @@
-$Id: ChangeLog 5470 2023-03-21 19:47:46Z dpgilbert $
+$Id: ChangeLog 5471 2023-05-29 12:22:41Z chrfranke $
+
+2023-05-29  Christian Franke  <franke@computer.org>
+
+	Add error messages for NVMe status values.
+	dev_interface.cpp: Add message to 'set_nvme_err()'.
+	nvmecmds.cpp, nvmecmds.h: Add functions 'nvme_status_*()'.
+	nvmeprint.cpp: Add message to '-l error' output (related: #1300).
 
 2023-03-21  Douglas Gilbert  <dgilbert@interlog.com>
 
