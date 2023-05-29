@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-22 Christian Franke
+ * Copyright (C) 2016-23 Christian Franke
  *
  * Original code from <linux/nvme.h>:
  *   Copyright (C) 2011-2014 Intel Corporation
@@ -18,6 +18,8 @@
 
 #include "static_assert.h"
 
+#include <errno.h>
+#include <stddef.h>
 #include <stdint.h>
 
 // The code below was originally imported from <linux/nvme.h> include file from
@@ -277,5 +279,23 @@ bool nvme_read_self_test_log(nvme_device * device, uint32_t nsid,
 
 // Start Self-test
 bool nvme_self_test(nvme_device * device, uint8_t stc, uint32_t nsid);
+
+// Return true if NVMe status indicates an error.
+constexpr bool nvme_status_is_error(uint16_t status)
+  { return !!(status & 0x07ff); }
+
+// Return errno for NVMe status SCT/SC fields: 0, EINVAL or EIO.
+int nvme_status_to_errno(uint16_t status);
+
+// Return error message for NVMe status SCT/SC fields or nullptr if unknown.
+const char * nvme_status_to_str(uint16_t status);
+
+// Return error message for NVMe status SCT/SC fields or explanatory message if unknown.
+const char * nvme_status_to_info_str(char * buf, size_t bufsize, uint16_t status);
+
+// Version of above for fixed size buffers.
+template <size_t SIZE>
+inline const char * nvme_status_to_info_str(char (& buf)[SIZE], unsigned status)
+  { return nvme_status_to_info_str(buf, SIZE, status); }
 
 #endif // NVMECMDS_H

@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-22 Christian Franke
+ * Copyright (C) 2016-23 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -449,7 +449,7 @@ static void print_error_log(const nvme_error_log_page * error_log,
     return;
   }
 
-  pout("Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS\n");
+  pout("Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS  Message\n");
   int unused = 0;
   for (unsigned i = 0; i < valid_entries; i++) {
     const nvme_error_log_page & e = error_log[i];
@@ -480,8 +480,10 @@ static void print_error_log(const nvme_error_log_page * error_log,
     if (e.vs != 0x00)
       snprintf(vs, sizeof(vs), "0x%02x", e.vs);
 
-    pout("%3u %10" PRIu64 " %5s %7s %7s %6s %12s %5s %5s\n",
-         i, e.error_count, sq, cm, st, pe, lb, ns, vs);
+    char buf[64];
+    pout("%3u %10" PRIu64 " %5s %7s %7s %6s %12s %5s %5s  %s\n",
+         i, e.error_count, sq, cm, st, pe, lb, ns, vs,
+         nvme_status_to_info_str(buf, e.status_field >> 1));
   }
 
   if (valid_entries == read_entries && read_entries < max_entries)
