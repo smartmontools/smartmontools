@@ -1,4 +1,10 @@
-$Id: ChangeLog 5471 2023-05-29 12:22:41Z chrfranke $
+$Id: ChangeLog 5472 2023-05-30 11:55:00Z chrfranke $
+
+2023-05-30  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Don't report new non-device related errors as critical
+	(#1222).
+	smartd.conf.5.in: Document new functionality.
 
 2023-05-29  Christian Franke  <franke@computer.org>
 
