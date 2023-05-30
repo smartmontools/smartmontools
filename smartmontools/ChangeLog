@@ -1,5 +1,11 @@
 $Id$
 
+2023-05-30  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Don't report new non-device related errors as critical
+	(#1222).
+	smartd.conf.5.in: Document new functionality.
+
 2023-05-29  Christian Franke  <franke@computer.org>
 
 	Add error messages for NVMe status values.

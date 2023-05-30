@@ -2,7 +2,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-22 Christian Franke
+ * Copyright (C) 2008-23 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -448,6 +448,9 @@ struct dev_config
   attribute_flags monitor_attr_flags;     // MONITOR_* flags for each attribute
 
   ata_vendor_attr_defs attribute_defs;    // -v options
+
+  // NVMe only
+  unsigned nvme_err_log_max_entries{};    // size of error log
 };
 
 // Number of allowed mail message types
@@ -2678,6 +2681,74 @@ static int nvme_get_max_temp_kelvin(const nvme_smart_log & smart_log)
   return k;
 }
 
+// Check the NVMe Error Information log for device related errors.
+static bool check_nvme_error_log(const dev_config & cfg, dev_state & state, nvme_device * nvmedev,
+  uint64_t newcnt = 0)
+{
+  // Limit transfer size to one page (64 entries) to avoid problems with
+  // limits of NVMe pass-through layer or too low MDTS values.
+  unsigned want_entries = 64;
+  if (want_entries > cfg.nvme_err_log_max_entries)
+    want_entries = cfg.nvme_err_log_max_entries;
+  raw_buffer error_log_buf(want_entries * sizeof(nvme_error_log_page));
+  nvme_error_log_page * error_log =
+    reinterpret_cast<nvme_error_log_page *>(error_log_buf.data());
+  unsigned read_entries = nvme_read_error_log(nvmedev, error_log, want_entries, false /*!lpo_sup*/);
+  if (!read_entries) {
+    PrintOut(LOG_INFO, "Device: %s, Read %u entries from Error Information Log failed\n",
+      cfg.name.c_str(), want_entries);
+    return false;
+  }
+
+  if (!newcnt)
+    return true; // Support check only
+
+  // Scan log, find device related errors
+  uint64_t oldcnt = state.nvme_err_log_entries, mincnt = newcnt;
+  int err = 0, ign = 0;
+  for (unsigned i = 0; i < read_entries; i++) {
+    const nvme_error_log_page & e = error_log[i];
+    if (!e.error_count)
+      continue; // unused
+    if (e.error_count <= oldcnt)
+      break; // stop on first old entry
+    if (e.error_count < mincnt)
+      mincnt = e.error_count; // min known error
+    if (e.error_count > newcnt)
+      newcnt = e.error_count; // adjust maximum
+    uint16_t status = e.status_field >> 1;
+    if (!nvme_status_is_error(status) || nvme_status_to_errno(status) == EINVAL) {
+      ign++; // Not a device related error
+      continue;
+    }
+
+    // Log the most recent 8 errors
+    if (++err > 8)
+      continue;
+    char buf[64];
+    PrintOut(LOG_INFO, "Device: %s, NVMe error [%u], count %" PRIu64 ", status 0x%04x: %s\n",
+      cfg.name.c_str(), i, e.error_count, e.status_field,
+      nvme_status_to_info_str(buf, e.status_field >> 1));
+  }
+
+  std::string msg = strprintf("Device: %s, NVMe error count increased from %" PRIu64 " to %" PRIu64
+                              " (%d new, %d ignored, %" PRIu64 " unknown)",
+                              cfg.name.c_str(), oldcnt, newcnt, err, ign,
+                              (mincnt > oldcnt + 1 ? mincnt - oldcnt - 1 : 0));
+  // LOG_CRIT only if device related errors are found
+  if (!err) {
+    PrintOut(LOG_INFO, "%s\n", msg.c_str());
+  }
+  else {
+    PrintOut(LOG_CRIT, "%s\n", msg.c_str());
+    MailWarning(cfg, state, 4, "%s", msg.c_str());
+  }
+
+  state.nvme_err_log_entries = newcnt;
+  state.must_write = true;
+  return true;
+}
+
 static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvmedev,
                           const dev_config_vector * prev_cfgs)
 {
@@ -2739,8 +2810,14 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   }
 
   // Init total error count
+  cfg.nvme_err_log_max_entries = id_ctrl.elpe + 1; // 0's based value
   if (cfg.errorlog || cfg.xerrorlog) {
-    state.nvme_err_log_entries = le128_to_uint64(smart_log.num_err_log_entries);
+    if (!check_nvme_error_log(cfg, state, nvmedev)) {
+      PrintOut(LOG_INFO, "Device: %s, Error Information unavailable, ignoring -l [x]error\n", name);
+      cfg.errorlog = cfg.xerrorlog = false;
+    }
+    else
+      state.nvme_err_log_entries = le128_to_uint64(smart_log.num_err_log_entries);
   }
 
   // If no supported tests selected, return
@@ -3854,16 +3931,12 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
 
   // Check if number of errors has increased
   if (cfg.errorlog || cfg.xerrorlog) {
-    uint64_t oldcnt = state.nvme_err_log_entries;
     uint64_t newcnt = le128_to_uint64(smart_log.num_err_log_entries);
-    if (newcnt > oldcnt) {
-      PrintOut(LOG_CRIT, "Device: %s, number of Error Log entries increased from %" PRIu64 " to %" PRIu64 "\n",
-               name, oldcnt, newcnt);
-      MailWarning(cfg, state, 4, "Device: %s, number of Error Log entries increased from %" PRIu64 " to %" PRIu64,
-                  name, oldcnt, newcnt);
-      state.must_write = true;
+    if (newcnt > state.nvme_err_log_entries) {
+      // Warn only if device related errors are found
+      check_nvme_error_log(cfg, state, nvmedev, newcnt);
     }
-    state.nvme_err_log_entries = newcnt;
+    // else // TODO: Handle decrease of count?
   }
 
   CloseDevice(nvmedev, name);

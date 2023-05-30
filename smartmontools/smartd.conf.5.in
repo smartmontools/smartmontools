@@ -740,6 +740,20 @@ error log has increased since the last check.
 .I error
 \- [NVMe] report if the "Number of Error Information Log Entries" from the
 SMART/Health Information log has increased since the last check.
+.br
+[NEW EXPERIMENTAL SMARTD FEATURE]
+This will only be logged as LOG_CRIT if at least one of the new errors is
+still present in the Error Information log and its status indicates a
+device related error.
+Up to eight of the most recent of these errors are logged as LOG_INFO then.
+This is useful because the NVMe Error Information log is not persistent
+across power cycles or device resets.
+.br
+If all new errors are either no longer present in the log or are not device
+related (e.g. invalid command, invalid field in command, ...), a LOG_INFO
+message is generated instead.
+This avoids misleading warnings if the operating system issues unsupported
+commands and the device firmware also logs these kind of errors.
 .Sp
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I xerror
