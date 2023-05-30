@@ -72,11 +72,17 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
       pout(" [Duration: %.6fs]\n", duration_usec / 1000000.0);
   }
 
-  if (   dont_print_serial_number && ok
-      && in.opcode == nvme_admin_identify && in.cdw10 == 0x01) {
-        // Invalidate serial number
-        nvme_id_ctrl & id_ctrl = *reinterpret_cast<nvme_id_ctrl *>(in.buffer);
-        memset(id_ctrl.sn, 'X', sizeof(id_ctrl.sn));
+  if (dont_print_serial_number && ok && in.opcode == nvme_admin_identify) {
+    if (in.cdw10 == 0x01 && in.size >= sizeof(nvme_id_ctrl)) {
+      // Identify controller: Invalidate serial number
+      nvme_id_ctrl & id_ctrl = *reinterpret_cast<nvme_id_ctrl *>(in.buffer);
+      memset(id_ctrl.sn, 'X', sizeof(id_ctrl.sn));
+    }
+    else if (in.cdw10 == 0x00 && in.size >= sizeof(nvme_id_ns)) {
+      // Identify namespace: Invalidate IEEE EUI-64
+      nvme_id_ns & id_ns = *reinterpret_cast<nvme_id_ns *>(in.buffer);
+      memset(id_ns.eui64, 0x00, sizeof(id_ns.eui64));
+    }
   }
 
   if (nvme_debugmode) {

@@ -382,6 +382,13 @@ use the exit status of \fBsmartctl\fP (see EXIT STATUS below).
 .Sp
 .I noserial
 \- Do not print the serial number of the device.
+This also suppresses the LU WWN Device Id (ATA) and the SAS addresses (SCSI).
+The related fields are also invalidated in the ATA and NVMe debug outputs.
+.br
+Note: This is not the case in SCSI debug output.
+.br
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+The Namespace IEEE EUI-64 (NVMe) is also suppressed.
 .TP
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.

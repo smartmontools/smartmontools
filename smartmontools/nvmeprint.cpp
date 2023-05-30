@@ -192,7 +192,7 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
     jrns["formatted_lba_size"] = (1U << fmt_lba_bits);
     jglb["logical_block_size"] = (1U << fmt_lba_bits);
 
-    if (show_all || nonempty(id_ns.eui64, sizeof(id_ns.eui64))) {
+    if (!dont_print_serial_number && (show_all || nonempty(id_ns.eui64, sizeof(id_ns.eui64)))) {
       jout("Namespace %u IEEE EUI-64:          %s%02x%02x%02x %02x%02x%02x%02x%02x\n",
            nsid, align, id_ns.eui64[0], id_ns.eui64[1], id_ns.eui64[2], id_ns.eui64[3],
            id_ns.eui64[4], id_ns.eui64[5], id_ns.eui64[6], id_ns.eui64[7]);

@@ -2,6 +2,10 @@ $Id$
 
 2023-05-30  Christian Franke  <franke@computer.org>
 
+	nvmecmds.cpp, nvmprint.cpp: Also suppress NVMe Namespace IEEE EUI-64
+	info if '-q noserial' is specified.
+	smartctl.8.in: Update '-q noserial' documentation.
+
 	smartd.cpp: Don't report new non-device related errors as critical
 	(#1222).
 	smartd.conf.5.in: Document new functionality.
