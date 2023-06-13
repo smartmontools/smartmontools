@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-23 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -284,8 +284,8 @@ private:
 // Otherwise precision depends on supported floating point data types.
 
 #if defined(HAVE_LONG_DOUBLE_WIDER) && \
-    (!defined(__MINGW32__) || defined(__USE_MINGW_ANSI_STDIO))
-    // MinGW 'long double' type does not work with MSVCRT *printf()
+    (!defined(__MINGW32__) || __USE_MINGW_ANSI_STDIO)
+    // MinGW 'long double' type does not work with MSVCRT/UCRT *printf()
 #define HAVE_LONG_DOUBLE_WIDER_PRINTF 1
 #else
 #undef HAVE_LONG_DOUBLE_WIDER_PRINTF
