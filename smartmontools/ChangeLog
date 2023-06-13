@@ -1,6 +1,9 @@
-$Id: ChangeLog 5478 2023-06-13 13:48:33Z chrfranke $
+$Id: ChangeLog 5479 2023-06-13 17:14:45Z chrfranke $
 
 2023-06-13  Christian Franke  <franke@computer.org>
+
+	configure.ac: Disable ASLR workarounds for newer versions of
+	MinGW-w64.
 
 	configure.ac: Skip _FORTIFY_SOURCE support check if 'nm' is missing.
 
