@@ -2,6 +2,8 @@ $Id$
 
 2023-06-13  Christian Franke  <franke@computer.org>
 
+	configure.ac: Don't define __USE_MINGW_ANSI_STDIO if UCRT is used.
+
 	configure.ac: Disable ASLR workarounds for newer versions of
 	MinGW-w64.
 

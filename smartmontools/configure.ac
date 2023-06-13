@@ -480,23 +480,24 @@ $PACKAGE_BUGREPORT - Thanks!])
 esac
 
 case "$host_os: $CPPFLAGS $CXXFLAGS" in
-  mingw*:*\ -[[DU]]__USE_MINGW_ANSI_STDIO*)
+  mingw*:*\ -U__USE_MINGW_ANSI_STDIO\ )
     ;;
   mingw*:*)
     # MinGW 4.6.* did not properly define PRI?64 if __USE_MINGW_ANSI_STDIO is set.
     # MinGW 4.9.* set __USE_MINGW_ANSI_STDIO in first C++ include which may be too late.
-    # MinGW 8.0.0 and later automatically set __USE_MINGW_ANSI_STDIO in C99 and C++11 mode.
-    # Make sure __USE_MINGW_ANSI_STDIO is set always and fail if not fully supported.
-    AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO=1 is predefined])
+    # MinGW 8.0.0 and later may automatically set __USE_MINGW_ANSI_STDIO in certain
+    # configurations.  __USE_MINGW_ANSI_STDIO is not needed if the UCRT is used.
+    # Make sure __USE_MINGW_ANSI_STDIO or _UCRT is set and fail if format check fails.
+    AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO=1 or _UCRT is predefined])
     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
         #include <stdio.h>
-        #if __USE_MINGW_ANSI_STDIO != 1
+        #if !(__USE_MINGW_ANSI_STDIO == 1 || defined(_UCRT))
           #error fail
         #endif]])],
       [res=yes],
       [res=no; CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D__USE_MINGW_ANSI_STDIO"])
     AC_MSG_RESULT([$res])
-    AC_MSG_CHECKING([whether $CXX supports __USE_MINGW_ANSI_STDIO])
+    AC_MSG_CHECKING([whether $CXX supports __USE_MINGW_ANSI_STDIO or UCRT])
     save_CXXFLAGS=$CXXFLAGS
     CXXFLAGS="$CXXFLAGS -Wformat -Werror"
     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
@@ -504,13 +505,13 @@ case "$host_os: $CPPFLAGS $CXXFLAGS" in
         #include <inttypes.h>
         #include <stdio.h>
         void f(char * p, size_t s) {
-          snprintf(p, s, "%zu %lld %Lf %" PRId64, s, (long long)s, (long double)s, (int64_t)s);
+          snprintf(p, s, "%lld %" PRId64, (long long)s, (int64_t)s);
         }]])],
       [res=yes], [res=no])
     AC_MSG_RESULT([$res])
     if test "$res" != "yes"; then
       AC_MSG_ERROR([
-This version of $CXX does not support __USE_MINGW_ANSI_STDIO.
+This version of $CXX does not support __USE_MINGW_ANSI_STDIO or UCRT.
 Use option 'CPPFLAGS=-U__USE_MINGW_ANSI_STDIO' to skip this check.
 Please send info about your system to $PACKAGE_BUGREPORT.
 ])
