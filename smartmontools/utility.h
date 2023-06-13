@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-23 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -13,7 +13,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 5297 2022-01-07 00:51:15Z dpgilbert $"
+#define UTILITY_H_CVSID "$Id: utility.h 5481 2023-06-13 17:42:42Z chrfranke $"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
@@ -284,8 +284,8 @@ private:
 // Otherwise precision depends on supported floating point data types.
 
 #if defined(HAVE_LONG_DOUBLE_WIDER) && \
-    (!defined(__MINGW32__) || defined(__USE_MINGW_ANSI_STDIO))
-    // MinGW 'long double' type does not work with MSVCRT *printf()
+    (!defined(__MINGW32__) || __USE_MINGW_ANSI_STDIO)
+    // MinGW 'long double' type does not work with MSVCRT/UCRT *printf()
 #define HAVE_LONG_DOUBLE_WIDER_PRINTF 1
 #else
 #undef HAVE_LONG_DOUBLE_WIDER_PRINTF

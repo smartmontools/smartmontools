@@ -1,6 +1,10 @@
-$Id: ChangeLog 5480 2023-06-13 17:32:31Z chrfranke $
+$Id: ChangeLog 5481 2023-06-13 17:42:42Z chrfranke $
 
 2023-06-13  Christian Franke  <franke@computer.org>
+
+	utility.h: Fix check for __USE_MINGW_ANSI_STDIO.
+	Recent versions of MinGW-w64 define __USE_MINGW_ANSI_STDIO=0 if
+	disabled.
 
 	configure.ac: Don't define __USE_MINGW_ANSI_STDIO if UCRT is used.
 
