@@ -1,5 +1,12 @@
 $Id$
 
+2023-06-13  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Always notify READY=1 to systemd before 'exit(0)'.
+	The prevents that systemd reports the service as failed if no device
+	is present and '-q *nodev0*' is used (Debian Bug 1029210).
+	Log the exit status also if exiting during first pass.
+
 2023-05-30  Christian Franke  <franke@computer.org>
 
 	nvmecmds.cpp, nvmprint.cpp: Also suppress NVMe Namespace IEEE EUI-64

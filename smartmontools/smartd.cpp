@@ -320,7 +320,9 @@ static void notify_exit(int status)
     case EXIT_NODEV:    msg = "No devices to monitor"; break;
     default:            msg = "Error (see SYSLOG)"; break;
   }
-  notify_msg(msg);
+  // Ensure that READY=1 is notified before 'exit(0)' because otherwise
+  // systemd will report a service (protocol) failure
+  notify_msg(msg, (!status && !notify_ready));
 }
 
 #else // HAVE_LIBSYSTEMD
@@ -5811,9 +5813,9 @@ static int main_worker(int argc, char **argv)
 
       if (!(   devices.size() > 0 || quit == QUIT_NEVER
             || (quit == QUIT_NODEVSTARTUP && !firstpass))) {
-        PrintOut(LOG_INFO, "Unable to monitor any SMART enabled devices. %sExiting...\n",
-                 (!debugmode ? "Try debug (-d) option. " : ""));
-        status = EXIT_NODEV; // later changed to 0 if quit_nodev0 is set
+        status = (!quit_nodev0 ? EXIT_NODEV : 0);
+        PrintOut((status ? LOG_CRIT : LOG_INFO),
+                 "Unable to monitor any SMART enabled devices. Exiting.\n");
         break;
       }
 
@@ -5921,12 +5923,9 @@ static int main_worker(int argc, char **argv)
     if (!pid_file.empty() && unlink(pid_file.c_str()))
         PrintOut(LOG_CRIT,"Can't unlink PID file %s (%s).\n",
                  pid_file.c_str(), strerror(errno));
-
-    // and this should be the final output from smartd before it exits
-    PrintOut((status ? LOG_CRIT : LOG_INFO), "smartd is exiting (exit status %d)\n",
-             (!(status == EXIT_NODEV && quit_nodev0) ? status : 0));
   }
 
+  PrintOut((status ? LOG_CRIT : LOG_INFO), "smartd is exiting (exit status %d)\n", status);
   return status;
 }
 
@@ -5966,11 +5965,6 @@ static int smartd_main(int argc, char **argv)
     PrintOut(LOG_CRIT, "Please inform " PACKAGE_BUGREPORT ", including output of smartd -V.\n");
 
   notify_exit(status);
-
-  // Return success if no devices to monitor and '-q *nodev0*' was specified
-  if (status == EXIT_NODEV && quit_nodev0)
-    status = 0;
-
 #ifdef _WIN32
   daemon_winsvc_exitcode = status;
 #endif
