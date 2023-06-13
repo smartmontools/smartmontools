@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5477 2023-06-13 13:30:48Z chrfranke $
+# $Id: configure.ac 5478 2023-06-13 13:48:33Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
@@ -22,7 +22,7 @@ else
   AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5477 2023-06-13 13:30:48Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5478 2023-06-13 13:48:33Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 
@@ -823,7 +823,9 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
   #error false
   #endif]])], [res=yes], [res=no])
 AC_MSG_RESULT([$res])
-if test "$res" = "no"; then
+if test "$res:$NM" = "no:"; then
+  AC_MSG_NOTICE([Skipping _FORTIFY_SOURCE support check because 'nm' is missing.])
+elif test "$res" = "no"; then
   # Heuristic to check for _FORTIFY_SOURCE=[23] support.
   # Done after check for -fstack-protector because this may add an additional lib.
   # Note: Even if _FORTIFY_SOURCE is present in the include files, it may not be

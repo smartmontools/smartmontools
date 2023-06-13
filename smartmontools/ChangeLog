@@ -1,6 +1,8 @@
-$Id: ChangeLog 5477 2023-06-13 13:30:48Z chrfranke $
+$Id: ChangeLog 5478 2023-06-13 13:48:33Z chrfranke $
 
 2023-06-13  Christian Franke  <franke@computer.org>
+
+	configure.ac: Skip _FORTIFY_SOURCE support check if 'nm' is missing.
 
 	configure.ac: MinGW: Fail if 'windres' is missing, warn if 'windmc'
 	is missing.
