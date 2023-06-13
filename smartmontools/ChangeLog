@@ -2,6 +2,9 @@ $Id$
 
 2023-06-13  Christian Franke  <franke@computer.org>
 
+	configure.ac: MinGW: Fail if 'windres' is missing, warn if 'windmc'
+	is missing.
+
 	Makefile.am: Allow MinGW builds also if the 'windmc' tool is missing.
 
 	smartd.cpp: Always notify READY=1 to systemd before 'exit(0)'.

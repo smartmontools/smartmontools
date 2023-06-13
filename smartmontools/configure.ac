@@ -55,6 +55,7 @@ case "${host}" in
   *-*-mingw*)
     AC_CHECK_TOOL(WINDMC, [windmc])
     AC_CHECK_TOOL(WINDRES, [windres])
+    test -n "$WINDRES" || AC_MSG_ERROR([Missing Windows resource compiler (windres)])
 
     AC_MSG_CHECKING([for makensis])
     if test -z "$MAKENSIS"; then
@@ -877,10 +878,10 @@ info=`
 
   case "$host_os" in
     mingw*)
-      echo "application manifest:   ${os_win32_manifest:-built-in}"
+      echo "application manifest:   ${os_win32_manifest:-[[built-in]]}"
       echo "resource compiler:      $WINDRES"
-      echo "message compiler:       $WINDMC"
-      echo "NSIS compiler:          $MAKENSIS"
+      echo "message compiler:       ${WINDMC:-[[missing]]}"
+      echo "NSIS compiler:          ${MAKENSIS:-[[missing]]}"
       if test -n "$drivedbdir"; then
         echo "drive database file:    EXEDIR/drivedb.h"
         if test -n "$MAKENSIS"; then
@@ -1021,6 +1022,14 @@ not be available because libsystemd-dev[[el]] package is not installed.
 Use option '--without-libsystemd' to suppress this warning.
 ])
     fi ;;
+esac
+
+case "$host_os:$WINDMC" in
+  mingw*:) AC_MSG_WARN([
+The Windows message compiler (windmc) is missing.  The build will work,
+but smartd will not contain the MESSAGETABLE required for proper display
+of smartd log messages in the Windows event log.
+]) ;;
 esac
 
 test -z "$cxx_missing" || AC_MSG_WARN([
