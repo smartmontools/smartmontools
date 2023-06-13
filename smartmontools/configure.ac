@@ -823,7 +823,9 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
   #error false
   #endif]])], [res=yes], [res=no])
 AC_MSG_RESULT([$res])
-if test "$res" = "no"; then
+if test "$res:$NM" = "no:"; then
+  AC_MSG_NOTICE([Skipping _FORTIFY_SOURCE support check because 'nm' is missing.])
+elif test "$res" = "no"; then
   # Heuristic to check for _FORTIFY_SOURCE=[23] support.
   # Done after check for -fstack-protector because this may add an additional lib.
   # Note: Even if _FORTIFY_SOURCE is present in the include files, it may not be
