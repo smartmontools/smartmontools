@@ -523,12 +523,29 @@ AC_ARG_WITH(mingw-aslr,
   [AS_HELP_STRING([--with-mingw-aslr@<:@=auto|yes|low|no@:>@], [Enable ASLR for MinGW executables [auto]])],
   [], [with_mingw_aslr=auto])
 
-case "$host:${LDFLAGS+set}" in
-  *-*-mingw*:) # MinGW defaults: link statically and indicate DEP and TS compatibility
-    LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
+LDFLAGS_set=${LDFLAGS+yes}; test "$LDFLAGS_set" = "yes" || LDFLAGS_set=no
+
+# MinGW defaults: link statically and indicate DEP and TS compatibility
+case "$host_os:$LDFLAGS_set" in
+  mingw*:no) LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
 esac
 
-# ASLR related issues of MinGW-w64 toolchain and workarounds:
+# Newer versions of MinGW-w64 toolchain enable ASLR and relocation info by default.
+case "$host_os:$with_mingw_aslr:$LDFLAGS_set" in
+  mingw*:auto:no)
+    AC_MSG_CHECKING([whether this $CXX version enables ASLR by default])
+    # Yes: g++ 11.4.0, 12.2.0, clang 15.0.7
+    # No: g++ 6.*, 7.3.*
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+        #if !(__GNUC__ >= 11 || __clang_major__ >= 15)
+          #error fail
+        #endif]])],
+      [res=yes],[res=no])
+    AC_MSG_RESULT([$res])
+    test "$res" != "yes" || with_mingw_aslr=default
+esac
+
+# ASLR related issues of older MinGW-w64 toolchains and workarounds:
 # 1. '--dynamicbase' only sets DYNAMIC_BASE flag but does not enable relocation info:
 #    Add '-pie' (works despite 'man ld' says: "... currently only supported on ELF platforms")
 # 2. If both '-static' and '-pie' are specified, the entry point is not set properly:
@@ -538,8 +555,8 @@ esac
 # 4. Linkage of some versions of 'libstdc++.a' fail with "relocation overflow" if a high
 #    '--image-base' is used: Do not use '--high-entropy-va' in these cases.
 
-case "$host:$with_mingw_aslr" in
-  x86_64-*-mingw*:auto)
+case "$host:$with_mingw_aslr:$LDFLAGS_set" in
+  x86_64-*-mingw*:auto:no)
     AC_MSG_CHECKING([whether $CXX supports --high-entropy-va])
     save_LDFLAGS=$LDFLAGS
     LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000"
@@ -552,6 +569,9 @@ case "$host:$with_mingw_aslr" in
     AC_MSG_RESULT([$with_mingw_aslr])
     test "$with_mingw_aslr" = "yes" || with_mingw_aslr=low
     ;;
+  *-*-mingw*:auto:no)
+    with_mingw_aslr=yes
+    ;;
 esac
 
 case "$host:$with_mingw_aslr" in
@@ -559,7 +579,7 @@ case "$host:$with_mingw_aslr" in
     LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000" ;;
   x86_64-*-mingw*:low)
     LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup" ;;
-  *-*-mingw*:auto|*-*-mingw*:yes|*-*-mingw*:low)
+  *-*-mingw*:yes|*-*-mingw*:low)
     LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-e_mainCRTStartup" ;;
 esac
 

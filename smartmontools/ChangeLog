@@ -2,6 +2,9 @@ $Id$
 
 2023-06-13  Christian Franke  <franke@computer.org>
 
+	configure.ac: Disable ASLR workarounds for newer versions of
+	MinGW-w64.
+
 	configure.ac: Skip _FORTIFY_SOURCE support check if 'nm' is missing.
 
 	configure.ac: MinGW: Fail if 'windres' is missing, warn if 'windmc'
