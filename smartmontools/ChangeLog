@@ -1,6 +1,9 @@
-$Id: ChangeLog 5476 2023-06-13 12:50:56Z chrfranke $
+$Id: ChangeLog 5477 2023-06-13 13:30:48Z chrfranke $
 
 2023-06-13  Christian Franke  <franke@computer.org>
+
+	configure.ac: MinGW: Fail if 'windres' is missing, warn if 'windmc'
+	is missing.
 
 	Makefile.am: Allow MinGW builds also if the 'windmc' tool is missing.
 
