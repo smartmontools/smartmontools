@@ -848,7 +848,13 @@ wtssendmsg_res.rc: os_win32/versioninfo.rc.in Makefile svnversion.h
 	@$(WIN_APP_MANIFEST)
 
 syslogevt.rc: os_win32/syslogevt.mc
-	$(WINDMC) -b $<
+	@if test -n '$(WINDMC)'; then \
+	  echo '$(WINDMC) -b $<'; \
+	  $(WINDMC) -b $<; \
+	else \
+	  echo "echo '// MESSAGETABLE not available' > $@"; \
+	  echo '// MESSAGETABLE not available' > $@; \
+	fi
 
 defadmin.manifest: os_win32/default.manifest
 	sed 's,"asInvoker","requireAdministrator",' $< > $@

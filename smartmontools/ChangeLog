@@ -2,6 +2,8 @@ $Id$
 
 2023-06-13  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Allow MinGW builds also if the 'windmc' tool is missing.
+
 	smartd.cpp: Always notify READY=1 to systemd before 'exit(0)'.
 	The prevents that systemd reports the service as failed if no device
 	is present and '-q *nodev0*' is used (Debian Bug 1029210).
