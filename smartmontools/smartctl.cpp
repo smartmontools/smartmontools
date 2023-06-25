@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-22 Christian Franke
+ * Copyright (C) 2008-23 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -717,6 +717,7 @@ static int parse_options(int argc, char** argv, const char * & type,
       break;
 
     case 'a':
+      ataopts.a_option = true;
       ataopts.drive_info           = scsiopts.drive_info          = nvmeopts.drive_info          = true;
       ataopts.smart_check_status   = scsiopts.smart_check_status  = nvmeopts.smart_check_status  = true;
       ataopts.smart_general_values =                                nvmeopts.drive_capabilities  = true;

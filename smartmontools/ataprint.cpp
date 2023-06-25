@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-22 Christian Franke
+ * Copyright (C) 2008-23 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -3467,14 +3467,23 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
        || options.sct_wcache_sct_set
   );
 
+  // Print any newer info not included in '-a' ?
+  // Also used below to suppress suggestion of '-x'
+  bool not_part_of_a_option = (
+          need_smart_logdir
+       || need_gp_logdir
+       || need_sct_support
+       || options.sataphy
+       || options.farm_log
+       || options.identify_word_level >= 0
+       || options.get_set_used
+  );
+
   // Exit if no further options specified
-  if (!(   options.drive_info || options.show_presets
-        || need_smart_support || need_smart_logdir
-        || need_gp_logdir     || need_sct_support
-        || options.farm_log
-        || options.sataphy
-        || options.identify_word_level >= 0
-        || options.get_set_used                      )) {
+  if (!(   options.drive_info
+        || options.show_presets
+        || need_smart_support
+        || not_part_of_a_option)) {
     if (powername)
       pout("Device is in %s mode\n", powername);
     else
@@ -4528,6 +4537,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     jglb["seagate_farm_log"]["supported"] = farm_supported;
   }
+
+  // Suggest '-x' if '-a' is specified without any advanced option
+  if (options.a_option && !not_part_of_a_option)
+    pout("The above only provides legacy SMART information - try 'smartctl -x' for more\n\n");
+
   // Set to standby (spindown) mode and set standby timer if not done above
   // (Above commands may spinup drive)
   if (options.set_standby_now) {
