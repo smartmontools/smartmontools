@@ -2,6 +2,9 @@ $Id$
 
 2023-06-25  Christian Franke  <franke@computer.org>
 
+	smartctl.cpp: Don't include '-l farm' in '-x'.
+	Suggest it if supported.
+
 	ataprint.cpp: Suggest '-x' option if only '-a' is used.
 	ataprint.h, smartctl.cpp: Add 'ata_print_options.a_option' flag.
 
