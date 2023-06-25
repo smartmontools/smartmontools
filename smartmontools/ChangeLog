@@ -1,4 +1,11 @@
-$Id: ChangeLog 5481 2023-06-13 17:42:42Z chrfranke $
+$Id: ChangeLog 5482 2023-06-25 16:46:49Z chrfranke $
+
+2023-06-25  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Suppress NO DATA commands for '-d usbasm1352r,N' device
+	type.
+	Test results from GH issues/167 suggest that these commands are not
+	supported or require different parameters.
 
 2023-06-13  Christian Franke  <franke@computer.org>
 

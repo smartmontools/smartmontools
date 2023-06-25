@@ -56,7 +56,7 @@
 #include "dev_tunnelled.h" // tunnelled_device<>
 #include "sg_unaligned.h"
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 5437 2023-01-23 17:48:54Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 5482 2023-06-25 16:46:49Z chrfranke $";
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -303,8 +303,11 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     }
 
     // The ASM1352R uses reserved values for 'protocol' field to select drive
-    if (m_variant == sat_asm1352r)
+    if (m_variant == sat_asm1352r) {
+      if (in.direction == ata_cmd_in::no_data)
+        return set_err(ENOSYS, "NO DATA ATA commands not implemented [ASM1352R]");
       protocol = (m_port == 0 ? 0xd : 0xe);
+    }
 
     // Check condition if any output register needed
     if (in.out_needed.is_set())
