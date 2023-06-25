@@ -303,8 +303,11 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     }
 
     // The ASM1352R uses reserved values for 'protocol' field to select drive
-    if (m_variant == sat_asm1352r)
+    if (m_variant == sat_asm1352r) {
+      if (in.direction == ata_cmd_in::no_data)
+        return set_err(ENOSYS, "NO DATA ATA commands not implemented [ASM1352R]");
       protocol = (m_port == 0 ? 0xd : 0xe);
+    }
 
     // Check condition if any output register needed
     if (in.out_needed.is_set())

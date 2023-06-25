@@ -1,5 +1,12 @@
 $Id$
 
+2023-06-25  Christian Franke  <franke@computer.org>
+
+	scsiata.cpp: Suppress NO DATA commands for '-d usbasm1352r,N' device
+	type.
+	Test results from GH issues/167 suggest that these commands are not
+	supported or require different parameters.
+
 2023-06-13  Christian Franke  <franke@computer.org>
 
 	utility.h: Fix check for __USE_MINGW_ANSI_STDIO.
