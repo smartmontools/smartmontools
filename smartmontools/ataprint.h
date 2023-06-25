@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-09 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-23 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -13,7 +13,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h 5462 2023-03-13 10:45:06Z chrfranke $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h 5483 2023-06-25 17:09:03Z chrfranke $\n"
 
 #include <vector>
 
@@ -29,6 +29,7 @@ struct ata_log_request
 // Options for ataPrintMain
 struct ata_print_options
 {
+  bool a_option = false; // true if '-a' is specified, used to suggest '-x'
   bool drive_info = false;
   int identify_word_level = -1, identify_bit_level = -1;
   bool smart_check_status = false;
