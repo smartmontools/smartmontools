@@ -33,7 +33,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5462 2023-03-13 10:45:06Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5485 2023-06-26 12:01:37Z chrfranke $"
                                  SCSIPRINT_H_CVSID;
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -3758,7 +3758,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             } else {
                 scsiFarmLog farmLog;
                 if (!scsiReadFarmLog(device, farmLog)) {
-                    jout("\nRead FARM log (GP Log 0xA6) failed\n\n");
+                    pout("\nRead FARM log (SCSI Log page 0x3d, sub-page 0x3) failed\n\n");
                     farm_supported = false;
                 } else {
                     scsiPrintFarmLog(farmLog);
@@ -3766,7 +3766,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             }
         } else {
             if (options.farm_log) {
-                jout("\nFARM log (SCSI log page 0x3D, sub-page 0x3) not supported\n\n");
+                jout("\nFARM log (SCSI Log page 0x3d, sub-page 0x3) not supported\n\n");
             }
             farm_supported = false;
         }

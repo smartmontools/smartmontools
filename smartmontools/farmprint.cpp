@@ -183,7 +183,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   farm_format_id_string(dateOfAssembly, farm_byte_swap(farmLog.driveInformation.dateOfAssembly));
 
   // Print plain-text
-  jout("\nSeagate Field Access Reliability Metrics log (FARM) (GP log 0xA6)\n");
+  jout("Seagate Field Access Reliability Metrics log (FARM) (GP Log 0xa6)\n");
   // Page 0: Log Header
   jout("\tFARM Log Page 0: Log Header\n");
   jout("\t\tFARM Log Version: %" PRIu64 ".%" PRIu64 "\n", farmLog.header.majorRev, farmLog.header.minorRev);
@@ -540,7 +540,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   farm_format_id_string(&productID[strlen(productID)], farmLog.driveInformation2.productID4);
 
   // Print plain-text
-  jout("\nSeagate Field Access Reliability Metrics log (FARM) (SCSI Log page 0x3D, sub-page 0x3)\n");
+  jout("\nSeagate Field Access Reliability Metrics log (FARM) (SCSI Log page 0x3d, sub-page 0x3)\n");
 
   // Parameter 0: Log Header
   jout("\tFARM Log Parameter 0: Log Header\n");

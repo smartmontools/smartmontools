@@ -1,4 +1,9 @@
-$Id: ChangeLog 5484 2023-06-25 17:29:41Z chrfranke $
+$Id: ChangeLog 5485 2023-06-26 12:01:37Z chrfranke $
+
+2023-06-26  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, farmprint.cpp, scsiprint.cpp: Unify FARM related
+	messages.
 
 2023-06-25  Christian Franke  <franke@computer.org>
 
