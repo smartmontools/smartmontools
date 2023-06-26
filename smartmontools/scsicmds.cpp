@@ -3142,6 +3142,91 @@ scsi_format_id_string(char * out, const uint8_t * in, int n)
   out[last-first+1] = '\0';
 }
 
+#ifdef IMPENDING_FAILURE_CHECK
+static bool getScsiLogbuf(scsi_device *device, int pagenum, const int min_page_len, uint8_t *pBuf, int &num)
+{
+  const int log_resp_long_len = (62 * 256) + 252;
+  if (scsiLogSense(device, pagenum, 0, pBuf, log_resp_long_len, 0)) {
+    return false;
+  }
+  if ((pBuf[0] & 0x3f) != pagenum) {
+    return false;
+  }
+  // compute page length
+  num = sg_get_unaligned_be16(pBuf + 2) + 4;
+  if (num < min_page_len) {
+    return false;
+  }
+  int truncated = (num > log_resp_long_len) ? num : 0;
+  if (truncated) {
+    num = log_resp_long_len;
+  }
+
+  return true;
+}
+
+bool scsiGetPowerOnHours(scsi_device *device, uint64_t &power_on_hours)
+{
+  const int buf_size = 65532;
+  uint8_t buf[buf_size];
+  int num;
+  int j;
+  uint8_t *ucp;
+
+  if (!getScsiLogbuf(device, BACKGROUND_RESULTS_LPAGE, 20, buf, num)) {
+    return false;
+  }
+
+  ucp = buf + 4;
+  num -= 4;
+  while (num > 3) {
+    int pc = sg_get_unaligned_be16(ucp + 0);
+    int pl = ucp[3] + 4;
+    if (pc == 0) {
+      if ((pl < 16) || (num < 16)) {
+        return false;
+      }
+      j = sg_get_unaligned_be32(ucp + 4);
+      int rest = j % 60;
+      power_on_hours = j / 60 + (rest > 30 ? 1 : 0);
+      return true;
+    }
+    num -= pl;
+    ucp += pl;
+    }
+    return false;
+}
+
+bool scsiGetPercentageUsed(scsi_device *device, uint8_t &percentage_used)
+{
+  const int buf_size = 65532;
+  uint8_t buf[buf_size];
+  int num;
+  uint8_t *ucp;
+
+  if (!getScsiLogbuf(device, SS_MEDIA_LPAGE, 12, buf, num)) {
+    return false;
+  }
+  ucp = buf + 4;
+  num -= 4;
+  while (num > 3) {
+  int pc = sg_get_unaligned_be16(ucp + 0);
+  int pl = ucp[3] + 4;
+  if (pc == 1) {
+    if (pl < 8) {
+      return false;
+    }
+    percentage_used = ucp[7];
+    return true;
+  }
+
+  num -= pl;
+  ucp += pl;
+  }
+  return false;
+}
+#endif
+
 static const char * wn = "Warning";
 
 static const char * wn1_9[] = {

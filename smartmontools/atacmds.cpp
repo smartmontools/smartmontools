@@ -2183,6 +2183,159 @@ unsigned char ata_return_temperature_value(const ata_smart_values * data, const 
   return 0;
 }
 
+#ifdef IMPENDING_FAILURE_CHECK
+static bool is_expected_name(const std::string name_list[], const int num, const std::string &name)
+{
+  if (num <= 0) {
+    return false;
+  }
+
+  for (int i = 0; i < num; i++) {
+    if (name == name_list[i]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Return Wearout Indicator current value and threshold selected according to possible
+// non-default interpretations. If the Attribute does not exist, the return value is not modified.
+bool ata_return_wearout_value(const ata_smart_values *data, const ata_vendor_attr_defs &defs,
+                              const ata_smart_threshold_entry *thresholds,
+                              unsigned char &value, unsigned char &threshold)
+{
+  static const int id_array_len = 7;
+  static const unsigned char ids[id_array_len] = {177, 173, 233, 230, 202, 201, 231};
+  static const std::string attr_names[] = {"Media_Wearout_Indicator", 
+                                           "Wear_Leveling_Count", 
+                                           "Percent_Lifetime_Used", 
+                                           "Percent_Lifetime_Remain"};
+  unsigned char id;
+  int idx;
+  for (int i = 0; i < id_array_len; i++) {
+    id = ids[i];
+    const std::string attr_name = ata_get_smart_attr_name(id, defs);
+    if (!is_expected_name(attr_names, sizeof(attr_names) / sizeof(attr_names[0]), attr_name)) {
+      continue;
+    }
+    idx = ata_find_attr_index(id, *data);
+    if (idx < 0) {
+      continue;
+    }
+    value = 100 - data->vendor_attributes[idx].current;
+    threshold = thresholds[idx].threshold;
+    return true;
+  }
+  // No valid attribute found
+  return false;
+}
+
+// Return Available Space current value and threshold selected according to possible
+// non-default interpretations. If the Attribute does not exist, the return value is not modified.
+bool ata_return_available_space_value(const ata_smart_values *data, const ata_vendor_attr_defs &defs,
+                                      const ata_smart_threshold_entry *thresholds,
+                                      unsigned char &value, unsigned char &threshold)
+{
+  static const int id_array_len = 4;
+  static const unsigned char ids[id_array_len] = {232, 170, 180, 176};
+  static const std::string attr_names[] = {"Available_Reservd_Space",
+                                           "Unused_Rsvd_Blk_Cnt_Tot",
+                                           "Reserved_Block_Count"};
+  unsigned char id;
+  std::string attr_name;
+  int idx;
+  for (int i = 0; i < id_array_len; i++) {
+    id = ids[i];
+    attr_name = ata_get_smart_attr_name(id, defs);
+    if (!is_expected_name(attr_names, sizeof(attr_names) / sizeof(attr_names[0]), attr_name)) {
+      continue;
+    }
+    idx = ata_find_attr_index(id, *data);
+    if (idx < 0) {
+      continue;
+    }
+    value = data->vendor_attributes[idx].current;
+    threshold = thresholds[idx].threshold;
+    return true;
+  }
+  // No valid attribute found
+   return false;
+}
+
+// Return Power On Hours raw value selected according to possible
+// non-default interpretations. If the Attribute does not exist, return 0
+bool ata_return_power_on_hours_value(const ata_smart_values *data, const ata_vendor_attr_defs &defs, 
+                                     uint64_t &power_on_hours)
+{
+  unsigned char id = 9;
+  const ata_attr_raw_format format = defs[id].raw_format;
+  const std::string attr_name = ata_get_smart_attr_name(id, defs);
+  int idx;
+  uint64_t raw;
+  if (attr_name != "Power_On_Hours") {
+    return false;
+  }
+  idx = ata_find_attr_index(id, *data);
+  if (idx < 0) {
+    return false;
+  }
+  raw = ata_get_attr_raw_value(data->vendor_attributes[idx], defs);
+  if (format == RAWFMT_SEC2HOUR) {
+    power_on_hours = raw / 3600;
+    return true;
+  }
+  if (format == RAWFMT_MSEC24_HOUR32) {
+    power_on_hours = (unsigned)(raw & 0xffffffffULL);
+    return true;
+  }
+  if (format == RAWFMT_RAW24_OPT_RAW8) {
+    power_on_hours = (unsigned)(raw & 0x00ffffffULL);
+    return true;
+  }
+  power_on_hours = raw;
+  return true;
+}
+
+// Return LBA written raw value selected according to possible
+// non-default interpretations. If the Attribute does not exist, return 0
+bool ata_return_LBA_written_value(const ata_smart_values *data, const ata_vendor_attr_defs &defs,
+                                  const uint32_t lb_size, uint64_t &lba_written)
+{
+  static const int id_array_len = 4;
+  static const unsigned char ids[id_array_len] = {241, 243, 246, 233};
+  static const std::string attr_names[] = {"Total_LBAs_Written",
+                                           "Host_Writes_32Mib",
+                                           "Host_Writes_GiB",
+                                           "Lifetime_Writes_GiB"};
+  unsigned char id;
+  std::string attr_name;
+  uint64_t raw;
+  for (int i = 0; i < id_array_len; i++) {
+    id = ids[i];
+    attr_name = ata_get_smart_attr_name(id, defs);
+    if (!is_expected_name(attr_names, sizeof(attr_names) / sizeof(attr_names[0]), attr_name)) {
+      continue;
+    }
+    int idx = ata_find_attr_index(id, *data);
+    if (idx < 0) {
+      continue;
+    }
+    raw = ata_get_attr_raw_value(data->vendor_attributes[idx], defs);
+    if (attr_name == "Host_Writes_32Mib") {
+      lba_written = raw * 32 * 1024 * 1024 / lb_size;
+      return true;
+    }
+    if (attr_name == "Host_Writes_GiB" || attr_name == "Lifetime_Writes_GiB") {
+      lba_written = raw * 1024 * 1024 * 1024 / lb_size;
+      return true;
+    }
+    lba_written = raw;
+    return true;
+  }
+  // No valid attribute found
+  return false;
+}
+#endif
 
 // Read SCT Status
 int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
