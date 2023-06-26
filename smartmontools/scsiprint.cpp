@@ -3758,7 +3758,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             } else {
                 scsiFarmLog farmLog;
                 if (!scsiReadFarmLog(device, farmLog)) {
-                    jout("\nRead FARM log (GP Log 0xA6) failed\n\n");
+                    pout("\nRead FARM log (SCSI Log page 0x3d, sub-page 0x3) failed\n\n");
                     farm_supported = false;
                 } else {
                     scsiPrintFarmLog(farmLog);
@@ -3766,7 +3766,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             }
         } else {
             if (options.farm_log) {
-                jout("\nFARM log (SCSI log page 0x3D, sub-page 0x3) not supported\n\n");
+                jout("\nFARM log (SCSI Log page 0x3d, sub-page 0x3) not supported\n\n");
             }
             farm_supported = false;
         }

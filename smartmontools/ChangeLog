@@ -1,5 +1,10 @@
 $Id$
 
+2023-06-26  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp, farmprint.cpp, scsiprint.cpp: Unify FARM related
+	messages.
+
 2023-06-25  Christian Franke  <franke@computer.org>
 
 	smartctl.cpp: Don't include '-l farm' in '-x'.
