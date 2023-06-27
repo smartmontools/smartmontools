@@ -1,5 +1,9 @@
 $Id$
 
+2023-06-27  Oleksij Samorukov <samm@os2.kiev.ua>
+
+	CI: build darwin packages for arm64/x86_64, drop i386 support
+
 2023-06-26  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp, farmprint.cpp, scsiprint.cpp: Unify FARM related
