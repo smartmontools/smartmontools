@@ -1,4 +1,8 @@
-$Id: ChangeLog 5485 2023-06-26 12:01:37Z chrfranke $
+$Id: ChangeLog 5486 2023-06-27 08:46:07Z samm2 $
+
+2023-06-27  Oleksij Samorukov <samm@os2.kiev.ua>
+
+	CI: build darwin packages for arm64/x86_64, drop i386 support
 
 2023-06-26  Christian Franke  <franke@computer.org>
 
