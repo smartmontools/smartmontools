@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 5474 2023-05-30 15:19:34Z chrfranke $
+$Id: NEWS 5488 2023-06-30 08:53:07Z samm2 $
 
 The most up-to-date version of this file is:
 https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
@@ -8,6 +8,9 @@ https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 Date <Not released yet, please try current SVN or a recent CI build>
 Summary: smartmontools release 7.4
 -----------------------------------------------------------
+
+- macOS: CI and release builds are now generated for the x86_64 and arm64
+  targets. 32 bit platforms will require to be compiled from the source.
 - smartctl '-t short', '-t long' and '-X': NVMe support.
 - smartctl '-l selftest': NVMe support.
 - smartctl '-l farm': Prints Seagate's vendor-specific Field Access
