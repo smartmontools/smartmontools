@@ -8,6 +8,9 @@ https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 Date <Not released yet, please try current SVN or a recent CI build>
 Summary: smartmontools release 7.4
 -----------------------------------------------------------
+
+- macOS: CI and release builds are now generated for the x86_64 and arm64
+  targets. 32 bit platforms will require to be compiled from the source.
 - smartctl '-t short', '-t long' and '-X': NVMe support.
 - smartctl '-l selftest': NVMe support.
 - smartctl '-l farm': Prints Seagate's vendor-specific Field Access
