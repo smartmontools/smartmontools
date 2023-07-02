@@ -1,5 +1,10 @@
 $Id$
 
+2023-07-02  Christian Franke  <franke@computer.org>
+
+	cppcheck.sh: Mark cppcheck 2.11 as tested.
+	Adjust suppress options and defines.
+
 2023-06-27  Oleksij Samorukov <samm@os2.kiev.ua>
 
 	CI: build darwin packages for arm64/x86_64, drop i386 support

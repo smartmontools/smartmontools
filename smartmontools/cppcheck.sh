@@ -63,7 +63,7 @@ fi
 ver=$("$cppcheck" --version) || exit 1
 ver=${ver##* }
 case $ver in
-  1.8[56]|2.[237]|2.10) ;;
+  1.8[56]|2.[237]|2.1[01]) ;;
   *) echo "$myname: cppcheck $ver not tested with this script" ;;
 esac
 
@@ -76,6 +76,7 @@ sup_list="
   #style
   asctime_rCalled:utility.cpp
   asctime_sCalled:utility.cpp
+  cstyleCast:sg_unaligned.h
   getgrgidCalled:popen_as_ugid.cpp
   getgrnamCalled:popen_as_ugid.cpp
   getpwnamCalled:popen_as_ugid.cpp
@@ -86,6 +87,17 @@ sup_list="
   unusedFunction:sg_unaligned.h
   unmatchedSuppression
 "
+
+case $ver in
+  2.1[1-9]) sup_list="$sup_list
+  #error
+  ctuOneDefinitionRuleViolation:cissio_freebsd.h
+  ctuOneDefinitionRuleViolation:freebsd_nvme_ioctl.h
+  #information
+  missingInclude
+  missingIncludeSystem
+" ;;
+esac
 
 suppress=
 for s in $sup_list; do
@@ -100,6 +112,7 @@ done
 defs="\
   -U__KERNEL__
   -U__LP64__
+  -U__MINGW64_VERSION_STR
   -U__VERSION__
   -U_NETWARE
   -DBUILD_INFO=\"(...)\"
@@ -107,20 +120,23 @@ defs="\
   -DENOTSUP=1
   -DHAVE_ATTR_PACKED
   -DHAVE_CONFIG_H
+  -DPACKAGE_VERSION=\"7.4\"
   -DSG_IO=1
-  -DSMARTMONTOOLS_RELEASE_DATE=\"2022-02-28\"
-  -DSMARTMONTOOLS_RELEASE_TIME=\"16:33:40\"
-  -DSMARTMONTOOLS_SVN_REV=\"r1\"
+  -DSMARTMONTOOLS_BUILD_HOST=\"host\"
   -DSMARTMONTOOLS_ATTRIBUTELOG=\"/file\"
   -DSMARTMONTOOLS_SAVESTATES=\"/file\"
   -DSMARTMONTOOLS_DRIVEDBDIR=\"/dir\"
+  -USMARTMONTOOLS_RELEASE_DATE
+  -USMARTMONTOOLS_RELEASE_TIME
+  -USMARTMONTOOLS_SVN_REV
   -DSOURCE_DATE_EPOCH=1665402854
   -Umakedev
   -Ustricmp"
 
 # Print brief version of command
 cat <<EOF
-cppcheck-$ver \\
+# Cppcheck $ver
+$cppcheck \\
   --enable=$enable \\
   $library \\
   $platform \\
