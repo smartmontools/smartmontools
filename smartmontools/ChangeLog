@@ -1,4 +1,9 @@
-$Id: ChangeLog 5486 2023-06-27 08:46:07Z samm2 $
+$Id: ChangeLog 5489 2023-07-02 17:24:20Z chrfranke $
+
+2023-07-02  Christian Franke  <franke@computer.org>
+
+	cppcheck.sh: Mark cppcheck 2.11 as tested.
+	Adjust suppress options and defines.
 
 2023-06-27  Oleksij Samorukov <samm@os2.kiev.ua>
 
