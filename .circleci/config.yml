@@ -172,7 +172,7 @@ references:
         mkdir ~/build && cd ~/build &&
         tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} &&
-        ./cppcheck.sh -j2 -q | tee /artefacts/smartmontools-cppcheck-${SM_VER}-r${SVNREV}.txt &&
+        ./cppcheck.sh -j3 -q | tee /artefacts/smartmontools-cppcheck-${SM_VER}-r${SVNREV}.txt &&
         rm -rf ~/build
 
   sm_compute_hashes: &sm_compute_hashes
