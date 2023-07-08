@@ -1,5 +1,10 @@
 $Id$
 
+2023-07-08  Christian Franke  <franke@computer.org>
+
+	CI: Move docker base image from ubuntu:18.04 to debian:12.
+	Update Dockerfile and .circleci/config.yml accordingly.
+
 2023-07-02  Christian Franke  <franke@computer.org>
 
 	cppcheck.sh: Mark cppcheck 2.11 as tested.
