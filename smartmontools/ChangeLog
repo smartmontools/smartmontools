@@ -1,4 +1,9 @@
-$Id: ChangeLog 5489 2023-07-02 17:24:20Z chrfranke $
+$Id: ChangeLog 5490 2023-07-08 10:16:30Z chrfranke $
+
+2023-07-08  Christian Franke  <franke@computer.org>
+
+	CI: Move docker base image from ubuntu:18.04 to debian:12.
+	Update Dockerfile and .circleci/config.yml accordingly.
 
 2023-07-02  Christian Franke  <franke@computer.org>
 
