@@ -308,13 +308,19 @@ const char *packetdevicetype(int type){
 struct tm * time_to_tm_local(struct tm * tp, time_t t)
 {
 #ifndef _WIN32
-  // POSIX (missing in MSVRCT, C and C++)
+  // POSIX, C23 - missing in MSVRCT, C++ and older C.
   if (!localtime_r(&t, tp))
     throw std::runtime_error("localtime_r() failed");
-#else
-  // MSVCRT (missing in POSIX, C11 variant differs)
-  if (localtime_s(tp, &t))
+#elif 0 // defined(__STDC_LIB_EXT1__)
+  // C11 - requires #define __STDC_WANT_LIB_EXT1__ before <time.h>.
+  // Missing in POSIX and C++, MSVCRT variant differs.
+  if (!localtime_s(&t, tp))
     throw std::runtime_error("localtime_s() failed");
+#else
+  // MSVCRT - 64-bit variant avoids conflict with the above C11 variant.
+  __time64_t t64 = t;
+  if (_localtime64_s(tp, &t64))
+    throw std::runtime_error("_localtime64_s() failed");
 #endif
   return tp;
 }
