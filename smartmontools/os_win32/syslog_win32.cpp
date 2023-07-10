@@ -24,7 +24,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h> // RegisterEventSourceA(), ReportEventA(), ...
 
-const char *syslog_win32_cpp_cvsid = "$Id: syslog_win32.cpp 5498 2023-07-10 16:25:50Z chrfranke $"
+const char *syslog_win32_cpp_cvsid = "$Id: syslog_win32.cpp 5499 2023-07-10 16:32:10Z chrfranke $"
   SYSLOG_H_CVSID;
 
 #ifdef TESTEVT
@@ -249,9 +249,10 @@ static void write_event_log(int priority, const char * lines)
 static void write_logfile(FILE * f, int priority, const char * lines)
 {
   char stamp[32];
-  time_t now = time(0);
+  // 64-bit variant avoids conflict with the C11 variant of localtime_s()
+  __time64_t now = _time64(nullptr);
   struct tm tmbuf;
-  if (!(   !localtime_s(&tmbuf, &now)
+  if (!(   !_localtime64_s(&tmbuf, &now)
         && strftime(stamp, sizeof(stamp), "%Y-%m-%d %H:%M:%S", &tmbuf))) {
     stamp[0] = '?'; stamp[1] = 0;
   }

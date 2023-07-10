@@ -1,6 +1,10 @@
-$Id: ChangeLog 5498 2023-07-10 16:25:50Z chrfranke $
+$Id: ChangeLog 5499 2023-07-10 16:32:10Z chrfranke $
 
 2023-07-10  Christian Franke  <franke@computer.org>
+
+	utility.cpp, os_win32/syslog_win32.cpp: Use '_localtime64_s()' on
+	Windows to avoid conflict with C11 variant of 'localtime_s()'
+	(cppcheck 2.11: uninitvar false positive).
 
 	os_win32/syslog_win32.cpp: Replace tabs.
 	Use declaration statements.  Update comments.
