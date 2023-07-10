@@ -1,6 +1,9 @@
-$Id: ChangeLog 5494 2023-07-10 12:39:46Z chrfranke $
+$Id: ChangeLog 5495 2023-07-10 13:17:30Z chrfranke $
 
 2023-07-10  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Remove unused code, remove unused variable
+	(cppcheck 2.11: knownConditionTrueFalse, unusedVariable).
 
 	smartd.cpp: Print SCSI Inquiry error code.
 	Silences 'Dead nested assignment' report from clang analyzer.
