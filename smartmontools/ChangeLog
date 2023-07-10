@@ -2,6 +2,8 @@ $Id$
 
 2023-07-10  Christian Franke  <franke@computer.org>
 
+	os_win32/syslog_win32.cpp: Replace tabs.
+
 	dev_interface.cpp: Don't pass local buffer address to caller
 	(cppcheck 2.11: autoVariables).
 

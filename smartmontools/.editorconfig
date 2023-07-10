@@ -1,5 +1,5 @@
 # smartmontools indent style settings for EditorConfig
-# http://editorconfig.org/
+# https://editorconfig.org/
 # $Id$
 
 # top-most file
@@ -28,11 +28,6 @@ indent_size = 4
 
 [/scsiprint.cpp]
 indent_size = 4
-
-[/os_win32/syslog_win32.cpp]
-indent_style = tab
-indent_size = 4
-tab_width = 4
 
 # Keep indent style of imported files as is
 [/*_nvme_ioctl.h]
