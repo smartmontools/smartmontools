@@ -1,5 +1,10 @@
 $Id$
 
+2023-07-10  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Print SCSI Inquiry error code.
+	Silences 'Dead nested assignment' report from clang analyzer.
+
 2023-07-08  Christian Franke  <franke@computer.org>
 
 	CI: Move docker base image from ubuntu:18.04 to debian:12.

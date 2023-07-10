@@ -2414,9 +2414,10 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   if ((err = scsiStdInquiry(scsidev, inqBuf, req_len))) {
     /* Marvell controllers fail on a 36 bytes StdInquiry, but 64 suffices */
     req_len = 64;
-    if ((err = scsiStdInquiry(scsidev, inqBuf, req_len))) {
+    int err64;
+    if ((err64 = scsiStdInquiry(scsidev, inqBuf, req_len))) {
       PrintOut(LOG_INFO, "Device: %s, Both 36 and 64 byte INQUIRY failed; "
-               "skip device\n", device);
+               "skip device [err=%d, %d]\n", device, err, err64);
       return 2;
     }
   }
