@@ -22,7 +22,7 @@
 #include <stdlib.h> // realpath()
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5471 2023-05-29 12:22:41Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5496 2023-07-10 13:37:25Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -209,6 +209,7 @@ bool scsi_device::scsi_pass_through_and_check(scsi_cmnd_io * iop,
     if (scsi_debugmode > 0)
       pout("%sscsi_pass_through() failed, errno=%d [%s]\n",
            msg, get_errno(), get_errmsg());
+    iop->sensep = nullptr;
     return false;
   }
 
@@ -216,6 +217,7 @@ bool scsi_device::scsi_pass_through_and_check(scsi_cmnd_io * iop,
   scsi_sense_disect sinfo;
   scsi_do_sense_disect(iop, &sinfo);
   int err = scsiSimpleSenseFilter(&sinfo);
+  iop->sensep = nullptr;
   if (err) {
     if (scsi_debugmode > 0)
       pout("%sscsi error: %s\n", msg, scsiErrString(err));
