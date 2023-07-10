@@ -2,6 +2,9 @@ $Id$
 
 2023-07-10  Christian Franke  <franke@computer.org>
 
+	dev_interface.cpp: Don't pass local buffer address to caller
+	(cppcheck 2.11: autoVariables).
+
 	scsiprint.cpp: Remove unused code, remove unused variable
 	(cppcheck 2.11: knownConditionTrueFalse, unusedVariable).
 

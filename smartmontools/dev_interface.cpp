@@ -209,6 +209,7 @@ bool scsi_device::scsi_pass_through_and_check(scsi_cmnd_io * iop,
     if (scsi_debugmode > 0)
       pout("%sscsi_pass_through() failed, errno=%d [%s]\n",
            msg, get_errno(), get_errmsg());
+    iop->sensep = nullptr;
     return false;
   }
 
@@ -216,6 +217,7 @@ bool scsi_device::scsi_pass_through_and_check(scsi_cmnd_io * iop,
   scsi_sense_disect sinfo;
   scsi_do_sense_disect(iop, &sinfo);
   int err = scsiSimpleSenseFilter(&sinfo);
+  iop->sensep = nullptr;
   if (err) {
     if (scsi_debugmode > 0)
       pout("%sscsi error: %s\n", msg, scsiErrString(err));
