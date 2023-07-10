@@ -494,7 +494,6 @@ scsiGetStartStopData(scsi_device * device)
     unsigned char * ucp;
     char b[32];
     const char * q;
-    std::string s;
     static const char * jname = "scsi_start_stop_cycle_counter";
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, 0, gBuf,
@@ -681,15 +680,12 @@ scsiPrintGrownDefectListLen(scsi_device * device, bool prefer12)
                                    1 /* req_glist */,
                                    4 /* format: bytes from index */, gBuf, 4);
             if (2 == err) { /* command not supported */
-                if (err) {
-                    if (scsi_debugmode > 0) {
-                        print_on();
-                        pout("%s (10) Failed: %s\n", hname, scsiErrString(err));
-                        print_off();
-                    }
-                    return;
-                } else
-                    got_rd12 = false;
+                if (scsi_debugmode > 0) {
+                    print_on();
+                    pout("%s (10) Failed: %s\n", hname, scsiErrString(err));
+                    print_off();
+                }
+                return;
             } else if (101 == err)    /* Defect list not found, leave quietly */
                 return;
             else {
