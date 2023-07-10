@@ -213,11 +213,22 @@ void FixGlibcTimeZoneBug(){
     tzset();
   }
 #elif _WIN32
-  if (!getenv("TZ")) {
+  const char * tz = getenv("TZ");
+  if (!tz) {
     putenv("TZ=GMT");
     tzset();
     putenv("TZ=");  // empty value removes TZ, putenv("TZ") does nothing
     tzset();
+  }
+  else {
+    static const regular_expression tzrex("[A-Z]{3}[-+]?[0-9]+([A-Z]{3,4})?");
+    // tzset() from MSVCRT only supports the above basic syntax of TZ.
+    // Otherwise the timezone settings are set to bogus values.
+    // Unset TZ and revert to system default timezone in these cases.
+    if (!tzrex.full_match(tz)) {
+      putenv("TZ=");
+      tzset();
+    }
   }
 #elif defined (__SVR4) && defined (__sun)
   // In Solaris, putenv("TZ=") sets null string and invalid timezone.

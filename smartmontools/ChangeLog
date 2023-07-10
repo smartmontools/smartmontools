@@ -2,6 +2,9 @@ $Id$
 
 2023-07-10  Christian Franke  <franke@computer.org>
 
+	utility.cpp: Add workaround for limited 'TZ' support of MSVCRT
+	version of 'tzset()'.
+
 	utility.cpp, os_win32/syslog_win32.cpp: Use '_localtime64_s()' on
 	Windows to avoid conflict with C11 variant of 'localtime_s()'
 	(cppcheck 2.11: uninitvar false positive).
