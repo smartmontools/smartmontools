@@ -1,4 +1,9 @@
-$Id: ChangeLog 5500 2023-07-10 17:22:17Z chrfranke $
+$Id: ChangeLog 5501 2023-07-16 14:59:23Z chrfranke $
+
+2023-07-16  Christian Franke  <franke@computer.org>
+
+	configure.ac: Fix 'makensis' search for 64-bit Cygwin and MSYS2.
+	Makefile.am: Remove conditional 'OS_WIN32_NSIS'.
 
 2023-07-10  Christian Franke  <franke@computer.org>
 

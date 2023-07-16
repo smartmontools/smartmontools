@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5480 2023-06-13 17:32:31Z chrfranke $
+# $Id: configure.ac 5501 2023-07-16 14:59:23Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
@@ -22,7 +22,7 @@ else
   AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5480 2023-06-13 17:32:31Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5501 2023-07-16 14:59:23Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 
@@ -51,21 +51,20 @@ AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 AC_CANONICAL_HOST
 
 AC_CHECK_TOOL(NM, [nm])
-case "${host}" in
-  *-*-mingw*)
+case "$host_os" in
+  mingw*)
     AC_CHECK_TOOL(WINDMC, [windmc])
     AC_CHECK_TOOL(WINDRES, [windres])
     test -n "$WINDRES" || AC_MSG_ERROR([Missing Windows resource compiler (windres)])
 
-    AC_MSG_CHECKING([for makensis])
-    if test -z "$MAKENSIS"; then
-      if test -n "$PROGRAMFILES" && "$PROGRAMFILES/NSIS/makensis" -VERSION >/dev/null 2>&1; then
-        MAKENSIS="$PROGRAMFILES/NSIS/makensis"
-      elif makensis -VERSION >/dev/null 2>&1; then
-        MAKENSIS=makensis
-      fi
+    AC_CHECK_PROG(MAKENSIS, [makensis], [makensis])
+    if test -z "$MAKENSIS" && test -n "$PROGRAMFILES"; then
+      AC_MSG_CHECKING([for makensis at default install location])
+      for x in '' ' (x86)'; do if test -f "${PROGRAMFILES}${x}/NSIS/makensis.exe"; then
+        MAKENSIS="${PROGRAMFILES}${x}/NSIS/makensis"; break
+      fi; done
+      AC_MSG_RESULT([${MAKENSIS:-no}])
     fi
-    AC_MSG_RESULT([${MAKENSIS:-no}])
     ;;
 esac
 
@@ -782,7 +781,6 @@ AM_CONDITIONAL(OS_DARWIN, [test "$os_darwin" = "yes"])
 AM_CONDITIONAL(OS_SOLARIS, [test "$os_solaris" = "yes"])
 AM_CONDITIONAL(OS_WIN32, [test "$os_win32" = "yes"])
 AM_CONDITIONAL(OS_WIN32_MINGW, [test "$os_win32_mingw" = "yes"])
-AM_CONDITIONAL(OS_WIN32_NSIS, [test -n "$MAKENSIS"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
 
 if test "$GXX" = "yes"; then
