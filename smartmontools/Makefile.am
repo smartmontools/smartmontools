@@ -1010,7 +1010,7 @@ $(docdir_win32)/%.conf: $(srcdir)/%.conf
 	touch -r $< $@
 
 $(docdir_win32)/checksums$(win_bits).txt: $(EXEFILES_WIN32)
-	(cd $(exedir_win32) && md5sum *.exe && sha1sum *.exe && sha256sum *.exe) \
+	(cd $(exedir_win32) && for algo in md5 sha1 sha256; do $${algo}sum *.exe *.cmd *.ps1; done) \
 	| $(UNIX2DOS) > $@
 
 # Build non-console version of smartctl for GSmartControl.
