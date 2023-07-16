@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5501 2023-07-16 14:59:23Z chrfranke $
+# $Id: configure.ac 5503 2023-07-16 15:17:41Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
@@ -22,7 +22,7 @@ else
   AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5501 2023-07-16 14:59:23Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5503 2023-07-16 15:17:41Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 
@@ -325,7 +325,7 @@ case "$with_libcap_ng:$host_os" in
       [AC_DEFINE(HAVE_LIBCAP_NG, 1,
         [Define to 1 if you have the `cap-ng' library (-lcap-ng).]) dnl `vim syntax
        CAPNG_LDADD="-lcap-ng"; use_libcap_ng=yes],
-      [AC_MSG_ERROR([libcap-ng headers found but library is missing])])],
+      [test "$with_libcap_ng" != "yes" || AC_MSG_ERROR([libcap-ng headers found but library is missing])])],
       [test "$with_libcap_ng" != "yes" || AC_MSG_ERROR([Missing libcap-ng header files])])
     ;;
 esac
@@ -343,7 +343,7 @@ case "$with_libsystemd:$host_os" in
       [AC_DEFINE(HAVE_LIBSYSTEMD, 1,
         [Define to 1 if you have the `systemd' library (-lsystemd).]) dnl `vim syntax
        SYSTEMD_LDADD="-lsystemd"; use_libsystemd=yes],
-      [AC_MSG_ERROR([libsystemd headers found but library is missing])])],
+      [test "$with_libsystemd" != "yes" || AC_MSG_ERROR([libsystemd headers found but library is missing])])],
       [test "$with_libsystemd" != "yes" || AC_MSG_ERROR([Missing libsystemd header files])])
     ;;
 esac
@@ -1039,7 +1039,7 @@ case "$host_os:$with_libsystemd:$use_libsystemd:$PKG_CONFIG" in
     if $PKG_CONFIG systemd >/dev/null 2>&1; then
       AC_MSG_WARN([
 systemd(1) is used on this system but smartd systemd notify support will
-not be available because libsystemd-dev[[el]] package is not installed.
+not be available because a required library is missing.
 Use option '--without-libsystemd' to suppress this warning.
 ])
     fi ;;
