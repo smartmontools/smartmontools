@@ -1,6 +1,8 @@
-$Id: ChangeLog 5501 2023-07-16 14:59:23Z chrfranke $
+$Id: ChangeLog 5502 2023-07-16 15:03:24Z chrfranke $
 
 2023-07-16  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add *.cmd and *.ps1 to Windows checksum*.txt files.
 
 	configure.ac: Fix 'makensis' search for 64-bit Cygwin and MSYS2.
 	Makefile.am: Remove conditional 'OS_WIN32_NSIS'.
