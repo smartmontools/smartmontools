@@ -2,6 +2,10 @@ $Id$
 
 2023-07-16  Christian Franke  <franke@computer.org>
 
+	os_win32/installer.nsi: Rework InstType names, default to x86_64.
+	64-bit executables are now archived in 'bin' directory, 32-bit
+	executables in 'bin32'.  Update links to NSIS examples.
+
 	configure.ac: Don't fail if libcap-ng or libsystemd libs are missing.
 	No appropriate library may be provided if 'LDFLAGS=-static' is used.
 

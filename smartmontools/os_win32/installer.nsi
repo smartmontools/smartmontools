@@ -3,7 +3,7 @@
 ;
 ; Home page of code is: https://www.smartmontools.org
 ;
-; Copyright (C) 2006-22 Christian Franke
+; Copyright (C) 2006-23 Christian Franke
 ;
 ; SPDX-License-Identifier: GPL-2.0-or-later
 ;
@@ -14,7 +14,8 @@
 ;--------------------------------------------------------------------
 ; Command line arguments:
 ; makensis -DINPDIR=<input-dir> -DINPDIR64=<input-dir-64-bit> \
-;   -DOUTFILE=<output-file> -DVERSTR=<version-string> installer.nsi
+;   -DOUTFILE=<output-file> -DVERSTR=<version-string> -DYY=<year> \
+;   installer.nsi
 
 !ifndef INPDIR
   !define INPDIR "."
@@ -84,13 +85,17 @@ Page instfiles
 UninstPage uninstConfirm
 UninstPage instfiles
 
-InstType "Full"
-InstType "Extract files only"
-InstType "Drive menu"
 !ifdef INPDIR64
-InstType "Full (x64)"
-InstType "Extract files only (x64)"
-InstType "Drive menu (x64)"
+  InstType "Full (x86_64)"
+  InstType "Extract files only (x86_64)"
+  InstType "Drive menu (x86_64)"
+  InstType "Full (x86)"
+  InstType "Extract files only (x86)"
+  InstType "Drive menu (x86)"
+!else
+  InstType "Full"
+  InstType "Extract files only"
+  InstType "Drive menu"
 !endif
 
 
@@ -99,7 +104,7 @@ InstType "Drive menu (x64)"
 
 !ifdef INPDIR64
   Section "64-bit version" X64_SECTION
-    SectionIn 4 5 6
+    SectionIn 1 2 3
     ; Handled in Function CheckX64
   SectionEnd
 
@@ -119,11 +124,11 @@ SectionGroup "!Program files"
       ; Use dummy SetOutPath to control archive location of executables
       ${If} $X64 != ""
         Goto +2
-          SetOutPath "$INSTDIR\bin64"
+          SetOutPath "$INSTDIR\bin"
         File ${option} '${INPDIR64}\${path}'
       ${Else}
         Goto +2
-          SetOutPath "$INSTDIR\bin"
+          SetOutPath "$INSTDIR\bin32"
         File ${option} '${INPDIR}\${path}'
       ${EndIf}
     !else
@@ -156,6 +161,7 @@ SectionGroup "!Program files"
     ${EndIf}
     !insertmacro FileExe "bin\smartd.exe" ""
 
+    SetOutPath "$INSTDIR\bin"
     IfFileExists "$INSTDIR\bin\smartd.conf" 0 +2
       MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2 "Replace existing configuration file$\n$INSTDIR\bin\smartd.conf ?" /SD IDNO IDYES 0 IDNO +2
         File "${INPDIR}\doc\smartd.conf"
@@ -248,6 +254,9 @@ Section "Uninstaller" UNINST_SECTION
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLUpdateInfo" "https://builds.smartmontools.org/"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "NoRepair" 1
+
+  Goto +2 ; Use dummy SetOutPath to control archive location of uninstaller
+    SetOutPath "$INSTDIR"
   WriteUninstaller "uninst-smartmontools.exe"
 
 SectionEnd
@@ -688,15 +697,10 @@ FunctionEnd
 
 ;--------------------------------------------------------------------
 ; Path functions
-;
-; Based on example from:
-; http://nsis.sourceforge.net/Path_Manipulation
-;
-
 
 !include "WinMessages.nsh"
 
-; Registry Entry for environment (NT4,2000,XP)
+; Registry Entry for environment
 ; All users:
 ;!define Environ 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
 ; Current user only:
@@ -704,7 +708,12 @@ FunctionEnd
 
 
 ; AddToPath - Appends dir to PATH
-;   (does not work on Win9x/ME)
+;
+; Originally based on example from:
+; https://nsis.sourceforge.io/Path_Manipulation
+; Later reworked to fix the string overflow problem.
+; This version is also provided here:
+; https://nsis.sourceforge.io/AddToPath_safe
 ;
 ; Usage:
 ;   Push "dir"
@@ -788,6 +797,9 @@ FunctionEnd
 
 ; RemoveFromPath - Removes dir from PATH
 ;
+; Based on example from:
+; https://nsis.sourceforge.io/Path_Manipulation
+;
 ; Usage:
 ;   Push "dir"
 ;   Call RemoveFromPath
@@ -838,6 +850,9 @@ FunctionEnd
 
 ; StrStr - find substring in a string
 ;
+; Based on example from:
+; https://nsis.sourceforge.io/Path_Manipulation
+;
 ; Usage:
 ;   Push "this is some string"
 ;   Push "some"
@@ -877,8 +892,8 @@ FunctionEnd
 ;--------------------------------------------------------------------
 ; Set Run As Administrator flag in shortcut
 ;
-; Slightly modified version from:
-; http://nsis.sourceforge.net/IShellLink_Set_RunAs_flag
+; Based on example from:
+; https://nsis.sourceforge.io/IShellLink_Set_RunAs_flag
 ;
 
 !define IPersistFile {0000010b-0000-0000-c000-000000000046}
