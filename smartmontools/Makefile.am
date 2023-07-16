@@ -948,10 +948,10 @@ $(distzip_win32): distdir.mkdir $(FILES_WIN32)
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256
 
-if OS_WIN32_NSIS
 # Build NSIS installer
 # Note: Only option character '-' is also compatible with Linux version of makensis
 $(distinst_win32): os_win32/installer.nsi smartctl_res.rc distdir.mkdir $(FILES_WIN32)
+	@test -n '$(MAKENSIS)' || ! echo 'makensis: command not found (https://nsis.sourceforge.io)'
 	test -z '$(builddir_win64)' || ( cd $(builddir_win64) && make distdir-win32 )
 	@date=`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h` && \
 	rev=`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h` && \
@@ -964,12 +964,6 @@ $(distinst_win32): os_win32/installer.nsi smartctl_res.rc distdir.mkdir $(FILES_
 	md5sum $@ > $@.md5
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256
-
-else
-$(distinst_win32):
-	@echo "makensis: command not found. Please install NSIS from http://nsis.sourceforge.net/" 1>&2
-	@exit 1
-endif
 
 cleandist-win32:
 	rm -rf $(distdir_win32) distdir.mkdir

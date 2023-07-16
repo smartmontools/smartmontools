@@ -1,5 +1,10 @@
 $Id$
 
+2023-07-16  Christian Franke  <franke@computer.org>
+
+	configure.ac: Fix 'makensis' search for 64-bit Cygwin and MSYS2.
+	Makefile.am: Remove conditional 'OS_WIN32_NSIS'.
+
 2023-07-10  Christian Franke  <franke@computer.org>
 
 	utility.cpp: Add workaround for limited 'TZ' support of MSVCRT
