@@ -159,6 +159,15 @@ Section below!
 /dev/tws0 \-d 3ware,0 \-a \-s L/../../7/00
 /dev/tws0 \-d 3ware,1 \-a \-s L/../../7/02
 .\" %ENDIF OS FreeBSD
+.\" %IF OS Linux
+#
+# Two disks connected to the first HP SmartArray controller
+# which uses the Linux cciss driver.  Start long self\-tests
+# on Sunday nights and short self\-tests every night and send
+# errors to root.
+/dev/sda \-d cciss,0 \-a \-s (L/../../7/02|S/../.././02) \-m root
+/dev/sda \-d cciss,1 \-a \-s (L/../../7/03|S/../.././03) \-m root
+.\" %ENDIF OS Linux
 .\" %IF OS FreeBSD Linux
 #
 # Three SATA disks on a HighPoint RocketRAID controller.

@@ -2,6 +2,9 @@ $Id$
 
 2023-07-24  Christian Franke  <franke@computer.org>
 
+	smartd.conf, smartd.conf.5.in: Add examples for '-d cciss,N' on Linux
+	(based on Debian 61_cciss-doc.patch).
+
 	smartctl.8.in: Minor rework of '-a' and '-x' sections.
 	Merge duplicate info about TapeAlert.
 	Note that admin rights are not needed for Windows NVMe driver.
