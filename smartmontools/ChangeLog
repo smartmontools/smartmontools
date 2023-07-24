@@ -1,6 +1,8 @@
-$Id: ChangeLog 5520 2023-07-24 16:32:43Z chrfranke $
+$Id: ChangeLog 5521 2023-07-24 16:44:49Z chrfranke $
 
 2023-07-24  Christian Franke  <franke@computer.org>
+
+	man pages: Set svn:eol-style=LF to be compatible with Cygwin sed.
 
 	man pages: Use CW font only if troff is used.
 	This silences a related warning from groff.
