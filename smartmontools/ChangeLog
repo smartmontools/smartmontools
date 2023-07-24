@@ -1,6 +1,8 @@
-$Id: ChangeLog 5513 2023-07-24 11:21:13Z chrfranke $
+$Id: ChangeLog 5514 2023-07-24 11:38:18Z chrfranke $
 
 2023-07-24  Christian Franke  <franke@computer.org>
+
+	smartd.conf: Align help text with 'smartd -D' output.
 
 	smartd.conf, smartd.conf.5.in: Remove outdated examples.
 
