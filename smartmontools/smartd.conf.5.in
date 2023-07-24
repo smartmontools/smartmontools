@@ -4,7 +4,7 @@ Copyright (C) 2004-23 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5507 2023-07-24 08:50:58Z chrfranke $
+$Id: smartd.conf.5.in 5508 2023-07-24 09:00:49Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -211,14 +211,6 @@ Section below!
 /dev/arcmsr0 \-d areca,2 \-a \-s L/../../7/01
 /dev/arcmsr0 \-d areca,3 \-a \-s L/../../7/02
 .\" %ENDIF OS FreeBSD
-.\" %IF OS Linux
-#
-# Two SATA disks on an Intelliprop controller.
-# Start short self\-tests daily between 1\-2, 2\-3, and
-# 3\-4 am.
-/dev/sde \-d intelliprop,0+sat \-a \-s S/../.././01
-/dev/sde \-d intelliprop,1+sat \-a \-s S/../.././02
-.\" %ENDIF OS Linux
 #
 # The following line enables monitoring of the
 # ATA Error Log and the Self\-Test Error Log.
@@ -1793,4 +1785,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5507 2023-07-24 08:50:58Z chrfranke $
+$Id: smartd.conf.5.in 5508 2023-07-24 09:00:49Z chrfranke $
