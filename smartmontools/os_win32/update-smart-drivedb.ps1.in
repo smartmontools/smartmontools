@@ -3,7 +3,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2022 Christian Franke
+# Copyright (C) 2022-23 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -54,6 +54,7 @@
   .PARAMETER Insecure
   Don't abort download if certificate verification fails.  This option
   is also required if a HTTP URL is selected with '-UrlOf' option.
+  If a HTTPS URL is selected, PowerShell >= 6.0 is required.
 
   .PARAMETER NoVerify
   Don't verify signature with GnuPG.
@@ -211,7 +212,7 @@ function selecturl($url_of, [ref]$url)
   switch ($url_of) {
     'github' {
        #    https://github.com/smartmontools/smartmontools/raw/origin/$branch/smartmontools/drivedb.h
-       #    https://github.com/smartmonto	ols/smartmontools/raw/master/smartmontools/drivedb.h
+       #    https://github.com/smartmontools/smartmontools/raw/master/smartmontools/drivedb.h
        #    redirected to:
        $u = 'https://raw.githubusercontent.com/smartmontools/smartmontools/master/smartmontools/drivedb.h'
      }

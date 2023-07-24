@@ -2,6 +2,8 @@ $Id$
 
 2023-07-24  Christian Franke  <franke@computer.org>
 
+	os_win32/update-smart-drivedb.ps1.in: Fix typo, update help text.
+
 	smartd.conf: Align help text with 'smartd -D' output.
 
 	smartd.conf, smartd.conf.5.in: Remove outdated examples.
