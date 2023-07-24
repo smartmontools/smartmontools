@@ -89,7 +89,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5494 2023-07-10 12:39:46Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5516 2023-07-24 13:38:37Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -3737,6 +3737,8 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
       // Save the new values for the next time around
       state.smartval = curval;
+      state.update_persistent_state();
+      state.attrlog_dirty = true;
     }
   }
   state.offline_started = state.selftest_started = false;
@@ -3787,11 +3789,6 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   // Don't leave device open -- the OS/user may want to access it
   // before the next smartd cycle!
   CloseDevice(atadev, name);
-
-  // Copy ATA attribute values to persistent state
-  state.update_persistent_state();
-
-  state.attrlog_dirty = true;
   return 0;
 }
 

@@ -1,6 +1,9 @@
-$Id: ChangeLog 5515 2023-07-24 12:58:25Z chrfranke $
+$Id: ChangeLog 5516 2023-07-24 13:38:37Z chrfranke $
 
 2023-07-24  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Don't write attrlog if ATA attributes were not read.
+	Improvement of original fix r5116.
 
 	os_win32/update-smart-drivedb.ps1.in: Fix typo, update help text.
 
