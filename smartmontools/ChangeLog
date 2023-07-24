@@ -1,6 +1,9 @@
-$Id: ChangeLog 5510 2023-07-24 09:35:46Z chrfranke $
+$Id: ChangeLog 5511 2023-07-24 10:10:31Z chrfranke $
 
 2023-07-24  Christian Franke  <franke@computer.org>
+
+	smartd.conf, smartd.conf.5.in: Add examples for '-d cciss,N' on Linux
+	(based on Debian 61_cciss-doc.patch).
 
 	smartctl.8.in: Minor rework of '-a' and '-x' sections.
 	Merge duplicate info about TapeAlert.

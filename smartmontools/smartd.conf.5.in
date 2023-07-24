@@ -4,7 +4,7 @@ Copyright (C) 2004-23 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5509 2023-07-24 09:14:20Z chrfranke $
+$Id: smartd.conf.5.in 5511 2023-07-24 10:10:31Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -159,6 +159,15 @@ Section below!
 /dev/tws0 \-d 3ware,0 \-a \-s L/../../7/00
 /dev/tws0 \-d 3ware,1 \-a \-s L/../../7/02
 .\" %ENDIF OS FreeBSD
+.\" %IF OS Linux
+#
+# Two disks connected to the first HP SmartArray controller
+# which uses the Linux cciss driver.  Start long self\-tests
+# on Sunday nights and short self\-tests every night and send
+# errors to root.
+/dev/sda \-d cciss,0 \-a \-s (L/../../7/02|S/../.././02) \-m root
+/dev/sda \-d cciss,1 \-a \-s (L/../../7/03|S/../.././03) \-m root
+.\" %ENDIF OS Linux
 .\" %IF OS FreeBSD Linux
 #
 # Three SATA disks on a HighPoint RocketRAID controller.
@@ -1789,4 +1798,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5509 2023-07-24 09:14:20Z chrfranke $
+$Id: smartd.conf.5.in 5511 2023-07-24 10:10:31Z chrfranke $
