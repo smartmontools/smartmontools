@@ -1,6 +1,8 @@
-$Id: ChangeLog 5512 2023-07-24 10:24:25Z chrfranke $
+$Id: ChangeLog 5513 2023-07-24 11:21:13Z chrfranke $
 
 2023-07-24  Christian Franke  <franke@computer.org>
+
+	smartd.conf, smartd.conf.5.in: Remove outdated examples.
 
 	smartd.conf: Remove SVN Id string
 	(Debian 54_remove-Id-from-smartd.conf.diff).
