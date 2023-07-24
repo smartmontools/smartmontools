@@ -211,14 +211,6 @@ Section below!
 /dev/arcmsr0 \-d areca,2 \-a \-s L/../../7/01
 /dev/arcmsr0 \-d areca,3 \-a \-s L/../../7/02
 .\" %ENDIF OS FreeBSD
-.\" %IF OS Linux
-#
-# Two SATA disks on an Intelliprop controller.
-# Start short self\-tests daily between 1\-2, 2\-3, and
-# 3\-4 am.
-/dev/sde \-d intelliprop,0+sat \-a \-s S/../.././01
-/dev/sde \-d intelliprop,1+sat \-a \-s S/../.././02
-.\" %ENDIF OS Linux
 #
 # The following line enables monitoring of the
 # ATA Error Log and the Self\-Test Error Log.
