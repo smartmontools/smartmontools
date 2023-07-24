@@ -2,6 +2,8 @@ $Id$
 
 2023-07-24  Christian Franke  <franke@computer.org>
 
+	smartctl.8.in, smartd.conf.5.in: Fix typos.
+
 	man pages: Silence harmless warnings from 'mandoc -T lint'.
 	Fix bogus bold font setting (Debian Bug 1041295).
 

@@ -725,7 +725,7 @@ under FreeBSD, it is the character device which the driver registered (eg,
 the device consists of one or more SCSI/SAS or SATA disks connected to a
 SSSRAID controller.
 The non-negative integer E (in the range of 0 to 8) denotes the enclosure
-and S(range 0 to 128) denotes the slot.
+and S (range 0 to 128) denotes the slot.
 Use syntax such as:
 .br
 \fBsmartctl \-a \-d sssraid,0,1 /dev/bsg/sssraid0\fP
@@ -1990,7 +1990,7 @@ Optional entries are read from the file
 (Windows: \fBEXEDIR/drivedb-add.h\fP)
 .\" %ENDIF OS ALL
 .\" %IF OS Windows
-.\"! \fBEXEDIR/drivedb-add.h\fP.
+.\"! \fBEXEDIR/drivedb-add.h\fP
 .\" %ENDIF OS Windows
 .\" %IF ENABLE_DRIVEDB
 if this option is not specified.

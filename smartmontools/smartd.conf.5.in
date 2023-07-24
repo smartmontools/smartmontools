@@ -483,9 +483,10 @@ bridge.
 .\" %ENDIF OS Linux
 .\" %IF OS FreeBSD Linux
 .I megaraid,N
-\- [Linux and FreeBSD only] the device consists of one or more SCSI/SAS disks connected
-to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
-127 inclusive) denotes which disk on the controller is monitored.
+\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS disks
+connected to a MegaRAID controller.
+The non-negative integer N (in the range of 0 to 127 inclusive) denotes which
+disk on the controller is monitored.
 This interface will also work for Dell PERC controllers.
 In log files and email messages this disk will be identified as
 megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
@@ -1090,8 +1091,8 @@ are run instead.
 This is handled by the script /usr/local/etc/smartd_warning.sh
 (see also \*(Aq\-M exec\*(Aq below).
 Plugin scripts without execute permission are silently ignored.
-If any plugin script is missing or fails a with nonzero exit status, the warning
-script exits immediately without sending mail.
+If any plugin script is missing or fails with a nonzero exit status, the
+warning script exits immediately without sending mail.
 .\" %ENDIF NOT OS Windows
 .\" %ENDIF ENABLE_SMARTDPLUGINDIR
 .\" %IF OS Windows
