@@ -444,7 +444,10 @@ Otherwise device type SCSI (for SCSI/SAS disks) is used.
 this device type is for one or two SATA disks that are behind an ASMedia
 ASM1352R USB to SATA (RAID) bridge.
 The parameter PORT (0 or 1) selects the disk to monitor.
-Note: \*(Aq\-d sat\*(Aq also works for the first disk.
+.br
+Note: This USB bridge also supports \*(Aq\-d sat\*(Aq.
+This monitors either the first disk or the second disk if no disk is
+connected to the first port.
 .Sp
 .I usbcypress
 \- this device type is for ATA disks that are behind a Cypress USB to PATA
@@ -460,11 +463,12 @@ The 48-bit ATA commands (required e.g.\& for \*(Aq\-l xerror\*(Aq, see below)
 do not work with all of these bridges and are therefore disabled by default.
 These commands can be enabled by \*(Aq\-d usbjmicron,x\*(Aq.
 If two disks are connected to a bridge with two ports, an error message is
-printed if no PORT is specified.
-The port can be specified by \*(Aq\-d usbjmicron[,x],PORT\*(Aq where PORT is 0
-(master) or 1 (slave).  This is not necessary if the device uses a port
-multiplier to connect multiple disks to one port.  The disks appear under
-separate /dev/ice names then.
+printed if no PORT (0 or 1) is specified.
+.br
+The PORT parameter is not necessary if the device uses a port multiplier to
+connect multiple disks to one port.
+The disks appear under separate /dev/ice names then.
+.br
 CAUTION: Specifying \*(Aq,x\*(Aq for a device which does not support it results
 in I/O errors and may disconnect the drive.  The same applies if the specified
 PORT does not exist or is not connected to a disk.
