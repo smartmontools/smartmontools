@@ -2,6 +2,11 @@ $Id$
 
 2023-07-24  Christian Franke  <franke@computer.org>
 
+	smartctl.8.in: Minor rework of '-a' and '-x' sections.
+	Merge duplicate info about TapeAlert.
+	Note that admin rights are not needed for Windows NVMe driver.
+	Note that the NVMe error log is not persistent.
+
 	smartctl.8.in, smartd.conf.5.in: Update sections '-d usbasm1352r'
 	and '-d usbjmicron'.
 

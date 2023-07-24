@@ -178,6 +178,10 @@ Both forms require a NVMe driver which supports NVME_PASS_THROUGH_IOCTL.
 .Sp
 Use the forms \fB"/dev/sd[...]"\fP or \fB"/dev/pd[...]"\fP (see above)
 for NVMe devices behind Windows 10 NVMe driver (stornvme.sys).
+The pass-through functionality of this driver does not require admin rights
+to retrieve device information (\*(Aq\-x\*(Aq option).
+Admin rights are required if the device state is changed
+(\*(Aq\-t TEST\*(Aq option).
 .Sp
 The prefix \fB"/dev/"\fP is optional.
 .\" %ENDIF OS Windows Cygwin
@@ -248,43 +252,45 @@ shortest output and \*(Aq\-\-identify=wb\*(Aq (all words, all bits) produces
 the longest output.
 .TP
 .B \-a, \-\-all
-Prints all SMART information about the disk.
-For ATA devices this is equivalent
-to
+Prints all SMART information about the device.
+.Sp
+For ATA, this is equivalent to
 .br
-\*(Aq\-H \-i \-c \-A \-l error \-l selftest \-l selective\*(Aq
+\*(Aq\-H \-i \-c \-A \-l error \-l selftest \-l selective\*(Aq.
 .br
-and for SCSI, this is equivalent to
+This option is no longer recommended for ATA disks because it does not enable
+the SMART options which require support for 48-bit ATA commands
+(see \*(Aq-x\*(Aq below).
+.Sp
+For SCSI, this is equivalent to
 .br
 \*(Aq\-H \-i \-A \-l error \-l selftest\*(Aq.
-.br
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+.Sp
 For NVMe, this is equivalent to
 .br
 \*(Aq\-H \-i \-c \-A \-l error \-l selftest\*(Aq.
-.br
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
-Note that for ATA disks this does \fBnot\fP enable the non-SMART options
-and the SMART options which require support for 48-bit ATA commands.
 .TP
 .B \-x, \-\-xall
 Prints all SMART and non-SMART information about the device.
-For ATA devices this is equivalent to
+.Sp
+For ATA, this is equivalent to
 .br
 \*(Aq\-H \-i \-g all \-g wcreorder \-c \-A \-f brief \-l xerror,error
 \-l xselftest,selftest \-l selective \-l directory \-l scttemp \-l scterc
 \-l devstat \-l defects \-l sataphy\*(Aq.
 .br
-and for SCSI disks, this is equivalent to
+If \*(Aq\-a\*(Aq is also specified, add \*(Aq\-l error \-l selftest\*(Aq.
+.Sp
+For SCSI disks, this is equivalent to
 .br
 \*(Aq\-H \-i \-g all \-A \-l error \-l selftest \-l background \-l sasphy
-\-l defects \-l envrep \-l genstats \-l ssd \-l zdevstat\*(Aq.
+\-l defects \-l envrep \-l genstats \-l ssd \-l zdevstat\*(Aq
 .br
-and for SCSI zoned disks, add \-l zdevstat
-.br
-and for SCSI tape drivers and changers, add \-l tapedevstat
-.br
+and for SCSI tape drives and changers, add \*(Aq\-l tapedevstat\*(Aq.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+.Sp
 For NVMe, this is equivalent to
 .br
 \*(Aq\-H \-i \-c \-A \-l error \-l selftest\*(Aq.
@@ -1153,16 +1159,12 @@ The dsn is usually disabled by default.
 .B \-H, \-\-health
 Prints the health status of the device.
 .Sp
-[SCSI tape drive or changer] For SCSI tape drives the TapeAlert log page is
-not checked for pending alerts unless this option is given twice (see
-\fBTAPE DRIVES\fP for the rationale).
-.Sp
 If the device reports failing health status, this means
 .B either
 that the device has already failed,
 .B or
-that it is predicting its own failure within the next 24 hours.  If
-this happens, use the \*(Aq\-a\*(Aq option to get more information, and
+that it is predicting its own failure within the next 24 hours.
+If this happens, use the \*(Aq\-x\*(Aq option to get more information, and
 .B get your data off the disk and to someplace safe as soon as you can.
 .Sp
 [ATA] Health status is obtained by checking the (boolean) result returned
@@ -1178,8 +1180,9 @@ Prefailure SMART Attribute value is less than or equal to its threshold
 (ASC) and Additional Sense Code Qualifier (ASCQ) from Informal Exceptions
 (IE) log page (if supported) and/or from SCSI sense data.
 .Sp
-[SCSI tape drive or changer] TapeAlert status is obtained by reading the
-TapeAlert log page only when this option is given twice.
+[SCSI tape drive or changer] The TapeAlert status is obtained by reading the
+TapeAlert log page, but only if this option is given twice (see
+\fBTAPE DRIVES\fP for the rationale).
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 [NVMe] NVMe status is obtained by reading the "Critical Warning" byte from
@@ -1410,6 +1413,10 @@ Only the 16 most recent log entries are printed by default.
 This number can be changed by the optional parameter NUM.
 The maximum number of log entries is vendor specific
 (in the range from 1 to 256 inclusive).
+.Sp
+Note that the contents of this log is not preserved across power cycles or
+controller resets, but the value of \*(AqError Information Log Entries\*(Aq
+from SMART/Health Information log is.
 .Sp
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I xerror[,NUM][,error]
