@@ -1,6 +1,8 @@
-$Id: ChangeLog 5517 2023-07-24 13:53:08Z chrfranke $
+$Id: ChangeLog 5518 2023-07-24 14:55:04Z chrfranke $
 
 2023-07-24  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Add NVMe 2.0 capability flags.
 
 	ataidentify.cpp, ataprint.cpp: ACS-4/5/6 enhancements.
 
