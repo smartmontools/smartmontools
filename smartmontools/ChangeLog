@@ -2,6 +2,9 @@ $Id$
 
 2023-07-24  Christian Franke  <franke@computer.org>
 
+	man pages: Use CW font only if troff is used.
+	This silences a related warning from groff.
+
 	smartd.cpp: Don't write Copyright line to syslog.
 	This prevents that logfile analyzers need an extra suppression rule
 	(Red Hat Bugzilla 673758 and 1162741).

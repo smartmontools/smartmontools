@@ -13,7 +13,8 @@ $Id$
 .if n .sp
 ..
 .de Vb \" Begin verbatim text
-.ft CW
+.if t .ft CW
+.if n .ft R
 .nf
 .ne \\$1
 ..
