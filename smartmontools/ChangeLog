@@ -2,6 +2,12 @@ $Id$
 
 2023-07-24  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Don't write Copyright line to syslog.
+	This prevents that logfile analyzers need an extra suppression rule
+	(Red Hat Bugzilla 673758 and 1162741).
+	utility.cpp, utility.h: Enhance 'format_version_info()' accordingly.
+	smartctl.cpp: Adjust function call.
+
 	nvmeprint.cpp: Add NVMe 2.0 capability flags.
 
 	ataidentify.cpp, ataprint.cpp: ACS-4/5/6 enhancements.

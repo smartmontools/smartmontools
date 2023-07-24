@@ -384,7 +384,7 @@ static int parse_options(int argc, char** argv, const char * & type,
     switch (optchar){
     case 'V':
       printing_is_off = false;
-      pout("%s", format_version_info("smartctl", true /*full*/).c_str());
+      pout("%s", format_version_info("smartctl", 3 /*full*/).c_str());
       return 0;
     case 'q':
       if (!strcmp(optarg,"errorsonly")) {

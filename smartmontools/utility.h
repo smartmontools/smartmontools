@@ -40,7 +40,8 @@
 #endif
 
 // Make version information string
-std::string format_version_info(const char * prog_name, bool full = false);
+// lines: 1: version only, 2: version+copyright, >=3: full information
+std::string format_version_info(const char * prog_name, int lines = 2);
 
 // return (v)sprintf() formatted std::string
 std::string strprintf(const char * fmt, ...)
