@@ -1,6 +1,12 @@
-$Id: ChangeLog 5518 2023-07-24 14:55:04Z chrfranke $
+$Id: ChangeLog 5519 2023-07-24 15:57:54Z chrfranke $
 
 2023-07-24  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Don't write Copyright line to syslog.
+	This prevents that logfile analyzers need an extra suppression rule
+	(Red Hat Bugzilla 673758 and 1162741).
+	utility.cpp, utility.h: Enhance 'format_version_info()' accordingly.
+	smartctl.cpp: Adjust function call.
 
 	nvmeprint.cpp: Add NVMe 2.0 capability flags.
 

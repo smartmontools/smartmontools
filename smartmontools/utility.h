@@ -13,7 +13,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 5481 2023-06-13 17:42:42Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 5519 2023-07-24 15:57:54Z chrfranke $"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
@@ -40,7 +40,8 @@
 #endif
 
 // Make version information string
-std::string format_version_info(const char * prog_name, bool full = false);
+// lines: 1: version only, 2: version+copyright, >=3: full information
+std::string format_version_info(const char * prog_name, int lines = 2);
 
 // return (v)sprintf() formatted std::string
 std::string strprintf(const char * fmt, ...)

@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5484 2023-06-25 17:29:41Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5519 2023-07-24 15:57:54Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -384,7 +384,7 @@ static int parse_options(int argc, char** argv, const char * & type,
     switch (optchar){
     case 'V':
       printing_is_off = false;
-      pout("%s", format_version_info("smartctl", true /*full*/).c_str());
+      pout("%s", format_version_info("smartctl", 3 /*full*/).c_str());
       return 0;
     case 'q':
       if (!strcmp(optarg,"errorsonly")) {

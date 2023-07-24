@@ -89,7 +89,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5516 2023-07-24 13:38:37Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5519 2023-07-24 15:57:54Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -5328,7 +5328,7 @@ static int parse_options(int argc, char **argv)
     case 'V':
       // print version and CVS info
       debugmode = 1;
-      PrintOut(LOG_INFO, "%s", format_version_info("smartd", true /*full*/).c_str());
+      PrintOut(LOG_INFO, "%s", format_version_info("smartd", 3 /*full*/).c_str());
       return 0;
 #ifdef HAVE_LIBCAP_NG
     case 'C':
@@ -5449,8 +5449,8 @@ static int parse_options(int argc, char **argv)
   if (!notify_post_init())
     return EXIT_BADCMD;
 
-  // print header
-  PrintHead();
+  // print header, don't write Copyright line to syslog
+  PrintOut(LOG_INFO, "%s\n", format_version_info("smartd", (debugmode ? 2 : 1)).c_str());
 
   // No error, continue in main_worker()
   return -1;

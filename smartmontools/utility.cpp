@@ -55,7 +55,7 @@
 #endif
 #endif // USE_CLOCK_MONOTONIC
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 5500 2023-07-10 17:22:17Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 5519 2023-07-24 15:57:54Z chrfranke $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -83,7 +83,8 @@ const char * packet_types[] = {
 #endif
 
 // Make version information string
-std::string format_version_info(const char * prog_name, bool full /*= false*/)
+// lines: 1: version only, 2: version+copyright, >=3: full information
+std::string format_version_info(const char * prog_name, int lines /* = 2 */)
 {
   std::string info = strprintf(
     "%s "
@@ -96,11 +97,14 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
 #else
       "(build date " __DATE__ ")" // checkout without expansion of Id keywords
 #endif
-      " [%s] " BUILD_INFO "\n"
-    "Copyright (C) 2002-23, Bruce Allen, Christian Franke, www.smartmontools.org\n",
+      " [%s] " BUILD_INFO "\n",
     prog_name, smi()->get_os_version_str().c_str()
   );
-  if (!full)
+  if (lines <= 1)
+    return info;
+
+  info += "Copyright (C) 2002-23, Bruce Allen, Christian Franke, www.smartmontools.org\n";
+  if (lines == 2)
     return info;
 
   info += "\n";
