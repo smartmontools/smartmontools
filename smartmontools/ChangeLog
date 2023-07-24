@@ -1,6 +1,9 @@
-$Id: ChangeLog 5511 2023-07-24 10:10:31Z chrfranke $
+$Id: ChangeLog 5512 2023-07-24 10:24:25Z chrfranke $
 
 2023-07-24  Christian Franke  <franke@computer.org>
+
+	smartd.conf: Remove SVN Id string
+	(Debian 54_remove-Id-from-smartd.conf.diff).
 
 	smartd.conf, smartd.conf.5.in: Add examples for '-d cciss,N' on Linux
 	(based on Debian 61_cciss-doc.patch).
