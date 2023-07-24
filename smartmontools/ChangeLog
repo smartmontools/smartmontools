@@ -1,6 +1,8 @@
-$Id: ChangeLog 5514 2023-07-24 11:38:18Z chrfranke $
+$Id: ChangeLog 5515 2023-07-24 12:58:25Z chrfranke $
 
 2023-07-24  Christian Franke  <franke@computer.org>
+
+	os_win32/update-smart-drivedb.ps1.in: Fix typo, update help text.
 
 	smartd.conf: Align help text with 'smartd -D' output.
 
