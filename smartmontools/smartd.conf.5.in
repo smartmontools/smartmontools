@@ -58,10 +58,8 @@ problems, you may be annoyed by the string of error log messages about devices
 that can't be opened.
 .PP
 One can avoid this problem, and gain more control over the types of
-events monitored by
-\fBsmartd\fP,
-by using the configuration file
-.B /usr/local/etc/smartd.conf.
+events monitored by \fBsmartd\fP, by using the configuration file
+\fB/usr/local/etc/smartd.conf\fP.
 This file contains a list of devices to monitor, with one device per
 line.  An example file is included with the
 .B smartmontools
@@ -491,7 +489,6 @@ to a MegaRAID controller.  The non-negative integer N (in the range of 0 to
 This interface will also work for Dell PERC controllers.
 In log files and email messages this disk will be identified as
 megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
-
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .\" %ENDIF OS FreeBSD Linux
@@ -594,7 +591,8 @@ See \*(Aqjmb39x...\*(Aq above for valid arguments.
 \- the device specified by this configuration entry should be ignored.
 This allows one to ignore specific devices which are detected by a following
 DEVICESCAN configuration line.
-It may also be used to temporary disable longer multi-line configuration entries.
+It may also be used to temporary disable longer multi-line configuration
+entries.
 This Directive may be used in conjunction with the other \*(Aq\-d\*(Aq
 Directives.
 .Sp

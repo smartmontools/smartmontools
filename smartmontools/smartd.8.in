@@ -651,7 +651,7 @@ if a SMART Attribute has failed, for example:
 .br
 .B \*(AqDevice: /dev/sdc, Failed SMART Attribute: 5 Reallocated_Sector_Ct\*(Aq
 .br
- This loglevel is used for reporting enabled by the
+This loglevel is used for reporting enabled by the
 .B \*(Aq\-H\*(Aq, \-f\*(Aq, \*(Aq\-l\ selftest\*(Aq,
 and
 .B \*(Aq\-l\ error\*(Aq

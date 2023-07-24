@@ -522,7 +522,6 @@ FreeBSD:
 \fBsmartctl \-a \-d megaraid,2 /dev/mfi0\fP
 .br
 \fBsmartctl \-a \-d megaraid,0 /dev/mrsas0\fP
-.br
 .Sp
 .\" %ENDIF OS FreeBSD
 .\" %IF OS ALL
@@ -934,8 +933,8 @@ Enables or disables SMART on device.  The valid arguments to
 this option are \fIon\fP and \fIoff\fP.
 .Sp
 [ATA]
-Note that the ATA commands SMART ENABLE/DISABLE OPERATIONS were declared obsolete
-in ATA ACS-4 Revision 10 (Nov 2015).
+Note that the ATA commands SMART ENABLE/DISABLE OPERATIONS were declared
+obsolete in ATA ACS-4 Revision 10 (Nov 2015).
 .Sp
 [SCSI tape drive or changer]
 It is not necessary (or useful) to enable SMART to see the TapeAlert messages.
@@ -1610,7 +1609,7 @@ drives.
 Protocol Specific log page (log page 0x18).  If \*(Aq\-l sasphy,reset\*(Aq
 is specified, all counters are reset after reading the values.
 .Sp
-.I tapealert 
+.I tapealert
 \- [SCSI tape drives and changers: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
 prints values and descriptions of the (SSC) Tape Alert log page. See
 \fBTAPE DRIVES\fP below for issue associated with printing this log page.
