@@ -4,7 +4,7 @@ Copyright (C) 2004-23 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.8.in 5505 2023-07-24 08:19:10Z chrfranke $
+$Id: smartd.8.in 5506 2023-07-24 08:33:37Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -651,7 +651,7 @@ if a SMART Attribute has failed, for example:
 .br
 .B \*(AqDevice: /dev/sdc, Failed SMART Attribute: 5 Reallocated_Sector_Ct\*(Aq
 .br
- This loglevel is used for reporting enabled by the
+This loglevel is used for reporting enabled by the
 .B \*(Aq\-H\*(Aq, \-f\*(Aq, \*(Aq\-l\ selftest\*(Aq,
 and
 .B \*(Aq\-l\ error\*(Aq
@@ -924,4 +924,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.8.in 5505 2023-07-24 08:19:10Z chrfranke $
+$Id: smartd.8.in 5506 2023-07-24 08:33:37Z chrfranke $
