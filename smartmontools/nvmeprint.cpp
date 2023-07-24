@@ -226,13 +226,18 @@ static const char * format_power(char (& str)[16], unsigned power, unsigned scal
 static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id_ns,
   unsigned nsid, bool show_all)
 {
-  pout("Firmware Updates (0x%02x):            %d Slot%s%s%s\n", id_ctrl.frmw,
+  // Figure 112 of NVM Express Base Specification Revision 1.3d, March 20, 2019
+  // Figure 251 of NVM Express Base Specification Revision 1.4c, March 9, 2021
+  // Figure 275 of NVM Express Base Specification Revision 2.0c, October 4, 2022
+  pout("Firmware Updates (0x%02x):            %d Slot%s%s%s%s%s\n", id_ctrl.frmw,
        ((id_ctrl.frmw >> 1) & 0x7), (((id_ctrl.frmw >> 1) & 0x7) != 1 ? "s" : ""),
        ((id_ctrl.frmw & 0x01) ? ", Slot 1 R/O" : ""),
-       ((id_ctrl.frmw & 0x10) ? ", no Reset required" : ""));
+       ((id_ctrl.frmw & 0x10) ? ", no Reset required" : ""),
+       ((id_ctrl.frmw & 0x20) ? ", multiple detected" : ""), // NVMe 2.0
+       ((id_ctrl.frmw & ~0x3f) ? ", *Other*" : ""));
 
   if (show_all || id_ctrl.oacs)
-    pout("Optional Admin Commands (0x%04x):  %s%s%s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oacs,
+    pout("Optional Admin Commands (0x%04x):  %s%s%s%s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oacs,
          (!id_ctrl.oacs ? " -" : ""),
          ((id_ctrl.oacs & 0x0001) ? " Security" : ""),
          ((id_ctrl.oacs & 0x0002) ? " Format" : ""),
@@ -244,10 +249,11 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
          ((id_ctrl.oacs & 0x0080) ? " Vrt_Mngmt" : ""),
          ((id_ctrl.oacs & 0x0100) ? " Drbl_Bf_Cfg" : ""),
          ((id_ctrl.oacs & 0x0200) ? " Get_LBA_Sts" : ""), // NVMe 1.4
-         ((id_ctrl.oacs & ~0x03ff) ? " *Other*" : ""));
+         ((id_ctrl.oacs & 0x0400) ? " Lockdown" : ""), // NVMe 2.0
+         ((id_ctrl.oacs & ~0x07ff) ? " *Other*" : ""));
 
   if (show_all || id_ctrl.oncs)
-    pout("Optional NVM Commands (0x%04x):    %s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oncs,
+    pout("Optional NVM Commands (0x%04x):    %s%s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oncs,
          (!id_ctrl.oncs ? " -" : ""),
          ((id_ctrl.oncs & 0x0001) ? " Comp" : ""),
          ((id_ctrl.oncs & 0x0002) ? " Wr_Unc" : ""),
@@ -257,17 +263,20 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
          ((id_ctrl.oncs & 0x0020) ? " Resv" : ""),
          ((id_ctrl.oncs & 0x0040) ? " Timestmp" : ""), // NVMe 1.3
          ((id_ctrl.oncs & 0x0080) ? " Verify" : ""), // NVMe 1.4
-         ((id_ctrl.oncs & ~0x00ff) ? " *Other*" : ""));
+         ((id_ctrl.oncs & 0x0100) ? " Copy" : ""), // NVMe 2.0
+         ((id_ctrl.oncs & ~0x01ff) ? " *Other*" : ""));
 
   if (show_all || id_ctrl.lpa)
-    pout("Log Page Attributes (0x%02x):        %s%s%s%s%s%s%s\n", id_ctrl.lpa,
+    pout("Log Page Attributes (0x%02x):        %s%s%s%s%s%s%s%s%s\n", id_ctrl.lpa,
          (!id_ctrl.lpa ? " -" : ""),
          ((id_ctrl.lpa & 0x01) ? " S/H_per_NS" : ""),
          ((id_ctrl.lpa & 0x02) ? " Cmd_Eff_Lg" : ""), // NVMe 1.2
          ((id_ctrl.lpa & 0x04) ? " Ext_Get_Lg" : ""), // NVMe 1.2.1
          ((id_ctrl.lpa & 0x08) ? " Telmtry_Lg" : ""), // NVMe 1.3
          ((id_ctrl.lpa & 0x10) ? " Pers_Ev_Lg" : ""), // NVMe 1.4
-         ((id_ctrl.lpa & ~0x001f) ? " *Other*" : ""));
+         ((id_ctrl.lpa & 0x20) ? " Log0_FISE_MI" : ""), // NVMe 2.0 ...
+         ((id_ctrl.lpa & 0x40) ? " Telmtry_Ar_4" : ""),
+         ((id_ctrl.lpa & ~0x7f) ? " *Other*" : ""));
 
   if (id_ctrl.mdts)
     pout("Maximum Data Transfer Size:         %u Pages\n", (1U << id_ctrl.mdts));
@@ -281,6 +290,9 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
   if (show_all || id_ctrl.cctemp)
     pout("Critical Comp. Temp. Threshold:     %s\n", kelvin_to_str(buf, id_ctrl.cctemp));
 
+  // Figure 110 of NVM Express Base Specification Revision 1.3d, March 20, 2019
+  // Figure 249 of NVM Express Base Specification Revision 1.4c, March 9, 2021
+  // Figure 97 of NVM Express NVM Command Set Specification, Revision 1.0c, October 3, 2022
   if (nsid && (show_all || id_ns.nsfeat)) {
     const char * align = &("  "[nsid < 10 ? 0 : (nsid < 100 ? 1 : 2)]);
     pout("Namespace %u Features (0x%02x):     %s%s%s%s%s%s%s%s\n", nsid, id_ns.nsfeat, align,
