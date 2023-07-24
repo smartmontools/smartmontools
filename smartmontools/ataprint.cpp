@@ -410,7 +410,7 @@ static const char * get_form_factor(unsigned short word168)
   // Bits 0:3 are the form factor
   // Table A.32 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
   // Table 247 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
-  // Table 254 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
+  // Table 265 of T13/BSR INCITS 574 (ACS-6) Revision 3, March 30, 2023
   switch (word168 & 0xF) {
     case 0x1: return "5.25 inches";
     case 0x2: return "3.5 inches";
@@ -468,6 +468,7 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
   // Table 47 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
   // Table 57 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
   // Table 59 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
+  // Table 59 of T13/BSR INCITS 574 (ACS-6) Revision 3, March 30, 2023
   switch (drive->minor_rev_num) {
     case 0x0001: return "ATA-1 X3T9.2/781D prior to revision 4";
     case 0x0002: return "ATA-1 published, ANSI X3.221-1994";
@@ -504,6 +505,8 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
     case 0x0021: return "ATA/ATAPI-7 T13/1532D revision 4a";
     case 0x0022: return "ATA/ATAPI-6 published, ANSI INCITS 361-2002";
 
+    case 0x0030: return "ACS-5 T13/BSR INCITS 558 revision 10";
+
     case 0x0027: return "ATA8-ACS T13/1699-D revision 3c";
     case 0x0028: return "ATA8-ACS T13/1699-D revision 6";
     case 0x0029: return "ATA8-ACS T13/1699-D revision 4";
@@ -521,6 +524,8 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
     case 0x005e: return "ACS-4 T13/BSR INCITS 529 revision 5";
 
     case 0x006d: return "ACS-3 T13/2161-D revision 5";
+
+    case 0x0073: return "ACS-6 T13/BSR INCITS 558 revision 2";
 
     case 0x0082: return "ACS-2 published, ANSI INCITS 482-2012";
 
@@ -544,10 +549,10 @@ static const char * get_pata_version(unsigned short word222, char (& buf)[32])
   // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
   switch (word222 & 0x0fff) {
     default: snprintf(buf, sizeof(buf),
-                       "Unknown (0x%03x)", word222 & 0x0fff); return buf;
+                      "Unknown (0x%03x)", word222 & 0x0fff); return buf;
     case 0x001:
-    case 0x003: return "ATA8-APT";
-    case 0x002: return "ATA/ATAPI-7";
+    case 0x003: return "ATA8-APT"; // OBS-ACS-5
+    case 0x002: return "ATA/ATAPI-7"; // OBS-ACS-5
   }
 }
 
@@ -1425,6 +1430,7 @@ static const char * GetLogName(unsigned logaddr)
     // Table A.2 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
     // Table 213 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
     // Table 213 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
+    // Table 223 of T13/BSR INCITS 574 (ACS-6) Revision 3, March 30, 2023
     switch (logaddr) {
       case 0x00: return "Log Directory";
       case 0x01: return "Summary SMART error log";
@@ -1454,10 +1460,10 @@ static const char * GetLogName(unsigned logaddr)
       case 0x18: return "Command Duration Limits log"; // ACS-5
       case 0x19: return "LBA Status log"; // ACS-3
 
-      case 0x20: return "Streaming performance log [OBS-8]";
+      case 0x20: return "Streaming performance log"; // OBS-8
       case 0x21: return "Write stream error log";
       case 0x22: return "Read stream error log";
-      case 0x23: return "Delayed sector log [OBS-8]";
+      case 0x23: return "Delayed sector log"; // OBS-8
       case 0x24: return "Current Device Internal Status Data log"; // ACS-3
       case 0x25: return "Saved Device Internal Status Data log"; // ACS-3
 
@@ -1469,6 +1475,10 @@ static const char * GetLogName(unsigned logaddr)
       case 0x47: return "Concurrent Positioning Ranges log"; // ACS-5
 
       case 0x53: return "Sense Data log"; // ACS-5
+
+      case 0x59: return "Power Consumption Control log"; // ACS-6
+
+      case 0x61: return "Capacity/Model Number Mapping log"; // ACS-6
 
       case 0xe0: return "SCT Command/Status";
       case 0xe1: return "SCT Data Transfer";
@@ -1490,10 +1500,12 @@ static const char * get_log_rw(unsigned logaddr)
        || (0x0f <= logaddr && logaddr <= 0x14)
        || (0x19 == logaddr)
        || (0x20 <= logaddr && logaddr <= 0x25)
-       || (0x30 == logaddr)
+       || (0x2f <= logaddr && logaddr <= 0x30)
        || (0x42 == logaddr)
        || (0x47 == logaddr)
-       || (0x53 == logaddr))
+       || (0x53 == logaddr)
+       || (0x59 == logaddr)
+       || (0x61 == logaddr))
       return "R/O";
 
    if (   (                   logaddr <= 0x0a)
@@ -1745,6 +1757,7 @@ const devstat_entry_info * devstat_infos[] = {
   devstat_info_0x07
   // TODO: 0x08 Zoned Device Statistics (T13/f16136r7, January 2017)
   // TODO: 0x09 Command Duration Limits Statistics (ACS-5 Revision 10, March 2021)
+  // TODO: 0x0a Command Duration Limits Statistics 2..3 (ACS-6 Revision 3, March 2023)
 };
 
 const int num_devstat_infos = sizeof(devstat_infos)/sizeof(devstat_infos[0]);
@@ -1834,6 +1847,7 @@ static void print_device_statistics_page(const json::ref & jref, const unsigned 
     bool normalized = !!(flags & 0x20);
     bool supports_dsn = !!(flags & 0x10); // ACS-3
     bool monitored_condition_met = !!(flags & 0x08); // ACS-3
+    // TODO: 0x04: READ THEN INITIALIZE SUPPORTED (ACS-5)
     unsigned char reserved_flags = (flags & 0x07);
 
     // Format value

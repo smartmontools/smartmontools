@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2012-21 Christian Franke
+ * Copyright (C) 2012-23 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -31,6 +31,7 @@ const char * ataidentify_cpp_cvsid = "$Id$"
 // Tables 45 and 50 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
 // Table 55 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017 (ATAPI removed)
 // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
+// Table 57 of T13/BSR INCITS 574 (ACS-6) Revision 3, March 30, 2023
 
 const char * const identify_descriptions[] = {
   "  0 General configuration",
@@ -64,9 +65,9 @@ const char * const identify_descriptions[] = {
   " 23-26 Firmware revision (String)",
   " 27-46 Model number (String)",
 
-  " 47 READ/WRITE MULTIPLE support",
+  " 47 READ/WRITE MULTIPLE support [OBS-ACS-4]",
     ". 15:8 Must be set to 0x80",
-    ". 7:0 Maximum sectors per DRQ on READ/WRITE MULTIPLE",
+    ". 7:0 Max sectors per DRQ on READ/WRITE MULTIPLE [OBS-ACS-4]",
 
   " 48 Trusted Computing feature set options",
     ". 15:14 Must be set to 0x1",
@@ -455,7 +456,7 @@ const char * const identify_descriptions[] = {
 
   "127 Removable Media Status Notification [OBS-8]",
     ". 15:1 Reserved",
-    ". 0 Removable Media Status Notification supported",
+    ". 0 Removable Media Status Notification supported [OBS-8]",
 
   "128 Security status",
     ". 15:9 Reserved",
@@ -535,19 +536,19 @@ const char * const identify_descriptions[] = {
   "221 Reserved",
 
   "222 Transport major version number",
-    ". 15:12 Transport: 0x0 = Parallel, 0x1 = Serial, 0xe = PCIe", // PCIe: ACS-4
-    ". 11 Reserved    | Reserved",
-    ". 10 Reserved    | SATA 3.5", // ACS-5
-    ". 9 Reserved    | SATA 3.4", // ACS-5
-    ". 8 Reserved    | SATA 3.3", // ACS-4
-    ". 7 Reserved    | SATA 3.2", // ACS-4
-    ". 6 Reserved    | SATA 3.1", // ACS-3
-    ". 5 Reserved    | SATA 3.0", // ACS-2
-    ". 4 Reserved    | SATA 2.6",
-    ". 3 Reserved    | SATA 2.5",
-    ". 2 Reserved    | SATA II: Extensions",
-    ". 1 ATA/ATAPI-7 | SATA 1.0a",
-    ". 0 ATA8-APT    | ATA8-AST",
+    ". 15:12 Type: 0x1 = Serial  | 0x0 = Parallel | 0xe = PCIe", // PCIe: ACS-4
+    ". 11 Reserved",
+    ". 10 SATA 3.5", // ACS-5
+    ". 9 SATA 3.4", // ACS-5
+    ". 8 SATA 3.3", // ACS-4
+    ". 7 SATA 3.2", // ACS-4
+    ". 6 SATA 3.1", // ACS-3
+    ". 5 SATA 3.0", // ACS-2
+    ". 4 SATA 2.6",
+    ". 3 SATA 2.5",
+    ". 2 SATA II: Extensions",
+    ". 1 SATA 1.0a           | ATA/ATAPI-7 [OBS-ACS-5]",
+    ". 0 ATA8-AST            | ATA8-APT    [OBS-ACS-5]",
 
   "223 Transport minor version number",
   "224-229 Reserved",
