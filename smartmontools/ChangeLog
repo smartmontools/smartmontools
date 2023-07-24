@@ -1,4 +1,9 @@
-$Id: ChangeLog 5504 2023-07-16 15:44:41Z chrfranke $
+$Id: ChangeLog 5505 2023-07-24 08:19:10Z chrfranke $
+
+2023-07-24  Christian Franke  <franke@computer.org>
+
+	man pages: Add release numbers to EXPERIMENTAL notes.
+	Keep notes of previous release 7.3.
 
 2023-07-16  Christian Franke  <franke@computer.org>
 
