@@ -1,5 +1,10 @@
 $Id$
 
+2023-07-24  Christian Franke  <franke@computer.org>
+
+	man pages: Add release numbers to EXPERIMENTAL notes.
+	Keep notes of previous release 7.3.
+
 2023-07-16  Christian Franke  <franke@computer.org>
 
 	os_win32/installer.nsi: Rework InstType names, default to x86_64.

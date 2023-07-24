@@ -387,7 +387,7 @@ The related fields are also invalidated in the ATA and NVMe debug outputs.
 .br
 Note: This is not the case in SCSI debug output.
 .br
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
+[NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
 The Namespace IEEE EUI-64 (NVMe) is also suppressed.
 .TP
 .B \-d TYPE, \-\-device=TYPE
@@ -440,7 +440,7 @@ is only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
 Otherwise device type SCSI (for SCSI/SAS disks) is used.
 .Sp
 .I usbasm1352r,PORT
-\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
 this device type is for one or two SATA disks that are behind an ASMedia
 ASM1352R USB to SATA (RAID) bridge.
 The parameter PORT (0 or 1) selects the disk to monitor.
@@ -484,7 +484,7 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 bridge.
 .Sp
 .I sntasmedia
-\- [NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
 this device type is for NVMe disks that are behind an ASMedia USB to NVMe
 bridge.
 .Sp
@@ -722,8 +722,7 @@ under FreeBSD, it is the character device which the driver registered (eg,
 .Sp
 .\" %IF OS Linux
 .I sssraid,E,S
-\- [Linux only]
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [Linux only: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
 the device consists of one or more SCSI/SAS or SATA disks connected to a
 SSSRAID controller.
 The non-negative integer E (in the range of 0 to 8) denotes the enclosure
@@ -913,7 +912,7 @@ not what you want.
 The \*(Aq\-n\*(Aq option is ignored if the power mode check is not supported
 or returns an unknown value.
 .br
-[ATA only][NEW EXPERIMENTAL SMARTCTL FEATURE]
+[ATA only: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
 If the optional STATUS2 parameter is specified, \fBsmartctl\fP exits
 immediately with STATUS2 in this case.
 For example use \*(Aq\-n standby,3,5\*(Aq to return unique exit statuses in
@@ -1465,7 +1464,8 @@ test terminology).
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I selftest
-\- [NVMe] prints the NVMe self-test log.
+\- [NVMe: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
+prints the NVMe self-test log.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I xselftest[,NUM][,selftest]
@@ -1555,7 +1555,7 @@ Values of 0 disable the feature, other values less than 65 are probably not
 supported.
 For RAID configurations, this is typically set to 70,70 deciseconds.
 .br
-[NEW EXPERIMENTAL SMARTCTL FEATURE]
+[NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
 If \*(Aqscterc,READTIME,WRITETIME,p\*(Aq is specified, these time values
 will be persistent over a power-on reset.
 If \*(Aqscterc,p\*(Aq is specified, the persistent over power-on values
@@ -1581,20 +1581,20 @@ The size of the log and the order of the entries are vendor specific.
 The Pending Defects log was introduced in ACS-4 Revision 01 (Mar 2014).
 .Sp
 .I defects
-\- [SCSI: NEW EXPERIMENTAL SMARTCTL FEATURE] prints LBAs that the background
+\- [SCSI: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE] prints LBAs that the background
 scan was unable to read (i.e. a defect). Entries, if any, show the defective
 LBA and the value of the power\-on hours (since manufacture) when the background
 scan found the defect. Note these pending defects may appear in advance of any
 application trying to read a defective LBA.
 .Sp
 .I envrep
-\- [SCSI only: NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [SCSI only: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
 prints values and descriptions of the SCSI Environmental reporting log
 page. This includes one or more temperatures and may include relative
 humidities. Lifetime maximums and minimums are also reported.
 .Sp
 .I genstats
-\- [SCSI only: NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [SCSI only: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
 prints values and descriptions of the SCSI General statistics and performance
 log page.
 .Sp
@@ -1611,16 +1611,16 @@ Protocol Specific log page (log page 0x18).  If \*(Aq\-l sasphy,reset\*(Aq
 is specified, all counters are reset after reading the values.
 .Sp
 .I tapealert 
-\- [SCSI tape drives and changers: NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [SCSI tape drives and changers: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
 prints values and descriptions of the (SSC) Tape Alert log page. See
 \fBTAPE DRIVES\fP below for issue associated with printing this log page.
 .Sp
 .I tapedevstat
-\- [SCSI tape drives and changers: NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [SCSI tape drives and changers: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
 prints values and descriptions of the (SSC) Device Statistics log page.
 .Sp
 .I zdevstat
-\- [SCSI zoned disks: NEW EXPERIMENTAL SMARTCTL FEATURE]
+\- [SCSI zoned disks: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
 prints values and descriptions of the Zoned Block Device Statistics log
 page (ZBC\-2).
 .Sp
@@ -1674,11 +1674,12 @@ manufacturer.
 The value may reach 255.
 .Sp
 .I farm
-\- [Seagate ATA or SAS (SCSI) only][NEW EXPERIMENTAL SMARTCTL FEATURE]
-prints predictive drive health metrics
-and values from Seagate's vendor-specific Field Access Reliability Metrics
-(FARM) log when used on a drive supporting FARM. ATA and SAS logs differ
-slightly. \fBWARNING: Some Seagate drives do not support FARM.\fP
+\- [Seagate ATA or SAS (SCSI) only: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
+prints predictive drive health metrics and values from Seagate's
+vendor-specific Field Access Reliability Metrics (FARM) log when used
+on a drive supporting FARM.
+ATA and SAS logs differ slightly.
+\fBWARNING: Some Seagate drives do not support FARM.\fP
 .TP
 .B \-v ID,FORMAT[:BYTEORDER][,NAME], \-\-vendorattribute=ID,FORMAT...
 [ATA only] Sets a vendor-specific raw value print FORMAT, an optional
@@ -2121,7 +2122,8 @@ with other disks use the \*(Aq\-c\*(Aq option to monitor progress.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I short
-\- [NVMe] runs the "Short" self-test for current namespace.
+\- [NVMe: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
+runs the "Short" self-test for current namespace.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I long
@@ -2136,7 +2138,8 @@ below).
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I long
-\- [NVMe] runs the "Extended" self-test for current namespace.
+\- [NVMe: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
+runs the "Extended" self-test for current namespace.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I conveyance
