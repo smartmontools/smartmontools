@@ -103,16 +103,10 @@ Section below!
 #
 /dev/sdc \-m admin@example.com \-M test
 #
-# Strange device.  It's SCSI.  Start a scheduled
-# long self test between 5 and 6 am Monday/Thursday
-/dev/weird \-d scsi \-s L/../../(1|4)/05
-#
 # An ATA disk may appear as a SCSI device to the
 # OS.  If a SCSI to ATA Translation (SAT) layer
 # is between the OS and the device then this can be
-# flagged with the '\-d sat' option.  This situation
-# may become common with SATA disks in SAS and FC
-# environments.
+# flagged with the '\-d sat' option.
 /dev/sda \-a \-d sat
 .\" %IF OS FreeBSD Linux
 #

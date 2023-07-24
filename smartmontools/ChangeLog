@@ -2,6 +2,8 @@ $Id$
 
 2023-07-24  Christian Franke  <franke@computer.org>
 
+	smartd.conf, smartd.conf.5.in: Remove outdated examples.
+
 	smartd.conf: Remove SVN Id string
 	(Debian 54_remove-Id-from-smartd.conf.diff).
 
