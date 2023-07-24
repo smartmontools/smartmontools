@@ -2,6 +2,9 @@ $Id$
 
 2023-07-24  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Don't write attrlog if ATA attributes were not read.
+	Improvement of original fix r5116.
+
 	os_win32/update-smart-drivedb.ps1.in: Fix typo, update help text.
 
 	smartd.conf: Align help text with 'smartd -D' output.
