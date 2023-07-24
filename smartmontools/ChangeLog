@@ -1,6 +1,9 @@
-$Id: ChangeLog 5519 2023-07-24 15:57:54Z chrfranke $
+$Id: ChangeLog 5520 2023-07-24 16:32:43Z chrfranke $
 
 2023-07-24  Christian Franke  <franke@computer.org>
+
+	man pages: Use CW font only if troff is used.
+	This silences a related warning from groff.
 
 	smartd.cpp: Don't write Copyright line to syslog.
 	This prevents that logfile analyzers need an extra suppression rule

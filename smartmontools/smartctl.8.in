@@ -4,7 +4,7 @@ Copyright (C) 2004-23 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5510 2023-07-24 09:35:46Z chrfranke $
+$Id: smartctl.8.in 5520 2023-07-24 16:32:43Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -13,7 +13,8 @@ $Id: smartctl.8.in 5510 2023-07-24 09:35:46Z chrfranke $
 .if n .sp
 ..
 .de Vb \" Begin verbatim text
-.ft CW
+.if t .ft CW
+.if n .ft R
 .nf
 .ne \\$1
 ..
@@ -2617,4 +2618,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5510 2023-07-24 09:35:46Z chrfranke $
+$Id: smartctl.8.in 5520 2023-07-24 16:32:43Z chrfranke $
