@@ -448,7 +448,10 @@ static void print_smart_log(const nvme_smart_log & smart_log,
 static void print_error_log(const nvme_error_log_page * error_log,
   unsigned read_entries, unsigned max_entries)
 {
-  pout("Error Information (NVMe Log 0x01, %u of %u entries)\n",
+  // Figure 93 of NVM Express Base Specification Revision 1.3d, March 20, 2019
+  // Figure 197 of NVM Express Base Specification Revision 1.4c, March 9, 2021
+  json::ref jref = jglb["nvme_error_information_log"];
+  jout("Error Information (NVMe Log 0x01, %u of %u entries)\n",
        read_entries, max_entries);
 
   // Search last valid entry
@@ -456,12 +459,21 @@ static void print_error_log(const nvme_error_log_page * error_log,
   while (valid_entries && !error_log[valid_entries-1].error_count)
     valid_entries--;
 
+  unsigned unread_entries = 0;
+  if (valid_entries == read_entries && read_entries < max_entries)
+    unread_entries = max_entries - read_entries;
+  jref += {
+    { "size", max_entries },
+    { "read", read_entries },
+    { "unread", unread_entries },
+  };
+
   if (!valid_entries) {
-    pout("No Errors Logged\n\n");
+    jout("No Errors Logged\n\n");
     return;
   }
 
-  pout("Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS  Message\n");
+  jout("Num   ErrCount  SQId   CmdId  Status  PELoc          LBA  NSID    VS  Message\n");
   int unused = 0;
   for (unsigned i = 0; i < valid_entries; i++) {
     const nvme_error_log_page & e = error_log[i];
@@ -471,41 +483,71 @@ static void print_error_log(const nvme_error_log_page * error_log,
       continue;
     }
     if (unused) {
-      pout("  - [%d unused entr%s]\n", unused, (unused == 1 ? "y" : "ies"));
+      jout("  - [%d unused entr%s]\n", unused, (unused == 1 ? "y" : "ies"));
       unused = 0;
     }
 
+    json::ref jrefi = jref["table"][i];
+    jrefi["error_count"] = e.error_count;
+    const char * msg = "-"; char msgbuf[64]{};
     char sq[16] = "-", cm[16] = "-", st[16] = "-", pe[16] = "-";
     char lb[32] = "-", ns[16] = "-", vs[8] = "-";
-    if (e.sqid != 0xffff)
+    if (e.sqid != 0xffff) {
       snprintf(sq, sizeof(sq), "%d", e.sqid);
-    if (e.cmdid != 0xffff)
+      jrefi["submission_queue_id"] = e.sqid;
+    }
+    if (e.cmdid != 0xffff) {
       snprintf(cm, sizeof(cm), "0x%04x", e.cmdid);
-    if (e.status_field != 0xffff)
+      jrefi["command_id"] = e.cmdid;
+    }
+    if (e.status_field != 0xffff) {
       snprintf(st, sizeof(st), "0x%04x", e.status_field);
-    if (e.parm_error_location != 0xffff)
+      uint16_t s = e.status_field >> 1;
+      msg = nvme_status_to_info_str(msgbuf, s);
+      jrefi += {
+        { "status_field", {
+          { "value", s },
+          { "do_not_retry", !!(s & 0x4000) },
+          { "status_code_type", (s >> 8) & 0x7 },
+          { "status_code" , (uint8_t)s },
+          { "string", msg }
+        }},
+        { "phase_tag", !!(e.status_field & 0x0001) }
+      };
+    }
+    if (e.parm_error_location != 0xffff) {
       snprintf(pe, sizeof(pe), "0x%03x", e.parm_error_location);
-    if (e.lba != 0xffffffffffffffffULL)
+      jrefi["parm_error_location"] = e.parm_error_location;
+    }
+    if (e.lba != 0xffffffffffffffffULL) {
       snprintf(lb, sizeof(lb), "%" PRIu64, e.lba);
-    if (e.nsid != 0xffffffffU)
+      jrefi["lba"]["value"].set_unsafe_uint64(e.lba);
+    }
+    if (e.nsid != 0xffffffffU) {
       snprintf(ns, sizeof(ns), "%u", e.nsid);
-    if (e.vs != 0x00)
+      jrefi["nsid"] = e.nsid;
+    }
+    if (e.vs != 0x00) {
       snprintf(vs, sizeof(vs), "0x%02x", e.vs);
+      jrefi["vendor_specific"] = e.vs;
+    }
+    // TODO: TRTYPE, command/transport specific information
 
-    char buf[64];
-    pout("%3u %10" PRIu64 " %5s %7s %7s %6s %12s %5s %5s  %s\n",
-         i, e.error_count, sq, cm, st, pe, lb, ns, vs,
-         nvme_status_to_info_str(buf, e.status_field >> 1));
+    jout("%3u %10" PRIu64 " %5s %7s %7s %6s %12s %5s %5s  %s\n",
+         i, e.error_count, sq, cm, st, pe, lb, ns, vs, msg);
   }
 
-  if (valid_entries == read_entries && read_entries < max_entries)
-    pout("... (%u entries not read)\n", max_entries - read_entries);
-  pout("\n");
+  if (unread_entries)
+    jout("... (%u entries not read)\n", unread_entries);
+  jout("\n");
 }
 
 static void print_self_test_log(const nvme_self_test_log & self_test_log)
 {
-  pout("Self-test Log (NVMe Log 0x06)\n");
+  // Figure 99 of NVM Express Base Specification Revision 1.3d, March 20, 2019
+  // Figure 203 of NVM Express Base Specification Revision 1.4c, March 9, 2021
+  json::ref jref = jglb["nvme_self_test_log"];
+  jout("Self-test Log (NVMe Log 0x06)\n");
 
   const char * s; char buf[32];
   switch (self_test_log.current_operation & 0xf) {
@@ -517,10 +559,16 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log)
                        self_test_log.current_operation & 0xf);
               s = buf; break;
   }
-  pout("Self-test status: %s", s);
-  if (self_test_log.current_operation & 0xf)
-    pout(" (%d%% completed)", self_test_log.current_completion & 0x7f);
-  pout("\n");
+  jout("Self-test status: %s", s);
+  jref["current_self_test_operation"] += {
+    { "value", self_test_log.current_operation & 0xf },
+    { "string", s }
+  };
+  if (self_test_log.current_operation & 0xf) {
+    jout(" (%d%% completed)", self_test_log.current_completion & 0x7f);
+    jref["current_self_test_completion_percent"] = self_test_log.current_completion & 0x7f;
+  }
+  jout("\n");
 
   int cnt = 0;
   for (unsigned i = 0; i < 20; i++) {
@@ -530,6 +578,7 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log)
     if (!op || res == 0xf)
       continue; // unused entry
 
+    json::ref jrefi = jref["table"][i];
     const char * t; char buf2[32];
     switch (op) {
       case 0x1: t = "Short"; break;
@@ -554,29 +603,49 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log)
                 s = buf; break;
     }
 
-    char ns[16] = "-", lb[32] = "-", st[8] = "-", sc[8] = "-";
+    uint64_t poh = sg_get_unaligned_le64(r.power_on_hours);
+
+    jrefi += {
+      { "self_test_code", { { "value", op }, { "string", t } } },
+      { "self_test_result", { { "value", res }, { "string", s } } },
+      { "power_on_hours", poh }
+    };
+
+    char sg[8] = "-", ns[16] = "-", lb[32] = "-", st[8] = "-", sc[8] = "-";
+    if (res == 0x7) {
+      snprintf(sg, sizeof(sg), "%d", r.segment);
+      jrefi["segment"] = r.segment;
+    }
     if (r.valid & 0x01) {
       if (r.nsid == 0xffffffff)
         ns[0] = '*', ns[1] = 0;
       else
         snprintf(ns, sizeof(ns), "%u", r.nsid);
+      // Broadcast = -1
+      jrefi["nsid"] = (r.nsid != 0xffffffff ? (int64_t)r.nsid : -1);
     }
-    if (r.valid & 0x02)
-      snprintf(lb, sizeof(lb), "%" PRIu64, sg_get_unaligned_le64(r.lba));
-    if (r.valid & 0x04)
+    if (r.valid & 0x02) {
+      uint64_t lba = sg_get_unaligned_le64(r.lba);
+      snprintf(lb, sizeof(lb), "%" PRIu64, lba);
+      jrefi["lba"] = lba;
+    }
+    if (r.valid & 0x04) {
       snprintf(st, sizeof(st), "0x%x", r.status_code_type);
-    if (r.valid & 0x08)
+      jrefi["status_code_type"] = r.status_code_type;
+    }
+    if (r.valid & 0x08) {
       snprintf(sc, sizeof(sc), "0x%02x", r.status_code);
+      jrefi["status_code"] = r.status_code;
+    }
 
     if (++cnt == 1)
-      pout("Num  Test_Description  Status                       Power_on_Hours  Failing_LBA  NSID SCT Code\n");
-    pout("%2u   %-17s %-33s %9" PRIu64 " %12s %5s %3s %4s\n",
-         i, t, s, sg_get_unaligned_le64(r.power_on_hours), lb, ns, st, sc);
+      jout("Num  Test_Description  Status                       Power_on_Hours  Failing_LBA  NSID Seg SCT Code\n");
+    jout("%2u   %-17s %-33s %9" PRIu64 " %12s %5s %3s %3s %4s\n", i, t, s, poh, lb, ns, sg, st, sc);
   }
 
   if (!cnt)
-    pout("No Self-tests Logged\n");
-  pout("\n");
+    jout("No Self-tests Logged\n");
+  jout("\n");
 }
 
 int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
@@ -631,7 +700,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
   }
 
   if (   options.smart_check_status || options.smart_vendor_attrib
-      || options.error_log_entries)
+      || options.error_log_entries || options.smart_selftest_log  )
     pout("=== START OF SMART DATA SECTION ===\n");
 
   // Print SMART Status and SMART/Health Information

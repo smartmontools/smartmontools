@@ -1,5 +1,9 @@
 $Id$
 
+2023-07-25  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Add JSON support for '-l error' and '-l selftest'.
+
 2023-07-24  Christian Franke  <franke@computer.org>
 
 	man pages: Set svn:eol-style=LF to be compatible with Cygwin sed.
