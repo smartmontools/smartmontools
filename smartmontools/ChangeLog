@@ -1,4 +1,8 @@
-$Id: ChangeLog 5521 2023-07-24 16:44:49Z chrfranke $
+$Id: ChangeLog 5522 2023-07-25 14:18:46Z chrfranke $
+
+2023-07-25  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Add JSON support for '-l error' and '-l selftest'.
 
 2023-07-24  Christian Franke  <franke@computer.org>
 
