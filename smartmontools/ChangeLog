@@ -1,5 +1,12 @@
 $Id$
 
+2023-07-29  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Samsung Portable SSD T7 Shield (0x04e8:0x61fb) (#1730, #1733)
+	- USB: ASMedia ASM1352-PM (0x174d:0x1352) (GH/pull 181)
+	- USB: JMicron JMS578 (0xab12:0x34cd) (#1737)
+
 2023-07-25  Christian Franke  <franke@computer.org>
 
 	nvmeprint.cpp: Add JSON support for '-l error' and '-l selftest'.
