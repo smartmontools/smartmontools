@@ -21,11 +21,14 @@ Summary: smartmontools release 7.4
   of NVMe error information log.
 - smartctl '-l genstats': Prints SCSI General statistics and performance
   log page.
+- smartctl '-i' and '--identify': ACS-4/5/6 enhancements.
+- smartctl '-c': Added NVMe 2.0 capability flags.
 - smartctl '-g security': Added 'ata_security.master_password_id'
   to JSON output.  Plaintext output shows Master Password ID if set
   to a non-default value.
 - smartctl '-q noserial': Now also suppresses the output of NVMe Namespace
   IEEE EUI-64.
+- smartctl '-j': '-l error -l selftest' JSON output for NVMe devices.
 - smartctl '-j': Avoid invalid UTF-8 sequences in JSON/YAML strings.
 - smartctl '-j': Fixed a bogus exception during SCSI JSON output.
 - smartctl '-j': Renamed JSON element 'scsi_temperature' back to
@@ -36,6 +39,7 @@ Summary: smartmontools release 7.4
   information log do not indicate device problems.
 - smartd: Now detects accidental use of smartd_warning script as
   '-M exec' parameter.
+- smartd: No longer writes the 'Copyright...' line to syslog.
 - smartd.conf '-M always': Sends reminder emails without any delay.
 - smartd.conf '-M diminishing': Limited email delay to 32 days.
 - ATA: Fixed decoding of extended self-test log on big endian hosts.
@@ -59,6 +63,8 @@ Summary: smartmontools release 7.4
 - configure: Default for '--with-nvme-devicescan' is now 'yes' also on
   Darwin and FreeBSD.  It is still 'no' on NetBSD only.
 - configure: Defines '_FORTIFY_SOURCE=3' if supported and not predefined.
+- configure: No longer fails if libsystemd-dev is installed and
+  'LDFLAGS=-static' is used.
 - Compile fix for systems without legacy 'getdtablesize()'.
 - Pre-releases from SVN snapshots now show "pre-VERSION" in version
   information and 'smartctl.pre_release=true' in JSON output.
@@ -75,6 +81,8 @@ Summary: smartmontools release 7.4
 - Solaris SPARC: Dropped legacy ATA support.  Dropped configure option
   '--with-solaris-sparc-ata'.
 - Windows: IOCTL_STORAGE_PROTOCOL_COMMAND variant for NVMe self-tests.
+- Windows: Installer now defaults to 64-bit executables.
+- Windows: No longer prints bogus 'Local Time' if enhanced TZ syntax is used.
 - Windows: Workaround to keep backward compatibility with old versions
   of Windows if some versions of MinGW-w64 are used.
 
