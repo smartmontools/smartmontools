@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 6.1/5440 2023-01-24 15:50:04 $Id: drivedb.h 5441 2023-01-24 16:03:05Z chrfranke $",
+  { "VERSION: 6.1/5523 2023-07-29 19:45:59 $Id: drivedb.h 5524 2023-07-29 19:55:23Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -5272,8 +5272,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbjmicron"
   },
   { "USB: Samsung Portable SSD T7; ASMedia ASM2362",
-    "0x04e8:0x4001",
-    "",
+    "0x04e8:0x(4001|61fb)", // 0x61fb: T7 Shield
+    "", // 0x0100
     "",
     "" // smartmontools >= r5168: -d sntasmedia
   },
@@ -6159,6 +6159,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // ASMedia
+  { "USB: ; ASMedia ASM1352-PM", // USB3->2xSATA
+    "0x174d:0x1352",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // LucidPort
   { "USB: ; LucidPORT USB300", // RaidSonic ICY BOX IB-110StU3-B, Sharkoon SATA QuickPort H3
     "0x1759:0x500[02]", // 0x5000: USB 2.0, 0x5002: USB 3.0
@@ -6412,6 +6419,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron JMS566",
     "0xa152:0xb566",
     "", // 0x0223
+    "",
+    "-d sat"
+  },
+  // 0xab12 (?)
+  { "USB: ; JMicron JMS578",
+    "0xab12:0x34cd",
+    "", // 0x0405
     "",
     "-d sat"
   },
