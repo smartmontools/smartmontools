@@ -1,5 +1,16 @@
 $Id$
 
+2023-07-30  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- ATP SATA III aMLC M.2 2242/80 SSDs: Rename, add 2280 (#1717).
+	- Silicon Motion based SSDs: ADATA SU630 (#1713), LITEON LCH (#1727),
+	  NFORCE SSZS13 (#1707), ONDA S-12 (#1698), Patriot P210.
+	- Silicon Motion based OEM SSDs: Intenso (#1700, #1706, #1732),
+	  Netac Z Slim (#1656), SPCC M.2 SSD (#1662).
+	- USB: Netac Z Slim (0x0dd8:0x0562) (#1656).
+	- USB: ASMedia ASM2364 (0x174c:0x2364).
+
 2023-07-29  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
