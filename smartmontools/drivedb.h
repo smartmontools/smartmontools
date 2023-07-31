@@ -224,8 +224,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 241,raw48,Total_LBAs_Written "
   },
-  { "Apacer AS340 SSDs",
-    "Apacer AS340 (120|240|480|960)GB", // tested with Apacer AS340 120GB/AP612PE0
+  { "Apacer AS340/350 SSDs",
+    "Apacer AS3[45]0 ((12[08]|240|256|480|512|960)G|1T)B", // tested with
+      // Apacer AS340 120GB/AP612PE0, Apacer AS350 1TB/AP613PE0
     "", "",
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -743,7 +744,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Phison Driven SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "BP4 mSATA SSD|" // MyDigital BP4, tested with BP4 mSATA SSD/S8FM06.9
-    "Corsair Force LE200 SSD|" // tested with Corsair Force LE200 SSD/SBFM10, .../SBFM60.9
+    "Corsair Force LE(200)? SSD|" // tested with Corsair Force LE SSD/SAFC11.0,
+      // Corsair Force LE200 SSD/SBFM10, .../SBFM60.9
     "GIGABYTE GP-GSTFS31((120|240|256|480)G|100T)NTD|" // tested with GIGABYTE GP-GSTFS31120GNTD/SBFM61.3
     "GOODRAM IRIDIUM PRO|" // tested with GOODRAM IRIDIUM PRO/SAFM01.5
     "IRP?-SSDPR-S25[AC]-(120|240|256|480|512|960|0[12]T)|" // Goodram IRIDM (PRO), tested with
@@ -770,12 +772,13 @@ const drive_settings builtin_knowndrives[] = {
       // Silicon Motion controller (see ticket #801), tested with
       // KINGSTON SA400S37240G/SBFK10D7, KINGSTON SA400S37120G/SBFK71E0, */SBFKB1D1
       // KINGSTON  SA400S37480G/SBFK10D7 (two spaces), KINGSTON SA400M8240G/SBFK61E1
-    "Patriot (Blast|Blaze|Flare)|" // tested with Patriot Blast/SAFM11.3, Patriot Blaze/S9FM02,
-      // Patriot Flare/SBFM91.2
+    "Patriot (Blast|Blaze|Flare|Ignite)|" // tested with Patriot Blast/SAFM11.3,
+      // Patriot Blaze/S9FM02, Patriot Flare/SBFM91.2, Patriot Ignite/SAFM01.7
     "Patriot Burst( (120|240|480|960)GB)?|" // tested with Patriot Burst/SBFM11.2,
       // Patriot Burst 480GB/SBFMLA.5
-    "PNY CS(900|1311|2211) (120|240|480|960)GB SSD|" // tested with PNY CS900 120GB SSD/CS900612,
-      // PNY CS900 240GB SSD/CS900613, PNY CS1311 120GB SSD/CS131122, PNY CS2211 240GB SSD/CS221016
+    "PNY CS(900|1311|2211) (120|240|480|500|960)GB SSD|" // tested with PNY CS900 120GB SSD/CS900612,
+      // PNY CS900 240GB SSD/CS900613, PNY CS900 500GB SSD/CS900Y13, PNY CS1311 120GB SSD/CS131122,
+      // PNY CS2211 240GB SSD/CS221016 (CS900 1TB has different attribute set)
     "PNY ELITE PSSD|" // tested with PNY ELITE PSSD/CS105P13 (240G)
     "SSD Smartbuy (60|64|120|128|240|256|480|512|960|1024|2000)GB|" // PS3111-S11, tested with
       // SSD Smartbuy 240GB/SBFM91.1, SSD Smartbuy 64GB/SBFM21.1
@@ -828,14 +831,15 @@ const drive_settings builtin_knowndrives[] = {
   // weak information in the model. Detection is based on Firmware.
   { "Phison Driven OEM SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "GOODRAM|" // tested with GOODRAM CX200 (GOODRAM/SAFM12.2)
-    "Hoodisk SSD|" // tested with Hoodisk SSD/SBFM01.3
+    "Hoodisk SSD|" // tested with Hoodisk SSD/SBFM01.3, Hoodisk SSD/SBFMJ1.3
     "INTENSO|" // tested with Intenso SSD SATA III Top (INTENSO/S9FM02.6, .../SAFM01.6)
     "INTENSO SATA III SSD|" // tested with INTENSO SATA III SSD/SBFM11.2, .../SBFM81.3
+    "Kingmax SATA SSD (120|240|480|960)GB|" // tested with Kingmax SATA SSD 240GB/SBFMY1.3
     "SATA SSD|" // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
       // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
     "SPCC Solid State Disk", // Silicon Power, tested with SPCC Solid State Disk/SBFD00.3,
       // SPCC Solid State Disk/SBFM61.2, SPCC Solid State Disk/SBFMT1.3
-    "S[89AB]F[DM][0-9T][0-9]\\.[0-9]",
+    "S[89AB]F[DM][0-9JTY][0-9]\\.[0-9]",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
@@ -2133,7 +2137,8 @@ const drive_settings builtin_knowndrives[] = {
       // KINGSTON SKC600MS256G/S4500107
     "LITEON L[CM]H-(128|256|512)V2[MS](-.*)?|" // tested with LITEON LCH-256V2S-HP/2C02,
       // LITEON LCH-256V2S/3C87901, LITEON LMH-256V2M-11 MSATA 256GB/FM8110C
-    "MKNSSDRE(1TB|2TB|512GB|500GB|256GB|250GB)|" // tested with MKNSSDRE256GB/N1007C
+    "MKNSSDRE((25[06]|500|512)G|[12]T)B(-LT)?|" // Mushkin, tested with MKNSSDRE256GB/N1007C,
+      // MKNSSDRE250GB-LT/O1026A
     "MKNSSD(S2|TR)(12[08]|2[45]0|480|500)GB(-(3DL|LT))?|" // Mushkin, tested with MKNSSDS2500GB/T0818A0,
       // MKNSSDTR500GB/O1126A, MKNSSDTR128GB-3DL/Q0616B0
     "NFN025SA31T-.*|" // Neo Forza (?), from HP Laptop, tested with NFN025SA31T-6000000/S0628A0
@@ -2923,6 +2928,7 @@ const drive_settings builtin_knowndrives[] = {
     "SK ?hynix (SC(210|300|308|311|313|401)|SH920) .*|" // tested with
       // SK hynix SC210 mSATA 256GB/20002L00,
       // SKhynix SC300 HFS256G32MND-3210A/20131P00,
+      // SK hynix SC308 SATA 256GB/30000P10,
       // SK hynix SC308 SATA 128GB/30001P10,
       // SK hynix SC311 SATA 512GB/70000P10,
       // SK hynix SC313 HFS256G32TNF-N3A0A/70000P10,
@@ -2935,7 +2941,6 @@ const drive_settings builtin_knowndrives[] = {
       // HFS512G39MND-3510A/20400P00
     "HFS(128|256|512)G39TND-N210A|" // SC308, tested with HFS128G39TND-N210A/30001P10
     "HFS(120|250|500)G32TND-N1A2A|" // SL308, tested with HFS500G32TND-N1A2A/30000P10
-    "HFS(128|256|512)G39TND-N210A|" // SC308, tested with HFS128G39TND-N210A/30001P10
     "HFS(128|256|512)G32TNF-N3A0A|" // SC313, tested with HFS256G32TNF-N3A0A/70000P10
     "SHGS31-(250|500|1000)GS-2", // S31, tested with SHGS31-1000GS-2/90000Q00
     "", "",
@@ -2973,12 +2978,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 212,raw48,Phy_Error_Count "
     "-v 231,raw48,SSD_Life_Left "
     "-v 234,raw48,Unknown_SK_hynix_Attrib "
-    "-v 236,raw48,Unknown_SK_hynix_Attrib " // SC313
+    "-v 236,raw48,Unknown_SK_hynix_Attrib " // SC311, SC313
     "-v 238,raw48,Unknown_SK_hynix_Attrib " // SC401
     "-v 241,raw48,Total_Writes_GB " // SC31: ~GB, not GiB (#1517)
     "-v 242,raw48,Total_Reads_GB "
     "-v 243,raw48,Total_Media_Writes "
-    "-v 249,raw48,Unknown_SK_hynix_Attrib " // SC313
+    "-v 249,raw48,NAND_Writes_GiB " // SC311, SC313
     "-v 250,raw48,Read_Retry_Count "
   },
   { "SK hynix SATA SSDs",

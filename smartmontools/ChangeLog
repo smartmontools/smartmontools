@@ -1,5 +1,16 @@
 $Id$
 
+2023-07-31  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apacer AS340/350 SSDs: Rename, add AS350 (#1444).
+	- Phison Driven SSDs: Corsair Force LE (#1348), Patriot Ignite,
+	  PNY CS* 500GB.
+	- Phison Driven OEM SSDs: Hoodisk (GH issues/195), Kingmax (#1699).
+	- Silicon Motion based SSDs: Mushkin *-LT variant.
+	- SK hynix SATA SSDs: Add attribute 249 (GH pull/107), remove
+	  duplicate regex.
+
 2023-07-30  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
