@@ -1,0 +1,34 @@
+//
+// os_win32/versioninfo.rc.in
+//
+// $Id$
+//
+
+1 VERSIONINFO
+    FILEVERSION @BINARY_VERSION@
+    PRODUCTVERSION @BINARY_VERSION@
+    FILEFLAGSMASK 0x0
+    FILEFLAGS 0x0
+    FILEOS 0x4 // VOS__WINDOWS32
+    FILETYPE 0x1 // VFT_APP
+    FILESUBTYPE 0x0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "04090000"
+        BEGIN
+            VALUE "CompanyName", "www.smartmontools.org"
+            VALUE "FileDescription", "@DESC@"
+            VALUE "FileVersion", "@TEXT_VERSION@"
+            VALUE "InternalName", "@NAME@"
+            VALUE "LegalCopyright", "(C) 2002-@YY@, Bruce Allen, Christian Franke, www.smartmontools.org"
+            VALUE "OriginalFilename", "@NAME@.exe"
+            VALUE "ProductName", "smartmontools"
+            VALUE "ProductVersion", "@TEXT_VERSION@"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 0x0000
+    END
+END

@@ -1,0 +1,51 @@
+$Id$
+
+Developers / Maintainers / Contributors:
+
+Raghava Aditya          <...>
+Bruce Allen             <...>
+Jeremy Bauer            <jeremy.bauer@wdc.com>
+Casey Biemiller         <cbiemiller@intelliprop.com>
+Erik Inge Bolsø         <...>
+Stanislav Brabec        <sbrabec@suse.cz>
+Peter Cassidy           <pcassidy@mac.com>
+Praveen Chidambaram     <bunchofmails@gmail.com>
+Jonghwan Choi           <jhbird.choi@gmail.com>
+Michael Cordle          <michael.a.cordle@seagate.com>
+Yuri Dario              <mc6530@mclink.it>
+Casper Dik              <...>
+Simon Fairweather       <simon.n.fairweather@gmail.com>
+Christian Franke        <franke@computer.org>
+Guilhem Frézou          <...>
+Thomas Gatterweh        <thomas_gatterweh@hotmail.com>
+Douglas Gilbert         <dgilbert@interlog.com>
+Guido Guenther          <agx@sigxcpu.org>
+Jordan Hargrave         <jordan_hargrave@dell.com>
+Joerg Hering            <...>
+Geoff Keating           <geoffk@geoffk.org>
+Dr. David Kirkby        <...>
+Natan Lidukhover        <natan.lidukhover@seagate.com>
+Song Liu                <songliubraving@fb.com>
+Dan Lukes               <dan+smartmontools.changelog@obluda.cz>
+Kai Mäkisara            <kai.makisara@kolumbus.fi>
+Nidhi Malhotra          <nidhi.malhotra@pmcs.com>
+Harry Mallon            <hjmallon@gmail.com>
+Eduard Martinescu       <martines@rochester.rr.com>
+Frédéric L. W. Meunier  <...>
+Kimihiro Nonaka         <...>
+Gabriele Pohl           <contact@dipohl.de>
+Alex Samorukov          <samm@os2.kiev.ua>
+Keiji Sawada            <card_captor@users.sourceforge.net>
+Manfred Schwarb         <manfred99@gmx.ch>
+Tomas Smetana           <tsmetana@redhat.com>
+David Snyder            <dasnyderx@yahoo.com>
+Sergey Svishchev        <svs@ropnet.ru>
+Tommy Vestermark        <tommy.vestermark@gmail.com>
+Roger Willcocks         <roger@filmlight.ltd.uk>
+Phil Williams           <...>
+Hank Wu                 <hank@areca.com.tw>
+Shengfeng Zhou          <linux@highpoint-tech.com>
+Richard Zybert          <richard.zybert@zybert.co.uk>
+
+The first smartmontools code was derived from the smartsuite package,
+written by Michael Cornwell and Andre Hedrick.
