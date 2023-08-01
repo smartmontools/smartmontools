@@ -5,10 +5,9 @@ $Id$
 The most up-to-date version of this file is:
 https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 
-Date <Not released yet, please try current SVN or a recent CI build>
+Date 2023-08-01
 Summary: smartmontools release 7.4
 -----------------------------------------------------------
-
 - The docker image used for CI and release builds is now based on
   Debian 12 instead of Ubuntu 18.04.
 - macOS: CI and release builds are now generated for the x86_64 and arm64

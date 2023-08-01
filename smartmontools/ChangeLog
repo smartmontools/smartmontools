@@ -1,5 +1,9 @@
 $Id$
 
+2023-08-01  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.4
+
 2023-07-31  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
