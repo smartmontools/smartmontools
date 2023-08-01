@@ -1,4 +1,8 @@
-$Id: ChangeLog 5528 2023-07-31 14:31:18Z chrfranke $
+$Id: ChangeLog 5530 2023-08-01 11:00:21Z chrfranke $
+
+2023-08-01  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.4
 
 2023-07-31  Christian Franke  <franke@computer.org>
 
