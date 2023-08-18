@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5528 2023-07-31 14:31:18Z chrfranke $",
+  { "VERSION: 7.3 $Id: drivedb.h 5532 2023-08-18 07:39:02Z samm2 $",
     "-", "-",
     "Version information",
     ""
@@ -6433,6 +6433,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; ",
     "0x8564:0x7000",
     "", // 0x8000
+    "",
+    "-d sat"
+  },
+  // Other World Computing
+  { "USB: USB3 to SATA; ",
+    "0x7825:0xa2a4",
+    "", // 0x4101
     "",
     "-d sat"
   },

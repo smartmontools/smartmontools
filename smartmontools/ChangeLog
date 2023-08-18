@@ -1,4 +1,9 @@
-$Id: ChangeLog 5530 2023-08-01 11:00:21Z chrfranke $
+$Id: ChangeLog 5532 2023-08-18 07:39:02Z samm2 $
+
+2023-08-18  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Other World Computing USB3 to SATA (GH: #206)
 
 2023-08-01  Christian Franke  <franke@computer.org>
 
