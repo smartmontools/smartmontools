@@ -6436,6 +6436,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Other World Computing
+  { "USB: USB3 to SATA; ",
+    "0x7825:0xa2a4",
+    "", // 0x4101
+    "",
+    "-d sat"
+  },
   // JMicron II
   { "USB: ; JMicron JMS566",
     "0xa152:0xb566",

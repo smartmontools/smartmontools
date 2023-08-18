@@ -1,5 +1,10 @@
 $Id$
 
+2023-08-18  Alex Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h:
+	- Other World Computing USB3 to SATA (GH: #206)
+
 2023-08-01  Christian Franke  <franke@computer.org>
 
 	smartmontools 7.4
