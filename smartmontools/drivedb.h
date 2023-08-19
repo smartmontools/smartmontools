@@ -245,8 +245,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Apacer SSDs",
     "([1248]|1[056]|20|3[02]|40|60|64|80|12[08]|160|240|256|320|480|512|640|960|1024|1280|1920|2048|3840|4096)(GB|TB) SATA Flash Drive|"
-    "S[GHTV]250-(M2[48][02]|25) ([1248]|1[056]|20|3[02]|40|60|64|80|12[08]|160|240|256|320|480|512|640|960|1024|1280|1920|2048|3840|4096)(GB|TB) SSD", // tested with 120GB SATA Flash Drive/SFMB6130, SH250-M242 128GB SSD/SFMB8120, ST250-M280 256GB SSD/SFMD6110
-    "SFM[BCDEGHJ][0-9A-Z][0-9A-Z][1-9A-Z][0-9A-Z]",
+    "1TB SATA SSD|" // tested with 1TB SATA SSD/AP613PE0 (AP1TPPSS25-R)
+    "S[GHTV]250-(M2[48][02]|25) ([1248]|1[056]|20|3[02]|40|60|64|80|12[08]|160|240|256|320|480|512|640|960|1024|1280|1920|2048|3840|4096)(GB|TB) SSD",
+      // tested with 120GB SATA Flash Drive/SFMB6130, SH250-M242 128GB SSD/SFMB8120, ST250-M280 256GB SSD/SFMD6110
+    "AP613PE0|SFM[BCDEGHJ][0-9A-Z][0-9A-Z][1-9A-Z][0-9A-Z]",
     "",
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -326,6 +328,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Crucial/Micron RealSSD C300/P300", // Marvell 88SS9174
     "C300-CTFDDA[AC](064|128|256)MAG|" // tested with C300-CTFDDAC128MAG/0002,
       // C300-CTFDDAC064MAG/0006
+    "(C300-)?MTFDBAK(064|128|256)MAG(-1G1)?|" // tested with
+      // C300-MTFDBAK128MAG/0006 (attr 9 only), MTFDBAK256MAG-1G1/0007
     "P300-MTFDDAC(050|100|200)SAL", // tested with P300-MTFDDAC100SAL/0003
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -514,7 +518,8 @@ const drive_settings builtin_knowndrives[] = {
   { "Micron 5100 / 52x0 / 5300 / 5400 SSDs",
     "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)|" // Matches both stock and Dell OEM
       // tested with Micron_5100_MTFDDAK3T8TCB/D0MU410, MTFDDAK3T8TCB/D0MU410
-    "(Micron_5200_)?MTFDDAK(480|960|1T9|3T8|7T6)TD(C|D|N)|" // tested with Micron_5200_MTFDDAK3T8TDD/D1MU505
+    "(Micron_5200_)?MTFDDAK(240|480|960|1T9|3T8|7T6)TD(C|D|N)|" // tested with Micron_5200_MTFDDAK240TDN/D1MU005,
+      // Micron_5200_MTFDDAK3T8TDD/D1MU505
     "Micron_5210_MTFDDAK(480|960|1T9|3T8|7T6)QDE|" // tested with Micron_5210_MTFDDAK7T6QDE/D2MU804
     "Micron_5300(HC)?_MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[STU]|" // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001
       // Micron_5300HC_MTFDDAK960TDS/D3MN010
@@ -1395,10 +1400,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 249,raw48,NAND_Writes_1GiB"
   },
   { "Intel 53x and Pro 1500/2500 Series SSDs", // SandForce SF-2281, tested with
-      // INTEL SSDSC2BW180A4/DC12, SSDSC2BW240A4/DC12, SSDMCEAW120A4/DC33
-      // INTEL SSDMCEAW240A4/DC33, SSDSC2BF480A5/TG26, SSDSC2BW240H6/RG21
-      // INTEL SSDSC2BF180A4H/LH6i
-    "INTEL SSD(MCEA|SC2B|SCKJ)[WF](056|080|120|180|240|360|480)(A4H?|A5|H6)",
+      // INTEL SSDSC2BW180A4/DC12, INTEL SSDSC2BW240A4/DC12, INTEL SSDMCEAW120A4/DC33,
+      // INTEL SSDMCEAW240A4/DC33, INTEL SSDSC2BF180A4H/LH6i, INTEL SSDSC2BF480A5/TG26,
+      // INTEL SSDSC2BF240A5L/LT2i, INTEL SSDSC2BW240H6/RG21
+    "INTEL SSD(MCEA|SC2B|SCKJ)[WF](056|080|120|180|240|360|480)(A4H?|A5L?|H6)",
       // SC2B = 2.5", MCEA = mSATA, SCKJ = M.2; A4 = 530/Pro 1500, A5 = Pro 2500, H6 = 535
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -1494,18 +1499,21 @@ const drive_settings builtin_knowndrives[] = {
       // INTEL SSDSC2BB800G4T, SSDSC2BA200G3/5DV10250, SSDSC2BB080G6/G2010130,  SSDSC2BX200G4/G2010110,
       // INTEL SSDSC2BB016T6/G2010140, SSDSC2BX016T4/G2010140, SSDSC2BB150G7/N2010101,
       // INTEL SSDSC2BB480H4/D2010380, INTEL SSDSC2BB240G4C/D201FJ14, INTEL SSDSC2BA800G3E/5DV10250
-    "INTEL SSDSC(1N|2B)[ABPX]((080|100|120|150|160|200|240|300|400|480|600|800)[GH][3467][CERT]?|(012|016)T[46])",
+    "INTEL SSDSC(1N|2B)[ABPX]((080|100|120|150|160|200|240|300|400|480|600|800)[GH][3467][CERT]?|(012|016)T[46])|"
       // A = S3700, B*4 = S3500, B*6 = S3510, P = 730, X = S3610
       // Dell ships drives with model of the form SSDSC2BB120G4R
+    "VK000(120|240|480)GWSXF", // tested with VK000480GWSXF/HPG2 (HPE INTEL SSDSC2BB480G4)
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 11,raw48,Unknown_Intel_Attribute " // VK000480GWSXF
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 170,raw48,Available_Reservd_Space "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Unknown_Intel_Attribute " // VK000480GWSXF
     "-v 174,raw48,Unsafe_Shutdown_Count "
     "-v 175,raw16(raw16),Power_Loss_Cap_Test "
     "-v 183,raw48,SATA_Downshift_Count "
@@ -1882,7 +1890,8 @@ const drive_settings builtin_knowndrives[] = {
       // Samsung SSD 860 EVO 250GB/RVT01B6Q, Samsung SSD 860 EVO mSATA 250GB/RVT41B6Q,
       // Samsung SSD 860 EVO 500GB/RVT01B6Q, Samsung SSD 860 EVO mSATA 500GB/RVT41B6Q,
       // Samsung SSD 860 EVO mSATA 1TB/RVT41B6Q, Samsung SSD 860 EVO 2TB/RVT01B6Q,
-      // Samsung SSD 860 EVO 4TB/RVT04B6Q, Samsung SSD 870 EVO 1TB/SVT01B6Q
+      // Samsung SSD 860 EVO 4TB/RVT04B6Q, Samsung SSD 870 EVO 1TB/SVT01B6Q,
+      // Samsung SSD 870 EVO 4TB/SVT02B6Q
     "Samsung SSD 8[56]0 PRO ((128|256|512)G|[124]T)B|" // tested with Samsung SSD 850 PRO 128GB/EXM01B6Q,
       // Samsung SSD 850 PRO 1TB/EXM01B6Q, Samsung SSD 850 PRO 2TB/EXM02B6Q,
       // Samsung SSD 860 PRO 256GB/RVM01B6Q, Samsung SSD 860 PRO 512GB/RVM01B6Q,
@@ -1918,6 +1927,7 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG MZ7L3(240|480|960|1T9|3T8|7T6)H(B[LN][AT]|CHQ|CJR)-.*|" // PM893/897, tested with
       // SAMSUNG MZ7L3240HCHQ-00A07/JXTC104Q, SAMSUNG MZ7L3480HCHQ-00A07/JXTC104Q,
       // SAMSUNG MZ7L3480HBLT-00A07/JXTE004Q, SAMSUNG MZ7L33T8HBLT-00A07/JXTC104Q
+    "MK000(240|480|960)GZXRB|" // MK000960GZXRB/HPG0 (HPE MZ7L3960HBLT-00AH3)
     "SAMSUNG MZ7KH(240|480|960|1T9|3T8)HA(HQ|JR|LS)-.*|" //SM883
     "SAMSUNG MZ[7N](LF|TY)(128|192|256)H[CD](GS|HP)-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
       // SAMSUNG MZNTY256HDHP-000/MAT21K0Q, SAMSUNG MZ7LF192HCGS-000L1/FXT03L1Q
@@ -1974,7 +1984,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 247,raw48,Timed_Workld_Timer " // PM863, PM893
     "-v 249,raw48,NAND_Writes_1GiB " // CM871a, PM871
     "-v 250,raw48,SATA_Iface_Downshift " // from the spec
-    "-v 251,raw48,NAND_Writes" // PM863, PM893
+    "-v 251,raw48,NAND_Writes " // PM863, PM893
+    "-v 252,raw48,Added_Bad_Flash_Blk_Ct" // 870 EVO FW SVT02B6Q
   },
   { "Marvell based SanDisk SSDs",
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01

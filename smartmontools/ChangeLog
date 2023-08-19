@@ -1,5 +1,16 @@
 $Id$
 
+2023-08-19  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Apacer SSDs: AP1TPPSS25-R (#1640).
+	- Crucial/Micron RealSSD C300/P300: C300-MTFDBAK* (#1421),
+	  MTFDBAK* (#1728).
+	- Micron 5100 / 52x0 / 5300 / 5400 SSDs: 5200 240GB.
+	- Intel 53x and Pro 1500/2500 Series SSDs: *A5L variant (#1435).
+	- Intel 730 and DC S35x0/3610/3700 Series SSDs: S3500 HPE (#1651).
+	- Samsung based SSDs: PM897 HPE (#1650), Attribute 252 (#1734).
+
 2023-08-18  Alex Samorukov <samm@os2.kiev.ua>
 
 	drivedb.h:
