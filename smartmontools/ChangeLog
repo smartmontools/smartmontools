@@ -1,5 +1,20 @@
 $Id$
 
+2023-08-21  Christian Franke  <franke@computer.org>
+
+	Allow reproducible builds of the Windows installer.
+
+	configure.ac: Propagate SOURCE_DATE_EPOCH to Makefile.
+	Makefile.am: Add SOURCE_DATE_EPOCH to CPPFLAGS.
+	Set SOURCE_DATE_EPOCH if PDF man page is generated.
+	Remove "Time: ..." from HTML man page.
+	Use 'pe32edit.sh' to modify 'smartctl-nc.exe'.
+	Rework target 'distdir-win32':  Set file header timestamps
+	of all EXE files to SOURCE_DATE_EPOCH.  Set last modification
+	time of all generated files to SOURCE_DATE_EPOCH.
+	os_win32/pe32edit.sh: New bash script to set timestamp and
+	subsystem in the PE32 file header.
+
 2023-08-19  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

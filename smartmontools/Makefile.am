@@ -10,7 +10,13 @@ ACLOCAL_AMFLAGS = -I m4
 # BUILD_INFO can be provided by package maintainers (see INSTALL file)
 BUILD_INFO= "(local build)"
 
+if REPRODUCIBLE_BUILD
+set_source_date_epoch = SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH)
+def_source_date_epoch = -D$(set_source_date_epoch)
+endif
+
 AM_CPPFLAGS = \
+        $(def_source_date_epoch) \
         -DBUILD_INFO='$(BUILD_INFO)' \
         -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"' \
         -DSMARTMONTOOLS_SMARTDSCRIPTDIR='"$(smartdscriptdir)"'
@@ -423,6 +429,7 @@ EXTRA_DIST = \
         os_darwin/pkg/root/usr/local/sbin/smart-pkg-uninstall \
         os_win32/default.manifest \
         os_win32/installer.nsi \
+        os_win32/pe32edit.sh \
         os_win32/runcmd.c \
         os_win32/smartd_mailer.ps1 \
         os_win32/smartd_mailer.conf.sample.ps1 \
@@ -727,19 +734,19 @@ update-smart-drivedb.1m: update-smart-drivedb.8
 
 
 # Convert man pages into .html, .pdf and .txt
-# TODO: configure
 MAN2HTML = man2html
-#MAN2HTML = groff -man -Thtml
-MAN2PDF = man -Tpdf -l
-#MAN2PDF = groff -man -Tpdf
+#MAN2HTML = $(set_source_date_epoch) groff -man -Thtml
+MAN2PDF = $(set_source_date_epoch) man -Tpdf -l
+#MAN2PDF = $(set_source_date_epoch) groff -man -Tpdf
 MAN2TXT = groff -man -Tascii -P'-bcou'
 
-# Remove HTTP header and fix links in man2html output
+# Remove HTTP header and timestamp and fix links in man2html output
 FIXHTML = sed -e '1s,^Content-type.*,,' \
               -e 's,<A HREF="[^"]*/man2html?\([1-8]\)+\(smart[cd][.a-z]*\)">,<A HREF="\2.\1.html">,g' \
               -e 's,<A HREF="[^"]*/man2html">,<A HREF=".">,g' \
               -e 's,<A HREF="[^"]*/man2html?[^"]*">\([^<]*\)</A>,\1,g' \
-              -e 's,<A HREF="mailto:[^s][^m][^a][^"]*">\([^<]*\)</A>,\1,g'
+              -e 's,<A HREF="mailto:[^s][^m][^a][^"]*">\([^<]*\)</A>,\1,g' \
+              -e '/^Time: [012][0-9]:[0-5][0-9]:[0-5][0-9] [^<]*$$/d'
 
 htmlman: smartctl.8.html smartd.8.html smartd.conf.5.html update-smart-drivedb.8.html
 
@@ -859,7 +866,7 @@ syslogevt.rc: os_win32/syslogevt.mc
 defadmin.manifest: os_win32/default.manifest
 	sed 's,"asInvoker","requireAdministrator",' $< > $@
 
-# Definitions for Windows distribution
+# Build Windows distribution
 
 if OS_WIN64
 win_bits = 64
@@ -871,53 +878,34 @@ distdir_win32  = $(PACKAGE)-$(VERSION).win$(win_bits)
 distzip_win32  = $(PACKAGE)-$(VERSION).win$(win_bits).zip
 distinst_win32 = $(PACKAGE)-$(VERSION).win$(win_bits)-setup.exe
 
-exedir_win32 = $(distdir_win32)/bin
-docdir_win32 = $(distdir_win32)/doc
-
-EXEFILES_WIN32 = \
-        $(exedir_win32)/smartctl.exe \
-        $(exedir_win32)/smartctl-nc.exe \
-        $(exedir_win32)/smartd.exe \
-        $(exedir_win32)/smartd_mailer.ps1 \
-        $(exedir_win32)/smartd_mailer.conf.sample.ps1 \
-        $(exedir_win32)/smartd_warning.cmd \
-        $(exedir_win32)/runcmda.exe \
-        $(exedir_win32)/runcmdu.exe \
-        $(exedir_win32)/wtssendmsg.exe
+BINFILES_WIN32 = \
+        smartctl.exe smartctl-nc.exe smartd.exe \
+        runcmda.exe runcmdu.exe wtssendmsg.exe \
+        $(srcdir)/os_win32/smartd_mailer.ps1 \
+        $(srcdir)/os_win32/smartd_mailer.conf.sample.ps1 \
+        $(srcdir)/os_win32/smartd_warning.cmd
 
 if ENABLE_DRIVEDB
-EXEFILES_WIN32 += \
-        $(exedir_win32)/update-smart-drivedb.ps1
+BINFILES_WIN32 += \
+        update-smart-drivedb.ps1 \
+        $(srcdir)/drivedb.h
 endif
 
-FILES_WIN32 = \
-        $(EXEFILES_WIN32) \
-        $(docdir_win32)/AUTHORS.txt \
-        $(docdir_win32)/ChangeLog.txt \
-        $(docdir_win32)/ChangeLog-6.0-7.0.txt \
-        $(docdir_win32)/COPYING.txt \
-        $(docdir_win32)/INSTALL.txt \
-        $(docdir_win32)/NEWS.txt \
-        $(docdir_win32)/README.txt \
-        $(docdir_win32)/TODO.txt \
-        $(docdir_win32)/checksums$(win_bits).txt \
-        $(docdir_win32)/smartd.conf \
-        $(docdir_win32)/smartctl.8.html \
-        $(docdir_win32)/smartctl.8.pdf \
-        $(docdir_win32)/smartd.8.html \
-        $(docdir_win32)/smartd.8.pdf \
-        $(docdir_win32)/smartd.conf.5.html \
-        $(docdir_win32)/smartd.conf.5.pdf
-
-if ENABLE_DRIVEDB
-FILES_WIN32 += \
-        $(exedir_win32)/drivedb.h
-endif
+DOCFILES_WIN32 = \
+        smartctl.8.html smartd.8.html smartd.conf.5.html \
+        smartctl.8.pdf smartd.8.pdf smartd.conf.5.pdf \
+        $(srcdir)/AUTHORS \
+        $(srcdir)/ChangeLog \
+        $(srcdir)/ChangeLog-6.0-7.0 \
+        $(srcdir)/COPYING \
+        $(srcdir)/INSTALL \
+        $(srcdir)/NEWS \
+        $(srcdir)/README \
+        $(srcdir)/TODO \
+        $(srcdir)/smartd.conf
 
 CLEANFILES += \
-        $(FILES_WIN32) \
         defadmin.manifest \
-        distdir.mkdir \
         runcmda.exe runcmda_res.rc \
         runcmdu.exe runcmdu_res.rc \
         smartctl-nc.exe smartctl-nc.exe.tmp \
@@ -930,7 +918,7 @@ CLEANFILES += \
 # Note: Only use without options to be compatible with all variants
 UNIX2DOS = unix2dos
 
-# Build Windows distribution
+.PHONY: cleandist-win32 dist-win32 distdir-win32 install-win32 installer-win32
 
 dist-win32: $(distzip_win32)
 
@@ -939,9 +927,9 @@ install-win32: $(distinst_win32)
 
 installer-win32: $(distinst_win32)
 
-distdir-win32: distdir.mkdir $(FILES_WIN32)
+distdir-win32: $(distdir_win32).stamp
 
-$(distzip_win32): distdir.mkdir $(FILES_WIN32)
+$(distzip_win32): $(distdir_win32).stamp
 	@rm -fv $(distzip_win32)
 	cd $(distdir_win32) && zip -9 ../$(distzip_win32) bin/* doc/*
 	md5sum $@ > $@.md5
@@ -950,9 +938,9 @@ $(distzip_win32): distdir.mkdir $(FILES_WIN32)
 
 # Build NSIS installer
 # Note: Only option character '-' is also compatible with Linux version of makensis
-$(distinst_win32): os_win32/installer.nsi smartctl_res.rc distdir.mkdir $(FILES_WIN32)
+$(distinst_win32): os_win32/installer.nsi Makefile smartctl_res.rc $(distdir_win32).stamp
 	@test -n '$(MAKENSIS)' || ! echo 'makensis: command not found (https://nsis.sourceforge.io)'
-	test -z '$(builddir_win64)' || ( cd $(builddir_win64) && make distdir-win32 )
+	test -z '$(builddir_win64)' || ( cd $(builddir_win64) && $(MAKE) distdir-win32 )
 	@date=`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h` && \
 	rev=`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h` && \
 	version=`sed -n 's|^ *VALUE "FileVersion", "\([0-9.]*\)".*$$|\1|p' smartctl_res.rc` && \
@@ -966,67 +954,61 @@ $(distinst_win32): os_win32/installer.nsi smartctl_res.rc distdir.mkdir $(FILES_
 	sha256sum $@ > $@.sha256
 
 cleandist-win32:
-	rm -rf $(distdir_win32) distdir.mkdir
+	rm -rf $(distdir_win32)
+	rm -f $(distdir_win32).stamp $(distinst_win32) $(distzip_win32)
 
-distdir.mkdir:
-	@test -d $(exedir_win32) || mkdir -pv $(exedir_win32)
-	@test -d $(docdir_win32) || mkdir -pv $(docdir_win32)
-	touch $@
-
-$(exedir_win32)/%.exe: %.exe
-	cp -p $< $@
-	if test -n '$(STRIP)'; then $(STRIP) -s $@; else strip -s $@; fi
-	touch -r $< $@
-
-$(exedir_win32)/%.h: $(srcdir)/%.h
-	$(UNIX2DOS) < $< > $@
-	touch -r $< $@
-
-$(exedir_win32)/%.cmd: $(srcdir)/os_win32/%.cmd
-	$(UNIX2DOS) < $< > $@
-	touch -r $< $@
-
-$(exedir_win32)/%.ps1: $(srcdir)/os_win32/%.ps1
-	$(UNIX2DOS) < $< > $@
-	touch -r $< $@
-
-$(exedir_win32)/%.ps1: %.ps1
-	$(UNIX2DOS) < $< > $@
-	touch -r $< $@
-
-$(docdir_win32)/%.html: %.html
-	$(UNIX2DOS) < $< > $@
-	touch -r $< $@
-
-$(docdir_win32)/%.pdf: %.pdf
-	cp -p $< $@
-
-$(docdir_win32)/%.txt: $(srcdir)/%
-	$(UNIX2DOS) < $< > $@
-	touch -r $< $@
-
-$(docdir_win32)/%.conf: $(srcdir)/%.conf
-	$(UNIX2DOS) < $< > $@
-	touch -r $< $@
-
-$(docdir_win32)/checksums$(win_bits).txt: $(EXEFILES_WIN32)
-	(cd $(exedir_win32) && for algo in md5 sha1 sha256; do $${algo}sum *.exe *.cmd *.ps1; done) \
-	| $(UNIX2DOS) > $@
+# Build distribution directory.
+# Strip all executables.  Convert all text files to CR/LF.
+# Build checksums*.txt file.
+# Fix header and file timestamps if reproducible build.
+# The latter uses 'stat' and 'touch' enhancements from GNU coreutils.
+$(distdir_win32).stamp: Makefile $(BINFILES_WIN32) $(DOCFILES_WIN32)
+	@rm -f $@
+	rm -rf $(distdir_win32)
+	$(MKDIR_P) $(distdir_win32)/bin
+	$(MKDIR_P) $(distdir_win32)/doc
+	@vrun() { echo "$$@" && eval "$$@"; } && \
+	strip='$(STRIP)' && strip=$${strip:-strip} && \
+	for src in $(BINFILES_WIN32); do \
+	  dst=$(distdir_win32)/bin/$${src##*/} && \
+	  case $${src##*/} in \
+	    *.exe) vrun $$strip -o $$dst $$src ;; \
+	    *) vrun $(UNIX2DOS) \< $$src \> $$dst && vrun touch -r $$src $$dst ;; \
+	  esac || exit 1; \
+	done && \
+	for src in $(DOCFILES_WIN32); do \
+	  dst=$(distdir_win32)/doc/$${src##*/} && \
+	  case $${src##*/} in [A-Z]*) dst=$$dst.txt ;; esac && \
+	  case $${src##*/} in \
+	    *.pdf) vrun cp -p $$src $$dst ;; \
+	    *) vrun $(UNIX2DOS) \< $$src \> $$dst && vrun touch -r $$src $$dst ;; \
+	   esac || exit 1; \
+	done && \
+	if [ -n '$(SOURCE_DATE_EPOCH)' ]; then \
+	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(SOURCE_DATE_EPOCH) $(distdir_win32)/bin/smartctl.exe && \
+	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(SOURCE_DATE_EPOCH) $(distdir_win32)/bin/smartctl-nc.exe && \
+	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(SOURCE_DATE_EPOCH) $(distdir_win32)/bin/smartd.exe && \
+	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(srcdir)/os_win32/runcmd.c $(distdir_win32)/bin/runcmda.exe && \
+	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(srcdir)/os_win32/runcmd.c $(distdir_win32)/bin/runcmdu.exe && \
+	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(srcdir)/os_win32/wtssendmsg.c $(distdir_win32)/bin/wtssendmsg.exe; \
+	fi && \
+	echo ' $$(MD5_SHA1_SHA256_SUM) *.exe *.cmd *.ps1 > $(distdir_win32)/doc/checksums$(win_bits).txt' && \
+	(cd $(distdir_win32)/bin && for algo in md5 sha1 sha256; do $${algo}sum *.exe *.cmd *.ps1; done) \
+	| $(UNIX2DOS) > $(distdir_win32)/doc/checksums$(win_bits).txt && \
+	if [ -n '$(SOURCE_DATE_EPOCH)' ]; then \
+	  touch -d @$(SOURCE_DATE_EPOCH) source_date.stamp && \
+	  find $(distdir_win32) -newer source_date.stamp | while read f; do \
+	    vrun touch -r source_date.stamp $$f || exit 1; \
+	  done && \
+	  rm -f source_date.stamp; \
+	fi
+	@touch $@
 
 # Build non-console version of smartctl for GSmartControl.
-# The script below changes the word at offset 220 (Subsystem) from 3
-# (Console) to 2 (GUI) in a copy of smartctl.exe.
-# This will be changed when a tool (like 'editbin') is available in
-# the Cygwin distribution
 smartctl-nc.exe: smartctl.exe
 	@rm -f $@
 	cp -p smartctl.exe $@.tmp
-	@if test `od -A n -j 220 -N 2 -d $@.tmp` -eq 3; then :; \
-	  else echo "invalid EXE header"; exit 1; fi
-	@echo "editbin /subsystem:windows $@.tmp"
-	@echo -ne '\002' | dd bs=1 seek=220 count=1 conv=notrunc of=$@.tmp 2>/dev/null
-	@if test `od -A n -j 220 -N 2 -d $@.tmp` -eq 2; then :; \
-	  else echo "EXE patch failed"; exit 1; fi
+	$(srcdir)/os_win32/pe32edit.sh -s 2 $@.tmp
 	mv -f $@.tmp $@
 
 # Build runcmd?.exe and wtssendmsg.exe

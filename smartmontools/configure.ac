@@ -43,6 +43,7 @@ if test "$cross_compiling" = "no"; then
     [AC_MSG_WARN([m4/pkg.m4 missing, systemd detection disabled])])
 fi
 
+AC_ARG_VAR(SOURCE_DATE_EPOCH, [Reproducible build timestamp])
 AC_ARG_VAR(NM, [Symbol list command])
 AC_ARG_VAR(WINDMC, [Windows message compiler command])
 AC_ARG_VAR(WINDRES, [Windows resource compiler command])
@@ -68,17 +69,12 @@ case "$host_os" in
     ;;
 esac
 
-AC_MSG_CHECKING([whether reproducible build is selected (SOURCE_DATE_EPOCH)])
-res=no
-if test -n "$SOURCE_DATE_EPOCH"; then
-  res=yes
-  test -z "`echo "$SOURCE_DATE_EPOCH" | sed 's,[[0-9]]*,,'`" || res=error
-fi
-AC_MSG_RESULT([$res])
-case $res in
-  error) AC_MSG_ERROR([Malformed SOURCE_DATE_EPOCH]) ;;
-  yes) CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-DSOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" ;;
-esac
+# SOURCE_DATE_EPOCH must be either unset or numeric.
+test -z "${SOURCE_DATE_EPOCH+set}" \
+|| test -z "`echo "$SOURCE_DATE_EPOCH" | sed -e 's,^$,X,' -e 's,[[0-9]],,g'`" \
+|| AC_MSG_ERROR([Malformed SOURCE_DATE_EPOCH: '$SOURCE_DATE_EPOCH'])
+AC_SUBST([SOURCE_DATE_EPOCH])
+AM_CONDITIONAL(REPRODUCIBLE_BUILD, [test -n "$SOURCE_DATE_EPOCH"])
 
 # Check for SVN.
 AC_MSG_CHECKING([whether this is a build from SVN])
@@ -896,6 +892,14 @@ info=`
   echo "C compiler flags:       $CFLAGS"
   echo "linker flags:           $LDFLAGS"
   echo "OS specific modules:    $os_deps $os_libs $LIBS"
+  if test -n "$SOURCE_DATE_EPOCH"; then
+    # GNU date || BSD date
+    d=\`date -Iseconds -d "@$SOURCE_DATE_EPOCH" 2>/dev/null ||
+        date -Iseconds -r "$SOURCE_DATE_EPOCH" 2>/dev/null\`
+    echo "Reproducible build:     SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH [[$d]]"
+  else
+    echo "Reproducible build:     [[disabled]]"
+  fi
 
   case "$host_os" in
     mingw*)
