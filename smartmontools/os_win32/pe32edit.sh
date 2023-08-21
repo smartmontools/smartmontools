@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: pe32edit.sh 5535 2023-08-21 17:07:39Z chrfranke $
+# $Id: pe32edit.sh 5536 2023-08-21 17:16:08Z chrfranke $
 #
 
 set -e -o pipefail
