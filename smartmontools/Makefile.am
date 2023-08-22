@@ -537,7 +537,7 @@ initd_DATA_install = install-initdDATA-darwin
 initd_DATA_uninstall = uninstall-initdDATA-darwin
 
 com.smartmontools.smartd.plist : os_darwin/com.smartmontools.smartd.plist.in
-	sed "s|/usr/sbin/|$(sbindir)/|" $< > $@
+	sed "s|/usr/sbin/|$(sbindir)/|" $(srcdir)/os_darwin/com.smartmontools.smartd.plist.in > $@
 
 install-initdDATA-darwin: $(initd_DATA)
 	$(MKDIR_P) '$(DESTDIR)$(initddir)'
@@ -691,7 +691,6 @@ MAN_FILTER = { \
       cat; \
     fi; }
 
-# Implicit rule 'smart%: smart%.in ...' does not work with BSD make
 smartctl.8: smartctl.8.in Makefile svnversion.h
 	@echo ' $$(MAN_FILTER) < $(srcdir)/smartctl.8.in > $@'
 	@$(MAN_FILTER) < $(srcdir)/smartctl.8.in > $@
@@ -738,7 +737,6 @@ MAN2HTML = man2html
 #MAN2HTML = $(set_source_date_epoch) groff -man -Thtml
 MAN2PDF = $(set_source_date_epoch) man -Tpdf -l
 #MAN2PDF = $(set_source_date_epoch) groff -man -Tpdf
-MAN2TXT = groff -man -Tascii -P'-bcou'
 
 # Remove HTTP header and timestamp and fix links in man2html output
 FIXHTML = sed -e '1s,^Content-type.*,,' \
@@ -748,34 +746,43 @@ FIXHTML = sed -e '1s,^Content-type.*,,' \
               -e 's,<A HREF="mailto:[^s][^m][^a][^"]*">\([^<]*\)</A>,\1,g' \
               -e '/^Time: [012][0-9]:[0-5][0-9]:[0-5][0-9] [^<]*$$/d'
 
+.PHONY: htmlman pdfman
+
 htmlman: smartctl.8.html smartd.8.html smartd.conf.5.html update-smart-drivedb.8.html
 
 pdfman:  smartctl.8.pdf smartd.8.pdf smartd.conf.5.pdf update-smart-drivedb.8.pdf
 
-txtman:  smartctl.8.txt smartd.8.txt smartd.conf.5.txt update-smart-drivedb.8.txt
-
-%.5.html: %.5
-	$(MAN2HTML) $< > $@.tmp
+smartctl.8.html: smartctl.8
+	$(MAN2HTML) smartctl.8 > $@.tmp
 	@echo ' $$(FIXHTML) < $@.tmp > $@'
 	@$(FIXHTML) < $@.tmp > $@
 
-%.8.html: %.8
-	$(MAN2HTML) $< > $@.tmp
+smartd.8.html: smartd.8
+	$(MAN2HTML) smartd.8 > $@.tmp
 	@echo ' $$(FIXHTML) < $@.tmp > $@'
 	@$(FIXHTML) < $@.tmp > $@
 
-%.5.pdf: %.5
-	$(MAN2PDF) $< > $@
+smartd.conf.5.html: smartd.conf.5
+	$(MAN2HTML) smartd.conf.5 > $@.tmp
+	@echo ' $$(FIXHTML) < $@.tmp > $@'
+	@$(FIXHTML) < $@.tmp > $@
 
-%.8.pdf: %.8
-	$(MAN2PDF) $< > $@
+update-smart-drivedb.8.html: update-smart-drivedb.8
+	$(MAN2HTML) update-smart-drivedb.8 > $@.tmp
+	@echo ' $$(FIXHTML) < $@.tmp > $@'
+	@$(FIXHTML) < $@.tmp > $@
 
-%.5.txt: %.5
-	$(MAN2TXT) $< > $@
+smartctl.8.pdf: smartctl.8
+	$(MAN2PDF) smartctl.8 > $@
 
-%.8.txt: %.8
-	$(MAN2TXT) $< > $@
+smartd.8.pdf: smartd.8
+	$(MAN2PDF) smartd.8 > $@
 
+smartd.conf.5.pdf: smartd.conf.5
+	$(MAN2PDF) smartd.conf.5 > $@
+
+update-smart-drivedb.8.pdf: update-smart-drivedb.8
+	$(MAN2PDF) update-smart-drivedb.8 > $@
 
 # Check drive database syntax
 check:
@@ -799,19 +806,19 @@ if OS_WIN32_MINGW
 # Windows resources
 
 smartctl_res.o: smartctl_res.rc $(os_win32_manifest)
-	$(WINDRES) $< $@
+	$(WINDRES) smartctl_res.rc $@
 
 smartd_res.o: smartd_res.rc syslogevt.rc $(os_win32_manifest)
-	$(WINDRES) $< $@
+	$(WINDRES) smartd_res.rc $@
 
 runcmda_res.o: runcmda_res.rc defadmin.manifest
-	$(WINDRES) $< $@
+	$(WINDRES) runcmda_res.rc $@
 
 runcmdu_res.o: runcmdu_res.rc $(os_win32_manifest)
-	$(WINDRES) $< $@
+	$(WINDRES) runcmdu_res.rc $@
 
 wtssendmsg_res.o: wtssendmsg_res.rc $(os_win32_manifest)
-	$(WINDRES) $< $@
+	$(WINDRES) wtssendmsg_res.rc $@
 
 # Convert version for VERSIONINFO resource: 6.6 r4519 -> 6.6.0.4519,
 # set description, name, version and year
@@ -824,8 +831,8 @@ WIN_RC_FILTER = { \
         -e "s|@TEXT_VERSION@|$$txtver|g" -e "s|@YY@|$$yy|g"; }
 
 WIN_MAKE_RES = \
-    echo "n=$$n d=\"$$d"'"; $$(WIN_RC_FILTER) < $< > $@'; \
-    $(WIN_RC_FILTER) < $< > $@
+    echo "n=$$n d=\"$$d"'"; $$(WIN_RC_FILTER) < $(srcdir)/os_win32/versioninfo.rc.in > $@'; \
+    $(WIN_RC_FILTER) < $(srcdir)/os_win32/versioninfo.rc.in > $@
 
 WIN_APP_MANIFEST = \
     if test -n '$(os_win32_manifest)'; then \
@@ -856,15 +863,15 @@ wtssendmsg_res.rc: os_win32/versioninfo.rc.in Makefile svnversion.h
 
 syslogevt.rc: os_win32/syslogevt.mc
 	@if test -n '$(WINDMC)'; then \
-	  echo '$(WINDMC) -b $<'; \
-	  $(WINDMC) -b $<; \
+	  echo '$(WINDMC) -b $(srcdir)/os_win32/syslogevt.mc'; \
+	  $(WINDMC) -b $(srcdir)/os_win32/syslogevt.mc; \
 	else \
 	  echo "echo '// MESSAGETABLE not available' > $@"; \
 	  echo '// MESSAGETABLE not available' > $@; \
 	fi
 
 defadmin.manifest: os_win32/default.manifest
-	sed 's,"asInvoker","requireAdministrator",' $< > $@
+	sed 's,"asInvoker","requireAdministrator",' $(srcdir)/os_win32/default.manifest > $@
 
 # Build Windows distribution
 
@@ -947,8 +954,8 @@ $(distinst_win32): os_win32/installer.nsi Makefile smartctl_res.rc $(distdir_win
 	yy=`echo "$$date" | sed -n 's,^20\([0-9][0-9]\).*$$,\1,p'`; yy="$${yy:-XX}" && \
 	verstr="$(PACKAGE_VERSION) $$date $$rev "$(BUILD_INFO) && \
 	d64= && if [ -n '$(builddir_win64)' ]; then d64='-DINPDIR64=$(builddir_win64)/$(PACKAGE)-$(VERSION).win64'; fi && \
-	echo "'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR='$$verstr' $<" && \
-	'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR="$$verstr" $<
+	echo "'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi" && \
+	'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR="$$verstr" $(srcdir)/os_win32/installer.nsi
 	md5sum $@ > $@.md5
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256
@@ -1013,20 +1020,20 @@ smartctl-nc.exe: smartctl.exe
 
 # Build runcmd?.exe and wtssendmsg.exe
 runcmd.o: os_win32/runcmd.c
-	$(CC) -c -Os $<
+	$(CC) -c -Os $(srcdir)/os_win32/runcmd.c
 
 runcmdu.exe: runcmd.o runcmdu_res.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ runcmd.o runcmdu_res.o
 
 runcmda.exe: runcmd.o runcmda_res.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ runcmd.o runcmda_res.o
 
 wtssendmsg.exe: os_win32/wtssendmsg.c wtssendmsg_res.o
-	$(CC) -Os -o $@ $^ -lwtsapi32
+	$(CC) -Os -o $@ $(srcdir)/os_win32/wtssendmsg.c wtssendmsg_res.o -lwtsapi32
 
 # Build drivedb.h update script
 update-smart-drivedb.ps1: os_win32/update-smart-drivedb.ps1.in config.status
-	$(SHELL) ./config.status --file=$@:$<
+	$(SHELL) ./config.status --file=$@:$(srcdir)/os_win32/update-smart-drivedb.ps1.in
 
 # MSVC Version to change in make command line
 vc = 17
@@ -1054,16 +1061,16 @@ config-vc: check-vc-version $(CONFIG_VC_FILES)
 $(srcdir)/os_win32/vc$(vcver)/config.h: config.h Makefile
 	sed -e '1i/* os_win32/vc$(vcver)/config.h.  Generated from config.h by Makefile.  */' \
 	    -e 's,^#define HAVE_\(ATTR_PACKED\|CLOCK_GETTIME\|GETTIMEOFDAY\|__INT128\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1.*$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
-	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc$(vcver),' $< > $@
+	    -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc$(vcver),' config.h > $@
 
 $(srcdir)/os_win32/vc$(vcver)/svnversion.h: svnversion.h
-	cp $< $@
+	cp svnversion.h $@
 
 $(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc: smartctl_res.rc
-	sed '/^1 24 /d' $< > $@
+	sed '/^1 24 /d' smartctl_res.rc > $@
 
 $(srcdir)/os_win32/vc$(vcver)/smartd_res.rc: smartd_res.rc
-	sed '/^1 24 /d' $< > $@
+	sed '/^1 24 /d' smartd_res.rc > $@
 
 clean-vc: check-vc-version
 	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/Browse.VC.opendb

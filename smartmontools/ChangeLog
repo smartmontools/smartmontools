@@ -1,5 +1,12 @@
 $Id$
 
+2023-08-22  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Replace remaining elements which require GNU make.
+	Expand remaining '%'-pattern rules.
+	Use actual file instead of '$<' and '$^' in non-implicit rules.
+	Remove the no longer used target 'txtman'.
+
 2023-08-21  Christian Franke  <franke@computer.org>
 
 	Allow reproducible builds of the Windows installer.
