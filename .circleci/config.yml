@@ -8,7 +8,8 @@ references:
       command: |
         curl --silent https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/commits/${CIRCLE_SHA1} \
         | jq .commit.message | sed -E 's|.*git-svn-id: http://svn.code.sf.net/p/smartmontools/code/trunk@([0-9]+).*|\1|' >~/SVNREV &&
-        test "`cat ~/SVNREV`" -gt "0" && echo SVN revision: r`cat ~/SVNREV`
+        test "`cat ~/SVNREV`" -gt "0" && echo SVN revision: r`cat ~/SVNREV` &&
+        s=$(date +%s) && date -d @"$s" -Is && echo "$s" >~/SOURCE_DATE_EPOCH
 
   svn_checkout: &svn_checkout
     run:
@@ -25,10 +26,12 @@ references:
         cd ~/smartmontools &&
         sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' configure.ac > ~/SM_VER &&
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        SOURCE_DATE_EPOCH=`cat ~/SOURCE_DATE_EPOCH` &&
         ./autogen.sh --force &&
         mkdir build && cd build &&
-        ../configure &&
-        make dist && tar -tvzf smartmontools-${SM_VER}.tar.gz &&
+        ../configure SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+        make dist am__tar='tar --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime -chof - "$$tardir"'
+        tar -tvzf smartmontools-${SM_VER}.tar.gz &&
         mkdir /artefacts &&
         mv smartmontools-${SM_VER}.tar.gz /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
 
@@ -37,13 +40,16 @@ references:
       name: Creating static x86_64 linux binaries
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        SOURCE_DATE_EPOCH=`cat ~/SOURCE_DATE_EPOCH` &&
         BUILD_INFO='"(CircleCI)"' &&
         mkdir ~/build && cd ~/build &&
         tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
-        ../configure LDFLAGS="-static" && make -j3 BUILD_INFO="$BUILD_INFO" && make check &&
+        ../configure LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+        make -j3 BUILD_INFO="$BUILD_INFO" && make check &&
         mkdir inst && make DESTDIR="$(pwd)/inst" install &&
-        (cd inst && tar czf "/artefacts/smartmontools-linux-x86_64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
+        (cd inst && tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} \
+         -czf "/artefacts/smartmontools-linux-x86_64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
         rm -rf ~/build
 
   sm_compile_linux32: &sm_compile_linux32
@@ -51,14 +57,17 @@ references:
       name: Creating static i386 linux binaries
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        SOURCE_DATE_EPOCH=`cat ~/SOURCE_DATE_EPOCH` &&
         BUILD_INFO='"(CircleCI)"' &&
         mkdir ~/build && cd ~/build &&
         tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
-        ../configure CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" &&
+        ../configure CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" \
+          SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
         make -j3 BUILD_INFO="$BUILD_INFO" && make check &&
         mkdir inst && make DESTDIR="$(pwd)/inst" install &&
-        (cd inst && tar czf "/artefacts/smartmontools-linux-i386-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
+        (cd inst && tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} \
+         -czf "/artefacts/smartmontools-linux-i386-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
         rm -rf ~/build
 
   sm_compile_linux_clang: &sm_compile_linux_clang
@@ -66,11 +75,12 @@ references:
       name: Creating static x86_64 linux binaries and Clang Static Analyzer report
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        SOURCE_DATE_EPOCH=`cat ~/SOURCE_DATE_EPOCH` &&
         BUILD_INFO='"(CircleCI)"' &&
         mkdir ~/build && cd ~/build &&
         tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
-        ../configure CC=clang CXX=clang++ LDFLAGS="-static" &&
+        ../configure CC=clang CXX=clang++ LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
         HTMLDIR="smartmontools-linux-clang-analyzer-${SM_VER}-r${SVNREV}" &&
         CHECKERS="
           optin.portability.UnixAPI optin.cplusplus.VirtualCall
@@ -83,7 +93,8 @@ references:
             `for x in $CHECKERS; do echo -enable-checker $x; done` \
           make -j3 BUILD_INFO="$BUILD_INFO" && make check &&
         mkdir inst && make DESTDIR="$(pwd)/inst" install &&
-        (cd inst && tar czf "/artefacts/smartmontools-linux-x86_64-static-clang-${SM_VER}-r${SVNREV}.tar.gz" *) &&
+        (cd inst && tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} \
+         -czf "/artefacts/smartmontools-linux-x86_64-static-clang-${SM_VER}-r${SVNREV}.tar.gz" *) &&
         if ls -d $HTMLDIR/* >/dev/null 2>/dev/null; then
           tar czf "/artefacts/$HTMLDIR.tar.gz" $HTMLDIR ;
         fi &&
@@ -94,14 +105,17 @@ references:
       name: Creating Windows installer
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        SOURCE_DATE_EPOCH=`cat ~/SOURCE_DATE_EPOCH` &&
         BUILD_INFO='"(CircleCI)"' &&
         mkdir ~/build && cd ~/build &&
         tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
-        ../configure build_alias=$(../config.guess) host_alias=i686-w64-mingw32 &&
+        ../configure build_alias=$(../config.guess) host_alias=i686-w64-mingw32 \
+          SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
         make -j3 BUILD_INFO="$BUILD_INFO" && make distdir-win32 &&
         cd .. && mkdir build64 && cd build64 &&
-        ../configure build_alias=$(../config.guess) host_alias=x86_64-w64-mingw32 &&
+        ../configure build_alias=$(../config.guess) host_alias=x86_64-w64-mingw32 \
+          SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
         make -j3 BUILD_INFO="$BUILD_INFO" && make distdir-win32 &&
         cd ../build &&
         dest="smartmontools-win32-setup-${SM_VER}-r${SVNREV}.exe" &&
@@ -117,12 +131,14 @@ references:
         export LD_LIBRARY_PATH=/usr/osxcross/lib &&
         BUILD_INFO='"(CircleCI)"' &&
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        SOURCE_DATE_EPOCH=`cat ~/SOURCE_DATE_EPOCH` &&
         mkdir ~/build && cd ~/build &&
         tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
         cd smartmontools-${SM_VER} && mkdir build && cd build &&
         ../configure build_alias=$(../config.guess) host_alias=x86_64-apple-darwin14 \
           'CC=o64-clang' 'CXX=o64-clang++' 'CFLAGS=-arch arm64 -arch x86_64' \
-          'CXXFLAGS=-arch arm64 -arch x86_64 -stdlib=libc++' '--sysconfdir=/private/etc' &&
+          'CXXFLAGS=-arch arm64 -arch x86_64 -stdlib=libc++' '--sysconfdir=/private/etc' \
+          SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
         make -j3 BUILD_INFO="$BUILD_INFO" &&
         make pkg_darwin=smartmontools-${SM_VER}-r${SVNREV}.pkg dmg_darwin=smartmontools-${SM_VER}-r${SVNREV}.dmg install-darwin &&
         mv smartmontools-${SM_VER}-r${SVNREV}.dmg "/artefacts/" &&
@@ -133,6 +149,7 @@ references:
       name: Creating static FreeBSD-13.2/amd64 binaries
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        SOURCE_DATE_EPOCH=`cat ~/SOURCE_DATE_EPOCH` &&
         BUILD_INFO='"(CircleCI)"' &&
         mkdir ~/build && cd ~/build &&
         tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
@@ -140,10 +157,12 @@ references:
         TARGET="-target x86_64-unknown-freebsd13 --sysroot=/opt/cross-freebsd-13/" &&
         ../configure CC="clang $TARGET" CXX="clang++ $TARGET" \
           CPPFLAGS="-isystem /opt/cross-freebsd-13/usr/include/c++/v1" \
-          LDFLAGS="-static" --host=x86_64-pc-freebsd13 &&
+          LDFLAGS="-static" --host=x86_64-pc-freebsd13 \
+          SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
         make -j3 BUILD_INFO="$BUILD_INFO" &&
         mkdir inst && make DESTDIR="$(pwd)/inst" install &&
-        (cd inst && tar czf "/artefacts/smartmontools-freebsd13.2-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
+        (cd inst && tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} \
+         -czf "/artefacts/smartmontools-freebsd13.2-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
         rm -rf ~/build
 
   sm_compile_freebsd12: &sm_compile_freebsd12
@@ -151,6 +170,7 @@ references:
       name: Creating static FreeBSD-12.4/amd64 binaries
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        SOURCE_DATE_EPOCH=`cat ~/SOURCE_DATE_EPOCH` &&
         BUILD_INFO='"(CircleCI)"' &&
         mkdir ~/build && cd ~/build &&
         tar -xzf /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz &&
@@ -158,10 +178,12 @@ references:
         TARGET="-target x86_64-unknown-freebsd12 --sysroot=/opt/cross-freebsd-12/" &&
         ../configure CC="clang $TARGET" CXX="clang++ $TARGET" \
           CPPFLAGS="-isystem /opt/cross-freebsd-12/usr/include/c++/v1" \
-          LDFLAGS="-static" --host=x86_64-pc-freebsd12 &&
+          LDFLAGS="-static" --host=x86_64-pc-freebsd12 \
+          SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
         make -j3 BUILD_INFO="$BUILD_INFO" &&
         mkdir inst && make DESTDIR="$(pwd)/inst" install &&
-        (cd inst && tar czf "/artefacts/smartmontools-freebsd12.4-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
+        (cd inst && tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} \
+         -czf "/artefacts/smartmontools-freebsd12.4-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
         rm -rf ~/build
 
   sm_run_cppcheck: &sm_run_cppcheck
