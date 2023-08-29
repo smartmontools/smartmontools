@@ -8,16 +8,22 @@ references:
       command: |
         curl --silent https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/commits/${CIRCLE_SHA1} \
         | jq .commit.message | sed -E 's|.*git-svn-id: http://svn.code.sf.net/p/smartmontools/code/trunk@([0-9]+).*|\1|' >~/SVNREV &&
-        test "`cat ~/SVNREV`" -gt "0" && echo SVN revision: r`cat ~/SVNREV` &&
-        s=$(date +%s) && date -d @"$s" -Is && echo "$s" >~/SOURCE_DATE_EPOCH
+        test "`cat ~/SVNREV`" -gt "0" && echo SVN revision: r`cat ~/SVNREV`
 
   svn_checkout: &svn_checkout
     run:
-      name: Checkout from the SF.net
-      command: >
-        svn --config-option 'config:miscellany:use-commit-times=yes' checkout
-        https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools@`cat ~/SVNREV`
-        ~/smartmontools
+      name: Checkout from sf.net and set SOURCE_DATE_EPOCH
+      command: |
+        SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
+        svn --config-option 'config:miscellany:use-commit-times=yes' checkout \
+          https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools@${SVNREV} \
+          ~/smartmontools &&
+        d=$(svn info --show-item last-changed-date ~/smartmontools) &&
+        s=$(date -d "$d" +%s) && s=$((s+1)) &&
+        echo "SOURCE_DATE_EPOCH=$s [$(date -d @"$s" -u -Is)]" &&
+        echo "$s" >~/SOURCE_DATE_EPOCH &&
+        mkdir /artefacts &&
+        cp ~/SOURCE_DATE_EPOCH /artefacts/smartmontools-${SM_VER}-r${SVNREV}.source_date_epoch.txt
 
   sm_distfile: &sm_distfile
     run:
@@ -32,7 +38,6 @@ references:
         ../configure SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
         make dist am__tar='tar --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime -chof - "$$tardir"'
         tar -tvzf smartmontools-${SM_VER}.tar.gz &&
-        mkdir /artefacts &&
         mv smartmontools-${SM_VER}.tar.gz /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
 
   sm_compile_linux: &sm_compile_linux
