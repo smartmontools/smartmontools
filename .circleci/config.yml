@@ -14,16 +14,13 @@ references:
     run:
       name: Checkout from sf.net and set SOURCE_DATE_EPOCH
       command: |
-        SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
         svn --config-option 'config:miscellany:use-commit-times=yes' checkout \
-          https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools@${SVNREV} \
+          https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools@`cat ~/SVNREV` \
           ~/smartmontools &&
-        d=$(svn info --show-item last-changed-date ~/smartmontools) &&
-        s=$(date -d "$d" +%s) && s=$((s+1)) &&
-        echo "SOURCE_DATE_EPOCH=$s [$(date -d @"$s" -u -Is)]" &&
-        echo "$s" >~/SOURCE_DATE_EPOCH &&
-        mkdir /artefacts &&
-        cp ~/SOURCE_DATE_EPOCH /artefacts/smartmontools-${SM_VER}-r${SVNREV}.source_date_epoch.txt
+        d=`svn info --show-item last-changed-date ~/smartmontools` &&
+        s=`date -d "$d" +%s` && s=$((s+1)) &&
+        echo "SOURCE_DATE_EPOCH=$s # `date -d @"$s" -u -Is`" &&
+        echo "$s" >~/SOURCE_DATE_EPOCH
 
   sm_distfile: &sm_distfile
     run:
@@ -38,6 +35,8 @@ references:
         ../configure SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
         make dist am__tar='tar --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime -chof - "$$tardir"'
         tar -tvzf smartmontools-${SM_VER}.tar.gz &&
+        mkdir /artefacts &&
+        cp ~/SOURCE_DATE_EPOCH /artefacts/smartmontools-${SM_VER}-r${SVNREV}.source_date_epoch.txt &&
         mv smartmontools-${SM_VER}.tar.gz /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
 
   sm_compile_linux: &sm_compile_linux
