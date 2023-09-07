@@ -1,6 +1,9 @@
-$Id: ChangeLog 5544 2023-09-07 18:43:33Z chrfranke $
+$Id: ChangeLog 5545 2023-09-07 19:37:44Z chrfranke $
 
 2023-09-07  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Use same timestamp for all EXE files.
+	Minor update of clean targets.  Simplify gzip command.
 
 	Makefile.am: Prevent that gzip stores the original timestamp.
 
