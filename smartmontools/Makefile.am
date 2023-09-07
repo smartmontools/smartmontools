@@ -820,7 +820,7 @@ dist-gzip: distdir
 	@$${TAR-tar} --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime --owner=root:0 --group=root:0 -chof - config.h >/dev/null 2>&1 \
 	|| ! echo "GNU tar is required if SOURCE_DATE_EPOCH is used."
 	$${TAR-tar} --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime --owner=root:0 --group=root:0 -chof $(distdir).tar $(distdir)
-	unset GZIP; gzip $(GZIP_ENV) -c <$(distdir).tar >$(distdir).tar.gz
+	unset GZIP; gzip $(GZIP_ENV) -n -c <$(distdir).tar >$(distdir).tar.gz
 	rm -f $(distdir).tar
 	$(am__post_remove_distdir)
 
