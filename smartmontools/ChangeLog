@@ -1,6 +1,9 @@
-$Id: ChangeLog 5542 2023-09-07 17:22:49Z chrfranke $
+$Id: ChangeLog 5543 2023-09-07 17:53:10Z chrfranke $
 
 2023-09-07  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add custom rule for reproducible builds of	source
+	tarball.
 
 	Makefile.am: Silence custom rules if 'make V=0' is used.
 	autogen.sh, configure.ac: Require automake >= 1.13.
