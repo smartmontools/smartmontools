@@ -485,6 +485,7 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/aclocal.m4 \
         $(srcdir)/compile \
         $(srcdir)/configure \
+        $(srcdir)/configure~ \
         $(srcdir)/config.guess \
         $(srcdir)/config.h.in \
         $(srcdir)/config.h.in~ \
@@ -820,8 +821,7 @@ dist-gzip: distdir
 	@$${TAR-tar} --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime --owner=root:0 --group=root:0 -chof - config.h >/dev/null 2>&1 \
 	|| ! echo "GNU tar is required if SOURCE_DATE_EPOCH is used."
 	$${TAR-tar} --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime --owner=root:0 --group=root:0 -chof $(distdir).tar $(distdir)
-	unset GZIP; gzip $(GZIP_ENV) -n -c <$(distdir).tar >$(distdir).tar.gz
-	rm -f $(distdir).tar
+	unset GZIP; gzip $(GZIP_ENV) -n $(distdir).tar
 	$(am__post_remove_distdir)
 
 phony += dist-fail
@@ -1002,8 +1002,10 @@ $(distinst_win32): os_win32/installer.nsi Makefile smartctl_res.rc $(distdir_win
 	$(AM_V_at)sha256sum $@ > $@.sha256
 
 cleandist-win32:
+	rm -f $(distdir_win32).stamp
 	rm -rf $(distdir_win32)
-	rm -f $(distdir_win32).stamp $(distinst_win32) $(distzip_win32)
+	rm -f $(distinst_win32) $(distinst_win32).md5 $(distinst_win32).sha1 $(distinst_win32).sha256
+	rm -f $(distzip_win32) $(distzip_win32).md5 $(distzip_win32).sha1 $(distzip_win32).sha256
 
 # Build distribution directory.
 # Strip all executables.  Convert all text files to CR/LF.
@@ -1034,12 +1036,9 @@ $(distdir_win32).stamp: Makefile $(BINFILES_WIN32) $(DOCFILES_WIN32)
 	   esac || exit 1; \
 	done && \
 	if [ -n '$(SOURCE_DATE_EPOCH)' ]; then \
-	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(SOURCE_DATE_EPOCH) $(distdir_win32)/bin/smartctl.exe && \
-	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(SOURCE_DATE_EPOCH) $(distdir_win32)/bin/smartctl-nc.exe && \
-	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(SOURCE_DATE_EPOCH) $(distdir_win32)/bin/smartd.exe && \
-	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(srcdir)/os_win32/runcmd.c $(distdir_win32)/bin/runcmda.exe && \
-	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(srcdir)/os_win32/runcmd.c $(distdir_win32)/bin/runcmdu.exe && \
-	  vrun $(srcdir)/os_win32/pe32edit.sh -t $(srcdir)/os_win32/wtssendmsg.c $(distdir_win32)/bin/wtssendmsg.exe; \
+	  for exe in $(distdir_win32)/bin/*.exe; do \
+	    vrun $(srcdir)/os_win32/pe32edit.sh -t $(SOURCE_DATE_EPOCH) $$exe || exit 1; \
+	  done; \
 	fi && \
 	$(ECHO_V) ' $$(MD5_SHA1_SHA256_SUM) *.exe *.cmd *.ps1 > $(distdir_win32)/doc/checksums$(win_bits).txt' && \
 	(cd $(distdir_win32)/bin && for algo in md5 sha1 sha256; do $${algo}sum *.exe *.cmd *.ps1; done) \
