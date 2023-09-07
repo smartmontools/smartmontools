@@ -2,6 +2,9 @@ $Id$
 
 2023-09-07  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Silence custom rules if 'make V=0' is used.
+	autogen.sh, configure.ac: Require automake >= 1.13.
+
 	Makefile.am: Silence automake warning about duplicate '.PHONY'.
 	Remove no longer needed SET_MAKE.
 
