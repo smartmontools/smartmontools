@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh 5312 2022-02-01 18:39:20Z chrfranke $
+# $Id: autogen.sh 5542 2023-09-07 17:22:49Z chrfranke $
 #
 # Generate ./configure from configure.ac and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -28,7 +28,7 @@ if [ -n "$AUTOMAKE" ]; then
   ver=$("$AUTOMAKE" --version) || exit 1
 else
   maxver=
-  for v in 1.16 1.15 1.14 1.13 1.12 1.11 1.10; do
+  for v in 1.16 1.15 1.14 1.13; do
     minver=$v; test -n "$maxver" || maxver=$v
     ver=$(automake-$v --version 2>/dev/null) || continue
     AUTOMAKE="automake-$v"
@@ -36,7 +36,7 @@ else
   done
   if [ -z "$AUTOMAKE" ]; then
     echo "GNU Automake $minver (up to $maxver) is required to bootstrap smartmontools from SVN."
-    exit 1;
+    exit 1
   fi
 fi
 
@@ -56,7 +56,11 @@ fi
 # Warn if Automake version was not tested
 amwarnings=$warnings
 case "$ver" in
-  1.10|1.10.[123]|1.11|1.11.[1-6]|1.12.[2-6]|1.13.[34])
+  1.[0-9]|1.[0-9].*|1.1[0-2]|1.1[0-2].*)
+    echo "GNU Automake $ver is not supported."; exit 1
+    ;;
+
+  1.13.[34])
     # OK
     ;;
 
@@ -70,9 +74,6 @@ case "$ver" in
     echo "Note: GNU Automake version ${ver} was not tested by the developers."
     echo "Please report success/failure to the smartmontools-support mailing list."
 esac
-
-# required for aclocal-1.10 --install
-test -d m4 || mkdir m4 || exit 1
 
 set -e	# stops on error status
 
