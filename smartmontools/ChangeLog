@@ -1,4 +1,9 @@
-$Id: ChangeLog 5537 2023-08-22 11:33:12Z chrfranke $
+$Id: ChangeLog 5541 2023-09-07 15:48:14Z chrfranke $
+
+2023-09-07  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Silence automake warning about duplicate '.PHONY'.
+	Remove no longer needed SET_MAKE.
 
 2023-08-22  Christian Franke  <franke@computer.org>
 

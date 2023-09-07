@@ -1,9 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 5537 2023-08-22 11:33:12Z chrfranke $
+# $Id: Makefile.am 5541 2023-09-07 15:48:14Z chrfranke $
 #
-
-@SET_MAKE@
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -746,7 +744,9 @@ FIXHTML = sed -e '1s,^Content-type.*,,' \
               -e 's,<A HREF="mailto:[^s][^m][^a][^"]*">\([^<]*\)</A>,\1,g' \
               -e '/^Time: [012][0-9]:[0-5][0-9]:[0-5][0-9] [^<]*$$/d'
 
-.PHONY: htmlman pdfman
+# Avoid automake warning: '.PHONY was already defined in condition ...'
+phony = htmlman pdfman
+.PHONY: $(phony)
 
 htmlman: smartctl.8.html smartd.8.html smartd.conf.5.html update-smart-drivedb.8.html
 
@@ -925,7 +925,7 @@ CLEANFILES += \
 # Note: Only use without options to be compatible with all variants
 UNIX2DOS = unix2dos
 
-.PHONY: cleandist-win32 dist-win32 distdir-win32 install-win32 installer-win32
+phony += cleandist-win32 dist-win32 distdir-win32 install-win32 installer-win32
 
 dist-win32: $(distzip_win32)
 
@@ -1039,7 +1039,7 @@ update-smart-drivedb.ps1: os_win32/update-smart-drivedb.ps1.in config.status
 vc = 17
 vcver = $(vc)
 
-.PHONY: check-vc-version clean-vc config-vc distclean-vc maintainer-clean-vc
+phony += check-vc-version clean-vc config-vc distclean-vc maintainer-clean-vc
 
 check-vc-version:
 	@case '$(vcver)' in \
