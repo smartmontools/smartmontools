@@ -33,8 +33,7 @@ references:
         ./autogen.sh --force &&
         mkdir build && cd build &&
         ../configure SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
-        make dist am__tar='tar --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime -chof - "$$tardir"'
-        tar -tvzf smartmontools-${SM_VER}.tar.gz &&
+        make dist && tar -tvzf smartmontools-${SM_VER}.tar.gz &&
         mkdir /artefacts &&
         cp ~/SOURCE_DATE_EPOCH /artefacts/smartmontools-${SM_VER}-r${SVNREV}.source_date_epoch.txt &&
         mv smartmontools-${SM_VER}.tar.gz /artefacts/smartmontools-${SM_VER}-r${SVNREV}.src.tar.gz
