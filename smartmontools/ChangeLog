@@ -1,8 +1,10 @@
-$Id: ChangeLog 5543 2023-09-07 17:53:10Z chrfranke $
+$Id: ChangeLog 5544 2023-09-07 18:43:33Z chrfranke $
 
 2023-09-07  Christian Franke  <franke@computer.org>
 
-	Makefile.am: Add custom rule for reproducible builds of	source
+	Makefile.am: Prevent that gzip stores the original timestamp.
+
+	Makefile.am: Add custom rule for reproducible builds of source
 	tarball.
 
 	Makefile.am: Silence custom rules if 'make V=0' is used.
