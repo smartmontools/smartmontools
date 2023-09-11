@@ -1,4 +1,9 @@
-$Id: ChangeLog 5545 2023-09-07 19:37:44Z chrfranke $
+$Id: ChangeLog 5547 2023-09-11 12:54:05Z chrfranke $
+
+2023-09-11  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Don't print error log entries if error count is
+	zero (#1745).
 
 2023-09-07  Christian Franke  <franke@computer.org>
 
