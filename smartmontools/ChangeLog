@@ -2,6 +2,9 @@ $Id$
 
 2023-09-11  Christian Franke  <franke@computer.org>
 
+	Makefile.am: Add 'dist-xz' and 'dist-zstd' rules for reproducible
+	builds.  Silence 'dist-win32' rule and add warning.
+
 	ataprint.cpp: Don't print error log entries if error count is
 	zero (#1745).
 

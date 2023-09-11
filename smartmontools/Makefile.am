@@ -814,24 +814,40 @@ if REPRODUCIBLE_BUILD
 # not return a nonzero exit status if the tar command fails because it is
 # used as the first part of a pipeline.  A compressed empty tar file would
 # be created in this case.
-# Therefore the rule is overridden for reproducible builds of the source
+# Therefore the rules are overridden for reproducible builds of the source
 # tarball.
 
-dist-gzip: distdir
-	@$${TAR-tar} --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime --owner=root:0 --group=root:0 -chof - config.h >/dev/null 2>&1 \
-	|| ! echo "GNU tar is required if SOURCE_DATE_EPOCH is used."
-	$${TAR-tar} --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime --owner=root:0 --group=root:0 -chof $(distdir).tar $(distdir)
-	unset GZIP; gzip $(GZIP_ENV) -n $(distdir).tar
+phony += check-gnu-tar dist-fail
+
+reproducible_tar = \
+        $${TAR-tar} --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime \
+                    --owner=root:0 --group=root:0 -cho -f
+
+dist-gzip: distdir check-gnu-tar
+	$(reproducible_tar) $(distdir).tar $(distdir)
+	unset GZIP; gzip $(GZIP_ENV) -f -n $(distdir).tar
 	$(am__post_remove_distdir)
 
-phony += dist-fail
+dist-xz: distdir check-gnu-tar
+	$(reproducible_tar) $(distdir).tar $(distdir)
+	unset XZ_OPT; xz -e -f $(distdir).tar
+	$(am__post_remove_distdir)
+
+dist-zstd: distdir check-gnu-tar
+	$(reproducible_tar) $(distdir).tar $(distdir)
+	unset ZSTD_CLEVEL; zstd -19 -f -q --rm $(distdir).tar
+	$(am__post_remove_distdir)
+
 dist-bzip2: dist-fail
 dist-lzip: dist-fail
-dist-xz: dist-fail
-dist-zstd: dist-fail
 dist-zip: dist-fail
+
+check-gnu-tar:
+	@$(reproducible_tar) - config.h >/dev/null 2>&1 \
+	|| ! echo "GNU tar is required if SOURCE_DATE_EPOCH is used." >&2
+
 dist-fail:
-	@! echo "Only 'dist-gzip' is supported if SOURCE_DATE_EPOCH is used." >&2
+	@! echo "Only 'dist-{gzip,xz,zstd}' are supported if SOURCE_DATE_EPOCH is used." >&2
 endif
 
 
@@ -977,11 +993,13 @@ distdir-win32: $(distdir_win32).stamp
 
 $(distzip_win32): $(distdir_win32).stamp
 	$(AM_V_GEN)
-	@rm -fv $(distzip_win32)
-	$(AM_V_at)cd $(distdir_win32) && zip -9 ../$(distzip_win32) bin/* doc/*
+	$(AM_V_at)rm -f $(distzip_win32)
+	$(AM_V_at)cd $(distdir_win32) && zip -9 -q ../$(distzip_win32) bin/* doc/*
 	$(AM_V_at)md5sum $@ > $@.md5
 	$(AM_V_at)sha1sum $@ > $@.sha1
 	$(AM_V_at)sha256sum $@ > $@.sha256
+	@test -z '$(SOURCE_DATE_EPOCH)' \
+	|| echo "Warning: '$(distzip_win32)' is not reproducible if SOURCE_DATE_EPOCH is used." >&2
 
 # Build NSIS installer
 # Note: Only option character '-' is also compatible with Linux version of makensis
