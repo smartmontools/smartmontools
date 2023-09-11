@@ -2202,8 +2202,16 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
   jout("SMART Error Log Version: %d\n", (int)data->revnumber);
   jref["revision"] = data->revnumber;
 
+  // Check consistency of error count and log index (pointer).
+  // Starting with ATA/ATAPI 6, the index shall be zero if there are no log entries.
+  if (   !(   !data->ata_error_count == !data->error_log_pointer
+           && !((data->ata_error_count - data->error_log_pointer) % 5))
+      && !firmwarebugs.is_set(BUG_SAMSUNG2)                            )
+    pout("Warning: ATA error count %d inconsistent with error log index %d\n",
+         data->ata_error_count, data->error_log_pointer);
+
   // if no errors logged, return
-  if (!data->error_log_pointer){
+  if (!(data->ata_error_count && data->error_log_pointer)) {
     jout("No Errors Logged\n\n");
     jref["count"] = 0;
     return 0;
@@ -2217,12 +2225,6 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
     return 0;
   }
 
-  // Some internal consistency checking of the data structures
-  if ((data->ata_error_count-data->error_log_pointer) % 5 && !firmwarebugs.is_set(BUG_SAMSUNG2)) {
-    pout("Warning: ATA error count %d inconsistent with error log pointer %d\n\n",
-         data->ata_error_count,data->error_log_pointer);
-  }
-  
   // starting printing error log info
   if (data->ata_error_count<=5)
     jout( "ATA Error Count: %d\n", (int)data->ata_error_count);
