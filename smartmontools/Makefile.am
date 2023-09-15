@@ -1168,7 +1168,7 @@ $(pkg_darwin):
 	${MAKE} install DESTDIR=$(distdir_darwin)/root
 	@cp $(srcdir)/os_darwin/pkg/root/usr/local/sbin/smart-pkg-uninstall $(distdir_darwin)/root$(sbindir)
 	@mkdir -p $(distdir_darwin)/pkg
-	@( cd $(distdir_darwin)/root && find . | cpio -o --format odc --owner 0:80 | gzip -c ) > $(distdir_darwin)/pkg/Payload
+	@( cd $(distdir_darwin)/root && find . | cpio --reproducible -o --format odc --owner 0:80 | gzip -n -c ) > $(distdir_darwin)/pkg/Payload
 	PAYLOAD_FILES=`find $(distdir_darwin)/root | wc -l` &&\
 	PAYLOAD_SIZEKB=`du -BK  -s $(distdir_darwin)/root|${AWK} '{print $$1}'|tr -d 'K'` &&\
 	sed -e "s|@version@|$(VERSION)|" -e "s|@files@|$${PAYLOAD_FILES}|" \
