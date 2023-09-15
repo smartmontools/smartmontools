@@ -4,6 +4,7 @@ $Id$
 2023-09-15  Oleksii Samorukov  <samm@os2.kiev.ua>
 
 	Makefile.am: set env ZERO_AR_DATE=1 if for reproducible builds on macOS.
+	macOS: use xorriso instead of mkisofs for reproducible builds
 
 2023-09-11  Christian Franke  <franke@computer.org>
 
