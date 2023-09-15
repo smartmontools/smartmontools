@@ -1,10 +1,11 @@
-$Id: ChangeLog 5550 2023-09-15 19:56:45Z samm2 $
+$Id: ChangeLog 5551 2023-09-15 20:58:45Z samm2 $
 
 
 2023-09-15  Oleksii Samorukov  <samm@os2.kiev.ua>
 
 	Makefile.am: set env ZERO_AR_DATE=1 if for reproducible builds on macOS.
 	macOS: use xorriso instead of mkisofs for reproducible builds
+	macOS: remove timestamps from cpio and gzip
 
 2023-09-11  Christian Franke  <franke@computer.org>
 
