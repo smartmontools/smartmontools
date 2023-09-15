@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 5548 2023-09-11 14:46:25Z chrfranke $
+# $Id: Makefile.am 5549 2023-09-15 19:48:53Z samm2 $
 #
 
 ACLOCAL_AMFLAGS = -I m4
@@ -11,6 +11,9 @@ BUILD_INFO= "(local build)"
 if REPRODUCIBLE_BUILD
 set_source_date_epoch = SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH)
 def_source_date_epoch = -D$(set_source_date_epoch)
+if OS_DARWIN
+export ZERO_AR_DATE := 1
+endif
 endif
 
 AM_CPPFLAGS = \

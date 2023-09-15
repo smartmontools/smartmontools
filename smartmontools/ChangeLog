@@ -1,4 +1,9 @@
-$Id: ChangeLog 5548 2023-09-11 14:46:25Z chrfranke $
+$Id: ChangeLog 5549 2023-09-15 19:48:53Z samm2 $
+
+
+2023-09-15  Oleksii Samorukov  <samm@os2.kiev.ua>
+
+	Makefile.am: set env ZERO_AR_DATE=1 if for reproducible builds on macOS.
 
 2023-09-11  Christian Franke  <franke@computer.org>
 
