@@ -11,6 +11,9 @@ BUILD_INFO= "(local build)"
 if REPRODUCIBLE_BUILD
 set_source_date_epoch = SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH)
 def_source_date_epoch = -D$(set_source_date_epoch)
+if OS_DARWIN
+export ZERO_AR_DATE := 1
+endif
 endif
 
 AM_CPPFLAGS = \
