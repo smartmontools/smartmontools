@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 5549 2023-09-15 19:48:53Z samm2 $
+# $Id: Makefile.am 5550 2023-09-15 19:56:45Z samm2 $
 #
 
 ACLOCAL_AMFLAGS = -I m4
@@ -1181,12 +1181,12 @@ $(pkg_darwin):
 	@cp $(srcdir)/COPYING $(distdir_darwin)/pkg/Resources/English.lproj/license.txt
 	@mkbom -u 0 -g 80 $(distdir_darwin)/root $(distdir_darwin)/pkg/Bom
 	@mkdir -p $(distdir_darwin)/dmg
-	@( cd $(distdir_darwin)/pkg && xar --compression none -cf "../dmg/$(pkg_darwin)" * )
+	@( cd $(distdir_darwin)/pkg && xar --distribution --compression none -cf "../dmg/$(pkg_darwin)" * )
 
 # build darwon dmg image
 $(dmg_darwin):
 	@cp $(srcdir)/os_darwin/pkg/installer/README.html $(distdir_darwin)/dmg
-	@mkisofs -V 'smartmontools' -no-pad -r -apple -o $(distdir_darwin)/smartmontools-$(VERSION).iso \
+	@xorriso -as mkisofs -V 'smartmontools' -no-pad -r -o $(distdir_darwin)/smartmontools-$(VERSION).iso \
 		-hfs-bless "$(distdir_darwin)/dmg/" "$(distdir_darwin)/dmg/"
 	@dmg dmg $(distdir_darwin)/smartmontools-$(VERSION).iso $(dmg_darwin)
 	md5sum $@ > $@.md5
