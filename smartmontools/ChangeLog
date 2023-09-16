@@ -4,6 +4,7 @@ $Id$
 
 	CI: export SOURCE_DATE_EPOCH on macOS as tools are expecting it as an
 	environment variable
+	macOS: set files timestamps in the ISO to SOURCE_DATE_EPOCH value
 
 2023-09-15  Oleksii Samorukov  <samm@os2.kiev.ua>
 
