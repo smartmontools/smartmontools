@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 5552 2023-09-15 22:00:34Z samm2 $
+# $Id: Makefile.am 5554 2023-09-16 07:30:14Z samm2 $
 #
 
 ACLOCAL_AMFLAGS = -I m4
@@ -1186,6 +1186,7 @@ $(pkg_darwin):
 # build darwon dmg image
 $(dmg_darwin):
 	@cp $(srcdir)/os_darwin/pkg/installer/README.html $(distdir_darwin)/dmg
+	@find $(distdir_darwin)/dmg | xargs touch -d "@${SOURCE_DATE_EPOCH}"
 	@xorriso -as mkisofs -V 'smartmontools' -no-pad -r -o $(distdir_darwin)/smartmontools-$(VERSION).iso \
 		-hfs-bless "$(distdir_darwin)/dmg/" "$(distdir_darwin)/dmg/"
 	@dmg dmg $(distdir_darwin)/smartmontools-$(VERSION).iso $(dmg_darwin)

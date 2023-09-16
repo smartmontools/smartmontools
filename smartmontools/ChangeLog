@@ -1,9 +1,10 @@
-$Id: ChangeLog 5553 2023-09-16 06:39:04Z samm2 $
+$Id: ChangeLog 5554 2023-09-16 07:30:14Z samm2 $
 
 2023-09-16  Oleksii Samorukov  <samm@os2.kiev.ua>
 
 	CI: export SOURCE_DATE_EPOCH on macOS as tools are expecting it as an
 	environment variable
+	macOS: set files timestamps in the ISO to SOURCE_DATE_EPOCH value
 
 2023-09-15  Oleksii Samorukov  <samm@os2.kiev.ua>
 
