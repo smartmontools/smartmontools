@@ -1,5 +1,9 @@
 $Id$
 
+2023-09-16  Oleksii Samorukov  <samm@os2.kiev.ua>
+
+	CI: export SOURCE_DATE_EPOCH on macOS as tools are expecting it as an
+	environment variable
 
 2023-09-15  Oleksii Samorukov  <samm@os2.kiev.ua>
 
