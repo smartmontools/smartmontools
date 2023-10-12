@@ -2273,7 +2273,7 @@ scsiPrintFormatStatus(scsi_device * device)
                 jout("%s = %" PRIu64 "\n", jout_str, ull);
                 jglb[jname][jglb_str] = ull;
             }
-        } else
+        }
         num -= pl;
         ucp += pl;
     }

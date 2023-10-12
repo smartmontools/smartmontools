@@ -1,5 +1,10 @@
 $Id$
 
+2023-10-12  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp : misplaced else corrupted the output of the Format
+	Status log page.
+
 2023-09-16  Oleksii Samorukov  <samm@os2.kiev.ua>
 
 	CI: export SOURCE_DATE_EPOCH on macOS as tools are expecting it as an
