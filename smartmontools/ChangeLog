@@ -1,4 +1,9 @@
-$Id: ChangeLog 5554 2023-09-16 07:30:14Z samm2 $
+$Id: ChangeLog 5555 2023-10-12 05:20:54Z dpgilbert $
+
+2023-10-12  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp : misplaced else corrupted the output of the Format
+	Status log page.
 
 2023-09-16  Oleksii Samorukov  <samm@os2.kiev.ua>
 

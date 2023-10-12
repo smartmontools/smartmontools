@@ -33,7 +33,7 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5495 2023-07-10 13:17:30Z chrfranke $"
+const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5555 2023-10-12 05:20:54Z dpgilbert $"
                                  SCSIPRINT_H_CVSID;
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -2273,7 +2273,7 @@ scsiPrintFormatStatus(scsi_device * device)
                 jout("%s = %" PRIu64 "\n", jout_str, ull);
                 jglb[jname][jglb_str] = ull;
             }
-        } else
+        }
         num -= pl;
         ucp += pl;
     }
