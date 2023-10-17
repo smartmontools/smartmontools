@@ -2184,7 +2184,8 @@ scsiPrintTapeDeviceStats(scsi_device * device)
 static int
 scsiPrintFormatStatus(scsi_device * device)
 {
-    int num, err, truncated;
+    bool all_not_avail = false;
+    int num, num_hold, err, truncated;
     int retval = 0;
     uint64_t ull;
     uint8_t * ucp;
@@ -2217,6 +2218,40 @@ scsiPrintFormatStatus(scsi_device * device)
         num = LOG_RESP_LONG_LEN;
     ucp = gBuf + 4;
     num -= 4;
+    num_hold = num;
+
+    if (scsi_debugmode == 0) {
+        all_not_avail = true;
+        while (num > 3) {
+            int pc = sg_get_unaligned_be16(ucp + 0);
+            int pl = ucp[3] + 4;
+
+            switch (pc) {
+            case 0:
+                break;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                 if (! all_ffs(ucp + 4, ucp[3]))
+                    all_not_avail = false;
+                break;
+            default:
+                break;
+            }
+            if (! all_not_avail)
+                break;
+            num -= pl;
+            ucp += pl;
+        }
+        if (all_not_avail) {
+            jout("Format status indicates no format since manufacture\n");
+            return retval;
+        }
+        num = num_hold;
+        ucp = gBuf + 4;
+    }
+
     while (num > 3) {
         int pc = sg_get_unaligned_be16(ucp + 0);
         // pcb = ucp[2];

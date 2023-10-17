@@ -1,5 +1,17 @@
 $Id$
 
+2023-10-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp : most SCSI disks do not get formatted in their
+	lifetime. The Format status lpage is present on most recent disks
+	and is checked when the --xall option is given. In the common case
+	where a format has been performed (since manufacture) this leads
+	to 5 lines of <not available> output starting with:
+		Grown defects during certification <not available>
+	Detect this situation before printing any of those 5 lines
+	and replace those 5 lines with 1 line:
+		Format status indicates no format since manufacture
+
 2023-10-12  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp : misplaced else corrupted the output of the Format
