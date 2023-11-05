@@ -3337,6 +3337,94 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
   return 0;
 }
 
+// Do an self-test. Return zero on success,
+// nonzero on failure.
+static int DoNVMeSelfTest(const dev_config & cfg, dev_state & state, nvme_device * device, char testtype)
+{
+  const char *name = cfg.name.c_str();
+
+  // Read Identify Controller always
+  nvme_id_ctrl id_ctrl;
+  if (!nvme_read_id_ctrl(device, id_ctrl)) {
+    PrintOut(LOG_CRIT, "Device: %s, read NVMe Identify Controller failed: %s\n", name, device->get_errmsg());
+    return 1;
+  }
+
+  // Check for self-test support
+  bool self_test_sup = !!(id_ctrl.oacs & 0x0010);
+  unsigned self_test_nsid = device->get_nsid(); // TODO: Support NSID=0 to test controller
+
+  // Check for capability to do the test
+  unsigned char smart_selftest_type = 0;
+  const char *testname = nullptr;
+  switch (testtype) {
+  case 'O':
+    testname="Offline Immediate ";
+    state.not_cap_offline = true;
+    break;
+  case 'C':
+    testname="Conveyance Self-";
+    state.not_cap_conveyance = true;
+    break;
+  case 'S':
+    testname="Short Self-";
+    if (self_test_sup)
+      smart_selftest_type = SHORT_SELF_TEST;
+    else
+      state.not_cap_short = true;
+    break;
+  case 'L':
+    testname="Long Self-";
+    if (self_test_sup)
+      smart_selftest_type = EXTEND_SELF_TEST;
+    else
+      state.not_cap_long = true;
+    break;
+  case 'c': case 'n': case 'r':
+    testname = "Selective Self-";
+    state.not_cap_selective = true;
+    break;
+  }
+
+  // If we can't do the test, exit
+  if (!smart_selftest_type) {
+    PrintOut(LOG_CRIT, "Device: %s, NSID: 0x%x, not capable of %sTest\n", name, self_test_nsid, testname);
+    return 1;
+  }
+
+  // Check for running test
+  int self_test_completion = -1;
+  nvme_self_test_log self_test_log;
+  if (!nvme_read_self_test_log(device, self_test_nsid, self_test_log)) {
+    PrintOut(LOG_CRIT, "Device: %s, NSID: 0x%x, Read Self-test Log failed: %s\n",
+            name, self_test_nsid, device->get_errmsg());
+    return 1;
+  }
+
+  if (self_test_log.current_operation & 0xf) {
+    self_test_completion = self_test_log.current_completion & 0x7f;
+  }
+
+  if (self_test_completion >= 0) {
+    PrintOut(LOG_INFO, "Device: %s, NSID: 0x%x, skip scheduled %sTest; %d%% remaining of current Self-Test.\n",
+            name, self_test_nsid, testname, self_test_completion);
+    return 1;
+  }
+
+  // execute the test, and return status
+  if (!nvme_self_test(device, smart_selftest_type, self_test_nsid)) {
+    PrintOut(LOG_CRIT, "Device: %s, NSID: 0x%x, execute %sTest failed: %s.\n",
+            name, self_test_nsid, testname, device->get_errmsg());
+    return 1;
+  }
+
+  // Force log of next test status
+  state.selftest_started = true;
+
+  PrintOut(LOG_INFO, "Device: %s, NSID: 0x%x, starting scheduled %sTest.\n", name, self_test_nsid, testname);
+  return 0;
+}
+
 // Check pending sector count attribute values (-C, -U directives).
 static void check_pending(const dev_config & cfg, dev_state & state,
                           unsigned char id, bool increase_only,
@@ -3874,7 +3962,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
   return 0;
 }
 
-static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_device * nvmedev)
+static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_device * nvmedev, bool allow_selftests)
 {
   if (!open_device(cfg, state, nvmedev, "NVMe"))
     return 1;
@@ -3937,6 +4025,14 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
       check_nvme_error_log(cfg, state, nvmedev, newcnt);
     }
     // else // TODO: Handle decrease of count?
+  }
+
+  // if the user has asked, and device is capable (or we're not yet
+  // sure) check whether a self test should be done now.
+  if (allow_selftests && !cfg.test_regex.empty()) {
+    char testtype = next_scheduled_test(cfg, state, false/*!scsi*/);
+    if (testtype)
+      DoNVMeSelfTest(cfg, state, nvmedev, testtype);
   }
 
   CloseDevice(nvmedev, name);
@@ -4041,7 +4137,7 @@ static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector
     else if (dev->is_scsi())
       SCSICheckDevice(cfg, state, dev->to_scsi(), allow_selftests);
     else if (dev->is_nvme())
-      NVMeCheckDevice(cfg, state, dev->to_nvme());
+      NVMeCheckDevice(cfg, state, dev->to_nvme(), allow_selftests);
 
     // Prevent systemd unit startup timeout when checking many devices on startup
     notify_extend_timeout();
