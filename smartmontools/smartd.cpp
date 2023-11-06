@@ -72,6 +72,7 @@ typedef int pid_t;
 #include "scsicmds.h"
 #include "nvmecmds.h"
 #include "utility.h"
+#include "sg_unaligned.h"
 
 #ifdef HAVE_POSIX_API
 #include "popen_as_ugid.h"
@@ -556,6 +557,10 @@ struct temp_dev_state
   ata_smart_thresholds_pvt smartthres{};  // SMART thresholds
   bool offline_started{};                 // true if offline data collection was started
   bool selftest_started{};                // true if self-test was started
+
+  // NVMe ONLY
+  bool is_nvme{};                         // true if open() determined it's an NVMe device
+  nvme_smart_log nvme_smartval{};         // NVMe SMART dataq
 };
 
 /// Runtime state data for a device.
@@ -618,6 +623,25 @@ void dev_state::update_temp_state()
     ta.raw[5] = (unsigned char)(pa.raw >> 40);
     ta.reserv = pa.resvd;
   }
+}
+
+// Format 128 bit LE integer for printing.
+static const char * le128_to_str(char (& str)[64], const unsigned char (& val)[16])
+{
+  uint64_t hi = val[15];
+  for (int i = 15-1; i >= 8; i--) {
+    hi <<= 8; hi += val[i];
+  }
+  uint64_t lo = val[7];
+  for (int i =  7-1; i >= 0; i--) {
+    lo <<= 8; lo += val[i];
+  }
+  // More than 64-bit, prepend '~' flag on low precision
+  int i = 0;
+  // cppcheck-suppress knownConditionTrueFalse
+  if (uint128_to_str_precision_bits() < 128)
+    str[i++] = '~';
+  return  uint128_hilo_to_str(str + i, (int)sizeof(str) - i, hi, lo);
 }
 
 // Parse a line from a state file.
@@ -870,6 +894,36 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
   // write SCSI current temperature if it is monitored
   if (state.temperature)
     fprintf(f, "\ttemperature;%d;", state.temperature);
+
+  // NVME ONLY
+  if(state.is_nvme) {
+    char buf[64];
+    const auto &smart_log = state.nvme_smartval;
+
+    fprintf(f,
+      "\tcritical-warning;%u;"
+      "\ttemperature;%u;"
+      "\tavailable-spare;%u;"
+      "\tspare-threshold;%u;"
+      "\tpercent-used;%u;",
+      smart_log.critical_warning,
+      sg_get_unaligned_le16(smart_log.temperature),
+      smart_log.avail_spare,
+      smart_log.spare_thresh,
+      smart_log.percent_used
+    );
+    fprintf(f, "\tdata-units-read;%s;", le128_to_str(buf, smart_log.data_units_read));
+    fprintf(f, "\tdata-units-written;%s;", le128_to_str(buf, smart_log.data_units_written));
+    fprintf(f, "\thost-reads;%s;", le128_to_str(buf, smart_log.host_reads));
+    fprintf(f, "\thost-writes;%s;", le128_to_str(buf, smart_log.host_writes));
+    fprintf(f, "\tcontroller-busy-time;%s;", le128_to_str(buf, smart_log.ctrl_busy_time));
+    fprintf(f, "\tpower-cycles;%s;", le128_to_str(buf, smart_log.power_cycles));
+    fprintf(f, "\tpower-on-hours;%s;", le128_to_str(buf, smart_log.power_on_hours));
+    fprintf(f, "\tunsafe-shutdowns;%s;", le128_to_str(buf, smart_log.unsafe_shutdowns));
+    fprintf(f, "\tmedia-errors;%s;", le128_to_str(buf, smart_log.media_errors));
+    fprintf(f, "\tnum-err-log-entries;%s;", le128_to_str(buf, smart_log.num_err_log_entries));
+  }
+
   // end of line
   fprintf(f, "\n");
   return true;
@@ -909,6 +963,9 @@ static void write_all_dev_attrlogs(const dev_config_vector & configs,
     if (state.attrlog_dirty) {
       write_dev_attrlog(cfg.attrlog_file.c_str(), state);
       state.attrlog_dirty = false;
+      if(debugmode)
+        PrintOut(LOG_INFO, "Device: %s, attribute log written to %s\n",
+                 cfg.name.c_str(), cfg.attrlog_file.c_str());
     }
   }
 }
@@ -2838,7 +2895,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
 
   CloseDevice(nvmedev, name);
 
-  if (!state_path_prefix.empty()) {
+  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty()) {
     // Build file name for state file
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
@@ -2849,6 +2906,8 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
     // Read previous state
     if (read_dev_state(cfg.state_file.c_str(), state))
       PrintOut(LOG_INFO, "Device: %s, state read from %s\n", name, cfg.state_file.c_str());
+    if (!attrlog_path_prefix.empty())
+      cfg.attrlog_file = strprintf("%s%s-%s.nvme.csv", attrlog_path_prefix.c_str(), model, serial);
   }
 
   finish_device_scan(cfg, state);
@@ -2915,6 +2974,7 @@ static bool open_device(const dev_config & cfg, dev_state & state, smart_device 
     state.removed = false;
   }
 
+  state.is_nvme = device->is_nvme();
   return true;
 }
 
@@ -3940,6 +4000,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
   }
 
   CloseDevice(nvmedev, name);
+  state.nvme_smartval = smart_log;
   state.attrlog_dirty = true;
   return 0;
 }
