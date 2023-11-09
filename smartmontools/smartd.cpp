@@ -556,6 +556,9 @@ struct temp_dev_state
   ata_smart_thresholds_pvt smartthres{};  // SMART thresholds
   bool offline_started{};                 // true if offline data collection was started
   bool selftest_started{};                // true if self-test was started
+
+  // NVMe ONLY
+  nvme_id_ctrl id_ctrl{};                 // NVMe Identify Controller data structure
 };
 
 /// Runtime state data for a device.
@@ -2767,6 +2770,11 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
     return 2;
   }
 
+  state.id_ctrl = id_ctrl;
+  // Check for self-test support
+  state.not_cap_conveyance = state.not_cap_offline = state.not_cap_selective = true;
+  state.not_cap_short = state.not_cap_long = !(id_ctrl.oacs & 0x0010);
+
   // Get drive identity
   char model[40+1], serial[20+1], firmware[8+1];
   format_char_array(model, id_ctrl.mn);
@@ -3343,61 +3351,31 @@ static int DoNVMeSelfTest(const dev_config & cfg, dev_state & state, nvme_device
 {
   const char *name = cfg.name.c_str();
 
-  // Read Identify Controller always
-  nvme_id_ctrl id_ctrl;
-  if (!nvme_read_id_ctrl(device, id_ctrl)) {
-    PrintOut(LOG_CRIT, "Device: %s, read NVMe Identify Controller failed: %s\n", name, device->get_errmsg());
-    return 1;
-  }
-
-  // Check for self-test support
-  bool self_test_sup = !!(id_ctrl.oacs & 0x0010);
-  unsigned self_test_nsid = device->get_nsid(); // TODO: Support NSID=0 to test controller
+  char nsstr[32] = "";
+  unsigned nsid = device->get_nsid();
+  if (nsid != 0xffffffff)
+    snprintf(nsstr, sizeof(nsstr), ", NSID: 0x%x", nsid);
 
   // Check for capability to do the test
   unsigned char smart_selftest_type = 0;
   const char *testname = nullptr;
   switch (testtype) {
-  case 'O':
-    testname="Offline Immediate ";
-    state.not_cap_offline = true;
-    break;
-  case 'C':
-    testname="Conveyance Self-";
-    state.not_cap_conveyance = true;
-    break;
   case 'S':
     testname="Short Self-";
-    if (self_test_sup)
-      smart_selftest_type = SHORT_SELF_TEST;
-    else
-      state.not_cap_short = true;
+    smart_selftest_type = SHORT_SELF_TEST;
     break;
   case 'L':
     testname="Long Self-";
-    if (self_test_sup)
-      smart_selftest_type = EXTEND_SELF_TEST;
-    else
-      state.not_cap_long = true;
+    smart_selftest_type = EXTEND_SELF_TEST;
     break;
-  case 'c': case 'n': case 'r':
-    testname = "Selective Self-";
-    state.not_cap_selective = true;
-    break;
-  }
-
-  // If we can't do the test, exit
-  if (!smart_selftest_type) {
-    PrintOut(LOG_CRIT, "Device: %s, NSID: 0x%x, not capable of %sTest\n", name, self_test_nsid, testname);
-    return 1;
   }
 
   // Check for running test
   int self_test_completion = -1;
   nvme_self_test_log self_test_log;
-  if (!nvme_read_self_test_log(device, self_test_nsid, self_test_log)) {
-    PrintOut(LOG_CRIT, "Device: %s, NSID: 0x%x, Read Self-test Log failed: %s\n",
-            name, self_test_nsid, device->get_errmsg());
+  if (!nvme_read_self_test_log(device, nsid, self_test_log)) {
+    PrintOut(LOG_CRIT, "Device: %s%s, Read Self-test Log failed: %s\n",
+            name, nsstr, device->get_errmsg());
     return 1;
   }
 
@@ -3406,22 +3384,22 @@ static int DoNVMeSelfTest(const dev_config & cfg, dev_state & state, nvme_device
   }
 
   if (self_test_completion >= 0) {
-    PrintOut(LOG_INFO, "Device: %s, NSID: 0x%x, skip scheduled %sTest; %d%% remaining of current Self-Test.\n",
-            name, self_test_nsid, testname, self_test_completion);
+    PrintOut(LOG_INFO, "Device: %s%s, skip scheduled %sTest; %d%% remaining of current Self-Test.\n",
+            name, nsstr, testname, self_test_completion);
     return 1;
   }
 
   // execute the test, and return status
-  if (!nvme_self_test(device, smart_selftest_type, self_test_nsid)) {
-    PrintOut(LOG_CRIT, "Device: %s, NSID: 0x%x, execute %sTest failed: %s.\n",
-            name, self_test_nsid, testname, device->get_errmsg());
+  if (!nvme_self_test(device, smart_selftest_type, nsid)) {
+    PrintOut(LOG_CRIT, "Device: %s%s, execute %sTest failed: %s.\n",
+            name, nsstr, testname, device->get_errmsg());
     return 1;
   }
 
   // Force log of next test status
   state.selftest_started = true;
 
-  PrintOut(LOG_INFO, "Device: %s, NSID: 0x%x, starting scheduled %sTest.\n", name, self_test_nsid, testname);
+  PrintOut(LOG_INFO, "Device: %s%s, starting scheduled %sTest.\n", name, nsstr, testname);
   return 0;
 }
 
