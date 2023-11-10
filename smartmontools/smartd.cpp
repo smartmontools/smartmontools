@@ -511,6 +511,12 @@ struct persistent_dev_state
 
   // NVMe only
   uint64_t nvme_err_log_entries{};
+  unsigned char nvme_critical_warning{};
+  unsigned char nvme_available_spare{};
+  unsigned char nvme_percent_used{};
+  uint64_t nvme_media_errors{};
+  unsigned int nvme_warning_temp_time{};
+  unsigned int nvme_critical_comp_time{};
 };
 
 /// Non-persistent state data for a device.
@@ -559,6 +565,8 @@ struct temp_dev_state
 
   // NVMe ONLY
   nvme_id_ctrl id_ctrl{};                 // NVMe Identify Controller data structure
+  nvme_smart_log nvme_smartlog{};
+  nvme_error_log_page nvme_errorlog_page{};
 };
 
 /// Runtime state data for a device.
@@ -651,11 +659,17 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
        ")" // 18)
       ")" // 16)
      "|(nvme-err-log-entries)" // (24)
+     "|(nvme-critical-warning)" // (25)
+     "|(nvme-available-spare)" // (26)
+     "|(nvme-percent-used)" // (27)
+     "|(nvme-media-errors)" // (28)
+     "|(nvme-warning-temp-time)" // (29)
+     "|(nvme-critical-comp-time)" // (30)
      ")" // 1)
-     " *= *([0-9]+)[ \n]*$" // (25)
+     " *= *([0-9]+)[ \n]*$" // (31)
   );
 
-  const int nmatch = 1+25;
+  const int nmatch = 1+31;
   regular_expression::match_range match[nmatch];
   if (!regex.execute(line, nmatch, match))
     return false;
@@ -713,8 +727,20 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
     else
       return false;
   }
-  else if (match[m+7].rm_so >= 0)
+  else if (match[m+=7].rm_so >= 0)
     state.nvme_err_log_entries = val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_critical_warning = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_available_spare = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_percent_used = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_media_errors = val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_warning_temp_time = (unsigned int)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_critical_comp_time = (unsigned int)val;
   else
     return false;
   return true;
@@ -821,6 +847,12 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
 
   // NVMe only
   write_dev_state_line(f, "nvme-err-log-entries", state.nvme_err_log_entries);
+  write_dev_state_line(f, "nvme-critical-warning", state.nvme_critical_warning);
+  write_dev_state_line(f, "nvme-available-spare", state.nvme_available_spare);
+  write_dev_state_line(f, "nvme-percent-used", state.nvme_percent_used);
+  write_dev_state_line(f, "nvme-media-errors", state.nvme_media_errors);
+  write_dev_state_line(f, "nvme-warning-temp-time", state.nvme_warning_temp_time);
+  write_dev_state_line(f, "nvme-critical-comp-time", state.nvme_critical_comp_time);
 
   return true;
 }
@@ -3368,6 +3400,10 @@ static int DoNVMeSelfTest(const dev_config & cfg, dev_state & state, nvme_device
     testname="Long Self-";
     smart_selftest_type = EXTEND_SELF_TEST;
     break;
+  default:
+    PrintOut(LOG_CRIT, "Device: %s%s, not capable of %c Self-Test\n", name,
+             nsstr, testtype);
+    return 1;
   }
 
   // Check for running test
@@ -3940,46 +3976,74 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
   return 0;
 }
 
+#define COMMA ,
+#define CHECK_NVME_ATTRIBUTE(_smart_log_attr,_smart_log_val_conv,_state_attr,_comp,_attr_util,_attr_name,_msg,_msg_vars,_log_level) \
+    {\
+    auto val = _smart_log_val_conv(smart_log._smart_log_attr);\
+    if(_comp) {\
+      std::string msg = strprintf("Device: %s%s, NVMe %s Attribute: %s " _msg,\
+                                  name, nsstr, _attr_util, _attr_name,\
+                                  _msg_vars);\
+      PrintOut(_log_level, "%s\n", msg.c_str());\
+      MailWarning(cfg, state, 2, "%s", msg.c_str());\
+      state._state_attr = val;\
+      state.must_write = true;\
+    }}
+
+#define CHECK_NVME_USAGE_ATTRIBUTE(_smart_log_attr,_smart_log_val_conv,_state_attr,_comp_op,_attr_util,_attr_name,_log_level) \
+        CHECK_NVME_ATTRIBUTE(_smart_log_attr,_smart_log_val_conv,_state_attr,state._state_attr _comp_op val,_attr_util,_attr_name, "changed from %lu to %lu", (uint64_t)(state._state_attr) COMMA (uint64_t)val, _log_level)
+
 static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_device * nvmedev, bool allow_selftests)
 {
   if (!open_device(cfg, state, nvmedev, "NVMe"))
     return 1;
 
   const char * name = cfg.name.c_str();
+  char nsstr[32] = "";
+  unsigned nsid = nvmedev->get_nsid();
+  if (nsid != 0xffffffff)
+    snprintf(nsstr, sizeof(nsstr), ", NSID: 0x%x", nsid);
 
   // Read SMART/Health log
   nvme_smart_log smart_log;
   if (!nvme_read_smart_log(nvmedev, smart_log)) {
       CloseDevice(nvmedev, name);
-      PrintOut(LOG_INFO, "Device: %s, failed to read NVMe SMART/Health Information\n", name);
-      MailWarning(cfg, state, 6, "Device: %s, failed to read NVMe SMART/Health Information", name);
+      PrintOut(LOG_INFO, "Device: %s%s, failed to read NVMe SMART/Health Information\n", name, nsstr);
+      MailWarning(cfg, state, 6, "Device: %s%s, failed to read NVMe SMART/Health Information", name, nsstr);
       state.must_write = true;
       return 0;
   }
 
+  state.nvme_smartlog = smart_log;
+
   // Check Critical Warning bits
   if (cfg.smartcheck && smart_log.critical_warning) {
     unsigned char w = smart_log.critical_warning;
-    std::string msg;
-    static const char * const wnames[] =
-      {"LowSpare", "Temperature", "Reliability", "R/O", "VolMemBackup"};
+    if(state.nvme_critical_warning != w) {
+      std::string msg;
+      static const char * const wnames[] =
+        {"LowSpare", "Temperature", "Reliability", "R/O", "VolMemBackup"};
 
-    for (unsigned b = 0, cnt = 0; b < 8 ; b++) {
-      if (!(w & (1 << b)))
-        continue;
-      if (cnt)
-        msg += ", ";
-      if (++cnt > 3) {
-        msg += "..."; break;
+      for (unsigned b = 0, cnt = 0; b < 8 ; b++) {
+        if (!(w & (1 << b)))
+          continue;
+        if (cnt)
+          msg += ", ";
+        if (++cnt > 3) {
+          msg += "..."; break;
+        }
+        if (b >= sizeof(wnames)/sizeof(wnames[0])) {
+          msg += "*Unknown*"; break;
+        }
+        msg += wnames[b];
       }
-      if (b >= sizeof(wnames)/sizeof(wnames[0])) {
-        msg += "*Unknown*"; break;
-      }
-      msg += wnames[b];
+
+      PrintOut(LOG_CRIT, "Device: %s%s, Critical Warning (0x%02x): %s\n", name, nsstr, w, msg.c_str());
+      MailWarning(cfg, state, 1, "Device: %s%s, Critical Warning (0x%02x): %s", name, nsstr, w, msg.c_str());
     }
-
-    PrintOut(LOG_CRIT, "Device: %s, Critical Warning (0x%02x): %s\n", name, w, msg.c_str());
-    MailWarning(cfg, state, 1, "Device: %s, Critical Warning (0x%02x): %s", name, w, msg.c_str());
+  }
+  if(smart_log.critical_warning != state.nvme_critical_warning) {
+    state.nvme_critical_warning = smart_log.critical_warning;
     state.must_write = true;
   }
 
@@ -3993,6 +4057,22 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
     else if (c > 0xff)
       c = 0xff;
     CheckTemperature(cfg, state, c, 0);
+  }
+
+  if(cfg.usage) {
+    CHECK_NVME_USAGE_ATTRIBUTE(avail_spare, , nvme_available_spare, >, "Usage", "Available Spare", LOG_WARNING);
+    CHECK_NVME_USAGE_ATTRIBUTE(percent_used, , nvme_percent_used, <, "Usage", "Percent Used", LOG_WARNING);
+  }
+
+  if(cfg.usagefailed) {
+    CHECK_NVME_ATTRIBUTE(avail_spare, , nvme_available_spare, val == 0, "Failed Usage", "Available Spare", "is %lu", 0lu, LOG_CRIT);
+    CHECK_NVME_ATTRIBUTE(percent_used, , nvme_percent_used, val >= 100, "Failed Usage", "Percent Used", "is %lu > 100", (uint64_t)val, LOG_CRIT);
+  }
+
+  if(cfg.prefail) {
+    CHECK_NVME_USAGE_ATTRIBUTE(media_errors, le128_to_uint64, nvme_media_errors, <, "Prefailure", "Media Errors", LOG_CRIT);
+    CHECK_NVME_USAGE_ATTRIBUTE(warning_temp_time, , nvme_warning_temp_time, <, "Prefailure", "Warning Composite Temperature Time", LOG_WARNING);
+    CHECK_NVME_USAGE_ATTRIBUTE(critical_comp_time, , nvme_critical_comp_time, <, "Prefailure", "Critical Composite Temperature Time", LOG_CRIT);
   }
 
   // Check if number of errors has increased
