@@ -72,6 +72,7 @@ typedef int pid_t;
 #include "scsicmds.h"
 #include "nvmecmds.h"
 #include "utility.h"
+#include "sg_unaligned.h"
 
 #ifdef HAVE_POSIX_API
 #include "popen_as_ugid.h"
@@ -517,6 +518,16 @@ struct persistent_dev_state
   uint64_t nvme_media_errors{};
   unsigned int nvme_warning_temp_time{};
   unsigned int nvme_critical_comp_time{};
+
+  unsigned char nvme_self_test_errors{};
+  unsigned char nvme_self_test_last_error_test_op{};
+  unsigned char nvme_self_test_last_error_test_res{};
+  uint64_t nvme_self_test_last_error_poh{};
+  unsigned char nvme_self_test_last_error_segment{};
+  uint32_t nvme_self_test_last_error_nsid{};
+  uint64_t nvme_self_test_last_error_lba{};
+  unsigned char nvme_self_test_last_error_status_code_type{};
+  unsigned char nvme_self_test_last_error_status_code{};
 };
 
 /// Non-persistent state data for a device.
@@ -564,9 +575,8 @@ struct temp_dev_state
   bool selftest_started{};                // true if self-test was started
 
   // NVMe ONLY
+  char nsstr[32]{};
   nvme_id_ctrl id_ctrl{};                 // NVMe Identify Controller data structure
-  nvme_smart_log nvme_smartlog{};
-  nvme_error_log_page nvme_errorlog_page{};
 };
 
 /// Runtime state data for a device.
@@ -665,11 +675,20 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
      "|(nvme-media-errors)" // (28)
      "|(nvme-warning-temp-time)" // (29)
      "|(nvme-critical-comp-time)" // (30)
+     "|(nvme-self-test-errors)" // (31)
+     "|(nvme-self-test-last-error-test-op)" // (32)
+     "|(nvme-self-test-last-error-test-res)" // (33)
+     "|(nvme-self-test-last-error-poh)" // (34)
+     "|(nvme-self-test-last-error-segment)" // (35)
+     "|(nvme-self-test-last-error-nsid)" // (36)
+     "|(nvme-self-test-last-error-lba)" // (37)
+     "|(nvme-self-test-last-error-status-code-type)" // (38)
+     "|(nvme-self-test-last-error-status-code)" // (39)
      ")" // 1)
-     " *= *([0-9]+)[ \n]*$" // (31)
+     " *= *([0-9]+)[ \n]*$" // (40)
   );
 
-  const int nmatch = 1+31;
+  const int nmatch = 1+40;
   regular_expression::match_range match[nmatch];
   if (!regex.execute(line, nmatch, match))
     return false;
@@ -741,6 +760,24 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
     state.nvme_warning_temp_time = (unsigned int)val;
   else if (match[++m].rm_so >= 0)
     state.nvme_critical_comp_time = (unsigned int)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_self_test_errors = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_self_test_last_error_test_op = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_self_test_last_error_test_res = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_self_test_last_error_poh = val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_self_test_last_error_segment = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_self_test_last_error_nsid = (uint32_t)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_self_test_last_error_lba = val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_self_test_last_error_status_code_type = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_self_test_last_error_status_code = (unsigned char)val;
   else
     return false;
   return true;
@@ -853,6 +890,24 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
   write_dev_state_line(f, "nvme-media-errors", state.nvme_media_errors);
   write_dev_state_line(f, "nvme-warning-temp-time", state.nvme_warning_temp_time);
   write_dev_state_line(f, "nvme-critical-comp-time", state.nvme_critical_comp_time);
+
+  write_dev_state_line(f, "nvme-self-test-errors", state.nvme_self_test_errors);
+  write_dev_state_line(f, "nvme-self-test-last-error-test-op",
+                       state.nvme_self_test_last_error_test_op);
+  write_dev_state_line(f, "nvme-self-test-last-error-test-res",
+                       state.nvme_self_test_last_error_test_res);
+  write_dev_state_line(f, "nvme-self-test-last-error-poh",
+                       state.nvme_self_test_last_error_poh);
+  write_dev_state_line(f, "nvme-self-test-last-error-segment",
+                       state.nvme_self_test_last_error_segment);
+  write_dev_state_line(f, "nvme-self-test-last-error-nsid",
+                       state.nvme_self_test_last_error_nsid);
+  write_dev_state_line(f, "nvme-self-test-last-error-lba",
+                       state.nvme_self_test_last_error_lba);
+  write_dev_state_line(f, "nvme-self-test-last-error-status-code-type",
+                       state.nvme_self_test_last_error_status_code_type);
+  write_dev_state_line(f, "nvme-self-test-last-error-status-code",
+                       state.nvme_self_test_last_error_status_code);
 
   return true;
 }
@@ -3976,6 +4031,165 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
   return 0;
 }
 
+// If the self-test log has got more self-test errors (or more recent
+// self-test errors) recorded, then notify user.
+static void nvme_check_self_test_logs(const dev_config & cfg, dev_state & state, nvme_device * dev, bool firstpass)
+{
+  const char * name = cfg.name.c_str();
+  char nsstr[32] = "";
+  unsigned nsid = dev->get_nsid();
+  if (nsid != 0xffffffff)
+    snprintf(nsstr, sizeof(nsstr), ", NSID: 0x%x", nsid);
+
+  nvme_self_test_log self_test_log;
+  if (!nvme_read_self_test_log(dev, dev->get_nsid(), self_test_log)) {
+    MailWarning(cfg, state, 8, "Device: %s%s, Read Self-Test Log Failed: %s", name, nsstr, dev->get_errmsg());
+    return;
+  }
+  reset_warning_mail(cfg, state, 8, "Read Self-Test Log worked again");
+
+  auto current_operation = self_test_log.current_operation & 0xf;
+  auto current_completion = self_test_log.current_completion & 0x7f;
+
+  if (cfg.selfteststs && (state.selftest_started || (firstpass && debugmode)) && current_operation)
+    PrintOut(LOG_INFO, "Device: %s%s, self-test in progress, %u%% remaining\n",
+             name, nsstr, current_completion);
+
+  auto is_error_result = [](uint8_t res) { return 0x5 <= res && res <= 0x7; };
+  auto get_op_name = [](uint8_t op) {
+    switch (op) {
+      case 0x1: return "Short";
+      case 0x2: return "Extended";
+      case 0xe: return "Vendor specific";
+      default:  return "Unknown (0x%x)";
+    }
+  };
+  auto get_op_result_name = [](uint8_t res) {
+    switch (res) {
+      case 0x0: return "Completed without error";
+      case 0x1: return "Aborted: Self-test command";
+      case 0x2: return "Aborted: Controller Reset";
+      case 0x3: return "Aborted: Namespace removed";
+      case 0x4: return "Aborted: Format NVM command";
+      case 0x5: return "Fatal or unknown test error";
+      case 0x6: return "Completed: unknown failed segment";
+      case 0x7: return "Completed: failed segments";
+      case 0x8: return "Aborted: unknown reason";
+      case 0x9: return "Aborted: sanitize operation";
+      default:  return (const char *)nullptr;
+    }
+  };
+
+  unsigned char nvme_self_test_errors = 0;
+  bool err_found = false;
+  uint8_t err_op = 0, err_res = 0, err_segment = 0, err_status_code_type = 0, err_status_code = 0;
+  uint64_t err_nsid = 0, err_lba = 0, err_poh = 0;
+
+  for (unsigned i = 0; i < sizeof(self_test_log.results) / sizeof(nvme_self_test_result); i++) {
+    const nvme_self_test_result & r = self_test_log.results[i];
+    uint8_t op = r.self_test_status >> 4;
+    uint8_t res = r.self_test_status & 0xf;
+    if (!op || res == 0xf)
+      continue; // unused entry
+
+    // If we report self-test status and we started a self-test or
+    // it's our first time launching and we're in a debug mode
+    if(cfg.selfteststs && (state.selftest_started || (firstpass && debugmode))) {
+      // If the operation is not currently running and we're in the first (most recent) entry
+      if(!current_operation && !i) {
+        const char * res_msg = get_op_result_name(res);
+        if (res_msg)
+          PrintOut((0x5 <= res && res < 0x8) ? LOG_CRIT : LOG_INFO,
+                  "Device: %s%s, previous self-test %s\n", name, nsstr, res_msg);
+        else
+          PrintOut(LOG_CRIT,
+                  "Device: %s%s, previous self-test result unknown: %0x\n", name, nsstr, res);
+      }
+    }
+
+    // Reset selftest_started if there is no longer an ongoing self-test observed
+    if(state.selftest_started && !current_operation && !i) {
+      state.selftest_started = false;
+    }
+
+    // If this test didn't result in an error nothing to do here
+    if(!is_error_result(res))
+      continue;
+
+    nvme_self_test_errors++;
+
+    // If we already found our first new error there is nothing more to do here
+    if(err_found)
+      continue;
+
+    err_found = true;
+    err_op = op;
+    err_res = res;
+    err_poh = sg_get_unaligned_le64(r.power_on_hours);
+    if (res == 0x7) {
+      err_segment = r.segment;
+    }
+    if (r.valid & 0x01) {
+      err_nsid = (uint64_t)r.nsid;
+    }
+    if (r.valid & 0x02) {
+      err_lba = sg_get_unaligned_le64(r.lba);
+    }
+    if (r.valid & 0x04) {
+      err_status_code_type = r.status_code_type;
+    }
+    if (r.valid & 0x08) {
+      err_status_code = r.status_code;
+    }
+  }
+
+  if(cfg.selftest) {
+    if(state.nvme_self_test_errors != nvme_self_test_errors) {
+      if(state.nvme_self_test_errors < nvme_self_test_errors) {
+        // Increase in error count
+        auto msg = strprintf("Device: %s%s, Self-Test Log error count increased from %u to %u",
+                 name, nsstr, state.nvme_self_test_errors, nvme_self_test_errors);
+        PrintOut(LOG_CRIT, "%s\n", msg.c_str());
+        MailWarning(cfg, state, 3, "%s", msg.c_str());
+      }
+      state.nvme_self_test_errors = nvme_self_test_errors;
+      state.must_write = true;
+    }
+
+    // If we did find tests results in errors
+    if(err_found) {
+      // ... and anything about the outcome of the test has changed
+      if(state.nvme_self_test_last_error_test_op != err_op ||
+        state.nvme_self_test_last_error_test_res != err_res ||
+        state.nvme_self_test_last_error_poh != err_poh ||
+        state.nvme_self_test_last_error_segment != err_segment ||
+        state.nvme_self_test_last_error_nsid != err_nsid ||
+        state.nvme_self_test_last_error_lba != err_lba ||
+        state.nvme_self_test_last_error_status_code_type != err_status_code_type ||
+        state.nvme_self_test_last_error_status_code != err_status_code
+        ) {
+          // A new test failure
+          auto msg = strprintf("Device: %s%s, %s Self-Test has failed: %s; POH %lu hrs, Segment %u, NSID 0x%lx, "
+                              "LBA %lu, Status Code Type 0x%x, Status Code 0x%x",
+                              name, nsstr, get_op_name(err_op), get_op_result_name(err_res), err_poh, err_segment, err_nsid,
+                              err_lba, err_status_code_type, err_status_code);
+          PrintOut(LOG_CRIT, "%s\n", msg.c_str());
+          MailWarning(cfg, state, 3, "%s", msg.c_str());
+
+          state.nvme_self_test_last_error_test_op = err_op;
+          state.nvme_self_test_last_error_test_res = err_res;
+          state.nvme_self_test_last_error_poh = err_poh;
+          state.nvme_self_test_last_error_segment = err_segment;
+          state.nvme_self_test_last_error_nsid = err_nsid;
+          state.nvme_self_test_last_error_lba = err_lba;
+          state.nvme_self_test_last_error_status_code_type = err_status_code_type;
+          state.nvme_self_test_last_error_status_code = err_status_code;
+          state.must_write = true;
+        }
+    }
+  }
+}
+/*
 #define COMMA ,
 #define CHECK_NVME_ATTRIBUTE(_smart_log_attr,_smart_log_val_conv,_state_attr,_comp,_attr_util,_attr_name,_msg,_msg_vars,_log_level) \
     {\
@@ -3992,8 +4206,8 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
 
 #define CHECK_NVME_USAGE_ATTRIBUTE(_smart_log_attr,_smart_log_val_conv,_state_attr,_comp_op,_attr_util,_attr_name,_log_level) \
         CHECK_NVME_ATTRIBUTE(_smart_log_attr,_smart_log_val_conv,_state_attr,state._state_attr _comp_op val,_attr_util,_attr_name, "changed from %lu to %lu", (uint64_t)(state._state_attr) COMMA (uint64_t)val, _log_level)
-
-static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_device * nvmedev, bool allow_selftests)
+*/
+static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_device * nvmedev, bool firstpass, bool allow_selftests)
 {
   if (!open_device(cfg, state, nvmedev, "NVMe"))
     return 1;
@@ -4013,8 +4227,6 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
       state.must_write = true;
       return 0;
   }
-
-  state.nvme_smartlog = smart_log;
 
   // Check Critical Warning bits
   if (cfg.smartcheck && smart_log.critical_warning) {
@@ -4059,20 +4271,95 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
     CheckTemperature(cfg, state, c, 0);
   }
 
+  auto check_nvme_attr = [&](const char * usage_name, const char * attr_name,
+                            uint64_t (*get_state_value)(dev_state &), void (*set_state_value)(dev_state &, uint64_t),
+                            uint64_t (*current_value)(nvme_smart_log &), bool (*trigger)(uint64_t, uint64_t),
+                            std::string (*attr_msg)(uint64_t, uint64_t), int log_level, int mail_which)
+  {
+    auto state_val = get_state_value(state);
+    auto current_val = current_value(smart_log);
+
+    if (trigger(state_val, current_val)) {
+      std::string msg = strprintf("Device: %s%s, NVMe %s Attribute: %s %s", name, nsstr, usage_name, attr_name, attr_msg(state_val, current_val).c_str());
+      PrintOut(log_level, "%s\n", msg.c_str());
+      MailWarning(cfg, state, mail_which, "%s", msg.c_str());
+      set_state_value(state, current_val);
+      state.must_write = true;
+    }
+  };
+
+  auto check_nvme_usage_attr = [&](const char * usage_name, const char * attr_name,
+                                  uint64_t (*get_state_value)(dev_state &), void (*set_state_value)(dev_state &, uint64_t),
+                                  uint64_t (*current_value)(nvme_smart_log &), bool (*trigger)(uint64_t, uint64_t),
+                                  int log_level) {
+    check_nvme_attr(usage_name, attr_name, get_state_value, set_state_value, current_value, trigger,
+                    [](uint64_t s, uint64_t c){ return strprintf("changed from %lu to %lu", s, c);},
+                    log_level, 2);
+  };
+
   if(cfg.usage) {
-    CHECK_NVME_USAGE_ATTRIBUTE(avail_spare, , nvme_available_spare, >, "Usage", "Available Spare", LOG_WARNING);
-    CHECK_NVME_USAGE_ATTRIBUTE(percent_used, , nvme_percent_used, <, "Usage", "Percent Used", LOG_WARNING);
+    check_nvme_usage_attr("Usage", "Available Spare",
+                          [](dev_state & s){return (uint64_t)s.nvme_available_spare;},
+                          [](dev_state & s, uint64_t x){s.nvme_available_spare = x;},
+                          [](nvme_smart_log & c){return (uint64_t)c.avail_spare;},
+                          [](uint64_t s, uint64_t c){return s > c;},
+                          LOG_WARNING);
+    check_nvme_usage_attr("Usage", "Percent Used",
+                          [](dev_state & s){return (uint64_t)s.nvme_percent_used;},
+                          [](dev_state & s, uint64_t x){s.nvme_percent_used = x;},
+                          [](nvme_smart_log & c){return (uint64_t)c.percent_used;},
+                          [](uint64_t s, uint64_t c){return s < c;},
+                          LOG_WARNING);
+    // CHECK_NVME_USAGE_ATTRIBUTE(avail_spare, , nvme_available_spare, >, "Usage", "Available Spare", LOG_WARNING);
+    // CHECK_NVME_USAGE_ATTRIBUTE(percent_used, , nvme_percent_used, <, "Usage", "Percent Used", LOG_WARNING);
   }
 
   if(cfg.usagefailed) {
-    CHECK_NVME_ATTRIBUTE(avail_spare, , nvme_available_spare, val == 0, "Failed Usage", "Available Spare", "is %lu", 0lu, LOG_CRIT);
-    CHECK_NVME_ATTRIBUTE(percent_used, , nvme_percent_used, val >= 100, "Failed Usage", "Percent Used", "is %lu > 100", (uint64_t)val, LOG_CRIT);
+    check_nvme_attr("Failed Usage", "Available Spare",
+                          [](dev_state & s){return (uint64_t)s.nvme_available_spare;},
+                          [](dev_state & s, uint64_t x){s.nvme_available_spare = x;},
+                          [](nvme_smart_log & c){return (uint64_t)c.avail_spare;},
+                          [](uint64_t, uint64_t c){return c == 0;},
+                          [](uint64_t, uint64_t){return std::string("is 0");},
+                          LOG_CRIT, 2);
+    check_nvme_attr("Failed Usage", "Percent Used",
+                          [](dev_state & s){return (uint64_t)s.nvme_percent_used;},
+                          [](dev_state & s, uint64_t x){s.nvme_percent_used = x;},
+                          [](nvme_smart_log & c){return (uint64_t)c.percent_used;},
+                          [](uint64_t, uint64_t c){return c >= 100;},
+                          [](uint64_t, uint64_t c){return strprintf("is %lu >= 100", c);},
+                          LOG_CRIT, 2);
+    // CHECK_NVME_ATTRIBUTE(avail_spare, , nvme_available_spare, val == 0, "Failed Usage", "Available Spare", "is %lu", 0lu, LOG_CRIT);
+    // CHECK_NVME_ATTRIBUTE(percent_used, , nvme_percent_used, val >= 100, "Failed Usage", "Percent Used", "is %lu > 100", (uint64_t)val, LOG_CRIT);
   }
 
   if(cfg.prefail) {
-    CHECK_NVME_USAGE_ATTRIBUTE(media_errors, le128_to_uint64, nvme_media_errors, <, "Prefailure", "Media Errors", LOG_CRIT);
-    CHECK_NVME_USAGE_ATTRIBUTE(warning_temp_time, , nvme_warning_temp_time, <, "Prefailure", "Warning Composite Temperature Time", LOG_WARNING);
-    CHECK_NVME_USAGE_ATTRIBUTE(critical_comp_time, , nvme_critical_comp_time, <, "Prefailure", "Critical Composite Temperature Time", LOG_CRIT);
+    check_nvme_usage_attr("Prefailure", "Media Errors",
+                          [](dev_state & s){return s.nvme_media_errors;},
+                          [](dev_state & s, uint64_t x){s.nvme_media_errors = x;},
+                          [](nvme_smart_log & c){return le128_to_uint64(c.media_errors);},
+                          [](uint64_t s, uint64_t c){return c > s;},
+                          LOG_CRIT);
+    check_nvme_usage_attr("Prefailure", "Warning Composite Temperature Time",
+                          [](dev_state & s){return (uint64_t)s.nvme_warning_temp_time;},
+                          [](dev_state & s, uint64_t x){s.nvme_warning_temp_time = x;},
+                          [](nvme_smart_log & c){return (uint64_t)c.warning_temp_time;},
+                          [](uint64_t s, uint64_t c){return c > s;},
+                          LOG_CRIT);
+    check_nvme_usage_attr("Prefailure", "Critical Composite Temperature Time",
+                          [](dev_state & s){return (uint64_t)s.nvme_critical_comp_time;},
+                          [](dev_state & s, uint64_t x){s.nvme_critical_comp_time = x;},
+                          [](nvme_smart_log & c){return (uint64_t)c.critical_comp_time;},
+                          [](uint64_t s, uint64_t c){return c > s;},
+                          LOG_CRIT);
+    // CHECK_NVME_USAGE_ATTRIBUTE(media_errors, le128_to_uint64, nvme_media_errors, <, "Prefailure", "Media Errors", LOG_CRIT);
+    // CHECK_NVME_USAGE_ATTRIBUTE(warning_temp_time, , nvme_warning_temp_time, <, "Prefailure", "Warning Composite Temperature Time", LOG_WARNING);
+    // CHECK_NVME_USAGE_ATTRIBUTE(critical_comp_time, , nvme_critical_comp_time, <, "Prefailure", "Critical Composite Temperature Time", LOG_CRIT);
+  }
+
+  // Check self test results
+  if(cfg.selftest || cfg.selfteststs) {
+    nvme_check_self_test_logs(cfg, state, nvmedev, firstpass);
   }
 
   // Check if number of errors has increased
@@ -4195,7 +4482,7 @@ static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector
     else if (dev->is_scsi())
       SCSICheckDevice(cfg, state, dev->to_scsi(), allow_selftests);
     else if (dev->is_nvme())
-      NVMeCheckDevice(cfg, state, dev->to_nvme(), allow_selftests);
+      NVMeCheckDevice(cfg, state, dev->to_nvme(), firstpass, allow_selftests);
 
     // Prevent systemd unit startup timeout when checking many devices on startup
     notify_extend_timeout();
