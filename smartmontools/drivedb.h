@@ -4482,6 +4482,15 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
+  { "Seagate Exos X18",
+    // https://www.seagate.com/content/dam/seagate/migrated-assets/www-content/datasheets/pdfs/exos-x18-channel-DS2045-4-2106US-en_US.pdf
+    // tested with ST18000NM000J-2TV103/SN02
+    "ST1[02468]000NM0(0[01457]J|(1[3468]|20)G)-.*",
+    "", "",
+    "-v 18,raw48,Head_Health "
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
+  },
   // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
   //             ST8000VN0012, ST6000VN0031, ST4000VN003
   // tested with ST8000VN0002-1Z8112/ZA13YGNF
