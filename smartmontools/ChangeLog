@@ -1,4 +1,10 @@
-$Id: ChangeLog 5557 2023-10-17 19:08:57Z dpgilbert $
+$Id: ChangeLog 5558 2023-12-10 22:53:00Z dipohl $
+
+2023-12-10  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Toshiba N300/MN NAS HDD: TOSHIBA HDWG440 (#1749)
+	- Marvell based SanDisk SSDs: SanDisk SDSSDH3 512G (#1768)
 
 2023-10-17  Douglas Gilbert  <dgilbert@interlog.com>
 
