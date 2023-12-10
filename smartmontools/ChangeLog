@@ -1,5 +1,11 @@
 $Id$
 
+2023-12-10  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Toshiba N300/MN NAS HDD: TOSHIBA HDWG440 (#1749)
+	- Marvell based SanDisk SSDs: SanDisk SDSSDH3 512G (#1768)
+
 2023-10-17  Douglas Gilbert  <dgilbert@interlog.com>
 
 	scsiprint.cpp : missed a "not" in the following description
