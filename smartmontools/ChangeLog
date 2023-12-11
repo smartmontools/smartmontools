@@ -1,4 +1,10 @@
-$Id: ChangeLog 5558 2023-12-10 22:53:00Z dipohl $
+$Id: ChangeLog 5559 2023-12-11 13:29:46Z dipohl $
+
+2023-12-11  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Phison Driven SSDs: SEDC600M(480|960|1920|3840|7680)G (#1726)
+	- Western Digital Red: WDC WD[2-8]0EFPX (2TB, 3TB, 4TB, 6TB, 8TB) (#1723, #1736)
 
 2023-12-10  Gabriele Pohl  <contact@dipohl.de>
 
