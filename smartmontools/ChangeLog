@@ -1,5 +1,12 @@
 $Id$
 
+2023-12-12  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Vendor attribute names for SandForce Driven SSDs: SanDisk SDSSDA240G
+	  (#1317) Patch by Artem S. Tashkinov
+	- SandForce Driven SSDs: SanDisk SD8SFAT128G1122 (#712)
+
 2023-12-11  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
