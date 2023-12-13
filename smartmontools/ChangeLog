@@ -1,5 +1,12 @@
 $Id$
 
+2023-12-13  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- SandForce Driven SSDs: SanDisk SD8SNAT128G1002 (#799)
+	- WD Blue / Red / Green SSDs: WD Blue SA510 2.5 1000GB (#1659)
+	- Marvell based SanDisk SSDs: SanDisk SD9SN8W128G1020 (#1569)
+
 2023-12-12  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:

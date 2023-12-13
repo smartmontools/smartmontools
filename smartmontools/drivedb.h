@@ -612,7 +612,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SandForce Driven SSDs",
     "SanDisk SDSSDA(120|240|480)G|" // SanDisk SSD Plus, tested with SanDisk SDSSDA240G/U21010RL
-    "SanDisk SD8SFAT128G1122",      // SanDisk SD8SFAT128G1122/Z2333000
+    "SanDisk SD8S[FN]AT128G1(00|12)2", // SanDisk Z400s, tested with 
+      // SanDisk SD8SFAT128G1122/Z2333000, SanDisk SD8SNAT128G1002/Z2317002
     "", "",
     "-v 5,raw48,Retired_Block_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -2019,8 +2020,8 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SD7S[BN]6S-?(128|256|512)G(1122|-1006)|" // X300 (88SS9189?), tested with
       // SanDisk SD7SB6S128G1122/X3310000, SanDisk SD7SN6S-512G-1006/X3511006
     "SanDisk SD8S[BN]8U-?((128|256|512)G|1T00)(1122|-1006)|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
-    "SanDisk SD9S[BN]8W-?((128|256|512)G|[12]T00)(1122|-1006)|" // X600, tested with SanDisk SD9SB8W128G1122/X6107000, SD9SB8W-512G-1006/X6103006
-      // SanDisk SD9SB8W1T001122/X6107000, SD9SB8W256G1122/X6107000
+    "SanDisk SD9S[BN]8W-?((128|256|512)G|[12]T00)(1122|-1006|1020)|" // X600, tested with SanDisk SD9SB8W128G1122/X6107000, SD9SB8W-512G-1006/X6103006
+      // SanDisk SD9SB8W1T001122/X6107000, SD9SB8W256G1122/X6107000, SanDisk SD9SN8W128G1020/X6101020
     "SanDisk SDSSDA-((120|240|480)G|[12]T00)|" // Plus, tested with SanDisk SDSSDA-2T00/411040RL
     "SanDisk SDSSDHP[0-9]*G|" // Ultra Plus (88SS9175), tested with SanDisk SDSSDHP128G/X23[01]6RL
     "SanDisk (SDSSDHII|Ultra II )[0-9]*GB?|" // Ultra II (88SS9190/88SS9189), tested with
@@ -4730,8 +4731,9 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WDBNCE2500PNC/X61130WD, WDC WDBNCE0010PNC-WRSN/X41110WD,
       // WDC  WDS200T1R0A-68A4W0/411000WR, WDC  WDS400T1R0A-68A4W0/411000WR
     "WDC WDBNCE(250|500|00[124])0PNC(-.*)?|" // Blue 3D
-    "WDC  ?WDS((120|240|250|480|500)G|[124]00T)(1B|2B|1G|2G|1R)0[AB](-.*)?",
+    "WDC  ?WDS((120|240|250|480|500)G|[124]00T)(1B|2B|1G|2G|1R)0[AB](-.*)?|"
       // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND, *1R* = Red SA500
+    "WD Blue SA510 2.5 1000GB", // tested with WD Blue SA510 2.5 1000GB/52008100
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct " // Reassigned Block Count
   //"-v 9,raw24(raw8),Power_On_Hours "
