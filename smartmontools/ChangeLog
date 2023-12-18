@@ -1,5 +1,15 @@
 $Id$
 
+2023-12-18  Werner Fischer  <tk-wfischer@users.noreply.github.com>
+
+	drivedb.h: Add ATP SATA III SSDs (GH pull/191)
+
+	- Add ATP Electronics Value Line and Superior Line SATA SSDs
+	- Distinguish between them based on firmware versions
+	- SSDs:
+	  - Value LIne (Phison based)
+	  - Superior Line (Silicon Motion based)
+
 2023-12-13  Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:

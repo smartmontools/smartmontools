@@ -290,6 +290,65 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 199,raw48,UDMA_CRC_Error_Count "
   //"-v 240,raw48,Unknown_SSD_Attribute "
   },
+  { "ATP SATA III Value Line SSDs",
+    "ATP SATA III (M.2 (2242|2280)|mSATA|mSATA SSD|2.5 inch)",
+      // tested M.2 2280 with firmware version SBFMBB.3 (Value Line),
+      // ATP SATA III M.2 2280/SBFMBB.3
+    "SBFMB1.1|SBFMBB.3|SBFMT1.3",
+    "",
+    "-v 1,raw48,Raw_Read_Error_Count "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 170,raw16,Bad_Bl_Ct_LATER_0_EARLY " // Raw value: Byte [5~4] Later bad block count
+                                            //            Byte [3~2] 0
+                                            //            Byte [1~0] Early bad block count (meaning see ticket #1642)
+    "-v 173,raw16,Erase_Count_0_AVG_MAX "   // Raw value: Byte [5~4] 0
+                                            //            Byte [3~2] Average erase count
+                                            //            Byte [1~0] Max erase count
+    "-v 192,raw48,Unexpected_Power_Loss "
+  //"-v 194,tempminmax,Device_Temperature "
+    "-v 218,raw48,CRC_Errors "
+    "-v 231,raw48,Percent_Lifetime_Remain "
+    "-v 241,raw48,Host_Writes_GiB "
+  },
+  { "ATP SATA III Superior Line SSDs",
+    "ATP (SATA III|SATAIII|I-Temp. SATA III|I-Temp. SATAIII) (M.2 (2242|2280)|mSATA|2.5 inch) SSD",
+      // tested M.2 2242 & 2280 with firmware version T0205B (Superior Line with PLP),
+      // ATP SATA III M.2 2280 SSD/T0205B
+    "T0205B|U0316B",
+    "",
+    "-v 1,raw48,Raw_Read_Error_Count "
+    "-v 5,raw16(raw16),Realloc_Flash_Blocks_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 14,raw48,Device_Raw_Capacity "
+    "-v 15,raw48,Device_User_Capacity "
+    "-v 16,raw48,Initial_Spare_Blocks "
+    "-v 17,raw48,Remaining_Spare_Blocks "
+    "-v 100,raw48,Total_Erease_Count "
+    "-v 160,raw48,Uncorrectable_Sectors "
+    "-v 172,raw48,Block_Erase_Failures "
+    "-v 173,raw48,Maximum_Erase_Count "
+    "-v 174,raw48,Unexpected_Power_Loss "
+    "-v 175,raw48,Average_Erase_Count "
+    "-v 181,raw48,Block_Program_Failures "
+    "-v 187,raw48,Reported_Uncorr_Errors "
+  //"-v 194,tempminmax,Device_Temperature "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+    "-v 197,raw48,Current_Pending_ECC_Cnt " // Like Crucial MX500: May flip 0 <> 1 (ticket #1227)
+    "-v 198,raw48,Offline_UErr_Media_Scan "
+    "-v 199,raw48,SATA_FIS_CRC_Errors "
+    "-v 202,raw48,Percent_Lifetime_Used "
+    "-v 205,raw48,Thermal_Asperity_Rate "
+    "-v 231,tempminmax,Controller_Temperature "
+    "-v 234,raw48,Sectors_Read_from_NAND "
+    "-v 235,raw48,Sectors_Written_to_SSD "
+    "-v 241,raw48,Sectors_Written_to_NAND "
+    "-v 242,raw48,Sectors_Read_from_SSD "
+    "-v 248,raw48,Percent_Lifetime_Remain "
+    "-v 249,raw48,Spare_Blocks_Remaining " // same as ID 17 (Remaining_Spare_Blocks)
+  },
   { "ATP SATA III aMLC M.2 2242/80 Embedded SSDs",
     "ATP I-Temp M\\.2 22(42|80)", // tested with ATP I-Temp M.2 2242/R0822A,
       // ATP I-Temp M.2 2280/R0822A
