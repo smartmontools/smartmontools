@@ -1,5 +1,13 @@
 $Id$
 
+2023-09-18  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel S4510/S4610/S4500/S4600 Series SSDs: 7.68TB (GH pull/103).
+	- Marvell based SanDisk SSDs: SD7SB7S960G (GH issues/211).
+	- SanDisk based SSDs: SDSA6D* variant (#1721).
+	- HGST Ultrastar HC310/320: *A6L1 variant (GH pull/77).
+
 2023-12-18  Werner Fischer  <tk-wfischer@users.noreply.github.com>
 
 	drivedb.h: Add ATP SATA III SSDs (GH pull/191)
