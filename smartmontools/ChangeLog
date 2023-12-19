@@ -1,6 +1,11 @@
 $Id$
 
-2023-09-18  Christian Franke  <franke@computer.org>
+2023-12-19  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in: Fix max number of 'cciss' drives
+	(see GH issues/228 and ticket #49).
+
+2023-12-18  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
 	- Intel S4510/S4610/S4500/S4600 Series SSDs: 7.68TB (GH pull/103).
