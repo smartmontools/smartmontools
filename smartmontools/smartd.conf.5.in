@@ -4,7 +4,7 @@ Copyright (C) 2004-23 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5521 2023-07-24 16:44:49Z chrfranke $
+$Id: smartd.conf.5.in 5565 2023-12-19 14:41:59Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -542,10 +542,10 @@ Important: This requires Areca SAS controller firmware version 1.51 or later.
 .I cciss,N
 \- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS or
 SATA disks connected to a cciss RAID controller.
-The non-negative integer N (in the range from 0 to 15 inclusive) denotes
+The non-negative integer N (in the range from 0 to 127 inclusive) denotes
 which disk on the controller is monitored.
 In log files and email messages this disk will be identified as cciss_disk_XX
-with XX in the range from 00 to 15 inclusive.
+with XX in the range from 00 to 127 inclusive.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .I hpt,L/M/N
@@ -1793,4 +1793,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5521 2023-07-24 16:44:49Z chrfranke $
+$Id: smartd.conf.5.in 5565 2023-12-19 14:41:59Z chrfranke $
