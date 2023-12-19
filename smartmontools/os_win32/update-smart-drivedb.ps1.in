@@ -488,16 +488,19 @@ Q/qvYlwkbKOdlahjoHrFlkhADSBaO9N1OZp3OYDjziIujMdt2IPKnmM=
   }
 }
 
-function run_join_out_err($cmd) # $arg1, $arg2, ...
+function run_join_out_err($cmd) # ARG...
 {
-  $cmdobj = Get-Command -CommandType Application -Name $cmd
   # Don't prepend $input with BOM
   $enc = [Console]::InputEncoding
   [Console]::InputEncoding = [System.Text.UTF8Encoding]::new()
   $ErrorActionPreference = "Continue" # Don't abort command on first stderr output
   $LASTEXITCODE = 42
   # Run command and convert ErrorRecords from stderr to plain Strings
-  $($input | & $cmdobj @args 2>&1) | %{ $_.ToString() }
+  try {
+    $($input | & $cmd @args 2>&1) | %{ $_.ToString() }
+  } catch {
+    error "$_"
+  }
   $ErrorActionPreference = "Stop"
   [Console]::InputEncoding = $enc
 }
@@ -647,7 +650,7 @@ if ($UrlOf -eq "svni") {
 
 # Check for smartctl
 if ($Smartctl -ne "-") {
-  if (!(Get-Command -Type Application -Name $Smartctl -ErrorAction Ignore)) {
+  if (!(Get-Command -Type Application -Name $Smartctl -TotalCount 1 -ErrorAction Ignore)) {
     error "${Smartctl}: not found ('-Smartctl -' to ignore)"
   }
 }
@@ -657,7 +660,7 @@ $gpgconf = ""
 if (!$NoVerify) {
   $gpgobj = $null
   if ($gpg) {
-    $gpgobj = Get-Command -Type Application -Name $gpg -ErrorAction Ignore
+    $gpgobj = Get-Command -Type Application -Name $gpg -TotalCount 1 -ErrorAction Ignore
   }
   if (!$gpgobj) {
     error "GnuPG is not available ('-NoVerify' to ignore)"
@@ -665,11 +668,13 @@ if (!$NoVerify) {
   $public_key = ""
   selectkey $brname ([ref]$public_key)
   # Check for gpgconf in same directory
+  $gpgpath = Split-Path ($gpgobj[0]).Source
   $gpgconf = "gpgconf"
-  $gpgconfobj = Get-Command -Type Application -Name $gpgconf -ErrorAction Ignore;
-  if (!($gpgconfobj -and ((Split-Path $gpgobj.Source) -eq (Split-Path $gpgconfobj.Source)))) {
+  $gpgconfobj = Get-Command -Type Application -Name $gpgconf -TotalCount 1 -ErrorAction Ignore
+  if (!($gpgconfobj -and ($gpgpath -eq (Split-Path ($gpgconfobj[0]).Source)))) {
     $gpgconf = ""
   }
+  vecho "$gpg$(if ($gpgconf) { " and $gpgconf" }) found in: $gpgpath"
 }
 
 # Remove possible garbage from last download

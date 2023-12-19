@@ -2,6 +2,10 @@ $Id$
 
 2023-12-19  Christian Franke  <franke@computer.org>
 
+	os_win32/update-smart-drivedb.ps1.in: Fix call of external commands.
+	This fixes the call of gpg if gpg.exe appears more than once in the
+	PATH (#1782).  Print gpg[conf].exe location if -Verbose is used.
+
 	smartctl.8.in, smartd.conf.5.in: Fix max number of 'cciss' drives
 	(see GH issues/228 and ticket #49).
 
