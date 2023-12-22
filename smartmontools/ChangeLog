@@ -1,4 +1,8 @@
-$Id: ChangeLog 5566 2023-12-19 16:20:27Z chrfranke $
+$Id: ChangeLog 5568 2023-12-22 17:34:33Z chrfranke $
+
+2023-12-22  cyrozap  <cyrozap@gmail.com>
+
+	scsinvme.cpp: Fix sntasmedia "Get Log Page" passthrough
 
 2023-12-19  Christian Franke  <franke@computer.org>
 
