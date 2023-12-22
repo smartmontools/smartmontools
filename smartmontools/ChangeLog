@@ -1,5 +1,9 @@
 $Id$
 
+2023-12-22  cyrozap  <cyrozap@gmail.com>
+
+	scsinvme.cpp: Fix sntasmedia "Get Log Page" passthrough
+
 2023-12-19  Christian Franke  <franke@computer.org>
 
 	os_win32/update-smart-drivedb.ps1.in: Fix call of external commands.
