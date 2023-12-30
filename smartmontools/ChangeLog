@@ -1,12 +1,19 @@
 $Id$
 
-2023-12-22 Gabriele Pohl  <contact@dipohl.de>
+2023-12-30 Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Marvell based SanDisk SSDs: SanDisk SD8TB8U-*-1016 variant (#984)
+	- Silicon Motion based OEM SSDs: INTENSO/V0718B0 (#1761)
+	- Silicon Motion based OEM SSDs: Intenso SSD SATAIII/W0825A0(#1762)
+
+2023-12-23 Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
 	- Toshiba S300 (SMR): TOSHIBA HDWT8*, HDWT7* (based on patch from #1605)
 	- Silicon Motion based OEM SSDs: INTENSO/V0609A0
 	  Fix wrong digit in firmware regex (earlier added in #1706)
-	- Silicon Motion based OEM SSDs: firmware regex for INTENSO SSD V1027A0
+	- Silicon Motion based OEM SSDs: firmware regex for INTENSO SSD/V1027A0
 	  reported by Jules Kerssemakers via Smartmontools-database 2023-08-21
 	- Western Digital Red: WDC WD120EFBX-68B0EN0 and rest from product sheet (GH issues/210).
 
