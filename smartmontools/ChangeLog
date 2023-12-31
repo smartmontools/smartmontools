@@ -1,5 +1,11 @@
 $Id$
 
+2023-12-31  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Toshiba MG10AFA... Enterprise Capacity HDD.
+	- USB: Seagate FireCuda Gaming SSD (0x0bc2:0xaa1a, #1783).
+
 2023-12-30 Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
