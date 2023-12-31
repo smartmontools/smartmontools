@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3/5563 2023-12-18 15:48:15 $Id: drivedb.h 5564 2023-12-18 16:11:37Z chrfranke $",
+  { "VERSION: 7.3/5571 2023-12-31 16:44:16 $Id: drivedb.h 5572 2023-12-31 16:56:34Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -2078,7 +2078,8 @@ const drive_settings builtin_knowndrives[] = {
       // SanDisk SD6SB1M256G1022I/X231600, SanDisk SD6SF1M128G1022/X231200, SanDisk SD6SB2M512G1022I/X210400
     "SanDisk SD7S[BN][67]S-?(128|256|512|960)G(1122|-1006)?|" // X300 (88SS9189?), tested with
       // SanDisk SD7SB6S128G1122/X3310000, SanDisk SD7SN6S-512G-1006/X3511006, SanDisk SD7SB7S960G/X36310DC
-    "SanDisk SD8S[BN]8U-?((128|256|512)G|1T00)(1122|-1006)|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
+    "SanDisk SD8[ST][BN]8U-?((128|256|512)G|1T00)(1122|-10[01]6)|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
+      // SanDisk SD8TB8U-512G-1016/X4163116
     "SanDisk SD9S[BN]8W-?((128|256|512)G|[12]T00)(1122|-1006|1020)|" // X600, tested with SanDisk SD9SB8W128G1122/X6107000, SD9SB8W-512G-1006/X6103006
       // SanDisk SD9SB8W1T001122/X6107000, SD9SB8W256G1122/X6107000, SanDisk SD9SN8W128G1020/X6101020
     "SanDisk SDSSDA-((120|240|480)G|[12]T00)|" // Plus, tested with SanDisk SDSSDA-2T00/411040RL
@@ -2347,9 +2348,9 @@ const drive_settings builtin_knowndrives[] = {
     "Dogfish SSD (128|256|512)GB|" // tested with Dogfish SSD 128GB/S1211A0
     "GIM(16|32|64|128|256|512)|"// GUDGA GIM, tested with GIM128/U0401A0
     "INTENSO( SSD)?|" // tested with INTENSO/S1211A0 (Portable SSD 256GB premium edition),
-      // INTENSO/V0609A0, INTENSO SSD/V0823A0
-    "Intenso  ?SSD( Sata III)?|" // tested with Intenso SSD/Q1107A0, Intenso  SSD Sata III/P0510E,
-      // Intenso SSD Sata III/R0817B0, Intenso SSD Sata III/V0303B0
+      // INTENSO/V0609A0, INTENSO SSD/V0823A0, INTENSO/V0718B0 
+    "Intenso  ?SSD( S(ata|ATA) ?III)?|" // tested with Intenso SSD/Q1107A0, Intenso  SSD Sata III/P0510E,
+      // Intenso SSD Sata III/R0817B0, Intenso SSD Sata III/V0303B0, Intenso SSD SATAIII/W0825A0
     "KingFast|" // tested with KingFast/P0725A (F6M), KingFast/S0424A0 (120GB), KingFast/S1128B0 (512GB)
     "KSM512|" // KingSpec, tested with KSM512/S0509A0
     "LDLC|" // tested with LDLC/KFS03005
@@ -2365,7 +2366,7 @@ const drive_settings builtin_knowndrives[] = {
     "Verbatim Vi550 S3", // may also exist with different controller (tickets #1626 <> #1629),
       // tested with Verbatim Vi550 S3/U1124A0 (128GB)
     "HPS2227I|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R0817B0|S(0424|0509|0618|1211|1230)A0|"
-    "S112[78]B0|T0(311|519|910)A0|U(0202|0401|0506|1124)A0|V0((606|823)A|303B)0",
+    "S112[78]B0|T0(311|519|910)A0|U(0202|0401|0506|1124)A0|V0((609|823)A|(303|718)B)0|V1027A0|W0825A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
@@ -4001,6 +4002,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 24,raw48,Helium_Condition_Upper "
     "-v 27,raw48,MAMR_Health_Monitor"
   },
+  { "Toshiba MG10AFA... Enterprise Capacity HDD", // tested with TOSHIBA MG10AFA22TE/0102
+    "TOSHIBA MG10AFA22T[AE]Y?",
+    "", "",
+    "-v 23,raw48,Helium_Condition_Lower "
+    "-v 24,raw48,Helium_Condition_Upper "
+    "-v 27,raw48,MAMR_Health_Monitor"
+  },
   { "Toshiba 3.5\" DT01ABA... Desktop HDD", // tested with TOSHIBA DT01ABA300/MZ6OABB0
     "TOSHIBA DT01ABA(100|150|200|300)",
     "", "", ""
@@ -4026,6 +4034,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba P300 (SMR)", // tested with TOSHIBA HDWD240/KQ000A
     "TOSHIBA HDWD2[246]0",
+    "", "", ""
+  },
+  { "Toshiba S300 (SMR)", // tested with TOSHIBA HDWT860/KQ0H1L
+    "TOSHIBA HDWT(7[24]|8[46])0",
     "", "", ""
   },
   { "Toshiba X300", // tested with TOSHIBA HDWE160/FS2A, TOSHIBA HDWF180/GX0B
@@ -5088,12 +5100,12 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD60EFRX-68MYMN1/82.00A82, WDC WD60EFPX-68C5ZN0/81.00A81,
       // WDC WD80EFAX-68LHPN0/83.H0A83, WDC WD80EFZX-68UW8N0/83.H0A83,
       // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee),
-      // WDC WD100EFAX-68LHPN0/83.H0A83,
+      // WDC WD100EFAX-68LHPN0/83.H0A83, WDC WD120EFBX-68B0EN0/85.00A85
       // WDC WD120EMFZ-11A6JA0/81.00A81 (Easystore 0x1058:0x25fb)
       // WDC WD160EMFZ-11AFXA0/81.00A81
       // WDC WD40EFZX-68AWUN0/81.00B81, WDC WD20EFZX-68AWUN0/81.00B81
       // WDC WD140EFFX-68VBXN0/81.00A81
-    "WDC WD(7500BFCX|10JFCX|[1-6]0EFRX|[2-8]0EFPX|[2468]0E[FZ]ZX|(8|10)0EFAX|1[26]0EMFZ|140E(FF|FG)X)-.*",
+    "WDC WD(7500BFCX|10JFCX|[1-6]0EFRX|1(20|01)EFBX|[2-8]0EFPX|[2468]0E[FZ]ZX|80EFZZ|(8|10)0EFAX|1[26]0EMFZ|140E(FF|FG)X)-.*",
     "", "",
     "-v 22,raw48,Helium_Level" // WD80EFAX, WD80EFZX, WD100EFAX, WD120EMFZ, WD160EMFZ
   },
@@ -5881,6 +5893,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d sat,12" // 0x50a1: "-d sat" does not work (ticket #151)
+  },
+  { "USB: Seagate FireCuda Gaming SSD; ASMedia ASM2364",
+    "0x0bc2:0xaa1a",
+    "", // 0x100
+    "",
+    "-d sntasmedia"
   },
   { "USB: Seagate; ",
     "0x0bc2:0x....",
