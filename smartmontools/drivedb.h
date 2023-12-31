@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5570 2023-12-30 21:57:51Z dipohl $",
+  { "VERSION: 7.3 $Id: drivedb.h 5571 2023-12-31 16:44:16Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -4002,6 +4002,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 24,raw48,Helium_Condition_Upper "
     "-v 27,raw48,MAMR_Health_Monitor"
   },
+  { "Toshiba MG10AFA... Enterprise Capacity HDD", // tested with TOSHIBA MG10AFA22TE/0102
+    "TOSHIBA MG10AFA22T[AE]Y?",
+    "", "",
+    "-v 23,raw48,Helium_Condition_Lower "
+    "-v 24,raw48,Helium_Condition_Upper "
+    "-v 27,raw48,MAMR_Health_Monitor"
+  },
   { "Toshiba 3.5\" DT01ABA... Desktop HDD", // tested with TOSHIBA DT01ABA300/MZ6OABB0
     "TOSHIBA DT01ABA(100|150|200|300)",
     "", "", ""
@@ -5886,6 +5893,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d sat,12" // 0x50a1: "-d sat" does not work (ticket #151)
+  },
+  { "USB: Seagate FireCuda Gaming SSD; ASMedia ASM2364",
+    "0x0bc2:0xaa1a",
+    "", // 0x100
+    "",
+    "-d sntasmedia"
   },
   { "USB: Seagate; ",
     "0x0bc2:0x....",
