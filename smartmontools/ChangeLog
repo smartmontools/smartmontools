@@ -1,5 +1,9 @@
 $Id$
 
+2024-01-02  Alex Samorukov <samm@os2.kiev.ua>
+
+	CI: drop EoL FreeBSD 12, add FreeBSD 14.0, upgrade cppcheck
+
 2024-01-01  Christian Franke  <franke@computer.org>
 
 	Happy New Year!  Update copyright year in version info.
