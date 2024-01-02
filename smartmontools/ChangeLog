@@ -1,4 +1,8 @@
-$Id: ChangeLog 5573 2024-01-01 18:02:31Z chrfranke $
+$Id: ChangeLog 5574 2024-01-02 15:15:26Z samm2 $
+
+2024-01-02  Alex Samorukov <samm@os2.kiev.ua>
+
+	CI: drop EoL FreeBSD 12, add FreeBSD 14.0, upgrade cppcheck
 
 2024-01-01  Christian Franke  <franke@computer.org>
 
