@@ -1,5 +1,12 @@
 $Id$
 
+2024-01-03 Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Marvell based SanDisk SSDs: SanDisk SSD6SP1M128G110 (#1021)
+	- SandForce Driven SSDs: SanDisk SD8SBAT128G1002 (#1232)
+	- Samsung based SSDs: MK000480GZXRA (#1600)
+
 2024-01-02  Alex Samorukov <samm@os2.kiev.ua>
 
 	CI: drop EoL FreeBSD 12, add FreeBSD 14.0, upgrade cppcheck
