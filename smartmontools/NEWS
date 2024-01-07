@@ -5,6 +5,29 @@ $Id$
 The most up-to-date version of this file is:
 https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 
+Date <Not released yet, please try current SVN or a recent CI build>
+Summary: smartmontools release 7.5
+-----------------------------------------------------------
+- CI and release builds are now reproducible if same SOURCE_DATE_EPOCH,
+  build recipes and toolchains are used.
+- smartctl '-l error': No longer prints bogus ATA error log entries if
+  the error index is nonzero but the error count is zero.
+- smartctl '-l ssd': Fixed corruption of the output of the SCSI Format
+  Status log page.
+- smartctl '-l ssd': Now detects 'no format since manufacture' from the
+  SCSI Format Status log page.
+- HDD, SSD and USB additions to drive database.
+- automake < 1.13 are no longer supported.
+- Custom make rules are now silenced if 'make V=0' is used.
+- Enhanced makefile targets 'dist-*' to create reproducible source
+  tarballs.
+- The makefile no longer uses GNU make specific syntax elements
+  (exception: reproducible builds for macOS).
+- macOS: Support for reproducible builds of the DMG image.
+- Windows: Support for reproducible builds of the installer.
+- Windows 'update-smartd-drivedb.ps1': Fixed call of 'gpg.exe' if it
+  appears more than once in the PATH.
+
 Date 2023-08-01
 Summary: smartmontools release 7.4
 -----------------------------------------------------------

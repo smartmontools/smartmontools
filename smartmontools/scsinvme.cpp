@@ -72,28 +72,30 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     case smartmontools::nvme_admin_get_log_page:
       if (!(in.nsid == 0xffffffff || !in.nsid))
         return set_err(ENOSYS, "NVMe Get Log Page with NSID=0x%x not supported", in.nsid);
-      if (size > 0x200) { // Reading more results in command timeout
-        // TODO: Add ability to return short reads to caller
-        size = 0x200;
-        cdw10_hi = (size / 4) - 1;
-        pout("Warning: NVMe Get Log truncated to 0x%03x bytes, 0x%03x bytes zero filled\n", size, in.size - size);
-      }
       break;
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
     break;
   }
-  if (in.cdw11 || in.cdw12 || in.cdw13 || in.cdw14 || in.cdw15)
-    return set_err(ENOSYS, "Nonzero NVMe command dwords 11-15 not supported");
+  if (in.cdw11 || in.cdw14 || in.cdw15)
+    return set_err(ENOSYS, "Nonzero NVMe command dwords 11, 14, or 15 not supported");
 
   uint8_t cdb[16] = {0, };
   cdb[0] = 0xe6;
   cdb[1] = in.opcode;
-  //cdb[2] = ?
+  //cdb[2] = 0
   cdb[3] = (uint8_t)in.cdw10;
-  //cdb[4..6] = ?
+  //cdb[4..5] = 0
+  cdb[6] = (uint8_t)(cdw10_hi >> 8);
   cdb[7] = (uint8_t)cdw10_hi;
-  //cdb[8..15] = ?
+  cdb[8] = (uint8_t)(in.cdw13 >> 24);
+  cdb[9] = (uint8_t)(in.cdw13 >> 16);
+  cdb[10] = (uint8_t)(in.cdw13 >> 8);
+  cdb[11] = (uint8_t)in.cdw13;
+  cdb[12] = (uint8_t)(in.cdw12 >> 24);
+  cdb[13] = (uint8_t)(in.cdw12 >> 16);
+  cdb[14] = (uint8_t)(in.cdw12 >> 8);
+  cdb[15] = (uint8_t)in.cdw12;
 
   scsi_cmnd_io io_hdr = {};
   io_hdr.cmnd = cdb;

@@ -1,5 +1,121 @@
 $Id$
 
+2024-01-03 Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Marvell based SanDisk SSDs: SanDisk SSD6SP1M128G110 (#1021)
+	- SandForce Driven SSDs: SanDisk SD8SBAT128G1002 (#1232)
+	- Samsung based SSDs: MK000480GZXRA (#1600)
+
+2024-01-02  Alex Samorukov <samm@os2.kiev.ua>
+
+	CI: drop EoL FreeBSD 12, add FreeBSD 14.0, upgrade cppcheck
+
+2024-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year!  Update copyright year in version info.
+
+2023-12-31  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Toshiba MG10AFA... Enterprise Capacity HDD.
+	- USB: Seagate FireCuda Gaming SSD (0x0bc2:0xaa1a, #1783).
+
+2023-12-30 Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Marvell based SanDisk SSDs: SanDisk SD8TB8U-*-1016 variant (#984)
+	- Silicon Motion based OEM SSDs: INTENSO/V0718B0 (#1761)
+	- Silicon Motion based OEM SSDs: Intenso SSD SATAIII/W0825A0(#1762)
+
+2023-12-23 Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Toshiba S300 (SMR): TOSHIBA HDWT8*, HDWT7* (based on patch from #1605)
+	- Silicon Motion based OEM SSDs: INTENSO/V0609A0
+	  Fix wrong digit in firmware regex (earlier added in #1706)
+	- Silicon Motion based OEM SSDs: firmware regex for INTENSO SSD/V1027A0
+	  reported by Jules Kerssemakers via Smartmontools-database 2023-08-21
+	- Western Digital Red: WDC WD120EFBX-68B0EN0 and rest from product sheet (GH issues/210).
+
+2023-12-22  cyrozap  <cyrozap@gmail.com>
+
+	scsinvme.cpp: Fix sntasmedia "Get Log Page" passthrough
+
+2023-12-19  Christian Franke  <franke@computer.org>
+
+	os_win32/update-smart-drivedb.ps1.in: Fix call of external commands.
+	This fixes the call of gpg if gpg.exe appears more than once in the
+	PATH (#1782).  Print gpg[conf].exe location if -Verbose is used.
+
+	smartctl.8.in, smartd.conf.5.in: Fix max number of 'cciss' drives
+	(see GH issues/228 and ticket #49).
+
+2023-12-18  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Intel S4510/S4610/S4500/S4600 Series SSDs: 7.68TB (GH pull/103).
+	- Marvell based SanDisk SSDs: SD7SB7S960G (GH issues/211).
+	- SanDisk based SSDs: SDSA6D* variant (#1721).
+	- HGST Ultrastar HC310/320: *A6L1 variant (GH pull/77).
+
+2023-12-18  Werner Fischer  <tk-wfischer@users.noreply.github.com>
+
+	drivedb.h: Add ATP SATA III SSDs (GH pull/191)
+
+	- Add ATP Electronics Value Line and Superior Line SATA SSDs
+	- Distinguish between them based on firmware versions
+	- SSDs:
+	  - Value LIne (Phison based)
+	  - Superior Line (Silicon Motion based)
+
+2023-12-13  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- SandForce Driven SSDs: SanDisk SD8SNAT128G1002 (#799)
+	- WD Blue / Red / Green SSDs: WD Blue SA510 2.5 1000GB (#1659)
+	- Marvell based SanDisk SSDs: SanDisk SD9SN8W128G1020 (#1569)
+
+2023-12-12  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Vendor attribute names for SandForce Driven SSDs: SanDisk SDSSDA240G
+	  (#1317) Patch by Artem S. Tashkinov
+	- SandForce Driven SSDs: SanDisk SD8SFAT128G1122 (#712)
+
+2023-12-11  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Phison Driven SSDs: SEDC600M(480|960|1920|3840|7680)G (#1726)
+	- Western Digital Red: WDC WD[2-8]0EFPX (2TB, 3TB, 4TB, 6TB, 8TB) (#1723, #1736)
+
+2023-12-10  Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Toshiba N300/MN NAS HDD: TOSHIBA HDWG440 (#1749)
+	- Marvell based SanDisk SSDs: SanDisk SDSSDH3 512G (#1768)
+
+2023-10-17  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp : missed a "not" in the following description
+
+2023-10-16  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp : most SCSI disks do not get formatted in their
+	lifetime. The Format status lpage is present on most recent disks
+	and is checked when the --xall option is given. In the common case
+	where a format has not been performed (since manufacture) this
+	leads to 5 lines of <not available> output starting with:
+		Grown defects during certification <not available>
+	Detect this situation before printing any of those 5 lines
+	and replace those 5 lines with 1 line:
+		Format status indicates no format since manufacture
+
+2023-10-12  Douglas Gilbert  <dgilbert@interlog.com>
+
+	scsiprint.cpp : misplaced else corrupted the output of the Format
+	Status log page.
+
 2023-09-16  Oleksii Samorukov  <samm@os2.kiev.ua>
 
 	CI: export SOURCE_DATE_EPOCH on macOS as tools are expecting it as an
