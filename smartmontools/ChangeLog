@@ -1,5 +1,8 @@
 $Id$
 
+2024-01-10 Oleksii Samorukov <samm@os2.kiev.ua>
+	drivedb.h: extend JMS583 USB id (#1795)
+
 2024-01-03 Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
