@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5575 2024-01-03 22:53:06Z dipohl $",
+  { "VERSION: 7.3 $Id: drivedb.h 5576 2024-01-10 07:23:00Z samm2 $",
     "-", "-",
     "Version information",
     ""
@@ -6156,8 +6156,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
-    "0x152d:0x0583",
-    "",
+    "0x152d:0x[0a]583",
+    "", // 0x214
     "",
     "-d sntjmicron"
   },

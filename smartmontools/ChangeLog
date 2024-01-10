@@ -1,4 +1,7 @@
-$Id: ChangeLog 5575 2024-01-03 22:53:06Z dipohl $
+$Id: ChangeLog 5576 2024-01-10 07:23:00Z samm2 $
+
+2024-01-10 Oleksii Samorukov <samm@os2.kiev.ua>
+	drivedb.h: extend JMS583 USB id (#1795)
 
 2024-01-03 Gabriele Pohl  <contact@dipohl.de>
 
