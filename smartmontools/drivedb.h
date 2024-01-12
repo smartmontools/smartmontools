@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-23 Christian Franke
+ * Copyright (C) 2008-24 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.2/5571 2023-12-31 16:44:16 $Id$",
+  { "VERSION: 7.2/5577 2024-01-12 18:07:33 $Id$",
     "-", "-",
     "Version information",
     ""
@@ -671,8 +671,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SandForce Driven SSDs",
     "SanDisk SDSSDA(120|240|480)G|" // SanDisk SSD Plus, tested with SanDisk SDSSDA240G/U21010RL
-    "SanDisk SD8S[FN]AT128G1(00|12)2", // SanDisk Z400s, tested with 
+    "SanDisk SD8S[BFN]AT128G1(00|12)2", // SanDisk Z400s, tested with 
       // SanDisk SD8SFAT128G1122/Z2333000, SanDisk SD8SNAT128G1002/Z2317002
+      // SanDisk SD8SBAT128G1002/Z2317002
     "", "",
     "-v 5,raw48,Retired_Block_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -2012,7 +2013,8 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG MZ7L3(240|480|960|1T9|3T8|7T6)H(B[LN][AT]|CHQ|CJR)-.*|" // PM893/897, tested with
       // SAMSUNG MZ7L3240HCHQ-00A07/JXTC104Q, SAMSUNG MZ7L3480HCHQ-00A07/JXTC104Q,
       // SAMSUNG MZ7L3480HBLT-00A07/JXTE004Q, SAMSUNG MZ7L33T8HBLT-00A07/JXTC104Q
-    "MK000(240|480|960)GZXRB|" // MK000960GZXRB/HPG0 (HPE MZ7L3960HBLT-00AH3)
+    "MK000(240|480|960)GZXR[AB]|" // MK000960GZXRB/HPG0 (HPE MZ7L3960HBLT-00AH3)
+      // MK000480GZXRA/HPG0 (HPE P18432-B21)
     "SAMSUNG MZ7KH(240|480|960|1T9|3T8)HA(HQ|JR|LS)-.*|" //SM883
     "SAMSUNG MZ[7N](LF|TY)(128|192|256)H[CD](GS|HP)-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
       // SAMSUNG MZNTY256HDHP-000/MAT21K0Q, SAMSUNG MZ7LF192HCGS-000L1/FXT03L1Q
@@ -2074,8 +2076,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Marvell based SanDisk SSDs",
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
-    "SanDisk SD6S[BF][12]M[0-9]*G(1022I?)?|" // X110/X210 (88SS9175/187?), tested with SanDisk SD6SB1M064G1022I/X231600,
+    "SanDisk SD6S[BFP][12]M[0-9]*G(1022I?|1102)?|" // X110/X210 (88SS9175/187?), tested with SanDisk SD6SB1M064G1022I/X231600,
       // SanDisk SD6SB1M256G1022I/X231600, SanDisk SD6SF1M128G1022/X231200, SanDisk SD6SB2M512G1022I/X210400
+      // SanDisk SD6SP1M128G1102/X231302
     "SanDisk SD7S[BN][67]S-?(128|256|512|960)G(1122|-1006)?|" // X300 (88SS9189?), tested with
       // SanDisk SD7SB6S128G1122/X3310000, SanDisk SD7SN6S-512G-1006/X3511006, SanDisk SD7SB7S960G/X36310DC
     "SanDisk SD8[ST][BN]8U-?((128|256|512)G|1T00)(1122|-10[01]6)|" // X400 (88SS1074), tested with SanDisk SD8SB8U128G1122/X4120000
@@ -3961,17 +3964,21 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MG03ACA[1234]00Y?",
     "", "", ""
   },
-  { "Toshiba MG04ACA... Enterprise HDD", // tested with TOSHIBA MD04ACA500/FP1A,
-      // TOSHIBA MG04ACA600A/FS2B, TOSHIBA MG04ACA400NY/FK5D (Dell)
-    "TOSHIBA MG04ACA[23456]00([AEN].?)?",
+  { "Toshiba MD04ACA... Enterprise HDD", // tested with TOSHIBA MD04ACA500/FP1A
+    "TOSHIBA MD04ACA[2-6]00N?",
+    "", "", ""
+  },
+  { "Toshiba MG04ACA... Enterprise HDD", // tested with TOSHIBA MG04ACA600A/FS2B,
+      // TOSHIBA MG04ACA400NY/FK5D (Dell)
+    "TOSHIBA MG04ACA[1-6]00[AEN]Y?",
     "", "", ""
   },
   { "Toshiba MG05ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG05ACA800E/GX2A
     "TOSHIBA MG05ACA800[AE]",
     "", "", ""
   },
-  { "Toshiba MG06ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG06ACA800E/4303,
-      // TOSHIBA MG06ACA10TE/0103
+  { "Toshiba MG06ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG06ACA800E/0109,
+      // TOSHIBA MG06ACA800E/4303, TOSHIBA MG06ACA10TE/0103,
     "TOSHIBA MG06ACA([68]00|10T)[AE]Y?",
     "", "", ""
   },
@@ -3987,6 +3994,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 23,raw48,Helium_Condition_Lower "
     "-v 24,raw48,Helium_Condition_Upper"
+  },
+  { "Toshiba MG08ADA... Enterprise Capacity HDD", // tested with TOSHIBA MG08ADA800E/0101,
+      // TOSHIBA MG08ADA800E/4303, TOSHIBA MG08ADA800E/4304
+    "TOSHIBA MG08ADA[468]00[AEN]Y?",
+    "", "", ""
   },
   { "Toshiba MG09ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG09ACA18TE/0102
     "TOSHIBA MG09ACA1[68]T[AE]Y?",
@@ -4041,7 +4053,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Toshiba X300", // tested with TOSHIBA HDWE160/FS2A, TOSHIBA HDWF180/GX0B
-    "TOSHIBA HDW(E1[456]0|[FR]180|R(11A|21[CE]|31G))",  // 11A:10TB, 21C:12TB, 21E:14TB, 31G: 16TB
+      // TOSHIBA HDWR480/0601
+    "TOSHIBA HDW(E1[456]0|[FR]180|R(4[468]0|11A|21[CE]|31[EG]|51J))", // 4n0:nTB, 11A:10TB,
+      // 21C:12TB, 21E:14TB, 31E:14TB, 31G:16TB, 51J:18TB
     "", "",
     "-v 23,raw48,Helium_Condition_Lower " // ] >= 12TB
     "-v 24,raw48,Helium_Condition_Upper"  // ]
@@ -6153,8 +6167,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
-    "0x152d:0x0583",
-    "",
+    "0x152d:0x[0a]583",
+    "", // 0x214
     "",
     "-d sntjmicron"
   },
