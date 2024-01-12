@@ -3,14 +3,14 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2021 Christian Franke
+ * Copyright (C) 2021-24 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "popen_as_ugid.h"
 
-const char * popen_as_ugid_cvsid = "$Id: popen_as_ugid.cpp 5402 2022-08-06 15:42:01Z chrfranke $"
+const char * popen_as_ugid_cvsid = "$Id: popen_as_ugid.cpp 5579 2024-01-12 18:43:41Z chrfranke $"
   POPEN_AS_UGID_H_CVSID;
 
 #include <errno.h>
@@ -67,10 +67,21 @@ FILE * popen_as_ugid(const char * cmd, const char * mode, uid_t uid, gid_t gid)
   if (!pid) { // Child
     // Do not inherit any unneeded file descriptors
     fclose(fp);
-    for (int i = sysconf(_SC_OPEN_MAX); --i >= 0; ) {
+    int i;
+    for (i = 0; i <= pd[1] || i <= sd[1]; i++) {
       if (i == pd[1] || i == sd[1])
         continue;
       close(i);
+    }
+    int open_max = sysconf(_SC_OPEN_MAX);
+#ifdef HAVE_CLOSE_RANGE
+    if (close_range(i, open_max - 1, 0))
+#endif
+    {
+      // Limit number of unneeded close() calls under the assumption that
+      // there are no large gaps between open FDs
+      for (int failed = 0; i < open_max && failed < 1024; i++)
+        failed = (!close(i) ? 0 : failed + 1);
     }
 
     FILE * fc = 0;
@@ -221,7 +232,7 @@ int main(int argc, char **argv)
       return 1;
   }
 
-  int leak = open("/dev/null", O_RDONLY);
+  int leak1 = open("/dev/null", O_RDONLY), leak2 = dup2(leak1, 1000);
 
   FILE * f;
   if (user_group) {
@@ -241,7 +252,7 @@ int main(int argc, char **argv)
     f = popen(cmd, "r");
   }
   fflush(stdout);
-  close(leak);
+  close(leak1); close(leak2);
 
   if (!f) {
     perror("popen");

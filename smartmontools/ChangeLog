@@ -1,6 +1,12 @@
-$Id: ChangeLog 5577 2024-01-12 18:07:33Z chrfranke $
+$Id: ChangeLog 5579 2024-01-12 18:43:41Z chrfranke $
 
 2024-01-12  Christian Franke  <franke@computer.org>
+
+	Fix start of smartd on systems with large fd limits (GH issues/235).
+
+	smartd.cpp, popen_as_ugid.cpp: Use 'close_range()' if available.
+	Otherwise limit the number of unneeded 'close()' calls.
+	configure.ac: Check for 'close_range()'.
 
 	drivedb.h:
 	- Toshiba MD04ACA... Enterprise HDD: re-add, regression from r5211.
