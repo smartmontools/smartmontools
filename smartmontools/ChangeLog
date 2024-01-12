@@ -1,6 +1,15 @@
 $Id$
 
+2024-01-12  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Toshiba MD04ACA... Enterprise HDD: re-add, regression from r5211.
+	- Toshiba MG04ACA... Enterprise HDD: 1TB (#1794).
+	- Toshiba MG08ADA... Enterprise Capacity HDD (#1550, #1794).
+	- Toshiba X300: HDWR480 (#1537), HDWR31E, HDWR51J.
+
 2024-01-10 Oleksii Samorukov <samm@os2.kiev.ua>
+
 	drivedb.h: extend JMS583 USB id (#1795)
 
 2024-01-03 Gabriele Pohl  <contact@dipohl.de>

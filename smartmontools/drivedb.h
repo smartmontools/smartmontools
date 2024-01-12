@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-23 Christian Franke
+ * Copyright (C) 2008-24 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -3964,17 +3964,21 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MG03ACA[1234]00Y?",
     "", "", ""
   },
-  { "Toshiba MG04ACA... Enterprise HDD", // tested with TOSHIBA MD04ACA500/FP1A,
-      // TOSHIBA MG04ACA600A/FS2B, TOSHIBA MG04ACA400NY/FK5D (Dell)
-    "TOSHIBA MG04ACA[23456]00([AEN].?)?",
+  { "Toshiba MD04ACA... Enterprise HDD", // tested with TOSHIBA MD04ACA500/FP1A
+    "TOSHIBA MD04ACA[2-6]00N?",
+    "", "", ""
+  },
+  { "Toshiba MG04ACA... Enterprise HDD", // tested with TOSHIBA MG04ACA600A/FS2B,
+      // TOSHIBA MG04ACA400NY/FK5D (Dell)
+    "TOSHIBA MG04ACA[1-6]00[AEN]Y?",
     "", "", ""
   },
   { "Toshiba MG05ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG05ACA800E/GX2A
     "TOSHIBA MG05ACA800[AE]",
     "", "", ""
   },
-  { "Toshiba MG06ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG06ACA800E/4303,
-      // TOSHIBA MG06ACA10TE/0103
+  { "Toshiba MG06ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG06ACA800E/0109,
+      // TOSHIBA MG06ACA800E/4303, TOSHIBA MG06ACA10TE/0103,
     "TOSHIBA MG06ACA([68]00|10T)[AE]Y?",
     "", "", ""
   },
@@ -3990,6 +3994,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 23,raw48,Helium_Condition_Lower "
     "-v 24,raw48,Helium_Condition_Upper"
+  },
+  { "Toshiba MG08ADA... Enterprise Capacity HDD", // tested with TOSHIBA MG08ADA800E/0101,
+      // TOSHIBA MG08ADA800E/4303, TOSHIBA MG08ADA800E/4304
+    "TOSHIBA MG08ADA[468]00[AEN]Y?",
+    "", "", ""
   },
   { "Toshiba MG09ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG09ACA18TE/0102
     "TOSHIBA MG09ACA1[68]T[AE]Y?",
@@ -4044,7 +4053,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Toshiba X300", // tested with TOSHIBA HDWE160/FS2A, TOSHIBA HDWF180/GX0B
-    "TOSHIBA HDW(E1[456]0|[FR]180|R(11A|21[CE]|31G))",  // 11A:10TB, 21C:12TB, 21E:14TB, 31G: 16TB
+      // TOSHIBA HDWR480/0601
+    "TOSHIBA HDW(E1[456]0|[FR]180|R(4[468]0|11A|21[CE]|31[EG]|51J))", // 4n0:nTB, 11A:10TB,
+      // 21C:12TB, 21E:14TB, 31E:14TB, 31G:16TB, 51J:18TB
     "", "",
     "-v 23,raw48,Helium_Condition_Lower " // ] >= 12TB
     "-v 24,raw48,Helium_Condition_Upper"  // ]
