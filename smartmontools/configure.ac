@@ -118,10 +118,6 @@ case "$host" in
   *-*-netbsd*|*-*-openbsd*)
     AC_CHECK_HEADERS([dev/ata/atavar.h])
     ;;
-  *-*-mingw*)
-    # Older MinGW-w64 (5.0.3) require -lwinpthread
-    AC_SEARCH_LIBS([clock_gettime], [winpthread])
-    ;;
 esac
 
 # Checks for typedefs, and compiler characteristics.
@@ -131,6 +127,16 @@ AC_TYPE_LONG_DOUBLE_WIDER
 # Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
 AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
+
+case "$host_os" in
+  mingw*)
+    # Older MinGW-w64 (5.0.3) require -lwinpthread
+    AC_SEARCH_LIBS([clock_gettime], [winpthread])
+    ;;
+  *)
+    AC_CHECK_FUNCS([close_range])
+    ;;
+esac
 
 # Check byte ordering (defines WORDS_BIGENDIAN)
 AC_C_BIGENDIAN

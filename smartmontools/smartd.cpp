@@ -2,7 +2,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-23 Christian Franke
+ * Copyright (C) 2008-24 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -1462,8 +1462,16 @@ static int daemon_init()
   }
 
   // close any open file descriptors
-  for (int i = sysconf(_SC_OPEN_MAX); --i >= 0; )
-    close(i);
+  int open_max = sysconf(_SC_OPEN_MAX);
+#ifdef HAVE_CLOSE_RANGE
+  if (close_range(0, open_max - 1, 0))
+#endif
+  {
+    // Limit number of unneeded close() calls under the assumption that
+    // there are no large gaps between open FDs
+    for (int i = 0, failed = 0; i < open_max && failed < 1024; i++)
+      failed = (!close(i) ? 0 : failed + 1);
+  }
   
   // redirect any IO attempts to /dev/null and change to root directory
   int fd = open("/dev/null", O_RDWR);
