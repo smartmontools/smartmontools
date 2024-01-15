@@ -34,7 +34,7 @@ build_script:
     cd ../build &&
     dest="smartmontools-win32-setup-${SM_VER}-r${SVNREV}.exe" &&
     make BUILD_INFO="$BUILD_INFO" builddir_win64=../build64 distinst_win32="$dest" installer-win32 &&
-    sha256 *.exe
+    sha256sum *.exe
 
 artifacts:
 - path: smartmontools/build/smartmontools-win32-setup-*.exe
