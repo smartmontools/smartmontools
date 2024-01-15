@@ -44,3 +44,7 @@ deploy:
   authorization:
      secure: Y7K0hTnpfEyXhOI/cG1URZwss24IjRECus4em8YscdJ73ujuXg/CRkdBa0eOoAZc7hUa+qo6rGOy/ii9iHE0zA==
 
+- provider: Webhook
+  url: https://enh0cpyt3asc7.x.pipedream.net/API/v1/0924a018-22d7-47ea-b10c-7c84c08e8d55/Integrations/AppVeyor?ProjectSlug=smartmontools&SigningPolicySlug=test-signing
+  authorization:
+     secure: Va9HC4VgfN4Q+svsnRGqWA==
