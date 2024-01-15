@@ -1,0 +1,42 @@
+version: 1.0.{build}
+branches:
+  only:
+  - master
+image: Ubuntu2204
+init:
+- sh: >-
+    # as its not possible to use docker as source image, we will install everything in init step
+    sudo apt-get update && sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 unzip wget man2html-base groff
+
+    # NSIS 3.08-3 from Debian 12 generates bogus relocation information (regression).
+    # The fixed version 3.09-1 is still only available from Ubuntu 23.10 (mantic, devel).
+    # Manually install this version.  The warning about outdated libstdc++6 could be
+    # safely ignored.
+
+    wget http://mirrors.kernel.org/ubuntu/pool/universe/n/nsis/nsis_3.09-1_amd64.deb -O /tmp/nsis_3.09-1_amd64.deb
+    wget http://mirrors.kernel.org/ubuntu/pool/universe/n/nsis/nsis-common_3.09-1_all.deb -O /tmp/nsis-common_3.09-1_all.deb
+    sudo dpkg --install --force-all /tmp/nsis-common_3.09-1_all.deb /tmp/nsis_3.09-1_amd64.deb
+
+build_script:
+- sh: >-
+    cd smartmontools
+    SOURCE_DATE_EPOCH=$(git log -1 --format="%at")
+    BUILD_INFO='"(AppVeyor)"'
+    SM_VER=$(grep -E 'AC_INIT\(\[smartmontools\]' configure.ac|awk -F, '{print $2}'|tr -d '[]')
+    SVNREV=$(git log -1|grep -oP 'git-svn-id: http://svn.code.sf.net/p/smartmontools/code/trunk@(\d+)'|awk -F@ '{print $2}')
+
+    echo "Starting build: SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH}, SM_VER: ${SM_VER}, SVNREV: ${SVNREV}"
+    ./autogen.sh
+    mkdir build && cd build
+    ../configure build_alias=$(../config.guess) host_alias=i686-w64-mingw32 SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+    make -j BUILD_INFO="$BUILD_INFO" && make distdir-win32 &&
+            cd .. && mkdir build64 && cd build64 &&
+            ../configure build_alias=$(../config.guess) host_alias=x86_64-w64-mingw32 SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+    make -j BUILD_INFO="$BUILD_INFO" && make distdir-win32
+    cd ../build
+
+    dest="smartmontools-win32-setup-${SM_VER}-r${SVNREV}.exe"
+    make BUILD_INFO="$BUILD_INFO" builddir_win64=../build64 distinst_win32="$dest" installer-win32
+
+artifacts:
+- path: smartmontools-win32-setup-*.exe
