@@ -7,7 +7,7 @@ In many cases, these utilities will provide advanced warning of disk degradation
 
 
  
-Smartmontools was originally derived from the Linux [https://sourceforge.net/projects/smartsuite/](smartsuite package) and actually supports ATA/SATA,  SCSI/SAS and NVMe disks and also SCSI/SAS tape devices.
+Smartmontools was originally derived from the Linux [smartsuite package](https://sourceforge.net/projects/smartsuite/) and actually supports ATA/SATA,  SCSI/SAS and NVMe disks and also SCSI/SAS tape devices.
 It should run on any modern Linux, FreeBSD, NetBSD, OpenBSD, Darwin (macOS), Solaris, Windows, Cygwin, OS/2, eComStation or QNX system.
 Smartmontools can also be run from one of many different Live CDs/DVDs.
 
