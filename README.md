@@ -18,6 +18,11 @@ Smartmontools can also be run from one of many different Live CDs/DVDs.
 - [CI builds](https://builds.smartmontools.org/)
 - [Project Releases](https://github.com/smartmontools/smartmontools/releases)
 
+
+## Code Signing
+This program uses free code signing provided by [SignPath.io](https://signpath.io), and a free code signing certificate by the [SignPath Foundation](https://signpath.org)
+
+
 ## License
 
-Smartmontools uses ​[GNU GPL Version 2](https://www.gnu.org/licenses/gpl-2.0.html#SEC1) license. 
+Smartmontools uses [GNU GPL Version 2](https://www.gnu.org/licenses/gpl-2.0.html#SEC1) license. 
