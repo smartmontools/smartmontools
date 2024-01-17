@@ -2,6 +2,8 @@ $Id$
 
 2024-01-17  Christian Franke  <franke@computer.org>
 
+	utility.cpp: Add git commit hash to '-V' output if available.
+
 	Set version information also for builds from GH R/O mirror.
 
 	Makefile.am: Move creation of svnversion.sh to ...
