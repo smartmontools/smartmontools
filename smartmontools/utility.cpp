@@ -55,7 +55,7 @@
 #endif
 #endif // USE_CLOCK_MONOTONIC
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 5573 2024-01-01 18:02:31Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 5592 2024-01-17 16:17:10Z chrfranke $"
   UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -123,6 +123,9 @@ std::string format_version_info(const char * prog_name, int lines /* = 2 */)
 #endif
 #ifdef SMARTMONTOOLS_SVN_REV
     "smartmontools SVN rev " SMARTMONTOOLS_SVN_REV
+#ifdef SMARTMONTOOLS_GIT_HASH
+      " (git " SMARTMONTOOLS_GIT_HASH ")"
+#endif
       " dated " SMARTMONTOOLS_SVN_DATE " at " SMARTMONTOOLS_SVN_TIME "\n"
 #else
     "smartmontools SVN rev is unknown\n"
