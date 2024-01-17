@@ -76,22 +76,6 @@ test -z "${SOURCE_DATE_EPOCH+set}" \
 AC_SUBST([SOURCE_DATE_EPOCH])
 AM_CONDITIONAL(REPRODUCIBLE_BUILD, [test -n "$SOURCE_DATE_EPOCH"])
 
-# Check for SVN.
-AC_MSG_CHECKING([whether this is a build from SVN])
-is_svn_build=no
-svn_deps=
-if test -f "$srcdir/.svn/wc.db"; then
-  # SVN >= 1.7 working copy
-  svn_deps='${srcdir}/.svn/wc.db'
-  is_svn_build=unknown
-  if (cd "$srcdir" && svn --version && svnversion && svn info) >/dev/null 2>&1; then
-    is_svn_build=yes
-  fi
-fi
-AC_SUBST([svn_deps])
-AM_CONDITIONAL(IS_SVN_BUILD, [test "$is_svn_build" = "yes"])
-AC_MSG_RESULT([$is_svn_build])
-
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([byteswap.h], [], [], [])

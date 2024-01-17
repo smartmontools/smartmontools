@@ -1,5 +1,13 @@
 $Id$
 
+2024-01-17  Christian Franke  <franke@computer.org>
+
+	Set version information also for builds from GH R/O mirror.
+
+	Makefile.am: Move creation of svnversion.sh to ...
+	getversion.sh: ... this new script.  Add git support.
+	configure.ac: Remove IS_SVN_BUILD check.
+
 2024-01-12  Christian Franke  <franke@computer.org>
 
 	Fix start of smartd on systems with large fd limits (GH issues/235).
