@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5579 2024-01-12 18:43:41Z chrfranke $
+# $Id: configure.ac 5591 2024-01-17 16:01:46Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
@@ -22,7 +22,7 @@ else
   AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5579 2024-01-12 18:43:41Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5591 2024-01-17 16:01:46Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 
@@ -75,22 +75,6 @@ test -z "${SOURCE_DATE_EPOCH+set}" \
 || AC_MSG_ERROR([Malformed SOURCE_DATE_EPOCH: '$SOURCE_DATE_EPOCH'])
 AC_SUBST([SOURCE_DATE_EPOCH])
 AM_CONDITIONAL(REPRODUCIBLE_BUILD, [test -n "$SOURCE_DATE_EPOCH"])
-
-# Check for SVN.
-AC_MSG_CHECKING([whether this is a build from SVN])
-is_svn_build=no
-svn_deps=
-if test -f "$srcdir/.svn/wc.db"; then
-  # SVN >= 1.7 working copy
-  svn_deps='${srcdir}/.svn/wc.db'
-  is_svn_build=unknown
-  if (cd "$srcdir" && svn --version && svnversion && svn info) >/dev/null 2>&1; then
-    is_svn_build=yes
-  fi
-fi
-AC_SUBST([svn_deps])
-AM_CONDITIONAL(IS_SVN_BUILD, [test "$is_svn_build" = "yes"])
-AC_MSG_RESULT([$is_svn_build])
 
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h])

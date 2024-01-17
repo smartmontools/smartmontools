@@ -1,4 +1,12 @@
-$Id: ChangeLog 5579 2024-01-12 18:43:41Z chrfranke $
+$Id: ChangeLog 5591 2024-01-17 16:01:46Z chrfranke $
+
+2024-01-17  Christian Franke  <franke@computer.org>
+
+	Set version information also for builds from GH R/O mirror.
+
+	Makefile.am: Move creation of svnversion.sh to ...
+	getversion.sh: ... this new script.  Add git support.
+	configure.ac: Remove IS_SVN_BUILD check.
 
 2024-01-12  Christian Franke  <franke@computer.org>
 
