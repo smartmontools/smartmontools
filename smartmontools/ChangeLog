@@ -1,5 +1,10 @@
 $Id$
 
+2024-01-19  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Avoid that code signing invalidates the
+	uninstaller.
+
 2024-01-17  Christian Franke  <franke@computer.org>
 
 	utility.cpp: Add git commit hash to '-V' output if available.
