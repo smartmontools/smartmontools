@@ -3406,13 +3406,13 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         break;
     }
     if (powername) {
+      jglb["power_mode"] = powermode;
+      jglb["power_name"] = powername;
       if (options.powermode >= powerlimit) {
         jinf("Device is in %s mode, exit(%d)\n", powername, options.powerexit);
         return options.powerexit;
       }
       powerchg = (powermode != 0xff); // SMART tests will spin up drives
-      jglb["power_mode"] = powermode;
-      jglb["power_name"] = powername;
     }
   }
 
