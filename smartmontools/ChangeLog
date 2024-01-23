@@ -1,4 +1,8 @@
-$Id: ChangeLog 5595 2024-01-23 14:09:44Z samm2 $
+$Id: ChangeLog 5596 2024-01-23 15:57:49Z chrfranke $
+
+2024-01-23  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add target 'shellcheck'.
 
 2024-01-19  Christian Franke  <franke@computer.org>
 
