@@ -1,5 +1,9 @@
 $Id$
 
+2024-01-23  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add target 'shellcheck'.
+
 2024-01-19  Christian Franke  <franke@computer.org>
 
 	os_win32/installer.nsi: Avoid that code signing invalidates the
