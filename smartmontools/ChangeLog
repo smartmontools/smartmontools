@@ -1,5 +1,9 @@
 $Id$
 
+2024-01-22  Oleksii Samororukov <samm@os2.kiev.ua>
+
+	getversion.sh: fix some minor issues and make shellcheck happy
+
 2024-01-19  Christian Franke  <franke@computer.org>
 
 	os_win32/installer.nsi: Avoid that code signing invalidates the

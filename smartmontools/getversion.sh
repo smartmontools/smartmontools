@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 #
 # Create svnversion.h file or get package version
 #
@@ -57,47 +57,46 @@ else
 fi
 
 srcdir=${myname%/*}
-test "$srcdir" != "$myname" || error 'unknown $srcdir'
+test "$srcdir" != "$myname" || error "unknown ${srcdir}"
 
 files="
   ChangeLog NEWS Makefile.am configure.ac smart*.in
   *.cpp *.h os_win32/*.cpp os_win32/*.h
 "
+# shellcheck disable=SC2086
 (cd "$srcdir" && ls -d $files >/dev/null) || error "sources not found in $srcdir"
 
 revision_from_svn()
 {
-  local r t
-  r=$(cd "$srcdir" && svnversion 2>/dev/null) || return 1
-  case $r in [1-9][0-9]*) ;; *) return 1 ;; esac
-  t=$(cd "$srcdir" && TZ= LC_ALL=C svn info 2>/dev/null) || return 1
-  t=$(echo "$t" | sed -n 's,^.* Date: *\(2[-0-9]*\) \([0-9][:0-9]*\) .*$,\1 \2,p')
-  test -n "$t" || return 1
-  svnrev=$r; revdate=${t% *}; revtime=${t#* }
+  _f_svn_r=$(cd "$srcdir" && svnversion 2>/dev/null) || return 1
+  case $_f_svn_r in [1-9][0-9]*) ;; *) return 1 ;; esac
+  _f_svn_t=$(cd "$srcdir" && TZ="" LC_ALL=C svn info 2>/dev/null) || return 1
+  _f_svn_t=$(echo "$_f_svn_t" | sed -n 's,^.* Date: *\(2[-0-9]*\) \([0-9][:0-9]*\) .*$,\1 \2,p')
+  test -n "$_f_svn_t" || return 1
+  svnrev=$_f_svn_r; revdate=${_f_svn_t% *}; revtime=${_f_svn_t#* }
   origin="svn info"
 }
 
 revision_from_ids()
 {
-  local x
-  x=$(cd "$srcdir" && \
+  # shellcheck disable=SC2086
+  _f_ids_x=$(cd "$srcdir" && \
       sed -n 's,^.*\$[I][d]: [^ ]* \([0-9][0-9]*\) \([0-9][-0-9]*\) \([0-9][:0-9]*\)Z [^$]*\$.*$,\1 \2 \3,p' $files \
       | sort -n -r | sed -n 1p)
-  test -n "$x" || return 1
-  svnrev=${x%% *}; x=${x#* }; revdate=${x% *}; revtime=${x#* }
+  test -n "$_f_ids_x" || return 1
+  svnrev=${_f_ids_x%% *}; _f_ids_x=${_f_ids_x#* }; revdate=${_f_ids_x% *}; revtime=${_f_ids_x#* }
   origin="Id strings"
 }
 
 revision_from_git()
 {
-  local h r t x
-  x=$(cd "$srcdir" && TZ= LC_ALL=C git log -1 --date=iso 2>/dev/null) || return 1
-  h=$(echo "$x" | sed -n 's,^commit \([0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\).*$,\1,p')
-  t=$(echo "$x" | sed -n 's,^Date: *\(2[-0-9]*\) \([0-9][:0-9]*\) .*$,\1 \2,p')
-  r=$(echo "$x" | sed -n 's,^.*git-svn-id: [.:/a-z]*/smartmontools/code/trunk@\([1-9][0-9]*\) 4ea69e.*$,\1,p')
-  test "${h:+y}${r:+y}${t:+y}" = "yyy" || return 1
-  test -z "$(cd "$srcdir" && git status -s -uno 2>&1)" || r="${r}M"
-  svnrev=$r; revdate=${t% *}; revtime=${t#* }; githash=$h
+  _f_git_x=$(cd "$srcdir" && TZ="" LC_ALL=C git log -1 --date=iso 2>/dev/null) || return 1
+  _f_git_h=$(echo "$_f_git_x" | sed -n 's,^commit \([0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\).*$,\1,p')
+  _f_git_t=$(echo "$_f_git_x" | sed -n 's,^Date: *\(2[-0-9]*\) \([0-9][:0-9]*\) .*$,\1 \2,p')
+  _f_git_r=$(echo "$_f_git_x" | sed -n 's,^.*git-svn-id: [.:/a-z]*/smartmontools/code/trunk@\([1-9][0-9]*\) 4ea69e.*$,\1,p')
+  test "${_f_git_h:+y}${_f_git_r:+y}${_f_git_t:+y}" = "yyy" || return 1
+  test -z "$(cd "$srcdir" && git status -s -uno 2>&1)" || _f_git_r="${_f_git_r}M"
+  svnrev=$_f_git_r; revdate=${_f_git_t% *}; revtime=${_f_git_t#* }; githash=$_f_git_h
   origin="git log"
 }
 
@@ -105,7 +104,7 @@ if $i_opt || $r_opt; then
   svnrev=; revdate=; revtime=; githash=
   origin="missing information"
   for m in $methods; do
-    revision_from_$m || continue
+    "revision_from_${m}" || continue
     break
   done
 
