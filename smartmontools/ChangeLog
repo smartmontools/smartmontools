@@ -1,8 +1,4 @@
-$Id: ChangeLog 5594 2024-01-23 02:06:08Z samm2 $
-
-2024-01-22  Oleksii Samororukov <samm@os2.kiev.ua>
-
-	getversion.sh: fix some minor issues and make shellcheck happy
+$Id: ChangeLog 5595 2024-01-23 14:09:44Z samm2 $
 
 2024-01-19  Christian Franke  <franke@computer.org>
 
