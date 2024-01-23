@@ -3411,6 +3411,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         return options.powerexit;
       }
       powerchg = (powermode != 0xff); // SMART tests will spin up drives
+      jglb["power_mode"] = powermode;
+      jglb["power_name"] = powername;
     }
   }
 
