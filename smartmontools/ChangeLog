@@ -1,4 +1,8 @@
-$Id: ChangeLog 5596 2024-01-23 15:57:49Z chrfranke $
+$Id: ChangeLog 5597 2024-01-24 10:30:14Z chrfranke $
+
+2024-01-24  Christian Franke  <franke@computer.org>
+
+	Fix or disable all warnings from shellcheck.
 
 2024-01-23  Christian Franke  <franke@computer.org>
 

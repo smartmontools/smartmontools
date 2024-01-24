@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: cppcheck.sh 5489 2023-07-02 17:24:20Z chrfranke $
+# $Id: cppcheck.sh 5597 2024-01-24 10:30:14Z chrfranke $
 #
 
 set -e
@@ -109,6 +109,7 @@ for s in $sup_list; do
   suppress="${suppress}${suppress:+ }--suppress=${s%%#*}"
 done
 
+# shellcheck disable=SC2089
 defs="\
   -U__KERNEL__
   -U__LP64__
@@ -147,6 +148,7 @@ $(for s in $suppress; do echo "  $s \\"; done)
 EOF
 
 # Run cppcheck with swapped stdout<>stderr
+# shellcheck disable=SC2090
 "$cppcheck" \
   $v \
   $jobs \

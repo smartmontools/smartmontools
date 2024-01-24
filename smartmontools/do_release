@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003-11 Bruce Allen, Guido Guenther
 # (C) 2006-22 Christian Franke
-# $Id: do_release 5344 2022-03-02 16:22:58Z chrfranke $
+# $Id: do_release 5597 2024-01-24 10:30:14Z chrfranke $
 
 # Notes on generating releases:
 # (1) run with '--checkout' and then 'cd DESTDIR/trunk/smartmontools'
@@ -84,6 +84,7 @@ if [ -n "${REV//[0-9]/}" ]; then
 fi
 
 (cd $WDROOT && svn status) | while read s; do
+  # shellcheck disable=SC2254
   case "`echo $s | tr -s ' '`" in
     "M "$DIRPAT/smartmontools/ChangeLog)    echo "$s: OK";;
     "M "$DIRPAT/smartmontools/NEWS)         echo "$s: OK";;
@@ -161,7 +162,7 @@ fi
 set +v
 
 # Update configure.ac only after trunk releases
-if [ -z "$RC" -a "$DIRPAT" = "trunk" ]; then
+if [ -z "$RC" ] && [ "$DIRPAT" = "trunk" ]; then
   # Comment out timestamp
   sed -e "s|^smartmontools_release_date=\(.*\)$|smartmontools_release_date= # \1|" \
       -e "s|^smartmontools_release_time=\(.*\)$|smartmontools_release_time= # \1|" \

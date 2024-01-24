@@ -8,7 +8,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: update-smart-drivedb.in 5359 2022-04-24 15:11:30Z chrfranke $
+# $Id: update-smart-drivedb.in 5597 2024-01-24 10:30:14Z chrfranke $
 #
 
 set -e
@@ -268,6 +268,7 @@ check_file()
   f=$1; firstchar=$2; minsize=$3; maxsize=$4
 
   # Check first chars
+  # shellcheck disable=SC2254
   case `dd if="$f" bs=1 count=1 2>/dev/null` in
     $firstchar) ;;
     \<) echo "HTML error message"; return 1 ;;
