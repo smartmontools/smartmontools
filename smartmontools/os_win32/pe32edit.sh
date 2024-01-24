@@ -19,6 +19,7 @@ usage()
 {
   cat <<EOF
 Display or edit PE32 file header fields
+
 Usage: $myname [-s SUBSYSTEM] [-t SECONDS_OR_FILE] [-v] FILE.exe
 
   -s SUBSYSTEM        Set Subsystem: 2 = GUI, 3 = Console
@@ -90,8 +91,7 @@ fi
 
 # Read first 512 bytes for quick access to header
 x=$(od -A n -N 512 -t u1 -v -w1 "$file") || exit 1
-declare -a header
-header=( $x )
+mapfile header <<<"$x"
 test "${#header[*]}" == 512 || error "$file: Invalid file size"
 
 # get_uint16 OFFSET
@@ -162,7 +162,7 @@ print_header()
   esac
   printf 'Magic:                  0x%04x [%s]\n' $magic "$txt"
 
-  printf 'CheckSum:           0x%08x\n' $(get_uint32 $checksum_offs)
+  printf 'CheckSum:           0x%08x\n' "$(get_uint32 $checksum_offs)"
 
   val=$(get_uint16 $subsystem_offs)
   case $val in

@@ -15,6 +15,7 @@ set -e
 
 # Set by config.status
 @ENABLE_SCRIPTPATH_TRUE@export PATH="@scriptpath@"
+# shellcheck disable=SC2034
 PACKAGE="@PACKAGE@"
 VERSION="@VERSION@"
 prefix="@prefix@"
@@ -67,6 +68,7 @@ if [ -z "${SMARTD_ADDRESS}${SMARTD_MAILER}" ]; then
 fi
 
 # Get host and domain names
+# shellcheck disable=SC2041
 for cmd in @os_hostname@ 'echo "[Unknown]"'; do
   hostname=`eval $cmd 2>/dev/null` || continue
   test -n "$hostname" || continue
@@ -78,6 +80,7 @@ if [ "$dnsdomain" != "$hostname" ]; then
   # hostname command printed FQDN
   hostname=${hostname%%.*}
 else
+  # shellcheck disable=SC2041
   for cmd in @os_dnsdomainname@ 'echo'; do
     dnsdomain=`eval $cmd 2>/dev/null` || continue
     break
@@ -85,6 +88,7 @@ else
   test "$dnsdomain" != "(none)" || dnsdomain=
 fi
 
+# shellcheck disable=SC2041
 for cmd in @os_nisdomainname@ 'echo'; do
   nisdomain=`eval $cmd 2>/dev/null` || continue
   break

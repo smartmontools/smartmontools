@@ -109,6 +109,7 @@ for s in $sup_list; do
   suppress="${suppress}${suppress:+ }--suppress=${s%%#*}"
 done
 
+# shellcheck disable=SC2089
 defs="\
   -U__KERNEL__
   -U__LP64__
@@ -147,6 +148,7 @@ $(for s in $suppress; do echo "  $s \\"; done)
 EOF
 
 # Run cppcheck with swapped stdout<>stderr
+# shellcheck disable=SC2090
 "$cppcheck" \
   $v \
   $jobs \

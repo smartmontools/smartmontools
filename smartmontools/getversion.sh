@@ -17,7 +17,7 @@ myname=$0
 usage()
 {
   cat <<EOF
-Usage: $myname [-i] [-p] [-r] [METHOD...] [> svnversion.h]
+Usage: $myname [-i] [-pq] [-r] [METHOD...] [> svnversion.h]
 
   -i          Print new contents of svnversion.h
   -p          Print package version from configure.ac
@@ -70,7 +70,7 @@ revision_from_svn()
   local r t
   r=$(cd "$srcdir" && svnversion 2>/dev/null) || return 1
   case $r in [1-9][0-9]*) ;; *) return 1 ;; esac
-  t=$(cd "$srcdir" && TZ= LC_ALL=C svn info 2>/dev/null) || return 1
+  t=$(cd "$srcdir" && TZ='' LC_ALL=C svn info 2>/dev/null) || return 1
   t=$(echo "$t" | sed -n 's,^.* Date: *\(2[-0-9]*\) \([0-9][:0-9]*\) .*$,\1 \2,p')
   test -n "$t" || return 1
   svnrev=$r; revdate=${t% *}; revtime=${t#* }
@@ -91,7 +91,7 @@ revision_from_ids()
 revision_from_git()
 {
   local h r t x
-  x=$(cd "$srcdir" && TZ= LC_ALL=C git log -1 --date=iso 2>/dev/null) || return 1
+  x=$(cd "$srcdir" && TZ='' LC_ALL=C git log -1 --date=iso 2>/dev/null) || return 1
   h=$(echo "$x" | sed -n 's,^commit \([0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\).*$,\1,p')
   t=$(echo "$x" | sed -n 's,^Date: *\(2[-0-9]*\) \([0-9][:0-9]*\) .*$,\1 \2,p')
   r=$(echo "$x" | sed -n 's,^.*git-svn-id: [.:/a-z]*/smartmontools/code/trunk@\([1-9][0-9]*\) 4ea69e.*$,\1,p')
