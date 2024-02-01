@@ -543,6 +543,11 @@ const char * scsiTapeAlertsChangerDevice(unsigned short code);
 const char * scsi_get_opcode_name(const uint8_t * cdbp);
 void scsi_format_id_string(char * out, const uint8_t * in, int n);
 
+#ifdef IMPENDING_FAILURE_CHECK
+bool scsiGetPercentageUsed(scsi_device * device, uint8_t & percentage_used);
+bool scsiGetPowerOnHours(scsi_device * device, uint64_t & power_on_hours);
+#endif
+
 /* Read binary starting at 'up' for 'len' bytes and output as ASCII
  * hexadecimal into pout(). 16 bytes per line are output with an
  * additional space between 8th and 9th byte on each line (for readability).

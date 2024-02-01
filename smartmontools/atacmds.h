@@ -941,6 +941,18 @@ int ata_find_attr_index(unsigned char id, const ata_smart_values & smartval);
 // non-default interpretations. If the Attribute does not exist, return 0
 unsigned char ata_return_temperature_value(const ata_smart_values * data, const ata_vendor_attr_defs & defs);
 
+#ifdef IMPENDING_FAILURE_CHECK
+bool ata_return_wearout_value(const ata_smart_values * data, const ata_vendor_attr_defs & defs, 
+                              const ata_smart_threshold_entry * thresholds, 
+                              unsigned char &value, unsigned char & threshold);
+bool ata_return_available_space_value(const ata_smart_values * data, const ata_vendor_attr_defs & defs,
+                                      const ata_smart_threshold_entry * thresholds, 
+                                      unsigned char &value, unsigned char & threshold);
+bool ata_return_power_on_hours_value(const ata_smart_values *data, const ata_vendor_attr_defs &defs, 
+                                     uint64_t &power_on_hours);
+bool ata_return_LBA_written_value(const ata_smart_values *data, const ata_vendor_attr_defs &defs, 
+                                  const uint32_t lb_size, uint64_t &lba_written);
+#endif
 
 #define MAX_ATTRIBUTE_NUM 256
 
