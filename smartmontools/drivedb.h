@@ -4640,6 +4640,7 @@ const drive_settings builtin_knowndrives[] = {
     "ST1[0246]000NM00[13]G-.*",
     "", "",
     "-v 18,raw48,Head_Health "
+    "-v 188,raw16,Command_Timeout "
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
