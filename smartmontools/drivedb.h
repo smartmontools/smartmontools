@@ -4595,6 +4595,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
+  { "Seagate Exos X20", // tested with ST20000NM007D-3DJ103/SN01
+    "ST20000NM007D-.*",
+    "", "",
+    "-v 188,raw16,Command_Timeout "
+  },
   // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
   //             ST8000VN0012, ST6000VN0031, ST4000VN003
   // tested with ST8000VN0002-1Z8112/ZA13YGNF
