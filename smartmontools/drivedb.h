@@ -4605,6 +4605,13 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
   },
+  { "Seagate Enterprise Capacity 3.5 HDD", // untested
+    "ST12000NM0127-.*",
+    "", "",
+    "-v 1,raw24/raw32,Raw_Read_Error_Rate "
+    "-v 7,raw24/raw32,Seek_Error_Rate "
+    "-v 195,raw24/raw32,Hardware_ECC_Recovered "
+  },
   { "Seagate Exos 5E8", // tested with ST8000AS0003-2HH188/0003
     "ST8000AS0003-.*",
     "", "",
@@ -4639,6 +4646,8 @@ const drive_settings builtin_knowndrives[] = {
       // ST14000NM001G-2KJ103/SN02, ST16000NM001G-2KK103/SN02, ST16000NM001G-2KK103/SN03
     "ST1[0246]000NM00[13]G-.*",
     "", "",
+    "-v 1,raw24/raw32,Raw_Read_Error_Rate "
+    "-v 7,raw24/raw32,Seek_Error_Rate "
     "-v 18,raw48,Head_Health "
     "-v 188,raw16,Command_Timeout "
     "-v 200,raw48,Pressure_Limit "
