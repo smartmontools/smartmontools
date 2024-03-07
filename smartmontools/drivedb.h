@@ -4626,6 +4626,7 @@ const drive_settings builtin_knowndrives[] = {
     "ST[123468]000NM0(0[01234689]|1[0236]|2[1256])A-.*",
     "", "",
     "-v 18,raw48,Head_Health "
+    "-v 188,raw16,Command_Timeout "
     "-v 240,msec24hour32"
   },
   { "Seagate Exos X12", // tested with ST12000NM0007-2A1101/SN02
