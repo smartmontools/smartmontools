@@ -6597,6 +6597,23 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Pinas 1
+  { "USB: ; Pinas sata",
+    "0x1741:0x1156", // 0x1741 Pinas USB 3.0 to IDE & SATA Adapter
+      // 0x471:0x1156  Pinas sata
+    "",
+    "",
+    "-d sat"
+  },
+  // Pinas 2
+  { "USB: ; Pinas SATA",
+    "0x174e:0x1155", // 0x174e Pinas USB 3.0 to IDE & SATA Adapter
+      // 0x174e:0x1155  Pinas  SATA id
+    "",
+    "",
+    "-d sat"
+  },
+
 /*
 }; // builtin_knowndrives[]
  */
