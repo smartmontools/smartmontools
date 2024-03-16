@@ -4606,7 +4606,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
   },
-  { "Seagate Enterprise Capacity 3.5 HDD v7 SED", // untested
+  { "Seagate Enterprise Capacity 3.5 HDD v7 SED", // tested with ST12000NM0127
     "ST12000NM01[12]7",
     "", "",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
