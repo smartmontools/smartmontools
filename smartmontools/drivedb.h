@@ -4606,6 +4606,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
+  { "Seagate Exos X18", // tested with ST18000NM002J-2TV133 (pending report)
+    "ST18000NM002J-.*",
+    "", "",
+    "-v 1,raw24/raw32,Raw_Read_Error_Rate "
+    "-v 7,raw24/raw32,Seek_Error_Rate "
+    "-v 188,raw16,Command_Timeout "
+  },
   { "Seagate Exos X20", // tested with ST20000NM007D-3DJ103/SN01
     "ST20000NM007D-.*",
     "", "",
