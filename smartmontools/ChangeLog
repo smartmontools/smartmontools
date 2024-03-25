@@ -1,4 +1,12 @@
-$Id: ChangeLog 5597 2024-01-24 10:30:14Z chrfranke $
+$Id: ChangeLog 5598 2024-03-25 17:20:08Z chrfranke $
+
+2024-03-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SSSTC ERX GD/CD Series SSDs: update attributes, add 3.8TB, (#1799).
+	- SK hynix SATA SSDs: update attributes, add SE5110 (#1776, #1811),
+	  HFS*FEH-B* variants (#1739, #1758, #1805, #1809),
+	  HFS*H2X069N variants (#1686).
 
 2024-01-24  Christian Franke  <franke@computer.org>
 
