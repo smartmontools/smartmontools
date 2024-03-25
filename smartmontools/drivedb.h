@@ -2483,9 +2483,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 194,tempminmax,Temperature_Celsius"
   },
   { "SSSTC ERX GD/CD Series SSDs", // Marvel DEAN 2.1
-    "(SSSTC|SATA) ER[2-9]-[CG]D(240|480|960|1920)A?|" // tested with SSSTC ER2-GD480/E4N23021,
+    "(SSSTC|SATA) ER[2-9]-[CG]D(240|480|960|1920|3840)A?|" // tested with SSSTC ER2-GD480/E4N23021,
       // SSSTC ER2-CD1920A/E5MN401, SSSTC ER3-GD240/F2MRD0F, SSSTC ER3-CD960A/F3MRD0Y
-    "AF[2-9]MA31DT[ED]LT(240|480|960|1920)A?", // tested with AF2MA31DTDLT240A/F2M96T0
+    "AF[2-9]MA31DT[ED]LT(240|480|960|1920)A?", // tested with AF2MA31DTDLT240A/F2M96T0,
+      // AF3MA31DTELT240A/F2M9601
     "","",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -2497,18 +2498,21 @@ const drive_settings builtin_knowndrives[] = {
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw48,Average_PE_Count "
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
-    "-v 175,raw48,PwrLoss_ProtectionFail "
+    "-v 175,raw48,PLP_Failure "
   //"-v 176,raw48,Erase_Fail_Count_Chip "
   //"-v 177,raw48,Wear_Leveling_Count "
   //"-v 178,raw48,Used_Rsvd_Blk_Cnt_Chip "
   //"-v 179,raw48,Used_Rsvd_Blk_Cnt_Tot "
     "-v 180,raw48,Over-Provisioning_Rate "
-  //"-v 181,raw48,Program_Fail_Cnt_Total "
-  //"-v 182,raw48,Erase_Fail_Count_Total "
+    "-v 181,raw48,Sys_Percent_Life_Remain "
+    "-v 182,raw48,Heavy_GC_Log "
     "-v 183,raw48,SATA_Iface_Downshift "
   //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
   //"-v 188,raw48,Command_Timeout "
+    "-v 189,raw48,Maximum_Erase_Count "
+  //"-v 190,tempminmax,Airflow_Temperature_Cel "
+    "-v 191,raw48,Mininum_Erase_Count "
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 195,raw48,Hardware_ECC_Recovered "
   //"-v 198,raw48,Offline_Uncorrectable "
@@ -2516,13 +2520,19 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Percent_Lifetime_Remain "
     "-v 210,raw48,Raid_Success_Recover_Ct "
     "-v 229,raw48,PLP_Failure "
-    "-v 231,raw48,Remaining_Lifetime_Perc "
+    "-v 231,raw48,Percent_Lifetime_Remain "
   //"-v 232,raw48,Available_Reservd_Space "
-  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 233,raw48,Percent_Lifetime_Remain "
     "-v 234,raw48,Thermal_Throttle_Status "
   //"-v 241,raw48,Total_LBAs_Written "
   //"-v 242,raw48,Total_LBAs_Read "
-    "-v 243,raw48,NAND_Writes_GiB "
+    "-v 243,raw48,Total_NAND_Written " // GiB?
+    "-v 244,raw48,SoC_Data_Path_Prot_Det "
+    "-v 245,raw48,Thermal_Sensor_Health "
+    "-v 246,raw48,Heavy_Read_Retry_count "
+    "-v 247,raw48,NOR_Health "
+    "-v 248,raw48,Cross_Temp_Duration "
+    "-v 249,raw48,SSD_Health"
   },
   { "STEC Mach2 CompactFlash Cards", // tested with STEC M2P CF 1.0.0/K1385MS
     "STEC M2P CF 1.0.0",
@@ -3044,6 +3054,7 @@ const drive_settings builtin_knowndrives[] = {
     "HFS(128|256|512)G39TND-N210A|" // SC308, tested with HFS128G39TND-N210A/30001P10
     "HFS(120|250|500)G32TND-N1A2A|" // SL308, tested with HFS500G32TND-N1A2A/30000P10
     "HFS(128|256|512)G32TNF-N3A0A|" // SC313, tested with HFS256G32TNF-N3A0A/70000P10
+    // HFS480G32FEH-BA10A/DD02 (Dell)
     "SHGS31-(250|500|1000)GS-2", // S31, tested with SHGS31-1000GS-2/90000Q00
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -3089,24 +3100,33 @@ const drive_settings builtin_knowndrives[] = {
     "-v 250,raw48,Read_Retry_Count "
   },
   { "SK hynix SATA SSDs",
-    "HFS(480|960|1T9|3T8)G3[2E]FEH-7[4A]10A", // tested with HFS480G32FEH-7410A/90037Q00
+    "HFS(480|960|1T9|3T8)G3[2E]FEH-[7B][4A]10A|" // tested with HFS480G32FEH-7410A/90037Q00,
+      // HFS480G32FEH-BA10A/DD02 (Dell), HFS1T9G32FEH-BA10A/DD02 (Dell)
+    "HFS(480|960|1T9|3T8)G3H2X069N|" // tested with HFS480G3H2X069N/DZ00 (Dell)
+    "SK HYNIX SE5110 (480|960|1920|3840)GB ZIRCON LITE 3DTLC", // tested with
+      // SK HYNIX SE5110 480GB ZIRCON LITE 3DTLC/410A5Z00
+      // SK HYNIX SE5110 960GB ZIRCON LITE 3DTLC/410A5Z00
+      // SK HYNIX SE5110 1920GB ZIRCON LITE 3DTLC/410A5Z00
+      // SK HYNIX SE5110 3840GB ZIRCON LITE 3DTLC/410A5Z00
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 5,raw48,Retired_Block_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
-    "-v 12,raw48,Device_Power_Cycle_Cnt "
-    "-v 171,raw48,Program_Fail_Cnt "
-    "-v 172,raw48,Erase_Fail_Cnt "
+  //"-v 12,raw48,Power_Cycle_Count "
+  //"-v 13,raw48,Read_Soft_Error_Rate "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Max_Erase_Count "
     "-v 174,raw48,Unexpected_Pwr_Loss_Cnt "
-    "-v 175,raw48,Program_Fail_Cnt "
-    "-v 176,raw48,Erase_Fail_Cnt "
+    "-v 175,raw48,Program_Fail_Count "
+    "-v 176,raw48,Erase_Fail_Count "
     "-v 177,raw48,Endurance_Limit_Met "
     "-v 178,raw48,Used_Rsrvd_Blk_Cnt_Wrst "
     "-v 179,raw48,Used_Rsrvd_Blk_Cnt_Tot "
     "-v 180,raw48,E2E_Error_Det_Corr_Rate "
-    "-v 181,raw48,Program_Fail_Cnt "
-    "-v 182,raw48,Erase_Fail_Cnt "
-    "-v 183,raw48,SATA_Downshift_Cnt "
+    "-v 181,raw48,Program_Fail_Count "
+    "-v 182,raw48,Erase_Fail_Count "
+    "-v 183,raw48,SATA_Downshift_Count "
   //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
   //"-v 188,raw48,Command_Timeout "
@@ -3114,10 +3134,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 195,raw48,ECC_on_the_Fly_Rate "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 201,raw48,Uncorr_Soft_Read_Err_Rt "
+    "-v 202,raw48,Exception_Mode_Status "
     "-v 204,raw48,Soft_ECC_Correction_Rt "
     "-v 231,raw48,SSD_Life_Left "
-    "-v 234,raw48,Lifetime_NAND_Prg_GiB "
-    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 234,raw48,Lifetime_NAND_Prg_GiB " // ?
+    "-v 235,raw48,Lifetime_Writes_GiB "
+    "-v 241,raw48,Lifetime_NAND_Prg_GiB "
     "-v 242,raw48,Lifetime_Reads_GiB "
     "-v 245,raw48,SSD_Life_Left "
     "-v 250,raw48,Read_Retry_Count "

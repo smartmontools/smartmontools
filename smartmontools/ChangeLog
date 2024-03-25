@@ -1,5 +1,13 @@
 $Id$
 
+2024-03-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SSSTC ERX GD/CD Series SSDs: update attributes, add 3.8TB, (#1799).
+	- SK hynix SATA SSDs: update attributes, add SE5110 (#1776, #1811),
+	  HFS*FEH-B* variants (#1739, #1758, #1805, #1809),
+	  HFS*H2X069N variants (#1686).
+
 2024-01-24  Christian Franke  <franke@computer.org>
 
 	Fix or disable all warnings from shellcheck.
