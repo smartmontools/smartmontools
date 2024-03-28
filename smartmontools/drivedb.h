@@ -6563,7 +6563,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x30de:0x1000",
     "",
     "",
-    "-d sntjmicron "
+    "-d sntjmicron"
   },
   // 0x2eb9 (?): See Realtek (0x0bda) above
   // Power Quotient International
