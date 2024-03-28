@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5600 2024-03-28 16:30:34Z chrfranke $",
+  { "VERSION: 7.3 $Id: drivedb.h 5601 2024-03-28 17:42:51Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -6563,7 +6563,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x30de:0x1000",
     "",
     "",
-    "-d sntjmicron "
+    "-d sntjmicron"
   },
   // 0x2eb9 (?): See Realtek (0x0bda) above
   // Power Quotient International
