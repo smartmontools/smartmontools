@@ -1,5 +1,20 @@
 $Id$
 
+2024-03-28  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Kingston DataTraveller (0x0951:0x177f) (#1756).
+	- USB: Asus (0x0b05:0x17f8) (#1810).
+	- USB: TerraMaster (0x1000:0x1352) (#1818).
+	- USB: Kingston (0x11b0:0x6388).
+	- USB: JMicron (0x152d:0x0580) (#1766, #1788).
+	- USB: JMicron (0x152d:0xb567) (#1797).
+	- USB: Pinas (0x174e:0x1155, 0x1741:0x1156) (#1772, GH pull/253).
+	- USB: Verbatim (0x18a5:0x0446) (#1812).
+	- USB: Actions AM8180 (0x1de1:0xe101) (#1681).
+	- USB: Transcend ESD310 (0x2174:0x2100) (#1767).
+	- USB: KIOXIA (0x30de:0x1000).
+
 2024-03-25  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

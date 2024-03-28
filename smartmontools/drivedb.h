@@ -5903,6 +5903,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat,12"
   },
+  // Kingston
+  { "USB: Kingston DataTraveller; ",
+    "0x0951:0x177f",
+    "",
+    "",
+    "-d sat,12"
+  },
   // Apricorn
   { "USB: Apricorn; ",
     "0x0984:0x0(040|301|320)", // 0x0040: Apricorn SATA Wire
@@ -5913,6 +5920,13 @@ const drive_settings builtin_knowndrives[] = {
   // Neodio Technologies
   { "USB: Neodio; Initio INIC-1810PL",
     "0x0aec:0x3050",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  // Asus (?)
+  { "USB: ; ",
+    "0x0b05:0x17f8", // ASUSTek T100TA
     "", // 0x0100
     "",
     "-d sat"
@@ -6058,6 +6072,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
+  // TerraMaster (?)
+  { "USB: ; ",
+    "0x1000:0x1352", // TerraMaster D5-300C 5-Bay Box
+    "",
+    "",
+    "-d sat"
+  },
   // iRiver
   { "USB: iRiver iHP-120/140 MP3 Player; Cypress",
     "0x1006:0x3002",
@@ -6079,9 +6100,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Atech Flash Technology
-  { "USB: ; Atech", // Enclosure from Kingston SSDNow notebook upgrade kit
-    "0x11b0:0x6298",
-    "", // 0x0108
+  { "USB: ; Atech", // Kingston
+    "0x11b0:0x6(298|388)",
+    "", // 0x0108, 0x5408
     "",
     "-d sat"
   },
@@ -6183,8 +6204,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; JMicron",
-    "0x152d:0x0579", // Intenso External
-    "", // 0x0100
+    "0x152d:0x05(79|80)", // 0x0579(0x0100): Intenso External
+    "", // 0x0100, 0x0201
     "",
     "-d sat"
   },
@@ -6303,9 +6324,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; JMicron",
-    "0x152d:0x578e",
-    "", // 0x1402, Intenso Memory Center
-    "",
+    "0x152d:0x(578e|b567)",
+    "", // 0x578e(0x1402): Intenso Memory Center
+    "", // 0xb567: Fantec AD-U3S
     "-d sat"
   },
   { "USB: ; JMicron JMS561", // USB3->2xSATA
@@ -6318,6 +6339,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; PNY",
     "0x154b:0x(5678|8001|f009)",
     "", // 0x5678: 0x5408
+    "",
+    "-d sat"
+  },
+  // Pinas
+  { "USB: ; Pinas",
+    "0x1741:0x1156", // Argon EON, device #2
+    "", // 0x0100
     "",
     "-d sat"
   },
@@ -6337,6 +6365,13 @@ const drive_settings builtin_knowndrives[] = {
   // ASMedia
   { "USB: ; ASMedia ASM1352-PM", // USB3->2xSATA
     "0x174d:0x1352",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  // Pinas
+  { "USB: ; Pinas",
+    "0x174e:0x1155", // Argon EON, device #1
     "", // 0x0100
     "",
     "-d sat"
@@ -6398,7 +6433,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat,12"
   },
   { "USB: Verbatim External Hard Drive; ", // USB 3.0
-    "0x18a5:0x040[08]", // 0=3TB, 8=1TB
+    "0x18a5:0x04(0[08]|46)", // 00=3TB, 08=1TB, 46=500MB Mobile
     "",
     "",
     "-d sat"
@@ -6423,6 +6458,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d usbsunplus"
+  },
+  // Actions Microelectronics
+  { "USB: ; Actions AM8180", // rebranded Realtek RTL9210
+    "0x1de1:0xe101",
+    "", // 0x2001
+    "",
+    "-d sntrealtek"
   },
   // Kanguru Solutions
   { "USB: ; ", // ICY BOX IB-256WP
@@ -6496,9 +6538,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Transcend (?)
-  { "USB: Transcend ESD400; ",
-    "0x2174:0x2000", // TS256GESD400K
-    "", // 0x1000
+  { "USB: Transcend ESD310/400; ",
+    "0x2174:0x2[01]00", // 0x2000: TS256GESD400K. 0x2100: TS512GESD310C
+    "", // 0x1000, 0x0100
     "",
     "-d sat"
   },
@@ -6515,6 +6557,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0100
     "",
     "-d sat"
+  },
+  // KIOXIA (?)
+  { "USB: ; ", // KIOXIA EXCERIA PLUS
+    "0x30de:0x1000",
+    "",
+    "",
+    "-d sntjmicron "
   },
   // 0x2eb9 (?): See Realtek (0x0bda) above
   // Power Quotient International
