@@ -1,6 +1,8 @@
-$Id: ChangeLog 5603 2024-03-29 15:49:11Z chrfranke $
+$Id: ChangeLog 5604 2024-03-29 16:14:52Z chrfranke $
 
 2024-03-29  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Print NSID used for self-tests and '-l nvmelog'.
 
 	nvmeprint.cpp: Fix self-test for single namespace devices.
 	Use broadcast NSID if only one namespace is supported
