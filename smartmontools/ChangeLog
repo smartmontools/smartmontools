@@ -1,5 +1,12 @@
 $Id$
 
+2024-03-29  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Fix self-test for single namespace devices.
+	Use broadcast NSID if only one namespace is supported
+	(#1741, GH issues/217).
+	smartctl.8.in: Document new behavior.
+
 2024-03-28  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-23 Christian Franke
+ * Copyright (C) 2016-24 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -751,7 +751,12 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
 
   // Check for self-test support
   bool self_test_sup = !!(id_ctrl.oacs & 0x0010);
-  unsigned self_test_nsid = device->get_nsid(); // TODO: Support NSID=0 to test controller
+
+  // Use broadcast NSID for self-tests if only one namespace is supported.
+  // Some single namespace devices return failure if NSID=1 is used to
+  // address self-tests.
+  // TODO: Support NSID=0 to test controller
+  unsigned self_test_nsid = (id_ctrl.nn == 1 ? 0xffffffff : device->get_nsid());
 
   // Read and print Self-test log, check for running test
   int self_test_completion = -1;
