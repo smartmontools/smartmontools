@@ -495,8 +495,7 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 bridge.
 .Sp
 .I sntasmedia
-\- [NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
-this device type is for NVMe disks that are behind an ASMedia USB to NVMe
+\- this device type is for NVMe disks that are behind an ASMedia USB to NVMe
 bridge.
 .Sp
 .I sntjmicron[,NSID]
@@ -922,9 +921,8 @@ not what you want.
 The \*(Aq\-n\*(Aq option is ignored if the power mode check is not supported
 or returns an unknown value.
 .br
-[ATA only: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
-If the optional STATUS2 parameter is specified, \fBsmartctl\fP exits
-immediately with STATUS2 in this case.
+[ATA only] If the optional STATUS2 parameter is specified, \fBsmartctl\fP
+exits immediately with STATUS2 in this case.
 For example use \*(Aq\-n standby,3,5\*(Aq to return unique exit statuses in
 the STANDBY and UNSUPPORTED cases.
 .TP
@@ -1573,7 +1571,6 @@ Values of 0 disable the feature, other values less than 65 are probably not
 supported.
 For RAID configurations, this is typically set to 70,70 deciseconds.
 .br
-[NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
 If \*(Aqscterc,READTIME,WRITETIME,p\*(Aq is specified, these time values
 will be persistent over a power-on reset.
 If \*(Aqscterc,p\*(Aq is specified, the persistent over power-on values
@@ -1599,17 +1596,18 @@ The size of the log and the order of the entries are vendor specific.
 The Pending Defects log was introduced in ACS-4 Revision 01 (Mar 2014).
 .Sp
 .I defects
-\- [SCSI: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE] prints LBAs that the background
-scan was unable to read (i.e. a defect). Entries, if any, show the defective
-LBA and the value of the power\-on hours (since manufacture) when the background
-scan found the defect. Note these pending defects may appear in advance of any
-application trying to read a defective LBA.
+\- [SCSI] prints LBAs that the background scan was unable to read
+(i.e. a defect).
+Entries, if any, show the defective LBA and the value of the power\-on hours
+(since manufacture) when the background scan found the defect.
+Note these pending defects may appear in advance of any application trying
+to read a defective LBA.
 .Sp
 .I envrep
-\- [SCSI only: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
-prints values and descriptions of the SCSI Environmental reporting log
-page. This includes one or more temperatures and may include relative
-humidities. Lifetime maximums and minimums are also reported.
+\- [SCSI only] prints values and descriptions of the SCSI Environmental
+reporting log page.
+This includes one or more temperatures and may include relative humidities.
+Lifetime maximums and minimums are also reported.
 .Sp
 .I genstats
 \- [SCSI only: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
@@ -1629,18 +1627,17 @@ Protocol Specific log page (log page 0x18).  If \*(Aq\-l sasphy,reset\*(Aq
 is specified, all counters are reset after reading the values.
 .Sp
 .I tapealert
-\- [SCSI tape drives and changers: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
-prints values and descriptions of the (SSC) Tape Alert log page. See
-\fBTAPE DRIVES\fP below for issue associated with printing this log page.
+\- [SCSI tape drives and changers] prints values and descriptions of the
+(SSC) Tape Alert log page.
+See \fBTAPE DRIVES\fP below for issue associated with printing this log page.
 .Sp
 .I tapedevstat
-\- [SCSI tape drives and changers: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
-prints values and descriptions of the (SSC) Device Statistics log page.
+\- [SCSI tape drives and changers] prints values and descriptions of the
+(SSC) Device Statistics log page.
 .Sp
 .I zdevstat
-\- [SCSI zoned disks: NEW EXPERIMENTAL SMARTCTL 7.3 FEATURE]
-prints values and descriptions of the Zoned Block Device Statistics log
-page (ZBC\-2).
+\- [SCSI zoned disks] prints values and descriptions of the Zoned Block
+Device Statistics log page (ZBC\-2).
 .Sp
 .I gplog,ADDR[,FIRST[\-LAST|+SIZE]]
 \- [ATA only] prints a hex dump of any log accessible via General

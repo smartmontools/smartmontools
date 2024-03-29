@@ -69,7 +69,6 @@ The old file is kept if the downloaded file is identical (ignoring
 the differences in Id string) otherwise it is moved to
 .BR drivedb.h.old .
 .PP
-[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB 7.3 FEATURE]
 The old file is also kept if the downloaded file reports an older version
 on the same branch.
 This could be overridden with the \*(Aq\-\-force\*(Aq option.
@@ -97,10 +96,8 @@ TOOL is one of:
 .\" %ENDIF OS OpenBSD
 .IR svn .
 The default is the first one found in PATH.
-.br
-[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB 7.3 FEATURE]
-A DIR could also be specified.
-The plain TOOL name must then begin with any of the above names.
+If a DIR is also specified, the plain TOOL name must begin with any of the
+above names.
 .TP
 .B \-u LOCATION, \-\-url\-of LOCATION
 Use URL of LOCATION for download.
@@ -125,20 +122,17 @@ The default is
 .IR svn .
 .TP
 .B \-\-url URL
-[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB 7.3 FEATURE]
 Download from URL.
 A valid OpenPGP/GPG signature with \*(Aq.raw.asc\*(Aq extension must also
 exist unless \*(Aq\-\-no\-verify\*(Aq is also specified.
 .TP
 .B \-\-file FILE
-[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB 7.3 FEATURE]
 Copy from local FILE.
 A valid OpenPGP/GPG signature \*(AqFILE.raw.asc\*(Aq must also exist
 unless \*(Aq\-\-no\-verify\*(Aq is also specified.
 .\" %IF ENABLE_DB_INSTALL
 .TP
 .B \-\-install
-[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB 7.3 FEATURE]
 Copy from originally installed drive database file.
 This is the same as:
 .br
@@ -170,7 +164,6 @@ option.
 Don't verify signature with GnuPG.
 .TP
 .B \-\-force
-[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB 7.3 FEATURE]
 Allow downgrades.
 By default, the database is not replaced with an older version of the
 same branch.
@@ -182,7 +175,6 @@ Print the OpenPGP/GPG public key block.
 Print download commands only.
 .TP
 .B \-q, \-\-quiet
-[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB 7.3 FEATURE]
 Suppress info messages.
 .TP
 .B \-v, \-\-verbose

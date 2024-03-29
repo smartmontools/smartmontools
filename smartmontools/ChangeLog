@@ -2,6 +2,8 @@ $Id$
 
 2024-03-29  Christian Franke  <franke@computer.org>
 
+	man pages: Remove EXPERIMENTAL notes for features added before 7.3.
+
 	nvmeprint.cpp: Print NSID used for self-tests and '-l nvmelog'.
 
 	nvmeprint.cpp: Fix self-test for single namespace devices.
