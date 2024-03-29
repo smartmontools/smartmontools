@@ -542,12 +542,13 @@ static void print_error_log(const nvme_error_log_page * error_log,
   jout("\n");
 }
 
-static void print_self_test_log(const nvme_self_test_log & self_test_log)
+static void print_self_test_log(const nvme_self_test_log & self_test_log, unsigned nsid)
 {
   // Figure 99 of NVM Express Base Specification Revision 1.3d, March 20, 2019
   // Figure 203 of NVM Express Base Specification Revision 1.4c, March 9, 2021
   json::ref jref = jglb["nvme_self_test_log"];
-  jout("Self-test Log (NVMe Log 0x06)\n");
+  jout("Self-test Log (NVMe Log 0x06, NSID 0x%x)\n", nsid);
+  jref["nsid"] = (nsid != 0xffffffff ? (int64_t)nsid : -1);
 
   const char * s; char buf[32];
   switch (self_test_log.current_operation & 0xf) {
@@ -771,7 +772,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       }
 
       if (options.smart_selftest_log)
-        print_self_test_log(self_test_log);
+        print_self_test_log(self_test_log, self_test_nsid);
 
       if (self_test_log.current_operation & 0xf)
         self_test_completion = self_test_log.current_completion & 0x7f;
@@ -798,14 +799,15 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     unsigned read_bytes = nvme_read_log_page(device, nsid, options.log_page, log_buf.data(),
                                              size, lpo_sup);
     if (!read_bytes) {
-      jerr("Read NVMe Log 0x%02x failed: %s\n\n", options.log_page, device->get_errmsg());
+      jerr("Read NVMe Log 0x%02x (NSID 0x%x) failed: %s\n\n", options.log_page, nsid,
+           device->get_errmsg());
       return retval | FAILSMART;
     }
     if (read_bytes < size)
       jerr("Read NVMe Log 0x%02x failed, 0x%x bytes missing: %s\n",
            options.log_page, size - read_bytes, device->get_errmsg());
 
-    pout("NVMe Log 0x%02x (0x%04x bytes)\n", options.log_page, read_bytes);
+    pout("NVMe Log 0x%02x (NSID 0x%x, 0x%04x bytes)\n", options.log_page, nsid, read_bytes);
     dStrHex(log_buf.data(), read_bytes, 0);
     pout("\n");
   }
@@ -826,10 +828,10 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       }
 
       if (!self_test_abort)
-        pout("Self-test has begun\n"
-             "Use smartctl -X to abort test\n");
+        pout("Self-test has begun (NSID 0x%x)\n"
+             "Use smartctl -X to abort test\n", self_test_nsid);
       else
-        pout("Self-test aborted!\n");
+        pout("Self-test aborted! (NSID 0x%x)\n", self_test_nsid);
     }
   }
 
