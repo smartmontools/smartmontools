@@ -1,10 +1,10 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-23 Christian Franke
+Copyright (C) 2004-24 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5565 2023-12-19 14:41:59Z chrfranke $
+$Id: smartctl.8.in 5603 2024-03-29 15:49:11Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1477,6 +1477,13 @@ test terminology).
 .I selftest
 \- [NVMe: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
 prints the NVMe self-test log.
+.br
+[NEW EXPERIMENTAL SMARTCTL 7.5 FEATURE]
+If the device does not support multiple namespaces, the broadcast namespace
+is always used to read the self-test log and to start the tests (see
+\*(Aq\-t TEST\*(Aq below).
+This is because some single namespace devices return failure if namespace 1
+is used to address self-tests.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I xselftest[,NUM][,selftest]
@@ -2618,4 +2625,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5565 2023-12-19 14:41:59Z chrfranke $
+$Id: smartctl.8.in 5603 2024-03-29 15:49:11Z chrfranke $
