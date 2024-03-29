@@ -4,7 +4,7 @@ Copyright (C) 2004-23 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5565 2023-12-19 14:41:59Z chrfranke $
+$Id: smartd.conf.5.in 5605 2024-03-29 17:12:50Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -460,8 +460,7 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 bridge.
 .Sp
 .I sntasmedia
-\- [NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
-this device type is for NVMe disks that are behind an ASMedia USB to NVMe
+\- this device type is for NVMe disks that are behind an ASMedia USB to NVMe
 bridge.
 .Sp
 .I sntjmicron[,NSID]
@@ -1691,7 +1690,6 @@ Allows one to override \fBsmartd\fP command line options for specific devices.
 Only the following OPTION is currently supported:
 .TP
 .B \-c i=N, \-c interval=N
-[NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
 Sets the interval between disk checks to N seconds, where N is a decimal
 integer.
 The minimum allowed value is ten.
@@ -1793,4 +1791,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5565 2023-12-19 14:41:59Z chrfranke $
+$Id: smartd.conf.5.in 5605 2024-03-29 17:12:50Z chrfranke $

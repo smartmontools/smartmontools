@@ -1,6 +1,8 @@
-$Id: ChangeLog 5604 2024-03-29 16:14:52Z chrfranke $
+$Id: ChangeLog 5605 2024-03-29 17:12:50Z chrfranke $
 
 2024-03-29  Christian Franke  <franke@computer.org>
+
+	man pages: Remove EXPERIMENTAL notes for features added before 7.3.
 
 	nvmeprint.cpp: Print NSID used for self-tests and '-l nvmelog'.
 
