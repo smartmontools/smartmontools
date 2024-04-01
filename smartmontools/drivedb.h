@@ -5957,6 +5957,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Realtek
+  { "USB: ; Sabrent EC-U2SA", // USB3->SATA
+    "0x0bda:0x9210", // Realtek RTL9210
+    "0x2001",
+    "",
+    "-d sat"
+  },
   { "USB: ; Realtek RTL9210", // USB->PCIe (NVMe)
     "0x0bda:0x9210",
     "", // 0x2100
