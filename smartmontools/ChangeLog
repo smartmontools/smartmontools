@@ -3,6 +3,10 @@ $Id$
 2024-04-02 Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
+	- Western Digital Ultrastar (He10/12): WDC WD40EDAZ-11SLVB0 (#1411)
+	- Western Digital Red Pro: WDC WD161KFGX-68AFPN0, 
+	  WDC WD181KFGX-68AFPN0 (#1611, GH issues/173 and 
+	  reported by Ben Lovett via Smartmontools-database 2023-05-21)
 	- Toshiba 2.5\" HDD MQ01ABF...: TOSHIBA MQ01ABF032 ((based on patch from #1804)
 	- Toshiba N300/MN NAS HDD: TOSHIBA HDWG51J and rest from product sheet
 	  reported by Andreas Bofjall via Smartmontools-database 2024-02-29
