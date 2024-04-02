@@ -1,5 +1,12 @@
 $Id$
 
+2024-04-02 Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Toshiba 2.5\" HDD MQ01ABF...: TOSHIBA MQ01ABF032 ((based on patch from #1804)
+	- Toshiba N300/MN NAS HDD: TOSHIBA HDWG51J and rest from product sheet
+	  reported by Andreas Bofjall via Smartmontools-database 2024-02-29
+
 2024-03-29  Christian Franke  <franke@computer.org>
 
 	man pages: Remove EXPERIMENTAL notes for features added before 7.3.
