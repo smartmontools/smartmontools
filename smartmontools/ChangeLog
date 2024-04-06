@@ -1,8 +1,9 @@
-$Id: ChangeLog 5610 2024-04-06 17:24:10Z chrfranke $
+$Id: ChangeLog 5611 2024-04-06 17:44:54Z chrfranke $
 
 2024-04-06  Christian Franke  <franke@computer.org>
 
 	drivedb.h: move Toshiba and WDC "Helium" attributes to "DEFAULT" entry.
+	Drop maintenance of 6.0-6.4 branches due to missing "DEFAULT" entry.
 
 	drivedb.h:
 	- Western Digital Ultrastar (He10/12): move WD40EZAZ to Blue (SMR).
