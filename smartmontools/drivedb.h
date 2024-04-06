@@ -89,7 +89,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 11,raw48,Calibration_Retry_Count,HDD "
     "-v 12,raw48,Power_Cycle_Count "
     "-v 13,raw48,Read_Soft_Error_Rate "
-    //  14-174 Unknown_Attribute
+    //  14-21 Unknown_Attribute
+    "-v 22,raw48,Helium_Level,HDD " // WDC (HGST)
+    "-v 23,raw48,Helium_Condition_Lower,HDD " // ] Toshiba
+    "-v 24,raw48,Helium_Condition_Upper,HDD " // ]
+    //  25-174 Unknown_Attribute
     "-v 175,raw48,Program_Fail_Count_Chip,SSD "
     "-v 176,raw48,Erase_Fail_Count_Chip,SSD "
     "-v 177,raw48,Wear_Leveling_Count,SSD "
@@ -114,7 +118,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 197,raw48,Current_Pending_Sector "
     "-v 198,raw48,Offline_Uncorrectable "
     "-v 199,raw48,UDMA_CRC_Error_Count "
-    "-v 200,raw48,Multi_Zone_Error_Rate,HDD "
+    "-v 200,raw48,Multi_Zone_Error_Rate,HDD " // Seagate Helium HDDs: "Pressure_Limit"
     "-v 201,raw48,Soft_Read_Error_Rate,HDD "
     "-v 202,raw48,Data_Address_Mark_Errs,HDD "
     "-v 203,raw48,Run_Out_Cancel "
@@ -3723,8 +3727,8 @@ const drive_settings builtin_knowndrives[] = {
       // HGST HDN726040ALE614/APGNW7JH, HGST HDN726060ALE614/K1HE594D
       // HGST HDN728080ALE604/A4GNW91X
     "HGST HDN72(40[34]|60[456]|808)0ALE6(04|1[04]|40)",
-    "", "",
-    "-v 22,raw48,Helium_Level" // HDN728080ALE604
+    "", "", ""
+  //"-v 22,raw48,Helium_Level" // HDN728080ALE604
   },
   { "Hitachi/HGST Ultrastar 5K3000", // tested with Hitachi HUA5C3030ALA640/MEAOA800
     "(Hitachi |HGST )?HUA5C30(20|30)ALA64[01]",
@@ -3769,18 +3773,18 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HGST Ultrastar He6", // tested with HGST HUS726060ALA640/AHGNT1E2
     "HGST HUS726060ALA64[01]",
-    "", "",
-    "-v 22,raw48,Helium_Level"
+    "", "", ""
+  //"-v 22,raw48,Helium_Level"
   },
   { "HGST Ultrastar He8", // tested with HGST HUH728060ALE600/GR2OA230
     "HGST HUH7280(60|80)AL[EN]60[014]",
-    "", "",
-    "-v 22,raw48,Helium_Level"
+    "", "", ""
+  //"-v 22,raw48,Helium_Level"
   },
   { "HGST Ultrastar He10", // tested with HGST HUH7210100ALE600/0F27452
     "HGST HUH7210(08|10)AL[EN]60[014]",
-    "", "",
-    "-v 22,raw48,Helium_Level"
+    "", "", ""
+  //"-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar (He10/12)", // WD white label, tested with
       // WDC WD80EMAZ-00WJTA0/83.H0A83 (Easystore 0x1058:0x25fb),
@@ -3791,25 +3795,25 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD120EDAZ-11F3RA0/81.00A81, WDC WD80EDAZ-11TA3A0/81.00A81
       // WDC WD40EDAZ-11SLVB0/80.00A80
     "WDC WD(40EDA|(80|100|120|140)E([MZ]A|DA|DF|DG))Z-.*",
-    "", "",
-    "-v 22,raw48,Helium_Level" // not: WD80EDAZ, WD40EDAZ
+    "", "", ""
+  //"-v 22,raw48,Helium_Level" // not: WD80EDAZ, WD40EDAZ
   },
   { "HGST Ultrastar DC HC520 (He12)", // tested with HGST HUH721212ALE600/LEGNT3D0
     "HGST HUH721212AL[EN]60[014]",
-    "", "",
-    "-v 22,raw48,Helium_Level"
+    "", "", ""
+  //"-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar DC HC530", // tested with
       // WDC  WUH721414ALE604/LDAZW110, WDC  WUH721414ALE6L4/LDGNW07G
     "WDC  ?WUH721414ALE6[0L]4",
-    "", "",
-    "-v 22,raw48,Helium_Level"
+    "", "", ""
+  //"-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar DC HC550", // tested with WDC  WUH721818ALE6L4/PCGNW110,
       // WUH721818ALE6L4/PCGAW232, WDC  WUH721818ALN6L4/PCGNW088
     "(WDC  ?)?WUH72181[68]AL[EN]6[0L][0146]",
-    "", "",
-    "-v 22,raw48,Helium_Level"
+    "", "", ""
+  //"-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar DC HC560", // tested with WDC  WUH722020ALN604/PQGNW108
     // WDC WUH722020BLE6L4
@@ -3829,8 +3833,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Ultrastar DC HC650", // tested with WDC  WSH722020ALE6L0/PCGMT421
     "(WDC  ?)?WSH7220(20|VC)AL[EN]6[0L][0146]",
-    "", "",
-    "-v 22,raw48,Helium_Level"
+    "", "", ""
+  //"-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar DC HC670", // WSH722626ALE604
     "(WDC  ?)?WSH722222[AB]L[EN]6[0L]4",
@@ -4008,16 +4012,16 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba MG07ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG07ACA14TE/0101
     "TOSHIBA MG07ACA1[24]T[AE]Y?",
-    "", "",
-    "-v 23,raw48,Helium_Condition_Lower "
-    "-v 24,raw48,Helium_Condition_Upper"
+    "", "", ""
+  //"-v 23,raw48,Helium_Condition_Lower "
+  //"-v 24,raw48,Helium_Condition_Upper"
   },
   { "Toshiba MG08ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG08ACA14TE/0102,
       // TOSHIBA MG08ACA16TE/0102
     "TOSHIBA MG08ACA1[46]T[AE]Y?",
-    "", "",
-    "-v 23,raw48,Helium_Condition_Lower "
-    "-v 24,raw48,Helium_Condition_Upper"
+    "", "", ""
+  //"-v 23,raw48,Helium_Condition_Lower "
+  //"-v 24,raw48,Helium_Condition_Upper"
   },
   { "Toshiba MG08ADA... Enterprise Capacity HDD", // tested with TOSHIBA MG08ADA800E/0101,
       // TOSHIBA MG08ADA800E/4303, TOSHIBA MG08ADA800E/4304
@@ -4027,22 +4031,22 @@ const drive_settings builtin_knowndrives[] = {
   { "Toshiba MG09ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG09ACA18TE/0102
     "TOSHIBA MG09ACA1[68]T[AE]Y?",
     "", "",
-    "-v 23,raw48,Helium_Condition_Lower "
-    "-v 24,raw48,Helium_Condition_Upper "
+  //"-v 23,raw48,Helium_Condition_Lower "
+  //"-v 24,raw48,Helium_Condition_Upper "
     "-v 27,raw48,MAMR_Health_Monitor"
   },
   { "Toshiba MG10ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG10ACA20TE/0102
     "TOSHIBA MG10ACA20T[AE]Y?",
     "", "",
-    "-v 23,raw48,Helium_Condition_Lower "
-    "-v 24,raw48,Helium_Condition_Upper "
+  //"-v 23,raw48,Helium_Condition_Lower "
+  //"-v 24,raw48,Helium_Condition_Upper "
     "-v 27,raw48,MAMR_Health_Monitor"
   },
   { "Toshiba MG10AFA... Enterprise Capacity HDD", // tested with TOSHIBA MG10AFA22TE/0102
     "TOSHIBA MG10AFA22T[AE]Y?",
     "", "",
-    "-v 23,raw48,Helium_Condition_Lower "
-    "-v 24,raw48,Helium_Condition_Upper "
+  //"-v 23,raw48,Helium_Condition_Lower "
+  //"-v 24,raw48,Helium_Condition_Upper "
     "-v 27,raw48,MAMR_Health_Monitor"
   },
   { "Toshiba 3.5\" DT01ABA... Desktop HDD", // tested with TOSHIBA DT01ABA300/MZ6OABB0
@@ -4061,8 +4065,8 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA HDW([GNQ]1[468]0|G(440|480|11A|21[CE]|31[EG]|51[EJ]))|" // 31G: 16TB
     "TOSHIBA MN0(4ACA400|6ACA([68]00|10T)|7ACA1[24]T|8ACA1[46]T)",
     "", "",
-    "-v 23,raw48,Helium_Condition_Lower " // ] >= 12TB
-    "-v 24,raw48,Helium_Condition_Upper "  // ]
+  //"-v 23,raw48,Helium_Condition_Lower " // ] >= 12TB
+  //"-v 24,raw48,Helium_Condition_Upper " // ]
     "-v 27,raw48,MAMR_Health_Monitor" // HDWG51J/0104
   },
   { "Toshiba P300 (CMR)", // tested with TOSHIBA HDWD120/MX4OACF0
@@ -4081,9 +4085,9 @@ const drive_settings builtin_knowndrives[] = {
       // TOSHIBA HDWR480/0601
     "TOSHIBA HDW(E1[456]0|[FR]180|R(4[468]0|11A|21[CE]|31[EG]|51J))", // 4n0:nTB, 11A:10TB,
       // 21C:12TB, 21E:14TB, 31E:14TB, 31G:16TB, 51J:18TB
-    "", "",
-    "-v 23,raw48,Helium_Condition_Lower " // ] >= 12TB
-    "-v 24,raw48,Helium_Condition_Upper"  // ]
+    "", "", ""
+  //"-v 23,raw48,Helium_Condition_Lower " // ] >= 12TB
+  //"-v 24,raw48,Helium_Condition_Upper"  // ]
   },
   { "Toshiba L200 (CMR)",
     "TOSHIBA HDW[JK]1(05|10)",
@@ -5145,8 +5149,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD120EMFZ-11A6JA0/81.00A81 (Easystore 0x1058:0x25fb)
       // WDC WD160EMFZ-11AFXA0/81.00A81,
     "WDC WD(7500BFCX|10JFCX|[1-6]0EFRX|[2-8]0EFPX|[23468]0E[FZ]ZX|80EFZZ|1[26]0EMFZ)-.*",
-    "", "",
-    "-v 22,raw48,Helium_Level" // WD80EFAX, WD80EFZX, WD100EFAX, WD120EMFZ, WD160EMFZ
+    "", "", ""
+  //"-v 22,raw48,Helium_Level" // WD80EFAX, WD80EFZX, WD100EFAX, WD120EMFZ, WD160EMFZ
   },
   { "Western Digital Red (SMR)", // ticket #1313, tested with WDC WD60EFAX-68SHWN0/82.00A82
     "WDC WD[2346]0EFAX-.*",
@@ -5158,8 +5162,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD120EFAX-68UNTN0/81.00A81, WDC WD120EFBX-68B0EN0/85.00A85,
       // WDC WD140EFFX-68VBXN0/81.00A81
     "WDC WD(80|10[01]|1[24]0|1[68]1)(JFC|EF[ABFR])X-.*",
-    "", "",
-    "-v 22,raw48,Helium_Level" // >= 12TB
+    "", "", ""
+  //"-v 22,raw48,Helium_Level" // >= 12TB
   },
   { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81,
       // WDC WD6002FFWX-68TZ4N0/83.H0A83, WDC WD101KFBX-68R56N0/83.H0A03,
@@ -5169,7 +5173,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD201KFGX-68BKJN0/83.00A83
     "WDC WD([2-68]00[123]FF[BSW]|1[02][12]KFB|(1[468]|20)[12]KFG)X-.*",
     "", "",
-    "-v 22,raw48,Helium_Level " // not WD102KFBX
+  //"-v 22,raw48,Helium_Level " // not WD102KFBX
     "-v 90,hex48,NAND_Master" // WD201KFGX
   },
   { "Western Digital Purple (Pro)", // tested with WDC WD40PURX-64GVNY0/80.00A80,
@@ -5177,8 +5181,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD80PUZX-64NEAY0/80.H0A80
       // WDC WD121PURP-85B5SY0/82.00A82
     "WDC WD[1234568](0|[0248]1)PU[RZ][PXZ]-.*",
-    "", "", 
-    "-v 22,raw48,Helium_Level" // WD121PURP-85B5SY0, WD80PUZX-64NEAY0
+    "", "", ""
+  //"-v 22,raw48,Helium_Level" // WD121PURP-85B5SY0, WD80PUZX-64NEAY0
   },
   { "Western Digital Gold", // tested with WDC WD1005FBYZ-01YCBB2/RR07,
       // WDC WD1005VBYZ-02RRWB2/RR07, WDC WD2005VBYZ-02RRWB2/RR07
@@ -5188,8 +5192,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD102KRYZ-01A5AB0/01.01H01, WDC WD121KRYZ-01W0RB0/01.01H01,
       // WDC WD141KRYZ-01C66B0/01.01H01, WDC WD161KRYZ-01AGBB0/01.01H01
     "WDC WD([12]005[FV]B|4002FY|4003FR|600[23]FR|800[234]FR|([12][02468]1|102)KR)YZ-.*",
-    "", "",
-    "-v 22,raw48,Helium_Level" // WD121KRYZ, WD141KRYZ
+    "", "", ""
+  //"-v 22,raw48,Helium_Level" // WD121KRYZ, WD141KRYZ
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
       // WDC WD10JPVX-75JC3T0/0301A03,  WDC WD10JPVX-22JC3T0/01.01A01,
