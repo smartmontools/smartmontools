@@ -1,5 +1,15 @@
 $Id$
 
+2024-04-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Western Digital Ultrastar (He10/12): move WD40EZAZ to Blue (SMR).
+	- Western Digital Blue (CMR): rename, add *EAZZ (#1576, GH issue/192) and other.
+	- Western Digital Blue (SMR): 3TB, *BX variant.
+	- Western Digital Red (CMR): rename, add 3TB, move *EF[ABFG]X* to Red Plus.
+	- Western Digital Red Plus (#1675, #1704, GH pull/79).
+	- Western Digital Red Pro: 12TB (#1676), 14TB, 20TB and attribute 90 (#1731).
+
 2024-04-02 Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:
