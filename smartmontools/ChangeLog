@@ -1,5 +1,9 @@
 $Id$
 
+2024-04-26  Christian Franke  <franke@computer.org>
+
+	os_win32/vc1[67]/*: Set svn:eol-style=CRLF, MSVC does not preserve LF.
+
 2024-04-06  Christian Franke  <franke@computer.org>
 
 	drivedb.h: move Toshiba and WDC "Helium" attributes to "DEFAULT" entry.
