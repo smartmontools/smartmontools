@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5519 2023-07-24 15:57:54Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5613 2024-05-08 13:46:51Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -1168,7 +1168,8 @@ static int parse_options(int argc, char** argv, const char * & type,
       printing_is_off = false;
       printslogan();
       // Point arg to the argument in which this option was found.
-      arg = argv[optind-1];
+      // Note: getopt_long() may set optind > argc (e.g. musl libc)
+      arg = argv[optind <= argc ? optind - 1 : argc - 1];
       // Check whether the option is a long option that doesn't map to -h.
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.

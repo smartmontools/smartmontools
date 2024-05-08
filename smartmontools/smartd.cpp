@@ -89,7 +89,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5579 2024-01-12 18:43:41Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5613 2024-05-08 13:46:51Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -5361,7 +5361,8 @@ static int parse_options(int argc, char **argv)
       debugmode=1;
       PrintHead();
       // Point arg to the argument in which this option was found.
-      arg = argv[optind-1];
+      // Note: getopt_long() may set optind > argc (e.g. musl libc)
+      arg = argv[optind <= argc ? optind - 1 : argc - 1];
       // Check whether the option is a long option that doesn't map to -h.
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.

@@ -1,4 +1,11 @@
-$Id: ChangeLog 5612 2024-04-26 16:03:41Z chrfranke $
+$Id: ChangeLog 5613 2024-05-08 13:46:51Z chrfranke $
+
+2024-05-08  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp, smartd.cpp: Fix segfault on missing option argument (#1830).
+
+	getopt*() from musl libc sets 'optind = argc + 1' if the argument of
+	a short option is missing.
 
 2024-04-26  Christian Franke  <franke@computer.org>
 
