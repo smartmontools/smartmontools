@@ -1,5 +1,12 @@
 $Id$
 
+2024-05-08  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp, smartd.cpp: Fix segfault on missing option argument (#1830).
+
+	getopt*() from musl libc sets 'optind = argc + 1' if the argument of
+	a short option is missing.
+
 2024-04-26  Christian Franke  <franke@computer.org>
 
 	os_win32/vc1[67]/*: Set svn:eol-style=CRLF, MSVC does not preserve LF.
