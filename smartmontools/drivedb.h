@@ -4608,7 +4608,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,msec24hour32"
   },
   { "Seagate Exos X18", // tested with ST18000NM002J-2TV133 (pending report)
-    "ST18000NM002J-.*",
+    "ST18000NM00[02]J-.*",
     "", "",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
     "-v 7,raw24/raw32,Seek_Error_Rate "
