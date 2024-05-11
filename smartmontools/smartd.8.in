@@ -194,8 +194,6 @@ Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS"
 .\" %IF ENABLE_ATTRIBUTELOG
 If this option is not specified, attribute information is written to files
 \*(Aq/usr/local/var/lib/smartmontools/attrlog.MODEL\-SERIAL.ata.csv\*(Aq.
-.br
-[NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
 If \*(Aq\-\*(Aq is specified as the argument, attribute log files are
 disabled.
 .Sp
@@ -243,9 +241,6 @@ If the \*(Aq\-u, \-\-warn_as_user\*(Aq option (see below) is used with a
 non-privileged user or group, the following capabilities are also kept:
 CAP_SETGID, CAP_SETUID.
 The capability bounding set is cleared.
-.Sp
-[NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
-Mail notification is no longer suppressed if capabilities are dropped.
 It depends on the local MTA whether mail could be send from a root process
 with all capabilities dropped.
 It works with the \fBpostfix\fP MTA.
@@ -287,8 +282,6 @@ Sets the interval between disk checks to \fIN\fP seconds, where
 \fIN\fP is a decimal integer.  The minimum allowed value is ten and
 the maximum is the largest positive integer that can be represented on
 your system (often 2^31\-1).  The default is 1800 seconds.
-.br
-[NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
 The interval could be overridden with the \*(Aq\-c i=N\*(Aq directive,
 see \fBsmartd.conf\fP(5) man page.
 .Sp
@@ -392,19 +385,16 @@ file \fB/usr/local/etc/smartd.conf\fP has errors, \fBsmartd\fP will continue
 to run, waiting to load a configuration file listing valid devices.
 .Sp
 .I nodev0
-\- [NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
-Same as \*(Aqnodev\*(Aq, except that the exit status is 0 if there are no
-devices to monitor.
+\- Same as \*(Aqnodev\*(Aq, except that the exit status is 0 if there are
+no devices to monitor.
 .Sp
 .I nodev0startup
-\- [NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
-Same as \*(Aqnodevstartup\*(Aq, except that the exit status is 0 if there are no
-devices to monitor.
+\- Same as \*(Aqnodevstartup\*(Aq, except that the exit status is 0 if there
+are no devices to monitor.
 .Sp
 .I errors,nodev0
-\- [NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
-Same as \*(Aqerrors\*(Aq, except that the exit status is 0 if there are no
-devices to monitor.
+\- Same as \*(Aqerrors\*(Aq, except that the exit status is 0 if there are
+no devices to monitor.
 .Sp
 .I onecheck
 \- Start \fBsmartd\fP in debug mode, then register devices, then check
@@ -484,8 +474,6 @@ If this option is not specified, state information is maintained in files
 for ATA devices and
 \*(Aq/usr/local/var/lib/smartmontools/smartd.VENDOR\-MODEL\-SERIAL.scsi.state\*(Aq
 for SCSI devices.
-.br
-[NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
 If \*(Aq\-\*(Aq is specified as the argument, state files are disabled.
 .Sp
 .\" %ENDIF ENABLE_SAVESTATES
@@ -524,7 +512,6 @@ The default script is
 .\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Solaris Cygwin
 .TP
 .B \-u USER[:GROUP], \-\-warn\-as\-user=USER[:GROUP]
-[NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
 Run the warning script as a non-privileged user instead of root.
 The USER and optional GROUP may be specified as numeric ids or names.
 If no GROUP is specified, the default group of USER is used instead.
@@ -544,8 +531,7 @@ This is the default.
 .\" %IF OS Windows
 .TP
 .B \-u MODE, \-\-warn\-as\-user=MODE
-[Windows only: NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
-Run the warning script with a modified access token.
+[Windows only] Run the warning script with a modified access token.
 The valid arguments to this option are:
 .Sp
 .I restricted
@@ -813,8 +799,6 @@ can't be monitored.
 .B 17:
 \fBsmartd\fP
 didn't find any devices to monitor.
-.br
-[NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
 This could be changed to \fB0\fP (success) with one of the
 \*(Aq-q *nodev0*\*(Aq options, see above.
 .TP

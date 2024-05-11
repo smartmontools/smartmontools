@@ -460,8 +460,7 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 bridge.
 .Sp
 .I sntasmedia
-\- [NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
-this device type is for NVMe disks that are behind an ASMedia USB to NVMe
+\- this device type is for NVMe disks that are behind an ASMedia USB to NVMe
 bridge.
 .Sp
 .I sntjmicron[,NSID]
@@ -1691,7 +1690,6 @@ Allows one to override \fBsmartd\fP command line options for specific devices.
 Only the following OPTION is currently supported:
 .TP
 .B \-c i=N, \-c interval=N
-[NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
 Sets the interval between disk checks to N seconds, where N is a decimal
 integer.
 The minimum allowed value is ten.

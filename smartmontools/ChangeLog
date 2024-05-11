@@ -1,5 +1,74 @@
 $Id$
 
+2024-05-08  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp, smartd.cpp: Fix segfault on missing option argument (#1830).
+
+	getopt*() from musl libc sets 'optind = argc + 1' if the argument of
+	a short option is missing.
+
+2024-04-26  Christian Franke  <franke@computer.org>
+
+	os_win32/vc1[67]/*: Set svn:eol-style=CRLF, MSVC does not preserve LF.
+
+2024-04-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h: move Toshiba and WDC "Helium" attributes to "DEFAULT" entry.
+	Drop maintenance of 6.0-6.4 branches due to missing "DEFAULT" entry.
+
+	drivedb.h:
+	- Western Digital Ultrastar (He10/12): move WD40EZAZ to Blue (SMR).
+	- Western Digital Blue (CMR): rename, add *EAZZ (#1576, GH issue/192) and other.
+	- Western Digital Blue (SMR): 3TB, *BX variant.
+	- Western Digital Red (CMR): rename, add 3TB, move *EF[ABFG]X* to Red Plus.
+	- Western Digital Red Plus (#1675, #1704, GH pull/79).
+	- Western Digital Red Pro: 12TB (#1676), 14TB, 20TB and attribute 90 (#1731).
+
+2024-04-02 Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Western Digital Ultrastar (He10/12): WDC WD40EDAZ-11SLVB0 (#1411)
+	- Western Digital Red Pro: WDC WD161KFGX-68AFPN0, 
+	  WDC WD181KFGX-68AFPN0 (#1611, GH issues/173 and 
+	  reported by Ben Lovett via Smartmontools-database 2023-05-21)
+	- Toshiba 2.5\" HDD MQ01ABF...: TOSHIBA MQ01ABF032 ((based on patch from #1804)
+	- Toshiba N300/MN NAS HDD: TOSHIBA HDWG51J and rest from product sheet
+	  reported by Andreas Bofjall via Smartmontools-database 2024-02-29
+
+2024-03-29  Christian Franke  <franke@computer.org>
+
+	man pages: Remove EXPERIMENTAL notes for features added before 7.3.
+
+	nvmeprint.cpp: Print NSID used for self-tests and '-l nvmelog'.
+
+	nvmeprint.cpp: Fix self-test for single namespace devices.
+	Use broadcast NSID if only one namespace is supported
+	(#1741, GH issues/217).
+	smartctl.8.in: Document new behavior.
+
+2024-03-28  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Kingston DataTraveller (0x0951:0x177f) (#1756).
+	- USB: Asus (0x0b05:0x17f8) (#1810).
+	- USB: TerraMaster (0x1000:0x1352) (#1818).
+	- USB: Kingston (0x11b0:0x6388).
+	- USB: JMicron (0x152d:0x0580) (#1766, #1788).
+	- USB: JMicron (0x152d:0xb567) (#1797).
+	- USB: Pinas (0x174e:0x1155, 0x1741:0x1156) (#1772, GH pull/253).
+	- USB: Verbatim (0x18a5:0x0446) (#1812).
+	- USB: Actions AM8180 (0x1de1:0xe101) (#1681).
+	- USB: Transcend ESD310 (0x2174:0x2100) (#1767).
+	- USB: KIOXIA (0x30de:0x1000).
+
+2024-03-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SSSTC ERX GD/CD Series SSDs: update attributes, add 3.8TB, (#1799).
+	- SK hynix SATA SSDs: update attributes, add SE5110 (#1776, #1811),
+	  HFS*FEH-B* variants (#1739, #1758, #1805, #1809),
+	  HFS*H2X069N variants (#1686).
+
 2024-01-24  Christian Franke  <franke@computer.org>
 
 	Fix or disable all warnings from shellcheck.
