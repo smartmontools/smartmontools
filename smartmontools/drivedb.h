@@ -3806,7 +3806,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Western Digital Ultrastar DC HC530", // tested with
       // WDC  WUH721414ALE604/LDAZW110, WDC  WUH721414ALE6L4/LDGNW07G
     "WDC  ?WUH721414ALE6[0L]4",
-    "", "", "",
+    "", "",
   //"-v 22,raw48,Helium_Level "
     "-v 188,raw16,Command_Timeout "
   },
