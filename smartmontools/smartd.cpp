@@ -3573,73 +3573,79 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   if (cfg.powermode && !state.powermodefail) {
     int dontcheck=0, powermode=ataCheckPowerMode(atadev);
     const char * mode = 0;
-    if (0 <= powermode && powermode < 0xff) {
+    int powermode2, trial = 0;
+
+    while (1)
+    {
+      switch (powermode){
+      case -1:
+        // SLEEP
+        mode="SLEEP";
+        if (cfg.powermode>=1)
+          dontcheck=1;
+        break;
+      case 0x00:
+        // STANDBY
+        mode="STANDBY";
+        if (cfg.powermode>=2)
+          dontcheck=1;
+        break;
+      case 0x01:
+        // STANDBY_Y
+        mode="STANDBY_Y";
+        if (cfg.powermode>=2)
+          dontcheck=1;
+        break;
+      case 0x80:
+        // IDLE
+        mode="IDLE";
+        if (cfg.powermode>=3)
+          dontcheck=1;
+        break;
+      case 0x81:
+        // IDLE_A
+        mode="IDLE_A";
+        if (cfg.powermode>=3)
+          dontcheck=1;
+        break;
+      case 0x82:
+        // IDLE_B
+        mode="IDLE_B";
+        if (cfg.powermode>=3)
+          dontcheck=1;
+        break;
+      case 0x83:
+        // IDLE_C
+        mode="IDLE_C";
+        if (cfg.powermode>=3)
+          dontcheck=1;
+        break;
+      case 0xff:
+        // ACTIVE/IDLE
+      case 0x40:
+        // ACTIVE
+      case 0x41:
+        // ACTIVE
+        mode="ACTIVE or IDLE";
+        break;
+      default:
+        // UNKNOWN
+        PrintOut(LOG_CRIT, "Device: %s, CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Directive\n",
+          name, powermode);
+        state.powermodefail = true;
+        break;
+      }
+
+      if (trial > 0 || powermode < 0 || dontcheck == 0)
+        break;
+      trial++;
+
       // wait for possible spin up and check again
-      int powermode2;
       sleep(5);
       powermode2 = ataCheckPowerMode(atadev);
       if (powermode2 > powermode)
         PrintOut(LOG_INFO, "Device: %s, CHECK POWER STATUS spins up disk (0x%02x -> 0x%02x)\n", name, powermode, powermode2);
       powermode = powermode2;
-    }
-        
-    switch (powermode){
-    case -1:
-      // SLEEP
-      mode="SLEEP";
-      if (cfg.powermode>=1)
-        dontcheck=1;
-      break;
-    case 0x00:
-      // STANDBY
-      mode="STANDBY";
-      if (cfg.powermode>=2)
-        dontcheck=1;
-      break;
-    case 0x01:
-      // STANDBY_Y
-      mode="STANDBY_Y";
-      if (cfg.powermode>=2)
-        dontcheck=1;
-      break;
-    case 0x80:
-      // IDLE
-      mode="IDLE";
-      if (cfg.powermode>=3)
-        dontcheck=1;
-      break;
-    case 0x81:
-      // IDLE_A
-      mode="IDLE_A";
-      if (cfg.powermode>=3)
-        dontcheck=1;
-      break;
-    case 0x82:
-      // IDLE_B
-      mode="IDLE_B";
-      if (cfg.powermode>=3)
-        dontcheck=1;
-      break;
-    case 0x83:
-      // IDLE_C
-      mode="IDLE_C";
-      if (cfg.powermode>=3)
-        dontcheck=1;
-      break;
-    case 0xff:
-      // ACTIVE/IDLE
-    case 0x40:
-      // ACTIVE
-    case 0x41:
-      // ACTIVE
-      mode="ACTIVE or IDLE";
-      break;
-    default:
-      // UNKNOWN
-      PrintOut(LOG_CRIT, "Device: %s, CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Directive\n",
-        name, powermode);
-      state.powermodefail = true;
-      break;
     }
 
     // if we are going to skip a check, return now
