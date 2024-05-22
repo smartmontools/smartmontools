@@ -1541,7 +1541,9 @@ static void Directives()
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
-           "  -n MODE No check if: never, sleep[,N][,q], standby[,N][,q], idle[,N][,q]\n"
+           "  -n MODE No check if: never, sleep[,N][,q], standby[,N][,q],\n"
+           "          standby_y[,N][,q], standby_z[,N][,q], idle[,N][,q], idle_a[,N][,q],\n"
+           "          idle_b[,N][,q], idle_c[,N][,q]\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
            "  -l TYPE Monitor SMART log or self-test status:\n"
@@ -3581,43 +3583,43 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       case -1:
         // SLEEP
         mode="SLEEP";
-        if (cfg.powermode>=1)
+        if (cfg.powermode>=2)
           dontcheck=1;
         break;
       case 0x00:
         // STANDBY
         mode="STANDBY";
-        if (cfg.powermode>=2)
+        if (cfg.powermode>=3)
           dontcheck=1;
         break;
       case 0x01:
         // STANDBY_Y
         mode="STANDBY_Y";
-        if (cfg.powermode>=2)
+        if (cfg.powermode>=4)
           dontcheck=1;
         break;
       case 0x80:
         // IDLE
         mode="IDLE";
-        if (cfg.powermode>=3)
+        if (cfg.powermode>=7)
           dontcheck=1;
         break;
       case 0x81:
         // IDLE_A
         mode="IDLE_A";
-        if (cfg.powermode>=3)
+        if (cfg.powermode>=7)
           dontcheck=1;
         break;
       case 0x82:
         // IDLE_B
         mode="IDLE_B";
-        if (cfg.powermode>=3)
+        if (cfg.powermode>=6)
           dontcheck=1;
         break;
       case 0x83:
         // IDLE_C
         mode="IDLE_C";
-        if (cfg.powermode>=3)
+        if (cfg.powermode>=5)
           dontcheck=1;
         break;
       case 0xff:
@@ -4207,7 +4209,9 @@ static void printoutvaliddirectiveargs(int priority, char d)
 {
   switch (d) {
   case 'n':
-    PrintOut(priority, "never[,N][,q], sleep[,N][,q], standby[,N][,q], idle[,N][,q]");
+    PrintOut(priority, "never[,N][,q], sleep[,N][,q], standby[,N][,q], "
+                       "standby_y[,N][,q], standby_z[,N][,q], idle[,N][,q], "
+                       "idle_a[,N][,q], idle_b[,N][,q], idle_c[,N][,q]");
     break;
   case 's':
     PrintOut(priority, "valid_regular_expression");
@@ -4521,11 +4525,21 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
       if (!strcmp(arg, "never"))
         cfg.powermode = 0;
       else if (!strcmp(arg, "sleep"))
-        cfg.powermode = 1;
-      else if (!strcmp(arg, "standby"))
         cfg.powermode = 2;
-      else if (!strcmp(arg, "idle"))
+      else if (!strcmp(arg, "standby"))
         cfg.powermode = 3;
+      else if (!strcmp(arg, "standby_z"))
+        cfg.powermode = 3;
+      else if (!strcmp(arg, "standby_y"))
+        cfg.powermode = 4;
+      else if (!strcmp(arg, "idle_c"))
+        cfg.powermode = 5;
+      else if (!strcmp(arg, "idle_b"))
+        cfg.powermode = 6;
+      else if (!strcmp(arg, "idle"))
+        cfg.powermode = 7;
+      else if (!strcmp(arg, "idle_a"))
+        cfg.powermode = 7;
       else
         badarg = 1;
 
