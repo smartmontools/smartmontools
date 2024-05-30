@@ -2774,6 +2774,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
     CloseDevice(nvmedev, name);
     return 2;
   }
+  nvmedev->set_smart_per_ns(id_ctrl.lpa & 0x1);
 
   // Get drive identity
   char model[40+1], serial[20+1], firmware[8+1];

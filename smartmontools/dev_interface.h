@@ -711,6 +711,14 @@ public:
   unsigned get_nsid() const
     { return m_nsid; }
 
+  /// Get per namespace smart support.
+  bool get_suport_smart_per_ns() const
+    { return m_support_smart_per_ns; }
+
+  /// Set per namespace smart support.
+  void set_smart_per_ns(bool support)
+    { m_support_smart_per_ns = support; }
+
 protected:
   /// Hide/unhide NVMe interface.
   void hide_nvme(bool hide = true)
@@ -719,7 +727,8 @@ protected:
   /// Constructor requires namespace ID, registers device as NVMe.
   explicit nvme_device(unsigned nsid)
     : smart_device(never_called),
-      m_nsid(nsid)
+      m_nsid(nsid),
+      m_support_smart_per_ns(false)
     { hide_nvme(false); }
 
   /// Set namespace id.
@@ -733,6 +742,7 @@ protected:
 
 private:
   unsigned m_nsid;
+  bool m_support_smart_per_ns;
 };
 
 

@@ -670,6 +670,8 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     return FAILID;
   }
 
+  device->set_smart_per_ns(id_ctrl.lpa & 0x1);
+
   // Print Identify Controller/Namespace info
   if (options.drive_info || options.drive_capabilities) {
     pout("=== START OF INFORMATION SECTION ===\n");
