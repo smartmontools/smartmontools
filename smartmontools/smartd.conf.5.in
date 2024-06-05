@@ -611,7 +611,7 @@ Directives.
 is not supported and may result in bogus warnings until smartd is restarted.\fP
 .TP
 .B \-n POWERMODE[,N][,q]
-[ATA only] This \*(Aqnocheck\*(Aq Directive is used to prevent a disk from
+[ATA and SCSI] This \*(Aqnocheck\*(Aq Directive is used to prevent a disk from
 being spun-up when it is periodically polled by \fBsmartd\fP.
 .Sp
 ATA disks have five different power states.  In order of increasing

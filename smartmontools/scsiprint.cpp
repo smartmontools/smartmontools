@@ -3531,13 +3531,6 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             // 5Eh/47h           BK    POWER STATE CHANGE TO DEVICE CONTROL
 
             switch (powermode) {
-            case -1:
-               if (device->is_syscall_unsup()) {
-                   pout("CHECK POWER MODE not implemented, ignoring -n option\n"); break;
-                }
-                powername = "SLEEP";   powerlimit = 2;
-                break;
-
             case 0x00: // LOW POWER CONDITION ON
                 powername = "LOW POWER"; powerlimit = 3; break;
             case 0x01: // IDLE CONDITION ACTIVATED BY TIMER
