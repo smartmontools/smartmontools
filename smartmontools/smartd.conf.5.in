@@ -647,13 +647,40 @@ Directive is not given.
 \- check the device unless it is in SLEEP mode.
 .Sp
 .I standby
-\- check the device unless it is in SLEEP or STANDBY mode.  In
+\- check the device unless it is in SLEEP or STANDBY (STANDBY_Z) mode. In
 these modes most disks are not spinning, so if you want to prevent
 a laptop disk from spinning up each time that \fBsmartd\fP polls,
 this is probably what you want.
 .Sp
+.I standby_z
+\- check the device unless it is in SLEEP or STANDBY (STANDBY_Z) mode.
+STANDBY_Z is equivalent to STANDBY for modern drives with EPC support.
+.Sp
+.I standby_y
+\- check the device unless it is in SLEEP, STANDBY (STANDBY_Z) or
+STANDBY_Y mode. The STANDBY_Y mode typically means spindle rotation at
+low RPM with heads unloaded.
+.Sp
+.I idle_c
+\- check the device unless it is in SLEEP, STANDBY (STANDBY_Z),
+STANDBY_Y or IDLE_C mode. The IDLE_C mode typically means spindle rotation
+at low RPM with heads unloaded.
+.Sp
+.I idle_b
+\- check the device unless it is in SLEEP, STANDBY (STANDBY_Z),
+STANDBY_Y, IDLE_C or IDLE_B mode. The IDLE_B mode typically means spindle
+rotation at full RPM with heads unloaded. So if you want to prevent
+high head load cycle count with \fBsmartd\fP polls,
+this is probably what you want.
+.Sp
+.I idle_a
+\- check the device unless it is in SLEEP, STANDBY (STANDBY_Z),
+STANDBY_Y, IDLE_C, IDLE_B or IDLE (IDLE_A) mode. IDLE_A is equivalent
+to IDLE for modern drives with EPC support.
+.Sp
 .I idle
-\- check the device unless it is in SLEEP, STANDBY or IDLE mode.
+\- check the device unless it is in SLEEP, STANDBY (STANDBY_Z),
+STANDBY_Y, IDLE_C, IDLE_B or IDLE (IDLE_A) mode.
 In the IDLE state, most disks are still spinning, so this is probably
 not what you want.
 .Sp
