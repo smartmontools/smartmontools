@@ -6688,6 +6688,14 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  {
+  "USB: ; JMicron", // USB->SATA
+    "0x152d:0xa580",
+    "", // 0x209
+    "",
+    "-d sat"
+  },
+
 /*
 }; // builtin_knowndrives[]
  */
