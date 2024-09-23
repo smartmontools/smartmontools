@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2004-22 Christian Franke
+ * Copyright (C) 2004-24 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2015    Nidhi Malhotra <nidhi.malhotra@pmcs.com>
@@ -73,7 +73,7 @@ extern unsigned char failuretest_permissive;
 #define strnicmp strncasecmp
 #endif
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 5419 2022-11-22 17:30:56Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 5615 2024-09-23 17:38:04Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -4165,6 +4165,8 @@ std::string win_smart_interface::get_os_version_str()
           case 19045:   w = "w10-22H2"; break;
           case 22000:   w = "w11-21H2"; break;
           case 22621:   w = "w11-22H2"; break;
+          case 22631:   w = "w11-23H2"; break;
+          case 26100:   w = "w11-24H2"; break;
           default:      w = (vi.dwBuildNumber < 22000
                           ? "w10"
                           : "w11");

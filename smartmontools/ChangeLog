@@ -1,6 +1,8 @@
-$Id: ChangeLog 5614 2024-09-23 17:34:00Z chrfranke $
+$Id: ChangeLog 5615 2024-09-23 17:38:04Z chrfranke $
 
 2024-09-23  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 11 23H2 and 24H2 build numbers.
 
 	drivedb.h:
 	- Toshiba MG09ACA... Enterprise Capacity HDD: 10-14GB,
