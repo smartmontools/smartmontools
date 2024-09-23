@@ -4028,8 +4028,9 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MG08ADA[468]00[AEN]Y?",
     "", "", ""
   },
-  { "Toshiba MG09ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG09ACA18TE/0102
-    "TOSHIBA MG09ACA1[68]T[AE]Y?",
+  { "Toshiba MG09ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG09ACA18TE/0102,
+      // "MG09ACA12TE          01GV181D7A01906LEN/BB3A"
+    "(TOSHIBA )?MG09ACA1[02468]T[AE]Y?( .*LEN)?",
     "", "",
   //"-v 23,raw48,Helium_Condition_Lower "
   //"-v 24,raw48,Helium_Condition_Upper "
@@ -4037,6 +4038,13 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba MG10ACA... Enterprise Capacity HDD", // tested with TOSHIBA MG10ACA20TE/0102
     "TOSHIBA MG10ACA20T[AE]Y?",
+    "", "",
+  //"-v 23,raw48,Helium_Condition_Lower "
+  //"-v 24,raw48,Helium_Condition_Upper "
+    "-v 27,raw48,MAMR_Health_Monitor"
+  },
+  { "Toshiba MG10ADA... Enterprise Capacity HDD", // tested with TOSHIBA MG10ADA10TE/0101
+    "TOSHIBA MG10ADA([12468]00|10T)[EN]",
     "", "",
   //"-v 23,raw48,Helium_Condition_Lower "
   //"-v 24,raw48,Helium_Condition_Upper "
@@ -4368,9 +4376,9 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207957en",
     ""
   },
-  { "Seagate Barracuda 7200.12", // new firmware
+  { "Seagate Barracuda 7200.12", // new firmware, tested with ST3500418AS/HP34
     "ST3(160318|250318|320418|50041[08]|750528|1000528)AS",
-    "CC4[9A-Z]",
+    "CC4[9A-Z]|HP34", // HP34: 180 Unknown_HDD_Attribute
     "", ""
   },
   { "Seagate Barracuda 7200.12", // unknown firmware
@@ -4382,13 +4390,12 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/213891en",
     ""
   },
-  { "Seagate Barracuda 7200.12", // tested with ST3250312AS/JC45, ST31000524AS/JC45,
-      // ST3500413AS/JC4B, ST3750525AS/JC4B
-      // ST3160316AS/JC45
-      // Possible options: ST31000524AS, ST3500413AS, ST3250312AS ,
-      // ST3750525AS, ST3320413AS, ST3160316AS
+  { "Seagate Barracuda 7200.12", // tested with ST3160316AS/JC45, ST3250312AS/JC45,
+      // ST3500413AS/JC47, ST3500413AS/JC4B, ST3750525AS/JC4B, ST31000524AS/JC45,
+      // ST31000524AS/JC4B
     "ST3(160318|25031[128]|320418|50041[038]|750(518|52[358])|100052[348]|320413|160316)AS",
     "", "", ""
+    "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda XT", // tested with ST32000641AS/CC13,
       // ST4000DX000-1C5160/CC42
@@ -4437,8 +4444,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate BarraCuda 3.5 (CMR)", // tested with ST1000DM010-2EP102/CC43,
       // ST3000DM008-2DM166/CC26, ST4000DM006-2G5107/DN02, ST10000DM0004-1ZC101/DN01,
       // ST12000DM0007-2GR116/DN01
-    "ST(500DM009|1000DM010|2000DM00[67]|3000DM00[89]|4000DM006|6000DM004|"
-       "8000DM005|10000DM0004|12000DM0007)-.*",
+    "ST(500DM009|1000DM010|2000DM00[67]|3000DM00[89]|4000DM006|6000DM004|8000DM005|10000DM0004|12000DM0007)-.*",
     "", "",
     "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
@@ -4543,8 +4549,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Constellation ES.2 (SATA 6Gb/s)", // tested with ST32000645NS/0004, ST33000650NS,
-      // MB3000EBKAB/HPG6
-    "ST3(2000645|300065[012])NS|"
+      // "ST33000650NS         81Y9799 81Y3865IBM/BB3A", MB3000EBKAB/HPG6,
+    "ST3(2000645|300065[012])NS( .*IBM)?|"
     "MB3000EBKAB", // HP OEM
     "", "", ""
   },
