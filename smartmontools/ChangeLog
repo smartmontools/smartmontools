@@ -1,5 +1,11 @@
 $Id$
 
+2024-10-22  Ameer Hamza  <ahamza@ixsystems.com>
+
+	smartd.cpp: Add support for writing attribute information for
+	NVMe devices in smartd, similar to how it is already handled
+	for SCSI and ATA device types.
+
 2024-09-23  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 11 23H2 and 24H2 build numbers.

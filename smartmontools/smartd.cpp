@@ -556,6 +556,10 @@ struct temp_dev_state
   ata_smart_thresholds_pvt smartthres{};  // SMART thresholds
   bool offline_started{};                 // true if offline data collection was started
   bool selftest_started{};                // true if self-test was started
+
+  // NVME ONLY
+  bool nvme_attr_write{};
+  nvme_smart_log nvme_smart_log_page{};  // critical warnings reported by smart page
 };
 
 /// Runtime state data for a device.
@@ -822,6 +826,40 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
   return true;
 }
 
+// Format 128 bit LE integer for printing.
+// Add value with SI prefixes if BYTES_PER_UNIT is specified.
+static const char * nvme_le128_to_str(char (& str)[64], const unsigned char (& val)[16],
+  unsigned bytes_per_unit = 0)
+{
+  uint64_t hi = val[15];
+  for (int i = 15-1; i >= 8; i--) {
+    hi <<= 8; hi += val[i];
+  }
+  uint64_t lo = val[7];
+  for (int i =  7-1; i >= 0; i--) {
+    lo <<= 8; lo += val[i];
+  }
+
+  if (bytes_per_unit) {
+    /* If compiler does not support __int128, fallback to maximum uint64_t */
+#if defined(HAVE___INT128)
+    unsigned __int128 new_val = (((unsigned __int128)hi << 64) | lo) * bytes_per_unit;
+    hi = (uint64_t)(new_val >> 64);
+    lo = (uint64_t)new_val;
+#else
+    hi = 0;
+    lo = lo * bytes_per_unit;
+#endif // HAVE___INT128
+  }
+
+  if (!hi)
+    snprintf(str, sizeof(str), "%" PRIu64, lo);
+  else
+    uint128_hilo_to_str(str, (int)sizeof(str), hi, lo);
+
+  return (str);
+}
+
 // Write to the attrlog file
 static bool write_dev_attrlog(const char * path, const dev_state & state)
 {
@@ -867,9 +905,42 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
   if(state.scsi_nonmedium_error.found && state.scsi_nonmedium_error.nme.gotPC0) {
     fprintf(f, "\tnon-medium-errors;%" PRIu64 ";", state.scsi_nonmedium_error.nme.counterPC0);
   }
-  // write SCSI current temperature if it is monitored
+  // write SCSI/NVMe current temperature if it is monitored
   if (state.temperature)
     fprintf(f, "\ttemperature;%d;", state.temperature);
+
+  if (!state.nvme_attr_write) {
+    // end of line
+    fprintf(f, "\n");
+    return true;
+  }
+
+  char buf[64];
+  const nvme_smart_log& smart = state.nvme_smart_log_page;
+  // Write Critical Warnings for NVMe
+  fprintf(f, "\tavailable_spare;%u%%;", smart.avail_spare);
+  fprintf(f, "\tavailable_spare_threshold;%u%%;", smart.spare_thresh);
+  fprintf(f, "\tpercentage_used;%u%%;", smart.percent_used);
+  fprintf(f, "\tdata_units_read;%s;", nvme_le128_to_str(buf, smart.data_units_read, 1000*512));
+  fprintf(f, "\tdata_units_written;%s;", nvme_le128_to_str(buf, smart.data_units_written, 1000*512));
+  fprintf(f, "\thost_read_commands;%s;", nvme_le128_to_str(buf, smart.host_reads));
+  fprintf(f, "\thost_write_commands;%s;", nvme_le128_to_str(buf, smart.host_writes));
+  fprintf(f, "\tcontroller_busy_time;%s;", nvme_le128_to_str(buf, smart.ctrl_busy_time));
+  fprintf(f, "\tpower_cycles;%s;", nvme_le128_to_str(buf, smart.power_cycles));
+  fprintf(f, "\tpower_on_hours;%s;", nvme_le128_to_str(buf, smart.power_on_hours));
+  fprintf(f, "\tunsafe_shutdowns;%s;", nvme_le128_to_str(buf, smart.unsafe_shutdowns));
+  fprintf(f, "\tmedia_and_data_itegrity_errors;%s;", nvme_le128_to_str(buf, smart.media_errors));
+  fprintf(f, "\terror_information_log_entries;%s;", nvme_le128_to_str(buf, smart.num_err_log_entries));
+  fprintf(f, "\twarning_comp_temperature_time;%d;", smart.warning_temp_time);
+  fprintf(f, "\tcritical_comp_temperature_time;%d;", smart.critical_comp_time);
+  fprintf(f, "\tcritical_warning;0x%02x;", smart.critical_warning);
+  fprintf(f, "\tspare_below_threshold;%d;", !!(smart.critical_warning & 0x01));
+  fprintf(f, "\ttemperature_above_or_below_threshold;%d;", !!(smart.critical_warning & 0x02));
+  fprintf(f, "\treliability_degraded;%d;", !!(smart.critical_warning & 0x04));
+  fprintf(f, "\tmedia_read_only;%d;", !!(smart.critical_warning & 0x08));
+  fprintf(f, "\tvolatile_memory_backup_failed;%d;", !!(smart.critical_warning & 0x10));
+  fprintf(f, "\tpersistent_memory_region_unreliable;%d;", !!(smart.critical_warning & 0x20));
+
   // end of line
   fprintf(f, "\n");
   return true;
@@ -2846,17 +2917,23 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
 
   CloseDevice(nvmedev, name);
 
-  if (!state_path_prefix.empty()) {
+  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty()) {
     // Build file name for state file
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
     nsstr[0] = 0;
     if (nsid != 0xffffffff)
       snprintf(nsstr, sizeof(nsstr), "-n%u", nsid);
-    cfg.state_file = strprintf("%s%s-%s%s.nvme.state", state_path_prefix.c_str(), model, serial, nsstr);
-    // Read previous state
-    if (read_dev_state(cfg.state_file.c_str(), state))
-      PrintOut(LOG_INFO, "Device: %s, state read from %s\n", name, cfg.state_file.c_str());
+    if (!state_path_prefix.empty()) {
+      cfg.state_file = strprintf("%s%s-%s%s.nvme.state", state_path_prefix.c_str(), model, serial, nsstr);
+      // Read previous state
+      if (read_dev_state(cfg.state_file.c_str(), state))
+        PrintOut(LOG_INFO, "Device: %s, state read from %s\n", name, cfg.state_file.c_str());
+    }
+    if (!attrlog_path_prefix.empty()) {
+      state.nvme_attr_write = true;
+      cfg.attrlog_file = strprintf("%s%s-%s%s.nvme.csv", attrlog_path_prefix.c_str(), model, serial, nsstr);
+    }
   }
 
   finish_device_scan(cfg, state);
@@ -3926,7 +4003,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
   }
 
   // Check temperature limits
-  if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
+  if (!cfg.attrlog_file.empty() || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
     int k = nvme_get_max_temp_kelvin(smart_log);
     // Convert Kelvin to positive Celsius (TODO: Allow negative temperatures)
     int c = k - 273;
@@ -3934,7 +4011,11 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
       c = 1;
     else if (c > 0xff)
       c = 0xff;
-    CheckTemperature(cfg, state, c, 0);
+    if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
+      CheckTemperature(cfg, state, c, 0);
+    if (!cfg.attrlog_file.empty()) {
+      state.temperature = c;
+    }
   }
 
   // Check if number of errors has increased
@@ -3946,6 +4027,9 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
     }
     // else // TODO: Handle decrease of count?
   }
+
+  if (!cfg.attrlog_file.empty())
+    memcpy(&state.nvme_smart_log_page, &smart_log, sizeof(smart_log));
 
   CloseDevice(nvmedev, name);
   state.attrlog_dirty = true;
