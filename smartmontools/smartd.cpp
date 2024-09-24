@@ -556,6 +556,9 @@ struct temp_dev_state
   ata_smart_thresholds_pvt smartthres{};  // SMART thresholds
   bool offline_started{};                 // true if offline data collection was started
   bool selftest_started{};                // true if self-test was started
+
+  // NVME ONLY
+  unsigned char critical_warning{};       // Critical Warnings
 };
 
 /// Runtime state data for a device.
@@ -867,9 +870,29 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
   if(state.scsi_nonmedium_error.found && state.scsi_nonmedium_error.nme.gotPC0) {
     fprintf(f, "\tnon-medium-errors;%" PRIu64 ";", state.scsi_nonmedium_error.nme.counterPC0);
   }
-  // write SCSI current temperature if it is monitored
+  // write SCSI/NVMe current temperature if it is monitored
   if (state.temperature)
     fprintf(f, "\ttemperature;%d;", state.temperature);
+
+  // Write Critical Warnings for NVMe
+  if (state.critical_warning) {
+    unsigned char w = state.critical_warning;
+    if (w & 0x01)
+        fprintf(f, "\tspare_below_threshold;%d;", !!(w & 0x01));
+    if (w & 0x02)
+        fprintf(f, "\ttemperature_above_or_below_threshold;%d;", !!(w & 0x02));
+    if (w & 0x04)
+        fprintf(f, "\treliability_degraded;%d;", !!(w & 0x04));
+    if (w & 0x08)
+        fprintf(f, "\tmedia_read_only;%d;", !!(w & 0x08));
+    if (w & 0x10)
+        fprintf(f, "\tvolatile_memory_backup_failed;%d;", !!(w & 0x10));
+    if (w & 0x20)
+        fprintf(f, "\tpersistent_memory_region_unreliable;%d;", !!(w & 0x20));
+    if (w & ~0x3f)
+        fprintf(f, "\tunknown_critical_warning(s);%d;", (w & ~0x3f) >> 6);
+  }
+
   // end of line
   fprintf(f, "\n");
   return true;
@@ -2846,17 +2869,21 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
 
   CloseDevice(nvmedev, name);
 
-  if (!state_path_prefix.empty()) {
+  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty()) {
     // Build file name for state file
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
     nsstr[0] = 0;
     if (nsid != 0xffffffff)
       snprintf(nsstr, sizeof(nsstr), "-n%u", nsid);
-    cfg.state_file = strprintf("%s%s-%s%s.nvme.state", state_path_prefix.c_str(), model, serial, nsstr);
-    // Read previous state
-    if (read_dev_state(cfg.state_file.c_str(), state))
-      PrintOut(LOG_INFO, "Device: %s, state read from %s\n", name, cfg.state_file.c_str());
+    if (!state_path_prefix.empty()) {
+      cfg.state_file = strprintf("%s%s-%s%s.nvme.state", state_path_prefix.c_str(), model, serial, nsstr);
+      // Read previous state
+      if (read_dev_state(cfg.state_file.c_str(), state))
+        PrintOut(LOG_INFO, "Device: %s, state read from %s\n", name, cfg.state_file.c_str());
+    }
+    if (!attrlog_path_prefix.empty())
+      cfg.attrlog_file = strprintf("%s%s-%s%s.nvme.csv", attrlog_path_prefix.c_str(), model, serial, nsstr);
   }
 
   finish_device_scan(cfg, state);
@@ -3926,7 +3953,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
   }
 
   // Check temperature limits
-  if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
+  if (!cfg.attrlog_file.empty() || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
     int k = nvme_get_max_temp_kelvin(smart_log);
     // Convert Kelvin to positive Celsius (TODO: Allow negative temperatures)
     int c = k - 273;
@@ -3934,7 +3961,12 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
       c = 1;
     else if (c > 0xff)
       c = 0xff;
-    CheckTemperature(cfg, state, c, 0);
+    if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
+      CheckTemperature(cfg, state, c, 0);
+    if (!cfg.attrlog_file.empty()) {
+      state.temperature = c;
+      state.critical_warning = smart_log.critical_warning;
+    }
   }
 
   // Check if number of errors has increased
