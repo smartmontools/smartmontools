@@ -1,4 +1,10 @@
-$Id: ChangeLog 5615 2024-09-23 17:38:04Z chrfranke $
+$Id: ChangeLog 5617 2024-09-29 16:34:33Z chrfranke $
+
+2024-09-29  Ru Wang  <ru.wang@seagate.com>
+
+	farmprint.cpp (GH pull/285):
+	- Fix SATA decode of dateOfAssembly.
+	- Uninitialized string (part from GH issues/272).
 
 2024-09-23  Christian Franke  <franke@computer.org>
 
