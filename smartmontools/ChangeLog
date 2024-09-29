@@ -1,5 +1,11 @@
 $Id$
 
+2024-09-29  Ru Wang  <ru.wang@seagate.com>
+
+	farmprint.cpp (GH pull/285):
+	- Fix SATA decode of dateOfAssembly.
+	- Uninitialized string (part from GH issues/272).
+
 2024-09-23  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 11 23H2 and 24H2 build numbers.
