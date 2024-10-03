@@ -275,6 +275,13 @@ AC_ARG_ENABLE([scsi-cdb-check],
     fi
   ],[])
 
+AC_ARG_ENABLE([impending-failure-check],
+  [AS_HELP_STRING([--enable-impending-failure-check], [Checking for impending disk failures])],
+  [ if test "$enableval" = "yes"; then
+      AC_DEFINE(IMPENDING_FAILURE_CHECK, 1, [Define to 1 to enable impending disk failures check])
+    fi
+  ],[])
+
 AC_ARG_ENABLE([fast-lebe],
   [AS_HELP_STRING([--disable-fast-lebe], [use generic little-endian/big-endian code instead])],
   [ if test "$enableval" = "no"; then

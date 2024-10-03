@@ -158,6 +158,17 @@ static constexpr int default_checktime = 1800;
 static int checktime = default_checktime;
 static int checktime_min = 0; // Minimum individual check time, 0 if none
 
+#ifdef IMPENDING_FAILURE_CHECK
+// Check the Device: Default threshold of the wear ratio. unit:%
+const unsigned char default_percentage_used_threshold = 10;
+// Checking the Device: Default Remaining Lifetime Threshold. unit:day
+const unsigned char default_remained_time_threshold = 10;
+// Checking the Device: Default threshold of free space. unit:%
+const unsigned char default_avail_spare_threshold = 5;
+// Checking the Device: Default threshold of wear rate. unit:DWPD
+const unsigned char default_wear_rate_threshold = 3;
+#endif
+
 // command-line: name of PID file (empty for no pid file)
 static std::string pid_file;
 
@@ -453,10 +464,22 @@ struct dev_config
 
   // NVMe only
   unsigned nvme_err_log_max_entries{};    // size of error log
+
+#ifdef IMPENDING_FAILURE_CHECK
+  unsigned char percentage_used_threshold{};  // Threshold of the wear ratio. unit:%
+  unsigned char avail_spare_threshold{};  // Threshold of free space. unit:%
+  uint64_t remained_time_threshold{};     // Remaining Lifetime Threshold. unit:day
+  uint64_t wear_rate_threshold{};         // Threshold of wear rate. unit:DWPD
+#endif
 };
 
 // Number of allowed mail message types
+#ifdef IMPENDING_FAILURE_CHECK
+static const int SMARTD_NMAIL = 14;
+#else
 static const int SMARTD_NMAIL = 13;
+#endif
+
 // Type for '-M test' mails (state not persistent)
 static const int MAILTYPE_TEST = 0;
 // TODO: Add const or enum for all mail types.
@@ -511,6 +534,11 @@ struct persistent_dev_state
 
   // NVMe only
   uint64_t nvme_err_log_entries{};
+
+#ifdef IMPENDING_FAILURE_CHECK
+  uint64_t capacity{};                    // The total capacity of disk:bytes
+  uint32_t lb_size{};                     // The LB size fo disk. unit:bytes
+#endif
 };
 
 /// Non-persistent state data for a device.
@@ -1058,7 +1086,12 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     "FailedOpenDevice",           // 9
     "CurrentPendingSector",       // 10
     "OfflineUncorrectableSector", // 11
+#ifdef IMPENDING_FAILURE_CHECK
+    "Temperature",                // 12
+    "ImpendingFailure"            // 13
+#else
     "Temperature"                 // 12
+#endif
   };
   STATIC_ASSERT(sizeof(whichfail) == SMARTD_NMAIL * sizeof(whichfail[0]));
   
@@ -1562,6 +1595,7 @@ static void Directives()
            "  -C ID[+] Monitor [increases of] Current Pending Sectors in Attribute ID\n"
            "  -U ID[+] Monitor [increases of] Offline Uncorrectable Sectors in Attribute ID\n"
            "  -W D,I,C Monitor Temperature D)ifference, I)nformal limit, C)ritical limit\n"
+           "  -E P,A,R,W Set threshold P)ercentage Used, A)vail Spare, R)emained Time, W)ear Rate\n"
            "  -v N,ST Modifies labeling of Attribute N (see man page)  \n"
            "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
            "  -a      Default: -H -f -t -l error -l selftest -l selfteststs -C 197 -U 198\n"
@@ -1988,6 +2022,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   ata_size_info sizes;
   ata_get_size_info(&drive, sizes);
   state.num_sectors = sizes.sectors;
+#ifdef IMPENDING_FAILURE_CHECK
+  state.capacity = sizes.capacity;
+  state.lb_size = sizes.log_sector_size;
+#endif
   cfg.dev_rpm = ata_get_rotation_rate(&drive);
 
   char wwn[64]; wwn[0] = 0;
@@ -2487,6 +2525,11 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   else
     si_str[0] = '\0';
 
+#ifdef IMPENDING_FAILURE_CHECK
+  state.capacity = capacity;
+  state.lb_size = srr.lb_size;
+#endif
+
   // Format device id string for warning emails
   cfg.dev_idinfo = strprintf("[%.8s %.16s %.4s]%s%s%s%s%s%s",
                      (char *)&inqBuf[8], (char *)&inqBuf[16], (char *)&inqBuf[32],
@@ -2792,6 +2835,11 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   cfg.dev_idinfo = strprintf("%s, S/N:%s, FW:%s%s%s%s", model, serial, firmware,
                              nsstr, (capstr[0] ? ", " : ""), capstr);
   cfg.id_is_unique = true; // TODO: Check serial?
+
+#ifdef IMPENDING_FAILURE_CHECK
+  state.capacity = capacity;
+#endif
+
   if (sanitize_dev_idinfo(cfg.dev_idinfo))
     cfg.id_is_unique = false;
 
@@ -3558,6 +3606,136 @@ static void check_attribute(const dev_config & cfg, dev_state & state,
   state.must_write = true;
 }
 
+#ifdef IMPENDING_FAILURE_CHECK
+static void CheckPercentageUsed(const dev_config &cfg, dev_state &state, const unsigned char percent_used, 
+                                const unsigned char percentage_used_threshold)
+{
+  if (percent_used > 100) {
+    PrintOut(LOG_WARNING,
+             "The percentage used %d of device %s is inappropriate to CheckPercentageUsed. The value > 100%%.\n",
+             percent_used, cfg.name.c_str());
+    return ;
+  }
+  if (100 - percent_used < percentage_used_threshold) {
+    PrintOut(LOG_CRIT,
+             "The remaining percentage used [%d%%] of the device %s is lower than the threshold [%d%%].\n",
+             percent_used, cfg.name.c_str(), percentage_used_threshold);
+    MailWarning(cfg, state, 13,
+                "The remaining percentage used [%d%%] of the device %s is lower than the threshold [%d%%].\n",
+                percent_used, cfg.name.c_str(), percentage_used_threshold);
+  }
+}
+
+static void CheckAvailSpare(const dev_config &cfg, dev_state &state, const unsigned char avail_spare, 
+                            const unsigned char avail_spare_threshold)
+{
+  if (avail_spare > 100 || avail_spare_threshold > 100) {
+    PrintOut(LOG_WARNING,
+             "The availabe spare space %d%% or threshold %d%% of device %s is inappropriate to CheckAvailSpare. The value > 100%%.\n",
+             avail_spare, avail_spare_threshold, cfg.name.c_str());
+    return ;
+  }
+  if (avail_spare < avail_spare_threshold) {
+    PrintOut(LOG_CRIT,
+             "The available spare space [%d%%] of the device %s is lower than the threshold [%d%%].\n",
+             avail_spare, cfg.name.c_str(), avail_spare_threshold);
+    MailWarning(cfg, state, 13,
+                "The available spare space [%d%%] of the device %s is lower than the threshold [%d%%].\n",
+                avail_spare, cfg.name.c_str(), avail_spare_threshold);
+  }
+}
+
+static void CheckRemainedTime(const dev_config &cfg, const uint64_t power_on_hours, unsigned char percent_used)
+{
+  if ( percent_used > 100) {
+    PrintOut(LOG_WARNING,
+             "The percentage used %d%% of the device %s is inappropriate to CheckRemainedTime.\n",
+             percent_used, cfg.name.c_str());
+    return ;
+  }
+
+  // If the percentage used or power on hours is 0, the remaining life is the maximum.
+  if (percent_used == 0 || power_on_hours == 0) {
+    return ;
+  }
+
+  uint64_t remained_time = power_on_hours / 24 * (100 - percent_used) / percent_used;  // unit:day
+  uint64_t remained_time_threshold = cfg.remained_time_threshold ? cfg.remained_time_threshold : 
+                                     default_remained_time_threshold;
+  if (remained_time < remained_time_threshold) {
+    PrintOut(LOG_CRIT,
+             "The remaining Life [%lu day] of the device [%s] is lower than the threshold [%lu day].\n",
+             remained_time, cfg.name.c_str(), remained_time_threshold);
+  }
+}
+
+static void CheckWearRate(const dev_config &cfg, const uint64_t power_on_hours,
+                          const uint64_t data_units_written, uint64_t total_capacity)
+{
+  if ( total_capacity == 0) {
+    PrintOut(LOG_WARNING,
+             "The total capacity %lu of the device %s is inappropriate to CheckWearRate.\n",
+             total_capacity, cfg.name.c_str());
+    return ;
+  }
+
+  // If the data written or power on hours is 0, the wear rate is 0.
+  if (data_units_written == 0 || power_on_hours == 0) {
+    return ;
+  }
+
+  uint64_t wear_rate = data_units_written / total_capacity / power_on_hours * 24;
+  uint64_t wear_rate_threshold = cfg.remained_time_threshold ? cfg.remained_time_threshold : 
+                                 default_wear_rate_threshold;
+  if (wear_rate > wear_rate_threshold) {
+    PrintOut(LOG_CRIT,
+             "The wear rate [%lu] of the device [%s] is greater  than the threshold [%lu].\n",
+             wear_rate, cfg.name.c_str(), wear_rate_threshold);
+  }
+}
+
+static void ATACheckImpendingFailure(const dev_config &cfg, dev_state &state)
+{
+  bool ret = false;
+
+  // Check percentage used
+  unsigned char percent_used = 0;
+  unsigned char vendor_percentage_used_threshold = default_percentage_used_threshold;
+  ret = ata_return_wearout_value(&state.smartval, cfg.attribute_defs, state.smartthres.thres_entries,
+                                 percent_used, vendor_percentage_used_threshold);
+  unsigned char percentage_used_threshold = cfg.percentage_used_threshold ? cfg.percentage_used_threshold :
+                                            vendor_percentage_used_threshold;
+  if (ret) {
+    CheckPercentageUsed(cfg, state, percent_used, percentage_used_threshold);
+  }
+
+  // Check the available space.
+  unsigned char avail_spare = 100;
+  unsigned char vendor_avail_spare_threshold = default_avail_spare_threshold;
+  ret = ata_return_available_space_value(&state.smartval, cfg.attribute_defs, state.smartthres.thres_entries, 
+	                                       avail_spare, vendor_avail_spare_threshold);
+  unsigned char avail_spare_threshold = cfg.avail_spare_threshold ? cfg.avail_spare_threshold :
+                                        vendor_avail_spare_threshold;
+  if (ret) {
+    CheckAvailSpare(cfg, state, avail_spare, avail_spare_threshold);
+  }
+
+  // Check Remaining Life
+  uint64_t power_on_hours = 0;
+  ret = ata_return_power_on_hours_value(&state.smartval, cfg.attribute_defs, power_on_hours);  // unit:hours
+  if (ret) {
+    CheckRemainedTime(cfg, power_on_hours, percent_used);
+  }
+
+  // Check the rate of wear
+  uint64_t data_units_written = 0;
+  ret = ata_return_LBA_written_value(&state.smartval, cfg.attribute_defs, state.lb_size, data_units_written);
+  if (ret && state.lb_size > 0 && state.capacity > state.lb_size) {
+    uint64_t total_capacity = state.capacity / state.lb_size;  // Convert to LBA
+    CheckWearRate(cfg, power_on_hours, data_units_written, total_capacity);
+  }
+}
+#endif
 
 static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device * atadev,
                           bool firstpass, bool allow_selftests)
@@ -3749,6 +3927,11 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       state.attrlog_dirty = true;
     }
   }
+
+#ifdef IMPENDING_FAILURE_CHECK
+  ATACheckImpendingFailure(cfg, state);
+#endif
+
   state.offline_started = state.selftest_started = false;
   
   // check if number of selftest errors has increased (note: may also DECREASE)
@@ -3799,6 +3982,28 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   CloseDevice(atadev, name);
   return 0;
 }
+
+#ifdef IMPENDING_FAILURE_CHECK
+static void SCSICheckImpendingFailure(const dev_config &cfg, dev_state &state, scsi_device *scsidev)
+{
+  bool ret = false;
+  // Check percentage used
+  unsigned char percent_used = 0;
+  ret = scsiGetPercentageUsed(scsidev, percent_used);
+  unsigned char percentage_used_threshold = cfg.percentage_used_threshold ? cfg.percentage_used_threshold : 
+                                            default_percentage_used_threshold;
+  if (ret) {
+    CheckPercentageUsed(cfg, state, percent_used, percentage_used_threshold);
+  }
+
+  // Check Remaining Life
+  uint64_t power_on_hours = 0;
+  ret = scsiGetPowerOnHours(scsidev, power_on_hours);
+  if (ret) {
+    CheckRemainedTime(cfg, power_on_hours, percent_used);
+  }
+}
+#endif
 
 static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_device * scsidev, bool allow_selftests)
 {
@@ -3877,10 +4082,41 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     if (!(cfg.tempdiff || cfg.tempinfo || cfg.tempcrit))
       state.temperature = currenttemp;
   }
+
+#ifdef IMPENDING_FAILURE_CHECK
+  SCSICheckImpendingFailure(cfg, state, scsidev);
+#endif
+
   CloseDevice(scsidev, name);
   state.attrlog_dirty = true;
   return 0;
 }
+
+#ifdef IMPENDING_FAILURE_CHECK
+static void NVMECheckImpendingFailure(const dev_config &cfg, dev_state &state, const nvme_smart_log &smart_log)
+{
+  // Check percentage used
+  unsigned char percentage_used_threshold = cfg.percentage_used_threshold ? 
+                                            cfg.percentage_used_threshold : default_percentage_used_threshold;
+  CheckPercentageUsed(cfg, state, smart_log.percent_used, percentage_used_threshold);
+
+  // Check the available space.
+  unsigned char avail_spare_threshold = cfg.avail_spare_threshold ? 
+                                        cfg.avail_spare_threshold : smart_log.spare_thresh;
+  CheckAvailSpare(cfg, state, smart_log.avail_spare, avail_spare_threshold);
+
+  // Check Remaining Life
+  uint64_t power_on_hours = le128_to_uint64(smart_log.power_on_hours);  // smart_log.power_on_hours unit:hours
+  CheckRemainedTime(cfg, power_on_hours, smart_log.percent_used);
+
+  // Check the rate of wear
+  uint64_t data_units_written = le128_to_uint64(smart_log.data_units_written);
+  if (state.capacity > 512) {
+    uint64_t total_capacity = state.capacity / 512;  // Convert to LBA
+    CheckWearRate(cfg, power_on_hours, data_units_written * 1000, total_capacity);
+  }
+}
+#endif
 
 static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_device * nvmedev)
 {
@@ -3946,6 +4182,10 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
     }
     // else // TODO: Handle decrease of count?
   }
+
+#ifdef IMPENDING_FAILURE_CHECK
+  NVMECheckImpendingFailure(cfg, state, smart_log);
+#endif
 
   CloseDevice(nvmedev, name);
   state.attrlog_dirty = true;
@@ -4676,6 +4916,37 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
     if (Get3Integers((arg = strtok(nullptr, delim)), name, token, lineno, configfile,
                      &cfg.tempdiff, &cfg.tempinfo, &cfg.tempcrit) < 0)
       return -1;
+    break;
+  case 'E' :
+    // Configuration items for disk failure prediction
+    {
+      if (!(arg = strtok(nullptr, delim))) {
+        missingarg = true;
+        break;
+      }
+      unsigned v1 = 0, v2 = 0, v3 = 0, v4 = 0;
+      int n1 = -1, n2 = -1, n3 = -1, n4 = -1, len;
+      len = strlen(arg);
+      if (!(sscanf(arg, "%u%n,%u%n,%u%n,%u%n", &v1, &n1, &v2, &n2, &v3, &n3, &v4, &n4) >= 1 &&
+          (n1 == len || n2 == len || n3 == len || n4 == len))) {
+        badarg = true;
+        break;
+      }
+      if(v1 > 100 || v2 > 100) {
+        badarg = true;
+        break;
+      }
+#ifdef IMPENDING_FAILURE_CHECK
+      cfg.percentage_used_threshold = v1;
+      cfg.avail_spare_threshold = v2;
+      cfg.remained_time_threshold = v3;
+      cfg.wear_rate_threshold = v4;
+#else
+      PrintOut(LOG_ERR, "If the -E option is used in the configuration file, "
+               "you need to configure the --enable-impending-failure-check option "
+               "to enable the matching function.\n");
+#endif
+    }
     break;
   case 'v':
     // non-default vendor-specific attribute meaning
