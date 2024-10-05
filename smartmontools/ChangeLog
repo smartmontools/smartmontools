@@ -1,5 +1,10 @@
 $Id$
 
+2024-10-05  Christian Franke  <franke@computer.org>
+
+	scsicmds.cpp: Fix range checks of mode page offset and VPD inquiry
+	(GH issues/272).
+
 2024-09-29  Ru Wang  <ru.wang@seagate.com>
 
 	farmprint.cpp (GH pull/285):
