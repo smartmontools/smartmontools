@@ -2,6 +2,21 @@ $Id$
 
 2024-10-15  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- USB: Genesis Logic (0x05e3:0x0761) (GH issues/259).
+	- USB: SanDisk Extreme (0x0781:0x55ae) (GH issues/273).
+	- USB: Kingston XS1000 (0x0951:0x1780) (part of #1834).
+	- USB: Realtek RTL9201 (0x0bda:0x9201) (part of #1841,
+	  GH issues/268, /270).
+	- USB: Apacer AC633 (0x1005:0xc004) (#1893).
+	- USB: TerraMaster D2-320 (0x1352:0xa006) (GH issues/283).
+	- USB: JMicron (0x152d:0xa578).
+	- USB: JMicron (0x152d:0xa580) (GH pull/276, GH issues/289).
+	- USB: Terramaster D4-320 (0x235c:0xa006) (#1856, #1874).
+	- USB: HIKSEMI (0x2bdf:0x0580) (#1883).
+	- USB: DockCase 10s PLP (0x31db:0x0716) (GH issues/284).
+	- USB: Hitachi Touro Desk Pro (0x4971:0x1013).
+
 	nvmecmds.cpp: Map 'Set Feature' related errors to EINVAL (#1835).
 
 	ataprint.cpp: Don't return failure if '-l scterc' is not supported.
