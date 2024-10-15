@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-23 Christian Franke
+ * Copyright (C) 2016-24 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -370,9 +370,9 @@ static const char * nvme_status_to_flagged_str(uint16_t status)
         case 0x0a: return "-Invalid Format";
         case 0x0b: return "Firmware Activation Requires Conventional Reset";
         case 0x0c: return "-Invalid Queue Deletion";
-        case 0x0d: return "Feature Identifier Not Saveable";
-        case 0x0e: return "Feature Not Changeable";
-        case 0x0f: return "Feature Not Namespace Specific";
+        case 0x0d: return "-Feature Identifier Not Saveable";
+        case 0x0e: return "-Feature Not Changeable";
+        case 0x0f: return "-Feature Not Namespace Specific";
         case 0x10: return "Firmware Activation Requires NVM Subsystem Reset";
         case 0x11: return "Firmware Activation Requires Controller Level Reset";
         case 0x12: return "Firmware Activation Requires Maximum Time Violation";

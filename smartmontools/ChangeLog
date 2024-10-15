@@ -2,6 +2,8 @@ $Id$
 
 2024-10-15  Christian Franke  <franke@computer.org>
 
+	nvmecmds.cpp: Map 'Set Feature' related errors to EINVAL (#1835).
+
 	ataprint.cpp: Don't return failure if '-l scterc' is not supported.
 
 	Only return failure (exit status 4) if a SCT command failed or an
