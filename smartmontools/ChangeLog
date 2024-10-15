@@ -1,6 +1,8 @@
-$Id: ChangeLog 5619 2024-10-15 09:33:51Z chrfranke $
+$Id: ChangeLog 5620 2024-10-15 10:25:54Z chrfranke $
 
 2024-10-15  Christian Franke  <franke@computer.org>
+
+	nvmecmds.cpp: Map 'Set Feature' related errors to EINVAL (#1835).
 
 	ataprint.cpp: Don't return failure if '-l scterc' is not supported.
 
