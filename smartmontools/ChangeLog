@@ -1,5 +1,12 @@
 $Id$
 
+2024-10-15  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Don't return failure if '-l scterc' is not supported.
+
+	Only return failure (exit status 4) if a SCT command failed or an
+	attempt to set ERC ('-l scterc,...') failed (#1892).
+
 2024-10-05  Christian Franke  <franke@computer.org>
 
 	scsicmds.cpp: Fix range checks of mode page offset and VPD inquiry
