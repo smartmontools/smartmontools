@@ -1,4 +1,11 @@
-$Id: ChangeLog 5618 2024-10-05 10:58:14Z chrfranke $
+$Id: ChangeLog 5619 2024-10-15 09:33:51Z chrfranke $
+
+2024-10-15  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Don't return failure if '-l scterc' is not supported.
+
+	Only return failure (exit status 4) if a SCT command failed or an
+	attempt to set ERC ('-l scterc,...') failed (#1892).
 
 2024-10-05  Christian Franke  <franke@computer.org>
 

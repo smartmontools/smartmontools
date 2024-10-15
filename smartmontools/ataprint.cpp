@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-23 Christian Franke
+ * Copyright (C) 2008-24 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -33,7 +33,7 @@
 #include "farmcmds.h"
 #include "farmprint.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5547 2023-09-11 12:54:05Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5619 2024-10-15 09:33:51Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -4429,7 +4429,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (sct_ok && (options.sct_erc_get || options.sct_erc_set)) {
     if (!isSCTErrorRecoveryControlCapable(&drive)) {
       pout("SCT Error Recovery Control command not supported\n\n");
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      if (options.sct_erc_set)
+        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
       int sct_erc_get = options.sct_erc_get;
