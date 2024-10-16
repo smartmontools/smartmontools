@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5623 2024-10-16 11:54:21Z chrfranke $",
+  { "VERSION: 7.3 $Id: drivedb.h 5624 2024-10-16 13:02:58Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -3985,6 +3985,11 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MQ03UBB(300|200|250)",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD MQ04UBB... (USB, SMR)", // tested with TOSHIBA MQ04UBB400/JS000U,
+      // TOSHIBA MQ04UBB400/JS0B0U (0x0480:0xa301) ('Device managed zones', no TRIM support)
+    "TOSHIBA MQ04UBB[24]00",
+    "", "", ""
+  },
   { "Toshiba 3.5\" HDD MK.002TSKB", // tested with TOSHIBA MK1002TSKB/MT1A
     "TOSHIBA MK(10|20)02TSKB",
     "", "", ""
@@ -4054,6 +4059,13 @@ const drive_settings builtin_knowndrives[] = {
   { "Toshiba MG10AFA... Enterprise Capacity HDD", // tested with TOSHIBA MG10AFA22TE/0102
     "TOSHIBA MG10AFA22T[AE]Y?",
     "", "",
+  //"-v 23,raw48,Helium_Condition_Lower "
+  //"-v 24,raw48,Helium_Condition_Upper "
+    "-v 27,raw48,MAMR_Health_Monitor"
+  },
+  { "Toshiba MG11 Cloud-scale Capacity HDD", // tested with TOSHIBA MG11ACA24TE/0102
+    "TOSHIBA MG11AC[AP](1[468]|2[024])TEY?", // ACP = self-encrypting device (SED)
+    "", "",                                  // TEY = sanitize instant erase (SIE)
   //"-v 23,raw48,Helium_Condition_Lower "
   //"-v 24,raw48,Helium_Condition_Upper "
     "-v 27,raw48,MAMR_Health_Monitor"
