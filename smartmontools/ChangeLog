@@ -1,4 +1,4 @@
-$Id: ChangeLog 5624 2024-10-16 13:02:58Z chrfranke $
+$Id: ChangeLog 5625 2024-10-16 14:27:12Z chrfranke $
 
 2024-10-16  Christian Franke  <franke@computer.org>
 
@@ -7,6 +7,9 @@ $Id: ChangeLog 5624 2024-10-16 13:02:58Z chrfranke $
 	  prefix (#1877).
 	- Toshiba 2.5" HDD MQ04UBB... (USB, SMR) (#1400, #1821, #1832).
 	- Toshiba MG11 Cloud-scale Capacity HDD.
+	- Seagate Exos X18 (#1552, #1742, #1763, #1871, #1872, GH pull/225).
+	- Seagate Exos X20 (#1567, #1882).
+	- Seagate Exos X24.
 	- WD Blue / Red / Green SSDs: SanDisk Portable SSD (#1743).
 	- USB: Sandisk SDSSDE30-2T00 (0x0781:0x55b0) (#1743).
 
