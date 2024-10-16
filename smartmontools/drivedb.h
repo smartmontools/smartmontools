@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5621 2024-10-15 15:02:00Z chrfranke $",
+  { "VERSION: 7.3 $Id: drivedb.h 5623 2024-10-16 11:54:21Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -584,8 +584,8 @@ const drive_settings builtin_knowndrives[] = {
     "(Micron_5200_)?MTFDDAK(240|480|960|1T9|3T8|7T6)TD(C|D|N)|" // tested with Micron_5200_MTFDDAK240TDN/D1MU005,
       // Micron_5200_MTFDDAK3T8TDD/D1MU505
     "Micron_5210_MTFDDAK(480|960|1T9|3T8|7T6)QDE|" // tested with Micron_5210_MTFDDAK7T6QDE/D2MU804
-    "Micron_5300(HC)?_MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[STU]|" // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001
-      // Micron_5300HC_MTFDDAK960TDS/D3MN010
+    "(Micron_5300(HC)?_)?MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[STU]|" // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001
+      // Micron_5300HC_MTFDDAK960TDS/D3MN010, MTFDDAK1T9TDT/D3MU001
     "(Micron_5400_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)TG[ABC]", // tested with Micron_5400_MTFDDAK1T9TGB/D4MU001,
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -4855,7 +4855,9 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WDBNCE(250|500|00[124])0PNC(-.*)?|" // Blue 3D
     "WDC  ?WDS((120|240|250|480|500)G|[124]00T)(1B|2B|1G|2G|1R)0[AB](-.*)?|"
       // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND, *1R* = Red SA500
-    "WD Blue SA510 2.5 1000GB", // tested with WD Blue SA510 2.5 1000GB/52008100
+    "WD Blue SA510 2.5 1000GB|" // tested with WD Blue SA510 2.5 1000GB/52008100
+    "SanDisk Portable SSD", // tested with SanDisk Portable SSD/UM5004RL
+                            // (Sandisk SDSSDE30-2T00, 0x0781:0x55b0)
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct " // Reassigned Block Count
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -5799,9 +5801,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // SanDisk
-  { "USB: SanDisk SDCZ80 Flash Drive; Fujitsu", // ATA ID: SanDisk pSSD
-    "0x0781:0x558[08]",
-    "",
+  { "USB: SanDisk; ",
+    "0x0781:0x55(8[08]|b0)", // 0x5580: SanDisk SDCZ80 (SanDisk pSSD)
+    "", // 0x55b0: Sandisk SDSSDE30-2T00 (SanDisk Portable SSD)
     "",
     "-d sat"
   },
