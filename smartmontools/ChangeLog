@@ -1,5 +1,13 @@
 $Id$
 
+2024-10-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Micron 5100 / 52x0 / 5300 / 5400 SSDs: 5300 variant without vendor
+	  prefix (#1877).
+	- WD Blue / Red / Green SSDs: SanDisk Portable SSD (#1743).
+	- USB: Sandisk SDSSDE30-2T00 (0x0781:0x55b0) (#1743).
+
 2024-10-15  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
