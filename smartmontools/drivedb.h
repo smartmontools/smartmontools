@@ -4643,6 +4643,36 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
+  { "Seagate Exos X18", // tested with ST12000NM000J-2TY103/SN02,
+      // ST16000NM000J-2TW103/SC02, ST18000NM000J-2TV103/SN01, .../SN02,
+      // ST18000NM002J-2TV133/PAL7 (Dell)
+    "ST1(0000NM0(18|20)G|[2468]000NM00[012]J)-.*",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 18,raw48,Head_Health "
+    "-v 188,raw16 "
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
+  },
+  { "Seagate Exos X20", // tested with ST20000NM007D-3DJ103/SN01, .../SN03
+    "ST(18|20)000NM00[0347]D-.*",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 18,raw48,Head_Health "
+    "-v 188,raw16 "
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
+  },
+  { "Seagate Exos X24", // tested with ST24000NM002H-3KS133/SE03,
+      // ST24000NM000C-3WD103/SN02 (30TB HAMR recertified to 24TB CMR ?)
+    "ST((12|16|20|24)000NM002H|24000NM000C)-.*",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 18,raw48,Head_Health "
+    "-v 188,raw16 "
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
+  },
   // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
   //             ST8000VN0012, ST6000VN0031, ST4000VN003
   // tested with ST8000VN0002-1Z8112/ZA13YGNF
