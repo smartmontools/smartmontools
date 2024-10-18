@@ -145,7 +145,6 @@ static const int scsiLogRespLen = 252;
 #define EXIT_BADCODE   10  // internal error - should NEVER happen
 
 #define EXIT_BADDEV    16  // we can't monitor this device
-#define EXIT_NODEV     17  // no devices to monitor
 
 #define EXIT_SIGNAL    254 // abort on signal
 
@@ -317,7 +316,6 @@ static void notify_exit(int status)
     case EXIT_BADCONF: case EXIT_NOCONF:
     case EXIT_READCONF: msg = "Error in config file (see SYSLOG)"; break;
     case EXIT_BADDEV:   msg = "Unable to register a device (see SYSLOG)"; break;
-    case EXIT_NODEV:    msg = "No devices to monitor"; break;
     default:            msg = "Error (see SYSLOG)"; break;
   }
   // Ensure that READY=1 is notified before 'exit(0)' because otherwise
@@ -5816,14 +5814,6 @@ static int main_worker(int argc, char **argv)
           status = (entries == -3 ? EXIT_READCONF : entries == -2 ? EXIT_NOCONF : EXIT_BADCONF);
           break;
         }
-      }
-
-      if (!(   devices.size() > 0 || quit == QUIT_NEVER
-            || (quit == QUIT_NODEVSTARTUP && !firstpass))) {
-        status = (!quit_nodev0 ? EXIT_NODEV : 0);
-        PrintOut((status ? LOG_CRIT : LOG_INFO),
-                 "Unable to monitor any SMART enabled devices. Exiting.\n");
-        break;
       }
 
       // Log number of devices we are monitoring...
