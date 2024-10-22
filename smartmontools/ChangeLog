@@ -1,5 +1,13 @@
 $Id$
 
+2024-10-23  Ameer Hamza  <ahamza@ixsystems.com>
+
+	nvmeprint.cpp: fix self-test for devices with multiple namespaces.
+	Use broadcast NSID for (06h) log page access to prevent `Invalid
+	Field in Command` error when accessing the log page. Also, use
+	device NSID for both single and multi namespace devices when
+	issuing the Device Self-test (14h) command.
+
 2024-09-23  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows 11 23H2 and 24H2 build numbers.
