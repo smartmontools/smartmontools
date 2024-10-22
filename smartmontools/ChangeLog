@@ -1,5 +1,8 @@
 $Id$
 
+2024-10-21 Aleksander Jan Bajkowski <olek2@wp.pl>
+	- Allow to build with automake 1.17.
+
 2024-10-16  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
