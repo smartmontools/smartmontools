@@ -523,7 +523,7 @@ static void print_error_log(const nvme_error_log_page * error_log,
       snprintf(lb, sizeof(lb), "%" PRIu64, e.lba);
       jrefi["lba"]["value"].set_unsafe_uint64(e.lba);
     }
-    if (e.nsid != 0xffffffffU) {
+    if (e.nsid != nvme_broadcast_nsid) {
       snprintf(ns, sizeof(ns), "%u", e.nsid);
       jrefi["nsid"] = e.nsid;
     }
@@ -548,7 +548,7 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log, unsign
   // Figure 203 of NVM Express Base Specification Revision 1.4c, March 9, 2021
   json::ref jref = jglb["nvme_self_test_log"];
   jout("Self-test Log (NVMe Log 0x06, NSID 0x%x)\n", nsid);
-  jref["nsid"] = (nsid != 0xffffffff ? (int64_t)nsid : -1);
+  jref["nsid"] = (nsid != nvme_broadcast_nsid ? (int64_t)nsid : -1);
 
   const char * s; char buf[32];
   switch (self_test_log.current_operation & 0xf) {
@@ -618,12 +618,12 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log, unsign
       jrefi["segment"] = r.segment;
     }
     if (r.valid & 0x01) {
-      if (r.nsid == 0xffffffff)
+      if (r.nsid == nvme_broadcast_nsid)
         ns[0] = '*', ns[1] = 0;
       else
         snprintf(ns, sizeof(ns), "%u", r.nsid);
       // Broadcast = -1
-      jrefi["nsid"] = (r.nsid != 0xffffffff ? (int64_t)r.nsid : -1);
+      jrefi["nsid"] = (r.nsid != nvme_broadcast_nsid ? (int64_t)r.nsid : -1);
     }
     if (r.valid & 0x02) {
       uint64_t lba = sg_get_unaligned_le64(r.lba);
@@ -676,7 +676,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     nvme_id_ns id_ns; memset(&id_ns, 0, sizeof(id_ns));
 
     unsigned nsid = device->get_nsid();
-    if (nsid == 0xffffffffU) {
+    if (nsid == nvme_broadcast_nsid) {
       // Broadcast namespace
       if (id_ctrl.nn == 1) {
         // No namespace management, get size from single namespace
@@ -760,7 +760,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       pout("Self-tests not supported\n\n");
     else {
       nvme_self_test_log self_test_log;
-      unsigned self_test_log_nsid = 0xffffffff;
+      unsigned self_test_log_nsid = nvme_broadcast_nsid;
       if (!nvme_read_self_test_log(device, self_test_log_nsid, self_test_log)) {
         jerr("Read Self-test Log failed: %s\n\n", device->get_errmsg());
         return retval | FAILSMART;
@@ -785,7 +785,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     case 1:
     case 2:
     case 3:
-      nsid = 0xffffffff;
+      nsid = nvme_broadcast_nsid;
       break;
     default:
       nsid = device->get_nsid();

@@ -253,6 +253,9 @@ STATIC_ASSERT(sizeof(nvme_self_test_log) == 564);
 
 class nvme_device;
 
+// Broadcast namespace ID.
+constexpr uint32_t nvme_broadcast_nsid = 0xffffffffU;
+
 // Print NVMe debug messages?
 extern unsigned char nvme_debugmode;
 

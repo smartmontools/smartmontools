@@ -2,6 +2,8 @@ $Id$
 
 2024-10-23  Christian Franke  <franke@computer.org>
 
+	nvmecmds.h: Add 'nvme_broadcast_nsid' and use it where applicable.
+
 	smartctl.8.in: Update documentation of NVMe '-l selftest'.
 
 2024-10-23  Ameer Hamza  <ahamza@ixsystems.com>

@@ -70,7 +70,7 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
       }
       return set_err(ENOSYS, "NVMe Identify with CDW10=0x%08x not supported", in.cdw10);
     case smartmontools::nvme_admin_get_log_page:
-      if (!(in.nsid == 0xffffffff || !in.nsid))
+      if (!(in.nsid == nvme_broadcast_nsid || !in.nsid))
         return set_err(ENOSYS, "NVMe Get Log Page with NSID=0x%x not supported", in.nsid);
       break;
     default:
@@ -165,7 +165,7 @@ bool sntjmicron_device::open()
   // cannot detect e.g. /dev/sdX is NSID 2.
   // Set to broadcast if not available
   if (!get_nsid()) {
-    set_nsid(0xFFFFFFFF);
+    set_nsid(nvme_broadcast_nsid);
   }
 
   return true;
@@ -353,7 +353,7 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
       }
       return set_err(ENOSYS, "NVMe Identify with CDW10=0x%08x not supported", in.cdw10);
     case smartmontools::nvme_admin_get_log_page:
-      if (!(in.nsid == 0xffffffff || !in.nsid))
+      if (!(in.nsid == nvme_broadcast_nsid || !in.nsid))
         return set_err(ENOSYS, "NVMe Get Log Page with NSID=0x%x not supported", in.nsid);
       if (size > 0x200) { // Reading more apparently returns old data from previous command
         // TODO: Add ability to return short reads to caller
@@ -413,7 +413,7 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
 
   if (!strcmp(type, "sntasmedia")) {
     // No namespace supported
-    sntdev = new sntasmedia_device(this, scsidev, type, 0xffffffff);
+    sntdev = new sntasmedia_device(this, scsidev, type, nvme_broadcast_nsid);
   }
 
   else if (!strncmp(type, "sntjmicron", 10)) {
@@ -429,7 +429,7 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
 
   else if (!strcmp(type, "sntrealtek")) {
     // No namespace supported
-    sntdev = new sntrealtek_device(this, scsidev, type, 0xffffffff);
+    sntdev = new sntrealtek_device(this, scsidev, type, nvme_broadcast_nsid);
   }
 
   else {
