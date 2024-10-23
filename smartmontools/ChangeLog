@@ -1,4 +1,8 @@
-$Id: ChangeLog 5627 2024-10-23 13:36:35Z chrfranke $
+$Id: ChangeLog 5628 2024-10-23 14:22:39Z chrfranke $
+
+2024-10-23  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Update documentation of NVMe '-l selftest'.
 
 2024-10-23  Ameer Hamza  <ahamza@ixsystems.com>
 
