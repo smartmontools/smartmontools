@@ -1,5 +1,9 @@
 $Id$
 
+2024-10-23  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in: Update documentation of NVMe '-l selftest'.
+
 2024-10-23  Ameer Hamza  <ahamza@ixsystems.com>
 
 	nvmeprint.cpp: fix self-test for devices with multiple namespaces.
