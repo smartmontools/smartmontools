@@ -11,7 +11,7 @@
 #include "config.h"
 #include "nvmecmds.h"
 
-const char * nvmecmds_cvsid = "$Id: nvmecmds.cpp 5620 2024-10-15 10:25:54Z chrfranke $"
+const char * nvmecmds_cvsid = "$Id: nvmecmds.cpp 5629 2024-10-23 16:49:02Z chrfranke $"
   NVMECMDS_H_CVSID;
 
 #include "dev_interface.h"
@@ -231,7 +231,7 @@ unsigned nvme_read_log_page(nvme_device * device, unsigned nsid, unsigned char l
 unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_log,
   unsigned num_entries, bool lpo_sup)
 {
-  unsigned n = nvme_read_log_page(device, 0xffffffff, 0x01, error_log,
+  unsigned n = nvme_read_log_page(device, nvme_broadcast_nsid, 0x01, error_log,
                                   num_entries * sizeof(*error_log), lpo_sup);
 
   unsigned read_entries = n / sizeof(*error_log);
@@ -253,7 +253,8 @@ unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_l
 // Read NVMe SMART/Health Information log.
 bool nvme_read_smart_log(nvme_device * device, nvme_smart_log & smart_log)
 {
-  if (!nvme_read_log_page_1(device, 0xffffffff, 0x02, &smart_log, sizeof(smart_log)))
+  if (!nvme_read_log_page_1(device, nvme_broadcast_nsid, 0x02, &smart_log,
+                            sizeof(smart_log)))
     return false;
 
   if (isbigendian()) {

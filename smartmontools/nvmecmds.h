@@ -14,7 +14,7 @@
 #ifndef NVMECMDS_H
 #define NVMECMDS_H
 
-#define NVMECMDS_H_CVSID "$Id: nvmecmds.h 5471 2023-05-29 12:22:41Z chrfranke $"
+#define NVMECMDS_H_CVSID "$Id: nvmecmds.h 5629 2024-10-23 16:49:02Z chrfranke $"
 
 #include "static_assert.h"
 
@@ -252,6 +252,9 @@ STATIC_ASSERT(sizeof(nvme_self_test_log) == 564);
 } // namespace smartmontools
 
 class nvme_device;
+
+// Broadcast namespace ID.
+constexpr uint32_t nvme_broadcast_nsid = 0xffffffffU;
 
 // Print NVMe debug messages?
 extern unsigned char nvme_debugmode;

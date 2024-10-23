@@ -1,6 +1,8 @@
-$Id: ChangeLog 5628 2024-10-23 14:22:39Z chrfranke $
+$Id: ChangeLog 5629 2024-10-23 16:49:02Z chrfranke $
 
 2024-10-23  Christian Franke  <franke@computer.org>
+
+	nvmecmds.h: Add 'nvme_broadcast_nsid' and use it where applicable.
 
 	smartctl.8.in: Update documentation of NVMe '-l selftest'.
 

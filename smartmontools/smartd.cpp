@@ -89,7 +89,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5613 2024-05-08 13:46:51Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5629 2024-10-23 16:49:02Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -2784,7 +2784,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   // Format device id string for warning emails
   char nsstr[32] = "", capstr[32] = "";
   unsigned nsid = nvmedev->get_nsid();
-  if (nsid != 0xffffffff)
+  if (nsid != nvme_broadcast_nsid)
     snprintf(nsstr, sizeof(nsstr), ", NSID:%u", nsid);
   uint64_t capacity = le128_to_uint64(id_ctrl.tnvmcap);
   if (capacity)
@@ -2851,7 +2851,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
     nsstr[0] = 0;
-    if (nsid != 0xffffffff)
+    if (nsid != nvme_broadcast_nsid)
       snprintf(nsstr, sizeof(nsstr), "-n%u", nsid);
     cfg.state_file = strprintf("%s%s-%s%s.nvme.state", state_path_prefix.c_str(), model, serial, nsstr);
     // Read previous state
