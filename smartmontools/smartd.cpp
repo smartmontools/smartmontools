@@ -89,7 +89,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5629 2024-10-23 16:49:02Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5630 2024-10-23 17:15:56Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -2804,8 +2804,9 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   }
 
   // Read SMART/Health log
+  // TODO: Support per namespace SMART/Health log
   nvme_smart_log smart_log;
-  if (!nvme_read_smart_log(nvmedev, smart_log)) {
+  if (!nvme_read_smart_log(nvmedev, nvme_broadcast_nsid, smart_log)) {
     PrintOut(LOG_INFO, "Device: %s, failed to read NVMe SMART/Health Information\n", name);
     CloseDevice(nvmedev, name);
     return 2;
@@ -3890,8 +3891,9 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
   const char * name = cfg.name.c_str();
 
   // Read SMART/Health log
+  // TODO: Support per namespace SMART/Health log
   nvme_smart_log smart_log;
-  if (!nvme_read_smart_log(nvmedev, smart_log)) {
+  if (!nvme_read_smart_log(nvmedev, nvme_broadcast_nsid, smart_log)) {
       CloseDevice(nvmedev, name);
       PrintOut(LOG_INFO, "Device: %s, failed to read NVMe SMART/Health Information\n", name);
       MailWarning(cfg, state, 6, "Device: %s, failed to read NVMe SMART/Health Information", name);

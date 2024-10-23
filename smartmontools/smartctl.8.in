@@ -4,7 +4,7 @@ Copyright (C) 2004-24 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5628 2024-10-23 14:22:39Z chrfranke $
+$Id: smartctl.8.in 5630 2024-10-23 17:15:56Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1300,6 +1300,11 @@ disk attributes).
 .Sp
 [NVMe] For NVMe devices the attributes are obtained from the SMART/Health
 Information log.
+.br
+[NEW EXPERIMENTAL SMARTCTL 7.5 FEATURE]
+If the device indicates support for SMART/Health Information per namespace,
+the id of the namespace addressed by the device name is used, otherwise
+the id of the broadcast namespace.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-f FORMAT, \-\-format=FORMAT
@@ -2619,4 +2624,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5628 2024-10-23 14:22:39Z chrfranke $
+$Id: smartctl.8.in 5630 2024-10-23 17:15:56Z chrfranke $

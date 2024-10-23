@@ -14,7 +14,7 @@
 #ifndef NVMECMDS_H
 #define NVMECMDS_H
 
-#define NVMECMDS_H_CVSID "$Id: nvmecmds.h 5629 2024-10-23 16:49:02Z chrfranke $"
+#define NVMECMDS_H_CVSID "$Id: nvmecmds.h 5630 2024-10-23 17:15:56Z chrfranke $"
 
 #include "static_assert.h"
 
@@ -274,7 +274,8 @@ unsigned nvme_read_error_log(nvme_device * device, smartmontools::nvme_error_log
   unsigned num_entries, bool lpo_sup);
 
 // Read NVMe SMART/Health Information log.
-bool nvme_read_smart_log(nvme_device * device, smartmontools::nvme_smart_log & smart_log);
+bool nvme_read_smart_log(nvme_device * device, uint32_t nsid,
+  smartmontools::nvme_smart_log & smart_log);
 
 // Read NVMe Self-test Log.
 bool nvme_read_self_test_log(nvme_device * device, uint32_t nsid,
