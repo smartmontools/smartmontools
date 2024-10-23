@@ -2,6 +2,10 @@ $Id$
 
 2024-10-23  Christian Franke  <franke@computer.org>
 
+	nvmeprint.cpp: Support SMART/Health Information per namespace.
+	nvmecmds.*: Add parameter 'nsid' to 'nvme_read_smart_log()'.
+	smartctl.8.in: Document this new feature.
+
 	nvmecmds.h: Add 'nvme_broadcast_nsid' and use it where applicable.
 
 	smartctl.8.in: Update documentation of NVMe '-l selftest'.

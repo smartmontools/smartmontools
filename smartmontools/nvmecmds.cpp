@@ -251,10 +251,9 @@ unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_l
 }
 
 // Read NVMe SMART/Health Information log.
-bool nvme_read_smart_log(nvme_device * device, nvme_smart_log & smart_log)
+bool nvme_read_smart_log(nvme_device * device, uint32_t nsid, nvme_smart_log & smart_log)
 {
-  if (!nvme_read_log_page_1(device, nvme_broadcast_nsid, 0x02, &smart_log,
-                            sizeof(smart_log)))
+  if (!nvme_read_log_page_1(device, nsid, 0x02, &smart_log, sizeof(smart_log)))
     return false;
 
   if (isbigendian()) {

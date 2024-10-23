@@ -370,11 +370,11 @@ static void print_critical_warning(unsigned char w)
 }
 
 static void print_smart_log(const nvme_smart_log & smart_log,
-  const nvme_id_ctrl & id_ctrl, bool show_all)
+  const nvme_id_ctrl & id_ctrl, unsigned nsid, bool show_all)
 {
   json::ref jref = jglb["nvme_smart_health_information_log"];
   char buf[64];
-  jout("SMART/Health Information (NVMe Log 0x02)\n");
+  jout("SMART/Health Information (NVMe Log 0x02, NSID 0x%x)\n", nsid);
   jout("Critical Warning:                   0x%02x\n", smart_log.critical_warning);
   jref["critical_warning"] = smart_log.critical_warning;
 
@@ -707,9 +707,14 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
   // Print SMART Status and SMART/Health Information
   int retval = 0;
   if (options.smart_check_status || options.smart_vendor_attrib) {
+    // Use individual NSID if SMART/Health Information per namespace is supported
+    unsigned smart_log_nsid = ((id_ctrl.lpa & 0x01) ? device->get_nsid()
+                               : nvme_broadcast_nsid                    );
+
     nvme_smart_log smart_log;
-    if (!nvme_read_smart_log(device, smart_log)) {
-      jerr("Read NVMe SMART/Health Information failed: %s\n\n", device->get_errmsg());
+    if (!nvme_read_smart_log(device, smart_log_nsid, smart_log)) {
+      jerr("Read NVMe SMART/Health Information (NSID 0x%x) failed: %s\n\n", smart_log_nsid,
+           device->get_errmsg());
       return FAILSMART;
     }
 
@@ -720,7 +725,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     }
 
     if (options.smart_vendor_attrib) {
-      print_smart_log(smart_log, id_ctrl, show_all);
+      print_smart_log(smart_log, id_ctrl, smart_log_nsid, show_all);
     }
   }
 
