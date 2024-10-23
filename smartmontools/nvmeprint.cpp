@@ -753,12 +753,6 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
   // Check for self-test support
   bool self_test_sup = !!(id_ctrl.oacs & 0x0010);
 
-  // Use broadcast NSID for self-tests if only one namespace is supported.
-  // Some single namespace devices return failure if NSID=1 is used to
-  // address self-tests.
-  // TODO: Support NSID=0 to test controller
-  unsigned self_test_nsid = (id_ctrl.nn == 1 ? 0xffffffff : device->get_nsid());
-
   // Read and print Self-test log, check for running test
   int self_test_completion = -1;
   if (options.smart_selftest_log || options.smart_selftest_type) {
@@ -766,13 +760,14 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       pout("Self-tests not supported\n\n");
     else {
       nvme_self_test_log self_test_log;
-      if (!nvme_read_self_test_log(device, self_test_nsid, self_test_log)) {
+      unsigned self_test_log_nsid = 0xffffffff;
+      if (!nvme_read_self_test_log(device, self_test_log_nsid, self_test_log)) {
         jerr("Read Self-test Log failed: %s\n\n", device->get_errmsg());
         return retval | FAILSMART;
       }
 
       if (options.smart_selftest_log)
-        print_self_test_log(self_test_log, self_test_nsid);
+        print_self_test_log(self_test_log, self_test_log_nsid);
 
       if (self_test_log.current_operation & 0xf)
         self_test_completion = self_test_log.current_completion & 0x7f;
@@ -821,6 +816,8 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       retval |= FAILSMART;
     }
     else {
+      // TODO: Support NSID=0 to test controller
+      unsigned self_test_nsid = device->get_nsid();
       if (!nvme_self_test(device, options.smart_selftest_type, self_test_nsid)) {
         jerr("NVMe Self-test cmd with type=0x%x, nsid=0x%x failed: %s\n\n",
              options.smart_selftest_type, self_test_nsid, device->get_errmsg());
