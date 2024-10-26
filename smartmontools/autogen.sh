@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh 5542 2023-09-07 17:22:49Z chrfranke $
+# $Id: autogen.sh 5631 2024-10-26 10:14:00Z chrfranke $
 #
 # Generate ./configure from configure.ac and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -28,7 +28,7 @@ if [ -n "$AUTOMAKE" ]; then
   ver=$("$AUTOMAKE" --version) || exit 1
 else
   maxver=
-  for v in 1.16 1.15 1.14 1.13; do
+  for v in 1.17 1.16 1.15 1.14 1.13; do
     minver=$v; test -n "$maxver" || maxver=$v
     ver=$(automake-$v --version 2>/dev/null) || continue
     AUTOMAKE="automake-$v"
@@ -64,7 +64,7 @@ case "$ver" in
     # OK
     ;;
 
-  1.14|1.14.1|1.15|1.15.1|1.16|1.16.[1-5])
+  1.14|1.14.1|1.15|1.15.1|1.16|1.16.[1-5]|1.17)
     # TODO: Enable 'subdir-objects' in configure.ac
     # For now, suppress 'subdir-objects' forward-incompatibility warning
     test -n "$warnings" || amwarnings="--warnings=no-unsupported"
