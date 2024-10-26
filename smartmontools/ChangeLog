@@ -1,5 +1,9 @@
 $Id$
 
+2024-10-26  Christian Franke  <franke@computer.org>
+
+	autogen.sh: Add check for CR/LF, remove Cygwin specific check.
+
 2024-10-26  Aleksander Jan Bajkowski  <olek2@wp.pl>
 
 	autogen.sh: Allow to build with automake 1.17 (GH pull/292).
