@@ -1,4 +1,8 @@
-$Id: ChangeLog 5631 2024-10-26 10:14:00Z chrfranke $
+$Id: ChangeLog 5632 2024-10-26 10:49:43Z chrfranke $
+
+2024-10-26  Christian Franke  <franke@computer.org>
+
+	autogen.sh: Add check for CR/LF, remove Cygwin specific check.
 
 2024-10-26  Aleksander Jan Bajkowski  <olek2@wp.pl>
 

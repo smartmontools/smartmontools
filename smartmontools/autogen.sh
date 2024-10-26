@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh 5631 2024-10-26 10:14:00Z chrfranke $
+# $Id: autogen.sh 5632 2024-10-26 10:49:43Z chrfranke $
 #
 # Generate ./configure from configure.ac and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -13,15 +13,10 @@ while [ $# -gt 0 ]; do case $1 in
   *) echo "Usage: $0 [--force] [--warnings=CATEGORY ...]"; exit 1 ;;
 esac; done
 
-# Cygwin?
-test -x /usr/bin/uname && /usr/bin/uname | grep -i CYGWIN >/dev/null &&
-{
-    # Check for Unix text file type
-    echo > dostest.tmp
-    test "`wc -c < dostest.tmp`" -eq 1 ||
-        echo "Warning: DOS text file type set, 'make dist' and related targets will not work."
-    rm -f dostest.tmp
-}
+# Check for CR/LF line endings
+if od -A n -t x1 smartctl.h | grep ' 0d' >/dev/null; then
+  echo "Warning: Checkout with CR/LF line endings, 'make dist' and related targets will not work."
+fi
 
 # Find automake
 if [ -n "$AUTOMAKE" ]; then
