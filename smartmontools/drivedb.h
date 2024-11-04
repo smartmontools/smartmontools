@@ -932,9 +932,12 @@ const drive_settings builtin_knowndrives[] = {
     "Kingmax SATA SSD (120|240|480|960)GB|" // tested with Kingmax SATA SSD 240GB/SBFMY1.3
     "SATA SSD|" // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
       // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
+    "MSD210-M(4|8)(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GPSCB5UFI-S12(1|2)|"
+    "MST360-M8PS(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GWB5UFI-S17T2|"
+    "M8(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GB5UFI-S171|"
     "SPCC Solid State Disk", // Silicon Power, tested with SPCC Solid State Disk/SBFD00.3,
       // SPCC Solid State Disk/SBFM61.2, SPCC Solid State Disk/SBFMT1.3
-    "S[89AB]F[DM][0-9JTY][0-9]\\.[0-9]",
+    "S[89ABCH]F[DMI][0-9T][0-9]\\.[0-9]",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
@@ -947,7 +950,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 168,raw48,SATA_Phy_Error_Count "
     "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Lat/Erl " // Later bad block/Early bad block (see #1642)
-    "-v 173,raw16(avg16),MaxAvgErase_Ct "
+    "-v 173,raw24/raw24:z10z32,Erase_Ct_Max/Avg "
     "-v 175,raw48,Not_In_Use "
     "-v 183,raw48,Unknown_Attribute "
   //"-v 187,raw48,Reported_Uncorrect "
@@ -6697,3 +6700,4 @@ const drive_settings builtin_knowndrives[] = {
 /*
 }; // builtin_knowndrives[]
  */
+
