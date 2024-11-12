@@ -1,5 +1,10 @@
 $Id$
 
+2024-11-12  Michael Brünen  <mibruenen@gmail.com>
+
+	drivedb.h:
+	- WD Ultrastar DC HC530, Seagate Enterprise Capacity v7, Seagate Exos 7E8, Seagate Exos X16, Seagate IronWolf Pro (GH pull/247)
+
 2024-11-12  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Add support for NVMe self-tests.
