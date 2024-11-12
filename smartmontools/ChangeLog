@@ -1,5 +1,16 @@
 $Id$
 
+2024-11-12  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add support for NVMe self-tests.
+
+	Support '-l selftest', '-l selfteststs' and '-s ...' for NVMe
+	(#1649, #1813, GH issues/218, GH pull/219).
+	Minor rework of ATA/SCSI self-test code to re-use its count/hours
+	heuristics which detects new self-test errors.
+
+	smartd.conf.5.in: Document this new feature.
+
 2024-10-26  Christian Franke  <franke@computer.org>
 
 	autogen.sh: Add check for CR/LF, remove Cygwin specific check.
