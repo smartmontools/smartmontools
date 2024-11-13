@@ -2691,17 +2691,6 @@ static uint64_t le128_to_uint64(const unsigned char (& val)[16])
   return lo;
 }
 
-// Get max temperature in Kelvin reported in NVMe SMART/Health log.
-static int nvme_get_max_temp_kelvin(const nvme_smart_log & smart_log)
-{
-  int k = (smart_log.temperature[1] << 8) | smart_log.temperature[0];
-  for (auto s : smart_log.temp_sensor) {
-    if (s > k)
-      k = s; // cppcheck-suppress useStlAlgorithm
-  }
-  return k;
-}
-
 // Check the NVMe Error Information log for device related errors.
 static bool check_nvme_error_log(const dev_config & cfg, dev_state & state, nvme_device * nvmedev,
   uint64_t newcnt = 0)
@@ -2824,7 +2813,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
 
   // Check temperature sensor support
   if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
-    if (!nvme_get_max_temp_kelvin(smart_log)) {
+    if (!sg_get_unaligned_le16(smart_log.temperature)) {
       PrintOut(LOG_INFO, "Device: %s, no Temperature sensors, ignoring -W %d,%d,%d\n",
                name, cfg.tempdiff, cfg.tempinfo, cfg.tempcrit);
       cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
@@ -4102,9 +4091,9 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
 
   // Check temperature limits
   if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
-    int k = nvme_get_max_temp_kelvin(smart_log);
+    uint16_t k = sg_get_unaligned_le16(smart_log.temperature);
     // Convert Kelvin to positive Celsius (TODO: Allow negative temperatures)
-    int c = k - 273;
+    int c = (int)k - 273;
     if (c < 1)
       c = 1;
     else if (c > 0xff)

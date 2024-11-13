@@ -1,5 +1,11 @@
 $Id$
 
+2024-11-13  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Ignore individual temperature sensors (#1850).
+	Some devices use these to report other values like maximum
+	temperature.
+
 2024-11-12  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Add support for NVMe self-tests.
