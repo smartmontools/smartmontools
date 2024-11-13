@@ -4,7 +4,7 @@ Copyright (C) 2004-24 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5633 2024-11-12 16:45:34Z chrfranke $
+$Id: smartd.conf.5.in 5634 2024-11-13 10:53:43Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1591,13 +1591,18 @@ To combine all of the above reports, use:
 .br
 .B \-W 2,40,45
 .Sp
-For ATA devices, smartd interprets Attribute 194 or 190 as Temperature Celsius
-by default.  This can be changed to Attribute 9 or 220 by the drive
-database or by the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
+[ATA] smartd interprets Attribute 194 or 190 as Temperature Celsius by
+default.
+This can be changed to Attribute 9 or 220 by the drive database or by
+the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-For NVMe devices, smartd checks the maximum of the Composite Temperature value
-and all Temperature Sensor values reported by SMART/Health Information log.
+[NVMe] smartd checks the Composite Temperature value reported by the
+SMART/HealthInformation log.
+.br
+[NEW EXPERIMENTAL SMARTD 7.5 FIX]
+The individual Temperature Sensor values are no longer checked because
+some devices use these to report other values like maximum temperature.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-F TYPE
@@ -1808,4 +1813,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5633 2024-11-12 16:45:34Z chrfranke $
+$Id: smartd.conf.5.in 5634 2024-11-13 10:53:43Z chrfranke $

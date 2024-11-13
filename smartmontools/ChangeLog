@@ -1,4 +1,10 @@
-$Id: ChangeLog 5633 2024-11-12 16:45:34Z chrfranke $
+$Id: ChangeLog 5634 2024-11-13 10:53:43Z chrfranke $
+
+2024-11-13  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Ignore individual temperature sensors (#1850).
+	Some devices use these to report other values like maximum
+	temperature.
 
 2024-11-12  Christian Franke  <franke@computer.org>
 
