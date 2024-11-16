@@ -149,7 +149,7 @@ references:
 
   sm_compile_freebsd13: &sm_compile_freebsd13
     run:
-      name: Creating static FreeBSD-13.2/amd64 binaries
+      name: Creating static FreeBSD-13.4/amd64 binaries
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
         SOURCE_DATE_EPOCH=`cat ~/SOURCE_DATE_EPOCH` &&
@@ -165,12 +165,12 @@ references:
         make -j3 BUILD_INFO="$BUILD_INFO" &&
         mkdir inst && make DESTDIR="$(pwd)/inst" install &&
         (cd inst && tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} \
-         -czf "/artefacts/smartmontools-freebsd13.2-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
+         -czf "/artefacts/smartmontools-freebsd13.4-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
         rm -rf ~/build
 
   sm_compile_freebsd14: &sm_compile_freebsd14
     run:
-      name: Creating static FreeBSD-14.0/amd64 binaries
+      name: Creating static FreeBSD-14.1/amd64 binaries
       command: |
         SM_VER=`cat ~/SM_VER` && SVNREV=`cat ~/SVNREV` &&
         SOURCE_DATE_EPOCH=`cat ~/SOURCE_DATE_EPOCH` &&
@@ -186,7 +186,7 @@ references:
         make -j3 BUILD_INFO="$BUILD_INFO" &&
         mkdir inst && make DESTDIR="$(pwd)/inst" install &&
         (cd inst && tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} \
-         -czf "/artefacts/smartmontools-freebsd14.0-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
+         -czf "/artefacts/smartmontools-freebsd14.1-amd64-static-${SM_VER}-r${SVNREV}.tar.gz" *) &&
         rm -rf ~/build
 
   sm_run_cppcheck: &sm_run_cppcheck
