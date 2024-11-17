@@ -4,7 +4,7 @@ Copyright (C) 2004-24 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5634 2024-11-13 10:53:43Z chrfranke $
+$Id: smartd.conf.5.in 5636 2024-11-17 15:11:37Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -291,6 +291,11 @@ Symbolic links are resolved before this check is done.
 A device name is also ignored if another device with same identify
 information (vendor, model, firmware version, serial number, WWN) already
 exists.
+.PP
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+If a device only supports a single namespace and a configuration line
+which addresses its namespace id already exists, a DEVICESCAN result which
+does not address a namespace is also ignored (and vice versa).
 .Sp
 .SH DEFAULT SETTINGS
 If an entry in the configuration file starts with
@@ -1813,4 +1818,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5634 2024-11-13 10:53:43Z chrfranke $
+$Id: smartd.conf.5.in 5636 2024-11-17 15:11:37Z chrfranke $

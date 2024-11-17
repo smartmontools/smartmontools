@@ -1,4 +1,9 @@
-$Id: ChangeLog 5634 2024-11-13 10:53:43Z chrfranke $
+$Id: ChangeLog 5636 2024-11-17 15:11:37Z chrfranke $
+
+2024-11-17  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Ignore NSID in duplicate check of single namespace
+	devices.
 
 2024-11-13  Christian Franke  <franke@computer.org>
 
