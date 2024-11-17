@@ -391,7 +391,8 @@ struct dev_config
   std::string name;                       // Device name (with optional extra info)
   std::string dev_name;                   // Device name (plain, for SMARTD_DEVICE variable)
   std::string dev_type;                   // Device type argument from -d directive, empty if none
-  std::string dev_idinfo;                 // Device identify info for warning emails
+  std::string dev_idinfo;                 // Device identify info for warning emails and duplicate check
+  std::string dev_idinfo_bc;              // Same without namespace id for duplicate check
   std::string state_file;                 // Path of the persistent state file, empty if none
   std::string attrlog_file;               // Path of the persistent attrlog file, empty if none
   int checktime{};                        // Individual check interval, 0 if none
@@ -1949,7 +1950,10 @@ static bool is_duplicate_dev_idinfo(const dev_config & cfg, const dev_config_vec
   for (const auto & prev_cfg : prev_cfgs) {
     if (!prev_cfg.id_is_unique)
       continue;
-    if (cfg.dev_idinfo != prev_cfg.dev_idinfo)
+    if (!(    cfg.dev_idinfo == prev_cfg.dev_idinfo
+          // Also check identity without NSID if device does not support multiple namespaces
+          || (!cfg.dev_idinfo_bc.empty()      && cfg.dev_idinfo_bc == prev_cfg.dev_idinfo)
+          || (!prev_cfg.dev_idinfo_bc.empty() && cfg.dev_idinfo == prev_cfg.dev_idinfo_bc)))
       continue;
 
     PrintOut(LOG_INFO, "Device: %s, same identity as %s, ignored\n",
@@ -2788,8 +2792,18 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   uint64_t capacity = le128_to_uint64(id_ctrl.tnvmcap);
   if (capacity)
     format_capacity(capstr, sizeof(capstr), capacity, ".");
-  cfg.dev_idinfo = strprintf("%s, S/N:%s, FW:%s%s%s%s", model, serial, firmware,
-                             nsstr, (capstr[0] ? ", " : ""), capstr);
+
+  auto idinfo = &dev_config::dev_idinfo;
+  for (;;) {
+    cfg.*idinfo = strprintf("%s, S/N:%s, FW:%s%s%s%s", model, serial, firmware,
+                            nsstr, (capstr[0] ? ", " : ""), capstr);
+    if (!(nsstr[0] && id_ctrl.nn == 1))
+      break; // No namespace id or device supports multiple namespaces
+    // Keep version without namespace id for 'is_duplicate_dev_idinfo()'
+    nsstr[0] = 0;
+    idinfo = &dev_config::dev_idinfo_bc;
+  }
+
   cfg.id_is_unique = true; // TODO: Check serial?
   if (sanitize_dev_idinfo(cfg.dev_idinfo))
     cfg.id_is_unique = false;

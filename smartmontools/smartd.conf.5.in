@@ -291,6 +291,11 @@ Symbolic links are resolved before this check is done.
 A device name is also ignored if another device with same identify
 information (vendor, model, firmware version, serial number, WWN) already
 exists.
+.PP
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+If a device only supports a single namespace and a configuration line
+which addresses its namespace id already exists, a DEVICESCAN result which
+does not address a namespace is also ignored (and vice versa).
 .Sp
 .SH DEFAULT SETTINGS
 If an entry in the configuration file starts with
