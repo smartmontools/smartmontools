@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 5596 2024-01-23 15:57:49Z chrfranke $
+# $Id: Makefile.am 5637 2024-11-18 14:30:27Z chrfranke $
 #
 
 ACLOCAL_AMFLAGS = -I m4
@@ -131,6 +131,7 @@ EXTRA_smartctl_SOURCES = \
         dev_areca.h \
         dev_legacy.cpp \
         linux_nvme_ioctl.h \
+        openbsd_nvme_ioctl.h \
         megaraid.h \
         sssraid.h
 
@@ -205,6 +206,7 @@ EXTRA_smartd_SOURCES = \
         linux_nvme_ioctl.h \
         freebsd_nvme_ioctl.h \
         netbsd_nvme_ioctl.h \
+        openbsd_nvme_ioctl.h \
         megaraid.h \
         sssraid.h
 

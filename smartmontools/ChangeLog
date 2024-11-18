@@ -1,4 +1,11 @@
-$Id: ChangeLog 5636 2024-11-17 15:11:37Z chrfranke $
+$Id: ChangeLog 5637 2024-11-18 14:30:27Z chrfranke $
+
+2024-11-18  Martin Ziemer  <horrad@horrad.de>
+
+	openbsd_nvme_ioctl.h, os_openbsd.cpp: Enable NVMe on OpenBSD
+	smartctl.8.in, smartd.8.in: Add OpenBSD in documentation for NVMe
+
+	(#729, GH pull/299)
 
 2024-11-17  Christian Franke  <franke@computer.org>
 
