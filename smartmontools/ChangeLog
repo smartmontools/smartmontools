@@ -1,5 +1,12 @@
 $Id$
 
+2024-11-20  Eaton Zveare  <eaton@eaton-works.com>
+
+	Increase WMI timeout on Windows to address issues when
+	reading USB device ID.
+
+	(GH pull/277)
+
 2024-11-20  Robin Schneider  <ypid@riseup.net>
 
 	man pages: Fix typo, '-l directory,q' was mentioned but only
