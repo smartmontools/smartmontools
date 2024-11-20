@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-23 Christian Franke
+ * Copyright (C) 2016-24 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -231,7 +231,7 @@ unsigned nvme_read_log_page(nvme_device * device, unsigned nsid, unsigned char l
 unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_log,
   unsigned num_entries, bool lpo_sup)
 {
-  unsigned n = nvme_read_log_page(device, 0xffffffff, 0x01, error_log,
+  unsigned n = nvme_read_log_page(device, nvme_broadcast_nsid, 0x01, error_log,
                                   num_entries * sizeof(*error_log), lpo_sup);
 
   unsigned read_entries = n / sizeof(*error_log);
@@ -251,9 +251,9 @@ unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_l
 }
 
 // Read NVMe SMART/Health Information log.
-bool nvme_read_smart_log(nvme_device * device, nvme_smart_log & smart_log)
+bool nvme_read_smart_log(nvme_device * device, uint32_t nsid, nvme_smart_log & smart_log)
 {
-  if (!nvme_read_log_page_1(device, 0xffffffff, 0x02, &smart_log, sizeof(smart_log)))
+  if (!nvme_read_log_page_1(device, nsid, 0x02, &smart_log, sizeof(smart_log)))
     return false;
 
   if (isbigendian()) {
@@ -370,9 +370,9 @@ static const char * nvme_status_to_flagged_str(uint16_t status)
         case 0x0a: return "-Invalid Format";
         case 0x0b: return "Firmware Activation Requires Conventional Reset";
         case 0x0c: return "-Invalid Queue Deletion";
-        case 0x0d: return "Feature Identifier Not Saveable";
-        case 0x0e: return "Feature Not Changeable";
-        case 0x0f: return "Feature Not Namespace Specific";
+        case 0x0d: return "-Feature Identifier Not Saveable";
+        case 0x0e: return "-Feature Not Changeable";
+        case 0x0f: return "-Feature Not Namespace Specific";
         case 0x10: return "Firmware Activation Requires NVM Subsystem Reset";
         case 0x11: return "Firmware Activation Requires Controller Level Reset";
         case 0x12: return "Firmware Activation Requires Maximum Time Violation";

@@ -370,11 +370,11 @@ static void print_critical_warning(unsigned char w)
 }
 
 static void print_smart_log(const nvme_smart_log & smart_log,
-  const nvme_id_ctrl & id_ctrl, bool show_all)
+  const nvme_id_ctrl & id_ctrl, unsigned nsid, bool show_all)
 {
   json::ref jref = jglb["nvme_smart_health_information_log"];
   char buf[64];
-  jout("SMART/Health Information (NVMe Log 0x02)\n");
+  jout("SMART/Health Information (NVMe Log 0x02, NSID 0x%x)\n", nsid);
   jout("Critical Warning:                   0x%02x\n", smart_log.critical_warning);
   jref["critical_warning"] = smart_log.critical_warning;
 
@@ -523,7 +523,7 @@ static void print_error_log(const nvme_error_log_page * error_log,
       snprintf(lb, sizeof(lb), "%" PRIu64, e.lba);
       jrefi["lba"]["value"].set_unsafe_uint64(e.lba);
     }
-    if (e.nsid != 0xffffffffU) {
+    if (e.nsid != nvme_broadcast_nsid) {
       snprintf(ns, sizeof(ns), "%u", e.nsid);
       jrefi["nsid"] = e.nsid;
     }
@@ -548,7 +548,7 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log, unsign
   // Figure 203 of NVM Express Base Specification Revision 1.4c, March 9, 2021
   json::ref jref = jglb["nvme_self_test_log"];
   jout("Self-test Log (NVMe Log 0x06, NSID 0x%x)\n", nsid);
-  jref["nsid"] = (nsid != 0xffffffff ? (int64_t)nsid : -1);
+  jref["nsid"] = (nsid != nvme_broadcast_nsid ? (int64_t)nsid : -1);
 
   const char * s; char buf[32];
   switch (self_test_log.current_operation & 0xf) {
@@ -618,12 +618,12 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log, unsign
       jrefi["segment"] = r.segment;
     }
     if (r.valid & 0x01) {
-      if (r.nsid == 0xffffffff)
+      if (r.nsid == nvme_broadcast_nsid)
         ns[0] = '*', ns[1] = 0;
       else
         snprintf(ns, sizeof(ns), "%u", r.nsid);
       // Broadcast = -1
-      jrefi["nsid"] = (r.nsid != 0xffffffff ? (int64_t)r.nsid : -1);
+      jrefi["nsid"] = (r.nsid != nvme_broadcast_nsid ? (int64_t)r.nsid : -1);
     }
     if (r.valid & 0x02) {
       uint64_t lba = sg_get_unaligned_le64(r.lba);
@@ -676,7 +676,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     nvme_id_ns id_ns; memset(&id_ns, 0, sizeof(id_ns));
 
     unsigned nsid = device->get_nsid();
-    if (nsid == 0xffffffffU) {
+    if (nsid == nvme_broadcast_nsid) {
       // Broadcast namespace
       if (id_ctrl.nn == 1) {
         // No namespace management, get size from single namespace
@@ -707,9 +707,14 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
   // Print SMART Status and SMART/Health Information
   int retval = 0;
   if (options.smart_check_status || options.smart_vendor_attrib) {
+    // Use individual NSID if SMART/Health Information per namespace is supported
+    unsigned smart_log_nsid = ((id_ctrl.lpa & 0x01) ? device->get_nsid()
+                               : nvme_broadcast_nsid                    );
+
     nvme_smart_log smart_log;
-    if (!nvme_read_smart_log(device, smart_log)) {
-      jerr("Read NVMe SMART/Health Information failed: %s\n\n", device->get_errmsg());
+    if (!nvme_read_smart_log(device, smart_log_nsid, smart_log)) {
+      jerr("Read NVMe SMART/Health Information (NSID 0x%x) failed: %s\n\n", smart_log_nsid,
+           device->get_errmsg());
       return FAILSMART;
     }
 
@@ -720,7 +725,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     }
 
     if (options.smart_vendor_attrib) {
-      print_smart_log(smart_log, id_ctrl, show_all);
+      print_smart_log(smart_log, id_ctrl, smart_log_nsid, show_all);
     }
   }
 
@@ -753,12 +758,6 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
   // Check for self-test support
   bool self_test_sup = !!(id_ctrl.oacs & 0x0010);
 
-  // Use broadcast NSID for self-tests if only one namespace is supported.
-  // Some single namespace devices return failure if NSID=1 is used to
-  // address self-tests.
-  // TODO: Support NSID=0 to test controller
-  unsigned self_test_nsid = (id_ctrl.nn == 1 ? 0xffffffff : device->get_nsid());
-
   // Read and print Self-test log, check for running test
   int self_test_completion = -1;
   if (options.smart_selftest_log || options.smart_selftest_type) {
@@ -766,13 +765,14 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       pout("Self-tests not supported\n\n");
     else {
       nvme_self_test_log self_test_log;
-      if (!nvme_read_self_test_log(device, self_test_nsid, self_test_log)) {
+      unsigned self_test_log_nsid = nvme_broadcast_nsid;
+      if (!nvme_read_self_test_log(device, self_test_log_nsid, self_test_log)) {
         jerr("Read Self-test Log failed: %s\n\n", device->get_errmsg());
         return retval | FAILSMART;
       }
 
       if (options.smart_selftest_log)
-        print_self_test_log(self_test_log, self_test_nsid);
+        print_self_test_log(self_test_log, self_test_log_nsid);
 
       if (self_test_log.current_operation & 0xf)
         self_test_completion = self_test_log.current_completion & 0x7f;
@@ -790,7 +790,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     case 1:
     case 2:
     case 3:
-      nsid = 0xffffffff;
+      nsid = nvme_broadcast_nsid;
       break;
     default:
       nsid = device->get_nsid();
@@ -821,6 +821,8 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       retval |= FAILSMART;
     }
     else {
+      // TODO: Support NSID=0 to test controller
+      unsigned self_test_nsid = device->get_nsid();
       if (!nvme_self_test(device, options.smart_selftest_type, self_test_nsid)) {
         jerr("NVMe Self-test cmd with type=0x%x, nsid=0x%x failed: %s\n\n",
              options.smart_selftest_type, self_test_nsid, device->get_errmsg());

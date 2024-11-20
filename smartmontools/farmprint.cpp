@@ -173,6 +173,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   farm_format_id_string(firmwareRev, farm_byte_swap(farmLog.driveInformation.firmwareRev2), farm_byte_swap(farmLog.driveInformation.firmwareRev));
 
   char modelNumber[sizeof(farmLog.driveInformation.modelNumber) + 1];
+  modelNumber[0] = '\0';
   for (uint8_t i = 0; i < sizeof(farmLog.driveInformation.modelNumber) / sizeof(farmLog.driveInformation.modelNumber[0]); i++) {
     farm_format_id_string(&modelNumber[strlen(modelNumber)], farm_byte_swap(farmLog.driveInformation.modelNumber[i]));
   }
@@ -180,7 +181,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   const char* recordingType = farm_get_recording_type(farmLog.driveInformation.driveRecordingType);
 
   char dateOfAssembly[sizeof(farmLog.driveInformation.dateOfAssembly)];
-  farm_format_id_string(dateOfAssembly, farm_byte_swap(farmLog.driveInformation.dateOfAssembly));
+  memcpy(dateOfAssembly, &farmLog.driveInformation.dateOfAssembly, sizeof(farmLog.driveInformation.dateOfAssembly));
 
   // Print plain-text
   jout("Seagate Field Access Reliability Metrics log (FARM) (GP Log 0xa6)\n");

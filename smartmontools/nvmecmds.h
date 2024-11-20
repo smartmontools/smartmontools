@@ -253,6 +253,9 @@ STATIC_ASSERT(sizeof(nvme_self_test_log) == 564);
 
 class nvme_device;
 
+// Broadcast namespace ID.
+constexpr uint32_t nvme_broadcast_nsid = 0xffffffffU;
+
 // Print NVMe debug messages?
 extern unsigned char nvme_debugmode;
 
@@ -271,7 +274,8 @@ unsigned nvme_read_error_log(nvme_device * device, smartmontools::nvme_error_log
   unsigned num_entries, bool lpo_sup);
 
 // Read NVMe SMART/Health Information log.
-bool nvme_read_smart_log(nvme_device * device, smartmontools::nvme_smart_log & smart_log);
+bool nvme_read_smart_log(nvme_device * device, uint32_t nsid,
+  smartmontools::nvme_smart_log & smart_log);
 
 // Read NVMe Self-test Log.
 bool nvme_read_self_test_log(nvme_device * device, uint32_t nsid,

@@ -205,7 +205,7 @@ supported_vpd_pages::supported_vpd_pages(scsi_device * device) : num_valid(0)
     if (device && (0 == scsiInquiryVpd(device, SCSI_VPD_SUPPORTED_VPD_PAGES,
                    b, sizeof(b)))) {
         num_valid = sg_get_unaligned_be16(b + 2);
-        int n = sizeof(pages);
+        int n = sizeof(b) - 4;
         if (num_valid > n)
             num_valid = n;
         memcpy(pages, b + 4, num_valid);
@@ -1807,11 +1807,11 @@ scsiModePageOffset(const uint8_t * resp, int len, int modese_len)
             bd_len = resp[3];
             offset = bd_len + 4;
         }
-        if ((offset + 2) > len) {
+        if ((offset + 2) >= len) {
             pout("scsiModePageOffset: raw_curr too small, offset=%d "
                  "resp_len=%d bd_len=%d\n", offset, resp_len, bd_len);
             offset = -1;
-        } else if ((offset + 2) > resp_len) {
+        } else if ((offset + 2) >= resp_len) {
              if ((resp_len > 2) || scsi_debugmode)
                 pout("scsiModePageOffset: response length too short, "
                      "resp_len=%d offset=%d bd_len=%d\n", resp_len,
@@ -1949,6 +1949,8 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
     }
     int sp = !! (rout[offset] & 0x80); /* PS bit becomes 'SELECT's SP bit */
     if (enabled) {
+        if ((offset + 12) > SCSI_IECMP_RAW_LEN)
+          return -EINVAL;
         rout[offset + 2] = SCSI_IEC_MP_BYTE2_ENABLED;
         if (scsi_debugmode > 2)
             rout[offset + 2] |= SCSI_IEC_MP_BYTE2_TEST_MASK;
