@@ -1526,7 +1526,7 @@ arguments to this option.
 If your version of smartctl supports 48-bit ATA commands, both the
 General Purpose Log (GPL) and SMART Log (SL) directories are printed in
 one combined table.  The output can be restricted to the GPL directory or
-SL directory by \*(Aq\-l directory,q\*(Aq or \*(Aq\-l directory,s\*(Aq
+SL directory by \*(Aq\-l directory,g\*(Aq or \*(Aq\-l directory,s\*(Aq
 respectively.
 .Sp
 .I background

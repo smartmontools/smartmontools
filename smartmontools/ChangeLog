@@ -1,5 +1,12 @@
 $Id$
 
+2024-11-20  Robin Schneider  <ypid@riseup.net>
+
+	man pages: Fix typo, '-l directory,q' was mentioned but only
+	'-l directory,g' is supported.
+
+	(GH pull/298)
+
 2024-11-18  Martin Ziemer  <horrad@horrad.de>
 
 	openbsd_nvme_ioctl.h, os_openbsd.cpp: Enable NVMe on OpenBSD
