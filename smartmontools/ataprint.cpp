@@ -3379,15 +3379,15 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       case 0x00: // PM2:Standby, EPC unavailable or Standby_z power condition
         powername = "STANDBY"; powerlimit = 3; break;
       case 0x01: // PM2:Standby, Standby_y power condition
-        powername = "STANDBY_Y"; powerlimit = 3; break;
+        powername = "STANDBY_Y"; powerlimit = 4; break;
       case 0x80: // PM1:Idle, EPC unavailable
-        powername = "IDLE";    powerlimit = 4; break;
+        powername = "IDLE";    powerlimit = 7; break;
       case 0x81: // PM1:Idle, Idle_a power condition
-        powername = "IDLE_A";  powerlimit = 4; break;
+        powername = "IDLE_A";  powerlimit = 7; break;
       case 0x82: // PM1:Idle, Idle_b power condition
-        powername = "IDLE_B";  powerlimit = 4; break;
+        powername = "IDLE_B";  powerlimit = 6; break;
       case 0x83: // PM1:Idle, Idle_c power condition
-        powername = "IDLE_C";  powerlimit = 4; break;
+        powername = "IDLE_C";  powerlimit = 5; break;
       // 0x40/41 were declared obsolete in ACS-3 Revision 1
       case 0x40: // PM0:Active, NV Cache power mode enabled, spun down
         powername = "ACTIVE_NV_DOWN"; break;
