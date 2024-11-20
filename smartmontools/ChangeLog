@@ -1,4 +1,11 @@
-$Id: ChangeLog 5639 2024-11-20 15:11:00Z chrfranke $
+$Id: ChangeLog 5640 2024-11-20 17:00:51Z chrfranke $
+
+2024-11-20  Eaton Zveare  <eaton@eaton-works.com>
+
+	Increase WMI timeout on Windows to address issues when
+	reading USB device ID.
+
+	(GH pull/277)
 
 2024-11-20  Robin Schneider  <ypid@riseup.net>
 

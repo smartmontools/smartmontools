@@ -16,7 +16,7 @@
 
 #include <stdio.h>
 
-const char * wmiquery_cpp_cvsid = "$Id: wmiquery.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
+const char * wmiquery_cpp_cvsid = "$Id: wmiquery.cpp 5640 2024-11-20 17:00:51Z chrfranke $"
   WMIQUERY_H_CVSID;
 
 
@@ -79,7 +79,7 @@ bool wbem_enumerator::next(wbem_object & obj)
     return false;
 
   ULONG n = 0;
-  HRESULT rc = m_intf->Next(5000 /*5s*/, 1 /*count*/, obj.m_intf.replace(), &n);
+  HRESULT rc = m_intf->Next(60000, 1 /*count*/, obj.m_intf.replace(), &n);
   if (FAILED(rc) || n != 1)
     return false;
   return true;
