@@ -7,7 +7,7 @@ image: Ubuntu2204
 init:
   # as its not possible to use docker as source image, we will install everything in init step
   - >
-    sudo apt-get update &&
+    sudo apt-get update --allow-releaseinfo-change &&
     sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 unzip wget man2html-base groff
   # NSIS 3.08-3 from Debian 12 generates bogus relocation information (regression).
   # The fixed version 3.09-1 is still only available from Ubuntu 23.10 (mantic, devel).
