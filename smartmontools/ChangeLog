@@ -1,4 +1,11 @@
-$Id: ChangeLog 5637 2024-11-18 14:30:27Z chrfranke $
+$Id: ChangeLog 5639 2024-11-20 15:11:00Z chrfranke $
+
+2024-11-20  Robin Schneider  <ypid@riseup.net>
+
+	man pages: Fix typo, '-l directory,q' was mentioned but only
+	'-l directory,g' is supported.
+
+	(GH pull/298)
 
 2024-11-18  Martin Ziemer  <horrad@horrad.de>
 

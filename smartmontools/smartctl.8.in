@@ -4,7 +4,7 @@ Copyright (C) 2004-24 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5637 2024-11-18 14:30:27Z chrfranke $
+$Id: smartctl.8.in 5639 2024-11-20 15:11:00Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1526,7 +1526,7 @@ arguments to this option.
 If your version of smartctl supports 48-bit ATA commands, both the
 General Purpose Log (GPL) and SMART Log (SL) directories are printed in
 one combined table.  The output can be restricted to the GPL directory or
-SL directory by \*(Aq\-l directory,q\*(Aq or \*(Aq\-l directory,s\*(Aq
+SL directory by \*(Aq\-l directory,g\*(Aq or \*(Aq\-l directory,s\*(Aq
 respectively.
 .Sp
 .I background
@@ -2624,4 +2624,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5637 2024-11-18 14:30:27Z chrfranke $
+$Id: smartctl.8.in 5639 2024-11-20 15:11:00Z chrfranke $
