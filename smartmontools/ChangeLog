@@ -1,4 +1,8 @@
-$Id: ChangeLog 5640 2024-11-20 17:00:51Z chrfranke $
+$Id: ChangeLog 5641 2024-11-30 12:36:16Z chrfranke $
+
+2024-11-30  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows Server 2025 build number.
 
 2024-11-20  Eaton Zveare  <eaton@eaton-works.com>
 
