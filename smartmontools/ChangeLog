@@ -1,5 +1,9 @@
 $Id$
 
+2024-11-30  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows Server 2025 build number.
+
 2024-11-20  Eaton Zveare  <eaton@eaton-works.com>
 
 	Increase WMI timeout on Windows to address issues when
