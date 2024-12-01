@@ -10,12 +10,29 @@ Summary: smartmontools release 7.5
 -----------------------------------------------------------
 - CI and release builds are now reproducible if same SOURCE_DATE_EPOCH,
   build recipes and toolchains are used.
+- smartctl '-H -A': Support for NVMe SMART/Health Information per
+  namespace.
+- smartctl '-x', '-l scterc': No longer returns exit status 4 if SCT ERC
+  is not supported by the device.
 - smartctl '-l error': No longer prints bogus ATA error log entries if
   the error index is nonzero but the error count is zero.
 - smartctl '-l ssd': Fixed corruption of the output of the SCSI Format
   Status log page.
 - smartctl '-l ssd': Now detects 'no format since manufacture' from the
   SCSI Format Status log page.
+- smartctl '-l farm': Fixed the byte order of ATA 'Assembly Date'.
+- smartctl '-l farm': Fixed a possible segfault.
+- smartctl '-t TEST': Fixed self-tests of single namespace NVMe devices.
+- smartd: NVMe self-test support ('-l selftest -l selfteststs -s ...').
+- smartd: No longer includes individual sensors in NVMe temperature
+  check as some devices report other values there.
+- smartd: Ignores NSID in duplicate check of single namespace devices.
+- smartd: No longer issues LOG_CRIT warnings for 'Set Feature' related
+  NVMe error information log entries.
+- smartd: No longer hangs on systems with large file descriptor limits.
+- SCSI: Fixed range checks of mode page offset and VPD inquiry.
+- USB/NVMe: '-d sntasmedia' now supports log pages > 512 bytes.
+- Fixed segfault on missing option argument on systems using musl libc.
 - HDD, SSD and USB additions to drive database.
 - automake < 1.13 are no longer supported.
 - Custom make rules are now silenced if 'make V=0' is used.
@@ -23,8 +40,12 @@ Summary: smartmontools release 7.5
   tarballs.
 - The makefile no longer uses GNU make specific syntax elements
   (exception: reproducible builds for macOS).
+- Version information is now also set if build from GH R/O mirror.
 - macOS: Support for reproducible builds of the DMG image.
+- OpenBSD: NVMe support.
+- Windows: Increased WMI timeout.
 - Windows: Support for reproducible builds of the installer.
+- Windows: Uninstaller is no longer damaged if the installer is signed.
 - Windows 'update-smartd-drivedb.ps1': Fixed call of 'gpg.exe' if it
   appears more than once in the PATH.
 
