@@ -14,9 +14,9 @@ init:
   # Manually install this version.  The warning about outdated libstdc++6 could be
   # safely ignored.
   - >
-    wget http://mirrors.kernel.org/ubuntu/pool/universe/n/nsis/nsis_3.09-1_amd64.deb -O /tmp/nsis_3.09-1_amd64.deb &&
-    wget http://mirrors.kernel.org/ubuntu/pool/universe/n/nsis/nsis-common_3.09-1_all.deb -O /tmp/nsis-common_3.09-1_all.deb
-    && sudo dpkg --install --force-all /tmp/nsis-common_3.09-1_all.deb /tmp/nsis_3.09-1_amd64.deb
+    wget http://mirrors.edge.kernel.org/ubuntu/pool/universe/n/nsis/nsis_3.09-4ubuntu1_amd64.deb -O /tmp/nsis_3.09-4ubuntu1_amd64.deb &&
+    wget http://mirrors.edge.kernel.org/ubuntu/pool/universe/n/nsis/nsis-common_3.09-4ubuntu1_all.deb -O /tmp/nsis-common_3.09-4ubuntu1_all.deb
+    && sudo dpkg --install --force-all /tmp/nsis-common_3.09-4ubuntu1_all.deb /tmp/nsis_3.09-4ubuntu1_amd64.deb
 
 build_script:
 - cd smartmontools
