@@ -3754,8 +3754,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Hitachi/HGST Ultrastar 7K4000", // tested with Hitachi HUS724040ALE640/MJAOA3B0,
       // HGST HUS724040ALE640/MJAOA580, HGST HUS724020ALA640/MF6OAA70,
-      // HUS724030ALA640/MF8OAAZ0
-    "(Hitachi |HGST )?HUS7240(20|30|40)AL[AE]64[01]",
+      // HUS724030ALA640/MF8OAAZ0, HGST HUS724045ALE640/MJBOA5G0
+    "(Hitachi |HGST )?HUS7240(20|30|40|45)AL[AE]64[01]",
     "", "", ""
   },
   { "Hitachi/HGST Ultrastar 7K2",
