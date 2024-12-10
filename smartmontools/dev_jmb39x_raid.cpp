@@ -179,7 +179,9 @@ static void jmb_set_request_sector(uint8_t (& data)[512], uint8_t version, uint3
   switch (version) {
     default:
     case 0: scrambled_cmd_code = 0x197b0322; break; // JMB39x: various devices
-    case 1: scrambled_cmd_code = 0x197b0393; break; // JMB39x: QNAP TR-004 NAS
+    case 1:                                         // JMB39x: QNAP TR-004 NAS
+    case 3:                                         // JMB39x: QNAP TR-002 NAS
+            scrambled_cmd_code = 0x197b0393; break;
     case 2: scrambled_cmd_code = 0x197b0562; break; // JMS562
   }
   jmb_put_le32(data, 0, scrambled_cmd_code);
@@ -704,6 +706,8 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
     version = 1;
   else if (!strcmp(prefix, "jms56x"))
     version = 2;
+  else if (!strcmp(prefix, "jmb39x-q2"))
+    version = 3;
   else
     n1 = -1;
   if (n1 < 0) {
