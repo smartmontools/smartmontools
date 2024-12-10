@@ -579,12 +579,16 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 .I intelliprop,N[+TYPE]
 \- (deprecated and subject to remove).
 .Sp
-.I jmb39x[\-q],N[,sLBA][,force][+TYPE]
+.I jmb39x[\-q[2]],N[,sLBA][,force][+TYPE]
 \- the device consists of multiple SATA disks connected to a JMicron JMB39x
 RAID port multiplier.
 The suffix \*(Aq\-q\*(Aq selects a slightly different command variant used by
-some QNAP NAS devices.
+QNAP TR-004 NAS devices.
 The integer N is the port number from 0 to 4.
+.br
+[NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+The suffix \*(Aq\-q2\*(Aq selects another command variant used by QNAP TR-002
+NAS devices.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .I jms56x,N[,sLBA][,force][+TYPE]

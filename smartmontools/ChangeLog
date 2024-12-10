@@ -1,5 +1,9 @@
 $Id$
 
+2024-12-10  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in: Document '-d jmb39x-q2,...'.
+
 2024-12-10  Rodrigo Araujo  <araujo.rm@gmail.com>
 
 	dev_jmb39x_raid.cpp: support QNAP-TR002 NAS
