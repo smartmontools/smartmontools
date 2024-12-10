@@ -1,5 +1,13 @@
 $Id$
 
+2024-12-10  Rodrigo Araujo  <araujo.rm@gmail.com>
+
+	dev_jmb39x_raid.cpp: support QNAP-TR002 NAS
+
+	Add '-d jmb39x-q2,...' device type for JMB39x
+	protocol variant used by QNAP-TR002 NAS.
+	(#1290, GH pull/306)
+
 2024-11-30  Christian Franke  <franke@computer.org>
 
 	os_win32.cpp: Decode Windows Server 2025 build number.
