@@ -22,7 +22,7 @@
 #include <stdlib.h> // realpath()
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5496 2023-07-10 13:37:25Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 5644 2024-12-10 14:39:22Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -306,7 +306,7 @@ std::string smart_interface::get_valid_dev_types_str()
   std::string s =
     "ata, scsi[+TYPE], nvme[,NSID], sat[,auto][,N][+TYPE], usbasm1352r,N, usbcypress[,X], "
     "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, sntasmedia, sntjmicron[,NSID], "
-    "sntrealtek, jmb39x[-q],N[,sLBA][,force][+TYPE], "
+    "sntrealtek, jmb39x[-q[2]],N[,sLBA][,force][+TYPE], "
     "jms56x,N[,sLBA][,force][+TYPE]";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
