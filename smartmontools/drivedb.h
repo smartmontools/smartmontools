@@ -153,54 +153,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 254,raw48,Free_Fall_Sensor,HDD"
   },
 
- // this is a copy of the Phison bases record for the OEM drives with a very
-  // weak information in the model. Detection is based on Firmware.
-  { "Phison Driven OEM SSDs", // see MKP_521_Phison_SMART_attribute.pdf
-    "GOODRAM|" // tested with GOODRAM CX200 (GOODRAM/SAFM12.2)
-    "Hoodisk SSD|" // tested with Hoodisk SSD/SBFM01.3, Hoodisk SSD/SBFMJ1.3
-    "INTENSO|" // tested with Intenso SSD SATA III Top (INTENSO/S9FM02.6, .../SAFM01.6)
-    "INTENSO SATA III SSD|" // tested with INTENSO SATA III SSD/SBFM11.2, .../SBFM81.3
-    "Kingmax SATA SSD (120|240|480|960)GB|" // tested with Kingmax SATA SSD 240GB/SBFMY1.3
-    "SATA SSD|" // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
-      // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
-    "MSD210-M(4|8)(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GPSCB5UFI-S12(1|2)|"
-    "MST360-M8PS(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GWB5UFI-S17T2|"
-    "M8(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GB5UFI-S171|"
-    "SPCC Solid State Disk", // Silicon Power, tested with SPCC Solid State Disk/SBFD00.3,
-      // SPCC Solid State Disk/SBFM61.2, SPCC Solid State Disk/SBFMT1.3
-    "S[89ABCH]F[DMI][0-9T][0-9]\\.[0-9]",
-    "",
-      //"-v 1,raw48,Raw_Read_Error_Rate "
-    "-v 2,raw48,Not_In_Use "
-    "-v 3,raw48,Not_In_Use "
-    "-v 5,raw48,Retired_Block_Count "
-    "-v 7,raw48,Not_In_Use "
-    "-v 8,raw48,Not_In_Use "
-  //"-v 9,raw24(raw8),Power_On_Hours "
-    "-v 10,raw48,Not_In_Use "
-  //"-v 12,raw48,Power_Cycle_Count "
-    "-v 168,raw48,SATA_Phy_Error_Count "
-    "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Lat/Erl " // Later bad block/Early bad block (see #1642)
-    "-v 173,raw24/raw24:z10z32,Erase_Ct_Max/Avg "
-    "-v 175,raw48,Not_In_Use "
-    "-v 183,raw48,Unknown_Attribute "
-  //"-v 187,raw48,Reported_Uncorrect "
-    "-v 192,raw48,Unsafe_Shutdown_Count "
-  //"-v 194,tempminmax,Temperature_Celsius "
-    "-v 196,raw48,Not_In_Use "
-    "-v 197,raw48,Not_In_Use "
-    "-v 199,raw48,CRC_Error_Count "
-    "-v 218,raw48,CRC_Error_Count "
-    "-v 231,raw48,SSD_Life_Left "
-    "-v 233,raw48,Flash_Writes_GiB "
-    "-v 240,raw48,Not_In_Use "
-    "-v 241,raw48,Lifetime_Writes_GiB "
-    "-v 242,raw48,Lifetime_Reads_GiB "
-    "-v 244,raw48,Average_Erase_Count "
-    "-v 245,raw48,Max_Erase_Count "
-    "-v 246,raw48,Total_Erase_Count "
-  },
-    
+     
   { "Swissbit C440 Industrial CompactFlash Card",
     // spec v1.23 found at http://www.farnell.com/datasheets/1821167.pdf
     // tested with SFCF4096H2BU4TO-I-MS-527-STD
