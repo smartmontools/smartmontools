@@ -1,12 +1,96 @@
 $Id$
 
-2024-10-22  Eileen Hsu  <eileen_hsu@phison.com>
+2024-12-25  Eileen Hsu  <eileen_hsu@phison.com>
 
 	drivedb.h:
        - PHISON "MSD210-M(4|8)(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GPSCB5UFI-S12(1|2)|"
                  "MST360-M8PS(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GWB5UFI-S17T2|"
                  "M8(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GB5UFI-S171|"
 
+2024-12-10  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in: Document '-d jmb39x-q2,...'.
+
+2024-12-10  Rodrigo Araujo  <araujo.rm@gmail.com>
+
+	dev_jmb39x_raid.cpp: support QNAP-TR002 NAS
+
+	Add '-d jmb39x-q2,...' device type for JMB39x
+	protocol variant used by QNAP-TR002 NAS.
+	(#1290, GH pull/306)
+
+2024-11-30  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows Server 2025 build number.
+
+2024-11-20  Eaton Zveare  <eaton@eaton-works.com>
+
+	Increase WMI timeout on Windows to address issues when
+	reading USB device ID.
+
+	(GH pull/277)
+
+2024-11-20  Robin Schneider  <ypid@riseup.net>
+
+	man pages: Fix typo, '-l directory,q' was mentioned but only
+	'-l directory,g' is supported.
+
+	(GH pull/298)
+
+2024-11-18  Martin Ziemer  <horrad@horrad.de>
+
+	openbsd_nvme_ioctl.h, os_openbsd.cpp: Enable NVMe on OpenBSD
+	smartctl.8.in, smartd.8.in: Add OpenBSD in documentation for NVMe
+
+	(#729, GH pull/299)
+
+2024-11-17  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Ignore NSID in duplicate check of single namespace
+	devices.
+
+2024-11-13  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Ignore individual temperature sensors (#1850).
+	Some devices use these to report other values like maximum
+	temperature.
+
+2024-11-12  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add support for NVMe self-tests.
+
+	Support '-l selftest', '-l selfteststs' and '-s ...' for NVMe
+	(#1649, #1813, GH issues/218, GH pull/219).
+	Minor rework of ATA/SCSI self-test code to re-use its count/hours
+	heuristics which detects new self-test errors.
+
+	smartd.conf.5.in: Document this new feature.
+
+2024-10-26  Christian Franke  <franke@computer.org>
+
+	autogen.sh: Add check for CR/LF, remove Cygwin specific check.
+
+2024-10-26  Aleksander Jan Bajkowski  <olek2@wp.pl>
+
+	autogen.sh: Allow to build with automake 1.17 (GH pull/292).
+
+2024-10-23  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Support SMART/Health Information per namespace.
+	nvmecmds.*: Add parameter 'nsid' to 'nvme_read_smart_log()'.
+	smartctl.8.in: Document this new feature.
+
+	nvmecmds.h: Add 'nvme_broadcast_nsid' and use it where applicable.
+
+	smartctl.8.in: Update documentation of NVMe '-l selftest'.
+
+2024-10-23  Ameer Hamza  <ahamza@ixsystems.com>
+
+	nvmeprint.cpp: fix self-test for devices with multiple namespaces.
+	Use broadcast NSID for (06h) log page access to prevent `Invalid
+	Field in Command` error when accessing the log page. Also, use
+	device NSID for both single and multi namespace devices when
+	issuing the Device Self-test (14h) command.
 
 2024-10-16  Christian Franke  <franke@computer.org>
 
