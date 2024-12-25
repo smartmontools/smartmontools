@@ -1,6 +1,6 @@
 $Id$
 
-2024-12-25  Eileen Hsu  <eileen_hsu@phison.com>
+2024-12-25  Eileen_Hsu  <eileen_hsu@phison.com>
 
 	drivedb.h:
        - PHISON "MSD210-M(4|8)(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GPSCB5UFI-S12(1|2)|"
