@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-23 Christian Franke
+Copyright (C) 2004-24 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -291,6 +291,11 @@ Symbolic links are resolved before this check is done.
 A device name is also ignored if another device with same identify
 information (vendor, model, firmware version, serial number, WWN) already
 exists.
+.PP
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+If a device only supports a single namespace and a configuration line
+which addresses its namespace id already exists, a DEVICESCAN result which
+does not address a namespace is also ignored (and vice versa).
 .Sp
 .SH DEFAULT SETTINGS
 If an entry in the configuration file starts with
@@ -460,8 +465,7 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 bridge.
 .Sp
 .I sntasmedia
-\- [NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
-this device type is for NVMe disks that are behind an ASMedia USB to NVMe
+\- this device type is for NVMe disks that are behind an ASMedia USB to NVMe
 bridge.
 .Sp
 .I sntjmicron[,NSID]
@@ -575,12 +579,16 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 .I intelliprop,N[+TYPE]
 \- (deprecated and subject to remove).
 .Sp
-.I jmb39x[\-q],N[,sLBA][,force][+TYPE]
+.I jmb39x[\-q[2]],N[,sLBA][,force][+TYPE]
 \- the device consists of multiple SATA disks connected to a JMicron JMB39x
 RAID port multiplier.
 The suffix \*(Aq\-q\*(Aq selects a slightly different command variant used by
-some QNAP NAS devices.
+QNAP TR-004 NAS devices.
 The integer N is the port number from 0 to 4.
+.br
+[NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+The suffix \*(Aq\-q2\*(Aq selects another command variant used by QNAP TR-002
+NAS devices.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .I jms56x,N[,sLBA][,force][+TYPE]
@@ -769,11 +777,12 @@ checks the maximum of both values.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I selftest
-\- report if the number of failed tests reported in the SMART
-Self-Test Log has increased since the last check, or if the timestamp
-associated with the most recent failed test has increased.  Note that
-such errors will \fBonly\fP be logged if you run self-tests on the
-disk (and it fails a test!).  Self-Tests can be run automatically by
+\- [ATA] [SCSI] [NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+report if the number of failed tests reported in the SMART Self-Test Log
+has increased since the last check, or if the timestamp associated with
+the most recent failed test has increased.
+Note that such errors will \fBonly\fP be logged if you run self-tests on
+the disk (and it fails a test!).  Self-Tests can be run automatically by
 \fBsmartd\fP: please see the \*(Aq\-s\*(Aq Directive below.
 Self-Tests can also be run manually by using the \*(Aq\-t short\*(Aq
 and \fB\*(Aq\-t\ long\*(Aq\fP options of \fBsmartctl\fP and the results of
@@ -782,10 +791,18 @@ command-line option.
 [Please see the \fBsmartctl \-l\fP and \fB\-t\fP command-line
 options.]
 .Sp
-[ATA only] Failed self-tests outdated by a newer successful extended
-self-test are ignored.  The warning email counter is reset if the
-number of failed self tests dropped to 0.  This typically happens when
-an extended self-test is run after all bad sectors have been reallocated.
+[ATA] [NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+Failed self-tests outdated by a newer successful extended self-test
+are ignored.
+The warning email counter is reset if the number of failed self tests
+dropped to 0.
+This typically happens when an extended self-test is run after all bad
+blocks have been reallocated.
+.Sp
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+If the device name addresses an individual namespace, log entries with
+different namespace ids are ignored.
+Entries with unspecified or broadcast namespace id are always checked.
 .Sp
 .I offlinests[,ns]
 \- [ATA only] report if the Offline Data Collection status has changed
@@ -804,22 +821,23 @@ Data Collection is in progress.  See \*(Aq\-l selfteststs,ns\*(Aq below.
 .\" %ENDIF OS Cygwin Windows
 .Sp
 .I selfteststs[,ns]
-\- [ATA only] report if the Self-Test execution status has changed
-since the last check.  The report will be logged as LOG_CRIT if the new
-status indicates an error.
+\- [ATA] [NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+report if the Self-Test execution status has changed since the last check.
+The report will be logged as LOG_CRIT if the new status indicates an error.
 .\" %IF NOT OS Cygwin Windows
 .\"! Appending ',ns' (no standby) to this directive is not implemented
 .\"! on OS_MAN_FILTER.
 .\" %ENDIF NOT OS Cygwin Windows
 .\" %IF OS Cygwin Windows
 .Sp
-[Windows and Cygwin only] If \*(Aq,ns\*(Aq (no standby) is appended to this
-directive, smartd disables system auto standby as long as a Self-Test
-is in progress.  This prevents that a Self-Test is aborted because the
-OS sets the system to a standby/sleep mode when idle.  Smartd check
-interval (\*(Aq\-i\*(Aq option) should be shorter than the configured idle
-timeout.  Auto standby is not disabled if the system is running on
-battery.
+[ATA only] [Windows and Cygwin only]
+If \*(Aq,ns\*(Aq (no standby) is appended to this directive, smartd disables
+system auto standby as long as a Self-Test is in progress.
+This prevents that a Self-Test is aborted because the OS sets the system to
+a standby/sleep mode when idle.
+Smartd check interval (\*(Aq\-i\*(Aq option) should be shorter than the
+configured idle timeout.
+Auto standby is not disabled if the system is running on battery.
 .\" %ENDIF OS Cygwin Windows
 .Sp
 .I scterc,READTIME,WRITETIME
@@ -872,6 +890,13 @@ only), and \*(AqO\*(Aq for an \fBO\fPffline Immediate Test (ATA only).  As
 soon as a match is found, the test will be started and no additional
 matches will be sought for that device and that polling cycle.
 .Sp
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+For NVMe devices with Self-Test support, use \*(AqL\*(Aq to start an
+"Extended" NVMe Self-Test and \*(AqS\*(Aq for a \fBS\fPhort NVMe Self-Test.
+If the device name addresses an individial namespace, the test will be started
+using this namespace id, otherwise using the broadcast namespace id.
+.Sp
+[ATA only]
 To run scheduled Selective Self-Tests, use \*(Aqn\*(Aq for \fBn\fPext span,
 \*(Aqr\*(Aq to \fBr\fPedo last span, or \*(Aqc\*(Aq to \fBc\fPontinue with
 next span or redo last span based on status of last test.
@@ -1575,13 +1600,18 @@ To combine all of the above reports, use:
 .br
 .B \-W 2,40,45
 .Sp
-For ATA devices, smartd interprets Attribute 194 or 190 as Temperature Celsius
-by default.  This can be changed to Attribute 9 or 220 by the drive
-database or by the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
+[ATA] smartd interprets Attribute 194 or 190 as Temperature Celsius by
+default.
+This can be changed to Attribute 9 or 220 by the drive database or by
+the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
-For NVMe devices, smartd checks the maximum of the Composite Temperature value
-and all Temperature Sensor values reported by SMART/Health Information log.
+[NVMe] smartd checks the Composite Temperature value reported by the
+SMART/HealthInformation log.
+.br
+[NEW EXPERIMENTAL SMARTD 7.5 FIX]
+The individual Temperature Sensor values are no longer checked because
+some devices use these to report other values like maximum temperature.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-F TYPE
@@ -1691,7 +1721,6 @@ Allows one to override \fBsmartd\fP command line options for specific devices.
 Only the following OPTION is currently supported:
 .TP
 .B \-c i=N, \-c interval=N
-[NEW EXPERIMENTAL SMARTD 7.3 FEATURE]
 Sets the interval between disk checks to N seconds, where N is a decimal
 integer.
 The minimum allowed value is ten.

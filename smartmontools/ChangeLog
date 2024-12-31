@@ -1,5 +1,261 @@
 $Id$
 
+2024-12-10  Christian Franke  <franke@computer.org>
+
+	smartctl.8.in, smartd.conf.5.in: Document '-d jmb39x-q2,...'.
+
+2024-12-10  Rodrigo Araujo  <araujo.rm@gmail.com>
+
+	dev_jmb39x_raid.cpp: support QNAP-TR002 NAS
+
+	Add '-d jmb39x-q2,...' device type for JMB39x
+	protocol variant used by QNAP-TR002 NAS.
+	(#1290, GH pull/306)
+
+2024-11-30  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows Server 2025 build number.
+
+2024-11-20  Eaton Zveare  <eaton@eaton-works.com>
+
+	Increase WMI timeout on Windows to address issues when
+	reading USB device ID.
+
+	(GH pull/277)
+
+2024-11-20  Robin Schneider  <ypid@riseup.net>
+
+	man pages: Fix typo, '-l directory,q' was mentioned but only
+	'-l directory,g' is supported.
+
+	(GH pull/298)
+
+2024-11-18  Martin Ziemer  <horrad@horrad.de>
+
+	openbsd_nvme_ioctl.h, os_openbsd.cpp: Enable NVMe on OpenBSD
+	smartctl.8.in, smartd.8.in: Add OpenBSD in documentation for NVMe
+
+	(#729, GH pull/299)
+
+2024-11-17  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Ignore NSID in duplicate check of single namespace
+	devices.
+
+2024-11-13  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Ignore individual temperature sensors (#1850).
+	Some devices use these to report other values like maximum
+	temperature.
+
+2024-11-12  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add support for NVMe self-tests.
+
+	Support '-l selftest', '-l selfteststs' and '-s ...' for NVMe
+	(#1649, #1813, GH issues/218, GH pull/219).
+	Minor rework of ATA/SCSI self-test code to re-use its count/hours
+	heuristics which detects new self-test errors.
+
+	smartd.conf.5.in: Document this new feature.
+
+2024-10-26  Christian Franke  <franke@computer.org>
+
+	autogen.sh: Add check for CR/LF, remove Cygwin specific check.
+
+2024-10-26  Aleksander Jan Bajkowski  <olek2@wp.pl>
+
+	autogen.sh: Allow to build with automake 1.17 (GH pull/292).
+
+2024-10-23  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Support SMART/Health Information per namespace.
+	nvmecmds.*: Add parameter 'nsid' to 'nvme_read_smart_log()'.
+	smartctl.8.in: Document this new feature.
+
+	nvmecmds.h: Add 'nvme_broadcast_nsid' and use it where applicable.
+
+	smartctl.8.in: Update documentation of NVMe '-l selftest'.
+
+2024-10-23  Ameer Hamza  <ahamza@ixsystems.com>
+
+	nvmeprint.cpp: fix self-test for devices with multiple namespaces.
+	Use broadcast NSID for (06h) log page access to prevent `Invalid
+	Field in Command` error when accessing the log page. Also, use
+	device NSID for both single and multi namespace devices when
+	issuing the Device Self-test (14h) command.
+
+2024-10-16  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Micron 5100 / 52x0 / 5300 / 5400 SSDs: 5300 variant without vendor
+	  prefix (#1877).
+	- Toshiba 2.5" HDD MQ04UBB... (USB, SMR) (#1400, #1821, #1832).
+	- Toshiba MG11 Cloud-scale Capacity HDD.
+	- Seagate Exos X18 (#1552, #1742, #1763, #1871, #1872, GH pull/225).
+	- Seagate Exos X20 (#1567, #1882).
+	- Seagate Exos X24.
+	- WD Blue / Red / Green SSDs: SanDisk Portable SSD (#1743).
+	- USB: Sandisk SDSSDE30-2T00 (0x0781:0x55b0) (#1743).
+
+2024-10-15  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Genesis Logic (0x05e3:0x0761) (GH issues/259).
+	- USB: SanDisk Extreme (0x0781:0x55ae) (GH issues/273).
+	- USB: Kingston XS1000 (0x0951:0x1780) (part of #1834).
+	- USB: Realtek RTL9201 (0x0bda:0x9201) (part of #1841,
+	  GH issues/268, /270).
+	- USB: Apacer AC633 (0x1005:0xc004) (#1893).
+	- USB: TerraMaster D2-320 (0x1352:0xa006) (GH issues/283).
+	- USB: JMicron (0x152d:0xa578).
+	- USB: JMicron (0x152d:0xa580) (GH pull/276, GH issues/289).
+	- USB: Terramaster D4-320 (0x235c:0xa006) (#1856, #1874).
+	- USB: HIKSEMI (0x2bdf:0x0580) (#1883).
+	- USB: DockCase 10s PLP (0x31db:0x0716) (GH issues/284).
+	- USB: Hitachi Touro Desk Pro (0x4971:0x1013).
+
+	nvmecmds.cpp: Map 'Set Feature' related errors to EINVAL (#1835).
+
+	ataprint.cpp: Don't return failure if '-l scterc' is not supported.
+
+	Only return failure (exit status 4) if a SCT command failed or an
+	attempt to set ERC ('-l scterc,...') failed (#1892).
+
+2024-10-05  Christian Franke  <franke@computer.org>
+
+	scsicmds.cpp: Fix range checks of mode page offset and VPD inquiry
+	(GH issues/272).
+
+2024-09-29  Ru Wang  <ru.wang@seagate.com>
+
+	farmprint.cpp (GH pull/285):
+	- Fix SATA decode of dateOfAssembly.
+	- Uninitialized string (part from GH issues/272).
+
+2024-09-23  Christian Franke  <franke@computer.org>
+
+	os_win32.cpp: Decode Windows 11 23H2 and 24H2 build numbers.
+
+	drivedb.h:
+	- Toshiba MG09ACA... Enterprise Capacity HDD: 10-14GB,
+	  Lenovo OEM (#1876).
+	- Toshiba MG10ADA... Enterprise Capacity HDD
+	- Seagate Barracuda 7200.12: Suppress warning if HP firmware (#1847).
+	- Seagate Barracuda 7200.12: Attributes 188 and 240 (#1855).
+	- Seagate BarraCuda 3.5 (CMR): Reformat regexp.
+	- Seagate Constellation ES.2: IBM OEM (#1431).
+
+2024-05-08  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp, smartd.cpp: Fix segfault on missing option argument (#1830).
+
+	getopt*() from musl libc sets 'optind = argc + 1' if the argument of
+	a short option is missing.
+
+2024-04-26  Christian Franke  <franke@computer.org>
+
+	os_win32/vc1[67]/*: Set svn:eol-style=CRLF, MSVC does not preserve LF.
+
+2024-04-06  Christian Franke  <franke@computer.org>
+
+	drivedb.h: move Toshiba and WDC "Helium" attributes to "DEFAULT" entry.
+	Drop maintenance of 6.0-6.4 branches due to missing "DEFAULT" entry.
+
+	drivedb.h:
+	- Western Digital Ultrastar (He10/12): move WD40EZAZ to Blue (SMR).
+	- Western Digital Blue (CMR): rename, add *EAZZ (#1576, GH issue/192) and other.
+	- Western Digital Blue (SMR): 3TB, *BX variant.
+	- Western Digital Red (CMR): rename, add 3TB, move *EF[ABFG]X* to Red Plus.
+	- Western Digital Red Plus (#1675, #1704, GH pull/79).
+	- Western Digital Red Pro: 12TB (#1676), 14TB, 20TB and attribute 90 (#1731).
+
+2024-04-02 Gabriele Pohl  <contact@dipohl.de>
+
+	drivedb.h:
+	- Western Digital Ultrastar (He10/12): WDC WD40EDAZ-11SLVB0 (#1411)
+	- Western Digital Red Pro: WDC WD161KFGX-68AFPN0, 
+	  WDC WD181KFGX-68AFPN0 (#1611, GH issues/173 and 
+	  reported by Ben Lovett via Smartmontools-database 2023-05-21)
+	- Toshiba 2.5\" HDD MQ01ABF...: TOSHIBA MQ01ABF032 ((based on patch from #1804)
+	- Toshiba N300/MN NAS HDD: TOSHIBA HDWG51J and rest from product sheet
+	  reported by Andreas Bofjall via Smartmontools-database 2024-02-29
+
+2024-03-29  Christian Franke  <franke@computer.org>
+
+	man pages: Remove EXPERIMENTAL notes for features added before 7.3.
+
+	nvmeprint.cpp: Print NSID used for self-tests and '-l nvmelog'.
+
+	nvmeprint.cpp: Fix self-test for single namespace devices.
+	Use broadcast NSID if only one namespace is supported
+	(#1741, GH issues/217).
+	smartctl.8.in: Document new behavior.
+
+2024-03-28  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: Kingston DataTraveller (0x0951:0x177f) (#1756).
+	- USB: Asus (0x0b05:0x17f8) (#1810).
+	- USB: TerraMaster (0x1000:0x1352) (#1818).
+	- USB: Kingston (0x11b0:0x6388).
+	- USB: JMicron (0x152d:0x0580) (#1766, #1788).
+	- USB: JMicron (0x152d:0xb567) (#1797).
+	- USB: Pinas (0x174e:0x1155, 0x1741:0x1156) (#1772, GH pull/253).
+	- USB: Verbatim (0x18a5:0x0446) (#1812).
+	- USB: Actions AM8180 (0x1de1:0xe101) (#1681).
+	- USB: Transcend ESD310 (0x2174:0x2100) (#1767).
+	- USB: KIOXIA (0x30de:0x1000).
+
+2024-03-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SSSTC ERX GD/CD Series SSDs: update attributes, add 3.8TB, (#1799).
+	- SK hynix SATA SSDs: update attributes, add SE5110 (#1776, #1811),
+	  HFS*FEH-B* variants (#1739, #1758, #1805, #1809),
+	  HFS*H2X069N variants (#1686).
+
+2024-01-24  Christian Franke  <franke@computer.org>
+
+	Fix or disable all warnings from shellcheck.
+
+2024-01-23  Christian Franke  <franke@computer.org>
+
+	Makefile.am: Add target 'shellcheck'.
+
+2024-01-19  Christian Franke  <franke@computer.org>
+
+	os_win32/installer.nsi: Avoid that code signing invalidates the
+	uninstaller.
+
+2024-01-17  Christian Franke  <franke@computer.org>
+
+	utility.cpp: Add git commit hash to '-V' output if available.
+
+	Set version information also for builds from GH R/O mirror.
+
+	Makefile.am: Move creation of svnversion.sh to ...
+	getversion.sh: ... this new script.  Add git support.
+	configure.ac: Remove IS_SVN_BUILD check.
+
+2024-01-12  Christian Franke  <franke@computer.org>
+
+	Fix start of smartd on systems with large fd limits (GH issues/235).
+
+	smartd.cpp, popen_as_ugid.cpp: Use 'close_range()' if available.
+	Otherwise limit the number of unneeded 'close()' calls.
+	configure.ac: Check for 'close_range()'.
+
+	drivedb.h:
+	- Toshiba MD04ACA... Enterprise HDD: re-add, regression from r5211.
+	- Toshiba MG04ACA... Enterprise HDD: 1TB (#1794).
+	- Toshiba MG08ADA... Enterprise Capacity HDD (#1550, #1794).
+	- Toshiba X300: HDWR480 (#1537), HDWR31E, HDWR51J.
+
+2024-01-10 Oleksii Samorukov <samm@os2.kiev.ua>
+
+	drivedb.h: extend JMS583 USB id (#1795)
+
 2024-01-03 Gabriele Pohl  <contact@dipohl.de>
 
 	drivedb.h:

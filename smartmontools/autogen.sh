@@ -13,22 +13,17 @@ while [ $# -gt 0 ]; do case $1 in
   *) echo "Usage: $0 [--force] [--warnings=CATEGORY ...]"; exit 1 ;;
 esac; done
 
-# Cygwin?
-test -x /usr/bin/uname && /usr/bin/uname | grep -i CYGWIN >/dev/null &&
-{
-    # Check for Unix text file type
-    echo > dostest.tmp
-    test "`wc -c < dostest.tmp`" -eq 1 ||
-        echo "Warning: DOS text file type set, 'make dist' and related targets will not work."
-    rm -f dostest.tmp
-}
+# Check for CR/LF line endings
+if od -A n -t x1 smartctl.h | grep ' 0d' >/dev/null; then
+  echo "Warning: Checkout with CR/LF line endings, 'make dist' and related targets will not work."
+fi
 
 # Find automake
 if [ -n "$AUTOMAKE" ]; then
   ver=$("$AUTOMAKE" --version) || exit 1
 else
   maxver=
-  for v in 1.16 1.15 1.14 1.13; do
+  for v in 1.17 1.16 1.15 1.14 1.13; do
     minver=$v; test -n "$maxver" || maxver=$v
     ver=$(automake-$v --version 2>/dev/null) || continue
     AUTOMAKE="automake-$v"
@@ -64,7 +59,7 @@ case "$ver" in
     # OK
     ;;
 
-  1.14|1.14.1|1.15|1.15.1|1.16|1.16.[1-5])
+  1.14|1.14.1|1.15|1.15.1|1.16|1.16.[1-5]|1.17)
     # TODO: Enable 'subdir-objects' in configure.ac
     # For now, suppress 'subdir-objects' forward-incompatibility warning
     test -n "$warnings" || amwarnings="--warnings=no-unsupported"

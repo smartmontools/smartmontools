@@ -268,6 +268,7 @@ check_file()
   f=$1; firstchar=$2; minsize=$3; maxsize=$4
 
   # Check first chars
+  # shellcheck disable=SC2254
   case `dd if="$f" bs=1 count=1 2>/dev/null` in
     $firstchar) ;;
     \<) echo "HTML error message"; return 1 ;;

@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2004-22 Christian Franke
+ * Copyright (C) 2004-24 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2015    Nidhi Malhotra <nidhi.malhotra@pmcs.com>
@@ -4165,6 +4165,8 @@ std::string win_smart_interface::get_os_version_str()
           case 19045:   w = "w10-22H2"; break;
           case 22000:   w = "w11-21H2"; break;
           case 22621:   w = "w11-22H2"; break;
+          case 22631:   w = "w11-23H2"; break;
+          case 26100:   w = "w11-24H2"; break;
           default:      w = (vi.dwBuildNumber < 22000
                           ? "w10"
                           : "w11");
@@ -4181,11 +4183,14 @@ std::string win_smart_interface::get_os_version_str()
           case 19041:   w = "2019-2004"; break;
           case 19042:   w = "2019-20H2"; break;
           case 20348:   w = "2022-21H2"; break;
+          case 26100:   w = "2025-24H2"; break;
           default:      w = (vi.dwBuildNumber < 17763
                           ? "2016"
                           :  vi.dwBuildNumber < 20348
                           ? "2019"
-                          : "2022");
+                          :  vi.dwBuildNumber < 26100
+                          ? "2022"
+                          : "2025");
                         build = vi.dwBuildNumber; break;
         } break;
     }

@@ -3,7 +3,7 @@
 ;
 ; Home page of code is: https://www.smartmontools.org
 ;
-; Copyright (C) 2006-23 Christian Franke
+; Copyright (C) 2006-24 Christian Franke
 ;
 ; SPDX-License-Identifier: GPL-2.0-or-later
 ;
@@ -260,6 +260,17 @@ Section "Uninstaller" UNINST_SECTION
   WriteUninstaller "uninst-smartmontools.exe"
 
 SectionEnd
+
+; Run dummy "signing" command after creation of the uninstaller.
+; This avoids that the uninstaller inherits the file header
+; from the installer.  Otherwise some header fields (checksum,
+; security directory entry) of the uninstaller would be invalid if
+; the installer file is later modified by code signing.
+!if "${NSIS_PACKEDVERSION}" >= 0x03008000 ; Requires NSIS >= 3.08
+  !uninstfinalize "echo uninstfinalize %1"
+!else
+  !warning "NSIS ${NSIS_VERSION} (< v3.08): uninstaller may not work if installer is signed"
+!endif
 
 Section "Start Menu Shortcuts" MENU_SECTION
 

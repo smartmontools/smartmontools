@@ -76,22 +76,6 @@ test -z "${SOURCE_DATE_EPOCH+set}" \
 AC_SUBST([SOURCE_DATE_EPOCH])
 AM_CONDITIONAL(REPRODUCIBLE_BUILD, [test -n "$SOURCE_DATE_EPOCH"])
 
-# Check for SVN.
-AC_MSG_CHECKING([whether this is a build from SVN])
-is_svn_build=no
-svn_deps=
-if test -f "$srcdir/.svn/wc.db"; then
-  # SVN >= 1.7 working copy
-  svn_deps='${srcdir}/.svn/wc.db'
-  is_svn_build=unknown
-  if (cd "$srcdir" && svn --version && svnversion && svn info) >/dev/null 2>&1; then
-    is_svn_build=yes
-  fi
-fi
-AC_SUBST([svn_deps])
-AM_CONDITIONAL(IS_SVN_BUILD, [test "$is_svn_build" = "yes"])
-AC_MSG_RESULT([$is_svn_build])
-
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([byteswap.h], [], [], [])
@@ -118,10 +102,6 @@ case "$host" in
   *-*-netbsd*|*-*-openbsd*)
     AC_CHECK_HEADERS([dev/ata/atavar.h])
     ;;
-  *-*-mingw*)
-    # Older MinGW-w64 (5.0.3) require -lwinpthread
-    AC_SEARCH_LIBS([clock_gettime], [winpthread])
-    ;;
 esac
 
 # Checks for typedefs, and compiler characteristics.
@@ -131,6 +111,16 @@ AC_TYPE_LONG_DOUBLE_WIDER
 # Checks for library functions.
 AC_CHECK_FUNCS([getopt_long], [need_getopt_long=no], [need_getopt_long=yes])
 AM_CONDITIONAL(NEED_GETOPT_LONG, [test "$need_getopt_long" = "yes"])
+
+case "$host_os" in
+  mingw*)
+    # Older MinGW-w64 (5.0.3) require -lwinpthread
+    AC_SEARCH_LIBS([clock_gettime], [winpthread])
+    ;;
+  *)
+    AC_CHECK_FUNCS([close_range])
+    ;;
+esac
 
 # Check byte ordering (defines WORDS_BIGENDIAN)
 AC_C_BIGENDIAN

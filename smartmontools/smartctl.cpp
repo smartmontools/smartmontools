@@ -1168,7 +1168,8 @@ static int parse_options(int argc, char** argv, const char * & type,
       printing_is_off = false;
       printslogan();
       // Point arg to the argument in which this option was found.
-      arg = argv[optind-1];
+      // Note: getopt_long() may set optind > argc (e.g. musl libc)
+      arg = argv[optind <= argc ? optind - 1 : argc - 1];
       // Check whether the option is a long option that doesn't map to -h.
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
