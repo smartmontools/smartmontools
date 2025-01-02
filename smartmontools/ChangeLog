@@ -1,4 +1,8 @@
-$Id: ChangeLog 5646 2025-01-01 10:40:19Z chrfranke $
+$Id: ChangeLog 5648 2025-01-02 15:11:25Z chrfranke $
+
+2025-01-02  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Avoid invalid "old test ... not run" message.
 
 2025-01-01  Christian Franke  <franke@computer.org>
 
