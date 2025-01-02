@@ -2,7 +2,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-24 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -3072,7 +3072,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, time_
 
   // Check interval [state.scheduled_test_next_check, now] for scheduled tests
   char testtype = 0;
-  time_t testtime = 0; int testhour = 0;
+  time_t testtime = 0;
   int maxtest = num_test_types-1;
 
   for (time_t t = state.scheduled_test_next_check; ; ) {
@@ -3110,7 +3110,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, time_
         if (cfg.test_regex.full_match(pattern)) {
           // Test found
           testtype = pattern[0];
-          testtime = t; testhour = tms->tm_hour;
+          testtime = t;
           // Limit further matches to higher priority self-tests
           maxtest = j-1;
           break;
@@ -3135,7 +3135,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, time_
   if (testtype) {
     state.must_write = true;
     // Tell user if an old test was found.
-    if (!usetime && !(testhour == tmnow->tm_hour && testtime + 3600 > now)) {
+    if (!usetime && (testtime / 3600) < (now / 3600)) {
       char datebuf[DATEANDEPOCHLEN]; dateandtimezoneepoch(datebuf, testtime);
       PrintOut(LOG_INFO, "Device: %s, old test of type %c not run at %s, starting now.\n",
         cfg.name.c_str(), testtype, datebuf);

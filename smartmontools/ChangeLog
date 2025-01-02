@@ -1,5 +1,9 @@
 $Id$
 
+2025-01-02  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Avoid invalid "old test ... not run" message.
+
 2025-01-01  Christian Franke  <franke@computer.org>
 
 	Happy New Year!  Update copyright year in version info.
