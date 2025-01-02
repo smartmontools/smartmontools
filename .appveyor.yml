@@ -8,15 +8,7 @@ init:
   # as its not possible to use docker as source image, we will install everything in init step
   - >
     sudo apt-get update --allow-releaseinfo-change &&
-    sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 unzip wget man2html-base groff
-  # NSIS 3.08-3 from Debian 12 generates bogus relocation information (regression).
-  # The fixed version 3.09-1 is still only available from Ubuntu 23.10 (mantic, devel).
-  # Manually install this version.  The warning about outdated libstdc++6 could be
-  # safely ignored.
-  - >
-    wget http://mirrors.edge.kernel.org/ubuntu/pool/universe/n/nsis/nsis_3.09-4ubuntu1_amd64.deb -O /tmp/nsis_3.09-4ubuntu1_amd64.deb &&
-    wget http://mirrors.edge.kernel.org/ubuntu/pool/universe/n/nsis/nsis-common_3.09-4ubuntu1_all.deb -O /tmp/nsis-common_3.09-4ubuntu1_all.deb
-    && sudo dpkg --install --force-all /tmp/nsis-common_3.09-4ubuntu1_all.deb /tmp/nsis_3.09-4ubuntu1_amd64.deb
+    sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 unzip wget man2html-base groff nsis
 
 build_script:
 - cd smartmontools
