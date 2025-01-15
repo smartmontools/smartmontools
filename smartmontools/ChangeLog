@@ -1,5 +1,9 @@
 $Id$
 
+2025-01-15  Oleksii Samorukov <samm@os2.kiev.ua>
+
+	sntjmicron: workaround to avoid USB reset on selftest log query (GH: #256).
+
 2025-01-02  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Avoid invalid "old test ... not run" message.
