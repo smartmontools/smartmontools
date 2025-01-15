@@ -20,7 +20,7 @@
 
 #include <errno.h>
 
-const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5629 2024-10-23 16:49:02Z chrfranke $";
+const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5650 2025-01-15 10:31:46Z samm2 $";
 
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
@@ -190,6 +190,17 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
 
   // 1: "NVM Command Set Payload"
   {
+  // for whatever reason selftest log causing controller to hang if size is set > 0x230b
+  // see GH issue #256 for the details. Patching it to include last 19 log records instead
+    unsigned cdw10 = in.cdw10;
+    if (in.opcode == smartmontools::nvme_admin_get_log_page) {
+      unsigned int lid = in.cdw10 & 0xFF;
+      if (lid == 0x6 && in.size > 0x218) {
+        unsigned size = 0x218;
+        cdw10 = lid | ((size/4 - 1) << 16);
+        pout("Warning: self-test output truncated to 19 items to workaround controller bug\n");
+      }
+    }
     unsigned char cdb[SNT_JMICRON_CDB_LEN] = { 0 };
     cdb[0] = SAT_ATA_PASSTHROUGH_12;
     cdb[1] = (admin ? 0x80 : 0x00) | proto_nvm_cmd;
@@ -203,7 +214,7 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     // nvm_cmd[4-5]: reserved
     // nvm_cmd[6-7]: metadata pointer
     // nvm_cmd[8-11]: data ptr (?)
-    nvm_cmd[12] = in.cdw10;
+    nvm_cmd[12] = cdw10;
     nvm_cmd[13] = in.cdw11;
     nvm_cmd[14] = in.cdw12;
     nvm_cmd[15] = in.cdw13;

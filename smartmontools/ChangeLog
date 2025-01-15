@@ -1,4 +1,8 @@
-$Id: ChangeLog 5648 2025-01-02 15:11:25Z chrfranke $
+$Id: ChangeLog 5650 2025-01-15 10:31:46Z samm2 $
+
+2025-01-15  Oleksii Samorukov <samm@os2.kiev.ua>
+
+	sntjmicron: workaround to avoid USB reset on selftest log query (GH: #256).
 
 2025-01-02  Christian Franke  <franke@computer.org>
 
