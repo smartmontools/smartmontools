@@ -1,4 +1,10 @@
-$Id: ChangeLog 5650 2025-01-15 10:31:46Z samm2 $
+$Id: ChangeLog 5651 2025-01-24 14:28:39Z chrfranke $
+
+2025-01-24  Andrew Sayers  <andrew-github.com@pileofstuff.org>
+
+	smartd.service: silence "Referenced but unset environment variable" warning
+
+	(GH pull/316)
 
 2025-01-15  Oleksii Samorukov <samm@os2.kiev.ua>
 
