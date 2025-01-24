@@ -1,4 +1,12 @@
-$Id: ChangeLog 5651 2025-01-24 14:28:39Z chrfranke $
+$Id: ChangeLog 5652 2025-01-24 14:36:18Z chrfranke $
+
+2025-01-24  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Re-add JSON value 'model_name'.
+
+	This fixes a regression from r5286 (smartmontools 7.3).
+	Keep 'scsi_model_name' to provide backward compatibility with
+	release 7.3 and 7.4.
 
 2025-01-24  Andrew Sayers  <andrew-github.com@pileofstuff.org>
 
