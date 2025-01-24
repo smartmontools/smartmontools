@@ -1,5 +1,11 @@
 $Id$
 
+2025-01-24  Andrew Sayers  <andrew-github.com@pileofstuff.org>
+
+	smartd.service: silence "Referenced but unset environment variable" warning
+
+	(GH pull/316)
+
 2025-01-15  Oleksii Samorukov <samm@os2.kiev.ua>
 
 	sntjmicron: workaround to avoid USB reset on selftest log query (GH: #256).
