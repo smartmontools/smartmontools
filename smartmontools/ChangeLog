@@ -1,6 +1,8 @@
-$Id: ChangeLog 5653 2025-01-26 17:19:23Z chrfranke $
+$Id: ChangeLog 5654 2025-01-26 17:39:16Z chrfranke $
 
 2025-01-26  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Drop maintenance of 6.5-6.6 branches.
 
 	drivedb.h:
 	- SandForce Driven SSDs: OCZ-VERTEX3.20 (#1924).
