@@ -1,4 +1,15 @@
-$Id: ChangeLog 5652 2025-01-24 14:36:18Z chrfranke $
+$Id: ChangeLog 5653 2025-01-26 17:19:23Z chrfranke $
+
+2025-01-26  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- SandForce Driven SSDs: OCZ-VERTEX3.20 (#1924).
+	- Intel/Solidigm S46x0/S45x0 Series SSDs: Rename, add Solidigm (#1878).
+	- Marvell based SanDisk SSDs: SDSSDH3* with extra space char (#1918).
+	- Silicon Motion based SSDs: AMD R5SL (#1744), DEXP C100 (#1919),
+	  TCSUNBOW X3 480GB (#1786).
+	- Silicon Motion based OEM SSDs: INTENSO SSD/W0413A0 (#1740),
+	  W0714A0 (#1858), SPCC M.2 SSD/U1209A0 (#1841), Vi550 S3 (#1899).
 
 2025-01-24  Christian Franke  <franke@computer.org>
 
