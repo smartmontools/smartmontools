@@ -2,6 +2,8 @@ $Id$
 
 2025-01-26  Christian Franke  <franke@computer.org>
 
+	drivedb.h: Drop maintenance of 6.5-6.6 branches.
+
 	drivedb.h:
 	- SandForce Driven SSDs: OCZ-VERTEX3.20 (#1924).
 	- Intel/Solidigm S46x0/S45x0 Series SSDs: Rename, add Solidigm (#1878).
