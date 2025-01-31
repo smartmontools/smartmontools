@@ -1403,15 +1403,18 @@ public:
   virtual bool close() override;
 
   virtual bool scsi_pass_through(scsi_cmnd_io *iop) override;
+  
+  mpi3mr_all_tgt_info get_tgtinfo() const
+    { return m_tgtinfo; }
+
+  int get_ctl() const
+    { return m_ctl; }
 
 private:
   int m_ctl;
-  unsigned int m_disknum;
   int m_fd;
+  unsigned int m_disknum;
   struct mpi3mr_all_tgt_info m_tgtinfo;
-
-  mpi3mr_all_tgt_info get_tgtinfo() const
-    { return m_tgtinfo; }
 
   void set_tgtinfo(mpi3mr_all_tgt_info tgtinfo)
     { m_tgtinfo = tgtinfo; }
@@ -1434,6 +1437,7 @@ linux_mpi3mr_device::linux_mpi3mr_device(smart_interface *intf,
 
 linux_mpi3mr_device::~linux_mpi3mr_device()
 {
+  close();
   if (m_fd >= 0)
     ::close(m_fd);
 }
@@ -1461,8 +1465,14 @@ bool linux_mpi3mr_device::open()
   if ((m_fd = ::open(ctl_name, O_RDWR)) >= 0)
   {
     set_fd(m_fd);
-    return true;
   }
+
+  // populate tgtinfo
+  if (!get_tgt_info())
+  {
+    return false;
+  }
+
   return false;
 }
 
@@ -1546,9 +1556,6 @@ bool linux_mpi3mr_device::scsi_cmd(scsi_cmnd_io *iop)
   memset(&bsg_ioctl, 0, sizeof(bsg_ioctl));
   
   unsigned char sensep[96] = { 0 };
-
-  if (!get_tgt_info())
-    return false;
 
   if (m_disknum > 16)
     return set_err(EINVAL, "mpi3mr_cmd: bad disk_num\n");
@@ -1661,14 +1668,15 @@ bool linux_mpi3mr_device::get_tgt_info()
   {
     if (res.dmi[i].perst_id > 0x0112 && res.dmi[i].perst_id < 0x0123)
     {
-      devices.push_back(res.dmi[i]);
+      devices.emplace_back(res.dmi[i]);
     }
   }
+
+  // TODO: Sort devices ascending as per perst_id
 
   res.num_devices = devices.size();
   memset(&res.dmi, 0, sizeof(res.dmi));
   std::copy(devices.begin(), devices.end(), res.dmi);
-
   set_tgtinfo(res);
 
   return true;
@@ -3150,10 +3158,12 @@ private:
     bool scan_nvme, const char * req_type, bool autodetect);
 
   bool get_dev_megasas(smart_device_list & devlist);
+  bool get_dev_mpi3mr(smart_device_list & devlist);
   smart_device * missing_option(const char * opt);
   int megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
     size_t bufsize, uint8_t *mbox, size_t mboxlen, uint8_t *statusp);
   int megasas_pd_add_list(int bus_no, smart_device_list & devlist);
+  int mpi3mr_pd_add_list(smart_device_list & devlist);
   bool get_dev_sssraid(smart_device_list & devlist);
   int sssraid_pd_add_list(int bus_no, smart_device_list & devlist);
   int sssraid_pdlist_cmd(int bus_no, uint16_t start_idx, void *buf, size_t bufsize, uint8_t *statusp);
@@ -3337,6 +3347,13 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
   return true;
 }
 
+// getting devices from Mpi3mr, if available
+bool linux_smart_interface::get_dev_mpi3mr(smart_device_list & devlist)
+{
+  mpi3mr_pd_add_list(devlist);
+  return true;
+}
+
 // getting devices from 3SNIC Raid, if available
 bool linux_smart_interface::get_dev_sssraid(smart_device_list & devlist)
 {
@@ -3431,6 +3448,8 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     get_dev_megasas(devlist);
     // get device list from the sssraid device
     get_dev_sssraid(devlist);
+    // get device list from Mpi3mr
+    get_dev_mpi3mr(devlist);
   }
 
   if (type_nvme) {
@@ -3647,6 +3666,27 @@ linux_smart_interface::sssraid_pd_add_list(int bus_no, smart_device_list & devli
     smart_device * dev = new linux_sssraid_device(this, line, (unsigned int)pdlist[i].enc_id, (unsigned int)pdlist[i].slot_id);
     devlist.push_back(dev);
   }
+  return (0);
+}
+
+int
+linux_smart_interface::mpi3mr_pd_add_list(smart_device_list & devlist)
+{
+
+  // get all drives and controller
+  linux_mpi3mr_device* mpi_device = new linux_mpi3mr_device(this, "mpi3mr", 0);
+  mpi_device->open();
+  struct mpi3mr_all_tgt_info disks = mpi_device->get_tgtinfo();
+  int ctl = mpi_device->get_ctl();
+
+  // add all drives to the devlist
+  for (unsigned i = 0; i < disks.num_devices; i++) {
+    char line[128];
+    snprintf(line, sizeof(line) - 1, "/dev/bsg/mpi3mrctl_%i_%d", ctl, disks.dmi[i].perst_id);
+    smart_device* dev = new linux_mpi3mr_device(this, "mpi3mr", i);
+    devlist.push_back(dev);
+  }
+  mpi_device->close();
   return (0);
 }
 
@@ -3890,7 +3930,9 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
 
   // mpi3mr ?
   if (sscanf(type, "mpi3mr,%d", &disknum) == 1) {
-    return new linux_mpi3mr_device(this, "mpi3mr", disknum);
+    //return new linux_mpi3mr_device(this, "mpi3mr", disknum);
+    return get_sat_device("sat",
+      new linux_mpi3mr_device(this, "mpi3mr", disknum));
   }
 
   // MegaRAID ?
