@@ -1408,7 +1408,13 @@ private:
   int m_ctl;
   unsigned int m_disknum;
   int m_fd;
-  mpi3mr_all_tgt_info* m_tgtinfo;
+  struct mpi3mr_all_tgt_info m_tgtinfo;
+
+  mpi3mr_all_tgt_info get_tgtinfo() const
+    { return m_tgtinfo; }
+
+  void set_tgtinfo(mpi3mr_all_tgt_info tgtinfo)
+    { m_tgtinfo = tgtinfo; }
 
   bool scsi_cmd(scsi_cmnd_io *iop);
   bool get_controller();
@@ -1541,6 +1547,15 @@ bool linux_mpi3mr_device::scsi_cmd(scsi_cmnd_io *iop)
   
   unsigned char sensep[96] = { 0 };
 
+  if (!get_tgt_info())
+    return false;
+
+  if (m_disknum > 16)
+    return set_err(EINVAL, "mpi3mr_cmd: bad disk_num\n");
+
+  if (m_tgtinfo.dmi[m_disknum].handle == 0)
+      return set_err(EINVAL, "mpi3mr_cmd: bad disk_num\n");
+
   xfer.scsi_cmd.sensep = sensep;
   xfer.scsi_cmd.resp_sense_len = 96;
 
@@ -1570,13 +1585,8 @@ bool linux_mpi3mr_device::scsi_cmd(scsi_cmnd_io *iop)
   bsg_ioctl.entries[1] = {0x06, 0x0100}, // ERR_RESPONSE
   bsg_ioctl.entries[2] = {0x03, 0x0200}, // DATA_IN
   bsg_ioctl.entries[3] = {0xfe, 0x0040},  // MPI_REQUEST
-
   xfer.function = MPI3_DEFAULT_FUNCTION;
-
-  get_tgt_info();
-
-  xfer.disk_selector_high = MPI3_DISK_SELECTOR_HIGH;
-  xfer.disk_selector_low = MPI3_DISK_SELECTOR_LOW;
+  xfer.disk_selector = m_tgtinfo.dmi[m_disknum].handle;
   xfer.scsi_cmd.cmnd_len = iop->cmnd_len;
   memcpy(xfer.scsi_cmd.cmnd, iop->cmnd, iop->cmnd_len);
   memcpy((void*)io_hdr_v4.request, &bsg_ioctl, io_hdr_v4.request_len);
@@ -1618,8 +1628,8 @@ bool linux_mpi3mr_device::get_tgt_info()
 
   struct mpi3mr_drv_bsg_ioctl tgt_info_req{};
   struct sg_io_v4 io_hdr_v4{};
-  struct mpi3mr_all_tgt_info res_data{};
   unsigned char sense_buff[MPI3_SCSI_CDB_SENSE_MAX_SIZE] = { 0 };
+  struct mpi3mr_all_tgt_info res{};
 
   tgt_info_req.cmd = MPI3_DRV_CMD;
   tgt_info_req.ctrl_id = m_ctl;
@@ -1644,13 +1654,22 @@ bool linux_mpi3mr_device::get_tgt_info()
     return false;
   }
 
-  //memcpy(res_data.dmi, (uint8_t*)(io_hdr_v4.din_xferp + 32), sizeof(mpi3mr_device_map_info) * 24);
-  memcpy(&res_data, (uint8_t*)(io_hdr_v4.din_xferp), sizeof(mpi3mr_all_tgt_info));
+  memcpy(&res, (uint8_t*)(io_hdr_v4.din_xferp), sizeof(mpi3mr_all_tgt_info));
+  std::vector<mpi3mr_device_map_info> devices;
 
-  for (int i = 0; i < 24; i++)
+  for (int i = 0; i < 32; i++)
   {
-    printf("Perst_id: %i \n", res_data.dmi[i].perst_id);
+    if (res.dmi[i].perst_id > 0x0112 && res.dmi[i].perst_id < 0x0123)
+    {
+      devices.push_back(res.dmi[i]);
+    }
   }
+
+  res.num_devices = devices.size();
+  memset(&res.dmi, 0, sizeof(res.dmi));
+  std::copy(devices.begin(), devices.end(), res.dmi);
+
+  set_tgtinfo(res);
 
   return true;
 }
