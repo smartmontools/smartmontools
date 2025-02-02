@@ -2,6 +2,10 @@ $Id$
 
 2025-02-02  Christian Franke  <franke@computer.org>
 
+	smartd.cpp: Drop support for platforms without 'sigaction()'.
+
+	configure.ac: Fail if '--with-signal-func' is used.
+
 	configure.ac: Remove defunct '--with-solaris-sparc-ata'.
 
 	configure.ac: Change default for '--with-nvme-devicescan' to 'yes' on

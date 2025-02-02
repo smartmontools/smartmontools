@@ -388,23 +388,13 @@ AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
     [Include NVMe devices in smartctl --scan and smartd DEVICESCAN [yes]])])
 
-# TODO: Remove after smartmontools 7.4
+# TODO: Remove after smartmontools 7.5
 AC_ARG_WITH(signal-func,
-  [AS_HELP_STRING([--with-signal-func=@<:@sigaction|sigset|signal@:>@],
-    [Function to set signal(2) action [sigaction]])],
-  [], [with_signal_func=sigaction])
-
-case "$host:$with_signal_func" in
-  *-*-mingw*:*) ;;
-  *:sigaction)
-    AC_CHECK_FUNCS([sigaction], [], AC_MSG_ERROR([Missing function 'sigaction()'.
-Try '--with-signal-func=sigset' or '--with-signal-func=signal'.
-Please send info about your system to $PACKAGE_BUGREPORT.])) ;;
-  *:sigset)
-    AC_CHECK_FUNCS([sigset], [], AC_MSG_ERROR([Missing function 'sigset()'])) ;;
-  *:signal) ;;
-  *) AC_MSG_ERROR([Invalid option '--with-signal-func=$with_signal_func']) ;;
-esac
+  [AS_HELP_STRING([--with-signal-func], [(removed)])],
+  [AC_MSG_ERROR([
+The option '--with-signal-func' is no longer supported.  If this option is
+still needed, please inform $PACKAGE_BUGREPORT.
+])])
 
 AC_ARG_WITH(cxx11-option,
   [AS_HELP_STRING([--with-cxx11-option=@<:@OPTION|auto|no@:>@],
@@ -1006,16 +996,6 @@ The default for the inclusion of NVME devices in smartd.conf
 If option '--without-nvme-devicescan' is still needed, please inform
 $PACKAGE_BUGREPORT - Thanks!
 ])  ;;
-esac
-
-# TODO: Remove after smartmontools 7.4
-case "$host:$with_signal_func" in
-  *-*-mingw*:*|*:sigaction) ;;
-  *) AC_MSG_WARN([
-The option '--with-signal-func=$with_signal_func' is deprecated and will be
-removed in a future version of smartmontools.  If this option is
-still needed, please inform $PACKAGE_BUGREPORT.
-]) ;;
 esac
 
 case "$host_os:$with_libsystemd:$use_libsystemd:$PKG_CONFIG" in
