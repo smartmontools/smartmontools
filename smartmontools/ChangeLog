@@ -1,6 +1,10 @@
-$Id: ChangeLog 5656 2025-02-02 15:01:21Z chrfranke $
+$Id: ChangeLog 5657 2025-02-02 15:37:48Z chrfranke $
 
 2025-02-02  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Drop support for platforms without 'sigaction()'.
+
+	configure.ac: Fail if '--with-signal-func' is used.
 
 	configure.ac: Remove defunct '--with-solaris-sparc-ata'.
 
