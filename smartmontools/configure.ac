@@ -601,14 +601,6 @@ else
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
-# TODO: Remove after smartmontools 7.4
-AC_ARG_WITH(solaris-sparc-ata,
-  [AS_HELP_STRING([--with-solaris-sparc-ata], [(removed)])],
-  [AC_MSG_ERROR([
-The option '--with@<:@out@:>@-solaris-sparc-ata' is no longer supported.
-If you still need legacy ATA support on Solaris SPARC, please inform
-$PACKAGE_BUGREPORT.])])
-
 # Set platform-specific modules and symbols
 os_libs=
 os_dltools='curl wget lynx svn'
