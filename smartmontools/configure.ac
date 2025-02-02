@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5591 2024-01-17 16:01:46Z chrfranke $
+# $Id: configure.ac 5655 2025-02-02 14:49:54Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
@@ -22,7 +22,7 @@ else
   AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5591 2024-01-17 16:01:46Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5655 2025-02-02 14:49:54Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 
@@ -386,7 +386,7 @@ AC_SUBST(systemdenvfile)
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
-    [Include NVMe devices in smartctl --scan and smartd DEVICESCAN [Darwin,FreeBSD,Linux,Windows:yes;NetBSD:no]])])
+    [Include NVMe devices in smartctl --scan and smartd DEVICESCAN [yes]])])
 
 # TODO: Remove after smartmontools 7.4
 AC_ARG_WITH(signal-func,
@@ -640,8 +640,6 @@ case "${host}" in
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
     os_man_filter=FreeBSD
     os_nvme_devicescan=yes
-    # TODO: Remove after smartmontools 7.4
-    os_nvme_devicescan_changed=yes
     ;;
   *-*-solaris*)
     os_deps='os_solaris.o'
@@ -653,7 +651,9 @@ case "${host}" in
     os_deps='os_netbsd.o'
     os_libs='-lutil'
     os_man_filter=NetBSD
-    os_nvme_devicescan=no
+    os_nvme_devicescan=yes
+    # TODO: Remove after smartmontools 7.5
+    os_nvme_devicescan_changed=yes
     ;;
   *-*-openbsd*)
     os_deps='os_openbsd.o'
@@ -694,8 +694,6 @@ case "${host}" in
     os_darwin=yes
     os_man_filter=Darwin
     os_nvme_devicescan=yes
-    # TODO: Remove after smartmontools 7.4
-    os_nvme_devicescan_changed=yes
     ;;
   *-*-nto-qnx*)
     os_deps='os_qnxnto.o'

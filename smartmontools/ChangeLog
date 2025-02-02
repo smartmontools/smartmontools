@@ -1,4 +1,10 @@
-$Id: ChangeLog 5654 2025-01-26 17:39:16Z chrfranke $
+$Id: ChangeLog 5655 2025-02-02 14:49:54Z chrfranke $
+
+2025-02-02  Christian Franke  <franke@computer.org>
+
+	configure.ac: Change default for '--with-nvme-devicescan' to 'yes' on
+	NetBSD.  Update related warnings.
+
 
 2025-01-26  Christian Franke  <franke@computer.org>
 
