@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5655 2025-02-02 14:49:54Z chrfranke $
+# $Id: configure.ac 5656 2025-02-02 15:01:21Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
@@ -22,7 +22,7 @@ else
   AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5655 2025-02-02 14:49:54Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5656 2025-02-02 15:01:21Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 
@@ -600,14 +600,6 @@ else
   AC_CHECK_FUNCS([regcomp], [], [need_regex=yes])
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
-
-# TODO: Remove after smartmontools 7.4
-AC_ARG_WITH(solaris-sparc-ata,
-  [AS_HELP_STRING([--with-solaris-sparc-ata], [(removed)])],
-  [AC_MSG_ERROR([
-The option '--with@<:@out@:>@-solaris-sparc-ata' is no longer supported.
-If you still need legacy ATA support on Solaris SPARC, please inform
-$PACKAGE_BUGREPORT.])])
 
 # Set platform-specific modules and symbols
 os_libs=
