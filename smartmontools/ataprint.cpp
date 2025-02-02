@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-24 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -33,7 +33,7 @@
 #include "farmcmds.h"
 #include "farmprint.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5619 2024-10-15 09:33:51Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5658 2025-02-02 17:56:14Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -1142,6 +1142,7 @@ static int find_failed_attr(const ata_smart_values * data,
 
 static void set_json_globals_from_smart_attrib(int id, const char * name,
                                                const ata_vendor_attr_defs & defs,
+                                               uint8_t normval, uint8_t threshold,
                                                uint64_t rawval)
 {
   switch (id) {
@@ -1173,7 +1174,7 @@ static void set_json_globals_from_smart_attrib(int id, const char * name,
         if (minutes >= 0)
           jglb["power_on_time"]["minutes"] = minutes;
       }
-      break;
+      return;
     case 12:
       if (strcmp(name, "Power_Cycle_Count"))
         return;
@@ -1185,9 +1186,31 @@ static void set_json_globals_from_smart_attrib(int id, const char * name,
       if (rawval > 0x00ffffffULL)
         return; // assume bogus value
       jglb["power_cycle_count"] = rawval;
-      break;
+      return;
     //case 194:
     // Temperature set separately from ata_return_temperature_value() below
+  }
+
+  // Guess available spare and endurance from normalized value of related attributes
+  // (In many cases, the normalized value starts at 100)
+  static const regular_expression spare_regex(
+    "Reallocated_Sector_C.*|Retired_Block_C.*|"
+    "(Remain.*_)?Spare_Blocks(_(Avail|Remain).*)?" // TODO: Unify names in drivedb.h
+  );
+  if ((id == 5 || id == 17 || id >= 100) && spare_regex.full_match(name)) {
+    jglb["spare_available"]["current_percent"] = (normval <= 100 ? normval : 100);
+    if (0 < threshold && threshold < 50)
+      jglb["spare_available"]["threshold_percent"] = threshold;
+    return;
+  }
+
+  static const regular_expression endurance_regex(
+    "SSD_Life_Left.*|Wear_Leveling.*"
+  );
+  if (id >= 100 && endurance_regex.full_match(name)) {
+    // May be later overridden by Device Statistics
+    jglb["endurance_used"]["current_percent"] = (normval <= 100 ? 100 - normval : 0);
+    return;
   }
 }
 
@@ -1324,7 +1347,8 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     jref["raw"]["value"] = rawval;
     jref["raw"]["string"] = rawstr;
 
-    set_json_globals_from_smart_attrib(attr.id, attrname.c_str(), defs, rawval);
+    set_json_globals_from_smart_attrib(attr.id, attrname.c_str(), defs,
+      attr.current, threshold, rawval);
   }
 
   if (!needheader) {
@@ -1789,6 +1813,11 @@ static void set_json_globals_from_device_statistics(int page, int offset, int64_
         case 0x058: jglb["temperature"]["op_limit_max"] = val; break;
         case 0x060: jglb["temperature"]["lifetime_under_limit_minutes"] = val; break;
         case 0x068: jglb["temperature"]["op_limit_min"] = val; break;
+      }
+      break;
+    case 7:
+      switch (offset) {
+        case 0x008: jglb["endurance_used"]["current_percent"] = val; break;
       }
       break;
   }

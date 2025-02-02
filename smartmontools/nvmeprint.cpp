@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-24 Christian Franke
+ * Copyright (C) 2016-25 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -13,7 +13,7 @@
 
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5630 2024-10-23 17:15:56Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5658 2025-02-02 17:56:14Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "utility.h"
@@ -389,8 +389,13 @@ static void print_smart_log(const nvme_smart_log & smart_log,
   jref["available_spare"] = smart_log.avail_spare;
   jout("Available Spare Threshold:          %u%%\n", smart_log.spare_thresh);
   jref["available_spare_threshold"] = smart_log.spare_thresh;
+  jglb["spare_available"] += {
+    {"current_percent", smart_log.avail_spare},
+    {"threshold_percent", smart_log.spare_thresh}
+  };
   jout("Percentage Used:                    %u%%\n", smart_log.percent_used);
   jref["percentage_used"] = smart_log.percent_used;
+  jglb["endurance_used"]["current_percent"] = smart_log.percent_used;
   jout("Data Units Read:                    %s\n", le128_to_str(buf, smart_log.data_units_read, 1000*512));
   jref["data_units_read"].set_unsafe_le128(smart_log.data_units_read);
   jout("Data Units Written:                 %s\n", le128_to_str(buf, smart_log.data_units_written, 1000*512));

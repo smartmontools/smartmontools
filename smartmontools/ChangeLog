@@ -1,6 +1,12 @@
-$Id: ChangeLog 5657 2025-02-02 15:37:48Z chrfranke $
+$Id: ChangeLog 5658 2025-02-02 17:56:14Z chrfranke $
 
 2025-02-02  Christian Franke  <franke@computer.org>
+
+	*print.cpp: Add JSON values for endurance and available spare.
+
+	'endurance_used.current_percent' is added for ATA, SCSI and NVMe,
+	'spare_available.{current,threshold}_percent' are added for ATA and
+	NVMe.
 
 	smartd.cpp: Drop support for platforms without 'sigaction()'.
 
