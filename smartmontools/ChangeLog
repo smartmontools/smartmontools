@@ -1,5 +1,16 @@
 $Id$
 
+2025-02-05  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: HP x911w (0x03f0:0x0c5c) (GH issues/315).
+	- USB: Add Samsung Portable SSD T9 (0x04e8:0x61fd) (#1904).
+	- USB: Asus Arion (0x0b05:0x1932) (GH issues/303).
+	- USB: WD Elements SE SSD (0x1058:0x266e) (GH issues/230).
+	- USB: TeamGroup C212 flash drive (0x13fe:0x6500) (GH issues/302).
+	- USB: TerraMaster D4-320 (0x5432:0x235c) (#1925).
+	- USB: Sabrent EC-SSHD (0x5910:0x13fd).
+
 2025-02-02  Christian Franke  <franke@computer.org>
 
 	*print.cpp: Add JSON values for endurance and available spare.
