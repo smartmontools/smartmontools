@@ -1,0 +1,317 @@
+From 70e1153808fe56771ba4f261fa4b4f57809bb3a9 Mon Sep 17 00:00:00 2001
+From: bluedinoo <a.loeber@de.leaseweb.com>
+Date: Fri, 24 Jan 2025 15:58:38 +0100
+Subject: [PATCH] adding first mpi3mr support
+
+---
+ smartmontools/mpi3mr.h     |  57 +++++++++++
+ smartmontools/os_linux.cpp | 193 ++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 249 insertions(+), 1 deletion(-)
+ create mode 100644 smartmontools/mpi3mr.h
+
+diff --git a/smartmontools/mpi3mr.h b/smartmontools/mpi3mr.h
+new file mode 100644
+index 00000000..d8e6004f
+--- /dev/null
++++ b/smartmontools/mpi3mr.h
+@@ -0,0 +1,57 @@
++#ifndef _MPI3MR_H_
++#define _MPI3MR_H_
++#include <stdint.h>
++#include <stdio.h>
++
++//TODO: Disk enumeration, controller enumeration
++
++struct scsi_io_cmnd {
++    uint8_t cmnd[16];         
++    size_t cmnd_len;          
++    int dxfer_dir;            
++    void *dxferp;             
++    size_t dxfer_len;         
++    uint8_t *sensep;          
++    size_t max_sense_len;     
++    unsigned timeout;         
++    size_t resp_sense_len;    
++    uint8_t scsi_status;      
++    int resid;                
++};
++
++struct xfer_out {
++    uint16_t host_tag ;
++    uint8_t ioc_use_only02;
++    uint8_t function;
++    uint16_t ioc_use_only04;
++    uint8_t ioc_use_only06;
++    uint8_t msg_flags;
++    uint16_t change_count;
++    uint8_t disk_selector_high;
++    uint8_t disk_selector_low;
++    uint8_t unsure[20];
++    scsi_io_cmnd scsi_cmd;
++};
++
++
++struct entries_ {
++    uint32_t type;
++    uint32_t size;
++};
++
++struct bsg_ioctl {
++    uint8_t cmd;
++    uint8_t padding1[7];
++    uint8_t ctrl_id;
++    uint8_t padding2[1];
++    uint16_t timeout;
++    uint8_t padding3[4];
++    uint8_t size;
++    uint8_t padding4[7];
++
++    entries_ entries[4];
++
++    uint8_t padding5[8];
++} __attribute__((packed));
++
++#endif
+\ No newline at end of file
+diff --git a/smartmontools/os_linux.cpp b/smartmontools/os_linux.cpp
+index 6cc03466..be81316a 100644
+--- a/smartmontools/os_linux.cpp
++++ b/smartmontools/os_linux.cpp
+@@ -38,6 +38,7 @@
+  */
+ 
+ #include "config.h"
++#include "mpi3mr.h"
+ 
+ #include <errno.h>
+ #include <fcntl.h>
+@@ -1382,6 +1383,188 @@ bool linux_megaraid_device::megadev_cmd(int cdbLen, void *cdb,
+   return true;
+ }
+ 
++/////////////////////////////////////////////////////////////////////////////
++/// PERC12 RAID support
++
++class linux_mpi3mr_device
++: public /* implements */ scsi_device,
++  public /* extends */ linux_smart_device
++{
++
++public:
++  linux_mpi3mr_device(smart_interface *intf, const char *name,
++    uint16_t tgt, char* ctl);
++
++  virtual ~linux_mpi3mr_device();
++
++  virtual smart_device * autodetect_open() override;
++
++  virtual bool open() override;
++  virtual bool close() override;
++
++  virtual bool scsi_pass_through(scsi_cmnd_io *iop) override;
++
++private:
++  char* ctl;
++  uint16_t tgt;
++  bool scsi_cmd(scsi_cmnd_io *iop);
++
++};
++
++linux_mpi3mr_device::linux_mpi3mr_device(smart_interface *intf, const char *name, uint16_t tgt_, char* ctl_):smart_device(intf, name, "mpi3mr", "mpi3mr"),linux_smart_device(O_RDWR | O_NONBLOCK)
++{
++  this->ctl = (char*) malloc(64);
++  memset(this->ctl, 0, 64);
++  strcpy(this->ctl, ctl_);
++  this->tgt = tgt_;
++}
++
++linux_mpi3mr_device::~linux_mpi3mr_device() {
++
++}
++
++smart_device* linux_mpi3mr_device::autodetect_open() {
++        int fd = ::open(this->ctl, O_RDWR);
++        printf("autofd: %d\n", fd);
++        set_fd(fd);
++        return this;
++}
++
++bool linux_mpi3mr_device::open() {
++        int fd = ::open(this->ctl, O_RDWR);
++        printf("fd: %d\n", fd);
++        set_fd(fd);
++        return true;
++}
++
++bool linux_mpi3mr_device::close() {
++        return true;
++}
++
++void print_hex(const char *label, void *buf, size_t len) {
++    unsigned char *byte_buf = (unsigned char *)buf;
++    printf("%s: ", label);
++    for (size_t i = 0; i < len; i++) {
++        printf("%02x ", byte_buf[i]);
++    }
++    printf("\n");
++}
++
++bool linux_mpi3mr_device::scsi_pass_through(scsi_cmnd_io *iop)
++{
++  int report = scsi_debugmode;
++  if (report > 0) {
++    int k, j;
++    const unsigned char * ucp = iop->cmnd;
++    const char * np;
++    char buff[256];
++    const int sz = (int)sizeof(buff);
++
++    np = scsi_get_opcode_name(ucp);
++    j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
++    for (k = 0; k < (int)iop->cmnd_len; ++k)
++      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
++    if ((report > 1) && (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
++      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
++
++      snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
++              "data, len=%d%s:\n", (int)iop->dxfer_len,
++              (trunc ? " [only first 256 bytes shown]" : ""));
++      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
++    }
++    else
++      snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
++    pout("%s", buff);
++  }
++
++  bool r = scsi_cmd(iop);
++  return r;
++}
++
++/* Issue passthrough scsi commands to mpi3 controllers */
++bool linux_mpi3mr_device::scsi_cmd(scsi_cmnd_io *iop)
++{
++  struct sg_io_v4 io_hdr_v4{};
++  memset(&io_hdr_v4, 0, sizeof(io_hdr_v4));
++
++  struct xfer_out xfer{};
++  memset(&xfer, 0, sizeof(xfer));
++
++  struct bsg_ioctl bsg_param{};
++  memset(&bsg_param, 0, sizeof(bsg_param));
++  
++  unsigned char sensep[96] = { 0 };
++
++  xfer.scsi_cmd.sensep = sensep;
++  xfer.scsi_cmd.resp_sense_len = 96;
++
++  io_hdr_v4.guard = 'Q';
++  io_hdr_v4.protocol = BSG_PROTOCOL_SCSI;
++  io_hdr_v4.subprotocol = BSG_SUB_PROTOCOL_SCSI_TRANSPORT;
++  io_hdr_v4.response = (uintptr_t)sensep;
++  io_hdr_v4.max_response_len = 96;
++  io_hdr_v4.request_len = 64;
++  io_hdr_v4.request = (uint64_t)malloc(io_hdr_v4.request_len);
++  io_hdr_v4.dout_xfer_len = 64;
++  io_hdr_v4.dout_xferp = (uintptr_t)(&xfer);
++  io_hdr_v4.dout_iovec_count = 0;
++  io_hdr_v4.din_xfer_len = 828;
++  io_hdr_v4.din_xferp = (uint64_t)malloc(io_hdr_v4.din_xfer_len);
++  io_hdr_v4.din_iovec_count = 0;
++  memset((void*)io_hdr_v4.din_xferp, 0, io_hdr_v4.din_xfer_len);
++  io_hdr_v4.timeout =  20000;
++  io_hdr_v4.flags = 0;
++
++  bsg_param.cmd = 0x02;
++  bsg_param.ctrl_id = 0x00;
++  bsg_param.timeout = 0xb400;
++  bsg_param.size = 0x04;
++  bsg_param.entries[0] = {0x05, 0x003c},  // MPI_REPLY
++  bsg_param.entries[1] = {0x06, 0x0100}, // ERR_RESPONSE
++  bsg_param.entries[2] = {0x03, 0x0200}, // DATA_IN
++  bsg_param.entries[3] = {0xfe, 0x0040},  // MPI_REQUEST
++
++  xfer.function = 0x20;
++  xfer.disk_selector_high = 0x03;
++  xfer.disk_selector_low = 0x01;
++  xfer.scsi_cmd.cmnd_len = iop->cmnd_len;
++  memcpy(xfer.scsi_cmd.cmnd, iop->cmnd, iop->cmnd_len);
++  memcpy((void*)io_hdr_v4.request, &bsg_param, io_hdr_v4.request_len);
++
++  if (ioctl(get_fd(), SG_IO, &io_hdr_v4) < 0) {
++    perror("SG_IO ioctl failed");
++    return 1;
++  }
++
++  iop->dxfer_dir = 1;
++  iop->dxferp = (uint8_t*)(io_hdr_v4.din_xferp)+316;
++  iop->dxfer_len = io_hdr_v4.din_xfer_len-316;
++
++  for (uint32_t i = 0; i < iop->dxfer_len; i++)
++  {
++    printf("\\%02x", iop->dxferp[i]);
++    if((i + 1) % 16 == 0)
++    {
++      printf("\n­­­");
++    }
++  }
++
++  // old dxferp offset +256+60
++  //old dxfer_len offset -256-60
++
++  iop->scsi_status = io_hdr_v4.device_status;
++
++  int len =  ( iop->max_sense_len < io_hdr_v4.max_response_len ) ?
++               iop->max_sense_len : io_hdr_v4.max_response_len;
++
++  if (iop->sensep && len > 0) {
++    memcpy(iop->sensep, reinterpret_cast<void *>(io_hdr_v4.response), len);
++    iop->resp_sense_len = len;
++  }
++
++  return true;
++}
++
+ /////////////////////////////////////////////////////////////////////////////
+ /// 3SNIC RAID support
+ 
+@@ -1447,6 +1630,7 @@ bool linux_sssraid_device::scsi_pass_through(scsi_cmnd_io *iop)
+ bool linux_sssraid_device::scsi_cmd(scsi_cmnd_io *iop)
+ {
+   struct sg_io_v4 io_hdr_v4{};
++
+   struct cmd_scsi_passthrough scsi_param{};
+   unsigned char sense_buff[96] = { 0 };
+   struct bsg_ioctl_cmd bsg_param{};
+@@ -1508,7 +1692,7 @@ bool linux_sssraid_device::scsi_cmd(scsi_cmnd_io *iop)
+     return set_err((errno ? errno : EIO), "scsi_cmd ioctl failed: %d %d,%d",
+                    errno, scsi_param.loc.enc_id, scsi_param.loc.slot_id);
+   }
+-
++  
+   iop->scsi_status = io_hdr_v4.device_status;
+ 
+   int len =  ( iop->max_sense_len < io_hdr_v4.max_response_len ) ?
+@@ -3168,6 +3352,7 @@ smart_device * linux_smart_interface::missing_option(const char * opt)
+   return set_err_np(EINVAL, "requires option '%s'", opt);
+ }
+ 
++
+ int
+ linux_smart_interface::megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
+   size_t bufsize, uint8_t *mbox, size_t mboxlen, uint8_t *statusp)
+@@ -3593,6 +3778,12 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
+   }
+ #endif // HAVE_LINUX_CCISS_IOCTL_H
+ 
++  printf("%s\n", name);
++  // mpi3mr ?
++  if (sscanf(type, "mpi3mr,%d", &disknum) == 1) {
++    return new linux_mpi3mr_device(this, "mpi3mr", disknum, (char*)name);
++  }
++
+   // MegaRAID ?
+   if (sscanf(type, "megaraid,%d", &disknum) == 1) {
+     return new linux_megaraid_device(this, name, disknum);
+-- 
+2.39.5 (Apple Git-154)
+
