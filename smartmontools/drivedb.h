@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.0/5653 2025-01-26 17:19:23 $Id: drivedb.h 5654 2025-01-26 17:39:16Z chrfranke $",
+  { "VERSION: 7.0/5660 2025-02-05 14:46:53 $Id: drivedb.h 5661 2025-02-05 14:59:24Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -5382,6 +5382,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  { "USB: HP x911w; ",
+    "0x03f0:0x0c5c",
+    "",
+    "",
+     "-d sat"
+  },
   { "USB: HP Desktop HD BD07; ", // 2TB
     "0x03f0:0xbd07",
     "",
@@ -5576,12 +5582,19 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Samsung Portable SSD T9; ASMedia ASM2362",
+    "0x04e8:0x61fd",
+    "", // 0x0100
+    "",
+    "" // smartmontools >= r5168: -d sntasmedia
+  },
   { "USB: Samsung; ",
     "0x04e8:0x8003", // USB3 Adapter from SSD EVO 850 Starter Kit
     "", // 0x0100
     "",
     "-d sat"
   },
+  // Sony
   { "USB: Sony HD-E1; ",
     "0x054c:0x05bf", //  Sony HD-E1B - 1TB USB3.0
     "", // 0x6610
@@ -6021,6 +6034,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; ASMedia ASM236x",
+    "0x0b05:0x1932", // Asus ROG Strix Arion enclosure
+    "", // 0x0100
+    "",
+    "" // smartmontools >= r5168: -d sntasmedia
+  },
   // Seagate
   { "USB: Seagate External Drive; Cypress",
     "0x0bc2:0x0503",
@@ -6196,6 +6215,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbcypress"
   },
+  { "USB: Western Digital; ASMedia ASM236x",
+    "0x1058:0x266e", // WD Elements SE SSD
+    "",
+    "",
+    "" // smartmontools >= r5168: -d sntasmedia
+  },
   { "USB: Western Digital; ",
     "0x1058:0x....",
     "",
@@ -6255,6 +6280,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-d sat"
+  },
+  // Phison
+  { "USB: ; ",
+    "0x13fe:0x6500", // TeamGroup C212 USB flash drive
+    "", // 0x0110
+    "",
+    "" // smartmontools >= r5168: -d sntasmedia
   },
   // Super Top
   { "USB: Super Top generic enclosure; ",
@@ -6656,7 +6688,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   // 0x235c (?)
   { "USB: ; ",
-    "0x235c:0xa006", // Terramaster D4-320
+    "0x235c:0xa006", // Terramaster D4-320 (see also 0x5432:0x235c)
     "", // 0x0100
     "",
     "-d sat"
@@ -6748,12 +6780,26 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron,x"
   },
+  // 0x5432 (?)
+  { "USB: ; ",
+    "0x5432:0x235c", // TerraMaster D4-320 (see also 0x235c:0xa006)
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // OnSpec
   { "USB: ; OnSpec", // USB->PATA
     "0x55aa:0x2b00",
     "", // 0x0100
     "",
     "" // unsupported
+  },
+  // 0x5910 (?)
+  { "USB: ; ",
+    "0x5910:0x13fd", // Sabrent EC-SSHD
+    "", // 0x0153
+    "",
+    "-d sat"
   },
   // 0x6795 (?)
   { "USB: Sharkoon 2-Bay RAID Box; ", // USB 3.0
