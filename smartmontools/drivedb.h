@@ -5434,6 +5434,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Buffalo SSD-PSTA/N; ",
+    "0x0411:0x039d",
+    "",
+    "",
+    "-d sntasmedia"
+  },
   // LG Electronics
   { "USB: LG Mini HXD5; JMicron",
     "0x043e:0x70f1",
