@@ -3535,35 +3535,28 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             // 5Eh/47h           BK    POWER STATE CHANGE TO DEVICE CONTROL
 
             switch (powermode) {
-            case -1:
-               if (device->is_syscall_unsup()) {
-                   pout("CHECK POWER MODE not implemented, ignoring -n option\n"); break;
-                }
-                powername = "SLEEP";   powerlimit = 2;
-                break;
-
             case 0x00: // LOW POWER CONDITION ON
-                powername = "LOW POWER"; powerlimit = 2; break;
+                powername = "LOW POWER"; powerlimit = 3; break;
             case 0x01: // IDLE CONDITION ACTIVATED BY TIMER
-                powername = "IDLE BY TIMER"; powerlimit = 4; break;
+                powername = "IDLE BY TIMER"; powerlimit = 7; break;
             case 0x02: // STANDBY CONDITION ACTIVATED BY TIMER
-                powername = "STANDBY BY TIMER";    powerlimit = 2; break;
+                powername = "STANDBY BY TIMER";    powerlimit = 3; break;
             case 0x03: // IDLE CONDITION ACTIVATED BY COMMAND
-                powername = "IDLE BY COMMAND";  powerlimit = 4; break;
+                powername = "IDLE BY COMMAND";  powerlimit = 7; break;
             case 0x04: // STANDBY CONDITION ACTIVATED BY COMMAND
-                powername = "STANDBY BY COMMAND";  powerlimit = 2; break;
+                powername = "STANDBY BY COMMAND";  powerlimit = 3; break;
             case 0x05: // IDLE_B CONDITION ACTIVATED BY TIMER
-                powername = "IDLE BY TIMER";  powerlimit = 4; break;
+                powername = "IDLE_B BY TIMER";  powerlimit = 6; break;
             case 0x06: // IDLE_B CONDITION ACTIVATED BY COMMAND
-                powername = "IDLE_ BY COMMAND";  powerlimit = 4; break;
+                powername = "IDLE_B BY COMMAND";  powerlimit = 6; break;
             case 0x07: // IDLE_C CONDITION ACTIVATED BY TIMER
-                powername = "IDLE_C BY TIMER";  powerlimit = 4; break;
+                powername = "IDLE_C BY TIMER";  powerlimit = 5; break;
             case 0x08: // IDLE_C CONDITION ACTIVATED BY COMMAND
-                powername = "IDLE_C BY COMMAND";  powerlimit = 4; break;
+                powername = "IDLE_C BY COMMAND";  powerlimit = 5; break;
             case 0x09: // STANDBY_Y CONDITION ACTIVATED BY TIMER
-                powername = "STANDBY_Y BY TIMER";    powerlimit = 2; break;
+                powername = "STANDBY_Y BY TIMER";    powerlimit = 4; break;
             case 0x0A: // STANDBY_Y CONDITION ACTIVATED BY COMMAND
-                powername = "STANDBY_Y BY COMMAND";  powerlimit = 2; break;
+                powername = "STANDBY_Y BY COMMAND";  powerlimit = 4; break;
 
             default:
                 pout("CHECK POWER MODE returned unknown value 0x%02x, "
