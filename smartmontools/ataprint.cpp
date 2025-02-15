@@ -4553,7 +4553,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (options.farm_log || options.farm_log_suggest) {
     bool farm_supported = true;
     // Check if drive is a Seagate drive
-    if (ataIsSeagate(drive, dbentry)) {
+    if (ataIsSeagate(drive, dbentry) || (options.farm_log && is_permissive())) {
       unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
       // Check if the Seagate drive is one that supports FARM
       if (!nsectors) {
@@ -4578,9 +4578,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         }
       }
     } else {
-      if (options.farm_log) {
-        jout("FARM log (GP Log 0xa6) not supported for non-Seagate drives\n\n");
-      }
+      if (options.farm_log)
+        jout("FARM log (GP Log 0xa6) not supported for non-Seagate drives\n"
+             "(override with '-T permissive' option)\n\n");
       farm_supported = false;
     }
     jglb["seagate_farm_log"]["supported"] = farm_supported;

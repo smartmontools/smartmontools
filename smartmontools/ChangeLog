@@ -1,5 +1,12 @@
 $Id$
 
+2025-02-15  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add support for '-l farm -T permissive'.
+
+	Overrides the FARM support check for rebranded Seagate drives
+	(see GH issues/320).
+
 2025-02-05  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
