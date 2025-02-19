@@ -1,5 +1,12 @@
 $Id$
 
+2025-02-25  Daniel SWB  <daniel.swb.gh@gmail.com>
+
+	drivedb.h:
+	- Swissbit X-7x, X-8x family SATA SSD
+
+	(GH pull/322)
+
 2025-02-15  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add support for '-l farm -T permissive'.
