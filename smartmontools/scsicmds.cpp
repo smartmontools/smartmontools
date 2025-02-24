@@ -740,8 +740,9 @@ scsi_vpd_dev_id_iter(const unsigned char * initial_desig_desc, int page_len,
     return (k == page_len) ? -1 : -2;
 }
 
-/* Decode VPD page 0x83 logical unit designator into a string. If both
- * numeric address and SCSI name string present, prefer the former.
+/* Decode VPD page 0x83 logical unit designator into a string. If multiple
+ * designators are present, the order of preference is NAA, EUI-64, SCSI name
+ * string.
  * Returns 0 on success, -1 on error with error string in s. */
 int
 scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
@@ -758,7 +759,7 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
 #define SLEN(a, b) ((a) > (b) ? ((a) - (b)) : 0)
     s[0] = '\0';
     int si = 0;
-    int have_scsi_ns = 0;
+    int have_scsi_ns = 0, have_eui_64 = 0, have_naa = 0;
     int off = -1;
     int u;
     while ((u = scsi_vpd_dev_id_iter(b, blen, &off, -1, -1, -1)) == 0) {
@@ -787,11 +788,18 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
                 snprintf(s+si, SLEN(slen, si), "error: EUI-64 length");
                 return -1;
             }
+            if (have_eui_64) {
+                snprintf(s+si, SLEN(slen, si), "error: Duplicate EUI-64 designator");
+                return -1;
+            }
+            if (have_naa)
+                continue;
             if (have_scsi_ns)
                 si = 0;
             si += snprintf(s+si, SLEN(slen, si), "0x");
             for (int m = 0; m < i_len; ++m)
                 si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
+            have_eui_64++;
             break;
         case 3: /* NAA */
             if (1 != c_set) {
@@ -803,7 +811,11 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
                 snprintf(s+si, SLEN(slen, si), "error: unexpected NAA");
                 return -1;
             }
-            if (have_scsi_ns)
+            if (have_naa) {
+                snprintf(s+si, SLEN(slen, si), "error: Duplicate NAA designator");
+                return -1;
+            }
+            if (have_eui_64 || have_scsi_ns)
                 si = 0;
             if (2 == naa) {             /* NAA IEEE Extended */
                 if (8 != i_len) {
@@ -831,6 +843,7 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
                 for (int m = 0; m < 16; ++m)
                     si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
             }
+            have_naa++;
             break;
         case 4: /* Relative target port */
         case 5: /* (primary) Target port group */
@@ -842,11 +855,15 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
                 snprintf(s+si, SLEN(slen, si), "error: SCSI name string");
                 return -1;
             }
-            /* does %s print out UTF-8 ok?? */
-            if (si == 0) {
-                si += snprintf(s+si, SLEN(slen, si), "%s", (const char *)ip);
-                ++have_scsi_ns;
+            if (have_scsi_ns) {
+                snprintf(s+si, SLEN(slen, si), "error: Duplicate SCSI name string designator");
+                return -1;
             }
+            if (have_eui_64 || have_naa)
+                continue;
+            /* does %s print out UTF-8 ok?? */
+            si += snprintf(s+si, SLEN(slen, si), "%s", (const char *)ip);
+            ++have_scsi_ns;
             break;
         default: /* reserved */
             break;
