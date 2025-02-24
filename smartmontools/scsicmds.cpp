@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "sg_unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5618 2024-10-05 10:58:14Z chrfranke $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5663 2025-02-24 14:14:44Z chrfranke $"
   SCSICMDS_H_CVSID;
 
 static const char * logSenStr = "Log Sense";
@@ -755,6 +755,7 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
         return -1;
     }
 
+#define SLEN(a, b) ((a) > (b) ? ((a) - (b)) : 0)
     s[0] = '\0';
     int si = 0;
     int have_scsi_ns = 0;
@@ -764,7 +765,7 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
         const unsigned char * ucp = b + off;
         int i_len = ucp[3];
         if ((off + i_len + 4) > blen) {
-            snprintf(s+si, slen-si, "error: designator length");
+            snprintf(s+si, SLEN(slen, si), "error: designator length");
             return -1;
         }
         int assoc = ((ucp[1] >> 4) & 0x3);
@@ -783,52 +784,52 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
             break;
         case 2: /* EUI-64 based */
             if ((8 != i_len) && (12 != i_len) && (16 != i_len)) {
-                snprintf(s+si, slen-si, "error: EUI-64 length");
+                snprintf(s+si, SLEN(slen, si), "error: EUI-64 length");
                 return -1;
             }
             if (have_scsi_ns)
                 si = 0;
-            si += snprintf(s+si, slen-si, "0x");
+            si += snprintf(s+si, SLEN(slen, si), "0x");
             for (int m = 0; m < i_len; ++m)
-                si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
+                si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
             break;
         case 3: /* NAA */
             if (1 != c_set) {
-                snprintf(s+si, slen-si, "error: NAA bad code_set");
+                snprintf(s+si, SLEN(slen, si), "error: NAA bad code_set");
                 return -1;
             }
             naa = (ip[0] >> 4) & 0xff;
             if ((naa < 2) || (naa > 6) || (4 == naa)) {
-                snprintf(s+si, slen-si, "error: unexpected NAA");
+                snprintf(s+si, SLEN(slen, si), "error: unexpected NAA");
                 return -1;
             }
             if (have_scsi_ns)
                 si = 0;
             if (2 == naa) {             /* NAA IEEE Extended */
                 if (8 != i_len) {
-                    snprintf(s+si, slen-si, "error: NAA 2 length");
+                    snprintf(s+si, SLEN(slen, si), "error: NAA 2 length");
                     return -1;
                 }
-                si += snprintf(s+si, slen-si, "0x");
+                si += snprintf(s+si, SLEN(slen, si), "0x");
                 for (int m = 0; m < 8; ++m)
-                    si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
+                    si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
             } else if ((3 == naa ) || (5 == naa)) {
                 /* NAA=3 Locally assigned; NAA=5 IEEE Registered */
                 if (8 != i_len) {
-                    snprintf(s+si, slen-si, "error: NAA 3 or 5 length");
+                    snprintf(s+si, SLEN(slen, si), "error: NAA 3 or 5 length");
                     return -1;
                 }
-                si += snprintf(s+si, slen-si, "0x");
+                si += snprintf(s+si, SLEN(slen, si), "0x");
                 for (int m = 0; m < 8; ++m)
-                    si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
+                    si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
             } else if (6 == naa) {      /* NAA IEEE Registered extended */
                 if (16 != i_len) {
-                    snprintf(s+si, slen-si, "error: NAA 6 length");
+                    snprintf(s+si, SLEN(slen, si), "error: NAA 6 length");
                     return -1;
                 }
-                si += snprintf(s+si, slen-si, "0x");
+                si += snprintf(s+si, SLEN(slen, si), "0x");
                 for (int m = 0; m < 16; ++m)
-                    si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
+                    si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
             }
             break;
         case 4: /* Relative target port */
@@ -838,12 +839,12 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
             break;
         case 8: /* SCSI name string */
             if (3 != c_set) {
-                snprintf(s+si, slen-si, "error: SCSI name string");
+                snprintf(s+si, SLEN(slen, si), "error: SCSI name string");
                 return -1;
             }
             /* does %s print out UTF-8 ok?? */
             if (si == 0) {
-                si += snprintf(s+si, slen-si, "%s", (const char *)ip);
+                si += snprintf(s+si, SLEN(slen, si), "%s", (const char *)ip);
                 ++have_scsi_ns;
             }
             break;
@@ -852,10 +853,11 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
         }
     }
     if (-2 == u) {
-        snprintf(s+si, slen-si, "error: bad structure");
+        snprintf(s+si, SLEN(slen, si), "error: bad structure");
         return -1;
     }
     return 0;
+#undef SLEN
 }
 
 /* Sends LOG SENSE command. Returns 0 if ok, 1 if device NOT READY, 2 if
