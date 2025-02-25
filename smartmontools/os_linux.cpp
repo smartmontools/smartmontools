@@ -38,7 +38,6 @@
  */
 
 #include "config.h"
-#include "mpi3mr.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -77,6 +76,7 @@
 #include "sssraid.h"
 #include "aacraid.h"
 #include "nvmecmds.h"
+#include "mpi3mr.h"
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
@@ -1747,7 +1747,6 @@ bool linux_sssraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 bool linux_sssraid_device::scsi_cmd(scsi_cmnd_io *iop)
 {
   struct sg_io_v4 io_hdr_v4{};
-
   struct cmd_scsi_passthrough scsi_param{};
   unsigned char sense_buff[96] = { 0 };
   struct bsg_ioctl_cmd bsg_param{};

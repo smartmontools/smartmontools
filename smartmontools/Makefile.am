@@ -208,7 +208,8 @@ EXTRA_smartd_SOURCES = \
         netbsd_nvme_ioctl.h \
         openbsd_nvme_ioctl.h \
         megaraid.h \
-        sssraid.h
+        sssraid.h \
+        mpi3mr.h
 
 if OS_POSIX
 
