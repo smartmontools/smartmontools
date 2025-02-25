@@ -38,6 +38,7 @@
  */
 
 #include "config.h"
+#include "mpi3mr.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -76,7 +77,6 @@
 #include "sssraid.h"
 #include "aacraid.h"
 #include "nvmecmds.h"
-#include "mpi3mr.h"
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
@@ -1411,9 +1411,9 @@ public:
     { return m_ctl; }
 
 private:
+  unsigned int m_disknum;
   int m_ctl;
   int m_fd;
-  unsigned int m_disknum;
   struct mpi3mr_all_tgt_info m_tgtinfo;
 
   void set_tgtinfo(mpi3mr_all_tgt_info tgtinfo)
@@ -1429,7 +1429,7 @@ linux_mpi3mr_device::linux_mpi3mr_device(smart_interface *intf,
   : smart_device(intf, dev_name, "mpi3mr", "mpi3mr"),
   linux_smart_device(O_RDWR | O_NONBLOCK),
   m_disknum(tgt),
-  m_fd(-1), m_ctl(-1)
+  m_ctl(-1), m_fd(-1)
 {
   set_info().info_name = strprintf("%s [mpi3mr_disk_%02d]", dev_name, m_disknum);
   set_info().dev_type = strprintf("mpi3mr,%d", tgt);
@@ -1454,7 +1454,7 @@ bool linux_mpi3mr_device::open()
   {
     if (!get_controller())
     {
-      // Could not get controller
+      // Could not get controller lol
       return false;
     }
   }
@@ -1498,7 +1498,7 @@ bool linux_mpi3mr_device::close()
 {
   if (m_fd >= 0)
     ::close(m_fd);
-  m_fd = -1;
+  m_fd = -1; m_ctl = -1;
   set_fd(m_fd);
   return true;
 }
@@ -1620,7 +1620,7 @@ bool linux_mpi3mr_device::get_tgt_info()
 
   struct mpi3mr_drv_bsg_ioctl tgt_info_req{};
   struct sg_io_v4 io_hdr_v4{};
-  unsigned char sense_buff[MPI3_SCSI_CDB_SENSE_MAX_SIZE] = { 0 };
+  unsigned char sense_buff[MPI3_SCSI_CDB_SENSE_MAX_LEN] = { 0 };
   struct mpi3mr_all_tgt_info res{};
 
   tgt_info_req.cmd = MPI3_DRV_CMD;
@@ -1631,17 +1631,27 @@ bool linux_mpi3mr_device::get_tgt_info()
   io_hdr_v4.protocol = BSG_PROTOCOL_SCSI;
   io_hdr_v4.subprotocol = BSG_SUB_PROTOCOL_SCSI_TRANSPORT;
   io_hdr_v4.response = (uintptr_t)sense_buff;
-  io_hdr_v4.max_response_len = MPI3_SCSI_CDB_SENSE_MAX_SIZE;
-  io_hdr_v4.request_len = sizeof(struct mpi3mr_mpt_bsg_ioctl);
+  io_hdr_v4.max_response_len = MPI3_SCSI_CDB_SENSE_MAX_LEN;
+  io_hdr_v4.request_len = sizeof(struct mpi3mr_drv_bsg_ioctl);
   io_hdr_v4.request = (uint64_t)malloc(io_hdr_v4.request_len);
+  if (!io_hdr_v4.request)
+    return false;
   io_hdr_v4.timeout = MPI3_BSG_APPEND_TIMEOUT_MS + MPI3_DEFAULT_CMD_TIMEOUT;
   io_hdr_v4.din_xfer_len = sizeof(mpi3mr_all_tgt_info);
   io_hdr_v4.din_xferp = (uint64_t)malloc(io_hdr_v4.din_xfer_len);
+  if (!io_hdr_v4.din_xferp) {
+    free((void*)io_hdr_v4.request);
+    return false;
+  }
   memset((void*)io_hdr_v4.din_xferp, 0, io_hdr_v4.din_xfer_len);
   io_hdr_v4.flags = 0;
-  memcpy((void*)io_hdr_v4.request, &tgt_info_req, io_hdr_v4.request_len);
+
+  // Copy only the size of the target structure
+  memcpy((void*)io_hdr_v4.request, &tgt_info_req, sizeof(tgt_info_req));
 
   if (ioctl(get_fd(), SG_IO, &io_hdr_v4) < 0) {
+    free((void*)io_hdr_v4.request);
+    free((void*)io_hdr_v4.din_xferp);
     perror("SG_IO ioctl failed");
     return false;
   }
@@ -1656,6 +1666,10 @@ bool linux_mpi3mr_device::get_tgt_info()
       devices.emplace_back(res.dmi[i]);
     }
   }
+
+  // Free allocated memory
+  free((void*)io_hdr_v4.request);
+  free((void*)io_hdr_v4.din_xferp);
 
   // TODO: Sort devices ascending as per perst_id
 
@@ -1732,6 +1746,7 @@ bool linux_sssraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 bool linux_sssraid_device::scsi_cmd(scsi_cmnd_io *iop)
 {
   struct sg_io_v4 io_hdr_v4{};
+
   struct cmd_scsi_passthrough scsi_param{};
   unsigned char sense_buff[96] = { 0 };
   struct bsg_ioctl_cmd bsg_param{};
@@ -3662,6 +3677,7 @@ linux_smart_interface::mpi3mr_pd_add_list(smart_device_list & devlist)
   mpi_device->open();
   struct mpi3mr_all_tgt_info disks = mpi_device->get_tgtinfo();
   int ctl = mpi_device->get_ctl();
+  mpi_device->close();
 
   // add all drives to the devlist
   for (unsigned i = 0; i < disks.num_devices; i++) {
@@ -3670,7 +3686,6 @@ linux_smart_interface::mpi3mr_pd_add_list(smart_device_list & devlist)
     smart_device* dev = new linux_mpi3mr_device(this, "mpi3mr", i);
     devlist.push_back(dev);
   }
-  mpi_device->close();
   return (0);
 }
 
@@ -3915,7 +3930,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   // mpi3mr ?
   if (sscanf(type, "mpi3mr,%d", &disknum) == 1) {
     //return new linux_mpi3mr_device(this, "mpi3mr", disknum);
-    return get_sat_device("sat,auto",
+    return get_sat_device("sat",
       new linux_mpi3mr_device(this, "mpi3mr", disknum));
   }
 
