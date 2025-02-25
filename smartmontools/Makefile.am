@@ -133,7 +133,8 @@ EXTRA_smartctl_SOURCES = \
         linux_nvme_ioctl.h \
         openbsd_nvme_ioctl.h \
         megaraid.h \
-        sssraid.h
+        sssraid.h \
+        mpi3mr.h
 
 if OS_WIN32_MINGW
 
