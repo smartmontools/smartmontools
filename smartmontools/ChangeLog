@@ -1,5 +1,9 @@
 $Id$
 
+2025-02-25  Alexandra Löber  <a.loeber@de.leaseweb.com>
+
+	Add Mpi3mr (MegaRaid Tri-Mode Controller) support on Linux (GH: #313).
+
 2025-01-24  Christian Franke  <franke@computer.org>
 
 	scsiprint.cpp: Re-add JSON value 'model_name'.

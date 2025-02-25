@@ -43,7 +43,6 @@
  */
 
 #include "config.h"
-#include "mpi3mr.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -82,6 +81,7 @@
 #include "sssraid.h"
 #include "aacraid.h"
 #include "nvmecmds.h"
+#include "mpi3mr.h"
 
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
