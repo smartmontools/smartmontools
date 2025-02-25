@@ -1,3 +1,14 @@
+/*
+ * mpi3mr.h
+ *
+ * Home page of code is: http://www.smartmontools.org
+ *
+ * Copyright (C) 2025 Alexandra Löber <a.loeber@de.leaseweb.com>
+ * Copyright (C) 2025 Andreas Pelger <a.pelger@de.leaseweb.com>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
 #ifndef _MPI3MR_H_
 #define _MPI3MR_H_
 #include <stdint.h>
