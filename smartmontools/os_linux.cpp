@@ -1473,7 +1473,7 @@ bool linux_mpi3mr_device::open()
     return false;
   }
 
-  return false;
+  return true;
 }
 
 bool linux_mpi3mr_device::get_controller()
@@ -3162,7 +3162,6 @@ private:
   int megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
     size_t bufsize, uint8_t *mbox, size_t mboxlen, uint8_t *statusp);
   int megasas_pd_add_list(int bus_no, smart_device_list & devlist);
-  int mpi3mr_pd_add_list(smart_device_list & devlist);
   bool get_dev_sssraid(smart_device_list & devlist);
   int sssraid_pd_add_list(int bus_no, smart_device_list & devlist);
   int sssraid_pdlist_cmd(int bus_no, uint16_t start_idx, void *buf, size_t bufsize, uint8_t *statusp);
@@ -3349,7 +3348,29 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
 // getting devices from Mpi3mr, if available
 bool linux_smart_interface::get_dev_mpi3mr(smart_device_list & devlist)
 {
-  mpi3mr_pd_add_list(devlist);
+   // get all drives and controller
+   linux_mpi3mr_device* mpi_device = new linux_mpi3mr_device(this, "mpi3mr", 0);
+
+   if (!mpi_device->open()) {
+      mpi_device->close();
+      delete mpi_device;
+      return false;
+   }
+   
+   struct mpi3mr_all_tgt_info disks = mpi_device->get_tgtinfo();
+   int ctl = mpi_device->get_ctl();
+
+   mpi_device->close();
+   delete mpi_device;
+ 
+   // add all drives to the devlist
+   for (unsigned i = 0; i < disks.num_devices; i++) {
+     char line[128];
+     snprintf(line, sizeof(line) - 1, "/dev/bsg/mpi3mrctl_%i_%d", ctl, disks.dmi[i].perst_id);
+     smart_device* dev = new linux_mpi3mr_device(this, "mpi3mr", i);
+     devlist.push_back(dev);
+   }
+
   return true;
 }
 
@@ -3663,27 +3684,6 @@ linux_smart_interface::sssraid_pd_add_list(int bus_no, smart_device_list & devli
     char line[128];
     snprintf(line, sizeof(line) - 1, "/dev/bsg/sssraid%d", bus_no);
     smart_device * dev = new linux_sssraid_device(this, line, (unsigned int)pdlist[i].enc_id, (unsigned int)pdlist[i].slot_id);
-    devlist.push_back(dev);
-  }
-  return (0);
-}
-
-int
-linux_smart_interface::mpi3mr_pd_add_list(smart_device_list & devlist)
-{
-
-  // get all drives and controller
-  linux_mpi3mr_device* mpi_device = new linux_mpi3mr_device(this, "mpi3mr", 0);
-  mpi_device->open();
-  struct mpi3mr_all_tgt_info disks = mpi_device->get_tgtinfo();
-  int ctl = mpi_device->get_ctl();
-  mpi_device->close();
-
-  // add all drives to the devlist
-  for (unsigned i = 0; i < disks.num_devices; i++) {
-    char line[128];
-    snprintf(line, sizeof(line) - 1, "/dev/bsg/mpi3mrctl_%i_%d", ctl, disks.dmi[i].perst_id);
-    smart_device* dev = new linux_mpi3mr_device(this, "mpi3mr", i);
     devlist.push_back(dev);
   }
   return (0);
