@@ -16,7 +16,12 @@
  *
  * Original MegaRAID code:
  *  Copyright (C) 2008    Jordan Hargrave <jordan_hargrave@dell.com>
- *
+ * 
+ * Original Mpi3mr code:
+ *  Copyright (C) 2025 Alexandra Löber <a.loeber@de.leaseweb.com>
+ *  Copyright (C) 2025 Andreas Pelger <a.pelger@de.leaseweb.com>
+ *  Copyright (C) 2025 Tranquillity Codes <tranquillitycodes@proton.me>
+ * 
  * 3ware code was derived from code that was:
  *
  *  Written By: Adam Radford <linux@3ware.com>
@@ -1575,7 +1580,7 @@ bool linux_mpi3mr_device::scsi_cmd(scsi_cmnd_io *iop)
       return set_err(EINVAL, "mpi3mr_cmd: bad disk_num\n");
 
   xfer.scsi_cmd.sensep = sensep;
-  xfer.scsi_cmd.resp_sense_len = MPI3_SCSI_CDB_SENSE_MAX_LEN;
+  xfer.scsi_cmd.resp_sense_len = MPI3_SCSI_CDB_SENSE_MAX_SIZE;
   io_hdr_v4.guard = 'Q';
   io_hdr_v4.protocol = BSG_PROTOCOL_SCSI;
   io_hdr_v4.subprotocol = BSG_SUB_PROTOCOL_SCSI_TRANSPORT;
@@ -1645,7 +1650,7 @@ bool linux_mpi3mr_device::get_tgt_info()
 
   struct mpi3mr_drv_bsg_ioctl tgt_info_req{};
   struct sg_io_v4 io_hdr_v4{};
-  unsigned char sense_buff[MPI3_SCSI_CDB_SENSE_MAX_LEN] = { 0 };
+  unsigned char sense_buff[MPI3_SCSI_CDB_SENSE_MAX_SIZE] = { 0 };
   struct mpi3mr_all_tgt_info res{};
 
   tgt_info_req.cmd = MPI3_DRV_CMD;
@@ -1656,7 +1661,7 @@ bool linux_mpi3mr_device::get_tgt_info()
   io_hdr_v4.protocol = BSG_PROTOCOL_SCSI;
   io_hdr_v4.subprotocol = BSG_SUB_PROTOCOL_SCSI_TRANSPORT;
   io_hdr_v4.response = (uintptr_t)sense_buff;
-  io_hdr_v4.max_response_len = MPI3_SCSI_CDB_SENSE_MAX_LEN;
+  io_hdr_v4.max_response_len = MPI3_SCSI_CDB_SENSE_MAX_SIZE;
   io_hdr_v4.request_len = sizeof(struct mpi3mr_drv_bsg_ioctl);
   io_hdr_v4.request = (uint64_t)malloc(io_hdr_v4.request_len);
   if (!io_hdr_v4.request)
