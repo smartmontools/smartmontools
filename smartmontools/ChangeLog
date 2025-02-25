@@ -7,6 +7,12 @@ $Id$
 
 	(GH pull/322)
 
+2025-02-24  Ross Lagerwall  <ross.lagerwall@citrix.com>
+
+	scsicmds.cpp:
+	- Fix buffer overflow parsing VPD page 0x83 (#1934)
+	- Fix handling multiple designators in VPD page (#1934)
+
 2025-02-15  Christian Franke  <franke@computer.org>
 
 	ataprint.cpp: Add support for '-l farm -T permissive'.
