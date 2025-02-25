@@ -1454,7 +1454,7 @@ bool linux_mpi3mr_device::open()
   {
     if (!get_controller())
     {
-      // Could not get controller lol
+      // Could not get controller
       return false;
     }
   }
@@ -1503,15 +1503,6 @@ bool linux_mpi3mr_device::close()
   return true;
 }
 
-void print_hex(const char *label, void *buf, size_t len) {
-  unsigned char *byte_buf = (unsigned char *)buf;
-  printf("%s: ", label);
-  for (size_t i = 0; i < len; i++) {
-      printf("%02x ", byte_buf[i]);
-  }
-  printf("\n");
-}
-
 bool linux_mpi3mr_device::scsi_pass_through(scsi_cmnd_io *iop)
 {
   int report = scsi_debugmode;
@@ -1547,14 +1538,8 @@ bool linux_mpi3mr_device::scsi_pass_through(scsi_cmnd_io *iop)
 bool linux_mpi3mr_device::scsi_cmd(scsi_cmnd_io *iop)
 {
   struct sg_io_v4 io_hdr_v4{};
-  memset(&io_hdr_v4, 0, sizeof(io_hdr_v4));
-
   struct xfer_out xfer{};
-  memset(&xfer, 0, sizeof(xfer));
-
   struct mpi3mr_mpt_bsg_ioctl bsg_ioctl{};
-  memset(&bsg_ioctl, 0, sizeof(bsg_ioctl));
-  
   unsigned char sensep[96] = { 0 };
 
   if (m_disknum > 16)
@@ -3930,7 +3915,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   // mpi3mr ?
   if (sscanf(type, "mpi3mr,%d", &disknum) == 1) {
     //return new linux_mpi3mr_device(this, "mpi3mr", disknum);
-    return get_sat_device("sat",
+    return get_sat_device("sat,auto",
       new linux_mpi3mr_device(this, "mpi3mr", disknum));
   }
 
