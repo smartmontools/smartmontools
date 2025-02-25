@@ -1458,7 +1458,7 @@ smart_device* linux_mpi3mr_device::autodetect_open()
   }
 
   // Validate disk exists in target info
-  if (m_disknum >= 0 && m_disknum < 32) {
+  if (m_disknum <= 15) {
     if (m_tgtinfo.dmi[m_disknum].handle == 0) {
       close(); 
       set_err(EIO, "No disk found at index %d", m_disknum);
@@ -1566,7 +1566,7 @@ bool linux_mpi3mr_device::scsi_cmd(scsi_cmnd_io *iop)
   struct sg_io_v4 io_hdr_v4{};
   struct xfer_out xfer{};
   struct mpi3mr_mpt_bsg_ioctl bsg_ioctl{};
-  unsigned char sensep[96] = { 0 };
+  unsigned char sensep[MPI3_SCSI_CDB_SENSE_MAX_SIZE] = { 0 };
 
   if (m_disknum > 16)
     return set_err(EINVAL, "mpi3mr_cmd: bad disk_num\n");
@@ -1575,8 +1575,7 @@ bool linux_mpi3mr_device::scsi_cmd(scsi_cmnd_io *iop)
       return set_err(EINVAL, "mpi3mr_cmd: bad disk_num\n");
 
   xfer.scsi_cmd.sensep = sensep;
-  xfer.scsi_cmd.resp_sense_len = 96;
-
+  xfer.scsi_cmd.resp_sense_len = MPI3_SCSI_CDB_SENSE_MAX_LEN;
   io_hdr_v4.guard = 'Q';
   io_hdr_v4.protocol = BSG_PROTOCOL_SCSI;
   io_hdr_v4.subprotocol = BSG_SUB_PROTOCOL_SCSI_TRANSPORT;
@@ -1587,13 +1586,13 @@ bool linux_mpi3mr_device::scsi_cmd(scsi_cmnd_io *iop)
   io_hdr_v4.dout_xfer_len = sizeof(xfer);
   io_hdr_v4.dout_xferp = (uintptr_t)(&xfer);
   io_hdr_v4.dout_iovec_count = 0;
-  io_hdr_v4.din_xfer_len = 828;
+  io_hdr_v4.din_xfer_len = 1024;
   io_hdr_v4.din_xferp = (uint64_t)malloc(io_hdr_v4.din_xfer_len);
   io_hdr_v4.din_iovec_count = 0;
   memset((void*)io_hdr_v4.din_xferp, 0, io_hdr_v4.din_xfer_len);
   io_hdr_v4.timeout =  MPI3_BSG_APPEND_TIMEOUT_MS + MPI3_DEFAULT_CMD_TIMEOUT;
   io_hdr_v4.flags = 0;
-  io_hdr_v4.response = io_hdr_v4.din_xferp - 732;
+  io_hdr_v4.response = io_hdr_v4.din_xferp;
 
   bsg_ioctl.cmd = MPI3_MPT_CMD;
   bsg_ioctl.ctrl_id = 0x00;
