@@ -1776,7 +1776,6 @@ bool linux_sssraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 bool linux_sssraid_device::scsi_cmd(scsi_cmnd_io *iop)
 {
   struct sg_io_v4 io_hdr_v4{};
-
   struct cmd_scsi_passthrough scsi_param{};
   unsigned char sense_buff[96] = { 0 };
   struct bsg_ioctl_cmd bsg_param{};
@@ -1838,7 +1837,6 @@ bool linux_sssraid_device::scsi_cmd(scsi_cmnd_io *iop)
     return set_err((errno ? errno : EIO), "scsi_cmd ioctl failed: %d %d,%d",
                    errno, scsi_param.loc.enc_id, scsi_param.loc.slot_id);
   }
-  
   iop->scsi_status = io_hdr_v4.device_status;
 
   int len =  ( iop->max_sense_len < io_hdr_v4.max_response_len ) ?
@@ -1851,7 +1849,6 @@ bool linux_sssraid_device::scsi_cmd(scsi_cmnd_io *iop)
 
   return true;
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 /// CCISS RAID support
