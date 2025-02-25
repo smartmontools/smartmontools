@@ -1444,6 +1444,32 @@ linux_mpi3mr_device::~linux_mpi3mr_device()
 
 smart_device* linux_mpi3mr_device::autodetect_open()
 {
+  // Open device first
+  if (!open()) {
+    set_err(EIO);
+    return this;
+  }
+
+  // Get controller number
+  if (m_ctl < 0) {
+    close();
+    set_err(EIO, "Invalid controller number");
+    return this;
+  }
+
+  // Validate disk exists in target info
+  if (m_disknum >= 0 && m_disknum < 32) {
+    if (m_tgtinfo.dmi[m_disknum].handle == 0) {
+      close(); 
+      set_err(EIO, "No disk found at index %d", m_disknum);
+      return this;
+    }
+  } else {
+    close();
+    set_err(EIO, "Invalid disk number %d", m_disknum);
+    return this;
+  }
+
   return this;
 }
 
