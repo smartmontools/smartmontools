@@ -1,5 +1,10 @@
 $Id$
 
+2025-03-04  ThunderEX  <thunderex@gmail.com>
+
+	farmprint.cpp:
+	- Fix unit of write power on time.
+
 2025-02-24  Ross Lagerwall  <ross.lagerwall@citrix.com>
 
 	scsicmds.cpp:

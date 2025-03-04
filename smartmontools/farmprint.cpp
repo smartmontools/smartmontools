@@ -334,7 +334,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   farm_print_by_head_to_text("RVGA Skip Write Detect by Head", farmLog.reliability.RVGASkipWriteDetect, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("FVGA Skip Write Detect by Head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Skip Write Detect Threshold Exceeded by Head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("Write Power On (hrs) by Head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Write Power On (sec) by Head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("MR Head Resistance from Head", (int64_t*)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Second MR Head Resistance by Head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Number of Reallocated Sectors by Head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
@@ -647,7 +647,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   farm_print_by_head_to_text("MR Head Resistance", (int64_t*)farmLog.mrHeadResistance.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Number of Reallocated Sectors", (int64_t*)farmLog.totalReallocations.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Number of Reallocation Candidate Sectors", (int64_t*)farmLog.totalReallocationCanidates.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("Write Power On (hrs)", (int64_t*)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Write Power On (sec)", (int64_t*)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Cum Lifetime Unrecoverable Read Repeating", (int64_t*)farmLog.cumulativeUnrecoverableReadRepeat.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Cum Lifetime Unrecoverable Read Unique", (int64_t*)farmLog.cumulativeUnrecoverableReadUnique.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Second MR Head Resistance", (int64_t*)farmLog.secondMRHeadResistance.headValue, farmLog.driveInformation.heads);
@@ -816,7 +816,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   farm_print_by_head_to_json(jrefh, buffer, "mr_head_resistance", (int64_t*)farmLog.mrHeadResistance.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jrefh, buffer, "number_of_reallocated_sectors", (int64_t*)farmLog.totalReallocations.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jrefh, buffer, "number_of_reallocation_candidate_sectors", (int64_t*)farmLog.totalReallocationCanidates.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_json(jrefh, buffer, "write_power_on_(hrs)", (int64_t*)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "write_power_on_(sec)", (int64_t*)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jrefh, buffer, "cum_lifetime_unrecoverable_read_repeating", (int64_t*)farmLog.cumulativeUnrecoverableReadRepeat.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jrefh, buffer, "cum_lifetime_unrecoverable_read_unique", (int64_t*)farmLog.cumulativeUnrecoverableReadUnique.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jrefh, buffer, "second_mr_head_resistance", (int64_t*)farmLog.secondMRHeadResistance.headValue, farmLog.driveInformation.heads);
