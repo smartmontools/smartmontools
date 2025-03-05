@@ -1,5 +1,10 @@
 $Id$
 
+2025-03-04  Glucy2 <glucy-2@outlook.com>
+
+	drivedb.h: add Realtek RTL9220 (0x0bda:0x9220)
+	(GH pull/327)
+
 2025-02-24  Ross Lagerwall  <ross.lagerwall@citrix.com>
 
 	scsicmds.cpp:

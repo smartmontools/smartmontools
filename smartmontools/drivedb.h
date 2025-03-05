@@ -6090,6 +6090,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // ... SATA (unsupported)
   },
+  { "USB: ; Realtek RTL9220", // USB->PCIe (NVMe) or SATA
+    "0x0bda:0x9220",
+    "",
+    "",
+    "-d sntrealtek" // ... SATA (requires `-d sat`)
+  },
   // Addonics
   { "USB: Addonics HDMU3; ", // (ticket #609)
     "0x0bf6:0x1001",
