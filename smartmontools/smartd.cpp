@@ -103,30 +103,18 @@ static void set_signal_if_not_ignored(int sig, signal_handler_type handler)
   // signal() emulation
   daemon_signal(sig, handler);
 
-#elif defined(HAVE_SIGACTION)
-  // SVr4, POSIX.1-2001, POSIX.1-2008
+#else
+  // SVr4, POSIX.1-2001, ..., POSIX.1-2024
   struct sigaction sa;
   sa.sa_handler = SIG_DFL;
   sigaction(sig, (struct sigaction *)0, &sa);
   if (sa.sa_handler == SIG_IGN)
     return;
 
-  memset(&sa, 0, sizeof(sa));
+  sa = {};
   sa.sa_handler = handler;
   sa.sa_flags = SA_RESTART; // BSD signal() semantics
   sigaction(sig, &sa, (struct sigaction *)0);
-
-#elif defined(HAVE_SIGSET)
-  // SVr4, POSIX.1-2001, obsoleted in POSIX.1-2008
-  if (sigset(sig, handler) == SIG_IGN)
-    sigset(sig, SIG_IGN);
-
-#else
-  // POSIX.1-2001, POSIX.1-2008, C89, C99, undefined semantics.
-  // Important: BSD semantics is required.  Traditional signal()
-  // resets the handler to SIG_DFL after the first signal is caught.
-  if (signal(sig, handler) == SIG_IGN)
-    signal(sig, SIG_IGN);
 #endif
 }
 

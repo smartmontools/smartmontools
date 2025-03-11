@@ -386,25 +386,15 @@ AC_SUBST(systemdenvfile)
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
-    [Include NVMe devices in smartctl --scan and smartd DEVICESCAN [Darwin,FreeBSD,Linux,Windows:yes;NetBSD:no]])])
+    [Include NVMe devices in smartctl --scan and smartd DEVICESCAN [yes]])])
 
-# TODO: Remove after smartmontools 7.4
+# TODO: Remove after smartmontools 7.5
 AC_ARG_WITH(signal-func,
-  [AS_HELP_STRING([--with-signal-func=@<:@sigaction|sigset|signal@:>@],
-    [Function to set signal(2) action [sigaction]])],
-  [], [with_signal_func=sigaction])
-
-case "$host:$with_signal_func" in
-  *-*-mingw*:*) ;;
-  *:sigaction)
-    AC_CHECK_FUNCS([sigaction], [], AC_MSG_ERROR([Missing function 'sigaction()'.
-Try '--with-signal-func=sigset' or '--with-signal-func=signal'.
-Please send info about your system to $PACKAGE_BUGREPORT.])) ;;
-  *:sigset)
-    AC_CHECK_FUNCS([sigset], [], AC_MSG_ERROR([Missing function 'sigset()'])) ;;
-  *:signal) ;;
-  *) AC_MSG_ERROR([Invalid option '--with-signal-func=$with_signal_func']) ;;
-esac
+  [AS_HELP_STRING([--with-signal-func], [(removed)])],
+  [AC_MSG_ERROR([
+The option '--with-signal-func' is no longer supported.  If this option is
+still needed, please inform $PACKAGE_BUGREPORT.
+])])
 
 AC_ARG_WITH(cxx11-option,
   [AS_HELP_STRING([--with-cxx11-option=@<:@OPTION|auto|no@:>@],
@@ -601,14 +591,6 @@ else
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
-# TODO: Remove after smartmontools 7.4
-AC_ARG_WITH(solaris-sparc-ata,
-  [AS_HELP_STRING([--with-solaris-sparc-ata], [(removed)])],
-  [AC_MSG_ERROR([
-The option '--with@<:@out@:>@-solaris-sparc-ata' is no longer supported.
-If you still need legacy ATA support on Solaris SPARC, please inform
-$PACKAGE_BUGREPORT.])])
-
 # Set platform-specific modules and symbols
 os_libs=
 os_dltools='curl wget lynx svn'
@@ -640,8 +622,6 @@ case "${host}" in
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
     os_man_filter=FreeBSD
     os_nvme_devicescan=yes
-    # TODO: Remove after smartmontools 7.4
-    os_nvme_devicescan_changed=yes
     ;;
   *-*-solaris*)
     os_deps='os_solaris.o'
@@ -653,7 +633,9 @@ case "${host}" in
     os_deps='os_netbsd.o'
     os_libs='-lutil'
     os_man_filter=NetBSD
-    os_nvme_devicescan=no
+    os_nvme_devicescan=yes
+    # TODO: Remove after smartmontools 7.5
+    os_nvme_devicescan_changed=yes
     ;;
   *-*-openbsd*)
     os_deps='os_openbsd.o'
@@ -694,8 +676,6 @@ case "${host}" in
     os_darwin=yes
     os_man_filter=Darwin
     os_nvme_devicescan=yes
-    # TODO: Remove after smartmontools 7.4
-    os_nvme_devicescan_changed=yes
     ;;
   *-*-nto-qnx*)
     os_deps='os_qnxnto.o'
@@ -1016,16 +996,6 @@ The default for the inclusion of NVME devices in smartd.conf
 If option '--without-nvme-devicescan' is still needed, please inform
 $PACKAGE_BUGREPORT - Thanks!
 ])  ;;
-esac
-
-# TODO: Remove after smartmontools 7.4
-case "$host:$with_signal_func" in
-  *-*-mingw*:*|*:sigaction) ;;
-  *) AC_MSG_WARN([
-The option '--with-signal-func=$with_signal_func' is deprecated and will be
-removed in a future version of smartmontools.  If this option is
-still needed, please inform $PACKAGE_BUGREPORT.
-]) ;;
 esac
 
 case "$host_os:$with_libsystemd:$use_libsystemd:$PKG_CONFIG" in

@@ -1769,6 +1769,7 @@ scsiPrintSSMedia(scsi_device * device)
             q = "Percentage used endurance indicator";
             jout("%s: %d%%\n", q, ucp[7]);
             jglb[std::string("scsi_") + json::str2key(q)] = ucp[7];
+            jglb["endurance_used"]["current_percent"] = ucp[7];
         default:        /* ignore other parameter codes */
             break;
         }
