@@ -1402,8 +1402,6 @@ public:
 
   virtual ~linux_mpi3mr_device();
 
-  virtual smart_device * autodetect_open() override;
-
   virtual bool open() override;
   virtual bool close() override;
 
@@ -1445,37 +1443,6 @@ linux_mpi3mr_device::~linux_mpi3mr_device()
   close();
   if (m_fd >= 0)
     ::close(m_fd);
-}
-
-smart_device* linux_mpi3mr_device::autodetect_open()
-{
-  // Open device first
-  if (!open()) {
-    set_err(EIO);
-    return this;
-  }
-
-  // Get controller number
-  if (m_ctl < 0) {
-    close();
-    set_err(EIO, "Invalid controller number");
-    return this;
-  }
-
-  // Validate disk exists in target info
-  if (m_disknum <= 15) {
-    if (m_tgtinfo.dmi[m_disknum].handle == 0) {
-      close(); 
-      set_err(EIO, "No disk found at index %d", m_disknum);
-      return this;
-    }
-  } else {
-    close();
-    set_err(EIO, "Invalid disk number %d", m_disknum);
-    return this;
-  }
-
-  return this;
 }
 
 bool linux_mpi3mr_device::open() 
@@ -3392,8 +3359,6 @@ bool linux_smart_interface::get_dev_mpi3mr(smart_device_list & devlist)
  
    // add all drives to the devlist
    for (unsigned i = 0; i < disks.num_devices; i++) {
-     char line[128];
-     snprintf(line, sizeof(line) - 1, "/dev/bsg/mpi3mrctl_%i_%d", ctl, disks.dmi[i].perst_id);
      smart_device* dev = new linux_mpi3mr_device(this, "mpi3mr", i);
      devlist.push_back(dev);
    }
@@ -3957,7 +3922,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   // mpi3mr ?
   if (sscanf(type, "mpi3mr,%d", &disknum) == 1) {
     //return new linux_mpi3mr_device(this, "mpi3mr", disknum);
-    return get_sat_device("sat",
+    return get_sat_device("sat,auto",
       new linux_mpi3mr_device(this, "mpi3mr", disknum));
   }
 
