@@ -1,4 +1,8 @@
-$Id: ChangeLog 5665 2025-03-14 15:24:29Z chrfranke $
+$Id: ChangeLog 5666 2025-03-14 15:29:53Z chrfranke $
+
+2025-03-14  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Drop autodetection of deprecated type 'marvell'.
 
 2025-03-14  ThunderEX  <thunderex@gmail.com>
 
