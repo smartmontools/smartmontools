@@ -1,4 +1,10 @@
-$Id: ChangeLog 5664 2025-02-24 14:20:16Z chrfranke $
+$Id: ChangeLog 5665 2025-03-14 15:24:29Z chrfranke $
+
+2025-03-14  ThunderEX  <thunderex@gmail.com>
+
+	farmprint.cpp: Fix unit of write power on time.
+
+	(GH pull/328)
 
 2025-02-24  Ross Lagerwall  <ross.lagerwall@citrix.com>
 
