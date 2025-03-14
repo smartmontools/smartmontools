@@ -1,5 +1,9 @@
 $Id$
 
+2025-03-14  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Drop autodetection of deprecated type 'marvell'.
+
 2025-03-14  ThunderEX  <thunderex@gmail.com>
 
 	farmprint.cpp: Fix unit of write power on time.
