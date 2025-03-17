@@ -200,8 +200,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 248,raw48,Perc_Rated_Life_Remain "
     "-v 249,raw48,Spares_Remaining_Perc "
   },
-  { "Swissbit X-7x Family SATA SSD",
-    "SFSA....(S|Q|M|U|V).AK.T(A|B|O).............",
+  { "Swissbit X-7x Family SATA SSD", // tested with
+      // SFSA060GM2AK1TO-C-6B-536-STD/SBR11007, SFSA020GU2AK1TO-I-6B-22P-STD/SBR15004,
+      // SFSA160GM2AK1TA-I-8C-11P-STD/SBR15103, SFSA320GM2AK2TA-I-8C-21P-STD/SBR15103
+    "SFSA....[MQSUV].AK.T[ABO].............",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -234,7 +236,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 244,raw48,Host_LBA_Read_Exp "
     "-v 248,raw48,SSD_Remaining_Life_Perc "
   },
-  { "Swissbit X-8x Family SATA SSD",
+  { "Swissbit X-8x Family SATA SSD", // tested with
+    // SFSA080GM1AO1TO-C-8C-11P-STD/AOR20008, SFSA020GM1AO1TO-I-6B-11P-STD/AOR20008
     "SFSA....M.AO.TO.............",
     "", "",
   //"-v 9,raw24(raw8),Power_On_Hours "

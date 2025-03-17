@@ -1,5 +1,13 @@
 $Id$
 
+2025-03-17  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Swissbit X-7x Family SATA SSD: Simplify regex, add testcase
+	  comments (from #1781, #1800, GH pull/322).
+	- Swissbit X-8x Family SATA SSD: Add testcase comments
+	  (from #1801, GH pull/322).
+
 2025-03-17  Glucy2 <glucy-2@outlook.com>
 
 	drivedb.h: add Realtek RTL9220 (0x0bda:0x9220)
