@@ -1,4 +1,10 @@
-$Id: ChangeLog 5667 2025-03-17 09:44:04Z chrfranke $
+$Id: ChangeLog 5668 2025-03-17 09:56:58Z chrfranke $
+
+2025-03-17  Glucy2 <glucy-2@outlook.com>
+
+	drivedb.h: add Realtek RTL9220 (0x0bda:0x9220)
+
+	(GH pull/327)
 
 2025-03-17  Daniel SWB  <daniel.swb.gh@gmail.com>
 
