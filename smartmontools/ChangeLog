@@ -10,6 +10,9 @@ $Id$
 	- Phison Driven SSDs: DGSR2*GP13T (#1917), PS3110 256GB (#1829),
 	  S11-*-PHISON-SSD-B27.
 	- Phison Driven OEM SSDs: Goodram CX400 G2 (#1928).
+	- USB: Buffalo (0x0411:0x0...): Merge '-d sat' entries.
+	- USB: Buffalo SSD-PSTA/N (0x0411:0x039d) (GH pull/307).
+	- USB: Packard Bell Carbon (0x0766:0x0017) (#1933).
 
 2025-03-17  Glucy2 <glucy-2@outlook.com>
 

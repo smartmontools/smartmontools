@@ -5476,30 +5476,19 @@ const drive_settings builtin_knowndrives[] = {
     "" // unsupported
   },
   // Buffalo / Melco
-  { "USB: Buffalo JustStore Portable HD-PVU2; ",
-    "0x0411:0x0181",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Buffalo Drivestation Duo; ",
-    "0x0411:0x01ce",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Buffalo DriveStation HD-LBU2 ; Medialogic MLDU11",
-    "0x0411:0x01ea",
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: Buffalo; ",
-    "0x0411:0x0(157|1[df]9|1e7|240|251|27e)", // 0x0157: HD-PEU2, 0x01d9: HD-PCTU2 (0x0108), 0x01e7: HD-PNTU3,
+    "0x0411:0x0(157|181|1ce|1[df]9|1e[7a]|240|251|27e)", // 0x0157: HD-PEU2, 0x0181: HD-PVU2,
+      // 0x01ce: Duo, 0x01d9: HD-PCTU2 (0x0108), 0x01e7: HD-PNTU3, 0x01ea: HD-LBU2,
       // 0x01f9: HD-PZU3 (0x0100), 0x0240: HD-PCFU3, 0x0251: HD-PNFU3, 0x027e: HD-LC3
     "",
     "",
     "-d sat"
+  },
+  { "USB: Buffalo SSD-PSTA/N; ASMedia",
+    "0x0411:0x039d",
+    "",
+    "",
+    "-d sntasmedia"
   },
   // LG Electronics
   { "USB: LG Mini HXD5; JMicron",
@@ -5915,11 +5904,11 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Jess-Link
-  { "USB: Packard Bell Carbon; ",
+  { "USB: Packard Bell Carbon; SunPlus",
     "0x0766:0x0017",
     "", // 0x0108
     "",
-    "" // unsupported
+    "-d usbsunplus"
   },
   // Logitec
   { "USB: Logitec LGB-4BNHUC; ",
