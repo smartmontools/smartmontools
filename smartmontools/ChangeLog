@@ -1,4 +1,4 @@
-$Id: ChangeLog 5669 2025-03-17 10:48:13Z chrfranke $
+$Id: ChangeLog 5670 2025-03-17 11:29:56Z chrfranke $
 
 2025-03-17  Christian Franke  <franke@computer.org>
 
@@ -7,6 +7,9 @@ $Id: ChangeLog 5669 2025-03-17 10:48:13Z chrfranke $
 	  comments (from #1781, #1800, GH pull/322).
 	- Swissbit X-8x Family SATA SSD: Add testcase comments
 	  (from #1801, GH pull/322).
+	- Phison Driven SSDs: DGSR2*GP13T (#1917), PS3110 256GB (#1829),
+	  S11-*-PHISON-SSD-B27.
+	- Phison Driven OEM SSDs: Goodram CX400 G2 (#1928).
 
 2025-03-17  Glucy2 <glucy-2@outlook.com>
 
