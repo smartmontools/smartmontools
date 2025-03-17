@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.0/5660 2025-02-05 14:46:53 $Id$",
+  { "VERSION: 7.0/5671 2025-03-17 11:47:17 $Id$",
     "-", "-",
     "Version information",
     ""
@@ -199,6 +199,68 @@ const drive_settings builtin_knowndrives[] = {
     "-v 244,hex48,Total_LBAs_Read_High "
     "-v 248,raw48,Perc_Rated_Life_Remain "
     "-v 249,raw48,Spares_Remaining_Perc "
+  },
+  { "Swissbit X-7x Family SATA SSD", // tested with
+      // SFSA060GM2AK1TO-C-6B-536-STD/SBR11007, SFSA020GU2AK1TO-I-6B-22P-STD/SBR15004,
+      // SFSA160GM2AK1TA-I-8C-11P-STD/SBR15103, SFSA320GM2AK2TA-I-8C-21P-STD/SBR15103
+    "SFSA....[MQSUV].AK.T[ABO].............",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 16,raw48,Avg_Erase_Count_pSLC "
+    "-v 17,raw48,Rated_Erase_Count_pSLC "
+    "-v 160,raw48,UECC_Sector_Count "
+    "-v 161,raw48,Spare_Block_Count "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Maximum_Erase_Count "
+    "-v 166,raw48,Minimum_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Rated_Erase_Count "
+    "-v 169,raw48,Power_On_UECC_Err_Cnt "
+    "-v 193,raw48,Dynamic_Remaps "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 215,raw48,Number_of_TRIM_Commands  "
+    "-v 231,raw48,Life_Remaining_Percent "
+    "-v 235,raw48,Flash_LBAs_Written "
+    "-v 237,raw48,Flash_LBAs_Written_Exp "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 243,raw48,Host_LBA_Write_Exp "
+    "-v 244,raw48,Host_LBA_Read_Exp "
+    "-v 248,raw48,SSD_Remaining_Life_Perc "
+  },
+  { "Swissbit X-8x Family SATA SSD", // tested with
+    // SFSA080GM1AO1TO-C-8C-11P-STD/AOR20008, SFSA020GM1AO1TO-I-6B-11P-STD/AOR20008
+    "SFSA....M.AO.TO.............",
+    "", "",
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 165,raw48,Maximum_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Rated_Erase_Count "
+    "-v 169,raw48,Power_On_Data_Repairs "
+  //"-v 184,raw48,End-to-End_Error "
+    "-v 185,raw48,E2E_ErrCnt_SATA-Flash "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+    "-v 196,raw48,Total_Spare_Block_Cnt "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 200,raw48,SATA_COM_Reset "
+    "-v 213,raw48,Spare_Block_Cnt_Worst "
+    "-v 215,raw48,Trim_Status "
+    "-v 229,raw48,Total_Flash_Blk_Erases "
+    "-v 232,raw48,Total_Read_Cnt "
+    "-v 241,raw48,Total_Host_LBA_Written "
+    "-v 242,raw48,Total_Host_LBA_Read "
+    "-v 248,raw48,Remaining_Life "
   },
   { "Apacer SDM4 Series SSD Module",
     "(2|4|8|16|32|64)GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D
@@ -840,6 +902,7 @@ const drive_settings builtin_knowndrives[] = {
     "BP4 mSATA SSD|" // MyDigital BP4, tested with BP4 mSATA SSD/S8FM06.9
     "Corsair Force LE(200)? SSD|" // tested with Corsair Force LE SSD/SAFC11.0,
       // Corsair Force LE200 SSD/SBFM10, .../SBFM60.9
+    "DGSR2(128|256|512)GP13T|"  // tested with DGSR2512GP13T/SBFM61.5
     "GIGABYTE GP-GSTFS31((120|240|256|480)G|100T)NTD|" // tested with GIGABYTE GP-GSTFS31120GNTD/SBFM61.3
     "GOODRAM IRIDIUM PRO|" // tested with GOODRAM IRIDIUM PRO/SAFM01.5
     "IRP?-SSDPR-S25[AC]-(120|240|256|480|512|960|0[12]T)|" // Goodram IRIDM (PRO), tested with
@@ -875,9 +938,11 @@ const drive_settings builtin_knowndrives[] = {
       // PNY CS900 240GB SSD/CS900613, PNY CS900 500GB SSD/CS900Y13, PNY CS1311 120GB SSD/CS131122,
       // PNY CS2211 240GB SSD/CS221016 (CS900 1TB has different attribute set)
     "PNY ELITE PSSD|" // tested with PNY ELITE PSSD/CS105P13 (240G)
+    "S11-(128|256|512)G-PHISON-SSD-B27|" // tested with: S11-512G-PHISON-SSD-B27/SBFMJ1.3
     "SSD Smartbuy (60|64|120|128|240|256|480|512|960|1024|2000)GB|" // PS3111-S11, tested with
       // SSD Smartbuy 240GB/SBFM91.1, SSD Smartbuy 64GB/SBFM21.1
-    "SSD PHISON 256GB PS3110-S10C|" // tested with SSD PHISON 256GB PS3110-S10C/SAFM12.2
+    "SSD PHISON (128|256)GB PS3110-S10C|" // tested with SSD PHISON 128GB PS3110-S10C/SAFM12.2,
+      // SSD PHISON 256GB PS3110-S10C/SAFM12.2
     "SSDPR-CX400-(128|256|512|1024)|" // Goodram CX400, tested with SSDPR-CX400-512/SBFM61.3
     "TEAM L3 EVO SSD (120|240|480|960)GB|" // TEAM L3 EVO SSD 120GB/SBFM11.0
     "SSM28(128|256|512)GPTCB3B-S11[24]61[123]|" // tested with SSM28256GPTCB3B-S112612/SBFM61.2
@@ -932,9 +997,11 @@ const drive_settings builtin_knowndrives[] = {
     "Kingmax SATA SSD (120|240|480|960)GB|" // tested with Kingmax SATA SSD 240GB/SBFMY1.3
     "SATA SSD|" // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
       // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
-    "SPCC Solid State Disk", // Silicon Power, tested with SPCC Solid State Disk/SBFD00.3,
+    "SPCC Solid State Disk|" // Silicon Power, tested with SPCC Solid State Disk/SBFD00.3,
       // SPCC Solid State Disk/SBFM61.2, SPCC Solid State Disk/SBFMT1.3
-    "S[89AB]F[DM][0-9JTY][0-9]\\.[0-9]",
+    "SSDPR-CX400-(128|256|512|1024|2028)-G2", // Goodram CX400 G2, tested with
+      // SSDPR-CX400-512-G2/SBFMLA.5 (SSDPR-CX400-128-G2/SN07373 differs, see ticket #1689)
+    "S[89AB]F[DM][0-9JLTY][0-9A]\\.[0-9]",
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
@@ -5409,30 +5476,19 @@ const drive_settings builtin_knowndrives[] = {
     "" // unsupported
   },
   // Buffalo / Melco
-  { "USB: Buffalo JustStore Portable HD-PVU2; ",
-    "0x0411:0x0181",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Buffalo Drivestation Duo; ",
-    "0x0411:0x01ce",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: Buffalo DriveStation HD-LBU2 ; Medialogic MLDU11",
-    "0x0411:0x01ea",
-    "",
-    "",
-    "-d sat"
-  },
   { "USB: Buffalo; ",
-    "0x0411:0x0(157|1[df]9|1e7|240|251|27e)", // 0x0157: HD-PEU2, 0x01d9: HD-PCTU2 (0x0108), 0x01e7: HD-PNTU3,
+    "0x0411:0x0(157|181|1ce|1[df]9|1e[7a]|240|251|27e)", // 0x0157: HD-PEU2, 0x0181: HD-PVU2,
+      // 0x01ce: Duo, 0x01d9: HD-PCTU2 (0x0108), 0x01e7: HD-PNTU3, 0x01ea: HD-LBU2,
       // 0x01f9: HD-PZU3 (0x0100), 0x0240: HD-PCFU3, 0x0251: HD-PNFU3, 0x027e: HD-LC3
     "",
     "",
     "-d sat"
+  },
+  { "USB: Buffalo SSD-PSTA/N; ASMedia",
+    "0x0411:0x039d",
+    "",
+    "",
+    "" // smartmontools >= r5168: -d sntasmedia
   },
   // LG Electronics
   { "USB: LG Mini HXD5; JMicron",
@@ -5848,11 +5904,11 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // Jess-Link
-  { "USB: Packard Bell Carbon; ",
+  { "USB: Packard Bell Carbon; SunPlus",
     "0x0766:0x0017",
     "", // 0x0108
     "",
-    "" // unsupported
+    "-d usbsunplus"
   },
   // Logitec
   { "USB: Logitec LGB-4BNHUC; ",
@@ -6089,6 +6145,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "" // ... SATA (unsupported)
+  },
+  { "USB: ; Realtek RTL9220", // USB->PCIe (NVMe) or SATA
+    "0x0bda:0x9220",
+    "",
+    "",
+    "" // smartmontools >= r5051: -d sntrealtek // ... SATA (requires `-d sat`)
   },
   // Addonics
   { "USB: Addonics HDMU3; ", // (ticket #609)
