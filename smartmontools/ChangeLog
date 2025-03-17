@@ -1,4 +1,10 @@
-$Id: ChangeLog 5666 2025-03-14 15:29:53Z chrfranke $
+$Id: ChangeLog 5667 2025-03-17 09:44:04Z chrfranke $
+
+2025-03-17  Daniel SWB  <daniel.swb.gh@gmail.com>
+
+	drivedb.h: Swissbit X-7x, X-8x family SATA SSD
+
+	(GH pull/322)
 
 2025-03-14  Christian Franke  <franke@computer.org>
 

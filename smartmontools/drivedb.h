@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5660 2025-02-05 14:46:53Z chrfranke $",
+  { "VERSION: 7.3 $Id: drivedb.h 5667 2025-03-17 09:44:04Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -199,6 +199,65 @@ const drive_settings builtin_knowndrives[] = {
     "-v 244,hex48,Total_LBAs_Read_High "
     "-v 248,raw48,Perc_Rated_Life_Remain "
     "-v 249,raw48,Spares_Remaining_Perc "
+  },
+  { "Swissbit X-7x Family SATA SSD",
+    "SFSA....(S|Q|M|U|V).AK.T(A|B|O).............",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 16,raw48,Avg_Erase_Count_pSLC "
+    "-v 17,raw48,Rated_Erase_Count_pSLC "
+    "-v 160,raw48,UECC_Sector_Count "
+    "-v 161,raw48,Spare_Block_Count "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Maximum_Erase_Count "
+    "-v 166,raw48,Minimum_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Rated_Erase_Count "
+    "-v 169,raw48,Power_On_UECC_Err_Cnt "
+    "-v 193,raw48,Dynamic_Remaps "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 215,raw48,Number_of_TRIM_Commands  "
+    "-v 231,raw48,Life_Remaining_Percent "
+    "-v 235,raw48,Flash_LBAs_Written "
+    "-v 237,raw48,Flash_LBAs_Written_Exp "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 243,raw48,Host_LBA_Write_Exp "
+    "-v 244,raw48,Host_LBA_Read_Exp "
+    "-v 248,raw48,SSD_Remaining_Life_Perc "
+  },
+  { "Swissbit X-8x Family SATA SSD",
+    "SFSA....M.AO.TO.............",
+    "", "",
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 165,raw48,Maximum_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Rated_Erase_Count "
+    "-v 169,raw48,Power_On_Data_Repairs "
+  //"-v 184,raw48,End-to-End_Error "
+    "-v 185,raw48,E2E_ErrCnt_SATA-Flash "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+    "-v 196,raw48,Total_Spare_Block_Cnt "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 200,raw48,SATA_COM_Reset "
+    "-v 213,raw48,Spare_Block_Cnt_Worst "
+    "-v 215,raw48,Trim_Status "
+    "-v 229,raw48,Total_Flash_Blk_Erases "
+    "-v 232,raw48,Total_Read_Cnt "
+    "-v 241,raw48,Total_Host_LBA_Written "
+    "-v 242,raw48,Total_Host_LBA_Read "
+    "-v 248,raw48,Remaining_Life "
   },
   { "Apacer SDM4 Series SSD Module",
     "(2|4|8|16|32|64)GB SATA Flash Drive", // tested with APSDM002G15AN-CT/SFDDA01C and SFI2101D
