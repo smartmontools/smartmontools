@@ -1,4 +1,12 @@
-$Id: ChangeLog 5668 2025-03-17 09:56:58Z chrfranke $
+$Id: ChangeLog 5669 2025-03-17 10:48:13Z chrfranke $
+
+2025-03-17  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Swissbit X-7x Family SATA SSD: Simplify regex, add testcase
+	  comments (from #1781, #1800, GH pull/322).
+	- Swissbit X-8x Family SATA SSD: Add testcase comments
+	  (from #1801, GH pull/322).
 
 2025-03-17  Glucy2 <glucy-2@outlook.com>
 
