@@ -1273,7 +1273,7 @@ try_again:
     /* Guard against devices that ignore EVPD bit and do standard INQUIRY */
     if (bufLen > 1) {
         if (vpd_page == pBuf[1]) {
-            if ((0x80 == vpd_page) && (bufLen > 2) && (0x0 != pBuf[2]))
+            if ((SCSI_VPD_UNIT_SERIAL_NUMBER == vpd_page) && (bufLen > 2) && (0x0 != pBuf[2]))
                 return SIMPLE_ERR_BAD_RESP;
         } else
             return SIMPLE_ERR_BAD_RESP;
