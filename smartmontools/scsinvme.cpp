@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2020-21 Christian Franke
+ * Copyright (C) 2020-25 Christian Franke
  * Copyright (C) 2018 Harry Mallon <hjmallon@gmail.com>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -20,7 +20,7 @@
 
 #include <errno.h>
 
-const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5650 2025-01-15 10:31:46Z samm2 $";
+const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5674 2025-03-20 14:27:58Z chrfranke $";
 
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
@@ -414,13 +414,6 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
   // Take temporary ownership of 'scsidev' to delete it on error
   scsi_device_auto_ptr scsidev_holder(scsidev);
   nvme_device * sntdev = 0;
-
-  // TODO: Remove this and adjust drivedb entry accordingly when no longer EXPERIMENTAL
-  if (!strcmp(type, "sntjmicron#please_try")) {
-    set_err(EINVAL, "USB to NVMe bridge [please try '-d sntjmicron' and report result to: "
-            PACKAGE_BUGREPORT "]");
-    return 0;
-  }
 
   if (!strcmp(type, "sntasmedia")) {
     // No namespace supported

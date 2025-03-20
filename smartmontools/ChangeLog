@@ -1,6 +1,8 @@
-$Id: ChangeLog 5673 2025-03-20 12:48:26Z chrfranke $
+$Id: ChangeLog 5674 2025-03-20 14:27:58Z chrfranke $
 
 2025-03-20  Christian Franke  <franke@computer.org>
+
+	scsinvme.cpp: Remove outdated check for 'sntjmicron#please_try'.
 
 	smartctl.cpp: Exclude '-g wcreorder' from '-x' (#1702).
 
