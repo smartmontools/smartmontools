@@ -2,6 +2,8 @@ $Id$
 
 2025-03-20  Christian Franke  <franke@computer.org>
 
+	scsinvme.cpp: Remove unneeded function 'sntjmicron_device::open()'.
+
 	scsinvme.cpp: Remove outdated check for 'sntjmicron#please_try'.
 
 	smartctl.cpp: Exclude '-g wcreorder' from '-x' (#1702).
