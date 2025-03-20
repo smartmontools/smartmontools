@@ -1,6 +1,9 @@
-$Id: ChangeLog 5675 2025-03-20 14:45:41Z chrfranke $
+$Id: ChangeLog 5676 2025-03-20 15:57:20Z chrfranke $
 
 2025-03-20  Christian Franke  <franke@computer.org>
+
+	dev_interface.h: Make 'smart_interface::get_sat_device()' public.
+	This allows usage within 'autodetect_open()' functions.
 
 	scsinvme.cpp: Remove unneeded function 'sntjmicron_device::open()'.
 
