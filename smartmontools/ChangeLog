@@ -2,6 +2,8 @@ $Id$
 
 2025-03-20  Christian Franke  <franke@computer.org>
 
+	scsinvme.cpp: Remove outdated check for 'sntjmicron#please_try'.
+
 	smartctl.cpp: Exclude '-g wcreorder' from '-x' (#1702).
 
 	ATA ACS only offers a support check for the SCT FEATURE CONTROL
