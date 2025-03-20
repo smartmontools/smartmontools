@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-22 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -1055,6 +1055,7 @@ protected:
   /// Return 0 and delete 'scsidev' on error.
   virtual smart_device * get_scsi_passthrough_device(const char * type, scsi_device * scsidev);
 
+public:
   /// Return ATA->SCSI filter for a SAT or USB 'type'.
   /// Device 'scsidev' is used for SCSI access.
   /// Return 0 and delete 'scsidev' on error.
@@ -1062,6 +1063,7 @@ protected:
   virtual ata_device * get_sat_device(const char * type, scsi_device * scsidev);
   //{ implemented in scsiata.cpp }
 
+protected:
   /// Return NVMe->SCSI filter for a SNT or USB 'type'.
   /// Device 'scsidev' is used for SCSI access.
   /// Return 0 and delete 'scsidev' on error.
