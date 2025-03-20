@@ -1,5 +1,14 @@
 $Id$
 
+2025-03-20  Christian Franke  <franke@computer.org>
+
+	smartctl.cpp: Exclude '-g wcreorder' from '-x' (#1702).
+
+	ATA ACS only offers a support check for the SCT FEATURE CONTROL
+	command, but not for its GET WRITE CACHE REORDERING subcommand.
+	If this subcommand fails, the next ATA command (SMART READ DATA)
+	may also fail in some cases.
+
 2025-03-17  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
