@@ -20,23 +20,67 @@
 
 #include <errno.h>
 
-const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5675 2025-03-20 14:45:41Z chrfranke $";
+const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5677 2025-03-20 17:22:18Z chrfranke $";
 
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
 
 /////////////////////////////////////////////////////////////////////////////
-// sntasmedia_device
+// nvme_or_sat_device: Common base class for NVMe/SATA -> USB bridges
 
-class sntasmedia_device
+class nvme_or_sat_device
 : public tunnelled_device<
     /*implements*/ nvme_device,
     /*by tunnelling through a*/ scsi_device
   >
 {
 public:
+  nvme_or_sat_device(scsi_device * scsidev, unsigned nsid, bool maybe_sat);
+
+  virtual smart_device * autodetect_open() override;
+
+private:
+  bool m_maybe_sat;
+};
+
+nvme_or_sat_device::nvme_or_sat_device(scsi_device * scsidev, unsigned nsid, bool maybe_sat)
+: smart_device(never_called),
+  tunnelled_device<nvme_device, scsi_device>(scsidev, nsid),
+  m_maybe_sat(maybe_sat)
+{
+}
+
+smart_device * nvme_or_sat_device::autodetect_open()
+{
+  if (!open() || !m_maybe_sat)
+    return this;
+
+  // SAT not tried first because some USB bridges emulate ATA IDENTIFY via SAT
+  // if a NVMe device is connected.
+  // TODO: Preserve id_ctrl for next nvme_read_id_ctrl() call
+  smartmontools::nvme_id_ctrl id_ctrl;
+  if (nvme_read_id_ctrl(this, id_ctrl))
+    return this;
+
+  // NVMe Identify Controller failed, use the already opened SCSI device for SAT.
+  // IMPORTANT for derived classes: this->close() not called before delete.
+  // TODO: preserve requested 'type'.
+  scsi_device * scsidev = get_tunnel_dev();
+  ata_device * satdev = smi()->get_sat_device("sat", scsidev);
+  release(scsidev); // 'scsidev' is now owned by 'satdev'
+  delete this;
+  return satdev;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// sntasmedia_device
+
+class sntasmedia_device
+: public nvme_or_sat_device
+{
+public:
   sntasmedia_device(smart_interface * intf, scsi_device * scsidev,
-                    const char * req_type, unsigned nsid);
+                    const char * req_type, unsigned nsid, bool maybe_sat);
 
   virtual ~sntasmedia_device();
 
@@ -44,9 +88,9 @@ public:
 };
 
 sntasmedia_device::sntasmedia_device(smart_interface * intf, scsi_device * scsidev,
-                                     const char * req_type, unsigned nsid)
+                                     const char * req_type, unsigned nsid, bool maybe_sat)
 : smart_device(intf, scsidev->get_dev_name(), "sntasmedia", req_type),
-  tunnelled_device<nvme_device, scsi_device>(scsidev, nsid)
+  nvme_or_sat_device(scsidev, nsid, maybe_sat)
 {
   set_info().info_name = strprintf("%s [USB NVMe ASMedia]", scsidev->get_info_name());
 }
@@ -121,14 +165,11 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
 #define SNT_JMICRON_NVM_CMD_LEN 512
 
 class sntjmicron_device
-: public tunnelled_device<
-    /*implements*/ nvme_device,
-    /*by tunnelling through a*/ scsi_device
-  >
+: public nvme_or_sat_device
 {
 public:
   sntjmicron_device(smart_interface * intf, scsi_device * scsidev,
-                    const char * req_type, unsigned nsid);
+                    const char * req_type, unsigned nsid, bool maybe_sat);
 
   virtual ~sntjmicron_device();
 
@@ -142,9 +183,9 @@ private:
 };
 
 sntjmicron_device::sntjmicron_device(smart_interface * intf, scsi_device * scsidev,
-                                     const char * req_type, unsigned nsid)
+                                     const char * req_type, unsigned nsid, bool maybe_sat)
 : smart_device(intf, scsidev->get_dev_name(), "sntjmicron", req_type),
-  tunnelled_device<nvme_device, scsi_device>(scsidev, nsid)
+  nvme_or_sat_device(scsidev, nsid, maybe_sat)
 {
   set_info().info_name = strprintf("%s [USB NVMe JMicron]", scsidev->get_info_name());
 }
@@ -306,14 +347,11 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
 // sntrealtek_device
 
 class sntrealtek_device
-: public tunnelled_device<
-    /*implements*/ nvme_device,
-    /*by tunnelling through a*/ scsi_device
-  >
+: public nvme_or_sat_device
 {
 public:
   sntrealtek_device(smart_interface * intf, scsi_device * scsidev,
-                    const char * req_type, unsigned nsid);
+                    const char * req_type, unsigned nsid, bool maybe_sat);
 
   virtual ~sntrealtek_device();
 
@@ -321,9 +359,9 @@ public:
 };
 
 sntrealtek_device::sntrealtek_device(smart_interface * intf, scsi_device * scsidev,
-                                     const char * req_type, unsigned nsid)
+                                     const char * req_type, unsigned nsid, bool maybe_sat)
 : smart_device(intf, scsidev->get_dev_name(), "sntrealtek", req_type),
-  tunnelled_device<nvme_device, scsi_device>(scsidev, nsid)
+  nvme_or_sat_device(scsidev, nsid, maybe_sat)
 {
   set_info().info_name = strprintf("%s [USB NVMe Realtek]", scsidev->get_info_name());
 }
@@ -393,27 +431,37 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
   if (!scsidev)
     throw std::logic_error("smart_interface: get_snt_device() called with scsidev=0");
 
+  // Check for "snt*/sat"
+  bool maybe_sat = false;
+  char snt_type[32];
+  snprintf(snt_type, sizeof(snt_type), "%s", type);
+  int len = strlen(snt_type);
+  if (len > 4 && !strcmp(snt_type + len - 4, "/sat")) {
+    snt_type[len -= 4] = 0;
+    maybe_sat = true;
+  }
+
   // Take temporary ownership of 'scsidev' to delete it on error
   scsi_device_auto_ptr scsidev_holder(scsidev);
   nvme_device * sntdev = nullptr;
 
-  if (!strcmp(type, "sntasmedia")) {
+  if (!strcmp(snt_type, "sntasmedia")) {
     // No namespace supported
-    sntdev = new sntasmedia_device(this, scsidev, type, nvme_broadcast_nsid);
+    sntdev = new sntasmedia_device(this, scsidev, type, nvme_broadcast_nsid, maybe_sat);
   }
 
-  else if (str_starts_with(type, "sntjmicron")) {
-    int n1 = -1, n2 = -1, len = strlen(type);
+  else if (str_starts_with(snt_type, "sntjmicron")) {
+    int n1 = -1, n2 = -1;
     unsigned nsid = nvme_broadcast_nsid;
-    sscanf(type, "sntjmicron%n,0x%x%n", &n1, &nsid, &n2);
+    sscanf(snt_type, "sntjmicron%n,0x%x%n", &n1, &nsid, &n2);
     if (!(n1 == len || n2 == len))
-      return set_err_np(EINVAL, "Invalid NVMe namespace id in '%s'", type);
-    sntdev = new sntjmicron_device(this, scsidev, type, nsid);
+      return set_err_np(EINVAL, "Invalid NVMe namespace id in '%s'", snt_type);
+    sntdev = new sntjmicron_device(this, scsidev, type, nsid, maybe_sat);
   }
 
-  else if (!strcmp(type, "sntrealtek")) {
+  else if (!strcmp(snt_type, "sntrealtek")) {
     // No namespace supported
-    sntdev = new sntrealtek_device(this, scsidev, type, nvme_broadcast_nsid);
+    sntdev = new sntrealtek_device(this, scsidev, type, nvme_broadcast_nsid, maybe_sat);
   }
 
   else {

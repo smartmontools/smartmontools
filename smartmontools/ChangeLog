@@ -1,6 +1,8 @@
-$Id: ChangeLog 5676 2025-03-20 15:57:20Z chrfranke $
+$Id: ChangeLog 5677 2025-03-20 17:22:18Z chrfranke $
 
 2025-03-20  Christian Franke  <franke@computer.org>
+
+	scsinvme.cpp: Add NVMe/SAT autodetection if '-d snt*/sat' is used.
 
 	dev_interface.h: Make 'smart_interface::get_sat_device()' public.
 	This allows usage within 'autodetect_open()' functions.

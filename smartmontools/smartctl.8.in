@@ -1,10 +1,10 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-24 Christian Franke
+Copyright (C) 2004-25 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5645 2024-12-10 15:01:40Z chrfranke $
+$Id: smartctl.8.in 5677 2025-03-20 17:22:18Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -494,20 +494,27 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
 bridge.
 .Sp
-.I sntasmedia
+.I sntasmedia[/sat]
 \- this device type is for NVMe disks that are behind an ASMedia USB to NVMe
 bridge.
+.br
+[NEW EXPERIMENTAL SMARTCTL 7.5 FEATURE]
+If the \*(Aq/sat\*(Aq suffix is specified and the NVMe Identify Controller
+command fails, the device type is changed to \*(Aq\-d sat\*(Aq.
+This is useful for USB M.2 adapters which support NVMe and SATA devices.
 .Sp
-.I sntjmicron[,NSID]
+.I sntjmicron[,NSID][/sat]
 \- this device type is for NVMe disks that are behind a JMicron USB to NVMe
 bridge.
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
 The default namespace id is the broadcast namespace id (0xffffffff).
+See also \*(Aq\-d sntasmedia\*(Aq for the \*(Aq/sat\*(Aq suffix.
 .Sp
-.I sntrealtek
+.I sntrealtek[/sat]
 \- this device type is for NVMe disks that are behind a Realtek USB to NVMe
 bridge.
+See also \*(Aq\-d sntasmedia\*(Aq for the \*(Aq/sat\*(Aq suffix.
 .Sp
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Linux
@@ -2628,4 +2635,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5645 2024-12-10 15:01:40Z chrfranke $
+$Id: smartctl.8.in 5677 2025-03-20 17:22:18Z chrfranke $
