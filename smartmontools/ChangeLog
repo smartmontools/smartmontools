@@ -1,6 +1,8 @@
-$Id: ChangeLog 5674 2025-03-20 14:27:58Z chrfranke $
+$Id: ChangeLog 5675 2025-03-20 14:45:41Z chrfranke $
 
 2025-03-20  Christian Franke  <franke@computer.org>
+
+	scsinvme.cpp: Remove unneeded function 'sntjmicron_device::open()'.
 
 	scsinvme.cpp: Remove outdated check for 'sntjmicron#please_try'.
 

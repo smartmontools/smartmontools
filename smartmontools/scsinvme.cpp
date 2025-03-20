@@ -20,7 +20,7 @@
 
 #include <errno.h>
 
-const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5674 2025-03-20 14:27:58Z chrfranke $";
+const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5675 2025-03-20 14:45:41Z chrfranke $";
 
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
@@ -132,8 +132,6 @@ public:
 
   virtual ~sntjmicron_device();
 
-  virtual bool open() override;
-
   virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 
 private:
@@ -153,22 +151,6 @@ sntjmicron_device::sntjmicron_device(smart_interface * intf, scsi_device * scsid
 
 sntjmicron_device::~sntjmicron_device()
 {
-}
-
-bool sntjmicron_device::open()
-{
-  // Open USB first
-  if (!tunnelled_device<nvme_device, scsi_device>::open())
-    return false;
-
-  // No sure how multiple namespaces come up on device so we
-  // cannot detect e.g. /dev/sdX is NSID 2.
-  // Set to broadcast if not available
-  if (!get_nsid()) {
-    set_nsid(nvme_broadcast_nsid);
-  }
-
-  return true;
 }
 
 // cdb[0]: ATA PASS THROUGH (12) SCSI command opcode byte (0xa1)
@@ -413,21 +395,19 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
 
   // Take temporary ownership of 'scsidev' to delete it on error
   scsi_device_auto_ptr scsidev_holder(scsidev);
-  nvme_device * sntdev = 0;
+  nvme_device * sntdev = nullptr;
 
   if (!strcmp(type, "sntasmedia")) {
     // No namespace supported
     sntdev = new sntasmedia_device(this, scsidev, type, nvme_broadcast_nsid);
   }
 
-  else if (!strncmp(type, "sntjmicron", 10)) {
+  else if (str_starts_with(type, "sntjmicron")) {
     int n1 = -1, n2 = -1, len = strlen(type);
-    unsigned nsid = 0; // invalid namespace id -> use default
+    unsigned nsid = nvme_broadcast_nsid;
     sscanf(type, "sntjmicron%n,0x%x%n", &n1, &nsid, &n2);
-    if (!(n1 == len || n2 == len)) {
-      set_err(EINVAL, "Invalid NVMe namespace id in '%s'", type);
-      return 0;
-    }
+    if (!(n1 == len || n2 == len))
+      return set_err_np(EINVAL, "Invalid NVMe namespace id in '%s'", type);
     sntdev = new sntjmicron_device(this, scsidev, type, nsid);
   }
 
@@ -437,8 +417,7 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
   }
 
   else {
-    set_err(EINVAL, "Unknown SNT device type '%s'", type);
-    return 0;
+    return set_err_np(EINVAL, "Unknown SNT device type '%s'", type);
   }
 
   // 'scsidev' is now owned by 'sntdev'
