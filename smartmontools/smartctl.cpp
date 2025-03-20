@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-23 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "svnversion.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5613 2024-05-08 13:46:51Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5673 2025-03-20 12:48:26Z chrfranke $"
   CONFIG_H_CVSID SMARTCTL_H_CVSID;
 
 // Globals to control printing
@@ -746,7 +746,10 @@ static int parse_options(int argc, char** argv, const char * & type,
       ataopts.smart_logdir = ataopts.gp_logdir = true;
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
       ataopts.sct_erc_get = 1;
-      ataopts.sct_wcache_reorder_get = true;
+      // Don't include '-g wcreorder' because the next ATA command (SMART READ DATA) may fail
+      // if support of SCT FEATURE CONTROL is indicated but the GET WRITE CACHE REORDERING
+      // subcommand fails (ticket #1702).
+      // ataopts.sct_wcache_reorder_get = true;
       ataopts.devstat_all_pages = true;
       ataopts.pending_defects_log = 31;
       ataopts.sataphy = true;
