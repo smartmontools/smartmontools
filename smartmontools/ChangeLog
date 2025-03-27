@@ -2,6 +2,8 @@ $Id$
 
 2025-03-27  Christian Franke  <franke@computer.org>
 
+	smartctl.8.in: Document that '-x' no longer includes '-g wcreorder'.
+
 	ataprint.cpp: Add JSON values 'power_mode.*' (based on GH/pull 239).
 
 2025-03-20  Christian Franke  <franke@computer.org>

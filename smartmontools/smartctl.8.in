@@ -278,11 +278,15 @@ Prints all SMART and non-SMART information about the device.
 .Sp
 For ATA, this is equivalent to
 .br
-\*(Aq\-H \-i \-g all \-g wcreorder \-c \-A \-f brief \-l xerror,error
+\*(Aq\-H \-i \-g all \-c \-A \-f brief \-l xerror,error
 \-l xselftest,selftest \-l selective \-l directory \-l scttemp \-l scterc
 \-l devstat \-l defects \-l sataphy\*(Aq.
 .br
 If \*(Aq\-a\*(Aq is also specified, add \*(Aq\-l error \-l selftest\*(Aq.
+.br
+[NEW EXPERIMENTAL SMARTCTL 7.5 FIX]
+\*(Aq\-g wcreorder\*(Aq is no longer included because it is not possible
+to check whether this feature is supported by the drive.
 .Sp
 For SCSI disks, this is equivalent to
 .br
