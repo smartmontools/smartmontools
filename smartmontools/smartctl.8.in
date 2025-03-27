@@ -4,7 +4,7 @@ Copyright (C) 2004-25 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartctl.8.in 5677 2025-03-20 17:22:18Z chrfranke $
+$Id: smartctl.8.in 5679 2025-03-27 10:11:17Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -278,11 +278,15 @@ Prints all SMART and non-SMART information about the device.
 .Sp
 For ATA, this is equivalent to
 .br
-\*(Aq\-H \-i \-g all \-g wcreorder \-c \-A \-f brief \-l xerror,error
+\*(Aq\-H \-i \-g all \-c \-A \-f brief \-l xerror,error
 \-l xselftest,selftest \-l selective \-l directory \-l scttemp \-l scterc
 \-l devstat \-l defects \-l sataphy\*(Aq.
 .br
 If \*(Aq\-a\*(Aq is also specified, add \*(Aq\-l error \-l selftest\*(Aq.
+.br
+[NEW EXPERIMENTAL SMARTCTL 7.5 FIX]
+\*(Aq\-g wcreorder\*(Aq is no longer included because it is not possible
+to check whether this feature is supported by the drive.
 .Sp
 For SCSI disks, this is equivalent to
 .br
@@ -2635,4 +2639,4 @@ Links to these and other documents may be found on the Links page of the
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartctl.8.in 5677 2025-03-20 17:22:18Z chrfranke $
+$Id: smartctl.8.in 5679 2025-03-27 10:11:17Z chrfranke $
