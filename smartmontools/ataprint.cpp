@@ -33,7 +33,7 @@
 #include "farmcmds.h"
 #include "farmprint.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5662 2025-02-15 15:51:06Z chrfranke $"
+const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5678 2025-03-27 09:41:10Z chrfranke $"
                                   ATAPRINT_H_CVSID;
 
 
@@ -3435,6 +3435,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         break;
     }
     if (powername) {
+      jglb["power_mode"] += {
+        { "ata_value", powermode },
+        { "name", powername }
+      };
       if (options.powermode >= powerlimit) {
         jinf("Device is in %s mode, exit(%d)\n", powername, options.powerexit);
         return options.powerexit;
