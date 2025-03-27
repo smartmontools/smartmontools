@@ -1,5 +1,9 @@
 $Id$
 
+2025-03-27  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add JSON values 'power_mode.*' (based on GH/pull 239).
+
 2025-03-20  Christian Franke  <franke@computer.org>
 
 	scsinvme.cpp: Add NVMe/SAT autodetection if '-d snt*/sat' is used.

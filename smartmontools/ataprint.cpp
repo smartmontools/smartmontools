@@ -3435,6 +3435,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         break;
     }
     if (powername) {
+      jglb["power_mode"] += {
+        { "ata_value", powermode },
+        { "name", powername }
+      };
       if (options.powermode >= powerlimit) {
         jinf("Device is in %s mode, exit(%d)\n", powername, options.powerexit);
         return options.powerexit;
