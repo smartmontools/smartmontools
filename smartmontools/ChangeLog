@@ -2,6 +2,8 @@ $Id$
 
 2025-03-27  Christian Franke  <franke@computer.org>
 
+	farmprint.cpp: Suppress serial and WWN if '-q noserial' is used.
+
 	smartctl.8.in: Document that '-x' no longer includes '-g wcreorder'.
 
 	ataprint.cpp: Add JSON values 'power_mode.*' (based on GH/pull 239).

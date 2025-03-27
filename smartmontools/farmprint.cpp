@@ -197,8 +197,10 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
 
   // Page 1: Drive Information
   jout("\tFARM Log Page 1: Drive Information\n");
-  jout("\t\tSerial Number: %s\n", serialNumber);
-  jout("\t\tWorld Wide Name: %s\n", worldWideName);
+  if (!dont_print_serial_number) { // TODO: Invalidate the fields in the ATA debug output
+    jout("\t\tSerial Number: %s\n", serialNumber);
+    jout("\t\tWorld Wide Name: %s\n", worldWideName);
+  }
   jout("\t\tDevice Interface: %s\n", deviceInterface);
   jout("\t\tDevice Capacity in Sectors: %" PRIu64 "\n", farmLog.driveInformation.deviceCapacity);
   jout("\t\tPhysical Sector Size: %" PRIu64 "\n", farmLog.driveInformation.psecSize);
@@ -356,8 +358,10 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
 
   // Page 1: Drive Information
   json::ref jref1 = jref["page_1_drive_information"];
-  jref1["serial_number"] = serialNumber;
-  jref1["world_wide_name"] = worldWideName;
+  if (!dont_print_serial_number) {
+    jref1["serial_number"] = serialNumber;
+    jref1["world_wide_name"] = worldWideName;
+  }
   jref1["device_interface"] = deviceInterface;
   jref1["device_capacity_in_sectors"] = farmLog.driveInformation.deviceCapacity;
   jref1["physical_sector_size"] = farmLog.driveInformation.psecSize;
@@ -553,8 +557,10 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
 
   // Parameter 1: Drive Information
   jout("\tFARM Log Parameter 1: Drive Information\n");
-  jout("\t\tSerial Number: %s\n", serialNumber);
-  jout("\t\tWorld Wide Name: %s\n", worldWideName);
+  if (!dont_print_serial_number) { // TODO: Invalidate the fields in the SCSI debug output
+    jout("\t\tSerial Number: %s\n", serialNumber);
+    jout("\t\tWorld Wide Name: %s\n", worldWideName);
+  }
   jout("\t\tFirmware Rev: %s\n", firmwareRev);
   jout("\t\tDevice Interface: %s\n", deviceInterface);
   jout("\t\tDevice Capacity in Sectors: %" PRIu64 "\n", farmLog.driveInformation.deviceCapacity);
@@ -719,8 +725,10 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
 
   // Parameter 1: Drive Information
   json::ref jref1 = jref["drive_information"];
-  jref1["serial_number"] = serialNumber;
-  jref1["world_wide_name"] = worldWideName;
+  if (!dont_print_serial_number) {
+    jref1["serial_number"] = serialNumber;
+    jref1["world_wide_name"] = worldWideName;
+  }
   jref1["firmware_rev"] = firmwareRev;
   jref1["device_interface"] = deviceInterface;
   jref1["device_capacity_in_sectors"] = farmLog.driveInformation.deviceCapacity;

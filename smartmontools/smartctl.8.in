@@ -400,6 +400,10 @@ Note: This is not the case in SCSI debug output.
 .br
 [NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
 The Namespace IEEE EUI-64 (NVMe) is also suppressed.
+.br
+[NEW EXPERIMENTAL SMARTCTL 7.5 FEATURE]
+The Serial Number and World Wide Name from the FARM log (see
+\*(Aq\-l farm\*(Aq below) are also suppressed, except for the debug output.
 .TP
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.
