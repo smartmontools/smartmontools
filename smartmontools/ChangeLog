@@ -1,4 +1,10 @@
-$Id: ChangeLog 5680 2025-03-27 10:21:28Z chrfranke $
+$Id: ChangeLog 5681 2025-04-13 12:23:55Z chrfranke $
+
+2025-04-02  Lucas Holt  <luke@foolishgames.com>
+
+	configure.ac: Treat MidnightBSD like FreeBSD for host detection.
+
+	(GH pull/333)
 
 2025-03-27  Christian Franke  <franke@computer.org>
 

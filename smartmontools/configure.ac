@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5657 2025-02-02 15:37:48Z chrfranke $
+# $Id: configure.ac 5681 2025-04-13 12:23:55Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
@@ -22,7 +22,7 @@ else
   AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5657 2025-02-02 15:37:48Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5681 2025-04-13 12:23:55Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 
@@ -81,7 +81,7 @@ AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([byteswap.h], [], [], [])
 
 case "$host" in
-  *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
+  *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*|*-*-midnightbsd*)
     # Check for FreeBSD twe and twa include files
     AC_CHECK_HEADERS([sys/tweio.h sys/twereg.h sys/tw_osl_ioctl.h])
     # Check for the FreeBSD CCISS system header and use internal one if not found
@@ -157,7 +157,7 @@ AM_CONDITIONAL(INSTALL_INITSCRIPT, [test -n "$initddir"])
 
 # use different init script templates for different OS
 case "${host}" in
-  *-*-freebsd*)
+  *-*-freebsd*|*-*-midnightbsd*)
     initdfile="smartd.freebsd.initd"
     ;;
   *-apple-darwin*)
@@ -615,7 +615,7 @@ case "${host}" in
     os_man_filter=Linux
     os_nvme_devicescan=yes
     ;;
-  *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
+  *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*|*-*-midnightbsd*)
     os_deps='os_freebsd.o cciss.o dev_areca.o'
     os_libs='-lcam -lsbuf'
     os_dltools='fetch curl wget lynx svn'
