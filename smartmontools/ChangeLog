@@ -1,5 +1,11 @@
 $Id$
 
+2025-04-02  Lucas Holt  <luke@foolishgames.com>
+
+	configure.ac: Treat MidnightBSD like FreeBSD for host detection.
+
+	(GH pull/333)
+
 2025-03-27  Christian Franke  <franke@computer.org>
 
 	farmprint.cpp: Suppress serial and WWN if '-q noserial' is used.
