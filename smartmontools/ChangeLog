@@ -1,4 +1,8 @@
-$Id: ChangeLog 5681 2025-04-13 12:23:55Z chrfranke $
+$Id: ChangeLog 5682 2025-04-13 13:15:27Z chrfranke $
+
+2025-04-13  Christian Franke  <franke@computer.org>
+
+	do_release: Set SOURCE_DATE_EPOCH for reproducible tarball.
 
 2025-04-02  Lucas Holt  <luke@foolishgames.com>
 
