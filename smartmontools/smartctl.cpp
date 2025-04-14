@@ -151,7 +151,8 @@ static void Usage()
 "  -r TYPE, --report=TYPE\n"
 "         Report transactions (see man page)\n\n"
 "  -n MODE[,STATUS[,STATUS2]], --nocheck=MODE[,STATUS[,STATUS2]] (ATA, SCSI)\n"
-"         No check if: never, sleep, standby, idle (see man page)\n\n",
+"         No check if: never, sleep, standby, standby_y, standby_z, idle,\n"
+"         idle_a, idle_b, idle_c (see man page)\n\n",
   getvalidarglist('d').c_str()); // TODO: Use this function also for other options ?
   pout(
 "============================== DEVICE FEATURE ENABLE/DISABLE COMMANDS =====\n\n"
@@ -261,7 +262,9 @@ static std::string getvalidarglist(int opt)
     return std::string(get_valid_firmwarebug_args()) + ", swapid";
   case 'n':
     return "never, sleep[,STATUS[,STATUS2]], standby[,STATUS[,STATUS2]], "
-           "idle[,STATUS[,STATUS2]]";
+           "standby_y[,STATUS[,STATUS2]], standby_z[,STATUS[,STATUS2]], "
+           "idle[,STATUS[,STATUS2]], idle_a[,STATUS[,STATUS2]], "
+           "idle_b[,STATUS[,STATUS2]], idle_c[,STATUS[,STATUS2]]";
   case 'f':
     return "old, brief, hex[,id|val]";
   case 'g':
@@ -904,8 +907,8 @@ static int parse_options(int argc, char** argv, const char * & type,
       }
       else {
         int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
-        char s[7+1]; unsigned i = FAILPOWER, j = 0;
-        sscanf(optarg, "%7[a-z]%n,%u%n,%u%n", s, &n1, &i, &n2, &j, &n3);
+        char s[9+1]; unsigned i = FAILPOWER, j = 0;
+        sscanf(optarg, "%9[a-z_]%n,%u%n,%u%n", s, &n1, &i, &n2, &j, &n3);
         if (!((n1 == len || n2 == len || n3 == len) && i <= 255 && j <= 255))
           badarg = true;
         else if (!strcmp(s, "sleep")) {
@@ -914,9 +917,24 @@ static int parse_options(int argc, char** argv, const char * & type,
         } else if (!strcmp(s, "standby")) {
           ataopts.powermode = 3;
           scsiopts.powermode = 3;
-        } else if (!strcmp(s, "idle")) {
+        } else if (!strcmp(s, "standby_y")) {
           ataopts.powermode = 4;
           scsiopts.powermode = 4;
+        } else if (!strcmp(s, "standby_z")) {
+          ataopts.powermode = 3;
+          scsiopts.powermode = 3;
+        } else if (!strcmp(s, "idle")) {
+          ataopts.powermode = 7;
+          scsiopts.powermode = 7;
+        } else if (!strcmp(s, "idle_a")) {
+          ataopts.powermode = 7;
+          scsiopts.powermode = 7;
+        } else if (!strcmp(s, "idle_b")) {
+          ataopts.powermode = 6;
+          scsiopts.powermode = 6;
+        } else if (!strcmp(s, "idle_c")) {
+          ataopts.powermode = 5;
+          scsiopts.powermode = 5;
         } else
           badarg = true;
 
