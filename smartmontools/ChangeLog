@@ -1,5 +1,9 @@
 $Id$
 
+2025-04-14  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Add JSON support for NVMe capabilities.
+
 2025-04-13  Christian Franke  <franke@computer.org>
 
 	do_release: Set SOURCE_DATE_EPOCH for reproducible tarball.
