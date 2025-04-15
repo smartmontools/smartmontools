@@ -90,7 +90,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5657 2025-02-02 15:37:48Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5685 2025-04-15 16:49:32Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -527,8 +527,8 @@ struct temp_dev_state
   int powerskipcnt{};                     // Number of checks skipped due to idle or standby mode
   int lastpowermodeskipped{};             // the last power mode that was skipped
 
-  bool attrlog_dirty{};                   // true if persistent part has new attr values that
-                                          // need to be written to attrlog
+  int attrlog_valid{};                    // nonzero if data is valid for protocol specific
+                                          // attribute log: 1=ATA, 2=SCSI, 3=NVMe
 
   // SCSI ONLY
   // TODO: change to bool
@@ -553,6 +553,8 @@ struct temp_dev_state
   // NVMe only
   uint8_t selftest_op{};                  // last self-test operation
   uint8_t selftest_compl{};               // last self-test completion
+
+  nvme_smart_log nvme_smartval{};         // NVMe SMART/Health information for attrlog
 };
 
 /// Runtime state data for a device.
@@ -819,28 +821,17 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
   return true;
 }
 
-// Write to the attrlog file
-static bool write_dev_attrlog(const char * path, const dev_state & state)
+static void write_ata_attrlog(FILE * f, const dev_state & state)
 {
-  stdio_file f(path, "a");
-  if (!f) {
-    pout("Cannot create attribute log file \"%s\"\n", path);
-    return false;
-  }
-
-  
-  time_t now = time(nullptr);
-  struct tm tmbuf, * tms = time_to_tm_local(&tmbuf, now);
-  fprintf(f, "%d-%02d-%02d %02d:%02d:%02d;",
-             1900+tms->tm_year, 1+tms->tm_mon, tms->tm_mday,
-             tms->tm_hour, tms->tm_min, tms->tm_sec);
-  // ATA ONLY
   for (const auto & pa : state.ata_attributes) {
     if (!pa.id)
       continue;
     fprintf(f, "\t%d;%d;%" PRIu64 ";", pa.id, pa.val, pa.raw);
   }
-  // SCSI ONLY
+}
+
+static void write_scsi_attrlog(FILE * f, const dev_state & state)
+{
   const struct scsiErrorCounter * ecp;
   const char * pageNames[3] = {"read", "write", "verify"};
   for (int k = 0; k < 3; ++k) {
@@ -867,7 +858,75 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
   // write SCSI current temperature if it is monitored
   if (state.temperature)
     fprintf(f, "\ttemperature;%d;", state.temperature);
-  // end of line
+}
+
+// Convert 128 bit LE integer to uint64_t or its max value on overflow.
+static uint64_t le128_to_uint64(const unsigned char (& val)[16])
+{
+  if (sg_get_unaligned_le64(val + 8))
+    return ~(uint64_t)0;
+  return sg_get_unaligned_le64(val);
+}
+
+static void write_nvme_attrlog(FILE * f, const dev_state & state)
+{
+  const nvme_smart_log & s = state.nvme_smartval;
+  // Names similar to smartctl JSON output with '-' instead of '_'
+  fprintf(f,
+    "\tcritical-warning;%u;"
+    "\ttemperature;%u;"
+    "\tavailable-spare;%u;"
+    "\tavailable-spare-threshold;%u;"
+    "\tpercent-used;%u;"
+    "\tdata-units-read;%" PRIu64 ";"
+    "\tdata-units-written;%" PRIu64 ";"
+    "\thost-reads;%" PRIu64 ";"
+    "\thost-writes;%" PRIu64 ";"
+    "\tcontroller-busy-time;%" PRIu64 ";"
+    "\tpower-cycles;%" PRIu64 ";"
+    "\tpower-on-hours;%" PRIu64 ";"
+    "\tunsafe-shutdowns;%" PRIu64 ";"
+    "\tmedia-errors;%" PRIu64 ";"
+    "\tnum-err-log-entries;%" PRIu64 ";",
+    s.critical_warning,
+    (int)sg_get_unaligned_le16(s.temperature) - 273,
+    s.avail_spare,
+    s.spare_thresh,
+    s.percent_used,
+    le128_to_uint64(s.data_units_read),
+    le128_to_uint64(s.data_units_written),
+    le128_to_uint64(s.host_reads),
+    le128_to_uint64(s.host_writes),
+    le128_to_uint64(s.ctrl_busy_time),
+    le128_to_uint64(s.power_cycles),
+    le128_to_uint64(s.power_on_hours),
+    le128_to_uint64(s.unsafe_shutdowns),
+    le128_to_uint64(s.media_errors),
+    le128_to_uint64(s.num_err_log_entries)
+  );
+}
+
+// Write to the attrlog file
+static bool write_dev_attrlog(const char * path, const dev_state & state)
+{
+  stdio_file f(path, "a");
+  if (!f) {
+    pout("Cannot create attribute log file \"%s\"\n", path);
+    return false;
+  }
+
+  time_t now = time(nullptr);
+  struct tm tmbuf, * tms = time_to_tm_local(&tmbuf, now);
+  fprintf(f, "%d-%02d-%02d %02d:%02d:%02d;",
+             1900+tms->tm_year, 1+tms->tm_mon, tms->tm_mday,
+             tms->tm_hour, tms->tm_min, tms->tm_sec);
+
+  switch (state.attrlog_valid) {
+    case 1: write_ata_attrlog(f, state); break;
+    case 2: write_scsi_attrlog(f, state); break;
+    case 3: write_nvme_attrlog(f, state); break;
+  }
+
   fprintf(f, "\n");
   return true;
 }
@@ -903,10 +962,13 @@ static void write_all_dev_attrlogs(const dev_config_vector & configs,
     if (cfg.attrlog_file.empty())
       continue;
     dev_state & state = states[i];
-    if (state.attrlog_dirty) {
-      write_dev_attrlog(cfg.attrlog_file.c_str(), state);
-      state.attrlog_dirty = false;
-    }
+    if (!state.attrlog_valid)
+      continue;
+    write_dev_attrlog(cfg.attrlog_file.c_str(), state);
+    state.attrlog_valid = 0;
+    if (debugmode)
+      PrintOut(LOG_INFO, "Device: %s, attribute log written to %s\n",
+               cfg.name.c_str(), cfg.attrlog_file.c_str());
   }
 }
 
@@ -2669,20 +2731,6 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   return 0;
 }
 
-// Convert 128 bit LE integer to uint64_t or its max value on overflow.
-static uint64_t le128_to_uint64(const unsigned char (& val)[16])
-{
-  for (int i = 8; i < 16; i++) {
-    if (val[i])
-      return ~(uint64_t)0;
-  }
-  uint64_t lo = val[7];
-  for (int i = 7-1; i >= 0; i--) {
-    lo <<= 8; lo += val[i];
-  }
-  return lo;
-}
-
 // Check the NVMe Error Information log for device related errors.
 static bool check_nvme_error_log(const dev_config & cfg, dev_state & state, nvme_device * nvmedev,
   uint64_t newcnt = 0)
@@ -2873,17 +2921,21 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
 
   CloseDevice(nvmedev, name);
 
-  if (!state_path_prefix.empty()) {
+  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty()) {
     // Build file name for state file
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
     nsstr[0] = 0;
     if (nsid != nvme_broadcast_nsid)
       snprintf(nsstr, sizeof(nsstr), "-n%u", nsid);
-    cfg.state_file = strprintf("%s%s-%s%s.nvme.state", state_path_prefix.c_str(), model, serial, nsstr);
-    // Read previous state
-    if (read_dev_state(cfg.state_file.c_str(), state))
-      PrintOut(LOG_INFO, "Device: %s, state read from %s\n", name, cfg.state_file.c_str());
+    if (!state_path_prefix.empty()) {
+      cfg.state_file = strprintf("%s%s-%s%s.nvme.state", state_path_prefix.c_str(), model, serial, nsstr);
+      // Read previous state
+      if (read_dev_state(cfg.state_file.c_str(), state))
+        PrintOut(LOG_INFO, "Device: %s, state read from %s\n", name, cfg.state_file.c_str());
+    }
+    if (!attrlog_path_prefix.empty())
+      cfg.attrlog_file = strprintf("%s%s-%s%s.nvme.csv", attrlog_path_prefix.c_str(), model, serial, nsstr);
   }
 
   finish_device_scan(cfg, state);
@@ -3766,7 +3818,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       // Save the new values for the next time around
       state.smartval = curval;
       state.update_persistent_state();
-      state.attrlog_dirty = true;
+      state.attrlog_valid = 1; // ATA attributes valid
     }
   }
   state.offline_started = state.selftest_started = false;
@@ -3903,7 +3955,7 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
       state.temperature = currenttemp;
   }
   CloseDevice(scsidev, name);
-  state.attrlog_dirty = true;
+  state.attrlog_valid = 2; // SCSI attributes valid
   return 0;
 }
 
@@ -4056,7 +4108,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
 
   // Read SMART/Health log
   // TODO: Support per namespace SMART/Health log
-  nvme_smart_log smart_log;
+  nvme_smart_log & smart_log = state.nvme_smartval;
   if (!nvme_read_smart_log(nvmedev, nvme_broadcast_nsid, smart_log)) {
       CloseDevice(nvmedev, name);
       PrintOut(LOG_INFO, "Device: %s, failed to read NVMe SMART/Health Information\n", name);
@@ -4149,7 +4201,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
     start_nvme_self_test(cfg, state, nvmedev, testtype, self_test_log);
 
   CloseDevice(nvmedev, name);
-  state.attrlog_dirty = true;
+  state.attrlog_valid = 3; // NVMe attributes valid
   return 0;
 }
 

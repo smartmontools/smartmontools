@@ -1,4 +1,10 @@
-$Id: ChangeLog 5683 2025-04-14 12:45:37Z chrfranke $
+$Id: ChangeLog 5685 2025-04-15 16:49:32Z chrfranke $
+
+2025-04-15  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add NVMe attribute logs.
+
+	(#1190, GH pull/221, GH pull/281)
 
 2025-04-14  Christian Franke  <franke@computer.org>
 
