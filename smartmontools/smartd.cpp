@@ -90,7 +90,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5686 2025-04-19 16:25:13Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5687 2025-04-19 16:34:20Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -502,6 +502,10 @@ struct persistent_dev_state
 
   // NVMe only
   uint64_t nvme_err_log_entries{};
+
+  // NVMe SMART/Health information: only the fields avail_spare,
+  // percent_used and media_errors are persistent.
+  nvme_smart_log nvme_smartval{};
 };
 
 /// Non-persistent state data for a device.
@@ -553,8 +557,6 @@ struct temp_dev_state
   // NVMe only
   uint8_t selftest_op{};                  // last self-test operation
   uint8_t selftest_compl{};               // last self-test completion
-
-  nvme_smart_log nvme_smartval{};         // NVMe SMART/Health information for attrlog
 };
 
 /// Runtime state data for a device.
@@ -619,6 +621,21 @@ void dev_state::update_temp_state()
   }
 }
 
+// Convert 128 bit LE integer to uint64_t or its max value on overflow.
+static uint64_t le128_to_uint64(const unsigned char (& val)[16])
+{
+  if (sg_get_unaligned_le64(val + 8))
+    return ~(uint64_t)0;
+  return sg_get_unaligned_le64(val);
+}
+
+// Convert uint64_t to 128 bit LE integer
+static void uint64_to_le128(unsigned char (& destval)[16], uint64_t srcval)
+{
+  sg_put_unaligned_le64(0, destval + 8);
+  sg_put_unaligned_le64(srcval, destval);
+}
+
 // Parse a line from a state file.
 static bool parse_dev_state_line(const char * line, persistent_dev_state & state)
 {
@@ -647,11 +664,14 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
        ")" // 18)
       ")" // 16)
      "|(nvme-err-log-entries)" // (24)
+     "|(nvme-available-spare)" // (25)
+     "|(nvme-percentage-used)" // (26)
+     "|(nvme-media-errors)" // (27)
      ")" // 1)
-     " *= *([0-9]+)[ \n]*$" // (25)
+     " *= *([0-9]+)[ \n]*$" // (28)
   );
 
-  const int nmatch = 1+25;
+  constexpr int nmatch = 1+28;
   regular_expression::match_range match[nmatch];
   if (!regex.execute(line, nmatch, match))
     return false;
@@ -709,8 +729,14 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
     else
       return false;
   }
-  else if (match[m+7].rm_so >= 0)
+  else if (match[m+=7].rm_so >= 0)
     state.nvme_err_log_entries = val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_smartval.avail_spare = val;
+  else if (match[++m].rm_so >= 0)
+    state.nvme_smartval.percent_used = val;
+  else if (match[++m].rm_so >= 0)
+    uint64_to_le128(state.nvme_smartval.media_errors, val);
   else
     return false;
   return true;
@@ -817,6 +843,9 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
 
   // NVMe only
   write_dev_state_line(f, "nvme-err-log-entries", state.nvme_err_log_entries);
+  write_dev_state_line(f, "nvme-available-spare", state.nvme_smartval.avail_spare);
+  write_dev_state_line(f, "nvme-percentage-used", state.nvme_smartval.percent_used);
+  write_dev_state_line(f, "nvme-media-errors", le128_to_uint64(state.nvme_smartval.media_errors));
 
   return true;
 }
@@ -858,14 +887,6 @@ static void write_scsi_attrlog(FILE * f, const dev_state & state)
   // write SCSI current temperature if it is monitored
   if (state.temperature)
     fprintf(f, "\ttemperature;%d;", state.temperature);
-}
-
-// Convert 128 bit LE integer to uint64_t or its max value on overflow.
-static uint64_t le128_to_uint64(const unsigned char (& val)[16])
-{
-  if (sg_get_unaligned_le64(val + 8))
-    return ~(uint64_t)0;
-  return sg_get_unaligned_le64(val);
 }
 
 static void write_nvme_attrlog(FILE * f, const dev_state & state)
@@ -2854,7 +2875,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
 
   // Read SMART/Health log
   // TODO: Support per namespace SMART/Health log
-  nvme_smart_log smart_log;
+  nvme_smart_log & smart_log = state.nvme_smartval;
   if (!nvme_read_smart_log(nvmedev, nvme_broadcast_nsid, smart_log)) {
     PrintOut(LOG_INFO, "Device: %s, failed to read NVMe SMART/Health Information\n", name);
     CloseDevice(nvmedev, name);
@@ -2902,9 +2923,10 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   }
 
   // If no supported tests selected, return
-  if (!(   cfg.smartcheck || cfg.errorlog || cfg.xerrorlog
+  if (!(   cfg.smartcheck || cfg.prefail
+        || cfg.errorlog   || cfg.xerrorlog
         || cfg.selftest   || cfg.selfteststs || !cfg.test_regex.empty()
-        || cfg.tempdiff   || cfg.tempinfo || cfg.tempcrit )            ) {
+        || cfg.tempdiff   || cfg.tempinfo || cfg.tempcrit              )) {
     CloseDevice(nvmedev, name);
     return 3;
   }
@@ -3959,6 +3981,25 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
   return 0;
 }
 
+// Log changes of a NVMe SMART/Health value
+static void log_nvme_smart_change(const dev_config & cfg, dev_state & state,
+  const char * valname, uint64_t oldval, uint64_t newval, bool critical)
+{
+  if (newval == oldval)
+    return;
+
+  std::string msg = strprintf("Device: %s, SMART/Health value: %s changed "
+                              "from %" PRIu64 " to %" PRIu64,
+                              cfg.name.c_str(), valname, oldval, newval);
+  if (!critical)
+    PrintOut(LOG_INFO, "%s\n", msg.c_str());
+  else {
+    PrintOut(LOG_CRIT, "%s\n", msg.c_str());
+    MailWarning(cfg, state, 2, "%s", msg.c_str());
+  }
+  state.must_write = true;
+}
+
 // Log NVMe self-test execution status changes
 static void log_nvme_self_test_exec_status(const char * name, dev_state & state, bool firstpass,
                                            const nvme_self_test_log & self_test_log)
@@ -4108,7 +4149,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
 
   // Read SMART/Health log
   // TODO: Support per namespace SMART/Health log
-  nvme_smart_log & smart_log = state.nvme_smartval;
+  nvme_smart_log smart_log;
   if (!nvme_read_smart_log(nvmedev, nvme_broadcast_nsid, smart_log)) {
       CloseDevice(nvmedev, name);
       PrintOut(LOG_INFO, "Device: %s, failed to read NVMe SMART/Health Information\n", name);
@@ -4141,6 +4182,24 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
     PrintOut(LOG_CRIT, "Device: %s, Critical Warning (0x%02x): %s\n", name, w, msg.c_str());
     MailWarning(cfg, state, 1, "Device: %s, Critical Warning (0x%02x): %s", name, w, msg.c_str());
     state.must_write = true;
+  }
+
+  // Check SMART/Health pre-failure values
+  if (cfg.prefail) {
+    // Names similar to smartctl plaintext output
+    log_nvme_smart_change(cfg, state, "Available Spare",
+      state.nvme_smartval.avail_spare, smart_log.avail_spare,
+      (   smart_log.avail_spare < smart_log.spare_thresh
+       && smart_log.spare_thresh <= 100 /* 101-255: "reserved" */));
+
+    log_nvme_smart_change(cfg, state, "Percentage Used",
+      state.nvme_smartval.percent_used, smart_log.percent_used,
+      (smart_log.percent_used > 95));
+
+    uint64_t old_me = le128_to_uint64(state.nvme_smartval.media_errors);
+    uint64_t new_me = le128_to_uint64(smart_log.media_errors);
+    log_nvme_smart_change(cfg, state, "Media and Data Integrity Errors",
+      old_me, new_me, (new_me > old_me));
   }
 
   // Check temperature limits
@@ -4201,6 +4260,9 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
     start_nvme_self_test(cfg, state, nvmedev, testtype, self_test_log);
 
   CloseDevice(nvmedev, name);
+
+  // Preserve new SMART/Health info for state file and attribute log
+  state.nvme_smartval = smart_log;
   state.attrlog_valid = 3; // NVMe attributes valid
   return 0;
 }

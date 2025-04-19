@@ -1,6 +1,12 @@
-$Id: ChangeLog 5686 2025-04-19 16:25:13Z chrfranke $
+$Id: ChangeLog 5687 2025-04-19 16:34:20Z chrfranke $
 
 2025-04-19  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Report changes of prefailure NVMe SMART/Health values.
+
+	If '-p' directive is enabled (default), changes of 'Available Spare'
+	(#1716), 'Percentage Used' and 'Media and Data Integrity Errors' are
+	logged as LOG_INFO or LOG_CRIT.
 
 	smartd.cpp: Fix format string of NVMe attribute log.
 
