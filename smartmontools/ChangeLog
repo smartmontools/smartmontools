@@ -1,4 +1,8 @@
-$Id: ChangeLog 5685 2025-04-15 16:49:32Z chrfranke $
+$Id: ChangeLog 5686 2025-04-19 16:25:13Z chrfranke $
+
+2025-04-19  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Fix format string of NVMe attribute log.
 
 2025-04-15  Christian Franke  <franke@computer.org>
 
