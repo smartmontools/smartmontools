@@ -873,11 +873,11 @@ static void write_nvme_attrlog(FILE * f, const dev_state & state)
   const nvme_smart_log & s = state.nvme_smartval;
   // Names similar to smartctl JSON output with '-' instead of '_'
   fprintf(f,
-    "\tcritical-warning;%u;"
-    "\ttemperature;%u;"
-    "\tavailable-spare;%u;"
-    "\tavailable-spare-threshold;%u;"
-    "\tpercent-used;%u;"
+    "\tcritical-warning;%d;"
+    "\ttemperature;%d;"
+    "\tavailable-spare;%d;"
+    "\tavailable-spare-threshold;%d;"
+    "\tpercentage-used;%d;"
     "\tdata-units-read;%" PRIu64 ";"
     "\tdata-units-written;%" PRIu64 ";"
     "\thost-reads;%" PRIu64 ";"

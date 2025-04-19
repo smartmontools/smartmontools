@@ -1,5 +1,9 @@
 $Id$
 
+2025-04-19  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Fix format string of NVMe attribute log.
+
 2025-04-15  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Add NVMe attribute logs.
