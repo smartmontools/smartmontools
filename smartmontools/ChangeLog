@@ -1,6 +1,8 @@
-$Id: ChangeLog 5689 2025-04-21 14:16:01Z chrfranke $
+$Id: ChangeLog 5690 2025-04-21 14:29:13Z chrfranke $
 
 2025-04-21  Christian Franke  <franke@computer.org>
+
+	smartd.8.in: Rework '-A' and '-s' and add NVMe info.
 
 	smartd.conf.5.in: Rework '-H -f -p -u -t -a' and add NVMe info.
 
