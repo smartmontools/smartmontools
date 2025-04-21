@@ -2,6 +2,8 @@ $Id$
 
 2025-04-21  Christian Franke  <franke@computer.org>
 
+	man pages: Enable NVMe related information for all platforms.
+
 	smartd.conf.5.in: Remove outdated information about old controllers.
 
 	smartd.8.in: Rework '-A' and '-s' and add NVMe info.

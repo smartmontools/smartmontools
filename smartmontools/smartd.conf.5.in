@@ -364,7 +364,6 @@ from issuing SCSI commands to an ATA device.
 from issuing ATA commands to a SCSI device.
 .Sp
 .\" %ENDIF NOT OS Darwin
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvme[,NSID]
 \- the device type is NVM Express (NVMe).
 The optional parameter NSID specifies the namespace id (in hex) passed
@@ -372,7 +371,6 @@ to the driver.
 Use 0xffffffff for the broadcast namespace id.
 The default for NSID is the namespace id addressed by the device name.
 .Sp
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .\" %IF NOT OS Darwin
 .I sat[,auto][,N]
 \- the device type is SCSI to ATA Translation (SAT).
@@ -708,13 +706,11 @@ Qualifier (ASCQ) from Informal Exceptions (IE) log page (if supported)
 and/or from SCSI sense data.
 Note: for historical reasons, this check is always done for SCSI devices,
 regardless of the \*(Aq-H\*(Aq directive.
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 [NVMe] Checks the "Critical Warning" byte from the SMART/Health
 Information log.
 If any warning bit is set, a message at loglevel LOG_CRIT will be logged to
 syslog.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-l TYPE
 Reports increases in the number of errors in one of three SMART logs.  The
@@ -724,7 +720,6 @@ valid arguments to this Directive are:
 \- [ATA] report if the number of ATA errors reported in the Summary SMART
 error log has increased since the last check.
 .Sp
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I error
 \- [NVMe] report if the "Number of Error Information Log Entries" from the
 SMART/Health Information log has increased since the last check.
@@ -743,7 +738,6 @@ message is generated instead.
 This avoids misleading warnings if the operating system issues unsupported
 commands and the device firmware also logs these kind of errors.
 .Sp
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I xerror
 \- [ATA] report if the number of ATA errors reported in the Extended
 Comprehensive SMART error log has increased since the last check.
@@ -753,10 +747,8 @@ checks the maximum of both values.
 .Sp
 [Please see the \fBsmartctl \-l xerror\fP command-line option.]
 .Sp
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I xerror
 \- [NVMe] same as \*(Aq\-l error\*(Aq.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I selftest
 \- [ATA] [SCSI] [NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
@@ -1595,7 +1587,6 @@ To combine all of the above reports, use:
 default.
 This can be changed to Attribute 9 or 220 by the drive database or by
 the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 [NVMe] smartd checks the Composite Temperature value reported by the
 SMART/HealthInformation log.
@@ -1603,7 +1594,6 @@ SMART/HealthInformation log.
 [NEW EXPERIMENTAL SMARTD 7.5 FIX]
 The individual Temperature Sensor values are no longer checked because
 some devices use these to report other values like maximum temperature.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-F TYPE
 [ATA only] Modifies the behavior of \fBsmartd\fP to compensate for some

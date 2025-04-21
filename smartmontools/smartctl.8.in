@@ -233,11 +233,9 @@ in the smartmontools database (see \*(Aq\-v\*(Aq options below).  If so, the
 drive model family may also be printed.
 If \*(Aq\-n\*(Aq (see below) is specified, the power mode of the drive is
 printed.
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 [NVMe] For NVMe devices the information is obtained from the Identify
 Controller and the Identify Namespace data structure.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .TP
 .B \-\-identify[=[w][nvb]]
 [ATA only] Prints an annotated table of the IDENTIFY DEVICE data.
@@ -266,12 +264,10 @@ the SMART options which require support for 48-bit ATA commands
 For SCSI, this is equivalent to
 .br
 \*(Aq\-H \-i \-A \-l error \-l selftest\*(Aq.
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 For NVMe, this is equivalent to
 .br
 \*(Aq\-H \-i \-c \-A \-l error \-l selftest\*(Aq.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .TP
 .B \-x, \-\-xall
 Prints all SMART and non-SMART information about the device.
@@ -294,12 +290,10 @@ For SCSI disks, this is equivalent to
 \-l defects \-l envrep \-l genstats \-l ssd \-l zdevstat\*(Aq
 .br
 and for SCSI tape drives and changers, add \*(Aq\-l tapedevstat\*(Aq.
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 For NVMe, this is equivalent to
 .br
 \*(Aq\-H \-i \-c \-A \-l error \-l selftest\*(Aq.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .TP
 .B \-\-scan
 Scans for devices and prints each device name, device type and protocol
@@ -432,7 +426,6 @@ from issuing SCSI commands to an ATA device.
 from issuing ATA commands to a SCSI device.
 .Sp
 .\" %ENDIF NOT OS Darwin
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvme[,NSID]
 \- the device type is NVM Express (NVMe).
 The optional parameter NSID specifies the namespace id (in hex) passed
@@ -440,7 +433,6 @@ to the driver.
 Use 0xffffffff for the broadcast namespace id.
 The default for NSID is the namespace id addressed by the device name.
 .Sp
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .\" %IF NOT OS Darwin
 .I sat[,auto][,N]
 \- the device type is SCSI to ATA Translation (SAT).
@@ -878,11 +870,9 @@ Invoking this once shows the SCSI commands in hex and the corresponding status.
 Invoking it a second time adds a hex listing of the first 64 bytes of data
 send to, or received from the device.
 .Sp
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvmeioctl
 \- report only ioctl() transactions with NVMe devices.
 .Sp
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 Any argument may include a positive integer to specify the level of detail
 that should be reported.  The argument should be followed by a comma then
 the integer with no spaces.  For example,
@@ -1201,11 +1191,9 @@ Prefailure SMART Attribute value is less than or equal to its threshold
 [SCSI tape drive or changer] The TapeAlert status is obtained by reading the
 TapeAlert log page, but only if this option is given twice (see
 \fBTAPE DRIVES\fP for the rationale).
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 [NVMe] NVMe status is obtained by reading the "Critical Warning" byte from
 the SMART/Health Information log.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .TP
 .B \-c, \-\-capabilities
 [ATA] Prints only the generic SMART capabilities.  These
@@ -1214,11 +1202,9 @@ respond to some of the different SMART commands.  For example it
 shows if the device logs errors, if it supports offline surface
 scanning, and so on.  If the device can carry out self-tests, this
 option also shows the estimated time required to run those tests.
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 [NVMe] Prints various NVMe device capabilities obtained from the Identify
 Controller and the Identify Namespace data structure.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .TP
 .B \-A, \-\-attributes
 [ATA] Prints only the vendor specific SMART Attributes.  The Attributes
@@ -1315,7 +1301,6 @@ and start-stop cycle counter log pages.
 Certain vendor specific attributes are listed if recognised.
 The attributes are output in a relatively free format (compared with ATA
 disk attributes).
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 [NVMe] For NVMe devices the attributes are obtained from the SMART/Health
 Information log.
@@ -1324,7 +1309,6 @@ Information log.
 If the device indicates support for SMART/Health Information per namespace,
 the id of the namespace addressed by the device name is used, otherwise
 the id of the broadcast namespace.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .TP
 .B \-f FORMAT, \-\-format=FORMAT
 [ATA only] Selects the output format of the attributes:
@@ -1429,7 +1413,6 @@ receives a command which is not implemented or is not valid.
 \- [SCSI] prints the error counter log pages for reads, write and verifies.
 The verify row is only output if it has an element other than zero.
 .Sp
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .I error[,NUM]
 \- [NVMe] prints the NVMe Error Information log.
 Only the 16 most recent log entries are printed by default.
@@ -1441,7 +1424,6 @@ Note that the contents of this log is not preserved across power cycles or
 controller resets, but the value of \*(AqError Information Log Entries\*(Aq
 from SMART/Health Information log is.
 .Sp
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .I xerror[,NUM][,error]
 \- [ATA only] prints the Extended Comprehensive SMART error log
 (General Purpose Log address 0x03).  Unlike the Summary SMART error
@@ -1494,7 +1476,6 @@ If provided, the SCSI Sense Key (SK), Additional Sense Code (ASC) and
 Additional Sense Code Qualifier (ASCQ) are also printed.  The self tests
 can be run using the \*(Aq\-t\*(Aq option described below (using the ATA
 test terminology).
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 .I selftest
 \- [NVMe: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
@@ -1503,7 +1484,6 @@ prints the NVMe self-test log.
 [NEW EXPERIMENTAL SMARTCTL 7.5 FIX]
 This always uses the broadcast namespace.
 Self-test results from individual namespaces appear in this single log.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 .I xselftest[,NUM][,selftest]
 \- [ATA only] prints the Extended SMART self-test log (General Purpose
@@ -1688,7 +1668,6 @@ This command:
 writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
 .Sp
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .I nvmelog,PAGE,SIZE
 \- [NVMe only] prints a hex dump of the first SIZE bytes from the NVMe
 log with identifier PAGE.
@@ -1697,7 +1676,6 @@ SIZE is a hexadecimal number in the range from 0x4 to 0x4000 (16 KiB).
 \fBWARNING: Do not specify the identifier of an unknown log page.
 Reading a log page may have undesirable side effects.\fP
 .Sp
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .I ssd
 \- [ATA] prints the Solid State Device Statistics log page.
 This has the same effect as \*(Aq\-l devstat,7\*(Aq, see above.
@@ -2155,12 +2133,10 @@ with other disks use the \*(Aq\-c\*(Aq option to monitor progress.
 .Sp
 .I short
 \- [SCSI] runs the "Background short" self-test.
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 .I short
 \- [NVMe: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
 runs the "Short" self-test for current namespace.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 .I long
 \- [ATA] runs SMART Extended Self Test (tens of minutes to several hours).
@@ -2171,12 +2147,10 @@ below).
 .Sp
 .I long
 \- [SCSI] runs the "Background long" self-test.
-.\" %IF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 .I long
 \- [NVMe: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
 runs the "Extended" self-test for current namespace.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD OpenBSD Windows Cygwin
 .Sp
 .I conveyance
 \- [ATA only] runs a SMART Conveyance Self Test (minutes).  This
