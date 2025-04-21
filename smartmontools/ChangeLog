@@ -2,6 +2,8 @@ $Id$
 
 2025-04-21  Christian Franke  <franke@computer.org>
 
+	smartd.conf.5.in: Rework '-H -f -p -u -t -a' and add NVMe info.
+
 	smartd.cpp: Handle only 'Available Spare' as prefailure value.
 
 	Enable logging of 'Percentage Used' and 'Media and Data Integrity
