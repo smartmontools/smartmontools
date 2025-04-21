@@ -1,5 +1,12 @@
 $Id$
 
+2025-04-21  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Handle only 'Available Spare' as prefailure value.
+
+	Enable logging of 'Percentage Used' and 'Media and Data Integrity
+	Errors' with '-u' instead of '-p'.  Enable LOG_CRIT with '-f'.
+
 2025-04-19  Christian Franke  <franke@computer.org>
 
 	smartd.cpp: Report changes of prefailure NVMe SMART/Health values.

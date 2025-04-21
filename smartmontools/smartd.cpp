@@ -2924,6 +2924,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
 
   // If no supported tests selected, return
   if (!(   cfg.smartcheck || cfg.prefail
+        || cfg.usage      || cfg.usagefailed
         || cfg.errorlog   || cfg.xerrorlog
         || cfg.selftest   || cfg.selfteststs || !cfg.test_regex.empty()
         || cfg.tempdiff   || cfg.tempinfo || cfg.tempcrit              )) {
@@ -3983,9 +3984,10 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
 
 // Log changes of a NVMe SMART/Health value
 static void log_nvme_smart_change(const dev_config & cfg, dev_state & state,
-  const char * valname, uint64_t oldval, uint64_t newval, bool critical)
+  const char * valname, uint64_t oldval, uint64_t newval,
+  bool critical, bool info = true)
 {
-  if (newval == oldval)
+  if (!(newval != oldval && (critical || info)))
     return;
 
   std::string msg = strprintf("Device: %s, SMART/Health value: %s changed "
@@ -4184,22 +4186,24 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
     state.must_write = true;
   }
 
-  // Check SMART/Health pre-failure values
+  // Check some SMART/Health values
+  // Names similar to smartctl plaintext output
   if (cfg.prefail) {
-    // Names similar to smartctl plaintext output
     log_nvme_smart_change(cfg, state, "Available Spare",
       state.nvme_smartval.avail_spare, smart_log.avail_spare,
       (   smart_log.avail_spare < smart_log.spare_thresh
        && smart_log.spare_thresh <= 100 /* 101-255: "reserved" */));
+  }
 
+  if (cfg.usage || cfg.usagefailed) {
     log_nvme_smart_change(cfg, state, "Percentage Used",
       state.nvme_smartval.percent_used, smart_log.percent_used,
-      (smart_log.percent_used > 95));
+      (cfg.usagefailed && smart_log.percent_used > 95), cfg.usage);
 
     uint64_t old_me = le128_to_uint64(state.nvme_smartval.media_errors);
     uint64_t new_me = le128_to_uint64(smart_log.media_errors);
     log_nvme_smart_change(cfg, state, "Media and Data Integrity Errors",
-      old_me, new_me, (new_me > old_me));
+      old_me, new_me, (cfg.usagefailed && new_me > old_me), cfg.usage);
   }
 
   // Check temperature limits
