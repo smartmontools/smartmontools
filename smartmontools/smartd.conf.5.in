@@ -4,7 +4,7 @@ Copyright (C) 2004-25 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5677 2025-03-20 17:22:18Z chrfranke $
+$Id: smartd.conf.5.in 5689 2025-04-21 14:16:01Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -725,20 +725,25 @@ Directive are \fIon\fP and \fIoff\fP.  Also affects SCSI devices.
 [Please see the \fBsmartctl \-S\fP command-line option.]
 .TP
 .B \-H
-[ATA] Check the health status of the disk with the SMART RETURN
-STATUS command.
-If this command reports a failing health status, then disk
-failure is predicted in less than 24 hours, and a message at loglevel
-.B \*(AqLOG_CRIT\*(Aq
-will be logged to syslog.  [Please see the
-.B smartctl \-H
-command-line option.]
+Check the health status of the disk.
+If the disk reports a failing health status, a message at loglevel LOG_CRIT
+will be logged to syslog.
+[Please see the \fBsmartctl \-H\fP command-line option.]
+.Sp
+[ATA] Checks the (boolean) result returned by the SMART RETURN STATUS
+command.
+.Sp
+[SCSI] Checks the Additional Sense Code (ASC) and Additional Sense Code
+Qualifier (ASCQ) from Informal Exceptions (IE) log page (if supported)
+and/or from SCSI sense data.
+Note: for historical reasons, this check is always done for SCSI devices,
+regardless of the \*(Aq-H\*(Aq directive.
 .\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 [NVMe] Checks the "Critical Warning" byte from the SMART/Health
 Information log.
-If any warning bit is set, a message at loglevel \fB\*(AqLOG_CRIT\*(Aq\fP
-will be logged to syslog.
+If any warning bit is set, a message at loglevel LOG_CRIT will be logged to
+syslog.
 .\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .TP
 .B \-l TYPE
@@ -1425,29 +1430,37 @@ SMARTD_SUBJECT and SMARTD_FULLMESSAGE
 are set by the script before running the executable.
 .TP
 .B \-f
-[ATA only] Check for \*(Aqfailure\*(Aq of any Usage Attributes.  If these
+[ATA] Check for \*(Aqfailure\*(Aq of any Usage Attributes.  If these
 Attributes are less than or equal to the threshold, it does NOT indicate
 imminent disk failure.  It "indicates an advisory condition where the usage
 or age of the device has exceeded its intended design life period."
 [Please see the \fBsmartctl \-A\fP command-line option.]
+.Sp
+[NVMe] Log a message with LOG_CRIT level and send a warning email if the
+SMART/Health value "Percentage Used" has changed and exceeds 95 percent
+or "Media and Data Integrity Errors" has increased.
 .TP
 .B \-p
-[ATA only] Report anytime that a Prefail Attribute has changed
-its value since the last check.  [Please see the
-.B smartctl \-A
-command-line option.]
+[ATA] Report anytime that a Prefail Attribute has changed its value since the
+last check.
+[Please see the \fBsmartctl \-A\fP command-line option.]
+.Sp
+[NVMe] Report anytime that the SMART/Health value "Available Spare" has
+changed its value since the last check.
+This will be logged with LOG_CRIT level and a warning email will be sent if
+the value is below "Available Spare Threshold".
 .TP
 .B \-u
-[ATA only] Report anytime that a Usage Attribute has changed its value
-since the last check.  [Please see the
-.B smartctl \-A
-command-line option.]
+[ATA] Report anytime that a Usage Attribute has changed its value since the
+last check.
+[Please see the \fBsmartctl \-A\fP command-line option.]
+.Sp
+[NVMe] Report anytime that the SMART/Health value "Percentage Used" or "Media
+and Data Integrity Errors" has changed its value since the last check.
 .TP
 .B \-t
-[ATA only] Equivalent to turning on the two previous flags \*(Aq\-p\*(Aq
-and \*(Aq\-u\*(Aq.
-Tracks changes in \fIall\fP device Attributes (both Prefailure and
-Usage).  [Please see the \fBsmartctl\fP \-A command-line option.]
+Equivalent to turning on the two previous flags \*(Aq\-p\*(Aq and
+\*(Aq\-u\*(Aq.
 .TP
 .B \-i ID
 [ATA only] Ignore device Attribute number \fBID\fP when checking for failure
@@ -1574,10 +1587,11 @@ Report if the current temperature had changed by at least \fBDIFF\fP
 degrees since last report, or if new min or max temperature is detected.
 Report or Warn if the temperature is greater or equal than one of
 \fBINFO\fP or \fBCRIT\fP degrees Celsius.
-If the limit \fBCRIT\fP is reached, a message with loglevel
-\fB\*(AqLOG_CRIT\*(Aq\fP will be logged to syslog and a warning email
-will be send if \*(Aq\-m\*(Aq is specified.  If only the limit \fBINFO\fP is
-reached, a message with loglevel \fB\*(AqLOG_INFO\*(Aq\fP will be logged.
+If the limit \fBCRIT\fP is reached, a message with loglevel LOG_CRIT will be
+logged to syslog and a warning email will be send if \*(Aq\-m\*(Aq is
+specified.
+If only the limit \fBINFO\fP is reached, a message with loglevel LOG_INFO
+will be logged.
 .Sp
 The warning email counter is reset if the temperature dropped below
 \fBINFO\fP or \fBCRIT\fP-5 if \fBINFO\fP is not specified.
@@ -1703,25 +1717,13 @@ command-line option.]
 .TP
 .B \-a
 Equivalent to turning on all of the following Directives:
-.B \*(Aq\-H\*(Aq
-to check the SMART health status,
-.B \*(Aq\-f\*(Aq
-to report failures of Usage (rather than Prefail) Attributes,
-.B \*(Aq\-t\*(Aq
-to track changes in both Prefailure and Usage Attributes,
-.B \*(Aq\-l\ error\*(Aq
-to report increases in the number of ATA errors,
-.B \*(Aq\-l\ selftest\*(Aq
-to report increases in the number of Self-Test Log errors,
-.B \*(Aq\-l\ selfteststs\*(Aq
-to report changes of Self-Test execution status,
-.B \*(Aq\-C 197\*(Aq
-to report nonzero values of the current pending sector count, and
-.B \*(Aq\-U 198\*(Aq
-to report nonzero values of the offline pending sector count.
+.br
+\*(Aq\-H \-f \-t \-l error \-l selftest \-l selfteststs\*(Aq
+.br
+If none of the above is given, then \*(Aq\-a\*(Aq is assumed.
 .Sp
-Note that \-a is the default for ATA devices.  If none of these other
-Directives is given, then \-a is assumed.
+[ATA only] Note: for historical reasons, \*(Aq-C 197 -U 198\*(Aq are also set
+by default.
 .TP
 .B \-c OPTION=VALUE
 Allows one to override \fBsmartd\fP command line options for specific devices.
@@ -1829,4 +1831,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5677 2025-03-20 17:22:18Z chrfranke $
+$Id: smartd.conf.5.in 5689 2025-04-21 14:16:01Z chrfranke $
