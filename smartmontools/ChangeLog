@@ -1,4 +1,11 @@
-$Id: ChangeLog 5687 2025-04-19 16:34:20Z chrfranke $
+$Id: ChangeLog 5688 2025-04-21 14:10:05Z chrfranke $
+
+2025-04-21  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Handle only 'Available Spare' as prefailure value.
+
+	Enable logging of 'Percentage Used' and 'Media and Data Integrity
+	Errors' with '-u' instead of '-p'.  Enable LOG_CRIT with '-f'.
 
 2025-04-19  Christian Franke  <franke@computer.org>
 
