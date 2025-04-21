@@ -339,38 +339,8 @@ configuration file.  Note that
 The Directives below may appear in any order, following the device
 name.
 .PP
-.B For an ATA device,
-if no Directives appear, then the device will be monitored
-as if the \*(Aq\-a\*(Aq Directive (monitor all SMART properties) had been given.
-.PP
-.B If a SCSI disk is listed,
-it will be monitored at the maximum implemented level: roughly
-equivalent to using the \*(Aq\-H \-l selftest\*(Aq options for an ATA disk.
-So with the exception of \*(Aq\-d\*(Aq, \*(Aq\-m\*(Aq, \*(Aq\-l selftest\*(Aq,
-\*(Aq\-s\*(Aq, and \*(Aq\-M\*(Aq, the Directives below are ignored for SCSI disks.
-For SCSI disks, the \*(Aq\-m\*(Aq Directive sends a warning email if the SMART
-status indicates a disk failure or problem, if the SCSI inquiry about disk
-status fails, or if new errors appear in the self-test log.
-.\" %IF OS FreeBSD Linux
-.PP
-.B If a 3ware controller is used
-then the corresponding SCSI (/dev/sd?) or character device (/dev/twe?,
-/dev/twa?, /dev/twl? or /dev/tws?) must be listed, along with the
-\*(Aq\-d 3ware,N\*(Aq Directive (see below).
-The individual ATA disks hosted by the 3ware controller appear to \fBsmartd\fP
-as normal ATA devices.
-Hence all the ATA directives can be used for these disks (but see note below).
-.PP
-.B If an Areca controller is used
-then the corresponding device (SCSI /dev/sg? on Linux or /dev/arcmsr0 on
-FreeBSD) must be listed, along with the \*(Aq\-d areca,N\*(Aq Directive
-(see below).
-The individual SATA disks hosted by the Areca controller appear to \fBsmartd\fP
-as normal ATA devices.  Hence all the ATA directives can be used for
-these disks.  Areca firmware version 1.46 or later which supports
-smartmontools must be used; Please see the \fBsmartctl\fP(8) man page
-for further details.
-.\" %ENDIF OS FreeBSD Linux
+If no Directives appear, then the device will be monitored as if the \*(Aq\-a\*(Aq
+Directive had been given.
 .TP
 .B \-d TYPE
 Specifies the type of the device.
