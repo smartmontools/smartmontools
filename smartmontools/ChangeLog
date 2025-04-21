@@ -1,6 +1,8 @@
-$Id: ChangeLog 5690 2025-04-21 14:29:13Z chrfranke $
+$Id: ChangeLog 5691 2025-04-21 15:16:15Z chrfranke $
 
 2025-04-21  Christian Franke  <franke@computer.org>
+
+	smartd.conf.5.in: Remove outdated information about old controllers.
 
 	smartd.8.in: Rework '-A' and '-s' and add NVMe info.
 
