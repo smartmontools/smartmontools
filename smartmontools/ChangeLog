@@ -2,6 +2,8 @@ $Id$
 
 2025-04-21  Christian Franke  <franke@computer.org>
 
+	smartd.8.in: Rework '-A' and '-s' and add NVMe info.
+
 	smartd.conf.5.in: Rework '-H -f -p -u -t -a' and add NVMe info.
 
 	smartd.cpp: Handle only 'Available Spare' as prefailure value.
