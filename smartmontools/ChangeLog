@@ -1,6 +1,8 @@
-$Id: ChangeLog 5691 2025-04-21 15:16:15Z chrfranke $
+$Id: ChangeLog 5692 2025-04-21 15:21:15Z chrfranke $
 
 2025-04-21  Christian Franke  <franke@computer.org>
+
+	man pages: Enable NVMe related information for all platforms.
 
 	smartd.conf.5.in: Remove outdated information about old controllers.
 
