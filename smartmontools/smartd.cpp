@@ -4421,7 +4421,7 @@ static void ToggleDebugMode()
 }
 #endif
 
-time_t calc_next_wakeuptime(time_t wakeuptime, time_t timenow, int ct)
+static time_t calc_next_wakeuptime(time_t wakeuptime, time_t timenow, int ct)
 {
   if (timenow < wakeuptime)
     return wakeuptime;
