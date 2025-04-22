@@ -1,6 +1,8 @@
-$Id: ChangeLog 5696 2025-04-22 14:23:18Z chrfranke $
+$Id: ChangeLog 5697 2025-04-22 15:02:53Z chrfranke $
 
 2025-04-22  Christian Franke  <franke@computer.org>
+
+	smartd.conf.5.in: Document '-H MASK'.
 
 	smartd.cpp: Allow to configure checked NVMe Critical Warning bits.
 
