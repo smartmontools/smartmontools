@@ -1,6 +1,8 @@
-$Id: ChangeLog 5694 2025-04-22 12:06:13Z chrfranke $
+$Id: ChangeLog 5695 2025-04-22 12:15:15Z chrfranke $
 
 2025-04-22  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Fix validity check for SCSI attribute log (#1245).
 
 	smartd.cpp: Add missing 'static'.
 
