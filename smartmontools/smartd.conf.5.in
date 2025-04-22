@@ -4,7 +4,7 @@ Copyright (C) 2004-25 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5692 2025-04-21 15:21:15Z chrfranke $
+$Id: smartd.conf.5.in 5693 2025-04-22 12:00:11Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -1398,7 +1398,8 @@ imminent disk failure.  It "indicates an advisory condition where the usage
 or age of the device has exceeded its intended design life period."
 [Please see the \fBsmartctl \-A\fP command-line option.]
 .Sp
-[NVMe] Log a message with LOG_CRIT level and send a warning email if the
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+Log a message with LOG_CRIT level and send a warning email if the
 SMART/Health value "Percentage Used" has changed and exceeds 95 percent
 or "Media and Data Integrity Errors" has increased.
 .TP
@@ -1407,7 +1408,8 @@ or "Media and Data Integrity Errors" has increased.
 last check.
 [Please see the \fBsmartctl \-A\fP command-line option.]
 .Sp
-[NVMe] Report anytime that the SMART/Health value "Available Spare" has
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+Report anytime that the SMART/Health value "Available Spare" has
 changed its value since the last check.
 This will be logged with LOG_CRIT level and a warning email will be sent if
 the value is below "Available Spare Threshold".
@@ -1417,7 +1419,8 @@ the value is below "Available Spare Threshold".
 last check.
 [Please see the \fBsmartctl \-A\fP command-line option.]
 .Sp
-[NVMe] Report anytime that the SMART/Health value "Percentage Used" or "Media
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+Report anytime that the SMART/Health value "Percentage Used" or "Media
 and Data Integrity Errors" has changed its value since the last check.
 .TP
 .B \-t
@@ -1791,4 +1794,4 @@ full path of this file.
 .SH PACKAGE VERSION
 CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
 .br
-$Id: smartd.conf.5.in 5692 2025-04-21 15:21:15Z chrfranke $
+$Id: smartd.conf.5.in 5693 2025-04-22 12:00:11Z chrfranke $
