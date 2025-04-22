@@ -387,6 +387,7 @@ struct dev_config
   bool ignore{};                          // Ignore this entry
   bool id_is_unique{};                    // True if dev_idinfo is unique (includes S/N or WWN)
   bool smartcheck{};                      // Check SMART status
+  uint8_t smartcheck_nvme{};              // Check these bits from NVMe Critical Warning byte
   bool usagefailed{};                     // Check for failed Usage Attributes
   bool prefail{};                         // Track changes in Prefail Attributes
   bool usage{};                           // Track changes in Usage Attributes
@@ -1623,6 +1624,7 @@ static void Directives()
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
            "  -n MODE No check if: never, sleep[,N][,q], standby[,N][,q], idle[,N][,q]\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
+           "  -H MASK Monitor specific NVMe Critical Warning bits\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
            "  -l TYPE Monitor SMART log or self-test status:\n"
            "          error, selftest, xerror, offlinests[,ns], selfteststs[,ns]\n"
@@ -2923,11 +2925,11 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   }
 
   // If no supported tests selected, return
-  if (!(   cfg.smartcheck || cfg.prefail
-        || cfg.usage      || cfg.usagefailed
-        || cfg.errorlog   || cfg.xerrorlog
-        || cfg.selftest   || cfg.selfteststs || !cfg.test_regex.empty()
-        || cfg.tempdiff   || cfg.tempinfo || cfg.tempcrit              )) {
+  if (!(   cfg.smartcheck_nvme
+        || cfg.prefail  || cfg.usage || cfg.usagefailed
+        || cfg.errorlog || cfg.xerrorlog
+        || cfg.selftest || cfg.selfteststs || !cfg.test_regex.empty()
+        || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit              )) {
     CloseDevice(nvmedev, name);
     return 3;
   }
@@ -4175,24 +4177,28 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
   }
 
   // Check Critical Warning bits
-  if (cfg.smartcheck && smart_log.critical_warning) {
-    unsigned char w = smart_log.critical_warning;
+  uint8_t w = smart_log.critical_warning, wm = w & cfg.smartcheck_nvme;
+  if (wm) {
     std::string msg;
-    static const char * const wnames[] =
-      {"LowSpare", "Temperature", "Reliability", "R/O", "VolMemBackup"};
+    static const char * const wnames[8] = {
+      "LowSpare", "Temperature", "Reliability", "R/O",
+      "VolMemBackup", "PersistMem", "Bit_6", "Bit_7"
+    };
 
     for (unsigned b = 0, cnt = 0; b < 8 ; b++) {
-      if (!(w & (1 << b)))
+      uint8_t mask = 1 << b;
+      if (!(w & mask))
         continue;
       if (cnt)
         msg += ", ";
       if (++cnt > 3) {
         msg += "..."; break;
       }
-      if (b >= sizeof(wnames)/sizeof(wnames[0])) {
-        msg += "*Unknown*"; break;
-      }
+      if (!(wm & mask))
+         msg += '[';
       msg += wnames[b];
+      if (!(wm & mask))
+         msg += ']';
     }
 
     PrintOut(LOG_CRIT, "Device: %s, Critical Warning (0x%02x): %s\n", name, w, msg.c_str());
@@ -4664,7 +4670,7 @@ static const char * strtok_dequote(const char * delimiters)
 // This function returns 1 if it has correctly parsed one token (and
 // any arguments), else zero if no tokens remain.  It returns -1 if an
 // error was encountered.
-static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_types)
+static int ParseToken(char * & token, dev_config & cfg, smart_devtype_list & scan_types)
 {
   char sym;
   const char * name = cfg.name.c_str();
@@ -4673,6 +4679,13 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
   int badarg = 0;
   int missingarg = 0;
   const char *arg = 0;
+
+  // Get next token unless lookahead (from '-H') is available
+  if (!token) {
+    token = strtok(nullptr, delim);
+    if (!token)
+      return 0;
+  }
 
   // is the rest of the line a comment
   if (*token=='#')
@@ -4752,6 +4765,25 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
   case 'H':
     // check SMART status
     cfg.smartcheck = true;
+    cfg.smartcheck_nvme = 0xff;
+    // Lookahead for optional NVMe bitmask
+    {
+      char * next_token = strtok(nullptr, delim);
+      if (!next_token)
+        return 0;
+      if (*next_token == '-') {
+        // Continue with next directive
+        token = next_token;
+        return 1;
+      }
+      arg = next_token;
+      unsigned u = ~0; int nc = -1;
+      sscanf(arg, "0x%x%n", &u, &nc);
+      if (nc == (int)strlen(arg) && u <= 0xff)
+        cfg.smartcheck_nvme = (uint8_t)u;
+      else
+        badarg = 1;
+    }
     break;
   case 'f':
     // check for failure of usage attributes
@@ -4813,6 +4845,7 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
   case 'a':
     // monitor everything
     cfg.smartcheck = true;
+    cfg.smartcheck_nvme = 0xff;
     cfg.prefail = true;
     cfg.usagefailed = true;
     cfg.usage = true;
@@ -5148,6 +5181,8 @@ static int ParseToken(char * token, dev_config & cfg, smart_devtype_list & scan_
     return -1;
   }
 
+  // Continue with no lookahead
+  token = nullptr;
   return 1;
 }
 
@@ -5192,17 +5227,11 @@ static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & defaul
   cfg.lineno = lineno;
 
   // parse tokens one at a time from the file.
-  while (char * token = strtok(nullptr, delim)) {
-    int rc = ParseToken(token, cfg, scan_types);
+  int rc;
+  for (char * token = nullptr; (rc = ParseToken(token, cfg, scan_types)) != 0; ) {
     if (rc < 0)
       // error found on the line
       return -2;
-
-    if (rc == 0)
-      // No tokens left
-      break;
-
-    // PrintOut(LOG_INFO,"Parsed token %s\n",token);
   }
 
   // Check for multiple -d TYPE directives
@@ -5227,6 +5256,7 @@ static int ParseConfigLine(dev_config_vector & conf_entries, dev_config & defaul
              cfg.name.c_str(), cfg.lineno, configfile);
     
     cfg.smartcheck = true;
+    cfg.smartcheck_nvme = 0xff;
     cfg.usagefailed = true;
     cfg.prefail = true;
     cfg.usage = true;
