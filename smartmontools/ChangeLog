@@ -2,6 +2,8 @@ $Id$
 
 2025-04-22  Christian Franke  <franke@computer.org>
 
+	smartd.conf.5.in: Document '-H MASK'.
+
 	smartd.cpp: Allow to configure checked NVMe Critical Warning bits.
 
 	Add optional MASK parameter to '-H' directive to specify the bits
