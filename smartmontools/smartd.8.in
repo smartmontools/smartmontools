@@ -212,7 +212,7 @@ The remaining part is protocol-specific:
 .br
 [SCSI] Writes SCSI error counters and temperature as "name;value;".
 .br
-[NVMe][NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
 Writes NVMe SMART/Health information as "name;value;".
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
