@@ -1,6 +1,8 @@
-$Id: ChangeLog 5693 2025-04-22 12:00:11Z chrfranke $
+$Id: ChangeLog 5694 2025-04-22 12:06:13Z chrfranke $
 
 2025-04-22  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add missing 'static'.
 
 	smartd.8.in, smartd.conf.5.in: Update EXPERIMENTAL notes.
 

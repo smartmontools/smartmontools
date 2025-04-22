@@ -90,7 +90,7 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5688 2025-04-21 14:10:05Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5694 2025-04-22 12:06:13Z chrfranke $"
   CONFIG_H_CVSID;
 
 extern "C" {
@@ -4421,7 +4421,7 @@ static void ToggleDebugMode()
 }
 #endif
 
-time_t calc_next_wakeuptime(time_t wakeuptime, time_t timenow, int ct)
+static time_t calc_next_wakeuptime(time_t wakeuptime, time_t timenow, int ct)
 {
   if (timenow < wakeuptime)
     return wakeuptime;
