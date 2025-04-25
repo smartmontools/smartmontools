@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3 $Id: drivedb.h 5671 2025-03-17 11:47:17Z chrfranke $",
+  { "VERSION: 7.5 $Id: drivedb.h 5701 2025-04-25 16:06:23Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -6538,6 +6538,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x8561: 0x0107
     "",
     "-d sat"
+  },
+  { "USB: ; JMicron JMS581", // USB3.2->SATA+PCIe (NVMe)
+    "0x152d:0xb581",
+    "", // 0x4403: Unitek M.2 NVMe/SATA USB adapter
+    "",
+    "-d sntjmicron/sat"
   },
   // PNY
   { "USB: ; PNY",
