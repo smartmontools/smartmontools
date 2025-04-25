@@ -1,5 +1,9 @@
 $Id$
 
+2025-04-25  Christian Franke  <franke@computer.org>
+
+	Create new branch RELEASE_7_5_DRIVEDB.
+
 2025-04-22  Christian Franke  <franke@computer.org>
 
 	smartd.conf.5.in: Document '-H MASK'.
