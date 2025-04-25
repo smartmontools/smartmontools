@@ -2,6 +2,10 @@ $Id$
 
 2025-04-25  Christian Franke  <franke@computer.org>
 
+	drivedb.h:
+	- Bump branch VERSION to 7.5.
+	- JMicron JMS581 (0x152d:0xb581) (GH issues/275).
+
 	configure.ac: Use RELEASE_7_5_DRIVEDB for drivedb.h updates.
 
 	update-smart-drivedb.*: Use current gpg key also for 7.5 branch.
