@@ -1,6 +1,8 @@
-$Id: ChangeLog 5698 2025-04-25 12:56:30Z chrfranke $
+$Id: ChangeLog 5699 2025-04-25 14:45:35Z chrfranke $
 
 2025-04-25  Christian Franke  <franke@computer.org>
+
+	update-smart-drivedb.*: Use current gpg key also for 7.5 branch.
 
 	Create new branch RELEASE_7_5_DRIVEDB.
 
