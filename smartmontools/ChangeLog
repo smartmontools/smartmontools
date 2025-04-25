@@ -2,6 +2,8 @@ $Id$
 
 2025-04-25  Christian Franke  <franke@computer.org>
 
+	configure.ac: Use RELEASE_7_5_DRIVEDB for drivedb.h updates.
+
 	update-smart-drivedb.*: Use current gpg key also for 7.5 branch.
 
 	Create new branch RELEASE_7_5_DRIVEDB.

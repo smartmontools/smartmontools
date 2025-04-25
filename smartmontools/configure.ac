@@ -7,7 +7,7 @@ AC_INIT([smartmontools],[7.5],[smartmontools-support@listi.jpberlin.de],[],[http
 AM_INIT_AUTOMAKE([1.13 foreign])
 
 # Version of drive database branch
-smartmontools_drivedb_version=7.3
+smartmontools_drivedb_version=7.5
 
 # Set by 'do_release' script, commented out when release number is bumped.
 smartmontools_release_date= # 2023-08-01
@@ -204,7 +204,7 @@ AC_ARG_WITH(update-smart_drivedb,
     [Install update-smart-drivedb script (and backport it to branches/RELEASE_X_Y_DRIVEDB) [yes]])],
   [ case "$withval" in
       yes|no) ;;
-      5.4[[0-3]]|6.[[0-6]]|7.[[023]]) drivedb_version=$withval; with_update_smart_drivedb=yes ;;
+      5.4[[0-3]]|6.[[0-6]]|7.[[0235]]) drivedb_version=$withval; with_update_smart_drivedb=yes ;;
       *) AC_MSG_ERROR([Invalid drivedb branch version: $withval]) ;;
     esac
   ],
