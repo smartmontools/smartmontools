@@ -1,4 +1,8 @@
-$Id: ChangeLog 5697 2025-04-22 15:02:53Z chrfranke $
+$Id: ChangeLog 5698 2025-04-25 12:56:30Z chrfranke $
+
+2025-04-25  Christian Franke  <franke@computer.org>
+
+	Create new branch RELEASE_7_5_DRIVEDB.
 
 2025-04-22  Christian Franke  <franke@computer.org>
 
