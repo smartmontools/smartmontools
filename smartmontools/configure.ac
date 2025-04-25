@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5681 2025-04-13 12:23:55Z chrfranke $
+# $Id: configure.ac 5700 2025-04-25 15:24:01Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
@@ -7,7 +7,7 @@ AC_INIT([smartmontools],[7.5],[smartmontools-support@listi.jpberlin.de],[],[http
 AM_INIT_AUTOMAKE([1.13 foreign])
 
 # Version of drive database branch
-smartmontools_drivedb_version=7.3
+smartmontools_drivedb_version=7.5
 
 # Set by 'do_release' script, commented out when release number is bumped.
 smartmontools_release_date= # 2023-08-01
@@ -22,7 +22,7 @@ else
   AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5681 2025-04-13 12:23:55Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5700 2025-04-25 15:24:01Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 
@@ -204,7 +204,7 @@ AC_ARG_WITH(update-smart_drivedb,
     [Install update-smart-drivedb script (and backport it to branches/RELEASE_X_Y_DRIVEDB) [yes]])],
   [ case "$withval" in
       yes|no) ;;
-      5.4[[0-3]]|6.[[0-6]]|7.[[023]]) drivedb_version=$withval; with_update_smart_drivedb=yes ;;
+      5.4[[0-3]]|6.[[0-6]]|7.[[0235]]) drivedb_version=$withval; with_update_smart_drivedb=yes ;;
       *) AC_MSG_ERROR([Invalid drivedb branch version: $withval]) ;;
     esac
   ],
