@@ -1,5 +1,5 @@
 /*
- * drivedb.h - smartmontools drive database file
+ * drivedb.h - smartmontools 7.3-7.4 drive database file
  *
  * Home page of code is: https://www.smartmontools.org
  *
@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3/5671 2025-03-17 11:47:17 $Id: drivedb.h 5672 2025-03-17 11:56:54Z chrfranke $",
+  { "VERSION: 7.3/5701 2025-04-25 16:06:23 $Id: drivedb.h 5702 2025-04-25 16:54:23Z chrfranke $",
     "-", "-",
     "Version information",
     ""
@@ -6538,6 +6538,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x8561: 0x0107
     "",
     "-d sat"
+  },
+  { "USB: ; JMicron JMS581", // USB3.2->SATA+PCIe (NVMe)
+    "0x152d:0xb581",
+    "", // 0x4403: Unitek M.2 NVMe/SATA USB adapter
+    "",
+    "-d sntjmicron" // smartmontools >= r5677: -d sntjmicron/sat
   },
   // PNY
   { "USB: ; PNY",
