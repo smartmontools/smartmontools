@@ -1,5 +1,16 @@
 $Id$
 
+2025-04-26  Michael Brünen  <mibruenen@gmail.com>
+
+	drivedb.h:
+	- WD Ultrastar DC HC530: Attribute 188.
+	- Seagate Enterprise Capacity 3.5 HDD v7 SED.
+	- Seagate Exos 7E8: Attribute 188.
+	- Seagate Exos X16: Attributes 1, 7 and 188.
+	- Seagate IronWolf Pro: Attribute 188, 22TB, *NT001 variant.
+
+	(GH pull/247)
+
 2025-04-25  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

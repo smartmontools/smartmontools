@@ -3880,8 +3880,9 @@ const drive_settings builtin_knowndrives[] = {
   { "Western Digital Ultrastar DC HC530", // tested with
       // WDC  WUH721414ALE604/LDAZW110, WDC  WUH721414ALE6L4/LDGNW07G
     "WDC  ?WUH721414ALE6[0L]4",
-    "", "", ""
-  //"-v 22,raw48,Helium_Level"
+    "", "",
+  //"-v 22,raw48,Helium_Level "
+    "-v 188,raw16 "
   },
   { "Western Digital Ultrastar DC HC550", // tested with WDC  WUH721818ALE6L4/PCGNW110,
       // WUH721818ALE6L4/PCGAW232, WDC  WUH721818ALN6L4/PCGNW088
@@ -4678,6 +4679,12 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
   },
+  { "Seagate Enterprise Capacity 3.5 HDD v7 SED", // tested with ST12000NM0127/G005
+    "ST12000NM01[12]7",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 195,raw24/raw32,Hardware_ECC_Recovered "
+  },
   { "Seagate Exos 5E8", // tested with ST8000AS0003-2HH188/0003
     "ST8000AS0003-.*",
     "", "",
@@ -4688,10 +4695,12 @@ const drive_settings builtin_knowndrives[] = {
   // ST4000NM006A, ST4000NM010A, ST4000NM012A, ST4000NM013A, ST6000NM002A,
   // ST6000NM021A, ST6000NM022A, ST6000NM025A, ST6000NM026A, ST8000NM000A,
   // ST8000NM002A, ST8000NM004A, ST8000NM008A, ST8000NM009A, ST8000NM016A
-  { "Seagate Exos 7E8", // tested with ST6000NM021A-2R7101/SN02, ST8000NM000A-2KE101/SN02
+  { "Seagate Exos 7E8", // tested with ST4000NM000A-2HZ100/TN03, ST6000NM021A-2R7101/SN02,
+      // ST8000NM000A-2KE101/SN02
     "ST[123468]000NM0(0[01234689]|1[0236]|2[1256])A-.*",
     "", "",
     "-v 18,raw48,Head_Health "
+    "-v 188,raw16 "
     "-v 240,msec24hour32"
   },
   { "Seagate Exos X12", // tested with ST12000NM0007-2A1101/SN02
@@ -4709,10 +4718,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,msec24hour32"
   },
   { "Seagate Exos X16", // tested with ST10000NM001G-2MW103/SN02
-      // ST14000NM001G-2KJ103/SN02, ST16000NM001G-2KK103/SN02, ST16000NM001G-2KK103/SN03
+      // ST14000NM001G-2KJ103/SN02, ST14000NM001G-2KJ1037/SN04, ST16000NM001G-2KK103/SN02,
+      // ST16000NM001G-2KK103/SN03
     "ST1[0246]000NM00[13]G-.*",
     "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
     "-v 18,raw48,Head_Health "
+    "-v 188,raw16 "
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
@@ -4772,10 +4784,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,msec24hour32"
   },
   { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
-      // ST8000NE0004-1ZF11G/EN01, ST8000NE0021-2EN112/EN02, ST16000NE000-2RW103/EN02
-    "ST([24]000NE0025|4000NE001|6000NE0023|8000NE00(04|08|21)|(10|12|14)000NE000[478]|16000NE000)-.*",
+      // ST8000NE0004-1ZF11G/EN01, ST8000NE0021-2EN112/EN02, ST12000NT001-3LX101/EN01, ST16000NE000-2RW103/EN02
+    "ST([24]000NE0025|4000NE001|6000NE0023|8000NE00(04|08|21)|(10|12|14|22)000(NE|NT)(000[478]|001)|16000NE000)-.*",
     "", "",
     "-v 18,raw48,Head_Health " // ST16000NE000
+    "-v 188,raw16 "
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
