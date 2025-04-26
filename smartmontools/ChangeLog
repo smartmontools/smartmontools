@@ -1,5 +1,18 @@
 $Id$
 
+2025-04-26  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Micron 5100 / 52x0 / 5300 / 5400 SSDs: 5400 *_SED variant (#1950).
+	- Phison Driven OEM SSDs: Gigastone GSTB512G (#1947).
+	- Silicon Motion based SSDs: Transcend SSD230S 2/4TB
+	  (GH issues/240, GH pull/241).
+	- Silicon Motion based OEM SSDs: Intenso M.2 SSD High (#1945),
+	  Intenso SSD Sata III/S0222A0 (#1948).
+	- SSSTC ERX GD/CD Series SSDs: 7.68TB, 15.36TB (#1946).
+	- Seagate Exos 7E8: OOS6000G (GH issues/320).
+	- Seagate Exos X20: OOS20000G.
+
 2025-04-26  Michael Brünen  <mibruenen@gmail.com>
 
 	drivedb.h:
