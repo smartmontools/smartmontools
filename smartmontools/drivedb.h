@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.3/5704 2025-04-26 10:12:20 $Id$",
+  { "VERSION: 7.3/5706 2025-04-27 16:54:06 $Id$",
     "-", "-",
     "Version information",
     ""
@@ -935,9 +935,9 @@ const drive_settings builtin_knowndrives[] = {
       // Patriot Blaze/S9FM02, Patriot Flare/SBFM91.2, Patriot Ignite/SAFM01.7
     "Patriot Burst( (120|240|480|960)GB)?|" // tested with Patriot Burst/SBFM11.2,
       // Patriot Burst 480GB/SBFMLA.5
-    "PNY CS(900|1311|2211) (120|240|480|500|960)GB SSD|" // tested with PNY CS900 120GB SSD/CS900612,
-      // PNY CS900 240GB SSD/CS900613, PNY CS900 500GB SSD/CS900Y13, PNY CS1311 120GB SSD/CS131122,
-      // PNY CS2211 240GB SSD/CS221016 (CS900 1TB has different attribute set)
+    "PNY CS(900|1311|2211) (120G|240G|480G|960G|1T|2T)B SSD|" // tested with PNY CS900 120GB SSD/CS900612,
+      // PNY CS900 240GB SSD/CS900613, PNY CS900 500GB SSD/CS900Y13, PNY CS900 1TB SSD/CS900615,
+      // PNY CS1311 120GB SSD/CS131122, PNY CS2211 240GB SSD/CS221016
     "PNY ELITE PSSD|" // tested with PNY ELITE PSSD/CS105P13 (240G)
     "S11-(128|256|512)G-PHISON-SSD-B27|" // tested with: S11-512G-PHISON-SSD-B27/SBFMJ1.3
     "SSD Smartbuy (60|64|120|128|240|256|480|512|960|1024|2000)GB|" // PS3111-S11, tested with
@@ -3833,8 +3833,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Hitachi/HGST Ultrastar 7K4000", // tested with Hitachi HUS724040ALE640/MJAOA3B0,
       // HGST HUS724040ALE640/MJAOA580, HGST HUS724020ALA640/MF6OAA70,
-      // HUS724030ALA640/MF8OAAZ0
-    "(Hitachi |HGST )?HUS7240(20|30|40)AL[AE]64[01]",
+      // HUS724030ALA640/MF8OAAZ0, HITACHI HUS724040ALE640/MJAONS04,
+      // HGST HUS724045ALE640/MJBOA5G0
+    "(Hitachi |HITACHI |HGST )?HUS7240([234]0|45)AL[AE]64[01]",
     "", "", ""
   },
   { "Hitachi/HGST Ultrastar 7K2",
@@ -3900,14 +3901,14 @@ const drive_settings builtin_knowndrives[] = {
     // WDC WUH722020BLE6L4
     "(WDC  ?)?WUH722020[AB]L[EN]6[0L][014]",
     "", "",
-    "-v 22,raw48,Helium_Level "
+  //"-v 22,raw48,Helium_Level "
     "-v 82,raw16,Head_Health_Score "
     "-v 90,hex48,NAND_Master"
   },
   { "Western Digital Ultrastar DC HC570", // tested with WUH722222ALE604
     "(WDC  ?)?WUH722222[AB]L[EN]6[0L]4",
     "", "",
-    "-v 22,raw48,Helium_Level "
+  //"-v 22,raw48,Helium_Level "
     "-v 71,raw16,Milli_Micro_Actuator "
     "-v 82,raw16,Head_Health_Score "
     "-v 90,hex48,NAND_Master"
@@ -3920,7 +3921,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Western Digital Ultrastar DC HC670", // WSH722626ALE604
     "(WDC  ?)?WSH722222[AB]L[EN]6[0L]4",
     "", "",
-    "-v 22,raw48,Helium_Level "
+  //"-v 22,raw48,Helium_Level "
     "-v 71,raw16,Milli_Micro_Actuator "
     "-v 82,raw16,Head_Health_Score "
     "-v 90,hex48,NAND_Master"
@@ -4746,9 +4747,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
-  { "Seagate Exos X20", // tested with ST20000NM007D-3DJ103/SN01, .../SN03,
-      // OOS20000G/OOS1
-    "ST(18|20)000NM00[0347]D-.*|"
+  { "Seagate Exos X20/X22", // tested with ST20000NM007D-3DJ103/SN01, .../SN03,
+      // ST22000NM001E-3HM103/SN03, OOS20000G/OOS1
+    "ST(18|20)000NM00[0347]D-.*|" // X20
+    "ST2[02]000NM001E-.*|" // X22
     "OOS20000G", // 20TB refurbished and rebranded
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
@@ -4782,19 +4784,23 @@ const drive_settings builtin_knowndrives[] = {
     "ST(8000NE|[65432]000VN)00[01]1-.*",
     "", "", ""
   },
-  { "Seagate IronWolf", // tested with ST3000VN007-2E4166/SC60, ST4000VN008-2DR166/SC60,
-      // ST6000VN001-2BB186/SC60, ST6000VN0033-2EE110/SC60, ST6000VN0041-2EL11C/SC61,
-      // ST8000VN0022-2EL112/SC61, ST10000VN0004-1ZD101/SC60,
-      // ST12000VN0007-2GS116/SC60, ST12000VN0008-2JH101/SC60
-    "ST(1|2|3|4|6|8|10|12)000VN00(0?[2478]|1|22|33|41)-.*",
+  { "Seagate IronWolf", // tested with ST2000VN003-3CW102/SC60, ST3000VN007-2E4166/SC60,
+      // ST4000VN006-3CW104/SC60,
+      // ST4000VN008-2DR166/SC60, ST6000VN001-2BB186/SC60, ST6000VN0033-2EE110/SC60,
+      // ST6000VN0041-2EL11C/SC61, ST8000VN0022-2EL112/SC61, ST10000VN000-3AK101/SC60,
+      // ST10000VN0004-1ZD101/SC60, ST10000VN0004-2GS11L/SC60, ST12000VN0007-2GS116/SC60,
+      // ST12000VN0008-2JH101/SC60, ST16000VN001-2RV103/SC60
+    "ST([123468]|1[0246])000VN00(0?[0234678]|1|22|33|41)-.*",
     "", "",
     "-v 18,raw48,Head_Health "
+    "-v 188,raw16 "
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
   { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
-      // ST8000NE0004-1ZF11G/EN01, ST8000NE0021-2EN112/EN02, ST12000NT001-3LX101/EN01, ST16000NE000-2RW103/EN02
-    "ST([24]000NE0025|4000NE001|6000NE0023|8000NE00(04|08|21)|(10|12|14|22)000(NE|NT)(000[478]|001)|16000NE000)-.*",
+      // ST8000NE0004-1ZF11G/EN01, ST8000NE0021-2EN112/EN02, ST12000NT001-3LX101/EN01,
+      // ST16000NE000-2RW103/EN02, ST16000NT001-3LV101/EN01
+    "ST([24]000NE0025|4000NE001|6000NE0023|8000NE00(04|08|21)|(1[02468]|2[02])000(NE|NT)(000[478]|001)|16000NE000)-.*",
     "", "",
     "-v 18,raw48,Head_Health " // ST16000NE000
     "-v 188,raw16 "
@@ -5562,16 +5568,10 @@ const drive_settings builtin_knowndrives[] = {
     "-d usbcypress"
   },
   // Fujitsu
-  { "USB: Fujitsu/Zalman ZM-VE300; ", // USB 3.0
-    "0x04c5:0x2028",
-    "", // 0x0001
-    "",
-    "-d sat"
-  },
-  { "USB: ; Fujitsu", // DeLock 42475, USB 3.0
-    "0x04c5:0x201d",
-    "", // 0x0001
-    "",
+  { "USB: Fujitsu; ",
+    "0x04c5:0x(11bc|201d|2028)", "", // 0x11bc (0x0101), 0x201d: DeLock 42475 (0x0001),
+    "", // 0x2028: Zalman ZM-VE300 (0x0001)
+    ""
     "-d sat"
   },
   // Myson Century
@@ -6327,10 +6327,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   // ADATA
   { "USB: ADATA; ",
-    "0x125f:0xa(1[135]|21|31|3[57]|68|7[56]|83)a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
+    "0x125f:0xa(1[135]|21|31|3[57]|68|7[56]|8[35])a", // 0xa11a: Classic CH11 1TB, 0xa13a: NH13 1TB,
     "", // 0xa15a: HD710 1TB, 0xa21a: HV610 (0x4504), 0xa31a: HV620 2TB (0x0100),
     "", // 0xa35a: HD650 2TB (0x6503), 0xa37a: Silverstone MS10 M.2 (0x3103), 0xa75a: HD710P 4TB,
-        // 0xa68a: SD600, 0xa76a: ED600 (0x0204), 0xa83a: HD330 (0x0100)
+        // 0xa68a: SD600, 0xa76a: ED600 (0x0204), 0xa83a: HD330 (0x0100),
+        // 0xa85a: HD680 (0x100)
     "-d sat"
   },
   { "USB: ADATA; Cypress",
