@@ -1,5 +1,19 @@
 $Id$
 
+2025-04-27  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: PNY CS900/1311/2211 1TB, 2TB (GH pull/201).
+	- Hitachi/HGST Ultrastar 7K4000: HITACHI variant (#1791),
+	  4.5TB (GH pull/305).
+	- Western Digital Ultrastar HC*: Attribute 22 is in "DEFAULT" entry.
+	- Seagate Exos X20/X22: Rename, add X22 (#1932).
+	- Seagate IronWolf: Attribute 188 (GH issues/319), *VN000,
+	  *VN002 (GH issues/246), *VN006 (#1687, GH issues/157), 14TB, 16TB.
+	- Seagate IronWolf Pro: 16TB (#1836), 18TB, 20TB.
+	- USB: Fujitsu (0x04c5:0x11bc) (#1938).
+	- USB: ADATA HD680 (0x125f:0xa85a) (#1764).
+
 2025-04-26  Christian Franke  <franke@computer.org>
 
 	drivedb.h:
