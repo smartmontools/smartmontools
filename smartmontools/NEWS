@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 5684 2025-04-14 13:45:41Z chrfranke $
+$Id: NEWS 5712 2025-04-29 12:06:12Z chrfranke $
 
 The most up-to-date version of this file is:
 https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
@@ -18,6 +18,7 @@ Summary: smartmontools release 7.5
 - smartctl '-j -n ...': New JSON values 'power_mode.*' (ATA only).
 - smartctl '-H -A': Support for NVMe SMART/Health Information per
   namespace.
+- smartctl '-i': ATA ACS-6 updates.
 - smartctl '-x': No longer includes '-g wcreorder'.
 - smartctl '-x', '-l scterc': No longer returns exit status 4 if SCT ERC
   is not supported by the device.
@@ -34,15 +35,21 @@ Summary: smartmontools release 7.5
 - smartctl '-l farm -T permissive': Overrides false negative FARM support
   check for rebranded drives.
 - smartctl '-t TEST': Fixed self-tests of single namespace NVMe devices.
-- smartd: NVMe self-test support ('-l selftest -l selfteststs -s ...').
-- smartd: No longer includes individual sensors in NVMe temperature
-  check as some devices report other values there.
+- smartd '-A': NVMe attribute log support.
 - smartd: Ignores NSID in duplicate check of single namespace devices.
 - smartd: No longer issues LOG_CRIT warnings for 'Set Feature' related
   NVMe error information log entries.
 - smartd: No longer hangs on systems with large file descriptor limits.
 - smartd: No longer logs invalid "old test ... not run" messages if
   staggered self-tests are used.
+- smartd.conf '-l selftest[sts] -s ...': NVMe self-test support.
+- smartd.conf '-H MASK': Ability to ignore specific bits of NVMe
+  SMART/Health value 'Critical Warning'.
+- smartd.conf '-p': Checks NVMe SMART/Health value 'Available Spare'.
+- smartd.conf '-u [-f]': Checks NVMe SMART/Health values 'Percentage Used'
+  and 'Media and Data Integrity Errors'.
+- smartd.conf '-W ...': No longer includes individual sensors in NVMe
+  temperature check as some devices report other values there.
 - ATA: Device type '-d jmb39x-q2,N' for another JMB39x protocol variant
   used by QNAP-TR002 NAS devices.
 - SCSI: Fixed range checks of mode page offset and VPD inquiry.
@@ -77,6 +84,8 @@ Summary: smartmontools release 7.5
 - Windows: Uninstaller is no longer damaged if the installer is signed.
 - Windows 'update-smartd-drivedb.ps1': Fixed call of 'gpg.exe' if it
   appears more than once in the PATH.
+- Windows 'update-smartd-drivedb.ps1 -Verbose': Now also prints the
+  download command.
 
 Date 2023-08-01
 Summary: smartmontools release 7.4
