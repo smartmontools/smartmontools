@@ -1,6 +1,8 @@
-$Id: ChangeLog 5711 2025-04-29 11:56:29Z chrfranke $
+$Id: ChangeLog 5713 2025-04-29 12:47:30Z chrfranke $
 
 2025-04-29  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Add NSID to JSON output of SMART/Health information.
 
 	ataprint.cpp: ACS-6 updates.
 

@@ -13,7 +13,7 @@
 
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5683 2025-04-14 12:45:37Z chrfranke $"
+const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5713 2025-04-29 12:47:30Z chrfranke $"
   NVMEPRINT_H_CVSID;
 
 #include "utility.h"
@@ -487,6 +487,7 @@ static void print_smart_log(const nvme_smart_log & smart_log,
   json::ref jref = jglb["nvme_smart_health_information_log"];
   char buf[64];
   jout("SMART/Health Information (NVMe Log 0x02, NSID 0x%x)\n", nsid);
+  jref["nsid"] = (nsid != nvme_broadcast_nsid ? (int64_t)nsid : -1);
   jout("Critical Warning:                   0x%02x\n", smart_log.critical_warning);
   jref["critical_warning"] = smart_log.critical_warning;
 
