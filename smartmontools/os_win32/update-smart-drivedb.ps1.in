@@ -3,7 +3,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2022-23 Christian Franke
+# Copyright (C) 2022-25 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -247,6 +247,7 @@ function download($url, $file, [ref]$errmsg)
   if ($script:DryRun) {
     echo "Invoke-WebRequest $(echo @req)"
   } else {
+    vecho "Invoke-WebRequest $(echo @req)"
     try {
       Invoke-WebRequest @req
     } catch {
