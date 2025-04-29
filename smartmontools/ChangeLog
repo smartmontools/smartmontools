@@ -1,5 +1,9 @@
 $Id$
 
+2025-04-29  Christian Franke  <franke@computer.org>
+
+	os_win32/smartd_mailer.conf.sample.ps1: Add encryption sample.
+
 2025-04-27  Christian Franke  <franke@computer.org>
 
 	drivedb.h:

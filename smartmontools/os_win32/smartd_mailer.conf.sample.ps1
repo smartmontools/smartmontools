@@ -29,3 +29,24 @@ $smtpServer = "smtp.domain.local"
 #  0123456789abcdef...
 #  ...
 #"
+
+# # -------------------------------------------------------------------------
+# # Sample encryption/decryption for $password <-> $passwordEnc
+# # (Requires same system and user account as smartd service)
+#
+# $password = "PASSWORD"
+# Clear-History # Recommended if run interactively
+# $t = ConvertTo-SecureString -AsPlainText -Force $password
+# $t = ConvertFrom-SecureString $t
+# $t = ($t -split '(.{78})' | Where-Object {$_}) -replace '^','  ' -join "`n"
+# $passwordEnc = "`n" + $t + "`n"
+# echo "`$passwordEnc = `"$passwordEnc`""
+#
+# $t = $passwordEnc -replace '[\r\n\t ]',''
+# $t = ConvertTo-SecureString $t
+# $t = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($t)
+# $password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($t)
+# $t = $undef
+# echo "`$password = `"$password`""
+#
+# # -------------------------------------------------------------------------
