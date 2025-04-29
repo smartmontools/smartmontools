@@ -410,7 +410,7 @@ static const char * get_form_factor(unsigned short word168)
   // Bits 0:3 are the form factor
   // Table A.32 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
   // Table 247 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
-  // Table 265 of T13/BSR INCITS 574 (ACS-6) Revision 3, March 30, 2023
+  // Table 265 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
   switch (word168 & 0xF) {
     case 0x1: return "5.25 inches";
     case 0x2: return "3.5 inches";
@@ -439,10 +439,11 @@ static const char * get_ata_major_version(const ata_identify_device * drive)
   // Table 29 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
   // Table 55 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
   // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
+  // Table 57 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
   switch (find_msb(drive->major_rev_num)) {
-    case 15: return "ACS >5 (15)";
-    case 14: return "ACS >5 (14)";
-    case 13: return "ACS >5 (13)";
+    case 15: return "ACS >6 (15)";
+    case 14: return "ACS >6 (14)";
+    case 13: return "ACS-6";
     case 12: return "ACS-5";
     case 11: return "ACS-4";
     case 10: return "ACS-3";
@@ -468,7 +469,7 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
   // Table 47 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
   // Table 57 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
   // Table 59 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
-  // Table 59 of T13/BSR INCITS 574 (ACS-6) Revision 3, March 30, 2023
+  // Table 59 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
   switch (drive->minor_rev_num) {
     case 0x0001: return "ATA-1 X3T9.2/781D prior to revision 4";
     case 0x0002: return "ATA-1 published, ANSI X3.221-1994";
@@ -505,12 +506,13 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
     case 0x0021: return "ATA/ATAPI-7 T13/1532D revision 4a";
     case 0x0022: return "ATA/ATAPI-6 published, ANSI INCITS 361-2002";
 
-    case 0x0030: return "ACS-5 T13/BSR INCITS 558 revision 10";
+    case 0x0025: return "ACS-6 T13/BSR INCITS 574 revision 7";
 
     case 0x0027: return "ATA8-ACS T13/1699-D revision 3c";
     case 0x0028: return "ATA8-ACS T13/1699-D revision 6";
     case 0x0029: return "ATA8-ACS T13/1699-D revision 4";
 
+    case 0x0030: return "ACS-5 T13/BSR INCITS 558 revision 10";
     case 0x0031: return "ACS-2 T13/2015-D revision 2";
 
     case 0x0033: return "ATA8-ACS T13/1699-D revision 3e";
@@ -525,7 +527,9 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
 
     case 0x006d: return "ACS-3 T13/2161-D revision 5";
 
-    case 0x0073: return "ACS-6 T13/BSR INCITS 558 revision 2";
+    case 0x0070: return "ACS-6 T13/BSR INCITS 574 revision 11";
+
+    case 0x0073: return "ACS-6 T13/BSR INCITS 574 revision 2";
 
     case 0x0082: return "ACS-2 published, ANSI INCITS 482-2012";
 
@@ -563,9 +567,10 @@ static const char * get_sata_version(unsigned short word222)
   // Table 45 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
   // Table 55 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
   // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
+  // Table 57 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
   switch (find_msb(word222 & 0x0fff)) {
     case 11: return "SATA >3.5 (11)";
-    case 10: return "SATA 3.5"; // ACS-5
+    case 10: return "SATA 3.5"; // ACS-5 (ACS-6: "SATA 3.5a")
     case  9: return "SATA 3.4"; // ACS-5
     case  8: return "SATA 3.3"; // ACS-4
     case  7: return "SATA 3.2"; // ACS-4
@@ -1454,7 +1459,7 @@ static const char * GetLogName(unsigned logaddr)
     // Table A.2 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
     // Table 213 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
     // Table 213 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
-    // Table 223 of T13/BSR INCITS 574 (ACS-6) Revision 3, March 30, 2023
+    // Table 223 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
     switch (logaddr) {
       case 0x00: return "Log Directory";
       case 0x01: return "Summary SMART error log";
@@ -1491,7 +1496,7 @@ static const char * GetLogName(unsigned logaddr)
       case 0x24: return "Current Device Internal Status Data log"; // ACS-3
       case 0x25: return "Saved Device Internal Status Data log"; // ACS-3
 
-      case 0x2f: return "Set Sector Configuration"; // ACS-4
+      case 0x2f: return "Sector Configuration log"; // ACS-4
       case 0x30: return "IDENTIFY DEVICE data log"; // ACS-3
 
       case 0x42: return "Mutate Configurations log"; // ACS-5

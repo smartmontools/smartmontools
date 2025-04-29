@@ -2,6 +2,8 @@ $Id$
 
 2025-04-29  Christian Franke  <franke@computer.org>
 
+	ataprint.cpp: ACS-6 updates.
+
 	popen_as_ugid.cpp: Add missing config.h.
 
 	os_win32/update-smart-drivedb.ps1.in: Print download command if
