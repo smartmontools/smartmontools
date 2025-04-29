@@ -2,6 +2,8 @@ $Id$
 
 2025-04-29  Christian Franke  <franke@computer.org>
 
+	nvmeprint.cpp: Add NSID to JSON output of SMART/Health information.
+
 	ataprint.cpp: ACS-6 updates.
 
 	popen_as_ugid.cpp: Add missing config.h.
