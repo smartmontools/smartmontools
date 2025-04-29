@@ -3,11 +3,11 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2022-23 Christian Franke
+# Copyright (C) 2022-25 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: update-smart-drivedb.ps1.in 5699 2025-04-25 14:45:35Z chrfranke $
+# $Id: update-smart-drivedb.ps1.in 5709 2025-04-29 09:31:09Z chrfranke $
 #
 
 <#
@@ -247,6 +247,7 @@ function download($url, $file, [ref]$errmsg)
   if ($script:DryRun) {
     echo "Invoke-WebRequest $(echo @req)"
   } else {
+    vecho "Invoke-WebRequest $(echo @req)"
     try {
       Invoke-WebRequest @req
     } catch {
