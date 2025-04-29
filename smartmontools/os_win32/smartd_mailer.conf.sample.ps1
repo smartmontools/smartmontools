@@ -1,7 +1,7 @@
 # Sample file for smartd_mailer.conf.ps1
 #
 # Home page of code is: http://www.smartmontools.org
-# $Id: smartd_mailer.conf.sample.ps1 4338 2016-09-07 19:31:28Z chrfranke $
+# $Id: smartd_mailer.conf.sample.ps1 5708 2025-04-29 09:23:23Z chrfranke $
 
 # SMTP Server
 $smtpServer = "smtp.domain.local"
@@ -29,3 +29,24 @@ $smtpServer = "smtp.domain.local"
 #  0123456789abcdef...
 #  ...
 #"
+
+# # -------------------------------------------------------------------------
+# # Sample encryption/decryption for $password <-> $passwordEnc
+# # (Requires same system and user account as smartd service)
+#
+# $password = "PASSWORD"
+# Clear-History # Recommended if run interactively
+# $t = ConvertTo-SecureString -AsPlainText -Force $password
+# $t = ConvertFrom-SecureString $t
+# $t = ($t -split '(.{78})' | Where-Object {$_}) -replace '^','  ' -join "`n"
+# $passwordEnc = "`n" + $t + "`n"
+# echo "`$passwordEnc = `"$passwordEnc`""
+#
+# $t = $passwordEnc -replace '[\r\n\t ]',''
+# $t = ConvertTo-SecureString $t
+# $t = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($t)
+# $password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($t)
+# $t = $undef
+# echo "`$password = `"$password`""
+#
+# # -------------------------------------------------------------------------

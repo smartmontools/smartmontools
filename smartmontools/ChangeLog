@@ -1,4 +1,8 @@
-$Id: ChangeLog 5706 2025-04-27 16:54:06Z chrfranke $
+$Id: ChangeLog 5708 2025-04-29 09:23:23Z chrfranke $
+
+2025-04-29  Christian Franke  <franke@computer.org>
+
+	os_win32/smartd_mailer.conf.sample.ps1: Add encryption sample.
 
 2025-04-27  Christian Franke  <franke@computer.org>
 
