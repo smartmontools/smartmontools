@@ -1,6 +1,8 @@
-$Id: ChangeLog 5709 2025-04-29 09:31:09Z chrfranke $
+$Id: ChangeLog 5710 2025-04-29 09:36:54Z chrfranke $
 
 2025-04-29  Christian Franke  <franke@computer.org>
+
+	popen_as_ugid.cpp: Add missing config.h.
 
 	os_win32/update-smart-drivedb.ps1.in: Print download command if
 	'-Verbose' is used.

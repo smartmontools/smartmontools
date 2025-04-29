@@ -10,7 +10,7 @@
 
 #include "popen_as_ugid.h"
 
-const char * popen_as_ugid_cvsid = "$Id: popen_as_ugid.cpp 5579 2024-01-12 18:43:41Z chrfranke $"
+const char * popen_as_ugid_cvsid = "$Id: popen_as_ugid.cpp 5710 2025-04-29 09:36:54Z chrfranke $"
   POPEN_AS_UGID_H_CVSID;
 
 #include <errno.h>
@@ -21,6 +21,8 @@ const char * popen_as_ugid_cvsid = "$Id: popen_as_ugid.cpp 5579 2024-01-12 18:43
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include "config.h"
 
 static FILE * s_popen_file /* = 0 */;
 static pid_t s_popen_pid /* = 0 */;
