@@ -1,6 +1,8 @@
-$Id: ChangeLog 5710 2025-04-29 09:36:54Z chrfranke $
+$Id: ChangeLog 5711 2025-04-29 11:56:29Z chrfranke $
 
 2025-04-29  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: ACS-6 updates.
 
 	popen_as_ugid.cpp: Add missing config.h.
 
