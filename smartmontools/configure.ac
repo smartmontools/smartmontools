@@ -3,15 +3,15 @@
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
-AC_INIT([smartmontools],[7.5],[smartmontools-support@listi.jpberlin.de],[],[https://www.smartmontools.org/])
+AC_INIT([smartmontools],[7.6],[smartmontools-support@listi.jpberlin.de],[],[https://www.smartmontools.org/])
 AM_INIT_AUTOMAKE([1.13 foreign])
 
 # Version of drive database branch
 smartmontools_drivedb_version=7.5
 
 # Set by 'do_release' script, commented out when release number is bumped.
-smartmontools_release_date=2025-04-30
-smartmontools_release_time="07:42:55 UTC"
+smartmontools_release_date= # 2025-04-30
+smartmontools_release_time= # "07:42:55 UTC"
 
 if test -n "$smartmontools_release_date"; then
   AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE, "$smartmontools_release_date",    [smartmontools Release Date])
