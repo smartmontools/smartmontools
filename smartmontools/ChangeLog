@@ -1,5 +1,9 @@
 $Id$
 
+2025-04-30  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.5
+
 2025-04-29  Christian Franke  <franke@computer.org>
 
 	nvmeprint.cpp: Add NSID to JSON output of SMART/Health information.

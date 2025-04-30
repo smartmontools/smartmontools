@@ -10,8 +10,8 @@ AM_INIT_AUTOMAKE([1.13 foreign])
 smartmontools_drivedb_version=7.5
 
 # Set by 'do_release' script, commented out when release number is bumped.
-smartmontools_release_date= # 2023-08-01
-smartmontools_release_time= # "10:59:45 UTC"
+smartmontools_release_date=2025-04-30
+smartmontools_release_time="07:42:55 UTC"
 
 if test -n "$smartmontools_release_date"; then
   AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE, "$smartmontools_release_date",    [smartmontools Release Date])
