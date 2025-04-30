@@ -1,0 +1,204 @@
+#!/bin/bash
+#
+# do a smartmontools release
+# (C) 2003-11 Bruce Allen, Guido Guenther
+# (C) 2006-25 Christian Franke
+# $Id$
+
+# Notes on generating releases:
+# (1) run with '--checkout' and then 'cd DESTDIR/trunk/smartmontools'
+# (2) update NEWS -- put in release date
+# (3) update ChangeLog -- put in release date and number
+# (4) to test, run without '--commit'
+# (5) when satisfied, add option '--commit'
+
+set -e
+
+# Smartmontools Signing Key (through 2025)
+# <smartmontools-support@listi.jpberlin.de>
+KEYID=0xFF3AEFF5
+
+myname=$0
+
+usage()
+{
+  cat <<EOF
+Usage: $myname --checkout[=URL] DESTDIR
+       [SOURCE_DATE_EPOCH=...] $myname [--nocheck] [--commit] RC[1-9]|FINAL
+EOF
+  exit 1
+}
+
+# Checkout ?
+checkout_url=
+case "$1" in
+  --checkout) checkout_url="https://svn.code.sf.net/p/smartmontools/code"; shift ;;
+  --checkout=?*) checkout_url=${1#*=}; shift ;;
+esac
+if [ -n "$checkout_url" ]; then
+  case "$#:$1" in
+    1:-*) usage ;; 1:*) ;; *) usage ;;
+  esac
+  if [ -e "$1" ]; then
+    echo "$1: already exists"; exit 1
+  fi
+  opt="--config-option config:miscellany:use-commit-times=yes"
+  svn checkout $opt --depth immediates "$checkout_url" "$1"
+  svn update $opt --parents "$1/trunk/smartmontools"
+  exit 0
+fi
+
+# Release ...
+COMMIT=
+DIST=distcheck
+RC=
+
+while true; do case "$1" in
+  --commit) COMMIT=yes; shift ;;
+  --nocheck) DIST=dist; shift ;;
+  *-) usage ;;
+  *) break ;;
+esac; done
+
+case "$*" in
+  RC[1-9]) RC="$1" ;;
+  FINAL) ;;
+  *) usage ;;
+esac
+
+# Check workdir
+case "`/bin/pwd`" in
+  */trunk/smartmontools)      WDROOT="../..";    DIRPAT="trunk"      ;;
+  */branches/*/smartmontools) WDROOT="../../.."; DIRPAT="branches/*" ;;
+  *) echo "`/bin/pwd`: no trunk or branch working dir"; exit 1 ;;
+esac
+
+if [ ! -d "$WDROOT/tags" ]; then
+  echo "tags directory missing"; exit 1
+fi
+
+REVX="`(cd $WDROOT && svnversion)`" || exit 1
+REV="${REVX/%[PM]/}"; REV="${REV/%[PM]/}"
+if [ -n "${REV//[0-9]/}" ]; then
+  echo "Working directory not clean: $REVX"; exit 1
+fi
+
+CHANGED="configure.ac"
+while read s; do
+  # shellcheck disable=SC2254
+  case "`echo $s | tr -s ' '`" in
+    "") ;;
+    "M "$DIRPAT/smartmontools/ChangeLog)    echo "$s: OK"; CHANGED+=" ChangeLog" ;;
+    "M "$DIRPAT/smartmontools/NEWS)         echo "$s: OK"; CHANGED+=" NEWS" ;;
+    "M "$DIRPAT/smartmontools/configure.ac) echo "$s: OK";;
+    *) echo "$s: not allowed"; exit 1;;
+  esac
+done <<<"`cd $WDROOT && svn status`"
+
+# Get release number
+VERSION=`sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' configure.ac`
+if [ -z "$VERSION" ]; then
+  echo "AC_INIT not found in configure.ac"; exit 1
+fi
+VERSIONRC="$VERSION"
+RELEASE="RELEASE_${VERSION//\./_}"
+
+if [ "$RC" ]; then
+  VERSIONRC="${VERSION}-${RC/#RC/rc}"
+  RELEASE="${RELEASE}_${RC}"
+fi
+
+if [ -e "$WDROOT/tags/$RELEASE" ]; then
+  echo "tags/$RELEASE exists"; exit 1
+fi
+
+echo "r$REV: Release $VERSIONRC $RELEASE"
+
+# Use SOURCE_DATE_EPOCH or current time as release time
+if [ -z "$SOURCE_DATE_EPOCH" ]; then
+  SOURCE_DATE_EPOCH=`date +%s`
+fi
+export -n SOURCE_DATE_EPOCH # export not required
+
+# Update timestamp
+# (requires GNU version of 'date')
+smartmontools_release_date=`date -d @"$SOURCE_DATE_EPOCH" -u +"%Y-%m-%d"`
+smartmontools_release_time=`date -d @"$SOURCE_DATE_EPOCH" -u +"%T %Z"`
+sed -e "s|^smartmontools_release_date=.*$|smartmontools_release_date=${smartmontools_release_date}|" \
+    -e "s|^smartmontools_release_time=.*$|smartmontools_release_time=\"${smartmontools_release_time}\"|" \
+    configure.ac > configure.tmp
+mv -f configure.tmp configure.ac
+
+# Review changes
+svn diff
+echo "==================================================================="
+echo ">>> Continuing in 20 seconds ..."
+sleep 20
+
+# Create tag and commit
+if [ "$COMMIT" = "yes" ]; then
+  svn mkdir $WDROOT/tags/$RELEASE
+  svn copy ../smartmontools $WDROOT/tags/$RELEASE/smartmontools
+  svn commit -m "Release $VERSIONRC $RELEASE" $WDROOT
+  last_changed=`svn info --show-item last-changed-date configure.ac`
+  SOURCE_DATE_EPOCH=`date -d "$last_changed" +%s`
+else
+  SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1))
+fi
+
+# Ensure reproducible timestamp of changed files
+# (requires GNU version of 'touch')
+touch -d @"$SOURCE_DATE_EPOCH" $CHANGED
+
+# Add one second for files generated below
+SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1))
+echo ">>> SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH # `date -d @"$SOURCE_DATE_EPOCH" -Is`"
+sleep 2
+set -v
+
+# Build
+./autogen.sh
+
+mkdir build
+cd build
+../configure SOURCE_DATE_EPOCH="$SOURCE_DATE_EPOCH"
+make $DIST || exit 1
+make maintainer-clean
+cd ..
+
+TARFILE=smartmontools-$VERSIONRC.tar.gz
+
+mv -f build/smartmontools-$VERSION.tar.gz $TARFILE
+rm -rvf build
+
+md5sum $TARFILE > $TARFILE.md5
+
+# Sign tarball
+if [ -n "$KEYID" ] && gpg --list-secret-keys $KEYID >/dev/null 2>/dev/null; then
+  gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSIONRC.tar.gz
+fi
+
+set +v
+
+# Update configure.ac only after trunk releases
+if [ -z "$RC" ] && [ "$DIRPAT" = "trunk" ]; then
+  # Comment out timestamp
+  sed -e "s|^smartmontools_release_date=\(.*\)$|smartmontools_release_date= # \1|" \
+      -e "s|^smartmontools_release_time=\(.*\)$|smartmontools_release_time= # \1|" \
+      configure.ac > configure.tmp
+  mv -f configure.tmp configure.ac
+
+  # Increase release number
+  major=${VERSION%.*}
+  old_minor=${VERSION##*.}
+  new_minor=$((old_minor+1))
+  echo "New Version: $major.$new_minor"
+  if [ "$COMMIT" = "yes" ]; then
+    sed "/^AC_INIT(/{s|$major\\.$old_minor|$major.$new_minor|}" configure.ac > configure.tmp
+    mv -f configure.tmp configure.ac
+    svn diff
+    echo "==================================================================="
+    echo "# TODO:"
+    echo "svn commit -m 'Bump release number to $major.$new_minor' configure.ac"
+  fi
+fi

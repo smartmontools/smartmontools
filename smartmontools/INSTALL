@@ -1,0 +1,521 @@
+Smartmontools installation instructions
+=======================================
+
+$Id$
+
+Please also see the smartmontools home page:
+https://www.smartmontools.org/
+
+Table of contents:
+
+[1] System requirements
+[2] Installing from SVN
+[3] Installing from source tarball
+[4] Guidelines for different Linux distributions
+[5] Guidelines for FreeBSD
+[6] Guidelines for Darwin
+[7] Guidelines for NetBSD
+[8] Guidelines for Solaris
+[9] Guidelines for Cygwin
+[10] Guidelines for Windows
+[11] Guidelines for OS/2, eComStation
+[12] Guidelines for OpenBSD
+[13] Comments
+[14] Detailed description of ./configure options
+
+[1] System requirements
+=======================
+
+    Note: Some of this info is outdated as it refers to very old OS
+    versions.
+
+    A) Linux
+
+    Any Linux distribution will support smartmontools if it has a
+    kernel version greater than or equal to 2.2.14. So any recent
+    Linux distribution should support smartmontools.
+
+    B) FreeBSD
+
+    For FreeBSD support, a 5-current kernel that includes ATAng is
+    required in order to support ATA drives.  Even current versions of
+    ATAng will not support 100% operation, as the SMART status can not
+    be reliably retrieved.  There is patch pending approval of the
+    ATAng driver maintainer that will address this issue.
+
+    C) Solaris
+
+    The SCSI code has been tested on a variety of Solaris 8 or later
+    systems.  All tested kernels worked correctly.
+
+    D) NetBSD/OpenBSD
+
+    The code was tested on a 1.6ZG (i.e., 1.6-current) system. It should
+    also function under 1.6.1 and later releases.
+
+    E) Cygwin
+
+    The code was tested with Cygwin DLL 3.3.* x86 and x86_64.  It should
+    also work with other recent releases.
+
+    Both Cygwin and Windows versions of smartmontools share the same code
+    to access the raw devices.  The information in the "Windows" section
+    below also applies to the Cygwin version.
+
+    F) Windows
+
+    The code was tested on Windows 10 up to 21H2.  It should still work on
+    older Windows versions >= XP.  Support for Windows 9x/ME and NT4 was
+    removed after smartmontools 5.43.
+
+    ATA or SATA devices are supported if the device driver implements
+    the SMART IOCTLs or IOCTL_IDE_PASS_THROUGH or IOCTL_ATA_PASS_THROUGH.
+    Only the latter provides full pass-through support which is needed
+    for all smartmontools features.
+
+    SATA devices behind a Intel RST driver are accessed through CSMI.
+
+    SCSI and USB devices are accessed through SPTI. Special driver support
+    is not required.
+
+    NVMe devices are supported with the Windows 10 NVMe driver or with
+    vendor specific drivers supporting NVME_PASS_THROUGH.
+
+    G) MacOS/Darwin
+
+    The code was tested on MacOS 10.3.4.  It should work from 10.3
+    forwards.  It doesn't support 10.2.
+
+    Only basic SMART commands are supported for ATA devices.
+
+    It's important to know that on 10.3.x, some things don't work
+    due to bugs in the libraries used, you cannot run
+    a short test or switch SMART support off on a drive; if you try,
+    you will just run an extended test or switch SMART support on.  So
+    don't panic when your "short" test seems to be taking hours.
+
+    It's also not possible at present to control when the offline
+    routine runs. If your drive doesn't have it running automatically by
+    default, you can't run it at all.
+
+    SCSI devices are not currently supported.
+
+    The OS X SAT SMART Driver provides access to SMART data for SAT capable
+    USB and Firewire devices:
+    https://github.com/kasbert/OS-X-SAT-SMART-Driver
+    https://github.com/RJVB/OS-X-SAT-SMART-Driver
+    This does not require any smartctl -d TYPE option and should work also
+    with older smartmontools releases.
+
+    H) OS/2, eComStation
+
+    The code was tested on eComStation 1.1, but it should work on all versions
+    of OS/2.
+    Innotek LibC 0.5 runtime is required.
+    Only ATA disks are supported.
+
+[2] Installing from SVN
+=======================
+
+    Get the sources from the SVN repository:
+    svn co https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools smartmontools
+
+    Then type:
+    cd smartmontools
+    ./autogen.sh
+    and continue with step [3] below, skipping the "unpack the tarball" step.
+
+    The autogen.sh command is ONLY required when installing from
+    SVN. You need GNU Autoconf (version 2.64 or greater), GNU Automake
+    (version 1.10 or greater) and their dependencies installed in order
+    to run it.
+
+[3] Installing from the source tarball
+======================================
+
+    If you are NOT installing from SVN, then unpack the tarball:
+    tar xvf smartmontools-VERSION.tar.gz
+
+    Then:
+    ./configure
+    make
+    make install (you may need to be root to do this)
+
+    As shown (with no options to ./configure) this defaults to the
+    following set of installation directories and other settings:
+
+    --prefix=/usr/local
+    --exec-prefix='${prefix}'
+    --sbindir='${exec_prefix}/sbin'
+    --sysconfdir='${prefix}/etc'
+    --localstatedir='${prefix}/var'
+    --datarootdir='${prefix}/share'
+    --datadir='${datarootdir}'
+    --mandir='${datarootdir}/man'
+    --docdir='${datarootdir}/doc/smartmontools'
+    --disable-sample
+    --disable-scsi-cdb-check
+    --enable-fast-lebe
+    --without-initscriptdir
+    --with-exampledir='${docdir}/examplescripts'
+    --without-drivedbinstdir
+    --with-drivedbdir='${datadir}/smartmontools'
+    --with-update-smart-drivedb
+    --with-gnupg
+    --with-smartdscriptdir='${sysconfdir}'
+    --with-smartdplugindir='${smartdscriptdir}/smartd_warning.d'
+    --with-scriptpath='/usr/local/bin:/bin:/usr/bin'
+    --without-savestates
+    --without-attributelog
+    --with-os-deps='os_linux.o dev_areca.o' (platform specific)
+    --without-selinux
+    --with-libcap-ng=auto
+    --with-libsystemd=auto
+    --with-systemdsystemunitdir=auto
+    --with-systemdenvfile=auto
+    --with-nvme-devicescan (Linux, Windows: yes; Others: no)
+    --with-signal-func=sigaction
+    --with-mingw-aslr=auto (Windows only)
+    --with-cxx11-option=auto
+    --without-cxx11-regex
+
+    These will usually not overwrite existing "distribution" installations on
+    Linux Systems since the FHS reserves this area for use by the system
+    administrator.
+
+    For different installation locations or distributions, simply add
+    arguments to ./configure as shown in [4] below.
+
+    The first output line of smartctl and smartd provides information
+    about release number, last SVN checkin date and revision, platform,
+    and package. The latter defaults to "(local build)" and can be
+    changed by the variable BUILD_INFO, for example:
+    make BUILD_INFO='"(Debian 5.39-2)"'
+
+[4] Guidelines for different Linux distributions
+================================================
+
+Note: Please send corrections/additions to:
+smartmontools-support@listi.jpberlin.de
+
+Red Hat:
+  ./configure --sbindir=/usr/sbin                               \
+              --sysconfdir=/etc                                 \
+              --mandir=/usr/share/man                           \
+              --docdir=/usr/share/doc/smartmontools             \
+              --with-initscriptdir=/etc/rc.d/init.d
+
+Slackware:
+  If you don't want to overwrite any "distribution" package, use:
+  ./configure
+
+  Otherwise use:
+  ./configure --sbindir=/usr/sbin                               \
+              --sysconfdir=/etc                                 \
+              --mandir=/usr/share/man                           \
+              --docdir=/usr/share/doc/smartmontools             \
+              --with-initscriptdir=/etc/rc.d
+
+  And
+  removepkg smartmontools smartsuite (only root can do this)
+  before make install
+
+  The init script works on Slackware. You just have to add an entry like
+  the following in /etc/rc.d/rc.M or /etc/rc.d/rc.local:
+
+  if [ -x /etc/rc.d/smartd ]; then
+    . /etc/rc.d/smartd start
+  fi
+
+  To disable it:
+  chmod 644 /etc/rc.d/smartd
+
+  For a list of options:
+  /etc/rc.d/smartd
+
+SuSE:
+  ./configure --sbindir=/usr/sbin                                        \
+              --sysconfdir=/etc                                          \
+              --mandir=/usr/share/man                                    \
+              --docdir=/usr/share/doc/packages/smartmontools-VERSION     \
+              --with-initscriptdir=/etc/init.d                           \
+
+[5] Guidelines for FreeBSD
+==========================
+  To match the way it will installed when it becomes available as a PORT, use
+  the following:
+
+  ./configure --prefix=/usr/local                                      \
+              --docdir=/usr/local/share/doc/smartmontools-VERSION      \
+              --with-initscriptdir=/usr/local/etc/rc.d/                \
+              --enable-sample
+
+  NOTE: --enable-sample will cause the smartd.conf and smartd RC files to
+  be installed with the string '.sample' append to the name, so you will end
+  up with the following:
+        /usr/local/etc/smartd.conf.sample
+        /usr/local/etc/rc.d/smartd.sample
+
+
+[6] Guidelines for Darwin
+=========================
+
+  ./configure --with-initscriptdir=/Library/StartupItems
+
+  If you'd like to build the i386 version on a powerpc machine, you can
+  use
+
+  CXX='g++ -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386' \
+    ./configure --host=i386-apple-darwin \
+                --with-initscriptdir=/Library/StartupItems
+
+[7] Guidelines for NetBSD
+=========================
+
+  ./configure --prefix=/usr/pkg                                       \
+              --docdir=/usr/pkg/share/doc/smartmontools
+
+[8] Guidelines for Solaris
+==========================
+
+    smartmontools has been partially but not completely ported to
+    Solaris.  It includes complete SCSI support but no ATA or NVMe
+    support.  It can be compiled with either CC (Sun's C++ compiler)
+    or GNU g++.
+
+    To compile with g++:
+
+    ./configure [args]
+    make
+
+    To compile with Sun CC:
+
+    env CC=cc CXX=CC ./configure [args]
+    make
+
+    The correct arguments [args] to configure are:
+     --sbindir=/usr/sbin                                \
+     --sysconfdir=/etc                                  \
+     --mandir=/usr/share/man                            \
+     --docdir=/usr/share/doc/smartmontools-VERSION      \
+     --with-initscriptdir=/etc/init.d
+
+[9] Guidelines for Cygwin
+=========================
+
+  ./configure --prefix=/usr                 \
+              --sysconfdir=/etc             \
+              --with-initscriptdir=/etc/rc.d/init.d
+
+[10] Guidelines for Windows
+===========================
+
+To compile statically linked Windows release with MinGW gcc on MSYS, use:
+
+  ./configure
+  make
+
+  Instead of using "make install", copy the .exe files into
+  some directory in the PATH.
+
+Cross-compile statically linked 32-bit and 64-bit versions with MinGW-w64:
+
+  ./configure --build=$(./config.guess) \
+              --host=i686-w64-mingw32
+
+  ./configure --build=$(./config.guess) \
+              --host=x86_64-w64-mingw32
+
+  Tested on Cygwin, Debian, Fedora and Ubuntu.
+
+
+To create the Windows installer, use:
+
+  make installer-win32
+
+  This builds the distribution directory and packs it into the
+  self-extracting install program
+
+  ./smartmontools-VERSION.win32-setup.exe
+
+  The installer is build using the command "makensis" from the NSIS
+  package (https://nsis.sourceforge.net/).
+
+To create a combined 32-/64-bit installer, use this in 32-bit build
+directory if 64-build directory is at ../build64:
+
+  make builddir_win64=../build64 installer_win32
+
+To both create and run the (interactive) installer, use:
+
+  make install-win32
+
+  Additional make targets are distdir-win32 to build the directory
+  only and cleandist-win32 for cleanup.
+
+  The binary distribution includes all documentation files converted
+  to DOS text file format and *.html and *.pdf preformatted man pages.
+
+To prepare a os_win32/vcNN directory for MS Visual Studio C++ builds,
+use the following on Cygwin or MSYS:
+
+  mkdir vctmp && cd vctmp
+  ../configure [... any MinGW option set from above ...]
+  make [vc=NN] config-vc
+
+  If vc=NN is not specified, it defaults to the latest supported version.
+  The MSVC project files (os_win32/vcNN/*) are included in SVN (but not
+  in source tarball). The target config-vc from a Makefile configured
+  for MinGW creates os_win32/vcNN/{config.h,smart*.rc,svnversion.h}.
+  The configure script must be run outside of the source directory to
+  avoid inclusion of the original config.h.
+  Additional MSVC related make targets are:
+  - clean-vc: Remove all files generated during build.
+  - distclean-vc: Also remove all files generated by config-vc.
+  - maintainer-clean-vc: Also remove the .vs directory (.vs/*/.suo file)
+    and the *.vcxproj.user files.
+
+
+[11] Guidelines for OS/2, eComStation
+=====================================
+
+To compile the OS/2 code, please run
+
+  ./configure
+  make
+  make install
+
+[12] Guidelines for OpenBSD
+===========================
+
+  To match the way it will installed when it becomes available as a PORT, use
+  the following:
+
+  ./configure --prefix=/usr/local                                      \
+              --sysconfdir=/etc                                        \
+              --docdir=/usr/local/share/doc/smartmontools-VERSION      \
+              --enable-sample
+
+  NOTE: --enable-sample will cause the smartd.conf and smartd RC files to
+  be installed with the string '.sample' append to the name, so you will end
+  up with the following:
+        /etc/smartd.conf.sample
+
+[13] Comments
+============
+
+To compile from another directory, you can replace the step
+  ./configure [options]
+by the following:
+  mkdir objdir
+  cd objdir
+  ../configure [options]
+
+Man pages contents is platform-specific by default. Info specific to other
+platforms may be not visible. To generate man pages with full contents use:
+
+  make os_man_filter=
+
+To install to another destination (used mainly by package maintainers,
+or to examine the package contents without risk of modifying any
+system files) you can replace the step:
+  make install
+with:
+  make DESTDIR=/home/myself/smartmontools-package install
+
+Use a full path. Paths like ./smartmontools-package may not work.
+
+After installing smartmontools, you can read the man pages, and try
+out the commands:
+   
+man smartd.conf
+man smartctl
+man smartd
+
+sudo /usr/sbin/smartctl -x /dev/sda
+
+Source and binary packages for Windows are available at
+https://sourceforge.net/projects/smartmontools/files/
+
+Refer to https://www.smartmontools.org/wiki/Download for any additional
+download and installation instructions.
+
+The following files are installed if ./configure has no options:
+
+/usr/local/sbin/smartctl                                [Executable command-line utility]
+/usr/local/sbin/smartd                                  [Executable daemon]
+/usr/local/sbin/update-smart-drivedb                    [Drive database update script]
+/usr/local/etc/smartd.conf                              [Configuration file for smartd daemon]
+/usr/local/etc/smartd_warning.sh                        [Warning script for smartd daemon]
+/usr/local/share/man/man5/smartd.conf.5                 [Manual page]
+/usr/local/share/man/man8/smartctl.8                    [Manual page]
+/usr/local/share/man/man8/smartd.8                      [Manual page]
+/usr/local/share/man/man8/update-smart-drivedb.8        [Manual page]
+/usr/local/share/doc/smartmontools/AUTHORS              [Information about the authors and developers]
+/usr/local/share/doc/smartmontools/ChangeLog            [A log of changes. Also see SVN]
+/usr/local/share/doc/smartmontools/COPYING              [GNU General Public License Version 2]
+/usr/local/share/doc/smartmontools/INSTALL              [Installation instructions: what you're reading!]
+/usr/local/share/doc/smartmontools/NEWS                 [Significant enhancements and fixes]
+/usr/local/share/doc/smartmontools/README               [Overview]
+/usr/local/share/doc/smartmontools/TODO                 [No longer maintained]
+/usr/local/share/doc/smartmontools/smartd.conf          [Example configuration file for smartd]
+/usr/local/share/doc/smartmontools/examplescripts/      [Executable scripts for -M exec of smartd.conf (4 files)]
+/usr/local/share/smartmontools/drivedb.h                [Drive database]
+
+Due to checks done by '--with-systemdsystemunitdir=auto', the following file may also be installed:
+
+/usr/local/lib/systemd/system/smartd.service            [Systemd service file for smartd]
+
+If /usr/local/etc/smartd.conf exists and differs from the
+default then the default configuration file is installed as
+/usr/local/etc/smartd.conf.sample instead.
+
+The commands:
+
+make htmlman
+make pdfman
+make txtman
+
+may be used to build .html, .pdf and .txt preformatted man pages.
+These are used by the dist-win32 make target to build the Windows
+distribution.
+The commands also work on other operating system configurations
+if suitable versions of man, man2html and groff are installed.
+On systems without man2html, the following command should work
+if groff is available:
+
+make MAN2HTML='groff -man -Thtml' htmlman
+
+
+[14] Detailed description of arguments to configure command
+===========================================================
+
+When you type:
+./configure --help
+a description of available configure options is printed
+[with defaults in square brackets].  See also section [3] above.
+
+Here's an example:
+If you set --prefix=/home/joe and none of the other four
+variables then the different directories that are used would be:
+--sbindir             /home/joe/sbin
+--docdir              /home/joe/share/doc/smartmontools
+--mandir              /home/joe/share/man
+--sysconfdir          /home/joe/etc
+--with-exampledir     /home/joe/share/doc/smartmontools/examplescripts
+--with-drivedbdir     /home/joe/share/smartmontools
+--with-initscriptdir         [disabled]
+--with-systemdsystemunitdir  [see below]
+
+If systemd is present (and pkg-config reports /lib/systemd/system
+as the systemdsystemunitdir):
+
+--with-systemdsystemunitdir  /home/joe/lib/systemd/system
+
+else
+
+--with-systemdsystemunitdir  [disabled]
+
+
+Additional information about using configure can be found here:
+https://www.gnu.org/software/autoconf/manual/autoconf.html#Running-configure-Scripts

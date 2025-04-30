@@ -1,0 +1,48 @@
+#! /bin/sh
+#
+# This is a script from the smartmontools examplescripts/ directory.
+# It can be used as an argument to the -M exec Directive in
+# /etc/smartd.conf, in a line like
+# ... -m root@localhost -M exec /path/to/this/file
+#
+# See also: smartd.conf(5), smartd(8).
+#
+# $Id$
+
+# Skip if '-m <nomailer>' is set
+test -n "$SMARTD_ADDRESS" || exit 0
+
+# Try mail[x]
+# Note: The 'command -v' builtin requires a POSIX >= 2008 conforming shell
+for mailer in \
+  $(command -v mail 2>/dev/null) \
+  $(command -v mailx 2>/dev/null) \
+  /usr/bin/mail \
+  /usr/bin/mailx
+do
+  test -f "$mailer" || continue
+  test -x "$mailer" || continue
+  exec "$mailer" -s "${SMARTD_SUBJECT-[SMARTD_SUBJECT]}" $SMARTD_ADDRESS <<EOF
+${SMARTD_FULLMESSAGE-[SMARTD_FULLMESSAGE]}
+EOF
+  exit $?
+done
+
+# Try sendmail
+for sendmail in \
+  /usr/sbin/sendmail \
+  /usr/lib/sendmail
+do
+  test -f "$sendmail" || continue
+  test -x "$sendmail" || continue
+  exec "$sendmail" $SMARTD_ADDRESS <<EOF
+Subject: ${SMARTD_SUBJECT-[SMARTD_SUBJECT]}
+To: $(echo $SMARTD_ADDRESS | sed 's/ /, /g')
+
+${SMARTD_FULLMESSAGE-[SMARTD_FULLMESSAGE]}
+EOF
+  exit $?
+done
+
+echo "$0: found none of 'mail', 'mailx' or 'sendmail'"
+exit 1

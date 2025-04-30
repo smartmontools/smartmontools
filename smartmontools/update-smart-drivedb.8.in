@@ -1,0 +1,263 @@
+.ig
+Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
+Copyright (C) 2014-23 Christian Franke
+
+SPDX-License-Identifier: GPL-2.0-or-later
+
+$Id$
+
+..
+.\" Macros borrowed from pages generated with Pod::Man
+.de Sp \" Vertical space (when we can't use .PP)
+.if t .sp 0.4v
+.if n .sp
+..
+.de Vb \" Begin verbatim text
+.if t .ft CW
+.if n .ft R
+.nf
+.ne \\$1
+..
+.de Ve \" End verbatim text
+.ft R
+.fi
+..
+.\" Use groff extension \(aq (apostrophe quote, ASCII 0x27) if possible
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.TH UPDATE-SMART-DRIVEDB 8 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
+.SH NAME
+update-smart-drivedb \- update smartmontools drive database
+.Sp
+.SH "SYNOPSIS"
+.B update-smart-drivedb
+.RI [ OPTIONS ]
+.RI [ DESTFILE ]
+.Sp
+.SH "DESCRIPTION"
+.\" %IF NOT OS ALL
+.\"! [This man page is generated for the OS_MAN_FILTER version of smartmontools.
+.\"! It does not contain info specific to other platforms.]
+.\"! .PP
+.\" %ENDIF NOT OS ALL
+.B update-smart-drivedb
+updates
+.B /usr/local/var/lib/smartmontools/drivedb.h
+or
+.I DESTFILE
+from branches/RELEASE_6_0_DRIVEDB of smartmontools SVN repository.
+.PP
+The tools used for downloading are either
+.BR curl (1),
+.BR wget (1),
+.BR lynx (1),
+.\" %IF OS FreeBSD
+.BR fetch (1)
+[FreeBSD only],
+.\" %ENDIF OS FreeBSD
+.\" %IF OS OpenBSD
+.BR ftp (1)
+[OpenBSD only],
+.\" %ENDIF OS OpenBSD
+or
+.BR svn (1).
+.PP
+The downloaded file is verified with OpenPGP/GPG key ID 721042C5.
+The public key block is included in the script.
+.PP
+The old file is kept if the downloaded file is identical (ignoring
+the differences in Id string) otherwise it is moved to
+.BR drivedb.h.old .
+.PP
+The old file is also kept if the downloaded file reports an older version
+on the same branch.
+This could be overridden with the \*(Aq\-\-force\*(Aq option.
+If the branch version differs, the file is always updated.
+.Sp
+.SH "OPTIONS"
+.TP
+.B \-s SMARTCTL, \-\-smartctl SMARTCTL
+Use the
+.BR smartctl (8)
+executable at path SMARTCTL for drive database syntax check.
+The form \*(Aq\-s \-\*(Aq disables the syntax check.
+The default is
+.BR /usr/local/sbin/smartctl .
+.TP
+.B \-t [DIR/]TOOL, \-\-tool [DIR/]TOOL
+Use TOOL for download.
+TOOL is one of:
+.I curl wget lynx
+.\" %IF OS FreeBSD
+.I fetch
+.\" %ENDIF OS FreeBSD
+.\" %IF OS OpenBSD
+.I ftp
+.\" %ENDIF OS OpenBSD
+.IR svn .
+The default is the first one found in PATH.
+If a DIR is also specified, the plain TOOL name must begin with any of the
+above names.
+.TP
+.B \-u LOCATION, \-\-url\-of LOCATION
+Use URL of LOCATION for download.
+LOCATION is one of:
+.br
+.I github
+(GitHub mirror of SVN repository),
+.br
+.I sf
+(Sourceforge code browser),
+.br
+.I svn
+(SVN repository),
+.br
+.I svni
+(SVN repository via HTTP instead of HTTPS),
+.br
+.I trac
+(Trac code browser).
+.br
+The default is
+.IR svn .
+.TP
+.B \-\-url URL
+Download from URL.
+A valid OpenPGP/GPG signature with \*(Aq.raw.asc\*(Aq extension must also
+exist unless \*(Aq\-\-no\-verify\*(Aq is also specified.
+.TP
+.B \-\-file FILE
+Copy from local FILE.
+A valid OpenPGP/GPG signature \*(AqFILE.raw.asc\*(Aq must also exist
+unless \*(Aq\-\-no\-verify\*(Aq is also specified.
+.\" %IF ENABLE_DB_INSTALL
+.TP
+.B \-\-install
+Copy from originally installed drive database file.
+This is the same as:
+.br
+\*(Aq\-\-no\-verify \-\-file /usr/local/share/smartmontools/drivedb.h\*(Aq
+.\" %ENDIF ENABLE_DB_INSTALL
+.TP
+.B \-\-trunk
+Download from SVN trunk.
+This requires \*(Aq\-\-no\-verify\*(Aq because the trunk versions are not
+signed.
+.TP
+.B \-\-branch X.Y
+Download from branches/RELEASE_\fBX\fP_\fBY\fP_DRIVEDB.
+This also selects the OpenPGP/GPG key for older branches
+(5.40 to 6.6: Key ID DFD22559).
+.TP
+.B \-\-cacert FILE
+Use CA certificates from FILE to verify the peer.
+.TP
+.B \-\-capath DIR
+Use CA certificate files from DIR to verify the peer.
+.TP
+.B \-\-insecure
+Don't abort download if certificate verification fails.
+This option is also required if a HTTP URL is selected with \*(Aq\-u\*(Aq
+option.
+.TP
+.B \-\-no\-verify
+Don't verify signature with GnuPG.
+.TP
+.B \-\-force
+Allow downgrades.
+By default, the database is not replaced with an older version of the
+same branch.
+.TP
+.B \-\-export\-key
+Print the OpenPGP/GPG public key block.
+.TP
+.B \-\-dryrun
+Print download commands only.
+.TP
+.B \-q, \-\-quiet
+Suppress info messages.
+.TP
+.B \-v, \-\-verbose
+Verbose output.
+.TP
+.B \-h, \-\-help
+Print help text.
+.Sp
+.SH "EXAMPLES"
+Regular update:
+.Vb 2
+# update-smart-drivedb
+/usr/local/var/lib/smartmontools/drivedb.h 7.2/5225 updated to 7.2/5237
+.Ve
+.PP
+Revert to previous version:
+.Vb 2
+# update-smart-drivedb --force \e
+  --file /usr/local/var/lib/smartmontools/drivedb.h.old
+/usr/local/var/lib/smartmontools/drivedb.h 7.2/5237 downgraded to 7.2/5225
+.Ve
+.PP
+Download the database from SVN trunk to current directory:
+.Vb 2
+$ update-smart-drivedb --trunk --no-verify -s - -u trac drivedb-trunk.h
+drivedb-trunk.h 7.3/5254 newly installed (NOT VERIFIED)
+.Ve
+.Sp
+.SH "EXIT STATUS"
+The exit status is 0 if the database has been successfully updated or is
+already up to date.
+If an error occurs the exit status is 1.
+.Sp
+.SH FILES
+.TP
+.B /usr/local/sbin/update-smart-drivedb
+full path of this script.
+.TP
+.B /usr/local/sbin/smartctl
+used to check syntax of new drive database.
+.\" %IF ENABLE_DB_INSTALL
+.TP
+.B /usr/local/share/smartmontools/drivedb.h
+originally installed drive database.
+.\" %ENDIF ENABLE_DB_INSTALL
+.TP
+.B /usr/local/var/lib/smartmontools/drivedb.h
+current drive database.
+.TP
+.B /usr/local/var/lib/smartmontools/drivedb.h.raw
+current drive database with unexpanded SVN Id string.
+.TP
+.B /usr/local/var/lib/smartmontools/drivedb.h.raw.asc
+signature file.
+.TP
+.B /usr/local/var/lib/smartmontools/drivedb.h.*old*
+previous files.
+.TP
+.B /usr/local/var/lib/smartmontools/drivedb.h.*error*
+new files if rejected due to errors.
+.TP
+.B /usr/local/var/lib/smartmontools/drivedb.h.lastcheck
+empty file created if downloaded file was identical.
+.Sp
+.SH AUTHORS
+\fBChristian Franke\fP.
+.br
+This manual page was originally written by
+.BR "Hannes von Haugwitz <hannes@vonhaugwitz.com>" .
+.Sp
+.SH REPORTING BUGS
+To submit a bug report, create a ticket in smartmontools wiki:
+.br
+<\fBhttps://www.smartmontools.org/\fP>.
+.br
+Alternatively send the info to the smartmontools support mailing list:
+.br
+<\fBhttps://listi.jpberlin.de/mailman/listinfo/smartmontools-support\fB>.
+.Sp
+.SH SEE ALSO
+\fBsmartctl\fP(8), \fBsmartd\fP(8).
+.Sp
+.SH PACKAGE VERSION
+CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
+.br
+$Id$

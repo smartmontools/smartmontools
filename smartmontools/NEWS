@@ -1,0 +1,1044 @@
+smartmontools NEWS
+------------------
+$Id$
+
+The most up-to-date version of this file is:
+https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
+
+Date 2025-04-30
+Summary: smartmontools release 7.5
+-----------------------------------------------------------
+- CI and release builds are now reproducible if same SOURCE_DATE_EPOCH,
+  build recipes and toolchains are used.
+- smartctl '-j -A': New JSON value 'endurance_used' (ATA/SCSI/NVMe).
+- smartctl '-j -A': New JSON value 'spare_available' (ATA/NVMe).
+- smartctl '-j -i': Re-added the JSON value 'model_name' also for SCSI
+  devices (regression).
+- smartctl '-j -c': NVMe support.
+- smartctl '-j -n ...': New JSON values 'power_mode.*' (ATA only).
+- smartctl '-H -A': Support for NVMe SMART/Health Information per
+  namespace.
+- smartctl '-i': ATA ACS-6 updates.
+- smartctl '-x': No longer includes '-g wcreorder'.
+- smartctl '-x', '-l scterc': No longer returns exit status 4 if SCT ERC
+  is not supported by the device.
+- smartctl '-l error': No longer prints bogus ATA error log entries if
+  the error index is nonzero but the error count is zero.
+- smartctl '-l ssd': Fixed corruption of the output of the SCSI Format
+  Status log page.
+- smartctl '-l ssd': Now detects 'no format since manufacture' from the
+  SCSI Format Status log page.
+- smartctl '-l farm': Fixed the unit of 'Write Power On' time.
+- smartctl '-l farm': Fixed the byte order of ATA 'Assembly Date'.
+- smartctl '-l farm': Fixed a possible segfault.
+- smartctl '-l farm -q noserial': Suppresses serial and WWN also from FARM.
+- smartctl '-l farm -T permissive': Overrides false negative FARM support
+  check for rebranded drives.
+- smartctl '-t TEST': Fixed self-tests of single namespace NVMe devices.
+- smartd '-A': NVMe attribute log support.
+- smartd: Ignores NSID in duplicate check of single namespace devices.
+- smartd: No longer issues LOG_CRIT warnings for 'Set Feature' related
+  NVMe error information log entries.
+- smartd: No longer hangs on systems with large file descriptor limits.
+- smartd: No longer logs invalid "old test ... not run" messages if
+  staggered self-tests are used.
+- smartd.conf '-l selftest[sts] -s ...': NVMe self-test support.
+- smartd.conf '-H MASK': Ability to ignore specific bits of NVMe
+  SMART/Health value 'Critical Warning'.
+- smartd.conf '-p': Checks NVMe SMART/Health value 'Available Spare'.
+- smartd.conf '-u [-f]': Checks NVMe SMART/Health values 'Percentage Used'
+  and 'Media and Data Integrity Errors'.
+- smartd.conf '-W ...': No longer includes individual sensors in NVMe
+  temperature check as some devices report other values there.
+- ATA: Device type '-d jmb39x-q2,N' for another JMB39x protocol variant
+  used by QNAP-TR002 NAS devices.
+- SCSI: Fixed range checks of mode page offset and VPD inquiry.
+- SCSI: Fixed buffer overflow parsing of VPD page.
+- SCSI: Fixed handling of multiple designators in VPD page.
+- USB/NVMe: '-d sntjmicron' no longer triggers USB resets on queries of
+  the self-test log.
+- USB/NVMe: '-d sntasmedia' now supports log pages > 512 bytes.
+- USB/NVMe/SAT: New experimental NVMe/SAT autodetection options
+  '-d snt*/sat'.
+- Fixed segfault on missing option argument on systems using musl libc.
+- HDD, SSD and USB additions to drive database.
+- automake < 1.13 are no longer supported.
+- Custom make rules are now silenced if 'make V=0' is used.
+- Enhanced makefile targets 'dist-*' to create reproducible source
+  tarballs if SOURCE_DATE_EPOCH is set.
+- The makefile no longer uses GNU make specific syntax elements
+  (exception: reproducible builds for macOS).
+- Dropped support for platforms without 'sigaction()'.
+- configure: Now also detects MidnightBSD.
+- configure: Dropped option '--with-signal-func'.
+- configure: Default for '--with-nvme-devicescan' is now 'yes' also on
+  NetBSD.
+- Version information is now also set if build from GH R/O mirror.
+- Linux: 'smartd.service' now avoids a warning about an unset environment
+  variable.
+- Linux: Dropped autodetection of deprecated device type '-d marvell'.
+- macOS: Support for reproducible builds of the DMG image.
+- OpenBSD: NVMe support.
+- Windows: Increased WMI timeout.
+- Windows: Support for reproducible builds of the installer.
+- Windows: Uninstaller is no longer damaged if the installer is signed.
+- Windows 'update-smartd-drivedb.ps1': Fixed call of 'gpg.exe' if it
+  appears more than once in the PATH.
+- Windows 'update-smartd-drivedb.ps1 -Verbose': Now also prints the
+  download command.
+
+Date 2023-08-01
+Summary: smartmontools release 7.4
+-----------------------------------------------------------
+- The docker image used for CI and release builds is now based on
+  Debian 12 instead of Ubuntu 18.04.
+- macOS: CI and release builds are now generated for the x86_64 and arm64
+  targets. 32 bit platforms will require to be compiled from the source.
+- smartctl '-t short', '-t long' and '-X': NVMe support.
+- smartctl '-l selftest': NVMe support.
+- smartctl '-l farm': Prints Seagate's vendor-specific Field Access
+  Reliability Metrics (FARM) log for ATA and SCSI drives.
+- smartctl '-l error': Now also prints an error message for each entry
+  of NVMe error information log.
+- smartctl '-l genstats': Prints SCSI General statistics and performance
+  log page.
+- smartctl '-i' and '--identify': ACS-4/5/6 enhancements.
+- smartctl '-c': Added NVMe 2.0 capability flags.
+- smartctl '-g security': Added 'ata_security.master_password_id'
+  to JSON output.  Plaintext output shows Master Password ID if set
+  to a non-default value.
+- smartctl '-q noserial': Now also suppresses the output of NVMe Namespace
+  IEEE EUI-64.
+- smartctl '-j': '-l error -l selftest' JSON output for NVMe devices.
+- smartctl '-j': Avoid invalid UTF-8 sequences in JSON/YAML strings.
+- smartctl '-j': Fixed a bogus exception during SCSI JSON output.
+- smartctl '-j': Renamed JSON element 'scsi_temperature' back to
+  'temperature' (regression).
+- smartctl '-a': Now suggests '-x' for ATA devices because '-a' only
+  provides legacy SMART information.
+- smartd: No longer issues LOG_CRIT warnings if new entries of NVMe error
+  information log do not indicate device problems.
+- smartd: Now detects accidental use of smartd_warning script as
+  '-M exec' parameter.
+- smartd: No longer writes the 'Copyright...' line to syslog.
+- smartd.conf '-M always': Sends reminder emails without any delay.
+- smartd.conf '-M diminishing': Limited email delay to 32 days.
+- ATA: Fixed decoding of extended self-test log on big endian hosts.
+- ATA: Enhanced LBA range for device types '-d jmb39x-q,...' and
+  '-d jms56x,...' from 33-62 to 1-255.
+- ATA: Device type '-d intelliprop,N' now fails with a deprecation message.
+  Added '-d intelliprop,N,force' flag to use it anyway.
+- ATA/USB: Device type '-d usbasm1352r,N' for ASMedia ASM1352R USB to SATA
+  RAID bridges
+- SCSI: Fixed possible corruption issue with the Error Counter and
+  Non medium Error log pages.
+- SCSI: Added more "Informational Exceptions" strings.
+- SCSI: Added initial support for REPORT SUPPORTED OPERATION command.
+- SCSI: Initial rework of SCSI debug output.
+- NVMe: Added error messages for NVMe status values.
+- NVMe: Fixed crash after read of error information log on big endian hosts.
+- HDD, SSD and USB additions to drive database.
+- update-smart-drivedb: Fixed syntax for 'sed' versions which require
+  ';' before '}' or do not support ';' at all.
+- update-smart-drivedb: Replaced a usually not executed bashism.
+- configure: Default for '--with-nvme-devicescan' is now 'yes' also on
+  Darwin and FreeBSD.  It is still 'no' on NetBSD only.
+- configure: Defines '_FORTIFY_SOURCE=3' if supported and not predefined.
+- configure: No longer fails if libsystemd-dev is installed and
+  'LDFLAGS=-static' is used.
+- Compile fix for systems without legacy 'getdtablesize()'.
+- Pre-releases from SVN snapshots now show "pre-VERSION" in version
+  information and 'smartctl.pre_release=true' in JSON output.
+- Linux: Device type '-d sssraid' for 3SNIC RAID controllers.
+- Linux: Device type '-d marvell' now fails with a deprecation message.
+  Added '-d marvell,force' flag to use it anyway.
+- Linux: The generic SCSI code now defaults to SG_IO_V3 and does no
+  longer fall back to the deprecated SCSI_IOCTL_SEND_COMMAND
+  (but this ioctl is still used for '-d 3ware' and '-d marvell,force').
+- Linux smartd: Now prevents systemd unit startup timeout when many
+  devices are registered and then initially checked.
+- Linux smartd: Systemd no longer reports a service failure if no device
+  is present and a '-q *nodev0*' option is used.
+- Solaris SPARC: Dropped legacy ATA support.  Dropped configure option
+  '--with-solaris-sparc-ata'.
+- Windows: IOCTL_STORAGE_PROTOCOL_COMMAND variant for NVMe self-tests.
+- Windows: Installer now defaults to 64-bit executables.
+- Windows: No longer prints bogus 'Local Time' if enhanced TZ syntax is used.
+- Windows: Workaround to keep backward compatibility with old versions
+  of Windows if some versions of MinGW-w64 are used.
+
+Date 2022-02-28
+Summary: smartmontools release 7.3
+-----------------------------------------------------------
+- smartctl '-j': Many additions to the JSON output for SCSI/SAS devices.
+- smartctl '-j': JSON output always includes timestamp, regardless of '-i'.
+- smartctl '-i' and '--identify': ATA ACS-5 enhancements.
+- smartctl '-l defects': additionally works for SCSI Pending Defects log
+  subpage.
+- smartctl '-l envrep': Prints SCSI Environmental Reporting log subpage.
+- smartctl '-l scterc[,R,W],p': Gets/sets the persistent power-on values.
+- smartctl '-l scterc,reset': Restores to manufacturer's default values.
+- smartctl '-l tapedevstat': Prints SCSI Tape Device Statistics log page.
+- smartctl '-l tapealert': Prints SCSI Tape Alert log page.
+- smartctl '-l zdevstat': Prints SCSI Zoned Block Device Statistics log
+  subpage.
+- smartctl '-H': No longer checks and clears the SCSI Tape Alert log page
+  unless the option is given twice.
+- smartctl '-H': No longer sets bit 2 of exit status if ATA attributes are
+  available.
+- smartctl '-H': Checks new NVME 1.4 status bit.
+- smartctl '-n POWERMODE': ATA: Optionally exits immediately if unsupported.
+- smartctl: Support for Zoned block device characteristics and statistics.
+- smartctl: Various fixes related to SCSI supported log pages and subpages.
+- smartd: Fixed code execution vulnerability in conjunction with
+  GNU mailutils < 3.13.
+- smartd '-u USER[:GROUP]': Runs the warning script as a non-privileged user.
+- smartd '--capabilities': No longer suppresses mail notification.
+- smartd '--capabilities=mail': Adds capabilities required for exim MTA.
+- smartd '-q *nodev0*': Three new options to change the exit status to 0 if
+  there are no devices to monitor.
+- smartd '-s' and '-A': Allows one to disable preconfigured files with '-'.
+- smartd: Fixed handling of multiple email addresses in conjunction with
+  plugin scripts.  Added new environment variable SMARTD_ADDRESS_ORIG.
+- smartd: No longer writes 'smartd -D' output to syslog on syntax error.
+- smartd.conf '-c i=N': Allows one to specify device specific check intervals.
+- SCSI: Retry on UNIT ATTENTION when fetching capacity.
+- NVMe/USB: Device type '-d sntasmedia' for ASMedia ASM2362 USB to
+  NVMe bridges.
+- VERSION information in drive database files of all branches.
+- smartctl and smartd print drive database VERSION information.
+- HDD, SSD and USB additions to drive database.
+- update-smart-drivedb: Now checks VERSION information to prevent downgrades.
+- update-smart-drivedb '--force': Overrides the VERSION check.
+- update-smart-drivedb '--file' and '--url': Updates from local files or
+  other URLs.
+- update-smart-drivedb '-q': Suppresses info messages.
+- update-smart-drivedb: Added long option variants for all short options.
+- update-smart-drivedb: Prevents dangling gpg-agents and temp directories.
+- update-smart-drivedb '--install': Installs runtime drivedb.h from location
+  specified by ...
+- configure '--with-drivedbinstdir: drivedb.h package install location.
+- configure: SOURCE_DATE_EPOCH prevents inclusion of configure arguments
+  in executables.
+- configure: Check for '-fstack-protector' now includes the required libs.
+- Dropped restriction to C++98, a C++11 compiler is now required.
+- Linux: Device scan range enhanced to '/dev/sdzz'.
+- Linux: Fixed access to '-d aacraid' and '-d megaraid' devices from smartd
+  if '--capabilities' is used.
+- Linux: '-d cciss,N' is no longer required for non-RAID hpsa devices.
+- Darwin: smartctl '-s apm,N' is now supported.
+- OpenBSD: Fixed too short command timeouts.
+- OpenBSD: Fixed device name used for autodetection.
+- OpenBSD: Fixed SAT autodetection of sd* devices.
+- FreeBSD: Added direct access ('-d megaraid,N') and scanning for LSI RAID on
+  'mfi' and 'mrsas' controllers.
+- Windows: smartd '-u restricted': Runs the warning script with a restricted
+  access token.
+- Windows: New script 'update-smartd-drivedb.ps1' provides gpg verification
+  and replaces 'update-smartd-drivedb.exe'.
+- Windows: Disabled '-d aacraid' support due to unresolved bugs.
+  Added '-d accraid,...,force' flag to try anyway.
+
+Date 2020-12-30
+Summary: smartmontools release 7.2
+-----------------------------------------------------------
+- smartctl: New option '--json=y[c]' selects YAML output.
+- smartctl '-i': Prints ATA TRIM and Zoned Device capabilities.
+- smartctl '-j': Fixed 'scsi_grown_defect_list' value.
+- smartctl '-a': Prints SCSI 'Accumulated power on time'.
+- smartctl '-n POWERMODE': SCSI support.
+- smartctl '-s standby,now' and '-s standby,off': SCSI support.
+- smartctl '-c': NVMe 1.4 additions.
+- smartd: Support for staggered self-tests.
+- smartd: No longer writes attribute log if no attributes were read
+  due to standby mode or other error.
+- smartd: Now resolves symlinks before device names are checked for
+  duplicates.
+- smartd: Fixed SMARTD_DEVICETYPE environment variable if DEVICESCAN is
+  used without '-d TYPE'.
+- ATA: Device type '-d jmb39x-q,N' for JMB39x protocol variant used by
+  some QNAP NAS devices.
+- ATA: Device type '-d jms56x,N' for JMS562 USB to SATA RAID bridges.
+- SCSI: Improved heuristics for log subpages of new and very old disks.
+- NVMe: Log transfer size limited to avoid device or kernel crashes.
+- NVMe/USB: Device type '-d sntrealtek' for Realtek RTL9210 USB to
+  NVMe bridges.
+- update-smart-drivedb: New option '--branch X.Y'.
+- HDD, SSD and USB additions to drive database.
+- Dropped support for pre-C99 snprintf().
+- configure: Dropped option '--without-working-snprintf'.
+- configure: Fixed '-fstack-protector*' detection.
+- Linux: Various fixes of smartd.service file.
+- Darwin: NVMe log support.
+- FreeBSD: Device scan does no longer include T_ENCLOSURE devices.
+- NetBSD: Fixed timeout handling.
+- NetBSD big endian: Fixed ATA register handling.
+- OpenBSD: Fixed timeout handling.
+- Windows: Dropped backward compatibility fixes for very old compilers.
+
+Date 2019-12-30
+Summary: smartmontools release 7.1
+-----------------------------------------------------------
+- smartctl: Fixed bogus exception on unknown form factor value (regression).
+- smartctl '--json=cg': Suppresses extra spaces also in 'g' format.
+- smartctl '-i': ATA ACS-4 and ACS-5 enhancements.
+- smartd: No longer truncates very long device names in warning emails.
+- smartd: No longer skips scheduled tests if system clock has been adjusted
+  to the past.
+- smartd '-A': Attribute logs now use local time instead of UTC.
+- ATA: Device type '-d jmb39x,N' for drives behind JMicron JMB39x RAID port
+  multipliers.
+- SCSI: Workaround for incomplete Log subpages response from some SAS SSDs.
+- HDD, SSD and USB additions to drive database.
+- Autodetection of '-d sntjmicron' type for JMicron USB to NVMe bridges.
+- configure: Defines '_FORTIFY_SOURCE=2' if supported and not defined.
+- Linux/FreeBSD: Fixed segfault on CCISS transfer sizes > 512 bytes.
+- Linux: Fixed smartd.service 'Type' if libsystemd-dev is not available.
+- Linux: Fixed '/dev/megaraid_sas_ioctl_node' fd leak.
+- Linux: Fixed GPL licensing problem of 'linux_nvme_ioctl.h'.
+- FreeBSD update-smart-drivedb: Now uses 'fetch' as default download tool.
+- FreeBSD big endian: Fixed NVMe access.
+- FreeBSD: Compile fix for FreeBSD 12.
+- NetBSD: Fixed device scan crash on empty name list.
+- NetBSD: Fixed memory leak in device scan.
+- Windows: Fixed log page access via Windows 10 NVMe driver for NVMe 1.2.1+.
+- Windows: Allow drive letters as device names for Windows 10 NVMe driver.
+- Windows: Workround to allow CSMI access to devices behind AMD RAID drivers.
+- Windows: Fixed MinGW options to add relocation info if ASLR is enabled.
+- Windows wtssendmsg: No longer writes '\n' line endings to event log.
+- Windows wtssendmsg: New options '-t' and '-w'.
+
+Date 2018-12-30
+Summary: smartmontools release 7.0
+-----------------------------------------------------------
+- smartctl: New options '-j' and '--json[=giosu]' to enable experimental
+  JSON output mode.  Also supports an alternative flat format suitable
+  for grep ('--json=g').
+- smartctl '-l devstat': Fix for logs with 256 sectors.
+- smartctl '-l error': Prints SCSI Pending Defects log page if supported.
+- smartctl '-H': Prints SCSI Format Status log page if supported.
+- smartctl '-x': Now includes '-l defects'.
+- NVMe/USB: Device type '-d sntjmicron' for NVMe drives behind JMicron USB
+  to NVMe bridges.
+- NVMe: SMART/Health Information and Error Information are always read with
+  broadcast NSID.
+- SCSI: Various improvements for the decoding of log pages.
+- SCSI: Improved handling of READ CAPACITY command.
+- SCSI: Support for SAS host managed drives.
+- New option '-d scsi+TYPE' to disable SAT auto detection for 'aacraid'
+  and 'cciss'.
+- update-smart-drivedb: New option '-u github'.
+- update-smart-drivedb: New signing key.
+- configure: New options '--with-cxx11-regex' and '--with-libsystemd'.
+- configure: Default for '--with-nvme-devicescan' is now 'yes' on Linux
+  and Windows.
+- configure: Default for '--with-scriptpath' now includes '/usr/local/bin'.
+- configure: Options '-with-initscriptdir=[auto|yes]' are no longer
+  supported.
+- Reworked handling of unaligned LE and BE integers.
+- Dropped various backward compatibility fixes for very old compilers.
+- Replaced GPL header with 'SPDX-License-Identifier' in all source files.
+- HDD, SSD and USB additions to drive database.
+- Always use '-d sat' for USB vendor IDs with known SAT support.
+- Linux: Device scan with '-d by-id' scans '/dev/disk/by-id/*' symlinks.
+- Linux: Dropped device scan support for devfs.
+- Linux: Fixed device scan with multiple '-d TYPE' options.
+- Linux: Fixed device scan crash on missing '/proc/devices'.
+- Linux: USB ID detection also for '/dev/sgN'.
+- Linux: Compile fix for systems with musl libc.
+- Linux smartd: Could now run as systemd service with 'Type=notify' set.
+- FreeBSD: NVMe device scanning.
+- FreeBSD: Various compile fixes.
+- NetBSD: Fixed regression in name based device type detection.
+- NetBSD big endian: Fixed regression in ATA code.
+- NetBSD big endian: Fixed byte ordering of ATA IDENTIFY data from USB/SAT
+  drives.
+- Windows: Improved search for actual CSMI port number.
+- Windows: Installer includes VERSIONINFO resource.
+
+Date 2017-11-05
+Summary: smartmontools release 6.6
+-----------------------------------------------------------
+- smartctl '-i' and '--identify': ATA ACS-4 and SATA 3.3 enhancements.
+- smartctl: Control ATA write cache through SCT Feature Control
+  with '-s wcache-sct,ata|on|off[,p]' and '-g wcache-sct'.
+- smartctl: Print ATA Pending Defects log with '-l defects'.
+- smartctl '-s wcreorder,on|off': New persistent flag ',p'.
+- smartctl '-s standby': Prevent temporary drive spinup.
+- smartctl '-n POWERMODE': New parameter to set exit status.
+- smartctl '-g security': ATA Security Level check fixed.
+- smartctl '-l scttemp*': Print minimum supported ERC Time Limit.
+- smartctl '-q noserial': Now also suppresses "SAS address" output.
+- smartctl '-i': Print IEEE EUI-64 of NVMe namespace.
+- smartctl '-c': Print NVMe 1.3 feature flags.
+- smartctl '-A': Print NVMe 1.3 thermal temperature transition
+  statistic.
+- smartctl '-g/s dsn': Get/set ATA DSN.
+- smartd: Uses also device identify information to detect for duplicate
+  devices.
+- smartd '-e dsn' directive: Set ATA DSN.
+- smartd: Improved SCSI/SAS temperature logging.
+- smartd: Silence emails and log messages on open errors of
+  '-d removable' devices.
+- smartd: Exit on device open error unless '-q never' or '-d removable'
+  is specified (regression).
+- update-smart-drivedb: Now authenticates downloaded file with GnuPG.
+- update-smart-drivedb: New options '--trunk', '--no-verify' and
+  '--export-key'.
+- Device type '-d intelliprop,N' for IntelliProp controllers.
+- SCSI: Default timeout increased to 1 minute.
+- configure: New options '--with-gnupg', '--with-scriptpath' and
+  '--with-update-smart-drivedb=X.Y'
+- configure: Checks for C++11 support option and requires
+  '--with[out]-cxx11-option' if option unknown or no C++11 support.
+- HDD, SSD and USB additions to drive database.
+- New smartmontools-* mailing list addresses.
+- Man page formatting reworked.
+- Linux: Uses SG_IO V4 API if supported.
+- Linux: Devices behind hpsa driver are no longer detected as regular
+  SCSI devices.
+- Darwin: Initial NVMe support based on undocumented API.
+- FreeBSD: Fix panic on INVARIANTS enabled kernel.
+- FreeBSD: Improve ATA SMART STATUS check for legacy controllers.
+- FreeBSD: Compile fix for FreeBSD-11 and newer.
+- NetBSD: NVMe support.
+- NetBSD: Full 28-bit ATA support.
+- NetBSD: Compile fix.
+- NetBSD: Use a raw disk device file.
+- OpenBSD: Compile fix.
+- OS/2: Support for the OS2AHCI driver, updating source code,
+  adding autoscan support, adding self-test support.
+- Windows: Support for Windows 10 NVMe driver (stornvme.sys).
+- Windows: Fix CSMI access for IRST driver 15.2.
+- Windows smartd: Ability to run PowerShell scripts with '-M exec'.
+- Windows smartd: New PowerShell script to send smartd warning emails
+  without external tools.
+- Windows package: Now provides PDF man pages.
+
+Date 2016-05-07
+Summary: smartmontools release 6.5
+-----------------------------------------------------------
+- Experimental support for NVMe devices on FreeBSD, Linux and Windows.
+- smartctl '-i', '-c', '-H' and '-l error': NVMe support.
+- smartctl '-l nvmelog': New option for NVMe.
+- smartd.conf '-H', '-l error' and '-W': NVMe support.
+- Optional NVMe device scanning support on Linux and Windows.
+- configure option '--with-nvme-devicescan' to include NVMe in
+  default device scanning result.
+- Device scanning now allows one to specify multiple '-d TYPE' options.
+- ATA: Added new POWER MODE values introduced in ATA ACS-2.
+- ATA: SCT commands are no longer issued if ATA Security is locked.
+- SCSI: LB provisioning improvements.
+- SCSI: Fixed GLTSD bit set/cleared info messages.
+- SCSI: Solid State media log page is no longer checked for tapes.
+- SCSI: Improved handling when no tape cartridge in drive.
+- SCSI: Workaround for buggy Seagate firmware.
+- SAT: Improved heuristics to detect bogus sense data from SAT layer.
+- smartd: Fixed crash on missing argument to '-s' directive.
+- update-smart-drivedb: Now uses HTTPS for download by default.
+- update-smart-drivedb: New options to select URL and download tool.
+- update-smart-drivedb: New download tool 'svn'.
+- configure option '--without-update-smart-drivedb' to disable
+  update-smart-drivedb script.
+- configure options '--disable-drivedb', '--enable-savestates',
+  '--enable-attributelog' and '--with-docdir' are no longer supported.
+- autoconf < 2.60 and automake < 1.10 are no longer supported.
+- Drive database file now also includes the DEFAULT setting
+  for each attribute.
+- HDD, SSD and USB additions to drive database.
+- Darwin: New support files for package installer.
+  New makefile target 'install-darwin' builds DMG image.
+- Solaris: Auto detection of SATA devices behind SAT layer.
+- Solaris SPARC: Legacy ATA support disabled by default.
+  New configure option '--with-solaris-sparc-ata' enables it.
+  File os_solaris_ata.s is no longer included in source tarball.
+- Windows: Auto detection of USB devices specified by drive letter.
+- Windows: Device scanning does no longer ignore unknown USB devices.
+- Windows: Prevent drive spin up by '-n standby' check.
+- Windows: New application manifests indicating Win 10 support.
+- Windows smartd: '-m [sys]msgbox' is no longer supported.
+- Windows installer: Defaults to 64-bit version on 64-bit Windows.
+- Various code changes suggested by Clang Static Analyser and Cppcheck.
+
+Date 2015-06-04
+Summary: smartmontools release 6.4
+-----------------------------------------------------------
+- Device type '-d usbprolific' for Prolific PL2571/277x USB bridges.
+- SAT: Support for ATA registers returned in fixed format sense data.
+- smartctl '-i' and '--identify': ATA ACS-4 and SATA 3.2 enhancements.
+- smartctl '-l xerror': Support for logs with more than 255 pages.
+- smartctl '-l devstat': Prints ACS-3 DSN flags.
+- smartctl '-l devstat': Read via SMART command if GP log is not
+  available.
+- smartctl '-l scttempsts': Prints SCT SMART STATUS (ACS-4) and
+  vendor specific SCT bytes.
+- configure option '--with-systemdenvfile=auto' as new default.
+- configure options '--disable-drivedb', '--enable-savestates'
+  and '--enable-attributelog' are deprecated.
+- Corresponding '--with-*' options are enhanced accordingly.
+- Configure option '--with-docdir' is deprecated.
+- autoconf < 2.60 and automake < 1.10 are deprecated.
+  (all of the above still work but a warning is printed if used)
+- HDD, SSD and USB additions to drive database.
+- Linux: AACRAID fixes, SMART STATUS should work now.
+- Linux: '/dev/megaraid_sas_ioctl_node' fd leak fix.
+- Darwin: '-S' command implemented, '-l devstat' should work now.
+- Cygwin: Compile fix.
+- Windows: Device type '-d aacraid' for AACRAID controllers.
+- Windows: SAT autodetection based on IOCTL_STORAGE_QUERY_PROPERTY.
+- Windows installer: Fix possible loss of user PATH environment variable.
+
+Date 2014-07-26
+Summary: smartmontools release 6.3
+-----------------------------------------------------------
+- smartctl: Fixed bogus error messages from '-g/-s wcreorder'.
+- smartctl prints ATA form factor.
+- SCSI: Improved support of modern disks (SAS SSDs).
+- SCSI: Fixed sense data noise from old disks.
+- update-smart-drivedb man page.
+- configure option '--with-smartdscriptdir'.
+- configure option '--with-smartdplugindir'.
+- configure option '--with-systemdenvfile'.
+- configure option '--with-working-snprintf'.
+- Removed build time stamps to support reproducible builds.
+- Compile fixes for C++11.
+- HDD, SSD and USB additions to drive database.
+- Linux: Support for controllers behind AACRAID driver.
+- Linux: Fixed DEVICESCAN max path count.
+- FreeBSD: Fixed possible crash caused by wrong SCSI error handling.
+- FreeBSD: Compile fix for kFreeBSD.
+- Windows: Reworked CSMI port scanning.
+- QNX: Compile fix.
+
+Date 2013-07-26
+Summary: smartmontools release 6.2
+-----------------------------------------------------------
+- smartctl: Added ATA write cache reordering control using
+  '-g wcreorder' and '-s wcreorder,[on|off]' options.
+- update-smart-drivedb: Updated for new SVN repository.
+- HDD, SSD and USB additions to drive database.
+- Areca RAID support: Fixed possible segfault on empty port.
+- HPT RAID support: Maximum disk number increased to 128.
+- Linux: RHEL 9 compile fixes.
+- FreeBSD: Device scanning now skips port multipliers.
+- Cygwin: 64-bit compile fixes.
+- Windows: Fixed bogus temp file name in smartd_warning.cmd
+  (already included in smartmontools-6.1-2.win32-setup.exe).
+- Windows: smartd service is no longer installed as interactive.
+
+Date 2013-03-16
+Summary: smartmontools release 6.1
+-----------------------------------------------------------
+- smartctl '-l directory': improved output format.
+- smartctl: Fix parsing of '-l select,cont+SIZE' option.
+- smartctl prints ATA Additional Product Id (OEM Id).
+- smartctl '-s/-g wcache' for SCSI devices to control write cache.
+- smartctl '-s/-g rcache' for SCSI devices to control read cache.
+- smartctl prints more info for SCSI devices: media rotation rate,
+  form factor, physical block size, lowest LBA alignment,
+  logical block provisioning, disk protection type
+  and selftest progress status.
+- smartctl '--identify' updated for latest ATA ACS-3 spec.
+- smartd runs /etc/smartd_warning.sh to generate warning emails
+  (Windows: smartd_warning.cmd).
+- smartd '-w PATH' option to specify this executable.
+- smartd '-d ignore' directive.
+- smartd DEVICESCAN ignores devices already specified.
+- smartd: added support for state persistence ('-s') and attribute logging
+  ('-A') for SCSI devices.
+- smartd '-W' directive uses ATA attribute 190 if 194 is missing.
+- Support of larger SCSI defect lists via READ DEFECT(12).
+- Device type '-d usbjmicron,p' for Prolific USB bridges.
+- Many HDD, SSD and USB additions to drive database.
+- Linux: Support for SAS disks behind Areca controllers.
+- Linux: Improved support for SATA disks on LSI/Megaraid controllers
+- Linux: disks on MegaRaid controllers are automatically scanned
+- FreeBSD: Support for SAS disks behind Areca controllers.
+- FreeBSD: Enhanced ATA command support for 3ware.
+- FreeBSD: Support for 3ware 9750 (/dev/twsX).
+- FreeBSD: Fixed support for 48-bit ATA commands on legacy controllers
+  with ATACAM driver.
+- FreeBSD: Improved support for SAS/SCSI disks on LSI/Megaraid controllers.
+- Windows: smartd.conf '-M exec' supports path names with spaces.
+- Windows: Tool wtssendmsg.exe to handle smartd.conf '-m console'.
+- Windows: DEVICESCAN now supports up to 128 drives.
+- Windows: smartctl.exe and smartd.exe include VERSIONINFO resource.
+- Windows: smartd.exe includes MESSAGETABLE resource.
+- Windows: syslogevt.exe is no longer provided.
+
+Date 2012-10-10
+Summary: smartmontools release 6.0
+-----------------------------------------------------------
+- option/directive '-F nologdir' and '-F xerrorlba'.
+- smartctl '--identify' option.
+- smartctl prints nominal media rotation rate (ATA).
+- smartctl prints SATA version and speed.
+- smartctl '-l sataphy' works for CD/DVD drives also.
+- smartctl '-x' includes ATA Device Statistics.
+- smartd warning emails include device identify info.
+- smartd '-d' output is flushed to support redirection.
+- HDD, SSD and USB additions to drive database.
+- Windows smartd: smartd.conf directives '-m console',
+  '-m active', '-m connected'.
+- Windows: Support for SAS disks behind Areca controllers.
+- Windows: Win9x/ME and NT4 are no longer supported.
+
+Date 2012-06-30
+Summary: smartmontools release 5.43
+-----------------------------------------------------------
+- smartctl options '-g, --get' and '-s, --set' to get/set
+  various ATA settings: AAM, APM, Read look-ahead, Write
+  cache, Security (freeze), Standby mode/timer.
+- smartd directive '-e' to set (most of) the above settings
+  on startup.
+- smartctl options '-f hex' and '-f hex,[id|val]'.
+- smartctl does not start ATA self-test if another test is
+  already running.  Override with new option '-t force'.
+- smartctl supports extended self-test polling times
+  greater than 255 minutes.
+- Controller-independent SAT detection: '-d sat,auto[+TYPE]'.
+- smartd.conf DEFAULT directive.
+- Many HDD, SSD and USB additions to drive database.
+- Linux and FreeBSD: Support for SATA disks behind Areca SAS
+  RAID controllers and HP Smart Array controllers.
+- Windows: Support for SATA disks behind Areca controllers.
+- Windows smartd: directives '-l offlinests,ns' and
+  '-l selfteststs,ns'.
+- Windows installer: Combined 32-/64-bit support.
+- FreeBSD: fixed crash on SCSI devices with FreeBSD9-RC1
+
+Date 2011-10-20
+Summary: smartmontools release 5.42
+-----------------------------------------------------------
+- smartctl option '-l devstat' (Device Statistics).
+- smartctl option '-l ssd' (SSD endurance indicator).
+- smartd logs identify information of each SCSI/SAS device.
+- smartd resends warning emails if problem reappears.
+- smartd directives '-l offlinests' and '-l selfteststs'.
+- Many HDD, SSD and USB additions to drive database.
+- Platform-specific man pages.
+- smartd.8 man page no longer includes smartd.conf.5.
+- FreeBSD: Compilation fixes.
+- FreeBSD: Support for Areca controllers.
+- FreeBSD: Fix '-l scterc' support.
+- FreeBSD: Support for 48-bit ATA commands.
+- Linux: Support for Areca controllers enhanced.
+- Windows installer: UAC support.
+- Windows: update-smart-drivedb /S(ilent) option.
+- Windows: improved USB ID detection.
+
+Date 2011-06-09
+Summary: smartmontools release 5.41
+-----------------------------------------------------------
+- Failed self-tests outdated by a newer successful extended
+  self-test are no longer reported as errors.
+- Support for ATA Long Logical/Physical Sectors (LLS/LPS).
+- 'smartctl --scan-open' can create a draft smartd.conf.
+- smartctl prints World Wide Name (WWN) of ATA device.
+- smartctl option '-f brief' to select new attribute output
+  format which includes more flags and fits in 80 columns.
+- smartd logs identify information and WWN of each ATA device.
+- smartd logs warning from drive database if present.
+- smartd logs changes of offline data collection status.
+- smartd directive '-l scterc,READTIME,WRITETIME'.
+- smartd preserves last scheduled selective self-tests span.
+- 'smartd.service' file for systemd.
+- configure option '--with-systemdsystemunitdir'
+- configure option '--with-exampledir'.
+- configure searches for init.d or rc.d directory.
+- 'make install' does no longer overwrite an existing
+  smartd.conf file.
+- 'update-smart-drivedb' does no longer require GNU sed.
+- Many HDD, SSD and USB additions to drive database.
+- Linux USB autodetection: Enable '-d sat,16' for newer kernels.
+- Linux megaraid: Fix segfault on non-data SCSI commands.
+- Linux megaraid: Fix pass-through of non-data ATA commands.
+- FreeBSD: Use 'fetch' in 'update-smart-drivedb'.
+- OpenBSD: Use 'ftp' in 'update-smart-drivedb'.
+- OpenBSD: Workaround for shell bug.
+- OpenBSD: Fix DEVICESCAN for OpenBSD >= 4.8.
+- Windows: Experimental support for Intel ICHxR RAID.
+- Windows: DEVICESCAN includes USB devices.
+- Windows: Faster USB ID detection.
+- Windows: update-smart-drivedb tool.
+- Windows installer: Option '/SO component,...'.
+- Windows: Fix smartd warning email truncation on Win7.
+- Windows installer: Fix shortcut removal on Vista/Win7.
+- Windows: Add missing quotes in smartctl-run.bat and
+  smartd-run.bat
+
+Date 2010-10-16
+Summary: smartmontools release 5.40
+-----------------------------------------------------------
+- Other config entries may precede smartd DEVICESCAN.
+- Option '-v' allows one to specify byte order of attribute raw value
+- configure: New default value for '--with-docdir'.
+- configure: '--enable-drivedb' is now the default.
+- Improved support for Intel SSDs.
+- Improved support for SandForce based SSDs.
+- Drive database is in a separate source file 'drivedb.h'
+  which can be downloaded from SVN.
+- USB ID info is now included in 'drivedb.h'.
+- Many additions to drive database.
+- New script 'update-smart-drivedb'.
+- smartd libcap-ng support, option '-C, --capabilities'.
+- smartd directive '-l xerror' to check Extended Comprehensive
+  SMART Error Log.
+- smartctl option '-l scterc[,...]' to get/set the
+  SCT Error Recovery Control time limit.
+- smartctl option '-t vendor,N'.
+- smartctl options '--scan, --scan-open'.
+- Linux: Add '/dev/sd[a-c][a-z]' to smartd DEVICESCAN.
+- Linux: Support SATA drives on LSI 3ware 9750 controllers.
+- Windows: Read 'drivedb.h' and 'smartd.conf' from exe directory.
+- Windows: Support for 64-bit executables.
+- Windows: Support for cross compilation on Linux.
+- Fix regression in smartctl option '-t select,M-N'.
+- Fix SCT temperature table commands on big endian CPUs.
+- Fix regression in smartd SMARTD_DEVICE and SMARTD_DEVICETYPE
+  environment variables.
+
+Date 2010-01-28
+Summary: smartmontools release 5.39.1
+-----------------------------------------------------------
+- Fix crash on kFreeBSD.
+- Fix regression in smartctl option '-q, --quietmode'.
+- Fix regression in smartd directive '-l selftest'.
+- Linux: Allow smartd 'DEVICESCAN -d sat'.
+- Linux: Fix spin-up of SATA drive if '-n standby' is used.
+- Windows: Fix parsing of 3ware 'tw_cli' output.
+
+Date 2009-12-09
+Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
+-----------------------------------------------------------
+- Sourcecode repository moved from CVS to SVN
+- Support for USB devices with Cypress, JMicron and Sunplus USB bridges
+- USB device type autodetection for some devices on Linux, Windows and FreeBSD
+  (http://www.smartmontools.org/wiki/Supported_USB-Devices)
+- Support for Areca controllers on Linux
+- Support for MegaRAID controllers on Linux
+- Support for HighPoint RocketRAID controllers on FreeBSD
+- Support RAID controllers using /dev/pass devices on FreeBSD
+- Support CHECK_POWER_MODE and WRITE_LOG on FreeBSD
+- Support for up to 128 devices on 3ware controllers
+- smartctl option '-l xerror' to print ATA SMART Extended Comprehensive
+  Error Log
+- smartctl option '-l xselftest' to print ATA SMART Extended Self-test Log
+- smartctl option '-l sataphy' to print SATA Phy Event Counters
+- smartctl option '-l sasphy' to print SAS device phy information
+- smartctl options '-l gplog,...' and '-l smartlog,...' to print any log page
+- smartctl option '-x' to print all extended info if available
+- smartctl prints SCSI load/unload cycle counts
+- Improve display of huge raw values of some SMART attributes
+- Option '-d sat+TYPE' to use SAT with controllers which require '-d TYPE'
+- Option '-v ID,RAW_FORMAT,ATTR_NAME' to add new vendor specific attributes
+- Support for SSD drives using 64-bit raw attributes
+- Many additions to drive database
+- New simplified syntax for drive database
+- Option '-B FILE' to read drive database from a file
+- Configure option to add drive database file to distribution
+- smartd can now handle attributes 197 and 198 with increasing raw values
+- smartd logs changes of self-test execution status
+- smartd directive '-n powermode,N' to limit the number of skipped checks
+- smartd flag '!' for '-r' and '-R' directives to log changes as critical
+- smartd supports scheduled Selective Self-Tests
+- Self-tests scheduled during system downtime or disk standby are run after
+  next startup
+- smartd option '-s PREFIX' to store smartd internal state until next startup
+- smartd option '-A PREFIX' to log attributes at each check cycle
+- Configure options to enable the above by default
+- Change to an object oriented interface to access ATA and SCSI devices
+- Linux, Win32 and FreeBSD modules migrated to new interface
+- Rework of smartd data structures
+- Checkin date and SVN revision and optional BUILD_INFO printed in version info
+- Better support for GSmartControl on Windows
+- SELinux fixes to 3ware device node creation
+- Fix CCISS file descriptor leak on FreeBSD
+- Compile fixes for Solaris and FreeBSD
+- Use getaddrinfo() instead of gethostbyname() to support IPv6
+- C++ Support for QNX Target, already tested for QNX 6.3.2 on x86 and
+  armle target
+- Additional support for Samsung MLC flash drives
+- New device type detection algorithm on FreeBSD, not based on filename
+- Support for the adaX (ATA on CAM bus) devices on FreeBSD 8.0 and higher
+
+Date 2008-03-10
+Summary: smartmontools release 5.38 (STABLE)
+--------------------------------------------
+This is a stable release of smartmontools.  In addition to changes
+below, it includes:
+ - Libata/Marvell driver devices no longer need explicit '-d' switch
+ - DEVICESCAN automatically detects libata/marvell driver SATA devices 
+ - Fixed auto-offline/autosave support in FreeBSD
+ - SAT device type + SCSI generic devices work properly with smartd under Linux
+ - Many additions to drive database
+ - More portable autogen/autoconf/automake script set
+ - Additional Windows IOCTL route to access SMART data
+ - Some ATA-8 updates
+ - Smoother CCISS compilation support in Linux
+ - Dragonfly support
+ - Fixed some ATA identity byte swap problems on big endian CPUs
+ - Added support for the QNX operating system
+ - No-fork option added to smartd
+ - Improved device scanning and drive type recognition in Windows
+ - 3ware support for controllers with more disks (32 max)
+ - Improved Windows installer
+ - Improved SMART Attribute list and descriptions
+ - Fix to smartctl return codes
+ - Fix to scheduled tests on Highpoint RAID controllers
+ - New samsung firmware bug workaround option
+ - Auto-offline and Auto-save fixed in Linux + libata
+ - Solaris: better SCSI support and support for Sun compilers AND gcc
+ - Fixed and improvements to CCISS support
+ - More options for SCSI temperature monitoring and history
+ - Additional command line options for selective self-tests
+ - Compilation fixes for various platforms.
+
+See CHANGELOG for more details, or smartmontools SVN for still further
+details.
+
+Date 2006-12-20
+Summary: smartmontools release 5.37 (UNSTABLE/EXPERIMENTAL)
+-----------------------------------------------------------
+This is an unstable/experimental release of smartmontools.
+It includes:
+
+- Many additions to the table of known drives
+- SAT (SCSI/ATA Translation) support
+- SCSI background scan results log
+- smartd -W directive for temperature tracking and warning
+- smartctl -n option to check power state
+- improved smartd power state logging
+- CCISS support under Linux
+- HighPoint RocketRAID support under Linux
+- 3ware RAID support under Windows
+- SPT interface for SCSI devices under Windows
+- ATA selective self test under Windows XP/2003
+- NSIS installer support for Windows version
+- Started move from C to C++
+- Various other improvements
+
+
+Date 2006-04-12
+Summary: smartmontools release 5.36 (STABLE)
+-----------------------------------------------------------
+This is a stable smartmontools release.  The 5.34 version
+described just below was never officially released because
+Bruce Allen decided to wait until Linux support for
+accessing SATA devices through libata was in the official
+kernel.org sources.  Changes include:
+
+- Win 2000/XP:ability to cancel drive self-tests
+- Additions to the table of known drives
+- FreeBSD support for 3ware char device interface and
+  multiple 3ware cards
+- Various cygwin improvements for running as service
+- Works 'out of the box' with Linux SATA libata
+- smartd option added to list test schedules
+- smartctl option added to list part of drive database
+- various improvements for SCSI disks and logs
+
+
+Date 2005-04-19
+Summary: smartmontools release 5.34 (STABLE)
+-----------------------------------------------------------
+This is a stable smartmontools release.  It includes:
+- OS/2 and eComStation support
+All Platforms:
+ - Printing of drive family info
+ - SCSI disks: output size of grown defect list
+ - Added info about drive family to 'smartctl -i' output.
+ - Added option ',q' for smartd '-n' directive to suppress
+   'skipping checks' message which may spin up laptop disk.
+ - Added message if smartd '-n' check power mode spins up disk.
+Cygwin and Windows:
+ - Added info about Windows version and service pack to banner line.
+ - Added support for smartd '-n' directive for Win2000/XP.
+ - Added support for READ_LOG for WinNT4 also.
+ - Fixed bug that prevents display of empty logs on Win2000/XP
+ - Fixed use of cached smart enabled state in 'smartctl -i' output. 
+Windows:
+ - Fixed bug that prevents running smartd as service on WinNT4.
+
+
+Date 2004-9-5
+Summary: smartmontools release 5.33 (UNSTABLE/EXPERIMENTAL)
+-----------------------------------------------------------
+This is an unstable/experimental release of smartmontools.  It includes
+ - support for Darwin/Mac OSX
+ - support for OpenBSD
+ - support for 3ware ATA RAID controllers under FreeBSD
+ - support for 3ware 9500 series SATA RAID controllers under
+   Linux.  Use /dev/twa[0-15] devices to access these.
+ - support for 3ware character device interfaces /dev/twe[0-15]
+   under Linux.  This allows (for example) Selective Self-tests.
+ - support for Marvell chip-set based SATA controllers under Linux.
+ - smartd mail now works also under Windows (using "Blat" mailer).
+ - smartd can now be run as a Windows service.
+Please report sucess/failure with these items to the
+smartmontools-support mailing list.
+
+
+Date 2004-7-5
+Summary: smartmontools release 5.32 (STABLE)
+-----------------------------------------------------------
+This is an stable release of smartmontools.
+Note added 2004/7/7: users building a Solaris/Intel version of the code should 
+modify the 'configure' file, changing "pc-*-solaris*" on line 106
+to read "*-pc-solaris*".  Reference:
+http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/configure.in?r1=1.83&r2=1.84
+
+
+Date: 2004-5-4
+Summary: smartmontools release 5.31 (UNSTABLE/EXPERIMENTAL)
+-----------------------------------------------------------
+This is an unstable/experimental release of smartmontools.  It includes
+several new features:
+- Windows smartd daemon
+- smartd now monitors current and pending sector counts
+- Support for ATA-7 selective self-test features (Linux/NetBSD only)
+  Please report sucess/failure with this option to the smartmontools-support
+  mailing list.
+
+Date: 2004-3-6
+Summary: smartmontools release 5.30 (STABLE)
+--------------------------------------------
+This is a stable release of smartmontools: the first stable release
+since 5.26.
+- KNOWN BUG (identified/fixed by CF): smartd will segv and crash if
+  the configuration file /etc/smartd.conf contains NO valid entries.
+  This bug was introduced in version 1.259 of smartd.c by BA and
+  is present in smartmontools releases 5.27-5.30 inclusive. This can
+  be fixed by editing line 3165 of smartd.c, and changing:
+  "else if (cfgentries[0]) {"
+  to read:
+  "else if (cfgentries && cfgentries[0]) {"
+
+
+Date: 2004-2-24
+Summary: smartmontools release 5.29 (Experimental, not STABLE)
+--------------------------------------------------------------
+This is another experimental release, to replace the 5.27 release that
+had a damaged configure script.  The next stable release will be 5.30
+- This release has SCSI support for NetBSD
+
+
+Date: 2004-2-12 
+Summary: smartmontools release 5.27 (Experimental, not STABLE)
+--------------------------------------------------------------
+- WARNING: this release has a broken --prefix=/a/path option to the
+  configure script.  The consequence is that smartd will not look for the
+  configuration file (smartd.conf) at the desired location.
+- NetBSD support added
+- A new Directive (-s) for smartd.conf now enables flexible automatic
+  scheduled self-testing for both ATA and SCSI devices.
+- Solaris now has ATA device support (SPARC only)
+- A new Directive (-n) for smartd.conf to avoid spinning up disks
+- Errors when smartd sends mail are now logged to SYSLOG
+- Solaris smartd mail now works correctly (uses mailx not mail)
+
+
+Date: 2003-11-29
+Summary: smartmontools release 5.26
+-----------------------------------
+This is a stable smartmontools release.  The only known problem is
+that under Solaris, the email features of smartd do not work 'out of
+the box'.  Three workarounds are:
+  [1] use '-M exec mailx' in /etc/smartd.conf
+  [2] in the start script for smartd, put /usr/ucb into PATH before
+      /bin
+  [3] upgrade to release 5.27 or later, or the latest CVS snapshot
+
+
+Date: 2003-11-19
+Summary: smartmontools release 5.25
+-----------------------------------
+This release should not hang when accessing USB devices. It provides
+smartd SCSI self-test log monitoring for self-test errors, and a
+larger table of known ATA drives.  DEVICESCAN should work correctly
+even on file systems containing XFS or JFS partitions, and on machines
+that use devfs, even without traditional links.
+
+From this time on, even numbered releases will be 'stable' ones and
+odd numbered releases (like 5.25) will be unstable/testing/development
+releases.
+
+
+Date: 2003-10-30
+Summary: smartmontools release 5.23
+-----------------------------------
+This release has one known problem: DEVICESCAN device scanning does
+not work correctly if the disk with the /dev directory also has XFS
+or JFS file systems on it.
+
+
+Date: 2003-10-28
+Summary: smartmontools release 5.22
+-----------------------------------
+Replaces flawed 5.21 release: the -T verypermissive option had to be
+entered as -T verpermissive. First experimental solaris support (SCSI
+only).  This release had a serious flaw: smartd left open file descriptors
+for devices that it couldn't monitor.
+
+
+Date: 2003-10-14
+Summary: smartmontools release 5.21
+-----------------------------------
+Preliminary support for FreeBSD added to smartmontools.  For FreeBSD,
+ATA support requires a 5.1-CURRENT kernel while SCSI support should
+work across multiple versions (any that support CAM).
+
+
+Date: 2003-10-04
+Summary: smartmontools release 5.20
+-----------------------------------
+Replaces flawed 5.19 release (which had a zero-length man page
+smartd.conf.5).
+
+
+Date: 2003-10-03
+Summary: smartmontools release 5.19
+-----------------------------------
+This is the first release of smartmontools based on autoconf/automake.
+For this reason, it is a very experimental release.  Please let us
+know in particular about documentation errors/omissions, missing or
+unnecessary files, and similar oversights.  The major changes are:
+ [1]  installation scripts based on autoconfig/automake
+ [2] ./configure [options] lets you set arbitrary paths
+ [3] supports FHS with ./configure --prefix=/usr/local
+ [4] correct paths are inserted into all man pages, binaries, etc.
+ [5] tarballs and RPMs are now GPG-signed
+
+
+Date: 2003-10-02 11:35
+Summary: smartd SEGV
+--------------------
+Some versions of smartd, including smartmontools release 5.1-18, will
+SEGV if the combination of Directives in /etc/smartd.conf contains
+-l error
+AND/OR
+-l selftest
+without any Attribute monitoring Directives.  This is fixed in 5.19
+and above.
+
+A good workaround is to add:
+-o on
+OR
+-o off
+to enable or disable automatic offline data collection.
+
+
+Date: 2002-11-17 07:41
+Summary: testunitready bug in smartd
+------------------------------------
+A bug in smartd prevented functioning on scsi devices.
+The bug in question only affects smartd users with scsi devices.
+To see if your version of smartd has the testunitready() bug, do
+smartd -V
+If the version of the module smartd.c in a line like:
+Module: smartd.c revision: 1.66 date: 2002/11/17
+has a revision greater than or equal to 1.30, and less than or
+equal to 1.64, then your version of the code has this problem.
+
+This problem affected releases starting with RELEASE_5_0_16 up to and
+including RELEASE_5_0_43.
