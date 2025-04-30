@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5700 2025-04-25 15:24:01Z chrfranke $
+# $Id: configure.ac 5714 2025-04-30 07:43:44Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
@@ -10,8 +10,8 @@ AM_INIT_AUTOMAKE([1.13 foreign])
 smartmontools_drivedb_version=7.5
 
 # Set by 'do_release' script, commented out when release number is bumped.
-smartmontools_release_date= # 2023-08-01
-smartmontools_release_time= # "10:59:45 UTC"
+smartmontools_release_date=2025-04-30
+smartmontools_release_time="07:42:55 UTC"
 
 if test -n "$smartmontools_release_date"; then
   AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE, "$smartmontools_release_date",    [smartmontools Release Date])
@@ -22,7 +22,7 @@ else
   AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5700 2025-04-25 15:24:01Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.ac 5714 2025-04-30 07:43:44Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
 

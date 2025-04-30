@@ -1,11 +1,11 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 5712 2025-04-29 12:06:12Z chrfranke $
+$Id: NEWS 5714 2025-04-30 07:43:44Z chrfranke $
 
 The most up-to-date version of this file is:
 https://www.smartmontools.org/browser/trunk/smartmontools/NEWS
 
-Date <Not released yet, please try current SVN or a recent CI build>
+Date 2025-04-30
 Summary: smartmontools release 7.5
 -----------------------------------------------------------
 - CI and release builds are now reproducible if same SOURCE_DATE_EPOCH,
