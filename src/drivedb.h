@@ -6888,6 +6888,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; ",
+    "0x5432:0x1352", // TerraMaster D8 Hybrid
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   // OnSpec
   { "USB: ; OnSpec", // USB->PATA
     "0x55aa:0x2b00",
