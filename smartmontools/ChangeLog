@@ -1,5 +1,11 @@
 $Id$
 
+2025-05-03  Adrian Torres  <atorresj@redhat.com>
+
+	drivedb.h: Add TerraMaster D8 Hybrid (0x5432:0x1352)
+
+	(GH-pull/338)
+
 2025-04-30  Christian Franke  <franke@computer.org>
 
 	smartmontools 7.5
