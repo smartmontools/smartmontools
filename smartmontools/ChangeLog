@@ -1,11 +1,281 @@
 $Id$
 
-2024-12-25  Eileen Hsu  <eileen_hsu@phison.com>
+2025-05-12  Eileen Hsu  <eileen_hsu@phison.com>
 
 	drivedb.h:
        - PHISON "MSD210-M(4|8)(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GPSCB5UFI-S12(1|2)|"
                  "MST360-M8PS(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GWB5UFI-S17T2|"
                  "M8(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GB5UFI-S171|"
+
+
+2025-04-30  Christian Franke  <franke@computer.org>
+
+	smartmontools 7.5
+
+2025-04-29  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Add NSID to JSON output of SMART/Health information.
+
+	ataprint.cpp: ACS-6 updates.
+
+	popen_as_ugid.cpp: Add missing config.h.
+
+	os_win32/update-smart-drivedb.ps1.in: Print download command if
+	'-Verbose' is used.
+
+	os_win32/smartd_mailer.conf.sample.ps1: Add encryption sample.
+
+2025-04-27  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Phison Driven SSDs: PNY CS900/1311/2211 1TB, 2TB (GH pull/201).
+	- Hitachi/HGST Ultrastar 7K4000: HITACHI variant (#1791),
+	  4.5TB (GH pull/305).
+	- Western Digital Ultrastar HC*: Attribute 22 is in "DEFAULT" entry.
+	- Seagate Exos X20/X22: Rename, add X22 (#1932).
+	- Seagate IronWolf: Attribute 188 (GH issues/319), *VN000,
+	  *VN002 (GH issues/246), *VN006 (#1687, GH issues/157), 14TB, 16TB.
+	- Seagate IronWolf Pro: 16TB (#1836), 18TB, 20TB.
+	- USB: Fujitsu (0x04c5:0x11bc) (#1938).
+	- USB: ADATA HD680 (0x125f:0xa85a) (#1764).
+
+2025-04-26  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Micron 5100 / 52x0 / 5300 / 5400 SSDs: 5400 *_SED variant (#1950).
+	- Phison Driven OEM SSDs: Gigastone GSTB512G (#1947).
+	- Silicon Motion based SSDs: Transcend SSD230S 2/4TB
+	  (GH issues/240, GH pull/241).
+	- Silicon Motion based OEM SSDs: Intenso M.2 SSD High (#1945),
+	  Intenso SSD Sata III/S0222A0 (#1948).
+	- SSSTC ERX GD/CD Series SSDs: 7.68TB, 15.36TB (#1946).
+	- Seagate Exos 7E8: OOS6000G (GH issues/320).
+	- Seagate Exos X20: OOS20000G.
+
+2025-04-26  Michael Brünen  <mibruenen@gmail.com>
+
+	drivedb.h:
+	- WD Ultrastar DC HC530: Attribute 188.
+	- Seagate Enterprise Capacity 3.5 HDD v7 SED.
+	- Seagate Exos 7E8: Attribute 188.
+	- Seagate Exos X16: Attributes 1, 7 and 188.
+	- Seagate IronWolf Pro: Attribute 188, 22TB, *NT001 variant.
+
+	(GH pull/247)
+
+2025-04-25  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Bump branch VERSION to 7.5.
+	- JMicron JMS581 (0x152d:0xb581) (GH issues/275).
+
+	configure.ac: Use RELEASE_7_5_DRIVEDB for drivedb.h updates.
+
+	update-smart-drivedb.*: Use current gpg key also for 7.5 branch.
+
+	Create new branch RELEASE_7_5_DRIVEDB.
+
+2025-04-22  Christian Franke  <franke@computer.org>
+
+	smartd.conf.5.in: Document '-H MASK'.
+
+	smartd.cpp: Allow to configure checked NVMe Critical Warning bits.
+
+	Add optional MASK parameter to '-H' directive to specify the bits
+	to check (#1715).
+
+	smartd.cpp: Fix validity check for SCSI attribute log (#1245).
+
+	smartd.cpp: Add missing 'static'.
+
+	smartd.8.in, smartd.conf.5.in: Update EXPERIMENTAL notes.
+
+2025-04-21  Christian Franke  <franke@computer.org>
+
+	man pages: Enable NVMe related information for all platforms.
+
+	smartd.conf.5.in: Remove outdated information about old controllers.
+
+	smartd.8.in: Rework '-A' and '-s' and add NVMe info.
+
+	smartd.conf.5.in: Rework '-H -f -p -u -t -a' and add NVMe info.
+
+	smartd.cpp: Handle only 'Available Spare' as prefailure value.
+
+	Enable logging of 'Percentage Used' and 'Media and Data Integrity
+	Errors' with '-u' instead of '-p'.  Enable LOG_CRIT with '-f'.
+
+2025-04-19  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Report changes of prefailure NVMe SMART/Health values.
+
+	If '-p' directive is enabled (default), changes of 'Available Spare'
+	(#1716), 'Percentage Used' and 'Media and Data Integrity Errors' are
+	logged as LOG_INFO or LOG_CRIT.
+
+	smartd.cpp: Fix format string of NVMe attribute log.
+
+2025-04-15  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Add NVMe attribute logs.
+
+	(#1190, GH pull/221, GH pull/281)
+
+2025-04-14  Christian Franke  <franke@computer.org>
+
+	nvmeprint.cpp: Add JSON support for NVMe capabilities.
+
+2025-04-13  Christian Franke  <franke@computer.org>
+
+	do_release: Set SOURCE_DATE_EPOCH for reproducible tarball.
+
+2025-04-02  Lucas Holt  <luke@foolishgames.com>
+
+	configure.ac: Treat MidnightBSD like FreeBSD for host detection.
+
+	(GH pull/333)
+
+2025-03-27  Christian Franke  <franke@computer.org>
+
+	farmprint.cpp: Suppress serial and WWN if '-q noserial' is used.
+
+	smartctl.8.in: Document that '-x' no longer includes '-g wcreorder'.
+
+	ataprint.cpp: Add JSON values 'power_mode.*' (based on GH/pull 239).
+
+2025-03-20  Christian Franke  <franke@computer.org>
+
+	scsinvme.cpp: Add NVMe/SAT autodetection if '-d snt*/sat' is used.
+
+	dev_interface.h: Make 'smart_interface::get_sat_device()' public.
+	This allows usage within 'autodetect_open()' functions.
+
+	scsinvme.cpp: Remove unneeded function 'sntjmicron_device::open()'.
+
+	scsinvme.cpp: Remove outdated check for 'sntjmicron#please_try'.
+
+	smartctl.cpp: Exclude '-g wcreorder' from '-x' (#1702).
+
+	ATA ACS only offers a support check for the SCT FEATURE CONTROL
+	command, but not for its GET WRITE CACHE REORDERING subcommand.
+	If this subcommand fails, the next ATA command (SMART READ DATA)
+	may also fail in some cases.
+
+2025-03-17  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- Swissbit X-7x Family SATA SSD: Simplify regex, add testcase
+	  comments (from #1781, #1800, GH pull/322).
+	- Swissbit X-8x Family SATA SSD: Add testcase comments
+	  (from #1801, GH pull/322).
+	- Phison Driven SSDs: DGSR2*GP13T (#1917), PS3110 256GB (#1829),
+	  S11-*-PHISON-SSD-B27.
+	- Phison Driven OEM SSDs: Goodram CX400 G2 (#1928).
+	- USB: Buffalo (0x0411:0x0...): Merge '-d sat' entries.
+	- USB: Buffalo SSD-PSTA/N (0x0411:0x039d) (GH pull/307).
+	- USB: Packard Bell Carbon (0x0766:0x0017) (#1933).
+
+2025-03-17  Glucy2 <glucy-2@outlook.com>
+
+	drivedb.h: add Realtek RTL9220 (0x0bda:0x9220)
+
+	(GH pull/327)
+
+2025-03-17  Daniel SWB  <daniel.swb.gh@gmail.com>
+
+	drivedb.h: Swissbit X-7x, X-8x family SATA SSD
+
+	(GH pull/322)
+
+2025-03-14  Christian Franke  <franke@computer.org>
+
+	os_linux.cpp: Drop autodetection of deprecated type 'marvell'.
+
+2025-03-14  ThunderEX  <thunderex@gmail.com>
+
+	farmprint.cpp: Fix unit of write power on time.
+
+	(GH pull/328)
+
+2025-02-24  Ross Lagerwall  <ross.lagerwall@citrix.com>
+
+	scsicmds.cpp:
+	- Fix buffer overflow parsing VPD page 0x83 (#1934)
+	- Fix handling multiple designators in VPD page (#1934)
+
+2025-02-15  Christian Franke  <franke@computer.org>
+
+	ataprint.cpp: Add support for '-l farm -T permissive'.
+
+	Overrides the FARM support check for rebranded Seagate drives
+	(see GH issues/320).
+
+2025-02-05  Christian Franke  <franke@computer.org>
+
+	drivedb.h:
+	- USB: HP x911w (0x03f0:0x0c5c) (GH issues/315).
+	- USB: Add Samsung Portable SSD T9 (0x04e8:0x61fd) (#1904).
+	- USB: Asus Arion (0x0b05:0x1932) (GH issues/303).
+	- USB: WD Elements SE SSD (0x1058:0x266e) (GH issues/230).
+	- USB: TeamGroup C212 flash drive (0x13fe:0x6500) (GH issues/302).
+	- USB: TerraMaster D4-320 (0x5432:0x235c) (#1925).
+	- USB: Sabrent EC-SSHD (0x5910:0x13fd).
+
+2025-02-02  Christian Franke  <franke@computer.org>
+
+	*print.cpp: Add JSON values for endurance and available spare.
+
+	'endurance_used.current_percent' is added for ATA, SCSI and NVMe,
+	'spare_available.{current,threshold}_percent' are added for ATA and
+	NVMe.
+
+	smartd.cpp: Drop support for platforms without 'sigaction()'.
+
+	configure.ac: Fail if '--with-signal-func' is used.
+
+	configure.ac: Remove defunct '--with-solaris-sparc-ata'.
+
+	configure.ac: Change default for '--with-nvme-devicescan' to 'yes' on
+	NetBSD.  Update related warnings.
+
+2025-01-26  Christian Franke  <franke@computer.org>
+
+	drivedb.h: Drop maintenance of 6.5-6.6 branches.
+
+	drivedb.h:
+	- SandForce Driven SSDs: OCZ-VERTEX3.20 (#1924).
+	- Intel/Solidigm S46x0/S45x0 Series SSDs: Rename, add Solidigm (#1878).
+	- Marvell based SanDisk SSDs: SDSSDH3* with extra space char (#1918).
+	- Silicon Motion based SSDs: AMD R5SL (#1744), DEXP C100 (#1919),
+	  TCSUNBOW X3 480GB (#1786).
+	- Silicon Motion based OEM SSDs: INTENSO SSD/W0413A0 (#1740),
+	  W0714A0 (#1858), SPCC M.2 SSD/U1209A0 (#1841), Vi550 S3 (#1899).
+
+2025-01-24  Christian Franke  <franke@computer.org>
+
+	scsiprint.cpp: Re-add JSON value 'model_name'.
+
+	This fixes a regression from r5286 (smartmontools 7.3).
+	Keep 'scsi_model_name' to provide backward compatibility with
+	release 7.3 and 7.4.
+
+2025-01-24  Andrew Sayers  <andrew-github.com@pileofstuff.org>
+
+	smartd.service: silence "Referenced but unset environment variable" warning
+
+	(GH pull/316)
+
+2025-01-15  Oleksii Samorukov <samm@os2.kiev.ua>
+
+	sntjmicron: workaround to avoid USB reset on selftest log query (GH: #256).
+
+2025-01-02  Christian Franke  <franke@computer.org>
+
+	smartd.cpp: Avoid invalid "old test ... not run" message.
+
+2025-01-01  Christian Franke  <franke@computer.org>
+
+	Happy New Year!  Update copyright year in version info.
 
 2024-12-10  Christian Franke  <franke@computer.org>
 
