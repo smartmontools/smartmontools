@@ -7,16 +7,17 @@ image: Ubuntu2204
 init:
   # as its not possible to use docker as source image, we will install everything in init step
   - >
-    sudo apt-get update &&
+    sudo apt-get update --allow-releaseinfo-change &&
     sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 unzip wget man2html-base groff
-  # NSIS 3.08-3 from Debian 12 generates bogus relocation information (regression).
-  # The fixed version 3.09-1 is still only available from Ubuntu 23.10 (mantic, devel).
-  # Manually install this version.  The warning about outdated libstdc++6 could be
-  # safely ignored.
-  - >
-    wget http://mirrors.kernel.org/ubuntu/pool/universe/n/nsis/nsis_3.09-1_amd64.deb -O /tmp/nsis_3.09-1_amd64.deb &&
-    wget http://mirrors.kernel.org/ubuntu/pool/universe/n/nsis/nsis-common_3.09-1_all.deb -O /tmp/nsis-common_3.09-1_all.deb
-    && sudo dpkg --install --force-all /tmp/nsis-common_3.09-1_all.deb /tmp/nsis_3.09-1_amd64.deb
+
+# we are building nsis 3.10 because one from ububtu 22.04 is impacted by 
+# https://linux.debian.bugs.dist.narkive.com/x9BPoQjZ/bug-1050288-nsis-3-08-3-bookworm-generates-bogus-relocation-information-regression
+before_build:
+- cd $HOME
+- wget 'https://downloads.sourceforge.net/project/libpng/zlib/1.2.8/zlib128-dll.zip' && unzip -d zlib zlib128-dll.zip
+- wget https://prdownloads.sourceforge.net/nsis/nsis-3.10-src.tar.bz2 && tar -xf nsis-3.10-src.tar.bz2
+- sudo apt-get install -y scons binutils-mingw-w64-i686 zlib1g-dev libcppunit-dev
+- cd nsis-3.10-src && sudo scons -j `nproc` ZLIB_W32=$HOME/zlib SKIPUTILS="NSIS Menu" NSIS_CONFIG_LOG=yes build install && cd $APPVEYOR_BUILD_FOLDER
 
 build_script:
 - cd smartmontools
@@ -33,11 +34,9 @@ build_script:
 - cd ../build && dest="smartmontools-win32-setup-${SM_VER}-r${SVNREV}.exe"
 - make BUILD_INFO="$BUILD_INFO" builddir_win64=../build64 distinst_win32="$dest" installer-win32
 - sha256sum *.exe
-# - cd /home/appveyor/projects/smartmontools-fork/ && zip build.zip smartmontools -r
 
 artifacts:
 - path: smartmontools/build/smartmontools-win32-setup-*.exe
-# - path: build.zip
 
 deploy:
 - provider: Webhook

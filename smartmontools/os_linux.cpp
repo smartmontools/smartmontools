@@ -2653,17 +2653,9 @@ smart_device * linux_scsi_device::autodetect_open()
       return this;
     }
 
-    // Marvell ?
-    if (len >= 42 && !memcmp(req_buff + 36, "MVSATA", 6)) {
-      //pout("Device %s: using '-d marvell' for ATA disk with Marvell driver\n", get_dev_name());
-      close();
-      smart_device_auto_ptr newdev(
-        new linux_marvell_device(smi(), get_dev_name(), get_req_type())
-      );
-      newdev->open(); // TODO: Can possibly pass open fd
-      delete this;
-      return newdev.release();
-    }
+    // TODO: Remove after smartmontools 7.5
+    if (len >= 42 && !memcmp(req_buff + 36, "MVSATA", 6))
+      pout("Warning: device type 'marvell' is deprecated and no longer autodetected\n");
   }
 
   // SAT or USB ?
@@ -3527,7 +3519,7 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
 smart_device * linux_smart_interface::get_custom_smart_device(const char * name, const char * type)
 {
   // Marvell ?
-  // TODO: Remove after smartmontools 7.4
+  // TODO: Remove after smartmontools 7.5
   if (!strcmp(type, "marvell"))
     return set_err_np(EINVAL,
       "The device type 'marvell' is deprecated and will be removed in a\n"

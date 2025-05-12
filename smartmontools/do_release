@@ -2,7 +2,7 @@
 #
 # do a smartmontools release
 # (C) 2003-11 Bruce Allen, Guido Guenther
-# (C) 2006-22 Christian Franke
+# (C) 2006-25 Christian Franke
 # $Id$
 
 # Notes on generating releases:
@@ -24,7 +24,7 @@ usage()
 {
   cat <<EOF
 Usage: $myname --checkout[=URL] DESTDIR
-       $myname [--nocheck] [--commit] RC[1-9]|FINAL
+       [SOURCE_DATE_EPOCH=...] $myname [--nocheck] [--commit] RC[1-9]|FINAL
 EOF
   exit 1
 }
@@ -83,18 +83,17 @@ if [ -n "${REV//[0-9]/}" ]; then
   echo "Working directory not clean: $REVX"; exit 1
 fi
 
-(cd $WDROOT && svn status) | while read s; do
+CHANGED="configure.ac"
+while read s; do
   # shellcheck disable=SC2254
   case "`echo $s | tr -s ' '`" in
-    "M "$DIRPAT/smartmontools/ChangeLog)    echo "$s: OK";;
-    "M "$DIRPAT/smartmontools/NEWS)         echo "$s: OK";;
+    "") ;;
+    "M "$DIRPAT/smartmontools/ChangeLog)    echo "$s: OK"; CHANGED+=" ChangeLog" ;;
+    "M "$DIRPAT/smartmontools/NEWS)         echo "$s: OK"; CHANGED+=" NEWS" ;;
     "M "$DIRPAT/smartmontools/configure.ac) echo "$s: OK";;
     *) echo "$s: not allowed"; exit 1;;
   esac
-done
-if [ $? -ne 0 ]; then
-  exit 1
-fi
+done <<<"`cd $WDROOT && svn status`"
 
 # Get release number
 VERSION=`sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' configure.ac`
@@ -115,9 +114,16 @@ fi
 
 echo "r$REV: Release $VERSIONRC $RELEASE"
 
+# Use SOURCE_DATE_EPOCH or current time as release time
+if [ -z "$SOURCE_DATE_EPOCH" ]; then
+  SOURCE_DATE_EPOCH=`date +%s`
+fi
+export -n SOURCE_DATE_EPOCH # export not required
+
 # Update timestamp
-smartmontools_release_date=`date -u +"%Y-%m-%d"`
-smartmontools_release_time=`date -u +"%T %Z"`
+# (requires GNU version of 'date')
+smartmontools_release_date=`date -d @"$SOURCE_DATE_EPOCH" -u +"%Y-%m-%d"`
+smartmontools_release_time=`date -d @"$SOURCE_DATE_EPOCH" -u +"%T %Z"`
 sed -e "s|^smartmontools_release_date=.*$|smartmontools_release_date=${smartmontools_release_date}|" \
     -e "s|^smartmontools_release_time=.*$|smartmontools_release_time=\"${smartmontools_release_time}\"|" \
     configure.ac > configure.tmp
@@ -128,21 +134,34 @@ svn diff
 echo "==================================================================="
 echo ">>> Continuing in 20 seconds ..."
 sleep 20
-set -v
 
 # Create tag and commit
 if [ "$COMMIT" = "yes" ]; then
   svn mkdir $WDROOT/tags/$RELEASE
   svn copy ../smartmontools $WDROOT/tags/$RELEASE/smartmontools
   svn commit -m "Release $VERSIONRC $RELEASE" $WDROOT
+  last_changed=`svn info --show-item last-changed-date configure.ac`
+  SOURCE_DATE_EPOCH=`date -d "$last_changed" +%s`
+else
+  SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1))
 fi
+
+# Ensure reproducible timestamp of changed files
+# (requires GNU version of 'touch')
+touch -d @"$SOURCE_DATE_EPOCH" $CHANGED
+
+# Add one second for files generated below
+SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1))
+echo ">>> SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH # `date -d @"$SOURCE_DATE_EPOCH" -Is`"
+sleep 2
+set -v
 
 # Build
 ./autogen.sh
 
 mkdir build
 cd build
-../configure
+../configure SOURCE_DATE_EPOCH="$SOURCE_DATE_EPOCH"
 make $DIST || exit 1
 make maintainer-clean
 cd ..

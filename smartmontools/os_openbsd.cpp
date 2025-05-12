@@ -14,6 +14,7 @@
 
 #include "atacmds.h"
 #include "scsicmds.h"
+#include "nvmecmds.h"
 #include "utility.h"
 #include "os_openbsd.h"
 
@@ -27,11 +28,31 @@ const char * os_openbsd_cpp_cvsid = "$Id$"
 
 #define ARGUSED(x) ((void)(x))
 
+// based on OpenBSD "/usr/include/dev/ic/nvmeio.h" && "/usr/include/dev/biovar.h"
+#include "openbsd_nvme_ioctl.h"       // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
+
 /////////////////////////////////////////////////////////////////////////////
 
 namespace os_openbsd { // No need to publish anything, name provided for Doxygen
 
 static const char *net_dev_prefix = "/dev/";
+
+bool sd_is_nvme(const char *dev)
+{
+      struct nvme_pt_cmd pt;
+      memset(&pt, 0, sizeof(pt));
+      pt.pt_opcode = smartmontools::nvme_admin_identify;
+
+      int fd = ::open(dev, O_RDWR);
+      if (fd == -1)
+        return false;
+
+      int status = ioctl(fd, NVME_PASSTHROUGH_CMD, &pt);
+      close(fd);
+
+      return status != -1 || errno != ENOTTY;
+}
+
 static const char *net_dev_ata_disk = "wd";
 static const char *net_dev_scsi_disk = "sd";
 static const char *net_dev_scsi_tape = "st";
@@ -209,6 +230,80 @@ bool openbsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
 }
 
 /////////////////////////////////////////////////////////////////////////////
+/// NVMe support
+
+class openbsd_nvme_device
+: public /*implements*/ nvme_device,
+  public /*extends*/ openbsd_smart_device
+{
+public:
+  openbsd_nvme_device(smart_interface * intf, const char * dev_name,
+    const char * req_type, unsigned nsid);
+
+  virtual bool open() override;
+
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
+};
+
+openbsd_nvme_device::openbsd_nvme_device(smart_interface * intf, const char * dev_name,
+  const char * req_type, unsigned nsid)
+: smart_device(intf, dev_name, "nvme", req_type),
+  nvme_device(nsid),
+  openbsd_smart_device()
+{
+}
+
+bool openbsd_nvme_device::open()
+{
+  const char *dev = get_dev_name();
+  int fd;
+
+  if ((fd = ::open(dev, O_RDWR)) == -1) {
+    set_err(errno, "can't open sd device");
+    return false;
+  }
+
+  set_fd(fd);
+
+  return true;
+}
+
+bool openbsd_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
+{
+  struct nvme_pt_cmd pt;
+  struct nvme_pt_status ps;
+
+  memset(&ps, 0, sizeof(ps));
+  memset(&pt.pt_bio, 0, sizeof(pt.pt_bio));
+
+  pt.pt_opcode = in.opcode;
+  pt.pt_nsid = in.nsid;
+  pt.pt_databuf = (caddr_t)in.buffer;
+  pt.pt_databuflen = in.size;
+  pt.pt_cdw10 = in.cdw10;
+  pt.pt_cdw11 = in.cdw11;
+  pt.pt_cdw12 = in.cdw12;
+  pt.pt_cdw13 = in.cdw13;
+  pt.pt_cdw14 = in.cdw14;
+  pt.pt_cdw15 = in.cdw15;
+  pt.pt_status = (char *)&ps;
+  pt.pt_statuslen = sizeof(ps);
+
+  int status = ioctl(get_fd(), NVME_PASSTHROUGH_CMD, &pt);
+
+  if (status == -1)
+    return set_err(errno, "NVME_PASSTHROUGH_CMD: %s", strerror(errno));
+
+  out.result = 0; // cqe.cdw0 (Command specific result) is not provided
+
+  if (nvme_completion_is_error(ps.ps_flags))
+    return set_nvme_err(out, nvme_completion_is_error(ps.ps_flags));
+
+  return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
 /// Standard SCSI support
 
 class openbsd_scsi_device
@@ -381,6 +476,9 @@ protected:
 
   virtual scsi_device * get_scsi_device(const char * name, const char * type) override;
 
+  virtual nvme_device * get_nvme_device(const char * name, const char * type,
+    unsigned nsid) override;
+
   virtual smart_device * autodetect_smart_device(const char * name) override;
 
   virtual smart_device * get_custom_smart_device(const char * name, const char * type) override;
@@ -432,6 +530,11 @@ ata_device * openbsd_smart_interface::get_ata_device(const char * name, const ch
 scsi_device * openbsd_smart_interface::get_scsi_device(const char * name, const char * type)
 {
   return new openbsd_scsi_device(this, name, type);
+}
+
+nvme_device * openbsd_smart_interface::get_nvme_device(const char * name, const char * type, unsigned nsid)
+{
+  return new openbsd_nvme_device(this, name, type, nsid);
 }
 
 int openbsd_smart_interface::get_dev_names(char ***names, const char *prefix)
@@ -504,6 +607,7 @@ bool openbsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
     bool scan_ata = !*type || !strcmp(type, "ata");
     bool scan_scsi = !*type || !strcmp(type, "scsi") || !strcmp(type, "sat");
+    bool scan_nvme = !*type || !strcmp(type, "nvme");
 
     // Make namelists
     char * * atanames = 0; int numata = 0;
@@ -517,7 +621,7 @@ bool openbsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
     char * * scsinames = 0; int numscsi = 0;
     char * * scsitapenames = 0; int numscsitape = 0;
-    if (scan_scsi) {
+    if (scan_scsi || scan_nvme) {
       numscsi = get_dev_names(&scsinames, net_dev_scsi_disk);
       if (numscsi < 0) {
         set_err(ENOMEM);
@@ -541,9 +645,17 @@ bool openbsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
     if(numata) free(atanames);
 
     for (i = 0; i < numscsi; i++) {
-      scsi_device * scsidev = new openbsd_scsi_device(this, scsinames[i], type, true /*scanning*/);
-      if (scsidev)
-        devlist.push_back(scsidev);
+      if (sd_is_nvme(scsinames[i])) {
+        if (scan_nvme) {
+          nvme_device * nvmedev = new openbsd_nvme_device(this, scsinames[i], type, true /*scanning*/);
+          if (nvmedev)
+            devlist.push_back(nvmedev);
+        }
+      } else if (scan_scsi) {
+        scsi_device * scsidev = new openbsd_scsi_device(this, scsinames[i], type, true /*scanning*/);
+        if (scsidev)
+          devlist.push_back(scsidev);
+      }
       free(scsinames[i]);
     }
     if(numscsi) free(scsinames);
@@ -588,8 +700,11 @@ smart_device * openbsd_smart_interface::autodetect_smart_device(const char * nam
       // XXX get USB vendor ID, product ID and version from sd(4)/umass(4).
       // XXX check sat device via get_usb_dev_type_by_id().
 
-      // No USB bridge found, assume regular SCSI or SAT device
-      return get_scsi_device(name, "");
+      // No USB bridge found, decide if it's NVME or regular SCSI or SAT device
+      if (sd_is_nvme(name))
+        return get_nvme_device(name, "nvme", 0);
+      else
+        return get_scsi_device(name, "");
     }
     if (!strncmp(net_dev_scsi_tape, test_name, strlen(net_dev_scsi_tape)))
       return get_scsi_device(name, "scsi");

@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-24 Christian Franke
+ * Copyright (C) 2016-25 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -164,7 +164,7 @@ static void print_drive_info(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id
     const char * align = &("  "[nsid < 10 ? 0 : (nsid < 100 ? 1 : 2)]);
     int fmt_lba_bits = id_ns.lbaf[id_ns.flbas & 0xf].ds;
 
-    json::ref jrns = jglb["nvme_namespaces"][0];
+    json::ref jrns = jglb["nvme_namespaces"][0]; // Same as in print_drive_capabilities()
     jrns["id"] = nsid;
 
     // Size and Capacity are equal if thin provisioning is not supported
@@ -223,21 +223,41 @@ static const char * format_power(char (& str)[16], unsigned power, unsigned scal
   return str;
 }
 
+static void format_power(const json::ref & jref, const char * name,
+  unsigned power, unsigned scale)
+{
+  unsigned sc = scale & 0x3;
+  if (!sc)
+    return; // not reported
+  jref[name] += { { "value", power }, { "scale", sc } };
+  if (sc <= 2)
+    jref[name]["units_per_watt"] = (sc == 2 ? 100 : 10000);
+}
+
 static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id_ns & id_ns,
   unsigned nsid, bool show_all)
 {
   // Figure 112 of NVM Express Base Specification Revision 1.3d, March 20, 2019
   // Figure 251 of NVM Express Base Specification Revision 1.4c, March 9, 2021
   // Figure 275 of NVM Express Base Specification Revision 2.0c, October 4, 2022
-  pout("Firmware Updates (0x%02x):            %d Slot%s%s%s%s%s\n", id_ctrl.frmw,
+  jout("Firmware Updates (0x%02x):            %d Slot%s%s%s%s%s\n", id_ctrl.frmw,
        ((id_ctrl.frmw >> 1) & 0x7), (((id_ctrl.frmw >> 1) & 0x7) != 1 ? "s" : ""),
        ((id_ctrl.frmw & 0x01) ? ", Slot 1 R/O" : ""),
        ((id_ctrl.frmw & 0x10) ? ", no Reset required" : ""),
        ((id_ctrl.frmw & 0x20) ? ", multiple detected" : ""), // NVMe 2.0
        ((id_ctrl.frmw & ~0x3f) ? ", *Other*" : ""));
 
+  jglb["nvme_firmware_update_capabilities"] += {
+    { "value", id_ctrl.frmw },
+    { "slots", (id_ctrl.frmw >> 1) & 0x7 },
+    { "first_slot_is_read_only", !!(id_ctrl.frmw & 0x01) },
+    { "activiation_without_reset", !!(id_ctrl.frmw & 0x10) },
+    { "multiple_update_detection", !!(id_ctrl.frmw & 0x20) },
+    { "other", id_ctrl.frmw & ~0x3f }
+  };
+
   if (show_all || id_ctrl.oacs)
-    pout("Optional Admin Commands (0x%04x):  %s%s%s%s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oacs,
+    jout("Optional Admin Commands (0x%04x):  %s%s%s%s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oacs,
          (!id_ctrl.oacs ? " -" : ""),
          ((id_ctrl.oacs & 0x0001) ? " Security" : ""),
          ((id_ctrl.oacs & 0x0002) ? " Format" : ""),
@@ -252,8 +272,24 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
          ((id_ctrl.oacs & 0x0400) ? " Lockdown" : ""), // NVMe 2.0
          ((id_ctrl.oacs & ~0x07ff) ? " *Other*" : ""));
 
+  jglb["nvme_optional_admin_commands"] += {
+    { "value", id_ctrl.oacs },
+    { "security_send_receive", !!(id_ctrl.oacs & 0x0001) },
+    { "format_nvm", !!(id_ctrl.oacs & 0x0002) },
+    { "firmware_download", !!(id_ctrl.oacs & 0x0004) },
+    { "namespace_management", !!(id_ctrl.oacs & 0x0008) }, // NVMe 1.2
+    { "self_test", !!(id_ctrl.oacs & 0x0010) }, // NVMe 1.3 ...
+    { "directives", !!(id_ctrl.oacs & 0x0020) },
+    { "mi_send_receive", !!(id_ctrl.oacs & 0x0040) },
+    { "virtualization_management", !!(id_ctrl.oacs & 0x0080) },
+    { "doorbell_buffer_config", !!(id_ctrl.oacs & 0x0100) },
+    { "get_lba_status", !!(id_ctrl.oacs & 0x0200) }, // NVMe 1.4
+    { "command_and_feature_lockdown", !!(id_ctrl.oacs & 0x0400) }, // NVMe 2.0
+    { "other", id_ctrl.oacs & ~0x07ff }
+  };
+
   if (show_all || id_ctrl.oncs)
-    pout("Optional NVM Commands (0x%04x):    %s%s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oncs,
+    jout("Optional NVM Commands (0x%04x):    %s%s%s%s%s%s%s%s%s%s%s\n", id_ctrl.oncs,
          (!id_ctrl.oncs ? " -" : ""),
          ((id_ctrl.oncs & 0x0001) ? " Comp" : ""),
          ((id_ctrl.oncs & 0x0002) ? " Wr_Unc" : ""),
@@ -266,8 +302,22 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
          ((id_ctrl.oncs & 0x0100) ? " Copy" : ""), // NVMe 2.0
          ((id_ctrl.oncs & ~0x01ff) ? " *Other*" : ""));
 
+  jglb["nvme_optional_nvm_commands"] += {
+    { "value", id_ctrl.oncs },
+    { "compare", !!(id_ctrl.oncs & 0x0001) },
+    { "write_uncorrectable", !!(id_ctrl.oncs & 0x0002) },
+    { "dataset_management", !!(id_ctrl.oncs & 0x0004) },
+    { "write_zeroes", !!(id_ctrl.oncs & 0x0008) }, // NVMe 1.1 ...
+    { "save_select_feature_nonzero", !!(id_ctrl.oncs & 0x0010) },
+    { "reservations", !!(id_ctrl.oncs & 0x0020) },
+    { "timestamp", !!(id_ctrl.oncs & 0x0040) }, // NVMe 1.3
+    { "verify", !!(id_ctrl.oncs & 0x0080) }, // NVMe 1.4
+    { "copy", !!(id_ctrl.oncs & 0x0100) }, // NVMe 2.0
+    { "other", id_ctrl.oncs & ~0x01ff }
+  };
+
   if (show_all || id_ctrl.lpa)
-    pout("Log Page Attributes (0x%02x):        %s%s%s%s%s%s%s%s%s\n", id_ctrl.lpa,
+    jout("Log Page Attributes (0x%02x):        %s%s%s%s%s%s%s%s%s\n", id_ctrl.lpa,
          (!id_ctrl.lpa ? " -" : ""),
          ((id_ctrl.lpa & 0x01) ? " S/H_per_NS" : ""),
          ((id_ctrl.lpa & 0x02) ? " Cmd_Eff_Lg" : ""), // NVMe 1.2
@@ -278,24 +328,47 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
          ((id_ctrl.lpa & 0x40) ? " Telmtry_Ar_4" : ""),
          ((id_ctrl.lpa & ~0x7f) ? " *Other*" : ""));
 
-  if (id_ctrl.mdts)
-    pout("Maximum Data Transfer Size:         %u Pages\n", (1U << id_ctrl.mdts));
+  jglb["nvme_log_page_attributes"] += {
+    { "value", id_ctrl.lpa },
+    { "smart_health_per_namespace", !!(id_ctrl.lpa & 0x01) },
+    { "commands_effects_log", !!(id_ctrl.lpa & 0x02) }, // NVMe 1.2
+    { "extended_get_log_page_cmd", !!(id_ctrl.lpa & 0x04) }, // NVMe 1.2.1
+    { "telemetry_log", !!(id_ctrl.lpa & 0x08) }, // NVMe 1.3
+    { "persistent_event_log", !!(id_ctrl.lpa & 0x10) }, // NVMe 1.4
+    { "supported_log_pages_log", !!(id_ctrl.lpa & 0x20) }, // NVMe 2.0 ...
+    { "telemetry_data_area_4", !!(id_ctrl.lpa & 0x40) },
+    { "other", id_ctrl.lpa & ~0x7f }
+  };
+
+  if (id_ctrl.mdts) {
+    jout("Maximum Data Transfer Size:         %u Pages\n", (1U << id_ctrl.mdts));
+    jglb["nvme_maximum_data_transfer_pages"] = (1U << id_ctrl.mdts);
+  }
   else if (show_all)
     pout("Maximum Data Transfer Size:         -\n");
 
   // Temperature thresholds are optional
   char buf[64];
   if (show_all || id_ctrl.wctemp)
-    pout("Warning  Comp. Temp. Threshold:     %s\n", kelvin_to_str(buf, id_ctrl.wctemp));
+    jout("Warning  Comp. Temp. Threshold:     %s\n", kelvin_to_str(buf, id_ctrl.wctemp));
   if (show_all || id_ctrl.cctemp)
-    pout("Critical Comp. Temp. Threshold:     %s\n", kelvin_to_str(buf, id_ctrl.cctemp));
+    jout("Critical Comp. Temp. Threshold:     %s\n", kelvin_to_str(buf, id_ctrl.cctemp));
+
+  if (id_ctrl.wctemp) {
+    jglb["nvme_composite_temperature_threshold"]["warning"] = id_ctrl.wctemp - 273;
+    jglb["temperature"]["op_limit_max"] = id_ctrl.wctemp - 273;
+  }
+  if (id_ctrl.cctemp) {
+    jglb["nvme_composite_temperature_threshold"]["critical"] = id_ctrl.cctemp - 273;
+    jglb["temperature"]["critical_limit_max"] = id_ctrl.cctemp - 273;
+  }
 
   // Figure 110 of NVM Express Base Specification Revision 1.3d, March 20, 2019
   // Figure 249 of NVM Express Base Specification Revision 1.4c, March 9, 2021
   // Figure 97 of NVM Express NVM Command Set Specification, Revision 1.0c, October 3, 2022
   if (nsid && (show_all || id_ns.nsfeat)) {
     const char * align = &("  "[nsid < 10 ? 0 : (nsid < 100 ? 1 : 2)]);
-    pout("Namespace %u Features (0x%02x):     %s%s%s%s%s%s%s%s\n", nsid, id_ns.nsfeat, align,
+    jout("Namespace %u Features (0x%02x):     %s%s%s%s%s%s%s%s\n", nsid, id_ns.nsfeat, align,
          (!id_ns.nsfeat ? " -" : ""),
          ((id_ns.nsfeat & 0x01) ? " Thin_Prov" : ""),
          ((id_ns.nsfeat & 0x02) ? " NA_Fields" : ""), // NVMe 1.2 ...
@@ -305,13 +378,28 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
          ((id_ns.nsfeat & ~0x1f) ? " *Other*" : ""));
   }
 
+  json::ref jrns = jglb["nvme_namespaces"][0]; // Same as in print_drive_info()
+  if (nsid) {
+    jrns["id"] = nsid;
+    jrns["features"] += {
+      { "value", id_ns.nsfeat },
+      { "thin_provisioning", !!(id_ns.nsfeat & 0x01) },
+      { "na_fields", !!(id_ns.nsfeat & 0x02) }, // NVMe 1.2 ...
+      { "dealloc_or_unwritten_block_error", !!(id_ns.nsfeat & 0x04) },
+      { "uid_reuse", !!(id_ns.nsfeat & 0x08) }, // NVMe 1.3
+      { "np_fields", !!(id_ns.nsfeat & 0x10) }, // NVMe 1.4
+      { "other", id_ns.nsfeat & ~0x1f }
+    };
+  }
+
   // Print Power States
-  pout("\nSupported Power States\n");
-  pout("St Op     Max   Active     Idle   RL RT WL WT  Ent_Lat  Ex_Lat\n");
+  jout("\nSupported Power States\n");
+  jout("St Op     Max   Active     Idle   RL RT WL WT  Ent_Lat  Ex_Lat\n");
+
   for (int i = 0; i <= id_ctrl.npss /* 1-based */ && i < 32; i++) {
     char p1[16], p2[16], p3[16];
     const nvme_id_power_state & ps = id_ctrl.psd[i];
-    pout("%2d %c %9s %8s %8s %3d %2d %2d %2d %8u %7u\n", i,
+    jout("%2d %c %9s %8s %8s %3d %2d %2d %2d %8u %7u\n", i,
          ((ps.flags & 0x02) ? '-' : '+'),
          format_power(p1, ps.max_power, ((ps.flags & 0x01) ? 1 : 2)),
          format_power(p2, ps.active_power, ps.active_work_scale),
@@ -319,16 +407,40 @@ static void print_drive_capabilities(const nvme_id_ctrl & id_ctrl, const nvme_id
          ps.read_lat & 0x1f, ps.read_tput & 0x1f,
          ps.write_lat & 0x1f, ps.write_tput & 0x1f,
          ps.entry_lat, ps.exit_lat);
+
+    json::ref jrefi = jglb["nvme_power_states"][i];
+    jrefi += {
+      { "non_operational_state", !!(ps.flags & 0x02) },
+      { "relative_read_latency", ps.read_lat & 0x1f },
+      { "relative_read_throughput", ps.read_tput & 0x1f },
+      { "relative_write_latency", ps.write_lat & 0x1f },
+      { "relative_write_throughput", ps.write_tput & 0x1f },
+      { "entry_latency_us", ps.entry_lat },
+      { "exit_latency_us", ps.exit_lat }
+    };
+    format_power(jrefi, "max_power", ps.max_power, ((ps.flags & 0x01) ? 1 : 2));
+    format_power(jrefi, "active_power", ps.active_power, ps.active_work_scale);
+    format_power(jrefi, "idle_power", ps.idle_power, ps.idle_scale);
   }
 
   // Print LBA sizes
   if (nsid && id_ns.lbaf[0].ds) {
-    pout("\nSupported LBA Sizes (NSID 0x%x)\n", nsid);
-    pout("Id Fmt  Data  Metadt  Rel_Perf\n");
+    jout("\nSupported LBA Sizes (NSID 0x%x)\n", nsid);
+    jout("Id Fmt  Data  Metadt  Rel_Perf\n");
+    jrns["id"] = nsid;
     for (int i = 0; i <= id_ns.nlbaf /* 1-based */ && i < 16; i++) {
       const nvme_lbaf & lba = id_ns.lbaf[i];
-      pout("%2d %c %7u %7d %9d\n", i, (i == id_ns.flbas ? '+' : '-'),
+      if (!lba.ds)
+        continue; // not supported or not currently available
+      bool formatted = (i == id_ns.flbas);
+      jout("%2d %c %7u %7d %9d\n", i, (formatted ? '+' : '-'),
            (1U << lba.ds), lba.ms, lba.rp);
+      jrns["lba_formats"][i] += {
+        { "formatted", formatted },
+        { "data_bytes", 1U << lba.ds },
+        { "metadata_bytes", lba.ms },
+        { "relative_performance", lba.rp }
+      };
     }
   }
 }
@@ -370,11 +482,12 @@ static void print_critical_warning(unsigned char w)
 }
 
 static void print_smart_log(const nvme_smart_log & smart_log,
-  const nvme_id_ctrl & id_ctrl, bool show_all)
+  const nvme_id_ctrl & id_ctrl, unsigned nsid, bool show_all)
 {
   json::ref jref = jglb["nvme_smart_health_information_log"];
   char buf[64];
-  jout("SMART/Health Information (NVMe Log 0x02)\n");
+  jout("SMART/Health Information (NVMe Log 0x02, NSID 0x%x)\n", nsid);
+  jref["nsid"] = (nsid != nvme_broadcast_nsid ? (int64_t)nsid : -1);
   jout("Critical Warning:                   0x%02x\n", smart_log.critical_warning);
   jref["critical_warning"] = smart_log.critical_warning;
 
@@ -389,8 +502,13 @@ static void print_smart_log(const nvme_smart_log & smart_log,
   jref["available_spare"] = smart_log.avail_spare;
   jout("Available Spare Threshold:          %u%%\n", smart_log.spare_thresh);
   jref["available_spare_threshold"] = smart_log.spare_thresh;
+  jglb["spare_available"] += {
+    {"current_percent", smart_log.avail_spare},
+    {"threshold_percent", smart_log.spare_thresh}
+  };
   jout("Percentage Used:                    %u%%\n", smart_log.percent_used);
   jref["percentage_used"] = smart_log.percent_used;
+  jglb["endurance_used"]["current_percent"] = smart_log.percent_used;
   jout("Data Units Read:                    %s\n", le128_to_str(buf, smart_log.data_units_read, 1000*512));
   jref["data_units_read"].set_unsafe_le128(smart_log.data_units_read);
   jout("Data Units Written:                 %s\n", le128_to_str(buf, smart_log.data_units_written, 1000*512));
@@ -523,7 +641,7 @@ static void print_error_log(const nvme_error_log_page * error_log,
       snprintf(lb, sizeof(lb), "%" PRIu64, e.lba);
       jrefi["lba"]["value"].set_unsafe_uint64(e.lba);
     }
-    if (e.nsid != 0xffffffffU) {
+    if (e.nsid != nvme_broadcast_nsid) {
       snprintf(ns, sizeof(ns), "%u", e.nsid);
       jrefi["nsid"] = e.nsid;
     }
@@ -548,7 +666,7 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log, unsign
   // Figure 203 of NVM Express Base Specification Revision 1.4c, March 9, 2021
   json::ref jref = jglb["nvme_self_test_log"];
   jout("Self-test Log (NVMe Log 0x06, NSID 0x%x)\n", nsid);
-  jref["nsid"] = (nsid != 0xffffffff ? (int64_t)nsid : -1);
+  jref["nsid"] = (nsid != nvme_broadcast_nsid ? (int64_t)nsid : -1);
 
   const char * s; char buf[32];
   switch (self_test_log.current_operation & 0xf) {
@@ -618,12 +736,12 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log, unsign
       jrefi["segment"] = r.segment;
     }
     if (r.valid & 0x01) {
-      if (r.nsid == 0xffffffff)
+      if (r.nsid == nvme_broadcast_nsid)
         ns[0] = '*', ns[1] = 0;
       else
         snprintf(ns, sizeof(ns), "%u", r.nsid);
       // Broadcast = -1
-      jrefi["nsid"] = (r.nsid != 0xffffffff ? (int64_t)r.nsid : -1);
+      jrefi["nsid"] = (r.nsid != nvme_broadcast_nsid ? (int64_t)r.nsid : -1);
     }
     if (r.valid & 0x02) {
       uint64_t lba = sg_get_unaligned_le64(r.lba);
@@ -676,7 +794,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     nvme_id_ns id_ns; memset(&id_ns, 0, sizeof(id_ns));
 
     unsigned nsid = device->get_nsid();
-    if (nsid == 0xffffffffU) {
+    if (nsid == nvme_broadcast_nsid) {
       // Broadcast namespace
       if (id_ctrl.nn == 1) {
         // No namespace management, get size from single namespace
@@ -707,9 +825,14 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
   // Print SMART Status and SMART/Health Information
   int retval = 0;
   if (options.smart_check_status || options.smart_vendor_attrib) {
+    // Use individual NSID if SMART/Health Information per namespace is supported
+    unsigned smart_log_nsid = ((id_ctrl.lpa & 0x01) ? device->get_nsid()
+                               : nvme_broadcast_nsid                    );
+
     nvme_smart_log smart_log;
-    if (!nvme_read_smart_log(device, smart_log)) {
-      jerr("Read NVMe SMART/Health Information failed: %s\n\n", device->get_errmsg());
+    if (!nvme_read_smart_log(device, smart_log_nsid, smart_log)) {
+      jerr("Read NVMe SMART/Health Information (NSID 0x%x) failed: %s\n\n", smart_log_nsid,
+           device->get_errmsg());
       return FAILSMART;
     }
 
@@ -720,7 +843,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     }
 
     if (options.smart_vendor_attrib) {
-      print_smart_log(smart_log, id_ctrl, show_all);
+      print_smart_log(smart_log, id_ctrl, smart_log_nsid, show_all);
     }
   }
 
@@ -753,12 +876,6 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
   // Check for self-test support
   bool self_test_sup = !!(id_ctrl.oacs & 0x0010);
 
-  // Use broadcast NSID for self-tests if only one namespace is supported.
-  // Some single namespace devices return failure if NSID=1 is used to
-  // address self-tests.
-  // TODO: Support NSID=0 to test controller
-  unsigned self_test_nsid = (id_ctrl.nn == 1 ? 0xffffffff : device->get_nsid());
-
   // Read and print Self-test log, check for running test
   int self_test_completion = -1;
   if (options.smart_selftest_log || options.smart_selftest_type) {
@@ -766,13 +883,14 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       pout("Self-tests not supported\n\n");
     else {
       nvme_self_test_log self_test_log;
-      if (!nvme_read_self_test_log(device, self_test_nsid, self_test_log)) {
+      unsigned self_test_log_nsid = nvme_broadcast_nsid;
+      if (!nvme_read_self_test_log(device, self_test_log_nsid, self_test_log)) {
         jerr("Read Self-test Log failed: %s\n\n", device->get_errmsg());
         return retval | FAILSMART;
       }
 
       if (options.smart_selftest_log)
-        print_self_test_log(self_test_log, self_test_nsid);
+        print_self_test_log(self_test_log, self_test_log_nsid);
 
       if (self_test_log.current_operation & 0xf)
         self_test_completion = self_test_log.current_completion & 0x7f;
@@ -790,7 +908,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     case 1:
     case 2:
     case 3:
-      nsid = 0xffffffff;
+      nsid = nvme_broadcast_nsid;
       break;
     default:
       nsid = device->get_nsid();
@@ -821,6 +939,8 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       retval |= FAILSMART;
     }
     else {
+      // TODO: Support NSID=0 to test controller
+      unsigned self_test_nsid = device->get_nsid();
       if (!nvme_self_test(device, options.smart_selftest_type, self_test_nsid)) {
         jerr("NVMe Self-test cmd with type=0x%x, nsid=0x%x failed: %s\n\n",
              options.smart_selftest_type, self_test_nsid, device->get_errmsg());

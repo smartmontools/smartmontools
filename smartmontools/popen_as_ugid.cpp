@@ -22,6 +22,8 @@ const char * popen_as_ugid_cvsid = "$Id$"
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include "config.h"
+
 static FILE * s_popen_file /* = 0 */;
 static pid_t s_popen_pid /* = 0 */;
 

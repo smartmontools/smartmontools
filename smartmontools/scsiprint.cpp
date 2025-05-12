@@ -1769,6 +1769,7 @@ scsiPrintSSMedia(scsi_device * device)
             q = "Percentage used endurance indicator";
             jout("%s: %d%%\n", q, ucp[7]);
             jglb[std::string("scsi_") + json::str2key(q)] = ucp[7];
+            jglb["endurance_used"]["current_percent"] = ucp[7];
         default:        /* ignore other parameter codes */
             break;
         }
@@ -2880,14 +2881,17 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type,
         scsi_format_id_string(scsi_vendor, &gBuf[8], 8);
         scsi_format_id_string(product, &gBuf[16], 16);
         scsi_format_id_string(revision, &gBuf[32], 4);
+        char model_name[sizeof(scsi_vendor) + sizeof(product)];
+        snprintf(model_name, sizeof(model_name), "%s%s%s",
+          scsi_vendor, (*scsi_vendor && *product ? " " : ""), product);
 
         pout("=== START OF INFORMATION SECTION ===\n");
         jout("Vendor:               %.8s\n", scsi_vendor);
         jglb["scsi_vendor"] = scsi_vendor;
         jout("Product:              %.16s\n", product);
         jglb["scsi_product"] = product;
-        jglb["scsi_model_name"] = strprintf("%s%s%s",
-          scsi_vendor, (*scsi_vendor && *product ? " " : ""), product);
+        jglb["model_name"] = model_name; // Also provided for ATA and NVMe devices
+        jglb["scsi_model_name"] = model_name;
         if (gBuf[32] >= ' ') {
             jout("Revision:             %.4s\n", revision);
             // jglb["firmware_version"] = revision;

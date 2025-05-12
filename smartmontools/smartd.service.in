@@ -8,6 +8,7 @@ ConditionVirtualization=no
 
 [Service]
 Type=notify
+Environment=smartd_opts=''
 EnvironmentFile=-/usr/local/etc/sysconfig/smartmontools
 ExecStart=/usr/local/sbin/smartd -n $smartd_opts
 ExecReload=/bin/kill -HUP $MAINPID

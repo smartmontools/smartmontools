@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-23 Christian Franke
+Copyright (C) 2004-25 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -291,6 +291,11 @@ Symbolic links are resolved before this check is done.
 A device name is also ignored if another device with same identify
 information (vendor, model, firmware version, serial number, WWN) already
 exists.
+.PP
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+If a device only supports a single namespace and a configuration line
+which addresses its namespace id already exists, a DEVICESCAN result which
+does not address a namespace is also ignored (and vice versa).
 .Sp
 .SH DEFAULT SETTINGS
 If an entry in the configuration file starts with
@@ -334,38 +339,8 @@ configuration file.  Note that
 The Directives below may appear in any order, following the device
 name.
 .PP
-.B For an ATA device,
-if no Directives appear, then the device will be monitored
-as if the \*(Aq\-a\*(Aq Directive (monitor all SMART properties) had been given.
-.PP
-.B If a SCSI disk is listed,
-it will be monitored at the maximum implemented level: roughly
-equivalent to using the \*(Aq\-H \-l selftest\*(Aq options for an ATA disk.
-So with the exception of \*(Aq\-d\*(Aq, \*(Aq\-m\*(Aq, \*(Aq\-l selftest\*(Aq,
-\*(Aq\-s\*(Aq, and \*(Aq\-M\*(Aq, the Directives below are ignored for SCSI disks.
-For SCSI disks, the \*(Aq\-m\*(Aq Directive sends a warning email if the SMART
-status indicates a disk failure or problem, if the SCSI inquiry about disk
-status fails, or if new errors appear in the self-test log.
-.\" %IF OS FreeBSD Linux
-.PP
-.B If a 3ware controller is used
-then the corresponding SCSI (/dev/sd?) or character device (/dev/twe?,
-/dev/twa?, /dev/twl? or /dev/tws?) must be listed, along with the
-\*(Aq\-d 3ware,N\*(Aq Directive (see below).
-The individual ATA disks hosted by the 3ware controller appear to \fBsmartd\fP
-as normal ATA devices.
-Hence all the ATA directives can be used for these disks (but see note below).
-.PP
-.B If an Areca controller is used
-then the corresponding device (SCSI /dev/sg? on Linux or /dev/arcmsr0 on
-FreeBSD) must be listed, along with the \*(Aq\-d areca,N\*(Aq Directive
-(see below).
-The individual SATA disks hosted by the Areca controller appear to \fBsmartd\fP
-as normal ATA devices.  Hence all the ATA directives can be used for
-these disks.  Areca firmware version 1.46 or later which supports
-smartmontools must be used; Please see the \fBsmartctl\fP(8) man page
-for further details.
-.\" %ENDIF OS FreeBSD Linux
+If no Directives appear, then the device will be monitored as if the \*(Aq\-a\*(Aq
+Directive had been given.
 .TP
 .B \-d TYPE
 Specifies the type of the device.
@@ -389,7 +364,6 @@ from issuing SCSI commands to an ATA device.
 from issuing ATA commands to a SCSI device.
 .Sp
 .\" %ENDIF NOT OS Darwin
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvme[,NSID]
 \- the device type is NVM Express (NVMe).
 The optional parameter NSID specifies the namespace id (in hex) passed
@@ -397,7 +371,6 @@ to the driver.
 Use 0xffffffff for the broadcast namespace id.
 The default for NSID is the namespace id addressed by the device name.
 .Sp
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .\" %IF NOT OS Darwin
 .I sat[,auto][,N]
 \- the device type is SCSI to ATA Translation (SAT).
@@ -459,20 +432,27 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
 bridge.
 .Sp
-.I sntasmedia
+.I sntasmedia[/sat]
 \- this device type is for NVMe disks that are behind an ASMedia USB to NVMe
 bridge.
+.br
+[NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+If the \*(Aq/sat\*(Aq suffix is specified and the NVMe Identify Controller
+command fails, the device type is changed to \*(Aq\-d sat\*(Aq.
+This is useful for USB M.2 adapters which support NVMe and SATA devices.
 .Sp
-.I sntjmicron[,NSID]
+.I sntjmicron[,NSID][/sat]
 \- this device type is for NVMe disks that are behind a JMicron USB to NVMe
 bridge.
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
 The default namespace id is the broadcast namespace id (0xffffffff).
+See also \*(Aq\-d sntasmedia\*(Aq for the \*(Aq/sat\*(Aq suffix.
 .Sp
-.I sntrealtek
+.I sntrealtek[/sat]
 \- this device type is for NVMe disks that are behind a Realtek USB to NVMe
 bridge.
+See also \*(Aq\-d sntasmedia\*(Aq for the \*(Aq/sat\*(Aq suffix.
 .Sp
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Linux
@@ -574,12 +554,16 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 .I intelliprop,N[+TYPE]
 \- (deprecated and subject to remove).
 .Sp
-.I jmb39x[\-q],N[,sLBA][,force][+TYPE]
+.I jmb39x[\-q[2]],N[,sLBA][,force][+TYPE]
 \- the device consists of multiple SATA disks connected to a JMicron JMB39x
 RAID port multiplier.
 The suffix \*(Aq\-q\*(Aq selects a slightly different command variant used by
-some QNAP NAS devices.
+QNAP TR-004 NAS devices.
 The integer N is the port number from 0 to 4.
+.br
+[NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+The suffix \*(Aq\-q2\*(Aq selects another command variant used by QNAP TR-002
+NAS devices.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .I jms56x,N[,sLBA][,force][+TYPE]
@@ -708,22 +692,36 @@ starts up and has no further effect.  The valid arguments to this
 Directive are \fIon\fP and \fIoff\fP.  Also affects SCSI devices.
 [Please see the \fBsmartctl \-S\fP command-line option.]
 .TP
-.B \-H
-[ATA] Check the health status of the disk with the SMART RETURN
-STATUS command.
-If this command reports a failing health status, then disk
-failure is predicted in less than 24 hours, and a message at loglevel
-.B \*(AqLOG_CRIT\*(Aq
-will be logged to syslog.  [Please see the
-.B smartctl \-H
-command-line option.]
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+.B \-H [MASK]
+Check the health status of the disk.
+If the disk reports a failing health status, a message at loglevel LOG_CRIT
+will be logged to syslog.
+[Please see the \fBsmartctl \-H\fP command-line option.]
+.Sp
+[ATA] Checks the (boolean) result returned by the SMART RETURN STATUS
+command.
+The optional parameter MASK is ignored.
+.Sp
+[SCSI] Checks the Additional Sense Code (ASC) and Additional Sense Code
+Qualifier (ASCQ) from Informal Exceptions (IE) log page (if supported)
+and/or from SCSI sense data.
+The optional parameter MASK is ignored.
+.br
+Note: for historical reasons, this check is always done for SCSI devices,
+regardless of the \*(Aq\-H\*(Aq directive.
 .Sp
 [NVMe] Checks the "Critical Warning" byte from the SMART/Health
 Information log.
-If any warning bit is set, a message at loglevel \fB\*(AqLOG_CRIT\*(Aq\fP
-will be logged to syslog.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+If any warning bit is set, a message at loglevel LOG_CRIT will be logged to
+syslog.
+.br
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+If the optional parameter MASK (hexadecimal) is specified, the check is
+limited to the warning bits set in MASK.
+For example if \*(Aq\-H 0xf9\*(Aq is specified, the warning bit 1
+("temperature out of range") and bit 2 ("reliability degraded") will be
+ignored.
+\*(Aq\-H 0xff\*(Aq is the same as \*(Aq\-H\*(Aq without a parameter.
 .TP
 .B \-l TYPE
 Reports increases in the number of errors in one of three SMART logs.  The
@@ -733,7 +731,6 @@ valid arguments to this Directive are:
 \- [ATA] report if the number of ATA errors reported in the Summary SMART
 error log has increased since the last check.
 .Sp
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I error
 \- [NVMe] report if the "Number of Error Information Log Entries" from the
 SMART/Health Information log has increased since the last check.
@@ -752,7 +749,6 @@ message is generated instead.
 This avoids misleading warnings if the operating system issues unsupported
 commands and the device firmware also logs these kind of errors.
 .Sp
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I xerror
 \- [ATA] report if the number of ATA errors reported in the Extended
 Comprehensive SMART error log has increased since the last check.
@@ -762,17 +758,16 @@ checks the maximum of both values.
 .Sp
 [Please see the \fBsmartctl \-l xerror\fP command-line option.]
 .Sp
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I xerror
 \- [NVMe] same as \*(Aq\-l error\*(Aq.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .Sp
 .I selftest
-\- report if the number of failed tests reported in the SMART
-Self-Test Log has increased since the last check, or if the timestamp
-associated with the most recent failed test has increased.  Note that
-such errors will \fBonly\fP be logged if you run self-tests on the
-disk (and it fails a test!).  Self-Tests can be run automatically by
+\- [ATA] [SCSI] [NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+report if the number of failed tests reported in the SMART Self-Test Log
+has increased since the last check, or if the timestamp associated with
+the most recent failed test has increased.
+Note that such errors will \fBonly\fP be logged if you run self-tests on
+the disk (and it fails a test!).  Self-Tests can be run automatically by
 \fBsmartd\fP: please see the \*(Aq\-s\*(Aq Directive below.
 Self-Tests can also be run manually by using the \*(Aq\-t short\*(Aq
 and \fB\*(Aq\-t\ long\*(Aq\fP options of \fBsmartctl\fP and the results of
@@ -781,10 +776,18 @@ command-line option.
 [Please see the \fBsmartctl \-l\fP and \fB\-t\fP command-line
 options.]
 .Sp
-[ATA only] Failed self-tests outdated by a newer successful extended
-self-test are ignored.  The warning email counter is reset if the
-number of failed self tests dropped to 0.  This typically happens when
-an extended self-test is run after all bad sectors have been reallocated.
+[ATA] [NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+Failed self-tests outdated by a newer successful extended self-test
+are ignored.
+The warning email counter is reset if the number of failed self tests
+dropped to 0.
+This typically happens when an extended self-test is run after all bad
+blocks have been reallocated.
+.Sp
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+If the device name addresses an individual namespace, log entries with
+different namespace ids are ignored.
+Entries with unspecified or broadcast namespace id are always checked.
 .Sp
 .I offlinests[,ns]
 \- [ATA only] report if the Offline Data Collection status has changed
@@ -803,22 +806,23 @@ Data Collection is in progress.  See \*(Aq\-l selfteststs,ns\*(Aq below.
 .\" %ENDIF OS Cygwin Windows
 .Sp
 .I selfteststs[,ns]
-\- [ATA only] report if the Self-Test execution status has changed
-since the last check.  The report will be logged as LOG_CRIT if the new
-status indicates an error.
+\- [ATA] [NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+report if the Self-Test execution status has changed since the last check.
+The report will be logged as LOG_CRIT if the new status indicates an error.
 .\" %IF NOT OS Cygwin Windows
 .\"! Appending ',ns' (no standby) to this directive is not implemented
 .\"! on OS_MAN_FILTER.
 .\" %ENDIF NOT OS Cygwin Windows
 .\" %IF OS Cygwin Windows
 .Sp
-[Windows and Cygwin only] If \*(Aq,ns\*(Aq (no standby) is appended to this
-directive, smartd disables system auto standby as long as a Self-Test
-is in progress.  This prevents that a Self-Test is aborted because the
-OS sets the system to a standby/sleep mode when idle.  Smartd check
-interval (\*(Aq\-i\*(Aq option) should be shorter than the configured idle
-timeout.  Auto standby is not disabled if the system is running on
-battery.
+[ATA only] [Windows and Cygwin only]
+If \*(Aq,ns\*(Aq (no standby) is appended to this directive, smartd disables
+system auto standby as long as a Self-Test is in progress.
+This prevents that a Self-Test is aborted because the OS sets the system to
+a standby/sleep mode when idle.
+Smartd check interval (\*(Aq\-i\*(Aq option) should be shorter than the
+configured idle timeout.
+Auto standby is not disabled if the system is running on battery.
 .\" %ENDIF OS Cygwin Windows
 .Sp
 .I scterc,READTIME,WRITETIME
@@ -871,6 +875,13 @@ only), and \*(AqO\*(Aq for an \fBO\fPffline Immediate Test (ATA only).  As
 soon as a match is found, the test will be started and no additional
 matches will be sought for that device and that polling cycle.
 .Sp
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+For NVMe devices with Self-Test support, use \*(AqL\*(Aq to start an
+"Extended" NVMe Self-Test and \*(AqS\*(Aq for a \fBS\fPhort NVMe Self-Test.
+If the device name addresses an individial namespace, the test will be started
+using this namespace id, otherwise using the broadcast namespace id.
+.Sp
+[ATA only]
 To run scheduled Selective Self-Tests, use \*(Aqn\*(Aq for \fBn\fPext span,
 \*(Aqr\*(Aq to \fBr\fPedo last span, or \*(Aqc\*(Aq to \fBc\fPontinue with
 next span or redo last span based on status of last test.
@@ -1392,29 +1403,40 @@ SMARTD_SUBJECT and SMARTD_FULLMESSAGE
 are set by the script before running the executable.
 .TP
 .B \-f
-[ATA only] Check for \*(Aqfailure\*(Aq of any Usage Attributes.  If these
+[ATA] Check for \*(Aqfailure\*(Aq of any Usage Attributes.  If these
 Attributes are less than or equal to the threshold, it does NOT indicate
 imminent disk failure.  It "indicates an advisory condition where the usage
 or age of the device has exceeded its intended design life period."
 [Please see the \fBsmartctl \-A\fP command-line option.]
+.Sp
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+Log a message with LOG_CRIT level and send a warning email if the
+SMART/Health value "Percentage Used" has changed and exceeds 95 percent
+or "Media and Data Integrity Errors" has increased.
 .TP
 .B \-p
-[ATA only] Report anytime that a Prefail Attribute has changed
-its value since the last check.  [Please see the
-.B smartctl \-A
-command-line option.]
+[ATA] Report anytime that a Prefail Attribute has changed its value since the
+last check.
+[Please see the \fBsmartctl \-A\fP command-line option.]
+.Sp
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+Report anytime that the SMART/Health value "Available Spare" has
+changed its value since the last check.
+This will be logged with LOG_CRIT level and a warning email will be sent if
+the value is below "Available Spare Threshold".
 .TP
 .B \-u
-[ATA only] Report anytime that a Usage Attribute has changed its value
-since the last check.  [Please see the
-.B smartctl \-A
-command-line option.]
+[ATA] Report anytime that a Usage Attribute has changed its value since the
+last check.
+[Please see the \fBsmartctl \-A\fP command-line option.]
+.Sp
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+Report anytime that the SMART/Health value "Percentage Used" or "Media
+and Data Integrity Errors" has changed its value since the last check.
 .TP
 .B \-t
-[ATA only] Equivalent to turning on the two previous flags \*(Aq\-p\*(Aq
-and \*(Aq\-u\*(Aq.
-Tracks changes in \fIall\fP device Attributes (both Prefailure and
-Usage).  [Please see the \fBsmartctl\fP \-A command-line option.]
+Equivalent to turning on the two previous flags \*(Aq\-p\*(Aq and
+\*(Aq\-u\*(Aq.
 .TP
 .B \-i ID
 [ATA only] Ignore device Attribute number \fBID\fP when checking for failure
@@ -1541,10 +1563,11 @@ Report if the current temperature had changed by at least \fBDIFF\fP
 degrees since last report, or if new min or max temperature is detected.
 Report or Warn if the temperature is greater or equal than one of
 \fBINFO\fP or \fBCRIT\fP degrees Celsius.
-If the limit \fBCRIT\fP is reached, a message with loglevel
-\fB\*(AqLOG_CRIT\*(Aq\fP will be logged to syslog and a warning email
-will be send if \*(Aq\-m\*(Aq is specified.  If only the limit \fBINFO\fP is
-reached, a message with loglevel \fB\*(AqLOG_INFO\*(Aq\fP will be logged.
+If the limit \fBCRIT\fP is reached, a message with loglevel LOG_CRIT will be
+logged to syslog and a warning email will be send if \*(Aq\-m\*(Aq is
+specified.
+If only the limit \fBINFO\fP is reached, a message with loglevel LOG_INFO
+will be logged.
 .Sp
 The warning email counter is reset if the temperature dropped below
 \fBINFO\fP or \fBCRIT\fP-5 if \fBINFO\fP is not specified.
@@ -1574,14 +1597,17 @@ To combine all of the above reports, use:
 .br
 .B \-W 2,40,45
 .Sp
-For ATA devices, smartd interprets Attribute 194 or 190 as Temperature Celsius
-by default.  This can be changed to Attribute 9 or 220 by the drive
-database or by the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+[ATA] smartd interprets Attribute 194 or 190 as Temperature Celsius by
+default.
+This can be changed to Attribute 9 or 220 by the drive database or by
+the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
 .Sp
-For NVMe devices, smartd checks the maximum of the Composite Temperature value
-and all Temperature Sensor values reported by SMART/Health Information log.
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
+[NVMe] smartd checks the Composite Temperature value reported by the
+SMART/HealthInformation log.
+.br
+[NEW EXPERIMENTAL SMARTD 7.5 FIX]
+The individual Temperature Sensor values are no longer checked because
+some devices use these to report other values like maximum temperature.
 .TP
 .B \-F TYPE
 [ATA only] Modifies the behavior of \fBsmartd\fP to compensate for some
@@ -1665,25 +1691,13 @@ command-line option.]
 .TP
 .B \-a
 Equivalent to turning on all of the following Directives:
-.B \*(Aq\-H\*(Aq
-to check the SMART health status,
-.B \*(Aq\-f\*(Aq
-to report failures of Usage (rather than Prefail) Attributes,
-.B \*(Aq\-t\*(Aq
-to track changes in both Prefailure and Usage Attributes,
-.B \*(Aq\-l\ error\*(Aq
-to report increases in the number of ATA errors,
-.B \*(Aq\-l\ selftest\*(Aq
-to report increases in the number of Self-Test Log errors,
-.B \*(Aq\-l\ selfteststs\*(Aq
-to report changes of Self-Test execution status,
-.B \*(Aq\-C 197\*(Aq
-to report nonzero values of the current pending sector count, and
-.B \*(Aq\-U 198\*(Aq
-to report nonzero values of the offline pending sector count.
+.br
+\*(Aq\-H \-f \-t \-l error \-l selftest \-l selfteststs\*(Aq
+.br
+If none of the above is given, then \*(Aq\-a\*(Aq is assumed.
 .Sp
-Note that \-a is the default for ATA devices.  If none of these other
-Directives is given, then \-a is assumed.
+[ATA only] Note: for historical reasons, \*(Aq-C 197 -U 198\*(Aq are also set
+by default.
 .TP
 .B \-c OPTION=VALUE
 Allows one to override \fBsmartd\fP command line options for specific devices.

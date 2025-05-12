@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-23 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -410,7 +410,7 @@ static const char * get_form_factor(unsigned short word168)
   // Bits 0:3 are the form factor
   // Table A.32 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
   // Table 247 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
-  // Table 265 of T13/BSR INCITS 574 (ACS-6) Revision 3, March 30, 2023
+  // Table 265 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
   switch (word168 & 0xF) {
     case 0x1: return "5.25 inches";
     case 0x2: return "3.5 inches";
@@ -439,10 +439,11 @@ static const char * get_ata_major_version(const ata_identify_device * drive)
   // Table 29 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
   // Table 55 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
   // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
+  // Table 57 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
   switch (find_msb(drive->major_rev_num)) {
-    case 15: return "ACS >5 (15)";
-    case 14: return "ACS >5 (14)";
-    case 13: return "ACS >5 (13)";
+    case 15: return "ACS >6 (15)";
+    case 14: return "ACS >6 (14)";
+    case 13: return "ACS-6";
     case 12: return "ACS-5";
     case 11: return "ACS-4";
     case 10: return "ACS-3";
@@ -468,7 +469,7 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
   // Table 47 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
   // Table 57 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
   // Table 59 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
-  // Table 59 of T13/BSR INCITS 574 (ACS-6) Revision 3, March 30, 2023
+  // Table 59 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
   switch (drive->minor_rev_num) {
     case 0x0001: return "ATA-1 X3T9.2/781D prior to revision 4";
     case 0x0002: return "ATA-1 published, ANSI X3.221-1994";
@@ -505,12 +506,13 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
     case 0x0021: return "ATA/ATAPI-7 T13/1532D revision 4a";
     case 0x0022: return "ATA/ATAPI-6 published, ANSI INCITS 361-2002";
 
-    case 0x0030: return "ACS-5 T13/BSR INCITS 558 revision 10";
+    case 0x0025: return "ACS-6 T13/BSR INCITS 574 revision 7";
 
     case 0x0027: return "ATA8-ACS T13/1699-D revision 3c";
     case 0x0028: return "ATA8-ACS T13/1699-D revision 6";
     case 0x0029: return "ATA8-ACS T13/1699-D revision 4";
 
+    case 0x0030: return "ACS-5 T13/BSR INCITS 558 revision 10";
     case 0x0031: return "ACS-2 T13/2015-D revision 2";
 
     case 0x0033: return "ATA8-ACS T13/1699-D revision 3e";
@@ -525,7 +527,9 @@ static const char * get_ata_minor_version(const ata_identify_device * drive)
 
     case 0x006d: return "ACS-3 T13/2161-D revision 5";
 
-    case 0x0073: return "ACS-6 T13/BSR INCITS 558 revision 2";
+    case 0x0070: return "ACS-6 T13/BSR INCITS 574 revision 11";
+
+    case 0x0073: return "ACS-6 T13/BSR INCITS 574 revision 2";
 
     case 0x0082: return "ACS-2 published, ANSI INCITS 482-2012";
 
@@ -563,9 +567,10 @@ static const char * get_sata_version(unsigned short word222)
   // Table 45 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
   // Table 55 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
   // Table 57 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
+  // Table 57 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
   switch (find_msb(word222 & 0x0fff)) {
     case 11: return "SATA >3.5 (11)";
-    case 10: return "SATA 3.5"; // ACS-5
+    case 10: return "SATA 3.5"; // ACS-5 (ACS-6: "SATA 3.5a")
     case  9: return "SATA 3.4"; // ACS-5
     case  8: return "SATA 3.3"; // ACS-4
     case  7: return "SATA 3.2"; // ACS-4
@@ -1142,6 +1147,7 @@ static int find_failed_attr(const ata_smart_values * data,
 
 static void set_json_globals_from_smart_attrib(int id, const char * name,
                                                const ata_vendor_attr_defs & defs,
+                                               uint8_t normval, uint8_t threshold,
                                                uint64_t rawval)
 {
   switch (id) {
@@ -1173,7 +1179,7 @@ static void set_json_globals_from_smart_attrib(int id, const char * name,
         if (minutes >= 0)
           jglb["power_on_time"]["minutes"] = minutes;
       }
-      break;
+      return;
     case 12:
       if (strcmp(name, "Power_Cycle_Count"))
         return;
@@ -1185,9 +1191,31 @@ static void set_json_globals_from_smart_attrib(int id, const char * name,
       if (rawval > 0x00ffffffULL)
         return; // assume bogus value
       jglb["power_cycle_count"] = rawval;
-      break;
+      return;
     //case 194:
     // Temperature set separately from ata_return_temperature_value() below
+  }
+
+  // Guess available spare and endurance from normalized value of related attributes
+  // (In many cases, the normalized value starts at 100)
+  static const regular_expression spare_regex(
+    "Reallocated_Sector_C.*|Retired_Block_C.*|"
+    "(Remain.*_)?Spare_Blocks(_(Avail|Remain).*)?" // TODO: Unify names in drivedb.h
+  );
+  if ((id == 5 || id == 17 || id >= 100) && spare_regex.full_match(name)) {
+    jglb["spare_available"]["current_percent"] = (normval <= 100 ? normval : 100);
+    if (0 < threshold && threshold < 50)
+      jglb["spare_available"]["threshold_percent"] = threshold;
+    return;
+  }
+
+  static const regular_expression endurance_regex(
+    "SSD_Life_Left.*|Wear_Leveling.*"
+  );
+  if (id >= 100 && endurance_regex.full_match(name)) {
+    // May be later overridden by Device Statistics
+    jglb["endurance_used"]["current_percent"] = (normval <= 100 ? 100 - normval : 0);
+    return;
   }
 }
 
@@ -1324,7 +1352,8 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     jref["raw"]["value"] = rawval;
     jref["raw"]["string"] = rawstr;
 
-    set_json_globals_from_smart_attrib(attr.id, attrname.c_str(), defs, rawval);
+    set_json_globals_from_smart_attrib(attr.id, attrname.c_str(), defs,
+      attr.current, threshold, rawval);
   }
 
   if (!needheader) {
@@ -1430,7 +1459,7 @@ static const char * GetLogName(unsigned logaddr)
     // Table A.2 of T13/2161-D (ACS-3) Revision 5, October 28, 2013
     // Table 213 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
     // Table 213 of T13/BSR INCITS 558 (ACS-5) Revision 10, March 3, 2021
-    // Table 223 of T13/BSR INCITS 574 (ACS-6) Revision 3, March 30, 2023
+    // Table 223 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
     switch (logaddr) {
       case 0x00: return "Log Directory";
       case 0x01: return "Summary SMART error log";
@@ -1467,7 +1496,7 @@ static const char * GetLogName(unsigned logaddr)
       case 0x24: return "Current Device Internal Status Data log"; // ACS-3
       case 0x25: return "Saved Device Internal Status Data log"; // ACS-3
 
-      case 0x2f: return "Set Sector Configuration"; // ACS-4
+      case 0x2f: return "Sector Configuration log"; // ACS-4
       case 0x30: return "IDENTIFY DEVICE data log"; // ACS-3
 
       case 0x42: return "Mutate Configurations log"; // ACS-5
@@ -1789,6 +1818,11 @@ static void set_json_globals_from_device_statistics(int page, int offset, int64_
         case 0x058: jglb["temperature"]["op_limit_max"] = val; break;
         case 0x060: jglb["temperature"]["lifetime_under_limit_minutes"] = val; break;
         case 0x068: jglb["temperature"]["op_limit_min"] = val; break;
+      }
+      break;
+    case 7:
+      switch (offset) {
+        case 0x008: jglb["endurance_used"]["current_percent"] = val; break;
       }
       break;
   }
@@ -3406,6 +3440,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         break;
     }
     if (powername) {
+      jglb["power_mode"] += {
+        { "ata_value", powermode },
+        { "name", powername }
+      };
       if (options.powermode >= powerlimit) {
         jinf("Device is in %s mode, exit(%d)\n", powername, options.powerexit);
         return options.powerexit;
@@ -4429,7 +4467,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (sct_ok && (options.sct_erc_get || options.sct_erc_set)) {
     if (!isSCTErrorRecoveryControlCapable(&drive)) {
       pout("SCT Error Recovery Control command not supported\n\n");
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      if (options.sct_erc_set)
+        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
       int sct_erc_get = options.sct_erc_get;
@@ -4523,7 +4562,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (options.farm_log || options.farm_log_suggest) {
     bool farm_supported = true;
     // Check if drive is a Seagate drive
-    if (ataIsSeagate(drive, dbentry)) {
+    if (ataIsSeagate(drive, dbentry) || (options.farm_log && is_permissive())) {
       unsigned nsectors = GetNumLogSectors(gplogdir, 0xA6, true);
       // Check if the Seagate drive is one that supports FARM
       if (!nsectors) {
@@ -4548,9 +4587,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         }
       }
     } else {
-      if (options.farm_log) {
-        jout("FARM log (GP Log 0xa6) not supported for non-Seagate drives\n\n");
-      }
+      if (options.farm_log)
+        jout("FARM log (GP Log 0xa6) not supported for non-Seagate drives\n"
+             "(override with '-T permissive' option)\n\n");
       farm_supported = false;
     }
     jglb["seagate_farm_log"]["supported"] = farm_supported;

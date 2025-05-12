@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-23 Christian Franke
+Copyright (C) 2004-25 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -181,34 +181,39 @@ Directive in the configuration file; see the \fBsmartd.conf\fP(5) man page).
 .SH OPTIONS
 .TP
 .B \-A PREFIX, \-\-attributelog=PREFIX
-Writes \fBsmartd\fP attribute information (normalized and raw
-attribute values) to files \*(AqPREFIX\*(Aq\*(AqMODEL\-SERIAL.ata.csv\*(Aq
-or \*(AqPREFIX\*(Aq\*(AqVENDOR\-MODEL\-SERIAL.scsi.csv\*(Aq.
-At each check cycle attributes are logged as a line of semicolon separated
-triplets of the form "attribute-ID;attribute-norm-value;attribute-raw-value;".
-For SCSI devices error counters and temperature recorded in the form
-"counter-name;counter-value;".
-Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS"
-(in local time).
+Writes drive attribute information to files
+.br
+\*(AqPREFIX\*(Aq\*(AqMODEL\-SERIAL[\-NSID].PRT.csv\*(Aq.
+.br
+PREFIX specifies the destination directory if it includes a trailing slash.
+Otherwise its last path component specifies the prefix of the filename.
+The path must be absolute, except if debug mode is enabled.
+MODEL and SERIAL are build from drive identify information, invalid
+characters are replaced by underline.
+NSID is the NVMe namespace id if an individual namespace is addressed.
+PRT is one of \*(Aqata\*(Aq, \*(Aqscsi\*(Aq or \*(Aqnvme\*(Aq.
 .Sp
 .\" %IF ENABLE_ATTRIBUTELOG
 If this option is not specified, attribute information is written to files
-\*(Aq/usr/local/var/lib/smartmontools/attrlog.MODEL\-SERIAL.ata.csv\*(Aq.
+.br
+\*(Aq/usr/local/var/lib/smartmontools/attrlog.MODEL\-SERIAL[\-NSID].PRT.csv\*(Aq.
+.br
 If \*(Aq\-\*(Aq is specified as the argument, attribute log files are
 disabled.
 .Sp
 .\" %ENDIF ENABLE_ATTRIBUTELOG
-MODEL and SERIAL are build from drive identify information, invalid
-characters are replaced by underline.
-.Sp
-If the PREFIX has the form \*(Aq/path/dir/\*(Aq (e.g.\&
-\*(Aq/var/lib/smartd/\*(Aq), then files \*(AqMODEL\-SERIAL.ata.csv\*(Aq are
-created in directory \*(Aq/path/dir\*(Aq.
-If the PREFIX has the form \*(Aq/path/name\*(Aq (e.g.\&
-\*(Aq/var/lib/misc/attrlog\-\*(Aq),
-then files \*(AqnameMODEL\-SERIAL.ata.csv\*(Aq are created in directory
-\*(Aq/path/\*(Aq.
-The path must be absolute, except if debug mode is enabled.
+At each check cycle, attributes are logged as a line of tab separated
+tuples which consists of semicolon separated names or values.
+Each line is led by a date string of the form "yyyy-mm-dd HH:MM:SS"
+(in local time).
+The remaining part is protocol-specific:
+.br
+[ATA] Writes ATA SMART attributes as "id;normalized-value;raw-value;".
+.br
+[SCSI] Writes SCSI error counters and temperature as "name;value;".
+.br
+[NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
+Writes NVMe SMART/Health information as "name;value;".
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
 [ATA only] Read the drive database from FILE.  The new database replaces
@@ -448,11 +453,9 @@ this option are:
 .I scsiioctl
 \- report only ioctl() transactions with SCSI devices.
 .Sp
-.\" %IF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 .I nvmeioctl
 \- report only ioctl() transactions with NVMe devices.
 .Sp
-.\" %ENDIF OS Darwin FreeBSD Linux NetBSD Windows Cygwin
 Any argument may include a positive integer to specify the level of
 detail that should be reported.  The argument should be followed by a
 comma then the integer with no spaces.  For example, \fIataioctl,2\fP
@@ -461,33 +464,26 @@ The default level is 1, so \*(Aq\-r ataioctl,1\*(Aq and
 .TP
 .B \-s PREFIX, \-\-savestates=PREFIX
 Reads/writes \fBsmartd\fP state information from/to files
-\*(AqPREFIX\*(Aq\*(AqMODEL\-SERIAL.ata.state\*(Aq or
-\*(AqPREFIX\*(Aq\*(AqVENDOR\-MODEL\-SERIAL.scsi.state\*(Aq.
-This preserves SMART attributes, drive min and max temperatures (\-W directive),
-info about last sent warning email
-(\-m directive), and the time of next check of the self-test REGEXP
-(\-s directive) across boot cycles.
+.br
+\*(AqPREFIX\*(Aq\*(AqMODEL\-SERIAL[\-NSID].PRT.state\*(Aq.
+.br
+For PREFIX, MODEL, SERIAL, NSID and PRT, see the \*(Aq-A\*(Aq option above.
 .Sp
 .\" %IF ENABLE_SAVESTATES
 If this option is not specified, state information is maintained in files
-\*(Aq/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\*(Aq
-for ATA devices and
-\*(Aq/usr/local/var/lib/smartmontools/smartd.VENDOR\-MODEL\-SERIAL.scsi.state\*(Aq
-for SCSI devices.
+.br
+\*(Aq/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL[\-NSID].PRT.state\*(Aq.
+.br
 If \*(Aq\-\*(Aq is specified as the argument, state files are disabled.
 .Sp
 .\" %ENDIF ENABLE_SAVESTATES
-MODEL and SERIAL are build from drive identify information, invalid
-characters are replaced by underline.
-.Sp
-If the PREFIX has the form \*(Aq/path/dir/\*(Aq (e.g.\&
-\*(Aq/var/lib/smartd/\*(Aq), then files \*(AqMODEL\-SERIAL.ata.state\*(Aq are
-created in directory \*(Aq/path/dir\*(Aq.
-If the PREFIX has the form \*(Aq/path/name\*(Aq (e.g.\&
-\*(Aq/var/lib/misc/smartd\-\*(Aq),
-then files \*(AqnameMODEL\-SERIAL.ata.state\*(Aq are created in directory
-\*(Aq/path/\*(Aq.
-The path must be absolute, except if debug mode is enabled.
+The state information files preserve various information across smartd
+restarts, for example:
+SMART attributes, drive min and max temperatures (\*(Aq\-W\*(Aq directive),
+info about last sent warning email (\*(Aq\-m\*(Aq directive),
+the time of next check of the self-test REGEXP (\*(Aq\-s\*(Aq directive),
+and info about the last reported error log entries
+(\*(Aq\-l [x]error\*(Aq directives).
 .Sp
 The state information files are read on smartd startup.  The files are
 always (re)written after reading the configuration file, before rereading

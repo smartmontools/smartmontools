@@ -205,7 +205,7 @@ supported_vpd_pages::supported_vpd_pages(scsi_device * device) : num_valid(0)
     if (device && (0 == scsiInquiryVpd(device, SCSI_VPD_SUPPORTED_VPD_PAGES,
                    b, sizeof(b)))) {
         num_valid = sg_get_unaligned_be16(b + 2);
-        int n = sizeof(pages);
+        int n = sizeof(b) - 4;
         if (num_valid > n)
             num_valid = n;
         memcpy(pages, b + 4, num_valid);
@@ -740,8 +740,9 @@ scsi_vpd_dev_id_iter(const unsigned char * initial_desig_desc, int page_len,
     return (k == page_len) ? -1 : -2;
 }
 
-/* Decode VPD page 0x83 logical unit designator into a string. If both
- * numeric address and SCSI name string present, prefer the former.
+/* Decode VPD page 0x83 logical unit designator into a string. If multiple
+ * designators are present, the order of preference is NAA, EUI-64, SCSI name
+ * string.
  * Returns 0 on success, -1 on error with error string in s. */
 int
 scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
@@ -755,16 +756,17 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
         return -1;
     }
 
+#define SLEN(a, b) ((a) > (b) ? ((a) - (b)) : 0)
     s[0] = '\0';
     int si = 0;
-    int have_scsi_ns = 0;
+    int have_scsi_ns = 0, have_eui_64 = 0, have_naa = 0;
     int off = -1;
     int u;
     while ((u = scsi_vpd_dev_id_iter(b, blen, &off, -1, -1, -1)) == 0) {
         const unsigned char * ucp = b + off;
         int i_len = ucp[3];
         if ((off + i_len + 4) > blen) {
-            snprintf(s+si, slen-si, "error: designator length");
+            snprintf(s+si, SLEN(slen, si), "error: designator length");
             return -1;
         }
         int assoc = ((ucp[1] >> 4) & 0x3);
@@ -783,53 +785,65 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
             break;
         case 2: /* EUI-64 based */
             if ((8 != i_len) && (12 != i_len) && (16 != i_len)) {
-                snprintf(s+si, slen-si, "error: EUI-64 length");
+                snprintf(s+si, SLEN(slen, si), "error: EUI-64 length");
                 return -1;
             }
+            if (have_eui_64) {
+                snprintf(s+si, SLEN(slen, si), "error: Duplicate EUI-64 designator");
+                return -1;
+            }
+            if (have_naa)
+                continue;
             if (have_scsi_ns)
                 si = 0;
-            si += snprintf(s+si, slen-si, "0x");
+            si += snprintf(s+si, SLEN(slen, si), "0x");
             for (int m = 0; m < i_len; ++m)
-                si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
+                si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
+            have_eui_64++;
             break;
         case 3: /* NAA */
             if (1 != c_set) {
-                snprintf(s+si, slen-si, "error: NAA bad code_set");
+                snprintf(s+si, SLEN(slen, si), "error: NAA bad code_set");
                 return -1;
             }
             naa = (ip[0] >> 4) & 0xff;
             if ((naa < 2) || (naa > 6) || (4 == naa)) {
-                snprintf(s+si, slen-si, "error: unexpected NAA");
+                snprintf(s+si, SLEN(slen, si), "error: unexpected NAA");
                 return -1;
             }
-            if (have_scsi_ns)
+            if (have_naa) {
+                snprintf(s+si, SLEN(slen, si), "error: Duplicate NAA designator");
+                return -1;
+            }
+            if (have_eui_64 || have_scsi_ns)
                 si = 0;
             if (2 == naa) {             /* NAA IEEE Extended */
                 if (8 != i_len) {
-                    snprintf(s+si, slen-si, "error: NAA 2 length");
+                    snprintf(s+si, SLEN(slen, si), "error: NAA 2 length");
                     return -1;
                 }
-                si += snprintf(s+si, slen-si, "0x");
+                si += snprintf(s+si, SLEN(slen, si), "0x");
                 for (int m = 0; m < 8; ++m)
-                    si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
+                    si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
             } else if ((3 == naa ) || (5 == naa)) {
                 /* NAA=3 Locally assigned; NAA=5 IEEE Registered */
                 if (8 != i_len) {
-                    snprintf(s+si, slen-si, "error: NAA 3 or 5 length");
+                    snprintf(s+si, SLEN(slen, si), "error: NAA 3 or 5 length");
                     return -1;
                 }
-                si += snprintf(s+si, slen-si, "0x");
+                si += snprintf(s+si, SLEN(slen, si), "0x");
                 for (int m = 0; m < 8; ++m)
-                    si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
+                    si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
             } else if (6 == naa) {      /* NAA IEEE Registered extended */
                 if (16 != i_len) {
-                    snprintf(s+si, slen-si, "error: NAA 6 length");
+                    snprintf(s+si, SLEN(slen, si), "error: NAA 6 length");
                     return -1;
                 }
-                si += snprintf(s+si, slen-si, "0x");
+                si += snprintf(s+si, SLEN(slen, si), "0x");
                 for (int m = 0; m < 16; ++m)
-                    si += snprintf(s+si, slen-si, "%02x", (unsigned int)ip[m]);
+                    si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
             }
+            have_naa++;
             break;
         case 4: /* Relative target port */
         case 5: /* (primary) Target port group */
@@ -838,24 +852,29 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
             break;
         case 8: /* SCSI name string */
             if (3 != c_set) {
-                snprintf(s+si, slen-si, "error: SCSI name string");
+                snprintf(s+si, SLEN(slen, si), "error: SCSI name string");
                 return -1;
             }
-            /* does %s print out UTF-8 ok?? */
-            if (si == 0) {
-                si += snprintf(s+si, slen-si, "%s", (const char *)ip);
-                ++have_scsi_ns;
+            if (have_scsi_ns) {
+                snprintf(s+si, SLEN(slen, si), "error: Duplicate SCSI name string designator");
+                return -1;
             }
+            if (have_eui_64 || have_naa)
+                continue;
+            /* does %s print out UTF-8 ok?? */
+            si += snprintf(s+si, SLEN(slen, si), "%s", (const char *)ip);
+            ++have_scsi_ns;
             break;
         default: /* reserved */
             break;
         }
     }
     if (-2 == u) {
-        snprintf(s+si, slen-si, "error: bad structure");
+        snprintf(s+si, SLEN(slen, si), "error: bad structure");
         return -1;
     }
     return 0;
+#undef SLEN
 }
 
 /* Sends LOG SENSE command. Returns 0 if ok, 1 if device NOT READY, 2 if
@@ -1807,11 +1826,11 @@ scsiModePageOffset(const uint8_t * resp, int len, int modese_len)
             bd_len = resp[3];
             offset = bd_len + 4;
         }
-        if ((offset + 2) > len) {
+        if ((offset + 2) >= len) {
             pout("scsiModePageOffset: raw_curr too small, offset=%d "
                  "resp_len=%d bd_len=%d\n", offset, resp_len, bd_len);
             offset = -1;
-        } else if ((offset + 2) > resp_len) {
+        } else if ((offset + 2) >= resp_len) {
              if ((resp_len > 2) || scsi_debugmode)
                 pout("scsiModePageOffset: response length too short, "
                      "resp_len=%d offset=%d bd_len=%d\n", resp_len,
@@ -1949,6 +1968,8 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
     }
     int sp = !! (rout[offset] & 0x80); /* PS bit becomes 'SELECT's SP bit */
     if (enabled) {
+        if ((offset + 12) > SCSI_IECMP_RAW_LEN)
+          return -EINVAL;
         rout[offset + 2] = SCSI_IEC_MP_BYTE2_ENABLED;
         if (scsi_debugmode > 2)
             rout[offset + 2] |= SCSI_IEC_MP_BYTE2_TEST_MASK;

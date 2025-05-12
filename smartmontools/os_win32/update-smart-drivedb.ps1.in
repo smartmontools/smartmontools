@@ -3,7 +3,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2022-23 Christian Franke
+# Copyright (C) 2022-25 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -247,6 +247,7 @@ function download($url, $file, [ref]$errmsg)
   if ($script:DryRun) {
     echo "Invoke-WebRequest $(echo @req)"
   } else {
+    vecho "Invoke-WebRequest $(echo @req)"
     try {
       Invoke-WebRequest @req
     } catch {
@@ -390,7 +391,7 @@ pnILDDMBUNQMBm/XlCYQUetyrJnAVzFGXurtjEXQ/DDnbfy2Z8efoG8rtq7v3fxS
 '
     }
 
-    '^RELEASE_7_[023]_DRIVEDB$' {
+    '^RELEASE_7_[0235]_DRIVEDB$' {
 # Smartmontools Signing Key (through 2025) <smartmontools-database@listi.jpberlin.de>
 # Smartmontools Signing Key (through 2020) <smartmontools-database@listi.jpberlin.de>
 # Key ID 721042C5

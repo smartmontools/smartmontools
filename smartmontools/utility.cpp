@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-12 Bruce Allen
- * Copyright (C) 2008-24 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -103,7 +103,7 @@ std::string format_version_info(const char * prog_name, int lines /* = 2 */)
   if (lines <= 1)
     return info;
 
-  info += "Copyright (C) 2002-24, Bruce Allen, Christian Franke, www.smartmontools.org\n";
+  info += "Copyright (C) 2002-25, Bruce Allen, Christian Franke, www.smartmontools.org\n";
   if (lines == 2)
     return info;
 

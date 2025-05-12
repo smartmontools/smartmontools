@@ -173,6 +173,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   farm_format_id_string(firmwareRev, farm_byte_swap(farmLog.driveInformation.firmwareRev2), farm_byte_swap(farmLog.driveInformation.firmwareRev));
 
   char modelNumber[sizeof(farmLog.driveInformation.modelNumber) + 1];
+  modelNumber[0] = '\0';
   for (uint8_t i = 0; i < sizeof(farmLog.driveInformation.modelNumber) / sizeof(farmLog.driveInformation.modelNumber[0]); i++) {
     farm_format_id_string(&modelNumber[strlen(modelNumber)], farm_byte_swap(farmLog.driveInformation.modelNumber[i]));
   }
@@ -180,7 +181,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   const char* recordingType = farm_get_recording_type(farmLog.driveInformation.driveRecordingType);
 
   char dateOfAssembly[sizeof(farmLog.driveInformation.dateOfAssembly)];
-  farm_format_id_string(dateOfAssembly, farm_byte_swap(farmLog.driveInformation.dateOfAssembly));
+  memcpy(dateOfAssembly, &farmLog.driveInformation.dateOfAssembly, sizeof(farmLog.driveInformation.dateOfAssembly));
 
   // Print plain-text
   jout("Seagate Field Access Reliability Metrics log (FARM) (GP Log 0xa6)\n");
@@ -196,8 +197,10 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
 
   // Page 1: Drive Information
   jout("\tFARM Log Page 1: Drive Information\n");
-  jout("\t\tSerial Number: %s\n", serialNumber);
-  jout("\t\tWorld Wide Name: %s\n", worldWideName);
+  if (!dont_print_serial_number) { // TODO: Invalidate the fields in the ATA debug output
+    jout("\t\tSerial Number: %s\n", serialNumber);
+    jout("\t\tWorld Wide Name: %s\n", worldWideName);
+  }
   jout("\t\tDevice Interface: %s\n", deviceInterface);
   jout("\t\tDevice Capacity in Sectors: %" PRIu64 "\n", farmLog.driveInformation.deviceCapacity);
   jout("\t\tPhysical Sector Size: %" PRIu64 "\n", farmLog.driveInformation.psecSize);
@@ -333,7 +336,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
   farm_print_by_head_to_text("RVGA Skip Write Detect by Head", farmLog.reliability.RVGASkipWriteDetect, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("FVGA Skip Write Detect by Head", farmLog.reliability.FVGASkipWriteDetect, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Skip Write Detect Threshold Exceeded by Head", farmLog.reliability.skipWriteDetectThresExceeded, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("Write Power On (hrs) by Head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Write Power On (sec) by Head", farmLog.reliability.writeWorkloadPowerOnTime, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("MR Head Resistance from Head", (int64_t*)farmLog.reliability.mrHeadResistance, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Second MR Head Resistance by Head", farmLog.reliability.secondMRHeadResistance, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Number of Reallocated Sectors by Head", farmLog.reliability.reallocatedSectors, farmLog.driveInformation.heads);
@@ -355,8 +358,10 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
 
   // Page 1: Drive Information
   json::ref jref1 = jref["page_1_drive_information"];
-  jref1["serial_number"] = serialNumber;
-  jref1["world_wide_name"] = worldWideName;
+  if (!dont_print_serial_number) {
+    jref1["serial_number"] = serialNumber;
+    jref1["world_wide_name"] = worldWideName;
+  }
   jref1["device_interface"] = deviceInterface;
   jref1["device_capacity_in_sectors"] = farmLog.driveInformation.deviceCapacity;
   jref1["physical_sector_size"] = farmLog.driveInformation.psecSize;
@@ -552,8 +557,10 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
 
   // Parameter 1: Drive Information
   jout("\tFARM Log Parameter 1: Drive Information\n");
-  jout("\t\tSerial Number: %s\n", serialNumber);
-  jout("\t\tWorld Wide Name: %s\n", worldWideName);
+  if (!dont_print_serial_number) { // TODO: Invalidate the fields in the SCSI debug output
+    jout("\t\tSerial Number: %s\n", serialNumber);
+    jout("\t\tWorld Wide Name: %s\n", worldWideName);
+  }
   jout("\t\tFirmware Rev: %s\n", firmwareRev);
   jout("\t\tDevice Interface: %s\n", deviceInterface);
   jout("\t\tDevice Capacity in Sectors: %" PRIu64 "\n", farmLog.driveInformation.deviceCapacity);
@@ -646,7 +653,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   farm_print_by_head_to_text("MR Head Resistance", (int64_t*)farmLog.mrHeadResistance.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Number of Reallocated Sectors", (int64_t*)farmLog.totalReallocations.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Number of Reallocation Candidate Sectors", (int64_t*)farmLog.totalReallocationCanidates.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_text("Write Power On (hrs)", (int64_t*)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_text("Write Power On (sec)", (int64_t*)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Cum Lifetime Unrecoverable Read Repeating", (int64_t*)farmLog.cumulativeUnrecoverableReadRepeat.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Cum Lifetime Unrecoverable Read Unique", (int64_t*)farmLog.cumulativeUnrecoverableReadUnique.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_text("Second MR Head Resistance", (int64_t*)farmLog.secondMRHeadResistance.headValue, farmLog.driveInformation.heads);
@@ -718,8 +725,10 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
 
   // Parameter 1: Drive Information
   json::ref jref1 = jref["drive_information"];
-  jref1["serial_number"] = serialNumber;
-  jref1["world_wide_name"] = worldWideName;
+  if (!dont_print_serial_number) {
+    jref1["serial_number"] = serialNumber;
+    jref1["world_wide_name"] = worldWideName;
+  }
   jref1["firmware_rev"] = firmwareRev;
   jref1["device_interface"] = deviceInterface;
   jref1["device_capacity_in_sectors"] = farmLog.driveInformation.deviceCapacity;
@@ -815,7 +824,7 @@ void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   farm_print_by_head_to_json(jrefh, buffer, "mr_head_resistance", (int64_t*)farmLog.mrHeadResistance.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jrefh, buffer, "number_of_reallocated_sectors", (int64_t*)farmLog.totalReallocations.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jrefh, buffer, "number_of_reallocation_candidate_sectors", (int64_t*)farmLog.totalReallocationCanidates.headValue, farmLog.driveInformation.heads);
-  farm_print_by_head_to_json(jrefh, buffer, "write_power_on_(hrs)", (int64_t*)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
+  farm_print_by_head_to_json(jrefh, buffer, "write_power_on_(sec)", (int64_t*)farmLog.writeWorkloadPowerOnTime.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jrefh, buffer, "cum_lifetime_unrecoverable_read_repeating", (int64_t*)farmLog.cumulativeUnrecoverableReadRepeat.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jrefh, buffer, "cum_lifetime_unrecoverable_read_unique", (int64_t*)farmLog.cumulativeUnrecoverableReadUnique.headValue, farmLog.driveInformation.heads);
   farm_print_by_head_to_json(jrefh, buffer, "second_mr_head_resistance", (int64_t*)farmLog.secondMRHeadResistance.headValue, farmLog.driveInformation.heads);
