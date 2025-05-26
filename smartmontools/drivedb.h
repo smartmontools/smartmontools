@@ -153,14 +153,15 @@ const drive_settings builtin_knowndrives[] = {
     "-v 254,raw48,Free_Fall_Sensor,HDD"
   },
 
-  { "MSD210-M(4|8)(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GPSCB5UFI-S12(1|2)|"
+  { "Solid State Disk",
+    "MSD210-M(4|8)(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GPSCB5UFI-S12(1|2)|"
     "MST360-M8PS(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GWB5UFI-S17T2|"
     "M8(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GB5UFI-S171|"
     "SPCC Solid State Disk", // Silicon Power, tested with SPCC Solid State Disk/SBFD00.3,
       // SPCC Solid State Disk/SBFM61.2, SPCC Solid State Disk/SBFMT1.3
     "S[89ABCH]F[DMI][0-9T][0-9]\\.[0-9]",
     "",
-      //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 1,raw48,Raw_Read_Error_Rate "
     "-v 2,raw48,Not_In_Use "
     "-v 3,raw48,Not_In_Use "
     "-v 5,raw48,Retired_Block_Count "
