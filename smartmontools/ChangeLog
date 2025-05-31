@@ -1,5 +1,13 @@
 $Id$
 
+2025-05-31  Christian Franke  <franke@computer.org>
+
+	Prepare the move of smartmontools from SourceForge svn to GitHub
+
+	Create svn tag 'PRE_MOVE_TO_GIT' from svn 'trunk'.
+	Retire the git 'master' branch.
+	The git HEAD will be switched to a new independent 'main' branch.
+
 2025-04-30  Christian Franke  <franke@computer.org>
 
 	smartmontools 7.5
