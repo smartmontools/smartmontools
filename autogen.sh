@@ -1,5 +1,6 @@
 #!/bin/sh
-# $Id: autogen.sh 5632 2024-10-26 10:49:43Z chrfranke $
+#
+# autogen.sh
 #
 # Generate ./configure from configure.ac and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -14,7 +15,7 @@ while [ $# -gt 0 ]; do case $1 in
 esac; done
 
 # Check for CR/LF line endings
-if od -A n -t x1 smartctl.h | grep ' 0d' >/dev/null; then
+if od -A n -t x1 src/smartctl.h | grep ' 0d' >/dev/null; then
   echo "Warning: Checkout with CR/LF line endings, 'make dist' and related targets will not work."
 fi
 

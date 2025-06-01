@@ -45,11 +45,9 @@ $i_opt || $p_opt || $r_opt || usage
 
 srcdir=${myname%/*}
 test "$srcdir" != "$myname" || error 'unknown $srcdir'
+top_srcdir="../$srcdir"
 
-files="
-  ChangeLog NEWS Makefile.am configure.ac smart*.in
-  *.cpp *.h os_win32/*.cpp os_win32/*.h
-"
+files="Makefile.am smart*.in *.cpp *.h os_win32/*.cpp os_win32/*.h"
 (cd "$srcdir" && ls -d $files >/dev/null) || error "sources not found in $srcdir"
 
 revision_from_git()
@@ -94,14 +92,14 @@ EOF
 fi
 
 if $p_opt; then
-  p=$(sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' "$srcdir/configure.ac") || exit 1
-  test -n "$p" || error "package version not found in $srcdir/configure.ac"
+  p=$(sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' "$top_srcdir/configure.ac") || exit 1
+  test -n "$p" || error "package version not found in $top_srcdir/configure.ac"
   if $q_opt; then
-    x=$(sed -n 's|^smartmontools_release_date=\(.*\)$|\1|p' "$srcdir/configure.ac") || exit 1
+    x=$(sed -n 's|^smartmontools_release_date=\(.*\)$|\1|p' "$top_srcdir/configure.ac") || exit 1
     case $x in
       20*) ;;
       \ \#*) p="pre-$p" ;;
-      *) error "unable to detect pre-release state in $srcdir/configure.ac"
+      *) error "unable to detect pre-release state in $top_srcdir/configure.ac"
     esac
   fi
   echo "$p"

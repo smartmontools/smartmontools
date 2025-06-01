@@ -1,5 +1,5 @@
 #
-# $Id: configure.ac 5715 2025-04-30 08:54:03Z chrfranke $
+# configure.ac
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
@@ -22,12 +22,11 @@ else
   AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
-smartmontools_cvs_tag=`echo '$Id: configure.ac 5715 2025-04-30 08:54:03Z chrfranke $'`
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
-AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",         [smartmontools CVS Tag])
+AC_DEFINE_UNQUOTED(CONFIG_H_CVSID, "", [(TODO: remove this define)])
 
-AC_CONFIG_SRCDIR([smartctl.cpp])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_SRCDIR([src/smartctl.cpp])
+AC_CONFIG_HEADERS([src/config.h])
 
 AM_MAINTAINER_MODE
 
@@ -701,7 +700,7 @@ AC_MSG_RESULT([$os_posix])
 # Check if we need adapter to old interface (dev_legacy.cpp)
 os_src=`echo "${os_deps}"|sed -n 's,^\([[^ .]]*\)\.o.*$,\1.cpp,p'`
 AC_MSG_CHECKING([whether ${os_src} uses new interface])
-if grep "smart_interface" "${srcdir}/${os_src}" >/dev/null 2>&1; then
+if grep "smart_interface" "${srcdir}/src/${os_src}" >/dev/null 2>&1; then
   os_new_interface=yes
 else
   os_new_interface=no
@@ -846,7 +845,10 @@ AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                     
 
 AC_SUBST(CXXFLAGS)
 
-AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES(
+  Makefile
+  src/Makefile
+)
 AC_OUTPUT
 AC_PROG_MAKE_SET
 
