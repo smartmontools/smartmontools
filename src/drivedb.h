@@ -6935,6 +6935,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Blueendless
+  { "USB: ; Blueendless",
+    "0x0204:0x3639", // U23QC
+    "",
+    "",
+    "-d sat"
+  },
 /*
 }; // builtin_knowndrives[]
  */
