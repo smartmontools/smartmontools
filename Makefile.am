@@ -3,6 +3,10 @@
 # Makefile.am
 #
 
+docsdir=$(docdir)
+docs_DATA = \
+        README.md
+
 docolddir = $(docdir)/old
 docold_DATA = \
         doc/old/ChangeLog-7.0-7.5.txt

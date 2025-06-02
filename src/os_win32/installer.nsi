@@ -211,7 +211,8 @@ Section "!Documentation" DOC_SECTION
   File "${INPDIR}\doc\COPYING.txt"
   File "${INPDIR}\doc\INSTALL.txt"
   File "${INPDIR}\doc\NEWS.txt"
-  File "${INPDIR}\doc\README.txt"
+  File "${INPDIR}\doc\README.md"
+  Delete "$INSTDIR\doc\README.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\TODO.txt" ; TODO: Remove after smartmontools 8.1
 !ifdef INPDIR64
   ${If} $X64 != ""
@@ -494,7 +495,7 @@ Section "Uninstall"
   Delete "$INSTDIR\doc\COPYING.txt"
   Delete "$INSTDIR\doc\INSTALL.txt"
   Delete "$INSTDIR\doc\NEWS.txt"
-  Delete "$INSTDIR\doc\README.txt"
+  Delete "$INSTDIR\doc\README.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\TODO.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\checksums*.txt"
   Delete "$INSTDIR\doc\smartctl.8.html"
